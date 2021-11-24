@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfArtifact xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+  <!-- Modders et al note that if you want to change the name or description of an artifact, or add an artifact, you need to modify the 
+  localization file and reference the NameIndex and DescriptionIndexes here. The Name and Description Fields are just for show here-->
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Birth Crystal</Name>
+    <Description>This mysterious crystalline shard emits an enigmatic radiation that induces good health and long life.</Description>
+    <NameIndex>800</NameIndex>
+    <DescriptionIndex>801</DescriptionIndex>
+    <ReproductionMod>0.5</ReproductionMod>
+    <ShieldPenBonus>0</ShieldPenBonus>
+    <FertilityMod>0</FertilityMod>
+    <ProductionMod>0</ProductionMod>
+    <GroundCombatMod>0</GroundCombatMod>
+    <ResearchMod>0</ResearchMod>
+    <PlusFlatMoney>0</PlusFlatMoney>
+    <DiplomacyMod>0</DiplomacyMod>
+    <SensorMod>0</SensorMod>
+    <ModuleHPMod>0</ModuleHPMod>
+  </Artifact>
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Polaron Codex</Name>
+    <Description>This is an extremely advanced quantum targeting computer that specifically is tuned to analyze and bypass shifting energy shield frequencies.</Description>
+    <NameIndex>802</NameIndex>
+    <DescriptionIndex>803</DescriptionIndex>
+    <ReproductionMod>0</ReproductionMod>
+    <ShieldPenBonus>0.1</ShieldPenBonus>
+    <FertilityMod>0</FertilityMod>
+    <ProductionMod>0</ProductionMod>
+    <GroundCombatMod>0</GroundCombatMod>
+    <ResearchMod>0</ResearchMod>
+    <PlusFlatMoney>0</PlusFlatMoney>
+    <DiplomacyMod>0</DiplomacyMod>
+    <SensorMod>0</SensorMod>
+    <ModuleHPMod>0</ModuleHPMod>
+  </Artifact>
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Lemba Seeds</Name>
+    <Description>This is a collection of seeds that have clearly undergone extensive and advanced genetic manipulation. In fact, these seeds don't even seem to be programmed with DNA at all, but instead with some sort of alternative gene sequencing that is beyond anything we have ever seen. Any world that we seed with these will be slightly terraformed forever.</Description>
+    <NameIndex>804</NameIndex>
+    <DescriptionIndex>805</DescriptionIndex>
+    <ReproductionMod>0</ReproductionMod>
+    <ShieldPenBonus>0</ShieldPenBonus>
+    <FertilityMod>0.1</FertilityMod>
+    <ProductionMod>0</ProductionMod>
+    <GroundCombatMod>0</GroundCombatMod>
+    <ResearchMod>0</ResearchMod>
+    <PlusFlatMoney>0</PlusFlatMoney>
+    <DiplomacyMod>0</DiplomacyMod>
+    <SensorMod>0</SensorMod>
+    <ModuleHPMod>0</ModuleHPMod>
+  </Artifact>
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Nano-Collective Controller</Name>
+    <Description>This is control device linked to a semi-sentient swarm of subspace-dwelling nanocreatures. Whoever possesses the control device controls the swarm, </Description>
+    <NameIndex>806</NameIndex>
+    <DescriptionIndex>807</DescriptionIndex>
+    <ReproductionMod>0</ReproductionMod>
+    <ShieldPenBonus>0</ShieldPenBonus>
+    <FertilityMod>0</FertilityMod>
+    <ProductionMod>0.1</ProductionMod>
+    <GroundCombatMod>0</GroundCombatMod>
+    <ResearchMod>0</ResearchMod>
+    <PlusFlatMoney>0</PlusFlatMoney>
+    <DiplomacyMod>0</DiplomacyMod>
+    <SensorMod>0</SensorMod>
+    <ModuleHPMod>0</ModuleHPMod>
+  </Artifact>
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Rage Crystal</Name>
+    <Description>This shard of crystal emits a form of radiation that causes incredible muscular growth. Any ground troops exposed to it become stronger. </Description>
+    <NameIndex>808</NameIndex>
+    <DescriptionIndex>809</DescriptionIndex>
+    <ReproductionMod>0</ReproductionMod>
+    <ShieldPenBonus>0</ShieldPenBonus>
+    <FertilityMod>0</FertilityMod>
+    <ProductionMod>0</ProductionMod>
+    <GroundCombatMod>0.1</GroundCombatMod>
+    <ResearchMod>0</ResearchMod>
+    <PlusFlatMoney>0</PlusFlatMoney>
+    <DiplomacyMod>0</DiplomacyMod>
+    <SensorMod>0</SensorMod>
+    <ModuleHPMod>0</ModuleHPMod>
+  </Artifact>
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Ascension Crystal</Name>
+    <Description>This particular shard of crystal entrances all who gaze upon it with a flood of pure, true knowledge. The experience is so intense, however, that our mortal minds can only understand a tiny fraction of what is shown to us.</Description>
+    <NameIndex>810</NameIndex>
+    <DescriptionIndex>811</DescriptionIndex>
+    <ReproductionMod>0</ReproductionMod>
+    <ShieldPenBonus>0</ShieldPenBonus>
+    <FertilityMod>0</FertilityMod>
+    <ProductionMod>0</ProductionMod>
+    <GroundCombatMod>0</GroundCombatMod>
+    <ResearchMod>0.1</ResearchMod>
+    <PlusFlatMoney>0</PlusFlatMoney>
+    <DiplomacyMod>0</DiplomacyMod>
+    <SensorMod>0</SensorMod>
+    <ModuleHPMod>0</ModuleHPMod>
+  </Artifact>
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Ecstasy Crystal</Name>
+    <Description>This shard of crystal induces in its viewer an intense feeling of emotional and physical joy. The profits that could be made off of controlling access to this crystal are enourmous.</Description>
+    <NameIndex>812</NameIndex>
+    <DescriptionIndex>813</DescriptionIndex>
+    <ReproductionMod>0</ReproductionMod>
+    <ShieldPenBonus>0</ShieldPenBonus>
+    <FertilityMod>0</FertilityMod>
+    <ProductionMod>0</ProductionMod>
+    <GroundCombatMod>0</GroundCombatMod>
+    <ResearchMod>0</ResearchMod>
+    <PlusFlatMoney>10</PlusFlatMoney>
+    <DiplomacyMod>0</DiplomacyMod>
+    <SensorMod>0</SensorMod>
+    <ModuleHPMod>0</ModuleHPMod>
+  </Artifact>
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Latinum Sceptre</Name>
+    <Description>This scepter is crowned with a brilliant crystal that induces a feeling of trust and well-being in all who view it.</Description>
+    <NameIndex>814</NameIndex>
+    <DescriptionIndex>815</DescriptionIndex>
+    <ReproductionMod>0</ReproductionMod>
+    <ShieldPenBonus>0</ShieldPenBonus>
+    <FertilityMod>0</FertilityMod>
+    <ProductionMod>0</ProductionMod>
+    <GroundCombatMod>0</GroundCombatMod>
+    <ResearchMod>0</ResearchMod>
+    <PlusFlatMoney>0</PlusFlatMoney>
+    <DiplomacyMod>0.1</DiplomacyMod>
+    <SensorMod>0</SensorMod>
+    <ModuleHPMod>0</ModuleHPMod>
+  </Artifact>
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Palanquin Crystal</Name>
+    <Description>This crystal appears perfectly spherical upon first glance. However, upon closer inspection it is revealed to be infinitely-faceted at all levels of magnification. But even more astonishing is that these facets reflect images of distant places -- possibly of all places everywhere. We can only begin to utilize this device for practical purposes.</Description>
+    <NameIndex>816</NameIndex>
+    <DescriptionIndex>817</DescriptionIndex>
+    <ReproductionMod>0</ReproductionMod>
+    <ShieldPenBonus>0</ShieldPenBonus>
+    <FertilityMod>0</FertilityMod>
+    <ProductionMod>0</ProductionMod>
+    <GroundCombatMod>0</GroundCombatMod>
+    <ResearchMod>0</ResearchMod>
+    <PlusFlatMoney>0</PlusFlatMoney>
+    <DiplomacyMod>0</DiplomacyMod>
+    <SensorMod>0.25</SensorMod>
+    <ModuleHPMod>0</ModuleHPMod>
+  </Artifact>
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Quantanium Lathe</Name>
+    <Description>This incredible machine is clearly meant to process sheets of armor by manipulating it on some quantum scale. While the technology of this machine is far beyond our understanding, we are able to use it to strengthen our own armor.</Description>
+    <NameIndex>818</NameIndex>
+    <DescriptionIndex>819</DescriptionIndex>
+    <ReproductionMod>0</ReproductionMod>
+    <ShieldPenBonus>0</ShieldPenBonus>
+    <FertilityMod>0</FertilityMod>
+    <ProductionMod>0</ProductionMod>
+    <GroundCombatMod>0</GroundCombatMod>
+    <ResearchMod>0</ResearchMod>
+    <PlusFlatMoney>0</PlusFlatMoney>
+    <DiplomacyMod>0</DiplomacyMod>
+    <SensorMod>0</SensorMod>
+    <ModuleHPMod>0.1</ModuleHPMod>
+  </Artifact>
+  <Artifact>
+    <Discovered>false</Discovered>
+    <Name>Spice of the Sleeper</Name>
+    <Description>Just a taste of this very valuable spice will awaken the sleeping mind. The effect, however, is short-lived.</Description>
+    <NameIndex>820</NameIndex>
+    <DescriptionIndex>821</DescriptionIndex>
+    <ReproductionMod>0</ReproductionMod>
+    <ShieldPenBonus>0</ShieldPenBonus>
+    <FertilityMod>0</FertilityMod>
+    <ProductionMod>0</ProductionMod>
+    <GroundCombatMod>0.1</GroundCombatMod>
+    <ResearchMod>0.1</ResearchMod>
+    <PlusFlatMoney>0</PlusFlatMoney>
+    <DiplomacyMod>0</DiplomacyMod>
+    <SensorMod>0</SensorMod>
+    <ModuleHPMod>0</ModuleHPMod>
+  </Artifact>
+</ArrayOfArtifact>

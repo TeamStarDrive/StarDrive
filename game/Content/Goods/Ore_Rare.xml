@@ -1,0 +1,8 @@
+﻿<Good>
+  <Name>Rare Unrefined Ore</Name>
+  <Cost>4</Cost>
+  <Description>A rarer silicate ore that requires refinement to be useful</Description>
+  <IconTexturePath>Textures/Goods/ore_rare</IconTexturePath>
+  <Mass>1</Mass>
+  <UID>Ore_Rare</UID>
+</Good>

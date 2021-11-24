@@ -1,0 +1,7 @@
+﻿<Good>
+  <Name>Food</Name>
+  <Cost>4</Cost>
+  <Description>This food is stored in a manner that makes it essentially non-perishable. It may not be the most palatable, but it will provide all of the basic nutrition needed to survive. </Description>
+  <Mass>1</Mass>
+  <UID>Food</UID>
+</Good>

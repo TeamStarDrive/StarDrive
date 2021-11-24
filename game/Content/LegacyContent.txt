@@ -49,3 +49,6 @@ Content/Utility
 
 # folders that are not being used:
 Content/PlanetEdicts
+
+# Completely replaced content:
+Content/3DParticles

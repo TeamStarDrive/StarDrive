@@ -61,3 +61,4 @@
 *.png filter=lfs diff=lfs merge=lfs -text
 *.xnb filter=lfs diff=lfs merge=lfs -text
 *.fbx filter=lfs diff=lfs merge=lfs -text
+*.xwb filter=lfs diff=lfs merge=lfs -text

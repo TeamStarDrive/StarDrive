@@ -1,0 +1,22 @@
+﻿<SolarSystemData>
+  <Name>Alpha Centauri</Name>
+  <RingList>
+    <Ring>
+      <Planet>Polyphemus</Planet>
+      <SpecialDescription>Polyphemus is named for the Cyclops of the same name in Greek Mythology.  It means "famous everywhere", although there is nothing particularly special about this cold gas giant.  </SpecialDescription>
+      <WhichPlanet>15</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Pandora</Planet>
+      <SpecialDescription>Pandora was once a lush jungle paradise, filled with marvels that greatly expanded Humanity's understanding of extra-Solar life.  This planet is extraordinary in that it has extensive deposits of exotic and valuable ores.  There are also unmistakable impact craters that indicate this planet was devastated from orbit by an unknown assailant at some point in its distance past. </SpecialDescription>
+      <WhichPlanet>11</WhichPlanet>
+      <Population>50</Population>
+      <Station>Yes</Station>
+      <ResourceList>
+        <Resource>
+          <Name>Crystals</Name>
+        </Resource>
+      </ResourceList>
+    </Ring>
+  </RingList>
+</SolarSystemData>

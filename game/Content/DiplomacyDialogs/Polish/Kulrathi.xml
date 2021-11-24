@@ -1,0 +1,614 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>Śniłem o porannych / ciepłych wiatrach poruszających źdźbłami traw / wokół naszych upadłych wrogów
+My, potężni Kulrathi, witamy was i mamy nadzieję, że z czasem odnajdziemy przyjaźń na polu bitwy.  </Friendly>
+      <Neutral>W wiosennym deszczu / staw i rzeka stają się jednym / wypełnione krwią naszych wrogów
+Słuchajcie uważnie naszych wojowników-poetów, PLURAL, i nie złośćcie potężnych Kulrathi.</Neutral>
+      <Hostile>Nie jesteście godni poezji. Trzymajcie się z dala od naszych systemów, zwierzęta.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Witamy was, szlachetni przyjaciele. Czego wam trzeba?</Friendly>
+      <Neutral>Witajcie, PLURAL. Cóż za zbieg okoliczności. Właśnie medytowałem nad przyszłością naszych ludów. Czego potrzebujecie?</Neutral>
+      <Hostile>Przybyli tchórzliwi PLURAL przemówić do lepszych od siebie. Mówcie szybko, bo brak nam cierpliwości do głupców.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Przyjaciele, osiedliliście się w systemie TARSYS, który wcześniej zajęliśmy. Z radością będziemy dzielili z wami tereny łowieckie, jednak prosimy, byście w przyszłości respektowali nasze granice.</Friendly>
+      <Neutral>Widzimy, że konkurujemy o system TARSYS. Nie naciskajcie na nas, wojownicy. Będziemy bronić swoich praw. </Neutral>
+      <Hostile>Tchórzliwe ofiary! Ośmielacie się osiedlać w systemie TARSYS? Natychmiast się wycofajcie!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Szlachetni wojownicy, czy to z powodu awarii waszych systemów uzbrojenia zniszczeniu uległ jeden z naszych statków? Upewnijcie się, aby się to już więcej nie powtórzyło. </Friendly>
+      <Neutral>Wasza niczym nie sprowokowana agresja to dla nas jasny sygnał, PLURAL. Nie szukamy z wami zwady, ale z radością podejmiemy rzuconą rękawicę. </Neutral>
+      <Hostile>Bezczelne szczeniaki! Jak śmiecie atakować pojazd Szogunatu Kulrathi?!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>Wojownicy! Widok waszych okrętów wojennych w naszej przestrzeni to dla nas dowód waszej odwagi. Jednakże ilość tych statków oraz ich przedłużająca się obecność niepokoją nas. Musicie je wycofać. </Friendly>
+      <Neutral>PLURAL, wasze statki nie są mile widziane w przestrzeni Kulrathi! Wystawiacie na próbę cierpliwość naszych wojowników. Dla waszego bezpieczeństwa powinniście się natychmiast wycofać. </Neutral>
+      <Hostile>PLURAL, jesteście odważni albo głupi, skoro umieściliście okręty wojenne w przestrzeni Kulrathi. Wkrótce sprawdzimy, kto jest silniejszy!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>Najechaliście naszą przestrzeń swoimi statkami, a następnie skolonizowaliście system TARSYS, wiedząc, że należy do nas. Czy nasza przyjaźń nic dla was nie znaczy? </Friendly>
+      <Neutral>PLURAL, tylko dzięki ogromnej cierpliwości powstrzymywaliśmy swój gniew, gdy wciąż lekceważyliście nasze granice. Kolonizacja systemu TARSYS sprawiła, że znajdujemy się na krawędzi wojny. </Neutral>
+      <Hostile>Rrrraaaa!!! Wasza flota nieustannie narusza terytorium Szogunatu. Ukradliście nam też system TARSYS -- Kulrathi nie są głupcami! Zwróćcie skradzione planety i opuśćcie naszą przestrzeń albo wybuchnie wojna!   </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>PLURAL, czyż nie jesteśmy przyjaciółmi? Czy przyjaciele podważaliby nasze prawa do systemu TARSYS oraz wypełniliby naszą przestrzeń okrętami wojennymi? </Friendly>
+      <Neutral>PLURAL, tylko dzięki ogromnej cierpliwości powstrzymywaliśmy swój gniew, gdy wciąż lekceważyliście nasze granice. Kolejny raz wystawiliście naszą cierpliwość na próbę, kolonizując system TARSYS. Teraz wypełniliście naszą przestrzeń statkami wojennymi. To sprawiło, że znajdujemy się na krawędzi wojny. </Neutral>
+      <Hostile>Rrrraaaa!!! Wasza flota znajduje się w naszej przestrzeni, ukradliście nam też system TARSYS -- Kulrathi nie są głupcami! Zwróćcie skradzione planety i opuśćcie naszą przestrzeń albo wybuchnie wojna!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>Bębny biją jak fale oceanu, nieustępliwe i niepowstrzymane -- Kulrathi idą na wojnę! Obraźliwe wtargnięcia do naszych systemów skończą się wraz z waszą destrukcją!</misc1>
+      <misc2>Ośmieliliście się zaatakować Szogunat Kulrathi, a teraz nauczycie się, czym jest pokora!</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Są jeszcze... inni? Musimy nad tym pomedytować. Jeszcze ich nie spotkaliśmy i zastanawiamy się - będą przyjaciółmi czy wrogami? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>Stal, kły, futro i krew - to wszystko, co musicie wiedzieć o Kulrathi! Nikt nie przeciwstawi się naszej potędze! </DL_Agg>
+      <DL_Hon>Honor i krew. Przyjaciele i krewni. To są wartości naszego ludu. </DL_Hon>
+      <DL_Pac></DL_Pac>
+      <DL_Ruth></DL_Ruth>
+      <DL_Cunn>Wierzymy w tylko jedno prawo - prawo natury. Siła i szybkość pozwalają wygrać bitwę, ale żeby wygrać wojnę potrzeba sprytu. </DL_Cunn>
+      <DL_Xeno>Dlaczego mielibyśmy dzielić się z wami naszymi myślami i wartościami, skoro jesteście dla nas tak obcy? Wiecie tyle, ile powinniście - że jesteśmy silni. </DL_Xeno>
+      <DL_Exp>Naszym przeznaczeniem jest zdobycie gwiazd i biada każdemu, kto stanie nam na drodze. </DL_Exp>
+      <DL_Tech>Wierzymy, że jedno dobrze wykute ostrze jest warte więcej niż sto zardzewiałych mieczy. Wiedza to najlepsza broń i to właśnie broń, na równi z wojownikami, pozwala wygrywać wojny.</DL_Tech>
+      <DL_Mil>Flota, aby zdobyć gwiazdy, aby budzić strach w sercach naszych wrogów... aby zmiażdżyć wrogów! To jest cel naszego życia.</DL_Mil>
+      <DL_Ind>Wielu spośród nas za cel swojego życia obrało zdobycie chwały na polu bitwy. Jednak wszystkim Kulrathi bliskie sercu są przemysł i satysfakcja z osiągnięcia ideału, niezależnie od tego, czy chodzi o ścięcie głowy, czy o dzieło sztuki. Dla nas to jedno i to samo.</DL_Ind>
+      <DL_Gen>We wszystkim powinno się zachowywać równowagę. Przetrwają ci, którzy się przystosują.  </DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>W jaki sposób trzymacie swoje miecze, skoro nie macie kciuków?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Hmmm, co? Czym są kciuki? Niektórzy Kulrathi trzymają po jednym mieczu w każdej łapie i dodatkowy w zębach. Módlcie się, żeby nigdy nie natrafić na polu bitwy na wściekłego Kulrathi.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Na zaufanie trzeba zasłużyć, PLURAL. Być może z czasem będziemy mogli zawrzeć taką umowę, ale nie teraz.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>PLURAL, choć jesteście dla nas nieznajomymi, to zaszczyciliście nas hojną ofertą. Akceptujemy ją.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Myślicie, że jesteśmy jakimiś naiwnymi młokosami? Nie ufaliśmy wam już zanim złożyliście nam tę niedorzeczną ofertę, a teraz ufamy jeszcze mniej.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Dajecie nam łamliwe żelazo za stal Kulrathi. Nie, PLURAL, nie akceptujemy tej oferty.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Ołów za złoto, żelazo za stal, brud za bogactwa - czy to nam oferujecie?! (Niezrozumiałe - prawdopodobnie przekleństwa). </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Dostrzegamy mądrość w waszej propozycji. Zgadzamy się.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Tak, ta propozycja jest bardzo korzystna dla Kulrathi. Zgadzamy się.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Zaszczycacie nas, składając tak hojną ofertę. Przyjmujemy ją.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Zaszczycacie nas swoim darem. Dziękujemy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Tak, pomoc przyjaciołom w potrzebie to szlachetny czyn.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Najbardziej hańbiąca groźba od najbardziej niegodnego wroga. Nie, PLURAL, nie ugniemy się przed waszymi groźbami. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Ta oferta jest uczciwa, PLURAL, ale nie podoba nam się wasz ton. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Upokorzyliście nas, PLURAL. Bierzcie swój łup i zejdźcie nam z oczu. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Niegodziwe szczeniaki! Głupcy! Zbudziliście śpiącego olbrzyma. Uciekajcie, jeśli dacie radę! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Wojna! Tak! Rozwiążmy ten konflikt szlachetną walką! Idziemy po was, głupi PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Tak szybko zmęczył was widok własnej krwi? Sądziliśmy, że jesteście silniejsi. Czego chcecie, wrogowie?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Kulrathi nie będą bezczynnie przyglądać się, jak niszczycie nasze statki. Od teraz jesteśmy w stanie otwartej wrogości.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense BrokenNA</DialogType>
+      <Default>Łamacze przysiąg! Pogwałciliście nasz pakt o nieagresji i zhańbiliście się! Jeśli to agresji pragnęliście, to ją właśnie dostaniecie! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Być może nie wzięliście naszych słów poważnie, kiedy żądaliśmy, abyście opuścili nasze terytorium. To był wasz błąd, ponieważ teraz wyruszamy na wojnę!  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>Rościmy sobie prawo do systemu TARSYS. Mówiliśmy wam o tym, ale nie usłuchaliście. Nadszedł czas, aby to krew rozstrzygnęła ten konflikt. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Ta galaktyka jest pełna niebezpieczeństw, PLURAL, a my widzimy waszą siłę. Podpiszcie z nami obopólny pakt o nieagresji i bądźmy sobie przyjaciółmi. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Cieszy nas wasza odpowiedź, PLURAL. Ostrzegamy jednak: bardzo poważnie traktujemy swoje zobowiązania i od was też tego oczekujemy. Honor i krew!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>W takim razie jesteście potencjalnym wrogiem? Wasza szczerość jest szlachetna. Mimo to nie doszło jeszcze między nami do wymiany ciosów i być może nigdy do tego nie dojdzie. Czas pokaże. Nasze miecze pozostaną ostre. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Witamy was ciepło, PLURAL. Medytowaliśmy nad przyszłością naszych ludów i myślimy, że mądrze byłoby pozwolić na handel między naszymi imperiami. Zgadzacie się na to? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Wasza mądrość jest oczywista. Stal Kulrathi jest najlepsza w galaktyce. Z niecierpliwością czekamy, aby sprawdzić, co wy potraficie wyprodukować!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Będzie jak chcecie, PLURAL. Musicie jednak wiedzieć, że złożyliśmy wam tę propozycję tylko dlatego, że jesteśmy przyjaciółmi. Być może z czasem zaufacie nam na tyle, aby zmienić zdanie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Co się zmieniło, że oferujecie nam pakt o nieagresji, choć wcześniej odrzuciliście naszą propozycję jego podpisania? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Musimy przyznać, że czasem stanowicie dla nas zagadkę, PLURAL. Chcieliśmy z wami handlować, ale odrzuciliście wtedy naszą propozycję, pamiętacie?  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Wasze zwyczaje są dla nas obce, PLURAL. Wasz wygląd nas dezorientuje. Wiemy, że potrzebujemy przyjaciół w tej galaktyce, ale nasz lud jest nieufny. Być może przekonacie nas, jeśli dacie nam TECH_DEMAND jako oznakę dobrej woli. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Wasze czyny świadczą o waszym honorze. Dziękujemy. Zapamiętamy to. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Spodziewaliśmy się tego. Na przyjaźń i zaufanie trzeba zasłużyć, PLURAL. Do widzenia. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Biedni PLURAL! Czy macie pojęcie, jak niebezpieczna jest ta galaktyka? Wasze wojsko jest żałośnie nieprzygotowane do walki. Wkrótce się o tym przekonacie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Witajcie, PLURAL. Chcielibyśmy wam pogratulować wspaniałego wojska. Szanujemy waszą siłę i mamy nadzieję, że pozostaniemy przyjaciółmi. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Cieszy nas, że wysłuchaliście naszych wcześniejszych ostrzeżeń. Wasza flota wygląda teraz na silną i gotową do walki! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>PLURAL, wasze wojsko jest po prostu zbyt słabe, aby stawić nam czoła. Chcemy waszych światów. Przygotujcie się, bo nadchodzi godzina waszej śmierci.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Ach, tak - ludzie. Mamy z nimi dość przyjazne kontakty, choć ciągle nazywają nas "kosmiczne niedźwiedzie". Może wy wiecie, czym są kosmiczne niedźwiedzie? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Nie spędziliśmy zbyt wiele czasu wśród ludzi. Być może kiedyś zostaniemy przyjaciółmi - lub wrogami. A może zawsze będziemy trzymać się od siebie z daleka. Czas pokaże. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Prawdę mówiąc, nigdy jeszcze nie napotkaliśmy bardziej chciwych i agresywnych zwierząt niż Ludzie. Są bardzo niebezpieczni! Ostrzegamy was. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Ach, tak - Pollopy. To życzliwa i delikatna rasa kochająca pieśni i poezję. Bardzo ich lubimy. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Niestety nie znamy ich zbyt dobrze. Sprawiają wrażenie życzliwych i delikatnych stworzeń.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Kulrathi mają słowo określające Pollopy: sałatka. Nie lubimy sałatek. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Vulfenowie! Mają ducha! Energię! Rozumiemy ich żądzę walki. Szkoda, że są tacy głupi. Mimo to lubimy ich! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Choć nie znamy zbyt dobrze Vulfenów, to opowieści o ich niedostatkach intelektualnych są znane wśród Kulrathi.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Te dzikie kundle? Znamy ich dobrze. Są przepyszni. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Cordrazine cenią piękno, za co ich szanujemy i uważamy za przyjaciół, mimo że brakuje im czasem ogłady towarzyskiej. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Widzieliśmy ich tylko z daleka i niewiele wiemy o nich i ich zwyczajach. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Te... małżowe stworzenia... bardzo nas irytują. Mają niewolników i mówią tylko o sobie. Nie lubimy ich. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Ich przekonania są silne, a ich filozofia płynie wprost z głębi dusz. Akceptujemy ich. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>Nie mamy nic do powiedzenia o tych, których nie znamy dobrze.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>Spotkaliśmy handlarzy śmierci. Jest dla nas oczywiste, że w tej galaktyce nie ma miejsca dla obu naszych ras.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Jesteście głupcami, PLURAL. Gdy wy myśleliście, że jesteście bezpieczni, nosząc papierową zbroję, my rośliśmy w siłę. Zrywamy pakt o nieagresji i zamierzamy odebrać wam wasze planety!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Chwila, kiedy miecz opada, przecinając szyję. Czy wypełnia ją cierpienie? Czy czujesz, jak twoja głowa toczy się po podłodze? Gdybyście tylko mogli przemówić, poznalibyśmy prawdę. Niestety nie możecie, bo zostaliście pokonani przez potężnych Kulrathi.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>My, Kulrathi, znamy dobrze drogę konfliktu, ale tak naprawdę szukamy pokoju dla nas samych i dla naszych przyjaciół. Obawiamy się, że nasze graniczne utarczki są niemądre, więc aby im zapobiec, proponujemy podpisanie paktu o otwartych granicach.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Możemy opuścić łapy z rękojeści naszych mieczy i odetchnąć z ulgą. To zaszczyt mieć takich przyjaciół. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Więc zaciśnijcie chwyt i przygotujcie się do wyciągnięcia stali, PLURAL. Rośnie w nas gniew.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Hańbiące podstępne ataki! Łamacze przysiąg! Szykujcie się na śmierć! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Hańbiącymi podstępnymi atakami nie wygra się wojen, PLURAL. Robi się to siłą! Szykujcie się!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Ich mechaniczna logika zapewnia pewną dozę honoru. Lubimy ich.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>Nie znamy ich wystarczająco dobrze, aby mieć o nich wyrobione zdanie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Opteris to niebezpieczni wrogowie. Wróg, który nie odczuwa strachu, jest po dwakroć bardziej niebezpieczny.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Witajcie, PLURAL. Zauważyliśmy waszych zwiadowców w systemie TARSYS. Powinniście wiedzieć, że Kulrathi zajęli ten system i rozsądnie będzie z waszej strony, jeśli porzucicie wszelkie plany jego kolonizacji. </Friendly>
+      <Neutral>PLURAL. Zauważyliśmy waszych zwiadowców w systemie TARSYS. Powinniście wiedzieć, że Kulrathi zajęli ten system i rozsądnie będzie z waszej strony, jeśli porzucicie wszelkie plany jego kolonizacji.</Neutral>
+      <Hostile>Niegodziwcy. Zauważyliśmy waszych zwiadowców w systemie TARSYS. Powinniście wiedzieć, że Kulrathi zajęli ten system i jeśli nie chcecie, aby nadeszła godzina waszej śmierci, to powinniście trzymać się od niego z daleka.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Zuchwałość, z jaką ignorujecie nasze prawa, jest godna podziwu. Ale czy wasza siła jest równie wielka?  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Któż wie, czy kwiat będzie pachniał słodko, kiedy jest zaledwie nasionem leżącym na ziemi? Nie mamy z wami żadnych problemów, PLURAL. Przynajmniej na razie - i być może nigdy nie będziemy ich z wami mieć. Czas pokaże. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Nasza więź rośnie w siłę, PLURAL. Jesteśmy zadowoleni, że jesteśmy przyjaciółmi.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Cóż, PLURAL, pytacie, więc wam odpowiemy. Tak, mamy zatargi z waszym ludem. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Najpoważniejszy polega na tym, że zajmujecie nasze terytorium, a my jesteśmy bardzo wyczuleni na tym punkcie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>Po pierwsze, musicie zrozumieć, że my, Kulrathi, jesteśmy bardzo terytorialni. Nasze współzawodnictwo o systemy to dla nas problem. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Po drugie, wasze wojsko jest potężne i nasi ludzie uważają, że nadchodzi bitwa.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Po drugie, my, Kulrathi szanujemy siłę militarną, a wy, niestety, pod tym względem jesteście od nas gorsi. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Jeśli chcecie, żeby Kulrathi was szanowali, musicie być silni! Nie jesteście silni, PLURAL. Jeszcze nie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Szanujemy siłę i dlatego nie podoba się nam wielkość waszej floty w porównaniu do naszej. Wciąż jesteśmy przyjaciółmi? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Jesteście sojusznikiem TAREMP, a oni są wielkimi niegodziwcami. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Do tego jesteście sojusznikami TAREMP, a oni są wielkimi niegodziwcami. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Nic dobrego i nic złego. Tak w tej chwili was widzimy, PLURAL. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Opuściła was odwaga, PLURAL? Jaki inny powód mielibyście, aby do nas przychodzić w ostatniej godzinie swojego życia? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Jesteście... jesteście potężnymi wojownikami, PLURAL. Szanujemy was. Jednak nie oczekujcie, że się poddamy. Czego od nas chcecie? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>PLURAL! Pragniemy stoczyć z wami u boku chwalebną bitwę! Przyłączcie się do nas! Pokonajmy razem TAREMP!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Rraaaa! Do boju! Bijcie w bębny i ostrzcie swoje miecze, PLURAL! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Rozumiemy waszą niechęć, PLURAL. Będzie jak chcecie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Draylokowie są szlachetnym ludem oraz przyjaciółmi Kulrathi. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Nie znamy ich dobrze. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>Te niegodziwe stwory czają się w ciemnościach i walczą jak tchórze. </Default>
+    </DialogLine>
+
+    <!-- Second Run Localization Efforts -->
+
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>Szał bitewny opadł i myślimy teraz jaśniej. Ta wojna nie leży w interesie żadnego z naszych imperiów. Zawrzyjmy pokój, PLURAL, dla dobra nas wszystkich.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Wasza flota padła przed naszą siłą. Nie ryzykujcie kolejnych niepotrzebnych ofiar. Zawrzemy z wami pokój, jeśli tego chcecie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Jesteście godnymi przeciwnikami, PLURAL. Jeśli ta wojna będzie trwała, z pewnością któreś z nas upadnie. Zakończmy to teraz i ocalmy naszą przyszłość, podpisując traktat pokojowy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Wasza siła jest bezsprzeczna. Korzymy się przed wami. Prosimy, podpiszcie z nami traktat pokojowy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Walczyliście dobrze i przegraliście. Nie ma w tym hańby. Podpiszcie traktat pokojowy i zakończmy ten graniczny konflikt.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Z werwą bronicie swoich praw do spornych terytoriów! Ustąpimy wam w tym względzie, jeśli zgodzicie się na pokój.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Wasza wola walki jest inspirująca, PLURAL. Będzie jak chcecie! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Wasza mądrość jest wielka. Nasze miecze wracają do pochew.</Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Mądrze jest przyjąć mądrą propozycję. Zgadzamy się złożyć broń i zawrzeć pokój.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Uprzejmie odrzucamy waszą propozycję, abyśmy sami nadziali się na wasze miecze. Jeszcze coś?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>My, Kulrathi, podchodzimy do spraw terytorialnych bardzo poważnie. Nie zawrzemy pokoju, do czasu, gdy nie zostaną one rozwiązane.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Zawstydza nas przyjmowanie waszych warunków, ale rozsądek nie pozwala nam postąpić inaczej. Mamy pokój.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Wciąż nosimy rany ostatniej wojny, PLURAL. Nasze stosunki nie zostaną uleczone, póki rany są świeże. Dajcie im czas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Nadszedł czas, aby połączyć nasze siły, PLURAL! Ogłośmy całej galaktyce nasz sojusz! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Więc stało się! Odtąd, PLURAL, jesteście braćmi i siostrami Kulrathi. Klan i krew! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Rozczarowuje nas wasza niechęć. Może w przyszłości zmienicie zdanie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Hmmm... Być może, PLURAL. Jednak nie możemy podjąć decyzji, kiedy propozycja obwarowana jest warunkami. Rozważymy waszą propozycję, gdy usuniecie z niej dodatkowe warunki.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Wasza siła i honor są szanowane wśród Kulrathi. Tak, zawrzemy z wami sojusz.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Doceniamy, że uczyniłeś nam ten honor. Jednak w tej chwili nie możemy zaakceptować waszej propozycji, ponieważ mówiąc szczerze - jeszcze wam nie ufamy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Bębny Wojny wybrzmiały. Miecze są ostre, a serca wojowników przygotowane. Zewu bębnów nie da się cofnąć. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>Hmm... Prosicie nas, abyśmy powstrzymali swoje miecze, zanim zdążyły się skąpać w waszej krwi. W zamian za tę łaskę oferujecie nam dary. Po głębokim zastanowieniu przyjmujemy waszą ofertę. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Hańbicie się niegodziwą odmową pomocy sojusznikowi. Unieważniamy nasz sojusz.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Rrrrwwwrrr. Wasz... ciągły opór... złości wielu z nas... rrwwrrr. Szanujcie nasze prawa, PLURAL. Rrrrwwrr.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>RRRAAAAAAAAWRRR! RRRWWWAARRRRR!!! (niezrozumiałe - prawdopodobnie obelgi Kulrathi) </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>Szpiegowanie jest takie... niehonorowe. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Rrrrwrr. Nie gniewajcie nas kolejnymi próbami szpiegowania, PLURAL!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>RRRAAAAAAAAWRRR! RRRWWWAARRRRR!!! (niezrozumiałe - prawdopodobnie obelgi Kulrathi)! (Pakty anulowane)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Wasz agent, PLURAL, został złapany i zabity. Nie okażemy litości tym, którzy próbują wydrzeć nam nasze tajemnice!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>To szczyt nieuczciwości, aby szpiegować przyjaciół. Tym razem wam przebaczymy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Ostrzegaliśmy was, PLURAL, a mimo to kolejny raz splugawiliście naszą przyjaźń swoim szpiegowaniem. Nasz sojusz przestał istnieć.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Dla Kulrathi otworzenie przed kimś granic jest honorem zarezerwowanym wyłącznie dla najbliższych przyjaciół. Czy podpiszecie z nami taki pakt?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Hmmm... Rozumiemy. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Hmm! Wasze pragnienie przyjaźni zostało odnotowane, PLURAL. Jednak Kulrathi są w tych sprawach ostrożniejsi od was. Być może w przyszłości się zgodzimy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Być może to o co prosicie będzie pewnego dnia możliwe, PLURAL, ponieważ uważamy was za przyjaciół. Jednak najpierw powinniśmy zawrzeć sojusz, czego, jak sami wiecie, jeszcze nie zrobiliśmy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Wkrótce, PLURAL, ale jeszcze nie teraz! Zaledwie przed chwilą zostaliśmy sojusznikami. Pozwólmy okrzepnąć przymierzu, abyśmy mogli w spokoju zasiąść do rozmów na temat połączenia naszych imperiów.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Kulrathi szanują siłę, PLURAL! Siłę, którą mamy, a której wam brakuje! Przykro nam, ale nie możemy przyłączyć się do imperium słabszego od nas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Tak. Nasza więź się umocniła. Wasz lud jest naszym ludem. Wasza krew jest naszą krwią. Razem zdobędziemy galaktykę. Za federację!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Przyłączymy się do was. Jednak najpierw musicie dowieść swojej siły, pokonując naszych wrogów. Zniszczcie TAREMP, a staniemy się jednością!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>Dowiedliście swojej siły! TAREMP zostało zniszczone, a my dotrzymujemy danego słowa. Nasze miecze należą do was! Niech żyje federacja!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Hmmm. Nie, PLURAL. Nasze relacje wymagają poprawy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Choć bardzo was kochamy, to prowadzicie wojnę z naszymi przyjaciółmi, TAREMP. Jeśli uda się wam zawrzeć z nimi sojusz, to będziemy mogli z czystym sumieniem dołączyć do waszej federacji.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Tak! Wasz honor jest czysty i niezaprzeczalny. Sprzymierzyliście się z TAREMP, więc przyłączymy się do waszej federacji.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>PLURAL, nie godzi się prosić, abyśmy walczyli w wojnie, w której sami nie bierzecie udziału! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>Toczymy wojnę z TAREMP!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Tak, sojusznicy - staniemy u waszego boku.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Przykro nam, przyjaciele, ale TAREMP też są naszymi przyjaciółmi. Wybór jednej ze stron tego konfliktu narazi na szwank naszą przyjaźń.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Nie, PLURAL. Żądacie wiele, a w zamian oferujecie bardzo mało.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Nie popieramy walki w cudzych wojnach. Próbowaliście może zamiast tego zawrzeć pokój z TAREMP.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Nie. Branie udziału w tej wojnie byłoby głupie. Mamy własne problemy, którymi musimy się zająć!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Hmm... Tak. Nasi wojownicy potrzebują walki, a TAREMP zdają się być słabi. Niech zagrają bębny! Do boju!</Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

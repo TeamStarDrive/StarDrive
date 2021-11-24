@@ -1,0 +1,14 @@
+﻿<?xml version="1.0"?>
+<ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <string>Twoje kolonie mogą importować, eksportować oraz magazynować żywność oraz produkcję, które wytworzą. Zachęcając w ten sposób kolonie do handlu między sobą, możesz w łatwy sposób zarabiać pieniądze - jednak pod warunkiem, że rozwiniesz międzygwiezdną ekonomię.</string>
+  <string>Amunicja to ogólne określenie fizycznych środków przeznaczonych do niszczenia i obezwładniania. Statek musi przewozić amunicję, którą ma wystrzelić, w modułach zwanych magazynami amunicji. Zapas amunicji uzupełniany jest automatycznie, kiedy statek odwiedza stację zaopatrzeniową lub planetę posiadającą stocznię.</string>
+  <string>Broń energetyczna nie zużywa amunicji. Zamiast tego przy każdym strzale pobiera energię z zapasów statku. Efektywnej platformie broni energetycznej powinno towarzyszyć silne źródło mocy oraz pojemne ogniwo paliwowe.</string>
+  <string>Statki podróżujące z szybkością nadświetlną zużywają duże ilości energii, chyba że poruszają się w obszarze imperium swojego lub sojusznika. Powiększaj zasięg wpływów swojego imperium, zakładając nowe kolonie lub budując bazy kosmiczne i projektory podprzestrzenne.</string>
+  <string>Grupuj swoje statki we floty, zaznaczając je i wciskając CTRL + cyfrę. W edytorze floty możesz zmodyfikować formację swojej floty oraz zachowanie statków, które wchodzą w jej skład.</string>
+  <string>Inhibitory warp na obszarze swojego działania uniemożliwiają statkom nienależącym do sojuszników podróżowanie z prędkością nadświetlną. Inhibitory mogą być instalowane na statkach oraz kosmicznych platformach.</string>
+  <string>Aby wybudować strukturę w przestrzeni kosmicznej, wciśnij klawisz 'b', a następnie wybierz interesującą cię instalację z wyświetlonej listy. Do kolejki konstrukcyjnej najbliższej kolonii zostanie dodany statek, którego koszt budowy równa się kosztowi wybranej instalacji. Gotowy statek uda się w wybrane miejsce i przemieni się w wybraną konstrukcję.</string>
+  <string>Czy wiesz, że możesz zajmować statki wroga, stosując abordaż? Rozkaz abordażu wydasz każdemu promowi z oddziałami żołnierzy przez proste zaznaczenie go, a następnie kliknięcie prawym przyciskiem na statku przeciwnika.</string>
+  <string>Nie zaniedbuj obrony naziemnej. Szkól oddziały i rozmieszczaj je na całej powierzchni planet, aby zapewnić im maksymalną obronę.</string>
+  <string>Możesz regulować wielkości podatków na ekranie budżetu. Obniżają one produkcję przemysłową oraz ilość uzyskiwanych punktów badań naukowych o ustalony procent. W zamian w każdej turze otrzymasz ich równowartość w postaci gotówki.</string>
+  <string>Jedna tura gry trwa 5 sekund. Możesz zwiększać i zmniejszać tempo gry, używając klawisza + oraz -.</string>
+</ArrayOfString>

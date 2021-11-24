@@ -1,0 +1,18 @@
+﻿<Building>
+  <Name>Remnant Ruins</Name>
+  <Maintenance>0</Maintenance>
+  <Description> </Description>
+  <EventTriggerUID>Discover Array</EventTriggerUID>
+  <Cost>40</Cost>
+  <Icon>ancient_array</Icon>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <ShortDescription>A crashed vessel</ShortDescription>
+  <Scrappable>false</Scrappable>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>2118</NameTranslationIndex>
+  <DescriptionIndex>2119</DescriptionIndex>
+  <ShortDescriptionIndex>2120</ShortDescriptionIndex>
+  <!-- Tells the Solar System Generator that this is not to be placed randomly-->
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>

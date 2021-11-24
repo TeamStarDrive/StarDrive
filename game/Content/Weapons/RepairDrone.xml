@@ -1,0 +1,43 @@
+﻿<?xml version="1.0"?>
+<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Kinetic>false</Tag_Kinetic>
+  <Tag_Energy>false</Tag_Energy>
+  <Tag_Guided>false</Tag_Guided>
+  <Tag_Missile>false</Tag_Missile>
+  <Tag_Hybrid>false</Tag_Hybrid>
+  <Tag_Beam>false</Tag_Beam>
+  <Tag_Intercept>false</Tag_Intercept>
+  <Tag_Explosive>false</Tag_Explosive>
+  <Tag_Bomb>false</Tag_Bomb>
+  <Tag_Railgun>false</Tag_Railgun>
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  <Tag_Warp>false</Tag_Warp>
+  <Tag_Subspace>false</Tag_Subspace>
+  <Tag_Drone>true</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>false</Tag_Cannon>
+
+  <UID>RepairDrone</UID>
+  <fireDelay>30</fireDelay>
+  <Range>30000</Range>
+  <HitPoints>20</HitPoints>
+  <PowerRequiredToFire>0</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>50</OrdinanceRequiredToFire>
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <fireCueName>sd_weapon_torpedo_01</fireCueName>
+  <dieCue>sd_weapon_rocket_explode_01</dieCue>
+
+  <IsRepairDrone>true</IsRepairDrone>
+  <!-- Projectile Information -->
+  <DamageAmount>0</DamageAmount>
+  <ProjectileSpeed>650</ProjectileSpeed>
+  <DamageRadius>0</DamageRadius>
+  <explodes>false</explodes>
+  <ProjectileTexturePath>spacemine_d</ProjectileTexturePath>
+  <ModelPath>spacemine</ModelPath>
+  <WeaponType>Drone</WeaponType>
+  <ProjectileRadius>20</ProjectileRadius>
+  <Scale>1.5</Scale>
+  <CanCollideProjectiles>true</CanCollideProjectiles>
+</Weapon>

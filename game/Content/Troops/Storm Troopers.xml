@@ -1,0 +1,24 @@
+﻿<Troop>
+  <Name>Storm Troopers</Name>
+
+  <RaceType>Terran</RaceType>
+  <Icon>terran_hw_squad</Icon>
+
+
+  <sound_attack>sd_troop_attack_01</sound_attack>
+
+  <Description>Terran heavy weapons teams prefer the Carmack Mark-82 Plasma Bolter, a reliable and powerful weapon adaptable to a wide variety of battlefield scenarios.</Description>
+  <TexturePath>terran_hw_squad</TexturePath>
+  <Cost>70</Cost>
+  <Strength>13</Strength>
+  <MaxStrength>13</MaxStrength>
+  <Movement>1</Movement>
+  <MaintenanceCost>1</MaintenanceCost>
+  <Range>1</Range>
+  <BoardingStrength>60</BoardingStrength>
+  <HardAttack>25</HardAttack>
+  <SoftAttack>40</SoftAttack>
+  <TargetType>Soft</TargetType>
+  <Class>Infantry</Class>
+  <MovementCue>sd_troop_march_01</MovementCue>
+</Troop>
