@@ -506,6 +506,11 @@ namespace Ship_Game.Ships
                     isWeapon = true;
                 }
             }
+
+            if (ModuleType == ShipModuleType.Hangar)
+            {
+                InitHangar();
+            }
         }
 
         // Used in Shipyard when a module gets uninstalled from the design
@@ -531,10 +536,10 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void InitHangar()
+        void InitHangar()
         {
             // for the non faction AI , all hangars are dynamic. It makes the AI carriers better
-            if (Parent.loyalty.isFaction)
+            if (Parent == null || Parent.loyalty.isFaction)
                 return;
 
             DynamicHangar = ShipBuilder.GetDynamicHangarOptions(HangarShipUID);
