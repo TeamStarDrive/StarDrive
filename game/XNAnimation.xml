@@ -1,0 +1,519 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>XNAnimation</name>
+    </assembly>
+    <members>
+        <member name="T:SgMotion.Effects.EnabledLights">
+            <summary>
+            Specify how many light sorces will be used
+            </summary>
+        </member>
+        <member name="T:SgMotion.Effects.SkinnedModelBasicEffect">
+            <summary>
+            Represents an effect that supports skinning, normal, specular and diffuse textures, 
+            and phong lighting with multiple point light sources. This effect can use shader model 2.0
+            or 3.0, according to the number of lights enabled.
+            </summary>
+        </member>
+        <member name="M:SgMotion.Effects.SkinnedModelBasicEffect.#ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice,SgMotion.Effects.SkinnedModelBasicEffect)">
+            <summary>Initializes a new instance of the 
+            <see cref="T:XNAnimation.Effects.SkinnedModelBasicEffect" />
+            class.
+            </summary>
+            <param name="graphicsDevice">The graphics device that will create the effect.</param>
+            <param name="clone">The effect to clone.</param>
+        </member>
+        <member name="M:SgMotion.Effects.SkinnedModelBasicEffect.#ctor(Microsoft.Xna.Framework.Graphics.GraphicsDevice,Microsoft.Xna.Framework.Graphics.EffectPool)">
+            <summary>Initializes a new instance of the 
+            <see cref="T:XNAnimation.Effects.SkinnedModelBasicEffect" />
+            class.
+            </summary>
+            <param name="graphicsDevice">The graphics device that will create the effect.</param>
+            <param name="effectPool">Specifies a pool of resources to share between effects.</param>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.Bones">
+            <summary>
+            Gets or sets the bone matrices of the skeleton.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.View">
+            <summary>
+            Gets or sets the camera view matrix.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.Projection">
+            <summary>
+            Gets or sets the camera projection matrix.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.DiffuseMapEnabled">
+            <summary>
+            Enables diffuse texture.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.DiffuseMap">
+            <summary>
+            Gets or sets diffuse texture.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.SpecularMapEnabled">
+            <summary>
+            Enables normal map texture.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.SpecularMap">
+            <summary>
+            Gets or sets normal map texture.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.NormalMapEnabled">
+            <summary>
+            Enables normal map texture.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.NormalMap">
+            <summary>
+            Gets or sets normal map texture.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.LightEnabled">
+            <summary>
+            Enables lighting.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.EnabledLights">
+            <summary>
+            Gets or sets the number of enabled light sources.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.Material">
+            <summary>
+            Gets the material used for lighting.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.AmbientLightColor">
+            <summary>
+            Gets or sets the ambient light color
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.PointLights">
+            <summary>
+            Gets the point light sources. 
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.VertexShaderProfile">
+            <summary>
+            Gets the shader profile for the vertex shader.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Effects.SkinnedModelBasicEffect.PixelShaderProfile">
+            <summary>
+            Gets the shader profile for the pixel shader.
+            </summary>
+        </member>
+        <member name="T:SgMotion.Controllers.AnimationController">
+            <summary>
+            Controls how animations are played and interpolated.
+            </summary>
+        </member>
+        <member name="T:SgMotion.Controllers.IAnimationController">
+            <summary>
+            Defines an interface for an animation controller.
+            </summary>
+        </member>
+        <member name="M:SgMotion.Controllers.IAnimationController.StartClip(SgMotion.AnimationClip)">
+            <summary>
+            Starts the playback of an animation clip from the beginning.
+            </summary>
+            <param name="animationClip">The animation clip to be played.</param>
+        </member>
+        <member name="M:SgMotion.Controllers.IAnimationController.PlayClip(SgMotion.AnimationClip)">
+            <summary>
+            Plays an animation clip.
+            </summary>
+            <param name="animationClip">The animation clip to be played.</param>
+        </member>
+        <member name="M:SgMotion.Controllers.IAnimationController.CrossFade(SgMotion.AnimationClip,System.TimeSpan)">
+            <summary>
+            Interpolates linearly between two animation clips, fading out the current 
+            animation clip and fading in a new one.
+            </summary>
+            <param name="animationClip">The animation clip to be faded in.</param>
+            <param name="fadeTime">Time used to fade in and out the animation clips.</param>
+        </member>
+        <member name="M:SgMotion.Controllers.IAnimationController.CrossFade(SgMotion.AnimationClip,System.TimeSpan,SgMotion.Controllers.InterpolationMode,SgMotion.Controllers.InterpolationMode,SgMotion.Controllers.InterpolationMode)">
+            <summary>
+            Interpolates between two animation clips, fading out the current animation clip 
+            and fading in a new one.
+            </summary>
+            <param name="animationClip">The animation clip to be faded in.</param>
+            <param name="fadeTime">Time used to fade in and out the animation clips.</param>
+            <param name="translationInterpolation">How translations are interpolated between animation clips.</param>
+            <param name="orientationInterpolation">How orientations are interpolated between animation clips.</param>
+            <param name="scaleInterpolation">How scales are interpolated between animation clips.</param>
+        </member>
+        <member name="M:SgMotion.Controllers.IAnimationController.Update(System.TimeSpan,Microsoft.Xna.Framework.Matrix)">
+            <summary>
+            Updates the animation clip time and calculates the new skeleton's bone pose.
+            </summary>
+            <param name="elapsedTime">Time elapsed since the last update.</param>
+            <param name="parent">The parent bone for the current skeleton's root bone.</param>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.AnimationClip">
+            <summary>
+            Gets the animation clip being played.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.Time">
+            <summary>
+            Gets os sets the current animation playback time.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.Speed">
+            <summary>
+            Gets os sets the animation playback speed.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.LoopEnabled">
+            <summary>
+            Enables animation looping.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.PlaybackMode">
+            <summary>
+            Gets os sets the animation playback mode.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.TranslationInterpolation">
+            <summary>
+            Gets os sets how translations are interpolated between animation keyframes.
+            Supports linear and cubic interpolation.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.OrientationInterpolation">
+            <summary>
+            Gets os sets how orientations are interpolated between animation keyframes.
+            Supports linear and spherical interpolation.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.ScaleInterpolation">
+            <summary>
+            Gets os sets how scales are interpolated between animation keyframes.
+            Supports linear and cubic interpolation.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.HasFinished">
+            <summary>
+            Returns whether the animation has finished.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.IsPlaying">
+            <summary>
+            Returns whether the animation is playing.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.LocalBonePoses">
+            <summary>
+            Gets the local pose of all skeleton's bones in depth-first order.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IAnimationController.SkinnedBoneTransforms">
+            <summary>
+            Gets the final transformation of all skeleton's bonse in depth-first order.
+            This transformation is used to transfom the model's mesh vertices.
+            </summary>
+        </member>
+        <member name="T:SgMotion.Controllers.IBlendable">
+            <summary>
+            Defines an interface for blendable animations.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IBlendable.LocalBonePoses">
+            <summary>
+            Gets the local pose of all skeleton's bones in depth-first order.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IBlendable.BlendWeight">
+            <summary>
+            Gets or sets the blend weight.
+            The blend weight must be a positive value between 0 and 1.
+            </summary>
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.#ctor(SgMotion.SkinnedModelBoneCollection)">
+            <summary>Initializes a new instance of the 
+            <see cref="T:XNAnimation.Controllers.AnimationController" />
+            class.
+            </summary>
+            <param name="skeleton">The skeleton of the model to be animated</param>
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.StartClip(SgMotion.AnimationClip)">
+            <inheritdoc />
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.PlayClip(SgMotion.AnimationClip)">
+            <inheritdoc />
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.CrossFade(SgMotion.AnimationClip,System.TimeSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.CrossFade(SgMotion.AnimationClip,System.TimeSpan,SgMotion.Controllers.InterpolationMode,SgMotion.Controllers.InterpolationMode,SgMotion.Controllers.InterpolationMode)">
+            <inheritdoc />
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.Update(System.TimeSpan,Microsoft.Xna.Framework.Matrix)">
+            <inheritdoc />
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.UpdateCrossFadeTime(System.TimeSpan)">
+            <summary>
+            Updates the CrossFade time
+            </summary>
+            <param name="elapsedTime">Time elapsed since the last update.</param>
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.UpdateAnimationTime(System.TimeSpan)">
+            <summary>
+            Updates the animation clip time.
+            </summary>
+            <param name="elapsedTime">Time elapsed since the last update.</param>
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.UpdateChannelPoses">
+            <summary>
+            Updates the pose of all skeleton's bones.
+            </summary>
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.InterpolateChannelPose(SgMotion.AnimationChannel,System.TimeSpan,SgMotion.Pose@)">
+            <summary>
+            Retrieves and interpolates the pose of an animation channel.
+            </summary>
+            <param name="animationChannel">Name of the animation channel.</param>
+            <param name="animationTime">Current animation clip time.</param>
+            <param name="outPose">The output interpolated pose.</param>
+        </member>
+        <member name="M:SgMotion.Controllers.AnimationController.UpdateAbsoluteBoneTransforms(Microsoft.Xna.Framework.Matrix@)">
+            <summary>
+            Calculates the final configuration of all skeleton's bones used to transform
+            the model's mesh.
+            </summary>
+            <param name="parent"></param>
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.AnimationClip">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.Time">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.Speed">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.LoopEnabled">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.PlaybackMode">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.TranslationInterpolation">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.OrientationInterpolation">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.ScaleInterpolation">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.HasFinished">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.IsPlaying">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.LocalBonePoses">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.SkinnedBoneTransforms">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.AnimationController.BlendWeight">
+            <inheritdoc />
+        </member>
+        <member name="M:SgMotion.AnimationChannel.GetKeyframeIndexByTime(System.TimeSpan)">
+            <summary>
+            Return the nearest keyframe for the given time
+            </summary>
+            <param name="time"></param>
+            <returns></returns>
+        </member>
+        <member name="T:SgMotion.Controllers.InterpolationMode">
+            <summary>
+            Specifies how translations, orientations and scales are interpolated between keyframes.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.InterpolationMode.None">
+            <summary>
+            Does not use interpolation.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.InterpolationMode.Linear">
+            <summary>
+            Linear interpolation. Supported on translations and scales.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.InterpolationMode.Cubic">
+            <summary>
+            Cubic interpolation. Supported on translations and scales.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.InterpolationMode.Spherical">
+            <summary>
+            Spherical interpolation. Only supported on orientations.
+            </summary>
+        </member>
+        <member name="T:SgMotion.Controllers.PlaybackMode">
+            <summary>
+            Specifies how an animation clip is played.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.PlaybackMode.Forward">
+            <summary>
+            Plays the animation clip in the forward way.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.PlaybackMode.Backward">
+            <summary>
+            Plays the animation clip in the backward way.
+            </summary>
+        </member>
+        <member name="T:SgMotion.SkinnedModelBone">
+            <summary>
+            Represents a bone from a skeleton
+            </summary>
+        </member>
+        <member name="P:SgMotion.SkinnedModelBone.Index">
+            <summary>
+            Gets the index of this bone in depth-first order.
+            </summary>
+        </member>
+        <member name="P:SgMotion.SkinnedModelBone.Name">
+            <summary>
+            Gets the name of this bone.
+            </summary>
+        </member>
+        <member name="P:SgMotion.SkinnedModelBone.Parent">
+            <summary>
+            Gets the parent of this bone.
+            </summary>
+        </member>
+        <member name="P:SgMotion.SkinnedModelBone.Children">
+            <summary>
+            Gets a collection of bones that are children of this bone.
+            </summary>
+        </member>
+        <member name="P:SgMotion.SkinnedModelBone.BindPose">
+            <summary>
+            Gets the pose of this bone relative to its parent.
+            </summary>
+        </member>
+        <member name="P:SgMotion.SkinnedModelBone.InverseBindPoseTransform">
+            <summary>
+            Gets a matrix used to transform model's mesh vertices putting them in the same 
+            coordinate system of this bone.
+            </summary>
+        </member>
+        <member name="T:SgMotion.Controllers.SkeletonController">
+            <summary>
+            Controls the pose of each bone in a skeleton. Allows custom skeleton poses to be blended 
+            with other <see cref="T:XNAnimation.Controllers.IBlendable" /> objects.
+            </summary>
+        </member>
+        <member name="T:SgMotion.Controllers.ISkeletonController">
+            <summary>
+            Defines an interface for an skeleton controller.
+            </summary>
+        </member>
+        <member name="M:SgMotion.Controllers.ISkeletonController.SetBonePose(System.String,SgMotion.Pose@)">
+            <summary>
+            Sets a custom pose for an skeleton's bone.
+            </summary>
+            <param name="channelName">The name of the bone.</param>
+            <param name="pose">The custom pose to be set.</param>
+        </member>
+        <member name="M:SgMotion.Controllers.ISkeletonController.SetBonePose(System.String,SgMotion.Pose)">
+            <summary>
+            Sets a custom pose for an skeleton's bone.
+            </summary>
+            <param name="channelName">The name of the bone.</param>
+            <param name="pose">The custom pose to be set.</param>
+        </member>
+        <member name="P:SgMotion.Controllers.ISkeletonController.LocalBonePoses">
+            <summary>
+            Gets the local pose of all skeleton's bones in depth-first order.
+            </summary>
+        </member>
+        <member name="M:SgMotion.Controllers.SkeletonController.#ctor(SgMotion.SkinnedModelBoneDictionary)">
+            <summary>Initializes a new instance of the 
+            <see cref="T:XNAnimation.Controllers.SkeletonController"></see>
+            class.
+            </summary>
+            <param name="skeletonDictionary"></param>
+        </member>
+        <member name="M:SgMotion.Controllers.SkeletonController.SetBonePose(System.String,SgMotion.Pose@)">
+            <inheritdoc />
+        </member>
+        <member name="M:SgMotion.Controllers.SkeletonController.SetBonePose(System.String,SgMotion.Pose)">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.SkeletonController.LocalBonePoses">
+            <inheritdoc />
+        </member>
+        <member name="P:SgMotion.Controllers.SkeletonController.BlendWeight">
+            <inheritdoc />
+        </member>
+        <member name="T:SgMotion.Controllers.BlendMode">
+            <summary>
+            Specify how animation clips are blended.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.BlendMode.Interpolate">
+            <summary>
+            Blends animation clips interpolation between them.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.BlendMode.Additive">
+            <summary>
+            Blends animation clips additively.
+            </summary>
+        </member>
+        <member name="T:SgMotion.Controllers.BlendLayer">
+            <summary>
+            Enumerates the available blend layers.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.BlendLayer.One">
+            <summary>
+            First blend layer.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.BlendLayer.Two">
+            <summary>
+            Second blend layer.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.BlendLayer.Three">
+            <summary>
+            Third blend layer.
+            </summary>
+        </member>
+        <member name="F:SgMotion.Controllers.BlendLayer.Four">
+            <summary>
+            Fourth blend layer.
+            </summary>
+        </member>
+        <member name="T:SgMotion.Controllers.IBlendController">
+            <summary>
+            Defines an interface for an animation blend controller.
+            </summary>
+        </member>
+        <member name="P:SgMotion.Controllers.IBlendController.BlendMode">
+            <summary>
+            Gets or sets the animation blend mode.
+            </summary>
+        </member>
+    </members>
+</doc>

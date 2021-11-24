@@ -28,7 +28,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>StarDrive\</OutputPath>
+    <OutputPath>game\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DefineConstants>TRACE;DEBUG;STEAM;NOBREAK</DefineConstants>
     <Optimize>false</Optimize>
@@ -1716,17 +1716,19 @@
   <PropertyGroup>
     <PostBuildEvent>
 if "$(ConfigurationName)" == "Deploy"  (
+  :: create legacy removal list for installer
+  py -3 "$(SolutionDir)CreateLegacyRmList.py" ^
+    --root_dir $(SolutionDir) ^
+    --configuration "$(ConfigurationName)"
+
   :: run the installer generator script with Python 3
   py -3 "$(SolutionDir)Deploy\MakeInstaller.py" $(SolutionDir)
 )
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>echo Pre Build Event
-:: Copy Game content from BB/Content into StarDrive/Content
-py -3 "$(SolutionDir)CopyGameContent.py" ^
-    --root_dir $(SolutionDir) ^
-    --configuration "$(ConfigurationName)"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <!-- <Target Name="AfterBuild"> -->
   <!-- <Exec Command="C:\Projects\ResharperCLT\dupfinder.exe /output=&quot;dupReport.xml&quot; /show-text &quot;StarDrive.csproj&quot;"/> -->
