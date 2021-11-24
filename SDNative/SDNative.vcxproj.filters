@@ -309,7 +309,13 @@
     <ClInclude Include="3rdparty\libpng\pngconf.h">
       <Filter>3rdparty\libpng</Filter>
     </ClInclude>
-    <ClInclude Include="util\png_loader.h">
+    <ClInclude Include="util\png_util.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\bmp_util.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\shared_image_utils.h">
       <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>

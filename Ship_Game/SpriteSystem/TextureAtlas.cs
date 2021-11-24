@@ -10,7 +10,7 @@ namespace Ship_Game.SpriteSystem
     /// for related textures and animation sequences
     public partial class TextureAtlas : IDisposable
     {
-        const int Version = 23; // changing this will force all caches to regenerate
+        const int Version = 24; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
@@ -165,8 +165,8 @@ namespace Ship_Game.SpriteSystem
 
                 if (path.PrePackedFile != null)
                 {
-                    Log.Info(ConsoleColor.White, $"PrePacked: {path.PrePackedFile}");
-                    if (!atlas.LoadAtlasFile(path.PrePackedFile, path.PrePackedTex, checkHash:false))
+                    //Log.Info(ConsoleColor.White, $"PrePacked: {path.PrePackedFile}");
+                    if (!atlas.LoadAtlasFile(path.PrePackedFile, path.PrePackedTex, checkVersionAndHash:false))
                     {
                         Log.Warning($"{Mod} TextureAtlas prepacked load failed: {path.PrePackedFile} ");
                         return null;
