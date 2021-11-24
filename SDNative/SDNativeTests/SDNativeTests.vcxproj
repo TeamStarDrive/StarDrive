@@ -101,21 +101,21 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/SDNative/;$(SolutionDir)/SDNative/ReCpp/</IncludePath>
-    <OutDir>..\..\StarDrive\</OutDir>
+    <OutDir>..\..\game\</OutDir>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
     <CodeAnalysisRuleSet>SDNativeTests.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/SDNative/;$(SolutionDir)/SDNative/ReCpp/</IncludePath>
-    <OutDir>..\..\StarDrive\</OutDir>
+    <OutDir>..\..\game\</OutDir>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
     <CodeAnalysisRuleSet>SDNativeTests.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-2017|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)/SDNative/;$(SolutionDir)/SDNative/ReCpp/</IncludePath>
-    <OutDir>..\..\StarDrive\</OutDir>
+    <OutDir>..\..\game\</OutDir>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
     <CodeAnalysisRuleSet>SDNativeTests.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>

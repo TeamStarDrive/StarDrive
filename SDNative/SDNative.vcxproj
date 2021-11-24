@@ -60,21 +60,21 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
-    <OutDir>..\StarDrive\</OutDir>
+    <OutDir>..\game\</OutDir>
     <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
-    <OutDir>..\StarDrive\</OutDir>
+    <OutDir>..\game\</OutDir>
     <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-2017|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
-    <OutDir>..\StarDrive\</OutDir>
+    <OutDir>..\game\</OutDir>
     <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)3rdparty/libpng;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
