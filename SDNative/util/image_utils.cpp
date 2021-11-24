@@ -10,7 +10,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 
-#include "png_loader.h" // libpng
+#include "png_util.h" // libpng
+#include "bmp_util.h"
 
 #include <cstdio>
 #include <memory>
@@ -138,6 +139,21 @@ std::unique_ptr<Color[]> CopyRGBtoBGRA(int w, int h, const RGB* src)
     return storage;
 }
 
+std::unique_ptr<Color[]> CopyBGRtoBGRA(int w, int h, const RGB* src)
+{
+    const int count = w * h;
+    std::unique_ptr<Color[]> storage { new Color[count] };
+    Color* dst = storage.get();
+    for (int i = 0; i < count; ++i)
+    {
+        Color* dstPixel = &dst[i];
+        *(RGB*)dstPixel = src[i];
+        dstPixel->a = (byte)255;
+    }
+    return storage;
+}
+
+
 using OnImageLoaded = void (__stdcall*)(Color* data, int size, int width, int height);
 
 enum class ImageLib
@@ -189,7 +205,7 @@ DLLEXPORT const char* __stdcall LoadPNGImage(const char* filename, OnImageLoaded
     else if constexpr (PngImporter == ImageLib::LibPng)
     {
         PngLoader png;
-        err = png.load(filename);
+        err = png.load(filename, /*flipVertically:*/false, /*bgr:*/true);
         if (err)
         {
             fprintf(stderr, "LoadPNGImage failed: %s %dx%d %s\n", filename, png.width, png.height, err);
@@ -202,13 +218,12 @@ DLLEXPORT const char* __stdcall LoadPNGImage(const char* filename, OnImageLoaded
             }
             else if (png.channels == 3)
             {
-                std::unique_ptr<Color[]> temp = CopyRGBtoBGRA(png.width, png.height, reinterpret_cast<RGB*>(png.image));
+                std::unique_ptr<Color[]> temp = CopyBGRtoBGRA(png.width, png.height, reinterpret_cast<RGB*>(png.image));
                 onLoaded(temp.get(), png.width*png.height, png.width, png.height);
             }
             else
             {
                 Color* data = reinterpret_cast<Color*>(png.image);
-                ConvertBGRAtoRGBA(png.width, png.height, data); // actually RGBA --> BGRA, but it works both ways
                 onLoaded(data, png.width*png.height, png.width, png.height);
             }
         }
