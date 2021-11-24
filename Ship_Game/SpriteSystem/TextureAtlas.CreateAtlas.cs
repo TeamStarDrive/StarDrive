@@ -113,21 +113,21 @@ namespace Ship_Game.SpriteSystem
         {
             if (!File.Exists(Path.CacheAtlasFile))
                 return false; // regenerate!!
-            return LoadAtlasFile(Path.CacheAtlasFile, Path.CacheAtlasTex, checkHash:true);
+            return LoadAtlasFile(Path.CacheAtlasFile, Path.CacheAtlasTex, checkVersionAndHash:true);
         }
 
-        bool LoadAtlasFile(string atlasFile, string atlasTex, bool checkHash)
+        bool LoadAtlasFile(string atlasFile, string atlasTex, bool checkVersionAndHash)
         {
             using (var fs = new StreamReader(atlasFile))
             {
                 int.TryParse(fs.ReadLine(), out int version);
                 ulong.TryParse(fs.ReadLine(), out ulong oldHash);
-                if (version != Version)
+                if (checkVersionAndHash && version != Version)
                 {
                     Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (version-mismatch)");
                     return false;
                 }
-                if (checkHash && oldHash != Hash)
+                if (checkVersionAndHash && oldHash != Hash)
                 {
                     Log.Write(ConsoleColor.Cyan, $"{Mod} AtlasCache  {Name}  INVALIDATED  (hash-mismatch)");
                     return false; // hash mismatch, we need to regenerate cache
