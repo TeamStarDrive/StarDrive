@@ -3,6 +3,7 @@
 #include <rpp/file_io.h>
 #include <string>
 #include <stdarg.h>
+#include "shared_image_utils.h"
 
 static const char* format_err(const char* fmt, ...)
 {
@@ -66,8 +67,13 @@ public:
         io->ptr += numBytes;
     }
 
-    // @return NULL on success, error message otherwise
-    const char* load(const char* filename, bool flipVertically = false) noexcept
+    /**
+     * @param filename PNG file to load
+     * @param flipVertically if true, image rows are flipped vertically (for some graphics API-s)
+     * @param bgr If true, load image as BGR/BGRA instead of RGB/RGBA
+     * @return NULL on success, error message otherwise
+     */
+    const char* load(const char* filename, bool flipVertically = false, bool bgr = false) noexcept
     {
         rpp::load_buffer buf = rpp::file::read_all(filename);
         if (!buf.str) {
@@ -82,12 +88,16 @@ public:
 
         png_io_data io { (char*)data + 8, (char*)data + size };
         png_set_read_fn(png, &io, &PngMemReader);
-        png_set_sig_bytes(png, 8);
+        png_set_sig_bytes(png, 8); // tell libpng we already read the signature
+        if (bgr) {
+            png_set_bgr(png);
+        }
         png_read_info(png, info);
 
         int bitDepth = 0;
         int colorType = -1;
-        uint32_t ret = png_get_IHDR(png, info, &width, &height, &bitDepth, &colorType, 0, 0, 0);
+        int interlacing = 0; // 0: non-interlaced, 1: Adam7 interlacing
+        uint32_t ret = png_get_IHDR(png, info, &width, &height, &bitDepth, &colorType, &interlacing, 0, 0);
         if (ret != 1) {
             return "png error: failed to read PNG header";
         }
@@ -102,11 +112,17 @@ public:
         if (png_get_valid(png, info, (png_uint_32)PNG_INFO_tRNS))
             png_set_tRNS_to_alpha(png);
 
+        int num_passes = 1;
+        if (interlacing == 1/*Adam7*/) {
+            num_passes = png_set_interlace_handling(png);
+            //png_start_read_image(png);
+        }
+
         // now update info based on new unpacking and expansion flags:
         png_read_update_info(png, info);
         bitDepth  = png_get_bit_depth(png, info);
         colorType = png_get_color_type(png, info);
-
+        
         //printf("png %dx%d bits:%d type:%s\n", width, height, bitDepth, strPNGColorType(colorType));
 
         switch (colorType) {
@@ -129,28 +145,34 @@ public:
         // Ignore the stride restriction and lock us to Direct3D
         stride = (int)png_get_rowbytes(png, info);
 
-        uint8_t* img = (uint8_t*)malloc(stride * height);
-        if (!img) { // most likely corrupted image which causes a huge allocation
+        uint8_t* dest = (uint8_t*)malloc(stride * height);
+        if (!dest) { // most likely corrupted image which causes a huge allocation
             return format_err("png error: failed to allocate image bytes=%u", stride * height);
         }
-        
-        image = img;
+
+        image = dest;
 
         if (flipVertically)
         {
-            // OpenGL eats images in reverse row order, so read all rows in reverse
-            for (int y = height-1; y >= 0; --y)
+            for (int pass = 0; pass < num_passes; ++pass)
             {
-                uint8_t* row = img + y * stride;
-                png_read_row(png, (png_bytep)row, nullptr);
+                // OpenGL eats images in reverse row order, so read all rows in reverse
+                for (int y = height-1; y >= 0; --y)
+                {
+                    uint8_t* dstRow = dest + y * stride;
+                    png_read_row(png, (png_bytep)dstRow, nullptr);
+                }
             }
         }
         else
         {
-            for (uint32_t y = 0; y < height; ++y)
+            for (int pass = 0; pass < num_passes; ++pass)
             {
-                uint8_t* row = img + y * stride;
-                png_read_row(png, (png_bytep)row, nullptr);
+                for (uint32_t y = 0; y < height; ++y)
+                {
+                    uint8_t* dstRow = dest + y * stride;
+                    png_read_row(png, (png_bytep)dstRow, nullptr);
+                }
             }
         }
 
@@ -161,11 +183,5 @@ public:
         //}
 
         return nullptr; // Success! No error message.
-    }
-
-    static int AlignRowTo4(int width, int channels) // glTexImage2d requires rows to be 4-byte aligned
-    {
-        int stride = width * channels;
-        return stride + 3 - ((stride - 1) % 4);
     }
 };

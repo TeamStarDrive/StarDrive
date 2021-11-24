@@ -208,7 +208,9 @@
     <ClInclude Include="spatial\Visualizer.h" />
     <ClInclude Include="util\apex_memmove.h" />
     <ClInclude Include="NodeParser.h" />
-    <ClInclude Include="util\png_loader.h" />
+    <ClInclude Include="util\bmp_util.h" />
+    <ClInclude Include="util\png_util.h" />
+    <ClInclude Include="util\shared_image_utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rdparty\lodepng\lodepng.cpp" />
