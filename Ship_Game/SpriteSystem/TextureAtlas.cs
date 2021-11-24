@@ -165,7 +165,7 @@ namespace Ship_Game.SpriteSystem
 
                 if (path.PrePackedFile != null)
                 {
-                    Log.Info(ConsoleColor.White, $"PrePacked: {path.PrePackedFile}");
+                    //Log.Info(ConsoleColor.White, $"PrePacked: {path.PrePackedFile}");
                     if (!atlas.LoadAtlasFile(path.PrePackedFile, path.PrePackedTex, checkVersionAndHash:false))
                     {
                         Log.Warning($"{Mod} TextureAtlas prepacked load failed: {path.PrePackedFile} ");
