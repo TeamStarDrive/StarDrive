@@ -72,11 +72,10 @@ blackbox_dir = args.root_dir
 del_list_file = path_combine(blackbox_dir, "game/Content/LegacyContent.txt")
 rm_script_file = path_combine(blackbox_dir, "Deploy/LegacyRemove.nsh")
 
-if args.delete_legacy:
-    # Load the delete listing file
-    files_to_delete = get_legacy_files_to_delete(del_list_file)
+# Load the delete listing file
+files_to_delete = get_legacy_files_to_delete(del_list_file)
 
-    # Generate NSIS install script's RMDir commands
-    console(f'Generating installer RM script: {rm_script_file}')
-    generate_installer_rm_list(files_to_delete, rm_script_file)
+# Generate NSIS install script's RMDir commands
+console(f'Generating installer RM script: {rm_script_file}')
+generate_installer_rm_list(files_to_delete, rm_script_file)
 
