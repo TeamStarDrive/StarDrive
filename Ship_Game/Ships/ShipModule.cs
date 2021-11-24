@@ -538,16 +538,19 @@ namespace Ship_Game.Ships
                 return;
 
             DynamicHangar = ShipBuilder.GetDynamicHangarOptions(HangarShipUID);
-            if (DynamicHangar == DynamicHangarOptions.Static && !Parent.loyalty.isPlayer)
+            if (DynamicHangar == DynamicHangarOptions.Static)
             {
-                DynamicHangar = DynamicHangarOptions.DynamicLaunch; // AI will always get dynamic launch.
-            }
-            else if (!Parent.loyalty.CanBuildShip(HangarShipUID))
-            {
-                // If Player has deleted a Fighter Ship Design, this design would not have a
-                // valid fighter so we check if we can build it, otherwise we set DynamicLaunch
-                DynamicHangar = DynamicHangarOptions.DynamicLaunch;
-                HangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
+                if (!Parent.loyalty.isPlayer)
+                {
+                    DynamicHangar = DynamicHangarOptions.DynamicLaunch; // AI will always get dynamic launch.
+                }
+                else if (!Parent.loyalty.CanBuildShip(HangarShipUID))
+                {
+                    // If Player has deleted a Fighter Ship Design, this design would not have a
+                    // valid fighter so we check if we can build it, otherwise we set DynamicLaunch
+                    DynamicHangar = DynamicHangarOptions.DynamicLaunch;
+                    HangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
+                }
             }
         }
 
