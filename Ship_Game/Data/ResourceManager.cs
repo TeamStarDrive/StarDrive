@@ -802,7 +802,7 @@ namespace Ship_Game
             string[] atlases =
             {
                 "Textures",
-                "Textures/GameScreens", "Textures/MainMenu",
+                "Textures/GameScreens", "Textures/MMenu",
                 "Textures/EmpireTopBar", "Textures/NewUI"
             };
             Parallel.ForEach(atlases, atlas => LoadAtlas(atlas));
