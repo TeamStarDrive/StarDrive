@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>EMP Cannons</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>950</Cost>
+  <RootNode>0</RootNode>
+  <Name>EMP Cannons</Name>
+  <NameIndex>550</NameIndex>
+  <DescriptionIndex>551</DescriptionIndex>
+  <LongDescription>EMP Cannons are used to disable targeted ships by overloading their power grids with random energy. All ships have a natural EMP defense based on their size.  EMP weapons are ineffective against shields. </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>EMPTurret2x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>EMPTurret3x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Ion Cannon</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

@@ -1,0 +1,77 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>4</Cost>
+  <!-- Tech Level -->
+  <TechLevel>0</TechLevel>
+  <TechBranch>Command</TechBranch>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>1</XSIZE>
+  <YSIZE>1</YSIZE>
+  <ModuleType>Command</ModuleType>
+  <Name>Cockpit</Name>
+  <Restrictions>I</Restrictions>
+  <UID>Cockpit</UID>
+  <IconTexturePath>Modules/Cockpit</IconTexturePath>
+  <IsCommandModule>true</IsCommandModule>
+  <Mass>2</Mass>
+  <Health>100</Health>
+  <HealthMax>100</HealthMax>
+  <energyreq>0</energyreq>
+  <modRadius>4</modRadius>
+  <Description>This cockpit has enough room for a small flight crew and their workstations.   From here, the crew can receive basic sensor data, coordinate ship repairs, and pilot the ship.</Description>
+
+  <PowerDraw>2</PowerDraw>
+  <BonusRepairRate>10</BonusRepairRate>
+
+  <SensorRange>40000</SensorRange>
+
+
+  <NameIndex>922</NameIndex>
+  <DescriptionIndex>923</DescriptionIndex>
+
+  <MechanicalBoardingDefense>10</MechanicalBoardingDefense>
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+
+  <!-- Sensor Data -->
+
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+
+  <!-- for Weapons -->
+
+
+
+  <!-- for Engines -->
+  <thrust>0</thrust>
+
+
+
+</ShipModule>

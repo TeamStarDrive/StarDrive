@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Ionic Weaponry</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>350</Cost>
+  <RootNode>0</RootNode>
+  <Name>Ionic Weaponry</Name>
+  <NameIndex>597</NameIndex>
+  <DescriptionIndex>598</DescriptionIndex>
+  <LongDescription>Ion stream particle weapons have the unique effect of causing a target ship's capacitors to discharge. The result is a beam weapon that drains a target's power stores. However, Ion weapons are completely ineffective against shielded targets.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Siphon Beam</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Tractor Beam</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>IonBeamTurret2x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>IonBeam2x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

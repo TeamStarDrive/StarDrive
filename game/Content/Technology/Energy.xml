@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Energy</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>50</Cost>
+  <RootNode>1</RootNode>
+  <Name>Energy</Name>
+  <NameIndex>558</NameIndex>
+  <IconPath>icons_techroot_energy</IconPath>
+  <DescriptionIndex>559</DescriptionIndex>
+  <LongDescription>The technology branch explores power creation and energy fields, with applications both industrial and military. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>EnergyShielding</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Energy Weapons</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>FuelCell1</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>NuclearReactorSmall</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>NuclearReactorMed</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>BasicFuelCell</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>MediumFuelCell</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

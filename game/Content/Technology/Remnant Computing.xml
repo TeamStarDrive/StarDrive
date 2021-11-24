@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Remnant Computing</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>1750</Cost>
+  <RootNode>0</RootNode>
+  <Name>Remnant Computing</Name>
+  <NameIndex>2146</NameIndex>
+  <DescriptionIndex>2147</DescriptionIndex>
+  <Secret>true</Secret>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Ascension</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Remnant Detection Array</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Tractor Beam</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>400</Cost>
+  <RootNode>0</RootNode>
+  <Name>Tractor Beam</Name>
+  <NameIndex>691</NameIndex>
+  <DescriptionIndex>692</DescriptionIndex>
+  <LongDescription>Tractor beams create a miniature point singularity that effectively increases the mass of the targeted ship, slowing it down. Tractor beams are only half as effective against shielded targets.</LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>TractorBeamTurret2x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>TractorBeam2x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

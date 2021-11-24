@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Thalaron Blaster</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Thalaron Blaster</Name>
+  <NameIndex>685</NameIndex>
+  <DescriptionIndex>686</DescriptionIndex>
+  <LongDescription>There's nothing like a good dose of face-melting Thalaron radiation to weaken a space marine's resolve and cellular cohesion. Very useful for pre-boarding volleys. </LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>ThalaronBeam2x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

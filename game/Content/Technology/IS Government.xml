@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>IS Government</UID>
+  <TechnologyType>Economic</TechnologyType>
+  <Cost>150</Cost>
+  <RootNode>0</RootNode>
+  <Name>Interstellar Governance</Name>
+  <NameIndex>599</NameIndex>
+  <DescriptionIndex>600</DescriptionIndex>
+  <LongDescription>Managing a space empire is a major logistical task, requiring advanced coordination between the public and private sector over vast distances and spans of time.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Cryogenics</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Imperial Offices</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

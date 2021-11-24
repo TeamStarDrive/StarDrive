@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>SubspaceCommunication</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>550</Cost>
+  <RootNode>0</RootNode>
+  <Name>Subspace Communication</Name>
+  <NameIndex>667</NameIndex>
+  <DescriptionIndex>668</DescriptionIndex>
+  <LongDescription>The ability to package light-speed communications into a faster-than-light subspace packet allows for near instantaneous communication over great distances.  This discovery has profound implications for deep space scanning.  </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Tachyon Scanning</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>SubspaceSensors</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Tracking Station</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

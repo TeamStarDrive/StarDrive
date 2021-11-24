@@ -1,0 +1,54 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <UID>IonBeam2x3</UID>
+  <Cost>4</Cost>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>Heavy-mount Ion Beam</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/ionbeamcannon_2x3</IconTexturePath>3
+
+
+  <NameIndex>970</NameIndex>
+  <DescriptionIndex>971</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>12</Mass>
+  <Health>450</Health>
+  <HealthMax>450</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>HeavyIonBeam</WeaponType>
+  <FieldOfFire>45</FieldOfFire>
+
+  <!-- Description -->
+  <Description>This Ion beam drains power from the targeted vessel, provided that their shields are down.</Description>
+  
+
+</ShipModule>

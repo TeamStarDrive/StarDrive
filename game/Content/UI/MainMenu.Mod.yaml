@@ -1,0 +1,16 @@
+﻿# You can declare Mod specific UI elements
+# without having to modify MainMenu.yaml.
+# This allows for more flexibility if you do not want
+# to completely recreate main menu UI layout.
+#
+# However, if you want to create a completely different
+# and custom MainMenu, just ignore this file and modify
+# MainMenu.yaml instead.
+
+
+# Override: background
+#   Texture: MMenu/new_background.png
+#   Rect: [0.0, 0.0, 0.75, 0.0] # 75% of screen, preserve aspect 
+#   AxisAlign: Center # and put it to center
+#   DrawDepth: Background
+

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Physics</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>50</Cost>
+  <RootNode>1</RootNode>
+  <Name>Physics</Name>
+  <NameIndex>629</NameIndex>
+  <IconPath>icons_techroot_physics</IconPath>
+  <DescriptionIndex>630</DescriptionIndex>
+  <LongDescription>Physics is the language of the universe. By mastering physics, we master the universe. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>SubspaceTheory</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>ReactionDrive</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Ionic Weaponry</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Subspace Projection</Name>
+      <Bonus>0.2</Bonus>
+      <Description>Gain the ability to build subspace projector platforms in deep space. </Description>
+      <BonusIndex>631</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

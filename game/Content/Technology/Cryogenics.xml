@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Cryogenics</UID>
+  <TechnologyType>Economic</TechnologyType>
+  <Cost>300</Cost>
+  <RootNode>0</RootNode>
+  <Name>Cryogenics</Name>
+  <NameIndex>538</NameIndex>
+  <DescriptionIndex>539</DescriptionIndex>
+  <LongDescription>Cryogenics is the science of suspending an organism's life functions by freezing it. Even though cryogenics equipment is bulky, it is possible to transport many more people with cryogenics than without it. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Mercantilism</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Cryogenic Suspension</Name>
+      <BonusType>Passenger Modifier</BonusType>
+      <Bonus>1</Bonus>
+      <Description>Doubles the amount of colonists carried by passenger ships within your empire</Description>
+      <BonusIndex>540</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

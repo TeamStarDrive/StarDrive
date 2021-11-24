@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Disruptors</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>750</Cost>
+  <RootNode>0</RootNode>
+  <Name>Disruptors</Name>
+  <NameIndex>545</NameIndex>
+  <DescriptionIndex>546</DescriptionIndex>
+  <LongDescription>Disruptors Cannons are similar in function to Laser Cannons -- an ionized packet of high-energy plasma is shot from the cannon. However, the disruptor payload is engineered with a denser and much more volatile plasma charge.   </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Photon Cannons</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>DisruptorTurret2x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>DisruptorTurret3x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

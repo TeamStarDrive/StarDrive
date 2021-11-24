@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Fusion Beam</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>750</Cost>
+  <RootNode>0</RootNode>
+  <Name>Fusion Beams</Name>
+  <NameIndex>576</NameIndex>
+  <DescriptionIndex>577</DescriptionIndex>
+  <LongDescription>The fusion beam directs two narrow streams of atomic particles at a convergence point, where the atoms are fused and the energy is released. The result is a high-powered beam weapon.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Phasors</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Thalaron Blaster</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>FusionTurret2x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>FusionBeam2x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

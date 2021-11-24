@@ -1,0 +1,32 @@
+﻿<SolarSystemData>
+  <Name>BlackBox</Name>
+  <SunPath>star_binary</SunPath>
+  <RingList>
+    <Ring>
+      <Planet>Gremlins Vice</Planet>
+      <SpecialDescription>This planet is riddled with caves and hidden areas. One could explore it for decades. In fact is lures the mind into it's planes and valleys. It may be impossible to fully utilize the glory this place has to offer. </SpecialDescription>
+      
+    </Ring>
+    <Ring>
+      <Planet>Shooterz Plane</Planet>
+      <SpecialDescription>This is a basin of creativity. All the primal forces of nature are at work creating things that imagination is insuffcient to comprehend. </SpecialDescription>
+      
+    </Ring>
+    <Ring>
+      <Planet>Doc's World</Planet>
+      <SpecialDescription>Stories spun. Tales Told. The books written of this world have entertained the minds of billions for centuries. Why did the legendary writer choose this world? So far from home. Its unknown but getting to the place and setting foot on its soil is the dream that few will ever know. </SpecialDescription>
+      
+    </Ring>
+    <Ring>
+      <Planet>Deveks Rock</Planet>
+      <SpecialDescription>Who was TheDevek? Few can remember but all who see this world experience his dream whether they know it or not. </SpecialDescription>
+      
+    </Ring>
+    <Ring>
+      <Planet>Fbedard's ShadowWorld</Planet>
+      <SpecialDescription>The Appearance of this planet was a surprise to all but the legendary astronomer Fbedard. Long range Scans did not see it. It appeared shadowed by the other orbital bodies in the system. Perfectly hidden in gravitational dance of ancient stardust. He predicted its prescense using a mathematical formula that none but he understood. </SpecialDescription>
+
+    </Ring>
+
+  </RingList>
+</SolarSystemData>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Titans</UID>
+  <TechnologyType>ShipHull</TechnologyType>
+  <Cost>6500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Titan Construction</Name>
+  <NameIndex>687</NameIndex>
+  <DescriptionIndex>688</DescriptionIndex>
+  <LongDescription>These ultra-massive ships are the absolute pinnacle of spaceship construction. These hulking behemoths are almost impractically slow and large, but their firepower and defensive potential is enormous.</LongDescription>
+  <LeadsTo />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>Titan Engine</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>WarpEngine_4x4</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked>
+    <UnlockedHull>
+      <Name>Terran/Dreadnought</Name>
+      <ShipType>Terran</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Kulrathi/Yamamoto</Name>
+      <ShipType>Kulrathi</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Ralyeh/Godcaller</Name>
+      <ShipType>Ralyeh</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Opteris/Queen</Name>
+      <ShipType>Opteris</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Vulfen/Alpha</Name>
+      <ShipType>Vulfen</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Pollops/Entangler</Name>
+      <ShipType>Pollops</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Cordrazine/Mordaving</Name>
+      <ShipType>Cordrazine</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Draylok/Sentinel</Name>
+      <ShipType>Draylok</ShipType>
+    </UnlockedHull>
+  </HullsUnlocked>
+</Technology>
