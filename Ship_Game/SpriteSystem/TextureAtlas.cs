@@ -10,7 +10,7 @@ namespace Ship_Game.SpriteSystem
     /// for related textures and animation sequences
     public partial class TextureAtlas : IDisposable
     {
-        const int Version = 23; // changing this will force all caches to regenerate
+        const int Version = 24; // changing this will force all caches to regenerate
 
         // DEBUG: export packed textures into     {cache}/{atlas}/{sprite}.png ?
         //        export non-packed textures into {cache}/{atlas}/NoPack/{sprite}.png
