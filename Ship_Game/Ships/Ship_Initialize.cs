@@ -588,9 +588,6 @@ namespace Ship_Game.Ships
                     case ShipModuleType.PowerConduit:
                         module.IconTexturePath = PwrGrid.GetConduitGraphic(module);
                         break;
-                    case ShipModuleType.Hangar:
-                        module.InitHangar();
-                        break;
                 }
 
                 if (module.InstalledWeapon?.isRepairBeam == true)
