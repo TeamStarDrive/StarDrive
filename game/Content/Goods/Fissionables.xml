@@ -1,0 +1,8 @@
+﻿<Good>
+  <!-- The Textures will be in Textures/Goods, and the name will be same as the UID. The UID is also the name of the file-->
+  <Name>Fissionables</Name>
+  <Description>Raw Fissionable materials that need to be refined into Reactor Fuel</Description>
+  <Mass>.1</Mass>
+  <!-- IsCargo indicates whether this good can be transported in a standard cargo container-->
+  <IsCargo>false</IsCargo>
+</Good>

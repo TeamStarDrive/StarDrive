@@ -1,0 +1,8 @@
+﻿<Good>
+  <!-- The Textures will be in Textures/Goods, and the name will be same as the UID. The UID is also the name of the file-->
+  <Name>Reactor Fuel</Name>
+  <Description>Refined Reactor fuel appropriate for use in advanced power cores</Description>
+  <Mass>.1</Mass>
+  <!-- IsCargo indicates whether this good can be transported in a standard cargo container-->
+  <IsCargo>false</IsCargo>
+</Good>

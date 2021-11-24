@@ -1,0 +1,118 @@
+﻿<MilitaryResearchStrategy>
+  <Name>Swarm</Name>
+  <HullPath>
+    <Tech>
+      <id>StarshipConstruction</id>
+    </Tech>
+    <Tech>
+      <id>HeavyFighterHull</id>
+    </Tech>
+    <Tech>
+      <id>FrigateConstruction</id>
+    </Tech>
+    <Tech>
+      <id>Cruisers</id>
+    </Tech>
+    <Tech>
+      <id>FighterTheory</id>
+    </Tech>
+    <Tech>
+      <id>CombatReadiness</id>
+    </Tech>
+    <Tech>
+      <id>Battleships</id>
+    </Tech>
+    <Tech>
+      <id>Titans</id>
+    </Tech>
+  </HullPath>
+  <MissilePath>
+    <Tech>
+      <id>SpaceWeapons</id>
+    </Tech>
+    <Tech>
+      <id>MissileTheory</id>
+    </Tech>
+    <Tech>
+      <id>Guided Missiles</id>
+    </Tech>
+    <Tech>
+      <id>Torpedo</id>
+    </Tech>
+    <Tech>
+      <id>EMPTorpedo</id>
+    </Tech>
+  </MissilePath>
+  <EnergyPath>
+    <Tech>
+      <id>Energy Weapons</id>
+    </Tech>
+    <Tech>
+      <id>Disruptors</id>
+    </Tech>
+    <Tech>
+      <id>Photon Cannons</id>
+    </Tech>
+    <Tech>
+      <id>Polaron Cannons</id>
+    </Tech>
+    <Tech>
+      <id>EMP Cannons</id>
+    </Tech>
+    <Tech>
+      <id>Quantum Torpedo Cannon</id>
+    </Tech>
+  </EnergyPath>
+  <BeamPath>
+    <Tech>
+      <id>Energy Weapons</id>
+    </Tech>
+    <Tech>
+      <id>Beam Enhancements</id>
+    </Tech>
+    <Tech>
+      <id>Fusion Beams</id>
+    </Tech>
+    <Tech>
+      <id>Phasors</id>
+    </Tech>
+    <Tech>
+      <id>Ionic Weaponry</id>
+    </Tech>
+    <Tech>
+      <id>Siphon Beam</id>
+    </Tech>
+    <Tech>
+      <id>Disintegrator Array</id>
+    </Tech>
+    <Tech>
+      <id>Tractor Beam</id>
+    </Tech>
+  </BeamPath>
+  <KineticPath>
+    <Tech>
+      <id>Magnetic Artillery</id>
+    </Tech>
+    <Tech>
+      <id>PlasmaThrowers</id>
+    </Tech>
+    <Tech>
+      <id>Subspace Artillery</id>
+    </Tech>
+  </KineticPath>
+
+  <DefensePath>
+    <Tech>
+      <id>ArmorTheory</id>
+    </Tech>
+    <Tech>
+      <id>EnergyShielding</id>
+    </Tech>
+    <Tech>
+      <id>HeavyShields</id>
+    </Tech>
+    <Tech>
+      <id>CanopyShields</id>
+    </Tech>
+  </DefensePath>
+</MilitaryResearchStrategy>

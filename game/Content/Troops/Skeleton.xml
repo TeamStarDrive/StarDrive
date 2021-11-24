@@ -1,0 +1,28 @@
+﻿<Troop>
+  <Name>Skeleton</Name>
+  <Description>Ancient bones held together by a mysterious energy field</Description>
+  <TexturePath>skeleton_idle_01</TexturePath>
+  <Icon>skeleton</Icon>
+  <first_frame>1</first_frame>
+  <RaceType>Unknown</RaceType>
+  <num_idle_frames>8</num_idle_frames>
+  <num_attack_frames>9</num_attack_frames>
+  <animated>true</animated>
+  <idle_path>skeleton_idle_</idle_path>
+  <attack_path>skeleton_attack_</attack_path>
+
+  <sound_attack>sd_ground_skeleton_01</sound_attack>
+  
+  <Cost>25</Cost>
+  <Strength>7</Strength>
+  <MaxStrength>7</MaxStrength>
+  <Movement>1</Movement>
+  <MaintenanceCost>1</MaintenanceCost>
+  <Range>1</Range>
+  <HardAttack>1</HardAttack>
+  <BoardingStrength>60</BoardingStrength>
+  <SoftAttack>40</SoftAttack>
+  <TargetType>Soft</TargetType>
+  <Class>Infantry</Class>
+  <MovementCue>sd_troop_march_01</MovementCue>
+</Troop>

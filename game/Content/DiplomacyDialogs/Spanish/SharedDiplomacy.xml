@@ -1,0 +1,57 @@
+﻿<DiplomacyDialog>
+  <StatementSets>
+    <StatementSet>
+      <Name>Conversación normal</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>¿Tenéis alguna queja de nosotros?</words>
+          <Response>Hardcoded_Grievances</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Hablemos de otro imperio...</words>
+          <Response>Hardcoded_EmpireChoose</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>¿Qué me puedes decir de tu gente? </words>
+          <Response>AboutUS</Response>
+        </DialogOption>
+        <DialogOption>
+          <SpecialInquiry>Racial_Inquiry_1</SpecialInquiry>
+          <words></words>
+          <Response>Racial_Response_1</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Proponemos que nuestros imperios se unan y formen una Federación. Nosotros estaríamos al mando, por supuesto. </words>
+          <Response>Hardcoded_Federation_Analysis</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+    <StatementSet>
+      <Name>EmpireDiscuss</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>¿Qué opináis de TAREMP?</words>
+          <Response>Target_Opinion</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Queremos que le declaréis la guerra a TAREMP</words>
+          <Response>Hardcoded_War_Analysis</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+    <StatementSet>
+      <Name>Amenazar</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>Nos enfadaríamos mucho si fundáis colonias nuevas en sistemas que hayamos reclamado como nuestros.</words>
+          <Response>Threatened_Territory</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Dejad de espiarnos </words>
+          <Response>Stop_Spying</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+  </StatementSets>
+ 
+</DiplomacyDialog>

@@ -1,0 +1,29 @@
+﻿<SolarSystemData>
+  <Name>Polmar</Name>
+  <SunPath>star_green</SunPath>
+  <RingList>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+
+    <Ring>
+      <Planet>Sporl</Planet>
+      <SpecialDescription>Sporl is a vast jungle planet absolutely teeming with life. The sentient species on this planet have integrated their advanced technologies into their ecosystems in a completely sustainable and compatible manner. It is difficult to tell apart those structures that have been built by sentient minds from those that have grown organically.</SpecialDescription>
+      <WhichPlanet>19</WhichPlanet>
+      <HomePlanet>true</HomePlanet>
+      <Station>Yes</Station>  
+    </Ring>
+    <Ring>
+      <Planet>Brightmoon</Planet>
+      <SpecialDescription>Brightmoon gains its name from the brilliance of it and its crystalline rings in the night sky of Sporl. It has captivated the imaginations of billions of Pollops since time immemorial. </SpecialDescription>
+      <WhichPlanet>7</WhichPlanet>
+      <Population>0</Population>
+      <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Planet>Darkmoon</Planet>
+      <SpecialDescription>This massive gas giant dominates the outer edges of the Polmar system. Composed largely of hot gasses such as hydrogen and helium, it is totally unsuitable for colonization. </SpecialDescription>
+      <WhichPlanet>28</WhichPlanet>
+    </Ring>
+  </RingList>
+</SolarSystemData>

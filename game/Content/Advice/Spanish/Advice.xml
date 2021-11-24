@@ -1,0 +1,14 @@
+﻿<?xml version="1.0"?>
+<ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <string>Tus colonias pueden importar, exportar o almacenar los alimentos y producción que generen. Fomentar esta clase de intercambios entre tus colonias es una forma eficaz de recaudar dinero, siempre que tu imperio sepa lo que es la economía interestelar.</string>
+  <string>"Artillería" es un término genérico para referirse a los bastimentos que necesitan munición. Una nave debe llevar la artillería que desee disparar en sus módulos de almacenamiento de artillería. La artillería se repone automáticamente cuando una nave visita un planeta con un astillero o una estación de reabastecimiento.  </string>
+  <string>Las armas de energía no precisan munición; en su lugar usan las reservas de energía de la nave para disparar. Una plataforma eficaz de armas de energía ha de disponer de buenas fuentes de energía y de una gran capacidad de almacenamiento.</string>
+  <string>Las naves consumen mucha más energía a velocidad estelar supraluminal si no viajan por una zona de influencia aliada. Amplía tu influencia con nuevas colonias, bases estelares y proyectores subespaciales.  </string>
+  <string>Agrupa tus naves en flotas pulsando el botón ctrl + un número. Usa el editor de flotas para modificar su formación y personalizar la actitud de combate de las naves. </string>
+  <string>Los inhibidores de velocidad supraluminal impiden que las naves no aliadas puedan viajar más rápido que la luz en su radio de influencia. Los inhibidores pueden desplegarse como módulos de naves o como plataformas de espacio profundo.  </string>
+  <string>Para construir estructuras en el espacio profundo, abre el menú de construcción pulsando la tecla "B" y luego haz clic en una estructura y ubícala. Se añadirá a la cola una nave de un solo uso en el astillero más cercano que costará lo mismo que la estructura que deseas construir. Una vez acabada, la nave viajará hasta la posición elegida y se convertirá en la estructura deseada. </string>
+  <string>¿Sabías que puedes capturar naves con grupos de abordaje? Puedes ordenar a cualquier lanzadera de tropas que intente abordar la nave enemiga sobre la que hagas clic con el botón derecho. </string>
+  <string>No descuides tus defensas en tierra. Recluta tropas y despliégalas por tus planetas para contar con la máxima protección.</string>
+  <string>Puedes fijar el tipo impositivo en la pantalla de impuestos. Los impuestos reducen directamente tu producción industrial y tu investigación en ese mismo porcentaje, pero ganas justo esa cantidad de dinero en cada turno. </string>
+  <string>Un "turno" de juego equivale a 5 segundos de tiempo real. Puedes aumentar o reducir la velocidad del juego pulsando las teclas + o -.  </string>
+</ArrayOfString>

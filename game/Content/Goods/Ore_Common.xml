@@ -1,0 +1,8 @@
+﻿<Good>
+  <Name>Common Unrefined Ore</Name>
+  <Cost>2</Cost>
+  <Description>A common iron-nickel ore that requires refinement to be useful</Description>
+  <IconTexturePath>Textures/Goods/ore_common</IconTexturePath>
+  <Mass>1</Mass>
+  <UID>Ore_Common</UID>
+</Good>

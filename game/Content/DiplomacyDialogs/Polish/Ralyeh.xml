@@ -1,0 +1,608 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>... Być może, być może. Jesteśmy Ralyeh, dawcy śmierci. A wy... Wy zrobiliście na nas wrażenie. Być może czeka was inny los.</Friendly>
+      <Neutral>Powiedzcie nam, PLURAL, czy kiedykolwiek kontemplowaliście godzinę swojej śmierci, podczas której wszystko staje się niczym? Obawiacie się cierpienia? Powinniście, bo my jesteśmy Ralyeh - zwiastuni śmierci i słudzy Starszego Boga.</Neutral>
+      <Hostile>Powiedzcie nam, PLURAL, czy kiedykolwiek kontemplowaliście godzinę swojej śmierci, podczas której wszystko staje się niczym? Obawiacie się cierpienia? Powinniście, bo my jesteśmy Ralyeh - zwiastuni śmierci i słudzy Starszego Boga.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Czy aż tak bardzo pragniecie rozmyć się w niebycie, że drwicie ze Starszego Boga tuż przed jego tronem? Wasza obecność w naszych systemach stanowi wielką zniewagę.</Friendly>
+      <Neutral>Osiedlając się w jego domenie, drwicie ze Starszego Boga. Czy myślicie, że nie zdepcze was jak robactwo, którym jesteście?</Neutral>
+      <Hostile>Wasze kpiny ze Starszego Boga nie przejdą niezauważone. Naruszenie obszaru systemu TARSYS nie zostanie wam zapomniane. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Czy aż tak bardzo pragniecie rozmyć się w niebycie, że drwicie ze Starszego Boga, atakując jego apostołów? Cóż za szaleństwo was opętało? </Friendly>
+      <Neutral>Wasze ataki na nas, jakkolwiek żałosne by nie były, są wielką obrazą Starszego Boga. Strzeżcie się.</Neutral>
+      <Hostile>Głupcy! Czy aż tak bardzo pragniecie śmieci, że prowokujecie nas, choć nie nadszedł jeszcze wasz czas?</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>PLURAL, wycofajcie swoje statki z naszej przestrzeni albo uniesiemy się gniewem.</Friendly>
+      <Neutral>PLURAL, wycofajcie swoje statki z naszej przestrzeni albo uniesiemy się gniewem. We have tolerated this for long enough.</Neutral>
+      <Hostile>PLURAL, wasze statki znajdują się w naszej przestrzeni, a my nie będziemy tolerować tego wtargnięcia. Usuńcie je albo sami je usuniemy. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>Drażnicie się z nami? Jak bardzo szalonym trzeba być, by narażać na szwank przyjaźń z Ralyehami? Oddajcie nam TARSYS albo poniesiecie konsekwencje odmowy. </Friendly>
+      <Neutral>Tak jak się tego spodziewaliśmy - wasze naruszenia naszej przestrzeni okazują się trwałe. Kolonizacja systemu TARSYS to dla nas wielka zniewaga. </Neutral>
+      <Hostile>Wkrótce, PLURAL - wkrótce Starszy Bóg was osądzi. Przygotujcie się.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>Drażnicie się z nami? Jak bardzo szalonym trzeba być, by narażać na szwank przyjaźń z Ralyehami? Oddajcie nam TARSYS albo poniesiecie konsekwencje odmowy. </Friendly>
+      <Neutral>Tak jak się tego spodziewaliśmy - wasze naruszenia naszej przestrzeni okazują się trwałe. Kolonizacja systemu TARSYS to dla nas wielka zniewaga, a wasza przedłużająca się obecność dodatkowo pogarsza sytuację. </Neutral>
+      <Hostile>Wkrótce, PLURAL - wkrótce Starszy Bóg was osądzi. Przygotujcie się.</Hostile>    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>Nie łudźcie się, PLURAL. Gdy nadejdzie godzina waszej śmierci, przestaniecie istnieć. Wszystko, co kiedykolwiek wiedzieliście i czymkolwiek byliście, zostanie wymazane. Nie ma innego boga niż Starszy Bóg, a nawet on jest niewolnikiem śmierci. Ale odbiegam od tematu. Nadeszła godzina waszej śmierci. Wypowiadamy wam wojnę. </misc1>
+      <misc2>Odbieranie życia to wielki zaszczyt i ogromny ciężar. Handlarz śmierci jest niszczycielem światów - niszczycielem wszechświatów! Wszystko, czym kiedykolwiek byliście, staje się nicością! Uczynimy to wam. Zniszczymy wasze światy i obrócimy wasze wszechświaty w nicość! Wypowiadamy wam wojnę.</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Spojrzenie Starszego Boga nie padło jeszcze na rasy inne niż wasza i nasza. Wkrótce jednak to się zmieni. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Witajcie, PLURAL. Zastanawialiście się nad swoją śmiercią? Czy będzie to dobra śmierć?</Friendly>
+      <Neutral>W jaki sposób umrzecie, PLURAL? We własnym domu, starzy i niedołężni, otoczeni przez rodzinę? W walce? W wypadku? Zamordowani? Nad tym właśnie się zastanawiamy. Dlaczego zakłócacie nam te mroczne myśli?</Neutral>
+      <Hostile>PLURAL przybyli, aby pełzać u stóp Śmierci. O co chodzi? </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>Co to za laska, którą trzymasz?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>To berło Starszego Boga, które symbolizuje moją władzę nad naszym ludem. To ja interpretuję i przekazuję wolę Starszego Boga.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>Jesteśmy handlarzami śmierci </DL_Agg>
+      <DL_Hon>Jesteśmy handlarzami śmierci </DL_Hon>
+      <DL_Pac>Jesteśmy handlarzami śmierci </DL_Pac>
+      <DL_Ruth>Jesteśmy handlarzami śmierci</DL_Ruth>
+      <DL_Cunn>Jesteśmy handlarzami śmierci </DL_Cunn>
+      <DL_Xeno>Jesteśmy handlarzami śmierci </DL_Xeno>
+      <DL_Exp> i zaniesiemy swoje ciężkie brzemię do każdej gwiazdy na wszystkich nieboskłonach, aż po krańce kosmosu. </DL_Exp>
+      <DL_Tech> i poprzez śmierć tych, którzy nie podobają się Starszemu Bogowi, zdobędziemy wiedzę. Wiedzę niezbędną do przeciwstawienia się śmierci!  </DL_Tech>
+      <DL_Mil> i nasza potężna flota zaniesie nasze ciężkie brzemię na liczne światy naszych wrogów.  </DL_Mil>
+      <DL_Ind>, a nasz przemysł da nam narzędzia tak potężne, że żadna rasa nie oprze się naszej świętej krucjacie.</DL_Ind>
+      <DL_Gen>, a mimo to kochamy życie. Życie i Śmierć. Światło i Mrok. Chaos i Porządek.</DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Nie mamy powodów, aby zaufać wam, zgadzając się na taką umowę.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Wasza ofiara dla Starszego Boga poruszyła nas tak bardzo, że okażemy wam więcej zaufania, niż pozwalałby na to zdrowy rozsądek. Zgadzamy się. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Macie nas chyba za głupców. Nie zgadzamy się. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Nadużywacie naszego zaufania, składając tak nędzną ofertę. Zwiększcie swój wkład, jeśli chcecie zawrzeć taki układ. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Budzicie gniew Starszego Boga tak obraźliwymi warunkami!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Zgadzamy się. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Wasza propozycja podoba się Starszemu Bogowi. Zgadzamy się.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Wasza hojna oferta została zaakceptowana, PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Starszy Bóg będzie zadowolony z waszej ofiary.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Błagacie o uczciwy handel? Żałosne, ale zgadzamy się. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Dźwięk śmiechu Starszego Boga rozsadziłby wam czaszki, gdybyście mogli go teraz słyszeć. Śmieje się z waszych żałosnych gróźb.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Wasze groźby są jak wodorosty na falach oceanu. Akceptujemy waszą ofertę, ale nie podoba nam się jej ton. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Czy Starszy Bóg nas opuścił? Jakim cudem stworzenia takie jak wy zmuszają nas do przyjęcia tak niekorzystnego układu? Zaiste nastał mroczny czas. Zgadzamy się na wasze żądania. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Złamaliście swoje obietnice, ale my dotrzymamy danego słowa. Przysięgamy, że was zabijemy. Przysięgamy, że zmiażdżymy kości i wyssiemy wnętrzności. Przysięgamy, że pić będziemy waszą krew z czaszek waszych dzieci. Przysięgamy to przed Starszym Bogiem. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Bardzo dobrze. Śmierć przychodzi po każdego z nas, PLURAL. Takie są koleje życia.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Czy widzicie ciemność przed wami? Jest już bardzo blisko. Czy jesteście zadowoleni z tego, jak wyglądało wasze życie? Czy znaleźliście jego sens? Mówcie, a wysłuchamy was.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Wolelibyśmy poczekać jeszcze z wypowiadaniem wam wojny, ale rozsądek zmusza nas do natychmiastowych działań. Ukarzemy was na polu bitwy za liczne przewiny, których się dopuściliście. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Wolelibyśmy poczekać jeszcze z wypowiadaniem wam wojny, ale rozsądek zmusza nas do natychmiastowych działań. Ukarzemy was na polu bitwy za liczne przewiny, których się dopuściliście. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>Wolelibyśmy poczekać jeszcze z wypowiadaniem wam wojny, ale rozsądek zmusza nas do natychmiastowych działań. Wasze przewiny w systemie TARSYS były tak liczne, że zostaniecie za nie ukarani na polu bitwy. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Starszy Bóg proponuje wam pakt o nieagresji w nadziei, że nasze ludy razem będą mogły przeciwstawić się śmierci.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Stało się. PLURAL i Ralyehy będą żyli, a śmierć wycofa się w oczekiwaniu na jutro.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Więc będzie tak, jak przepowiedział. Umrzecie w samotności i ignorancji, zapomniani przez wszystkich.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Witamy was, PLURAL. Pragniemy wymiany handlowej z waszym ludem. Czy zgadzacie się na to? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Starszy Bóg jest zadowolony. Zajmiemy się szczegółami. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Jak chcecie. I tak słyszeliśmy, że wasze towary są pośledniej jakości. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Czy to nasze słowa spowodowały tę zmianę zdania? Czy to Życie wybieracie teraz, a nie śmierć? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Odrzuciliście wcześniej naszą propozycję handlu, a teraz proponujecie własne warunki? PLURAL są tacy dziwni.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Okażecie wielką mądrość przekazując nam technologię: TECH_DEMAND. Może to spowodować znaczące wydłużenie długości waszego życia.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Stało się tak, jak przepowiedział Starszy Bóg. Być może razem uda nam się opierać śmierci trochę dłużej.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Nieważne. To była tylko próba, a wam nie udało się jej przejść. Żegnajcie, PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Spojrzenie Starszego Boga padło na waszą flotę i uważa on, że jest niewystarczająca. Zastanawia się, czy to wy umrzecie następni. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Starszy Bóg osądził waszą flotę i uważa, że jest godna. Będziecie żyć - na razie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Jesteśmy zadowoleni, że usłuchaliście ostrzeżenia Starszego Boga. Wasza flota jest teraz w o wiele lepszym stanie niż dawniej. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Przybywamy do was z naszą świętą krucjatą. Odbierzemy wam życie, PLURAL. Odbierzemy wam planety, bogactwa oraz ludzi i obrócimy to wszystko w nicość. Szykujcie się.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Szanujemy ich filozofię oraz siłę. Będą żyli - na razie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>W tej chwili Starszy Bóg nie jest nimi zainteresowany.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>Wojownicze bestie obraziły Starszego Boga i zostaną ukarane za tę zniewagę.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>To... silniejsze od nas, lubimy te stworzenia.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Dziwne stworzenia, te Pollopy. Zazwyczaj je ignorujemy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Wodorosty! Nie uronimy nawet jednej łzy, kiedy będziemy wyrywać je z korzeniami. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Chwilami zastanawiamy się, jak to możliwe, że Vulfeni podróżują w kosmosie. Jednak są silni oraz zajadli i za to ich lubimy. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Nie poświęcamy Vulfenom zbyt wiele uwagi.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Te psy nie są warte życia.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Tak, Ludzi nawet lubimy. Starszy Bóg odwiedził ich dawno temu. Legendy Ludzi utrzymują, że zupełnie wypędzili go ze swojego świata. Ale my znamy prawdziwą wersję tej historii. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Nie interesowaliśmy się Ludźmi od czasu, gdy Starszy Bóg odwiedził ich świat wiele wieków temu.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Ludzie mają podania o naszym Starszym Bogu. Wierzą, że są zdolni go pokonać! W jak wielkim są błędzie, te żałosne stworzenia!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Dla Ralyehów liczy się tylko jedna przysięga - ta, w której przyrzekają służbę Starszemu Bogowi. Zdecydowaliśmy, że nasz pakt o nieagresji stoi w sprzeczności z tą przysięgą. Unieważniamy go i wypowiadamy wam wojnę.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Wasze planety należą do nas, a wasza flota została rozbita. Krąg się zamknął, a wola Starszego Boga została spełniona. Przynieśliśmy wam śmierć, a teraz opłakujemy waszą stratę.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Okazaliście się godnymi przyjaciółmi Starszego Boga i jego wyznawców. Nie chcemy, aby przygraniczne spory zagroziły naszej przyjaźni. Podpiszmy pakt o otwartych granicach, aby usunąć źródło tych konfliktów.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Jesteście mądrzy, PLURAL. Podzielmy się tą wiadomością z tymi, którzy są tego warci. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Wielka szkoda. Swoim sprzeciwem przyciągnęliście wzrok Starszego Boga, a jego spojrzenie przynosi tylko śmierć.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Hmmm. Podziwiamy waszą odwagę, PLURAL. Nie spodziewaliśmy się tego z waszej strony. Myśleliśmy, że jesteście bardziej honorowi. To już nieważne, teraz poznaliśmy prawdę. Mamy wojnę.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Lądując swoimi oddziałami w systemie TARSYS, dobijacie się do drzwi Śmierci. Bardzo dobrze. Za chwilę wam odpowie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Opteris to interesujące stworzenia. Czy są żywe? Czy mogą umrzeć? Utrzymujemy z nimi przyjacielskie stosunki - na razie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>Nie mamy opinii na temat tych maszyn.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Rozzłościli Starszego Boga. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Jesteście żywi? Cóż, w takim razie żywimy wobec was urazę. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>W tej chwili Starszy Bóg odwrócił od was swój wzrok. Jego brak zainteresowania to wielkie błogosławieństwo. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Starszy Bóg jest z was niezadowolony z wielu powodów. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Najpoważniejszym z nich jest nasza rywalizacja o systemy gwiezdne. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>Najpoważniejszym z nich jest nasza rywalizacja o systemy gwiezdne. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Jesteśmy również zaniepokojeni siłą waszej floty oraz tym, do czego zamierzacie jej użyć. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Poza tym wasza flota jest żałosna i trudno nam was z tego powodu szanować. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Najpoważniejszym z nich jest wasza słabość. Starszy Bóg gardzi słabeuszami. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Najpoważniejszym z nich jest wielkość waszej floty oraz to, do czego zamierzacie jej użyć. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Nie podoba nam się wasz sojusz z TAREMP, którzy są wrogami Starszego Boga. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Poza tym nie podoba nam się wasz sojusz z TAREMP, którzy są wrogami Starszego Boga. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Nie podoba nam się sam fakt, że jesteście żywi. Poza tym nie żywimy wobec was żadnych uraz. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Słyszycie odgłos dzwonu bijącego na waszą zgubę, przywołującego was do zaświatów? Jest już tak blisko. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Wasz ciągły opór wobec wezwań Starszego Boga wywołuje naszą wściekłość. Czego chcecie, PLURAL? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>Starszy Bóg będzie bardzo zadowolony, jeśli przyłączycie się do naszej walki przeciwko TAREMP. Co wy na to? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Doskonale. Razem dostarczymy jego ciężkie brzemię. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Głupcy! Nie myślcie, że jesteście przed nami bezpieczni. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Nie rozgniewali jeszcze Starszego Boga. Chyba ich lubimy. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Ignorujemy niższe rasy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>Są na naszej liście. I to nie na tej dobrej.</Default>
+    </DialogLine>
+
+
+    <!-- Second Run Localization -->
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>Z powodów wymykających się mojemu zrozumieniu, Starszy Bóg pragnie oszczędzić wasz lud. Oferujemy wam traktat pokojowy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Z powodów wymykających się mojemu zrozumieniu oraz pomimo nieprzerwanego pasma naszych sukcesów militarnych, Starszy Bóg pragnie oszczędzić wasz lud. Oferujemy wam traktat pokojowy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Starszy Bóg uznał waszą siłę. Przez wzgląd na nią oferujemy wam traktat, który zakończy nasz konflikt. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>My... musimy prosić, abyście zaprzestali wojny przeciwko nam. Nasze przesłanie jest niezwykle ważne, a wy swoją siłą zagrażacie naszej egzystencji. Prosimy, zgódźcie się na zakończenie tej wojny.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Starszy Bóg uznał siłę, z jaką bronicie swoich żądań. Z szacunku do waszej siły oferujemy traktat pokojowy w celu zakończenia naszego konfliktu.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Te graniczne konflikty rozpraszają nas. Uważamy, że wygraliśmy tę rundę i jesteśmy skłonni zawrzeć z wami pokój.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Cóż... Pokój to od początku był kiepski pomysł.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Będzie tak, jak zostało zapisane. Między nami panuje pokój.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Uderzmy dwa razy w dzwon. Raz za tych, którzy polegli i raz za tych, którzy ocaleli. Między nami panuje pokój. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Słudzy Starszego Boga nie muszą być wszechwiedzący, aby wiedzieć, za jakich głupców musicie nas brać, oferując tak odrażające warunki. Nie zgadzamy się. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Żądania Starszego Boga nie zostały zaspokojone. Nie zrezygnujemy z nich bez dobrego powodu. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Zmusiliście nas do wypełnienia swojej woli, PLURAL. Podziwiamy to i zgadzamy się.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Wasze nieustające istnienie pomimo naszych wysiłków podczas niedawnej wojny jest źródłem niegasnącej urazy. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Galaktyka to niebezpieczne miejsce, PLURAL. Czujemy, że nasza przyjaźń zasługuje na uznanie w postaci sojuszu, który zapewniłby nam bezpieczeństwo. Co wy na to?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Cieszy nas wasza mądrość. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Wasz brak mądrości w tym względzie nas zaskakuje.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Kwestia sojuszu wymaga skomplikowanych analiz. Nie chcemy, aby dodatkowe warunki wpłynęły na naszą decyzję. Zaoferujcie sam sojusz, a rozpatrzymy tę propozycję. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Tak... tak! Widzimy w tym mądrość! Zostańmy sojusznikami.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Nie, PLURAL. Nie zostaniemy sojusznikami.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Jaką dziesięcinę zaoferowaliście, aby wybłagać u Starszego Boga przebaczenie? Hmm? Które światy złożycie mu w ofierze? Pomyślcie o tym, zanim poprosicie, aby oszczędził wasze życie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>Pokój? Zanim rozlana została pierwsza krew? Wasza dziesięcina wydaje się wystarczająca. Bardzo dobrze - dostaniecie pokój.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Jesteśmy na was źli, PLURAL. Nie tak powinni zachowywać się sojusznicy. Niech wam będzie. Uznajemy sojusz za zerwany.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>PLURAL, czy nie macie szacunku do boskiej własności? TARSYS należał do niego, a wy rozgniewaliście go swoim nieposłuszeństwem! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Głupcy! Myśleliśmy, że lubicie swoje żałosne życie. Jednak wasze ciągłe nieposłuszeństwo wobec naszych życzeń sprawia, że zaczynamy się zastanawiać, czy nie zależy wam na tym, abyśmy przyspieszyli dostarczenie wam naszego daru.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>Kolejny raz ukradliście nam naszą własność. Starszy Bóg się budzi, PLURAL. Nie będzie szczęśliwy, kiedy się o tym dowie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Ostrzegamy was, ponieważ jesteście naszymi przyjaciółmi, PLURAL. Trzymajcie się z dala od systemu TARSYS. Zajęliśmy go dla naszego Boga.</Friendly>
+      <Neutral>W imię Starszego Boga, zajmujemy system TARSYS. Trzymajcie się od niego z daleka, PLURAL.</Neutral>
+      <Hostile>Wiedzcie, że my, Ralyehy, zajęliśmy system TARSYS. Kolonizujecie go na własne ryzyko!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>To z pewnością dziwna rasa. A ich kompani, ci futrzaści... też są dziwni. Ale lubimy ich. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Nie mamy nic do powiedzenia na temat właścicieli niewolników.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Ach, posiadacze niewolników. Nie imponują nam ich metody i uważamy ich za wrogów. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>PLURAL. Czają się w cieniu... Kradną tajemnice silniejszych od siebie... Odrażające.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Obserwujemy was, PLURAL. Wiemy, że nas szpiegujecie. Tylko przyspieszacie swoją zgubę, denerwując nas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>Starszy Bóg nie będzie tego tolerował! Wiemy, że nas szpiegujecie! Nasze umowy zostają rozwiązane!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Ofiara dla Starszego Boga! Wasz agent był przepyszny.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>Dlaczego nas szpiegujecie, PLURAL? Po co tworzyć sojusz, skoro tak bezmyślnie go zrywacie? Damy wam jedną szansę, ale musicie z tym skończyć.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Zmarnowaliście daną wam szansę. Nas sojusz przestaje istnieć.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Przyłączcie się do nas, PLURAL. Otwórzmy przed sobą granice na znak naszej przyjaźni. Zgadzacie się?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Jak sobie życzycie. Pamiętajcie tylko, że Śmierć nie zna granic i nie omija przyjaciół.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Nie, niecierpliwcy. To nie jest układ, który zawrzemy z byle kim.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Przyjaciele... Prosicie nas o tak wiele, a nie jesteśmy nawet formalnymi sojusznikami. To co proponujecie pewnego dnia może się stać możliwe, ale najpierw musimy zbudować podstawy pod taki układ.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Niecierpliwi jak zawsze. Pozwólcie najpierw okrzepnąć naszemu sojuszowi. Upewnimy się, że nie ma żadnych problemów i wtedy porozmawiamy na temat tej propozycji.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Dlaczego mielibyśmy się zgadzać, skoro jesteśmy silni, a wy... no cóż, nie jesteście aż tak silni? Nie możemy się zgodzić.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Cóż za wspaniały dzień. Pomogliście nam odnaleźć życie w ciemności. Dzisiaj do was dołączamy. Niech żyje federacja!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Prosicie nas o wiele, PLURAL. Przyłączymy się do was, ale zrobimy to tylko, jeśli pokonacie naszych wrogów, TAREMP. Dowiedźcie swojej wiary, a staniemy się jednym.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>Stało się. Pokonaliście TAREMP, a my dotrzymamy danego wam słowa i wstąpimy do waszej federacji.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Być może powinniście skupić się na poprawieniu naszych relacji i rozwiązaniu problemów, które je psują, zamiast składać takie wielkie propozycje.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Dołączylibyśmy do was, PLURAL. Najpierw jednak musicie być przyjaciółmi naszych przyjaciół. Jeśli uda się wam zawrzeć sojusz z TAREMP, to staniemy się częścią waszej federacji.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Spełniliście naszą prośbę. Zawarliście sojusz z TAREMP, więc my dołączymy do waszej federacji.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>Wasz entuzjazm do wszczynania konfliktów został odnotowany. Jednak żołnierze Starszego Boga nie są najemnikami. Odpowiedź brzmi: nie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>Prowadzimy już wojnę z TAREMP.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Jako wasi sojusznicy jesteśmy zobowiązani do usłuchania tej prośby. Idziemy na wojnę.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Nie możemy walczyć z TAREMP, ponieważ też są naszymi przyjaciółmi i sojusznikami.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Nie, PLURAL. Pomyśleliśmy, że zamiast tego moglibyśmy rozpocząć wojnę z wami. Czy to nie byłoby zabawne? Odejdźcie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Nie pochwalamy wojny, która nie służy samoobronie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Nie. Są dla nas zbyt potężni. Nie możemy się zgodzić.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Zgadzamy się! Są słabi i bezbronni... Zaatakujmy ich i wykończmy.</Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

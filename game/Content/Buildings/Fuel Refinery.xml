@@ -1,0 +1,21 @@
+﻿<Building>
+  <Name>Fuel Refinery</Name>
+  <Maintenance>0</Maintenance>
+  <Cost>200</Cost>
+  <Icon>refınery</Icon>
+
+  <!-- creates this consumable good -->
+  <ResourceCreated>ReactorFuel</ResourceCreated>
+  <!-- consumes this consumable good -->
+  <ResourceConsumed>Fissionables</ResourceConsumed>
+  <!-- how much of the consumable good per tick is consumed -->
+  <ConsumptionPerTurn>1</ConsumptionPerTurn>
+  <!-- provided the consumable good is present, how much of the created good is output per turn -->
+  <OutputPerTurn>10</OutputPerTurn>
+  
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>5075</NameTranslationIndex>
+  <DescriptionIndex>5076</DescriptionIndex>
+  <ShortDescriptionIndex>5077</ShortDescriptionIndex>
+
+</Building>

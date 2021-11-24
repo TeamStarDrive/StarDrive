@@ -1,0 +1,57 @@
+﻿<DiplomacyDialog>
+  <StatementSets>
+    <StatementSet>
+      <Name>Discussion ordinaire</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>Avez-vous des reproches à nous faire ?</words>
+          <Response>Hardcoded_Grievances</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Discutons d'un autre empire...</words>
+          <Response>Hardcoded_EmpireChoose</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Que pouvez-vous me dire sur votre peuple ? </words>
+          <Response>AboutUS</Response>
+        </DialogOption>
+        <DialogOption>
+          <SpecialInquiry>Racial_Inquiry_1</SpecialInquiry>
+          <words></words>
+          <Response>Racial_Response_1</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Nous vous proposons d'associer nos empires sous une même Fédération. Évidemment, notre peuple en aura le contrôle. </words>
+          <Response>Hardcoded_Federation_Analysis</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+    <StatementSet>
+      <Name>EmpireDiscuss</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>Que pensez-vous de TAREMP ?</words>
+          <Response>Target_Opinion</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Nous voulons que vous déclariez la guerre à TAREMP</words>
+          <Response>Hardcoded_War_Analysis</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+    <StatementSet>
+      <Name>Menacer</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>Nous serons extrêmement en colère si vous installez des nouvelles colonies sur des systèmes que nous revendiquons.</words>
+          <Response>Threatened_Territory</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Arrêtez de nous espionner. </words>
+          <Response>Stop_Spying</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+  </StatementSets>
+ 
+</DiplomacyDialog>

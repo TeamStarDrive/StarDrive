@@ -1,0 +1,25 @@
+﻿<Troop>
+  <Name>Revoran Walker</Name>
+
+  <RaceType>Terran</RaceType>
+  <Icon>terran_hw_squad</Icon>
+
+
+  <Description>Rocket Age armor used by the Revoranii</Description>
+  <TexturePath>walker</TexturePath>
+  <Cost>70</Cost>
+  <Strength>20</Strength>
+  <MaxStrength>20</MaxStrength>
+  <Movement>1</Movement>
+  <MaintenanceCost>1</MaintenanceCost>
+  <Range>1</Range>
+  <BoardingStrength>10</BoardingStrength>
+  <HardAttack>40</HardAttack>
+  <SoftAttack>40</SoftAttack>
+  <TargetType>Soft</TargetType>
+  <Class>Infantry</Class>
+  <MovementCue>sd_mech_march_03</MovementCue>
+
+  <sound_attack>sd_ground_spidertank_01</sound_attack>
+
+</Troop>

@@ -1,0 +1,613 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>Bonjour, que les cieux soient dégagés et les soleils vous réchauffent ! Écoutez les chants de l'amitié, car nous sommes les Pollops et souhaitons vivre en paix avec vous.</Friendly>
+      <Neutral>Le temps est nuageux, voyageur. Nous sommes les Pollops et nous vous jouons une chanson de bienvenue.</Neutral>
+      <Hostile>L'horizon se couvre de gros nuages, un orage approche peut-être. Nous sommes les Pollops. Je vous prie de ne pas nous approcher.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Vous aimez les tempêtes ? Pourquoi avez-vous colonisé le système TARSYS, alors que vous saviez qu'il appartenait aux Pollops ? Ne sommes-nous pas amis ? </Friendly>
+      <Neutral>C'est un jour sombre et couvert, SING. Vous avez colonisé le système TARSYS en sachant que les Pollops l'avaient déjà revendiqué. Cela nous... attriste. </Neutral>
+      <Hostile>Des nuages orageux approchent, emplis de glace et de grêle ! Des envahisseurs ont conquis la jungle. TARSYS nous appartenait ! Nous ne l'oublierons pas. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Oh ! Nous vous avons peut-être effrayés, et c'est pour ça que vous nous avez attaqués ? Car sinon pourquoi nos bons amis SING nous feraient-ils du mal ? </Friendly>
+      <Neutral>Les ténèbres ont remplacé la lumière. Les Pollops ne sentiront plus jamais les sols dans leurs racines. C'est votre faute, et pour quelle raison ?</Neutral>
+      <Hostile>Sur Polmar, lorsqu'un parasite infecte une plaie qui suppure encore plus, nous coupons la racine et la tige. Vous êtes une maladie, SING. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>Ah bonjour, SING. Nous avons vu que vos vaisseaux de guerre bloquaient notre soleil. Pourriez-vous, s'il vous plaît, les retirer de notre territoire ? </Friendly>
+      <Neutral>Vos vaisseaux de guerre grossissent comme des nuages orageux à l'horizon. Les Pollops craignent les orages car leur féroce colère touche tout le monde. Nous ne voulons pas ouvrir d'hostilités avec vous, alors retirez vos vaisseaux et calmez la proche tempête. </Neutral>
+      <Hostile>Nous vous semblons peut-être faibles, mais ne nous sous-estimez pas ! Chassez vos vaisseaux de notre espace sur-le-champ !  </Hostile>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>SING, vous avez encore moins d'honneur que les parasites sur nos frondaisons et vous êtes inférieurs aux vers qui évoluent sous nos racines. Nous allons vous apporter la tempête. </misc1>
+      <misc2>SING, vous avez encore moins d'honneur que les parasites sur nos frondaisons et vous êtes inférieurs aux vers qui évoluent sous nos racines. Nous allons vous apporter la tempête.</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Une pluie printanière ! Vous êtes les premiers voyageurs que nous rencontrons. Nous pourrons parler de nos amis mutuels lorsque nous en aurons ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Hon>Nous sommes originaires de Polmar, une planète aux sols riches et aux soleils chauds. La jungle y est cruelle et sauvage. C'est notre chant d'unité et de confiance qui nous protège et nous lie. Nos liens sont essentiels à nos yeux. </DL_Hon>
+      <DL_Pac>Nous venons de Polmar, une planète sauvage dotée d'une jungle redoutable. Les Pollops ont connu leur lot de combats et de morts, et souhaitent désormais vivre uniquement dans la paix. </DL_Pac>
+      <DL_Cunn>Nous sommes originaires de Polmar, un monde de jungle que vous n'aimeriez pas du tout. Sur Polmar, la jungle est synonyme de mort pour les imprudents. Les créatures les plus mortelles sont celles que les proies ne voient jamais venir. </DL_Cunn>
+      <DL_Xeno>Nous venons de Polmar, où le sol est riche et les soleils sont chauds. Vos coutumes sont très étranges pour nous, si bizarres et troublantes...</DL_Xeno>
+      <DL_Exp>Quant à nos rêves, nous voulons simplement grandir dans les sols de plusieurs milliers de mondes et boire la lumière de plusieurs milliers de soleils. </DL_Exp>
+      <DL_Tech>C'est l'évolution, SING. Il faut toujours s'améliorer, toujours s'adapter, toujours avancer. Ce sont nos coutumes.</DL_Tech>
+      <DL_Ind>Nous vénérons par-dessus tout le trait industrieux de la nature. Contrôler la croissance, et construire toujours plus ! C'est ce qui nous motive.</DL_Ind>
+      <DL_Gen>Concernant nos rêves, nous pensons que l'équilibre donne la force. Nos avenirs meilleurs se construisent individuellement, une racine à la fois. </DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Que les soleils vous réchauffent, mon ami. Comment pouvons-nous vous aider ?</Friendly>
+      <Neutral>Le temps est nuageux, SING. Que voulez-vous ?</Neutral>
+      <Hostile>Par le feu et la glace ! Quels dangers avez-vous attirés jusqu'ici, SING ? </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>Qu'est-ce que cette machine que vous manipulez ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Ah ! Ça ? C'est un sono-clavier, bien sûr. À chaque fois que je joue une note, il libère un coup puissant de lumière synthétisée ! C'est bon pour nous, mais peut-être pas pour vous !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Ohhh, eh bien... nous aimerions faire ça, mais nous ne vous connaissons pas assez pour conclure un tel marché.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Ah ! C'est vraiment ce que vous voulez ? Car nous vous connaissons à peine, et votre offre est vraiment généreuse ! Nous acceptons.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Hummmm. Sur Polmar, certains parasites dévorent nos frondaisons. Les PLURAL nous font penser à ces parasites.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Vous voulez nous faire croire que le ciel est dégagé ? Non, SING, nous ne pouvons pas faire ça. Apportez-nous plus de chaleur, et alors nous accepterons peut-être.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Vous, les individus à sang chaud, nous croyez faibles. Non, SING, nous ne nous déracinerons pas pour vous satisfaire. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Quel bonheur ! Nous sommes heureux de conclure ce marché avec vous.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Quel bonheur ! Nous sommes heureux de conclure ce marché avec vous.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Vous nous avez donné un tel cadeau ! Oui, oui ! Nous acceptons !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Vous nous avez donné un tel cadeau ! Oui, oui ! Nous acceptons !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Bien évidemment que nous sommes heureux de vous aider ! Mais ne nous oubliez pas quand nous aurons besoin d'aide !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Ah ! Les paroles sont comme le vent, SING, et les vôtres sont identiques à une brise qui ne nous permet pas de vous prendre au sérieux. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Pas besoin d'être menaçants ! Ce marché est équitable, et nous acceptons !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Oui, oui... prenez ça ! Prenez ça et partez ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Votre sang chaud fertilisera les sols de vos mondes, SING. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Alors, nous sommes finalement plus difficiles à déraciner que ça, non, SING ? Que nous voulez-vous ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Nous savons reconnaître des créatures dangereuses quand nous en voyons ! Les vaisseaux Pollops vont se défendre. C'est la guerre !  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense BrokenNA</DialogType>
+      <Default>Imitateurs ! Traîtres ! Vous vous faites passer pour quelqu'un que vous n'êtes pas. C'est la guerre ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Nos terres, nos sols, nos soleils ! Que les tempêtes et la grêle vous frappent ! La guerre approche !  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>TARSYS appartient aux racines des Pollops ! Pas aux vôtres, SING ! Pollops ! Entendez l'appel de la guerre ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>SING, ne serait-ce pas idéal si nous pouvions être tous deux assurés des intentions pacifiques de l'autre ? On devrait conclure un pacte ! On ne vous attaquera jamais, et vous ne nous attaquerez jamais ! Cela ne vous semble-t-il pas parfait, comme le soleil ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Quelle brise printanière ! Nous sommes heureux de l'apprendre, SING. Restez ici et je vais vous jouer cette chanson ! C'est ma préférée.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Ah ! Bon. Alors, on vous observera ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Salutations ! Et si nous commercions ? Nous avons de nombreuses et belles choses que vous pourriez acheter. Signons un traité commercial ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Magnifique ! Nous avons hâte de commercer avec vous. Votre passerelle serait bien plus charmante avec quelques plantes, non ? Car elle est d'un ennui mortel ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Oh ! Eh bien... c'est entendu. Mais nous sommes censés être amis, non ?  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Vous avez changé d'avis ! Maintenant vous voulez un pacte de non-agression. Hum. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Alors MAINTENANT, vous voulez commercer avec nous ? C'est une ruse ? Voyons voir... </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Vous, les PLURAL, vous êtes si étranges ! Comment pouvons-nous faire confiance à des êtres sans racines ? C'est une question pour la forme ! Nous vous ferons confiance, bien sûr, si vous nous donnez un cadeau. Pourquoi pas l'élément TECH_DEMAND ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Par l'aube ! Cela inaugure quelque chose de nouveau et glorieux, n'est-ce pas ? Merci ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Il faut toujours croire en son instinct et ne jamais faire confiance à des êtres sans racines ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Oh, par le mauvais temps, SING ! Votre flotte n'est pas prête pour ça ! Vous feriez mieux de la développer.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Eh bien ! Votre flotte est vraiment vaste ! Qu'allez-vous en faire ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Il est bon que vous nous ayez écoutés. Votre flotte est bien meilleure désormais. Beau travail. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Bonjour ! Vous nous considérez peut-être comme un peuple ami, mais en fait, nous sommes des tueurs sans pitié ! Alors, nous allons venir sur vos planètes et tuer tout votre peuple. À bientôt !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Les humains ! Nous adorons les humains ! Ils nous comprennent, mais nous ne les comprenons pas vraiment. Et ils aiment notre musique ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Oh, nous ne connaissons pas bien les humains. Nous n'avons pas d'avis ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Oooooh... oui, nous connaissons les humains. Ils sont malveillants ! Ils ne s'intéressent qu'à une seule chose, eux ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Bien sûr que nous connaissons les Vulfar ! Ils sont gentils avec nous. Je pense que nous sommes amis.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Non, nous ne connaissons pas très bien les Vulfar. Sont-ils sympathiques ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Nous avons vraiment peur d'eux ! Avez-vous vu leurs crocs ? Mais je ne pense pas qu'ils soient végétariens, alors tout va bien !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Leur race est splendide. On s'entend bien avec les Kulrathi. Leur poésie ressemble beaucoup à notre musique !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>Non, nous ne connaissons pas très bien les Kulrathi. Nous n'avons pas d'avis !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>Nous ne les aimons pas beaucoup ! Ils sont grands et méchants, et ne se soucient pas du tout de nous !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>On s'entend bien ! Ils ne s'agacent pas lorsque nous leur jouons des chants ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Ils ont vraiment un aspect étrange ! Mais nous ne les connaissons pas très bien. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Ces créatures sont vraiment viles ! Vous feriez bien de vous en méfier, SING ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Eh bien, ils ont l'air effrayants, mais leur nature est vraiment bienveillante ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>Nous ne connaissons pas bien ces créatures.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>Ah ! Ils nous effrayent !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Vous connaissez la loi de la jungle, SING ? C'est la survie du plus fort. Vous pensiez que ce pacte de non-agression allait cacher votre faiblesse ? Vos mondes sont riches et vos flottes pathétiques. Nous vous déclarons la guerre !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Vous auriez dû savoir que nous allions gagner, SING ! Nous sommes plus forts qu'on en a l'air !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Hé ! L'espace est bien suffisant pour nos deux races, non ? Signons un traité de Frontières ouvertes.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Alors, que le temps soit ensoleillé ! Bonne nouvelle ! À bientôt !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Ce sont des nuages orageux et le tonnerre, SING. Ce sont des nuages orageux et le tonnerre.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Ooohhh... TARSYS nous appartenait ! Et notre traité ? Les PLURAL sont de sales créatures, non ? C'est donc la guerre !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Vous agissez ainsi, SING ? Vous envahissez notre monde sans aucun avertissement, c'est ça ? Bien ! La guerre est déclarée !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Ils sont différents, comme nous ! On les aime bien. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>Nous ne les comprenons pas vraiment. Nous n'avons pas d'avis !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Ils veulent dévorer nos mondes, c'est tout ! Nos sols ! Nous ne les aimons pas beaucoup !</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Par le tonnerre et les éclairs ! Ce dernier système nous APPARTENAIT ! Sales PLURAL !  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Des griefs ? On vient juste de se rencontrer ! Je suis sûr qu'on peut être amis. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Eh bien, nous sommes amis, non ?  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Oh. Eh bien, vu que vous posez la question, c'est oui ! Nous avons des soucis. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Principalement parce que vous colonisez les mondes que NOUS voulons ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>C'est que nous voulons tous deux les mêmes planètes. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>L'autre chose, c'est que votre flotte est vraiment grande ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>L'autre raison, c'est que vous êtes vraiment impuissant ! Nous ne pouvons pas respecter ça ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Eh bien, nous nous soucions principalement de la TAILLE de votre flotte, qui est énorme ! Nous SOMMES amis, non ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Vous êtes si faibles ! C'est un gros problème pour nous ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Pourquoi voulez-vous être amis avec TAREMP ? Cela obscurcit vraiment notre journée. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Cela bloque également notre soleil de savoir que vous êtes alliés avec TAREMP. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Oh ! Ah, eh bien, la situation est bonne entre nous, n'est-ce pas ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Vous sentez que la fin est proche, SING ? Pourquoi tout le monde nous sous-estime constamment ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Bon ! Qu'y a-t-il, SING ? Mettez-y fin ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>SING, je vous en prie ! Nous sommes en difficulté dans notre guerre contre TAREMP. Voulez-vous nous aider ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Oh, merci ! ÉCRASONS-LES ! RÉDUISONS-LES EN PIÈCES, QUE LES VERS DÉVORENT LEURS CHAIRS ! Ce que je voulais dire... C'est oui !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Oooooohhh non. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Ils sont fous avec leur satané hologramme ! On les adore.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Hummm. Nous n'avons pas d'avis !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>On croit parfois être amis avec certains individus, mais en fait non ! Ils vous volent votre belle technologie. Il ne faut pas leur faire confiance !</Default>
+    </DialogLine>
+
+
+    
+    <!-- Second Run Localization -->
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>Je parie que vous ne vous attendiez pas à autant de résistance de notre part, n'est-ce pas ? Eh bien, ça va. Nous vous pardonnons. Vous voulez faire la paix avec nous ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Je parie que vous ne vous attendiez pas à ce que l'on détruise tous ces vaisseaux, n'est-ce pas ? Eh bien, ça va. Nous vous pardonnons. Vous voulez faire la paix avec nous ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Vous pensiez probablement que nous étions faibles, mais je parie qu'on vous a surpris ! Mais nous ne voulons plus combattre. Voulez-vous faire la paix, s'il vous plaît ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Oh ! Cette guerre est vraiment mauvaise ! Très, très mauvaise ! Je vous en prie, signons un traité de paix !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Vos planètes sont à nous, SING ! Nous sommes bien plus forts que vous. Écoutez-nous et faisons la paix, d'accord ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Eh bien... il semble que vous êtes meilleurs, SING. Cessons cette guerre avant qu'elle dégénère, OK ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Oooooooh non.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Le soleil a dispersé les nuages et la lumière nous baigne désormais. Nous sommes heureux d'être à nouveau en paix !</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Notre joie est infinie d'avoir retrouvé la paix. Merci.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Non, non, mille fois non ! Nous ne sommes ni faibles ni stupides, SING ! Si vous voulez faire la paix, revoyez vos conditions !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>On aimerait faire la paix, SING, vraiment... Mais les Pollops ont besoin de sols pour se développer et de soleils pour les réchauffer. Nos revendications n'ont pas changé et nous ne ferons pas la paix. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Un temps orageux, très orageux. Très bien. D'accord pour cette paix des plus horribles. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Vous avez déraciné des centaines de Pollops dans notre dernière guerre ! Ce n'est pas vraiment le meilleur moyen de se faire des amis, SING !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Si vous voulez de nous, SING, nous serons alliés à tout jamais. Voulez-vous former une alliance ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>C'est une très bonne nouvelle ! Amis pour la vie !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Oh ! Eh bien, c'est d'accord. On reste amis. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Ohhh. Hummm ? Nous n'avons pas besoin de cadeaux et nous ne voulons acheter une alliance avec vous. Proposez-nous une simple alliance, ou rien. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Nous pensons qu'une alliance serait une excellente idée ! Oui !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Non, non, non. Désolé, SING, mais une alliance nécessite beaucoup de confiance et nous n'en sommes pas encore là.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Non ! Ça ne se passera pas comme ça ! Vous pensez pouvoir refuser aussi simplement ? Eh bien, ces plantes savent MORDRE !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>C'était la guerre la plus brève de l'histoire, non ? Je pense que oui ! Et oui, nous pouvons faire la paix !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Les PLURAL sont fous ! Bien ! La guerre est déclarée !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Saletés ! Je croyais qu'on était alliés ! Eh bien, considérez que CE marché est annulé !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Paaardon ? C'était NOTRE tour ! Vous aviez colonisé le dernier malgré nos revendications, puis vous avez colonisé TARSYS. C'est vraiment injuste et je commence à croire que vous ne nous respectez pas !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>Vous semblez ne pas vous soucier que les Pollops aient besoin de mondes eux aussi. Vous êtes une bande de sales sauvages sans racines...</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Par les tempêtes de l'est et de l'ouest ! Il semble que nous voulions tous deux le système TARSYS, SING. Et si nous prenions celui-ci et vous le prochain ? </Friendly>
+      <Neutral>Ah, bonjour ! Saviez-vous que NOUS avons colonisé le système TARSYS ? Probablement non ! Mais maintenant vous le savez, alors... il est à nous, OK ?</Neutral>
+      <Hostile>Par le feu et la glace ! Nous avons pris le système TARSYS, SING ! Fichez le camp ! </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>Héééé. On sait que vous nous espionnez ! Arrêtez ça !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Que... ? Laissez-nous tranquilles ! Bon alors. Sérieusement. Arrêtez de nous espionner.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>Pourquoi toutes les créatures de sang chaud pensent-elles que les plantes sont stupides et doivent être traitées sans aucune considération ? Hein ? Vos actes d'espionnage provoquent notre COLÈRE. PAR LES TEMPÊTES ! (Traités annulés)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Je voulais juste vous dire que votre espion nous sert désormais d'engrais ! Merci !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>Le temps est à l'orage, SING ! Pourquoi espionner vos amis ? Pouvez-vous arrêter ça maintenant ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Hé ! Nous sommes alliés ! Eh bien, nous ÉTIONS alliés ! Vous n'avez de cesse de nous espionner ! Alors c'est terminé. Je suis désolé. C'est de votre faute, pas de la nôtre.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>C'est des plus exaspérants ! Vous n'arrêtez pas de vous infiltrer sur notre territoire, et ça nous agace. On pourrait peut-être conclure un marché pour définir qui aura TARSYS. Nous attendons votre offre !</Friendly>
+      <Neutral>C'est des plus exaspérants ! Vous n'arrêtez pas de vous infiltrer sur notre territoire ! Considérez ça comme un avertissement ! Les PLURAL ne savent-ils donc pas lire ? TARSYS est à NOUS !</Neutral>
+      <Hostile>C'est des plus exaspérants ! Vous n'arrêtez pas de vous infiltrer sur notre territoire ! Considérez ça comme un avertissement ! Les PLURAL ne savent-ils donc pas lire ? TARSYS est à NOUS !</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>C'est des plus exaspérants ! Vous n'arrêtez pas de vous infiltrer sur notre territoire, vos vaisseaux pénètrent dans notre espace... Que doivent faire les Pollops ? Arrêtez ça ou faisons un marché, OK ? Nous voulons TARSYS. </Friendly>
+      <Neutral>C'est des plus exaspérants ! Vous n'arrêtez pas de vous infiltrer sur notre territoire ! Considérez ça comme un avertissement ! Les PLURAL ne savent-ils donc pas lire ? TARSYS est à NOUS !</Neutral>
+      <Hostile>C'est des plus exaspérants ! Vous n'arrêtez pas de vous infiltrer sur notre territoire ! Considérez ça comme un avertissement ! Les PLURAL ne savent-ils donc pas lire ? TARSYS est à NOUS !</Hostile>    
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Notre amitié a poussé et la vie est belle ! Développons-la encore plus et ouvrons nos frontières ! Entendu ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Je suppose que c'est bon. On reste amis.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Ooooohh. Bon. Vous savez, on se connaît à peine, n'est-ce pas ? Allons-y doucement, d'accord ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Par les coquelicots ! Ce n'est pas comme si nous n'étions pas amis, non ? Mais vous devez nous prouver qu'on peut être alliés avant de réfléchir à une Fédération !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Tous les PLURAL agissent aussi vite ? On vient juste de devenir alliés. Assurons-nous que notre alliance fonctionne, et si c'est le cas, nous pourrons envisager une Fédération. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Eh bien, nous y avons réfléchi, mais notre empire est bien meilleur que le vôtre. Nous pourrions peut-être accepter si vous étiez plus forts, mais nous n'avons pas besoin de rejoindre votre empire pour le moment.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Vive le soleil ! Le soleil qui illumine et réchauffe ! Vous avez des plages sur vos planètes ? On aime les plages. Maintenant que nous avons rejoint une Fédération, on aimerait explorer davantage la galaxie. Vous ai-je déjà parlé de Polmar ? Polmar est fantastique. Vous devez nous rendre visite ! Ah ! Je vois une plage, c'est super. C'est génial. ON VA ÊTRE LES MEILLEURS AMIS DU MONDE !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>On aimerait se joindre à vous, SING ! Mais on ne sait même pas si nous allons survivre ! Si vous parvenez à vaincre TAREMP, alors nous formerons une alliance avec vous.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>OUI ! Vous avez détruit TAREMP ! Bonne nouvelle ! Maintenant, on va rejoindre votre Fédération, comme promis !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Euhhh... eh bien. Comment dire ? Désolé, mais nous avons quelques problèmes avec vous.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>En effet, vous êtes en guerre contre nos amis ! Si vous vous alliez avec TAREMP, alors nous rejoindrons votre Fédération.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Oh, c'est magnifique ! Maintenant que TAREMP est dans votre alliance, nous serons heureux de rejoindre votre Fédération. </Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>Euh... SING. Vous n'êtes pas en guerre avec eux. Pourquoi NOUS demander de LES combattre pour VOUS ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>Nous sommes déjà en guerre avec TAREMP. Stupides PLURAL !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>OK ! Nous allons en faire de l'engrais !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Aahhhhh, mince ! Ce sont aussi nos amis, SING. Ne pouvons-nous pas tous nous entendre ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Pas question, SING ! Surtout vu la manière dont vous nous avez traités.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Humm. Non. La guerre n'est bonne pour personne, SING. Grandissez !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Ah ! Ils nous TUERAIENT ! Pas question !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>En fait, c'est plutôt une bonne idée ! Une excellente idée ! Tuons-les tous et capturons leurs mondes !</Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

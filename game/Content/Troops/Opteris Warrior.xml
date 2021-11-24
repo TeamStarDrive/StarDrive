@@ -1,0 +1,29 @@
+﻿<Troop>
+  <Name>Opteris Warrior</Name>
+  <Description>The Warrior Caste of a cybernetic hive mind</Description>
+  <TexturePath>robot_idle0001</TexturePath>
+  <Icon>robot</Icon>
+  <first_frame>1</first_frame>
+  <RaceType>Opteris</RaceType>
+  <num_idle_frames>55</num_idle_frames>
+  <num_attack_frames>10</num_attack_frames>
+  <animated>true</animated>
+  
+  <idle_path>robot_idle00</idle_path>
+  <attack_path>robot_attack00</attack_path>
+
+  <sound_attack>sd_ground_bugs_01</sound_attack>
+  
+  <Cost>50</Cost>
+  <Strength>10</Strength>
+  <MaxStrength>10</MaxStrength>
+  <Movement>1</Movement>
+  <MaintenanceCost>1</MaintenanceCost>
+  <Range>1</Range>
+  <HardAttack>25</HardAttack>
+  <BoardingStrength>60</BoardingStrength>
+  <SoftAttack>40</SoftAttack>
+  <TargetType>Soft</TargetType>
+  <Class>Infantry</Class>
+  <MovementCue>sd_troop_march_01</MovementCue>
+</Troop>

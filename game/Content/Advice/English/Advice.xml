@@ -1,0 +1,17 @@
+﻿<?xml version="1.0"?>
+<ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <string>Your colonies can import, export, or store any food and production created there. Encouraging this kind of trade between your colonies is an effective way to raise money, provided your empire has an understanding of interstellar economics.</string>
+  <string>"Ordnance" is a catch-all reference to physical munitions that use ammunition. A ship must carry the ordnance it wishes to fire in ordnance storage modules. Ordnance is refilled automatically when a ship visits a planet with a ship yard, or a resupply station.  </string>
+  <string>Energy weapons do not require any ammunition, instead draining the ship's power reserves to fire. An effective energy weapon platform will be equipped with strong power sources and ample power storage.</string>
+  <string>Ships suffer a major power drain while at warp unless they are within yours or an ally's area of influence. Expand your influence with new colonies, star bases, and subspace projectors.  </string>
+  <string>Group your ships into a fleet by hitting control and a number. Modify your fleet's formation and give the ships custom behaviors in the fleet editor. </string>
+  <string>Warp inhibitors prevent any non-allied ships from entering into warp within the inhibitor's sphere of influence. Inhibitors can be deployed as ship modules and also as deep space platforms.  </string>
+  <string>To build structures in deep space, hit 'b' for the build menu, then click and place the structure. A single-use construction ship will be queued at a nearby shipyard with a cost equal to the cost of the structure you wish to build. When finished, the construction ship will travel to your chosen build position and deploy into the desired structure. </string>
+  <string>Did you know that you can capture ships with boarding parties? Any troop shuttle can be ordered to make a boarding attempt by simply selecting it and right clicking the enemy ship. </string>
+  <string>Don't neglect your ground defenses. Build troops and spread them out among your planets to provide maximum protection.</string>
+  <string>You can set your tax rate in the budget screen. Taxes directly reduce your Industrial production and your Research by the tax percentage. You then gain that much money each turn. </string>
+  <string>A game "turn" occurs every 5 real-time seconds. Increase or decrease the game speed by pressing the + or - keys.  </string>
+  <string>When given a move order, ships will not necessarily plot a direct route. It may be more efficient for ships to travel along your space lanes. Hold ALT while giving a move order to have a ship or fleet plot a direct route to its destination. </string>
+  <string>Fleets default to move at the speed of the slowest ship when receiving a move order, which helps them stay in formation while warping. Hold ALT while giving a fleet a move order to have the ships move at their fastest speed to a destination. </string>
+
+</ArrayOfString>

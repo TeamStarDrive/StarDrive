@@ -1,0 +1,598 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>Skanowanie... Wykryto organiczną formę życia opartą na związkach węgla. Budowa fizyczna sugeruje przystosowanie do życia stadnego. Poziom zagrożenia: niski. Opteris witają was. </Friendly>
+      <Neutral>Skanowanie... Wykryto organiczną formę życia opartą na związkach węgla. Niewyróżniająca się budowa. Nieznany poziom zagrożenia. Opteris witają was.</Neutral>
+      <Hostile>Skanowanie... Wykryto organiczną formę życia opartą na związkach węgla. Budowa fizyczna sugeruje przystosowanie do życia stadnego. Poziom zagrożenia: umiarkowany. Opteris witają was. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Wykryto organiczną aktywność w systemach należących do Opteris. Trwa generowanie analizy intencji. Prawdopodobieństwo konfliktu zbrojnego: wzrastające.</Friendly>
+      <Neutral>Wykryto organiczną aktywność w systemach należących do Opteris. Trwa generowanie analizy intencji. Prawdopodobieństwo konfliktu zbrojnego: umiarkowane.</Neutral>
+      <Hostile>Wykryto organiczną aktywność w systemach należących do Opteris. Analiza intencji sugeruje wysokie prawdopodobieństwo konfliktu zbrojnego. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Statki zniszczyły drony Opteris. Właściciel statków: PLURAL. Analiza intencji sugeruje błąd PLURAL. Oczekiwanie dalszej agresji.</Friendly>
+      <Neutral>Statki zniszczyły drony Opteris. Właściciel statków: PLURAL. Analiza intencji sugeruje agresję PLURAL. Oczekiwanie dalszych działań.</Neutral>
+      <Hostile>Statki zniszczyły drony Opteris. Właściciel statków: PLURAL. Analiza intencji sugeruje wrogie działania. Rozpoczęto przygotowania do konfliktu zbrojnego. Oczekiwanie dalszych działań.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>Wykryto statki w przestrzeni Opteris. Właściciel statków: PLURAL. Analiza relacji PLURAL - Opteris sugeruje brak agresywnych intencji. Wymagane dalsze analizy.</Friendly>
+      <Neutral>Wykryto statki w przestrzeni Opteris. Właściciel statków: PLURAL. Analiza relacji PLURAL - Opteris sugeruje umiarkowane prawdopodobieństwo wystąpienia agresywnych intencji. Zdarzenie oznaczone w celu monitorowania.</Neutral>
+      <Hostile>Wykryto statki w przestrzeni Opteris. Właściciel statków: PLURAL. Analiza relacji PLURAL - Opteris sugeruje nieuniknione wystąpienie działań agresywnych. Wymagane dalsze analizy.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>Ekspansja przez: PLURAL w przestrzeni Opteris sugeruje brak poszanowania dla stosunków z Opteris. Modyfikacja procedur dyplomatycznych. </Friendly>
+      <Neutral>Ekspansja przez: PLURAL w przestrzeni Opteris sugeruje brak poszanowania dla stosunków z Opteris. Modyfikacja procedur dyplomatycznych.</Neutral>
+      <Hostile>Ekspansja przez: PLURAL w przestrzeni Opteris sugeruje brak poszanowania dla stosunków z Opteris. Modyfikacja procedur dyplomatycznych.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>Ekspansja przez: PLURAL w przestrzeni Opteris sugeruje brak poszanowania dla stosunków z Opteris. Modyfikacja procedur dyplomatycznych. </Friendly>
+      <Neutral>Ekspansja przez: PLURAL w przestrzeni Opteris sugeruje brak poszanowania dla stosunków z Opteris. Modyfikacja procedur dyplomatycznych.</Neutral>
+      <Hostile>Ekspansja przez: PLURAL w przestrzeni Opteris sugeruje brak poszanowania dla stosunków z Opteris. Modyfikacja procedur dyplomatycznych.</Hostile>    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>Analiza zagrożenia zakończona. Wykryto konflikt interesów. Priorytet eliminacji rasy: PLURAL - zero.</misc1>
+      <misc2>Analiza zagrożenia zakończona. Wykryto konflikt interesów. Priorytet eliminacji rasy: PLURAL - zero.</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Brak danych. Nie napotkano innych ras podróżujących w kosmosie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Aktywacja procedur dyplomatycznych. Tryb: Przyjazny. Przedłożenie powitania bez gróźb.</Friendly>
+      <Neutral>Aktywacja procedur dyplomatycznych. Tryb: Neutralny. Emisja powitania pełnego szacunku. </Neutral>
+      <Hostile>Aktywacja procedur dyplomatycznych. Tryb: Wrogi. Emisja powitania zawierającego groźby. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>Co to za program, który właśnie uruchamiacie?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Symuluję waszą porażkę, PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Ruth>Wykryto interakcję społeczną. Opteris to jedno i wielu. Czas, który minął od chwili przejścia z formy organicznej do cybernetycznej: w przybliżeniu 500 średnich cykli życiowych przedstawicieli waszej rasy.  </DL_Ruth>
+      <DL_Ind>Imperatyw Opteris: produkcja. Przetrwanie.</DL_Ind>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Brak danych potwierdzających wiarygodność. Odmowa pomocy potencjalnemu wrogowi.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Niedostateczny poziom zaufania zbalansowany korzystnym porozumieniem. Wynik analizy ryzyka i zysku: przyjęcie oferty.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Niewystarczający poziom wskaźnika zaufania. Wkład Opteris zbyt wysoki w stosunku do wkładu rasy: PLURAL. Oferta odrzucona. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Poziom wskaźnika zaufania: wystarczający. Nieakceptowalna utrata zysku. Oferta odrzucona. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Nieakceptowalny stosunek wartości na wejściu do wartości na wyjściu. Uruchomienie procedur dyplomatycznych w celu zwiększenia wskaźnika wrogości w stosunku do rasy: PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Stosunek wartości na wejściu do wartości na wyjściu akceptowalny. Oferta przyjęta. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Korzystny stosunek wartości na wejściu do wartości na wyjściu. Oferta przyjęta. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Korzystny stosunek wartości na wejściu do wartości na wyjściu. Wykryto możliwy błąd oferenta. Wykorzystanie błędu. Oferta przyjęta.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Stosunek wartości na wejściu do wartości na wyjściu zmierza ku nieskończoności. Wykryto "prezent". Zmiana algorytmów dyplomatycznych w celu uwzględnienia zwiększonego współczynnika określającego stosunki z rasą: PLURAL. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>PLURAL zgłosili zapotrzebowanie na pomoc. Pomoc udzielona.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Wykryto agresywne żądanie dyplomatyczne. Siła militarna żądających niewystarczająca w celu realizacji gróźb. Żądanie odrzucone.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Wykryto agresywny ton. Stosunek wartości na wejściu do wartości na wyjściu akceptowalny. Agresywny ton zbędny. Oferta przyjęta.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Wykryto agresywny ton. Stosunek wartości na wejściu do wartości na wyjściu niekorzystny. Analiza militarna wskazuje na przewagę floty żądającego. Oferta przyjęta.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Inicjowanie wrogich stosunków z rasą: PLURAL. Modyfikacja algorytmów dyplomatycznych w celu odzwierciedlenia utraty punktów zaufania w wyniku złamania paktu o nieagresji. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Inicjalizacja wrogich stosunków.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Aktywacja procedur dyplomatycznych. Tryb: Wrogi. Decyzja?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Agresja rasy: PLURAL przekroczyła dopuszczalny próg. Inicjalizacja wrogich stosunków.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Ekspansja rasy: PLURAL w przestrzeni Opteris przekroczyła dopuszczalny próg. Inicjalizacja wrogich stosunków.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>Ekspansja rasy: PLURAL w przestrzeni Opteris przekroczyła dopuszczalny próg.  Inicjalizacja wrogich stosunków.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Analizy dyplomatyczne wskazują, że obopólny pakt o nieagresji skutkować będzie polepszeniem relacji. Decyzja?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Polepszenie relacji przyjęte.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Algorytmy dyplomatyczne zrekonfigurowane. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Analizy ekonomiczne wskazują, że import dóbr produkowanych przez rasę: PLURAL zwiększy wydajność Opteris. Propozycja umowy handlowej. Decyzja?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Umowa handlowa przyjęta.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Odrzucenie przyjęte.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>W przeszłości PLURAL odrzucili propozycję paktu o nieagresji.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>W przeszłości PLURAL odrzucili propozycję umowy handlowej.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Dajcie Opteris TECH_DEMAND.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Polepszenie relacji dyplomatycznych.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Pogorszenie relacji dyplomatycznych.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Analiza militarna floty rasy: PLURAL wskazuje na krytyczną słabość. Prawdopodobieństwo przeznaczenia rasy: PLURAL do przetworzenia wzrasta. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Analiza militarna floty rasy: PLURAL wskazuje na jej siłę. Prawdopodobieństwo przeznaczenia rasy: PLURAL do przetworzenia maleje.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Analiza militarna floty rasy: PLURAL zrewidowana. Obecna siła floty wymaga zmiany priorytetów na liście celów do przetworzenia.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Zasoby mineralne planet Opteris wyczerpane. Analiza floty rasy: PLURAL wskazuje na słabość. Inicjalizacja wrogich stosunków.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Relacje pozytywne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>Relacje neutralne. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Odpowiedź negatywna_Kulrathi</DialogType>
+      <Default>Relacje negatywne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Relacje pozytywne. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Relacje neutralne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Odpowiedź negatywna_Pollops</DialogType>
+      <Default>Relacje negatywne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Relacje pozytywne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Relacje neutralne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Odpowiedź negatywna_Vulfen</DialogType>
+      <Default>Relacje negatywne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Relacje pozytywne. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Relacje neutralne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Odpowiedź negatywna_Terran</DialogType>
+      <Default>Relacje negatywne. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Relacje pozytywne.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>Relacje neutralne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Odpowiedź negatywna_Ralyeh</DialogType>
+      <Default>Relacje negatywne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Anulowanie wszystkich umów dyplomatycznych. Inicjalizacja wrogich stosunków. Priorytet przejęcia światów rasy: PLURAL - zero. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Opteris posiadają wszystkie światy rasy: PLURAL. PLURAL zostali zmiażdżeni. Resetowanie procedur agresji. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Analizy dyplomatyczne wskazują korzystny wpływ ewentualnego wprowadzenia paktu o nieagresji między Opteris a rasą: PLURAL. Decyzja?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Drony Opteris od teraz akceptować będą przeloty statków rasy: PLURAL. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Przyjęto.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Nieoczekiwana zmiana w stosunkach. Rekonfiguracja procedur dyplomatycznych. Inicjalizacja wrogich stosunków.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Wykryto inwazję planetarną. Nieoczekiwane dane na wejściu. Inicjalizacja wrogich stosunków.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Aktywność rasy: PLURAL wykryta w systemie TARSYS. Obecność rasy: PLURAL kłóci się z imperatywami Opteris. Zaprzestanie aktywności kolonizacyjnej w systemie TARSYS wymagane w celu utrzymania dobrych relacji. </Friendly>
+      <Neutral>Aktywność rasy: PLURAL wykryta w systemie TARSYS. Obecność rasy: PLURAL kłóci się z imperatywami Opteris. Nastąpi natychmiastowa degradacja stosunków Opteris z rasą: PLURAL, jeśli nie zaprzestanie ona aktywności kolonizacyjnej. </Neutral>
+      <Hostile>Aktywność rasy: PLURAL wykryta w systemie TARSYS. Obecność rasy: PLURAL kłóci się z imperatywami Opteris. Prawdopodobieństwo wrogiej aktywności w razie niezaprzestania kolonizacji: wysokie. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Zidentyfikowano kolonię rasy: PLURAL w systemie TARSYS. Pogorszenie relacji dyplomatycznych. Analiza prawdopodobnych konsekwencji militarnych.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Brak danych. Stosunek dyplomatyczny: neutralny. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Analizy dyplomatyczne sugerują dalsze pokojowe interakcje. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Rozpoczynanie wyliczania listy problemów. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Problem zero: Kolonizacja terytorium Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>Zero: Kolonizacja terytorium Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Jeden: Siła floty rasy: PLURAL przewyższa siłę floty Opteris.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Jeden: Siła floty rasy: PLURAL kwalifikuje ją do eliminacji przez Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Zero: Siła militarna rasy: PLURAL niewystarczająca by oprzeć się atakowi Opteris. Powiększenie poziomu agresji Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Zero: Siła floty rasy: PLURAL przewyższa siłę floty Opteris.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Zero: Sojusz rasy: PLURAL z TAREMP zagraża interesom Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Załącznik: Sojusz rasy: PLURAL z TAREMP zagraża interesom Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Wszystkie systemy dyplomatyczne pracują z parametrami znamionowymi. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Analiza militarna Opteris wskazuje prawdopodobną porażkę rasy: PLURAL. Spodziewana odpowiedź: prośba o pokój. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Interesy Opteris zagrożone przez siłę militarną rasy: PLURAL. Oczekiwanie odpowiedzi. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>Opteris składają prośbę o pomoc rasy: PLURAL w wojnie z TAREMP. Pozytywna odpowiedź poskutkuje zyskami dyplomatycznymi. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Odpowiedź przyjęta. Zmiana relacji dyplomatycznych. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Odpowiedź przyjęta. Zmiana relacji dyplomatycznych. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Relacje pozytywne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Relacje neutralne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Odpowiedź negatywna_Draylok</DialogType>
+      <Default>Relacje negatywne.</Default>
+    </DialogLine>
+
+
+    
+    <!-- Second Run Localization -->
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>Opteris wnoszą o zaprzestanie wrogich działań. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Opteris wnoszą o zaprzestanie wrogich działań. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Opteris wnoszą o zaprzestanie wrogich działań. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Opteris wnoszą o zaprzestanie wrogich działań. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Opteris wnoszą o zaprzestanie wrogich działań.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Opteris zrzekają się spornych terytoriów i wnoszą o zakończenie konfliktu.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Przyjęto.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Przyjęto. Opteris fleets repurposing to non-hostile activities.</Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Procedury dyplomatyczne zwróciły wartość logiczną: prawda - tryb pokojowy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Fałsz. Niewystarczający zysk dla Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Fałsz. Imperatyw ekspansji Opteris przewyższa korzyści płynące z pokoju. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Procedury dyplomatyczne zwróciły wartość logiczną: prawda - tryb pokojowy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Opteris nie mają emocji. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Dyplomatyczne i militarne podprocedury sugerują optymalizację wysiłków Opteris poprzez sojusz z rasą: PLURAL. Odpowiedź? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Sojusz przyjęty. Opteris zobowiązują się do lojalności wobec rasy: PLURAL. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Odpowiedź odebrana. Rasa: PLURAL nie zgadza się na zawiązanie sojuszu. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Wartości na wejściu zbyt skomplikowane, aby wnioskować o sojuszu. Przeformułuj ofertę. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Wynik: prawda. Sojusz utworzony.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Wynik: fałsz. Brak sojuszu.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Musicie zostać usunięci. Brak pokoju.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>... przetwarzanie... Wojna nie została zainicjowana. Wartości na wejściu akceptowalne. Wynik: pakt pokojowy zaakceptowany.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Niespodziewany wynik. Sojusznik nie odmawia pomocy sojusznikom podczas wojny. Sojusz wykasowany.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Błąd. Spodziewane przetworzenie TARSYS przez Opteris. Zaobserwowane przetwarzanie przez rasę: PLURAL. Rozwiązanie: wstrzymać, ponowić, usunąć rasę: PLURAL. Analizowanie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>Wykryto zainfekowanie systemu TARSYS rasą: PLURAL. Możliwe objęcie infekcji kwarantanną i kasowaniem.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Relacje ze zniewalającymi mięczakami są pozytywne.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Zaobserwowano neutralne interakcje z Cordrazine.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Odpowiedź negatywna_Cordrazine</DialogType>
+      <Default>Zniewalające mięczaki przeznaczono do usunięcia. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>Wykryto naruszenie sieci zabezpieczeń. Wiemy, że jesteście jego źródłem.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Błąd. Ponowne naruszenie sieci zabezpieczeń. Zwiększenie nacisku dyplomatycznego.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>Błąd! Wykryto krytyczne naruszenie sieci zabezpieczeń. Niezbędna kwarantanna oraz usunięcie! (Układy anulowane)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Wyeliminowano infiltrator sieci. Organiczna forma życia zabita.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>Błąd: Sojusznicy nie powinni szpiegować się nawzajem. Konieczne natychmiastowe zaprzestanie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Błąd: Wykryto infiltratora. Natychmiastowa inicjalizacja procedury zakończenia sojuszu.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Inicjalizacja paktu o otwartych granicach?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Otrzymano negatywną odpowiedź.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Odpowiedź negatywna</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Odpowiedź negatywna</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Odpowiedź negatywna. Okres trwania sojuszu zbyt krótki.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Odpowiedź negatywna. Opteris są silniejsi.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Całkowita integracja systemu? Wasza indywidualność dodana do naszej? Zgoda. Połączymy się i stworzymy coś lepszego.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Opteris zintegrują systemy z rasą: PLURAL. Jednak najpierw PLURAL muszą wyeliminować TAREMP. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>Warunki stworzenia federacji zostały spełnione wraz z eliminacją TAREMP. Teraz zintegrujemy systemy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Odpowiedź negatywna.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Przewidywany błąd: wasz wróg jest naszym przyjacielem. Warunek: zawarcie sojuszu z TAREMP. Wynik: zatwierdzenie integracji z federacją.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Spełniony warunek: sojusz. Zatwierdzono pełną integrację systemów. Opteris dołączą do waszej federacji. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>Odpowiedź negatywna. You are not at war with TAREMP. Opteris sees no incentive.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>Opteris są już w stanie wojny z TAREMP.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Opteris zgadzają się. Wojna rozpoczęta.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Odpowiedź negatywna. Interesy Opteris są sprzeczne z celem zapytania.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Odpowiedź negatywna. Niewystarczające relacje Opteris z rasą: PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Opteris są... pacyfistami? Błąd! Błąd!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Odpowiedź negatywna. Zagrożenie jest zbyt wielkie.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Odpowiedź pozytywna. Cel namierzony.</Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

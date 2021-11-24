@@ -1,0 +1,30 @@
+﻿<Troop>
+  <Name>Wyvern</Name>
+  <Description>These flying creatures are fast and strong</Description>
+  <TexturePath>wyvern_idle_00</TexturePath>
+  <Icon>wyvern</Icon>
+
+
+  <first_frame>0</first_frame>
+  <RaceType>Unknown</RaceType>
+  <num_idle_frames>7</num_idle_frames>
+  <num_attack_frames>7</num_attack_frames>
+  <animated>true</animated>
+  <idle_path>wyvern_idle_</idle_path>
+  <attack_path>wyvern_attack_</attack_path>
+
+  <sound_attack>sd_troop_kulrathi</sound_attack>
+  
+  <Cost>25</Cost>
+  <Strength>15</Strength>
+  <MaxStrength>10</MaxStrength>
+  <Movement>2</Movement>
+  <MaintenanceCost>1</MaintenanceCost>
+  <Range>1</Range>
+  <HardAttack>20</HardAttack>
+  <BoardingStrength>60</BoardingStrength>
+  <SoftAttack>50</SoftAttack>
+  <TargetType>Soft</TargetType>
+  <Class>Infantry</Class>
+  <MovementCue>sd_troop_march_01</MovementCue>
+</Troop>

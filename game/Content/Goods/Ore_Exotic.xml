@@ -1,0 +1,8 @@
+﻿<Good>
+  <Name>Exotic Unrefined Crystal Ore</Name>
+  <Cost>15</Cost>
+  <Description>An exotic crystalline ore that is very valuable and requires refinement to be useful</Description>
+  <IconTexturePath>Textures/Goods/ore_exotic</IconTexturePath>
+  <Mass>1</Mass>
+  <UID>Ore_Exotic</UID>
+</Good>

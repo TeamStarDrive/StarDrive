@@ -1,0 +1,614 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>Sueño con la mañana / cálidos vientos que mecen las briznas de hierba / alrededor de nuestros enemigos caídos
+Nosotros, los poderosos Kulrathi, te saludamos y esperamos que con el tiempo encontremos la amistad en el camino de la batalla. </Friendly>
+      <Neutral>En las lluvias primaverales / la laguna y el río se vuelven uno / manchado por la sangre de nuestros enemigos
+Presta atención a nuestros poetas-guerreros, ser de la raza SING, y no enfurezcas a los poderosos Kulrathi.</Neutral>
+      <Hostile>No eres merecedor de nuestra poesía. Mantente alejado de nuestros sistemas, animal.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Saludos, honorable amigo. ¿Qué es lo que necesitas?</Friendly>
+      <Neutral>Saludos, individuo de la raza SING. Es una coincidencia que te hayas puesto en contacto con nosotros, pues justo ahora reflexionaba sobre el futuro de nuestros pueblos. ¿Qué es lo que necesitas?</Neutral>
+      <Hostile>Los cobardes PLURAL acuden a sus superiores. Habla rápido, pues tenemos poca paciencia para los necios.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Amigo, te has asentado en TARSYS, territorio que nosotros reivindicamos anteriormente. os complace compartir nuestros cotos de caza con un honorable amigo. No obstante, te pido que respetes nuestras fronteras en el futuro. </Friendly>
+      <Neutral>Al parecer estamos en disputa por el sistema TARSYS. No nos presiones, guerrero: protegeremos nuestros territorios. </Neutral>
+      <Hostile>¡Cobarde alimaña! ¿Cómo osas establecerte en el sistema TARSYS? ¡Renuncia a tus posesiones de inmediato!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Distinguido guerrero, ¿es posible que hubiera un error con tus sistemas de armamento en la reciente destrucción de una de nuestras naves? Procura que no se vuelva a repetir. </Friendly>
+      <Neutral>Vuestra agresión no provocada transmite un mensaje muy claro, ser de la raza SING. No intentamos empezar una guerra contigo, pero con mucho gusto pelearemos en una contienda a la que hayamos sido abocados. </Neutral>
+      <Hostile>¡Cachorro insolente! ¿Cómo te atreves a atacar una nave soberana del Shogunato Kulrathi?  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>¡Guerrero! Ver tus naves en nuestro espacio nos demuestra que tienes valor. Sin embargo, el tamaño de la flota y el tiempo que esta lleva en nuestro espacio son motivo de preocupación; por eso debes retirarte inmediatamente. </Friendly>
+      <Neutral>Ser de la raza SING, ¡tus naves no son bienvenidas en el espacio Kulrathi! Estás poniendo a prueba la paciencia de nuestros guerreros y, por tu propio bien, deberías retirarlas de inmediato. </Neutral>
+      <Hostile>Individuo de la raza SING, has de ser muy valiente o muy estúpido para traer tus naves a territorio Kulrathi. ¡Pronto mediremos nuestras fuerzas!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>Primero invadís nuestro espacio con vuestras naves, ¿y ahora colonizáis el sistema TARSYS, sabiendo que lo hemos reivindicado? ¿Es que nuestra amistad no significa nada para vosotros? </Friendly>
+      <Neutral>Individuo de la raza SING, hacemos alarde de la disciplina más estricta para contener nuestra furia por vuestras continuas violaciones de nuestras fronteras. Vuestro asentamiento en el sistema TARSYS nos ha abocado al borde de la guerra. </Neutral>
+      <Hostile>¡Rrrrraaaaaa! Vuestras flotas siguen penetrando en el territorio del Shogunato y nos robasteis nuestras posesiones en el sistema TARSYS. ¡Los Kulrathi no somos unos necios! ¡Renuncia a tus posesiones y abandona el espacio Kulrathi o la guerra será inevitable!   </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>¿No somos amigos, ser de la raza SING? ¿Por qué cuestionaría un amigo nuestra soberanía en el sistema TARSYS y después llenaría nuestro espacio de naves de guerra? </Friendly>
+      <Neutral>Individuo de la raza SING, hacemos alarde de la disciplina más estricta para contener nuestra furia por vuestras continuas violaciones de nuestras fronteras. Tu asentamiento en el sistema TARSYS ha puesto a prueba nuestra paciencia y ahora llenas nuestro espacio con tus naves. Esto nos ha abocado al borde de la guerra. </Neutral>
+      <Hostile>¡Rrrrraaaaaa! ¡Tus flotas ocupan nuestro espacio y nos robas territorios en el sistema TARSYS! ¡Los Kulrathi no somos unos necios! ¡Renuncia a tus posesiones y abandona el espacio Kulrathi o la guerra será inevitable!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>Los tambores retumban como las olas del océano: implacables, imparables, ¡los Kulrathi machan hacia la guerra! ¡Pondremos fin a tus irrespetuosas invasiones de nuestros territorios destruyéndote!</misc1>
+      <misc2>¡Has osado atacar el Shogunato Kulrathi y ahora aprenderás lo que significa la humildad!</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>¿Hay... otros? Debemos reflexionar sobre este aspecto. Aún no nos hemos encontrado con esos otros y nos preguntamos si serán amigos o enemigos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>Acero y colmillos y pelaje y sangre, ¡eso es lo que debéis saber de los poderosos Kulrathi! ¡Nadie está a la altura de nuestro poder! </DL_Agg>
+      <DL_Hon>Honor y sangre; familia y amigos; belleza. Esos son los valores del pueblo Kulrathi. </DL_Hon>
+      <DL_Pac></DL_Pac>
+      <DL_Ruth></DL_Ruth>
+      <DL_Cunn>Solo obedecemos una ley: la ley de la naturaleza. La fuerza y la velocidad pueden ganar una batalla, pero la inteligencia ganará la guerra. </DL_Cunn>
+      <DL_Xeno>¿Y por qué deberíamos confiaros nuestras reflexiones y valores cuando los vuestros nos son tan ajenos? Sabéis lo que necesitáis saber: que somos fuertes. Aun así...</DL_Xeno>
+      <DL_Exp>Nuestro destino es poblar las estrellas, y pobre de aquel desdichado que se interponga en nuestro camino. </DL_Exp>
+      <DL_Tech>Creemos que una hoja bien forjada vale más que cien espadas oxidadas. Aquellos que poseen el conocimiento, poseen también las mejoras armas, y para ganar una guerra, las armas son tan importantes como los guerreros.</DL_Tech>
+      <DL_Mil>Una flota para extendernos hasta las estrellas, para infundir temor en el corazón de nuestros adversarios... ¡para APLASTAR a nuestros enemigos! Ese es nuestro propósito en la vida.</DL_Mil>
+      <DL_Ind>La gloria de la batalla es el objetivo supremo para muchos de nosotros. pero todos y cada uno de los Kulrathi comparten el amor por la industria y la satisfacción que aporta un trabajo perfecto, ya sea una decapitación o una obra de arte, que para nosotros son uno y lo mismo.</DL_Ind> 
+      <DL_Gen>Aun así, todas la cosas deben regirse por el equilibrio. Los que se adaptan son los que sobreviven, individuo de la raza SING. </DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>¿Cómo empuñas tu espada sin pulgares?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Mmmm, ¿cómo? ¿Qué son los pulgares? Algunos Kulrathi sujetan un arma en cada garra y otra en sus fauces. Reza por no tropezarte nunca con nuestros berserker en el campo de batalla.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>La confianza no se concede sin más, individuo de la raza SING: hay que ganársela. Quizás con el tiempo podamos hacer un trato de esa magnitud, pero no ahora.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Seres de la raza SING, a pesar de que no sois más que extraños para nosotros, nos honráis con una oferta tan generosa. Aceptamos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>¿Los PLURAL creen que los Kulrathi somos unos cachorros ignorantes? No confiábamos en vosotros antes de que nos hicierais esta horrible oferta y ahora confiamos aun menos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Nos ofrecéis hierro endeble a cambio de acero Kulrathi. No, individuo de la raza SING, no podemos aceptar un trato como este.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Plomo por oro, hierro por acero, mugre por riquezas, ¿es eso lo que nos ofrecéis? (Incomprensible, probablemente una blasfemia). </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Podemos ver la sabiduría que emana vuestra propuesta. Aceptamos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Sí, este acuerdo es muy favorable para el pueblo Kulrathi. Aceptamos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Nos honras en gran medida ofreciéndonos unas condiciones tan generosas. Aceptamos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Nos honras mucho con un regalo como este. Te lo agradecemos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Sí, ayudar a un amigo necesitado es una acción honorable.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Una amenaza muy deshonrosa proveniente de un adversario muy deshonroso. No, ser de la raza SING, no cederemos ante tus amenazas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Este pacto es justo, individuo de la raza SING, pero no nos agrada tu tono. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Nos humillas, ser de la raza SING. Toma tu botín robado y desaparece de mi vista. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>¡Cachorro granuja! ¡Necio! Has despertado al gigante dormido. ¡Huye si puedes! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>¡Guerra! ¡Sí! ¡Resolvamos estas disputas en un honorable combate! Vamos a por ti, estúpido individuo de la raza SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>¿Tan pronto os habéis cansado de ver brotar vuestra sangre? Pensábamos que erais más fuertes. ¿Qué es lo que quieres, adversario?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Los Kulrathi no permaneceremos impasibles mientras destruís nuestras naves. Nos declaramos en estado de hostilidades abiertas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense BrokenNA</DialogType>
+      <Default>¡Traidores! ¡Habéis violado nuestro pacto de no agresión y os habéis deshonrado a vosotros mismos! Si un ataque es lo deseáis, ¡eso es justo lo que recibiréis! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Quizás no nos tomaste en serio cuando te advertimos que te alejaras de nuestro territorio. Deberías haberlo hecho, ¡pues ahora marchamos hacia la guerra!  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>Los Kulrathi hemos reivindicado el sistema TARSYS. Os lo dijimos y aun así no habéis cedido vuestro territorio. Es hora de que la sangre resuelva este asunto. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Esta galaxia rebosa de peligros, ser de la raza SING, y somos conscientes de vuestra fuerza. Uníos a nosotros en un pacto de no agresión y avancemos como amigos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Nos alegramos de oír eso, individuo de la raza SING,  pero te lo advertimos: nos tomamos muy en serio nuestras promesas y esperamos que tú hagas lo mismo. ¡Honor y sangre!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Entonces, ¿eres un enemigo potencial? Tu honestidad te honra. Sin embargo, nuestras relaciones todavía no nos han abocado a un conflicto y puede que nunca lo hagan. El tiempo lo dirá; nosotros mantendremos nuestras espadas afiladas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Recibe un cordial saludo, individuo de la raza SING. Hemos estado reflexionando sobre el futuro de nuestros pueblos y creemos que derribar las fronteras comerciales entre nuestros dos imperios sería lo más acertado. ¿Estás de acuerdo? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Tu sabiduría es incuestionable, pues el acero Kulrathi es el mejor de la galaxia. ¡Estamos deseosos de ver lo que los PLURAL pueden producir!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Muy bien, individuo de la raza SING, aunque deberías saber que solo te hacemos esta oferta porque somos amigos. Quizás con el tiempo confiéis en nosotros lo suficiente como para intentarlo de nuevo.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>¿Qué ha cambiado que ahora deseas un pacto de no agresión cuando antes lo rechazaste? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Debemos admitir que los PLURAL nos desconciertan a veces. Queríamos comerciar con vosotros antes, pero rechazasteis nuestra oferta, ¿os acordáis?  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Vuestro comportamiento nos resulta extraño, ser de la raza SING, y vuestro aspecto físico nos cofunde. Sabemos que necesitamos amigos en esta galaxia, pero a nuestro pueblo le cuesta confiar. Quizás si nos proporcionarais TECH_DEMAND como muestra de buena fe... </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Vuestras actos revelan vuestro honor. Gracias. No lo olvidaremos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Justo lo que esperábamos. La amistad y la confianza se ganan, individuo de la raza SING. Adiós. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>¡Pobres PLURAL! ¿Sabéis siquiera lo peligrosa que es esta galaxia? La preparación de vuestro ejército para la batalla es lamentable. Pronto lo comprobaréis.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Saludos, individuo de la raza SING. Queríamos felicitarte por tu potente ejército. Respetamos tu fuerza y esperamos que nuestra amistad perdure. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Nos llena de alegría ver que has seguido nuestros consejos: ¡ahora tu flota parece ser fuerte y más digna de entrar en batalla! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Individuo de la raza SING, tus fuerzas militares son simplemente demasiado débiles como para resistir nuestro ataque. Queremos vuestros planetas, así que preparaos, porque se acerca la hora de vuestra muerte.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Ah, sí, los Humanos. Nos llevamos bastante bien con ellos, pero no dejan de llamarnos "Osos espaciales". Dime, individuo de la raza SING, ¿qué es un oso espacial? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>No hemos pasado mucho tiempo entre los Humanos. Quizás con el tiempo seamos amigos o enemigos, o quizás siempre mantengamos la distancia. El tiempo lo dirá. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>En verdad, nunca hemos conocido una raza tan depravada de animales avariciosos y violentos como la de los Humanos. ¡Son muy peligrosos, ser de la raza SING! Ten cuidado. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Ah, sí, los Pollops. Son un pueblo cordial y afable que ama la canción y la poesía. Nos gustan bastante.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Por desgracia, no conocemos muy bien a los Pollops, pero parecen un pueblo cordial y afable.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>El pueblo Kulrathi tiene una palabra para los Pollops: ensalada. No nos gusta la ensalada. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>¡Los Vulfar! ¡Poseen agallas! ¡Energía! Entendemos su ansia por combatir y creemos que es una lástima que sean tan estúpidos. ¡Pero nos gustan! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>A pesar de que no conocemos muy bien a los Vulfar, entre los Kulrathi corren rumores sobre su limitado intelecto.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>¿Esos chuchos salvajes? Los conocemos bien: están deliciosos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Los Cordrazine valoran la belleza y, a pesar de que sus aptitudes sociales son un poco deficientes, los respetamos por ello y los consideramos nuestros amigos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Solo los hemos visto de lejos y sabemos muy poco sobre ellos y sobre su comportamiento. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Esas... especies de molusco... Nos molestan mucho. Capturan esclavos y solo hablan de ellos mismos. No nos gustan. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Se rigen por convicciones sólidas y su filosofía llega hasta el fondo de sus almas; nos caen bien. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>Tenemos poco que decir sobre esa raza; no la conocemos bien.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>Alguna vez nos hemos cruzado con los emisarios de la muerte. Está claro que no hay suficiente espacio en la galaxia para nuestros dos pueblos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Eres un estúpido, ser de la raza SING. Mientras pensabais que estabais a salvo con armaduras hechas de papel, nosotros nos hemos hecho más fuertes. Nuestra pacto de no agresión queda anulado, ¡y ahora vamos a por vuestros planetas!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Este es el momento en el que la espada desciende y te decapita. ¿Sufres? ¿Sientes cómo tu cabeza rueda por el suelo? Si pudieras hablar, lo sabríamos, pero no puedes porque has sido derrotado por los poderosos Kulrathi.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Los Kulrathi sabemos cómo luchar, pero en realidad buscamos la paz para nosotros y para nuestros amigos. Me temo que nuestras disputas fronterizas son poco prudentes y propongo un tratado de fronteras abiertas para resolver el conflicto.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Así podremos envainar nuestras armas y respirar con alivio. Es un honor para nosotros ser vuestros amigos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Entonces empuñad con firmeza vuestra espada y preparaos para desenvainarla, ser de la raza SING. Los Kulrathi están cada vez más furiosos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>¡Ataques furtivos deshonrosos! ¡Traidores! ¡Preparaos para morir! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Con deshonrosos ataques sorpresa no se gana una guerra, ser de la raza SING. ¡Con el poder, sí! ¡Prepárate!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Su lógica maquinal nos hace algo de gracia. Nos caen bien.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>No podemos decir que los conozcamos lo suficiente como para tener una opinión.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Adversarios peligrosos, los Opteris. Un enemigo que no tiene miedo vale por dos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Saludos, individuo de la raza SING. Hemos detectado que hay exploradores tuyos en el sistema TARSYS. Deberías saber que los Kulrathi hemos reivindicado ese sistema y que sería prudente renunciar a la idea de colonizarlo. </Friendly>
+      <Neutral>¡Ser de la raza SING! Hemos detectado que hay exploradores tuyos en el sistema TARSYS. Deberías saber que los Kulrathi hemos reivindicado ese sistema y que sería prudente renunciar a la idea de colonizarlo.</Neutral>
+      <Hostile>Infames criaturas... Hemos avistado exploradores vuestros en el sistema TARSYS. Deberíais saber que los Kulrathi hemos reivindicado ese sistema y, a menos que deseéis que la hora de vuestra muerte sea inminente, os mantendréis alejados de nuestros territorios.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Vuestra audacia al hacer caso omiso de las reivindicaciones territoriales de los Kulrathi es admirable, pero ¿está vuestra fuerza a la altura?  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>¿Quién puede saber si una flor olerá bien cuando tan solo es una semilla en la tierra? No tenemos problemas contigo, individuo de la raza SING. Al menos no por el momento y quizás nunca los tengamos. El tiempo lo dirá. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Nuestro vínculo se hace más fuerte, ser de la raza SING. Nos alegra que seamos amigos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Bien, individuo de la raza SING, ya que preguntas, tendrás tu respuesta: sí que tenemos motivos de queja con tu pueblo. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Nuestro principal problema es que tenéis aspiraciones sobre territorios que nosotros también hemos reclamado y los Kulrathi somos muy territoriales. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>En primer lugar, debéis entender que los Kulrathi somos un pueblo territorial. Nuestra rivalidad por los sistemas es un problema. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>En segundo lugar, vuestro ejército es muy poderoso y eso hace que nuestro pueblo piense que se avecina una batalla.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>En segundo lugar, los Kulrathi respetamos la fuerza militar y, por desagracia, os estáis quedando muy atrás respecto a nosotros. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Si deseáis que los Kulrathi os respetemos, ¡debéis ser fuertes! Y no lo sois, ser de la raza SING; todavía no. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>A pesar de que respetamos la fuerza, nos preocupa la diferencia de tamaño entre nuestras flotas. ¿Vamos a seguir siendo amigos? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Estáis aliados con TAREMP, un pueblo sin honor alguno. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Y además estáis aliados con TAREMP, un pueblo sin honor alguno. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Ni nada bueno ni nada malo: así es cómo vemos a los PLURAL por ahora. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>¿Te ha abandonado tu valor, ser de la raza SING? ¿Por qué si no vendrías a nosotros en el último aliento de tu pueblo? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Eres... eres un guerrero poderoso, individuo de la raza SING. Eso lo respetamos, pero no esperes que nos rindamos. ¿Qué es lo que quieres de nosotros entonces? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>¡Individuo de la raza SING! ¡Que entremos juntos en la gloria del combate, eso es lo que deseamos! ¡Únete a nosotros! ¡Derrotemos juntos a TAREMP!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>¡Raaaa! ¡A la guerra entonces! ¡Haced sonar los tambores y afilad vuestras hojas, PLURAL! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Entendemos tu desavenencia, individuo de la raza SING. Muy bien, </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Los Draylok son un pueblo noble y también son amigos de los Kulrathi. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>No los conocemos muy bien, individuo de la raza SING. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>Esas deshonrosas criaturas acechan en la oscuridad y luchan como cobardes. </Default>
+    </DialogLine>
+
+    <!-- Second Run Localization Efforts -->
+
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>La furia de la batalla amaina y ahora podemos ver con más claridad: esta guerra tampoco nos resulta favorable a nosotros. Firmemos la paz, ser de la raza SING, por el interés de ambos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Tus flotas han caído ante nuestro poder. No arriesgues innecesariamente ninguna vida SING más. Haremos las paces contigo si así lo deseas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Eres un enemigo digno, individuo de la raza SING. Si esta guerra no cesa, sin duda uno de nosotros caerá. Pongámosle fin ahora y garanticemos nuestro futuro con un tratado de paz.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Tu poder es incuestionable: nos sentimos humildes ante ti. Por favor, individuo de la raza SING, firma un tratado de paz con nosotros.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Has peleado bien y has perdido: no hay nada de lo que avergonzarse. Firma un tratado y terminemos con esta disputa territorial.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>¡Defiendes tus territorios con vehemencia! Te cederemos nuestra posesión si firmas un tratado de paz.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Tu espíritu de batalla es inspirador, ser de la raza SING. ¡Muy bien! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Tu sabiduría es infinita. Hemos enfundado nuestras espadas.</Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Es de sabios aceptar una oferta sabia; aceptamos deponer las armas y firmar la paz.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Declinamos amablemente tu oferta de poner nuestra cabeza bajo vuestra espada. ¿Queríais algo más?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Los Kulrathi nos tomamos muy en serio nuestras posesiones territoriales: no habrá paz hasta que esta contienda se resuelva.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Es una vergüenza para nosotros aceptar tus condiciones, pero la prudencia nos dicta que lo hagamos. que haya paz.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Nuestra heridas de guerra aún están abiertas, individuo de la raza SING, y no presenciaremos la cura de nuestras relaciones hasta que no se cierren. Dale tiempo. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Es hora de que unamos nuestro poder, ser de la raza SING. ¡Proclamemos nuestra alianza ante toda la galaxia! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>¡Entonces está decidido! Desde ahora en adelante, los PLURAL son hermanos y hermanas de los Kulrathi. ¡Clan y sangre! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Tu rechazo es decepcionante. Quizás en el futuro.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Mmmmm... quizás, individuo de la raza SING. Sin embargo, no podemos aceptar una alianza con el resto de condiciones. Podríamos considerar una oferta de alianza si no conllevara nada más.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Los Kulrathi veneramos vuestra fuerza y vuestro honor. Sí, nos aliaremos a vosotros.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Os agradecemos que nos hayáis honrado pensando en nosotros. No obstante, no podemos aceptar vuestra oferta en este momento porque, francamente, aún no confiamos en vosotros lo suficiente.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Los tambores de guerra ya retumban: las hojas están afiladas, los corazones de los guerreros están preparados. Los tambores no se pueden silenciar. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>Mmm. nos pides envainemos nuestras espadas antes de que estén manchadas con sangre SING y nos ofreces regalos por este favor. Después de considerarlo debidamente, aceptamos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Os avergonzáis a vosotros mismos al negaros de esa forma tan deshonrosa a ayudar a un aliado. Anulamos nuestra alianza con vosotros.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Rrrruuurrr. Tus... continuos actos de rebeldía... están enfureciendo a muchos... rruurrr. Respeta nuestras posesiones, ser de la raza SING. Rrrrruur.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>¡RRRAAAAAAAAURRR! ¡¡RRRUUUAARRRRR!! (Incomprensible, probablemente obscenidades en Kulrathi).</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>...Espiar es tan... infame. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Rrrrurr. ¡No nos enfurezcas con más espionaje, individuo de la raza SING!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>¡RRRAAAAAAAAURRR! ¡¡RRRUUUAARRRRR!! (Incomprensible, probablemente obscenidades en Kulrathi). (Tratados cancelados)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Tu agente ha sido capturado y ejecutado, ser de la raza SING. ¡No habrá piedad para aquellos que intenten robar nuestros secretos!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>Espiar a tus amigos es el ápice de la deshonestidad. Esta vez te perdonaremos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Te hemos avisado, individuo de la raza SING, pero aun así has vilipendiado nuestra amistad de nuevo enviando más espías. Nuestra alianza queda anulada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Para un Kulrathi, abrir las fronteras territoriales es un honor reservado en exclusiva para los amigos más íntimos. Ser de la raza SING, ¿te unirás a nosotros en esta promesa?</Default> 
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Mmmm... lo comprendemos. La propiedad territorial es sagrada y no nos ofendemos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>¡Mmm! Tenemos en cuenta tus deseos de amistad, individuo de la raza SING. Sin embargo, los Kulrathi somos un poco más precavidos en estas cuestiones que tú. Quizás en el futuro.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Es posible que lo que pides se cumpla algún día, ya que consideramos a los PLURAL nuestros amigos. No obstante, deberíamos probar una alianza antes de empezar y ni siquiera hemos llegado a ese punto en nuestra relación.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Pronto, individuo de la raza SING. ¡Pero todavía no! Acabamos de convertirnos en aliados; acostumbrémonos y asegurémonos de que estamos cómodos antes de debatir sobre esta propuesta de Federación.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>¡Los Kulrathi respetamos la fuerza, ser de la raza SING! ¡Fuerza que nosotros poseemos y vosotros no! Lo siento, pero no podemos fusionar nuestro imperio con individuos que son más débiles que nosotros.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Sí. Nuestro vínculo se ha hecho más fuerte: vuestro pueblo es nuestro pueblo; vuestra sangre es nuestra sangre. Juntos dominaremos la galaxia. ¡Por la Federación!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Nos uniremos a vosotros. Sin embargo, primero debéis demostrar vuestro poder derrotando a nuestros enemigos. Destruid TAREMP y seremos uno.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>¡Vuestra fuerza está demostrada! TAREMP ha sido destruido y ahora mantendremos nuestro vínculo de honor. ¡Nuestras espadas son vuestras! ¡Larga vida a la Federación!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Mmmm... no, individuo de la raza SING. Aún queda mucho por hacer en nuestra relación.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>A pesar de lo mucho que amamos a vuestro pueblo, estáis en guerra con nuestros amigos, TAREMP. Si conseguís que se hagan vuestros aliados, no tendremos problema en unirnos a vuestra Federación.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>¡Sí! Vuestro honor es límpido y puro. Habéis hecho que TAREMP se convierta en vuestro aliado y ahora nos uniremos a vuestra Federación.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>¡Ser de la raza SING! ¡Es una deshonra pedirnos que luchemos una guerra en la que vosotros ni siquiera estáis participando! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>¡Ya estamos en guerra con TAREMP!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Sí, aliado: nos uniremos a ti.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Lo siento, pero también somos amigos de TAREMP y tomar partido en este conflicto pondría en peligro nuestra amistad.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>No, individuo de la raza SING. Pides demasiado y ofreces muy poco.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>No creemos en luchar las guerras de otros. ¿Has intentado hacer las paces con TAREMP?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>No, sería imprudente unirnos a esta guerra. ¡Tenemos que mirar por nuestros propios intereses!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Mmm, sí. Nuestros guerreros necesitan una buena batalla y TAREMP parece vulnerable. ¡Qué resuenen los tambores! ¡A la guerra!</Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

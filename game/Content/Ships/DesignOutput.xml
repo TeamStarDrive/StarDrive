@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Fighter Creep</Name>
+  <Dimensions>
+    <X>512</X>
+    <Y>512</Y>
+  </Dimensions>
+  <ModelPath>Model/Fighter1</ModelPath>
+  <Loyalty>AI</Loyalty>
+  <TexturePath>Textures/Ships/fighterA</TexturePath>
+  <DeployPosition>
+    <X>0</X>
+    <Y>0</Y>
+  </DeployPosition>
+  <StrategicIconPath>Textures/Ships/destroyerIcon</StrategicIconPath>
+  <DefaultAIState>LongRangeShooter</DefaultAIState>
+  <ModuleSlotList>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>248</Y>
+      </Position>
+      <InstalledModuleUID>Shield_1KW</InstalledModuleUID>
+      <Restrictions>IO</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>264</Y>
+      </Position>
+      <InstalledModuleUID>DisruptorCannon</InstalledModuleUID>
+      <Restrictions>IO</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>248</Y>
+      </Position>
+      <InstalledModuleUID>PowerPlant</InstalledModuleUID>
+      <Restrictions>IO</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>264</Y>
+      </Position>
+      <InstalledModuleUID>Engine</InstalledModuleUID>
+      <Restrictions>IO</Restrictions>
+      <SlotOptions>NotApplicable</SlotOptions>
+    </ModuleSlotData>
+  </ModuleSlotList>
+</ShipData>
