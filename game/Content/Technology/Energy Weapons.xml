@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Energy Weapons</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>220</Cost>
+  <RootNode>0</RootNode>
+  <Name>Energy Weapons</Name>
+  <NameIndex>556</NameIndex>
+  <DescriptionIndex>557</DescriptionIndex>
+  <LongDescription>Many of our top military scientists believe that directed energy weapons are the future of space combat. Other scientists favor the encapsulation of various energies into ionized packets, creating energy "cannons". This technology represents our first steps into this field.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Fusion Beam</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Energy Cannons</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>LaserCannon</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>LaserBeamTurret2x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>LaserBeam2x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

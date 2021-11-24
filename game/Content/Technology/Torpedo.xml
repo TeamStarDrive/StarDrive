@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Torpedo</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>1500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Conventional Torpedoes</Name>
+  <NameIndex>689</NameIndex>
+  <DescriptionIndex>690</DescriptionIndex>
+  <LongDescription>A torpedo is essentially a massive missile, loaded to the brim with high explosives.  It trades speed and maneuverability for payload. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>EMPTorpedo</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>ConventionalTorpedo</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

@@ -1,0 +1,63 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Reserved>true</Reserved>
+  <Cost>12</Cost>
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Shield</ModuleType>
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <Name>Ancient Shield</Name>
+  <Restrictions>IO</Restrictions>
+  <UID>AncientShield2kw</UID>
+  <IconTexturePath>Modules/Shield_1KW</IconTexturePath>
+  <Mass>10</Mass>
+  <Health>400</Health>
+  <HealthMax>400</HealthMax>
+  <energyreq>0</energyreq>
+  <modRadius>32</modRadius>
+  <Description>An ancient yet very advanced small shield generator. It has twice the output of our best 2 x 2 designs.
+  </Description>
+  <CrewRequired>1</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <PowerDraw>50</PowerDraw>
+  <NameIndex>904</NameIndex>
+  <DescriptionIndex>905</DescriptionIndex>
+  <!-- for shield items -->
+  <shield_power>5000</shield_power>
+  <shield_power_max>5000</shield_power_max>
+  <shield_recharge_delay>3.5</shield_recharge_delay>
+  <shield_recharge_rate>50.0</shield_recharge_rate>
+  <shield_radius>100</shield_radius>
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+
+  <!-- for Weapons -->
+
+
+  <!-- for Engines -->
+  <thrust>0</thrust>
+
+
+
+</ShipModule>

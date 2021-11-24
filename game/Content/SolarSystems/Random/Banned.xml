@@ -1,0 +1,23 @@
+﻿<SolarSystemData>
+  <Name>Banned</Name>
+  <SunPath>star_binary</SunPath>
+  <RingList>
+    <Ring>
+      <Planet>Spartacus</Planet>
+      <SpecialDescription>This world is coolly calculating your demise.  </SpecialDescription>
+
+    </Ring>
+    <Ring>
+      <Planet>Methos</Planet>
+      <SpecialDescription>Scans indicate this planet is older than the associated solarsystem. It... May even be older than the universe... </SpecialDescription>
+
+    </Ring>
+    <Ring>
+      <Planet>Gen</Planet>
+      <SpecialDescription>Mineral scans indicate that the upper crust of this planet is mostly the remains of countless civilizations. It's as if each new civilization that is formed sufferes a genocide. </SpecialDescription>
+
+    </Ring>
+
+
+  </RingList>
+</SolarSystemData>

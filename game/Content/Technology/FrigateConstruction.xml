@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>FrigateConstruction</UID>
+  <TechnologyType>ShipHull</TechnologyType>
+  <Cost>320</Cost>
+  <RootNode>0</RootNode>
+  <Name>Frigate Construction</Name>
+  <NameIndex>568</NameIndex>
+  <DescriptionIndex>569</DescriptionIndex>
+  <LongDescription>With investment into frigate construction, we can begin to build heartier ships that are more prepared for whatever dangers are out there than our comparatively flimsy cargo ships.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>CombatReadiness</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Cruisers</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>Bridge</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>FrigateEngine</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>WarpEngine_2x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>CombatEngine_2x2</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked>
+    <UnlockedHull>
+      <Name>Terran/Gunboat</Name>
+      <ShipType>Terran</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Ralyeh/Zion</Name>
+      <ShipType>Ralyeh</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Opteris/Soldier</Name>
+      <ShipType>Opteris</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Pollops/Fern</Name>
+      <ShipType>Pollops</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Cordrazine/Metving</Name>
+      <ShipType>Cordrazine</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Terran/HeavyGunboat</Name>
+      <ShipType>Terran</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Kulrathi/Talon</Name>
+      <ShipType>Kulrathi</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Kulrathi/Claw</Name>
+      <ShipType>Kulrathi</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Vulfen/Type V</Name>
+      <ShipType>Vulfen</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Vulfen/Type VII</Name>
+      <ShipType>Vulfen</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Draylok/Scythe</Name>
+      <ShipType>Draylok</ShipType>
+    </UnlockedHull>
+  </HullsUnlocked>
+</Technology>

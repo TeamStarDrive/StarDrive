@@ -1,0 +1,61 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>1</Cost>
+  <!-- Tech Level -->
+  <TechLevel>1</TechLevel>
+  <TechBranch>Armor</TechBranch>
+
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>1</XSIZE>
+  <YSIZE>1</YSIZE>
+  <ModuleType>Armor</ModuleType>
+  <Name>Small Steel Armor</Name>
+  <Restrictions>O</Restrictions>
+  <UID>SteelArmorSmall</UID>
+  <TexturePath>Textures/transparent</TexturePath>
+  <IconTexturePath>Modules/SteelArmorSmall</IconTexturePath>
+
+
+  <NameIndex>1060</NameIndex>
+  <DescriptionIndex>1061</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>20</Mass>
+  <Health>850</Health>
+  <HealthMax>850</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>0</PowerDraw>
+
+
+  <!-- Crew Reqs -->
+  <CrewRequired>0</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+
+  <!-- for Weapons -->
+
+
+  <!-- Description -->
+  <Description>This is a small plate of thick steel armor.  It is cheap and heavy but provides significant protection.</Description>
+  
+
+</ShipModule>

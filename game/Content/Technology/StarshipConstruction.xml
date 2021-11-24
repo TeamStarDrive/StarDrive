@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>StarshipConstruction</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>50</Cost>
+  <RootNode>1</RootNode>
+  <Name>Starship Construction</Name>
+  <NameIndex>663</NameIndex>
+  <IconPath>icons_techroot_starships</IconPath>
+  <DescriptionIndex>664</DescriptionIndex>
+  <LongDescription>A core of basic starship design knowledge was needed for us to even begin reaching into the stars.  This core technology represents having discovered basic starship command, propulsion, and hull technologies.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>HeavyFighterHull</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Shipyards</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>ArmorTheory</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>BasicCargoHold</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>PowerConduit</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>Cockpit</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>Engine</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>WarpEngine_1x1</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>Internal Bulkhead</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>Reinforced Bulkhead</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+ 
+  <TroopsUnlocked />
+  <HullsUnlocked>
+    <UnlockedHull>
+      <ShipType>Terran</ShipType>
+      <Name>Misc/HaulerSmall</Name>
+    </UnlockedHull>
+    <UnlockedHull>
+      <ShipType>Kulrathi</ShipType>
+      <Name>Misc/HaulerSmall</Name>
+    </UnlockedHull>
+    <UnlockedHull>
+      <ShipType>Vulfen</ShipType>
+      <Name>Misc/HaulerSmall</Name>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Opteris/Creeper</Name>
+      <ShipType>Opteris</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Opteris/Drone</Name>
+      <ShipType>Opteris</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Terran/Shuttle</Name>
+      <ShipType>Terran</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Ralyeh/Inquisitor</Name>
+      <ShipType>Ralyeh</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Ralyeh/Vessel S</Name>
+      <ShipType>Ralyeh</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Pollops/Thorn</Name>
+      <ShipType>Pollops</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Pollops/Seeder</Name>
+      <ShipType>Pollops</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Cordrazine/Ving</Name>
+      <ShipType>Cordrazine</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Cordrazine/Owl1</Name>
+      <ShipType>Cordrazine</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Kulrathi/Fang</Name>
+      <ShipType>Kulrathi</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Vulfen/Type I</Name>
+      <ShipType>Vulfen</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Draylok/Wisp</Name>
+      <ShipType>Draylok</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Draylok/Draylok Tx Small</Name>
+      <ShipType>Draylok</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
+      <Name>Platforms/Platform Base</Name>
+    </UnlockedHull>
+  </HullsUnlocked>
+  
+</Technology>

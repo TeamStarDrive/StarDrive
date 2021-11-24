@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Assimilation</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>4500</Cost>
+  <RootNode>0</RootNode>
+  <Name>Assimilation</Name>
+  <NameIndex>517</NameIndex>
+  <DescriptionIndex>518</DescriptionIndex>
+  <LongDescription>We have reached our maximum genetic potential and require new genetic sources to continue growth. </LongDescription>
+  <LeadsTo />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Resistance is Futile</Name>
+      <BonusType>Allow Assimilation</BonusType><!-- just having this gives the bonus; no amount needed -->
+      <Bonus>0</Bonus>
+      <Description>Gain all of the positive genetic traits of any race conquered via ground invasion. </Description>
+      <BonusIndex>519</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

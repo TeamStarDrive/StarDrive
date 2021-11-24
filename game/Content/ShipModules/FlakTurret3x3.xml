@@ -1,0 +1,70 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>4</Cost>
+  
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Turret</ModuleType>
+  <XSIZE>3</XSIZE>
+  <YSIZE>3</YSIZE>
+  <Name>Flak Turret</Name>
+  <Restrictions>O</Restrictions>
+  <UID>FlakTurret3x3</UID>
+  <IconTexturePath>Modules/FlakTurret3x3</IconTexturePath>
+  <Mass>10</Mass>
+  <Health>900</Health>
+  <HealthMax>900</HealthMax>
+  <energyreq>0</energyreq>
+  <Description>Flak Turrets are mounted on omni-directional swivel platforms for a full field of fire.  They fire explosive shells with a wide damaging radius, but the projectiles are somewhat slow and have a limited range.  Furthermore, this weapon requires ordnance to fire.
+  </Description>
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <PowerDraw>9</PowerDraw>
+
+
+  <NameIndex>954</NameIndex>
+  <DescriptionIndex>955</DescriptionIndex>
+
+
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+  <radius>0</radius>
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+  
+  <!-- for Weapons -->
+  <WeaponType>DualFlak</WeaponType>
+  <FieldOfFire>90</FieldOfFire>
+  <OrdinanceCapacity>36</OrdinanceCapacity>
+  
+  <!-- for Engines -->
+  <thrust>0</thrust>
+  
+  
+
+</ShipModule>

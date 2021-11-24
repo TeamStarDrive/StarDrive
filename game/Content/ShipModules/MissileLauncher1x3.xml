@@ -1,0 +1,57 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>6</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>2</TechLevel>
+
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>1</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>MissileLauncher</ModuleType>
+  <Name>Missile Launcher</Name>
+  <Restrictions>O</Restrictions>
+  <UID>MissileLauncher1x3</UID>
+  <IconTexturePath>Modules/Missile1x3</IconTexturePath>
+
+
+  <NameIndex>994</NameIndex>
+  <DescriptionIndex>995</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>9</Mass>
+  <Health>300</Health>
+  <HealthMax>300</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>3</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>Missile</WeaponType>
+  <FieldOfFire>15</FieldOfFire>
+  <OrdinanceCapacity>12</OrdinanceCapacity>
+  
+  
+  <!-- Description -->
+  <Description>This long range anti-ship missile is as agile as it is strong, and can make short work of ships with poor point defense systems. </Description>
+  
+
+</ShipModule>

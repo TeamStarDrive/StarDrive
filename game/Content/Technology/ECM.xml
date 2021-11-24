@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>ECM</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>750</Cost>
+  <RootNode>0</RootNode>
+  <Name>ECM</Name>
+  <NameIndex>547</NameIndex>
+  <DescriptionIndex>548</DescriptionIndex>
+  <LongDescription>Electronic Counter Measures such infrared and subspace frequency jammers can confuse enemy point defense sensors into missing their targets.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>MissileArmor</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>ECM Bonus</Name>
+      <BonusType>Missile Dodge Change Bonus</BonusType>
+      <Bonus>0.25</Bonus>
+      <Description>Grants missile weapon (such as rockets, guided missiles, and torpedos) a 25% chance to dodge intercepting fire.</Description>
+      <BonusIndex>549</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

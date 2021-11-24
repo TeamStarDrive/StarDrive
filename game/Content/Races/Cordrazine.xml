@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PortraitName>Cordrazine</PortraitName>
+  <MusicCue>Colomn_03_loop</MusicCue>
+  <DiplomacyDialogPath>Cordrazine</DiplomacyDialogPath>
+  <StartingShip>Ving Defender</StartingShip>
+  <StartingScout>Vingscout</StartingScout>
+  <PrototypeShip>Cordrazine Prototype</PrototypeShip>
+  <DefaultSmallTransport>Owlwok Freighter S</DefaultSmallTransport>
+  <DefaultTroopShip>Cordrazine Troop</DefaultTroopShip>
+  <DefaultColonyShip>Cordrazine Colonizer</DefaultColonyShip>
+  <DefaultConstructor>Owlwok Constructor</DefaultConstructor>
+  
+  <RebelName>Free Owlwok Nation</RebelName>
+  <RebelSing>Free Owlwok</RebelSing>
+  <RebelPlur>Free Owlwoks</RebelPlur>
+  <TroopNameIndex>2089</TroopNameIndex>
+  <TroopDescriptionIndex>2091</TroopDescriptionIndex>
+  <WarpStart>sd_warp_start_cordrazine_01</WarpStart>
+  <WarpEnd>sd_warp_stop_cordrazine_01</WarpEnd>
+  <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
+  <EnvTerran>1</EnvTerran>
+  <EnvOceanic>1</EnvOceanic>
+  <EnvSteppe>1</EnvSteppe>
+  <EnvTundra>1</EnvTundra>
+  <EnvSwamp>1</EnvSwamp>
+  <EnvDesert>1</EnvDesert>
+  <EnvIce>1</EnvIce>
+  <EnvBarren>1</EnvBarren>
+  <PreferredEnv>Terran</PreferredEnv> <!-- Terraformers will terraform a planet to this environment -->
+
+  <Traits>
+    <Name>Cordrazine Collective</Name>
+    <Singular>Cordrazine</Singular>
+    <Plural>Cordrazine</Plural>
+    <VideoPath>Cordrazine</VideoPath>
+    <ShipType>Cordrazine</ShipType>
+    <Adj1>strange</Adj1>
+    <Adj2>eerie</Adj2>
+    <HomeSystemName>Cordron</HomeSystemName>
+    <HomeworldName>Cordron Ot</HomeworldName>
+    <FlagIndex>7</FlagIndex>
+    <R>255</R>
+    <G>242</G>
+    <B>0</B>
+    <RaceDescription>KWAK!</RaceDescription>
+    <Cost>0</Cost>
+    <ConsumptionModifier>-.2</ConsumptionModifier>
+    <PopGrowthMax>.02</PopGrowthMax>
+    <DiplomacyMod>.2</DiplomacyMod>
+    <GenericMaxPopMod>0</GenericMaxPopMod>
+    <Aquatic>0</Aquatic>
+    <Burrowers>0</Burrowers>
+    <Blind>0</Blind>
+    <BonusExplored>0</BonusExplored>
+    <Pioneers>0</Pioneers>
+    <Militaristic>0</Militaristic>
+    <HomeworldSizeMod>.25</HomeworldSizeMod>
+    <Prewarp>0</Prewarp>
+    <Spiritual>0</Spiritual>
+    <HomeworldFertMod>0</HomeworldFertMod>
+    <DodgeMod>-.25</DodgeMod>
+    <EnergyDamageMod>0</EnergyDamageMod>
+    <ResearchMod>0</ResearchMod>
+    <Mercantile>0</Mercantile>
+    <Miners>0</Miners>
+    <ProductionMod>0</ProductionMod>
+    <MaintMod>-.25</MaintMod>
+    <TaxMod>.25</TaxMod>
+    <ShipCostMod>0</ShipCostMod>
+    <ModHpModifier>.2</ModHpModifier>
+    <SmallSize>0</SmallSize>
+    <HugeSize>0</HugeSize>
+    <GroundCombatModifier>-.20</GroundCombatModifier>
+    <RepairRateMod>0</RepairRateMod>
+    <Cybernetic>0</Cybernetic>
+  </Traits>
+  <Faction>0</Faction>
+</EmpireData>

@@ -1,0 +1,69 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>50</Cost>
+  
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Engine</ModuleType>
+  <Name>Titan Engine</Name>
+  <XSIZE>4</XSIZE>
+  <YSIZE>4</YSIZE>
+  <Restrictions>E</Restrictions>
+  <UID>Titan Engine</UID>
+  <IconTexturePath>Modules/engine_4x4</IconTexturePath>
+  <Mass>70</Mass>
+  <Health>3200</Health>
+  <HealthMax>3200</HealthMax>
+  <energyreq>0</energyreq>
+  <modRadius>4</modRadius>
+  <Description>This titanic engine requires considerable power but provides unparalleled thrust.  </Description>
+  <CrewRequired>1</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <PowerDraw>260</PowerDraw>
+
+  <NameIndex>1066</NameIndex>
+  <DescriptionIndex>1067</DescriptionIndex>
+
+
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+  
+  <!-- for Weapons -->
+
+  
+  
+  <!-- for Engines -->
+  <thrust>368000</thrust>
+  <!-- amount of thrust used to calculate the engine's turn speed bonus or penalty. Set to same as thrust for default -->
+  <TurnThrust>368000</TurnThrust>
+  <WarpThrust>400000</WarpThrust>
+  
+
+</ShipModule>

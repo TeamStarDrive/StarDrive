@@ -1,0 +1,56 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <UID>PhasorBeam2x3</UID>
+  <Cost>24</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>3</TechLevel>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>Heavy-mount Phasor Array</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/phasorcannon_2x3</IconTexturePath>3
+
+
+  <NameIndex>1012</NameIndex>
+  <DescriptionIndex>1013</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>12</Mass>
+  <Health>600</Health>
+  <HealthMax>600</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>HeavyPhasorBeam</WeaponType>
+  <FieldOfFire>45</FieldOfFire>
+
+  <!-- Description -->
+  <Description>This heavy-mount phasor array has a fixed spinal facing and a 45 degree field of fire.</Description>
+  
+
+</ShipModule>

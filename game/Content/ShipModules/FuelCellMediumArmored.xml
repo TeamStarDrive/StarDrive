@@ -1,0 +1,69 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>true</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+
+  <Cost>6</Cost>
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>FuelCell</ModuleType>
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <UID>FuelCellMediumArmored</UID>
+  <Restrictions>IO</Restrictions>
+  <Name>Medium Fuel Cell</Name>
+  <IconTexturePath>Modules/med_fuelcell_armored</IconTexturePath>
+  <Mass>45</Mass>
+  <Health>600</Health>
+  <HealthMax>600</HealthMax>
+  <energyreq>1</energyreq>
+  <modRadius>4</modRadius>
+  <CrewRequired>0</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <Description>This medium-sized fuel cell is heavily armored, with triple hitpoints but an increased cost and reduced fuel capacity.</Description>
+  <PowerDraw>0</PowerDraw>
+
+
+
+  <NameIndex>958</NameIndex>
+  <DescriptionIndex>959</DescriptionIndex>
+
+
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>1200</PowerStoreMax>
+
+  <!-- for Weapons -->
+
+
+  <!-- for Engines -->
+  <thrust>0</thrust>
+
+
+
+</ShipModule>

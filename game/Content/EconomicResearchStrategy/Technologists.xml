@@ -1,0 +1,11 @@
+﻿<EconomicResearchStrategy>
+  <!--the opening technology path for races with the Named economic personality. Goes random when finished-->
+  <Name>Technologists</Name>
+  <MilitaryPriority>0</MilitaryPriority>
+  <ExpansionPriority>1</ExpansionPriority>
+  <ResearchPriority>3</ResearchPriority>
+  <IndustryPriority>1</IndustryPriority>
+  <TechPath>
+	
+  </TechPath>
+</EconomicResearchStrategy>

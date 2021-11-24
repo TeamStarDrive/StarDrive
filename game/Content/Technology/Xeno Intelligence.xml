@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UID>Xeno Intelligence</UID>
+  <TechnologyType>General</TechnologyType>
+  <Cost>450</Cost>
+  <RootNode>0</RootNode>
+  <Name>Xeno Intelligence</Name>
+  <NameIndex>2014</NameIndex>
+  <DescriptionIndex>2015</DescriptionIndex>
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Spy Offense</Name>
+      <BonusType>Spy Offense Roll Bonus</BonusType>
+      <Bonus>5</Bonus>
+      <Description></Description>
+      <BonusIndex>2203</BonusIndex>
+    </UnlockedBonus>
+    <UnlockedBonus>
+      <Name>Spy Defense</Name>
+      <BonusType>Spy Defense Roll Bonus</BonusType>
+      <Bonus>10</Bonus>
+      <Description></Description>
+      <BonusIndex>2016</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>
