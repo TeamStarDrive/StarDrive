@@ -100,7 +100,7 @@ SectionGroup /e "BlackBox"
     SectionEnd
 
     !macro AddStarDriveFile Filename
-        File /oname=${Filename} ${SOURCE_DIR}\StarDrive\${Filename}
+        File /oname=${Filename} ${SOURCE_DIR}\game\${Filename}
     !macroend
 
     Section "-BlackBox" SecMain
@@ -137,10 +137,10 @@ SectionGroup /e "BlackBox"
         !insertmacro AddStarDriveFile System.ValueTuple.dll
         !insertmacro AddStarDriveFile Microsoft.Bcl.AsyncInterfaces.dll
 
-        ; Everything inside Content folder
+        ; Everything inside game/Content folder
         ; exclude specific files by using: /x *.tiff
         SetOutPath "$INSTDIR\Content"
-        File /r ${SOURCE_DIR}\Content\*.*
+        File /r ${SOURCE_DIR}\game\Content\*.*
 
         ;; Remove junk files from previous versions
         !include "LegacyRemove.nsh"
