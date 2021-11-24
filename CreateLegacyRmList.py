@@ -12,8 +12,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--root_dir', type=str, help='BlackBox/ root directory')
 parser.add_argument('--configuration', type=str,
                     help='Build Configuration, Debug, Release or Deploy', default="Debug")
-parser.add_argument('--copy_mods', action='store_true', help='copy BlackBox/Mods into StarDrive/Mods')
-parser.add_argument('--delete_legacy', action='store_true', help='deletes several legacy files/folders that interfere with new content')
 args = parser.parse_args()
 
 def console(message):
@@ -39,7 +37,7 @@ def robocopy(source, destination, force_overwrite = False):
 def path_combine(a, b):
     return os.path.normpath(os.path.join(a, b))
 
-def get_files_to_delete(del_list_file):
+def get_legacy_files_to_delete(del_list_file):
     files = []
     with open(del_list_file, 'r') as f:
         for line in f.readlines():
@@ -71,28 +69,14 @@ def delete_files(game_folder, files_to_delete):
 
 
 blackbox_dir = args.root_dir
-content_src = path_combine(blackbox_dir, "Content")
-content_dst = path_combine(blackbox_dir, "StarDrive/Content")
-game_folder = path_combine(blackbox_dir, "StarDrive")
-del_list_file = path_combine(blackbox_dir, "Content/LegacyContent.txt")
+del_list_file = path_combine(blackbox_dir, "game/Content/LegacyContent.txt")
 rm_script_file = path_combine(blackbox_dir, "Deploy/LegacyRemove.nsh")
 
 if args.delete_legacy:
     # Load the delete listing file
-    files_to_delete = get_files_to_delete(del_list_file)
+    files_to_delete = get_legacy_files_to_delete(del_list_file)
 
     # Generate NSIS install script's RMDir commands
     console(f'Generating installer RM script: {rm_script_file}')
     generate_installer_rm_list(files_to_delete, rm_script_file)
 
-    # Delete the files locally as well
-    delete_files(game_folder, files_to_delete)
-
-# Copy game content files
-robocopy(content_src, content_dst, force_overwrite=(args.configuration == "Deploy"))
-
-if args.copy_mods:
-    mod_src = path_combine(blackbox_dir, "Mods")
-    mod_dst = path_combine(blackbox_dir, "StarDrive/Mods")
-    if os.path.exists(mod_src):
-        robocopy(mod_src, mod_dst, force_overwrite=False)
