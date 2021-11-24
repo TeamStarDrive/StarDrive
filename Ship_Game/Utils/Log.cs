@@ -714,10 +714,9 @@ namespace Ship_Game
                 Screen[] screens = Screen.AllScreens;
                 Screen screen = screens.Find(s => s != primary && s.Bounds.Y == primary.Bounds.Y) ?? primary;
 
-                GetWindowRect(handle, out RECT rect);
                 System.Drawing.Rectangle bounds = screen.Bounds;
                 const int noResize = 0x0001;
-                SetWindowPos(handle, 0, bounds.Left + rect.Left, bounds.Top + rect.Top, 0, 0, noResize);
+                SetWindowPos(handle, 0, bounds.Left + 40, bounds.Top + 40, 0, 0, noResize);
             }
 
             HasActiveConsole = handle != IntPtr.Zero;
