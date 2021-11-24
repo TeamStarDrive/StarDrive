@@ -1,0 +1,608 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>... vielleicht, vielleicht. Wir sind Ralyeh, die Todbringer. Und doch: Du ... du beeindruckst uns. Vielleicht erwartet dich ein anderes Schicksal?</Friendly>
+      <Neutral>Sag mir, SING, hast du je wirklich über die Stunde deines Todes nachgesonnen, wenn alles nichts wird? Hast du Angst, zu leiden? Du solltest es, denn wir sind Ralyeh, die Todesboten und Diener Greisegotts.</Neutral>
+      <Hostile>Sag mir, SING, hast du je wirklich über die Stunde deines Todes nachgesonnen, wenn alles nichts wird? Hast du Angst, zu leiden? Du solltest es, denn wir sind Ralyeh, die Todesboten und Diener Greisegotts.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Sehnst du das Vergehen im Nichts so sehr herbei, dass du Greisegott vor seinem Thron verhöhnst? Dein unbefugtes Eindringen in unsere Systeme ist ein schlimmes Vergehen.</Friendly>
+      <Neutral>Du verhöhnst Greisegott mit deinem Übergriff auf sein Reich. Glaubst du wirklich, er würde euch nicht zermalmen ... wie das Gewürm, das ihr seid?</Neutral>
+      <Hostile>Euer Hohn gegenüber Greisegott ist nicht unbemerkt geblieben. Euer Übergriff auf das TARSYS-System wird nicht vergessen. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Sehnst du das Vergehen im Nichts so sehr herbei, dass du Greisegott verhöhnst, indem du seine Jünger angreifst? Welcher Wahn hat dich befallen? </Friendly>
+      <Neutral>Eure Angriffe auf die Ralyeh, so erbärmlich sie sein mögen, fügen Greisegott eine große Beleidigung zu. Seht euch vor.</Neutral>
+      <Hostile>Törichte PLURAL! Sehnt ihr den Tod derart herbei, dass ihr uns noch vor eurer Zeit provoziert?</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>SING, entfernt eure Schiffe aus unserem Gebiet, oder wir werden zornig.</Friendly>
+      <Neutral>SING, entfernt eure Schiffe aus unserem Gebiet, oder wir werden zornig. Wir haben dies lange genug toleriert.</Neutral>
+      <Hostile>SING, eure Schiffe sind in unserem Gebiet, und wir werden eure Übergriffe nicht hinnehmen. Zieht sofort ab zurück, sonst werden sie beseitigt. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>Ihr verhöhnt uns wohl? Wie verwirrt müsst ihr PLURAL sein, um eure Freundschaft mit den Ralyeh aufs Spiel zu setzen? Überlasst uns TARSYS, oder tragt die Konsequenzen. </Friendly>
+      <Neutral>Wie erwartet erweisen sich eure Übergriffe auf unser Gebiet als langfristig angelegt. Eure Kolonisierung von TARSYS ist ein großes Vergehen. </Neutral>
+      <Hostile>... bald, SING. Bald schon wird Greisegott sein Urteil über euch sprechen. Macht euch bereit.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>Ihr verhöhnt uns wohl? Wie verwirrt müsst ihr PLURAL sein, um eure Freundschaft mit den Ralyeh aufs Spiel zu setzen? Überlasst uns TARSYS, oder tragt die Konsequenzen. </Friendly>
+      <Neutral>Wie erwartet erweisen sich eure Übergriffe auf unser Gebiet als langfristig angelegt. Eure Kolonisierung von TARSYS ist ein großes Vergehen, und erst recht eure anhaltende Präsenz. </Neutral>
+      <Hostile>... bald, SING. Bald schon wird Greisegott sein Urteil über euch sprechen. Macht euch bereit.</Hostile>    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>Gib dich keiner Täuschung hin, SING. In der Stunde deines Todes hörst du auf zu sein. Alles, was du einst wusstest oder warst wird ausgelöscht. Es gibt keinen Gott außer Greisegott, und selbst er ist ein Sklave des Todes. Aber ich schweife ab. Die Stunde deines Todes naht. Wir sind nun im Krieg. </misc1>
+      <misc2>Ein Leben zu nehmen, ist eine große Ehre und Last. Der Händler des Todes ist ein Zerstörer von Welten ... von Universen! Alles, was einmal war, wird nichts! Das ist, was wir mit euch machen werden. Wir werden eure Welten vernichten und eure Universen ins Nichts stürzen! Wir sind nun im Krieg.</misc2>&gt;
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Das Auge Greisegotts ist bisher auf keine anderen Rassen gefallen als unsere und eure. Bald jedoch, bald wird er sehen. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Sei gegrüßt, SING. Hast du mehr über deinen Tod nachgedacht? Wird es ein guter Tod sein?</Friendly>
+      <Neutral>Wie wirst du sterben, SING? Zu Hause, umgeben von Familie, alt und schwach? In der Schlacht? Durch Unfall? Durch Mord? Wir stellen uns diese Fragen. Warum störst du unsere dunklen Gedanken?</Neutral>
+      <Hostile>Die PLURAL kommen, um an des Todes Fersen zu schnüffeln. Was ist? </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>Was ist das für ein Stab, das du da hältst?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Dies ist das Zepter Greisegotts, das mich als Führer unseres Volkes kennzeichnet. Ich bin es, der den Willen Greisegotts interpretiert und verkündet.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>Wir sind die Händler des Todes, SING, </DL_Agg>
+      <DL_Hon>Wir sind die Händler des Todes, SING, </DL_Hon>
+      <DL_Pac>Wir sind die Händler des Todes, SING, </DL_Pac>
+      <DL_Ruth>Wir sind die Händler des Todes, SING,</DL_Ruth>
+      <DL_Cunn>Wir sind die Händler des Todes, SING, </DL_Cunn>
+      <DL_Xeno>Wir sind die Händler des Todes, SING, </DL_Xeno>
+      <DL_Exp> und wir werden unsere schwere Last bis an die Grenzen des Alls tragen, zu jedem Stern an jedem Himmel. </DL_Exp>
+      <DL_Tech> und durch den Tod jener, die das Missfallen Greisegotts erregen, werden wir Wissen gewinnen. Das Wissen, dem Tod zu widerstehen! </DL_Tech>
+      <DL_Mil> und unsere mächtigen Flotten werden unsere schwere Last in die vielen Welten unserer Feinde tragen.  </DL_Mil>
+      <DL_Ind> und unsere machtvollen Industrien werden Instrumente der Macht hervorbringen, sodass niemand unserem heiligen Angriff widerstehen kann.</DL_Ind>
+      <DL_Gen> und doch lieben wir das Leben. Leben und Tod. Licht und Dunkelheit. Chaos und Ordnung.</DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Wir haben keinen Grund, euch PLURAL mit einer solchen Übereinkunft zu trauen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Dein Opfer für Greisegott bewegt uns, euch wider besseres Wissen mehr zuzugestehen als geboten. Einverstanden. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Du musst die Ralyeh für Toren halten. Nein. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Du missbrauchst unser Vertrauen durch ein derart schlechtes Angebot. Verbessere dein Gebot, wenn du eine Übereinkunft erzielen willst. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Du erzürnst Greisegott mit derart beleidigenden Bedingungen!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Es ist also vereinbart. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Deine Bedingungen sind Greisegott gefällig. Wir stimmen zu.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Eure großzügigen Bedingungen sind angenommen, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Greisegott wird über euer Opfer erfreut sein.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Ihr bettelt um ein faires Geschäft? Erbärmlich. Aber was soll&apos;s ... wir nehmen an. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Das Gelächter Greisegotts würde deinen Schädel sprengen, wärst du imstande, es zu hören. Er lacht ob deiner erbärmlichen Drohungen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Deine Drohungen sind bloße Algen in den Wogen des Meeres. Wir akzeptieren dein Handelsangebot, aber dein Ton gefällt uns nicht. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Hat Greisegott uns verlassen? Wie können Kreaturen wie ihr uns zwingen, ihnen so viel für so wenig zu geben? Es ist eine Zeit der Dunkelheit. Wir beugen uns deinen Forderungen. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Ihr verstoßt gegen eure Eide, aber wir werden unsere halten. Wir schwören, euch zu töten. Wir schwören, eure Knochen zu zerbrechen und eure Eingeweide aufzusaugen. Wir schwören, euer Blut aus den Schädeln eurer Kinder zu trinken. Bei Greisegott, das schwören wir. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Nun gut. Der Tod holt uns alle, SING. So ist das Leben.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Siehst du die Schwärze, die vor dir liegt? Sie ist schon so nah, SING. Bist du zufrieden damit, wie du dein Leben geführt hast? Hast du einen Sinn gefunden? Sprich jetzt, und wir werden dir zuhören.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Wir hätten es vorgezogen, zu warten, bevor wir euch bekämpfen, doch verlangt die Klugheit, dass wir sofort ins Gefecht ziehen. Eure Übergriffe sind zu zahlreich, und wir sind nun im Krieg.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Wir hätten es vorgezogen, zu warten, bevor wir euch bekämpfen, doch verlangt die Klugheit, dass wir sofort ins Gefecht ziehen. Eure Übergriffe sind zu zahlreich, und wir sind nun im Krieg.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>Wir hätten es vorgezogen, zu warten, bevor wir euch bekämpfen, doch verlangt die Klugheit, dass wir sofort ins Gefecht ziehen. Euer Übergriff auf TARSYS hat das Fass zum Überlaufen gebracht, und wir sind nun im Krieg.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Greisegott entbietet euch das Angebot eines Nichtangriffspakts, auf dass unsere beiden Völker dem Tod gemeinsam trotzen mögen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Und so sei es. PLURAL und Ralyeh werden leben, und der Tod wird auf morgen warten.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Es ist also, wie ich es vorhersah. Ihr werdet sterben und vergessen werden, allein und unwissend.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Ich grüße dich, SING. Es ist unser Wunsch, Warenhandel mit deinem Volk zu betreiben. Akzeptierst du eine solche Übereinkunft? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Greisegott ist erfreut. Wir werden die nötigen Vorkehrungen treffen. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Nun gut. Es heißt ohnehin, eure Waren seien von minderer Qualität. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Haben unsere Worte dich umgestimmt? Entscheidest du dich jetzt für das Leben, und nicht den Tod? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Ihr habt unser Angebot abgelehnt, und jetzt bietet ihr uns unsere eigenen Bedingungen an? PLURAL sind so seltsam.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Ihr wäret gut beraten, uns die TECH_DEMAND-Technologie zu gewähren. Dies könnte euer Leben erheblich verlängern.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Es ist, wie Greisegott es vorhersah. Vielleicht werden wir dem Tod noch eine Weile länger trotzen, du und ich.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Aber egal. Dies war nur ein Test, und du hast ihn nicht bestanden. Lebe wohl, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Das Auge Greisegotts fällt auf eure Flotte und befindet sie für unzureichend. Er fragt sich, ob es die PLURAL sind, die als Nächste sterben werden. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Greisegott hat eure Flotte beurteilt und für würdig befunden. Ihr werdet leben ... fürs Erste. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Wir sind erfreut, dass ihr Greisegotts Warnung ernst genommen habt, und Gleiches gilt für ihn. Eure Flotte ist jetzt in viel besserem Zustand. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Wir tragen nun unseren heiligen Angriff zu euch. Wir werden eure Leben nehmen, SING. Wir werden eure Planeten und eure Waren und euer Volk nehmen, und sie ins Nichts stoßen. Macht euch bereit.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Wir respektieren ihre Philosophie und ihre Stärke. Sie werden leben ... fürs Erste.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>Sie stehen gegenwärtig außerhalb der Betrachtung Greisegotts.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>Die Kriegerbestien beleidigen Greisegott, und es gibt nur eine Strafe für eine derartige Sünde.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Wir ... können nicht umhin, diese kleinen Wesen zu mögen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Seltsame Viecher, die Pollops. Wir ignorieren sie zumeist.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Algen! Wir werden nicht einmal Trauer empfinden, wenn wir ihre Wurzeln kappen. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Wir fragen uns manchmal, wie die Vulfar überhaupt zur Raumfahrt fähig sind. Aber sie sind stark und wild, und wir mögen sie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Wir denken nicht viel an die Vulfar.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Diese Hunde sind es nicht wert, zu leben.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Ja, wir können die Menschen recht gut leiden. Greisegott hat ihren Planeten einst besucht, vor langer Zeit. Die menschlichen Legenden besagen, dass er völlig aus ihrer Welt vertrieben wurde. Aber wir Ralyeh kennen natürlich die wahre Geschichte. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Wir haben uns nicht viel mit den Menschen befasst, seit Greisegott ihre Heimatwelt vor vielen Zeitaltern besuchte.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Die Menschen haben Legenden über Greisegott. Sie glauben, sie könnten ihn besiegen! Wie falsch sie liegen, und wie erbärmlich sie sind!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Für die Ralyeh gilt nur ein Eid: jener, den wir alle im Dienste Greisegotts schwören. Wir haben befunden, dass unser Nichtangriffspakt mit diesem Eid nicht vereinbar ist. Er ist nun verworfen, und wir sind im Krieg.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Deine Planeten sind unser, deine Flotten vernichtet. Der Kreis hat sich geschlossen, und Greisegotts Wille ist geschehen. Den PLURAL wurde der Tod gebracht, und wir betrauern euren Verlust.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Ihr seid würdige Freunde Greisegotts und seiner Jünger. Wir wünschen nicht, dass diese Grenzstreitigkeiten unsere Beziehung gefährden. Lasst uns einen Vertrag über offene Grenzen unterzeichnen und diesen Konflikt beilegen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Du bist weise, SING. Nun lasst uns die Botschaft zu jenen tragen, die sie verdienen, nicht wahr? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Das ist überaus bedauerlich. Mit eurem Trotz zieht ihr den Blick Greisegotts auf euch, und dieser Blick bringt nur den Tod.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Hmm. Wir bewundern euren Mut, SING. Wir haben diesen Schritt von euch nicht erwartet. Wir haben euch für ehrenhafter gehalten. Doch egal, wir kennen jetzt die Wahrheit. Dann also Krieg.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>So. Du klopfst an des Todes Tür mit der Landung eurer Truppen in TARSYS. Nun gut. Er wird euch antworten.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Interessante Wesen, diese Opteris. Sind sie lebendig? Können sie sterben? Wir sind zumindest mit ihnen befreundet. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>Wir haben keine rechte Meinung über diese Maschinen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Sie erzürnen Greisegott. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Seid ihr Lebewesen? Nun, dann haben wir eine Beschwerde. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Das Auge Greisegotts ist derzeit von euch abgewandt. Ihr seid mit Sicherheit gesegnet dadurch, dass er euch nicht kennt. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Greisegott empfindet gleich mehrfach Missfallen an euch. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Das Hauptärgernis ist unsere Konkurrenz um Sternensysteme. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>Das Hauptärgernis ist unsere Konkurrenz um Sternensysteme. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Doch wir sind auch besorgt über die Stärke eurer Flotte und die Absichten, die ihr mit dieser verfolgt. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Zudem ist eure Flotte erbärmlich, und das können wir nicht respektieren. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Das Hauptärgernis ist eure Schwäche. Greisegott verachtet Schwächlinge. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Unsere Hauptsorge betrifft die Größe eurer Flotte und die Absichten, die ihr mit dieser verfolgt. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Euer Bündnis mit den Feinden Greisegotts, TAREMP, verstimmt uns. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Zudem verstimmt uns euer Bündnis mit den Feinden Greisegotts, TAREMP. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Die Tatsache, dass ihr am Leben seid, verstimmt uns. Ansonsten haben wir keine Beschwerden. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Hörst du die Glocken, die euren Untergang künden und euch in die Unterwelt rufen? Das Ende naht, SING. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Eure anhaltende Missachtung der Gebote Greisegotts ist empörend. Was willst du, SING? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>Greisegott wäre höchst erfreut über euch, wenn ihr uns im Kampf gegen TAREMP beistündet. Was sagt ihr? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Wohlgesprochen. Gemeinsam werden wir uns dieser schweren Last entledigen. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Törichtes Wesen! Glaube nicht, dass ihr vor uns sicher seid. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Sie haben Greisegott bisher nicht verärgert; das ist gut. Ich vermute, wir mögen sie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Wir ignorieren mindere Wesen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>Sie sind auf unserer Liste, SING. Und nicht der guten Liste.</Default>
+    </DialogLine>
+
+
+    <!-- Second Run Localization -->
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>Aus Gründen, die meinen Verstand übersteigen, ist es Greisegotts Willen, dein Volk fürs Erste zu verschonen. Wir bieten euch einen Friedensvertrag an.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Aus Gründen, die meinen Verstand übersteigen, und trotz unserer anhaltenden militärischen Erfolge ist es Greisegotts Willen, dein Volk fürs Erste zu verschonen. Wir bieten euch einen Friedensvertrag an.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Greisegott hat eure Kampfesstärke anerkannt. In Ehrerbietung vor eurer Macht bieten wir euch einen Vertrag an, der die Feindseligkeiten beenden würde.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Wir ... müssen euch bitten, euren Krieg gegen uns zu beenden. Unsere Botschaft ist so bedeutend, und eure Macht bedroht unsere Existenz. Bitte, lasst uns diesen Krieg beenden.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Greisegott hat eure Stärke bei der Verteidigung eurer Ansprüche anerkannt. In Ehrerbietung vor eurer Macht bieten wir euch einen Vertrag an, der die Feindseligkeiten beenden würde.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Diese Grenzstreitigkeiten lenken uns von unserer Mission ab. Wir sind der Ansicht, dass wir diese Runde gewonnen haben, und bereit, die Feindseligkeiten jetzt zu beenden.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Nun denn ... Frieden war ohnehin keine gute Idee.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>So steht es geschrieben, so soll es sein. Wir haben Frieden.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Schlagt die Glocken zweimal. Einmal für die Gefallenen, und einmal für die, die gerettet wurden. Wir haben Frieden. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Die Diener Greisegotts bedürfen keiner Allwissenheit, um zu erkennen, dass du uns für Narren hältst. Nicht bei einem so schlechten Angebot. Nein. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Die Ansprüche Greisegotts sind unerfüllt. Wir werden sie nicht ohne guten Grund aufgeben. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Du zwingst uns deinen Willen auf, SING. Wir können das bewundern. Nun gut ... wir stimmen zu.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Eure fortdauernde Existenz trotz unserer größten Kriegsanstrengungen ist eine fortdauernde Beschwerde. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Die Galaxie ist ein gefährlicher Ort, SING. Wir sind der Ansicht, unsere Freundschaft ist eines Bündnisses würdig, um diese Gefahren im Zaum zu halten. Was sagst du dazu?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Wir sind erfreut über deine Weisheit. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Dein Mangel an Weisheit in dieser Frage verblüfft uns.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Ein Bündnis zu erwägen ist eine komplizierte Angelegenheit. Wir wollen uns bei unserer Entscheidung nicht durch diese anderen Bedingungen ablenken lassen. Biete uns ein Bündnis allein an, und wir werden es in Erwägung ziehen. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Ja ... ja! Wir erkennen die Weisheit in deinem Vorschlag! Lasst uns also Verbündete sein.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Ah. Nein, SING. Wir werden nicht deine Verbündeten sein.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Und welchen Tribut habt ihr Greisegott für seine Vergebung angeboten? Hmm? Was für Welten werdet ihr ihm geben? Denkt darüber nach, bevor ihr ihn bittet, euer Leben zu schonen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>Frieden? Bevor überhaupt Blut geflossen ist? Euer Tribut scheint ausreichend. Nun gut. Dann also Frieden.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Du erzürnst uns, SING. Dies ist nicht die Art, wie Verbündete miteinander umgehen. Nun gut. Unser Bündnis ist Vergangenheit.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Habt ihr keinen Respekt vor den Ansprüchen eines GOTTES, SING? TARSYS war ihm vorbestimmt, und ihr erzürnt ihn mit eurer Missachtung! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Narren! Wir dachten, ihr PLURAL hinget an eurer erbärmlichen Existenz. Doch eure dauernde Missachtung unserer Wünsche wirft die Frage auf, ob ihr euch sehnt, dass wir euch schneller von eurem Geschenk erlösen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>Einmal mehr stehlt ihr unsere Ansprüche direkt unter unseren Tentakeln. Greisegott erwacht, SING. Er wird hierüber nicht glücklich sein.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Wir sagen euch das, weil wir Freunde sind, SING. Bleibt dem TARSYS-System fern. Wir beanspruchen es für unseren Gott.</Friendly>
+      <Neutral>Im Namen Greisegotts beanspruchen wir das TARSYS-System. Haltet euch fern, SING.</Neutral>
+      <Hostile>Wisset: Die Ralyeh beanspruchen das TARSYS-System. Kolonisiert es auf eigene Gefahr!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Eine seltsame Rasse, zweifellos. Und ihre Spielkameraden, die kleinen Pelzigen ... auch sehr seltsam. Aber wir mögen sie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Wir haben keine Meinung über die Sklavenhalter.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Ach, die Sklavenhalter. Wir sind nicht beeindruckt von ihren Methoden. Wir betrachten sie als Feinde. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>PLURAL. Sie lauern im Schatten ... stehlen die Geheimnisse überlegener Wesen ... abscheulich.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Wir sind euch auf der Spur, SING. Wir wissen, dass ihr uns ausspioniert. Ihr beschleunigt nur euren Untergang, wenn ihr uns verärgert.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>Greisegott wird dies nicht länger hinnehmen! Euer Spionieren nimmt Überhand! Unsere Verträge sind hinfällig!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Ein Opfer für Greisegott! Euer Agent war köstlich.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>... warum spioniert ihr uns aus, SING? Wer schließt ein Bündnis, um es dann so gedankenlos wegzuwerfen. Wir geben euch eine Chance, damit aufzuhören – aber nur eine.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Und eure eine Chance ist vertan. Unser Bündnis ist vorbei.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Schließ dich uns an, SING. Wir würden dir unsere Grenzen öffnen und du uns, in Freundschaft. Stimmst du zu?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Wie du wünschst. Aber der Tod kennt keine Grenzen, und er hat keine Günstlinge.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Oh nein, Eifriger. Dies ist keine Vereinbarung, die wir mit jedem Dahergelaufenen schließen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Freunde ... ihr verlangt viel, dabei sind wir noch nicht einmal richtige Bündnispartner. Was ihr erbittet, mag eines Tages Möglichkeit werden, doch erst müssen wir eine Grundlage für diese Beziehung aufbauen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Eifrig wie immer. Ja, ja. Wir wollen uns erst einmal an dieses neue Bündnis gewöhnen ... sichergehen, dass es keine Probleme gibt ... dann können wir erneut über diesen Vorschlag reden.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Aber warum sollten wir das tun, wo wir so stark sind und ihr ... nun ja, nicht so stark seid? Das können wir nicht.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Dies ist ein äußerst glückverheißender Tag. Ihr habt uns geholfen, Leben in der Dunkelheit zu finden. Heute treten wir euch bei. Lang lebe unsere Föderation!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Du verlangst viel, SING. Wir werden uns euch anschließen. Aber nur, wenn ihr erst unsere Feinde besiegt, TAREMP. Beweist eure Verbundenheit, und wir werden eins.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>So sei es denn. TAREMP ist besiegt, und wir werden unser Wort halten und eurer Föderation beitreten.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Vielleicht solltet ihr versuchen, unsere Beziehungen zu verbessern und auf einige unserer Beschwerden einzugehen, bevor ihr solch großsprecherische Angebote macht.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Wir würden euch ja beitreten, SING. Doch ihr müsst euch als Freund unserer Freunde erweisen. Schließt ein Bündnis mit TAREMP, und werden wir eurer Föderation beitreten.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Ihr habt getan, was wir verlangt haben. Mit unseren Freunden, TAREMP, die nun eure Verbündeten sind, werden wir eurer Föderation beitreten.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>Eure Begeisterung dafür, Konflikte auszulösen, ist bekannt. Doch die Soldaten Greisegotts sind keine Söldner. Die Antwort ist nein.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>Wir schon im Krieg mit TAREMP, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Als eure Verbündeten sind wir verpflichtet, deinem Ersuchen nachzukommen. Dann also Krieg.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Wir können TAREMP nicht den Krieg erklären, denn auch sie sind unsere Freunde und Bündnispartner.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Nein, SING. Wir hatten eher daran gedacht, euch den Krieg zu erklären. Wäre das kein Spaß? Jetzt mach dich fort.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Wir billigen den Krieg nicht, außer zur Selbstverteidigung.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Nein. Sie sind zu mächtig für uns. Dem können wir nicht zustimmen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Ganz mein Gedanke! Sie sind schwach und verletzlich ... auf zum Angriff und nieder mit ihnen.</Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

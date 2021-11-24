@@ -1,0 +1,61 @@
+﻿<Encounter>
+  <Faction>Corsairs</Faction>
+  <Step>0</Step>
+  <Name>First Contact</Name>
+  <DescriptionText>While patrolling the edges of space, your forces have stumbled upon a wretched hive of scum and villainy: a Corsair base! The Corsairs have sent you this message:</DescriptionText>
+  <MessageList>
+    <Message>
+    <text>Dearest SING friends,
+
+We are so happy that you have found us. Or rather, that you have allowed us to find you! Times are tough out here in the lonely black reaches of space, and when times get tough, well, the tough get to robbing honest space empires like your own.
+
+So we have a proposal for you. You will pay us 250 credits right now. If you do, then we can promise a certain level of 'protection' to SING ships. If you don't, well, then we just can't make any promises.
+
+Oh, and either way, stay out of our space.  
+
+Regards,
+  Captain Martok, Independent Trader and Gentleman
+    </text>
+    <ResponseOptions>
+      <Response>
+        <Text>Agree to pay 250 credits to this upstanding gentleman.</Text>
+        <MoneyToThem>250</MoneyToThem>
+        <FailIndex>3</FailIndex>
+        <SuccessIndex>1</SuccessIndex>
+      </Response>
+      <Response>
+        <Text>Refuse to pay this scoundrel!</Text>
+        <DefaultIndex>2</DefaultIndex>
+      </Response>
+
+    </ResponseOptions>
+
+  </Message>
+    <Message>
+      <Index>1</Index>
+      <text>Wonderful news! We'll let you know when we're done drinking our way through your money. Until then, sleep safe!
+
+    Regards,
+    CM
+      </text>
+      <SetEncounterStep>2</SetEncounterStep>
+      <EndTransmission>true</EndTransmission>
+    </Message>
+    <Message>
+      <Index>2</Index>
+      <SetWar>true</SetWar>
+      <text>Now that is disappointing, isn't it? And here I was thinking that we were going to be fast friends. It's your funeral, SING. Do your people have funerals? Whatever. The point is, we're going to come kill you now.</text>
+      <EndTransmission>true</EndTransmission>
+      <SetEncounterStep>1</SetEncounterStep>
+    </Message>
+    <Message>
+      <Index>3</Index>
+      <SetWar>true</SetWar>
+      <text>What, is this some sort of SING humor? You don't have the credits! Unfortunately for you, this is not my problem. We're coming for you! If you want to pay us off, just hail my ship.</text>
+      <EndTransmission>true</EndTransmission>
+      <SetEncounterStep>1</SetEncounterStep>
+    </Message>
+
+  </MessageList>
+  
+</Encounter>

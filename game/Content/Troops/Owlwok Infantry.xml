@@ -1,0 +1,31 @@
+﻿<Troop>
+  <Name>Owlwok Infantry</Name>
+  <Description>These furry fellows will gleefully attack anything its Cordrazine master finds ugly.</Description>
+  <TexturePath>column_idle0000</TexturePath>
+  <Icon>column</Icon>
+  <first_frame>0</first_frame>
+  <RaceType>Cordrazine</RaceType>
+  <num_idle_frames>8</num_idle_frames>
+  <num_attack_frames>25</num_attack_frames>
+  <animated>true</animated>
+  <idle_x_offset>32</idle_x_offset>
+  <idle_y_offset>32</idle_y_offset>
+  <attack_width>192</attack_width>
+  <idle_path>column_idle00</idle_path>
+  <attack_path>column_attack00</attack_path>
+
+  <sound_attack>sd_ground_cordrazine_01</sound_attack>
+  
+  <Cost>50</Cost>
+  <Strength>10</Strength>
+  <MaxStrength>10</MaxStrength>
+  <Movement>1</Movement>
+  <MaintenanceCost>1</MaintenanceCost>
+  <Range>1</Range>
+  <HardAttack>25</HardAttack>
+  <BoardingStrength>60</BoardingStrength>
+  <SoftAttack>40</SoftAttack>
+  <TargetType>Soft</TargetType>
+  <Class>Infantry</Class>
+  <MovementCue>sd_troop_march_01</MovementCue>
+</Troop>

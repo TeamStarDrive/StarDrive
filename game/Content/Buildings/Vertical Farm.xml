@@ -1,0 +1,12 @@
+﻿<Building>
+  <Name>Vertical Farm</Name>
+  <PlusFlatFoodAmount>4</PlusFlatFoodAmount>
+  <Cost>300</Cost>
+  <Icon>arcology</Icon>
+  <Maintenance>1.0</Maintenance>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>2290</NameTranslationIndex>
+  <DescriptionIndex>2292</DescriptionIndex>
+  <ShortDescriptionIndex>2291</ShortDescriptionIndex>
+</Building>

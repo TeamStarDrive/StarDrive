@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Signal Origin</Name>
+  <Maintenance>0</Maintenance>
+  <Description> </Description>
+  <EventTriggerUID>Capture Portal</EventTriggerUID>
+  <Cost>40</Cost>
+  <Icon>ancient_stargate</Icon>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <Scrappable>false</Scrappable>
+  <Strength>100</Strength>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>2157</NameTranslationIndex>
+  <DescriptionIndex>2158</DescriptionIndex>
+  <ShortDescriptionIndex>2159</ShortDescriptionIndex>
+  <!-- Tells the Solar System Generator that this is not to be placed randomly-->
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>

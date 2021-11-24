@@ -1,0 +1,33 @@
+﻿<SolarSystemData>
+  <Name>Kholin</Name>
+  <RingList>
+    <Ring>
+      <Planet>Blackthorn</Planet>
+      <SpecialDescription>Blackthorn is a weathered world that has slipped too close to the sun following some cataclysmic shift in its orbit.  Strange electical storms tear at the landscape below you.  Even stranger, sensors detect the remains of primitive electronic equipment floating above Blackthorn in geosynchronos orbit.  </SpecialDescription>
+      <WhichPlanet>23</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Planet>Jasnah</Planet>
+      <SpecialDescription>At first glance, this planet appears to be another frozen wasteland.  However, closer scans have revealed massive cave complexes lurking beneath the surface.  These complexes are rich with valuable crystalline ore.  </SpecialDescription>
+      <WhichPlanet>17</WhichPlanet>
+      <ResourceList>
+        <Resource>
+          <Name>Crystals</Name>
+        </Resource>
+      </ResourceList>
+    </Ring>
+    <Ring>
+      <Planet>Adolin</Planet>
+      <SpecialDescription>Adolin presents as a young, Earth-like planet with a lush climate.  From orbit you can identify several pockets of rudimentary civilizations dotting the landscape.  </SpecialDescription>
+      <WhichPlanet>22</WhichPlanet>
+      <ResourceList>
+        <Resource>
+          <Name>Timber</Name>
+        </Resource>
+      </ResourceList>
+    </Ring>
+  </RingList>
+</SolarSystemData>

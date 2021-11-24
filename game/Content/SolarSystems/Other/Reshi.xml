@@ -1,0 +1,31 @@
+﻿<SolarSystemData>
+  <Name>Reshi</Name>
+  <RingList>
+    <Ring>
+      <Planet>Bast</Planet>
+      <SpecialDescription>Bast is an inhospitable hell world.  Rivers of magma flow from volcanic peaks and harden into obsidian in the plains below.  The atmosphere is highly corrosive and toxic.  It is best not to linger here.  </SpecialDescription>
+      <WhichPlanet>23</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Kvothe</Planet>
+      <SpecialDescription>Geologists speculate that Kvothe was once a vibrant and much warmer world than it is today.  At some point, Kvothe lost its magic due to an unspecified geological distaster.  Whatever it was that happened, Kvothe has been plunged in an eons-long ice age.  It is a now a harsh but habitable Tundra world.  Its forests produce timber of exceptional quality.  </SpecialDescription>
+      <WhichPlanet>18</WhichPlanet>
+      <ResourceList>
+        <Resource>
+          <Name>Timber</Name>
+        </Resource>
+      </ResourceList>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Planet>Felurian</Planet>
+      <SpecialDescription>Felurian shines brightly in the night sky of Kvothe.  The planet itself is not habitable.  </SpecialDescription>
+      <WhichPlanet>20</WhichPlanet>
+    </Ring>
+  </RingList>
+</SolarSystemData>

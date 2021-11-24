@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Crash Site</Name>
+  <Maintenance>0</Maintenance>
+  <Description>From orbit this appears to be the resting place of a crashed spaceship. Ground troops might be able to find out more by exploring. </Description>
+  <EventTriggerUID>Discover Ship</EventTriggerUID>
+  <Cost>40</Cost>
+  <Icon>crash</Icon>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <ShortDescription>A crashed vessel</ShortDescription>
+  <Scrappable>false</Scrappable>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>415</NameTranslationIndex>
+  <DescriptionIndex>416</DescriptionIndex>
+  <ShortDescriptionIndex>417</ShortDescriptionIndex>
+
+</Building>

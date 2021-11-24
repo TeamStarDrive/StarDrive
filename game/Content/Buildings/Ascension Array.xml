@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Ascension Array</Name>
+  <Maintenance>0</Maintenance>
+  <Description></Description>
+  <Cost>15000</Cost>
+  <Icon>Ascension</Icon>
+
+  <Scrappable>false</Scrappable>
+  <WinsGame>true</WinsGame>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>2115</NameTranslationIndex>
+  <DescriptionIndex>2116</DescriptionIndex>
+  <ShortDescriptionIndex>2117</ShortDescriptionIndex>
+  <BuildOnlyOnce>true</BuildOnlyOnce>
+  <!-- Tells the Solar System Generator that this is not to be placed randomly-->
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>

@@ -1,0 +1,31 @@
+﻿<SolarSystemData>
+  <Name>Mradeep</Name>
+  <RingList>
+    <Ring>
+      <Planet>Arrachus</Planet>
+      <SpecialDescription>This harsh desert planet is home to terrifyingly large spiders that burrow beneath the sun-scorched sands.  The spiders excrete a substance which has incredible chemical properties.  The spice must flow. </SpecialDescription>
+      <WhichPlanet>14</WhichPlanet>
+      <ResourceList>
+        <Resource>
+          <Name>MelangeSpice</Name>
+        </Resource>
+      </ResourceList>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Planet>Herbert</Planet>
+      <SpecialDescription>A sad, dead planet.  The winds whispher here of this planet's once glorious history.  Excavating this planet for archeological curiosities may prove worthwhile.  </SpecialDescription>
+      <WhichPlanet>17</WhichPlanet>
+      <ResourceList>
+        <Resource>
+          <Name>Curios</Name>
+        </Resource>
+      </ResourceList>
+    </Ring>
+  </RingList>
+</SolarSystemData>

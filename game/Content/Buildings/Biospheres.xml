@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Biospheres</Name>
+  <Maintenance>.1</Maintenance>
+  <Description>Biospheres are special, highly adaptable living habitats. Biospheres may only be built on Uninhabitable terrain; in doing so, the terrain becomes habitable, and the planet gains .5 to its maximum population. Economic buildings can thereafter be built underneath the biosphere. </Description>
+  <MaxPopIncrease>100</MaxPopIncrease>
+  <Cost>40</Cost>
+  <Icon>biosphere</Icon>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <ShortDescription>+.5b population cap; turns inhabitable squares into habitale squares</ShortDescription>
+
+
+  <Unique>false</Unique>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>406</NameTranslationIndex>
+  <DescriptionIndex>407</DescriptionIndex>
+  <ShortDescriptionIndex>408</ShortDescriptionIndex>
+</Building>

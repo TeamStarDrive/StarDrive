@@ -1,0 +1,598 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>Explorando... Detectada forma de vida basada en el carbono. Las adaptaciones físicas indican un desarrollo evolutivo altamente social. Nivel de amenaza: bajo. Opteris te saluda. </Friendly>
+      <Neutral>Explorando... Detectada forma de vida basada en el carbono. Tipo genérico. Nivel de amenaza desconocido. Opteris te saluda.</Neutral>
+      <Hostile>Explorando... Detectada forma de vida basada en el carbono. Las adaptaciones físicas indican un desarrollo evolutivo no social. Nivel de amenaza: moderado. Opteris te saluda. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Se ha detectado actividad orgánica en los sistemas de Opteris. Análisis de propósitos en proceso. Probabilidad de conflicto armado: en aumento.</Friendly>
+      <Neutral>Se ha detectado actividad orgánica en los sistemas de Opteris. Análisis de propósitos en proceso. Probabilidad de conflicto armado: moderada.</Neutral>
+      <Hostile>Se ha detectado actividad orgánica en los sistemas de Opteris. El análisis de propósitos indica que la probabilidad de conflicto armado es alta. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Naves de la raza SING han destruido drones de Opteris. El análisis de propósitos indica un error de la raza SING a la espera de otra agresión.</Friendly>
+      <Neutral>Naves de la raza SING han destruido drones de Opteris. El análisis de propósitos indica una agresión de la raza SING. A la espera de más información.</Neutral>
+      <Hostile>Naves de la raza SING han destruido drones de Opteris. El análisis de propósitos indica una agresión hostil de la raza SING. Preparativos para conflicto armado a la espera de más información.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>Se han detectado naves de la raza SING en el espacio de Opteris. El análisis de las relaciones Opteris / raza SING indica que se trata de movimientos de fuerza no agresivos. Se requiere un nuevo análisis.</Friendly>
+      <Neutral>Se han detectado naves de la raza SING en el espacio de Opteris. El análisis de las relaciones Opteris / raza SING indica una probabilidad moderada de agresión. Situación marcada para realizar seguimiento.</Neutral>
+      <Hostile>Se han detectado naves de la raza SING en el espacio de Opteris. El análisis de las relaciones Opteris / raza SING indica la inminencia de una maniobra agresiva. Preparando respuesta armada.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>La expansión de la raza SING hacia el espacio de Opteris indica que los PLURAL no aprecian sus relaciones con Opteris. Ajustando las rutinas diplomáticas correspondientemente. </Friendly>
+      <Neutral>La expansión de la raza SING hacia el espacio de Opteris indica que los PLURAL no aprecian sus relaciones con Opteris. Ajustando las rutinas diplomáticas correspondientemente.</Neutral>
+      <Hostile>La expansión de la raza SING hacia el espacio de Opteris indica que los PLURAL no aprecian sus relaciones con Opteris. Ajustando las rutinas diplomáticas correspondientemente.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>La expansión de la raza SING hacia el espacio de Opteris indica que los PLURAL no aprecian sus relaciones con Opteris. Ajustando las rutinas diplomáticas correspondientemente. </Friendly>
+      <Neutral>La expansión de la raza SING hacia el espacio de Opteris indica que los PLURAL no aprecian sus relaciones con Opteris. Ajustando las rutinas diplomáticas correspondientemente.</Neutral>
+      <Hostile>La expansión de la raza SING hacia el espacio de Opteris indica que los PLURAL no aprecian sus relaciones con Opteris. Ajustando las rutinas diplomáticas correspondientemente.</Hostile>    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>Análisis de amenazas completado. Los intereses de la raza SING están en conflicto con los intereses de Opteris. La exterminación de los PLURAL pasa a ser prioridad absoluta.</misc1>
+      <misc2>Análisis de amenazas completado. Los intereses de la raza SING están en conflicto con los intereses de Opteris. La exterminación de los PLURAL pasa a ser prioridad absoluta.</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Información insuficiente. No se ha encontrado ninguna raza capaz de viajar por el espacio.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Entablando rutinas diplomáticas. Caso: amistoso. Enviado saludo no amenazante.</Friendly>
+      <Neutral>Entablando rutinas diplomáticas. Caso: neutral. Enviado saludo respetuoso. </Neutral>
+      <Hostile>Entablando rutinas diplomáticas. Caso: hostil. Enviado saludo amenazante. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>¿Qué programa informático estás utilizando?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Estoy simulando tu derrota, individuo de la raza SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Ruth>Interacción social detectada. Opteris es uno y muchos. Tiempo transcurrido desde la transición de vida orgánica a cibernética: aproximadamente 500 ciclos vitales de la raza SING.  </DL_Ruth>
+      <DL_Ind>Imperativo de Opteris: producción. Supervivencia.</DL_Ind>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Información con respecto a la fiabilidad de la raza SING insuficiente. Descartada la opción de ayudar a un potencial adversario.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Datos de confianza insuficientes compensados por acuerdo beneficioso. Análisis de riesgo-beneficio: aceptar la oferta.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Datos de confianza insuficientes. Las contribuciones de Opteris son mucho mayores que las contribuciones de la raza SING. Oferta rechazada. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Datos de confianza: suficientes. Pérdida de beneficios inaceptable. Oferta rechazada. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>La proporción entre beneficios y aportaciones es inaceptable. Marcar rutinas diplomáticas para aumentar la hostilidad con los PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Proporción entre beneficios y aportaciones aceptable. Oferta acepada. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Proporción entre beneficios y aportaciones favorable. Oferta acepada. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Proporción entre beneficios y aportaciones favorable. Detectado posible error de negociación. Aprovechar el error. Oferta acepada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Enorme desproporción entre aportaciones y beneficios. Detectado concepto "regalo". Ajustando algoritmos diplomáticos para reflejar la mejora de las relaciones con los PLURAL. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Petición de ayuda por parte de los PLURAL. Petición aceptada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Detectada solicitud diplomática agresiva. Las fuerzas militares de la raza SING no constituyen una amenaza. Solicitud rechazada.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Detectado tono agresivo. Proporción entre beneficios y aportaciones aceptable. El tono agresivo es innecesario. Oferta acepada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Detectado tono agresivo. Proporción entre beneficios y aportaciones no favorable. El análisis militar indica que la flota de la raza SING es más potente que la flota de Opteris. Oferta acepada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Iniciar relaciones hostiles con los PLURAL. Marcar algoritmos diplomáticos para eliminar los datos de confianza como resultado de la violación del tratado de no agresión. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Relaciones hostiles iniciadas.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Rutinas diplomáticas entabladas. Caso: hostil. ¿Aportaciones?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>La agresión SING supera los umbrales permitidos. Relaciones hostiles iniciadas.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>La expansión de la raza SING en el espacio de Opteris supera los umbrales permitidos. Relaciones hostiles iniciadas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>La expansión SING en TARSYS supera los umbrales permitidos. Relaciones hostiles iniciadas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>El análisis diplomático indica que una promesa mutua de no agresión daría lugar a una mejora en las relaciones. ¿Aportaciones?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Mejora en las relaciones registrada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Algoritmos diplomáticos ajustados correspondientemente. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>El análisis económico indica que la importación de bienes d	e la raza SING aumentaría la eficiencia de Opteris. Tratado comercial ofrecido. ¿Aportaciones?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Tratado comercial registrado.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Rechazo registrado.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>La raza SING rechazó un pacto de no agresión anteriormente.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>La raza SING rechazó un tratado comercial anteriormente.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Ofrece TECH_DEMAND a Opteris.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Relaciones diplomáticas mejoradas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Relaciones diplomáticas empeoradas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>El análisis militar de las flotas de la raza SING indica debilidad crítica. Probabilidades de atacar a los PLURAL para explotación en aumento. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>El análisis militar de las flotas de la raza SING indica fortaleza. Probabilidades de atacar a los PLURAL para explotación en descenso.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Análisis militar de las flotas de la raza SING revisado. La potencia actual de las flotas requiere un reajuste de las prioridades de explotación.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Los planetas de Opteris se están quedando sin minerales. El análisis de las flotas de la raza SING indica debilidad. Relaciones hostiles iniciadas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Relaciones positivas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>Relaciones neutrales. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>Relaciones negativas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Relaciones positivas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Relaciones neutrales.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Relaciones negativas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Relaciones positivas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Relaciones neutrales.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Relaciones negativas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Relaciones positivas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Relaciones neutrales.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Relaciones negativas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Relaciones positivas.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>Relaciones neutrales.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>Relaciones negativas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Cancelados todos los tratados diplomáticos. Relaciones hostiles iniciadas. La conquista de planetas de la raza SING pasa a ser prioridad absoluta de Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Opteris posee ahora todos los planetas de la raza SING. Los PLURAL han sido aplastados. Rutinas de agresión restablecidas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>El análisis diplomático indica que el procedimiento conveniente es abrir las fronteras entre Opteris y los PLURAL. ¿Aportaciones?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Los drones de Opteris aceptarán ahora el paso de la raza SING. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Registrado.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Cambio inesperado en las relaciones. Ajustando rutinas diplomáticas. Iniciando relaciones hostiles.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Detectada invasión planetaria. Información inesperada. Iniciando relaciones hostiles.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Detectada actividad de la raza SING en el sistema TARSYS. La presencia de la raza SING es incompatible con los imperativos de Opteris. Se requiere el cese de la actividad de colonización SING en el sistema TARSYS para mantener las buenas relaciones. </Friendly>
+      <Neutral>Detectada actividad de la raza SING en el sistema TARSYS. La presencia de la raza SING es incompatible con los imperativos de Opteris. Degradación inminente de las relaciones con la raza SING si no cesa la actividad de colonización. </Neutral>
+      <Hostile>Detectada actividad de la raza SING en el sistema TARSYS. La presencia de la raza SING es incompatible con los imperativos de Opteris. Probabilidad de actividad hostil si las actividades de colonización de la raza SING prosiguen: alta. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Identificada colonia SING en el sistema TARSYS. Relaciones diplomáticas deterioradas. Analizando las posibles consecuencias militares.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Información insuficiente. Postura diplomática: neutral. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>El análisis diplomático indica interacciones pacíficas estables. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Iniciar lectura de los agravios diplomáticos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Asunto de prioridad absoluta: colonización SING de los intereses de Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>Prioridad absoluta: colonización SING de los intereses de Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Máxima prioridad: la potencia de la flota de SING supera la potencia de la flota de Opteris.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Máxima prioridad: la potencia de la flota de SING cumple con los requisitos para ser eliminada por Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Prioridad absoluta: fuerza militar de SING incapaz de encajar un ataque de Opteris. Potencial de agresión de Opteris aumentado. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Prioridad absoluta: la potencia de la flota de SING supera la potencia de la flota de Opteris.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Prioridad absoluta: la alianza de los PLURAL con TAREMP amenaza los intereses de Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Apéndice: la alianza de los PLURAL con TAREMP amenaza los intereses de Opteris. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Sin novedad en los sistemas diplomáticos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>El análisis militar de Opteris revela que la derrota de SING es probable. Entrada esperada: petición de paz. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Intereses de Opteris amenazados por la fuerza militar de SING. A la espera de información. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>Opteris solicita a la raza SING ayuda en la guerra contra TAREMP. Redundará en beneficios diplomáticos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Recepción de información registrada. Ajustando las relaciones diplomáticas correspondientemente. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Recepción de información registrada. Ajustando las relaciones diplomáticas correspondientemente. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Relaciones positivas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Relaciones neutrales.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>Relaciones negativas.</Default>
+    </DialogLine>
+
+
+    
+    <!-- Second Run Localization -->
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>Opteris solicita el cese de las hostilidades. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Opteris solicita el cese de las hostilidades. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Opteris solicita el cese de las hostilidades. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Opteris solicita el cese de las hostilidades. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Opteris solicita el cese de las hostilidades.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Opteris cede a las reivindicaciones en disputa y solicita el cese de las hostilidades.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Registrado.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Registrado. Las flotas de Opteris reanudan actividades no hostiles.</Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>La rutina diplomática genera respuesta afirmativa: paz instaurada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Negativo. Ganancias para Opteris insuficientes. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Negativo. Los imperativos de expansión de Opteris superan los beneficios de la paz. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>La rutina diplomática genera respuesta afirmativa: paz instaurada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Opteris no revela emociones. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Las subrutinas diplomáticas y militares indican una optimización de los esfuerzos de Opteris a través de una alianza con los PLURAL. ¿Aportaciones? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Alianza registrada. Opteris promete lealtad a los PLURAL. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Información recibida. Los PLURAL rechazan pactar una alianza. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Información demasiado complicada para considerar una alianza. Reformular la oferta. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Respuesta: afirmativo. Alianza pactada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Respuesta: negativo. Alianza rechazada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Debéis ser exterminados. Paz rechazada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>... procesando... no se ha iniciado una guerra. Información recibida aceptable. Respuesta: tratado de paz aceptado.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Resultado inesperado. Los aliados no rechazan a otros aliados en tiempos de guerra. Alianza anulada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Error. Se prevé explotación de TARSYS por parte de Opteris. Explotación de SING observada. Solución: abortar, reintentar, eliminar a los PLURAL. Analizando.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>Identificado virus de la raza SING en el sistema TARSYS. Cuarentena y supresión probables.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Las relaciones con los moluscos esclavistas son positivas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Observadas interacciones neutrales con Cordrazine.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Programada la supresión de los moluscos esclavistas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>Detectada brecha en la seguridad de la red. Sabemos que fuiste tú.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Error. Detectada nueva brecha en la seguridad de la red. Aumentar la presión diplomática.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>¡Error! Detectado fallo grave en la seguridad de la red. ¡Se requiere cuarentena y supresión! (Tratados cancelados)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Infiltrado en la red eliminado. Ser orgánico asesinado.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>Error: Los aliados no deberían espiarse entre ellos. Cesa de inmediato.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Error: Infiltrado detectado. Entrada en vigor inmediata del proceso para finalizar la alianza.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>¿Iniciar tratado de fronteras abiertas?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Respuesta negativa recibida.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Negativo.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Negativo.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Negativo. La alianza es demasiado reciente.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Negativo. Opteris es superior.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>¿Integración completa de sistemas? ... ¿Tu individualidad añadida a la nuestra? Aceptamos. Nos uniremos y crearemos algo superior.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Opteris integrará sistemas con los PLURAL. Antes, los PLURAL deben eliminar TAREMP. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>Con la exterminación de TAREMP se cumplen las condiciones establecidas para la Federación. Ahora nos integraremos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Negativo.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Anticipar error: tu enemigo es nuestro amigo. Condición: pactar alianza con TAREMP. Resultado: Federación aprobada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Condición detectada: alianza. Integración completa de sistemas aprobada. Opteris se unirá a vuestra Federación. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>Negativo. No estás en guerra con TAREMP. Opteris no observa ningún incentivo.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>Opteris ya está en guerra con TAREMP.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Opteris está de acuerdo. Guerra declarada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Negativo. Los intereses de Opteris están en conflicto con la petición.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Negativo. Relaciones de Opteris con los PLURAL insuficientes.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Opteris es... ¿Pacifista? ¡Error! ¡Error!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Negativo. La amenaza es demasiado grande.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Afirmativo. Objetivo fijado.</Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

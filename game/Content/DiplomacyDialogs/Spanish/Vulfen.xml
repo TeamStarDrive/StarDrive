@@ -1,0 +1,610 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>Somos Vulfar. Vuestra nave es... impresionante.</Friendly>
+      <Neutral>Somos Vulfar. Vuestro blindaje parece débil.</Neutral>
+      <Hostile>Grrrrr. No teníamos ni idea de que en esta galaxia vivían... criaturas... como vosotros. ¡El Imperio Vulfen pondrá las cosas en su sitio pronto! </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Compañerrrrro, muchos miembros de nuestro imperio ven tu colonización del sistema TARSYS como un acto de agrrrrrresión. ¡Aléjate de nuestro territorio! </Friendly>
+      <Neutral>Individuo de la raza SING, haberrrrrr... grrrrr... situado tu cubil en el sistema TARSYS... no es bueno. Para ti.</Neutral>
+      <Hostile>¡Grrrraaaaw! ¿Por qué se está estableciendo está raza inferior en TARSYS? ¡Este es nuestro sistema! </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>¿Grrr? ¿Destruyes nuestras naves cuando esperamos lealtad? Grrr... </Friendly>
+      <Neutral>Grrrrrr... Has atacado a un Vulfar solitario, pero has olvidado la manada, ser de la raza SING. Ten cuidado. </Neutral>
+      <Hostile>Sucios, sucios, sucios PLURAL.... ¡Esta agrrrresión no quedará así!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>¡Rrrrrrrm! ¿Por qué vuestras manadas merodean durante tanto tiempo cerca de nuestro cubil? Nos... gustáis, ¡pero manteneos alejados! </Friendly>
+      <Neutral>Grrrrrrr... asquerosos PLURAL. La presencia de vuestras naves en nuestro espacio incitan a las manadas jóvenes a emprender maniobras precipitadas. ¡Marchaos ahora mismo! </Neutral>
+      <Hostile>Grrrrrrr... asquerosos PLURAL. La presencia de vuestras naves en nuestro espacio incitan a las manadas jóvenes a emprender maniobras precipitadas. ¡Marchaos ahora mismo! </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>Os decimos: "¡Salid de nuestro espacio!". Queremos que nos caigáis bien y vosotros vais y os hacéis con TARSYS, que está en nuestro espacio. Grrrrrr.</Friendly>
+      <Neutral>¡El sistema TARSYS no es para los PLURAL! ¡Venís a nuestro espacio con vuestras naves y ahora conquistáis nuestros planetas! ¡Grrrrrrrrrrr!</Neutral>
+      <Hostile>¡Os dijimos que no os acercarais y vuestras manadas han violado nuestras fronteras! Ahora establecéis vuestros cubiles en TARSYS, ¡y los Vulfen se preparan para la guerra! </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>Nos desafiasteis en TARSYS y mantuvimos nuestra lealtad, pero ahora vuestras manadas merodean por nuestro espacio. Estamos furiosos... grrrrr. </Friendly>
+      <Neutral>Primero nos arrebatáis la guarida de TARSYS y ahora vuestras naves ocupan nuestro espacio. ¡Grrrr!</Neutral>
+      <Hostile>¡Primero establecéis vuestros cubiles en TARSYS y ahora vuestras naves suponen una amenaza intolerable para nuestro espacio! ¡Auuuuuuuu!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>!Auuuuuuuuuu! ¡Vuestras tierras pertenecerán pronto a los Vulfar! </misc1>
+      <misc2>¡Corred si queréis! A los Vulfar nos encanta cazar.</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Eres tú. ¿Y bien?</Friendly>
+      <Neutral>El cachorro viene olisqueando a sus superiores. ¡Habla!</Neutral>
+      <Hostile>Grrrrrrrr.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>¿Hay MÁS criaturas como tú ahí fuera? Grrr. No nos hemos cruzado con seres parecidos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Xeno>¿Quieres conocer a los Vulfar? Entonces debes saber esto: somos una manada, somos una legión y somos mejores que... lo que sea que hayas dicho que eres. </DL_Xeno>
+      <DL_Agg>¿Quieres conocer a los Vulfar? Grrrrrrrr. Somos guerreros de la sangre más pura. La manada lo es todo. Si no nos temes, deberías. </DL_Agg>
+      <DL_Ruth>¿Quieres conocer a los Vulfar? Grrrrrrrr. Salvajes, perros sarnosos y cachorros enclenques es todo lo que hay en el Universo. Nos proponemos erradicar la debilidad y conseguir que nuestra raza se alce sobre las demás. </DL_Ruth>
+      <DL_Exp>Quedan muchos planetas por conquistar: esa es la voluntad de la manada.</DL_Exp>
+      <DL_Mil>¡Contempla con temor nuestras poderosas naves!</DL_Mil>
+      <DL_Ind>Pronto aprenderás que la manada es mucho más fuerte que el individuo. Nuestro numeroso grupo nos da fuerza en las fábricas, en las minas y en los campos de batalla.</DL_Ind>
+      <DL_Gen>Las mejores manadas son fuertes y sagaces, raudas y resistentes. Nosotros somos la mejor manada.</DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>¡Tu tripulación parece muy feroz!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Grrrrr...</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>No.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Ja, ja, ja. ¡Los PLURAL sois tan estúpidos! Claro que aceptamos el acuerdo. Por favor, no dudéis en hacernos más ofertas como esta en el futuro.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>No. Vosotros sois necios y nosotros somos inteligentes y sabemos que pensáis que somos necios. Eso es muy inteligente por nuestra parte.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Grrrrr. No somos tan estúpidos como crees. ¡Haz una oferta mejor!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>¡Grrrrrrrrrrrr! ¡No! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Sí, este acuerdo puede fortalecernos. Trato hecho.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Sí, este acuerdo puede fortalecernos. Trato hecho.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>¡Estúpidos PLURAL! ¡Nos ofrecéis demasiado! ¡Aceptamos, por supuesto!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Mmm, sí, es un tributo para nosotros.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Podéis quedaros con estas sobras, pero la próxima vez que consigáis algo bueno, lo querremos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Grrr. Ven a por ello si te atreves. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Sí, bien. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Grrrrrr. ¡Toma tus sobras!  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Estúpidos PLURAL. No habríamos tardado en ir a por vosotros. Guerra, se ha dicho.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>¡No hay tiempo para hablar! ¡Ahora toca luchar! ¡Habla rápido!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Traéis vuestras naves enclenques para luchar contra nosotros y nosotros traemos nuestras poderosas naves para combatir a las vuestras. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense BrokenNA</DialogType>
+      <Default>Mmm. Nunca confiamos en este ridículo tratado. ¡Guerra!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>¿Por qué sois tan estúpidos los PLURAL? Invadís nuestro territorio cuando os dijimos que os prohibíamos la entrada. ¡Ahora estamos en guerra! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>Los PLURAL sois tan estúpidos como para intentar quedaros en el sistema TARSYS cuando este es territorio Vulfar. ¡Ahora estamos en guerra! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Grrrmm. ¡Creemos que deberíais prometer que no nos atacaréis nunca! ¡Firmemos un tratado de esos de no agresión!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>¡Hurr, hurr, hurr! Buena idea. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>¿Grrr? Grrrrrrrrr. ¡Vale! Puede que queráis firmar un tratado de esos en otro momento. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Los Vulfar producimos el mejor material. Deberíais comerciar con nosotros. ¡Firmad un tratado comercial! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Grmmmmmm. Vale. Adelante. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>¡GRRRRR! ¿QUÉ? ¿Por qué os habéis negado? ¡Los PLURAL sois tan estúpidos!  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Qué flojos que sois los PLURAL. ¿Primero no queríais un tratado y ahora sí? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>¿Grrr? ¿Por qué os negasteis a comerciar con los Vulfar antes? ¿Intentas engañarnos?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>O nos dais TECH_DEMAND o no seremos amigos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>¡Hurr! Quizás todo lo que tienes de feo, no lo tienes de estúpido.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>¿GRRRR? Grrrrrrr. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>¡Hurr, hurr, hurr! ¡Los PLURAL sois feos y débiles! Será muy fácil conquistaros cuando nos lo propongamos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Grrmmm. Tu flota parece fuerte. Tal vez deberíamos elegir una presa más fácil. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Estúpidos PLURAL, ¿por qué habéis mejorado vuestra flota? Nos gustabais más cuando eráis débiles. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Eres demasiado débil para sobrevivir, ser de la raza SING. ¡Vamos a apoderarnos de tus planetas!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Los Humanos se portan bien con nosotros y nos gustan. A veces nos tiran una pelota y nosotros tenemos que ir a por ella y traérsela, lo que supone un gran honor para nosotros. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Los Humanos no tienen pelo y son horrendos. A parte de eso, no tenemos ninguna opinión sobre ellos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Grrr. ¡No nos gustan los Humanos! Nos hablan como si fuéramos idiotas y NO SOMOS IDIOTAS! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Grmm. Sí, arbustos parlantes. Nos caen bien. Nos gustan sus canciones.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Grmm. No conocemos muy bien al pueblo arbusto, pero las plantas no son tan inteligentes como nosotros.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Grrrrrr. No nos los podemos comer. Su música nos resulta molesta. Tenemos que exterminarlos y adueñarnos de sus planetas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Somos amigos de los Kulrathi. Son fuertes e inteligentes como nosotros.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>Sabemos quiénes son pero no los conocemos. Probablemente no son tan listos como nosotros.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>¡Grrrr! ¡No son nuestros iguales! ¡Son presas para nosotros! ¡Creen que son depredadores, pero son la PRESA! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Los Cordrazine son fuertes y eso lo respetamos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>No los conocemos bien. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Nos gusta el sabor de sus Owlwoks. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Hurr, hurr, hurr. Los PLURAL creen que las palabras podrán contener a los poderosos Vulfar. Hurr, hurr. ¡La mayoría de los Vulfar ni siquiera sabe leer! El tratado queda anulado, ¡que empiece la guerra!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Hurrrrrr, hurr, hurr. ¡Estáis muertos, estúpidos PLURAL! ¡Los Vulfar somos los más fuertes! ¡Has perdido, ser de la raza SING!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>¡Grrm! Los PLURAL os portáis bien con nosotros y no tenemos necesidad de combatiros; a menos que vuestra necedad os impida firmar un tratado de fronteras abiertas. Esto nos haría felices. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>¡Me alegro de que seáis tan inteligentes como nosotros!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Los PLURAL sois realmente necios. Pronto será demasiado tarde para vosotros.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>¡Grrrr! ¡Teníamos un estúpido tratado! ¡Y lo habéis roto! ¡ESTO ES LA GUERRAAAAAA!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Grrrrr. ¡TARSYS es NUESTRO! ¡GUERRA, GUERRA, GUERRA!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>¡Esa raza de bichos! ¡Son excelentes guerreros! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>Grrm. No nos importan.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>¡Estúpidos bichos robot!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>¡Eh! El sistema TARSYS es para nosotros y no para vosotros. ¡Alejaos! </Friendly>
+      <Neutral>Grrr. El sistema TARSYS es para nosotros y no para vosotros. ¡Alejaos!</Neutral>
+      <Hostile>Grrrr. El sistema TARSYS es para nosotros y no para vosotros, estúpidos PLURAL. ¡Alejaos!</Hostile>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Grrrr. ¿Por qué tienes que usar esas palabras tan contundentes? Aún no tenemos problemas con los PLURAL. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Nos gustan los PLURAL. Nos tratáis bien. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Grrrr. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>¡Os habéis apoderado de planetas que deberían ser nuestros! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>¡Os habéis apoderado de planetas que deberían ser nuestros! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>¡Vuestra flota es demasiado grande! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Vuestra flota es débil e insignificante. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Vuestra flota es débil e insignificante. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>¡Vuestra flota es demasiado grande! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Sois amigos de TAREMP y ellos son estúpidos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Sois amigos de TAREMP y ellos son estúpidos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>¿Grrr? No estamos enfadados con vosotros. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>¡Hurrr, hurr, hur! Puedes correr, ser de la raza SING, ¡pero solo conseguirás morir cansado! ¡Hurrr, hurr! ¡Habla, si es que tienes aliento! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Grrrrrrr. ¡HABLA! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>¡Eh! Machaquemos a TAREMP juntos. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>¡AUUUUUUU! ¡GUERRRRRA! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Grrrrrrr. Estúpidos PLURAL. </Default>    
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Nos gusta ver como cambian de forma. Es muy divertido. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Grrr.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>¡GRRRR!</Default>
+    </DialogLine>
+
+
+    <!-- Second Run Localization -->
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>¡Grrr! Creemos que la guerra no debería continuar por ahora. ¿Queréis hacer las paces?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>¡Grrr! Vamos ganando, pero, los Alfa dicen que la guerra debería cesar. ¿Queréis hacer las paces?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Nosotros peleamos contra vosotros y vosotros contra nosotros y esto no llega a ninguna parte. Deberíamos dejarlo.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Grrr. Nos estáis destrozando. Grrrrr. Firmaremos la paz si queréis.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Grrr. Quedaos con vuestros planetas y que haya paz. Por ahora.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>¡Grrrr, hurr, hurr! Tenemos vuestros planetas. Firmad este tratado y pondremos fin a la guerra.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Bien. De todas formas no queríamos la paz.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Grrrr. Bien, entonces habrá paz.</Default>
+    </DialogLine>
+    
+    
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Mmmm. Vale. Es un buen trato. Firmaremos la paz. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>NO HAY PAZ QUE VALGA. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Aún seguís teniendo tierras que los Vulfar queremos. NADA DE PAZ. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>¿Grrrrm? Firmamos la paz, pero no nos hace gracia.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Hurm. Es sorprendente que no estés muerto después de nuestro ataque.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Los Vulfar y los PLURAL somos buenos amigos. Deberíamos formar una alianza, ¿no?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Grmm. ¡Qué bien!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>¿Entonces no somos amigos? Puede que tengamos que pensárnoslo mejor.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>¡Qué lío! ¡Si queréis aliaros, simplemente ofrecednos una alianza! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>¿Grrmm? ¡De acuerdo! ¡Seremos vuestros aliados!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>¡Grrrrrrr! ¿Crees que somos amigos? ¡No lo somos!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>¡Hurrr, hurrr! ¡No! ¡No hay paz que valga!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>Hrmmm. Es un buen trato. Ni han muerto Vulfar, ni han muerto PLURAL, así que... bien, firmemos la paz.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>¿Huhhh? ¿Por qué los estúpidos PLURAL hacéis un pacto si solo queréis romperlo? ¡Grrrrr! ¡Guerra!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>¿Hurrm? ¡Grrrrr! Se supone que estamos en la misma manada. ¡No sois de nuestra manada si no nos ayudáis!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>¡GRRR! ¡GRRR! ¡TARSYS era nuestro! ¡Los Vulfar lo reivindicábamos!  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>¡Es la segunda vez que enfurecéis a los Vulfar! Pocos han vivido para hacerlo... siete... grr... ¿cuatro?... ¡grrr! ¡Más de dos veces!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>¡Grrrrr! ¡Nos habéis robado demasiadas veces! ¡MORIRÉIS PRONTO!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Los hombres pez no nos molestan. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>No nos importan los hombres pez.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>¡Los que tienen cara de pez! ¡Hurrrr, hurrr, hurr! ¡Digamos que nos gusta el marisco!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>¡Grrr! Sabemos que queréis arrebatarnos nuestros secretos porque somos muy listos, pero eso nos irrita, ¡así que dejadlo!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>¡Grrr! ¿Estáis sordos, ESTÚPIDOS PLURAL? ¡Os hemos dicho que dejéis de espiarnos!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>¡GRRRRR! ¡DEJAD DE ESPIARNOS! ¡Ya no vamos a hacer más tratos con vosotros! (Tratados cancelados)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Hurr, hurr, hurr. Nos hemos comido a tu espía. No estaba muy bueno.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>¿Hrrrmmm? ¿Somos amigos? ¿Cómo es que hemos pillado a este espía? Dejadlo ya.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>¡Ya NO somos amigos! ¡Se ha acabado nuestro tratado de amistad o lo que sea!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Grrmmm, ¿qué te parece abrirnos tus fronteras, individuo de la raza SING? Nos resultaría muy provechoso.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Los PLURAL sois muy territoriales...</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>¿Ruhh? ¡No! Ni siquiera sabemos cómo oléis todavía. No creemos que sea una buena idea.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Mrmrmm. Nos caéis bien, pero ni siquiera somos aliados. Primero viene el primer paso... después el segundo. ¿Tercero? PRIMERO ALIADOS.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Grrm. Ahora somos aliados y eso es beneficioso, pero creemos que deberíamos serlo durante más tiempo. Entonces, quizás, podamos ser una manada.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>¿Por qué ibais a estar vosotros al mando? Nosotros somos más fuertes.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>¿Quieres que formemos una manada? ¡Sí! ¡Nos parece bien! ¡Auuuuu! De ahora en adelante, ¡los PLURAL y los VULFAR son una manada!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>¿Queréis formar una manada con los Vulfar? Pues tenéis que demostrar lo que valéis. ¡Destruid TAREMP! ¡Entonces formaremos una manada!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>TAREMP ha sucumbido. Eres un buen compañero de manada. Ahora pertenecemos a la misma manada y nos unimos a vuestra Federación.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>¡Hurr! ¿Quieres que formemos una manada? ¡Pero si ni siquiera nos gustas!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Formaremos una manada con vosotros, pero antes tenéis que uniros a la manada de nuestro amigo TAREMP. Formad una alianza con ellos y después nos uniremos a vosotros.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Nos gustas. Has formado una manada con nuestro amigo, así que ahora formaremos una manada. </Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>¿Los PLURAL creéis que los Vulfar somos tan estúpidos? Ni siquiera estáis en guerra con TAREMP. ¿Por qué tendríamos que luchar por vosotros?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>Errmm. ¿Hola? ¿Estúpidos PLURAL? Ya estamos en guerra con TAREMP.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>¡Siempre salimos de caza con nuestra manada! ¡Muerte a TAREMP!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>¡Errrr! ¡Pero compartimos manada con TAREMP! No... podemos. Lo siento.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>¡Hurrr, hurrr, hurr! ¿Por qué deberíamos ayudaros, estúpidos PLURAL? Cuando TAREMP haya acabado con vosotros, puede que recojamos las sobras.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>No puedo creer que esté diciendo esto, pero somos pacifistas y no declararemos la guerra a TAREMP.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Grrmmm. TAREMP parece muy poderoso. Lo más probable es que no debamos enfrentarnos a ellos.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Grrr... ¡Vale! Nos uniremos a la caza. </Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

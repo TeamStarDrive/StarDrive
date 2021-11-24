@@ -1,0 +1,31 @@
+﻿<Troop>
+  <Name>Kulrathi Swordsbear</Name>
+  <Description>The ferocious Kulrathi Swordsbear is a juggernaut of strength, precision, and rage.</Description>
+  <TexturePath>Bear_idle01</TexturePath>
+  <Icon>Bear</Icon>
+
+  <RaceType>Kulrathi</RaceType>
+  <num_idle_frames>30</num_idle_frames>
+  <num_attack_frames>19</num_attack_frames>
+  <animated>true</animated>
+  <idle_x_offset>45</idle_x_offset>
+  <idle_y_offset>59</idle_y_offset>
+  <attack_width>248</attack_width>
+  <idle_path>Bear_idle</idle_path>
+  <attack_path>Bear_attack</attack_path>
+
+  <sound_attack>sd_troop_kulrathi</sound_attack>
+  
+  <Cost>50</Cost>
+  <Strength>10</Strength>
+  <MaxStrength>10</MaxStrength>
+  <Movement>1</Movement>
+  <MaintenanceCost>1</MaintenanceCost>
+  <Range>1</Range>
+  <HardAttack>25</HardAttack>
+  <BoardingStrength>60</BoardingStrength>
+  <SoftAttack>40</SoftAttack>
+  <TargetType>Soft</TargetType>
+  <Class>Infantry</Class>
+  <MovementCue>sd_troop_march_01</MovementCue>
+</Troop>

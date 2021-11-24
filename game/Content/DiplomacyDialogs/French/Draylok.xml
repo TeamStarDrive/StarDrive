@@ -1,0 +1,625 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>De la part du conseil Draylok, nous vous saluons chaleureusement. Que la paix accompagne à tout jamais nos deux empires. </Friendly>
+      <Neutral>De la part du conseil Draylok, nous vous saluons. Nous avons hâte de participer aux jeux qui nous attendent ! </Neutral>
+      <Hostile>De la part du conseil Draylok, nous vous saluons, adversaire ! Nous vous surveillerons de TRÈS près ! </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Très cher ami. Le conseil conteste votre récente expansion dans le système TARSYS. Je n'aimerais pas que nous relations soient tendues en raison de nos revendications mutuelles à cet endroit, qu'en pensez-vous ? </Friendly>
+      <Neutral>Mon cher SING. Nous avons remarqué que vous aviez pénétré dans l'espace Draylok pour coloniser le système TARSYS. Pour éviter tout incident, vous feriez peut-être bien de nous céder cette colonie. </Neutral>
+      <Hostile>Téméraire de votre part de coloniser dans l'espace Draylok. Mais avez-vous pensé à notre réaction ? Vous n'allez probablement pas l'apprécier.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Vous avez attaqué un vaisseau Draylok, SING ! Pourquoi risquer notre amitié avec de telles hostilités ! Dites-nous sur-le-champ si vous voulez la guerre ! </Friendly>
+      <Neutral>Une agression gratuite, SING ? C'est vraiment des plus directs de votre part. C'est donc la guerre, non ? </Neutral>
+      <Hostile>Cette agression ne restera pas impunie ! Partez immédiatement, SING, ou nous vous attaquerons avec tous les moyens à notre disposition.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>Mon bon ami. Pourriez-vous faire partir vos vaisseaux de l'espace Draylok pour éviter tout... ennui ? </Friendly>
+      <Neutral>Le conseil Draylok souhaite vous présenter une plainte officielle en raison de votre entrée non autorisée dans notre espace. Veuillez retirer vos vaisseaux sur-le-champ.</Neutral>
+      <Hostile>Le conseil Draylok souhaite vous présenter une plainte officielle en raison de votre entrée non autorisée dans notre espace. Veuillez retirer vos vaisseaux sur-le-champ, ou nous nous en chargerons ! </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>Mon ami, nous vous avions averti lors de votre entrée non autorisée dans notre espace, et vous avez répondu à cette infraction en colonisant le système TARSYS ? Êtes-vous devenu fou ?</Friendly>
+      <Neutral>Mon ami, nous vous avions averti lors de votre entrée non autorisée dans notre espace, et vous avez répondu à cette infraction en colonisant le système TARSYS ? Êtes-vous devenu fou ?</Neutral>
+      <Hostile>Bande d'imbéciles ! Nous vous avions averti lors de votre entrée non autorisée dans notre espace, et vous avez répondu à cette infraction en colonisant le système TARSYS ? Voulez-vous vraiment la guerre à ce point ? </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>Ces tensions frontalières deviennent intolérables, SING. Un désastre commun nous attend si vous ne faites rien.  </Friendly>
+      <Neutral>Ces tensions frontalières deviennent intolérables, SING. Un désastre commun nous attend si vous ne faites rien. </Neutral>
+      <Hostile>Ces tensions frontalières deviennent intolérables, SING. Un désastre commun nous attend si vous ne faites rien, et vous semblez trop borné et agressif pour réagir comme il faut. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>La guerre est un concept vraiment barbare, non ? Mais elle a cependant son utilité. Comme l'élimination des PLURAL de la galaxie ! </misc1>
+      <misc2>La guerre est un concept vraiment barbare, non ? Mais elle a cependant son utilité. Comme l'élimination des PLURAL de la galaxie ! </misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Malheureusement, nous n'avons rencontré aucune autre des races exploratrices de la galaxie au cours de nos voyages. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Mais c'est notre ami des plus charmants. Que pouvons-nous faire pour vous, SING ?</Friendly>
+      <Neutral>Le conseil a permis cette audience. Que voulez-vous, SING ? </Neutral>
+      <Hostile>Dans le jeu des galaxies, vous gagnez ou vous mourez, SING. Nous, nous voulons gagner. Et vous, alors ?</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>Pourquoi utiliser des hologrammes ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Quoi ? Vous voyez ça ? Ce satané holosiège ne fonctionne jamais !</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Les relations sont basées sur la confiance, SING. Laissons grandir notre confiance avant de conclure un marché aussi important.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Vous ne nous laissez pas beaucoup de choix, SING. Mais nous acceptons dans l'intérêt de notre amitié. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Je crains que cette offre soit trop misérable pour qu'on puisse l'accepter. Notre confiance doit grandir, et vous devez nous en donner plus. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Ça ne suffit pas, SING. Vous ne pouvez pas berner un joueur ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Vous nous croyez vraiment stupides, SING ? Votre offre misérable est une véritable insulte.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>C'est à peine acceptable, mais ça sera suffisant. Nous acceptons.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Très bien, marché conclu. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Parfait ! Nous aurions préféré une meilleure offre de votre part, mais ça suffira. C'est accepté.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Le conseil Draylok prend en compte votre présent et l'apprécie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Mendier, cela ne vous ressemble pas, SING. Vous nous décevez. Mais nous vous accorderons cependant ce que vous demandez. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Quel genre d'imbécile se permettrait d'insulter et de demander quoi que ce soit à ses supérieurs ? Visiblement, un imbécile SING. Disparaissez sur-le-champ ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Seul un imbécile se présente avec des menaces. Nous acceptons ce marché, SING. Pas en raison de votre ton, mais parce que nous y trouvons un avantage. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Bien joué, SING. Vous nous forcez la main. Prenez vos piètres gains et disparaissez. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Une trahison ? On n'aurait jamais cru ça possible de votre part. Très bien ! Voyons désormais si votre force est de la même trempe que votre courage. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Vous pensez qu'on n'avait pas envisagé cette éventualité ? Nous nous sommes préparés à vous détruire dès l'instant où nous avons découvert votre misérable race SING. Ce sera donc la guerre. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Prosternez-vous devant nous, SING ! C'est une position que vous allez découvrir, car nous allons gagner cette guerre ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Le conseil n'a pas eu d'autre choix que de déclarer un état de guerre entre nos deux peuples.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Ces conflits territoriaux sont terminés, SING. Nos nobles s'organisent pour la guerre. Préparez-vous. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>Stupide SING. Vous auriez dû nous écouter lorsque nous avons demandé de quitter le système TARSYS. Maintenant, nous allons le prendre de force. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Le conseil Draylok a une offre à vous faire : rejoignez-nous, SING, et nous serons amis. Acceptez de conclure un pacte de non-agression avec nous. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>C'est accepté. À partir de ce jour, nous sommes amis. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Vous êtes prudents, PLURAL. Très bien. Bonne journée.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Le conseil a réfléchi à la question du commerce et vous propose de signer un traité qui nous permettra un échange mutuel de ressources. Qu'en dites-vous ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Vous ne serez pas déçu par la qualité de nos biens. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>C'est dommage. Nous avons les meilleures ressources de toute la galaxie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Alors, vous avez repensé à notre proposition amicale ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Vous avez réfléchie à notre offre commerciale ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Nous voulons un présent. Pour vous assurer notre amitié, donnez-nous l'élément TECH_DEMAND ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Excellent. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Imbéciles !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Votre armée est faible, SING. Très faible. Votre sécurité ne vous préoccupe pas ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Le conseil s'est réuni pour débattre de votre puissance militaire, SING. Nous sommes impressionnés. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Le conseil s'est réuni pour débattre de votre puissance militaire, SING. Votre résistance nous impressionne. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Vos mondes, SING. Vos richesses. Votre puissance. Nous voulons tout, et nous allons tout prendre de force.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Ah, les nobles Kulrathi ! Des poètes et des guerriers ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>Nous admirons leurs connaissances. Mais sinon, nous n'avons aucun avis les concernant. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>C'est dommage que nos relations avec les Kulrathi soient aussi médiocres. On aurait peut-être pu devenir amis en d'autres circonstances.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Ce sont des créatures stupides qu'il ne faut pas sous-estimer ! Leurs forces sont nombreuses et nous les comptons parmi nos amis. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Nos relations amicales avec ces créatures intéressantes n'ont pas avancé.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>On n'aurait jamais imaginé que leur innocence pouvait cacher une telle cruauté. Prenez garde à eux, SING. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Nous les apprécions car ils sont directs, mais bercés d'illusions.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Nous n'avons rien à dire au sujet de ces Vulfar.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Ils représentent une vraie plaie dans la galaxie, SING. Mais nous avons bien l'intention de la soigner.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Ce sont les pires malandrins qu'on ait jamais rencontrés. Nous les aimons.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Aucun avis.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Nous avons beaucoup de choses en commun avec les Humains. C'est peut-être pour cette raison que nous les détestons autant. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Ce sont des créatures étranges, mais nobles. L'intensité de leur croyance est admirable, quoique erronée.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>Ces adorateurs de la mort ? Nous les évitons.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>La religion n'a jamais joué un rôle majeur dans la société Draylok. C'est peut-être pour cette raison que nous ne pouvons pas nous entendre avec les Ralyeh.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Vous nous faisiez confiance, SING, je le sais. Sachez donc ceci : un véritable ami vous attaque à découvert. Notre traité est nul, SING. Nous déclarons la guerre. Combattez et mourez dignement. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Vous avez perdu au jeu des galaxies, SING. On gagne ou on meurt, et vous avez perdu ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Ouvrons nos frontières les uns aux autres pour éviter tout conflit territorial. Qu'en dites-vous ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>C'est parfait. Nous sommes satisfaits que vous acceptiez. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Quel avantage allons-nous en tirer ? La guerre sera plus proche, c'est tout. C'est une position stupide !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Vous... Vous avez enfreint notre pacte ! C'étaient NOUS qui étions censés VOUS trahir ! Entendu ! C'est la guerre !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>SING, vos soldats ont envahi nos mondes. Vous remporterez peut-être une victoire rapide. Mais avez-vous réfléchi aux conséquences ? Maintenant que la guerre est là, elle frappera également vos mondes.</Default>
+    </DialogLine>
+
+  <DialogLine>
+    <DialogType>Opinion_Positive_Opteris</DialogType>
+    <Default>On les apprécie plutôt bien. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Opinion_Neutral_Opteris</DialogType>
+    <Default>Les insectes ne nous intéressent en rien.</Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Opinion_Negative_Opteris</DialogType>
+    <Default>Ce sont des assassins sans pitié ni émotion. Je crains que ce soient de redoutables ennemis.</Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Claim System</DialogType>
+    <Friendly>Le conseil vous salue, mon ami. Vous devez savoir que nous avons conquis le système TARSYS et que nous resterons amis si vous ne faites rien pour vous y opposer. </Friendly>
+    <Neutral>Salutations, SING. Nous sommes au regret de vous informer que vos efforts ont été inutiles, car nous avons pris le système TARSYS. Vous devez partir.</Neutral>
+    <Hostile>Mon très cher SING des plus odorants. Vos intentions vis-à-vis du système TARSYS sont claires. Nous vous conseillons d'y cesser tout effort de colonisation, ou sinon vous vous attirerez la colère du conseil.</Hostile>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Stole Claim</DialogType>
+    <Default>Pour avoir conquis le système TARSYS, vous serez puni, SING. Prenez garde.</Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Opinion_JustMetUs</DialogType>
+    <Default>Ami ou ennemi, c'est ça que vous nous proposez ? Eh bien, nous ne savons pas encore. Et vous, SING ? Espérons que nos lames resteront dans leurs fourreaux et que nos interactions nous seront profitables. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Opinion_NoProblems</DialogType>
+    <Default>Le conseil n'a aucun grief envers les PLURAL. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Opinion_Problems</DialogType>
+    <Default>Les griefs du conseil envers les PLURAL sont de plus en plus problématiques. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Problem_JustTerritorial</DialogType>
+    <Default>Pour le moment, notre préoccupation principale, c'est cette colonisation SING en territoire contesté. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Problem_Territorial</DialogType>
+    <Default>Les revendications liées au territoire que nous contestons tous deux accroissent la colère Draylok. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Problem_AlsoMilitary</DialogType>
+    <Default>En outre, nous nous interrogeons au sujet de nos relations amicales en raison de vos forces armées. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+    <Default>De toute manière, le conseil vous a jugé faibles. Considérez ceci comme notre réponse suite à votre requête d'amis. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Problem_MilitaryWeak</DialogType>
+    <Default>Tout d'abord, votre faiblesse militaire agite nos nobles les plus assoiffés de sang. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Problem_PrimaryMilitary</DialogType>
+    <Default>Quelle est votre véritable intention avec votre énorme flotte ?</Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Problem_AlliedWithEnemy</DialogType>
+    <Default>Votre alliance avec TAREMP nous pose un problème. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+    <Default>En plus, votre alliance avec TAREMP nous dérange en raison de nos relations tendues avec ses membres. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>Opinion_NothingMajor</DialogType>
+    <Default>Je suis heureux de pouvoir vous dire que nous n'avons aucun souci avec votre peuple. Nous ne sommes bien évidemment pas alliés, mais nous ne sommes pas non plus ennemis. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>AtWar_Winning</DialogType>
+    <Default>Parlez vite, SING. Nous avons une guerre à livrer. </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>AtWar_Losing</DialogType>
+    <Default>Vos flottes pénètrent au dans nos systèmes. Les Draylok s'inclinent devant votre puissance. Au final, que nous voulez-vous, SING ? Hormis nos vies et nos maisons ? </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>HelpUS_War</DialogType>
+    <Default>Le moment est venu, SING, d'allier notre puissance pour détruire notre ennemi mutuel : TAREMP. Alors, qu'en dites-vous... partons-nous en guerre ? </Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>HelpUS_War_Yes</DialogType>
+    <Default>Par les pouvoirs du conseil, que débute notre alliance militaire !</Default>
+  </DialogLine>
+  <DialogLine>
+    <DialogType>HelpUS_War_No</DialogType>
+    <Default>Vous osez nous défier ! Lorsque cette guerre sera terminée, nous en livrerons peut-être une autre ! Au revoir ! </Default>
+  </DialogLine>
+
+
+
+    <!--  Second Run Localization Efforts -->
+
+    <DialogLine>
+      <DialogType>Declare War Defense BrokenNA</DialogType>
+      <Default>Quelle malice de nous attaquer malgré notre traité ! Mais peu importe... C'est la guerre. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>La guerre est un sujet grossier et inacceptable. Oublions nos différences et signons un traité de paix.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Nous vous surpassons, SING, mais les Draylok sont un peuple équitable. Allez, signez ce traité de paix. Nous vous demandons uniquement de venir vous blottir contre nous.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Les PLURAL sont de nobles adversaires, c'est vrai. Mais la guerre est un gâchis pour tout le monde. La galaxie recèle de grands dangers, SING. Oublions nos différences et faisons la paix.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Vos flottes sont fortes et vos soldats intrépides. Nous nous rendons ! Je vous prie, mettez fin à cette guerre !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Vous ne pouvez pas protéger vos biens, SING. Arrêtez cette guerre stupide et signons un traité de paix.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Bon, vous possédez désormais certaines de nos colonies. C'est malheureux. Nous voulons minimiser nos pertes et sommes prêts à faire la paix.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Barbare. Très bien. Jusqu'à la mort !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Nous savions que vous accepteriez. À l'avenir, SING.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>C'est donc accepté, nous allons faire la paix. Le conseil s'en réjouira. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Non, SING, je ne pense pas. Ces conditions sont proches d'une capitulation, et nous ne les acceptons pas. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Nos territoires restent contestés. Cédez-nous le territoire contesté et nous pourrons peut-être faire la paix.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Bien joué, SING. Cette paix est chère payée, mais nous ferons la paix. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Pour tout dire, notre sang bout encore malgré la fin de nos récentes hostilités. Une paix prolongée devrait nous calmer, j'en suis certain.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Au vu de notre amitié et de notre confiance grandissantes, nous vous présentons aujourd'hui une offre d'alliance officielle. Nous rejoindrez-vous, SING, et accepterez-vous une alliance ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>C'est donc une occasion de grande importance.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Très bien. J'espère que vous y réfléchirez à nouveau à l'avenir. Nous restons amis.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>SING, une proposition d'alliance est déjà suffisamment compliquée. Si vous voulez qu'on l'envisage, retirez toutes vos conditions. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Vous nous honorez avec cette requête, SING, et nous sommes heureux de l'accepter. Nous sommes désormais alliés ! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Malheureusement, le conseil Draylok doit rejeter votre offre pour le moment. Nous pourrons peut-être l'accepter quand notre confiance se sera développée.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Non, je crains que la paix ne soit pas possible. Si vous acceptez de vous rendre, alors nous vous laisserons peut-être la vie sauve. Sinon cette guerre se poursuivra.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>La plume est véritablement plus puissante que l'épée. Nous acceptons votre offre de paix et nous nous réjouissons du peu de sang versé.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Vous allez payer cette insulte ! Considérez que notre alliance est désormais annulée. Préparez-vous à en découdre, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Vous, les PLURAL, me surprenez avec votre audace ! Cela fait deux fois que vous nous défiez. Nous avons bien compris votre message. Prenez garde.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>Cette fois, vous êtes allés trop loin ! Votre dernier acte de défi a rendu furieux le conseil. Préparez-vous à des représailles, SING !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>Vous devez savoir que nous jouons au jeu des galaxies en utilisant la force. </DL_Agg>
+      <DL_Hon>Les Draylok savent que la vie est un jeu sur la scène galactique et nous jouons à ce jeu de façon honorable. </DL_Hon>
+      <DL_Pac>Nous connaissons les jeux auxquels jouent les autres races. Nous y avons joué pendant de nombreuses années, et les conflits qu'ils faisaient naître nous ont lassés. </DL_Pac>
+      <DL_Ruth>Les Draylok jouent uniquement pour gagner. </DL_Ruth>
+      <DL_Xeno>Et pourquoi voulez-vous en savoir plus à notre sujet, hein ? Pour que vos espions puissent nous infiltrer ? Pour que VOUS puissiez gagner le jeu ? </DL_Xeno>
+      <DL_Cunn>La vie est un jeu, SING. Ce n'est bien évidemment pas un jeu d'enfant, mais un jeu d'adulte aux conséquences bien réelles. </DL_Cunn>
+      <DL_Exp>Notre destin est de nous étendre parmi les étoiles. L'empire Draylok connaîtra des milliers de couchers de soleil ! </DL_Exp>
+      <DL_Tech>La victoire est le moyen de percer les secrets de l'univers. C'est notre objectif principal. </DL_Tech>
+      <DL_Mil>Nous pensons que les plus forts gagnent toujours, et nous visons à être les plus forts !</DL_Mil>
+      <DL_Ind>Nous pensons que le travail et le dévouement nous mènerons à la victoire.</DL_Ind>
+      <DL_Gen>Pour gagner à un jeu sérieux, il faut une approche sérieuse et équilibrée.</DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Ces Owlwoks sont des créatures plaisantes ! Les Cordrazine ont eu raison de les réduire en esclavage, non ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Nous nous soucions guère des Cordrazine. Pour le moment, c'est l'indifférence.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Quelles créatures écœurantes ! Ce sont de vils esclavagistes égocentriques.  </Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>Espèce de sales démons ! Comment osez-vous nous espionner ? Bien joué !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Trompez-moi une fois, honte sur vous. Trompez-moi deux fois, honte sur moi. Vos espions commencent à nous agacer.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>Je crains que vous soyez allé trop loin avec vos espions, SING. Nos traités sont désormais annulés. Bonne journée.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Nous avons tué un espion, SING. Et tout nous pousse à croire qu'il était l'un des vôtres. Prenez garde.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Spy_Success_Caught</DialogType>
+      <Default>Mince alors ! Pris en flagrant délit d'espionnage ! C'est... dommage. Vous ferez mieux la prochaine fois !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>Il faut garder ses amis près de soi et ses ennemis encore plus près, c'est bien ça ? Pourquoi sinon espionner votre allié ? Nous ne sommes pas contents.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Nous avons arrêté un autre de vos espions. Notre alliance est annulée, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Le conseil souhaite développer nos bonnes relations en signant un traité de frontières ouvertes. Vous acceptez ?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>C'est dommage. Nous restons bien sûr amis et nous comprenons que la confiance se construit chaque jour.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Vous êtes des créatures agressives, non ? Eh bien, cela explique votre requête aussi rapide. Je comprends la psychologie xéno. Malgré tout, nous refusons.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Vos intentions sont pures, nous le comprenons. Mais une Fédération est une étape importante à nos yeux. Nous voulons d'abord tester une alliance avant d'aller plus loin.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Ah, SING. Votre demande nous honore. Mais il est encore trop tôt. Peut-être dans quelques centaines de cycles, mais pas maintenant.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Vous voulez qu'on attache notre étalon primé à votre misérable chariot. Non, SING. Commencez par nous montrer vos forces.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Nos peuples ont traversé maintes épreuves, SING. Le conseil accepte de bâtir une puissante Fédération pour affronter les grands dangers de la galaxie ! Nous vous rejoignons les bras grand ouverts. À la paix, la prospérité et l'avenir !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Il faut s'aider mutuellement, SING. Détruisez TAREMP afin de prouver votre dévouement à notre alliance. Nous vous rejoindrons à cette seule condition.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>Votre détermination et votre succès dans la destruction de TAREMP nous satisfont. Nous allons tenir notre promesse et rejoindre votre Fédération. À l'avenir !</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>... Non, SING. Nous ne nous soumettrons pas.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Même si nous apprécions les intrigues complexes de la politique, nous ne pouvons pas rejoindre votre Fédération tant que vous livrez la guerre à nos amis de TAREMP. Alliez-vous avec eux et nous soutiendrons votre Fédération.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Bien joué, SING. Maintenant que vous êtes alliés avec TAREMP, nous acceptons volontiers de rejoindre votre Fédération.</Default>
+    </DialogLine>
+
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>Nous ne voulons pas jouer les seconds couteaux dans votre agression contre TAREMP. Déclarez-lui la guerre et nous vous rejoindrons peut-être.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>Comme vous le savez peut-être, nous sommes déjà en guerre contre TAREMP.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Nous acceptons car nous sommes alliés.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Je suis vraiment désolé, SING, mais nous ne voulons pas nous interposer entre deux amis. Vous devez régler ces différends vous-même.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Non, SING. Trouvez un autre pigeon pour régler vos affaires.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Nous ne pensons pas pouvoir tirer avantage de la guerre. Faites la paix, SING. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Les risques sont trop grands. Nos systèmes stellaires sont déjà menacés. Nous ne pouvons pas nous permettre de faire la guerre avec TAREMP.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Nous acceptons votre proposition. Un grand profit peut naître d'une guerre avec TAREMP. Sauvez des mondes en notre nom !</Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

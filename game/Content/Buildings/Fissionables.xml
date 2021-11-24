@@ -1,0 +1,13 @@
+﻿<Building>
+  <Name>Fissionables</Name>
+  <Maintenance>0</Maintenance>
+  <Cost>50</Cost>
+  <Icon>fissionables</Icon>
+  <IsCommodity>true</IsCommodity>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>5073</NameTranslationIndex>
+  <DescriptionIndex>5074</DescriptionIndex>
+  <ShortDescriptionIndex>4096</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+</Building>
