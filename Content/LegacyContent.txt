@@ -10,16 +10,26 @@ Content/Weapons
 # since the conversion to new .hull designs this should be deleted
 Content/Hulls
 Content/Troops
+
+# Animation folders which have been replaced with pre-packed atlases
 Content/Textures/Troops
 Content/Textures/sd_explosion_07a_bb
 Content/Textures/sd_explosion_12a_bb
 Content/Textures/sd_explosion_14a_bb
+Content/Textures/sd_explosion_03_photon_256
+Content/Textures/projBall_01_plasma_1
+Content/Textures/sd_shockwave_01
+Content/Textures/Ship_explosion2
+
+# Main menu has completely changed since Venus, delete unused files
+Content/Textures/MMenu
 
 Content/Textures/Buildings
 # this had some copyrighted images from web used till now in bb, better to delete
 Content/Textures/Encounters
 Content/Textures/Modules
 Content/Textures/TechIcons
+Content/Textures/Suns
 # we moved to gametext.yaml so these are no longer needed
 Content/Localization
 
