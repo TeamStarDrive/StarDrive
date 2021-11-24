@@ -336,7 +336,4 @@
       <Filter>spatial</Filter>
     </Natvis>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="fbxsdk\libfbxsdk.dll" />
-  </ItemGroup>
 </Project>

@@ -113,10 +113,10 @@ SectionGroup /e "BlackBox"
         !insertmacro AddStarDriveFile StarDrive.pdb
         !insertmacro AddStarDriveFile Newtonsoft.Json.dll
         !insertmacro AddStarDriveFile SDSunBurn.dll
-        !insertmacro AddStarDriveFile SDSunBurn.pdb
+        ;!insertmacro AddStarDriveFile SDSunBurn.pdb
         !insertmacro AddStarDriveFile Microsoft.Xna.Framework.dll
         !insertmacro AddStarDriveFile Microsoft.Xna.Framework.Game.dll
-        !insertmacro AddStarDriveFile Microsoft.Xna.Framework.Game.pdb
+        ;!insertmacro AddStarDriveFile Microsoft.Xna.Framework.Game.pdb
         !insertmacro AddStarDriveFile SDNative.dll
         ;!insertmacro AddStarDriveFile SDNative.pdb ; 15megs -__-
         !insertmacro AddStarDriveFile NAudio.dll
