@@ -38,8 +38,6 @@ ExportedTextures/
 StarDrive.csproj.jorma.nvuser
 SDNative/SDNativeTests/Release-2017/
 .vs/
-Content/GameText.Missing.RUS.yaml
-Content/GameText.Missing.SPA.yaml
 Content/Audio/sd_audio_aac.zip
 bin/x86/Release-2017/
 Microsoft.Xna.Framework.Game/bin/
@@ -48,10 +46,8 @@ UnitTests/bin/
 *.pyc
 game/Content/GameText.Missing.RUS.yaml
 game/Content/GameText.Missing.SPA.yaml
-game/libfbxsdk.dll
 game/Microsoft.Bcl.AsyncInterfaces.dll
 game/Microsoft.Bcl.AsyncInterfaces.xml
-game/Microsoft.Xna.Framework.dll
 game/Microsoft.Xna.Framework.Game.dll
 game/NAudio.dll
 game/NAudio.xml
@@ -88,6 +84,5 @@ game/System.Threading.Tasks.Extensions.dll
 game/System.Threading.Tasks.Extensions.xml
 game/System.ValueTuple.dll
 game/System.ValueTuple.xml
-game/XnaNative.dll
 game/StarDrive.application
 game/StarDrive.exe.manifest
