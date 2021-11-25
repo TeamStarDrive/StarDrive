@@ -1,0 +1,36 @@
+﻿<RandomItem>
+  <!-- this references a building file by name; the item will be a "building" as far as the code is concerned -->
+  <BuildingID>MeatGrinder</BuildingID>
+  <!-- The chances that this will appear on a terran planet -->
+  <TerranChance>0.7</TerranChance>
+  <!-- the maximum number of instances that will appear (may want only 1, or to have them appear in groups) -->
+  <TerranInstanceMax>1</TerranInstanceMax>
+
+  <OceanicChance>0.7</OceanicChance>
+  <OceanicInstanceMax>1</OceanicInstanceMax>
+
+  <DesertChance>0</DesertChance>
+  <DesertInstanceMax>0</DesertInstanceMax>
+
+  <SwampChance>0.7</SwampChance>
+  <SwampInstanceMax>1</SwampInstanceMax>
+
+  <TundraChance>0.7</TundraChance>
+  <TundraInstanceMax>1</TundraInstanceMax>
+
+  <IceChance>0</IceChance>
+  <IceInstanceMax>0</IceInstanceMax>
+
+  <SteppeChance>0.7</SteppeChance>
+  <SteppeInstanceMax>1</SteppeInstanceMax>
+
+  <BarrenChance>0</BarrenChance>
+  <BarrenInstanceMax>0</BarrenInstanceMax>
+
+  <VolcanicChance>0</VolcanicChance>
+  <VolcanicInstanceMax>0</VolcanicInstanceMax>
+
+  <GasChance>0</GasChance>
+  <GasInstanceMax>0</GasInstanceMax>
+
+</RandomItem>
