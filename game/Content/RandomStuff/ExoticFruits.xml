@@ -1,0 +1,36 @@
+﻿<RandomItem>
+  <!-- this references a building file by name; the item will be a "building" as far as the code is concerned -->
+  <BuildingID>ExoticFruits</BuildingID>
+  <!-- The chances that this will appear on a terran planet -->
+  <TerranChance>1</TerranChance>
+  <!-- the maximum number of instances that will appear (may want only 1, or to have them appear in groups) -->
+  <TerranInstanceMax>2</TerranInstanceMax>
+
+  <OceanicChance>1</OceanicChance>
+  <OceanicInstanceMax>2</OceanicInstanceMax>
+
+  <DesertChance>8</DesertChance>
+  <DesertInstanceMax>2</DesertInstanceMax>
+
+  <SwampChance>12</SwampChance>
+  <SwampInstanceMax>2</SwampInstanceMax>
+
+  <TundraChance>1</TundraChance>
+  <TundraInstanceMax>2</TundraInstanceMax>
+
+  <IceChance>10</IceChance>
+  <IceInstanceMax>2</IceInstanceMax>
+
+  <SteppeChance>1</SteppeChance>
+  <SteppeInstanceMax>2</SteppeInstanceMax>
+
+  <BarrenChance>1</BarrenChance>
+  <BarrenInstanceMax>2</BarrenInstanceMax>
+
+  <VolcanicChance>0</VolcanicChance>
+  <VolcanicInstanceMax>0</VolcanicInstanceMax>
+
+  <GasChance>0</GasChance>
+  <GasInstanceMax>0</GasInstanceMax>
+
+</RandomItem>

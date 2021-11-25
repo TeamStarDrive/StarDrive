@@ -1,0 +1,36 @@
+﻿<RandomItem>
+  <!-- this references a building file by name; the item will be a "building" as far as the code is concerned -->
+  <BuildingID>Avar</BuildingID>
+  <!-- The chances that this will appear on a terran planet -->
+  <TerranChance>2</TerranChance>
+  <!-- the maximum number of instances that will appear (may want only 1, or to have them appear in groups) -->
+  <TerranInstanceMax>2</TerranInstanceMax>
+
+  <OceanicChance>1.5</OceanicChance>
+  <OceanicInstanceMax>2</OceanicInstanceMax>
+
+  <DesertChance>0.8</DesertChance>
+  <DesertInstanceMax>2</DesertInstanceMax>
+
+  <SwampChance>2</SwampChance>
+  <SwampInstanceMax>2</SwampInstanceMax>
+
+  <TundraChance>3</TundraChance>
+  <TundraInstanceMax>3</TundraInstanceMax>
+
+  <IceChance>0.9</IceChance>
+  <IceInstanceMax>2</IceInstanceMax>
+
+  <SteppeChance>3</SteppeChance>
+  <SteppeInstanceMax>3</SteppeInstanceMax>
+
+  <BarrenChance>0.5</BarrenChance>
+  <BarrenInstanceMax>2</BarrenInstanceMax>
+
+  <VolcanicChance>0</VolcanicChance>
+  <VolcanicInstanceMax>0</VolcanicInstanceMax>
+
+  <GasChance>0</GasChance>
+  <GasInstanceMax>0</GasInstanceMax>
+
+</RandomItem>
