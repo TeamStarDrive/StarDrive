@@ -1,0 +1,14 @@
+﻿<Building>
+  <Name>Underground Superstructure</Name>
+  <Icon>Underground_Superstructure</Icon>
+  <IsCommodity>true</IsCommodity>
+  <MaxPopIncrease>2800</MaxPopIncrease>
+  <Maintenance>1</Maintenance>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>5095</NameTranslationIndex>
+  <DescriptionIndex>5096</DescriptionIndex>
+  <ShortDescriptionIndex>5097</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+  <CannotBeBombed>true</CannotBeBombed>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+</Building>

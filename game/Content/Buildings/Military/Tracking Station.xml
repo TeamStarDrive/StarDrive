@@ -1,0 +1,14 @@
+﻿<Building>
+  <Name>Tracking Station</Name>
+  <Description>These massive subspace telescopes greatly increase a colony's default sensor range. </Description>
+  <Cost>100</Cost>
+  <Maintenance>2</Maintenance>
+  <Icon>tracking_station</Icon>
+  <ShortDescription>Provides massive sensor range boost</ShortDescription>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>464</NameTranslationIndex>
+  <DescriptionIndex>465</DescriptionIndex>
+  <ShortDescriptionIndex>466</ShortDescriptionIndex>
+
+</Building>

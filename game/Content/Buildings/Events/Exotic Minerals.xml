@@ -1,0 +1,14 @@
+﻿<Building>
+  <Name>Exotic Minerals</Name>
+  <Description>Exotic Mineral</Description>
+  <Icon>Exotic_Mineral</Icon>
+  <Cost>250</Cost>
+  <ProdCache>12800</ProdCache>
+  <IncreaseRichness>0.5</IncreaseRichness>
+  <PlusProdPerColonist>0.4</PlusProdPerColonist>
+  <IsCommodity>true</IsCommodity>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18106</NameTranslationIndex>
+  <DescriptionIndex>18107</DescriptionIndex>
+  <ShortDescriptionIndex>18108</ShortDescriptionIndex>
+</Building>
