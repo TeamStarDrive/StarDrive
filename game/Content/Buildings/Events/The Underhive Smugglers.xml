@@ -1,0 +1,22 @@
+﻿<Building>
+  <Name>The Underhive Smugglers</Name>
+  <Cost>20</Cost>
+  <Icon>underhive</Icon>
+  <IsCommodity>true</IsCommodity>
+  <Strength>20</Strength>
+  <CombatStrength>20</CombatStrength>
+  <SoftAttack>20</SoftAttack>
+  <Defense>20</Defense>
+  <HardAttack>20</HardAttack>
+  <MaxPopIncrease>200</MaxPopIncrease>
+  <CreditsPerColonist>.25</CreditsPerColonist>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>5399</NameTranslationIndex>
+  <DescriptionIndex>17965</DescriptionIndex>
+  <ShortDescriptionIndex>17961</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+  <UniqueInEmpire>true</UniqueInEmpire>
+  <BuildOnlyOnce>true</BuildOnlyOnce>
+  <!-- Tells the Solar System Generator that this is not to be placed randomly-->
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>

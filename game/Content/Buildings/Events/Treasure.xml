@@ -1,0 +1,16 @@
+﻿<Building>
+  <Name>Treasure</Name>
+  <Maintenance>0</Maintenance>
+  <Description>From orbit this appears to be the resting place of a crashed spaceship. Ground troops might be able to find out more by exploring. </Description>
+  <EventTriggerUID>Pirate Treasure</EventTriggerUID>
+  <Cost>40</Cost>
+  <Icon>Chest</Icon>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <ShortDescription>A crashed vessel</ShortDescription>
+  <Scrappable>false</Scrappable>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>17736</NameTranslationIndex>
+  <DescriptionIndex>17737</DescriptionIndex>
+  <ShortDescriptionIndex>17736</ShortDescriptionIndex>
+</Building>
