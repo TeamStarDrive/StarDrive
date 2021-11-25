@@ -1,0 +1,56 @@
+﻿Version=1
+Name=Vulfar Transport L
+Hull=Vulfen/Type WIII
+Role=freighter
+Style=Vulfen
+Size=8,21
+GridCenter=4,11
+DefaultAIState=DoNothing
+DefaultCombatState=Evade
+ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=MediumCargoHold;ContainerDeck;BasicCargoHold;LargeCargoHold;Maneuvering_Thruster_1x1;NuclearReactorMed;Cockpit;PowerConduit;Engine;WarpEngine_2x2
+Modules=38
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+3,0;0;2,2
+2,2;0;2,2
+4,2;0;2,2
+0,4;1;4,3;90;2
+4,4;1;4,3;90;2
+2,7;2
+3,7;0;2,2
+5,7;2
+0,8;3;3,3
+5,8;3;3,3
+3,10;0;2,2
+2,11;2
+5,11;2
+0,12;3;3,3
+3,12;2
+4,12;2
+5,12;3;3,3
+3,14;0;2,2
+2,15;4
+5,15;4
+0,16;4
+1,16;5;2,2
+3,16;2
+4,16;6
+5,16;5;2,2
+7,16;4
+0,17;4
+7,17;4
+0,18;4
+1,18;2
+2,18;7
+3,18;8
+4,18;8
+5,18;7
+6,18;2
+7,18;4
+2,19;9;2,2
+4,19;9;2,2

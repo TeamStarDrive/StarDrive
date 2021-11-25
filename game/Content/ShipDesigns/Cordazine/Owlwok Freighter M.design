@@ -1,0 +1,38 @@
+﻿Version=1
+Name=Owlwok Freighter M
+Hull=Cordrazine/Owl2
+Role=freighter
+Style=Cordrazine
+Size=6,14
+GridCenter=3,8
+IconPath=ShipIcons/Owl2
+DefaultAIState=DoNothing
+DefaultCombatState=Evade
+ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=MediumCargoHold;BasicCargoHold;Cockpit;NuclearReactorMed;Maneuvering_Thruster_1x1;PowerConduit;Engine;WarpEngine_1x1
+Modules=19
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+2,0;0;2,2
+1,2;0;2,2
+3,2;0;2,2
+0,3;1
+5,3;1
+2,4;0;2,2
+1,6;0;2,2
+3,6;0;2,2
+2,8;2
+3,8;1
+2,9;3;2,2
+1,11;4
+2,11;5
+3,11;5
+4,11;4
+2,12;6
+3,12;7
+2,13;6
+3,13;7
