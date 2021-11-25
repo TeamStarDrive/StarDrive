@@ -1,0 +1,15 @@
+﻿<Building>
+  <Name>LargeWarehouse</Name>
+  <Description>A simple building with a simple purpose, the warehouse provides an environmentally controlled environment where 100 extra food and production can be stored. </Description>
+  <StorageAdded>400</StorageAdded>
+   <Infrastructure>1</Infrastructure>
+  <Cost>10</Cost>
+  <Icon>LargeWarehouse</Icon>
+  <ShortDescription>+400 maximum good storage</ShortDescription>
+
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>17570</NameTranslationIndex>
+  <DescriptionIndex>17571</DescriptionIndex>
+  <ShortDescriptionIndex>17572</ShortDescriptionIndex>
+</Building>

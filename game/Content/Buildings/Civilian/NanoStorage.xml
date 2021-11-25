@@ -1,0 +1,15 @@
+﻿<Building>
+  <Name>NanoStorage</Name>
+  <Description>A simple building with a simple purpose, the warehouse provides an environmentally controlled environment where 100 extra food and production can be stored. </Description>
+  <StorageAdded>1000</StorageAdded>
+   <Infrastructure>2</Infrastructure>
+  <Cost>10</Cost>
+  <Icon>Nano Storage</Icon>
+  <ShortDescription></ShortDescription>
+
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>17575</NameTranslationIndex>
+  <DescriptionIndex>17576</DescriptionIndex>
+  <ShortDescriptionIndex>17577</ShortDescriptionIndex>
+</Building>

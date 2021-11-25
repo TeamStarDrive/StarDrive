@@ -1,0 +1,16 @@
+<Building>
+	<Name>Planet Fortification</Name>
+	<Description>This basic facility provides a barracks, armory, mess, firing range, and other facilities needed to train and equip infantry for ground combat. </Description>
+	<Cost>500</Cost>
+    <Maintenance>2</Maintenance>	
+    <InvadeInjurePoints>2</InvadeInjurePoints>	
+	<Icon>PF</Icon>
+	<PlanetaryShieldStrengthAdded>1000</PlanetaryShieldStrengthAdded>
+	<Strength>50</Strength>
+	<CombatStrength>50</CombatStrength>
+	<SoftAttack>50</SoftAttack>
+	<HardAttack>50</HardAttack>
+	<NameTranslationIndex>8177</NameTranslationIndex>
+	<DescriptionIndex>17415</DescriptionIndex>
+	<ShortDescriptionIndex>17416</ShortDescriptionIndex>
+</Building>
