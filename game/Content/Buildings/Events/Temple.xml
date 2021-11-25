@@ -1,0 +1,12 @@
+﻿<Building>
+  <Name>Temple</Name>
+  <Icon>Temple</Icon>
+  <EventTriggerUID>Temple</EventTriggerUID>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18159</NameTranslationIndex>
+  <DescriptionIndex>18160</DescriptionIndex>
+  <ShortDescriptionIndex>18160</ShortDescriptionIndex>
+  <CannotBeBombed>false</CannotBeBombed>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+</Building>

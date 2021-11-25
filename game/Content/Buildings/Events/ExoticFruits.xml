@@ -1,0 +1,15 @@
+﻿<Building>
+  <Name>ExoticFruits</Name>
+  <IsCommodity>true</IsCommodity>
+  <Maintenance>0</Maintenance>  
+  <Description>Big tree</Description>
+  <FoodCache>700</FoodCache>
+  <PlusFlatFoodAmount>0.6</PlusFlatFoodAmount>
+  <PlusFlatPopulation>25</PlusFlatPopulation>
+  <Icon>ExoticFruits</Icon>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>false</CanBuildAnywhere>
+  <NameTranslationIndex>18222</NameTranslationIndex>
+  <DescriptionIndex>18223</DescriptionIndex>
+  <ShortDescriptionIndex>18224</ShortDescriptionIndex>
+</Building>

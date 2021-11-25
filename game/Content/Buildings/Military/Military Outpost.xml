@@ -1,0 +1,19 @@
+﻿<Building>
+  <Name>Military Outpost</Name>
+  <Description>This basic facility provides a barracks, armory, mess, firing range, and other facilities needed to train and equip infantry for ground combat. </Description>
+  <Cost>25</Cost>
+  <Icon>military_outpost</Icon>
+  <Strength>15</Strength>
+  <CombatStrength>15</CombatStrength>
+  <SoftAttack>50</SoftAttack>
+  <HardAttack>10</HardAttack>
+  <Defense>20</Defense>
+  <AllowInfantry>true</AllowInfantry>
+  <ShortDescription>Allows infantry construction; defensive building</ShortDescription>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>436</NameTranslationIndex>
+  <DescriptionIndex>437</DescriptionIndex>
+  <ShortDescriptionIndex>438</ShortDescriptionIndex>
+
+</Building>

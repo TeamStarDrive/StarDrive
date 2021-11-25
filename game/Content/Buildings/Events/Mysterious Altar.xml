@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Mysterious Altar</Name>
+  <Maintenance>0</Maintenance>
+  <Description>Mysterious Altar</Description>
+  <EventTriggerUID>Mysterious Altar</EventTriggerUID>
+  <Cost>40</Cost>
+  <Icon>Altar</Icon>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <ShortDescription>Mysterious Altar</ShortDescription>
+  <Scrappable>false</Scrappable>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18178</NameTranslationIndex>
+  <DescriptionIndex>18179</DescriptionIndex>
+  <ShortDescriptionIndex>18179</ShortDescriptionIndex>
+  
+</Building>
