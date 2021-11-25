@@ -8,9 +8,6 @@ MeshOffset=0,-16
 IconPath=ShipIcons/terran_platform
 ModelPath=Model/Asteroids/asteroid4
 SelectIcon=13e
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|I  |I  |I  |I  |I  |I  |I  |___|___|___|___

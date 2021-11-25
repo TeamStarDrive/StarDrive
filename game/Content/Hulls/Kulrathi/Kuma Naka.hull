@@ -1,0 +1,27 @@
+﻿Version=1
+HullName=Kulrathi/Kuma Naka
+VisibleName=Kuma Naka
+Role=freighter
+Style=Kulrathi
+Size=6,12
+MeshOffset=0,0
+IconPath=ShipIcons/icon_Kuma_Naka
+ModelPath=model/Ships/Kulrathi/Kuma Naka
+SelectIcon=13e
+#Starkit Scale 120
+#Model Author Vanilla modified by Fat Bastard
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=256,368,0,80
+Slots
+___|O  |O  |O  |O  |___
+___|I  |I  |I  |I  |___
+O  |I  |I  |I  |I  |O  
+O  |I  |I  |I  |I  |O  
+O  |I  |I  |IC |I  |O  
+O  |I  |I  |I  |I  |O  
+___|O  |I  |I  |O  |___
+O  |I  |I  |I  |I  |O  
+___|I  |I  |I  |I  |___
+___|I  |E  |E  |I  |___
+O  |I  |E  |E  |I  |O  
+___|O  |E  |E  |O  |___
