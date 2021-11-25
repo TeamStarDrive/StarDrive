@@ -4,12 +4,9 @@ VisibleName=Corsair Asteroid Base
 Role=platform
 Style=Corsair
 Size=20,19
-MeshOffset=0,-8
+MeshOffset=0,0
 IconPath=ShipIcons/terran_platform
 ModelPath=Model/Asteroids/asteroid1
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|O  |O  |O  |O  |O  |O  |O  |O  |O  |___|___|___|___|___|___
@@ -17,13 +14,13 @@ ___|___|___|O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |___|___|___|___|___|___
 ___|___|O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |___|___|___|___
 O  |O  |O  |O  |O  |O  |IO |IO |IO |IO |IO |IO |IO |IO |O  |O  |___|___|___|___
 O  |O  |O  |O  |O  |O  |IO |IO |IO |IO |IO |IO |IO |IO |O  |O  |O  |___|___|___
-O  |O  |O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___
-O  |O  |O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |IO |IO |O  |O  |O  |___|___
-O  |O  |O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |IO |IO |O  |O  |O  |___|___
-O  |O  |O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |IO |IO |O  |O  |O  |___|___
-___|___|O  |O  |O  |O  |IO |IO |I  |I  |IC |I  |I  |IO |IO |O  |O  |O  |O  |O  
-___|___|O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |IO |IO |O  |O  |O  |O  |O  
-___|___|O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |IO |IO |O  |O  |O  |O  |O  
+O  |O  |O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |IO |IO |IO |O  |O  |___|___|___
+O  |O  |O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |___|___
+O  |O  |O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |___|___
+O  |O  |O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |___|___
+___|___|O  |O  |O  |O  |IO |IO |I  |I  |IC |I  |IO |IO |IO |O  |O  |O  |O  |O  
+___|___|O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  |O  
+___|___|O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  |O  
 ___|___|O  |O  |O  |O  |O  |O  |IO |IO |IO |IO |IO |IO |O  |O  |O  |O  |O  |O  
 ___|___|___|O  |O  |O  |O  |O  |IO |IO |IO |IO |IO |IO |O  |O  |O  |O  |O  |O  
 ___|___|___|O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  
