@@ -1,7 +1,7 @@
 ﻿<Troop>
   <Name>Owlwok Infantry</Name>
   <Description>These furry fellows will gleefully attack anything its Cordrazine master finds ugly.</Description>
-  <TexturePath>column_idle0000</TexturePath>
+  <TexturePath>Cordazine/column_idle0000</TexturePath>
   <Icon>column</Icon>
   <first_frame>0</first_frame>
   <RaceType>Cordrazine</RaceType>
@@ -11,8 +11,8 @@
   <idle_x_offset>32</idle_x_offset>
   <idle_y_offset>32</idle_y_offset>
   <attack_width>192</attack_width>
-  <idle_path>column_idle00</idle_path>
-  <attack_path>column_attack00</attack_path>
+  <idle_path>Cordazine/column_idle00</idle_path>
+  <attack_path>Cordazine/column_attack00</attack_path>
 
   <sound_attack>sd_ground_cordrazine_01</sound_attack>
   

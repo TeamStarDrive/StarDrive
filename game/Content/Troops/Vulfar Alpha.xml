@@ -1,7 +1,7 @@
 ﻿<Troop>
   <Name>Vulfar Alpha</Name>
   <Description>Vulfar Alphas are smarter and meaner than their grunt minions.</Description>
-  <TexturePath>alpha_idle0000</TexturePath>
+  <TexturePath>VulfarAdvanced/alpha_idle0000</TexturePath>
   <Icon>alpha</Icon>
 
 
@@ -13,20 +13,20 @@
   <idle_x_offset>32</idle_x_offset>
   <idle_y_offset>32</idle_y_offset>
   <attack_width>192</attack_width>
-  <idle_path>alpha_idle00</idle_path>
-  <attack_path>alpha_attack00</attack_path>
+  <idle_path>VulfarAdvanced/alpha_idle00</idle_path>
+  <attack_path>VulfarAdvanced/alpha_attack00</attack_path>
 
   <sound_attack>sd_ground_wulv_01</sound_attack>
   
-  <Cost>50</Cost>
-  <Strength>10</Strength>
-  <MaxStrength>10</MaxStrength>
-  <Movement>1</Movement>
+  <Cost>80</Cost>
+  <Strength>15</Strength>
+  <MaxStrength>15</MaxStrength>
+  <Movement>2</Movement>
   <MaintenanceCost>1</MaintenanceCost>
   <Range>1</Range>
   <HardAttack>25</HardAttack>
-  <BoardingStrength>60</BoardingStrength>
-  <SoftAttack>60</SoftAttack>
+  <BoardingStrength>50</BoardingStrength>
+  <SoftAttack>50</SoftAttack>
   <TargetType>Soft</TargetType>
   <Class>Infantry</Class>
   <MovementCue>sd_troop_march_01</MovementCue>
