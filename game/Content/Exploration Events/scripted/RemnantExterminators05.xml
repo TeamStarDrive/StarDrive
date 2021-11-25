@@ -2,6 +2,7 @@
   <Name>Remnant History</Name>
   <StoryStep>5</StoryStep>
   <Story>AncientExterminators</Story>
+  <Image>Encounters/2.png</Image>
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>

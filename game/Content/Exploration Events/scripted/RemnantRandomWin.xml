@@ -2,6 +2,7 @@
   <Name>Remnant Software Bugs</Name>
   <TriggerWhenOnlyRemnantsLeft>true</TriggerWhenOnlyRemnantsLeft>
   <Story>AncientRaidersRandom</Story>
+  <Image>Encounters/2.png</Image>
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>

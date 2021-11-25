@@ -2,6 +2,7 @@
   <Name>The Remnants!</Name>
   <StoryStep>1</StoryStep>
   <AllRemnantStories>true</AllRemnantStories>
+  <Image>Encounters/2.png</Image>
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>
