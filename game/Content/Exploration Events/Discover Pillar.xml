@@ -1,0 +1,141 @@
+﻿<ExplorationEvent>
+  <Name>Discover pillar</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Unknown defenders</TitleText>
+      <DescriptionText>Before reaching the Pillar, you spot a Remnant fleet orbiting the planet. The pillar disappears before your troops eyes, leaving behind a big hole in the ground.</DescriptionText>
+       <RemnantShipsToSpawn>
+          <string>Heavy Drone</string>
+          <string>Heavy Drone</string>          
+          <string>Support Drone</string>          
+          <string>Support Drone</string>
+          <string>Support Drone</string>
+          <string>Support Drone</string>
+      </RemnantShipsToSpawn>           
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>What was that?</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>8</Chance>
+      <TitleText>Scientific Discovery</TitleText>
+      <DescriptionText>As your troops get closer to the pillar their scans immediately reveal that this structure is much older than most known structures in the galaxy. At the back of this pillar your troops discover an active energy source - they activate it. Upon activation one of your men is targeted by the pillar. A massive beam engulfs the soldier and large amounts of information is downloaded into his brain. Suddenly the pillar deactivates and the energy source is burned out. This discovery grants your empire a 5% bonus to all scientific efforts.</DescriptionText>
+      <ScienceBonus>0.05</ScienceBonus>
+      <GrantArtifact>true</GrantArtifact>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>This is so called rapid evolution.</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Wave</TitleText>
+      <DescriptionText>As your troops get closer to the pillar they noticed that the earth surrounding it is totally barren. They slowly approach it, suddenly they hear a high pitch tone coming from the pillar, that gets more and more unbearable. At some point the pillar disintegrates and sends a deadly radiation wave killing any organic life on the planet.Planet scans changed :-1.5 Fertility(temporally).</DescriptionText>
+      <ChangeBaseFertility>-1.5</ChangeBaseFertility>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>RUN!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>Shattering</TitleText>
+      <DescriptionText>As your troops get closer to the pillar is starting to shake and shatter into rubble and abnormal crystals.</DescriptionText>
+      <ReplaceWith>Thought Crystal</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>More delicate than we though.</ConfirmText>
+     </Outcome>
+
+     <Outcome>
+      <Chance>15</Chance>
+      <TitleText>Exotic materials</TitleText>
+      <DescriptionText>As your troops get closer to the pillar, they immediately discover that it's made of rare minerals that can be reused. They place explosives and detonate them, causing the pillar to become a pile of useful mineral rubble.</DescriptionText>
+      <ReplaceWith>Exotic Minerals</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>These will be useful.</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>5</Chance>
+      <TitleText>A unique technology!</TitleText>
+      <DescriptionText>After Scouting the area, your troops finally encountered the ancient pillar, inside it they found a data core with schematics of unknown technology. After removing the data core from the socket, the pillar shakes and crumbles to rubble alarming dormant ground and space defenders.</DescriptionText>
+      <MoneyGranted>500</MoneyGranted>
+      <UnlockTech>Slip Streams</UnlockTech>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+          <string>Heavy Drone</string>
+          <string>Heavy Drone</string>          
+          <string>Xeno Fighter</string>
+          <string>Xeno Fighter</string>
+      </RemnantShipsToSpawn>       
+      <TroopsToSpawn>
+        <string>Skeleton</string>
+        <string>Skeleton</string>
+        <string>Skeleton</string>
+      </TroopsToSpawn>
+      <Image>Encounters/6.png</Image>
+      <ConfirmText>Blast them!</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>5</Chance>
+      <TitleText>That's no moon...</TitleText>
+      <DescriptionText>As your troops approach the ancient pillar, they hear a humming noise. As they get closer the noise gets louder. Suddenly a deafening sound is heard and a large bright beam shoots into the sky. You quickly realize one of your soldiers mistakenly hit a switch which uncovered a Pirate space station orbiting the planet! That soldier spots something and grabs it before fleeing to the surface. Turns out this is a rare Artifact!</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <GrantArtifact>true</GrantArtifact>
+      <PirateShipsToSpawn>
+        <string>Draug Station-Mk2</string>
+        <string>Draug-Slaver-Mk2</string>
+        <string>Draug-Slaver-Mk2</string>
+        <string>Draug-Mk2</string>
+        <string>Draug-Mk2</string>
+        <string>Draug-Fighter-Mk2</string>          
+        <string>Draug-Fighter-Mk2</string>          
+        <string>Draug-Fighter-Mk2</string>          
+        <string>Draug-Fighter-Mk2</string>          
+        <string>Draug-Fighter-Mk2</string>          
+      </PirateShipsToSpawn>
+       <Image>Encounters/2.png</Image>
+       <ConfirmText>Oh no...</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>5</Chance>
+      <TitleText>Intervention</TitleText>
+      <DescriptionText>As your troops approach the ancient pillar, they notice that they aren't the first group to discover it. They see lots of electronic equipment, computers and a large Remnant power generator. One of your combat engineers activates the generator and in doing so alerts the owners of these items to your presence. A small Remnant fleet warps into orbit.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+        <string>Heavy Drone</string>
+        <string>Heavy Drone</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Ancient Frigate</string>
+       </RemnantShipsToSpawn>
+       <Image>Encounters/1.png</Image>
+       <ConfirmText>Take cover!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+     <Chance>20</Chance>
+      <TitleText>Minor shock</TitleText>
+      <DescriptionText>From far away, your troops observe as the pillar attracts strikes of lightning. When they approach closer, they detect a powerful energy signature coming directly from it. The pillar appears to attract and absorb these strikes, harnessing the energy. As your troops attempt to decipher the engravings on the pillar, they must have accidentally triggered a release mechanism. The energy stored inside the pillar is sent deep into the planet's core, destroying the pillar and jump-starting the core into producing rare elements. Planet scans changed : +0.6 Richness.</DescriptionText>
+      <ChangeRichness>0.6</ChangeRichness>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>What a shock!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+     <Chance>15</Chance>
+      <TitleText>Major shock</TitleText>
+      <DescriptionText>From far away, your troops observe as the pillar attracts strikes of lightning. When the approach closer, they detect a powerful energy signature coming directly from it. The pillar appears to attract and absorb these strikes, harnessing the energy. As your troops attempt to decipher the engravings on the pillar, they must have accidentally triggered a release mechanism. The energy stored inside the pillar is sent deep into the planet's core, destroying the pillar and jump-starting the core into producing rare elements. Planet scans changed : +0.8 Richness.</DescriptionText>
+      <ChangeRichness>0.8</ChangeRichness>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Lets not stick around.</ConfirmText>
+    </Outcome>
+    
+  </PotentialOutcomes>
+</ExplorationEvent>

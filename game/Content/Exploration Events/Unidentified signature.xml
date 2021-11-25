@@ -1,0 +1,78 @@
+<ExplorationEvent>
+  <Name>Unidentified signature</Name>
+  <PotentialOutcomes>
+
+    <Outcome>
+      <Chance>1</Chance>
+      <TitleText>Temple</TitleText>
+      <DescriptionText>As you troops are closing in on visual range of the unidentified object, they immediately recognize that it is an old temple.</DescriptionText>
+      <ReplaceWith>Temple</ReplaceWith>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>Looks ancient!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>1</Chance>
+      <TitleText>Orb</TitleText>
+      <DescriptionText>As you troops are closing in on visual range of the unidentified object, they immediately recognize that it is an levitating orb.</DescriptionText>
+      <ReplaceWith>Orb</ReplaceWith>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Its levitating!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>1</Chance>
+      <TitleText>Mountain</TitleText>
+      <DescriptionText>As you troops are closing in on visual range of the unidentified object, they immediately recognize that it is an mountain.</DescriptionText>
+      <ReplaceWith>Mountain trigger</ReplaceWith>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>Its just a mountain?!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>1</Chance>
+      <TitleText>Space Elevator</TitleText>
+      <DescriptionText>As you troops are closing in on visual range of the unidentified object, they immediately recognize that it is an Space Elevator.</DescriptionText>
+      <ReplaceWith>Space Elevator Trigger</ReplaceWith>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>How did we miss it from orbit?!</ConfirmText>
+    </Outcome>
+
+
+    <Outcome>
+      <Chance>1</Chance>
+      <TitleText>Altar</TitleText>
+      <DescriptionText>As you troops are closing in on visual range of the unidentified object, they immediately recognize that it is an mysterious altar.</DescriptionText>
+      <ReplaceWith>Mysterious Altar</ReplaceWith>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>Its a weird Altar thing!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>1</Chance>
+      <TitleText>Obelisk</TitleText>
+      <DescriptionText>As you troops are closing in on visual range of the unidentified object, they immediately recognize that it is an ancient obelisk.</DescriptionText>
+      <ReplaceWith>Obelisk</ReplaceWith>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/6.png</Image>
+      <ConfirmText>Better to be careful!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>1</Chance>
+      <TitleText>Teleport ring</TitleText>
+      <DescriptionText>As you troops are closing in on visual range of the unidentified object, they immediately recognize that it is an teleport ring.</DescriptionText>
+      <ReplaceWith>Teleport Trigger</ReplaceWith>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>Its a Star gat...i mean Teleport!</ConfirmText>
+    </Outcome>
+
+    
+  </PotentialOutcomes>
+ </ExplorationEvent>

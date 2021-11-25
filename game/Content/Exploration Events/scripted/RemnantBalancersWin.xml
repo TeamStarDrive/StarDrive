@@ -2,6 +2,7 @@
   <Name>Remnant Fury</Name>
   <TriggerWhenOnlyRemnantsLeft>true</TriggerWhenOnlyRemnantsLeft>
   <Story>AncientBalancers</Story>
+  <Image>Encounters/2.png</Image>
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>

@@ -2,6 +2,7 @@
   <Name>Remnant Extermination</Name>
   <TriggerWhenOnlyRemnantsLeft>true</TriggerWhenOnlyRemnantsLeft>
   <Story>AncientExterminators</Story>
+  <Image>Encounters/2.png</Image>
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>
