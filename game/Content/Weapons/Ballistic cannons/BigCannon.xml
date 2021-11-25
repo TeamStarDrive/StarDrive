@@ -1,0 +1,48 @@
+﻿<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Kinetic>true</Tag_Kinetic>
+  <Tag_Energy>false</Tag_Energy>
+  <Tag_Guided>false</Tag_Guided>
+  <Tag_Missile>false</Tag_Missile>
+  <Tag_Hybrid>false</Tag_Hybrid>
+  <Tag_Beam>false</Tag_Beam>
+  <Tag_Intercept>false</Tag_Intercept>
+  <Tag_Explosive>true</Tag_Explosive>
+  <Tag_Bomb>false</Tag_Bomb>
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  <Tag_Warp>false</Tag_Warp>
+  <Tag_Subspace>false</Tag_Subspace>
+  <Tag_Drone>false</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>true</Tag_Cannon>
+  <Tag_Railgun>false</Tag_Railgun>
+
+  <Excludes_Fighters>true</Excludes_Fighters>  
+
+  <UID>BigCannon</UID>
+  <fireDelay>12</fireDelay>
+  <Range>18000</Range>
+  <PowerRequiredToFire>0</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>57</OrdinanceRequiredToFire>
+  <SalvoCount>3</SalvoCount>
+  <SalvoTimer>0.7</SalvoTimer>
+  
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <fireCueName>sd_weapon_bigcannon_01</fireCueName>
+  <dieCue>Explo1</dieCue>
+ <!-- <ToggleSoundName>sd_weapon_vulcan_spinloop_01</ToggleSoundName> -->
+
+  <!-- Projectile Information -->
+  <DamageAmount>6850</DamageAmount>
+  <EffectVSShields>1.25</EffectVSShields>  
+  <Scale>2</Scale>
+  <MuzzleFlash>Yes</MuzzleFlash>
+  <ProjectileSpeed>2750</ProjectileSpeed>
+  <DamageRadius>75</DamageRadius>
+  <explodes>true</explodes>
+  <Light>Orange</Light>
+  <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
+  <ModelPath>projTear</ModelPath>
+  <WeaponType>Ballistic Cannon</WeaponType>
+
+</Weapon>
