@@ -1,0 +1,48 @@
+﻿<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Kinetic>true</Tag_Kinetic>
+  <Tag_Energy>false</Tag_Energy>
+  <Tag_Guided>false</Tag_Guided>
+  <Tag_Missile>false</Tag_Missile>
+  <Tag_Hybrid>false</Tag_Hybrid>
+  <Tag_Beam>false</Tag_Beam>
+  <Tag_Intercept>false</Tag_Intercept>
+  <Tag_Explosive>true</Tag_Explosive>
+  <Tag_Bomb>false</Tag_Bomb>
+  <Tag_Railgun>true</Tag_Railgun>
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  <Tag_Warp>false</Tag_Warp>
+  <Tag_Subspace>false</Tag_Subspace>
+  <Tag_Drone>false</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>false</Tag_Cannon>
+  
+  <Excludes_Fighters>true</Excludes_Fighters>  
+
+
+  <UID>MassDriver_dual</UID>
+  <fireDelay>11.0</fireDelay>
+  <Range>15000</Range>
+  <PowerRequiredToFire>0</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>55</OrdinanceRequiredToFire>
+
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <fireCueName>sd_weapon_railgun_massive_01</fireCueName>
+  <dieCue>sd_explosion_ship_det_small</dieCue>
+  <WeaponEffectType>SmokeTrail</WeaponEffectType>
+  <ProjectileRadius>10</ProjectileRadius>
+  <Scale>1.5</Scale>
+  <!-- Projectile Information -->
+  <DamageAmount>2760</DamageAmount>
+  <SalvoCount>2</SalvoCount>
+  <SalvoTimer>0.4</SalvoTimer>
+  <EffectVSShields>1.20</EffectVSShields>  
+  <MuzzleFlash>Yes</MuzzleFlash>
+  <ProjectileSpeed>2625</ProjectileSpeed>
+  <DamageRadius>50</DamageRadius>
+  <Light>Orange</Light>
+  <explodes>true</explodes>
+  <ProjectileTexturePath>projLong_02_orange_dual</ProjectileTexturePath>
+  <ModelPath>projTear</ModelPath>
+  <WeaponType>Ballistic Cannon</WeaponType>
+</Weapon>

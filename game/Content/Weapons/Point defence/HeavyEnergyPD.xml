@@ -1,0 +1,32 @@
+﻿<?xml version="1.0"?>
+<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Energy>true</Tag_Energy>
+  <Tag_Cannon>true</Tag_Cannon>
+
+  <Tag_PD>true</Tag_PD> 
+  <TruePD>true</TruePD>
+
+  <OffPowerMod>3</OffPowerMod>
+
+  <UID>HeavyEnergyPD</UID>
+  <fireDelay>0.5</fireDelay>
+  <Range>3500</Range>
+  <PowerRequiredToFire>80</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <!--<fireCueName>heavylaser1</fireCueName>-->
+  <fireCueName>sd_weapon_laser_small_alt5_01</fireCueName>
+  <!-- Projectile Information -->
+  <DamageAmount>20</DamageAmount>
+  <ProjectileSpeed>2000</ProjectileSpeed>
+  <ProjectileRadius>45</ProjectileRadius>  
+  <explodes>false</explodes>
+  <Light>Blue</Light>
+  <ProjectileTexturePath>projPulse_01_cyan_dual</ProjectileTexturePath>
+  <ModelPath>projTear</ModelPath>
+  <TargetChangeTimer>0.5</TargetChangeTimer>
+  <ProjectileCount>1</ProjectileCount>
+  <FireArc>0</FireArc>
+  <WeaponType>AA Weapons</WeaponType>
+</Weapon>

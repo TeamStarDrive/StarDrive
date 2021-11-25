@@ -1,0 +1,35 @@
+﻿<?xml version="1.0"?>
+<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Energy>true</Tag_Energy>
+  <Tag_Cannon>true</Tag_Cannon>
+  <Tag_PD>true</Tag_PD> 
+  <TruePD>true</TruePD>
+
+  <OffPowerMod>3</OffPowerMod>
+
+  <UID>RapidEnergyPD</UID>
+  <fireDelay>2</fireDelay>
+  <Range>3500</Range>
+  <PowerRequiredToFire>20</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
+  <PlaySoundOncePerSalvo>true</PlaySoundOncePerSalvo>
+  <!-- name of XACT audio cue to play on firing this weapon 
+  <fireCueName>sd_weapon_laser_burst_01</fireCueName> -->
+  <fireCueName>sd_weapon_laser_small_alt5_01</fireCueName>
+  <!-- Projectile Information -->
+  <DamageAmount>3</DamageAmount>
+  <SalvoCount>8</SalvoCount>
+  <SalvoTimer>0.4</SalvoTimer>
+  <ProjectileSpeed>2000</ProjectileSpeed>
+  <ProjectileRadius>35</ProjectileRadius>  
+  <explodes>false</explodes>
+  <Light>Blue</Light>
+  <Scale>0.8</Scale>
+  <ProjectileTexturePath>projPulse_01_blue_1</ProjectileTexturePath>
+  <ModelPath>projTear</ModelPath>
+  <TargetChangeTimer>1</TargetChangeTimer>
+  <ProjectileCount>1</ProjectileCount>
+<WeaponType>AA Weapons</WeaponType>
+ <FireCone>5</FireCone>
+</Weapon>
