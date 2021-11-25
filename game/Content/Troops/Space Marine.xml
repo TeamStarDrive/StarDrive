@@ -1,20 +1,20 @@
 ﻿<Troop>
   <Name>Space Marine</Name>
   <Description>These space marines form the backbone of terran military forces throughout the galaxy</Description>
-  <TexturePath>marine_idle0000</TexturePath>
+  <TexturePath>Human/marine_idle0000</TexturePath>
   <Icon>marine</Icon>
 
 
   <RaceType>Terran</RaceType>
   <first_frame>0</first_frame>
   <num_idle_frames>4</num_idle_frames>
-  <num_attack_frames>16</num_attack_frames>
+  <num_attack_frames>10</num_attack_frames>
   <animated>true</animated>
   <idle_x_offset>32</idle_x_offset>
   <idle_y_offset>32</idle_y_offset>
   <attack_width>192</attack_width>
-  <idle_path>marine_idle00</idle_path>
-  <attack_path>marine_attack00</attack_path>
+  <idle_path>Human/marine_idle00</idle_path>
+  <attack_path>Human/marine_attack00</attack_path>
 
   <sound_attack>sd_ground_humantrooper_01</sound_attack>
   
