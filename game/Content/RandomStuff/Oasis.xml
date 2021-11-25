@@ -1,6 +1,6 @@
 ﻿<RandomItem>
   <!-- this references a building file by name; the item will be a "building" as far as the code is concerned -->
-  <BuildingID>Thought Crystal</BuildingID>
+  <BuildingID>Oasis</BuildingID>
   <!-- The chances that this will appear on a terran planet -->
   <TerranChance>0</TerranChance>
   <!-- the maximum number of instances that will appear (may want only 1, or to have them appear in groups) -->
@@ -9,8 +9,8 @@
   <OceanicChance>0</OceanicChance>
   <OceanicInstanceMax>0</OceanicInstanceMax>
 
-  <DesertChance>6</DesertChance>
-  <DesertInstanceMax>3</DesertInstanceMax>
+  <DesertChance>25</DesertChance>
+  <DesertInstanceMax>4</DesertInstanceMax>
 
   <SwampChance>0</SwampChance>
   <SwampInstanceMax>0</SwampInstanceMax>
@@ -21,11 +21,11 @@
   <IceChance>0</IceChance>
   <IceInstanceMax>0</IceInstanceMax>
 
-  <SteppeChance>0</SteppeChance>
-  <SteppeInstanceMax>0</SteppeInstanceMax>
+  <SteppeChance>5</SteppeChance>
+  <SteppeInstanceMax>2</SteppeInstanceMax>
 
-  <BarrenChance>3</BarrenChance>
-  <BarrenInstanceMax>3</BarrenInstanceMax>
+  <BarrenChance>4</BarrenChance>
+  <BarrenInstanceMax>2</BarrenInstanceMax>
 
   <VolcanicChance>0</VolcanicChance>
   <VolcanicInstanceMax>0</VolcanicInstanceMax>
