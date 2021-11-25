@@ -1,0 +1,56 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Cost>8</Cost>
+  <!-- Tech Level -->
+  <TechLevel>0</TechLevel>
+  <TechBranch>Power</TechBranch>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>1</XSIZE>
+  <YSIZE>1</YSIZE>
+  <ModuleType>PowerPlant</ModuleType>
+  <Name>PowerPlant</Name>
+  <Restrictions>IOE</Restrictions>
+  <UID>BosonTransmiter</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/BosonTransmiter</IconTexturePath>
+  <Mass>5</Mass>
+  <Health>600</Health>
+  <HealthMax>600</HealthMax>
+  <energyreq>0</energyreq>
+  <modRadius>0</modRadius>
+  <Description>Carries power across a ship</Description>
+  <CrewRequired>1</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <PowerDraw>10</PowerDraw>
+
+
+  <NameIndex>17611</NameIndex>
+  <DescriptionIndex>17612</DescriptionIndex>
+
+
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+
+
+  <!-- for PowerPlant Items -->
+  <PowerFlowMax>1</PowerFlowMax>
+  <PowerRadius>3</PowerRadius>
+  
+  <!-- for Weapons -->
+
+  
+  
+  <!-- for Engines -->
+  <thrust>0</thrust>
+  
+  
+
+</ShipModule>

@@ -1,0 +1,60 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>false</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>30</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>8</TechLevel>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>1</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>DarkMatterCannon_1x2</Name>
+  <Restrictions>IO</Restrictions>
+  <UID>DarkMatterCannon_1x2</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/DarkMatterCannon_1x2</IconTexturePath>
+
+
+  <NameIndex>17947</NameIndex>
+  <DescriptionIndex>17944</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>8</Mass>
+  <Health>1440</Health>
+  <HealthMax>1440</HealthMax>
+  <RepairDifficulty>4</RepairDifficulty>
+
+  <!-- Power Drawn -->
+  <PowerDraw>55</PowerDraw>
+
+
+  <!-- Crew Reqs -->
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+
+ 
+  <!-- for Weapons -->
+  <WeaponType>DarkMatterCannon_1x2</WeaponType>
+  <FieldOfFire>30</FieldOfFire>
+  <AccuracyPercent>0.2</AccuracyPercent>
+</ShipModule>

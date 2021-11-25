@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+
+	<Cost>50</Cost>
+	<TechLevel>5</TechLevel>
+	<!-- common traits shared by all ship modules -->
+	<XSIZE>2</XSIZE>
+	<YSIZE>2</YSIZE>
+	<ModuleType>MissileLauncher</ModuleType>
+	<Name>RemnantNuker</Name>
+	<Restrictions>O</Restrictions>
+	<UID>RemnantNuker</UID> 
+  <Version>2</Version>
+
+	<IconTexturePath>Modules/RemnantNuker</IconTexturePath>
+	<Mass>16</Mass>
+	<Health>2400</Health>
+	<HealthMax>2400</HealthMax>
+	<RepairDifficulty>2</RepairDifficulty>
+	<energyreq>0</energyreq>
+	<Description>RemnantNuker</Description>
+	<CrewRequired>5</CrewRequired>
+	<CrewSupplied>0</CrewSupplied>
+	<PowerDraw>10</PowerDraw>
+
+	<NameIndex>17924</NameIndex>
+	<DescriptionIndex>17926</DescriptionIndex>
+	<!-- for PowerPlant Items -->
+	<explodes>false</explodes>
+	<PowerFlowMax>0</PowerFlowMax>
+	<PowerStoreMax>0</PowerStoreMax>
+	<!-- for Weapons -->
+	<WeaponType>RemnantNuker</WeaponType>
+	<OrdinanceCapacity>40</OrdinanceCapacity>
+	<FieldOfFire>45</FieldOfFire>
+
+
+</ShipModule>

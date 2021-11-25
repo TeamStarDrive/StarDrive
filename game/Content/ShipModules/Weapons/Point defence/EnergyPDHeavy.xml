@@ -1,0 +1,52 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+
+  <Cost>36</Cost>
+  <!-- Tech Level -->
+  <TechLevel>2</TechLevel>
+ 
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>Turret</ModuleType>
+  <Name>EnergyPDHeavy</Name>
+  <Restrictions>O</Restrictions>
+  <UID>EnergyPDHeavy</UID> 
+  <Version>2</Version>
+
+
+
+  <IconTexturePath>Modules/EnergyPD2x2</IconTexturePath>
+
+
+  <NameIndex>17561</NameIndex>
+  <DescriptionIndex>17562</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>14</Mass>
+  <Health>3800</Health>
+  <HealthMax>3800</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+
+  <!-- Crew Reqs -->
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  
+
+ 
+  <!-- for Weapons -->
+  <WeaponType>HeavyEnergyPD</WeaponType>
+  <FieldOfFire>120</FieldOfFire>
+
+  <!-- Description -->
+  <Description>This weapon is a laser cannon mounted on a swivel turret to provide a 90 degree field of fire.</Description>
+  
+
+</ShipModule>
