@@ -3,17 +3,14 @@ HullName=Ralyeh/Vessel L
 VisibleName=Vessel L
 Role=freighter
 Style=Ralyeh
-Size=8,27
-MeshOffset=0,-8
+Size=8,28
+MeshOffset=0,0
 IconPath=ShipIcons/Vessel L
 ModelPath=Model/Ships/Ralyeh/ship17i
-SelectIcon=17i
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=257,428,0,73
 Slots
+___|___|IO |IO |IO |IO |___|___
 ___|IO |I  |I  |I  |I  |IO |___
 ___|IO |I  |I  |I  |I  |IO |___
 ___|IO |I  |I  |I  |I  |IO |___
@@ -33,11 +30,11 @@ ___|___|I  |I  |I  |I  |___|___
 ___|___|I  |I  |I  |I  |___|___
 ___|IO |I  |I  |I  |I  |IO |___
 ___|___|I  |I  |I  |I  |___|___
+___|___|IO |IO |IO |IO |___|___
 ___|___|I  |I  |I  |I  |___|___
 ___|___|I  |I  |I  |I  |___|___
-___|___|I  |I  |I  |I  |___|___
-___|___|___|I  |I  |___|___|___
-___|___|___|E  |E  |___|___|___
-___|___|___|E  |E  |___|___|___
+___|___|IO |E  |E  |IO |___|___
+___|___|IO |E  |E  |IO |___|___
+___|___|IO |E  |E  |IO |___|___
 ___|___|___|E  |E  |___|___|___
 ___|___|___|E  |E  |___|___|___

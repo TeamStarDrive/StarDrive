@@ -4,13 +4,10 @@ VisibleName=Draugar Asteroid Base
 Role=platform
 Style=Draugar
 Size=27,28
-MeshOffset=-8,-16
+MeshOffset=0,0
 IconPath=ShipIcons/terran_platform
 ModelPath=Model/Asteroids/asteroid3
 SelectIcon=17b
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___

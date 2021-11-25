@@ -8,9 +8,6 @@ MeshOffset=0,0
 IconPath=ShipIcons/xeno gunship
 ModelPath=Model/Ships/Remnant/XenoFighterGreen/ship09a
 SelectIcon=09a
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=257,285,0,42
 Slots
