@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+ <Version>2</Version>
+  <UID>Plasma Ordnance</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>5400</Cost>
+  <RootNode>0</RootNode>
+  <Name>Plasma Ordnance</Name>
+  <NameIndex>2001</NameIndex>
+  <DescriptionIndex>2002</DescriptionIndex>
+  <LongDescription>See localization file</LongDescription>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Ordnance Effectiveness</Name>
+      <BonusType>Weapon_Damage</BonusType>
+      <Tags>
+        <string>Kinetic</string>
+      </Tags>
+      <Tags>
+        <string>Missile</string>
+      </Tags>
+      <Tags>
+        <string>Torpedo</string>
+      </Tags>
+      <Bonus>.25</Bonus>
+      <BonusIndex>2003</BonusIndex>
+    </UnlockedBonus>
+    <UnlockedBonus>
+      <Name>Ordnance Effectiveness</Name>
+      <BonusType>Weapon_ExplosionRadius</BonusType>
+      <Tags>
+        <string>Kinetic</string>
+      </Tags>
+      <Tags>
+        <string>Missile</string>
+      </Tags>
+      <Tags>
+        <string>Torpedo</string>
+      </Tags>
+      <Bonus>.25</Bonus>
+      <BonusIndex>1999</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

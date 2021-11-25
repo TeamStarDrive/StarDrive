@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+ <Version>2</Version>
+  <UID>SustainedWarefare</UID>
+  <TechnologyType>ShipGeneral</TechnologyType>
+  <Cost>750</Cost>
+  <RootNode>0</RootNode>
+  <Name>SustainedWarefare</Name>
+  <NameIndex>17613</NameIndex>
+  <DescriptionIndex>2039</DescriptionIndex>
+  <LongDescription>For a fleet on extended deployment, running out of ammunition can be a major problem. Supply ships have therefore been an integral part of large fleet actions since the dawn of the naval age.</LongDescription>
+   <LeadsTo>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>MarineBarracks6x3</ModuleUID>
+    </UnlockedMod>
+        <UnlockedMod>
+      <ModuleUID>Sickbay</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>
