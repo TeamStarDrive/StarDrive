@@ -1,0 +1,40 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <UID>IonBeamTurret2x2</UID> 
+  <Version>2</Version>
+
+  <Cost>6</Cost>
+
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>Turret</ModuleType>
+  <Name>Ion Beam Turret</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/ionbeam_2x2</IconTexturePath>3
+
+
+  <NameIndex>972</NameIndex>
+  <DescriptionIndex>973</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>16</Mass>
+  <Health>2700</Health>
+  <HealthMax>2700</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>IonBeam</WeaponType>
+  <FieldOfFire>90</FieldOfFire>
+
+  <!-- Description -->
+  <Description>This turret-mounted Ion beam drains a moderate amount of power from the targeted ship, provided that its shields are down.</Description>
+  
+
+</ShipModule>

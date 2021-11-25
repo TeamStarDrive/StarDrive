@@ -1,0 +1,40 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <UID>SiphonBeamTurret2x2</UID> 
+  <Version>2</Version>
+
+  <Cost>14</Cost>
+
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>Turret</ModuleType>
+  <Name>Siphon Beam Turret</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/SiphonBeam2x2</IconTexturePath>3
+
+
+  <NameIndex>1054</NameIndex>
+  <DescriptionIndex>1055</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>16</Mass>
+  <Health>3120</Health>
+  <HealthMax>3120</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>SiphonBeam</WeaponType>
+  <FieldOfFire>90</FieldOfFire>
+
+  <!-- Description -->
+  <Description>This turret-mounted siphon beam is useful for depleting enemy energy shields to increase our own power stores.</Description>
+  
+
+</ShipModule>

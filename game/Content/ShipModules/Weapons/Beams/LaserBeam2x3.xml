@@ -1,0 +1,41 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+  <UID>LaserBeam2x3</UID> 
+  <Version>2</Version>
+
+  <Cost>17</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>1</TechLevel>
+
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>Heavy-mount Laser Beam</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/beamcannon_2x3</IconTexturePath>3
+
+
+  <NameIndex>17522</NameIndex>
+  <DescriptionIndex>17523</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>30</Mass>
+  <Health>3600</Health>
+  <HealthMax>3600</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>HeavyLaserBeam</WeaponType>
+  <FieldOfFire>45</FieldOfFire>
+ <AccuracyPercent>0.28</AccuracyPercent>
+  <!-- Description -->
+  <Description>This heavy laser beam has a fixed field of fire and is relatively inefficient.</Description>
+  
+
+</ShipModule>
