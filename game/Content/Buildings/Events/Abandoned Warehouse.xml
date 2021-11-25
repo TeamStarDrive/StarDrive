@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Abandoned Warehouse</Name>
+  <Maintenance>0</Maintenance>
+  <Description>What wonders or horrors are lurking inside this mysterious tomb? Find out by sending an away team (a ground troop) to investigate. </Description>
+  <EventTriggerUID>Discover Warehouse</EventTriggerUID>
+  <Cost>40</Cost>
+  <Icon>largewarehouse</Icon>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <ShortDescription>Abandoned Warehouse</ShortDescription>
+  <Scrappable>false</Scrappable>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>17959</NameTranslationIndex>
+  <DescriptionIndex>17960</DescriptionIndex>
+  <ShortDescriptionIndex>17960</ShortDescriptionIndex>
+  
+</Building>

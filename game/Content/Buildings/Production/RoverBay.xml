@@ -1,0 +1,16 @@
+﻿<Building>
+  <Name>Rover Bay</Name>
+  <Maintenance>.5</Maintenance>
+  <Description>Manned and automated rovers provide indispensible labor savings to fledgling colonies, increasing the production of the colony with a flat +1 production bonus. </Description>
+  <PlusFlatProductionAmount>1</PlusFlatProductionAmount>
+  <PlusProdPerRichness>0.5</PlusProdPerRichness>
+  <Cost>25</Cost>
+  <Icon>roverbay</Icon>
+  <ShortDescription>+1 production per turn</ShortDescription>
+
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>455</NameTranslationIndex>
+  <DescriptionIndex>456</DescriptionIndex>
+  <ShortDescriptionIndex>457</ShortDescriptionIndex>
+</Building>

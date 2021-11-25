@@ -1,0 +1,16 @@
+<Building>
+	<Name>System Defence Torpedo</Name>
+	<Description>System Defence Torpedo</Description>
+	<Cost>150</Cost>
+	<Maintenance>0.5</Maintenance>
+	<Icon>SDT</Icon>
+	<Strength>15</Strength>
+	<CombatStrength>15</CombatStrength>
+	<SoftAttack>70</SoftAttack>
+	<HardAttack>60</HardAttack>
+	<Weapon>System Defence Torpedo</Weapon>
+	<isWeapon>true</isWeapon>
+	<NameTranslationIndex>17712</NameTranslationIndex>
+	<DescriptionIndex>17713</DescriptionIndex>
+	<ShortDescriptionIndex>17425</ShortDescriptionIndex>
+</Building>

@@ -1,0 +1,15 @@
+﻿<Building>
+  <Name>Evaporative Wastepit</Name>
+  <Icon>Geothermal_spring</Icon>
+  <IsCommodity>true</IsCommodity>
+  <Strength>15</Strength>
+  <CannotBeBombed>true</CannotBeBombed>
+  <MaxFertilityOnBuild>-0.2</MaxFertilityOnBuild>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18103</NameTranslationIndex>
+  <DescriptionIndex>18104</DescriptionIndex>
+  <ShortDescriptionIndex>18105</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>

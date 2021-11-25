@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Colony Shield</Name>
+  <Description>This massive installation projects an incredibly large energy shield into the upper atmosphere of a planet and provides substantial protection against planetary bombardments. </Description>
+  <Cost>50</Cost>
+  <Maintenance>0.25</Maintenance>
+  <PlanetaryShieldStrengthAdded>300</PlanetaryShieldStrengthAdded>
+  <Icon>pshield_small</Icon>
+  <ShortDescription>Shields planet from bombardment</ShortDescription>
+  <Strength>5</Strength>
+  <CombatStrength>5</CombatStrength>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>2237</NameTranslationIndex>
+  <DescriptionIndex>2238</DescriptionIndex>
+  <ShortDescriptionIndex>2239</ShortDescriptionIndex>
+
+</Building>
