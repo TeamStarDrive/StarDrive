@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
  <Version>2</Version>
-  <UID>Ascension Schematics</UID>
-  <TechnologyType>General</TechnologyType>
-  <Cost>0</Cost>
+  <UID>InvasiveMining</UID>
+  <TechnologyType>Industry</TechnologyType>
+  <Cost>5500</Cost>
   <RootNode>0</RootNode>
-  <Name>Remnant Schematics</Name>
-  <NameIndex>2208</NameIndex>
-  <DescriptionIndex>2208</DescriptionIndex>
-  <LongDescription></LongDescription>
-  <LeadsTo />
+  <Name>Invasive Mining</Name>
+  <NameIndex>8075</NameIndex>
+  <DescriptionIndex>8076</DescriptionIndex>
+  <LongDescription>Industry World Development II</LongDescription>
+  <LeadsTo>
+  </LeadsTo>
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>
-      <Name>Ascension Array</Name>
+      <Name>Robotic Factory</Name>
     </UnlockedBuilding>
   </BuildingsUnlocked>
   <BonusUnlocked />

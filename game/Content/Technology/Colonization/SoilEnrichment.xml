@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+ <Version>2</Version>
+  <UID>SoilEnrichment</UID>
+  <TechnologyType>Colonization</TechnologyType>
+  <Cost>800</Cost>
+  <RootNode>0</RootNode>
+  <Name>Vertical Farming</Name>
+  <NameIndex>10041</NameIndex>
+  <DescriptionIndex>10042</DescriptionIndex>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Vertical Farming</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <HiddenFrom>
+    <RaceRequirements>
+      <RacialTrait>Cybernetic</RacialTrait>
+    </RaceRequirements>
+  </HiddenFrom>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Soil Enrichment Center</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>
