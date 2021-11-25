@@ -1,0 +1,39 @@
+﻿Version=1
+Name=Ralyeh Colonizer
+Hull=Ralyeh/Vessel S
+Role=colony
+Style=Ralyeh
+Size=4,10
+GridCenter=2,5
+DefaultAIState=DoNothing
+DefaultCombatState=Evade
+ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=Structure;ColonyModule;Maneuvering_Thruster_1x1;NuclearReactorSmall;Cockpit;PowerConduit;Engine;WarpEngine_1x1
+Modules=21
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+1,0;0
+2,0;0
+0,1;0
+1,1;1;2,3
+3,1;0
+0,2;0
+3,2;0
+0,4;2
+1,4;3
+2,4;3
+3,4;2
+1,5;4
+2,5;0
+1,6;3
+2,6;3
+1,7;5
+2,7;5
+1,8;6
+2,8;6
+1,9;7
+2,9;7

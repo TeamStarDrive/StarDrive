@@ -1,0 +1,28 @@
+﻿Version=1
+Name=Terran Assault Shuttle
+Hull=Terran/Shuttle
+Role=troop
+Style=Terran
+Size=4,4
+GridCenter=2,2
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=Structure;Cockpit;Maneuvering_Thruster_1x1;NuclearReactorSmall;Engine;WarpEngine_1x1
+Modules=10
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+1,0;0
+2,0;0
+1,1;0
+2,1;1
+0,2;2
+1,2;3
+2,2;3
+3,2;0
+1,3;4
+2,3;5
