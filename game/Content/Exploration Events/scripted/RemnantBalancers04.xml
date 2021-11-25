@@ -2,6 +2,7 @@
   <Name>Remnant Protocols</Name>
   <StoryStep>4</StoryStep>
   <Story>AncientBalancers</Story>
+  <Image>Encounters/1.png</Image>
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>

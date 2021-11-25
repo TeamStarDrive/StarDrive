@@ -2,20 +2,103 @@
   <Name>Discover Ancient Mine</Name>
   <PotentialOutcomes>
     <Outcome>
-      <Chance>100</Chance>
+      <Chance>20</Chance>
       <TitleText>It's infested!</TitleText>
       <DescriptionText>As your troops approach the mine entrance, they see clearly that this machinery, while ancient, is still in excellent shape. Unfortunately, a nest of Antlions has made its home here and your troops find themselves surrounded by foes very suddenly.</DescriptionText>
-      <ConfirmText>Kill them before they lay eggs!</ConfirmText>
-      <Image>Encounters/CrashedShip.png</Image>
       <RemoveTrigger>true</RemoveTrigger>
       <ReplaceWith>Nano Mine</ReplaceWith>
+      <Image>Encounters/1.png</Image>
       <TroopsToSpawn>
         <string>Antlion</string>
+          <string>Antlion</string>
+          <string>Antlion</string>
         <string>Antlion</string>
-        <string>Antlion</string>
-      </TroopsToSpawn>
+     </TroopsToSpawn>
+    <ConfirmText>It need's some cleaning.</ConfirmText>
     </Outcome>
-    
+
+    <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Its Operational!</TitleText>
+      <DescriptionText>As your troops approach the mine entrance, they see clearly that this machinery, while ancient, is still in excellent shape.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>Nano Mine</ReplaceWith>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Let's get to work!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Salvage operation</TitleText>
+      <DescriptionText>As your combat engineers try to salvage some of the ancient equipment they soon discover that the mine itself has suffered too much damage to be of any further use. The recovered items however will make a nice profit on the open market.</DescriptionText>
+      <MoneyGranted>750</MoneyGranted>      
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>Better than nothing.</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Salvage operation</TitleText>
+      <DescriptionText>As your combat engineers try to salvage some of the ancient equipment they soon discover that in the deepest parts of mine shaft there's some strange artifact.</DescriptionText>
+      <GrantArtifact>true</GrantArtifact>      
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Calling in a transport ship.</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>3</Chance>
+      <TitleText>A unique technology!</TitleText>
+      <DescriptionText>After Scouting the area, your troops find an entrance to a hidden cave and enter it. What they find is truly astonishing. It seems that someone was hiding a untested tech. Unfortunately, it seems that a small remnant fleet was drawn to this place as well. The ships are attacking immediately!</DescriptionText>
+      <UnlockTech>Ancient Ion Technology</UnlockTech>
+      <ReplaceWith>Nano Mine</ReplaceWith>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+          <string>Heavy Drone</string>
+          <string>Xeno Fighter</string>
+          <string>Xeno Fighter</string>
+          <string>Xeno Fighter</string>
+      </RemnantShipsToSpawn>       
+      <TroopsToSpawn>
+      </TroopsToSpawn>
+      <Image>Encounters/5.png</Image>       
+      <ConfirmText>Those will be useful for sure!</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>4</Chance>
+      <TitleText>A unique technology!</TitleText>
+      <DescriptionText>After Scouting the area, your troops find an entrance to a hidden cave and enter it. What they find is truly astonishing. It seems that someone was hiding a untested tech. Unfortunately, it seems that a pirate forces were lurking around as well, trying to extract the technology.</DescriptionText>
+      <UnlockTech>Ancient Repulsor</UnlockTech>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>Nano Mine</ReplaceWith>
+      <PirateShipsToSpawn>
+          <string>Draug-Mk2</string>
+          <string>Draug-Fighter-Mk2</string>
+          <string>Draug-Fighter-Mk2</string>
+          <string>Draug-Fighter-Mk2</string>
+          <string>Draug-Fighter-Mk2</string>
+          <string>Draug-Fighter-Mk2</string>
+      </PirateShipsToSpawn>       
+      <TroopsToSpawn>
+      </TroopsToSpawn>
+      <Image>Encounters/6.png</Image>       
+      <ConfirmText>Lets use it!</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Whoops</TitleText>
+      <DescriptionText>As your troops approach the mine entrance, they see clearly that this machinery, while ancient, is still in excellent shape. As they explore the mine further they accidentally trip the decrepit security system which sends out an alarm. Seems like a small fleet of pirates was hiding on this planet and they don't seems happy to see your forces.</DescriptionText> 
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>Nano Mine</ReplaceWith>
+      <PirateShipsToSpawn>
+        <string>Corsair</string>
+        <string>Corsair-Fighter</string>
+          <string>Corsair-Fighter</string>
+          <string>Corsair-Fighter</string>
+          <string>Corsair-Fighter</string>
+      </PirateShipsToSpawn>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>Damn Pirates!</ConfirmText>
+    </Outcome>
+
   </PotentialOutcomes>
-  
-</ExplorationEvent>
+ </ExplorationEvent>

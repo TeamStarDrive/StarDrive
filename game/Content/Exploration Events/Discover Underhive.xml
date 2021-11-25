@@ -1,0 +1,66 @@
+﻿<ExplorationEvent>
+  <Name>Underhive Explored</Name>
+  <PotentialOutcomes>
+   
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>Blue Screens</TitleText>
+      <DescriptionText>Your troops enter the Underhive and are quickly surrounded by an unknown gang. They ask if you can spare some time and if one of your engineers can take a look at their ships. You follow them to a warehouse and discover an entire fleet of inoperative captured ships.  \n \n Your engineers quickly discover the problems in the operating system and manage to fix all of their ships. In return, the gang gives you three of their ships for services rendered.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <FriendlyShipsToSpawn>
+        <string>Heavy Drone</string>
+        <string>Corsair</string>
+        <string>Draug-Fighter-Mk2</string>
+          <string>Draug-Fighter-Mk2</string>
+      </FriendlyShipsToSpawn>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>What a champs!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Smugglers</TitleText>
+      <DescriptionText>Your troops enter the Underhive and quickly make contact with a local group of smugglers. After hours of talking and negotiating, you will allow them to continue their smuggling operation, if they pay taxes on the profits they make.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>The Underhive Smugglers</ReplaceWith>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Higher-ups will be pleased!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Assassins</TitleText>
+      <DescriptionText>Your troops enter the Underhive and quickly make contact with a local group of assassins. You strike a deal with them which allow them to continue their work in the Underhive. In return they promise to provide help if the planet gets invaded.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>The Underhive Assassins</ReplaceWith>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>Ninja warriors!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Pit Slaves</TitleText>
+      <DescriptionText>Your troops enter the Underhive and start to look around. They notice a large underground factory. Machines buzzing and whirring, weapons and ammunition being manufactured to supply Corsair ships and bases. As you venture deeper into the underground factory you meet the head of the factory. As it turns out he employs pit slaves as his laborers. Half flesh, half machine, created from slaves, prisoners and Opteris tech. They provide the best workforce he explains and if you let him do his work, he'll provide you with extra production and a small share of the profits. You agree to his terms.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>The Underhive Pit Slaves</ReplaceWith>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Slavery is good for economy?</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>30</Chance>
+      <TitleText>A dangerous escape</TitleText>
+      <DescriptionText>
+      As our troops explore the underhive, tensions escalate, things are kicking off. A visiting pirate faction are displeased about something, the underhive is denying them their protection money. This is bad news, it's clearly not going to end well. Your troops decide it is best to execute a swift retreat. As they are leaving a rebel faction is rising up, the pirates are pinned down, perhaps this underhive will not be submitting to the pirates anymore. Your troops escape just as an explosion is heard ripping through the underhive. Several ships manage to take off before the underhive collapses.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <PirateShipsToSpawn>
+        <string>Draug-Slaver-Mk3</string>
+        <string>Draug-Mk2</string>
+        <string>Support Drone</string>
+          <string>Support Drone</string>
+      </PirateShipsToSpawn>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>This isn't over!</ConfirmText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>
