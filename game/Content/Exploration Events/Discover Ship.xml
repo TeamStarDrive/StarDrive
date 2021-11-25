@@ -2,87 +2,124 @@
   <Name>Discover Crashed Ship</Name>
   <PotentialOutcomes>
     <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Unknown defenders</TitleText>
+      <DescriptionText>Before reaching the Crashed Ship, your troops were attacked by unknown enemies and had to fall back, the crashed ship takes off and warps out of the system.</DescriptionText>
+       <TroopsToSpawn>
+        <string>Skeleton</string>
+        <string>Skeleton</string>
+        <string>Skeleton</string>
+      </TroopsToSpawn>     
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>What is dead should stay dead!</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>6</Chance>
+      <TitleText>A unique technology and great peril!</TitleText>
+      <DescriptionText>After Scouting the area, your troops found a ship, inside on they found a data core with schematics of unknown technology. While removing the data core from the socket, they triggered ship security protocols alarming a dormant Remnant Inhibitor!</DescriptionText>
+      <MoneyGranted>500</MoneyGranted>
+      <UnlockTech>RemnantNuker</UnlockTech>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+          <string>Remnant Inhibitor</string>
+      </RemnantShipsToSpawn>       
+      <TroopsToSpawn>
+      </TroopsToSpawn>      
+      <Image>Encounters/2.png</Image> 
+      <ConfirmText>This could gone worse.</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>8</Chance>
+      <TitleText>A unique technology!</TitleText>
+      <DescriptionText>After Scouting the area, your troops found a ship, inside on they found a data core with schematics of unknown technology. While removing the data core from the socket, they triggered ship security protocols alarming dormant space defenders.</DescriptionText>
+      <MoneyGranted>500</MoneyGranted>
+      <UnlockTech>Remnant Studies</UnlockTech>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+          <string>Heavy Drone</string>
+          <string>Xeno Fighter</string>
+          <string>Xeno Fighter</string>
+          <string>Xeno Fighter</string>
+      </RemnantShipsToSpawn>       
+      <TroopsToSpawn>
+      </TroopsToSpawn>       
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>Lets study it!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Red Alert</TitleText>
+      <DescriptionText>While your troops are examining the wreckage, its computer systems come online and an alarm is tripped by one of your clumsy grunts. Your troops manage to deactivate the alarm and salvage the control system which is valuable on the black market, however a fleet of Remnant vessels jumps into orbit detecting your presence.</DescriptionText>
+      <MoneyGranted>500</MoneyGranted>
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Heavy Drone</string>
+        <string>Heavy Drone</string>
+      </RemnantShipsToSpawn>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Retreat!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
       <Chance>30</Chance>
       <TitleText>A sad wreck</TitleText>
       <DescriptionText>Your forces examine the wreckage of what is clearly a very, very ancient shipwreck. Time and nature have taken their toll on the wreckage. Even so, there are some curiosities among the wreckage that will have some value on the open market.</DescriptionText>
-      <ConfirmText>Eww, these could need some cleaning.</ConfirmText>
-      <MoneyGranted>150</MoneyGranted>
+      <MoneyGranted>250</MoneyGranted>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/CrashedShip.png</Image>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>Profit!</ConfirmText>
     </Outcome>
+
     <Outcome>
-      <Chance>10</Chance>
-      <TitleText>Awesome find</TitleText>
-      <DescriptionText>Here you have made a truly awesome discovery - what appeared from orbit to be a shipwreck was in fact not a wreck at all but a completely intact cruiser! What's more, it appears to be spaceworthy and your forces are taking it into orbit now.</DescriptionText>
-      <ConfirmText>Make it So.</ConfirmText>
-      <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/CrashedShip.png</Image>
-      <FriendlyShipsToSpawn>
-        <string>Ancient Torpedo Cruiser</string>
-      </FriendlyShipsToSpawn>
-    </Outcome>
-    <Outcome>
-      <Chance>30</Chance>
+      <Chance>15</Chance>
       <TitleText>Excellent find</TitleText>
-      <DescriptionText>Here you have made an excellent discovery - what appeared from orbit to be a shipwreck was in fact not a wreck at all but a completely intact alien light frigate! What's more, it appears to be spaceworthy and your forces are taking it into orbit now.</DescriptionText>
-      <ConfirmText>Doesn't look like anything to me.</ConfirmText>
-      <Image>Encounters/CrashedShip.png</Image>
+      <DescriptionText>Here you have made an excellent discovery - what appeared from orbit to be a shipwreck was in fact not a wreck at all, but a completely intact alien light frigate! Further examination reveals that it is space worthy and the cargo hold contains a mysterious artifact.</DescriptionText>
       <FriendlyShipsToSpawn>
-        <string>Heavy Drone</string>
+          <string>Heavy Drone</string>
+          <string>Heavy Drone</string>
+          <string>Support Drone</string>
       </FriendlyShipsToSpawn>
+      <GrantArtifact>true</GrantArtifact>
       <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/6.png</Image>
+      <ConfirmText>Oh, lets test those bad boys!</ConfirmText>
     </Outcome>
+
     <Outcome>
-      <Chance>10</Chance>
-      <TitleText>Mysteries</TitleText>
-      <DescriptionText>As your forces approach the downed vessel, they note that it is in surprisingly excellent shape. They are able to breach the hull through an airlock and they begin to explore the ship. They report finding an extremely odd piece of equipment in what they assume to be the engineering room. They take the equipment and leave. However, their presence has not gone unnoticed! Indigenous carnivores are attacking!</DescriptionText>
-      <ConfirmText>Game over man, Game over!</ConfirmText>
-      <UnlockTech>Ancient Shield Technology</UnlockTech>
+      <Chance>8</Chance>
+      <TitleText>Unstable</TitleText>
+      <DescriptionText>Your forces examine the wreckage of what is clearly a very, very ancient shipwreck. Time and nature have taken their toll on the wreckage. But even so, scans show its reactor is still functional, leaking more and more antimatter particles by the minute. And, what's that? Oh no. It's about to blow! Your forces quickly evacuate to a safe distance. Soon after, the reactor explodes, destroying the wreckage and severely damaging a large portion of the planet. Planet scans changed : -0.6 Fertility(temporally), -3 habitable tiles.</DescriptionText>
+      <NumTilesToMakeUnhabitable>3</NumTilesToMakeUnhabitable>
+      <ChangeBaseFertility>-0.6</ChangeBaseFertility>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/CrashedShip.png</Image>
-      <TroopsToSpawn>
-        <string>Antlion</string>
-        <string>Antlion</string>
-        <string>Antlion</string>
-        <string>Antlion</string>
-        <string>Antlion</string>
-      </TroopsToSpawn>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>What a disaster.</ConfirmText>
     </Outcome>
+
     <Outcome>
-      <Chance>10</Chance>
-      <TitleText>Mysteries</TitleText>
-      <DescriptionText>As your forces approach the downed vessel, they note that it is in surprisingly excellent shape. A weapon module extends out of the wreckage and they are able to detach it for further examination. They find nothing of interest in the rest of the ship. However, their presence has not gone unnoticed! Indigenous carnivores are attacking!</DescriptionText>
-      <ConfirmText>Whatever the hell this is...</ConfirmText>
-      <UnlockTech>Ancient Repulsor</UnlockTech>
+      <Chance>20</Chance>
+      <TitleText>Precious cargo</TitleText>
+      <DescriptionText>Your forces examine the wreckage of what is clearly a very, very ancient shipwreck. Time and nature have taken their toll on the wreckage. But even so, scans show its reactor is still functional and providing power to the storage unit, inside your troops found a very rare seed, that was being transported somewhere.</DescriptionText>
+      <ReplaceWith>WorldSeed</ReplaceWith>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/CrashedShip.png</Image>
-      <TroopsToSpawn>
-        <string>Antlion</string>
-        <string>Antlion</string>
-        <string>Antlion</string>
-        <string>Antlion</string>
-        <string>Antlion</string>
-      </TroopsToSpawn>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Don't eat it!</ConfirmText>
     </Outcome>
+
     <Outcome>
-      <Chance>10</Chance>
-      <TitleText>Mysteries</TitleText>
-      <DescriptionText>As your forces approach the downed vessel, they note that it is in surprisingly excellent shape. They are able to breach the hull through an airlock and they begin to explore the ship. They report finding an extremely odd piece of equipment in what appears to be a weapons station. They take the equipment and leave. However, their presence has not gone unnoticed! Indigenous carnivores are attacking!</DescriptionText>
-      <ConfirmText>They're coming outta the goddamn walls!</ConfirmText>
-      <UnlockTech>Ancient Ion Technology</UnlockTech>
+      <Chance>2</Chance>
+      <TitleText>Space car?</TitleText>
+      <DescriptionText>Your forces examine the wreckage of a small spacecraft that crashed into the planet a long time ago. From the description of the scans, it seems too small for a spaceship. Even more puzzling is that it has wheels. Could this have been an old automobile of some sort? No, those were never designed to be launched into space.</DescriptionText>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/CrashedShip.png</Image>
-      <TroopsToSpawn>
-        <string>Antlion</string>
-        <string>Antlion</string>
-        <string>Antlion</string>
-        <string>Antlion</string>
-        <string>Antlion</string>
-      </TroopsToSpawn>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>This one probably broke few speed limits.</ConfirmText>
     </Outcome>
-    
   </PotentialOutcomes>
-  
-  
-  
 </ExplorationEvent>

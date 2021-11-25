@@ -2,6 +2,7 @@
   <Name>Remnant Portal</Name>
   <StoryStep>3</StoryStep>
   <Story>AncientBalancers</Story>
+  <Image>Encounters/2.png</Image>
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>
