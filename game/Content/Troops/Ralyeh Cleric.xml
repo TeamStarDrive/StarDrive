@@ -1,7 +1,7 @@
 ﻿<Troop>
   <Name>Ralyeh Cleric</Name>
   <Description>Devoted warriors of an ancient and cruel God</Description>
-  <TexturePath>squid_idle0000</TexturePath>
+  <TexturePath>Rayleh/squid_idle0000</TexturePath>
   <Icon>squid</Icon>
 
 
@@ -13,8 +13,8 @@
   <idle_x_offset>32</idle_x_offset>
   <idle_y_offset>32</idle_y_offset>
   <attack_width>192</attack_width>
-  <idle_path>squid_idle00</idle_path>
-  <attack_path>squid_attack00</attack_path>
+  <idle_path>Rayleh/squid_idle00</idle_path>
+  <attack_path>Rayleh/squid_attack00</attack_path>
 
   <sound_attack>sd_ground_ralyeh_01</sound_attack>
   
