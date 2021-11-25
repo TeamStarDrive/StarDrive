@@ -41,10 +41,9 @@ The current goals of BlackBox - Hyperion are:
     * Advanced Options When cloning: [v] Recurse submodules _(Important!!!)_
     * Advanced Options When cloning: Checkout branch: develop  Clone Depth 0
 * Switch to `develop` branch, which is our main branch for latest ongoing development.
-* `Copy` the original StarDrive game folder to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
-* Launch Visual Studio, any missing DLL references should be in BlackBox/StarDrive directory.
+* Launch Visual Studio, any required DLL references should be in BlackBox/game directory.
 * Launch a full build (Build -> Build Solution) in `Release` configuration to produce the BlackBox StarDrive executable.
-    * If you get this build error: "Windows 10 SDK is not installed", then you need to go back to VS2019 installer and enable Desktop development with C++
+    * If you get this build error: "Windows 10 SDK is not installed", then you need to go back to Visual Studio installer and enable Desktop development with C++
     * If you get this build error: ".. Cannot open include file: 'corecrt.h': No such file or directory ..", then you are also missing Desktop development with C++
 
 * Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/download/) to enjoy enhanced refactoring capabilities.
