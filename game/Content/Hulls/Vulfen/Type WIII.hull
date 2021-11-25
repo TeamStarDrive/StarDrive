@@ -1,0 +1,36 @@
+﻿Version=1
+HullName=Vulfen/Type WIII
+VisibleName=Type WIII
+Role=freighter
+Style=Vulfen
+Size=8,21
+MeshOffset=0,0
+IconPath=ShipIcons/icon_TypeWIII
+ModelPath=Model/Ships/Vulfen/TypeWIII
+SelectIcon=13e
+#Starkit Scale 185
+#Model Author Vanilla modified by Fat Bastard
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=260,424,10,80
+Slots
+___|___|___|O  |O  |___|___|___
+___|___|___|IO |IO |___|___|___
+___|___|O  |I  |I  |O  |___|___
+___|___|O  |I  |I  |O  |___|___
+O  |I  |I  |I  |I  |I  |I  |O  
+O  |I  |I  |I  |I  |I  |I  |O  
+O  |I  |I  |I  |I  |I  |I  |O  
+___|___|O  |I  |I  |O  |___|___
+O  |I  |I  |I  |I  |I  |I  |O  
+O  |I  |I  |___|___|I  |I  |O  
+O  |I  |I  |I  |I  |I  |I  |O  
+___|___|O  |I  |IC |O  |___|___
+O  |I  |I  |I  |I  |I  |I  |O  
+O  |I  |I  |___|___|I  |I  |O  
+O  |I  |I  |I  |I  |I  |I  |O  
+___|___|O  |I  |I  |O  |___|___
+O  |I  |I  |I  |I  |I  |I  |O  
+O  |I  |I  |___|___|I  |I  |O  
+O  |I  |I  |IE |IE |I  |I  |O  
+___|___|E  |E  |E  |E  |___|___
+___|___|E  |E  |E  |E  |___|___

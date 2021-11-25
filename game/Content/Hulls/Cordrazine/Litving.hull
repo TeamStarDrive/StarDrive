@@ -4,13 +4,10 @@ VisibleName=Litving
 Role=corvette
 Style=Cordrazine
 Size=6,7
-MeshOffset=0,8
+MeshOffset=0,0
 IconPath=ShipIcons/Litving
 ModelPath=Model/Ships/Cordrazine/ship16b
 SelectIcon=16b
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=257,281,0,53
 Slots

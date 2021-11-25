@@ -3,21 +3,19 @@ HullName=Vulfen/Type XIII
 VisibleName=Type XIII
 Role=battleship
 Style=Vulfen
-Size=24,62
-MeshOffset=0,0
+Size=24,63
+MeshOffset=0,8
 IconPath=ShipIcons/typeXIII
 ModelPath=Model/Ships/Vulfen/TypeXIII
 SelectIcon=14d
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=200,632,0,133
-Thruster=296,632,0,133
+Thruster=207,635,0,133
+Thruster=296,635,0,133
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___
-___|___|___|___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___|___|___|___
+___|___|___|___|___|___|___|___|___|___|IO |IO |IO |IO |___|___|___|___|___|___|___|___|___|___
+___|___|___|___|___|___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|O  |O  |IO |IO |IO |IO |O  |O  |___|___|___|___|___|___|___|___
@@ -59,7 +57,7 @@ ___|___|___|___|O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |O  |
 ___|___|___|___|O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |___|___|___|___
 ___|___|___|___|O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |___|___|___|___
 ___|___|___|___|O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |___|___|___|___
-___|___|___|___|O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |___|___|___|___
+___|___|___|O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |___|___|___
 ___|___|___|O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |___|___|___
 ___|___|___|O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |___|___|___
 ___|___|___|O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |___|___|___
@@ -68,7 +66,7 @@ O  |O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |
 O  |O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  |O  
 O  |O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  |O  
 O  |O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  |O  
-O  |O  |O  |O  |O  |O  |O  |O  |E  |E  |E  |E  |E  |E  |E  |E  |O  |O  |O  |O  |O  |O  |O  |O  
+O  |O  |O  |O  |O  |O  |IO |IO |E  |E  |E  |E  |E  |E  |E  |E  |IO |IO |O  |O  |O  |O  |O  |O  
 ___|___|___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|O  |E  |E  |E  |E  |E  |E  |E  |E  |O  |___|___|___|___|___|___|___

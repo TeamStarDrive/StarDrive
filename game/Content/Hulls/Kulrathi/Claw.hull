@@ -8,13 +8,10 @@ MeshOffset=0,8
 IconPath=ShipIcons/claw
 ModelPath=Model/Ships/Kulrathi/ship11f
 SelectIcon=11f
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=200,328,0,40
-Thruster=248,328,0,72
-Thruster=312,328,0,40
+Thruster=254,326,0,72
+Thruster=317,330,0,40
+Thruster=194,321,0,40
 Slots
 ___|___|___|___|___|___|O  |___|___|___|___|O  |___|___|___|___|___|___
 ___|___|___|___|___|___|O  |O  |___|___|O  |O  |___|___|___|___|___|___
@@ -29,7 +26,7 @@ ___|___|___|___|O  |IO |IO |I  |I  |IC |I  |IO |IO |O  |___|___|___|___
 ___|___|___|___|O  |IO |I  |I  |I  |I  |I  |I  |IO |O  |___|___|___|___
 ___|___|___|O  |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |O  |___|___|___
 ___|___|O  |IO |IO |I  |I  |E  |E  |E  |E  |I  |I  |IO |IO |O  |___|___
-___|O  |IO |IO |IO |IO |O  |E  |E  |E  |E  |O  |IO |IO |IO |IO |O  |___
+___|O  |IO |IO |IO |I  |O  |E  |E  |E  |E  |O  |I  |IO |IO |IO |O  |___
 O  |IO |IO |IO |IO |O  |___|E  |E  |E  |E  |___|O  |IO |IO |IO |IO |O  
 ___|O  |IO |IO |O  |___|___|___|___|___|___|___|___|O  |IO |IO |O  |___
 ___|___|O  |O  |___|___|___|___|___|___|___|___|___|___|O  |O  |___|___
