@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Cost>15</Cost>
+	<!-- Tech Level -->
+	<TechLevel>5</TechLevel>
+	<TechBranch>Armor</TechBranch>
+	<!-- common traits shared by all ship modules -->
+	<XSIZE>2</XSIZE>
+	<YSIZE>2</YSIZE>
+	<ModuleType>Armor</ModuleType>
+	<Name>Crystal Armor Med</Name>
+	<Restrictions>O</Restrictions>
+	<UID>Crystal Armor Med</UID> 
+  <Version>2</Version>
+
+	<TexturePath>Textures/transparent</TexturePath>
+	<IconTexturePath>Modules/Crystal Armor Med</IconTexturePath>
+	<NameIndex>6577</NameIndex>
+	<DescriptionIndex>6583</DescriptionIndex>
+	<!-- Mass and Health -->
+	<Mass>32</Mass>
+	<Health>31680</Health>
+	<HealthMax>31680</HealthMax>
+	<RepairDifficulty>1.5</RepairDifficulty>
+    <DamageThreshold>180</DamageThreshold>
+    <!-- Armor resistance -->
+	<KineticResist>0</KineticResist>
+	<EnergyResist>0</EnergyResist>  
+	<BeamResist>0</BeamResist>
+	<ExplosiveResist>0</ExplosiveResist>	  
+	<HybridResist>0</HybridResist>
+	<!-- Power Drawn -->
+	<PowerDraw>0</PowerDraw>
+	<!-- Crew Reqs -->
+	<CrewRequired>0</CrewRequired>
+	<CrewSupplied>0</CrewSupplied>
+	<!-- for Weapons -->
+	<!-- Description -->
+	<Description>Through using Crystal materials, the mass of armor has been greatly decreased. </Description>
+    <APResist>2</APResist>	
+</ShipModule>

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Cost>21</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>2</TechLevel>
+
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>1</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>MissileLauncher</ModuleType>
+  <Name>MicroTorpedo</Name>
+  <Restrictions>O</Restrictions>
+  <UID>MicroTorpedo</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/MicroTorpedo</IconTexturePath>
+
+
+  <NameIndex>18248</NameIndex>
+  <DescriptionIndex>18250</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>36</Mass>
+  <Health>1725</Health>
+  <HealthMax>1725</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>3</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>MicroTorpedo</WeaponType>
+  <FieldOfFire>15</FieldOfFire>
+  <OrdinanceCapacity>45</OrdinanceCapacity>
+  
+  
+  <!-- Description -->
+  <Description>This long range anti-ship missile is as agile as it is strong, and can make short work of ships with poor point defense systems. </Description>
+  
+
+</ShipModule>

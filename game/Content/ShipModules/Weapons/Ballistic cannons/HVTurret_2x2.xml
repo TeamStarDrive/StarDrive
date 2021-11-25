@@ -1,0 +1,54 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+
+  <Cost>20</Cost>
+  <TechLevel>4</TechLevel>
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Turret</ModuleType>
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <Name>HVTurret</Name>
+  <Restrictions>O</Restrictions>
+  <UID>HVTurret_2x2</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/HVTurret_2x2</IconTexturePath>
+  <Mass>16</Mass>
+  <Health>3480</Health>
+  <HealthMax>3480</HealthMax>
+  <energyreq>0</energyreq>
+  <Description>Flak Turrets are mounted on omni-directional swivel platforms for a 90 degree field of fire.  They fire explosive shells with a moderate damaging radius, but the projectiles are somewhat slow and ill-suited for tracking swift targets.  Furthermore, this weapon requires ordnance to fire.
+  </Description>
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <PowerDraw>7</PowerDraw>
+  <NameIndex>17528</NameIndex>
+  <DescriptionIndex>17529</DescriptionIndex>
+
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+  <radius>0</radius>
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+  
+  <!-- for Weapons -->
+  <WeaponType>HVTurret_2x2</WeaponType>
+  <FieldOfFire>90</FieldOfFire>
+  <OrdinanceCapacity>33</OrdinanceCapacity>
+  <AccuracyPercent>0.2</AccuracyPercent>
+  <!-- for Engines -->
+  <thrust>0</thrust>
+  
+  
+
+</ShipModule>

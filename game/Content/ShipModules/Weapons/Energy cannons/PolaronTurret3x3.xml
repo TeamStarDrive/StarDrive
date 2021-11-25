@@ -1,0 +1,37 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TechLevel>4</TechLevel>
+  <Cost>56</Cost>
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Turret</ModuleType>
+  <XSIZE>3</XSIZE>
+  <YSIZE>3</YSIZE>
+  <Name>Twin Polaron Cannons</Name>
+  <Restrictions>O</Restrictions>
+  <UID>PolaronTurret3x3</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/PolaronTurret3x3</IconTexturePath>
+
+
+  <NameIndex>1030</NameIndex>
+  <DescriptionIndex>1031</DescriptionIndex>
+
+
+  <Mass>32</Mass>
+  <Health>7830</Health>
+  <HealthMax>7830</HealthMax>
+  <energyreq>0</energyreq>
+  <Description>Twin polaron cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire.</Description>
+
+  <PowerDraw>10</PowerDraw>
+  
+  <!-- for Weapons -->
+  <WeaponType>DualPolaronCannon</WeaponType>
+  <FieldOfFire>120</FieldOfFire>
+  <AccuracyPercent>0.2</AccuracyPercent>
+  
+  
+  
+
+</ShipModule>

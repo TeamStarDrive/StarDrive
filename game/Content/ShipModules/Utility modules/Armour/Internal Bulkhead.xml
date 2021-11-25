@@ -1,0 +1,45 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Cost>.5</Cost>
+  <!-- Tech Level -->
+  <TechLevel>0</TechLevel>
+  <TechBranch>Armor</TechBranch>
+  <IsBulkhead>true</IsBulkhead>
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>1</XSIZE>
+  <YSIZE>1</YSIZE>
+  <ModuleType>Armor</ModuleType>
+  <Name>Internal Bulkhead</Name>
+  <Restrictions>I</Restrictions>
+  <UID>Internal Bulkhead</UID> 
+  <Version>2</Version>
+
+  <TexturePath>Textures/transparent</TexturePath>
+  <IconTexturePath>Modules/Bulkhead_1x1</IconTexturePath>
+
+
+  <NameIndex>2166</NameIndex>
+  <DescriptionIndex>2167</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>4</Mass>
+  <Health>900</Health>
+  <HealthMax>900</HealthMax>
+  <ExplosiveResist>0.7</ExplosiveResist>
+  <!-- Power Drawn -->
+  <PowerDraw>0</PowerDraw>
+
+
+  <!-- Crew Reqs -->
+  <CrewRequired>0</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+
+  <!-- for Weapons -->
+
+
+  <!-- Description -->
+
+
+</ShipModule>

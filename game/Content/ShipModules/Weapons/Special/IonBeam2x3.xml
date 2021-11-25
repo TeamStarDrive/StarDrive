@@ -1,0 +1,39 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+  <UID>IonBeam2x3</UID> 
+  <Version>2</Version>
+
+  <Cost>8</Cost>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>Heavy-mount Ion Beam</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/ionbeamcannon_2x3</IconTexturePath>3
+
+
+  <NameIndex>970</NameIndex>
+  <DescriptionIndex>971</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>30</Mass>
+  <Health>4100</Health>
+  <HealthMax>4100</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>HeavyIonBeam</WeaponType>
+  <FieldOfFire>45</FieldOfFire>
+
+  <!-- Description -->
+  <Description>This Ion beam drains power from the targeted vessel, provided that their shields are down.</Description>
+  
+
+</ShipModule>
