@@ -1,0 +1,50 @@
+﻿Version=1
+Name=Hunter mk1-c
+Hull=Terran/Hunter
+Role=corvette
+Style=Terran
+Size=10,11
+GridCenter=5,5
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=SteelArmorMed;HVVulcanCannon;OrdnanceLockerSmall;Fighter Shield;SteelArmorSmall;Cockpit;PowerConduit;Maneuvering_Thruster_1x1;NuclearReactorMed;Engine;WarpEngine_1x1
+Modules=32
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+4,0;0;2,2
+4,2;1;1,2
+5,2;1;1,2
+4,4;2
+5,4;3
+3,5;4
+4,5;3
+5,5;5
+6,5;4
+2,6;4
+3,6;1;1,2
+4,6;6
+5,6;6
+6,6;1;1,2
+7,6;4
+0,7;2
+1,7;7
+2,7;2
+4,7;8;2,2
+7,7;2
+8,7;7
+9,7;2
+3,8;6
+6,8;6
+2,9;7
+3,9;2
+4,9;9
+5,9;9
+6,9;2
+7,9;7
+4,10;10
+5,10;10
