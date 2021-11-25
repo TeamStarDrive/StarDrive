@@ -2,36 +2,95 @@
   <Name>Discover Ancient Tomb</Name>
   <PotentialOutcomes>
     <Outcome>
-      <Chance>20</Chance>
-      <TitleText>Riches of the Ancients</TitleText>
-      <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. The artifacts and other curiosities found there will sell well on the open market. </DescriptionText>
-      <ConfirmText>Apparently reproduction was deemed racist.</ConfirmText>
-      <MoneyGranted>750</MoneyGranted>
+      <Chance>15</Chance>
+      <TitleText>Ancient curse</TitleText>
+      <DescriptionText>On the approach your troops notice that there is no sign of any life for miles. Everything is dead. Closer to the tomb there are signs of battle, aged weapons and armor littering the ground. As they are almost at the tomb, skeletons begin pouring out. The platoon immediately fire several rockets. The shots hit the intended target. The tomb explodes and collapses into itself, most of the skeletons are crushed under the debris. A couple have survived, your troops engage them.</DescriptionText>
+       <TroopsToSpawn>
+        <string>Skeleton</string>
+        <string>Skeleton</string>
+      </TroopsToSpawn>     
+      <SelectRandomPlanet>true</SelectRandomPlanet>
+      <SpawnBuildingOnPlanet>Mysterious Tomb</SpawnBuildingOnPlanet>
       <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>How are they even moving?</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>Watch your step</TitleText>
+      <DescriptionText>Your forces enter the mysterious tomb and quickly find evidence of Remnant activity. As they explore further they discover a still operational hangar bay. Your troops trip the automated security sensors and the entire Remnant fleet that was stationed here powers up and flies into orbit.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+        <string>Heavy Drone</string>
+        <string>Heavy Drone</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+      </RemnantShipsToSpawn>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Oops</ConfirmText>
     </Outcome>
     <Outcome>
       <Chance>20</Chance>
-      <TitleText>Secrets of the Ancients</TitleText>
-      <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. The complex is incredibly well preserved. Yet even more curious is the fact that this site seems to have been the target of an earlier archaeological expedition by a second alien race -- very likely starfarers based on the evidence found. \n \n The wealth of information presented here will pay dividends to our scientists for years to come. Your race gains a 3% bonus to all scientific efforts for the discovery.</DescriptionText>
-      <ConfirmText>Fascinating artwork.</ConfirmText>
-      <ScienceBonus>.03</ScienceBonus>
+      <TitleText>Tomb Raiders</TitleText>
+      <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. The artifacts and other curiosities found there will sell well on the open market.</DescriptionText>
+      <MoneyGranted>1200</MoneyGranted>
       <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>Where's our moral compass?</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Ancient customs</TitleText>
+      <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. The tomb has been littered with unfathomable amounts of degraded materials. It seems that the customs of said civilization were to bury their dead nobles with all their possessions. These may have been their treasures, but how can we resist using them now? They still have some value.</DescriptionText>
+      <ReplaceWith>Scrapyard</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Nothing is sacred anymore?</ConfirmText>
+    </Outcome>
+   
+   <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Ancient burial</TitleText>
+      <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. Inside the tomb, they find exotic minerals, and from what they can gather, they were formed from the corpses of an ancient race that had a very unique molecular physiology.</DescriptionText>
+      <ReplaceWith>Exotic Minerals</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>Dig it up.</ConfirmText>
     </Outcome>
     <Outcome>
-      <Chance>60</Chance>
-      <TitleText>Horrors of the Ancients</TitleText>
-      <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. Deep within the tomb's halls they discover a mysterious artifact encased in some sort of energy shield. They disable the shield and take the artifact. \n \n Upon returning to the planet's surface, they find themselves surrounded by the skeletons of the long dead, seemingly animated by the same energy field that had encased the artifact! </DescriptionText>
-      <ConfirmText>Death is only the beginning.</ConfirmText>
-      <GrantArtifact>true</GrantArtifact>
+      <Chance>8</Chance>
+      <TitleText>A unique technology!</TitleText>
+      <DescriptionText>After Scouting the area inside the tomb, your troops found an altar, with working holo-chip containing schematics of unknown technology. After removing it from altar the Tomb starts to shake and the room fills up with sand, alarming dormant ground and space defenders.</DescriptionText>
+      <MoneyGranted>200</MoneyGranted>
+      <UnlockTech>Remnant Shielding</UnlockTech>       
       <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+        <string>Heavy Drone</string>
+        <string>Heavy Drone</string>
+          <string>Support Drone</string>
+          <string>Support Drone</string>
+          <string>Xeno Fighter</string>
+      </RemnantShipsToSpawn>       
       <TroopsToSpawn>
         <string>Skeleton</string>
         <string>Skeleton</string>
-        <string>Skeleton</string>
-        <string>Skeleton</string>
       </TroopsToSpawn>
+      <Image>Encounters/6.png</Image>
+      <ConfirmText>We are trapped on this planet!</ConfirmText>       
     </Outcome>
-    
+    <Outcome>
+      <Chance>6</Chance>
+      <TitleText>Secrets of the Ancients</TitleText>
+      <DescriptionText>Your forces enter the mysterious tomb and find evidence of a long dead civilization. The complex is incredibly well preserved. Yet even more curious is the fact that this site seems to have been the target of an earlier archaeological expedition by a second alien race -- very likely starfarers based on the evidence found. \n \n The wealth of information presented here will pay dividends to our scientists for years to come. Your race gains a 3% bonus to all scientific efforts for the discovery.</DescriptionText>
+      <ScienceBonus>0.03</ScienceBonus>
+      <GrantArtifact>true</GrantArtifact>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>Higher-ups will be pleased!</ConfirmText>
+    </Outcome>
   </PotentialOutcomes>
-  
 </ExplorationEvent>
