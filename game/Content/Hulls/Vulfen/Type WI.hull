@@ -1,0 +1,22 @@
+﻿Version=1
+HullName=Vulfen/Type WI
+VisibleName=Type WI
+Role=freighter
+Style=Vulfen
+Size=6,7
+MeshOffset=0,0
+IconPath=ShipIcons/icon_TypeWI
+ModelPath=Model/Ships/Vulfen/TypeWI
+SelectIcon=13e
+#Starkit Scale 70
+#Model Author Vanilla modified by Fat Bastard
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=256,300,10,50
+Slots
+___|___|O  |O  |___|___
+___|___|I  |I  |___|___
+___|___|I  |I  |___|___
+O  |I  |I  |I  |I  |O  
+I  |I  |I  |IC |I  |I  
+O  |I  |E  |E  |I  |O  
+___|O  |E  |E  |O  |___

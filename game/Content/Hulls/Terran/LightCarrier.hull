@@ -4,13 +4,9 @@ VisibleName=Light Carrier
 Role=cruiser
 Style=Terran
 Size=20,36
-MeshOffset=0,-16
+MeshOffset=0,0
 IconPath=ShipIcons/10c
 ModelPath=Model/Ships/Terran/LightCarrierRed/LightCarrier
-SelectIcon=10c
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=216,504,0,110
 Thruster=296,504,0,110
@@ -48,6 +44,6 @@ O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O
 O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  
 O  |O  |IO |IO |IO |IO |E  |E  |E  |E  |E  |E  |E  |E  |IO |IO |IO |IO |O  |O  
 ___|O  |O  |O  |O  |O  |E  |E  |E  |E  |E  |E  |E  |E  |O  |O  |O  |O  |O  |___
-___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___|___
+___|___|___|___|___|O  |E  |E  |E  |E  |E  |E  |E  |E  |O  |___|___|___|___|___
+___|___|___|___|___|O  |O  |E  |E  |E  |E  |E  |E  |O  |O  |___|___|___|___|___
 ___|___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |___|___|___|___|___|___|___
-___|___|___|___|___|___|___|___|E  |E  |E  |E  |___|___|___|___|___|___|___|___
