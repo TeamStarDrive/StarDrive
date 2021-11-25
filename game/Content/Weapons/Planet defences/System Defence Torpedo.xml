@@ -1,0 +1,45 @@
+﻿<?xml version="1.0"?>
+<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Tag_Kinetic>false</Tag_Kinetic>
+  <Tag_Energy>false</Tag_Energy>
+  <Tag_Guided>true</Tag_Guided>
+  <Tag_Missile>true</Tag_Missile>
+  <Tag_Hybrid>false</Tag_Hybrid>
+  <Tag_Beam>false</Tag_Beam>
+  <Tag_Intercept>true</Tag_Intercept>
+  <Tag_Explosive>true</Tag_Explosive>
+  <Tag_Bomb>false</Tag_Bomb>
+  <Tag_Railgun>false</Tag_Railgun>
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  <Tag_Warp>false</Tag_Warp>
+  <Tag_Subspace>false</Tag_Subspace>
+  <Tag_Drone>false</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>false</Tag_Cannon>
+  <Excludes_Fighters>true</Excludes_Fighters>  
+  <Excludes_Corvettes>true</Excludes_Corvettes> 
+  <UID>System Defence Torpedo</UID>
+  <fireDelay>5</fireDelay>
+  <Range>40000</Range>
+  <PowerRequiredToFire>0</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>10</OrdinanceRequiredToFire>
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <fireCueName>sd_weapon_missile_heavy_01</fireCueName>
+  <dieCue>sd_weapon_rocket_explode_01</dieCue>
+  <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
+
+
+  <!-- Projectile Information -->
+  <DamageAmount>5500</DamageAmount>
+  <HitPoints>500</HitPoints>  
+  <ProjectileSpeed>1500</ProjectileSpeed>
+  <DamageRadius>100</DamageRadius>
+  <explodes>true</explodes>
+  <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
+  <ModelPath>torpedo</ModelPath>
+  <WeaponEffectType>RocketTrail</WeaponEffectType>
+  <WeaponType>Missile</WeaponType>
+  <ProjectileRadius>8</ProjectileRadius>
+  <Scale>2</Scale>
+  <CanCollideProjectiles>true</CanCollideProjectiles>
+</Weapon>
