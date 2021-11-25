@@ -1,0 +1,44 @@
+﻿<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Kinetic>true</Tag_Kinetic>
+  <Tag_Energy>false</Tag_Energy>
+  <Tag_Guided>false</Tag_Guided>
+  <Tag_Missile>false</Tag_Missile>
+  <Tag_Hybrid>false</Tag_Hybrid>
+  <Tag_Beam>false</Tag_Beam>
+  <Tag_Intercept>false</Tag_Intercept>
+  <Tag_Explosive>true</Tag_Explosive>
+  <Tag_Bomb>false</Tag_Bomb>
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  <Tag_Warp>false</Tag_Warp>
+  <Tag_Subspace>false</Tag_Subspace>
+  <Tag_Drone>false</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>true</Tag_Cannon>
+  
+  
+  <UID>HVTurret_2x2</UID>
+  <fireDelay>6</fireDelay>
+  <Range>10000</Range>
+  <PowerRequiredToFire>0</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>14</OrdinanceRequiredToFire>
+
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <fireCueName>sd_troop_attack_01</fireCueName>
+  <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
+  <!-- Projectile Information -->
+  <DamageAmount>769</DamageAmount>
+  <MuzzleFlash>Yes</MuzzleFlash>
+  <ProjectileSpeed>2750</ProjectileSpeed>
+  <SalvoCount>2</SalvoCount>
+  <SalvoTimer>0.2</SalvoTimer>
+  <explodes>true</explodes>
+  <DamageRadius>24</DamageRadius>
+  
+
+  <Scale>0.9</Scale>
+
+  <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
+  <ModelPath>projTear</ModelPath>
+  <WeaponType>Ballistic Cannon</WeaponType>
+</Weapon>
