@@ -101,14 +101,18 @@ namespace UnitTests
         {
             AppDomain.CurrentDomain.ProcessExit += (sender, e) => Cleanup();
             
-            Directory.SetCurrentDirectory("../../../stardrive");
+            Directory.SetCurrentDirectory("../../../game");
             StarDriveAbsolutePath = Directory.GetCurrentDirectory();
             ResourceManager.InitContentDir();
             try
             {
-                var xna2 = Assembly.LoadFile(
+                var xnaFramework = Assembly.LoadFile(
                     $"{StarDriveAbsolutePath}\\Microsoft.Xna.Framework.dll");
-                Console.WriteLine($"XNA Path: {xna2.Location}");
+                Console.WriteLine($"XNAFramework Path: {xnaFramework.Location}");
+
+                var xnAnimation = Assembly.LoadFile(
+                    $"{StarDriveAbsolutePath}\\XNAnimation.dll");
+                Console.WriteLine($"XNAnimation Path: {xnAnimation.Location}");
             }
             catch (FileNotFoundException e)
             {
