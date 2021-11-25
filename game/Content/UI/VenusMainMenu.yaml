@@ -1,0 +1,250 @@
+﻿# StarDrive - MainMenu UI layout
+# Created 2018.02.06 by RedFox
+#
+# You can add or remove elements here while the game is running
+# to view changes in real time.
+# Some ID-s have hardcoded default behaviours like the buttons
+#
+Name: main_menu
+
+# Pos and Size attributes are defined in this order:
+# 
+#  AbsPos: [800,400]   # absolute position in VIRTUAL COORDINATES, defined by `VirtualSize` attribute
+#                      # RESOLUTION=VirtualSize;   then [800,400] is equal to X=800px Y=400px
+#                      # RESOLUTION=2*VirtualSize; then [800,400] is equal to X=1600px Y=800px
+#
+#  AbsSize: [400,400]  # absolute size in VIRTUAL COORDINATES, defined by `VirtualSize` attribute
+#                      # RESOLUTION=VirtualSize;   then [400,200] is equal to width=400px height=200px
+#                      # RESOLUTION=2*VirtualSize; then [400,200] is equal to width=800px height=400px
+#                      # AbsSize=[0,0] means auto-detect virtual size from texture size
+#                      # AbsSize=[0,200] means auto-detect Width only
+#                      # AbsSize=[100,0] means auto-detect Height only
+#
+#  LocalPos: [20,10]   # local position relative to parent, in VIRTUAL coordinates, can be modified by `ParentAlign`, `LocalAxis`, `AxisAlign`
+#                      # LocalPos=[20,10], Parent.Pos=[200,100]; then Pos=[220,110]
+#
+#  RelPos:  [0.2,0.1]  # relative position on the parent, in relative coordinate range [0.0, 1.0]
+#                      # default formula: Pos = Parent.Pos + Parent.Size * RelPos
+#                      # [0.5, 0.5] means center of Parent, if ParentAlign=TopLeft (default)
+#
+#  RelSize: [0.5,0.5]  # relative size on the parent, in relative coordinate range [0.0, 1.0]
+#                      # if there's no Parent, RESOLUTION size is used instead
+#                      # [0.5, 0.5] means half the width and height of Parent
+#                      # [0,0] is invalid
+#                      # [0, 0.5] means auto-detect Width, Height is half the height of Parent
+#
+# NOTE: default position is RelPos [0.0, 0.0]
+# NOTE: default size is AbsSize [0, 0]
+
+# attribute `Animation`:
+#   NOTE: Animations are hardcoded into a timeline 
+#     | --- StartDelay ---- | FadeInTime | Duration-FadeInTime-FadeOutTime | FadeOutTime |  --------- | loop time <-- |
+#   - StartDelay: Initial delay before main animation sequence starts
+#   - Duration: Duration of the whole fadeIn/stay/fadeOut main animation sequence
+#   - LoopTime: If > 0, then restart with time=0 after LoopTime seconds
+#   - FadeInTime: Duration of main animation sequence fadeIn period
+#   - FadeOutTime: Duration of main animation sequence fadeOut period
+# Animation:
+#   Params: [StartDelay(0), Duration(1), LoopTime(0), FadeInTime(0.25), FadeOutTime(0.25)]
+#   Pattern: None | Sine | Cosine
+#   MinColor: [R,G,B,A]
+#   MaxColor: [R,G,B,A]
+#   Alpha: [MinAlpha,MaxAlpha]
+#   CenterScale: [MinScale,MaxScale]  # !!! Always scales from element CENTER
+#   StartSize: [X,Y]
+#   EndSize: [X,Y]
+#   StartPos: [X,Y]
+#   EndPos: [X,Y]
+#
+
+# attribute `Animations`:
+#   Allows for MULTIPLE animations for a single UI element
+# Animations:
+#   - Animation:
+#     Params: [0, 2, 2, 0.5, 0.5] # delay, duration, end-time, fadein, fadeout
+#     MinColor: [0.20,0.20,0.20,0.5] # vary the color from A to B
+#     MaxColor: [0.45,0.45,0.45,1.0]
+#   - Animation:
+#     Params: [0, 4, 4, 1, 1] # delay, duration, end-time, fadein, fadeout
+#     CenterScale: [0.8,1.0]
+#
+
+
+# virtual size sets up the entire screen coordinate system
+# these coordinates will be translated into actual screen coordinates automatically
+# even if the game is running at 2560x1440 or 1280x720, all coordinates in this file
+# are defined by this. Different aspect ratios get automatically repositioned.
+VirtualSize: [1920,1080]
+
+Elements:
+  - Panel:
+    Name: background
+    Texture: MMenu/new_background.dds # Textures/MMenu/xxxx.dds
+    Color: [1.0,1.0,1.0] # default color
+    AbsPos: [0, 0]
+    RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
+    # Draw depth controls when the UI element is being drawn:
+    # Foreground   -- draw 2D on top of 3D objects -- default value
+    # Background   -- draw 2D behind 3D objects
+    # ForeAdditive -- Foreground + Additive alpha blend
+    # BackAdditive -- Background + Additive alpha blend
+    DrawDepth: Background
+    # Align our Pos and Axis to TopLeft (default)
+    # Possible Values: TopLeft, TopCenter, TopRight, CenterLeft, Center, 
+    #                  CenterRight, BottomLeft, BottomCenter, BottomRight
+    # Examples: Center will perfectly center to parent
+    #           BottomLeft will completely align to bottom left corner
+    AxisAlign: TopLeft
+
+  - Panel:
+    Name: planet
+    Texture: MMenu/new_planet.dds
+    RelPos: [0, 0]
+    RelSize: [0, 0.8] # set relative height, auto-aspect width
+    AxisAlign: BottomCenter # Align our Pos and Axis
+    DrawDepth: Background
+    Children:
+      - Panel:
+        Name: citylights
+        Texture: MMenu/citylights3.dds
+        RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
+        Color: [0.45,0.45,0.45,1.0]
+        AxisAlign: BottomCenter
+        DrawDepth: BackAdditive
+        # animation pattern is idential to planet_flare
+        # however, the min-max color is reversed so that:
+        # if sun is flaring, lights are dim, when sun is dim, lights are bright
+        Animation:
+          Params: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
+          MinColor: [0.60,0.60,0.60,1.0] # vary the color from A to B
+          MaxColor: [0.45,0.45,0.45,1.0]
+      - Panel:
+        Name: planet_flare
+        Texture: MMenu/new_flare.dds
+        RelSize: [0.62, 0] # auto-detect height from aspect ratio
+        RelPos: [0, -0.21]
+        Visible: true
+        AxisAlign: TopCenter
+        DrawDepth: BackAdditive
+        Animation:
+          Params: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
+          MinColor: [0.85,0.85,0.85,1.0] # vary the color from min
+          MaxColor: [1.0,1.0,1.0,1.0]    # to max
+      - Panel:
+        Name: optical_sun_flare
+        Texture: MMenu/optical_flare.dds
+        RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
+        RelPos: [0.01, -0.06]
+        Visible: true
+        AxisAlign: Center
+        DrawDepth: BackAdditive
+        Animation:
+          Params: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
+          MinColor: [0.6,0.6,0.6,1.0] # vary the color from min
+          MaxColor: [1.0,1.0,1.0,1.0] # to max
+
+  - Panel:
+    Name: stardrive_animated_logo
+    RelSize: [0.3, 0] # auto-detect height from aspect ratio
+    LocalPos: [-60, 60]
+    AxisAlign: TopRight
+    DrawDepth: Foreground
+    SpriteAnim:
+      Path: MMenu/stardrive_logo
+      Delay: 0
+      Duration: 3
+      FreezeAtLastFrame: true
+    Children:
+      - Panel:
+        Name: blacbox_animated_logo
+        RelSize: [0.7, 0] # auto-detect height from aspect ratio
+        RelPos: [0.03, 0.45]
+        Color: [0.8,0.8,0.8,0.0] # start with alpha 0.0
+        AxisAlign: Center
+        DrawDepth: Foreground
+        SpriteAnim:
+          Path: MMenu/bb_logo_animated
+          Delay: 0
+          Duration: 7
+          StartAt: 0
+          Looping: true
+          FreezeAtLastFrame: false
+          VisibleBeforeDelay: true
+        Animation:
+          Params: [1, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
+          Alpha: [0, 1]
+        Children:
+          - Panel:
+            Name: blackbox_subver
+            Texture: MMenu/subver.png
+            RelSize: [0, 0.75]
+            RelPos: [0.015, -0.2]
+            ParentAlign: BottomLeft
+            DrawDepth: Foreground
+            Animation:
+              Params: [3, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
+              Alpha: [0, 1]
+
+  - Panel:
+    Name: vignette
+    Texture: MMenu/vignette.dds
+    RelSize: [1, 1] # fill screen
+    DrawDepth: Foreground # on top of everything
+
+  - List:
+    Name: buttons
+    LocalPos: [-100, 150]
+    AbsSize: [200, 600]
+    ParentAlign: CenterRight
+    LocalAxis: CenterRight
+    Padding: [5,15]
+    # Fill -- fill to width of the list
+    # Clip -- clip elements to width of the list
+    # ResizeList -- auto resize list itself
+    ListLayout: ResizeList
+    Children:
+      - Button:
+          Name: new_game
+          AbsSize: [200, 0] # aspect fill width
+          Title: "{1}" # "New Game"
+          ClickSfx: sd_ui_tactical_pause
+      - Button:
+          Name: tutorials
+          Title: "{3}" # "Tutorials"
+          AbsSize: [200, 0] # aspect fill width
+          ClickSfx: sd_ui_tactical_pause
+      - Button:
+          Name: load_game
+          Title: "{2}" # "Load Game"
+          AbsSize: [200, 0] # aspect fill width
+          ClickSfx: sd_ui_tactical_pause
+      - Button:
+          Name: options
+          Title: "{4}" # "Options"
+          AbsSize: [200, 0] # aspect fill width
+          ClickSfx: sd_ui_tactical_pause
+      - Button:
+          Name: mods
+          Title: "Mods"
+          AbsSize: [200, 0] # aspect fill width
+          ClickSfx: sd_ui_tactical_pause
+      - Button:
+          Name: sandbox
+          Title: "Dev Sandbox"
+          AbsSize: [200, 0] # aspect fill width
+          ClickSfx: sd_ui_tactical_pause
+      - Button:
+          Name: info
+          Title: "BlackBox Info"
+          AbsSize: [200, 0] # aspect fill width
+          ClickSfx: sd_ui_tactical_pause
+      - Button:
+          Name: version
+          Title: "Version Check"
+          AbsSize: [200, 0] # aspect fill width
+          ClickSfx: sd_ui_tactical_pause
+      - Button:
+          Name: exit
+          Title: "{5}" # "Exit"
+          AbsSize: [200, 0] # aspect fill width
+          ClickSfx: sd_ui_tactical_pause
