@@ -1,0 +1,48 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+  <DroneModule>false</DroneModule>
+  <CruiserModule>false</CruiserModule>
+  <BattleshipModule>false</BattleshipModule>
+  <CapitalModule>false</CapitalModule>
+  <FreighterModule>false</FreighterModule>
+  <StationModule>false</StationModule>
+  
+  
+  <UID>Beam1x2</UID> 
+  <Version>2</Version>
+
+  <Cost>7</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>0</TechLevel>
+
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>1</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>Prototype beam weapon</Name>
+  <Restrictions>IO</Restrictions>
+
+  <IconTexturePath>Modules/beam_1x2</IconTexturePath>3
+
+  <NameIndex>17595</NameIndex>
+  <DescriptionIndex>17596</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>6</Mass>
+  <Health>1200</Health>
+  <HealthMax>1200</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>3</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>Beam1x2</WeaponType>
+  <FieldOfFire>45</FieldOfFire>
+
+  <!-- Description -->
+  <Description>This heavy laser beam has a fixed field of fire and is relatively inefficient.</Description>
+  <AccuracyPercent>1</AccuracyPercent>
+
+</ShipModule>
