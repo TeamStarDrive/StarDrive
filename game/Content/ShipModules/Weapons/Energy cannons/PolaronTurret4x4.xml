@@ -1,0 +1,43 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  
+  <Cost>126</Cost>
+  <TechLevel>5</TechLevel>
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Turret</ModuleType>
+  <XSIZE>4</XSIZE>
+  <YSIZE>4</YSIZE>
+  <Name>Massive Polaron turret</Name>
+  <Restrictions>O</Restrictions>
+  <UID>PolaronTurret4x4</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/PolaronTurret4x4</IconTexturePath>
+
+
+  <NameIndex>17539</NameIndex>
+  <DescriptionIndex>17538</DescriptionIndex>
+  <RepairDifficulty>4.5</RepairDifficulty>
+
+
+  <Mass>64</Mass>
+  <Health>14000</Health>
+  <HealthMax>14000</HealthMax>
+  <energyreq>0</energyreq>
+  <Description>Twin polaron cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire.</Description>
+
+  <PowerDraw>30</PowerDraw>
+  
+  <!-- for Weapons -->
+  <WeaponType>MassivePolaronCannon</WeaponType>
+  <FieldOfFire>180</FieldOfFire>
+  <AccuracyPercent>0.25</AccuracyPercent>
+  
+  
+  
+
+</ShipModule>

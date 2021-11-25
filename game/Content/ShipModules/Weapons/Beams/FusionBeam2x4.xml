@@ -1,0 +1,41 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+  <UID>FusionBeam2x4</UID> 
+  <Version>2</Version>
+
+  <Cost>33</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>2</TechLevel>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>4</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>Heavy-mount Fusion Beam</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/fusioncannon_2x4</IconTexturePath>3
+
+
+  <NameIndex>17526</NameIndex>
+  <DescriptionIndex>17527</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>40</Mass>
+  <Health>5570</Health>
+  <HealthMax>5570</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>HeavyFusionBeam</WeaponType>
+  <FieldOfFire>45</FieldOfFire>
+  <AccuracyPercent>0.28</AccuracyPercent>
+  <!-- Description -->
+  <Description>This heavy-mount fusion beam has a fixed spinal facing and a 45 degree field of fire.</Description>
+  
+
+</ShipModule>
