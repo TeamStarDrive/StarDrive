@@ -5,11 +5,14 @@
   <DiplomacyDialogPath>Ralyeh</DiplomacyDialogPath>
   <StartingShip>Ralyeh Interceptor</StartingShip>
   <StartingScout>Inquisitor Scout</StartingScout>
-  <PrototypeShip>Ralyeh Prototype L</PrototypeShip>
-  <DefaultSmallTransport>Vessel S</DefaultSmallTransport>
+  <PrototypeShip>Ralyeh-Prototype</PrototypeShip>
+  <DefaultSmallTransport>Ralyeh Transport S</DefaultSmallTransport>
   <DefaultTroopShip>Ralyeh Troop</DefaultTroopShip>
   <DefaultColonyShip>Ralyeh Colonizer</DefaultColonyShip>
   <DefaultConstructor>Ralyeh Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Ralyeh Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Ralyeh-Supply</DefaultSupplyShuttle>  
+  <SpacePortModel>Model/Ships/Ralyeh/Ralyeh_Station</SpacePortModel>
   
   <RebelName>Ralyeh Apostates</RebelName>
   <RebelSing>Apostate</RebelSing>
@@ -69,17 +72,18 @@
     <ResearchMod>.35</ResearchMod>
     <Mercantile>0</Mercantile>
     <Miners>0</Miners>
-    <ProductionMod>0</ProductionMod>
+    <ProductionMod>-0.15</ProductionMod>
     <MaintMod>0</MaintMod>
     <TaxMod>0</TaxMod>
     <ShipCostMod>0</ShipCostMod>
-    <ModHpModifier>0</ModHpModifier>
+    <ModHpModifier>0.25</ModHpModifier>
     <SmallSize>0</SmallSize>
     <HugeSize>0</HugeSize>
     <GroundCombatModifier>0</GroundCombatModifier>
     <RepairRateMod>0</RepairRateMod>
     <Cybernetic>0</Cybernetic>
     <Spiritual>.5</Spiritual>
+    <PassengerBonus>3</PassengerBonus>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>
