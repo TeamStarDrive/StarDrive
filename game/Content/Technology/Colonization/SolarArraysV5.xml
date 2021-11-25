@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+ <Version>2</Version>
+  <UID>SolarArraysV5</UID>
+  <TechnologyType>Colonization</TechnologyType>
+  <Cost>21000</Cost>
+  <RootNode>0</RootNode>
+  <Name>SolarArraysV5</Name>
+  <NameIndex>18087</NameIndex>
+  <DescriptionIndex>18083</DescriptionIndex>
+  <LongDescription>Although steel armor is inexpensive, it is extremely heavy and reduces the maneuverability of our ships significantly. By focusing our research efforts on developing new construction materials, we can reduce the mass of all of our ship components across the board.</LongDescription>
+  <LeadsTo>
+  </LeadsTo>
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Consumption Bonus</Name>
+      <Bonus>0.1</Bonus>
+      <BonusIndex>18082</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <HiddenFrom>
+    <RaceRequirements>
+      <RacialTrait>NonCybernetic</RacialTrait>
+    </RaceRequirements>
+  </HiddenFrom>  
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>
