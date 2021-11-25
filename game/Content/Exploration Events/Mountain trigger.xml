@@ -1,0 +1,93 @@
+<ExplorationEvent>
+  <Name>Mountain trigger</Name>
+  <PotentialOutcomes>
+
+    <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Unknown defenders</TitleText>
+      <DescriptionText>Before reaching the power source, your troops were attacked by unknown enemies and had to fall back. From far away they saw something taking off from the peak of the mountain.</DescriptionText>
+     <RemnantShipsToSpawn>
+          <string>Ancient Frigate</string>
+      </RemnantShipsToSpawn>
+       <TroopsToSpawn>
+        <string>Skeleton</string>
+        <string>Skeleton</string>
+      </TroopsToSpawn>     
+      <ReplaceWith>Mountain</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>Was that a UFO?!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>35</Chance>
+      <TitleText>A sad wreck</TitleText>
+      <DescriptionText>Under the snow, your forces found the buried wreckage of what is clearly a very old ship. Its reactor was damaged, yet still barely working, its likely causing errors in our scans. The order was given to destroy it and proceed with scanning the rest of the planet. As it turns out, those snowy mountains were far larger than expected.</DescriptionText>
+       <ReplaceWith>Massive mountains</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Lets go back.</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>8</Chance>
+      <TitleText>Artifact</TitleText>
+      <DescriptionText>Your troops following the trail of the power signature were led to an ancient relic. Without any further delay, they retrieve it.</DescriptionText>
+      <ReplaceWith>Mountain</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <GrantArtifact>true</GrantArtifact>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>Now only to bring this back.</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Hidden hangar</TitleText>
+      <DescriptionText>Your troops following the trail of the power signature were led to an ancient hidden hangar. Inside, they found several ships in perfect condition ready for deployment.</DescriptionText>
+      <ReplaceWith>Mountain</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <FriendlyShipsToSpawn>
+          <string>Xeno Fighter</string>
+          <string>Xeno Fighter</string>
+          <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+      </FriendlyShipsToSpawn>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Alien fighters!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>22</Chance>
+      <TitleText>Hidden hangar</TitleText>
+      <DescriptionText>Your troops following the trail of the power signature were led to a hidden pirate hangar. Inside, they found a frigate class ship in perfect condition.</DescriptionText>
+      <ReplaceWith>Mountain</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <FriendlyShipsToSpawn>
+          <string>Corsair</string>
+      </FriendlyShipsToSpawn>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>Perfect!</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>9</Chance>
+      <TitleText>Recovered technology</TitleText>
+      <DescriptionText>Your forces found an old, completely split in half ship, partially buried under the snow. Its damaged reactor was leaking ionized liquid, obviously the source that caused the errors in our scans. While searching the wreck, our troops stumbled upon some tech schematics. Nothing else was worth salvaging, so the order was given to destroy the remains.</DescriptionText>
+      <UnlockTech>Remnant Shielding</UnlockTech>
+      <ReplaceWith>Mountain</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/6.png</Image>
+      <ConfirmText>A what?!</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Updated scans</TitleText>
+      <DescriptionText>While exploring several caves, your troops discovered that this mountain has a unique mineral composition, capable of reflecting most of the methods used in orbital scans. After a few tests on the site, it became clear that most of it, if not whole mountain is rich in exotic minerals. Planet scans changed : +0.8 Richness.</DescriptionText>
+      <ReplaceWith>Mountain</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>0.8</ChangeRichness>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>Mountain worth of treasure!</ConfirmText>
+    </Outcome>
+
+  </PotentialOutcomes>
+ </ExplorationEvent>

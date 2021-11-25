@@ -3,11 +3,45 @@
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>
-      <TitleText>Your forces have encountered a massive Stargate </TitleText>
-      <DescriptionText>Your assault team arrives at source of the Remnant control signal. What becomes clear immediately is that the building on the planet's surface is not broadcasting the signal. Instead, it seems to be a portal of some sort, massive in size and swirling with energy. The signal is coming from the other side of the portal. \n \n Who would place this portal here, and for what purpose? Where does it lead? Seeing only one way to find out, a scouting party is dispatched through the portal. Almost immediately, the ground begins to shake violently. Fissures open beneath your troops' feet. A frantic transmission is received from your scouting party. "The portal...it leads to a ship! *gunfire*...heavily armed...*explosion*...equipped with bio-weaponry and *static". The transmission ends. As it does so, a monstrous ship emerges from the ground. Buried for Eons, a sleeping menace has awoken. </DescriptionText>
+      <TitleText>Your forces have encountered a massive Stargate</TitleText>
+      <DescriptionText>Your assault team arrives at source of the Remnant control signal. What becomes clear immediately is that the building on the planet's surface is not broadcasting the signal. Instead, it seems to be a portal of some sort, massive in size and swirling with energy. The signal is coming from the other side of the portal. \n \n Who would place this portal here, and for what purpose? Where does it lead? Seeing only one way to find out, a scouting party is dispatched through the portal. Almost immediately, the ground begins to shake violently. Fissures open beneath your troops' feet. A frantic transmission is received from your scouting party. "The portal...it leads to a ship! *gunfire*...heavily armed...*explosion*...equipped with bio-weaponry and *static". The transmission ends. As it does so, a monstrous ship and it's supporting fleet emerges from the ground. Buried for Eons, a sleeping menace has awoken. </DescriptionText>
       <RemoveTrigger>true</RemoveTrigger>
+      <TroopsToSpawn>
+        <string>Remnant Defender</string>
+        <string>Remnant Defender</string>
+        <string>Remnant Defender</string>
+        <string>Remnant Defender</string>
+      </TroopsToSpawn>
       <RemnantShipsToSpawn>
         <string>Remnant Mothership</string>
+        <string>Remnant Slaver</string>
+        <string>Remnant Inhibitor</string>
+        <string>Ancient Torpedo Cruiser</string>
+        <string>Ancient Torpedo Cruiser</string>
+        <string>Ancient Carrier</string>
+        <string>Ancient Carrier</string>
+        <string>Ancient Torpedo Cruiser</string>
+        <string>Ancient Torpedo Cruiser</string>
+        <string>Ancient Carrier</string>
+        <string>Ancient Carrier</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Xeno Fighter</string>
+        <string>Disruptor Drone</string>
+        <string>Disruptor Drone</string>
+        <string>Heavy Drone</string>
+        <string>Heavy Drone</string>
+        <string>Slaver Drone</string>
+        <string>Slaver Drone</string>
+        <string>Support Drone</string>
+        <string>Support Drone</string>
+        <string>Disruptor Drone</string>
+        <string>Disruptor Drone</string>
+        <string>Heavy Drone</string>
+        <string>Heavy Drone</string>
       </RemnantShipsToSpawn>
     </Outcome>
     

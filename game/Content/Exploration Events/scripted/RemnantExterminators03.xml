@@ -2,6 +2,7 @@
   <Name>Remnant Portal</Name>
   <StoryStep>3</StoryStep>
   <Story>AncientExterminators</Story>
+  <Image>Encounters/1.png</Image>
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>

@@ -1,0 +1,108 @@
+<ExplorationEvent>
+  <Name>Obelisk</Name>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>Ambush</TitleText>
+      <DescriptionText>Before reaching the obelisk, your troops detected a Remnant fleet orbiting the planet that suddenly fires on the obelisk, destroying it completely.</DescriptionText>
+       <RemnantShipsToSpawn>
+          <string>Heavy Drone</string>
+          <string>Heavy Drone</string>
+          <string>Support Drone</string>
+          <string>Support Drone</string>
+          <string>Support Drone</string>
+          <string>Support Drone</string>
+      </RemnantShipsToSpawn>           
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>Not again...</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>3</Chance>
+      <TitleText>A virus</TitleText>
+      <DescriptionText>As your troops approach to scan the obelisk, all of their devices begin to malfunction. As it turns out, the obelisk was containing a computer virus of unknown origin which rapidly spreads throughout our networks. All research efforts are reduced by -4%!</DescriptionText>
+      <ScienceBonus>-0.04</ScienceBonus>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Higher-ups wont be pleased!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Wave</TitleText>
+      <DescriptionText>As your troops get closer to the obelisk, they notice that the terrain surrounding it's completely barren. While approaching slowly, they suddenly hear a high pitched tone coming directly from the obelisk, its volume becoming increasingly unbearable! Your troops decide retreat into the space shuttle and rise the shields. At some point, the obelisk disintegrates and sends forth a massively deadly wave of radiation, killing almost all forms of life on the planet. What have we done? Planet scans changed :-1.5 Fertility(temporally).</DescriptionText>
+      <ChangeBaseFertility>-1.5</ChangeBaseFertility>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>It doesn't look good...</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Neural Enhancer</TitleText>
+      <DescriptionText>As your troops get closer to the pillar, it begins shaking and eventually shatters into a pile of rubble, including various crystals containing abnormal properties.</DescriptionText>
+      <ReplaceWith>Neural Enhancer</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>We feel smarter!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+     <Chance>10</Chance>
+      <TitleText>Neural Dampener</TitleText>
+      <DescriptionText>As your troops get closer to the pillar, it begins shaking and eventually shatters into a pile of rubble, including various crystals containing abnormal properties.</DescriptionText>
+      <ReplaceWith>Neural Dampener</ReplaceWith>
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>We dumber?</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Fallout</TitleText>
+      <DescriptionText>As your troops approach the ancient obelisk, they hear a humming sound. The closer they get, the louder the noise becomes. Suddenly, a deafening sound is heard, and an extremely large and bright beam shoots into the sky, eventually breaking apart and falling back down to the planet, spreading deadly particles across the terrain. Planet scans changed : -0.4 Max Fertility, -5 habitable tiles.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <NumTilesToMakeUnhabitable>5</NumTilesToMakeUnhabitable>
+      <ChangeBaseMaxFertility>-0.4</ChangeBaseMaxFertility>
+      <Image>Encounters/6.png</Image>
+      <ConfirmText>Oh crap!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>22</Chance>
+         <TitleText>Life energy</TitleText>
+         <DescriptionText>As your troops approach the ancient obelisk, they hear a humming sound. The closer they get, the louder the noise becomes. Suddenly, a deafening sound is heard, and an extremely large and bright beam shoots into the sky, eventually breaking apart and slowly descending back down to the surface. Planet scans changed : +0.6 Fertility, +8 habitable tiles.</DescriptionText>
+         <RemoveTrigger>true</RemoveTrigger>
+         <NumTilesToMakeHabitable>8</NumTilesToMakeHabitable>
+         <ChangeBaseMaxFertility>0.6</ChangeBaseMaxFertility>
+         <Image>Encounters/5.png</Image>
+         <ConfirmText>Life sprinkler!</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>8</Chance>
+      <TitleText>A unique technology!</TitleText>
+      <DescriptionText>After scouting the area, your troops found the obelisk. Inside of it, they found a data core with schematics for an unknown technology. Upon removing the data core from its socket, the obelisk shakes and crumbles into a pile of rubble alerting remnants to your presence.</DescriptionText>
+      <MoneyGranted>500</MoneyGranted>
+      <UnlockTech>Armor Phasing</UnlockTech>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+          <string>Heavy Drone</string>
+          <string>Heavy Drone</string>          
+          <string>Xeno Fighter</string>
+          <string>Xeno Fighter</string>
+      </RemnantShipsToSpawn>       
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>We need to bring this schematic back!</ConfirmText>
+    </Outcome>
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>Artifact!</TitleText>
+      <DescriptionText>As your troops approach the ancient obelisk, they notice a strange object inserted into it. In an attempt to free the object, they decide to dismantle the obelisk.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+       <GrantArtifact>true</GrantArtifact>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>Lucky for us that we had an dismantling tool at hand!</ConfirmText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>
