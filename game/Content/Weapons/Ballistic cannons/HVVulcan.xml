@@ -1,0 +1,27 @@
+﻿<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Kinetic>true</Tag_Kinetic>
+  <Tag_Cannon>true</Tag_Cannon>
+  
+  <UID>HVVulcan</UID>
+  <fireDelay>5</fireDelay>
+  <Range>5000</Range>
+  <OrdinanceRequiredToFire>1</OrdinanceRequiredToFire>
+  <SalvoCount>4</SalvoCount>
+  <SalvoTimer>0.4</SalvoTimer>
+  
+  <fireCueName>sd_weapon_vulcan_alt02_01</fireCueName>  
+
+  <!-- Projectile Information -->
+  <DamageAmount>41</DamageAmount>
+  <!--<EffectVsArmor>2</EffectVsArmor> -->
+  <Scale>3</Scale>
+  <MuzzleFlash>Yes</MuzzleFlash>
+  <ProjectileSpeed>2250</ProjectileSpeed>
+  <ProjectileRadius>20</ProjectileRadius>
+  <explodes>false</explodes>
+  <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>
+  <ModelPath>projTear</ModelPath>
+  <WeaponType>Ballistic Cannon</WeaponType>
+  <FireCone>0</FireCone>
+</Weapon>
