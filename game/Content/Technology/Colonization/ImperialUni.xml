@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+ <Version>2</Version>
+  <UID>ImperialUni</UID>
+  <TechnologyType>Colonization</TechnologyType>
+  <Cost>3000</Cost>
+  <RootNode>0</RootNode>
+  <Name>ImperialUniversity</Name>
+  <NameIndex>10344</NameIndex>
+  <DescriptionIndex>10345</DescriptionIndex>
+  <LongDescription>Biospheres are large geodesic dome structures capable of supporting many colonists in an artificial environment. For a barren planet to house a large population, biospheres are absolutely necessary. Build biospheres on uninhabitable land to make that land habitable. </LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>ParticleAcceleration</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>ImperialUniversity</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

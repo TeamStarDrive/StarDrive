@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+ <Version>2</Version>
+  <UID>KineticWeapons</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>160</Cost>
+  <RootNode>0</RootNode>
+  <Name>PewPew</Name>
+  <NameIndex>952</NameIndex>
+  <DescriptionIndex>662</DescriptionIndex>
+  <LongDescription></LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>MagneticArtillery</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>AdvancedKineticTurrets</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>Railgun1x3</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>FlakTurret</ModuleUID>
+    </UnlockedMod> 
+    <!-- fork?
+    <UnlockedMod>
+      <ModuleUID>FlakTurret3x3</ModuleUID>
+    </UnlockedMod>
+-->
+  </ModulesUnlocked>
+
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked />
+  <UnlockedAtGameStart>
+    <RaceRequirements>
+      <RacialTrait>Militaristic</RacialTrait>
+    </RaceRequirements>
+  </UnlockedAtGameStart>
+  <Militaristic>true</Militaristic>
+</Technology>
