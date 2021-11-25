@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+ <Version>2</Version>
+  <UID>CruiserEngines</UID>
+  <TechnologyType>Engines</TechnologyType>
+  <Cost>600</Cost>
+  <RootNode>0</RootNode>
+  <Name>Engines2</Name>
+  <NameIndex>17547</NameIndex>
+  <DescriptionIndex>17550</DescriptionIndex>
+  <LongDescription>Cruisers are large, heavy ships that can serve in a number of offensive or defensive roles.  Cruisers are often seen as the command ship for fleets of smaller frigates or fighter class vessels, and are large enough to house multiple fighter bays for carrier roles.</LongDescription>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>CapitalEngines</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>CapEngines</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>WarpEngine_3x3</ModuleUID>
+    </UnlockedMod>
+        <UnlockedMod>
+      <ModuleUID>Maneuvering_Thruster_1x3</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked>
+    
+  </HullsUnlocked>
+</Technology>
