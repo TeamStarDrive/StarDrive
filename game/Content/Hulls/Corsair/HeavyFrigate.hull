@@ -4,13 +4,10 @@ VisibleName=Heavy Frigate
 Role=frigate
 Style=Corsair
 Size=14,21
-MeshOffset=0,8
+MeshOffset=0,0
 IconPath=ShipIcons/caravan
 ModelPath=Model/Ships/Terran/Caravan/Caravan
 SelectIcon=3
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=218,379,0,70
 Thruster=291,379,0,70

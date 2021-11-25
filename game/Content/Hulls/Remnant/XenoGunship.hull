@@ -1,16 +1,13 @@
 ﻿Version=1
 HullName=Remnant/XenoGunship
 VisibleName=Xeno Gunship
-Role=corvette
+Role=fighter
 Style=Remnant
 Size=8,8
 MeshOffset=0,0
 IconPath=ShipIcons/xeno gunship
 ModelPath=Model/Ships/Remnant/XenoGunboatGreen/ship09b
 SelectIcon=09b
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=242,316,0,27
 Thruster=253,315,0,27

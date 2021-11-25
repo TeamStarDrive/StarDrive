@@ -9,8 +9,6 @@ IconPath=ShipIcons/Inquisitor
 ModelPath=Model/Ships/Ralyeh/Ship17a
 SelectIcon=17a
 Animated=true
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|IO |IO |___

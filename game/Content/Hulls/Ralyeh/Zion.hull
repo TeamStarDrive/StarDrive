@@ -3,22 +3,21 @@ HullName=Ralyeh/Zion
 VisibleName=Zion
 Role=frigate
 Style=Ralyeh
-Size=8,9
+Size=8,11
 MeshOffset=0,8
 IconPath=ShipIcons/Zion
 ModelPath=Model/Ships/Ralyeh/Ship17c
-SelectIcon=17c
 Animated=true
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
-___|___|___|O  |O  |___|___|___
-___|___|O  |IO |IO |O  |___|___
+___|___|___|IO |IO |___|___|___
+___|___|IO |O  |O  |IO |___|___
+IO |IO |O  |IO |IO |O  |IO |IO 
 O  |O  |IO |I  |I  |IO |O  |O  
 O  |IO |I  |I  |I  |I  |IO |O  
 O  |IO |I  |I  |I  |I  |IO |O  
-O  |IO |IO |I  |IC |IO |IO |O  
-O  |___|O  |E  |E  |O  |___|O  
-___|___|O  |E  |E  |O  |___|___
-___|___|O  |E  |E  |O  |___|___
+O  |O  |IO |I  |IC |IO |O  |O  
+O  |IO |O  |E  |E  |O  |IO |O  
+___|IO |O  |E  |E  |O  |IO |___
+___|___|IO |E  |E  |IO |___|___
+___|___|IO |___|___|IO |___|___
