@@ -5,11 +5,14 @@
   <DiplomacyDialogPath>Cordrazine</DiplomacyDialogPath>
   <StartingShip>Ving Defender</StartingShip>
   <StartingScout>Vingscout</StartingScout>
-  <PrototypeShip>Cordrazine Prototype</PrototypeShip>
+  <PrototypeShip>Cordrazine-Prototype</PrototypeShip>
   <DefaultSmallTransport>Owlwok Freighter S</DefaultSmallTransport>
   <DefaultTroopShip>Cordrazine Troop</DefaultTroopShip>
   <DefaultColonyShip>Cordrazine Colonizer</DefaultColonyShip>
   <DefaultConstructor>Owlwok Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Cordrazine Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Cordrazine-Supply</DefaultSupplyShuttle>
+  <SpacePortModel>Model/Ships/Cordrazine/Cordrazine_Station</SpacePortModel>
   
   <RebelName>Free Owlwok Nation</RebelName>
   <RebelSing>Free Owlwok</RebelSing>
@@ -18,6 +21,13 @@
   <TroopDescriptionIndex>2091</TroopDescriptionIndex>
   <WarpStart>sd_warp_start_cordrazine_01</WarpStart>
   <WarpEnd>sd_warp_stop_cordrazine_01</WarpEnd>
+  <ThrustColor0R>255</ThrustColor0R>
+  <ThrustColor0G>215</ThrustColor0G>
+  <ThrustColor0B>0</ThrustColor0B>
+  <ThrustColor1R>34</ThrustColor1R>
+  <ThrustColor1G>139</ThrustColor1G>
+  <ThrustColor1B>34</ThrustColor1B>	  
+  
   <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
   <EnvTerran>1</EnvTerran>
   <EnvOceanic>1</EnvOceanic>
@@ -66,7 +76,7 @@
     <Miners>0</Miners>
     <ProductionMod>0</ProductionMod>
     <MaintMod>-.25</MaintMod>
-    <TaxMod>.25</TaxMod>
+    <TaxMod>0</TaxMod>
     <ShipCostMod>0</ShipCostMod>
     <ModHpModifier>.2</ModHpModifier>
     <SmallSize>0</SmallSize>
