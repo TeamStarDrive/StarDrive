@@ -1,0 +1,36 @@
+﻿Version=1
+Name=Terran Constructor
+Hull=Misc/HaulerSmall
+Role=construction
+Style=Misc
+Size=4,10
+GridCenter=2,4
+DefaultAIState=DoNothing
+DefaultCombatState=Evade
+ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=BasicCargoHold;ConstructionArray;NuclearReactorMed;Maneuvering_Thruster_1x1;Cockpit;PowerConduit;WarpEngine_1x1;Engine
+Modules=18
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+1,0;0
+2,0;0
+1,1;0
+2,1;0
+1,2;1;2,3
+0,4;0
+3,4;0
+0,5;0
+1,5;2;2,2
+3,5;0
+0,6;3
+3,6;3
+1,7;4
+2,7;5
+1,8;6
+2,8;6
+1,9;7
+2,9;7
