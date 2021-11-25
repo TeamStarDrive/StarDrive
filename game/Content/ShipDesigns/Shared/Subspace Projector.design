@@ -1,0 +1,44 @@
+﻿Version=1
+Name=Subspace Projector
+Hull=Platforms/Platform Base
+Role=ssp
+Style=Platforms
+Size=8,7
+GridCenter=4,4
+DefaultAIState=AwaitingOrders
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=Structure;Sensor1x2;NuclearReactorMed
+Modules=26
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+3,0;0
+4,0;0
+3,1;0
+4,1;0
+2,2;0
+3,2;1;2,1
+5,2;0
+2,3;0
+3,3;2;2,2
+5,3;0
+1,4;0
+2,4;0
+5,4;0
+6,4;0
+0,5;0
+1,5;0
+2,5;0
+3,5;0
+4,5;0
+5,5;0
+6,5;0
+7,5;0
+0,6;0
+1,6;0
+6,6;0
+7,6;0
