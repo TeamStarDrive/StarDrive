@@ -1,0 +1,14 @@
+﻿<Building>
+  <Name>Space Elevator</Name>
+  <Icon>SpaceElevator</Icon>
+  <IsCommodity>true</IsCommodity>
+  <Infrastructure>5</Infrastructure>
+  <Maintenance>0.8</Maintenance>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18097</NameTranslationIndex>
+  <DescriptionIndex>18099</DescriptionIndex>
+  <ShortDescriptionIndex>18099</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>

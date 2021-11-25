@@ -1,0 +1,18 @@
+﻿<Building>
+  <Name>The Underhive Pit Slaves</Name>
+  <Cost>20</Cost>
+  <Icon>underhive</Icon>
+  <IsCommodity>true</IsCommodity>
+  <MaxPopIncrease>400</MaxPopIncrease>
+  <PlusProdPerRichness>2</PlusProdPerRichness>
+  <CreditsPerColonist>-0.15</CreditsPerColonist>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>5400</NameTranslationIndex>
+  <DescriptionIndex>17964</DescriptionIndex>
+  <ShortDescriptionIndex>17962</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+  <UniqueInEmpire>true</UniqueInEmpire>
+  <BuildOnlyOnce>true</BuildOnlyOnce>
+  <!-- Tells the Solar System Generator that this is not to be placed randomly-->
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>

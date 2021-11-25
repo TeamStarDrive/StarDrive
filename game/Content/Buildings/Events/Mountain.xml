@@ -1,0 +1,16 @@
+﻿<Building>
+  <Name>Mountain</Name>
+  <Icon>mountain</Icon>
+  <IsCommodity>false</IsCommodity>
+  <Infrastructure>-1</Infrastructure>
+  <MaxPopIncrease>-700</MaxPopIncrease>
+  <ProdCache>20000</ProdCache>
+  <PlusProdPerColonist>0.2</PlusProdPerColonist>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18123</NameTranslationIndex>
+  <DescriptionIndex>18124</DescriptionIndex>
+  <ShortDescriptionIndex>18125</ShortDescriptionIndex>
+  <CannotBeBombed>true</CannotBeBombed>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+</Building>

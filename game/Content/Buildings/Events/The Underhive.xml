@@ -1,0 +1,21 @@
+﻿<Building>
+  <Name>The Underhive</Name>
+  <Cost>20</Cost>
+  <Icon>underhive</Icon>
+  <Strength>25</Strength>
+  <IsCommodity>true</IsCommodity>
+  <CombatStrength>25</CombatStrength>
+  <SoftAttack>20</SoftAttack>
+  <Defense>20</Defense>
+  <HardAttack>20</HardAttack>
+  <MaxPopIncrease>1200</MaxPopIncrease>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>17963</NameTranslationIndex>
+  <DescriptionIndex>17964</DescriptionIndex>
+  <ShortDescriptionIndex>17965</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+  <UniqueInEmpire>true</UniqueInEmpire>
+  <BuildOnlyOnce>true</BuildOnlyOnce>
+  <!-- Tells the Solar System Generator that this is not to be placed randomly-->
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>

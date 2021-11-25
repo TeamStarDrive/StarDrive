@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Ancient Pillar</Name>
+  <Maintenance>0</Maintenance>
+  <Description>Ancient Pillar</Description>
+  <EventTriggerUID>Discover Pillar</EventTriggerUID>
+  <Cost>40</Cost>
+  <Icon>pillar</Icon>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <ShortDescription>Ancient Pillar</ShortDescription>
+  <Scrappable>false</Scrappable>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>5365</NameTranslationIndex>
+  <DescriptionIndex>5366</DescriptionIndex>
+  <ShortDescriptionIndex>5366</ShortDescriptionIndex>
+  
+</Building>

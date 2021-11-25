@@ -1,0 +1,12 @@
+﻿<Building>
+  <Name>Unidentified signature</Name>
+  <Icon>Unidentified</Icon>
+  <EventTriggerUID>Unidentified signature</EventTriggerUID>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18206</NameTranslationIndex>
+  <DescriptionIndex>18207</DescriptionIndex>
+  <ShortDescriptionIndex>18207</ShortDescriptionIndex>
+  <CannotBeBombed>true</CannotBeBombed>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+</Building>

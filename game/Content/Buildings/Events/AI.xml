@@ -1,0 +1,13 @@
+﻿<Building>
+  <Name>AI</Name>
+  <Maintenance>0</Maintenance>
+  <Icon>Ai</Icon>
+  <PlusFlatResearchAmount>-2</PlusFlatResearchAmount>
+  <PlusTaxPercentage>0.3</PlusTaxPercentage>
+  <IsCommodity>true</IsCommodity>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18161</NameTranslationIndex>
+  <DescriptionIndex>18162</DescriptionIndex>
+  <ShortDescriptionIndex>18163</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+</Building>

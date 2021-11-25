@@ -1,0 +1,16 @@
+﻿<Building>
+  <Name>GreyGoo</Name>
+  <Icon>GreyGoo</Icon>
+  <IsCommodity>true</IsCommodity>
+  <Strength>15</Strength>
+  <CannotBeBombed>true</CannotBeBombed>
+  <PlusFlatFoodAmount>-2</PlusFlatFoodAmount>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18203</NameTranslationIndex>
+  <DescriptionIndex>18204</DescriptionIndex>
+  <ShortDescriptionIndex>18205</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>
