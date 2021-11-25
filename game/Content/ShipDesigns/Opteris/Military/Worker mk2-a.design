@@ -1,0 +1,41 @@
+﻿Version=1
+Name=Worker mk2-a
+Hull=Opteris/Worker
+Role=corvette
+Style=Opteris
+Size=8,6
+GridCenter=4,5
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=SteelArmorSmall;BasicFuelCell;LaserBeamTurret2x2;NuclearReactorMed;Maneuvering_Thruster_1x1;PowerSolar;Cockpit;Engine;Fighter Shield;WarpEngine_1x1
+Modules=23
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+3,0;0
+4,0;0
+2,1;0
+3,1;1
+4,1;1
+5,1;0
+1,2;2;2,2
+3,2;3;2,2
+5,2;2;2,2
+0,3;1
+7,3;1
+0,4;4
+1,4;5
+2,4;6
+3,4;7
+4,4;7
+5,4;8
+6,4;5
+7,4;4
+2,5;5
+3,5;9
+4,5;9
+5,5;5

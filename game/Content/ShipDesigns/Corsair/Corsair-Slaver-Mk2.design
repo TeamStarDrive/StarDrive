@@ -1,0 +1,82 @@
+﻿Version=1
+Name=Corsair-Slaver-Mk2
+Hull=Misc/speeder
+Role=troopShip
+Style=Corsairs
+Size=14,22
+GridCenter=7,14
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=PlaSteelArmorSmall;Pirate Inhibitor;PirateAssaultBay;Shield_1KW;Amplifier;PowerConduit;TractorBeamTurret2x2;BasicFuelCell;Extreme Fusion Reactor;SiphonBeamTurret2x2;Reinforced Bulkhead;EMPTurret2x2;OrdnanceLockerSmall;AdvAmplifier;MarineBarracks2x2;LaserCannon;NuclearReactorSmall;Bridge;WarpEngine_2x2;CombatEngine_2x2;Maneuvering_Thruster_1x1;PowerSolar
+Modules=64
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+6,0;0
+7,0;0
+5,1;0
+6,1;1;2,2
+8,1;0
+5,2;0
+8,2;0
+4,3;2;2,3;;;Terran Assault Shuttle
+6,3;3;2,2
+8,3;2;2,3;;;Terran Assault Shuttle
+6,5;4
+7,5;5
+4,6;6;2,2
+6,6;7
+7,6;5
+8,6;6;2,2
+6,7;7
+7,7;5
+4,8;0
+5,8;0
+6,8;8;2,2
+8,8;0
+9,8;0
+4,9;9;2,2
+8,9;9;2,2
+6,10;10;2,2
+4,11;11;2,2
+8,11;11;2,2
+6,12;8;2,2
+3,13;2;2,3;;;Terran Assault Shuttle
+5,13;12
+8,13;12
+9,13;2;2,3;;;Terran Assault Shuttle
+5,14;13;2,2
+7,14;14;2,2
+0,15;0
+2,15;15;;345
+11,15;15;;15
+13,15;0
+0,16;11;2,2;330
+2,16;3;2,2
+4,16;5
+5,16;16
+6,16;17;2,2
+8,16;16
+9,16;5
+10,16;3;2,2
+12,16;11;2,2;30
+4,17;5
+5,17;7
+8,17;7
+9,17;5
+0,18;0
+2,18;15;;195
+3,18;18;2,2
+5,18;19;2,2
+7,18;19;2,2
+9,18;18;2,2
+11,18;15;;165
+13,18;0
+5,20;20
+8,20;20
+5,21;21
+8,21;21
