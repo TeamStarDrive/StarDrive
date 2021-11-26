@@ -17,8 +17,8 @@
 
   <IconTexturePath>Modules/ArmoredMissile</IconTexturePath>
   <Mass>600</Mass>
-  <Health>16850</Health>
-  <HealthMax>16850</HealthMax>
+  <Health>12850</Health>
+  <HealthMax>12850</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
   <energyreq>5</energyreq>
   <Description>This is a long range multiple rocket launching system.
