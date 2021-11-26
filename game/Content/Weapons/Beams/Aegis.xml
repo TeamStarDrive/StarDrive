@@ -27,7 +27,7 @@
 
   <fireCueName>sd_weapon_flame_start_01</fireCueName>
   <ToggleSoundName>sd_weapon_phasor_01</ToggleSoundName>
-  <BeamTexture>beam_green</BeamTexture>
+  <BeamTexture>beam_yellow</BeamTexture>
   
   <!-- Projectile Information -->
   <DamageAmount>80</DamageAmount>

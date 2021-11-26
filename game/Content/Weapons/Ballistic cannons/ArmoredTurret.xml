@@ -37,7 +37,7 @@
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <ProjectileCount>1</ProjectileCount>
-  <Scale>0.9</Scale>
+  <Scale>1</Scale>
   <!--the projectile count is spread over the fire arc-->
   <FireCone>0</FireCone>
   <WeaponType>Ballistic Cannon</WeaponType>
