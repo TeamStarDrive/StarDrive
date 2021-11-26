@@ -236,7 +236,7 @@ Elements:
 
   - Panel:
     Name: vignette
-    Texture: MainMenu/vignette
+    Texture: MMenu/vignette
     RelSize: [1, 1] # fill screen
     DrawDepth: Foreground # on top of everything
 
