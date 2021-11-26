@@ -43,8 +43,8 @@
   <explodes>true</explodes>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 <!-- Projectile textures-->
-  <ProjectileTexturePath>LRM_d</ProjectileTexturePath>
-  <ModelPath>LRM</ModelPath>
+  <ProjectileTexturePath>custom\MRM_d</ProjectileTexturePath>
+  <ModelPath>custom\MRM</ModelPath>
   <WeaponEffectType>RocketTrail</WeaponEffectType>
   <WeaponType>Missile</WeaponType>
 <!-- name of XACT audio cue to play on firing this weapon -->
