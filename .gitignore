@@ -86,3 +86,9 @@ game/System.ValueTuple.dll
 game/System.ValueTuple.xml
 game/StarDrive.application
 game/StarDrive.exe.manifest
+game/blackbox.log
+game/blackbox.old.log
+game/Microsoft.Xna.Framework.Game.pdb
+game/SDNative.pdb
+game/SDSunBurn.pdb
+game/StarDrive.pdb
