@@ -38,7 +38,10 @@
   <DamageRadius>45</DamageRadius>
   <Light>Orange</Light>
   <explodes>true</explodes>
-  <ProjectileTexturePath>projLong_02_orange</ProjectileTexturePath>
+  <Animated>1</Animated>
+   <Frames>18</Frames>
+  <AnimationPath>Kinetic_Orange/Kinetic_Orange_cc_</AnimationPath>
+  <LoopAnimation>1</LoopAnimation>
   <ModelPath>projTear</ModelPath>
   <WeaponType>Ballistic Cannon</WeaponType>
   <FireCone>0</FireCone>
