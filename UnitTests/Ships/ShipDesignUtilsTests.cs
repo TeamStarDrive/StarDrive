@@ -20,7 +20,7 @@ namespace UnitTests.Ships
                              "Fang Strafer",
                              "Ving Defender",
                              "Corsair",
-                             "AssaultCarrier mk1-a",
+                             "TEST_Heavy Carrier mk1",
                              "Assault Shuttle");
             //OnlyLoadShips("Vulcan Scout");
         }
