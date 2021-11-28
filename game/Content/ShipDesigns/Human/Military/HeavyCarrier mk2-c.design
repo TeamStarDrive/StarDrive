@@ -1,5 +1,5 @@
 ﻿Version=1
-Name=AssaultCarrier mk3
+Name=HeavyCarrier mk2-c
 Hull=Terran/LightCarrier
 Role=cruiser
 Style=Terran
@@ -13,7 +13,7 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=CompositeAlloys Small;CompositeAlloys Med;OrdnanceLocker;MarineBarracks2x2;Fabricator;OrdnanceLockerSmall;Amplifier;PowerConduit;Fusion Reactor;VulcanCannon;HVTurret_2x2;NuclearReactorSmall;Shield_10KW;Pulse Capacitor;FighterBay;Bridge;FrigateEngine;WarpEngine_2x2;Maneuvering_Thruster_1x3;PowerSolar;Engine;WarpEngine_3x3;CapEngines;Maneuvering_Thruster_1x1
+ModuleUIDs=Ceramic Armor Small;Ceramic Armor Med;OrdnanceLocker;MarineBarracks2x2;Fabricator;OrdnanceLockerSmall;Amplifier;PowerConduit;Fusion Reactor;VulcanCannon;MagneticTurret_2x2;NuclearReactorSmall;Shield_10KW;Pulse Capacitor;FighterBay;Bridge;FrigateEngine;WarpEngine_2x2;Maneuvering_Thruster_1x3;PowerSolar;Engine;WarpEngine_3x3;CapEngines;Maneuvering_Thruster_1x1
 Modules=196
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 8,0;0
