@@ -32,7 +32,7 @@
 
   <!-- for Weapons -->
   <WeaponType>HeavyPhasorBeam</WeaponType>
-  <FieldOfFire>45</FieldOfFire>
+  <FieldOfFire>15</FieldOfFire>
  <AccuracyPercent>0.28</AccuracyPercent>
   <!-- Description -->
   <Description>This heavy-mount phasor array has a fixed spinal facing and a 45 degree field of fire.</Description>
