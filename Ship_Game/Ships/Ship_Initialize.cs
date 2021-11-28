@@ -122,21 +122,22 @@ namespace Ship_Game.Ships
             Weapons.Clear();
             BombBays.Clear();
 
+            if (shipData.InvalidModules != null)
+            {
+                Log.Warning($"Ship spawn failed '{Name}' InvalidModules='{shipData.InvalidModules}'");
+                return false;
+            }
+
             ModuleSlotList = new ShipModule[templateSlots.Length];
             if (isTemplate && !shipyardDesign && ModuleSlotList.Length == 0)
             {
-                Log.Warning($"Failed to load ship '{Name}' due to all empty Modules");
+                Log.Warning($"Ship spawn failed failed '{Name}' due to all empty Modules");
                 return false;
             }
 
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 DesignSlot slot = templateSlots[i];
-                if (!ResourceManager.ModuleExists(slot.ModuleUID))
-                {
-                    Log.Warning($"Failed to load ship '{Name}' due to invalid Module '{slot.ModuleUID}'!");
-                    return false;
-                }
                 ModuleSlotList[i] = ShipModule.Create(slot, this, isTemplate);
             }
 
@@ -149,21 +150,22 @@ namespace Ship_Game.Ships
             Weapons.Clear();
             BombBays.Clear();
 
+            if (shipData.InvalidModules != null)
+            {
+                Log.Warning($"Ship spawn failed failed '{Name}' InvalidModules='{shipData.InvalidModules}'");
+                return false;
+            }
+
             ModuleSlotList = new ShipModule[moduleSaves.Length];
             if (ModuleSlotList.Length == 0)
             {
-                Log.Warning($"Failed to load ship '{Name}' due to all empty Modules");
+                Log.Warning($"Ship spawn failed failed '{Name}' due to all empty Modules");
                 return false;
             }
 
             for (int i = 0; i < moduleSaves.Length; ++i)
             {
                 ModuleSaveData slot = moduleSaves[i];
-                if (!ResourceManager.ModuleExists(slot.ModuleUID))
-                {
-                    Log.Warning($"Failed to load ship '{Name}' due to invalid Module '{slot.ModuleUID}'!");
-                    return false;
-                }
                 ModuleSlotList[i] = ShipModule.Create(slot, this);
             }
 

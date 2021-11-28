@@ -20,7 +20,7 @@ namespace UnitTests.AITests.Empire
 
         public ShipPoolTests()
         {
-            LoadStarterShips("Excalibur-Class Supercarrier", "Medium Freighter");
+            LoadStarterShips("Heavy Carrier mk5-b", "Medium Freighter");
             CreateUniverseAndPlayerEmpire();
             AddHomeWorldToEmpire(Enemy, out Homeworld);
             Enemy.Update(TestSimStep); // need to update the empire first to create AO's
@@ -43,7 +43,7 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void CarrierIsAddedToCoreShipPool()
         {
-            Ship ship = SpawnShip("Excalibur-Class Supercarrier", Enemy, Vector2.Zero);
+            Ship ship = SpawnShip("Heavy Carrier mk5-b", Enemy, Vector2.Zero);
             Assert.AreEqual(null, ship.Pool);
             Universe.Objects.Update(TestSimStep);
 

@@ -21,9 +21,12 @@ namespace UnitTests.AITests.Empire
         // NOTE: This constructor is called every time a [TestMethod] is executed
         public TestEmpireAI()
         {
-            LoadStarterShips("Excalibur-Class Supercarrier", "Corsair",
-                             "Flak Fang", "Akagi-Class Mk Ia Escort Carrier", "Rocket Inquisitor",
-                             "Cordrazine Prototype", "Cordrazine Troop", "PLT-Defender");
+            LoadStarterShips("Heavy Carrier mk5-b",
+                             "Corsair",
+                             "Fang Strafer",
+                             "Cordrazine-Prototype",
+                             "Cordrazine Troop",
+                             "Platform Base mk1-a");
 
             CreateUniverseAndPlayerEmpire("Cordrazine");
 
@@ -92,8 +95,8 @@ namespace UnitTests.AITests.Empire
             string shipName = Player.GetEmpireAI().GetAShip(build);
 
             // it should be random:
-            if (!(shipName == "Rocket Scout" || shipName == "Rocket Inquisitor"))
-                throw new AssertFailedException($"Build should have created Rocket Scout or Rocket Inquisitor but created: {shipName}");
+            if (!(shipName == "Vulcan Scout" || shipName == "Fang Strafer"))
+                throw new AssertFailedException($"Build should have created Vulcan Scout or Fang Strafer but created: {shipName}");
         }
 
         [TestMethod]
@@ -156,9 +159,9 @@ namespace UnitTests.AITests.Empire
             // add them to the universe
             Universe.Objects.UpdateLists();
 
-            // The expected maintenance for the Flak Fang is 0.081, based on the cost of the ship
+            // The expected maintenance for the Fang Strafer is 0.144, based on the cost of the ship
             float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
-            Assert.AreEqual(0.081f, roleUnitMaint, "Unexpected maintenance value");
+            Assert.AreEqual(0.144f, roleUnitMaint, "Unexpected maintenance value");
 
             // simulate building a bunch of ships by lowering the role build budget by the role maintenance.
             // Keep building until it starts to scrap.
@@ -255,7 +258,7 @@ namespace UnitTests.AITests.Empire
             Assert.IsTrue(Player.OwnedShips.Count == 0);
             IEmpireShipLists playerShips = Player;
 
-            string shipName = "Rocket Inquisitor";
+            string shipName = "Fang Strafer";
 
             // test that ship is added to empire on creation
             var ship = SpawnShip(shipName, Player, Vector2.Zero);
@@ -308,7 +311,7 @@ namespace UnitTests.AITests.Empire
                 }
             }
 
-            string shipName = "Rocket Inquisitor";
+            string shipName = "Fang Strafer";
 
             // create a base number of ships.
             for (int x=0;x< 100; ++x)
@@ -421,7 +424,7 @@ namespace UnitTests.AITests.Empire
         public void TestDefeatedEmpireShipRemoval()
         {
             Assert.IsTrue(Player.OwnedShips.Count == 0);
-            string shipName = "Rocket Inquisitor";
+            string shipName = "Fang Strafer";
 
             // test that ships are removed from empire on defeat
             SpawnShip(shipName, Player, Vector2.Zero);
@@ -436,7 +439,7 @@ namespace UnitTests.AITests.Empire
         public void TestMergedEmpireShipRemoval()
         {
             Assert.IsTrue(Player.OwnedShips.Count == 0);
-            string shipName = "Rocket Inquisitor";
+            string shipName = "Fang Strafer";
 
             SpawnShip(shipName, Enemy, Vector2.Zero);
             Universe.Objects.UpdateLists();
