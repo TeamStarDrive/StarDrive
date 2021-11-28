@@ -21,11 +21,13 @@ namespace UnitTests.Ships
         public CarrierTests()
         {
             // Excalibur class has all the bells and whistles
-            LoadStarterShips("Excalibur-Class Supercarrier", "Ving Defender", 
-                             "Alliance-Class Mk Ia Hvy Assault", "Assault Shuttle");
+            LoadStarterShips("Heavy Carrier mk5-b",
+                             "Ving Defender", 
+                             "AssaultCarrier mk1-a",
+                             "Assault Shuttle");
             CreateUniverseAndPlayerEmpire();
             UnlockAllShipsFor(Player);
-            Carrier = SpawnShip("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            Carrier = SpawnShip("Heavy Carrier mk5-b", Player, Vector2.Zero);
             Universe.Objects.Update(TestSimStep);
         }
 
@@ -159,7 +161,7 @@ namespace UnitTests.Ships
 
         Fleet CreateFleet()
         {
-            var friendlyShip = Ship.CreateShipAtPoint("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
+            var friendlyShip = Ship.CreateShipAtPoint("AssaultCarrier mk1-a", Player, Vector2.Zero);
             var fleet = new Fleet(new Array<Ship> { Carrier, friendlyShip }, Player);
             fleet.SetCommandShip(Carrier);
             fleet.AutoArrange();
@@ -182,7 +184,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ScrambleAssaultShips()
         {
-            var friendlyShip = Ship.CreateShipAtPoint("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
+            var friendlyShip = Ship.CreateShipAtPoint("AssaultCarrier mk1-a", Player, Vector2.Zero);
             friendlyShip.Carrier.ScrambleAssaultShips(1);
             RunObjectsSim(ScanInterval);
 

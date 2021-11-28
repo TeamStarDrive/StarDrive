@@ -1,7 +1,11 @@
 ﻿Version=1
 Name=Heavy Carrier mk5-a
 Hull=Terran/Battleship
+<<<<<<< HEAD
 Role=battleship
+=======
+Role=carrier
+>>>>>>> 36716eb411d162bc4bd5f3b8ed521002fbce70f0
 Style=Terran
 Size=26,48
 GridCenter=13,23

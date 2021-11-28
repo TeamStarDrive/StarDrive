@@ -47,6 +47,10 @@ namespace Ship_Game.Ships
         // Weapon Templates
         public Weapon[] Weapons { get; private set; }
 
+        // All invalid modules in this design
+        // If this is not null, this ship cannot be spawned, but can still be listed and loaded in Shipyard
+        public string InvalidModules { get; private set; }
+
         void InitializeCommonStats(ShipHull hull, DesignSlot[] designSlots, bool updateRole = false)
         {
             if (ShipStyle.IsEmpty()) ShipStyle = hull.Style;
@@ -57,12 +61,16 @@ namespace Ship_Game.Ships
             float baseWarp = 0f;
             var hangars = new Array<ShipModule>();
             var weapons = new Array<Weapon>();
+            HashSet<string> invalidModules = null;
 
             for (int i = 0; i < designSlots.Length; i++)
             {
-                if (!ResourceManager.GetModuleTemplate(designSlots[i].ModuleUID, out ShipModule m))
+                string uid = designSlots[i].ModuleUID;
+                if (!ResourceManager.GetModuleTemplate(uid, out ShipModule m))
                 {
-                    Log.Warning(ConsoleColor.Red, $"ShipDesign invalid module='{designSlots[i].ModuleUID}' ship='{Name}'");
+                    if (invalidModules == null)
+                        invalidModules = new HashSet<string>();
+                    invalidModules.Add(uid);
                     continue;
                 }
 
@@ -77,6 +85,12 @@ namespace Ship_Game.Ships
 
                 if (m.IsSupplyBay)
                     IsSupplyCarrier = true;
+            }
+
+            if (invalidModules != null)
+            {
+                InvalidModules = string.Join(" ", invalidModules.ToArray());
+                Log.Warning(ConsoleColor.Red, $"ShipDesign '{Name}' InvalidModules='{InvalidModules}' Source='{Source.FullName}'");
             }
 
             BaseCost = baseCost;

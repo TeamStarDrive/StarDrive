@@ -15,7 +15,7 @@ namespace UnitTests.Ships
         public TestShipRanges()
         {
             // Excalibur class has all the bells and whistles
-            LoadStarterShips("Excalibur-Class Supercarrier");
+            LoadStarterShips("Heavy Carrier mk5-b");
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -29,7 +29,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipRanges()
         {
-            Ship ship = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            Ship ship = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", Player, Vector2.Zero);
 
             UpdateStatus(ship, CombatState.Artillery);
             Assert.That.Equal(7500, ship.WeaponsMaxRange);
@@ -69,7 +69,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipRangesWithModifiers()
         {
-            Ship ship = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            Ship ship = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", Player, Vector2.Zero);
             
             WeaponTagModifier kinetic = Player.WeaponBonuses(WeaponTag.Kinetic);
             WeaponTagModifier guided = Player.WeaponBonuses(WeaponTag.Guided);

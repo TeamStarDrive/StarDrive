@@ -254,13 +254,13 @@ namespace UnitTests
         /// Asserts that `actual` value is less than provided value
         /// e.g. Assert.That.LessThan(healthPercent, 0.5f);
         /// </summary>
-        public static void LessThan<T>(this Assert assert, T actual, T lessThan)
+        public static void LessThan<T>(this Assert assert, T actual, T lessThan, string message = "")
             where T : IComparable<T>
         {
             int difference = actual.CompareTo(lessThan);
             if (difference >= 0)
             {
-                throw new AssertFailedException($"LessThan failed: {actual} < {lessThan}");
+                throw new AssertFailedException($"LessThan failed: {actual} < {lessThan} {message}");
             }
         }
 
@@ -268,13 +268,13 @@ namespace UnitTests
         /// Asserts that `actual` value is greater than provided value
         /// e.g. Assert.That.GreaterThan(healthPercent, 0.5f);
         /// </summary>
-        public static void GreaterThan<T>(this Assert assert, T actual, T greaterThan)
+        public static void GreaterThan<T>(this Assert assert, T actual, T greaterThan, string message = "")
             where T : IComparable<T>
         {
             int difference = actual.CompareTo(greaterThan);
             if (difference <= 0)
             {
-                throw new AssertFailedException($"Greater Than failed: {actual} > {greaterThan}");
+                throw new AssertFailedException($"Greater Than failed: {actual} > {greaterThan} {message}");
             }
         }
     }

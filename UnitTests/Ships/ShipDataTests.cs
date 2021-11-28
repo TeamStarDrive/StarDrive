@@ -141,7 +141,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_LoadVanilla_VulcanScout()
         {
-            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Vulcan Scout.design");
+            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Human/Vulcan Scout.design");
             Assert.AreEqual("Vulcan Scout", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
@@ -149,7 +149,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("ShipIcons/shuttle", design.IconPath);
             Assert.AreEqual(RoleName.fighter, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(10, design.GetOrLoadDesignSlots().Length);
+            Assert.AreEqual(9, design.GetOrLoadDesignSlots().Length);
             Assert.AreEqual(10, design.GridInfo.SurfaceArea);
             Assert.AreEqual(new Point(4,4), design.GridInfo.Size);
         }
@@ -157,72 +157,31 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipDesign_LoadVanilla_PrototypeFrigate()
         {
-            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
-            Assert.AreEqual("Prototype Frigate", design.Name);
+            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Prototypes/Terran-Prototype.design");
+            Assert.AreEqual("Terran-Prototype", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
-            Assert.AreEqual("Terran/Gunboat", design.Hull);
-            Assert.AreEqual("ShipIcons/10a", design.IconPath);
+            Assert.AreEqual("Terran/Emissary", design.Hull);
+            Assert.AreEqual("ShipIcons/emissary", design.IconPath);
             Assert.AreEqual(RoleName.prototype, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(40, design.GetOrLoadDesignSlots().Length);
-            Assert.AreEqual(70, design.GridInfo.SurfaceArea);
-        }
-
-        [TestMethod]
-        public void ShipDesign_LoadVanilla_PrototypeFrigate_NewDesign()
-        {
-            if (!File.Exists("Content/ShipDesigns/Prototype Frigate.xml"))
-            {
-                LegacyShipData old = LegacyShipData.Parse("Content/ShipDesigns/Prototype Frigate.xml", isHullDefinition:false);
-                old.SaveDesign("Content/ShipDesigns/Prototype Frigate.design");
-            }
-
-            ShipDesign design = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
-            Assert.AreEqual("Prototype Frigate", design.Name);
-            Assert.AreEqual("", design.ModName);
-            Assert.AreEqual("Terran", design.ShipStyle);
-            Assert.AreEqual("Terran/Gunboat", design.Hull);
-            Assert.AreEqual("ShipIcons/10a", design.IconPath);
-            Assert.AreEqual(RoleName.prototype, design.Role);
-            Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(40, design.GetOrLoadDesignSlots().Length); // new designs don't have dummy modules
-            Assert.AreEqual(70, design.GridInfo.SurfaceArea);
+            Assert.AreEqual(146, design.GetOrLoadDesignSlots().Length);
+            Assert.AreEqual(308, design.GridInfo.SurfaceArea);
         }
 
         [TestMethod]
         public void ShipDesign_Clone_EqualToOriginal()
         {
-            ShipDesign original = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
+            ShipDesign original = ShipDesign.Parse("Content/ShipDesigns/Prototypes/Terran-Prototype.design");
             ShipDesign clone = original.GetClone();
             AssertAreEqual(original, clone, true);
-        }
-
-        [TestMethod]
-        public void ShipDesign_NewEqualsOld_PrototypeFrigate()
-        {
-            LegacyShipData legacy = LegacyShipData.Parse("Content/ShipDesigns/Prototype Frigate.xml", isHullDefinition:false);
-            legacy.SaveDesign("Content/ShipDesigns/Prototype Frigate.design");
-            
-            ShipDesign neu = ShipDesign.Parse("Content/ShipDesigns/Prototype Frigate.design");
-            AssertAreEqual(legacy, neu);
-        }
-
-        [TestMethod]
-        public void ShipDesign_NewEqualsOld_AncientTorpedoCruiser()
-        {
-            LegacyShipData legacy = LegacyShipData.Parse("Content/ShipDesigns/Ancient Torpedo Cruiser.xml", isHullDefinition: false);
-            legacy.SaveDesign("Content/ShipDesigns/Ancient Torpedo Cruiser.design");
-
-            ShipDesign neu = ShipDesign.Parse("Content/ShipDesigns/Ancient Torpedo Cruiser.design");
-            AssertAreEqual(legacy, neu);
         }
 
         [TestMethod]
         public void ShipDesign_Base64_Serialization()
         {
             CreateUniverseAndPlayerEmpire("Human");
-            Ship ship = SpawnShip("Prototype Frigate", Player, Vector2.Zero);
+            Ship ship = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
 
             // completely nulls this module, this catches empty serialization line bug
             ship.Modules[5].Health = 0f;

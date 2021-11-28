@@ -24,8 +24,8 @@ namespace UnitTests.AITests.Ships
         [TestMethod]
         public void MoveShipIgnoringHostiles()
         {
-            Ship ship  = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            Ship enemy  = SpawnShip("Vulcan Scout", Enemy, new Vector2(30000, 0));
+            Ship ship  = SpawnShip("Fang Strafer", Player, Vector2.Zero);
+            Ship enemy = SpawnShip("Fang Strafer", Enemy, new Vector2(30000, 0));
             enemy.AI.OrderHoldPosition(new Vector2(30000, 0), new Vector2(0,1));
 
             // order ship to move, ignoring enemies
@@ -57,8 +57,8 @@ namespace UnitTests.AITests.Ships
         [TestMethod]
         public void MoveShipWithCombatMoveEngagingHostiles()
         {
-            Ship ship  = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            Ship enemy  = SpawnShip("Vulcan Scout", Enemy, new Vector2(30000, 0));
+            Ship ship  = SpawnShip("Fang Strafer", Player, Vector2.Zero);
+            Ship enemy = SpawnShip("Fang Strafer", Enemy, new Vector2(30000, 0));
             enemy.AI.OrderHoldPosition(enemy.Position, new Vector2(0,1));
 
             // order ship to move, CombatMove
