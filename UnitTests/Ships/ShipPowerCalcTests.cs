@@ -15,7 +15,7 @@ namespace UnitTests.Ships
         {
             // Excalibur class has all the bells and whistles
             LoadStarterShips("Heavy Carrier mk5-b",
-                             "Flak Corvette");
+                             "Fang Strafer");
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -38,9 +38,9 @@ namespace UnitTests.Ships
         [TestMethod]
         public void StarterShipsPowered()
         {
-            TestShip[] ships = CreateShips("Vulcan Scout", "Rocket Scout",
+            TestShip[] ships = CreateShips("Vulcan Scout",
                         "Colony Ship", "Small Transport", "Supply Shuttle",
-                        "Subspace Projector", "Prototype Frigate");
+                        "Subspace Projector", "Terran-Prototype");
             Universe.Objects.Update(TestSimStep);
             AssertAllModulesPowered(ships);
         }
@@ -48,7 +48,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void LargeShipsPowered()
         {
-            TestShip[] ships = CreateShips("Heavy Carrier mk5-b", "Flak Corvette");
+            TestShip[] ships = CreateShips("Heavy Carrier mk5-b", "Fang Strafer");
             Universe.Objects.Update(TestSimStep);
             AssertAllModulesPowered(ships);
         }

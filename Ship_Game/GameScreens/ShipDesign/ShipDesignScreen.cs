@@ -125,8 +125,9 @@ namespace Ship_Game
 
         public ShipModule CreateDesignModule(string uid, ModuleOrientation moduleRot, int turretAngle, string hangarShipUID)
         {
-            return ShipModule.CreateDesignModule(ResourceManager.GetModuleTemplate(uid),
-                                                 moduleRot, turretAngle, hangarShipUID, CurrentHull);
+            if (!ResourceManager.GetModuleTemplate(uid, out ShipModule moduleTemplate))
+                return null; // this module UID doesn't exist anymore
+            return ShipModule.CreateDesignModule(moduleTemplate, moduleRot, turretAngle, hangarShipUID, CurrentHull);
         }
 
         // spawn a new active module under cursor

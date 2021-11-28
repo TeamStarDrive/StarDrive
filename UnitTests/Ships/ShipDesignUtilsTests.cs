@@ -17,8 +17,7 @@ namespace UnitTests.Ships
             ReloadTechTree();
             LoadStarterShips("Heavy Carrier mk5-b",
                              "Medium Freighter",
-                             "Flak Corvette",
-                             "Laserclaw",
+                             "Fang Strafer",
                              "Ving Defender",
                              "Corsair",
                              "AssaultCarrier mk1-a",
