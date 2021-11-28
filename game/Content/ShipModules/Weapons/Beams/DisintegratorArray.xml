@@ -29,7 +29,7 @@
 
   <!-- for Weapons -->
   <WeaponType>Disintegrator</WeaponType>
-  <FieldOfFire>45</FieldOfFire>
+  <FieldOfFire>20</FieldOfFire>
   <AccuracyPercent>0.28</AccuracyPercent>
   <!-- Description -->
   <Description>This massively powerful directed energy weapon strikes fear into the hearts of capital ship commanders everywhere.</Description>

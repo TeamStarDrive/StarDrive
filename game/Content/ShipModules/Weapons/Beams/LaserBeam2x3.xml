@@ -32,7 +32,7 @@
 
   <!-- for Weapons -->
   <WeaponType>HeavyLaserBeam</WeaponType>
-  <FieldOfFire>45</FieldOfFire>
+  <FieldOfFire>15</FieldOfFire>
  <AccuracyPercent>0.28</AccuracyPercent>
   <!-- Description -->
   <Description>This heavy laser beam has a fixed field of fire and is relatively inefficient.</Description>
