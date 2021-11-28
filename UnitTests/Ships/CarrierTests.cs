@@ -20,14 +20,13 @@ namespace UnitTests.Ships
 
         public CarrierTests()
         {
-            // Excalibur class has all the bells and whistles
-            LoadStarterShips("Heavy Carrier mk5-b",
+            LoadStarterShips("TEST_Heavy Carrier mk1",
                              "Ving Defender", 
-                             "AssaultCarrier mk1-a",
+                             "Alliance-Class Mk Ia Hvy Assault",
                              "Assault Shuttle");
             CreateUniverseAndPlayerEmpire();
             UnlockAllShipsFor(Player);
-            Carrier = SpawnShip("Heavy Carrier mk5-b", Player, Vector2.Zero);
+            Carrier = SpawnShip("TEST_Heavy Carrier mk1", Player, Vector2.Zero);
             Universe.Objects.Update(TestSimStep);
         }
 
@@ -161,7 +160,7 @@ namespace UnitTests.Ships
 
         Fleet CreateFleet()
         {
-            var friendlyShip = Ship.CreateShipAtPoint("AssaultCarrier mk1-a", Player, Vector2.Zero);
+            var friendlyShip = Ship.CreateShipAtPoint("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
             var fleet = new Fleet(new Array<Ship> { Carrier, friendlyShip }, Player);
             fleet.SetCommandShip(Carrier);
             fleet.AutoArrange();
@@ -184,7 +183,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ScrambleAssaultShips()
         {
-            var friendlyShip = Ship.CreateShipAtPoint("AssaultCarrier mk1-a", Player, Vector2.Zero);
+            var friendlyShip = Ship.CreateShipAtPoint("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
             friendlyShip.Carrier.ScrambleAssaultShips(1);
             RunObjectsSim(ScanInterval);
 
@@ -198,8 +197,9 @@ namespace UnitTests.Ships
             Carrier.ChangeOrdnance(-Carrier.OrdinanceMax); // remove all ordnance
             Assert.IsTrue(Carrier.Ordinance == 0, "Carrier ordnance storage should  be empty");
 
+            // NOTE: This requires Carrier to have low ordnance production capability
             ResupplyReason resupplyReason = Carrier.Supply.Resupply();
-            Assert.IsTrue(resupplyReason == ResupplyReason.LowOrdnanceNonCombat, "Carrier should want to resupply non combat");
+            Assert.AreEqual(resupplyReason, ResupplyReason.LowOrdnanceNonCombat, "Carrier should want to resupply non combat");
 
             Carrier.ChangeOrdnance(Carrier.OrdinanceMax); // add all ordnance
             Assert.AreEqual(Carrier.Ordinance, Carrier.OrdinanceMax, "Carrier ordnance storage should be full");
@@ -211,12 +211,12 @@ namespace UnitTests.Ships
 
             float ordCombatThreshold = Carrier.OrdinanceMax * ShipResupply.OrdnanceThresholdCombat;
             Carrier.ChangeOrdnance(-Carrier.OrdinanceMax); // remove all ordnance
-            Assert.IsTrue(Carrier.OrdnancePercent > 0, "Carrier should track its ordnance in space (launched fighters), even with empty local storage");
+            Assert.That.GreaterThan(Carrier.OrdnancePercent, 0, "Carrier should track its ordnance in space (launched fighters), even with empty local storage");
 
             // set the carrier storage just below the threshold so it would want to resupply if it had no fighters launched
             Carrier.ChangeOrdnance(ordCombatThreshold - 40); 
             resupplyReason = Carrier.Supply.Resupply();
-            Assert.IsTrue(resupplyReason == ResupplyReason.NotNeeded, "Carrier should not want to resupply when in combat and has fighters launched");
+            Assert.AreEqual(resupplyReason, ResupplyReason.NotNeeded, "Carrier should not want to resupply when in combat and has fighters launched");
         }
     }
 }
