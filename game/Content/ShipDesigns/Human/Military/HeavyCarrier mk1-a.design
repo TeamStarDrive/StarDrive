@@ -1,5 +1,5 @@
 ﻿Version=1
-Name=AssaultCarrier mk2-a
+Name=HeavyCarrier mk1-a
 Hull=Terran/LightCarrier
 Role=cruiser
 Style=Terran
@@ -13,7 +13,7 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorMed;OrdnanceLocker;OrdnanceLockerSmall;Amplifier;MarineBarracks2x2;Shield_1KW;PowerConduit;Fusion Reactor;VulcanCannon;Fabricator;MagneticTurret_2x2;NuclearReactorSmall;Bridge;FighterBay;FrigateEngine;WarpEngine_2x2;Maneuvering_Thruster_1x3;PowerSolar;Engine;WarpEngine_3x3;CapEngines;Maneuvering_Thruster_1x1
+ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorMed;OrdnanceLocker;OrdnanceLockerSmall;Amplifier;MarineBarracks2x2;Shield_1KW;PowerConduit;Fusion Reactor;VulcanCannon;Fabricator;AdvancedKineticTurret;Bridge;FighterBay;FrigateEngine;WarpEngine_2x2;Maneuvering_Thruster_1x3;PowerSolar;Engine;WarpEngine_3x3;CapEngines;Maneuvering_Thruster_1x1
 Modules=198
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 8,0;0
@@ -119,9 +119,9 @@ Modules=198
 12,19;11;2,2;30
 14,19;0
 5,20;0
-8,20;12
-9,20;13;2,2
-11,20;12
+8,20;3
+9,20;12;2,2
+11,20;3
 14,20;0
 5,21;0
 6,21;11;2,2;330
@@ -137,10 +137,10 @@ Modules=198
 14,22;0
 16,22;0
 17,22;0
-1,23;14;4,3;90;2;DynamicLaunch
-5,23;14;3,4;;;DynamicLaunch
-12,23;14;3,4;;;DynamicLaunch
-15,23;14;4,3;90;2;DynamicLaunch
+1,23;13;4,3;90;2;DynamicLaunch
+5,23;13;3,4;;;DynamicLaunch
+12,23;13;3,4;;;DynamicLaunch
+15,23;13;4,3;90;2;DynamicLaunch
 0,24;0
 8,24;4
 9,24;4
@@ -154,11 +154,11 @@ Modules=198
 11,25;4
 19,25;0
 0,26;0
-1,26;14;4,3;90;2;DynamicLaunch
+1,26;13;4,3;90;2;DynamicLaunch
 8,26;7
 9,26;6;2,2
 11,26;7
-15,26;14;4,3;90;2;DynamicLaunch
+15,26;13;4,3;90;2;DynamicLaunch
 19,26;0
 0,27;0
 5,27;7
@@ -175,12 +175,12 @@ Modules=198
 14,28;7
 19,28;0
 0,29;0
-1,29;14;4,3;90;2;DynamicLaunch
+1,29;13;4,3;90;2;DynamicLaunch
 5,29;8;2,2
 7,29;4
 12,29;4
 13,29;8;2,2
-15,29;14;4,3;90;2;DynamicLaunch
+15,29;13;4,3;90;2;DynamicLaunch
 19,29;0
 0,30;0
 7,30;7
@@ -192,25 +192,25 @@ Modules=198
 19,30;0
 0,31;0
 5,31;4
-6,31;15;2,2
-8,31;16;2,2
-10,31;16;2,2
-12,31;15;2,2
+6,31;14;2,2
+8,31;15;2,2
+10,31;15;2,2
+12,31;14;2,2
 14,31;4
 19,31;0
 1,32;0
 2,32;0
-3,32;17;3,1
-14,32;17;3,1
+3,32;16;3,1
+14,32;16;3,1
 17,32;0
 18,32;0
-5,33;18
-6,33;19
-7,33;20;3,3
-10,33;21;3,3
-13,33;19
-14,33;18
-5,34;22
+5,33;17
+6,33;18
+7,33;19;3,3
+10,33;20;3,3
+13,33;18
+14,33;17
+5,34;21
 6,34;0
 13,34;0
-14,34;22
+14,34;21
