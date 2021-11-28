@@ -2093,7 +2093,7 @@ namespace Ship_Game
                 // check if all modules in the ship are unlocked
                 foreach (string moduleUID in shipData.UniqueModuleUIDs)
                 {
-                    if (!UnlockedModulesDict[moduleUID])
+                    if (!IsModuleUnlocked(moduleUID))
                     {
                         //Log.Info($"Locked module : '{moduleSlotData.InstalledModuleUID}' in design : '{ship}'");
                         return false; // can't build this ship because it contains a locked Module

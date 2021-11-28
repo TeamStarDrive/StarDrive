@@ -20,7 +20,8 @@ namespace UnitTests.Fleets
         public FleetTests()
         {
             // Excalibur class has all the bells and whistles
-            LoadStarterShips("Excalibur-Class Supercarrier", "Corsair");
+            LoadStarterShips("Heavy Carrier mk5-b",
+                             "Corsair");
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -55,7 +56,7 @@ namespace UnitTests.Fleets
         [TestMethod]
         public void TestFleetAssembly()
         {
-            CreateWantedShipsAndAddThemToList(10, "Excalibur-Class Supercarrier", PlayerShips);
+            CreateWantedShipsAndAddThemToList(10, "Heavy Carrier mk5-b", PlayerShips);
             CreateTestFleet(PlayerShips, PlayerFleets);
             var fleet = PlayerFleets[0];
             
@@ -80,7 +81,7 @@ namespace UnitTests.Fleets
         [TestMethod]
         public void TestFleetCreationNodes()
         {
-            CreateWantedShipsAndAddThemToList(10, "Excalibur-Class Supercarrier", PlayerShips);
+            CreateWantedShipsAndAddThemToList(10, "Heavy Carrier mk5-b", PlayerShips);
             foreach (var ship in PlayerShips)
             {
                 ship.AI.CombatState = CombatState.Artillery;
