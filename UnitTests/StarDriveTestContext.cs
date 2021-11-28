@@ -78,8 +78,9 @@ namespace UnitTests
         public static void ReloadStarterShips()
         {
             // some basic ships that we always use
-            string[] shipDesigns = { "Vulcan Scout", "Rocket Scout",  "Prototype Frigate", "Colony Ship",
-                                     "Small Transport", "Supply Shuttle", "Subspace Projector" };
+            string[] shipDesigns = { "Vulcan Scout", "Rocket Scout", "Fang Strafer", "Terran-Prototype",
+                                     "Colony Ship", "Small Transport", "Supply Shuttle",
+                                     "Subspace Projector" };
             ResourceManager.LoadStarterShipsForTesting(shipDesigns, clearAll: true);
         }
 
@@ -101,14 +102,18 @@ namespace UnitTests
         {
             AppDomain.CurrentDomain.ProcessExit += (sender, e) => Cleanup();
             
-            Directory.SetCurrentDirectory("../../../stardrive");
+            Directory.SetCurrentDirectory("../../../game");
             StarDriveAbsolutePath = Directory.GetCurrentDirectory();
             ResourceManager.InitContentDir();
             try
             {
-                var xna2 = Assembly.LoadFile(
+                var xnaFramework = Assembly.LoadFile(
                     $"{StarDriveAbsolutePath}\\Microsoft.Xna.Framework.dll");
-                Console.WriteLine($"XNA Path: {xna2.Location}");
+                Console.WriteLine($"XNAFramework Path: {xnaFramework.Location}");
+
+                var xnAnimation = Assembly.LoadFile(
+                    $"{StarDriveAbsolutePath}\\XNAnimation.dll");
+                Console.WriteLine($"XNAnimation Path: {xnAnimation.Location}");
             }
             catch (FileNotFoundException e)
             {

@@ -1590,6 +1590,8 @@ namespace Ship_Game
             }
         }
 
+        static Map<string, FileInfo> TestShipPathCache = new Map<string, FileInfo>();
+
         // @note This is used for Unit Tests and is not part of the core game
         // @param shipsList Only load these ships to make loading faster.
         //                  Example:  shipsList: new [] { "Vulcan Scout" }
@@ -1602,8 +1604,19 @@ namespace Ship_Game
 
             if (shipsList != null)
             {
+                if (TestShipPathCache.Count == 0)
+                {
+                    foreach (FileInfo info in GatherFilesUnified("ShipDesigns", "design"))
+                        TestShipPathCache[info.NameNoExt()] = info;
+                }
+
                 string[] newShips = shipsList.Filter(name => !ShipTemplateExists(name));
-                ships.AddRange(newShips.Select(ship => GetModOrVanillaFile($"ShipDesigns/{ship}.design")));
+                ships.AddRange(newShips.Select(shipName =>
+                {
+                    if (TestShipPathCache.TryGetValue(shipName, out FileInfo file))
+                        return file;
+                    throw new FileNotFoundException($"Could not find ship '{shipName}.design' in any subfolder of Content/ShipDesigns/**");
+                }));
             }
 
             if (ships.Count > 0)
