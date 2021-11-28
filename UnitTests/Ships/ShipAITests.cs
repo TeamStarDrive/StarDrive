@@ -12,7 +12,8 @@ namespace UnitTests.Ships
     {
         public ShipAITests()
         {
-            LoadStarterShips("Excalibur-Class Supercarrier", "Owlwok Freighter S");
+            LoadStarterShips("Heavy Carrier mk5-b",
+                             "Owlwok Freighter S");
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -20,7 +21,7 @@ namespace UnitTests.Ships
         public void IsTargetValidTest()
         {
             Empire us = Player;
-            Ship ourShip = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", us, Vector2.Zero);
+            Ship ourShip = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", us, Vector2.Zero);
             
             Ship theirShip    = Ship.CreateShipAtPoint("Owlwok Freighter S", Enemy, Vector2.Zero);
             ourShip.AI.Target = theirShip;
@@ -194,8 +195,8 @@ namespace UnitTests.Ships
             aggressive.data.DiplomaticPersonality.Trustworthiness = 50;
             peaceful.data.DiplomaticPersonality.Trustworthiness   = 50;
 
-            Ship aggressiveShip = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", aggressive, Vector2.Zero);
-            Ship peacefulShip   = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", peaceful, Vector2.Zero);
+            Ship aggressiveShip = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", aggressive, Vector2.Zero);
+            Ship peacefulShip   = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", peaceful, Vector2.Zero);
             var aggressiveRel   = aggressive.GetRelations(peaceful);
             var peacefulRel     = peaceful.GetRelations(aggressive);
 
