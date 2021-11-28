@@ -103,7 +103,7 @@ namespace UnitTests.AITests.Ships
             var minTime = new FixedSimTime(EmpireConstants.ProjectileScanInterval);
             Update(minTime);
             Assert.AreEqual(2, OurShip.AI.PotentialTargets.Length);
-            Assert.AreEqual(3, OurShip.AI.TrackProjectiles.Length, "Rockets weren't detected! BUG!");
+            Assert.That.GreaterThan(OurShip.AI.TrackProjectiles.Length, 1, "Rockets weren't detected! BUG!");
         }
 
         [TestMethod]
@@ -173,7 +173,7 @@ namespace UnitTests.AITests.Ships
         public void InCombatAutoEnterWithCombatMoveShouldKillColonyShip()
         {
             TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(0,-500));
-            colonyShip.AI.HoldPosition();
+            colonyShip.AI.OrderHoldPosition(colonyShip.Position, colonyShip.Direction); // Priority Hold
             Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
             
@@ -194,7 +194,7 @@ namespace UnitTests.AITests.Ships
             {
                 Assert.IsTrue(OurShip.InCombat, "ship must stay in combat until target destroyed");
                 Assert.IsTrue(OurShip.OnHighAlert);
-                colonyShip.Velocity = Vector2.Zero; // BUG: there is a strange drift effect in sim
+                colonyShip.Velocity = Vector2.Zero; // BUG: there is a strange drift effect in sim, maybe ship is Evading?
                 Update(TestSimStep);
                 Assert.AreEqual(CombatState.HoldPosition, colonyShip.AI.CombatState);
                 Log.Info(OurShip.Velocity.Length().String() + " Attacker velocity");

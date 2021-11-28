@@ -12,7 +12,8 @@ namespace UnitTests.Ships
         public TestSupplyShuttles()
         {
             // Excalibur class has all the bells and whistles
-            LoadStarterShips("Excalibur-Class Supercarrier", "Corsair");
+            LoadStarterShips("Heavy Carrier mk5-b",
+                             "Corsair");
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -34,7 +35,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void TestSupplyShuttle()
         {
-            Ship ship = CreateShip(Player, "Excalibur-Class Supercarrier", Vector2.Zero);
+            Ship ship = CreateShip(Player, "Heavy Carrier mk5-b", Vector2.Zero);
             Ship target = CreateShip(Player, "Corsair", new Vector2(1000, 1000));
             Universe.Objects.Update(TestSimStep);
 
@@ -47,7 +48,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void TestSelfSupplyShuttle()
         {
-            Ship ship = CreateShip(Player, "Excalibur-Class Supercarrier", Vector2.Zero);
+            Ship ship = CreateShip(Player, "Heavy Carrier mk5-b", Vector2.Zero);
             Universe.Objects.Update(TestSimStep);
 
             ship.ChangeOrdnance(-(ship.OrdinanceMax -50));
