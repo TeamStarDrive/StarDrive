@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Empires;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using UnitTests.Ships;
 
@@ -146,7 +142,7 @@ namespace UnitTests.AITests.Ships
         public void InCombatAutoEnterAndExitWhenColonyShipDestroyed()
         {
             TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(0,-500));
-            colonyShip.AI.HoldPosition();
+            colonyShip.AI.PriorityHoldPosition();
             Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
             
@@ -173,7 +169,7 @@ namespace UnitTests.AITests.Ships
         public void InCombatAutoEnterWithCombatMoveShouldKillColonyShip()
         {
             TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(0,-500));
-            colonyShip.AI.OrderHoldPosition(colonyShip.Position, colonyShip.Direction); // Priority Hold
+            colonyShip.AI.PriorityHoldPosition();
             Update(EnemyScanInterval);
             Assert.IsTrue(OurShip.InCombat, "ship should be in combat");
             

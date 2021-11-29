@@ -16,6 +16,12 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.Stop, AIState.HoldPosition);
         }
 
+        // Holds position without reacting to anything else
+        public void PriorityHoldPosition()
+        {
+            OrderHoldPosition(Owner.Position, Owner.Direction);
+        }
+
         public void OrderHoldPosition(Vector2 position, Vector2 direction)
         {
             AddShipGoal(Plan.HoldPosition, position, direction, AIState.HoldPosition);
