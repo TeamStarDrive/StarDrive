@@ -122,7 +122,7 @@ namespace Ship_Game.Ships
             }
 
             Vector2 origin = sd.GridInfo.VirtualOrigin;
-            var legacyOffset = new Vector2(ShipModule.ModuleSlotOffset);
+            var legacyOffset = new Vector2(LegacyShipGridInfo.ModuleSlotOffset);
 
             HullSlots = new HullSlot[sd.ModuleSlots.Length];
             for (int i = 0; i < sd.ModuleSlots.Length; ++i)

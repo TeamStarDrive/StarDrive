@@ -2002,6 +2002,12 @@ namespace Ship_Game
 
         public float GetActualNetLastTurn() => Money - MoneyLastTurn;
 
+        /// @return TRUE if this Empire can build this ship
+        public bool CanBuildShip(string shipUID)
+        {
+            return ShipsWeCanBuild.Contains(shipUID);
+        }
+
         public void FactionShipsWeCanBuild()
         {
             if (!isFaction) return;

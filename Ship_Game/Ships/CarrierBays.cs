@@ -597,29 +597,37 @@ namespace Ship_Game.Ships
             ShipModule[] readyHangars = AllFighterHangars.Filter(hangar => hangar.Active
                                                                  && hangar.hangarTimer <= 0
                                                                  && !hangar.TryGetHangarShip(out _));
+
+            bool isShipyardDesign = (Owner is GameScreens.ShipDesign.DesignShip);
+
             foreach (ShipModule hangar in readyHangars)
             {
+                // if we're in shipyard, everything is accepted
+                if (isShipyardDesign)
+                    continue;
+
                 if (hangar.DynamicHangar == DynamicHangarOptions.Static)
                 {
                     if (empire.ShipsWeCanBuild.Contains(hangar.HangarShipUID))
                         continue; // FB: we can build the ship, this hangar is sorted out
                 }
+
                 // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
                 string selectedShip = GetDynamicShipName(hangar, empire);
                 hangar.HangarShipUID = selectedShip;
-                if (hangar.HangarShipUID == null || hangar.HangarShipUID.IsEmpty())
+                if (hangar.HangarShipUID.IsEmpty())
                     hangar.HangarShipUID = defaultShip;
-                if (hangar.HangarShipUID == null || hangar.HangarShipUID.IsEmpty())
+
+                if (hangar.HangarShipUID.IsEmpty())
                 {
                     hangar.HangarShipUID = EmpireManager.Player.data.StartingShip;
                     string roles = "";
                     foreach (var role in hangar.HangarRoles)
                     {
-                        if (roles.NotEmpty())
-                            roles += ", ";
+                        if (roles.NotEmpty()) roles += ", ";
                         roles += role;
                     }
-                    Log.Warning($"No startingShip defined and no {roles} designs available for {Owner}");
+                    Log.Warning($"No startingShip defined and no roles=[{roles}] designs available for {Owner}");
                 }
             }
             return readyHangars;

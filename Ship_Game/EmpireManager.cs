@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Gameplay;
 using System;
 

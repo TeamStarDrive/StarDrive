@@ -1322,7 +1322,6 @@ namespace Ship_Game
                     data.DisableRotation = true;
 
                 ShipModule template = ShipModule.CreateTemplate(data);
-                template.SetAttributes();
                 ModuleTemplates[template.UID] = template;
             }
         }

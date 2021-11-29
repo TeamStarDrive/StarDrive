@@ -84,23 +84,24 @@ namespace Ship_Game.Ships
         public ShipModuleType ModuleType;
         public string IconTexturePath;
 
-        public string UID => Flyweight.UID;
-        
         /// Field of fire arc, now in Radians.
         /// Conversion to Radians is done during loading
         /// Game files still use Degrees
         public float FieldOfFire;
         public int TargetValue;
         public float TransporterTimer;
-        public const int MaxPriority =6;
+        public const int MaxPriority = 6;
+
+        float TemplateMaxHealth; // this is the health design spec of the module
+        float WeaponRotation;
+        public float WeaponECM = 0;
 
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Flyweight' object.
         //This will allow us to still use the normal "Module.IsCommandModule" even though 'IsCommandModule' actually
         //lives in "Module.Flyweight.IsCommandModule" now.    -Gretman
-        public float FTLSpeed                    => Flyweight.FTLSpeed;
+        public string UID => Flyweight.UID;
         public string DeployBuildingOnColonize   => Flyweight.DeployBuildingOnColonize;
         public string ResourceStored             => Flyweight.ResourceStored;
-        public float ResourceStorageAmount       => Flyweight.ResourceStorageAmount;
         public bool IsCommandModule              => Flyweight.IsCommandModule;
         public bool IsRepairModule               => Flyweight.IsRepairModule;
         public string[] PermittedHangarRoles     => Flyweight.PermittedHangarRoles;
@@ -124,7 +125,6 @@ namespace Ship_Game.Ships
         public int TechLevel                     => Flyweight.TechLevel;
         public float OrdnanceAddedPerSecond      => Flyweight.OrdnanceAddedPerSecond;
         public string BombType                   => Flyweight.BombType;
-        public float WarpMassCapacity            => Flyweight.WarpMassCapacity;
         public float BonusRepairRate             => Flyweight.BonusRepairRate;
         public float Cargo_Capacity              => Flyweight.Cargo_Capacity;
         public float shield_radius               => Flyweight.shield_radius;
@@ -217,15 +217,15 @@ namespace Ship_Game.Ships
         /// 25% = 11 slots
         /// 0%  = 64 slots
         /// </summary>
-        public float AccuracyPercent        => Flyweight?.AccuracyPercent ?? -1;
-        public float WeaponInaccuracyBase   => Flyweight?.WeaponInaccuracyBase ?? 1;
+        public float AccuracyPercent      => Flyweight?.AccuracyPercent ?? -1;
+        public float WeaponInaccuracyBase => Flyweight?.WeaponInaccuracyBase ?? 1;
 
-        public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
-                                || ModuleType == ShipModuleType.Turret
-                                || ModuleType == ShipModuleType.MainGun
-                                || ModuleType == ShipModuleType.MissileLauncher
-                                || ModuleType == ShipModuleType.Drone
-                                || ModuleType == ShipModuleType.Bomb;
+        public bool IsWeaponOrBomb => ModuleType == ShipModuleType.Spacebomb
+                                   || ModuleType == ShipModuleType.Turret
+                                   || ModuleType == ShipModuleType.MainGun
+                                   || ModuleType == ShipModuleType.MissileLauncher
+                                   || ModuleType == ShipModuleType.Drone
+                                   || ModuleType == ShipModuleType.Bomb;
 
         public float ActualCost => Cost * CurrentGame.ProductionPace;
 
@@ -233,13 +233,11 @@ namespace Ship_Game.Ships
         public float ShieldHitRadius => Flyweight.shield_radius + 10f;
         public bool ShieldsAreActive => Active && ShieldPower > 1f;
 
-        float WeaponRotation;
         public float WeaponRotationSpeed
         {
             get => WeaponRotation.AlmostZero() ? (InstalledWeapon?.isTurret ?? false) ? 2 : 1 : WeaponRotation;
             set => WeaponRotation = value;
         }
-        public float WeaponECM = 0;
 
         public SubTexture ModuleTexture => ResourceManager.Texture(IconTexturePath);
 
@@ -259,8 +257,8 @@ namespace Ship_Game.Ships
         {
             switch (type)
             {
-                case ShipModuleType.PowerPlant: return Flyweight.PowerFlowMax >= 1f;
-                case ShipModuleType.Shield:     return Flyweight.shield_power_max >= 1f;
+                case ShipModuleType.PowerPlant: return PowerFlowMax >= 1f;
+                case ShipModuleType.Shield:     return shield_power_max >= 1f;
                 case ShipModuleType.Armor:      return ModuleType == type || APResist > 0;
                 case ShipModuleType.Ordnance:   return ModuleType == type && OrdinanceCapacity > 0;
                 default:                        return ModuleType == type;
@@ -268,9 +266,6 @@ namespace Ship_Game.Ships
         }
 
         public bool IsFighterHangar => !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
-
-        // this is the design spec of the module
-        float TemplateMaxHealth;
 
         public float HealthPercent => Health / ActualMaxHealth;
 
@@ -355,7 +350,34 @@ namespace Ship_Game.Ships
             IconTexturePath       = template.IconTexturePath;
             TargetValue           = template.TargetValue;
             TemplateMaxHealth     = template.HealthMax;
-            UpdateModuleRadius();
+
+            Radius = (XSIZE > YSIZE ? XSIZE : YSIZE) * CollisionRadiusMultiplier;
+            
+            CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
+
+            // initialize `isWeapon` and other InstalledWeapon attributes for module template
+            InstallModule(null, null, Point.Zero);
+
+            // @todo This might need to be updated with latest ModuleType logic?
+            TargetValue += Is(ShipModuleType.Armor)             ? -1 : 0;
+            TargetValue += Is(ShipModuleType.Bomb)              ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Command)           ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Countermeasure)    ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Drone)             ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Engine)            ? 2 : 0;
+            TargetValue += Is(ShipModuleType.FuelCell)          ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Hangar)            ? 1 : 0;
+            TargetValue += Is(ShipModuleType.MainGun)           ? 1 : 0;
+            TargetValue += Is(ShipModuleType.MissileLauncher)   ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Ordnance)          ? 1 : 0;
+            TargetValue += Is(ShipModuleType.PowerPlant)        ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Sensors)           ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Shield)            ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Spacebomb)         ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Special)           ? 1 : 0;
+            TargetValue += Is(ShipModuleType.Turret)            ? 1 : 0;
+            TargetValue += explodes                             ? 2 : 0;
+            TargetValue += isWeapon                             ? 1 : 0;
         }
 
         public static ShipModule CreateTemplate(ShipModule_XMLTemplate template)
@@ -370,7 +392,6 @@ namespace Ship_Game.Ships
             var module = new ShipModule
             {
                 Flyweight         = template.Flyweight,
-                // @note loyalty can be null, in which case it uses hull bonus only
                 Bonuses           = EmpireHullBonuses.Get(loyalty, hull),
                 DescriptionIndex  = template.DescriptionIndex,
                 FieldOfFire       = template.FieldOfFire,
@@ -387,33 +408,14 @@ namespace Ship_Game.Ships
                 XSIZE             = template.XSIZE,
                 YSIZE             = template.YSIZE,
                 IconTexturePath   = template.IconTexturePath,
-                Restrictions      = template.Restrictions
+                Restrictions      = template.Restrictions,
+                TargetValue       = template.TargetValue,
+                Radius            = template.Radius,
+                CanVisualizeDamage = template.CanVisualizeDamage,
             };
 
-            module.Health = module.ActualMaxHealth;
-            module.UpdateModuleRadius();
-            module.UpdateShieldPowerMax(0);
-
-            // @todo This might need to be updated with latest ModuleType logic?
-            module.TargetValue += module.Is(ShipModuleType.Armor)             ? -1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Bomb)              ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Command)           ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Countermeasure)    ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Drone)             ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Engine)            ? 2 : 0;
-            module.TargetValue += module.Is(ShipModuleType.FuelCell)          ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Hangar)            ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.MainGun)           ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.MissileLauncher)   ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Ordnance)          ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.PowerPlant)        ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Sensors)           ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Shield)            ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Spacebomb)         ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Special)           ? 1 : 0;
-            module.TargetValue += module.Is(ShipModuleType.Turret)            ? 1 : 0;
-            module.TargetValue += module.explodes                             ? 2 : 0;
-            module.TargetValue += module.isWeapon                             ? 1 : 0;
+            module.Health = module.ActualMaxHealth; // this depends on Empire-Hull-Bonuses
+            module.UpdateShieldPowerMax(0); // also depends on bonuses
             return module;
         }
 
@@ -422,11 +424,16 @@ namespace Ship_Game.Ships
         {
             ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
             ShipModule m = CreateNoParent(template, parent.loyalty, parent.BaseHull);
-            m.SetModuleSizeRotAngle(slot.Size, slot.ModuleRot, slot.TurretAngle);
-            m.Initialize(parent, slot.Pos, isTemplate);
 
             if (m.ModuleType == ShipModuleType.Hangar && !m.IsTroopBay)
                 m.HangarShipUID = slot.HangarShipUID;
+
+            m.SetModuleSizeRotAngle(slot.Size, slot.ModuleRot, slot.TurretAngle);
+            m.InstallModule(parent, parent.BaseHull, slot.Pos);
+
+            // don't initialize Shield instance for ShipTemplates
+            if (!isTemplate && m.shield_power_max > 0f)
+                m.Shield = ShieldManager.AddShield(m, m.Rotation, m.Position);
 
             return m;
         }
@@ -441,57 +448,115 @@ namespace Ship_Game.Ships
             m.SetHealth(slot.Health, fromSave: true);
             if (slot.HangarShipGuid.NotEmpty())
                 m.HangarShipGuid = Guid.Parse(slot.HangarShipGuid);
-            m.HangarShipUID  = slot.HangarShipUID;
             return m;
         }
 
-        public static ShipModule CreateDesignModule(ShipModule template, ModuleOrientation moduleRot, 
+        public static ShipModule CreateDesignModule(string uid, ModuleOrientation moduleRot, 
                                                     int turretAngle, string hangarShipUID, ShipHull hull)
         {
+            ShipModule template = ResourceManager.GetModuleTemplate(uid);
             ShipModule m = CreateNoParent(template, EmpireManager.Player, hull);
-            m.SetModuleRotation(m.XSIZE, m.YSIZE, moduleRot, turretAngle);
+
             // don't set HangarShipUID if this isn't actually a Hangar (because Shipyard sets default to DynamicLaunch)
             if (m.ModuleType == ShipModuleType.Hangar)
                 m.HangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : hangarShipUID;
+
+            m.SetModuleRotation(m.XSIZE, m.YSIZE, moduleRot, turretAngle);
+            m.InstallModule(null, hull, Point.Zero);
             return m;
         }
 
-        public const float ModuleSlotOffset = 264f;
-
-        void Initialize(Ship parent, Point gridPos, bool isTemplate)
+        public void InstallModule(Ship parent, ShipHull hull, Point gridPos)
         {
             Parent = parent;
-
-            ++DebugInfoScreen.ModulesCreated;
-
             Pos = gridPos;
 
-            Point gridCenter = parent.BaseHull.GridCenter;
-            LocalCenter = new Vector2((gridPos.X - gridCenter.X)*16f + XSIZE * 8f,
-                                      (gridPos.Y - gridCenter.Y)*16f + YSIZE * 8f);
-
-            // world position of this module, will be overwritten during Ship's Module update
-            Position = LocalCenter;
-            CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
-
-            SetAttributes();
-
-            if (!isTemplate)
+            if (hull != null) // for module templates this will be null
             {
-                if (shield_power_max > 0.0f)
-                    Shield = ShieldManager.AddShield(this, Rotation, Position);
+                Point gridCenter = hull.GridCenter;
+                LocalCenter = new Vector2((gridPos.X - gridCenter.X)*16f + XSIZE * 8f,
+                                          (gridPos.Y - gridCenter.Y)*16f + YSIZE * 8f);
+
+                // world position of this module, will be overwritten during Ship's Module update
+                Position = LocalCenter;
+                if (parent != null)
+                    Position += parent.Position;
+            }
+
+            if (IsWeaponOrBomb)
+            {
+                bool bomb = ModuleType == ShipModuleType.Bomb;
+                string type = bomb ? BombType : WeaponType;
+                if (InstalledWeapon == null || InstalledWeapon.UID != type)
+                {
+                    UninstallWeapon();
+                    InstalledWeapon = ResourceManager.CreateWeapon(type);
+                    InstalledWeapon.isTurret = ModuleType == ShipModuleType.Turret;
+                    InstalledWeapon.isMainGun = ModuleType == ShipModuleType.MainGun;
+                    InstalledWeapon.Initialize(this, parent, hull);
+                }
+
+                if (bomb)
+                {
+                    parent?.BombBays.Add(this);
+                }
+                else
+                {
+                    parent?.Weapons.Add(InstalledWeapon);
+                    isWeapon = true;
+                }
+            }
+
+            if (ModuleType == ShipModuleType.Hangar)
+            {
+                InitHangar();
             }
         }
 
-        public void InitHangar()
+        // Used in Shipyard when a module gets uninstalled from the design
+        public void UninstallModule()
+        {
+            UninstallWeapon();
+
+            // some of this state needs to be cleared to avoid bugs
+            Parent = null;
+            isExternal = false;
+            Powered = false;
+        }
+
+        void UninstallWeapon()
+        {
+            if (InstalledWeapon != null)
+            {
+                if (isWeapon)
+                    Parent?.Weapons.Remove(InstalledWeapon);
+                else
+                    Parent?.BombBays.Remove(this);
+                InstalledWeapon = null;
+            }
+        }
+
+        void InitHangar()
         {
             // for the non faction AI , all hangars are dynamic. It makes the AI carriers better
-            if (Parent.loyalty.isFaction)
+            if (Parent == null || Parent.loyalty.isFaction)
                 return;
 
             DynamicHangar = ShipBuilder.GetDynamicHangarOptions(HangarShipUID);
-            if (DynamicHangar == DynamicHangarOptions.Static && !Parent.loyalty.isPlayer)
-                DynamicHangar = DynamicHangarOptions.DynamicLaunch; //AI will always get dynamic launch.
+            if (DynamicHangar == DynamicHangarOptions.Static)
+            {
+                if (!Parent.loyalty.isPlayer)
+                {
+                    DynamicHangar = DynamicHangarOptions.DynamicLaunch; // AI will always get dynamic launch.
+                }
+                else if (!Parent.loyalty.CanBuildShip(HangarShipUID))
+                {
+                    // If Player has deleted a Fighter Ship Design, this design would not have a
+                    // valid fighter so we check if we can build it, otherwise we set DynamicLaunch
+                    DynamicHangar = DynamicHangarOptions.DynamicLaunch;
+                    HangarShipUID = DynamicHangarOptions.DynamicLaunch.ToString();
+                }
+            }
         }
 
         public RoleName[] HangarRoles
@@ -553,12 +618,6 @@ namespace Ship_Game.Ships
 
         // radius padding for collision detection
         const float CollisionRadiusMultiplier = 11.5f;
-
-        // this is called once during module creation
-        void UpdateModuleRadius()
-        {
-            Radius = (XSIZE > YSIZE ? XSIZE : YSIZE) * CollisionRadiusMultiplier;
-        }
 
         // Collision test with this ShipModule. Returns TRUE if point is inside this module
         // The collision bounds are APPROXIMATED by using radius checks. This means corners
@@ -1039,42 +1098,6 @@ namespace Ship_Game.Ships
         {
             if (hangarTimerConstant > 0f)
                 hangarTimer = hangarTimerConstant;
-        }
-
-        public void SetAttributes()
-        {
-            switch (ModuleType)
-            {
-                case ShipModuleType.Drone:
-                case ShipModuleType.Spacebomb:
-                case ShipModuleType.MissileLauncher: InstallWeapon();                                   break;
-                case ShipModuleType.Turret:          InstallWeapon(); InstalledWeapon.isTurret  = true; break;
-                case ShipModuleType.MainGun:         InstallWeapon(); InstalledWeapon.isMainGun = true; break;
-                case ShipModuleType.Bomb:            InstallBomb();                                     break;
-            }
-        }
-
-        void InstallWeapon()
-        {
-            if (InstalledWeapon != null && InstalledWeapon.WeaponType == WeaponType)
-                return;
-            ConfigWeapon(WeaponType);
-            Parent?.Weapons.Add(InstalledWeapon);
-            isWeapon = true;
-        }
-
-        void InstallBomb()
-        {
-            if (InstalledWeapon != null && InstalledWeapon.UID == BombType)
-                return;
-            ConfigWeapon(BombType);
-            Parent?.BombBays.Add(this);
-        }
-
-        void ConfigWeapon(string weaponType)
-        {
-            InstalledWeapon = ResourceManager.CreateWeapon(weaponType);
-            InstalledWeapon.Initialize(this, Parent, Parent?.BaseHull);
         }
 
         public void SetHangarShip(Ship ship)
