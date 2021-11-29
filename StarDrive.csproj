@@ -1693,9 +1693,11 @@
     <Content Include="Icons\PipeSmoke.ico" />
     <Content Include="Icons\StarTrek-SA.ico" />
     <Content Include="XnaNative.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Resources\StarTrek-SA.ico" />
+    <Content Include="Microsoft.Xna.Framework.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Ship_Game\Universe\SolarBodies\AI\" />
