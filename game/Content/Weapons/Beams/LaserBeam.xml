@@ -20,7 +20,7 @@
   <UID>LaserBeam</UID>
   <isBeam>true</isBeam>
   <fireDelay>1.5</fireDelay>
-  <Range>6000</Range>
+  <Range>5000</Range>
   <BeamDuration>0.5</BeamDuration>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
@@ -34,7 +34,7 @@
   <BeamTexture>beam_blue</BeamTexture>
   
   
-  <DamageAmount>6</DamageAmount>
+  <DamageAmount>7</DamageAmount>
   <BeamThickness>22</BeamThickness>
   <BeamPowerCostPerSecond>546</BeamPowerCostPerSecond>
 

@@ -28,7 +28,7 @@
   <fireCueName>weak laser</fireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>1456</DamageAmount>
+  <DamageAmount>1237</DamageAmount>
   <ProjectileSpeed>2550</ProjectileSpeed>
   <DamageRadius>5</DamageRadius>
   <explodes>false</explodes>

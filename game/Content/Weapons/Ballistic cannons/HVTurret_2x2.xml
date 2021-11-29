@@ -27,7 +27,7 @@
   <fireCueName>sd_troop_attack_01</fireCueName>
   <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
   <!-- Projectile Information -->
-  <DamageAmount>769</DamageAmount>
+  <DamageAmount>885</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2230</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
