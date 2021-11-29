@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -21,11 +19,18 @@ namespace UnitTests.AITests.Ships
             LoopWhile((timeout:5, fatal:true), () => ship.engineState != state, update);
         }
 
+        void SpawnShips(out Ship ship, out Ship enemy)
+        {
+            ship  = SpawnShip("Fang Strafer", Player, Vector2.Zero);
+            enemy = SpawnShip("Fang Strafer", Enemy, new Vector2(30000, 0));
+            ship.SensorRange = 40000;
+            enemy.SensorRange = 40000;
+        }
+
         [TestMethod]
         public void MoveShipIgnoringHostiles()
         {
-            Ship ship  = SpawnShip("Fang Strafer", Player, Vector2.Zero);
-            Ship enemy = SpawnShip("Fang Strafer", Enemy, new Vector2(30000, 0));
+            SpawnShips(out Ship ship, out Ship enemy);
             enemy.AI.OrderHoldPosition(new Vector2(30000, 0), new Vector2(0,1));
 
             // order ship to move, ignoring enemies
@@ -52,13 +57,11 @@ namespace UnitTests.AITests.Ships
             Assert.IsTrue(ship.AI.BadGuysNear, "Bad guys near was not set");
             Assert.IsTrue(ship.Position.InRadius(movePosition, 6000), "final move failed");
         }
-        
 
         [TestMethod]
         public void MoveShipWithCombatMoveEngagingHostiles()
         {
-            Ship ship  = SpawnShip("Fang Strafer", Player, Vector2.Zero);
-            Ship enemy = SpawnShip("Fang Strafer", Enemy, new Vector2(30000, 0));
+            SpawnShips(out Ship ship, out Ship enemy);
             enemy.AI.OrderHoldPosition(enemy.Position, new Vector2(0,1));
 
             // order ship to move, CombatMove
