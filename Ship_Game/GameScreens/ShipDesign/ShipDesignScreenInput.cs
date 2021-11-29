@@ -566,23 +566,11 @@ namespace Ship_Game
             ShipSaved = true;
         }
 
-        // Create full modules list for SAVING the design
-        DesignSlot[] CreateDesignSlots()
-        {
-            var placed = new Array<DesignSlot>();
-            ShipModule[] modules = ModuleGrid.CopyModulesList();
-            for (int i = 0; i < modules.Length; ++i)
-            {
-                placed.Add(new DesignSlot(modules[i]));
-            }
-            return placed.ToArray();
-        }
-
         ShipDesign CloneCurrentDesign(string newName)
         {
             ShipDesign design = CurrentDesign.GetClone();
             design.Name = newName;
-            design.SetDesignSlots(CreateDesignSlots());
+            design.SetDesignSlots(DesignSlot.FromModules(ModuleGrid.CopyModulesList()));
             return design;
         }
 

@@ -22,6 +22,8 @@ namespace Ship_Game.Ships
         public IReadOnlyList<ShipDesign> Designs => AllDesigns;
         public IReadOnlyList<Ship> Ships => AllShips;
 
+        readonly Empire VoidEmpire = EmpireManager.Void; // thread-safety: initialize this lazy property only once
+
         public ShipsManager()
         {
         }
@@ -49,7 +51,7 @@ namespace Ship_Game.Ships
             shipDesign.IsPlayerDesign   = playerDesign;
             shipDesign.IsReadonlyDesign = readOnly;
 
-            Ship shipTemplate = Ship.CreateNewShipTemplate(shipDesign);
+            Ship shipTemplate = Ship.CreateNewShipTemplate(VoidEmpire, shipDesign);
             if (shipTemplate == null) // happens if module creation failed
                 return;
 

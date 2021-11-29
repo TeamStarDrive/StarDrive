@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -58,13 +59,13 @@ namespace Ship_Game
         public IReadOnlyList<SlotStruct> SlotsList => Slots;
 
         /// NOTE: This is an adapter to unify ship stat calculation
-        public ShipModule[] CopyModulesList()
+        public Array<ShipModule> CopyModulesList()
         {
             var modules = new Array<ShipModule>();
             foreach (SlotStruct slot in Slots)
                 if (slot.Module != null && slot.Parent == null)
                     modules.Add(slot.Module);
-            return modules.ToArray();
+            return modules;
         }
 
         // Convert from GRID POS into WORLD coordinates
@@ -143,11 +144,6 @@ namespace Ship_Game
 
         readonly Array<Array<ChangedModule>> Undoable = new Array<Array<ChangedModule>>();
         readonly Array<Array<ChangedModule>> Redoable = new Array<Array<ChangedModule>>();
-
-        public void OnModuleGridChanged()
-        {
-            Screen.UpdateDesignedShip();
-        }
 
         public void StartUndoableAction()
         {
@@ -317,9 +313,7 @@ namespace Ship_Game
             slot.ModuleUID = newModule.UID;
             slot.Module    = newModule;
             slot.Tex       = newModule.ModuleTexture;
-            slot.Module.SetAttributes();
-
-            newModule.Pos = slot.Pos;
+            newModule.Pos = slot.Pos; // so it gets installed to the Ship correctly
 
             ModuleRect span = GetModuleSpan(slot, newModule.XSIZE, newModule.YSIZE);
             for (int x = span.X0; x <= span.X1; ++x)
@@ -354,8 +348,9 @@ namespace Ship_Game
                 SlotStruct root = Grid[x + y*Width].Root;
                 if (root?.Module != null) // only clear module roots which have not been cleared yet
                 {
-                    SaveAction(root, root.Module, ChangeType.Removed);
-                    RemoveModule(root, root.Module);
+                    ShipModule module = root.Module;
+                    SaveAction(root, module, ChangeType.Removed);
+                    RemoveModule(root, module);
                 }
             }
         }
