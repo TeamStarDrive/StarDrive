@@ -1,0 +1,86 @@
+<ExplorationEvent>
+  <Name>Unexplored cave</Name>
+  <PotentialOutcomes>
+
+    <Outcome>
+      <Chance>25</Chance>
+      <TitleText>It's an alien nest!</TitleText>
+      <DescriptionText>As your troops approach the cave, they hear sounds coming from inside. Tossing in a flare to illuminate the depths, they spot movement. Unfortunately, a nest of antlions has made its home here! Following procedure, they quickly detonate explosives at the entrance, sealing the threat within.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <TroopsToSpawn>
+        <string>Antlion</string>
+          <string>Antlion</string>
+          <string>Antlion</string>
+       </TroopsToSpawn>
+       <Image>Encounters/1.png</Image>
+       <ConfirmText>Hate alien nests!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>It's an alien nest!</TitleText>
+      <DescriptionText>As your troops approach the cave, they hear sounds coming from inside. Tossing in a flare to illuminate the depths, they spot movement. Unfortunately, a nest of antlions has made its home here! In an attempt at clearing the alien colony inside, they decided to drop explosives into the cave. The detonation shook the earth, causing a sinkhole to envelop the terrain even deeper into the planet. This causes the release of a multitude of toxic gasses. Soon after, the cave is filled with highly corrosive liquid. From initial scans, it seems to be a unique third state of hydrogen, h3.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>Evaporative Wastepit</ReplaceWith>
+       <Image>Encounters/2.png</Image>
+       <ConfirmText>No one mentioned the stench?!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>It's infested!</TitleText>
+      <DescriptionText>As your troops approach the cave, they hear a faint sound that comes from inside. Tossing in a flare to illuminate the depths, they see nothing. Initial scans shows it's an entrance to a very massive cave system. After a few dull moments of silence, a horde of antlions suddenly surges forth! They're surrounded!</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>Cave system</ReplaceWith>
+      <TroopsToSpawn>
+        <string>Antlion</string>
+          <string>Antlion</string>
+          <string>Antlion</string>
+        <string>Antlion</string>
+       </TroopsToSpawn>
+       <Image>Encounters/3.png</Image>
+       <ConfirmText>Lets be Cavemen!</ConfirmText>
+    </Outcome>
+
+     <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Unexpected meeting</TitleText>
+      <DescriptionText>While exploring the cave, your troops stumble upon some crates and an aged smuggler that introduced him self as Roland. They fashioned a deal with him to provide our colony with food and equipment, in exchange for money in regular intervals.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>Drop off point</ReplaceWith>
+       <Image>Encounters/4.png</Image>
+       <ConfirmText>Shady business, i like it!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>Updated scans</TitleText>
+      <DescriptionText>While exploring the cave, your troops scanned the underground mineral composition. The results revealed that the planet crust wasn't as rich as the orbital scans initially suggested. Planet scans changed : -0.4 Richness.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>-0.4</ChangeRichness>
+       <Image>Encounters/5.png</Image>
+       <ConfirmText>Caves are dark and full of terrors!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Updated scans</TitleText>
+      <DescriptionText>While exploring the cave, your troops scanned the underground mineral composition. The results revealed that the planet crust is in fact richer than the orbital scans had initially suggested. Planet scans changed : +0.6 Richness.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>0.6</ChangeRichness>
+       <Image>Encounters/6.png</Image>
+       <ConfirmText>Caves are dark and full of wonders!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Scam</TitleText>
+      <DescriptionText>While exploring the cave, your troops encountered a shady-looking character who claimed to be a cave explorer. He presented an offer, our money in exchange for a map of this cave system which apparently contains a secret room with some old military technology. After the successful transaction, the troops went straight for the secret room to recover the tech. Sadly, it wasn't there. They were scammed by that fat bastard!</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <MoneyGranted>-250</MoneyGranted>
+       <Image>Encounters/5.png</Image>
+       <ConfirmText>Was he Fat tho?</ConfirmText>
+    </Outcome>
+    
+  </PotentialOutcomes>
+ </ExplorationEvent>

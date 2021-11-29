@@ -1,0 +1,18 @@
+<Building>
+	<Name>Cloud Peak</Name>
+	<Description>This missile silo fires long range guided anti-ship missiles for maximum planetary defense.</Description>
+	<Cost>600</Cost>
+	<Maintenance>0.5</Maintenance>
+	<Icon>icbm</Icon>
+	<Strength>15</Strength>
+	<CombatStrength>15</CombatStrength>
+	<Defense>15</Defense>
+	<SoftAttack>70</SoftAttack>
+	<HardAttack>60</HardAttack>
+	<Defense>20</Defense>
+	<Weapon>CPMissile</Weapon>
+	<isWeapon>true</isWeapon>
+	<NameTranslationIndex>5408</NameTranslationIndex>
+	<DescriptionIndex>5409</DescriptionIndex>
+	<ShortDescriptionIndex>17421</ShortDescriptionIndex>
+</Building>

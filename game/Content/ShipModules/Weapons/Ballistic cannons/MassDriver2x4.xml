@@ -1,0 +1,42 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Cost>28</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>2</TechLevel>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>4</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>Mass Driver</Name>
+  <Restrictions>O</Restrictions>
+  <UID>MassDriver2x4</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/MassDriver_2x4</IconTexturePath>3
+
+
+  <NameIndex>1040</NameIndex>
+  <DescriptionIndex>1041</DescriptionIndex>
+
+  <!-- Mass and Health -->
+  <Mass>72</Mass>
+  <Health>3600</Health>
+  <HealthMax>3600</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>10</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>MassDriver</WeaponType>
+  <FieldOfFire>15</FieldOfFire>
+  <MountLeft>true</MountLeft>
+  <MountRight>true</MountRight>
+  <OrdinanceCapacity>38</OrdinanceCapacity>
+  <AccuracyPercent>0.2</AccuracyPercent>
+  <!-- Description -->
+  <Description>This weapon is a heavy-mounted rail gun that can propel an explosive projectile an impressive distance. </Description>
+  
+
+</ShipModule>

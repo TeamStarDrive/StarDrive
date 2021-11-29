@@ -9,8 +9,6 @@ IconPath=ShipIcons/Missionary
 ModelPath=Model/Ships/Ralyeh/Ship17b
 SelectIcon=17b
 Animated=true
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|O  |O  |___

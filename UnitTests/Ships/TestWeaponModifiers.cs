@@ -20,7 +20,16 @@ namespace UnitTests.Ships
             Empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
             Empire.TestInitModifiers();
             Ship = Ship.CreateShipAtPoint("Vulcan Scout", Empire, Vector2.Zero);
-            Weapon = Ship.Weapons.Find(w => w.UID == "VulcanCannon");
+            Weapon = CreateWeapon(Ship);
+        }
+
+        Weapon CreateWeapon(Ship ship)
+        {
+            Weapon weapon = ship.Weapons[0];
+            weapon.BaseRange = 1000;
+            weapon.DamageAmount = 15;
+            weapon.ProjectileSpeed = 1250;
+            return weapon;
         }
 
         [TestMethod]

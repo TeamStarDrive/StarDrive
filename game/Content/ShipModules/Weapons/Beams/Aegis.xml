@@ -1,0 +1,38 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <UID>Aegis</UID> 
+  <Version>2</Version>
+
+  <Cost>189</Cost>
+
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>6</XSIZE>
+  <YSIZE>7</YSIZE>
+  <ModuleType>MainGun</ModuleType>
+  <Name>Disintegrator Array</Name>
+  <Restrictions>IO</Restrictions>
+
+  <IconTexturePath>Modules/Aegis</IconTexturePath>3
+  <TechLevel>4</TechLevel>
+
+  <NameIndex>17614</NameIndex>
+  <DescriptionIndex>17615</DescriptionIndex>
+
+  <!-- Mass and Health -->
+  <Mass>1500</Mass>
+  <Health>20880</Health>
+  <HealthMax>20880</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>200</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>Aegis</WeaponType>
+  <FieldOfFire>360</FieldOfFire>
+  <AccuracyPercent>0.2</AccuracyPercent>
+  <!-- Description -->
+  <Description>This massively powerful directed energy weapon strikes fear into the hearts of capital ship commanders everywhere.</Description>
+
+
+</ShipModule>

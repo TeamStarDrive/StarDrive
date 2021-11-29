@@ -8,9 +8,6 @@ MeshOffset=0,0
 IconPath=ShipIcons/Metving
 ModelPath=Model/Ships/Cordrazine/ship16c
 SelectIcon=16c
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=238,302,0,50
 Thruster=276,303,0,50

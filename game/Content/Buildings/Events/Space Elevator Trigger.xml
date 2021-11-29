@@ -1,0 +1,12 @@
+﻿<Building>
+  <Name>Space Elevator Trigger</Name>
+  <Icon>SpaceElevator</Icon>
+  <EventSpawnChance>22</EventSpawnChance>
+  <EventTriggerUID>Space Elevator Trigger</EventTriggerUID>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18194</NameTranslationIndex>
+  <DescriptionIndex>18195</DescriptionIndex>
+  <ShortDescriptionIndex>18195</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+</Building>

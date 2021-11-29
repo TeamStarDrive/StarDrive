@@ -4,20 +4,16 @@ VisibleName=Owlwok Freighter S
 Role=freighter
 Style=Cordrazine
 Size=4,7
-MeshOffset=0,-8
+MeshOffset=0,0
 IconPath=ShipIcons/Owl1
 ModelPath=Model/Ships/Cordrazine/ship16g
-SelectIcon=16g
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=256,296,0,34
 Slots
-___|I  |I  |___
-I  |I  |I  |I  
-I  |I  |I  |I  
-___|I  |IC |___
-I  |I  |I  |I  
-I  |E  |E  |I  
+___|IO |IO |___
+IO |I  |I  |IO 
+IO |I  |I  |IO 
+___|IO |IOC|___
+IO |I  |I  |IO 
+IO |E  |E  |IO 
 ___|E  |E  |___

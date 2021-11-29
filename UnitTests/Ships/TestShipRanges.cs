@@ -14,8 +14,7 @@ namespace UnitTests.Ships
     {
         public TestShipRanges()
         {
-            // Excalibur class has all the bells and whistles
-            LoadStarterShips("Excalibur-Class Supercarrier");
+            LoadStarterShips("Heavy Carrier mk5-b");
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -29,13 +28,13 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipRanges()
         {
-            Ship ship = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            Ship ship = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", Player, Vector2.Zero);
 
             UpdateStatus(ship, CombatState.Artillery);
-            Assert.That.Equal(7500, ship.WeaponsMaxRange);
-            Assert.That.Equal(4000, ship.WeaponsMinRange);
-            Assert.That.Equal(2681, ship.WeaponsAvgRange);
-            Assert.That.Equal(6750, ship.DesiredCombatRange);
+            Assert.That.Equal(10000, ship.WeaponsMaxRange);
+            Assert.That.Equal(7500, ship.WeaponsMinRange);
+            Assert.That.Equal(9166, ship.WeaponsAvgRange);
+            Assert.That.Equal(9000, ship.DesiredCombatRange);
             Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
 
             UpdateStatus(ship, CombatState.Evade);
@@ -69,7 +68,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipRangesWithModifiers()
         {
-            Ship ship = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            Ship ship = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", Player, Vector2.Zero);
             
             WeaponTagModifier kinetic = Player.WeaponBonuses(WeaponTag.Kinetic);
             WeaponTagModifier guided = Player.WeaponBonuses(WeaponTag.Guided);
@@ -77,10 +76,10 @@ namespace UnitTests.Ships
             guided.Range = 1;
 
             UpdateStatus(ship, CombatState.Artillery);
-            Assert.That.Equal(8000, ship.WeaponsMaxRange);
+            Assert.That.Equal(20000, ship.WeaponsMaxRange);
             Assert.That.Equal(7500, ship.WeaponsMinRange);
-            Assert.That.Equal(4681, ship.WeaponsAvgRange);
-            Assert.That.Equal(7200, ship.DesiredCombatRange);
+            Assert.That.Equal(15833, ship.WeaponsAvgRange);
+            Assert.That.Equal(18000, ship.DesiredCombatRange);
             Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
         }
     }

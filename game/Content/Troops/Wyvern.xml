@@ -1,7 +1,7 @@
 ﻿<Troop>
   <Name>Wyvern</Name>
   <Description>These flying creatures are fast and strong</Description>
-  <TexturePath>wyvern_idle_00</TexturePath>
+  <TexturePath>Wyvern/wyvern_idle_00</TexturePath>
   <Icon>wyvern</Icon>
 
 
@@ -10,8 +10,8 @@
   <num_idle_frames>7</num_idle_frames>
   <num_attack_frames>7</num_attack_frames>
   <animated>true</animated>
-  <idle_path>wyvern_idle_</idle_path>
-  <attack_path>wyvern_attack_</attack_path>
+  <idle_path>Wyvern/wyvern_idle_</idle_path>
+  <attack_path>Wyvern/wyvern_attack_</attack_path>
 
   <sound_attack>sd_troop_kulrathi</sound_attack>
   

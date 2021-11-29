@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Unexplored cave</Name>
+  <Maintenance>0</Maintenance>
+  <Description>Unexplored cave</Description>
+  <!--<EventTriggerUID>Unexplored cave</EventTriggerUID>-->
+  <Cost>40</Cost>
+  <Icon>Cave</Icon>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <ShortDescription>Unexplored cave</ShortDescription>
+  <Scrappable>false</Scrappable>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>18109</NameTranslationIndex>
+  <DescriptionIndex>18110</DescriptionIndex>
+  <ShortDescriptionIndex>18110</ShortDescriptionIndex>
+  
+</Building>

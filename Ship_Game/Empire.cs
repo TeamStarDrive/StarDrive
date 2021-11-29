@@ -303,14 +303,23 @@ namespace Ship_Game
         // this will get the name of an Assault Shuttle if defined in race.xml or use default one
         public string GetAssaultShuttleName()
         {
-            return data.DefaultAssaultShuttle.IsEmpty() ? BoardingShuttle.Name : data.DefaultAssaultShuttle;
+            if (data.DefaultAssaultShuttle.NotEmpty() &&
+                ResourceManager.ShipTemplateExists(data.DefaultAssaultShuttle))
+            {
+                return data.DefaultAssaultShuttle;
+            }
+            return BoardingShuttle.Name;
         }
 
         // this will get the name of a Supply Shuttle if defined in race.xml or use default one
         public string GetSupplyShuttleName()
         {
-            return data.DefaultSupplyShuttle.NotEmpty() ? data.DefaultSupplyShuttle
-                                                        : DefaultSupplyShuttleName;
+            if (data.DefaultSupplyShuttle.NotEmpty() && 
+                ResourceManager.ShipTemplateExists(data.DefaultSupplyShuttle))
+            {
+                return data.DefaultSupplyShuttle;
+            }
+            return DefaultSupplyShuttleName;
         }
 
         public bool FindClosestSpacePort(Vector2 position, out Planet closest)
@@ -2093,7 +2102,7 @@ namespace Ship_Game
                 // check if all modules in the ship are unlocked
                 foreach (string moduleUID in shipData.UniqueModuleUIDs)
                 {
-                    if (!UnlockedModulesDict[moduleUID])
+                    if (!IsModuleUnlocked(moduleUID))
                     {
                         //Log.Info($"Locked module : '{moduleSlotData.InstalledModuleUID}' in design : '{ship}'");
                         return false; // can't build this ship because it contains a locked Module

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+  <Cost>8</Cost>
+  <!-- Tech Level -->
+  <TechLevel>1</TechLevel>
+  <TechBranch>Cannons</TechBranch>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>Turret</ModuleType>
+  <Name>Laser Turret</Name>
+  <Restrictions>O</Restrictions>
+  <UID>LaserTurret</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/LaserTurret</IconTexturePath>3
+
+
+  <NameIndex>982</NameIndex>
+  <DescriptionIndex>983</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>16</Mass>
+  <Health>2400</Health>
+  <HealthMax>2400</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+
+  <!-- Crew Reqs -->
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+
+ 
+  <!-- for Weapons -->
+  <WeaponType>2x2LaserTurret</WeaponType>
+  <FieldOfFire>90</FieldOfFire>
+  <AccuracyPercent>0.2</AccuracyPercent>
+  <!-- Description -->
+  <Description>This weapon is a laser cannon mounted on a swivel turret to provide a 90 degree field of fire.</Description>
+  
+
+</ShipModule>

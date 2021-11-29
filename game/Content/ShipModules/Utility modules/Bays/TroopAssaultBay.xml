@@ -1,0 +1,64 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  
+  <Cost>25</Cost>
+  <TechLevel>2</TechLevel>  
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Hangar</ModuleType>
+  <XSIZE>2</XSIZE>
+  <YSIZE>3</YSIZE>
+  <CanRotate>true</CanRotate>
+  <UID>TroopAssaultBay</UID> 
+  <Version>2</Version>
+
+  <Restrictions>O</Restrictions>
+  <Name>Assault Shuttle Bay</Name>
+  <IconTexturePath>Modules/AssaultShuttleBay</IconTexturePath>
+  <Mass>32</Mass>
+  <Health>4800</Health>
+  <HealthMax>4800</HealthMax>
+  <RepairDifficulty>3</RepairDifficulty>
+  <energyreq>25</energyreq>
+  <modRadius>4</modRadius>
+  <CrewRequired>10</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <Description>This hangar bay will launch an assault shuttle capable of performing a ship-to-ship boarding action. A ship that launches an assault shuttle will have its Boarding Defense lowered by the power of the troops leaving the ship for the assault. Only one shuttle per bay may be launched at a time.  </Description>
+  <PowerDraw>10</PowerDraw>
+
+
+  <NameIndex>1072</NameIndex>
+  <DescriptionIndex>1073</DescriptionIndex>
+
+
+  <!-- for Hangar items -->
+  <hangarShipUID>Vulcan Scout</hangarShipUID>
+  <hangarTimerConstant>30</hangarTimerConstant>
+  <IsTroopBay>true</IsTroopBay>
+  <OrdinanceCapacity>20</OrdinanceCapacity>
+  
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+  
+  <!-- for Weapons -->
+  
+  
+  <!-- for Engines -->
+  <thrust>0</thrust>
+  
+  
+
+</ShipModule>

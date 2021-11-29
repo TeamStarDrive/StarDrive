@@ -15,8 +15,10 @@ namespace UnitTests.AITests.Empire
     {
         public ShipsWeCanBuildTests()
         {
-            LoadStarterShips("Excalibur-Class Supercarrier", "Prototype Frigate",
-                             "Flak Fang", "Rocket Inquisitor", "PLT-Defender");
+            LoadStarterShips("Heavy Carrier mk5-b",
+                             "Terran-Prototype",
+                             "Fang Strafer",
+                             "Platform Base mk1-a");
             CreateUniverseAndPlayerEmpire("Human");
         }
 
@@ -29,7 +31,7 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void ShipsCannotBeUnlockedIfWeLackTech()
         {
-            var ship = SpawnShip("Excalibur-Class Supercarrier", Player, Vector2.Zero);
+            var ship = SpawnShip("Heavy Carrier mk5-b", Player, Vector2.Zero);
             Player.ShipsWeCanBuild.Remove(ship.Name);
 
             // verify that we can not currently add wanted ship
@@ -40,8 +42,8 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void ShipsWillBeUnlockedAfterTechUnlock()
         {
-            var ship = SpawnShip("Excalibur-Class Supercarrier", Player, Vector2.Zero);
-            var prototype = SpawnShip("Prototype Frigate", Player, Vector2.Zero);
+            var ship = SpawnShip("Heavy Carrier mk5-b", Player, Vector2.Zero);
+            var prototype = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
             Player.ShipsWeCanBuild.Clear();
 
             UnlockAllTechsForShip(Player, ship.Name); // this must automatically unlock the ships
@@ -61,8 +63,8 @@ namespace UnitTests.AITests.Empire
         public void PlayerCreatedShipsAreUnlocked()
         {
             Player.ShipsWeCanBuild.Clear();
-            UnlockAllTechsForShip(Player, "Rocket Inquisitor");
-            string playerDesign = CreateTemplate("Rocket Inquisitor", Player, playerDesign:true);
+            UnlockAllTechsForShip(Player, "Rocket Scout");
+            string playerDesign = CreateTemplate("Rocket Scout", Player, playerDesign:true);
             Assert.IsTrue(Player.ShipsWeCanBuild.Contains(playerDesign), "BUG: Player ship was not added to ShipsWeCanBuild");
         }
 
@@ -70,9 +72,9 @@ namespace UnitTests.AITests.Empire
         public void LockedHullsAreNotAddedToBuild()
         {
             Player.ShipsWeCanBuild.Clear();
-            UnlockAllTechsForShip(Player, "Excalibur-Class Supercarrier");
+            UnlockAllTechsForShip(Player, "Heavy Carrier mk5-b");
             Player.UnlockedHullsDict.Clear(); // lock the hulls
-            string playerDesign = CreateTemplate("Excalibur-Class Supercarrier", Player, playerDesign:true);
+            string playerDesign = CreateTemplate("Heavy Carrier mk5-b", Player, playerDesign:true);
             Assert.IsFalse(Player.ShipsWeCanBuild.Contains(playerDesign), "BUG: Locked hull was added to ShipsWeCanBuild");
         }
 
@@ -83,12 +85,12 @@ namespace UnitTests.AITests.Empire
 
             // add new enemy design
             GlobalStats.UsePlayerDesigns = true;
-            UnlockAllTechsForShip(Enemy, "Flak Fang");
-            string playerDesign1 = CreateTemplate("Flak Fang", Enemy, playerDesign:true);
+            UnlockAllTechsForShip(Enemy, "Fang Strafer");
+            string playerDesign1 = CreateTemplate("Fang Strafer", Enemy, playerDesign:true);
             Assert.IsTrue(Enemy.ShipsWeCanBuild.Contains(playerDesign1), "Bug: Could not add valid design to shipswecanbuild");
 
             GlobalStats.UsePlayerDesigns = false;
-            string playerDesign2 = CreateTemplate("Flak Fang", Enemy, playerDesign:true);
+            string playerDesign2 = CreateTemplate("Fang Strafer", Enemy, playerDesign:true);
             Assert.IsFalse(Enemy.ShipsWeCanBuild.Contains(playerDesign2), "Use Player design restriction added to shipswecanbuild");
         }
 
@@ -105,9 +107,9 @@ namespace UnitTests.AITests.Empire
         public void ShouldAddBuildableStructure()
         {
             Player.ShipsWeCanBuild.Clear();
-            string structure = CreateTemplate("PLT-Defender", Player, playerDesign:false);
+            string structure = CreateTemplate("Platform Base mk1-a", Player, playerDesign:false);
             Assert.IsTrue(Player.ShipsWeCanBuild.Contains(structure), "Update Structures: ShipsWeCanBuild was not updated.");
-            Assert.IsTrue(Player.structuresWeCanBuild.Contains("PLT-Defender"), "Update Structures: StructuresWeCanBuild Was Not Updated");
+            Assert.IsTrue(Player.structuresWeCanBuild.Contains("Platform Base mk1-a"), "Update Structures: StructuresWeCanBuild Was Not Updated");
         }
 
         string CreateTemplate(string baseDesign, Ship_Game.Empire empire, bool playerDesign)

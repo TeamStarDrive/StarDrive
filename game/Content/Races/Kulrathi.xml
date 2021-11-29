@@ -3,13 +3,17 @@
   <PortraitName>Kulrathi</PortraitName>
   <MusicCue>sd_races_Kulrathi</MusicCue>
   <DiplomacyDialogPath>Kulrathi</DiplomacyDialogPath>
-  <StartingShip>Vulcan Fang</StartingShip>
-  <StartingScout>Unarmed Fang Scout</StartingScout>
-  <PrototypeShip>Kulrathi Prototype</PrototypeShip>
-  <DefaultSmallTransport>Small Transport</DefaultSmallTransport>
+  <DiplomacyDialogPath>Kulrathi</DiplomacyDialogPath>
+  <StartingShip>Fang Strafer</StartingShip>
+  <StartingScout>Fang Scout</StartingScout>
+  <PrototypeShip>Kulrathi-Prototype</PrototypeShip>
+  <DefaultSmallTransport>Kuma Small</DefaultSmallTransport>
   <DefaultTroopShip>Kulrathi Troop</DefaultTroopShip>
-  <DefaultColonyShip>Colony Ship</DefaultColonyShip>
-  <DefaultConstructor>Small Constructor</DefaultConstructor>
+  <DefaultColonyShip>Kulrathi Colonizer</DefaultColonyShip>
+  <DefaultConstructor>Kulrathi Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Kulrathi Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Kulrathi-Supply</DefaultSupplyShuttle>
+  <SpacePortModel>Model/Ships/Kulrathi/Kulrathi_Station</SpacePortModel>
 
   <TechTree>Kulrathi</TechTree>
   <RebelName>Kulrathi Warlords</RebelName>
@@ -19,6 +23,13 @@
   <TroopDescriptionIndex>2095</TroopDescriptionIndex>
   <WarpStart>sd_warp_start_kulrathi_01</WarpStart>
   <WarpEnd>sd_warp_stop_kulrathi_01</WarpEnd>
+
+  <ThrustColor0R>173</ThrustColor0R> <!-- GreenYellow -->
+  <ThrustColor0G>255</ThrustColor0G>
+  <ThrustColor0B>47</ThrustColor0B>
+  <ThrustColor1R>128</ThrustColor1R> <!-- Purple -->
+  <ThrustColor1G>0</ThrustColor1G>
+  <ThrustColor1B>128</ThrustColor1B>	  
   
   <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
   <EnvTerran>1</EnvTerran>
@@ -72,7 +83,7 @@
     <ProductionMod>0</ProductionMod>
     <MaintMod>0</MaintMod>
     <TaxMod>.25</TaxMod>
-    <ShipCostMod>0</ShipCostMod>
+    <ShipCostMod>-0.35</ShipCostMod>
     <ModHpModifier>.20</ModHpModifier>
     <SmallSize>0</SmallSize>
     <HugeSize>0</HugeSize>

@@ -1,0 +1,171 @@
+<ExplorationEvent>
+  <Name>Orb</Name>
+  <PotentialOutcomes>
+
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>It's a remnant trap!</TitleText>
+      <DescriptionText>As your troops approach the Orb, they notice a control panel. After Some time translating the alien symbols they managed to access the system. The orb was a some kind of very advanced camouflage system. After turning it off, the orb drops to the ground and shatters. The planet scans were greatly changed of the previous ones. It seems like the orb and the planet is a way to lure advanced races. Suddenly a remnant forces jump into orbit, it was a trap after all! Planet scans changed : -0.5 Richness, -0.4 Max Fertility, -4 habitable tiles.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>-0.5</ChangeRichness>
+      <ChangeBaseMaxFertility>-0.4</ChangeBaseMaxFertility>
+      <NumTilesToMakeUnhabitable>4</NumTilesToMakeUnhabitable>
+       <RemnantShipsToSpawn>
+        <string>Ancient Frigate</string>
+        <string>Ancient Frigate</string>
+        <string>Light Ancient Bomber</string>
+        <string>Support Drone</string>
+        <string>Support Drone</string>
+        <string>Support Drone</string>
+        <string>Heavy Drone</string>
+        <string>Heavy Drone</string>
+       </RemnantShipsToSpawn>
+       <Image>Encounters/1.png</Image>
+       <ConfirmText>Cloaking?!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>It's a pirate trap!</TitleText>
+      <DescriptionText>As your troops approach the orb, they notice a control panel. After some time translating the alien symbols, they manage to access the system. Apparently, the orb was being used as some kind of advanced camouflage system. After turning it off, the orb drops to the ground and shatters. The scans of the planet immediately change greatly from previous ones. It seems like this orb and planet were used as a way to lure us! Suddenly, pirate forces warp into orbit around the planet. It was a trap! Planet scans changed : -0.3 Richness, -0.3 Max Fertility, -6 habitable tiles.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>-0.3</ChangeRichness>
+      <ChangeBaseMaxFertility>-0.3</ChangeBaseMaxFertility>
+      <NumTilesToMakeUnhabitable>6</NumTilesToMakeUnhabitable>
+       <PirateShipsToSpawn>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+        <string>Corsair-Fighter-Mk2</string>
+        <string>Corsair</string>
+        <string>Corsair</string>
+        <string>Corsair</string>
+      </PirateShipsToSpawn>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Why don't we have this tech for ships!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Updates scans!</TitleText>
+      <DescriptionText>As your troops approach the orb, they notice a control panel. After some time translating the alien symbols, they manage to access the system. Apparently, the orb was being used as some kind of advanced camouflage system. After turning it off, the orb drops to the ground and shatters. The scans of the planet immediately change greatly from previous ones. Planet scans changed : +0.7 Richness, -0.5 Max Fertility.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>0.7</ChangeRichness>
+      <ChangeBaseMaxFertility>-0.5</ChangeBaseMaxFertility>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>Cloaking would be very useful!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Updates scans!</TitleText>
+      <DescriptionText>As your troops approach the orb, they notice a control panel. After some time translating the alien symbols, they manage to access the system. Apparently, the orb was being used as some kind of advanced camouflage system. After turning it off, the orb drops to the ground and shatters. The scans of the planet immediately change greatly from previous ones. Planet scans changed : -0.5 Richness, +0.5 Fertility.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>-0.5</ChangeRichness>
+      <ChangeBaseMaxFertility>0.5</ChangeBaseMaxFertility>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Like a magic!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Updates scans!</TitleText>
+      <DescriptionText>As your troops approach the orb, they notice a control panel. After some time translating the alien symbols, they manage to access the system. Apparently, the orb was being used as some kind of advanced camouflage system. After turning it off, the orb drops to the ground and shatters. The scans of the planet immediately change greatly from previous ones. Planet scans changed : +0.8 Richness, +0.4 Fertility.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>0.8</ChangeRichness>
+      <ChangeBaseMaxFertility>0.4</ChangeBaseMaxFertility>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>Neat trick!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>It's a pirate base!</TitleText>
+      <DescriptionText>As your troops approach the orb, they notice a control panel. After some time translating the alien symbols, they manage to access the system. Apparently, the orb was being used as some kind of advanced camouflage system. After turning it off, the orb drops to the ground and shatters. The scans of the planet immediately change greatly from previous ones. It seems like the orb was being used to hide this in fact marvelous planet! But wait... It was also being used as a cloaking device for all of the pirate forces in orbit! Planet scans changed : +1.2 Richness, +0.4 Fertility, +5 habitable tiles.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>1.2</ChangeRichness>
+      <ChangeBaseMaxFertility>0.4</ChangeBaseMaxFertility>
+      <NumTilesToMakeHabitable>5</NumTilesToMakeHabitable>
+       <PirateShipsToSpawn>
+          <string>Corsair Asteroid Base</string>
+          <string>Corsair Station</string>
+          <string>Corsair Station</string>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+        <string>Corsair-Fighter-Mk2</string>
+        <string>Corsair</string>
+        <string>Corsair</string>
+        <string>Corsair</string>
+      </PirateShipsToSpawn>
+      <Image>Encounters/6.png</Image>
+      <ConfirmText>Bloody Pirates!</ConfirmText>
+    </Outcome>
+
+     <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Pirate outcast!</TitleText>
+      <DescriptionText>Your scientists swiftly deduced that the orb is in fact generating an advanced form of camouflage. After turning it off, the orb falls to the ground and shatters. It seems like the orb was being used to hide the true potential of this planet from others! But wait... It was also hiding a pirate outcast base! Their leader, called Goldymires, has offered to use his connections in order to improve our infrastructure, for a small fee of course. He also gave us his ship as a sign of good faith! Planet scans changed : +0.4 Richness, +0.2 Fertility, +2 habitable tiles.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>0.4</ChangeRichness>
+      <ChangeBaseMaxFertility>0.2</ChangeBaseMaxFertility>
+      <NumTilesToMakeHabitable>2</NumTilesToMakeHabitable>
+      <FriendlyShipsToSpawn>
+        <string>Corsair</string>
+      </FriendlyShipsToSpawn>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>What a champ!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>It's an alien incubator!</TitleText>
+      <DescriptionText>As your troops approach the orb, they notice a control panel. After some time translating the alien symbols, they manage to access the system. Its an alien incubator! We're about to be overrun!</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <TroopsToSpawn>
+        <string>Antlion</string>
+          <string>Antlion</string>
+          <string>Antlion</string>
+        <string>Antlion</string>
+       </TroopsToSpawn>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Burn it all!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>30</Chance>
+      <TitleText>Rare materials!</TitleText>
+      <DescriptionText>Upon close inspection, your troops have discovered that the orb is made of various rare minerals, giving it strong magnetic properties. That must explain its levitation and our scrambled scans.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>Exotic Minerals</ReplaceWith>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>More rocks to mine.</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>5</Chance>
+      <TitleText>Tech discovery!</TitleText>
+      <DescriptionText>Upon close inspection, your troops have discovered that the orb is made of black matter, suspended in a quantum bubble. After taking a sample, the quantum bubble collapses and the black matter disperses. Followup investigations led us to the creation of a new type of weapon!</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <UnlockTech>Black matter weaponry</UnlockTech>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Black matter?!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>7</Chance>
+      <TitleText>Updates scans!</TitleText>
+      <DescriptionText>As your troops approach the orb, they notice a control panel. After some time translating the alien symbols, they manage to access the system. Apparently, the orb was being used as some kind of advanced camouflage system. After turning it off, the orb drops to the ground and shatters. The scans of the planet immediately change greatly from previous ones. Planet scans changed : +2 Richness, +1 Fertility, +6 habitable tiles.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>2</ChangeRichness>
+      <ChangeBaseMaxFertility>1</ChangeBaseMaxFertility>
+      <NumTilesToMakeHabitable>6</NumTilesToMakeHabitable>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>Higher-ups will be very pleased!</ConfirmText>
+    </Outcome>
+
+  </PotentialOutcomes>
+ </ExplorationEvent>

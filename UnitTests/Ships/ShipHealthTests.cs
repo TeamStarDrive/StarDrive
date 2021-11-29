@@ -46,13 +46,13 @@ namespace UnitTests.Ships
             Ship ship = SpawnShip("Colony Ship", Player, Vector2.Zero);
             // colony ship has a total of 18 modules, and 14 with I/IO restrictions
             Assert.AreEqual(18, ship.Modules.Count(m => m.Active));
-            Assert.AreEqual(14, ship.Modules.Count(m => m.HasInternalRestrictions));
+            Assert.AreEqual(10, ship.Modules.Count(m => m.HasInternalRestrictions));
 
             // Internal slots are counted using Module SurfaceArea
             // This way big 3x3 modules give 9 points, instead of mere 1
             Assert.AreEqual(26, ship.SurfaceArea);
-            Assert.AreEqual(22, ship.InternalSlotCount);
-            Assert.AreEqual(22, ship.ActiveInternalSlotCount);
+            Assert.AreEqual(18, ship.InternalSlotCount);
+            Assert.AreEqual(18, ship.ActiveInternalSlotCount);
             Assert.AreEqual(1, ship.HealthPercent);
             Assert.AreEqual(1, ship.InternalSlotsHealthPercent);
             
@@ -62,16 +62,16 @@ namespace UnitTests.Ships
             Assert.AreEqual(12, surfaceKilled);
 
             Assert.AreEqual(18-7, ship.Modules.Count(m => m.Active));
-            Assert.AreEqual(22, ship.InternalSlotCount);
-            Assert.AreEqual(10, ship.ActiveInternalSlotCount);
-            Assert.AreEqual((1f - surfaceKilled/22f), ship.InternalSlotsHealthPercent);
+            Assert.AreEqual(18, ship.InternalSlotCount);
+            Assert.AreEqual(6, ship.ActiveInternalSlotCount);
+            Assert.AreEqual((1f - surfaceKilled/18f), ship.InternalSlotsHealthPercent);
         }
 
         [TestMethod]
         public void ShipDiesIfInternalModulesDestroyed()
         {
             Ship ship = SpawnShip("Colony Ship", Player, Vector2.Zero);
-            Assert.AreEqual(14, ship.Modules.Count(m => m.HasInternalRestrictions));
+            Assert.AreEqual(10, ship.Modules.Count(m => m.HasInternalRestrictions));
             Assert.AreEqual(1, ship.InternalSlotsHealthPercent);
 
             int slotsToDestroy = (int)Math.Ceiling(ShipResupply.ShipDestroyThreshold * ship.InternalSlotCount) + 1;

@@ -1,0 +1,58 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+
+  <Cost>92</Cost>
+  <TechLevel>3</TechLevel>
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Turret</ModuleType>
+  <XSIZE>3</XSIZE>
+  <YSIZE>3</YSIZE>
+  <Name>LRMmk2</Name>
+  <Restrictions>O</Restrictions>
+  <UID>LRMmk2</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/LRMmk2</IconTexturePath>
+  <Mass>108</Mass>
+  <Health>5850</Health>
+  <HealthMax>5850</HealthMax>
+  <RepairDifficulty>2</RepairDifficulty>
+  <energyreq>5</energyreq>
+  <Description>This is a long range multiple rocket launching system.
+  </Description>
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <PowerDraw>8</PowerDraw>
+
+  <NameIndex>17506</NameIndex>
+  <DescriptionIndex>17507</DescriptionIndex>
+
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+  <radius>0</radius>
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+  
+  <!-- for Weapons -->
+  <WeaponType>LRM2</WeaponType>
+  <OrdinanceCapacity>160</OrdinanceCapacity>
+  <FieldOfFire>120</FieldOfFire>
+  
+  
+  <!-- for Engines -->
+  <thrust>0</thrust>
+  
+  
+
+</ShipModule>

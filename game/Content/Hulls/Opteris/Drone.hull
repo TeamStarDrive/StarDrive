@@ -8,9 +8,6 @@ MeshOffset=0,16
 IconPath=ShipIcons/drone
 ModelPath=Model/Ships/Opteris/Ship19a
 SelectIcon=19a
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=254,255,0,30
 Slots

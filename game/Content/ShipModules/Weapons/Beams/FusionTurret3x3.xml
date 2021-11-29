@@ -1,0 +1,49 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FreighterModule>false</FreighterModule>
+  <PlatformModule>false</PlatformModule>
+  
+  <UID>FusionTurret3x3</UID> 
+  <Version>2</Version>
+
+  <Cost>30</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>2</TechLevel>
+
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>3</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>Turret</ModuleType>
+  <Name>Fusion Beam Turret</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/Fusion3x3</IconTexturePath>
+
+  <NameIndex>17512</NameIndex>
+  <DescriptionIndex>17513</DescriptionIndex>
+  <RepairDifficulty>3</RepairDifficulty>
+
+
+
+  <!-- Mass and Health -->
+  <Mass>36</Mass>
+  <Health>6210</Health>
+  <HealthMax>6210</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>10</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>DualFusionBeam</WeaponType>
+  <FieldOfFire>120</FieldOfFire>
+
+  <!-- Description -->
+  <Description>Fusion particle beams gain increased damage over laser beams but are much less efficient. This particular model is mounted on a swivel to achieve a 45 degree field of fire.</Description>
+  <AccuracyPercent>1</AccuracyPercent>
+
+</ShipModule>

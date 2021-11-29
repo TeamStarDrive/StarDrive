@@ -1,0 +1,51 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  
+  <Cost>36</Cost>
+  <!-- Tech Level -->
+  <TechLevel>2</TechLevel>
+  
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>Turret</ModuleType>
+  <Name>EnergyPDRapid</Name>
+  <Restrictions>O</Restrictions>
+  <UID>EnergyPDRapid</UID> 
+  <Version>2</Version>
+
+
+
+  <IconTexturePath>Modules/EnergyPD3x3</IconTexturePath>
+
+
+  <NameIndex>17563</NameIndex>
+  <DescriptionIndex>17564</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>14</Mass>
+  <Health>3800</Health>
+  <HealthMax>3800</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>10</PowerDraw>
+
+
+  <!-- Crew Reqs -->
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+
+ 
+  <!-- for Weapons -->
+  <WeaponType>RapidEnergyPD</WeaponType>
+  <FieldOfFire>120</FieldOfFire>
+  
+  <!-- Description -->
+  <Description>This weapon is a heavy laser cannon mounted on a swivel turret to provide a 180 degree field of fire.</Description>
+  
+
+</ShipModule>

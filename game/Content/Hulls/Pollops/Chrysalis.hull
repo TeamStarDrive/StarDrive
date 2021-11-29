@@ -3,29 +3,27 @@ HullName=Pollops/Chrysalis
 VisibleName=Chrysalis
 Role=cruiser
 Style=Pollops
-Size=20,13
+Size=20,15
 MeshOffset=0,8
 IconPath=ShipIcons/chrysalis
 ModelPath=Model/Ships/Pollops/ship15d
-SelectIcon=15d
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=232,328,0,53
-Thruster=248,328,0,64
-Thruster=280,328,0,53
+Thruster=227,325,0,53
+Thruster=283,322,0,53
+Thruster=253,324,0,64
 Slots
 ___|___|___|___|___|O  |___|___|___|___|___|___|___|___|O  |___|___|___|___|___
-___|___|___|___|O  |O  |___|___|O  |O  |O  |O  |___|___|O  |O  |___|___|___|___
+___|___|___|___|O  |O  |___|___|O  |___|___|IO |___|___|O  |IO |___|___|___|___
 ___|___|___|___|O  |O  |___|O  |O  |O  |O  |O  |O  |___|O  |O  |___|___|___|___
-___|___|___|___|IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |___|___|___|___
-___|O  |O  |___|IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |___|O  |O  |___
+___|___|___|___|O  |O  |IO |O  |O  |O  |O  |O  |O  |IO |O  |O  |___|___|___|___
+___|___|___|O  |O  |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |O  |O  |___|___|___
+___|O  |O  |O  |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |O  |O  |O  |___
 ___|O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |___
 ___|___|O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |___|___
-___|___|___|O  |IO |IO |IO |I  |I  |I  |IC |I  |I  |IO |IO |IO |O  |___|___|___
+___|___|O  |IO |IO |IO |IO |I  |I  |I  |IC |I  |I  |IO |IO |IO |O  |O  |___|___
 O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  
 ___|O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |___
 ___|___|O  |O  |IO |IO |IO |E  |E  |E  |E  |E  |E  |IO |IO |IO |O  |O  |___|___
 ___|___|___|O  |O  |O  |O  |E  |E  |E  |E  |E  |E  |O  |O  |O  |O  |___|___|___
 ___|___|___|___|O  |O  |O  |E  |E  |E  |E  |E  |E  |O  |O  |O  |___|___|___|___
+___|___|___|___|___|O  |O  |___|___|E  |E  |___|___|O  |O  |___|___|___|___|___

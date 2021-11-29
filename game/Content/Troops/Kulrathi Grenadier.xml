@@ -1,30 +1,30 @@
 ﻿<Troop>
   <Name>Kulrathi Grenadier</Name>
   <Description>The prodigious strength of a Kulrathi Warrior allows him to carry a massive cannon into battle for use against hard targets.</Description>
-  <TexturePath>gunner_idle00</TexturePath>
+  <TexturePath>KularathiGunners/gunner_idle00</TexturePath>
   <Icon>gunner</Icon>
   <first_frame>0</first_frame>
   <RaceType>Kulrathi</RaceType>
   <num_idle_frames>10</num_idle_frames>
-  <num_attack_frames>15</num_attack_frames>
+  <num_attack_frames>13</num_attack_frames>
   <animated>true</animated>
   <idle_x_offset>64</idle_x_offset>
   <idle_y_offset>64</idle_y_offset>
   <attack_width>192</attack_width>
-  <idle_path>gunner_idle</idle_path>
-  <attack_path>gunner_attack_</attack_path>
+  <idle_path>KularathiGunners/gunner_idle</idle_path>
+  <attack_path>KularathiGunners/gunner_attack_</attack_path>
 
   <sound_attack>sd_ground_kulrathigunner_01</sound_attack>
   
-  <Cost>50</Cost>
-  <Strength>10</Strength>
-  <MaxStrength>10</MaxStrength>
+  <Cost>80</Cost>
+  <Strength>12</Strength>
+  <MaxStrength>12</MaxStrength>
   <Movement>1</Movement>
   <MaintenanceCost>1</MaintenanceCost>
-  <Range>1</Range>
-  <HardAttack>25</HardAttack>
+  <Range>2</Range>
+  <HardAttack>35</HardAttack>
   <BoardingStrength>60</BoardingStrength>
-  <SoftAttack>60</SoftAttack>
+  <SoftAttack>40</SoftAttack>
   <TargetType>Soft</TargetType>
   <Class>Infantry</Class>
   <MovementCue>sd_troop_march_01</MovementCue>

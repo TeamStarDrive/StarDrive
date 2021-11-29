@@ -176,15 +176,16 @@ namespace Ship_Game.Ships
             if (Ship.OrdinanceMax < 1)
                 return false; // does not care about ordnance since it has no storage for ordnance
 
-            int productionThreshold;
+            int prodThresholdSeconds;
 
             if (Ship.AI.HasPriorityTarget)
-                productionThreshold = OrdnanceProductionThresholdPriority;
+                prodThresholdSeconds = OrdnanceProductionThresholdPriority;
             else
-                productionThreshold = InCombat ? OrdnanceProductionThresholdCombat
-                                                    : OrdnanceProductionThresholdNonCombat;
+                prodThresholdSeconds = InCombat ? OrdnanceProductionThresholdCombat
+                                                : OrdnanceProductionThresholdNonCombat;
 
-            return (Ship.OrdinanceMax - Ship.Ordinance) / Ship.OrdAddedPerSecond > productionThreshold;
+            float secondsUntilMaxOrd = (Ship.OrdinanceMax - Ship.Ordinance) / Ship.OrdAddedPerSecond;
+            return secondsUntilMaxOrd > prodThresholdSeconds;
         }
 
         private bool HangarShipReactorsDamaged()

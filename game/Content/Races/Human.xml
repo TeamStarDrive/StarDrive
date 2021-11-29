@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <PortraitName>Human</PortraitName>
+    <PortraitName>Human</PortraitName>
   <MusicCue>sd_races_Terran</MusicCue>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
   <StartingShip>Vulcan Scout</StartingShip>
   <StartingScout>Unarmed Scout</StartingScout>
-  <PrototypeShip>Prototype Frigate</PrototypeShip>
+  <PrototypeShip>Terran-Prototype</PrototypeShip>
   <DefaultSmallTransport>Small Transport</DefaultSmallTransport>
   <DefaultTroopShip>Human Troop</DefaultTroopShip>
   <DefaultColonyShip>Colony Ship</DefaultColonyShip>
-  <DefaultConstructor>Small Constructor</DefaultConstructor>
+  <DefaultConstructor>Terran Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Terran Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Terran-Supply</DefaultSupplyShuttle>
+  <ThrustColor0R>95</ThrustColor0R>
+  <ThrustColor0G>158</ThrustColor0G>
+  <ThrustColor0B>160</ThrustColor0B>
+  <ThrustColor1R>176</ThrustColor1R>
+  <ThrustColor1G>196</ThrustColor1G>
+  <ThrustColor1B>222</ThrustColor1B>
   
   <ExcludedDTraits>
     <string>Pacifist</string>

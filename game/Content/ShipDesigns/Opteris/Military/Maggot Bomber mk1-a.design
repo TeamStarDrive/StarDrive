@@ -1,0 +1,39 @@
+﻿Version=1
+Name=Maggot Bomber mk1-a
+Hull=Opteris/Worker
+Role=corvette
+Style=Opteris
+Size=8,6
+GridCenter=4,5
+DefaultAIState=DoNothing
+DefaultCombatState=ShortRange
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=SteelArmorSmall;Cockpit;BasicFuelCell;NuclearBombBay2x2;NuclearReactorMed;Beam1x2;OrdnanceLockerSmall;Maneuvering_Thruster_1x1;PowerConduit;Engine;PowerSolar;WarpEngine_1x1
+Modules=21
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+3,0;0
+4,0;0
+2,1;0
+3,1;1
+4,1;2
+5,1;0
+1,2;3;2,2
+3,2;4;2,2
+5,2;3;2,2
+0,3;5;1,2
+7,3;6
+1,4;7
+2,4;8
+3,4;9
+4,4;9
+5,4;5;1,2
+6,4;8
+7,4;10
+2,5;10
+3,5;11
+4,5;11

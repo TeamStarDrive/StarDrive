@@ -1,0 +1,27 @@
+﻿Version=1
+HullName=Vulfen/Type WII
+VisibleName=Type WII
+Role=freighter
+Style=Vulfen
+Size=8,12
+MeshOffset=0,0
+IconPath=ShipIcons/icon_TypeWII
+ModelPath=Model/Ships/Vulfen/TypeWII
+SelectIcon=13e
+#Starkit Scale 110
+#Model Author Vanilla modified by Fat Bastard
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=256,344,10,50
+Slots
+___|___|___|O  |O  |___|___|___
+___|___|___|I  |I  |___|___|___
+___|___|___|I  |I  |___|___|___
+O  |I  |I  |I  |I  |I  |I  |O  
+O  |I  |I  |I  |I  |I  |I  |O  
+O  |I  |I  |I  |I  |I  |I  |O  
+___|___|O  |I  |IC |O  |___|___
+O  |I  |I  |I  |I  |I  |I  |O  
+O  |I  |I  |___|___|I  |I  |O  
+O  |I  |I  |E  |E  |I  |I  |O  
+___|___|___|E  |E  |___|___|___
+___|___|___|E  |E  |___|___|___

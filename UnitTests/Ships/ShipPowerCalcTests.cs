@@ -14,7 +14,8 @@ namespace UnitTests.Ships
         public ShipPowerCalcTests()
         {
             // Excalibur class has all the bells and whistles
-            LoadStarterShips("Excalibur-Class Supercarrier", "Flak Corvette");
+            LoadStarterShips("Heavy Carrier mk5-b",
+                             "Fang Strafer");
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -37,9 +38,9 @@ namespace UnitTests.Ships
         [TestMethod]
         public void StarterShipsPowered()
         {
-            TestShip[] ships = CreateShips("Vulcan Scout", "Rocket Scout",
+            TestShip[] ships = CreateShips("Vulcan Scout",
                         "Colony Ship", "Small Transport", "Supply Shuttle",
-                        "Subspace Projector", "Prototype Frigate");
+                        "Subspace Projector", "Terran-Prototype");
             Universe.Objects.Update(TestSimStep);
             AssertAllModulesPowered(ships);
         }
@@ -47,7 +48,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void LargeShipsPowered()
         {
-            TestShip[] ships = CreateShips("Excalibur-Class Supercarrier", "Flak Corvette");
+            TestShip[] ships = CreateShips("Heavy Carrier mk5-b", "Fang Strafer");
             Universe.Objects.Update(TestSimStep);
             AssertAllModulesPowered(ships);
         }
@@ -55,7 +56,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void PowerGridPerformanceTest()
         {
-            TestShip ship = SpawnShip("Excalibur-Class Supercarrier", Player, new Vector2(12213,123123));
+            TestShip ship = SpawnShip("Heavy Carrier mk5-b", Player, new Vector2(12213,123123));
 
             const int iterations = 1000;
             var sw = Stopwatch.StartNew();
