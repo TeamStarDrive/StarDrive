@@ -260,7 +260,7 @@ namespace UnitTests
             int difference = actual.CompareTo(lessThan);
             if (difference >= 0)
             {
-                throw new AssertFailedException($"LessThan failed: {actual} < {lessThan} {message}");
+                throw new AssertFailedException($"LessThan failed: {actual} < {lessThan}  {message}");
             }
         }
 
@@ -274,7 +274,7 @@ namespace UnitTests
             int difference = actual.CompareTo(greaterThan);
             if (difference <= 0)
             {
-                throw new AssertFailedException($"Greater Than failed: {actual} > {greaterThan} {message}");
+                throw new AssertFailedException($"Greater Than failed: {actual} > {greaterThan}  {message}");
             }
         }
     }

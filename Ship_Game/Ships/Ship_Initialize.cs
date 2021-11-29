@@ -115,12 +115,19 @@ namespace Ship_Game.Ships
             return ResourceManager.GetShipTemplate("Vulcan Scout", out template) ? template : null;
         }
 
+        void ResetSlots(int length)
+        {
+            Weapons.Clear();
+            BombBays.Clear();
+            ModuleSlotList = new ShipModule[length];
+        }
+
+        // initialize fresh modules from a new template
         protected bool CreateModuleSlotsFromData(DesignSlot[] templateSlots,
                                                  bool isTemplate = false,
                                                  bool shipyardDesign = false)
         {
-            Weapons.Clear();
-            BombBays.Clear();
+            ResetSlots(templateSlots.Length);
 
             // ignore invalid modules for templates
             if (!isTemplate && shipData.InvalidModules != null)
@@ -130,6 +137,7 @@ namespace Ship_Game.Ships
             }
 
             ModuleSlotList = new ShipModule[templateSlots.Length];
+            
             if (isTemplate && !shipyardDesign && ModuleSlotList.Length == 0)
             {
                 Log.Warning($"Ship spawn failed failed '{Name}' due to all empty Modules");
@@ -159,22 +167,28 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        static DesignSlot GetReplacementSlot(DesignSlot s)
+        // use placed modules from ModuleGrid in Shipyard
+        protected void CreateModuleSlotsFromShipyardModules(Array<ShipModule> placedModules)
         {
-            return new DesignSlot(s.Pos, "OrdnanceLockerSmall", new Point(1,1), 0, ModuleOrientation.Normal, null);
+            ResetSlots(placedModules.Count);
+
+            for (int i = 0; i < placedModules.Count; ++i)
+            {
+                ShipModule m = placedModules[i];
+                m.UninstallModule();
+                m.InstallModule(this, BaseHull, m.Pos);
+                ModuleSlotList[i] = m;
+            }
+
+            shipData.SetDesignSlots(DesignSlot.FromModules(placedModules));
+            CreateModuleGrid(shipData.GridInfo, isTemplate:true, shipyardDesign:true);
         }
 
-        static ModuleSaveData GetReplacementSlot(ModuleSaveData s)
-        {
-            return new ModuleSaveData(GetReplacementSlot(s as DesignSlot), s.Health, 0, null);
-        }
-
+        // initialize modules from saved game
         protected bool CreateModuleSlotsFromData(ModuleSaveData[] moduleSaves)
         {
-            Weapons.Clear();
-            BombBays.Clear();
+            ResetSlots(moduleSaves.Length);
 
-            ModuleSlotList = new ShipModule[moduleSaves.Length];
             if (ModuleSlotList.Length == 0)
             {
                 Log.Warning($"Ship spawn failed failed '{Name}' due to all empty Modules");
@@ -187,7 +201,9 @@ namespace Ship_Game.Ships
                 if (!ResourceManager.ModuleExists(slot.ModuleUID))
                 {
                     Log.Warning($"Invalid Module '{slot.ModuleUID}' in '{Name}'");
-                    slot = GetReplacementSlot(slot);
+                    // replace it with a simple module
+                    var ds = new DesignSlot(slot.Pos, "OrdnanceLockerSmall", new Point(1,1), 0, ModuleOrientation.Normal, null);
+                    slot = new ModuleSaveData(ds, slot.Health, 0, null);
                 }
                 ModuleSlotList[i] = ShipModule.Create(slot, this);
             }
@@ -293,9 +309,9 @@ namespace Ship_Game.Ships
             ThrusterList = Empty<Thruster>.Array;
         }
         
-        public static Ship CreateNewShipTemplate(ShipDesign data)
+        public static Ship CreateNewShipTemplate(Empire voidEmpire, ShipDesign data)
         {
-            var ship = new Ship(EmpireManager.Void, data, isTemplate:true);
+            var ship = new Ship(voidEmpire, data, isTemplate:true);
             return ship.HasModules ? ship : null;
         }
 
@@ -590,9 +606,6 @@ namespace Ship_Game.Ships
                 {
                     case ShipModuleType.PowerConduit:
                         module.IconTexturePath = PwrGrid.GetConduitGraphic(module);
-                        break;
-                    case ShipModuleType.Hangar:
-                        module.InitHangar();
                         break;
                 }
 

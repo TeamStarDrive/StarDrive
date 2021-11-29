@@ -115,19 +115,16 @@ namespace Ship_Game
                                            orientation, ShipModule.DefaultFacingFor(orientation));
         }
 
-
         public ShipModule CreateModuleListItem(ShipModule template)
         {
-            ShipModule m = ShipModule.CreateNoParent(template, EmpireManager.Player, CurrentHull);
-            m.SetAttributes();
-            return m;
+            return CreateDesignModule(template.UID, ModuleOrientation.Normal, 0, DynamicHangarOptions.DynamicLaunch.ToString());
         }
 
         public ShipModule CreateDesignModule(string uid, ModuleOrientation moduleRot, int turretAngle, string hangarShipUID)
         {
             if (!ResourceManager.GetModuleTemplate(uid, out ShipModule moduleTemplate))
                 return null; // this module UID doesn't exist anymore
-            return ShipModule.CreateDesignModule(moduleTemplate, moduleRot, turretAngle, hangarShipUID, CurrentHull);
+            return ShipModule.CreateDesignModule(uid, moduleRot, turretAngle, hangarShipUID, CurrentHull);
         }
 
         // spawn a new active module under cursor
@@ -135,11 +132,11 @@ namespace Ship_Game
         void SpawnActiveModule(string moduleUID, ModuleOrientation moduleRot, int turretAngle, string hangarShipUID)
         {
             ActiveModule = CreateDesignModule(moduleUID, moduleRot, turretAngle, hangarShipUID);
-            ActiveModule.SetAttributes();
         }
 
         void ResetActiveModule()
         {
+            ActiveModule?.UninstallModule();
             ActiveModule = null;
         }
         
@@ -334,7 +331,7 @@ namespace Ship_Game
 
         public void UpdateDesignedShip()
         {
-            DesignedShip?.UpdateDesign(CreateDesignSlots());
+            DesignedShip?.UpdateDesign(ModuleGrid.CopyModulesList());
         }
 
         void InstallModulesFromDesign(ShipDesign design)
