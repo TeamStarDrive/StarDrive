@@ -161,7 +161,7 @@ namespace UnitTests.AITests.Empire
 
             // The expected maintenance for the Fang Strafer is 0.144, based on the cost of the ship
             float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
-            Assert.AreEqual(0.144f, roleUnitMaint, "Unexpected maintenance value");
+            Assert.AreEqual(0.144f, roleUnitMaint, 0.001f, "Unexpected maintenance value");
 
             // simulate building a bunch of ships by lowering the role build budget by the role maintenance.
             // Keep building until it starts to scrap.
