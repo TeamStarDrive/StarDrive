@@ -29,7 +29,7 @@
   <PowerDraw>2</PowerDraw>
   <BonusRepairRate>5</BonusRepairRate>
 
-  <SensorRange>7000</SensorRange>
+  <SensorRange>14000</SensorRange>
  <TargetTracking>2</TargetTracking>
 
   <NameIndex>922</NameIndex>
