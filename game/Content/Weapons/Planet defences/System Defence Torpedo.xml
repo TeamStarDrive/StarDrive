@@ -32,7 +32,7 @@
   <!-- Projectile Information -->
   <DamageAmount>5500</DamageAmount>
   <HitPoints>500</HitPoints>  
-  <ProjectileSpeed>1500</ProjectileSpeed>
+  <ProjectileSpeed>1100</ProjectileSpeed>
   <DamageRadius>100</DamageRadius>
   <explodes>true</explodes>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>

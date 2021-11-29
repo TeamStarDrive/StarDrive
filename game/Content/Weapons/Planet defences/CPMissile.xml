@@ -33,7 +33,7 @@
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   <!-- Projectile Information -->
   <DamageAmount>1850</DamageAmount>
-  <ProjectileSpeed>2000</ProjectileSpeed>
+  <ProjectileSpeed>1600</ProjectileSpeed>
   <DelayedIgnition>1</DelayedIgnition>
   <MirvWeapon>CPMissileMirv</MirvWeapon>
   <MirvWarheads>3</MirvWarheads>

@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>545</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2500</ProjectileSpeed>
+  <ProjectileSpeed>1950</ProjectileSpeed>
   <ProjectileRadius>30</ProjectileRadius>
   <ProjectileTexturePath>projExotic_01</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>

@@ -28,7 +28,7 @@
   <ToggleSoundName>sd_weapon_flame_loop_01</ToggleSoundName>
   <Name>PlasmaThrower</Name>
   <!-- Projectile Information -->
-  <DamageAmount>32</DamageAmount>
+  <DamageAmount>33</DamageAmount>
   
   <ProjectileSpeed>1600</ProjectileSpeed>
  

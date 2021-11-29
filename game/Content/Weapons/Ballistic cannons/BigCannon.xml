@@ -37,7 +37,7 @@
   <EffectVSShields>1.25</EffectVSShields>  
   <Scale>2</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2750</ProjectileSpeed>
+  <ProjectileSpeed>2100</ProjectileSpeed>
   <DamageRadius>75</DamageRadius>
   <explodes>true</explodes>
   <Light>Orange</Light>

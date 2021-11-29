@@ -35,7 +35,7 @@
   <!-- Projectile Information -->
   <DamageAmount>70</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2750</ProjectileSpeed>
+  <ProjectileSpeed>2100</ProjectileSpeed>
   <Scale>3.7</Scale>
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>

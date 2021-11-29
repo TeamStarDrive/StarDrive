@@ -13,7 +13,7 @@
 
 
   <IconTexturePath>Modules/Fabricator</IconTexturePath>
-  <Mass>5</Mass>
+  <Mass>9</Mass>
   <Health>2500</Health>
   <HealthMax>2500</HealthMax>
   <energyreq>0</energyreq>

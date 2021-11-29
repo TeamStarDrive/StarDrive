@@ -34,7 +34,7 @@
   
   
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>3450</ProjectileSpeed>
+  <ProjectileSpeed>2100</ProjectileSpeed>
   <Animated>1</Animated>
   <Light>Blue</Light>
   <Scale>1.75</Scale>

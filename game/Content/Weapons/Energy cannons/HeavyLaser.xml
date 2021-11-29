@@ -29,7 +29,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>462</DamageAmount>
-  <ProjectileSpeed>3312</ProjectileSpeed>
+  <ProjectileSpeed>2450</ProjectileSpeed>
   <explodes>false</explodes>
   <Light>Red</Light>
   <ProjectileTexturePath>projLong_02_red</ProjectileTexturePath>
