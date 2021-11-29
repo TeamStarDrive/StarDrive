@@ -3,16 +3,13 @@
  <Version>2</Version>
   <UID>MassivePhasors</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>3800</Cost>
+  <Cost>4500</Cost>
   <RootNode>0</RootNode>
   <Name>MassivePhasors</Name>
   <NameIndex>17516</NameIndex>
   <DescriptionIndex>17517</DescriptionIndex>
   <LongDescription>Phasors are extremely efficient directed energy weapons capable of longer and more powerful firing bursts.</LongDescription>
   <LeadsTo>
-    <LeadsToTech>
-      <UID>Nanoprisms</UID>
-    </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
     <UnlockedMod>

@@ -19,7 +19,7 @@
 
   <UID>BlueLaser1x2</UID>
   <fireDelay>4</fireDelay>
-  <Range>4500</Range>
+  <Range>3500</Range>
   <PowerRequiredToFire>150</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   

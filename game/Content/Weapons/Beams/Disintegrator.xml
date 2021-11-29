@@ -16,6 +16,8 @@
   <Tag_Drone>false</Tag_Drone>
   <Tag_Torpedo>false</Tag_Torpedo>
 
+  <Excludes_Fighters>true</Excludes_Fighters> 
+
   <UID>Disintegrator</UID>
   <isBeam>true</isBeam>
   <fireDelay>11</fireDelay>

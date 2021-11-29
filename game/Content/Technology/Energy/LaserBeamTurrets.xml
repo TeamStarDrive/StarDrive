@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>LaserBeamTurrets</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>160</Cost>
+  <Cost>190</Cost>
   <RootNode>0</RootNode>
   <Name>Energy Weapons</Name>
   <NameIndex>17618</NameIndex>
