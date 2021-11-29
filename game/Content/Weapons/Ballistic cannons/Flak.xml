@@ -19,7 +19,7 @@
   
   <UID>Flak</UID>
   <fireDelay>6</fireDelay>
-  <Range>8000</Range>
+  <Range>6500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>2</OrdinanceRequiredToFire>
   <SalvoCount>5</SalvoCount>

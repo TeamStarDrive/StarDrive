@@ -10,8 +10,8 @@
   <DescriptionIndex>624</DescriptionIndex>
   <LongDescription>Phasors are extremely efficient directed energy weapons capable of longer and more powerful firing bursts.</LongDescription>
   <LeadsTo>
-      <LeadsToTech>
-      <UID>MassivePhasors</UID>
+    <LeadsToTech>
+      <UID>Nanoprisms</UID>
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
