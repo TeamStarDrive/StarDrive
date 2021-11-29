@@ -1,0 +1,43 @@
+﻿Version=1
+Name=Crawler Transport M
+Hull=Opteris/Crawler
+Role=freighter
+Style=Opteris
+Size=4,14
+GridCenter=2,7
+DefaultAIState=DoNothing
+DefaultCombatState=Evade
+ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=OrdnanceLockerSmall;LargeCargoHold;MediumCargoHold;NuclearReactorMed;Maneuvering_Thruster_1x1;Cockpit;PowerConduit;WarpEngine_1x1;Engine
+Modules=25
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+1,0;0
+2,0;0
+0,1;1;3,3
+3,1;0
+3,2;0
+3,3;0
+0,4;1;3,3
+3,4;0
+3,5;0
+3,6;0
+0,7;2;2,2
+2,7;2;2,2
+0,9;0
+1,9;3;2,2
+3,9;0
+0,10;4
+3,10;4
+0,11;4
+1,11;5
+2,11;6
+3,11;4
+1,12;7
+2,12;8
+1,13;7
+2,13;8

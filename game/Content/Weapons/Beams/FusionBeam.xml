@@ -1,0 +1,29 @@
+﻿<?xml version="1.0"?>
+<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Beam>true</Tag_Beam>
+
+  <UID>FusionBeam</UID>
+  <isBeam>true</isBeam>
+  <fireDelay>1.5</fireDelay>
+  <Range>8000</Range>
+  <PowerRequiredToFire>0</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
+  <BeamDuration>0.5</BeamDuration>
+  <!-- name of XACT audio cue to play on firing this weapon -->
+
+  <fireCueName>sd_weapon_laser_large_alt_04</fireCueName>
+  <ToggleSoundName>sd_weapon_beam_fusion_med</ToggleSoundName>
+  
+  
+  <!-- Projectile Information -->
+  <BeamTexture>beam_purple</BeamTexture>
+  
+  
+  <DamageAmount>10</DamageAmount>
+  <BeamThickness>24</BeamThickness>
+  <BeamPowerCostPerSecond>717</BeamPowerCostPerSecond>
+
+  <WeaponType>Energy Beam</WeaponType>
+  
+</Weapon>

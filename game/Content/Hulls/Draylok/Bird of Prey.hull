@@ -8,9 +8,6 @@ MeshOffset=0,0
 IconPath=ShipIcons/Bird of Prey
 ModelPath=Model/Ships/Draylok/Ship18d
 SelectIcon=18d
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=182,420,0,71
 Thruster=328,404,0,71

@@ -1,0 +1,15 @@
+﻿<Building>
+  <Name>Ancient megacity</Name>
+  <Icon>Ancient_megacity</Icon>
+  <IsCommodity>true</IsCommodity>
+  <MaxPopIncrease>1600</MaxPopIncrease>
+  <Maintenance>0.2</Maintenance>
+  <MaxFertilityOnBuild>-0.2</MaxFertilityOnBuild>
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>5098</NameTranslationIndex>
+  <DescriptionIndex>5099</DescriptionIndex>
+  <ShortDescriptionIndex>5100</ShortDescriptionIndex>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>false</CanBuildAnywhere>
+  <NoRandomSpawn>true</NoRandomSpawn>
+</Building>

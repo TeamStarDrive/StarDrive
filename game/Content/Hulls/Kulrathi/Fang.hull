@@ -8,9 +8,6 @@ MeshOffset=0,0
 IconPath=ShipIcons/fang
 ModelPath=Model/Ships/Kulrathi/ship11a
 SelectIcon=11a
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=256,269,0,30
 Slots

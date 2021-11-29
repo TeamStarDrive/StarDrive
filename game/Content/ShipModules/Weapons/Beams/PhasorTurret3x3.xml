@@ -1,0 +1,49 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FreighterModule>false</FreighterModule>
+  <PlatformModule>false</PlatformModule>
+  
+  <UID>PhasorTurret3x3</UID> 
+  <Version>2</Version>
+
+  <Cost>48</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>3</TechLevel>
+
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>3</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>Turret</ModuleType>
+  <Name>Heavy Phasor Array</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/Phasor3x3</IconTexturePath>
+
+
+  <NameIndex>17514</NameIndex>
+  <DescriptionIndex>17515</DescriptionIndex>
+  <RepairDifficulty>4</RepairDifficulty>
+
+
+  <!-- Mass and Health -->
+  <Mass>36</Mass>
+  <Health>7020</Health>
+  <HealthMax>7020</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>10</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>HeavyPhasorTurret</WeaponType>
+  <FieldOfFire>120</FieldOfFire>
+
+  <!-- Description -->
+  <Description>Phasors are powerful and efficient directed energy weapons.</Description>
+  <AccuracyPercent>1</AccuracyPercent>
+
+</ShipModule>

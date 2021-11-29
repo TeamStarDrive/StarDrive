@@ -1,0 +1,129 @@
+<ExplorationEvent>
+  <Name>Temple</Name>
+  <PotentialOutcomes>
+
+    <Outcome>
+      <Chance>25</Chance>
+      <TitleText>Transaction</TitleText>
+      <DescriptionText>As your troops moved to enter the temple, they met a scavenger named Yuriy. He was speaking in a very strange dialect that had to be translated. Apparently, he found and old relic inside the temple and is willing to sell it for the right price!</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <MoneyGranted>-550</MoneyGranted>
+      <GrantArtifact>true</GrantArtifact>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>Nice doing business with you!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>It's an alien nest!</TitleText>
+      <DescriptionText>As your troops approach the temple, they hear sounds coming from inside. Unfortunately, a nest of antlions has made its home here! The troops quickly placed strategic explosives around the main structural components of the temple, causing it to collapse upon detonation.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <TroopsToSpawn>
+        <string>Antlion</string>
+          <string>Antlion</string>
+          <string>Antlion</string>
+       </TroopsToSpawn>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Burn it to the ground!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Remnant worshipers!</TitleText>
+      <DescriptionText>While mapping the layout of the temple rooms, your troops notice many primitive scribbles and mosaics in the walls, each worshiping some form of deity that came from the heavens. While examining the roof of the temple, they notice its unique size and flatness, something that could almost resemble a landing pad for a ship. Suddenly, they hear a sound and look up to see a remnant vessel has appeared! It hovers for a moment to charge its warp drive. Your troops fall back in haste, and as soon as they leave the temple, the vessel takes off, producing a powerful shock wave and destroying the temple.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+        <string>Ancient Frigate</string>
+       </RemnantShipsToSpawn>
+       <Image>Encounters/3.png</Image>
+       <ConfirmText>I hate cults.</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>5</Chance>
+      <TitleText>A unique technology!</TitleText>
+      <DescriptionText>After scouting the interior of the temple, your troops located a hidden chamber. Inside, they found a data core with schematics for an unknown technology. After removing the data core from its socket, the whole structure began to shake, and your troops managed to make it out just as the whole structure crumbles behind them.</DescriptionText>
+      <UnlockTech>AncientArmor</UnlockTech>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Very old armor, ages like a fine wine!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Space pyramid!</TitleText>
+      <DescriptionText>From outside, the enormous pyramid-like structure resembles an old temple, but after inspecting it from inside, your troops report that it is in fact a large housing complex.</DescriptionText>
+      <ReplaceWith>Ancient megacity</ReplaceWith>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>Cozy!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>6</Chance>
+      <TitleText>Rob or Ben?</TitleText>
+      <DescriptionText>While exploring the temple, your troops detect an energy source coming from deep inside the structure. While they were closing in on the source, they began to hear faint glimmers of what seemed to be two individuals arguing. With the voices becoming louder as they enter a large empty room, they think they have found the source. A worn, high-tech structure rests in the middle, likely centuries old. From the structure, a voice emanates. It explains to your troops that it is a sentient artificial intelligence, created by a now long lost civilization. Its purpose, to guide more primitive civilizations. Upon the downfall of its creators, this temple was constructed around the AI. It explains that it has developed a split personality over the eras, who have now individualized themselves into two different names, the equivalents in our language of Rob, and Ben. Each one now arguing constantly over who was the original mind. Nevertheless, it asks if it can siphon knowledge from our research networks, and in exchange it will provide us with improved tax collection.</DescriptionText>
+      <ReplaceWith>AI</ReplaceWith>       
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/6.png</Image>
+      <ConfirmText>We are all equal! More or less...</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Scavenger pirates</TitleText>
+      <DescriptionText>While exploring the temple, your troops stumbled upon a group of scavengers who immediately started firing shots. They were thankfully dealt with, and we suffered no losses, but that wasn't the end of them. They were a part of a larger space-pirate crew, who noticed that something had happened. Soon after, several ships launch from the surface. </DescriptionText>
+       <PirateShipsToSpawn>
+          <string>Corsair</string>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+          <string>Corsair-Fighter-Mk2</string>
+      </PirateShipsToSpawn>      
+      <RemoveTrigger>true</RemoveTrigger>
+      <Image>Encounters/1.png</Image>
+      <ConfirmText>Who dares to scavenge ancient sacred grounds!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>World Seed</TitleText>
+      <DescriptionText>While exploring the temple, your troops notice it resembles some form of vault, or maybe a bunker? At the center of the temple they happen upon a sealed off room with two enormous doors which won't budge when tried. They decide to attempt a breach with laser cutters. Once inside, they found a world seed, obviously meant to be hidden from the Remnants. But by opening the vault, they have exposed its whereabouts! Soon after, a remnant fleet warps into low orbit and begin bombing the temple.</DescriptionText>
+       <ReplaceWith>WorldSeed</ReplaceWith>      
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+        <string>Ancient Frigate</string>
+        <string>Ancient Frigate</string>
+        <string>Light Ancient Bomber</string>
+        <string>Light Ancient Bomber</string>
+        <string>Support Drone</string>
+       </RemnantShipsToSpawn>
+       <Image>Encounters/2.png</Image>
+       <ConfirmText>Looking tasty!</ConfirmText>
+    </Outcome>
+    
+        <Outcome>
+      <Chance>10</Chance>
+      <TitleText>Mad scientist!</TitleText>
+      <DescriptionText>After entering the temple you troops notice that corridors are littered with destroyed barricades and the skeletal remains of its former occupants. Inside a section that looks like a laboratory, your troops find a manual describing a horrible technological procedure to modify the skeletal structure of a person with an integrated self-moving exoskeleton. It sounds extremely advanced, but also painful. Maybe this was a sort of testing area for new technologies and the remains that we found were test subjects? The technology seems unrecoverable though. Maybe that is for the best. Who would want to do that to a person! At that moment, you hear a scream from one of the soldiers: the skeletons, they are moving!.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <TroopsToSpawn>
+          <string>Skeleton</string>
+          <string>Skeleton</string>
+          <string>Skeleton</string>
+       </TroopsToSpawn>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>This makes me sick.</ConfirmText>
+    </Outcome>
+        <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Remnant schemtics!</TitleText>
+      <DescriptionText>While mapping the layout of the temple rooms, your troops notice many primitive scribbles and mosaics in the walls, each worshiping some form of deity that came from the heavens. While examining the largest chamber in the complex, they notice that in the middle of it there is a altar on top of which there is inserted a very ancient data cube that remnants use. Your troops retrive the cube for further analisis.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+
+       <Image>Encounters/3.png</Image>
+       <ConfirmText>Interesting square thing!</ConfirmText>
+    </Outcome>
+  </PotentialOutcomes>
+ </ExplorationEvent>

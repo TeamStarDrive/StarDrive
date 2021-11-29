@@ -1,0 +1,47 @@
+﻿<?xml version="1.0"?>
+<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+  <Tag_Kinetic>false</Tag_Kinetic>
+  <Tag_Energy>true</Tag_Energy>
+  <Tag_Guided>false</Tag_Guided>
+  <Tag_Missile>false</Tag_Missile>
+  <Tag_Hybrid>false</Tag_Hybrid>
+  <Tag_Beam>false</Tag_Beam>
+  <Tag_Intercept>false</Tag_Intercept>
+  <Tag_Explosive>false</Tag_Explosive>
+  <Tag_Bomb>false</Tag_Bomb>
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  <Tag_Warp>false</Tag_Warp>
+  <Tag_Subspace>false</Tag_Subspace>
+  <Tag_Drone>false</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>true</Tag_Cannon>
+  
+  <Excludes_Fighters>true</Excludes_Fighters>  
+  
+  <UID>MassiveDisruptor</UID>
+  <fireDelay>4</fireDelay>
+  <Range>9000</Range>
+  <PowerRequiredToFire>1836</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
+  
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <fireCueName>disruptor</fireCueName>
+  
+  <!-- Projectile Information -->
+  <DamageAmount>1689</DamageAmount>
+  <EMPDamage>15</EMPDamage>
+  <ProjectileSpeed>3375</ProjectileSpeed>
+  <SalvoCount>2</SalvoCount>
+  <SalvoTimer>0.4</SalvoTimer>
+  <Scale>1.4</Scale>
+  <Light>Green</Light>
+  <explodes>false</explodes>
+  <ProjectileTexturePath>projPulse_01_green_dual</ProjectileTexturePath>
+  <ModelPath>projTear</ModelPath>
+  <WeaponEffectType>DisruptorCannon</WeaponEffectType>
+
+
+  <WeaponType>Energy Cannon</WeaponType>
+</Weapon>

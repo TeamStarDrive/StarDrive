@@ -7,15 +7,12 @@ Size=8,7
 MeshOffset=0,8
 IconPath=ShipIcons/terran_platform
 ModelPath=Model/Ships/Platforms/platform_base
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|O  |O  |___|___|___
-___|___|___|O  |O  |___|___|___
-___|___|___|O  |O  |___|___|___
-___|___|___|I  |I  |___|___|___
-___|O  |O  |I  |IC |O  |O  |___
-O  |O  |O  |___|___|O  |O  |O  
+___|___|___|IO |IO |___|___|___
+___|___|O  |IO |IO |O  |___|___
+___|___|O  |I  |I  |O  |___|___
+___|IO |IO |I  |IC |IO |IO |___
+O  |IO |IO |O  |O  |IO |IO |O  
 O  |O  |___|___|___|___|O  |O  

@@ -1,0 +1,45 @@
+﻿Version=1
+Name=Captured Gunship
+Hull=Remnant/XenoGunship
+Role=fighter
+Style=Remnant
+Size=8,8
+GridCenter=4,4
+DefaultAIState=AttackRunner
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=SteelArmorSmall;Sensor1x2;DarkMatterCannon_1x2;AncientShield2kw;RemnantSmallReactor;AncientReactorMed;Cockpit;RemnantEngine2
+Modules=27
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+3,0;0
+4,0;0
+1,1;0
+2,1;0
+3,1;1;2,1
+5,1;0
+6,1;0
+0,2;0
+1,2;2;1,2
+2,2;2;1,2
+3,2;3;2,2
+5,2;2;1,2
+6,2;2;1,2
+7,2;0
+0,3;0
+7,3;0
+1,4;0
+2,4;4
+3,4;5;2,2
+5,4;6
+6,4;0
+2,5;0
+5,5;0
+1,6;0
+2,6;7;2,2
+4,6;7;2,2
+6,6;0

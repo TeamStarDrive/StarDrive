@@ -1,31 +1,31 @@
 ﻿<Troop>
   <Name>Spider Tank</Name>
   <Description>A heavily armored tank with flexible, all-terrain walking arms. Hard Target.</Description>
-  <TexturePath>tank_idle01</TexturePath>
+  <TexturePath>Tank/tank_idle01</TexturePath>
   <Icon>tank</Icon>
 
 
   <RaceType>ALL</RaceType>
   <num_idle_frames>2</num_idle_frames>
-  <num_attack_frames>15</num_attack_frames>
+  <num_attack_frames>10</num_attack_frames>
   <animated>true</animated>
   <idle_x_offset>0</idle_x_offset>
   <idle_y_offset>0</idle_y_offset>
   <attack_width>128</attack_width>
-  <idle_path>tank_idle</idle_path>
-  <attack_path>tank_attack</attack_path>
+  <idle_path>Tank/tank_idle</idle_path>
+  <attack_path>Tank/tank_attack</attack_path>
 
   <sound_attack>sd_ground_spidertank_01</sound_attack>
   
   <Cost>100</Cost>
-  <Strength>10</Strength>
-  <MaxStrength>10</MaxStrength>
+  <Strength>15</Strength>
+  <MaxStrength>15</MaxStrength>
   <Movement>1</Movement>
   <MaintenanceCost>1</MaintenanceCost>
   <Range>1</Range>
   <HardAttack>60</HardAttack>
-  <BoardingStrength>20</BoardingStrength>
-  <SoftAttack>20</SoftAttack>
+  <BoardingStrength>15</BoardingStrength>
+  <SoftAttack>15</SoftAttack>
   <TargetType>Hard</TargetType>
   <Class>Infantry</Class>
   <MovementCue>sd_mech_march_03</MovementCue>

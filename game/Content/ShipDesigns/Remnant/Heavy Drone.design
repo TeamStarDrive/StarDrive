@@ -1,0 +1,40 @@
+﻿Version=1
+Name=Heavy Drone
+Hull=Remnant/XenoGunship
+Role=fighter
+Style=Remnant
+Size=8,8
+GridCenter=4,4
+DefaultAIState=DoNothing
+DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=AncientArmor_1x1;Amplifier;Cockpit;RemnantHV2x3;AncientShield2kw;AncientReactorMed;RemnantEngine2
+Modules=22
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+3,0;0
+4,0;0
+1,1;0
+2,1;0
+3,1;1
+4,1;2
+5,1;0
+6,1;0
+0,2;0
+1,2;3;2,3
+3,2;4;2,2
+5,2;3;2,3
+7,2;0
+0,3;0
+7,3;0
+3,4;5;2,2
+2,5;0
+5,5;0
+1,6;0
+2,6;6;2,2
+4,6;6;2,2
+6,6;0

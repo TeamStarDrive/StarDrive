@@ -1,0 +1,41 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <UID>LaserBeamTurret2x2</UID> 
+  <Version>2</Version>
+
+  <Cost>9</Cost>
+  <!-- Tech Level Used by AI for Upgrading Ships -->
+  <TechLevel>1</TechLevel>
+  
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <ModuleType>Turret</ModuleType>
+  <Name>Laser Beam Turret</Name>
+  <Restrictions>O</Restrictions>
+
+  <IconTexturePath>Modules/beamturret_2x2</IconTexturePath>3
+
+
+  <NameIndex>978</NameIndex>
+  <DescriptionIndex>979</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>12</Mass>
+  <Health>2400</Health>
+  <HealthMax>2400</HealthMax>
+
+  <!-- Power Drawn -->
+  <PowerDraw>5</PowerDraw>
+
+  <!-- for Weapons -->
+  <WeaponType>LaserBeam</WeaponType>
+  <FieldOfFire>90</FieldOfFire>
+
+  <!-- Description -->
+  <Description>This turret-mounted laser beam has a limited range and is useful in point defense roles</Description>
+  
+
+</ShipModule>

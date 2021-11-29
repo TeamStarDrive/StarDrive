@@ -8,13 +8,10 @@ MeshOffset=0,0
 IconPath=ShipIcons/shuttle
 ModelPath=Model/Viper
 SelectIcon=8
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=257,251,0,32
 Slots
-___|O  |___|___
+___|O  |O  |___
 ___|IO |IO |___
 ___|IO |IO |___
 ___|IO |IOC|___

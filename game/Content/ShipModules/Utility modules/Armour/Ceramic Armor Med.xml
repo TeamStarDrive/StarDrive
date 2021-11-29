@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Cost>9</Cost>
+	<!-- Tech Level -->
+	<TechLevel>3</TechLevel>
+	<TechBranch>Armor</TechBranch>
+	<!-- common traits shared by all ship modules -->
+	<XSIZE>2</XSIZE>
+	<YSIZE>2</YSIZE>
+	<ModuleType>Armor</ModuleType>
+	<Name>Ceramic Armor Med</Name>
+	<Restrictions>O</Restrictions>
+	<UID>Ceramic Armor Med</UID> 
+  <Version>2</Version>
+
+	<TexturePath>Textures/transparent</TexturePath>
+	<IconTexturePath>Modules/Ceramic Armor Med</IconTexturePath>
+	<NameIndex>6581</NameIndex>
+	<DescriptionIndex>6584</DescriptionIndex>
+	<!-- Mass and Health -->
+	<Mass>24</Mass>
+	<Health>15600</Health>
+	<HealthMax>15600</HealthMax>
+	<RepairDifficulty>1</RepairDifficulty>
+    <DamageThreshold>0</DamageThreshold>
+	<!-- Armor resistance -->
+    <KineticResist>0</KineticResist>
+    <BeamResist>0</BeamResist>  
+	<HybridResist>0</HybridResist>
+	<!-- Power Drawn -->
+	<PowerDraw>0</PowerDraw>
+	<!-- Crew Reqs -->
+	<CrewRequired>0</CrewRequired>
+	<CrewSupplied>0</CrewSupplied>
+	<!-- for Weapons -->
+	<!-- Description -->
+	<Description>New generation of Ceramic Armor.</Description>
+	<APResist>01</APResist>
+</ShipModule>

@@ -8,12 +8,9 @@ MeshOffset=0,0
 IconPath=ShipIcons/emissary
 ModelPath=Model/Ships/Terran/Emissary/EmissaryCruiser
 SelectIcon=01
-Animated=false
-IsShipyard=false
-IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=232,488,0,83
-Thruster=280,488,0,83
+Thruster=227,489,0,83
+Thruster=284,486,0,83
 Slots
 ___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___
@@ -39,8 +36,8 @@ ___|___|O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  |___|___
 ___|___|O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  |___|___
 ___|O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |O  |___
 O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |IO |IO |O  
-O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |IO |IO |O  
-O  |IO |O  |O  |IO |IO |E  |E  |E  |E  |E  |E  |IO |IO |O  |O  |IO |O  
+O  |IO |IO |IO |O  |IO |I  |I  |I  |I  |I  |I  |IO |O  |IO |IO |IO |O  
+O  |IO |O  |O  |O  |IO |E  |E  |E  |E  |E  |E  |IO |O  |O  |O  |IO |O  
 ___|O  |___|___|O  |IO |E  |E  |E  |E  |E  |E  |IO |O  |___|___|O  |___
 ___|___|___|___|___|O  |E  |E  |E  |E  |E  |E  |O  |___|___|___|___|___
 ___|___|___|___|___|O  |E  |E  |E  |E  |E  |E  |O  |___|___|___|___|___

@@ -1,0 +1,28 @@
+﻿<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Cannon>true</Tag_Cannon>
+  <Tag_Kinetic>true</Tag_Kinetic>
+  <Tag_Explosive>true</Tag_Explosive>
+  
+  <UID>PlanetFlak</UID>
+  <fireDelay>4</fireDelay>
+  <Range>2500</Range>
+  <PowerRequiredToFire>0</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>0.5</OrdinanceRequiredToFire>
+
+
+  <fireCueName>sd_weapon_flakcannon_01</fireCueName>
+  <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
+
+  <DamageAmount>175</DamageAmount>
+  <ProjectileSpeed>700</ProjectileSpeed>
+  <DamageRadius>25</DamageRadius> 
+  <ProjectileRadius>6</ProjectileRadius>
+  <explodes>true</explodes>
+  <ProjectileTexturePath>projTear_01_orange</ProjectileTexturePath>
+  <ModelPath>projTear</ModelPath>
+  <ProjectileCount>4</ProjectileCount>
+  <Scale>.8</Scale>
+  <FireArc>15</FireArc>
+  <WeaponType>Ballistic Cannon</WeaponType>
+</Weapon>
