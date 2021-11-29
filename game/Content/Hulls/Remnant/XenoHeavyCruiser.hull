@@ -1,0 +1,45 @@
+﻿Version=1
+HullName=Remnant/XenoHeavyCruiser
+VisibleName=XenoHeavyCruiser
+Role=battleship
+Style=Remnant
+Size=22,31
+MeshOffset=0,0
+IconPath=ShipIcons/xeno gunship
+ModelPath=Model/Ships/Remnant/SharedTextures/ship09a
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=255,498,0,80
+Thruster=297,494,0,80
+Thruster=214,494,0,80
+Slots
+___|___|___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___|___|___
+___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___
+___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |___|___|___|___|___|___
+___|___|___|___|___|O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |___|___|___|___|___
+___|___|___|___|___|O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |___|___|___|___|___
+___|___|___|___|___|O  |O  |O  |IO |IO |IO |IO |IO |IO |O  |O  |O  |___|___|___|___|___
+___|___|___|___|O  |O  |O  |O  |IO |IO |IO |IO |IO |IO |O  |O  |O  |O  |___|___|___|___
+___|___|___|O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |O  |O  |___|___|___
+___|___|___|O  |O  |O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |O  |O  |___|___|___
+___|O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  |___
+___|O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  |___
+O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  
+O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  
+O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  
+O  |O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |O  |O  |O  
+___|O  |O  |O  |IO |IO |IO |I  |I  |I  |I  |IC |I  |I  |I  |IO |IO |IO |O  |O  |O  |___
+___|___|O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |O  |___|___
+___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___
+___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___
+___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___
+___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___
+___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___
+___|___|O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |O  |___|___
+___|___|O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |O  |___|___
+___|___|O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |O  |___|___
+___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___
+___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___
+___|___|___|___|___|O  |O  |E  |E  |E  |E  |E  |E  |E  |E  |O  |O  |___|___|___|___|___
+___|___|___|___|___|O  |O  |E  |E  |E  |E  |E  |E  |E  |E  |O  |O  |___|___|___|___|___
+___|___|___|___|___|___|O  |E  |E  |E  |E  |E  |E  |E  |E  |O  |___|___|___|___|___|___
+___|___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___|___|___

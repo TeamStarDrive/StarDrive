@@ -1,0 +1,47 @@
+﻿Version=1
+Name=Medium Freighter
+Hull=Misc/CargoMedium
+Role=freighter
+Style=Misc
+Size=6,21
+GridCenter=3,9
+DefaultAIState=DoNothing
+DefaultCombatState=Evade
+ShipCategory=Civilian
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=BasicCargoHold;MediumCargoHold;Cockpit;Maneuvering_Thruster_1x1;NuclearReactorSmall;LargeCargoHold;PowerSolar;NuclearReactorMed;WarpEngine_2x2;FrigateEngine
+Modules=29
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+2,0;0
+3,0;0
+2,1;1;2,2
+2,3;2
+3,3;3
+2,4;4
+3,4;4
+1,5;5;3,3
+4,5;0
+4,6;0
+4,7;0
+2,8;0
+3,8;0
+1,9;5;3,3
+4,9;3
+4,10;6
+4,11;3
+2,12;1;2,2
+1,14;5;3,3
+4,14;0
+4,15;0
+4,16;0
+2,17;7;2,2
+0,18;6
+1,18;3
+4,18;3
+5,18;6
+1,19;8;2,2
+3,19;9;2,2

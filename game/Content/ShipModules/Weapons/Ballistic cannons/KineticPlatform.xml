@@ -1,0 +1,54 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Cost>6</Cost>
+  
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Turret</ModuleType>
+  <XSIZE>2</XSIZE>
+  <YSIZE>2</YSIZE>
+  <Name>Kinetic Platform</Name>
+  <Restrictions>IO</Restrictions>
+  <UID>KineticPlatform</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/DisruptorTurret2x2</IconTexturePath>
+  <Mass>1000</Mass>
+  <Health>800</Health>
+  <HealthMax>800</HealthMax>
+  <energyreq>0</energyreq>
+  <Description>A crude but effective high-energy cannon weapon </Description>
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <PowerDraw>0</PowerDraw>
+
+
+  <NameIndex>934</NameIndex>
+  <DescriptionIndex>935</DescriptionIndex>
+
+
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+  <radius>0</radius>
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>10</PowerFlowMax>
+  <PowerStoreMax>10</PowerStoreMax>
+  
+  <!-- for Weapons -->
+  <WeaponType>KineticPlatform</WeaponType>
+  <FieldOfFire>360</FieldOfFire>
+  
+  
+  <!-- for Engines -->
+  <thrust>0</thrust>
+  
+  
+
+</ShipModule>

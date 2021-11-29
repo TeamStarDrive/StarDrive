@@ -15,7 +15,7 @@ namespace UnitTests.Ships
 
         public TestIsInsideFiringArcs()
         {
-            LoadStarterShips("Flak Fang");
+            LoadStarterShips("Fang Strafer");
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -132,7 +132,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipFiringArc()
         {
-            Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
+            Ship ship = SpawnShip("Fang Strafer", Player, Vector2.Zero);
             Weapon w = ship.Weapons.First;
             
             const int fireArc = 90;
@@ -187,7 +187,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipRealUseCases()
         {
-            Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
+            Ship ship = SpawnShip("Fang Strafer", Player, Vector2.Zero);
             Weapon w = ship.Weapons.First;
 
             // ship is at 24,-1008 and looking DOWN at us at 0,0, fire arc is 23 degrees
@@ -197,7 +197,7 @@ namespace UnitTests.Ships
 
         void Run360Loop(int turretFacing, int targetRotationOffset, int fireArc = 10)
         {
-            Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
+            Ship ship = SpawnShip("Fang Strafer", Player, Vector2.Zero);
             Weapon w = ship.Weapons.First;
             for (int shipRotation = 0; shipRotation < 360; shipRotation += 1)
             {
@@ -265,7 +265,7 @@ namespace UnitTests.Ships
         //     - All 360 degree angle target positions from our Ship
         public void Turret360_AllFacings_ShipRotate360Loop_Target360Loop()
         {
-            Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
+            Ship ship = SpawnShip("Fang Strafer", Player, Vector2.Zero);
             Weapon w = ship.Weapons.First;
             int fireArc = 360;
             for (int turretFacing = 0; turretFacing < 360; turretFacing += 90)
@@ -288,7 +288,7 @@ namespace UnitTests.Ships
         //   - All 360 degree angle rotations of our Ship
         public void Turret180_AllFacings_ShipRotate360Loop_Target360Loop()
         {
-            Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
+            Ship ship = SpawnShip("Fang Strafer", Player, Vector2.Zero);
             Weapon w = ship.Weapons.First;
             int fireArc = 180;
             for (int turretFacing = 0; turretFacing < 360; turretFacing += 90)

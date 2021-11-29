@@ -1,0 +1,45 @@
+﻿<?xml version="1.0"?>
+<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Kinetic>false</Tag_Kinetic>
+  <Tag_Energy>true</Tag_Energy>
+  <Tag_Guided>false</Tag_Guided>
+  <Tag_Missile>false</Tag_Missile>
+  <Tag_Hybrid>false</Tag_Hybrid>
+  <Tag_Beam>true</Tag_Beam>
+  <Tag_Intercept>false</Tag_Intercept>
+  <Tag_Explosive>false</Tag_Explosive>
+  <Tag_Bomb>false</Tag_Bomb>
+  <Tag_Railgun>false</Tag_Railgun>
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  <Tag_Warp>false</Tag_Warp>
+  <Tag_Subspace>false</Tag_Subspace>
+  <Tag_Drone>false</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>false</Tag_Cannon>
+
+  <UID>TractorBeam</UID>
+  <isBeam>true</isBeam>
+  <fireDelay>4.5</fireDelay>
+  <Range>9000</Range>
+  <PowerRequiredToFire>0</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
+   <BeamDuration>8</BeamDuration>
+  <!-- name of XACT audio cue to play on firing this weapon -->
+
+  <fireCueName>sd_weapon_laser_large_alt_04</fireCueName>
+  <ToggleSoundName>sd_weapon_beam_02</ToggleSoundName>
+  
+  
+  <!-- Projectile Information -->
+  <BeamTexture>beam_black</BeamTexture>
+
+
+  <MassDamage>5050</MassDamage>
+  <DamageAmount>0</DamageAmount>
+  <BeamThickness>50</BeamThickness>
+  <BeamPowerCostPerSecond>40</BeamPowerCostPerSecond>
+
+  <WeaponType>Energy Beam</WeaponType>
+  
+</Weapon>

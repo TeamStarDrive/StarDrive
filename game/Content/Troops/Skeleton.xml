@@ -1,15 +1,15 @@
 ﻿<Troop>
   <Name>Skeleton</Name>
   <Description>Ancient bones held together by a mysterious energy field</Description>
-  <TexturePath>skeleton_idle_01</TexturePath>
+  <TexturePath>Skeleton/skeleton_idle_01</TexturePath>
   <Icon>skeleton</Icon>
   <first_frame>1</first_frame>
   <RaceType>Unknown</RaceType>
   <num_idle_frames>8</num_idle_frames>
   <num_attack_frames>9</num_attack_frames>
   <animated>true</animated>
-  <idle_path>skeleton_idle_</idle_path>
-  <attack_path>skeleton_attack_</attack_path>
+  <idle_path>Skeleton/skeleton_idle_</idle_path>
+  <attack_path>Skeleton/skeleton_attack_</attack_path>
 
   <sound_attack>sd_ground_skeleton_01</sound_attack>
   

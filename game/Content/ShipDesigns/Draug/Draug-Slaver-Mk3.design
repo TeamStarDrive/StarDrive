@@ -1,0 +1,75 @@
+﻿Version=1
+Name=Draug-Slaver-Mk3
+Hull=Kulrathi/Claw
+Role=troopShip
+Style=Draugar
+Size=18,17
+GridCenter=9,9
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Reckless
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=CompositeAlloys Small;TractorBeamTurret2x2;CompositeAlloys Med;ThalaronBeam2x3;RemnantSmallReactor;SiphonBeam2x3;Bridge;AncientShield_3x3;EmpDischarger;PirateAssaultBay;OrdnanceLockerSmall;LaserCannon;PowerConduit;Extreme Fusion Reactor;SiphonBeamTurret2x2;AdvAmplifier;Pirate Inhibitor;EMPTurret2x2;RemnantEngine3;RemnantEngine1;BosonTransmiter;Maneuvering_Thruster_1x1
+Modules=57
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+6,0;0
+11,0;0
+6,1;0
+7,1;0
+10,1;0
+11,1;0
+6,2;1;2,2
+8,2;2;2,2
+10,2;1;2,2
+6,4;3;2,3
+8,4;4
+9,4;4
+10,4;5;2,3
+8,5;6;2,2
+5,7;0
+6,7;0
+7,7;7;3,3
+10,7;8;1,2
+11,7;0
+12,7;0
+4,8;9;3,2;90;2;Terran Assault Shuttle
+11,8;9;3,2;90;2;Terran Assault Shuttle
+10,9;10
+4,10;0
+5,10;11;;330
+6,10;12
+7,10;13;2,2
+9,10;13;2,2
+11,10;12
+12,10;11;;30
+13,10;0
+3,11;14;2,2;330
+5,11;15;2,2
+11,11;16;2,2
+13,11;17;2,2;30
+2,12;0
+7,12;18;3,3
+10,12;19
+15,12;0
+1,13;9;2,3;;;Terran Assault Shuttle
+3,13;9;2,3;;;Terran Assault Shuttle
+5,13;20
+6,13;21
+10,13;19
+11,13;21
+12,13;20
+13,13;9;2,3;;;Terran Assault Shuttle
+15,13;9;2,3;;;Terran Assault Shuttle
+0,14;0
+5,14;0
+10,14;19
+12,14;0
+17,14;0
+2,16;0
+3,16;0
+14,16;0
+15,16;0

@@ -122,26 +122,51 @@ namespace Ship_Game.Ships
             Weapons.Clear();
             BombBays.Clear();
 
+            // ignore invalid modules for templates
+            if (!isTemplate && shipData.InvalidModules != null)
+            {
+                Log.Warning($"Ship spawn failed '{Name}' InvalidModules='{shipData.InvalidModules}'");
+                return false;
+            }
+
             ModuleSlotList = new ShipModule[templateSlots.Length];
             if (isTemplate && !shipyardDesign && ModuleSlotList.Length == 0)
             {
-                Log.Warning($"Failed to load ship '{Name}' due to all empty Modules");
+                Log.Warning($"Ship spawn failed failed '{Name}' due to all empty Modules");
                 return false;
             }
 
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 DesignSlot slot = templateSlots[i];
-                if (!ResourceManager.ModuleExists(slot.ModuleUID))
+                if (ResourceManager.ModuleExists(slot.ModuleUID))
                 {
-                    Log.Warning($"Failed to load ship '{Name}' due to invalid Module '{slot.ModuleUID}'!");
-                    return false;
+                    ModuleSlotList[i] = ShipModule.Create(slot, this, isTemplate);
                 }
-                ModuleSlotList[i] = ShipModule.Create(slot, this, isTemplate);
+                else if (!isTemplate) // we already reported it when loading template from files
+                {
+                    Log.Warning($"Invalid Module '{slot.ModuleUID}' in '{Name}'");
+                }
+            }
+
+            // if this is a template and we have invalid slots, clear them out
+            if (isTemplate && shipData.InvalidModules != null)
+            {
+                ModuleSlotList = ModuleSlotList.Filter(s => s != null);
             }
 
             CreateModuleGrid(shipData.GridInfo, isTemplate, shipyardDesign);
             return true;
+        }
+
+        static DesignSlot GetReplacementSlot(DesignSlot s)
+        {
+            return new DesignSlot(s.Pos, "OrdnanceLockerSmall", new Point(1,1), 0, ModuleOrientation.Normal, null);
+        }
+
+        static ModuleSaveData GetReplacementSlot(ModuleSaveData s)
+        {
+            return new ModuleSaveData(GetReplacementSlot(s as DesignSlot), s.Health, 0, null);
         }
 
         protected bool CreateModuleSlotsFromData(ModuleSaveData[] moduleSaves)
@@ -152,7 +177,7 @@ namespace Ship_Game.Ships
             ModuleSlotList = new ShipModule[moduleSaves.Length];
             if (ModuleSlotList.Length == 0)
             {
-                Log.Warning($"Failed to load ship '{Name}' due to all empty Modules");
+                Log.Warning($"Ship spawn failed failed '{Name}' due to all empty Modules");
                 return false;
             }
 
@@ -161,8 +186,8 @@ namespace Ship_Game.Ships
                 ModuleSaveData slot = moduleSaves[i];
                 if (!ResourceManager.ModuleExists(slot.ModuleUID))
                 {
-                    Log.Warning($"Failed to load ship '{Name}' due to invalid Module '{slot.ModuleUID}'!");
-                    return false;
+                    Log.Warning($"Invalid Module '{slot.ModuleUID}' in '{Name}'");
+                    slot = GetReplacementSlot(slot);
                 }
                 ModuleSlotList[i] = ShipModule.Create(slot, this);
             }

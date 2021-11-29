@@ -15,8 +15,13 @@ namespace UnitTests.Ships
             ResourceManager.LoadHulls();
             ReloadStarterShips();
             ReloadTechTree();
-            LoadStarterShips("Excalibur-Class Supercarrier", "Medium Freighter", "Flak Corvette", "Laserclaw",
-                             "Ving Defender", "Corsair", "Alliance-Class Mk Ia Hvy Assault", "Assault Shuttle");
+            LoadStarterShips("Heavy Carrier mk5-b",
+                             "Medium Freighter",
+                             "Fang Strafer",
+                             "Ving Defender",
+                             "Corsair",
+                             "TEST_Heavy Carrier mk1",
+                             "Assault Shuttle");
             //OnlyLoadShips("Vulcan Scout");
         }
 

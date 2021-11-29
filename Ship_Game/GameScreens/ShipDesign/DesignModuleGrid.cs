@@ -276,6 +276,12 @@ namespace Ship_Game
                 return false;
             }
 
+            if (module == null)
+            {
+                if (logFailure) Log.Warning("Design ShipModule was null");
+                return false;
+            }
+
             ModuleRect span = GetModuleSpan(slot, module.XSIZE, module.YSIZE);
             if (!IsInBounds(span))
             {

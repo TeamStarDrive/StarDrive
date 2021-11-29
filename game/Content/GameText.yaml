@@ -242,9 +242,9 @@ Smart:
  SPA: "Inteligente"
 IntelligentRacesGainABonus:
  Id: 49
- ENG: "Intelligent races gain a 35% bonus to research efforts"
- RUS: "Умные расы получают 35% бонус к исследованиям."
- SPA: "Las razas inteligentes cuentan con una bonificación del 35% al investigar tecnologías"
+ ENG: "Intelligent races gain a 20% bonus to research efforts"
+ RUS: "Умные расы получают 20% бонус к исследованиям."
+ SPA: "Las razas inteligentes cuentan con una bonificación del 20% al investigar tecnologías"
 Dumb:
  Id: 50
  ENG: "Dumb"
@@ -252,9 +252,9 @@ Dumb:
  SPA: "Tontas"
 DumbRacesSufferAPenalty:
  Id: 51
- ENG: "Dumb races suffer a 35% penalty to research efforts due to their slow grasp of complex ideas"
- RUS: "Тупые расы получают 35% штраф к исследованиям вследствие плохого понимания сложных концепций."
- SPA: "Las razas tontas sufren una penalización del 35% al investigar tecnologías porque tardan mucho en asimilar las ideas complejas"
+ ENG: "Dumb races suffer a 10% penalty to research efforts due to their slow grasp of complex ideas"
+ RUS: "Тупые расы получают 10% штраф к исследованиям вследствие плохого понимания сложных концепций."
+ SPA: "Las razas tontas sufren una penalización del 10% al investigar tecnologías porque tardan mucho en asimilar las ideas complejas"
 Eagleeyed:
  Id: 52
  ENG: "Eagle-Eyed"
@@ -312,9 +312,9 @@ Industrious:
  SPA: "Industriosa"
 IndustriousRacesEnjoyABonus:
  Id: 63
- ENG: "Industrious races enjoy a 35% bonus to Production efforts due to their tireless and efficient natures"
- RUS: "Работящие расы получают 35% бонус к производству за счет эффективного производства и усердия."
- SPA: "La producción de las razas industriosas cuenta con una bonificación del 35% gracias a su carácter eficiente e incansable"
+ ENG: "Industrious races enjoy a 25% bonus to Production efforts due to their tireless and efficient natures"
+ RUS: "Работящие расы получают 25% бонус к производству за счет эффективного производства и усердия."
+ SPA: "La producción de las razas industriosas cuenta con una bonificación del 25% gracias a su carácter eficiente e incansable"
 Lazy:
  Id: 64
  ENG: "Lazy"
@@ -322,9 +322,9 @@ Lazy:
  SPA: "Perezosa"
 LazyRacesJustDontLike:
  Id: 65
- ENG: "Lazy races just don't like to work, and as a result suffer a 35% penalty to Production efforts"
- RUS: "Ленивые расы, как следует из названия, просто не любят работать, как следствие получая 35% штраф к производству."
- SPA: "A las razas perezosas no les gusta trabajar y, por tanto, sufren una penalización del 35% en sus esfuerzos de producción"
+ ENG: "Lazy races just don't like to work, and as a result suffer a 15% penalty to Production efforts"
+ RUS: "Ленивые расы, как следует из названия, просто не любят работать, как следствие получая 15% штраф к производству."
+ SPA: "A las razas perezosas no les gusta trabajar y, por tanto, sufren una penalización del 15% en sus esfuerzos de producción"
 Mercantile:
  Id: 66
  ENG: "Mercantile"
@@ -333,6 +333,7 @@ Mercantile:
 MercantileRacesAreNaturalTraders:
  Id: 67
  ENG: "Mercantile races are natural traders, and gain 0.5 Credits for each unit of food or production moved via freighter within the empire, they also have improved supply chains for trade agreements which can help supply the demand of larger empires having trade agreements with them."
+
 Wasteful:
  Id: 68
  ENG: "Wasteful"
@@ -1794,7 +1795,7 @@ AeroponicsIsTheUseOf:
  ENG: "Aeroponics is the use of a hydro-atomized spray to deliver nutrients to plants suspended in the air. This technique offers excellent plant growth and eliminates the need for soil while at the same time minimizing pathogen risks. +1 flat bonus to Food production."
  RUS: "Аэропоника - это использование атомизированного водяного спрея для доставки питательных веществ растениям, подвешенным в воздухе. Использование этой технологии позволяет растениям расти очень быстро, устраняет необходимость в почве и минимизирует риски заражения микроорганизмами. +1 бонус к производству еды."
  SPA: "La aeroponia es el cultivo en un entorno aéreo de plantas a las que se transmiten los nutrientes por hidroatomización. Con esta técnica, las plantas crecen a un ritmo excelente y se elimina la necesidad de tierra a la vez que se reducen al mínimo los riesgos patógenos. Bonificación única de +1 a la producción de comida."
-FoodPerTurn2:
+AeroponicsShortDescr:
  Id: 405
  ENG: "+1 food per turn"
  RUS: "+1 еды в ход"
@@ -2011,14 +2012,14 @@ ResearchLab:
  SPA: "Laboratorio de investigación"
 ADedicatedResearchLabAllows:
  Id: 453
- ENG: "A dedicated research lab allows colonists to begin in earnest the study of their new home.  Provides a flat +1 per turn research bonus to any colony. "
- RUS: "Исследовательская лаборатория дает колонистам возможность начать изучать их новый дом. Дает +1 к науке в любой колонии. "
- SPA: "Un laboratorio de investigación especializado permite a los colonos emprender el estudio a fondo de su nuevo mundo.  Proporciona a una colonia una bonificación única de investigación de +1 por turno. "
+ ENG: "A dedicated research lab allows colonists to begin in earnest the study of their new home.  Provides a flat +0.3 per turn research bonus to any colony and +0.2 research per assigned colonist. "
+ RUS: "Исследовательская лаборатория дает колонистам возможность начать изучать их новый дом. Дает +0.3 к науке в любой колонии,+0.2 к науке за колониста. "
+ SPA: "Un laboratorio de investigación especializado permite a los colonos emprender el estudio a fondo de su nuevo mundo.  Proporciona a una colonia una bonificación única de investigación de +0.3 por turno. "
 ResearchPerTurn2:
  Id: 454
- ENG: "+1 research per turn"
- RUS: "+1 к науке в ход"
- SPA: "+1 de investigación por turno"
+ ENG: "+0.3 research per turn, 0.2 research per colonist"
+ RUS: "+0.3 к науке в ход, +0.2 к науке за колониста"
+ SPA: "+0.3 de investigación por turno"
 RoverBay:
  Id: 455
  ENG: "Rover Bay"
@@ -2026,12 +2027,12 @@ RoverBay:
  SPA: "Muelle de vehículos planetarios"
 MannedAndAutomatedRoversProvide:
  Id: 456
- ENG: "Manned and automated rovers provide indispensable labor savings to fledgling colonies, increasing the production of the colony with a flat +1 production bonus."
+ ENG: "Manned and automated rovers provide indispensable labor savings to fledgling colonies, increasing the production of the colony with a flat +1 production bonus, with additional +1 production per planets richness."
  RUS: "Управляемые и автоматические подъемники помогают значительно сократить трудозатраты при обустройстве колонии, давая +1 бонус к производству."
  SPA: "Los vehículos planetarios tripulados y automatizados realizan un trabajo indispensable para las incipientes colonias al aumentar la producción con una bonificación única de +1 por turno."
 ProductionPerTurn2:
  Id: 457
- ENG: "+1 production per turn"
+ ENG: "+1 production per turn, +0.5 prod per richness"
  RUS: "+1 производства в ход"
  SPA: "+1 de producción por turno"
 SpacePort:
@@ -2041,7 +2042,7 @@ SpacePort:
  SPA: "Puerto espacial"
 TaxRevenuesAllowsShipConstruction:
  Id: 460
- ENG: "+50% tax revenues; allows ship construction"
+ ENG: "+50% tax revenues; allows ship construction, + infrastructure, increased ship repair rates"
  RUS: "+50% к налогам; позволяет строить корабли"
  SPA: "+50% de ingresos fiscales; permite la construcción de naves"
 Terraformer:
@@ -2052,9 +2053,11 @@ Terraformer:
 TheseMachinesWhileExpensiveTo:
  Id: 462
  ENG: "These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. Terraform Level of an empire can be 1 to 3. Each level increases the effectiveness of terraforming operations until they are able to terraform barrens planet into a heaven for your people."
+
 TerraformsThePlanetToYour:
  Id: 463
  ENG: "Terraforms the planet based on the Empire's Terraforming Level"
+
 TrackingStation:
  Id: 464
  ENG: "Tracking Station"
@@ -2092,9 +2095,9 @@ XenoFarm:
  SPA: "Xenogranja"
 FoodPerAssignedColonist:
  Id: 472
- ENG: "+1 food per assigned colonist"
- RUS: "+0,5 к еде за каждого занятого колониста"
- SPA: "+0,5 de comida por colono asignado"
+ ENG: "+0.4 food per assigned colonist"
+ RUS: "+0,4 к еде за каждого занятого колониста"
+ SPA: "+0,4 de comida por colono asignado"
 XenoMine:
  Id: 473
  ENG: "Xeno Mine"
@@ -2102,14 +2105,13 @@ XenoMine:
  SPA: "Xenomina"
 XenoMinesAreTheFirst:
  Id: 474
- ENG: "Xeno mines are the first real step towards exploiting a planet's mineral deposits, creating +1 production per colonist assigned to industrial tasks."
- RUS: "Ксеношахты - первый шаг на пути к эффективному использованию минеральных богатств планеты. Дают +1 ед. производства за каждого колониста, занятого в промышленности."
- SPA: "Las xenominas son el primer paso hacia la explotación de los depósitos minerales de un planeta; generan +0,5 de producción por colono asignado a tareas industriales."
+ ENG: "Xeno mines are the first real step towards exploiting a planet's mineral deposits, as well as providing nessesary infrastructure to move materials."
+
 ProductionPerAssignedColonist:
  Id: 475
- ENG: "+1 production per assigned colonist, +2 Infrastructure"
- RUS: "+1 к производству за каждого занятого колониста,+2 к Инфраструктуре"
- SPA: "+0,5 de producción por colono asignado"
+ ENG: "+0.6 production per assigned colonist, +1 Infrastructure"
+ RUS: "+0.6 к производству за каждого занятого колониста,+1 к Инфраструктуре"
+
 BB_Tech_AdvancedMaterials_Name:
  Id: 500
  ENG: "Advanced Materials"
@@ -2462,14 +2464,14 @@ BB_Tech_FuelCell1_Name:
  SPA: "Celdas de energía de deuterio"
 BB_Tech_FuelCell1_Desc:
  Id: 571
- ENG: "This technology will switch all of your ships' dedicated power cells over to the newer Deuterium standard.  Deuterium cells can hold 20% more power than a standard cell, which translates into longer effective range for ships as well as greater energy pools available for combat systems. "
- RUS: "Эта технология позволяет переоборудовать все корабли под использование более современных дейтериевых энергоблоков. Дейтериевые блоки позволяют запасать на 20% больше энергии по сравнению со стандартными, что позволяет кораблям путешествовать на большие расстояния, а также предоставить больше энергии боевым системам."
- SPA: "Esta tecnología cambiará todas las celdas de energía de tus naves por otras nuevas de deuterio,  que pueden contener 20% más de energía que una celda normal. Esto se traduce en un alcance efectivo mayor para las naves y en más reservas de energía para los sistemas de combate. "
+ ENG: "This technology will switch all of your ships' dedicated power cells over to the newer Deuterium standard.  Deuterium cells can hold 15% more power than a standard cell, which translates into longer effective range for ships as well as greater energy pools available for combat systems. "
+ RUS: "Эта технология позволяет переоборудовать все корабли под использование более современных дейтериевых энергоблоков. Дейтериевые блоки позволяют запасать на 15% больше энергии по сравнению со стандартными, что позволяет кораблям путешествовать на большие расстояния, а также предоставить больше энергии боевым системам."
+ SPA: "Esta tecnología cambiará todas las celdas de energía de tus naves por otras nuevas de deuterio,  que pueden contener 15% más de energía que una celda normal. Esto se traduce en un alcance efectivo mayor para las naves y en más reservas de energía para los sistemas de combate. "
 BB_Tech_FuelCell1_FuelCellBonus_Bonus:
  Id: 572
- ENG: "Gain an empire-wide 20% bonus to the amount of power that is stored in dedicated power cells"
- RUS: "Дает по всей империи 20% бонус к запасу энергии, накопленной в энергоблоках"
- SPA: "Añade una bonificación del 20% a la cantidad de energía almacenada en celdas de combustible"
+ ENG: "Gain an empire-wide 15% bonus to the amount of power that is stored in dedicated power cells"
+ RUS: "Дает по всей империи 15% бонус к запасу энергии, накопленной в энергоблоках"
+ SPA: "Añade una bonificación del 15% a la cantidad de energía almacenada en celdas de combustible"
 BB_Tech_FuelCell2_Name:
  Id: 573
  ENG: "Iridium Power Cells"
@@ -2477,9 +2479,9 @@ BB_Tech_FuelCell2_Name:
  SPA: "Celdas de energía de iridio"
 BB_Tech_FuelCell2_Desc:
  Id: 574
- ENG: "Iridium has proven itself the superior element for power storage purposes.  This technology switches all of your empire's dedicated power cells to the Iridium standard, increasing dedicated power cell efficiency by a total of 50%. "
- RUS: "Иридий - оптимальный элемент для использования в энергетической промышленности. Переводит все корабли в империи на иридиевые энергоблоки, увеличивая их ресурс в сумме на 50%."
- SPA: "El iridio ha demostrado ser lo mejor para el almacenamiento de energía.  Esta tecnología cambia todas las celdas de combustible de tu imperio por otras de iridio, aumentando su eficiencia en un 50%. "
+ ENG: "Iridium has proven itself the superior element for power storage purposes.  This technology switches all of your empire's dedicated power cells to the Iridium standard, increasing dedicated power cell efficiency by a total of 30%. "
+ RUS: "Иридий - оптимальный элемент для использования в энергетической промышленности. Переводит все корабли в империи на иридиевые энергоблоки, увеличивая их ресурс в сумме на 30%."
+ SPA: "El iridio ha demostrado ser lo mejor para el almacenamiento de energía.  Esta tecnología cambia todas las celdas de combustible de tu imperio por otras de iridio, aumentando su eficiencia en un 30%. "
 BB_Tech_FusionBeam_Name:
  Id: 576
  ENG: "Fusion Beams"
@@ -2637,7 +2639,7 @@ BB_Tech_MagneticArtillery_Name:
  SPA: "Artillería magnética"
 BB_Tech_MagneticArtillery_Desc:
  Id: 607
- ENG: "Firing weapons using powder charges alone is inefficient. By adding a magnetic push to our projectiles we can put more ordnance on target in a more efficient manner.  "
+ ENG: "Firing weapons using powder charges alone is inefficient. By adding a magnetic push to our projectiles we can put more ordnance on target in a more efficient manner. Mass Drivers were created to combat heavily shielded ships from afar.  "
  RUS: "Оружие, использующие обычные пороховые снаряды, малоэффективно. Используя магнитный разгон боеприпасов, можно посылать в цель больше снарядов с большей эффективностью."
  SPA: "Disparar armas con cargas de pólvora no es eficaz. Si añadimos un impulso magnético a los proyectiles, podemos poner más carga en la munición y hacer más daño.  "
 BB_Tech_MediumFreighters_Name:
@@ -2712,9 +2714,9 @@ BB_Tech_NanoweaveMetallurgy_Desc:
  SPA: "Las técnicas de metalurgia no difieren mucho de las empleadas en épocas antiguas: los metales calientes se mezclan y enfrían, pasando tal vez por un proceso de refinamiento para hacerlos más resistentes. Eso sí, con la metalurgia de nanotextura, un enjambre de nanorobots construye las planchas metálicas de molécula en molécula. El resultado es un metal sin la mínima imperfección."
 BB_Tech_NanoweaveMetallurgy_ModuleHPBonus_Bonus:
  Id: 622
- ENG: "Provides a 10% hit point bonus to all ship modules"
- RUS: "Дает 10% бонус к очкам прочности всех космических модулей."
- SPA: "Proporciona una bonificación del 10% a los puntos de vida de todos los módulos de naves"
+ ENG: "Provides a 15% hit point bonus to all ship modules"
+ RUS: "Дает 15% бонус к очкам прочности всех космических модулей."
+ SPA: "Proporciona una bonificación del 15% a los puntos de vida de todos los módulos de naves"
 BB_Tech_Phasors_Name:
  Id: 623
  ENG: "Phasors"
@@ -2795,11 +2797,6 @@ BB_Tech_PolaronCannons_Name:
  ENG: "Polaron Cannons"
  RUS: "Фазовые поляроновые пушки"
  SPA: "Cañones de polarones fásicos"
-BB_Tech_PolaronCannons_Desc:
- Id: 639
- ENG: "Phased polaron cannons encapsulate their payloads in a phased energy shell rather than an ionized magnetic shell, granting the projectile the ability to phase directly through shields. The unstable phased energy shell results in a lower effective range on these weapons. "
- RUS: "Фазовые поляроновые пушки используют снаряды, заключенные в оболочку фазированной энергии, а не ионизованную магнитную оболочку. Это позволяет им проходить сквозь щиты. К сожалению, фазированная энергия нестабильна, поэтому дальность стрельбы этих пушек невелика."
- SPA: "Los cañones de polarones fásicos encapsulan sus cargas explosivas en proyectiles de energía fásica en vez de en proyectiles magnéticos ionizados, lo que les permite atravesar directamente los escudos. Debido a la inestabilidad de los proyectiles de energía fásica, estas armas tienen un alcance efectivo menor. "
 BB_Tech_Privatization_Name:
  Id: 640
  ENG: "Privatization"
@@ -2910,11 +2907,6 @@ BB_Tech_SpaceWeapons_Name:
  ENG: "Ballistics"
  RUS: "Космическое вооружение"
  SPA: "Armas espaciales"
-BB_Tech_SpaceWeapons_Desc:
- Id: 662
- ENG: "Taking a cue from naval tradition, early spacecraft rely heavily on bullets, shells, flak, and other kinetic weapons. Their raw destructive power and relative cheapness make them an excellent value, though they do require ammunition. Research into energy weapons will provide our empire with weapons suitable for longer deployments. We can also focus our efforts on developing spaceworthy self-guided missile technologies."
- RUS: "Взяв эстафету у традиционного флота, ранние космические корабли преимущественно вооружались обычными пушками и другим кинетическим оружием. Высокая огневая мощь и относительная дешевизна делает такие оружия хорошим выбором, даже несмотря на необходимость боеприпасов. Исследования в области энергетического оружия еще более усилят военную мощь нашей империи. Также следует разработать технологии самонаводящихся космических ракет."
- SPA: "Siguiendo el ejemplo de la tradición naval, las primeras naves espaciales dependen mucho de balas, proyectiles, fuego antiaéreo y otras armas cinéticas. Su poder de destrucción bruto y de bajo coste relativo le confieren una gran importancia, pero necesitan munición. La investigación de armas de energía dotará a nuestro imperio de armamento apto para despliegues más prolongados. También podemos centrar nuestros esfuerzos en desarrollar tecnologías de misiles autoguiados para el espacio."
 BB_Tech_StarshipConstruction_Name:
  Id: 663
  ENG: "Starship Construction"
@@ -2927,12 +2919,12 @@ BB_Tech_StarshipConstruction_Desc:
  SPA: "Para empezar siquiera a pensar en llegar a otras estrellas, necesitamos fundamentos básicos para el diseño de naves estelares.  Si desarrollamos esto, podremos investigar tecnologías básicas como el mando de naves estelares, la propulsión y los cascos."
 BB_Tech_SubspaceArtillery_Name:
  Id: 665
- ENG: "Subspace Artillery"
+ ENG: "Massive Subspace Artillery"
  RUS: "Космическая артиллерия"
  SPA: "Artillería subespacial"
 BB_Tech_SubspaceArtillery_Desc:
  Id: 666
- ENG: "Our scientists have concluded that conventional weapons, when packed with enough high explosives, can rival even the most modern energy weapons for raw destructive power. Accelerate this explosive using subspatial techniques and you have a very massive cannon."
+ ENG: "Our scientists have concluded that conventional weapons, when packed with enough high explosives, can rival even the most modern energy weapons for raw destructive power. Accelerate this explosive using subspatial techniques and you have a very massive cannon. Mass Drivers were created to combat heavily shielded ships from afar."
  RUS: "Наши ученые пришли к выводу, что традиционная артиллерия, использующая мощные бризантные снаряды, по части разрушительной мощи запросто может соперничать с самыми современными видами вооружения. Для ускорения снарядов потребуется субпространственный акселератор, так что пушка получится немаленькая."
  SPA: "Nuestros científicos han llegado a la conclusión de que las armas convencionales, equipadas con explosivos lo bastante potentes, pueden rivalizar en capacidad destructiva con las armas de energía más modernas. Si aceleramos estos explosivos a través de técnicas subespaciales, tendremos un cañón colosal."
 BB_Tech_SubspaceCommunication_Name:
@@ -3359,11 +3351,6 @@ ThisHangarBaySupportsA:
  ENG: "This hangar bay supports a single fighter-class ship at a time.  If the fighter is destroyed in combat, it will respawn from this bay after a cooldown. You may designate which of your fighter designs launches from this bay in the ship design screen"
  RUS: "Этот отсек-ангар единовременно вмещает один истребитель. Если истребитель будет уничтожен в бою, он через определенное время снова появится в своем отсеке. На экране дизайна корабля вы можете указать, какой истребитель будет выпущен в бой из этого отсека"
  SPA: "Este muelle de hangar puede albergar un solo caza a la vez.  Si el caza es destruido en combate, reaparecerá en este muelle tras un periodo de recuperación. En la pantalla de diseño de naves puedes establecer cuáles de tus diseños de caza despegan de este muelle"
-FlakTurret:
- Id: 952
- ENG: "Flak Turret"
- RUS: "Зенитная пушка"
- SPA: "Torreta antiaérea"
 MediumEngine:
  Id: 956
  ENG: "Medium Engine"
@@ -3681,9 +3668,9 @@ LargePlasteelArmor:
  SPA: "Blindaje de plastiacero grande"
 PlasteelArmorProvidesApproximatelyLess:
  Id: 1023
- ENG: "Plasteel armor provides approximately 25% less protection than steel armor but does so with half of the mass"
- RUS: "Полимерная броня предоставляет примерно на 25% меньше защиты, чем стальная, зато весит вдвое меньше."
- SPA: "El blindaje de plastiacero proporciona aproximadamente un 25% menos de protección que el de acero, pero tiene la mitad de masa"
+ ENG: "Plasteel armor provides approximately 12% more protection than steel armor but does so with half of the mass"
+ RUS: "Полимерная броня предоставляет примерно на 12% больше защиты, чем стальная, зато весит вдвое меньше."
+ SPA: "El blindaje de plastiacero proporciona aproximadamente un 12% más de protección que el de acero, pero tiene la mitad de masa"
 MediumPlasteelArmor:
  Id: 1024
  ENG: "Medium Plasteel Armor"
@@ -3691,9 +3678,9 @@ MediumPlasteelArmor:
  SPA: "Blindaje de plastiacero mediano"
 PlasteelArmorProvidesApproximatelyLess2:
  Id: 1025
- ENG: "Plasteel armor provides approximately 25% less protection than steel armor but does so with half of the mass"
- RUS: "Полимерная броня предоставляет примерно на 25% меньше защиты, чем стальная, зато весит вдвое меньше."
- SPA: "El blindaje de plastiacero proporciona aproximadamente un 25% menos de protección que el de acero, pero tiene la mitad de masa"
+ ENG: "Plasteel armor provides approximately 12% more protection than steel armor but does so with half of the mass"
+ RUS: "Полимерная броня предоставляет примерно на 12% больше защиты, чем стальная, зато весит вдвое меньше."
+ SPA: "El blindaje de plastiacero proporciona aproximadamente un 12% más de protección que el de acero, pero tiene la mitad de masa"
 SmallPlasteelArmor:
  Id: 1026
  ENG: "Small Plasteel Armor"
@@ -3701,9 +3688,9 @@ SmallPlasteelArmor:
  SPA: "Blindaje de plastiacero pequeño"
 PlasteelArmorProvidesApproximatelyLess3:
  Id: 1027
- ENG: "Plasteel armor provides approximately 25% less protection than steel armor but does so with half of the mass."
- RUS: "Полимерная броня предоставляет примерно на 25% меньше защиты, чем стальная, зато весит вдвое меньше."
- SPA: "El blindaje de plastiacero proporciona aproximadamente un 25% menos de protección que el de acero, pero tiene la mitad de masa"
+ ENG: "Plasteel armor provides approximately 12% more protection than steel armor but does so with half of the mass."
+ RUS: "Полимерная броня предоставляет примерно на 12% больше защиты, чем стальная, зато весит вдвое меньше."
+ SPA: "El blindaje de plastiacero proporciona aproximadamente un 12% más de protección que el de acero, pero tiene la mitad de masa"
 PolaronCannonTurret:
  Id: 1028
  ENG: "Polaron Cannon Turret"
@@ -3711,9 +3698,9 @@ PolaronCannonTurret:
  SPA: "Torreta de cañón de polarones"
 ATurretMountedPolaronCannon:
  Id: 1029
- ENG: "A turret mounted polaron cannon weapon. Bypasses shields."
- RUS: "Поляроновые пушки на поворотной станине. Игнорируют щиты."
- SPA: "Cañón de polarones que va montado sobre una torreta. Elude los escudos."
+ ENG: "A turret mounted polaron cannon weapon."
+ RUS: "Поляроновые пушки на поворотной станине."
+ SPA: "Cañón de polarones que va montado sobre una torreta."
 TwinPolaronCannons:
  Id: 1030
  ENG: "Twin Polaron Cannons"
@@ -3721,9 +3708,9 @@ TwinPolaronCannons:
  SPA: "Cañones de polarones dobles"
 TwinPolaronCannonsMountedOn:
  Id: 1031
- ENG: "Twin polaron cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire. Bypasses shields."
- RUS: "Спаренные поляроновые пушки, смонтированные на поворотной платформе и оснащенные продвинутой системой охлаждения для ведения непрерывного огня. Игнорируют щиты."
- SPA: "Cañones de polarones dobles montados sobre una plataforma de torreta con sistemas de refrigeración avanzados para abrir fuego rápido y continuo. Elude los escudos."
+ ENG: "Twin polaron cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire."
+ RUS: "Спаренные поляроновые пушки, смонтированные на поворотной платформе и оснащенные продвинутой системой охлаждения для ведения непрерывного огня."
+ SPA: "Cañones de polarones dobles montados sobre una plataforma de torreta con sistemas de refrigeración avanzados para abrir fuego rápido y continuo."
 PowerConduit:
  Id: 1032
  ENG: "Power Conduit"
@@ -3919,11 +3906,6 @@ PdVulcanCannon:
  ENG: "PD Vulcan Cannon"
  RUS: "Пушка \"Вулкан\" (ТЗ)"
  SPA: "Cañón vulcano DP"
-TheVulcanCannonIsA:
- Id: 1075
- ENG: "The Vulcan cannon is a small, rapid fire machine gun capable of shredding lightly armored targets in a storm of uranium-tipped rounds. Point Defense weapons automatically engage incoming missiles and have bonus damage versus missile weapons. "
- RUS: "Пушка \"Вулкан\" - это небольшой скорострельный пулемет, способный буквально изрешетить слабо бронированные цели градом снарядов с урановыми наконечниками. Орудия точечной защиты автоматически открывают огонь по ракетам и наносят бонусный урон по ракетному оружию."
- SPA: "El cañón vulcano es pequeño pero de disparo rápido, capaz de despedazar pequeños objetivos blindados con un aluvión de proyectiles con punta de uranio. Las armas de defensa puntual (DP) disparan automáticamente contra misiles atacantes y tienen una bonificación de daño frente a este tipo de armas. "
 SmallWarpEngine:
  Id: 1076
  ENG: "Small Warp Engine"
@@ -6055,6 +6037,7 @@ ThisIndicatesWhatWouldThe:
 ThisIndicatesWhatWouldThe2:
  Id: 1907
  ENG: "This indicates what would the maximum population of this planet be, if you fully terraformed this planet (at Terraform Level 3). This number might be the same as Biosphered Planet, but a Terraformed planet does not cost Biosphere maintenance."
+
 Regenerate:
  Id: 1908
  ENG: "Regenerate"
@@ -6430,9 +6413,9 @@ BB_Tech_PhasedOrdnance_Desc:
  SPA: "Si aceleramos nuestros proyectiles mediante un campo subespacial, creemos que es posible iniciar un bucle de fase subespacial en el que la energía característica del proyectil entrará y saldrá del espacio real. Si el proyectil se mueve por fases en el subespacio al entrar en contacto con un escudo, este último lo ignorará porque no podrá detectar su energía característica. Básicamente, estamos usando artillería que atravesará sus escudos a velocidad supraluminal. "
 BB_Tech_PhasedOrdnance_Weapon_ShieldPenetration_Bonus:
  Id: 2009
- ENG: "Provides a 50% shield penetration chance to projectiles fired from Ballistic Cannons"
- RUS: "Дает снарядам, выпущенным из баллистических орудий, 50% вероятность пробить щиты"
- SPA: "Los disparos de los cañones balísticos tienen un 50% más de posibilidades de penetrar los escudos"
+ ENG: "Provides a 35% shield penetration chance to projectiles fired from Ballistic Cannons"
+ RUS: "Дает снарядам, выпущенным из баллистических орудий, 35% вероятность пробить щиты"
+ SPA: "Los disparos de los cañones balísticos tienen un 35% más de posibilidades de penetrar los escudos"
 IndicatesAShipsExperienceLevel:
  Id: 2010
  ENG: "Indicates a ship's experience level, up to a maximum of 5 stars. For each experience level, a ship gains a 5% bonus each to repair rate, turning speed, and weapons damage. "
@@ -6450,9 +6433,9 @@ BB_Tech_AceTraining_Desc:
  SPA: "Nuestros pilotos de cazas deben ser lo mejor de lo mejor. Al invertir en una selección rigurosa de los candidatos e intensificar los protocolos de adiestramiento, podemos conseguir que los pilotos sean nuestras mejores armas en la galaxia. "
 BB_Tech_AceTraining_BonusFighterLevels_Bonus:
  Id: 2013
- ENG: "All fighter hulls, and any drone or corvette designated ship, receive 2 free experience levels."
- RUS: "Все корпуса истребителей и любой корабль, предназначенный для дронов или корветов, получают 2 уровня бесплатного опыта."
- SPA: "Todos los cascos de caza y cualquier nave designada como dron o corbeta reciben 2 niveles de experiencia gratuitos."
+ ENG: "All fighter class vessels receive 2 free experience levels."
+ RUS: "Все корабли класса истребителей получают 2 \"бесплатных\" уровня опыта."
+ SPA: "Todas las naves de clase caza reciben 2 niveles de experiencia gratis."
 BB_Tech_XenoIntelligence_Name:
  Id: 2014
  ENG: "Xeno Intelligence"
@@ -6555,9 +6538,9 @@ BB_Tech_ArmorPhasing_Desc:
  SPA: "Esta tecnología equipa nuestros proyectiles balísticos con un pequeño proyector que produce un campo subespacial efímero y altamente concentrado. En el momento del impacto, el proyector se activa y logra reducir la densidad de cualquier masa que se encuentre. Esto le permite traspasar hasta los blindajes más fuertes. "
 BB_Tech_ArmorPhasing_Bonus:
  Id: 2034
- ENG: "Kinetic projectiles will pass through up to three slots worth of armor."
- RUS: "Баллистическое и ракетное оружие пробивает до трех ячеек брони."
- SPA: "Las armas balísticas y de misiles atravesarán hasta tres capas (ranuras) de blindaje."
+ ENG: "Kinetic projectiles will pass through the first medium-sized armor module encountered. The armor will take no damage."
+ RUS: "Баллистическое и ракетное оружие пробивает насквозь первый бронемодуль на своем пути. Броня при этом не получает урона."
+ SPA: "Las armas balísticas y los misiles atravesarán el primer módulo de pequeño tamaño que se encuentren. El blindaje no sufrirá daños."
 BB_Tech_Shipyards_Name:
  Id: 2035
  ENG: "Shipyards"
@@ -7110,9 +7093,9 @@ BB_Tech_RemnantStudies_Name:
  SPA: "Estudios sobre los Remanentes"
 BB_Tech_RemnantStudies_Desc:
  Id: 2145
- ENG: "We are literally piecing together the mystery of the Remnant using the salvage we have obtained from destroyed Remnant ships. Some of this technology should be relatively simple to reverse engineer. Capturing or destroying additional Remnant ships may help us discover more about their race."
- RUS: "Сейчас мы буквально по крупицам собираем информацию о Предтечах, используя в своем анализе найденные фрагменты их уничтоженных кораблей. Некоторые из их технологий должны довольно легко поддаваться обратному инжинирингу. Захват или уничтожение других кораблей Выживших поможет нам еще больше узнать об их расе."
- SPA: "Utilizamos los restos recuperados de naves Remanentes destruidas para reunir las piezas del puzle del misterio de los Remanentes. Parte de esta tecnología debería ser relativamente fácil de descifrar con ingeniería inversa. La captura o destrucción de más naves Remanentes nos ayudaría a averiguar más sobre su raza."
+ ENG: "We are literally piecing together the mystery of the Remnant using the salvage we have obtained. Some of this technology should be relatively simple to reverse engineer."
+ RUS: "Сейчас мы буквально по крупицам собираем информацию о Предтечах, используя в своем анализе найденные фрагменты их уничтоженных кораблей. Некоторые из их технологий должны довольно легко поддаваться обратному инжинирингу."
+ SPA: "Utilizamos los restos recuperados de naves Remanentes destruidas para reunir las piezas del puzle del misterio de los Remanentes. Parte de esta tecnología debería ser relativamente fácil de descifrar con ingeniería inversa."
 BB_Tech_RemnantComputing_Name:
  Id: 2146
  ENG: "Remnant Computing"
@@ -7635,11 +7618,6 @@ FletchetteAfTurret:
  ENG: "Fletchette AF Turret"
  RUS: "Зенитная турель \"Флешетта\""
  SPA: "Torreta anticazas"
-TheTimcorpFletchetteAntifighterTurret:
- Id: 2250
- ENG: "The TimCorp Fletchette Anti-Fighter turret is very effective versus unarmored craft but suffers a -50% damage penalty to Armor and Shields."
- RUS: "Зенитная турель \"Флешетта\" - ближайший родственник \"Фаланги\". Выпускаемые ей небольшие снаряды разлетаются в точке попадания, нанося легкобронированным целям значительный урон. Это оружие получает 50% штраф к урону против брони и щитов."
- SPA: "La torreta anticazas dispara proyectiles muy parecidos a los de la torreta de defensa puntual de falange. Los proyectiles que dispara este cañón están diseñados para hacerse añicos al impactar y así causar el mayor daño posible a blancos con poco blindaje. Esta arma sufre una penalización del -50% ante blindaje y escudos."
 BB_Tech_ImprovedMRMPlatforms_Name:
  Id: 2251
  ENG: "VS Armor"
@@ -7797,9 +7775,9 @@ VerticalFarm:
  SPA: "Granja vertical"
 FoodPerTurn3:
  Id: 2291
- ENG: "+4 food per turn"
- RUS: "+4 еды за ход"
- SPA: "+5 comida por turno"
+ ENG: "+0.8 food per assigned colonist"
+ RUS: "+0.8 еды за задействованного колониста"
+ SPA: "+0.8 de comida por colono asignado"
 ThisMegastructureEmploysAdvancedAgricultural:
  Id: 2292
  ENG: "This megastructure employs advanced agricultural techniques and robotics to create massive quantities of food"
@@ -7943,10 +7921,12 @@ LowWarpTime:
  RUS: "Малая длительность варп-прыжка"
 TheShipsAbilityToSustain:
  Id: 2517
- ENG: "The ship's ability to sustain Warp Speed is limited, it will need to stop periodically in order to recharge it's storage."
+ ENG: "The ship's ability to sustain Warp Speed is limited"
+ RUS: "Способность корабля поддерживать варп-прыжок ограничена"
 AddReactorsToIncreaseThe:
  Id: 2518
- ENG: "Add Reactors to increase the power output of the ship to get infinite warp time."
+ ENG: "Add Reactors to increase the power output of the ship to get infinite warp time, or Energy Storage to increase warp time."
+ RUS: "Добавьте реакторы, чтобы увеличить выходную мощность корабля, или накопитель энергии, чтобы увеличить время варпа"
 NegativePowerRecharge:
  Id: 2519
  ENG: "Negative Power Recharge"
@@ -8548,9 +8528,9 @@ ThisShieldProvidesHpWorth:
  SPA: "Este escudo proporciona una protección de 10 000 puntos de vida en un radio de 120 metros. Su consumo de energía es alto.  "
 ThisParticularShieldModelProvides:
  Id: 1051
- ENG: "This particular shield model provides 2000 hp worth of defense within a 75 meter protective radius. "
- RUS: "Этот щит имеет ресурс поглощения в 2000 ОП в радиусе 75 метров."
- SPA: "Este modelo de escudo en concreto proporciona una defensa de 1250 puntos de vida en un radio de 75 metros. "
+ ENG: "This particular shield model provides 3000 hp worth of defense within a 98 meter protective radius. "
+ RUS: "Этот щит имеет ресурс поглощения в 3000 ОП в радиусе 98 метров."
+ SPA: "Este modelo de escudo en concreto proporciona una defensa de 3000 puntos de vida en un radio de 98 metros. "
 ThisSmallShieldIsCapable:
  Id: 949
  ENG: "This small shield is capable of absorbing up to 500 damage in a radius of 50. Its quick recharge rate makes it ideal for small fighter craft. "
@@ -8586,9 +8566,9 @@ DeepCoreMinesAreExtremely:
  SPA: "Las minas de núcleo profundo son sumamente eficaces a la hora de extraer minerales de las profundidades de un planeta, pero son devastadoras para el medio ambiente. Añade una producción a un ritmo constante igual a cuatro veces la riqueza mineral del planeta, pero reduce permanentemente su fertilidad en 2."
 FertilityOnBuildXProduction:
  Id: 420
- ENG: "-2 fertility on build, +4x production richness bonus"
- RUS: "+ 4х богатства планеты к производству; -2 к плодородию"
- SPA: "Aumento de producción igual a 4 veces la riqueza del planeta; -2 de fertilidad"
+ ENG: "-0,6 fertility on build, +4x production richness bonus"
+ RUS: "+ 4х богатства планеты к производству; -0.6 к плодородию"
+ SPA: "Aumento de producción igual a 4 veces la riqueza del planeta; -0.6 de fertilidad"
 PopulationPerTurn:
  Id: 414
  ENG: "+0.02 population per turn"
@@ -8616,9 +8596,9 @@ ShipWillAvoidEngagingIn:
  SPA: "La nave evitará entrar en combate. Es bueno para naves exploradoras y que no estén diseñadas para combatir"
 BB_Tech_FuelCell2_FuelCellBonus_Bonus:
  Id: 575
- ENG: "Gain an empire-wide 50% bonus to the amount of power that is stored in fuel cells"
- RUS: "Дает по всей империи 50% бонус к энергии, запасаемой топливными блоками"
- SPA: "Añade una bonificación del 50% a la cantidad de energía almacenada en celdas de combustible"
+ ENG: "Gain an empire-wide 30% bonus to the amount of power that is stored in fuel cells"
+ RUS: "Дает по всей империи 30% бонус к энергии, запасаемой топливными блоками"
+ SPA: "Añade una bonificación del 30% a la cantidad de energía almacenada en celdas de combustible"
 ThisHeavyLaserBeamHas:
  Id: 977
  ENG: "This heavy laser beam has pinpoint accuracy over large distances although its power to damage ratio is somewhat inefficient."
@@ -8651,9 +8631,9 @@ ABombBaySpeciallyEquipped:
  SPA: "Compartimento de bombas especialmente equipado para bombardear superficies planetarias con esporas letales basadas en priones. Esta arma no hace nada a los objetivos fuertes, pero es muy eficaz contra tropas terrestres y la población."
 ABasicCargoHoldWith:
  Id: 909
- ENG: "A basic cargo hold with rudimentary life support capabilities.  This particular hold can store 1 unit of either food or production, or a small number of colonists.  "
- RUS: "Обычный грузовой отсек с минимальными возможностями жизнеобеспечения. Этот отсек вмещает 1 единицу еды, производства или небольшое количество колонистов.  "
- SPA: "Bodega básica con funciones rudimentarias de soporte vital.  Esta bodega en concreto puede almacenar 1 unidad de comida o de producción, o un pequeño número de colonos.  "
+ ENG: "A basic cargo hold with rudimentary life support capabilities.  This particular hold can store 2 unit of either food or production, or a small number of colonists.  "
+ RUS: "Обычный грузовой отсек с минимальными возможностями жизнеобеспечения. Этот отсек вмещает 2 единицу еды, производства или небольшое количество колонистов.  "
+ SPA: "Bodega básica con funciones rudimentarias de soporte vital.  Esta bodega en concreto puede almacenar 2 unidad de comida o de producción, o un pequeño número de colonos.  "
 ScatterFlakTurret:
  Id: 954
  ENG: "Scatter Flak Turret"
@@ -8661,7 +8641,7 @@ ScatterFlakTurret:
  SPA: "Torreta antiaérea de dispersión"
 FlakTurretsAreMountedOn:
  Id: 953
- ENG: "Flak Turrets are mounted on swivel platforms for a 90 degree field of fire. They fire explosive shells with a moderate damaging radius, but the projectiles are somewhat slow and ill-suited for tracking swift targets. Furthermore, this weapon requires ordnance to fire."
+ ENG: "Kinetic Turrets are mounted on swivel platforms for a 90 degree field of fire. They fire explosive shells in rapid sucession with a moderate damaging radius, but the projectiles are somewhat slow and ill-suited for tracking swift targets. Furthermore, this weapon requires ordnance to fire."
  RUS: "Зенитные турели монтируются на поворотной платформе и имеют 90-градусный сектор обстрела. Ведут огонь разрывными снарядами со средним радиусом поражения, но их скорость полета недостаточно высока, поэтому они не очень хорошо подходят для стрельбы по быстродвижущимся целям. Кроме того, для стрельбы требуются боеприпасы."
  SPA: "Las torretas antiaéreas van montadas sobre plataformas giratorias para cubrir un campo de fuego de 90 grados. Disparan proyectiles explosivos con un radio de daño moderado, pero los proyectiles son algo lentos y no son adecuados para rastrear blancos rápidos. Además, esta arma necesita munición para disparar."
 ScatterFlakTurretsFireStandard:
@@ -9266,14 +9246,14 @@ ThoughtCrystal:
  SPA: "Cristal del pensamiento"
 ThisCrystallineStructureSyncsWith:
  Id: 4095
- ENG: "This crystalline structure syncs with and amplifies the brain waves of biological organisms. Simply put, everything that gets near to it becomes smarter. +1 research per turn to the owner of this planet"
- RUS: "Эта кристаллическая структура синхронизируется и усиливает мозговые волны биологических организмов. Проще говоря, все, что к нему приближается, становится умнее. +1 исследование за ход владельцу этой планеты."
- SPA: "Esta estructura cristalina se sincroniza y amplifica las ondas cerebrales de los organimos biológicos. de forma simple, todo lo que se le acerce se vuelve mas inteligente. +1 de investigación al dueño de este planeta."
+ ENG: "This crystalline structure syncs with and amplifies the brain waves of biological organisms. Simply put, everything that gets near to it becomes smarter. +0.5 research per turn to the owner of this planet"
+ RUS: "Эта кристаллическая структура синхронизируется и усиливает мозговые волны биологических организмов. Проще говоря, все, что к нему приближается, становится умнее. +0.5 исследование за ход владельцу этой планеты."
+ SPA: "Esta estructura cristalina se sincroniza y amplifica las ondas cerebrales de los organimos biológicos. de forma simple, todo lo que se le acerce se vuelve mas inteligente. +0.5 de investigación al dueño de este planeta."
 ResearchPerTurn3:
  Id: 4096
- ENG: "+1 research per turn"
- RUS: "+1 исследование за ход"
- SPA: "+1 de investigación por turno"
+ ENG: "+0.5 research per turn"
+ RUS: "+0.5 исследование за ход"
+ SPA: "+0.5 de investigación por turno"
 CommoditiesAreSpecialResourcesThat:
  Id: 4097
  ENG: "Commodities are special resources that are limited in number and provide unique bonuses to colonies that possess them. Commodities are harvested automatically at colonies where they occur naturally. They can then be moved throughout your empire using freighters. You may specify whether you wish to import or export any commodities you have access to in this panel."
@@ -10408,7 +10388,7 @@ ManeuveringThruster:
  SPA: "Propulsor de maniobra"
 ABalancedEngineThatProvides:
  Id: 5016
- ENG: "A balanced engine that provides decent thrusting and maneuvering capabilities as well as an afterburner for inter-system travel"
+ ENG: "A balanced engine that provides hugh maneuvering capabilities"
  RUS: "Сбалансированный двигатель, обеспечивающий приличную тягу и маневренность, а также варп для межсистемных перемещений."
  SPA: "Un motor bien balanceado, con un empuje decente y capacidades de maniobra, junto a un postcombustador para el entre estrellas."
 RangeThruster:
@@ -10541,11 +10521,6 @@ CruiserManueveringThruster:
  ENG: "Cruiser Maneuvering Thruster"
  RUS: "Маневровый двигатель крейсера"
  SPA: "Propulsor de maniobra de crucero"
-ABalancedCruiserEngineWith:
- Id: 5043
- ENG: "A balanced cruiser engine with good combat and afterburner performance"
- RUS: "Сбалансированный крейсерский двигатель с хорошими боевыми и варп характеристиками"
- SPA: "Un propulsor de maniobra bien balanceado, de tamaño de crucero, con un buen rendimiento en combate y de postcombustador."
 CruiserCombatThruster:
  Id: 5044
  ENG: "Cruiser Combat Thruster"
@@ -10591,11 +10566,6 @@ TitanManeuveringThruster:
  ENG: "Titan Maneuvering Thruster"
  RUS: "Маневровый двигатель Титана"
  SPA: "Propulsor de maniobra titánico"
-AMassiveAndBalancedEngine:
- Id: 5054
- ENG: "A massive and balanced engine for use on the largest ships"
- RUS: "Массивный и сбалансированный двигатель для использования на самых больших кораблях."
- SPA: "Un motor masivo y balanceado, apto para las naves mas grandes."
 FrigateMount:
  Id: 5055
  ENG: "Frigate Mount"
@@ -12216,3 +12186,1535 @@ MaxDynamicLightSources:
  ENG: "Max Dynamic Light Sources"
 TT_MaxDynamicLightSources:
  ENG: "This will set an upper bound limit for dynamic 3D Light Sources for projectile hits or explosions. Setting this lower will greatly improve performance during battles.\n\nSetting to 0 will disable Dynamic Light Sources"
+AbandonedWarehouse:
+ Id: 17959
+ ENG: "Abandoned Warehouse"
+ RUS: "Заброшенный склад"
+YourShipDetectedAnAbandoned:
+ Id: 17960
+ ENG: "Your ship detected an abandoned warehouse on the surface, send troops to investigate."
+ RUS: "Ваш корабль обнаружил на поверхности заброшенный склад, отправьте войска для расследования."
+SentientAi:
+ Id: 18161
+ ENG: "Sentient Ai"
+ RUS: "Разумный ИИ"
+TheWholeStructureOfThis:
+ Id: 18162
+ ENG: "The whole structure of this building is the brain of a sentient AI. After a few centuries it has developed a split personality, one Ben and the other Rob."
+ RUS: "Вся конструкция этого здания - это мозг разумного ИИ. Спустя несколько столетий у него развилось раздвоение личности, один Бен, а другой Роб."
+ResearchTaxRates:
+ Id: 18163
+ ENG: "-2 research, +30% tax rates"
+ RUS: "-2 к науке, + 30% к налоговым доходам."
+AncientMegacity:
+ Id: 5098
+ ENG: "Ancient megacity"
+ RUS: "Древний мегаполис"
+AnEnormousPyramidshapedStructureLined:
+ Id: 5099
+ ENG: "An enormous pyramid-shaped structure, lined with advanced tunnels and rooms. These constructions are seen throughout the history of many ancient civilizations, all related to unsettlingly similar religious entities."
+ RUS: "Огромное строение в форме пирамиды с продвинутыми туннелями и комнатами. Эти сооружения встречаются на протяжении всей истории многих древних цивилизаций, и все они связаны с пугающе похожими религиозными образованиями."
+ProvidesHousingForALarge:
+ Id: 5100
+ ENG: "Provides housing for a large amount of population."
+ RUS: "Обеспечивает жильем большое количество населения."
+AncientPillar:
+ Id: 5365
+ ENG: "Ancient Pillar"
+ RUS: "Древний столб"
+ThisAncientPillarAppearsTo:
+ Id: 5366
+ ENG: "This ancient pillar appears to be highly valuable. Our scientists are eager to find out what they do. They suggest you send some troops to investigate."
+ RUS: "Этот древний столб, кажется, очень ценен. Наши ученые стремятся выяснить, что он делает. Они предлагают вам отправить войска для расследования."
+Avar:
+ Id: 18216
+ ENG: "Avar"
+ RUS: "Авар"
+NutritiousFlightlessBirdSpecies:
+ Id: 18217
+ ENG: "Nutritious flightless bird species."
+ RUS: "Вид съедобных нелетающих птиц."
+ProvidesFoodPerTurnTotal3:
+ Id: 18218
+ ENG: "Provides 0.8 food per turn, total worth of 1100 food."
+ RUS: "Дает +0.8 еды за ход, всего 1100 еды."
+CaveSystem:
+ Id: 18111
+ ENG: "Cave system"
+ RUS: "Пещерная система"
+HugeCaveSystemsThatWere:
+ Id: 18112
+ ENG: "Huge cave systems that were created by erosion and antlion activity. They should be large enough for urban development."
+ RUS: "Огромные пещерные системы, созданные естественной эрозией и деятельностью муравьиных львов. Они должны быть, достаточно вместительные для городской застройки..."
+TheseCavesAreExpansiveEnough:
+ Id: 18113
+ ENG: "These caves are expansive enough to provide additional housing."
+ RUS: "Эти пещеры достаточно обширны, чтобы обеспечить дополнительное жилье."
+DropOffPoint:
+ Id: 18114
+ ENG: "Drop off point"
+ RUS: "Пункт выдачи"
+ACaveInWhichWe:
+ Id: 18115
+ ENG: "A cave in which we agreed with the smuggler to drop off the goods."
+ RUS: "Пещера, в которой мы договорились с контрабандистами оставить товар."
+ProvidesFoodProductionCredits:
+ Id: 18116
+ ENG: "Provides +2 food, +3 production, - 1,3 credits"
+ RUS: "Дает +2 еды, +3  продукции, - 1,3  кредитов."
+EvaporativeWastePit:
+ Id: 18103
+ ENG: "Evaporative Waste pit"
+ RUS: "Геотермальный источник"
+ThisToxicPitIsFilled:
+ Id: 18104
+ ENG: "This toxic pit is filled with a dangerous exotic form of h3 hydrogen, and it is highly evaporative. A large volume of its dangerous gasses are now leaking out and contaminating the atmosphere."
+ RUS: "Этот токсичный источник исходит из подземного резервуара с газообразным веществом. Сейчас происходит утечка большого объема газов, загрязняющих атмосферу."
+ToxicFumesFromThisSpring:
+ Id: 18105
+ ENG: "Toxic fumes from this spring negatively affect the plants and soil, decreasing planetary fertility by 0.2."
+ RUS: "Ядовитые пары этого источника негативно влияют на растения и почву, снижая плодородие планеты."
+ExoticMineral:
+ Id: 18106
+ ENG: "Exotic mineral"
+ RUS: "Экзотический минерал"
+HighlyExoticMineralVeinsRarely:
+ Id: 18107
+ ENG: "Highly exotic mineral veins, rarely found on terrestrial worlds. Easily mined but in a very limited amount."
+ RUS: "Сложные экзотические минеральные жилы, редко встречающиеся на планетах земного типа."
+ProdPerAssignedColonistTotal:
+ Id: 18108
+ ENG: "+0.4 prod per assigned colonist, total worth of 12800 production,+0.5 planet richness."
+ RUS: "Планеты с этими минералами более богаты. (+5 к продукции)"
+ExoticFruits:
+ Id: 18222
+ ENG: "Exotic Fruits"
+ RUS: "Экзотические фрукты"
+TastyFruitsThatAreA:
+ Id: 18223
+ ENG: "Tasty fruits that are a natural aphrodisiac."
+ RUS: "Вкусные природные афродизиаки."
+ProvidesFoodPerTurnTotal4:
+ Id: 18224
+ ENG: "Provides 0.6 food per turn, total total worth of 700 food, +25 Million population per turn."
+ RUS: "Дает +0.6 еды за ход, всего 700 еды и +25 миллионов населения за ход."
+WorldSeed:
+ Id: 18175
+ ENG: "World seed"
+ RUS: "Мировое семя"
+TheSeedOfAWorld:
+ Id: 18176
+ ENG: "The seed of a world tree. When planted on a world, it will grow slowly and start to terraform the environment."
+ RUS: "Семя мирового древа. При посадке на планете оно будет медленно расти и начнет терраформировать окружающую среду."
+PlanetFertilityTerraformsAPlanet:
+ Id: 18177
+ ENG: "+0.15 planet fertility, terraform's a planet"
+ RUS: "+0.15 к плодородию, терраформирует планеты."
+MysteriousAltar:
+ Id: 18178
+ ENG: "Mysterious altar"
+ RUS: "Таинственный алтарь"
+ALoneAncientAltarIn:
+ Id: 18179
+ ENG: "A lone, ancient altar in the middle of nowhere. It's emitting strong pulses of energy."
+ RUS: "Одинокий древний алтарь посреди глуши. Излучает сильные импульсы энергии."
+WorldBubbleEmitter:
+ Id: 18180
+ ENG: "World bubble emitter"
+ RUS: "Планетарный излучатель щита"
+ThisAncientDefensiveDeviceIs:
+ Id: 18181
+ ENG: "This ancient defensive device is creating a strong planet-wide shield, guarding against bombardment. But there is downside to this ancient tech, the dense shield field is blocking a percentage of sunlight."
+ RUS: "Это древнее защитное устройство создает мощный щит по всей планете, защищающий от бомбардировок. Но у этой древней технологии есть обратная сторона: плотное поле щита блокирует часть солнечного света."
+PlanetaryShieldStrengthFertilityInjuries:
+ Id: 18182
+ ENG: "+1800 planetary shield strength, -0.2 fertility, 2 injuries to each invading troop."
+ RUS: "+1800 к силе планетарного щита, -0,2 к плодородию, +2 повреждения каждому вторгающемуся отряду."
+ForcefieldEmitter:
+ Id: 18183
+ ENG: "Forcefield emitter"
+ RUS: "Излучатель силового поля"
+ThisMysteriousForcefieldGeneratorHas:
+ Id: 18184
+ ENG: "This mysterious forcefield generator has created an enormous dome that prevents anything from getting in or out."
+ RUS: "Этот странный генератор силового поля создал огромный купол, препятствующий чему-либо попадать внутрь или наружу."
+FertilityBillionPopulation:
+ Id: 18185
+ ENG: "-0.15 fertility, -0.07 billion population"
+ RUS: "-0.15 к плодородию, -0.07 милииарда населения."
+AncientObelisk:
+ Id: 18186
+ ENG: "Ancient Obelisk"
+ RUS: "Древний обелиск"
+ThisMysteriousObeliskStandsTall:
+ Id: 18187
+ ENG: "This mysterious obelisk stands tall in the middle of nowhere, producing a strange glow."
+ RUS: "Этот таинственный обелиск возвышается посреди пустошей и излучает странное свечение."
+NeuralEnhancer:
+ Id: 18188
+ ENG: "Neural Enhancer"
+ RUS: "Нейронный усилитель"
+ThisMysteriousObeliskEmitsAn:
+ Id: 18189
+ ENG: "This mysterious obelisk emits an energy field which is stimulating the neural pathways in sentient organisms."
+ RUS: "Таинственный обелиск излучает энергетическое поле, которое стимулирует нервные пути в мозге разумных организмов."
+ResearchPerColonist:
+ Id: 18190
+ ENG: "0.2 research per colonist"
+ RUS: "+0.2 к науке за колониста."
+NeuralDampener:
+ Id: 18191
+ ENG: "Neural Dampener"
+ RUS: "Нейронный демпфер"
+ThisMysteriousObeliskEmitsAn2:
+ Id: 18192
+ ENG: "This mysterious obelisk emits an energy field which is de stabilizing the neural pathways in sentient organisms."
+ RUS: "Таинственный обелиск излучает энергетическое поле, которое дестабилизирует нервные пути в разумных организмах."
+NegativeResearchPerTurn:
+ Id: 18193
+ ENG: "-1 research per turn"
+ RUS: "-1 к науке за ход."
+SpaceElevator2:
+ Id: 18194
+ ENG: "Space elevator"
+ RUS: "Космический лифт"
+ARelicFromAnOld2:
+ Id: 18195
+ ENG: "A relic from an old civilization. We can't determine its condition from orbit."
+ RUS: "Реликвия старой цивилизации. Мы не можем определить его состояние с орбиты."
+LevitatingOrb:
+ Id: 18196
+ ENG: "Levitating Orb"
+ RUS: "Сфера левитации"
+AMysteriousOrbWhichIs:
+ Id: 18197
+ ENG: "A mysterious orb which is levitating on its own, yet not generating any kind of detectable energy signature. It's like it's not even there..."
+ RUS: "Таинственный шар, который парит в пространстве сам по себе, но не генерирует какой-либо заметной энергетической сигнатуры. Как будто его даже там нет..."
+PirateOutcasts:
+ Id: 18198
+ ENG: "Pirate outcasts"
+ RUS: "Пираты-изгои"
+APirateOutcastBaseLed:
+ Id: 18199
+ ENG: "A pirate outcast base, led by an individual calling himself Goldymires. He's helping us with the movement of resources."
+ RUS: "База пиратов-изгоев, возглавляемая человеком, называющим себя Голдимирес. Он помогает нам с транспортировкой ресурсов."
+InfrastructureCreditsPerTurn:
+ Id: 18200
+ ENG: "+2 infrastructure, -1 credits per turn"
+ RUS: "+2 к инфраструктуре, -1 кредитов за ход."
+TeleportRing:
+ Id: 18201
+ ENG: "Teleport ring"
+ RUS: "Кольцо телепортации"
+ACenturiesOldRingStructure:
+ Id: 18202
+ ENG: "A centuries old ring structure, once used to teleport matter."
+ RUS: "Древняя кольцевая структура, когда-то использовалась для телепортации материи."
+GreyGoo:
+ Id: 18203
+ ENG: "Grey Goo"
+ RUS: "Серая слизь"
+SelfreplicatingMachinesThatConsumeAll:
+ Id: 18204
+ ENG: "Self-replicating machines that consume all biomass they encounter in order to propagate. Often penetrate through walls and defences in their hunt for more biomass."
+ RUS: "Самовоспроизводящиеся машины, которые потребляют всю биомассу с которой сталкиваются - для своего размножения. Часто проникают сквозь стены и оборонительные сооружения в поисках биомассы."
+FoodPerTurn2:
+ Id: 18205
+ ENG: "-2 food per turn."
+ RUS: "-2 еды за ход."
+UnidentifiedSignature:
+ Id: 18206
+ ENG: "Unidentified signature"
+ RUS: "Неопознанная сигнатура"
+OurSensorsCantDetermineThe:
+ Id: 18207
+ ENG: "Our sensors can't determine the exact nature of this signature. We need to send troops to investigate it further."
+ RUS: "Наши датчики не могут определить точную природу этой сигнатуры. Нам нужно отправить войска для дальнейшего расследования."
+RockField:
+ Id: 18149
+ ENG: "Rock field"
+ RUS: "Каменная гряда"
+LargePatchesOfTerrainHeavily:
+ Id: 18150
+ ENG: "Large patches of terrain heavily covered by hulking rocks. Can be mined for some materials."
+ RUS: "Большие участки местности, покрытые огромными скалами. Из них можно добывать некоторые минералы."
+ProvidesProductionPerColonistTotal6:
+ Id: 18151
+ ENG: "Provides 0.2 production per colonist, total worth of 5000 production, -1 infrastructure."
+ RUS: "Дает 0,2 продукции за каждого колониста, всего 5000 продукции , -1 к инфраструктуре."
+ScanInterferance:
+ Id: 18152
+ ENG: "Scan Interferance"
+ RUS: "Сканирование помех"
+ThereSeemsToBeSome:
+ Id: 18153
+ ENG: "There seems to be some kind of power source in the mountains that are scrambling scan results from orbit."
+ RUS: "Кажется, в горах есть какой-то источник энергии, который искажает результаты сканирования с орбиты."
+MassiveMountains:
+ Id: 18154
+ ENG: "Massive mountains"
+ RUS: "Массивные горы"
+ProdPerAssignedColonistTotal3:
+ Id: 18155
+ ENG: "+0.2 prod per assigned colonist, total worth of 6000 production, -1 infrastructure, -1.1 billion population"
+ RUS: "+0.2 продукции за задаействованного колониста, всего 6000 продукции, -1 к инфраструктуре, -1.1 миллиардов населения."
+Mountain:
+ Id: 18123
+ ENG: "Mountain"
+ RUS: "Гора"
+AnEnormousChainOfMountains:
+ Id: 18124
+ ENG: "An enormous chain of mountains that make moving production through them incredibly challenging. Provides an opportunity for mining."
+ RUS: "Огромная горная структура, которая делает перемещение производственных материалов через них, невероятно сложной задачей. Предоставляет возможность добычи руд."
+ProdPerAssignedColonistTotal2:
+ Id: 18125
+ ENG: "+0.2 prod per assigned colonist, total worth of 20000 production, -1 infrastructure, -0.7 billion population"
+ RUS: "+0,2 к продукции за задействованного колониста, всего 20000 производства , -1 к инфраструктуре, -0,7 миллиарда населения."
+LargeWarehouse:
+ Id: 5367
+ ENG: "Large Warehouse"
+ RUS: "Большой склад"
+AtOneTimeAnAbandoned:
+ Id: 5368
+ ENG: "At one time an abandoned warehouse, now cleaned and fixed up, this large warehouse provides storage for 200 extra food and production."
+ RUS: "Некогда заброшенное помещение, сейчас очищено и отремонтировано, этот большой склад обеспечивает хранение на 200 дополнительных продуктов питания и производства."
+MaximumGoodsStorage3:
+ Id: 5369
+ ENG: "+200 maximum goods storage"
+ RUS: "+200 к месту на складе"
+Oasis:
+ Id: 5092
+ ENG: "Oasis"
+ RUS: "Оазис"
+AFreshWaterReservoirSurrounded:
+ Id: 5093
+ ENG: "A fresh water reservoir surrounded by fertile soil and lush plant life. "
+ RUS: "Резервуар с пресной водой, окруженный плодородной почвой и пышной растительностью."
+ProducesFoodPerTurnTotal:
+ Id: 5094
+ ENG: "Produces +0.7 food per turn, total worth of 200 food"
+ RUS: "Производит +0,7 еды за ход"
+MeatGrinder:
+ Id: 18234
+ ENG: "Meat Grinder"
+ RUS: "Мясорубка"
+PopulationControlBuilding:
+ Id: 18235
+ ENG: "Population control building."
+ RUS: "Здание контроля населения."
+FoodPerTurnMillionPopulation:
+ Id: 18236
+ ENG: "+2 food per turn, -10 Million population per turn."
+ RUS: "+2 еды за ход, -10 миллионов населения за ход."
+Scrapyard:
+ Id: 18237
+ ENG: "Scrapyard"
+ RUS: "Свалка"
+TheRemainsOfAHuge:
+ Id: 18238
+ ENG: "The remains of a huge structure that was demolished, providing large amounts of materials to be reused."
+ RUS: "Остатки огромного сооружения, которое было снесено, оставив большое количество материалов для повторного использования."
+ProvidesProductionPerColonistTotal7:
+ Id: 18239
+ ENG: "Provides 0.8 production per colonist, total worth of 1500 production."
+ RUS: "Дает +0.8 продукции за колониста, всего 1500 продукции."
+SpaceElevator:
+ Id: 18097
+ ENG: "Space elevator"
+ RUS: "Космический лифт"
+ARelicFromAnOld:
+ Id: 18098
+ ENG: "A relic from an old civilization. This fully operational low-orbital elevator can move a huge quantity of items between the surface and space."
+ RUS: "Реликвия древней цивилизации, этот полностью рабочий низкоорбитальный лифт может перемещать огромное количество объектов между поверхностью планеты и космосом."
+LowOrbitElevatorIncreasingInfrastructure:
+ Id: 18099
+ ENG: "Low orbit elevator increasing infrastructure by 5"
+ RUS: "Низкоорбитальный лифт увеличивает инфраструктуру на 3"
+TeleportationRing:
+ Id: 18100
+ ENG: "Teleportation Ring"
+ RUS: "Кольцо телепортации"
+AnAncientRingWhichWhen:
+ Id: 18101
+ ENG: "An ancient ring, which when calibrated and provided enough power can instantly move most things to any location on the planet."
+ RUS: "Древнее строение, которое при достаточной мощности и калибровке может мгновенно перемещать большинство вещей в любое место на планете."
+TeleportationRingIncreasingInfrastructureBy:
+ Id: 18102
+ ENG: "Teleportation Ring increasing infrastructure by 8"
+ RUS: "Кольцо телепортации увеличивает инфраструктуру на 5"
+AncientTemple:
+ Id: 18159
+ ENG: "Ancient Temple"
+ RUS: "Древний храм"
+EnormousInSizeAndResembling:
+ Id: 18160
+ ENG: "Enormous in size and resembling pyramids. A large old temple. What kinds of secrets might it hold?"
+ RUS: "Огромный по размеру и напоминающий пирамиды старый храм. Какие секреты он может хранить?"
+CasinoUnderhive:
+ Id: 5398
+ ENG: "Casino Underhive"
+ RUS: "Казино улья"
+SmugglersUnderhive:
+ Id: 5399
+ ENG: "Smugglers Underhive"
+ RUS: "Контрабандисты улья"
+PitSlavesUnderhive:
+ Id: 5400
+ ENG: "Pit Slaves Underhive"
+ RUS: "Ямные рабы улья"
+ShadyPlacesArePerfectGround:
+ Id: 17961
+ ENG: "Shady places are perfect ground to gamble. With right connections we can make a profit."
+ RUS: "Тенистые места - отличное место для азартных игр. При правильных связях мы можем получать прибыль."
+MaxPopulationProductionPerRichness:
+ Id: 17962
+ ENG: "+0.4 Max Population, +2 Production per Richness"
+ RUS: "+0.4 к макс. населению, +2 породукции за богатство"
+Underhive:
+ Id: 17963
+ ENG: "Underhive"
+ RUS: "Улей"
+TheUnderhiveIsTheMost:
+ Id: 17964
+ ENG: "The underhive is the most run-down city on the planet where most of the rules are created by Corsair gangs. It is a difficult place to live where the power has long been turned off. People rule through fear and shun the rich that live in the capital."
+ RUS: "Нижний улей - самый захудалый город на планете, где установлены правила бандами корсаров. Трудно жить там, где давно отключили электричество. Людьми правят через страх и бедные избегают богатых, живущих в столице."
+YouCantStopTheUnderhive:
+ Id: 17965
+ ENG: "You can't stop the underhive, and the smugglers keep profiting from it."
+ RUS: "Вы не можете остановить улей, а контрабандисты продолжают получать прибыль."
+PirateHiddenTreasure:
+ Id: 17736
+ ENG: "Pirate Hidden Treasure"
+ RUS: "Пиратское сокровище"
+FromOrbitItAppearsAs:
+ Id: 17737
+ ENG: "From Orbit, it appears as nothing out of the ordinary. However, your fleet commander insists these are the right coordinates, and ground troops should be sent to investigate."
+ RUS: "С орбиты в этом нет ничего необычного. Однако командующий вашим флотом настаивает на том, что это правильные координаты, и следует отправить наземные войска для расследования."
+UndergroundSuperstructure:
+ Id: 5095
+ ENG: "Underground superstructure"
+ RUS: "Подземная суперструктура"
+AHugeCleverlyHiddenSubterranean:
+ Id: 5096
+ ENG: "A huge, cleverly hidden subterranean complex, evidently constructed for a large population to take shelter and be safe from orbital bombardment. With such advanced technology, what could these people have been afraid of?"
+ RUS: "Огромный, искусно спрятанный подземный комплекс, очевидно построенный для укрытия большого населения. Чего могли бояться эти люди с такими передовыми технологиями?"
+ProvidesShelterForALarge:
+ Id: 5097
+ ENG: "Provides shelter for a large amount of population."
+ RUS: "Обеспечивает приютом большое количество населения"
+UnexploredCave:
+ Id: 18109
+ ENG: "Unexplored cave"
+ RUS: "Неизведанная пещера"
+ATantalizingDeepDarkCave:
+ Id: 18110
+ ENG: "A tantalizing, deep dark cave. What secrets might it hold?"
+ RUS: "Странная глубокая темная пещера. Какие тайны в ней погружены?"
+AdvMetalurgy:
+ Id: 1090
+ ENG: "Nanoweave Metallurgy II"
+AdvMetalurgydescr:
+ Id: 1091
+ ENG: "Further advances in nanites technology increased the overall integrety of material on molecular level."
+AdvMetalurgybonus:
+ Id: 1092
+ ENG: "Provides a 30% hit point bonus to all ship modules."
+Tech_SolarArraysV1_Name:
+ Id: 18080
+ ENG: "Solar Arrays V1"
+ RUS: "Солнечные батареи V1"
+Tech_SolarArraysV1_Desc:
+ Id: 18081
+ ENG: "Our Cybernetic Citizens can be upgraded with Solar Arrays to reduce their production consumption when they are in a colony."
+ RUS: "Наши кибернетические граждане могут быть обновлены с помощью солнечных батарей, чтобы снизить их производственное потребление, когда они находятся в колонии."
+Tech_SolarArraysV1_Bonus:
+ Id: 18082
+ ENG: "Reduces each colony's production consumption by 10%"
+ RUS: "Снижает производственное потребление каждой колонии на 10%."
+Tech_SolarArraysV2_Desc:
+ Id: 18083
+ ENG: "Upgading our citizen's solar arrays will further reduce their production consumption."
+ RUS: "Модернизация солнечных батарей наших граждан еще больше снизит их производственное потребление."
+Tech_SolarArraysV2_Name:
+ Id: 18084
+ ENG: "Solar Arrays V2"
+ RUS: "Солнечные батареи V2"
+Tech_SolarArraysV3_Name:
+ Id: 18085
+ ENG: "Solar Arrays V3"
+ RUS: "Солнечные батареи V3"
+Tech_SolarArraysV4_Name:
+ Id: 18086
+ ENG: "Solar Arrays V4"
+ RUS: "Солнечные батареи V4"
+Tech_SolarArraysV5_Name:
+ Id: 18087
+ ENG: "Solar Arrays V5"
+ RUS: "Солнечные батареи V5"
+UpgradedXenoMines:
+ Id: 8073
+ ENG: "Advanced Xeno mines"
+ RUS: "Модернизированные ксено шахты"
+TheseMinesAreEquippedWith:
+ Id: 8074
+ ENG: "These mines are equipped with better technology for exploiting more of the planet's mineral deposits. Their byproducts can be sold in local markets, yielding small income."
+ RUS: "Эти шахты оснащены более совершенными технологиями для разработки большего количества месторождений полезных ископаемых планеты. Их побочные продукты могут продаваться на местных рынках, принося небольшой доход."
+AdvXenoMineStats:
+ Id: 17410
+ ENG: " +1.2 production per assigned colonist,+0.1 Credits per Colonist, +2 Infrastructure"
+ RUS: "+1.2 продукции за задействованного колиниста,+0.1 кредитов за колониста, +2 к инфраструктуре"
+Tech_ImperialUni_Name:
+ Id: 10344
+ ENG: "Imperial University"
+ RUS: "Имперский университет"
+Tech_ImperialUni_Desc:
+ Id: 10345
+ ENG: "Bringing together the best and brightest of our Empire will give huge benefits to research and engineering. In one place, our scientists and engineers can cooperate without the barrier of distance."
+ RUS: "Объединение лучших и самых ярких представителей нашей Империи принесет огромную пользу исследованиям и разработкам. В одном месте наши ученые и инженеры могут сотрудничать без ограничений."
+ResearchPerAssignedColonistProduction:
+ Id: 10346
+ ENG: "+0.2 research per assigned colonist"
+ RUS: "+0.2 к исследованиям за задействованного колониста"
+Tech_InvasiveMining_Name:
+ Id: 8075
+ ENG: "Invasive Mining"
+ RUS: "Инвазивная добыча"
+Tech_InvasiveMining_Desc:
+ Id: 8076
+ ENG: "Developing efficient automation is a crucial step required to push a higher production output from our colonies, at a cost of environmental damage."
+ RUS: "Разработка эффективной автоматизации - важный шаг, необходимый для увеличения объемов производства в наших колониях за счет ущерба окружающей среде."
+RoboticFactory:
+ Id: 8077
+ ENG: "Robotic Factory"
+ RUS: "Робототехническая фабрика"
+ARoboticFactoryAGreat:
+ Id: 8078
+ ENG: "A Robotic Factory. A great technological marvel. These factories use robots for production and are fully automated. These factories exploit minerals without relation to the Planet's Mineral Richness, but this comes at a cost of putting major strain on the planet's environment."
+ RUS: "Робототехническая фабрика. Великое технологическое чудо. Эти заводы используют роботов для производства и полностью автоматизированы. Эти фабрики эксплуатируют полезные ископаемые, не зависящие от минерального богатства планеты, но это происходит за счет серьезной нагрузки на окружающую среду планеты."
+FertilityOnBuildFlatProduction:
+ Id: 8079
+ ENG: " (-0.3) Fertility On Build, +6 flat production per turn, +1 Infrastructure"
+ RUS: " (-0.3) плодородия за постройку, +6 продукции за ход, +1 к инфраструтуре."
+ParticleAccelerator:
+ Id: 10019
+ ENG: "Particle Accelerator"
+ RUS: "Ускоритель частиц"
+ParticleAcceleratorAsThe:
+ Id: 10020
+ ENG: "A particle accelerator, as the name implies, accelerates particles to nearly the speed of light, smashing them together at relativistic speeds to find new information about the makeup of the universe. Rumors of the potential for an irreversible black hole consumption event caused by this device are likely greatly exaggerated."
+ RUS: "Ускоритель частиц, как следует из названия, ускоряет частицы почти до скорости света, сталкивая их вместе с релятивистскими скоростями, чтобы получить новую информацию о структуре Вселенной.  Слухи о возможности необратимого события поглощения черной дыры, вызванного этим устройством, вероятно, сильно преувеличены."
+SoilEnrichmentCenter:
+ Id: 10027
+ ENG: "Soil Enrichment Center"
+ RUS: "Центр обогащения почвы"
+InAnAttemptToImprove:
+ Id: 10028
+ ENG: "In an attempt to improve agricultural output, the planet's soil is enriched to support plant growth. Though increasing small amount of fertility, the building is cheap to build and maintain."
+ RUS: "В попытке улучшить сельскохозяйственное производство почва планеты обогащается, чтобы поддерживать рост растений, повышая плодородие."
+WeatherManipulationCenter:
+ Id: 10033
+ ENG: "Weather Manipulation Center"
+ RUS: "Центр управления погодой"
+UsingAdvancedComputersAndA:
+ Id: 10034
+ ENG: "Using advanced computers and a network of specialized satellites, this buildings monitors the global weather and directs measures to manipulate it to improve plant growth. This increases the average fertility of the planet."
+ RUS: "Используя современные компьютеры и сеть специализированных спутников, это здание отслеживает глобальную погоду и направляет меры по управлению ею для улучшения роста растений.  Это увеличивает среднюю плодородность планеты."
+Tech_SubspaceArtillery_II_Name:
+ Id: 17567
+ ENG: "Subspace Artillery"
+ RUS: "Космическая артиллерия"
+Tech_SubspaceArtillery_II_Desc:
+ Id: 17568
+ ENG: "Using conventional physics, extremely large cannons proved too unwieldy for applications in space. However, advancements in subspace field theory have allowed for the creation of a second set of larger, extremely powerful cannons, along with a tactical one for our more cramped vessels. These weapons will shred through enemy armor, and offer a small to decent chance of penetrating shields."
+ RUS: "Используя традиционную физику, чрезвычайно большие пушки оказались слишком громоздкими для применения в космосе.  Однако достижения в теории поля подпространства позволили создать второй набор более крупных и чрезвычайно мощных пушек, для наших кораблей. Это оружие пробивает броню врага и дает небольшой или приличный шанс пробить щиты."
+Kineticweapons:
+ Id: 952
+ ENG: "Kinetic Turret"
+ RUS: "Кинетическое оружие"
+ SPA: "Armas cinéticas"
+BB_Tech_SpaceWeapons_Desc:
+ Id: 662
+ ENG: "Taking a cue from naval tradition, early spacecraft rely heavily on hail of bullets, shells or flak. Their raw destructive power combined with excellent range crate best first strike weapon, though they do require ammunition."
+
+HVTurrets:
+ Id: 17474
+ ENG: "Hyper-V Turrets"
+HVTurretsDesc:
+ Id: 17475
+ ENG: "By advancements in electro-magnetic rail technologies our scientists were able to increase the projectile speed and total kinetic energy delivered per shell fired from newly designed state of the art turrets."
+Advancedturrets:
+ Id: 17476
+ ENG: "Advanced Turrets"
+AdvancedturretsDescr:
+ Id: 17477
+ ENG: "Space warfare pushed scientists to rapid advancements in conventional space weapons, using special metal compounds the turrets became more sturdy and can withstand higher pressures of rapidly fired shells improving overall damage,range and projectile speed."
+Maglevturrets:
+ Id: 17478
+ ENG: "Maglev Turrets"
+MaglevturretsDECR:
+ Id: 17479
+ ENG: "Using miniaturized maglev technologies, we were able to suspend shells in a magnetic field. Without friction made by conventional barrel the projectiles can be shoot at higher velocities. Limitation to this technology is losing potential of firing in rapid sucession projectiles from previous kinetic turret models."
+HVTurretsDescWeapon:
+ Id: 17480
+ ENG: "Thanks to its faster projectile speeds can hit longer range targets easier even if they try to evade."
+HVTurretsHeavy:
+ Id: 17481
+ ENG: "Heavy Hyper Velocity Turret"
+HVTurretsDescWeaponHeavy:
+ Id: 17482
+ ENG: "Double barreled Hyper Velocity cannon mounted on a bigger more robust swivel with increased  field of fire."
+AdvancedturretHeavy:
+ Id: 17483
+ ENG: "Heavy Advanced Kinetic Turret"
+AdvancedturretsHwavyWeaponDescr:
+ Id: 17484
+ ENG: "Double barreled Advanced Kinetic cannon mounted on a bigger more robust swivel with increased field of fire."
+AdvancedturretsDescrWeapon:
+ Id: 17485
+ ENG: "Advanced Kinetic Turrets can deliver bigger explosive payload with slightly increased speed than its predecessor."
+Advancedturretssmall:
+ Id: 17486
+ ENG: "Advanced Kinetic Turret"
+Maglevturret:
+ Id: 17487
+ ENG: "Maglev Turret"
+Maglevturretweapondescr:
+ Id: 17488
+ ENG: "Electro-magnetic rail that proppel explosive shells in high velocities mounted on swivel."
+MaglevturretHeavy:
+ Id: 17489
+ ENG: "Heavy Maglev Turret"
+MaglevturretHeavyDescr:
+ Id: 17490
+ ENG: "Turret with a dual mounted electro-magnetic rails on a bigger more robust swivel with increased field of fire."
+DualMassDriver:
+ Id: 17491
+ ENG: "Dual Mass Driver"
+DualMassDriverdescrweap:
+ Id: 17492
+ ENG: "Heavy-mounted dual barrel rail cannon that can deliver a deadly salvo of 2 highly explosive shells over a very long distance"
+DualMassDriverdescr:
+ Id: 18249
+ ENG: "Mounting two massive rail cannons on top on a single mounting thanks to advancements in metallurgy resulted in increased of fire power without sacrificing to much of additional space on a ship."
+Aplifiertech:
+ Id: 17493
+ ENG: "Shield Amplifier"
+AplifiertechDescr:
+ Id: 17494
+ ENG: "Shield Amplifier technology was developed to amplify strength of energy shield emitters with combination of greatly reduced power consumption."
+Aplifier:
+ Id: 17495
+ ENG: "Amplifier"
+Aplifierdescr:
+ Id: 17496
+ ENG: "This module increases the strength of closest energy shield emitter by considerable amount."
+ADVAplifiertech:
+ Id: 17497
+ ENG: "Advanced Amplifier"
+ADVAplifiertechDescr:
+ Id: 17498
+ ENG: "Considerable advancements in shielding technologies lead into developing bigger and more advanced Amplifier to save energy consumption of the bigger shield emitters."
+ADVAplifierDescr:
+ Id: 17499
+ ENG: "This advanced amplifying module increases the strength of closest energy shield emitter by considerable amount while keeping the power consumption relatively low."
+StarshipDefences:
+ Id: 1100
+ ENG: "Starship Defences"
+MicroTorpedo:
+ Id: 18248
+ ENG: "Micro Torpedo"
+ RUS: "Микро торпеда"
+MicroTorpedodescr:
+ Id: 8205
+ ENG: "An early Torpedo class weapon created to fit Corvettes and Frigates. Even on its miniaturized size it's still a very deadly weapon. Torpedo class weapons are more resistant to pd weapon fire then normal missiles and have increased damage, but they suffer in mobility, slower speeds and reload times."
+MicroTorpedodescrWeapon:
+ Id: 18250
+ ENG: "Micro torpedoes are the smallest of its kind. Torpedo in mounted on a slightly redesigned a fixed spinal facing missile rack. More mobile targets can evade it. "
+SmallTorpedo:
+ Id: 8206
+ ENG: "Light Torpedo "
+ RUS: "Малый торпедный"
+SmallTorpedoTube:
+ Id: 8207
+ ENG: "Small Torpedo Tube"
+ RUS: "Малый торпедный пускатель"
+LightTorpDescrWeap:
+ Id: 8208
+ ENG: "This torpedo tube launches devastating torpedoes, packed to the hilt with explosives. They require substantial ordnance to fire and can be intercepted by point defense weapons."
+ RUS: "Этот торпедный аппарат запускает медленно движущиеся, но разрушительные торпеды, до отказа набитые взрывчаткой.  Они требуют значительного количества боеприпасов для стрельбы и могут быть перехвачены средствами точечной защиты."
+LightTorpDescr:
+ Id: 8209
+ ENG: "Newly developed Torpedoes are significantly bigger in size to house increased amount of explosives in its enormous warhead, for that purpose a heavy mounted tube was designed hold and launch those terrifying weapons"
+Tech_CeramicArmor_Name:
+ Id: 6563
+ ENG: "Ceramic Armor"
+ RUS: "Керамическая броня"
+ThisArmorIsSlightlyStronger:
+ Id: 6564
+ ENG: "This Armor is quite stronger than Steel Armor thanks to unique ceramic alloys added to the production process making it more durable."
+SmallSensor:
+ Id: 8241
+ ENG: "Small Sensor"
+ RUS: "Малый сенсор"
+InformationInWarIsMost:
+ Id: 8242
+ ENG: "Information in war is most crucial, with that mindset long range sensors were developed. Equiping a ship with a sensor module increases its detection range significantly."
+ RUS: "Информация на войне имеет важнейшее значение, поэтому были разработаны датчики дальнего действия.  Оснащение корабля сенсорным модулем, значительно увеличивает дальность обнаружения вражеских кораблей."
+Tech_CompositeAlloys_Name:
+ Id: 6569
+ ENG: "Composite Alloys"
+ RUS: "Композитные сплавы"
+TwiceAsStrongAsSteel:
+ Id: 6570
+ ENG: "Improved production processes and experimenting with different type of materials led to discovering very sturdy composite that can be easily manufactured in mass as a new type of armor."
+CompositeAlloysSmall:
+ Id: 6571
+ ENG: "Composite Alloys Small"
+ RUS: "Малая композитная броня"
+CompositeAlloysMedium:
+ Id: 6572
+ ENG: "Composite Alloys Medium"
+ RUS: "Средняя композитная броня"
+CompositeAlloysLarge:
+ Id: 6573
+ ENG: "Composite Alloys Large"
+ RUS: "Большая композитная броня"
+Tech_CrystalArmor_Name:
+ Id: 6574
+ ENG: "Crystal Armor"
+ RUS: "Кристальная броня"
+ThisArmorIsVeryExpensive:
+ Id: 6575
+ ENG: "Crystals are one of the hardest known materials, but they very brittle. Thanks to experimenting with composite alloys made a discovery of a compound that can be added to melted down crystals, to making it extremely resistant material"."
+CrystalArmorSmall:
+ Id: 6576
+ ENG: "Crystal Armor Small"
+ RUS: "Малая кристалическая броня"
+CrystalArmorMedium:
+ Id: 6577
+ ENG: "Crystal Armor Medium"
+ RUS: "Средняя кристалическая броня"
+CrystalArmorLarge:
+ Id: 6578
+ ENG: "Crystal Armor Large"
+ RUS: "Большая кристалическая броня"
+NewGenerationOfCeramicArmor:
+ Id: 6579
+ ENG: "New generation of Ceramic Armor."
+ RUS: "Керамическая броня нового поколения."
+CeramicArmorSmall:
+ Id: 6580
+ ENG: "Ceramic Armor Small"
+ RUS: "Малая керамическая броня"
+CeramicArmorMedium:
+ Id: 6581
+ ENG: "Ceramic Armor Medium"
+ RUS: "Средняя керамическая броня"
+CeramicArmorLarge:
+ Id: 6582
+ ENG: "Ceramic Armor Large"
+ RUS: "Большая керамическая броня"
+CrystalArmors:
+ Id: 6583
+ ENG: "Extremly resistant armor made from unique crystal compund."
+CeramicArmors:
+ Id: 6584
+ ENG: "Durable armor made from special ceramic compunds."
+CompositeArmors:
+ Id: 6585
+ ENG: "Sturdy armor made from multiple layers of sheets made from different materials."
+BB_Tech_PolaronCannons_Desc:
+ Id: 639
+ ENG: "Phased polaron cannons encapsulate their payloads in a phased energy shell rather than an ionized magnetic shell that at moment of impact creates a violent shockwave in subspace ripping everything around it on a molecular level. "
+Tech_Advanced_Powercells_Name:
+ Id: 17689
+ ENG: "Advanced Power Cells"
+ RUS: "Продвинутые энерго-ячейки"
+Tech_Advanced_Powercells_Desc:
+ Id: 17690
+ ENG: "Advancements into new types battery technology allow us to manufacture higher capacity Power Cells."
+ RUS: "Достижения в области технологий батарей нового типа, позволяют нам производить элементы питания большей емкости."
+SmallAdvancedPowerCell:
+ Id: 17691
+ ENG: "Small Advanced Power Cell"
+ RUS: "Малая прод. энерго-ячейка"
+ThisSmallPowerCellCan:
+ Id: 17692
+ ENG: "This Small Power Cell can store 50% more power than the basic one and has better, lighter armor than the Small Power Cell."
+ RUS: "Эта энерго-ячейка хранит на 50% больше энергии,чем базовая.Имеет легкое бронирование."
+MediumAdvancedPowerCell:
+ Id: 17693
+ ENG: "Medium Advanced Power Cell"
+ RUS: "Средняя прод. энерго-ячейка"
+ThisMediumPowerCellCan:
+ Id: 17694
+ ENG: "This Medium Power Cell can store 50% more power than the basic one and has better, lighter armor than the Medium Power Cell."
+ RUS: "Эта энерго-ячейка хранит на 50% больше энергии,чем базовая средняя ячейка.Имеет легкое бронирование."
+Tech_FusionReactor_Name:
+ Id: 8045
+ ENG: "Fusion Reactor"
+ RUS: "Термоядерный реактор"
+ASlightlyBetterVersionOf:
+ Id: 8046
+ ENG: "A better version of the ordinary Nuclear reactor. It will explode if destroyed, but it provides more power while also being a little sturdier."
+ RUS: "Немного лучшая версия старого ядерного реактора,он вырабатывает больше энергии и немного прочнее.Но при уничтожении последует взрыв, сильнее чем взрыв атомного реактора."
+Tech_FusionReactor_Desc:
+ Id: 17450
+ ENG: "In a fusion reactor, the principle is that neutrons generated from Deuterium-Tritium fusion reactions will be absorbed into a blanket containing lithium, which surrounds the core. The lithium is then transformed into tritium (which is used to fuel the reactor) and helium. "
+ RUS: "В термоядерном реакторе принцип состоит в том, что нейтроны, генерируемые реакциями синтеза дейтерия и трития, будут поглощаться бланкетом, содержащим литий, который окружает активную зону.  Затем литий превращается в тритий (который используется в качестве топлива для реактора) и гелий."
+ExtremeFusionReactor:
+ Id: 8047
+ ENG: "Extreme Fusion Reactor"
+ RUS: "Перегруженный термоядер.реактор"
+ExtremeFusionReactorProduces:
+ Id: 8048
+ ENG: "The Extreme Fusion reactor produces more power by augmenting its fusion capabilities with other advanced technologies. As a result, its mass and cost are higher, and it is very fragile."
+ RUS: "Термоядерный реактор с перегрузкой вырабатывает больше энергии,путем внедрения новых термоядерных технологий. В результате его масса больше, стоимость производства дороже и он очень хрупкий, а значит взрывоопасен."
+ExtremeFusionReactorProduces2:
+ Id: 8049
+ ENG: "Fusion reactor pushed to the extreme limits of known psyhics. Explodes when destroyed."
+MediumCargoHold2:
+ Id: 10333
+ ENG: "Medium Cargo Hold"
+ RUS: "Средний грузовой отсек"
+AdvancesInShipDesignAnd:
+ Id: 10334
+ ENG: "Advances in ship design and material science allow for much larger cargo holds to be constructed. This one holds 10 units of food, production or frozen colonists."
+ RUS: "Достижения в области проектирования судов и материаловедения позволяют строить гораздо более крупные грузовые трюмы. В нем 10 единиц еды, продукции или замороженных колонистов."
+LargeCargoHold:
+ Id: 10332
+ ENG: "Large Cargo Hold"
+ RUS: "Большой грузовой отсек"
+AdvancesInShipDesignAnd2:
+ Id: 10331
+ ENG: "Advances in ship design and material science allow for much larger cargo holds to be constructed. This one holds 25 units of food, production or frozen colonists."
+ RUS: "Достижения в области проектирования судов и материаловедения позволяют строить гораздо более крупные грузовые трюмы. В нем 25 единиц еды, продукции или замороженных колонистов."
+ContainerDeck:
+ Id: 10337
+ ENG: "Container Deck"
+ RUS: "Контейнерная палуба"
+RatherThanRedesigningTheCargo:
+ Id: 10338
+ ENG: "Rather than redesigning the cargo hold, this new approach aims to redesign the cargo. By placing it in standardized, self-sufficient containers, we can maximize the amount of cargo carried. This container deck carries 10 containers for a combined storage of 35 units of food, production or frozen colonists."
+ RUS: "Этот новый подход направлен не на изменение конструкции грузового отсека, а на изменение конструкции груза. Размещая его в стандартных самодостаточных контейнерах, мы можем максимально увеличить количество перевозимого груза. Эта контейнерная палуба вмещает 10 контейнеров для совместного хранения 25 единиц продуктов питания, продукции или замороженных колонистов."
+ABalancedCruiserEngineWith:
+ Id: 5043
+ ENG: "Thrusters designed for heavier Cruisers providing them increased maneuvering perfomance."
+AMassiveAndBalancedEngine:
+ Id: 5054
+ ENG: "A massive maneuvering thrusters created to meet the demands of the largest ships."
+TheTimcorpFletchetteAntifighterTurret:
+ Id: 2250
+ ENG: "Fletchette Anti-Fighter turret is very effective versus unarmored craft but suffers a -50% damage penalty to Armor."
+TheVulcanCannonIsA:
+ Id: 1075
+ ENG: "The Vulcan cannon is a small, rapid fire machine gun capable of shredding small missiles in a storm of uranium-tipped rounds. Point Defense weapons automatically engage incoming missiles and have bonus damage versus missile weapons. "
+ech_HighDensityHousing_Name:
+ Id: 17776
+ ENG: "High Density Housing"
+ RUS: "Корпус высокой плотности"
+Tech_HighDensityHousing_Desc:
+ Id: 17777
+ ENG: "Special zones on the planet, specifically designed to house a large amount of the population while maintaining ordinary living standards. Our population will find them more than acceptable to live in."
+ RUS: "Особые зоны на планете, специально предназначенные для проживания большого количества населения при нормальном уровне жизни. Наше население сочтет их более чем приемлемыми для проживания."
+Tech_MegaCities_Name:
+ Id: 17778
+ ENG: "Mega Cities"
+ RUS: "Мегаполисы"
+Tech_MegaCities_Desc:
+ Id: 17779
+ ENG: "Mega Cities are designed to house as much population as is comfortably possible, featuring automated technology to maintain optimal living conditions. It features buildings that rise high into the sky, and bridges interconnecting them. Due to the structure's massive size as well as the resources devoted to construction, large amounts of material must be removed from the surrounding soil, reducing fertility on the planet by a small amount."
+ RUS: "Мега-города спроектированы для размещения максимально возможного количества населения и оснащены автоматизированными технологиями для поддержания оптимальных условий жизни. В нем есть здания, которые поднимаются высоко в небо, и соединяющие их мосты. Из-за огромных размеров сооружения, а также ресурсов, затрачиваемых на строительство, необходимо удалить большое количество материала из окружающей почвы, что незначительно снизит плодородие на планете."
+PlanetaryCustomsStation:
+ Id: 10005
+ ENG: "Planetary Customs Station"
+ RUS: "Планетарный таможенный пост"
+ThePlanetaryCustomsStationMaintains:
+ Id: 10006
+ ENG: "The planetary customs station maintains a small fleet of vessels that board and inspect all ships moving throughout the system. This ensures that all customs and taxes are paid. It also adds some storage space."
+ RUS: "Планетарный таможенный пост содержит небольшой флот судов, которые садятся на борт и проверяют все суда, движущиеся по системе.  Это гарантирует уплату всех таможенных пошлин и налогов. Также добавляет немного места для хранения ресурсов."
+GalacticStockExchange:
+ Id: 10009
+ ENG: "Galactic Stock Exchange"
+ RUS: "Галактическая фондовая биржа"
+TheGalacticStockExchangeIs:
+ Id: 10010
+ ENG: "The Galactic Stock Exchange is the central place where stocks of galactic mega-corporations are traded. The proceeds can be taxed."
+ RUS: "Галактическая фондовая биржа - это центральное место, где идут торги акций галактических мегакорпораций.  Выручка может облагаться налогом."
+PlanetaryStockExchange:
+ Id: 10021
+ ENG: "Planetary Stock Exchange"
+ RUS: "Планетарная фондовая биржа"
+ThePlanetaryStockExchangeAllows:
+ Id: 10022
+ ENG: "The Planetary Stock exchange allows stocks of planetary companies to be traded. This improves commerce on the planet and thus tax revenue."
+ RUS: "Планетарная фондовая биржа позволяет торговать акциями планетарных компаний.  Это улучшает торговлю на планете и, следовательно, налоговые поступления."
+FertilityOnBuild2:
+ Id: 10080
+ ENG: " (+0.3) fertility on build"
+ RUS: "(+0.3) плодородия за постройку"
+FertilityOnBuild3:
+ Id: 10081
+ ENG: " (+0.6) fertility on build"
+ RUS: " (+0.6) плодородия за постройку"
+Particleaccelerateshort:
+ Id: 17406
+ ENG: "+0.4 research per assigned colonist,+1 Flat Research per turn."
+ RUS: "+0.4 исследований за задействованного колиниста, +1 к науке за ход."
+PlanetaryAutocannonEmplacement:
+ Id: 5405
+ ENG: "Planetary AutoCannon Emplacement"
+ RUS: "Установка планетарной автопушки"
+HeavyAndRapidSuppressiveFire:
+ Id: 5406
+ ENG: "Heavy and rapid suppressive fire from these auto cannons should deter any unwelcome vessels from landing on our planets."
+ RUS: "Мощный и быстрый подавляющий огонь из этих автоматических пушек, должен удержать  любые шатлы от высадки на наши планеты."
+FiresAutoCannonShellsInto:
+ Id: 17422
+ ENG: "Fires auto cannon shells into orbit"
+ RUS: "Стрельба из автоматических пушек на орбиту"
+Tech_PlanetFortification_Name:
+ Id: 8177
+ ENG: "Planet Fortification"
+ RUS: "Планетарная фортификация"
+CloudPeakMissileEmplacement:
+ Id: 5408
+ ENG: "Cloud Peak Missile Emplacement"
+ RUS: "Ракетная установка \"Облачный пик\""
+CloudPeakSurfaceToSpace:
+ Id: 5409
+ ENG: "Cloud Peak surface to space guided MIRV missiles have extreme range and are capable of providing defensive control over most of an entire star system."
+ RUS: "Ракеты \"Облачный пик\" с наведением \"земля-космос\".Эти ракеты обладают большой дальностью и способны обеспечить оборонительный контроль над большей частью всей звездной системы."
+ExtremeRangeMissileDefense:
+ Id: 17421
+ ENG: "Extreme Range Missile Defense"
+ RUS: "Противоракетная оборона большой дальности"
+SystemDefenseTorpedo:
+ Id: 17712
+ ENG: "System Defense Torpedo"
+ RUS: "Торпедная оборонная система"
+ThisPlanetaryDefenseEmplacementFires:
+ Id: 17713
+ ENG: "This planetary defense emplacement fires guided torpedoes over very long range. The torpedoes are huge and armored, thus physically resistant to point defense. A big colony with these buildings can be devastating to incoming enemy capital ships."
+ RUS: "Эта планетарная оборонительная установка стреляет управляемыми торпедами на очень большие расстояния.  Торпеды большие и бронированные, поэтому физически устойчивы к точечной защите.  Большая колония с этими зданиями может быть разрушительной для приближающихся крупных кораблей противника."
+FiresLongRangeVeryRigid:
+ Id: 17425
+ ENG: "Fires long range, powerfull torpedoes."
+ RUS: "Стреляет дальнобойными, очень жесткими торпедами."
+MostAdvancedPlanetaryShieldingTechnology:
+ Id: 17415
+ ENG: "Most advanced planetary shielding technology, preventing even heaviest planetary bombardment for a significant amount of time."
+ RUS: "Мы можем укрепить территорию на колонизированных планетах, что затруднит наземное вторжение и орбитальные бомбардировки"
+DefensiveBuildingPlanetaryShieldsInjuries:
+ Id: 17416
+ ENG: "Defensive Building; +1000 Planetary Shields, 2 injuries to each invading troop"
+ RUS: "Оборонительное здание; +1000 планетарных щитов, 2 ранения каждому вторгающемуся отряду"
+Tech_Blackmatterweaponry_Name:
+ Id: 17942
+ ENG: "Dark Matter Cannon"
+ RUS: "Пушка темной материи"
+Tech_Blackmatterweaponry_Desc:
+ Id: 17943
+ ENG: "This ingenious weapon utilizes Dark Matter as a projectile. The process to confine and stabilize such a force was made successful by transferring small amounts of Dark Matter from our collectors, then wrapping them into their own individualized charges that can be loaded into a projectile chamber. Upon impact, they release their devastating power."
+ RUS: "Это оригинальное оружие использует темную материю в качестве снаряда. Процесс ограничения и стабилизации такой силы был успешным благодаря передаче небольших количеств Темной Материи от наших собирателей, а затем их упаковке в их собственные индивидуальные заряды, которые можно было загрузить в снарядную камеру. При ударе они высвобождают свою разрушительную силу."
+TheMostCompactDarkMatter:
+ Id: 17944
+ ENG: "The most compact Dark Matter cannon. A fixed position cannon that fires small bursts of stabilized Dark Matter. Doesn't require ordnance or power to fire. Produces small yield explosion when destroyed."
+ RUS: "Самая компактная пушка Темной Материи. Пушка с фиксированным положением, стреляющая небольшими очередями стабилизированной темной материи. Не требует боеприпасов или энергии для стрельбы. При уничтожении производит небольшой взрыв энергии."
+ADarkMatterTurretFires:
+ Id: 17945
+ ENG: "A Dark Matter turret. Fires in semi-rapid succession. Doesn't require ordnance or power to fire. Produces small yield explosion when destroyed."
+ RUS: "Турель Темной Материи.Стреляет в полускоростной последовательности. Не требует боеприпасов или энергии для стрельбы. При уничтожении производит небольшой взрыв энергии."
+AHeavyDarkMatterTurret:
+ Id: 17946
+ ENG: "A Heavy Dark Matter turret with an expanded field of fire coverage. Features a burst weapon firing system. Doesn't require ordnance or power to fire. Produces small yield explosion when destroyed."
+ RUS: "Тежалая турель Темной Материи с расширенной дугой огня. Имеет систему стрельбы очередями. Не требует боеприпасов или энергии для стрельбы. При уничтожении производит небольшой взрыв энергии"
+LightDarkMatterCannon:
+ Id: 17947
+ ENG: "Light Dark Matter Cannon"
+ RUS: "Легкая пушка Темной Материи"
+DarkMatterTurret:
+ Id: 17948
+ ENG: "Dark Matter turret"
+ RUS: "Турель Темной Материи"
+HeavyDarkMatterTurret:
+ Id: 17949
+ ENG: "Heavy Dark Matter turret"
+ RUS: "Тежалая турель Темной Материи"
+Tech_RemnantAssembly_Name:
+ Id: 18260
+ ENG: "Remnant Assembly"
+Tech_RemnantAssembly_Desc:
+ Id: 18261
+ ENG: "By introducing a very complex way of assembling weapons in Remnant specifications we were able to increase out weapon damage potential."
+Tech_RemnantAssembly_Weapon_Damage_Bonus:
+ Id: 18262
+ ENG: "All weapon types damages increased by 20%"
+Tech_RemnantAssembly_Weapon_ExplosionRadius_Bonus:
+ Id: 18263
+ ENG: "All weapon explosion radius increased by 20%"
+Tech_RemnantMetallurgy_Name:
+ Id: 18264
+ ENG: "Remnant Metallurgy"
+Tech_RemnantMetallurgy_Desc:
+ Id: 18265
+ ENG: "By mixing Remnant compounds from their wreckages with currently known materials, resulted in increased durability."
+Tech_RemnantMetallurgy_Bonus:
+ Id: 18266
+ ENG: "Provides a 30% hit point bonus to all ship modules"
+Tech_RemnantShielding_Name:
+ Id: 18267
+ ENG: "Remnant Shielding"
+Tech_RemnantShielding_Desc:
+ Id: 18268
+ ENG: "By studying energy signatures and particles emitted by recovered Remnant shield generators we were able to replicate and introduce those advancements to our own shield generators"
+Tech_RemnantShielding_Bonus:
+ Id: 18269
+ ENG: "Provides a 30% shield power"
+Tech_SlipStreams_Name:
+ Id: 18270
+ ENG: "Subspace Tunneling"
+Tech_SlipStreams_Desc:
+ Id: 18271
+ ENG: "Using ancient navigation data, our scientists discovered a way to gain access to subspace tunneling between our subspace projectors"
+Tech_SlipStreams_Bonus:
+ Id: 18272
+ ENG: "Ships traveling within your own empire's borders gain 30% bonus to their FTL speeds."
+Tech_RemnantNuker_Name:
+ Id: 17924
+ ENG: "RemnantNuker."
+ RUS: "Ядерный пускатель Предтечь"
+Tech_RemnantNuker_Desc:
+ Id: 17925
+ ENG: "A compact weapon of mass destruction."
+ RUS: "Компактное оружие массового поражения."
+ForAMissileOfThis:
+ Id: 17926
+ ENG: "For a missile of this size, it's a strikingly devastating weapon. Not only does it melt armor, but it also emits a deadly EMP blast."
+ RUS: "Для ракеты такого размера это поразительно разрушительное оружие. Он не только расплавляет броню, но также излучает смертельный импульс ЭМИ."
+ThisStructureWasSpecificallyDesigned:
+ Id: 17780
+ ENG: "This structure was specifically designed to house a large amount of the population while maintaining ordinary living standards. These zones can house 500 Million citizens."
+ RUS: "Эта структура была специально разработана для размещения большого количества населения при сохранении нормального уровня жизни. Эти зоны могут вместить 500 миллионов жителей."
+PlanetPopulationStorageInfrastructure:
+ Id: 17781
+ ENG: "(-0.15) Fertility on build, +0.5 planet population, +1 Infrastructure"
+ RUS: "(-0.15) плодородия за постройку, +0.5 к населению планеты, +1 к инфраструктуре"
+MegaCity:
+ Id: 17782
+ ENG: "Mega City"
+ RUS: "Мега Город"
+AMegaCityIsA:
+ Id: 17783
+ ENG: "A Mega City is a zone with high rise skyscrapers, dedicated to housing 1 Billion population in decent living conditions. Due to the loss of vast expanses of arable land, fertility is slightly reduced."
+ RUS: "Мега-город - это зона с высотными небоскребами, предназначенная для проживания 1 миллиарда населения в достойных условиях. Из-за потери огромных просторов пашни немного снижается плодородие."
+FertilityOnBuildMaxPopulation:
+ Id: 17784
+ ENG: " (-0.3) Fertility on build, +1 max population, +2 Infrastructure"
+ RUS: " (-0.3) плодородия за постройку, +1 макс. населения, +2 к инфраструктуре"
+Tech_ParticleAcceleration_Name:
+ Id: 10059
+ ENG: "Particle Acceleration"
+ RUS: "Ускоритель частиц"
+Tech_ParticleAcceleration_Desc:
+ Id: 10060
+ ENG: "The last remaining questions about the origin of the universe can be answered by taking the smallest parts of it and smashing them together."
+ RUS: "На последние оставшиеся вопросы о происхождении Вселенной можно ответить, взяв самые маленькие ее части и столкнкв их между собой"
+Tech_ImperialCustoms_Name:
+ Id: 10063
+ ENG: "Imperial Customs"
+ RUS: "Имперская таможня"
+Tech_ImperialCustoms_Desc:
+ Id: 10064
+ ENG: "Trade between planets must be regulated to protect the local economies, avoid ecological contamination, and, most of all, to ensure that the state get its cut of all proceeds."
+ RUS: "Торговлю между планетами необходимо регулировать, чтобы защитить местную экономику, избежать загрязнения окружающей среды и, самое главное, чтобы государство получало долю от всех доходов."
+Tech_PlanetaryStockTrade_Name:
+ Id: 10065
+ ENG: "Planetary Stock Trade"
+ RUS: "Планетарные акции"
+Tech_PlanetaryStockTrade_Desc:
+ Id: 10066
+ ENG: "Any planetary government seeking to stimulate economic growth would be well-advised to create a place where companies can find investors. The increase in tax revenue is just a bonus."
+ RUS: "Любому планетарному правительству, стремящемуся стимулировать экономический рост, было бы целесообразно создать место, где компании могут найти инвесторов.  Увеличение налоговых поступлений - это просто бонус."
+Tech_GalacticStockTrade_Name:
+ Id: 10069
+ ENG: "Galactic Stock Trade"
+ RUS: "Галактическое акционерство"
+Tech_GalacticStockTrade_Desc:
+ Id: 10070
+ ENG: "The level of revenue exchange our galactic mega-corporations require is far beyond the scope of what one planet can accommodate. It would be wise to create a single place in our empire where these corporations can meet with investors. It would be equally wise to tax them for it."
+ RUS: "Уровень обмена доходов, который требуется нашим галактическим мегакорпорациям, выходит далеко за рамки того, что может вместить одна планета.  Было бы разумно создать в нашей империи единое место, где эти корпорации могли бы встречаться с инвесторами.  Было бы также разумно обложить их налогом."
+Tech_SoilEnrichment_Name:
+ Id: 10041
+ ENG: "Soil Enrichment"
+ RUS: "Обогащение почвы"
+Tech_SoilEnrichment_Desc:
+ Id: 10042
+ ENG: "Combining artificial and natural fertilizer, we can improve a planet's fertility to increase agricultural output."
+ RUS: "Комбинируя искусственные и натуральные удобрения, мы можем улучшить плодородие планеты для увеличения сельскохозяйственного производства."
+Tech_WeatherManipulation_Name:
+ Id: 10045
+ ENG: "Weather Manipulation"
+ RUS: "Манипуляции с погодой"
+Tech_WeatherManipulation_Desc:
+ Id: 10046
+ ENG: "By manipulating a planet's climate, we can decrease devastating weather effects while preserving the optimal conditions for plant growth. In effect, this increases a planet's fertility."
+ RUS: "Управляя климатом планеты, мы можем уменьшить разрушительные погодные эффекты, сохраняя при этом оптимальные условия для роста растений.  Фактически это увеличивает плодородие планеты."
+TaxEfficiencyStorage:
+ Id: 10071
+ ENG: "+30% Tax Efficiency, +20 storage"
+ RUS: "+30% эффективность налогов, +20 места на складе"
+CreditPerColonist:
+ Id: 17879
+ ENG: "+1 Credit per Colonist"
+ RUS: "+1 кредитов за колониста"
+GalacticCreditsPerColonist:
+ Id: 10072
+ ENG: "+1.75 credits per colonist"
+ RUS: "+1.75 кредитов за колониста"
+
+
+MissileTurret:
+ Id: 17500
+ ENG: "Missile Turret"
+MissileTurrettechDescr:
+ Id: 17501
+ ENG: "By placing a missile launcher onto a mechanized swivel we can greatly improve the effectiveness of using missiles in close combat scenarios thanks to increased field of fire."
+MissileTurretWepDescr:
+ Id: 17503
+ ENG: "This turret shoots out a highly maneuverable missile at high speeds that can evade pd fire."
+DualMissileTurret1:
+ Id: 17504
+ ENG: "Dual-M Turret"
+DualMissileTurrettechDescr:
+ Id: 17505
+ ENG: "Missiles are working best when are shooting in salvos to counter potential PD fire, for that reason we developed a heavy turret that can shoot two slightly bigger and more devastating missiles in rapid succession to overwhelm enemy PD systems."
+DualMissileTurretwep:
+ Id: 17506
+ ENG: "Dual Missile Turret"
+DualMissileTurretWepDescr:
+ Id: 17507
+ ENG: "This turret can shoot two bigger highly maneuverable missiles at high speeds that can evade and overwhelm PD systems."
+QuadMissileTurret:
+ Id: 17508
+ ENG: "Quad-M Turret"
+QuadMissileTurrettechDescr:
+ Id: 17509
+ ENG: "To completely overwhelm PD systems a massive robust Quad missile turret was developed. It holds 4 big and highly advanced missiles that are shoot in salvos."
+QuadMissileTurretwep:
+ Id: 17510
+ ENG: "Quad Missile Turret."
+QuadMissileTurretWepDescr:
+ Id: 17511
+ ENG: "This turret can shoot four advanced highly maneuverable missiles at high speeds that can evade and overwhelm PD systems."
+DualFusion:
+ Id: 17512
+ ENG: "Dual Fusion Beam Turret"
+DualFusionDescr:
+ Id: 17513
+ ENG: "Two Fusion Beam emitters placed on a sturdy heavy turret with increased field of fire."
+HeavyPhasor:
+ Id: 17514
+ ENG: "Heavy Phasor Array"
+HeavyPhasorDescr:
+ Id: 17515
+ ENG: "Enlarged phasor array mounted on a stury robust turret with increased field of fire."
+DualPhasortTech:
+ Id: 17516
+ ENG: "Massive Phasors"
+DualPhasorTechDescr:
+ Id: 17517
+ ENG: "To accommodate those two monstrous phasor arrays on a single turrets our scientists had to develop a super sturdy swivel that can withstand enormous temperature and electro-magnetic spikes."
+DualPhasort:
+ Id: 17518
+ ENG: "Dual Massive Phasor Array"
+DualPhasorDescr:
+ Id: 17519
+ ENG: "This terrifying monster of a turret firing two massive phasor beams can melt even the mightiest armor in few hits."
+LaserFocusTech:
+ Id: 17520
+ ENG: "Focused Beam I"
+LaserFocusTechDescr:
+ Id: 17521
+ ENG: "By strategically placed arrays of coils, crystal prisms and lenses in right configuration our scientists were able to increase the focus of a beam giving it impressive range. This type of spinal mounted design can keep the beam for longer period of times delivering a devastating damage. But as draw back it requires a long cool down. Focused beam technology was developed to improve damage vs armor."
+LaserFocus:
+ Id: 17522
+ ENG: "Focused Laser Beam Mount"
+LaserFocusdescr:
+ Id: 17523
+ ENG: "With bigger footprint than normal turret this weapon system acts like a small scale beam artillery weapon, able to shoot over great distances."
+FusionFocusTech:
+ Id: 17524
+ ENG: "Focused Beam II"
+FusionFocusTechDescr:
+ Id: 17525
+ ENG: "Directing two narrow streams of atomic particles into heavy array of coils, crystal prisms and lenses our scientist ended up in focusing the both beams into one massive fusion beam greatly increasing its range and beam duration. Focused beam technology was developed to improve damage vs armor."
+FusionFocus:
+ Id: 17526
+ ENG: "Focused Fusion Beam Mount"
+FusionFocusdescr:
+ Id: 17527
+ ENG: "Due to nature of fusion beam that needs two separate beam streams sources this heavy mount is larger and requires more energy."
+HVTurret:
+ Id: 17528
+ ENG: "Hyper Velocity Turret"
+HVTurretDescWeapon:
+ Id: 17529
+ ENG: "Hyper Velocity cannon mounted on a small swivel."
+MassiveDisruptor:
+ Id: 17530
+ ENG: "Massive Disruptor"
+MassiveDisruptorTech:
+ Id: 17531
+ ENG: "Advancments in shield and armor technologies as well of bigger ship hulls lead into developing this monstrous Turret with very impressive field of fire,it houses 2 massive disruptor cannons for greatly improved damage. Each projectile contains small emp charge!"
+MassiveDisruptorDescr:
+ Id: 17532
+ ENG: "This massive twin barreled Diruptor turret can deliver extreme levels of destruction but it has also quite extreme power demands."
+MassivePhoton:
+ Id: 17533
+ ENG: "Massive Photons"
+MassivePhotonTech:
+ Id: 17534
+ ENG: "Further advancments in energy contaiment lead into developing this kind of monster Photon Turret that can hold 2 massive Photon cannons. Each projectile contains small emp charge!"
+MassivePhotonDescr:
+ Id: 17535
+ ENG: "This massive twin barreled Photon turret can deliver extreme levels of destruction but it has also quite extreme power demands. "
+MassivePolaron:
+ Id: 17536
+ ENG: "Massive Polarons"
+MassivePolaronTech:
+ Id: 17537
+ ENG: "When it comes to dealing enormous damages nothing come close to those two massive polaron cannons mounted on a heavy turret. Each projectile contains small emp charge!"
+MassivePolaronDescr:
+ Id: 17538
+ ENG: "This massive twin barreled Polaron turret is pinnacle of energy cannons."
+MassivePolaronWeap:
+ Id: 17539
+ ENG: "Massive Polaron Turret"
+MassivePhotonWeap:
+ Id: 17540
+ ENG: "Massive Photon Turret"
+MassiveDisrupWeap:
+ Id: 17541
+ ENG: "Massive Disruptor Turret"
+StorageDeck:
+ Id: 17542
+ ENG: "Storage Decks"
+MassFabricator:
+ Id: 17543
+ ENG: "Mass Fabricator"
+StorageDeckdescr:
+ Id: 17544
+ ENG: "Instead of storing ordnance in separate parts of the ship we can now store them in a one massive deck for easier access."
+MassFabricatordecr:
+ Id: 17545
+ ENG: "Large array of fabricators controlled by supercomputer for greater efficiency in creating ordnance."
+MediumEngines:
+ Id: 17546
+ ENG: "Medium Engines"
+LargeEngines:
+ Id: 17547
+ ENG: "Large Engines"
+MassiveEngines:
+ Id: 17548
+ ENG: "Massive Engines"
+MediumEnginesDescr:
+ Id: 17549
+ ENG: "With investment into frigate construction, we can begin developing a medium sized engines that can meet the increased ship mass to thrust demands."
+LargeEnginesDescr:
+ Id: 17550
+ ENG: "Ships bigger than frigates have ever growing demand for more solid and better performing engines due to increasing mass of the ship."
+MassiveEnginesDescr:
+ Id: 17551
+ ENG: "Largest and most heavy vessels will need largest engines to be able to move effectively in any situation."
+Extremefusionrecttech:
+ Id: 17552
+ ENG: "Extreme Fusion"
+ArmoredShieldtech:
+ Id: 17553
+ ENG: "Armored Shielding"
+ArmoredShieldtechDescr:
+ Id: 17554
+ ENG: "This Shield module was placed into a special construction made of heavy and highly conductive alloys filled with amplifying technologies enhancing the shield power and its radius. Its heavier than previous shield modules but it has greatly increased resistance to damage."
+ArmoredShield:
+ Id: 17555
+ ENG: "Class V Shield"
+ArmoredShieldDescr:
+ Id: 17556
+ ENG: "Armored shield providing 22,000 hp worth of protection as well acts as a heavy resistant armor especially against explosions."
+RapidFirePDTech:
+ Id: 17557
+ ENG: "Rapid Fire PD"
+RapidFirePDTechdescr:
+ Id: 17558
+ ENG: "Rapid Fire Point deference was designed to counter fast moving maneuverable missiles that are usually fired in salvos. Those turrets exchange fast reloads over damage thus making them less effective against torpedoes."
+HeavyPDTech:
+ Id: 17559
+ ENG: "Heavy PD"
+HeavyPDTechDescr:
+ Id: 17560
+ ENG: "Heavy Point Defense were specially designed to counter the threat of massive torpedoes that can withstand several hits of smaller caliber bullets, all tho with more massive projectiles they suffer in fire rate department making them less effective against swarm of missiles."
+HeavyEnergyPointDefenseTurret:
+ Id: 17561
+ ENG: "Heavy Energy Point Defense"
+HeavySingleBarreledEnergyPoint:
+ Id: 17562
+ ENG: "A Single barreled, energy point defense turret. Created in mind of the constantly growing danger of bigger Torpedoes. It shoots a powerful energy projectile to instantly melt torpedo warhead upon impact."
+RapidFireEnergyPointDefense:
+ Id: 17563
+ ENG: "Rapid-Fire Energy Point Defense"
+ RUS: "Тяжелая энергоустновка ТЗ"
+RapidFireEnergyPointDefenseDescript:
+ Id: 17564
+ ENG: "Twin barrel Energy PD Turret designed to intercept missile swarms in hail of bullets."
+HevyOrdPDsingle:
+ Id: 17565
+ ENG: "Heavy Point Defense Turret"
+HevyOrdPDsingledescr:
+ Id: 17566
+ ENG: "Ordnance based heavy point defense turret firing large caliber high explosive shells into incoming torpedoes destroying them in the process."
+SmallWarehousetechDescr:
+ Id: 17567
+ ENG: "Warehouses are made to store and move more production and food for easier expanding an early empire."
+MedWarehousetech:
+ Id: 17568
+ ENG: "Planetary Stockpile II"
+MedWarehousetechDescr:
+ Id: 17569
+ ENG: "Growing needs for food and production from increased number of population and military presence spanning over multiple planets brought the need to build bigger more spacious Warehouses."
+MedWarehouse1:
+ Id: 17570
+ ENG: "Large Warehouse"
+MedWarehouse1longDescr:
+ Id: 17571
+ ENG: "Enormous Warehouse that provides increased food and production storage "
+MedWarehouse1ShrotDescr:
+ Id: 17572
+ ENG: "+300 maximum good storage, +1 infrastructure"
+NanoWarehousetech:
+ Id: 17573
+ ENG: "Planetary Stockpile III"
+NanoWarehousetechDescr:
+ Id: 17574
+ ENG: "Huge empires spanning over multiple systems need to be able store massive amount of goods providing less developed planets with food and essential production, as well the need of rapid construction of bigger class star ships."
+NanoWarehouse1:
+ Id: 17575
+ ENG: "Nano Warehouse"
+NanoWarehouse1longDescr:
+ Id: 17576
+ ENG: "State of the art storing facility"
+NanoWarehouse1ShrotDescr:
+ Id: 17577
+ ENG: "+600 maximum good storage, +2 infrastructure"
+SmallWarehousetech:
+ Id: 17578
+ ENG: "Planetary Stockpile I"
+PlanetShieldingtech:
+ Id: 17579
+ ENG: "Planetary Shielding"
+PlanetShieldingtechdesc:
+ Id: 17580
+ ENG: "Raging wars between different species brought dangers to planets and its population. Planetary bombardment became a serious threat that need to be addressed sooner than later."
+PlanetShieldheavy:
+ Id: 17581
+ ENG: "Planetary Shielding"
+PlanetShieldHeavyDesc:
+ Id: 17582
+ ENG: "Advanced planetary shielding building providing substantial deference against orbital bombardment."
+PlanetShieldHeavyDescShort:
+ Id: 17583
+ ENG: "Defensive Building; +600 Planetary Shields, 1 injuries to each invading troop"
+ RUS: "Оборонительное здание; +600 планетарных щитов, 1 ранения каждому вторгающемуся отряду"
+Tech_PlanetFortification_Desc:
+ Id: 17584
+ ENG: "Escalating wars are leading into prolonged and massive planetary sieges, for this purpose we need to take necessary steps into fortifying our planets and make our enemies pay dearly for each planet they assault."
+AeroponicsShortDescr:
+ Id: 17585
+ ENG: "+1 food per turn"
+ RUS: "+1 еды в ход"
+ SPA: "+1 comida por turno"
+CoreExtracttech:
+ Id: 17586
+ ENG: "Core Siphoning"
+CoreExtracttechdesc:
+ Id: 17587
+ ENG: "By taping into the planets core we are able to extract huge amounts precious and rare elements, minerals and metals, unfortunately afterwards they need to go over a complex refinement process that creates heavy pollution"
+CoreExtract:
+ Id: 17588
+ ENG: "Core Extractor"
+CoreExtractDesc:
+ Id: 17589
+ ENG: "Advanced mineral core extraction and refinement building"
+EMPDicharger:
+ Id: 17590
+ ENG: "EMP Discharger"
+EMPDichargerdescr:
+ Id: 17591
+ ENG: "EMP weapon specially designed for smaller crafts to disable their targets, this particular weapon has a small chance that EMP projectile can pass the shield."
+PhasorFocusTech:
+ Id: 17592
+ ENG: "Focused Beam III"
+PhasorFocusTechDescr:
+ Id: 17593
+ ENG: "Evolution of beam weapons lead us into discovering a powerful Phasor's. Using previously known methods of focusing beams we managed to apply most of the old schematics with new advanced components. "
+CoreExtractDescShort:
+ Id: 17594
+ ENG: "-1 fertility on build, +6x production richness bonus, +1 production per assigned colonist."
+LightBeam:
+ Id: 17595
+ ENG: "Light beam array"
+LightBeamDescr:
+ Id: 17596
+ ENG: "Light and small weapon mount that produces a quite powerfull beam of energy. Requires Energy Cells to be able to shoot."
+LightEnergycannon:
+ Id: 17597
+ ENG: "Light energy cannon"
+LightEnerycannonDescr:
+ Id: 17598
+ ENG: "Light and small weapon mount that shoots energy projectiles. Requires Energy Cells to be able to shoot."
+LightIonBeam:
+ Id: 17599
+ ENG: "Light Ionized Beam"
+LightIonBeamDescr:
+ Id: 17600
+ ENG: "Light and small weapon mount that produces a special beam that siphons targets shield, after shield colapses it lowers enemy ship energy reserves."
+LightKineticCannon:
+ Id: 17601
+ ENG: "Light Kinetic Cannon"
+LightKineticCannonDescr:
+ Id: 17602
+ ENG: "Light and small weapon mount that shoots kinetic projectles in rapid sucession. Requires Ordinance to be able to shoot."
+CA_Tech_SmallStations_Name:
+ Id: 17603
+ ENG: "Small Stations"
+ RUS: "Малые станции"
+Tech_SmallStations_Desc:
+ Id: 17604
+ ENG: "In order to defend our colonies from the growing danger of enemy fleets, we have recently devised blueprints to construct our first orbital station, a new type of structure that is larger than our small and heavy platforms."
+Tech_Battle_Stations_Name:
+ Id: 17605
+ ENG: "Battle Stations"
+ RUS: "Боевые станции"
+Tech_Battle_Stations_Desc:
+ Id: 17606
+ ENG: "The need to defend our colonies against enemy invasion grows constantly. Our engineers have designed a substantially large battle station that will bolster the defensive prowess of our more important planets. We have also iterated upon our orbital missile launchers, a step toward nullifying the threat of long range enemy weapons."
+Module_ArmoredMissile:
+ Id: 17607
+ ENG: "Armored missile silo"
+Module_ArmoredMissile_Desc:
+ Id: 17608
+ ENG: "Heavily armored missile silo with extreme range but with extreme weight, best suited for defensive orbital structures."
+WirelessPowerTech:
+ Id: 17609
+ ENG: "Wireless Power"
+WirelessPowerTechDescr:
+ Id: 17610
+ ENG: "While studing Bosons particles our scientists discovered that they can wirelessly transmit power on limited area. This breakthrough will hugely improve ergonomy in ship designing."
+BosonModule:
+ Id: 17611
+ ENG: "Boson Transmiter."
+BosonModuleDescr:
+ Id: 17612
+ ENG: "This small device will transmit power across limited area in wireless faction."
+SustainedWarfareTech:
+ Id: 17613
+ ENG: "Sustained Warfare"
+AegisName:
+ Id: 17614
+ ENG: "Aegis"
+AegisDescr:
+ Id: 17615
+ ENG: "Massive beam cannon designed mainly as orbital defence weapon of mass destruction capable cutting through several ships that will come across its powerfull beam. Due to its very high mass its not advised to be installed on ships"
+ArmoredTurret:
+ Id: 17616
+ ENG: "Armored Turret"
+ArmoredTurretDescr:
+ Id: 17617
+ ENG: "Armored Turret serves as defensive weapon with very high HP. Thanks to sturdy mounting it excell in range and rate of fire. Its main drawback is in its very high mass not suited for ships."
+BB_Tech_LaserBeam_Name:
+ Id: 17618
+ ENG: "Laser Beams"
+BB_Tech_LaserBeam_descr:
+ Id: 17619
+ ENG: "Many of our top military scientists believe that directed energy weapons are the future of space combat. This technology represents our first steps into this field."
+BB_RoverbayDescr:
+ Id: 17620
+ ENG: "Manned and automated rovers provide indispensable labor savings to fledgling colonies, increasing the production of the colony with a flat +1 production bonus, with additional +1 production per planets richness."
+BB_RemnTroopTech:
+ Id: 17621
+ ENG: "Assault Drone"
+BB_RemnTroopDescr:
+ Id: 17622
+ ENG: "Thanks to retrived schematics and all the remnant wrackage we can recreate this deadly tank, it  will be very usefull in defending and invading planets."
+BB_PrismTech:
+ Id: 17623
+ ENG: "Nanoprisms"
+BB_PrismTechDescr:
+ Id: 17624
+ ENG: "Creating millions of nanoscroping prisms in beam lensing technologies allowed for higher voltage discharges creating more damaging beam. "
+BB_PrismBonus:
+ Id: 17625
+ ENG: "Nanoprism technology provides a 30% bonus damage to beam weapons."
+
+
+
+
+
+Tech_AncientArmor_Name:
+ Id: 17953
+ ENG: "Ancient Armors"
+ RUS: "Броня Древних"
+SmallAncientArmor:
+ Id: 17954
+ ENG: "Small Ancient Armor"
+ RUS: "Малая Броня Древних"
+MediumAncientArmor:
+ Id: 17955
+ ENG: "Medium Ancient Armor"
+ RUS: "Средняя Броня Древних"
+LargeAncientArmor:
+ Id: 17956
+ ENG: "Large Ancient Armor"
+ RUS: "Большая Броня Древних"
+Tech_AncientArmor_Desc:
+ Id: 17957
+ ENG: "A very durable piece of Ancient Armor. Can be used both as an internal bulkhead, or as external armor."
+ RUS: "Очень прочный кусок древней брони. Может использоваться как внутренняя переборка или как внешняя броня."
+AncientArmorIsCoveredIn:
+ Id: 17958
+ ENG: "Ancient armor is covered in a gold-like coating. Each armor module is made of smaller pieces that tear off when struck."
+ RUS: "Древняя броня покрыта золотым напылением. Каждый модуль брони состоит из более мелких частей, которые отрываются при ударе."
+Structure:
+ Id: 18048
+ ENG: "Structure"
+ RUS: "Структура"
+ThisSimpleStructureIsUsed:
+ Id: 18049
+ ENG: "This simple structure is used as a \"filler\" for ships which do not require more module functionality"
+ RUS: "Эта простая структура используется в качестве \"наполнителя\" для кораблей, которым не требуется дополнительная функциональность модуля."
+SolarArray:
+ Id: 12005
+ ENG: "Solar Array"
+ RUS: "Солнечный массив"
+SolarPanelsHarvestEnergyFrom:
+ Id: 12006
+ ENG: "Solar Panels harvest energy from stars to supplement a ships main power core."
+ RUS: "Солнечные панели собирают энергию звезд, чтобы дополнить основной источник питания корабля."
+Tech_Terraforming_Name:
+ Id: 18279
+ ENG: "Terraforming I"
+Tech_Terraforming_Desc:
+ Id: 18280
+ ENG: "Terraforming planets is a slow process but it can produce excellent results. If researched, we would be able to construct Teraformers; Vast machines which can transform even the most deadly Volcano into a nice, harmless hill."
+Tech_Terraforming2_Name:
+ Id: 18281
+ ENG: "Terraforming II"
+Tech_Terraforming2_Desc:
+ Id: 18282
+ ENG: "Continuing the line of Terraforming research, we will be able to make Terraformers even more effective. Terraformers will be able to transform unhabitable sections of the planet into fully habitable lands, increasing population capacity."
+Tech_Terraforming3_Name:
+ Id: 18283
+ ENG: "Terraforming III"
+Tech_Terraforming3_Desc:
+ Id: 18284
+ ENG: "The most advanced technology avaialble for Terraformers. They will be able to transform any habitable planet to the planet environment type our population prefers. This is a true technological marvel!"

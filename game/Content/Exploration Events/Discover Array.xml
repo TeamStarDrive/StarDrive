@@ -2,13 +2,39 @@
   <Name>Mystery of the Remnant</Name>
   <PotentialOutcomes>
     <Outcome>
-      <Chance>100</Chance>
-      <TitleText>Unraveling the mystery of the Remnant</TitleText>
-      <DescriptionText>As your troops enter the mysterious ruins, their scans immediately reveal that this structure is older than any known structure in the galaxy. The building is massive in size and has a single large open space inside. A platform stands suspended over a central shaft leading deep into the planetary core. \n \n The inside walls of the structure are covered in ornate engravings from floor to ceiling. The images depict a humanoid creature standing on the platform as a great energy overtakes him. Over and over this imagery is repeated. \n \n At the far end of this massive hall your troops discover an active energy source - a small device contained within some sort of stasis field. Upon inspection, the device is a sort of quantum data storage unit. It contains the schematics for this building!</DescriptionText>
-      <ConfirmText>Ooh, shiny!</ConfirmText>
+      <Chance>20</Chance>
+      <TitleText>Scientific Discovery</TitleText>
+      <DescriptionText>As your troops enter the mysterious ruins, their scans immediately reveal that this structure is older than any known structure in the galaxy. The building is massive in size and has a single large open space inside. A platform stands suspended over a central shaft leading deep into the planetary core. \n \n The inside walls of the structure are covered in ornate engravings from floor to ceiling. The images depict a humanoid creature standing on the platform as a great energy overtakes him. Over and over this imagery is repeated. \n \n At the far end of this massive hall your troops discover an active energy source - a small device contained within some sort of stasis field. Upon inspection, the device is a sort of quantum data storage unit. The wealth of information discovered gives your empire a 10% bonus to all scientific efforts.  \n \n As you exit the ruins you spot a huge ship on the horizon ... it isn't friendly.</DescriptionText>
+      <ScienceBonus>.10</ScienceBonus>
       <RemoveTrigger>true</RemoveTrigger>
-      <UnlockTech>Ascension Schematics</UnlockTech>
-    </Outcome>
+      <RemnantShipsToSpawn>
+        <string>Remnant Exterminator</string>
+      </RemnantShipsToSpawn>
+     </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Fantastic Discovery</TitleText>
+      <DescriptionText>As your troops enter the mysterious ruins, their scans immediately reveal that this structure is older than any known structure in the galaxy. The building is massive in size and has a single large open space inside. A platform stands suspended over a central shaft leading deep into the planetary core. \n \n At the far end of this massive hall your troops discover a powerful battleship! It appears to be fully operational. Your troops board it and take it for a test flight.  \n \n As you exit the ruins you spot a huge ship on the horizon ... it isn't friendly.</DescriptionText>
+      <FriendlyShipsToSpawn>
+        <string>Ancient Torpedo Cruiser</string>
+      </FriendlyShipsToSpawn>
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+        <string>Remnant Exterminator</string>
+      </RemnantShipsToSpawn>
+     </Outcome>
+
+    <Outcome>
+      <Chance>60</Chance>
+      <TitleText>Mysterious Discovery</TitleText>
+      <DescriptionText>As your troops enter the mysterious ruins, their scans immediately reveal that this structure is older than any known structure in the galaxy. The building is massive in size and has a single large open space inside. A platform stands suspended over a central shaft leading deep into the planetary core. \n \n The inside walls of the structure are covered in ornate engravings from floor to ceiling. The images depict a humanoid creature standing on the platform as a great energy overtakes him. Over and over this imagery is repeated. \n \n At the far end of this massive hall your troops discover a small device contained within some sort of stasis field. Upon inspection, the device appears to be a powerful artifact!  \n \n As you exit the ruins you spot a huge ship on the horizon ... it isn't friendly.</DescriptionText>
+      <GrantArtifact>true</GrantArtifact>
+      <RemoveTrigger>true</RemoveTrigger>
+      <RemnantShipsToSpawn>
+        <string>Remnant Exterminator</string>
+      </RemnantShipsToSpawn>
+     </Outcome>
     
   </PotentialOutcomes>
   

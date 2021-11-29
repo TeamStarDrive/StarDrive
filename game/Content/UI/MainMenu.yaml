@@ -79,7 +79,7 @@ VirtualSize: [1920,1080]
 Elements:
   - Panel:
     Name: background
-    Texture: MMenu/new_background.dds # Textures/MMenu/xxxx.dds
+    Texture: MMenu/new_background.png # Textures/MMenu/xxxx.png
     Color: [1.0,1.0,1.0] # default color
     AbsPos: [0, 0]
     RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
@@ -96,57 +96,106 @@ Elements:
     #           BottomLeft will completely align to bottom left corner
     AxisAlign: TopLeft
 
+
   - Panel:
     Name: planet
-    Texture: MMenu/new_planet.dds
-    RelPos: [0, 0]
-    RelSize: [0, 0.8] # set relative height, auto-aspect width
+    Texture: MMenu/planet.png
+    #Size: [1, 0] # fill to width, auto-pick height
+    RelSize: [1, 0] # set relative height, auto-aspect width
     AxisAlign: BottomCenter # Align our Pos and Axis
     DrawDepth: Background
+    DebugDraw: false
+    Animation:
+      Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+      CenterScale: [1.0,1.15]
+
     Children:
       - Panel:
-        Name: citylights
-        Texture: MMenu/citylights3.dds
-        RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
-        Color: [0.45,0.45,0.45,1.0]
+        Name: shadow
+        Texture: MMenu/shadow.png
+        RelSize: [1, 0]
+        Color: [1.0,1.0,1.0,1.0]
         AxisAlign: BottomCenter
-        DrawDepth: BackAdditive
+        DrawDepth: Background
         # animation pattern is idential to planet_flare
         # however, the min-max color is reversed so that:
         # if sun is flaring, lights are dim, when sun is dim, lights are bright
-        Animation:
-          Params: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
-          MinColor: [0.60,0.60,0.60,1.0] # vary the color from A to B
-          MaxColor: [0.45,0.45,0.45,1.0]
+        Animations:
+          - Animation:
+            Params: [0, 400, 0, 200.0, 200.0] # delay, duration, end-time, fadein, fadeout
+            Alpha: [1, 0]
+          - Animation:
+            Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+            CenterScale: [1.0,1.15]
       - Panel:
-        Name: planet_flare
-        Texture: MMenu/new_flare.dds
-        RelSize: [0.62, 0] # auto-detect height from aspect ratio
-        RelPos: [0, -0.21]
+        Name: Lights_edge
+        Texture: MMenu/Lightsedge.png
+        RelSize: [0.426, 0]
+        RelPos: [0.288, 0]
         Visible: true
         AxisAlign: TopCenter
         DrawDepth: BackAdditive
-        Animation:
-          Params: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
-          MinColor: [0.85,0.85,0.85,1.0] # vary the color from min
-          MaxColor: [1.0,1.0,1.0,1.0]    # to max
+        Animations:
+          - Animation:
+            Params: [0, 400, 0, 80.0, 80.0] # delay, duration, end-time, fadein, fadeout
+            MinColor: [1.0,1.0,1.0,0] # vary the color from min
+            MaxColor: [0,0,0,0] # to max
+          - Animation:
+            Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+            CenterScale: [1.0,1.15]
       - Panel:
-        Name: optical_sun_flare
-        Texture: MMenu/optical_flare.dds
-        RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
-        RelPos: [0.01, -0.06]
+        Name: Dust
+        Texture: MMenu/Dust.png
+        RelSize: [0.25, 0]
+        RelPos: [-0.295, 0]
         Visible: true
         AxisAlign: Center
         DrawDepth: BackAdditive
-        Animation:
-          Params: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
-          MinColor: [0.6,0.6,0.6,1.0] # vary the color from min
-          MaxColor: [1.0,1.0,1.0,1.0] # to max
+        Animations:
+          - Animation:
+            Params: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
+            MinColor: [0.6,0.6,0.6,0] # vary the color from min
+            MaxColor: [1.0,1.0,1.0,1.0] # to max
+          - Animation:
+            Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+            CenterScale: [1.0,1.15]
+      - Panel:
+        Name: Lights_center
+        Texture: MMenu/Lightscenter.png
+        RelSize: [0.25, 0]
+        RelPos: [0.375, 0.2]
+        Visible: true
+        AxisAlign: Center
+        DrawDepth: BackAdditive
+        Animations:
+          - Animation:
+            Params: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
+            MinColor: [0.8,0.8,0.8,0] # vary the color from min
+            MaxColor: [1.0,1.0,1.0,1.0] # to max
+          - Animation:
+            Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+            CenterScale: [1.0,1.15]
+      - Panel:
+        Name: Aurora
+        Texture: MMenu/Aurora.png
+        RelSize: [0.25, 0]
+        RelPos: [-0.342, 0]
+        Visible: true
+        AxisAlign: Center
+        DrawDepth: BackAdditive
+        Animations:
+          - Animation:
+            Params: [0, 8, 8, 1.25, 1.25] # delay, duration, end-time, fadein, fadeout
+            MinColor: [0.4,0.4,0.4,0] # vary the color from min
+            MaxColor: [1.0,1.0,1.0,1.0] # to max
+          - Animation:
+            Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+            CenterScale: [1.0,1.15]
 
   - Panel:
     Name: stardrive_animated_logo
     RelSize: [0.3, 0] # auto-detect height from aspect ratio
-    LocalPos: [-60, 60]
+    LocalPos: [-30, 10]
     AxisAlign: TopRight
     DrawDepth: Foreground
     SpriteAnim:
@@ -178,7 +227,7 @@ Elements:
             Name: blackbox_subver
             Texture: MMenu/subver.png
             RelSize: [0, 0.75]
-            RelPos: [0.015, -0.2]
+            RelPos: [0.013, -0.27]
             ParentAlign: BottomLeft
             DrawDepth: Foreground
             Animation:
@@ -187,13 +236,13 @@ Elements:
 
   - Panel:
     Name: vignette
-    Texture: MMenu/vignette.dds
+    Texture: MMenu/vignette
     RelSize: [1, 1] # fill screen
     DrawDepth: Foreground # on top of everything
 
   - List:
     Name: buttons
-    LocalPos: [-100, 150]
+    LocalPos: [-100, 250]
     AbsSize: [200, 600]
     ParentAlign: CenterRight
     LocalAxis: CenterRight

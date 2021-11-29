@@ -1,0 +1,118 @@
+<ExplorationEvent>
+  <Name>Mysterious Altar</Name>
+  <PotentialOutcomes>
+
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>It's an alien beacon!</TitleText>
+      <DescriptionText>As your troops approach the altar, they trip a security proximity device, and seconds later a remnant fleet jumps into orbit!</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+       <RemnantShipsToSpawn>
+        <string>Ancient Frigate</string>
+        <string>Ancient Frigate</string>
+        <string>Light Ancient Bomber</string>
+        <string>Support Drone</string>
+        <string>Support Drone</string>
+       </RemnantShipsToSpawn>
+       <Image>Encounters/1.png</Image>
+       <ConfirmText>Oh, hell no!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>It's an alien replant!</TitleText>
+      <DescriptionText>As your troops approach the altar, they begin to feel its ill effects, causing some of the men fall to the ground. In response to the danger, your troop start firing at the altar, severely damaging it and permanently disabling it in order to save their own lives. The troops feel instant relief, but soon after they were attacked from all sides by antlions who were drawn to the commotion.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <TroopsToSpawn>
+        <string>Antlion</string>
+          <string>Antlion</string>
+          <string>Antlion</string>
+        <string>Antlion</string>
+       </TroopsToSpawn>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>Repel them!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>15</Chance>
+      <TitleText>Forcefield!</TitleText>
+      <DescriptionText>While your troops were securing the altar, the lead scientist approaches it with a scanner. Suddenly, the scanner is ripped from his hands and flies straight into the glowing orb located on top of the Altar. Upon impacting, it instantly releases a deadly forcefield that begins growing exponentially with time. The scientist is first to feel the effects, and his body is atomized. The rest of the troops on the scene try to flee, and a few don't make it. The forcefield grows with time, covering a large portion of the landscape until it slows down and eventually stops. Since then, nothing has been able to penetrate it. Planet scans changed : -5 habitable tiles.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <NumTilesToMakeUnhabitable>5</NumTilesToMakeUnhabitable>
+      <ReplaceWith>Forcefield</ReplaceWith>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>Higher-ups wont be pleased.</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>30</Chance>
+      <TitleText>Rare materials!</TitleText>
+      <DescriptionText>Upon close inspection and scanning, your troops have discovered that the altar was built on a small but very rare and valuable mineral ore, which can be mined.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>Exotic Minerals</ReplaceWith>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Not what we expected, but no complains.</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>World bubble!</TitleText>
+      <DescriptionText>Upon close inspection and scanning, your troops have discovered that the altar is a powerful shield emitter.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ReplaceWith>World bubble</ReplaceWith>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>Feel much safer now!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>The rich Core!</TitleText>
+      <DescriptionText>Upon close inspection and scanning, your troops have discovered that the altar was drawing its power from the planet core, which was in fact very rich in exotic minerals. Planet scans changed : +0.8 Richness.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>0.8</ChangeRichness>
+      <Image>Encounters/6.png</Image>
+      <ConfirmText>But how?!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>The super rich Core!</TitleText>
+      <DescriptionText>Upon close inspection and scanning, your troops have discovered that the altar was drawing its power from the planet core, which was in fact very rich in exotic minerals. Planet scans changed : +1.5 Richness.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>1.5</ChangeRichness>
+      <Image>Encounters/5.png</Image>
+      <ConfirmText>Higher-ups will be pleased!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>10</Chance>
+      <TitleText>The depleted Core!</TitleText>
+      <DescriptionText>Upon close inspection and scanning, your troops have discovered that the altar was drawing its power from the planet core, and that by doing it for so many centuries, it has drained the core of most of its value. Planet scans changed : -0.6 Richness.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <ChangeRichness>-0.6</ChangeRichness>
+      <Image>Encounters/4.png</Image>
+      <ConfirmText>Destroy it!!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>20</Chance>
+      <TitleText>Pretty gem!</TitleText>
+      <DescriptionText>You troops have carefully scanned the altar and discovered that the energy signature was coming directly from a gem placed on said altar. It's a decaying power gem, too weak for any use of ours, but it can still be sold for some profit.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <MoneyGranted>250</MoneyGranted>
+      <Image>Encounters/3.png</Image>
+      <ConfirmText>Little dusty but still valuable!</ConfirmText>
+    </Outcome>
+
+    <Outcome>
+      <Chance>8</Chance>
+      <TitleText>Tech schematics!</TitleText>
+      <DescriptionText>You troops have carefully scanned the altar and discovered that the energy signature was coming directly from the small forcefield at the top of the altar. Once it was disabled, it revealed a hidden cache of data schematics for some type of weapon.</DescriptionText>
+      <RemoveTrigger>true</RemoveTrigger>
+      <UnlockTech>Remnant Assembly</UnlockTech>
+      <Image>Encounters/2.png</Image>
+      <ConfirmText>What a handy little alien locker!</ConfirmText>
+    </Outcome>
+
+  </PotentialOutcomes>
+ </ExplorationEvent>

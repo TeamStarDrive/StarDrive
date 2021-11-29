@@ -1,0 +1,65 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+<!-- The Doctor, StarDrive Turbo: these are boolean values that configure precisely which ship hull classes are able to mount your module. Like the old 'FightersOnly' tag, except comprehensive in the control provided -->
+
+  <DroneModule>false</DroneModule>
+  <FighterModule>true</FighterModule>
+  <CorvetteModule>true</CorvetteModule>
+  <FrigateModule>true</FrigateModule>
+  <DestroyerModule>true</DestroyerModule>
+  <CruiserModule>true</CruiserModule>
+  <CarrierModule>true</CarrierModule>
+  <CapitalModule>true</CapitalModule>
+  
+  <FreighterModule>true</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>true</StationModule>
+  
+  
+  <Cost>21</Cost>
+  <!-- Tech Level -->
+  <TechLevel>5</TechLevel>
+  <TechBranch>Armor</TechBranch>
+
+  <!-- common traits shared by all ship modules -->
+  <XSIZE>3</XSIZE>
+  <YSIZE>3</YSIZE>
+  <ModuleType>Armor</ModuleType>
+  <Name>AncientArmor_3x3</Name>
+  <Restrictions>IO</Restrictions>
+  <UID>AncientArmor_3x3</UID> 
+  <Version>2</Version>
+
+  <TexturePath>Textures/transparent</TexturePath>
+  <IconTexturePath>Modules/AncientArmor_3x3</IconTexturePath>
+
+
+  <NameIndex>17956</NameIndex>
+  <DescriptionIndex>17958</DescriptionIndex>
+
+
+  <!-- Mass and Health -->
+  <Mass>54</Mass>
+  <Health>59750</Health>
+  <HealthMax>59750</HealthMax>
+  <RepairDifficulty>6</RepairDifficulty>
+  <DamageThreshold>0</DamageThreshold>
+  <HybridResist>0</HybridResist>
+
+  <!-- Power Drawn -->
+  <PowerDraw>0</PowerDraw>
+
+
+  <!-- Crew Reqs -->
+  <CrewRequired>0</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+
+  <!-- for Weapons -->
+
+
+  <!-- Description -->
+
+
+</ShipModule>

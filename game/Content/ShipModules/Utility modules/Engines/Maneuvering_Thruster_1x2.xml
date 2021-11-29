@@ -1,0 +1,47 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Cost>4</Cost>
+  <XSIZE>2</XSIZE>
+  <YSIZE>1</YSIZE>
+  <!-- common traits shared by all ship modules -->
+  <ModuleType>Engine</ModuleType>
+  <Restrictions>OE</Restrictions>
+  <UID>Maneuvering_Thruster_1x2</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/TurnThrust 1x2</IconTexturePath>
+  <Mass>10</Mass>
+  <Health>920</Health>
+  <HealthMax>920</HealthMax>
+
+
+  <PowerDraw>10</PowerDraw>
+	<PowerDrawAtWarp>-10</PowerDrawAtWarp>
+
+  <NameIndex>5036</NameIndex>
+  <DescriptionIndex>5037</DescriptionIndex>
+
+
+  <!-- for shield items -->
+  <shield_power>0</shield_power>
+  <shield_power_max>0</shield_power_max>
+  <shield_recharge_delay>0</shield_recharge_delay>
+  <shield_recharge_rate>0</shield_recharge_rate>
+  <shield_radius>0</shield_radius>
+
+  <!-- for PowerPlant Items -->
+  <explodes>false</explodes>
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+  
+  <!-- for Weapons -->
+  
+  <!-- for Engines -->
+  <thrust>0</thrust>
+
+  <TurnThrust>56000</TurnThrust>
+
+  
+
+</ShipModule>

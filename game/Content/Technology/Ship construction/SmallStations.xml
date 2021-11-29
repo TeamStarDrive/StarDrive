@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+ <Version>2</Version>
+  <UID>SmallStations</UID>
+  <TechnologyType>ShipHull</TechnologyType>
+  <Cost>800</Cost>
+  <RootNode>0</RootNode>
+  <Name>SmallStations</Name>
+  <NameIndex>17603</NameIndex>
+  <DescriptionIndex>17604</DescriptionIndex>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Battle_Stations</UID>
+    </LeadsToTech>  
+  </LeadsTo>
+<BuildingsUnlocked />
+  <BonusUnlocked />
+  <TroopsUnlocked />
+  <HullsUnlocked>
+    <UnlockedHull>
+      <ShipType>Cordrazine</ShipType>
+      <Name>Cordrazine/Cordrazine_Station_Small</Name>	
+    </UnlockedHull>
+    <UnlockedHull>
+      <ShipType>Draylok</ShipType>
+      <Name>Draylok/Draylok_Station_Small</Name>	
+    </UnlockedHull>
+    <UnlockedHull>
+      <ShipType>Kulrathi</ShipType>
+      <Name>Kulrathi/Kulrathi_Station_Small</Name>	
+    </UnlockedHull>
+    <UnlockedHull>
+      <ShipType>Opteris</ShipType>
+      <Name>Opteris/Opteris_Station_Small</Name>	
+    </UnlockedHull>
+    <UnlockedHull>
+      <ShipType>Pollops</ShipType>
+      <Name>Pollops/Pollops_Station_Small</Name>	
+    </UnlockedHull>
+    <UnlockedHull>
+      <ShipType>Ralyeh</ShipType>
+      <Name>Ralyeh/Ralyeh_Station_Small</Name>	
+    </UnlockedHull>		
+	<UnlockedHull>
+      <ShipType>Terran</ShipType>
+      <Name>Terran/Terran_Station_Small</Name>	
+    </UnlockedHull>
+    <UnlockedHull>
+      <ShipType>Vulfen</ShipType>
+      <Name>Vulfen/Vulfen_Station_Small</Name>	
+    </UnlockedHull>
+  </HullsUnlocked>
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>ArmoredMissile</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked> 
+</Technology>

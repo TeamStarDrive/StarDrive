@@ -5,11 +5,14 @@
   <DiplomacyDialogPath>Pollops</DiplomacyDialogPath>
   <StartingShip>Vulcan Thorn</StartingShip>
   <StartingScout>Unarmed Thorn Scout</StartingScout>
-  <PrototypeShip>Prototype Fern</PrototypeShip>
+  <PrototypeShip>Pollops-Prototype</PrototypeShip>
   <DefaultSmallTransport>Seeder Transport</DefaultSmallTransport>
   <DefaultTroopShip>Pollops Troop</DefaultTroopShip>
   <DefaultColonyShip>Pollop Sporeship</DefaultColonyShip>
   <DefaultConstructor>Pollops Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Pollops Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Pollops-Supply</DefaultSupplyShuttle>
+  <SpacePortModel>Model/Ships/Pollops/Pollops_Station</SpacePortModel>
 
 
   <RebelName>Pollop Vegetarians</RebelName>
@@ -19,6 +22,13 @@
   <TroopDescriptionIndex>2090</TroopDescriptionIndex>
   <WarpStart>sd_warp_start_pollops_01</WarpStart>
   <WarpEnd>sd_warp_stop_pollops_01</WarpEnd>
+  
+  <ThrustColor0R>0</ThrustColor0R> <!-- Green -->
+  <ThrustColor0G>128</ThrustColor0G>
+  <ThrustColor0B>0</ThrustColor0B>
+  <ThrustColor1R>255</ThrustColor1R> <!-- Yellow -->
+  <ThrustColor1G>255</ThrustColor1G>
+  <ThrustColor1B>0</ThrustColor1B>	
   
   <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
   <EnvTerran>1</EnvTerran>

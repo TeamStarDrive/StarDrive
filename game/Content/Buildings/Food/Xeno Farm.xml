@@ -1,0 +1,14 @@
+﻿<Building>
+  <Name>Xeno Farm</Name>
+  <Maintenance>.5</Maintenance>
+  <Description>Xeno Farms are large complexes dedicated to the successful integration of our farming and husbandry techniques with alien soils and nutrients.  The production of this building scales with the number of farmers assigned on this planet.  </Description>
+  <PlusFoodPerColonist>0.4</PlusFoodPerColonist>
+  <Cost>75</Cost>
+  <Icon>xenofarm</Icon>
+  <ShortDescription>+1 food per assigned colonist</ShortDescription>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>470</NameTranslationIndex>
+  <DescriptionIndex>471</DescriptionIndex>
+  <ShortDescriptionIndex>472</ShortDescriptionIndex>
+</Building>

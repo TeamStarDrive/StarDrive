@@ -5,11 +5,14 @@
   <DiplomacyDialogPath>Opteris</DiplomacyDialogPath>
   <StartingShip>Drone Interceptor</StartingShip>
   <StartingScout>Drone Scout</StartingScout>
-  <PrototypeShip>Opteris Prototype</PrototypeShip>
+  <PrototypeShip>Opteris-Prototype</PrototypeShip>
   <DefaultSmallTransport>Creeper Transport</DefaultSmallTransport>
   <DefaultTroopShip>Opteris Troop</DefaultTroopShip>
   <DefaultColonyShip>Opteris Hivepod</DefaultColonyShip>
   <DefaultConstructor>Opteris Constructor</DefaultConstructor>
+  <DefaultAssaultShuttle>Opteris Assault Shuttle</DefaultAssaultShuttle>
+  <DefaultSupplyShuttle>Opteris-Supply</DefaultSupplyShuttle>
+  <SpacePortModel>Model/Ships/Opteris/OpterisStation</SpacePortModel>
   
   <RebelName>Liberated Opteris AI</RebelName>
   <RebelSing>Liberated AI</RebelSing>
@@ -18,6 +21,12 @@
   <TroopDescriptionIndex>2096</TroopDescriptionIndex>
   <WarpStart>sd_warp_start_opteris_01</WarpStart>
   <WarpEnd>sd_warp_stop_opteris_01</WarpEnd>
+  <ThrustColor0R>173</ThrustColor0R> <!-- LightBlue -->
+  <ThrustColor0G>216</ThrustColor0G>
+  <ThrustColor0B>230</ThrustColor0B>
+  <ThrustColor1R>0</ThrustColor1R> <!-- Blue -->
+  <ThrustColor1G>0</ThrustColor1G>
+  <ThrustColor1B>255</ThrustColor1B>	
 
   <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
   <EnvTerran>1</EnvTerran>
@@ -60,7 +69,8 @@
     <RaceDescription>KWAK!</RaceDescription>
     <Cost>0</Cost>
     <ConsumptionModifier>-.25</ConsumptionModifier>
-    <ReproductionMod>0</ReproductionMod>
+    <PopGrowthMin>.01</PopGrowthMin>
+    <ReproductionMod>0.01</ReproductionMod>
     <DiplomacyMod>-.25</DiplomacyMod>
     <GenericMaxPopMod>0</GenericMaxPopMod>
     <Aquatic>0</Aquatic>
@@ -74,7 +84,7 @@
     <Spiritual>0</Spiritual>
     <HomeworldFertMod>-.5</HomeworldFertMod>
     <DodgeMod>0</DodgeMod>
-    <EnergyDamageMod>.2</EnergyDamageMod>
+    <EnergyDamageMod>-.2</EnergyDamageMod>
     <ResearchMod>0</ResearchMod>
     <Mercantile>0</Mercantile>
     <Miners>0</Miners>
