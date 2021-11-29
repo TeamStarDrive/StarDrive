@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>1900</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2750</ProjectileSpeed>
+  <ProjectileSpeed>2230</ProjectileSpeed>
   <explodes>true</explodes>
   <DamageRadius>34</DamageRadius>
 

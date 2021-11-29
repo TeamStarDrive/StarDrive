@@ -29,7 +29,7 @@
   
 <!-- Projectile stats -->
   <DamageAmount>1000</DamageAmount>
-  <ProjectileSpeed>2500</ProjectileSpeed>
+  <ProjectileSpeed>1600</ProjectileSpeed>
   <DamageRadius>60</DamageRadius>
   <DelayedIgnition>0.5</DelayedIgnition>
   

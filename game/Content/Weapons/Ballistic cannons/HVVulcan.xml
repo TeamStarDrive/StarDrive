@@ -17,7 +17,7 @@
   <!--<EffectVsArmor>2</EffectVsArmor> -->
   <Scale>3</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2250</ProjectileSpeed>
+  <ProjectileSpeed>1800</ProjectileSpeed>
   <ProjectileRadius>20</ProjectileRadius>
   <explodes>false</explodes>
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>

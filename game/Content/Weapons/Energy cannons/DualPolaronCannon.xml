@@ -29,7 +29,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>2033</DamageAmount>
-  <ProjectileSpeed>3500</ProjectileSpeed>
+  <ProjectileSpeed>2550</ProjectileSpeed>
 
   <explodes>false</explodes>
   <Light>Blue</Light>

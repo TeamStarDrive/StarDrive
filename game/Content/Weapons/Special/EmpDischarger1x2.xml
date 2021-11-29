@@ -32,7 +32,7 @@
   <EMPDamage>30</EMPDamage>
   <ShieldPenChance>35</ShieldPenChance>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>875</ProjectileSpeed>
+  <ProjectileSpeed>975</ProjectileSpeed>
   <Animated>1</Animated>
   <Light>Blue</Light>
   <Scale>1</Scale>
