@@ -30,7 +30,7 @@
   <InFlightCue>sd_weapon_photon_flight_01</InFlightCue>
   
   <!-- Projectile Information -->
-  <DamageAmount>2508</DamageAmount>
+  <DamageAmount>2400</DamageAmount>
   <EMPDamage>22</EMPDamage>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2500</ProjectileSpeed>

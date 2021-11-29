@@ -32,7 +32,7 @@
   <!-- Projectile Information -->
   <DamageAmount>803</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2500</ProjectileSpeed>
+  <ProjectileSpeed>2400</ProjectileSpeed>
 
     <!-- Animation Information -->
   <Animated>1</Animated>
