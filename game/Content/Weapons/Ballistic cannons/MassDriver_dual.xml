@@ -38,7 +38,7 @@
   <SalvoTimer>0.4</SalvoTimer>
   <EffectVSShields>1.20</EffectVSShields>  
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2625</ProjectileSpeed>
+  <ProjectileSpeed>2000</ProjectileSpeed>
   <DamageRadius>50</DamageRadius>
   <Light>Orange</Light>
   <explodes>true</explodes>

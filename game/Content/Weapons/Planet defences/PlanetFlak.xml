@@ -15,7 +15,7 @@
   <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
 
   <DamageAmount>175</DamageAmount>
-  <ProjectileSpeed>700</ProjectileSpeed>
+  <ProjectileSpeed>1200</ProjectileSpeed>
   <DamageRadius>25</DamageRadius> 
   <ProjectileRadius>6</ProjectileRadius>
   <explodes>true</explodes>

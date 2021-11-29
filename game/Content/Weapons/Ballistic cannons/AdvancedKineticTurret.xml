@@ -29,7 +29,7 @@
   <!-- Projectile Information -->
   <DamageAmount>145</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2400</ProjectileSpeed>
+  <ProjectileSpeed>1960</ProjectileSpeed>
   <SalvoCount>6</SalvoCount>
   <SalvoTimer>0.6</SalvoTimer>
   <explodes>true</explodes>

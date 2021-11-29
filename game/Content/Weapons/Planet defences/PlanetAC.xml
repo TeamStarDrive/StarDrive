@@ -18,7 +18,7 @@
     <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.3</SalvoTimer>  
   <Scale>1.2</Scale>
-  <ProjectileSpeed>2150</ProjectileSpeed>
+  <ProjectileSpeed>1500</ProjectileSpeed>
   <ProjectileRadius>8</ProjectileRadius> 
   <explodes>false</explodes>
   <ProjectileTexturePath>projLong_02_orange_dual</ProjectileTexturePath>

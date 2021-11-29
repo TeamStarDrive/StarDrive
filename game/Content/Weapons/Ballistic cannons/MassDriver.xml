@@ -33,7 +33,7 @@
   <DamageAmount>2580</DamageAmount>
   <EffectVSShields>1.15</EffectVSShields>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2500</ProjectileSpeed>
+  <ProjectileSpeed>1900</ProjectileSpeed>
   <ProjectileRadius>15</ProjectileRadius>
   <DamageRadius>45</DamageRadius>
   <Light>Orange</Light>
