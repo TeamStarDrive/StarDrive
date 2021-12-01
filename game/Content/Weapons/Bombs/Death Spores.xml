@@ -16,10 +16,10 @@
   <Tag_Torpedo>false</Tag_Torpedo>
 
   <UID>Death Spores</UID>
-  <fireDelay>1.0</fireDelay>
+  <fireDelay>5.0</fireDelay>
   <Range>5000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>1</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>3</OrdinanceRequiredToFire>
   
   
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -31,7 +31,7 @@
   <DamageAmount>0</DamageAmount>
   <Scale>2</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2700</ProjectileSpeed>
+  <ProjectileSpeed>2000</ProjectileSpeed>
   <DamageRadius>75</DamageRadius>
   <explodes>true</explodes>
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>

@@ -25,7 +25,7 @@
   <fireDelay>3</fireDelay>
   <Range>3500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>0.12</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>0.02</OrdinanceRequiredToFire>
   <SalvoCount>5</SalvoCount>
   <SalvoTimer>0.5</SalvoTimer>
   
