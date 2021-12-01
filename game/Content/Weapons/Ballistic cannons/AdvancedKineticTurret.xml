@@ -21,7 +21,7 @@
   <fireDelay>6</fireDelay>
   <Range>9500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>3</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>0.6</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_weapon_Turretgun_001</fireCueName>

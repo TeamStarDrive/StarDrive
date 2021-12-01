@@ -21,7 +21,7 @@
   <fireDelay>6</fireDelay>
   <Range>10000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>14</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>2.8</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_troop_attack_01</fireCueName>
