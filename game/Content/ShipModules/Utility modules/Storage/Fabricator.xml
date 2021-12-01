@@ -13,9 +13,9 @@
 
 
   <IconTexturePath>Modules/Fabricator</IconTexturePath>
-  <Mass>9</Mass>
-  <Health>2500</Health>
-  <HealthMax>2500</HealthMax>
+  <Mass>16</Mass>
+  <Health>1800</Health>
+  <HealthMax>1800</HealthMax>
   <energyreq>0</energyreq>
   <Description>.
   </Description>
@@ -29,7 +29,7 @@
   <DescriptionIndex>2047</DescriptionIndex>
 
 
-  <OrdnanceAddedPerSecond>4</OrdnanceAddedPerSecond>
+  <OrdnanceAddedPerSecond>0.8</OrdnanceAddedPerSecond>
 
   <!-- for shield items -->
   <shield_power>0</shield_power>
