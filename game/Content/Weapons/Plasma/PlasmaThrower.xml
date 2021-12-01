@@ -22,7 +22,7 @@
   <fireDelay>0.025</fireDelay>
   <Range>1800</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>.05</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>.01</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_weapon_flame_start_01</fireCueName>
   <ToggleSoundName>sd_weapon_flame_loop_01</ToggleSoundName>

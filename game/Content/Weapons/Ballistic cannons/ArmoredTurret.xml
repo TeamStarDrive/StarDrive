@@ -21,7 +21,7 @@
   <fireDelay>4</fireDelay>
   <Range>13000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>15</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>3</OrdinanceRequiredToFire>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
   <!-- name of XACT audio cue to play on firing this weapon -->

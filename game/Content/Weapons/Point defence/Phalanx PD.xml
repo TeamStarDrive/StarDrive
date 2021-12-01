@@ -26,7 +26,7 @@
   <fireDelay>2</fireDelay>
   <Range>3500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>0.4</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>0.08</OrdinanceRequiredToFire>
 
   <!-- This weapon will only fire on missiles and is ineffective against other targets -->
   <TruePD>true</TruePD>
@@ -47,6 +47,6 @@
   <ProjectileTexturePath>projTear_01_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <WeaponType>AA Weapons</WeaponType>
-  <FireCone>5</FireCone>
+  <FireCone>8</FireCone>
 
 </Weapon>

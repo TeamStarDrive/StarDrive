@@ -23,7 +23,7 @@
   <fireDelay>12</fireDelay>
   <Range>18000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>57</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>11.4</OrdinanceRequiredToFire>
   <SalvoCount>3</SalvoCount>
   <SalvoTimer>0.7</SalvoTimer>
   

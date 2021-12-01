@@ -18,10 +18,10 @@
   <Tag_Cannon>false</Tag_Cannon>
 
   <UID>Owlwok Antidote</UID>
-  <fireDelay>1.0</fireDelay>
+  <fireDelay>7.0</fireDelay>
   <Range>5000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>20</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>15</OrdinanceRequiredToFire>
   
   
   <!-- name of XACT audio cue to play on firing this weapon -->
