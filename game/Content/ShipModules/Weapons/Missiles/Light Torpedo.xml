@@ -44,7 +44,7 @@
 
   <!-- for Weapons -->
   <WeaponType>Light Torpedo</WeaponType>
-  <OrdinanceCapacity>106</OrdinanceCapacity>
+  <OrdinanceCapacity>21</OrdinanceCapacity>
   <FieldOfFire>30</FieldOfFire>
 
   <!-- for Engines -->

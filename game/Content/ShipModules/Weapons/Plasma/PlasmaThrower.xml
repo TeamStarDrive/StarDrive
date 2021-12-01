@@ -13,7 +13,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/PlasmaThrower</IconTexturePath>
-  <Mass>10</Mass>
+  <Mass>3</Mass>
   <Health>2500</Health>
   <HealthMax>2500</HealthMax>
   <energyreq>0</energyreq>
@@ -22,7 +22,7 @@
   <CrewRequired>12</CrewRequired>
   <CrewSupplied>0</CrewSupplied>
   <PowerDraw>10</PowerDraw>
-
+  <OrdinanceCapacity>16</OrdinanceCapacity>
   <NameIndex>1020</NameIndex>
   <DescriptionIndex>1021</DescriptionIndex>
 

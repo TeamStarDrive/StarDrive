@@ -45,7 +45,7 @@
   <!-- for Weapons -->
   <WeaponType>DualFlak</WeaponType>
   <FieldOfFire>90</FieldOfFire>
-  <OrdinanceCapacity>36</OrdinanceCapacity>
+  <OrdinanceCapacity>7</OrdinanceCapacity>
   <AccuracyPercent>0.2</AccuracyPercent>
   <!-- for Engines -->
   <thrust>0</thrust>

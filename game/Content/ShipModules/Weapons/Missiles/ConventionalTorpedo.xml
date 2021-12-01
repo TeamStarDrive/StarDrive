@@ -39,7 +39,7 @@
 
   <!-- for Weapons -->
   <WeaponType>BasicTorpedo</WeaponType>
-  <OrdinanceCapacity>200</OrdinanceCapacity>
+  <OrdinanceCapacity>40</OrdinanceCapacity>
   <FieldOfFire>15</FieldOfFire>
 
   <!-- for Engines -->

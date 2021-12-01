@@ -29,7 +29,7 @@
 
   <!-- for Hangar items -->
   <hangarShipUID>Vulcan Scout</hangarShipUID>
-  <hangerTimerConstant>100</hangerTimerConstant>
+  <hangerTimerConstant>80</hangerTimerConstant>
   <MaximumHangarShipSize>88</MaximumHangarShipSize>
   <PermittedHangarRoles>
     <string>frigate</string>

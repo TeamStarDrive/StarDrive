@@ -45,7 +45,7 @@
   <!-- for Weapons -->
   <WeaponType>AdvancedKineticTurret</WeaponType>
   <FieldOfFire>90</FieldOfFire>
-  <OrdinanceCapacity>21</OrdinanceCapacity>
+  <OrdinanceCapacity>4</OrdinanceCapacity>
   <AccuracyPercent>0.2</AccuracyPercent>
   <!-- for Engines -->
   <thrust>0</thrust>

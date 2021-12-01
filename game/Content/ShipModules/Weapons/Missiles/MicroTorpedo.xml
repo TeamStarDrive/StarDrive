@@ -32,7 +32,7 @@
   <!-- for Weapons -->
   <WeaponType>MicroTorpedo</WeaponType>
   <FieldOfFire>15</FieldOfFire>
-  <OrdinanceCapacity>45</OrdinanceCapacity>
+  <OrdinanceCapacity>9</OrdinanceCapacity>
   
   
   <!-- Description -->
