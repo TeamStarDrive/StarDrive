@@ -6,7 +6,7 @@
   <Icon>spaceport</Icon>
   <PlusTaxPercentage>.5</PlusTaxPercentage>
   <Infrastructure>2</Infrastructure>
-  <ShipRepair>25</ShipRepair>
+  <ShipRepair>50</ShipRepair>
   <ShortDescription>+50% tax revenues; allows ship construction</ShortDescription>
   <AllowShipBuilding>true</AllowShipBuilding>
   <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
