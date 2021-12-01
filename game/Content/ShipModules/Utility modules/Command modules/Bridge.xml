@@ -26,7 +26,7 @@
   <modRadius>4</modRadius>
   <Description>The bridge is the nerve center of a starship, providing basic sensor functionality, damage control, and life support for a moderate sized crew.</Description>
   <PowerDraw>8</PowerDraw>
-  <BonusRepairRate>100</BonusRepairRate>
+  <BonusRepairRate>50</BonusRepairRate>
 
   
   <TargetTracking>6</TargetTracking>
