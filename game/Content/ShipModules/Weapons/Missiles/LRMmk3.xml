@@ -47,7 +47,7 @@
   
   <!-- for Weapons -->
   <WeaponType>LRM3</WeaponType>
-  <OrdinanceCapacity>280</OrdinanceCapacity>
+  <OrdinanceCapacity>56</OrdinanceCapacity>
   <FieldOfFire>120</FieldOfFire>
   
   <!-- for Engines -->

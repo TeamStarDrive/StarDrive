@@ -43,7 +43,7 @@
   <!-- for Weapons -->
   <WeaponType>Flak</WeaponType>
   <FieldOfFire>90</FieldOfFire>
-  <OrdinanceCapacity>25</OrdinanceCapacity>
+  <OrdinanceCapacity>5</OrdinanceCapacity>
   <AccuracyPercent>0.2</AccuracyPercent>
   <!-- for Engines -->
   <thrust>0</thrust>

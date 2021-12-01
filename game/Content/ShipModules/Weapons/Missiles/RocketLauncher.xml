@@ -43,7 +43,7 @@
 
   <!-- for Weapons -->
   <WeaponType>Rocket</WeaponType>
-  <OrdinanceCapacity>12</OrdinanceCapacity>
+  <OrdinanceCapacity>3</OrdinanceCapacity>
   <FieldOfFire>23</FieldOfFire>
   
   <!-- for Engines -->

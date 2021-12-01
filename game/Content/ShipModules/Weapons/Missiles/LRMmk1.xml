@@ -44,7 +44,7 @@
   
   <!-- for Weapons -->
   <WeaponType>LRM1</WeaponType>
-  <OrdinanceCapacity>60</OrdinanceCapacity>
+  <OrdinanceCapacity>12</OrdinanceCapacity>
   <FieldOfFire>120</FieldOfFire>
   
   

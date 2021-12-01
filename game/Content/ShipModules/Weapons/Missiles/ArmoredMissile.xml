@@ -46,7 +46,7 @@
   
   <!-- for Weapons -->
   <WeaponType>ArmoredMissile</WeaponType>
-  <OrdinanceCapacity>160</OrdinanceCapacity>
+  <OrdinanceCapacity>32</OrdinanceCapacity>
   <FieldOfFire>180</FieldOfFire>
   
   

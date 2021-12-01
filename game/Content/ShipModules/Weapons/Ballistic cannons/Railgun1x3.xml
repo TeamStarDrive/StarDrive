@@ -36,7 +36,7 @@
   <Left>1</Left>
   <Right>1</Right>
   <Rear>1</Rear>
-  <OrdinanceCapacity>25</OrdinanceCapacity>
+  <OrdinanceCapacity>5</OrdinanceCapacity>
   <AccuracyPercent>0.2</AccuracyPercent>
   
   <!-- Description -->

@@ -45,7 +45,7 @@
   <!-- for Weapons -->
   <WeaponType>MagneticTurret_2x2</WeaponType>
   <FieldOfFire>90</FieldOfFire>
-  <OrdinanceCapacity>27</OrdinanceCapacity>
+  <OrdinanceCapacity>5</OrdinanceCapacity>
   <AccuracyPercent>0.2</AccuracyPercent>
   <!-- for Engines -->
   <thrust>0</thrust>

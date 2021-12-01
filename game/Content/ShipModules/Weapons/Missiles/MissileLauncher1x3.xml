@@ -32,7 +32,7 @@
   <!-- for Weapons -->
   <WeaponType>Missile</WeaponType>
   <FieldOfFire>15</FieldOfFire>
-  <OrdinanceCapacity>42</OrdinanceCapacity>
+  <OrdinanceCapacity>8</OrdinanceCapacity>
   
   
   <!-- Description -->

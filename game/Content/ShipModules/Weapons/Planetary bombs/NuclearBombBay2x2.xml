@@ -29,7 +29,7 @@
   <PowerDraw>5</PowerDraw>
 
   <!-- for Bombs -->
-  <OrdinanceCapacity>20</OrdinanceCapacity>
+  <OrdinanceCapacity>4</OrdinanceCapacity>
   <BombType>NuclearBomb</BombType>
 
 

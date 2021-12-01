@@ -33,7 +33,7 @@
 	<PowerStoreMax>0</PowerStoreMax>
 	<!-- for Weapons -->
 	<WeaponType>RemnantNuker</WeaponType>
-	<OrdinanceCapacity>40</OrdinanceCapacity>
+	<OrdinanceCapacity>8</OrdinanceCapacity>
 	<FieldOfFire>45</FieldOfFire>
 
 

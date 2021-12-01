@@ -39,7 +39,7 @@
   <!-- for Weapons -->
   <WeaponType>VulcanCannon</WeaponType>
   <FieldOfFire>90</FieldOfFire>
-  <OrdinanceCapacity>4</OrdinanceCapacity>
+  <OrdinanceCapacity>2</OrdinanceCapacity>
 
   <!-- for Engines -->
   <thrust>0</thrust>

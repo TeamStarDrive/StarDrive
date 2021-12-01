@@ -39,7 +39,7 @@
   <FieldOfFire>15</FieldOfFire>
   <MountLeft>true</MountLeft>
   <MountRight>true</MountRight>
-  <OrdinanceCapacity>61</OrdinanceCapacity>
+  <OrdinanceCapacity>12</OrdinanceCapacity>
   <AccuracyPercent>0.2</AccuracyPercent>
   <!-- Description -->
   <Description>This weapon is a heavy-mounted rail gun that can propel an explosive projectile an impressive distance. </Description>

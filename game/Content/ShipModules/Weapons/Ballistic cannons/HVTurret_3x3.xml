@@ -47,7 +47,7 @@
   <!-- for Weapons -->
   <WeaponType>HVTurret_3x3</WeaponType>
   <FieldOfFire>120</FieldOfFire>
-  <OrdinanceCapacity>76</OrdinanceCapacity>
+  <OrdinanceCapacity>15</OrdinanceCapacity>
   <AccuracyPercent>0.2</AccuracyPercent>
   <!-- for Engines -->
   <thrust>0</thrust>
