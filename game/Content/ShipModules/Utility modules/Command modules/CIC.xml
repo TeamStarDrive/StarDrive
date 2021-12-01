@@ -31,7 +31,7 @@
   <PowerDraw>32</PowerDraw>
   <BonusRepairRate>400</BonusRepairRate>
 
-  <SensorRange>40000</SensorRange>
+  <SensorRange>70000</SensorRange>
   <TargetTracking>10</TargetTracking>
 
 
