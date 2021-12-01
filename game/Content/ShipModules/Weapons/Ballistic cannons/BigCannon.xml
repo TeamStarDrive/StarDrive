@@ -42,7 +42,7 @@
   <!-- for Weapons -->
   <WeaponType>BigCannon</WeaponType>
   <FieldOfFire>20</FieldOfFire>
-  <OrdinanceCapacity>192</OrdinanceCapacity>
+  <OrdinanceCapacity>38</OrdinanceCapacity>
   <AccuracyPercent>0.2</AccuracyPercent>
   <!-- for Engines -->
   <thrust>0</thrust>

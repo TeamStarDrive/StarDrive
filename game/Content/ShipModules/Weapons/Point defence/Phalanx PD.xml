@@ -44,7 +44,7 @@
   <!-- for Weapons -->
   <WeaponType>Phalanx PD</WeaponType>
   <FieldOfFire>120</FieldOfFire>
-  <OrdinanceCapacity>16</OrdinanceCapacity>
+  <OrdinanceCapacity>8</OrdinanceCapacity>
   
   <!-- for Engines -->
   <thrust>0</thrust>
