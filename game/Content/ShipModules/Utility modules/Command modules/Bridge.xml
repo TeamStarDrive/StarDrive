@@ -45,7 +45,7 @@
   <shield_radius>0</shield_radius>
 
   <!-- Sensor Data -->
-  <SensorRange>30000</SensorRange>
+  <SensorRange>40000</SensorRange>
   <!---repair and defence-->
   <EMP_Protection>200</EMP_Protection>
   <AmplifyShields>1500</AmplifyShields>
