@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>FusionReactor</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
-  <Cost>500</Cost>
+  <Cost>450</Cost>
   <RootNode>0</RootNode>
   <Name>FusionReactor</Name>
   <NameIndex>8045</NameIndex>

@@ -21,15 +21,15 @@
   <UID>PolaronCannon</UID>
   <fireDelay>4</fireDelay>
   <Range>10500</Range>
-  <PowerRequiredToFire>920</PowerRequiredToFire>
+  <PowerRequiredToFire>702</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>weak laser</fireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>1237</DamageAmount>
-  <ProjectileSpeed>2450</ProjectileSpeed>
+  <DamageAmount>1456</DamageAmount>
+  <ProjectileSpeed>2300</ProjectileSpeed>
   <DamageRadius>5</DamageRadius>
   <explodes>false</explodes>
   <Light>Blue</Light>

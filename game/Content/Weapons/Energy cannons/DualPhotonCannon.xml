@@ -19,7 +19,7 @@
   <UID>DualPhotonCannon</UID>
   <fireDelay>3</fireDelay>
   <Range>10100</Range>
-  <PowerRequiredToFire>1495</PowerRequiredToFire>
+  <PowerRequiredToFire>890</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>1511</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2400</ProjectileSpeed>
+  <ProjectileSpeed>2250</ProjectileSpeed>
 
   <!-- Animation Information -->
   <Animated>1</Animated>

@@ -19,7 +19,7 @@
   <UID>2x2LaserTurret</UID>
   <fireDelay>4</fireDelay>
   <Range>5800</Range>
-  <PowerRequiredToFire>530</PowerRequiredToFire>
+  <PowerRequiredToFire>315</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <PlaySoundOncePerSalvo>true</PlaySoundOncePerSalvo>
@@ -29,7 +29,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>383</DamageAmount>
-  <ProjectileSpeed>2300</ProjectileSpeed>
+  <ProjectileSpeed>2100</ProjectileSpeed>
   <explodes>false</explodes>
   <Light>Red</Light>
   <Scale>1.2</Scale>

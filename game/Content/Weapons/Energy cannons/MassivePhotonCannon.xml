@@ -21,7 +21,7 @@
   <UID>DualPhotonCannon4x4</UID>
   <fireDelay>4</fireDelay>
   <Range>10000</Range>
-  <PowerRequiredToFire>2300</PowerRequiredToFire>
+  <PowerRequiredToFire>1120</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -30,10 +30,10 @@
   <InFlightCue>sd_weapon_photon_flight_01</InFlightCue>
   
   <!-- Projectile Information -->
-  <DamageAmount>2400</DamageAmount>
+  <DamageAmount>2508</DamageAmount>
   <EMPDamage>22</EMPDamage>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2500</ProjectileSpeed>
+  <ProjectileSpeed>2250</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
   <ProjectileRadius>5</ProjectileRadius>

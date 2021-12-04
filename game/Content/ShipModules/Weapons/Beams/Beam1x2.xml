@@ -35,7 +35,8 @@
   <HealthMax>1200</HealthMax>
 
   <!-- Power Drawn -->
-  <PowerDraw>3</PowerDraw>
+  <PowerDraw>2</PowerDraw>
+  <PowerStoreMax>400</PowerStoreMax>
 
   <!-- for Weapons -->
   <WeaponType>Beam1x2</WeaponType>
