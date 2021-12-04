@@ -20,6 +20,9 @@
       <ModuleUID>Flechette AF Turret</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
+      <ModuleUID>AF_Repeater</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
       <ModuleUID>VulcanCannon</ModuleUID>
     </UnlockedMod>
            <UnlockedMod>
