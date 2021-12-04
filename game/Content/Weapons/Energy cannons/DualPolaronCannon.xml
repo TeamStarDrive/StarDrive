@@ -20,8 +20,8 @@
   
   <UID>DualPolaronCannon</UID>
   <fireDelay>3</fireDelay>
-  <Range>11100</Range>
-  <PowerRequiredToFire>1860</PowerRequiredToFire>
+  <Range>10500</Range>
+  <PowerRequiredToFire>1200</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -29,7 +29,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>2033</DamageAmount>
-  <ProjectileSpeed>2450</ProjectileSpeed>
+  <ProjectileSpeed>2300</ProjectileSpeed>
 
   <explodes>false</explodes>
   <Light>Blue</Light>

@@ -23,7 +23,7 @@
   <UID>MassiveDisruptor</UID>
   <fireDelay>4</fireDelay>
   <Range>9000</Range>
-  <PowerRequiredToFire>1836</PowerRequiredToFire>
+  <PowerRequiredToFire>810</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -32,7 +32,7 @@
   <!-- Projectile Information -->
   <DamageAmount>1689</DamageAmount>
   <EMPDamage>15</EMPDamage>
-  <ProjectileSpeed>2350</ProjectileSpeed>
+  <ProjectileSpeed>2200</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
   <Scale>1.4</Scale>

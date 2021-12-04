@@ -45,7 +45,7 @@
   <explodes>true</explodes>
   <ExplosionDamage>2000</ExplosionDamage>
   <ExplosionRadius>92</ExplosionRadius>  
-  <PowerFlowMax>225</PowerFlowMax>
+  <PowerFlowMax>230</PowerFlowMax>
   <PowerStoreMax>10</PowerStoreMax>
   <PowerRadius>1</PowerRadius>
 
