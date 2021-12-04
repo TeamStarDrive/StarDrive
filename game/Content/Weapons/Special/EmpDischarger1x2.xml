@@ -18,7 +18,7 @@
 
   <UID>EmpDischarger1x2</UID>
   <fireDelay>1.0</fireDelay>
-  <Range>4500</Range>
+  <Range>4200</Range>
   <PowerRequiredToFire>150</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 

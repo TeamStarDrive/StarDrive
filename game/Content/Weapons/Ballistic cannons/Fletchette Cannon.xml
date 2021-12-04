@@ -19,21 +19,21 @@
 
   <UID>Fletchette Cannon</UID>
   <fireDelay>2</fireDelay>
-  <Range>5500</Range>
+  <Range>4400</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.04</OrdinanceRequiredToFire>
-  <SalvoCount>3</SalvoCount>
+  <SalvoCount>8</SalvoCount>
   <SalvoTimer>.75</SalvoTimer>
-  <ProjectileCount>5</ProjectileCount>
   <FireArc>0</FireArc>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_weapon_vulcan_shotgun_01</fireCueName>
 
-  <EffectVsArmor>.5</EffectVsArmor>
+  <EffectVsArmor>.8</EffectVsArmor>
   <EffectVSShields>1</EffectVSShields>
+  <ShieldPenChance>30</ShieldPenChance>
   <!-- Projectile Information -->
-  <DamageAmount>70</DamageAmount>
+  <DamageAmount>50</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2100</ProjectileSpeed>
   <Scale>3.7</Scale>
