@@ -12885,7 +12885,7 @@ Tech_CrystalArmor_Name:
  RUS: "Кристальная броня"
 ThisArmorIsVeryExpensive:
  Id: 6575
- ENG: "Crystals are one of the hardest known materials, but they very brittle. Thanks to experimenting with composite alloys made a discovery of a compound that can be added to melted down crystals, to making it extremely resistant material"."
+ ENG: "Crystals are one of the hardest known materials, but they very brittle. Thanks to experimenting with composite alloys made a discovery of a compound that can be added to melted down crystals, to making it extremely resistant material"
 CrystalArmorSmall:
  Id: 6576
  ENG: "Crystal Armor Small"
@@ -13005,7 +13005,7 @@ AMassiveAndBalancedEngine:
  ENG: "A massive maneuvering thrusters created to meet the demands of the largest ships."
 TheTimcorpFletchetteAntifighterTurret:
  Id: 2250
- ENG: "Fletchette Anti-Fighter turret is very effective versus unarmored craft but suffers a -50% damage penalty to Armor."
+ ENG: "Fletchette Anti-Fighter turret is ordnance based chain gun weapon designed to shoot down fast and lightly armoured crafts. Flachette rounds have slight chance to penetrate shields."
 TheVulcanCannonIsA:
  Id: 1075
  ENG: "The Vulcan cannon is a small, rapid fire machine gun capable of shredding small missiles in a storm of uranium-tipped rounds. Point Defense weapons automatically engage incoming missiles and have bonus damage versus missile weapons. "
@@ -13528,7 +13528,7 @@ PlanetShieldHeavyDescShort:
 Tech_PlanetFortification_Desc:
  Id: 17584
  ENG: "Escalating wars are leading into prolonged and massive planetary sieges, for this purpose we need to take necessary steps into fortifying our planets and make our enemies pay dearly for each planet they assault."
-AeroponicsShortDescr:
+BB_AeroponicsShortDescr:
  Id: 17585
  ENG: "+1 food per turn"
  RUS: "+1 еды в ход"
@@ -13647,16 +13647,26 @@ BB_RemnTroopDescr:
  Id: 17622
  ENG: "Thanks to retrived schematics and all the remnant wrackage we can recreate this deadly tank, it  will be very usefull in defending and invading planets."
 BB_PrismTech:
- Id: 17623
+  Id: 17623
  ENG: "Nanoprisms"
 BB_PrismTechDescr:
  Id: 17624
- ENG: "Creating millions of nanoscroping prisms in beam lensing technologies allowed for higher voltage discharges creating more damaging beam. "
+ ENG: "Creating millions of nanoscope prisms in beam lensing technologies allowed for higher voltage discharges creating more damaging beam. "
 BB_PrismBonus:
  Id: 17625
  ENG: "Nanoprism technology provides a 30% bonus damage to beam weapons."
-
-
+BB_CombatEngines:
+ Id: 17626
+ ENG: "Combat Thrusters"
+BB_ComabtEnginesDescr:
+ Id: 17627
+ ENG: "Combat Thrusters excel at providing excellent sub light thrust and turn thrust thanks to 3D vectoring which is able to direct its engine thrust in another direction to give it better maneuverability and two off-center aligned engines. Output of this engine is best suited for ships with lower mass and small footprint, and might cause catastrophic failure if ship goes over the provided specifications. "
+BB_AFRepeater:
+ Id: 17628
+ ENG: "AF Repeater Turret"
+BB_AFRepeaterDescr:
+ Id: 17629
+ ENG: "Fast firing anti-fighter energy turret, designed to deal with nimble and lightly armoured crafts at close range. "
 
 
 

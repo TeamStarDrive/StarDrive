@@ -18,23 +18,24 @@
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>true</Tag_Cannon>
   
-  <UID>Disruptor</UID>
-  <fireDelay>4</fireDelay>
-  <Range>8500</Range>
-  <PowerRequiredToFire>692</PowerRequiredToFire>
+  <UID>AF_Repeater</UID>
+  <fireDelay>0.2</fireDelay>
+  <Range>4400</Range>
+  <PowerRequiredToFire>50</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>disruptor</fireCueName>
+  <fireCueName>sd_weapon_laser_burst_01</fireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>548</DamageAmount>
-  <ProjectileRadius>10</ProjectileRadius>
-  <ProjectileSpeed>2350</ProjectileSpeed>
+  <DamageAmount>30</DamageAmount>
+  <ProjectileRadius>15</ProjectileRadius>
+  <ProjectileSpeed>2150</ProjectileSpeed>
   <Light>Green</Light>
   <DamageRadius>1</DamageRadius>
   <explodes>false</explodes>
   <ProjectileTexturePath>projTear_03_green</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
+  <WeaponEffectType>DisruptorCannon</WeaponEffectType>
   <WeaponType>Energy Cannon</WeaponType>
 </Weapon>

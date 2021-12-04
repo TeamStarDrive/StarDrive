@@ -1,26 +1,31 @@
 ﻿<?xml version="1.0"?>
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-  <Cost>12</Cost>
-  
+  <Cost>6</Cost>
+  <TechLevel>2</TechLevel>
   <!-- common traits shared by all ship modules -->
-  <ModuleType>Spacebomb</ModuleType>
+  <ModuleType>Turret</ModuleType>
   <XSIZE>2</XSIZE>
-  <YSIZE>4</YSIZE>
+  <YSIZE>2</YSIZE>
+  <Name>AF Repeater Cannon Turret</Name>
   <Restrictions>O</Restrictions>
-  <UID>Fighterbomb_2x4</UID> 
+  <UID>AF_Repeater</UID> 
   <Version>2</Version>
 
-  <IconTexturePath>Modules/BallisticCannon_C_2x4</IconTexturePath>
-  <Mass>80</Mass>
-  <Health>800</Health>
-  <HealthMax>800</HealthMax>
+  <IconTexturePath>Modules/AF_Repeater</IconTexturePath>
+  <Mass>7</Mass>
+  <Health>2060</Health>
+  <HealthMax>2060</HealthMax>
+  <energyreq>0</energyreq>
+  <Description>Anti fighter energy cannon</Description>
+  <CrewRequired>12</CrewRequired>
+  <CrewSupplied>0</CrewSupplied>
+  <PowerDraw>10</PowerDraw>
 
 
-  <PowerDraw>4</PowerDraw>
+  <NameIndex>17628</NameIndex>
+  <DescriptionIndex>17629</DescriptionIndex>
 
-  <NameIndex>5057</NameIndex>
-  <DescriptionIndex>5058</DescriptionIndex>
 
 
   <!-- for shield items -->
@@ -37,9 +42,9 @@
   <PowerStoreMax>0</PowerStoreMax>
   
   <!-- for Weapons -->
-  <WeaponType>MOASB</WeaponType>
-  <FieldOfFire>10</FieldOfFire>
-  <OrdinanceCapacity>20</OrdinanceCapacity>
+  <WeaponType>AF_Repeater</WeaponType>
+  <FieldOfFire>180</FieldOfFire>
+  <AccuracyPercent>0.2</AccuracyPercent>
   
   <!-- for Engines -->
   <thrust>0</thrust>

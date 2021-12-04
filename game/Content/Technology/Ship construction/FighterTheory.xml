@@ -18,8 +18,11 @@
     <UnlockedMod>
       <ModuleUID>FighterBay</ModuleUID>
     </UnlockedMod>
-        <UnlockedMod>
+    <UnlockedMod>
       <ModuleUID>IonCannon1x2</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>CombatEngine_1x2</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>
   <BuildingsUnlocked />

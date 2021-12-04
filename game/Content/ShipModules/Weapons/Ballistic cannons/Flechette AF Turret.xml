@@ -41,7 +41,7 @@
   
   <!-- for Weapons -->
   <WeaponType>Fletchette Cannon</WeaponType>
-  <FieldOfFire>120</FieldOfFire>
+  <FieldOfFire>180</FieldOfFire>
   <OrdinanceCapacity>16</OrdinanceCapacity>
   <AccuracyPercent>0.2</AccuracyPercent>
   <!-- for Engines -->
