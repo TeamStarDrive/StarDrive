@@ -38,7 +38,8 @@
   <RepairDifficulty>2</RepairDifficulty>
 
   <!-- Power Drawn -->
-  <PowerDraw>2</PowerDraw>
+  <PowerDraw>1</PowerDraw>
+  <PowerStoreMax>350</PowerStoreMax>
 
 
   <!-- Crew Reqs -->

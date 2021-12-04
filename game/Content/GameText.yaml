@@ -13647,7 +13647,7 @@ BB_RemnTroopDescr:
  Id: 17622
  ENG: "Thanks to retrived schematics and all the remnant wrackage we can recreate this deadly tank, it  will be very usefull in defending and invading planets."
 BB_PrismTech:
-  Id: 17623
+ Id: 17623
  ENG: "Nanoprisms"
 BB_PrismTechDescr:
  Id: 17624

@@ -20,7 +20,7 @@
   <UID>BlueLaser1x2</UID>
   <fireDelay>4</fireDelay>
   <Range>3500</Range>
-  <PowerRequiredToFire>150</PowerRequiredToFire>
+  <PowerRequiredToFire>73</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -28,7 +28,7 @@
   <PlaySoundOncePerSalvo>true</PlaySoundOncePerSalvo>
   <!-- Projectile Information -->
   <DamageAmount>65</DamageAmount>
-  <ProjectileSpeed>2200</ProjectileSpeed>
+  <ProjectileSpeed>2000</ProjectileSpeed>
   <explodes>false</explodes>
   <Scale>1.2</Scale>
   <Light>Blue</Light>
