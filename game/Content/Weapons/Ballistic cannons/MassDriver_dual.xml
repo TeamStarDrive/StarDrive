@@ -24,7 +24,7 @@
   <fireDelay>11.0</fireDelay>
   <Range>15000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>11</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>7</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_weapon_railgun_massive_01</fireCueName>
@@ -33,12 +33,12 @@
   <ProjectileRadius>10</ProjectileRadius>
   <Scale>1.5</Scale>
   <!-- Projectile Information -->
-  <DamageAmount>2760</DamageAmount>
+  <DamageAmount>2600</DamageAmount>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
   <EffectVSShields>1.20</EffectVSShields>  
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2000</ProjectileSpeed>
+  <ProjectileSpeed>2050</ProjectileSpeed>
   <DamageRadius>50</DamageRadius>
   <Light>Orange</Light>
   <explodes>true</explodes>
