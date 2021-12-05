@@ -21,7 +21,7 @@
   <fireDelay>6</fireDelay>
   <Range>10000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>3.2</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>8.2</OrdinanceRequiredToFire>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.2</SalvoTimer>
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>1900</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2230</ProjectileSpeed>
+  <ProjectileSpeed>2150</ProjectileSpeed>
   <explodes>true</explodes>
   <DamageRadius>34</DamageRadius>
 

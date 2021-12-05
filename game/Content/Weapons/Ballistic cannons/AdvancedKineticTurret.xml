@@ -21,7 +21,7 @@
   <fireDelay>6</fireDelay>
   <Range>9500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>0.6</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>0.64</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_weapon_Turretgun_001</fireCueName>
@@ -29,11 +29,11 @@
   <!-- Projectile Information -->
   <DamageAmount>145</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>1960</ProjectileSpeed>
+  <ProjectileSpeed>1900</ProjectileSpeed>
   <SalvoCount>6</SalvoCount>
   <SalvoTimer>0.6</SalvoTimer>
   <explodes>true</explodes>
-  <DamageRadius>24</DamageRadius>
+  <DamageRadius>20</DamageRadius>
   
   <ProjectileRadius>10</ProjectileRadius>
   <Scale>0.9</Scale>

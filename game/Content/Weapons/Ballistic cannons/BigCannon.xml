@@ -23,7 +23,7 @@
   <fireDelay>12</fireDelay>
   <Range>18000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>11.4</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>15</OrdinanceRequiredToFire>
   <SalvoCount>3</SalvoCount>
   <SalvoTimer>0.7</SalvoTimer>
   
@@ -33,7 +33,7 @@
  <!-- <ToggleSoundName>sd_weapon_vulcan_spinloop_01</ToggleSoundName> -->
 
   <!-- Projectile Information -->
-  <DamageAmount>6850</DamageAmount>
+  <DamageAmount>6300</DamageAmount>
   <EffectVSShields>1.25</EffectVSShields>  
   <Scale>2</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
