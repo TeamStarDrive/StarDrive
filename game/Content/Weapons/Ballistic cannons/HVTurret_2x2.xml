@@ -21,7 +21,7 @@
   <fireDelay>6</fireDelay>
   <Range>10000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>2.8</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>3.8</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_troop_attack_01</fireCueName>
@@ -29,7 +29,7 @@
   <!-- Projectile Information -->
   <DamageAmount>885</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2230</ProjectileSpeed>
+  <ProjectileSpeed>2150</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.2</SalvoTimer>
   <explodes>true</explodes>
