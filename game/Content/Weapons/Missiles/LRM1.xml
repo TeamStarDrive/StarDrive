@@ -27,7 +27,7 @@
   <fireDelay>15</fireDelay>
   <Range>13000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>14.4</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>17.3</OrdinanceRequiredToFire>
 
   
 <!-- Projectile stats -->

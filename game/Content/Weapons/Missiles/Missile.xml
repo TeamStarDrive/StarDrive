@@ -33,7 +33,7 @@
   <!-- Projectile Information -->
   <DamageAmount>1500</DamageAmount>
   <RotationRadsPerSecond>1</RotationRadsPerSecond>
-  <ProjectileSpeed>1500</ProjectileSpeed>
+  <ProjectileSpeed>800</ProjectileSpeed>
   <DamageRadius>45</DamageRadius>
   <explodes>true</explodes>
   <HitPoints>9</HitPoints>
