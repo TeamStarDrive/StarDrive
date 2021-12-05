@@ -36,7 +36,7 @@
 
   <!-- Power Drawn -->
   <PowerDraw>2</PowerDraw>
-  <PowerStoreMax>400</PowerStoreMax>
+
 
   <!-- for Weapons -->
   <WeaponType>Beam1x2</WeaponType>
