@@ -19,7 +19,7 @@
 
   <UID>HVTurret_3x3</UID>
   <fireDelay>6</fireDelay>
-  <Range>10000</Range>
+  <Range>12500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>8.2</OrdinanceRequiredToFire>
   <SalvoCount>2</SalvoCount>
