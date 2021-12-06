@@ -19,7 +19,7 @@
   
   <UID>MagneticTurret_2x2</UID>
   <fireDelay>6</fireDelay>
-  <Range>10000</Range>
+  <Range>11000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>1.8</OrdinanceRequiredToFire>
 

@@ -19,7 +19,7 @@
 
   <UID>MagneticTurret_3x3</UID>
   <fireDelay>6</fireDelay>
-  <Range>10000</Range>
+  <Range>11500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>4.1</OrdinanceRequiredToFire>
 
