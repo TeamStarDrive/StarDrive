@@ -20,8 +20,8 @@
   
   <UID>DualDisruptor</UID>
   <fireDelay>3</fireDelay>
-  <Range>9100</Range>
-  <PowerRequiredToFire>680</PowerRequiredToFire>
+  <Range>9000</Range>
+  <PowerRequiredToFire>828</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->

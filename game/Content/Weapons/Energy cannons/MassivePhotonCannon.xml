@@ -20,8 +20,8 @@
 
   <UID>DualPhotonCannon4x4</UID>
   <fireDelay>4</fireDelay>
-  <Range>10000</Range>
-  <PowerRequiredToFire>1120</PowerRequiredToFire>
+  <Range>10200</Range>
+  <PowerRequiredToFire>980</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
