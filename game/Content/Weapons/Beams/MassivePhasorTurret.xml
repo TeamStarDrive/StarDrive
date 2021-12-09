@@ -19,9 +19,9 @@
   <BeamTexture>dualbeam_red</BeamTexture>
   
   <!-- Projectile Information -->
-  <DamageAmount>54</DamageAmount>
+  <DamageAmount>62</DamageAmount>
   <BeamThickness>70</BeamThickness>
-  <BeamPowerCostPerSecond>3881</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>3000</BeamPowerCostPerSecond>
 
   <WeaponType>Energy Beam</WeaponType>
 </Weapon>

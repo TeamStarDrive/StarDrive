@@ -31,7 +31,7 @@
   <PowerDraw>10</PowerDraw>
   
   <!-- for Weapons -->
-  <WeaponType>PhotonCannon</WeaponType>
+  <WeaponType>DualPhotonCannon</WeaponType>
   <FieldOfFire>120</FieldOfFire>
   <AccuracyPercent>0.2</AccuracyPercent>
   

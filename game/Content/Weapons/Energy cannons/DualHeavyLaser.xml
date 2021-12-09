@@ -23,7 +23,7 @@
   <UID>DualHeavyLaser</UID>
   <fireDelay>2</fireDelay>
   <Range>7600</Range>
-  <PowerRequiredToFire>660</PowerRequiredToFire>
+  <PowerRequiredToFire>300</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->

@@ -24,7 +24,7 @@
   <Range>18000</Range>
   <HitPoints>45</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>71</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>100</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_weapon_torpedo_01</fireCueName>

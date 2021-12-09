@@ -23,7 +23,7 @@
   <UID>MassiveDisruptor</UID>
   <fireDelay>4</fireDelay>
   <Range>9100</Range>
-  <PowerRequiredToFire>730</PowerRequiredToFire>
+  <PowerRequiredToFire>910</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->

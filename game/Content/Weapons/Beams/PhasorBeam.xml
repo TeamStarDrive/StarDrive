@@ -32,9 +32,9 @@
   <BeamTexture>beam_red</BeamTexture>
   
   <!-- Projectile Information -->
-  <DamageAmount>15</DamageAmount>
+  <DamageAmount>17</DamageAmount>
   <BeamThickness>25</BeamThickness>
-  <BeamPowerCostPerSecond>1008</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>650</BeamPowerCostPerSecond>
 
   <WeaponType>Energy Beam</WeaponType>
 

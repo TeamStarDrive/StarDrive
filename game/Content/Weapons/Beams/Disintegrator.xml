@@ -32,9 +32,9 @@
   <BeamTexture>beam_green</BeamTexture>
   
   <!-- Projectile Information -->
-  <DamageAmount>136</DamageAmount>
+  <DamageAmount>120</DamageAmount>
   <BeamThickness>100</BeamThickness>
-  <BeamPowerCostPerSecond>6200</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>5800</BeamPowerCostPerSecond>
     <EffectVsArmor>1.25</EffectVsArmor>
   <WeaponType>Energy Beam</WeaponType>
 

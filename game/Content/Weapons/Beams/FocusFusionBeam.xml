@@ -4,7 +4,7 @@
   <Tag_Beam>true</Tag_Beam>
 
   <Excludes_Fighters>true</Excludes_Fighters>  
-  <UID>HeavyFusionBeam</UID>
+  <UID>FocusFusionBeam</UID>
   <isBeam>true</isBeam>
   <fireDelay>9</fireDelay>
   <Range>12000</Range>
@@ -21,9 +21,9 @@
   <BeamTexture>beam_purple</BeamTexture>
   
   
-  <DamageAmount>18</DamageAmount>
+  <DamageAmount>18.5</DamageAmount>
   <BeamThickness>32</BeamThickness>
-  <BeamPowerCostPerSecond>1270</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>780</BeamPowerCostPerSecond>
     <EffectVsArmor>1.15</EffectVsArmor>
   <WeaponType>Energy Beam</WeaponType>
   
