@@ -14,7 +14,7 @@ IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=Crystal Armor Med;Crystal Armor Small;Crystal Armor Large;PhasorTurret2x2;AdvancedCellSmall;BosonTransmiter;Pulse Capacitor;PowerConduit;AdvancedCellMed;DisintegratorArray;NuclearBombBay2x2;PhasorTurret4x4;ArmoredShield4x4;AdvAmplifier;AntiMatterReactor;TroopAssaultBay;Fabricator;MarineBarracks6x3;CanopyShield;PhasorTurret3x3;Extreme Fusion Reactor;Maneuvering_Thruster_1x4;Maneuvering_Thruster_1x2;Maneuvering_Thruster_1x3;Bridge;EnergyPDRapid;Reinforced Bulkhead;Engine;WarpEngine_4x4;Titan Engine;WarpEngine_2x2
-Modules=655
+Modules=663
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 25,0;0;2,2
 24,1;1
@@ -208,13 +208,13 @@ Modules=655
 39,23;0;2,2
 9,24;1
 10,24;1
-15,24;15;3,2;90;2;Opteris Assault Shuttle
-18,24;15;2,3;;;Opteris Assault Shuttle
+15,24;15;3,2;90;2;DynamicLaunch
+18,24;15;2,3;;;DynamicLaunch
 23,24;16;2,2
 25,24;13;2,2
 27,24;16;2,2
-32,24;15;2,3;;;Opteris Assault Shuttle
-34,24;15;3,2;270;1;Opteris Assault Shuttle
+32,24;15;2,3;;;DynamicLaunch
+34,24;15;3,2;270;1;DynamicLaunch
 41,24;1
 42,24;1
 7,25;1
@@ -230,11 +230,11 @@ Modules=655
 6,26;1
 7,26;1
 8,26;3;2,2;270
-15,26;15;3,2;90;2;Opteris Assault Shuttle
+15,26;15;3,2;90;2;DynamicLaunch
 23,26;13;2,2
 25,26;8;2,2
 27,26;13;2,2
-34,26;15;3,2;270;1;Opteris Assault Shuttle
+34,26;15;3,2;270;1;DynamicLaunch
 42,26;3;2,2;90
 44,26;1
 45,26;1
@@ -344,10 +344,14 @@ Modules=655
 16,35;20;2,2
 18,35;8;2,2
 20,35;8;2,2
-22,35;8;2,2
-24,35;8;2,2
-26,35;8;2,2
-28,35;8;2,2
+22,35;4
+23,35;4
+24,35;4
+25,35;4
+26,35;4
+27,35;4
+28,35;4
+29,35;4
 30,35;8;2,2
 32,35;8;2,2
 34,35;20;2,2
@@ -355,6 +359,10 @@ Modules=655
 43,35;1
 8,36;1
 9,36;21;4,1
+22,36;4
+23,36;14;3,3
+26,36;14;3,3
+29,36;4
 39,36;21;4,1
 43,36;1
 7,37;1
@@ -366,10 +374,8 @@ Modules=655
 17,37;4
 18,37;8;2,2
 20,37;8;2,2
-22,37;8;2,2
-24,37;8;2,2
-26,37;8;2,2
-28,37;8;2,2
+22,37;4
+29,37;4
 30,37;8;2,2
 32,37;8;2,2
 34,37;4
@@ -382,6 +388,8 @@ Modules=655
 7,38;1
 8,38;23;3,1
 17,38;4
+22,38;4
+29,38;4
 34,38;4
 41,38;23;3,1
 44,38;1
