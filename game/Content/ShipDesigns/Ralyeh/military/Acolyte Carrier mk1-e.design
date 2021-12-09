@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Acolyte Carrier mk1-e
 Hull=Ralyeh/Acolyte
-Role=cruiser
+Role=carrier
 Style=Ralyeh
 Size=26,18
 GridCenter=13,9
