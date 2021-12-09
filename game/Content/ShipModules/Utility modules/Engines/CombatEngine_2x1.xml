@@ -12,11 +12,11 @@
   
   <!-- common traits shared by all ship modules -->
   <ModuleType>Engine</ModuleType>
-  <XSIZE>1</XSIZE>
-  <YSIZE>2</YSIZE>
+  <XSIZE>2</XSIZE>
+  <YSIZE>1</YSIZE>
   <Name>Medium Engine</Name>
   <Restrictions>E</Restrictions>
-  <UID>CombatEngine_1x2</UID> 
+  <UID>CombatEngine_2x1</UID> 
   <Version>2</Version>
 
   <OffPowerMod>3</OffPowerMod>
@@ -32,7 +32,7 @@
   <CrewRequired>5</CrewRequired>
   <CrewSupplied>0</CrewSupplied>
   <PowerDraw>15</PowerDraw>
-	<PowerDrawAtWarp>-15</PowerDrawAtWarp>
+	<PowerDrawAtWarp>-25</PowerDrawAtWarp>
 
   <NameIndex>17626</NameIndex>
   <DescriptionIndex>17627</DescriptionIndex>
