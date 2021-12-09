@@ -39,7 +39,7 @@
   <explodes>true</explodes>
   <HitPoints>10</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>12.5</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>15</OrdinanceRequiredToFire>
 
 
   <!-- Graphical Information -->

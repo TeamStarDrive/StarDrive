@@ -21,7 +21,7 @@
   <fireDelay>6</fireDelay>
   <Range>11500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>4.1</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>4</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_ground_ralyeh_01</fireCueName>

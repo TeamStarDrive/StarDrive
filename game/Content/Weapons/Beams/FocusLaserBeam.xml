@@ -16,26 +16,27 @@
   <Tag_Drone>false</Tag_Drone>
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
-  
-  <Excludes_Fighters>true</Excludes_Fighters>  
 
-  <UID>HeavyPhasorBeam</UID>
+  <UID>FocusLaserBeam</UID>
   <isBeam>true</isBeam>
-  <fireDelay>10</fireDelay>
-  <Range>14000</Range>
+  <fireDelay>8</fireDelay>
+  <Range>8000</Range>
+  <BeamDuration>4</BeamDuration>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
-  <BeamDuration>4</BeamDuration>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
-  <fireCueName>sd_weapon_flame_start_01</fireCueName>
-  <ToggleSoundName>sd_weapon_phasor_01</ToggleSoundName>
-  <BeamTexture>beam_red</BeamTexture>
+  <fireCueName>sd_weapon_laser_large_alt_04</fireCueName>
+  <ToggleSoundName>sd_weapon_beam_02</ToggleSoundName>
+  
   
   <!-- Projectile Information -->
-  <DamageAmount>36</DamageAmount>
-  <BeamThickness>42</BeamThickness>
-  <BeamPowerCostPerSecond>2250</BeamPowerCostPerSecond>
-    <EffectVsArmor>1.20</EffectVsArmor>
+  <BeamTexture>beam_blue</BeamTexture>
+  
+  <DamageAmount>8.2</DamageAmount>
+  <BeamThickness>30</BeamThickness>
+  <BeamPowerCostPerSecond>300</BeamPowerCostPerSecond>
+  <EffectVsArmor>1.10</EffectVsArmor>
   <WeaponType>Energy Beam</WeaponType>
+  
 </Weapon>

@@ -21,14 +21,14 @@
   <fireDelay>8</fireDelay>
   <Range>11000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>2.1</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>2.8</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_weapon_flame_start_01</fireCueName>
 
   <Scale>1.2</Scale>
   <!-- Projectile Information -->
-  <DamageAmount>545</DamageAmount>
+  <DamageAmount>510</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1950</ProjectileSpeed>
   <ProjectileRadius>30</ProjectileRadius>
