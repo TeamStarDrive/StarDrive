@@ -1,12 +1,12 @@
 ﻿Version=1
 Name=HeavyCarrier mk1-a
 Hull=Terran/LightCarrier
-Role=cruiser
+Role=carrier
 Style=Terran
 Size=20,36
 GridCenter=10,17
 DefaultAIState=DoNothing
-DefaultCombatState=Artillery
+DefaultCombatState=ShortRange
 ShipCategory=Unclassified
 HangarDesignation=General
 IsShipyard=false
