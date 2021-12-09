@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>AntiMatter</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
-  <Cost>3500</Cost>
+  <Cost>2500</Cost>
   <RootNode>0</RootNode>
   <Name>Anti-Matter Reactor</Name>
   <NameIndex>513</NameIndex>
