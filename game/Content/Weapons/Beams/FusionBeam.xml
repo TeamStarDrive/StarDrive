@@ -22,7 +22,7 @@
   
   <DamageAmount>10</DamageAmount>
   <BeamThickness>24</BeamThickness>
-  <BeamPowerCostPerSecond>717</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>430</BeamPowerCostPerSecond>
 
   <WeaponType>Energy Beam</WeaponType>
   

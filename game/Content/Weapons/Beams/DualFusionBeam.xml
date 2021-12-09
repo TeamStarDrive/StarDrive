@@ -3,7 +3,7 @@
 
   <Tag_Beam>true</Tag_Beam>
 
-  <Excludes_Fighters>true</Excludes_Fighters>  
+  
   
   <UID>DualFusionBeam</UID>
   <isBeam>true</isBeam>
@@ -24,7 +24,7 @@
   
   <DamageAmount>18</DamageAmount>
   <BeamThickness>24</BeamThickness>
-  <BeamPowerCostPerSecond>1166</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>760</BeamPowerCostPerSecond>
 
   <WeaponType>Energy Beam</WeaponType>
   
