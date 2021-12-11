@@ -112,6 +112,12 @@ namespace Ship_Game
         // PRECONDITION: UseLocalPos || UseRelPos
         public Align LocalAxis;
 
+        // Sets both ParentAlign and LocalAxis to the same value
+        public Align AxisAlign
+        {
+            set { ParentAlign = LocalAxis = value; }
+        }
+
         // If set TRUE, this.PerformLayout() will be triggered during next Update()
         // After layout is complete, RequiresLayout should be set false
         public bool RequiresLayout;

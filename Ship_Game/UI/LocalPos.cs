@@ -18,6 +18,8 @@ namespace Ship_Game.UI
         public float X;
         public float Y;
 
+        public static LocalPos Zero = default;
+
         public LocalPos(float x, float y)
         {
             X = x;

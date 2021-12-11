@@ -2,12 +2,14 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.ShipDesign;
+using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -329,9 +331,9 @@ namespace Ship_Game
             IssuesPanel.SetActiveDesign(DesignedShip);
         }
 
-        public void UpdateDesignedShip()
+        public void UpdateDesignedShip(bool forceUpdate)
         {
-            DesignedShip?.UpdateDesign(ModuleGrid.CopyModulesList());
+            DesignedShip?.UpdateDesign(ModuleGrid.CopyModulesList(), forceUpdate);
         }
 
         void InstallModulesFromDesign(ShipDesign design)
@@ -361,7 +363,7 @@ namespace Ship_Game
         public void OnDesignChanged(bool showRoleChangeTip = true)
         {
             var oldRole = Role;
-            UpdateDesignedShip();
+            UpdateDesignedShip(forceUpdate:false);
 
             if (showRoleChangeTip && Role != oldRole)
             {
@@ -400,6 +402,14 @@ namespace Ship_Game
             ChangeHull(AvailableHulls[0]);
 
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
+        }
+
+        void OnReloadAfterTechChange()
+        {
+            UpdateAvailableHulls();
+            RefreshHullSelectList();
+            ModuleSelectComponent.ResetActiveCategory();
+            UpdateDesignedShip(forceUpdate:true);
         }
 
         ButtonStyle SymmetricDesignBtnStyle  => GlobalStats.SymmetricDesign ? ButtonStyle.Military : ButtonStyle.BigDip;
@@ -451,9 +461,9 @@ namespace Ship_Game
                 OnSymmetricDesignToggle();
             });
             BtnSymmetricDesign.ClickSfx = "blip_click";
-            BtnSymmetricDesign.Tooltip  = Localizer.Token(GameText.YouCanSwitchFromNormal);
-            BtnSymmetricDesign.HotKey   = "M";
-            BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
+            BtnSymmetricDesign.Tooltip = Localizer.Token(GameText.YouCanSwitchFromNormal);
+            BtnSymmetricDesign.Hotkey  = InputBindings.FromString("M");
+            BtnSymmetricDesign.Style   = SymmetricDesignBtnStyle;
 
 
             UIList bottomListLeft = AddList(new Vector2(50f, ScreenHeight - 50f));
@@ -490,7 +500,7 @@ namespace Ship_Game
             HullSelectList = Add(new ScrollList2<ShipHullListItem>(hullSelectionBkg));
             HullSelectList.OnClick = OnHullListItemClicked;
             HullSelectList.EnableItemHighlight = true;
-            InitializeShipHullsList();
+            RefreshHullSelectList();
 
             var dropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 125, 18);
 
@@ -517,6 +527,12 @@ namespace Ship_Game
             var issuesRect = RectF.FromPoints(InfoPanel.X - 200, InfoPanel.X,
                                               HullSelectList.Bottom + 10, BlackBar.Y);
             IssuesPanel = Add(new ShipDesignIssuesPanel(this, issuesRect));
+
+            if (EnableDebugFeatures)
+            {
+                var debugUnlocks = Add(new ResearchDebugUnlocks(OnReloadAfterTechChange));
+                debugUnlocks.SetAbsPos(50, 35);
+            }
 
             CloseButton(ScreenWidth - 27, 99);
         }
@@ -552,8 +568,10 @@ namespace Ship_Game
             UpdateViewMatrix(CameraPos);
         }
 
-        void InitializeShipHullsList()
+        void RefreshHullSelectList()
         {
+            HullSelectList.Reset();
+
             var categories = new Array<string>();
             foreach (ShipHull hull in AvailableHulls)
             {
