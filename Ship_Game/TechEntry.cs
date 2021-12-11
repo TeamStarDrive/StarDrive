@@ -302,9 +302,8 @@ namespace Ship_Game
             //Added by McShooterz: Race Specific modules
             foreach (Technology.UnlockedMod unlockedMod in Tech.ModulesUnlocked)
             {
-                if (!CheckSource(unlockedMod.Type, empire))
-                    continue;
-                modulesUnlocked.Add(unlockedMod);
+                if (CheckSource(unlockedMod.Type, empire))
+                    modulesUnlocked.Add(unlockedMod);
             }
             return modulesUnlocked;
         }
@@ -338,6 +337,7 @@ namespace Ship_Game
                     us.UnlockEmpireTroop(unlockedTroop.Name);
             }
         }
+
         public void UnlockBuildings(Empire us, Empire them)
         {
             foreach (Technology.UnlockedBuilding unlockedBuilding in Tech.BuildingsUnlocked)
@@ -409,9 +409,21 @@ namespace Ship_Game
             if (Tech.MaxLevel > 1) return SetMultiLevelUnlockFlag();
             if (Unlocked) return false;
 
-            Progress    = Tech.ActualCost;
-            Unlocked    = true;
+            Progress = Tech.ActualCost;
+            Unlocked = true;
             return true;
+        }
+
+        // If this tech is Unlocked, it will be Locked and all effects will be removed
+        // Events cannot be undone
+        public void ResetUnlockedTech()
+        {
+            if (Locked || IsRoot) // ignore Locked or Root nodes
+                return;
+
+            Progress = 0;
+            Unlocked = false;
+            Level = 0;
         }
 
         public bool Unlock(Empire us, Empire them = null)
@@ -420,8 +432,8 @@ namespace Ship_Game
                 return false;
 
             them = them ?? us;
-            bool techWasUnlocked = SetUnlockFlag();
-            UnlockTechContentOnly(us, them, techWasUnlocked);
+            UnlockTechContentOnly(us, them, bonusUnlock: SetUnlockFlag());
+
             foreach (Empire e in EmpireManager.MajorEmpires)
             {
                 if (e.data.AbsorbedBy == us.data.Traits.Name)
@@ -435,9 +447,7 @@ namespace Ship_Game
         public void UnlockWithBonus(Empire us, Empire them, bool unlockBonus)
         {
             them = them ?? us;
-  
-            unlockBonus = SetUnlockFlag() && unlockBonus;
-            UnlockTechContentOnly(us, them, unlockBonus);
+            UnlockTechContentOnly(us, them, bonusUnlock: SetUnlockFlag() && unlockBonus);
             if (them != us)
                 WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
         }
@@ -459,19 +469,18 @@ namespace Ship_Game
 
         /// <summary>
         /// This will unlock the content of the tech. Hulls/modules/buildings etc.
-        /// "us" is the empire the tech is being unlocked for.
-        /// "them" is the racial specific tech of a different Empire.
-        /// "bonusUnlock" sets if bonuses will unlock too.
         /// be careful bonuses currently stack and should only be unlocked once. 
         /// </summary>
-        /// <param name="us"></param>
-        /// <param name="them"></param>
-        /// <param name="bonusUnlock"></param>
-        /// <returns></returns>
+        /// <param name="us">the empire the tech is being unlocked for</param>
+        /// <param name="them">the racial specific tech of a different Empire</param>
+        /// <param name="bonusUnlock">bonuses will unlock too</param>
         void UnlockTechContentOnly(Empire us, Empire them, bool bonusUnlock = true)
         {
             DoRevealedTechs(us);
-            if (bonusUnlock) UnlockBonus(us, them);
+            if (bonusUnlock)
+            {
+                UnlockBonus(us, them);
+            }
             UnlockModules(us, them);
             UnlockTroops(us, them);
             UnLockHulls(us, them);
@@ -777,7 +786,7 @@ namespace Ship_Game
                 string type = unlockedBonus.Type;
 
                 bool bonusRestrictedToThem = type != null && type == theirShipType;
-                bool bonusRestrictedToUs = empire == them && bonusRestrictedToThem;
+                bool bonusRestrictedToUs = bonusRestrictedToThem && empire == them;
                 bool bonusComesFromOtherEmpireAndNotRestrictedToThem = empire != them && !bonusRestrictedToThem;
 
                 if (!bonusRestrictedToUs && bonusRestrictedToThem && !WasAcquiredFrom.Contains(theirShipType))
@@ -789,12 +798,13 @@ namespace Ship_Game
                 if (unlockedBonus.Tags.Count <= 0)
                 {
                     UnlockOtherBonuses(empire, unlockedBonus);
-                    continue;
                 }
-
-                foreach (string tag in unlockedBonus.Tags)
+                else
                 {
-                    ApplyWeaponTagBonusToEmpire(theirData, tag, unlockedBonus);
+                    foreach (string tag in unlockedBonus.Tags)
+                    {
+                        ApplyWeaponTagBonusToEmpire(theirData, tag, unlockedBonus);
+                    }
                 }
             }
         }

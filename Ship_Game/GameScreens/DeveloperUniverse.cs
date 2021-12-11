@@ -93,7 +93,6 @@ namespace Ship_Game
                 SubmitSceneObjectsForRendering(system);
 
             ShipDesignUtils.MarkDesignsUnlockable();
-            ResearchScreenNew.UnlockAllResearch(EmpireManager.Player, unlockBonusTechs: true);
             Log.Info($"CreateSandboxUniverse elapsed:{s.Elapsed.TotalMilliseconds}");
             return sandbox;
         }

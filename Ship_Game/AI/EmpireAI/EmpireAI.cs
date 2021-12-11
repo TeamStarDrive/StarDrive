@@ -113,8 +113,8 @@ namespace Ship_Game.AI
         public void DebugRunResearchPlanner()
         {
             // unlock 5 techs with a focus on ship tech
-            var shipTechCount = OwnerEmpire.ShipTechs.Count +3;
-            var wantedTechs = 3;
+            int shipTechCount = OwnerEmpire.ShipTechs.Count + 3;
+            int wantedTechs = 3;
             for (int i = 0; i < 15 && wantedTechs > 0; i++)
             {
                 OwnerEmpire.data.TechDelayTime = 2;

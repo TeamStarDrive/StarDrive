@@ -18,10 +18,11 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Label(20, 20, "Developer Debug Sandbox (WIP, press ESC to quit)", Fonts.Arial20Bold);
-            CreateTask = Parallel.Run(() => DeveloperUniverse.Create(
-                                      playerPreference:"United",
-                                      numOpponents:1));
+            Label(20, 20, "Loading Developer Sandbox . . .", Fonts.Arial20Bold);
+            CreateTask = Parallel.Run(() =>
+            {
+                return DeveloperUniverse.Create(playerPreference:"United", numOpponents:1);
+            });
         }
         
         // as a normal game screen
@@ -39,7 +40,7 @@ namespace Ship_Game
         {
             if (CreateTask != null)
             {
-                Thread.Sleep(10); // @note This hugely speeds up loading
+                Thread.Sleep(15); // @note This hugely speeds up loading
                 if (CreateTask?.IsComplete == true)
                 {
                     UniverseData sandbox = CreateTask.Result;
