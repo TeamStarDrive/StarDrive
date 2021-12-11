@@ -227,6 +227,7 @@
     <Compile Include="Ship_Game\GameScreens\NewGame\EnvPreferencesPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HullEditorControls.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen_MirrorSlot.cs" />
+    <Compile Include="Ship_Game\GameScreens\Universe\Debug\ResearchDebugUnlocks.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\IParticleSystem.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleManager.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleSettings.cs" />

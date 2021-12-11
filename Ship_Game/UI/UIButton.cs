@@ -52,7 +52,6 @@ namespace Ship_Game
         public Func<string> DynamicText;
 
         public LocalizedText Tooltip;
-        public string HotKey;
         public string ClickSfx = "echo_affirm";
 
         // If set TRUE, this button will also capture Right Mouse Clicks
@@ -65,6 +64,7 @@ namespace Ship_Game
         public bool DebugDraw;
 
         public Action<UIButton> OnClick;
+        public InputBindings.IBinding Hotkey;
 
         public override string ToString() => $"{TypeName} '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
         
@@ -110,6 +110,8 @@ namespace Ship_Game
         protected virtual void OnButtonClicked()
         {
             OnClick?.Invoke(this);
+            if (ClickSfx.NotEmpty())
+                GameAudio.PlaySfxAsync(ClickSfx);
         }
 
         public static SubTexture StyleTexture(ButtonStyle style = ButtonStyle.Default)
@@ -176,6 +178,13 @@ namespace Ship_Game
             if (!Visible)
                 return false;
 
+            // before any of the early returns, check for hotkey match
+            if (Hotkey != null && Hotkey.IsTriggered(input))
+            {
+                OnButtonClicked();
+                return true;
+            }
+
             if (!Rect.HitTest(input.CursorPosition)) // not hovering?
             {
                 State = PressState.Default;
@@ -194,8 +203,6 @@ namespace Ship_Game
             {
                 State = PressState.Hover;
                 OnButtonClicked();
-                if (ClickSfx.NotEmpty())
-                    GameAudio.PlaySfxAsync(ClickSfx);
                 return true;
             }
 
@@ -215,11 +222,12 @@ namespace Ship_Game
             {
                 if (Tooltip.IsValid)
                 {
-                    ToolTip.CreateTooltip(Tooltip, HotKey, Pos + Size);
+                    ToolTip.CreateTooltip(Tooltip, Hotkey?.Hotkey, Pos + Size);
                 }
             }
 
             State = PressState.Hover;
+
             // @note This should return true to capture the hover input,
             //       however most UI code doesn't use UIElementV2 system yet,
             //       so returning true would falsely trigger a lot of old style buttons

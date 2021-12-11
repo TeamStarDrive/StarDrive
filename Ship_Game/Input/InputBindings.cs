@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
@@ -19,19 +20,53 @@ namespace Ship_Game
     /// </summary>
     public class InputBindings
     {
-        private enum TriggerState : byte
+        public enum TriggerState : byte
         {
             OnDown,  // was up, but now is pressed down
             OnHeld,  // continuous event type: while was down before and is down now
             OnPress // down and then released. the event is triggered on release (!)
         }
 
-        private struct TriggerCondition
+        public struct TriggerCondition
         {
+            public TriggerState When;
             public byte Ctrl; // 1: requires this modifier key, 0: not using this modifier
             public byte Alt;
             public byte Shift;
-            public TriggerState When;
+
+            public TriggerCondition(TriggerState when, bool ctrl, bool alt, bool shift)
+            {
+                When = when;
+                Ctrl = (byte)(ctrl ? 1 : 0);
+                Alt = (byte)(alt ? 1 : 0);
+                Shift = (byte)(shift ? 1 : 0);
+            }
+
+            public bool HasModifiers => Ctrl != 0 || Alt != 0 || Shift != 0;
+
+            public StringBuilder GetModifiers(StringBuilder sb)
+            {
+                if (!HasModifiers)
+                    return sb;
+
+                if (Ctrl != 0)
+                    sb.Append("Ctrl");
+
+                if (Alt != 0)
+                {
+                    if (Ctrl != 0)
+                        sb.Append('+');
+                    sb.Append("Alt");
+                }
+
+                if (Shift != 0)
+                {
+                    if (Ctrl != 0 || Alt != 0)
+                        sb.Append('+');
+                    sb.Append("Shift");
+                }
+                return sb;
+            }
 
             public bool CheckModifiers(ref KeyboardState kb)
             {
@@ -89,17 +124,57 @@ namespace Ship_Game
 
         public interface IBinding
         {
-            Enum InputEvent { get; }
-            bool Triggered(InputState input);
+            // Enum Identifier of the input event id
+            Enum EventId { get; }
+            // string which describes this binding Hotkey
+            string Hotkey { get; }
+            // true if binding condition has triggered
+            bool IsTriggered(InputState input);
         }
 
-        private class KeyBinding : IBinding
+        public class KeyBinding : IBinding
         {
             public Keys First;
             public Keys Second;
             public TriggerCondition Condition;
-            public Enum InputEvent { get; set; }
-            public bool Triggered(InputState input)
+            public Enum EventId { get; set; }
+            string TheHotkey;
+
+            public string Hotkey
+            {
+                get
+                {
+                    if (TheHotkey == null)
+                    {
+                        var sb = new StringBuilder();
+                        switch (Condition.When)
+                        {
+                            case TriggerState.OnDown: break;
+                            case TriggerState.OnHeld: sb.Append("Hold "); break;
+                            case TriggerState.OnPress: break;
+                        }
+                        if (Condition.HasModifiers)
+                        {
+                            Condition.GetModifiers(sb);
+                            if (First != Keys.None)
+                                sb.Append('+');
+                        }
+                        if (First != Keys.None)
+                        {
+                            sb.Append(First.ToString());
+                        }
+                        if (Second != Keys.None)
+                        {
+                            sb.Append('+');
+                            sb.Append(Second.ToString());
+                        }
+                        TheHotkey = sb.ToString();
+                    }
+                    return TheHotkey;
+                }
+            }
+
+            public bool IsTriggered(InputState input)
             {
                 return Condition.CheckModifiers(ref input.KeysCurr)
                     && (First  == 0 || Condition.Triggered(ref input.KeysPrev, ref input.KeysCurr, First))
@@ -107,25 +182,78 @@ namespace Ship_Game
             }
         }
 
-        private class MouseBinding : IBinding
+        public class MouseBinding : IBinding
         {
             public MouseButton Button;
             public TriggerCondition Condition;
-            public Enum InputEvent { get; set; }
-            public bool Triggered(InputState input)
+            public Enum EventId { get; set; }
+            string TheHotkey;
+
+            public string Hotkey
+            {
+                get
+                {
+                    if (TheHotkey == null)
+                    {
+                        var sb = new StringBuilder();
+                        switch (Condition.When)
+                        {
+                            case TriggerState.OnDown: break;
+                            case TriggerState.OnHeld: sb.Append("Hold "); break;
+                            case TriggerState.OnPress: break;
+                        }
+                        if (Condition.HasModifiers)
+                        {
+                            Condition.GetModifiers(sb).Append('+');
+                        }
+                        sb.Append(Button.ToString());
+                        TheHotkey = sb.ToString();
+                    }
+                    return TheHotkey;
+                }
+            }
+
+            public bool IsTriggered(InputState input)
             {
                 return Condition.CheckModifiers(ref input.KeysCurr)
                        && (Condition.Triggered(ref input.MousePrev, ref input.MouseCurr, Button));
             }
         }
 
-        private class GamepadBinding : IBinding
+        public class GamepadBinding : IBinding
         {
             public Buttons First;
             public Buttons Second;
             public TriggerCondition Condition;
-            public Enum InputEvent { get; set; }
-            public bool Triggered(InputState input)
+            public Enum EventId { get; set; }
+            string TheHotkey;
+
+            public string Hotkey
+            {
+                get
+                {
+                    if (TheHotkey == null)
+                    {
+                        var sb = new StringBuilder();
+                        switch (Condition.When)
+                        {
+                            case TriggerState.OnDown:  break;
+                            case TriggerState.OnHeld:  sb.Append("Hold "); break;
+                            case TriggerState.OnPress: break;
+                        }
+                        sb.Append(First.ToString());
+                        if (Second != 0)
+                        {
+                            sb.Append('+');
+                            sb.Append(Second.ToString());
+                        }
+                        TheHotkey = sb.ToString();
+                    }
+                    return TheHotkey;
+                }
+            }
+
+            public bool IsTriggered(InputState input)
             {
                 return Condition.CheckModifiers(ref input.KeysCurr)
                        && (Condition.Triggered(ref input.GamepadPrev, ref input.GamepadCurr, First))
@@ -145,7 +273,7 @@ namespace Ship_Game
             return null;
         }
 
-        public IBinding ParsePair(string line)
+        public static IBinding ParsePair(string line)
         {
             string[] bindingPair = line.Split(BindingChainSep, 2);
             if (bindingPair.Length < 2)
@@ -163,28 +291,33 @@ namespace Ship_Game
             return InvalidSyntax(line, "Unrecognized event "+eventString);
         }
 
+        static bool TryParse<TEnum>(string input, out Enum value) where TEnum : struct
+        {
+            if (Enum.TryParse(input, true, out TEnum result))
+            {
+                value = result as Enum;
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
         private static bool TryParseInput(string inputChain, string input, out Enum value)
         {
             if (input.StartsWith("Keys.", StringComparison.OrdinalIgnoreCase)
-                && Enum.TryParse(input, true, out Keys k))
-            {
-                value = k;
+                && TryParse<Keys>(input, out value))
                 return true;
-            }
             if (input.StartsWith("MouseButton.", StringComparison.OrdinalIgnoreCase)
-                && Enum.TryParse(input, true, out MouseButton mb))
-            {
-                value = mb;
+                && TryParse<MouseButton>(input, out value))
                 return true;
-            }
             if (input.StartsWith("Buttons.", StringComparison.OrdinalIgnoreCase)
-                && Enum.TryParse(input, true, out Buttons b))
-            {
-                value = b;
+                && TryParse<Buttons>(input, out value))
                 return true;
-            }
+            if (TryParse<Keys>(input, out value) ||
+                TryParse<MouseButton>(input, out value) ||
+                TryParse<Buttons>(input, out value))
+                return true;
             InvalidSyntax(inputChain, "Unrecognized input "+input);
-            value = null;
             return false;
         }
 
@@ -209,7 +342,7 @@ namespace Ship_Game
                 {
                     First      = k,
                     Condition  = c,
-                    InputEvent = inputEvent
+                    EventId = inputEvent
                 };
                 if (chainKeys.Count > 1)
                 {
@@ -226,7 +359,7 @@ namespace Ship_Game
                 {
                     Button     = m,
                     Condition  = c,
-                    InputEvent = inputEvent
+                    EventId = inputEvent
                 };
                 return mb;
             }
@@ -237,7 +370,7 @@ namespace Ship_Game
                 {
                     First      = b,
                     Condition  = c,
-                    InputEvent = inputEvent
+                    EventId = inputEvent
                 };
                 if (chainKeys.Count > 1)
                 {
@@ -251,10 +384,11 @@ namespace Ship_Game
             return null;
         }
 
-        public IBinding Parse(Enum inputEvent, string inputChain)
+        public static IBinding Parse(Enum inputEvent, string inputChain)
         {
             var chainKeys = new Array<string>(inputChain.Split(BindingChainSep));
             var c = new TriggerCondition();
+            c.When = TriggerState.OnPress; // this is the desired default for most cases
 
             // consume all modifiers to build the trigger condition
             for (int i = 0; i < chainKeys.Count; ++i)
@@ -279,7 +413,14 @@ namespace Ship_Game
             return ParseInputs(inputEvent, c, inputChain, chainKeys);
         }
 
-
+        /// <summary>
+        /// Parses an input string combination to create an input binding object
+        /// Ex: "Ctrl+F1", "A", "Shift+Right", "Ctrl + Alt + MouseButtons.Right"
+        /// </summary>
+        public static IBinding FromString(string inputCombination)
+        {
+            return Parse(null, inputCombination);
+        }
 
         private readonly Map<Enum, Action>   Actions  = new Map<Enum, Action>();
         private readonly Map<Enum, IBinding> Bindings = new Map<Enum, IBinding>();
@@ -294,12 +435,32 @@ namespace Ship_Game
         {
             foreach (KeyValuePair<Enum, IBinding> eventBinding in Bindings)
             {
-                if (eventBinding.Value.Triggered(input))
+                if (eventBinding.Value.IsTriggered(input))
                 {
                     Action action = Actions[eventBinding.Key];
                     action();
                 }
             }
+        }
+
+        /// Non-Global interface, to be used in UIElementV2-s
+        /// Makes a new key-binding with modifier conditions
+        /// Default requirement is OnPress which is similar to how Clicks work
+        /// but can be changed to OnDown or OnHeld
+        public static KeyBinding MakeBinding(
+            TriggerState when = TriggerState.OnPress,
+            Keys firstKey = Keys.None,
+            Keys secondKey = Keys.None,
+            bool ctrl = false,
+            bool alt = false,
+            bool shift = false)
+        {
+            return new KeyBinding
+            {
+                First = firstKey,
+                Second = secondKey,
+                Condition = new TriggerCondition(when, ctrl, alt, shift),
+            };
         }
     }
 }

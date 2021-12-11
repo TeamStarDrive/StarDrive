@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using System;
+using Ship_Game.GameScreens.Universe.Debug;
 
 
 namespace Ship_Game
@@ -33,6 +34,8 @@ namespace Ship_Game
 
         public bool RightClicked;
 
+        ResearchDebugUnlocks DebugUnlocks;
+
         public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
             empireUI = empireUi;
@@ -46,9 +49,9 @@ namespace Ship_Game
         {
             camera = new Camera2D { Pos = new Vector2(Viewport.Width, Viewport.Height) / 2f };
             var main = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
-            MainMenu       = new Menu2(main);
+            MainMenu = new Menu2(main);
             MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
-            Close          = Add(new CloseButton(main.Right - 40, main.Y + 20));
+            Close = Add(new CloseButton(main.Right - 40, main.Y + 20));
 
             RootNodes.Clear();
             AllTechNodes.Clear();
@@ -88,11 +91,17 @@ namespace Ship_Game
             Vector2 searchPos = new Vector2(main.X + main.Width - 360, main.Height - 55);
             Search = Add(new UIButton(ButtonStyle.BigDip, searchPos, "Search"));
             Search.OnClick = OnSearchButtonClicked;
+
+            DebugUnlocks = Add(new ResearchDebugUnlocks(ReloadContent));
+            DebugUnlocks.AxisAlign = Align.BottomRight;
+            DebugUnlocks.SetLocalPos(-Queue.Width - 50, -25);
+
             base.LoadContent();
         }
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            DebugUnlocks.Visible = Empire.Universe.Debug || Empire.Universe is DeveloperUniverse;
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
@@ -127,9 +136,7 @@ namespace Ship_Game
             batch.End();
 
             batch.Begin();
-            Close.Draw(batch, elapsed);
-            Queue.Draw(batch, elapsed);
-            Search.Draw(batch, elapsed);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 
@@ -261,12 +268,6 @@ namespace Ship_Game
             if (input.RightMouseHeldDown)
                 camera.MoveClamped(input.CursorVelocity, ScreenCenter, new Vector2(3200));
 
-            if (Empire.Universe.Debug && HandleDebugInput(input)) // DEBUG unlock inputs
-            {
-                EmpireManager.Player.UpdateForNewTech();
-                return true;
-            }
-
             foreach (RootNode root in RootNodes.Values)
             {
                 if (root.HandleInput(input,camera))
@@ -333,91 +334,7 @@ namespace Ship_Game
 
         public static void UnlockAllResearch(Empire empire, bool unlockBonusTechs)
         {
-            // Unlock an empire at each press of ctrl-F1
-            int totalTechs = empire.TechEntries.Count;
-            int techUnlocked = empire.TechEntries.Count(t => t.Unlocked);
-            float ratioUnlocked = techUnlocked / (float)totalTechs;
-            empire.Research.SetNoResearchLeft(true);
-
-            foreach (TechEntry techEntry in empire.TechEntries)
-            {
-                if (!techEntry.Unlocked)
-                {
-                    techEntry.DebugUnlockFromTechScreen(empire, empire, unlockBonusTechs);
-                    GameAudio.EchoAffirmative();
-                }
-                else if (ratioUnlocked > 0.9f)
-                {
-                    foreach (var them in EmpireManager.Empires)
-                    {
-                        if (them != empire && !techEntry.SpiedFrom(them))
-                        {
-                            techEntry.DebugUnlockFromTechScreen(empire, them, unlockBonusTechs);
-                            GameAudio.AffirmativeClick();
-                            break;
-                        }
-                    }
-                }
-            }
-            empire.UpdateShipsWeCanBuild();
-        }
-
-
-        bool HandleDebugInput(InputState input)
-        {
-            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F1))
-            {
-                UnlockAllResearch(EmpireManager.Player, unlockBonusTechs: !input.IsShiftKeyDown);
-                ReloadContent();
-                return true;
-            }
-
-            // Unlock only selected node for player
-            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
-            {
-                if (EmpireManager.Player.Research.HasTopic)
-                {
-                    EmpireManager.Player.Research.Current.Unlock(EmpireManager.Player);
-                    ReloadContent();
-                    EmpireManager.Player.UpdateShipsWeCanBuild();
-                }
-                else
-                {
-                    GameAudio.NegativeClick();
-                }
-                return true;
-            }
-
-            //Added by McShooterz: Cheat to unlock non bonus tech
-            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F3))
-            {
-                // unlock techs without their bonus
-                // add shift to unlock techs with their bonus
-                bool unlockBonus = input.IsShiftKeyDown;
-                foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
-                {
-                    Empire us = EmpireManager.Player;
-                    techEntry.UnlockWithBonus(us, us, unlockBonus);
-                    if (!unlockBonus && techEntry.Tech.BonusUnlocked.NotEmpty)
-                        techEntry.Unlocked = false;
-                    EmpireManager.Player.UpdateShipsWeCanBuild();
-                    ReloadContent();
-                }
-                return true;
-            }
-
-            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F4))
-            {
-                // unlock 10 techs using AI research
-                Empire us = EmpireManager.Player;
-                us.AutoResearch = true;
-                us.Research.Reset();
-                us.GetEmpireAI().DebugRunResearchPlanner();
-                EmpireManager.Player.UpdateShipsWeCanBuild();
-                ReloadContent();
-            }
-
-            return false;
+            ResearchDebugUnlocks.UnlockAllResearch(empire, unlockBonusTechs);
         }
 
         Vector2 GridSize => new Vector2(GridWidth, GridHeight);

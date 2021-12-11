@@ -16,9 +16,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             DesignStats = new ShipDesignStats(this);
         }
 
-        public void UpdateDesign(Array<ShipModule> placedModules)
+        public void UpdateDesign(Array<ShipModule> placedModules, bool forceUpdate = false)
         {
-            if (PrevModules != null && AreEqual(PrevModules, placedModules))
+            if (!forceUpdate && PrevModules != null && AreEqual(PrevModules, placedModules))
                 return;
 
             PrevModules = placedModules;
