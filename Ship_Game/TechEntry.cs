@@ -90,7 +90,7 @@ namespace Ship_Game
         public void ResolveTech()
         {
             Tech = UID.NotEmpty() ? ResourceManager.TechTree[UID] : Technology.Dummy;
-        }        
+        }
 
         /// <summary>
         /// Returns empire research not used.
@@ -276,10 +276,8 @@ namespace Ship_Game
 
             foreach (Technology.UnlockedHull unlockedHull in techHulls)
             {
-                if (!CheckSource(unlockedHull.ShipType, empire))
-                    continue;
-
-                hullList.Add(unlockedHull.Name);
+                if (CheckSource(unlockedHull.ShipType, empire))
+                    hullList.Add(unlockedHull.Name);
             }
             return hullList;
         }
@@ -414,8 +412,8 @@ namespace Ship_Game
             return true;
         }
 
-        // If this tech is Unlocked, it will be Locked and all effects will be removed
-        // Events cannot be undone
+        // If this tech is Unlocked, it will be Locked
+        // Any side-effects to the empire must be removed with other means
         public void ResetUnlockedTech()
         {
             if (Locked || IsRoot) // ignore Locked or Root nodes
