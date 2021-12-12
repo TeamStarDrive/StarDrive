@@ -28,7 +28,7 @@
   <HealthMax>7800</HealthMax>
 
   <!-- Power Drawn -->
-  <PowerDraw>5</PowerDraw>
+  <PowerDraw>12</PowerDraw>
 
   <!-- for Weapons -->
   <WeaponType>FocusPhasorBeam</WeaponType>

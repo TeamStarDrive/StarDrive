@@ -20,7 +20,7 @@
   <UID>DualEmpCannon</UID>
   <fireDelay>4</fireDelay>
   <Range>8500</Range>
-  <PowerRequiredToFire>160</PowerRequiredToFire>
+  <PowerRequiredToFire>1800</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->

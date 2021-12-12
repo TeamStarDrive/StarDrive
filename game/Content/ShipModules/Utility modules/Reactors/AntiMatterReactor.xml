@@ -16,7 +16,7 @@
 
   <IconTexturePath>Modules/warpreactor_3x3</IconTexturePath>
   
-  <Mass>72</Mass>
+  <Mass>84</Mass>
   <Health>3450</Health>
   <HealthMax>3450</HealthMax>
   <energyreq>0</energyreq>
@@ -42,7 +42,7 @@
   <explodes>true</explodes>
   <ExplosionDamage>8000</ExplosionDamage>
   <ExplosionRadius>180</ExplosionRadius> 
-  <PowerFlowMax>1598</PowerFlowMax>
+  <PowerFlowMax>1300</PowerFlowMax>
   <PowerStoreMax>200</PowerStoreMax>
   <PowerRadius>1</PowerRadius>
 

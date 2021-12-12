@@ -21,7 +21,7 @@
   <UID>DualPolaronCannon</UID>
   <fireDelay>3</fireDelay>
   <Range>10500</Range>
-  <PowerRequiredToFire>1200</PowerRequiredToFire>
+  <PowerRequiredToFire>2030</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->

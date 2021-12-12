@@ -14,8 +14,8 @@
   <Name>Small Armored Fuel Cell</Name>
   <IconTexturePath>Modules/small_fuelcell_armored</IconTexturePath>
   <Mass>2</Mass>
-  <Health>720</Health>
-  <HealthMax>720</HealthMax>
+  <Health>1100</Health>
+  <HealthMax>1100</HealthMax>
   <energyreq>1</energyreq>
   <modRadius>4</modRadius>
   <CrewRequired>0</CrewRequired>

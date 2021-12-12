@@ -36,12 +36,12 @@
   <shield_power_max>8000</shield_power_max>
   <shield_recharge_delay>4.5</shield_recharge_delay>
   <shield_recharge_rate>110</shield_recharge_rate>
-  <shield_radius>40</shield_radius>
+  <shield_radius>60</shield_radius>
 
 
   <!-- for PowerPlant Items -->
   <explodes>true</explodes>
-  <PowerFlowMax>1500</PowerFlowMax>
+  <PowerFlowMax>2100</PowerFlowMax>
   <PowerStoreMax>6000</PowerStoreMax>
   <PowerRadius>9</PowerRadius>
 

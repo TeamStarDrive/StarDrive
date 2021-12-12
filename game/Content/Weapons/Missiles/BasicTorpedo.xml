@@ -24,7 +24,7 @@
   <Range>18000</Range>
   <HitPoints>45</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>100</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>95</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>sd_weapon_torpedo_01</fireCueName>
@@ -33,7 +33,7 @@
   
   
   <!-- Projectile Information -->
-  <DamageAmount>21900</DamageAmount>
+  <DamageAmount>19400</DamageAmount>
   <ProjectileSpeed>1000</ProjectileSpeed>
   <DamageRadius>150</DamageRadius>
   <explodes>true</explodes>

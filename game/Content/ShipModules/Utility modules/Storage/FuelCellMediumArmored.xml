@@ -14,8 +14,8 @@
   <Name>Medium Fuel Cell</Name>
   <IconTexturePath>Modules/med_fuelcell_armored</IconTexturePath>
   <Mass>8</Mass>
-  <Health>2400</Health>
-  <HealthMax>2400</HealthMax>
+  <Health>4400</Health>
+  <HealthMax>4400</HealthMax>
   <energyreq>1</energyreq>
   <modRadius>4</modRadius>
   <CrewRequired>0</CrewRequired>

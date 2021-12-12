@@ -17,7 +17,7 @@
   <TechBranch>Power</TechBranch>
   <IconTexturePath>Modules/Overload Fusion Reactor</IconTexturePath>
   
-  <Mass>32</Mass>
+  <Mass>36</Mass>
   <Health>1550</Health>
   <HealthMax>1550</HealthMax>
   <energyreq>0</energyreq>
@@ -44,7 +44,7 @@
   <explodes>true</explodes>
   <ExplosionDamage>5000</ExplosionDamage>
   <ExplosionRadius>120</ExplosionRadius>  
-  <PowerFlowMax>510</PowerFlowMax>
+  <PowerFlowMax>420</PowerFlowMax>
   <PowerStoreMax>100</PowerStoreMax>
   <PowerRadius>1</PowerRadius>
 
