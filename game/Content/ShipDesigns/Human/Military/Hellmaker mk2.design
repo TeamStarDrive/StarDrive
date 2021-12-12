@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Hellmaker mk2
 Hull=Terran/HeavyGunboat
-Role=frigate
+Role=bomber
 Style=Terran
 Size=6,18
 GridCenter=3,9

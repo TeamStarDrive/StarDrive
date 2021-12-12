@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Acolyte Invader mk1-d
 Hull=Ralyeh/Acolyte
-Role=cruiser
+Role=troopShip
 Style=Ralyeh
 Size=26,18
 GridCenter=13,9

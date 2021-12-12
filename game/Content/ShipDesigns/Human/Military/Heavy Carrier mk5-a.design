@@ -2,7 +2,7 @@
 Name=Heavy Carrier mk5-a
 Hull=Terran/Battleship
 <<<<<<< HEAD
-Role=battleship
+Role=carrier
 =======
 Role=carrier
 >>>>>>> 36716eb411d162bc4bd5f3b8ed521002fbce70f0

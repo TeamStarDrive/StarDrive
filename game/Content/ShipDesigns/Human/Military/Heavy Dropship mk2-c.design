@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Heavy Dropship mk2-c
 Hull=Terran/LightCarrier
-Role=cruiser
+Role=troopShip
 Style=Terran
 Size=20,36
 GridCenter=10,17

@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Acolyte bomber mk2-a
 Hull=Ralyeh/Acolyte
-Role=cruiser
+Role=bomber
 Style=Ralyeh
 Size=26,18
 GridCenter=13,9

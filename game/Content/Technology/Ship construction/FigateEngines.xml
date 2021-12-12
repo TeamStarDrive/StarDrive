@@ -24,6 +24,9 @@
     <UnlockedMod>
       <ModuleUID>Maneuvering_Thruster_1x2</ModuleUID>
     </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>NuclearBombBay2x2</ModuleUID>
+    </UnlockedMod>
   </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked />
