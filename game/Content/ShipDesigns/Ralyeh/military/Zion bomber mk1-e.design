@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Zion bomber mk1-e
 Hull=Ralyeh/Zion
-Role=frigate
+Role=bomber
 Style=Ralyeh
 Size=8,11
 GridCenter=4,6

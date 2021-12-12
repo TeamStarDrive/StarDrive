@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Hydra mk1-b
 Hull=Terran/Battleship
-Role=battleship
+Role=carrier
 Style=Terran
 Size=26,48
 GridCenter=13,23

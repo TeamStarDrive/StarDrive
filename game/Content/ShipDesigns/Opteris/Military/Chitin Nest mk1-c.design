@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Chitin Nest mk1-c
 Hull=Opteris/Chitin
-Role=cruiser
+Role=carrier
 Style=Opteris
 Size=20,31
 GridCenter=10,16
