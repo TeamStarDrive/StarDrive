@@ -12,7 +12,7 @@
   <LongDescription>A core of basic starship design knowledge was needed for us to even begin reaching into the stars.  This core technology represents having discovered basic starship command, propulsion, and hull technologies.</LongDescription>
   <LeadsTo>
     <LeadsToTech>
-      <UID>HeavyFighterHull</UID>
+      <UID>Corvettes</UID>
     </LeadsToTech>
     <LeadsToTech>
       <UID>Shipyards</UID>
