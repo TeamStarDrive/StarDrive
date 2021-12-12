@@ -37,7 +37,7 @@ namespace Ship_Game
         }
 
         public void CheckGrantArtifact(Empire triggerer, Outcome triggeredOutcome, EventPopup popup)
-        {           
+        {
             Array<Artifact> potentials = new Array<Artifact>();
             foreach (var kv in ResourceManager.ArtifactsDict)
             {

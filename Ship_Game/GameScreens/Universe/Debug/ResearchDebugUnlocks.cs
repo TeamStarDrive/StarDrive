@@ -71,13 +71,13 @@ namespace Ship_Game.GameScreens.Universe.Debug
 
         void OnResearchChange()
         {
-            OnResearchChanged?.Invoke();
             EmpireManager.Player.UpdateForNewTech();
+            OnResearchChanged?.Invoke();
         }
 
         void OnResetAllTechsClicked()
         {
-            ResetAllTechsAndBonuses(EmpireManager.Player);
+            EmpireManager.Player.ResetAllTechsAndBonuses();
             OnResearchChange();
         }
 
@@ -103,16 +103,6 @@ namespace Ship_Game.GameScreens.Universe.Debug
         {
             UnlockCurrentResearchTopic(EmpireManager.Player);
             OnResearchChange();
-        }
-
-        public static void ResetAllTechsAndBonuses(Empire empire)
-        {
-            empire.Research.Reset(); // clear research progress bar and queue
-            empire.Research.SetNoResearchLeft(false);
-            foreach (TechEntry techEntry in empire.TechEntries)
-            {
-                techEntry.ResetUnlockedTech();
-            }
         }
 
         public static void UnlockAllResearch(Empire empire, bool unlockBonuses)
