@@ -13,21 +13,21 @@
 
 
   <IconTexturePath>Modules/LargeFabricator</IconTexturePath>
-  <Mass>64</Mass>
+  <Mass>88</Mass>
   <Health>8000</Health>
   <HealthMax>8000</HealthMax>
   <energyreq>0</energyreq>
   <Description>.</Description>
   <CrewRequired>0</CrewRequired>
   <CrewSupplied>0</CrewSupplied>
-  <PowerDraw>200</PowerDraw>
-  <PowerDrawAtWarp>-100</PowerDrawAtWarp>
+  <PowerDraw>240</PowerDraw>
+ 
 
   <NameIndex>2046</NameIndex>
   <DescriptionIndex>2047</DescriptionIndex>
 
 
-  <OrdnanceAddedPerSecond>5.1</OrdnanceAddedPerSecond>
+  <OrdnanceAddedPerSecond>4.8</OrdnanceAddedPerSecond>
 
   <!-- for shield items -->
   <shield_power>0</shield_power>

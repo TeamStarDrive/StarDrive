@@ -20,7 +20,7 @@
   <TechBranch>Power</TechBranch>
   <IconTexturePath>Modules/Fusion Reactor</IconTexturePath>
   
-  <Mass>30</Mass>
+  <Mass>32</Mass>
   <Health>1400</Health>
   <HealthMax>1400</HealthMax>
   <energyreq>0</energyreq>
@@ -47,7 +47,7 @@
   <explodes>true</explodes>
   <ExplosionDamage>2500</ExplosionDamage>
   <ExplosionRadius>100</ExplosionRadius>  
-  <PowerFlowMax>335</PowerFlowMax>
+  <PowerFlowMax>310</PowerFlowMax>
   <PowerStoreMax>100</PowerStoreMax>
   <PowerRadius>1</PowerRadius>
 

@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>EMP Cannons</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>950</Cost>
+  <Cost>700</Cost>
   <RootNode>0</RootNode>
   <Name>EMP Cannons</Name>
   <NameIndex>550</NameIndex>

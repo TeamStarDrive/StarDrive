@@ -22,14 +22,14 @@
   <UID>MassivePolaronCannon</UID>
   <fireDelay>4</fireDelay>
   <Range>11000</Range>
-  <PowerRequiredToFire>1700</PowerRequiredToFire>
+  <PowerRequiredToFire>3400</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
   <fireCueName>heavylaser1</fireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>3400</DamageAmount>
+  <DamageAmount>3900</DamageAmount>
   <EMPDamage>30</EMPDamage>
   <ProjectileSpeed>2300</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>

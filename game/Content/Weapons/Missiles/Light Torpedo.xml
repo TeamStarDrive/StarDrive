@@ -26,11 +26,11 @@
   <fireDelay>20</fireDelay>
   <Range>15000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>45</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>40</OrdinanceRequiredToFire>
   
 <!-- Projectile stats -->
   <ProjectileCount>1</ProjectileCount>
-  <DamageAmount>8688</DamageAmount>
+  <DamageAmount>8700</DamageAmount>
   <ProjectileSpeed>950</ProjectileSpeed>
   <DamageRadius>50</DamageRadius>
   <SalvoCount>1</SalvoCount>

@@ -32,14 +32,14 @@
   <Excludes_Fighters>true</Excludes_Fighters>  
 
   <!-- Projectile Information -->
-  <DamageAmount>2880</DamageAmount>
+  <DamageAmount>2900</DamageAmount>
   <RotationRadsPerSecond>0.7</RotationRadsPerSecond>
   <ProjectileSpeed>900</ProjectileSpeed>
   <DamageRadius>45</DamageRadius>
   <explodes>true</explodes>
   <HitPoints>10</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>15</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>10.5</OrdinanceRequiredToFire>
 
 
   <!-- Graphical Information -->

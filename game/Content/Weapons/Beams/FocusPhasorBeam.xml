@@ -35,7 +35,7 @@
   <!-- Projectile Information -->
   <DamageAmount>36</DamageAmount>
   <BeamThickness>42</BeamThickness>
-  <BeamPowerCostPerSecond>1600</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>2530</BeamPowerCostPerSecond>
     <EffectVsArmor>1.20</EffectVsArmor>
   <WeaponType>Energy Beam</WeaponType>
 </Weapon>

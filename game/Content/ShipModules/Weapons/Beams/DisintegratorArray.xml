@@ -25,7 +25,7 @@
   <HealthMax>20880</HealthMax>
 
   <!-- Power Drawn -->
-  <PowerDraw>5</PowerDraw>
+  <PowerDraw>25</PowerDraw>
 
   <!-- for Weapons -->
   <WeaponType>Disintegrator</WeaponType>
