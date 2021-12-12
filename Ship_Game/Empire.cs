@@ -1026,14 +1026,15 @@ namespace Ship_Game
             //InitPersonalityModifiers(); // TODO: crashes in tests
         }
 
-        public void Initialize()
+        void CommonInitialize()
         {
             InitDifficultyModifiers();
             InitPersonalityModifiers();
+            CreateThrusterColors();
 
             for (int i = 1; i < 10; ++i)
             {
-                Fleet fleet = new Fleet {Owner = this};
+                Fleet fleet = new Fleet { Owner = this };
                 fleet.SetNameByFleetIndex(i);
                 FleetsDict.Add(i, fleet);
             }
@@ -1041,47 +1042,27 @@ namespace Ship_Game
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
-            InitTechs();
+            InitEmpireUnlocks();
+        }
 
-            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.HullName]  = false;
-            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]         = false;
-            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
-            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]   = false;
-            //unlock from empire data file
-            foreach (string building in data.unlockBuilding)  UnlockedBuildingsDict[building]  = true;
-            UnlockedTroops.Clear();
-
-            //unlock racial techs
-            foreach (var kv in TechnologyDict)
-            {
-                var techEntry = kv.Value;
-                data.Traits.TechUnlocks(techEntry, this);
-            }
-            //Added by gremlin Figure out techs with modules that we have ships for.
-            var ourShips = GetOurFactionShips();
-
-            ResetTechsUsableByShips(ourShips, unlockBonuses: true);
-            //unlock ships from empire data
-            foreach (string ship in data.unlockShips)
-                ShipsWeCanBuild.Add(ship);
-
-            // fbedard: Add missing troop ship
-            if (data.DefaultTroopShip == null)
-                data.DefaultTroopShip = data.PortraitName + " " + "Troop";
-
-            // clear these lists as they serve no more purpose
-            data.unlockBuilding = new Array<string>();
-            data.unlockShips    = new Array<string>();
-            UpdateShipsWeCanBuild();
+        public void Initialize()
+        {
+            InitTechTree();
+            CommonInitialize();
 
             data.TechDelayTime = 0;
-
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
 
-            CreateThrusterColors();
             EmpireAI = new EmpireAI(this, fromSave: false);
             Research.Update();
+        }
+
+        public void InitializeFromSave()
+        {
+            CommonInitialize();
+            EmpireAI = new EmpireAI(this, fromSave: true);
+            Research.SetResearchStrategy();
         }
 
         private void CreateThrusterColors()
@@ -1118,14 +1099,18 @@ namespace Ship_Game
             }
         }
 
-        private void InitTechs()
+        private void InitTechTree()
         {
+            TechnologyDict.Clear(); // we allow resetting this
+
             foreach (var kv in ResourceManager.TechTree)
             {
                 var techEntry = new TechEntry(kv.Key);
 
                 if (techEntry.IsHidden(this))
+                {
                     techEntry.SetDiscovered(false);
+                }
                 else
                 {
                     bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && kv.Value.RootNode == 0);
@@ -1140,6 +1125,33 @@ namespace Ship_Game
                     techEntry.ForceNeedsFullResearch();
                 TechnologyDict.Add(kv.Key, techEntry);
             }
+        }
+
+        void InitEmpireUnlocks()
+        {
+            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.HullName] = false;
+            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt] = false;
+            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key] = false;
+
+            foreach (string building in data.unlockBuilding)
+                UnlockedBuildingsDict[building] = true;
+
+            foreach (var kv in TechnologyDict) //unlock racial techs
+            {
+                var techEntry = kv.Value;
+                data.Traits.TechUnlocks(techEntry, this);
+            }
+            //Added by gremlin Figure out techs with modules that we have ships for.
+            var ourShips = GetOurFactionShips();
+            ResetTechsUsableByShips(ourShips, unlockBonuses: true);
+
+            UnlockedTroops.Clear();
+            ShipsWeCanBuild.Clear();
+            foreach (string ship in data.unlockShips)
+                ShipsWeCanBuild.Add(ship);
+
+            UpdateShipsWeCanBuild();
         }
 
         private void AddToShipTechLists(TechEntry tech)
@@ -1163,7 +1175,6 @@ namespace Ship_Game
                     ourFactionShips.Add(template);
                 }
             }
-
             return ourFactionShips;
         }
 
@@ -1179,46 +1190,6 @@ namespace Ship_Game
             }
 
             return false;
-        }
-
-        public void InitializeFromSave()
-        {
-            InitDifficultyModifiers();
-            InitPersonalityModifiers();
-            EmpireAI = new EmpireAI(this, fromSave: true);
-            for (int key = 1; key < 1; ++key)
-            {
-                Fleet fleet = new Fleet {Owner = this};
-                fleet.SetNameByFleetIndex(key);
-                FleetsDict.Add(key, fleet);
-            }
-
-            if (string.IsNullOrEmpty(data.DefaultTroopShip))
-                data.DefaultTroopShip = data.PortraitName + " " + "Troop";
-
-            foreach (var hull in ResourceManager.Hulls) UnlockedHullsDict[hull.HullName] = false;
-            foreach (var tt in ResourceManager.TroopTypes) UnlockedTroopDict[tt] = false;
-            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
-            foreach (var kv in ResourceManager.ShipModules) UnlockedModulesDict[kv.Key] = false;
-            UnlockedTroops.Clear();
-
-            // unlock from empire data file
-            // Added by gremlin Figure out techs with modules that we have ships for.
-            var ourShips = GetOurFactionShips();
-            ResetTechsUsableByShips(ourShips, unlockBonuses: false);
-
-            //fbedard: Add missing troop ship
-            if (data.DefaultTroopShip.IsEmpty())
-                data.DefaultTroopShip = data.PortraitName + " " + "Troop";
-
-            foreach (string building in data.unlockBuilding)
-                UnlockedBuildingsDict[building] = true;
-            foreach (string ship in data.unlockShips) // unlock ships from empire data
-                ShipsWeCanBuild.Add(ship);
-
-            CreateThrusterColors();
-            UpdateShipsWeCanBuild();
-            Research.SetResearchStrategy();
         }
 
         bool WeCanUseThisLater(TechEntry tech)
@@ -3594,6 +3565,20 @@ namespace Ship_Game
         public void SetCapital(Planet planet)
         {
             Capital = planet;
+        }
+
+        public void ResetAllTechsAndBonuses()
+        {
+            Research.Reset(); // clear research progress bar and queue
+            Research.SetNoResearchLeft(false);
+            foreach (TechEntry techEntry in TechEntries)
+            {
+                techEntry.ResetUnlockedTech();
+            }
+
+            data.ResetAllBonusModifiers(this);
+
+            InitEmpireUnlocks();
         }
 
         public struct InfluenceNode

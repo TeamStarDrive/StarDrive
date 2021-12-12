@@ -191,8 +191,8 @@ namespace Ship_Game
         [Serialize(41)] public bool MinorRace; // @todo This is deprecated
         [Serialize(42)] public short TurnsBelowZero;
         [Serialize(43)] public bool Privatization;
-        [Serialize(44)] public float CivMaintMod = 1f;
-        [Serialize(45)] public float FuelCellModifier;
+        [Serialize(44)] public float CivMaintMod = 1f; // x100%
+        [Serialize(45)] public float FuelCellModifier; // +100%
         [Serialize(46)] public float FlatMoneyBonus;
         [Serialize(47)] public float FTLModifier        = 35f;
         [Serialize(48)] public float MassModifier       = 1f;
@@ -202,7 +202,7 @@ namespace Ship_Game
         [Serialize(52)] public float SensorModifier     = 1f;
         [Serialize(53)] public float OrdnanceEffectivenessBonus;
         [Serialize(54)] public int ArmorPiercingBonus;
-        [Serialize(55)] public float SpoolTimeModifier        = 1.0f;
+        [Serialize(55)] public float SpoolTimeModifier        = 1f;
         [Serialize(56)] public float ExplosiveRadiusReduction = 0f;
         [Serialize(57)] public float ShieldPenBonusChance;
         [Serialize(58)] public float SpyModifier;
@@ -436,6 +436,57 @@ namespace Ship_Game
             float score = currentStr / 1000;
             MilitaryScoreAverage = MilitaryScoreAverage*(1f-newRatio) + score*newRatio;
             return MilitaryScoreAverage;
+        }
+
+        void SetTechModifierDefaults()
+        {
+            // get the original Archetype and create an instance with original defaults
+            IEmpireData race = ResourceManager.AllRaces.First(r => r.ArchetypeName == ArchetypeName);
+            EmpireData template = race.CreateInstance(false);
+
+            CivMaintMod = template.CivMaintMod;
+            FuelCellModifier = template.FuelCellModifier;
+            FTLModifier = template.FTLModifier;
+            MassModifier = template.MassModifier;
+            ArmourMassModifier = template.ArmourMassModifier;
+            SubLightModifier = template.SubLightModifier;
+
+            //EmpireFertilityBonus = 0f; // only modified by artifacts
+            SensorModifier = template.SensorModifier;
+            OrdnanceEffectivenessBonus = template.OrdnanceEffectivenessBonus;
+            ArmorPiercingBonus = template.ArmorPiercingBonus;
+            SpoolTimeModifier = template.SpoolTimeModifier;
+            ExplosiveRadiusReduction = template.ExplosiveRadiusReduction;
+            ShieldPenBonusChance = template.ShieldPenBonusChance;
+            SpyModifier = template.SpyModifier;
+            DefensiveSpyBonus = template.DefensiveSpyBonus;
+            OffensiveSpyBonus = template.OffensiveSpyBonus;
+            FTLPowerDrainModifier = template.FTLPowerDrainModifier;
+            BonusFighterLevels = template.BonusFighterLevels;
+            MissileDodgeChance = template.MissileDodgeChance;
+            MissileHPModifier = template.MissileHPModifier;
+            BaseReproductiveRate = template.BaseReproductiveRate;
+
+            PowerFlowMod = template.PowerFlowMod;
+            ShieldPowerMod = template.ShieldPowerMod;
+            ExperienceMod = template.ExperienceMod;
+
+            BombEnvironmentDamageMultiplier = template.BombEnvironmentDamageMultiplier;
+            OngoingDiplomaticModifier = template.OngoingDiplomaticModifier;
+        }
+
+        public void ResetAllBonusModifiers(Empire empire)
+        {
+            // reset all general modifiers
+            SetTechModifierDefaults();
+
+            // reset all weapon bonuses, race-specific bonuses
+            // will be set by InitEmpireUnlocks()
+            foreach (WeaponTag tag in WeaponTags.Keys.ToArray())
+                WeaponTags[tag] = new WeaponTagModifier();
+
+            // refresh all cached hull bonuses
+            EmpireHullBonuses.RefreshBonuses(empire);
         }
     }
 } 
