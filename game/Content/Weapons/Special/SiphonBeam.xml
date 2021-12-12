@@ -33,10 +33,10 @@
   <BeamTexture>beam_blue_yellow</BeamTexture>
 
 
-  <SiphonDamage>25</SiphonDamage>
+  <SiphonDamage>15</SiphonDamage>
   <DamageAmount>0</DamageAmount>
   <BeamThickness>25</BeamThickness>
-  <BeamPowerCostPerSecond>100</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>400</BeamPowerCostPerSecond>
 
   <WeaponType>Energy Beam</WeaponType>
   

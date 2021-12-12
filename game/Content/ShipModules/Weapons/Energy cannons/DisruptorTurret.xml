@@ -20,7 +20,7 @@
   <Description>Disruptors fire fast-moving, high-energy projectiles.  </Description>
   <CrewRequired>12</CrewRequired>
   <CrewSupplied>0</CrewSupplied>
-  <PowerDraw>10</PowerDraw>
+  <PowerDraw>5</PowerDraw>
   
   <NameIndex>932</NameIndex>
   <DescriptionIndex>933</DescriptionIndex>

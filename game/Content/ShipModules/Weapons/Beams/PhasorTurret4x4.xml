@@ -36,7 +36,7 @@
   <HealthMax>13920</HealthMax>
 
   <!-- Power Drawn -->
-  <PowerDraw>10</PowerDraw>
+  <PowerDraw>15</PowerDraw>
 
   <!-- for Weapons -->
   <WeaponType>MassivePhasorTurret</WeaponType>

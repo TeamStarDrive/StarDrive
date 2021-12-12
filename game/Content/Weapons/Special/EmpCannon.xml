@@ -19,7 +19,7 @@
   <UID>EmpCannon</UID>
   <fireDelay>4.0</fireDelay>
   <Range>7500</Range>
-  <PowerRequiredToFire>180</PowerRequiredToFire>
+  <PowerRequiredToFire>800</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->

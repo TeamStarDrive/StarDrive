@@ -28,7 +28,7 @@
   <HealthMax>5570</HealthMax>
 
   <!-- Power Drawn -->
-  <PowerDraw>5</PowerDraw>
+  <PowerDraw>10</PowerDraw>
 
   <!-- for Weapons -->
   <WeaponType>FocusFusionBeam</WeaponType>

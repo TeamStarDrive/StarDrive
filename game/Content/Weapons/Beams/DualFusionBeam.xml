@@ -4,7 +4,6 @@
   <Tag_Beam>true</Tag_Beam>
 
   
-  
   <UID>DualFusionBeam</UID>
   <isBeam>true</isBeam>
   <fireDelay>2</fireDelay>
@@ -24,7 +23,7 @@
   
   <DamageAmount>18</DamageAmount>
   <BeamThickness>24</BeamThickness>
-  <BeamPowerCostPerSecond>760</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>1170</BeamPowerCostPerSecond>
 
   <WeaponType>Energy Beam</WeaponType>
   

@@ -32,7 +32,7 @@
   <shield_power_max>22000</shield_power_max>
   <shield_recharge_delay>30</shield_recharge_delay>
   <shield_recharge_rate>220.0</shield_recharge_rate>
-  <shield_radius>150</shield_radius>
+  <shield_radius>240</shield_radius>
   <shield_recharge_combat_rate>150</shield_recharge_combat_rate>
 
   <!-- for PowerPlant Items -->
