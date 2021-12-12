@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Heavy Dropship mk3-a
 Hull=Terran/LightCarrier
-Role=cruiser
+Role=troopShip
 Style=Terran
 Size=20,36
 GridCenter=10,17
@@ -139,12 +139,12 @@ Modules=190
 18,24;0
 19,24;0
 0,25;0
-1,25;17;3,2;90;2;Terran Assault Shuttle
+1,25;17;3,2;90;2;DynamicLaunch
 4,25;8;3,5;90;2
 7,25;4
 12,25;3;2,2
 14,25;3;2,2
-16,25;17;3,2;270;1;Terran Assault Shuttle
+16,25;17;3,2;270;1;DynamicLaunch
 19,25;0
 0,26;0
 7,26;4
@@ -152,12 +152,12 @@ Modules=190
 10,26;6;2,2
 19,26;0
 0,27;11
-1,27;17;3,2;90;2;Terran Assault Shuttle
+1,27;17;3,2;90;2;DynamicLaunch
 7,27;18
 12,27;18
 13,27;4
 14,27;3;2,2
-16,27;17;3,2;270;1;Terran Assault Shuttle
+16,27;17;3,2;270;1;DynamicLaunch
 19,27;11
 0,28;11
 7,28;18
@@ -167,11 +167,11 @@ Modules=190
 13,28;16
 19,28;11
 0,29;0
-1,29;17;3,2;90;2;Terran Assault Shuttle
+1,29;17;3,2;90;2;DynamicLaunch
 7,29;4
 12,29;2;2,2
 14,29;3;2,2
-16,29;17;3,2;270;1;Terran Assault Shuttle
+16,29;17;3,2;270;1;DynamicLaunch
 19,29;0
 0,30;0
 4,30;19;2,2

@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Heavy Carrier mk4-b2
 Hull=Terran/Battleship
-Role=battleship
+Role=carrier
 Style=Terran
 Size=26,48
 GridCenter=13,23

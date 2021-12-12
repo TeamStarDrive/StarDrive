@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Sceptre Invader mk1-a
 Hull=Ralyeh/Sceptre
-Role=battleship
+Role=troopShip
 Style=Ralyeh
 Size=32,26
 GridCenter=16,14
@@ -75,8 +75,8 @@ Modules=200
 0,9;0
 1,9;0
 2,9;0
-3,9;9;2,3;;;Ralyeh Assault Shuttle
-5,9;9;2,3;;;Ralyeh Assault Shuttle
+3,9;9;2,3;;;DynamicLaunch
+5,9;9;2,3;;;DynamicLaunch
 7,9;6;2,2
 11,9;10;2,2
 13,9;10;2,2
@@ -84,18 +84,18 @@ Modules=200
 17,9;10;2,2
 19,9;10;2,2
 23,9;6;2,2
-25,9;9;2,3;;;Ralyeh Assault Shuttle
-27,9;9;2,3;;;Ralyeh Assault Shuttle
+25,9;9;2,3;;;DynamicLaunch
+27,9;9;2,3;;;DynamicLaunch
 29,9;0
 30,9;0
 31,9;0
 0,10;0
-1,10;9;2,3;;;Ralyeh Assault Shuttle
+1,10;9;2,3;;;DynamicLaunch
 9,10;8
 10,10;8
 21,10;8
 22,10;8
-29,10;9;2,3;;;Ralyeh Assault Shuttle
+29,10;9;2,3;;;DynamicLaunch
 31,10;0
 0,11;0
 7,11;8

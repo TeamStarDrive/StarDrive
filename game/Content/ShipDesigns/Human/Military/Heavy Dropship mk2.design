@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Heavy Dropship mk2
 Hull=Terran/LightCarrier
-Role=cruiser
+Role=troopShip
 Style=Terran
 Size=20,36
 GridCenter=10,17
@@ -154,7 +154,7 @@ Modules=232
 18,24;0
 19,24;0
 0,25;0
-1,25;14;3,2;90;2;Terran Assault Shuttle
+1,25;14;3,2;90;2;DynamicLaunch
 4,25;3
 5,25;3
 6,25;3
@@ -167,7 +167,7 @@ Modules=232
 13,25;3
 14,25;3
 15,25;3
-16,25;14;3,2;270;1;Terran Assault Shuttle
+16,25;14;3,2;270;1;DynamicLaunch
 19,25;0
 0,26;0
 4,26;4
@@ -183,7 +183,7 @@ Modules=232
 15,26;4
 19,26;0
 0,27;0
-1,27;14;3,2;90;2;Terran Assault Shuttle
+1,27;14;3,2;90;2;DynamicLaunch
 4,27;4
 5,27;6
 6,27;7;2,2
@@ -192,7 +192,7 @@ Modules=232
 12,27;7;2,2
 14,27;6
 15,27;4
-16,27;14;3,2;270;1;Terran Assault Shuttle
+16,27;14;3,2;270;1;DynamicLaunch
 19,27;0
 0,28;0
 4,28;4
@@ -203,14 +203,14 @@ Modules=232
 15,28;4
 19,28;0
 0,29;0
-1,29;14;3,2;90;2;Terran Assault Shuttle
+1,29;14;3,2;90;2;DynamicLaunch
 4,29;4
 5,29;7;2,2
 7,29;4
 12,29;4
 13,29;7;2,2
 15,29;4
-16,29;14;3,2;270;1;Terran Assault Shuttle
+16,29;14;3,2;270;1;DynamicLaunch
 19,29;0
 0,30;0
 4,30;4

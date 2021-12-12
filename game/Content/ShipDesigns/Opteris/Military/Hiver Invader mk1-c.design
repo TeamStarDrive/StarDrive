@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Hiver Invader mk1-c
 Hull=Opteris/Hiver
-Role=battleship
+Role=troopShip
 Style=Opteris
 Size=30,44
 GridCenter=15,22
@@ -13,7 +13,7 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=CompositeAlloys Large;CompositeAlloys Small;CompositeAlloys Med;NuclearBombBay2x2;BosonTransmiter;AdvancedCellSmall;AdvAmplifier;OrdnanceLockerSmall;PhasorBeam2x5;MarineBarracks2x2;Internal Bulkhead;AdvancedCellMed;SiphonBeam2x3;Extreme Fusion Reactor;EnergyPDRapid;OrdnanceLocker;TroopAssaultBay;ArmoredShield4x4;Cockpit;PhasorTurret2x2;MarineBarracks6x3;Fabricator;Maneuvering_Thruster_1x2;PowerConduit;Bridge;WarpEngine_3x3;Titan Engine;WarpEngine_1x1;WarpEngine_2x2
+ModuleUIDs=CompositeAlloys Large;CompositeAlloys Small;CompositeAlloys Med;NuclearBombBay2x2;BosonTransmiter;AdvancedCellSmall;AdvAmplifier;OrdnanceLockerSmall;PhasorBeam2x5;MarineBarracks2x2;Internal Bulkhead;AdvancedCellMed;SiphonBeam2x3;Extreme Fusion Reactor;EnergyPDRapid;OrdnanceLocker;TroopAssaultBay;ArmoredShield4x4;Cockpit;PhasorTurret2x2;MarineBarracks6x3;Maneuvering_Thruster_1x2;PowerConduit;Bridge;WarpEngine_3x3;Titan Engine;WarpEngine_1x1;WarpEngine_2x2
 Modules=372
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 11,0;0;3,3
@@ -177,14 +177,14 @@ Modules=372
 1,18;15;2,2
 3,18;7
 6,18;1
-7,18;16;2,3;;;Opteris Assault Shuttle
+7,18;16;2,3;;;DynamicLaunch
 9,18;14;2,2;225
 12,18;7
 13,18;6;2,2
 15,18;6;2,2
 17,18;7
 19,18;14;2,2;135
-21,18;16;2,3;;;Opteris Assault Shuttle
+21,18;16;2,3;;;DynamicLaunch
 23,18;1
 26,18;7
 27,18;15;2,2
@@ -206,12 +206,12 @@ Modules=372
 29,20;1
 0,21;1
 1,21;7
-7,21;16;2,3;;;Opteris Assault Shuttle
+7,21;16;2,3;;;DynamicLaunch
 11,21;18
 12,21;7
 17,21;7
 18,21;18
-21,21;16;2,3;;;Opteris Assault Shuttle
+21,21;16;2,3;;;DynamicLaunch
 28,21;7
 29,21;1
 0,22;1
@@ -241,8 +241,8 @@ Modules=372
 4,24;1
 5,24;19;2,2;315
 8,24;20;5,3
-13,24;21;2,2
-15,24;21;2,2
+13,24;9;2,2
+15,24;9;2,2
 17,24;20;5,3
 23,24;19;2,2;45
 25,24;1
@@ -269,12 +269,12 @@ Modules=372
 1,27;1
 6,27;1
 7,27;1
-8,27;16;2,3;;;Opteris Assault Shuttle
-10,27;16;2,3;;;Opteris Assault Shuttle
+8,27;16;2,3;;;DynamicLaunch
+10,27;16;2,3;;;DynamicLaunch
 12,27;4
 17,27;4
-18,27;16;2,3;;;Opteris Assault Shuttle
-20,27;16;2,3;;;Opteris Assault Shuttle
+18,27;16;2,3;;;DynamicLaunch
+20,27;16;2,3;;;DynamicLaunch
 22,27;1
 23,27;1
 28,27;1
@@ -304,13 +304,13 @@ Modules=372
 3,30;1
 6,30;1
 7,30;1
-8,30;16;2,3;;;Opteris Assault Shuttle
-10,30;16;2,3;;;Opteris Assault Shuttle
+8,30;16;2,3;;;DynamicLaunch
+10,30;16;2,3;;;DynamicLaunch
 12,30;13;2,2
 14,30;13;2,2
 16,30;13;2,2
-18,30;16;2,3;;;Opteris Assault Shuttle
-20,30;16;2,3;;;Opteris Assault Shuttle
+18,30;16;2,3;;;DynamicLaunch
+20,30;16;2,3;;;DynamicLaunch
 22,30;1
 23,30;1
 26,30;1
@@ -337,10 +337,10 @@ Modules=372
 2,33;1
 3,33;1
 7,33;1
-8,33;16;2,3;;;Opteris Assault Shuttle
-10,33;16;2,3;;;Opteris Assault Shuttle
-18,33;16;2,3;;;Opteris Assault Shuttle
-20,33;16;2,3;;;Opteris Assault Shuttle
+8,33;16;2,3;;;DynamicLaunch
+10,33;16;2,3;;;DynamicLaunch
+18,33;16;2,3;;;DynamicLaunch
+20,33;16;2,3;;;DynamicLaunch
 22,33;1
 26,33;1
 27,33;1
@@ -358,33 +358,33 @@ Modules=372
 23,35;1
 26,35;1
 6,36;1
-7,36;22;2,1
-9,36;22;2,1
-11,36;22;2,1
-13,36;23
-14,36;24;2,2
-16,36;23
-17,36;22;2,1
-19,36;22;2,1
-21,36;22;2,1
+7,36;21;2,1
+9,36;21;2,1
+11,36;21;2,1
+13,36;22
+14,36;23;2,2
+16,36;22
+17,36;21;2,1
+19,36;21;2,1
+21,36;21;2,1
 23,36;1
 7,37;4
-8,37;25;3,3
-11,37;22;2,1
+8,37;24;3,3
+11,37;21;2,1
 13,37;7
 16,37;7
-17,37;22;2,1
-19,37;25;3,3
+17,37;21;2,1
+19,37;24;3,3
 22,37;4
-11,38;26;4,4
-15,38;26;4,4
+11,38;25;4,4
+15,38;25;4,4
 9,40;1
 10,40;4
 19,40;4
 20,40;1
-10,41;27
-19,41;27
+10,41;26
+19,41;26
 12,42;4
-13,42;28;2,2
-15,42;28;2,2
+13,42;27;2,2
+15,42;27;2,2
 17,42;4

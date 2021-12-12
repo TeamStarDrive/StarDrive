@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Emissary Sweeper mk4-c
 Hull=Terran/Emissary
-Role=cruiser
+Role=bomber
 Style=Terran
 Size=18,30
 GridCenter=9,15

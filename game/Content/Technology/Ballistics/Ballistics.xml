@@ -29,9 +29,6 @@
       <ModuleUID>HVVulcanCannon</ModuleUID>
     </UnlockedMod>
 
-    <UnlockedMod>
-      <ModuleUID>NuclearBombBay2x2</ModuleUID>
-    </UnlockedMod>
   </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked />
