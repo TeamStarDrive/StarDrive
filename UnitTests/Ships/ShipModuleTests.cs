@@ -73,7 +73,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(3 * 11.5f, m.Radius, "Bounding Radius should use the biggest Size Axis");
 
             Assert.IsNotNull(m.InstalledWeapon);
-            Assert.AreEqual("HeavyLaserBeam", m.WeaponType);
+            Assert.AreEqual("FocusLaserBeam", m.WeaponType);
             Assert.AreNotSame(m.InstalledWeapon, ResourceManager.GetWeaponTemplate(m.WeaponType), "Installed weapon was not cloned! This is a bug!");
 
             Assert.AreEqual(m, m.InstalledWeapon.Module, "Installed weapon Module ref was not set");

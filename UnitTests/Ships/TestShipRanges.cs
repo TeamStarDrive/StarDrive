@@ -31,10 +31,10 @@ namespace UnitTests.Ships
             Ship ship = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", Player, Vector2.Zero);
 
             UpdateStatus(ship, CombatState.Artillery);
-            Assert.That.Equal(10000, ship.WeaponsMaxRange);
+            Assert.That.Equal(11500, ship.WeaponsMaxRange);
             Assert.That.Equal(7500, ship.WeaponsMinRange);
-            Assert.That.Equal(9166, ship.WeaponsAvgRange);
-            Assert.That.Equal(9000, ship.DesiredCombatRange);
+            Assert.That.Equal(10166, ship.WeaponsAvgRange);
+            Assert.That.Equal(10350, ship.DesiredCombatRange);
             Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
 
             UpdateStatus(ship, CombatState.Evade);
@@ -76,10 +76,10 @@ namespace UnitTests.Ships
             guided.Range = 1;
 
             UpdateStatus(ship, CombatState.Artillery);
-            Assert.That.Equal(20000, ship.WeaponsMaxRange);
+            Assert.That.Equal(23000, ship.WeaponsMaxRange);
             Assert.That.Equal(7500, ship.WeaponsMinRange);
-            Assert.That.Equal(15833, ship.WeaponsAvgRange);
-            Assert.That.Equal(18000, ship.DesiredCombatRange);
+            Assert.That.Equal(17833, ship.WeaponsAvgRange);
+            Assert.That.Equal(20700, ship.DesiredCombatRange);
             Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
         }
     }
