@@ -24,7 +24,7 @@ namespace Ship_Game.GameScreens.Scene
         {
             return new SceneShipAI(States);
         }
-        public void Update(SceneShip ship, FixedSimTime timeStep)
+        public void Update(SceneObj ship, FixedSimTime timeStep)
         {
             if (Finished)
                 return;

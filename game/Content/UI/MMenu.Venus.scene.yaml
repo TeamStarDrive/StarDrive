@@ -25,20 +25,20 @@ Fleets:
       - [CoastWithRotate, 30, 35]
       - [WarpingOut, 1, 1]
       - [IdlingInDeepSpace, 15, 18]
-    Ships:
-      - Ship: { Role: capital, Speed: 10, Position: [-250, -200, 1250] }
-      - Ship: { Role: frigate, Speed: 20, Position: [-500, -50, 250] }
-      - Ship: { Role: cruiser, Speed: 10, Position: [-1200, 100, 1450] }
+    Objects:
+      - Object: { Type: capital, Speed: 10, Position: [-250, -200, 1250] }
+      - Object: { Type: frigate, Speed: 20, Position: [-500, -50, 250] }
+      - Object: { Type: cruiser, Speed: 10, Position: [-1200, 100, 1450] }
 
       # corvette wing
-      - Ship: { Role: corvette, Speed: 30, Position: [-900, -300, 1550] }
-      - Ship: { Role: corvette, Speed: 30, Position: [-1000, -450, 1500] }
-      - Ship: { Role: corvette, Speed: 30, Position: [-1100, -350, 1400] }
+      - Object: { Type: corvette, Speed: 30, Position: [-900, -300, 1550] }
+      - Object: { Type: corvette, Speed: 30, Position: [-1000, -450, 1500] }
+      - Object: { Type: corvette, Speed: 30, Position: [-1100, -350, 1400] }
 
       # fighter wing
-      - Ship: { Role: fighter, Speed:65, Position: [-1000, -500, 1250] }
-      - Ship: { Role: fighter, Speed:60, Position: [-1100, -450, 1300] }
-      - Ship: { Role: fighter, Speed:55, Position: [-900, -500, 1150] }
+      - Object: { Type: fighter, Speed: 65, Position: [-1000, -500, 1250] }
+      - Object: { Type: fighter, Speed: 60, Position: [-1100, -450, 1300] }
+      - Object: { Type: fighter, Speed: 55, Position: [-900, -500, 1150] }
 
   - Fleet:
     Name: BackgroundFreighters_LeftToRight
@@ -54,9 +54,9 @@ Fleets:
       - [IdlingInDeepSpace, 10, 15]
       - [WarpingIn, 1, 1]
       - [GoToState, 0, 0]
-    ShipGroups:
-      - ShipGroup: { Role: freighter, Count: 42 }
-      - ShipGroup: { Role: fighter, Count: 16 }
+    ObjectGroups:
+      - ObjectGroup: { Type: freighter, Count: 42 }
+      - ObjectGroup: { Type: fighter, Count: 16 }
 
   - Fleet:
     Name: BackgroundFreighters_RightToLeft
@@ -72,6 +72,6 @@ Fleets:
       - [IdlingInDeepSpace, 10, 15]
       - [WarpingIn, 1, 1]
       - [GoToState, 0, 0]
-    ShipGroups:
-      - ShipGroup: { Role: freighter, Count: 42 }
-      - ShipGroup: { Role: fighter, Count: 16 }
+    ObjectGroups:
+      - ObjectGroup: { Type: freighter, Count: 42 }
+      - ObjectGroup: { Type: fighter, Count: 16 }

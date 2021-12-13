@@ -1,7 +1,7 @@
 ﻿# This file defines a 3D Scene with objects, lighting, movement and effects
-SunPos: [26000, -26000, 32000]
-SunColor: [255,254,224]
-SunIntensity: 3.0
+SunPos: [-26000, -26000, 32000]
+SunColor: [255,224,224]
+SunIntensity: 2.0
 AmbientColor: [40,60,110] # dark violet
 AmbientIntensity: 0.75
 CameraPos: [0, 0, -1000] # Z:-1000 means out of the screen
@@ -14,6 +14,11 @@ LookAt: [0, 0, 10000] # we're looking far into the screen
 #  - [WarpingOut,        min_delay, max_delay]
 #  - [IdlingInDeepSpace, min_delay, max_delay]
 #  - [GoToState,         delay,      state_id]
+
+# Supported object types:
+# All RoleName's such as "fighter", "corvette", "frigate", "cruiser", "capital", "station", etc..
+# Asteroids: "asteroid"
+# SpaceJunk: "spacejunk"
 Fleets:
   - Fleet:
     Name: Asteroids
@@ -25,26 +30,25 @@ Fleets:
       - [WarpingOut, 1, 1]
       - [IdlingInDeepSpace, 15, 22]
 
-    Ships:
-
+    Objects:
       # BIg rock
-      - Ship: { Role: cruiser, Speed: 100, Position: [-2700, -500, 2050] }
+      - Object: { Type: asteroid, Scale: 1.0, Speed: 100, Position: [-2700, -500, 2050] }
       # smaller rocks
-      - Ship: { Role: corvette, Speed: 95, Position: [-3000, -300, 2550] }
-      - Ship: { Role: corvette, Speed: 100, Position: [-2950, -550, 2500] }
-      - Ship: { Role: corvette, Speed: 90, Position: [-3000, -400, 2300] }
-      - Ship: { Role: corvette, Speed: 100, Position: [-3000, -560, 2200] }
-      - Ship: { Role: corvette, Speed: 90, Position: [-2980, -600, 2400] }
+      - Object: { Type: asteroid, Scale: 0.5, Speed: 95, Position: [-3000, -300, 2550] }
+      - Object: { Type: asteroid, Scale: 0.5, Speed: 100, Position: [-2950, -550, 2500] }
+      - Object: { Type: asteroid, Scale: 0.5, Speed: 90, Position: [-3000, -400, 2300] }
+      - Object: { Type: asteroid, Scale: 0.5, Speed: 100, Position: [-3000, -560, 2200] }
+      - Object: { Type: asteroid, Scale: 0.5, Speed: 90, Position: [-2980, -600, 2400] }
 
       # smallest rocks
-      - Ship: { Role: fighter, Speed: 90, Position: [-2900, -800, 2250] }
-      - Ship: { Role: fighter, Speed: 85, Position: [-2900, -450, 2300] }
-      - Ship: { Role: fighter, Speed: 95, Position: [-2900, -700, 2150] }
-      - Ship: { Role: fighter, Speed: 90, Position: [-2900, -300, 2150] }
-      - Ship: { Role: fighter, Speed: 95, Position: [-2900, -200, 2150] }
-      - Ship: { Role: fighter, Speed: 90, Position: [-3300, -600, 2600] }
-      - Ship: { Role: fighter, Speed: 90, Position: [-3400, -500, 2550] }
-      - Ship: { Role: fighter, Speed: 90, Position: [-3300, -400, 2600] }
+      - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-2900, -800, 2250] }
+      - Object: { Type: asteroid, Scale: 0.1, Speed: 85, Position: [-2900, -450, 2300] }
+      - Object: { Type: asteroid, Scale: 0.1, Speed: 95, Position: [-2900, -700, 2150] }
+      - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-2900, -300, 2150] }
+      - Object: { Type: asteroid, Scale: 0.1, Speed: 95, Position: [-2900, -200, 2150] }
+      - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-3300, -600, 2600] }
+      - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-3400, -500, 2550] }
+      - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-3300, -400, 2600] }
 
   - Fleet:
     Name: Shipyard
@@ -53,8 +57,8 @@ Fleets:
     AI:
       - [CoastWithRotate, 80, 1000]
       - [IdlingInDeepSpace, 15, 18]
-    Ships:
-      - Ship: { Role: Station, Speed: 10, Position: [600, 300, 450] } #doesnt load shipyard model
+    Objects:
+      - Object: { Type: station, Speed: 10, Position: [600, 300, 450] } #doesnt load shipyard model
 
   - Fleet:
     Name: BackgroundFreighters_LeftToRight
@@ -70,9 +74,9 @@ Fleets:
       - [IdlingInDeepSpace, 10, 15]
       - [WarpingIn, 1, 1]
       - [GoToState, 0, 0]
-    ShipGroups:
-      - ShipGroup: { Role: freighter, Count: 42 }
-      - ShipGroup: { Role: fighter, Count: 16 }
+    ObjectGroups:
+      - ObjectGroup: { Type: freighter, Count: 42 }
+      - ObjectGroup: { Type: fighter, Count: 16 }
 
   - Fleet:
     Name: BackgroundFreighters_RightToLeft
@@ -88,6 +92,6 @@ Fleets:
       - [IdlingInDeepSpace, 10, 15]
       - [WarpingIn, 1, 1]
       - [GoToState, 0, 0]
-    ShipGroups:
-      - ShipGroup: { Role: freighter, Count: 42 }
-      - ShipGroup: { Role: fighter, Count: 16 }
+    ObjectGroups:
+      - ObjectGroup: { Type: freighter, Count: 42 }
+      - ObjectGroup: { Type: fighter, Count: 16 }
