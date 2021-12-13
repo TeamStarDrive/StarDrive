@@ -392,7 +392,7 @@ namespace Ship_Game
             }
 
             // PaddingBot gives padding bottom of the items when scrolling
-            float maxVisibleItemsF = (ItemsHousing.Height - PaddingBot) / (EntryHeight + ItemPadding.Y);
+            float maxVisibleItemsF = (ItemsHousing.Height) / (EntryHeight + ItemPadding.Y);
             MaxVisibleItems = (int)Math.Ceiling(maxVisibleItemsF);
             ShouldDrawScrollBar = FlatEntries.Count > (int)Math.Floor(maxVisibleItemsF);
 
@@ -417,7 +417,7 @@ namespace Ship_Game
             {
                 int begin = VisibleItemsBegin;
                 UpdateVisibleIndex(begin, MaxVisibleItems);
-                UpdateScrollBarToCurrentIndex(MaxVisibleItems);
+                UpdateScrollBarToCurrentIndex(maxVisibleItemsF);
                 //Log.Info($"Before=[{begin},{VisibleItemsEnd}) After=[{VisibleItemsBegin},{VisibleItemsEnd})");
             }
 
@@ -448,10 +448,10 @@ namespace Ship_Game
             return (scrollBarPos / scrollSpan);
         }
 
-        void UpdateScrollBarToCurrentIndex(int maxVisibleItems)
+        void UpdateScrollBarToCurrentIndex(float maxVisibleItemsF)
         {
             int startOffset = (int)(ScrollHousing.Height * (VisibleItemsBegin / (float)FlatEntries.Count));
-            int barHeight   = (int)(ScrollHousing.Height * (maxVisibleItems / (float)FlatEntries.Count));
+            int barHeight   = (int)(ScrollHousing.Height * (maxVisibleItemsF / (float)FlatEntries.Count));
 
             ScrollBar = new Rectangle(ScrollHousing.X, ScrollHousing.Y + startOffset,
                                       GetStyle().ScrollBarMid.Normal.Width, barHeight);
