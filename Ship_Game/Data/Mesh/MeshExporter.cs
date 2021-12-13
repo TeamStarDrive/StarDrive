@@ -39,7 +39,10 @@ namespace Ship_Game.Data.Mesh
             try
             {
                 CreateMeshGroups(mesh, exportDir, model.Meshes);
-                CreateBones(mesh, model, animBones, animClips);
+                if (animBones != null)
+                {
+                    CreateBones(mesh, model, animBones, animClips);
+                }
                 return SDMeshSave(mesh, modelFilePath);
             }
             finally

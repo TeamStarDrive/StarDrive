@@ -28,7 +28,7 @@ namespace Ship_Game.GameScreens.Scene
         public IdlingInDeepSpace(float duration) : base(duration)
         {
         }
-        public override void Initialize(SceneShip ship)
+        public override void Initialize(SceneObj ship)
         {
             ship.Position = new Vector3(-50000, 0, 50000); // out of screen, out of mind
             base.Initialize(ship);
@@ -70,7 +70,7 @@ namespace Ship_Game.GameScreens.Scene
         public WarpingIn() : base(1f)
         {
         }
-        public override void Initialize(SceneShip ship)
+        public override void Initialize(SceneObj ship)
         {
             ship.Rotation = ship.Spawn.Rotation; // reset direction
             ship.Scale = WarpScale;
@@ -115,7 +115,7 @@ namespace Ship_Game.GameScreens.Scene
         public WarpingOut() : base(1f)
         {
         }
-        public override void Initialize(SceneShip ship)
+        public override void Initialize(SceneObj ship)
         {
             Start = ship.Position;
             End   = ship.Position + ship.Forward * 50000f;

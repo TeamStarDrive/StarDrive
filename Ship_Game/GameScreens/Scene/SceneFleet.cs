@@ -22,12 +22,12 @@ namespace Ship_Game.GameScreens.Scene
         [StarData] readonly bool DiverseShipEmpires;
         [StarData] readonly Vector3 Rotation;
         [StarData] readonly object[][] AI;
-        [StarData] readonly ShipSpawnInfo[] Ships = Empty<ShipSpawnInfo>.Array;
         [StarData] readonly Vector3? MinPos;
         [StarData] readonly Vector3? MaxPos;
         [StarData] readonly Range? SpeedRange;
         [StarData] readonly bool DisableJumpSfx;
-        [StarData] readonly ShipGroupInfo[] ShipGroups = Empty<ShipGroupInfo>.Array;
+        [StarData] readonly ObjectSpawnInfo[] Objects = Empty<ObjectSpawnInfo>.Array;
+        [StarData] readonly ObjectGroupInfo[] ObjectGroups = Empty<ObjectGroupInfo>.Array;
         #pragma warning restore 649
 
         readonly FloatSerializer Floater = new FloatSerializer();
@@ -78,7 +78,7 @@ namespace Ship_Game.GameScreens.Scene
             return ResourceManager.MajorRaces.RandItem();
         }
 
-        public Array<SceneShip> FleetShips = new Array<SceneShip>();
+        public Array<SceneObj> FleetShips = new Array<SceneObj>();
 
         public void CreateShips(GameScreen screen)
         {
@@ -86,7 +86,7 @@ namespace Ship_Game.GameScreens.Scene
                 ship.DestroyShip();
             FleetShips.Clear();
 
-            if (Ships.Length == 0 && ShipGroups.Length == 0)
+            if (Objects.Length == 0 && ObjectGroups.Length == 0)
             {
                 Log.Warning($"No ships in Main Menu fleet: {Name}");
                 return;
@@ -95,16 +95,16 @@ namespace Ship_Game.GameScreens.Scene
             IEmpireData empire = GetEmpire();
             ISceneShipAI ai = CreateAI();
 
-            var ships = new Array<ShipSpawnInfo>(Ships);
-            foreach (var group in ShipGroups)
+            var objects = new Array<ObjectSpawnInfo>(Objects);
+            foreach (var group in ObjectGroups)
             {
                 for (int i = 0; i < group.Count; ++i)
                 {
-                    ships.Add(new ShipSpawnInfo{ Role = group.Role });
+                    objects.Add(new ObjectSpawnInfo{ Type = group.Type });
                 }
             }
 
-            foreach (ShipSpawnInfo spawn in ships)
+            foreach (ObjectSpawnInfo spawn in objects)
             {
                 spawn.AI = ai;
                 spawn.Empire = empire;
@@ -127,7 +127,7 @@ namespace Ship_Game.GameScreens.Scene
                 if (DiverseShipEmpires)
                     empire = GetEmpire();
 
-                var ship = new SceneShip(spawn);
+                var ship = new SceneObj(spawn);
                 ship.LoadContent(screen);
                 FleetShips.Add(ship);
             }

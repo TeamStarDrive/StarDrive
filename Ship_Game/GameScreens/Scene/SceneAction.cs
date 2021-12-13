@@ -2,7 +2,7 @@
 {
     public abstract class SceneAction
     {
-        protected SceneShip Ship;
+        protected SceneObj Ship;
         protected readonly float Duration;
         protected float Time;
         protected float RelativeTime => Time / Duration;
@@ -13,7 +13,7 @@
             Duration = duration;
         }
 
-        public virtual void Initialize(SceneShip ship)
+        public virtual void Initialize(SceneObj ship)
         {
             Ship = ship;
             Time = 0f;

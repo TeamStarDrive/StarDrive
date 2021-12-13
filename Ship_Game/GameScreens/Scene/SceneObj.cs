@@ -7,14 +7,15 @@ using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.GameScreens.Scene
 {
     /**
-     * Cool ship with warp-in animation for the MainMenuScreen
+     * A sort of generic scene object for Scenes
      */
-    public class SceneShip
+    public class SceneObj
     {
         public Vector3 Position;
         public Vector3 Rotation;
@@ -22,7 +23,7 @@ namespace Ship_Game.GameScreens.Scene
         public float Radius { get; private set; }
         public float HalfLength { get; private set; }
         public float Speed;
-        float BaseScale = 0.8f;
+        float BaseScale;
 
         // StarDrive Meshes are oriented towards -Y, which is Vector3.Down 
         public Vector3 Forward => Rotation.DegsToRad().RotateVector(Vector3.Down);
@@ -31,21 +32,22 @@ namespace Ship_Game.GameScreens.Scene
         public Vector3 Right => Rotation.DegsToRad().RotateVector(Vector3.Right);
 
         public readonly SceneShipAI AI;
-        SceneObject ShipObj;
+        SceneObject SO;
 
         bool DebugMeshRotate = false;
         bool DebugMeshInspect = false; // for debugging mesh loader
         static int LastDebugFrameId;
 
-        public readonly ShipSpawnInfo Spawn;
+        public readonly ObjectSpawnInfo Spawn;
         public int HullSize { get; private set; } = 100;
 
-        public SceneShip(ShipSpawnInfo spawn)
+        public SceneObj(ObjectSpawnInfo spawn)
         {
             Spawn = spawn;
             Position = spawn.Position;
             Rotation = spawn.Rotation;
             Speed = spawn.Speed;
+            BaseScale = spawn.Scale;
             AI = spawn.AI.GetClone();
         }
 
@@ -109,10 +111,10 @@ namespace Ship_Game.GameScreens.Scene
 
         public void DestroyShip()
         {
-            if (ShipObj != null)
+            if (SO != null)
             {
-                ScreenManager.Instance.RemoveObject(ShipObj);
-                ShipObj = null;
+                ScreenManager.Instance.RemoveObject(SO);
+                SO = null;
             }
         }
 
@@ -125,24 +127,28 @@ namespace Ship_Game.GameScreens.Scene
             {
                 int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
                 string modelPath = ResourceManager.MainMenuShipList.ModelPaths[shipIndex];
-                ShipObj = StaticMesh.GetSceneMesh(screen.ContentManager, modelPath);
+                SO = StaticMesh.GetSceneMesh(screen.ContentManager, modelPath);
             }
             else if (DebugMeshInspect)
             {
-                ShipObj = StaticMesh.GetSceneMesh(screen.ContentManager, "Model/TestShips/Soyo/Soyo.obj");
+                SO = StaticMesh.GetSceneMesh(screen.ContentManager, "Model/TestShips/Soyo/Soyo.obj");
                 //ShipObj = StaticMesh.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
             }
             else
             {
-                hull = ChooseShip(Spawn.Empire, Spawn.Role);
-                hull.LoadModel(out ShipObj, screen.ContentManager);
-                if (ShipObj.Animation != null)
+                SO = ChooseObject(Spawn.Type);
+                if (SO == null)
                 {
-                    ShipObj.Animation.Speed = 0.25f;
+                    hull = ChooseShip(Spawn.Empire, Spawn.Type);
+                    hull.LoadModel(out SO, screen.ContentManager);
+                }
+                if (SO.Animation != null)
+                {
+                    SO.Animation.Speed = 0.25f;
                 }
             }
 
-            var bounds = ShipObj.GetMeshBoundingBox();
+            var bounds = SO.GetMeshBoundingBox();
             Radius = bounds.Radius();
             HalfLength = (bounds.Max.Y - bounds.Min.Y) * 0.5f;
             HullSize = hull?.HullSlots.Length ?? (int)(Radius * 4);
@@ -153,25 +159,40 @@ namespace Ship_Game.GameScreens.Scene
                 HalfLength *= 4;
             }
 
-            ScreenManager.Instance.AddObject(ShipObj);
+            ScreenManager.Instance.AddObject(SO);
             // Do a first dummy update with deltaTime 0
             // to make sure we have correct position at first frame
             AI.Update(this, FixedSimTime.Zero/*paused during load*/);
             UpdateTransform();
         }
 
-        static ShipHull ChooseShip(IEmpireData empire, RoleName role)
+        static SceneObject ChooseObject(string type)
+        {
+            if (type == "asteroid")
+            {
+                int id = RandomMath2.InRange(ResourceManager.NumAsteroidModels);
+                return new SceneObject(ResourceManager.GetAsteroidModel(id).Meshes[0]) { ObjectType = ObjectType.Dynamic };
+            }
+            if (type == "spacejunk")
+            {
+                int id = RandomMath2.InRange(ResourceManager.NumJunkModels);
+                return new SceneObject(ResourceManager.GetJunkModel(id).Meshes[0]) { ObjectType = ObjectType.Dynamic };
+            }
+            return null;
+        }
+
+        static ShipHull ChooseShip(IEmpireData empire, string type)
         {
             string shipType = empire.ShipType;
 
             ShipHull[] empireShips = ResourceManager.Hulls.Filter(s => s.Style == shipType);
             if (empireShips.Length == 0)
             {
-                Log.Error($"Failed to select '{role}' or 'fighter' Hull for '{shipType}'. Choosing a random ship.");
-                return ResourceManager.Hulls.Filter(s => s.Role == role).RandItem();
+                Log.Error($"Failed to select '{type}' or 'fighter' Hull for '{shipType}'. Choosing a random ship.");
+                return ResourceManager.Hulls.Filter(s => s.Role.ToString() == type).RandItem();
             }
 
-            ShipHull[] roleHulls = empireShips.Filter(s => s.Role == role);
+            ShipHull[] roleHulls = empireShips.Filter(s => s.Role.ToString() == type);
             if (roleHulls.Length != 0)
             {
                 return roleHulls.RandItem();
@@ -195,7 +216,7 @@ namespace Ship_Game.GameScreens.Scene
 
         void UpdateTransform()
         {
-            ShipObj.AffineTransform(Position, Rotation.DegsToRad(), Scale*BaseScale);
+            SO.AffineTransform(Position, Rotation.DegsToRad(), Scale*BaseScale);
         }
 
         public void Update(FixedSimTime timeStep)
@@ -212,10 +233,10 @@ namespace Ship_Game.GameScreens.Scene
             SoundEmitter.Position = Position;
 
             // shipObj can be modified while mod is loading
-            if (ShipObj != null)
+            if (SO != null)
             {
                 UpdateTransform();
-                ShipObj.UpdateAnimation(timeStep.FixedTime);
+                SO.UpdateAnimation(timeStep.FixedTime);
             }
         }
 
