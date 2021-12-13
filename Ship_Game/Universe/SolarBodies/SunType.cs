@@ -71,10 +71,13 @@ namespace Ship_Game.Universe.SolarBodies
         public static void LoadSunTypes(bool enableHotLoading = true)
         {
             GameLoadingScreen.SetStatus("LoadSunTypes");
+
             FileInfo file = ResourceManager.GetModOrVanillaFile("Suns.yaml");
-            LoadSuns(file, loadIcons: enableHotLoading);
             if (enableHotLoading)
-                GameBase.ScreenManager.AddHotLoadTarget(null, "Suns", file.FullName, OnSunsFileModified);
+            {
+                GameBase.ScreenManager.AddHotLoadTarget(null, file, OnSunsFileModified);
+            }
+            LoadSuns(file, loadIcons: enableHotLoading);
         }
 
         public static void Unload()

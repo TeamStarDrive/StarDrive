@@ -23,7 +23,6 @@ namespace Ship_Game.GameScreens.MainMenu
     {
         SceneInstance Scene;
         UIElementContainer VersionArea;
-        Vector3 CamPos;
         MainMenuType Type;
 
         public MainMenuScreen(MainMenuType type = MainMenuType.Default) : base(null /*no parent*/)
@@ -47,20 +46,16 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             ScreenManager.ClearScene();
             ResetMusic();
-            SetupMainMenuLightRig();
 
-            MainMenuDesc menu = YamlParser.Deserialize<MainMenusDescr>("MainMenus.yaml").GetDefault();
+            FileInfo menusDesc = ScreenManager.AddHotLoadTarget(this, "MainMenus.yaml");
+            MainMenuDesc menu = YamlParser.Deserialize<MainMenusDescr>(menusDesc).GetDefault();
+
             UI.LayoutParser.LoadLayout(this, menu.UILayoutFile, clearElements: true);
+            CreateVersionArea();
 
             if (GlobalStats.HasMod)
             {
-                ScreenManager.AddHotLoadTarget(this, "Mod", GlobalStats.ModFile, OnModChanged);
-            }
-
-            Find("planet", out UIPanel planet);
-
-            if (GlobalStats.HasMod)
-            {
+                ScreenManager.AddHotLoadTarget(this, new FileInfo(GlobalStats.ModFile), OnModChanged);
                 GlobalStats.ActiveMod.LoadContent(this);
                 Add(GlobalStats.ActiveMod).InBackground();
             }
@@ -83,59 +78,10 @@ namespace Ship_Game.GameScreens.MainMenu
             list.StartGroupTransition<UIButton>(animOffset, -1, time:0.5f);
             OnExit += () => list.StartGroupTransition<UIButton>(animOffset, +1, time:0.5f);
 
-            FTLManager.LoadContent(this);
             Scene = SceneInstance.FromFile(this, menu.SceneFile);
-
-            CamPos = new Vector3(0f, 0f, -1000f);
-            var lookAt = new Vector3(0f, 0f, 10000f);
-            SetViewMatrix(Matrix.CreateLookAt(CamPos, lookAt, Vector3.Down));
-            SetPerspectiveProjection(maxDistance: 35000);
-
-            CreateVersionArea();
 
             base.LoadContent();
             Log.Info($"MainMenuScreen GameContent {TransientContent.GetLoadedAssetMegabytes():0.0}MB");
-        }
-
-        void SetupMainMenuLightRig()
-        {
-            //AssignLightRig("example/ShipyardLightrig");
-            ScreenManager.RemoveAllLights();
-            ScreenManager.LightRigIdentity = LightRigIdentity.MainMenu;
-            ScreenManager.Environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
-
-            var topRightInBackground = new Vector3(26000,-26000,32000);
-            var lightYellow = new Color(255,254,224);
-            AddLight("MainMenu Sun", lightYellow, 2.0f, topRightInBackground);
-
-            AddLight(new AmbientLight
-            {
-                Name = "MainMenu AmbientFill",
-                DiffuseColor = new Color(40, 60, 110).ToVector3(), // dark violet
-                Intensity = 0.75f,
-            }, dynamic:false);
-        }
-
-        void AddLight(string name, Color color, float intensity, Vector3 position)
-        {
-            var light = new PointLight
-            {
-                Name                = name,
-                DiffuseColor        = color.ToVector3(),
-                Intensity           = intensity,
-                ObjectType          = ObjectType.Static, // RedFox: changed this to Static
-                FillLight           = false,
-                Radius              = 100000,
-                Position            = position,
-                Enabled             = true,
-                FalloffStrength     = 1f,
-                ShadowPerSurfaceLOD = true,
-                ShadowQuality = 1f
-            };
-
-            light.ShadowType = ShadowType.AllObjects;
-            light.World = Matrix.CreateTranslation(light.Position);
-            AddLight(light, dynamic:false);
         }
 
         void CreateVersionArea()
@@ -242,7 +188,7 @@ namespace Ship_Game.GameScreens.MainMenu
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             // We set the listener pos further away, this is the only way to reduce SFX volume currently
-            var listenerPos = new Vector3(CamPos.X, CamPos.Y, CamPos.Z * SoundDistanceMultiplier);
+            var listenerPos = new Vector3(Scene.CameraPos.X, Scene.CameraPos.Y, Scene.CameraPos.Z * SoundDistanceMultiplier);
             GameAudio.Update3DSound(listenerPos);
 
             var simTime = new FixedSimTime(GlobalStats.SimulationFramesPerSecond);
