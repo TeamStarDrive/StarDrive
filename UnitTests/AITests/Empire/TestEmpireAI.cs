@@ -95,8 +95,8 @@ namespace UnitTests.AITests.Empire
             string shipName = Player.GetEmpireAI().GetAShip(build);
 
             // it should be random:
-            if (!(shipName == "Vulcan Scout" || shipName == "Fang Strafer"))
-                throw new AssertFailedException($"Build should have created Vulcan Scout or Fang Strafer but created: {shipName}");
+            if (!(shipName == "Vulcan Scout" || shipName == "Fang Strafer" || shipName == "Rocket Scout"))
+                throw new AssertFailedException($"Build should have created Vulcan Scout/Fang Strafer/Rocket Scout but created: {shipName}");
         }
 
         [TestMethod]

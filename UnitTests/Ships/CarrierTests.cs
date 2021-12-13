@@ -23,7 +23,8 @@ namespace UnitTests.Ships
             LoadStarterShips("TEST_Heavy Carrier mk1",
                              "Ving Defender", 
                              "Alliance-Class Mk Ia Hvy Assault",
-                             "Assault Shuttle");
+                             "Assault Shuttle",
+                             "Terran Assault Shuttle");
             CreateUniverseAndPlayerEmpire();
             UnlockAllShipsFor(Player);
             Carrier = SpawnShip("TEST_Heavy Carrier mk1", Player, Vector2.Zero);
