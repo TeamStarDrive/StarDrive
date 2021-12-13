@@ -31,17 +31,18 @@ The current goals of BlackBox - Hyperion are:
 
 ### How do I get set up for Development? ###
 
-* Install [Visual Studio 2019 Community](https://visualstudio.microsoft.com/vs/community/).
+* Install [Visual Studio 2019/2022 Community](https://visualstudio.microsoft.com/vs/community/).
     * Workloads Module: `.NET desktop development` with `.NET Framework 4.8 development tools`
     * Workloads Module: `Desktop development with C++` with `MSVC v142`
     * Workloads Module: `Game development with C++` with `Windows 10 SDK`
 * Install [SourceTree](https://www.sourcetreeapp.com/) or some other GIT client. 
     * Configure SourceTree: Tools->Options->Git: [v] Perform submodule actions recursively _(Important!!!)_
+    * Configure SourceTree: Tools->Options->Git: [v] Enable the Bitbucket LFS Media Adapter _(Important!!!)_
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
     * Advanced Options When cloning: [v] Recurse submodules _(Important!!!)_
     * Advanced Options When cloning: Checkout branch: develop  Clone Depth 0
 * Switch to `develop` branch, which is our main branch for latest ongoing development.
-* Launch Visual Studio, any required DLL references should be in BlackBox/game directory.
+* Launch Visual Studio, any required DLL references should be in `BlackBox/game` directory.
 * Launch a full build (Build -> Build Solution) in `Release` configuration to produce the BlackBox StarDrive executable.
     * If you get this build error: "Windows 10 SDK is not installed", then you need to go back to Visual Studio installer and enable Desktop development with C++
     * If you get this build error: ".. Cannot open include file: 'corecrt.h': No such file or directory ..", then you are also missing Desktop development with C++
@@ -56,35 +57,53 @@ The current goals of BlackBox - Hyperion are:
 * Utilize Discord for chat discussions on ideas and refactoring.
 * Use [BitBucket issues](https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new) to propose new ideas. 
 * Check [BitBucket Cards](http://www.bitbucketcards.com/CrunchyGremlin/sd-blackbox#) for current projects and needs
-* Code in the **guest branch** at first.
-* When given the OK use GIT flow to create Feature branches for your goal. 
-* Comment your code so people can see what you are changing
-* Use clean code as much as possible.
+* Creating feature branches is always allowed and Pull Requests will be reviewed by the team.
+* Comment your code so people can see what you are changing.
+* Write clean and easy to understand code.
 
 ### Who do I talk to? ###
 
-* In Discord: @CrunchyGremlin is the current owner of the repository, @RedFox and @Fat_Bastard can provide additional source guidance.
+* In Discord: @RedFox and @Fat_Bastard can provide guidance of this codebase.
 * If you have a bug report, post an issue or post a bug in our Discord channel.
 * For other feature ideas, you can join our Discord chat and talk with the team!
 
 ### Development Cycle.
 # For new features, refactors, old bug fixes  (feature) #
 * Create a new branch from develop.
-* When change is completed sanity test the changes.
-* For new utilities, always add NEW unit tests.
-* Changes should not crash and should be functional in a basic sense.
-* Create a pull request and wait for review. Be ready to make a few tweaks! It is easy to make a bug in this legacy codebase.
-* The pull request review should indicate what areas need further testing.
-# If no release branch exists after pull is accepted to develop (release)#
-* Create a new branch based off of develop named Release.
-* Sanity test. should not crash and changed area should be functional.
-* Bug fixes should be pull requested back to develop.
-* Create a delopyment and upload to bitbucket.
-* Indicate in discord testing channel what needs to be looked at.
-* If no new issues are found create a pull request to default and check the delete branch option.
-# If bugs are found in the default branch (hot fix) #
+* Always add NEW feature unit tests and playtest your changes.
+* Create a pull request and wait for review. Be ready to make a few tweaks! It is easy to create unintentional bugs in this legacy codebase.
+# If bugs are found in develop branch (hot fix) #
 * Create an issue or mark existing issue as a "Blocker" for current release.
 * Post the issue in the dev channel of discord. 
-* Create a hotfix branch based on default.
-* Create a pull request back to develop and release.
-* :p
+* If you can quickly fix it, help us by creating a hotfix pull request.
+
+### Command Line Arguments ###
+BlackBox provides a CLI for running certain utilities from Command Prompt
+```
+C:\Projects\BlackBox\game>StarDrive.exe --help
+13:50:43.698ms: Loaded App Settings
+13:50:43.768ms:
+ ======================================================
+ ==== Mars : 1.30.13000 develop-latest             ====
+ ==== UTC: 12/13/2021 13:50:43                     ====
+ ======================================================
+
+13:50:43.769ms: StarDrive BlackBox Command Line Interface (CLI)
+13:50:43.769ms:   --help             Shows this help message
+13:50:43.769ms:   --mod="<mod>"    Load the game with the specified <mod>, eg: --mod="Combined Arms"
+13:50:43.769ms:   --export-textures  Exports all texture files as PNG and DDS to game/ExportedTextures
+13:50:43.769ms:   --export-meshes    Exports all mesh files as FBX
+13:50:43.769ms:   --generate-hulls   Generates new .hull files from old XML hulls
+13:50:43.769ms:   --generate-ships   Generates new ship .design files from old XML ships
+13:50:43.769ms:   --fix-roles        Fixes Role and Category for all .design ships
+13:50:43.769ms:   --run-localizer=[0-2] Run localization tool to merge missing translations and generate id-s
+13:50:43.769ms:                         0: disabled  1: generate with YAML NameIds  2: generate with C# NameIds
+13:50:43.769ms:   --continue         After running CLI tasks, continue to game as normal
+13:50:43.769ms: The game exited normally.
+13:50:43.769ms: RunCleanupAndExit(0)
+```
+
+To convert all legacy XNB textures, you can run `--export-textures`
+```
+C:\Projects\BlackBox\game>StarDrive.exe --export-textures
+```
