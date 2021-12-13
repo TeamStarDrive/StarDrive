@@ -1134,9 +1134,9 @@ namespace Ship_Game
 
         static void LoadStars()
         {
-            SmallStars  = LoadAtlas("SmallStars");
-            MediumStars = LoadAtlas("MediumStars");
-            LargeStars  = LoadAtlas("LargeStars");
+            SmallStars  = LoadAtlas("Textures/Stars/SmallStars");
+            MediumStars = LoadAtlas("Textures/Stars/MediumStars");
+            LargeStars  = LoadAtlas("Textures/Stars/LargeStars");
         }
 
         static TextureAtlas Nebulae;
@@ -1153,7 +1153,7 @@ namespace Ship_Game
             MedNebulae.Clear();
             SmallNebulae.Clear();
             Nebulae?.Dispose();
-            Nebulae = RootContent.LoadTextureAtlas("Nebulas", useAssetCache: false);
+            Nebulae = RootContent.LoadTextureAtlas("Textures/Nebulas", useAssetCache: false);
 
             for (int i = 0; i < Nebulae.Count; ++i)
             {
