@@ -1,0 +1,87 @@
+﻿# This file defines all visible fleets and their behaviour in the main menu
+# Feel free to add new fleets.
+# You can control the fleet behaviours by adding AI list commands:
+#  - [IdlingInDeepSpace, min_delay, max_delay]
+#  - [WarpingIn,         min_delay, max_delay]
+#  - [CoastWithRotate,   min_delay, max_delay]
+#  - [WarpingOut,        min_delay, max_delay]
+#  - [IdlingInDeepSpace, min_delay, max_delay]
+#  - [GoToState,         delay,      state_id]
+
+Fleets:
+  - Fleet:
+    Name: Asteroids
+    Empire: Random
+    Rotation: [-170, 160, -80]
+    AI:
+      - [WarpingIn, 1, 1]
+      - [CoastWithRotate, 50, 60]
+      - [WarpingOut, 1, 1]
+      - [IdlingInDeepSpace, 15, 22]
+
+    Ships:
+
+      # BIg rock
+      - Ship: { Role: cruiser, Speed: 100, Position: [-2700, -500, 2050] }
+      # smaller rocks
+      - Ship: { Role: corvette, Speed: 95, Position: [-3000, -300, 2550] }
+      - Ship: { Role: corvette, Speed: 100, Position: [-2950, -550, 2500] }
+      - Ship: { Role: corvette, Speed: 90, Position: [-3000, -400, 2300] }
+      - Ship: { Role: corvette, Speed: 100, Position: [-3000, -560, 2200] }
+      - Ship: { Role: corvette, Speed: 90, Position: [-2980, -600, 2400] }
+
+      # smallest rocks
+      - Ship: { Role: fighter, Speed: 90, Position: [-2900, -800, 2250] }
+      - Ship: { Role: fighter, Speed: 85, Position: [-2900, -450, 2300] }
+      - Ship: { Role: fighter, Speed: 95, Position: [-2900, -700, 2150] }
+      - Ship: { Role: fighter, Speed: 90, Position: [-2900, -300, 2150] }
+      - Ship: { Role: fighter, Speed: 95, Position: [-2900, -200, 2150] }
+      - Ship: { Role: fighter, Speed: 90, Position: [-3300, -600, 2600] }
+      - Ship: { Role: fighter, Speed: 90, Position: [-3400, -500, 2550] }
+      - Ship: { Role: fighter, Speed: 90, Position: [-3300, -400, 2600] }
+
+  - Fleet:
+    Name: Shipyard
+    Empire: Random
+    Rotation: [-25, 10, 295]
+    AI:
+      - [CoastWithRotate, 80, 1000]
+      - [IdlingInDeepSpace, 15, 18]
+    Ships:
+      - Ship: { Role: Station, Speed: 10, Position: [600, 300, 450] } #doesnt load shipyard model
+
+  - Fleet:
+    Name: BackgroundFreighters_LeftToRight
+    DiverseShipEmpires: True
+    DisableJumpSfx: True
+    Rotation: [0, 45, 90]
+    MinPos: [-15000,-600,12000]
+    MaxPos: [15000,400,8000]
+    SpeedRange: [70, 110]
+    AI:
+      - [FreighterCoast, 1, 130]
+      - [WarpingOut, 1, 1]
+      - [IdlingInDeepSpace, 10, 15]
+      - [WarpingIn, 1, 1]
+      - [GoToState, 0, 0]
+    ShipGroups:
+      - ShipGroup: { Role: freighter, Count: 42 }
+      - ShipGroup: { Role: fighter, Count: 16 }
+
+  - Fleet:
+    Name: BackgroundFreighters_RightToLeft
+    DiverseShipEmpires: True
+    DisableJumpSfx: True
+    Rotation: [0, 45, -90]
+    MinPos: [-15000,700,14000]
+    MaxPos: [15000,1500,10000]
+    SpeedRange: [70, 110]
+    AI:
+      - [FreighterCoast, 1, 130]
+      - [WarpingOut, 1, 1]
+      - [IdlingInDeepSpace, 10, 15]
+      - [WarpingIn, 1, 1]
+      - [GoToState, 0, 0]
+    ShipGroups:
+      - ShipGroup: { Role: freighter, Count: 42 }
+      - ShipGroup: { Role: fighter, Count: 16 }

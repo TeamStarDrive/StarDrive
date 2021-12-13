@@ -1,0 +1,10 @@
+﻿Default: Mars
+MainMenus:
+  - MainMenu:
+    Name: Venus
+    UILayoutFile: UI/MMenu.Venus.yaml
+    SceneFile: UI/MMenu.Venus.scene.yaml
+  - MainMenu:
+    Name: Mars
+    UILayoutFile: UI/MMenu.Mars.yaml
+    SceneFile: UI/MMenu.Mars.scene.yaml
