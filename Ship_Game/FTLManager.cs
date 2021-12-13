@@ -169,26 +169,27 @@ namespace Ship_Game
         static readonly Array<FTLInstance> Effects = new Array<FTLInstance>();
         static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
 
-        public static void LoadContent(GameScreen screen)
+        public static void LoadContent(GameScreen screen, bool reload = false)
         {
             using (Lock.AcquireWriteLock())
             {
                 if (FTLLayers != null)
                 {
+                    if (!reload)
+                        return; // already loaded
                     Effects.Clear();
                     FTLLayers = null;
                 }
 
-                FileInfo file = ResourceManager.GetModOrVanillaFile("FTL.yaml");
-                ScreenManager.Instance.AddHotLoadTarget(screen, "FTL", file.FullName, fileInfo =>
+                FileInfo file = screen.ScreenManager.AddHotLoadTarget(screen, "FTL.yaml", fileInfo =>
                 {
-                    LoadContent(screen);
+                    LoadContent(screen, reload:true);
                 });
 
                 FTLLayers = YamlParser.DeserializeArray<FTLLayerData>(file).ToArray();
                 foreach (FTLLayerData layerData in FTLLayers)
                 {
-                    layerData.LoadContent(screen.TransientContent);
+                    layerData.LoadContent(ResourceManager.RootContent);
                 }
             }
         }

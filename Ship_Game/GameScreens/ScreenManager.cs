@@ -437,14 +437,30 @@ namespace Ship_Game
         // HotLoading allows for modifying game content while the game is running
         // Different content managers are triggered through `OnModified`
         // which will reload appropriate subsystems
+        // @param relativePath File to check
+        // @param onModified Event to trigger if File was changed
+        public FileInfo AddHotLoadTarget(GameScreen screen, string relativePath, Action<FileInfo> onModified)
+        {
+            FileInfo file = ResourceManager.GetModOrVanillaFile(relativePath);
+            if (file == null)
+                throw new FileNotFoundException($"No such file: {relativePath}");
+            
+            AddHotLoadTarget(screen, file, onModified);
+            return file;
+        }
+
+        // HotLoading allows for modifying game content while the game is running
+        // Different content managers are triggered through `OnModified`
+        // which will reload appropriate subsystems
         // @param key Unique key to categorize the hot load target
         // @param file File to check
         // @param onModified Event to trigger if File was changed
-        public void AddHotLoadTarget(GameScreen screen, string key, string file, Action<FileInfo> onModified)
+        public void AddHotLoadTarget(GameScreen screen, FileInfo file, Action<FileInfo> onModified)
         {
+            string key = file.Name;
             HotLoadTargets[key] = new Hotloadable {
-                File = file,
-                LastModified = File.GetLastWriteTimeUtc(file),
+                File = file.FullName,
+                LastModified = file.LastWriteTimeUtc,
                 OnModified = onModified
             };
             if (screen != null)
@@ -459,17 +475,22 @@ namespace Ship_Game
         // Adds a GameScreen as a HotLoad target
         // @note HotLoad is removed when screen exits
         // @note GameScreen.ReloadContent() is called when file is modified
-        public void AddHotLoadTarget(GameScreen screen, string key, string file)
+        public FileInfo AddHotLoadTarget(GameScreen screen, string relativePath)
         {
-            HotLoadTargets[key] = new Hotloadable {
-                File = file,
-                LastModified = File.GetLastWriteTimeUtc(file),
+            FileInfo file = ResourceManager.GetModOrVanillaFile(relativePath);
+            if (file == null)
+                throw new FileNotFoundException($"No such file: {relativePath}");
+
+            HotLoadTargets[relativePath] = new Hotloadable {
+                File = file.FullName,
+                LastModified = file.LastWriteTimeUtc,
                 Screen = screen
             };
             screen.OnExit += () =>
             {
-                HotLoadTargets.Remove(key);
+                HotLoadTargets.Remove(relativePath);
             };
+            return file;
         }
 
         // Remove an entry from registered hot load targets

@@ -15,11 +15,9 @@ namespace Ship_Game.UI
         // Loads GameScreen and registers it for HotLoading
         public static void LoadLayout(GameScreen screen, string layoutFile, bool clearElements)
         {
-            FileInfo file = ResourceManager.GetModOrVanillaFile(layoutFile);
-            LoadLayout(screen, screen.ScreenArea, file, clearElements);
-
             // trigger ReloadContent when layout file is modified
-            ScreenManager.Instance.AddHotLoadTarget(screen, layoutFile, file.FullName);
+            FileInfo file = screen.ScreenManager.AddHotLoadTarget(screen, layoutFile);
+            LoadLayout(screen, screen.ScreenArea, file, clearElements);
         }
 
         // Loads a generic UI container -- does not register for HotLoading

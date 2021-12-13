@@ -385,7 +385,7 @@ namespace Ship_Game
                 RootContent.RawContent.ExportAllXnbMeshes();
         }
 
-        static FileInfo ModInfo(string file)     => new FileInfo( ModContentDirectory + file );
+        static FileInfo ModInfo(string file) => new FileInfo( ModContentDirectory + file );
         public static FileInfo ContentInfo(string file) => new FileInfo( ContentDirectory + file );
 
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
