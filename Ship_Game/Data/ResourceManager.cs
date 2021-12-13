@@ -198,7 +198,6 @@ namespace Ship_Game
                 GlobalStats.ClearActiveMod();
 
             LoadContent();
-            Profiled(TestLoad);
             Profiled(RunExportTasks);
 
             LoadGraphicsResources(manager);
@@ -379,31 +378,11 @@ namespace Ship_Game
 
         static void RunExportTasks()
         {
-            if (!GlobalStats.ExportTextures)
-                return;
-
-            if (!Debugger.IsAttached)
-                Log.ShowConsoleWindow();
-
             if (GlobalStats.ExportTextures)
                 RootContent.RawContent.ExportAllTextures();
 
             if (GlobalStats.ExportMeshes)
                 RootContent.RawContent.ExportAllXnbMeshes();
-
-            if (!Debugger.IsAttached)
-                Log.HideConsoleWindow();
-        }
-
-        static void TestLoad()
-        {
-            if (!GlobalStats.TestLoad) return;
-
-            Log.ShowConsoleWindow();
-            //TestTechTextures();
-
-            if (!Debugger.IsAttached)
-                Log.HideConsoleWindow();
         }
 
         static FileInfo ModInfo(string file)     => new FileInfo( ModContentDirectory + file );
