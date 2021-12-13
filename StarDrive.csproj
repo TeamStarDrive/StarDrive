@@ -225,12 +225,12 @@
     <Compile Include="Ship_Game\ExtensionMethods\Vector3d.cs" />
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenusDescr.cs" />
+    <Compile Include="Ship_Game\GameScreens\Scene\ObjectSpawnInfo.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneActions.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneAction.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\EnvPreferencesPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneInstance.cs" />
-    <Compile Include="Ship_Game\GameScreens\Scene\ShipGroupInfo.cs" />
-    <Compile Include="Ship_Game\GameScreens\Scene\ShipSpawnInfo.cs" />
+    <Compile Include="Ship_Game\GameScreens\Scene\ObjectGroupInfo.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HullEditorControls.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen_MirrorSlot.cs" />
     <Compile Include="Ship_Game\GameScreens\Universe\Debug\ResearchDebugUnlocks.cs" />
@@ -485,7 +485,7 @@
     <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />
     <Compile Include="Ship_Game\GameScreens\LightRigIdentity.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />
-    <Compile Include="Ship_Game\GameScreens\Scene\SceneShip.cs" />
+    <Compile Include="Ship_Game\GameScreens\Scene\SceneObj.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneShipAI.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\UIColorPicker.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceDesignScreen_RaceDescription.cs" />

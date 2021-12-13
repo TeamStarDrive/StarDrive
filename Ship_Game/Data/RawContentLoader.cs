@@ -153,8 +153,11 @@ namespace Ship_Game.Data
                 MeshExport.Export(model, nameNoExt, savePath);
                 return;
             }
-            catch
+            catch (Exception e)
             {
+                if (e.Message.Contains("File contains Microsoft.Xna.Framework.Graphics.") ||
+                    e.Message.Contains("already loaded as 'Microsoft.Xna.Framework.Graphics"))
+                    return;
             }
 
             try
