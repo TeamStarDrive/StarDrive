@@ -8,13 +8,13 @@ namespace Ship_Game.GameScreens.Universe.Debug
 {
     public class ResearchDebugUnlocks : UIElementContainer
     {
-        Vector2 BtnSize = new Vector2(98, 64);
-        const float BtnSpacing = 98 + 2;
+        Vector2 BtnSize = new Vector2(84, 50);
+        const float BtnSpacing = 84 + 2;
 
         Action OnResearchChanged;
 
         public ResearchDebugUnlocks(Action onResearchChanged)
-            : base(0, 0, w:BtnSpacing*5, h:64)
+            : base(0, 0, w:BtnSpacing*5, h:50)
         {
             OnResearchChanged = onResearchChanged;
 
