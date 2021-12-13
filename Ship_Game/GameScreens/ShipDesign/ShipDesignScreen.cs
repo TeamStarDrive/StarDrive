@@ -531,7 +531,7 @@ namespace Ship_Game
             if (EnableDebugFeatures)
             {
                 var debugUnlocks = Add(new ResearchDebugUnlocks(OnReloadAfterTechChange));
-                debugUnlocks.SetAbsPos(50, 35);
+                debugUnlocks.SetAbsPos(10, 45);
             }
 
             CloseButton(ScreenWidth - 27, 99);
