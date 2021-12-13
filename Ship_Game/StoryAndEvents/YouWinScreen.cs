@@ -136,8 +136,8 @@ namespace Ship_Game
             GameAudio.MuteGenericMusic();
             PlayWinTheme();
 
-            LoseTexture = TransientContent.Load<Texture2D>("WinLose/launch");
-            Reason = TransientContent.Load<Texture2D>("WinLose/YouWin");
+            LoseTexture = TransientContent.Load<Texture2D>("Textures/WinLose/launch.dds");
+            Reason = TransientContent.Load<Texture2D>("Textures/WinLose/YouWin.png");
             ReasonRect = new Rectangle(ScreenWidth / 2 - Reason.Width / 2, ScreenHeight / 2 - Reason.Height / 2 - 200, Reason.Width, Reason.Height);
             desaturateEffect = TransientContent.Load<Effect>("Effects/desaturate");
             Portrait = new Rectangle(0, 0, 1920, 1080);
