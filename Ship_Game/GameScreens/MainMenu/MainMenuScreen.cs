@@ -1,9 +1,11 @@
 using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data.Yaml;
+using Ship_Game.GameScreens.Scene;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
@@ -19,7 +21,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
     public sealed class MainMenuScreen : GameScreen
     {
-        readonly Array<MenuFleet> Fleets = new Array<MenuFleet>();
+        SceneInstance Scene;
         UIElementContainer VersionArea;
         Vector3 CamPos;
         MainMenuType Type;
@@ -47,7 +49,8 @@ namespace Ship_Game.GameScreens.MainMenu
             ResetMusic();
             SetupMainMenuLightRig();
 
-            UI.LayoutParser.LoadLayout(this, "UI/MainMenu.yaml", clearElements: true);
+            MainMenuDesc menu = YamlParser.Deserialize<MainMenusDescr>("MainMenus.yaml").GetDefault();
+            UI.LayoutParser.LoadLayout(this, menu.UILayoutFile, clearElements: true);
 
             if (GlobalStats.HasMod)
             {
@@ -79,9 +82,9 @@ namespace Ship_Game.GameScreens.MainMenu
             var animOffset = new Vector2(512f * (ScreenWidth / 1920f), 0);
             list.StartGroupTransition<UIButton>(animOffset, -1, time:0.5f);
             OnExit += () => list.StartGroupTransition<UIButton>(animOffset, +1, time:0.5f);
-            
+
             FTLManager.LoadContent(this);
-            CreateMainMenuFleet();
+            Scene = SceneInstance.FromFile(this, menu.SceneFile);
 
             CamPos = new Vector3(0f, 0f, -1000f);
             var lookAt = new Vector3(0f, 0f, 10000f);
@@ -160,26 +163,6 @@ namespace Ship_Game.GameScreens.MainMenu
                 VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 38, modTitle) { Name = "mod_title" });
         }
 
-        void CreateMainMenuFleet()
-        {
-            Fleets.Clear();
-            Array<MenuFleet> fleets = YamlParser.DeserializeArray<MenuFleet>("MainMenuFleets.yaml");
-            foreach (MenuFleet fleet in fleets)
-            {
-                fleet.CreateShips(this);
-                if (fleet.FleetShips.NotEmpty)
-                    Fleets.Add(fleet);
-            }
-        }
-        
-        void UpdateMainMenuShips(FixedSimTime timeStep)
-        {
-            foreach (MenuFleet fleet in Fleets)
-            {
-                fleet.Update(this, timeStep);
-            }
-        }
-        
         public void ResetMusic()
         {
             GameAudio.ConfigureAudioSettings();
@@ -221,8 +204,8 @@ namespace Ship_Game.GameScreens.MainMenu
             if (!IsActive)
                 return false;
 
-            foreach (var fleet in Fleets)
-                fleet.HandleInput(input, this);
+            if (Scene.HandleInput(input))
+                return true;
 
             // handle buttons and stuff
             if (base.HandleInput(input))
@@ -268,7 +251,7 @@ namespace Ship_Game.GameScreens.MainMenu
             while (SimTimeSink >= simTime.FixedTime)
             {
                 SimTimeSink -= simTime.FixedTime;
-                UpdateMainMenuShips(simTime);
+                Scene.Update(simTime);
                 FTLManager.Update(this, simTime);
             }
 
@@ -296,10 +279,7 @@ namespace Ship_Game.GameScreens.MainMenu
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             DrawMultiLayeredExperimental(ScreenManager, batch, elapsed, draw3D:true);
-
-            foreach (var fleet in Fleets)
-                fleet.Draw(batch, this);
-
+            Scene?.Draw(batch, elapsed);
             FTLManager.DrawFTLModels(batch, this);
         }
     }

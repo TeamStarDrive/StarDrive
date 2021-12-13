@@ -98,7 +98,7 @@ Elements:
 
   - Panel:
     Name: planet
-    Texture: MMenu/new_planet.dds
+    Texture: MMenu/mm_Venus/new_planet.dds
     RelPos: [0, 0]
     RelSize: [0, 0.8] # set relative height, auto-aspect width
     AxisAlign: BottomCenter # Align our Pos and Axis
@@ -106,7 +106,7 @@ Elements:
     Children:
       - Panel:
         Name: citylights
-        Texture: MMenu/citylights3.dds
+        Texture: MMenu/mm_Venus/citylights3.dds
         RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
         Color: [0.45,0.45,0.45,1.0]
         AxisAlign: BottomCenter
@@ -120,7 +120,7 @@ Elements:
           MaxColor: [0.45,0.45,0.45,1.0]
       - Panel:
         Name: planet_flare
-        Texture: MMenu/new_flare.dds
+        Texture: MMenu/mm_Venus/new_flare.dds
         RelSize: [0.62, 0] # auto-detect height from aspect ratio
         RelPos: [0, -0.21]
         Visible: true
@@ -132,7 +132,7 @@ Elements:
           MaxColor: [1.0,1.0,1.0,1.0]    # to max
       - Panel:
         Name: optical_sun_flare
-        Texture: MMenu/optical_flare.dds
+        Texture: MMenu/mm_Venus/optical_flare.dds
         RelSize: [1, 0] # fill width, auto-detect height from aspect ratio
         RelPos: [0.01, -0.06]
         Visible: true
