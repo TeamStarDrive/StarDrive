@@ -98,7 +98,6 @@ namespace Ship_Game
             #else
                 environment = GlobalStats.Version.ToLower().Contains("test") ? "Test" : "Release";
             #endif
-                HideConsoleWindow();
             }
             
             if (enableSentry)

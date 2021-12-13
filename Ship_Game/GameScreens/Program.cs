@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.Threading;
-using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 
 namespace Ship_Game
@@ -29,7 +28,7 @@ namespace Ship_Game
         }
 
         static bool HasRunCleanupTasks;
-        
+
         public static void RunCleanupAndExit(int exitCode)
         {
             if (HasRunCleanupTasks)
@@ -112,18 +111,20 @@ namespace Ship_Game
             Log.Write("StarDrive BlackBox Command Line Interface (CLI)");
             Log.Write("  --help             Shows this help message");
             Log.Write("  --mod=\"<mod>\"    Load the game with the specified <mod>, eg: --mod=\"Combined Arms\" ");
-            Log.Write("  --export-textures  Exports all texture files as PNG and DDS");
+            Log.Write("  --export-textures  Exports all texture files as PNG and DDS to game/ExportedTextures");
             Log.Write("  --export-meshes    Exports all mesh files as FBX");
             Log.Write("  --generate-hulls   Generates new .hull files from old XML hulls");
             Log.Write("  --generate-ships   Generates new ship .design files from old XML ships");
             Log.Write("  --fix-roles        Fixes Role and Category for all .design ships");
             Log.Write("  --run-localizer=[0-2] Run localization tool to merge missing translations and generate id-s");
             Log.Write("                        0: disabled  1: generate with YAML NameIds  2: generate with C# NameIds");
-            PressAnyKey();
+            Log.Write("  --continue         After running CLI tasks, continue to game as normal");
         }
 
         static void PressAnyKey()
         {
+            if (Console.IsInputRedirected)
+                return;
             Log.Write(ConsoleColor.Gray, "Press any key to continue...");
             Console.ReadKey(false);
         }
@@ -146,7 +147,7 @@ namespace Ship_Game
                 Log.Initialize(enableSentry: true, showHeader: true);
                 Thread.CurrentThread.Name = "Main Thread";
                 Log.AddThreadMonitor();
-                
+
                 if (!ParseMainArgs(args))
                 {
                     PrintHelp();
@@ -165,7 +166,7 @@ namespace Ship_Game
                         using (var game = new StarDriveGame())
                             game.Run();
                     }
-                    else
+                    else if (Log.HasDebugger)
                     {
                         PressAnyKey();
                     }
