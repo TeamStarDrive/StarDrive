@@ -40,7 +40,7 @@ namespace Ship_Game
             {
                 string texture = Texture.NotEmpty()
                     ? "Textures/" + Texture
-                    : "Textures/Ships/FTL.xnb";
+                    : "Textures/Ships/FTL.png";
                 Tex = content.LoadTextureOrDefault(texture);
 
                 ScaleCurves = new AnimationCurve(ScaleCurve, Duration);
