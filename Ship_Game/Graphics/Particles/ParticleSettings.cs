@@ -55,10 +55,9 @@ namespace Ship_Game
         public static void LoadAll()
         {
             GameLoadingScreen.SetStatus("LoadParticles");
-            
-            FileInfo file = ResourceManager.GetModOrVanillaFile("3DParticles/Particles.yaml");
+
+            FileInfo file = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/Particles.yaml", LoadParticles);
             LoadParticles(file);
-            GameBase.ScreenManager.AddHotLoadTarget(null, "Particles", file.FullName, LoadParticles);
         }
 
         public static void Unload()
