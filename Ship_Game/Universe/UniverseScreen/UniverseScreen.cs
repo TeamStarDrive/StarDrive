@@ -627,7 +627,7 @@ namespace Ship_Game
 
             if (FogMap == null)
             {
-                FogMap = ResourceManager.Texture2D("UniverseFeather");
+                FogMap = ResourceManager.Texture2D("UniverseFeather.dds");
             }
 
             FogMapTarget = new RenderTarget2D(device, 512, 512, 1, backBufferFormat,
