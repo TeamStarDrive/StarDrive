@@ -32,8 +32,6 @@ namespace Ship_Game
             RemoveAll();
             Size = screen.Size;
             LoadPortrait(screen);
-            
-            LayoutParser.LoadLayout(screen, Size, "UI/MainMenu.Mod.yaml", clearElements: false, required: false);
         }
 
         public void DrawListElement(SpriteBatch batch, Rectangle clickRect)

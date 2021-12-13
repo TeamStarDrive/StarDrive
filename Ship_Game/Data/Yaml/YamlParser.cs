@@ -491,6 +491,36 @@ namespace Ship_Game.Data.Yaml
             return default;
         }
 
+        public static T DeserializeOne<T>(string modOrVanillaFile) where T : new()
+        {
+            using (var parser = new YamlParser(modOrVanillaFile))
+                return parser.DeserializeOne<T>();
+        }
+
+        public static T DeserializeOne<T>(FileInfo file) where T : new()
+        {
+            using (var parser = new YamlParser(file))
+                return parser.DeserializeOne<T>();
+        }
+
+        public T Deserialize<T>() where T : new()
+        {
+            var ser = new YamlSerializer.YamlSerializer(typeof(T));
+            return (T)ser.Deserialize(Root);
+        }
+
+        public static T Deserialize<T>(string modOrVanillaFile) where T : new()
+        {
+            using (var parser = new YamlParser(modOrVanillaFile))
+                return parser.Deserialize<T>();
+        }
+
+        public static T Deserialize<T>(FileInfo file) where T : new()
+        {
+            using (var parser = new YamlParser(file))
+                return parser.Deserialize<T>();
+        }
+
         /// <summary>
         /// Deserializes a map of root elements with unique identifiers
         /// ...
