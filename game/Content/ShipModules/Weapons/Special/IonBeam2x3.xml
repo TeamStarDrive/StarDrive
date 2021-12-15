@@ -5,7 +5,7 @@
   <Version>2</Version>
 
   <Cost>8</Cost>
-  
+ 
   <!-- common traits shared by all ship modules -->
   <XSIZE>2</XSIZE>
   <YSIZE>3</YSIZE>

@@ -20,14 +20,14 @@
   <Description>.</Description>
   <CrewRequired>0</CrewRequired>
   <CrewSupplied>0</CrewSupplied>
-  <PowerDraw>240</PowerDraw>
- 
+  <PowerDraw>200</PowerDraw>
+  <PowerDrawAtWarp>-100</PowerDrawAtWarp>
 
   <NameIndex>2046</NameIndex>
   <DescriptionIndex>2047</DescriptionIndex>
 
 
-  <OrdnanceAddedPerSecond>4.8</OrdnanceAddedPerSecond>
+  <OrdnanceAddedPerSecond>5</OrdnanceAddedPerSecond>
 
   <!-- for shield items -->
   <shield_power>0</shield_power>
