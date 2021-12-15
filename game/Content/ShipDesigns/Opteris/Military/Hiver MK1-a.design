@@ -14,7 +14,7 @@ IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=CompositeAlloys Large;CompositeAlloys Small;CompositeAlloys Med;AdvancedCellSmall;AdvancedCellMed;PhasorTurret3x3;BosonTransmiter;Internal Bulkhead;AdvAmplifier;Extreme Fusion Reactor;PhasorTurret2x2;EnergyPDRapid;Shield_10KW;MarineBarracks2x2;FusionBeam2x4;Cockpit;Maneuvering_Thruster_1x2;Pulse Capacitor;Reinforced Bulkhead;PowerConduit;Bridge;Engine;FrigateEngine;WarpEngine_2x2
-Modules=406
+Modules=397
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 11,0;0;3,3
 16,0;0;3,3
@@ -77,12 +77,12 @@ Modules=406
 5,10;4;2,2
 7,10;4;2,2
 11,10;3
-12,10;3
-13,10;6
+12,10;7
+13,10;7
 14,10;7
 15,10;7
-16,10;6
-17,10;3
+16,10;7
+17,10;7
 18,10;3
 21,10;4;2,2
 23,10;4;2,2
@@ -90,9 +90,8 @@ Modules=406
 4,11;1
 9,11;3
 11,11;8;2,2
-13,11;7
-14,11;9;2,2
-16,11;7
+13,11;9;2,2
+15,11;9;2,2
 17,11;8;2,2
 20,11;3
 25,11;1
@@ -101,8 +100,6 @@ Modules=406
 7,12;3
 8,12;10;2,2;330
 10,12;6
-13,12;7
-16,12;7
 19,12;6
 20,12;10;2,2;30
 22,12;3
@@ -112,9 +109,8 @@ Modules=406
 10,13;1
 11,13;1
 12,13;1
-13,13;7
-14,13;9;2,2
-16,13;7
+13,13;9;2,2
+15,13;9;2,2
 17,13;1
 18,13;1
 19,13;1
@@ -122,8 +118,6 @@ Modules=406
 8,14;1
 9,14;2;2,2
 12,14;1
-13,14;7
-16,14;7
 17,14;1
 19,14;2;2,2
 21,14;1
@@ -212,10 +206,9 @@ Modules=406
 0,21;1
 1,21;3
 11,21;15
-12,21;3
-13,21;4;2,2
-15,21;4;2,2
-17,21;3
+12,21;4;2,2
+14,21;9;2,2
+16,21;4;2,2
 18,21;15
 28,21;3
 29,21;1
@@ -224,8 +217,6 @@ Modules=406
 4,22;1
 5,22;10;2,2;315
 10,22;16;2,1
-12,22;3
-17,22;3
 18,22;16;2,1
 23,22;10;2,2;45
 25,22;1
