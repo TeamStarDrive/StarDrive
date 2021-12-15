@@ -17,7 +17,9 @@
   <Tag_Drone>false</Tag_Drone>
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
-  
+
+  <OffPowerMod>0.25</OffPowerMod>
+
   <UID>HeavyIonBeam</UID>
   <isBeam>true</isBeam>
   <fireDelay>4.5</fireDelay>
@@ -33,7 +35,7 @@
   <!-- Projectile Information -->
   <BeamTexture>beam_yellow</BeamTexture>
 
-  <PowerDamage>25</PowerDamage>
+  <PowerDamage>40</PowerDamage>
   <DamageAmount>6</DamageAmount>
   <BeamThickness>50</BeamThickness>
   <BeamPowerCostPerSecond>80</BeamPowerCostPerSecond>
