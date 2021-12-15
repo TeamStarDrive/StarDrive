@@ -13,7 +13,7 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=Crystal Armor Large;Crystal Armor Small;Crystal Armor Med;AdvancedCellMed;AdvancedCellSmall;PhasorBeam2x5;PhasorTurret2x2;BosonTransmiter;SiphonBeam2x3;Internal Bulkhead;Extreme Fusion Reactor;MarineBarracks2x2;EnergyPDRapid;AdvAmplifier;ArmoredShield4x4;Cockpit;Maneuvering_Thruster_1x2;PhasorTurret4x4;Pulse Capacitor;Reinforced Bulkhead;PowerConduit;Bridge;WarpEngine_3x3;Titan Engine;WarpEngine_1x1;WarpEngine_2x2
+ModuleUIDs=Crystal Armor Large;Crystal Armor Small;Crystal Armor Med;AdvancedCellMed;AdvancedCellSmall;PhasorBeam2x5;PhasorTurret2x2;BosonTransmiter;MarineBarracks2x2;SiphonBeam2x3;Internal Bulkhead;Extreme Fusion Reactor;EnergyPDRapid;AdvAmplifier;ArmoredShield4x4;Cockpit;Maneuvering_Thruster_1x2;PhasorTurret4x4;Pulse Capacitor;Reinforced Bulkhead;PowerConduit;Bridge;WarpEngine_3x3;Titan Engine;WarpEngine_1x1;WarpEngine_2x2
 Modules=386
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 11,0;0;3,3
@@ -55,12 +55,12 @@ Modules=386
 23,7;1
 5,8;1
 6,8;1
-7,8;3;2,2
+7,8;8;2,2
 9,8;6;2,2;300
 13,8;3;2,2
 15,8;3;2,2
 19,8;6;2,2;60
-21,8;3;2,2
+21,8;8;2,2
 23,8;1
 24,8;1
 4,9;1
@@ -73,22 +73,22 @@ Modules=386
 5,10;3;2,2
 7,10;4
 8,10;4
-11,10;8;2,3
+11,10;9;2,3
 13,10;7
-14,10;9
-15,10;9
+14,10;10
+15,10;10
 16,10;7
-17,10;8;2,3
+17,10;9;2,3
 21,10;4
 22,10;4
 23,10;3;2,2
 25,10;1
 4,11;1
 7,11;4
-8,11;8;2,3
-13,11;10;2,2
-15,11;10;2,2
-20,11;8;2,3
+8,11;9;2,3
+13,11;11;2,2
+15,11;11;2,2
+20,11;9;2,3
 22,11;4
 25,11;1
 5,12;1
@@ -103,10 +103,8 @@ Modules=386
 10,13;1
 11,13;1
 12,13;1
-13,13;9
-14,13;9
-15,13;9
-16,13;9
+13,13;11;2,2
+15,13;11;2,2
 17,13;1
 18,13;1
 19,13;1
@@ -114,8 +112,6 @@ Modules=386
 8,14;1
 9,14;2;2,2
 12,14;1
-13,14;11;2,2
-15,14;11;2,2
 17,14;1
 19,14;2;2,2
 21,14;1
@@ -126,6 +122,10 @@ Modules=386
 7,15;1
 8,15;1
 11,15;12;2,2;315
+13,15;10
+14,15;10
+15,15;10
+16,15;10
 17,15;12;2,2;45
 21,15;1
 22,15;1
@@ -259,7 +259,7 @@ Modules=386
 7,26;7
 8,26;4
 13,26;4
-14,26;10;2,2
+14,26;11;2,2
 16,26;4
 21,26;4
 22,26;7
@@ -313,11 +313,11 @@ Modules=386
 6,30;1
 7,30;1
 8,30;13;2,2
-10,30;10;2,2
-12,30;10;2,2
+10,30;11;2,2
+12,30;11;2,2
 14,30;19;2,2
-16,30;10;2,2
-18,30;10;2,2
+16,30;11;2,2
+18,30;11;2,2
 20,30;13;2,2
 22,30;1
 23,30;1
@@ -336,11 +336,11 @@ Modules=386
 6,32;1
 7,32;1
 8,32;13;2,2
-10,32;10;2,2
-12,32;10;2,2
+10,32;11;2,2
+12,32;11;2,2
 14,32;19;2,2
-16,32;10;2,2
-18,32;10;2,2
+16,32;11;2,2
+18,32;11;2,2
 20,32;13;2,2
 22,32;1
 23,32;1
@@ -355,11 +355,11 @@ Modules=386
 3,34;1
 7,34;1
 8,34;13;2,2
-10,34;10;2,2
-12,34;10;2,2
+10,34;11;2,2
+12,34;11;2,2
 14,34;19;2,2
-16,34;10;2,2
-18,34;10;2,2
+16,34;11;2,2
+18,34;11;2,2
 20,34;13;2,2
 22,34;1
 26,34;1

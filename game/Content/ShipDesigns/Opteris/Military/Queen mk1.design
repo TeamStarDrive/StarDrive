@@ -14,7 +14,7 @@ IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=Crystal Armor Med;Crystal Armor Small;Crystal Armor Large;PhasorTurret2x2;AdvancedCellSmall;BosonTransmiter;Pulse Capacitor;PhasorBeam2x5;PowerConduit;AdvancedCellMed;NuclearBombBay2x2;PhasorTurret4x4;AdvAmplifier;ArmoredShield4x4;Extreme Fusion Reactor;TroopAssaultBay;MarineBarracks6x3;Fabricator;PhasorTurret3x3;AntiMatterReactor;Maneuvering_Thruster_1x4;Maneuvering_Thruster_1x2;Maneuvering_Thruster_1x3;Bridge;EnergyPDRapid;Reinforced Bulkhead;Engine;WarpEngine_4x4;Titan Engine;WarpEngine_2x2
-Modules=681
+Modules=685
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 25,0;0;2,2
 24,1;1
@@ -330,10 +330,10 @@ Modules=681
 17,33;4
 18,33;9;2,2
 20,33;9;2,2
-22,33;9;2,2
-24,33;4
-25,33;19;3,3
-28,33;9;2,2
+22,33;4
+23,33;19;3,3
+26,33;19;3,3
+29,33;4
 30,33;9;2,2
 32,33;9;2,2
 34,33;4
@@ -343,7 +343,8 @@ Modules=681
 42,33;1
 9,34;1
 17,34;4
-24,34;4
+22,34;4
+29,34;4
 34,34;4
 42,34;1
 8,35;1
@@ -351,9 +352,8 @@ Modules=681
 16,35;14;2,2
 18,35;9;2,2
 20,35;9;2,2
-22,35;9;2,2
-24,35;4
-28,35;9;2,2
+22,35;4
+29,35;4
 30,35;9;2,2
 32,35;9;2,2
 34,35;14;2,2
@@ -361,10 +361,14 @@ Modules=681
 43,35;1
 8,36;1
 9,36;20;4,1
+22,36;4
+23,36;4
 24,36;4
 25,36;4
 26,36;4
 27,36;4
+28,36;4
+29,36;4
 39,36;20;4,1
 43,36;1
 7,37;1
