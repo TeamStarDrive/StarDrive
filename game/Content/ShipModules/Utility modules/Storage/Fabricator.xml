@@ -21,7 +21,8 @@
   </Description>
   <CrewRequired>0</CrewRequired>
   <CrewSupplied>0</CrewSupplied>
-  <PowerDraw>60</PowerDraw>
+  <PowerDraw>50</PowerDraw>
+  <PowerDrawAtWarp>-25</PowerDrawAtWarp>
 
 
 
