@@ -13,7 +13,7 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=CompositeAlloys Small;CompositeAlloys Large;CompositeAlloys Med;FuelCellSmallArmored;EnergyPDRapid;PowerConduit;FuelCellMediumArmored;SiphonBeam2x3;NuclearReactorSmall;Amplifier;FusionBeam2x4;MarineBarracks2x2;Shield_10KW;PowerSolar;PhasorTurret3x3;Bridge;Extreme Fusion Reactor;PhasorTurret2x2;LaserCannon;Maneuvering_Thruster_1x1;Maneuvering_Thruster_1x2;WarpEngine_1x1;FrigateEngine;WarpEngine_2x2
+ModuleUIDs=CompositeAlloys Small;CompositeAlloys Large;CompositeAlloys Med;FuelCellSmallArmored;EnergyPDRapid;PowerConduit;FuelCellMediumArmored;SiphonBeam2x3;NuclearReactorSmall;Amplifier;FusionBeam2x4;MarineBarracks2x2;Extreme Fusion Reactor;Shield_10KW;PowerSolar;PhasorTurret3x3;Bridge;PhasorTurret2x2;LaserCannon;Maneuvering_Thruster_1x1;Maneuvering_Thruster_1x2;WarpEngine_1x1;FrigateEngine;WarpEngine_2x2
 Modules=223
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 8,0;0
@@ -103,34 +103,34 @@ Modules=223
 5,11;0
 6,11;10;2,4
 8,11;11;2,2
-10,11;6;2,2
+10,11;12;2,2
 12,11;10;2,4
 14,11;0
 5,12;0
 14,12;0
 4,13;0
 5,13;0
-8,13;12;3,3
+8,13;13;3,3
 11,13;3
 14,13;0
 15,13;0
 4,14;0
-5,14;13
+5,14;14
 11,14;3
-14,14;13
+14,14;14
 15,14;0
 3,15;0
 4,15;0
-5,15;14;3,3;315
+5,15;15;3,3;315
 11,15;9
-12,15;14;3,3;315
+12,15;15;3,3;315
 15,15;0
 16,15;0
 2,16;0
 3,16;0
 4,16;0
-8,16;15;2,2
-10,16;16;2,2
+8,16;16;2,2
+10,16;12;2,2
 15,16;0
 16,16;0
 17,16;0
@@ -169,9 +169,9 @@ Modules=223
 1,20;0
 4,20;0
 5,20;17;2,2;270
-7,20;16;2,2
-9,20;16;2,2
-11,20;16;2,2
+7,20;12;2,2
+9,20;12;2,2
+11,20;12;2,2
 13,20;17;2,2;90
 15,20;0
 18,20;0
@@ -185,9 +185,9 @@ Modules=223
 1,22;3
 4,22;0
 5,22;6;2,2
-7,22;16;2,2
-9,22;16;2,2
-11,22;16;2,2
+7,22;12;2,2
+9,22;12;2,2
+11,22;12;2,2
 13,22;6;2,2
 15,22;0
 18,22;3
@@ -233,9 +233,9 @@ Modules=223
 11,26;22;2,2
 13,26;22;2,2
 17,26;3
-7,28;13
+7,28;14
 8,28;23;2,2
 10,28;23;2,2
-12,28;13
-9,30;13
-10,30;13
+12,28;14
+9,30;14
+10,30;14
