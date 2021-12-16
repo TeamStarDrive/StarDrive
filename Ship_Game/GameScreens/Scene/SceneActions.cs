@@ -8,7 +8,6 @@ using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game.GameScreens.Scene
 {
-    
     class GoToState : SceneAction
     {
         public readonly int State;
@@ -18,7 +17,7 @@ namespace Ship_Game.GameScreens.Scene
         }
         public override bool Update(FixedSimTime timeStep)
         {
-            Ship.Position += timeStep.FixedTime * Ship.Forward * Ship.Speed;
+            Obj.Position += timeStep.FixedTime * Obj.Forward * Obj.Speed;
             return base.Update(timeStep);
         }
     }
@@ -35,28 +34,70 @@ namespace Ship_Game.GameScreens.Scene
         }
     }
 
-    class FreighterCoast : SceneAction
+    class ForwardCoast : SceneAction
     {
-        public FreighterCoast(float duration) : base(duration)
+        public ForwardCoast(float duration) : base(duration)
         {
         }
         public override bool Update(FixedSimTime timeStep)
         {
-            Ship.Position += timeStep.FixedTime * Ship.Forward * Ship.Speed;
+            Obj.Position += timeStep.FixedTime * Obj.Forward * Obj.Speed;
             return base.Update(timeStep);
         }
     }
 
+    // slow moves the object across the screen
     class CoastWithRotate : SceneAction
     {
-        public CoastWithRotate(float duration) : base(duration)
+        Vector3 RadsPerSec;
+        public CoastWithRotate(float duration, Vector3 rotRadiansPerSec) : base(duration)
         {
+            RadsPerSec = rotRadiansPerSec;
+        }
+        public override bool Update(FixedSimTime timeStep)
+        {
+            Obj.Rotation += timeStep.FixedTime * RadsPerSec;
+            Obj.Position += timeStep.FixedTime * Obj.Forward * Obj.Speed;
+            return base.Update(timeStep);
+        }
+    }
+
+    // orbits around orbit center towards fixed direction,
+    // object can rotate around its own axis while still following the orbit
+    class Orbit : SceneAction
+    {
+        Vector3 OrbitCenter;
+        Vector3 MoveDirection;
+        Vector3 ObjRotPerSec;
+        float DistFromCenter;
+
+        /// <param name="orbitCenter">Required center of the orbit</param>
+        /// <param name="moveDir">Direction of movement along the orbit</param>
+        /// <param name="objRotPerSec">How much the object rotates around its own axis. Can be ZERO.</param>
+        public Orbit(float duration, Vector3 orbitCenter, Vector3 moveDir, Vector3 objRotPerSec) : base(duration)
+        {
+            OrbitCenter = orbitCenter;
+            MoveDirection = moveDir;
+            ObjRotPerSec = objRotPerSec;
+        }
+        public override void Initialize(SceneObj obj)
+        {
+            base.Initialize(obj);
+
+            DistFromCenter = obj.Position.Distance(OrbitCenter);
+            if (DistFromCenter <= 0.1f)
+                Log.Warning($"Orbit Action: DistanceFromCenter too small: {DistFromCenter}");
         }
         public override bool Update(FixedSimTime timeStep)
         {
             // slow moves the ship across the screen
-            Ship.Rotation.Y += timeStep.FixedTime * 0.24f;
-            Ship.Position += timeStep.FixedTime * Ship.Forward * Ship.Speed;
+            Obj.Rotation += timeStep.FixedTime * ObjRotPerSec;
+            Obj.Position += timeStep.FixedTime * MoveDirection * Obj.Speed;
+
+            // keep a fixed distance from belt center after the ship has move forward
+            Vector3 towardsShip = OrbitCenter.DirectionToTarget(Obj.Position);
+            Obj.Position = OrbitCenter + towardsShip * DistFromCenter;
+
             return base.Update(timeStep);
         }
     }
@@ -67,7 +108,7 @@ namespace Ship_Game.GameScreens.Scene
         readonly Vector3 WarpScale = new Vector3(1, 4, 1);
         bool ExitingFTL;
 
-        public WarpingIn() : base(1f)
+        public WarpingIn(float duration) : base(duration)
         {
         }
         public override void Initialize(SceneObj ship)
@@ -81,23 +122,23 @@ namespace Ship_Game.GameScreens.Scene
         }
         public override bool Update(FixedSimTime timeStep)
         {
-            Ship.Position = Start.LerpTo(End, RelativeTime);
+            Obj.Position = Start.LerpTo(End, RelativeTime);
 
             if (!ExitingFTL && Remaining < 0.15f)
             {
-                FTLManager.ExitFTL(() => Ship.Position, Ship.Forward, Ship.HalfLength);
+                FTLManager.ExitFTL(() => Obj.Position, Obj.Forward, Obj.HalfLength);
                 ExitingFTL = true;
             }
 
             if (base.Update(timeStep))
             {
-                if (!Ship.Spawn.DisableJumpSfx)
+                if (!Obj.Spawn.DisableJumpSfx)
                 {
-                    string cue = Ships.Ship.GetEndWarpCue(Ship.Spawn.Empire, Ship.HullSize);
-                    Ship.PlaySfx(cue);
+                    string cue = Ships.Ship.GetEndWarpCue(Obj.Spawn.Empire, Obj.HullSize);
+                    Obj.PlaySfx(cue);
                 }
-                Ship.Position = End;
-                Ship.Scale = Vector3.One;
+                Obj.Position = End;
+                Obj.Scale = Vector3.One;
                 return true;
             }
             return false;
@@ -112,7 +153,7 @@ namespace Ship_Game.GameScreens.Scene
         float SpoolTimer;
         bool EnteringFTL;
 
-        public WarpingOut() : base(1f)
+        public WarpingOut(float duration) : base(duration)
         {
         }
         public override void Initialize(SceneObj ship)
@@ -131,23 +172,23 @@ namespace Ship_Game.GameScreens.Scene
             SpoolTimer += timeStep.FixedTime;
             if (SpoolTimer < 3.2f)
             {
-                Ship.Position += timeStep.FixedTime * Ship.Forward * Ship.Speed;
+                Obj.Position += timeStep.FixedTime * Obj.Forward * Obj.Speed;
 
                 float remaining = 3.2f - SpoolTimer;
                 if (!EnteringFTL && remaining < 0.5f)
                 {
-                    FTLManager.EnterFTL(Ship.Position, Ship.Forward, Ship.HalfLength);
+                    FTLManager.EnterFTL(Obj.Position, Obj.Forward, Obj.HalfLength);
                     EnteringFTL = true;
                 }
                 return false;
             }
 
             // spooling finished, begin warping and updating main timer:
-            Ship.Position = Start.LerpTo(End, RelativeTime);
-            Ship.Scale = WarpScale;
+            Obj.Position = Start.LerpTo(End, RelativeTime);
+            Obj.Scale = WarpScale;
             if (base.Update(timeStep))
             {
-                Ship.Scale = Vector3.One;
+                Obj.Scale = Vector3.One;
                 return true;
             }
             return false;

@@ -15,11 +15,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object Convert(object value)
         {
-            if (value is float f)  return f;
-            if (value is int i)    return (float)i;
-            if (value is string s) return StringView.ToFloat(s);
-            Error(value, "Float -- expected int or float or string");
-            return 0.0f;
+            return ToFloat(value);
         }
 
         public override void Serialize(YamlNode parent, object obj)
@@ -37,6 +33,15 @@ namespace Ship_Game.Data.Serialization.Types
         {
             float value = reader.ReadSingle();
             return value;
+        }
+
+        public static float ToFloat(object value)
+        {
+            if (value is float f) return f;
+            if (value is int i) return (float)i;
+            if (value is string s) return StringView.ToFloat(s);
+            Error(value, "Float -- expected int or float or string");
+            return 0.0f;
         }
     }
 

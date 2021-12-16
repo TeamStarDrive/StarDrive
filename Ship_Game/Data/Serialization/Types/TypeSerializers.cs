@@ -38,14 +38,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object Convert(object value)
         {
-            if (value is int i)   return new Range(i);
-            if (value is float f) return new Range(f);
-            if (!(value is object[] objects) || objects.Length < 2)
-            {
-                Error(value, "Range -- expected [float,float] or [int,int] or float or int");
-                return new Range(0);
-            }
-            return new Range(Float(objects[0]), Float(objects[1]));
+            return ToRange(value);
         }
 
         public override void Serialize(YamlNode parent, object obj)
@@ -67,6 +60,25 @@ namespace Ship_Game.Data.Serialization.Types
             range.Min = reader.ReadSingle();
             range.Max = reader.ReadSingle();
             return range;
+        }
+
+        public static Range ToRange(object value)
+        {
+            if (value is int i)   return new Range(i);
+            if (value is float f) return new Range(f);
+
+            object[] objects = value as object[];
+            if (objects != null && 1 <= objects.Length && objects.Length <= 2)
+            {
+                if (objects.Length == 1)
+                {
+                    if (objects[0] is int i2)   return new Range(i2);
+                    if (objects[0] is float f2) return new Range(f2);
+                }
+                return new Range(Float(objects[0]), Float(objects[1]));
+            }
+            Error(value, "Range -- expected [float,float] or [int,int] or [float] or [int] or float or int");
+            return new Range(0);
         }
     }
 
