@@ -16,6 +16,8 @@
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>true</Tag_Cannon>
 
+  <OffPowerMod>20</OffPowerMod>
+
   <UID>EmpDischarger1x2</UID>
   <fireDelay>1.0</fireDelay>
   <Range>4200</Range>
@@ -29,6 +31,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>0</DamageAmount>
+  <SiphonDamage>600</SiphonDamage>
   <EMPDamage>30</EMPDamage>
   <ShieldPenChance>35</ShieldPenChance>
   <MuzzleFlash>Yes</MuzzleFlash>
