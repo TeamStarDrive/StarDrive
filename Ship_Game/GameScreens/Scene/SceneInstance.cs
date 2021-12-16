@@ -26,7 +26,7 @@ namespace Ship_Game.GameScreens.Scene
         [StarData] public float AmbientIntensity = 0.75f;
         [StarData] public Vector3 CameraPos = new Vector3(0, 0, -1000);
         [StarData] public Vector3 LookAt = new Vector3(0, 0, 10000f);
-        [StarData] public SceneFleet[] Fleets = new SceneFleet[0];
+        [StarData] public SceneGroup[] Groups = new SceneGroup[0];
         #pragma warning restore 649
 
         GameScreen Screen;
@@ -62,7 +62,7 @@ namespace Ship_Game.GameScreens.Scene
 
             FTLManager.LoadContent(screen);
 
-            foreach (SceneFleet fleet in Fleets)
+            foreach (SceneGroup fleet in Groups)
             {
                 fleet.CreateShips(screen);
             }
@@ -112,7 +112,7 @@ namespace Ship_Game.GameScreens.Scene
 
         public bool HandleInput(InputState input)
         {
-            foreach (var fleet in Fleets)
+            foreach (var fleet in Groups)
             {
                 fleet.HandleInput(input, Screen);
             }
@@ -121,7 +121,7 @@ namespace Ship_Game.GameScreens.Scene
 
         public void Update(FixedSimTime timeStep)
         {
-            foreach (SceneFleet fleet in Fleets)
+            foreach (SceneGroup fleet in Groups)
             {
                 fleet.Update(Screen, timeStep);
             }
@@ -129,7 +129,7 @@ namespace Ship_Game.GameScreens.Scene
 
         public void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            foreach (var fleet in Fleets)
+            foreach (var fleet in Groups)
             {
                 fleet.Draw(batch, Screen);
             }

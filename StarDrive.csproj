@@ -496,7 +496,7 @@
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceArchetypeListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\TraitsListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ScreenMediaPlayer.cs" />
-    <Compile Include="Ship_Game\GameScreens\Scene\SceneFleet.cs" />
+    <Compile Include="Ship_Game\GameScreens\Scene\SceneGroup.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionLabel.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ProgressCounter.cs" />

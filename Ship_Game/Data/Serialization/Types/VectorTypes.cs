@@ -12,15 +12,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object Convert(object value)
         {
-            if (value is object[] objects)
-            {
-                Vector2 v = default;
-                if (objects.Length >= 1) v.X = Float(objects[0]);
-                if (objects.Length >= 2) v.Y = Float(objects[1]);
-                return v;
-            }
-            Error(value, "Vector2 -- expected [float,float]");
-            return Vector2.Zero;
+            return ToVector(value);
         }
 
         public override void Serialize(YamlNode parent, object obj)
@@ -59,6 +51,19 @@ namespace Ship_Game.Data.Serialization.Types
             if (parts.Length >= 2) p.Y = Float(parts[1]);
             return p;
         }
+
+        public static Vector2 ToVector(object value)
+        {
+            if (value is object[] objects)
+            {
+                Vector2 v = default;
+                if (objects.Length >= 1) v.X = Float(objects[0]);
+                if (objects.Length >= 2) v.Y = Float(objects[1]);
+                return v;
+            }
+            Error(value, "Vector2 -- expected [float,float]");
+            return Vector2.Zero;
+        }
     }
 
     internal class Vector3Serializer : TypeSerializer
@@ -67,16 +72,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object Convert(object value)
         {
-            if (value is object[] objects)
-            {
-                Vector3 v = default;
-                if (objects.Length >= 1) v.X = Float(objects[0]);
-                if (objects.Length >= 2) v.Y = Float(objects[1]);
-                if (objects.Length >= 3) v.Z = Float(objects[2]);
-                return v;
-            }
-            Error(value, "Vector3 -- expected [float,float,float]");
-            return Vector3.Zero;
+            return ToVector(value);
         }
 
         public override void Serialize(YamlNode parent, object obj)
@@ -84,7 +80,7 @@ namespace Ship_Game.Data.Serialization.Types
             var v = (Vector3)obj;
             parent.Value = new object[]{ v.X, v.Y, v.Z };
         }
-        
+
         public override void Serialize(BinaryWriter writer, object obj)
         {
             var v = (Vector3)obj;
@@ -101,6 +97,30 @@ namespace Ship_Game.Data.Serialization.Types
             v.Z = reader.ReadSingle();
             return v;
         }
+
+        public static Vector3 FromString(string s)
+        {
+            string[] parts = s.Split(',');
+            Vector3 v = default;
+            if (parts.Length >= 1) v.X = Float(parts[0]);
+            if (parts.Length >= 2) v.Y = Float(parts[1]);
+            if (parts.Length >= 3) v.Z = Float(parts[2]);
+            return v;
+        }
+
+        public static Vector3 ToVector(object value)
+        {
+            if (value is object[] objects)
+            {
+                Vector3 v = default;
+                if (objects.Length >= 1) v.X = Float(objects[0]);
+                if (objects.Length >= 2) v.Y = Float(objects[1]);
+                if (objects.Length >= 3) v.Z = Float(objects[2]);
+                return v;
+            }
+            Error(value, "Vector3 -- expected [float,float,float]");
+            return Vector3.Zero;
+        }
     }
 
     internal class Vector4Serializer : TypeSerializer
@@ -109,17 +129,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object Convert(object value)
         {
-            if (value is object[] objects)
-            {
-                Vector4 v = default;
-                if (objects.Length >= 1) v.X = Float(objects[0]);
-                if (objects.Length >= 2) v.Y = Float(objects[1]);
-                if (objects.Length >= 3) v.Z = Float(objects[2]);
-                if (objects.Length >= 4) v.W = Float(objects[3]);
-                return v;
-            }
-            Error(value, "Vector4 -- expected [float,float,float,float]");
-            return Vector4.Zero;
+            return ToVector(value);
         }
 
         public override void Serialize(YamlNode parent, object obj)
@@ -157,6 +167,21 @@ namespace Ship_Game.Data.Serialization.Types
             if (parts.Length >= 4) v.W = Float(parts[3]);
             return v;
         }
+
+        public static Vector4 ToVector(object value)
+        {
+            if (value is object[] objects)
+            {
+                Vector4 v = default;
+                if (objects.Length >= 1) v.X = Float(objects[0]);
+                if (objects.Length >= 2) v.Y = Float(objects[1]);
+                if (objects.Length >= 3) v.Z = Float(objects[2]);
+                if (objects.Length >= 4) v.W = Float(objects[3]);
+                return v;
+            }
+            Error(value, "Vector4 -- expected [float,float,float,float]");
+            return Vector4.Zero;
+        }
     }
 
     internal class PointSerializer : TypeSerializer
@@ -165,15 +190,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object Convert(object value)
         {
-            if (value is object[] objects)
-            {
-                Point p = default;
-                if (objects.Length >= 1) p.X = Int(objects[0]);
-                if (objects.Length >= 2) p.Y = Int(objects[1]);
-                return p;
-            }
-            Error(value, "Point -- expected [int,int]");
-            return Point.Zero;
+            return ToPoint(value);
         }
 
         public override void Serialize(YamlNode parent, object obj)
@@ -211,6 +228,19 @@ namespace Ship_Game.Data.Serialization.Types
             StringView first = s.Next(',');
             StringView second = s;
             return new Point(first.ToInt(), second.ToInt());
+        }
+
+        public static Point ToPoint(object value)
+        {
+            if (value is object[] objects)
+            {
+                Point p = default;
+                if (objects.Length >= 1) p.X = Int(objects[0]);
+                if (objects.Length >= 2) p.Y = Int(objects[1]);
+                return p;
+            }
+            Error(value, "Point -- expected [int,int]");
+            return Point.Zero;
         }
     }
 }
