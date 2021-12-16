@@ -17,6 +17,8 @@
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
 
+  <OffPowerMod>0.5</OffPowerMod>
+
   <UID>IonCannon1x2</UID>
   <isBeam>true</isBeam>
   <fireDelay>4.5</fireDelay>
@@ -33,7 +35,7 @@
   <BeamTexture>beam_yellow</BeamTexture>
 
   <PowerDamage>15</PowerDamage>
-  <SiphonDamage>20</SiphonDamage>
+  <SiphonDamage>5</SiphonDamage>
   <DamageAmount>0</DamageAmount>
   <BeamThickness>25</BeamThickness>
   <BeamPowerCostPerSecond>60</BeamPowerCostPerSecond>

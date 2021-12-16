@@ -12,6 +12,8 @@
   <UID>WarpEngine_4x4</UID> 
   <Version>2</Version>
 
+  <OffPowerMod>4</OffPowerMod>
+
   <IconTexturePath>Modules/warpengine_4x4</IconTexturePath>
   <Mass>80</Mass>
   <Health>9280</Health>

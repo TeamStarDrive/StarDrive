@@ -31,7 +31,7 @@
   
   <!-- Projectile Information -->
   <DamageAmount>2508</DamageAmount>
-  <EMPDamage>22</EMPDamage>
+  <EMPDamage>60</EMPDamage>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2250</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>

@@ -17,6 +17,8 @@
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
 
+  <OffPowerMod>0.6</OffPowerMod>
+
   <UID>HeavySiphonBeam</UID>
   <isBeam>true</isBeam>
   <fireDelay>4.5</fireDelay>
