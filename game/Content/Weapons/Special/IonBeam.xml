@@ -17,7 +17,7 @@
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
 
-  <OffPowerMod>0.3</OffPowerMod>
+  <OffPowerMod>0.2</OffPowerMod>
 
   <UID>IonBeam</UID>
   <isBeam>true</isBeam>

@@ -12,7 +12,7 @@
   <UID>Titan Engine</UID> 
   <Version>2</Version>
 
-  <OffPowerMod>3</OffPowerMod>
+  <OffPowerMod>4</OffPowerMod>
 
   <IconTexturePath>Modules/engine_4x4</IconTexturePath>
   <Mass>73</Mass>

@@ -7,7 +7,7 @@
   <Tag_PD>true</Tag_PD> 
   <TruePD>true</TruePD>
 
-  <OffPowerMod>3</OffPowerMod>
+  <OffPowerMod>6</OffPowerMod>
 
   <UID>HeavyEnergyPD</UID>
   <fireDelay>0.5</fireDelay>

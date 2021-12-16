@@ -30,7 +30,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>3900</DamageAmount>
-  <EMPDamage>30</EMPDamage>
+  <EMPDamage>100</EMPDamage>
   <ProjectileSpeed>2300</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.5</SalvoTimer>
