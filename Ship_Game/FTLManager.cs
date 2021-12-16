@@ -8,6 +8,7 @@ using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.UI.Effects;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -166,18 +167,20 @@ namespace Ship_Game
             }
         }
 
-        static readonly Array<FTLInstance> Effects = new Array<FTLInstance>();
-        static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
+        static Array<FTLInstance> Pending = new Array<FTLInstance>();
+        static FTLInstance[] ActiveEffects = Empty<FTLInstance>.Array;
+        static readonly object LoadLock = new object();
 
         public static void LoadContent(GameScreen screen, bool reload = false)
         {
-            using (Lock.AcquireWriteLock())
+            lock (LoadLock)
             {
                 if (FTLLayers != null)
                 {
+                    lock (Pending) Pending = new Array<FTLInstance>();
+                    ActiveEffects = Empty<FTLInstance>.Array;
                     if (!reload)
                         return; // already loaded
-                    Effects.Clear();
                     FTLLayers = null;
                 }
 
@@ -199,8 +202,7 @@ namespace Ship_Game
             if (FTLLayers == null)
                 return;
             var f = new FTLInstance(() => position, forward*(radius*1.5f), radius);
-            using (Lock.AcquireWriteLock())
-                Effects.Add(f);
+            lock (Pending) Pending.Add(f);
         }
 
         public static void ExitFTL(Func<Vector3> getPosition, in Vector3 forward, float radius)
@@ -208,21 +210,61 @@ namespace Ship_Game
             if (FTLLayers == null)
                 return;
             var f = new FTLInstance(getPosition, forward*(radius*-2f), radius);
-            using (Lock.AcquireWriteLock())
-                Effects.Add(f);
+            lock (Pending) Pending.Add(f);
+        }
+
+        public static void Update(GameScreen screen, FixedSimTime timeStep)
+        {
+            if (timeStep.FixedTime <= 0f)
+                return;
+
+            if (EnableDebugGraph)
+            {
+                DebugGraph = GetGraph(screen, "FTL_Debug_Graph", 0, 60);
+            }
+
+            var activeEffects = new Array<FTLInstance>();
+
+            lock (Pending)
+            {
+                if (Pending.NotEmpty)
+                {
+                    activeEffects.AddRange(Pending);
+                    Pending = new Array<FTLInstance>();
+                }
+            }
+
+            // always update newly added effects first
+            for (int i = 0; i < activeEffects.Count; ++i)
+            {
+                activeEffects[i].Update(timeStep);
+            }
+
+            // then go through Currently active effects
+            var effects = ActiveEffects;
+            for (int i = 0; i < effects.Length; ++i)
+            {
+                if (!effects[i].Update(timeStep))
+                {
+                    activeEffects.Add(effects[i]);
+                }
+            }
+
+            ActiveEffects = activeEffects.ToArray();
         }
 
         public static void DrawFTLModels(SpriteBatch batch, GameScreen screen)
         {
-            using (Lock.AcquireReadLock())
+            lock (LoadLock)
             {
-                if (Effects.IsEmpty)
+                var effects = ActiveEffects;
+                if (effects.Length == 0)
                     return;
 
                 batch.Begin(SpriteBlendMode.Additive, SpriteSortMode.Immediate, SaveStateMode.None);
-                for (int i = 0; i < Effects.Count; ++i)
+                for (int i = 0; i < effects.Length; ++i)
                 {
-                    Effects[i].Draw(batch, screen);
+                    effects[i].Draw(batch, screen);
                 }
                 batch.End();
             }
@@ -243,28 +285,6 @@ namespace Ship_Game
             });
             graph.SetRange(5f, 0, max);
             return graph;
-        }
-
-        public static void Update(GameScreen screen, FixedSimTime timeStep)
-        {
-            if (timeStep.FixedTime <= 0f)
-                return;
-
-            if (EnableDebugGraph)
-            {
-                DebugGraph = GetGraph(screen, "FTL_Debug_Graph", 0, 60);
-            }
-
-            using (Lock.AcquireWriteLock())
-            {
-                for (int i = 0; i < Effects.Count; ++i)
-                {
-                    if (Effects[i].Update(timeStep))
-                    {
-                        Effects.RemoveAtSwapLast(i--);
-                    }
-                }
-            }
         }
     }
 }
