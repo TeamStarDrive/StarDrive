@@ -7,28 +7,29 @@ AmbientIntensity: 0.75
 CameraPos: [0, 0, -1000] # Z:-1000 means out of the screen
 LookAt: [0, 0, 10000] # we're looking far into the screen
 
-# You can control the fleet behaviours by adding AI list commands:
-#  - [IdlingInDeepSpace, min_delay, max_delay]
-#  - [WarpingIn,         min_delay, max_delay]
-#  - [CoastWithRotate,   min_delay, max_delay]
-#  - [WarpingOut,        min_delay, max_delay]
-#  - [IdlingInDeepSpace, min_delay, max_delay]
-#  - [GoToState,         delay,      state_id]
+# You can control group behaviours by adding AI list commands:
+#  - [IdlingInDeepSpace, Range[delay] ]
+#  - [WarpingIn,         Range[delay] ]
+#  - [WarpingOut,        Range[delay] ]
+#  - [ForwardCoast,      Range[delay] ] #! object simply moves forward with spawn speed
+#  - [CoastWithRotate,   Range[delay], Vec3[rot_per_sec] ] # object rotates around its local axis and moves Forward with spawn speed, the Forward direction changes constantly with rotation
+#  - [Orbit,             Range[delay], Vec3[orbit_center], Vec3[move_dir], RandVec3[rot_per_sec] ]  #! moves around orbit center, optionally rotate around obj axis
+#  - [GoToState,         delay,  state_idx]  #! goto state_idx after delay seconds
 
 # Supported object types:
 # All RoleName's such as "fighter", "corvette", "frigate", "cruiser", "capital", "station", etc..
 # Asteroids: "asteroid"
 # SpaceJunk: "spacejunk"
-Fleets:
-  - Fleet:
+Groups:
+  - Group:
     Name: Asteroids
     Empire: Random
     Rotation: [-170, 160, -80]
     AI:
-      - [WarpingIn, 1, 1]
-      - [CoastWithRotate, 50, 60]
-      - [WarpingOut, 1, 1]
-      - [IdlingInDeepSpace, 15, 22]
+      - [WarpingIn, [1]]
+      - [Orbit, [50, 60], [0, 0, -1000], [1000, -1000, 0], [0.2, 0.2, 0.2]]
+      - [WarpingOut, [1]]
+      - [IdlingInDeepSpace, [15, 22]]
 
     Objects:
       # BIg rock
@@ -50,17 +51,17 @@ Fleets:
       - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-3400, -500, 2550] }
       - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-3300, -400, 2600] }
 
-  - Fleet:
+  - Group:
     Name: Shipyard
     Empire: Random
     Rotation: [-25, 10, 295]
     AI:
-      - [CoastWithRotate, 80, 1000]
-      - [IdlingInDeepSpace, 15, 18]
+      - [CoastWithRotate, [80, 1000], [0, 0.24, 0]]
+      - [IdlingInDeepSpace, [15, 18]]
     Objects:
       - Object: { Type: station, Speed: 10, Position: [600, 300, 450] } #doesnt load shipyard model
 
-  - Fleet:
+  - Group:
     Name: BackgroundFreighters_LeftToRight
     DiverseShipEmpires: True
     DisableJumpSfx: True
@@ -69,16 +70,16 @@ Fleets:
     MaxPos: [15000,400,8000]
     SpeedRange: [70, 110]
     AI:
-      - [FreighterCoast, 1, 130]
-      - [WarpingOut, 1, 1]
-      - [IdlingInDeepSpace, 10, 15]
-      - [WarpingIn, 1, 1]
+      - [ForwardCoast, [1, 130]]
+      - [WarpingOut, [1]]
+      - [IdlingInDeepSpace, [10, 15]]
+      - [WarpingIn, [1]]
       - [GoToState, 0, 0]
     ObjectGroups:
       - ObjectGroup: { Type: freighter, Count: 42 }
       - ObjectGroup: { Type: fighter, Count: 16 }
 
-  - Fleet:
+  - Group:
     Name: BackgroundFreighters_RightToLeft
     DiverseShipEmpires: True
     DisableJumpSfx: True
@@ -87,10 +88,10 @@ Fleets:
     MaxPos: [15000,1500,10000]
     SpeedRange: [70, 110]
     AI:
-      - [FreighterCoast, 1, 130]
-      - [WarpingOut, 1, 1]
-      - [IdlingInDeepSpace, 10, 15]
-      - [WarpingIn, 1, 1]
+      - [ForwardCoast, [1, 130]]
+      - [WarpingOut, [1]]
+      - [IdlingInDeepSpace, [10, 15]]
+      - [WarpingIn, [1]]
       - [GoToState, 0, 0]
     ObjectGroups:
       - ObjectGroup: { Type: freighter, Count: 42 }

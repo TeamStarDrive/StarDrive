@@ -14,7 +14,7 @@ using Ship_Game.Ships;
 namespace Ship_Game.GameScreens.Scene
 {
     [StarDataType]
-    public class SceneFleet
+    public class SceneGroup
     {
         #pragma warning disable 649
         [StarData] readonly string Name;
@@ -30,25 +30,40 @@ namespace Ship_Game.GameScreens.Scene
         [StarData] readonly ObjectGroupInfo[] ObjectGroups = Empty<ObjectGroupInfo>.Array;
         #pragma warning restore 649
 
-        readonly FloatSerializer Floater = new FloatSerializer();
-
-        SceneAction CreateState(object[] descriptor)
+        SceneAction CreateAction(object[] descriptor)
         {
-            string name = descriptor[0] as string;
-            float a = 0f, b = 0f;
-            if (descriptor.Length > 0) a = (float)Floater.Convert(descriptor[1]);
-            if (descriptor.Length > 1) b = (float)Floater.Convert(descriptor[2]);
+            string name = descriptor.Length > 0 ? descriptor[0] as string : null;
+            if (name == null)
+            {
+                Log.Error("Expected AI Action ID as first parameter: - [id, arg1, arg2, ...]");
+                return new IdlingInDeepSpace(1f);
+            }
 
-            float Duration() => RandomMath.RandomBetween(a, b);
+            object GetArgument(int arg)
+            {
+                if (arg >= descriptor.Length)
+                {
+                    Log.Error($"AI Action '{name}' missing argument at index: {arg}");
+                    return 0;
+                }
+                return descriptor[arg];
+            }
+
+            Vector3 Vec3(int arg) => Vector3Serializer.ToVector(GetArgument(arg));
+            Vector3 RandVec3(int arg) => Vector3Serializer.ToVector(GetArgument(arg));
+            float Range(int arg) => RangeSerializer.ToRange(GetArgument(arg)).Generate();
+            float Float(int arg) => FloatSerializer.ToFloat(GetArgument(arg));
+            int Int(int arg) => (int)Math.Round(FloatSerializer.ToFloat(GetArgument(arg)));
 
             switch (name)
             {
-                case "IdlingInDeepSpace": return new IdlingInDeepSpace(Duration());
-                case "WarpingIn":       return new WarpingIn();
-                case "WarpingOut":      return new WarpingOut();
-                case "CoastWithRotate": return new CoastWithRotate(Duration());
-                case "FreighterCoast":  return new FreighterCoast(Duration());
-                case "GoToState":       return new GoToState(a, (int)Math.Round(b));
+                case "IdlingInDeepSpace": return new IdlingInDeepSpace(Range(1));
+                case "WarpingIn":         return new WarpingIn(Range(1));
+                case "WarpingOut":        return new WarpingOut(Range(1));
+                case "ForwardCoast":      return new ForwardCoast(Range(1));
+                case "CoastWithRotate":   return new CoastWithRotate(Range(1), Vec3(2));
+                case "Orbit":             return new Orbit(Range(1), Vec3(2), Vec3(3), RandVec3(4));
+                case "GoToState":         return new GoToState(Float(1), Int(2));
                 default:
                     Log.Warning($"Unrecognized AI State: '{name}'");
                     return null;
@@ -61,7 +76,7 @@ namespace Ship_Game.GameScreens.Scene
 
             foreach (object[] state in AI)
             {
-                states.Add(() => CreateState(state));
+                states.Add(() => CreateAction(state));
             }
 
             return new SceneShipAI(states.ToArray());
