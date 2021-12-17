@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI.ShipMovement;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
@@ -23,6 +24,7 @@ namespace Ship_Game.GameScreens.Scene
         [StarData] readonly object[][] AI;
         [StarData] readonly bool DisableJumpSfx;
         [StarData] readonly bool EngineTrails;
+        [StarData] readonly bool DustTrails;
         [StarData] readonly bool DebugTrail;
         [StarData] readonly ObjectSpawnInfo[] Objects = Empty<ObjectSpawnInfo>.Array;
         [StarData] readonly ObjectGroupInfo[] ObjectGroups = Empty<ObjectGroupInfo>.Array;
@@ -55,6 +57,7 @@ namespace Ship_Game.GameScreens.Scene
             float Range(int arg) => RangeSerializer.ToRange(GetArgument(arg)).Generate();
             float Float(int arg) => FloatSerializer.ToFloat(GetArgument(arg));
             int Int(int arg) => (int)Math.Round(FloatSerializer.ToFloat(GetArgument(arg)));
+            string Str(int arg) => GetArgument(arg) as string ?? "";
 
             switch (name)
             {
@@ -63,7 +66,7 @@ namespace Ship_Game.GameScreens.Scene
                 case "WarpingOut":        return new WarpingOut(Range(1));
                 case "ForwardCoast":      return new ForwardCoast(Range(1));
                 case "CoastWithRotate":   return new CoastWithRotate(Range(1), Vec3(2));
-                case "Orbit":             return new Orbit(Range(1), Vec3(2), Vec3(3), RandVec3(4));
+                case "Orbit":             return new Orbit(Range(1), Vec3(2), (Str(3).ToLower() == "right" ? OrbitPlan.OrbitDirection.Right : OrbitPlan.OrbitDirection.Left), RandVec3(4));
                 case "GoToState":         return new GoToState(Float(1), Int(2));
                 case "SetSpawnPos":       return new SetSpawnPos();
                 default:
@@ -142,6 +145,7 @@ namespace Ship_Game.GameScreens.Scene
                 var obj = new SceneObj(scene, spawn);
                 obj.LoadContent(screen);
                 obj.EngineTrails = EngineTrails;
+                obj.DustTrails = DustTrails;
                 obj.DebugTrail = DebugTrail;
                 AllObjects.Add(obj);
             }

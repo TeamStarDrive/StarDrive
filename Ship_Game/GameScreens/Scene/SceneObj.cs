@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
-using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -43,6 +42,8 @@ namespace Ship_Game.GameScreens.Scene
 
         public SceneInstance Scene;
         public bool EngineTrails;
+        public bool DustTrails;
+        ParticleEmitter DustEmitter;
         public bool DebugTrail;
         Color ThrustColor;
 
@@ -242,12 +243,20 @@ namespace Ship_Game.GameScreens.Scene
 
             if (DebugTrail)
             {
-                Scene.Particles.EngineTrail.AddParticle(Position, Vector3.Zero, Scale.Length() * 2, Color.WhiteSmoke);
+                Scene.Particles.EngineTrail.AddParticle(Position, Vector3.Zero, BaseScale * 2, Color.WhiteSmoke);
             }
-            else if (EngineTrails)
+            if (EngineTrails)
             {
                 Vector3 offset = (0.9f * Radius) * Forward;
-                Scene.Particles.EngineTrail.AddParticle(Position - offset, Vector3.Zero, Scale.Length(), ThrustColor);
+                Scene.Particles.EngineTrail.AddParticle(Position - offset, Vector3.Zero, BaseScale, ThrustColor);
+            }
+            if (DustTrails)
+            {
+                if (DustEmitter == null)
+                {
+                    DustEmitter = Scene.Particles.AsteroidParticles.NewEmitter(1.0f, Position);
+                }
+                DustEmitter.Update(timeStep.FixedTime, Position, BaseScale, Color.White);
             }
 
             // shipObj can be modified while mod is loading
