@@ -66,6 +66,18 @@ namespace Ship_Game.Ships
         {
             public Vector3 Position;
             public float Scale;
+
+            public Vector2 WorldPos2D =>
+                Thruster.GetPosition(Vector2.Zero, 0, Vector3.Down, Position).ToVec2();
+
+            public void SetWorldPos2D(Vector2 worldPos)
+            {
+                var pos = Thruster.FromWorldPos(worldPos);
+                Position.X = (float)Math.Round(pos.X);
+                Position.Y = (float)Math.Round(pos.Y);
+            }
+
+            public float WorldRadius => Scale / 8f;
         }
 
         public HullSlot FindSlot(Point p)
