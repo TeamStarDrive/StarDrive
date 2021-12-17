@@ -30,6 +30,9 @@
             }
             return false;
         }
-    }
 
+        public virtual void Draw()
+        {
+        }
+    }
 }

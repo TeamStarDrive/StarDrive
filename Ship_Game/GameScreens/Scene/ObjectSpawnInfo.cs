@@ -14,17 +14,17 @@ namespace Ship_Game.GameScreens.Scene
         #pragma warning disable 649
         /// <summary>
         /// Supported values:
-        /// All RoleName's such as "fighter", "frigate", "cruiser"
-        /// Asteroids: "asteroid_large", "asteroid_medium", "asteroid_small"
+        /// All RoleName's such as "fighter", "corvette", "frigate", "cruiser", "capital", "station", etc..
+        /// Asteroids: "asteroid"
         /// SpaceJunk: "spacejunk"
         /// </summary>
         [StarData] public string Type = "fighter";
-        [StarData] public Vector3 Position;
-        [StarData] public float Speed = 10f;
         [StarData] public float Scale = 0.8f;
-        public IEmpireData Empire;
+        [StarData] public float Speed = 10f;
+        [StarData] public Vector3 Position;
+        [StarData] public Vector3 Rotation;
+        public EmpireData Empire;
         public ISceneShipAI AI;
-        public Vector3 Rotation;
         public bool DisableJumpSfx;
         #pragma warning restore 649
     }

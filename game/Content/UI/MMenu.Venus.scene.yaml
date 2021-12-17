@@ -8,12 +8,16 @@ CameraPos: [0, 0, -1000] # Z:-1000 means out of the screen
 LookAt: [0, 0, 10000] # we're looking far into the screen
 
 # You can control group behaviours by adding AI list commands:
+#  - [SetSpawnPos] #! Resets the ship to its original spawn position
 #  - [IdlingInDeepSpace, Range[delay] ]
 #  - [WarpingIn,         Range[delay] ]
 #  - [WarpingOut,        Range[delay] ]
 #  - [ForwardCoast,      Range[delay] ] #! object simply moves forward with spawn speed
 #  - [CoastWithRotate,   Range[delay], Vec3[rot_per_sec] ] # object rotates around its local axis and moves Forward with spawn speed, the Forward direction changes constantly with rotation
-#  - [Orbit,             Range[delay], Vec3[orbit_center], Vec3[move_dir], RandVec3[rot_per_sec] ]  #! moves around orbit center, optionally rotate around obj axis
+#  - [Orbit,             Range[delay], Vec3[orbit_center], Vec3[move_vec], RandVec3[rot_per_sec] ]
+#     ! moves around orbit center, optionally rotate around obj axis
+#     ! if Orbit order exists, then ObjectGroup can use Orbit: [radius, min_angle, max_angle]
+#     !                                             and Offset: RandVec3[x,y,z]
 #  - [GoToState,         delay,  state_idx]  #! goto state_idx after delay seconds
 
 # Supported object types:
@@ -24,7 +28,6 @@ Groups:
   - Group:
     Name: WarpingPatrolFleet
     Empire: Random
-    Rotation: [-120, 150, -20]
     AI:
       - [IdlingInDeepSpace, [3, 4]]
       - [WarpingIn, [1]]
@@ -32,28 +35,24 @@ Groups:
       - [WarpingOut, [1]]
       - [IdlingInDeepSpace, 15, 18]
     Objects:
-      - Object: { Type: capital, Speed: 10, Position: [-250, -200, 1250] }
-      - Object: { Type: frigate, Speed: 20, Position: [-500, -50, 250] }
-      - Object: { Type: cruiser, Speed: 10, Position: [-1200, 100, 1450] }
+      - { Type: capital, Speed: 10, Position: [-250, -200, 1250], Rotation: [-120, 150, -20] }
+      - { Type: frigate, Speed: 20, Position: [-500, -50, 250], Rotation: [-120, 150, -20] }
+      - { Type: cruiser, Speed: 10, Position: [-1200, 100, 1450], Rotation: [-120, 150, -20] }
 
       # corvette wing
-      - Object: { Type: corvette, Speed: 30, Position: [-900, -300, 1550] }
-      - Object: { Type: corvette, Speed: 30, Position: [-1000, -450, 1500] }
-      - Object: { Type: corvette, Speed: 30, Position: [-1100, -350, 1400] }
+      - { Type: corvette, Speed: 30, Position: [-900, -300, 1550], Rotation: [-120, 150, -20] }
+      - { Type: corvette, Speed: 30, Position: [-1000, -450, 1500], Rotation: [-120, 150, -20] }
+      - { Type: corvette, Speed: 30, Position: [-1100, -350, 1400], Rotation: [-120, 150, -20] }
 
       # fighter wing
-      - Object: { Type: fighter, Speed: 65, Position: [-1000, -500, 1250] }
-      - Object: { Type: fighter, Speed: 60, Position: [-1100, -450, 1300] }
-      - Object: { Type: fighter, Speed: 55, Position: [-900, -500, 1150] }
+      - { Type: fighter, Speed: 65, Position: [-1000, -500, 1250], Rotation: [-120, 150, -20] }
+      - { Type: fighter, Speed: 60, Position: [-1100, -450, 1300], Rotation: [-120, 150, -20] }
+      - { Type: fighter, Speed: 55, Position: [-900, -500, 1150], Rotation: [-120, 150, -20] }
 
   - Group:
     Name: BackgroundFreighters_LeftToRight
     DiverseShipEmpires: True
     DisableJumpSfx: True
-    Rotation: [0, 45, 90]
-    MinPos: [-15000,-500,15000]
-    MaxPos: [15000,300,17000]
-    SpeedRange: [70, 110]
     AI:
       - [ForwardCoast, [1, 130]]
       - [WarpingOut, [1]]
@@ -61,17 +60,13 @@ Groups:
       - [WarpingIn, [1]]
       - [GoToState, 0, 0]
     ObjectGroups:
-      - ObjectGroup: { Type: freighter, Count: 42 }
-      - ObjectGroup: { Type: fighter, Count: 16 }
+      - { Type: freighter, Count: 42, Speed: [70, 110], MinPos: [-15000,-600,12000], MaxPos: [15000,400,8000], Rotation: [0, 45, 90] }
+      - { Type: fighter,   Count: 16, Speed: [99, 200], MinPos: [-15000,-600,12000], MaxPos: [15000,400,8000], Rotation: [0, 45, 90] }
 
   - Group:
     Name: BackgroundFreighters_RightToLeft
     DiverseShipEmpires: True
     DisableJumpSfx: True
-    Rotation: [0, 45, -90]
-    MinPos: [-15000,700,15000]
-    MaxPos: [15000,1500,17000]
-    SpeedRange: [70, 110]
     AI:
       - [ForwardCoast, [1, 130]]
       - [WarpingOut, [1]]
@@ -79,5 +74,5 @@ Groups:
       - [WarpingIn, [1]]
       - [GoToState, 0, 0]
     ObjectGroups:
-      - ObjectGroup: { Type: freighter, Count: 42 }
-      - ObjectGroup: { Type: fighter, Count: 16 }
+      - { Type: freighter, Count: 42, Speed: [70, 110], MinPos: [-15000,700,14000], MaxPos: [15000,1500,10000], Rotation: [0, 45, -90] }
+      - { Type: fighter,   Count: 16, Speed: [99, 200], MinPos: [-15000,700,14000], MaxPos: [15000,1500,10000], Rotation: [0, 45, -90] }

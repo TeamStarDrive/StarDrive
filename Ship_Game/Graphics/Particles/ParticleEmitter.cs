@@ -47,17 +47,18 @@ namespace Ship_Game
                 {
                     currentTime += TimeBetweenParticles;
                     timeToSpend -= TimeBetweenParticles;
-                    float mu     = currentTime / elapsedTime;
-                    Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
-                    position.Z      += zAxisPos;
-                    if ( jitter > 0)
+                    float mu = currentTime / elapsedTime;
+                    Vector3 pos = Vector3.Lerp(PreviousPosition, newPosition, mu);
+                    pos.Z += zAxisPos;
+
+                    if (jitter > 0)
                     {                       
-                        position.X += RandomMath2.RandomBetween(-jitter, jitter);
-                        position.Y += RandomMath2.RandomBetween(-jitter, jitter);
-                        position.Z += RandomMath2.RandomBetween(-jitter, jitter);
-                        jitter *=.75f;
+                        pos.X += RandomMath2.RandomBetween(-jitter, jitter);
+                        pos.Y += RandomMath2.RandomBetween(-jitter, jitter);
+                        pos.Z += RandomMath2.RandomBetween(-jitter, jitter);
+                        jitter *= 0.75f;
                     }
-                    ParticleSystem.AddParticle(position, velocity);
+                    ParticleSystem.AddParticle(pos, velocity);
                 }
                 TimeLeftOver = timeToSpend;
             }

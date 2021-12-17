@@ -141,6 +141,20 @@ namespace Ship_Game
                                RandomBetween(minradius, maxradius));
         }
 
+        // Generates a Vector3 with X Y Z in range [minValue, maxValue]
+        public static Vector3 Vector3D(in Vector3 minValue, in Vector3 maxValue)
+        {
+            return new Vector3(RandomBetween(minValue.X, maxValue.X), RandomBetween(minValue.Y, maxValue.Y),
+                               RandomBetween(minValue.Z, maxValue.Z));
+        }
+
+        // Generates a Vector3 with X Y Z in range [-minMax, +minMax]
+        public static Vector3 Vector3D(in Vector3 minMax)
+        {
+            return new Vector3(RandomBetween(-minMax.X, minMax.X), RandomBetween(-minMax.Y, minMax.Y),
+                               RandomBetween(-minMax.Z, minMax.Z));
+        }
+
         // Generates a Vector3 with Z set to 0.0f
         public static Vector3 Vector32D(float radius)
         {

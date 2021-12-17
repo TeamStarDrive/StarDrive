@@ -165,7 +165,7 @@ namespace Ship_Game.Data.Yaml
 
             // see if we can get another token?
             StringView separator = NextToken(ref view);
-            if (separator.Length == 0) // no token, so only value!
+            if (separator.Length == 0 || separator[0] == '#') // no token, so only value!
             {
                 node.Value = firstValue;
                 return node;
