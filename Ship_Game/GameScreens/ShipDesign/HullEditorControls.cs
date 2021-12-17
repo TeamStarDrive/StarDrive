@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -86,15 +87,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             ThrusterList.RemoveAll();
             ThrusterList.AddButton("Add Thruster", (btn) =>
             {
-                var thrusters = new Array<ShipHull.ThrusterZone>(hull.Thrusters);
-                thrusters.Add(new ShipHull.ThrusterZone
-                {
-                    Position = new Vector3(256, 256, 0),
-                    Scale = thrusters.NotEmpty ? thrusters.Last.Scale : 32,
-                });
-                hull.Thrusters = thrusters.ToArray();
+                float scale = hull.Thrusters.Length == 0 ? hull.Thrusters[hull.Thrusters.Length-1].Scale : 32;
+                hull.AddThruster(new Vector3(256, 256, 0), scale);
                 S.DesignedShip.InitializeThrusters(hull);
-
                 Initialize(hull);
             });
 
@@ -136,14 +131,15 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             if (IsEditing)
             {
-                HoveredThrusterIdx = GetThrusterIdUnderCursor();
+                if (!IsEditingThruster)
+                    HoveredThrusterIdx = GetThrusterIdUnderCursor();
 
                 if (HoveredThrusterIdx != -1 && input.LeftMouseClick)
                 {
                     IsEditingThruster = true;
                     GameAudio.DesignSoftBeep();
                 }
-                
+
                 if (IsEditingThruster)
                 {
                     ModifyThruster(input, HoveredThrusterIdx);
@@ -207,9 +203,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             Vector2 cursorWorld = S.CursorWorldPosition2D;
             for (int i = 0; i < S.CurrentHull.Thrusters.Length; ++i)
             {
-                Vector2 pos = GetThruster(i).WorldPos2D;
-                float radius = GetThruster(i).WorldRadius;
-                if (cursorWorld.InRadius(pos, radius))
+                var t = GetThruster(i);
+                if (cursorWorld.InRadius(t.WorldPos2D, t.WorldRadius))
                     return i;
             }
             return -1;
@@ -217,8 +212,16 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         void ModifyThruster(InputState input, int thrusterId)
         {
-            if (input.LeftMouseReleased || HoveredThrusterIdx == -1)
+            if (input.LeftMouseReleased || thrusterId == -1)
             {
+                IsEditingThruster = false;
+            }
+            else if (input.KeyPressed(Keys.Delete))
+            {
+                S.CurrentHull.RemoveThruster(thrusterId);
+                S.DesignedShip.InitializeThrusters(S.CurrentHull);
+
+                Initialize(S.CurrentHull);
                 IsEditingThruster = false;
             }
             else if (input.LeftMouseDown)
@@ -226,7 +229,18 @@ namespace Ship_Game.GameScreens.ShipDesign
                 ref var tz = ref GetThruster(thrusterId);
                 Thruster thruster = S.DesignedShip.ThrusterList[thrusterId];
 
-                tz.SetWorldPos2D(S.CursorWorldPosition2D);
+                if (input.IsShiftKeyDown)
+                {
+                    Vector2 worldSize = S.UnprojectToWorldPosition(input.EndLeftHold)
+                                      - S.UnprojectToWorldPosition(input.StartLeftHold);
+                    float size = Math.Max(worldSize.Length(), 1.0f);
+                    tz.SetWorldScale(size);
+                }
+                else // set position
+                {
+                    tz.SetWorldPos2D(S.CursorWorldPosition2D);
+                }
+
                 thruster.LocalPos = tz.Position;
                 thruster.Scale    = tz.Scale;
                 thruster.UpdatePosition(S.DesignedShip.Position, 0, S.DesignedShip.Direction3D);
