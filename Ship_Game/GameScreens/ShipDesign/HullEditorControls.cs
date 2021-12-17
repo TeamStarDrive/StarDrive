@@ -87,8 +87,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             ThrusterList.RemoveAll();
             ThrusterList.AddButton("Add Thruster", (btn) =>
             {
+                float z = hull.Thrusters.Length == 0 ? hull.Thrusters[hull.Thrusters.Length-1].Position.Z : 0;
                 float scale = hull.Thrusters.Length == 0 ? hull.Thrusters[hull.Thrusters.Length-1].Scale : 32;
-                hull.AddThruster(new Vector3(256, 256, 0), scale);
+                hull.AddThruster(new Vector3(0, 0, z), scale);
                 S.DesignedShip.InitializeThrusters(hull);
                 Initialize(hull);
             });
