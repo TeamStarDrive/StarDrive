@@ -1,19 +1,23 @@
 ﻿# This file defines a 3D Scene with objects, lighting, movement and effects
-SunPos: [-26000, -26000, 32000]
+SunPos: [-50000, -50000, 13000]
 SunColor: [255,224,224]
-SunIntensity: 2.0
+SunIntensity: 4.0
 AmbientColor: [40,60,110] # dark violet
 AmbientIntensity: 0.75
 CameraPos: [0, 0, -1000] # Z:-1000 means out of the screen
 LookAt: [0, 0, 10000] # we're looking far into the screen
 
 # You can control group behaviours by adding AI list commands:
+#  - [SetSpawnPos] #! Resets the ship to its original spawn position
 #  - [IdlingInDeepSpace, Range[delay] ]
 #  - [WarpingIn,         Range[delay] ]
 #  - [WarpingOut,        Range[delay] ]
 #  - [ForwardCoast,      Range[delay] ] #! object simply moves forward with spawn speed
 #  - [CoastWithRotate,   Range[delay], Vec3[rot_per_sec] ] # object rotates around its local axis and moves Forward with spawn speed, the Forward direction changes constantly with rotation
-#  - [Orbit,             Range[delay], Vec3[orbit_center], Vec3[move_dir], RandVec3[rot_per_sec] ]  #! moves around orbit center, optionally rotate around obj axis
+#  - [Orbit,             Range[delay], Vec3[orbit_center], Vec3[move_vec], RandVec3[rot_per_sec] ]
+#     ! moves around orbit center, optionally rotate around obj axis
+#     ! if Orbit order exists, then ObjectGroup can use Orbit: [radius, min_angle, max_angle]
+#     !                                             and Offset: RandVec3[x,y,z]
 #  - [GoToState,         delay,  state_idx]  #! goto state_idx after delay seconds
 
 # Supported object types:
@@ -23,52 +27,29 @@ LookAt: [0, 0, 10000] # we're looking far into the screen
 Groups:
   - Group:
     Name: Asteroids
-    Empire: Random
-    Rotation: [-170, 160, -80]
     AI:
-      - [WarpingIn, [1]]
-      - [Orbit, [50, 60], [0, 0, -1000], [1000, -1000, 0], [0.2, 0.2, 0.2]]
-      - [WarpingOut, [1]]
-      - [IdlingInDeepSpace, [15, 22]]
-
-    Objects:
-      # BIg rock
-      - Object: { Type: asteroid, Scale: 1.0, Speed: 100, Position: [-2700, -500, 2050] }
-      # smaller rocks
-      - Object: { Type: asteroid, Scale: 0.5, Speed: 95, Position: [-3000, -300, 2550] }
-      - Object: { Type: asteroid, Scale: 0.5, Speed: 100, Position: [-2950, -550, 2500] }
-      - Object: { Type: asteroid, Scale: 0.5, Speed: 90, Position: [-3000, -400, 2300] }
-      - Object: { Type: asteroid, Scale: 0.5, Speed: 100, Position: [-3000, -560, 2200] }
-      - Object: { Type: asteroid, Scale: 0.5, Speed: 90, Position: [-2980, -600, 2400] }
-
-      # smallest rocks
-      - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-2900, -800, 2250] }
-      - Object: { Type: asteroid, Scale: 0.1, Speed: 85, Position: [-2900, -450, 2300] }
-      - Object: { Type: asteroid, Scale: 0.1, Speed: 95, Position: [-2900, -700, 2150] }
-      - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-2900, -300, 2150] }
-      - Object: { Type: asteroid, Scale: 0.1, Speed: 95, Position: [-2900, -200, 2150] }
-      - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-3300, -600, 2600] }
-      - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-3400, -500, 2550] }
-      - Object: { Type: asteroid, Scale: 0.1, Speed: 90, Position: [-3300, -400, 2600] }
+      - [Orbit, [800], [4000, 1000, 20000], [0.25, 0.0, -0.25], [4]] # center, move_vec, rot
+      - [SetSpawnPos]
+      - [GoToState, 0, 0]
+    ObjectGroups:
+      - { Type: asteroid, Count: 20, Scale: [0.9, 1.0], Speed: [10, 25], Orbit: [19000, -82, 0], Offset: [50,250,50], RandRot: [180] }
+      - { Type: asteroid, Count: 500, Scale: [0.4, 0.5], Speed: [22, 28], Orbit: [19000, -82, 0], Offset: [250,500,100], RandRot: [180] }
+      - { Type: asteroid, Count: 2000, Scale: [0.08, 0.12], Speed: [15, 22], Orbit: [19000, -82, 0], Offset: [500,500,150], RandRot: [180] }
 
   - Group:
     Name: Shipyard
     Empire: Random
-    Rotation: [-25, 10, 295]
     AI:
       - [CoastWithRotate, [80, 1000], [0, 0.24, 0]]
       - [IdlingInDeepSpace, [15, 18]]
     Objects:
-      - Object: { Type: station, Speed: 10, Position: [600, 300, 450] } #doesnt load shipyard model
+      - Object: { Type: station, Speed: 10, Position: [600, 300, 450], Rotation: [-25, 10, 295] } #doesnt load shipyard model
 
   - Group:
     Name: BackgroundFreighters_LeftToRight
-    DiverseShipEmpires: True
-    DisableJumpSfx: True
-    Rotation: [0, 45, 90]
-    MinPos: [-15000,-600,12000]
-    MaxPos: [15000,400,8000]
-    SpeedRange: [70, 110]
+    DiverseShipEmpires: true
+    DisableJumpSfx: true
+    EngineTrails: true
     AI:
       - [ForwardCoast, [1, 130]]
       - [WarpingOut, [1]]
@@ -76,17 +57,14 @@ Groups:
       - [WarpingIn, [1]]
       - [GoToState, 0, 0]
     ObjectGroups:
-      - ObjectGroup: { Type: freighter, Count: 42 }
-      - ObjectGroup: { Type: fighter, Count: 16 }
+      - { Type: freighter, Count: 42, Speed: [70, 110], MinPos: [-15000,-600,12000], MaxPos: [15000,400,8000], Rotation: [0, 45, 90] }
+      - { Type: fighter,   Count: 16, Speed: [99, 200], MinPos: [-15000,-600,12000], MaxPos: [15000,400,8000], Rotation: [0, 45, 90] }
 
   - Group:
     Name: BackgroundFreighters_RightToLeft
-    DiverseShipEmpires: True
-    DisableJumpSfx: True
-    Rotation: [0, 45, -90]
-    MinPos: [-15000,700,14000]
-    MaxPos: [15000,1500,10000]
-    SpeedRange: [70, 110]
+    DiverseShipEmpires: true
+    DisableJumpSfx: true
+    EngineTrails: true
     AI:
       - [ForwardCoast, [1, 130]]
       - [WarpingOut, [1]]
@@ -94,5 +72,5 @@ Groups:
       - [WarpingIn, [1]]
       - [GoToState, 0, 0]
     ObjectGroups:
-      - ObjectGroup: { Type: freighter, Count: 42 }
-      - ObjectGroup: { Type: fighter, Count: 16 }
+      - { Type: freighter, Count: 42, Speed: [70, 110], MinPos: [-15000,700,14000], MaxPos: [15000,1500,10000], Rotation: [0, 45, -90] }
+      - { Type: fighter,   Count: 16, Speed: [99, 200], MinPos: [-15000,700,14000], MaxPos: [15000,1500,10000], Rotation: [0, 45, -90] }

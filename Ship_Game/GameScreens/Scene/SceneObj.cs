@@ -41,14 +41,22 @@ namespace Ship_Game.GameScreens.Scene
         public readonly ObjectSpawnInfo Spawn;
         public int HullSize { get; private set; } = 100;
 
-        public SceneObj(ObjectSpawnInfo spawn)
+        public SceneInstance Scene;
+        public bool EngineTrails;
+        public bool DebugTrail;
+        Color ThrustColor;
+
+        public SceneObj(SceneInstance scene, ObjectSpawnInfo spawn)
         {
+            Scene = scene;
             Spawn = spawn;
             Position = spawn.Position;
             Rotation = spawn.Rotation;
             Speed = spawn.Speed;
             BaseScale = spawn.Scale;
             AI = spawn.AI.GetClone();
+
+            ThrustColor = new Color(spawn.Empire.ThrustColor1R, spawn.Empire.ThrustColor1G, spawn.Empire.ThrustColor1B);
         }
 
         public void AxisRotate(float ax, float ay, float az)
@@ -109,7 +117,7 @@ namespace Ship_Game.GameScreens.Scene
             }
         }
 
-        public void DestroyShip()
+        public void Destroy()
         {
             if (SO != null)
             {
@@ -120,7 +128,7 @@ namespace Ship_Game.GameScreens.Scene
 
         public void LoadContent(GameScreen screen)
         {
-            DestroyShip(); // Allow multiple init
+            Destroy(); // Allow multiple init
 
             ShipHull hull = null;
             if (GlobalStats.HasMod && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
@@ -232,6 +240,16 @@ namespace Ship_Game.GameScreens.Scene
 
             SoundEmitter.Position = Position;
 
+            if (DebugTrail)
+            {
+                Scene.Particles.EngineTrail.AddParticle(Position, Vector3.Zero, Scale.Length() * 2, Color.WhiteSmoke);
+            }
+            else if (EngineTrails)
+            {
+                Vector3 offset = (0.9f * Radius) * Forward;
+                Scene.Particles.EngineTrail.AddParticle(Position - offset, Vector3.Zero, Scale.Length(), ThrustColor);
+            }
+
             // shipObj can be modified while mod is loading
             if (SO != null)
             {
@@ -251,12 +269,11 @@ namespace Ship_Game.GameScreens.Scene
                     batch.DrawLine(sa, sb, color, 2f);
                 }
 
-                batch.Begin();
                 DrawLine(Position, Position + Right*100, Color.Red);
                 DrawLine(Position, Position + Forward*100, Color.Green);
                 DrawLine(Position, Position + Up*100, Color.Blue);
-                batch.End();
             }
+            AI.Draw();
         }
     }
 }

@@ -6,12 +6,13 @@ namespace Ship_Game.GameScreens.Scene
 {
     public interface ISceneShipAI
     {
+        Func<SceneAction>[] States { get; }
         SceneShipAI GetClone();
     }
 
     public class SceneShipAI : ISceneShipAI
     {
-        readonly Func<SceneAction>[] States;
+        public Func<SceneAction>[] States { get; }
         SceneAction Current;
         int State;
         public bool Finished { get; private set; }
@@ -20,10 +21,12 @@ namespace Ship_Game.GameScreens.Scene
         {
             States = states;
         }
+
         public SceneShipAI GetClone()
         {
             return new SceneShipAI(States);
         }
+
         public void Update(SceneObj ship, FixedSimTime timeStep)
         {
             if (Finished)
@@ -53,6 +56,13 @@ namespace Ship_Game.GameScreens.Scene
                     Finished = true;
                 }
             }
+        }
+
+        public void Draw()
+        {
+            if (Finished)
+                return;
+            Current?.Draw();
         }
     }
 }
