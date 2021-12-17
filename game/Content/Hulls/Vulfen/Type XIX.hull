@@ -8,9 +8,12 @@ MeshOffset=0,0
 IconPath=ShipIcons/icon_TypeXIX
 ModelPath=Model/Ships/Vulfen/TypeXIX
 SelectIcon=14d
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=208,856,0,150
-Thruster=304,856,0,150
+Thruster=48,600,0,150
+Thruster=-48,600,0,150
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___

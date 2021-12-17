@@ -8,8 +8,11 @@ MeshOffset=0,0
 IconPath=ShipIcons/Litving
 ModelPath=Model/Ships/Cordrazine/ship16b
 SelectIcon=16b
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=257,281,0,53
+Thruster=-1,25,0,53
 Slots
 ___|___|O  |O  |___|___
 O  |O  |IO |IO |O  |O  

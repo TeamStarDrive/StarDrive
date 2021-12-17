@@ -8,7 +8,9 @@ MeshOffset=0,0
 IconPath=ShipIcons/icon_Draylok_Station
 ModelPath=Model/Ships/Draylok/Draylok_Station
 SelectIcon=3
-#Starkit Scale 500
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___

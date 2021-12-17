@@ -8,9 +8,12 @@ MeshOffset=0,-16
 IconPath=ShipIcons/ravager
 ModelPath=Model/Ships/Kulrathi/ship12d
 SelectIcon=12d
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=209,633,0,109
-Thruster=294,640,0,109
+Thruster=47,377,0,109
+Thruster=-38,384,0,109
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|___|___|___|O  |IO |IO |IO |IO |O  |___|___|___|___|___|___|___|___|___|___|___|___|___

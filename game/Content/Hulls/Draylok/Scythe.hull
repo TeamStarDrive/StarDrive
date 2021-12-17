@@ -8,9 +8,12 @@ MeshOffset=0,0
 IconPath=ShipIcons/Scythe
 ModelPath=Model/Ships/Draylok/Ship18c
 SelectIcon=18c
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=239,318,0,46
-Thruster=270,314,0,46
+Thruster=17,62,0,46
+Thruster=-14,58,0,46
 Slots
 ___|O  |___|___|___|___|___|___|___|___|___|___|O  |___
 O  |O  |___|___|___|___|O  |O  |___|___|___|___|O  |O  

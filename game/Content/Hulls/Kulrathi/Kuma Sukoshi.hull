@@ -8,10 +8,11 @@ MeshOffset=0,0
 IconPath=ShipIcons/icon_Kuma_Sukoshi
 ModelPath=model/Ships/Kulrathi/Kuma Sukoshi
 SelectIcon=13e
-#Starkit Scale 70
-#Model Author Vanilla modified by Fat Bastard
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=256,316,0,65
+Thruster=0,60,0,65
 Slots
 ___|___|O  |O  |___|___
 ___|___|I  |I  |___|___

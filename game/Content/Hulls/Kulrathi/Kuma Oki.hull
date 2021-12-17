@@ -8,11 +8,12 @@ MeshOffset=0,8
 IconPath=ShipIcons/icon_Kuma_Oki
 ModelPath=model/Ships/Kulrathi/Kuma Oki
 SelectIcon=13e
-#Starkit Scale 300
-#Model Author Vanilla modified by Fat Bastard
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=224,534,0,60
-Thruster=288,534,0,60
+Thruster=32,278,0,60
+Thruster=-32,278,0,60
 Slots
 ___|___|O  |O  |O  |O  |___|___
 ___|___|O  |I  |I  |O  |___|___

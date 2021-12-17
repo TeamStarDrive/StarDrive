@@ -8,8 +8,11 @@ MeshOffset=0,0
 IconPath=ShipIcons/Ving
 ModelPath=Model/Ships/Cordrazine/ship16a
 SelectIcon=16a
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=256,268,0,30
+Thruster=0,12,0,30
 Slots
 ___|___|IO |IO |___|___
 ___|IO |I  |I  |IO |___

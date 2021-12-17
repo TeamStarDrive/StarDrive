@@ -7,9 +7,12 @@ Size=6,18
 MeshOffset=0,0
 IconPath=ShipIcons/10b
 ModelPath=Model/Ships/Terran/HeavyGunboat/ship10b
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=235,385,25,75
-Thruster=277,385,25,75
+Thruster=21,129,-25,75
+Thruster=-21,129,-25,75
 Slots
 ___|___|O  |O  |___|___
 ___|O  |IO |IO |O  |___

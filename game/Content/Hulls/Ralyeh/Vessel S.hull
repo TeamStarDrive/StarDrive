@@ -7,8 +7,11 @@ Size=4,10
 MeshOffset=0,0
 IconPath=ShipIcons/Vessel S
 ModelPath=Model/Ships/Ralyeh/ship17g
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=257,292,0,44
+Thruster=-1,36,0,44
 Slots
 ___|IO |IO |___
 IO |I  |I  |IO 
