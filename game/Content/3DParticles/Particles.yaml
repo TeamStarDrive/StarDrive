@@ -385,3 +385,28 @@
   MaxEndSize: 12000
   SourceBlend: SourceAlpha
   DestinationBlend: One
+
+- ParticleSettings:
+  Name: AsteroidParticles
+  TextureName: "smoke.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 50000
+  Duration: 20.0
+  DurationRandomness: 0
+  EmitterVelocitySensitivity: 0.33
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: 0
+  MaxVerticalVelocity: 0
+  EndVelocity: 0
+  MinColor: [50,50,50,50]
+  MaxColor: [110,110,110,50]
+  MinRotateSpeed: -0.2
+  MaxRotateSpeed: 0.2
+  MinStartSize: 600
+  MaxStartSize: 800
+  MinEndSize: 100
+  MaxEndSize: 150
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
