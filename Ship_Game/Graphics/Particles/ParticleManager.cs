@@ -24,6 +24,7 @@ namespace Ship_Game.Graphics.Particles
         public IParticleSystem Flash;
         public IParticleSystem StarParticles;
         public IParticleSystem Galaxy;
+        public IParticleSystem AsteroidParticles;
 
         readonly Data.GameContentManager Content;
         readonly GraphicsDevice Device;
@@ -59,6 +60,7 @@ namespace Ship_Game.Graphics.Particles
             Flash           = Add("Flash");
             StarParticles   = Add("StarParticles");
             Galaxy          = Add("Galaxy");
+            AsteroidParticles = Add("AsteroidParticles");
         }
 
         IParticleSystem Add(string name, float scale = 1, int particleCount = -1)

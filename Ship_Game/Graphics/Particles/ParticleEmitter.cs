@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game;
 using Ship_Game.Graphics.Particles;
 
@@ -33,16 +34,21 @@ namespace Ship_Game
         {
             Update(elapsedTime, newPosition, zVelocity, 0, jitter);
         }
+        
+        public void Update(float elapsedTime)
+        {
+            Update(elapsedTime, PreviousPosition);
+        }
 
         public void Update(float elapsedTime, Vector3 newPosition, float zVelocity, float zAxisPos, float jitter)
         {
             if (elapsedTime > 0f)
-            {                
+            {
                 Vector3 velocity = newPosition - PreviousPosition;
-                velocity.Z += zVelocity;                
+                velocity.Z += zVelocity;
                 velocity /= elapsedTime;
                 float timeToSpend = TimeLeftOver + elapsedTime;
-                float currentTime = -TimeLeftOver;                
+                float currentTime = -TimeLeftOver;
                 while (timeToSpend > TimeBetweenParticles)
                 {
                     currentTime += TimeBetweenParticles;
@@ -52,7 +58,7 @@ namespace Ship_Game
                     pos.Z += zAxisPos;
 
                     if (jitter > 0)
-                    {                       
+                    {
                         pos.X += RandomMath2.RandomBetween(-jitter, jitter);
                         pos.Y += RandomMath2.RandomBetween(-jitter, jitter);
                         pos.Z += RandomMath2.RandomBetween(-jitter, jitter);
@@ -65,9 +71,24 @@ namespace Ship_Game
             PreviousPosition = newPosition;
         }
 
-        public void Update(float elapsedTime)
+        public void Update(float elapsedTime, Vector3 newPosition, float scale, Color color)
         {
-            Update(elapsedTime, PreviousPosition);
+            if (elapsedTime > 0f)
+            {
+                Vector3 velocity = (newPosition - PreviousPosition) / elapsedTime;
+                float timeToSpend = TimeLeftOver + elapsedTime;
+                float currentTime = -TimeLeftOver;                
+                while (timeToSpend > TimeBetweenParticles)
+                {
+                    currentTime += TimeBetweenParticles;
+                    timeToSpend -= TimeBetweenParticles;
+                    float relTime = currentTime / elapsedTime;
+                    Vector3 pos = Vector3.Lerp(PreviousPosition, newPosition, relTime);
+                    ParticleSystem.AddParticle(pos, velocity, scale, color);
+                }
+                TimeLeftOver = timeToSpend;
+            }
+            PreviousPosition = newPosition;
         }
 
         public void UpdateProjectileTrail(float elapsedTime, Vector3 newPosition, Vector2 pVel)
