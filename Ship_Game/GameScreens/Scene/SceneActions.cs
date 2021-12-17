@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Ship_Game.AI.ShipMovement;
 using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game.GameScreens.Scene
@@ -79,17 +80,18 @@ namespace Ship_Game.GameScreens.Scene
     class Orbit : SceneAction
     {
         public Vector3 OrbitCenter;
-        Vector3 MoveDirection;
+        OrbitPlan.OrbitDirection Direction;
         Vector3 ObjRotPerSec;
         float DistFromCenter;
 
+        /// <param name="duration">Duration of the orbit action</param>
         /// <param name="orbitCenter">Required center of the orbit</param>
-        /// <param name="moveVec">Movement vector/direction along the orbit. Vec3 will be normalized</param>
+        /// <param name="direction">Left(CW) or Right(CCW)?</param>
         /// <param name="objRotPerSec">How much the object rotates around its own axis. Can be ZERO.</param>
-        public Orbit(float duration, Vector3 orbitCenter, Vector3 moveVec, Vector3 objRotPerSec) : base(duration)
+        public Orbit(float duration, Vector3 orbitCenter, OrbitPlan.OrbitDirection direction, Vector3 objRotPerSec) : base(duration)
         {
             OrbitCenter = orbitCenter;
-            MoveDirection = moveVec.Normalized();
+            Direction = direction;
             ObjRotPerSec = objRotPerSec;
         }
         public override void Initialize(SceneObj obj)
@@ -102,9 +104,13 @@ namespace Ship_Game.GameScreens.Scene
         }
         public override bool Update(FixedSimTime timeStep)
         {
+            Vector3 moveDir = (OrbitCenter - Obj.Position).Cross(Vector3.Up).Normalized();
+            if (Direction == OrbitPlan.OrbitDirection.Right)
+                moveDir = -moveDir;
+
             // slow moves the ship across the screen
             Obj.Rotation += timeStep.FixedTime * ObjRotPerSec;
-            Obj.Position += timeStep.FixedTime * MoveDirection * Obj.Speed;
+            Obj.Position += timeStep.FixedTime * moveDir * Obj.Speed;
 
             // keep a fixed distance from belt center after the ship has move forward
             Vector3 towardsShip = OrbitCenter.DirectionToTarget(Obj.Position);

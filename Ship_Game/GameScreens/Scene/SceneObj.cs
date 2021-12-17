@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
-using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -33,6 +32,7 @@ namespace Ship_Game.GameScreens.Scene
 
         public readonly SceneShipAI AI;
         SceneObject SO;
+        ShipHull Hull; // if this is a ship, for asteroids etc it will be null
 
         bool DebugMeshRotate = false;
         bool DebugMeshInspect = false; // for debugging mesh loader
@@ -43,8 +43,11 @@ namespace Ship_Game.GameScreens.Scene
 
         public SceneInstance Scene;
         public bool EngineTrails;
+        public bool DustTrails;
+        ParticleEmitter DustEmitter;
         public bool DebugTrail;
-        Color ThrustColor;
+        Color ThrustColor1;
+        Color ThrustColor2;
 
         public SceneObj(SceneInstance scene, ObjectSpawnInfo spawn)
         {
@@ -56,7 +59,8 @@ namespace Ship_Game.GameScreens.Scene
             BaseScale = spawn.Scale;
             AI = spawn.AI.GetClone();
 
-            ThrustColor = new Color(spawn.Empire.ThrustColor1R, spawn.Empire.ThrustColor1G, spawn.Empire.ThrustColor1B);
+            ThrustColor1 = new Color(spawn.Empire.ThrustColor1R, spawn.Empire.ThrustColor1G, spawn.Empire.ThrustColor1B);
+            ThrustColor2 = spawn.Empire.Traits.Color;
         }
 
         public void AxisRotate(float ax, float ay, float az)
@@ -130,7 +134,7 @@ namespace Ship_Game.GameScreens.Scene
         {
             Destroy(); // Allow multiple init
 
-            ShipHull hull = null;
+            Hull = null;
             if (GlobalStats.HasMod && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
             {
                 int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
@@ -147,8 +151,8 @@ namespace Ship_Game.GameScreens.Scene
                 SO = ChooseObject(Spawn.Type);
                 if (SO == null)
                 {
-                    hull = ChooseShip(Spawn.Empire, Spawn.Type);
-                    hull.LoadModel(out SO, screen.ContentManager);
+                    Hull = ChooseShip(Spawn.Empire, Spawn.Type);
+                    Hull.LoadModel(out SO, screen.ContentManager);
                 }
                 if (SO.Animation != null)
                 {
@@ -159,7 +163,7 @@ namespace Ship_Game.GameScreens.Scene
             var bounds = SO.GetMeshBoundingBox();
             Radius = bounds.Radius();
             HalfLength = (bounds.Max.Y - bounds.Min.Y) * 0.5f;
-            HullSize = hull?.HullSlots.Length ?? (int)(Radius * 4);
+            HullSize = Hull?.HullSlots.Length ?? (int)(Radius * 4);
 
             if (DebugMeshInspect)
             {
@@ -242,12 +246,33 @@ namespace Ship_Game.GameScreens.Scene
 
             if (DebugTrail)
             {
-                Scene.Particles.EngineTrail.AddParticle(Position, Vector3.Zero, Scale.Length() * 2, Color.WhiteSmoke);
+                Scene.Particles.EngineTrail.AddParticle(Position, Vector3.Zero, BaseScale * 2, Color.WhiteSmoke);
             }
-            else if (EngineTrails)
+            if (EngineTrails)
             {
-                Vector3 offset = (0.9f * Radius) * Forward;
-                Scene.Particles.EngineTrail.AddParticle(Position - offset, Vector3.Zero, Scale.Length(), ThrustColor);
+                if (Hull != null)
+                {
+                    for (int i = 0; i < Hull.Thrusters.Length; ++i)
+                    {
+                        ref ShipHull.ThrusterZone thruster = ref Hull.Thrusters[i];
+                        var offset = new Vector2(256) - new Vector2(thruster.Position.X, thruster.Position.Y);
+                        Vector3 dir = Forward;
+                        Vector3 pos = Position + dir*offset.Y + dir.Cross(Vector3.Up)*offset.X;
+                        EngineTrail.Update(Scene.Particles, pos, dir, BaseScale, 1f, ThrustColor1, ThrustColor2);
+                    }
+                }
+                else
+                {
+                    EngineTrail.Update(Scene.Particles, Position, Forward, BaseScale, 1f, ThrustColor1, ThrustColor2);
+                }
+            }
+            if (DustTrails)
+            {
+                if (DustEmitter == null)
+                {
+                    DustEmitter = Scene.Particles.AsteroidParticles.NewEmitter(1.0f, Position);
+                }
+                DustEmitter.Update(timeStep.FixedTime, Position, BaseScale, Color.White);
             }
 
             // shipObj can be modified while mod is loading
