@@ -170,8 +170,8 @@ namespace Ship_Game.GameScreens.Scene
             }
             batch.End();
 
-            Particles.Update(elapsed);
             Particles.Draw(Screen.View, Screen.Projection, nearView: true);
+            Particles.Update(elapsed);
         }
     }
 }

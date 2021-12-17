@@ -31,10 +31,7 @@ namespace Ship_Game
 
         public Matrix world_matrix;
         public Matrix inverse_scale_transpose;
-        public Matrix scale;
         public Matrix[] matrices_combined = new Matrix[3];
-
-        Vector2 OffsetFromShipCenter;
 
         public Thruster()
         {
@@ -45,6 +42,7 @@ namespace Ship_Game
             Parent = owner;
             tscale = scale;
             XMLPos = position;
+            UpdatePosition(owner.Position, owner.yRotation, owner.Direction3D);
         }
 
         public void Draw(ref Matrix view, ref Matrix project)
@@ -61,12 +59,6 @@ namespace Ship_Game
             effect_tick.SetValue(tick);
             effect_noise.SetValue(Noise);
             model.Meshes[0].Draw();
-        }
-
-        public void InitializeForViewing()
-        {
-            OffsetFromShipCenter = new Vector2(256, 256) - new Vector2(XMLPos.X, XMLPos.Y);
-            UpdatePosition();
         }
 
         static int ContentId;
@@ -109,35 +101,33 @@ namespace Ship_Game
             world_matrix    = Matrix.Identity;
         }
 
-        public void UpdatePosition()
-         {
-            Vector2 dir = Parent.Direction;
-            Vector2 thrusterOffset = dir * OffsetFromShipCenter.Y + dir.LeftVector() * OffsetFromShipCenter.X;
-            Vector2 thrusterPos = Parent.Position + thrusterOffset;
-            float zPos = XMLPos.Z + (float)Math.Sin(Parent.yRotation) * OffsetFromShipCenter.X;
-            WorldPos = new Vector3(thrusterPos, zPos);
+        public void UpdatePosition(Vector2 center, float yRotation, Vector3 dir)
+        {
+            Vector2 dir2d = dir.ToVec2();
+            Vector2 offset = new Vector2(256) - new Vector2(XMLPos.X, XMLPos.Y);
+            float zPos = XMLPos.Z + (float)Math.Sin(yRotation) * offset.X;
+            Vector2 pos = center + dir2d*offset.Y 
+                                 + dir2d.LeftVector()*offset.X;
+            WorldPos = new Vector3(pos, zPos);
         }
 
-        public void Update(Vector3 direction, float thrustSize, float thrustSpeed, Vector3 cameraPosition, Color thrust0, Color thrust1)
+        public void UpdatePosition(Vector3 center, Vector3 dir)
+        {
+            WorldPos = center + dir*(256 - XMLPos.Y) 
+                              + dir.Cross(Vector3.Up)*(256 - XMLPos.X)
+                              + dir.Cross(Vector3.Left)*XMLPos.Z;
+        }
+
+        public void Update(Vector3 direction, float thrustSize, float thrustSpeed, Color thrust0, Color thrust1)
         {
             heat = thrustSize.Clamped(0f, 1f);
             tick += thrustSpeed;
             colors[0] = thrust0;
             colors[1] = thrust1;
 
-            Vector3 camToWorldPos = WorldPos - cameraPosition;
-            Vector3 up = direction.Cross(camToWorldPos).Normalized();
-
-            world_matrix = Matrix.Identity;
-            world_matrix.Forward = direction;
-            world_matrix.Right = direction.Cross(up);
-            world_matrix.Up    = up;
-
-            var scaleFactors = new Vector3(tscale);
-            Matrix.CreateScale(ref scaleFactors, out scale);
-            Matrix.Multiply(ref world_matrix, ref scale, out world_matrix);
+            world_matrix = Matrix.CreateScale(tscale)
+                         * Matrix.CreateWorld(WorldPos, direction, Vector3.UnitZ);
             inverse_scale_transpose  = Matrix.Transpose(Matrix.Invert(world_matrix));
-            world_matrix.Translation = WorldPos;
         }
     }
 }

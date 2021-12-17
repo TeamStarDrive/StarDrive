@@ -255,7 +255,7 @@ namespace Ship_Game.GameScreens.Scene
                     for (int i = 0; i < Hull.Thrusters.Length; ++i)
                     {
                         ref ShipHull.ThrusterZone thruster = ref Hull.Thrusters[i];
-                        var offset = new Vector2(256) - new Vector2(thruster.Position.X, thruster.Position.Y);
+                        Vector2 offset = new Vector2(256) - new Vector2(thruster.Position.X, thruster.Position.Y);
                         Vector3 dir = Forward;
                         Vector3 pos = Position + dir*offset.Y + dir.Cross(Vector3.Up)*offset.X;
                         EngineTrail.Update(Scene.Particles, pos, dir, BaseScale, 1f, ThrustColor1, ThrustColor2);
