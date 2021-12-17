@@ -41,7 +41,7 @@ namespace Ship_Game.Ships
         public float MaxBank     = 0.5236f;
 
         public Vector2 projectedPosition;
-        Thruster[] ThrusterList = Empty<Thruster>.Array;
+        public Thruster[] ThrusterList = Empty<Thruster>.Array;
 
         public Array<Weapon> Weapons = new Array<Weapon>();
         float JumpTimer = 3f;
