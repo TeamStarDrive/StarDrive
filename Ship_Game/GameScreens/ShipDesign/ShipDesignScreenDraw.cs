@@ -59,30 +59,17 @@ namespace Ship_Game
 
         void DrawDebugDetails(SpriteBatch batch)
         {
-            if (DesignedShip != null)
+            // Draw Internal and External modules for the design
+            foreach (ShipModule m in DesignedShip.Modules)
             {
-                // Draw Internal and External modules for the design
-                foreach (ShipModule m in DesignedShip.Modules)
-                {
-                    var rect = new RectF(ModuleGrid.GridPosToWorld(m.Pos), m.WorldSize);
-                    if (m.HasInternalRestrictions)
-                        DrawRectangleProjected(rect, Color.Green);
-                    else if (m.isExternal)
-                        DrawRectangleProjected(rect, Color.Blue);
-                }
+                var rect = new RectF(ModuleGrid.GridPosToWorld(m.Pos), m.WorldSize);
+                if (m.HasInternalRestrictions)
+                    DrawRectangleProjected(rect, Color.Green);
+                else if (m.isExternal)
+                    DrawRectangleProjected(rect, Color.Blue);
             }
 
             DrawCrossHairProjected(ModuleGrid.GridPosToWorld(CurrentHull.GridCenter), 16f, Color.Red, 2f);
-
-            if (SlotUnderCursor != null)
-            {
-                DrawRectangleProjected(SlotUnderCursor.WorldRect, Color.Yellow);
-            }
-            else
-            {
-                Vector2 screenPos = ModuleGrid.GridPosToWorld(GridPosUnderCursor);
-                DrawRectangleProjected(new RectF(screenPos, new Vector2(16)), Color.Yellow);
-            }
         }
 
         bool GetSlotForModule(ShipModule module, out SlotStruct slot)
@@ -135,7 +122,7 @@ namespace Ship_Game
                     Color activeColor = valid ? Color.LightGreen : Color.Red;
                     batch.Draw(concreteGlass, rect, activeColor);
 
-                    if (DesignedShip != null && DesignedShip.PwrGrid.IsPowered(slot.Pos))
+                    if (!HullEditMode && DesignedShip.PwrGrid.IsPowered(slot.Pos))
                     {
                         Color yellow = ActiveModule != null ? new Color(Color.Yellow, 150) : Color.Yellow;
                         batch.Draw(concreteGlass, rect, yellow);
@@ -149,7 +136,7 @@ namespace Ship_Game
 
         void DrawModules(SpriteBatch batch)
         {
-            if (DesignedShip == null)
+            if (HullEditMode)
                 return;
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -254,7 +241,7 @@ namespace Ship_Game
 
         void DrawUnpoweredTex(SpriteBatch batch)
         {
-            if (DesignedShip == null)
+            if (HullEditMode)
                 return;
 
             var unPowered = ResourceManager.Texture("UI/lightningBolt");
