@@ -8,8 +8,9 @@ MeshOffset=0,0
 IconPath=ShipIcons/iconVulfarStation
 ModelPath=Model/Ships/Vulfen/Vulfar_Station
 SelectIcon=3
-#Starkit Scale 400
-#Model Author Vanilla modified by Fat Bastard
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___

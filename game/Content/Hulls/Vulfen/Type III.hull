@@ -8,8 +8,11 @@ MeshOffset=0,0
 IconPath=ShipIcons/typeIII
 ModelPath=Model/Ships/Vulfen/TypeIII
 SelectIcon=13c
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=256,289,0,47
+Thruster=0,33,0,47
 Slots
 ___|___|O  |O  |___|___
 ___|O  |IO |IO |O  |___

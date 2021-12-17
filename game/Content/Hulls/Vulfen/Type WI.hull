@@ -8,10 +8,11 @@ MeshOffset=0,0
 IconPath=ShipIcons/icon_TypeWI
 ModelPath=Model/Ships/Vulfen/TypeWI
 SelectIcon=13e
-#Starkit Scale 70
-#Model Author Vanilla modified by Fat Bastard
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=256,300,10,50
+Thruster=0,44,-10,50
 Slots
 ___|___|O  |O  |___|___
 ___|___|I  |I  |___|___

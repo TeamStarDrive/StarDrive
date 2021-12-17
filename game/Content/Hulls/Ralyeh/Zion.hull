@@ -8,11 +8,13 @@ MeshOffset=0,0
 IconPath=ShipIcons/Zion
 ModelPath=Model/Ships/Ralyeh/Ship17c
 Animated=true
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|O  |O  |___|___|___
 ___|___|O  |IO |IO |O  |___|___
-O  |O  |IO |IO |IO |IO |O  |O 
+O  |O  |IO |IO |IO |IO |O  |O  
 O  |IO |I  |I  |I  |I  |IO |O  
 O  |IO |I  |I  |I  |I  |IO |O  
 O  |IO |I  |I  |I  |I  |IO |O  

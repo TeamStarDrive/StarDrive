@@ -8,8 +8,11 @@ MeshOffset=0,0
 IconPath=ShipIcons/fern
 ModelPath=Model/Ships/Pollops/Fern
 SelectIcon=15c
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=255,290,0,80
+Thruster=1,34,0,80
 Slots
 ___|O  |___|___|O  |___|___|O  |O  |___|___|O  |___|___|O  |___
 ___|O  |O  |___|O  |___|O  |IO |IO |O  |___|O  |___|O  |O  |___

@@ -8,10 +8,11 @@ MeshOffset=0,0
 IconPath=ShipIcons/icon_Kuma_Naka
 ModelPath=model/Ships/Kulrathi/Kuma Naka
 SelectIcon=13e
-#Starkit Scale 120
-#Model Author Vanilla modified by Fat Bastard
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=256,368,0,80
+Thruster=0,112,0,80
 Slots
 ___|O  |O  |O  |O  |___
 ___|I  |I  |I  |I  |___

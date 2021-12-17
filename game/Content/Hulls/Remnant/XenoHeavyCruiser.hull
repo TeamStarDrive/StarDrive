@@ -7,10 +7,13 @@ Size=22,31
 MeshOffset=0,0
 IconPath=ShipIcons/xeno gunship
 ModelPath=Model/Ships/Remnant/SharedTextures/ship09a
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=255,498,0,80
-Thruster=297,494,0,80
-Thruster=214,494,0,80
+Thruster=1,242,0,80
+Thruster=-41,238,0,80
+Thruster=42,238,0,80
 Slots
 ___|___|___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___

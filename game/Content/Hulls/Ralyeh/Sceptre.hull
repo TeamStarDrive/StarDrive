@@ -8,6 +8,8 @@ MeshOffset=0,16
 IconPath=ShipIcons/Sceptre
 ModelPath=Model/Ships/Ralyeh/Ship17e
 Animated=true
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|O  |___|O  |___|O  |___|O  |___|O  |___|___|___|___|___|___|___|___|___|___|___|___

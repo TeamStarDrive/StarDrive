@@ -1,4 +1,4 @@
-Version=1
+﻿Version=1
 HullName=Cordrazine/Owl3
 VisibleName=Owlwok Freighter L
 Role=freighter
@@ -7,8 +7,11 @@ Size=8,26
 MeshOffset=0,0
 IconPath=ShipIcons/Owl3
 ModelPath=Model/Ships/Cordrazine/ship16i
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=252,412,0,52
+Thruster=4,156,0,52
 Slots
 ___|___|___|IO |IO |___|___|___
 ___|___|___|IO |IO |___|___|___

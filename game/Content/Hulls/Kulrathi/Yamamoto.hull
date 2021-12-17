@@ -7,6 +7,9 @@ Size=32,64
 MeshOffset=0,0
 IconPath=ShipIcons/yamamoto
 ModelPath=Model/Ships/Kulrathi/Yamamoto
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___

@@ -8,11 +8,14 @@ MeshOffset=0,-8
 IconPath=ShipIcons/Warbird
 ModelPath=Model/Ships/Draylok/Ship18e
 SelectIcon=18e
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=148,506,0,89
-Thruster=203,547,0,89
-Thruster=312,550,0,89
-Thruster=360,505,0,89
+Thruster=108,250,0,89
+Thruster=53,291,0,89
+Thruster=-56,294,0,89
+Thruster=-104,249,0,89
 Slots
 ___|___|___|___|___|___|___|___|___|___|O  |___|___|___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___|___|___|O  |___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___|___

@@ -8,9 +8,12 @@ MeshOffset=0,-16
 IconPath=ShipIcons/terran_cargo1
 ModelPath=Model/Ships/CargoShips/CargoHaulerShort
 SelectIcon=04
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=239,339,0,30
-Thruster=270,335,0,30
+Thruster=17,83,0,30
+Thruster=-14,79,0,30
 Slots
 ___|IO |IO |___
 ___|IO |IO |___

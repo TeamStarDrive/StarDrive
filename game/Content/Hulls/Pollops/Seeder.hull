@@ -7,6 +7,9 @@ Size=6,6
 MeshOffset=0,0
 IconPath=ShipIcons/Seeder
 ModelPath=Model/Ships/Pollops/ship15g
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|I  |I  |I  |I  |___

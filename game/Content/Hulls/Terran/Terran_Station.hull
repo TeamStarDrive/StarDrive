@@ -8,6 +8,9 @@ MeshOffset=0,0
 IconPath=ShipIcons/station_blue
 ModelPath=Model/Stations/spacestation01_outer
 SelectIcon=3
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___

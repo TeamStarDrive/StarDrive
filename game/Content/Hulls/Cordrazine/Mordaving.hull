@@ -7,9 +7,12 @@ Size=32,48
 MeshOffset=0,0
 IconPath=ShipIcons/Mordaving
 ModelPath=Model/Ships/Cordrazine/ship16f
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=223,580,0,115
-Thruster=291,580,0,115
+Thruster=33,324,0,115
+Thruster=-35,324,0,115
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|O  |O  |IO |___|___|___|___|O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|O  |IO |O  |O  |O  |O  |O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___
