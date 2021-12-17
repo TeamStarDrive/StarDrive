@@ -272,10 +272,47 @@ namespace Ship_Game
             OnDesignChanged();
         }
 
+        void RemoveVisibleMesh()
+        {
+            if (DesignedShip != null)
+            {
+                DesignedShip.RemoveSceneObject();
+            }
+            // always remove this
+            if (shipSO != null)
+            {
+                RemoveObject(shipSO);
+                shipSO = null;
+            }
+        }
+
+        void CreateSOFromCurrentHull()
+        {
+            if (DesignedShip != null)
+            {
+                DesignedShip.CreateSceneObject();
+            }
+            else
+            {
+                RemoveObject(shipSO);
+                CurrentHull.LoadModel(out shipSO, TransientContent);
+                UpdateHullWorldPos();
+                AddObject(shipSO);
+            }
+        }
+
+        public void UpdateHullWorldPos()
+        {
+            if (shipSO != null)
+                shipSO.World = Matrix.CreateTranslation(new Vector3(CurrentHull.MeshOffset, 0));
+        }
+
         public void ChangeHull(ShipDesign shipDesignTemplate)
         {
             if (shipDesignTemplate == null) // if ShipDesignLoadScreen has no selected design
                 return;
+
+            RemoveVisibleMesh();
 
             ShipDesign cloned = shipDesignTemplate.GetClone();
             ModuleGrid = new DesignModuleGrid(this, cloned);
@@ -294,11 +331,11 @@ namespace Ship_Game
 
             if (HullEditMode)
             {
+                RemoveVisibleMesh();
                 ModuleGrid = new DesignModuleGrid(this, hullTemplate.VisibleName, hullTemplate);
                 CurrentDesign = null;
                 CurrentHull = hullTemplate.GetClone();
                 DesignedShip = null;
-
                 AfterHullChange(zoomToHull);
             }
             else
@@ -390,6 +427,15 @@ namespace Ship_Game
         {
             CameraPos.Z = MathHelper.SmoothStep(CameraPos.Z, DesiredCamHeight, 0.2f);
             UpdateViewMatrix(CameraPos);
+
+            if (DesignedShip != null)
+            {
+                var simTime = new FixedSimTime(elapsed.RealTime.Seconds);
+                DesignedShip.ApplyThrust(100, Thrust.Forward);
+                DesignedShip.Velocity = new Vector2(0, 100);
+                DesignedShip.UpdateThrusters(simTime);
+            }
+
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 

@@ -144,6 +144,7 @@ namespace Ship_Game.Ships
                                  * Matrix.CreateRotationZ(Rotation)
                                  * Matrix.CreateTranslation(new Vector3(Position, 0f));
                     ShipSO.UpdateAnimation(timeStep.FixedTime);
+
                     UpdateThrusters(timeStep);
                 }
                 else // auto-create scene objects if possible
@@ -195,7 +196,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        void UpdateThrusters(FixedSimTime timeStep)
+        public void UpdateThrusters(FixedSimTime timeStep)
         {
             Color thrust0 = loyalty.ThrustColor0;
             Color thrust1 = loyalty.ThrustColor1;
@@ -204,12 +205,12 @@ namespace Ship_Game.Ships
             float velocityPercent = velocity / VelocityMaximum;
             bool notPaused = timeStep.FixedTime > 0f;
 
-            Vector3 camPos = Empire.Universe.CamPos.ToVec3f();
+            Vector3 direction3d = Direction3D;
 
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
                 Thruster thruster = ThrusterList[i];
-                thruster.UpdatePosition();
+                thruster.UpdatePosition(Position, yRotation, direction3d);
 
                 bool enginesOn = ThrustThisFrame == Ships.Thrust.Forward || ThrustThisFrame == Ships.Thrust.Reverse;
                 if (enginesOn)
@@ -219,28 +220,28 @@ namespace Ship_Game.Ships
 
                     if (engineState == MoveState.Warp)
                     {
-                        thruster.Update(Direction3D, thruster.heat, 0.004f, camPos, thrust0, thrust1);
+                        thruster.Update(direction3d, thruster.heat, 0.004f, thrust0, thrust1);
                     }
                     else
                     {
                         if (thruster.heat > 0.6f)
                             thruster.heat = 0.6f;
-                        thruster.Update(Direction3D, thruster.heat, 0.002f, camPos, thrust0, thrust1);
+                        thruster.Update(direction3d, thruster.heat, 0.002f, thrust0, thrust1);
                     }
                 }
                 else
                 {
                     if (notPaused)
                         thruster.heat = 0.01f;
-                    thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, camPos, thrust0, thrust1);
+                    thruster.Update(direction3d, 0.1f, 1.0f / 500.0f, thrust0, thrust1);
                 }
 
                 if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused)
                 {
                     // tscale is in world units, engine-trail effect width at scale=1 is 32 units
                     float thrustScale = thruster.tscale / 32f;
-                    float thrustPower = (thruster.heat * (Thrust / 64f)).Clamped(32f, 320f) * thrustScale;
-                    EngineTrail.Update(Empire.Universe.Particles, thruster.WorldPos, Direction3D, 
+                    float thrustPower = (thruster.heat * (Thrust / 32f)).Clamped(64, 320) * thrustScale;
+                    EngineTrail.Update(Empire.Universe.Particles, thruster.WorldPos, direction3d, 
                                        thrustScale, thrustPower, thrust1, thrust2);
                 }
             }

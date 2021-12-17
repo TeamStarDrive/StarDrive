@@ -1,4 +1,4 @@
-﻿using Ship_Game.Gameplay;
+﻿using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
@@ -14,6 +14,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             : base(EmpireManager.Player, designHull, isTemplate:true, shipyardDesign:true)
         {
             DesignStats = new ShipDesignStats(this);
+            Position = new Vector2(0, 0);
         }
 
         public void UpdateDesign(Array<ShipModule> placedModules, bool forceUpdate = false)
