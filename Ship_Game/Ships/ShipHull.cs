@@ -69,6 +69,8 @@ namespace Ship_Game.Ships
 
             public Vector2 WorldPos2D =>
                 Thruster.GetPosition(Vector2.Zero, 0, Vector3.Down, Position).ToVec2();
+            
+            public float WorldRadius => Scale / 8f;
 
             public void SetWorldPos2D(Vector2 worldPos)
             {
@@ -77,7 +79,10 @@ namespace Ship_Game.Ships
                 Position.Y = (float)Math.Round(pos.Y);
             }
 
-            public float WorldRadius => Scale / 8f;
+            public void SetWorldScale(float worldScale)
+            {
+                Scale = (float)Math.Round(worldScale * 8);
+            }
         }
 
         public HullSlot FindSlot(Point p)
@@ -199,11 +204,8 @@ namespace Ship_Game.Ships
                         case "IsShipyard": IsShipyard = (val == "true"); break;
                         case "IsOrbitalDefense": IsOrbitalDefense = (val == "true"); break;
                         case "Thruster":
-                            Array.Resize(ref Thrusters, Thrusters.Length + 1);
-                            ref ThrusterZone tz = ref Thrusters[Thrusters.Length - 1];
                             Vector4 t = Vector4Serializer.FromString(val);
-                            tz.Position = new Vector3(t.X, t.Y, t.Z);
-                            tz.Scale = t.W;
+                            AddThruster(pos:new Vector3(t.X, t.Y, t.Z), scale:t.W);
                             break;
                         case "Slots":
                             parsingSlots = true;
@@ -257,11 +259,28 @@ namespace Ship_Game.Ships
             InitializeCommon();
         }
 
+        public void AddThruster(Vector3 pos, float scale)
+        {
+            Array.Resize(ref Thrusters, Thrusters.Length+1);
+            Thrusters[Thrusters.Length-1] = new ThrusterZone{ Position = pos, Scale = scale };
+        }
+
+        public void RemoveThruster(int index)
+        {
+            if (index < Thrusters.Length)
+            {
+                var thrusters = new Array<ThrusterZone>(Thrusters);
+                thrusters.RemoveAt(index);
+                Thrusters = thrusters.ToArray();
+            }
+        }
+
         public ShipHull GetClone()
         {
             ShipHull hull = (ShipHull)MemberwiseClone();
             hull.HullSlots = HullSlots.CloneArray();
             hull.TechsNeeded = new HashSet<string>(TechsNeeded);
+            hull.Thrusters = Thrusters.CloneArray();
             return hull;
         }
 
