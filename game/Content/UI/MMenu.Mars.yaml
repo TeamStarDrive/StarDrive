@@ -104,9 +104,8 @@ Elements:
     RelSize: [1, 0] # set relative height, auto-aspect width
     AxisAlign: BottomCenter # Align our Pos and Axis
     DrawDepth: Background
-    DebugDraw: false
     Animation:
-      Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+      Params: [0, 800, 800, 400, 400] # delay, duration, end-time, fadein, fadeout
       CenterScale: [1.0,1.15]
 
     Children:
@@ -122,10 +121,10 @@ Elements:
         # if sun is flaring, lights are dim, when sun is dim, lights are bright
         Animations:
           - Animation:
-            Params: [0, 400, 0, 200.0, 200.0] # delay, duration, end-time, fadein, fadeout
+            Params: [0, 60, 60, 25, 25] # delay, duration, end-time, fadein, fadeout
             Alpha: [1, 0]
           - Animation:
-            Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+            Params: [0, 800, 800, 400, 400] # delay, duration, end-time, fadein, fadeout
             CenterScale: [1.0,1.15]
       - Panel:
         Name: Lights_edge
@@ -137,11 +136,11 @@ Elements:
         DrawDepth: BackAdditive
         Animations:
           - Animation:
-            Params: [0, 400, 0, 80.0, 80.0] # delay, duration, end-time, fadein, fadeout
+            Params: [0, 400, 400, 80.0, 80.0] # delay, duration, end-time, fadein, fadeout
             MinColor: [1.0,1.0,1.0,0] # vary the color from min
             MaxColor: [0,0,0,0] # to max
           - Animation:
-            Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+            Params: [0, 800, 800, 400, 400] # delay, duration, end-time, fadein, fadeout
             CenterScale: [1.0,1.15]
       - Panel:
         Name: Dust
@@ -157,7 +156,7 @@ Elements:
             MinColor: [0.6,0.6,0.6,0] # vary the color from min
             MaxColor: [1.0,1.0,1.0,1.0] # to max
           - Animation:
-            Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+            Params: [0, 800, 800, 400, 400] # delay, duration, end-time, fadein, fadeout
             CenterScale: [1.0,1.15]
       - Panel:
         Name: Lights_center
@@ -173,7 +172,7 @@ Elements:
             MinColor: [0.8,0.8,0.8,0] # vary the color from min
             MaxColor: [1.0,1.0,1.0,1.0] # to max
           - Animation:
-            Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+            Params: [0, 800, 800, 400, 400] # delay, duration, end-time, fadein, fadeout
             CenterScale: [1.0,1.15]
       - Panel:
         Name: Aurora
@@ -189,7 +188,7 @@ Elements:
             MinColor: [0.4,0.4,0.4,0] # vary the color from min
             MaxColor: [1.0,1.0,1.0,1.0] # to max
           - Animation:
-            Params: [0, 800, 0, 400.0, 400.0] # delay, duration, end-time, fadein, fadeout
+            Params: [0, 800, 800, 400, 400] # delay, duration, end-time, fadein, fadeout
             CenterScale: [1.0,1.15]
 
   - Panel:

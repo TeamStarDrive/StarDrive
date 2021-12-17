@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
+using Ship_Game.Graphics.Particles;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
@@ -29,7 +30,10 @@ namespace Ship_Game.GameScreens.Scene
         [StarData] public SceneGroup[] Groups = new SceneGroup[0];
         #pragma warning restore 649
 
-        GameScreen Screen;
+        public GameScreen Screen;
+        public ParticleManager Particles;
+
+        Map<string, EmpireData> Empires = new Map<string, EmpireData>();
 
         public static SceneInstance FromFile(GameScreen screen, string relativePath)
         {
@@ -62,9 +66,11 @@ namespace Ship_Game.GameScreens.Scene
 
             FTLManager.LoadContent(screen);
 
+            Particles = new ParticleManager(screen.TransientContent, screen.Device);
+
             foreach (SceneGroup fleet in Groups)
             {
-                fleet.CreateShips(screen);
+                fleet.CreateShips(this, screen);
             }
         }
 
@@ -109,6 +115,26 @@ namespace Ship_Game.GameScreens.Scene
             Screen.AddLight(light, dynamic:false);
         }
 
+        public EmpireData GetEmpire(string name)
+        {
+            if (name.NotEmpty() && name != "Random")
+            {
+                IEmpireData e = ResourceManager.AllRaces.Filter(
+                    p => p.Name.Contains(name)).FirstOrDefault();
+                if (e != null) return GetCachedEmpire(e.CreateInstance());
+            }
+            return GetCachedEmpire(ResourceManager.MajorRaces.RandItem());
+        }
+
+        EmpireData GetCachedEmpire(IEmpireData e)
+        {
+            if (!Empires.TryGetValue(e.Name, out EmpireData empire))
+            {
+                empire = e.CreateInstance();
+                Empires[e.Name] = empire;
+            }
+            return empire;
+        }
 
         public bool HandleInput(InputState input)
         {
@@ -116,6 +142,14 @@ namespace Ship_Game.GameScreens.Scene
             {
                 fleet.HandleInput(input, Screen);
             }
+
+            //if (input.RightMouseHeldDown)
+            //{
+            //    Vector2 delta = (input.StartRightHold - input.EndRightHold);
+            //    LookAt.X += delta.X.Clamped(-50, 50);
+            //    LookAt.Y += delta.Y.Clamped(-50, 50);
+            //    Screen.SetViewMatrix(Matrix.CreateLookAt(CameraPos, LookAt, Vector3.Down));
+            //}
             return false;
         }
 
@@ -129,10 +163,15 @@ namespace Ship_Game.GameScreens.Scene
 
         public void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
+            batch.Begin();
             foreach (var fleet in Groups)
             {
                 fleet.Draw(batch, Screen);
             }
+            batch.End();
+
+            Particles.Update(elapsed);
+            Particles.Draw(Screen.View, Screen.Projection, nearView: true);
         }
     }
 }

@@ -20,15 +20,16 @@ namespace Ship_Game.GameScreens.Scene
         [StarData] readonly string Name;
         [StarData] readonly string Empire;
         [StarData] readonly bool DiverseShipEmpires;
-        [StarData] readonly Vector3 Rotation;
         [StarData] readonly object[][] AI;
-        [StarData] readonly Vector3? MinPos;
-        [StarData] readonly Vector3? MaxPos;
-        [StarData] readonly Range? SpeedRange;
         [StarData] readonly bool DisableJumpSfx;
+        [StarData] readonly bool EngineTrails;
+        [StarData] readonly bool DebugTrail;
         [StarData] readonly ObjectSpawnInfo[] Objects = Empty<ObjectSpawnInfo>.Array;
         [StarData] readonly ObjectGroupInfo[] ObjectGroups = Empty<ObjectGroupInfo>.Array;
         #pragma warning restore 649
+
+        public Array<SceneObj> AllObjects = new Array<SceneObj>();
+        public SceneInstance Scene;
 
         SceneAction CreateAction(object[] descriptor)
         {
@@ -50,7 +51,7 @@ namespace Ship_Game.GameScreens.Scene
             }
 
             Vector3 Vec3(int arg) => Vector3Serializer.ToVector(GetArgument(arg));
-            Vector3 RandVec3(int arg) => Vector3Serializer.ToVector(GetArgument(arg));
+            Vector3 RandVec3(int arg) => RandomMath.Vector3D(Vector3Serializer.ToVector(GetArgument(arg)));
             float Range(int arg) => RangeSerializer.ToRange(GetArgument(arg)).Generate();
             float Float(int arg) => FloatSerializer.ToFloat(GetArgument(arg));
             int Int(int arg) => (int)Math.Round(FloatSerializer.ToFloat(GetArgument(arg)));
@@ -64,6 +65,7 @@ namespace Ship_Game.GameScreens.Scene
                 case "CoastWithRotate":   return new CoastWithRotate(Range(1), Vec3(2));
                 case "Orbit":             return new Orbit(Range(1), Vec3(2), Vec3(3), RandVec3(4));
                 case "GoToState":         return new GoToState(Float(1), Int(2));
+                case "SetSpawnPos":       return new SetSpawnPos();
                 default:
                     Log.Warning($"Unrecognized AI State: '{name}'");
                     return null;
@@ -82,24 +84,19 @@ namespace Ship_Game.GameScreens.Scene
             return new SceneShipAI(states.ToArray());
         }
 
-        IEmpireData GetEmpire()
+        EmpireData GetEmpire()
         {
-            if (!DiverseShipEmpires && Empire.NotEmpty() && Empire != "Random")
-            {
-                IEmpireData e = ResourceManager.AllRaces.Filter(
-                    p => p.Name.Contains(Empire)).FirstOrDefault();
-                if (e != null) return e;
-            }
-            return ResourceManager.MajorRaces.RandItem();
+            if (DiverseShipEmpires)
+                return Scene.GetEmpire("Random");
+            return Scene.GetEmpire(Empire);
         }
 
-        public Array<SceneObj> FleetShips = new Array<SceneObj>();
-
-        public void CreateShips(GameScreen screen)
+        public void CreateShips(SceneInstance scene, GameScreen screen)
         {
-            foreach (var ship in FleetShips)
-                ship.DestroyShip();
-            FleetShips.Clear();
+            Scene = scene;
+            foreach (var obj in AllObjects)
+                obj.Destroy();
+            AllObjects.Clear();
 
             if (Objects.Length == 0 && ObjectGroups.Length == 0)
             {
@@ -107,15 +104,29 @@ namespace Ship_Game.GameScreens.Scene
                 return;
             }
 
-            IEmpireData empire = GetEmpire();
+            EmpireData empire = GetEmpire();
             ISceneShipAI ai = CreateAI();
 
             var objects = new Array<ObjectSpawnInfo>(Objects);
-            foreach (var group in ObjectGroups)
+            foreach (ObjectGroupInfo group in ObjectGroups)
             {
                 for (int i = 0; i < group.Count; ++i)
                 {
-                    objects.Add(new ObjectSpawnInfo{ Type = group.Type });
+                    var spawn = new ObjectSpawnInfo
+                    {
+                        Type = group.Type,
+                        Speed = group.Speed.Generate(),
+                        Scale = group.Scale.Generate()
+                    };
+                    if (group.MinPos != null && group.MaxPos != null)
+                        spawn.Position = RandomMath.Vector3D(group.MinPos.Value, group.MaxPos.Value);
+                    if (group.Orbit != null)
+                        spawn.Position = GenerateOrbitPos(ai, group.Orbit.Value, group.Offset);
+                    if (group.Rotation != null)
+                        spawn.Rotation = group.Rotation.Value;
+                    if (group.RandRot != null)
+                        spawn.Rotation = RandomMath.Vector3D(group.RandRot.Value);
+                    objects.Add(spawn);
                 }
             }
 
@@ -123,51 +134,66 @@ namespace Ship_Game.GameScreens.Scene
             {
                 spawn.AI = ai;
                 spawn.Empire = empire;
-                spawn.Rotation = Rotation;
                 spawn.DisableJumpSfx = DisableJumpSfx;
-
-                if (MinPos != null && MaxPos != null)
-                {
-                    spawn.Position = new Vector3(
-                        RandomMath.RandomBetween(MinPos.Value.X, MaxPos.Value.X),
-                        RandomMath.RandomBetween(MinPos.Value.Y, MaxPos.Value.Y),
-                        RandomMath.RandomBetween(MinPos.Value.Z, MaxPos.Value.Z)
-                    );
-                }
-                if (SpeedRange != null)
-                {
-                    spawn.Speed = SpeedRange.Value.Generate();
-                }
 
                 if (DiverseShipEmpires)
                     empire = GetEmpire();
 
-                var ship = new SceneObj(spawn);
-                ship.LoadContent(screen);
-                FleetShips.Add(ship);
+                var obj = new SceneObj(scene, spawn);
+                obj.LoadContent(screen);
+                obj.EngineTrails = EngineTrails;
+                obj.DebugTrail = DebugTrail;
+                AllObjects.Add(obj);
             }
+        }
+
+        Orbit OrbitOrder;
+        Orbit FindOrbitOrder(ISceneShipAI ai)
+        {
+            if (OrbitOrder != null)
+                return OrbitOrder;
+            for (int i = 0; i < ai.States.Length; ++i)
+                if (ai.States[i]() is Orbit o)
+                    return o;
+            Log.Error($"Failed to find required Orbit order! Group: {Name}");
+            return null;
+        }
+
+        Vector3 GenerateOrbitPos(ISceneShipAI ai, Vector3 orbit, Vector3 offset)
+        {
+            OrbitOrder = FindOrbitOrder(ai);
+            if (OrbitOrder == null)
+                return Vector3.Zero;
+
+            float radius = orbit.X;
+            float angle = RandomMath.RandomBetween(orbit.Y, orbit.Z);
+            Vector3 randDispersion = RandomMath.Vector3D(offset);
+
+            Vector3 orbitCenter = OrbitOrder.OrbitCenter;
+            Vector2 pos = orbitCenter.ToVec2().PointFromAngle(angle, radius);
+            return orbitCenter + new Vector3(pos.X, orbitCenter.Y, pos.Y) + randDispersion;
         }
 
         public void Update(GameScreen screen, FixedSimTime timeStep)
         {
-            foreach (var ship in FleetShips)
+            foreach (var ship in AllObjects)
                 ship.Update(timeStep);
             
             // if all ship AI's have finished, create a new one
-            FleetShips.RemoveAll(ship => ship.AI.Finished);
-            if (FleetShips.IsEmpty)
-                CreateShips(screen);
+            AllObjects.RemoveAll(ship => ship.AI.Finished);
+            if (AllObjects.IsEmpty)
+                CreateShips(Scene, screen);
         }
 
         public void HandleInput(InputState input, GameScreen screen)
         {
-            foreach (var ship in FleetShips)
+            foreach (var ship in AllObjects)
                 ship.HandleInput(input, screen);
         }
 
         public void Draw(SpriteBatch batch, GameScreen screen)
         {
-            foreach (var ship in FleetShips)
+            foreach (var ship in AllObjects)
                 ship.Draw(batch, screen);
         }
     }

@@ -8,6 +8,18 @@ using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game.GameScreens.Scene
 {
+    class SetSpawnPos : SceneAction
+    {
+        public SetSpawnPos() : base(0f)
+        {
+        }
+        public override void Initialize(SceneObj obj)
+        {
+            obj.Position = obj.Spawn.Position;
+            obj.Rotation = obj.Spawn.Rotation;
+            base.Initialize(obj);
+        }
+    }
     class GoToState : SceneAction
     {
         public readonly int State;
@@ -27,10 +39,10 @@ namespace Ship_Game.GameScreens.Scene
         public IdlingInDeepSpace(float duration) : base(duration)
         {
         }
-        public override void Initialize(SceneObj ship)
+        public override void Initialize(SceneObj obj)
         {
-            ship.Position = new Vector3(-50000, 0, 50000); // out of screen, out of mind
-            base.Initialize(ship);
+            obj.Position = new Vector3(-50000, 0, 50000); // out of screen, out of mind
+            base.Initialize(obj);
         }
     }
 
@@ -66,18 +78,18 @@ namespace Ship_Game.GameScreens.Scene
     // object can rotate around its own axis while still following the orbit
     class Orbit : SceneAction
     {
-        Vector3 OrbitCenter;
+        public Vector3 OrbitCenter;
         Vector3 MoveDirection;
         Vector3 ObjRotPerSec;
         float DistFromCenter;
 
         /// <param name="orbitCenter">Required center of the orbit</param>
-        /// <param name="moveDir">Direction of movement along the orbit</param>
+        /// <param name="moveVec">Movement vector/direction along the orbit. Vec3 will be normalized</param>
         /// <param name="objRotPerSec">How much the object rotates around its own axis. Can be ZERO.</param>
-        public Orbit(float duration, Vector3 orbitCenter, Vector3 moveDir, Vector3 objRotPerSec) : base(duration)
+        public Orbit(float duration, Vector3 orbitCenter, Vector3 moveVec, Vector3 objRotPerSec) : base(duration)
         {
             OrbitCenter = orbitCenter;
-            MoveDirection = moveDir;
+            MoveDirection = moveVec.Normalized();
             ObjRotPerSec = objRotPerSec;
         }
         public override void Initialize(SceneObj obj)
@@ -100,6 +112,16 @@ namespace Ship_Game.GameScreens.Scene
 
             return base.Update(timeStep);
         }
+
+        public override void Draw()
+        {
+            if (Obj.DebugTrail)
+            {
+                Vector2d a = Obj.Scene.Screen.ProjectToScreenPosition(Obj.Position);
+                Vector2d b = Obj.Scene.Screen.ProjectToScreenPosition(OrbitCenter);
+                Obj.Scene.Screen.DrawLine(a, b, Colors.Cream.Alpha(0.1f));
+            }
+        }
     }
 
     class WarpingIn : SceneAction
@@ -111,14 +133,14 @@ namespace Ship_Game.GameScreens.Scene
         public WarpingIn(float duration) : base(duration)
         {
         }
-        public override void Initialize(SceneObj ship)
+        public override void Initialize(SceneObj obj)
         {
-            ship.Rotation = ship.Spawn.Rotation; // reset direction
-            ship.Scale = WarpScale;
-            End = ship.Spawn.Position;
-            Start = End - ship.Forward*100000f;
-            ship.Position = Start;
-            base.Initialize(ship);
+            obj.Rotation = obj.Spawn.Rotation; // reset direction
+            obj.Scale = WarpScale;
+            End = obj.Spawn.Position;
+            Start = End - obj.Forward*100000f;
+            obj.Position = Start;
+            base.Initialize(obj);
         }
         public override bool Update(FixedSimTime timeStep)
         {
