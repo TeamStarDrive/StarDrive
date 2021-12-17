@@ -14,7 +14,7 @@ LookAt: [0, 0, 10000] # we're looking far into the screen
 #  - [WarpingOut,        Range[delay] ]
 #  - [ForwardCoast,      Range[delay] ] #! object simply moves forward with spawn speed
 #  - [CoastWithRotate,   Range[delay], Vec3[rot_per_sec] ] # object rotates around its local axis and moves Forward with spawn speed, the Forward direction changes constantly with rotation
-#  - [Orbit,             Range[delay], Vec3[orbit_center], Vec3[move_vec], RandVec3[rot_per_sec] ]
+#  - [Orbit,             Range[delay], Vec3[orbit_center], left|right, RandVec3[rot_per_sec] ]
 #     ! moves around orbit center, optionally rotate around obj axis
 #     ! if Orbit order exists, then ObjectGroup can use Orbit: [radius, min_angle, max_angle]
 #     !                                             and Offset: RandVec3[x,y,z]
@@ -27,14 +27,25 @@ LookAt: [0, 0, 10000] # we're looking far into the screen
 Groups:
   - Group:
     Name: Asteroids
+    DustTrails: true
     AI:
-      - [Orbit, [800], [4000, 1000, 20000], [0.25, 0.0, -0.25], [4]] # center, move_vec, rot
+      - [Orbit, [800], [10500, 1000, 40000], right, [5]] # center, direction, rot
       - [SetSpawnPos]
       - [GoToState, 0, 0]
     ObjectGroups:
-      - { Type: asteroid, Count: 20, Scale: [0.9, 1.0], Speed: [10, 25], Orbit: [19000, -82, 0], Offset: [50,250,50], RandRot: [180] }
-      - { Type: asteroid, Count: 500, Scale: [0.4, 0.5], Speed: [22, 28], Orbit: [19000, -82, 0], Offset: [250,500,100], RandRot: [180] }
-      - { Type: asteroid, Count: 2000, Scale: [0.08, 0.12], Speed: [15, 22], Orbit: [19000, -82, 0], Offset: [500,500,150], RandRot: [180] }
+      - { Type: asteroid, Count: 10, Scale: [1.1,1.5], Speed: [25,35], Orbit: [42000,-75,-25], Offset: [500,250,100], RandRot: [180] }
+      - { Type: asteroid, Count: 200, Scale: [0.4,0.5], Speed: [30,40], Orbit: [42000,-75,-25], Offset: [1000,300,100], RandRot: [180] }
+      - { Type: asteroid, Count: 1000, Scale: [0.08,0.12], Speed: [24,32], Orbit: [42000,-75,-25], Offset: [1500,400,150], RandRot: [180] }
+  - Group:
+    Name: AsteroidsClose
+    DustTrails: true
+    #DebugTrail: true
+    AI:
+      - [Orbit, [800], [10500, 300, 40000], right, [5]] # center, direction, rot
+      - [SetSpawnPos]
+      - [GoToState, 0, 0]
+    ObjectGroups:
+      - { Type: asteroid, Count: 100, Scale: [0.2,0.3], Speed: [300], Orbit: [45500,-75,-25], Offset: [200,100,150], RandRot: [180] }
 
   - Group:
     Name: Shipyard
@@ -43,7 +54,7 @@ Groups:
       - [CoastWithRotate, [80, 1000], [0, 0.24, 0]]
       - [IdlingInDeepSpace, [15, 18]]
     Objects:
-      - Object: { Type: station, Speed: 10, Position: [600, 300, 450], Rotation: [-25, 10, 295] } #doesnt load shipyard model
+      - Object: { Type: station, Scale: 1, Speed: 10, Position: [600, 300, 2450], Rotation: [-25, 10, 295] } #doesnt load shipyard model
 
   - Group:
     Name: BackgroundFreighters_LeftToRight
@@ -57,8 +68,8 @@ Groups:
       - [WarpingIn, [1]]
       - [GoToState, 0, 0]
     ObjectGroups:
-      - { Type: freighter, Count: 42, Speed: [70, 110], MinPos: [-15000,-600,12000], MaxPos: [15000,400,8000], Rotation: [0, 45, 90] }
-      - { Type: fighter,   Count: 16, Speed: [99, 200], MinPos: [-15000,-600,12000], MaxPos: [15000,400,8000], Rotation: [0, 45, 90] }
+      - { Type: freighter, Count: 42, Speed: [70,110], MinPos: [-15000,-600,1200], MaxPos: [15000,400,800], Rotation: [0,45,90] }
+      - { Type: fighter,   Count: 16, Speed: [99,200], MinPos: [-15000,-600,1200], MaxPos: [15000,400,800], Rotation: [0,45,90] }
 
   - Group:
     Name: BackgroundFreighters_RightToLeft
@@ -72,5 +83,5 @@ Groups:
       - [WarpingIn, [1]]
       - [GoToState, 0, 0]
     ObjectGroups:
-      - { Type: freighter, Count: 42, Speed: [70, 110], MinPos: [-15000,700,14000], MaxPos: [15000,1500,10000], Rotation: [0, 45, -90] }
-      - { Type: fighter,   Count: 16, Speed: [99, 200], MinPos: [-15000,700,14000], MaxPos: [15000,1500,10000], Rotation: [0, 45, -90] }
+      - { Type: freighter, Count: 42, Speed: [70,110], MinPos: [-15000,700,1400], MaxPos: [15000,1500,1000], Rotation: [0,45,-90] }
+      - { Type: fighter,   Count: 16, Speed: [99,200], MinPos: [-15000,700,1400], MaxPos: [15000,1500,1000], Rotation: [0,45,-90] }
