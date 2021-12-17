@@ -239,7 +239,7 @@ namespace Ship_Game.Ships
                 if (GlobalStats.EnableEngineTrails && velocityPercent > 0.1f && notPaused)
                 {
                     // tscale is in world units, engine-trail effect width at scale=1 is 32 units
-                    float thrustScale = thruster.tscale / 32f;
+                    float thrustScale = thruster.Scale / 32f;
                     float thrustPower = (thruster.heat * (Thrust / 32f)).Clamped(64, 320) * thrustScale;
                     EngineTrail.Update(Empire.Universe.Particles, thruster.WorldPos, direction3d, 
                                        thrustScale, thrustPower, thrust1, thrust2);

@@ -26,7 +26,6 @@ namespace Ship_Game.GameScreens.ShipDesign
         bool IsEditing => S.HullEditMode;
 
         int HoveredThrusterIdx = -1;
-        Vector3 ThrusterStartPos;
         bool IsEditingThruster;
 
         public HullEditorControls(ShipDesignScreen screen, Vector2 pos)
@@ -85,6 +84,19 @@ namespace Ship_Game.GameScreens.ShipDesign
             };
 
             ThrusterList.RemoveAll();
+            ThrusterList.AddButton("Add Thruster", (btn) =>
+            {
+                var thrusters = new Array<ShipHull.ThrusterZone>(hull.Thrusters);
+                thrusters.Add(new ShipHull.ThrusterZone
+                {
+                    Position = new Vector3(256, 256, 0),
+                    Scale = thrusters.NotEmpty ? thrusters.Last.Scale : 32,
+                });
+                hull.Thrusters = thrusters.ToArray();
+                S.DesignedShip.InitializeThrusters(hull);
+
+                Initialize(hull);
+            });
 
             for (int i = 0; i < hull.Thrusters.Length; ++i)
             {
@@ -128,7 +140,6 @@ namespace Ship_Game.GameScreens.ShipDesign
 
                 if (HoveredThrusterIdx != -1 && input.LeftMouseClick)
                 {
-                    ThrusterStartPos = GetThruster(HoveredThrusterIdx).Position;
                     IsEditingThruster = true;
                     GameAudio.DesignSoftBeep();
                 }
@@ -160,14 +171,17 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             if (IsEditing)
             {
-                (SlotStruct slot, Point pos) = S.GetSlotUnderCursor();
-                bool hasSlot = slot == null;
-                Color c = hasSlot ? Color.Green : Color.Red;
-                if (Op == SlotOp.Edit)
-                    c = !hasSlot ? Color.Green : Color.Red;
+                if (!IsEditingThruster)
+                {
+                    (SlotStruct slot, Point pos) = S.GetSlotUnderCursor();
+                    bool hasSlot = slot == null;
+                    Color c = hasSlot ? Color.Green : Color.Red;
+                    if (Op == SlotOp.Edit)
+                        c = !hasSlot ? Color.Green : Color.Red;
 
-                Vector2 worldPos = S.ModuleGrid.GridPosToWorld(pos);
-                S.DrawRectangleProjected(new RectF(worldPos, new Vector2(16)), c);
+                    Vector2 worldPos = S.ModuleGrid.GridPosToWorld(pos);
+                    S.DrawRectangleProjected(new RectF(worldPos, new Vector2(16)), c);
+                }
 
                 for (int i = 0; i < S.CurrentHull.Thrusters.Length; ++i)
                 {
@@ -209,8 +223,13 @@ namespace Ship_Game.GameScreens.ShipDesign
             }
             else if (input.LeftMouseDown)
             {
-                Vector2 cursorWorldPos = S.CursorWorldPosition2D;
-                GetThruster(thrusterId).SetWorldPos2D(cursorWorldPos);
+                ref var tz = ref GetThruster(thrusterId);
+                Thruster thruster = S.DesignedShip.ThrusterList[thrusterId];
+
+                tz.SetWorldPos2D(S.CursorWorldPosition2D);
+                thruster.LocalPos = tz.Position;
+                thruster.Scale    = tz.Scale;
+                thruster.UpdatePosition(S.DesignedShip.Position, 0, S.DesignedShip.Direction3D);
             }
         }
 

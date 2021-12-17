@@ -10,9 +10,9 @@ namespace Ship_Game
     {
         public Model model;
         public Texture3D Noise;
-        public float tscale;
+        public float Scale;
         public Ship Parent;
-        public Vector3 XMLPos;
+        public Vector3 LocalPos;
         public Vector3 WorldPos;
 
         public Effect Effect;
@@ -40,8 +40,8 @@ namespace Ship_Game
         public Thruster(Ship owner, float scale, Vector3 position)
         {
             Parent = owner;
-            tscale = scale;
-            XMLPos = position;
+            Scale = scale;
+            LocalPos = position;
             UpdatePosition(owner.Position, owner.yRotation, owner.Direction3D);
         }
 
@@ -52,7 +52,7 @@ namespace Ship_Game
             colors[0] = thrust0;
             colors[1] = thrust1;
 
-            world_matrix = Matrix.CreateScale(tscale)
+            world_matrix = Matrix.CreateScale(Scale)
                          * Matrix.CreateWorld(WorldPos, direction, Vector3.UnitZ);
             inverse_scale_transpose  = Matrix.Transpose(Matrix.Invert(world_matrix));
         }
@@ -115,12 +115,12 @@ namespace Ship_Game
 
         public void UpdatePosition(Vector2 center, float yRotation, in Vector3 dir)
         {
-            WorldPos = GetPosition(center, yRotation, dir, XMLPos);
+            WorldPos = GetPosition(center, yRotation, dir, LocalPos);
         }
 
         public void UpdatePosition(in Vector3 center, in Vector3 dir)
         {
-            WorldPos = GetPosition(center, dir, XMLPos);
+            WorldPos = GetPosition(center, dir, LocalPos);
         }
 
         public static Vector3 GetPosition(in Vector2 center, float yRotation, in Vector3 fwd, in Vector3 thrusterPos)

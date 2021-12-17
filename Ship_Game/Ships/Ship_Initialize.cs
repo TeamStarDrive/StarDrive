@@ -33,7 +33,7 @@ namespace Ship_Game.Ships
 
             VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, shipData.Role);
 
-            InitializeThrusters(template.shipData);
+            InitializeThrusters(template.shipData.BaseHull);
             InitializeShip();
             SetInitialCrewLevel();
         }
@@ -63,7 +63,7 @@ namespace Ship_Game.Ships
             KnownByEmpires = new Components.KnownByEmpire();
             HasSeenEmpires = new Components.KnownByEmpire();
 
-            InitializeThrusters(data);
+            InitializeThrusters(data.BaseHull);
             InitializeStatus(fromSave:true);
         }
 
@@ -97,7 +97,7 @@ namespace Ship_Game.Ships
             KnownByEmpires = new Components.KnownByEmpire();
             HasSeenEmpires = new Components.KnownByEmpire();
 
-            InitializeThrusters(data);
+            InitializeThrusters(data.BaseHull);
             InitializeStatus(fromSave: false);
 
             if (isTemplate && !shipyardDesign && !BaseCanWarp &&
@@ -285,9 +285,10 @@ namespace Ship_Game.Ships
                 Level += loyalty.DifficultyModifiers.ShipLevel;
         }
 
-        void InitializeThrusters(ShipDesign data)
+        public void InitializeThrusters(ShipHull hull)
         {
-            ThrusterList = data.BaseHull.Thrusters.Select(t => new Thruster(this, t.Scale, t.Position));
+            DestroyThrusters();
+            ThrusterList = hull.Thrusters.Select(t => new Thruster(this, t.Scale, t.Position));
 
             if (StarDriveGame.Instance == null) // allows creating ship templates in Unit Tests
                 return;

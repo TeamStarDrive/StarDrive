@@ -524,7 +524,7 @@ namespace Ship_Game
             DrawStat(ref cursor, GameText.Range, range, GameText.IndicatesTheMaximumRangeOf);
             if (!w.Tag_Guided)
             {
-                float accuracy = w.BaseTargetError(Screen.DesignedShip?.TargetingAccuracy ?? 0);
+                float accuracy = w.BaseTargetError(Screen.DesignedShip.TargetingAccuracy);
                 accuracy       = accuracy > 0 ? accuracy.LowerBound(1) / 16 : 0;
                 DrawStat(ref cursor, GameText.Accuracy, -1 * accuracy, GameText.WeaponTargetError);
             }

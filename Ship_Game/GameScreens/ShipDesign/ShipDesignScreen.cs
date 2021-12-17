@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
@@ -11,7 +10,6 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
@@ -34,7 +32,6 @@ namespace Ship_Game
         public string DesignOrHullName => CurrentDesign?.Name ?? CurrentHull.VisibleName;
 
         public EmpireUIOverlay EmpireUI;
-        SceneObject shipSO;
 
         Vector3 CameraPos = new Vector3(0f, 0f, 1300f);
         float DesiredCamHeight = 1300f;
@@ -76,7 +73,7 @@ namespace Ship_Game
         // Used in Dev SandBox to enable some special debug features
         public bool EnableDebugFeatures;
 
-        public RoleName Role => DesignedShip?.DesignRole ?? CurrentHull.Role;
+        public RoleName Role => DesignedShip.DesignRole;
         Rectangle DesignRoleRect;
 
         public bool IsSymmetricDesignMode
@@ -274,37 +271,18 @@ namespace Ship_Game
 
         void RemoveVisibleMesh()
         {
-            if (DesignedShip != null)
-            {
-                DesignedShip.RemoveSceneObject();
-            }
-            // always remove this
-            if (shipSO != null)
-            {
-                RemoveObject(shipSO);
-                shipSO = null;
-            }
+            // can be null at first load
+            DesignedShip?.RemoveSceneObject();
         }
 
         void CreateSOFromCurrentHull()
         {
-            if (DesignedShip != null)
-            {
-                DesignedShip.CreateSceneObject();
-            }
-            else
-            {
-                RemoveObject(shipSO);
-                CurrentHull.LoadModel(out shipSO, TransientContent);
-                UpdateHullWorldPos();
-                AddObject(shipSO);
-            }
+            DesignedShip.CreateSceneObject();
         }
 
         public void UpdateHullWorldPos()
         {
-            if (shipSO != null)
-                shipSO.World = Matrix.CreateTranslation(new Vector3(CurrentHull.MeshOffset, 0));
+            DesignedShip.ShowSceneObjectAt(DesignedShip.Position, 0);
         }
 
         public void ChangeHull(ShipDesign shipDesignTemplate)
@@ -330,20 +308,11 @@ namespace Ship_Game
                 return;
 
             if (HullEditMode)
-            {
-                RemoveVisibleMesh();
-                ModuleGrid = new DesignModuleGrid(this, hullTemplate.VisibleName, hullTemplate);
-                CurrentDesign = null;
-                CurrentHull = hullTemplate.GetClone();
-                DesignedShip = null;
-                AfterHullChange(zoomToHull);
-            }
-            else
-            {
-                ChangeHull(new ShipDesign(hullTemplate));
-                if (!Empire.Universe.Debug)
-                    CurrentDesign.Name = CurrentHull.VisibleName;
-            }
+                hullTemplate = hullTemplate.GetClone();
+            ChangeHull(new ShipDesign(hullTemplate));
+
+            if (!HullEditMode && !Empire.Universe.Debug)
+                CurrentDesign.Name = CurrentHull.VisibleName;
         }
 
         void AfterHullChange(bool zoomToHull)
@@ -351,7 +320,7 @@ namespace Ship_Game
             CreateSOFromCurrentHull();
             BindListsToActiveHull();
 
-            if (DesignedShip != null)
+            if (!HullEditMode)
             {
                 OrdersButton.ResetButtons(DesignedShip);
                 UpdateCarrierShip();
@@ -370,7 +339,7 @@ namespace Ship_Game
 
         public void UpdateDesignedShip(bool forceUpdate)
         {
-            DesignedShip?.UpdateDesign(ModuleGrid.CopyModulesList(), forceUpdate);
+            DesignedShip.UpdateDesign(ModuleGrid.CopyModulesList(), forceUpdate);
         }
 
         void InstallModulesFromDesign(ShipDesign design)
@@ -428,13 +397,10 @@ namespace Ship_Game
             CameraPos.Z = MathHelper.SmoothStep(CameraPos.Z, DesiredCamHeight, 0.2f);
             UpdateViewMatrix(CameraPos);
 
-            if (DesignedShip != null)
-            {
-                var simTime = new FixedSimTime(elapsed.RealTime.Seconds);
-                DesignedShip.ApplyThrust(100, Thrust.Forward);
-                DesignedShip.Velocity = new Vector2(0, 100);
-                DesignedShip.UpdateThrusters(simTime);
-            }
+            var simTime = new FixedSimTime(elapsed.RealTime.Seconds);
+            DesignedShip.ApplyThrust(100, Thrust.Forward);
+            DesignedShip.Velocity = new Vector2(0, 100);
+            DesignedShip.UpdateThrusters(simTime);
 
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }

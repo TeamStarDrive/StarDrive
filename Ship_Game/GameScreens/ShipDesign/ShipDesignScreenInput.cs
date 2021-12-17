@@ -504,7 +504,7 @@ namespace Ship_Game
         {
             // This ensures our module grid overlay is the same size as the mesh
             CameraPos.Z = 500;
-            float hullHeight = (DesignedShip?.Radius ?? shipSO.WorldBoundingSphere.Radius) * 2;
+            float hullHeight = DesignedShip.Radius * 2;
             float visibleSize = GetHullScreenSize(CameraPos, hullHeight);
             float ratio = visibleSize / hullHeight;
             CameraPos.Z = (CameraPos.Z * ratio).RoundUpTo(1);
