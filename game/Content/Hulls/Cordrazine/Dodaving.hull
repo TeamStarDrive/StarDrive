@@ -7,9 +7,12 @@ Size=22,32
 MeshOffset=0,0
 IconPath=ShipIcons/Dodaving
 ModelPath=Model/Ships/Cordrazine/ship16e
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=235,490,0,75
-Thruster=272,490,0,75
+Thruster=21,234,0,75
+Thruster=-16,234,0,75
 Slots
 ___|___|___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___

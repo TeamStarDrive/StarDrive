@@ -7,9 +7,12 @@ Size=30,44
 MeshOffset=0,0
 IconPath=ShipIcons/Hiver
 ModelPath=Model/Ships/Opteris/Ship19e
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=177,504,0,132
-Thruster=359,509,0,132
+Thruster=79,248,0,132
+Thruster=-103,253,0,132
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |___|___|O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|O  |IO |IO |IO |O  |O  |IO |IO |IO |O  |___|___|___|___|___|___|___|___|___|___

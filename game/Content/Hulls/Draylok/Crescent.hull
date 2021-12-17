@@ -8,8 +8,11 @@ MeshOffset=0,0
 IconPath=ShipIcons/Crescent
 ModelPath=Model/Ships/Draylok/Ship18b
 SelectIcon=18b
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=254,298,5,55
+Thruster=2,42,-5,55
 Slots
 ___|___|___|___|O  |O  |___|___|___|___
 ___|___|___|___|IO |IO |___|___|___|___

@@ -7,8 +7,11 @@ Size=18,18
 MeshOffset=0,0
 IconPath=ShipIcons/Storving
 ModelPath=Model/Ships/Cordrazine/ship16d
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=256,345,0,79
+Thruster=0,89,0,79
 Slots
 ___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|O  |O  |O  |O  |___|___|___|___|___|___|___

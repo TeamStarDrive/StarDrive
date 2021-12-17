@@ -7,10 +7,13 @@ Size=20,15
 MeshOffset=0,8
 IconPath=ShipIcons/chrysalis
 ModelPath=Model/Ships/Pollops/ship15d
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=227,325,0,53
-Thruster=283,322,0,53
-Thruster=253,324,0,64
+Thruster=29,69,0,53
+Thruster=-27,66,0,53
+Thruster=3,68,0,64
 Slots
 ___|___|___|___|___|O  |___|___|___|___|___|___|___|___|O  |___|___|___|___|___
 ___|___|___|___|O  |O  |___|___|O  |___|___|IO |___|___|O  |IO |___|___|___|___

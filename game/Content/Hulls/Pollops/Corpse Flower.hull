@@ -8,10 +8,13 @@ MeshOffset=0,0
 IconPath=ShipIcons/corpseflower
 ModelPath=Model/Ships/Pollops/CorpseFlower
 SelectIcon=15e
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=218,387,0,99
-Thruster=253,387,0,99
-Thruster=286,389,0,99
+Thruster=38,131,0,99
+Thruster=3,131,0,99
+Thruster=-30,133,0,99
 Slots
 ___|___|___|___|___|___|O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |___|___|___|___|___|___
 ___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___

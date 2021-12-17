@@ -8,9 +8,12 @@ MeshOffset=0,0
 IconPath=ShipIcons/emissary
 ModelPath=Model/Ships/Terran/Emissary/EmissaryCruiser
 SelectIcon=01
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=227,489,0,83
-Thruster=284,486,0,83
+Thruster=29,233,0,83
+Thruster=-28,230,0,83
 Slots
 ___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___

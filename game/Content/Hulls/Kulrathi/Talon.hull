@@ -7,10 +7,13 @@ Size=18,15
 MeshOffset=0,-8
 IconPath=ShipIcons/talon
 ModelPath=Model/Ships/Kulrathi/ship11d
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=258,340,0,65
-Thruster=194,344,0,25
-Thruster=315,353,0,25
+Thruster=-2,84,0,65
+Thruster=62,88,0,25
+Thruster=-59,97,0,25
 Slots
 ___|___|___|___|___|___|___|___|IO |IO |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___

@@ -8,10 +8,13 @@ MeshOffset=0,0
 IconPath=ShipIcons/10c
 ModelPath=Model/Ships/Terran/LightCarrierRed/LightCarrier
 SelectIcon=10c
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=216,494,8,100
-Thruster=256,514,8,100
-Thruster=296,494,8,100
+Thruster=40,238,-8,100
+Thruster=0,258,-8,100
+Thruster=-40,238,-8,100
 Slots
 ___|___|___|___|___|___|___|___|O  |___|___|O  |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___

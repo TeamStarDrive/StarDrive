@@ -8,9 +8,12 @@ MeshOffset=0,8
 IconPath=ShipIcons/Chitin
 ModelPath=Model/Ships/Opteris/Ship19d
 SelectIcon=19d
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=196,425,0,87
-Thruster=313,424,0,87
+Thruster=60,169,0,87
+Thruster=-57,168,0,87
 Slots
 ___|___|___|___|___|___|___|___|O  |___|___|O  |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|O  |O  |O  |___|___|O  |O  |O  |___|___|___|___|___|___

@@ -8,8 +8,11 @@ MeshOffset=0,0
 IconPath=ShipIcons/thicket
 ModelPath=Model/Ships/Pollops/Thicket
 SelectIcon=15b
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=256,272,0,45
+Thruster=0,16,0,45
 Slots
 ___|O  |___|___|O  |___
 ___|O  |IO |IO |O  |___

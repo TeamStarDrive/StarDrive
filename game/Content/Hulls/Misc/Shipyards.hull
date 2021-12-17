@@ -8,6 +8,9 @@ MeshOffset=0,0
 IconPath=ShipIcons/icon_Shipyard
 ModelPath=Model/Stations/shipyard
 SelectIcon=17b
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|I  |I  |I  |___|___|___|___|___|___|___
