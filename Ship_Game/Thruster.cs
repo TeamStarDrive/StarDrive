@@ -118,20 +118,16 @@ namespace Ship_Game
             WorldPos = GetPosition(center, yRotation, dir, LocalPos);
         }
 
-        public void UpdatePosition(in Vector3 center, in Vector3 dir)
-        {
-            WorldPos = GetPosition(center, dir, LocalPos);
-        }
-
         public static Vector3 GetPosition(in Vector2 center, float yRotation, in Vector3 fwd, in Vector3 thrusterPos)
         {
             Vector2 dir2d = fwd.ToVec2();
             Vector2 right = dir2d.RightVector();
-            float zPos = thrusterPos.Z + (float)Math.Sin(yRotation) * thrusterPos.X;
+            float zPos = thrusterPos.Z + (float)Math.Sin(yRotation) * -thrusterPos.X;
             Vector2 pos = center - dir2d*thrusterPos.Y + right*thrusterPos.X;
             return new Vector3(pos, zPos);
         }
 
+        // 3D position calc is a bit different
         public static Vector3 GetPosition(in Vector3 center, in Vector3 fwd, in Vector3 thrusterPos)
         {
             Vector3 right = fwd.Cross(Vector3.Up); // forward x up = right
