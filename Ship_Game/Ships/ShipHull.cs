@@ -74,9 +74,8 @@ namespace Ship_Game.Ships
 
             public void SetWorldPos2D(Vector2 worldPos)
             {
-                var pos = Thruster.FromWorldPos(worldPos);
-                Position.X = (float)Math.Round(pos.X);
-                Position.Y = (float)Math.Round(pos.Y);
+                Position.X = (float)Math.Round(worldPos.X);
+                Position.Y = (float)Math.Round(worldPos.Y);
             }
 
             public void SetWorldScale(float worldScale)
