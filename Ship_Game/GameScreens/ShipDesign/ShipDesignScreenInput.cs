@@ -192,12 +192,6 @@ namespace Ship_Game
                 return true;
             }
 
-            if (input.DesignMirrorToggled) // This is done only for the hotkey
-            {
-                OnSymmetricDesignToggle();
-                return true;
-            }
-
             HandleCameraMovement(input);
 
             if (HighlightedModule != null && HandleInputMoveArcs(input, HighlightedModule))
