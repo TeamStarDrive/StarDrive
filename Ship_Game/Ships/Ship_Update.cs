@@ -240,21 +240,8 @@ namespace Ship_Game.Ships
                     // tscale is in world units, engine-trail effect width at scale=1 is 32 units
                     float thrustScale = thruster.tscale / 32f;
                     float thrustPower = (thruster.heat * (Thrust / 64f)).Clamped(32f, 320f) * thrustScale;
-                    Vector3 thrustDirection = -Direction3D;
-                    Vector3 thrustVelocity = thrustDirection * thrustPower;
-                    
-                    var thrustFx = Empire.Universe.Particles.ThrustEffect;
-                    
-                    for (int x = 0; x < 3; ++x)
-                    {
-                        thrustFx.AddParticle(thruster.WorldPos + thrustDirection*(x*3f), thrustVelocity,
-                                             thrustScale, thrust2);
-                    }
-
-                    var trailFx = Empire.Universe.Particles.EngineTrail;
-                    Vector3 trailOffset = thrustDirection*16f;
-                    trailFx.AddParticle(thruster.WorldPos + trailOffset, thrustVelocity*0.5f,
-                                        thrustScale, thrust1);
+                    EngineTrail.Update(Empire.Universe.Particles, thruster.WorldPos, Direction3D, 
+                                       thrustScale, thrustPower, thrust1, thrust2);
                 }
             }
         }
