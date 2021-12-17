@@ -36,6 +36,11 @@ namespace Ship_Game
         {
             FixedTime = 1f / simulationFramesPerSecond;
         }
+
+        public override string ToString()
+        {
+            return $"FixedSimTime  sim:{FixedTime*1000,2:0.0}ms";
+        }
     }
 
     /// <summary>

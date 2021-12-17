@@ -296,7 +296,6 @@ namespace Ship_Game.Ships
             foreach (Thruster t in ThrusterList)
             {
                 t.LoadAndAssignDefaultEffects(content);
-                t.InitializeForViewing();
             }
         }
 

@@ -77,19 +77,6 @@ namespace Ship_Game
             return (hasBridge || Role == RoleName.platform || Role == RoleName.station);
         }
 
-        void CreateSOFromCurrentHull()
-        {
-            RemoveObject(shipSO);
-            CurrentHull.LoadModel(out shipSO, TransientContent);
-            UpdateHullWorldPos();
-            AddObject(shipSO);
-        }
-
-        public void UpdateHullWorldPos()
-        {
-            shipSO.World = Matrix.CreateTranslation(new Vector3(CurrentHull.MeshOffset, 0));
-        }
-
         void DoExit()
         {
             ReallyExit();
@@ -517,7 +504,7 @@ namespace Ship_Game
         {
             // This ensures our module grid overlay is the same size as the mesh
             CameraPos.Z = 500;
-            float hullHeight = shipSO.WorldBoundingSphere.Radius * 2;
+            float hullHeight = (DesignedShip?.Radius ?? shipSO.WorldBoundingSphere.Radius) * 2;
             float visibleSize = GetHullScreenSize(CameraPos, hullHeight);
             float ratio = visibleSize / hullHeight;
             CameraPos.Z = (CameraPos.Z * ratio).RoundUpTo(1);
@@ -547,7 +534,7 @@ namespace Ship_Game
 
         void ReallyExit()
         {
-            RemoveObject(shipSO);
+            RemoveVisibleMesh();
 
             // this should go some where else, need to find it a home
             ScreenManager.RemoveScreen(this);
