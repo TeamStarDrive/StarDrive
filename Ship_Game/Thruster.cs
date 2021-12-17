@@ -126,10 +126,9 @@ namespace Ship_Game
         public static Vector3 GetPosition(in Vector2 center, float yRotation, in Vector3 fwd, in Vector3 thrusterPos)
         {
             Vector2 dir2d = fwd.ToVec2();
-            Vector2 right = dir2d.LeftVector();
-            Vector2 offset = new Vector2(256) - new Vector2(thrusterPos.X, thrusterPos.Y);
-            float zPos = thrusterPos.Z + (float)Math.Sin(yRotation) * offset.X;
-            Vector2 pos = center + dir2d*offset.Y + right*offset.X;
+            Vector2 right = dir2d.RightVector();
+            float zPos = thrusterPos.Z + (float)Math.Sin(yRotation) * thrusterPos.X;
+            Vector2 pos = center - dir2d*thrusterPos.Y + right*thrusterPos.X;
             return new Vector3(pos, zPos);
         }
 
@@ -137,14 +136,7 @@ namespace Ship_Game
         {
             Vector3 right = fwd.Cross(Vector3.Up); // forward x up = right
             Vector3 up = fwd.Cross(Vector3.Left);  // forward x left = up
-            float fwdOffset = 256 - thrusterPos.Y;
-            float xOffset = 256 - thrusterPos.X;
-            return center + fwd*fwdOffset + right*xOffset + up*thrusterPos.Z;
-        }
-
-        public static Vector2 FromWorldPos(Vector2 worldPos)
-        {
-            return worldPos + new Vector2(256);
+            return center + fwd*thrusterPos.Y + right*thrusterPos.X + up*thrusterPos.Z;
         }
     }
 }
