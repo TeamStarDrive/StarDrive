@@ -1,0 +1,33 @@
+﻿Version=1
+Name=Olive Mk2a
+Hull=Pollops/Thicket
+Role=corvette
+Style=Pollops
+Size=6,5
+GridCenter=3,3
+DefaultAIState=DoNothing
+DefaultCombatState=Artillery
+ShipCategory=Conservative
+HangarDesignation=Interceptor
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=OrdnanceLockerSmall;BasicFuelCell;MissileLauncher1x3;Cockpit;Fighter Shield;RocketLauncher;Maneuvering_Thruster_1x1;NuclearReactorSmall;PowerConduit;BlueLaser1x2;WarpEngine_1x1;Engine
+Modules=15
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+1,0;0
+4,0;1
+1,1;2;1,3
+2,1;3
+3,1;4
+4,1;5
+0,2;6
+2,2;7
+3,2;8
+4,2;9;1,2
+5,2;6
+2,3;7
+3,3;7
+2,4;10
+3,4;11
