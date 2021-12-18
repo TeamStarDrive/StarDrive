@@ -13272,6 +13272,12 @@ GalacticCreditsPerColonist:
  Id: 10072
  ENG: "+1.75 credits per colonist"
  RUS: "+1.75 кредитов за колониста"
+RemnDisrupt:
+ Id: 10073
+ ENG: "Remnant disruptor TS"
+RemnDisruptdescr:
+ Id: 10074
+ ENG: "Super top secret weapon of remnant you should not see this nor use it! You cheater!"
 
 
 MissileTurret:
