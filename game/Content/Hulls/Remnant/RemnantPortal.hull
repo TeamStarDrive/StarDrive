@@ -11,6 +11,7 @@ SelectIcon=17f
 Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
+#Model Author Vanilla modified by Fat Bastard
 #Thruster PosX,PosY,PosZ,Scale
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___
