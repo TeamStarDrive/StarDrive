@@ -11,6 +11,8 @@ SelectIcon=13e
 Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
+#Starkit Scale 70
+#Model Author Vanilla modified by Fat Bastard
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=0,44,-10,50
 Slots
