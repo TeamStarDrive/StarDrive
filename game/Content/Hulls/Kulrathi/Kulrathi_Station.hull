@@ -12,6 +12,8 @@ Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
+#Starkit Scale 500
+#Model Author Vanilla modified by Fat Bastard
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___
