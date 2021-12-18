@@ -17,6 +17,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         readonly UIList EditList;
         readonly UIList ThrusterList;
         readonly FloatSlider MeshOffsetY;
+        UIButton AddThrusterBtn;
 
         Restrictions LastRestriction = Restrictions.IO;
         Point LastEditedPos;
@@ -85,14 +86,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             };
 
             ThrusterList.RemoveAll();
-            ThrusterList.AddButton("Add Thruster", (btn) =>
-            {
-                float z = hull.Thrusters.Length == 0 ? hull.Thrusters[hull.Thrusters.Length-1].Position.Z : 0;
-                float scale = hull.Thrusters.Length == 0 ? hull.Thrusters[hull.Thrusters.Length-1].Scale : 32;
-                hull.AddThruster(new Vector3(0, 0, z), scale);
-                S.DesignedShip.InitializeThrusters(hull);
-                Initialize(hull);
-            });
+            AddThrusterBtn = ThrusterList.AddButton("Add Thruster", OnAddThrusterClicked);
+            AddThrusterBtn.Visible = IsEditing;
 
             for (int i = 0; i < hull.Thrusters.Length; ++i)
             {
@@ -123,6 +118,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             EditList.Visible = visible;
             Title.Visible = visible;
+            if (AddThrusterBtn != null)
+                AddThrusterBtn.Visible = visible;
         }
 
         public override bool HandleInput(InputState input)
@@ -209,6 +206,16 @@ namespace Ship_Game.GameScreens.ShipDesign
                     return i;
             }
             return -1;
+        }
+
+        void OnAddThrusterClicked(UIButton btn)
+        {
+            ShipHull hull = S.CurrentHull;
+            float z = hull.Thrusters.Length != 0 ? hull.Thrusters[hull.Thrusters.Length-1].Position.Z : 0;
+            float scale = hull.Thrusters.Length != 0 ? hull.Thrusters[hull.Thrusters.Length-1].Scale : 32;
+            hull.AddThruster(new Vector3(0, 0, z), scale);
+            S.DesignedShip.InitializeThrusters(hull);
+            Initialize(hull);
         }
 
         void ModifyThruster(InputState input, int thrusterId)
