@@ -27,7 +27,7 @@
   <DescriptionIndex>2047</DescriptionIndex>
 
 
-  <OrdnanceAddedPerSecond>5</OrdnanceAddedPerSecond>
+  <OrdnanceAddedPerSecond>5.5</OrdnanceAddedPerSecond>
 
   <!-- for shield items -->
   <shield_power>0</shield_power>
@@ -43,7 +43,7 @@
   <PowerStoreMax>0</PowerStoreMax>
 
   <!-- for Weapons -->
-  <OrdinanceCapacity>60</OrdinanceCapacity>
+  <OrdinanceCapacity>120</OrdinanceCapacity>
 
   <!-- for Engines -->
   <thrust>0</thrust>
