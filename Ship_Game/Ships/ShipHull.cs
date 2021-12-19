@@ -55,7 +55,11 @@ namespace Ship_Game.Ships
         public bool Unlockable = true;
         public HashSet<string> TechsNeeded = new HashSet<string>();
 
+        // original source of this ShipHull
         public FileInfo Source;
+        // last modification time of the Source file, if this has changed, the hull should be reloaded
+        public DateTime SourceModifiedTime;
+
         public SubTexture Icon => ResourceManager.Texture(IconPath);
         public Vector3 Volume { get; private set; }
         public float ModelZ { get; private set; }
@@ -162,8 +166,18 @@ namespace Ship_Game.Ships
 
         public ShipHull(FileInfo file)
         {
+            Load(file);
+        }
+
+        void Load(FileInfo file)
+        {
             ModName = "";
             Source = file;
+            SourceModifiedTime = File.GetLastWriteTimeUtc(file.FullName);
+
+            // because we allow reloading, all lists need to be reset
+            Thrusters = Empty<ThrusterZone>.Array;
+            HullSlots = Empty<HullSlot>.Array;
 
             string[] lines = File.ReadAllLines(file.FullName);
             bool parsingSlots = false;
@@ -292,9 +306,31 @@ namespace Ship_Game.Ships
         public void SetHullSlots(Array<HullSlot> slots)
         {
             HullSlots = slots.ToArray();
-            var info = new ShipGridInfo(HullSlots);
-            Size = info.Size;
-            SurfaceArea = info.SurfaceArea;
+            var (newSize, newTL) = ShipGridInfo.GetEditedHullInfo(HullSlots);
+
+            Size = newSize;
+            SurfaceArea = HullSlots.Length;
+
+            if (newTL != Point.Zero)
+            {
+                GridCenter = GridCenter.Sub(newTL);
+
+                for (int i = 0; i < HullSlots.Length; ++i)
+                {
+                    HullSlot slot = HullSlots[i];
+                    HullSlots[i] = new HullSlot(slot.Pos.X - newTL.X, slot.Pos.Y - newTL.Y, slot.R);
+                }
+            }
+
+            // validate to prevent regression
+            foreach (HullSlot slot in HullSlots)
+            {
+                if (slot.Pos.X < 0 || (slot.Pos.X+1) > Size.X)
+                    Log.Error($"HullEdit X pos out of range! X:{slot.Pos.X} Size.X:{Size.X}");
+                if (slot.Pos.Y < 0 || (slot.Pos.Y+1) > Size.Y)
+                    Log.Error($"HullEdit Y pos out of range! Y:{slot.Pos.Y} Size.Y:{Size.Y}");
+            }
+
             Array.Sort(HullSlots, HullSlot.Sorter);
         }
 
@@ -379,6 +415,17 @@ namespace Ship_Game.Ships
 
             sw.FlushToFile(file);
             Log.Info($"Saved '{HullName}' to {file.FullName}");
+
+            Source = file;
+            SourceModifiedTime = File.GetLastWriteTimeUtc(file.FullName);
+        }
+
+        public void ReloadIfNeeded()
+        {
+            if (File.GetLastWriteTimeUtc(Source.FullName) != SourceModifiedTime)
+            {
+                Load(Source);
+            }
         }
     }
 }

@@ -296,6 +296,7 @@ namespace Ship_Game
             ModuleGrid = new DesignModuleGrid(this, cloned);
             CurrentDesign = cloned;
             CurrentHull   = cloned.BaseHull;
+            CurrentDesign.Name = CurrentHull.VisibleName;
             DesignedShip = new DesignShip(cloned);
 
             InstallModulesFromDesign(cloned);
@@ -310,9 +311,6 @@ namespace Ship_Game
             if (HullEditMode)
                 hullTemplate = hullTemplate.GetClone();
             ChangeHull(new ShipDesign(hullTemplate));
-
-            if (!HullEditMode && !Empire.Universe.Debug)
-                CurrentDesign.Name = CurrentHull.VisibleName;
         }
 
         void AfterHullChange(bool zoomToHull)
@@ -555,7 +553,11 @@ namespace Ship_Game
 
             if (UnlockAllFactionDesigns)
             {
-                AvailableHulls.AddRange(ResourceManager.Hulls);
+                foreach (ShipHull hull in ResourceManager.Hulls)
+                {
+                    hull.ReloadIfNeeded();
+                    AvailableHulls.Add(hull);
+                }
             }
             else
             {
@@ -566,6 +568,7 @@ namespace Ship_Game
                     {
                         if ((!hullData.IsShipyard || Empire.Universe.Debug))
                         {
+                            hullData.ReloadIfNeeded();
                             AvailableHulls.Add(hullData);
                         }
                     }

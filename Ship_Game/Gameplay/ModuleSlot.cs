@@ -14,7 +14,7 @@ namespace Ship_Game.Gameplay
         public Point GetSize() => new Point(1, 1);
 
         public override string ToString() => $"{R} {Pos}";
-        
+
         public HullSlot() {}
         public HullSlot(int x, int y, Restrictions r)
         {

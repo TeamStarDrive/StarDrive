@@ -23,6 +23,29 @@ namespace Ship_Game.Ships
             SurfaceArea = hull.SurfaceArea;
         }
 
+        // This is used for HULL EDITING
+        public static (Point NewSize, Point NewTopLeft) GetEditedHullInfo(HullSlot[] slots)
+        {
+            Point max = Point.Zero;
+            for (int i = 0; i < slots.Length; ++i)
+            {
+                HullSlot s = slots[i];
+                var botRight = new Point(s.Pos.X + 1, s.Pos.Y + 1);
+                if (max.X < botRight.X) max.X = botRight.X;
+                if (max.Y < botRight.Y) max.Y = botRight.Y;
+            }
+
+            Point min = max;
+            for (int i = 0; i < slots.Length; ++i)
+            {
+                HullSlot s = slots[i];
+                if (s.Pos.X < min.X) min.X = s.Pos.X;
+                if (s.Pos.Y < min.Y) min.Y = s.Pos.Y;
+            }
+
+            return (NewSize:max.Sub(min), NewTopLeft:min);
+        }
+
         // This is used for HULL EDITING and TESTING
         public ShipGridInfo(HullSlot[] slots)
         {
