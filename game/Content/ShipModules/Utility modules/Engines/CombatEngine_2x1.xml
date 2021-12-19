@@ -47,8 +47,9 @@
 
   <!-- for PowerPlant Items -->
   <explodes>false</explodes>
-  <PowerFlowMax>0</PowerFlowMax>
-  <PowerStoreMax>0</PowerStoreMax>
+  <PowerFlowMax>10</PowerFlowMax>
+  <PowerStoreMax>2000</PowerStoreMax>
+  <PowerRadius>1</PowerRadius>
   
   <!-- for Weapons -->
 
