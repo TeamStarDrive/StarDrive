@@ -145,11 +145,11 @@ namespace Ship_Game
 
             if (Hulls)
             {
-                Screen.SaveHullDesign(shipOrHullName, overwriteProtected);
+                ShipHull saved = Screen.SaveHullDesign(shipOrHullName, overwriteProtected);
 
-                if (!ResourceManager.Hull(shipOrHullName, out ShipHull hull))
+                if (!ResourceManager.Hull(saved.HullName, out ShipHull _))
                 {
-                    Log.Error($"Failed to get Hull Template after Save: {shipOrHullName}");
+                    Log.Error($"Failed to get Hull Template after Save: {saved.HullName}");
                     return;
                 }
             }
@@ -163,13 +163,13 @@ namespace Ship_Game
                     return;
                 }
 
-                UpdateConstrucionQueue(ship, shipOrHullName);
+                UpdateConstructionQueue(ship, shipOrHullName);
             }
 
             ExitScreen();
         }
 
-        void UpdateConstrucionQueue(Ship ship, string shipOrHullName)
+        void UpdateConstructionQueue(Ship ship, string shipOrHullName)
         {
             Empire emp = EmpireManager.Player;
             try
