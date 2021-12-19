@@ -13666,7 +13666,7 @@ BB_CombatEngines:
  ENG: "Combat Thrusters"
 BB_ComabtEnginesDescr:
  Id: 17627
- ENG: "Combat Thrusters excel at providing excellent sub light thrust and turn thrust thanks to 3D vectoring which is able to direct its engine thrust in another direction to give it better maneuverability and two off-center aligned engines. Output of this engine is best suited for ships with lower mass and small footprint, and might cause catastrophic failure if ship goes over the provided specifications. "
+ ENG: "Combat Thrusters excel at providing excellent sub light thrust and turn thrust thanks to 3D vectoring which is able to direct its engine thrust in another direction to give it better maneuverability and two off-center aligned engines. Output of this engine is best suited for ships with lower mass and small footprint. Integraded in the engines are also military grade power cells, and small power generator. "
 BB_AFRepeater:
  Id: 17628
  ENG: "AF Repeater Turret"
