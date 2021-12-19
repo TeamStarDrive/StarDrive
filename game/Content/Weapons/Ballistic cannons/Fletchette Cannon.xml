@@ -36,7 +36,7 @@
   <DamageAmount>50</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2000</ProjectileSpeed>
-  <Scale>3.7</Scale>
+  <Scale>1</Scale>
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <WeaponType>Ballistic Cannon</WeaponType>
