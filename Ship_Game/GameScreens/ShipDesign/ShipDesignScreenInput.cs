@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
@@ -482,6 +483,7 @@ namespace Ship_Game
             }
             else
             {
+                item.Hull.ReloadIfNeeded();
                 ChangeHull(item.Hull);
             }
         }
@@ -558,8 +560,8 @@ namespace Ship_Game
         ShipHull CloneCurrentHull(string newName)
         {
             ShipHull toSave = CurrentHull.GetClone();
-            toSave.HullName = newName;
             toSave.VisibleName = newName;
+            toSave.HullName = toSave.Style + "/" + newName;
             return toSave;
         }
 
@@ -583,6 +585,7 @@ namespace Ship_Game
             {
                 hull.Save(hullFile);
                 ShipSaved = true;
+                UpdateAvailableHulls();
             }
             catch (Exception e)
             {
@@ -605,13 +608,14 @@ namespace Ship_Game
             ChangeHull(toSave);
         }
 
-        public void SaveHullDesign(string hullName, FileInfo overwriteProtected)
+        public ShipHull SaveHullDesign(string hullName, FileInfo overwriteProtected)
         {
             ShipHull toSave = CloneCurrentHull(hullName);
-            SaveHull(toSave, overwriteProtected ?? new FileInfo($"Content/Hulls/{hullName}.hull"));
+            SaveHull(toSave, overwriteProtected ?? new FileInfo($"Content/Hulls/{toSave.HullName}.hull"));
 
             ShipHull newHull = ResourceManager.AddHull(toSave);
             ChangeHull(newHull);
+            return newHull;
         }
 
         void SaveWIP()
