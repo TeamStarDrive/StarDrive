@@ -1,0 +1,38 @@
+﻿Version=1
+Name=Razor Back mk1-c
+Hull=Vulfen/Type III
+Role=support
+Style=Vulfen
+Size=6,6
+GridCenter=3,3
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=true
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=CompositeAlloys Small;IonCannon1x2;NuclearReactorSmall;Cockpit;PowerSolar;PowerConduit;CombatEngine_2x1
+Modules=20
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+2,0;0
+3,0;0
+1,1;0
+2,1;1;1,2
+3,1;1;1,2
+4,1;0
+0,2;0
+1,2;1;1,2
+4,2;1;1,2
+5,2;0
+0,3;0
+2,3;2
+3,3;3
+5,3;0
+0,4;4
+1,4;5
+2,4;6;2,1
+4,4;5
+5,4;4
+2,5;6;2,1
