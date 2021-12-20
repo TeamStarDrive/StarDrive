@@ -87,8 +87,16 @@ def create_installer_commands(filename:str,
         lines.append(f'Delete "$INSTDIR\\{delete.filename}"\n')
     for dir_to_delete in delete_folders:
         lines.append(f'RMDir "$INSTDIR\\{dir_to_delete}"\n')
+
+    created_paths = set()
     for new in new_files:
+        folder = os.path.dirname(new.filename)
+        if folder and not folder in created_paths:
+            created_paths.add(folder)
+            lines.append(f'CreateDirectory "$INSTDIR\{folder}"\n')
         lines.append(f'File "/oname={new.filename}" "${{SOURCE_DIR}}\game\{new.filename}"\n')
+
+    console(f'Write Installer Commands: {filename} ({len(lines)} commands)')
     with open(filename, 'w') as f:
         f.writelines(lines)
 
