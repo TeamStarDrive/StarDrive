@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 import os, argparse, hashlib
 from typing import List, Dict, Iterable
+from DeployUtils import console
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--root_dir', type=str, help='BlackBox/ repository root directory')
 parser.add_argument('--major', action='store_true', help='Is this a major release?')
-parser.add_argument('--patch', action='store_true', help='Is this a cumulative patch? Requires Release.txt')
+parser.add_argument('--patch', action='store_true', help='Is this a cumulative patch?')
 args = parser.parse_args()
 
 def path_combine(a, b):
@@ -13,11 +14,12 @@ def path_combine(a, b):
 
 def read_lines(listfile) -> List[str]:
     lines: List[str] = []
-    with open(listfile, 'r') as f:
-        for line in f.readlines():
-            line = line.strip()
-            if len(line) != 0 and not line.startswith('#'):
-                lines.append(line)
+    if os.path.exists(listfile):
+        with open(listfile, 'r') as f:
+            for line in f.readlines():
+                line = line.strip()
+                if len(line) != 0 and not line.startswith('#'):
+                    lines.append(line)
     return lines
 
 class FileInfo:
@@ -55,7 +57,7 @@ class FileInfo:
 
     @staticmethod
     def save_file_infos(filename:str, file_infos: List['FileInfo']):
-        print(f'Write FileInfos: {filename} ({len(file_infos)} files)')
+        console(f'Write FileInfos: {filename} ({len(file_infos)} files)')
         text = '\n'.join([str(f) for f in file_infos])
         with open(filename, 'w') as f: f.write(text)
 
@@ -86,49 +88,52 @@ def create_installer_commands(filename:str,
     for dir_to_delete in delete_folders:
         lines.append(f'RMDir "$INSTDIR\\{dir_to_delete}"\n')
     for new in new_files:
-        lines.append(f'!insertmacro AddFile "{new.filename}"\n')
+        lines.append(f'File "/oname={new.filename}" "${{SOURCE_DIR}}\game\{new.filename}"\n')
     with open(filename, 'w') as f:
         f.writelines(lines)
 
-blackbox_dir = args.root_dir if args.root_dir else os.getcwd()
-game_dir = path_combine(blackbox_dir, 'game') + '\\'
-major_release_file = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.txt')
-delete_files_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.DeleteFiles.txt')
-delete_dirs_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.DeleteDirs.txt')
-new_files_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.NewOrChanged.txt')
-installer_commands = path_combine(blackbox_dir, 'Deploy\\GeneratedFilesList.nsh')
+def create_installer_files_list(major=False, patch=False):
+    blackbox_dir = args.root_dir if args.root_dir else os.getcwd()
+    game_dir = path_combine(blackbox_dir, 'game') + '\\'
+    major_release_file = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.txt')
+    delete_files_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.DeleteFiles.txt')
+    delete_dirs_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.DeleteDirs.txt')
+    new_files_path = path_combine(blackbox_dir, 'Deploy\\Versions\\Release.1.40.NewOrChanged.txt')
+    installer_commands = path_combine(blackbox_dir, 'Deploy\\GeneratedFilesList.nsh')
 
-known_files = []
-known_files += FileInfo.list_files(game_dir, '', ['.dll', '.config'])
-known_files += FileInfo.list_files_recursive(game_dir, 'Content')
+    known_files = []
+    known_files += FileInfo.list_files(game_dir, '', ['.dll', '.config'])
+    known_files += FileInfo.list_files_recursive(game_dir, 'Content')
 
-if args.major:
-    FileInfo.save_file_infos(major_release_file, known_files)
-    create_installer_commands(installer_commands, known_files)
-elif args.patch:
-    major_files_dict = FileInfo.load_file_infos_dict(game_dir, major_release_file)
-    known_files_dict = FileInfo.dict(known_files)
-    deleted_files = FileInfo.load_file_infos_dict(game_dir, delete_files_path)
-    delete_dirs = read_lines(delete_dirs_path)
-    new_files: Dict[str, FileInfo] = dict()
+    if major:
+        FileInfo.save_file_infos(major_release_file, known_files)
+        create_installer_commands(installer_commands, known_files)
+    elif patch:
+        major_files_dict = FileInfo.load_file_infos_dict(game_dir, major_release_file)
+        known_files_dict = FileInfo.dict(known_files)
+        deleted_files = FileInfo.load_file_infos_dict(game_dir, delete_files_path)
+        delete_dirs = read_lines(delete_dirs_path)
+        new_files: Dict[str, FileInfo] = dict()
 
-    for file in major_files_dict.values():
-        if not file.filename in known_files_dict:
-            deleted_files[file.filename] = file
+        for file in major_files_dict.values():
+            if not file.filename in known_files_dict:
+                deleted_files[file.filename] = file
 
-    for file in known_files:
-        if not file.filename in major_files_dict:
-            new_files[file.filename] = file
+        for file in known_files:
+            if not file.filename in major_files_dict:
+                new_files[file.filename] = file
 
-    for file in known_files:
-        if file.filename in deleted_files or file.filename in new_files:
-            continue
-        old_file = major_files_dict[file.filename]
-        if old_file.hash != file.hash:
-            new_files[file.filename] = file
+        for file in known_files:
+            if file.filename in deleted_files or file.filename in new_files:
+                continue
+            old_file = major_files_dict[file.filename]
+            if old_file.hash != file.hash:
+                new_files[file.filename] = file
 
-    FileInfo.save_file_infos(delete_files_path, deleted_files.values())
-    FileInfo.save_file_infos(new_files_path, new_files.values())
-    create_installer_commands(installer_commands, new_files, deleted_files.values(), delete_dirs)
+        FileInfo.save_file_infos(delete_files_path, deleted_files.values())
+        FileInfo.save_file_infos(new_files_path, new_files.values())
+        create_installer_commands(installer_commands, new_files, deleted_files.values(), delete_dirs)
 
-
+if __name__ == "__main__":
+    if args.major: create_installer_files_list(major=True)
+    elif args.patch: create_installer_files_list(patch=True)
