@@ -107,45 +107,7 @@ SectionGroup /e "BlackBox"
         SectionIn RO
         DetailPrint "Unpacking ${PRODUCT_NAME} files"
         SetOutPath "$INSTDIR"
-
-        !insertmacro AddStarDriveFile StarDrive.exe
-        !insertmacro AddStarDriveFile Stardrive.exe.config
-        !insertmacro AddStarDriveFile StarDrive.pdb
-        !insertmacro AddStarDriveFile Newtonsoft.Json.dll
-        !insertmacro AddStarDriveFile SDSunBurn.dll
-        ;!insertmacro AddStarDriveFile SDSunBurn.pdb
-        !insertmacro AddStarDriveFile Microsoft.Xna.Framework.dll
-        !insertmacro AddStarDriveFile Microsoft.Xna.Framework.Game.dll
-        ;!insertmacro AddStarDriveFile Microsoft.Xna.Framework.Game.pdb
-        !insertmacro AddStarDriveFile SDNative.dll
-        ;!insertmacro AddStarDriveFile SDNative.pdb ; 15megs -__-
-        !insertmacro AddStarDriveFile NAudio.dll
-        !insertmacro AddStarDriveFile Sentry.dll
-        !insertmacro AddStarDriveFile libfbxsdk.dll
-        !insertmacro AddStarDriveFile XnaNative.dll
-
-        ; Related to .NET Framework 4.8
-        !insertmacro AddStarDriveFile System.Buffers.dll
-        !insertmacro AddStarDriveFile System.Collections.Immutable.dll
-        !insertmacro AddStarDriveFile System.Memory.dll
-        !insertmacro AddStarDriveFile System.Numerics.Vectors.dll
-        !insertmacro AddStarDriveFile System.Reflection.Metadata.dll
-        !insertmacro AddStarDriveFile System.Runtime.CompilerServices.Unsafe.dll
-        !insertmacro AddStarDriveFile System.Text.Encodings.Web.dll
-        !insertmacro AddStarDriveFile System.Text.Json.dll
-        !insertmacro AddStarDriveFile System.Threading.Tasks.Extensions.dll
-        !insertmacro AddStarDriveFile System.ValueTuple.dll
-        !insertmacro AddStarDriveFile Microsoft.Bcl.AsyncInterfaces.dll
-
-        ; Everything inside game/Content folder
-        ; exclude specific files by using: /x *.tiff
-        SetOutPath "$INSTDIR\Content"
-        File /r ${SOURCE_DIR}\game\Content\*.*
-
-        ;; Remove junk files from previous versions
-        !include "LegacyRemove.nsh"
-
-        SetOutPath "$INSTDIR"
+        !include "GeneratedFilesList.nsh"
     SectionEnd
 
     Section "-Finish Install" SECFinish
