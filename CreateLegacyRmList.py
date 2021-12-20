@@ -1,13 +1,6 @@
 #!/usr/bin/python3
 import os, argparse, shutil
 
-#########
-# Since most Content is not part of the main repository,
-# we have to copy BlackBox/Content into BlackBox/StarDrive/Content
-#
-# In Debug and Release configurations we only overwrite if files are newer
-# In Deploy configration we always copy all BlackBox/Content files and overwrite everything
-#
 parser = argparse.ArgumentParser()
 parser.add_argument('--root_dir', type=str, help='BlackBox/ root directory')
 parser.add_argument('--configuration', type=str,
