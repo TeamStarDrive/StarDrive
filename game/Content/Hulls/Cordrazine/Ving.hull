@@ -16,4 +16,4 @@ Thruster=0,12,0,30
 Slots
 ___|___|IO |IO |___|___
 ___|IO |I  |I  |IO |___
-IO |___|E  |EC |___|IO 
+IO |IO |E  |EC |IO |IO 

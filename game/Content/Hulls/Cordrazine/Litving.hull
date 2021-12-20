@@ -14,10 +14,10 @@ IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=-1,25,0,53
 Slots
-___|___|O  |O  |___|___
-O  |O  |IO |IO |O  |O  
+O  |___|O  |O  |___|O  
+O  |IO |IO |IO |IO |O  
 O  |I  |I  |I  |I  |O  
 O  |IO |I  |I  |IO |O  
-___|___|IO |IOC|___|___
+___|O  |IO |IOC|O  |___
 ___|O  |E  |E  |O  |___
 O  |O  |E  |E  |O  |O  
