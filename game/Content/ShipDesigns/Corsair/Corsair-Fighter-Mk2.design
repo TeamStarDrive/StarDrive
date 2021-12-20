@@ -13,8 +13,8 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=true
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=IonCannon1x2;BlueLaser1x2;Fighter Shield;NuclearReactorSmall;Cockpit;RemnantEngine1
-Modules=8
+ModuleUIDs=IonCannon1x2;BlueLaser1x2;Fighter Shield;NuclearReactorSmall;Cockpit;Amplifier;RemnantEngine1
+Modules=10
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 1,0;0;1,2
 2,0;1;1,2
@@ -22,5 +22,7 @@ Modules=8
 1,2;3
 2,2;3
 3,2;4
-1,3;5
-2,3;5
+0,3;5
+1,3;6
+2,3;6
+3,3;5

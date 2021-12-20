@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Bee mk2
 Hull=Terran/Shuttle
-Role=fighter
+Role=support
 Style=Terran
 Size=4,4
 GridCenter=2,2
@@ -13,15 +13,16 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=true
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=EmpDischarger;BasicFuelCell;Fighter Shield;Amplifier;NuclearReactorSmall;Cockpit;Engine
-Modules=9
+ModuleUIDs=EmpDischarger;BasicFuelCell;NuclearReactorSmall;Amplifier;Cockpit;Fighter Shield;CombatEngine_2x1
+Modules=10
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 1,0;0;1,2
 2,0;1
 2,1;2
 0,2;3
-1,2;4
-2,2;4
-3,2;5
-1,3;6
-2,3;6
+1,2;2
+2,2;2
+3,2;4
+0,3;5
+1,3;6;2,1
+3,3;1
