@@ -14,8 +14,8 @@ CRCCheck force
   !error "Missing required Script argument SOURCE_DIR. Pass it via /DSOURCE_DIR=C:\Projects\BlackBox to makensis.exe"
 !endif
 
-!define PRODUCT_NAME     "StarDrive BlackBox Mars"
-!define INSTALLER_NAME   "BlackBox_Mars"
+!define PRODUCT_NAME     "StarDrive BlackBox Mars Patch"
+!define INSTALLER_NAME   "BlackBox_Mars_Patch"
 !define PRODUCT_VERSION  ${VERSION}
 
 ;; Payload:

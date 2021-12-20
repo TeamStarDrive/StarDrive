@@ -99,10 +99,6 @@ SectionGroup /e "BlackBox"
         DetailPrint "Installation directory: $INSTDIR "
     SectionEnd
 
-    !macro AddStarDriveFile Filename
-        File /oname=${Filename} ${SOURCE_DIR}\game\${Filename}
-    !macroend
-
     Section "-BlackBox" SecMain
         SectionIn RO
         DetailPrint "Unpacking ${PRODUCT_NAME} files"
