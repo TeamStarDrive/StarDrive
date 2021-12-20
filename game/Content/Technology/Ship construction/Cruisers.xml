@@ -17,7 +17,43 @@
   <ModulesUnlocked>
   </ModulesUnlocked>
   <BuildingsUnlocked />
-  <BonusUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Mass Reduction</Name>
+      <Bonus>-0.05</Bonus>
+      <Description>New materials reduce effective ship mass by 5% across the board. </Description>
+      <BonusIndex>18088</BonusIndex>
+      <Type>Cordrazine</Type>
+    </UnlockedBonus>
+       <UnlockedBonus>
+      <Name>Fuel Cell Upgrade</Name>
+      <Bonus>0.15</Bonus>
+      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in power cells</Description>
+      <BonusIndex>572</BonusIndex>
+      <Type>Cordrazine</Type>
+    </UnlockedBonus>
+    <UnlockedBonus>
+      <Name>Power Flow Bonus</Name>
+      <Bonus>0.07</Bonus>
+      <Description>Gain an empire-wide 7% bonus to the amount of power produced by reactors</Description>
+      <BonusIndex>18089</BonusIndex>
+      <Type>Cordrazine</Type>
+    </UnlockedBonus>
+    <UnlockedBonus>
+      <Name>Fuel Cell Upgrade</Name>
+      <Bonus>0.15</Bonus>
+      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in power cells</Description>
+      <BonusIndex>572</BonusIndex>
+      <Type>Pollops</Type>
+    </UnlockedBonus>
+    <UnlockedBonus>
+      <Name>Power Flow Bonus</Name>
+      <Bonus>0.10</Bonus>
+      <Description>Gain an empire-wide 10% bonus to the amount of power produced by reactors</Description>
+      <BonusIndex>18089</BonusIndex>
+      <Type>Pollops</Type>
+    </UnlockedBonus>
+  </BonusUnlocked>
   <TroopsUnlocked />
   <HullsUnlocked>
     <UnlockedHull>

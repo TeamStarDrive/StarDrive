@@ -13141,6 +13141,17 @@ HeavyDarkMatterTurret:
  Id: 17949
  ENG: "Heavy Dark Matter turret"
  RUS: "Тежалая турель Темной Материи"
+AdvancedMaterials_Bonus:
+ Id: 18088
+ ENG: "New materials reduce effective ship mass by a total of 5% across the board."
+ RUS: "Новые материалы снижают эффективную массу корабля на 5% по всем направлениям."
+PowerFlow_Bonus:
+ Id: 18089
+ ENG: "Exotic particles discovered by this race have increased Power Reactors efficiency by 10%."
+SmartMissiles_Bonus:
+ Id: 18074
+ ENG: "Our missiles will now  seek new targets if their original target is not valid."
+ RUS: "Наши ракеты теперь будут искать новые цели, если их первоначальная цель недействительна."
 Tech_RemnantAssembly_Name:
  Id: 18260
  ENG: "Remnant Assembly"
