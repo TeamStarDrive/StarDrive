@@ -21,7 +21,7 @@
   <UID>EmpDischarger1x2</UID>
   <fireDelay>1.0</fireDelay>
   <Range>4200</Range>
-  <PowerRequiredToFire>150</PowerRequiredToFire>
+  <PowerRequiredToFire>110</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
