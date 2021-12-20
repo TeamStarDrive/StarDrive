@@ -3,10 +3,10 @@ Name=Pollops Assault Shuttle
 Hull=Pollops/Thorn
 Role=troop
 Style=Pollops
-Size=4,4
+Size=4,5
 GridCenter=2,2
 DefaultAIState=DoNothing
-DefaultCombatState=AttackRuns
+DefaultCombatState=Artillery
 ShipCategory=Unclassified
 HangarDesignation=General
 IsShipyard=false
@@ -14,15 +14,19 @@ IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=Structure;Maneuvering_Thruster_1x1;Cockpit;PowerConduit;NuclearReactorSmall;Engine;WarpEngine_1x1
-Modules=10
+Modules=14
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 1,0;0
 2,0;0
-0,1;1
-1,1;2
-2,1;3
-3,1;1
-1,2;4
-2,2;4
-1,3;5
-2,3;6
+0,1;0
+1,1;0
+2,1;0
+3,1;0
+0,2;1
+1,2;2
+2,2;3
+3,2;1
+1,3;4
+2,3;4
+1,4;5
+2,4;6
