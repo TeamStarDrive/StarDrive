@@ -3,7 +3,7 @@ HullName=Draylok/Wisp
 VisibleName=Wisp
 Role=fighter
 Style=Draylok
-Size=6,2
+Size=6,3
 MeshOffset=0,0
 IconPath=ShipIcons/Wisp
 ModelPath=Model/Ships/Draylok/Ship18a
@@ -14,5 +14,6 @@ IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=1,-4,0,35
 Slots
-___|IO |I  |I  |IO |___
+___|O  |___|___|O  |___
+___|IO |IO |IO |IO |___
 IO |IO |E  |EC |IO |IO 

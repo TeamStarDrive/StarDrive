@@ -15,5 +15,5 @@ IsOrbitalDefense=false
 Slots
 ___|IO |IO |___
 IO |IO |IO |IO 
-___|I  |IC |___
+IO |I  |IC |IO 
 ___|E  |E  |___
