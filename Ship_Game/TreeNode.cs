@@ -161,7 +161,7 @@ namespace Ship_Game
             batch.DrawString(TitleFont, techCost.GetNumberString(), CostPos, Color.SkyBlue);
 
             // draw an orange + if there are more techs unlocked
-            if (TechTemplate.NumStuffUnlocked > MaxUnlockItems)
+            if (TechTemplate.NumStuffUnlocked(EmpireManager.Player) > MaxUnlockItems)
             { 
                 PlusRect = new Rectangle(UnlocksRect.X + 60, UnlocksRect.Y + UnlocksRect.Height, 20, 20);
                 batch.DrawString(Fonts.Arial20Bold, "+", new Vector2(PlusRect.X, PlusRect.Y), Color.Orange);
