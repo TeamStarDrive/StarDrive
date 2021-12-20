@@ -3,7 +3,7 @@ Name=Vulcan Thorn
 Hull=Pollops/Thorn
 Role=fighter
 Style=Pollops
-Size=4,4
+Size=4,5
 GridCenter=2,2
 DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
@@ -13,15 +13,18 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=BlueLaser1x2;Cockpit;BasicFuelCell;PowerConduit;Maneuvering_Thruster_1x1;NuclearReactorSmall;Engine;WarpEngine_1x1
-Modules=9
+ModuleUIDs=BlueLaser1x2;Internal Bulkhead;BasicFuelCell;Cockpit;NuclearReactorSmall;Maneuvering_Thruster_1x1;Engine;WarpEngine_1x1
+Modules=12
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 1,0;0;1,2
-2,0;1
-0,1;2
-2,1;3
-3,1;4
-1,2;5
-2,2;5
-1,3;6
-2,3;7
+2,0;0;1,2
+0,1;1
+3,1;2
+0,2;3
+1,2;4
+2,2;4
+3,2;5
+1,3;4
+2,3;4
+1,4;6
+2,4;7
