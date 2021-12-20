@@ -220,13 +220,14 @@ namespace Ship_Game
             return theyCanUnlockIt || notHasContent;
         }
 
+        // checks if any of the bonuses are exclusively restricted for this Empire
         bool ContentRestrictedTo(Empire empire)
         {
-            bool hulls     = Tech.HullsUnlocked.Any(item => item.ShipType == empire.data.Traits.ShipType);
-            bool buildings = Tech.BuildingsUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
-            bool troops    = Tech.TroopsUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
-            bool modules   = Tech.ModulesUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
-            bool bonus     = Tech.BonusUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
+            bool hulls     = Tech.HullsUnlocked.Any(item => Technology.IsTypeRestrictedTo(item.ShipType, empire));
+            bool buildings = Tech.BuildingsUnlocked.Any(item => Technology.IsTypeRestrictedTo(item.Type, empire));
+            bool troops    = Tech.TroopsUnlocked.Any(item => Technology.IsTypeRestrictedTo(item.Type, empire));
+            bool modules   = Tech.ModulesUnlocked.Any(item => Technology.IsTypeRestrictedTo(item.Type, empire));
+            bool bonus     = Tech.BonusUnlocked.Any(item => Technology.IsTypeRestrictedTo(item.Type, empire));
             return hulls || buildings || troops || modules || bonus;
         }
 
@@ -255,13 +256,9 @@ namespace Ship_Game
 
         bool CheckSource(string unlockType, Empire empire)
         {
-            if (unlockType == null)
-                return true;
-            if (unlockType == "ALL")
+            if (Technology.IsTypeUnlockableBy(unlockType, empire))
                 return true;
             if (WasAcquiredFrom.Contains(unlockType))
-                return true;
-            if (unlockType == empire.data.Traits.ShipType)
                 return true;
             if (ConqueredSource.Contains(unlockType))
                 return true;
@@ -424,13 +421,12 @@ namespace Ship_Game
             Level = 0;
         }
 
-        public bool Unlock(Empire us, Empire them = null)
+        public bool Unlock(Empire us)
         {
             if (!SetDiscovered(us))
                 return false;
 
-            them = them ?? us;
-            UnlockTechContentOnly(us, them, bonusUnlock: SetUnlockFlag());
+            UnlockTechContentOnly(us, us, bonusUnlock: SetUnlockFlag());
 
             foreach (Empire e in EmpireManager.MajorEmpires)
             {
@@ -444,7 +440,6 @@ namespace Ship_Game
 
         public void UnlockWithBonus(Empire us, Empire them, bool unlockBonus)
         {
-            them = them ?? us;
             UnlockTechContentOnly(us, them, bonusUnlock: SetUnlockFlag() && unlockBonus);
             if (them != us)
                 WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
@@ -477,7 +472,7 @@ namespace Ship_Game
             DoRevealedTechs(us);
             if (bonusUnlock)
             {
-                UnlockBonus(us, them);
+                UnlockBonus(us);
             }
             UnlockModules(us, them);
             UnlockTroops(us, them);
@@ -743,8 +738,7 @@ namespace Ship_Game
                 return this;
             foreach (Technology child in Tech.Children)
             {
-                TechEntry discovered = empire.GetTechEntry(child)
-                                             .FindNextDiscoveredTech(empire);
+                TechEntry discovered = empire.GetTechEntry(child).FindNextDiscoveredTech(empire);
                 if (discovered != null)
                     return discovered;
             }
@@ -767,43 +761,43 @@ namespace Ship_Game
             return entries;
         }
 
-        public void UnlockBonus(Empire empire, Empire them)
+        public bool CanWeUnlockBonus(string unlockType, Empire empire)
         {
-            if (Tech.BonusUnlocked.Count < 1)
-                return;
+            // guaranteed that we can unlock this by our own
+            if (Technology.IsTypeUnlockableBy(unlockType, empire))
+                return true;
+            // if technology was acquired by some nefarious means, then we get the bonus
+            if (WasAcquiredFrom.Contains(unlockType))
+                return true;
+            return false;
+        }
 
-            EmpireData theirData = them.data;
-            string theirShipType = theirData.Traits.ShipType;
-
-            // update ship stats if a bonus was unlocked
-            empire.TriggerAllShipStatusUpdate();
+        public void UnlockBonus(Empire empire)
+        {
+            bool bonusWasUnlocked = false;
 
             foreach (Technology.UnlockedBonus unlockedBonus in Tech.BonusUnlocked)
             {
-                // Added by McShooterz: Race Specific bonus
-                string type = unlockedBonus.Type;
-
-                bool bonusRestrictedToThem = type != null && type == theirShipType;
-                bool bonusRestrictedToUs = bonusRestrictedToThem && empire == them;
-                bool bonusComesFromOtherEmpireAndNotRestrictedToThem = empire != them && !bonusRestrictedToThem;
-
-                if (!bonusRestrictedToUs && bonusRestrictedToThem && !WasAcquiredFrom.Contains(theirShipType))
-                    continue;
-
-                if (bonusComesFromOtherEmpireAndNotRestrictedToThem)
-                    continue;
-
-                if (unlockedBonus.Tags.Count <= 0)
+                if (CanWeUnlockBonus(unlockedBonus.Type, empire))
                 {
-                    UnlockOtherBonuses(empire, unlockedBonus);
-                }
-                else
-                {
-                    foreach (string tag in unlockedBonus.Tags)
+                    bonusWasUnlocked = true;
+                    if (unlockedBonus.Tags.Count <= 0)
                     {
-                        ApplyWeaponTagBonusToEmpire(theirData, tag, unlockedBonus);
+                        UnlockOtherBonuses(empire, unlockedBonus);
+                    }
+                    else
+                    {
+                        foreach (string tag in unlockedBonus.Tags)
+                        {
+                            ApplyWeaponTagBonusToEmpire(empire.data, tag, unlockedBonus);
+                        }
                     }
                 }
+            }
+
+            if (bonusWasUnlocked) // update ship stats if a bonus was unlocked:
+            {
+                empire.TriggerAllShipStatusUpdate();
             }
         }
 

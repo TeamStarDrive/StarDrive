@@ -32,9 +32,6 @@ namespace Ship_Game
 
         [XmlIgnore] public bool IsRootNode => RootNode == 1;
         [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new SortedSet<TechnologyType>();
-        [XmlIgnore] public int NumStuffUnlocked => ModulesUnlocked.Count + BuildingsUnlocked.Count
-                                                   + BonusUnlocked.Count + TroopsUnlocked.Count
-                                                   + HullsUnlocked.Filter(h => h.ShipType == EmpireManager.Player.data.Traits.ShipType).Length;
 
         public int NameIndex;
         public int DescriptionIndex;
@@ -220,7 +217,29 @@ namespace Ship_Game
         {
             Children = ResolveLeadsToTechs(LeadsTo);
             Parents  = ResolveComeFromTechs(ComesFrom);
+        }
 
+        // @return Total number of unique bonuses, buildings, troops, etc. unlocked by this tech
+        public int NumStuffUnlocked(Empire forEmpire)
+        {
+            int hulls     = HullsUnlocked.Count(item => IsTypeUnlockableBy(item.ShipType, forEmpire));
+            int buildings = BuildingsUnlocked.Count(item => IsTypeUnlockableBy(item.Type, forEmpire));
+            int troops    = TroopsUnlocked.Count(item => IsTypeUnlockableBy(item.Type, forEmpire));
+            int modules   = ModulesUnlocked.Count(item => IsTypeUnlockableBy(item.Type, forEmpire));
+            int bonus     = BonusUnlocked.Count(item => IsTypeUnlockableBy(item.Type, forEmpire));
+            return hulls + buildings + troops + modules + bonus;
+        }
+
+        /// @return TRUE if empire can unlock this Technology.Unlock type
+        public static bool IsTypeUnlockableBy(string unlockType, Empire empire)
+        {
+            return unlockType == null || unlockType == "ALL" || unlockType == empire.data.Traits.ShipType;
+        }
+        
+        /// @return TRUE if Technology.Unlock type is exclusive to the empire
+        public static bool IsTypeRestrictedTo(string unlockType, Empire empire)
+        {
+            return unlockType != null && unlockType == empire.data.Traits.ShipType;
         }
 
         public void UpdateTechnologyTypesFromUnlocks()
