@@ -74,19 +74,23 @@ class FileInfo:
     def list_files(game_dir, subdir, extensions) -> List['FileInfo']:
         files: List[FileInfo] = []
         for f in os.listdir(path_combine(game_dir, subdir)):
-            if os.path.splitext(f)[1] in extensions:
+            if os.path.splitext(f)[1].lower() in extensions:
                 files.append(FileInfo(game_dir, f, hash=None))
         return files
 
 def create_installer_commands(filename:str,
                               new_files:Iterable[FileInfo],
                               deleted_files:Iterable[FileInfo] = [],
-                              delete_folders:List[str] = []):
+                              delete_folders:List[str] = [],
+                              major_release=False):
     lines = []
-    for delete in deleted_files:
-        lines.append(f'Delete "$INSTDIR\\{delete.filename}"\n')
-    for dir_to_delete in delete_folders:
-        lines.append(f'RMDir "$INSTDIR\\{dir_to_delete}"\n')
+    if major_release: # in major releases, destroy any old Content files to save us from incompatibility issues
+        lines.append(f'RMDir /r "$INSTDIR\\Content"\n')
+    else:
+        for delete in deleted_files:
+            lines.append(f'Delete "$INSTDIR\\{delete.filename}"\n')
+        for dir_to_delete in delete_folders:
+            lines.append(f'RMDir "$INSTDIR\\{dir_to_delete}"\n')
 
     created_paths = set()
     for new in new_files:
@@ -110,12 +114,12 @@ def create_installer_files_list(major=False, patch=False):
     installer_commands = path_combine(blackbox_dir, 'Deploy\\GeneratedFilesList.nsh')
 
     known_files = []
-    known_files += FileInfo.list_files(game_dir, '', ['.dll', '.config'])
+    known_files += FileInfo.list_files(game_dir, '', ['.dll', '.config', '.exe'])
     known_files += FileInfo.list_files_recursive(game_dir, 'Content')
 
     if major:
         FileInfo.save_file_infos(major_release_file, known_files)
-        create_installer_commands(installer_commands, known_files)
+        create_installer_commands(installer_commands, known_files, major_release=True)
     elif patch:
         major_files_dict = FileInfo.load_file_infos_dict(game_dir, major_release_file)
         known_files_dict = FileInfo.dict(known_files)

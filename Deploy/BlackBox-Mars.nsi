@@ -1,7 +1,7 @@
 Unicode True
 SetCompress auto
-;SetCompressor /FINAL /SOLID bzip2
-SetCompressor /FINAL /SOLID lzma
+SetCompressor /FINAL /SOLID bzip2
+;SetCompressor /FINAL /SOLID lzma
 ;SetCompressorDictSize 25 ; LZMA dict size, default is 8MB
 CRCCheck force
 

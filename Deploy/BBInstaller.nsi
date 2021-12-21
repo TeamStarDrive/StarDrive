@@ -27,9 +27,9 @@ OutFile "upload/${INSTALLER_NAME}_${PRODUCT_VERSION}.exe"
 ;Pages
 !define MUI_WELCOMEPAGE_TITLE        "BlackBox Installation Wizard"
 !define MUI_WELCOMEPAGE_TEXT         "The wizard will guide you through the installation of $\r$\n${PRODUCT_NAME} ${PRODUCT_VERSION} onto your computer.$\r$\n$\r$\nClick Next to Continue"
-!define MUI_DIRECTORYPAGE_TEXT_TOP   "Please verify that the Destination Folder is your Steam StarDrive installation folder: $\r$\nThe same folder where your ${LAUNCHER} is located.$\r$\n$\r$\nOtherwise the installation will not work"
+!define MUI_DIRECTORYPAGE_TEXT_TOP   "Please verify that the Destination Folder is a clean installation folder. This is a stand-alone BETA version of StarDrive Plus"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
-!define MUI_FINISHPAGE_RUN              $INSTDIR\${LAUNCHER}
+!define MUI_FINISHPAGE_RUN              "$INSTDIR\${LAUNCHER}"
 !define MUI_FINISHPAGE_RUN_TEXT         "Run BlackBox ${PRODUCT_VERSION}"
 !define MUI_FINISHPAGE_RUN_PARAMETERS   ""
 !define MUI_FINISHPAGE_RUN_NOTCHECKED
@@ -59,21 +59,21 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright ZeroSum Games 
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "StarDrive BlackBox Installer"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${PRODUCT_VERSION}"
 
-Var STEAMDIR ; found steam dir
+;Var STEAMDIR ; found steam dir
 Var PREVDIR ; previous mod install dir
 Function .onInit
         ; Get Game path from registry
         ReadRegStr $PREVDIR HKLM ${REGPATH} InstallPath
-        IfFileExists "$PREVDIR\${LAUNCHER}" 0 CheckSteam
+        IfFileExists "$PREVDIR\${LAUNCHER}" 0 SetDefaultPath
         StrCpy $INSTDIR $PREVDIR ;; use the previous path
         Goto Done
-    CheckSteam:
-        ReadRegStr $STEAMDIR HKLM "SOFTWARE\WOW6432Node\Valve\Steam" InstallPath
-        StrCmp $STEAMDIR "" SetDefaultPath 0
-        StrCpy $INSTDIR "$STEAMDIR\SteamApps\common\StarDrive"
-        Goto Done
+    ; CheckSteam:
+    ;     ReadRegStr $STEAMDIR HKLM "SOFTWARE\WOW6432Node\Valve\Steam" InstallPath
+    ;     StrCmp $STEAMDIR "" SetDefaultPath 0
+    ;     StrCpy $INSTDIR "$STEAMDIR\SteamApps\common\StarDrive"
+    ;     Goto Done
     SetDefaultPath:
-        StrCpy $INSTDIR "C:\Program Files (x86)\steam\steamapps\common\StarDrive"
+        StrCpy $INSTDIR "C:\Games\StarDrivePlus"
     Done:
 FunctionEnd
 
@@ -88,15 +88,15 @@ SectionGroup /e "BlackBox"
         DetailPrint "${PRODUCT_NAME} ${PRODUCT_VERSION}"
         DetailPrint "Initializing Installation"
         DetailPrint "*************************"
-        ;Check if the installation dir is correct.
-        IfFileExists "$INSTDIR\${LAUNCHER}" FolderCorrect FolderIncorrect
-    FolderIncorrect:
-        MessageBox MB_OKCANCEL|MB_TOPMOST "${LAUNCHER} not found. This install will not work correctly unless installed to the main StarDrive folder$\n$\nClick OK to Continue anyway" IDOK ContinueInstallation IDCANCEL 0
-        Abort
-    FolderCorrect:
-        DetailPrint "Found $INSTDIR\${LAUNCHER}"
-    ContinueInstallation:
-        DetailPrint "Installation directory: $INSTDIR "
+    ;     ;Check if the installation dir is correct.
+    ;     IfFileExists "$INSTDIR\${LAUNCHER}" FolderCorrect FolderIncorrect
+    ; FolderIncorrect:
+    ;     MessageBox MB_OKCANCEL|MB_TOPMOST "${LAUNCHER} not found. This install will not work correctly unless installed to the main StarDrive folder$\n$\nClick OK to Continue anyway" IDOK ContinueInstallation IDCANCEL 0
+    ;     Abort
+    ; FolderCorrect:
+    ;     DetailPrint "Found $INSTDIR\${LAUNCHER}"
+    ; ContinueInstallation:
+    ;     DetailPrint "Installation directory: $INSTDIR "
     SectionEnd
 
     Section "-BlackBox" SecMain
