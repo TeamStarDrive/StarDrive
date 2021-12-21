@@ -163,7 +163,10 @@ namespace Ship_Game.Data
                 return 0;
 
             int numBytes = 0;
-            foreach (object asset in LoadedAssets.Values.ToArray())
+            object[] assets;
+            lock (LoadSync) assets = LoadedAssets.Values.ToArray();
+
+            foreach (object asset in assets)
             {
                 if (asset is Texture2D tex)
                 {
