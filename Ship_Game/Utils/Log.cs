@@ -98,8 +98,14 @@ namespace Ship_Game
             #else
                 environment = GlobalStats.Version.ToLower().Contains("test") ? "Test" : "Release";
             #endif
+
+            #if !DEBUG
+                bool shouldHideConsole = Console.Title.Contains("\\StarDrive.exe");
+                if (shouldHideConsole)
+                    HideConsoleWindow();
+            #endif
             }
-            
+
             if (enableSentry)
             {
                 Sentry = SentrySdk.Init(o =>
@@ -681,8 +687,6 @@ namespace Ship_Game
         static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);
         [DllImport("user32.dll")]
         static extern IntPtr SetWindowPos(IntPtr hwnd, int hwndAfter, int x, int y, int cx, int cy, int wFlags);
-        [DllImport("user32.dll")]
-        static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
 
         [StructLayout(LayoutKind.Sequential)]
         struct RECT
