@@ -1144,9 +1144,9 @@ namespace Ship_Game
             }
             //Added by gremlin Figure out techs with modules that we have ships for.
             var ourShips = GetOurFactionShips();
-            ResetTechsUsableByShips(ourShips, unlockBonuses: true);
 
             UnlockedTroops.Clear();
+            ResetTechsUsableByShips(ourShips, unlockBonuses: true); // this will also unlock troops. Very confusing
             ShipsWeCanBuild.Clear();
             foreach (string ship in data.unlockShips)
                 ShipsWeCanBuild.Add(ship);
