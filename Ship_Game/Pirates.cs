@@ -613,8 +613,8 @@ namespace Ship_Game
 
                 switch (CurrentGame.Difficulty) // Don't let pirates spawn advanced tech too early at lower difficulty
                 {
-                    case UniverseData.GameDifficulty.Easy:   levelDivider = 3; break;
-                    case UniverseData.GameDifficulty.Normal: levelDivider = 2; break;
+                    case UniverseData.GameDifficulty.Normal: levelDivider = 3; break;
+                    case UniverseData.GameDifficulty.Hard:   levelDivider = 2; break;
                 }
 
                 switch (effectiveLevel / levelDivider)

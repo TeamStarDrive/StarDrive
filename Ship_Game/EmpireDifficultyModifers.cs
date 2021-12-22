@@ -68,49 +68,10 @@
             PlayerWarPriorityLimit = 10;
             switch (difficulty)
             {
-                case UniverseData.GameDifficulty.Easy:
-                    ShipBuildStrMin      = 0.3f;
-                    ShipBuildStrMax      = 0.8f;
-                    ColonyRankModifier   = -2;
-                    TaskForceStrength    = 1f;
-                    DataVisibleToPlayer  = true;
-                    ShipLevel            = 0;
-                    HideTacticalData     = false;
-                    MaxDesiredPlanets    = 0.25f;
-                    CreditsMultiplier    = 0.1f;
-                    EnemyTroopStrength   = 1.2f;
-                    MineralDecayDivider  = 100;
-                    PiratePayModifier    = 0.5f;
-                    ExpansionMultiplier  = 1.25f;
-                    MinStartingColonies  = 2;
-                    ExpandSearchTurns    = 75;
-                    RemnantTurnsLevelUp  = 500;
-                    RemnantResourceMod   = 0.2f;
-                    RemnantNumBombers    = 0.5f;
-                    BaseColonyGoals      = 2;
-                    ColonyGoalMultiplier = 0;
-                    StandByColonyShips   = 1;
-                    TrustLostStoleColony = 0;
-                    FleetStrModifier     = 0.1f;
-                    NumSystemsToSniff    = 1;
-                    NumWarTasksPerWar    = 1;
-                    WarTaskPriorityMod   = 0;
-                    RemnantStrModifier   = remnantGeneralStr;
-                    WarSneakiness        = -10;
-                    HullTechMultiplier   = 1.1f;
-                    if (!empire.isPlayer)
-                    {
-                        ProductionMod = -0.1f;
-                        ResearchMod   = -0.1f;
-                        TaxMod        = -0.1f;
-                        ModHpModifier = -0.1f;
-                    }
-
-                    break;
                 default:
                 case UniverseData.GameDifficulty.Normal:
                     ShipBuildStrMin      = 0.7f;
-                    ShipBuildStrMax      = 1;
+                    ShipBuildStrMax      = 0.9f;
                     ColonyRankModifier   = 0;
                     TaskForceStrength    = 1.25f;
                     ShipLevel            = 0;
@@ -136,7 +97,7 @@
                     WarTaskPriorityMod   = 1;
                     RemnantStrModifier   = remnantGeneralStr + 0.5f;
                     WarSneakiness        = 0;
-                    HullTechMultiplier = 1f;
+                    HullTechMultiplier   = 1f;
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus         = 5;
@@ -175,11 +136,11 @@
                     HullTechMultiplier   = 0.85f;
                     if (!empire.isPlayer)
                     {
-                        FlatMoneyBonus         = 10;
-                        ProductionMod          = 0.3f;
-                        ResearchMod            = 0.75f;
-                        TaxMod                 = 0.5f;
-                        ShipCostMod            = -0.2f;
+                        FlatMoneyBonus = 10;
+                        ProductionMod  = 0.3f;
+                        ResearchMod    = 0.5f;
+                        TaxMod         = 0.5f;
+                        ShipCostMod    = -0.2f;
                         ResearchTaxMultiplier  = 0.7f;
                         PlayerWarPriorityLimit = 5;
                     }
@@ -202,7 +163,7 @@
                     ExpandSearchTurns    = 20;
                     RemnantTurnsLevelUp  = 300;
                     RemnantResourceMod   = 0.6f;
-                    RemnantNumBombers    = 1.5f;
+                    RemnantNumBombers    = 1.25f;
                     BaseColonyGoals      = 5;
                     ColonyGoalMultiplier = 1;
                     StandByColonyShips   = 3;
@@ -216,11 +177,52 @@
                     HullTechMultiplier   = 0.7f;
                     if (!empire.isPlayer)
                     {
-                        FlatMoneyBonus         = 20;
-                        ProductionMod          = 0.75f;
-                        ResearchMod            = 1.33f;
-                        TaxMod                 = 1f;
-                        ShipCostMod            = -0.5f;
+                        FlatMoneyBonus = 20;
+                        ProductionMod  = 0.6f;
+                        ResearchMod    = 1.2f;
+                        TaxMod         = 1f;
+                        ShipCostMod    = -0.4f;
+                        ResearchTaxMultiplier  = 0.5f;
+                        PlayerWarPriorityLimit = 3;
+                    }
+
+                    break;
+                case UniverseData.GameDifficulty.Insane:
+                    ShipBuildStrMin      = 0.9f;
+                    ShipBuildStrMax      = 1f;
+                    ColonyRankModifier   = 2;
+                    TaskForceStrength    = 1.75f;
+                    ShipLevel            = 5;
+                    HideTacticalData     = true;
+                    MaxDesiredPlanets    = 1f;
+                    CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
+                    EnemyTroopStrength   = 1.8f;
+                    MineralDecayDivider  = 40;
+                    PiratePayModifier    = 1.5f;
+                    ExpansionMultiplier  = 0.1f;
+                    MinStartingColonies  = 6;
+                    ExpandSearchTurns    = 20;
+                    RemnantTurnsLevelUp  = 300;
+                    RemnantResourceMod   = 0.7f;
+                    RemnantNumBombers    = 1.5f;
+                    BaseColonyGoals      = 6;
+                    ColonyGoalMultiplier = 1;
+                    StandByColonyShips   = 3;
+                    TrustLostStoleColony = 20;
+                    FleetStrModifier     = 0.5f;
+                    NumSystemsToSniff    = 5;
+                    NumWarTasksPerWar    = 4;
+                    WarTaskPriorityMod   = 2;
+                    RemnantStrModifier   = remnantGeneralStr + 2f;
+                    WarSneakiness        = 40;
+                    HullTechMultiplier   = 0.6f;
+                    if (!empire.isPlayer)
+                    {
+                        FlatMoneyBonus         = 30;
+                        ProductionMod          = 1.2f;
+                        ResearchMod            = 2f;
+                        TaxMod                 = 1.5f;
+                        ShipCostMod            = -0.6f;
                         ResearchTaxMultiplier  = 0.3f;
                         PlayerWarPriorityLimit = 2;
                     }
@@ -240,7 +242,7 @@
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;
 
-                if (GlobalStats.FixedPlayerCreditCharge && difficulty > UniverseData.GameDifficulty.Easy)
+                if (GlobalStats.FixedPlayerCreditCharge && difficulty > UniverseData.GameDifficulty.Normal)
                     CreditsMultiplier = 0.2f;
             }
         }

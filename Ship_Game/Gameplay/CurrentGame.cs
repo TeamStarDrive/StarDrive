@@ -20,7 +20,7 @@
 
         public static void StartNew(UniverseData data, float pace, float starsMod, int extraPlanets, int numEmpires)
         {
-            Difficulty      = data.difficulty;
+            Difficulty      = data.Difficulty;
             GalaxySize      = data.GalaxySize;
             Pace            = pace;
             StarsModifier   = starsMod;

@@ -206,7 +206,7 @@ namespace Ship_Game
             ModeBtn = AddOption("{GameMode} : ",   OnGameModeClicked, label => GetModeText().Text, tip:GetModeTip());
             AddOption("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameText.TheGamesPaceModifiesThe);
             AddOption("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
-                tip:"Hard and Brutal increase AI Aggressiveness and gives them extra bonuses");
+                tip:"Hard and above increase AI Aggressiveness and gives them extra bonuses");
             AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, label => ExtraRemnant.ToString(),
                 tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare.");
 
