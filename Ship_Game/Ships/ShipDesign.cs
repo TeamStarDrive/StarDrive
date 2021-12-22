@@ -81,7 +81,7 @@ namespace Ship_Game.Ships
         // Create a new empty ShipData from a ShipHull
         public ShipDesign(ShipHull hull)
         {
-            Name = hull.HullName;
+            Name = Empire.Universe.Debug  ? hull.HullName : hull.VisibleName;
             Hull = hull.HullName;
             ModName = GlobalStats.ModName;
             ShipStyle = hull.Style;
