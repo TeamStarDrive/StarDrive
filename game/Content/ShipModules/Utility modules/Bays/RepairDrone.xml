@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0"?>
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
+  <PlatformModule>false</PlatformModule> <!-- platorms canot scan for friendlies in the code so this wont work for them -->
+
   <Cost>16</Cost>
   
   <!-- common traits shared by all ship modules -->
