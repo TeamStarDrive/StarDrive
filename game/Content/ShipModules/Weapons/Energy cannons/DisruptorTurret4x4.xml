@@ -20,7 +20,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/DisruptorTurret4x4</IconTexturePath>
-  <Mass>64</Mass>
+  <Mass>80</Mass>
   <Health>11040</Health>
   <HealthMax>11040</HealthMax>
   <energyreq>0</energyreq>

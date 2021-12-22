@@ -4,14 +4,14 @@ VisibleName=Mauler
 Role=cruiser
 Style=Kulrathi
 Size=18,32
-MeshOffset=0,-16
+MeshOffset=0,2
 IconPath=ShipIcons/mauler
 ModelPath=Model/Ships/Kulrathi/ship12a
 Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=0,216,0,120
+Thruster=0,242,0,173
 Slots
 ___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___

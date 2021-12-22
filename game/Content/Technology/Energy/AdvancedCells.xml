@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>AdvancedCell</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
-  <Cost>1200</Cost>
+  <Cost>800</Cost>
   <RootNode>0</RootNode>
   <Name>Super cell</Name>
   <NameIndex>17689</NameIndex>

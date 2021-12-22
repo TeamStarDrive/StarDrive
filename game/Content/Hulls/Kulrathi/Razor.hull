@@ -1,9 +1,9 @@
 ﻿Version=1
 HullName=Kulrathi/Razor
-VisibleName=Kulrathi Razor
+VisibleName=Razor
 Role=corvette
 Style=Kulrathi
-Size=10,7
+Size=10,6
 MeshOffset=0,8
 IconPath=ShipIcons/razor
 ModelPath=Model/Ships/Kulrathi/ship11b
@@ -11,12 +11,11 @@ Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=1,21,0,36
+Thruster=0,35,0,54
 Slots
-___|___|___|IO |___|___|IO |___|___|___
-___|___|___|IO |___|___|IO |___|___|___
+___|___|___|O  |___|___|O  |___|___|___
 ___|___|___|IO |IO |IO |IO |___|___|___
-___|___|IO |IO |I  |I  |IO |IO |___|___
-___|IO |IO |IO |I  |IC |IO |IO |IO |___
-IO |IO |E  |___|E  |E  |___|E  |IO |IO 
-IO |IO |___|___|___|___|___|___|IO |IO 
+___|___|O  |IO |I  |I  |IO |O  |___|___
+___|O  |IO |IO |I  |IC |IO |IO |O  |___
+O  |IO |IO |IO |E  |E  |IO |IO |IO |O  
+IO |IO |IO |___|E  |E  |___|IO |IO |IO 
