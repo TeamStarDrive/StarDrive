@@ -80,7 +80,7 @@ namespace Ship_Game
                 sandbox.CreateEmpire(data, isPlayer: false);
             }
 
-            Empire.InitializeRelationships(EmpireManager.Empires, UniverseData.GameDifficulty.Normal);
+            Empire.InitializeRelationships(EmpireManager.Empires, UniverseData.GameDifficulty.Hard);
 
             foreach (SolarSystem system in sandbox.SolarSystemsList)
             {

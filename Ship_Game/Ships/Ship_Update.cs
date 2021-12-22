@@ -180,7 +180,7 @@ namespace Ship_Game.Ships
                         else if (p.Owner == null)
                         {
                             loyalty.GetEmpireAI().SendExplorationFleet(p);
-                            if (CurrentGame.Difficulty > UniverseData.GameDifficulty.Normal 
+                            if (CurrentGame.Difficulty > UniverseData.GameDifficulty.Hard 
                                 && PlanetRanker.IsGoodValueForUs(p, loyalty)
                                 && p.ParentSystem.GetKnownStrengthHostileTo(loyalty).AlmostZero())
                             {

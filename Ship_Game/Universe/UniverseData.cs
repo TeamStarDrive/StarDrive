@@ -13,7 +13,7 @@ namespace Ship_Game
 
         public Vector2 Size = new Vector2(500000f);
 
-        public GameDifficulty difficulty = GameDifficulty.Normal;
+        public GameDifficulty Difficulty = GameDifficulty.Normal;
         public GalSize GalaxySize        = GalSize.Medium;
 
         public float FTLSpeedModifier = 1f;
@@ -32,10 +32,10 @@ namespace Ship_Game
 
         public enum GameDifficulty
         {
-            Easy,
             Normal,
             Hard,
-            Brutal
+            Brutal,
+            Insane
         }
 
         public Empire CreateEmpire(IEmpireData readOnlyData, bool isPlayer)

@@ -134,7 +134,7 @@ namespace Ship_Game.GameScreens.LoadGame
             var data = new UniverseData
             {
                 FogMapBase64          = saveData.FogMapBase64,
-                difficulty            = saveData.gameDifficulty,
+                Difficulty            = saveData.gameDifficulty,
                 GalaxySize            = saveData.GalaxySize,
                 Size                  = saveData.Size,
                 FTLSpeedModifier      = saveData.FTLModifier,

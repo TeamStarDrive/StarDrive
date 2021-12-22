@@ -50,11 +50,11 @@ namespace Ship_Game
                 EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,
                 GravityWells          = GlobalStats.PlanetaryGravityWells,
                 FTLinNeutralSystem    = GlobalStats.WarpInSystem,
-                difficulty            = difficulty,
+                Difficulty            = difficulty,
                 GalaxySize            = universeSize
             };
 
-            GlobalStats.DisableInhibitionWarning = Data.difficulty > UniverseData.GameDifficulty.Normal;
+            GlobalStats.DisableInhibitionWarning = Data.Difficulty > UniverseData.GameDifficulty.Hard;
             CurrentGame.StartNew(Data, pace, starNumModifier, GlobalStats.ExtraPlanets, NumOpponents + 1); // +1 is the player empire
             Player          = player;
             player.isPlayer = true;
