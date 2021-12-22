@@ -5777,8 +5777,8 @@ DisableInhibitionAlerts:
  RUS: "Отк. предупр. о запрете"
 InhibitionAlertsAreDisplayedWhen:
  Id: 1843
- ENG: "Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default when starting a game on Hard or Brutal."
- RUS: "Предупреждения о запрете варп-прыжка отображаются, когда выбран один корабль, и он заблокирован.Это предназначено для начинающих игроков и по умолчанию будет отключено при запуске игры на тяжелой или брутальной сложности."
+ ENG: "Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default when starting a game on Hard and above."
+ RUS: "Предупреждения о запрете отображаются, когда выбран один корабль, и он заблокирован. Обычно он предназначен для начинающих игроков и по умолчанию будет отключен при запуске игры на уровне сложности и выше."
 DisableRemnantStory:
  Id: 1844
  ENG: "Disable Remnant Story"
