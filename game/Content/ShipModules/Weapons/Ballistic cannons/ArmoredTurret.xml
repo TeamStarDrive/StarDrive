@@ -15,7 +15,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/ArmoredTurret</IconTexturePath>
-  <Mass>500</Mass>
+  <Mass>700</Mass>
   <Health>8000</Health>
   <HealthMax>8000</HealthMax>
   <energyreq>0</energyreq>

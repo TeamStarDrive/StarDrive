@@ -15,7 +15,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/AdvancedFlak</IconTexturePath>
-  <Mass>16</Mass>
+  <Mass>24</Mass>
   <Health>2750</Health>
   <HealthMax>2750</HealthMax>
   <energyreq>0</energyreq>

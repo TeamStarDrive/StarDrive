@@ -15,7 +15,7 @@
   <UID>TroopAssaultBay</UID> 
   <Version>2</Version>
 
-  <Restrictions>O</Restrictions>
+  <Restrictions>IO</Restrictions>
   <Name>Assault Shuttle Bay</Name>
   <IconTexturePath>Modules/AssaultShuttleBay</IconTexturePath>
   <Mass>32</Mass>

@@ -24,7 +24,7 @@
   <RepairDifficulty>4.5</RepairDifficulty>
 
 
-  <Mass>64</Mass>
+  <Mass>80</Mass>
   <Health>14000</Health>
   <HealthMax>14000</HealthMax>
   <energyreq>0</energyreq>

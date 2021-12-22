@@ -1,6 +1,6 @@
 ﻿Version=1
 HullName=Kulrathi/Talon
-VisibleName=Kulrathi Talon
+VisibleName=Talon
 Role=frigate
 Style=Kulrathi
 Size=18,15
@@ -12,8 +12,8 @@ IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
 Thruster=-2,84,0,65
-Thruster=62,88,0,25
-Thruster=-59,97,0,25
+Thruster=60,81,0,25
+Thruster=-60,81,0,25
 Slots
 ___|___|___|___|___|___|___|___|IO |IO |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___

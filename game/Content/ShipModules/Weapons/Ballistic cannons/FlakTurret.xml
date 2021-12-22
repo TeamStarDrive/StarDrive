@@ -13,7 +13,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/FlakTurret</IconTexturePath>
-  <Mass>16</Mass>
+  <Mass>24</Mass>
   <Health>2400</Health>
   <HealthMax>2400</HealthMax>
   <energyreq>0</energyreq>
