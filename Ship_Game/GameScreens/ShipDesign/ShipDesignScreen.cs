@@ -296,7 +296,7 @@ namespace Ship_Game
             ModuleGrid = new DesignModuleGrid(this, cloned);
             CurrentDesign = cloned;
             CurrentHull   = cloned.BaseHull;
-            CurrentDesign.Name = CurrentHull.VisibleName;
+            CurrentDesign.Name = shipDesignTemplate.Name;
             DesignedShip = new DesignShip(cloned);
 
             InstallModulesFromDesign(cloned);
