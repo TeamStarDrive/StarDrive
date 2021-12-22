@@ -16,7 +16,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/PhotonTurret_2x2</IconTexturePath>
-  <Mass>16</Mass>
+  <Mass>20</Mass>
   <Health>3120</Health>
   <HealthMax>3120</HealthMax>
   <energyreq>0</energyreq>

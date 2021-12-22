@@ -12,7 +12,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/PolaronTurret2x2</IconTexturePath>
-  <Mass>16</Mass>
+  <Mass>20</Mass>
   <Health>3480</Health>
   <HealthMax>3480</HealthMax>
   <energyreq>0</energyreq>
