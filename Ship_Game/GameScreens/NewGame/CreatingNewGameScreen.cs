@@ -496,7 +496,7 @@ namespace Ship_Game
 
         void GenerateBigClusters()
         {
-            // Divides the galaxy to several sectors and populates each sector with starts
+            // Divides the galaxy to several sectors and populates each sector with stars
             (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
             Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.25f);
             GenerateClustersStartingSystems(sectors);
