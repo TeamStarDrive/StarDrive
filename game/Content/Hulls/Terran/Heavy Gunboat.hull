@@ -1,0 +1,35 @@
+﻿Version=1
+HullName=Terran/Heavy Gunboat
+VisibleName=Heavy Gunboat
+Role=frigate
+Style=Terran
+Size=6,18
+MeshOffset=0,0
+IconPath=ShipIcons/10b
+ModelPath=Model/Ships/Terran/HeavyGunboat/ship10b
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=24,127,-25,52
+Thruster=-22,126,-25,55
+Thruster=0,132,-25,55
+Slots
+___|___|O  |O  |___|___
+___|O  |IO |IO |O  |___
+O  |IO |IO |IO |IO |O  
+O  |IO |I  |I  |IO |O  
+O  |IO |I  |I  |IO |O  
+___|IO |I  |I  |IO |___
+O  |IO |I  |I  |IO |O  
+O  |IO |I  |I  |IO |O  
+O  |IO |I  |I  |IO |O  
+O  |IO |I  |IC |IO |O  
+___|IO |I  |I  |IO |___
+___|IO |I  |I  |IO |___
+O  |IO |I  |I  |IO |O  
+O  |IO |I  |I  |IO |O  
+O  |I  |I  |I  |I  |O  
+O  |I  |I  |I  |I  |O  
+E  |E  |E  |E  |E  |E  
+___|E  |I  |E  |E  |___

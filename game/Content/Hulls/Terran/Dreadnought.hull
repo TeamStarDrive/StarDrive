@@ -11,9 +11,9 @@ Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=91,439,-15,134
-Thruster=-106,439,-15,134
-Thruster=2,479,-10,215
+Thruster=84,397,-15,240
+Thruster=-86,401,-15,237
+Thruster=0,406,-10,411
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |IO |___|___|IO |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|O  |O  |IO |IO |IO |IO |O  |O  |___|___|___|___|___|___|___|___|___|___|___|___|___|___|___|___
@@ -73,7 +73,7 @@ O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |
 O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |IO |IO |O  
 O  |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |O  
 ___|IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |___
-___|___|___|___|IO |IO |IO |IO |IO |IO |___|___|IO |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |IO |___|___|IO |IO |IO |IO |IO |IO |___|___|___|___
+___|___|___|___|IO |IO |IO |IO |IO |IO |___|___|IO |E  |E  |E  |E  |E  |E  |O  |IO |E  |E  |E  |E  |E  |E  |IO |___|___|IO |IO |IO |IO |IO |IO |___|___|___|___
 ___|___|___|___|___|O  |O  |O  |O  |O  |___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|O  |O  |O  |O  |O  |___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|___|___|___|IO |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |IO |___|___|___|___|___|___|___|___|___|___|___|___|___
