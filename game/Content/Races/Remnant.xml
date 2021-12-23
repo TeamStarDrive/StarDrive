@@ -7,6 +7,7 @@
   <BaseShipLevel>3</BaseShipLevel>
 
   <IsRemnantFaction>true</IsRemnantFaction>
+  <StartingShip>Xeno Fighter</StartingShip>
   <RemnantFighter>Xeno Fighter</RemnantFighter>
   <RemnantCorvette>Heavy Drone</RemnantCorvette>
   <RemnantSupportSmall>Support Drone</RemnantSupportSmall>

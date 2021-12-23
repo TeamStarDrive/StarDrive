@@ -7,6 +7,7 @@
   <PortraitName>Imperium</PortraitName>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
   
+  <StartingShip>Corsair-Fighter</StartingShip>
   <PirateSlaverBasic>Corsair-Slaver</PirateSlaverBasic>
   <PirateSlaverImproved>Corsair-Slaver-Mk2</PirateSlaverImproved>
   <PirateSlaverAdvanced>Corsair-Slaver-Mk3</PirateSlaverAdvanced>

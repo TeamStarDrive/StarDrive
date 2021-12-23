@@ -7,6 +7,7 @@
   <PortraitName>Imperium</PortraitName>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
   
+  <StartingShip>Draug-Fighter</StartingShip>
   <PirateSlaverBasic>Draug-Slaver</PirateSlaverBasic>
   <PirateSlaverImproved>Draug-Slaver-Mk2</PirateSlaverImproved>
   <PirateSlaverAdvanced>Draug-Slaver-Mk3</PirateSlaverAdvanced>

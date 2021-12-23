@@ -1,5 +1,5 @@
 ﻿Version=1
-HullName=Light Carrier
+HullName=Terran/Light Carrier
 VisibleName=Light Carrier
 Role=cruiser
 Style=Terran
@@ -11,8 +11,10 @@ Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=40,248,0,110
-Thruster=-40,248,0,110
+Thruster=57,261,0,59
+Thruster=-57,260,0,64
+Thruster=-19,275,0,64
+Thruster=18,276,0,64
 Slots
 ___|___|___|___|___|___|___|___|O  |___|___|O  |___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___
@@ -48,5 +50,5 @@ O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |O
 O  |O  |IO |IO |IO |IO |E  |E  |E  |E  |E  |E  |E  |E  |IO |IO |IO |IO |O  |O  
 ___|O  |O  |O  |O  |O  |E  |E  |E  |E  |E  |E  |E  |E  |O  |O  |O  |O  |O  |___
 ___|___|___|___|___|O  |E  |E  |E  |E  |E  |E  |E  |E  |O  |___|___|___|___|___
-___|___|___|___|___|O  |O  |E  |E  |E  |E  |E  |E  |O  |O  |___|___|___|___|___
+___|___|___|___|___|O  |O  |E  |E  |xO |E  |E  |E  |O  |O  |___|___|___|___|___
 ___|___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |___|___|___|___|___|___|___
