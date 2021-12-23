@@ -47,7 +47,7 @@
   
   
   <!-- for Engines -->
-  <thrust>352000</thrust>
+  <thrust>345000</thrust>
   <!-- amount of thrust used to calculate the engine's turn speed bonus or penalty. Set to same as thrust for default -->
   <TurnThrust>136400</TurnThrust>
   <WarpThrust>10000</WarpThrust>
