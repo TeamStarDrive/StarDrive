@@ -198,10 +198,11 @@ namespace Ship_Game
             {
                 foreach (string troopName in TroopsGranted)
                 {
-                    Troop t = ResourceManager.CreateTroop(troopName, triggeredBy);
-                    t.SetOwner(triggeredBy);
-                    if (!t.TryLandTroop(p, eventLocation))
+                    if (ResourceManager.TryCreateTroop(troopName, triggeredBy, out Troop t) &&
+                        !t.TryLandTroop(p, eventLocation))
+                    {
                         t.Launch(p);
+                    }
                 }
             }
 
@@ -215,8 +216,9 @@ namespace Ship_Game
                         return;
                     }
 
-                    Troop t = ResourceManager.CreateTroop(troopName, EmpireManager.Unknown);
-                    t.SetOwner(EmpireManager.Unknown);
+                    if (!ResourceManager.TryCreateTroop(troopName, EmpireManager.Unknown, out Troop t))
+                        continue;
+
                     if (!t.TryLandTroop(p, eventLocation))
                     {
                         t.SetOwner(EmpireManager.Remnants);

@@ -190,12 +190,13 @@ namespace Ship_Game.Universe.SolarBodies
             bool shouldLandTroop = Loyalty == owner || rel?.AtWar == true || Loyalty.isFaction;
             for (int i = 1; i <= NumTroopsSurvived; i++)
             {
-                Troop t = ResourceManager.CreateTroop(TroopName, Loyalty);
-                t.SetOwner(Loyalty);
-                if (!shouldLandTroop || !t.TryLandTroop(p, tile))
+                if (ResourceManager.TryCreateTroop(TroopName, Loyalty, out Troop t))
                 {
-                    Ship ship = t.Launch(p);
-                    ship.AI.OrderRebaseToNearest();
+                    if (!shouldLandTroop || !t.TryLandTroop(p, tile))
+                    {
+                        Ship ship = t.Launch(p);
+                        ship.AI.OrderRebaseToNearest();
+                    }
                 }
             }
 
