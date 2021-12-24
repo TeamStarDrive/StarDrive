@@ -2,10 +2,10 @@
   <Name>Remnant Extermination</Name>
   <TriggerWhenOnlyRemnantsLeft>true</TriggerWhenOnlyRemnantsLeft>
   <Story>AncientExterminators</Story>
-  <Image>Encounters/2.png</Image>
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>
+      <Image>Encounters/2.png</Image>	  
       <TitleText>Remnant Extermination</TitleText>
       <DescriptionText>We already know that the Remnants are set upon destroying any sentient life in the galaxy. They have almost succeeded in this sector, we are the only race left and they will surely come for us. We have detected massive Remnant portal activity and suspects they have major fleets coming our way. We pray you will succeed in defending and destroying their portals. Good Luck and Godspeed!</DescriptionText>
     </Outcome>
