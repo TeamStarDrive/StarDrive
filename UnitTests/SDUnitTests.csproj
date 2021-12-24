@@ -149,7 +149,7 @@
     <Compile Include="LinearAlgebra\TestVectorMath.cs" />
     <Compile Include="TestImpactPredictor.cs" />
     <Compile Include="Serialization\YamlDeserializerTests.cs" />
-    <Compile Include="Serialization\TestBinarySerializer.cs" />
+    <Compile Include="Serialization\BinarySerializerTests.cs" />
     <Compile Include="UI\MockGameScreen.cs" />
     <Compile Include="UI\MockInputProvider.cs" />
     <Compile Include="UI\TestScrollList.cs" />

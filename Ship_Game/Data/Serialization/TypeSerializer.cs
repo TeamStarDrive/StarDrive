@@ -22,10 +22,14 @@ namespace Ship_Game.Data.Serialization
 
             public int TabSize = 2; // default tab size for Depth increase
         }
-        
+
+        public const int MaxFundamentalTypes = 32;
+
         // Id which is valid in a single serialization context
         internal ushort Id;
         internal Type Type;
+
+        public bool IsFundamentalType => (Id <= MaxFundamentalTypes);
 
         /// <summary>
         /// If TRUE, this serializer is a collection serializer for Arrays or Maps

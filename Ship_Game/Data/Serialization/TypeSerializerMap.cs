@@ -14,39 +14,53 @@ namespace Ship_Game.Data.Serialization
 {
     public abstract class TypeSerializerMap
     {
-        ushort NextId;
+        ushort NextId = TypeSerializer.MaxFundamentalTypes + 1;
         readonly Map<Type, TypeSerializer> Serializers = new Map<Type, TypeSerializer>();
         readonly Array<TypeSerializer> Index = new Array<TypeSerializer>();
         public IReadOnlyList<TypeSerializer> TypesList => Index;
 
         protected TypeSerializerMap()
         {
-            Add(typeof(bool),   new BoolSerializer()  );
-            Add(typeof(byte),   new ByteSerializer()  );
-            Add(typeof(short),  new ShortSerializer() );
-            Add(typeof(ushort), new UShortSerializer());
-            Add(typeof(int),    new IntSerializer()   );
-            Add(typeof(uint),   new UIntSerializer()  );
-            Add(typeof(long),   new LongSerializer()  );
-            Add(typeof(ulong),  new ULongSerializer() );
-            Add(typeof(float),  new FloatSerializer() );
-            Add(typeof(double),  new DoubleSerializer() );
-            Add(typeof(Vector2), new Vector2Serializer());
-            Add(typeof(Vector3), new Vector3Serializer());
-            Add(typeof(Vector4), new Vector4Serializer());
-            Add(typeof(Color),   new ColorSerializer()  );
-            Add(typeof(string),  new StringSerializer() );
-            Add(typeof(LocalizedText), new LocalizedTextSerializer());
-            Add(typeof(Range), new RangeSerializer());
-            Add(typeof(TimeSpan), new TimeSpanSerializer());
+            AddFundamental(1, typeof(bool),   new BoolSerializer()  );
+            AddFundamental(2, typeof(byte),   new ByteSerializer()  );
+            AddFundamental(3, typeof(short),  new ShortSerializer() );
+            AddFundamental(4, typeof(ushort), new UShortSerializer());
+            AddFundamental(5, typeof(int),    new IntSerializer()   );
+            AddFundamental(6, typeof(uint),   new UIntSerializer()  );
+            AddFundamental(7, typeof(long),   new LongSerializer()  );
+            AddFundamental(8, typeof(ulong),  new ULongSerializer() );
+            AddFundamental(9, typeof(float),  new FloatSerializer() );
+            AddFundamental(10, typeof(double),  new DoubleSerializer() );
+            AddFundamental(11, typeof(Vector2), new Vector2Serializer());
+            AddFundamental(12, typeof(Vector3), new Vector3Serializer());
+            AddFundamental(13, typeof(Vector4), new Vector4Serializer());
+            AddFundamental(14, typeof(Color),   new ColorSerializer()  );
+            AddFundamental(15, typeof(string),  new StringSerializer() );
+            AddFundamental(16, typeof(LocalizedText), new LocalizedTextSerializer());
+            AddFundamental(17, typeof(Range), new RangeSerializer());
+            AddFundamental(18, typeof(TimeSpan), new TimeSpanSerializer());
         }
 
         protected abstract TypeSerializer AddUserTypeSerializer(Type type); 
 
+        void AddFundamental(int id, Type type, TypeSerializer ser)
+        {
+            if (id >= TypeSerializer.MaxFundamentalTypes)
+                throw new IndexOutOfRangeException("Max limit of fundamental types reached");
+
+            ser.Id = (ushort)id;
+            ser.Type = type;
+            Serializers[type] = ser;
+            Index.Add(ser);
+        }
+
         protected TypeSerializer Add(Type type, TypeSerializer ser)
         {
-            ser.Id   = ++NextId;
+            ser.Id = NextId++;
             ser.Type = type;
+            if (ser.Id == (ushort.MaxValue-1))
+                throw new IndexOutOfRangeException($"serializer.Id overflow -- too many types: {ser.Id}");
+
             Serializers[type] = ser;
             Index.Add(ser);
             return ser;

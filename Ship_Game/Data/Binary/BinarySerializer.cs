@@ -66,13 +66,20 @@ namespace Ship_Game.Data.Binary
 
         void WriteTypesList(BinaryWriter writer)
         {
-            writer.Write(TypeMap.TypesList.Count);
-            foreach (TypeSerializer serializer in TypeMap.TypesList)
+            TypeSerializer[] types = TypeMap.TypesList.Filter(ser => !ser.IsFundamentalType);
+            if (types.Length == 0)
+                return; // special case, no custom user types at all
+
+            writer.Write(0xcafebabe); // marker that types list is present
+            writer.Write(types.Length);
+            foreach (TypeSerializer serializer in types)
             {
                 string typeName = serializer.Type.FullName;
                 string assemblyName = serializer.Type.Assembly.GetName().Name;
                 //Type type = Type.GetType($"{typeName},{assemblyName}", throwOnError: true);
                 writer.Write(serializer.Id);
+                // by outputting the full type name and assembly name, we will be able
+                // to always locate the type, unless its assembly is changed
                 writer.Write(typeName + "," + assemblyName);
             }
         }
@@ -134,7 +141,13 @@ namespace Ship_Game.Data.Binary
                 SerializeObject(writer, refType.Serializer, refType.Instance);
             }
         }
-        
+
+        void RestoreMappingFromData()
+        {
+
+        }
+
+
         public override object Deserialize(BinaryReader reader)
         {
             if (Mapping == null)
