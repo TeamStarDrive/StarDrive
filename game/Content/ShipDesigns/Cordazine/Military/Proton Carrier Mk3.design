@@ -1,0 +1,56 @@
+﻿Version=1
+Name=Proton Carrier Mk3
+Hull=Cordrazine/Metving
+Role=carrier
+Style=Cordrazine
+Size=12,14
+GridCenter=6,7
+DefaultAIState=DoNothing
+DefaultCombatState=Artillery
+ShipCategory=Conservative
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=PlaSteelArmorSmall;PhotonTurret;Fighter Shield;FighterBay;PowerConduit;OrdnanceLockerSmall;Fusion Reactor;BosonTransmiter;Bridge;FrigateEngine;FuelCellSmallArmored;WarpEngine_2x2;FuelCellMediumArmored
+Modules=38
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+5,0;0
+6,0;0
+4,1;0
+5,1;1;2,2
+7,1;0
+3,2;0
+4,2;2
+7,2;2
+8,2;0
+2,3;3;3,4;;;DynamicLaunch
+5,3;4
+6,3;5
+7,3;3;3,4;;;DynamicLaunch
+1,4;0
+5,4;6;2,2
+10,4;0
+0,5;0
+1,5;2
+10,5;2
+11,5;0
+0,6;5
+1,6;7
+5,6;8;2,2
+10,6;7
+11,6;5
+3,7;1;2,2;210
+7,7;1;2,2;150
+5,8;9;2,2
+2,9;10
+3,9;5
+4,9;7
+7,9;7
+8,9;5
+9,9;10
+4,10;2
+5,10;11;2,2
+7,10;2
+5,12;12;2,2
