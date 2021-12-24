@@ -291,6 +291,8 @@ namespace Ship_Game
             if (target == Parent)
             {
                 SetLocalPos((target.Size * 0.5f).Rounded());
+                LocalAxis = Align.Center;
+                UpdatePosAndSize();
             }
             else
             {
@@ -310,6 +312,7 @@ namespace Ship_Game
             if (target == Parent)
             {
                 SetLocalPos(LocalPos.X, target.Size.Y - distance - Height);
+                UpdatePosAndSize();
             }
             else
             {
