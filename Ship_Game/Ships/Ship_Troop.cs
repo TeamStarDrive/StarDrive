@@ -221,8 +221,10 @@ namespace Ship_Game.Ships
                     // logic here is that tanks needs hangarbays and barracks, and infantry just needs barracks.
                 }
 
-                Troop newTroop = ResourceManager.CreateTroop(type, loyalty);
-                newTroop.LandOnShip(this);
+                if (ResourceManager.TryCreateTroop(type, loyalty, out Troop newTroop))
+                {
+                    newTroop.LandOnShip(this);
+                }
             }
         }
 

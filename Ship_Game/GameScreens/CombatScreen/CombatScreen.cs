@@ -568,9 +568,11 @@ namespace Ship_Game
                     Log.Warning("Remnant faction missing!");
                 else
                 {
-                    Troop troop = ResourceManager.CreateTroop("Wyvern", spawnFor);
-                    if (!troop.TryLandTroop(P))
+                    if (!ResourceManager.TryCreateTroop("Wyvern", spawnFor, out Troop troop) ||
+                        !troop.TryLandTroop(P))
+                    {
                         return false; // eek-eek
+                    }
                 }
             }
 

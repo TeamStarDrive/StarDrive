@@ -218,12 +218,12 @@ namespace Ship_Game
         {
             foreach (string troopType in ResourceManager.TroopTypes)
             {
-                if (!rebelEmpire.WeCanBuildTroop(troopType))
-                    continue;
-
-                Troop troop = ResourceManager.CreateTroop(troopType, rebelEmpire);
-                troop.Description = rebelEmpire.data.TroopDescription.Text;
-                return troop;
+                if (rebelEmpire.WeCanBuildTroop(troopType) &&
+                    ResourceManager.TryCreateTroop(troopType, rebelEmpire, out Troop troop))
+                {
+                    troop.Description = rebelEmpire.data.TroopDescription.Text;
+                    return troop;
+                }
             }
             return null;
         }
