@@ -555,12 +555,13 @@ namespace Ship_Game
                 {
                     if (!victim.WeCanBuildTroop(troopType))
                         continue;
-
-                    Troop t = ResourceManager.CreateTroop(troopType, rebels);
+                    if (!ResourceManager.TryCreateTroop(troopType, rebels, out Troop t))
+                        continue;
                     t.Name        = rebels.data.TroopName.Text;
                     t.Description = rebels.data.TroopDescription.Text;
-                    if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 && !targetPlanet.BumpOutTroop(EmpireManager.Corsairs)
-                                                            && !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
+                    if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 &&
+                        !targetPlanet.BumpOutTroop(EmpireManager.Corsairs) &&
+                        !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
                     {
                         t.Launch(targetPlanet); // launch the rebels
                     }

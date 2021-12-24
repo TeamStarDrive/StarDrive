@@ -602,7 +602,20 @@ namespace Ship_Game
 
         public static Troop CreateTroop(string troopType, Empire forOwner)
         {
-            Troop troop = TroopsDict[troopType].Clone();
+            TryCreateTroop(troopType, forOwner, out Troop troop);
+            return troop;
+        }
+
+        public static bool TryCreateTroop(string troopType, Empire forOwner, out Troop troop)
+        {
+            if (!GetTroopTemplate(troopType, out Troop template))
+            {
+                Log.WarningWithCallStack($"Troop {troopType} Template Not found");
+                troop = null;
+                return false;
+            }
+
+            troop = template.Clone();
             if (troop.StrengthMax <= 0)
                 troop.StrengthMax = troop.Strength;
 
@@ -614,7 +627,7 @@ namespace Ship_Game
                 troop.HealTroop(troop.ActualStrengthMax);
                 troop.Level = forOwner.data.MinimumTroopLevel;
             }
-            return troop;
+            return troop != null;
         }
 
         static void LoadTroops()
