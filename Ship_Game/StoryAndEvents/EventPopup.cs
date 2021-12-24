@@ -50,7 +50,7 @@ namespace Ship_Game
                 Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, TitleText);
             }
 
-            const string defaultImage = "Textures/Encounters/CrashedShip.png";
+            const string defaultImage = "Textures/Encounters/1.png";
             string image = Outcome.Image.NotEmpty() ? "Textures/" + Outcome.Image : defaultImage;
             Image = TransientContent.LoadSubTexture(image);
             if (Image == null)
