@@ -1215,8 +1215,7 @@ namespace Ship_Game
             LoadProjectileMesh(projectileDir, "torpedo");
             LoadProjectileMesh(projectileDir, "missile");
             LoadProjectileMesh(projectileDir, "spacemine");
-            if (GlobalStats.HasMod)
-                LoadCustomProjectileMeshes($"{projectileDir}custom");
+            LoadCustomProjectileMeshes($"{projectileDir}custom");
         }
 
         static void LoadCustomProjectileMeshes(string modelFolder)
