@@ -353,7 +353,7 @@ namespace Ship_Game.Ships
                 if (loyalty.WeAreRemnants)
                     return 20 + BonusEMP_Protection / 20;
 
-                return InCombat ? 1 + BonusEMP_Protection / 1000 : 20 + BonusEMP_Protection / 20;
+                return OnHighAlert ? 1 + BonusEMP_Protection / 1000 : 20 + BonusEMP_Protection / 20;
             }
         }
 
