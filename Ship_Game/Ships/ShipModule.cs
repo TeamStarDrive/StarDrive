@@ -840,7 +840,7 @@ namespace Ship_Game.Ships
                     if (beam != null)
                     {
                         CauseSiphonDamage(beam);
-                        BeamMassDamage(beam, hittingShields: true);
+                        BeamTractorDamage(beam, hittingShields: true);
                     }
 
                     if (Parent.IsVisibleToPlayer)
@@ -894,50 +894,40 @@ namespace Ship_Game.Ships
 
         void CauseEmpDamage(Projectile proj)
         {
-            if (proj.Weapon.EMPDamage <= 0f)
-                return;
-
-            Parent.CauseEmpDamage(proj.Weapon.EMPDamage);
+            if (proj.Weapon.EMPDamage > 0f)
+                Parent.CauseEmpDamage(proj.Weapon.EMPDamage);
         }
 
         void CauseSpecialBeamDamage(Beam beam, bool hittingShields = false)
         {
             BeamPowerDamage(beam);
             BeamTroopDamage(beam);
-            BeamMassDamage(beam, hittingShields);
+            BeamTractorDamage(beam, hittingShields);
             BeamRepulsionDamage(beam);
         }
 
         void BeamPowerDamage(Beam beam)
         {
-            if (beam.Weapon.PowerDamage <= 0)
-                return;
-
-            Parent.CausePowerDamage(beam.Weapon.PowerDamage);
+            if (beam.Weapon.PowerDamage > 0)
+                Parent.CausePowerDamage(beam.Weapon.PowerDamage);
         }
 
         void BeamTroopDamage(Beam beam)
         {
-            if (beam.Weapon.TroopDamageChance <= 0f)
-                return;
-
-            Parent.CauseTroopDamage(beam.Weapon.TroopDamageChance);
+            if (beam.Weapon.TroopDamageChance > 0f)
+                Parent.CauseTroopDamage(beam.Weapon.TroopDamageChance);
         }
 
-        void BeamMassDamage(Beam beam, bool hittingShields)
+        void BeamTractorDamage(Beam beam, bool hittingShields)
         {
-            if (beam.Weapon.MassDamage <= 0f)
-                return;
-
-            Parent.CauseMassDamage(beam.Weapon.MassDamage, hittingShields);
+            if (beam.Weapon.TractorDamage > 0f)
+                Parent.CauseTractorDamage(beam.Weapon.TractorDamage, hittingShields);
         }
 
         void BeamRepulsionDamage(Beam beam)
         {
-            if (beam.Weapon.RepulsionDamage < 1)
-                return;
-
-            Parent.CauseRepulsionDamage(beam);
+            if (beam.Weapon.RepulsionDamage > 0)
+                Parent.CauseRepulsionDamage(beam);
         }
 
         void DebugPerseveranceNoDamage()
