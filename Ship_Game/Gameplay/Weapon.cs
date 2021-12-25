@@ -85,7 +85,7 @@ namespace Ship_Game.Gameplay
         public float EffectVSShields = 1f;
         public bool TruePD;
         public float TroopDamageChance;
-        public float MassDamage;
+        public float TractorDamage;
         public float BombPopulationKillPerHit;
         public int BombTroopDamage_Min;
         public int BombTroopDamage_Max;
@@ -961,7 +961,7 @@ namespace Ship_Game.Gameplay
             if (isBeam)
             {
                 off += DamageAmount * 60 * BeamDuration * (1f / NetFireDelay);
-                off += MassDamage * 30 * (1f / NetFireDelay);
+                off += TractorDamage * 30 * (1f / NetFireDelay);
                 off += PowerDamage * 45 * (1f / NetFireDelay);
                 off += RepulsionDamage * 45 * (1f / NetFireDelay);
                 off += SiphonDamage * 45 * (1f / NetFireDelay);
