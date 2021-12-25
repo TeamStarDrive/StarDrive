@@ -477,13 +477,13 @@ namespace Ship_Game.Ships
             ApplyForce(repulsion);
         }
 
-        public void CauseMassDamage(float massDamage, bool hittingShields)
+        public void CauseTractorDamage(float tractorDamage, bool hittingShields)
         {
             if (IsTethered)
                 return;
 
             BeingTractored = true;
-            TractorDamage += hittingShields ? massDamage/5 : massDamage;
+            TractorDamage += hittingShields ? tractorDamage/5 : tractorDamage;
             if (TractorDamage > Mass)
             {
                 AllStop();
@@ -837,11 +837,12 @@ namespace Ship_Game.Ships
 
             if (target is Ship targetShip)
             {
-                if (w.MassDamage > 0 || w.RepulsionDamage > 0)
-                {
-                    if (targetShip.EnginesKnockedOut || targetShip.IsTethered)
-                        return false;
-                }
+                if (w.TractorDamage > 0 && targetShip.IsTethered)
+                    return false;
+
+                if (w.RepulsionDamage > 0 && (targetShip.IsTethered  || targetShip.EnginesKnockedOut))
+                    return false;
+
                 if (!AI.IsTargetValid(targetShip))
                     return false;
             }

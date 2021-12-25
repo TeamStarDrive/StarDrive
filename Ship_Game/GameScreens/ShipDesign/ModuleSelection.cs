@@ -585,7 +585,7 @@ namespace Ship_Game
             float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
             DrawStat(ref cursor, "Siphon", siphon, GameText.IndicatesTheAmountOfShields);
 
-            float tractor = w.MassDamage + w.MassDamage * beamMultiplier;
+            float tractor = w.TractorDamage + w.TractorDamage * beamMultiplier;
             DrawStat(ref cursor, "Tractor", tractor, GameText.IndicatesTheAmountOfDrag);
 
             float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;

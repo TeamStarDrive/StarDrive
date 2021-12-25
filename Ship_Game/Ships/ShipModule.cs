@@ -840,7 +840,7 @@ namespace Ship_Game.Ships
                     if (beam != null)
                     {
                         CauseSiphonDamage(beam);
-                        BeamMassDamage(beam, hittingShields: true);
+                        BeamTractorDamage(beam, hittingShields: true);
                     }
 
                     if (Parent.IsVisibleToPlayer)
@@ -902,7 +902,7 @@ namespace Ship_Game.Ships
         {
             BeamPowerDamage(beam);
             BeamTroopDamage(beam);
-            BeamMassDamage(beam, hittingShields);
+            BeamTractorDamage(beam, hittingShields);
             BeamRepulsionDamage(beam);
         }
 
@@ -918,10 +918,10 @@ namespace Ship_Game.Ships
                 Parent.CauseTroopDamage(beam.Weapon.TroopDamageChance);
         }
 
-        void BeamMassDamage(Beam beam, bool hittingShields)
+        void BeamTractorDamage(Beam beam, bool hittingShields)
         {
-            if (beam.Weapon.MassDamage > 0f)
-                Parent.CauseMassDamage(beam.Weapon.MassDamage, hittingShields);
+            if (beam.Weapon.TractorDamage > 0f)
+                Parent.CauseTractorDamage(beam.Weapon.TractorDamage, hittingShields);
         }
 
         void BeamRepulsionDamage(Beam beam)
