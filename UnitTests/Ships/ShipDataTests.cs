@@ -116,8 +116,8 @@ namespace UnitTests.Ships
             Assert.AreEqual(RoleName.fighter, hull.Role);
             Assert.AreEqual(1, hull.Thrusters.Length);
             Assert.AreEqual(true, hull.Unlockable);
-            Assert.AreEqual(10, hull.HullSlots.Length);
-            Assert.AreEqual(10, hull.SurfaceArea);
+            Assert.AreEqual(12, hull.HullSlots.Length);
+            Assert.AreEqual(12, hull.SurfaceArea);
             Assert.AreEqual(new Point(4,4), hull.Size);
         }
 
@@ -132,7 +132,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("ShipIcons/10a", hull.IconPath);
             Assert.AreEqual("Model/Ships/Terran/Gunboat/Gunboat", hull.ModelPath);
             Assert.AreEqual(RoleName.frigate, hull.Role);
-            Assert.AreEqual(1, hull.Thrusters.Length);
+            Assert.AreEqual(2, hull.Thrusters.Length);
             Assert.AreEqual(true, hull.Unlockable);
             Assert.AreEqual(70, hull.HullSlots.Length);
             Assert.AreEqual(70, hull.SurfaceArea);
@@ -149,8 +149,8 @@ namespace UnitTests.Ships
             Assert.AreEqual("ShipIcons/shuttle", design.IconPath);
             Assert.AreEqual(RoleName.fighter, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(9, design.GetOrLoadDesignSlots().Length);
-            Assert.AreEqual(10, design.GridInfo.SurfaceArea);
+            Assert.AreEqual(10, design.GetOrLoadDesignSlots().Length);
+            Assert.AreEqual(12, design.GridInfo.SurfaceArea);
             Assert.AreEqual(new Point(4,4), design.GridInfo.Size);
         }
 
