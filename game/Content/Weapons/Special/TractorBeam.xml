@@ -35,7 +35,7 @@
   <BeamTexture>beam_black</BeamTexture>
 
 
-  <MassDamage>1</MassDamage>
+  <TractorDamage>1</TractorDamage>
   <DamageAmount>0</DamageAmount>
   <BeamThickness>50</BeamThickness>
   <BeamPowerCostPerSecond>40</BeamPowerCostPerSecond>
