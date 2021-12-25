@@ -129,6 +129,8 @@ namespace Ship_Game.Ships
         public KnownByEmpire KnownByEmpires;
         public KnownByEmpire HasSeenEmpires;
         public bool EMPdisabled;
+        private float TractorDamage;
+        private bool BeingTractored;
         float updateTimer;
         int HighAlertTimer;
         public bool OnHighAlert => HighAlertTimer > 0;
@@ -475,15 +477,18 @@ namespace Ship_Game.Ships
             ApplyForce(repulsion);
         }
 
-        public void CauseMassDamage(float massDamage, bool hittingShields)
+        public void CauseTractorDamage(float tractorDamage, bool hittingShields)
         {
-            if (IsTethered || EnginesKnockedOut)
+            if (IsTethered)
                 return;
 
-            float massIncrease = hittingShields ? massDamage/2 : massDamage;
-            Mass += massIncrease;
-            UpdateMassRelated();
-            shipStatusChanged = true;
+            BeingTractored = true;
+            TractorDamage += hittingShields ? tractorDamage/5 : tractorDamage;
+            if (TractorDamage > Mass)
+            {
+                AllStop();
+                EnginesKnockedOut = true;
+            }
         }
 
         public void CauseRadiationDamage(float damage)
@@ -832,11 +837,12 @@ namespace Ship_Game.Ships
 
             if (target is Ship targetShip)
             {
-                if (w.MassDamage > 0 || w.RepulsionDamage > 0)
-                {
-                    if (targetShip.EnginesKnockedOut || targetShip.IsTethered)
-                        return false;
-                }
+                if (w.TractorDamage > 0 && targetShip.IsTethered)
+                    return false;
+
+                if (w.RepulsionDamage > 0 && (targetShip.IsTethered  || targetShip.EnginesKnockedOut))
+                    return false;
+
                 if (!AI.IsTargetValid(targetShip))
                     return false;
             }
@@ -1119,11 +1125,17 @@ namespace Ship_Game.Ships
                 UpdateModulesAndStatus(FixedSimTime.One);
                 SecondsAlive += 1;
                 HighAlertTimer -= 1;
+
                 if (HighAlertTimer <= 0)
                 {
                     if (AI.BadGuysNear || InCombat)
                         SetHighAlertStatus();
                 }
+
+                if (TractorDamage > 0 && !BeingTractored)
+                    TractorDamage = 0;
+
+                BeingTractored = false;
             }
 
             PowerCurrent -= PowerDraw * timeStep.FixedTime;

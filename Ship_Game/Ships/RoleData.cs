@@ -106,7 +106,7 @@ namespace Ship_Game.Ships
                 || m.IsSupplyBay
                 || m.InhibitionRadius > 0
                 || m.InstalledWeapon?.DamageAmount < 1  &&
-                (  m.InstalledWeapon.MassDamage > 0
+                (  m.InstalledWeapon.TractorDamage > 0
                  || m.InstalledWeapon.EMPDamage > 0
                  || m.InstalledWeapon.RepulsionDamage > 0
                  || m.InstalledWeapon.SiphonDamage > 0
