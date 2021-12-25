@@ -133,7 +133,7 @@ namespace Ship_Game.AI.CombatTactics
 
         bool ShouldDisengage(float distanceToAttack, float spacerDistance)
         {
-            if (OwnerTarget == null || AI.IsFiringAtMainTarget)
+            if (OwnerTarget == null || AI.IsFiringAtMainTarget && !AI.Target.EnginesKnockedOut)
                 return false;
 
             if (distanceToAttack <= spacerDistance)
