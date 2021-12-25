@@ -19,7 +19,7 @@ namespace UnitTests.Ships
         public void ShipHealthInit()
         {
             Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
-            Assert.AreEqual(8, ship.InternalSlotCount);
+            Assert.AreEqual(10, ship.InternalSlotCount);
             Assert.AreEqual(1, ship.HealthPercent);
             Assert.AreEqual(ship.Health, ship.HealthMax);
         }
