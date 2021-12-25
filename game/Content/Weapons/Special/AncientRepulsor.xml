@@ -32,7 +32,6 @@
   <BeamTexture>beam_black</BeamTexture>
 
   <RepulsionDamage>15</RepulsionDamage>
-  <MassDamage>0</MassDamage>
   <DamageAmount>0</DamageAmount>
   <BeamThickness>75</BeamThickness>
   <BeamPowerCostPerSecond>60</BeamPowerCostPerSecond>

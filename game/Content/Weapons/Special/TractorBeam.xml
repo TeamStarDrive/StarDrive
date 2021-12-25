@@ -24,7 +24,7 @@
   <Range>9000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
-   <BeamDuration>8</BeamDuration>
+  <BeamDuration>8</BeamDuration>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
   <fireCueName>sd_weapon_laser_large_alt_04</fireCueName>
@@ -35,7 +35,7 @@
   <BeamTexture>beam_black</BeamTexture>
 
 
-  <MassDamage>5050</MassDamage>
+  <TractorDamage>1</TractorDamage>
   <DamageAmount>0</DamageAmount>
   <BeamThickness>50</BeamThickness>
   <BeamPowerCostPerSecond>40</BeamPowerCostPerSecond>
