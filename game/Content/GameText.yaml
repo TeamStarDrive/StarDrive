@@ -3049,9 +3049,9 @@ BB_Tech_TractorBeam_Name:
  SPA: "Rayo tractor"
 BB_Tech_TractorBeam_Desc:
  Id: 692
- ENG: "Tractor beams create a miniature point singularity that effectively increases the mass of the targeted ship, slowing it down. Tractor beams are only half as effective against shielded targets."
- RUS: "Луч притяжения создает миниатюрную точечную сингулярность, которая увеличивает массу целевого корабля, тем самым замедляя его. Против кораблей, защищенных щитами, это оружие вдвое менее эффективно."
- SPA: "Los rayos tractores crean una singularidad de punto en miniatura que aumenta de manera efectiva la masa de la nave enemiga provocando que se ralentice. Los rayos tractores son solo la mitad de efectivos contra objetivos protegidos con escudos."
+ ENG: "Tractor beams create a miniature point singularity that effectively increases the mass of the targeted ship, slowing it down. Tractor beams are only 20% effective against shielded targets."
+ RUS: "Лучи трактора создают миниатюрную точечную сингулярность, которая эффективно увеличивает массу целевого корабля, замедляя его. Лучи трактора эффективны против экранированных целей только на 20%."
+ SPA: "Los rayos del tractor crean una singularidad puntual en miniatura que aumenta efectivamente la masa de la nave objetivo, ralentizándola. Los rayos del tractor tienen solo un 20% de efectividad contra objetivos protegidos."
 BB_Tech_XenoComputing_Name:
  Id: 693
  ENG: "Xeno Computing"
