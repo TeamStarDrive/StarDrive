@@ -129,6 +129,8 @@ namespace Ship_Game.Ships
         public KnownByEmpire KnownByEmpires;
         public KnownByEmpire HasSeenEmpires;
         public bool EMPdisabled;
+        private float TractorDamage;
+        private bool BeingTractored;
         float updateTimer;
         int HighAlertTimer;
         public bool OnHighAlert => HighAlertTimer > 0;
@@ -477,13 +479,16 @@ namespace Ship_Game.Ships
 
         public void CauseMassDamage(float massDamage, bool hittingShields)
         {
-            if (IsTethered || EnginesKnockedOut)
+            if (IsTethered)
                 return;
 
-            float massIncrease = hittingShields ? massDamage/2 : massDamage;
-            Mass += massIncrease;
-            UpdateMassRelated();
-            shipStatusChanged = true;
+            BeingTractored = true;
+            TractorDamage += hittingShields ? massDamage/5 : massDamage;
+            if (TractorDamage > Mass)
+            {
+                AllStop();
+                EnginesKnockedOut = true;
+            }
         }
 
         public void CauseRadiationDamage(float damage)
@@ -1119,11 +1124,17 @@ namespace Ship_Game.Ships
                 UpdateModulesAndStatus(FixedSimTime.One);
                 SecondsAlive += 1;
                 HighAlertTimer -= 1;
+
                 if (HighAlertTimer <= 0)
                 {
                     if (AI.BadGuysNear || InCombat)
                         SetHighAlertStatus();
                 }
+
+                if (TractorDamage > 0 && !BeingTractored)
+                    TractorDamage = 0;
+
+                BeingTractored = false;
             }
 
             PowerCurrent -= PowerDraw * timeStep.FixedTime;
