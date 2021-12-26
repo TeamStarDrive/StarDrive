@@ -636,7 +636,7 @@ namespace Ship_Game
                 if (DesignOrHullName.Contains("_WIP"))
                 {
                     // already WIP - spin up version number
-                    toSave = CloneCurrentDesign($"{ShipDesignWIP.GetWipSpinUpVersion(DesignOrHullName)}");
+                    toSave = CloneCurrentDesign(ShipDesignWIP.GetWipSpinUpVersion(DesignOrHullName));
                 }
                 else
                 {
