@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
@@ -84,18 +85,16 @@ namespace Ship_Game
         public override void ExitScreen()
         {
             bool goodDesign = IsGoodDesign();
+            if (goodDesign && !ShipSaved)
+            {
+                ExitMessageBox(this, SaveChanges, DoExit, GameText.YouHaveUnsavedChangesSave);
+                return;
+            }
 
             if (!ShipSaved && !goodDesign)
-            {
-                ExitMessageBox(this, SaveWIP, DoExit, GameText.ThisShipDesignIsNot);
-                return;
-            }
-            if (ShipSaved || !goodDesign)
-            {
-                ReallyExit();
-                return;
-            }
-            ExitMessageBox(this, SaveChanges, DoExit, GameText.YouHaveUnsavedChangesSave);
+                SaveWIP();
+
+            ReallyExit();
         }
 
         public void ExitToMenu(string launches)
@@ -111,9 +110,11 @@ namespace Ship_Game
                 ReallyExit();
                 return;
             }
+
             if (!ShipSaved && !goodDesign)
             {
-                ExitMessageBox(this, SaveWIP, LaunchScreen, GameText.ThisShipDesignIsNot);
+                SaveWIP();
+                ReallyExit();
                 return;
             }
 
@@ -122,7 +123,9 @@ namespace Ship_Game
                 ExitMessageBox(this, SaveChanges, LaunchScreen, GameText.YouHaveUnsavedChangesSave);
                 return;
             }
-            ExitMessageBox(this, SaveChanges, LaunchScreen, GameText.ThisShipDesignIsNot);
+
+            LaunchScreen();
+            ReallyExit();
         }
 
         public override bool HandleInput(InputState input)
@@ -476,14 +479,24 @@ namespace Ship_Game
             GameAudio.AcceptClick();
             if (!ShipSaved && !IsGoodDesign() && !ModuleGrid.IsEmptyDesign())
             {
-                MakeMessageBox(this, () => SaveWIPThenChangeHull(item.Hull), () => JustChangeHull(item.Hull),
-                               GameText.ThisShipDesignIsNot, "Save", "No");
+                SaveWIPThenChangeHull(item.Hull);
+                // todo - added floating text to notify the player that the WIP was saved
+                return;
             }
-            else
+
+            if (!ShipSaved && IsGoodDesign())
             {
-                item.Hull.ReloadIfNeeded();
-                ChangeHull(item.Hull);
+                ExitMessageBox(this, SaveChanges, () =>
+                {
+                    item.Hull.ReloadIfNeeded();
+                    ChangeHull(item.Hull);
+                }, GameText.YouHaveUnsavedChangesSave);
+
+                return;
             }
+
+            item.Hull.ReloadIfNeeded();
+            ChangeHull(item.Hull);
         }
 
         void UpdateViewMatrix(in Vector3 cameraPosition)
@@ -633,6 +646,8 @@ namespace Ship_Game
                 }
 
                 SaveDesign(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.Name}.design"));
+                Vector2 pos = new Vector2(ModuleSelectComponent.X + ModuleSelectComponent.Width + 20, ModuleSelectComponent.Y + 100);
+                ToolTip.CreateFloatingText($"Work in progress ship was saved as {toSave.Name}", "", pos, 5);
             }
             else
             {
