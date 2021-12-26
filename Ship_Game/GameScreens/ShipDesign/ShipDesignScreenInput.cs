@@ -1,8 +1,6 @@
 using System;
 using System.IO;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
@@ -622,7 +620,18 @@ namespace Ship_Game
         {
             if (CurrentDesign != null)
             {
-                ShipDesign toSave = CloneCurrentDesign($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
+                ShipDesign toSave;
+                if (DesignOrHullName.Contains("_WIP"))
+                {
+                    // already WIP - spin up version number
+                    toSave = CloneCurrentDesign($"{ShipDesignWIP.GetWipSpinUpVersion(DesignOrHullName)}");
+                }
+                else
+                {
+                    // need to assign new ship number
+                    toSave = CloneCurrentDesign($"{ShipDesignWIP.GetNewWipName(DesignOrHullName)}");
+                }
+
                 SaveDesign(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.Name}.design"));
             }
             else
