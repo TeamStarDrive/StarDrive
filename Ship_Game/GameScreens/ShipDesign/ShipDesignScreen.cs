@@ -409,7 +409,12 @@ namespace Ship_Game
             UpdateAvailableHulls();
             CreateGUI();
             InitializeCamera();
-            ChangeHull(AvailableHulls[0]);
+            ShipDesign lastWIP = ShipDesignWIP.GetLatestWipToLoad();
+
+            if (lastWIP != null)
+                ChangeHull(lastWIP);
+            else
+                ChangeHull(AvailableHulls[0]);
 
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
         }
