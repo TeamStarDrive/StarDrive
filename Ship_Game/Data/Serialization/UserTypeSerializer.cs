@@ -12,8 +12,10 @@ namespace Ship_Game.Data.Serialization
     {
         public override string ToString() => $"UserTypeSerializer {TheType.GetTypeName()}";
 
-        protected Map<string, DataField> Mapping;
-        public TypeSerializerMap TypeMap { get; private set; }
+        // Shared Type Map for caching type serialization information
+        public TypeSerializerMap TypeMap { get; }
+
+        protected Map<string, DataField> Mapping; // field name to DataField mapping
         protected Array<DataField> Index;
         protected DataField PrimaryKeyName;
         protected DataField PrimaryKeyValue;
@@ -21,20 +23,32 @@ namespace Ship_Game.Data.Serialization
 
         public IReadOnlyList<DataField> Fields => Index;
 
-        protected UserTypeSerializer(Type type)
+        protected UserTypeSerializer(Type type, TypeSerializerMap typeMap)
         {
             TheType = type;
+            TypeMap = typeMap;
             if (type.GetCustomAttribute<StarDataTypeAttribute>() == null)
                 throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
+
+            ResolveTypes();
         }
 
-        protected abstract TypeSerializerMap CreateTypeMap();
+        public DataField GetField(int fieldId)
+        {
+            if (fieldId >= Index.Count)
+                throw new IndexOutOfRangeException($"{this} invalid fieldId={fieldId}");
+            return Index[fieldId];
+        }
 
-        protected void ResolveTypes()
+        public DataField GetFieldOrNull(string fieldName)
+        {
+            return Mapping.TryGetValue(fieldName, out DataField f) ? f : null;
+        }
+
+        void ResolveTypes()
         {
             Mapping = new Map<string, DataField>();
-            Index   = new Array<DataField>();
-            TypeMap = CreateTypeMap();
+            Index = new Array<DataField>();
 
             Type shouldSerialize = typeof(StarDataAttribute);
             PropertyInfo[] props = TheType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -64,11 +78,10 @@ namespace Ship_Game.Data.Serialization
 
         void AddMapping(StarDataAttribute a, PropertyInfo p, FieldInfo f)
         {
-            string name = a.NameId.NotEmpty() ? a.NameId : (p?.Name ?? f.Name);
-            int id = a.Id != 0 ? a.Id : Index.Count;
-            var field = new DataField(id, TypeMap, p, f);
+            int fieldIdx = Index.Count;
+            var field = new DataField(TypeMap, fieldIdx, a, p, f);
 
-            Mapping.Add(name, field);
+            Mapping.Add(field.Name, field);
             Index.Add(field);
 
             if (a.IsPrimaryKeyName)

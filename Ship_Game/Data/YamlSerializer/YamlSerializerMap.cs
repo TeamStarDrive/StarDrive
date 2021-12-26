@@ -17,9 +17,9 @@ namespace Ship_Game.Data.YamlSerializer
             Add(typeof(object), new ObjectSerializer());
         }
 
-        protected override TypeSerializer AddUserTypeSerializer(Type type)
+        public override TypeSerializer AddUserTypeSerializer(Type type)
         {
-            return new YamlSerializer(type);
+            return new YamlSerializer(type, this);
         }
     }
 }

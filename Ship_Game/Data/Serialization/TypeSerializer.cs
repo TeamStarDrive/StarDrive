@@ -10,25 +10,15 @@ namespace Ship_Game.Data.Serialization
 {
     public abstract class TypeSerializer
     {
-        public class TextSerializerContext
-        {
-            // StringWriter(StringBuilder) or StreamWriter(File)
-            public TextWriter Writer;
-            public int Depth;
-            public StringBuilder Buffer = new StringBuilder();
-
-            // If True, next Serialized value will omit prefix spaces
-            public bool IgnoreSpacePrefixOnce;
-
-            public int TabSize = 2; // default tab size for Depth increase
-        }
-
         public const int MaxFundamentalTypes = 32;
 
         // Id which is valid in a single serialization context
         internal ushort Id;
         internal Type Type;
 
+        /// <summary>
+        /// If TRUE, this serializer is a primitive fundamental type
+        /// </summary>
         public bool IsFundamentalType => (Id <= MaxFundamentalTypes);
 
         /// <summary>
@@ -37,7 +27,7 @@ namespace Ship_Game.Data.Serialization
         public bool IsCollection { get; protected set; }
 
         /// <summary>
-        /// If TRUE, this serializer as a custom user class type
+        /// If TRUE, this serializer is made for a custom user class type
         /// </summary>
         public bool IsUserClass { get; protected set; }
 
@@ -83,13 +73,6 @@ namespace Ship_Game.Data.Serialization
         /// BINARY Deserialize this object
         /// </summary>
         public abstract object Deserialize(BinaryReader reader);
-
-        public static void WriteFieldId(BinaryWriter writer, int fieldId)
-        {
-            if (fieldId > 255)
-                throw new IndexOutOfRangeException($"TypeSerializer could not handle so many fields: {fieldId} > 255");
-            writer.Write((byte)fieldId);
-        }
 
         public static void WriteSerializerId(BinaryWriter writer, int serializerId)
         {

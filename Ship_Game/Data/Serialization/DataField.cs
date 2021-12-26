@@ -11,16 +11,18 @@ namespace Ship_Game.Data.Serialization
 {
     public class DataField
     {
-        public int Id;
+        public int FieldIdx { get; }
+        public string Name;
         readonly PropertyInfo Prop;
         readonly FieldInfo Field;
         public readonly TypeSerializer Serializer;
-        
+
         public override string ToString() => Prop?.ToString() ?? Field?.ToString() ?? "invalid";
 
-        public DataField(int id, TypeSerializerMap typeMap, PropertyInfo prop, FieldInfo field)
+        public DataField(TypeSerializerMap typeMap, int fieldIdx, StarDataAttribute a, PropertyInfo prop, FieldInfo field)
         {
-            Id = id;
+            FieldIdx = fieldIdx;
+            Name = a.NameId.NotEmpty() ? a.NameId : (prop?.Name ?? field.Name);
             Prop  = prop;
             Field = field;
             Type type = prop != null ? prop.PropertyType : field.FieldType;

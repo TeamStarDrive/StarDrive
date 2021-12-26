@@ -30,18 +30,11 @@ namespace Ship_Game.Data.Serialization
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class StarDataAttribute : Attribute
     {
-        public int Id;
         public string NameId;
         public bool IsPrimaryKeyName;
         public bool IsPrimaryKeyValue;
         public StarDataAttribute()
         {
-        }
-        public StarDataAttribute(int id, bool keyName = false, bool keyValue = false)
-        {
-            Id = id;
-            IsPrimaryKeyName = keyName;
-            IsPrimaryKeyValue = keyValue;
         }
         public StarDataAttribute(string nameId, bool keyName = false, bool keyValue = false)
         {
@@ -63,9 +56,6 @@ namespace Ship_Game.Data.Serialization
         public StarDataKeyNameAttribute() : base(null, keyName:true)
         {
         }
-        public StarDataKeyNameAttribute(int id) : base(id, keyName:true)
-        {
-        }
         public StarDataKeyNameAttribute(string nameId) : base(nameId, keyName:true)
         {
         }
@@ -82,9 +72,6 @@ namespace Ship_Game.Data.Serialization
     public sealed class StarDataKeyValueAttribute : StarDataAttribute
     {
         public StarDataKeyValueAttribute() : base(null, keyValue:true)
-        {
-        }
-        public StarDataKeyValueAttribute(int id) : base(id, keyValue:true)
         {
         }
         public StarDataKeyValueAttribute(string nameId) : base(nameId, keyValue:true)
