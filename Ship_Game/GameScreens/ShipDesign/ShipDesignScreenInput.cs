@@ -641,7 +641,7 @@ namespace Ship_Game
                 else
                 {
                     // need to assign new ship number
-                    toSave = CloneCurrentDesign($"{ShipDesignWIP.GetNewWipName(DesignOrHullName)}");
+                    toSave = CloneCurrentDesign(ShipDesignWIP.GetNewWipName(DesignOrHullName));
                 }
 
                 SaveDesign(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.Name}.design"));

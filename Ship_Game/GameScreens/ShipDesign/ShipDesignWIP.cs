@@ -82,15 +82,14 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         static FileInfo[] GetWipFiles()
         {
-            DirectoryInfo wipDir = new DirectoryInfo($"{Dir.StarDriveAppData}/WIP/");
-            return wipDir.GetFiles();
+            return Dir.GetFiles(Dir.StarDriveAppData + "/WIP/", "design");
         }
 
         public static Ships.ShipDesign GetLatestWipToLoad()
         {
             DateTime latestWipTime = DateTime.MinValue;
             Ships.ShipDesign latestWip = null;
-            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP", "design"))
+            foreach (FileInfo info in GetWipFiles())
             {
                 Ships.ShipDesign newShipData = Ships.ShipDesign.Parse(info);
                 if (newShipData == null)
