@@ -96,7 +96,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 if (newShipData == null)
                     continue;
 
-                if (EmpireManager.Player.IsHullUnlocked(newShipData.Hull) && info.LastWriteTime > latestWipTime) // todo bug here for locked modules in wip
+                if (EmpireManager.Player.WeCanShowThisWIP(newShipData) && info.LastWriteTime > latestWipTime) // todo bug here for locked modules in wip
                 {
                     latestWip = newShipData;
                     latestWipTime = info.LastWriteTime;
