@@ -14,8 +14,8 @@ namespace Ship_Game
         readonly ShipDesignScreen Screen;
         public readonly string ShipName;
         UITextEntry EnterNameArea;
-
-        Submenu subAllDesigns;
+        string BaseWIPName;
+        Submenu SubAllDesigns;
         ScrollList2<ShipDesignListItem> ShipDesigns;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
@@ -25,7 +25,8 @@ namespace Ship_Game
         {
             Screen = screen;
             Rect = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
-            ShipName = shipName;
+            BaseWIPName = shipName.Contains("_WIP") ? shipName : "";
+            ShipName = shipName.Replace("/", "-").Replace("_", "-");
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
@@ -72,16 +73,16 @@ namespace Ship_Game
             background.Background = new Menu1(Rect);
             background.AddTab(Hulls ? GameText.SaveHullDesign : GameText.SaveShipDesign);
 
-            subAllDesigns = new Submenu(background.X, background.Y + 90, background.Width,
+            SubAllDesigns = new Submenu(background.X, background.Y + 90, background.Width,
                                         Rect.Height - background.Height - 50);
-            subAllDesigns.AddTab(GameText.SimilarDesignNames);
+            SubAllDesigns.AddTab(GameText.SimilarDesignNames);
 
             EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20, 40), GameText.DesignName));
             EnterNameArea.Text = ShipName;
             EnterNameArea.Color = Colors.Cream;
             EnterNameArea.OnTextChanged = PopulateDesigns;
 
-            ShipDesigns = Add(new ScrollList2<ShipDesignListItem>(subAllDesigns));
+            ShipDesigns = Add(new ScrollList2<ShipDesignListItem>(SubAllDesigns));
             ShipDesigns.EnableItemHighlight = true;
             ShipDesigns.OnClick = OnShipDesignItemClicked;
 
@@ -156,7 +157,8 @@ namespace Ship_Game
             else
             {
                 Screen.SaveShipDesign(shipOrHullName, overwriteProtected);
-
+                if (BaseWIPName.NotEmpty())
+                    ShipDesignWIP.RemoveRelatedWiPs(BaseWIPName);
                 if (!ResourceManager.GetShipTemplate(shipOrHullName, out Ship ship))
                 {
                     Log.Error($"Failed to get Ship Template after Save: {shipOrHullName}");

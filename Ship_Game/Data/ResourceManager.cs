@@ -663,7 +663,7 @@ namespace Ship_Game
 
         static void DeleteShipFromDir(string dir, string shipName)
         {
-            var info = new FileInfo(Path.Combine(dir, shipName + ".xml"));
+            var info = new FileInfo(Path.Combine(dir, shipName + ".design"));
             if (info.Exists)
             {
                 info.Delete();
