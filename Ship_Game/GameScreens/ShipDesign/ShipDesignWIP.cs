@@ -1,18 +1,22 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
+    // Created by Fat Bastard 25 Dec, 2021
+    // Note - this assumes that underscore is a a char players cannot type for their designs
     static class ShipDesignWIP
     {
         public static string GetWipSpinUpVersion(string shipName)
         {
             // DesignOrHullName_Ship#_v#_WIP
             string newShipFileName = GetWipFileNameToSave(shipName);
-            return newShipFileName;
+            return CorrectedWipName(newShipFileName);
         }
 
         public static string GetNewWipName(string shipName)
         {
+            shipName = CorrectedWipName(shipName);
             FileInfo[] wipFiles = GetWipFiles().Filter(f => f.NameNoExt().StartsWith(shipName));
             if (wipFiles.Length == 0) // first wip
                 return $"{shipName}_ship1_v1_WIP";
@@ -21,6 +25,11 @@ namespace Ship_Game.GameScreens.ShipDesign
             string lastModifiedWip = wipFiles.FindMax(f => f.LastWriteTime).NameNoExt();
             int shipVer = GetWipShipVersion(lastModifiedWip);
             return $"{shipName}_ship{shipVer + 1}_v1_WIP";
+        }
+
+        static string CorrectedWipName(string wipName)
+        {
+            return wipName.Replace("/", "-");
         }
 
         static string GetWipFileNameToSave(string wipFileName)
@@ -75,6 +84,34 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             DirectoryInfo wipDir = new DirectoryInfo($"{Dir.StarDriveAppData}/WIP/");
             return wipDir.GetFiles();
+        }
+
+        public static Ships.ShipDesign GetLatestWipToLoad()
+        {
+            DateTime latestWipTime = DateTime.MinValue;
+            Ships.ShipDesign latestWip = null;
+            foreach (FileInfo info in Dir.GetFiles(Dir.StarDriveAppData + "/WIP", "design"))
+            {
+                Ships.ShipDesign newShipData = Ships.ShipDesign.Parse(info);
+                if (newShipData == null)
+                    continue;
+
+                if (EmpireManager.Player.IsHullUnlocked(newShipData.Hull) && info.LastWriteTime > latestWipTime) // todo bug here for locked modules in wip
+                {
+                    latestWip = newShipData;
+                    latestWipTime = info.LastWriteTime;
+                }
+            }
+
+            return latestWip;
+        }
+
+        public static void RemoveRelatedWiPs(string wipName)
+        {
+            string relatedShipName = GetWipShipNameAndNum(wipName);
+            FileInfo[] relatedWips = GetWipFiles().Filter(f => f.NameNoExt().StartsWith(relatedShipName));
+            for (int i = relatedWips.Length -1; i >= 0; i--)
+                ResourceManager.DeleteShip(relatedWips[i].NameNoExt());
         }
     }
 }
