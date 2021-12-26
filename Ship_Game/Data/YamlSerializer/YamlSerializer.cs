@@ -14,21 +14,18 @@ namespace Ship_Game.Data.YamlSerializer
     {
         public override string ToString() => $"YamlSerializer {TheType.GetTypeName()}";
 
-        public YamlSerializer(Type type) : base(type)
+        public YamlSerializer(Type type) : base(type, new YamlSerializerMap())
         {
             IsUserClass = true;
         }
 
-        protected override TypeSerializerMap CreateTypeMap()
+        public YamlSerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)
         {
-            return new YamlSerializerMap();
+            IsUserClass = true;
         }
 
         public override object Deserialize(YamlNode node)
         {
-            if (Mapping == null)
-                ResolveTypes();
-
             object item = Activator.CreateInstance(TheType);
 
             bool hasKey = (node.Key != null);
@@ -87,9 +84,6 @@ namespace Ship_Game.Data.YamlSerializer
 
         public override void Serialize(YamlNode parent, object obj)
         {
-            if (Mapping == null)
-                ResolveTypes();
-
             foreach (KeyValuePair<string, DataField> kv in Mapping)
             {
                 object value = kv.Value.Get(obj);

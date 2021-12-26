@@ -13,9 +13,9 @@ namespace Ship_Game.Data.Binary
         {
         }
 
-        protected override TypeSerializer AddUserTypeSerializer(Type type)
+        public override TypeSerializer AddUserTypeSerializer(Type type)
         {
-            return new BinarySerializer(type);
+            return new BinarySerializer(type, this);
         }
     }
 }
