@@ -721,6 +721,8 @@ namespace Ship_Game.Ships
 
         public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
+            if (UID == "CanopyShield" && Parent.loyalty.WeAreRemnants)
+                Log.Info("lala");
             float damageModifier = 1f;
             if (source != null)
             {
