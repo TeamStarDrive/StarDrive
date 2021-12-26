@@ -74,7 +74,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         // Will return ship name and version number
         // Example: "VulcanScout_ship12_v33_WIP" will return "VulcanScout_ship12"
-        static string GetWipShipNameAndNum(string wipFileName)
+        public static string GetWipShipNameAndNum(string wipFileName)
         {
             string[] slicedName = wipFileName.Split('_');
             return $"{slicedName[0]}_{slicedName[1]}";
