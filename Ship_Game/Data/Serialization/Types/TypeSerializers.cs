@@ -22,12 +22,12 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override void Serialize(BinaryWriter writer, object obj)
         {
-            Log.Error($"Serialize not supported for {ToString()}");
+            Log.Error($"Serialize(binary) not supported for {ToString()}");
         }
 
         public override object Deserialize(BinaryReader reader)
         {
-            Log.Error($"Deserialize not supported for {ToString()}");
+            Log.Error($"Deserialize(binary) not supported for {ToString()}");
             return null;
         }
     }

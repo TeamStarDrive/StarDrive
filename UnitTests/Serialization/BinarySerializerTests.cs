@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Ships;
 
 namespace UnitTests.Serialization
 {
@@ -26,9 +27,9 @@ namespace UnitTests.Serialization
             return (T)serializer.Deserialize(reader);
         }
 
-        static T SerDes<T>(T instance)
+        static T SerDes<T>(T instance, out byte[] bytes)
         {
-            byte[] bytes = Serialize<T>(instance);
+            bytes = Serialize<T>(instance);
             return Deserialize<T>(bytes);
         }
 
@@ -60,7 +61,7 @@ namespace UnitTests.Serialization
                 ByteZero = 0, ByteMin = byte.MinValue, ByteMax = byte.MaxValue,
             };
 
-            var result = SerDes(instance);
+            var result = SerDes(instance, out byte[] bytes);
             Assert.AreEqual(result.IntZero, (int)0);
             Assert.AreEqual(result.IntMin, int.MinValue);
             Assert.AreEqual(result.IntMax, int.MaxValue);
@@ -91,16 +92,32 @@ namespace UnitTests.Serialization
         class CustomRecursiveType
         {
             [StarData] public CustomRecursiveType RecursiveSelf;
-            [StarData] public string Text = "Hello";
-            [StarData] public int Count = 42;
+            [StarData] public string Text;
+            [StarData] public int Count;
         }
 
         [TestMethod]
         public void BasicRecursiveType()
         {
-            var instance = new CustomRecursiveType();
+            var instance = new CustomRecursiveType
+            {
+                Text = "Hello",
+                Count = 42,
+            };
             instance.RecursiveSelf = instance;
-            byte[] bytes = Serialize(instance);
+
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.AreEqual(result.RecursiveSelf, result, "Recursive self reference must be valid");
+            Assert.AreEqual(instance.Text, result.Text);
+            Assert.AreEqual(instance.Count, result.Count);
+        }
+
+        [TestMethod]
+        public void SerializeAShip()
+        {
+            CreateUniverseAndPlayerEmpire();
+            Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            byte[] bytes = Serialize(ship);
         }
     }
 }
