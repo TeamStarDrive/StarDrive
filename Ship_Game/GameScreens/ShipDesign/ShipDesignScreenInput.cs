@@ -480,7 +480,6 @@ namespace Ship_Game
             if (!ShipSaved && !IsGoodDesign() && !ModuleGrid.IsEmptyDesign())
             {
                 SaveWIPThenChangeHull(item.Hull);
-                // todo - added floating text to notify the player that the WIP was saved
                 return;
             }
 
