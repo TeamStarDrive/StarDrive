@@ -55,12 +55,15 @@ namespace Ship_Game.GameScreens.ShipDesign
                         () => PromptDeleteShip(Ship.Name));
             }
 
-            public DesignListItem(ShipDesignLoadScreen screen, Ships.ShipDesign wipHull)
+                public DesignListItem(ShipDesignLoadScreen screen, Ships.ShipDesign wipHull)
             {
                 Screen = screen;
                 WipHull = wipHull;
-                AddCancel(new Vector2(-30, 0), "Delete this WIP Hull", 
+                AddCancel(new Vector2(-30, -45), "Delete this WIP Design", 
                     () => PromptDeleteShip(WipHull.Name));
+                
+                AddDelete(new Vector2(-30, 15), "Delete all related versions of this WIP Design",
+                    () => PromptDeleteWIPVersions(WipHull.Name));
             }
             
             void PromptDeleteShip(string shipId)
@@ -70,7 +73,16 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Accepted = () => Screen.DeleteAccepted(shipId)
                 });
             }
-            
+
+            void PromptDeleteWIPVersions(string shipId)
+            {
+                string shipPrefix = ShipDesignWIP.GetWipShipNameAndNum(shipId);
+                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, $"Confirm Delete All WIP Versions: {shipPrefix}")
+                {
+                    Accepted = () => Screen.DeleteWIPVersionAccepted(shipId)
+                });
+            }
+
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 base.Draw(batch, elapsed);
@@ -154,7 +166,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Ships.ShipDesign newShipData = Ships.ShipDesign.Parse(info);
                 if (newShipData == null)
                     continue;
-                if (UnlockAllDesigns || EmpireManager.Player.IsHullUnlocked(newShipData.Hull))
+                if (UnlockAllDesigns || EmpireManager.Player.WeCanShowThisWIP(newShipData))
                     WIPs.Add(newShipData);
             }
 
@@ -181,8 +193,19 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         void DeleteAccepted(string shipToDelete)
         {
-            GameAudio.EchoAffirmative();
             ResourceManager.DeleteShip(shipToDelete);
+            PostDeleteDesign();
+        }
+
+        void DeleteWIPVersionAccepted(string wipToDelete)
+        {
+            ShipDesignWIP.RemoveRelatedWiPs(wipToDelete);
+            PostDeleteDesign();
+        }
+
+        void PostDeleteDesign()
+        {
+            GameAudio.EchoAffirmative();
             ShipInfoOverlay.Hide();
             LoadContent();
         }

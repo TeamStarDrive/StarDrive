@@ -38,6 +38,7 @@ namespace Ship_Game
         public readonly Hoverable QueueArrowDown;
         public readonly Hoverable QueueRush;
         public readonly Hoverable QueueDelete;
+        public readonly Hoverable Delete;
 
         public ScrollListStyleTextures(string folder)
         {
@@ -51,6 +52,7 @@ namespace Ship_Game
             QueueArrowDown = new Hoverable("NewUI/icon_queue_arrow_down");
             QueueRush      = new Hoverable("NewUI/icon_queue_rushconstruction");
             QueueDelete    = new Hoverable("NewUI/icon_queue_delete");
+            Delete         = new Hoverable("NewUI/icon_clear_filter");
         }
 
         static int ContentId;
