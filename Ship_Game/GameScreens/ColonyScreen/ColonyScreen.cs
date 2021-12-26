@@ -195,7 +195,7 @@ namespace Ship_Game
             Vector2 filterLabelPos = new Vector2(RightMenu.X + 25, filterRect.Y+2);
             FilterBuildableItemsLabel = Add(new UILabel(filterLabelPos, "Filter:", Font12, Color.Gray));
             
-            var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
+            var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover2");
             Add(new UIButton(customStyle, new Vector2(17, 17), "")
             {
                 Tooltip = GameText.ClearBuildableItemsFilter,
