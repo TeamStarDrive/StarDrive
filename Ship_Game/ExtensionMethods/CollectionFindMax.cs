@@ -48,7 +48,26 @@ namespace Ship_Game
             }
             return found;
         }
-        
+
+        // @return the element with the greatest selector value, or NULL if empty
+        public static T FindMax<T>(this T[] items, int count, Func<T, DateTime> selector)
+        {
+            if (count <= 0) return default;
+
+            T found = items[0]; // @note This prevents the NaN and +Infinity float compare issue
+            DateTime max = selector(found);
+            for (int i = 1; i < count; ++i)
+            {
+                T item = items[i];
+                DateTime value = selector(item);
+                if (value > max)
+                {
+                    max = value;
+                    found = item;
+                }
+            }
+            return found;
+        }
 
         // @return the element with the greatest selector value, or NULL if empty
         public static T FindMax<T>(this IReadOnlyList<T> list, Func<T, float> selector)
@@ -196,8 +215,13 @@ namespace Ship_Game
             return found;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T FindMax<T>(this T[] items, Func<T, DateTime> selector)
+            where T : class
+        {
+            return items.FindMax(items.Length, selector);
+        }
 
-        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T FindMax<T>(this T[] items, Func<T, float> selector)
             where T : class

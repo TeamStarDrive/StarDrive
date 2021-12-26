@@ -231,6 +231,7 @@
     <Compile Include="Ship_Game\GameScreens\NewGame\EnvPreferencesPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneInstance.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\ObjectGroupInfo.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignWIP.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HullEditorControls.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen_MirrorSlot.cs" />
     <Compile Include="Ship_Game\GameScreens\Universe\Debug\ResearchDebugUnlocks.cs" />
