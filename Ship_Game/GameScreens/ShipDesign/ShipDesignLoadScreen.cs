@@ -154,7 +154,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Ships.ShipDesign newShipData = Ships.ShipDesign.Parse(info);
                 if (newShipData == null)
                     continue;
-                if (UnlockAllDesigns || EmpireManager.Player.IsHullUnlocked(newShipData.Hull)) // todo bug here for locked modules in wip
+                if (UnlockAllDesigns || EmpireManager.Player.WeCanShowThisWIP(newShipData))
                     WIPs.Add(newShipData);
             }
 

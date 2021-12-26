@@ -2044,6 +2044,11 @@ namespace Ship_Game
             }
         }
 
+        public bool WeCanShowThisWIP(ShipDesign shipData)
+        {
+            return WeCanBuildThis(shipData);
+        }
+
         public bool WeCanBuildThis(string shipName)
         {
             if (!ResourceManager.Ships.GetDesign(shipName, out ShipDesign shipData))
@@ -2052,6 +2057,11 @@ namespace Ship_Game
                 return false;
             }
 
+            return WeCanBuildThis(shipData);
+        }
+
+        bool WeCanBuildThis(ShipDesign shipData)
+        {
             // If this hull is not unlocked, then we can't build it
             if (!IsHullUnlocked(shipData.Hull))
                 return false;
