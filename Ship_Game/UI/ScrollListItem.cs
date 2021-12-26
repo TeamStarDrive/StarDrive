@@ -27,6 +27,7 @@ namespace Ship_Game
         public void AddDown(Vector2 relPos, in LocalizedText tooltip, Action onClick = null)  => AddElement(relPos, tooltip, onClick, () => List.GetStyle().QueueArrowDown);
         public void AddApply(Vector2 relPos, in LocalizedText tooltip, Action onClick = null) => AddElement(relPos, tooltip, onClick, () => List.GetStyle().QueueRush);
         public void AddCancel(Vector2 relPos, in LocalizedText tooltip, Action onClick)       => AddElement(relPos, tooltip, onClick, () => List.GetStyle().QueueDelete);
+        public void AddDelete(Vector2 relPos, in LocalizedText tooltip, Action onClick)       => AddElement(relPos, tooltip, onClick, () => List.GetStyle().Delete);
 
         public bool RemoveFirstSubIf(Predicate<T> predicate)
         {
