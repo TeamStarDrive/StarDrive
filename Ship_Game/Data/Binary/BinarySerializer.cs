@@ -34,7 +34,6 @@ namespace Ship_Game.Data.Binary
             IsRoot = true;
             IsUserClass = true;
             TypeMap.Add(type, this);
-            ResolveTypes();
         }
 
         public BinarySerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)

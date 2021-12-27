@@ -58,6 +58,28 @@ namespace Ship_Game.Data.Serialization.Types
         }
     }
 
+    internal class SByteSerializer : TypeSerializer
+    {
+        public override string ToString() => "SByteSerializer";
+
+        public override void Serialize(YamlNode parent, object obj)
+        {
+            parent.Value = (int)(sbyte)obj;
+        }
+
+        public override void Serialize(BinaryWriter writer, object obj)
+        {
+            sbyte value = (sbyte)obj;
+            writer.Write(value);
+        }
+
+        public override object Deserialize(BinaryReader reader)
+        {
+            sbyte value = reader.ReadSByte();
+            return value;
+        }
+    }
+
     internal class ShortSerializer : TypeSerializer
     {
         public override string ToString() => "ShortSerializer";
