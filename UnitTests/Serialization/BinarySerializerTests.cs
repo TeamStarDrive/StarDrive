@@ -268,14 +268,14 @@ namespace UnitTests.Serialization
         [StarDataType]
         struct SmallStruct
         {
-            [StarData] public int X;
-            [StarData] public int Y;
+            [StarData] public int Id;
+            [StarData] public string Name;
         }
 
         [StarDataType]
         class CustomStructContainer
         {
-            [StarData] public SmallStruct Pos;
+            [StarData] public SmallStruct SS;
         }
 
         [TestMethod]
@@ -283,11 +283,11 @@ namespace UnitTests.Serialization
         {
             var instance = new CustomStructContainer
             {
-                Pos = new SmallStruct { X = 15, Y = 33 },
+                SS = new SmallStruct { Id = 15, Name = "Laika" },
             };
             var result = SerDes(instance, out byte[] bytes);
-            Assert.AreEqual(instance.Pos.X, result.Pos.X, "SmallStruct fields must match");
-            Assert.AreEqual(instance.Pos.Y, result.Pos.Y, "SmallStruct fields must match");
+            Assert.AreEqual(instance.SS.Id, result.SS.Id, "SmallStruct Id fields must match");
+            Assert.AreEqual(instance.SS.Name, result.SS.Name, "SmallStruct Name fields must match");
         }
 
         //[TestMethod]

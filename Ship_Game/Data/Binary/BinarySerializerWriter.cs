@@ -32,43 +32,57 @@ namespace Ship_Game.Data.Binary
 
         // Recursively gathers all UserType instances,
         // the order here is unimportant because they get sorted later
-        void RecursiveGatherObjs(TypeSerializer ser, object instance, 
-                                 Map<TypeSerializer, Array<object>> groups,
-                                 HashSet<object> objects)
+        void RecursiveScan(TypeSerializer ser, object instance, 
+                           Map<TypeSerializer, Array<object>> groups,
+                           HashSet<object> objects,
+                           HashSet<TypeSerializer> structs)
         {
-            if (instance == null || !BinarySerializer.IsPointerType(ser))
-                return; // we don't map nulls OR non-pointer types
+            if (instance == null)
+                return; // don't map nulls
 
-            if (!objects.Add(instance))
-                return; // object already mapped
+            if (BinarySerializer.IsPointerType(ser))
+            {
+                if (!objects.Add(instance))
+                    return; // this object instance already mapped
 
-            if (!groups.TryGetValue(ser, out Array<object> list))
-                groups.Add(ser, (list = new Array<object>()));
+                if (!groups.TryGetValue(ser, out Array<object> list))
+                    groups.Add(ser, (list = new Array<object>()));
 
-            list.Add(instance);
+                list.Add(instance);
+            }
+            else
+            {
+                // only record the struct type, instance is not needed
+                if (ser.IsUserClass)
+                    structs.Add(ser);
+            }
 
-            if (ser is UserTypeSerializer userType)
+            if (ser.IsUserClass && ser is UserTypeSerializer userType)
             {
                 foreach (DataField field in userType.Fields)
                 {
                     object obj = field.Get(instance);
-                    RecursiveGatherObjs(field.Serializer, obj, groups, objects);
+                    RecursiveScan(field.Serializer, obj, groups, objects, structs);
                 }
             }
         }
 
-        public void ScanObjects(TypeSerializer ser, object rootObject)
+        public void ScanObjects(TypeSerializer rootSer, object rootObject)
         {
             var objectGroups = new Map<TypeSerializer, Array<object>>();
             var uniqueObjects = new HashSet<object>();
-            RecursiveGatherObjs(ser, rootObject, objectGroups, uniqueObjects);
+            var uniqueStructs = new HashSet<TypeSerializer>();
+            RecursiveScan(rootSer, rootObject, objectGroups, uniqueObjects, uniqueStructs);
 
             NumObjects = uniqueObjects.Count;
 
             // make the types somewhat stable by sorting them by name
             // new/deleted types will of course offset this list immediately
             // and deleted types can't be reconstructed during Reading
-            // strings have to be first
+
+            var structs = uniqueStructs.ToArrayList();
+            structs.Sort((a, b) => string.CompareOrdinal(a.Type.Name, b.Type.Name));
+
             var groups = objectGroups.ToArrayList();
             groups.Sort((a, b) =>
             {
@@ -86,11 +100,23 @@ namespace Ship_Game.Data.Binary
                 // the rest, sort by type name
                 return string.CompareOrdinal(a.Key.Type.Name, b.Key.Type.Name);
             });
+
+            // for TypeGroups we only use Object groups
             TypeGroups = groups.Select(kv => (kv.Key, kv.Value.ToArray()));
 
-            // only User Types, ignore Map<,>, Array<>, T[], ...
-            UsedTypes = TypeGroups.FilterSelect(sl => sl.Ser.IsUserClass, sl => sl.Ser);
+            // for UsedTypes we take both structs and objects
+            var usedTypes = new Array<TypeSerializer>();
+            
+            foreach (TypeSerializer ser in structs)
+                usedTypes.Add(ser);
 
+            foreach ((TypeSerializer ser, object[] list) in TypeGroups)
+                if (ser.IsUserClass)
+                    usedTypes.Add(ser);
+
+            UsedTypes = usedTypes.ToArray();
+
+            // find the root object index from the neatly sorted type groups
             RootObjectIndex = IndexOfRootObject(rootObject);
         }
 
@@ -175,7 +201,8 @@ namespace Ship_Game.Data.Binary
                 {
                     // always include the type, this allows us to handle
                     // fields which get deleted, so they can be skipped
-                    bw.Write((ushort)field.Serializer.Id);
+                    TypeSerializer fieldSer = field.Serializer;
+                    bw.Write((ushort)fieldSer.Id);
 
                     // write the field IDX to Stream so we can remap it
                     // to actual FieldIdx during deserialize
@@ -190,9 +217,14 @@ namespace Ship_Game.Data.Binary
                     {
                         bw.Write(pointer); // write the object pointer
                     }
+                    else if (fieldSer.IsUserClass)
+                    {
+                        // an UserClass struct which has to be serialized inline
+                        WriteObject(bw, fieldSer, fieldObject, pointers);
+                    }
                     else // it's a float, int, Vector2, etc. dump it directly
                     {
-                        field.Serializer.Serialize(bw, fieldObject);
+                        fieldSer.Serialize(bw, fieldObject);
                     }
                 }
             }
