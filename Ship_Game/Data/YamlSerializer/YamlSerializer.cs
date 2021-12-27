@@ -12,11 +12,12 @@ namespace Ship_Game.Data.YamlSerializer
     // And turn it into usable game objects
     public class YamlSerializer : UserTypeSerializer
     {
-        public override string ToString() => $"YamlSerializer {TheType.GetTypeName()}";
+        public override string ToString() => $"YamlSerializer {Type.GetTypeName()}";
 
         public YamlSerializer(Type type) : base(type, new YamlSerializerMap())
         {
             IsUserClass = true;
+            ResolveTypes();
         }
 
         public YamlSerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)
@@ -26,7 +27,7 @@ namespace Ship_Game.Data.YamlSerializer
 
         public override object Deserialize(YamlNode node)
         {
-            object item = Activator.CreateInstance(TheType);
+            object item = Activator.CreateInstance(Type);
 
             bool hasKey = (node.Key != null);
             bool hasValue = (node.Value != null);
@@ -118,7 +119,7 @@ namespace Ship_Game.Data.YamlSerializer
         {
             var root = new YamlNode
             {
-                Key = TheType.Name
+                Key = Type.Name
             };
 
             Serialize(root, obj);
