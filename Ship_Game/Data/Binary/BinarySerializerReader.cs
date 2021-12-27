@@ -6,9 +6,16 @@ namespace Ship_Game.Data.Binary
 {
     class BinarySerializerReader
     {
-        public BinarySerializerHeader Header;
-        public Array<object> ObjectsList;
-        public uint[] ObjectOffsetTable;
+        BinarySerializerHeader Header;
+
+        // Object counts grouped by their type (includes strings)
+        (TypeSerializer Ser, int Count)[] TypeGroups;
+
+        // flat list of deserialized objects
+        public object[] ObjectsList;
+
+        // this is only needed for long-term storage, such as savegames
+        bool StableMapping;
 
         // maps stream DataField Idx to actual DataFields in memory
         // this is needed because serialized data will almost always
@@ -16,13 +23,11 @@ namespace Ship_Game.Data.Binary
         // 
         // This mapping allows us to completely avoid field name checks
         // during Deserialize() itself
-        public ushort[][] StreamFieldsToActual;
+        ushort[][] StreamFieldsToActual;
 
         // And this maps Stream Type ID-s to Actual Type ID-s
         // to handle cases where types are added/removed from type list
-        public ushort[] StreamTypesToActual;
-
-        public bool StableMapping;
+        ushort[] StreamTypesToActual;
 
         public BinarySerializerReader(in BinarySerializerHeader header)
         {
@@ -33,14 +38,10 @@ namespace Ship_Game.Data.Binary
                 StreamFieldsToActual = new ushort[header.NumTypes][];
                 StreamTypesToActual = new ushort[header.NumTypes];
             }
-
-            ObjectsList = new Array<object>();
-            ObjectsList.Resize(header.NumObjects);
-            ObjectOffsetTable = new uint[header.NumObjects];
         }
 
         // Converts Stream typeId into an Actual typeId
-        public ushort GetActualTypeId(ushort streamTypeId)
+        ushort GetActualTypeId(ushort streamTypeId)
         {
             if (StableMapping && streamTypeId >= TypeSerializer.MaxFundamentalTypes)
                 return StreamTypesToActual[streamTypeId - TypeSerializer.MaxFundamentalTypes];
@@ -48,36 +49,36 @@ namespace Ship_Game.Data.Binary
         }
 
         // Converts Stream field index into an Actual fieldIdx
-        public ushort GetActualFieldIdx(ushort streamTypeId, ushort streamFieldIdx)
+        ushort GetActualFieldIdx(ushort streamTypeId, ushort streamFieldIdx)
         {
             if (StableMapping && streamTypeId >= TypeSerializer.MaxFundamentalTypes)
                 return StreamFieldsToActual[streamTypeId - TypeSerializer.MaxFundamentalTypes][streamFieldIdx];
             return streamFieldIdx;
         }
 
-        public void ReadTypesList(BinaryReader reader, UserTypeSerializer owner)
+        public void ReadTypesList(BinaryReader br, TypeSerializerMap typeMap)
         {
             for (int i = 0; i < Header.NumTypes; ++i)
             {
-                ushort typeId = reader.ReadUInt16();
-                string typeNameAndAssembly = reader.ReadString();
+                ushort typeId = br.ReadUInt16();
+                string typeNameAndAssembly = br.ReadString();
 
                 // if type is not found, we completely give up
                 // TODO: we should mark this type as invalid and use `null` during deserialize
                 Type type = Type.GetType(typeNameAndAssembly, throwOnError: true);
-                if (!owner.TypeMap.TryGet(type, out TypeSerializer serializer))
+                if (!typeMap.TryGet(type, out TypeSerializer serializer))
                 {
-                    serializer = owner.TypeMap.AddUserTypeSerializer(type);
+                    serializer = typeMap.AddUserTypeSerializer(type);
                 }
 
                 if (StableMapping && serializer is UserTypeSerializer userSer)
                 {
-                    ushort numFields = reader.ReadUInt16();
+                    ushort numFields = br.ReadUInt16();
                     ushort[] mapping = new ushort[numFields];
 
                     for (ushort fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
                     {
-                        string fieldName = reader.ReadString();
+                        string fieldName = br.ReadString();
                         DataField field = userSer.GetFieldOrNull(fieldName);
                         if (field != null)
                         {
@@ -95,76 +96,109 @@ namespace Ship_Game.Data.Binary
             }
         }
 
-        public void ReadOffsetTable(BinaryReader reader)
+        // reads the type groups
+        public void ReadTypeGroups(BinaryReader br, TypeSerializerMap typeMap)
         {
-            for (int objectIdx = 0; objectIdx < ObjectOffsetTable.Length; ++objectIdx)
-                ObjectOffsetTable[objectIdx] = reader.ReadUInt32();
+            TypeGroups = new (TypeSerializer Ser, int Count)[Header.NumTypeGroups];
+
+            int totalCount = 0;
+            for (int i = 0; i < TypeGroups.Length; ++i)
+            {
+                int typeId = GetActualTypeId(br.ReadUInt16());
+                int count = br.ReadInt32();
+                totalCount += count;
+                TypeGroups[i] = (typeMap.Get(typeId), count);
+            }
+
+            ObjectsList = new object[totalCount];
         }
 
-        public object CreateObject(BinaryReader reader, TypeSerializerMap typeMap, long streamStart, int objectIdx)
+        // populate all object instances by reading the object fields
+        public void ReadObjectsList(BinaryReader br, TypeSerializerMap typeMap)
         {
-            // if object was already created, just return it
-            // this handles multiple refs and cyclic refs
-            object instance = ObjectsList[objectIdx];
-            if (instance != null)
-                return instance;
-
-            var stream = reader.BaseStream;
-            long previousPos = stream.Position;
-            long objectPos = streamStart + ObjectOffsetTable[objectIdx];
-            if (objectPos != previousPos)
-                stream.Seek(objectPos, SeekOrigin.Begin);
-
-            ushort typeId = GetActualTypeId(reader.ReadUInt16());
-            TypeSerializer serializer = typeMap.Get(typeId);
-
-            if (serializer is UserTypeSerializer userSer)
+            // read simple types, and create dummies for UserClasses
+            int objectIdx = 0;
+            foreach ((TypeSerializer ser, int groupCount) in TypeGroups)
             {
-                instance = Activator.CreateInstance(userSer.Type);
-                // need to add it right away, to handle cyclic references
-                ObjectsList[objectIdx] = instance;
-
-                int numFields = reader.ReadUInt16();
-                for (int i = 0; i < numFields; ++i)
+                // NOTE: BinarySerializer always writes non-UserClasses first
+                //       This is necessary for handling object dependency
+                if (!(ser is UserTypeSerializer userType))
                 {
-                    // serializer Id from the stream
-                    ushort fieldTypeId = GetActualTypeId(reader.ReadUInt16());
-                    ushort fieldIdx = GetActualFieldIdx(fieldTypeId, reader.ReadUInt16());
-
-                    if (typeMap.TryGet(fieldTypeId, out TypeSerializer fieldSer))
+                    for (int j = 0; j < groupCount; ++j)
                     {
-                        object fieldValue;
-                        if (fieldSer.IsUserClass || fieldSer.Type == typeof(string))
-                        {
-                            int pointer = reader.ReadInt32();
-                            if (pointer == 0)
-                                continue;
-                            fieldValue = CreateObject(reader, typeMap, streamStart, pointer - 1);
-                        }
-                        else
-                        {
-                            fieldValue = fieldSer.Deserialize(reader);
-                        }
-
-                        DataField field = userSer.GetFieldOrNull(fieldIdx);
-                        field?.Set(instance, fieldValue);
-
+                        object instance = ser.Deserialize(br);
+                        ObjectsList[objectIdx++] = instance;
                     }
-                    else // it's an unknown user class, try skipping 1 pointer
+                }
+                else
+                {
+                    // we need to pre-instantiate all UserClass instances
+                    // so that ReadUserClass can resolve object references
+                    for (int j = 0; j < groupCount; ++j)
                     {
-                        reader.ReadInt32();
+                        object instance = Activator.CreateInstance(ser.Type);
+                        ObjectsList[objectIdx++] = instance;
                     }
                 }
             }
-            else // string, object[], stuff like that
+
+            // now read UserClass data fields
+            objectIdx = 0;
+            foreach ((TypeSerializer ser, int groupCount) in TypeGroups)
             {
-                instance = serializer.Deserialize(reader);
-                ObjectsList[objectIdx] = instance;
+                if (ser is UserTypeSerializer userType)
+                {
+                    for (int j = 0; j < groupCount; ++j)
+                    {
+                        object instance = ObjectsList[objectIdx++];
+                        ReadUserClass(br, typeMap, userType, instance);
+                    }
+                }
+                else
+                {
+                    objectIdx += groupCount; // skip
+                }
+            }
+        }
+
+        void ReadUserClass(BinaryReader br, TypeSerializerMap typeMap, UserTypeSerializer ser, object instance)
+        {
+            if (instance == null)
+            {
+                Log.Error($"Failed to deserialize {ser}");
+                return;
             }
 
-            if (objectPos != previousPos)
-                stream.Seek(previousPos, SeekOrigin.Begin);
-            return instance;
+            int numFields = br.ReadUInt16();
+            for (int i = 0; i < numFields; ++i)
+            {
+                // serializer Id from the stream
+                ushort fieldTypeId = GetActualTypeId(br.ReadUInt16());
+                ushort fieldIdx = GetActualFieldIdx(fieldTypeId, br.ReadUInt16());
+
+                if (typeMap.TryGet(fieldTypeId, out TypeSerializer fieldSer))
+                {
+                    object fieldValue;
+                    if (BinarySerializer.IsPointerType(fieldSer))
+                    {
+                        int pointer = br.ReadInt32();
+                        if (pointer == 0)
+                            continue;
+                        fieldValue = ObjectsList[pointer - 1]; // pointer = objectIndex + 1
+                    }
+                    else
+                    {
+                        fieldValue = fieldSer.Deserialize(br);
+                    }
+
+                    DataField field = ser.GetFieldOrNull(fieldIdx);
+                    field?.Set(instance, fieldValue);
+                }
+                else // it's an unknown user class, try skipping 1 pointer
+                {
+                    br.ReadInt32();
+                }
+            }
         }
     }
 }

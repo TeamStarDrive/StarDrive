@@ -683,6 +683,10 @@ namespace Ship_Game
             }
         }
 
+        // Sorts array items by calling comparsion(a, b) between all items
+        // comparison(): return -1: a is less than b, thus a should be first
+        //               return  0: a is equal to b, order does not matter
+        //               return +1: a is greater than b, thus b should be first
         public void Sort(Comparison<T> comparison)
         {
             Array.Sort(Items, 0, Count, new Comparer(comparison));
