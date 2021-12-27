@@ -19,7 +19,7 @@ namespace Ship_Game.Data.Serialization
         /// <summary>
         /// If TRUE, this serializer is a primitive fundamental type
         /// </summary>
-        public bool IsFundamentalType => (Id <= MaxFundamentalTypes);
+        public bool IsFundamentalType => (Id < MaxFundamentalTypes);
 
         /// <summary>
         /// If TRUE, this serializer is a collection serializer for Arrays or Maps

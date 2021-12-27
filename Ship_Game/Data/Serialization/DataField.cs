@@ -11,7 +11,8 @@ namespace Ship_Game.Data.Serialization
 {
     public class DataField
     {
-        public int FieldIdx { get; }
+        // Zero based field index that is set during serializer type resolve
+        public int FieldIdx;
         public string Name;
         readonly PropertyInfo Prop;
         readonly FieldInfo Field;
@@ -19,9 +20,8 @@ namespace Ship_Game.Data.Serialization
 
         public override string ToString() => Prop?.ToString() ?? Field?.ToString() ?? "invalid";
 
-        public DataField(TypeSerializerMap typeMap, int fieldIdx, StarDataAttribute a, PropertyInfo prop, FieldInfo field)
+        public DataField(TypeSerializerMap typeMap, StarDataAttribute a, PropertyInfo prop, FieldInfo field)
         {
-            FieldIdx = fieldIdx;
             Name = a.NameId.NotEmpty() ? a.NameId : (prop?.Name ?? field.Name);
             Prop  = prop;
             Field = field;
@@ -61,12 +61,6 @@ namespace Ship_Game.Data.Serialization
                 return true;
             }
             return false;
-        }
-
-        public void Deserialize(BinaryReader reader, object instance)
-        {
-            object value = Serializer.Deserialize(reader);
-            Set(instance, value);
         }
 
         public void SetConverted(object instance, object valueToConvert)
