@@ -10,7 +10,7 @@ namespace Ship_Game.Data.Serialization
 
         // Id which is valid in a single serialization context
         internal ushort Id;
-        internal Type Type;
+        public readonly Type Type;
 
         /// <summary>
         /// If TRUE, this serializer is a primitive fundamental type
@@ -27,6 +27,20 @@ namespace Ship_Game.Data.Serialization
         /// marked with [StarDataType] attribute
         /// </summary>
         public bool IsUserClass { get; protected set; }
+
+        /// <summary>
+        /// If TRUE, instances of this type should be represented by pointers,
+        /// all Classes fall in this category.
+        /// If FALSE, instances are value types such as primitives or structs,
+        /// and can't be represented by pointers.
+        /// </summary>
+        public bool IsPointerType { get; protected set; }
+
+        protected TypeSerializer(Type type)
+        {
+            Type = type;
+            IsPointerType = !type.IsValueType;
+        }
 
         /// <summary>
         /// Convert from a generic Deserialized object into the underlying Type

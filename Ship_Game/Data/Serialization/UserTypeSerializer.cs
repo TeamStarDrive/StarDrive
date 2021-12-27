@@ -22,10 +22,11 @@ namespace Ship_Game.Data.Serialization
 
         public IReadOnlyList<DataField> Fields => Index;
 
-        protected UserTypeSerializer(Type type, TypeSerializerMap typeMap)
+        protected UserTypeSerializer(Type type, TypeSerializerMap typeMap) : base(type)
         {
-            Type = type;
             TypeMap = typeMap;
+            IsUserClass = true;
+
             if (type.GetCustomAttribute<StarDataTypeAttribute>() == null)
                 throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
 

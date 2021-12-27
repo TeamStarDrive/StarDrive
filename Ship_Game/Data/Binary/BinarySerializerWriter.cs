@@ -40,7 +40,7 @@ namespace Ship_Game.Data.Binary
             if (instance == null)
                 return; // don't map nulls
 
-            if (BinarySerializer.IsPointerType(ser))
+            if (ser.IsPointerType)
             {
                 if (!objects.Add(instance))
                     return; // this object instance already mapped
@@ -92,8 +92,8 @@ namespace Ship_Game.Data.Binary
                 if (b.Key.Type == typeof(string)) return +1;
 
                 // non-pointer types must come second
-                bool isPointerA = BinarySerializer.IsPointerType(a.Key);
-                bool isPointerB = BinarySerializer.IsPointerType(b.Key);
+                bool isPointerA = a.Key.IsPointerType;
+                bool isPointerB = b.Key.IsPointerType;
                 if (!isPointerA && isPointerB) return -1;
                 if (isPointerA && !isPointerB) return +1;
 

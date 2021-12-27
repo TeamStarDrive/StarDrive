@@ -32,14 +32,12 @@ namespace Ship_Game.Data.Binary
         public BinarySerializer(Type type) : base(type, new BinaryTypeMap())
         {
             IsRoot = true;
-            IsUserClass = true;
-            TypeMap.Add(type, this);
+            TypeMap.Add(this);
         }
 
         public BinarySerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)
         {
             IsRoot = false;
-            IsUserClass = true;
         }
 
         // cache for binary type converters
@@ -47,13 +45,8 @@ namespace Ship_Game.Data.Binary
         {
             public override TypeSerializer AddUserTypeSerializer(Type type)
             {
-                return Add(type, new BinarySerializer(type, this));
+                return Add(new BinarySerializer(type, this));
             }
-        }
-
-        internal static bool IsPointerType(TypeSerializer ser)
-        {
-            return !ser.Type.IsValueType;
         }
 
         public override void Serialize(YamlNode parent, object obj)

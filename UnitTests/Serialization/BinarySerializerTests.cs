@@ -286,8 +286,8 @@ namespace UnitTests.Serialization
                 SS = new SmallStruct { Id = 15, Name = "Laika" },
             };
             var result = SerDes(instance, out byte[] bytes);
-            Assert.AreEqual(instance.SS.Id, result.SS.Id, "SmallStruct Id fields must match");
-            Assert.AreEqual(instance.SS.Name, result.SS.Name, "SmallStruct Name fields must match");
+            Assert.AreEqual(instance.SS.Id, result.SS.Id, "Nested SmallStruct Id fields must match");
+            Assert.AreEqual(instance.SS.Name, result.SS.Name, "Nested SmallStruct Name fields must match");
         }
 
         //[TestMethod]

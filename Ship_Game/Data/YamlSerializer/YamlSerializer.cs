@@ -17,13 +17,11 @@ namespace Ship_Game.Data.YamlSerializer
 
         public YamlSerializer(Type type) : base(type, new YamlTypeMap())
         {
-            IsUserClass = true;
             ResolveTypes();
         }
 
         public YamlSerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)
         {
-            IsUserClass = true;
         }
 
         // cache for yaml type converters
@@ -31,12 +29,12 @@ namespace Ship_Game.Data.YamlSerializer
         {
             public YamlTypeMap()
             {
-                Add(typeof(object), new ObjectSerializer());
+                Add(new ObjectSerializer());
             }
 
             public override TypeSerializer AddUserTypeSerializer(Type type)
             {
-                return Add(type, new YamlSerializer(type, this));
+                return Add(new YamlSerializer(type, this));
             }
         }
 
