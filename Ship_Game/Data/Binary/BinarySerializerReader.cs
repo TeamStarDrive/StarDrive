@@ -44,7 +44,13 @@ namespace Ship_Game.Data.Binary
         ushort GetActualTypeId(ushort streamTypeId)
         {
             if (StableMapping && streamTypeId >= TypeSerializer.MaxFundamentalTypes)
-                return StreamTypesToActual[streamTypeId - TypeSerializer.MaxFundamentalTypes];
+            {
+                int typeIdx = streamTypeId - TypeSerializer.MaxFundamentalTypes;
+                if (typeIdx < StreamTypesToActual.Length)
+                    return StreamTypesToActual[typeIdx];
+
+                throw new InvalidDataException($"Invalid streamTypeId={streamTypeId}");
+            }
             return streamTypeId;
         }
 
@@ -52,7 +58,19 @@ namespace Ship_Game.Data.Binary
         ushort GetActualFieldIdx(ushort streamTypeId, ushort streamFieldIdx)
         {
             if (StableMapping && streamTypeId >= TypeSerializer.MaxFundamentalTypes)
-                return StreamFieldsToActual[streamTypeId - TypeSerializer.MaxFundamentalTypes][streamFieldIdx];
+            {
+                int typeIdx = streamTypeId - TypeSerializer.MaxFundamentalTypes;
+                if (typeIdx < StreamFieldsToActual.Length)
+                {
+                    ushort[] typeFields = StreamFieldsToActual[typeIdx];
+                    if (streamFieldIdx < typeFields.Length)
+                        return typeFields[streamFieldIdx];
+
+                    throw new InvalidDataException($"Invalid streamFieldIdx={streamFieldIdx}");
+                }
+
+                throw new InvalidDataException($"Invalid streamTypeId={streamTypeId}");
+            }
             return streamFieldIdx;
         }
 
@@ -185,6 +203,12 @@ namespace Ship_Game.Data.Binary
                         if (pointer == 0)
                             continue;
                         fieldValue = ObjectsList[pointer - 1]; // pointer = objectIndex + 1
+                    }
+                    else if (fieldSer is UserTypeSerializer fieldUserSer)
+                    {
+                        // a custom struct
+                        fieldValue = Activator.CreateInstance(fieldUserSer.Type);
+                        ReadUserClass(br, typeMap, fieldUserSer, fieldValue);
                     }
                     else
                     {

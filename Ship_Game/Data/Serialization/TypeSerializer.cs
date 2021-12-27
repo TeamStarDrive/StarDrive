@@ -24,6 +24,7 @@ namespace Ship_Game.Data.Serialization
 
         /// <summary>
         /// If TRUE, this serializer is made for a custom user class type
+        /// marked with [StarDataType] attribute
         /// </summary>
         public bool IsUserClass { get; protected set; }
 
