@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.YamlSerializer
@@ -14,7 +15,7 @@ namespace Ship_Game.Data.YamlSerializer
     {
         public override string ToString() => $"YamlSerializer {Type.GetTypeName()}";
 
-        public YamlSerializer(Type type) : base(type, new YamlSerializerMap())
+        public YamlSerializer(Type type) : base(type, new YamlTypeMap())
         {
             IsUserClass = true;
             ResolveTypes();
@@ -23,6 +24,20 @@ namespace Ship_Game.Data.YamlSerializer
         public YamlSerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)
         {
             IsUserClass = true;
+        }
+
+        // cache for yaml type converters
+        class YamlTypeMap : TypeSerializerMap
+        {
+            public YamlTypeMap()
+            {
+                Add(typeof(object), new ObjectSerializer());
+            }
+
+            public override TypeSerializer AddUserTypeSerializer(Type type)
+            {
+                return Add(type, new YamlSerializer(type, this));
+            }
         }
 
         public override object Deserialize(YamlNode node)
