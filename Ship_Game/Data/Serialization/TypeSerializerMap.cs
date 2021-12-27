@@ -46,7 +46,8 @@ namespace Ship_Game.Data.Serialization
             Set(id: 19, typeof(string),  new StringSerializer() );
             Set(id: 20, typeof(LocalizedText), new LocalizedTextSerializer());
             Set(id: 21, typeof(Range), new RangeSerializer());
-            Set(id: 22, typeof(TimeSpan), new TimeSpanSerializer());
+            Set(id: 22, typeof(DateTime), new DateTimeSerializer());
+            Set(id: 23, typeof(TimeSpan), new TimeSpanSerializer());
             // ADD new types here, up to `TypeSerializer.MaxFundamentalTypes`
         }
 
