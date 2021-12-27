@@ -23,22 +23,23 @@ namespace Ship_Game.Data.Serialization
 
             Set(1, typeof(bool),   new BoolSerializer()  );
             Set(2, typeof(byte),   new ByteSerializer()  );
-            Set(3, typeof(short),  new ShortSerializer() );
-            Set(4, typeof(ushort), new UShortSerializer());
-            Set(5, typeof(int),    new IntSerializer()   );
-            Set(6, typeof(uint),   new UIntSerializer()  );
-            Set(7, typeof(long),   new LongSerializer()  );
-            Set(8, typeof(ulong),  new ULongSerializer() );
-            Set(9, typeof(float),  new FloatSerializer() );
-            Set(10, typeof(double),  new DoubleSerializer() );
-            Set(11, typeof(Vector2), new Vector2Serializer());
-            Set(12, typeof(Vector3), new Vector3Serializer());
-            Set(13, typeof(Vector4), new Vector4Serializer());
-            Set(14, typeof(Color),   new ColorSerializer()  );
-            Set(15, typeof(string),  new StringSerializer() );
-            Set(16, typeof(LocalizedText), new LocalizedTextSerializer());
-            Set(17, typeof(Range), new RangeSerializer());
-            Set(18, typeof(TimeSpan), new TimeSpanSerializer());
+            Set(3, typeof(sbyte),  new SByteSerializer() );
+            Set(4, typeof(short),  new ShortSerializer() );
+            Set(5, typeof(ushort), new UShortSerializer());
+            Set(6, typeof(int),    new IntSerializer()   );
+            Set(7, typeof(uint),   new UIntSerializer()  );
+            Set(8, typeof(long),   new LongSerializer()  );
+            Set(9, typeof(ulong),  new ULongSerializer() );
+            Set(10, typeof(float), new FloatSerializer() );
+            Set(11, typeof(double),  new DoubleSerializer() );
+            Set(12, typeof(Vector2), new Vector2Serializer());
+            Set(13, typeof(Vector3), new Vector3Serializer());
+            Set(14, typeof(Vector4), new Vector4Serializer());
+            Set(15, typeof(Color),   new ColorSerializer()  );
+            Set(16, typeof(string),  new StringSerializer() );
+            Set(17, typeof(LocalizedText), new LocalizedTextSerializer());
+            Set(18, typeof(Range), new RangeSerializer());
+            Set(19, typeof(TimeSpan), new TimeSpanSerializer());
         }
 
         TypeSerializer Set(ushort id, Type type, TypeSerializer ser)

@@ -11,39 +11,50 @@ namespace UnitTests.Serialization
     [TestClass]
     public class BinarySerializerTests : StarDriveTest
     {
-        static byte[] Serialize<T>(T instance)
+        static byte[] Serialize<T>(BinarySerializer ser, T instance)
         {
-            var serializer = new BinarySerializer(typeof(T));
             var ms = new MemoryStream();
             var writer = new BinaryWriter(ms);
-            serializer.Serialize(writer, instance);
+            ser.Serialize(writer, instance);
             return ms.ToArray();
+        }
+
+        static T Deserialize<T>(BinarySerializer ser, byte[] bytes)
+        {
+            var reader = new BinaryReader(new MemoryStream(bytes));
+            return (T)ser.Deserialize(reader);
+        }
+
+        static byte[] Serialize<T>(T instance)
+        {
+            var ser = new BinarySerializer(typeof(T));
+            return Serialize(ser, instance);
         }
 
         static T Deserialize<T>(byte[] bytes)
         {
-            var serializer = new BinarySerializer(typeof(T));
-            var reader = new BinaryReader(new MemoryStream(bytes));
-            return (T)serializer.Deserialize(reader);
+            var ser = new BinarySerializer(typeof(T));
+            return Deserialize<T>(ser, bytes);
         }
 
         static T SerDes<T>(T instance, out byte[] bytes)
         {
-            bytes = Serialize<T>(instance);
-            return Deserialize<T>(bytes);
+            var ser = new BinarySerializer(typeof(T));
+            bytes = Serialize<T>(ser, instance);
+            return Deserialize<T>(ser, bytes);
         }
 
         [StarDataType]
         class IntegersContainingType
         {
-            public int IntZero, IntMin, IntMax;
-            public uint UIntZero, UIntMin, UIntMax;
-            public long LongZero, LongMin, LongMax;
-            public ulong ULongZero, ULongMin, ULongMax;
-            public short ShortZero, ShortMin, ShortMax;
-            public ushort UShortZero, UShortMin, UShortMax;
-            public sbyte SByteZero, SByteMin, SByteMax;
-            public byte ByteZero, ByteMin, ByteMax;
+            [StarData] public int IntZero, IntMin, IntMax;
+            [StarData] public uint UIntZero, UIntMin, UIntMax;
+            [StarData] public long LongZero, LongMin, LongMax;
+            [StarData] public ulong ULongZero, ULongMin, ULongMax;
+            [StarData] public short ShortZero, ShortMin, ShortMax;
+            [StarData] public ushort UShortZero, UShortMin, UShortMax;
+            [StarData] public sbyte SByteZero, SByteMin, SByteMax;
+            [StarData] public byte ByteZero, ByteMin, ByteMax;
         }
 
         [TestMethod]
@@ -89,19 +100,11 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
-        struct SmallStruct
-        {
-            [StarData] public int X;
-            [StarData] public int Y;
-        }
-
-        [StarDataType]
         class CustomRecursiveType
         {
             [StarData] public CustomRecursiveType RecursiveSelf;
             [StarData] public string Text;
             [StarData] public int Count;
-            //[StarData] public SmallStruct Pos;
         }
 
         [TestMethod]
@@ -111,7 +114,6 @@ namespace UnitTests.Serialization
             {
                 Text = "Hello",
                 Count = 42,
-                //Pos = new SmallStruct { X = 15, Y = 33 },
             };
             instance.RecursiveSelf = instance;
 
@@ -119,16 +121,39 @@ namespace UnitTests.Serialization
             Assert.AreEqual(result.RecursiveSelf, result, "Recursive self reference must match");
             Assert.AreEqual(instance.Text, result.Text, "string must match");
             Assert.AreEqual(instance.Count, result.Count, "int field must match");
-            //Assert.AreEqual(instance.Pos.X, result.Pos.X, "SmallStruct fields must match");
-            //Assert.AreEqual(instance.Pos.Y, result.Pos.Y, "SmallStruct fields must match");
+        }
+
+        [StarDataType]
+        struct SmallStruct
+        {
+            [StarData] public int X;
+            [StarData] public int Y;
+        }
+
+        [StarDataType]
+        class CustomStructContainer
+        {
+            [StarData] public SmallStruct Pos;
         }
 
         [TestMethod]
-        public void SerializeAShip()
+        public void NestedUserTypeStruct()
         {
-            CreateUniverseAndPlayerEmpire();
-            Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            byte[] bytes = Serialize(ship);
+            var instance = new CustomStructContainer
+            {
+                Pos = new SmallStruct { X = 15, Y = 33 },
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.AreEqual(instance.Pos.X, result.Pos.X, "SmallStruct fields must match");
+            Assert.AreEqual(instance.Pos.Y, result.Pos.Y, "SmallStruct fields must match");
         }
+
+        //[TestMethod]
+        //public void SerializeAShip()
+        //{
+        //    CreateUniverseAndPlayerEmpire();
+        //    Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+        //    byte[] bytes = Serialize(ship);
+        //}
     }
 }
