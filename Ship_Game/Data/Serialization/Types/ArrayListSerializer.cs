@@ -11,7 +11,7 @@ namespace Ship_Game.Data.Serialization.Types
         readonly Type ElemType;
         readonly TypeSerializer ElemSerializer;
 
-        public ArrayListSerializer(Type elemType, TypeSerializer elemSerializer)
+        public ArrayListSerializer(Type type, Type elemType, TypeSerializer elemSerializer) : base(type)
         {
             ElemType = elemType;
             ElemSerializer = elemSerializer;

@@ -25,37 +25,36 @@ namespace Ship_Game.Data.Serialization
             //          CHANGE ANY SERIALIZER ID VALUES.
             //          Changing an ID will break compatibility of
             //          fundamental types. Only adding new types is allowed.
-            Set(id: 1, typeof(bool),   new BoolSerializer()  );
-            Set(id: 2, typeof(byte),   new ByteSerializer()  );
-            Set(id: 3, typeof(sbyte),  new SByteSerializer() );
-            Set(id: 4, typeof(short),  new ShortSerializer() );
-            Set(id: 5, typeof(ushort), new UShortSerializer());
-            Set(id: 6, typeof(int),    new IntSerializer()   );
-            Set(id: 7, typeof(uint),   new UIntSerializer()  );
-            Set(id: 8, typeof(long),   new LongSerializer()  );
-            Set(id: 9, typeof(ulong),  new ULongSerializer() );
-            Set(id: 10, typeof(float), new FloatSerializer() );
-            Set(id: 11, typeof(double),  new DoubleSerializer() );
-            Set(id: 12, typeof(Vector2), new Vector2Serializer());
-            Set(id: 13, typeof(Vector3), new Vector3Serializer());
-            Set(id: 14, typeof(Vector4), new Vector4Serializer());
-            Set(id: 15, typeof(Vector2d), new Vector2dSerializer());
-            Set(id: 16, typeof(Vector3d), new Vector3dSerializer());
-            Set(id: 17, typeof(Point),    new PointSerializer() );
-            Set(id: 18, typeof(Color),   new ColorSerializer()  );
-            Set(id: 19, typeof(string),  new StringSerializer() );
-            Set(id: 20, typeof(LocalizedText), new LocalizedTextSerializer());
-            Set(id: 21, typeof(Range), new RangeSerializer());
-            Set(id: 22, typeof(DateTime), new DateTimeSerializer());
-            Set(id: 23, typeof(TimeSpan), new TimeSpanSerializer());
+            Set(id: 1, new BoolSerializer());
+            Set(id: 2, new ByteSerializer());
+            Set(id: 3, new SByteSerializer());
+            Set(id: 4, new ShortSerializer());
+            Set(id: 5, new UShortSerializer());
+            Set(id: 6, new IntSerializer());
+            Set(id: 7, new UIntSerializer());
+            Set(id: 8, new LongSerializer());
+            Set(id: 9, new ULongSerializer());
+            Set(id: 10, new FloatSerializer());
+            Set(id: 11, new DoubleSerializer());
+            Set(id: 12, new Vector2Serializer());
+            Set(id: 13, new Vector3Serializer());
+            Set(id: 14, new Vector4Serializer());
+            Set(id: 15, new Vector2dSerializer());
+            Set(id: 16, new Vector3dSerializer());
+            Set(id: 17, new PointSerializer());
+            Set(id: 18, new ColorSerializer());
+            Set(id: 19, new StringSerializer());
+            Set(id: 20, new LocalizedTextSerializer());
+            Set(id: 21, new RangeSerializer());
+            Set(id: 22, new DateTimeSerializer());
+            Set(id: 23, new TimeSpanSerializer());
             // ADD new types here, up to `TypeSerializer.MaxFundamentalTypes`
         }
 
-        TypeSerializer Set(ushort id, Type type, TypeSerializer ser)
+        TypeSerializer Set(ushort id, TypeSerializer ser)
         {
             ser.Id = id;
-            ser.Type = type;
-            Serializers[type] = ser;
+            Serializers[ser.Type] = ser;
             FlatMap[id] = ser;
             return ser;
         }
@@ -64,11 +63,19 @@ namespace Ship_Game.Data.Serialization
         public abstract TypeSerializer AddUserTypeSerializer(Type type);
 
         // Adds a new serializer type, used during Serialization
-        public TypeSerializer Add(Type type, TypeSerializer ser)
+        public TypeSerializer Add(TypeSerializer ser)
         {
+            return Add(ser.Type, ser);
+        }
+
+        // `type` - this can be an alias for an existing serializer
+        TypeSerializer Add(Type type, TypeSerializer ser)
+        {
+            if (type == null)
+                throw new ArgumentNullException($"serializer.Type cannot be null");
+
             ser.Id = (ushort)FlatMap.Count;
-            ser.Type = type;
-            if (ser.Id == (ushort.MaxValue-1))
+            if (ser.Id == (ushort.MaxValue - 1))
                 throw new IndexOutOfRangeException($"serializer.Id overflow -- too many types: {ser.Id}");
 
             if (Serializers.ContainsKey(type))
@@ -143,29 +150,29 @@ namespace Ship_Game.Data.Serialization
                 return serializer;
             
             if (type.IsEnum)
-                return Add(type, new EnumSerializer(type));
+                return Add(new EnumSerializer(type));
 
             if (type.IsArray)
             {
                 Type elemType = type.GetElementType();
-                return Add(type, new RawArraySerializer(elemType, Get(elemType)));
+                return Add(new RawArraySerializer(type, elemType, Get(elemType)));
             }
 
             Type listElemType = GetListType(type);
             if (listElemType != null)
-                return Add(type, new ArrayListSerializer(listElemType, Get(listElemType)));
+                return Add(new ArrayListSerializer(type, listElemType, Get(listElemType)));
 
             (Type key, Type value) = GetMapTypes(type);
             if (key != null)
-                return Add(type, new MapSerializer(key, Get(key), value, Get(value)));
+                return Add(new MapSerializer(type, key, Get(key), value, Get(value)));
 
             if (type.GetCustomAttribute<StarDataTypeAttribute>() != null)
                 return AddUserTypeSerializer(type);
 
             // Nullable<T>, ex: `[StarData] Color? MinColor;`
-            Type nullableType = Nullable.GetUnderlyingType(type);
-            if (nullableType != null)
-                return Add(type, Get(nullableType));
+            Type nulledType = Nullable.GetUnderlyingType(type);
+            if (nulledType != null) // create an alias: Color? -> Color
+                return Add(type, Get(nulledType));
 
             throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
         }

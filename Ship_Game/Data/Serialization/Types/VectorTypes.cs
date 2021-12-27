@@ -8,6 +8,7 @@ namespace Ship_Game.Data.Serialization.Types
 {
     internal class Vector2Serializer : TypeSerializer
     {
+        public Vector2Serializer() : base(typeof(Vector2)) { }
         public override string ToString() => "Vector2Serializer";
 
         public override object Convert(object value)
@@ -68,6 +69,7 @@ namespace Ship_Game.Data.Serialization.Types
 
     internal class Vector2dSerializer : TypeSerializer
     {
+        public Vector2dSerializer() : base(typeof(Vector2d)) { }
         public override string ToString() => "Vector2dSerializer";
 
         public override object Convert(object value)
@@ -128,6 +130,7 @@ namespace Ship_Game.Data.Serialization.Types
 
     internal class Vector3Serializer : TypeSerializer
     {
+        public Vector3Serializer() : base(typeof(Vector3)) { }
         public override string ToString() => "Vector3Serializer";
 
         public override object Convert(object value)
@@ -185,6 +188,7 @@ namespace Ship_Game.Data.Serialization.Types
 
     internal class Vector3dSerializer : TypeSerializer
     {
+        public Vector3dSerializer() : base(typeof(Vector3d)) { }
         public override string ToString() => "Vector3dSerializer";
 
         public override object Convert(object value)
@@ -242,6 +246,7 @@ namespace Ship_Game.Data.Serialization.Types
 
     internal class Vector4Serializer : TypeSerializer
     {
+        public Vector4Serializer() : base(typeof(Vector4)) { }
         public override string ToString() => "Vector4Serializer";
 
         public override object Convert(object value)
@@ -303,6 +308,7 @@ namespace Ship_Game.Data.Serialization.Types
 
     internal class PointSerializer : TypeSerializer
     {
+        public PointSerializer() : base(typeof(Point)) { }
         public override string ToString() => "PointSerializer";
 
         public override object Convert(object value)
