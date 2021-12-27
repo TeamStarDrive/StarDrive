@@ -11,12 +11,15 @@ namespace Ship_Game.Data.Serialization
 {
     public abstract class TypeSerializerMap
     {
+        // mapping of Type to its Serializer metadata
         readonly Map<Type, TypeSerializer> Serializers = new Map<Type, TypeSerializer>();
-        readonly Array<TypeSerializer> Index = new Array<TypeSerializer>();
+
+        // flatmap of TypeSerializer.Id to TypeSerializer instances
+        readonly Array<TypeSerializer> FlatMap = new Array<TypeSerializer>();
 
         protected TypeSerializerMap()
         {
-            Index.Resize(TypeSerializer.MaxFundamentalTypes + 1);
+            FlatMap.Resize(TypeSerializer.MaxFundamentalTypes);
 
             Set(1, typeof(bool),   new BoolSerializer()  );
             Set(2, typeof(byte),   new ByteSerializer()  );
@@ -38,12 +41,22 @@ namespace Ship_Game.Data.Serialization
             Set(18, typeof(TimeSpan), new TimeSpanSerializer());
         }
 
+        TypeSerializer Set(ushort id, Type type, TypeSerializer ser)
+        {
+            ser.Id = id;
+            ser.Type = type;
+            Serializers[type] = ser;
+            FlatMap[id] = ser;
+            return ser;
+        }
+
+        // Adds a TypeSerializer with IsUserClass == true
         public abstract TypeSerializer AddUserTypeSerializer(Type type);
 
         // Adds a new serializer type, used during Serialization
-        protected TypeSerializer Add(Type type, TypeSerializer ser)
+        public TypeSerializer Add(Type type, TypeSerializer ser)
         {
-            ser.Id = (ushort)Index.Count;
+            ser.Id = (ushort)FlatMap.Count;
             ser.Type = type;
             if (ser.Id == (ushort.MaxValue-1))
                 throw new IndexOutOfRangeException($"serializer.Id overflow -- too many types: {ser.Id}");
@@ -52,20 +65,10 @@ namespace Ship_Game.Data.Serialization
                 throw new InvalidOperationException($"duplicate serializer: {ser}");
 
             Serializers[type] = ser;
-            Index.Add(ser);
-            return ser;
-        }
+            FlatMap.Add(ser);
 
-        // Can be used to overwrite default serializers, used during Deserialization
-        public TypeSerializer Set(ushort id, Type type, TypeSerializer ser)
-        {
-            if (id >= Index.Count)
-                Index.Resize(id+1);
-
-            ser.Id = id;
-            ser.Type = type;
-            Serializers[type] = ser;
-            Index[id] = ser;
+            if (ser is UserTypeSerializer userSer)
+                userSer.ResolveTypes();
             return ser;
         }
 
@@ -94,24 +97,40 @@ namespace Ship_Game.Data.Serialization
 
         public TypeSerializer[] GetCustomTypes()
         {
-            return Index.Filter(s => s != null && !s.IsFundamentalType);
+            return FlatMap.Filter(s => s != null && !s.IsFundamentalType);
         }
 
         public TypeSerializer Get(int typeId)
         {
-            if (typeId < Index.Count)
+            if (typeId < FlatMap.Count)
             {
-                TypeSerializer ser = Index[typeId];
+                TypeSerializer ser = FlatMap[typeId];
                 if (ser != null)
                     return ser;
             }
             throw new InvalidDataException($"{this} unsupported typeId={typeId}");
         }
 
+        public bool TryGet(int typeId, out TypeSerializer serializer)
+        {
+            if (typeId < FlatMap.Count)
+            {
+                serializer = FlatMap[typeId];
+                return true;
+            }
+            serializer = null;
+            return false;
+        }
+
+        public bool TryGet(Type type, out TypeSerializer serializer)
+        {
+            return Serializers.TryGetValue(type, out serializer);
+        }
+
         public TypeSerializer Get(Type type)
         {
-            if (Serializers.TryGetValue(type, out TypeSerializer converter))
-                return converter;
+            if (Serializers.TryGetValue(type, out TypeSerializer serializer))
+                return serializer;
             
             if (type.IsEnum)
                 return Add(type, new EnumSerializer(type));
@@ -131,7 +150,7 @@ namespace Ship_Game.Data.Serialization
                 return Add(type, new MapSerializer(key, Get(key), value, Get(value)));
 
             if (type.GetCustomAttribute<StarDataTypeAttribute>() != null)
-                return Add(type, AddUserTypeSerializer(type));
+                return AddUserTypeSerializer(type);
 
             // Nullable<T>, ex: `[StarData] Color? MinColor;`
             Type nullableType = Nullable.GetUnderlyingType(type);

@@ -15,7 +15,7 @@ namespace Ship_Game.Data.Binary
 
         public override TypeSerializer AddUserTypeSerializer(Type type)
         {
-            return new BinarySerializer(type, this);
+            return Add(type, new BinarySerializer(type, this));
         }
     }
 }

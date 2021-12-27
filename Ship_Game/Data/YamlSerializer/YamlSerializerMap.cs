@@ -19,7 +19,7 @@ namespace Ship_Game.Data.YamlSerializer
 
         public override TypeSerializer AddUserTypeSerializer(Type type)
         {
-            return new YamlSerializer(type, this);
+            return Add(type, new YamlSerializer(type, this));
         }
     }
 }
