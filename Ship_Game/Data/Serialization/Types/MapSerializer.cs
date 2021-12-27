@@ -14,8 +14,9 @@ namespace Ship_Game.Data.Serialization.Types
         readonly TypeSerializer KeySerializer;
         readonly TypeSerializer ValSerializer;
 
-        public MapSerializer(Type keyType, TypeSerializer keySerializer,
-                             Type valType, TypeSerializer valSerializer)
+        public MapSerializer(Type type,
+                             Type keyType, TypeSerializer keySerializer,
+                             Type valType, TypeSerializer valSerializer) : base(type)
         {
             KeyType = keyType;
             ValType = valType;

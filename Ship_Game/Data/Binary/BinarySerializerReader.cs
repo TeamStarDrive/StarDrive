@@ -197,7 +197,7 @@ namespace Ship_Game.Data.Binary
                 if (typeMap.TryGet(fieldTypeId, out TypeSerializer fieldSer))
                 {
                     object fieldValue;
-                    if (BinarySerializer.IsPointerType(fieldSer))
+                    if (fieldSer.IsPointerType)
                     {
                         int pointer = br.ReadInt32();
                         if (pointer == 0)

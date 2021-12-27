@@ -6,6 +6,7 @@ namespace Ship_Game.Data.Serialization.Types
 {
     internal class ColorSerializer : TypeSerializer
     {
+        public ColorSerializer() : base(typeof(Color)) { }
         public override string ToString() => "ColorSerializer";
 
         public override object Convert(object value)
