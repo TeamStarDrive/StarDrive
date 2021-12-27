@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Ship_Game.Data.Yaml;
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization
 {
@@ -90,15 +86,31 @@ namespace Ship_Game.Data.Serialization
         public static float Float(object value)
         {
             if (value is float f)  return f;
+            if (value is double d) return (float)d;
             if (value is int i)    return i;
             if (value is string s) return StringView.ToFloat(s);
-            Error(value, "Float -- expected int or float or string");
-            return 0f;
+            Error(value, "Float -- expected int or float or double or string");
+            return 0.0f;
+        }
+
+        public static double Double(object value)
+        {
+            if (value is double d) return d;
+            if (value is float f) return f;
+            if (value is int i) return i;
+            if (value is string s) return StringView.ToFloat(s);
+            Error(value, "Double -- expected int or float or doubl or string");
+            return 0.0;
         }
 
         public static float Float(string value)
         {
             return StringView.ToFloat(value);
+        }
+
+        public static double Double(string value)
+        {
+            return StringView.ToDouble(value);
         }
 
         public static byte Byte(object value)

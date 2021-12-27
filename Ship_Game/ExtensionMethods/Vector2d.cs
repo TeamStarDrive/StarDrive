@@ -10,6 +10,8 @@ namespace Ship_Game
         public double X;
         public double Y;
 
+        public static readonly Vector2d Zero = default;
+
         public Vector2d(double x, double y)
         {
             X = x;

@@ -21,25 +21,33 @@ namespace Ship_Game.Data.Serialization
         {
             FlatMap.Resize(TypeSerializer.MaxFundamentalTypes);
 
-            Set(1, typeof(bool),   new BoolSerializer()  );
-            Set(2, typeof(byte),   new ByteSerializer()  );
-            Set(3, typeof(sbyte),  new SByteSerializer() );
-            Set(4, typeof(short),  new ShortSerializer() );
-            Set(5, typeof(ushort), new UShortSerializer());
-            Set(6, typeof(int),    new IntSerializer()   );
-            Set(7, typeof(uint),   new UIntSerializer()  );
-            Set(8, typeof(long),   new LongSerializer()  );
-            Set(9, typeof(ulong),  new ULongSerializer() );
-            Set(10, typeof(float), new FloatSerializer() );
-            Set(11, typeof(double),  new DoubleSerializer() );
-            Set(12, typeof(Vector2), new Vector2Serializer());
-            Set(13, typeof(Vector3), new Vector3Serializer());
-            Set(14, typeof(Vector4), new Vector4Serializer());
-            Set(15, typeof(Color),   new ColorSerializer()  );
-            Set(16, typeof(string),  new StringSerializer() );
-            Set(17, typeof(LocalizedText), new LocalizedTextSerializer());
-            Set(18, typeof(Range), new RangeSerializer());
-            Set(19, typeof(TimeSpan), new TimeSpanSerializer());
+            // WARNING: After version 1 is deployed, DO NOT
+            //          CHANGE ANY SERIALIZER ID VALUES.
+            //          Changing an ID will break compatibility of
+            //          fundamental types. Only adding new types is allowed.
+            Set(id: 1, typeof(bool),   new BoolSerializer()  );
+            Set(id: 2, typeof(byte),   new ByteSerializer()  );
+            Set(id: 3, typeof(sbyte),  new SByteSerializer() );
+            Set(id: 4, typeof(short),  new ShortSerializer() );
+            Set(id: 5, typeof(ushort), new UShortSerializer());
+            Set(id: 6, typeof(int),    new IntSerializer()   );
+            Set(id: 7, typeof(uint),   new UIntSerializer()  );
+            Set(id: 8, typeof(long),   new LongSerializer()  );
+            Set(id: 9, typeof(ulong),  new ULongSerializer() );
+            Set(id: 10, typeof(float), new FloatSerializer() );
+            Set(id: 11, typeof(double),  new DoubleSerializer() );
+            Set(id: 12, typeof(Vector2), new Vector2Serializer());
+            Set(id: 13, typeof(Vector3), new Vector3Serializer());
+            Set(id: 14, typeof(Vector4), new Vector4Serializer());
+            Set(id: 15, typeof(Vector2d), new Vector2dSerializer());
+            Set(id: 16, typeof(Vector3d), new Vector3dSerializer());
+            Set(id: 17, typeof(Point),    new PointSerializer() );
+            Set(id: 18, typeof(Color),   new ColorSerializer()  );
+            Set(id: 19, typeof(string),  new StringSerializer() );
+            Set(id: 20, typeof(LocalizedText), new LocalizedTextSerializer());
+            Set(id: 21, typeof(Range), new RangeSerializer());
+            Set(id: 22, typeof(TimeSpan), new TimeSpanSerializer());
+            // ADD new types here, up to `TypeSerializer.MaxFundamentalTypes`
         }
 
         TypeSerializer Set(ushort id, Type type, TypeSerializer ser)
