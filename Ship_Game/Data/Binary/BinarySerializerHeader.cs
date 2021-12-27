@@ -7,26 +7,26 @@ namespace Ship_Game.Data.Binary
         public byte Version;
         public byte Options;
         public ushort NumTypes;
-        public int NumObjects;
-        public uint StreamSize;
+        public ushort NumTypeGroups;
+        public int RootObjectIndex;
+
+        public BinarySerializerHeader(bool stable, BinarySerializerWriter writer)
+        {
+            Version = BinarySerializer.CurrentVersion;
+            Options = 0;
+            NumTypes = (ushort)writer.UsedTypes.Length;
+            NumTypeGroups = (ushort)writer.TypeGroups.Length;
+            RootObjectIndex = writer.RootObjectIndex;
+            UseStableMapping = stable;
+        }
 
         public BinarySerializerHeader(BinaryReader reader)
         {
             Version = reader.ReadByte();
             Options = reader.ReadByte();
-            NumTypes   = reader.ReadUInt16();
-            NumObjects = reader.ReadInt32();
-            StreamSize = reader.ReadUInt32();
-        }
-
-        public BinarySerializerHeader(bool stable, int numTypes, int numObjects)
-        {
-            Version = BinarySerializer.CurrentVersion;
-            Options = 0;
-            NumTypes = (ushort)numTypes;
-            NumObjects = numObjects;
-            StreamSize = 1 + 1 + 4 + 4 + 4;
-            UseStableMapping = stable;
+            NumTypes = reader.ReadUInt16();
+            NumTypeGroups = reader.ReadUInt16();
+            RootObjectIndex = reader.ReadInt32();
         }
 
         public void Write(BinaryWriter writer)
@@ -34,8 +34,8 @@ namespace Ship_Game.Data.Binary
             writer.Write((byte)Version);
             writer.Write((byte)Options);
             writer.Write((ushort)NumTypes);
-            writer.Write((int)NumObjects);
-            writer.Write((uint)StreamSize);
+            writer.Write((ushort)NumTypeGroups);
+            writer.Write((int)RootObjectIndex);
         }
 
         public bool UseStableMapping

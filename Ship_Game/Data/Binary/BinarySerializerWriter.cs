@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Ship_Game.Data.Serialization;
 
@@ -17,128 +18,187 @@ namespace Ship_Game.Data.Binary
             }
         }
 
-        public Array<ObjectReference> ObjectsList = new Array<ObjectReference>();
-        Map<object, int> ObjectToPointer = new Map<object, int>();
-        uint[] ObjectOffsetTable;
-        public Array<TypeSerializer> UsedTypes;
+        // total number of objects
+        public int NumObjects;
+ 
+        // index of the root object which is being serialized/deserialized
+        public int RootObjectIndex;
 
-        // Recursively gathers all UserType instances and records them
-        // in a Depth-First approach
-        public void GatherObjects(TypeSerializer ser, object instance)
+        // which UserClass types were used (excludes strings or other fundamental types)
+        public TypeSerializer[] UsedTypes;
+
+        // Object lists grouped by their type (includes strings)
+        public (TypeSerializer Ser, object[] Objects)[] TypeGroups;
+
+        // Recursively gathers all UserType instances,
+        // the order here is unimportant because they get sorted later
+        void RecursiveGatherObjs(TypeSerializer ser, object instance, 
+                                 Map<TypeSerializer, Array<object>> groups,
+                                 HashSet<object> objects)
         {
-            if (instance == null || instance is ValueType)
-                return; // we don't map null OR value types
+            if (instance == null || !BinarySerializer.IsPointerType(ser))
+                return; // we don't map nulls OR non-pointer types
 
-            if (ObjectToPointer.ContainsKey(instance))
+            if (!objects.Add(instance))
                 return; // object already mapped
 
-            int pointer = ObjectsList.Count + 1;
-            ObjectToPointer[instance] = pointer;
-            ObjectsList.Add(new ObjectReference(instance, ser));
+            if (!groups.TryGetValue(ser, out Array<object> list))
+                groups.Add(ser, (list = new Array<object>()));
+
+            list.Add(instance);
 
             if (ser is UserTypeSerializer userType)
             {
                 foreach (DataField field in userType.Fields)
                 {
-                    GatherObjects(field.Serializer, field.Get(instance));
+                    object obj = field.Get(instance);
+                    RecursiveGatherObjs(field.Serializer, obj, groups, objects);
                 }
             }
         }
 
-        public void GatherUsedTypes()
+        public void ScanObjects(TypeSerializer ser, object rootObject)
         {
-            // only User Types, ignore Map<,>, Array<>, T[], ...
-            UsedTypes = ObjectsList.FilterSelect(o => o.Serializer.IsUserClass, o => o.Serializer).Unique();
+            var objectGroups = new Map<TypeSerializer, Array<object>>();
+            var uniqueObjects = new HashSet<object>();
+            RecursiveGatherObjs(ser, rootObject, objectGroups, uniqueObjects);
+
+            NumObjects = uniqueObjects.Count;
 
             // make the types somewhat stable by sorting them by name
-            // (however deleted types is still a problem)
-            UsedTypes.Sort((a, b) => string.CompareOrdinal(a.Type.Name, b.Type.Name));
+            // new/deleted types will of course offset this list immediately
+            // and deleted types can't be reconstructed during Reading
+            // strings have to be first
+            var groups = objectGroups.ToArrayList();
+            groups.Sort((a, b) =>
+            {
+                // strings must always be first, because they are a
+                // pointer type which is not an UserClass
+                if (a.Key.Type == typeof(string)) return -1;
+                if (b.Key.Type == typeof(string)) return +1;
+
+                // non-pointer types must come second
+                bool isPointerA = BinarySerializer.IsPointerType(a.Key);
+                bool isPointerB = BinarySerializer.IsPointerType(b.Key);
+                if (!isPointerA && isPointerB) return -1;
+                if (isPointerA && !isPointerB) return +1;
+
+                // the rest, sort by type name
+                return string.CompareOrdinal(a.Key.Type.Name, b.Key.Type.Name);
+            });
+            TypeGroups = groups.Select(kv => (kv.Key, kv.Value.ToArray()));
+
+            // only User Types, ignore Map<,>, Array<>, T[], ...
+            UsedTypes = TypeGroups.FilterSelect(sl => sl.Ser.IsUserClass, sl => sl.Ser);
+
+            RootObjectIndex = IndexOfRootObject(rootObject);
         }
 
-        public void WriteTypesList(BinaryWriter writer, bool useStableMapping)
+        int IndexOfRootObject(object rootObject)
+        {
+            int count = 0;
+            foreach ((TypeSerializer ser, object[] list) in TypeGroups)
+            {
+                for (int i = 0; i < list.Length; ++i)
+                    if (list[i] == rootObject)
+                        return count + i;
+                count += list.Length;
+            }
+            return -1;
+        }
+
+        public void WriteTypesList(BinaryWriter bw, bool useStableMapping)
         {
             foreach (TypeSerializer serializer in UsedTypes)
             {
                 string typeName = serializer.Type.FullName;
                 string assemblyName = serializer.Type.Assembly.GetName().Name;
                 //Type type = Type.GetType($"{typeName},{assemblyName}", throwOnError: true);
-                writer.Write(serializer.Id);
+                bw.Write(serializer.Id);
                 // by outputting the full type name and assembly name, we will be able
                 // to always locate the type, unless its assembly is changed
-                writer.Write(typeName + "," + assemblyName);
+                bw.Write(typeName + "," + assemblyName);
 
                 if (useStableMapping && serializer is UserTypeSerializer userSer)
                 {
-                    writer.Write((ushort)userSer.Fields.Count);
+                    bw.Write((ushort)userSer.Fields.Count);
                     foreach (DataField field in userSer.Fields)
-                        writer.Write(field.Name);
+                        bw.Write(field.Name);
                 }
             }
         }
 
-        public void WriteOffsetTable(BinaryWriter writer, long seekTo = -1)
+        public void WriteObjectTypeGroups(BinaryWriter bw)
         {
-            if (seekTo != -1)
-                writer.BaseStream.Seek(seekTo, SeekOrigin.Begin);
-
-            if (ObjectOffsetTable == null)
-                ObjectOffsetTable = new uint[ObjectsList.Count];
-
-            for (int i = 0; i < ObjectOffsetTable.Length; ++i)
-                writer.Write(ObjectOffsetTable[i]);
+            foreach ((TypeSerializer ser, object[] list) in TypeGroups)
+            {
+                bw.Write((ushort)ser.Id);
+                bw.Write((int)list.Length); // int32 because we allow > 65k objects
+            }
         }
 
-        public void WriteObjects(BinaryWriter writer)
+        public void WriteObjects(BinaryWriter bw)
         {
-            for (int objectIdx = 0; objectIdx < ObjectsList.Count; ++objectIdx)
-                SerializeObject(writer, objectIdx);
+            var objects = new Array<object>(NumObjects);
+            var pointers = new Map<object, int>(NumObjects);
+
+            // pre-pass: create integer pointers of all objects
+            foreach ((TypeSerializer ser, object[] list) in TypeGroups)
+            {
+                foreach (object o in list)
+                {
+                    objects.Add(o);
+                    pointers[o] = objects.Count; // pointer = objectIndex + 1
+                }
+            }
+
+            foreach ((TypeSerializer ser, object[] list) in TypeGroups)
+            {
+                foreach (object o in list)
+                {
+                    WriteObject(bw, ser, o, pointers);
+                }
+            }
         }
 
-        public void SerializeObject(BinaryWriter writer, int objectIdx)
+        void WriteObject(BinaryWriter bw, TypeSerializer ser, object instance, Map<object, int> pointers)
         {
-            ObjectReference oref = ObjectsList[objectIdx];
-            TypeSerializer serializer = oref.Serializer;
-            object instance = oref.Instance;
+            // NOTE: the object typeId is already handled by TypeGroup data
 
-            ObjectOffsetTable[objectIdx] = (uint)writer.BaseStream.Position;
-
-            // type ID so we can recognize what TYPE this object is when deserializing
-            writer.Write((ushort)serializer.Id);
-
-            if (serializer is UserTypeSerializer userSer)
+            if (ser is UserTypeSerializer userSer)
             {
                 // number of fields, so we know how many to parse later
-                writer.Write((ushort)userSer.Fields.Count);
+                bw.Write((ushort)userSer.Fields.Count);
 
                 // @note This is not recursive, because we only write object "Pointers" ID-s
                 foreach (DataField field in userSer.Fields)
                 {
                     // always include the type, this allows us to handle
                     // fields which get deleted, so they can be skipped
-                    writer.Write((ushort)field.Serializer.Id);
+                    bw.Write((ushort)field.Serializer.Id);
 
                     // write the field IDX to Stream so we can remap it
                     // to actual FieldIdx during deserialize
-                    writer.Write((ushort)field.FieldIdx);
+                    bw.Write((ushort)field.FieldIdx);
 
                     object fieldObject = field.Get(instance);
                     if (fieldObject == null)
                     {
-                        writer.Write(0); // NULL pointer
+                        bw.Write(0); // NULL pointer
                     }
-                    else if (ObjectToPointer.TryGetValue(fieldObject, out int pointer))
+                    else if (pointers.TryGetValue(fieldObject, out int pointer))
                     {
-                        writer.Write(pointer); // write the object pointer
+                        bw.Write(pointer); // write the object pointer
                     }
                     else // it's a float, int, Vector2, etc. dump it directly
                     {
-                        field.Serializer.Serialize(writer, fieldObject);
+                        field.Serializer.Serialize(bw, fieldObject);
                     }
                 }
             }
             else // string, object[], stuff like that
             {
-                serializer.Serialize(writer, instance);
+                ser.Serialize(bw, instance);
             }
         }
     }
