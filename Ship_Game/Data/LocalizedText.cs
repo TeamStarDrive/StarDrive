@@ -40,13 +40,14 @@ namespace Ship_Game
         // if LocalizationMethod.NameId then text is fetched via localization name
         // if LocalizationMethod.RawText then text is just pure raw text
         // if LocalizationMethod.Parse then text is evaluated dynamically for tokens
-        public LocalizedText(string text, LocalizationMethod method)
+        public LocalizedText(string nameIdOrText, LocalizationMethod method)
         {
             Id = 0;
-            String = text;
+            String = nameIdOrText;
             Method = method;
         }
 
+        // Used during Deserialization
         public LocalizedText(int id, string text, LocalizationMethod method)
         {
             Id = id;
