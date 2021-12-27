@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
+using Ship_Game;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
@@ -45,7 +46,7 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
-        class IntegersContainingType
+        class IntegersType
         {
             [StarData] public int IntZero, IntMin, IntMax;
             [StarData] public uint UIntZero, UIntMin, UIntMax;
@@ -60,7 +61,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void IntegerTypes()
         {
-            var instance = new IntegersContainingType
+            var instance = new IntegersType
             {
                 IntZero = 0, IntMin = int.MinValue, IntMax = int.MaxValue,
                 UIntZero = 0, UIntMin = uint.MinValue, UIntMax = uint.MaxValue,
@@ -97,6 +98,80 @@ namespace UnitTests.Serialization
             Assert.AreEqual(result.ByteZero, (byte)0);
             Assert.AreEqual(result.ByteMin, byte.MinValue);
             Assert.AreEqual(result.ByteMax, byte.MaxValue);
+        }
+
+        [StarDataType]
+        class FloatsType
+        {
+            [StarData] public float FloatZero, FloatMin, FloatMax;
+            [StarData] public double DoubleZero, DoubleMin, DoubleMax;
+        }
+
+        [TestMethod]
+        public void FloatTypes()
+        {
+            var instance = new FloatsType
+            {
+                FloatZero = 0,
+                FloatMin = float.MinValue,
+                FloatMax = float.MaxValue,
+                DoubleZero = 0,
+                DoubleMin = double.MinValue,
+                DoubleMax = double.MaxValue,
+            };
+
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.AreEqual(result.FloatZero, (float)0.0f);
+            Assert.AreEqual(result.FloatMin, float.MinValue);
+            Assert.AreEqual(result.FloatMax, float.MaxValue);
+            Assert.AreEqual(result.DoubleZero, (double)0.0);
+            Assert.AreEqual(result.DoubleMin, double.MinValue);
+            Assert.AreEqual(result.DoubleMax, double.MaxValue);
+        }
+
+        [StarDataType]
+        class VectorsType
+        {
+            [StarData] public Vector2 Vector2Zero, Vector2Min, Vector2Max;
+            [StarData] public Vector3 Vector3Zero, Vector3Min, Vector3Max;
+            [StarData] public Vector4 Vector4Zero, Vector4Min, Vector4Max;
+            [StarData] public Vector2d Vector2dZero, Vector2dMin, Vector2dMax;
+            [StarData] public Vector3d Vector3dZero, Vector3dMin, Vector3dMax;
+            [StarData] public Point PointZero, PointMin, PointMax;
+        }
+
+        [TestMethod]
+        public void VectorTypes()
+        {
+            var instance = new VectorsType
+            {
+                Vector2Zero = Vector2.Zero, Vector2Min = new Vector2(-1,-2), Vector2Max = new Vector2(1,2),
+                Vector3Zero = Vector3.Zero, Vector3Min = new Vector3(-1,-2,-3), Vector3Max = new Vector3(1,2,3),
+                Vector4Zero = Vector4.Zero, Vector4Min = new Vector4(-1,-2,-3,-4), Vector4Max = new Vector4(1,2,3,4),
+                Vector2dZero = Vector2d.Zero, Vector2dMin = new Vector2d(-1,-2), Vector2dMax = new Vector2d(1,2),
+                Vector3dZero = Vector3d.Zero, Vector3dMin = new Vector3d(-1,-2,-3), Vector3dMax = new Vector3d(1,2,3),
+                PointZero = Point.Zero, PointMin = new Point(-1,-2), PointMax = new Point(1,2),
+            };
+
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.AreEqual(result.Vector2Zero, Vector2.Zero);
+            Assert.AreEqual(result.Vector2Min, new Vector2(-1,-2));
+            Assert.AreEqual(result.Vector2Max, new Vector2(1,2));
+            Assert.AreEqual(result.Vector3Zero, Vector3.Zero);
+            Assert.AreEqual(result.Vector3Min, new Vector3(-1,-2,-3));
+            Assert.AreEqual(result.Vector3Max, new Vector3(1,2,3));
+            Assert.AreEqual(result.Vector4Zero, Vector4.Zero);
+            Assert.AreEqual(result.Vector4Min, new Vector4(-1,-2,-3,-4));
+            Assert.AreEqual(result.Vector4Max, new Vector4(1,2,3,4));
+            Assert.AreEqual(result.Vector2dZero, Vector2d.Zero);
+            Assert.AreEqual(result.Vector2dMin, new Vector2d(-1,-2));
+            Assert.AreEqual(result.Vector2dMax, new Vector2d(1,2));
+            Assert.AreEqual(result.Vector3dZero, Vector3d.Zero);
+            Assert.AreEqual(result.Vector3dMin, new Vector3d(-1,-2,-3));
+            Assert.AreEqual(result.Vector3dMax, new Vector3d(1,2,3));
+            Assert.AreEqual(result.PointZero, Point.Zero);
+            Assert.AreEqual(result.PointMin, new Point(-1, -2));
+            Assert.AreEqual(result.PointMax, new Point(1, 2));
         }
 
         [StarDataType]

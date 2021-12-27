@@ -11,6 +11,15 @@ namespace Ship_Game
         public double Y;
         public double Z;
 
+        public static readonly Vector3d Zero = default;
+
+        public Vector3d(double xyz)
+        {
+            X = xyz;
+            Y = xyz;
+            Z = xyz;
+        }
+
         public Vector3d(double x, double y, double z)
         {
             X = x;
