@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
@@ -138,6 +139,8 @@ namespace UnitTests.Serialization
             [StarData] public Vector2d Vector2dZero, Vector2dMin, Vector2dMax;
             [StarData] public Vector3d Vector3dZero, Vector3dMin, Vector3dMax;
             [StarData] public Point PointZero, PointMin, PointMax;
+            [StarData] public Color ColorZero, ColorMin, ColorMax;
+            [StarData] public Range RangeZero, RangeMin, RangeMax;
         }
 
         [TestMethod]
@@ -146,11 +149,13 @@ namespace UnitTests.Serialization
             var instance = new VectorsType
             {
                 Vector2Zero = Vector2.Zero, Vector2Min = new Vector2(-1,-2), Vector2Max = new Vector2(1,2),
-                Vector3Zero = Vector3.Zero, Vector3Min = new Vector3(-1,-2,-3), Vector3Max = new Vector3(1,2,3),
-                Vector4Zero = Vector4.Zero, Vector4Min = new Vector4(-1,-2,-3,-4), Vector4Max = new Vector4(1,2,3,4),
-                Vector2dZero = Vector2d.Zero, Vector2dMin = new Vector2d(-1,-2), Vector2dMax = new Vector2d(1,2),
-                Vector3dZero = Vector3d.Zero, Vector3dMin = new Vector3d(-1,-2,-3), Vector3dMax = new Vector3d(1,2,3),
-                PointZero = Point.Zero, PointMin = new Point(-1,-2), PointMax = new Point(1,2),
+                Vector3Zero = Vector3.Zero, Vector3Min = new Vector3(-3,-4,-5), Vector3Max = new Vector3(3,4,5),
+                Vector4Zero = Vector4.Zero, Vector4Min = new Vector4(-6,-7,-8,-9), Vector4Max = new Vector4(6,7,8,9),
+                Vector2dZero = Vector2d.Zero, Vector2dMin = new Vector2d(-11,-12), Vector2dMax = new Vector2d(11,12),
+                Vector3dZero = Vector3d.Zero, Vector3dMin = new Vector3d(-13,-14,-15), Vector3dMax = new Vector3d(13,14,15),
+                PointZero = Point.Zero, PointMin = new Point(-16,-17), PointMax = new Point(16,17),
+                ColorZero = new Color(0,0,0), ColorMin = new Color(21,22,23), ColorMax = new Color(245,250,255),
+                RangeZero = new Range(), RangeMin = new Range(-24,-25), RangeMax = new Range(24,25),
             };
 
             var result = SerDes(instance, out byte[] bytes);
@@ -158,20 +163,82 @@ namespace UnitTests.Serialization
             Assert.AreEqual(result.Vector2Min, new Vector2(-1,-2));
             Assert.AreEqual(result.Vector2Max, new Vector2(1,2));
             Assert.AreEqual(result.Vector3Zero, Vector3.Zero);
-            Assert.AreEqual(result.Vector3Min, new Vector3(-1,-2,-3));
-            Assert.AreEqual(result.Vector3Max, new Vector3(1,2,3));
+            Assert.AreEqual(result.Vector3Min, new Vector3(-3,-4,-5));
+            Assert.AreEqual(result.Vector3Max, new Vector3(3,4,5));
             Assert.AreEqual(result.Vector4Zero, Vector4.Zero);
-            Assert.AreEqual(result.Vector4Min, new Vector4(-1,-2,-3,-4));
-            Assert.AreEqual(result.Vector4Max, new Vector4(1,2,3,4));
+            Assert.AreEqual(result.Vector4Min, new Vector4(-6,-7,-8,-9));
+            Assert.AreEqual(result.Vector4Max, new Vector4(6,7,8,9));
             Assert.AreEqual(result.Vector2dZero, Vector2d.Zero);
-            Assert.AreEqual(result.Vector2dMin, new Vector2d(-1,-2));
-            Assert.AreEqual(result.Vector2dMax, new Vector2d(1,2));
+            Assert.AreEqual(result.Vector2dMin, new Vector2d(-11,-12));
+            Assert.AreEqual(result.Vector2dMax, new Vector2d(11,12));
             Assert.AreEqual(result.Vector3dZero, Vector3d.Zero);
-            Assert.AreEqual(result.Vector3dMin, new Vector3d(-1,-2,-3));
-            Assert.AreEqual(result.Vector3dMax, new Vector3d(1,2,3));
+            Assert.AreEqual(result.Vector3dMin, new Vector3d(-13,-14,-15));
+            Assert.AreEqual(result.Vector3dMax, new Vector3d(13,14,15));
             Assert.AreEqual(result.PointZero, Point.Zero);
-            Assert.AreEqual(result.PointMin, new Point(-1, -2));
-            Assert.AreEqual(result.PointMax, new Point(1, 2));
+            Assert.AreEqual(result.PointMin, new Point(-16, -17));
+            Assert.AreEqual(result.PointMax, new Point(16, 17));
+            Assert.AreEqual(result.ColorZero, new Color(0, 0, 0));
+            Assert.AreEqual(result.ColorMin, new Color(21, 22, 23));
+            Assert.AreEqual(result.ColorMax, new Color(245, 250, 255));
+            Assert.AreEqual(result.RangeZero, new Range());
+            Assert.AreEqual(result.RangeMin, new Range(-24, -25));
+            Assert.AreEqual(result.RangeMax, new Range(24, 25));
+        }
+
+        [StarDataType]
+        class TextsType
+        {
+            [StarData] public string StrNull, StrEmpty, StrShort, StrLong;
+            [StarData] public LocalizedText LocId, LocNameId, LocRawText, LocParse;
+        }
+
+        [TestMethod]
+        public void TextTypes()
+        {
+            var instance = new TextsType()
+            {
+                StrNull = null, StrEmpty = string.Empty, StrShort = "AxisAlign",
+                StrLong = "Little brown fox jumped over the big dog",
+                LocId = new LocalizedText(1234),
+                LocNameId = new LocalizedText("NameId1234", LocalizationMethod.NameId),
+                LocRawText = new LocalizedText("RawText123", LocalizationMethod.RawText),
+                LocParse = new LocalizedText("{1234}", LocalizationMethod.Parse),
+            };
+            var result = SerDes(instance, out byte[] bytes);
+
+            Assert.AreEqual(instance.StrNull, result.StrNull);
+            Assert.AreEqual(instance.StrEmpty, result.StrEmpty);
+            Assert.AreEqual(instance.StrShort, result.StrShort);
+            Assert.AreEqual(instance.StrLong, result.StrLong);
+
+            Assert.AreEqual(instance.LocId, result.LocId);
+            Assert.AreEqual(instance.LocNameId, result.LocNameId);
+            Assert.AreEqual(instance.LocRawText, result.LocRawText);
+            Assert.AreEqual(instance.LocParse, result.LocParse);
+        }
+
+        [StarDataType]
+        class DateTimesTypes
+        {
+            [StarData] public TimeSpan TimeZero, TimeMin, TimeMax;
+            [StarData] public DateTime DateTimeMin, DateTimeMax, DateTimeNow;
+        }
+
+        [TestMethod]
+        public void DateTimeTypes()
+        {
+            var instance = new DateTimesTypes()
+            {
+                TimeZero = TimeSpan.Zero, TimeMin = new TimeSpan(10000), TimeMax = new TimeSpan(1000000000L),
+                DateTimeMin = DateTime.MinValue, DateTimeMax = DateTime.MaxValue, DateTimeNow = DateTime.UtcNow,
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.AreEqual(result.TimeZero, TimeSpan.Zero);
+            Assert.AreEqual(result.TimeMin, new TimeSpan(10000));
+            Assert.AreEqual(result.TimeMax, new TimeSpan(1000000000L));
+            Assert.AreEqual(result.DateTimeMin, DateTime.MinValue);
+            Assert.AreEqual(result.DateTimeMax, DateTime.MaxValue);
+            Assert.AreEqual(result.DateTimeNow, instance.DateTimeNow);
         }
 
         [StarDataType]

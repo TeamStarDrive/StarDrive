@@ -71,16 +71,32 @@ namespace Ship_Game.Data.Serialization.Types
         public override void Serialize(BinaryWriter writer, object obj)
         {
             var localizedText = (LocalizedText)obj;
-            writer.Write(localizedText.Id);
-            writer.Write(localizedText.String);
-            writer.Write((int)localizedText.Method);
+            writer.Write((byte)localizedText.Method);
+            writer.Write((ushort)localizedText.Id);
+            switch (localizedText.Method) // only write string for these cases:
+            {
+                case LocalizationMethod.NameId:
+                case LocalizationMethod.RawText:
+                case LocalizationMethod.Parse:
+                    writer.Write(localizedText.String);
+                    break;
+            }
         }
 
         public override object Deserialize(BinaryReader reader)
         {
-            int id = reader.ReadInt32();
-            string str = reader.ReadString();
-            var method = (LocalizationMethod)reader.ReadInt32();
+            var method = (LocalizationMethod)reader.ReadByte();
+            int id = reader.ReadUInt16();
+            string str = null;
+
+            switch (method)
+            {
+                case LocalizationMethod.NameId:
+                case LocalizationMethod.RawText:
+                case LocalizationMethod.Parse:
+                    str = reader.ReadString();
+                    break;
+            }
 
             var localizedText = new LocalizedText(id, str, method);
             return localizedText;
