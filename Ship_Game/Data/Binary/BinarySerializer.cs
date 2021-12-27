@@ -52,6 +52,11 @@ namespace Ship_Game.Data.Binary
             }
         }
 
+        internal static bool IsPointerType(TypeSerializer ser)
+        {
+            return !ser.Type.IsValueType;
+        }
+
         public override void Serialize(YamlNode parent, object obj)
         {
             throw new NotImplementedException($"Serialize (yaml) not supported for {ToString()}");
@@ -64,36 +69,20 @@ namespace Ship_Game.Data.Binary
 
             // pre-scan all unique objects
             var ctx = new BinarySerializerWriter();
-            ctx.GatherObjects(this, obj);
-            ctx.GatherUsedTypes();
-
-            Stream stream = writer.BaseStream;
-            long streamStart = stream.Position;
-            var header = new BinarySerializerHeader(UseStableMapping, ctx.UsedTypes.Count, ctx.ObjectsList.Count);
+            ctx.ScanObjects(this, obj);
 
             // [header]
             // [types list]
             // [object type groups]
             // [objects list]
+            var header = new BinarySerializerHeader(UseStableMapping, ctx);
             header.Write(writer);
-            if (ctx.ObjectsList.Count == 0)
-                return;
-
-            ctx.WriteTypesList(writer, header.UseStableMapping);
-            long offsetTablePos = stream.Position; // offset of the [placeholders]
-            ctx.WriteOffsetTable(writer);
-            ctx.WriteObjects(writer);
-
-            // now flush finalized header
-            header.StreamSize = (uint)(stream.Position - streamStart);
-            stream.Seek(streamStart, SeekOrigin.Begin);
-            header.Write(writer);
-
-            // flush object offset table
-            ctx.WriteOffsetTable(writer, offsetTablePos);
-
-            // seek back to end
-            stream.Seek(0, SeekOrigin.End);
+            if (ctx.NumObjects != 0)
+            {
+                ctx.WriteTypesList(writer, header.UseStableMapping);
+                ctx.WriteObjectTypeGroups(writer);
+                ctx.WriteObjects(writer);
+            }
         }
 
         public override object Deserialize(BinaryReader reader)
@@ -101,16 +90,11 @@ namespace Ship_Game.Data.Binary
             if (!IsRoot)
                 throw new InvalidOperationException($"Deserialize() can only be called on Root Serializer");
 
-            long streamStart = reader.BaseStream.Position;
-
             // [header]
             // [types list]
-            // [object offset table]
+            // [object type groups]
             // [objects list]
             var header = new BinarySerializerHeader(reader);
-            if (header.NumObjects == 0)
-                return null;
-
             Version = header.Version;
             UseStableMapping = header.UseStableMapping;
             if (Version != CurrentVersion)
@@ -118,19 +102,17 @@ namespace Ship_Game.Data.Binary
                 Log.Warning($"BinarySerializer.Deserialize version mismatch: file({Version}) != current({CurrentVersion})");
             }
 
-            var ctx = new BinarySerializerReader(header);
-            ctx.ReadTypesList(reader, this);
-            ctx.ReadOffsetTable(reader);
+            if (header.NumTypeGroups != 0)
+            {
+                var ctx = new BinarySerializerReader(header);
+                ctx.ReadTypesList(reader, TypeMap);
+                ctx.ReadTypeGroups(reader, TypeMap);
+                ctx.ReadObjectsList(reader, TypeMap);
+                object root = ctx.ObjectsList[header.RootObjectIndex];
+                return root;
+            }
 
-            // first object is always the root object
-            // so all we need to do is just create object:0 and all
-            // other object instances will be created recursively
-            object root = ctx.CreateObject(reader, TypeMap, streamStart, objectIdx:0);
-
-            // properly seek to the end of current stream
-            reader.BaseStream.Seek(streamStart + header.StreamSize, SeekOrigin.Begin);
-
-            return root;
+            return null;
         }
     }
 }

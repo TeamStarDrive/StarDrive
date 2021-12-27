@@ -89,11 +89,19 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
+        struct SmallStruct
+        {
+            [StarData] public int X;
+            [StarData] public int Y;
+        }
+
+        [StarDataType]
         class CustomRecursiveType
         {
             [StarData] public CustomRecursiveType RecursiveSelf;
             [StarData] public string Text;
             [StarData] public int Count;
+            //[StarData] public SmallStruct Pos;
         }
 
         [TestMethod]
@@ -103,13 +111,16 @@ namespace UnitTests.Serialization
             {
                 Text = "Hello",
                 Count = 42,
+                //Pos = new SmallStruct { X = 15, Y = 33 },
             };
             instance.RecursiveSelf = instance;
 
             var result = SerDes(instance, out byte[] bytes);
-            Assert.AreEqual(result.RecursiveSelf, result, "Recursive self reference must be valid");
-            Assert.AreEqual(instance.Text, result.Text);
-            Assert.AreEqual(instance.Count, result.Count);
+            Assert.AreEqual(result.RecursiveSelf, result, "Recursive self reference must match");
+            Assert.AreEqual(instance.Text, result.Text, "string must match");
+            Assert.AreEqual(instance.Count, result.Count, "int field must match");
+            //Assert.AreEqual(instance.Pos.X, result.Pos.X, "SmallStruct fields must match");
+            //Assert.AreEqual(instance.Pos.Y, result.Pos.Y, "SmallStruct fields must match");
         }
 
         [TestMethod]
