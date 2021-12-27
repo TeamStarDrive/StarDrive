@@ -78,12 +78,18 @@ namespace Ship_Game.Data.Serialization
                 {
                     MethodInfo setter = p.GetSetMethod(nonPublic: true);
                     if (setter == null)
-                        throw new Exception($"StarDataSerializer Class {Type.Name} Property {p.Name} has no setter!");
+                        throw new Exception($"[StarDataType] {Type.GetTypeName()} Property {p.Name} has no setter!");
 
                     var field = new DataField(TypeMap, a, p, null);
                     dataFields.Add(field);
                     CheckPrimaryKeys(a, field);
                 }
+            }
+
+            if (dataFields.IsEmpty)
+            {
+                Log.Warning($"[StarDataType] {Type.GetTypeName()} has no [StarData] fields, consider not serializing it!");
+                return;
             }
 
             // sorting by name will give fields easy stability even if they are shuffled around
@@ -102,13 +108,13 @@ namespace Ship_Game.Data.Serialization
             if (a.IsPrimaryKeyName)
             {
                 if (PrimaryKeyName != null)
-                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKeyName] attributes! Original {PrimaryKeyValue}, New {field}");
+                    throw new InvalidDataException($"[StarDataType] {Type.GetTypeName()} cannot have more than 1 [StarDataKeyName] attributes! Original {PrimaryKeyValue}, New {field}");
                 PrimaryKeyName = field;
             }
             else if (a.IsPrimaryKeyValue)
             {
                 if (PrimaryKeyValue != null)
-                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKeyValue] attributes! Original {PrimaryKeyValue}, New {field}");
+                    throw new InvalidDataException($"[StarDataType] {Type.GetTypeName()} cannot have more than 1 [StarDataKeyValue] attributes! Original {PrimaryKeyValue}, New {field}");
                 PrimaryKeyValue = field;
             }
         }
