@@ -242,23 +242,24 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
-        class CustomRecursiveType
+        class RecursiveType
         {
-            [StarData] public CustomRecursiveType RecursiveSelf;
+            [StarData] public RecursiveType RecursiveSelf;
             [StarData] public string Text;
             [StarData] public int Count;
+            public RecursiveType() {}
+            public RecursiveType(string text, int count)
+            {
+                Text = text;
+                Count = count;
+                RecursiveSelf = this;
+            }
         }
 
         [TestMethod]
         public void BasicRecursiveType()
         {
-            var instance = new CustomRecursiveType
-            {
-                Text = "Hello",
-                Count = 42,
-            };
-            instance.RecursiveSelf = instance;
-
+            var instance = new RecursiveType("Hello", 42);
             var result = SerDes(instance, out byte[] bytes);
             Assert.AreEqual(result.RecursiveSelf, result, "Recursive self reference must match");
             Assert.AreEqual(instance.Text, result.Text, "string must match");
@@ -270,24 +271,98 @@ namespace UnitTests.Serialization
         {
             [StarData] public int Id;
             [StarData] public string Name;
+
+            public SmallStruct(int id, string name)
+            {
+                Id = id;
+                Name = name;
+            }
         }
 
         [StarDataType]
-        class CustomStructContainer
+        class StructContainer
         {
             [StarData] public SmallStruct SS;
+
+            public StructContainer() {}
+            public StructContainer(int id, string name)
+            {
+                SS = new SmallStruct(id, name);
+            }
         }
 
         [TestMethod]
         public void NestedUserTypeStruct()
         {
-            var instance = new CustomStructContainer
-            {
-                SS = new SmallStruct { Id = 15, Name = "Laika" },
-            };
+            var instance = new StructContainer(15, "Laika");
             var result = SerDes(instance, out byte[] bytes);
             Assert.AreEqual(instance.SS.Id, result.SS.Id, "Nested SmallStruct Id fields must match");
             Assert.AreEqual(instance.SS.Name, result.SS.Name, "Nested SmallStruct Name fields must match");
+        }
+
+
+        [StarDataType]
+        class ComplexType
+        {
+            [StarData] public string TestText;
+            [StarData] public RecursiveType RecursiveType;
+            [StarData] public Array<string> Names;
+            [StarData] public StructContainer SCont;
+            [StarData] public float Number;
+            [StarData] public SmallStruct Struct;
+            [StarData] public Array<StructContainer> Structs;
+            [StarData] public Array<ComplexType> ComplexTypes;
+            [StarData] public Map<string, int> Map;
+
+            public ComplexType() {}
+            public ComplexType(string testText, bool createSubTypes)
+            {
+                TestText = testText;
+                RecursiveType = new RecursiveType("Sayonara", 2021);
+                Names = new Array<string>(new[]{ "Little", "Brown", "Fox", "Jumped", "Over" });
+                SCont = new StructContainer(2021, "It's Over");
+                Number = 4094;
+                Struct = new SmallStruct(1337, "Small and awesome");
+                Structs = new Array<StructContainer>();
+                for (int i = 0; i < 10; ++i)
+                    Structs.Add(new StructContainer(i, "sc"+i));
+                if (createSubTypes)
+                {
+                    ComplexTypes = new Array<ComplexType>();
+                    for (int i = 0; i < 2; ++i)
+                        ComplexTypes.Add(new ComplexType("Subtype"+i, false));
+                }
+                Map = new Map<string, int>();
+                Map.Add("Key1", 1);
+                Map.Add("Key2", 2);
+            }
+        }
+
+        [TestMethod]
+        public void ComplexTypeTest()
+        {
+            var instance = new ComplexType("root", createSubTypes:true);
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.AreEqual(instance.TestText, result.TestText);
+
+            Assert.AreEqual(result.RecursiveType, result.RecursiveType.RecursiveSelf);
+            Assert.AreEqual(instance.RecursiveType.Text, result.RecursiveType.Text);
+            Assert.AreEqual(instance.RecursiveType.Count, result.RecursiveType.Count);
+
+            Assert.That.Equal(instance.Names, result.Names);
+            Assert.AreEqual(instance.SCont.SS, result.SCont.SS);
+            Assert.AreEqual(instance.SCont.SS.Id, result.SCont.SS.Id);
+            Assert.AreEqual(instance.SCont.SS.Name, result.SCont.SS.Name);
+
+            Assert.AreEqual(instance.Number, result.Number);
+            Assert.AreEqual(instance.Struct.Id, result.Struct.Id);
+            Assert.AreEqual(instance.Struct.Name, result.Struct.Name);
+
+            Assert.AreEqual(instance.Structs.Count, result.Structs.Count);
+            for (int i = 0; i < instance.Structs.Count; ++i)
+            {
+                //Assert.AreEqual(instance.Structs[i].SS.Id,)
+            }
         }
 
         //[TestMethod]

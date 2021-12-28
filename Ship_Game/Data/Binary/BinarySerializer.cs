@@ -10,7 +10,7 @@ using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Binary
 {
-    public partial class BinarySerializer : UserTypeSerializer
+    public class BinarySerializer : UserTypeSerializer
     {
         public override string ToString() => $"BinarySerializer {Type.GetTypeName()}";
 
@@ -25,19 +25,13 @@ namespace Ship_Game.Data.Binary
         // Deserialize: always overwritten by stream data
         public bool UseStableMapping { get; set; } = true;
 
-        // for binary serializer, only Root object can invoke Serialize()/Deserialize()
-        // this is for performance reasons and to share one single type cache
-        bool IsRoot;
-
         public BinarySerializer(Type type) : base(type, new BinaryTypeMap())
         {
-            IsRoot = true;
             TypeMap.Add(this);
         }
 
         public BinarySerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)
         {
-            IsRoot = false;
         }
 
         // cache for binary type converters
@@ -51,16 +45,28 @@ namespace Ship_Game.Data.Binary
 
         public override void Serialize(YamlNode parent, object obj)
         {
-            throw new NotImplementedException($"Serialize (yaml) not supported for {ToString()}");
+            throw new NotImplementedException($"Serialize (yaml) not supported for {this}");
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override object Deserialize(YamlNode node)
         {
-            if (!IsRoot)
-                throw new InvalidOperationException($"Serialize() can only be called on Root Serializer");
+            throw new NotImplementedException($"Deserialize (yaml) not supported for {this}");
+        }
 
+        public override void Serialize(BinarySerializerWriter writer, object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object Deserialize(BinarySerializerReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Serialize(BinaryWriter writer, object obj)
+        {
             // pre-scan all unique objects
-            var ctx = new BinarySerializerWriter();
+            var ctx = new BinarySerializerWriter(writer);
             ctx.ScanObjects(this, obj);
 
             // [header]
@@ -71,17 +77,14 @@ namespace Ship_Game.Data.Binary
             header.Write(writer);
             if (ctx.NumObjects != 0)
             {
-                ctx.WriteTypesList(writer, header.UseStableMapping);
-                ctx.WriteObjectTypeGroups(writer);
-                ctx.WriteObjects(writer);
+                ctx.WriteTypesList(header.UseStableMapping);
+                ctx.WriteObjectTypeGroups();
+                ctx.WriteObjects();
             }
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public object Deserialize(BinaryReader reader)
         {
-            if (!IsRoot)
-                throw new InvalidOperationException($"Deserialize() can only be called on Root Serializer");
-
             // [header]
             // [types list]
             // [object type groups]
@@ -96,10 +99,10 @@ namespace Ship_Game.Data.Binary
 
             if (header.NumTypeGroups != 0)
             {
-                var ctx = new BinarySerializerReader(header);
-                ctx.ReadTypesList(reader, TypeMap);
-                ctx.ReadTypeGroups(reader, TypeMap);
-                ctx.ReadObjectsList(reader, TypeMap);
+                var ctx = new BinarySerializerReader(reader, TypeMap, header);
+                ctx.ReadTypesList();
+                ctx.ReadTypeGroups();
+                ctx.ReadObjectsList();
                 object root = ctx.ObjectsList[header.RootObjectIndex];
                 return root;
             }

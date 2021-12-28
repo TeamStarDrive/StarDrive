@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
@@ -19,12 +20,12 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             Log.Error($"Serialize(binary) not supported for {ToString()}");
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
             Log.Error($"Deserialize(binary) not supported for {ToString()}");
             return null;
@@ -47,18 +48,18 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = new object[]{ r.Min, r.Max };
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var range = (Range)obj;
-            writer.Write(range.Min);
-            writer.Write(range.Max);
+            writer.BW.Write(range.Min);
+            writer.BW.Write(range.Max);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
             Range range;
-            range.Min = reader.ReadSingle();
-            range.Max = reader.ReadSingle();
+            range.Min = reader.BR.ReadSingle();
+            range.Max = reader.BR.ReadSingle();
             return range;
         }
 
@@ -140,15 +141,15 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = $"{dt.Year,4}-{dt.Month,2}-{dt.Day} {tod.Hours,2}:{tod.Minutes,2}:{tod.Seconds}";
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var dt = (DateTime)obj;
-            writer.Write(dt.Ticks);
+            writer.BW.Write(dt.Ticks);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            return new DateTime(reader.ReadInt64(), DateTimeKind.Utc);
+            return new DateTime(reader.BR.ReadInt64(), DateTimeKind.Utc);
         }
     }
 
@@ -171,15 +172,15 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = (float)span.TotalSeconds;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var span = (TimeSpan)obj;
-            writer.Write(span.Ticks);
+            writer.BW.WriteVLi64(span.Ticks);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            return new TimeSpan(reader.ReadInt64());
+            return new TimeSpan(reader.BR.ReadVLi64());
         }
     }
 }

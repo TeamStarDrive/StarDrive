@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization
@@ -47,17 +48,6 @@ namespace Ship_Game.Data.Serialization
             if (value != null)
             {
                 Serializer.Serialize(parent, value);
-                return true;
-            }
-            return false;
-        }
-
-        public bool Serialize(BinaryWriter writer, object instance)
-        {
-            object value = Get(instance);
-            if (value != null)
-            {
-                Serializer.Serialize(writer, value);
                 return true;
             }
             return false;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
@@ -45,15 +46,15 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = e.ToString();
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             int enumIndex = (int)obj;
-            writer.Write(enumIndex);
+            writer.BW.WriteVLi32(enumIndex);
         }
         
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            int enumIndex = reader.ReadInt32();
+            int enumIndex = reader.BR.ReadVLi32();
             if (Mapping.TryGetValue(enumIndex, out object enumValue))
                 return enumValue;
 
