@@ -1,10 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.Data.Binary;
 
 namespace UnitTests.Serialization
@@ -14,77 +10,113 @@ namespace UnitTests.Serialization
     {
         readonly MemoryStream Buffer = new MemoryStream();
 
-        static void SeekTo(MemoryStream ms, int pos)
-        {
-            ms.Seek(pos, SeekOrigin.Begin);
-        }
+        static void SeekTo(MemoryStream ms, int pos) => ms.Seek(pos, SeekOrigin.Begin);
+        static void WriteVL(MemoryStream ms, uint value) => new BinaryWriter(ms).WriteVL(value);
+        static void WriteVL(MemoryStream ms, int value) => new BinaryWriter(ms).WriteVL(value);
+        static void WriteVL(MemoryStream ms, ulong value) => new BinaryWriter(ms).WriteVL(value);
+        static void WriteVL(MemoryStream ms, long value) => new BinaryWriter(ms).WriteVL(value);
+        static int ReadInt(MemoryStream ms) => new BinaryReader(ms).ReadVLInt();
+        static uint ReadUInt(MemoryStream ms) => new BinaryReader(ms).ReadVLUInt();
+        static long ReadLong(MemoryStream ms) => new BinaryReader(ms).ReadVLLong();
+        static ulong ReadULong(MemoryStream ms) => new BinaryReader(ms).ReadVLULong();
 
-        static void WriteVL(MemoryStream ms, uint value)
-        {
-            new BinaryWriter(ms).WriteVL(value);
-        }
-
-        static void WriteVL(MemoryStream ms, int value)
-        {
-            new BinaryWriter(ms).WriteVL(value);
-        }
-
-        static int ReadVLInt(MemoryStream ms)
-        {
-            return new BinaryReader(ms).ReadVLInt();
-        }
-
-        static uint ReadVLUInt(MemoryStream ms)
-        {
-            return new BinaryReader(ms).ReadVLUInt();
-        }
-
-        static uint WriteReadUInt(uint value)
+        static uint EncDec(uint value)
         {
             var ms = new MemoryStream();
             WriteVL(ms, value);
             SeekTo(ms, 0);
-            return ReadVLUInt(ms);
+            return ReadUInt(ms);
         }
 
-        static int WriteReadInt(int value)
+        static int EncDec(int value)
         {
             var ms = new MemoryStream();
             WriteVL(ms, value);
             SeekTo(ms, 0);
-            return ReadVLInt(ms);
+            return ReadInt(ms);
+        }
+
+        static ulong EncDec(ulong value)
+        {
+            var ms = new MemoryStream();
+            WriteVL(ms, value);
+            SeekTo(ms, 0);
+            return ReadULong(ms);
+        }
+
+        static long EncDec(long value)
+        {
+            var ms = new MemoryStream();
+            WriteVL(ms, value);
+            SeekTo(ms, 0);
+            return ReadLong(ms);
         }
 
         [TestMethod]
         public void EncodeSingleVLUInt()
         {
-            Assert.AreEqual(0u, WriteReadUInt(0u));
-            Assert.AreEqual(0x40u, WriteReadUInt(0x40u));
-            Assert.AreEqual(0x7Fu, WriteReadUInt(0x7Fu));
-            Assert.AreEqual(0x80u, WriteReadUInt(0x80u));
-            Assert.AreEqual(0xFFu, WriteReadUInt(0xFFu));
-            Assert.AreEqual(1024u, WriteReadUInt(1024u));
-            Assert.AreEqual(655935u, WriteReadUInt(655935u));
-            Assert.AreEqual(24655935u, WriteReadUInt(24655935u));
-            Assert.AreEqual(uint.MaxValue, WriteReadUInt(uint.MaxValue));
+            Assert.AreEqual(0u, EncDec(0u));
+            Assert.AreEqual(0x40u, EncDec(0x40u));
+            Assert.AreEqual(0x7Fu, EncDec(0x7Fu));
+            Assert.AreEqual(0x80u, EncDec(0x80u));
+            Assert.AreEqual(0xFFu, EncDec(0xFFu));
+            Assert.AreEqual(1024u, EncDec(1024u));
+            Assert.AreEqual(655935u, EncDec(655935u));
+            Assert.AreEqual(24655935u, EncDec(24655935u));
+            Assert.AreEqual(uint.MaxValue, EncDec(uint.MaxValue));
         }
 
         [TestMethod]
         public void EncodeSingleVLInt()
         {
-            Assert.AreEqual(0, WriteReadInt(0));
-            Assert.AreEqual(0x40, WriteReadInt(0x40));
-            Assert.AreEqual(0x7F, WriteReadInt(0x7F));
-            Assert.AreEqual(0x80, WriteReadInt(0x80));
-            Assert.AreEqual(0xFF, WriteReadInt(0xFF));
-            Assert.AreEqual(1024, WriteReadInt(1024));
-            Assert.AreEqual(655935, WriteReadInt(655935));
-            Assert.AreEqual(24655935, WriteReadInt(24655935));
-            Assert.AreEqual(int.MaxValue, WriteReadInt(int.MaxValue));
-            Assert.AreEqual(-1024, WriteReadInt(-1024));
-            Assert.AreEqual(-655935, WriteReadInt(-655935));
-            Assert.AreEqual(-24655935, WriteReadInt(-24655935));
-            Assert.AreEqual(int.MinValue, WriteReadInt(int.MinValue));
+            Assert.AreEqual(0, EncDec(0));
+            Assert.AreEqual(0x40, EncDec(0x40));
+            Assert.AreEqual(0x7F, EncDec(0x7F));
+            Assert.AreEqual(0x80, EncDec(0x80));
+            Assert.AreEqual(0xFF, EncDec(0xFF));
+            Assert.AreEqual(1024, EncDec(1024));
+            Assert.AreEqual(655935, EncDec(655935));
+            Assert.AreEqual(24655935, EncDec(24655935));
+            Assert.AreEqual(int.MaxValue, EncDec(int.MaxValue));
+            Assert.AreEqual(-1024, EncDec(-1024));
+            Assert.AreEqual(-655935, EncDec(-655935));
+            Assert.AreEqual(-24655935, EncDec(-24655935));
+            Assert.AreEqual(int.MinValue, EncDec(int.MinValue));
+        }
+
+        [TestMethod]
+        public void EncodeSingleVLULong()
+        {
+            Assert.AreEqual(0ul, EncDec(0ul));
+            Assert.AreEqual(0x40ul, EncDec(0x40ul));
+            Assert.AreEqual(0x7Ful, EncDec(0x7Ful));
+            Assert.AreEqual(0x80ul, EncDec(0x80ul));
+            Assert.AreEqual(0xFFul, EncDec(0xFFul));
+            Assert.AreEqual(1024ul, EncDec(1024ul));
+            Assert.AreEqual(655935ul, EncDec(655935ul));
+            Assert.AreEqual(24655935ul, EncDec(24655935ul));
+            Assert.AreEqual(24655232232332935ul, EncDec(24655232232332935ul));
+            Assert.AreEqual(ulong.MaxValue, EncDec(ulong.MaxValue));
+        }
+
+        [TestMethod]
+        public void EncodeSingleVLLong()
+        {
+            Assert.AreEqual(0L, EncDec(0L));
+            Assert.AreEqual(0x40L, EncDec(0x40L));
+            Assert.AreEqual(0x7FL, EncDec(0x7FL));
+            Assert.AreEqual(0x80L, EncDec(0x80L));
+            Assert.AreEqual(0xFFL, EncDec(0xFFL));
+            Assert.AreEqual(1024L, EncDec(1024L));
+            Assert.AreEqual(655935L, EncDec(655935L));
+            Assert.AreEqual(24655935L, EncDec(24655935L));
+            Assert.AreEqual(24655232232332935L, EncDec(24655232232332935L));
+            Assert.AreEqual(-24655232232332935L, EncDec(-24655232232332935L));
+            Assert.AreEqual(long.MaxValue, EncDec(long.MaxValue));
+            Assert.AreEqual(-1024L, EncDec(-1024L));
+            Assert.AreEqual(-655935, EncDec(-655935L));
+            Assert.AreEqual(-24655935L, EncDec(-24655935L));
+            Assert.AreEqual(long.MinValue, EncDec(long.MinValue));
         }
 
         [TestMethod]
@@ -99,12 +131,12 @@ namespace UnitTests.Serialization
 
             SeekTo(Buffer, 0);
 
-            Assert.AreEqual(0u, ReadVLUInt(Buffer));
-            Assert.AreEqual(1024u, ReadVLUInt(Buffer));
-            Assert.AreEqual(24655935u, ReadVLUInt(Buffer));
-            Assert.AreEqual(0u, ReadVLUInt(Buffer));
-            Assert.AreEqual(uint.MaxValue, ReadVLUInt(Buffer));
-            Assert.AreEqual(65536u, ReadVLUInt(Buffer));
+            Assert.AreEqual(0u, ReadUInt(Buffer));
+            Assert.AreEqual(1024u, ReadUInt(Buffer));
+            Assert.AreEqual(24655935u, ReadUInt(Buffer));
+            Assert.AreEqual(0u, ReadUInt(Buffer));
+            Assert.AreEqual(uint.MaxValue, ReadUInt(Buffer));
+            Assert.AreEqual(65536u, ReadUInt(Buffer));
         }
 
         [TestMethod]
@@ -120,13 +152,59 @@ namespace UnitTests.Serialization
 
             SeekTo(Buffer, 0);
 
-            Assert.AreEqual(0, ReadVLInt(Buffer));
-            Assert.AreEqual(-1024, ReadVLInt(Buffer));
-            Assert.AreEqual(24655935, ReadVLInt(Buffer));
-            Assert.AreEqual(0, ReadVLInt(Buffer));
-            Assert.AreEqual(int.MaxValue, ReadVLInt(Buffer));
-            Assert.AreEqual(-65536, ReadVLInt(Buffer));
-            Assert.AreEqual(int.MinValue, ReadVLInt(Buffer));
+            Assert.AreEqual(0, ReadInt(Buffer));
+            Assert.AreEqual(-1024, ReadInt(Buffer));
+            Assert.AreEqual(24655935, ReadInt(Buffer));
+            Assert.AreEqual(0, ReadInt(Buffer));
+            Assert.AreEqual(int.MaxValue, ReadInt(Buffer));
+            Assert.AreEqual(-65536, ReadInt(Buffer));
+            Assert.AreEqual(int.MinValue, ReadInt(Buffer));
+        }
+
+        [TestMethod]
+        public void EncodeMultipleULong()
+        {
+            WriteVL(Buffer, 0ul);
+            WriteVL(Buffer, 1024ul);
+            WriteVL(Buffer, 24655935ul);
+            WriteVL(Buffer, 246559213423432435ul);
+            WriteVL(Buffer, 0ul);
+            WriteVL(Buffer, ulong.MaxValue);
+            WriteVL(Buffer, 65536ul);
+
+            SeekTo(Buffer, 0);
+
+            Assert.AreEqual(0ul, ReadULong(Buffer));
+            Assert.AreEqual(1024ul, ReadULong(Buffer));
+            Assert.AreEqual(24655935ul, ReadULong(Buffer));
+            Assert.AreEqual(246559213423432435ul, ReadULong(Buffer));
+            Assert.AreEqual(0ul, ReadULong(Buffer));
+            Assert.AreEqual(ulong.MaxValue, ReadULong(Buffer));
+            Assert.AreEqual(65536ul, ReadULong(Buffer));
+        }
+
+        [TestMethod]
+        public void EncodeMultipleLong()
+        {
+            WriteVL(Buffer, 0L);
+            WriteVL(Buffer, -1024L);
+            WriteVL(Buffer, 24655935L);
+            WriteVL(Buffer, -246559213423432435L);
+            WriteVL(Buffer, 0L);
+            WriteVL(Buffer, long.MaxValue);
+            WriteVL(Buffer, -65536L);
+            WriteVL(Buffer, long.MinValue);
+
+            SeekTo(Buffer, 0);
+
+            Assert.AreEqual(0L, ReadLong(Buffer));
+            Assert.AreEqual(-1024L, ReadLong(Buffer));
+            Assert.AreEqual(24655935L, ReadLong(Buffer));
+            Assert.AreEqual(-246559213423432435L, ReadLong(Buffer));
+            Assert.AreEqual(0L, ReadLong(Buffer));
+            Assert.AreEqual(long.MaxValue, ReadLong(Buffer));
+            Assert.AreEqual(-65536L, ReadLong(Buffer));
+            Assert.AreEqual(long.MinValue, ReadLong(Buffer));
         }
 
         [TestMethod]
@@ -143,14 +221,14 @@ namespace UnitTests.Serialization
 
             SeekTo(Buffer, 0);
 
-            Assert.AreEqual(0u, ReadVLUInt(Buffer));
-            Assert.AreEqual(-1024, ReadVLInt(Buffer));
-            Assert.AreEqual(24655935u, ReadVLUInt(Buffer));
-            Assert.AreEqual(0, ReadVLInt(Buffer));
-            Assert.AreEqual(uint.MaxValue, ReadVLUInt(Buffer));
-            Assert.AreEqual(-65536, ReadVLInt(Buffer));
-            Assert.AreEqual(0u, ReadVLUInt(Buffer));
-            Assert.AreEqual(23225234, ReadVLInt(Buffer));
+            Assert.AreEqual(0u, ReadUInt(Buffer));
+            Assert.AreEqual(-1024, ReadInt(Buffer));
+            Assert.AreEqual(24655935u, ReadUInt(Buffer));
+            Assert.AreEqual(0, ReadInt(Buffer));
+            Assert.AreEqual(uint.MaxValue, ReadUInt(Buffer));
+            Assert.AreEqual(-65536, ReadInt(Buffer));
+            Assert.AreEqual(0u, ReadUInt(Buffer));
+            Assert.AreEqual(23225234, ReadInt(Buffer));
         }
     }
 }
