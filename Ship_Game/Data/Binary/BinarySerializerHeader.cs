@@ -4,38 +4,38 @@ namespace Ship_Game.Data.Binary
 {
     struct BinarySerializerHeader
     {
-        public byte Version;
-        public byte Options;
-        public ushort NumTypes;
-        public ushort NumTypeGroups;
-        public int RootObjectIndex;
+        public uint Version;
+        public uint Options;
+        public uint NumTypes;
+        public uint NumTypeGroups;
+        public uint RootObjectIndex;
 
         public BinarySerializerHeader(bool stable, BinarySerializerWriter writer)
         {
             Version = BinarySerializer.CurrentVersion;
             Options = 0;
-            NumTypes = (ushort)writer.UsedTypes.Length;
-            NumTypeGroups = (ushort)writer.TypeGroups.Length;
+            NumTypes = (uint)writer.UsedTypes.Length;
+            NumTypeGroups = (uint)writer.TypeGroups.Length;
             RootObjectIndex = writer.RootObjectIndex;
             UseStableMapping = stable;
         }
 
         public BinarySerializerHeader(BinaryReader reader)
         {
-            Version = reader.ReadByte();
-            Options = reader.ReadByte();
-            NumTypes = reader.ReadUInt16();
-            NumTypeGroups = reader.ReadUInt16();
-            RootObjectIndex = reader.ReadInt32();
+            Version = reader.ReadVLu32();
+            Options = reader.ReadVLu32();
+            NumTypes = reader.ReadVLu32();
+            NumTypeGroups = reader.ReadVLu32();
+            RootObjectIndex = reader.ReadVLu32();
         }
 
         public void Write(BinaryWriter writer)
         {
-            writer.Write((byte)Version);
-            writer.Write((byte)Options);
-            writer.Write((ushort)NumTypes);
-            writer.Write((ushort)NumTypeGroups);
-            writer.Write((int)RootObjectIndex);
+            writer.WriteVLu32(Version);
+            writer.WriteVLu32(Options);
+            writer.WriteVLu32(NumTypes);
+            writer.WriteVLu32(NumTypeGroups);
+            writer.WriteVLu32(RootObjectIndex);
         }
 
         public bool UseStableMapping

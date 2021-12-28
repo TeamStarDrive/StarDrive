@@ -15,10 +15,10 @@ namespace Ship_Game.Data.Binary
         public override string ToString() => $"BinarySerializer {Type.GetTypeName()}";
 
         // The currently supported version
-        public const int CurrentVersion = 1;
+        public const uint CurrentVersion = 1;
 
         // Version from deserialized data
-        public int Version { get; private set; } = CurrentVersion;
+        public uint Version { get; private set; } = CurrentVersion;
 
         // Serialize: set true to output TypesList with field names and perform Type mapping
         //            set false to omit field names (smaller TypesList but crashes if field order changes)
