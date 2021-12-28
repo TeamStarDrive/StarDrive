@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
@@ -21,15 +22,15 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = text;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             string value = (string)obj;
-            writer.Write(value);
+            writer.BW.Write(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            string value = reader.ReadString();
+            string value = reader.BR.ReadString();
             return value;
         }
     }
@@ -70,25 +71,25 @@ namespace Ship_Game.Data.Serialization.Types
             }
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var localizedText = (LocalizedText)obj;
-            writer.Write((byte)localizedText.Method);
-            writer.Write((ushort)localizedText.Id);
+            writer.BW.Write((byte)localizedText.Method);
+            writer.BW.WriteVLi32(localizedText.Id); // id-s can be negative
             switch (localizedText.Method) // only write string for these cases:
             {
                 case LocalizationMethod.NameId:
                 case LocalizationMethod.RawText:
                 case LocalizationMethod.Parse:
-                    writer.Write(localizedText.String);
+                    writer.BW.Write(localizedText.String);
                     break;
             }
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            var method = (LocalizationMethod)reader.ReadByte();
-            int id = reader.ReadUInt16();
+            var method = (LocalizationMethod)reader.BR.ReadByte();
+            int id = reader.BR.ReadVLi32();
             string str = null;
 
             switch (method)
@@ -96,7 +97,7 @@ namespace Ship_Game.Data.Serialization.Types
                 case LocalizationMethod.NameId:
                 case LocalizationMethod.RawText:
                 case LocalizationMethod.Parse:
-                    str = reader.ReadString();
+                    str = reader.BR.ReadString();
                     break;
             }
 

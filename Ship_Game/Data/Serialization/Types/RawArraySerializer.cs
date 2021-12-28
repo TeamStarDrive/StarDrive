@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
@@ -65,25 +66,25 @@ namespace Ship_Game.Data.Serialization.Types
             ArrayListSerializer.Serialize(array, ElemSerializer, parent);
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var array = (Array)obj;
             int count = array.Length;
-            writer.Write(count);
+            writer.BW.WriteVLu32((uint)count);
             for (int i = 0; i < count; ++i)
             {
                 object element = array.GetValue(i);
-                ElemSerializer.Serialize(writer, element);
+                writer.WriteElement(ElemSerializer, element);
             }
         }
-        
-        public override object Deserialize(BinaryReader reader)
+
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            int count = reader.ReadInt32();
+            int count = (int)reader.BR.ReadVLu32();
             Array converted = Array.CreateInstance(ElemType, count);
             for (int i = 0; i < count; ++i)
             {
-                object element = ElemSerializer.Deserialize(reader);
+                object element = reader.ReadElement(ElemSerializer);
                 converted.SetValue(element, i);
             }
             return converted;

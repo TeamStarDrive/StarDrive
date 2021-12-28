@@ -1,6 +1,7 @@
 ﻿using Ship_Game.Data.Yaml;
 using System;
 using System.IO;
+using Ship_Game.Data.Binary;
 
 namespace Ship_Game.Data.Serialization
 {
@@ -78,19 +79,12 @@ namespace Ship_Game.Data.Serialization
         /// <summary>
         /// BINARY Serialize this object
         /// </summary>
-        public abstract void Serialize(BinaryWriter writer, object obj);
+        public abstract void Serialize(BinarySerializerWriter writer, object obj);
         
         /// <summary>
         /// BINARY Deserialize this object
         /// </summary>
-        public abstract object Deserialize(BinaryReader reader);
-
-        public static void WriteSerializerId(BinaryWriter writer, int serializerId)
-        {
-            if (serializerId > ushort.MaxValue)
-                throw new IndexOutOfRangeException($"TypeSerializer could not handle so many serializers: {serializerId} > 65535");
-            writer.Write((ushort)serializerId);
-        }
+        public abstract object Deserialize(BinarySerializerReader reader);
 
         public static void Error(object value, string couldNotConvertToWhat)
         {

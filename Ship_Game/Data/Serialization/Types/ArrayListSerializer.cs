@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
-    internal class ArrayListSerializer : TypeSerializer
+    internal class ArrayListSerializer : CollectionSerializer
     {
         public override string ToString() => $"ArrayListSerializer {ElemType.GetTypeName()}";
-        readonly Type ElemType;
-        readonly TypeSerializer ElemSerializer;
 
-        public ArrayListSerializer(Type type, Type elemType, TypeSerializer elemSerializer) : base(type)
+        public ArrayListSerializer(Type type, Type elemType, TypeSerializer elemSerializer)
+            : base(type, elemType, elemSerializer)
         {
-            ElemType = elemType;
-            ElemSerializer = elemSerializer;
-            IsCollection = true;
         }
 
         public override object Convert(object value)
@@ -96,26 +93,26 @@ namespace Ship_Game.Data.Serialization.Types
             Serialize(list, ElemSerializer, parent);
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var list = (IList)obj;
 
             int count = list.Count;
-            writer.Write(count);
+            writer.BW.WriteVLu32((uint)count);
             for (int i = 0; i < count; ++i)
             {
                 object element = list[i];
-                ElemSerializer.Serialize(writer, element);
+                writer.WriteElement(ElemSerializer, element);
             }
         }
-        
-        public override object Deserialize(BinaryReader reader)
+
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            int count = reader.ReadInt32();
+            int count = (int)reader.BR.ReadVLu32();
             IList list = ArrayHelper.NewArrayOfT(ElemType);
             for (int i = 0; i < count; ++i)
             {
-                object element = ElemSerializer.Deserialize(reader);
+                object element = reader.ReadElement(ElemSerializer);
                 list.Add(element);
             }
             return list;

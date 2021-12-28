@@ -2,7 +2,7 @@
 
 namespace Ship_Game.Data.Binary
 {
-    struct BinarySerializerHeader
+    public struct BinarySerializerHeader
     {
         public uint Version;
         public uint Options;

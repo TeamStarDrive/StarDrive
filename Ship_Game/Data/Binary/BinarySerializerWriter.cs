@@ -5,8 +5,10 @@ using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Data.Binary
 {
-    class BinarySerializerWriter
+    public class BinarySerializerWriter
     {
+        public BinaryWriter BW;
+
         // total number of objects
         public int NumObjects;
  
@@ -18,6 +20,13 @@ namespace Ship_Game.Data.Binary
 
         // Object lists grouped by their type (includes strings)
         public (TypeSerializer Ser, object[] Objects)[] TypeGroups;
+
+        Map<object, uint> Pointers;
+
+        public BinarySerializerWriter(BinaryWriter writer)
+        {
+            BW = writer;
+        }
 
         // Recursively gathers all UserType instances,
         // the order here is unimportant because they get sorted later
@@ -122,40 +131,79 @@ namespace Ship_Game.Data.Binary
             return 0;
         }
 
-        public void WriteTypesList(BinaryWriter bw, bool useStableMapping)
+        (string[] Names, Map<string, int> Index) GetMappedNames(Func<TypeSerializer, string> selector)
         {
+            var names = new HashSet<string>();
+            foreach (TypeSerializer serializer in UsedTypes)
+                names.Add(selector(serializer));
+
+            string[] sorted = names.ToArray();
+            Array.Sort(sorted);
+
+            var indexMap = new Map<string, int>();
+            for (int i = 0; i < sorted.Length; ++i)
+                indexMap.Add(sorted[i], i);
+
+            return (sorted, indexMap);
+        }
+
+        static string GetAssembly(TypeSerializer s) => s.Type.Assembly.GetName().Name;
+        static string GetNamespace(TypeSerializer s) => s.Type.FullName?.Split('+')[0];
+
+        public void WriteTypesList(bool useStableMapping)
+        {
+            // [assemblies]
+            // [namespaces]
+            // [types]
+            (string[] assemblies, var assemblyMap) = GetMappedNames(GetAssembly);
+            BW.WriteVLu32((uint)assemblies.Length);
+            foreach (string assembly in assemblies)
+                BW.Write(assembly);
+
+            (string[] namespaces, var namespaceMap) = GetMappedNames(GetNamespace);
+            BW.WriteVLu32((uint)namespaces.Length);
+            foreach (string ns in namespaces)
+                BW.Write(ns);
+
             foreach (TypeSerializer serializer in UsedTypes)
             {
-                string typeName = serializer.Type.FullName;
-                string assemblyName = serializer.Type.Assembly.GetName().Name;
-                //Type type = Type.GetType($"{typeName},{assemblyName}", throwOnError: true);
-                bw.WriteVLu32(serializer.Id);
-                // by outputting the full type name and assembly name, we will be able
-                // to always locate the type, unless its assembly is changed
-                bw.Write(typeName + "," + assemblyName);
+                // [type ID]
+                // [assembly ID]
+                // [namespace ID]
+                // [type flags]
+                // [type name]
+                int assemblyId = assemblyMap[GetAssembly(serializer)];
+                int namespaceId = namespaceMap[GetNamespace(serializer)];
+                int flags = (serializer.IsPointerType ? 1 : 0);
+                string typeName = serializer.Type.Name;
+                BW.WriteVLu32(serializer.Id);
+                BW.WriteVLu32((uint)assemblyId);
+                BW.WriteVLu32((uint)namespaceId);
+                BW.WriteVLu32((uint)flags);
+                BW.Write(typeName);
 
                 if (useStableMapping && serializer is UserTypeSerializer userSer)
                 {
-                    bw.WriteVLu32((uint)userSer.Fields.Count);
+                    BW.WriteVLu32((uint)userSer.Fields.Count);
                     foreach (DataField field in userSer.Fields)
-                        bw.Write(field.Name);
+                        BW.Write(field.Name);
                 }
             }
         }
 
-        public void WriteObjectTypeGroups(BinaryWriter bw)
+        public void WriteObjectTypeGroups()
         {
             foreach ((TypeSerializer ser, object[] list) in TypeGroups)
             {
-                bw.WriteVLu32(ser.Id);
-                bw.WriteVLu32((uint)list.Length); // int32 because we allow > 65k objects
+                BW.WriteVLu32(ser.Id);
+                BW.WriteVLu32((uint)list.Length); // int32 because we allow > 65k objects
             }
         }
 
-        public void WriteObjects(BinaryWriter bw)
+        public void WriteObjects()
         {
             var objects = new Array<object>(NumObjects);
-            var pointers = new Map<object, uint>(NumObjects);
+            Pointers = new Map<object, uint>(NumObjects);
 
             // pre-pass: create integer pointers of all objects
             foreach ((TypeSerializer ser, object[] list) in TypeGroups)
@@ -163,7 +211,7 @@ namespace Ship_Game.Data.Binary
                 foreach (object o in list)
                 {
                     objects.Add(o);
-                    pointers[o] = (uint)objects.Count; // pointer = objectIndex + 1
+                    Pointers[o] = (uint)objects.Count; // pointer = objectIndex + 1
                 }
             }
 
@@ -171,19 +219,19 @@ namespace Ship_Game.Data.Binary
             {
                 foreach (object o in list)
                 {
-                    WriteObject(bw, ser, o, pointers);
+                    WriteObjectRoot(ser, o);
                 }
             }
         }
 
-        void WriteObject(BinaryWriter bw, TypeSerializer ser, object instance, Map<object, uint> pointers)
+        public void WriteObjectRoot(TypeSerializer ser, object instance)
         {
             // NOTE: the object typeId is already handled by TypeGroup data
 
             if (ser is UserTypeSerializer userSer)
             {
                 // number of fields, so we know how many to parse later
-                bw.WriteVLu32((ushort)userSer.Fields.Count);
+                BW.WriteVLu32((ushort)userSer.Fields.Count);
 
                 // @note This is not recursive, because we only write object "Pointers" ID-s
                 foreach (DataField field in userSer.Fields)
@@ -191,35 +239,44 @@ namespace Ship_Game.Data.Binary
                     // always include the type, this allows us to handle
                     // fields which get deleted, so they can be skipped
                     TypeSerializer fieldSer = field.Serializer;
-                    bw.WriteVLu32(fieldSer.Id);
+                    BW.WriteVLu32(fieldSer.Id);
 
                     // write the field IDX to Stream so we can remap it
                     // to actual FieldIdx during deserialize
-                    bw.WriteVLu32((ushort)field.FieldIdx);
+                    BW.WriteVLu32((ushort)field.FieldIdx);
 
                     object fieldObject = field.Get(instance);
-                    if (fieldObject == null)
-                    {
-                        bw.WriteVLu32(0); // NULL pointer
-                    }
-                    else if (pointers.TryGetValue(fieldObject, out uint pointer))
-                    {
-                        bw.WriteVLu32(pointer); // write the object pointer
-                    }
-                    else if (fieldSer.IsUserClass)
-                    {
-                        // an UserClass struct which has to be serialized inline
-                        WriteObject(bw, fieldSer, fieldObject, pointers);
-                    }
-                    else // it's a float, int, Vector2, etc. dump it directly
-                    {
-                        fieldSer.Serialize(bw, fieldObject);
-                    }
+                    WriteElement(fieldSer, fieldObject);
                 }
             }
-            else // string, object[], stuff like that
+            else // int, float, object[], Vector2[], etc
             {
-                ser.Serialize(bw, instance);
+                ser.Serialize(this, instance);
+            }
+        }
+
+        // Writes a single element
+        // For pointer types, this writes their pointer reference
+        // For primitive value types, this writes an inline value
+        // For UserClass value types, this writes struct fields inline
+        public void WriteElement(TypeSerializer ser, object element)
+        {
+            if (element == null)
+            {
+                BW.WriteVLu32(0); // NULL pointer
+            }
+            else if (Pointers.TryGetValue(element, out uint pointer))
+            {
+                BW.WriteVLu32(pointer); // write the object pointer
+            }
+            else if (ser.IsUserClass)
+            {
+                // an UserClass struct which has to be serialized inline
+                WriteObjectRoot(ser, element);
+            }
+            else // it's a float, int, Vector2, etc. dump it directly
+            {
+                ser.Serialize(this, element);
             }
         }
     }
