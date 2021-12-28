@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
@@ -152,12 +153,12 @@ namespace Ship_Game.Data.Serialization.Types
         public override void Serialize(BinaryWriter writer, object obj)
         {
             int value = (int)obj;
-            writer.Write(value);
+            writer.WriteVLi32(value);
         }
 
         public override object Deserialize(BinaryReader reader)
         {
-            int value = reader.ReadInt32();
+            int value = reader.ReadVLi32();
             return value;
         }
     }
@@ -175,12 +176,12 @@ namespace Ship_Game.Data.Serialization.Types
         public override void Serialize(BinaryWriter writer, object obj)
         {
             uint value = (uint)obj;
-            writer.Write(value);
+            writer.WriteVLu32(value);
         }
 
         public override object Deserialize(BinaryReader reader)
         {
-            uint value = reader.ReadUInt32();
+            uint value = reader.ReadVLu32();
             return value;
         }
     }
@@ -199,12 +200,12 @@ namespace Ship_Game.Data.Serialization.Types
         public override void Serialize(BinaryWriter writer, object obj)
         {
             long value = (long)obj;
-            writer.Write(value);
+            writer.WriteVLi64(value);
         }
 
         public override object Deserialize(BinaryReader reader)
         {
-            long value = reader.ReadInt64();
+            long value = reader.ReadVLi64();
             return value;
         }
     }
@@ -223,12 +224,12 @@ namespace Ship_Game.Data.Serialization.Types
         public override void Serialize(BinaryWriter writer, object obj)
         {
             ulong value = (ulong)obj;
-            writer.Write(value);
+            writer.WriteVLu64(value);
         }
 
         public override object Deserialize(BinaryReader reader)
         {
-            ulong value = reader.ReadUInt64();
+            ulong value = reader.ReadVLu64();
             return value;
         }
     }
