@@ -76,9 +76,9 @@ namespace Ship_Game.Data.Binary
 
         public void ReadTypesList(BinaryReader br, TypeSerializerMap typeMap)
         {
-            for (int i = 0; i < Header.NumTypes; ++i)
+            for (uint i = 0; i < Header.NumTypes; ++i)
             {
-                ushort typeId = br.ReadUInt16();
+                ushort typeId = (ushort)br.ReadVLu32();
                 string typeNameAndAssembly = br.ReadString();
 
                 // if type is not found, we completely give up
@@ -91,10 +91,10 @@ namespace Ship_Game.Data.Binary
 
                 if (StableMapping && serializer is UserTypeSerializer userSer)
                 {
-                    ushort numFields = br.ReadUInt16();
+                    uint numFields = br.ReadVLu32();
                     ushort[] mapping = new ushort[numFields];
 
-                    for (ushort fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
+                    for (uint fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
                     {
                         string fieldName = br.ReadString();
                         DataField field = userSer.GetFieldOrNull(fieldName);
@@ -122,8 +122,8 @@ namespace Ship_Game.Data.Binary
             int totalCount = 0;
             for (int i = 0; i < TypeGroups.Length; ++i)
             {
-                int typeId = GetActualTypeId(br.ReadUInt16());
-                int count = br.ReadInt32();
+                int typeId = GetActualTypeId((ushort)br.ReadVLu32());
+                int count = (int)br.ReadVLu32();
                 totalCount += count;
                 TypeGroups[i] = (typeMap.Get(typeId), count);
             }
@@ -187,19 +187,19 @@ namespace Ship_Game.Data.Binary
                 return;
             }
 
-            int numFields = br.ReadUInt16();
-            for (int i = 0; i < numFields; ++i)
+            uint numFields = br.ReadVLu32();
+            for (uint i = 0; i < numFields; ++i)
             {
                 // serializer Id from the stream
-                ushort fieldTypeId = GetActualTypeId(br.ReadUInt16());
-                ushort fieldIdx = GetActualFieldIdx(fieldTypeId, br.ReadUInt16());
+                ushort fieldTypeId = GetActualTypeId((ushort)br.ReadVLu32());
+                ushort fieldIdx = GetActualFieldIdx(fieldTypeId, (ushort)br.ReadVLu32());
 
                 if (typeMap.TryGet(fieldTypeId, out TypeSerializer fieldSer))
                 {
                     object fieldValue;
                     if (fieldSer.IsPointerType)
                     {
-                        int pointer = br.ReadInt32();
+                        uint pointer = br.ReadVLu32();
                         if (pointer == 0)
                             continue;
                         fieldValue = ObjectsList[pointer - 1]; // pointer = objectIndex + 1
@@ -218,9 +218,11 @@ namespace Ship_Game.Data.Binary
                     DataField field = ser.GetFieldOrNull(fieldIdx);
                     field?.Set(instance, fieldValue);
                 }
-                else // it's an unknown user class, try skipping 1 pointer
+                else
                 {
-                    br.ReadInt32();
+                    // it's an unknown user class, try skipping 1 pointer
+                    // it will probably crash here with invalid stream error
+                    br.ReadVLu32();
                 }
             }
         }

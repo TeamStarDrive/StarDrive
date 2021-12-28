@@ -11,14 +11,14 @@ namespace UnitTests.Serialization
         readonly MemoryStream Buffer = new MemoryStream();
 
         static void SeekTo(MemoryStream ms, int pos) => ms.Seek(pos, SeekOrigin.Begin);
-        static void WriteVL(MemoryStream ms, uint value) => new BinaryWriter(ms).WriteVL(value);
-        static void WriteVL(MemoryStream ms, int value) => new BinaryWriter(ms).WriteVL(value);
-        static void WriteVL(MemoryStream ms, ulong value) => new BinaryWriter(ms).WriteVL(value);
-        static void WriteVL(MemoryStream ms, long value) => new BinaryWriter(ms).WriteVL(value);
-        static int ReadInt(MemoryStream ms) => new BinaryReader(ms).ReadVLInt();
-        static uint ReadUInt(MemoryStream ms) => new BinaryReader(ms).ReadVLUInt();
-        static long ReadLong(MemoryStream ms) => new BinaryReader(ms).ReadVLLong();
-        static ulong ReadULong(MemoryStream ms) => new BinaryReader(ms).ReadVLULong();
+        static void WriteVL(MemoryStream ms, uint value) => new BinaryWriter(ms).WriteVLu32(value);
+        static void WriteVL(MemoryStream ms, int value) => new BinaryWriter(ms).WriteVLi32(value);
+        static void WriteVL(MemoryStream ms, ulong value) => new BinaryWriter(ms).WriteVLu64(value);
+        static void WriteVL(MemoryStream ms, long value) => new BinaryWriter(ms).WriteVLi64(value);
+        static int ReadInt(MemoryStream ms) => new BinaryReader(ms).ReadVLi32();
+        static uint ReadUInt(MemoryStream ms) => new BinaryReader(ms).ReadVLu32();
+        static long ReadLong(MemoryStream ms) => new BinaryReader(ms).ReadVLi64();
+        static ulong ReadULong(MemoryStream ms) => new BinaryReader(ms).ReadVLu64();
 
         static uint EncDec(uint value)
         {
