@@ -1469,8 +1469,21 @@ namespace Ship_Game.Ships
                 if (addWarpExplode)
                     ExplosionManager.AddExplosion(position, Velocity, size * 1.75f, 12f, ExplosionType.Warp);
 
-                UniverseScreen.Spatial.ShipExplode(this, size * 50, Position, Radius);
+                float explosionDamage = GetExplosionDamage();
+                UniverseScreen.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage / 1000);
             }
+        }
+
+        float GetExplosionDamage()
+        {
+            float damage = 0;
+            for (int i = 0; i < ModuleSlotList.Length; i++)
+            {
+                ShipModule m = ModuleSlotList[i];
+                damage += m.ExplosionDamageOnShipExplode(PowerCurrent / PowerStoreMax);
+            }
+
+            return damage.LowerBound(Radius * 10);
         }
 
         public void InstantKill()
