@@ -101,6 +101,7 @@
     <Compile Include="Planets\CapitalTransfer.cs" />
     <Compile Include="Planets\LandOnTiles.cs" />
     <Compile Include="Planets\TestOrbitalBomb.cs" />
+    <Compile Include="Serialization\BinaryReadWriteTests.cs" />
     <Compile Include="Serialization\StringViewTests.cs" />
     <Compile Include="Serialization\YamlSerializerTests.cs" />
     <Compile Include="Ships\TestResupplyLogic.cs" />

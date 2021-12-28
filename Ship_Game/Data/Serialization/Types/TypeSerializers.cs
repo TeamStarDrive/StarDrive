@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
-using Microsoft.Xna.Framework;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types

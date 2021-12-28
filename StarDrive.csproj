@@ -219,6 +219,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Compnonents\BudgetPriorities.cs" />
+    <Compile Include="Ship_Game\Data\Binary\BinaryReadWrite.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializerReader.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializerWriter.cs" />
     <Compile Include="Ship_Game\Data\Binary\BinarySerializerHeader.cs" />
