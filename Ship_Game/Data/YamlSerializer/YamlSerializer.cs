@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Data.Yaml;
@@ -139,14 +140,14 @@ namespace Ship_Game.Data.YamlSerializer
             root.SerializeTo(writer);
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
-            Log.Error($"Serialize (binary) not supported for {ToString()}");
+            Log.Error($"Serialize (binary) not supported for {this}");
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            Log.Error($"Deserialize (binary) not supported for {ToString()}");
+            Log.Error($"Deserialize (binary) not supported for {this}");
             return null;
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
@@ -19,15 +20,15 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             float value = (float)obj;
-            writer.Write(value);
+            writer.BW.Write(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            float value = reader.ReadSingle();
+            float value = reader.BR.ReadSingle();
             return value;
         }
 
@@ -60,15 +61,15 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             double value = (double)obj;
-            writer.Write(value);
+            writer.BW.Write(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            double value = reader.ReadDouble();
+            double value = reader.BR.ReadDouble();
             return value;
         }
     }

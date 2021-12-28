@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
@@ -22,18 +23,18 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = new object[]{ v.X, v.Y };
         }
         
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var v = (Vector2)obj;
-            writer.Write(v.X);
-            writer.Write(v.Y);
+            writer.BW.Write(v.X);
+            writer.BW.Write(v.Y);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
             Vector2 v;
-            v.X = reader.ReadSingle();
-            v.Y = reader.ReadSingle();
+            v.X = reader.BR.ReadSingle();
+            v.Y = reader.BR.ReadSingle();
             return v;
         }
 
@@ -83,18 +84,18 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = new object[] { v.X, v.Y };
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var v = (Vector2d)obj;
-            writer.Write(v.X);
-            writer.Write(v.Y);
+            writer.BW.Write(v.X);
+            writer.BW.Write(v.Y);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
             Vector2d v;
-            v.X = reader.ReadDouble();
-            v.Y = reader.ReadDouble();
+            v.X = reader.BR.ReadDouble();
+            v.Y = reader.BR.ReadDouble();
             return v;
         }
 
@@ -144,20 +145,20 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = new object[] { v.X, v.Y, v.Z };
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var v = (Vector3)obj;
-            writer.Write(v.X);
-            writer.Write(v.Y);
-            writer.Write(v.Z);
+            writer.BW.Write(v.X);
+            writer.BW.Write(v.Y);
+            writer.BW.Write(v.Z);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
             Vector3 v;
-            v.X = reader.ReadSingle();
-            v.Y = reader.ReadSingle();
-            v.Z = reader.ReadSingle();
+            v.X = reader.BR.ReadSingle();
+            v.Y = reader.BR.ReadSingle();
+            v.Z = reader.BR.ReadSingle();
             return v;
         }
 
@@ -202,20 +203,20 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = new object[] { v.X, v.Y, v.Z };
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var v = (Vector3d)obj;
-            writer.Write(v.X);
-            writer.Write(v.Y);
-            writer.Write(v.Z);
+            writer.BW.Write(v.X);
+            writer.BW.Write(v.Y);
+            writer.BW.Write(v.Z);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
             Vector3d v;
-            v.X = reader.ReadDouble();
-            v.Y = reader.ReadDouble();
-            v.Z = reader.ReadDouble();
+            v.X = reader.BR.ReadDouble();
+            v.Y = reader.BR.ReadDouble();
+            v.Z = reader.BR.ReadDouble();
             return v;
         }
 
@@ -260,22 +261,22 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = new object[]{ v.X, v.Y, v.Z, v.W };
         }
         
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var v = (Vector4)obj;
-            writer.Write(v.X);
-            writer.Write(v.Y);
-            writer.Write(v.Z);
-            writer.Write(v.W);
+            writer.BW.Write(v.X);
+            writer.BW.Write(v.Y);
+            writer.BW.Write(v.Z);
+            writer.BW.Write(v.W);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
             Vector4 v;
-            v.X = reader.ReadSingle();
-            v.Y = reader.ReadSingle();
-            v.Z = reader.ReadSingle();
-            v.W = reader.ReadSingle();
+            v.X = reader.BR.ReadSingle();
+            v.Y = reader.BR.ReadSingle();
+            v.Z = reader.BR.ReadSingle();
+            v.W = reader.BR.ReadSingle();
             return v;
         }
 
@@ -322,18 +323,18 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = new object[]{ p.X, p.Y };
         }
         
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var p = (Point)obj;
-            writer.Write(p.X);
-            writer.Write(p.Y);
+            writer.BW.WriteVLi32(p.X);
+            writer.BW.WriteVLi32(p.Y);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
             Point p;
-            p.X = reader.ReadInt32();
-            p.Y = reader.ReadInt32();
+            p.X = reader.BR.ReadVLi32();
+            p.Y = reader.BR.ReadVLi32();
             return p;
         }
 
