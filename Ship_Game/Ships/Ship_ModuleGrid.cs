@@ -271,7 +271,7 @@ namespace Ship_Game.Ships
                         minD = distanceFromStart;
                         hit = shield;
                     }
-                }
+                } 
             }
             if (hit != null && DebugInfoScreen.Mode == DebugModes.SpatialManager)
             {
@@ -279,6 +279,20 @@ namespace Ship_Game.Ships
             }
             hitDistance = minD;
             return hit;
+        }
+
+        // Gets all the shields currently covering a ship Module, starting with the strongest
+        public ShipModule[] GetAllActiveShieldsCoveringModule(ShipModule module)
+        {
+            Array<ShipModule> coveringShields = new Array<ShipModule>();
+            for (int i = 0; i < Shields.Length; ++i)
+            {
+                ShipModule shield = Shields[i];
+                if (shield.ShieldsAreActive && shield.HitTestShield(module.Position, module.Radius))
+                    coveringShields.Add(shield);
+            }
+
+            return coveringShields.SortedDescending(m => m.ShieldPower);
         }
 
         // Gets the strongest shield currently covering internalModule
@@ -378,6 +392,8 @@ namespace Ship_Game.Ships
         // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
         //       updated every time a module dies. The code for that is in ShipModule.cs
         // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
+        // @note If the explosion origin is not inside grid, we find the nearest module based on distance
+        //       Slower code, but this method is rarely called (when ship explodes)
         // @note Ignores shields !
         public ShipModule FindClosestUnshieldedModule(Vector2 worldPoint)
         {
@@ -386,7 +402,7 @@ namespace Ship_Game.Ships
 
             Point pt = WorldToGridLocalPoint(worldPoint);
             if (!LocalPointInBounds(pt))
-                return null;
+                return ExternalModuleGrid.FindMinFiltered(em => em != null, em => em.Position.SqDist(worldPoint));
 
             ShipModule[] grid = ExternalModuleGrid;
             int width = GridWidth;
