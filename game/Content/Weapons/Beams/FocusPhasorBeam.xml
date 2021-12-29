@@ -17,18 +17,18 @@
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
   
-  <Excludes_Fighters>true</Excludes_Fighters>  
+  <ExcludesFighters>true</ExcludesFighters>  
 
   <UID>FocusPhasorBeam</UID>
-  <isBeam>true</isBeam>
-  <fireDelay>10</fireDelay>
+  <IsBeam>true</IsBeam>
+  <FireDelay>10</FireDelay>
   <Range>14000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <BeamDuration>4</BeamDuration>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
-  <fireCueName>sd_weapon_flame_start_01</fireCueName>
+  <FireCueName>sd_weapon_flame_start_01</FireCueName>
   <ToggleSoundName>sd_weapon_phasor_01</ToggleSoundName>
   <BeamTexture>beam_red</BeamTexture>
   

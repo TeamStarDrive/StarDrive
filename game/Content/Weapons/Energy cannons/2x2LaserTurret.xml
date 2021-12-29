@@ -17,20 +17,20 @@
   <Tag_Cannon>true</Tag_Cannon>
 
   <UID>2x2LaserTurret</UID>
-  <fireDelay>4</fireDelay>
+  <FireDelay>4</FireDelay>
   <Range>5800</Range>
   <PowerRequiredToFire>556</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <PlaySoundOncePerSalvo>true</PlaySoundOncePerSalvo>
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_laser_burst_01</fireCueName>
+  <FireCueName>sd_weapon_laser_burst_01</FireCueName>
 
 
   <!-- Projectile Information -->
   <DamageAmount>383</DamageAmount>
   <ProjectileSpeed>2100</ProjectileSpeed>
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <Light>Red</Light>
   <Scale>1.2</Scale>
   <ProjectileTexturePath>projLong_02_red</ProjectileTexturePath>

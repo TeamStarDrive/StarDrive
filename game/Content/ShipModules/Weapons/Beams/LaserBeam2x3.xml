@@ -9,8 +9,8 @@
   <TechLevel>1</TechLevel>
 
   <!-- common traits shared by all ship modules -->
-  <XSIZE>2</XSIZE>
-  <YSIZE>3</YSIZE>
+  <XSize>2</XSize>
+  <YSize>3</YSize>
   <ModuleType>MainGun</ModuleType>
   <Name>Heavy-mount Laser Beam</Name>
   <Restrictions>O</Restrictions>

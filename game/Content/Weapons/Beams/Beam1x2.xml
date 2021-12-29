@@ -4,14 +4,14 @@
   <Tag_Beam>true</Tag_Beam>
   
   <UID>Beam2x1</UID>
-  <isBeam>true</isBeam>
-  <fireDelay>4</fireDelay>
+  <IsBeam>true</IsBeam>
+  <FireDelay>4</FireDelay>
   <Range>3000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
-  <fireCueName>sd_weapon_laser_large_alt_04</fireCueName>
+  <FireCueName>sd_weapon_laser_large_alt_04</FireCueName>
   <ToggleSoundName>sd_weapon_beam_02</ToggleSoundName>
   
   

@@ -60,7 +60,7 @@ namespace Ship_Game.Ships
 
         bool LaunchShipSupplyShuttle(ShipModule hangar, Ship supplyTarget)
         {
-            if (!hangar.Active || hangar.hangarTimer > 0f)
+            if (!hangar.Active || hangar.HangarTimer > 0f)
                 return true;
 
             if (!CarrierHasSupplyToLaunch(hangar))

@@ -19,17 +19,17 @@
   <Tag_Drone>false</Tag_Drone>
   <Tag_Torpedo>true</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
-  <Excludes_Fighters>true</Excludes_Fighters>  
-  <Excludes_Corvettes>true</Excludes_Corvettes>   
+  <ExcludesFighters>true</ExcludesFighters>  
+  <ExcludesCorvettes>true</ExcludesCorvettes>   
   
-  <fireDelay>5</fireDelay>
+  <FireDelay>5</FireDelay>
   <Range>30000</Range>
   <HitPoints>250</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>10</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_missile_heavy_01</fireCueName>
-  <dieCue>sd_weapon_rocket_explode_01</dieCue>
+  <FireCueName>sd_weapon_missile_heavy_01</FireCueName>
+  <DieCue>sd_weapon_rocket_explode_01</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   <!-- Projectile Information -->
   <DamageAmount>1850</DamageAmount>
@@ -38,7 +38,7 @@
   <MirvWeapon>CPMissileMirv</MirvWeapon>
   <MirvWarheads>3</MirvWarheads>
   <MirvSeparationDistance>4000</MirvSeparationDistance>    
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <DamageRadius>90</DamageRadius>
   <Light>Red</Light>
   <ModelPath>LRM</ModelPath>

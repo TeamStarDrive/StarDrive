@@ -24,18 +24,18 @@
   <OffPowerMod>3</OffPowerMod>
 
   <UID>PDLaser</UID>
-  <fireDelay>0.5</fireDelay>
+  <FireDelay>0.5</FireDelay>
   <Range>3500</Range>
   <PowerRequiredToFire>5</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_laser_small_alt5_01</fireCueName>
+  <FireCueName>sd_weapon_laser_small_alt5_01</FireCueName>
 
   <!-- Projectile Information -->
   <DamageAmount>1</DamageAmount>
   <ProjectileSpeed>1500</ProjectileSpeed>
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <Scale>.75</Scale>
   <ProjectileTexturePath>projPulse_01_red_1</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>

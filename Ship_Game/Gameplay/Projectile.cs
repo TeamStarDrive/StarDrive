@@ -201,7 +201,7 @@ namespace Ship_Game.Gameplay
 
             Range                 = Weapon.BaseRange;
             Radius                = Weapon.ProjectileRadius;
-            Explodes              = Weapon.explodes;
+            Explodes              = Weapon.Explodes;
             DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
             DamageRadius          = Weapon.DamageRadius;
             ExplosionRadiusMod    = Weapon.ExplosionRadiusVisual;
@@ -230,7 +230,7 @@ namespace Ship_Game.Gameplay
             Rotation    = Velocity.Normalized().ToRadians(); // used for drawing the projectile in correct direction
 
             InitialDuration = Duration = (Range/Speed + Weapon.DelayedIgnition) * durationMod;
-            ParticleDelay  += Weapon.particleDelay;
+            ParticleDelay  += Weapon.ParticleDelay;
 
             if (Owner?.loyalty.data.ArmorPiercingBonus > 0 && Weapon.Tag_Kinetic)
                 ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
@@ -241,7 +241,7 @@ namespace Ship_Game.Gameplay
             }
             else if (Weapon.Tag_Guided)
             {
-                if (!Weapon.isTurret && !isMirv)
+                if (!Weapon.IsTurret && !isMirv)
                     Rotation = Owner?.Rotation + Weapon.Module?.TurretAngleRads ?? Rotation;
 
                 Vector2 missileVelocity = inheritedVelocity != Vector2.Zero ? inheritedVelocity : Weapon.Owner?.Velocity ?? Vector2.Zero;
@@ -265,7 +265,7 @@ namespace Ship_Game.Gameplay
             if (playSound && IsInFrustum)
             {
                 Weapon.PlayToggleAndFireSfx(Emitter);
-                string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).dieCue;
+                string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).DieCue;
                 if (cueName.NotEmpty())     DieCueName  = cueName;
                 if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;
             }
@@ -817,7 +817,7 @@ namespace Ship_Game.Gameplay
             // deduct that from the projectile's AP before starting AP and damage checks
             ArmorPiercing -= module.APResist;
 
-            if (!module.Is(ShipModuleType.Armor) || ArmorPiercing < module.XSIZE)
+            if (!module.Is(ShipModuleType.Armor) || ArmorPiercing < module.XSize)
             {
                 if (Explodes)
                 {
@@ -831,7 +831,7 @@ namespace Ship_Game.Gameplay
             if (DamageAmount <= 0f)
                 return;
 
-            ArmorPiercing -= module.XSIZE;
+            ArmorPiercing -= module.XSize;
             var projectedModules = parent.RayHitTestModules(module.Position, VelocityDirection, distance:parent.Radius, rayRadius:Radius);
 
             DebugTargetCircle();
@@ -845,9 +845,9 @@ namespace Ship_Game.Gameplay
                 {
                     ArmorPiercing -= impactModule.APResist; 
                     impactModule.DebugDamageCircle();
-                    if (ArmorPiercing >= impactModule.XSIZE) // armor is always squared anyway.
+                    if (ArmorPiercing >= impactModule.XSize) // armor is always squared anyway.
                     {
-                        ArmorPiercing -= impactModule.XSIZE;
+                        ArmorPiercing -= impactModule.XSize;
                         continue; // Phase through this armor module (yikes!)
                     }
                 }

@@ -19,12 +19,12 @@
 
    <UID>LRM1</UID>
    
-  <Excludes_Fighters>true</Excludes_Fighters>  
+  <ExcludesFighters>true</ExcludesFighters>  
   
 
   
  
-  <fireDelay>15</fireDelay>
+  <FireDelay>15</FireDelay>
   <Range>13000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>11</OrdinanceRequiredToFire>
@@ -39,7 +39,7 @@
   <HitPoints>10</HitPoints>
 <!--Projectile atributes-->
   <Scale>1.2</Scale>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 <!-- Projectile textures-->
   <ProjectileTexturePath>SRM_d</ProjectileTexturePath>
@@ -47,7 +47,7 @@
   <WeaponEffectType>RocketTrail</WeaponEffectType>
   <WeaponType>Missile</WeaponType>
 <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_missile_heavy_01</fireCueName>
-  <dieCue>Explo1</dieCue>
+  <FireCueName>sd_weapon_missile_heavy_01</FireCueName>
+  <DieCue>Explo1</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
 </Weapon>

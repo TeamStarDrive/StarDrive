@@ -18,15 +18,15 @@
   <Tag_Cannon>false</Tag_Cannon>
 
   <UID>Owlwok Antidote</UID>
-  <fireDelay>7.0</fireDelay>
+  <FireDelay>7.0</FireDelay>
   <Range>5000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>15</OrdinanceRequiredToFire>
   
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_bigcannon_01</fireCueName>
-  <dieCue>Explo1</dieCue>
+  <FireCueName>sd_weapon_bigcannon_01</FireCueName>
+  <DieCue>Explo1</DieCue>
  <!-- <ToggleSoundName>sd_weapon_vulcan_spinloop_01</ToggleSoundName> -->
 
   <!-- Projectile Information -->
@@ -35,14 +35,14 @@
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2700</ProjectileSpeed>
   <DamageRadius>75</DamageRadius>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <WeaponType>Ballistic Cannon</WeaponType>
 
   <BombPopulationKillPerHit>0</BombPopulationKillPerHit>
-  <BombTroopDamage_Max>0</BombTroopDamage_Max>
-  <BombTroopDamage_Min>0</BombTroopDamage_Min>
+  <BombTroopDamageMax>0</BombTroopDamageMax>
+  <BombTroopDamageMin>0</BombTroopDamageMin>
   <BombHardDamageMin>0</BombHardDamageMin>
   <BombHardDamageMax>0</BombHardDamageMax>
   <HardCodedAction>Free Owlwoks</HardCodedAction>

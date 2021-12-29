@@ -19,14 +19,14 @@
   <OffPowerMod>20</OffPowerMod>
 
   <UID>EmpDischarger1x2</UID>
-  <fireDelay>1.0</fireDelay>
+  <FireDelay>1.0</FireDelay>
   <Range>4200</Range>
   <PowerRequiredToFire>110</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_emptorpedo</fireCueName>
-  <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
+  <FireCueName>sd_weapon_emptorpedo</FireCueName>
+  <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <InFlightCue>sd_weapon_photon_flight_01</InFlightCue>
 
   <!-- Projectile Information -->
@@ -43,7 +43,7 @@
   <AnimationPath>projBall_01_plasma_1/projBall_01_plasma_1_cc_</AnimationPath>
   <LoopAnimation>1</LoopAnimation>
   
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projBall</ModelPath>
   <WeaponType>Energy Cannon</WeaponType>

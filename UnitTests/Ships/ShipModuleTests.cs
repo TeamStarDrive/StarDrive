@@ -86,11 +86,11 @@ namespace UnitTests.Ships
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, new Vector2(1000, 1000));
             var m = ShipModule.Create(new DesignSlot(new Point(1, 2), "LaserBeam2x3", new Point(3,2), 45, ModuleOrientation.Left, null), ship, false);
-            m.isExternal = true;
+            m.IsExternal = true;
             m.Powered = true;
 
             m.UninstallModule();
-            Assert.IsFalse(m.isExternal, "isExternal must be reset after module uninstall");
+            Assert.IsFalse(m.IsExternal, "isExternal must be reset after module uninstall");
             Assert.IsFalse(m.Powered, "Powered must be reset after module uninstall");
         }
 

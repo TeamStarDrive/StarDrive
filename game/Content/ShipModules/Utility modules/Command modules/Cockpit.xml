@@ -9,8 +9,8 @@
   <TechBranch>Command</TechBranch>
   
   <!-- common traits shared by all ship modules -->
-  <XSIZE>1</XSIZE>
-  <YSIZE>1</YSIZE>
+  <XSize>1</XSize>
+  <YSize>1</YSize>
   <ModuleType>Command</ModuleType>
   <Name>Cockpit</Name>
   <Restrictions>I</Restrictions>
@@ -39,16 +39,16 @@
 
   <!-- for shield items -->
   <shield_power>0</shield_power>
-  <shield_power_max>0</shield_power_max>
-  <shield_recharge_delay>0</shield_recharge_delay>
-  <shield_recharge_rate>0</shield_recharge_rate>
-  <shield_radius>0</shield_radius>
-  <EMP_Protection>20</EMP_Protection>
+  <ShieldPowerMax>0</ShieldPowerMax>
+  <ShieldRechargeDelay>0</ShieldRechargeDelay>
+  <ShieldRechargeRate>0</ShieldRechargeRate>
+  <ShieldRadius>0</ShieldRadius>
+  <EMPProtection>20</EMPProtection>
   <!-- Sensor Data -->
 
 
   <!-- for PowerPlant Items -->
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <PowerFlowMax>0</PowerFlowMax>
   <PowerStoreMax>0</PowerStoreMax>
 
@@ -57,7 +57,7 @@
 
 
   <!-- for Engines -->
-  <thrust>0</thrust>
+  <Thrust>0</Thrust>
 
 
 

@@ -43,7 +43,7 @@ namespace Ship_Game.Ships
                 return EmptySlot(7, 4);
 
             string[] lines = {
-                "|"+PadCentered($"{m.Restrictions} {m.XSIZE}x{m.YSIZE}", 7),
+                "|"+PadCentered($"{m.Restrictions} {m.XSize}x{m.YSize}", 7),
                 "|"+SafeSub(m.UID, 0,  7),
                 "|"+SafeSub(m.UID, 7,  7),
                 "|"+SafeSub(m.UID, 14, 7),

@@ -7,8 +7,8 @@
   <Cost>8</Cost>
   
   <!-- common traits shared by all ship modules -->
-  <XSIZE>2</XSIZE>
-  <YSIZE>3</YSIZE>
+  <XSize>2</XSize>
+  <YSize>3</YSize>
   <ModuleType>MainGun</ModuleType>
   <Name>Thalaron Blaster</Name>
   <Restrictions>O</Restrictions>

@@ -628,7 +628,7 @@ namespace Ship_Game.AI
                     Owner.ChangeOrdnance(-bombBay.InstalledWeapon.OrdinanceRequiredToFire);
                     bomb.SetTarget(goal.TargetPlanet);
                     Empire.Universe.BombList.Add(bomb);
-                    bombBay.InstalledWeapon.CooldownTimer = bombBay.InstalledWeapon.fireDelay;
+                    bombBay.InstalledWeapon.CooldownTimer = bombBay.InstalledWeapon.FireDelay;
                 }
             }
         }

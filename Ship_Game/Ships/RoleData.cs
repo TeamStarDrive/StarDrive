@@ -44,7 +44,7 @@ namespace Ship_Game.Ships
                 return RoleName.colony;
 
             if (DataRole == RoleName.freighter && Category == ShipCategory.Civilian &&
-                SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
+                SurfaceAreaPercentOf(m => m.CargoCapacity > 0) >= 0.5f)
             {
                 return RoleName.freighter;
             }
@@ -79,14 +79,14 @@ namespace Ship_Game.Ships
                     // non freighter hull must be set to civilian to be set as freighters.
                     if (HullRole > RoleName.freighter)
                     {
-                        if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f && Category == ShipCategory.Civilian)
+                        if (SurfaceAreaPercentOf(m => m.CargoCapacity > 0) >= 0.5f && Category == ShipCategory.Civilian)
                             return RoleName.freighter;
                     }
                     // freighter hull will be set to civilian if useable as freighter.
                     // if not useable as freighter it will set the cat to Unclassified
                     else if (HullRole == RoleName.freighter)
                     {
-                        if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.01f)
+                        if (SurfaceAreaPercentOf(m => m.CargoCapacity > 0) >= 0.01f)
                         {
                             Category = ShipCategory.Civilian;
                             return RoleName.freighter;
@@ -111,7 +111,7 @@ namespace Ship_Game.Ships
                  || m.InstalledWeapon.RepulsionDamage > 0
                  || m.InstalledWeapon.SiphonDamage > 0
                  || m.InstalledWeapon.TroopDamageChance > 0
-                 || m.InstalledWeapon.isRepairBeam 
+                 || m.InstalledWeapon.IsRepairBeam 
                  || m.InstalledWeapon.IsRepairDrone)
             );
 

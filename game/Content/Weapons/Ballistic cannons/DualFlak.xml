@@ -18,14 +18,14 @@
   <Tag_Cannon>true</Tag_Cannon>
 
   <UID>DualFlak</UID>
-  <fireDelay>2.4</fireDelay>
+  <FireDelay>2.4</FireDelay>
   <Range>2500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>2.25</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>Flak</fireCueName>
-  <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
+  <FireCueName>Flak</FireCueName>
+  <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
   <DamageAmount>150</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>

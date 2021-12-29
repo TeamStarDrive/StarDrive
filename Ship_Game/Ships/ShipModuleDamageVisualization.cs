@@ -14,7 +14,7 @@ namespace Ship_Game.Ships
 
         public static bool CanVisualize(ShipModule module)
         {
-            int area = module.XSIZE * module.YSIZE;
+            int area = module.XSize * module.YSize;
             if (module.ModuleType == ShipModuleType.Armor && area <= 1)
                 return false; // Small armor modules don't have damage visualization
             return true;
@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
 
         public ShipModuleDamageVisualization(ShipModule module)
         {
-            Area = module.XSIZE * module.YSIZE;
+            Area = module.XSize * module.YSize;
             Vector3 center = module.Center3D;
             ShipModuleType type = module.ModuleType;
 

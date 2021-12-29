@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
-using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -257,7 +256,7 @@ namespace Ship_Game
 
         static bool CanBeReplaced(ShipModule m, ShipModule by)
         {
-            return m.XSIZE == by.XSIZE && m.YSIZE == by.YSIZE && m.Restrictions == by.Restrictions;
+            return m.XSize == by.XSize && m.YSize == by.YSize && m.Restrictions == by.Restrictions;
         }
 
         #endregion
@@ -278,7 +277,7 @@ namespace Ship_Game
                 return false;
             }
 
-            ModuleRect span = GetModuleSpan(slot, module.XSIZE, module.YSIZE);
+            ModuleRect span = GetModuleSpan(slot, module.XSize, module.YSize);
             if (!IsInBounds(span))
             {
                 if (logFailure) Log.Warning($"Design slot {span} was out of bounds");
@@ -315,7 +314,7 @@ namespace Ship_Game
             slot.Tex       = newModule.ModuleTexture;
             newModule.Pos = slot.Pos; // so it gets installed to the Ship correctly
 
-            ModuleRect span = GetModuleSpan(slot, newModule.XSIZE, newModule.YSIZE);
+            ModuleRect span = GetModuleSpan(slot, newModule.XSize, newModule.YSize);
             for (int x = span.X0; x <= span.X1; ++x)
             for (int y = span.Y0; y <= span.Y1; ++y)
             {
@@ -333,7 +332,7 @@ namespace Ship_Game
 
         void RemoveModule(SlotStruct root, ShipModule module)
         {
-            ModuleRect span = GetModuleSpan(root, module.XSIZE, module.YSIZE);
+            ModuleRect span = GetModuleSpan(root, module.XSize, module.YSize);
             for (int x = span.X0; x <= span.X1; ++x) 
             for (int y = span.Y0; y <= span.Y1; ++y)
                 Grid[x + y*Width].Clear();
@@ -341,7 +340,7 @@ namespace Ship_Game
 
         public void ClearSlots(SlotStruct slot, ShipModule forModule)
         {
-            ModuleRect span = GetModuleSpan(slot, forModule.XSIZE, forModule.YSIZE);
+            ModuleRect span = GetModuleSpan(slot, forModule.XSize, forModule.YSize);
             for (int x = span.X0; x <= span.X1; ++x)
             for (int y = span.Y0; y <= span.Y1; ++y)
             {

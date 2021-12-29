@@ -47,10 +47,10 @@ namespace Ship_Game
 
         bool GetMirrorSlot(SlotStruct slot, ShipModule forModule, out MirrorSlot mirrored)
         {
-            Point mirrorPos = GetMirrorGridPos(slot, forModule.XSIZE);
+            Point mirrorPos = GetMirrorGridPos(slot, forModule.XSize);
 
             if (ModuleGrid.Get(mirrorPos, out SlotStruct mirrorSS) &&
-                !MirroredModulesTooClose(mirrorPos, slot.Pos, forModule.XSIZE) && 
+                !MirroredModulesTooClose(mirrorPos, slot.Pos, forModule.XSize) && 
                 slot.Root != mirrorSS.Root) // !overlapping
             {
                 mirrored = new MirrorSlot
@@ -85,8 +85,8 @@ namespace Ship_Game
                 module = mirrored.Root.Module;
                 if (module != null
                     && module.UID == slot.Module.UID
-                    && module.XSIZE == slot.Module.XSIZE
-                    && module.YSIZE == slot.Module.YSIZE)
+                    && module.XSize == slot.Module.XSize
+                    && module.YSize == slot.Module.YSize)
                     return true;
             }
             module = null;
