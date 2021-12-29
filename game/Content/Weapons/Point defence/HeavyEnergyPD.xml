@@ -10,18 +10,18 @@
   <OffPowerMod>6</OffPowerMod>
 
   <UID>HeavyEnergyPD</UID>
-  <fireDelay>0.5</fireDelay>
+  <FireDelay>0.5</FireDelay>
   <Range>3500</Range>
   <PowerRequiredToFire>80</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <!--<fireCueName>heavylaser1</fireCueName>-->
-  <fireCueName>sd_weapon_laser_small_alt5_01</fireCueName>
+  <!--<FireCueName>heavylaser1</FireCueName>-->
+  <FireCueName>sd_weapon_laser_small_alt5_01</FireCueName>
   <!-- Projectile Information -->
   <DamageAmount>20</DamageAmount>
   <ProjectileSpeed>2000</ProjectileSpeed>
   <ProjectileRadius>45</ProjectileRadius>  
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <Light>Blue</Light>
   <ProjectileTexturePath>projPulse_01_cyan_dual</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>

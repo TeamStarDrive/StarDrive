@@ -188,7 +188,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             float powerCapacity = s.PowerStoreMax;
 
-            float[] weaponsPowerPerShot = s.Weapons.FilterSelect(w => !w.isBeam && w.PowerRequiredToFire > 0, 
+            float[] weaponsPowerPerShot = s.Weapons.FilterSelect(w => !w.IsBeam && w.PowerRequiredToFire > 0, 
                                                                  w => w.PowerRequiredToFire);
             if (weaponsPowerPerShot.Length == 0)
                 return;

@@ -18,15 +18,15 @@
   <Tag_Cannon>false</Tag_Cannon>
 
   <UID>FocusLaserBeam</UID>
-  <isBeam>true</isBeam>
-  <fireDelay>8</fireDelay>
+  <IsBeam>true</IsBeam>
+  <FireDelay>8</FireDelay>
   <Range>8000</Range>
   <BeamDuration>4</BeamDuration>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
-  <fireCueName>sd_weapon_laser_large_alt_04</fireCueName>
+  <FireCueName>sd_weapon_laser_large_alt_04</FireCueName>
   <ToggleSoundName>sd_weapon_beam_02</ToggleSoundName>
   
   

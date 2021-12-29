@@ -9,21 +9,21 @@
   <OffPowerMod>6</OffPowerMod>
 
   <UID>RapidEnergyPD</UID>
-  <fireDelay>2</fireDelay>
+  <FireDelay>2</FireDelay>
   <Range>3500</Range>
   <PowerRequiredToFire>20</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <PlaySoundOncePerSalvo>true</PlaySoundOncePerSalvo>
   <!-- name of XACT audio cue to play on firing this weapon 
-  <fireCueName>sd_weapon_laser_burst_01</fireCueName> -->
-  <fireCueName>sd_weapon_laser_small_alt5_01</fireCueName>
+  <FireCueName>sd_weapon_laser_burst_01</FireCueName> -->
+  <FireCueName>sd_weapon_laser_small_alt5_01</FireCueName>
   <!-- Projectile Information -->
   <DamageAmount>3</DamageAmount>
   <SalvoCount>9</SalvoCount>
   <SalvoTimer>0.6</SalvoTimer>
   <ProjectileSpeed>2000</ProjectileSpeed>
   <ProjectileRadius>35</ProjectileRadius>  
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <Light>Blue</Light>
   <Scale>0.8</Scale>
   <ProjectileTexturePath>projPulse_01_blue_1</ProjectileTexturePath>

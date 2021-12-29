@@ -7,8 +7,8 @@
   <Cost>30</Cost>
   
   <!-- common traits shared by all ship modules -->
-  <XSIZE>2</XSIZE>
-  <YSIZE>2</YSIZE>
+  <XSize>2</XSize>
+  <YSize>2</YSize>
   <ModuleType>Bomb</ModuleType>
   <Name>Death Spore Deployment Bay</Name>
   <Restrictions>O</Restrictions>

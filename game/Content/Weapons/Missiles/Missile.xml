@@ -21,12 +21,12 @@
   <Tag_Cannon>false</Tag_Cannon>
   
   <!-- Range and Rate of Fire -->
-  <fireDelay>15</fireDelay>
+  <FireDelay>15</FireDelay>
   <Range>13000</Range>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_missile_heavy_01</fireCueName>
-  <dieCue>sd_weapon_rocket_explode_01</dieCue>
+  <FireCueName>sd_weapon_missile_heavy_01</FireCueName>
+  <DieCue>sd_weapon_rocket_explode_01</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   
   
@@ -35,7 +35,7 @@
   <RotationRadsPerSecond>1</RotationRadsPerSecond>
   <ProjectileSpeed>800</ProjectileSpeed>
   <DamageRadius>45</DamageRadius>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <HitPoints>9</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>8</OrdinanceRequiredToFire>

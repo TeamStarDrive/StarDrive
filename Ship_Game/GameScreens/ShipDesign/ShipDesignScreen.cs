@@ -110,7 +110,7 @@ namespace Ship_Game
             if (ActiveModule == null)
                 return;
             ShipModule template = ResourceManager.GetModuleTemplate(ActiveModule.UID);
-            ActiveModule.SetModuleRotation(template.XSIZE, template.YSIZE, 
+            ActiveModule.SetModuleRotation(template.XSize, template.YSize, 
                                            orientation, ShipModule.DefaultFacingFor(orientation));
         }
 

@@ -74,14 +74,14 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
-                if (module.shield_power_max > 0f)
+                if (module.ShieldPowerMax > 0f)
                     shields.Add(module);
 
                 if (module.AmplifyShields > 0f)
                     amplifiers.Add(module);
 
                 if (module.HasInternalRestrictions)
-                    InternalSlotCount += module.XSIZE * module.YSIZE;
+                    InternalSlotCount += module.XSize * module.YSize;
             }
 
             Shields    = shields.ToArray();
@@ -115,19 +115,19 @@ namespace Ship_Game.Ships
 
         void AddExternalModule(ShipModule module)
         {
-            if (module.isExternal)
+            if (module.IsExternal)
                 return;
             ++NumExternalSlots;
-            module.isExternal = true;
+            module.IsExternal = true;
             UpdateGridSlot(ExternalModuleGrid, module, becameActive: true);
         }
 
         void RemoveExternalModule(ShipModule module)
         {
-            if (!module.isExternal)
+            if (!module.IsExternal)
                 return;
             --NumExternalSlots;
-            module.isExternal = false;
+            module.IsExternal = false;
             UpdateGridSlot(ExternalModuleGrid, module, becameActive: false);
         }
 
@@ -144,8 +144,8 @@ namespace Ship_Game.Ships
             Point p = module.Pos;
             return IsModuleInactiveAt(p.X, p.Y - 1)
                 || IsModuleInactiveAt(p.X - 1, p.Y)
-                || IsModuleInactiveAt(p.X + module.XSIZE, p.Y)
-                || IsModuleInactiveAt(p.X, p.Y + module.YSIZE);
+                || IsModuleInactiveAt(p.X + module.XSize, p.Y)
+                || IsModuleInactiveAt(p.X, p.Y + module.YSize);
         }
 
         bool CheckIfShouldBeExternal(int x, int y)
@@ -155,13 +155,13 @@ namespace Ship_Game.Ships
 
             if (ShouldBeExternal(module))
             {
-                if (!module.isExternal)
+                if (!module.IsExternal)
                 {
                     AddExternalModule(module);
                 }
                 return true;
             }
-            if (module.isExternal)
+            if (module.IsExternal)
                 RemoveExternalModule(module);
             return false;
         }
@@ -178,7 +178,7 @@ namespace Ship_Game.Ships
                     {
                         // ReSharper disable once PossibleNullReferenceException
                         // NOTE about ReSharper: CheckIfShouldBeExternal modifies ExternalModuleGrid
-                        x += ExternalModuleGrid[idx].XSIZE - 1; // skip slots that span this module
+                        x += ExternalModuleGrid[idx].XSize - 1; // skip slots that span this module
                     }
                 }
             }
@@ -196,14 +196,14 @@ namespace Ship_Game.Ships
 
             CheckIfShouldBeExternal(x, y - 1);
             CheckIfShouldBeExternal(x - 1, y);
-            CheckIfShouldBeExternal(x + module.XSIZE, y);
-            CheckIfShouldBeExternal(x, y + module.YSIZE);
+            CheckIfShouldBeExternal(x + module.XSize, y);
+            CheckIfShouldBeExternal(x, y + module.YSize);
         }
 
         void UpdateGridSlot(ShipModule[] sparseGrid, ShipModule module, bool becameActive)
         {
             Point p = module.Pos;
-            int endX = p.X + module.XSIZE, endY = p.Y + module.YSIZE;
+            int endX = p.X + module.XSize, endY = p.Y + module.YSize;
             for (int y = p.Y; y < endY; ++y)
                 for (int x = p.X; x < endX; ++x)
                     sparseGrid[x + y * GridWidth] = becameActive ? module : null;
@@ -392,8 +392,6 @@ namespace Ship_Game.Ships
         // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
         //       updated every time a module dies. The code for that is in ShipModule.cs
         // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
-        // @note If the explosion origin is not inside grid, we find the nearest module based on distance
-        //       Slower code, but this method is rarely called (when ship explodes)
         // @note Ignores shields !
         public ShipModule FindClosestUnshieldedModule(Vector2 worldPoint)
         {
@@ -401,8 +399,7 @@ namespace Ship_Game.Ships
                 return null;
 
             Point pt = WorldToGridLocalPoint(worldPoint);
-            if (!LocalPointInBounds(pt))
-                pt = ClipLocalPoint(pt);
+            pt = ClipLocalPoint(pt);
 
             ShipModule[] grid = ExternalModuleGrid;
             int width = GridWidth;

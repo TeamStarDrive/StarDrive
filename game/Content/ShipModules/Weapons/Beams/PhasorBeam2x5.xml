@@ -9,8 +9,8 @@
   <TechLevel>3</TechLevel>
   
   <!-- common traits shared by all ship modules -->
-  <XSIZE>2</XSIZE>
-  <YSIZE>5</YSIZE>
+  <XSize>2</XSize>
+  <YSize>5</YSize>
   <ModuleType>MainGun</ModuleType>
   <Name>Heavy-mount Phasor Array</Name>
   <Restrictions>O</Restrictions>

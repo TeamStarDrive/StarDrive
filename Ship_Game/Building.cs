@@ -160,7 +160,7 @@ namespace Ship_Game
             AttackTimer = 10;
         }
 
-        public float ActualFireDelay(Planet p) => TheWeapon != null ? TheWeapon.fireDelay / (p.Level.LowerBound(1)) : 1;
+        public float ActualFireDelay(Planet p) => TheWeapon != null ? TheWeapon.FireDelay / (p.Level.LowerBound(1)) : 1;
 
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 100;
 

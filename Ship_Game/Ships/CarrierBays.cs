@@ -142,7 +142,7 @@ namespace Ship_Game.Ships
 
         // this will return the number of assault shuttles ready to launch (regardless of troopcount)
         public int AvailableAssaultShuttles => 
-            AllTroopBays.Count(hangar => hangar.Active && hangar.hangarTimer <= 0 && !hangar.IsHangarShipActive);
+            AllTroopBays.Count(hangar => hangar.Active && hangar.HangarTimer <= 0 && !hangar.IsHangarShipActive);
 
         // this will return the number of assault shuttles in space
         public int LaunchedAssaultShuttles => AllTroopBays.Count(hangar => hangar.IsHangarShipActive);
@@ -222,7 +222,7 @@ namespace Ship_Game.Ships
                 foreach (ShipModule hangar in AllFighterHangars)
                 {
                     if (hangar.FighterOut) ++info.Launched;
-                    else if (hangar.hangarTimer > 0) ++info.Refitting;
+                    else if (hangar.HangarTimer > 0) ++info.Refitting;
                     else if (hangar.Active) ++info.ReadyToLaunch;
                 }
                 return info;
@@ -282,7 +282,7 @@ namespace Ship_Game.Ships
             bool sentAssault      = false;
             foreach (ShipModule hangar in AllActiveTroopBays)
             {
-                if (hangar.hangarTimer <= 0 && Owner.HasOurTroops)
+                if (hangar.HangarTimer <= 0 && Owner.HasOurTroops)
                 {
                     if (limitAssaultSize && strengthNeeded < 0)
                         break;
@@ -313,7 +313,7 @@ namespace Ship_Game.Ships
             assaultShuttle = null;
             foreach (ShipModule hangar in AllActiveTroopBays)
             {
-                if (hangar.hangarTimer <= 0 && Owner.HasOurTroops)
+                if (hangar.HangarTimer <= 0 && Owner.HasOurTroops)
                 {
                     hangar.LaunchBoardingParty(troop, out assaultShuttle);
                     break;
@@ -548,7 +548,7 @@ namespace Ship_Game.Ships
         {
             get
             {
-                int landLimit = AllActiveTroopBays.Count(hangar => hangar.hangarTimer <= 0);
+                int landLimit = AllActiveTroopBays.Count(hangar => hangar.HangarTimer <= 0);
                 foreach (ShipModule module in AllTransporters.Where(module => module.TransporterTimer <= 1f))
                     landLimit += module.TransporterTroopLanding;
                 return landLimit;
@@ -567,9 +567,9 @@ namespace Ship_Game.Ships
                 bool foundTransportToUse = false;
                 foreach (ShipModule module in AllActiveTroopBays)
                 {
-                    if (module.hangarTimer < module.hangarTimerConstant)
+                    if (module.HangarTimer < module.HangarTimerConstant)
                     {
-                        module.hangarTimer = module.hangarTimerConstant;
+                        module.HangarTimer = module.HangarTimerConstant;
                         foundTransportToUse = true;
                         break;
                     }
@@ -595,7 +595,7 @@ namespace Ship_Game.Ships
 
             string defaultShip = empire.data.StartingShip;
             ShipModule[] readyHangars = AllFighterHangars.Filter(hangar => hangar.Active
-                                                                 && hangar.hangarTimer <= 0
+                                                                 && hangar.HangarTimer <= 0
                                                                  && !hangar.TryGetHangarShip(out _));
 
             bool isShipyardDesign = (Owner is GameScreens.ShipDesign.DesignShip);

@@ -24,8 +24,8 @@
   <TechBranch>Armor</TechBranch>
 
   <!-- common traits shared by all ship modules -->
-  <XSIZE>2</XSIZE>
-  <YSIZE>2</YSIZE>
+  <XSize>2</XSize>
+  <YSize>2</YSize>
   <ModuleType>Armor</ModuleType>
   <Name>AncientArmor_2x2</Name>
   <Restrictions>IO</Restrictions>

@@ -17,14 +17,14 @@
   <Tag_Cannon>true</Tag_Cannon>
 
   <UID>DualPhotonCannon</UID>
-  <fireDelay>3</fireDelay>
+  <FireDelay>3</FireDelay>
   <Range>10000</Range>
   <PowerRequiredToFire>1620</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_pulse_alt2_01</fireCueName>
-  <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
+  <FireCueName>sd_weapon_pulse_alt2_01</FireCueName>
+  <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <InFlightCue>sd_weapon_photon_flight_01</InFlightCue>
   
   <!-- Projectile Information -->
@@ -41,7 +41,7 @@
   <LoopAnimation>1</LoopAnimation>
 
   <!-- Explosion Information -->
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <ExpColor>Blue_1</ExpColor>
 
   

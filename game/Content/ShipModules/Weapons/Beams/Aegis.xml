@@ -7,8 +7,8 @@
   <Cost>189</Cost>
 
   <!-- common traits shared by all ship modules -->
-  <XSIZE>6</XSIZE>
-  <YSIZE>7</YSIZE>
+  <XSize>6</XSize>
+  <YSize>7</YSize>
   <ModuleType>MainGun</ModuleType>
   <Name>Disintegrator Array</Name>
   <Restrictions>IO</Restrictions>
