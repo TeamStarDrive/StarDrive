@@ -609,7 +609,7 @@ namespace Ship_Game.Ships
                         break;
                 }
 
-                if (module.InstalledWeapon?.isRepairBeam == true)
+                if (module.InstalledWeapon?.IsRepairBeam == true)
                 {
                     RepairBeams.Add(module);
                     hasRepairBeam = true;

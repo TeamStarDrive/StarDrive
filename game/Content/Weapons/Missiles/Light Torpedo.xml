@@ -18,12 +18,12 @@
   <Tag_Torpedo>true</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
 
-  <Excludes_Fighters>true</Excludes_Fighters>
+  <ExcludesFighters>true</ExcludesFighters>
     
   <UID>Light Torpedo</UID>
 
   <HitPoints>20</HitPoints>
-  <fireDelay>20</fireDelay>
+  <FireDelay>20</FireDelay>
   <Range>15000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>40</OrdinanceRequiredToFire>
@@ -41,10 +41,10 @@
 <!--Projectile atributes-->
   <ArmorPen>0</ArmorPen>
   <ShieldPenChance>0</ShieldPenChance>
-  <EffectVSShields>1</EffectVSShields>
+  <EffectVsShields>1</EffectVsShields>
   <EffectVsArmor>1</EffectVsArmor>
   <Scale>0.6</Scale>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 <!-- Projectile textures-->
   <WeaponEffectType>RocketTrail</WeaponEffectType>
@@ -52,7 +52,7 @@
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
   <WeaponType>Missile</WeaponType>
 <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_torpedo_01</fireCueName>
-  <dieCue>sd_weapon_rocket_explode_01</dieCue>
+  <FireCueName>sd_weapon_torpedo_01</FireCueName>
+  <DieCue>sd_weapon_rocket_explode_01</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
 </Weapon>

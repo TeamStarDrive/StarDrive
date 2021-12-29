@@ -120,7 +120,7 @@ namespace UnitTests.AITests.Ships
             {
                 w.DamageAmount = 150f;
                 w.OrdinanceRequiredToFire = 0f;
-                w.fireDelay = 0.5f;
+                w.FireDelay = 0.5f;
             }
 
             s.AI.SetCombatTriggerDelay(0f);

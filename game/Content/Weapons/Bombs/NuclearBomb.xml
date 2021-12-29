@@ -19,15 +19,15 @@
   <Tag_Cannon>false</Tag_Cannon>
 
   <UID>NuclearBomb</UID>
-  <fireDelay>4.0</fireDelay>
+  <FireDelay>4.0</FireDelay>
   <Range>5000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>2</OrdinanceRequiredToFire>
   
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_bigcannon_01</fireCueName>
-  <dieCue>Explo1</dieCue>
+  <FireCueName>sd_weapon_bigcannon_01</FireCueName>
+  <DieCue>Explo1</DieCue>
  <!-- <ToggleSoundName>sd_weapon_vulcan_spinloop_01</ToggleSoundName> -->
 
   <!-- Projectile Information -->
@@ -36,14 +36,14 @@
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2000</ProjectileSpeed>
   <DamageRadius>75</DamageRadius>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <WeaponType>Ballistic Cannon</WeaponType>
 
   <BombPopulationKillPerHit>.025</BombPopulationKillPerHit>
-  <BombTroopDamage_Max>1</BombTroopDamage_Max>
-  <BombTroopDamage_Min>1</BombTroopDamage_Min>
+  <BombTroopDamageMax>1</BombTroopDamageMax>
+  <BombTroopDamageMin>1</BombTroopDamageMin>
   <BombHardDamageMin>1</BombHardDamageMin>
   <BombHardDamageMax>1</BombHardDamageMax>
 

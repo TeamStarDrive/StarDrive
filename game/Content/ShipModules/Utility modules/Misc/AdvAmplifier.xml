@@ -6,8 +6,8 @@
 	<TechLevel>2</TechLevel>
 	<TechBranch>Shield</TechBranch>
 	<!-- common traits shared by all ship modules -->
-	<XSIZE>2</XSIZE>
-	<YSIZE>2</YSIZE>
+	<XSize>2</XSize>
+	<YSize>2</YSize>
 	<ModuleType>Shield</ModuleType>
 	<Name>Amplifier</Name>
 	<Restrictions>I</Restrictions>
@@ -28,7 +28,7 @@
 	<PowerDrawAtWarp>-80</PowerDrawAtWarp>
 	<!-- Armor resistance -->
 	<!-- for PowerPlant Items -->
-    <explodes>false</explodes>
+    <Explodes>false</Explodes>
 	<AmplifyShields>6500</AmplifyShields>
 
 	<!-- Crew Reqs -->

@@ -236,9 +236,9 @@ namespace Ship_Game.Ships
 
             foreach (ShipModule module in ModuleSlotList)
             {
-                addFood      += module.numberOfFood;
-                addProd      += module.numberOfEquipment;
-                addColonists += module.numberOfColonists;
+                addFood      += module.NumberOfFood;
+                addProd      += module.NumberOfEquipment;
+                addColonists += module.NumberOfColonists;
                 if (module.DeployBuildingOnColonize.NotEmpty())
                     specialBuildingIDs.Add(module.DeployBuildingOnColonize);
             }

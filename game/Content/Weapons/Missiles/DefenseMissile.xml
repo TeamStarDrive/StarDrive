@@ -17,20 +17,20 @@
   <Tag_Torpedo>false</Tag_Torpedo>
 
   <UID>DefenseMissile</UID>
-  <fireDelay>2.0</fireDelay>
+  <FireDelay>2.0</FireDelay>
   <Range>6000</Range>
   <HitPoints>10</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>10</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_missile_heavy_01</fireCueName>
-  <dieCue>sd_weapon_rocket_explode_01</dieCue>
+  <FireCueName>sd_weapon_missile_heavy_01</FireCueName>
+  <DieCue>sd_weapon_rocket_explode_01</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   <!-- Projectile Information -->
   <DamageAmount>1800</DamageAmount>
   <ProjectileSpeed>650</ProjectileSpeed>
   <DamageRadius>60</DamageRadius>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
   <WeaponEffectType>RocketTrail</WeaponEffectType>

@@ -134,8 +134,8 @@ namespace Ship_Game.Ships
                 {
                     // fill everything under this module, so we don't need to check this area again
                     Point pt = m.Pos;
-                    int x1 = pt.X + m.XSIZE - 1;
-                    int y1 = pt.Y + m.YSIZE - 1;
+                    int x1 = pt.X + m.XSize - 1;
+                    int y1 = pt.Y + m.YSize - 1;
                     for (int y = pt.Y; y <= y1; ++y)
                         for (int x = pt.X; x <= x1; ++x)
                             PwrGrid.Set(x + y * Width);
@@ -233,8 +233,8 @@ namespace Ship_Game.Ships
 
             void GetNeighbouringConduits(ShipModule m, int x0, int y0, Array<Point> open)
             {
-                int x1 = x0 + m.XSIZE - 1;
-                int y1 = y0 + m.YSIZE - 1;
+                int x1 = x0 + m.XSize - 1;
+                int y1 = y0 + m.YSize - 1;
                 GetNeighbouringConduits(x0, x1, y0-1, y0-1, open); // Check North;
                 GetNeighbouringConduits(x0, x1, y1+1, y1+1, open); // Check South;
                 GetNeighbouringConduits(x0-1, x0-1, y0, y1, open); // Check West;
@@ -261,8 +261,8 @@ namespace Ship_Game.Ships
             {
                 m.Powered = true; // if we are distributing power, then this module is powered
                 int radius = m.PowerRadius;
-                int x1 = x0 + m.XSIZE - 1;
-                int y1 = y0 + m.YSIZE - 1;
+                int x1 = x0 + m.XSize - 1;
+                int y1 = y0 + m.YSize - 1;
 
                 SetChecked(x0, y0); // make sure we don't visit it again
                 SetPowered(x0, y0); // these slots are entirely POWERED

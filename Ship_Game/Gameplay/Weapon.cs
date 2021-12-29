@@ -9,7 +9,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using Ship_Game.Audio;
-using System.Runtime.InteropServices.WindowsRuntime;
 using static Ship_Game.EmpireManager;
 
 namespace Ship_Game.Gameplay
@@ -80,15 +79,15 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
 
         public float HitPoints;
-        public bool isBeam;
+        public bool IsBeam;
         public float EffectVsArmor = 1f;
-        public float EffectVSShields = 1f;
+        public float EffectVsShields = 1f;
         public bool TruePD;
         public float TroopDamageChance;
         public float TractorDamage;
         public float BombPopulationKillPerHit;
-        public int BombTroopDamage_Min;
-        public int BombTroopDamage_Max;
+        public int BombTroopDamageMin;
+        public int BombTroopDamageMax;
         public int BombHardDamageMin;
         public int BombHardDamageMax;
         public string HardCodedAction;
@@ -105,12 +104,12 @@ namespace Ship_Game.Gameplay
         public int Frames;
         public string AnimationPath;
         public ExplosionType ExplosionType = ExplosionType.Projectile;
-        public string dieCue;
+        public string DieCue;
         public string ToggleSoundName = "";
         [XmlIgnore][JsonIgnore] AudioHandle ToggleCue = new AudioHandle();
         public string Light;
-        public bool isTurret;
-        public bool isMainGun;
+        public bool IsTurret;
+        public bool IsMainGun;
         public float OrdinanceRequiredToFire;
         // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
         public Vector2 PlanetOrigin;
@@ -144,11 +143,11 @@ namespace Ship_Game.Gameplay
         public string UID;
         [XmlIgnore][JsonIgnore] public ShipModule Module;
         [XmlIgnore][JsonIgnore] public float CooldownTimer;
-        public float fireDelay;
+        public float FireDelay;
         public float PowerRequiredToFire;
-        public bool explodes;
+        public bool Explodes;
         public float DamageRadius;
-        public string fireCueName;
+        public string FireCueName;
         public string MuzzleFlash;
         public bool IsRepairDrone;
         public bool FakeExplode;
@@ -158,13 +157,13 @@ namespace Ship_Game.Gameplay
         public float Scale = 1f;
         public float RotationRadsPerSecond = 2f;
         public string InFlightCue = "";
-        public float particleDelay;
+        public float ParticleDelay;
         public float ECMResist;
-        public bool Excludes_Fighters;
-        public bool Excludes_Corvettes;
-        public bool Excludes_Capitals;
-        public bool Excludes_Stations;
-        public bool isRepairBeam;
+        public bool ExcludesFighters;
+        public bool ExcludesCorvettes;
+        public bool ExcludesCapitals;
+        public bool ExcludesStations;
+        public bool IsRepairBeam;
         public bool TerminalPhaseAttack;
         public float TerminalPhaseDistance;
         public float TerminalPhaseSpeedMod = 2f;
@@ -204,7 +203,7 @@ namespace Ship_Game.Gameplay
             ActiveWeaponTags = TagValues.Where(tag => (TagBits & tag) != 0).ToArray();
 
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
-            fireDelay = Math.Max(0.016f, fireDelay);
+            FireDelay = Math.Max(0.016f, FireDelay);
             SalvoDuration = Math.Max(0, SalvoDuration);
 
             if (PlaySoundOncePerSalvo) // @note Backwards compatibility
@@ -248,11 +247,11 @@ namespace Ship_Game.Gameplay
             Owner  = owner;
 
             if (hull != null && GlobalStats.ActiveModInfo?.UseHullBonuses == true)
-                fireDelay *= 1f - hull.Bonuses.FireRateBonus;
+                FireDelay *= 1f - hull.Bonuses.FireRateBonus;
         }
 
         [XmlIgnore][JsonIgnore]
-        public float NetFireDelay => isBeam ? fireDelay+BeamDuration : fireDelay+SalvoDuration;
+        public float NetFireDelay => IsBeam ? FireDelay+BeamDuration : FireDelay+SalvoDuration;
 
         [XmlIgnore][JsonIgnore]
         public float AverageOrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
@@ -276,8 +275,8 @@ namespace Ship_Game.Gameplay
             }
 
             int salvos           = SalvoCount.LowerBound(1);
-            float beamMultiplier = isBeam && !isRepairBeam ? BeamDuration * 60f : 0f;
-            float dps            = isBeam 
+            float beamMultiplier = IsBeam && !IsRepairBeam ? BeamDuration * 60f : 0f;
+            float dps            = IsBeam 
                 ? DamageAmount * beamMultiplier / NetFireDelay
                 : (salvos / NetFireDelay) * wOrMirv.ProjectileCount * wOrMirv.DamageAmount * MirvWarheads.LowerBound(1);
 
@@ -310,7 +309,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             AudioEmitter soundEmitter = emitter ?? Owner?.SoundEmitter;
-            GameAudio.PlaySfxAsync(fireCueName, soundEmitter);
+            GameAudio.PlaySfxAsync(FireCueName, soundEmitter);
             ToggleCue.PlaySfxAsync(ToggleSoundName, soundEmitter);
         }
 
@@ -543,7 +542,7 @@ namespace Ship_Game.Gameplay
             // this could be pre-calculated in the flyweight
             if (Tag_Cannon) adjust  *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
             if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
-            if (isTurret) adjust    *= 0.5f;
+            if (IsTurret) adjust    *= 0.5f;
             if (Tag_PD) adjust      *= 0.5f;
             if (TruePD) adjust      *= 0.5f;
             return adjust;
@@ -665,9 +664,9 @@ namespace Ship_Game.Gameplay
 
             if (ShouldPickNewTarget())
             {
-                TargetChangeTimer = 0.1f * Math.Max(Module.XSIZE, Module.YSIZE);
+                TargetChangeTimer = 0.1f * Math.Max(Module.XSize, Module.YSize);
                 // cumulative bonuses for turrets, PD and true PD weapons
-                if (isTurret) TargetChangeTimer *= 0.5f;
+                if (IsTurret) TargetChangeTimer *= 0.5f;
                 if (Tag_PD)   TargetChangeTimer *= 0.5f;
                 if (TruePD)   TargetChangeTimer *= 0.25f;
 
@@ -681,7 +680,7 @@ namespace Ship_Game.Gameplay
 
             if (FireTarget != null)
             {
-                if (isBeam)
+                if (IsBeam)
                     return FireBeam(Module.Position, FireTarget.Position, FireTarget);
                 else
                     return FireAtTarget(FireTarget.Position, FireTarget);
@@ -702,7 +701,7 @@ namespace Ship_Game.Gameplay
             // Reasons for this weapon not to choose a new target
             return TargetChangeTimer <= 0f // ready to change targets
                 && !IsRepairDrone // TODO: is this correct?
-                && !isRepairBeam // TODO: repair beams are managed by repair drone ai?
+                && !IsRepairBeam // TODO: repair beams are managed by repair drone ai?
                 && !IsTargetAliveAndInRange(FireTarget); // Target is dead or out of range
         }
 
@@ -777,7 +776,7 @@ namespace Ship_Game.Gameplay
             if (target != null && !Owner.loyalty.IsEmpireAttackable(target.GetLoyalty()))
                 return destination;
 
-            if (Tag_Tractor || isRepairBeam)
+            if (Tag_Tractor || IsRepairBeam)
                 return destination;
 
             Vector2 beamDestination = AdjustedImpactPoint(source, destination, GetTargetError(target));
@@ -809,11 +808,11 @@ namespace Ship_Game.Gameplay
         {
             if (CanFireWeaponCooldown())
             {
-                if (isBeam)
+                if (IsBeam)
                 {
-                    return FireBeam(Module.Position, targetPos, null);
+                    return FireBeam(Module.Position, targetPos);
                 }
-                return FireAtTarget(targetPos, null);
+                return FireAtTarget(targetPos);
             }
             return false;
         }
@@ -823,7 +822,7 @@ namespace Ship_Game.Gameplay
             PlanetOrigin = planet.Center.GenerateRandomPointInsideCircle(planet.ObjectRadius);
             GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
 
-            if (isBeam)
+            if (IsBeam)
             {
                 FireBeam(PlanetOrigin, target.Position, target);
                 return;
@@ -912,12 +911,12 @@ namespace Ship_Game.Gameplay
 
         public float GetShieldDamageMod(ShipModule module)
         {
-            float damageModifier = EffectVSShields;
-            if      (Tag_Kinetic) damageModifier *= (1f - module.shield_kinetic_resist);
-            else if (Tag_Energy)  damageModifier *= (1f - module.shield_energy_resist);
-            else if (Tag_Beam)    damageModifier *= (1f - module.shield_beam_resist);
-            else if (Tag_Missile) damageModifier *= (1f - module.shield_missile_resist);
-            else if (Tag_Hybrid)  damageModifier *= (1f - module.shield_hybrid_resist);
+            float damageModifier = EffectVsShields;
+            if      (Tag_Kinetic) damageModifier *= (1f - module.ShieldKineticResist);
+            else if (Tag_Energy)  damageModifier *= (1f - module.ShieldEnergyResist);
+            else if (Tag_Beam)    damageModifier *= (1f - module.ShieldBeamResist);
+            else if (Tag_Missile) damageModifier *= (1f - module.ShieldMissileResist);
+            else if (Tag_Hybrid)  damageModifier *= (1f - module.ShieldHybridResist);
             return damageModifier;
         }
 
@@ -939,18 +938,18 @@ namespace Ship_Game.Gameplay
         {
             switch (role)
             {
-                case RoleName.fighter    when Excludes_Fighters:
-                case RoleName.scout      when Excludes_Fighters:
-                case RoleName.drone      when Excludes_Fighters:
-                case RoleName.corvette   when Excludes_Corvettes:
-                case RoleName.gunboat    when Excludes_Corvettes:
-                case RoleName.frigate    when Excludes_Capitals:
-                case RoleName.destroyer  when Excludes_Capitals:
-                case RoleName.cruiser    when Excludes_Capitals:
-                case RoleName.battleship when Excludes_Capitals:
-                case RoleName.capital    when Excludes_Capitals:
-                case RoleName.platform   when Excludes_Stations:
-                case RoleName.station    when Excludes_Stations: return false;
+                case RoleName.fighter    when ExcludesFighters:
+                case RoleName.scout      when ExcludesFighters:
+                case RoleName.drone      when ExcludesFighters:
+                case RoleName.corvette   when ExcludesCorvettes:
+                case RoleName.gunboat    when ExcludesCorvettes:
+                case RoleName.frigate    when ExcludesCapitals:
+                case RoleName.destroyer  when ExcludesCapitals:
+                case RoleName.cruiser    when ExcludesCapitals:
+                case RoleName.battleship when ExcludesCapitals:
+                case RoleName.capital    when ExcludesCapitals:
+                case RoleName.platform   when ExcludesStations:
+                case RoleName.station    when ExcludesStations: return false;
                 default: return true;
             }
         }
@@ -958,7 +957,7 @@ namespace Ship_Game.Gameplay
         public float CalculateOffense(ShipModule m = null)
         {
             float off = 0f;
-            if (isBeam)
+            if (IsBeam)
             {
                 off += DamageAmount * 60 * BeamDuration * (1f / NetFireDelay);
                 off += TractorDamage * 30 * (1f / NetFireDelay);
@@ -980,8 +979,8 @@ namespace Ship_Game.Gameplay
             // FB: simpler calcs for these.
             off *= EffectVsArmor > 1 ? 1f + (EffectVsArmor - 1f) / 2f : 1f;
             off *= EffectVsArmor < 1 ? 1f - (1f - EffectVsArmor) / 2f : 1f;
-            off *= EffectVSShields > 1 ? 1f + (EffectVSShields - 1f) / 2f : 1f;
-            off *= EffectVSShields < 1 ? 1f - (1f - EffectVSShields) / 2f : 1f;
+            off *= EffectVsShields > 1 ? 1f + (EffectVsShields - 1f) / 2f : 1f;
+            off *= EffectVsShields < 1 ? 1f - (1f - EffectVsShields) / 2f : 1f;
 
             off *= TruePD ? 0.2f : 1f;
             off *= Tag_Intercept && (Tag_Missile || Tag_Torpedo) ? 0.8f : 1f;
@@ -1010,10 +1009,10 @@ namespace Ship_Game.Gameplay
 
             // FB: Added correct exclusion offense calcs
             float exclusionMultiplier = 1;
-            if (Excludes_Fighters)  exclusionMultiplier -= 0.15f;
-            if (Excludes_Corvettes) exclusionMultiplier -= 0.15f;
-            if (Excludes_Capitals)  exclusionMultiplier -= 0.45f;
-            if (Excludes_Stations)  exclusionMultiplier -= 0.25f;
+            if (ExcludesFighters)  exclusionMultiplier -= 0.15f;
+            if (ExcludesCorvettes) exclusionMultiplier -= 0.15f;
+            if (ExcludesCapitals)  exclusionMultiplier -= 0.45f;
+            if (ExcludesStations)  exclusionMultiplier -= 0.25f;
             off *= exclusionMultiplier;
 
             // Imprecision gets worse when range gets higher

@@ -17,16 +17,16 @@
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>true</Tag_Cannon>
   
-  <Excludes_Fighters>true</Excludes_Fighters>  
+  <ExcludesFighters>true</ExcludesFighters>  
   
   <UID>MassivePolaronCannon</UID>
-  <fireDelay>4</fireDelay>
+  <FireDelay>4</FireDelay>
   <Range>11000</Range>
   <PowerRequiredToFire>3400</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>heavylaser1</fireCueName>
+  <FireCueName>heavylaser1</FireCueName>
 
   <!-- Projectile Information -->
   <DamageAmount>3900</DamageAmount>
@@ -34,7 +34,7 @@
   <ProjectileSpeed>2300</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.5</SalvoTimer>
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <Light>Blue</Light>
   <ProjectileTexturePath>projLong_02_blue_dual</ProjectileTexturePath>
   <ModelPath>projLong</ModelPath>

@@ -7,8 +7,8 @@
   <TechBranch>Armor</TechBranch>
   <IsBulkhead>true</IsBulkhead>
   <!-- common traits shared by all ship modules -->
-  <XSIZE>2</XSIZE>
-  <YSIZE>2</YSIZE>
+  <XSize>2</XSize>
+  <YSize>2</YSize>
   <ModuleType>Armor</ModuleType>
   <Name>Reinforced Bulkhead</Name>
   <Restrictions>I</Restrictions>

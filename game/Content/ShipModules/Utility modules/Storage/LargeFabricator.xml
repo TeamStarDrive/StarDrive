@@ -3,8 +3,8 @@
 
   <Cost>120</Cost>
   <!-- common traits shared by all ship modules -->
-  <XSIZE>4</XSIZE>
-  <YSIZE>4</YSIZE>
+  <XSize>4</XSize>
+  <YSize>4</YSize>
   <ModuleType>Storage</ModuleType>
   <Name>LargeFabricator</Name>
   <Restrictions>I</Restrictions>
@@ -31,14 +31,14 @@
 
   <!-- for shield items -->
   <shield_power>0</shield_power>
-  <shield_power_max>0</shield_power_max>
-  <shield_recharge_delay>0</shield_recharge_delay>
-  <shield_recharge_rate>0</shield_recharge_rate>
-  <shield_radius>0</shield_radius>
+  <ShieldPowerMax>0</ShieldPowerMax>
+  <ShieldRechargeDelay>0</ShieldRechargeDelay>
+  <ShieldRechargeRate>0</ShieldRechargeRate>
+  <ShieldRadius>0</ShieldRadius>
   <radius>0</radius>
 
   <!-- for PowerPlant Items -->
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <PowerFlowMax>0</PowerFlowMax>
   <PowerStoreMax>0</PowerStoreMax>
 
@@ -46,7 +46,7 @@
   <OrdinanceCapacity>120</OrdinanceCapacity>
 
   <!-- for Engines -->
-  <thrust>0</thrust>
+  <Thrust>0</Thrust>
 
 
 

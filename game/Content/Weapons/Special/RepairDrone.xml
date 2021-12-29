@@ -19,21 +19,21 @@
   <Tag_Cannon>false</Tag_Cannon>
 
   <UID>RepairDrone</UID>
-  <fireDelay>30</fireDelay>
+  <FireDelay>30</FireDelay>
   <Range>30000</Range>
   <HitPoints>20</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>10</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_torpedo_01</fireCueName>
-  <dieCue>sd_weapon_rocket_explode_01</dieCue>
+  <FireCueName>sd_weapon_torpedo_01</FireCueName>
+  <DieCue>sd_weapon_rocket_explode_01</DieCue>
 
   <IsRepairDrone>true</IsRepairDrone>
   <!-- Projectile Information -->
   <DamageAmount>0</DamageAmount>
   <ProjectileSpeed>650</ProjectileSpeed>
   <DamageRadius>0</DamageRadius>
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <ProjectileTexturePath>spacemine_d</ProjectileTexturePath>
   <ModelPath>spacemine</ModelPath>
   <WeaponType>Drone</WeaponType>

@@ -19,13 +19,13 @@
   <Tag_Cannon>true</Tag_Cannon>
   
   <UID>AF_Repeater</UID>
-  <fireDelay>0.2</fireDelay>
+  <FireDelay>0.2</FireDelay>
   <Range>4400</Range>
   <PowerRequiredToFire>50</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_laser_burst_01</fireCueName>
+  <FireCueName>sd_weapon_laser_burst_01</FireCueName>
 
   <!-- Projectile Information -->
   <DamageAmount>30</DamageAmount>
@@ -33,7 +33,7 @@
   <ProjectileSpeed>2150</ProjectileSpeed>
   <Light>Green</Light>
   <DamageRadius>1</DamageRadius>
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <ProjectileTexturePath>projTear_03_green</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <WeaponEffectType>DisruptorCannon</WeaponEffectType>

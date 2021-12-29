@@ -16,27 +16,27 @@
   <Tag_Drone>false</Tag_Drone>
   <Tag_Torpedo>true</Tag_Torpedo>
 
- <Excludes_Fighters>true</Excludes_Fighters>  
+ <ExcludesFighters>true</ExcludesFighters>  
 
 
   <UID>BasicTorpedo</UID>
-  <fireDelay>20</fireDelay>
+  <FireDelay>20</FireDelay>
   <Range>18000</Range>
   <HitPoints>45</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>95</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_torpedo_01</fireCueName>
+  <FireCueName>sd_weapon_torpedo_01</FireCueName>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
-  <dieCue>Explo1</dieCue>
+  <DieCue>Explo1</DieCue>
   
   
   <!-- Projectile Information -->
   <DamageAmount>19400</DamageAmount>
   <ProjectileSpeed>1000</ProjectileSpeed>
   <DamageRadius>150</DamageRadius>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
   <WeaponEffectType>RocketTrail</WeaponEffectType>

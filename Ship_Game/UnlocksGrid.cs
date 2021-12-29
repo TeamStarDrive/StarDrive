@@ -89,8 +89,8 @@ namespace Ship_Game
             Icon = ResourceManager.Texture("TechIcons/star");
         }
 
-        public int ModW => module?.XSIZE ?? 1;
-        public int ModH => module?.YSIZE ?? 1;
+        public int ModW => module?.XSize ?? 1;
+        public int ModH => module?.YSize ?? 1;
 
         public Rectangle GetModuleRect(int x, int y, int fillW, int fillH)
         {

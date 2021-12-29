@@ -10,8 +10,8 @@
   <BattleshipModule>false</BattleshipModule>
   <CapitalModule>false</CapitalModule>
   <!-- common traits shared by all ship modules -->
-  <XSIZE>1</XSIZE>
-  <YSIZE>2</YSIZE>
+  <XSize>1</XSize>
+  <YSize>2</YSize>
   <ModuleType>MainGun</ModuleType>
   <Name>Small Ion</Name>
   <Restrictions>IO</Restrictions>
