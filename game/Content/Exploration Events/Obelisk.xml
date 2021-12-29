@@ -80,7 +80,7 @@
          <ConfirmText>Life sprinkler!</ConfirmText>
     </Outcome>
     <Outcome>
-      <Chance>8</Chance>
+      <Chance>5</Chance>
       <TitleText>A unique technology!</TitleText>
       <DescriptionText>After scouting the area, your troops found the obelisk. Inside of it, they found a data core with schematics for an unknown technology. Upon removing the data core from its socket, the obelisk shakes and crumbles into a pile of rubble alerting remnants to your presence.</DescriptionText>
       <MoneyGranted>500</MoneyGranted>
