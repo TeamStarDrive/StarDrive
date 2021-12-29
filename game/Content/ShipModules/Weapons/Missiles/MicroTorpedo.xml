@@ -6,8 +6,8 @@
   <TechLevel>2</TechLevel>
 
   <!-- common traits shared by all ship modules -->
-  <XSIZE>1</XSIZE>
-  <YSIZE>3</YSIZE>
+  <XSize>1</XSize>
+  <YSize>3</YSize>
   <ModuleType>MissileLauncher</ModuleType>
   <Name>MicroTorpedo</Name>
   <Restrictions>O</Restrictions>

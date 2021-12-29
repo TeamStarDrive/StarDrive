@@ -18,20 +18,20 @@
   <Tag_Cannon>false</Tag_Cannon>
   
   <UID>Rocket</UID>
-  <fireDelay>12</fireDelay>
+  <FireDelay>12</FireDelay>
   <Range>12000</Range>
   <HitPoints>3</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>2</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_rocket_01</fireCueName>
-  <dieCue>sd_weapon_rocket_explode_01</dieCue>
+  <FireCueName>sd_weapon_rocket_01</FireCueName>
+  <DieCue>sd_weapon_rocket_explode_01</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   <!-- Projectile Information -->
   <DamageAmount>370</DamageAmount>
   <ProjectileSpeed>900</ProjectileSpeed>
   <DamageRadius>20</DamageRadius>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
   <WeaponEffectType>RocketTrail</WeaponEffectType>

@@ -3,17 +3,17 @@
 
   <Tag_Beam>true</Tag_Beam>
 
-  <Excludes_Fighters>true</Excludes_Fighters>  
+  <ExcludesFighters>true</ExcludesFighters>  
   <UID>FocusFusionBeam</UID>
-  <isBeam>true</isBeam>
-  <fireDelay>9</fireDelay>
+  <IsBeam>true</IsBeam>
+  <FireDelay>9</FireDelay>
   <Range>12000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <BeamDuration>4</BeamDuration>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
-  <fireCueName>sd_weapon_laser_large_alt_04</fireCueName>
+  <FireCueName>sd_weapon_laser_large_alt_04</FireCueName>
   <ToggleSoundName>sd_weapon_beam_fusion_large</ToggleSoundName>
   
   

@@ -3,13 +3,13 @@
   <Tag_Kinetic>true</Tag_Kinetic>
 
   <UID>PlanetAC</UID>
-  <fireDelay>2</fireDelay>
+  <FireDelay>2</FireDelay>
   <Range>6000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.9</OrdinanceRequiredToFire>
-  <Excludes_Fighters>true</Excludes_Fighters>  
+  <ExcludesFighters>true</ExcludesFighters>  
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_flakcannon_01</fireCueName>
+  <FireCueName>sd_weapon_flakcannon_01</FireCueName>
 
  <!-- <ToggleSoundName>sd_weapon_vulcan_spinloop_01</ToggleSoundName> -->
   <MuzzleFlash>Yes</MuzzleFlash>
@@ -20,7 +20,7 @@
   <Scale>1.2</Scale>
   <ProjectileSpeed>1500</ProjectileSpeed>
   <ProjectileRadius>8</ProjectileRadius> 
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <ProjectileTexturePath>projLong_02_orange_dual</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <WeaponType>Ballistic Cannon</WeaponType>

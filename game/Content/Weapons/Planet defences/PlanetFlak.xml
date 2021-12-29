@@ -5,20 +5,20 @@
   <Tag_Explosive>true</Tag_Explosive>
   
   <UID>PlanetFlak</UID>
-  <fireDelay>4</fireDelay>
+  <FireDelay>4</FireDelay>
   <Range>2500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.5</OrdinanceRequiredToFire>
 
 
-  <fireCueName>sd_weapon_flakcannon_01</fireCueName>
-  <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
+  <FireCueName>sd_weapon_flakcannon_01</FireCueName>
+  <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
 
   <DamageAmount>175</DamageAmount>
   <ProjectileSpeed>1200</ProjectileSpeed>
   <DamageRadius>25</DamageRadius> 
   <ProjectileRadius>6</ProjectileRadius>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <ProjectileTexturePath>projTear_01_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <ProjectileCount>4</ProjectileCount>

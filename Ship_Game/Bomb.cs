@@ -42,8 +42,8 @@ namespace Ship_Game
             Weapon      = ResourceManager.GetWeaponTemplate(weaponName) ?? ResourceManager.GetWeaponTemplate("NuclearBomb");
             ShipLevel   = shipLevel;
 
-            TroopDamageMin  = Weapon.BombTroopDamage_Min;
-            TroopDamageMax  = Weapon.BombTroopDamage_Max;
+            TroopDamageMin  = Weapon.BombTroopDamageMin;
+            TroopDamageMax  = Weapon.BombTroopDamageMax;
             HardDamageMin   = Weapon.BombHardDamageMin;
             HardDamageMax   = Weapon.BombHardDamageMax;
             PopKilled       = Weapon.BombPopulationKillPerHit;

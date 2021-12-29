@@ -9,8 +9,8 @@
   <TechLevel>2</TechLevel>
   
   <!-- common traits shared by all ship modules -->
-  <XSIZE>4</XSIZE>
-  <YSIZE>4</YSIZE>
+  <XSize>4</XSize>
+  <YSize>4</YSize>
   <ModuleType>Special</ModuleType>
   <Name>Warp Inhibitor</Name>
   <Restrictions>I</Restrictions>

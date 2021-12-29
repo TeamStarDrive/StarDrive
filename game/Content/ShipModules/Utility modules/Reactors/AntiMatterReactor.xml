@@ -6,8 +6,8 @@
   <TechLevel>4</TechLevel>
 
   <!-- common traits shared by all ship modules -->
-  <XSIZE>3</XSIZE>
-  <YSIZE>3</YSIZE>
+  <XSize>3</XSize>
+  <YSize>3</YSize>
   <ModuleType>PowerPlant</ModuleType>
   <Name>Anti-Matter Reactor</Name>
   <Restrictions>I</Restrictions>
@@ -32,14 +32,14 @@
 
   <!-- for shield items -->
   <shield_power>0</shield_power>
-  <shield_power_max>0</shield_power_max>
-  <shield_recharge_delay>0</shield_recharge_delay>
-  <shield_recharge_rate>0</shield_recharge_rate>
-  <shield_radius>0</shield_radius>
+  <ShieldPowerMax>0</ShieldPowerMax>
+  <ShieldRechargeDelay>0</ShieldRechargeDelay>
+  <ShieldRechargeRate>0</ShieldRechargeRate>
+  <ShieldRadius>0</ShieldRadius>
 
 
   <!-- for PowerPlant Items -->
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <ExplosionDamage>8000</ExplosionDamage>
   <ExplosionRadius>180</ExplosionRadius> 
   <PowerFlowMax>1300</PowerFlowMax>
@@ -51,7 +51,7 @@
 
 
   <!-- for Engines -->
-  <thrust>0</thrust>
+  <Thrust>0</Thrust>
 
 
 

@@ -426,9 +426,9 @@ namespace Ship_Game
                     foreach (Weapon weapon in ship.Weapons)
                     {
                         if (weapon.OrdinanceRequiredToFire > 0.0)
-                            ammoDps = weapon.DamageAmount / weapon.fireDelay;
+                            ammoDps = weapon.DamageAmount / weapon.FireDelay;
                         if (weapon.PowerRequiredToFire > 0.0)
-                            energyDps = weapon.DamageAmount / weapon.fireDelay;
+                            energyDps = weapon.DamageAmount / weapon.FireDelay;
                     }
                 }
             }

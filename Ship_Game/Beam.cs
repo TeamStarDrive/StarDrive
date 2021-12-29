@@ -291,7 +291,7 @@ namespace Ship_Game
             }
 
             Vector2 slotForward  = (Owner.Rotation + Module.Rotation.ToRadians()).RadiansToDirection();
-            Vector2 muzzleOrigin = Module.Position + slotForward * (Module.YSIZE * 8f);
+            Vector2 muzzleOrigin = Module.Position + slotForward * (Module.YSize * 8f);
 
             // @todo Varying beam width
             //int thickness = (int)UniverseRandom.RandomBetween(Thickness*0.75f, Thickness*1.1f);

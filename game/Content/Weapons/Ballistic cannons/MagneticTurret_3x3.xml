@@ -18,19 +18,19 @@
   <Tag_Cannon>true</Tag_Cannon>
 
   <UID>MagneticTurret_3x3</UID>
-  <fireDelay>6</fireDelay>
+  <FireDelay>6</FireDelay>
   <Range>11500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>4</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_ground_ralyeh_01</fireCueName>
-  <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
+  <FireCueName>sd_ground_ralyeh_01</FireCueName>
+  <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
   <DamageAmount>971</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2000</ProjectileSpeed>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <DamageRadius>32</DamageRadius>
 
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>

@@ -6,8 +6,8 @@
 	<Cost>50</Cost>
 	<TechLevel>5</TechLevel>
 	<!-- common traits shared by all ship modules -->
-	<XSIZE>2</XSIZE>
-	<YSIZE>2</YSIZE>
+	<XSize>2</XSize>
+	<YSize>2</YSize>
 	<ModuleType>MissileLauncher</ModuleType>
 	<Name>RemnantNuker</Name>
 	<Restrictions>O</Restrictions>
@@ -28,7 +28,7 @@
 	<NameIndex>17924</NameIndex>
 	<DescriptionIndex>17926</DescriptionIndex>
 	<!-- for PowerPlant Items -->
-	<explodes>false</explodes>
+	<Explodes>false</Explodes>
 	<PowerFlowMax>0</PowerFlowMax>
 	<PowerStoreMax>0</PowerStoreMax>
 	<!-- for Weapons -->

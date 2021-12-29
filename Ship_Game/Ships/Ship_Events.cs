@@ -13,7 +13,7 @@ namespace Ship_Game.Ships
             shipStatusChanged = true;
             if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
                 ShouldRecalculatePower = true;
-            if (m.isExternal)
+            if (m.IsExternal)
                 UpdateExternalSlots(m, becameActive: false);
             if (m.HasInternalRestrictions)
             {

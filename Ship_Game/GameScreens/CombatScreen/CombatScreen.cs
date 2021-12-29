@@ -825,7 +825,7 @@ namespace Ship_Game
             }
             else
             {
-                landingLimit  = ship.Carrier.AllActiveTroopBays.Count(bay => bay.hangarTimer <= 0);
+                landingLimit  = ship.Carrier.AllActiveTroopBays.Count(bay => bay.HangarTimer <= 0);
                 landingLimit += ship.Carrier.AllTransporters.Where(module => module.TransporterTimer <= 1).Sum(m => m.TransporterTroopLanding);
             }
             return landingLimit;

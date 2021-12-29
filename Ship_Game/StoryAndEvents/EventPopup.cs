@@ -147,13 +147,13 @@ namespace Ship_Game
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                var iconRect = new Rectangle((int)X, (int)Y, 16 * Mod.XSIZE, 16 * Mod.YSIZE);
+                var iconRect = new Rectangle((int)X, (int)Y, 16 * Mod.XSize, 16 * Mod.YSize);
                 iconRect.X += 48 - iconRect.Width / 2;
                 iconRect.Y += 48 - iconRect.Height / 2;
                 while (iconRect.Height > 96)
                 {
-                    iconRect.Height -= Mod.YSIZE;
-                    iconRect.Width  -= Mod.XSIZE;
+                    iconRect.Height -= Mod.YSize;
+                    iconRect.Width  -= Mod.XSize;
                     iconRect.X += 48 - iconRect.Width / 2;
                     iconRect.Y += 48 - iconRect.Height / 2;
                 }

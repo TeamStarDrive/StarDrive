@@ -15,8 +15,8 @@
   
   <Cost>15</Cost>
   <TechLevel>1</TechLevel>
-  <XSIZE>2</XSIZE>
-  <YSIZE>3</YSIZE>
+  <XSize>2</XSize>
+  <YSize>3</YSize>
   <ModuleType>Construction</ModuleType>
   <Name>Construction Array</Name>
   <Restrictions>IO</Restrictions>

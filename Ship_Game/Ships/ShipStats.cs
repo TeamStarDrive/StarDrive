@@ -73,7 +73,7 @@ namespace Ship_Game.Ships
                 ShipModule module = modules[i];
                 bool active = module.Active;
                 if (active && module.HasInternalRestrictions) // active internal slots
-                    activeInternalSlots += module.XSIZE * module.YSIZE;
+                    activeInternalSlots += module.XSize * module.YSize;
 
                 // FB - so destroyed modules with repair wont have full repair rate
                 S.RepairRate += active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10;
@@ -82,8 +82,8 @@ namespace Ship_Game.Ships
                 {
                     S.hasCommand |= module.IsCommandModule;
                     S.OrdinanceMax        += module.OrdinanceCapacity;
-                    S.CargoSpaceMax       += module.Cargo_Capacity;
-                    S.BonusEMP_Protection += module.EMP_Protection;
+                    S.CargoSpaceMax       += module.CargoCapacity;
+                    S.BonusEMP_Protection += module.EMPProtection;
                     S.OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     S.HealPerTurn         += module.HealPerTurn;
                     S.InhibitionRadius  = Math.Max(module.InhibitionRadius, S.InhibitionRadius);
@@ -92,7 +92,7 @@ namespace Ship_Game.Ships
                     S.TargetingAccuracy = Math.Max(module.TargetingAccuracy, S.TargetingAccuracy);
                     S.TrackingPower    += module.TargetTracking;
                     S.ECMValue = Math.Max(S.ECMValue, module.ECM).Clamped(0f, 1f);
-                    module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: S.RepairBeams);
+                    module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.IsRepairBeam == true, addToList: S.RepairBeams);
                 }
             }
             
@@ -182,7 +182,7 @@ namespace Ship_Game.Ships
                 ShipModule m = modules[i];
                 if (m.Active && (m.Powered || m.PowerDraw <= 0f))
                 {
-                    stl += m.thrust;
+                    stl += m.Thrust;
                     warp += m.WarpThrust;
                     turn += m.TurnThrust;
                 }

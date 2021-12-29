@@ -437,7 +437,7 @@ namespace Ship_Game
                         types.Add(TechnologyType.ShipWeapons);
                         genericShipTech = false;
                     }
-                    if (module.shield_power_max >= 1f
+                    if (module.ShieldPowerMax >= 1f
                         || module.Is(ShipModuleType.Armor)
                         || module.Is(ShipModuleType.Countermeasure)
                         || module.Is(ShipModuleType.Shield))
