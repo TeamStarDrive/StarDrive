@@ -200,8 +200,8 @@ namespace Ship_Game.Gameplay
             TorpedoResist               = s.TorpedoResist;
             DamageThreshold             = s.DamageThreshold;
             APResist                    = s.APResist;
-            ExplosionDamage             = s.ExplosionDamage > 0 ? s.ExplosionDamage : s.XSIZE * s.YSIZE * 2500;
-            ExplosionRadius             = s.ExplosionRadius > 0 ? s.ExplosionRadius: s.XSIZE * s.YSIZE * 64;
+            ExplosionDamage             = s.ExplosionDamage > 0 ? s.ExplosionDamage : s.XSize * s.YSize * 2500;
+            ExplosionRadius             = s.ExplosionRadius > 0 ? s.ExplosionRadius: s.XSize * s.YSize * 64;
             RepairDifficulty            = s.RepairDifficulty;
             Regenerate                  = s.Regenerate;
             ShieldBubbleColor           = s.ShieldBubbleColor;
@@ -213,7 +213,7 @@ namespace Ship_Game.Gameplay
             DisableRotation             = s.DisableRotation;
             UID                         = s.UID;
             AccuracyPercent             = s.AccuracyPercent;
-            WeaponInaccuracyBase        = Weapon.GetWeaponInaccuracyBase(s.XSIZE * s.YSIZE, s.AccuracyPercent);
+            WeaponInaccuracyBase        = Weapon.GetWeaponInaccuracyBase(s.XSize * s.YSize, s.AccuracyPercent);
         }
     }
 
@@ -229,8 +229,8 @@ namespace Ship_Game.Gameplay
 
         public float FTLSpeed;
         public string DeployBuildingOnColonize;
-        public int XSIZE = 1;
-        public int YSIZE = 1;
+        public int XSize = 1;
+        public int YSize = 1;
         public string ResourceStored;
         public float ResourceStorageAmount;
         public string ResourceRequired;
@@ -287,8 +287,7 @@ namespace Ship_Game.Gameplay
         public bool IsSupplyBay;
         public bool IsTroopBay;
         public float HangarTimerConstant = 30f;
-        public float hangerTimerConstant = -1;
-        public float hangarTimer;
+        public float HangarTimer;
         public float Thrust;
         public int WarpThrust;
         public int TurnThrust;
