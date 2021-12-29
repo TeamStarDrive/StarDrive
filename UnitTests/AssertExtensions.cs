@@ -77,6 +77,20 @@ namespace UnitTests
             throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
         }
 
+        static bool IsKeyValuePair(object instance)
+        {
+            Type type = instance.GetType();
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>);
+        }
+
+        static (object key, object value) DecomposeKeyValuePair(object instance)
+        {
+            Type type = instance.GetType();
+            object key = type.GetProperty("Key")?.GetValue(instance);
+            object value = type.GetProperty("Value")?.GetValue(instance);
+            return (key, value);
+        }
+
         public static void Equal(this Assert assert, object expected, object actual, string message = "")
         {
             if (expected == null)
@@ -95,11 +109,19 @@ namespace UnitTests
                 {
                     throw new AssertFailedException($"Expected {expected} - collection but got Actual {actual}. {message}");
                 }
+                return;
             }
-            else
+
+            if (IsKeyValuePair(expected) && IsKeyValuePair(actual))
             {
-                Assert.AreEqual(expected, actual, message);
+                var (key1, val1) = DecomposeKeyValuePair(expected);
+                var (key2, val2) = DecomposeKeyValuePair(actual);
+                Equal(assert, key1, key2, message);
+                Equal(assert, val1, val2, message);
+                return;
             }
+
+            Assert.AreEqual(expected, actual, message);
         }
 
         static object[] ToArray(ICollection c)

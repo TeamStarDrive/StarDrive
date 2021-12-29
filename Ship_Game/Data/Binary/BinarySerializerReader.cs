@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
 
@@ -35,18 +37,24 @@ namespace Ship_Game.Data.Binary
             {
                 if (!typeMap.TryGet(typeId, out TypeSerializer s))
                     break;
-                AddTypeInfo(typeId, s, null);
+                AddTypeInfo(typeId, s.Type.Name, s, null, s.IsPointerType, SerializerCategory.None);
             }
         }
 
-        void AddTypeInfo(uint streamTypeId, TypeSerializer s, FieldInfo[] fields)
+        void AddTypeInfo(uint streamTypeId, string name, TypeSerializer s, FieldInfo[] fields, bool isPointer, SerializerCategory c)
         {
-            var info = new TypeInfo((ushort)streamTypeId, s, fields);
+            var info = new TypeInfo(streamTypeId, name, s, fields, isPointer, c);
             StreamTypes[streamTypeId] = info;
 
             if (s.TypeId >= ActualTypes.Length)
                 Array.Resize(ref ActualTypes, s.TypeId + 1);
             ActualTypes[s.TypeId] = info;
+        }
+
+        void AddDeletedTypeInfo(uint streamTypeId, string name, FieldInfo[] fields, bool isPointer, SerializerCategory c)
+        {
+            var info = new TypeInfo(streamTypeId, name, null, fields, isPointer, c);
+            StreamTypes[streamTypeId] = info;
         }
 
         TypeInfo GetType(uint streamTypeId)
@@ -93,9 +101,9 @@ namespace Ship_Game.Data.Binary
                 uint nameId = BR.ReadVLu32();
                 uint flags  = BR.ReadVLu32();
                 uint numFields = BR.ReadVLu32();
+                bool isPointerType = (flags & 0b0000_0001) != 0;
 
                 var fields = new FieldInfo[numFields];
-
                 for (uint fieldIdx = 0; fieldIdx < fields.Length; ++fieldIdx)
                 {
                     // [field type ID]
@@ -109,15 +117,18 @@ namespace Ship_Game.Data.Binary
                     };
                 }
 
-                string fullName = $"{namespaces[nsId]}+{typeNames[nameId]},{assemblies[asmId]}";
-                bool isPointerType = (flags & 0b0000_0001) != 0;
-
-                // TODO: we should mark this type as invalid if fails and use `null` during deserialize
-                Type type = Type.GetType(fullName, throwOnError: true);
-                if (!TypeMap.TryGet(type, out TypeSerializer s))
-                    s = TypeMap.AddUserTypeSerializer(type);
-
-                AddTypeInfo(typeId, s, fields);
+                string name = typeNames[nameId];
+                Type type = GetTypeFrom(assemblies[asmId], namespaces[nsId], typeNames[nameId]);
+                if (type != null)
+                {
+                    if (!TypeMap.TryGet(type, out TypeSerializer s))
+                        s = TypeMap.AddUserTypeSerializer(type);
+                    AddTypeInfo(typeId, name, s, fields, isPointerType, SerializerCategory.UserClass);
+                }
+                else
+                {
+                    AddDeletedTypeInfo(typeId, name, fields, isPointerType, SerializerCategory.UserClass);
+                }
             }
 
             for (uint i = 0; i < Header.NumCollectionTypes; ++i)
@@ -146,9 +157,30 @@ namespace Ship_Game.Data.Binary
                 if (cType != null)
                 {
                     TypeSerializer cTypeSer = TypeMap.Get(cType);
-                    AddTypeInfo(streamTypeId, cTypeSer, null);
+                    SerializerCategory c = cTypeId == 1 ? SerializerCategory.RawArray : SerializerCategory.Collection;
+                    AddTypeInfo(streamTypeId, cType.GetTypeName(), cTypeSer, null, isPointer:true, c);
                 }
             }
+        }
+
+        Type GetTypeFrom(string assemblyName, string nameSpace, string typeName)
+        {
+            string fullName = $"{nameSpace}+{typeName},{assemblyName}";
+            Type type = Type.GetType(fullName, throwOnError: false);
+            if (type != null)
+                return type; // perfect match
+
+            // type has been moved or deleted
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            Assembly a = assemblies.Find(asm => asm.GetName().Name == assemblyName);
+            if (a == null) // not in loaded assembly? then give up. we don't want to load new assemblies
+                return null;
+
+            // find type by name from all module types (including nested types)
+            Module module = a.Modules.First();
+            Type[] moduleTypes = module.GetTypes();
+            type = moduleTypes.Find(t => t.Name == typeName);
+            return type;
         }
 
         // reads the type groups
@@ -175,6 +207,8 @@ namespace Ship_Game.Data.Binary
             // pre-instantiate UserClass instances
             ForEachTypeGroup(SerializerCategory.UserClass, (type, ser, count, baseIndex) =>
             {
+                if (ser == null)
+                    return; // type not found (it was deleted or renamed)
                 for (int i = 0; i < count; ++i)
                     ObjectsList[baseIndex + i] = Activator.CreateInstance(ser.Type);
             });
@@ -211,18 +245,17 @@ namespace Ship_Game.Data.Binary
                 for (int i = 0; i < count; ++i)
                 {
                     object instance = ObjectsList[baseIndex + i];
-                    ReadCollection(cs, instance);
+                    cs.Deserialize(this, instance);
                 }
             });
 
             // read UserClass fields
             ForEachTypeGroup(SerializerCategory.UserClass, (type, ser, count, baseIndex) =>
             {
-                var us = (UserTypeSerializer)ser;
                 for (int i = 0; i < count; ++i)
                 {
                     object instance = ObjectsList[baseIndex + i];
-                    ReadUserClass(type, us, instance);
+                    ReadUserClass(type, instance);
                 }
             });
         }
@@ -232,22 +265,22 @@ namespace Ship_Game.Data.Binary
             int objectIdx = 0;
             foreach ((TypeInfo type, TypeSerializer ser, int count) in TypeGroups)
             {
-                if (ser.Category == category)
+                if (type.Category == category)
                     action(type, ser, count, objectIdx);
                 objectIdx += count;
             }
         }
 
-        void ReadUserClass(TypeInfo instanceType, UserTypeSerializer ser, object instance)
+        void ReadUserClass(TypeInfo instanceType, object instance)
         {
-            if (instance == null)
+            // raise alarm on null pointers
+            if (instance == null && instanceType.IsPointerType)
             {
-                Log.Error($"Failed to deserialize {ser}");
+                Log.Error($"NullReference {instanceType.Name} - this is a bug in binary reader");
                 return;
             }
 
-            uint numFields = BR.ReadVLu32();
-            for (uint i = 0; i < numFields; ++i)
+            for (uint i = 0; i < instanceType.Fields.Length; ++i)
             {
                 // [field type ID]
                 // [field index]     (in type metadata)
@@ -255,25 +288,15 @@ namespace Ship_Game.Data.Binary
                 uint streamFieldIdx = BR.ReadVLu32();
 
                 TypeInfo fieldType = GetType(streamFieldTypeId);
-                TypeSerializer fieldSer = fieldType.Ser;
-                if (fieldSer != null)
+                object fieldValue = ReadElement(fieldType, fieldType.Ser);
+
+                if (instance != null)
                 {
-                    object fieldValue = ReadElement(fieldType, fieldSer);
+                    // if field has been deleted, then mapping is null and Set() will not called
                     FieldInfo field = instanceType.Fields[streamFieldIdx];
                     field.Field?.Set(instance, fieldValue);
                 }
-                else
-                {
-                    // it's an unknown user class, try skipping 1 pointer
-                    // it will probably crash here with invalid stream error
-                    BR.ReadVLu32();
-                }
             }
-        }
-
-        void ReadCollection(CollectionSerializer ser, object instance)
-        {
-            ser.Deserialize(this, instance);
         }
 
         // Reads an inline element from the stream
@@ -282,7 +305,7 @@ namespace Ship_Game.Data.Binary
         // For UserClass value types, it reads the inline struct fields
         public object ReadElement(TypeInfo elementType, TypeSerializer ser)
         {
-            if (ser.IsPointerType)
+            if (elementType.IsPointerType)
             {
                 uint pointer = BR.ReadVLu32();
                 if (pointer == 0)
@@ -290,11 +313,11 @@ namespace Ship_Game.Data.Binary
                 return ObjectsList[pointer - 1]; // pointer = objectIndex + 1
             }
 
-            if (ser.IsUserClass && ser is UserTypeSerializer fieldUserSer)
+            if (elementType.Category == SerializerCategory.UserClass)
             {
-                // a custom struct
-                object inlineStruct = Activator.CreateInstance(fieldUserSer.Type);
-                ReadUserClass(elementType, fieldUserSer, inlineStruct);
+                // if ser == null, then Type has been deleted, skip with instance=null
+                object inlineStruct = ser != null ? Activator.CreateInstance(ser.Type) : null;
+                ReadUserClass(elementType, inlineStruct);
                 return inlineStruct;
             }
             else // int, float, object[], Vector2[], etc
