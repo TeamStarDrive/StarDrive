@@ -1303,13 +1303,13 @@ namespace Ship_Game
                     if (!Localizer.Contains(data.NameIndex))
                         Log.Warning($"{data.UID} missing NameIndex: {data.NameIndex}");
                 }
-                if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSIZE * data.YSIZE * 1.25f );
+                if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSize * data.YSize * 1.25f );
                 if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
 
                 // disable Rotation change for 2x2, 3x3, 4x4, ... modules
                 // but not for 1x1 weapons
-                bool mustRotate = data.WeaponType != null && data.XSIZE == 1 && data.YSIZE == 1;
-                if (data.XSIZE == data.YSIZE && !mustRotate)
+                bool mustRotate = data.WeaponType != null && data.XSize == 1 && data.YSize == 1;
+                if (data.XSize == data.YSize && !mustRotate)
                     data.DisableRotation = true;
 
                 ShipModule template = ShipModule.CreateTemplate(data);

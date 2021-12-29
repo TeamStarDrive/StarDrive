@@ -316,8 +316,8 @@ namespace Ship_Game.Ships
         {
             DisableSpatialCollision = true;
             Flyweight = new ShipModuleFlyweight(template);
-            XSize                 = template.XSIZE;
-            YSize                 = template.YSIZE;
+            XSize                 = template.XSize;
+            YSize                 = template.YSize;
             Mass                  = template.Mass;
             Powered               = template.Powered;
             FieldOfFire           = template.FieldOfFire.ToRadians(); // @note Convert to radians for higher PERF
@@ -326,7 +326,7 @@ namespace Ship_Game.Ships
             Restrictions          = template.Restrictions;
             ShieldPower           = template.ShieldPower;
             HangarShipUID         = template.HangarShipUID;
-            HangarTimer           = template.hangarTimer;
+            HangarTimer           = template.HangarTimer;
             ModuleType            = template.ModuleType;
             WeaponType            = template.WeaponType;
             IsWeapon              = WeaponType.NotEmpty();
