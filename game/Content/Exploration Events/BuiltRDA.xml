@@ -13,10 +13,10 @@ However, the Array has detected a second, more conventional subspace signal. Ana
       <SpawnFleetInOrbitOfPlanet>Planetary Shield</SpawnFleetInOrbitOfPlanet>
 
       <TroopsToSpawn>
-        <string>Remnant Defender</string>
-        <string>Remnant Defender</string>
-        <string>Remnant Defender</string>
-        <string>Remnant Defender</string>
+        <string>Ancient Assault Drone</string>
+        <string>Ancient Assault Drone</string>
+        <string>Ancient Assault Drone</string>
+        <string>Ancient Assault Drone</string>
       </TroopsToSpawn>
       
     </Outcome>
