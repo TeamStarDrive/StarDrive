@@ -24,6 +24,7 @@ namespace Ship_Game.Data.Serialization
         {
             TypeMap = typeMap;
             IsUserClass = true;
+            Category = SerializerCategory.UserClass;
 
             if (type.GetCustomAttribute<StarDataTypeAttribute>() == null)
                 throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
