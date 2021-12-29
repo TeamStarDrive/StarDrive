@@ -698,6 +698,37 @@ namespace Ship_Game.Ships
             Empire.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
+        public float GetExplosionDamageOnShipExplode()
+        {
+            float dmg = 0;
+            if (Active)
+            {
+                dmg += ActualPowerFlowMax + ActualPowerStoreMax;
+
+                if (explodes)
+                    dmg += ExplosionDamage;
+
+                if (ExplosiveResist > 0)
+                {
+                    float resist = 1f / (1f - ExplosiveResist);
+                    dmg = (dmg - Health * resist).LowerBound(0);
+                }
+            }
+
+            return dmg;
+        }
+
+        public void DamageShield(float damageAmount, out float remainder)
+        {
+            remainder = 0;
+            if (damageAmount < 0.01f)
+                return;
+            
+            remainder   = (damageAmount - ShieldPower).LowerBound(0);
+            ShieldPower = (ShieldPower - damageAmount).LowerBound(0);
+            Parent.UpdateShields();
+        }
+
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
         public bool DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
         {

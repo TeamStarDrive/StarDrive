@@ -225,40 +225,46 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < nearby.Length; ++i)
             {
                 var otherShip = (Ship)nearby[i];
-                if (RandomMath.RollDice(12 - otherShip.Level))
+                // FB: Ships will be lucky to not get caught in the explosion, based on their level as well
+                if (RandomMath.RollDice(otherShip.ExplosionEvadeBaseChance() + otherShip.Level))
+                    continue;
+
+                ShipModule nearest = otherShip.FindClosestUnshieldedModule(explosionCenter);
+                if (nearest == null)
+                    continue;
+
+                float reducedDamageRadius = damageRadius - explosionCenter.Distance(nearest.Position);
+                if (reducedDamageRadius <= 0.0f)
+                    continue;
+
+                float damageFalloff = ShipModule.DamageFalloff(explosionCenter, nearest.Position, damageRadius, nearest.Radius);
+                // First damage all shields covering the module
+                damageAmount *= damageFalloff;
+                foreach (ShipModule shield in otherShip.GetAllActiveShieldsCoveringModule(nearest))
                 {
-                    // FB: Ships will be lucky to not get caught in the explosion, based on their level as well
-                    ShipModule nearest = otherShip.FindClosestUnshieldedModule(explosionCenter);
-                    if (nearest == null)
-                        continue;
-
-                    float reducedDamageRadius = damageRadius - explosionCenter.Distance(nearest.Position);
-                    if (reducedDamageRadius <= 0.0f)
-                        continue;
-
-                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, nearest.Position, damageRadius, nearest.Radius);
-                    ExplodeAtModule(thisShip, nearest, false, damageAmount * damageFalloff, reducedDamageRadius);
-
-                    if (!otherShip.dying)
-                    {
-                        float rotationImpulse = damageRadius / (float)Math.Pow(otherShip.Mass, 1.3);
-                        otherShip.yRotation = otherShip.yRotation > 0.0f ? rotationImpulse : -rotationImpulse;
-                        otherShip.yRotation = otherShip.yRotation.Clamped(-otherShip.MaxBank, otherShip.MaxBank);
-                    }
-
-                    // apply some impulse from the explosion
-                    Vector2 impulse = 3f * (otherShip.Position - explosionCenter);
-                    if (impulse.Length() > 200f)
-                        impulse = impulse.Normalized() * 200f;
-
-                    if (!float.IsNaN(impulse.X))
-                        otherShip.ApplyForce(impulse);
+                    shield.DamageShield(damageAmount, out damageAmount);
+                    if (damageAmount <= 0)
+                        break;
                 }
-                else
+
+                // Then explode at the module if any excess damage left
+                if (damageAmount > 0)
+                    ExplodeAtModule(thisShip, nearest, false, damageAmount, reducedDamageRadius);
+
+                if (!otherShip.dying)
                 {
-                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, otherShip.Position, damageRadius, otherShip.Radius, 0.25f);
-                    otherShip.Damage(thisShip, damageAmount * damageFalloff);
+                    float rotationImpulse = damageRadius / (float)Math.Pow(otherShip.Mass, 1.3);
+                    otherShip.yRotation = otherShip.yRotation > 0.0f ? rotationImpulse : -rotationImpulse;
+                    otherShip.yRotation = otherShip.yRotation.Clamped(-otherShip.MaxBank, otherShip.MaxBank);
                 }
+
+                // apply some impulse from the explosion
+                Vector2 impulse = 3f * (otherShip.Position - explosionCenter);
+                if (impulse.Length() > 200f)
+                    impulse = impulse.Normalized() * 200f;
+
+                if (!float.IsNaN(impulse.X))
+                    otherShip.ApplyForce(impulse);
             }
         }
     }
