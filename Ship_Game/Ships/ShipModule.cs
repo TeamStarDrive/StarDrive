@@ -698,7 +698,7 @@ namespace Ship_Game.Ships
             Empire.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
-        public float ExplosionDamageOnShipExplode()
+        public float GetExplosionDamageOnShipExplode()
         {
             float dmg = 0;
             if (Active)
@@ -709,7 +709,10 @@ namespace Ship_Game.Ships
                     dmg += ExplosionDamage;
 
                 if (ExplosiveResist > 0)
-                    dmg -= Health / (1 - ExplosiveResist);
+                {
+                    float resist = 1f / (1f - ExplosiveResist);
+                    dmg = (dmg - Health * resist).LowerBound(0);
+                }
             }
 
             return dmg;
