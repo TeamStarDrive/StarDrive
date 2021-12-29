@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data.Serialization.Types;
 
 namespace Ship_Game.Data.Serialization
@@ -14,7 +12,7 @@ namespace Ship_Game.Data.Serialization
         // mapping of Type to its Serializer metadata
         readonly Map<Type, TypeSerializer> Serializers = new Map<Type, TypeSerializer>();
 
-        // flatmap of TypeSerializer.Id to TypeSerializer instances
+        // flatmap of TypeSerializer.TypeId to TypeSerializer instances
         readonly Array<TypeSerializer> FlatMap = new Array<TypeSerializer>();
 
         protected TypeSerializerMap()
@@ -51,12 +49,11 @@ namespace Ship_Game.Data.Serialization
             // ADD new types here, up to `TypeSerializer.MaxFundamentalTypes`
         }
 
-        TypeSerializer Set(ushort id, TypeSerializer ser)
+        void Set(ushort id, TypeSerializer ser)
         {
-            ser.Id = id;
+            ser.TypeId = id;
             Serializers[ser.Type] = ser;
             FlatMap[id] = ser;
-            return ser;
         }
 
         // Adds a TypeSerializer with IsUserClass == true
@@ -74,9 +71,9 @@ namespace Ship_Game.Data.Serialization
             if (type == null)
                 throw new ArgumentNullException($"serializer.Type cannot be null");
 
-            ser.Id = (ushort)FlatMap.Count;
-            if (ser.Id == (ushort.MaxValue - 1))
-                throw new IndexOutOfRangeException($"serializer.Id overflow -- too many types: {ser.Id}");
+            ser.TypeId = (ushort)FlatMap.Count;
+            if (ser.TypeId == (ushort.MaxValue - 1))
+                throw new IndexOutOfRangeException($"serializer.TypeId overflow -- too many types: {ser.TypeId}");
 
             if (Serializers.ContainsKey(type))
                 throw new InvalidOperationException($"duplicate serializer: {ser}");
@@ -112,28 +109,25 @@ namespace Ship_Game.Data.Serialization
             return (null, null);
         }
 
-        public TypeSerializer[] GetCustomTypes()
-        {
-            return FlatMap.Filter(s => s != null && !s.IsFundamentalType);
-        }
+        public int MaxTypeId => FlatMap.Count - 1;
 
-        public TypeSerializer Get(int typeId)
+        public TypeSerializer Get(uint typeId)
         {
             if (typeId < FlatMap.Count)
             {
-                TypeSerializer ser = FlatMap[typeId];
+                TypeSerializer ser = FlatMap[(int)typeId];
                 if (ser != null)
                     return ser;
             }
             throw new InvalidDataException($"{this} unsupported typeId={typeId}");
         }
 
-        public bool TryGet(int typeId, out TypeSerializer serializer)
+        public bool TryGet(uint typeId, out TypeSerializer serializer)
         {
             if (typeId < FlatMap.Count)
             {
-                serializer = FlatMap[typeId];
-                return true;
+                serializer = FlatMap[(int)typeId];
+                return serializer != null;
             }
             serializer = null;
             return false;
