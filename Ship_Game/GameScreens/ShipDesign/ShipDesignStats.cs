@@ -86,9 +86,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             NetOrdnanceUsePerSec = AvgOrdnanceUsed - S.OrdAddedPerSecond;
             AmmoTime = S.OrdinanceMax / NetOrdnanceUsePerSec;
 
-            BeamPeakPowerNeeded = weapons.Sum(w => w.isBeam ? w.BeamPowerCostPerSecond : 0);
-            BeamLongestDuration = weapons.Max(w => w.isBeam ? w.BeamDuration : 0);
-            WeaponPowerNeededNoBeams = weapons.Sum(w => !w.isBeam ? w.PowerFireUsagePerSecond : 0);
+            BeamPeakPowerNeeded = weapons.Sum(w => w.IsBeam ? w.BeamPowerCostPerSecond : 0);
+            BeamLongestDuration = weapons.Max(w => w.IsBeam ? w.BeamDuration : 0);
+            WeaponPowerNeededNoBeams = weapons.Sum(w => !w.IsBeam ? w.PowerFireUsagePerSecond : 0);
 
             Strength = S.GetStrength();
             RelativeStrength = (float)Math.Round(Strength / nSlots, 2);
@@ -96,9 +96,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             PointDefenseValue = weapons.Sum(w => (w.TruePD?4:0) + (w.Tag_PD?1:0));
             TotalHangarArea   = modules.Sum(m => m.MaximumHangarShipSize);
             HasPowerCells    = modules.Any(m => m.ModuleType == ShipModuleType.FuelCell && m.PowerStoreMax > 0);
-            CanTargetFighters  = weapons.Any(w => !w.TruePD && !w.Excludes_Fighters);
-            CanTargetCorvettes = weapons.Any(w => !w.TruePD && !w.Excludes_Corvettes);
-            CanTargetCapitals  = weapons.Any(w => !w.Excludes_Capitals);
+            CanTargetFighters  = weapons.Any(w => !w.TruePD && !w.ExcludesFighters);
+            CanTargetCorvettes = weapons.Any(w => !w.TruePD && !w.ExcludesCorvettes);
+            CanTargetCapitals  = weapons.Any(w => !w.ExcludesCapitals);
             HasEnergyWeapons   = weapons.Any(w => w.PowerRequiredToFire > 0 || w.BeamPowerCostPerSecond > 0);
             UnpoweredModules   = S.Modules.Any(m => m.PowerDraw > 0 && !m.Powered && m.ModuleType != ShipModuleType.PowerConduit);
 

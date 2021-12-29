@@ -4,8 +4,8 @@
   <Cost>138</Cost>
   <!-- common traits shared by all ship modules -->
   <ModuleType>Shield</ModuleType>
-  <XSIZE>4</XSIZE>
-  <YSIZE>4</YSIZE>
+  <XSize>4</XSize>
+  <YSize>4</YSize>
   <UID>ArmoredShield4x4</UID> 
   <Version>2</Version>
 
@@ -29,14 +29,14 @@
 
   <!-- for shield items -->
   <shield_power>22000</shield_power>
-  <shield_power_max>22000</shield_power_max>
-  <shield_recharge_delay>30</shield_recharge_delay>
-  <shield_recharge_rate>220.0</shield_recharge_rate>
-  <shield_radius>240</shield_radius>
-  <shield_recharge_combat_rate>150</shield_recharge_combat_rate>
+  <ShieldPowerMax>22000</ShieldPowerMax>
+  <ShieldRechargeDelay>30</ShieldRechargeDelay>
+  <ShieldRechargeRate>220.0</ShieldRechargeRate>
+  <ShieldRadius>240</ShieldRadius>
+  <ShieldRechargeCombatRate>150</ShieldRechargeCombatRate>
 
   <!-- for PowerPlant Items -->
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <PowerFlowMax>0</PowerFlowMax>
   <PowerStoreMax>0</PowerStoreMax>
   
@@ -44,7 +44,7 @@
   
   
   <!-- for Engines -->
-  <thrust>0</thrust>
+  <Thrust>0</Thrust>
   
   
 

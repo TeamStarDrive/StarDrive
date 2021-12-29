@@ -19,13 +19,13 @@
   <Tag_Cannon>true</Tag_Cannon>
   
   <UID>Disruptor</UID>
-  <fireDelay>4</fireDelay>
+  <FireDelay>4</FireDelay>
   <Range>8500</Range>
   <PowerRequiredToFire>672</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>disruptor</fireCueName>
+  <FireCueName>disruptor</FireCueName>
 
   <!-- Projectile Information -->
   <DamageAmount>548</DamageAmount>
@@ -33,7 +33,7 @@
   <ProjectileSpeed>2200</ProjectileSpeed>
   <Light>Green</Light>
   <DamageRadius>1</DamageRadius>
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <ProjectileTexturePath>projTear_03_green</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <WeaponType>Energy Cannon</WeaponType>

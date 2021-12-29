@@ -15,8 +15,8 @@
   <Cost>0</Cost>
   <TechLevel>0</TechLevel>
   <TechBranch>Defense</TechBranch>
-  <XSIZE>1</XSIZE>
-  <YSIZE>1</YSIZE>
+  <XSize>1</XSize>
+  <YSize>1</YSize>
   <ModuleType>Armor</ModuleType>
   <Name>MeteorPart</Name>
   <Restrictions>IO</Restrictions>

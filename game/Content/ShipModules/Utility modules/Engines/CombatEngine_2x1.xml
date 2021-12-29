@@ -12,8 +12,8 @@
   
   <!-- common traits shared by all ship modules -->
   <ModuleType>Engine</ModuleType>
-  <XSIZE>2</XSIZE>
-  <YSIZE>1</YSIZE>
+  <XSize>2</XSize>
+  <YSize>1</YSize>
   <Name>Medium Engine</Name>
   <Restrictions>E</Restrictions>
   <UID>CombatEngine_2x1</UID> 
@@ -40,13 +40,13 @@
 
   <!-- for shield items -->
   <shield_power>0</shield_power>
-  <shield_power_max>0</shield_power_max>
-  <shield_recharge_delay>0</shield_recharge_delay>
-  <shield_recharge_rate>0</shield_recharge_rate>
-  <shield_radius>0</shield_radius>
+  <ShieldPowerMax>0</ShieldPowerMax>
+  <ShieldRechargeDelay>0</ShieldRechargeDelay>
+  <ShieldRechargeRate>0</ShieldRechargeRate>
+  <ShieldRadius>0</ShieldRadius>
 
   <!-- for PowerPlant Items -->
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <PowerFlowMax>10</PowerFlowMax>
   <PowerStoreMax>2000</PowerStoreMax>
   <PowerRadius>1</PowerRadius>
@@ -56,7 +56,7 @@
   
   
   <!-- for Engines -->
-  <thrust>36800</thrust>
+  <Thrust>36800</Thrust>
   <!-- amount of thrust used to calculate the engine's turn speed bonus or penalty. Set to same as thrust for default -->
   <TurnThrust>36000</TurnThrust>
   <WarpThrust>16000</WarpThrust>

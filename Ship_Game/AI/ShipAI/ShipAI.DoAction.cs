@@ -568,7 +568,7 @@ namespace Ship_Game.AI
                     float rearmTime       = missingOrdnance / (2 + Owner.Mothership.Level);
                     float shuttlePrepTime = Owner.IsDefaultAssaultShuttle ? 5 : 0;
                     // FB - Here we are setting the hangar timer according to the R&R time. Cant be over the time to rebuild the ship
-                    owningHangar.hangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, owningHangar.hangarTimerConstant);
+                    owningHangar.HangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, owningHangar.HangarTimerConstant);
 
                     Owner.Mothership.OnShipReturned(Owner); // EVT: returned to base
                 }

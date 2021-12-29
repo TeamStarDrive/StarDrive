@@ -369,7 +369,7 @@ namespace Ship_Game.Ships
 
         void DebugBlowExplodingModule(bool biggest)
         {
-            var exploders = ModuleSlotList.Filter(m => m.explodes && m.Active);
+            var exploders = ModuleSlotList.Filter(m => m.Explodes && m.Active);
             if (exploders.Length > 0)
             {
                 if (biggest)
@@ -502,7 +502,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
-                if (!module.isExternal) // only apply radiation to outer modules
+                if (!module.IsExternal) // only apply radiation to outer modules
                     continue;
 
                 if (IsCoveredByShield(module, out ShipModule shield))
@@ -510,7 +510,7 @@ namespace Ship_Game.Ships
                     // only damage shields once, depending on their radius and their energy resistance
                     if (!damagedShields.Contains(shield))
                     {
-                        float damageAbsorb = 1 - shield.shield_energy_resist;
+                        float damageAbsorb = 1 - shield.ShieldEnergyResist;
                         shield.Damage(damageCauser, damage * damageAbsorb * shield.ShieldHitRadius);
                         damagedShields.Add(shield);
                     }
@@ -653,7 +653,7 @@ namespace Ship_Game.Ships
             float bombSeconds = Ordinance / BombBays.Sum(b =>
             {
                 var bomb = b.InstalledWeapon;
-                return bomb.OrdinanceRequiredToFire / bomb.fireDelay;
+                return bomb.OrdinanceRequiredToFire / bomb.FireDelay;
             });
             bombSeconds = bombSeconds.Clamped(0, 60); //can we bomb for a full minute?
             return ToShipStatus(bombSeconds, 60);
@@ -807,7 +807,7 @@ namespace Ship_Game.Ships
 
             var targetModule = target as ShipModule;
             Ship targetShip = target as Ship ?? targetModule?.GetParent();
-            if (targetShip == null && targetModule == null && w.isBeam)
+            if (targetShip == null && targetModule == null && w.IsBeam)
                 return false;
 
             if (targetShip != null)
@@ -818,7 +818,7 @@ namespace Ship_Game.Ships
             }
 
             float attackRunRange = 50f;
-            if (!w.isBeam && DesiredCombatRange < 2000)
+            if (!w.IsBeam && DesiredCombatRange < 2000)
             {
                 attackRunRange = SpeedLimit;
                 if (attackRunRange < 50f)
@@ -1079,7 +1079,7 @@ namespace Ship_Game.Ships
                 return MaxSTLSpeed;
 
             // @note beam weapon speeds need special treatment, since they are currently instantaneous
-            float[] speeds = weapons.Select(w => w.isBeam ? w.GetActualRange() * 1.5f : w.ProjectileSpeed);
+            float[] speeds = weapons.Select(w => w.IsBeam ? w.GetActualRange() * 1.5f : w.ProjectileSpeed);
             return speeds.Avg();
         }
 
@@ -1797,7 +1797,7 @@ namespace Ship_Game.Ships
 
         public float StartingColonyGoods()
         {
-            return ModuleSlotList.Sum(m => m.numberOfEquipment + m.numberOfFood);
+            return ModuleSlotList.Sum(m => m.NumberOfEquipment + m.NumberOfFood);
         }
 
         public int NumBuildingsDeployedOnColonize()

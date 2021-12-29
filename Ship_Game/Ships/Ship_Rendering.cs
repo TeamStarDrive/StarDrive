@@ -145,9 +145,9 @@ namespace Ship_Game.Ships
             {
                 ShipModule slot = ModuleSlotList[i];
 
-                bool square = slot.XSIZE == slot.YSIZE;
-                double w = (slot.XSIZE * moduleSize);
-                double h = (square ? w : slot.YSIZE * moduleSize);
+                bool square = slot.XSize == slot.YSize;
+                double w = (slot.XSize * moduleSize);
+                double h = (square ? w : slot.YSize * moduleSize);
 
                 Vector2d posOnScreen = sc.ProjectToScreenPosition(slot.Position);
 
@@ -219,7 +219,7 @@ namespace Ship_Game.Ships
                     if (showDebugStats)
                     {
                         // draw blue marker on all active external modules
-                        if (slot.isExternal && slot.Active)
+                        if (slot.IsExternal && slot.Active)
                         {
                             double smallerSize = Math.Min(w, h);
                             sc.DrawTextureSized(symbolFighter, posOnScreen, slotRotation, smallerSize, smallerSize, new Color(0, 0, 255, 120));
@@ -369,8 +369,8 @@ namespace Ship_Game.Ships
                 Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);
                 var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X,
                                          shipDrawRect.Y + (int)modulePos.Y,
-                                         (int)moduleSize * m.XSIZE,
-                                         (int)moduleSize * m.YSIZE);
+                                         (int)moduleSize * m.XSize,
+                                         (int)moduleSize * m.YSize);
 
                 SubTexture tex = m.ModuleTexture;
                 m.GetOrientedModuleTexture(ref tex, m.ModuleRot);
@@ -401,7 +401,7 @@ namespace Ship_Game.Ships
                 ShipModule m = Shields[i];
                 if (m.Active && m.ShieldsAreActive)
                 {
-                    screen.ProjectToScreenCoords(m.Position, m.shield_radius * 2.75f, 
+                    screen.ProjectToScreenCoords(m.Position, m.ShieldRadius * 2.75f, 
                         out Vector2d posOnScreen, out double radiusOnScreen);
 
                     float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;

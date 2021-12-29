@@ -5,8 +5,8 @@
   
   <!-- common traits shared by all ship modules -->
   <ModuleType>Shield</ModuleType>
-  <XSIZE>3</XSIZE>
-  <YSIZE>6</YSIZE>
+  <XSize>3</XSize>
+  <YSize>6</YSize>
   <UID>CanopyShield</UID> 
   <Version>2</Version>
 
@@ -31,14 +31,14 @@
 
   <!-- for shield items -->
   <shield_power>25000</shield_power>
-  <shield_power_max>25000</shield_power_max>
-  <shield_recharge_delay>30</shield_recharge_delay>
-  <shield_recharge_rate>600</shield_recharge_rate>
-  <shield_radius>400</shield_radius>
-  <shield_recharge_combat_rate>50</shield_recharge_combat_rate>
+  <ShieldPowerMax>25000</ShieldPowerMax>
+  <ShieldRechargeDelay>30</ShieldRechargeDelay>
+  <ShieldRechargeRate>600</ShieldRechargeRate>
+  <ShieldRadius>400</ShieldRadius>
+  <ShieldRechargeCombatRate>50</ShieldRechargeCombatRate>
 
   <!-- for PowerPlant Items -->
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <PowerFlowMax>0</PowerFlowMax>
   <PowerStoreMax>0</PowerStoreMax>
   
@@ -46,7 +46,7 @@
   
   
   <!-- for Engines -->
-  <thrust>0</thrust>
+  <Thrust>0</Thrust>
   
   
 

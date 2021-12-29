@@ -22,7 +22,7 @@
   <OffPowerMod>3</OffPowerMod>
   
   <UID>VulcanCannon</UID>
-  <fireDelay>3</fireDelay>
+  <FireDelay>3</FireDelay>
   <Range>3500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.02</OrdinanceRequiredToFire>
@@ -30,7 +30,7 @@
   <SalvoTimer>0.5</SalvoTimer>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_vulcan_burst_01</fireCueName>
+  <FireCueName>sd_weapon_vulcan_burst_01</FireCueName>
   <PlaySoundOncePerSalvo>true</PlaySoundOncePerSalvo>
  <!-- <ToggleSoundName>sd_weapon_vulcan_spinloop_01</ToggleSoundName> -->
 
@@ -41,7 +41,7 @@
   <ProjectileSpeed>1450</ProjectileSpeed>
   <ProjectileRadius>20</ProjectileRadius> 
   
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <ProjectileTexturePath>projPulse_01_yellow_1_small</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <WeaponType>AA Weapons</WeaponType>

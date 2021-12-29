@@ -8,8 +8,8 @@
   <TechLevel>3</TechLevel>
   
   <!-- common traits shared by all ship modules -->
-  <XSIZE>2</XSIZE>
-  <YSIZE>2</YSIZE>
+  <XSize>2</XSize>
+  <YSize>2</YSize>
   <ModuleType>Command</ModuleType>
   <Name>Bridge</Name>
   <Restrictions>I</Restrictions>
@@ -39,19 +39,19 @@
 
   <!-- for shield items -->
   <shield_power>0</shield_power>
-  <shield_power_max>0</shield_power_max>
-  <shield_recharge_delay>0</shield_recharge_delay>
-  <shield_recharge_rate>0</shield_recharge_rate>
-  <shield_radius>0</shield_radius>
+  <ShieldPowerMax>0</ShieldPowerMax>
+  <ShieldRechargeDelay>0</ShieldRechargeDelay>
+  <ShieldRechargeRate>0</ShieldRechargeRate>
+  <ShieldRadius>0</ShieldRadius>
 
   <!-- Sensor Data -->
   <SensorRange>40000</SensorRange>
   <!---repair and defence-->
-  <EMP_Protection>200</EMP_Protection>
+  <EMPProtection>200</EMPProtection>
   <AmplifyShields>1500</AmplifyShields>
 
   <!-- for PowerPlant Items -->
-  <explodes>false</explodes>
+  <Explodes>false</Explodes>
   <PowerFlowMax>0</PowerFlowMax>
   <PowerStoreMax>110</PowerStoreMax>
 
@@ -60,7 +60,7 @@
 
 
   <!-- for Engines -->
-  <thrust>0</thrust>
+  <Thrust>0</Thrust>
 
 
 

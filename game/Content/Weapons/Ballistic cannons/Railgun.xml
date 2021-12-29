@@ -18,13 +18,13 @@
   <Tag_Cannon>false</Tag_Cannon>
   
   <UID>Railgun</UID>
-  <fireDelay>8</fireDelay>
+  <FireDelay>8</FireDelay>
   <Range>11000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>2.8</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_flame_start_01</fireCueName>
+  <FireCueName>sd_weapon_flame_start_01</FireCueName>
 
   <Scale>1.2</Scale>
   <!-- Projectile Information -->

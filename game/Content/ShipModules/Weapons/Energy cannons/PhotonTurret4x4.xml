@@ -12,8 +12,8 @@
   
   <!-- common traits shared by all ship modules -->
   <ModuleType>Turret</ModuleType>
-  <XSIZE>4</XSIZE>
-  <YSIZE>4</YSIZE>
+  <XSize>4</XSize>
+  <YSize>4</YSize>
   <Name>Twin Photon Cannons</Name>
   <Restrictions>O</Restrictions>
   <UID>PhotonTurret4x4</UID> 

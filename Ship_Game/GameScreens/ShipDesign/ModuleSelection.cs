@@ -252,7 +252,7 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial8Bold, "Hulls: "+shipRest, modTitlePos, Color.LightSteelBlue);
             modTitlePos.Y += (Fonts.Arial8Bold.LineSpacing + 11);
             int startx = (int)modTitlePos.X;
-            if (moduleTemplate.isWeapon)
+            if (moduleTemplate.IsWeapon)
             {
                 var weaponTemplate = ResourceManager.GetWeaponTemplate(moduleTemplate.WeaponType);
 
@@ -301,7 +301,7 @@ namespace Ship_Game
             float strength = mod.CalculateModuleOffenseDefense(Screen.CurrentHull.SurfaceArea);
             DrawStat(ref modTitlePos, "Offense", strength, GameText.TT_ShipOffense);
 
-            if (mod.BombType == null && !mod.isWeapon || mod.InstalledWeapon == null)
+            if (mod.BombType == null && !mod.IsWeapon || mod.InstalledWeapon == null)
             {
                 DrawModuleStats(batch, mod, modTitlePos, starty);
             }
@@ -341,7 +341,7 @@ namespace Ship_Game
             modTitlePos.X = modTitlePos.X + 152f;
             modTitlePos.Y = starty;
 
-            DrawStat(ref modTitlePos, GameText.Thrust, mod.thrust, GameText.IndicatesTheAmountOfThrust);
+            DrawStat(ref modTitlePos, GameText.Thrust, mod.Thrust, GameText.IndicatesTheAmountOfThrust);
             DrawStat(ref modTitlePos, GameText.Warp, mod.WarpThrust, GameText.IndicatesTheAmountOfThrust2);
             DrawStat(ref modTitlePos, GameText.Turn, mod.TurnThrust, GameText.IndicatesTheAmountOfRotational);
 
@@ -355,23 +355,19 @@ namespace Ship_Game
             else
                 DrawStat(ref modTitlePos, GameText.ShldStr, shieldMax, GameText.IndicatesTheHitpointsOfThis);
 
-            DrawStat(ref modTitlePos, GameText.ShldSize, mod.shield_radius, GameText.IndicatesTheProtectiveRadiusOf);
-            DrawStat(ref modTitlePos, GameText.Recharge, mod.shield_recharge_rate, GameText.IndicatesTheNumberOfHitpoints);
-            DrawStat(ref modTitlePos, GameText.Crecharge, mod.shield_recharge_combat_rate, GameText.ThisShieldCanRechargeEven);
+            DrawStat(ref modTitlePos, GameText.ShldSize, mod.ShieldRadius, GameText.IndicatesTheProtectiveRadiusOf);
+            DrawStat(ref modTitlePos, GameText.Recharge, mod.ShieldRechargeRate, GameText.IndicatesTheNumberOfHitpoints);
+            DrawStat(ref modTitlePos, GameText.Crecharge, mod.ShieldRechargeCombatRate, GameText.ThisShieldCanRechargeEven);
 
             // Doc: new shield resistances, UI info.
             Color shieldResistColor = Color.LightSkyBlue;
-            DrawStatCustomColor(ref modTitlePos, GameText.KineticSr, mod.shield_kinetic_resist, GameText.IndicatesShieldBubblesResistanceTo, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.EnergySr, mod.shield_energy_resist, GameText.IndicatesShieldBubblesResistanceTo2, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.ExplSr, mod.shield_explosive_resist, GameText.IndicatesShieldBubblesResistanceTo3, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.MissileSr, mod.shield_missile_resist, GameText.IndicatesShieldBubblesResistanceTo4, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.FlakSr, mod.shield_flak_resist, GameText.IndicatesShieldBubblesResistanceTo5, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.HybridSr, mod.shield_hybrid_resist, GameText.IndicatesShieldBubblesResistanceTo6, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.RailSr, mod.shield_railgun_resist, GameText.IndicatesShieldBubblesResistanceTo7, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.SubSr, mod.shield_subspace_resist, GameText.IndicatesShieldBubblesResistanceTo8, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.WarpSr, mod.shield_warp_resist, GameText.IndicatesShieldBubblesResistanceTo9, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.BeamSr, mod.shield_beam_resist, GameText.IndicatesShieldBubblesResistanceTo10, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.SdDeflect, mod.shield_threshold, GameText.WeaponsWhichDoLessDamage2, shieldResistColor, isPercent: false);
+            DrawStatCustomColor(ref modTitlePos, GameText.KineticSr, mod.ShieldKineticResist, GameText.IndicatesShieldBubblesResistanceTo, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, GameText.EnergySr, mod.ShieldEnergyResist, GameText.IndicatesShieldBubblesResistanceTo2, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, GameText.ExplSr, mod.ShieldExplosiveResist, GameText.IndicatesShieldBubblesResistanceTo3, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, GameText.MissileSr, mod.ShieldMissileResist, GameText.IndicatesShieldBubblesResistanceTo4, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, GameText.HybridSr, mod.ShieldHybridResist, GameText.IndicatesShieldBubblesResistanceTo6, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, GameText.BeamSr, mod.ShieldBeamResist, GameText.IndicatesShieldBubblesResistanceTo10, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, GameText.SdDeflect, mod.ShieldThreshold, GameText.WeaponsWhichDoLessDamage2, shieldResistColor, isPercent: false);
 
             DrawStat(ref modTitlePos, GameText.Regenerate, mod.Regenerate, GameText.ThisModuleHasSelfRegeneration);
             DrawStat(ref modTitlePos, GameText.Range,  mod.SensorRange, GameText.IndicatesTheAdditionalSensorRange);
@@ -384,7 +380,7 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, GameText.Assault, mod.TransporterTroopAssault, GameText.IndicatesTheNumberOfTroops4);
             DrawStat(ref modTitlePos, GameText.Land, mod.TransporterTroopLanding, GameText.IndicatesTheNumberOfTroops2);
             DrawStat(ref modTitlePos, GameText.Ordnance, mod.OrdinanceCapacity, GameText.IndicatesTheAmountOfOrdnance2);
-            DrawStat(ref modTitlePos, GameText.CargoSpace,  mod.Cargo_Capacity, GameText.TT_CargoSpace);
+            DrawStat(ref modTitlePos, GameText.CargoSpace,  mod.CargoCapacity, GameText.TT_CargoSpace);
             DrawStat(ref modTitlePos, GameText.Ordnances, mod.OrdnanceAddedPerSecond, GameText.TT_OrdnanceCreated);
             DrawStat(ref modTitlePos, GameText.Inhibition, mod.InhibitionRadius, GameText.IndicatesTheWarpInhibitionRange);
             DrawStat(ref modTitlePos, GameText.Troops,  mod.TroopCapacity, GameText.IndicatesTheNumberOfTroops3);
@@ -403,10 +399,10 @@ namespace Ship_Game
             }
             if (mod.ModuleType == ShipModuleType.Hangar)
             {
-                DrawStat(ref modTitlePos, GameText.SpawnTimer, mod.hangarTimerConstant, GameText.HangarsAreCapableOfSustaning);
+                DrawStat(ref modTitlePos, GameText.SpawnTimer, mod.HangarTimerConstant, GameText.HangarsAreCapableOfSustaning);
                 DrawStat(ref modTitlePos, GameText.HangarSize, mod.MaximumHangarShipSize, GameText.ThisIsTheMaximumNumber);
             }
-            if (mod.explodes)
+            if (mod.Explodes)
             {
                 DrawStatCustomColor(ref modTitlePos, GameText.ExpDmg, mod.ExplosionDamage, GameText.TheDamageCausedToNearby, Color.Red, isPercent: false);
                 DrawStatCustomColor(ref modTitlePos, GameText.ExpRad, mod.ExplosionRadius / 16f, GameText.TheDamageRadiusOfThis, Color.Red, isPercent: false);
@@ -414,34 +410,22 @@ namespace Ship_Game
 
             DrawStat(ref modTitlePos, GameText.KineticRes, mod.KineticResist, GameText.IndicatesResistanceToKinetictypeDamage, true);
             DrawStat(ref modTitlePos, GameText.EnergyRes, mod.EnergyResist, GameText.IndicatesResistanceToEnergyWeapon,  true);
-            DrawStat(ref modTitlePos, GameText.GuidedRes, mod.GuidedResist, GameText.IndicatesResistanceToGuidedWeapon,  true);
             DrawStat(ref modTitlePos, GameText.MissileRes, mod.MissileResist, GameText.IndicatesResistanceToMissileWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.HybridRes, mod.HybridResist, GameText.IndicatesResistanceToHybridWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.BeamRes, mod.BeamResist, GameText.IndicatesResistanceToBeamWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.ExplRes, mod.ExplosiveResist, GameText.IndicatesResistanceToExplosiveDamage, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.IntcptRes, mod.InterceptResist, GameText.IndicatesResistanceToInterceptableWeapon, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.RailRes, mod.RailgunResist, GameText.IndicatesResistanceToRailgunWeapon, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.SpbRes, mod.SpaceBombResist, GameText.IndicatesResistanceToSpatialBomb, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.BombRes, mod.BombResist, GameText.IndicatesResistanceToBombardmentWeapon, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.BioRes, mod.BioWeaponResist, GameText.IndicatesResistanceToBiologicalWeapon, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.DroneRes, mod.DroneResist, GameText.IndicatesResistanceToDroneWeapon, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.WarpRes, mod.WarpResist, GameText.IndicatesResistanceToWarpWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.TorpRes, mod.TorpedoResist, GameText.IndicatesResistanceToTorpedoWeapon, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.CannonRes, mod.CannonResist, GameText.IndicatesResistanceToCannonWeapon, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.SubRes, mod.SubspaceResist, GameText.IndicatesResistanceToSubspaceWeapon, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.PdRes, mod.PDResist, GameText.IndicatesResistanceToPdWeapon, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.FlakRes, mod.FlakResist, GameText.IndicatesResistanceToFlakWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.ApRes, mod.APResist, GameText.IndicatesResistanceToArmourPiercing);
             DrawStat(ref modTitlePos, GameText.Deflection, mod.DamageThreshold, GameText.WeaponsWhichDoLessDamage);
-            DrawStat(ref modTitlePos, GameText.EmpProt, mod.EMP_Protection, GameText.IndicatesTheAmountOfEmp2);
+            DrawStat(ref modTitlePos, GameText.EmpProt, mod.EMPProtection, GameText.IndicatesTheAmountOfEmp2);
             DrawStat(ref modTitlePos, GameText.FireControl, mod.TargetingAccuracy, GameText.ThisValueRepresentsTheComplexity);
             DrawStat(ref modTitlePos, $"+{Localizer.Token(GameText.FcsPower)}", mod.TargetTracking, GameText.ThisIsABonusTo);
 
             if (mod.RepairDifficulty.NotZero()) 
                 DrawStat(ref modTitlePos, GameText.Complexity, mod.RepairDifficulty, GameText.TheMoreComplexTheModule); // Complexity
 
-            if (mod.numberOfColonists.Greater(0))
-                DrawStat(ref modTitlePos, "Colonists", mod.numberOfColonists, GameText.ProsperInTerranWorldsAnd); // Number of Colonists
+            if (mod.NumberOfColonists.Greater(0))
+                DrawStat(ref modTitlePos, "Colonists", mod.NumberOfColonists, GameText.ProsperInTerranWorldsAnd); // Number of Colonists
 
             if (mod.PermittedHangarRoles.Length == 0)
                 return;
@@ -504,9 +488,9 @@ namespace Ship_Game
             float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus() + w.DelayedIgnition;
             float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
             
-            bool repair = w.isRepairBeam;
-            bool isBeam = repair || w.isBeam;
-            bool isBallistic = wOrMirv.explodes && wOrMirv.OrdinanceRequiredToFire > 0f;
+            bool repair = w.IsRepairBeam;
+            bool isBeam = repair || w.IsBeam;
+            bool isBallistic = wOrMirv.Explodes && wOrMirv.OrdinanceRequiredToFire > 0f;
             float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -60f : +60f) : 0f;
 
             float rawDamage       = ModifiedWeaponStat(wOrMirv, WeaponStat.Damage) * GetHullDamageBonus();
@@ -539,7 +523,7 @@ namespace Ship_Game
                 DrawStat(ref cursor, GameText.Damage, isBallistic ? ballisticDamage : energyDamage, GameText.IndicatesTheMaximumAmountOf);
             }
 
-            if (wOrMirv.explodes)
+            if (wOrMirv.Explodes)
             {
                 DrawStat(ref cursor, "Blast Rad", wOrMirv.DamageRadius / 16, GameText.TheRadiusOfTheProjectiles);
             }
@@ -627,15 +611,15 @@ namespace Ship_Game
                 WriteLine(ref cursor);
                 DrawStringRed(batch, ref cursor, "Cannot Target Ships");
             }
-            else if (wOrMirv.Excludes_Fighters || wOrMirv.Excludes_Corvettes || wOrMirv.Excludes_Capitals || wOrMirv.Excludes_Stations)
+            else if (wOrMirv.ExcludesFighters || wOrMirv.ExcludesCorvettes || wOrMirv.ExcludesCapitals || wOrMirv.ExcludesStations)
             {
                 WriteLine(ref cursor);
                 DrawStringRed(batch, ref cursor, "Cannot Target:", Fonts.Arial8Bold);
 
-                if (wOrMirv.Excludes_Fighters)  WriteLine(batch, ref cursor, "Fighters");
-                if (wOrMirv.Excludes_Corvettes) WriteLine(batch, ref cursor, "Corvettes");
-                if (wOrMirv.Excludes_Capitals)  WriteLine(batch, ref cursor, "Capitals");
-                if (wOrMirv.Excludes_Stations)  WriteLine(batch, ref cursor, "Stations");
+                if (wOrMirv.ExcludesFighters)  WriteLine(batch, ref cursor, "Fighters");
+                if (wOrMirv.ExcludesCorvettes) WriteLine(batch, ref cursor, "Corvettes");
+                if (wOrMirv.ExcludesCapitals)  WriteLine(batch, ref cursor, "Capitals");
+                if (wOrMirv.ExcludesStations)  WriteLine(batch, ref cursor, "Stations");
             }
         }
 
@@ -671,7 +655,7 @@ namespace Ship_Game
                 case WeaponStat.Speed:     return weapon.ProjectileSpeed;
                 case WeaponStat.FireDelay: return weapon.NetFireDelay;
                 case WeaponStat.Armor:     return weapon.EffectVsArmor;
-                case WeaponStat.Shield:    return weapon.EffectVSShields;
+                case WeaponStat.Shield:    return weapon.EffectVsShields;
                 default: return 0f;
             }
         }

@@ -28,7 +28,7 @@ namespace Ship_Game
 
         bool CanNeverFitModuleGrid(ShipModule module)
         {
-            if (Screen.Input.IsShiftKeyDown || Screen.CurrentDesign == null || module.XSIZE + module.YSIZE == 2)
+            if (Screen.Input.IsShiftKeyDown || Screen.CurrentDesign == null || module.XSize + module.YSize == 2)
                 return false;
             return Screen.CanNeverFitModuleGrid(module);
         }
@@ -137,7 +137,7 @@ namespace Ship_Game
         {
             foreach (ShipModule m in SortedModules)
             {
-                if (m.isWeapon)
+                if (m.IsWeapon)
                 {
                     Weapon w = m.InstalledWeapon;
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.expandedWeaponCats)

@@ -35,16 +35,16 @@ namespace Ship_Game.Ships
         public ModuleOrientation ModuleRot;
 
         public bool Powered;
-        public bool isExternal;
-        public int XSIZE = 1;
-        public int YSIZE = 1;
+        public bool IsExternal;
+        public int XSize = 1;
+        public int YSize = 1;
 
         // Gets the size of this Module, correctly oriented
         // Required by ModuleGrid
-        public Point GetSize() => new Point(XSIZE, YSIZE);
+        public Point GetSize() => new Point(XSize, YSize);
         
         // Size of this module in World Coordinates
-        public Vector2 WorldSize => new Vector2(XSIZE * 16, YSIZE * 16);
+        public Vector2 WorldSize => new Vector2(XSize * 16, YSize * 16);
 
         // Slot top-left Grid Position in the Ship design
         public Point Pos;
@@ -55,7 +55,7 @@ namespace Ship_Game.Ships
         float ZPos;
         public Vector3 Center3D => new Vector3(Position, ZPos);
 
-        public int Area => XSIZE * YSIZE;
+        public int Area => XSize * YSize;
 
         bool CanVisualizeDamage;
         public float ShieldPower { get; private set; }
@@ -73,10 +73,10 @@ namespace Ship_Game.Ships
         public Restrictions Restrictions;
         public Shield Shield { get; private set; }
         public string HangarShipUID;
-        Ship hangarShip;
+        Ship HangarShip;
         public Guid HangarShipGuid;
-        public float hangarTimer;
-        public bool isWeapon;
+        public float HangarTimer;
+        public bool IsWeapon;
         public Weapon InstalledWeapon;
 
         public DynamicHangarOptions DynamicHangar { get; private set; }
@@ -117,39 +117,35 @@ namespace Ship_Game.Ships
         public bool FreighterModule              => Flyweight.FreighterModule;
         public bool PlatformModule               => Flyweight.PlatformModule;
         public bool StationModule                => Flyweight.StationModule;
-        public bool explodes                     => Flyweight.explodes;
+        public bool Explodes                     => Flyweight.Explodes;
         public float SensorRange                 => Flyweight.SensorRange;
         public float MechanicalBoardingDefense   => Flyweight.MechanicalBoardingDefense;
-        public float EMP_Protection              => Flyweight.EMP_Protection;
+        public float EMPProtection               => Flyweight.EMPProtection;
         public int PowerRadius                   => Flyweight.PowerRadius;
         public int TechLevel                     => Flyweight.TechLevel;
         public float OrdnanceAddedPerSecond      => Flyweight.OrdnanceAddedPerSecond;
         public string BombType                   => Flyweight.BombType;
         public float BonusRepairRate             => Flyweight.BonusRepairRate;
-        public float Cargo_Capacity              => Flyweight.Cargo_Capacity;
-        public float shield_radius               => Flyweight.shield_radius;
-        public float shield_power_max            => Flyweight.shield_power_max;
-        public float shield_recharge_rate        => Flyweight.shield_recharge_rate;
-        public float shield_recharge_combat_rate => Flyweight.shield_recharge_combat_rate;
-        public float shield_recharge_delay       => Flyweight.shield_recharge_delay;
-        public float shield_threshold            => Flyweight.shield_threshold;
-        public float shield_kinetic_resist       => Flyweight.shield_kinetic_resist;
-        public float shield_energy_resist        => Flyweight.shield_energy_resist;
-        public float shield_explosive_resist     => Flyweight.shield_explosive_resist;
-        public float shield_missile_resist       => Flyweight.shield_missile_resist;
-        public float shield_flak_resist          => Flyweight.shield_flak_resist;
-        public float shield_hybrid_resist        => Flyweight.shield_hybrid_resist;
-        public float shield_railgun_resist       => Flyweight.shield_railgun_resist;
-        public float shield_subspace_resist      => Flyweight.shield_subspace_resist;
-        public float shield_warp_resist          => Flyweight.shield_warp_resist;
-        public float shield_beam_resist          => Flyweight.shield_beam_resist;
-        public float numberOfColonists           => Flyweight.numberOfColonists; // In Millions!
-        public float numberOfEquipment           => Flyweight.numberOfEquipment;
-        public float numberOfFood                => Flyweight.numberOfFood;
+        public float CargoCapacity               => Flyweight.CargoCapacity;
+        public float ShieldRadius                => Flyweight.ShieldRadius;
+        public float ShieldPowerMax              => Flyweight.ShieldPowerMax;
+        public float ShieldRechargeRate          => Flyweight.ShieldRechargeRate;
+        public float ShieldRechargeCombatRate    => Flyweight.ShieldRechargeCombatRate;
+        public float ShieldRechargeDelay         => Flyweight.ShieldRechargeDelay;
+        public float ShieldThreshold             => Flyweight.ShieldThreshold;
+        public float ShieldKineticResist         => Flyweight.ShieldKineticResist;
+        public float ShieldEnergyResist          => Flyweight.ShieldEnergyResist;
+        public float ShieldExplosiveResist       => Flyweight.ShieldExplosiveResist;
+        public float ShieldMissileResist         => Flyweight.ShieldMissileResist;
+        public float ShieldHybridResist          => Flyweight.ShieldHybridResist;
+        public float ShieldBeamResist            => Flyweight.ShieldBeamResist;
+        public float NumberOfColonists           => Flyweight.NumberOfColonists; // In Millions!
+        public float NumberOfEquipment           => Flyweight.NumberOfEquipment;
+        public float NumberOfFood                => Flyweight.NumberOfFood;
         public bool IsSupplyBay                  => Flyweight.IsSupplyBay;
         public bool IsTroopBay                   => Flyweight.IsTroopBay;
-        public float hangarTimerConstant         => Flyweight.hangarTimerConstant;
-        public float thrust                      => Flyweight.thrust;
+        public float HangarTimerConstant         => Flyweight.HangarTimerConstant;
+        public float Thrust                      => Flyweight.Thrust;
         public float WarpThrust                  => Flyweight.WarpThrust;
         public float TurnThrust                  => Flyweight.TurnThrust;
         public float PowerFlowMax                => Flyweight.PowerFlowMax;
@@ -172,23 +168,11 @@ namespace Ship_Game.Ships
         public int TransporterTroopAssault       => Flyweight.TransporterTroopAssault;
         public float KineticResist               => Flyweight.KineticResist;
         public float EnergyResist                => Flyweight.EnergyResist;
-        public float GuidedResist                => Flyweight.GuidedResist;
         public float MissileResist               => Flyweight.MissileResist;
         public float HybridResist                => Flyweight.HybridResist;
         public float BeamResist                  => Flyweight.BeamResist;
         public float ExplosiveResist             => Flyweight.ExplosiveResist;
-        public float InterceptResist             => Flyweight.InterceptResist;
-        public float RailgunResist               => Flyweight.RailgunResist;
-        public float SpaceBombResist             => Flyweight.SpaceBombResist;
-        public float BombResist                  => Flyweight.BombResist;
-        public float BioWeaponResist             => Flyweight.BioWeaponResist;
-        public float DroneResist                 => Flyweight.DroneResist;
-        public float WarpResist                  => Flyweight.WarpResist;
         public float TorpedoResist               => Flyweight.TorpedoResist;
-        public float CannonResist                => Flyweight.CannonResist;
-        public float SubspaceResist              => Flyweight.SubspaceResist;
-        public float PDResist                    => Flyweight.PDResist;
-        public float FlakResist                  => Flyweight.FlakResist;
         public float DamageThreshold             => Flyweight.DamageThreshold;
         public int APResist                      => Flyweight.APResist;
         public bool AlwaysPowered                => Flyweight.IndirectPower;
@@ -230,12 +214,12 @@ namespace Ship_Game.Ships
         public float ActualCost => Cost * CurrentGame.ProductionPace;
 
         // the actual hit radius is a bit bigger for some legacy reason
-        public float ShieldHitRadius => Flyweight.shield_radius + 10f;
+        public float ShieldHitRadius => Flyweight.ShieldRadius + 10f;
         public bool ShieldsAreActive => Active && ShieldPower > 1f;
 
         public float WeaponRotationSpeed
         {
-            get => WeaponRotation.AlmostZero() ? (InstalledWeapon?.isTurret ?? false) ? 2 : 1 : WeaponRotation;
+            get => WeaponRotation.AlmostZero() ? (InstalledWeapon?.IsTurret ?? false) ? 2 : 1 : WeaponRotation;
             set => WeaponRotation = value;
         }
 
@@ -258,7 +242,7 @@ namespace Ship_Game.Ships
             switch (type)
             {
                 case ShipModuleType.PowerPlant: return PowerFlowMax >= 1f;
-                case ShipModuleType.Shield:     return shield_power_max >= 1f;
+                case ShipModuleType.Shield:     return ShieldPowerMax >= 1f;
                 case ShipModuleType.Armor:      return ModuleType == type || APResist > 0;
                 case ShipModuleType.Ordnance:   return ModuleType == type && OrdinanceCapacity > 0;
                 default:                        return ModuleType == type;
@@ -306,17 +290,17 @@ namespace Ship_Game.Ships
         {
             // only amplify dedicated shields
             float actualAmplify = ModuleType == ShipModuleType.Shield ? shieldAmplify : 0;
-            ActualShieldPowerMax = (shield_power_max + actualAmplify) * Bonuses.ShieldMod;
+            ActualShieldPowerMax = (ShieldPowerMax + actualAmplify) * Bonuses.ShieldMod;
         }
 
-        public bool IsAmplified => ActualShieldPowerMax > shield_power_max * Bonuses.ShieldMod;
+        public bool IsAmplified => ActualShieldPowerMax > ShieldPowerMax * Bonuses.ShieldMod;
 
         [Pure] public Ship GetParent() => Parent;
 
         [Pure] public bool TryGetHangarShip(out Ship ship)
         {
-            ship = hangarShip;
-            return hangarShip != null;
+            ship = HangarShip;
+            return HangarShip != null;
         }
 
         public bool IsHangarShipActive => TryGetHangarShip(out Ship ship) && ship.Active;
@@ -332,26 +316,26 @@ namespace Ship_Game.Ships
         {
             DisableSpatialCollision = true;
             Flyweight = new ShipModuleFlyweight(template);
-            XSIZE                 = template.XSIZE;
-            YSIZE                 = template.YSIZE;
+            XSize                 = template.XSIZE;
+            YSize                 = template.YSIZE;
             Mass                  = template.Mass;
             Powered               = template.Powered;
             FieldOfFire           = template.FieldOfFire.ToRadians(); // @note Convert to radians for higher PERF
             NameIndex             = template.NameIndex;
             DescriptionIndex      = template.DescriptionIndex;
             Restrictions          = template.Restrictions;
-            ShieldPower           = template.shield_power;
-            HangarShipUID         = template.hangarShipUID;
-            hangarTimer           = template.hangarTimer;
+            ShieldPower           = template.ShieldPower;
+            HangarShipUID         = template.HangarShipUID;
+            HangarTimer           = template.hangarTimer;
             ModuleType            = template.ModuleType;
             WeaponType            = template.WeaponType;
-            isWeapon              = WeaponType.NotEmpty();
+            IsWeapon              = WeaponType.NotEmpty();
             OrdinanceCapacity     = template.OrdinanceCapacity;
             IconTexturePath       = template.IconTexturePath;
             TargetValue           = template.TargetValue;
             TemplateMaxHealth     = template.HealthMax;
 
-            Radius = (XSIZE > YSIZE ? XSIZE : YSIZE) * CollisionRadiusMultiplier;
+            Radius = (XSize > YSize ? XSize : YSize) * CollisionRadiusMultiplier;
             
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
@@ -376,8 +360,8 @@ namespace Ship_Game.Ships
             TargetValue += Is(ShipModuleType.Spacebomb)         ? 1 : 0;
             TargetValue += Is(ShipModuleType.Special)           ? 1 : 0;
             TargetValue += Is(ShipModuleType.Turret)            ? 1 : 0;
-            TargetValue += explodes                             ? 2 : 0;
-            TargetValue += isWeapon                             ? 1 : 0;
+            TargetValue += Explodes                             ? 2 : 0;
+            TargetValue += IsWeapon                             ? 1 : 0;
         }
 
         public static ShipModule CreateTemplate(ShipModule_XMLTemplate template)
@@ -396,17 +380,17 @@ namespace Ship_Game.Ships
                 DescriptionIndex  = template.DescriptionIndex,
                 FieldOfFire       = template.FieldOfFire,
                 HangarShipUID     = template.HangarShipUID,
-                hangarTimer       = template.hangarTimer,
+                HangarTimer       = template.HangarTimer,
                 TemplateMaxHealth = template.TemplateMaxHealth,
                 ModuleType        = template.ModuleType,
-                isWeapon          = template.isWeapon,
+                IsWeapon          = template.IsWeapon,
                 WeaponType        = template.WeaponType,
                 Mass              = template.Mass,
                 NameIndex         = template.NameIndex,
                 OrdinanceCapacity = template.OrdinanceCapacity,
-                ShieldPower       = template.shield_power_max, // This one is strange -Gretman
-                XSIZE             = template.XSIZE,
-                YSIZE             = template.YSIZE,
+                ShieldPower       = template.ShieldPowerMax, // This one is strange -Gretman
+                XSize             = template.XSize,
+                YSize             = template.YSize,
                 IconTexturePath   = template.IconTexturePath,
                 Restrictions      = template.Restrictions,
                 TargetValue       = template.TargetValue,
@@ -432,7 +416,7 @@ namespace Ship_Game.Ships
             m.InstallModule(parent, parent.BaseHull, slot.Pos);
 
             // don't initialize Shield instance for ShipTemplates
-            if (!isTemplate && m.shield_power_max > 0f)
+            if (!isTemplate && m.ShieldPowerMax > 0f)
                 m.Shield = ShieldManager.AddShield(m, m.Rotation, m.Position);
 
             return m;
@@ -441,7 +425,7 @@ namespace Ship_Game.Ships
         // this is used during Ship loading from save
         public static ShipModule Create(ModuleSaveData slot, Ship parent)
         {
-            ShipModule m = Create(slot as DesignSlot, parent, isTemplate:false);
+             ShipModule m = Create(slot as DesignSlot, parent, isTemplate:false);
 
             m.Active = slot.Health > 0.01f;
             m.ShieldPower = slot.ShieldPower;
@@ -461,7 +445,7 @@ namespace Ship_Game.Ships
             if (m.ModuleType == ShipModuleType.Hangar)
                 m.HangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : hangarShipUID;
 
-            m.SetModuleRotation(m.XSIZE, m.YSIZE, moduleRot, turretAngle);
+            m.SetModuleRotation(m.XSize, m.YSize, moduleRot, turretAngle);
             m.InstallModule(null, hull, Point.Zero);
             return m;
         }
@@ -474,8 +458,8 @@ namespace Ship_Game.Ships
             if (hull != null) // for module templates this will be null
             {
                 Point gridCenter = hull.GridCenter;
-                LocalCenter = new Vector2((gridPos.X - gridCenter.X)*16f + XSIZE * 8f,
-                                          (gridPos.Y - gridCenter.Y)*16f + YSIZE * 8f);
+                LocalCenter = new Vector2((gridPos.X - gridCenter.X)*16f + XSize * 8f,
+                                          (gridPos.Y - gridCenter.Y)*16f + YSize * 8f);
 
                 // world position of this module, will be overwritten during Ship's Module update
                 Position = LocalCenter;
@@ -491,8 +475,8 @@ namespace Ship_Game.Ships
                 {
                     UninstallWeapon();
                     InstalledWeapon = ResourceManager.CreateWeapon(type);
-                    InstalledWeapon.isTurret = ModuleType == ShipModuleType.Turret;
-                    InstalledWeapon.isMainGun = ModuleType == ShipModuleType.MainGun;
+                    InstalledWeapon.IsTurret = ModuleType == ShipModuleType.Turret;
+                    InstalledWeapon.IsMainGun = ModuleType == ShipModuleType.MainGun;
                     InstalledWeapon.Initialize(this, parent, hull);
                 }
 
@@ -503,7 +487,7 @@ namespace Ship_Game.Ships
                 else
                 {
                     parent?.Weapons.Add(InstalledWeapon);
-                    isWeapon = true;
+                    IsWeapon = true;
                 }
             }
 
@@ -520,7 +504,7 @@ namespace Ship_Game.Ships
 
             // some of this state needs to be cleared to avoid bugs
             Parent = null;
-            isExternal = false;
+            IsExternal = false;
             Powered = false;
         }
 
@@ -528,7 +512,7 @@ namespace Ship_Game.Ships
         {
             if (InstalledWeapon != null)
             {
-                if (isWeapon)
+                if (IsWeapon)
                     Parent?.Weapons.Remove(InstalledWeapon);
                 else
                     Parent?.BombBays.Remove(this);
@@ -584,11 +568,11 @@ namespace Ship_Game.Ships
             get
             {
                 float ordnancePerSecond = 0;
-                if (ModuleType == ShipModuleType.Hangar && hangarTimerConstant > 0)
+                if (ModuleType == ShipModuleType.Hangar && HangarTimerConstant > 0)
                 {
                     string hangarShipName = GetHangarShipName();
                     if (ResourceManager.GetShipTemplate(hangarShipName, out Ship template))
-                        ordnancePerSecond = (template.ShipOrdLaunchCost) / hangarTimerConstant;
+                        ordnancePerSecond = (template.ShipOrdLaunchCost) / HangarTimerConstant;
                 }
 
                 return ordnancePerSecond;
@@ -632,7 +616,7 @@ namespace Ship_Game.Ships
                 return false; // definitely out of radius for SQUARE and non-square modules
 
             // we are a Square module? since we're already inside radius, collision happened
-            if (XSIZE == YSIZE)
+            if (XSize == YSize)
                 return true;
 
             Capsule capsule = GetModuleCollisionCapsule();
@@ -642,12 +626,12 @@ namespace Ship_Game.Ships
         // Gets the collision capsule in World coordinates
         public Capsule GetModuleCollisionCapsule()
         {
-            float shorter = XSIZE <  YSIZE ? XSIZE : YSIZE; // wonder if .NET can optimize this? wanna bet no? :P
-            float longer  = XSIZE >= YSIZE ? XSIZE : YSIZE;
+            float shorter = XSize <  YSize ? XSize : YSize; // wonder if .NET can optimize this? wanna bet no? :P
+            float longer  = XSize >= YSize ? XSize : YSize;
 
             // if high module, use forward vector, if wide module, use right vector
             Vector2 longerDir = Rotation.RadiansToDirection();
-            if (XSIZE > YSIZE) longerDir = longerDir.LeftVector();
+            if (XSize > YSize) longerDir = longerDir.LeftVector();
 
             // now for more expensive and accurate capsule-line collision testing
             // since we can have 4x1 modules etc, we construct a capsule
@@ -705,7 +689,7 @@ namespace Ship_Game.Ships
             {
                 dmg += ActualPowerFlowMax + ActualPowerStoreMax;
 
-                if (explodes)
+                if (Explodes)
                     dmg += ExplosionDamage;
 
                 if (ExplosiveResist > 0)
@@ -824,7 +808,7 @@ namespace Ship_Game.Ships
             if (Is(ShipModuleType.Command)
                 || Is(ShipModuleType.PowerPlant)
                 || Is(ShipModuleType.Command)
-                || explodes)
+                || Explodes)
             {
                 percent = 0.95f;
             }
@@ -852,7 +836,7 @@ namespace Ship_Game.Ships
             bool damagingShields = ShieldsAreActive && proj?.IgnoresShields != true;
             if (beam == null) // only for projectiles
             {
-                float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
+                float damageThreshold = damagingShields ? ShieldThreshold : DamageThreshold;
                 if (proj?.Weapon.EMPDamage >= damageThreshold && !damagingShields)
                     CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
 
@@ -976,7 +960,7 @@ namespace Ship_Game.Ships
             if (beam.Weapon.SiphonDamage <= 0f)
                 return;
             ShieldPower -= beam.Weapon.SiphonDamage;
-            ShieldPower = ShieldPower.Clamped(0, shield_power_max);
+            ShieldPower = ShieldPower.Clamped(0, ShieldPowerMax);
             beam.Owner?.AddPower(beam.Weapon.SiphonDamage);
         }
 
@@ -1007,7 +991,7 @@ namespace Ship_Game.Ships
                 if (Parent.Active && Parent.IsVisibleToPlayer)
                     GameAudio.PlaySfxAsync("sd_explosion_module_small", Parent.SoundEmitter);
 
-                if (explodes)
+                if (Explodes)
                 {
                     UniverseScreen.Spatial.ExplodeAtModule(source, this,
                         ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
@@ -1040,33 +1024,33 @@ namespace Ship_Game.Ships
             if (!IsTroopBay || !Powered)
                 return false;
 
-            if (hangarShip != null) // this bay's ship is already out
+            if (HangarShip != null) // this bay's ship is already out
             {
-                if (hangarShip.AI.State == AIState.ReturnToHangar
-                    || hangarShip.AI.State == AIState.AssaultPlanet
-                    || hangarShip.AI.EscortTarget != null
-                    || hangarShip.AI.OrbitTarget != null)
+                if (HangarShip.AI.State == AIState.ReturnToHangar
+                    || HangarShip.AI.State == AIState.AssaultPlanet
+                    || HangarShip.AI.EscortTarget != null
+                    || HangarShip.AI.OrbitTarget != null)
                 {
                     return false;
                 }
-                hangarShip.DoEscort(Parent);
-                ship = hangarShip;
+                HangarShip.DoEscort(Parent);
+                ship = HangarShip;
                 return true;
             }
 
-            if (hangarTimer <= 0f && hangarShip == null) // launch the troopship
+            if (HangarTimer <= 0f && HangarShip == null) // launch the troopship
             {
                 string assaultShuttle = Parent.loyalty.GetAssaultShuttleName();
                 ship = Ship.CreateTroopShipAtPoint(assaultShuttle, Parent.loyalty, Position, troop);
                 SetHangarShip(ship);
-                hangarShip.Mothership = Parent;
-                hangarShip.DoEscort(Parent);
-                hangarShip.Velocity = Parent.Velocity;
-                hangarTimer = hangarTimerConstant;
+                HangarShip.Mothership = Parent;
+                HangarShip.DoEscort(Parent);
+                HangarShip.Velocity = Parent.Velocity;
+                HangarTimer = HangarTimerConstant;
                 // transfer our troop onto the shuttle we just spawned
-                troop.LandOnShip(hangarShip);
+                troop.LandOnShip(HangarShip);
 
-                Parent.OnShipLaunched(hangarShip);
+                Parent.OnShipLaunched(HangarShip);
                 return true;
             }
 
@@ -1079,7 +1063,7 @@ namespace Ship_Game.Ships
             if (IsTroopBay || IsSupplyBay || !Powered)
                 return;
 
-            var fighter = hangarShip;
+            var fighter = HangarShip;
             var carrier = Parent;
             if (fighter != null && fighter.Active)
             {
@@ -1095,35 +1079,35 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (hangarTimer <= 0f && (fighter == null || !fighter.Active))
+            if (HangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
                 SetHangarShip(Ship.CreateShipFromHangar(this, carrier.loyalty, carrier.Position + LocalCenter, carrier));
 
-                if (hangarShip == null)
+                if (HangarShip == null)
                 {
                     Log.Warning($"Could not create ship from hangar, UID = {HangarShipUID}");
                     return;
                 }
 
-                hangarShip.DoEscort(Parent);
-                hangarShip.Velocity = carrier.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
-                hangarShip.Mothership = carrier;
-                hangarTimer = hangarTimerConstant;
+                HangarShip.DoEscort(Parent);
+                HangarShip.Velocity = carrier.Velocity + UniverseRandom.RandomDirection() * HangarShip.SpeedLimit;
+                HangarShip.Mothership = carrier;
+                HangarTimer = HangarTimerConstant;
 
-                carrier.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
-                carrier.OnShipLaunched(hangarShip);
+                carrier.ChangeOrdnance(-HangarShip.ShipOrdLaunchCost);
+                carrier.OnShipLaunched(HangarShip);
             }
         }
 
         public void ResetHangarTimer()
         {
-            if (hangarTimerConstant > 0f)
-                hangarTimer = hangarTimerConstant;
+            if (HangarTimerConstant > 0f)
+                HangarTimer = HangarTimerConstant;
         }
 
         public void SetHangarShip(Ship ship)
         {
-            hangarShip = ship;
+            HangarShip = ship;
             HangarShipGuid = ship?.guid ?? Guid.Empty;
         }
 
@@ -1152,7 +1136,7 @@ namespace Ship_Game.Ships
             }
 
             if (Active && ModuleType == ShipModuleType.Hangar)
-                hangarTimer -= timeStep.FixedTime;
+                HangarTimer -= timeStep.FixedTime;
 
             // Shield Recharge / Discharge
             if (Is(ShipModuleType.Shield))
@@ -1172,10 +1156,10 @@ namespace Ship_Game.Ships
             if (!Active || !Powered || shieldPower >= ActualShieldPowerMax)
                 return shieldPower;
 
-            if (Parent.ShieldRechargeTimer > shield_recharge_delay)
-                shieldPower += shield_recharge_rate * timeStep.FixedTime;
+            if (Parent.ShieldRechargeTimer > ShieldRechargeDelay)
+                shieldPower += ShieldRechargeRate * timeStep.FixedTime;
             else 
-                shieldPower += shield_recharge_combat_rate * timeStep.FixedTime;
+                shieldPower += ShieldRechargeCombatRate * timeStep.FixedTime;
             return shieldPower.Clamped(0, shieldMax);
         }
 
@@ -1292,7 +1276,7 @@ namespace Ship_Game.Ships
         {
             float healthPercent = HealthPercent;
 
-            if (Empire.Universe.Debug && isExternal)
+            if (Empire.Universe.Debug && IsExternal)
             {
                 if (healthPercent >= 0.5f) return Color.Blue;
                 if (healthPercent >  0.0f) return Color.DarkSlateBlue;
@@ -1339,20 +1323,20 @@ namespace Ship_Game.Ships
             if (shieldsMax > 0)
             {
                 float shieldDef      = shieldsMax / 50;
-                float shieldCoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14159f) / 256f / slotCount;
+                float shieldCoverage = ((ShieldRadius + 8f) * (ShieldRadius + 8f) * 3.14159f) / 256f / slotCount;
 
                 shieldDef *= shieldCoverage < 1 ? shieldCoverage : 1f;
-                shieldDef *= 1 + shield_kinetic_resist / 5;
-                shieldDef *= 1 + shield_energy_resist / 5;
-                shieldDef *= 1 + shield_beam_resist / 5;
-                shieldDef *= 1 + shield_missile_resist / 5;
-                shieldDef *= 1 + shield_explosive_resist / 5;
+                shieldDef *= 1 + ShieldKineticResist / 5;
+                shieldDef *= 1 + ShieldEnergyResist / 5;
+                shieldDef *= 1 + ShieldBeamResist / 5;
+                shieldDef *= 1 + ShieldMissileResist / 5;
+                shieldDef *= 1 + ShieldExplosiveResist / 5;
 
-                shieldDef *= shield_recharge_rate > 0 ? shield_recharge_rate / (shieldsMax / 100) : 1f;
-                shieldDef *= shield_recharge_delay > 0 ? 1f / shield_recharge_delay : 1f;
-                shieldDef *= shield_recharge_combat_rate > 0 ? 1 + shield_recharge_combat_rate / (shieldsMax / 25) : 1f;
+                shieldDef *= ShieldRechargeRate > 0 ? ShieldRechargeRate / (shieldsMax / 100) : 1f;
+                shieldDef *= ShieldRechargeDelay > 0 ? 1f / ShieldRechargeDelay : 1f;
+                shieldDef *= ShieldRechargeCombatRate > 0 ? 1 + ShieldRechargeCombatRate / (shieldsMax / 25) : 1f;
 
-                shieldDef *= 1 + shield_threshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it apples to the shield bubble.
+                shieldDef *= 1 + ShieldThreshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it apples to the shield bubble.
                 def       += shieldDef;
             }
 
@@ -1360,31 +1344,19 @@ namespace Ship_Game.Ships
             def *= 1 + BeamResist / 5;
             def *= 1 + KineticResist / 5 ;
             def *= 1 + EnergyResist / 5;
-            def *= 1 + GuidedResist / 5;
             def *= 1 + MissileResist / 5;
             def *= 1 + HybridResist / 5;
-            def *= 1 + InterceptResist / 5;
             def *= 1 + ExplosiveResist / 5;
-            def *= 1 + RailgunResist / 5;
-            def *= 1 + SpaceBombResist / 5;
-            def *= 1 + BombResist / 5;
-            def *= 1 + BioWeaponResist / 5;
-            def *= 1 + DroneResist / 5;
-            def *= 1 + WarpResist / 5;
             def *= 1 + TorpedoResist / 5;
-            def *= 1 + CannonResist / 5;
-            def *= 1 + SubspaceResist / 5;
-            def *= 1 + PDResist / 5;
-            def *= 1 + FlakResist / 5;
 
             def *= 1 + DamageThreshold / 100f;
             def *= ModuleType == ShipModuleType.Armor ? 1 + APResist / 2 : 1f;
 
             def += ECM;
-            def *= 1 + EMP_Protection / 500;
+            def *= 1 + EMPProtection / 500;
 
             // Engines
-            def += (TurnThrust + WarpThrust + thrust) / 15000f;
+            def += (TurnThrust + WarpThrust + Thrust) / 15000f;
 
             def += ActualPowerFlowMax / 50;
             def += TroopCapacity * 50;
@@ -1408,7 +1380,7 @@ namespace Ship_Game.Ships
 
             if (ShipBuilder.IsDynamicHangar(HangarShipUID))
             {
-                off += MaximumHangarShipSize * 100 * PermittedHangarRoles.Length / hangarTimerConstant.LowerBound(1);
+                off += MaximumHangarShipSize * 100 * PermittedHangarRoles.Length / HangarTimerConstant.LowerBound(1);
             }
             else
             {
@@ -1438,8 +1410,8 @@ namespace Ship_Game.Ships
         //      `turretAngle` is now only the turret's default arc direction
         void SetModuleSizeRotAngle(Point orientedSize, ModuleOrientation moduleRot, int turretAngle)
         {
-            XSIZE = orientedSize.X;
-            YSIZE = orientedSize.Y;
+            XSize = orientedSize.X;
+            YSize = orientedSize.Y;
             TurretAngle = turretAngle;
             ModuleRot = moduleRot;
         }
@@ -1452,13 +1424,13 @@ namespace Ship_Game.Ships
             {
                 case ModuleOrientation.Normal:
                 case ModuleOrientation.Rear:
-                    XSIZE = w;
-                    YSIZE = h;
+                    XSize = w;
+                    YSize = h;
                     break;
                 case ModuleOrientation.Left:
                 case ModuleOrientation.Right:
-                    XSIZE = h; // if the module is facing left or right, then length is now height
-                    YSIZE = w;
+                    XSize = h; // if the module is facing left or right, then length is now height
+                    YSize = w;
                     break;
             }
         }
@@ -1467,15 +1439,15 @@ namespace Ship_Game.Ships
         public Point GetOrientedSize(ModuleOrientation orientation)
         {
             if (orientation == ModuleOrientation.Left || orientation == ModuleOrientation.Right)
-                return new Point(YSIZE, XSIZE);
-            return new Point(XSIZE, YSIZE);
+                return new Point(YSize, XSize);
+            return new Point(XSize, YSize);
         }
 
         public Point GetOrientedSize(string slotOrientation)
         {
             if (Enum.TryParse(slotOrientation, out ModuleOrientation orientation))
                 return GetOrientedSize(orientation);
-            return new Point(XSIZE, YSIZE);
+            return new Point(XSize, YSize);
         }
 
         // For specific cases were non squared icons requires a different texture when oriented,
@@ -1515,13 +1487,13 @@ namespace Ship_Game.Ships
                 if (IsTroopBay || IsSupplyBay)
                     return false;
 
-                return hangarShip?.Active == true;
+                return HangarShip?.Active == true;
             }
         }
 
         public override string ToString()
         {
-            return $"{UID}  {Id}  {XSIZE}x{YSIZE} {Restrictions} grid={Pos.X},{Pos.Y} local={LocalCenter.X};{LocalCenter.Y} hp={Health} world={Position} ship={Parent?.Name}";
+            return $"{UID}  {Id}  {XSize}x{YSize} {Restrictions} grid={Pos.X},{Pos.Y} local={LocalCenter.X};{LocalCenter.Y} hp={Health} world={Position} ship={Parent?.Name}";
         }
 
         public void Dispose()
@@ -1533,7 +1505,7 @@ namespace Ship_Game.Ships
             DamageVisualizer = null;
             Bonuses = null;
             Shield = null;
-            hangarShip = null;
+            HangarShip = null;
             InstalledWeapon?.Dispose(ref InstalledWeapon);
             LastDamagedBy = null;
             SetSystem(null);

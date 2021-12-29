@@ -65,7 +65,7 @@ namespace Ship_Game
                 var rect = new RectF(ModuleGrid.GridPosToWorld(m.Pos), m.WorldSize);
                 if (m.HasInternalRestrictions)
                     DrawRectangleProjected(rect, Color.Green);
-                else if (m.isExternal)
+                else if (m.IsExternal)
                     DrawRectangleProjected(rect, Color.Blue);
             }
 
@@ -208,7 +208,7 @@ namespace Ship_Game
 
                 alreadyDrawn.Add(s);
 
-                if (s.Module.shield_power_max > 0f)
+                if (s.Module.ShieldPowerMax > 0f)
                     DrawCircleProjected(s.Center, s.Module.ShieldHitRadius, Color.LightGreen);
 
                 if (s.Module.ModuleType == ShipModuleType.Turret && Input.LeftMouseHeld())
@@ -313,7 +313,7 @@ namespace Ship_Game
             if (w.Tag_Cannon && !w.Tag_Energy)        color = new Color(255, 255, 0, 255);
             else if (w.Tag_Railgun || w.Tag_Subspace) color = new Color(255, 0, 255, 255);
             else if (w.Tag_Cannon)                    color = new Color(0, 255, 0, 255);
-            else if (!w.isBeam)                       color = new Color(255, 0, 0, 255);
+            else if (!w.IsBeam)                       color = new Color(255, 0, 0, 255);
             else                                      color = new Color(0, 0, 255, 255);
 
             screen.ProjectToScreenCoords(moduleWorldCenter, 0f, worldSize,
@@ -379,7 +379,7 @@ namespace Ship_Game
                 }
             }
 
-            if (ActiveModule.shield_power_max > 0f)
+            if (ActiveModule.ShieldPowerMax > 0f)
             {
                 DrawShieldCircle(template, moduleWorldPos, moduleWorldSize);
             }
