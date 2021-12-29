@@ -86,24 +86,34 @@ namespace Ship_Game.Data.Serialization
             return ser;
         }
 
-        static Type GetListType(Type type)
+        static Type GetListElemType(Type type)
         {
             if (type.IsGenericType)
             {
-                if (type.GetGenericTypeDefinition() == typeof(Array<>) ||
-                    type.GetInterfaces().Contains(typeof(IList)))
+                Type genericType = type.GetGenericTypeDefinition();
+                if (genericType == typeof(Array<>) || 
+                    genericType == typeof(IReadOnlyList<>) ||
+                    genericType == typeof(IList<>) ||
+                    genericType == typeof(ICollection<>) ||
+                    genericType == typeof(IEnumerable<>))
+                    return type.GenericTypeArguments[0];
+
+                Type[] interfaces = type.GetInterfaces();
+                if (interfaces.Contains(typeof(IList)))
                     return type.GenericTypeArguments[0];
             }
             return null;
         }
 
-        static (Type Key, Type Value) GetMapTypes(Type type)
+        static (Type Key, Type Value) GetMapKeyValueTypes(Type type)
         {
             if (type.IsGenericType)
             {
                 var genType = type.GetGenericTypeDefinition();
                 if (genType == typeof(Map<,>) ||
-                    genType == typeof(IDictionary<,>))
+                    genType == typeof(Dictionary<,>) ||
+                    genType == typeof(IDictionary<,>) ||
+                    genType == typeof(IReadOnlyDictionary<,>))
                     return (type.GenericTypeArguments[0], type.GenericTypeArguments[1]);
             }
             return (null, null);
@@ -156,17 +166,7 @@ namespace Ship_Game.Data.Serialization
                 return Add(type, new RawArraySerializer(type, elemType, elemSerializer));
             }
 
-            Type listElemType = GetListType(type);
-            if (listElemType != null)
-            {
-                TypeSerializer elemSerializer = Get(listElemType);
-                // NOTE: recursive types cause trouble here
-                if (Serializers.TryGetValue(type, out TypeSerializer recursiveType))
-                    return recursiveType;
-                return Add(type, new ArrayListSerializer(type, listElemType, elemSerializer));
-            }
-
-            (Type key, Type value) = GetMapTypes(type);
+            (Type key, Type value) = GetMapKeyValueTypes(type);
             if (key != null)
             {
                 TypeSerializer keySerializer = Get(key);
@@ -175,6 +175,16 @@ namespace Ship_Game.Data.Serialization
                 if (Serializers.TryGetValue(type, out TypeSerializer recursiveType))
                     return recursiveType;
                 return Add(type, new MapSerializer(type, key, keySerializer, value, valSerializer));
+            }
+
+            Type listElemType = GetListElemType(type);
+            if (listElemType != null)
+            {
+                TypeSerializer elemSerializer = Get(listElemType);
+                // NOTE: recursive types cause trouble here
+                if (Serializers.TryGetValue(type, out TypeSerializer recursiveType))
+                    return recursiveType;
+                return Add(type, new ArrayListSerializer(type, listElemType, elemSerializer));
             }
 
             if (type.GetCustomAttribute<StarDataTypeAttribute>() != null)
