@@ -9,26 +9,43 @@ namespace Ship_Game.Data.Binary
 {
     public class TypeInfo
     {
-        public ushort StreamTypeId; // TypeId in Stream
+        public readonly ushort StreamTypeId; // TypeId in Stream
+        public readonly string Name;
         public TypeSerializer Ser; // Actual serializer
-        public FieldInfo[] Fields;
+        public readonly FieldInfo[] Fields;
+        public readonly bool IsPointerType;
+        public readonly SerializerCategory Category;
 
         public Type Type => Ser.Type;
 
-        public TypeInfo(ushort streamTypeId, TypeSerializer s, FieldInfo[] fields)
+        public override string ToString() => $"{Name} Id={StreamTypeId} Fields={Fields?.Length}";
+
+        public TypeInfo(uint streamTypeId, string name, TypeSerializer s, FieldInfo[] fields,
+                        bool isPointer, SerializerCategory c)
         {
-            StreamTypeId = streamTypeId;
-            Ser = s;
+            StreamTypeId = (ushort)streamTypeId;
+            Name = name;
             Fields = fields;
-            if (fields != null && s is UserTypeSerializer us)
+            IsPointerType = isPointer;
+            Category = c;
+            SetType(s);
+        }
+
+        public void SetType(TypeSerializer s)
+        {
+            Ser = s;
+            if (Fields != null && s is UserTypeSerializer us)
+                ResolveFields(us);
+        }
+
+        public void ResolveFields(UserTypeSerializer us)
+        {
+            for (uint fieldIdx = 0; fieldIdx < Fields.Length; ++fieldIdx)
             {
-                for (uint fieldIdx = 0; fieldIdx < fields.Length; ++fieldIdx)
-                {
-                    FieldInfo f = fields[fieldIdx];
-                    f.Field = us.GetFieldOrNull(f.Name);
-                    if (f.Field != null)
-                        f.Ser = f.Field.Serializer;
-                }
+                FieldInfo f = Fields[fieldIdx];
+                f.Field = us.GetFieldOrNull(f.Name);
+                if (f.Field != null)
+                    f.Ser = f.Field.Serializer;
             }
         }
     }

@@ -94,6 +94,25 @@ namespace Ship_Game.Data.Binary
             }
         }
 
+        // @return TRUE if `type` is dependent on `on`
+        //         Example: type=Array<Ship> on=Ship returns true
+        //         Example: type=Map<string,Array<Ship>> on=Ship returns true
+        //         Example: type=Ship on=Array<Ship> returns false
+        static bool TypeDependsOn(Type type, Type on)
+        {
+            if (type.IsGenericType)
+            {
+                Type[] typeArguments = type.GenericTypeArguments;
+                for (int i = 0; i < typeArguments.Length; ++i)
+                {
+                     Type typeArg = typeArguments[i];
+                     if (typeArg == on || TypeDependsOn(typeArg, on))
+                         return true;
+                }
+            }
+            return false;
+        }
+
         public void ScanObjects(TypeSerializer rootSer, object rootObject)
         {
             var objectGroups = new Map<TypeSerializer, Array<object>>();
@@ -103,10 +122,13 @@ namespace Ship_Game.Data.Binary
 
             NumObjects = uniqueObjects.Count;
 
-            // make the types somewhat stable by sorting them by name
+            // Make the types somewhat stable by sorting them by name
             // new/deleted types will of course offset this list immediately
             // and deleted types can't be reconstructed during Reading
-
+            //
+            // Additionally Sort objects so that if Type B is a generic type
+            // which depends on Type A, then A must be first
+            //
             // types ordering [incredibly important]:
             // - structs
             // - strings
@@ -131,6 +153,9 @@ namespace Ship_Game.Data.Binary
 
                 if (a.Key.IsCollection && !b.Key.IsCollection) return -1;
                 if (!a.Key.IsCollection && b.Key.IsCollection) return +1;
+
+                if (TypeDependsOn(b.Key.Type, a.Key.Type)) return -1;
+                if (TypeDependsOn(a.Key.Type, b.Key.Type)) return +1;
 
                 // the rest, sort by type name
                 return string.CompareOrdinal(a.Key.Type.Name, b.Key.Type.Name);
@@ -313,10 +338,7 @@ namespace Ship_Game.Data.Binary
 
             if (ser is UserTypeSerializer userSer)
             {
-                // number of fields, so we know how many to parse later
-                BW.WriteVLu32((uint)userSer.Fields.Count);
-
-                // @note This is not recursive, because we only write object "Pointers" ID-s
+                // This is not recursive, because we only write object "Pointers" ID-s
                 foreach (DataField field in userSer.Fields)
                 {
                     // [field type ID]
