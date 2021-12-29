@@ -3,7 +3,7 @@ HullName=Draylok/Bird of Prey
 VisibleName=Bird of Prey
 Role=cruiser
 Style=Draylok
-Size=24,30
+Size=24,31
 MeshOffset=0,0
 IconPath=ShipIcons/Bird of Prey
 ModelPath=Model/Ships/Draylok/Ship18d
@@ -12,10 +12,10 @@ Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=74,164,0,71
-Thruster=-72,148,0,71
-Thruster=36,202,0,71
-Thruster=-35,194,0,71
+Thruster=78,190,0,71
+Thruster=-76,187,0,71
+Thruster=34,198,0,120
+Thruster=-35,197,0,118
 Slots
 ___|___|___|___|___|___|___|___|___|___|___|O  |O  |___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|O  |IO |IO |O  |___|___|___|___|___|___|___|___|___|___
@@ -32,18 +32,19 @@ ___|___|___|___|___|O  |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |O  |___|
 ___|___|___|___|O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |O  |___|___|___|___
 ___|___|___|O  |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |O  |___|___|___
 ___|___|O  |IO |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |IO |O  |___|___
-___|O  |IO |IO |IO |___|___|IO |IO |IO |I  |I  |IC |I  |IO |IO |IO |___|___|IO |IO |IO |O  |___
+___|O  |IO |IO |IO |___|IO |IO |IO |IO |I  |I  |IC |I  |IO |IO |IO |IO |___|IO |IO |IO |O  |___
 O  |IO |IO |IO |___|___|___|IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |___|___|___|IO |IO |IO |O  
 O  |IO |IO |___|___|___|___|___|IO |IO |I  |I  |I  |I  |IO |IO |___|___|___|___|___|IO |IO |O  
 O  |IO |IO |___|___|___|___|___|IO |IO |I  |I  |I  |I  |IO |IO |___|___|___|___|___|IO |IO |O  
 ___|O  |IO |IO |___|___|___|___|IO |IO |I  |I  |I  |I  |IO |IO |___|___|___|___|IO |IO |O  |___
-___|___|O  |IO |IO |___|___|___|IO |IO |I  |I  |I  |I  |IO |IO |___|___|___|IO |IO |O  |___|___
-___|___|___|O  |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |O  |___|___|___
+___|___|O  |IO |IO |IO |___|IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |___|IO |IO |IO |O  |___|___
+___|___|O  |O  |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |O  |O  |___|___
 ___|___|___|O  |IO |IO |IO |IO |IO |IO |I  |I  |I  |I  |IO |IO |IO |IO |IO |IO |O  |___|___|___
 ___|___|___|O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |___|___|___
 ___|___|___|O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |___|___|___
 ___|___|___|O  |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |O  |___|___|___
 ___|___|___|O  |O  |O  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |O  |O  |O  |___|___|___
-___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___|___
+___|___|___|___|___|O  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |O  |___|___|___|___|___
+___|___|___|___|___|___|O  |O  |E  |E  |E  |E  |E  |E  |E  |E  |O  |O  |___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___|___|___|___
-___|___|___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___|___|___|___
+___|___|___|___|___|___|___|___|___|___|O  |O  |O  |O  |___|___|___|___|___|___|___|___|___|___
