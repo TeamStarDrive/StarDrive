@@ -686,7 +686,6 @@ namespace UnitTests.Serialization
             Assert.AreEqual(new Vector2(4010, 4020), result.Pos2);
         }
 
-
         [StarDataType(TypeName = "ThisTypeNameDoesNotReflectTheRealProduct")]
         class CustomTypeNameType
         {
@@ -697,6 +696,20 @@ namespace UnitTests.Serialization
         public void CustomTypeNameTypes()
         {
             var instance = new CustomTypeNameType{ Pos = new Vector3(1001, 1002, 1003) };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.AreEqual(instance.Pos, result.Pos);
+        }
+
+        [StarDataType]
+        class FieldNameRemapType
+        {
+            [StarData(NameId = "RenamedPosition")] public Vector3 Pos;
+        }
+
+        [TestMethod]
+        public void FieldNameRemapTypes()
+        {
+            var instance = new FieldNameRemapType { Pos = new Vector3(1001, 1002, 1003) };
             var result = SerDes(instance, out byte[] bytes);
             Assert.AreEqual(instance.Pos, result.Pos);
         }
