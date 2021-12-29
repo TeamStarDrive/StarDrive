@@ -18,21 +18,21 @@
   
   
   <UID>AdvancedKineticTurret</UID>
-  <fireDelay>6</fireDelay>
+  <FireDelay>6</FireDelay>
   <Range>9500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.64</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_Turretgun_001</fireCueName>
-  <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
+  <FireCueName>sd_weapon_Turretgun_001</FireCueName>
+  <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
   <DamageAmount>145</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1900</ProjectileSpeed>
   <SalvoCount>6</SalvoCount>
   <SalvoTimer>0.6</SalvoTimer>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <DamageRadius>20</DamageRadius>
   
   <ProjectileRadius>10</ProjectileRadius>

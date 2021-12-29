@@ -17,18 +17,18 @@
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
   
-  <Excludes_Fighters>true</Excludes_Fighters>  
+  <ExcludesFighters>true</ExcludesFighters>  
 
 
   <UID>MassDriver_dual</UID>
-  <fireDelay>11.0</fireDelay>
+  <FireDelay>11.0</FireDelay>
   <Range>15000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>13</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_railgun_massive_01</fireCueName>
-  <dieCue>sd_explosion_ship_det_small</dieCue>
+  <FireCueName>sd_weapon_railgun_massive_01</FireCueName>
+  <DieCue>sd_explosion_ship_det_small</DieCue>
   <WeaponEffectType>SmokeTrail</WeaponEffectType>
   <ProjectileRadius>10</ProjectileRadius>
   <Scale>1.1</Scale>
@@ -36,12 +36,12 @@
   <DamageAmount>2750</DamageAmount>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
-  <EffectVSShields>1.20</EffectVSShields>  
+  <EffectVsShields>1.20</EffectVsShields>  
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2050</ProjectileSpeed>
   <DamageRadius>50</DamageRadius>
   <Light>Orange</Light>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <Animated>1</Animated>
    <Frames>17</Frames>
   <AnimationPath>Kinetic_Red/Kinetic_Red_cc_</AnimationPath>

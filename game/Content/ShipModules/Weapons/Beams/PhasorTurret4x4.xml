@@ -16,8 +16,8 @@
 
   
   <!-- common traits shared by all ship modules -->
-  <XSIZE>4</XSIZE>
-  <YSIZE>4</YSIZE>
+  <XSize>4</XSize>
+  <YSize>4</YSize>
   <ModuleType>Turret</ModuleType>
   <Name>Massive Phasor Array</Name>
   <Restrictions>O</Restrictions>

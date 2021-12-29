@@ -8,8 +8,8 @@
 
   
   <!-- common traits shared by all ship modules -->
-  <XSIZE>2</XSIZE>
-  <YSIZE>2</YSIZE>
+  <XSize>2</XSize>
+  <YSize>2</YSize>
   <ModuleType>Turret</ModuleType>
   <Name>Siphon Beam Turret</Name>
   <Restrictions>O</Restrictions>

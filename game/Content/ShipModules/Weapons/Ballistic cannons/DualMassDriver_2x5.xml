@@ -11,8 +11,8 @@
   <TechLevel>3</TechLevel>
   
   <!-- common traits shared by all ship modules -->
-  <XSIZE>2</XSIZE>
-  <YSIZE>5</YSIZE>
+  <XSize>2</XSize>
+  <YSize>5</YSize>
   <ModuleType>MainGun</ModuleType>
   <Name>DualMassDriver_2x5</Name>
   <Restrictions>O</Restrictions>

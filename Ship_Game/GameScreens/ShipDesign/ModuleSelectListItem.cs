@@ -61,11 +61,11 @@ namespace Ship_Game
             string restriction = m.Restrictions.ToString();
             batch.DrawString(Fonts.Arial8Bold, restriction, tCursor, Color.Orange);
             tCursor.X += Fonts.Arial8Bold.MeasureString(restriction).X;
-            string size = $" ({m.XSIZE}x{m.YSIZE})";
+            string size = $" ({m.XSize}x{m.YSize})";
             batch.DrawString(Fonts.Arial8Bold, size, tCursor, Color.Gray);
             tCursor.X += Fonts.Arial8Bold.MeasureString(size).X;
 
-            if (m.InstalledWeapon?.isTurret == true && !m.DisableRotation)
+            if (m.InstalledWeapon?.IsTurret == true && !m.DisableRotation)
             {
                 var rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 15, 16);
                 var turretRect = new Rectangle((int)bCursor.X + 238, (int)bCursor.Y + 20, 18, 20);
@@ -81,7 +81,7 @@ namespace Ship_Game
                 if (rotateRect.HitTest(GameBase.ScreenManager.input.CursorPosition))
                     ToolTip.CreateTooltip(GameText.IndicatesThatThisModuleCan);
             }
-            else if (m.InstalledWeapon?.isTurret == true)
+            else if (m.InstalledWeapon?.IsTurret == true)
             {
                 var turretRect = new Rectangle((int)bCursor.X + 235, (int)bCursor.Y + 3, 25, 23);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_turret"), turretRect, Color.White);

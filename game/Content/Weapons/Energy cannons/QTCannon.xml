@@ -18,15 +18,15 @@
   <Tag_Cannon>true</Tag_Cannon>
   
   <UID>QTCannon</UID>
-  <fireDelay>7</fireDelay>
+  <FireDelay>7</FireDelay>
   <Range>18000</Range>
   <PowerRequiredToFire>3000</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>sd_weapon_pulse_alt15_01</fireCueName>
-  <dieCue>Explo1</dieCue>
+  <FireCueName>sd_weapon_pulse_alt15_01</FireCueName>
+  <DieCue>Explo1</DieCue>
  <!-- <ToggleSoundName>sd_weapon_vulcan_spinloop_01</ToggleSoundName> -->
 
   <!-- Projectile Information -->
@@ -35,7 +35,7 @@
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1700</ProjectileSpeed>
   <DamageRadius>115</DamageRadius>
-  <explodes>true</explodes>
+  <Explodes>true</Explodes>
   <Light>Purple</Light>
   <ProjectileTexturePath>projBall_03_purple</ProjectileTexturePath>
   <ModelPath>projBall</ModelPath>

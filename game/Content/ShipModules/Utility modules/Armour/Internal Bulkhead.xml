@@ -7,8 +7,8 @@
   <TechBranch>Armor</TechBranch>
   <IsBulkhead>true</IsBulkhead>
   <!-- common traits shared by all ship modules -->
-  <XSIZE>1</XSIZE>
-  <YSIZE>1</YSIZE>
+  <XSize>1</XSize>
+  <YSize>1</YSize>
   <ModuleType>Armor</ModuleType>
   <Name>Internal Bulkhead</Name>
   <Restrictions>I</Restrictions>

@@ -122,8 +122,8 @@ namespace Ship_Game
         {
             return Module    != null
                 && ModuleUID != null
-                && Module.XSIZE == other.XSIZE
-                && Module.YSIZE == other.YSIZE
+                && Module.XSize == other.XSize
+                && Module.YSize == other.YSize
                 && Module.Restrictions == other.Restrictions;
         }
 

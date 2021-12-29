@@ -23,8 +23,8 @@
   <TechLevel>8</TechLevel>
   
   <!-- common traits shared by all ship modules -->
-  <XSIZE>1</XSIZE>
-  <YSIZE>2</YSIZE>
+  <XSize>1</XSize>
+  <YSize>2</YSize>
   <ModuleType>MainGun</ModuleType>
   <Name>DarkMatterCannon_1x2</Name>
   <Restrictions>IO</Restrictions>

@@ -18,15 +18,15 @@
   
   
   <UID>Flak</UID>
-  <fireDelay>6</fireDelay>
+  <FireDelay>6</FireDelay>
   <Range>6500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.57</OrdinanceRequiredToFire>
   <SalvoCount>5</SalvoCount>
   <SalvoTimer>0.5</SalvoTimer>
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <fireCueName>Flak</fireCueName>
-  <dieCue>sd_weapon_flakcannon_explode_01</dieCue>
+  <FireCueName>Flak</FireCueName>
+  <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
   <DamageAmount>115</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>

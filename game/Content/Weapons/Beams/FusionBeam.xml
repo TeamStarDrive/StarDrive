@@ -4,15 +4,15 @@
   <Tag_Beam>true</Tag_Beam>
 
   <UID>FusionBeam</UID>
-  <isBeam>true</isBeam>
-  <fireDelay>1.5</fireDelay>
+  <IsBeam>true</IsBeam>
+  <FireDelay>1.5</FireDelay>
   <Range>8000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <BeamDuration>0.5</BeamDuration>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
-  <fireCueName>sd_weapon_laser_large_alt_04</fireCueName>
+  <FireCueName>sd_weapon_laser_large_alt_04</FireCueName>
   <ToggleSoundName>sd_weapon_beam_fusion_med</ToggleSoundName>
   
   

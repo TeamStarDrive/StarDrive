@@ -62,13 +62,13 @@ namespace Ship_Game.GameScreens.Sandbox
                 foreach (Weapon weapon in Weapons)
                 {
                     weapon.Module.FieldOfFire = RadMath.TwoPI/3f;
-                    weapon.fireDelay = 0.5f;
+                    weapon.FireDelay = 0.5f;
                     weapon.BaseRange = 4000f;
                     PredictResults.Clear();
 
                     foreach (Ship ship in nearbyShips)
                     {
-                        if (weapon.isBeam)
+                        if (weapon.IsBeam)
                         {
                             weapon.UpdateAndFireAtTarget(null, noProjectiles, nearbyShips);
                         }

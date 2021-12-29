@@ -12,7 +12,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < modules.Length; ++i)
             {
                 ShipModule m = modules[i];
-                if (m.ModuleType == moduleType) modulesArea += m.XSIZE * m.YSIZE;
+                if (m.ModuleType == moduleType) modulesArea += m.XSize * m.YSize;
             }
             return modulesArea;
         }
@@ -23,7 +23,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < modules.Length; ++i)
             {
                 ShipModule m = modules[i];
-                if (predicate(m)) modulesArea += m.XSIZE * m.YSIZE;
+                if (predicate(m)) modulesArea += m.XSize * m.YSize;
             }
             return modulesArea;
         }
