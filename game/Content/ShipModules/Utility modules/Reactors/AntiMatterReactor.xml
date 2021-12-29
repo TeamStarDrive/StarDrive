@@ -16,7 +16,7 @@
 
   <IconTexturePath>Modules/warpreactor_3x3</IconTexturePath>
   
-  <Mass>84</Mass>
+  <Mass>110</Mass>
   <Health>3450</Health>
   <HealthMax>3450</HealthMax>
   <energyreq>0</energyreq>

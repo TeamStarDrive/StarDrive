@@ -19,8 +19,8 @@
   <fireCueName>sd_weapon_laser_small_alt5_01</fireCueName>
   <!-- Projectile Information -->
   <DamageAmount>3</DamageAmount>
-  <SalvoCount>8</SalvoCount>
-  <SalvoTimer>0.4</SalvoTimer>
+  <SalvoCount>9</SalvoCount>
+  <SalvoTimer>0.6</SalvoTimer>
   <ProjectileSpeed>2000</ProjectileSpeed>
   <ProjectileRadius>35</ProjectileRadius>  
   <explodes>false</explodes>
@@ -31,5 +31,5 @@
   <TargetChangeTimer>1</TargetChangeTimer>
   <ProjectileCount>1</ProjectileCount>
 <WeaponType>AA Weapons</WeaponType>
- <FireCone>5</FireCone>
+ <FireCone>8</FireCone>
 </Weapon>

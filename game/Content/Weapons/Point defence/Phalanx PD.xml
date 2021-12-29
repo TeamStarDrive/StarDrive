@@ -36,8 +36,8 @@
 
   <!-- Projectile Information -->
   <DamageAmount>3</DamageAmount>
-  <SalvoCount>8</SalvoCount>
-  <SalvoTimer>0.4</SalvoTimer>
+  <SalvoCount>9</SalvoCount>
+  <SalvoTimer>0.6</SalvoTimer>
   <Scale>0.5</Scale>
   <ProjectileRadius>35</ProjectileRadius> 
   <ProjectileSpeed>2000</ProjectileSpeed>

@@ -18,11 +18,11 @@
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
 
-  <OffPowerMod>0.15</OffPowerMod>
+  <OffPowerMod>0.1</OffPowerMod>
 
   <UID>HeavyIonBeam</UID>
   <isBeam>true</isBeam>
-  <fireDelay>4.5</fireDelay>
+  <fireDelay>5</fireDelay>
   <Range>9500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
@@ -35,10 +35,10 @@
   <!-- Projectile Information -->
   <BeamTexture>beam_yellow</BeamTexture>
 
-  <PowerDamage>40</PowerDamage>
-  <DamageAmount>6</DamageAmount>
+  <PowerDamage>35</PowerDamage>
+  <DamageAmount>5</DamageAmount>
   <BeamThickness>50</BeamThickness>
-  <BeamPowerCostPerSecond>80</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>680</BeamPowerCostPerSecond>
 
   <WeaponType>Energy Beam</WeaponType>
   
