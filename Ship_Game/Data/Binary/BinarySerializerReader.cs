@@ -163,6 +163,8 @@ namespace Ship_Game.Data.Binary
             }
         }
 
+        Map<Assembly, Map<string, Type>> TypeNameCache;
+
         Type GetTypeFrom(string assemblyName, string nameSpace, string typeName)
         {
             string fullName = $"{nameSpace}+{typeName},{assemblyName}";
@@ -170,16 +172,31 @@ namespace Ship_Game.Data.Binary
             if (type != null)
                 return type; // perfect match
 
-            // type has been moved or deleted
+            // type has been moved, deleted or renamed
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             Assembly a = assemblies.Find(asm => asm.GetName().Name == assemblyName);
             if (a == null) // not in loaded assembly? then give up. we don't want to load new assemblies
                 return null;
 
-            // find type by name from all module types (including nested types)
-            Module module = a.Modules.First();
-            Type[] moduleTypes = module.GetTypes();
-            type = moduleTypes.Find(t => t.Name == typeName);
+            if (TypeNameCache == null)
+                TypeNameCache = new Map<Assembly, Map<string, Type>>();
+
+            if (!TypeNameCache.TryGetValue(a, out Map<string, Type> typeNamesMap))
+            {
+                TypeNameCache.Add(a, (typeNamesMap = new Map<string, Type>()));
+
+                // find type by name from all module types (including nested types)
+                Module module = a.Modules.First();
+                Type[] moduleTypes = module.GetTypes();
+                foreach (Type t in moduleTypes)
+                {
+                    var attr = t.GetCustomAttribute<StarDataTypeAttribute>();
+                    if (attr != null)
+                        typeNamesMap.Add(attr.TypeName ?? t.Name, t);
+                }
+            }
+
+            typeNamesMap.TryGetValue(typeName, out type);
             return type;
         }
 

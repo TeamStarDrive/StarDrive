@@ -687,6 +687,20 @@ namespace UnitTests.Serialization
         }
 
 
+        [StarDataType(TypeName = "ThisTypeNameDoesNotReflectTheRealProduct")]
+        class CustomTypeNameType
+        {
+            [StarData] public Vector3 Pos;
+        }
+
+        [TestMethod]
+        public void CustomTypeNameTypes()
+        {
+            var instance = new CustomTypeNameType{ Pos = new Vector3(1001, 1002, 1003) };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.AreEqual(instance.Pos, result.Pos);
+        }
+
         //[TestMethod]
         //public void SerializeAShip()
         //{

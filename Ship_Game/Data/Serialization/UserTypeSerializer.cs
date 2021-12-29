@@ -26,17 +26,13 @@ namespace Ship_Game.Data.Serialization
             IsUserClass = true;
             Category = SerializerCategory.UserClass;
 
-            if (type.GetCustomAttribute<StarDataTypeAttribute>() == null)
+            var a = type.GetCustomAttribute<StarDataTypeAttribute>();
+            if (a == null)
                 throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
+            if (a.TypeName != null)
+                TypeName = a.TypeName;
 
             // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
-        }
-
-        public DataField GetFieldOrNull(uint fieldIdx)
-        {
-            if (fieldIdx >= Index.Count)
-                return null;
-            return Index[(int)fieldIdx];
         }
 
         public DataField GetFieldOrNull(string fieldName)

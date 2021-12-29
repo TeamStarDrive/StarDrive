@@ -13,7 +13,11 @@ namespace Ship_Game.Data.Serialization
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class StarDataTypeAttribute : Attribute
     {
+        public string TypeName; // override the type name during serialization
         public StarDataTypeAttribute()
+        {
+        }
+        public StarDataTypeAttribute(string typeName)
         {
         }
     }

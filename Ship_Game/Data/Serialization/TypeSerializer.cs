@@ -42,10 +42,17 @@ namespace Ship_Game.Data.Serialization
         /// </summary>
         public SerializerCategory Category { get; protected set; }
 
+        /// <summary>
+        /// Overriden TypeName of this TypeSerializer
+        /// Defaults to Type.Name
+        /// </summary>
+        public string TypeName { get; protected set; }
+
         protected TypeSerializer(Type type)
         {
             Type = type;
             IsPointerType = !type.IsValueType;
+            TypeName = type.Name;
         }
 
         /// <summary>
