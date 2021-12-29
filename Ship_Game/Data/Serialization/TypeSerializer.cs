@@ -37,6 +37,11 @@ namespace Ship_Game.Data.Serialization
         /// </summary>
         public bool IsPointerType { get; protected set; }
 
+        /// <summary>
+        /// Serializer category for easier classification during Deserialization
+        /// </summary>
+        public SerializerCategory Category { get; protected set; }
+
         protected TypeSerializer(Type type)
         {
             Type = type;
@@ -86,13 +91,13 @@ namespace Ship_Game.Data.Serialization
         /// </summary>
         public abstract object Deserialize(BinarySerializerReader reader);
 
-        public static void Error(object value, string couldNotConvertToWhat)
+        protected static void Error(object value, string couldNotConvertToWhat)
         {
             string e = $"TypeSerializer could not convert '{value}' ({value?.GetType()}) to {couldNotConvertToWhat}";
             Log.Error(e);
         }
 
-        public static float Float(object value)
+        protected static float Float(object value)
         {
             if (value is float f)  return f;
             if (value is double d) return (float)d;
@@ -102,7 +107,7 @@ namespace Ship_Game.Data.Serialization
             return 0.0f;
         }
 
-        public static double Double(object value)
+        protected static double Double(object value)
         {
             if (value is double d) return d;
             if (value is float f) return f;
@@ -112,17 +117,17 @@ namespace Ship_Game.Data.Serialization
             return 0.0;
         }
 
-        public static float Float(string value)
+        protected static float Float(string value)
         {
             return StringView.ToFloat(value);
         }
 
-        public static double Double(string value)
+        protected static double Double(string value)
         {
             return StringView.ToDouble(value);
         }
 
-        public static byte Byte(object value)
+        protected static byte Byte(object value)
         {
             if (value is int i)   return (byte)i;
             if (value is float f) return (byte)(int)f;
@@ -130,7 +135,7 @@ namespace Ship_Game.Data.Serialization
             return 0;
         }
 
-        public static int Int(object value)
+        protected static int Int(object value)
         {
             if (value is int i) return i;
             if (value is float f) return (int)f;

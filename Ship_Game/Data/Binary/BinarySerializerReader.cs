@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Serialization.Types;
 
 namespace Ship_Game.Data.Binary
 {
@@ -172,59 +173,67 @@ namespace Ship_Game.Data.Binary
         public void ReadObjectsList()
         {
             // pre-instantiate UserClass instances
-            ForEachTypeGroup((type, ser, count, baseIndex) =>
+            ForEachTypeGroup(SerializerCategory.UserClass, (type, ser, count, baseIndex) =>
             {
-                if (ser.IsUserClass)
-                    for (int i = 0; i < count; ++i)
-                        ObjectsList[baseIndex + i] = Activator.CreateInstance(ser.Type);
+                for (int i = 0; i < count; ++i)
+                    ObjectsList[baseIndex + i] = Activator.CreateInstance(ser.Type);
             });
 
             // read strings
-            ForEachTypeGroup((type, ser, count, baseIndex) =>
+            ForEachTypeGroup(SerializerCategory.None, (type, ser, count, baseIndex) =>
             {
-                if (!ser.IsUserClass && !ser.IsCollection)
-                    for (int i = 0; i < count; ++i)
-                        ObjectsList[baseIndex + i] = ser.Deserialize(this);
+                for (int i = 0; i < count; ++i)
+                    ObjectsList[baseIndex + i] = ser.Deserialize(this);
             });
 
             // create collection instances, but don't read them yet
-            ForEachTypeGroup((type, ser, count, baseIndex) =>
+            // also, skip raw arrays, because we can't create them without Deserializing them
+            ForEachTypeGroup(SerializerCategory.Collection, (type, ser, count, baseIndex) =>
             {
-                if (ser.IsCollection && ser is CollectionSerializer cs)
-                    for (int i = 0; i < count; ++i)
-                        ObjectsList[baseIndex + i] = cs.CreateInstance();
+                var cs = (CollectionSerializer)ser;
+                for (int i = 0; i < count; ++i)
+                    ObjectsList[baseIndex + i] = cs.CreateInstance();
+            });
+
+            // now deserialize raw arrays
+            ForEachTypeGroup(SerializerCategory.RawArray, (type, ser, count, baseIndex) =>
+            {
+                for (int i = 0; i < count; ++i)
+                    ObjectsList[baseIndex + i] = ser.Deserialize(this);
             });
 
             // --- now all instances should be created ---
 
-            // read Collections data and UserClass fields
-            ForEachTypeGroup((type, ser, count, baseIndex) =>
+            // read Collections
+            ForEachTypeGroup(SerializerCategory.Collection, (type, ser, count, baseIndex) =>
             {
-                if (ser is UserTypeSerializer userType)
+                var cs = (CollectionSerializer)ser;
+                for (int i = 0; i < count; ++i)
                 {
-                    for (int i = 0; i < count; ++i)
-                    {
-                        object instance = ObjectsList[baseIndex + i];
-                        ReadUserClass(type, userType, instance);
-                    }
+                    object instance = ObjectsList[baseIndex + i];
+                    ReadCollection(cs, instance);
                 }
-                else if (ser is CollectionSerializer collectionType)
+            });
+
+            // read UserClass fields
+            ForEachTypeGroup(SerializerCategory.UserClass, (type, ser, count, baseIndex) =>
+            {
+                var us = (UserTypeSerializer)ser;
+                for (int i = 0; i < count; ++i)
                 {
-                    for (int i = 0; i < count; ++i)
-                    {
-                        object instance = ObjectsList[baseIndex + i];
-                        ReadCollection(collectionType, instance);
-                    }
+                    object instance = ObjectsList[baseIndex + i];
+                    ReadUserClass(type, us, instance);
                 }
             });
         }
 
-        void ForEachTypeGroup(Action<TypeInfo, TypeSerializer, int, int> action)
+        void ForEachTypeGroup(SerializerCategory category, Action<TypeInfo, TypeSerializer, int, int> action)
         {
             int objectIdx = 0;
             foreach ((TypeInfo type, TypeSerializer ser, int count) in TypeGroups)
             {
-                action(type, ser, count, objectIdx);
+                if (ser.Category == category)
+                    action(type, ser, count, objectIdx);
                 objectIdx += count;
             }
         }

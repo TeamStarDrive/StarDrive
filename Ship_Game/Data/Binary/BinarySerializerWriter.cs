@@ -108,8 +108,9 @@ namespace Ship_Game.Data.Binary
             // and deleted types can't be reconstructed during Reading
 
             // types ordering [incredibly important]:
-            // - strings
             // - structs
+            // - strings
+            // - raw arrays
             // - collections
             // - user classes
             var structs = uniqueStructs.ToArrayList();
@@ -124,6 +125,9 @@ namespace Ship_Game.Data.Binary
                 bool isPointerB = b.Key.IsPointerType;
                 if (!isPointerA && isPointerB) return -1;
                 if (isPointerA && !isPointerB) return +1;
+
+                if (a.Key.Type.IsArray && !b.Key.Type.IsArray) return -1;
+                if (!a.Key.Type.IsArray && b.Key.Type.IsArray) return +1;
 
                 if (a.Key.IsCollection && !b.Key.IsCollection) return -1;
                 if (!a.Key.IsCollection && b.Key.IsCollection) return +1;

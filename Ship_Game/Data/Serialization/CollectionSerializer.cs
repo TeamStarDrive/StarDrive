@@ -13,6 +13,7 @@ namespace Ship_Game.Data.Serialization
         protected CollectionSerializer(Type type, Type elemType, TypeSerializer elemSerializer) : base(type)
         {
             IsCollection = true;
+            Category = SerializerCategory.Collection;
             ElemType = elemType;
             ElemSerializer = elemSerializer;
         }
