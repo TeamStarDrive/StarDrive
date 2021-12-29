@@ -293,6 +293,10 @@ namespace UnitTests.Serialization
             Assert.AreEqual(instance.SS.Name, result.SS.Name, "Nested SmallStruct Name fields must match");
         }
 
+        T[] Arr<T>(params T[] elements) => elements;
+        Array<T> List<T>(params T[] elements) => new Array<T>(elements);
+        Map<K,V> Map<K,V>(params ValueTuple<K, V>[] elements) => new Map<K,V>(elements);
+
         [StarDataType]
         class RawArrayType
         {
@@ -308,11 +312,11 @@ namespace UnitTests.Serialization
         {
             var instance = new RawArrayType()
             {
-                Integers = new [] { 17, 19, 56, 123, 57 },
-                Points = new [] { Vector2.One, Vector2.UnitX, Vector2.UnitY },
-                Names = new [] { "Laika", "Strelka", "Bobby", "Rex", "Baron" },
+                Integers = Arr(17, 19, 56, 123, 57),
+                Points = Arr(Vector2.One, Vector2.UnitX, Vector2.UnitY),
+                Names = Arr("Laika", "Strelka", "Bobby", "Rex", "Baron"),
                 Empty = new string[0],
-                Structs = new [] { new StructContainer(27, "27"), new StructContainer(42, "42") },
+                Structs = Arr(new StructContainer(27, "27"), new StructContainer(42, "42")),
             };
             var result = SerDes(instance, out byte[] bytes);
             Assert.That.Equal(instance.Integers, result.Integers);
@@ -343,18 +347,15 @@ namespace UnitTests.Serialization
         {
             var instance = new GenericArrayType()
             {
-                Integers = new Array<int>(new[] { 17, 19, 56, 123, 57 }),
-                Points = new Array<Vector2>(new[] { Vector2.One, Vector2.UnitX, Vector2.UnitY }),
-                Names = new Array<string>(new[] { "Laika", "Strelka", "Bobby", "Rex", "Baron" }),
-                Empty = new Array<string>(),
-                Structs = new Array<StructContainer>(new[]
-                {
-                    new StructContainer(27, "27"), new StructContainer(42, "42")
-                }),
-                ReadOnlyList = new Array<string>(new[] { "StarFury", "Thunderbolt", "Omega" }),
-                List = new Array<string>(new[] { "Sirius", "Betelgeuse", "Orion" }),
-                Collection = new Array<string>(new[] { "Morocco", "Italy", "Spain" }),
-                Enumerable = new Array<string>(new[] { "Miami", "New York", "Austin" }),
+                Integers = List(17, 19, 56, 123, 57),
+                Points = List(Vector2.One, Vector2.UnitX, Vector2.UnitY),
+                Names = List("Laika", "Strelka", "Bobby", "Rex", "Baron"),
+                Empty = List<string>(),
+                Structs = List(new StructContainer(27, "27"), new StructContainer(42, "42")),
+                ReadOnlyList = List("StarFury", "Thunderbolt", "Omega"),
+                List = List("Sirius", "Betelgeuse", "Orion"),
+                Collection = List("Morocco", "Italy", "Spain"),
+                Enumerable = List("Miami", "New York", "Austin"),
             };
             var result = SerDes(instance, out byte[] bytes);
             Assert.That.Equal(instance.Integers, result.Integers);
@@ -387,16 +388,13 @@ namespace UnitTests.Serialization
         {
             var instance = new GenericMapType()
             {
-                TextToText = new Map<string,string>(new[]{ ("BuildingType","Aeroponics"), ("TechName","Foodstuffs") }),
-                Empty = new Map<string,string>(),
-                TextToClass = new Map<string, StructContainer>(new[]
-                {
-                    ("First", new StructContainer(27, "27")), ("Second", new StructContainer(42, "42"))
-                }),
-                IntToText = new Map<int,string>(new[]{ (0,"Zero"), (1,"One"), (2,"Two") }),
-                Dictionary = new Map<string,string>(new[]{ ("Star","Betelgeuse"), ("Type","SuperGiant"), ("Color","Red") }),
-                Interface = new Map<string,string>(new[]{ ("EarthAlliance","StarFury"), ("Minbari","Nial") }),
-                ReadOnly = new Map<string, string>(new[] { ("Name","Orion"), ("Type","Constellation") }),
+                TextToText = Map(("BuildingType","Aeroponics"), ("TechName","Foodstuffs")),
+                Empty = Map<string,string>(),
+                TextToClass = Map(("First", new StructContainer(27, "27")), ("Second", new StructContainer(42, "42"))),
+                IntToText = Map((0,"Zero"), (1,"One"), (2,"Two")),
+                Dictionary = Map(("Star","Betelgeuse"), ("Type","SuperGiant"), ("Color","Red")),
+                Interface = Map(("EarthAlliance","StarFury"), ("Minbari","Nial")),
+                ReadOnly = Map(("Name","Orion"), ("Type","Constellation")),
             };
             var result = SerDes(instance, out byte[] bytes);
             Assert.That.Equal(instance.TextToText, result.TextToText);
@@ -408,6 +406,111 @@ namespace UnitTests.Serialization
             Assert.That.Equal(instance.Dictionary, result.Dictionary);
             Assert.That.Equal(instance.Interface, result.Interface);
             Assert.That.Equal(instance.ReadOnly, result.ReadOnly);
+        }
+
+        [StarDataType]
+        class ListOfArraysType
+        {
+            [StarData] public Array<string[]> ListOfArrays;
+            [StarData] public Array<Array<string>> ListOfLists;
+        }
+
+        [TestMethod]
+        public void ListOfArraysTypes()
+        {
+            var instance = new ListOfArraysType()
+            {
+                ListOfArrays = List(Arr("A", "B", "C"), Arr("D", "E", "F") ),
+                ListOfLists = List(List("Regulus", "Orion", "Andromeda"), List("Orion", "Cassiopeia")),
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.That.Equal(instance.ListOfArrays, result.ListOfArrays);
+            Assert.That.Equal(instance.ListOfLists, result.ListOfLists);
+        }
+
+        [StarDataType]
+        class ListOfMapsType
+        {
+            [StarData] public Array<Map<string, string>> ListOfMaps;
+        }
+
+        [TestMethod]
+        public void ListOfMapsTypes()
+        {
+            var instance = new ListOfMapsType()
+            {
+                ListOfMaps = List(
+                    Map(("Regulus", "Star"), ("Andromeda", "Galaxy")),
+                    Map(("Orion", "Constellation"), ("Cassiopeia", "Constellation"))
+                ),
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.That.Equal(instance.ListOfMaps, result.ListOfMaps);
+        }
+
+        [StarDataType]
+        class MapOfArraysType
+        {
+            [StarData] public Map<string, string[]> MapOfArrays;
+            [StarData] public Map<string, Array<string>> MapOfLists;
+        }
+
+        [TestMethod]
+        public void MapOfArraysTypes()
+        {
+            var instance = new MapOfArraysType()
+            {
+                MapOfArrays = Map(
+                    ("Regulus1", Arr("Star1", "Quite ordinary")),
+                    ("Orion1", Arr("Constellation1", "Dog Star")),
+                    ("Cassiopeia1", Arr("Constellation2", "W"))
+                ),
+                MapOfLists = Map(
+                    ("Regulus2", List("Star11", "Quite ordinary1")),
+                    ("Orion2", List("Star21", "Aliens1")),
+                    ("Cassiopeia2", List("Constellation21", "W1"))
+                ),
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.That.Equal(instance.MapOfArrays, result.MapOfArrays);
+            Assert.That.Equal(instance.MapOfLists, result.MapOfLists);
+        }
+
+        [StarDataType]
+        class MapOfMapsType
+        {
+            [StarData] public Map<string, Map<string, string>> MapOfMaps;
+            [StarData] public Map<string, Map<string, Map<string, string>>> MapOfMapsOfMaps;
+        }
+
+        [TestMethod]
+        public void MapOfMapsTypes()
+        {
+            var instance = new MapOfMapsType()
+            {
+                MapOfMaps = Map(
+                    ("Stars", Map(("Regulus", "Star"), ("Andromeda", "Galaxy"))),
+                    ("Constellations", Map(("Orion", "Constellation"), ("Cassiopeia", "Constellation")))
+                ),
+                MapOfMapsOfMaps = Map(
+                (
+                    "Stars",
+                    Map(
+                        ("Regulus", Map(("Star", "BlueR"))),
+                        ("Andromeda", Map(("Galaxy", "BlueG")))
+                    )
+                ),
+                (
+                    "Constellations",
+                    Map(
+                        ("Orion", Map(("Constellation", "BlueO"))),
+                        ("Cassiopeia", Map(("Constellation", "BlueW")))
+                    )
+                )),
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.That.Equal(instance.MapOfMaps, result.MapOfMaps);
+            Assert.That.Equal(instance.MapOfMapsOfMaps, result.MapOfMapsOfMaps);
         }
 
         [StarDataType]
