@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
@@ -25,18 +27,6 @@ namespace UnitTests.Serialization
         {
             var reader = new BinaryReader(new MemoryStream(bytes));
             return (T)ser.Deserialize(reader);
-        }
-
-        static byte[] Serialize<T>(T instance)
-        {
-            var ser = new BinarySerializer(typeof(T));
-            return Serialize(ser, instance);
-        }
-
-        static T Deserialize<T>(byte[] bytes)
-        {
-            var ser = new BinarySerializer(typeof(T));
-            return Deserialize<T>(ser, bytes);
         }
 
         static T SerDes<T>(T instance, out byte[] bytes)
@@ -247,12 +237,14 @@ namespace UnitTests.Serialization
             [StarData] public RecursiveType RecursiveSelf;
             [StarData] public string Text;
             [StarData] public int Count;
+            [StarData] public string DefaultIsNotNull = "Default is not null";
             public RecursiveType() {}
             public RecursiveType(string text, int count)
             {
                 Text = text;
                 Count = count;
                 RecursiveSelf = this;
+                DefaultIsNotNull = null; // override the default
             }
         }
 
@@ -264,6 +256,7 @@ namespace UnitTests.Serialization
             Assert.AreEqual(result.RecursiveSelf, result, "Recursive self reference must match");
             Assert.AreEqual(instance.Text, result.Text, "string must match");
             Assert.AreEqual(instance.Count, result.Count, "int field must match");
+            Assert.AreEqual(null, result.DefaultIsNotNull, "null field must match");
         }
 
         [StarDataType]
@@ -300,6 +293,122 @@ namespace UnitTests.Serialization
             Assert.AreEqual(instance.SS.Name, result.SS.Name, "Nested SmallStruct Name fields must match");
         }
 
+        [StarDataType]
+        class RawArrayType
+        {
+            [StarData] public int[] Integers;
+            [StarData] public Vector2[] Points;
+            [StarData] public string[] Names;
+            [StarData] public string[] Empty;
+            [StarData] public StructContainer[] Structs;
+        }
+
+        [TestMethod]
+        public void RawArrayTypes()
+        {
+            var instance = new RawArrayType()
+            {
+                Integers = new [] { 17, 19, 56, 123, 57 },
+                Points = new [] { Vector2.One, Vector2.UnitX, Vector2.UnitY },
+                Names = new [] { "Laika", "Strelka", "Bobby", "Rex", "Baron" },
+                Empty = new string[0],
+                Structs = new [] { new StructContainer(27, "27"), new StructContainer(42, "42") },
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.That.Equal(instance.Integers, result.Integers);
+            Assert.That.Equal(instance.Points, result.Points);
+            Assert.That.Equal(instance.Names, result.Names);
+            Assert.That.Equal(instance.Empty, result.Empty);
+            Assert.That.Equal(instance.Structs.Length, result.Structs.Length);
+            for (int i = 0; i < instance.Structs.Length; ++i)
+                Assert.That.Equal(instance.Structs[i].SS, result.Structs[i].SS);
+        }
+
+        [StarDataType]
+        class GenericArrayType
+        {
+            [StarData] public Array<int> Integers;
+            [StarData] public Array<Vector2> Points;
+            [StarData] public Array<string> Names;
+            [StarData] public Array<string> Empty;
+            [StarData] public Array<StructContainer> Structs;
+            [StarData] public IReadOnlyList<string> ReadOnlyList;
+            [StarData] public IList<string> List;
+            [StarData] public ICollection<string> Collection;
+            [StarData] public IEnumerable<string> Enumerable;
+        }
+
+        [TestMethod]
+        public void GenericArrayTypes()
+        {
+            var instance = new GenericArrayType()
+            {
+                Integers = new Array<int>(new[] { 17, 19, 56, 123, 57 }),
+                Points = new Array<Vector2>(new[] { Vector2.One, Vector2.UnitX, Vector2.UnitY }),
+                Names = new Array<string>(new[] { "Laika", "Strelka", "Bobby", "Rex", "Baron" }),
+                Empty = new Array<string>(),
+                Structs = new Array<StructContainer>(new[]
+                {
+                    new StructContainer(27, "27"), new StructContainer(42, "42")
+                }),
+                ReadOnlyList = new Array<string>(new[] { "StarFury", "Thunderbolt", "Omega" }),
+                List = new Array<string>(new[] { "Sirius", "Betelgeuse", "Orion" }),
+                Collection = new Array<string>(new[] { "Morocco", "Italy", "Spain" }),
+                Enumerable = new Array<string>(new[] { "Miami", "New York", "Austin" }),
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.That.Equal(instance.Integers, result.Integers);
+            Assert.That.Equal(instance.Points, result.Points);
+            Assert.That.Equal(instance.Names, result.Names);
+            Assert.That.Equal(instance.Empty, result.Empty);
+            Assert.That.Equal(instance.Structs.Count, result.Structs.Count);
+            for (int i = 0; i < instance.Structs.Count; ++i)
+                Assert.That.Equal(instance.Structs[i].SS, result.Structs[i].SS);
+            Assert.That.Equal(instance.ReadOnlyList, result.ReadOnlyList);
+            Assert.That.Equal(instance.List, result.List);
+            Assert.That.Equal(instance.Collection, result.Collection);
+            Assert.That.Equal(instance.Enumerable, result.Enumerable);
+        }
+
+        [StarDataType]
+        class GenericMapType
+        {
+            [StarData] public Map<string,string> TextToText;
+            [StarData] public Map<string, string> Empty;
+            [StarData] public Map<string,StructContainer> TextToClass;
+            [StarData] public Map<int,string> IntToText;
+            [StarData] public Dictionary<string, string> Dictionary;
+            [StarData] public IDictionary<string,string> Interface;
+            [StarData] public IReadOnlyDictionary<string, string> ReadOnly;
+        }
+
+        [TestMethod]
+        public void GenericMapTypes()
+        {
+            var instance = new GenericMapType()
+            {
+                TextToText = new Map<string,string>(new[]{ ("BuildingType","Aeroponics"), ("TechName","Foodstuffs") }),
+                Empty = new Map<string,string>(),
+                TextToClass = new Map<string, StructContainer>(new[]
+                {
+                    ("First", new StructContainer(27, "27")), ("Second", new StructContainer(42, "42"))
+                }),
+                IntToText = new Map<int,string>(new[]{ (0,"Zero"), (1,"One"), (2,"Two") }),
+                Dictionary = new Map<string,string>(new[]{ ("Star","Betelgeuse"), ("Type","SuperGiant"), ("Color","Red") }),
+                Interface = new Map<string,string>(new[]{ ("EarthAlliance","StarFury"), ("Minbari","Nial") }),
+                ReadOnly = new Map<string, string>(new[] { ("Name","Orion"), ("Type","Constellation") }),
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.That.Equal(instance.TextToText, result.TextToText);
+            Assert.That.Equal(instance.Empty, result.Empty);
+            Assert.That.Equal(instance.TextToClass.Count, result.TextToClass.Count);
+            foreach (var kv in instance.TextToClass)
+                Assert.AreEqual(instance.TextToClass[kv.Key].SS, result.TextToClass[kv.Key].SS);
+            Assert.That.Equal(instance.IntToText, result.IntToText);
+            Assert.That.Equal(instance.Dictionary, result.Dictionary);
+            Assert.That.Equal(instance.Interface, result.Interface);
+            Assert.That.Equal(instance.ReadOnly, result.ReadOnly);
+        }
 
         [StarDataType]
         class ComplexType
