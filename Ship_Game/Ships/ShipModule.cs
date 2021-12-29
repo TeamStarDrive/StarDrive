@@ -698,24 +698,18 @@ namespace Ship_Game.Ships
             Empire.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
-        public float ExplosionDamageOnShipExplode(float powerPercent)
+        public float ExplosionDamageOnShipExplode()
         {
             float dmg = 0;
             if (Active)
             {
-                dmg += ActualPowerFlowMax + ActualPowerStoreMax * powerPercent;
+                dmg += ActualPowerFlowMax + ActualPowerStoreMax;
 
                 if (explodes)
                     dmg += ExplosionDamage;
 
                 if (ExplosiveResist > 0)
                     dmg -= Health / (1 - ExplosiveResist);
-
-                float shieldReduction = ShieldPower;
-                if (shield_explosive_resist > 0)
-                    shieldReduction = ShieldPower / (1 - shield_explosive_resist);
-
-                dmg -= shieldReduction;
             }
 
             return dmg;
