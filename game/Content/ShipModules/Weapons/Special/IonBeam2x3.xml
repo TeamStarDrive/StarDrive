@@ -30,7 +30,7 @@
 
   <!-- for Weapons -->
   <WeaponType>HeavyIonBeam</WeaponType>
-  <FieldOfFire>45</FieldOfFire>
+  <FieldOfFire>15</FieldOfFire>
 
   <!-- Description -->
   <Description>This Ion beam drains power from the targeted vessel, provided that their shields are down.</Description>

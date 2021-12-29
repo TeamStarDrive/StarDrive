@@ -27,14 +27,14 @@
   <Range>15000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>30</OrdinanceRequiredToFire>
-
+  <DelayedIgnition>2</DelayedIgnition>
   <ProjectileRadius>20</ProjectileRadius>
 <!-- Projectile stats -->
-  <DamageAmount>6100</DamageAmount>
-  <ProjectileSpeed>900</ProjectileSpeed>
+  <DamageAmount>6700</DamageAmount>
+  <ProjectileSpeed>1000</ProjectileSpeed>
   <DamageRadius>50</DamageRadius>
   <SalvoCount>4</SalvoCount>
-  <SalvoTimer>1</SalvoTimer>
+  <SalvoTimer>1.5</SalvoTimer>
   
   <ProjectileRadius>11</ProjectileRadius>
   <RotationRadsPerSecond>0.6</RotationRadsPerSecond>

@@ -31,7 +31,7 @@
   <dieCue>sd_explosion_ship_det_small</dieCue>
   <WeaponEffectType>SmokeTrail</WeaponEffectType>
   <ProjectileRadius>10</ProjectileRadius>
-  <Scale>1.4</Scale>
+  <Scale>1.1</Scale>
   <!-- Projectile Information -->
   <DamageAmount>2750</DamageAmount>
   <SalvoCount>2</SalvoCount>

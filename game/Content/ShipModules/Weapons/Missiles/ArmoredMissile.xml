@@ -16,7 +16,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/ArmoredMissile</IconTexturePath>
-  <Mass>600</Mass>
+  <Mass>900</Mass>
   <Health>12850</Health>
   <HealthMax>12850</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
