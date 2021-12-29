@@ -226,7 +226,7 @@ namespace Ship_Game.Data.Binary
 
         static string GetAssembly(TypeSerializer s) => s.Type.Assembly.GetName().Name;
         static string GetNamespace(TypeSerializer s) => s.Type.FullName?.Split('+')[0];
-        static string GetTypeName(TypeSerializer s) => s.Type.Name;
+        static string GetTypeName(TypeSerializer s) => s.TypeName;
 
         void WriteArray(string[] strings)
         {
