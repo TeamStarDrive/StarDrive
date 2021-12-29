@@ -142,23 +142,40 @@ namespace Ship_Game.Data.Serialization
         {
             if (Serializers.TryGetValue(type, out TypeSerializer serializer))
                 return serializer;
-            
+
             if (type.IsEnum)
-                return Add(new EnumSerializer(type));
+                return Add(type, new EnumSerializer(type));
 
             if (type.IsArray)
             {
                 Type elemType = type.GetElementType();
-                return Add(new RawArraySerializer(type, elemType, Get(elemType)));
+                TypeSerializer elemSerializer = Get(elemType);
+                // NOTE: recursive types cause trouble here
+                if (Serializers.TryGetValue(type, out TypeSerializer recursiveType))
+                    return recursiveType;
+                return Add(type, new RawArraySerializer(type, elemType, elemSerializer));
             }
 
             Type listElemType = GetListType(type);
             if (listElemType != null)
-                return Add(new ArrayListSerializer(type, listElemType, Get(listElemType)));
+            {
+                TypeSerializer elemSerializer = Get(listElemType);
+                // NOTE: recursive types cause trouble here
+                if (Serializers.TryGetValue(type, out TypeSerializer recursiveType))
+                    return recursiveType;
+                return Add(type, new ArrayListSerializer(type, listElemType, elemSerializer));
+            }
 
             (Type key, Type value) = GetMapTypes(type);
             if (key != null)
-                return Add(new MapSerializer(type, key, Get(key), value, Get(value)));
+            {
+                TypeSerializer keySerializer = Get(key);
+                TypeSerializer valSerializer = Get(value);
+                // NOTE: recursive types cause trouble here
+                if (Serializers.TryGetValue(type, out TypeSerializer recursiveType))
+                    return recursiveType;
+                return Add(type, new MapSerializer(type, key, keySerializer, value, valSerializer));
+            }
 
             if (type.GetCustomAttribute<StarDataTypeAttribute>() != null)
                 return AddUserTypeSerializer(type);

@@ -9,12 +9,11 @@ namespace Ship_Game.Data.Serialization.Types
     internal class RawArraySerializer : CollectionSerializer
     {
         public override string ToString() => $"RawArraySerializer<{ElemType.GetTypeName()}>";
-        readonly Type GenericArrayType;
 
         public RawArraySerializer(Type type, Type elemType, TypeSerializer elemSerializer)
             : base(type, elemType, elemSerializer)
         {
-            GenericArrayType = typeof(Array<>).MakeGenericType(elemType);
+            Category = SerializerCategory.RawArray;
         }
 
         public override object Convert(object value)
@@ -104,19 +103,12 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object CreateInstance()
         {
-            return Activator.CreateInstance(GenericArrayType);
+            throw new NotSupportedException();
         }
 
         public override void Deserialize(BinarySerializerReader reader, object instance)
         {
-            int count = (int)reader.BR.ReadVLu32();
-            var list = (IList)instance;
-            TypeInfo elementType = reader.GetType(ElemSerializer);
-            for (int i = 0; i < count; ++i)
-            {
-                object element = reader.ReadElement(elementType, ElemSerializer);
-                list.Add(element);
-            }
+            throw new NotSupportedException();
         }
     }
 }

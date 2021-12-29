@@ -353,18 +353,28 @@ namespace UnitTests.Serialization
 
             Assert.That.Equal(instance.Names, result.Names);
             Assert.AreEqual(instance.SCont.SS, result.SCont.SS);
-            Assert.AreEqual(instance.SCont.SS.Id, result.SCont.SS.Id);
-            Assert.AreEqual(instance.SCont.SS.Name, result.SCont.SS.Name);
 
             Assert.AreEqual(instance.Number, result.Number);
-            Assert.AreEqual(instance.Struct.Id, result.Struct.Id);
-            Assert.AreEqual(instance.Struct.Name, result.Struct.Name);
+            Assert.AreEqual(instance.Struct, result.Struct);
 
             Assert.AreEqual(instance.Structs.Count, result.Structs.Count);
             for (int i = 0; i < instance.Structs.Count; ++i)
             {
-                //Assert.AreEqual(instance.Structs[i].SS.Id,)
+               Assert.AreEqual(instance.Structs[i].SS, result.Structs[i].SS);
             }
+
+            Assert.AreEqual("Subtype0", result.ComplexTypes[0].TestText);
+            Assert.AreEqual("Subtype1", result.ComplexTypes[1].TestText);
+
+            Assert.AreEqual("Subtype0", result.ComplexTypesArr[0].TestText);
+            Assert.AreEqual("Subtype1", result.ComplexTypesArr[1].TestText);
+
+            Assert.AreEqual(1, result.Map["Key1"]);
+            Assert.AreEqual(2, result.Map["Key2"]);
+            Assert.AreEqual(1, result.ComplexTypes[0].Map["Key1"]);
+            Assert.AreEqual(2, result.ComplexTypes[0].Map["Key2"]);
+            Assert.AreEqual(1, result.ComplexTypes[1].Map["Key1"]);
+            Assert.AreEqual(2, result.ComplexTypes[1].Map["Key2"]);
         }
 
         //[TestMethod]
