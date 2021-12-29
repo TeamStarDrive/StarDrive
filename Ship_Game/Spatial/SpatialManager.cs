@@ -226,7 +226,7 @@ namespace Ship_Game.Gameplay
             {
                 var otherShip = (Ship)nearby[i];
                 // FB: Ships will be lucky to not get caught in the explosion, based on their level as well
-                if (!RandomMath.RollDice(50 - otherShip.Level*2))
+                if (RandomMath.RollDice(otherShip.ExplosionEvadeBaseChance() + otherShip.Level))
                     continue;
 
                 ShipModule nearest = otherShip.FindClosestUnshieldedModule(explosionCenter);

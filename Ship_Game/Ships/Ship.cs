@@ -1450,6 +1450,25 @@ namespace Ship_Game.Ships
             }
         }
 
+
+        // Base chance to evade and exploding ship
+        public int ExplosionEvadeBaseChance()
+        {
+            switch (shipData.HullRole)
+            {
+                default:
+                case RoleName.drone:      return 80;
+                case RoleName.scout:      return 80;
+                case RoleName.fighter:    return 70;
+                case RoleName.corvette:   return 60;
+                case RoleName.frigate:    return 40;
+                case RoleName.cruiser:    return 20;
+                case RoleName.battleship: return 10;
+                case RoleName.capital: 
+                case RoleName.station:    return 0;
+            }
+        }
+
         void ExplodeShip(float size, bool addWarpExplode)
         {
             if (!InFrustum || !IsVisibleToPlayer)
