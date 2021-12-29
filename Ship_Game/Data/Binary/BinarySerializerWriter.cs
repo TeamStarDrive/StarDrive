@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Serialization.Types;
 
 namespace Ship_Game.Data.Binary
 {
@@ -16,9 +19,13 @@ namespace Ship_Game.Data.Binary
         public uint RootObjectIndex;
 
         // which UserClass types were used (excludes strings or other fundamental types)
-        public TypeSerializer[] UsedTypes;
+        public UserTypeSerializer[] UserTypes;
 
-        // Object lists grouped by their type (includes strings)
+        // different generic collection types such as: T[], Array<T>, Map<K,V>
+        public CollectionSerializer[] CollectionTypes;
+
+        // Object lists grouped by their type
+        // includes UserClasses, Array<T>, Map<K,V>, strings
         public (TypeSerializer Ser, object[] Objects)[] TypeGroups;
 
         Map<object, uint> Pointers;
@@ -55,12 +62,34 @@ namespace Ship_Game.Data.Binary
                     structs.Add(ser);
             }
 
+            // recurse into objects and collections to find more objects
             if (ser.IsUserClass && ser is UserTypeSerializer userType)
             {
                 foreach (DataField field in userType.Fields)
                 {
                     object obj = field.Get(instance);
                     RecursiveScan(field.Serializer, obj, groups, objects, structs);
+                }
+            }
+            else if (ser.IsCollection && ser is CollectionSerializer collectionType)
+            {
+                if (collectionType.IsMapType && collectionType is MapSerializer mapType)
+                {
+                    var e = ((IDictionary)instance).GetEnumerator();
+                    while (e.MoveNext())
+                    {
+                        RecursiveScan(mapType.KeySerializer, e.Key, groups, objects, structs);
+                        RecursiveScan(mapType.ElemSerializer, e.Value, groups, objects, structs);
+                    }
+                }
+                else
+                {
+                    int count = collectionType.Count(instance);
+                    for (int i = 0; i < count; ++i)
+                    {
+                        object obj = collectionType.GetElementAt(instance, i);
+                        RecursiveScan(collectionType.ElemSerializer, obj, groups, objects, structs);
+                    }
                 }
             }
         }
@@ -78,22 +107,26 @@ namespace Ship_Game.Data.Binary
             // new/deleted types will of course offset this list immediately
             // and deleted types can't be reconstructed during Reading
 
+            // types ordering [incredibly important]:
+            // - strings
+            // - structs
+            // - collections
+            // - user classes
             var structs = uniqueStructs.ToArrayList();
-            structs.Sort((a, b) => string.CompareOrdinal(a.Type.Name, b.Type.Name));
-
             var groups = objectGroups.ToArrayList();
+            structs.Sort((a, b) => string.CompareOrdinal(a.Type.Name, b.Type.Name));
             groups.Sort((a, b) =>
             {
-                // strings must always be first, because they are a
-                // pointer type which is not an UserClass
                 if (a.Key.Type == typeof(string)) return -1;
                 if (b.Key.Type == typeof(string)) return +1;
 
-                // non-pointer types must come second
                 bool isPointerA = a.Key.IsPointerType;
                 bool isPointerB = b.Key.IsPointerType;
                 if (!isPointerA && isPointerB) return -1;
                 if (isPointerA && !isPointerB) return +1;
+
+                if (a.Key.IsCollection && !b.Key.IsCollection) return -1;
+                if (!a.Key.IsCollection && b.Key.IsCollection) return +1;
 
                 // the rest, sort by type name
                 return string.CompareOrdinal(a.Key.Type.Name, b.Key.Type.Name);
@@ -103,16 +136,9 @@ namespace Ship_Game.Data.Binary
             TypeGroups = groups.Select(kv => (kv.Key, kv.Value.ToArray()));
 
             // for UsedTypes we take both structs and objects
-            var usedTypes = new Array<TypeSerializer>();
-            
-            foreach (TypeSerializer ser in structs)
-                usedTypes.Add(ser);
-
-            foreach ((TypeSerializer ser, object[] list) in TypeGroups)
-                if (ser.IsUserClass)
-                    usedTypes.Add(ser);
-
-            UsedTypes = usedTypes.ToArray();
+            var userTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsUserClass, kv => (UserTypeSerializer)kv.Ser);
+            UserTypes = structs.Cast<UserTypeSerializer>().Concat(userTypes).ToArray();
+            CollectionTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsCollection, kv => (CollectionSerializer)kv.Ser);
 
             // find the root object index from the neatly sorted type groups
             RootObjectIndex = IndexOfRootObject(rootObject);
@@ -131,63 +157,116 @@ namespace Ship_Game.Data.Binary
             return 0;
         }
 
-        (string[] Names, Map<string, int> Index) GetMappedNames(Func<TypeSerializer, string> selector)
+        string[] MapSingle(Func<TypeSerializer, string> selector)
         {
             var names = new HashSet<string>();
-            foreach (TypeSerializer serializer in UsedTypes)
-                names.Add(selector(serializer));
+            foreach (UserTypeSerializer s in UserTypes)
+                names.Add(selector(s));
+            return names.ToArray();
+        }
 
-            string[] sorted = names.ToArray();
-            Array.Sort(sorted);
+        string[] MapFields()
+        {
+            var names = new HashSet<string>();
+            foreach (UserTypeSerializer s in UserTypes)
+                foreach (DataField field in s.Fields)
+                    names.Add(field.Name);
+            return names.ToArray();
+        }
 
+        static Map<string, int> CreateIndexMap(string[] names)
+        {
+            Array.Sort(names);
             var indexMap = new Map<string, int>();
-            for (int i = 0; i < sorted.Length; ++i)
-                indexMap.Add(sorted[i], i);
+            for (int i = 0; i < names.Length; ++i)
+                indexMap.Add(names[i], i);
+            return indexMap;
+        }
 
-            return (sorted, indexMap);
+        (string[] Names, Map<string, int> Index) GetMappedNames(Func<TypeSerializer, string> selector)
+        {
+            string[] names = MapSingle(selector);
+            return (names, CreateIndexMap(names));
+        }
+
+        (string[] Names, Map<string, int> Index) GetMappedFields()
+        {
+            string[] names = MapFields();
+            return (names, CreateIndexMap(names));
         }
 
         static string GetAssembly(TypeSerializer s) => s.Type.Assembly.GetName().Name;
         static string GetNamespace(TypeSerializer s) => s.Type.FullName?.Split('+')[0];
+        static string GetTypeName(TypeSerializer s) => s.Type.Name;
 
-        public void WriteTypesList(bool useStableMapping)
+        void WriteArray(string[] strings)
+        {
+            BW.WriteVLu32((uint)strings.Length);
+            foreach (string s in strings)
+                BW.Write(s);
+        }
+
+        public void WriteTypesList()
         {
             // [assemblies]
             // [namespaces]
-            // [types]
-            (string[] assemblies, var assemblyMap) = GetMappedNames(GetAssembly);
-            BW.WriteVLu32((uint)assemblies.Length);
-            foreach (string assembly in assemblies)
-                BW.Write(assembly);
-
+            // [typenames]
+            // [fieldnames]
+            // [user types]
+            // [collection types]
+            (string[] assemblies, var assemblyMap)  = GetMappedNames(GetAssembly);
             (string[] namespaces, var namespaceMap) = GetMappedNames(GetNamespace);
-            BW.WriteVLu32((uint)namespaces.Length);
-            foreach (string ns in namespaces)
-                BW.Write(ns);
+            (string[] typeNames,  var typenameMap)  = GetMappedNames(GetTypeName);
+            (string[] fieldNames, var fieldNameMap) = GetMappedFields();
+            WriteArray(assemblies);
+            WriteArray(namespaces);
+            WriteArray(typeNames);
+            WriteArray(fieldNames);
 
-            foreach (TypeSerializer serializer in UsedTypes)
+            foreach (UserTypeSerializer s in UserTypes)
             {
                 // [type ID]
                 // [assembly ID]
                 // [namespace ID]
+                // [typename ID]
                 // [type flags]
-                // [type name]
-                int assemblyId = assemblyMap[GetAssembly(serializer)];
-                int namespaceId = namespaceMap[GetNamespace(serializer)];
-                int flags = (serializer.IsPointerType ? 1 : 0);
-                string typeName = serializer.Type.Name;
-                BW.WriteVLu32(serializer.Id);
+                // [fields info]
+                int assemblyId  = assemblyMap[GetAssembly(s)];
+                int namespaceId = namespaceMap[GetNamespace(s)];
+                int typenameId  = typenameMap[GetTypeName(s)];
+                int flags = 0;
+                if (s.IsPointerType) flags |= 0b0000_0001;
+                BW.WriteVLu32(s.TypeId);
                 BW.WriteVLu32((uint)assemblyId);
                 BW.WriteVLu32((uint)namespaceId);
+                BW.WriteVLu32((uint)typenameId);
                 BW.WriteVLu32((uint)flags);
-                BW.Write(typeName);
 
-                if (useStableMapping && serializer is UserTypeSerializer userSer)
+                BW.WriteVLu32((uint)s.Fields.Count);
+                foreach (DataField field in s.Fields)
                 {
-                    BW.WriteVLu32((uint)userSer.Fields.Count);
-                    foreach (DataField field in userSer.Fields)
-                        BW.Write(field.Name);
+                    // [field type ID]
+                    // [field name index]
+                    BW.WriteVLu32(field.Serializer.TypeId);
+                    BW.WriteVLu32((uint)fieldNameMap[field.Name]);
                 }
+            }
+
+            foreach (CollectionSerializer s in CollectionTypes)
+            {
+                // [type ID]
+                // [collection type]   1:T[] 2:Array<T> 3:Map<K,V>
+                // [element type ID]
+                // [key type ID] (only for Map<K,V>)
+                uint type = 0;
+                if      (s is RawArraySerializer)  type = 1;
+                else if (s is ArrayListSerializer) type = 2;
+                else if (s is MapSerializer)       type = 3;
+                BW.WriteVLu32(s.TypeId);
+                BW.WriteVLu32(type);
+                BW.WriteVLu32(s.ElemSerializer.TypeId);
+                if (s is MapSerializer ms)
+                    BW.WriteVLu32(ms.KeySerializer.TypeId);
             }
         }
 
@@ -195,7 +274,7 @@ namespace Ship_Game.Data.Binary
         {
             foreach ((TypeSerializer ser, object[] list) in TypeGroups)
             {
-                BW.WriteVLu32(ser.Id);
+                BW.WriteVLu32(ser.TypeId);
                 BW.WriteVLu32((uint)list.Length); // int32 because we allow > 65k objects
             }
         }
@@ -206,7 +285,7 @@ namespace Ship_Game.Data.Binary
             Pointers = new Map<object, uint>(NumObjects);
 
             // pre-pass: create integer pointers of all objects
-            foreach ((TypeSerializer ser, object[] list) in TypeGroups)
+            foreach ((TypeSerializer _, object[] list) in TypeGroups)
             {
                 foreach (object o in list)
                 {
@@ -231,25 +310,22 @@ namespace Ship_Game.Data.Binary
             if (ser is UserTypeSerializer userSer)
             {
                 // number of fields, so we know how many to parse later
-                BW.WriteVLu32((ushort)userSer.Fields.Count);
+                BW.WriteVLu32((uint)userSer.Fields.Count);
 
                 // @note This is not recursive, because we only write object "Pointers" ID-s
                 foreach (DataField field in userSer.Fields)
                 {
-                    // always include the type, this allows us to handle
-                    // fields which get deleted, so they can be skipped
+                    // [field type ID]
+                    // [field index]     (in type metadata)
                     TypeSerializer fieldSer = field.Serializer;
-                    BW.WriteVLu32(fieldSer.Id);
-
-                    // write the field IDX to Stream so we can remap it
-                    // to actual FieldIdx during deserialize
-                    BW.WriteVLu32((ushort)field.FieldIdx);
+                    BW.WriteVLu32(fieldSer.TypeId);
+                    BW.WriteVLu32((uint)field.FieldIdx);
 
                     object fieldObject = field.Get(instance);
                     WriteElement(fieldSer, fieldObject);
                 }
             }
-            else // int, float, object[], Vector2[], etc
+            else // string, int, float, object[], Vector2[], etc
             {
                 ser.Serialize(this, instance);
             }
@@ -265,14 +341,27 @@ namespace Ship_Game.Data.Binary
             {
                 BW.WriteVLu32(0); // NULL pointer
             }
+            else if (ser.IsUserClass)
+            {
+                if (ser.IsPointerType)
+                {
+                    if (!Pointers.TryGetValue(element, out uint pointer))
+                    {
+                        // an UserClass object which was somehow missed by Pointer scan
+                        Log.Error($"BinarySerializer object pointer is missing: {element}");
+                    }
+                    BW.WriteVLu32(pointer); // write the object pointer or NULL if not found
+                }
+                else
+                {
+                    // an UserClass struct which has to be serialized inline
+                    WriteObjectRoot(ser, element);
+                }
+            }
+            // handle strings, T[], Array<T>, Map<T> etc
             else if (Pointers.TryGetValue(element, out uint pointer))
             {
                 BW.WriteVLu32(pointer); // write the object pointer
-            }
-            else if (ser.IsUserClass)
-            {
-                // an UserClass struct which has to be serialized inline
-                WriteObjectRoot(ser, element);
             }
             else // it's a float, int, Vector2, etc. dump it directly
             {

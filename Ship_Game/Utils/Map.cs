@@ -100,14 +100,4 @@ namespace Ship_Game
             lock (this) return Values.ToArray();
         }
     }
-
-    public static class MapHelper
-    {
-        public static IDictionary NewMapOfT(Type keyType, Type valType)
-        {
-            Type mapType = typeof(Map<,>);
-            Type genericMap = mapType.MakeGenericType(keyType, valType);
-            return Activator.CreateInstance(genericMap) as IDictionary;
-        }
-    }
 }

@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization
@@ -28,6 +22,12 @@ namespace Ship_Game.Data.Serialization
             Field = field;
             Type type = prop != null ? prop.PropertyType : field.FieldType;
             Serializer = typeMap.Get(type);
+        }
+
+        public DataField(int fieldIdx, string name)
+        {
+            FieldIdx = fieldIdx;
+            Name = name;
         }
 
         public void Set(object instance, object value)

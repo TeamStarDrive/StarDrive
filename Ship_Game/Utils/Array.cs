@@ -853,16 +853,6 @@ namespace Ship_Game
         void IList.Insert(int index, object value) => Insert(index, (T)value);
     }
 
-    public static class ArrayHelper
-    {
-        public static IList NewArrayOfT(Type elementType)
-        {
-            Type arrayType = typeof(Array<>);
-            Type genericArray = arrayType.MakeGenericType(elementType);
-            return Activator.CreateInstance(genericArray) as IList;
-        }
-    }
-
     // Optimized specializations for speeding up reference based lookup
     public static class ArrayOptimizations
     {

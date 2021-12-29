@@ -31,11 +31,11 @@ namespace Ship_Game.Data.Serialization
             // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
         }
 
-        public DataField GetFieldOrNull(int fieldIdx)
+        public DataField GetFieldOrNull(uint fieldIdx)
         {
             if (fieldIdx >= Index.Count)
                 return null;
-            return Index[fieldIdx];
+            return Index[(int)fieldIdx];
         }
 
         public DataField GetFieldOrNull(string fieldName)

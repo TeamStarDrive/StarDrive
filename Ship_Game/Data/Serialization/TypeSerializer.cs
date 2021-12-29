@@ -9,14 +9,14 @@ namespace Ship_Game.Data.Serialization
     {
         public const int MaxFundamentalTypes = 32;
 
-        // Id which is valid in a single serialization context
-        internal ushort Id;
+        // TypeId which is valid in a single serialization context
+        internal ushort TypeId;
         public readonly Type Type;
 
         /// <summary>
         /// If TRUE, this serializer is a primitive fundamental type
         /// </summary>
-        public bool IsFundamentalType => (Id < MaxFundamentalTypes);
+        public bool IsFundamentalType => (TypeId < MaxFundamentalTypes);
 
         /// <summary>
         /// If TRUE, this serializer is a collection serializer for Arrays or Maps

@@ -20,11 +20,6 @@ namespace Ship_Game.Data.Binary
         // Version from deserialized data
         public uint Version { get; private set; } = CurrentVersion;
 
-        // Serialize: set true to output TypesList with field names and perform Type mapping
-        //            set false to omit field names (smaller TypesList but crashes if field order changes)
-        // Deserialize: always overwritten by stream data
-        public bool UseStableMapping { get; set; } = true;
-
         public BinarySerializer(Type type) : base(type, new BinaryTypeMap())
         {
             TypeMap.Add(this);
@@ -73,11 +68,11 @@ namespace Ship_Game.Data.Binary
             // [types list]
             // [object type groups]
             // [objects list]
-            var header = new BinarySerializerHeader(UseStableMapping, ctx);
+            var header = new BinarySerializerHeader(ctx);
             header.Write(writer);
             if (ctx.NumObjects != 0)
             {
-                ctx.WriteTypesList(header.UseStableMapping);
+                ctx.WriteTypesList();
                 ctx.WriteObjectTypeGroups();
                 ctx.WriteObjects();
             }
@@ -91,7 +86,6 @@ namespace Ship_Game.Data.Binary
             // [objects list]
             var header = new BinarySerializerHeader(reader);
             Version = header.Version;
-            UseStableMapping = header.UseStableMapping;
             if (Version != CurrentVersion)
             {
                 Log.Warning($"BinarySerializer.Deserialize version mismatch: file({Version}) != current({CurrentVersion})");

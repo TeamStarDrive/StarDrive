@@ -312,6 +312,7 @@ namespace UnitTests.Serialization
             [StarData] public SmallStruct Struct;
             [StarData] public Array<StructContainer> Structs;
             [StarData] public Array<ComplexType> ComplexTypes;
+            [StarData] public ComplexType[] ComplexTypesArr;
             [StarData] public Map<string, int> Map;
 
             public ComplexType() {}
@@ -331,6 +332,7 @@ namespace UnitTests.Serialization
                     ComplexTypes = new Array<ComplexType>();
                     for (int i = 0; i < 2; ++i)
                         ComplexTypes.Add(new ComplexType("Subtype"+i, false));
+                    ComplexTypesArr = ComplexTypes.ToArray();
                 }
                 Map = new Map<string, int>();
                 Map.Add("Key1", 1);

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Ship_Game.Data.Binary
 {
@@ -6,25 +7,31 @@ namespace Ship_Game.Data.Binary
     {
         public uint Version;
         public uint Options;
-        public uint NumTypes;
+        public uint NumUserTypes;
+        public uint NumCollectionTypes;
+        public uint MaxTypeId;
         public uint NumTypeGroups;
         public uint RootObjectIndex;
 
-        public BinarySerializerHeader(bool stable, BinarySerializerWriter writer)
+        public BinarySerializerHeader(BinarySerializerWriter writer)
         {
             Version = BinarySerializer.CurrentVersion;
             Options = 0;
-            NumTypes = (uint)writer.UsedTypes.Length;
+            NumUserTypes = (uint)writer.UserTypes.Length;
+            NumCollectionTypes = (uint)writer.CollectionTypes.Length;
+            MaxTypeId = (uint)Math.Max(writer.UserTypes.Max(s => s.TypeId),
+                                       writer.CollectionTypes.Max(s => s.TypeId));
             NumTypeGroups = (uint)writer.TypeGroups.Length;
             RootObjectIndex = writer.RootObjectIndex;
-            UseStableMapping = stable;
         }
 
         public BinarySerializerHeader(BinaryReader reader)
         {
             Version = reader.ReadVLu32();
             Options = reader.ReadVLu32();
-            NumTypes = reader.ReadVLu32();
+            NumUserTypes = reader.ReadVLu32();
+            NumCollectionTypes = reader.ReadVLu32();
+            MaxTypeId = reader.ReadVLu32();
             NumTypeGroups = reader.ReadVLu32();
             RootObjectIndex = reader.ReadVLu32();
         }
@@ -33,15 +40,11 @@ namespace Ship_Game.Data.Binary
         {
             writer.WriteVLu32(Version);
             writer.WriteVLu32(Options);
-            writer.WriteVLu32(NumTypes);
+            writer.WriteVLu32(NumUserTypes);
+            writer.WriteVLu32(NumCollectionTypes);
+            writer.WriteVLu32(MaxTypeId);
             writer.WriteVLu32(NumTypeGroups);
             writer.WriteVLu32(RootObjectIndex);
-        }
-
-        public bool UseStableMapping
-        {
-            get => (Options & (1 << 1)) != 0;
-            set => Options = (byte)(value ? Options | (1 << 1) : Options & ~(1 << 1));
         }
     }
 }
