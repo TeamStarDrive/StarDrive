@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0"?>
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-  <Cost>5</Cost>
+  <Cost>10</Cost>
   <!-- Tech Level Used by AI for Upgrading Ships -->
   <TechLevel>1</TechLevel>
   
@@ -22,9 +22,9 @@
 
 
   <!-- Mass and Health -->
-  <Mass>15</Mass>
-  <Health>1800</Health>
-  <HealthMax>1800</HealthMax>
+  <Mass>22</Mass>
+  <Health>1500</Health>
+  <HealthMax>1500</HealthMax>
 
   <!-- Power Drawn -->
   <PowerDraw>4</PowerDraw>
@@ -37,7 +37,7 @@
  
   <!-- for Weapons -->
   <WeaponType>HeavyLaser</WeaponType>
-  <FieldOfFire>23</FieldOfFire>
+  <FieldOfFire>15</FieldOfFire>
   <Left>1</Left>
   <Right>1</Right>
   <Rear>1</Rear>

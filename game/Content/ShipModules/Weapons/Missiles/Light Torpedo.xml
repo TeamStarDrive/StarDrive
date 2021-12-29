@@ -17,7 +17,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/Light Torpedo</IconTexturePath>
-  <Mass>72</Mass>
+  <Mass>80</Mass>
   <Health>3900</Health>
   <HealthMax>3900</HealthMax>
   <energyreq>0</energyreq>

@@ -19,8 +19,8 @@
   
   
   <UID>HeavyLaser</UID>
-  <fireDelay>5</fireDelay>
-  <Range>7500</Range>
+  <fireDelay>6.5</fireDelay>
+  <Range>6500</Range>
   <PowerRequiredToFire>514</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
@@ -28,13 +28,13 @@
   <fireCueName>heavylaser1</fireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>462</DamageAmount>
-  <ProjectileSpeed>2150</ProjectileSpeed>
+  <DamageAmount>450</DamageAmount>
+  <ProjectileSpeed>2100</ProjectileSpeed>
   <explodes>false</explodes>
   <Light>Red</Light>
   <ProjectileTexturePath>projLong_02_red</ProjectileTexturePath>
   <ModelPath>projLong</ModelPath>
-  <ProjectileRadius>20</ProjectileRadius>
+  <ProjectileRadius>15</ProjectileRadius>
   <ProjectileCount>1</ProjectileCount>
   <FireArc>0</FireArc>
   <WeaponType>Energy Cannon</WeaponType>

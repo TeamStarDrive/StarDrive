@@ -18,7 +18,7 @@
 
   <IconTexturePath>Modules/LRMmk3</IconTexturePath>
 
-  <Mass>192</Mass>
+  <Mass>221</Mass>
   <Health>11600</Health>
   <HealthMax>11600</HealthMax>
   <RepairDifficulty>2.5</RepairDifficulty>
