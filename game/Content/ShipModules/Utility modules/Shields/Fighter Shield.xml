@@ -31,7 +31,6 @@
 
 
   <!-- for shield items -->
-  <shield_power>500</shield_power>
   <ShieldPowerMax>500</ShieldPowerMax>
   <ShieldRechargeDelay>10</ShieldRechargeDelay>
   <ShieldRechargeRate>10</ShieldRechargeRate>
