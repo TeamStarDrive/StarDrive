@@ -1450,7 +1450,6 @@ namespace Ship_Game.Ships
             }
         }
 
-
         // Base chance to evade and exploding ship
         public int ExplosionEvadeBaseChance()
         {
@@ -1489,7 +1488,7 @@ namespace Ship_Game.Ships
                     ExplosionManager.AddExplosion(position, Velocity, size * 1.75f, 12f, ExplosionType.Warp);
 
                 float explosionDamage = GetExplosionDamage();
-                UniverseScreen.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage / 1000);
+                UniverseScreen.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage / 500);
             }
         }
 
@@ -1499,9 +1498,10 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule m = ModuleSlotList[i];
-                damage += m.ExplosionDamageOnShipExplode(PowerCurrent / PowerStoreMax);
+                damage += m.ExplosionDamageOnShipExplode();
             }
 
+            damage += PowerCurrent + Ordinance + Health/10;
             return damage.LowerBound(Radius * 10);
         }
 
@@ -1565,7 +1565,7 @@ namespace Ship_Game.Ships
                 case RoleName.capital:
                 case RoleName.cruiser:
                 case RoleName.station:   ExplodeShip(size * 8, true);         break;
-                default:                          ExplodeShip(size * 8, cleanupOnly);  break;
+                default:                 ExplodeShip(size * 8, cleanupOnly);  break;
             }
 
             if (!HasExploded)
