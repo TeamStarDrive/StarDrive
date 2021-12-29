@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Ship_Game.Data.Binary;
 
 namespace Ship_Game.Data.Serialization
 {
     public abstract class CollectionSerializer : TypeSerializer
     {
-        protected readonly Type ElemType;
-        protected readonly TypeSerializer ElemSerializer;
+        public readonly Type ElemType;
+        public readonly TypeSerializer ElemSerializer;
+
+        public bool IsMapType { get; protected set; }
 
         protected CollectionSerializer(Type type, Type elemType, TypeSerializer elemSerializer) : base(type)
         {
@@ -17,5 +16,19 @@ namespace Ship_Game.Data.Serialization
             ElemType = elemType;
             ElemSerializer = elemSerializer;
         }
+
+        public abstract int Count(object instance);
+
+        public abstract object GetElementAt(object instance, int index);
+
+        /// <summary>
+        /// Collections only: Create an expandable collection instance
+        /// </summary>
+        public abstract object CreateInstance();
+
+        /// <summary>
+        /// Collections only: Deserialize into an existing object instance
+        /// </summary>
+        public abstract void Deserialize(BinarySerializerReader reader, object instance);
     }
 }

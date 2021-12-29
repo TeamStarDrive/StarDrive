@@ -1,21 +1,20 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
-    internal class RawArraySerializer : TypeSerializer
+    internal class RawArraySerializer : CollectionSerializer
     {
-        public override string ToString() => $"RawArraySerializer {ElemType.GetTypeName()}";
-        readonly Type ElemType;
-        readonly TypeSerializer ElemSerializer;
+        public override string ToString() => $"RawArraySerializer<{ElemType.GetTypeName()}>";
+        readonly Type GenericArrayType;
 
-        public RawArraySerializer(Type type, Type elemType, TypeSerializer elemSerializer) : base(type)
+        public RawArraySerializer(Type type, Type elemType, TypeSerializer elemSerializer)
+            : base(type, elemType, elemSerializer)
         {
-            ElemType = elemType;
-            ElemSerializer = elemSerializer;
-            IsCollection = true;
+            GenericArrayType = typeof(Array<>).MakeGenericType(elemType);
         }
 
         public override object Convert(object value)
@@ -82,12 +81,42 @@ namespace Ship_Game.Data.Serialization.Types
         {
             int count = (int)reader.BR.ReadVLu32();
             Array converted = Array.CreateInstance(ElemType, count);
+            TypeInfo elementType = reader.GetType(ElemSerializer);
             for (int i = 0; i < count; ++i)
             {
-                object element = reader.ReadElement(ElemSerializer);
+                object element = reader.ReadElement(elementType, ElemSerializer);
                 converted.SetValue(element, i);
             }
             return converted;
+        }
+
+        public override int Count(object instance)
+        {
+            var array = (Array)instance;
+            return array.Length;
+        }
+
+        public override object GetElementAt(object instance, int index)
+        {
+            var array = (Array)instance;
+            return array.GetValue(index);
+        }
+
+        public override object CreateInstance()
+        {
+            return Activator.CreateInstance(GenericArrayType);
+        }
+
+        public override void Deserialize(BinarySerializerReader reader, object instance)
+        {
+            int count = (int)reader.BR.ReadVLu32();
+            var list = (IList)instance;
+            TypeInfo elementType = reader.GetType(ElemSerializer);
+            for (int i = 0; i < count; ++i)
+            {
+                object element = reader.ReadElement(elementType, ElemSerializer);
+                list.Add(element);
+            }
         }
     }
 }

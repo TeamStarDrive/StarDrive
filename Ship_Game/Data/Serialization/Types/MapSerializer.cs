@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
@@ -10,8 +8,9 @@ namespace Ship_Game.Data.Serialization.Types
     internal class MapSerializer : CollectionSerializer
     {
         public override string ToString() => $"MapSerializer<{KeyType.GetTypeName()}, {ElemType.GetTypeName()}>";
-        readonly Type KeyType;
-        readonly TypeSerializer KeySerializer;
+        public readonly Type KeyType;
+        public readonly TypeSerializer KeySerializer;
+        public readonly Type GenericMapType;
 
         public MapSerializer(Type type,
                              Type keyType, TypeSerializer keySerializer,
@@ -20,6 +19,8 @@ namespace Ship_Game.Data.Serialization.Types
         {
             KeyType = keyType;
             KeySerializer = keySerializer;
+            IsMapType = true;
+            GenericMapType = typeof(Map<,>).MakeGenericType(keyType, valType);
         }
 
         public override object Convert(object value)
@@ -39,7 +40,7 @@ namespace Ship_Game.Data.Serialization.Types
             Array<YamlNode> nodes = node.SequenceOrSubNodes;
             if (nodes?.Count > 0)
             {
-                IDictionary dict = MapHelper.NewMapOfT(KeyType, ElemType);
+                var dict = (IDictionary)Activator.CreateInstance(GenericMapType);
                 for (int i = 0; i < nodes.Count; ++i)
                 {
                     YamlNode keyVal = nodes[i];
@@ -89,18 +90,44 @@ namespace Ship_Game.Data.Serialization.Types
                 writer.WriteElement(ElemSerializer, e.Value);
             }
         }
-        
+
         public override object Deserialize(BinarySerializerReader reader)
         {
+            object dict = Activator.CreateInstance(GenericMapType);
+            Deserialize(reader, dict);
+            return dict;
+        }
+
+        public override int Count(object instance)
+        {
+            var dict = (IDictionary)instance;
+            return dict.Count;
+        }
+
+        public override object GetElementAt(object instance, int index)
+        {
+            throw new NotImplementedException("GetElementAt(index) not supported for Map types");
+        }
+
+        public override object CreateInstance()
+        {
+            return Activator.CreateInstance(GenericMapType);
+        }
+
+        public override void Deserialize(BinarySerializerReader reader, object instance)
+        {
+            var dict = (IDictionary)instance;
             int count = (int)reader.BR.ReadVLu32();
-            IDictionary dict = MapHelper.NewMapOfT(KeyType, ElemType);
+
+            TypeInfo keyType = reader.GetType(KeySerializer);
+            TypeInfo elementType = reader.GetType(ElemSerializer);
+
             for (int i = 0; i < count; ++i)
             {
-                object key = reader.ReadElement(KeySerializer);
-                object val = reader.ReadElement(ElemSerializer);
+                object key = reader.ReadElement(keyType, KeySerializer);
+                object val = reader.ReadElement(elementType, ElemSerializer);
                 dict.Add(key, val);
             }
-            return dict;
         }
     }
 }
