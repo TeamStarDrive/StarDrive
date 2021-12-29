@@ -1450,6 +1450,24 @@ namespace Ship_Game.Ships
             }
         }
 
+        // Base chance to evade and exploding ship
+        public int ExplosionEvadeBaseChance()
+        {
+            switch (shipData.HullRole)
+            {
+                default:
+                case RoleName.drone:      return 80;
+                case RoleName.scout:      return 80;
+                case RoleName.fighter:    return 70;
+                case RoleName.corvette:   return 60;
+                case RoleName.frigate:    return 40;
+                case RoleName.cruiser:    return 20;
+                case RoleName.battleship: return 10;
+                case RoleName.capital: 
+                case RoleName.station:    return 0;
+            }
+        }
+
         void ExplodeShip(float size, bool addWarpExplode)
         {
             if (!InFrustum || !IsVisibleToPlayer)
@@ -1469,8 +1487,22 @@ namespace Ship_Game.Ships
                 if (addWarpExplode)
                     ExplosionManager.AddExplosion(position, Velocity, size * 1.75f, 12f, ExplosionType.Warp);
 
-                UniverseScreen.Spatial.ShipExplode(this, size * 50, Position, Radius);
+                float explosionDamage = GetExplosionDamage();
+                UniverseScreen.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage / 500);
             }
+        }
+
+        float GetExplosionDamage()
+        {
+            float damage = 0;
+            for (int i = 0; i < ModuleSlotList.Length; i++)
+            {
+                ShipModule m = ModuleSlotList[i];
+                damage += m.GetExplosionDamageOnShipExplode();
+            }
+
+            damage += PowerCurrent + Ordinance + Health/10;
+            return damage.LowerBound(Radius * 10);
         }
 
         public void InstantKill()
@@ -1533,7 +1565,7 @@ namespace Ship_Game.Ships
                 case RoleName.capital:
                 case RoleName.cruiser:
                 case RoleName.station:   ExplodeShip(size * 8, true);         break;
-                default:                          ExplodeShip(size * 8, cleanupOnly);  break;
+                default:                 ExplodeShip(size * 8, cleanupOnly);  break;
             }
 
             if (!HasExploded)
