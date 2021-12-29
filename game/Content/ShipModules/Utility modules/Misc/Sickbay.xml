@@ -32,7 +32,7 @@
   <TroopCapacity>3</TroopCapacity>
   <TroopsSupplied>3</TroopsSupplied>
   <!-- for shield items -->
-  <shield_power>0</shield_power>
+  
   <ShieldPowerMax>0</ShieldPowerMax>
   <ShieldRechargeDelay>0</ShieldRechargeDelay>
   <ShieldRechargeRate>0</ShieldRechargeRate>
