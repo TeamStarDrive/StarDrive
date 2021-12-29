@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>CrystalArmor</UID>
   <TechnologyType>ShipDefense</TechnologyType>
-  <Cost>3800</Cost>
+  <Cost>4400</Cost>
   <RootNode>0</RootNode>
   <Name>CrystalArmor</Name>
   <NameIndex>6574</NameIndex>
