@@ -402,7 +402,7 @@ namespace Ship_Game.Ships
 
             Point pt = WorldToGridLocalPoint(worldPoint);
             if (!LocalPointInBounds(pt))
-                return ExternalModuleGrid.FindMinFiltered(em => em != null, em => em.Position.SqDist(worldPoint));
+                pt = ClipLocalPoint(pt);
 
             ShipModule[] grid = ExternalModuleGrid;
             int width = GridWidth;

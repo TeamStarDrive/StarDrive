@@ -1498,7 +1498,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule m = ModuleSlotList[i];
-                damage += m.ExplosionDamageOnShipExplode();
+                damage += m.GetExplosionDamageOnShipExplode();
             }
 
             damage += PowerCurrent + Ordinance + Health/10;
