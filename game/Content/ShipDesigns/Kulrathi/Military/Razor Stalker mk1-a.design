@@ -1,0 +1,47 @@
+﻿Version=1
+Name=Razor Stalker mk1-a
+Hull=Kulrathi/Razor
+Role=corvette
+Style=Kulrathi
+Size=10,6
+GridCenter=5,3
+DefaultAIState=DoNothing
+DefaultCombatState=Artillery
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=SteelArmorSmall;Fighter Shield;NuclearReactorMed;Cockpit;BasicFuelCell;LaserBeamTurret2x2;NuclearReactorSmall;PowerConduit;WarpEngine_1x1;Engine;Maneuvering_Thruster_1x1
+Modules=29
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+3,0;0
+6,0;0
+3,1;0
+4,1;0
+5,1;0
+6,1;0
+2,2;0
+3,2;1
+4,2;2;2,2
+6,2;1
+7,2;0
+1,3;0
+2,3;3
+3,3;4
+6,3;4
+7,3;4
+8,3;0
+0,4;5;2,2
+2,4;6
+3,4;7
+4,4;8
+5,4;9
+6,4;4
+7,4;6
+8,4;5;2,2
+2,5;10
+4,5;8
+5,5;9
+7,5;10
