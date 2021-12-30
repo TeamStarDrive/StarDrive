@@ -1,13 +1,13 @@
 ﻿using System;
 using System.IO;
-using System.Text;
-using Microsoft.Xna.Framework;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
     public class ObjectSerializer : TypeSerializer
     {
+        public ObjectSerializer() : base(typeof(object)) { }
         public override string ToString() => "ObjectSerializer";
         
         public override object Convert(object value)
@@ -20,20 +20,21 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
-            Log.Error($"Serialize not supported for {ToString()}");
+            Log.Error($"Serialize(binary) not supported for {ToString()}");
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            Log.Error($"Deserialize not supported for {ToString()}");
+            Log.Error($"Deserialize(binary) not supported for {ToString()}");
             return null;
         }
     }
 
     internal class RangeSerializer : TypeSerializer
     {
+        public RangeSerializer() : base(typeof(Range)) { }
         public override string ToString() => "RangeSerializer";
 
         public override object Convert(object value)
@@ -47,18 +48,18 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = new object[]{ r.Min, r.Max };
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var range = (Range)obj;
-            writer.Write(range.Min);
-            writer.Write(range.Max);
+            writer.BW.Write(range.Min);
+            writer.BW.Write(range.Max);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
             Range range;
-            range.Min = reader.ReadSingle();
-            range.Max = reader.ReadSingle();
+            range.Min = reader.BR.ReadSingle();
+            range.Max = reader.BR.ReadSingle();
             return range;
         }
 
@@ -82,8 +83,79 @@ namespace Ship_Game.Data.Serialization.Types
         }
     }
 
+    // UTC DateTime Serializer
+    internal class DateTimeSerializer : TypeSerializer
+    {
+        public DateTimeSerializer() : base(typeof(DateTime)) { }
+        public override string ToString() => "DateTimeSerializer";
+
+        public override object Convert(object value)
+        {
+            if (value is string s)
+            {
+                string[] parts = s.Split(' ');
+                if (parts.Length != 2)
+                {
+                    Error(value, "DateTime -- expected string 'yyyy-mm-dd hh:mm:ss' separated by a space");
+                    return DateTime.MinValue;
+                }
+
+                string[] date = parts[0].Split('-');
+                if (date.Length != 3)
+                {
+                    Error(value, "DateTime -- expected string 'yyyy-mm-dd hh:mm:ss' with 3 date components separated by dashes -");
+                    return DateTime.MinValue;
+                }
+
+                string[] time = parts[1].Split(':');
+                if (time.Length != 3)
+                {
+                    Error(value, "DateTime -- expected string 'yyyy-mm-dd hh:mm:ss' with 3 timeofday components separated by colons :");
+                    return DateTime.MinValue;
+                }
+
+                if (!int.TryParse(date[0], out int year) ||
+                    !int.TryParse(date[1], out int month) ||
+                    !int.TryParse(date[2], out int day) ||
+                    !int.TryParse(time[0], out int hour) ||
+                    !int.TryParse(time[1], out int minute) ||
+                    !int.TryParse(time[2], out int second))
+                {
+                    Error(value, "DateTime -- expected string 'yyyy-mm-dd hh:mm:ss' with all components being integers");
+                    return DateTime.MinValue;
+                }
+
+                return new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc);
+            }
+            if (value is long l) return new DateTime(l, DateTimeKind.Utc);
+            if (value is int i) return new DateTime(i, DateTimeKind.Utc);
+            Error(value, "DateTime -- expected string 'yyyy-mm-dd hh:mm:ss' or long ticks or int ticks");
+            return DateTime.MinValue;
+        }
+
+        public override void Serialize(YamlNode parent, object obj)
+        {
+            var dt = (DateTime)obj;
+            var tod = dt.TimeOfDay;
+            // 'yyyy-mm-dd hh:mm:ss'
+            parent.Value = $"{dt.Year,4}-{dt.Month,2}-{dt.Day} {tod.Hours,2}:{tod.Minutes,2}:{tod.Seconds}";
+        }
+
+        public override void Serialize(BinarySerializerWriter writer, object obj)
+        {
+            var dt = (DateTime)obj;
+            writer.BW.Write(dt.Ticks);
+        }
+
+        public override object Deserialize(BinarySerializerReader reader)
+        {
+            return new DateTime(reader.BR.ReadInt64(), DateTimeKind.Utc);
+        }
+    }
+
     internal class TimeSpanSerializer : TypeSerializer
     {
+        public TimeSpanSerializer() : base(typeof(TimeSpan)) { }
         public override string ToString() => "TimeSpanSerializer";
 
         public override object Convert(object value)
@@ -100,15 +172,15 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = (float)span.TotalSeconds;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var span = (TimeSpan)obj;
-            writer.Write(span.Ticks);
+            writer.BW.WriteVLi64(span.Ticks);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            return new TimeSpan(reader.ReadInt64());
+            return new TimeSpan(reader.BR.ReadVLi64());
         }
     }
 }

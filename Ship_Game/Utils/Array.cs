@@ -683,6 +683,10 @@ namespace Ship_Game
             }
         }
 
+        // Sorts array items by calling comparsion(a, b) between all items
+        // comparison(): return -1: a is less than b, thus a should be first
+        //               return  0: a is equal to b, order does not matter
+        //               return +1: a is greater than b, thus b should be first
         public void Sort(Comparison<T> comparison)
         {
             Array.Sort(Items, 0, Count, new Comparer(comparison));
@@ -847,16 +851,6 @@ namespace Ship_Game
         int IList.IndexOf(object value)   => IndexOf((T)value);
         void IList.Remove(object value)   => Remove((T)value);
         void IList.Insert(int index, object value) => Insert(index, (T)value);
-    }
-
-    public static class ArrayHelper
-    {
-        public static IList NewArrayOfT(Type elementType)
-        {
-            Type arrayType = typeof(Array<>);
-            Type genericArray = arrayType.MakeGenericType(elementType);
-            return Activator.CreateInstance(genericArray) as IList;
-        }
     }
 
     // Optimized specializations for speeding up reference based lookup

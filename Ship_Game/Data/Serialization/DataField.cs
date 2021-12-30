@@ -1,30 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization
 {
     public class DataField
     {
-        public int Id;
+        // Zero based field index that is set during serializer type resolve
+        public int FieldIdx;
+        public string Name;
         readonly PropertyInfo Prop;
         readonly FieldInfo Field;
         public readonly TypeSerializer Serializer;
-        
+
         public override string ToString() => Prop?.ToString() ?? Field?.ToString() ?? "invalid";
 
-        public DataField(int id, TypeSerializerMap typeMap, PropertyInfo prop, FieldInfo field)
+        public DataField(TypeSerializerMap typeMap, StarDataAttribute a, PropertyInfo prop, FieldInfo field)
         {
-            Id = id;
+            Name = a.NameId.NotEmpty() ? a.NameId : (prop?.Name ?? field.Name);
             Prop  = prop;
             Field = field;
             Type type = prop != null ? prop.PropertyType : field.FieldType;
             Serializer = typeMap.Get(type);
+        }
+
+        public DataField(int fieldIdx, string name)
+        {
+            FieldIdx = fieldIdx;
+            Name = name;
         }
 
         public void Set(object instance, object value)
@@ -48,23 +51,6 @@ namespace Ship_Game.Data.Serialization
                 return true;
             }
             return false;
-        }
-
-        public bool Serialize(BinaryWriter writer, object instance)
-        {
-            object value = Get(instance);
-            if (value != null)
-            {
-                Serializer.Serialize(writer, value);
-                return true;
-            }
-            return false;
-        }
-
-        public void Deserialize(BinaryReader reader, object instance)
-        {
-            object value = Serializer.Deserialize(reader);
-            Set(instance, value);
         }
 
         public void SetConverted(object instance, object valueToConvert)

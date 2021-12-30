@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.YamlSerializer
@@ -12,24 +14,34 @@ namespace Ship_Game.Data.YamlSerializer
     // And turn it into usable game objects
     public class YamlSerializer : UserTypeSerializer
     {
-        public override string ToString() => $"YamlSerializer {TheType.GetTypeName()}";
+        public override string ToString() => $"YamlSerializer {Type.GetTypeName()}";
 
-        public YamlSerializer(Type type) : base(type)
+        public YamlSerializer(Type type) : base(type, new YamlTypeMap())
         {
-            IsUserClass = true;
+            ResolveTypes();
         }
 
-        protected override TypeSerializerMap CreateTypeMap()
+        public YamlSerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)
         {
-            return new YamlSerializerMap();
+        }
+
+        // cache for yaml type converters
+        class YamlTypeMap : TypeSerializerMap
+        {
+            public YamlTypeMap()
+            {
+                Add(new ObjectSerializer());
+            }
+
+            public override TypeSerializer AddUserTypeSerializer(Type type)
+            {
+                return Add(new YamlSerializer(type, this));
+            }
         }
 
         public override object Deserialize(YamlNode node)
         {
-            if (Mapping == null)
-                ResolveTypes();
-
-            object item = Activator.CreateInstance(TheType);
+            object item = Activator.CreateInstance(Type);
 
             bool hasKey = (node.Key != null);
             bool hasValue = (node.Value != null);
@@ -87,9 +99,6 @@ namespace Ship_Game.Data.YamlSerializer
 
         public override void Serialize(YamlNode parent, object obj)
         {
-            if (Mapping == null)
-                ResolveTypes();
-
             foreach (KeyValuePair<string, DataField> kv in Mapping)
             {
                 object value = kv.Value.Get(obj);
@@ -124,21 +133,21 @@ namespace Ship_Game.Data.YamlSerializer
         {
             var root = new YamlNode
             {
-                Key = TheType.Name
+                Key = Type.Name
             };
 
             Serialize(root, obj);
             root.SerializeTo(writer);
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
-            Log.Error($"Serialize (binary) not supported for {ToString()}");
+            Log.Error($"Serialize (binary) not supported for {this}");
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            Log.Error($"Deserialize (binary) not supported for {ToString()}");
+            Log.Error($"Deserialize (binary) not supported for {this}");
             return null;
         }
     }

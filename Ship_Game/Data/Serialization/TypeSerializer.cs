@@ -1,35 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Ship_Game.Data.Yaml;
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ship_Game.Data.Yaml;
+using Ship_Game.Data.Binary;
 
 namespace Ship_Game.Data.Serialization
 {
     public abstract class TypeSerializer
     {
-        public class TextSerializerContext
-        {
-            // StringWriter(StringBuilder) or StreamWriter(File)
-            public TextWriter Writer;
-            public int Depth;
-            public StringBuilder Buffer = new StringBuilder();
-
-            // If True, next Serialized value will omit prefix spaces
-            public bool IgnoreSpacePrefixOnce;
-
-            public int TabSize = 2; // default tab size for Depth increase
-        }
-
         public const int MaxFundamentalTypes = 32;
 
-        // Id which is valid in a single serialization context
-        internal ushort Id;
-        internal Type Type;
+        // TypeId which is valid in a single serialization context
+        internal ushort TypeId;
+        public readonly Type Type;
 
-        public bool IsFundamentalType => (Id <= MaxFundamentalTypes);
+        /// <summary>
+        /// If TRUE, this serializer is a primitive fundamental type
+        /// </summary>
+        public bool IsFundamentalType => (TypeId < MaxFundamentalTypes);
 
         /// <summary>
         /// If TRUE, this serializer is a collection serializer for Arrays or Maps
@@ -37,9 +24,36 @@ namespace Ship_Game.Data.Serialization
         public bool IsCollection { get; protected set; }
 
         /// <summary>
-        /// If TRUE, this serializer as a custom user class type
+        /// If TRUE, this serializer is made for a custom user class type
+        /// marked with [StarDataType] attribute
         /// </summary>
         public bool IsUserClass { get; protected set; }
+
+        /// <summary>
+        /// If TRUE, instances of this type should be represented by pointers,
+        /// all Classes fall in this category.
+        /// If FALSE, instances are value types such as primitives or structs,
+        /// and can't be represented by pointers.
+        /// </summary>
+        public bool IsPointerType { get; protected set; }
+
+        /// <summary>
+        /// Serializer category for easier classification during Deserialization
+        /// </summary>
+        public SerializerCategory Category { get; protected set; }
+
+        /// <summary>
+        /// Overriden TypeName of this TypeSerializer
+        /// Defaults to Type.Name
+        /// </summary>
+        public string TypeName { get; protected set; }
+
+        protected TypeSerializer(Type type)
+        {
+            Type = type;
+            IsPointerType = !type.IsValueType;
+            TypeName = type.Name;
+        }
 
         /// <summary>
         /// Convert from a generic Deserialized object into the underlying Type
@@ -77,48 +91,50 @@ namespace Ship_Game.Data.Serialization
         /// <summary>
         /// BINARY Serialize this object
         /// </summary>
-        public abstract void Serialize(BinaryWriter writer, object obj);
+        public abstract void Serialize(BinarySerializerWriter writer, object obj);
         
         /// <summary>
         /// BINARY Deserialize this object
         /// </summary>
-        public abstract object Deserialize(BinaryReader reader);
+        public abstract object Deserialize(BinarySerializerReader reader);
 
-        public static void WriteFieldId(BinaryWriter writer, int fieldId)
-        {
-            if (fieldId > 255)
-                throw new IndexOutOfRangeException($"TypeSerializer could not handle so many fields: {fieldId} > 255");
-            writer.Write((byte)fieldId);
-        }
-
-        public static void WriteSerializerId(BinaryWriter writer, int serializerId)
-        {
-            if (serializerId > ushort.MaxValue)
-                throw new IndexOutOfRangeException($"TypeSerializer could not handle so many serializers: {serializerId} > 65535");
-            writer.Write((ushort)serializerId);
-        }
-
-        public static void Error(object value, string couldNotConvertToWhat)
+        protected static void Error(object value, string couldNotConvertToWhat)
         {
             string e = $"TypeSerializer could not convert '{value}' ({value?.GetType()}) to {couldNotConvertToWhat}";
             Log.Error(e);
         }
 
-        public static float Float(object value)
+        protected static float Float(object value)
         {
             if (value is float f)  return f;
+            if (value is double d) return (float)d;
             if (value is int i)    return i;
             if (value is string s) return StringView.ToFloat(s);
-            Error(value, "Float -- expected int or float or string");
-            return 0f;
+            Error(value, "Float -- expected int or float or double or string");
+            return 0.0f;
         }
 
-        public static float Float(string value)
+        protected static double Double(object value)
+        {
+            if (value is double d) return d;
+            if (value is float f) return f;
+            if (value is int i) return i;
+            if (value is string s) return StringView.ToFloat(s);
+            Error(value, "Double -- expected int or float or doubl or string");
+            return 0.0;
+        }
+
+        protected static float Float(string value)
         {
             return StringView.ToFloat(value);
         }
 
-        public static byte Byte(object value)
+        protected static double Double(string value)
+        {
+            return StringView.ToDouble(value);
+        }
+
+        protected static byte Byte(object value)
         {
             if (value is int i)   return (byte)i;
             if (value is float f) return (byte)(int)f;
@@ -126,7 +142,7 @@ namespace Ship_Game.Data.Serialization
             return 0;
         }
 
-        public static int Int(object value)
+        protected static int Int(object value)
         {
             if (value is int i) return i;
             if (value is float f) return (int)f;
