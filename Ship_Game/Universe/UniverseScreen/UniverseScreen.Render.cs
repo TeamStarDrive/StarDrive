@@ -608,7 +608,7 @@ namespace Ship_Game
                 Frustum.Matrix = View * Projection;
 
             CreateShipSceneObjects();
-            
+
             BeginSunburnPerf.Start();
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
             BeginSunburnPerf.Stop();
@@ -632,16 +632,17 @@ namespace Ship_Game
             DrawAnomalies(rs);
             DrawPlanets();
 
-            DrawShields();
-            DrawAndUpdateParticles(elapsed, rs);
-            DrawExplosions(batch);
-            DrawOverlayShieldBubbles(batch);
-            
             EndSunburnPerf.Start();
             {
                 ScreenManager.EndFrameRendering();
             }
             EndSunburnPerf.Stop();
+
+            // render shield and particle effects after Sunburn 3D models
+            DrawShields();
+            DrawAndUpdateParticles(elapsed, rs);
+            DrawExplosions(batch);
+            DrawOverlayShieldBubbles(batch);
 
             RenderGroupTotalPerf.Stop();
 
