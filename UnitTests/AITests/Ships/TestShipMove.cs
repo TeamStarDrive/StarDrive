@@ -53,6 +53,10 @@ namespace UnitTests.AITests.Ships
                 Universe.Objects.Update(TestSimStep); // update ships and do scans
                 sawEnemyShip |= ship.AI.BadGuysNear;
             });
+
+            // now wait a bit more to allow our ship to finish final approach
+            RunObjectsSim(5.0f);
+
             Assert.IsTrue(sawEnemyShip, "Did not see an enemy while at warp");
             Assert.IsTrue(ship.AI.BadGuysNear, "Bad guys near was not set");
             Assert.IsTrue(ship.Position.InRadius(movePosition, 6000), "final move failed");
@@ -85,9 +89,13 @@ namespace UnitTests.AITests.Ships
                 sawEnemyShip |= ship.AI.BadGuysNear;
             });
 
+            // now wait a bit more to allow our ship to approach the enemy
+            RunObjectsSim(10.0f);
+
             Assert.IsTrue(sawEnemyShip, "Did not see an enemy while at warp");
             Assert.IsTrue(ship.AI.BadGuysNear, "Bad guys near was not set");
-            Assert.IsTrue(ship.Position.InRadius(enemy.Position, 7500), $"CombatMove failed: {ship} not at {enemy}");
+            Assert.IsTrue(ship.Position.InRadius(enemy.Position, 7500),
+                          $"CombatMove failed distance={ship.Position.Distance(enemy.Position)} Ship={ship} Enemy={enemy}");
         }
 
         [TestMethod]
