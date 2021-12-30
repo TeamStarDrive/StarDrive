@@ -42,7 +42,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             OldShip.RemoveFromPoolAndFleet(clearOrders: false);
 
-            if (OldShip.shipData.Role <= RoleName.station && OldShip.ScuttleTimer < 0
+            if (OldShip.ShipData.Role <= RoleName.station && OldShip.ScuttleTimer < 0
                 || !empire.FindPlanetToScrapIn(OldShip, out PlanetBuildingAt))
             {
                 // No planet to refit, scuttling ship
@@ -91,7 +91,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         void RemoveOldScrapGoal()
         {
             if (OldShip.AI.FindGoal(ShipAI.Plan.Scrap, out _))
-                OldShip.loyalty.GetEmpireAI().FindAndRemoveGoal(GoalType.ScrapShip, g => g.OldShip == OldShip);
+                OldShip.Loyalty.GetEmpireAI().FindAndRemoveGoal(GoalType.ScrapShip, g => g.OldShip == OldShip);
         }
 
         GoalStep ImmediateScuttleSelfDestruct()

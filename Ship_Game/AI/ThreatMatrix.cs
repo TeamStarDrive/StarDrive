@@ -40,10 +40,10 @@ namespace Ship_Game.AI
             {
                 Position   = ship.Position;
                 Strength   = ship.GetStrength();
-                EmpireName = ship.loyalty.data.Traits.Name;
+                EmpireName = ship.Loyalty.data.Traits.Name;
                 InBorders  = inBorders;
                 Ship       = ship;
-                PinGuid    = ship.guid;
+                PinGuid    = ship.Guid;
                 SetSystem(ship.System);
             }
 
@@ -65,7 +65,7 @@ namespace Ship_Game.AI
             {
                 if (EmpireId > 0) return EmpireManager.GetEmpireById(EmpireId);
                 if (EmpireName.NotEmpty()) return EmpireManager.GetEmpireByName(EmpireName);
-                return Ship?.loyalty;
+                return Ship?.Loyalty;
             }
 
             public void Refresh(Ship ship, bool inSensorRadius, bool shipInBorders)
@@ -74,8 +74,8 @@ namespace Ship_Game.AI
                 {
                     Position   = ship.Position;
                     Strength   = ship.GetStrength();
-                    EmpireName = ship.loyalty.data.Traits.Name;
-                    EmpireId   = ship.loyalty.Id;
+                    EmpireName = ship.Loyalty.data.Traits.Name;
+                    EmpireId   = ship.Loyalty.Id;
                     InBorders  = shipInBorders;
                     var system = ship.System;
                     SetSystem(system);
@@ -96,7 +96,7 @@ namespace Ship_Game.AI
                 return pin;
             }
 
-            public Guid GetGuid() => Ship?.guid ?? PinGuid;
+            public Guid GetGuid() => Ship?.Guid ?? PinGuid;
         }
 
         public ThreatMatrix(Empire empire)
@@ -179,7 +179,7 @@ namespace Ship_Game.AI
             {
                 Pin pin = pins[i];
                 Ship ship = pin.Ship;
-                if (ship != null && position.InRadius(pin.Position, radius) && empire.IsEmpireHostile(ship.loyalty))
+                if (ship != null && position.InRadius(pin.Position, radius) && empire.IsEmpireHostile(ship.Loyalty))
                 {
                     results.Add(pin.Ship);
                 }
@@ -311,7 +311,7 @@ namespace Ship_Game.AI
                 Pin pin = pins[i];
                 if (pin?.Position.InRadius(position, radius) == true)
                 {
-                    Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
+                    Empire pinEmpire = pin.Ship?.Loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
                     if (!hostileOnly)
                     {
                         str += us.IsEmpireAttackable(pinEmpire) ? pin.Strength : 0;
@@ -487,7 +487,7 @@ namespace Ship_Game.AI
                 {
                     Pin pin = pins1[i];
                     if (pin?.Position.InRadius(position, radius) != true) continue;
-                    Empire pinEmpire = pin.Ship?.loyalty ?? pin.GetEmpire();
+                    Empire pinEmpire = pin.Ship?.Loyalty ?? pin.GetEmpire();
                     {
                         if (us.IsEmpireHostile(pinEmpire))
                             pins.Add(pin);
@@ -499,13 +499,13 @@ namespace Ship_Game.AI
 
         public void AddOrUpdatePin(Ship ship, bool shipInBorders, bool inSensorRadius)
         {
-            if (!Pins.TryGetValue(ship?.guid ?? Guid.Empty, out Pin pin))
+            if (!Pins.TryGetValue(ship?.Guid ?? Guid.Empty, out Pin pin))
             {
                 if (!inSensorRadius)
                     return; // don't add new pin if not in sensor radius
 
                 pin = new Pin(ship, shipInBorders);
-                Pins.Add(ship.guid, pin);
+                Pins.Add(ship.Guid, pin);
             }
             else if (ship?.Active == true)
                 pin.Refresh(ship, inSensorRadius, shipInBorders);
@@ -586,9 +586,9 @@ namespace Ship_Game.AI
                 // Deal with only pins ships that are known to the empire
                 if (pinShip?.KnownByEmpires.KnownBy(owner) == true)
                 {
-                    if (pinShip.dying == false 
+                    if (pinShip.Dying == false 
                         && pinShip.Active
-                        && pinShip.loyalty != owner && !owner.IsAlliedWith(pinShip.loyalty))
+                        && pinShip.Loyalty != owner && !owner.IsAlliedWith(pinShip.Loyalty))
                     {
                         threatCopy.AddOrUpdatePin(pinShip, pinShip.IsInBordersOf(owner), true);
                     }
@@ -619,7 +619,7 @@ namespace Ship_Game.AI
 
         public Pin[] GetPins() => Pins.AtomicValuesArray();
 
-        public bool RemovePin(Ship ship) => RemovePin(ship.guid);
+        public bool RemovePin(Ship ship) => RemovePin(ship.Guid);
 
         bool RemovePin(Guid shipGuid)
         {
@@ -672,8 +672,8 @@ namespace Ship_Game.AI
                 for (int i = 0; i < pins.Length; i++)
                 {
                     Pin pin = pins[i];
-                    if (pin.Ship != null && pin.Ship.loyalty == empire)
-                        techs.UnionWith(pin.Ship.shipData.TechsNeeded);
+                    if (pin.Ship != null && pin.Ship.Loyalty == empire)
+                        techs.UnionWith(pin.Ship.ShipData.TechsNeeded);
                 }
             }
         }

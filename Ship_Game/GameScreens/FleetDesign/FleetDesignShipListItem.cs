@@ -29,7 +29,7 @@ namespace Ship_Game
             
             if (Ship != null)
             {
-                batch.Draw(Ship.shipData.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
+                batch.Draw(Ship.ShipData.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
 
                 var tCursor = new Vector2(X + 40f, Y + 3f);
                 batch.DrawString(Fonts.Arial12Bold, Ship.ShipName, tCursor, Color.White);
@@ -37,13 +37,13 @@ namespace Ship_Game
 
                 if (Hovered)
                 {
-                    batch.DrawString(Fonts.Arial8Bold, Ship.shipData.GetRole(), tCursor, Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, Ship.ShipData.GetRole(), tCursor, Color.Orange);
                 }
                 else
                 {
                     if (Screen.SubShips.SelectedIndex == 0)
                     {
-                        batch.DrawString(Fonts.Arial12Bold, Ship.shipData.GetRole(), tCursor, Color.Orange);
+                        batch.DrawString(Fonts.Arial12Bold, Ship.ShipData.GetRole(), tCursor, Color.Orange);
                     }
                     else if (Ship.System == null)
                     {

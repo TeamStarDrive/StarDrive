@@ -42,7 +42,7 @@ namespace UnitTests.Fleets
 
         void CreateTestFleet(Array<Ship> ships, Array<Fleet> fleets)
         {
-            var fleet = new Fleet(){Owner = ships[0].loyalty};
+            var fleet = new Fleet(){Owner = ships[0].Loyalty};
             foreach(var ship in ships)
             {
                 fleet.AddShip(ship);

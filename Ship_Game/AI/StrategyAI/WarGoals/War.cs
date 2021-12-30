@@ -187,7 +187,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void ShipWeKilled(Ship target)
         {
-            if (Them != target.loyalty || target.IsHangarShip || target.IsHomeDefense)
+            if (Them != target.Loyalty || target.IsHangarShip || target.IsHomeDefense)
                 return;
 
             StrengthKilled += target.GetStrength();

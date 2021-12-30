@@ -21,7 +21,7 @@ namespace Ship_Game.AI.CombatTactics
 
             if (!Owner.Carrier.HasActiveTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
                 return;
-            if (!Owner.loyalty.isFaction && Target?.shipData.Role <= RoleName.drone)
+            if (!Owner.Loyalty.isFaction && Target?.ShipData.Role <= RoleName.drone)
                 return;
 
             float totalTroopStrengthToCommit = Owner.Carrier.MaxTroopStrengthInShipToCommit + Owner.Carrier.MaxTroopStrengthInSpaceToCommit;
@@ -30,7 +30,7 @@ namespace Ship_Game.AI.CombatTactics
 
             if (!AssaultTargetShip(Target) && !Owner.TroopsAreBoardingShip)
             {
-                if (Owner.loyalty.WeArePirates && totalTroopStrengthToCommit <= 0)
+                if (Owner.Loyalty.WeArePirates && totalTroopStrengthToCommit <= 0)
                     Owner.AI.OrderPirateFleeHome();
             }
         }
@@ -40,7 +40,7 @@ namespace Ship_Game.AI.CombatTactics
             if (Owner.SecondsAlive < 2)
                 return false; // Initial Delay in launching shuttles if spawned
 
-            if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
+            if (Owner == null || targetShip == null || targetShip.Loyalty == Owner.Loyalty)
                 return false;
 
             if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Position.InRadius(Owner.Position, Owner.DesiredCombatRange * 2))
@@ -50,8 +50,8 @@ namespace Ship_Game.AI.CombatTactics
             float totalTroopStrengthToCommit = Carrier.MaxTroopStrengthInShipToCommit + Carrier.MaxTroopStrengthInSpaceToCommit;
             float enemyStrength = targetShip.BoardingDefenseTotal / 2;
 
-            if ((Owner.loyalty.isPlayer && Owner.AI.HasPriorityTarget || totalTroopStrengthToCommit > enemyStrength) 
-                && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
+            if ((Owner.Loyalty.isPlayer && Owner.AI.HasPriorityTarget || totalTroopStrengthToCommit > enemyStrength) 
+                && (Owner.Loyalty.isFaction || targetShip.GetStrength() > 0f))
             {
                 if (Carrier.MaxTroopStrengthInSpaceToCommit.AlmostZero() || Carrier.MaxTroopStrengthInSpaceToCommit < enemyStrength)
                     // This will launch salvos of assault shuttles if possible
@@ -82,11 +82,11 @@ namespace Ship_Game.AI.CombatTactics
             if (Owner.SecondsAlive < 2)
                 return false; // Initial Delay in launching shuttles if spawned
 
-            if (Owner == null || !Owner.Carrier.AnyAssaultOpsAvailable || Owner.loyalty.WeArePirates || Owner.TroopsAreBoardingShip)
+            if (Owner == null || !Owner.Carrier.AnyAssaultOpsAvailable || Owner.Loyalty.WeArePirates || Owner.TroopsAreBoardingShip)
                 return false;
 
             Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(
-                                owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.IsAtWarWith(owner.Owner),
+                                owner => owner.Owner != null && owner.Owner != Owner.Loyalty && Owner.Loyalty.IsAtWarWith(owner.Owner),
                                 troops => troops.TroopsHere.Count);
             if (invadeThis != null)
                 Owner.Carrier.AssaultPlanet(invadeThis);

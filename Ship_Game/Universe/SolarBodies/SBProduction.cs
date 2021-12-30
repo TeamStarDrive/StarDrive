@@ -214,7 +214,7 @@ namespace Ship_Game.Universe.SolarBodies
                 shipAt.AllowInterEmpireTrade  &= q.AllowInterEmpireTrade;
             }
 
-            if (shipAt.shipData.IsColonyShip)
+            if (shipAt.ShipData.IsColonyShip)
             {
                 float amount = shipAt.CargoSpaceFree.UpperBound(P.Population / 10);
                 P.Population -= shipAt.LoadColonists(amount);
@@ -483,7 +483,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (q.isShip && q.sData.Name == oldShip.Name)
                 {
                     float percentCompleted = q.ProductionSpent / q.ActualCost;
-                    q.sData = newShip.shipData;
+                    q.sData = newShip.ShipData;
                     q.Cost = percentCompleted.AlmostZero() 
                            ? newShip.GetCost(Owner) 
                            : q.Cost + refitCost * percentCompleted * P.ShipBuildingModifier;

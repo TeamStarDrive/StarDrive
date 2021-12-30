@@ -70,8 +70,8 @@ namespace Ship_Game.AI
         bool FireOnTarget()
         {
             // base reasons not to fire. @TODO actions decided by loyalty like should be the same in all areas. 
-            if (!Owner.hasCommand || Owner.engineState == Ship.MoveState.Warp
-                || Owner.EMPdisabled || Owner.Weapons.Count == 0 || !BadGuysNear)
+            if (!Owner.HasCommand || Owner.engineState == Ship.MoveState.Warp
+                || Owner.EMPDisabled || Owner.Weapons.Count == 0 || !BadGuysNear)
                 return false;
 
             if (Target?.TroopsAreBoardingShip == true)
@@ -122,7 +122,7 @@ namespace Ship_Game.AI
             {
                 MaxResults = 32,
                 Exclude = sensorShip,
-                OnlyLoyalty = sensorShip.loyalty,
+                OnlyLoyalty = sensorShip.Loyalty,
             };
 
             GameplayObject[] friends = UniverseScreen.Spatial.FindNearby(ref findFriends);
@@ -130,7 +130,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < friends.Length; ++i)
             {
                 var friend = (Ship)friends[i];
-                if (friend.Active && !friend.dying && !friend.IsHangarShip)
+                if (friend.Active && !friend.Dying && !friend.IsHangarShip)
                     ScannedFriendlies.Add(friend);
             }
 
@@ -149,7 +149,7 @@ namespace Ship_Game.AI
             ++Empire.Universe.Objects.Scans;
             BadGuysNear = false;
 
-            Empire us = sensorShip.loyalty;
+            Empire us = sensorShip.Loyalty;
             var findEnemies = new SearchOptions(sensorShip.Position, sensorRadius, GameObjectType.Ship)
             {
                 MaxResults = 64,
@@ -162,7 +162,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < enemies.Length; ++i)
             {
                 var enemy = (Ship)enemies[i];
-                if (!enemy.Active || enemy.dying)
+                if (!enemy.Active || enemy.Dying)
                     continue;
 
                 // update two-way visibility,
@@ -170,9 +170,9 @@ namespace Ship_Game.AI
                 // the enemy itself does not care about it
                 enemy.KnownByEmpires.SetSeen(us);
                 // and our ship has seen nearbyShip
-                sensorShip.HasSeenEmpires.SetSeen(enemy.loyalty);
+                sensorShip.HasSeenEmpires.SetSeen(enemy.Loyalty);
 
-                if (us.IsEmpireScannedAsEnemy(enemy.loyalty, enemy))
+                if (us.IsEmpireScannedAsEnemy(enemy.Loyalty, enemy))
                 {
                     BadGuysNear = true;
                     ScannedTargets.Add(enemy);
@@ -199,14 +199,14 @@ namespace Ship_Game.AI
             {
                 MaxResults = 32,
                 SortByDistance = true, // only care about closest results
-                ExcludeLoyalty = Owner.loyalty,
+                ExcludeLoyalty = Owner.Loyalty,
                 FilterFunction = (go) =>
                 {
                     var missile = (Projectile)go;
                     // Note: this ensures we don't accidentally target Allied projectiles
                     // TODO: But this check is also done again in Weapon.cs target selection
                     // TODO: use the intercept tag and loyalty tag in Qtree
-                    bool canIntercept = missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty);
+                    bool canIntercept = missile.Weapon.Tag_Intercept && Owner.Loyalty.IsEmpireAttackable(missile.Loyalty);
                     return canIntercept;
                 }
             };
@@ -241,7 +241,7 @@ namespace Ship_Game.AI
             public Vector2 DPSCenter;
             public float MaxSensorRange;
             public float Defense => Armor + Shield;
-            public bool ScreenShip(Ship ship) => ship.armor_max + ship.shield_max >= Defense;
+            public bool ScreenShip(Ship ship) => ship.ArmorMax + ship.ShieldMax >= Defense;
             public bool LongRange(Ship ship) => ship.WeaponsMaxRange >= MaxRange;
             public bool Interceptor(Ship ship) => ship.MaxSTLSpeed >= Speed;
             public bool FirePower(Ship ship) => ship.TotalDps >= DPS;
@@ -256,8 +256,8 @@ namespace Ship_Game.AI
                 Largest = Math.Max(Largest, ship.SurfaceArea);
                 MostFirePower = Math.Max(MostFirePower, ship.TotalDps);
                 
-                Armor       += ship.armor_max;
-                Shield      += ship.shield_max;
+                Armor       += ship.ArmorMax;
+                Shield      += ship.ShieldMax;
                 DPS         += ship.TotalDps;
                 Size        += ship.SurfaceArea;
                 Speed       += ship.MaxSTLSpeed;
@@ -320,21 +320,21 @@ namespace Ship_Game.AI
                 {
                     Planet p = thisSystem.PlanetList[i];
                     if (!BadGuysNear)
-                        BadGuysNear = Owner.loyalty.IsEmpireAttackable(p.Owner)
+                        BadGuysNear = Owner.Loyalty.IsEmpireAttackable(p.Owner)
                                    && Owner.Position.InRadius(p.Center, radius);
                 }
             }
 
             if (Target != null)
             {
-                if (Target.loyalty == Owner.loyalty)
+                if (Target.Loyalty == Owner.Loyalty)
                 {
                     HasPriorityTarget = false;
                 }
                 else if (!Intercepting && Target.IsInWarp)
                 {
                     Target = null;
-                    if (!HasPriorityOrder && !Owner.loyalty.isPlayer)
+                    if (!HasPriorityOrder && !Owner.Loyalty.isPlayer)
                         State = AIState.AwaitingOrders;
                     return null;
                 }
@@ -353,7 +353,7 @@ namespace Ship_Game.AI
             }
             else if (HasPriorityTarget && Target != null)
             {
-                BadGuysNear |= Owner.loyalty.IsEmpireAttackable(Target.loyalty, Target);
+                BadGuysNear |= Owner.Loyalty.IsEmpireAttackable(Target.Loyalty, Target);
                 return Target;
             }
 
@@ -362,7 +362,7 @@ namespace Ship_Game.AI
 
         static bool IsTargetActive(Ship target)
         {
-            return target != null && target.Active && !target.dying;
+            return target != null && target.Active && !target.Dying;
         }
 
         Ship PickHighestPriorityTarget()
@@ -386,7 +386,7 @@ namespace Ship_Game.AI
             float value = ship.TotalDps + 100;
             value *= 1 + ship.Carrier.AllFighterHangars.Length/2;
             value *= 1 + ship.TroopCapacity/2;
-            value *= 1 + (ship.HasBombs && ship.AI.OrbitTarget?.Owner == Owner.loyalty
+            value *= 1 + (ship.HasBombs && ship.AI.OrbitTarget?.Owner == Owner.Loyalty
                         ? ship.BombBays.Count
                         : ship.BombBays.Count/2);
 
@@ -472,7 +472,7 @@ namespace Ship_Game.AI
                     TargetSelectTimer += EmpireConstants.TargetSelectionInterval;
 
                     Ship selectedTarget = SelectCombatTarget(sensorRadius);
-                    if (Owner.fleet == null && selectedTarget == null && Owner.IsHangarShip)
+                    if (Owner.Fleet == null && selectedTarget == null && Owner.IsHangarShip)
                     {
                         selectedTarget = Owner.Mothership.AI.Target;
                     }
@@ -575,7 +575,7 @@ namespace Ship_Game.AI
                 Owner.Carrier.RecallAfterCombat();
 
             // fbedard: civilian ships will evade combat (nice target practice)
-            if (badGuysNear && Owner.shipData.ShipCategory == ShipCategory.Civilian)
+            if (badGuysNear && Owner.ShipData.ShipCategory == ShipCategory.Civilian)
             {
                 if (Owner.WeaponsMaxRange <= 0)
                 {
@@ -620,7 +620,7 @@ namespace Ship_Game.AI
             {
                 if (bombBay.InstalledWeapon.CooldownTimer > 0f)
                     continue;
-                var bomb = new Bomb(new Vector3(Owner.Position, 0f), Owner.loyalty,
+                var bomb = new Bomb(new Vector3(Owner.Position, 0f), Owner.Loyalty,
                     bombBay.BombType, Owner.Level, Owner.HealthPercent);
 
                 if (Owner.Ordinance > bombBay.InstalledWeapon.OrdinanceRequiredToFire)

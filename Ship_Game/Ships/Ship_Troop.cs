@@ -27,18 +27,18 @@ namespace Ship_Game.Ships
         public bool HasTroopsPresentOrLaunched => HasOurTroops || Carrier.LaunchedAssaultShuttles > 0;
 
         public bool TroopsAreBoardingShip => HostileTroops.Count > 0;
-        public int NumPlayerTroopsOnShip  => loyalty.isPlayer ? OurTroops.Count : HostileTroops.Count;
-        public int NumAiTroopsOnShip      => loyalty.isPlayer ? HostileTroops.Count : OurTroops.Count;
+        public int NumPlayerTroopsOnShip  => Loyalty.isPlayer ? OurTroops.Count : HostileTroops.Count;
+        public int NumAiTroopsOnShip      => Loyalty.isPlayer ? HostileTroops.Count : OurTroops.Count;
 
-        public bool IsIdleSingleTroopship => Name == loyalty.data.DefaultTroopShip
+        public bool IsIdleSingleTroopship => Name == Loyalty.data.DefaultTroopShip
                                              && HasOurTroops
                                              && (AI.State == AIState.AwaitingOrders || AI.State == AIState.Orbit || AI.State == AIState.HoldPosition)
-                                             && fleet == null && !InCombat;
+                                             && Fleet == null && !InCombat;
 
         // NOTE: could be an enemy troop or a friendly one
         public void AddTroop(Troop troop)
         {
-            if (troop.Loyalty == loyalty)
+            if (troop.Loyalty == Loyalty)
                 OurTroops.Add(troop);
             else
                 HostileTroops.Add(troop);
@@ -48,7 +48,7 @@ namespace Ship_Game.Ships
 
         public void RemoveAnyTroop(Troop troop)
         {
-            if (troop.Loyalty == loyalty)
+            if (troop.Loyalty == Loyalty)
                 OurTroops.RemoveRef(troop);
             else
                 HostileTroops.RemoveRef(troop);
@@ -82,7 +82,7 @@ namespace Ship_Game.Ships
             get
             {
                 {
-                    var ships = loyalty.OwnedShips;
+                    var ships = Loyalty.OwnedShips;
                     return ships.Filter(s => s.AI.State == AIState.RebaseToShip
                                                     && s.AI.EscortTarget == this).Length;
                 }
@@ -128,7 +128,7 @@ namespace Ship_Game.Ships
             for (int i = HostileTroops.Count - 1; i >= 0;  i--)
             {
                 Troop troop = HostileTroops[i];
-                if (troop.Loyalty == loyalty)
+                if (troop.Loyalty == Loyalty)
                 {
                     HostileTroops.RemoveAtSwapLast(i);
                     AddTroop(troop);
@@ -197,7 +197,7 @@ namespace Ship_Game.Ships
             string tankType     = "Wyvern";
             string redshirtType = "Wyvern";
 
-            IReadOnlyList<Troop> unlockedTroops = loyalty?.GetUnlockedTroops();
+            IReadOnlyList<Troop> unlockedTroops = Loyalty?.GetUnlockedTroops();
             if (unlockedTroops?.Count > 0)
             {
                 troopType    = unlockedTroops.FindMax(troop => troop.SoftAttack).Name;
@@ -221,7 +221,7 @@ namespace Ship_Game.Ships
                     // logic here is that tanks needs hangarbays and barracks, and infantry just needs barracks.
                 }
 
-                if (ResourceManager.TryCreateTroop(type, loyalty, out Troop newTroop))
+                if (ResourceManager.TryCreateTroop(type, Loyalty, out Troop newTroop))
                 {
                     newTroop.LandOnShip(this);
                 }
@@ -239,7 +239,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < troopsToRemove && i < toRemove.Length; ++i)
             {
                 Troop troop = toRemove[i];
-                Ship assaultShip = CreateTroopShipAtPoint(loyalty.GetAssaultShuttleName(), loyalty, Position, troop);
+                Ship assaultShip = CreateTroopShipAtPoint(Loyalty.GetAssaultShuttleName(), Loyalty, Position, troop);
                 assaultShip.Velocity = UniverseRandom.RandomDirection() * assaultShip.SpeedLimit + Velocity;
 
                 Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);
@@ -352,7 +352,7 @@ namespace Ship_Game.Ships
                 return;
 
             float ourCombinedDefense      = 0f;
-            float mechanicalDefenseChance = EMPdisabled ? 20 : 50; // 50% or 20% if EMPed
+            float mechanicalDefenseChance = EMPDisabled ? 20 : 50; // 50% or 20% if EMPed
             for (int i = 0; i < MechanicalBoardingDefense; ++i)
                 if (UniverseRandom.RollDice(mechanicalDefenseChance - hostilesAvgLevel)) 
                     ourCombinedDefense += 1f;

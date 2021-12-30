@@ -18,7 +18,7 @@ namespace Ship_Game
             {
                 Ship ship = collection[x];
                 if (!ship.Active
-                    || ship.shipData.Role != RoleName.troop
+                    || ship.ShipData.Role != RoleName.troop
                     || ship.IsHangarShip
                     || ship.IsHomeDefense
                     || ship.AI.State == AIState.Scrap
@@ -28,7 +28,7 @@ namespace Ship_Game
                     continue;
                 }
 
-                if (ship.fleet != null)
+                if (ship.Fleet != null)
                     troopsInFleets += ship.GetOurTroops().Count;
                 else
                     ships.Add(ship);

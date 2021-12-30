@@ -35,7 +35,7 @@ namespace Ship_Game.Ships
         public ShipStats(Ship theShip)
         {
             S = theShip;
-            Hull = theShip.shipData;
+            Hull = theShip.ShipData;
         }
 
         public void Dispose()
@@ -46,14 +46,14 @@ namespace Ship_Game.Ships
 
         public void UpdateCoreStats()
         {
-            Empire e = S.loyalty;
+            Empire e = S.Loyalty;
             ShipModule[] modules = S.Modules;
-            Hull = S.shipData;
+            Hull = S.ShipData;
 
             float maxSensorBonus = 0f;
             int activeInternalSlots = 0;
             S.ActiveInternalSlotCount = 0;
-            S.BonusEMP_Protection     = 0f;
+            S.BonusEMPProtection     = 0f;
             S.PowerStoreMax           = 0f;
             S.PowerFlowMax            = 0f;
             S.OrdinanceMax            = 0f;
@@ -64,7 +64,7 @@ namespace Ship_Game.Ships
             S.OrdAddedPerSecond       = 0f;
             S.HealPerTurn             = 0;
             S.ECMValue                = 0f;
-            S.hasCommand              = S.IsPlatform || S.IsSubspaceProjector;
+            S.HasCommand              = S.IsPlatform || S.IsSubspaceProjector;
             S.TrackingPower           = 0;
             S.TargetingAccuracy       = 0;
 
@@ -80,10 +80,10 @@ namespace Ship_Game.Ships
 
                 if (active && (module.Powered || module.PowerDraw <= 0f))
                 {
-                    S.hasCommand |= module.IsCommandModule;
+                    S.HasCommand |= module.IsCommandModule;
                     S.OrdinanceMax        += module.OrdinanceCapacity;
                     S.CargoSpaceMax       += module.CargoCapacity;
-                    S.BonusEMP_Protection += module.EMPProtection;
+                    S.BonusEMPProtection += module.EMPProtection;
                     S.OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     S.HealPerTurn         += module.HealPerTurn;
                     S.InhibitionRadius  = Math.Max(module.InhibitionRadius, S.InhibitionRadius);
@@ -99,11 +99,11 @@ namespace Ship_Game.Ships
             UpdateShieldAmplification();
             ShieldMax = UpdateShieldPowerMax(ShieldAmplifyPerShield);
 
-            S.shield_max = ShieldMax;
+            S.ShieldMax = ShieldMax;
             S.NetPower = Power.Calculate(modules, e);
             S.PowerStoreMax  = S.NetPower.PowerStoreMax;
             S.PowerFlowMax   = S.NetPower.PowerFlowMax;
-            S.shield_percent = (100.0 * S.shield_power / S.shield_max.LowerBound(0.1f)).LowerBound(0);
+            S.ShieldPercent = (100.0 * S.ShieldPower / S.ShieldMax.LowerBound(0.1f)).LowerBound(0);
             S.SensorRange   += maxSensorBonus;
 
             // Apply modifiers to stats
@@ -122,7 +122,7 @@ namespace Ship_Game.Ships
 
         public void UpdateMassRelated()
         {
-            Empire e = S.loyalty;
+            Empire e = S.Loyalty;
             ShipModule[] modules = S.Modules;
 
             Mass = InitializeMass(modules, e, S.SurfaceArea, S.OrdnancePercent);
@@ -160,11 +160,11 @@ namespace Ship_Game.Ships
 
         public float GetMass(Empire loyalty)
         {
-            if (loyalty == S.loyalty || loyalty.data.MassModifier == S.loyalty.data.MassModifier)
+            if (loyalty == S.Loyalty || loyalty.data.MassModifier == S.Loyalty.data.MassModifier)
                 return Mass;
 
             // convert this Mass into target empire mass
-            float ratio = loyalty.data.MassModifier / S.loyalty.data.MassModifier;
+            float ratio = loyalty.data.MassModifier / S.Loyalty.data.MassModifier;
             return Mass * ratio;
         }
 

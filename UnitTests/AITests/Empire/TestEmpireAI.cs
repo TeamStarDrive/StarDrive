@@ -345,7 +345,7 @@ namespace UnitTests.AITests.Empire
                         {
                             if (s.Active)
                             {
-                                Assert.AreEqual(s.loyalty, empire);
+                                Assert.AreEqual(s.Loyalty, empire);
                                 float random = RandomMath.AvgRandomBetween(1, 100);
                                 if (random > 80)
                                 {

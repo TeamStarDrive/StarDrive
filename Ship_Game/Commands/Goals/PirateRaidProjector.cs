@@ -72,19 +72,19 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null
                 || !TargetShip.Active
-                || TargetShip.loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
+                || TargetShip.Loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
             {
                 BoardingShip?.AI.OrderPirateFleeHome(true);
                 return GoalStep.GoalFailed; // Target or our forces were destroyed 
             }
 
-            return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.TryAgain;
+            return TargetShip.Loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.TryAgain;
         }
 
         GoalStep FleeFromOrbital()
         {
             BoardingShip?.AI.OrderPirateFleeHome(true);
-            if (TargetShip == null || !TargetShip.Active || TargetShip.loyalty != Pirates.Owner)
+            if (TargetShip == null || !TargetShip.Active || TargetShip.Loyalty != Pirates.Owner)
                 return GoalStep.GoalFailed; // Target destroyed or they took it from us
 
             TargetShip.DisengageExcessTroops(TargetShip.TroopCount); // She's gonna blow! (PiratePostChangeLoyalty)
@@ -100,7 +100,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
-            return TargetShip.loyalty == Pirates.Owner ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            return TargetShip.Loyalty == Pirates.Owner ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
     }
 }

@@ -69,7 +69,7 @@ namespace Ship_Game.AI
             for (int index = 0; index < DefensiveForcePool.Count; index++)
             {
                 Ship ship = DefensiveForcePool[index];
-                if (!ship.Active || ship.dying) continue;
+                if (!ship.Active || ship.Dying) continue;
                 strength += ship.GetStrength();
             }
 
@@ -285,10 +285,10 @@ namespace Ship_Game.AI
                             continue;
                         }
 
-                        if (assignedShips.ContainsKey(ship.guid)) continue;
+                        if (assignedShips.ContainsKey(ship.Guid)) continue;
                         if (startingStr <= 0f || !kv.Value.AddShip(ship)) break;
 
-                        assignedShips.Add(ship.guid, ship);
+                        assignedShips.Add(ship.Guid, ship);
                         startingStr = startingStr - ship.GetStrength();
                     }
                 }
@@ -412,7 +412,7 @@ namespace Ship_Game.AI
             {
                 Ship troopShip = troopShips[i];
 
-                SolarSystem solarSystem = GetNearestSystemNeedingTroops(troopShip.Position, troopShip.loyalty);
+                SolarSystem solarSystem = GetNearestSystemNeedingTroops(troopShip.Position, troopShip.Loyalty);
 
                 if (solarSystem == null)
                     break;

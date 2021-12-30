@@ -42,7 +42,7 @@ namespace Ship_Game
             Parent = owner;
             Scale = scale;
             LocalPos = position;
-            UpdatePosition(owner.Position, owner.yRotation, owner.Direction3D);
+            UpdatePosition(owner.Position, owner.YRotation, owner.Direction3D);
         }
 
         public void Update(Vector3 direction, float thrustSize, float thrustSpeed, Color thrust0, Color thrust1)

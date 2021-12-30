@@ -48,18 +48,18 @@ namespace Ship_Game.Commands.Goals
                 TargetShip = combatShip;
                 if (Pirates.Level > TargetShip.TroopCount * 5 / ((int)CurrentGame.Difficulty).LowerBound(1) + TargetShip.Level)
                 {
-                    TargetShip.loyalty.AddMutinyNotification(TargetShip, GameText.MutinySucceeded, Pirates.Owner);
+                    TargetShip.Loyalty.AddMutinyNotification(TargetShip, GameText.MutinySucceeded, Pirates.Owner);
                     TargetShip.LoyaltyChangeFromBoarding(Pirates.Owner, false);
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
                 }
                 else
                 {
-                    TargetShip.loyalty.AddMutinyNotification(TargetShip, GameText.MutinyAverted, Pirates.Owner);
+                    TargetShip.Loyalty.AddMutinyNotification(TargetShip, GameText.MutinyAverted, Pirates.Owner);
                 }
 
                 Pirates.ExecuteVictimRetaliation(TargetEmpire);
                 KillMutinyDefenseTroops(Pirates.Level / 2 - TargetShip.Level);
-                return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.GoalFailed;
+                return TargetShip.Loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.GoalFailed;
             }
 
             // Try locating viable freighters for 1 year (10 turns), else just give up
@@ -70,12 +70,12 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null
                 || !TargetShip.Active
-                || TargetShip.loyalty != Pirates.Owner)
+                || TargetShip.Loyalty != Pirates.Owner)
             {
                 return GoalStep.GoalFailed; // Target destroyed or escaped
             }
 
-            if (TargetShip.loyalty == Pirates.Owner)
+            if (TargetShip.Loyalty == Pirates.Owner)
             {
                 TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
                 return GoalStep.GoalComplete;

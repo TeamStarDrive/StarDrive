@@ -70,10 +70,10 @@ namespace Ship_Game
                 width += 1f;
 
             if (!Ship.IsPlatformOrStation && !Ship.IsHangarShip 
-                                          && Ship.shipData.Role != RoleName.troop 
+                                          && Ship.ShipData.Role != RoleName.troop 
                                           && Ship.AI.State != AIState.Colonize 
-                                          && Ship.shipData.Role != RoleName.freighter 
-                                          && Ship.shipData.ShipCategory != ShipCategory.Civilian)
+                                          && Ship.ShipData.Role != RoleName.freighter 
+                                          && Ship.ShipData.ShipCategory != ShipCategory.Civilian)
                 IsCombat = true;
 
             Rectangle refit = new Rectangle(RefitRect.X + RefitRect.Width / 2 - 5 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1").Width, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height);
@@ -114,14 +114,14 @@ namespace Ship_Game
                 batch.DrawString(Font12, SystemName, sysNameCursor, textColor);
             }
 
-            batch.Draw(Ship.shipData.Icon, ShipIconRect, Color.White);
+            batch.Draw(Ship.ShipData.Icon, ShipIconRect, Color.White);
             ShipNameEntry.Draw(batch, elapsed);
 
-            var rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Font12.MeasureString(Localizer.GetRole(Ship.shipData.Role, Ship.loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Font12.LineSpacing / 2);
+            var rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Font12.MeasureString(Localizer.GetRole(Ship.ShipData.Role, Ship.Loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Font12.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref rolePos);
-            batch.DrawString(Font12, Localizer.GetRole(Ship.shipData.Role, Ship.loyalty), rolePos, textColor);
+            batch.DrawString(Font12, Localizer.GetRole(Ship.ShipData.Role, Ship.Loyalty), rolePos, textColor);
 
-            string fleetName     = Ship.fleet?.Name ?? "";
+            string fleetName     = Ship.Fleet?.Name ?? "";
             Graphics.Font fleetFont = Font12.MeasureString(fleetName).X > FleetRect.Width - 5 ? Font8 : Font12;
             var fleetPos = new Vector2(FleetRect.X + FleetRect.Width / 2 - fleetFont.MeasureString(fleetName).X / 2f, FleetRect.Y + FleetRect.Height / 2 - fleetFont.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref fleetPos);
@@ -207,7 +207,7 @@ namespace Ship_Game
                     if (ship.AI.Target == null)
                         return string.Concat(Localizer.Token(GameText.InCombat), "\n", Localizer.Token(GameText.SearchingForTargets));
 
-                    return string.Concat(Localizer.Token(GameText.InCombatWith), " ", (ship.AI.Target as Ship).loyalty.data.Traits.Name);
+                    return string.Concat(Localizer.Token(GameText.InCombatWith), " ", (ship.AI.Target as Ship).Loyalty.data.Traits.Name);
                 }
                 case AIState.HoldPosition:   return Localizer.Token(GameText.HoldingPosition);
                 case AIState.AwaitingOrders: return Localizer.Token(GameText.AwaitingOrders);
@@ -381,7 +381,7 @@ namespace Ship_Game
                     {
                         if (input.IsShiftKeyDown)
                         {
-                            RunOnEmpireThread(() => Ship.loyalty.MassScrap(Ship));
+                            RunOnEmpireThread(() => Ship.Loyalty.MassScrap(Ship));
                             RunOnEmpireThread(() => Screen.ResetStatus());
                         }
                         else

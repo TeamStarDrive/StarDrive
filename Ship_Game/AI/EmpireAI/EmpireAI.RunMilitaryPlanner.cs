@@ -550,10 +550,10 @@ namespace Ship_Game.AI
                         return;
 
                     foreach (var ship in CurrentShips
-                        .OrderBy(ship => ship.shipData.TechsNeeded.Count))
+                        .OrderBy(ship => ship.ShipData.TechsNeeded.Count))
                     {
                         if(ship.OnLowAlert &&
-                                        (ship.fleet == null)
+                                        (ship.Fleet == null)
                                         && ship.AI.State != AIState.Scuttle
                                         && ship.AI.State != AIState.Resupply
                                         && ship.CanBeScrapped && ship.Active

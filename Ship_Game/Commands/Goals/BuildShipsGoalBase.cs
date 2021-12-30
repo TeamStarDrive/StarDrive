@@ -26,7 +26,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (ShipTemplate == null)
             {
-                ShipTemplate = ShipBuilder.PickFreighter(empire, empire.FastVsBigFreighterRatio)?.shipData;
+                ShipTemplate = ShipBuilder.PickFreighter(empire, empire.FastVsBigFreighterRatio)?.ShipData;
                 if (ShipTemplate == null)
                     throw new Exception($"PickFreighter failed for {empire.Name}."+
                                         "This is a FATAL bug in data files, where Empire is not able to build any freighters!");

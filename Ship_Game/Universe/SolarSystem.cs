@@ -247,9 +247,9 @@ namespace Ship_Game
                 for (int i = 0; i < PlanetList.Count; i++)
                 {
                     Planet planet                 = PlanetList[i];
-                    float wellReduction           = 1 - ship.loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter;
+                    float wellReduction           = 1 - ship.Loyalty.data.Traits.EnemyPlanetInhibitionPercentCounter;
                     bool inFriendlyProjectorRange = ship.IsInFriendlyProjectorRange;
-                    bool planetInhibitsAtWar      = planet.Owner?.WillInhibit(ship.loyalty) == true;
+                    bool planetInhibitsAtWar      = planet.Owner?.WillInhibit(ship.Loyalty) == true;
                     bool checkGravityWell         = !inFriendlyProjectorRange || planetInhibitsAtWar;
                     float wellRadius              = inFriendlyProjectorRange && planetInhibitsAtWar 
                                                     ? planet.GravityWellRadius * wellReduction
@@ -640,7 +640,7 @@ namespace Ship_Game
             {
                 Ship ship = ShipList[i];
                 if (ship?.Active != true) continue;
-                if (ship.loyalty != e)
+                if (ship.Loyalty != e)
                     continue;
                 strength += ship.GetStrength();
             }
@@ -655,7 +655,7 @@ namespace Ship_Game
             {
                 Ship ship = ShipList[i];
                 if (ship?.Active != true || !ship.KnownByEmpires.KnownBy(e)) continue;
-                if (!ship.loyalty.IsAtWarWith(e))
+                if (!ship.Loyalty.IsAtWarWith(e))
                     continue;
                 strength += ship.GetStrength();
             }
@@ -769,7 +769,7 @@ namespace Ship_Game
                     SpecialDescription   = planet.SpecialDescription,
                     IncomingFreighters   = planet.IncomingFreighterIds,
                     OutgoingFreighters   = planet.OutgoingFreighterIds,
-                    StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.guid).ToArray(),
+                    StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.Guid).ToArray(),
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     BaseFertilityTerraformRatio  = planet.BaseFertilityTerraformRatio,
                     HasLimitedResourcesBuildings = planet.HasLimitedResourceBuilding,

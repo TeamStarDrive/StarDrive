@@ -59,7 +59,7 @@ namespace Ship_Game.AI
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
                 ship => ship.DesignRole == role && ship.GetCost(empire).LessOrEqual(maxCost) 
                                                 && ship.GetMaintCost(empire).Less(maintBudget)
-                                                && !ship.shipData.IsShipyard
+                                                && !ship.ShipData.IsShipyard
                                                 && !ship.IsSubspaceProjector);
 
             if (potentialShips.Length == 0 && role == RoleName.drone)
@@ -97,7 +97,7 @@ namespace Ship_Game.AI
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
                 ship => ship.DesignRole == role
                 && (maxSize == 0 || ship.SurfaceArea <= maxSize)
-                && (designation == HangarOptions.General || designation == ship.shipData.HangarDesignation)
+                && (designation == HangarOptions.General || designation == ship.ShipData.HangarDesignation)
             );
 
             if (potentialShips.Length == 0)
@@ -119,7 +119,7 @@ namespace Ship_Game.AI
                 {
                     Debug($"    -- Name: {loggedShip.Name}, Strength: {loggedShip.BaseStrength}");
                 }
-                Debug($"    Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.shipData.Hull}\n" +
+                Debug($"    Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.ShipData.Hull}\n" +
                       $"    Strength: {pickedShip.BaseStrength}\n" +
                       $"    Name: {pickedShip.Name}. Range: {levelAdjust}");
             }
@@ -134,11 +134,11 @@ namespace Ship_Game.AI
             }
             else
             {
-                var ship = ShipsWeCanBuild(empire).FindMaxFiltered(s => s.shipData.IsColonyShip,
+                var ship = ShipsWeCanBuild(empire).FindMaxFiltered(s => s.ShipData.IsColonyShip,
                                                                    s => s.StartingColonyGoods() + 
                                                                             s.NumBuildingsDeployedOnColonize() * 20 + 
                                                                             s.MaxFTLSpeed / 1000);
-                colonyShip = ship?.shipData;
+                colonyShip = ship?.ShipData;
             }
 
             if (colonyShip == null)
@@ -156,7 +156,7 @@ namespace Ship_Game.AI
 
         public static Ship PickShipToRefit(Ship oldShip, Empire empire)
         {
-            Ship[] ships = ShipsWeCanBuild(empire).Filter(s => s.shipData.Hull == oldShip.shipData.Hull
+            Ship[] ships = ShipsWeCanBuild(empire).Filter(s => s.ShipData.Hull == oldShip.ShipData.Hull
                                                               && s.DesignRole == oldShip.DesignRole
                                                               && s.BaseStrength.Greater(oldShip.BaseStrength * 1.1f)
                                                               && s.Name != oldShip.Name);
@@ -289,7 +289,7 @@ namespace Ship_Game.AI
         public static Ship BestShipWeCanBuild(RoleName role, Empire empire)
         {
             Ship bestShip = PickFromCandidates(role, empire);
-            if (bestShip == null || bestShip.shipData.IsShipyard || bestShip.IsSubspaceProjector) 
+            if (bestShip == null || bestShip.ShipData.IsShipyard || bestShip.IsSubspaceProjector) 
                 return null;
 
             return bestShip;

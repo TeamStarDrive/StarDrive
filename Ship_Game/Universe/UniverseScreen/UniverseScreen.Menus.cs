@@ -78,7 +78,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if (SelectedShip == null || SelectedShip.shipData.Role > RoleName.construction)
+                    if (SelectedShip == null || SelectedShip.ShipData.Role > RoleName.construction)
                         return;
                     newChild6.Add(new PieMenuNode(Localizer.Token(GameText.OrderScrap),
                         ResourceManager.Texture("UI/HoldPositionIcon"), OrderScrap));

@@ -15,7 +15,7 @@ namespace Ship_Game.AI.CombatTactics.UI
         public void ResetButtons(Array<Ship> ships)
         {
             // filter out ships where the order buttons should not be shown.
-            SelectedShips = ships.Filter(s => s.Active && s.loyalty.isPlayer && !s.IsConstructor
+            SelectedShips = ships.Filter(s => s.Active && s.Loyalty.isPlayer && !s.IsConstructor
                                               && s.DesignRole != RoleName.ssp);
             if (SelectedShips.Length == 0)
                 Reset(new CombatState[0]);
@@ -43,7 +43,7 @@ namespace Ship_Game.AI.CombatTactics.UI
             var ships = SelectedShips.Filter(s => s.Active && s.IsVisibleToPlayer);
             
             // sort the ships so that when draw limited the circles wont jump around as much when the list order changes. 
-            ships = ships.SortedDescending(s => $"{s.fleet != null} - {(int)s.Radius : 000000} - {s.Id : 00000000}");
+            ships = ships.SortedDescending(s => $"{s.Fleet != null} - {(int)s.Radius : 000000} - {s.Id : 00000000}");
             
             // too many circles will cause perf issues, oom crashes, and UI horror.
             // always draw the first 20 in the list. there after skip some so we limit to about 40

@@ -69,7 +69,7 @@ namespace Ship_Game.AI.Research
         float ExtractTechCost(Ship ship)
         {
             float totalCost = 0;
-            var shipTechs   = ConvertStringToTech(ship.shipData.TechsNeeded);
+            var shipTechs   = ConvertStringToTech(ship.ShipData.TechsNeeded);
             for (int i = 0; i < shipTechs.Count; i++)
             {
                 TechEntry tech = shipTechs[i];
@@ -93,11 +93,11 @@ namespace Ship_Game.AI.Research
         bool TryExtractNeedTechs(Ship ship, out HashSet<string> techsToAdd, out bool onlyHullLeft)
         {
             onlyHullLeft  = false;
-            var shipTechs = ConvertStringToTech(ship.shipData.TechsNeeded);
-            if (OwnerEmpire.IsHullUnlocked(ship.shipData.Hull)
+            var shipTechs = ConvertStringToTech(ship.ShipData.TechsNeeded);
+            if (OwnerEmpire.IsHullUnlocked(ship.ShipData.Hull)
                 && !shipTechs.Any(t => t.Locked && t.ContainsHullTech()))
             {
-                techsToAdd = ship.shipData.TechsNeeded;
+                techsToAdd = ship.ShipData.TechsNeeded;
                 return true;
             }
 
