@@ -695,7 +695,6 @@ namespace Ship_Game.Ships
         // find ShipModules that collide with a this wide RAY
         // direction must be normalized!!
         // results are sorted by distance
-        // warning Ignores shields!!
         // This is also used to damage modules inline when excess damage remains
         // todo Align this with RayHitTestSingle
         public Array<ShipModule> RayHitTestModules(
@@ -717,13 +716,22 @@ namespace Ship_Game.Ships
                     Point p = GridLocalToPoint(pos);
                     ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
                     if (m != null && m.Active)
+                    {
+                        // get covering shields to damage them first
+                        ShipModule[] shields = GetAllActiveShieldsCoveringModule(m);
+                        for (int i = 0; i < shields.Length; i++)
+                        {
+
+                            ShipModule shield = shields[i];
+                            path.AddUniqueRef(shield);
+                        }
+
                         path.AddUniqueRef(m);
+                    }
                 }
             }
             return path;
         }
-
-
 
 
         // Refactor by RedFox: Picks a random internal module in search range (squared) of the projectile
