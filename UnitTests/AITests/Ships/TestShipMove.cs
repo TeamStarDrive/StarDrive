@@ -102,25 +102,25 @@ namespace UnitTests.AITests.Ships
         public void ShipYRotation()
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            Assert.AreEqual(0, ship.yRotation, "Ship's Y rotation should be 0 when spawned");
+            Assert.AreEqual(0, ship.YRotation, "Ship's Y rotation should be 0 when spawned");
             Vector2 newPos = new Vector2(2000, 2000);
             Universe.Objects.Update(TestSimStep);
             ship.AI.OrderMoveTo(newPos, Vector2.Zero, false, Ship_Game.AI.AIState.MoveTo);
             Universe.Objects.Update(TestSimStep);
-            Assert.That.GreaterThan(Math.Abs(ship.yRotation), 0);
+            Assert.That.GreaterThan(Math.Abs(ship.YRotation), 0);
 
             float maxYBank     = ship.GetMaxBank(); 
             float yBankReached = 0;
             LoopWhile((timeout: 10, fatal: true), () => ship.Position.OutsideRadius(newPos, 100), () =>
             {
                 Universe.Objects.Update(TestSimStep);
-                yBankReached = Math.Max(Math.Abs(ship.yRotation), yBankReached);
+                yBankReached = Math.Max(Math.Abs(ship.YRotation), yBankReached);
             });
 
             // Allow 10% tolerance in max bank (saves performance in game since not using lower/higher bounds)
             Assert.That.LessThan(yBankReached, maxYBank * 1.1f);
             Assert.That.GreaterThan(yBankReached, maxYBank * 0.95f);
-            Assert.AreEqual(0, ship.yRotation, "Ship should reach 0 Y rotation at this point");
+            Assert.AreEqual(0, ship.YRotation, "Ship should reach 0 Y rotation at this point");
         }
     }
 }

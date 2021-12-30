@@ -28,7 +28,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             OldShip     = oldShip;
             ShipLevel   = oldShip.Level;
             ToBuildUID  = toBuildName;
-            Fleet       = oldShip.fleet;
+            Fleet       = oldShip.Fleet;
             empire      = owner;
             if (oldShip.VanityName != oldShip.Name)
                 VanityName = oldShip.VanityName;
@@ -48,7 +48,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 RemoveOldRefitGoal();
 
             if (!empire.FindPlanetToRefitAt(empire.SafeSpacePorts, OldShip.RefitCost(newShip), 
-                OldShip, newShip, OldShip.fleet != null, out PlanetBuildingAt))
+                OldShip, newShip, OldShip.Fleet != null, out PlanetBuildingAt))
             {
                 OldShip.AI.ClearOrders();
                 return GoalStep.GoalFailed;  // No planet to refit
@@ -95,7 +95,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             var qi = new QueueItem(PlanetBuildingAt)
             {
-                sData           = newShip.shipData,
+                sData           = newShip.ShipData,
                 Cost            = OldShip.RefitCost(newShip),
                 Goal            = this,
                 isShip          = true,
@@ -175,7 +175,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         void RemoveOldRefitGoal()
         {
             if (OldShip.AI.FindGoal(ShipAI.Plan.Refit, out ShipAI.ShipGoal shipGoal))
-                OldShip.loyalty.GetEmpireAI().FindAndRemoveGoal(GoalType.Refit, g => g.OldShip == OldShip);
+                OldShip.Loyalty.GetEmpireAI().FindAndRemoveGoal(GoalType.Refit, g => g.OldShip == OldShip);
         }
 
         bool GetNewShip(out Ship newShip)

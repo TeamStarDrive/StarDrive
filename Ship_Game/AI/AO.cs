@@ -195,7 +195,7 @@ namespace Ship_Game.AI
 
             ship.Pool = null;
 
-            if (ship.fleet?.IsCoreFleet ?? false)
+            if (ship.Fleet?.IsCoreFleet ?? false)
             {
                 CoreFleet.RemoveShip(ship, returnToEmpireAI: true);
             }
@@ -268,9 +268,9 @@ namespace Ship_Game.AI
             OffensiveForceGuids.Clear();
             ShipsWaitingGuids.Clear();
             foreach (Ship ship in OffensiveForcePool)
-                OffensiveForceGuids.Add(ship.guid);
+                OffensiveForceGuids.Add(ship.Guid);
             foreach (Ship ship in ShipsWaitingForCoreFleet)
-                ShipsWaitingGuids.Add(ship.guid);
+                ShipsWaitingGuids.Add(ship.Guid);
             FleetGuid = CoreFleet?.Guid ?? Guid.Empty; 
         }
 
@@ -307,7 +307,7 @@ namespace Ship_Game.AI
             for (int i = OffensiveForcePool.Count-1; i >= 0; --i)
             {
                 Ship ship = OffensiveForcePool[i];
-                if (ship?.Active != true || ship.fleet != null || ship.shipData.Role == RoleName.troop || ship.GetStrength() <= 0)
+                if (ship?.Active != true || ship.Fleet != null || ship.ShipData.Role == RoleName.troop || ship.GetStrength() <= 0)
                 {
                     OffensiveForcePool.RemoveAtSwapLast(i);
                 }
@@ -362,7 +362,7 @@ namespace Ship_Game.AI
         {
             foreach(var ship in ships)
             {
-                ship?.loyalty.AddShipToManagedPools(ship);
+                ship?.Loyalty.AddShipToManagedPools(ship);
             }
         }
     }

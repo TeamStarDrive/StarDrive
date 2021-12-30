@@ -191,7 +191,7 @@ namespace Ship_Game
                             {
                                 isShip = true,
                                 Cost   = goal.OldShip.RefitCost(newShip) * ShipBuildingModifier,
-                                sData  = newShip.shipData
+                                sData  = newShip.ShipData
                             };
 
                             refitQueue.Add(qi);

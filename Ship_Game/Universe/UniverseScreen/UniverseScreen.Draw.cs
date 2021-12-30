@@ -557,7 +557,7 @@ namespace Ship_Game
                     Ship ship = clickable.shipToClick;
                     if (ship != null &&  ship.IsVisibleToPlayer && ship.WeaponsMaxRange > 0f)
                     {
-                        Color color = ship.loyalty == EmpireManager.Player
+                        Color color = ship.Loyalty == EmpireManager.Player
                                         ? new Color(0, 200, 0, 30)
                                         : new Color(200, 0, 0, 30);
 
@@ -576,7 +576,7 @@ namespace Ship_Game
                     {
                         if (Empire.Universe.SelectedShip == ship)
                         {
-                            Color color = (ship.loyalty == EmpireManager.Player)
+                            Color color = (ship.Loyalty == EmpireManager.Player)
                                 ? new Color(0, 100, 200, 20)
                                 : new Color(200, 0, 0, 10);
                             byte edgeAlpha = 85;
@@ -703,7 +703,7 @@ namespace Ship_Game
             if (viewState < UnivScreenState.SectorView)
                 return;
             bool debug = Debug && SelectedShip == null;
-            Empire empireLooking = Debug ? SelectedShip?.loyalty ?? player : player;
+            Empire empireLooking = Debug ? SelectedShip?.Loyalty ?? player : player;
             for (int i = 0; i < EmpireManager.Empires.Count; i++)
             { 
                 Empire empire = EmpireManager.Empires[i];
@@ -752,7 +752,7 @@ namespace Ship_Game
                 if (ship == null || !ship.Active)
                     continue;
 
-                if (Debug || ship.loyalty.isPlayer || ship.loyalty.IsAlliedWith(player) || !player.DifficultyModifiers.HideTacticalData)
+                if (Debug || ship.Loyalty.isPlayer || ship.Loyalty.IsAlliedWith(player) || !player.DifficultyModifiers.HideTacticalData)
                 {
                     Vector2 shipScreenPos = ProjectToScreenPosition(ship.Position).ToVec2fRounded();
                     ScreenManager.SpriteBatch.DrawLine(shipScreenPos, fleetCenterOnScreen, FleetLineColor);
@@ -1035,8 +1035,8 @@ namespace Ship_Game
                     if (SelectedShip == ship || SelectedShipList.Contains(ship))
                     {
                         Color color = Color.LightGreen;
-                        if (player != ship.loyalty)
-                            color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Yellow;
+                        if (player != ship.Loyalty)
+                            color = player.IsEmpireAttackable(ship.Loyalty) ? Color.Red : Color.Yellow;
                         else if (ship.Resupplying)
                             color = Color.Gray;
 
@@ -1060,7 +1060,7 @@ namespace Ship_Game
             foreach (Ship ship in CurrentGroup.Ships)
             {
                 if (ship.Active)
-                    DrawShipProjectionIcon(ship, ship.projectedPosition, CurrentGroup.ProjectedDirection, projectedColor);
+                    DrawShipProjectionIcon(ship, ship.ProjectedPosition, CurrentGroup.ProjectedDirection, projectedColor);
             }
         }
 
@@ -1071,7 +1071,7 @@ namespace Ship_Game
             double scale = (num * 4000.0 / CamPos.Z).UpperBound(1);
 
             if (scale <= 0.1)
-                scale = ship.shipData.Role != RoleName.platform || viewState < UnivScreenState.SectorView ? 0.15 : 0.08;
+                scale = ship.ShipData.Role != RoleName.platform || viewState < UnivScreenState.SectorView ? 0.15 : 0.08;
 
             DrawTextureProjected(symbol, position, (float)scale, direction.ToRadians(), color);
             if (secondary != null)
@@ -1080,7 +1080,7 @@ namespace Ship_Game
 
         void DrawOverlay(Ship ship)
         {
-            if (ship.InFrustum && !ship.dying && !LookingAtPlanet && viewState <= UnivScreenState.DetailView)
+            if (ship.InFrustum && !ship.Dying && !LookingAtPlanet && viewState <= UnivScreenState.DetailView)
             {
                 // if we check for a missing model here we can show the ship modules instead. 
                 // that will solve invisible ships when the ship model load hits an OOM.
@@ -1153,7 +1153,7 @@ namespace Ship_Game
                 {
                     Vector2d screenPos = DrawLineProjected(start, ship.AI.ColonizeTarget.Center, color, 2500f, 0);
                     string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.ParentSystem.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
-                    DrawPointerWithText(screenPos.ToVec2f(), ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.loyalty.EmpireColor, alpha));
+                    DrawPointerWithText(screenPos.ToVec2f(), ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.Loyalty.EmpireColor, alpha));
                     return;
                 }
                 if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)

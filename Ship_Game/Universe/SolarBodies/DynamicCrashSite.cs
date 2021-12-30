@@ -156,7 +156,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return ship;
             }
 
-            float recoverAmount = template.shipData.BaseCost / 10;
+            float recoverAmount = template.ShipData.BaseCost / 10;
             if (owner == activatingEmpire)
             {
                 p.ProdHere  = (p.ProdHere + recoverAmount).UpperBound(p.Storage.Max);
@@ -165,7 +165,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
             else
             {
-                activatingEmpire.AddMoney(template.shipData.BaseCost / 10);
+                activatingEmpire.AddMoney(template.ShipData.BaseCost / 10);
                 message = $"We were able to recover {recoverAmount.String(0)} credits\n" +
                           $"from a crashed ship on {p.Name}.\n";
             }

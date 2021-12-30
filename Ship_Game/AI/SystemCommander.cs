@@ -116,7 +116,7 @@ namespace Ship_Game.AI
 
         public bool RemoveShip(Ship shipToRemove)
         {
-            if (OurShips.Remove(shipToRemove.guid))
+            if (OurShips.Remove(shipToRemove.Guid))
             {
                 CurrentShipStr -= (int)shipToRemove.BaseStrength;
                 shipToRemove.AI.ClearOrders();
@@ -128,18 +128,18 @@ namespace Ship_Game.AI
         public bool AddShip(Ship ship)
         {
             if (CurrentShipStr > IdealShipStrength) return false;
-            if (OurShips.TryGetValue(ship.guid, out Ship existing))
+            if (OurShips.TryGetValue(ship.Guid, out Ship existing))
             {
                 if (existing != ship) // @todo Why is this check here? Wtf?
                 {
                     CurrentShipStr -= (int)existing.BaseStrength;
                     CurrentShipStr += (int)ship.BaseStrength;
-                    OurShips[ship.guid] = ship;
+                    OurShips[ship.Guid] = ship;
                 }
             }
             else
             {
-                OurShips.Add(ship.guid, ship);
+                OurShips.Add(ship.Guid, ship);
                 CurrentShipStr += (int)ship.BaseStrength;
             }
 

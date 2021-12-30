@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
          // [0.0 to 1.0], current Warp thrust percentage
         public float WarpPercent { get; private set; } = 1f;
 
-        public bool BaseCanWarp => shipData.BaseCanWarp;
+        public bool BaseCanWarp => ShipData.BaseCanWarp;
 
         public bool IsSpoolingOrInWarp => IsSpooling || engineState == MoveState.Warp;
         public bool IsInWarp => engineState == MoveState.Warp;
@@ -65,8 +65,8 @@ namespace Ship_Game.Ships
             return surfaceArea > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
         }
 
-        string GetStartWarpCue() => GetStartWarpCue(loyalty.data, SurfaceArea);
-        string GetEndWarpCue()   => GetEndWarpCue(loyalty.data, SurfaceArea);
+        string GetStartWarpCue() => GetStartWarpCue(Loyalty.data, SurfaceArea);
+        string GetEndWarpCue()   => GetEndWarpCue(Loyalty.data, SurfaceArea);
 
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
@@ -175,7 +175,7 @@ namespace Ship_Game.Ships
             {
                 Log.Info("ship not ready for warp but spool timer was activated.\n " +
                         $"               warp Status: {ShipEngines.ReadyForFormationWarp} \n " +
-                        $"               Fleet:       {fleet}\n " +
+                        $"               Fleet:       {Fleet}\n " +
                         $"               Ship:        {this} ");
             }
             else
@@ -209,7 +209,7 @@ namespace Ship_Game.Ships
             for (int x = 0; x < EmpireManager.Empires.Count; x++)
             {
                 Empire e = EmpireManager.Empires[x];
-                if (e.WillInhibit(loyalty))
+                if (e.WillInhibit(Loyalty))
                 {
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {

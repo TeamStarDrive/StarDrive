@@ -92,7 +92,7 @@ namespace Ship_Game.Debug
 
                     foreach (AO ao in empire.GetEmpireAI().AreasOfOperations)
                     {
-                        if (ao.OffensiveForcePoolContains(ship) || ao.WaitingShipsContains(ship) || ao.GetCoreFleet() == ship.fleet)
+                        if (ao.OffensiveForcePoolContains(ship) || ao.WaitingShipsContains(ship) || ao.GetCoreFleet() == ship.Fleet)
                         {
                             ShipsInAoPool++;
                             flag = true;
@@ -274,7 +274,7 @@ namespace Ship_Game.Debug
                     Ship bestShip = e.GetEmpireAI().TechChooser.LineFocus.BestCombatShip;
                     if (bestShip != null)
                     {
-                        var neededTechs = bestShip.shipData.TechsNeeded.Except(e.ShipTechs);
+                        var neededTechs = bestShip.ShipData.TechsNeeded.Except(e.ShipTechs);
                         float techCost = 0;
                         foreach(var tech in neededTechs)
                             techCost += e.TechCost(tech);
@@ -468,11 +468,11 @@ namespace Ship_Game.Debug
                 DrawWeaponArcs(ship);
                 DrawSensorInfo(ship);
 
-                DrawString($"On Defense: {ship.loyalty.GetEmpireAI().DefensiveCoordinator.Contains(ship)}");
-                if (ship.fleet != null)
+                DrawString($"On Defense: {ship.Loyalty.GetEmpireAI().DefensiveCoordinator.Contains(ship)}");
+                if (ship.Fleet != null)
                 {
-                    DrawString($"Fleet {ship.fleet.Name}  {(int)ship.fleet.FinalPosition.X}x{(int)ship.fleet.FinalPosition.Y}");
-                    DrawString($"Fleet speed: {ship.fleet.SpeedLimit}");
+                    DrawString($"Fleet {ship.Fleet.Name}  {(int)ship.Fleet.FinalPosition.X}x{(int)ship.Fleet.FinalPosition.Y}");
+                    DrawString($"Fleet speed: {ship.Fleet.SpeedLimit}");
                 }
 
                 DrawString(ship.Pool != null ? "In Force Pool" : "NOT In Force Pool");
@@ -520,9 +520,9 @@ namespace Ship_Game.Debug
                 DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
                 DrawString($"Total DPS: {ship.TotalDps}");
                 SetTextCursor(Win.X + 250, 600f, Color.White);
-                foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefenseDict)
+                foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.Loyalty.GetEmpireAI().DefensiveCoordinator.DefenseDict)
                     foreach (var defender in entry.Value.OurShips) {
-                        if (defender.Key == ship.guid)
+                        if (defender.Key == ship.Guid)
                             DrawString(entry.Value.System.Name);
                     }
             }
@@ -594,9 +594,9 @@ namespace Ship_Game.Debug
                 for (int i = 1; i < wayPoints.Length; ++i) // draw WayPoints chain
                     DrawLineImm(wayPoints[i-1].Position, wayPoints[i].Position, Color.ForestGreen);
             }
-            if (ship?.fleet != null)
+            if (ship?.Fleet != null)
             {
-                Vector2 formationPos = ship.fleet.GetFormationPos(ship);
+                Vector2 formationPos = ship.Fleet.GetFormationPos(ship);
                 Color color = Color.Magenta.Alpha(0.5f);
                 DrawCircleImm(formationPos, ship.Radius-10, color, 0.8f);
                 DrawLineImm(ship.Position, formationPos, color, 0.8f);

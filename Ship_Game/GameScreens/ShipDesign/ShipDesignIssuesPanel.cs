@@ -59,7 +59,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             S = ship;
             if (ship == null)
                 return;
-            Issues = new ShipDesignIssues(ship.shipData);
+            Issues = new ShipDesignIssues(ship.ShipData);
         }
 
         UIButton AddTextButton(string text)
@@ -100,7 +100,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 var ds = S.DesignStats;
                 Issues.CheckIssueNoCommand(ds.NumCmdModules);
                 Issues.CheckIssueBackupCommand(ds.NumCmdModules, S.SurfaceArea);
-                Issues.CheckIssueStationaryHoldPositionHangars(S.Carrier.AllFighterHangars.Length, S.shipData.DefaultCombatState);
+                Issues.CheckIssueStationaryHoldPositionHangars(S.Carrier.AllFighterHangars.Length, S.ShipData.DefaultCombatState);
                 Issues.CheckIssueUnpoweredModules(ds.UnpoweredModules);
                 Issues.CheckIssueOrdnance(ds.AvgOrdnanceUsed, S.OrdAddedPerSecond, ds.AmmoTime);
                 Issues.CheckIssuePowerRecharge(ds.HasEnergyWeapons, ds.PowerRecharge, S.PowerStoreMax, ds.PowerConsumed);
@@ -125,7 +125,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckTargets(ds.PoweredWeapons, S.TrackingPower);
                 Issues.CheckSecondaryCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange);
                 Issues.CheckDedicatedCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange, S.SensorRange,
-                    S.shipData.DefaultCombatState == CombatState.ShortRange || S.shipData.DefaultCombatState == CombatState.AttackRuns);
+                    S.ShipData.DefaultCombatState == CombatState.ShortRange || S.ShipData.DefaultCombatState == CombatState.AttackRuns);
             }
             
             switch (Issues.CurrentWarningLevel)

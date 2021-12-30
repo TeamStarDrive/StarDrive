@@ -306,7 +306,7 @@ namespace Ship_Game
                 AvailableShips.Clear();
                 var ships = EmpireManager.Player.OwnedShips;
                 AvailableShips.AddRange(ships
-                                        .Filter(s => s.fleet == null && s.Active));
+                                        .Filter(s => s.Fleet == null && s.Active));
 
                 SortShipSL(AvailableShips);
             }
@@ -339,7 +339,7 @@ namespace Ship_Game
 
         bool IsCandidateShip(Ship ship)
         {
-            if (ship.shipData.Role == RoleName.troop
+            if (ship.ShipData.Role == RoleName.troop
                 || ship.DesignRole == RoleName.ssp
                 || ship.DesignRole == RoleName.construction)
             {

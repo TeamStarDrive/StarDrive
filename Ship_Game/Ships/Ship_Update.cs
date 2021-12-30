@@ -26,7 +26,7 @@ namespace Ship_Game.Ships
                 CreateSceneObject();
             }
 
-            ShipSO.World = Matrix.CreateTranslation(new Vector3(pos + shipData.BaseHull.MeshOffset, z));
+            ShipSO.World = Matrix.CreateTranslation(new Vector3(pos + ShipData.BaseHull.MeshOffset, z));
             ShipSO.Visibility = GlobalStats.ShipVisibility;
         }
 
@@ -41,8 +41,8 @@ namespace Ship_Game.Ships
                 return; // allow creating invisible ships in Unit Tests
 
             //Log.Info($"CreateSO {Id} {Name}");
-            shipData.LoadModel(out ShipSO, Empire.Universe.ContentManager);
-            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position + shipData.BaseHull.MeshOffset, 0f));
+            ShipData.LoadModel(out ShipSO, Empire.Universe.ContentManager);
+            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position + ShipData.BaseHull.MeshOffset, 0f));
 
             NotVisibleToPlayerTimer = 0;
             UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
@@ -108,7 +108,7 @@ namespace Ship_Game.Ships
             if (IsHangarShip && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
-            if (!dying) UpdateAlive(timeStep);
+            if (!Dying) UpdateAlive(timeStep);
             else        UpdateDying(timeStep);
         }
 
@@ -116,7 +116,7 @@ namespace Ship_Game.Ships
         {
             ExploreCurrentSystem(timeStep);
 
-            if (EMPdisabled)
+            if (EMPDisabled)
             {
                 float third = Radius / 3f;
                 for (int i = 5 - 1; i >= 0; --i)
@@ -139,8 +139,8 @@ namespace Ship_Game.Ships
             {
                 if (ShipSO != null)
                 {
-                    ShipSO.World = Matrix.CreateTranslation(new Vector3(shipData.BaseHull.MeshOffset, 0f))
-                                 * Matrix.CreateRotationY(yRotation)
+                    ShipSO.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
+                                 * Matrix.CreateRotationY(YRotation)
                                  * Matrix.CreateRotationZ(Rotation)
                                  * Matrix.CreateTranslation(new Vector3(Position, 0f));
                     ShipSO.UpdateAnimation(timeStep.FixedTime);
@@ -160,47 +160,47 @@ namespace Ship_Game.Ships
 
         void ExploreCurrentSystem(FixedSimTime timeStep)
         {
-            if (System != null && timeStep.FixedTime > 0f && loyalty?.isFaction == false
-                && !System.IsFullyExploredBy(loyalty)
+            if (System != null && timeStep.FixedTime > 0f && Loyalty?.isFaction == false
+                && !System.IsFullyExploredBy(Loyalty)
                 && System.PlanetList != null) // Added easy out for fully explored systems
             {
                 foreach (Planet p in System.PlanetList)
                 {
-                    if (p.IsExploredBy(loyalty)) // already explored
+                    if (p.IsExploredBy(Loyalty)) // already explored
                         continue;
                     if (p.Center.OutsideRadius(Position, 3000f))
                         continue;
 
                     if (p.EventsOnTiles())
                     {
-                        if (loyalty == EmpireManager.Player)
+                        if (Loyalty == EmpireManager.Player)
                         {
                             Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
                         }
                         else if (p.Owner == null)
                         {
-                            loyalty.GetEmpireAI().SendExplorationFleet(p);
+                            Loyalty.GetEmpireAI().SendExplorationFleet(p);
                             if (CurrentGame.Difficulty > UniverseData.GameDifficulty.Hard 
-                                && PlanetRanker.IsGoodValueForUs(p, loyalty)
-                                && p.ParentSystem.GetKnownStrengthHostileTo(loyalty).AlmostZero())
+                                && PlanetRanker.IsGoodValueForUs(p, Loyalty)
+                                && p.ParentSystem.GetKnownStrengthHostileTo(Loyalty).AlmostZero())
                             {
-                                var task = MilitaryTask.CreateGuardTask(loyalty, p);
-                                loyalty.GetEmpireAI().AddPendingTask(task);
+                                var task = MilitaryTask.CreateGuardTask(Loyalty, p);
+                                Loyalty.GetEmpireAI().AddPendingTask(task);
                             }
                         }
                     }
 
-                    p.SetExploredBy(loyalty);
-                    System.UpdateFullyExploredBy(loyalty);
+                    p.SetExploredBy(Loyalty);
+                    System.UpdateFullyExploredBy(Loyalty);
                 }
             }
         }
 
         public void UpdateThrusters(FixedSimTime timeStep)
         {
-            Color thrust0 = loyalty.ThrustColor0;
-            Color thrust1 = loyalty.ThrustColor1;
-            Color thrust2 = loyalty.EmpireColor;
+            Color thrust0 = Loyalty.ThrustColor0;
+            Color thrust1 = Loyalty.ThrustColor1;
+            Color thrust2 = Loyalty.EmpireColor;
             float velocity = Velocity.Length();
             float velocityPercent = velocity / VelocityMaximum;
             bool notPaused = timeStep.FixedTime > 0f;
@@ -210,7 +210,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ThrusterList.Length; ++i)
             {
                 Thruster thruster = ThrusterList[i];
-                thruster.UpdatePosition(Position, yRotation, direction3d);
+                thruster.UpdatePosition(Position, YRotation, direction3d);
 
                 bool enginesOn = ThrustThisFrame == Ships.Thrust.Forward || ThrustThisFrame == Ships.Thrust.Reverse;
                 if (enginesOn)
@@ -253,8 +253,8 @@ namespace Ship_Game.Ships
         {
             DestroyThrusters();
 
-            dietimer -= timeStep.FixedTime;
-            if (dietimer <= 1.9f && IsVisibleToPlayer && (DeathSfx == null || DeathSfx.IsStopped))
+            DieTimer -= timeStep.FixedTime;
+            if (DieTimer <= 1.9f && IsVisibleToPlayer && (DeathSfx == null || DeathSfx.IsStopped))
             {
                 string cueName;
                 if (SurfaceArea < 80) cueName = "sd_explosion_ship_warpdet_small";
@@ -265,9 +265,9 @@ namespace Ship_Game.Ships
                     DeathSfx = new AudioHandle();
                 DeathSfx.PlaySfxAsync(cueName, SoundEmitter);
             }
-            if (dietimer <= 0.0f)
+            if (DieTimer <= 0.0f)
             {
-                reallyDie = true;
+                ReallyDie = true;
                 Die(LastDamagedBy, true);
                 return;
             }
@@ -296,18 +296,18 @@ namespace Ship_Game.Ships
                 }
             }
 
-            yRotation += DieRotation.X * timeStep.FixedTime;
-            xRotation += DieRotation.Y * timeStep.FixedTime;
+            YRotation += DieRotation.X * timeStep.FixedTime;
+            XRotation += DieRotation.Y * timeStep.FixedTime;
             Rotation  += DieRotation.Z * timeStep.FixedTime;
             Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
             if (InSensorRange && Empire.Universe.IsShipViewOrCloser)
             {
                 float scale  = PlanetCrash?.Scale ?? 1;
-                ShipSO.World = Matrix.CreateTranslation(new Vector3(shipData.BaseHull.MeshOffset, 0f))
+                ShipSO.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
                              * Matrix.CreateScale(scale) 
-                             * Matrix.CreateRotationY(yRotation)
-                             * Matrix.CreateRotationX(xRotation)
+                             * Matrix.CreateRotationY(YRotation)
+                             * Matrix.CreateRotationX(XRotation)
                              * Matrix.CreateRotationZ(Rotation)
                              * Matrix.CreateTranslation(new Vector3(Position, 0f));
 

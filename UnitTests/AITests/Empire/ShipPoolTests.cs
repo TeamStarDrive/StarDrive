@@ -36,7 +36,7 @@ namespace UnitTests.AITests.Empire
             Universe.Objects.Update(TestSimStep);
 
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
-            Assert.AreEqual(ship.loyalty, ship.Pool.OwnerEmpire);
+            Assert.AreEqual(ship.Loyalty, ship.Pool.OwnerEmpire);
             Assert.IsTrue(ship.Pool is AO, "Ship should be assigned to an AO");
         }
         
@@ -48,7 +48,7 @@ namespace UnitTests.AITests.Empire
             Universe.Objects.Update(TestSimStep);
 
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
-            Assert.AreEqual(ship.loyalty, ship.Pool.OwnerEmpire);
+            Assert.AreEqual(ship.Loyalty, ship.Pool.OwnerEmpire);
             Assert.IsTrue(ship.Pool is ShipPool, "Ship should be assigned to Empire's Core pool");
         }
         

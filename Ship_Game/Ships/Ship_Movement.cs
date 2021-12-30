@@ -104,8 +104,8 @@ namespace Ship_Game.Ships
             }
 
             FTLModifier = 1f;
-            if (IsInFriendlyProjectorRange && loyalty.data.Traits.InBordersSpeedBonus > 0)
-                FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
+            if (IsInFriendlyProjectorRange && Loyalty.data.Traits.InBordersSpeedBonus > 0)
+                FTLModifier += Loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= projectorBonus;
 
             float maxFTLSpeed = Stats.MaxFTLSpeed * FTLModifier * WarpPercent;
@@ -127,13 +127,13 @@ namespace Ship_Game.Ships
             {
                 if (rotAmount > 0f) // Y-bank:
                 {
-                    if (yRotation > -MaxBank)
-                        yRotation -= GetYBankAmount(timeStep);
+                    if (YRotation > -MaxBank)
+                        YRotation -= GetYBankAmount(timeStep);
                 }
                 else if (rotAmount < 0f)
                 {
-                    if (yRotation < MaxBank)
-                        yRotation += GetYBankAmount(timeStep);
+                    if (YRotation < MaxBank)
+                        YRotation += GetYBankAmount(timeStep);
                 }
             }
             Rotation += rotAmount;
@@ -142,17 +142,17 @@ namespace Ship_Game.Ships
 
         public void RestoreYBankRotation(FixedSimTime timeStep)
         {
-            if (yRotation > 0f)
+            if (YRotation > 0f)
             {
-                yRotation -= GetYBankAmount(timeStep);
-                if (yRotation < 0f)
-                    yRotation = 0f;
+                YRotation -= GetYBankAmount(timeStep);
+                if (YRotation < 0f)
+                    YRotation = 0f;
             }
-            else if (yRotation < 0f)
+            else if (YRotation < 0f)
             {
-                yRotation += GetYBankAmount(timeStep);
-                if (yRotation > 0f)
-                    yRotation = 0f;
+                YRotation += GetYBankAmount(timeStep);
+                if (YRotation > 0f)
+                    YRotation = 0f;
             }
         }
 

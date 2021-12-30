@@ -242,19 +242,19 @@ namespace Ship_Game.Ships
             // try to scale the icon so its size remains consistent when zooming in/out
             float size = ScaleIconSize(screenRadius, minSize, maxSize);
             (SubTexture icon, SubTexture secondary) = TacticalIcon();
-            us.DrawTextureSized(icon, screenPos, Rotation, size, size, loyalty.EmpireColor);
+            us.DrawTextureSized(icon, screenPos, Rotation, size, size, Loyalty.EmpireColor);
             if (secondary != null)
-                us.DrawTextureSized(secondary, screenPos, Rotation, size, size, loyalty.EmpireColor);
+                us.DrawTextureSized(secondary, screenPos, Rotation, size, size, Loyalty.EmpireColor);
         }
 
         void DrawFlagIcons(UniverseScreen us, Vector2 screenPos, float screenRadius)
         {
-            if (shipData.IsColonyShip)
+            if (ShipData.IsColonyShip)
             {
                 float size = ScaleIconSize(screenRadius, 16f, 16f);
                 Vector2 offSet = new Vector2(-screenRadius *.75f, -screenRadius * .75f);
                 us.DrawTextureSized(ResourceManager.Texture("UI/flagicon"),
-                    screenPos +  offSet, 0, size, size, loyalty.EmpireColor);
+                    screenPos +  offSet, 0, size, size, Loyalty.EmpireColor);
             }
         }
 
@@ -298,7 +298,7 @@ namespace Ship_Game.Ships
 
         void DrawStatusIcons(UniverseScreen us, float screenRadius, Vector2 screenPos)
         {
-            if (!HelperFunctions.DataVisibleToPlayer(loyalty))
+            if (!HelperFunctions.DataVisibleToPlayer(Loyalty))
                 return;
 
             Vector2 offSet = new Vector2(screenRadius * .75f, screenRadius * .75f);
@@ -335,16 +335,16 @@ namespace Ship_Game.Ships
                                   bool showModules, bool moduleHealthColor = true)
         {
             bool drawIconOnly = !showModules || ModuleSlotList.Length == 0;
-            if (drawIconOnly && shipData.SelectionGraphic.NotEmpty()) // draw ship icon plus shields
+            if (drawIconOnly && ShipData.SelectionGraphic.NotEmpty()) // draw ship icon plus shields
             {
                 Rectangle destRect = drawRect;
                 destRect.X += 2;
-                string icon = "SelectionBox Ships/" + shipData.SelectionGraphic;
+                string icon = "SelectionBox Ships/" + ShipData.SelectionGraphic;
                 batch.Draw(ResourceManager.Texture(icon), destRect, Color.White);
-                if (shield_power > 0.0)
+                if (ShieldPower > 0.0)
                 {
                     batch.Draw(ResourceManager.Texture(icon + "_shields"), destRect,
-                               new Color(Color.White, (float)shield_percent));
+                               new Color(Color.White, (float)ShieldPercent));
                 }
                 return;
             }

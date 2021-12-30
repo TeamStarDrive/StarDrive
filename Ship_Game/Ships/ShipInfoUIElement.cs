@@ -113,9 +113,9 @@ namespace Ship_Game.Ships
 
             //Added by McShooterz:
             //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
-            string longName = string.Concat(Ship.Name, " - ", Localizer.GetRole(Ship.DesignRole, Ship.loyalty));
-            if (Ship.shipData.ShipCategory != ShipCategory.Unclassified)
-                longName += " - "+Ship.shipData.ShipCategory;
+            string longName = string.Concat(Ship.Name, " - ", Localizer.GetRole(Ship.DesignRole, Ship.Loyalty));
+            if (Ship.ShipData.ShipCategory != ShipCategory.Unclassified)
+                longName += " - "+Ship.ShipData.ShipCategory;
 
             batch.DrawString(Fonts.Visitor10, longName, shipSuperName, Color.Orange);
 
@@ -133,8 +133,8 @@ namespace Ship_Game.Ships
 
             PBar.Max      = Ship.PowerStoreMax;
             PBar.Progress = Ship.PowerCurrent;
-            SBar.Max      = Ship.shield_max;
-            SBar.Progress = Ship.shield_power;
+            SBar.Max      = Ship.ShieldMax;
+            SBar.Progress = Ship.ShieldPower;
             OBar.Max      = Ship.OrdinanceMax;
             OBar.Progress = Ship.Ordinance;
             PBar.Draw(batch);
@@ -148,7 +148,7 @@ namespace Ship_Game.Ships
             DrawTroopStatus();
             OrdersButtons.Draw(batch, elapsed);
             //fbedard: Display race icon
-            batch.Draw(ResourceManager.Flag(Ship.loyalty), FlagRect, Ship.loyalty.EmpireColor);
+            batch.Draw(ResourceManager.Flag(Ship.Loyalty), FlagRect, Ship.Loyalty.EmpireColor);
 
             Vector2 mousePos = Screen.Input.CursorPosition;
 
@@ -165,11 +165,11 @@ namespace Ship_Game.Ships
             levelPos   = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
             StatusArea = new Vector2(Housing.X + 175, Housing.Y + 15);
             batch.Draw(ResourceManager.Texture("UI/icon_kills_shipUI"), star, Color.White);
-            batch.DrawString(Fonts.Arial12Bold, Ship.kills.ToString(), levelPos, Color.White);
+            batch.DrawString(Fonts.Arial12Bold, Ship.Kills.ToString(), levelPos, Color.White);
             int numStatus = 0;
 
             // FB - limit data display to non player ships
-            if (HelperFunctions.DataVisibleToPlayer(Ship.loyalty))
+            if (HelperFunctions.DataVisibleToPlayer(Ship.Loyalty))
             {
                 DrawCarrierStatus(mousePos);
                 DrawResupplyReason(Ship);
@@ -194,7 +194,7 @@ namespace Ship_Game.Ships
         {
             SubTexture iconPack = ResourceManager.Texture("StatusIcons/icon_pack");
 
-            if (!Ship.loyalty.data.Traits.Pack)
+            if (!Ship.Loyalty.data.Traits.Pack)
                 return;
 
             var packRect = new Rectangle((int)StatusArea.X, (int)StatusArea.Y, 48, 32);
@@ -229,7 +229,7 @@ namespace Ship_Game.Ships
 
         void DrawEmp(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
         {
-            if (!Ship.EMPdisabled)
+            if (!Ship.EMPDisabled)
                 return;
 
             SubTexture iconDisabled = ResourceManager.Texture("StatusIcons/icon_disabled");
@@ -399,7 +399,7 @@ namespace Ship_Game.Ships
             }
             else
             {
-                Color statusColor = Ship.loyalty == EmpireManager.Player ? Color.LightGreen : Color.Red;
+                Color statusColor = Ship.Loyalty == EmpireManager.Player ? Color.LightGreen : Color.Red;
                 DrawHorizontalValues(allTroops, statusColor, ref troopPos, withSlash: false);
             }
 
@@ -447,7 +447,7 @@ namespace Ship_Game.Ships
 
             if (FlagRect.HitTest(input.CursorPosition))
             {
-                ToolTip.CreateTooltip(Ship.loyalty.Name);
+                ToolTip.CreateTooltip(Ship.Loyalty.Name);
             }
             
             if (SlidingElement.HandleInput(input))
@@ -515,20 +515,20 @@ namespace Ship_Game.Ships
                 return;
 
             Ship = s;
-            CanRename = s.loyalty == EmpireManager.Player;
+            CanRename = s.Loyalty == EmpireManager.Player;
             ShipNameArea.Enabled = CanRename;
             ShipNameArea.Reset(s.ShipName);
 
             Orders.Clear();
             Ship = s;
             OrdersButtons.ResetButtons(Ship);
-            if (Ship.loyalty != EmpireManager.Player)
+            if (Ship.Loyalty != EmpireManager.Player)
                 return;
 
             if (Ship.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
                 return;
 
-            if (Ship.shipData.Role > RoleName.station)
+            if (Ship.ShipData.Role > RoleName.station)
             {
                 OrdersButton resupply = new OrdersButton(Ship, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
                 {
@@ -605,7 +605,7 @@ namespace Ship_Game.Ships
                 Orders.Add(ob);
             }
 
-            if (Ship.shipData.Role != RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.HasFighterBays))
+            if (Ship.ShipData.Role != RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.HasFighterBays))
             {
                 var ob2 = new OrdersButton(Ship, OrderType.FighterRecall, GameText.ClickToToggleWhetherThis)
                 {
@@ -619,7 +619,7 @@ namespace Ship_Game.Ships
                 Orders.Add(ob2);
             }
 
-            if (Ship.shipData.Role >= RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.shipData.ShipCategory != ShipCategory.Civilian)
+            if (Ship.ShipData.Role >= RoleName.fighter && Ship.Mothership == null && Ship.AI.State != AIState.Colonize && Ship.ShipData.ShipCategory != ShipCategory.Civilian)
             {
                 var exp = new OrdersButton(Ship, OrderType.Explore, GameText.OrdersThisShipToExplore)
                 {

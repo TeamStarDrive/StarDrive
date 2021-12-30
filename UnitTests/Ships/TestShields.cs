@@ -19,7 +19,7 @@ namespace UnitTests.Ships
         {
             Ship ship = Ship.CreateShipAtPoint("TEST_ShipShield", Player, Vector2.Zero);;
             Assert.IsNotNull(ship);
-            Assert.That.Equal(ship.shield_max, 1400);
+            Assert.That.Equal(ship.ShieldMax, 1400);
 
             ShipModule amplifier = ship.TestGetModule("TEST_ModuleAmplifier");
             Assert.IsNotNull(amplifier);
@@ -27,11 +27,11 @@ namespace UnitTests.Ships
 
             amplifier.Active = false;
             ship.ShipStatusChange();
-            Assert.That.Equal(ship.shield_max, 1200);
+            Assert.That.Equal(ship.ShieldMax, 1200);
 
             amplifier.Active = true;
             ship.ShipStatusChange();
-            Assert.That.Equal(ship.shield_max, 1400);
+            Assert.That.Equal(ship.ShieldMax, 1400);
         }
     }
 }
