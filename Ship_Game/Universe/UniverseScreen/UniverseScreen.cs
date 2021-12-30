@@ -37,7 +37,7 @@ namespace Ship_Game
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
 
         // TODO: Encapsulate
-        public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
+        public BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
         
         public float GamePace = 1f;
         public float GameSpeed = 1f;

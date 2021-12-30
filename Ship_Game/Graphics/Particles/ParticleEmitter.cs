@@ -9,43 +9,40 @@ namespace Ship_Game
     {
         readonly IParticleSystem ParticleSystem;
         readonly float TimeBetweenParticles;
+        readonly float Scale;
         Vector3 PreviousPosition;
         float TimeLeftOver;
 
         // Use ParticleSystem NewEmitter() instead
-        internal ParticleEmitter(IParticleSystem particleSystem, float particlesPerSecond, Vector3 initialPosition)
+        internal ParticleEmitter(IParticleSystem ps, float particlesPerSecond, float scale, Vector3 initialPosition)
         {
-            ParticleSystem       = particleSystem;
+            ParticleSystem = ps;
             TimeBetweenParticles = 1f / particlesPerSecond;
-            PreviousPosition     = initialPosition;
+            Scale = scale;
+            PreviousPosition = initialPosition;
         }
 
         public void Update(float elapsedTime, Vector3 newPosition)
         {
-            Update(elapsedTime, newPosition, 0, 0, 0);
+            Update(elapsedTime, newPosition, 0, 0);
         }
 
         public void Update(float elapsedTime, Vector3 newPosition, float zVelocity)
         {
-            Update(elapsedTime, newPosition, zVelocity, 0, 0);
+            Update(elapsedTime, newPosition, zVelocity, 0);
         }
 
-        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity, float jitter)
-        {
-            Update(elapsedTime, newPosition, zVelocity, 0, jitter);
-        }
-        
         public void Update(float elapsedTime)
         {
             Update(elapsedTime, PreviousPosition);
         }
 
-        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity, float zAxisPos, float jitter)
+        public void Update(float elapsedTime, Vector3 newPosition, float zVelocity, float jitter)
         {
             if (elapsedTime > 0f)
             {
                 Vector3 velocity = newPosition - PreviousPosition;
-                velocity.Z += zVelocity;
+                velocity.Z = zVelocity;
                 velocity /= elapsedTime;
                 float timeToSpend = TimeLeftOver + elapsedTime;
                 float currentTime = -TimeLeftOver;
@@ -55,7 +52,6 @@ namespace Ship_Game
                     timeToSpend -= TimeBetweenParticles;
                     float mu = currentTime / elapsedTime;
                     Vector3 pos = Vector3.Lerp(PreviousPosition, newPosition, mu);
-                    pos.Z += zAxisPos;
 
                     if (jitter > 0)
                     {
@@ -64,7 +60,7 @@ namespace Ship_Game
                         pos.Z += RandomMath2.RandomBetween(-jitter, jitter);
                         jitter *= 0.75f;
                     }
-                    ParticleSystem.AddParticle(pos, velocity);
+                    ParticleSystem.AddParticle(pos, velocity, Scale, Color.White);
                 }
                 TimeLeftOver = timeToSpend;
             }
@@ -84,7 +80,7 @@ namespace Ship_Game
                     timeToSpend -= TimeBetweenParticles;
                     float relTime = currentTime / elapsedTime;
                     Vector3 pos = Vector3.Lerp(PreviousPosition, newPosition, relTime);
-                    ParticleSystem.AddParticle(pos, velocity, scale, color);
+                    ParticleSystem.AddParticle(pos, velocity, scale*Scale, color);
                 }
                 TimeLeftOver = timeToSpend;
             }
@@ -101,11 +97,11 @@ namespace Ship_Game
 
                 while (timeToSpend > TimeBetweenParticles)
                 {
-                    currentTime = currentTime + TimeBetweenParticles;
-                    timeToSpend = timeToSpend - TimeBetweenParticles;
+                    currentTime += TimeBetweenParticles;
+                    timeToSpend -= TimeBetweenParticles;
                     float mu = currentTime / elapsedTime;
                     Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
-                    ParticleSystem.AddParticle(position, velocity);
+                    ParticleSystem.AddParticle(position, velocity, Scale, Color.White);
                 }
                 TimeLeftOver = timeToSpend;
             }

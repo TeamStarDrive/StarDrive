@@ -889,13 +889,13 @@ namespace Ship_Game.Ships
 
         void CreateHitDebris(Projectile proj)
         {
-            if (proj == null || !RandomMath.RollDice(50 + Area))
-                return;
-
-            if (proj.Weapon.Tag_Kinetic || proj.Weapon.Tag_Explosive)
+            if (proj != null && (proj.Weapon.Tag_Kinetic || proj.Weapon.Tag_Explosive))
             {
-                Vector2 velocity = Parent.Velocity + RandomMath.Vector2D(Parent.Velocity.Length()) * (1 + RandomMath.RollDie(200)/100);
-                SpawnDebris(1, velocity, 1, ignite: false);
+                if (RandomMath.RollDice(20)) // X % out of 100 that we spawn debris
+                {
+                    Vector2 velocity = Parent.Velocity + RandomMath.Vector2D(Parent.Velocity.Length()) * (1 + RandomMath.RollDie(200) / 100);
+                    SpawnDebris(velocity, 1, ignite: false);
+                }
             }
         }
         float GetGlobalArmourBonus()
@@ -979,7 +979,7 @@ namespace Ship_Game.Ships
                     Empire.Universe.Particles.Explosion.AddParticle(pos);
                 }
 
-                SpawnDebris(Area, Parent.Velocity, 0);
+                SpawnDebris(Parent.Velocity, 0, ignite: true);
             }
 
             Active = false;
@@ -1005,15 +1005,15 @@ namespace Ship_Game.Ships
             Parent.OnModuleResurrect(this);
         }
 
-        void SpawnDebris(int size, Vector2 velocity, int count, bool ignite = true)
+        void SpawnDebris(Vector2 velocity, int count, bool ignite)
         {
             if (count == 0) 
-                count = (int)RandomMath.RandomBetween(0, size / 2 + 1);
+                count = RandomMath.IntBetween(0, (int)(Area*0.5f + 1f));
 
             if (count != 0)
             {
-                float debrisScale = size * 0.05f;
-                SpaceJunk.SpawnJunk(count, Position, velocity, this, 1.0f, debrisScale, ignite: ignite);
+                SpaceJunk.SpawnJunk(Empire.Universe, count, Position, velocity, this,
+                                    maxSize:Math.Max(Radius, 32), ignite:ignite);
             }
         }
 
