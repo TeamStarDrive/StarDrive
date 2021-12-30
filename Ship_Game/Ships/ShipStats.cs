@@ -239,10 +239,6 @@ namespace Ship_Game.Ships
         float UpdateShieldPowerMax(float shieldAmplify)
         {
             ShipModule[] shields = S.Shields;
-            var mainShields = shields.Filter(s => s.ModuleType == ShipModuleType.Shield);
-            if (mainShields.Length == 0)
-                return 0;
-
             float shieldMax = 0;
             for (int i = 0; i < shields.Length; i++)
             {
