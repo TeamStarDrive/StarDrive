@@ -140,7 +140,7 @@ namespace Ship_Game
         
         public static PlanetGridSquare FromSaveData(SavedGame.PGSData data)
         {
-            return new PlanetGridSquare(data.x, data.y, data.building, data.Habitable, data.Terraformable)
+            return new PlanetGridSquare(data.X, data.Y, data.building, data.Habitable, data.Terraformable)
             {
                 Biosphere = data.Biosphere
             };
@@ -355,8 +355,8 @@ namespace Ship_Game
         {
             var sData  = new SavedGame.PGSData
             {
-                x = X,
-                y = Y,
+                X = X,
+                Y = Y,
                 Habitable     = Habitable,
                 Biosphere     = Biosphere,
                 building      = Building,

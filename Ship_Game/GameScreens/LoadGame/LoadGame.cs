@@ -98,7 +98,7 @@ namespace Ship_Game.GameScreens.LoadGame
             GlobalStats.IconSize             = usData.IconSize;
             GlobalStats.MinimumWarpRange     = usData.MinimumWarpRange;
             GlobalStats.ShipMaintenanceMulti = usData.OptionIncreaseShipMaintenance;
-            GlobalStats.PreventFederations   = usData.preventFederations;
+            GlobalStats.PreventFederations   = usData.PreventFederations;
             GlobalStats.EliminationMode      = usData.EliminationMode;
             GlobalStats.CustomMineralDecay   = usData.CustomMineralDecay;
             GlobalStats.TurnTimer            = usData.TurnTimer != 0 ? usData.TurnTimer : 5;
@@ -134,7 +134,7 @@ namespace Ship_Game.GameScreens.LoadGame
             var data = new UniverseData
             {
                 FogMapBase64          = saveData.FogMapBase64,
-                Difficulty            = saveData.gameDifficulty,
+                Difficulty            = saveData.GameDifficulty,
                 GalaxySize            = saveData.GalaxySize,
                 Size                  = saveData.Size,
                 FTLSpeedModifier      = saveData.FTLModifier,
@@ -266,8 +266,8 @@ namespace Ship_Game.GameScreens.LoadGame
 
         static void RestoreCommodities(Planet p, SavedGame.PlanetSaveData psdata)
         {
-            p.FoodHere = psdata.foodHere;
-            p.ProdHere = psdata.prodHere;
+            p.FoodHere = psdata.FoodHere;
+            p.ProdHere = psdata.ProdHere;
             p.Population = psdata.Population;
         }
 
@@ -278,15 +278,15 @@ namespace Ship_Game.GameScreens.LoadGame
             //TempEmpireData  Tdata = new TempEmpireData();
 
             e.isFaction = sdata.IsFaction;
-            if (sdata.empireData == null)
+            if (sdata.EmpireData == null)
             {
                 e.data.Traits = sdata.Traits;
                 e.EmpireColor = sdata.Traits.Color;
             }
             else
             {
-                e.data = sdata.empireData;
-                e.data.ResearchQueue = sdata.empireData.ResearchQueue;
+                e.data = sdata.EmpireData;
+                e.data.ResearchQueue = sdata.EmpireData.ResearchQueue;
                 e.Research.SetTopic(sdata.ResearchTopic);
                 e.PortraitName = e.data.PortraitName;
                 e.dd           = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
@@ -341,7 +341,7 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             var system = new SolarSystem
             {
-                guid          = ssd.guid,
+                guid          = ssd.Guid,
                 Name          = ssd.Name,
                 Position      = ssd.Position,
                 Sun           = SunType.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
@@ -434,18 +434,18 @@ namespace Ship_Game.GameScreens.LoadGame
             {
                 var qi  = new QueueItem(p);
                 qi.Rush = qisave.Rush;
-                if (qisave.isBuilding)
+                if (qisave.IsBuilding)
                 {
                     qi.isBuilding    = true;
                     qi.IsMilitary    = qisave.IsMilitary;
                     qi.Building      = ResourceManager.CreateBuilding(qisave.UID);
                     qi.Cost          = qi.Building.ActualCost;
                     qi.NotifyOnEmpty = false;
-                    qi.IsPlayerAdded = qisave.isPlayerAdded;
+                    qi.IsPlayerAdded = qisave.IsPlayerAdded;
 
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.X != (int) qisave.pgsVector.X || pgs.Y != (int) qisave.pgsVector.Y)
+                        if (pgs.X != (int) qisave.PGSVector.X || pgs.Y != (int) qisave.PGSVector.Y)
                             continue;
 
                         pgs.QItem = qi;
@@ -454,7 +454,7 @@ namespace Ship_Game.GameScreens.LoadGame
                     }
                 }
 
-                if (qisave.isTroop)
+                if (qisave.IsTroop)
                 {
                     qi.isTroop = true;
                     qi.TroopType = qisave.UID;
@@ -462,7 +462,7 @@ namespace Ship_Game.GameScreens.LoadGame
                     qi.NotifyOnEmpty = false;
                 }
 
-                if (qisave.isShip)
+                if (qisave.IsShip)
                 {
                     qi.isShip = true;
                     if (!ResourceManager.Ships.GetDesign(qisave.UID, out Ships.ShipDesign shipTemplate))
@@ -492,7 +492,7 @@ namespace Ship_Game.GameScreens.LoadGame
                     qi.NotifyOnEmpty = false;
                 }
 
-                if (qisave.isShip && qi.Goal != null)
+                if (qisave.IsShip && qi.Goal != null)
                 {
                     qi.Goal.ShipToBuild = ResourceManager.Ships.GetDesign(qisave.UID);
                 }
@@ -520,7 +520,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 {
                     if (rsave.Planet != null)
                     {
-                        Planet p = data.FindPlanetOrNull(rsave.Planet.guid);
+                        Planet p = data.FindPlanetOrNull(rsave.Planet.Guid);
                         if (p?.Owner != null)
                         {
                             RestorePlanetConstructionQueue(saveData, rsave, p);
@@ -543,7 +543,7 @@ namespace Ship_Game.GameScreens.LoadGame
                         Guid = fleetsave.FleetGuid,
                         IsCoreFleet = fleetsave.IsCoreFleet,
                         // @note savegame compatibility uses facing in radians
-                        FinalDirection = fleetsave.facing.RadiansToDirection(),
+                        FinalDirection = fleetsave.Facing.RadiansToDirection(),
                         Owner = e
                     };
 
@@ -553,7 +553,7 @@ namespace Ship_Game.GameScreens.LoadGame
                     {
                         foreach (Ship ship in data.MasterShipList)
                         {
-                            if (ship.Guid != ssave.shipGuid)
+                            if (ship.Guid != ssave.ShipGuid)
                                 continue;
 
                             // fleet saves can be corrupted because in older saves,
@@ -563,7 +563,7 @@ namespace Ship_Game.GameScreens.LoadGame
                                 ship.Fleet != null && (fleet.Name.IsEmpty() || fleet.Name == "Core Fleet"))
                                 continue;
 
-                            ship.RelativeFleetOffset = ssave.fleetOffset;
+                            ship.RelativeFleetOffset = ssave.FleetOffset;
                             fleet.AddShip(ship);
                         }
                     }
@@ -613,8 +613,8 @@ namespace Ship_Game.GameScreens.LoadGame
 
         static bool IsShipGoalInvalid(SavedGame.GoalSave g)
         {
-            if (g.type != GoalType.BuildOffensiveShips &&
-                g.type != GoalType.IncreaseFreighters)
+            if (g.Type != GoalType.BuildOffensiveShips &&
+                g.Type != GoalType.IncreaseFreighters)
             {
                 return false;
             }
@@ -630,11 +630,11 @@ namespace Ship_Game.GameScreens.LoadGame
                     continue;
 
                 Goal g = Goal.Deserialize(gsave.GoalName, e, gsave);
-                if (gsave.fleetGuid != Guid.Empty)
+                if (gsave.FleetGuid != Guid.Empty)
                 {
                     foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
                     {
-                        if (fleet.Value.Guid == gsave.fleetGuid) g.Fleet = fleet.Value;
+                        if (fleet.Value.Guid == gsave.FleetGuid) g.Fleet = fleet.Value;
                     }
                 }
 
@@ -645,15 +645,15 @@ namespace Ship_Game.GameScreens.LoadGame
 
                     foreach (Planet p in s.PlanetList)
                     {
-                        if (p.guid == gsave.planetWhereBuildingAtGuid) g.PlanetBuildingAt   = p;
-                        if (p.guid == gsave.markedPlanetGuid)          g.ColonizationTarget = p;
+                        if (p.guid == gsave.PlanetWhereBuildingAtGuid) g.PlanetBuildingAt   = p;
+                        if (p.guid == gsave.MarkedPlanetGuid)          g.ColonizationTarget = p;
                         if (p.guid == gsave.TargetPlanetGuid)          g.TargetPlanet       = p;
                     }
                 }
 
                 foreach (Ship s in data.MasterShipList)
                 {
-                    if      (gsave.colonyShipGuid == s.Guid) g.FinishedShip = s;
+                    if      (gsave.ColonyShipGuid == s.Guid) g.FinishedShip = s;
                     else if (gsave.OldShipGuid    == s.Guid) g.OldShip      = s;
                     else if (gsave.TargetShipGuid == s.Guid) g.TargetShip   = s;
                 }
@@ -760,7 +760,7 @@ namespace Ship_Game.GameScreens.LoadGame
                         continue;
 
                     SavedGame.PlanetSaveData savedPlanet = ring.Planet;
-                    if (data.FindPlanet(savedPlanet.guid, out Planet planet))
+                    if (data.FindPlanet(savedPlanet.Guid, out Planet planet))
                     {
                         if (savedPlanet.IncomingFreighters != null)
                         {
@@ -787,7 +787,7 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
-                Empire e = EmpireManager.GetEmpireByName(d.empireData.Traits.Name);
+                Empire e = EmpireManager.GetEmpireByName(d.EmpireData.Traits.Name);
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
                     CreateShipFromSave(data, shipData, e);
             }

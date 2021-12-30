@@ -3,31 +3,33 @@ using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using System;
 using System.Xml.Serialization;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class Agent // Refactored by Fat Bastard June 2020
     {
-        [Serialize(0)] public string Name;
-        [Serialize(1)] public int Level = 1;
-        [Serialize(2)] public int Experience;
-        [Serialize(3)] public AgentMission Mission;
-        [Serialize(4)] public AgentMission PrevisousMission = AgentMission.Training;
-        [Serialize(5)] public string PreviousTarget;
-        [Serialize(6)] public int TurnsRemaining;
-        [Serialize(7)] public string TargetEmpire = "";
-        [Serialize(8)] public Guid TargetGUID;
-        [Serialize(10)] public bool spyMute;
-        [Serialize(11)] public string HomePlanet = "";
-        [Serialize(12)] public float Age = 30f;
-        [Serialize(13)] public float ServiceYears = 0f;
-        [Serialize(14)] public short Assassinations;
-        [Serialize(15)] public short Training;
-        [Serialize(16)] public short Infiltrations;
-        [Serialize(17)] public short Sabotages;
-        [Serialize(18)] public short TechStolen;
-        [Serialize(19)] public short Robberies;
-        [Serialize(20)] public short Rebellions;
+        [StarData] public string Name;
+        [StarData] public int Level = 1;
+        [StarData] public int Experience;
+        [StarData] public AgentMission Mission;
+        [StarData] public AgentMission PrevisousMission = AgentMission.Training;
+        [StarData] public string PreviousTarget;
+        [StarData] public int TurnsRemaining;
+        [StarData] public string TargetEmpire = "";
+        [StarData] public Guid TargetGUID;
+        [StarData] public bool spyMute;
+        [StarData] public string HomePlanet = "";
+        [StarData] public float Age = 30f;
+        [StarData] public float ServiceYears = 0f;
+        [StarData] public short Assassinations;
+        [StarData] public short Training;
+        [StarData] public short Infiltrations;
+        [StarData] public short Sabotages;
+        [StarData] public short TechStolen;
+        [StarData] public short Robberies;
+        [StarData] public short Rebellions;
 
         [XmlIgnore][JsonIgnore]
         public bool IsNovice => Level < 3;

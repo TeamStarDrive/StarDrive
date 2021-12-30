@@ -219,7 +219,7 @@ namespace Ship_Game.Ships
             Experience   = save.Experience;
             Kills        = save.Kills;
             PowerCurrent = save.Power;
-            YRotation    = save.yRotation;
+            YRotation    = save.YRotation;
             Rotation     = save.Rotation;
             Velocity     = save.Velocity;
             IsSpooling   = save.AfterBurnerOn;

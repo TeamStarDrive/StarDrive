@@ -6,108 +6,113 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.Empires.Components;
 using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game.Gameplay
 {
+    [StarDataType]
     public sealed class TrustEntry
     {
-        [Serialize(0)] public int TurnTimer;
-        [Serialize(1)] public int TurnsInExistence;
-        [Serialize(2)] public float TrustCost;
-        [Serialize(3)] public TrustEntryType Type;
+        [StarData] public int TurnTimer;
+        [StarData] public int TurnsInExistence;
+        [StarData] public float TrustCost;
+        [StarData] public TrustEntryType Type;
     }
 
+    [StarDataType]
     public sealed class FearEntry
     {
-        [Serialize(0)] public int TurnTimer;
-        [Serialize(1)] public float FearCost;
-        [Serialize(2)] public float TurnsInExistence;
-        [Serialize(3)] public TrustEntryType Type;
+        [StarData] public int TurnTimer;
+        [StarData] public float FearCost;
+        [StarData] public float TurnsInExistence;
+        [StarData] public TrustEntryType Type;
     }
 
+    [StarDataType]
     public sealed class FederationQuest
     {
-        [Serialize(0)] public QuestType type;
-        [Serialize(1)] public string EnemyName;
+        [StarData] public QuestType type;
+        [StarData] public string EnemyName;
     }
 
+    [StarDataType]
     public sealed class Relationship : IDisposable
     {
-        [Serialize(0)] public FederationQuest FedQuest;
-        [Serialize(1)] public Posture Posture = Posture.Neutral;  // FB - use SetPosture privately or ChangeTo methods publicly
-        [Serialize(2)] public string Name;
-        [Serialize(3)] public bool Known;
-        [Serialize(4)] public float IntelligenceBudget;
-        [Serialize(5)] public float IntelligencePenetration;
-        [Serialize(6)] public int turnsSinceLastContact;
-        [Serialize(7)] public bool WarnedAboutShips;
-        [Serialize(8)] public bool WarnedAboutColonizing;
-        [Serialize(9)] public int PlayerContactStep; //  Encounter Step to use when the player contacts this faction
+        [StarData] public FederationQuest FedQuest;
+        [StarData] public Posture Posture = Posture.Neutral;  // FB - use SetPosture privately or ChangeTo methods publicly
+        [StarData] public string Name;
+        [StarData] public bool Known;
+        [StarData] public float IntelligenceBudget;
+        [StarData] public float IntelligencePenetration;
+        [StarData] public int turnsSinceLastContact;
+        [StarData] public bool WarnedAboutShips;
+        [StarData] public bool WarnedAboutColonizing;
+        [StarData] public int PlayerContactStep; //  Encounter Step to use when the player contacts this faction
 
-        [Serialize(10)] public float Anger_FromShipsInOurBorders; // FB - Use AddAngerShipsInOurBorders
-        [Serialize(11)] public float Anger_TerritorialConflict; // FB - Use AddAngerTerritorialConflict
-        [Serialize(12)] public float Anger_MilitaryConflict; // FB - Use AddAngerMilitaryConflict
-        [Serialize(13)] public float Anger_DiplomaticConflict; // FB - Use AddAngerDiplomaticConflict
+        [StarData] public float Anger_FromShipsInOurBorders; // FB - Use AddAngerShipsInOurBorders
+        [StarData] public float Anger_TerritorialConflict; // FB - Use AddAngerTerritorialConflict
+        [StarData] public float Anger_MilitaryConflict; // FB - Use AddAngerMilitaryConflict
+        [StarData] public float Anger_DiplomaticConflict; // FB - Use AddAngerDiplomaticConflict
 
-        [Serialize(14)] public int SpiesDetected;
-        [Serialize(15)] public int TimesSpiedOnAlly;
-        [Serialize(16)] public int SpiesKilled;
-        [Serialize(17)] public float TotalAnger;
-        [Serialize(18)] public bool Treaty_OpenBorders; // FB - check Empire_Relationship to see how to set it. Do not access directly!
-        [Serialize(19)] public bool Treaty_NAPact; // FB - check Empire_Relationship to see how to set it. Do not access directly!
-        [Serialize(20)] public bool Treaty_Trade; // FB - check Empire_Relationship to see how to set it. Do not access directly!
-        [Serialize(21)] public int Treaty_Trade_TurnsExisted;
-        [Serialize(22)] public bool Treaty_Alliance; // FB - check Empire_Relationship to see how to set it. Do not access directly!
-        [Serialize(23)] public bool Treaty_Peace; // FB - check Empire_Relationship to see how to set it. Do not access directly!
+        [StarData] public int SpiesDetected;
+        [StarData] public int TimesSpiedOnAlly;
+        [StarData] public int SpiesKilled;
+        [StarData] public float TotalAnger;
+        [StarData] public bool Treaty_OpenBorders; // FB - check Empire_Relationship to see how to set it. Do not access directly!
+        [StarData] public bool Treaty_NAPact; // FB - check Empire_Relationship to see how to set it. Do not access directly!
+        [StarData] public bool Treaty_Trade; // FB - check Empire_Relationship to see how to set it. Do not access directly!
+        [StarData] public int Treaty_Trade_TurnsExisted;
+        [StarData] public bool Treaty_Alliance; // FB - check Empire_Relationship to see how to set it. Do not access directly!
+        [StarData] public bool Treaty_Peace; // FB - check Empire_Relationship to see how to set it. Do not access directly!
 
-        [Serialize(24)] public int PeaceTurnsRemaining;
-        [Serialize(25)] public float Threat;
-        [Serialize(26)] public float Trust;
-        [Serialize(27)] public War ActiveWar;
-        [Serialize(28)] public Array<War> WarHistory = new Array<War>();
-        [Serialize(29)] public bool haveRejectedNAPact;
-        [Serialize(30)] public bool HaveRejected_TRADE;
-        [Serialize(31)] public bool haveRejectedDemandTech;
-        [Serialize(32)] public bool HaveRejected_OpenBorders;
-        [Serialize(33)] public bool HaveRejected_Alliance;
-        [Serialize(34)] public int NumberStolenClaims;
+        [StarData] public int PeaceTurnsRemaining;
+        [StarData] public float Threat;
+        [StarData] public float Trust;
+        [StarData] public War ActiveWar;
+        [StarData] public Array<War> WarHistory = new Array<War>();
+        [StarData] public bool haveRejectedNAPact;
+        [StarData] public bool HaveRejected_TRADE;
+        [StarData] public bool haveRejectedDemandTech;
+        [StarData] public bool HaveRejected_OpenBorders;
+        [StarData] public bool HaveRejected_Alliance;
+        [StarData] public int NumberStolenClaims;
 
-        [Serialize(35)] public Array<Guid> StolenSystems = new Array<Guid>();
-        [Serialize(36)] public bool HaveInsulted_Military;
-        [Serialize(37)] public bool HaveComplimented_Military;
-        [Serialize(38)] public bool XenoDemandedTech;
-        [Serialize(39)] public Array<Guid> WarnedSystemsList = new Array<Guid>();
-        [Serialize(40)] public bool HaveWarnedTwice;
-        [Serialize(41)] public bool HaveWarnedThrice;
-        [Serialize(42)] public Guid contestedSystemGuid;
-        [Serialize(43)] public bool AtWar;
-        [Serialize(44)] public bool PreparingForWar; // Use prepareForWar or CancelPrepareForWar
-        [Serialize(45)] public WarType PreparingForWarType = WarType.ImperialistWar;  // Use prepareForWar or CancelPrepareForWar
-        [Serialize(46)] public int DefenseFleet = -1;
-        [Serialize(47)] public bool HasDefenseFleet;
-        [Serialize(48)] public float InvasiveColonyPenalty;
-        [Serialize(49)] public float AggressionAgainstUsPenalty;
-        [Serialize(50)] public float InitialStrength;
-        [Serialize(51)] public int TurnsKnown;
-        [Serialize(52)] public int TurnsAbove95; // Trust
-        [Serialize(53)] public int TurnsAllied;
+        [StarData] public Array<Guid> StolenSystems = new Array<Guid>();
+        [StarData] public bool HaveInsulted_Military;
+        [StarData] public bool HaveComplimented_Military;
+        [StarData] public bool XenoDemandedTech;
+        [StarData] public Array<Guid> WarnedSystemsList = new Array<Guid>();
+        [StarData] public bool HaveWarnedTwice;
+        [StarData] public bool HaveWarnedThrice;
+        [StarData] public Guid contestedSystemGuid;
+        [StarData] public bool AtWar;
+        [StarData] public bool PreparingForWar; // Use prepareForWar or CancelPrepareForWar
+        [StarData] public WarType PreparingForWarType = WarType.ImperialistWar;  // Use prepareForWar or CancelPrepareForWar
+        [StarData] public int DefenseFleet = -1;
+        [StarData] public bool HasDefenseFleet;
+        [StarData] public float InvasiveColonyPenalty;
+        [StarData] public float AggressionAgainstUsPenalty;
+        [StarData] public float InitialStrength;
+        [StarData] public int TurnsKnown;
+        [StarData] public int TurnsAbove95; // Trust
+        [StarData] public int TurnsAllied;
 
-        [Serialize(54)] public BatchRemovalCollection<TrustEntry> TrustEntries = new BatchRemovalCollection<TrustEntry>();
-        [Serialize(55)] public BatchRemovalCollection<FearEntry> FearEntries = new BatchRemovalCollection<FearEntry>();
-        [Serialize(56)] public float TrustUsed;
-        [Serialize(57)] public float FearUsed;
-        [Serialize(58)] public float TheyOweUs;
-        [Serialize(59)] public float WeOweThem;
-        [Serialize(60)] public int TurnsAtWar;
-        [Serialize(61)] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
-        [Serialize(62)] public bool CanAttack ; // New: Bilateral condition if these two empires can attack each other
-        [Serialize(63)] public bool IsHostile = true; // New: If target empire is hostile and might attack us
-        [Serialize(64)] public int NumTechsWeGave; // number of tech they have given us, through tech trade or demands.
-        [Serialize(65)] public EmpireInformation.InformationLevel IntelligenceLevel = EmpireInformation.InformationLevel.Full;
-        [Serialize(66)] public bool RefusedMerge; // Refused merge or surrenders from us (mostly the player can refuse)
+        [StarData] public BatchRemovalCollection<TrustEntry> TrustEntries = new BatchRemovalCollection<TrustEntry>();
+        [StarData] public BatchRemovalCollection<FearEntry> FearEntries = new BatchRemovalCollection<FearEntry>();
+        [StarData] public float TrustUsed;
+        [StarData] public float FearUsed;
+        [StarData] public float TheyOweUs;
+        [StarData] public float WeOweThem;
+        [StarData] public int TurnsAtWar;
+        [StarData] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
+        [StarData] public bool CanAttack ; // New: Bilateral condition if these two empires can attack each other
+        [StarData] public bool IsHostile = true; // New: If target empire is hostile and might attack us
+        [StarData] public int NumTechsWeGave; // number of tech they have given us, through tech trade or demands.
+        [StarData] public EmpireInformation.InformationLevel IntelligenceLevel = EmpireInformation.InformationLevel.Full;
+        [StarData] public bool RefusedMerge; // Refused merge or surrenders from us (mostly the player can refuse)
 
         [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
