@@ -1,11 +1,13 @@
 using Microsoft.Xna.Framework;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public struct NRO
     {
-        [Serialize(0)] public Vector2 Node;
-        [Serialize(1)] public float Radius;
+        [StarData] public Vector2 Node;
+        [StarData] public float Radius;
         public NRO(Vector2 pos, float radius = 300000f)
         {
             Node = pos;
@@ -13,23 +15,24 @@ namespace Ship_Game
         }
     }
 
+    [StarDataType]
     public sealed class Snapshot
     {
-        [Serialize(0)] public Array<NRO> EmpireNodes = new Array<NRO>();
-        [Serialize(1)] public int ShipCount;
-        [Serialize(2)] public float MilitaryStrength;
-        [Serialize(3)] public float Population;
-        [Serialize(4)] public Array<string> Events = new Array<string>();
-        [Serialize(5)] public float TaxRate;
-        [Serialize(6)] public float StarDate;
-        [Serialize(7)] public int TotalShips;
-        [Serialize(8)] public int TotalShipsKilled;
-        [Serialize(9)] public int TotalShipsLost;
-        [Serialize(10)] public int TotalGroundTroopsKilled;
-        [Serialize(11)] public int TotalGroundTroopsLost;
-        [Serialize(12)] public int TotalMoney;
-        [Serialize(13)] public int TotalMaintenance;
-        [Serialize(14)] public int TotalPopulation;
+        [StarData] public Array<NRO> EmpireNodes = new Array<NRO>();
+        [StarData] public int ShipCount;
+        [StarData] public float MilitaryStrength;
+        [StarData] public float Population;
+        [StarData] public Array<string> Events = new Array<string>();
+        [StarData] public float TaxRate;
+        [StarData] public float StarDate;
+        [StarData] public int TotalShips;
+        [StarData] public int TotalShipsKilled;
+        [StarData] public int TotalShipsLost;
+        [StarData] public int TotalGroundTroopsKilled;
+        [StarData] public int TotalGroundTroopsLost;
+        [StarData] public int TotalMoney;
+        [StarData] public int TotalMaintenance;
+        [StarData] public int TotalPopulation;
 
         public Snapshot(float date)
         {

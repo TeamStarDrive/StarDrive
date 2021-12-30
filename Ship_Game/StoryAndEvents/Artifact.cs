@@ -2,26 +2,28 @@ using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.Ships;
 using System.Xml.Serialization;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class Artifact
     {
-        [Serialize(0)] public bool Discovered;
-        [Serialize(1)] public string Name;
-        [Serialize(2)] public string Description;
-        [Serialize(3)] public int NameIndex;
-        [Serialize(4)] public int DescriptionIndex;
-        [Serialize(5)] public float ReproductionMod;
-        [Serialize(6)] public float ShieldPenBonus;
-        [Serialize(7)] public float FertilityMod;
-        [Serialize(8)] public float ProductionMod;
-        [Serialize(9)] public float GroundCombatMod;
-        [Serialize(10)] public float ResearchMod;
-        [Serialize(11)] public float PlusFlatMoney;
-        [Serialize(12)] public float DiplomacyMod; // OnGoing effect which is tied to OngoingDiplomacyMod in empire data.
-        [Serialize(13)] public float SensorMod;
-        [Serialize(14)] public float ModuleHPMod;
+        [StarData] public bool Discovered;
+        [StarData] public string Name;
+        [StarData] public string Description;
+        [StarData] public int NameIndex;
+        [StarData] public int DescriptionIndex;
+        [StarData] public float ReproductionMod;
+        [StarData] public float ShieldPenBonus;
+        [StarData] public float FertilityMod;
+        [StarData] public float ProductionMod;
+        [StarData] public float GroundCombatMod;
+        [StarData] public float ResearchMod;
+        [StarData] public float PlusFlatMoney;
+        [StarData] public float DiplomacyMod; // OnGoing effect which is tied to OngoingDiplomacyMod in empire data.
+        [StarData] public float SensorMod;
+        [StarData] public float ModuleHPMod;
 
         [XmlIgnore][JsonIgnore] public LocalizedText NameText => new LocalizedText(NameIndex); 
 

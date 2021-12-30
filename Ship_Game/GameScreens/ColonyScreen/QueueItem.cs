@@ -130,15 +130,15 @@ namespace Ship_Game
         {
             var qi = new SavedGame.QueueItemSave
             {
-                isBuilding  = isBuilding,
+                IsBuilding  = isBuilding,
                 IsMilitary  = IsMilitary,
                 Cost        = Cost,
-                isShip      = isShip,
+                IsShip      = isShip,
                 DisplayName = DisplayName,
-                isTroop     = isTroop,
+                IsTroop     = isTroop,
                 Rush        = Rush,
                 ProgressTowards = ProductionSpent,
-                isPlayerAdded   = IsPlayerAdded,
+                IsPlayerAdded   = IsPlayerAdded,
                 TradeRoutes     = TradeRoutes,
                 AreaOfOperation = AreaOfOperation.Select(r => new RectangleData(r)),
                 TransportingColonists  = TransportingColonists,
@@ -146,11 +146,11 @@ namespace Ship_Game
                 TransportingProduction = TransportingProduction,
                 AllowInterEmpireTrade  = AllowInterEmpireTrade
         };
-            if (qi.isBuilding) qi.UID = Building.Name;
-            if (qi.isShip)     qi.UID = sData.Name;
-            if (qi.isTroop)    qi.UID = TroopType;
+            if (qi.IsBuilding) qi.UID = Building.Name;
+            if (qi.IsShip)     qi.UID = sData.Name;
+            if (qi.IsTroop)    qi.UID = TroopType;
             if (Goal != null) qi.GoalGUID  = Goal.guid;
-            if (pgs != null)  qi.pgsVector = new Vector2(pgs.X, pgs.Y);
+            if (pgs != null)  qi.PGSVector = new Vector2(pgs.X, pgs.Y);
             return qi;
         }
     }

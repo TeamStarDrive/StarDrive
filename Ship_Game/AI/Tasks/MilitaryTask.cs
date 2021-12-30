@@ -7,30 +7,32 @@ using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.AI.Tasks
 {
+    [StarDataType]
     public partial class MilitaryTask
     {
-        [Serialize(0)] public bool IsCoreFleetTask;
-        [Serialize(1)] public Guid GoalGuid;
-        [Serialize(2)] public bool NeedEvaluation = true;
-        [Serialize(3)] public Guid TargetPlanetGuid = Guid.Empty;
-        [Serialize(4)] public TaskType Type;
-        [Serialize(5)] public Vector2 AO;
-        [Serialize(6)] public float AORadius;
-        [Serialize(7)] public float EnemyStrength;
-        [Serialize(8)] public float MinimumTaskForceStrength;
-        [Serialize(9)] public int WhichFleet = -1;
-        [Serialize(10)] public int NeededTroopStrength;
-        [Serialize(11)] public int Priority = 5;
-        [Serialize(12)] public int TaskBombTimeNeeded;
-        [Serialize(13)] public Guid TargetShipGuid = Guid.Empty;
-        [Serialize(14)] public Guid TaskGuid = Guid.NewGuid();
-        [Serialize(15)] public Array<Vector2> PatrolPoints;
-        [Serialize(16)] public int TargetEmpireId = -1;
-        [Serialize(17)] public int TargetPlanetWarValue; // Used for doom fleets to affect colony lost value in war
-        [Serialize(18)] public Guid TargetSystemGuid = Guid.Empty;
+        [StarData] public bool IsCoreFleetTask;
+        [StarData] public Guid GoalGuid;
+        [StarData] public bool NeedEvaluation = true;
+        [StarData] public Guid TargetPlanetGuid = Guid.Empty;
+        [StarData] public TaskType Type;
+        [StarData] public Vector2 AO;
+        [StarData] public float AORadius;
+        [StarData] public float EnemyStrength;
+        [StarData] public float MinimumTaskForceStrength;
+        [StarData] public int WhichFleet = -1;
+        [StarData] public int NeededTroopStrength;
+        [StarData] public int Priority = 5;
+        [StarData] public int TaskBombTimeNeeded;
+        [StarData] public Guid TargetShipGuid = Guid.Empty;
+        [StarData] public Guid TaskGuid = Guid.NewGuid();
+        [StarData] public Array<Vector2> PatrolPoints;
+        [StarData] public int TargetEmpireId = -1;
+        [StarData] public int TargetPlanetWarValue; // Used for doom fleets to affect colony lost value in war
+        [StarData] public Guid TargetSystemGuid = Guid.Empty;
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 

@@ -405,19 +405,19 @@ namespace Ship_Game.AI
                             Fleet = empireFleet.Value;
                 }
 
-                if (sg.goalGuid != Guid.Empty)
+                if (sg.GoalGuid != Guid.Empty)
                 {
                     Array<Goal> goals = loyalty.GetEmpireAI().Goals;
                     foreach (Goal empireGoal in goals)
                     {
-                        if (sg.goalGuid == empireGoal.guid)
+                        if (sg.GoalGuid == empireGoal.guid)
                         {
                             Goal = empireGoal;
                             break;
                         }
                     }
                     if (Goal == null)
-                        Log.Warning($"ShipGoalSave {sg.Plan}: failed to find Empire.Goal {sg.goalGuid}");
+                        Log.Warning($"ShipGoalSave {sg.Plan}: failed to find Empire.Goal {sg.GoalGuid}");
                 }
 
                 if (sg.Trade != null)
