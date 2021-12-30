@@ -206,7 +206,6 @@ namespace Ship_Game.Ships
             return VelocityMax;
         }
 
-
         public float GetFTLSpeed(float mass, Empire e)
         {
             if (WarpThrust.AlmostZero())
@@ -218,6 +217,7 @@ namespace Ship_Game.Ships
         {
             float thrustWeightRatio = Thrust / mass;
             float speed = thrustWeightRatio * e.data.SubLightModifier;
+            speed *= 1 - S.TractorDamage / mass;
             return Math.Min(speed, Ship.MaxSubLightSpeed);
         }
 
