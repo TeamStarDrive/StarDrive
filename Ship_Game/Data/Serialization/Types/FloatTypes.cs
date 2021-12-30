@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
     internal class FloatSerializer : TypeSerializer
     {
+        public FloatSerializer() : base(typeof(float)) { }
         public override string ToString() => "FloatSerializer";
 
         public override object Convert(object value)
@@ -23,15 +20,15 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             float value = (float)obj;
-            writer.Write(value);
+            writer.BW.Write(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            float value = reader.ReadSingle();
+            float value = reader.BR.ReadSingle();
             return value;
         }
 
@@ -47,6 +44,7 @@ namespace Ship_Game.Data.Serialization.Types
 
     internal class DoubleSerializer : TypeSerializer
     {
+        public DoubleSerializer() : base(typeof(double)) { }
         public override string ToString() => "DoubleSerializer";
 
         public override object Convert(object value)
@@ -63,15 +61,15 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             double value = (double)obj;
-            writer.Write(value);
+            writer.BW.Write(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            double value = reader.ReadDouble();
+            double value = reader.BR.ReadDouble();
             return value;
         }
     }

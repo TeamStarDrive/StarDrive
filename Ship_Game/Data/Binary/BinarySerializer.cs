@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.Data.Serialization;
@@ -12,148 +12,95 @@ namespace Ship_Game.Data.Binary
 {
     public class BinarySerializer : UserTypeSerializer
     {
-        public override string ToString() => $"BinarySerializer {TheType.GetTypeName()}";
+        public override string ToString() => $"BinarySerializer {Type.GetTypeName()}";
 
-        struct ObjectReference
+        // The currently supported version
+        public const uint CurrentVersion = 1;
+
+        // Version from deserialized data
+        public uint Version { get; private set; } = CurrentVersion;
+
+        public BinarySerializer(Type type) : base(type, new BinaryTypeMap())
         {
-            public object Instance;
-            public TypeSerializer Serializer;
+            TypeMap.Add(this);
         }
 
-        readonly Array<ObjectReference> ObjectsList = new Array<ObjectReference>();
-        readonly Map<object, int> ObjectPointers = new Map<object, int>();
-
-        public BinarySerializer(Type type) : base(type)
+        public BinarySerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)
         {
         }
 
-        protected override TypeSerializerMap CreateTypeMap()
+        // cache for binary type converters
+        class BinaryTypeMap : TypeSerializerMap
         {
-            return new BinarySerializerMap();
-        }
-
-        void GatherObjects(TypeSerializer ser, object instance)
-        {
-            if (instance == null || instance is ValueType)
-                return; // we don't map null OR value types
-
-            if (ObjectPointers.ContainsKey(instance))
-                return; // object already mapped
-
-            int pointer = ObjectsList.Count + 1;
-            ObjectPointers[instance] = pointer;
-            ObjectsList.Add(new ObjectReference
+            public override TypeSerializer AddUserTypeSerializer(Type type)
             {
-                Instance = instance,
-                Serializer = ser,
-            });
-
-            if (ser is UserTypeSerializer userType)
-            {
-                foreach (DataField field in userType.Fields)
-                {
-                    GatherObjects(field.Serializer, field.Get(instance));
-                }
-            }
-        }
-
-        void BuildSerializeCache(object instance)
-        {
-            ResolveTypes();
-            ObjectsList.Capacity = 8192*4;
-            GatherObjects(this, instance);
-        }
-
-        void WriteTypesList(BinaryWriter writer)
-        {
-            TypeSerializer[] types = TypeMap.TypesList.Filter(ser => !ser.IsFundamentalType);
-            if (types.Length == 0)
-                return; // special case, no custom user types at all
-
-            writer.Write(0xcafebabe); // marker that types list is present
-            writer.Write(types.Length);
-            foreach (TypeSerializer serializer in types)
-            {
-                string typeName = serializer.Type.FullName;
-                string assemblyName = serializer.Type.Assembly.GetName().Name;
-                //Type type = Type.GetType($"{typeName},{assemblyName}", throwOnError: true);
-                writer.Write(serializer.Id);
-                // by outputting the full type name and assembly name, we will be able
-                // to always locate the type, unless its assembly is changed
-                writer.Write(typeName + "," + assemblyName);
-            }
-        }
-
-        void SerializeObject(BinaryWriter writer, TypeSerializer serializer, object instance)
-        {
-            // type ID so we can recognize what TYPE this object is when deserializing
-            writer.Write(serializer.Id);
-
-            if (serializer is UserTypeSerializer userSer)
-            {
-                // number of fields, so we know how many to parse later
-                writer.Write(userSer.Fields.Count);
-
-                // @note This is not recursive, because we only write object "Pointers" ID-s
-                foreach (DataField field in userSer.Fields)
-                {
-                    // write the field ID so we can remap it during parsing
-                    TypeSerializer.WriteFieldId(writer, field.Id);
-                    object fieldObject = field.Get(instance);
-                    if (fieldObject == null)
-                    {
-                        writer.Write(0); // NULL pointer :)
-                    }
-                    else if (ObjectPointers.TryGetValue(fieldObject, out int id))
-                    {
-                        writer.Write(id); // write the object ID. kind of like a "pointer"
-                    }
-                    else // it's a float, int, Vector2, etc. dump it directly
-                    {
-                        writer.Write(field.Serializer.Id); // also include the type
-                        field.Serializer.Serialize(writer, fieldObject);
-                    }
-                }
-            }
-            else // string, object[], stuff like that
-            {
-                serializer.Serialize(writer, instance);
+                return Add(new BinarySerializer(type, this));
             }
         }
 
         public override void Serialize(YamlNode parent, object obj)
         {
-            throw new NotImplementedException($"Serialize (yaml) not supported for {ToString()}");
+            throw new NotImplementedException($"Serialize (yaml) not supported for {this}");
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override object Deserialize(YamlNode node)
         {
-            if (Mapping == null)
-            {
-                BuildSerializeCache(obj);
-            }
+            throw new NotImplementedException($"Deserialize (yaml) not supported for {this}");
+        }
 
-            WriteTypesList(writer);
+        public override void Serialize(BinarySerializerWriter writer, object obj)
+        {
+            throw new NotImplementedException();
+        }
 
-            writer.Write(ObjectsList.Count);
-            foreach (ObjectReference refType in ObjectsList)
+        public override object Deserialize(BinarySerializerReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Serialize(BinaryWriter writer, object obj)
+        {
+            // pre-scan all unique objects
+            var ctx = new BinarySerializerWriter(writer);
+            ctx.ScanObjects(this, obj);
+
+            // [header]
+            // [types list]
+            // [object type groups]
+            // [objects list]
+            var header = new BinarySerializerHeader(ctx);
+            header.Write(writer);
+            if (ctx.NumObjects != 0)
             {
-                SerializeObject(writer, refType.Serializer, refType.Instance);
+                ctx.WriteTypesList();
+                ctx.WriteObjectTypeGroups();
+                ctx.WriteObjects();
             }
         }
 
-        void RestoreMappingFromData()
+        public object Deserialize(BinaryReader reader)
         {
-
-        }
-
-
-        public override object Deserialize(BinaryReader reader)
-        {
-            if (Mapping == null)
+            // [header]
+            // [types list]
+            // [object type groups]
+            // [objects list]
+            var header = new BinarySerializerHeader(reader);
+            Version = header.Version;
+            if (Version != CurrentVersion)
             {
-
+                Log.Warning($"BinarySerializer.Deserialize version mismatch: file({Version}) != current({CurrentVersion})");
             }
+
+            if (header.NumTypeGroups != 0)
+            {
+                var ctx = new BinarySerializerReader(reader, TypeMap, header);
+                ctx.ReadTypesList();
+                ctx.ReadTypeGroups();
+                ctx.ReadObjectsList();
+                object root = ctx.ObjectsList[header.RootObjectIndex];
+                return root;
+            }
+
             return null;
         }
     }

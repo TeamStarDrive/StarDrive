@@ -1,10 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
     internal class BoolSerializer : TypeSerializer
     {
+        public BoolSerializer() : base(typeof(bool)) { }
         public override string ToString() => "BoolSerializer";
 
         public override object Convert(object value)
@@ -23,21 +26,22 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             bool value = (bool)obj;
-            writer.Write((byte)(value ? 1 : 0));
+            writer.BW.Write((byte)(value ? 1 : 0));
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            bool value = reader.ReadByte() != 0;
+            bool value = reader.BR.ReadByte() != 0;
             return value;
         }
     }
     
     internal class ByteSerializer : TypeSerializer
     {
+        public ByteSerializer() : base(typeof(byte)) { }
         public override string ToString() => "ByteSerializer";
 
         public override void Serialize(YamlNode parent, object obj)
@@ -45,21 +49,45 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = (int)(byte)obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             byte value = (byte)obj;
-            writer.Write(value);
+            writer.BW.Write(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            byte value = reader.ReadByte();
+            byte value = reader.BR.ReadByte();
+            return value;
+        }
+    }
+
+    internal class SByteSerializer : TypeSerializer
+    {
+        public SByteSerializer() : base(typeof(sbyte)) { }
+        public override string ToString() => "SByteSerializer";
+
+        public override void Serialize(YamlNode parent, object obj)
+        {
+            parent.Value = (int)(sbyte)obj;
+        }
+
+        public override void Serialize(BinarySerializerWriter writer, object obj)
+        {
+            sbyte value = (sbyte)obj;
+            writer.BW.Write(value);
+        }
+
+        public override object Deserialize(BinarySerializerReader reader)
+        {
+            sbyte value = reader.BR.ReadSByte();
             return value;
         }
     }
 
     internal class ShortSerializer : TypeSerializer
     {
+        public ShortSerializer() : base(typeof(short)) { }
         public override string ToString() => "ShortSerializer";
 
         public override void Serialize(YamlNode parent, object obj)
@@ -67,21 +95,22 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = (int)(short)obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             short value = (short)obj;
-            writer.Write(value);
+            writer.BW.WriteVLi32(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            short value = reader.ReadInt16();
+            short value = (short)reader.BR.ReadVLi32();
             return value;
         }
     }
 
     internal class UShortSerializer : TypeSerializer
     {
+        public UShortSerializer() : base(typeof(ushort)) { }
         public override string ToString() => "UShortSerializer";
 
         public override void Serialize(YamlNode parent, object obj)
@@ -89,21 +118,22 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = (int)(ushort)obj;
         }
         
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             ushort value = (ushort)obj;
-            writer.Write(value);
+            writer.BW.WriteVLu32(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            ushort value = reader.ReadUInt16();
+            ushort value = (ushort)reader.BR.ReadVLu32();
             return value;
         }
     }
 
     internal class IntSerializer : TypeSerializer
     {
+        public IntSerializer() : base(typeof(int)) { }
         public override string ToString() => "IntSerializer";
 
         public override object Convert(object value)
@@ -120,21 +150,22 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             int value = (int)obj;
-            writer.Write(value);
+            writer.BW.WriteVLi32(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            int value = reader.ReadInt32();
+            int value = reader.BR.ReadVLi32();
             return value;
         }
     }
 
     internal class UIntSerializer : TypeSerializer
     {
+        public UIntSerializer() : base(typeof(uint)) { }
         public override string ToString() => "UIntSerializer";
 
         public override void Serialize(YamlNode parent, object obj)
@@ -142,21 +173,22 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = (int)(uint)obj;
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             uint value = (uint)obj;
-            writer.Write(value);
+            writer.BW.WriteVLu32(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            uint value = reader.ReadUInt32();
+            uint value = reader.BR.ReadVLu32();
             return value;
         }
     }
 
     internal class LongSerializer : TypeSerializer
     {
+        public LongSerializer() : base(typeof(long)) { }
         public override string ToString() => "LongSerializer";
 
         public override void Serialize(YamlNode parent, object obj)
@@ -165,21 +197,22 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = value.ToString();
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             long value = (long)obj;
-            writer.Write(value);
+            writer.BW.WriteVLi64(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            long value = reader.ReadInt64();
+            long value = reader.BR.ReadVLi64();
             return value;
         }
     }
 
     internal class ULongSerializer : TypeSerializer
     {
+        public ULongSerializer() : base(typeof(ulong)) { }
         public override string ToString() => "ULongSerializer";
 
         public override void Serialize(YamlNode parent, object obj)
@@ -188,15 +221,15 @@ namespace Ship_Game.Data.Serialization.Types
             parent.Value = value.ToString();
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             ulong value = (ulong)obj;
-            writer.Write(value);
+            writer.BW.WriteVLu64(value);
         }
 
-        public override object Deserialize(BinaryReader reader)
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            ulong value = reader.ReadUInt64();
+            ulong value = reader.BR.ReadVLu64();
             return value;
         }
     }
