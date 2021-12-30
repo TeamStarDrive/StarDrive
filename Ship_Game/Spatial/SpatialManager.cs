@@ -172,7 +172,7 @@ namespace Ship_Game.Gameplay
             // min search radius of 512. problem was that at very small search radius neighbors would not be found.
             // I tried to make the min to a the smallest cell size. 
             GameplayObject[] ships = FindNearby(GameObjectType.Ship, source, Math.Max(damageRadius, 512),
-                                                    maxResults:32, excludeLoyalty:source.Owner?.loyalty);
+                                                    maxResults:32, excludeLoyalty:source.Owner?.Loyalty);
             ships.SortByDistance(center);
 
             foreach (GameplayObject go in ships)
@@ -186,8 +186,8 @@ namespace Ship_Game.Gameplay
                 float modifiedRadius = damageRadius;
 
                 // Doctor: Reduces the effective explosion radius on ships with the 'Reactive Armour' type radius reduction in their empire traits.
-                if (ship.loyalty?.data.ExplosiveRadiusReduction > 0f)
-                    modifiedRadius *= 1f - ship.loyalty.data.ExplosiveRadiusReduction;
+                if (ship.Loyalty?.data.ExplosiveRadiusReduction > 0f)
+                    modifiedRadius *= 1f - ship.Loyalty.data.ExplosiveRadiusReduction;
 
                 ship.DamageModulesExplosive(source, damageAmount, center, modifiedRadius, source.IgnoresShields);
             }
@@ -201,12 +201,12 @@ namespace Ship_Game.Gameplay
                 return;
 
             Ship shipToDamage    = hitModule.GetParent();
-            if (shipToDamage.dying || !shipToDamage.Active)
+            if (shipToDamage.Dying || !shipToDamage.Active)
                 return;
 
             float modifiedRadius = damageRadius;
-            if (shipToDamage.loyalty?.data.ExplosiveRadiusReduction > 0f)
-                modifiedRadius *= 1f - shipToDamage.loyalty.data.ExplosiveRadiusReduction;
+            if (shipToDamage.Loyalty?.data.ExplosiveRadiusReduction > 0f)
+                modifiedRadius *= 1f - shipToDamage.Loyalty.data.ExplosiveRadiusReduction;
 
             shipToDamage.DamageModulesExplosive(damageSource, damageAmount, hitModule.Position, modifiedRadius, ignoresShields);
         }
@@ -251,11 +251,11 @@ namespace Ship_Game.Gameplay
                 if (damageAmount > 0)
                     ExplodeAtModule(thisShip, nearest, false, damageAmount, reducedDamageRadius);
 
-                if (!otherShip.dying)
+                if (!otherShip.Dying)
                 {
                     float rotationImpulse = damageRadius / (float)Math.Pow(otherShip.Mass, 1.3);
-                    otherShip.yRotation = otherShip.yRotation > 0.0f ? rotationImpulse : -rotationImpulse;
-                    otherShip.yRotation = otherShip.yRotation.Clamped(-otherShip.MaxBank, otherShip.MaxBank);
+                    otherShip.YRotation = otherShip.YRotation > 0.0f ? rotationImpulse : -rotationImpulse;
+                    otherShip.YRotation = otherShip.YRotation.Clamped(-otherShip.MaxBank, otherShip.MaxBank);
                 }
 
                 // apply some impulse from the explosion

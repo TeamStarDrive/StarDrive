@@ -14,7 +14,7 @@
                 || exportPlanet.Quarantine
                 || importPlanet.Quarantine
                 || importPlanet.Owner == null // colony was wiped out
-                || importPlanet.Owner != Owner.loyalty && !importPlanet.Owner.IsTradeTreaty(Owner.loyalty)) 
+                || importPlanet.Owner != Owner.Loyalty && !importPlanet.Owner.IsTradeTreaty(Owner.Loyalty)) 
             {
                 AI.CancelTradePlan();
                 return;
@@ -92,8 +92,8 @@
                                                   ? FreighterPriority.TooSmall 
                                                   : FreighterPriority.TooBig;
 
-            Owner.loyalty.IncreaseFastVsBigFreighterRatio(freighterPriority);
-            Owner.loyalty.AffectFastVsBigFreighterByEta(importPlanet, g.Trade.Goods, eta);
+            Owner.Loyalty.IncreaseFastVsBigFreighterRatio(freighterPriority);
+            Owner.Loyalty.AffectFastVsBigFreighterByEta(importPlanet, g.Trade.Goods, eta);
             AI.SetTradePlan(ShipAI.Plan.DropOffGoods, exportPlanet, importPlanet, g.Trade.Goods);
         }
     }
@@ -111,7 +111,7 @@
 
             if (importPlanet.Owner == null  // colony was wiped out
                 || importPlanet.Quarantine
-                || importPlanet.Owner != Owner.loyalty && !importPlanet.Owner.IsTradeTreaty(Owner.loyalty)) 
+                || importPlanet.Owner != Owner.Loyalty && !importPlanet.Owner.IsTradeTreaty(Owner.Loyalty)) 
             {
                 AI.CancelTradePlan(exportPlanet);
                 return;
@@ -126,29 +126,29 @@
 
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
             if (Owner.GetCargo(Goods.Colonists).AlmostZero())
-                Owner.loyalty.TaxGoods(Owner.CargoSpaceUsed, importPlanet);
+                Owner.Loyalty.TaxGoods(Owner.CargoSpaceUsed, importPlanet);
 
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
 
             importPlanet.UpdateAverageFreightTurns(importPlanet, exportPlanet, g.Trade.Goods, g.Trade.StardateAdded);
-            Owner.loyalty.UpdateAverageFreightFTL(Owner.MaxFTLSpeed);
-            Owner.loyalty.UpdateAverageFreightCargoCap(Owner.CargoSpaceMax);
+            Owner.Loyalty.UpdateAverageFreightFTL(Owner.MaxFTLSpeed);
+            Owner.Loyalty.UpdateAverageFreightCargoCap(Owner.CargoSpaceMax);
             // If we did not unload all cargo, its better to build faster smaller cheaper freighters
             FreighterPriority freighterPriority = fullBeforeUnload && Owner.CargoSpaceUsed.AlmostZero()
                                                   ? FreighterPriority.UnloadedAllCargo
                                                   : FreighterPriority.ExcessCargoLeft;
                                                     
-            Owner.loyalty.IncreaseFastVsBigFreighterRatio(freighterPriority);
+            Owner.Loyalty.IncreaseFastVsBigFreighterRatio(freighterPriority);
             importPlanet.Mend(-1); // Helping with planet repair/heal troops/buildings
 
             Planet toOrbit = importPlanet;
-            if (toOrbit.TradeBlocked || Owner.loyalty != toOrbit.Owner)
-                toOrbit = Owner.loyalty.FindNearestRallyPoint(Owner.Position); // get out of here!
+            if (toOrbit.TradeBlocked || Owner.Loyalty != toOrbit.Owner)
+                toOrbit = Owner.Loyalty.FindNearestRallyPoint(Owner.Position); // get out of here!
 
             AI.CancelTradePlan(toOrbit);
-            Owner.loyalty.CheckForRefitFreighter(Owner, 10);
+            Owner.Loyalty.CheckForRefitFreighter(Owner, 10);
         }
     }
 
@@ -161,7 +161,7 @@
 
             SetTradePlan(plan, exportPlanet, importPlanet, goods);
             if (plan == Plan.DropOffGoods)
-                Owner.loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrogateTimeTo(importPlanet));
+                Owner.Loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrogateTimeTo(importPlanet));
         }
     }
 

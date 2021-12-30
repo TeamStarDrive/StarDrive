@@ -43,7 +43,7 @@ namespace Ship_Game.Ships
         {
             if (Owner.EnginesKnockedOut)
                 return Status.Critical;
-            if (Owner.Inhibited || Owner.EMPdisabled)
+            if (Owner.Inhibited || Owner.EMPDisabled)
                 return Status.Poor;
 
             //add more status based on engine damage.
@@ -54,7 +54,7 @@ namespace Ship_Game.Ships
         // i think we only need public value
         Status GetFormationWarpReadyStatus()
         {
-            if (Owner.fleet == null || Owner.AI.State != AIState.FormationWarp) 
+            if (Owner.Fleet == null || Owner.AI.State != AIState.FormationWarp) 
                 return ReadyForWarp;
 
             if (!Owner.CanTakeFleetMoveOrders())
@@ -68,7 +68,7 @@ namespace Ship_Game.Ships
                 if (warpStatus == Status.Critical) return Status.Good;
             }
 
-            float speedLimit = Owner.fleet.GetSpeedLimitFor(Owner);
+            float speedLimit = Owner.Fleet.GetSpeedLimitFor(Owner);
             if (speedLimit < 1 || speedLimit == float.MaxValue)
                 return Status.NotApplicable;
 
@@ -79,10 +79,10 @@ namespace Ship_Game.Ships
             }
             else
             {
-                movePosition = Owner.fleet.FinalPosition;
+                movePosition = Owner.Fleet.FinalPosition;
             }
 
-            if (!Owner.Position.InRadius(Owner.fleet.FinalPosition + Owner.FleetOffset, 1000)
+            if (!Owner.Position.InRadius(Owner.Fleet.FinalPosition + Owner.FleetOffset, 1000)
                 && Owner.AI.State != AIState.AwaitingOrders)
             {
                 float facingFleetDirection = Owner.AngleDifferenceToPosition(movePosition);

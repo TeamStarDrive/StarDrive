@@ -34,10 +34,10 @@ namespace Ship_Game.Universe
             for (int i = 0; i < System.ShipList.Count; i++)
             {
                 Ship ship = System.ShipList[i];
-                if (ship == null || ship.loyalty == Owner)
+                if (ship == null || ship.Loyalty == Owner)
                     continue; // Todo: the null check should be removed once ShipList is safe
 
-                if (ship.loyalty.isFaction || Owner.IsEmpireAttackable(ship.loyalty, ship))
+                if (ship.Loyalty.isFaction || Owner.IsEmpireAttackable(ship.Loyalty, ship))
                 {
                     HostileForcesPresent = true;
                     CombatTimer          = Owner.isPlayer ? 5f : 1f;

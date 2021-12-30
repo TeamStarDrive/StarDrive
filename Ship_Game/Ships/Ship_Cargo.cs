@@ -25,7 +25,7 @@ namespace Ship_Game.Ships
         public float CargoSpaceMax;
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
-        public float PassengerModifier => loyalty.data.Traits.PassengerModifier;
+        public float PassengerModifier => Loyalty.data.Traits.PassengerModifier;
         public float OrdnancePercent { get; private set; } 
 
         // WARNING: do not use during constants initialization!

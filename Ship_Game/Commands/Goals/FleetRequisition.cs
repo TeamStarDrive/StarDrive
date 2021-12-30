@@ -77,7 +77,7 @@ namespace Ship_Game.Commands.Goals
                 Fleet.AddExistingShip(ship,node);
                 ship.AI.ResetPriorityOrder(false);
                 ship.AI.OrderMoveTo(Fleet.FinalPosition + ship.FleetOffset,
-                    ship.fleet.FinalDirection, true, AIState.MoveTo);
+                    ship.Fleet.FinalDirection, true, AIState.MoveTo);
 
                 return GoalStep.GoalComplete;
             } 

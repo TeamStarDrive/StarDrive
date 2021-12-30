@@ -33,7 +33,7 @@ namespace Ship_Game
             {
                 if (!ResourceManager.GetShipTemplate(shipId, out Ship hangarShip))
                     continue;
-                string role = ShipDesign.GetRole(hangarShip.shipData.HullRole);
+                string role = ShipDesign.GetRole(hangarShip.ShipData.HullRole);
                 if (!ActiveModule.PermittedHangarRoles.Contains(role))
                     continue;
                 if (hangarShip.SurfaceArea > ActiveModule.MaximumHangarShipSize)
@@ -110,7 +110,7 @@ namespace Ship_Game
             Populate();
 
             Ship fighter = ResourceManager.GetShipTemplate(HangarShipUIDLast, false);
-            if (HangarShipUIDLast != "" && activeModule.PermittedHangarRoles.Contains(fighter?.shipData.GetRole()) && activeModule.MaximumHangarShipSize >= fighter?.SurfaceArea)
+            if (HangarShipUIDLast != "" && activeModule.PermittedHangarRoles.Contains(fighter?.ShipData.GetRole()) && activeModule.MaximumHangarShipSize >= fighter?.SurfaceArea)
             {
                 activeModule.HangarShipUID = HangarShipUIDLast;
             }

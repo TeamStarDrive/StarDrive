@@ -17,7 +17,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private SceneObject SO    => P.SO;
         private bool HasSpacePort => P.HasSpacePort;
         private int Level         => P.Level;
-        private int NumShipYards  => P.OrbitalStations.Count(s => s.shipData.IsShipyard);
+        private int NumShipYards  => P.OrbitalStations.Count(s => s.ShipData.IsShipyard);
         private float RepairPerTurn          => P.RepairPerTurn;
         private SolarSystem ParentSystem     => P.ParentSystem;
         private int TurnsSinceTurnover       => P.TurnsSinceTurnover;
@@ -99,7 +99,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     return ChanceToLaunchTroopsVsBombers;
 
                 // Recalculate chance since it is reset every turn
-                var enemyBombers = P.ParentSystem.ShipList.Filter(s => s.loyalty == enemy && s.HasBombs
+                var enemyBombers = P.ParentSystem.ShipList.Filter(s => s.Loyalty == enemy && s.HasBombs
                                                                     && s.Position.Distance(P.Center) < P.GravityWellRadius);
                 if (enemyBombers.Length == 0)
                     return 0;
@@ -170,8 +170,8 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 if (ship == null)
                     continue;
 
-                bool loyaltyMatch = ship.loyalty == Owner || ship.loyalty.IsAlliedWith(Owner);
-                if (ship.loyalty.isFaction)
+                bool loyaltyMatch = ship.Loyalty == Owner || ship.Loyalty.IsAlliedWith(Owner);
+                if (ship.Loyalty.isFaction)
                     AddTroopsForFactions(ship);
 
                 if (loyaltyMatch)
@@ -180,7 +180,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     {
                         SupplyShip(ship);
                         RepairShip(ship, repairPool);
-                        if (!spaceCombat && ship.loyalty == Owner) // dont do this for allies
+                        if (!spaceCombat && ship.Loyalty == Owner) // dont do this for allies
                         {
                             LoadTroops(ship, P.NumTroopsCanLaunch);
                             DisengageTroopsFromCapturedShips(ship);
@@ -192,7 +192,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void SupplyShip(Ship ship)
         {
-            if (ship.shipData.Role == RoleName.platform) // platforms always get max ordnance to retain platforms Vanilla functionality
+            if (ship.ShipData.Role == RoleName.platform) // platforms always get max ordnance to retain platforms Vanilla functionality
             {
                 ship.ChangeOrdnance(ship.OrdinanceMax);
                 ship.AddPower(ship.PowerStoreMax);
@@ -241,7 +241,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 if (troopCount + ship.NumTroopsRebasingHere >= ship.TroopCapacity || garrisonSize == 0)
                     break;
 
-                if (pgs.LockOnOurTroop(ship.loyalty, out Troop troop))
+                if (pgs.LockOnOurTroop(ship.Loyalty, out Troop troop))
                 {
                     Ship troopShip = troop.Launch();
                     if (troopShip != null)
@@ -270,7 +270,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             // @todo FB - need to separate this to a method which will return a troop based on faction
             if ((SystemCombatTimer % 30).AlmostZero()  && ship.TroopCapacity > ship.TroopCount)
             {
-                if (ResourceManager.TryCreateTroop("Wyvern", ship.loyalty, out Troop troop))
+                if (ResourceManager.TryCreateTroop("Wyvern", ship.Loyalty, out Troop troop))
                 {
                     troop.LandOnShip(ship);
                 }

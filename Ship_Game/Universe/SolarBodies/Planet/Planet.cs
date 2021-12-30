@@ -588,7 +588,7 @@ namespace Ship_Game
                 if (ship?.Position.InRadius(Center, 15000) == true
                     && ship.BaseStrength > 10
                     && (!ship.IsTethered || ship.GetTether() == this) // orbitals orbiting another nearby planet
-                    && Owner.IsEmpireAttackable(ship.loyalty))
+                    && Owner.IsEmpireAttackable(ship.Loyalty))
                 {
                     return true;
                 }
@@ -619,11 +619,11 @@ namespace Ship_Game
             for (int j = 0; j < enemyShips.Length; ++j)
             {
                 var ship = (Ship)enemyShips[j];
-                if (ship.dying
+                if (ship.Dying
                     || ship.IsInWarp
-                    || ship.EMPdisabled && w?.EMPDamage > 0 && enemyShips.Length > 1
+                    || ship.EMPDisabled && w?.EMPDamage > 0 && enemyShips.Length > 1
                     || w != null && !w.TargetValid(ship)
-                    || !Owner.IsEmpireAttackable(ship.loyalty))
+                    || !Owner.IsEmpireAttackable(ship.Loyalty))
                 {
                     continue;
                 }
@@ -1017,7 +1017,7 @@ namespace Ship_Game
             float projectorRange      = 0;
             float sensorRange         = 0;
 
-            NumShipyards         = OrbitalStations.Count(s => s.Active && s.shipData.IsShipyard);
+            NumShipyards         = OrbitalStations.Count(s => s.Active && s.ShipData.IsShipyard);
             ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -1103,7 +1103,7 @@ namespace Ship_Game
             if (ParentSystem.DangerousForcesPresent(empire) || ParentSystem.ShipList.Count == 0)
                 return false;
 
-            shipsNeedRearm = ParentSystem.ShipList.Filter(s => (s.loyalty == empire || s.loyalty.IsAlliedWith(empire))
+            shipsNeedRearm = ParentSystem.ShipList.Filter(s => (s.Loyalty == empire || s.Loyalty.IsAlliedWith(empire))
                                                                && s.IsSuitableForPlanetaryRearm());
 
             shipsNeedRearm = shipsNeedRearm.SortedDescending(s => s.OrdinanceMax - s.Ordinance);
@@ -1164,7 +1164,7 @@ namespace Ship_Game
                 if (ship.IsMeteor)
                     CrashMeteor(ship, crashTile);
                 else
-                    crashTile.CrashSite.CrashShip(ship.loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile, ship.SurfaceArea);
+                    crashTile.CrashSite.CrashShip(ship.Loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile, ship.SurfaceArea);
             }
 
             // Local Functions
@@ -1179,7 +1179,7 @@ namespace Ship_Game
                 if (!Type.EarthLike)
                     chance *= 1.5f; // No atmosphere, not able to burn during planetfall
 
-                chance *= 1 + ship.loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
+                chance *= 1 + ship.Loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
                 chance += ship.SurfaceArea / (ship.IsMeteor ? 50f : 100f);
                 return chance.Clamped(1, 100);
             }
@@ -1426,7 +1426,7 @@ namespace Ship_Game
             float distance = GravityWellRadius.LowerBound(7500);
             foreach (Ship ship in ParentSystem.ShipList)
             {
-                if (Owner?.IsEmpireAttackable(ship.loyalty, ship) == true && ship.InRadius(Center, distance))
+                if (Owner?.IsEmpireAttackable(ship.Loyalty, ship) == true && ship.InRadius(Center, distance))
                     return true;
             }
             return false;
@@ -1586,7 +1586,7 @@ namespace Ship_Game
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship = ParentSystem.ShipList[i];
-                if (ship.loyalty != Owner || ship.InCombat)
+                if (ship.Loyalty != Owner || ship.InCombat)
                     continue;
 
                 if (!ship.IsFreighter 

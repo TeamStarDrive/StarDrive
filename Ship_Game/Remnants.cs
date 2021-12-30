@@ -322,8 +322,8 @@ namespace Ship_Game
             if (portal.System == null)
                 return false;
 
-            var availableShips = portal.System.ShipList.Filter(s => s.fleet == null 
-                                                                    && s.loyalty == Owner 
+            var availableShips = portal.System.ShipList.Filter(s => s.Fleet == null 
+                                                                    && s.Loyalty == Owner 
                                                                     && s.IsGuardian
                                                                     && !s.IsPlatformOrStation
                                                                     && !s.InCombat);
@@ -391,7 +391,7 @@ namespace Ship_Game
             for (int i = 0; i < portal.System.ShipList.Count; i++)
             {
                 Ship ship = portal.System.ShipList[i];
-                if (!ship.IsPlatformOrStation && ship.IsGuardian && !ship.InCombat && ship.AI.EscortTarget == null && ship.fleet == null)
+                if (!ship.IsPlatformOrStation && ship.IsGuardian && !ship.InCombat && ship.AI.EscortTarget == null && ship.Fleet == null)
                     ship.AI.AddEscortGoal(portal);
             }
         }
@@ -591,7 +591,7 @@ namespace Ship_Game
                 return;
             }
 
-            ShipCosts.Add(type, ship.shipData.BaseCost);
+            ShipCosts.Add(type, ship.ShipData.BaseCost);
         }
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 

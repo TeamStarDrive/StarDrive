@@ -87,7 +87,7 @@ namespace Ship_Game.AI
                         var template = ResourceManager.GetShipTemplate(logit, false);
                         Log.Write(ConsoleColor.Green ,$"{template.BaseHull.Role}, {template.DesignRole}, '{logit}'");
                         int strength   = (int)template.GetStrength();
-                        techScore     += template.shipData.TechsNeeded.Count;
+                        techScore     += template.ShipData.TechsNeeded.Count;
                         totalStrength += strength;
                         maxStrength    = Math.Max(maxStrength, strength);
                         maxTechScore   = Math.Max(maxTechScore, techScore);

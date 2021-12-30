@@ -25,7 +25,7 @@ namespace Ship_Game.Universe
             if (targetShip == null || selectedShip == targetShip || !selectedShip.PlayerShipCanTakeFleetOrders())
                 return false;
 
-            if (targetShip.loyalty == Universe.player)
+            if (targetShip.Loyalty == Universe.player)
             {
                 if (selectedShip.DesignRole == RoleName.troop)
                 {
@@ -69,7 +69,7 @@ namespace Ship_Game.Universe
                 if (audio)
                     GameAudio.AffirmativeClick();
 
-                if (ship.shipData.IsColonyShip)
+                if (ship.ShipData.IsColonyShip)
                     PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
                 else if (ship.Carrier.AnyAssaultOpsAvailable)
                     PlanetRightClickTroopShip(ship, planet); // This ship can assault planets
@@ -100,14 +100,14 @@ namespace Ship_Game.Universe
                 if (ship.IsDefaultTroopTransport)
                     // Rebase to this planet if it is ours and this is a single troop transport
                     ship.AI.OrderRebase(planet, true);
-                else if (planet.ForeignTroopHere(ship.loyalty))
+                else if (planet.ForeignTroopHere(ship.Loyalty))
                     // If our planet is being invaded, land the troops there
                     ship.AI.OrderLandAllTroops(planet);
                 else
                     ship.OrderToOrbit(planet, offensiveMove); // Just orbit
             }
             else if (planet.Habitable && (planet.Owner == null ||
-                                          ship.loyalty.IsEmpireAttackable(planet.Owner)))
+                                          ship.Loyalty.IsEmpireAttackable(planet.Owner)))
             {
                 // Land troops on unclaimed planets or enemy planets
                 ship.AI.OrderLandAllTroops(planet);
@@ -161,9 +161,9 @@ namespace Ship_Game.Universe
             }
 
             GameAudio.AffirmativeClick();
-            if (target.loyalty == Universe.player)
+            if (target.Loyalty == Universe.player)
             {
-                if (ship.shipData.Role == RoleName.troop)
+                if (ship.ShipData.Role == RoleName.troop)
                 {
                     if (ship.TroopCount < ship.TroopCapacity)
                         ship.AI.OrderTroopToShip(target);
@@ -177,7 +177,7 @@ namespace Ship_Game.Universe
 
             //if (ship.loyalty == player)
             {
-                if (ship.shipData.Role == RoleName.troop)
+                if (ship.ShipData.Role == RoleName.troop)
                     ship.AI.OrderTroopToBoardShip(target);
                 else if (Input.QueueAction)
                     ship.AI.OrderQueueSpecificTarget(target);
@@ -189,7 +189,7 @@ namespace Ship_Game.Universe
 
         bool TryFleetAttackShip(ShipGroup fleet, Ship shipToAttack)
         {
-            if (shipToAttack == null || shipToAttack.loyalty == Universe.player)
+            if (shipToAttack == null || shipToAttack.Loyalty == Universe.player)
                 return false;
 
             fleet.FinalPosition = shipToAttack.Position;

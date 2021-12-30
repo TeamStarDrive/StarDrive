@@ -164,9 +164,9 @@ namespace Ship_Game.AI.Tasks
                 AORadius                 = 20000,
                 Owner                    = empire,
                 EnemyStrength            = targetShip.BaseStrength,
-                TargetShipGuid           = targetShip.guid,
-                MinimumTaskForceStrength = (targetShip.BaseStrength + pingStr) * empire.GetFleetStrEmpireMultiplier(targetShip.loyalty),
-                TargetEmpire             = targetShip.loyalty
+                TargetShipGuid           = targetShip.Guid,
+                MinimumTaskForceStrength = (targetShip.BaseStrength + pingStr) * empire.GetFleetStrEmpireMultiplier(targetShip.Loyalty),
+                TargetEmpire             = targetShip.Loyalty
             };
             return militaryTask;
         }
@@ -362,7 +362,7 @@ namespace Ship_Game.AI.Tasks
             for (int i = 0; i < Fleet.Ships.Count; i++)
             {
                 Ship ship = Fleet.Ships[i];
-                ship.AI.CombatState = ship.shipData.DefaultCombatState;
+                ship.AI.CombatState = ship.ShipData.DefaultCombatState;
                 ship.AI.ClearOrders();
                 ship.HyperspaceReturn();
             }
@@ -380,7 +380,7 @@ namespace Ship_Game.AI.Tasks
             for (int i = 0; i < TaskForce.Count; i++)
             {
                 var ship = TaskForce[i];
-                if (ship.fleet == null)
+                if (ship.Fleet == null)
                     Owner.AddShipToManagedPools(ship);
             }
 
@@ -456,7 +456,7 @@ namespace Ship_Game.AI.Tasks
                         ship.ClearFleet();
                         ship.HyperspaceReturn();
 
-                        if (ship.shipData.Role != RoleName.troop)
+                        if (ship.ShipData.Role != RoleName.troop)
                         {
                             ship.AI.GoOrbitNearestPlanetAndResupply(false);
                         }
@@ -566,7 +566,7 @@ namespace Ship_Game.AI.Tasks
         public void SetTargetShip(Ship ship)
         {
             TargetShip     = ship;
-            TargetShipGuid = ship.guid;
+            TargetShipGuid = ship.Guid;
         }
 
         //need to examine this fleet key thing. i believe there is a leak.

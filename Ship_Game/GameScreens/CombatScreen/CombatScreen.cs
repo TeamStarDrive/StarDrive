@@ -493,7 +493,7 @@ namespace Ship_Game
 
         bool TryGetNumBombersCanBomb(out Ship[] bombersList)
         {
-            bombersList = P.ParentSystem.ShipList.Filter(s => s.loyalty == EmpireManager.Player
+            bombersList = P.ParentSystem.ShipList.Filter(s => s.Loyalty == EmpireManager.Player
                                                          && s.BombBays.Count > 0
                                                          && s.Position.InRadius(P.Center, P.ObjectRadius + 15000f));
 
@@ -793,9 +793,9 @@ namespace Ship_Game
             foreach (GameplayObject go in orbitingShips)
             {
                 var ship = (Ship)go;
-                if (ship.shipData.Role != RoleName.troop)
+                if (ship.ShipData.Role != RoleName.troop)
                 {
-                    if (ship.HasOurTroops && (ship.Carrier.HasActiveTroopBays || ship.Carrier.HasTransporters || P.HasSpacePort && P.Owner == ship.loyalty))  // fbedard
+                    if (ship.HasOurTroops && (ship.Carrier.HasActiveTroopBays || ship.Carrier.HasTransporters || P.HasSpacePort && P.Owner == ship.Loyalty))  // fbedard
                     {
                         int landingLimit = LandingLimit(ship);
                         if (landingLimit > 0)
@@ -818,7 +818,7 @@ namespace Ship_Game
         int LandingLimit(Ship ship)
         {
             int landingLimit;
-            if (P.WeCanLandTroopsViaSpacePort(ship.loyalty))
+            if (P.WeCanLandTroopsViaSpacePort(ship.Loyalty))
             {
                 // fbedard: Allows to unload all troops if there is a space port
                 landingLimit = ship.TroopCount;

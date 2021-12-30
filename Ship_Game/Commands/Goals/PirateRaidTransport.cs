@@ -74,13 +74,13 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null
                 || !TargetShip.Active
-                || TargetShip.loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
+                || TargetShip.Loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
             {
                 BoardingShip?.AI.OrderPirateFleeHome();
                 return GoalStep.GoalFailed; // Target destroyed or escaped
             }
 
-            if (TargetShip.loyalty == Pirates.Owner)
+            if (TargetShip.Loyalty == Pirates.Owner)
             {
                 BoardingShip?.AI.OrderPirateFleeHome();
                 TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
