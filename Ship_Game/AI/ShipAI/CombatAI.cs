@@ -25,7 +25,7 @@ namespace Ship_Game.AI
             {
                 CurrentCombatStance = combatState;
                 CombatTactic = null;
-                AI.Owner.shipStatusChanged = true; // FIX: force DesiredCombatRange update
+                AI.Owner.ShipStatusChanged = true; // FIX: force DesiredCombatRange update
             }
 
             if (CombatTactic == null)

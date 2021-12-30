@@ -79,8 +79,8 @@ namespace Ship_Game
 
 
             weight += ApplyTargetWeight(potential.TotalDps, targetParameterTotals.DPS, DPSWeight);
-            weight += ApplyTargetWeight(potential.shield_power, targetParameterTotals.Shield, AttackShieldedWeight);
-            weight += ApplyTargetWeight(potential.armor_max, targetParameterTotals.Armor, ArmoredWeight);
+            weight += ApplyTargetWeight(potential.ShieldPower, targetParameterTotals.Shield, AttackShieldedWeight);
+            weight += ApplyTargetWeight(potential.ArmorMax, targetParameterTotals.Armor, ArmoredWeight);
             weight += ApplyTargetWeight(potential.SurfaceArea, targetParameterTotals.Size, SizeWeight);
             weight += ApplyTargetWeight(potential.HealthPercent, targetParameterTotals.Health, VultureWeight);
             normalizer += 5;

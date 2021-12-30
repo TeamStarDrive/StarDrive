@@ -103,7 +103,7 @@ namespace Ship_Game
             if (shipGuid != Guid.Empty)
             {
                 foreach (Ship ship in MasterShipList)
-                    if (ship.guid == shipGuid)
+                    if (ship.Guid == shipGuid)
                         return ship;
             }
             return null;
@@ -120,7 +120,7 @@ namespace Ship_Game
             {
                 var ownedShips = empire.OwnedShips;
                 foreach (Ship ship in ownedShips)
-                    if (ship.guid == shipGuid)
+                    if (ship.Guid == shipGuid)
                         return ship;
             }
             return null;
@@ -131,7 +131,7 @@ namespace Ship_Game
             if (objectGuid != Guid.Empty)
             {
                 foreach (Ship ship in MasterShipList)
-                    if (ship.guid == objectGuid)
+                    if (ship.Guid == objectGuid)
                         return ship;
 
                 // TODO: implement Projectile and Beam search

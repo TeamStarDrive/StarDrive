@@ -35,7 +35,7 @@ namespace Ship_Game
         {
             foreach (Ship ship in AvailableShips)
             {
-                if (ship.fleet != null)
+                if (ship.Fleet != null)
                     continue;
 
                 foreach (FleetDataNode node in F.DataNodes)
@@ -122,7 +122,7 @@ namespace Ship_Game
             var ships = F.Owner.OwnedShips;
             foreach (Ship s in ships)
             {
-                if (s.fleet != null)
+                if (s.Fleet != null)
                 {
                     continue;
                 }
@@ -255,7 +255,7 @@ namespace Ship_Game
             var ships = F.Owner.OwnedShips;
             foreach (Ship ship in ships)
             {
-                if (ship.fleet == null)
+                if (ship.Fleet == null)
                     AvailableShips.Add(ship);
             }
             foreach (Ship ship in AvailableShips)

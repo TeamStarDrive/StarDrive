@@ -68,7 +68,7 @@ namespace Ship_Game.AI
                     if (missile.Weapon.TargetValid(go))
                     {
                         var nearbyShip = (Ship) go;
-                        if (missile.Loyalty.IsEmpireAttackable(nearbyShip.loyalty))
+                        if (missile.Loyalty.IsEmpireAttackable(nearbyShip.Loyalty))
                             targets.Add(nearbyShip);
                     }
                 }
@@ -83,10 +83,10 @@ namespace Ship_Game.AI
         bool TargetValid(Ship ship)
         {
             return ship.Active
-                   && !ship.dying
+                   && !ship.Dying
                    && !ship.IsInWarp
-                   && Missile.Weapon.TargetValid(ship.shipData.HullRole)
-                   && Missile.Loyalty.IsEmpireAttackable(ship.loyalty);
+                   && Missile.Weapon.TargetValid(ship.ShipData.HullRole)
+                   && Missile.Loyalty.IsEmpireAttackable(ship.Loyalty);
         }
 
         //added by gremlin deveks ChooseTarget
@@ -102,7 +102,7 @@ namespace Ship_Game.AI
             }
 
             Ship owningShip = Missile.Owner;
-            if (owningShip != null && owningShip.Active && !owningShip.dying)
+            if (owningShip != null && owningShip.Active && !owningShip.Dying)
             {
                 if (owningShip.AI.Target is Ship targetShip)
                 {
@@ -123,7 +123,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            Empire owner = owningShip?.loyalty ?? Missile.Planet.Owner;
+            Empire owner = owningShip?.Loyalty ?? Missile.Planet.Owner;
             if (owner == null || TargetList == null )
             {
                 Missile.Die(Missile, false);
@@ -236,7 +236,7 @@ namespace Ship_Game.AI
             if (TargetUpdateTimer <= 0f)
             {
                 TargetUpdateTimer = 0.15f;
-                if (Target == null || !Target.Active || Target is ShipModule targetModule && targetModule.GetParent().dying)
+                if (Target == null || !Target.Active || Target is ShipModule targetModule && targetModule.GetParent().Dying)
                 {
                     Target = null;
                     ChooseTarget();

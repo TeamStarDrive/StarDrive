@@ -59,7 +59,7 @@ namespace Ship_Game
             var orbitalList = new Array<Ship>();
             foreach (Ship orbital in OrbitalStations)
             {
-                if (orbital.shipData.Role == role && !orbital.shipData.IsShipyard  // shipyards are not defense stations
+                if (orbital.ShipData.Role == role && !orbital.ShipData.IsShipyard  // shipyards are not defense stations
                                                   && !orbital.IsConstructor)
                 {
                     orbitalList.Add(orbital);
@@ -84,8 +84,8 @@ namespace Ship_Game
                 if (g != null && g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this 
                               || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid)
                 {
-                    if (ResourceManager.GetShipTemplate(g.ToBuildUID, out Ship orbital) && orbital.shipData.Role == role
-                                                                                        && !orbital.shipData.IsShipyard)
+                    if (ResourceManager.GetShipTemplate(g.ToBuildUID, out Ship orbital) && orbital.ShipData.Role == role
+                                                                                        && !orbital.ShipData.IsShipyard)
                     {
                         numOrbitals++;
                     }
@@ -106,7 +106,7 @@ namespace Ship_Game
             foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
                                                                      || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
             {
-                if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship shipyard) && shipyard.shipData.IsShipyard)
+                if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship shipyard) && shipyard.ShipData.IsShipyard)
                     shipyardsInQ++;
             }
 
@@ -115,7 +115,7 @@ namespace Ship_Game
 
         private void BuildOrScrapOrbitals(Array<Ship> orbitalList, byte orbitalsWeWant, RoleName role, float budget)
         {
-            int orbitalsWeHave = orbitalList.Filter(o => !o.shipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
+            int orbitalsWeHave = orbitalList.Filter(o => !o.ShipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
             var eAI = Owner.GetEmpireAI();
@@ -336,12 +336,12 @@ namespace Ship_Game
 
         bool IsOutOfOrbitalsLimit(Ship ship, Empire owner, int overLimit)
         {
-            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.shipData.Role, owner);
-            int numShipyards = OrbitalStations.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt(owner);
+            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.ShipData.Role, owner);
+            int numShipyards = OrbitalStations.Count(s => s.ShipData.IsShipyard) + ShipyardsBeingBuilt(owner);
             if (numOrbitals >= ShipBuilder.OrbitalsLimit + overLimit && ship.IsPlatformOrStation)
                 return true;
 
-            if (numShipyards >= ShipBuilder.ShipYardsLimit + overLimit && ship.shipData.IsShipyard)
+            if (numShipyards >= ShipBuilder.ShipYardsLimit + overLimit && ship.ShipData.IsShipyard)
                 return true;
 
             return false;
@@ -350,12 +350,12 @@ namespace Ship_Game
         // Used when mostly the player places orbital in orbit of unowned planet
         public void TryRemoveExcessOrbital(Ship orbital)
         {
-            if (Owner == orbital.loyalty || !IsOverOrbitalsLimit(orbital))
+            if (Owner == orbital.Loyalty || !IsOverOrbitalsLimit(orbital))
                 return;
 
-            float cost = orbital.GetCost(orbital.loyalty) * orbital.loyalty.DifficultyModifiers.CreditsMultiplier;
-            orbital.loyalty.AddMoney(cost);
-            if (orbital.loyalty == EmpireManager.Player)
+            float cost = orbital.GetCost(orbital.Loyalty) * orbital.Loyalty.DifficultyModifiers.CreditsMultiplier;
+            orbital.Loyalty.AddMoney(cost);
+            if (orbital.Loyalty == EmpireManager.Player)
                 Empire.Universe.NotificationManager.AddOrbitalOverLimit(this, (int)cost, orbital.BaseHull.IconPath);
 
             orbital.QueueTotalRemoval();

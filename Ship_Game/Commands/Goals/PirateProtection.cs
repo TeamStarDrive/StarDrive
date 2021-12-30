@@ -64,17 +64,17 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null
                 || !TargetShip.Active
-                || TargetShip.loyalty != Pirates.Owner && !TargetShip.InCombat)
+                || TargetShip.Loyalty != Pirates.Owner && !TargetShip.InCombat)
             {
                 return GoalStep.GoalFailed; // Target or our forces were destroyed 
             }
 
-            return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.TryAgain;
+            return TargetShip.Loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.TryAgain;
         }
 
         GoalStep ReturnTargetToOriginalOwner()
         {
-            if (TargetShip == null || !TargetShip.Active || TargetShip.loyalty != Pirates.Owner)
+            if (TargetShip == null || !TargetShip.Active || TargetShip.Loyalty != Pirates.Owner)
                 return GoalStep.GoalFailed; // Target destroyed or they took it from us
 
             TargetShip.AI.OrderPirateFleeHome(signalRetreat: true); // Retreat our forces before returning the ship to the rightful owner

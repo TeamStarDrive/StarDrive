@@ -17,7 +17,7 @@ namespace Ship_Game
         public Ship CommandShip
         {
             get         => LeadShip?.Leader;
-            private set => LeadShip = new GroupLeader(value, value?.fleet);
+            private set => LeadShip = new GroupLeader(value, value?.Fleet);
         }
 
         GroupLeader LeadShip;
@@ -90,7 +90,7 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
-                ship.projectedPosition = projectedPos + angle.RadiansToDirection()*distance;
+                ship.ProjectedPosition = projectedPos + angle.RadiansToDirection()*distance;
             }
         }
 
@@ -100,7 +100,7 @@ namespace Ship_Game
             ProjectedPos = projectedPos;
             ProjectedDirection = direction;
             for (int i = 0; i < Ships.Count; ++i)
-                Ships[i].projectedPosition = projectedPos + direction;
+                Ships[i].ProjectedPosition = projectedPos + direction;
         }
 
         public bool ContainsShip(Ship ship)
@@ -199,7 +199,7 @@ namespace Ship_Game
             {
                 int order = GetShipOrder(a) - GetShipOrder(b);
                 if (order != 0) return order;
-                return a.guid.CompareTo(b.guid); // otherwise sort by ship GUID which never changes
+                return a.Guid.CompareTo(b.Guid); // otherwise sort by ship GUID which never changes
             });
         }
 
@@ -446,7 +446,7 @@ namespace Ship_Game
             {
                 Ship ship = Ships[i];
                 // Allow AI ships in gravity wells to react to incoming attacks
-                if (!ship.loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
+                if (!ship.Loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
                     offensiveMove = true;
 
                 if (ship.PlayerShipCanTakeFleetOrders())
@@ -488,7 +488,7 @@ namespace Ship_Game
                 {
                     ship.AI.ResetPriorityOrder(false);
                     // Allow AI ships in gravity wells to react to incoming attacks
-                    if (!ship.loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
+                    if (!ship.Loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
                         offensiveMove = true;
 
                     ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, AIState.MoveTo, null, offensiveMove);
@@ -507,7 +507,7 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (excludeInvade && (ship.DesignRole == RoleName.troopShip || ship.shipData.Role == RoleName.troop))
+                if (excludeInvade && (ship.DesignRole == RoleName.troopShip || ship.ShipData.Role == RoleName.troop))
                     continue;
 
                 if (ship.AI.State == AIState.Orbit || !ship.Position.InRadius(position, radius))
@@ -622,7 +622,7 @@ namespace Ship_Game
 
         protected void ClearPriorityOrderIfSubLight(Ship ship)
         {
-            if (!ship.loyalty.isPlayer && !ship.IsSpoolingOrInWarp)
+            if (!ship.Loyalty.isPlayer && !ship.IsSpoolingOrInWarp)
             {
                 ship.AI.ClearPriorityOrderAndTarget();
                 ship.AI.ChangeAIState(AIState.AwaitingOrders);

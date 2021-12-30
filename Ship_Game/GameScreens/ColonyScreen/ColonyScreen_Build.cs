@@ -175,7 +175,7 @@ namespace Ship_Game
                     // and add to Build list
                     BuildableListItem catHeader = BuildableList.AddItem(new BuildableListItem(this, category.Name));
                     foreach (Ship ship in category.Ships)
-                        catHeader.AddSubItem(new BuildableListItem(this, ship, !ship.shipData.IsShipyard));
+                        catHeader.AddSubItem(new BuildableListItem(this, ship, !ship.ShipData.IsShipyard));
                 }
             }
         }
@@ -239,13 +239,13 @@ namespace Ship_Game
                     return;
                 }
 
-                if (ship.IsPlatformOrStation || ship.shipData.IsShipyard)
+                if (ship.IsPlatformOrStation || ship.ShipData.IsShipyard)
                 {
                     P.AddOrbital(ship);
                 }
                 else
                 {
-                    P.Construction.Enqueue(ship.shipData);
+                    P.Construction.Enqueue(ship.ShipData);
                 }
             }
 

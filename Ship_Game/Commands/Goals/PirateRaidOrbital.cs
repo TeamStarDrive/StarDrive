@@ -82,7 +82,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete; // Target was destroyed
             }
 
-            if (TargetShip.loyalty == Pirates.Owner)
+            if (TargetShip.Loyalty == Pirates.Owner)
             {
                 Pirates.TryLevelUp();
                 TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);

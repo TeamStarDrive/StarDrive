@@ -63,7 +63,7 @@ namespace Ship_Game.Ships
             }
 
             if (GlobalStats.CountInternalModulesFromHull)
-                SetModuleRestrictionsFromHull(shipData.BaseHull);
+                SetModuleRestrictionsFromHull(ShipData.BaseHull);
 
             InitExternalSlots();
 

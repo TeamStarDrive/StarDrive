@@ -16,12 +16,12 @@ namespace Ship_Game.Ships
             Position     = position;
             Name         = template.Name;
             BaseStrength = template.BaseStrength;
-            shipData     = template.shipData;
+            ShipData     = template.ShipData;
 
             // loyalty must be set before modules are initialized
             LoyaltyTracker = new Components.LoyaltyChanges(this, owner);
 
-            if (!CreateModuleSlotsFromData(template.shipData.GetOrLoadDesignSlots()))
+            if (!CreateModuleSlotsFromData(template.ShipData.GetOrLoadDesignSlots()))
                 return; // return and crash again...
 
             // ship must not be added to empire ship list until after modules are validated.
@@ -31,9 +31,9 @@ namespace Ship_Game.Ships
             KnownByEmpires = new Components.KnownByEmpire();
             HasSeenEmpires = new Components.KnownByEmpire();
 
-            VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, shipData.Role);
+            VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, ShipData.Role);
 
-            InitializeThrusters(template.shipData.BaseHull);
+            InitializeThrusters(template.ShipData.BaseHull);
             InitializeShip();
             SetInitialCrewLevel();
         }
@@ -47,8 +47,8 @@ namespace Ship_Game.Ships
             Name       = save.Name;
             VanityName = save.VanityName;
             Level      = save.Level;
-            experience = save.Experience;
-            shipData   = data;
+            Experience = save.Experience;
+            ShipData   = data;
 
             // loyalty must be set before modules are initialized
             LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
@@ -81,7 +81,7 @@ namespace Ship_Game.Ships
 
             Position   = new Vector2(200f, 200f);
             Name       = data.Name;
-            shipData   = data;
+            ShipData   = data;
 
             // loyalty must be set before modules are initialized
             LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
@@ -130,9 +130,9 @@ namespace Ship_Game.Ships
             ResetSlots(templateSlots.Length);
 
             // ignore invalid modules for templates
-            if (!isTemplate && shipData.InvalidModules != null)
+            if (!isTemplate && ShipData.InvalidModules != null)
             {
-                Log.Warning($"Ship spawn failed '{Name}' InvalidModules='{shipData.InvalidModules}'");
+                Log.Warning($"Ship spawn failed '{Name}' InvalidModules='{ShipData.InvalidModules}'");
                 return false;
             }
 
@@ -158,12 +158,12 @@ namespace Ship_Game.Ships
             }
 
             // if this is a template and we have invalid slots, clear them out
-            if (isTemplate && shipData.InvalidModules != null)
+            if (isTemplate && ShipData.InvalidModules != null)
             {
                 ModuleSlotList = ModuleSlotList.Filter(s => s != null);
             }
 
-            CreateModuleGrid(shipData.GridInfo, isTemplate, shipyardDesign);
+            CreateModuleGrid(ShipData.GridInfo, isTemplate, shipyardDesign);
             return true;
         }
 
@@ -180,8 +180,8 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i] = m;
             }
 
-            shipData.SetDesignSlots(DesignSlot.FromModules(placedModules));
-            CreateModuleGrid(shipData.GridInfo, isTemplate:true, shipyardDesign:true);
+            ShipData.SetDesignSlots(DesignSlot.FromModules(placedModules));
+            CreateModuleGrid(ShipData.GridInfo, isTemplate:true, shipyardDesign:true);
         }
 
         // initialize modules from saved game
@@ -208,18 +208,18 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i] = ShipModule.Create(slot, this);
             }
 
-            CreateModuleGrid(shipData.GridInfo, isTemplate: false, shipyardDesign: false);
+            CreateModuleGrid(ShipData.GridInfo, isTemplate: false, shipyardDesign: false);
             return true;
         }
 
         void InitializeFromSaveData(SavedGame.ShipSaveData save)
         {
-            guid         = save.GUID;
+            Guid         = save.GUID;
             Position     = save.Position;
-            experience   = save.Experience;
-            kills        = save.Kills;
+            Experience   = save.Experience;
+            Kills        = save.Kills;
             PowerCurrent = save.Power;
-            yRotation    = save.yRotation;
+            YRotation    = save.yRotation;
             Rotation     = save.Rotation;
             Velocity     = save.Velocity;
             IsSpooling   = save.AfterBurnerOn;
@@ -235,7 +235,7 @@ namespace Ship_Game.Ships
             TradeRoutes               = save.TradeRoutes ?? new Array<Guid>(); // the null check is here in order to not break saves.
             MechanicalBoardingDefense = save.MechanicalBoardingDefense;
 
-            VanityName = shipData.Role == RoleName.troop && save.TroopList.NotEmpty
+            VanityName = ShipData.Role == RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.VanityName;
 
             HealthMax = RecalculateMaxHealth();
@@ -243,9 +243,9 @@ namespace Ship_Game.Ships
             ChangeOrdnance(save.Ordnance);
 
             if (save.HomePlanetGuid != Guid.Empty)
-                HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
+                HomePlanet = Loyalty.FindPlanet(save.HomePlanetGuid);
 
-            if (loyalty.WeAreRemnants)
+            if (Loyalty.WeAreRemnants)
                 IsGuardian = true;
 
             if (save.TroopList != null)
@@ -275,14 +275,14 @@ namespace Ship_Game.Ships
         void SetInitialCrewLevel()
         {
             Level = 0;
-            if (shipData.Role == RoleName.fighter)
-                Level += loyalty.data.BonusFighterLevels;
+            if (ShipData.Role == RoleName.fighter)
+                Level += Loyalty.data.BonusFighterLevels;
 
-            Level += loyalty.data.BaseShipLevel;
-            Level += loyalty.data.RoleLevels[(int)DesignRole - 1];
+            Level += Loyalty.data.BaseShipLevel;
+            Level += Loyalty.data.RoleLevels[(int)DesignRole - 1];
 
-            if (!loyalty.isPlayer)
-                Level += loyalty.DifficultyModifiers.ShipLevel;
+            if (!Loyalty.isPlayer)
+                Level += Loyalty.DifficultyModifiers.ShipLevel;
         }
 
         public void InitializeThrusters(ShipHull hull)
@@ -370,9 +370,9 @@ namespace Ship_Game.Ships
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(Ship template, Empire owner, Vector2 position)
         {
-            if (!template.shipData.IsValidForCurrentMod)
+            if (!template.ShipData.IsValidForCurrentMod)
             {
-                Log.Info($"Design {template.shipData.Name} [Mod:{template.shipData.ModName}] is not valid for [{GlobalStats.ModOrVanillaName}]");
+                Log.Info($"Design {template.ShipData.Name} [Mod:{template.ShipData.ModName}] is not valid for [{GlobalStats.ModOrVanillaName}]");
                 return null;
             }
 
@@ -441,8 +441,8 @@ namespace Ship_Game.Ships
             Ship ship = CreateShipAtPoint(shipName, owner, point);
             ship.VanityName = troop.DisplayName;
             troop.LandOnShip(ship);
-            if (ship.shipData.Role == RoleName.troop)
-                ship.shipData.ShipCategory = ShipCategory.Conservative;
+            if (ship.ShipData.Role == RoleName.troop)
+                ship.ShipData.ShipCategory = ShipCategory.Conservative;
             return ship;
         }
 
@@ -451,8 +451,8 @@ namespace Ship_Game.Ships
         void InitializeAI()
         {
             AI = new ShipAI(this);
-            if (shipData != null)
-                AI.CombatState = shipData.DefaultCombatState;
+            if (ShipData != null)
+                AI.CombatState = ShipData.DefaultCombatState;
         }
 
         void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
@@ -472,7 +472,7 @@ namespace Ship_Game.Ships
             if (VanityName.IsEmpty())
                 VanityName = Name;
 
-            if (shipData.Role == RoleName.platform)
+            if (ShipData.Role == RoleName.platform)
                 IsPlatform = true;
 
             if (!ResourceManager.ShipTemplateExists(Name))
@@ -508,7 +508,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < OurTroops.Count; i++)
             {
                 Troop troop = OurTroops[i];
-                troop.SetOwner(loyalty);
+                troop.SetOwner(Loyalty);
                 troop.SetShip(this);
                 TroopBoardingDefense += troop.Strength;
             }
@@ -531,7 +531,7 @@ namespace Ship_Game.Ships
 
         public void ShipStatusChange()
         {
-            shipStatusChanged = false;
+            ShipStatusChanged = false;
             UpdateStatus(initConstants:false, fromSave:false);
         }
 
@@ -556,7 +556,7 @@ namespace Ship_Game.Ships
             if (TetheredTo != null)
             {
                 var planet = TetheredTo;
-                if (planet?.Owner != null && (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner)))
+                if (planet?.Owner != null && (planet.Owner == Loyalty || Loyalty.IsAlliedWith(planet.Owner)))
                 {
                     TrackingPower = TrackingPower.LowerBound(planet.Level);
                     TargetingAccuracy = TargetingAccuracy.LowerBound(planet.Level);
@@ -578,7 +578,7 @@ namespace Ship_Game.Ships
 
         void InitConstantsBeforeUpdate(bool fromSave)
         {
-            armor_max = 0f;
+            ArmorMax = 0f;
             Health = 0f;
             TroopCapacity = 0;
             RepairBeams.Clear();
@@ -612,13 +612,13 @@ namespace Ship_Game.Ships
                 if (module.InstalledWeapon?.IsRepairBeam == true)
                 {
                     RepairBeams.Add(module);
-                    hasRepairBeam = true;
+                    HasRepairBeam = true;
                 }
 
                 HasRepairModule |= module.IsRepairModule;
                 Health += module.Health;
                 if (module.Is(ShipModuleType.Armor))
-                    armor_max += module.ActualMaxHealth;
+                    ArmorMax += module.ActualMaxHealth;
 
                 if (!fromSave)
                     Ordinance += module.OrdinanceCapacity; // WARNING: do not use ChangeOrdnance() here!
@@ -643,13 +643,13 @@ namespace Ship_Game.Ships
 
             UpdateShields();
 
-            Carrier.PrepShipHangars(loyalty);
+            Carrier.PrepShipHangars(Loyalty);
 
-            if (shipData.Role == RoleName.troop)
+            if (ShipData.Role == RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
 
             if (InhibitionRadius.Greater(0))
-                loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
+                Loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
 
             MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
         }
@@ -666,7 +666,7 @@ namespace Ship_Game.Ships
         public float GetMaxBank()
         {
             const float mBank = 0.5236f;
-            switch (shipData.Role)
+            switch (ShipData.Role)
             {
                 default:
                     return mBank;

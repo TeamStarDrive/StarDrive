@@ -85,7 +85,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             float turnRateDeg   = ship.Stats.GetTurnRadsPerSec(ship.Level).ToDegrees();
             var cursor = new Vector2(X + (Width*0.06f).RoundTo10(), Y + (int)(Height * 0.025f));
             DrawShipValueLine(batch, TitleFont, ref cursor, ship.Name, "", Color.White);
-            DrawShipValueLine(batch, Font, ref cursor, ship.shipData.ShipCategory + ", " + ship.shipData.DefaultCombatState, "", Color.Gray);
+            DrawShipValueLine(batch, Font, ref cursor, ship.ShipData.ShipCategory + ", " + ship.ShipData.DefaultCombatState, "", Color.Gray);
             WriteLine(ref cursor, Font);
             DrawShipValueLine(batch, Font, ref cursor, "Weapons:", ship.Weapons.Count, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Max W.Range:", ship.WeaponsMaxRange, Color.LightBlue);
@@ -94,7 +94,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             DrawShipValueLine(batch, Font, ref cursor, "Speed:", subLightSpeed, Color.LightGreen);
             DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", turnRateDeg, Color.LightGreen);
             DrawShipValueLine(batch, Font, ref cursor, "Repair:", ship.RepairRate, Color.Goldenrod);
-            DrawShipValueLine(batch, Font, ref cursor, "Shields:", ship.shield_max, Color.Goldenrod);
+            DrawShipValueLine(batch, Font, ref cursor, "Shields:", ship.ShieldMax, Color.Goldenrod);
             DrawShipValueLine(batch, Font, ref cursor, "EMP Def:", ship.EmpTolerance, Color.Goldenrod);
             DrawShipValueLine(batch, Font, ref cursor, "Hangars:", ship.Carrier.AllFighterHangars.Length, Color.IndianRed);
             DrawShipValueLine(batch, Font, ref cursor, "Troop Bays:", ship.Carrier.AllTroopBays.Length, Color.IndianRed);

@@ -13,8 +13,8 @@ namespace Ship_Game.Ships
         public bool AllowInterEmpireTrade  { get; set; }
         public Array<Guid> TradeRoutes     { get; private set; } = new Array<Guid>();
 
-        public bool IsCandidateForTradingBuild => shipData.IsCandidateForTradingBuild;
-        public bool IsFreighter => shipData.IsFreighter;
+        public bool IsCandidateForTradingBuild => ShipData.IsCandidateForTradingBuild;
+        public bool IsFreighter => ShipData.IsFreighter;
 
         public bool IsIdleFreighter => IsFreighter
                                        && AI != null
@@ -31,7 +31,7 @@ namespace Ship_Game.Ships
             if (planet.Owner == null)
                 return false;
 
-            if (planet.Owner == loyalty || loyalty.IsTradeTreaty(planet.Owner))
+            if (planet.Owner == Loyalty || Loyalty.IsTradeTreaty(planet.Owner))
             {
                 TradeRoutes.AddUnique(planet.guid);
                 return true;
@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
 
         public bool CanTransportGoodsType(Goods goods)
         {
-            if (!loyalty.ManualTrade)
+            if (!Loyalty.ManualTrade)
                 return true;
 
             switch (goods)
@@ -101,7 +101,7 @@ namespace Ship_Game.Ships
         }
 
         // limit eta for Inter Empire trade
-        bool TradeDistanceOk(Planet importPlanet, int eta) =>  importPlanet.Owner == loyalty || eta <= 30;
+        bool TradeDistanceOk(Planet importPlanet, int eta) =>  importPlanet.Owner == Loyalty || eta <= 30;
 
         public void RemoveTradeRoute(Planet planet)
         {
@@ -110,16 +110,16 @@ namespace Ship_Game.Ships
 
         public void RefreshTradeRoutes()
         {
-            if (!loyalty.isPlayer)
+            if (!Loyalty.isPlayer)
                 return; // Trade routes are available only for players
 
             foreach (Guid planetGuid in TradeRoutes)
             {
                 Planet planet = Empire.Universe.GetPlanet(planetGuid);
-                if (planet.Owner == loyalty)
+                if (planet.Owner == Loyalty)
                     continue;
 
-                if (planet.Owner == null || !loyalty.IsTradeTreaty(planet.Owner))
+                if (planet.Owner == null || !Loyalty.IsTradeTreaty(planet.Owner))
                     RemoveTradeRoute(planet);
             }
         }
@@ -139,7 +139,7 @@ namespace Ship_Game.Ships
 
         public bool InTradingZones(Planet planet)
         {
-            if (!loyalty.isPlayer)
+            if (!Loyalty.isPlayer)
                 return true; // only player ships can have trade AO or trade routes
 
             if (TradeRoutes?.Count >= 2 && AreaOfOperation.NotEmpty) // ship has both AO trade routes, so check this or that.

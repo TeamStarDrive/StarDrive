@@ -228,7 +228,7 @@ namespace Ship_Game
                     {
                         // only save ships that are currently alive (race condition when saving during intense battles)
                         if (node.Ship != null && node.Ship.Active)
-                            node.ShipGuid = node.Ship.guid;
+                            node.ShipGuid = node.Ship.Guid;
                     }
                     fs.DataNodes = fleet.Value.DataNodes;
                     foreach (Ship ship in fleet.Value.Ships)
@@ -236,7 +236,7 @@ namespace Ship_Game
                         fs.ShipsInFleet.Add(new FleetShipSave
                         {
                             fleetOffset = ship.RelativeFleetOffset,
-                            shipGuid = ship.guid
+                            shipGuid = ship.Guid
                         });
                     }
                     empireToSave.FleetsList.Add(fs);
@@ -253,7 +253,7 @@ namespace Ship_Game
                     foreach (RoadNode node in road.RoadNodesList)
                     {
                         var ndata = new RoadNodeSave { Position = node.Position };
-                        if (node.Platform != null) ndata.Guid_Platform = node.Platform.guid;
+                        if (node.Platform != null) ndata.Guid_Platform = node.Platform.Guid;
                         rdata.RoadNodes.Add(ndata);
                     }
                     empireToSave.SpaceRoadData.Add(rdata);
@@ -283,14 +283,14 @@ namespace Ship_Game
                         TetherOffset  = g.TetherOffset,
                         StarDateAdded = g.StarDateAdded
                     };
-                    if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
+                    if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.Guid;
                     if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
                     if (g.PlanetBuildingAt != null)   gdata.planetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
                     if (g.TargetSystem != null)       gdata.TargetSystemGuid          = g.TargetSystem.guid;
                     if (g.TargetPlanet != null)       gdata.TargetPlanetGuid          = g.TargetPlanet.guid;
                     if (g.Fleet != null)              gdata.fleetGuid                 = g.Fleet.Guid;
-                    if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
-                    if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.guid;
+                    if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.Guid;
+                    if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.Guid;
                     if (g.TargetEmpire != null)       gdata.TargetEmpireId            = g.TargetEmpire.Id;
 
                     return gdata;
@@ -367,10 +367,10 @@ namespace Ship_Game
             }
             sdata.Name = ship.Name;
             sdata.VanityName = ship.VanityName;
-            sdata.Hull = ship.shipData.Hull;
+            sdata.Hull = ship.ShipData.Hull;
             sdata.Power = ship.PowerCurrent;
             sdata.Ordnance = ship.Ordinance;
-            sdata.yRotation = ship.yRotation;
+            sdata.yRotation = ship.YRotation;
             sdata.Rotation = ship.Rotation;
             sdata.InCombat = ship.InCombat;
             sdata.FoodCount = ship.GetFood();
@@ -412,7 +412,7 @@ namespace Ship_Game
             };
             if (ship.AI.Target is Ship targetShip)
             {
-                sdata.AISave.AttackTarget = targetShip.guid;
+                sdata.AISave.AttackTarget = targetShip.Guid;
             }
             sdata.AISave.MovePosition = ship.AI.MovePosition;
             sdata.AISave.WayPoints = new Array<WayPoint>(ship.AI.CopyWayPoints());
@@ -430,7 +430,7 @@ namespace Ship_Game
                     fleetGuid        = sg.Fleet?.Guid ?? Guid.Empty,
                     goalGuid         = sg.Goal?.guid ?? Guid.Empty,
                     TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
-                    TargetShipGuid   = sg.TargetShip?.guid ?? Guid.Empty,
+                    TargetShipGuid   = sg.TargetShip?.Guid ?? Guid.Empty,
                     MoveType         = sg.MoveType,
                     VariableNumber   = sg.VariableNumber,
                     WantedState      = sg.WantedState
@@ -457,7 +457,7 @@ namespace Ship_Game
                 sdata.AISave.SystemToDefend = ship.AI.SystemToDefend.guid;
 
             if (ship.AI.EscortTarget != null)
-                sdata.AISave.EscortTarget = ship.AI.EscortTarget.guid;
+                sdata.AISave.EscortTarget = ship.AI.EscortTarget.Guid;
             return sdata;
         }
 
@@ -471,10 +471,10 @@ namespace Ship_Game
             }
             sd.Name = ship.Name;
             sd.VanityName = ship.VanityName;
-            sd.Hull      = ship.shipData.Hull;
+            sd.Hull      = ship.ShipData.Hull;
             sd.Power     = ship.PowerCurrent;
             sd.Ordnance  = ship.Ordinance;
-            sd.yRotation = ship.yRotation;
+            sd.yRotation = ship.YRotation;
             sd.Rotation  = ship.Rotation;
             sd.InCombat  = ship.InCombat;
             sd.AISave = new ShipAISave
@@ -912,13 +912,13 @@ namespace Ship_Game
             {
                 Name = ship.Name;
                 MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
-                GUID = ship.guid;
+                GUID = ship.Guid;
                 Position   = ship.Position;
 
                 BaseStrength = ship.BaseStrength;
                 Level      = ship.Level;
-                Experience = ship.experience;
-                Kills      = ship.kills;
+                Experience = ship.Experience;
+                Kills      = ship.Kills;
                 Velocity   = ship.Velocity;
 
                 ModulesBase64 = ShipDesign.GetBase64ModulesString(ship);

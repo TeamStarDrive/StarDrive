@@ -24,7 +24,7 @@ namespace Ship_Game.Empires.Components
 
         public void Add(Ship ship)
         {
-            if (ship.loyalty != Owner)
+            if (ship.Loyalty != Owner)
             {
                 Log.Error($"Attempted to add ship without setting loyalty {ship}");
                 return;

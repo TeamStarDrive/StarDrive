@@ -21,7 +21,7 @@ namespace UnitTests.Ships
         void UpdateStatus(Ship ship, CombatState state)
         {
             ship.AI.CombatState = state;
-            ship.shipStatusChanged = true;
+            ship.ShipStatusChanged = true;
             ship.Update(new FixedSimTime(1f));
         }
 

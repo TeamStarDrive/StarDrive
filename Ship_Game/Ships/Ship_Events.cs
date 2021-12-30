@@ -10,7 +10,7 @@ namespace Ship_Game.Ships
     {
         public virtual void OnModuleDeath(ShipModule m)
         {
-            shipStatusChanged = true;
+            ShipStatusChanged = true;
             if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
                 ShouldRecalculatePower = true;
             if (m.IsExternal)
@@ -30,7 +30,7 @@ namespace Ship_Game.Ships
 
         public virtual void OnModuleResurrect(ShipModule m)
         {
-            shipStatusChanged = true; // update ship status sometime in the future (can be 1 second)
+            ShipStatusChanged = true; // update ship status sometime in the future (can be 1 second)
             if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
                 ShouldRecalculatePower = true;
             UpdateExternalSlots(m, becameActive: true);

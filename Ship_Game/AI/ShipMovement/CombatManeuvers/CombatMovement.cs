@@ -151,7 +151,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
 
         protected bool TargetIsMighty(float ratioToOurDefense)
         {
-            float ourDefense = (Owner.shield_max + Owner.armor_max) * Owner.HealthPercent;
+            float ourDefense = (Owner.ShieldMax + Owner.ArmorMax) * Owner.HealthPercent;
             return (OwnerTarget.TotalDps * 5) / ourDefense >= ratioToOurDefense;
         }
 
@@ -301,7 +301,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         {
             ErraticTimer -= timeStep.FixedTime;
 
-            bool cantMoveErratic =  Owner.Level == 0 || Owner.loyalty.data.Traits.PhysicalTraitPonderous;
+            bool cantMoveErratic =  Owner.Level == 0 || Owner.Loyalty.data.Traits.PhysicalTraitPonderous;
 
             if (cantMoveErratic || MoveState != CombatMoveState.Approach || AI.IsFiringAtMainTarget || Owner.AI.HasPriorityOrder
                 || WeAreRetrograding || Owner.CurrentVelocity < 100f)
@@ -314,7 +314,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             if (inErraticArc || ErraticTimer > 0)
                 return;
 
-            int racialMod = Owner.loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
+            int racialMod = Owner.Loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
 
             ErraticTimer = (10f - racialMod) / (Owner.Level + racialMod);
 
@@ -350,8 +350,8 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 Empire.Universe.DebugWin?.Visible == true &&
                 Empire.Universe.SelectedShip == Owner)
             {
-                Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, pip, radius, Owner.loyalty.EmpireColor, 0f);
-                Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, AI.Target.Position, pip, 1f, Owner.loyalty.EmpireColor, 0f);
+                Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, pip, radius, Owner.Loyalty.EmpireColor, 0f);
+                Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, AI.Target.Position, pip, 1f, Owner.Loyalty.EmpireColor, 0f);
             }
         }
 

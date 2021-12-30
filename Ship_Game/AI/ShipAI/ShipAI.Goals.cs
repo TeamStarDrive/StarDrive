@@ -47,7 +47,7 @@ namespace Ship_Game.AI
             ChangeAIState(newState); // Must come after ExitCombatState since ExitCombatState change the AIstate to awaiting orders.
             if (ExplorationTarget != null)
             {
-                Owner.loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
+                Owner.Loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
                 ExplorationTarget = null;
             }
 
@@ -60,7 +60,7 @@ namespace Ship_Game.AI
             switch (State)
             {
                 case AIState.Ferrying:
-                    if (Owner.shipData.Role == RoleName.supply)
+                    if (Owner.ShipData.Role == RoleName.supply)
                         EscortTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, -Owner.Ordinance);
                     break;
             }
@@ -337,7 +337,7 @@ namespace Ship_Game.AI
             public TradePlan Trade;
             public readonly MoveTypes MoveType;
 
-            public float GetSpeedLimitFor(Ship ship) => ship.fleet?.GetSpeedLimitFor(ship) ?? SpeedLimit;
+            public float GetSpeedLimitFor(Ship ship) => ship.Fleet?.GetSpeedLimitFor(ship) ?? SpeedLimit;
 
             public override string ToString() => $"{Plan} pos:{MovePosition} dir:{Direction}";
 
@@ -396,7 +396,7 @@ namespace Ship_Game.AI
                 VariableString = sg.VariableString;
                 VariableNumber = sg.VariableNumber;
                 SpeedLimit     = sg.SpeedLimit;
-                Empire loyalty = ship.loyalty;
+                Empire loyalty = ship.Loyalty;
 
                 if (sg.fleetGuid != Guid.Empty)
                 {

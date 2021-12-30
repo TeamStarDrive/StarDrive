@@ -95,7 +95,7 @@ namespace Ship_Game.Fleets
                 Log.Error($"Ship Was Null for {Name}");
                 return false;
             }
-            if (newShip.loyalty != Owner)
+            if (newShip.Loyalty != Owner)
                 Log.Warning("ship loyalty incorrect");
 
             if (newShip.IsPlatformOrStation)
@@ -104,14 +104,14 @@ namespace Ship_Game.Fleets
             // This is finding a logic bug: Ship is already in a fleet or this fleet already contains the ship.
             // This should likely be two different checks. There is also the possibility that the ship is in another
             // Fleet ship list.
-            if (newShip.fleet != null || !base.AddShip(newShip))
+            if (newShip.Fleet != null || !base.AddShip(newShip))
             {
-                if (newShip.fleet != this)
+                if (newShip.Fleet != this)
                 {
-                    Log.Warning($"{newShip}: \n already in fleet:\n{newShip.fleet}\nthis fleet:\n{this}");
+                    Log.Warning($"{newShip}: \n already in fleet:\n{newShip.Fleet}\nthis fleet:\n{this}");
                     return false; // recover
                 }
-                Log.Warning($"{newShip}: \n Added to fleet it was already part of:\n{newShip.fleet}");
+                Log.Warning($"{newShip}: \n Added to fleet it was already part of:\n{newShip.Fleet}");
                 return true;
             }
 
@@ -126,7 +126,7 @@ namespace Ship_Game.Fleets
 
         void UpdateOurFleetShip(Ship ship)
         {
-            HasRepair = HasRepair || ship.hasRepairBeam || ship.HasRepairModule && ship.Ordinance > 0;
+            HasRepair = HasRepair || ship.HasRepairBeam || ship.HasRepairModule && ship.Ordinance > 0;
 
             HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles ||
                                         ship.Carrier.HasSupplyBays && ship.Ordinance >= 100;
@@ -137,7 +137,7 @@ namespace Ship_Game.Fleets
         {
             node.Ship = ship;
             base.AddShip(ship);
-            ship.fleet = this;
+            ship.Fleet = this;
             ship.AI.FleetNode = node;
             ship.FleetOffset = node.FleetOffset;
             ship.RelativeFleetOffset = node.FleetOffset;
@@ -169,7 +169,7 @@ namespace Ship_Game.Fleets
 
         bool AddShipToNodes(Ship shipToAdd)
         {
-            shipToAdd.fleet = this;
+            shipToAdd.Fleet = this;
             return AssignExistingOrCreateNewNode(shipToAdd);
         }
 
@@ -470,7 +470,7 @@ namespace Ship_Game.Fleets
                 {
                     case SquadSortType.Size: return ship.SurfaceArea;
                     case SquadSortType.Speed: return (int)ship.MaxSTLSpeed;
-                    case SquadSortType.Defense: return (int)(ship.armor_max + ship.shield_max);
+                    case SquadSortType.Defense: return (int)(ship.ArmorMax + ship.ShieldMax);
                     case SquadSortType.Utility: return ship.DesignRole == RoleName.support || ship.DesignRoleType == RoleType.Troop ? 1 : 0;
                     default: return 0;
                 }
@@ -483,7 +483,7 @@ namespace Ship_Game.Fleets
 
                 int order = bValue - aValue;
                 if (order != 0) return order;
-                return b.guid.CompareTo(a.guid);
+                return b.Guid.CompareTo(a.Guid);
             });
 
             var squad = new Squad { Fleet = this };
@@ -593,7 +593,7 @@ namespace Ship_Game.Fleets
         {
             RemoveFromAllSquads(ship);
             Ships.Remove(ship);
-            ship.fleet = null;
+            ship.Fleet = null;
         }
 
         void EvaluateTask(FixedSimTime timeStep)
@@ -1687,7 +1687,7 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                ship.AI.CombatState = ship.shipData.DefaultCombatState;
+                ship.AI.CombatState = ship.ShipData.DefaultCombatState;
                 ship.AI.ClearOrders();
             }
         }
@@ -1773,7 +1773,7 @@ namespace Ship_Game.Fleets
             {
                 Ship ship = Ships[index];
                 ship.AI.State = AIState.HoldPosition;
-                if (ship.shipData.Role == RoleName.troop)
+                if (ship.ShipData.Role == RoleName.troop)
                     ship.AI.HoldPosition();
             }
         }
@@ -2003,7 +2003,7 @@ namespace Ship_Game.Fleets
             foreach (Ship ship in flankShips)
             {
                 ShipAI ai = ship.AI;
-                ai.CombatState = ship.shipData.DefaultCombatState;
+                ai.CombatState = ship.ShipData.DefaultCombatState;
                 if (!ship.CanTakeFleetOrders)
                     continue;
 
@@ -2300,9 +2300,9 @@ namespace Ship_Game.Fleets
                 return false;
             }
 
-            if (ship.Active && ship.fleet != this)
+            if (ship.Active && ship.Fleet != this)
             {
-                Log.Warning($"{ship.fleet?.Name ?? "No Fleet"} : not equal {Name}");
+                Log.Warning($"{ship.Fleet?.Name ?? "No Fleet"} : not equal {Name}");
             }
 
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
@@ -2312,12 +2312,12 @@ namespace Ship_Game.Fleets
 
             // Todo - this if block is strange. It removes the ship before and then checks if its active.
             // If it is active , it adds the ship again. It does not seem right.
-            if (ship.fleet == this && ship.Active)
+            if (ship.Fleet == this && ship.Active)
             {
-                ship.fleet = null;
+                ship.Fleet = null;
                 ship.AI.ClearOrders();
                 if (returnToEmpireAI)
-                    ship.loyalty.AddShipToManagedPools(ship);
+                    ship.Loyalty.AddShipToManagedPools(ship);
                 ship.HyperspaceReturn();
             }
             else 
@@ -2434,7 +2434,7 @@ namespace Ship_Game.Fleets
             Ship commandShip  = null;
             var fleetTotals = new ShipAI.TargetParameterTotals();
             if (Ships.Count == 0) return;
-            if (CommandShip?.fleet != this || !CommandShip.CanTakeFleetMoveOrders())
+            if (CommandShip?.Fleet != this || !CommandShip.CanTakeFleetMoveOrders())
                 SetCommandShip(null);
 
             for (int i = Ships.Count - 1; i >= 0; --i)
@@ -2445,7 +2445,7 @@ namespace Ship_Game.Fleets
                     RemoveShip(ship, returnToEmpireAI: true);
                     continue;
                 }
-                if (ship.fleet != this)
+                if (ship.Fleet != this)
                 {
                     RemoveShip(ship, returnToEmpireAI: true);
                     Log.Warning("Fleet Update. Ship in fleet was not assigned to this fleet");

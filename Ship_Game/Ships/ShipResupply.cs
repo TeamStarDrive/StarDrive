@@ -61,7 +61,7 @@ namespace Ship_Game.Ships
             }
 
             InCombat = Ship.AI.BadGuysNear || Ship.AI.State == AIState.Bombard;
-            if (!Ship.hasCommand)
+            if (!Ship.HasCommand)
                 return ResupplyReason.NoCommand;
 
             if (HangarShipReactorsDamaged())
@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
             if (Ship.InternalSlotsHealthPercent < ShipDestroyThreshold) // ship is dying or in init
                 return false;
 
-            return Ship.InternalSlotsHealthPercent < DamageThreshold(Ship.shipData.ShipCategory)
+            return Ship.InternalSlotsHealthPercent < DamageThreshold(Ship.ShipData.ShipCategory)
                    && !Ship.AI.HasPriorityTarget;
         }
 
@@ -196,13 +196,13 @@ namespace Ship_Game.Ships
 
         private bool HealthOk()
         {
-            float threshold = InCombat ? (DamageThreshold(Ship.shipData.ShipCategory) * 1.2f).Clamped(0, 1)
+            float threshold = InCombat ? (DamageThreshold(Ship.ShipData.ShipCategory) * 1.2f).Clamped(0, 1)
                                        : RepairDoneThreshold;
 
             float healthTypeToCheck = InCombat ? Ship.InternalSlotsHealthPercent
                                                : Ship.HealthPercent;
 
-            return healthTypeToCheck >= threshold && Ship.hasCommand;
+            return healthTypeToCheck >= threshold && Ship.HasCommand;
         }
 
         private bool OrdnanceOk()
@@ -222,7 +222,7 @@ namespace Ship_Game.Ships
             return Ship.Carrier.TroopsMissingVsTroopCapacity >= 1f;
         }
 
-        bool PlayerKamikaze => Ship.shipData.ShipCategory == ShipCategory.Kamikaze && Ship.loyalty.isPlayer;
+        bool PlayerKamikaze => Ship.ShipData.ShipCategory == ShipCategory.Kamikaze && Ship.Loyalty.isPlayer;
 
         public void ChangeIncomingSupply(SupplyType supplyType, float amount)
         {
@@ -238,7 +238,7 @@ namespace Ship_Game.Ships
                 case SupplyType.All:
                     break;
                 case SupplyType.Rearm:
-                    if (Ship.shipData.IsSupplyCarrier)
+                    if (Ship.ShipData.IsSupplyCarrier)
                         return false;
                     Status status = ShipStatusWithPendingResupply(supplyType);
                     return status < (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : Status.Maximum);

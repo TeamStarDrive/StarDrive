@@ -52,7 +52,7 @@ namespace Ship_Game
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                batch.Draw(Ship.shipData.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
+                batch.Draw(Ship.ShipData.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
 
                 var tCursor = new Vector2(X + 40f, Y + 3f);
                 batch.DrawString(Fonts.Arial12Bold, Ship.Name, tCursor, Color.White);
@@ -60,7 +60,7 @@ namespace Ship_Game
                 if (Screen.sub_ships.SelectedIndex == 0)
                 {
                     tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial12Bold, Ship.shipData.GetRole(), tCursor, Color.Orange);
+                    batch.DrawString(Fonts.Arial12Bold, Ship.ShipData.GetRole(), tCursor, Color.Orange);
                 }
 
                 var moneyRect = new Rectangle((int)X + 285, (int)Y, 21, 20);
@@ -82,11 +82,11 @@ namespace Ship_Game
             RefitShipList.EnableItemHighlight = true;
             RefitShipList.OnClick = OnRefitShipItemClicked;
 
-            foreach (string shipId in ShipToRefit.loyalty.ShipsWeCanBuild)
+            foreach (string shipId in ShipToRefit.Loyalty.ShipsWeCanBuild)
             {
                 Ship weCanBuild = ResourceManager.GetShipTemplate(shipId);
-                if (weCanBuild.shipData.Hull == ShipToRefit.shipData.Hull && shipId != ShipToRefit.Name &&
-                    !weCanBuild.shipData.ShipRole.Protected)
+                if (weCanBuild.ShipData.Hull == ShipToRefit.ShipData.Hull && shipId != ShipToRefit.Name &&
+                    !weCanBuild.ShipData.ShipRole.Protected)
                 {
                     RefitShipList.AddItem(new RefitShipListItem(this, weCanBuild));
                 }

@@ -123,8 +123,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         public bool HasInfiniteWarp() => ChargeAtWarp > 0 || WarpTime > 60*10;
 
         public bool HasAmplifiedMains() => S.Stats.TotalShieldAmplification > 0 && S.Stats.HasMainShields;
-        public bool HasRegularShields() => S.shield_max > 0 && !HasAmplifiedMains();
-        public bool HasAmplifiedShields() => S.shield_max > 0 && HasAmplifiedMains();
+        public bool HasRegularShields() => S.ShieldMax > 0 && !HasAmplifiedMains();
+        public bool HasAmplifiedShields() => S.ShieldMax > 0 && HasAmplifiedMains();
 
         public bool HasOrdnance() => S.OrdinanceMax > 0;
         public bool HasOrdFinite() => HasOrdnance() && NetOrdnanceUsePerSec > 0;

@@ -49,7 +49,7 @@ namespace Ship_Game
                 SelectedFleet.ProjectPos(Project.FleetCenter, Project.Direction);
                 CurrentGroup = SelectedFleet;
             }
-            else if (SelectedShip != null && SelectedShip.loyalty == player)
+            else if (SelectedShip != null && SelectedShip.Loyalty == player)
             {
                 if (SelectedShip.IsConstructor || SelectedShip.IsSupplyShuttle)
                 {
@@ -70,7 +70,7 @@ namespace Ship_Game
             {
                 foreach (Ship ship in SelectedShipList)
                 {
-                    if (ship.loyalty != player)
+                    if (ship.Loyalty != player)
                         return;
                 }
 
@@ -88,7 +88,7 @@ namespace Ship_Game
                 SelectedSomethingTimer = 3f;
                 MoveFleetToMouse(SelectedFleet, null, null, wasProjecting: true);
             }
-            else if (SelectedShip != null && SelectedShip?.loyalty == player)
+            else if (SelectedShip != null && SelectedShip?.Loyalty == player)
             {
                 player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
                 SelectedSomethingTimer = 3f;
@@ -106,7 +106,7 @@ namespace Ship_Game
                 SelectedSomethingTimer = 3f;
                 foreach (Ship ship in SelectedShipList)
                 {
-                    if (ship.loyalty != player || UnselectableShip(ship))
+                    if (ship.Loyalty != player || UnselectableShip(ship))
                         return;
                 }
 
@@ -128,7 +128,7 @@ namespace Ship_Game
                 SelectedSomethingTimer = 3f;
                 MoveFleetToMouse(SelectedFleet, planetClicked, shipClicked, wasProjecting: false);
             }
-            else if (SelectedShip != null && SelectedShip.loyalty.isPlayer)
+            else if (SelectedShip != null && SelectedShip.Loyalty.isPlayer)
             {
                 player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
                 SelectedSomethingTimer = 3f;
@@ -157,7 +157,7 @@ namespace Ship_Game
             {
                 SelectedSomethingTimer = 3f;
                 foreach (Ship ship in SelectedShipList)
-                    if (UnselectableShip(ship) || !ship.loyalty.isPlayer)
+                    if (UnselectableShip(ship) || !ship.Loyalty.isPlayer)
                         return;
 
                 GameAudio.AffirmativeClick();

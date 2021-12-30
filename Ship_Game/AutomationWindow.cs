@@ -189,7 +189,7 @@ namespace Ship_Game
                 ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsFreighter);
 
             InitDropOptions(ColonyShipDropDown, ref playerData.CurrentAutoColony, playerData.DefaultColonyShip, 
-                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.shipData.IsColonyShip);
+                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.ShipData.IsColonyShip);
 
             InitDropOptions(ConstructorDropDown, ref playerData.CurrentConstructor, playerData.DefaultConstructor,
                 ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsConstructor);
@@ -200,12 +200,12 @@ namespace Ship_Game
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.reconDropDown)
                         return ship.ShipGoodToBuild(EmpireManager.Player) && 
                               (ship.DesignRole == RoleName.scout || 
-                               ship.shipData?.ShipCategory == ShipCategory.Recon);
+                               ship.ShipData?.ShipCategory == ShipCategory.Recon);
 
                     return ship.ShipGoodToBuild(EmpireManager.Player) && 
                           (ship.DesignRole == RoleName.scout ||
                            ship.DesignRole == RoleName.fighter ||
-                           ship.shipData?.ShipCategory == ShipCategory.Recon);
+                           ship.ShipData?.ShipCategory == ShipCategory.Recon);
                 });
         }
 
