@@ -129,7 +129,7 @@ namespace Ship_Game.Ships
         public KnownByEmpire KnownByEmpires;
         public KnownByEmpire HasSeenEmpires;
         public bool EMPdisabled;
-        private float TractorDamage;
+        public float TractorDamage { get; private set; }
         private bool BeingTractored;
         float updateTimer;
         int HighAlertTimer;
@@ -483,6 +483,7 @@ namespace Ship_Game.Ships
                 return;
 
             BeingTractored = true;
+            shipStatusChanged = true;
             TractorDamage += hittingShields ? tractorDamage/5 : tractorDamage;
             if (TractorDamage > Mass)
             {
@@ -1133,7 +1134,10 @@ namespace Ship_Game.Ships
                 }
 
                 if (TractorDamage > 0 && !BeingTractored)
+                {
                     TractorDamage = 0;
+                    shipStatusChanged = true;
+                }
 
                 BeingTractored = false;
             }
