@@ -311,13 +311,11 @@ namespace Ship_Game.Ships
                              * Matrix.CreateRotationZ(Rotation)
                              * Matrix.CreateTranslation(new Vector3(Position, 0f));
 
-
                 if (RandomMath.RollDice(10) && !IsMeteor) // Spawn some junk when tumbling
                 {
-                    float radSqrt = (float)Math.Sqrt(Radius);
-                    float junkScale = (radSqrt * 0.02f).UpperBound(0.2f) * scale;
-                    SpaceJunk.SpawnJunk(1, Position.GenerateRandomPointOnCircle(Radius / 20),
-                        Velocity * scale, this, Radius, junkScale, true);
+                    Vector2 pos = Position.GenerateRandomPointOnCircle(Radius / 20);
+                    SpaceJunk.SpawnJunk(Empire.Universe, 1, pos, Velocity * scale, this, 
+                                        maxSize:Radius*scale*0.1f, ignite:true);
                 }
 
                 ShipSO.UpdateAnimation(timeStep.FixedTime);

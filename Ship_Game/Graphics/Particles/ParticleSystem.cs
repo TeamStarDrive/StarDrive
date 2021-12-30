@@ -124,7 +124,7 @@ namespace Ship_Game
         int DrawCounter;
         readonly float Scale;
 
-        public string Name => Settings.Name;
+        public string Name { get; set; }
 
         /// <summary>
         /// Can be used to disable this particle system (for debugging purposes or otherwise)
@@ -172,6 +172,7 @@ namespace Ship_Game
 
         public ParticleSystem(GameContentManager content, ParticleSettings settings, GraphicsDevice device, float scale, int maxParticles)
         {
+            Name = settings.Name;
             GraphicsDevice = device;
             Content        = content;
             Scale          = scale;
@@ -269,18 +270,22 @@ namespace Ship_Game
 
         public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition)
         {
-            return new ParticleEmitter(this, particlesPerSecond, initialPosition);
+            return new ParticleEmitter(this, particlesPerSecond, scale: 1f, initialPosition);
         }
 
-        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition, float zAxisMod)
+        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition, float scale)
         {
-            initialPosition.Z += zAxisMod;
-            return new ParticleEmitter(this, particlesPerSecond, initialPosition);
+            return new ParticleEmitter(this, particlesPerSecond, scale: scale, initialPosition);
         }
 
-        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialCenter, float zPosition)
+        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialPosition)
         {
-            return new ParticleEmitter(this, particlesPerSecond, new Vector3(initialCenter, zPosition));
+            return new ParticleEmitter(this, particlesPerSecond, scale: 1f, new Vector3(initialPosition, 0f));
+        }
+
+        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialPosition, float scale)
+        {
+            return new ParticleEmitter(this, particlesPerSecond, scale: scale, new Vector3(initialPosition, 0f));
         }
 
         /// <summary>

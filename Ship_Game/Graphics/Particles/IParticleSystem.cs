@@ -27,10 +27,13 @@ namespace Ship_Game.Graphics.Particles
         void AddParticle(Vector3 position, Vector3 velocity);
         void AddParticle(Vector3 position);
 
-        // Create a new emitter
+        // Create a new emitter with 3D position
         ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition);
-        ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition, float zAxisMod);
-        ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialPosition, float zPosition);
+        ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition, float scale);
+
+        // Create a new emitter with 2D position
+        ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialPosition);
+        ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialPosition, float scale);
 
         // Update the particles
         void Update(DrawTimes elapsed);
