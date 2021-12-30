@@ -407,7 +407,7 @@ namespace Ship_Game.Ships
         public static ShipModule Create(DesignSlot slot, Ship parent, bool isTemplate)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
-            ShipModule m = CreateNoParent(template, parent.loyalty, parent.BaseHull);
+            ShipModule m = CreateNoParent(template, parent.Loyalty, parent.BaseHull);
 
             if (m.ModuleType == ShipModuleType.Hangar && !m.IsTroopBay)
                 m.HangarShipUID = slot.HangarShipUID;
@@ -523,17 +523,17 @@ namespace Ship_Game.Ships
         void InitHangar()
         {
             // for the non faction AI , all hangars are dynamic. It makes the AI carriers better
-            if (Parent == null || Parent.loyalty.isFaction)
+            if (Parent == null || Parent.Loyalty.isFaction)
                 return;
 
             DynamicHangar = ShipBuilder.GetDynamicHangarOptions(HangarShipUID);
             if (DynamicHangar == DynamicHangarOptions.Static)
             {
-                if (!Parent.loyalty.isPlayer)
+                if (!Parent.Loyalty.isPlayer)
                 {
                     DynamicHangar = DynamicHangarOptions.DynamicLaunch; // AI will always get dynamic launch.
                 }
-                else if (!Parent.loyalty.CanBuildShip(HangarShipUID))
+                else if (!Parent.Loyalty.CanBuildShip(HangarShipUID))
                 {
                     // If Player has deleted a Fighter Ship Design, this design would not have a
                     // valid fighter so we check if we can build it, otherwise we set DynamicLaunch
@@ -779,7 +779,7 @@ namespace Ship_Game.Ships
             if (proj.Explodes || proj.Duration < 0)
                 return;
 
-            proj.Deflect(Parent.loyalty, Center3D);
+            proj.Deflect(Parent.Loyalty, Center3D);
         }
 
         public void DebugDamage(float percent)
@@ -901,7 +901,7 @@ namespace Ship_Game.Ships
         float GetGlobalArmourBonus()
         {
             if (GlobalStats.ActiveModInfo?.UseHullBonuses == true &&
-                ResourceManager.HullBonuses.TryGetValue(Parent.shipData.Hull, out HullBonus mod))
+                ResourceManager.HullBonuses.TryGetValue(Parent.ShipData.Hull, out HullBonus mod))
                 return (1f - mod.ArmoredBonus);
 
             return 1f;
@@ -972,7 +972,7 @@ namespace Ship_Game.Ships
             if (Active && Parent.IsVisibleToPlayer)
             {
                 var center = new Vector3(Position.X, Position.Y, -100f);
-                bool parentAlive = !Parent.dying;
+                bool parentAlive = !Parent.Dying;
                 for (int i = 0; i < 30; ++i)
                 {
                     Vector3 pos = parentAlive ? center : new Vector3(Parent.Position, UniverseRandom.RandomBetween(-25f, 25f));
@@ -1040,8 +1040,8 @@ namespace Ship_Game.Ships
 
             if (HangarTimer <= 0f && HangarShip == null) // launch the troopship
             {
-                string assaultShuttle = Parent.loyalty.GetAssaultShuttleName();
-                ship = Ship.CreateTroopShipAtPoint(assaultShuttle, Parent.loyalty, Position, troop);
+                string assaultShuttle = Parent.Loyalty.GetAssaultShuttleName();
+                ship = Ship.CreateTroopShipAtPoint(assaultShuttle, Parent.Loyalty, Position, troop);
                 SetHangarShip(ship);
                 HangarShip.Mothership = Parent;
                 HangarShip.DoEscort(Parent);
@@ -1081,7 +1081,7 @@ namespace Ship_Game.Ships
 
             if (HangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
-                SetHangarShip(Ship.CreateShipFromHangar(this, carrier.loyalty, carrier.Position + LocalCenter, carrier));
+                SetHangarShip(Ship.CreateShipFromHangar(this, carrier.Loyalty, carrier.Position + LocalCenter, carrier));
 
                 if (HangarShip == null)
                 {
@@ -1108,7 +1108,7 @@ namespace Ship_Game.Ships
         public void SetHangarShip(Ship ship)
         {
             HangarShip = ship;
-            HangarShipGuid = ship?.guid ?? Guid.Empty;
+            HangarShipGuid = ship?.Guid ?? Guid.Empty;
         }
 
         public void ResetHangarShip(Ship newShipToLink)

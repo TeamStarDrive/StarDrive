@@ -212,13 +212,13 @@ namespace Ship_Game.GameScreens.LoadGame
                 if (!ship.Active)
                     continue;
 
-                if (ship.loyalty != EmpireManager.Player && !ship.loyalty.isFaction && ship.fleet == null)
+                if (ship.Loyalty != EmpireManager.Player && !ship.Loyalty.isFaction && ship.Fleet == null)
                 {
-                    if (!ship.AddedOnLoad) ship.loyalty.AddShipToManagedPools(ship);
+                    if (!ship.AddedOnLoad) ship.Loyalty.AddShipToManagedPools(ship);
                 }
                 else if (ship.AI.State == AIState.SystemDefender)
                 {
-                    ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
+                    ship.Loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
                     ship.AddedOnLoad = true;
                 }
 
@@ -226,7 +226,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 {
                     foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
                     {
-                        if (data.FindShip(ship.loyalty, hangar.HangarShipGuid, out Ship hangarShip))
+                        if (data.FindShip(ship.Loyalty, hangar.HangarShipGuid, out Ship hangarShip))
                             hangar.ResetHangarShip(hangarShip);
                     }
                 }
@@ -553,14 +553,14 @@ namespace Ship_Game.GameScreens.LoadGame
                     {
                         foreach (Ship ship in data.MasterShipList)
                         {
-                            if (ship.guid != ssave.shipGuid)
+                            if (ship.Guid != ssave.shipGuid)
                                 continue;
 
                             // fleet saves can be corrupted because in older saves,
                             // so for avoiding bugs, don't add ship to the same fleet twice
                             // @todo @hack This "Core Fleet" stuff is just a temp hack, please solve this issue
-                            if (ship.fleet == fleet ||
-                                ship.fleet != null && (fleet.Name.IsEmpty() || fleet.Name == "Core Fleet"))
+                            if (ship.Fleet == fleet ||
+                                ship.Fleet != null && (fleet.Name.IsEmpty() || fleet.Name == "Core Fleet"))
                                 continue;
 
                             ship.RelativeFleetOffset = ssave.fleetOffset;
@@ -572,7 +572,7 @@ namespace Ship_Game.GameScreens.LoadGame
                     {
                         foreach (Ship ship in fleet.Ships)
                         {
-                            if (!(node.ShipGuid != Guid.Empty) || !(ship.guid == node.ShipGuid))
+                            if (!(node.ShipGuid != Guid.Empty) || !(ship.Guid == node.ShipGuid))
                             {
                                 continue;
                             }
@@ -653,9 +653,9 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 foreach (Ship s in data.MasterShipList)
                 {
-                    if      (gsave.colonyShipGuid == s.guid) g.FinishedShip = s;
-                    else if (gsave.OldShipGuid    == s.guid) g.OldShip      = s;
-                    else if (gsave.TargetShipGuid == s.guid) g.TargetShip   = s;
+                    if      (gsave.colonyShipGuid == s.Guid) g.FinishedShip = s;
+                    else if (gsave.OldShipGuid    == s.Guid) g.OldShip      = s;
+                    else if (gsave.TargetShipGuid == s.Guid) g.TargetShip   = s;
                 }
 
                 if (g.type == GoalType.Refit && gsave.ToBuildUID != null)

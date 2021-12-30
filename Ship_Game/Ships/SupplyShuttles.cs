@@ -87,7 +87,7 @@ namespace Ship_Game.Ships
 
         bool CarrierHasSupplyToLaunch(ShipModule hangar)
         {
-            hangar.HangarShipUID = Owner.loyalty.GetSupplyShuttleName();
+            hangar.HangarShipUID = Owner.Loyalty.GetSupplyShuttleName();
             Ship supplyShuttleTemplate = ResourceManager.GetShipTemplate(hangar.HangarShipUID);
 
             return supplyShuttleTemplate.ShipOrdLaunchCost < Owner.Ordinance;
@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
 
         void CreateShuttle(ShipModule hangar, out Ship supplyShuttle)
         {
-            supplyShuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Position, Owner);
+            supplyShuttle = Ship.CreateShipFromHangar(hangar, Owner.Loyalty, Owner.Position, Owner);
             supplyShuttle.Velocity = Owner.Velocity + UniverseRandom.RandomDirection() * supplyShuttle.SpeedLimit;
             Owner.ChangeOrdnance(-supplyShuttle.ShipOrdLaunchCost);
             hangar.SetHangarShip(supplyShuttle);
@@ -176,7 +176,7 @@ namespace Ship_Game.Ships
                 var distance = Owner.Position.Distance(ship.Position);
                 distance = (int)distance * 10 / sensorRange;
                 var supplyStatus = ship.Supply.ShipStatusWithPendingResupply(SupplyType.Rearm);
-                return (int)supplyStatus * distance + (ship.fleet == Owner.fleet ? 0 : 10);
+                return (int)supplyStatus * distance + (ship.Fleet == Owner.Fleet ? 0 : 10);
             });
             return shipsInNeed;
         }

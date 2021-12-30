@@ -33,7 +33,7 @@ namespace Ship_Game
 
         // Create a beam with an initial destination position that optionally follows GameplayObject [target]
         public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null)
-            : base(weapon.Owner.loyalty, GameObjectType.Beam)
+            : base(weapon.Owner.Loyalty, GameObjectType.Beam)
         {
             // there is an error here in beam creation where the weapon has no module.
             // i am setting these values in the weapon CreateDroneBeam where possible.
@@ -73,7 +73,7 @@ namespace Ship_Game
         // Create a spatially fixed beam spawned from a ship center
         // Used by DIMENSIONAL PRISON
         public Beam(Ship ship, Vector2 destination, int thickness)
-            : base(ship.loyalty, GameObjectType.Beam)
+            : base(ship.Loyalty, GameObjectType.Beam)
         {
             Owner       = ship;
             Source      = ship.Position;
@@ -107,7 +107,7 @@ namespace Ship_Game
             base.Initialize();
             if (Owner != null)
             {
-                Loyalty = Owner?.loyalty ?? DroneAI?.Drone?.Loyalty;
+                Loyalty = Owner?.Loyalty ?? DroneAI?.Drone?.Loyalty;
                 SetSystem(Owner?.System ?? DroneAI?.Drone?.System);
             }
 

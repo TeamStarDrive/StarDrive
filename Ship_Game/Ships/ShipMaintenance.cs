@@ -20,7 +20,7 @@ namespace Ship_Game.Ships
         {
             if (IsFreeUpkeepShip(empire, ship))
                 return 0;
-            return GetBaseMaintenance(ship.shipData, empire, troopCount);
+            return GetBaseMaintenance(ship.ShipData, empire, troopCount);
         }
 
         public static float GetBaseMaintenance(ShipDesign ship, Empire empire, int numTroops)

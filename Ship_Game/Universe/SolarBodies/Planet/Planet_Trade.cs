@@ -19,8 +19,8 @@ namespace Ship_Game
 
         public int NumIncomingFreighters   => IncomingFreighters.Count;
         public int NumOutgoingFreighters   => OutgoingFreighters.Count;
-        public Guid[] IncomingFreighterIds => IncomingFreighters.FilterSelect(s => s != null, s => s.guid);
-        public Guid[] OutgoingFreighterIds => OutgoingFreighters.FilterSelect(s => s != null, s => s.guid);
+        public Guid[] IncomingFreighterIds => IncomingFreighters.FilterSelect(s => s != null, s => s.Guid);
+        public Guid[] OutgoingFreighterIds => OutgoingFreighters.FilterSelect(s => s != null, s => s.Guid);
 
         public int IncomingFoodFreighters      => FreighterTraffic(IncomingFreighters, Goods.Food);
         public int IncomingProdFreighters      => FreighterTraffic(IncomingFreighters, Goods.Production);
@@ -267,11 +267,11 @@ namespace Ship_Game
                 {
                     freighters.RemoveAtSwapLast(i);
                 }
-                else if (ship.loyalty != Owner && !Owner.IsTradeTreaty(ship.loyalty))
+                else if (ship.Loyalty != Owner && !Owner.IsTradeTreaty(ship.Loyalty))
                 {
                     // cancel trade plan and remove from list if trade treaty was canceled
                     freighters.RemoveAtSwapLast(i);
-                    ship.AI.CancelTradePlan(ship.loyalty.FindNearestRallyPoint(ship.Position));
+                    ship.AI.CancelTradePlan(ship.Loyalty.FindNearestRallyPoint(ship.Position));
                 }
             }
         }

@@ -62,10 +62,10 @@ namespace Ship_Game.GameScreens.ShipDesign
                 {
                     Ship ship = ResourceManager.GetShipTemplate(name);
                     float warpSpeed = ship.Stats.GetFTLSpeed(ship.Mass, empire);
-                    if (warpSpeed < 2000 || Scout(ship.shipData.Role))
+                    if (warpSpeed < 2000 || Scout(ship.ShipData.Role))
                         continue;
 
-                    if (Civilian(ship.shipData.Role))
+                    if (Civilian(ship.ShipData.Role))
                     {
                         totalWarpShipsCivilian += 1;
                         totalWarpSpeedCivilian += warpSpeed;

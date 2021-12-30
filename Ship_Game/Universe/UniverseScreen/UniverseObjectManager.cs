@@ -86,13 +86,13 @@ namespace Ship_Game
             lock (ShipsLocker)
             {
                 for (int i = 0; i < Ships.Count; ++i)
-                    if (Ships[i].guid == guid)
+                    if (Ships[i].Guid == guid)
                         return Ships[i];
             }
             lock (PendingShipLocker)
             {
                 for (int i = 0; i < PendingShips.Count; ++i)
-                    if (PendingShips[i].guid == guid)
+                    if (PendingShips[i].Guid == guid)
                         return PendingShips[i];
             }
             return null;
@@ -113,7 +113,7 @@ namespace Ship_Game
                 p => p.Active && p.Type == GameObjectType.Proj && (p.Owner != null || p.Planet != null),
                 p => new SavedGame.ProjectileSaveData
                 {
-                    Owner    = p.Owner?.guid ?? p.Planet.guid,
+                    Owner    = p.Owner?.Guid ?? p.Planet.guid,
                     Weapon   = p.Weapon.UID,
                     Duration = p.Duration,
                     Rotation = p.Rotation,
@@ -135,13 +135,13 @@ namespace Ship_Game
                     var beam = (Beam)p;
                     return new SavedGame.BeamSaveData
                     {
-                        Owner    = p.Owner?.guid ?? p.Planet.guid,
+                        Owner    = p.Owner?.Guid ?? p.Planet.guid,
                         Weapon   = p.Weapon.UID,
                         Duration = p.Duration,
                         Source   = beam.Source,
                         Destination = beam.Destination,
                         ActualHitDestination = beam.ActualHitDestination,
-                        Target  = beam.Target is Ship ship ? ship.guid : Guid.Empty,
+                        Target  = beam.Target is Ship ship ? ship.Guid : Guid.Empty,
                         Loyalty = p.Loyalty.Id,
                     };
                 });
@@ -405,7 +405,7 @@ namespace Ship_Game
                         var ship = (Ship)shipsInSystem[j];
                         system.ShipList.Add(ship);
                         ship.SetSystemBackBuffer(system);
-                        system.SetExploredBy(ship.loyalty);
+                        system.SetExploredBy(ship.Loyalty);
                     }
                 }
             }
@@ -448,7 +448,7 @@ namespace Ship_Game
                         ship.UpdateModulePositions(timeStep, isSystemView);
 
                         // make sure dying ships can be seen. and show all ships in DEBUG
-                        if ((ship.dying && ship.KnownByEmpires.KnownByPlayer) || debug)
+                        if ((ship.Dying && ship.KnownByEmpires.KnownByPlayer) || debug)
                             ship.KnownByEmpires.SetSeenByPlayer();
                     }
                 }
@@ -507,7 +507,7 @@ namespace Ship_Game
                     for (int i = start; i < end; ++i)
                     {
                         Ship ship = allShips[i];
-                        if (ship.Active && !ship.dying)
+                        if (ship.Active && !ship.Dying)
                             ship.UpdateSensorsAndInfluence(timeStep);
                     }
                 }
@@ -537,7 +537,7 @@ namespace Ship_Game
                     for (int i = start; i < end; ++i)
                     {
                         Ship ship = allShips[i];
-                        if (ship.Active && !ship.dying && !ship.EMPdisabled)
+                        if (ship.Active && !ship.Dying && !ship.EMPDisabled)
                             ship.AI.Update(timeStep);
                     }
                 }

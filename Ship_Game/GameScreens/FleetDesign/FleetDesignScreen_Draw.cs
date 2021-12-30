@@ -481,7 +481,7 @@ namespace Ship_Game
                     batch.DrawString(Fonts.Arial20Bold,
                         (!string.IsNullOrEmpty(SelectedNodeList[0].Ship.VanityName)
                             ? SelectedNodeList[0].Ship.VanityName
-                            : string.Concat(SelectedNodeList[0].Ship.Name, " (", SelectedNodeList[0].Ship.shipData.Role,
+                            : string.Concat(SelectedNodeList[0].Ship.Name, " (", SelectedNodeList[0].Ship.ShipData.Role,
                                 ")")), cursor, Colors.Cream);
                 }
 

@@ -183,7 +183,7 @@ namespace Ship_Game
                     {
                         if (qi.isShip && qi.sData.Name == shipOrHullName)
                         {
-                            qi.sData = ship.shipData;
+                            qi.sData = ship.ShipData;
                             qi.Cost = ship.GetCost(emp);
                         }
                     }

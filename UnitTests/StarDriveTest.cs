@@ -134,12 +134,12 @@ namespace UnitTests
         public void UnlockAllTechsForShip(Empire empire, string shipName)
         {
             Ship ship = ResourceManager.GetShipTemplate(shipName);
-            empire.UnlockedHullsDict[ship.shipData.Hull] = true;
+            empire.UnlockedHullsDict[ship.ShipData.Hull] = true;
             
             // this populates `TechsNeeded`
             ShipDesignUtils.MarkDesignsUnlockable();
             
-            foreach (var tech in ship.shipData.TechsNeeded)
+            foreach (var tech in ship.ShipData.TechsNeeded)
             {
                 empire.UnlockTech(tech, TechUnlockType.Normal);
             }

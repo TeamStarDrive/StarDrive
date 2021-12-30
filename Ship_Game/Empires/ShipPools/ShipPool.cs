@@ -43,13 +43,13 @@ namespace Ship_Game.Empires.ShipPools
         /// </summary>
         public bool Add(Ship s)
         {
-            if (s.Pool == this || Owner.isPlayer || Owner.isFaction || s.loyalty != Owner ||
+            if (s.Pool == this || Owner.isPlayer || Owner.isFaction || s.Loyalty != Owner ||
                 s.ShouldNotBeAddedToForcePools())
                 return false;
 
-            if (s.loyalty != Owner && s.LoyaltyTracker.ChangeType == LoyaltyChanges.Type.None)
+            if (s.Loyalty != Owner && s.LoyaltyTracker.ChangeType == LoyaltyChanges.Type.None)
             {
-                Log.Error($"Incorrect loyalty. Ship {s.loyalty} != Empire {Owner}");
+                Log.Error($"Incorrect loyalty. Ship {s.Loyalty} != Empire {Owner}");
                 return false;
             }
 

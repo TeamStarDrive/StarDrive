@@ -267,7 +267,7 @@ namespace Ship_Game
         public void TriggerAllShipStatusUpdate()
         {
             foreach (Ship ship in OwnedShips) //@todo can make a global ship unlock flag.
-                ship.shipStatusChanged = true;
+                ship.ShipStatusChanged = true;
         }
 
         public Planet FindNearestRallyPoint(Vector2 location)
@@ -391,7 +391,7 @@ namespace Ship_Game
             if (ports.Count == 0)
                 return false;
 
-            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip.shipData)
+            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip.ShipData)
                                         + ship.GetAstrogateTimeTo(p) * travelMultiplier);
 
             return planet != null;
@@ -407,7 +407,7 @@ namespace Ship_Game
             if (ports.Count == 0)
                 return false;
 
-            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip.shipData));
+            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip.ShipData));
             return planet != null;
         }
 
@@ -607,7 +607,7 @@ namespace Ship_Game
         /// </summary>
         public Planet GetBestNearbyPlanetToOrbitForAI(Ship ship)
         {
-            var coreWorld = ship.loyalty.GetSafeAOCoreWorlds()?.FindClosestTo(ship);
+            var coreWorld = ship.Loyalty.GetSafeAOCoreWorlds()?.FindClosestTo(ship);
             Planet home = null;
 
             if (coreWorld != null)
@@ -616,12 +616,12 @@ namespace Ship_Game
             }
             else
             {
-                home = ship.loyalty.GetSafeAOWorlds().FindClosestTo(ship);
+                home = ship.Loyalty.GetSafeAOWorlds().FindClosestTo(ship);
             }
 
             if (home == null)
             {
-                var nearestAO = ship.loyalty.GetEmpireAI().FindClosestAOTo(ship.Position);
+                var nearestAO = ship.Loyalty.GetEmpireAI().FindClosestAOTo(ship.Position);
                 home = nearestAO.GetOurPlanets().FindClosestTo(ship);
             }
 
@@ -874,7 +874,7 @@ namespace Ship_Game
             return (int)costAccumulator;
         }
 
-        public int TechCost(Ship ship)       => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
+        public int TechCost(Ship ship)       => TechCost(ship.ShipData.TechsNeeded.Except(ShipTechs));
         public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
 
         /// <summary>
@@ -987,7 +987,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Count; i++)
             {
                 Ship ship = ships[i];
-                if (ship == null || ship.fleet != null)
+                if (ship == null || ship.Fleet != null)
                     continue;
 
                 if (ship.AI.State == AIState.Resupply
@@ -1169,8 +1169,8 @@ namespace Ship_Game
             var ourFactionShips = new Array<Ship>();
             foreach (Ship template in ResourceManager.ShipTemplates)
             {
-                if (ShipStyleMatch(template.shipData.ShipStyle)
-                    || template.shipData.ShipStyle == "Platforms" || template.shipData.ShipStyle == "Misc")
+                if (ShipStyleMatch(template.ShipData.ShipStyle)
+                    || template.ShipData.ShipStyle == "Platforms" || template.ShipData.ShipStyle == "Misc")
                 {
                     ourFactionShips.Add(template);
                 }
@@ -1276,7 +1276,7 @@ namespace Ship_Game
             for (int i = 0; i < OwnedShips.Count; i++)
             {
                 Ship ship = OwnedShips[i];
-                if (role.Contains(ship.shipData.Role))
+                if (role.Contains(ship.ShipData.Role))
                     ship.AddToShipLevel(bonus);
             }
         }
@@ -1340,7 +1340,7 @@ namespace Ship_Game
                 for (int j = 0; j < system.ShipList.Count; j++)
                 {
                     Ship ship            = system.ShipList[j];
-                    Empire checkedEmpire = ship.loyalty;
+                    Empire checkedEmpire = ship.Loyalty;
 
                     if (ignoreList.Contains(checkedEmpire)
                         || ship.NotThreatToPlayer()
@@ -1359,9 +1359,9 @@ namespace Ship_Game
 
             float StrRatio(SolarSystem system, Empire hostiles)
             {
-                float hostileOffense  = system.ShipList.Filter(s => s.loyalty == hostiles).Sum(s => s.BaseStrength);
+                float hostileOffense  = system.ShipList.Filter(s => s.Loyalty == hostiles).Sum(s => s.BaseStrength);
                 var ourPlanetsOffense = system.PlanetList.Filter(p => p.Owner == this).Sum(p => p.BuildingGeodeticOffense);
-                var ourSpaceAssets    = system.ShipList.Filter(s => s.loyalty == this);
+                var ourSpaceAssets    = system.ShipList.Filter(s => s.Loyalty == this);
                 float ourSpaceOffense = 0;
 
                 if (ourSpaceAssets.Length > 0)
@@ -1415,13 +1415,13 @@ namespace Ship_Game
                 // Civilian infrastructure spotting enemy fleets
                 if (node.SourceObject is Ship ssp)
                 {
-                    ssp.HasSeenEmpires.Update(timeStep, ssp.loyalty);
-                    if (ship.fleet != null)
+                    ssp.HasSeenEmpires.Update(timeStep, ssp.Loyalty);
+                    if (ship.Fleet != null)
                     {
-                        if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
+                        if (isPlayer || Universe.Debug && Universe.SelectedShip?.Loyalty == this)
                         {
-                            if (IsEmpireHostile(ship.loyalty))
-                                ssp.HasSeenEmpires.SetSeen(ship.loyalty);
+                            if (IsEmpireHostile(ship.Loyalty))
+                                ssp.HasSeenEmpires.SetSeen(ship.Loyalty);
                         }
                     }
                 }
@@ -1559,12 +1559,12 @@ namespace Ship_Game
                     if (ship.InhibitionRadius > 0.0f)
                         Inhibitors.Add(ship);
 
-                    if (ship.fleet == null && ship.InCombat && !ship.IsHangarShip) //fbedard: total ships in combat
+                    if (ship.Fleet == null && ship.InCombat && !ship.IsHangarShip) //fbedard: total ships in combat
                         empireShipCombat++;
 
                     if (ship.IsHangarShip || ship.DesignRole == RoleName.troop
                                           || ship.DesignRole == RoleName.freighter
-                                          || ship.shipData.ShipCategory == ShipCategory.Civilian)
+                                          || ship.ShipData.ShipCategory == ShipCategory.Civilian)
                     {
                         continue;
                     }
@@ -1932,9 +1932,9 @@ namespace Ship_Game
                     TotalMaintenanceInScrap += maintenance;
                     continue;
                 }
-                if (data.DefenseBudget > 0 && ((ship.shipData.HullRole == RoleName.platform && ship.IsTethered)
-                                               || (ship.shipData.HullRole == RoleName.station &&
-                                                   (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
+                if (data.DefenseBudget > 0 && ((ship.ShipData.HullRole == RoleName.platform && ship.IsTethered)
+                                               || (ship.ShipData.HullRole == RoleName.station &&
+                                                   (ship.ShipData.IsOrbitalDefense || !ship.ShipData.IsShipyard))))
                 {
                     data.DefenseBudget -= maintenance;
                 }
@@ -1984,9 +1984,9 @@ namespace Ship_Game
             if (!isFaction) return;
             foreach (Ship ship in ResourceManager.ShipTemplates)
             {
-                if ((data.Traits.ShipType == ship.shipData.ShipStyle
-                    || ship.shipData.ShipStyle == "Misc"
-                    || ship.shipData.ShipStyle.IsEmpty())
+                if ((data.Traits.ShipType == ship.ShipData.ShipStyle
+                    || ship.ShipData.ShipStyle == "Misc"
+                    || ship.ShipData.ShipStyle.IsEmpty())
                     && ship.CanBeAddedToBuildableShips(this))
                 {
                     ShipsWeCanBuild.Add(ship.Name);
@@ -2015,7 +2015,7 @@ namespace Ship_Game
 
             foreach (Ship ship in ResourceManager.ShipTemplates)
             {
-                if (hulls != null && !hulls.Contains(ship.shipData.Hull))
+                if (hulls != null && !hulls.Contains(ship.ShipData.Hull))
                     continue;
 
                 // we can already build this
@@ -2026,7 +2026,7 @@ namespace Ship_Game
 
                 if (WeCanBuildThis(ship.Name))
                 {
-                    if (ship.shipData.Role <= RoleName.station)
+                    if (ship.ShipData.Role <= RoleName.station)
                         structuresWeCanBuild.Add(ship.Name);
 
                     bool shipAdded = ShipsWeCanBuild.Add(ship.Name);
@@ -2119,7 +2119,7 @@ namespace Ship_Game
             {
                 foreach (Technology.UnlockedMod entry in tech.ModulesUnlocked)
                 {
-                    if (ship.shipData.UniqueModuleUIDs.Contains(entry.ModuleUID))
+                    if (ship.ShipData.UniqueModuleUIDs.Contains(entry.ModuleUID))
                         return true;
                 }
             }
@@ -2408,7 +2408,7 @@ namespace Ship_Game
         void ResetBorders()
         {
             bool wellKnown = isPlayer || EmpireManager.Player.IsAlliedWith(this) ||
-                Universe.Debug && (Universe.SelectedShip == null || Universe.SelectedShip.loyalty == this);
+                Universe.Debug && (Universe.SelectedShip == null || Universe.SelectedShip.Loyalty == this);
             bool known = wellKnown || EmpireManager.Player.IsTradeOrOpenBorders(this);
 
             SetBordersKnownByAllies(TempSensorNodes);
@@ -2533,7 +2533,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Count; i++)
             {
                 Ship s = ships[i];
-                if (s.fleet == null
+                if (s.Fleet == null
                     && s.Name == ship.Name
                     && s.OnLowAlert
                     && !s.IsHangarShip
@@ -2835,8 +2835,8 @@ namespace Ship_Game
 
         public void TryUnlockByScrap(Ship ship)
         {
-            string hullName = ship.shipData.Hull;
-            if (IsHullUnlocked(hullName) || ship.shipData.Role == RoleName.prototype)
+            string hullName = ship.ShipData.Hull;
+            if (IsHullUnlocked(hullName) || ship.ShipData.Role == RoleName.prototype)
                 return; // It's ours or we got it elsewhere
 
 
@@ -2871,7 +2871,7 @@ namespace Ship_Game
                 return true; // automatically advance in research
 
             float unlockChance;
-            switch (ship.shipData.HullRole)
+            switch (ship.ShipData.HullRole)
             {
                 case RoleName.fighter:    unlockChance = 90; break;
                 case RoleName.corvette:   unlockChance = 80; break;
@@ -2890,8 +2890,8 @@ namespace Ship_Game
         {
             techEntry        = null;
             empire           = null;
-            string hullName  = ship.shipData.Hull;
-            foreach (string techName in ship.shipData.TechsNeeded)
+            string hullName  = ship.ShipData.Hull;
+            foreach (string techName in ship.ShipData.TechsNeeded)
             {
                 techEntry = GetTechEntry(techName);
                 foreach (var hull in techEntry.Tech.HullsUnlocked)
@@ -3262,14 +3262,14 @@ namespace Ship_Game
             // local
             bool IsIdleScout(Ship s)
             {
-                if (s.shipData.Role == RoleName.supply)
+                if (s.ShipData.Role == RoleName.supply)
                     return false; // FB - this is a workaround, since supply shuttle register as scouts design role.
 
                 return s.AI.State != AIState.Flee
                        && s.AI.State != AIState.Scrap
                        && s.AI.State != AIState.Explore
                        && (isPlayer && s.Name == data.CurrentAutoScout
-                           || !isPlayer && s.DesignRole == RoleName.scout && s.fleet == null);
+                           || !isPlayer && s.DesignRole == RoleName.scout && s.Fleet == null);
             }
         }
 
@@ -3508,7 +3508,7 @@ namespace Ship_Game
                 for (int j = 0; j < enemyShips.Length; ++j)
                 {
                     Ship enemy = enemyShips[j];
-                    Empire other = enemy.loyalty;
+                    Empire other = enemy.Loyalty;
                     if (!knownEmpires.IsSet(other.Id))
                     {
                         DoFirstContact(other);

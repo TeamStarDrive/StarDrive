@@ -276,7 +276,7 @@ namespace Ship_Game.Commands.Goals
 
             foreach (Ship ship in empire.OwnedShips)
             {
-                if (ship.shipData.IsColonyShip && !ship.DoingRefit
+                if (ship.ShipData.IsColonyShip && !ship.DoingRefit
                     && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _)
                     && NotAssignedToColonizationGoal(ship))
                 {
@@ -297,7 +297,7 @@ namespace Ship_Game.Commands.Goals
         // Checks if the ship is not taken by another colonization goal
         bool NotAssignedToColonizationGoal(Ship colonyShip)
         {
-            return !colonyShip.loyalty.GetEmpireAI().Goals.Any(g => g.type == GoalType.Colonize && g.FinishedShip == colonyShip);
+            return !colonyShip.Loyalty.GetEmpireAI().Goals.Any(g => g.type == GoalType.Colonize && g.FinishedShip == colonyShip);
         }
 
         bool ClaimTaskInvalid(out MilitaryTask possibleTask)

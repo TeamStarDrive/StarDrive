@@ -287,15 +287,15 @@ namespace Ship_Game.Gameplay
         public float GetDamageWithBonuses(Ship owner)
         {
             float damageAmount = DamageAmount;
-            if (owner?.loyalty.data != null && OrdinanceRequiredToFire > 0)
-                damageAmount += damageAmount * owner.loyalty.data.OrdnanceEffectivenessBonus;
+            if (owner?.Loyalty.data != null && OrdinanceRequiredToFire > 0)
+                damageAmount += damageAmount * owner.Loyalty.data.OrdnanceEffectivenessBonus;
 
             if (owner?.Level > 0)
                 damageAmount += damageAmount * owner.Level * 0.05f;
 
             // Hull bonus damage increase
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses && owner != null &&
-                ResourceManager.HullBonuses.TryGetValue(owner.shipData.Hull, out HullBonus mod))
+                ResourceManager.HullBonuses.TryGetValue(owner.ShipData.Hull, out HullBonus mod))
             {
                 damageAmount += damageAmount * mod.DamageBonus;
             }
@@ -540,8 +540,8 @@ namespace Ship_Game.Gameplay
             
             // reduce or increase error based on weapon and trait characteristics.
             // this could be pre-calculated in the flyweight
-            if (Tag_Cannon) adjust  *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
-            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
+            if (Tag_Cannon) adjust  *= (1f - (Owner?.Loyalty?.data.Traits.EnergyDamageMod ?? 0));
+            if (Tag_Kinetic) adjust *= (1f - (Owner?.Loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
             if (IsTurret) adjust    *= 0.5f;
             if (Tag_PD) adjust      *= 0.5f;
             if (TruePD) adjust      *= 0.5f;
@@ -691,7 +691,7 @@ namespace Ship_Game.Gameplay
         bool IsTargetAliveAndInRange(GameplayObject target)
         {
             return target != null && target.Active && target.Health > 0.0f &&
-                   (!(target is Ship ship) || !ship.dying)
+                   (!(target is Ship ship) || !ship.Dying)
                    && Owner.IsTargetInFireArcRange(this, target);
         }
 
@@ -708,9 +708,9 @@ namespace Ship_Game.Gameplay
         public bool TargetValid(GameplayObject fireTarget)
         {
             if (fireTarget.Type == GameObjectType.ShipModule)
-                return TargetValid(((ShipModule)fireTarget).GetParent().shipData.HullRole);
+                return TargetValid(((ShipModule)fireTarget).GetParent().ShipData.HullRole);
             if (fireTarget.Type == GameObjectType.Ship)
-                return TargetValid(((Ship)fireTarget).shipData.HullRole);
+                return TargetValid(((Ship)fireTarget).ShipData.HullRole);
             return true;
         }
 
@@ -773,7 +773,7 @@ namespace Ship_Game.Gameplay
             if (DamageAmount < 1)
                 return destination;
 
-            if (target != null && !Owner.loyalty.IsEmpireAttackable(target.GetLoyalty()))
+            if (target != null && !Owner.Loyalty.IsEmpireAttackable(target.GetLoyalty()))
                 return destination;
 
             if (Tag_Tractor || IsRepairBeam)
@@ -842,10 +842,10 @@ namespace Ship_Game.Gameplay
             if (Owner == null)
                 return;
 
-            if (Owner.loyalty.data.Traits.Pack)
+            if (Owner.Loyalty.data.Traits.Pack)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
-            float actualShieldPenChance = Module?.GetParent().loyalty.data.ShieldPenBonusChance * 100 ?? 0;
+            float actualShieldPenChance = Module?.GetParent().Loyalty.data.ShieldPenBonusChance * 100 ?? 0;
             for (int i = 0; i < ActiveWeaponTags.Length; ++i)
             {
                 AddModifiers(ActiveWeaponTags[i], projectile, ref actualShieldPenChance);
@@ -856,7 +856,7 @@ namespace Ship_Game.Gameplay
 
         void AddModifiers(WeaponTag tag, Projectile p, ref float actualShieldPenChance)
         {
-            WeaponTagModifier weaponTag = Owner.loyalty.data.WeaponTags[tag];
+            WeaponTagModifier weaponTag = Owner.Loyalty.data.WeaponTags[tag];
 
             p.RotationRadsPerSecond += weaponTag.Turn * RotationRadsPerSecond;
             p.DamageAmount          += weaponTag.Damage * p.DamageAmount;
@@ -874,7 +874,7 @@ namespace Ship_Game.Gameplay
 
         public float GetActualRange(Empire owner = null)
         {
-            owner = owner ?? Owner?.loyalty ?? Player;
+            owner = owner ?? Owner?.Loyalty ?? Player;
             float range = BaseRange;
             for (int i = 0; i < ActiveWeaponTags.Length; ++i)
             {

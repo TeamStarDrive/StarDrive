@@ -28,7 +28,7 @@ namespace Ship_Game
         {
             var bCursor = new Vector2(List.X + 15, Y);
 
-            batch.Draw(Ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+            batch.Draw(Ship.ShipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
             var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
             Color color = ShipBuilder.GetHangarTextColor(Ship.Name);
             batch.DrawString(Fonts.Arial12Bold, Ship.ShipName, tCursor, color);

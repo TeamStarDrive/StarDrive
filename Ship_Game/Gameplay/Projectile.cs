@@ -79,7 +79,7 @@ namespace Ship_Game.Gameplay
 
         public static Projectile Create(Weapon weapon, Vector2 origin, Vector2 direction, GameplayObject target, bool playSound)
         {
-            var projectile = new Projectile(weapon.Owner.loyalty, GameObjectType.Proj)
+            var projectile = new Projectile(weapon.Owner.Loyalty, GameObjectType.Proj)
             {
                 Weapon  = weapon,
                 Owner   = weapon.Owner,
@@ -151,7 +151,7 @@ namespace Ship_Game.Gameplay
             if (loyaltyId > 0) // Older saves don't have loyalty ID, so this is for compatibility
                 o.Loyalty = EmpireManager.GetEmpireById(loyaltyId);
             else
-                o.Loyalty = o.Owner?.loyalty ?? o.Planet?.Owner;
+                o.Loyalty = o.Owner?.Loyalty ?? o.Planet?.Owner;
 
             if (o.Loyalty == null || o.Owner == null && o.Planet == null)
             {
@@ -232,8 +232,8 @@ namespace Ship_Game.Gameplay
             InitialDuration = Duration = (Range/Speed + Weapon.DelayedIgnition) * durationMod;
             ParticleDelay  += Weapon.ParticleDelay;
 
-            if (Owner?.loyalty.data.ArmorPiercingBonus > 0 && Weapon.Tag_Kinetic)
-                ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
+            if (Owner?.Loyalty.data.ArmorPiercingBonus > 0 && Weapon.Tag_Kinetic)
+                ArmorPiercing += Owner.Loyalty.data.ArmorPiercingBonus;
 
             if (Weapon.IsRepairDrone)
             {
@@ -605,7 +605,7 @@ namespace Ship_Game.Gameplay
             {
                 if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
                 {
-                    DamageRadius += Owner.loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
+                    DamageRadius += Owner.Loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
                 }
 
                 if (!cleanupOnly && CloseEnoughForExplosion && visibleToPlayer)
@@ -718,7 +718,7 @@ namespace Ship_Game.Gameplay
                     if (!projectile.Weapon.Tag_Intercept) return false;
                     if (projectile.Weapon.Tag_PD || projectile.Weapon.TruePD) return false;
 
-                    if (projectile.Loyalty == null || Owner?.loyalty?.IsEmpireAttackable(projectile.Loyalty) == false)
+                    if (projectile.Loyalty == null || Owner?.Loyalty?.IsEmpireAttackable(projectile.Loyalty) == false)
                         return false;                
                     projectile.DamageMissile(this, DamageAmount);
                     DieNextFrame = true;
@@ -732,7 +732,7 @@ namespace Ship_Game.Gameplay
                     return true;
                 case ShipModule module:
                     Ship parent = module.GetParent();
-                    if (!Loyalty.IsEmpireAttackable(parent.loyalty, parent))
+                    if (!Loyalty.IsEmpireAttackable(parent.Loyalty, parent))
                         return false;
 
                     if (Weapon.TruePD)

@@ -36,7 +36,7 @@ namespace UnitTests.Ships
             Assert.IsTrue(Player.OwnedShips.Contains(playerShip), "Player.OwnedShips MUST contain the ship, the ship was not added to Empire?");
             Assert.IsFalse(Enemy.OwnedShips.Contains(playerShip), "Enemy.OwnedShips must NOT contain the ship");
 
-            Assert.AreEqual(Player, playerShip.loyalty, "LoyaltyChangeAtSpawn is broken");
+            Assert.AreEqual(Player, playerShip.Loyalty, "LoyaltyChangeAtSpawn is broken");
 
             var nearbyPlayerShips = FindNearbyShips(Player);
             Assert.AreEqual(1, nearbyPlayerShips.Length, "There should be 1 Player ship nearby");
@@ -57,7 +57,7 @@ namespace UnitTests.Ships
             Assert.IsFalse(Player.OwnedShips.Contains(transferredShip), "Player.OwnedShips must NOT contain the ship AFTER transfer and update");
             Assert.IsTrue(Enemy.OwnedShips.Contains(transferredShip), "Enemy.OwnedShips MUST contain the ship  AFTER transfer and update");
 
-            Assert.AreEqual(Enemy, transferredShip.loyalty, "LoyaltyChange failed! Incorrect loyalty!");
+            Assert.AreEqual(Enemy, transferredShip.Loyalty, "LoyaltyChange failed! Incorrect loyalty!");
 
             var nearbyPlayerShips = FindNearbyShips(Player);
             Assert.AreEqual(0, nearbyPlayerShips.Length, "There should be no Player ships nearby");

@@ -165,7 +165,7 @@ namespace Ship_Game.AI
 
             if (Owner.AI.BadGuysNear && goal.HasCombatMove(distance))
             {
-                if (Owner.fleet != null && FleetNode != null)
+                if (Owner.Fleet != null && FleetNode != null)
                 {
                     Ship closestShip = Owner.AI.Target;
                     if (closestShip == null)
@@ -179,15 +179,15 @@ namespace Ship_Game.AI
                     {
                         float fleetDistance = 0;
                         float actualDistance = Owner.Position.Distance(closestShip.Position);
-                        switch (Owner.fleet.Fcs)
+                        switch (Owner.Fleet.Fcs)
                         {
                             case Fleet.FleetCombatStatus.Maintain:
-                                fleetDistance = (Owner.fleet.AveragePosition() + Owner.AI.FleetNode.FleetOffset).Distance(closestShip.Position);
+                                fleetDistance = (Owner.Fleet.AveragePosition() + Owner.AI.FleetNode.FleetOffset).Distance(closestShip.Position);
                                 if (actualDistance < Owner.AI.FleetNode.OrdersRadius && fleetDistance <= Owner.AI.FleetNode.OrdersRadius)
                                     SetPriorityOrder(false);
                                 break;
                             case Fleet.FleetCombatStatus.Loose:
-                                fleetDistance = Owner.fleet.AveragePosition().Distance(closestShip.Position);
+                                fleetDistance = Owner.Fleet.AveragePosition().Distance(closestShip.Position);
                                 if (actualDistance < Owner.AI.FleetNode.OrdersRadius && fleetDistance <= Owner.AI.FleetNode.OrdersRadius)
                                     SetPriorityOrder(false);
                                 break;
@@ -223,7 +223,7 @@ namespace Ship_Game.AI
 
             if (goal.HasCombatMove(0))
             {
-                if (HasPriorityOrder && !Owner.loyalty.isPlayer) // For AI fleets doing priority order
+                if (HasPriorityOrder && !Owner.Loyalty.isPlayer) // For AI fleets doing priority order
                 {
                     HadPO = true;
                     ClearPriorityOrderAndTarget();
@@ -437,7 +437,7 @@ namespace Ship_Game.AI
             }
 
             // engage StarDrive if we're moderately far
-            if (State != AIState.FormationWarp || Owner.fleet == null) // not in a fleet
+            if (State != AIState.FormationWarp || Owner.Fleet == null) // not in a fleet
             {
                 // only warp towards actual warp pos
                 if (predictionDiff < 0.05f && Owner.MaxFTLSpeed > 0)
@@ -455,7 +455,7 @@ namespace Ship_Game.AI
             }
             else // In a fleet
             {
-                if (Owner.fleet.AveragePosition().Distance(Owner.Position) > 15000)
+                if (Owner.Fleet.AveragePosition().Distance(Owner.Position) > 15000)
                 {
                     // This ship is far away from the fleet
                     Owner.EngageStarDrive();
@@ -506,11 +506,11 @@ namespace Ship_Game.AI
             if (angleDiff > maxTurn) // we can't make the turn
             {
                 // ok, just cut the corner to next WayPoint maybe?
-                if (WayPoints.Count >= 2 && distance > Owner.loyalty.GetProjectorRadius() * 0.5f)
+                if (WayPoints.Count >= 2 && distance > Owner.Loyalty.GetProjectorRadius() * 0.5f)
                 {
                     WayPoint next = WayPoints.ElementAt(1);
                     float nextDistance = Owner.Position.Distance(next.Position);
-                    if (nextDistance < Owner.loyalty.GetProjectorRadius() * 5f) // within cut range
+                    if (nextDistance < Owner.Loyalty.GetProjectorRadius() * 5f) // within cut range
                     {
                         float nextDiff = Owner.AngleDifferenceToPosition(next.Position);
                         float nextMaxTurn = EstimateMaxTurn(nextDistance);
@@ -536,7 +536,7 @@ namespace Ship_Game.AI
 
         public void EngageFormationWarp()
         {
-            if (Owner.fleet.ReadyForWarp)
+            if (Owner.Fleet.ReadyForWarp)
             {
                 if (Owner.engineState == Ship.MoveState.Sublight)
                     Owner.EngageStarDrive();
@@ -552,7 +552,7 @@ namespace Ship_Game.AI
         {
             if (Owner.IsInWarp)
             {
-                if (!Owner.loyalty.isPlayer) 
+                if (!Owner.Loyalty.isPlayer) 
                     SetPriorityOrder(false);
 
                 Owner.HyperspaceReturn();
@@ -561,9 +561,9 @@ namespace Ship_Game.AI
 
         public float FormationWarpSpeed(float currentSpeedLimit)
         {
-            if (Owner.fleet == null)
+            if (Owner.Fleet == null)
                 return currentSpeedLimit;
-            return Math.Min(Owner.fleet.FormationWarpSpeed(Owner), currentSpeedLimit);
+            return Math.Min(Owner.Fleet.FormationWarpSpeed(Owner), currentSpeedLimit);
         }
 
         public bool IsOrbiting(Planet p) => OrbitTarget == p && Orbit.InOrbit;

@@ -130,7 +130,7 @@ namespace Ship_Game
                 HoverOff += elapsed.RealTime.Seconds;
                 if (HoverOff > 0.5f)
                 {
-                    text = (!IsFleet || ShipList.Count <= 0 || ShipList.First.fleet == null ? "Multiple Ships" : ShipList.First.fleet.Name);
+                    text = (!IsFleet || ShipList.Count <= 0 || ShipList.First.Fleet == null ? "Multiple Ships" : ShipList.First.Fleet.Name);
                     batch.DrawString(Fonts.Arial20Bold, text, namePos, tColor);
                     if (ShipList.Count > 1)
                     {
@@ -161,8 +161,8 @@ namespace Ship_Game
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
                 //this.batch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
                 string longName = string.Concat(HoveredShip.Name, " - ", ShipDesign.GetRole(HoveredShip.DesignRole));
-                if (HoveredShip.shipData.ShipCategory != ShipCategory.Unclassified)
-                    longName += " - "+HoveredShip.shipData.ShipCategory;
+                if (HoveredShip.ShipData.ShipCategory != ShipCategory.Unclassified)
+                    longName += " - "+HoveredShip.ShipData.ShipCategory;
                 batch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
                 batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
                 Vector2 defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
@@ -186,7 +186,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, HoveredShip.Level.ToString(), levelPos, Color.White);
             }
             if (ShipList.Count > 0)
-                batch.Draw(ResourceManager.Flag(ShipList.First().loyalty), FlagRect, ShipList.First().loyalty.EmpireColor);
+                batch.Draw(ResourceManager.Flag(ShipList.First().Loyalty), FlagRect, ShipList.First().Loyalty.EmpireColor);
 
             OrdersButtons.Draw(batch, elapsed);
             
@@ -212,8 +212,8 @@ namespace Ship_Game
 
                 fleetOrdnance      += ship.Ordinance;
                 fleetOrdnanceMax   += ship.OrdinanceMax;
-                fleetShields       += ship.shield_power;
-                fleetShieldsMax    += ship.shield_max;
+                fleetShields       += ship.ShieldPower;
+                fleetShieldsMax    += ship.ShieldMax;
                 fleetHealthPercent += ship.HealthPercent;
                 fleetStr           += ship.GetStrength();
             }
@@ -390,7 +390,7 @@ namespace Ship_Game
                 {
                     IsToggle = false,
                     ReferenceObject = ship,
-                    BaseColor = ship.Resupplying ? Color.Gray : ship.loyalty.EmpireColor,
+                    BaseColor = ship.Resupplying ? Color.Gray : ship.Loyalty.EmpireColor,
                 };
 
                 if (entry.ShipButtons.Count < 8)
@@ -403,11 +403,11 @@ namespace Ship_Game
                 }
 
                 if (ship.AI.State != AIState.Resupply)    allResupply    = false;
-                if (ship.loyalty != EmpireManager.Player) AllShipsMine   = false;
+                if (ship.Loyalty != EmpireManager.Player) AllShipsMine   = false;
                 if (!ship.IsFreighter)                    allFreighters  = false;
                 if (ship.Carrier.HasFighterBays)          carriersHere   = true;
                 if (ship.Carrier.HasTroopBays)            troopShipsHere = true;
-                if (ship.DesignRole < RoleName.carrier || ship.shipData.ShipCategory == ShipCategory.Civilian 
+                if (ship.DesignRole < RoleName.carrier || ship.ShipData.ShipCategory == ShipCategory.Civilian 
                                                        || ship.AI.State == AIState.Colonize 
                                                        || ship.IsHangarShip)
                 {

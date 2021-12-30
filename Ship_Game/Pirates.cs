@@ -532,18 +532,18 @@ namespace Ship_Game
         {
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
-                if (!system.ShipList.Any(s => s.IsPlatformOrStation && s.loyalty.WeArePirates))
+                if (!system.ShipList.Any(s => s.IsPlatformOrStation && s.Loyalty.WeArePirates))
                     system.SetPiratePresence(false);
             }
         }
 
         public void ProcessShip(Ship ship, Ship pirateBase)
         {
-            if (SpawnedShips.Contains(ship.guid))
+            if (SpawnedShips.Contains(ship.Guid))
             {
                 // We cannot salvage ships that we spawned
                 // remove it with no benefits
-                SpawnedShips.RemoveSwapLast(ship.guid);
+                SpawnedShips.RemoveSwapLast(ship.Guid);
                 ship.QueueTotalRemoval();
                 CleanUpSpawnedShips();
             }
@@ -559,7 +559,7 @@ namespace Ship_Game
             {
                 Guid shipGuid = SpawnedShips[i];
                 {
-                    if (!Owner.OwnedShips.Any(s => s.guid == shipGuid))
+                    if (!Owner.OwnedShips.Any(s => s.Guid == shipGuid))
                         SpawnedShips.RemoveAtSwapLast(i);
                 }
             }
@@ -583,7 +583,7 @@ namespace Ship_Game
             {
                 ShipsWeCanSpawn.AddUnique(shipToAdd);
                 Ship fighter = ResourceManager.GetShipTemplate(shipToAdd);
-                if (fighter != null && fighter.shipData.HullRole == RoleName.fighter
+                if (fighter != null && fighter.ShipData.HullRole == RoleName.fighter
                                     && !ShipsWeCanBuild.Contains(shipToAdd))
                 {
                     ShipsWeCanBuild.Add(shipToAdd); // For carriers to spawn the default fighters
@@ -679,7 +679,7 @@ namespace Ship_Game
 
                 switch (type)
                 {
-                    case TargetType.Shipyard         when ship.shipData.IsShipyard:
+                    case TargetType.Shipyard         when ship.ShipData.IsShipyard:
                     case TargetType.FreighterAtWarp  when IsFreighterNoOwnedSystem(ship):
                     case TargetType.CombatShipAtWarp when IsCombatShipAtWarp(ship):
                     case TargetType.Station          when ship.IsStation:
@@ -696,8 +696,8 @@ namespace Ship_Game
 
             bool IsFreighterNoOwnedSystem(Ship ship)
             {
-                return (ship.shipData.IsColonyShip || ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
-                       && (ship.System == null || !ship.System.HasPlanetsOwnedBy(ship.loyalty));
+                return (ship.ShipData.IsColonyShip || ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
+                       && (ship.System == null || !ship.System.HasPlanetsOwnedBy(ship.Loyalty));
             }
 
             bool IsCombatShipAtWarp(Ship ship)
@@ -792,7 +792,7 @@ namespace Ship_Game
             {
                 pirateShip = Ship.CreateShipAtPoint(shipName, Owner, where);
                 if (pirateShip != null)
-                    SpawnedShips.Add(pirateShip.guid);
+                    SpawnedShips.Add(pirateShip.Guid);
                 else
                     Log.Warning($"Could not spawn required pirate ship named {shipName} for {Owner.Name}, check race xml");
             }
@@ -806,7 +806,7 @@ namespace Ship_Game
 
         void SalvageShip(Ship ship, Ship pirateBase)
         {
-            if (ship.IsFreighter || ship.shipData.IsColonyShip)
+            if (ship.IsFreighter || ship.ShipData.IsColonyShip)
                 SalvageFreighter(ship);
             else 
                 SalvageCombatShip(ship, pirateBase);
@@ -851,9 +851,9 @@ namespace Ship_Game
             if (ShipsWeCanSpawn.Contains(ship.Name))
                 return false;
 
-            return ship.shipData.HullRole != RoleName.capital
-                   || ship.shipData.HullRole != RoleName.battleship
-                   || ship.shipData.HullRole != RoleName.cruiser;
+            return ship.ShipData.HullRole != RoleName.capital
+                   || ship.ShipData.HullRole != RoleName.battleship
+                   || ship.ShipData.HullRole != RoleName.cruiser;
         }
 
         void PopulateDefaultBasicShips(bool fromSave)

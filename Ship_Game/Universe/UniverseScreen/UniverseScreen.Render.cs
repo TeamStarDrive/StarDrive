@@ -233,7 +233,7 @@ namespace Ship_Game
 
             if (viewState > UnivScreenState.SectorView)
             {
-                var currentEmpire = SelectedShip?.loyalty ?? player;
+                var currentEmpire = SelectedShip?.Loyalty ?? player;
                 var enemies = EmpireManager.GetEnemies(currentEmpire);
                 var ssps    = EmpireManager.Player.GetProjectors();
                 for (int i = 0; i < ssps.Count; i++)
@@ -735,9 +735,9 @@ namespace Ship_Game
             if (alpha > 0)
             {
                 if (SelectedShip != null && (Debug
-                                             || SelectedShip.loyalty.isPlayer
+                                             || SelectedShip.Loyalty.isPlayer
                                              || !player.DifficultyModifiers.HideTacticalData 
-                                             || player.IsAlliedWith(SelectedShip.loyalty)
+                                             || player.IsAlliedWith(SelectedShip.Loyalty)
                                              || SelectedShip.AI.Target != null))
                 {
                     DrawShipGoalsAndWayPoints(SelectedShip, alpha);
@@ -747,8 +747,8 @@ namespace Ship_Game
                     for (int i = 0; i < SelectedShipList.Count; ++i)
                     {
                         Ship ship = SelectedShipList[i];
-                        if (ship.loyalty.isPlayer
-                            || player.IsAlliedWith(ship.loyalty)
+                        if (ship.Loyalty.isPlayer
+                            || player.IsAlliedWith(ship.Loyalty)
                             || Debug
                             || !player.DifficultyModifiers.HideTacticalData
                             || ship.AI.Target != null)

@@ -69,7 +69,7 @@ namespace Ship_Game.AI.Research
             float techScore = 0;
 
             // first adjust cost by the techs in the ship.
-            foreach (string techName in s.shipData.TechsNeeded)
+            foreach (string techName in s.ShipData.TechsNeeded)
             {
                 var tech = empire.GetTechEntry(techName);
                 if (!tech.Unlocked && tech.Tech.RootNode == 0)
@@ -152,7 +152,7 @@ namespace Ship_Game.AI.Research
         {
             int alreadyResearched = 0;
             int lineFocusBonus = (int)Options.CostMultiplier(LineFocusIntensity);
-            foreach (var techName in ship.shipData.TechsNeeded)
+            foreach (var techName in ship.ShipData.TechsNeeded)
             {
                 var tech = knowTechs.Find(t => t.UID == techName);
 
