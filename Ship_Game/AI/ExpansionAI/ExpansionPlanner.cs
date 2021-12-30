@@ -266,7 +266,7 @@ namespace Ship_Game.AI.ExpansionAI
                 && !thiefRelationship.AtWar
                 && system.HasPlanetsOwnedBy(thievingEmpire))
             {
-                bool warnedThem = thiefRelationship.WarnedSystemsList.Contains(claimedPlanet.ParentSystem.guid);
+                bool warnedThem = thiefRelationship.WarnedSystemsList.Contains(claimedPlanet.ParentSystem.Guid);
                 float distanceToUs   = system.Position.SqDist(Owner.WeightedCenter);
                 float distanceToThem = system.Position.SqDist(thievingEmpire.WeightedCenter) 
                                        * Owner.PersonalityModifiers.CloserToUsClaimWarn;

@@ -136,7 +136,7 @@ namespace Ship_Game
                 SaveData.SolarSystemDataList.Add(new SolarSystemSaveData
                 {
                     Name           = system.Name,
-                    Guid           = system.guid,
+                    Guid           = system.Guid,
                     Position       = system.Position,
                     SunPath        = system.Sun.Id,
                     AsteroidsList  = system.AsteroidsList.Clone(),
@@ -180,7 +180,7 @@ namespace Ship_Game
                 empireToSave.FleetStrEmpireModifier    = e.FleetStrEmpireMultiplier;
                 empireToSave.DiplomacyContactQueue     = e.DiplomacyContactQueue;
                 empireToSave.ObsoletePlayerShipModules = e.ObsoletePlayerShipModules;
-                empireToSave.CapitalGuid               = e.Capital?.guid ?? Guid.Empty;
+                empireToSave.CapitalGuid               = e.Capital?.Guid ?? Guid.Empty;
 
                 if (e.WeArePirates)
                 {
@@ -249,8 +249,8 @@ namespace Ship_Game
                 {
                     var rdata = new SpaceRoadSave
                     {
-                        OriginGUID = road.Origin.guid,
-                        DestGUID = road.Destination.guid,
+                        OriginGUID = road.Origin.Guid,
+                        DestGUID = road.Destination.Guid,
                         RoadNodes = new Array<RoadNodeSave>()
                     };
                     foreach (RoadNode node in road.RoadNodesList)
@@ -286,14 +286,14 @@ namespace Ship_Game
                         TetherOffset  = g.TetherOffset,
                         StarDateAdded = g.StarDateAdded
                     };
-                    if (g.FinishedShip != null)       gdata.ColonyShipGuid            = g.FinishedShip.guid;
-                    if (g.ColonizationTarget != null) gdata.MarkedPlanetGuid          = g.ColonizationTarget.guid;
-                    if (g.PlanetBuildingAt != null)   gdata.PlanetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
-                    if (g.TargetSystem != null)       gdata.TargetSystemGuid          = g.TargetSystem.guid;
-                    if (g.TargetPlanet != null)       gdata.TargetPlanetGuid          = g.TargetPlanet.guid;
+                    if (g.FinishedShip != null)       gdata.ColonyShipGuid            = g.FinishedShip.Guid;
+                    if (g.ColonizationTarget != null) gdata.MarkedPlanetGuid          = g.ColonizationTarget.Guid;
+                    if (g.PlanetBuildingAt != null)   gdata.PlanetWhereBuildingAtGuid = g.PlanetBuildingAt.Guid;
+                    if (g.TargetSystem != null)       gdata.TargetSystemGuid          = g.TargetSystem.Guid;
+                    if (g.TargetPlanet != null)       gdata.TargetPlanetGuid          = g.TargetPlanet.Guid;
                     if (g.Fleet != null)              gdata.FleetGuid                 = g.Fleet.Guid;
-                    if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
-                    if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.guid;
+                    if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.Guid;
+                    if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.Guid;
                     if (g.TargetEmpire != null)       gdata.TargetEmpireId            = g.TargetEmpire.Id;
 
                     return gdata;
@@ -365,7 +365,7 @@ namespace Ship_Game
             var sdata = new ShipSaveData(ship);
             if (ship.GetTether() != null)
             {
-                sdata.TetheredTo = ship.GetTether().guid;
+                sdata.TetheredTo = ship.GetTether().Guid;
                 sdata.TetherOffset = ship.TetherOffset;
             }
             sdata.Name = ship.Name;
@@ -391,7 +391,7 @@ namespace Ship_Game
             sdata.ScuttleTimer = ship.ScuttleTimer;
 
             if (ship.IsHomeDefense)
-                sdata.HomePlanetGuid = ship.HomePlanet.guid;
+                sdata.HomePlanetGuid = ship.HomePlanet.Guid;
 
             if (ship.TradeRoutes?.NotEmpty == true)
             {
@@ -432,7 +432,7 @@ namespace Ship_Game
                     MovePosition     = sg.MovePosition,
                     fleetGuid        = sg.Fleet?.Guid ?? Guid.Empty,
                     GoalGuid         = sg.Goal?.guid ?? Guid.Empty,
-                    TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
+                    TargetPlanetGuid = sg.TargetPlanet?.Guid ?? Guid.Empty,
                     TargetShipGuid   = sg.TargetShip?.Guid ?? Guid.Empty,
                     MoveType         = sg.MoveType,
                     VariableNumber   = sg.VariableNumber,
@@ -444,8 +444,8 @@ namespace Ship_Game
                     s.Trade = new TradePlanSave
                     {
                         Goods         = sg.Trade.Goods,
-                        ExportFrom    = sg.Trade.ExportFrom?.guid ?? Guid.Empty,
-                        ImportTo      = sg.Trade.ImportTo?.guid ?? Guid.Empty,
+                        ExportFrom    = sg.Trade.ExportFrom?.Guid ?? Guid.Empty,
+                        ImportTo      = sg.Trade.ImportTo?.Guid ?? Guid.Empty,
                         BlockadeTimer = sg.Trade.BlockadeTimer,
                         StardateAdded = sg.Trade.StardateAdded
                     };
@@ -454,10 +454,10 @@ namespace Ship_Game
             }
 
             if (ship.AI.OrbitTarget != null)
-                sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.guid;
+                sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.Guid;
 
             if (ship.AI.SystemToDefend != null)
-                sdata.AISave.SystemToDefend = ship.AI.SystemToDefend.guid;
+                sdata.AISave.SystemToDefend = ship.AI.SystemToDefend.Guid;
 
             if (ship.AI.EscortTarget != null)
                 sdata.AISave.EscortTarget = ship.AI.EscortTarget.Guid;
@@ -469,7 +469,7 @@ namespace Ship_Game
             var sd = new ShipSaveData(ship);
             if (ship.GetTether() != null)
             {
-                sd.TetheredTo = ship.GetTether().guid;
+                sd.TetheredTo = ship.GetTether().Guid;
                 sd.TetherOffset = ship.TetherOffset;
             }
             sd.Name = ship.Name;

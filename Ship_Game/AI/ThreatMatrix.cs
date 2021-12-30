@@ -34,7 +34,7 @@ namespace Ship_Game.AI
             
             public void SetSystem(SolarSystem system)
             {
-                SystemGuid = system?.guid ?? Guid.Empty;
+                SystemGuid = system?.Guid ?? Guid.Empty;
                 System     = system;
             }
 

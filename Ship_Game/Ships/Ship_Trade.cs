@@ -33,7 +33,7 @@ namespace Ship_Game.Ships
 
             if (planet.Owner == Loyalty || Loyalty.IsTradeTreaty(planet.Owner))
             {
-                TradeRoutes.AddUnique(planet.guid);
+                TradeRoutes.AddUnique(planet.Guid);
                 return true;
             }
 
@@ -105,7 +105,7 @@ namespace Ship_Game.Ships
 
         public void RemoveTradeRoute(Planet planet)
         {
-            TradeRoutes.Remove(planet.guid);
+            TradeRoutes.Remove(planet.Guid);
         }
 
         public void RefreshTradeRoutes()
@@ -131,7 +131,7 @@ namespace Ship_Game.Ships
 
             foreach (Guid g in TradeRoutes)
             {
-                if (g == planet.guid)
+                if (g == planet.Guid)
                     return true;
             }
             return false;
