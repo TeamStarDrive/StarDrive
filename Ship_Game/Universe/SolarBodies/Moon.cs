@@ -4,19 +4,21 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
+using Ship_Game.Data.Serialization;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Gameplay
 {
+    [StarDataType]
     public sealed class Moon : GameplayObject
     {
-        [Serialize(7)]  public float scale;
-        [Serialize(8)]  public int   moonType;
-        [Serialize(9)]  public Guid  orbitTarget;
-        [Serialize(10)] public float OrbitRadius;
-        [Serialize(11)] public float OrbitalAngle;
-        [Serialize(12)] public Vector3 RotationRadians;
+        [StarData]  public float scale;
+        [StarData]  public int   moonType;
+        [StarData]  public Guid  orbitTarget;
+        [StarData] public float OrbitRadius;
+        [StarData] public float OrbitalAngle;
+        [StarData] public Vector3 RotationRadians;
 
         [XmlIgnore][JsonIgnore] SceneObject So;
         [XmlIgnore][JsonIgnore] Planet OrbitPlanet;

@@ -4,51 +4,53 @@ using Newtonsoft.Json;
 using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class Troop // Initial refactor by Fat Bastard - March 16, 2019. FB: Added Launch and Land Logic - April 27, 2019
     {
-        [Serialize(0)] public string Name;
-        [Serialize(1)] public string RaceType;
-        [Serialize(2)] public int first_frame = 1;
-        [Serialize(3)] public bool animated;
-        [Serialize(4)] public string idle_path;
-        [Serialize(5)] public string Icon;
-        [Serialize(6)] public string MovementCue;
-        [Serialize(7)] public int Level;
-        [Serialize(8)] public int AttackTimerBase = 10;
-        [Serialize(9)] public int MoveTimerBase = 10;
-        [Serialize(10)] public int num_idle_frames;
-        [Serialize(11)] public int num_attack_frames;
-        [Serialize(12)] public int idle_x_offset;
-        [Serialize(13)] public int idle_y_offset;
-        [Serialize(14)] public int attack_width = 128;
-        [Serialize(15)] public string attack_path;
-        [Serialize(16)] public bool facingRight;
-        [Serialize(17)] public string Description;
-        [Serialize(18)] public string OwnerString;
-        [Serialize(19)] public int BoardingStrength;
-        [Serialize(20)] public int MaxStoredActions = 1;
-        [Serialize(21)] public float MoveTimer;   // FB - use UpdateMoveTimer or ResetMoveTimer
-        [Serialize(22)] public float AttackTimer; // FB - use UpdateAttackTimer or ResetAttackTimer
-        [Serialize(23)] public float MovingTimer = 1f;
-        [Serialize(24)] public int AvailableMoveActions   = 1; // FB - use UpdateMoveActions 
-        [Serialize(25)] public int AvailableAttackActions = 1; // FB - use UpdateAttackActions
-        [Serialize(26)] public string TexturePath;
-        [Serialize(27)] public bool Idle = true;
-        [Serialize(28)] public int WhichFrame = 1;
-        [Serialize(29)] public float Strength; // FB - Do not modify this directly. use DamageTroop and HealTroop
-        [Serialize(30)] public float StrengthMax; 
-        [Serialize(31)] public int HardAttack; // FB - use NetHardAttack
-        [Serialize(32)] public int SoftAttack; // FB - use NetSoftAttack
-        [Serialize(33)] public string Class;
-        [Serialize(34)] public TargetType TargetType;
-        [Serialize(35)] public float Cost;
-        [Serialize(36)] public string sound_attack;
-        [Serialize(37)] public int Range;
-        [Serialize(38)] public float Launchtimer = 10f; // FB - use UpdateLaunchTimer or ResetLaunchTimer
-        [Serialize(39)] public string Type;
+        [StarData] public string Name;
+        [StarData] public string RaceType;
+        [StarData] public int first_frame = 1;
+        [StarData] public bool animated;
+        [StarData] public string idle_path;
+        [StarData] public string Icon;
+        [StarData] public string MovementCue;
+        [StarData] public int Level;
+        [StarData] public int AttackTimerBase = 10;
+        [StarData] public int MoveTimerBase = 10;
+        [StarData] public int num_idle_frames;
+        [StarData] public int num_attack_frames;
+        [StarData] public int idle_x_offset;
+        [StarData] public int idle_y_offset;
+        [StarData] public int attack_width = 128;
+        [StarData] public string attack_path;
+        [StarData] public bool facingRight;
+        [StarData] public string Description;
+        [StarData] public string OwnerString;
+        [StarData] public int BoardingStrength;
+        [StarData] public int MaxStoredActions = 1;
+        [StarData] public float MoveTimer;   // FB - use UpdateMoveTimer or ResetMoveTimer
+        [StarData] public float AttackTimer; // FB - use UpdateAttackTimer or ResetAttackTimer
+        [StarData] public float MovingTimer = 1f;
+        [StarData] public int AvailableMoveActions   = 1; // FB - use UpdateMoveActions 
+        [StarData] public int AvailableAttackActions = 1; // FB - use UpdateAttackActions
+        [StarData] public string TexturePath;
+        [StarData] public bool Idle = true;
+        [StarData] public int WhichFrame = 1;
+        [StarData] public float Strength; // FB - Do not modify this directly. use DamageTroop and HealTroop
+        [StarData] public float StrengthMax; 
+        [StarData] public int HardAttack; // FB - use NetHardAttack
+        [StarData] public int SoftAttack; // FB - use NetSoftAttack
+        [StarData] public string Class;
+        [StarData] public TargetType TargetType;
+        [StarData] public float Cost;
+        [StarData] public string sound_attack;
+        [StarData] public int Range;
+        [StarData] public float Launchtimer = 10f; // FB - use UpdateLaunchTimer or ResetLaunchTimer
+        [StarData] public string Type;
 
         [XmlIgnore][JsonIgnore] public Planet HostPlanet { get; private set; }
         [XmlIgnore][JsonIgnore] Empire Owner;

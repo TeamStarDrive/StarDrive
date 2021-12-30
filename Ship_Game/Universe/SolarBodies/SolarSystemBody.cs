@@ -175,7 +175,7 @@ namespace Ship_Game
         public Array<Ship> OrbitalStations = new Array<Ship>();
         public Matrix RingWorld;
         public SceneObject SO;
-        public Guid guid = Guid.NewGuid();
+        public Guid Guid = Guid.NewGuid();
         protected AudioEmitter Emit = new AudioEmitter();
         public Vector2 Center;
         public SolarSystem ParentSystem;
@@ -578,7 +578,7 @@ namespace Ship_Game
             for (int j = 0; j < moonCount; j++)
             {
                 float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
-                var moon = new Moon(newOrbital.guid,
+                var moon = new Moon(newOrbital.Guid,
                                     RandomMath.IntBetween(1, 29),
                                     1f, orbitRadius,
                                     RandomMath.RandomBetween(0f, 360f),

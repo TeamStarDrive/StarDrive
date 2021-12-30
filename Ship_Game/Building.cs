@@ -2,82 +2,84 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class Building
     {
-        [Serialize(0)] public string Name;
-        [Serialize(1)] public bool IsSensor;
-        [Serialize(2)] public bool NoRandomSpawn;
-        [Serialize(3)] public bool AllowShipBuilding;
-        [Serialize(4)] public int NameTranslationIndex;
-        [Serialize(5)] public int DescriptionIndex;
-        [Serialize(6)] public int ShortDescriptionIndex;
-        [Serialize(7)] public string ResourceCreated;
-        [Serialize(8)] public string ResourceConsumed;
-        [Serialize(9)] public float ConsumptionPerTurn;
-        [Serialize(10)] public float OutputPerTurn;
-        [Serialize(11)] public string CommodityRequired;
-        [Serialize(12)] public CommodityBonusType CommodityBonusType;
-        [Serialize(13)] public float CommodityBonusAmount;
-        [Serialize(14)] public bool IsCommodity;
-        [Serialize(15)] public bool WinsGame;
-        [Serialize(16)] public bool BuildOnlyOnce;
-        [Serialize(17)] public string EventOnBuild;
-        [Serialize(18)] public string EventTriggerUID = "";
-        [Serialize(19)] public bool EventWasTriggered;
-        [Serialize(20)] public bool CanBuildAnywhere;
-        [Serialize(21)] public float PlusTerraformPoints;
-        [Serialize(22)] public int Strength = 5;
-        [Serialize(23)] public float PlusProdPerRichness;
-        [Serialize(24)] public float PlanetaryShieldStrengthAdded;
-        [Serialize(25)] public float PlusFlatPopulation;
-        [Serialize(26)] public float MaxFertilityOnBuild;
-        [Serialize(27)] public string Icon;
-        [Serialize(28)] public bool Scrappable = true;
-        [Serialize(29)] public bool Unique = true;
-        [Serialize(30)] public bool isWeapon;
-        [Serialize(31)] public string Weapon = "";
-        [Serialize(33)] public float WeaponTimer;
-        [Serialize(34)] public float AttackTimer;
-        [Serialize(35)] public int AvailableAttackActions = 1; // FB - use UpdateAttackActions
-        [Serialize(36)] public int CombatStrength;
-        [Serialize(37)] public int SoftAttack;
-        [Serialize(38)] public int HardAttack;
-        [Serialize(39)] public int Defense; // Defense vs bombardment
-        [Serialize(40)] public float PlusTaxPercentage;
-        [Serialize(41)] public bool AllowInfantry;
-        [Serialize(42)] public float Maintenance;
-        [Serialize(43)] public float Cost;
-        [Serialize(44)] public int StorageAdded;
-        [Serialize(45)] public float PlusResearchPerColonist;
-        [Serialize(46)] public string ExcludesPlanetType = "";
-        [Serialize(47)] public float PlusFlatResearchAmount;
-        [Serialize(48)] public float CreditsPerColonist;
-        [Serialize(49)] public float PlusFlatFoodAmount;
-        [Serialize(50)] public float PlusFoodPerColonist;
-        [Serialize(51)] public float MaxPopIncrease;
-        [Serialize(52)] public float PlusProdPerColonist;
-        [Serialize(53)] public float PlusFlatProductionAmount;
-        [Serialize(54)] public float SensorRange;
-        [Serialize(55)] public bool IsProjector;
-        [Serialize(56)] public float ProjectorRange;
-        [Serialize(57)] public float ShipRepair;
-        [Serialize(58)] public BuildingCategory Category = BuildingCategory.General;
-        [Serialize(59)] public bool IsPlayerAdded = false;
-        [Serialize(60)] public int InvadeInjurePoints;
-        [Serialize(61)] public int DefenseShipsCapacity;
-        [Serialize(62)] public RoleName DefenseShipsRole;
-        [Serialize(63)] public float Infrastructure;
-        [Serialize(64)] public bool DetectsRemnantFleet;
-        [Serialize(65)] public bool CannotBeBombed;
-        [Serialize(66)] public float IncreaseRichness;
-        [Serialize(67)] public byte EventSpawnChance = 15;
-        [Serialize(68)] public float FoodCache; // Works with Flat food only
-        [Serialize(69)] public float ProdCache; // Works with Prod per colonist only
+        [StarData] public string Name;
+        [StarData] public bool IsSensor;
+        [StarData] public bool NoRandomSpawn;
+        [StarData] public bool AllowShipBuilding;
+        [StarData] public int NameTranslationIndex;
+        [StarData] public int DescriptionIndex;
+        [StarData] public int ShortDescriptionIndex;
+        [StarData] public string ResourceCreated;
+        [StarData] public string ResourceConsumed;
+        [StarData] public float ConsumptionPerTurn;
+        [StarData] public float OutputPerTurn;
+        [StarData] public string CommodityRequired;
+        [StarData] public CommodityBonusType CommodityBonusType;
+        [StarData] public float CommodityBonusAmount;
+        [StarData] public bool IsCommodity;
+        [StarData] public bool WinsGame;
+        [StarData] public bool BuildOnlyOnce;
+        [StarData] public string EventOnBuild;
+        [StarData] public string EventTriggerUID = "";
+        [StarData] public bool EventWasTriggered;
+        [StarData] public bool CanBuildAnywhere;
+        [StarData] public float PlusTerraformPoints;
+        [StarData] public int Strength = 5;
+        [StarData] public float PlusProdPerRichness;
+        [StarData] public float PlanetaryShieldStrengthAdded;
+        [StarData] public float PlusFlatPopulation;
+        [StarData] public float MaxFertilityOnBuild;
+        [StarData] public string Icon;
+        [StarData] public bool Scrappable = true;
+        [StarData] public bool Unique = true;
+        [StarData] public bool isWeapon;
+        [StarData] public string Weapon = "";
+        [StarData] public float WeaponTimer;
+        [StarData] public float AttackTimer;
+        [StarData] public int AvailableAttackActions = 1; // FB - use UpdateAttackActions
+        [StarData] public int CombatStrength;
+        [StarData] public int SoftAttack;
+        [StarData] public int HardAttack;
+        [StarData] public int Defense; // Defense vs bombardment
+        [StarData] public float PlusTaxPercentage;
+        [StarData] public bool AllowInfantry;
+        [StarData] public float Maintenance;
+        [StarData] public float Cost;
+        [StarData] public int StorageAdded;
+        [StarData] public float PlusResearchPerColonist;
+        [StarData] public string ExcludesPlanetType = "";
+        [StarData] public float PlusFlatResearchAmount;
+        [StarData] public float CreditsPerColonist;
+        [StarData] public float PlusFlatFoodAmount;
+        [StarData] public float PlusFoodPerColonist;
+        [StarData] public float MaxPopIncrease;
+        [StarData] public float PlusProdPerColonist;
+        [StarData] public float PlusFlatProductionAmount;
+        [StarData] public float SensorRange;
+        [StarData] public bool IsProjector;
+        [StarData] public float ProjectorRange;
+        [StarData] public float ShipRepair;
+        [StarData] public BuildingCategory Category = BuildingCategory.General;
+        [StarData] public bool IsPlayerAdded = false;
+        [StarData] public int InvadeInjurePoints;
+        [StarData] public int DefenseShipsCapacity;
+        [StarData] public RoleName DefenseShipsRole;
+        [StarData] public float Infrastructure;
+        [StarData] public bool DetectsRemnantFleet;
+        [StarData] public bool CannotBeBombed;
+        [StarData] public float IncreaseRichness;
+        [StarData] public byte EventSpawnChance = 15;
+        [StarData] public float FoodCache; // Works with Flat food only
+        [StarData] public float ProdCache; // Works with Prod per colonist only
 
 
         // XML Ignore because we load these from XML templates

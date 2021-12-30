@@ -1,10 +1,12 @@
 using System;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class Mole
     {
-        [Serialize(0)] public Guid PlanetGuid;
+        [StarData] public Guid PlanetGuid;
 
         public static Mole PlantMole(Empire owner, Empire target, out string targetPlanetName)
         {
@@ -19,7 +21,7 @@ namespace Ship_Game
                 bool GoodPlanet = true;
                 foreach (Mole m in target.data.MoleList)
                 {
-                    if (m.PlanetGuid != p.guid)
+                    if (m.PlanetGuid != p.Guid)
                     {
                         continue;
                     }
@@ -46,7 +48,7 @@ namespace Ship_Game
                 }
                 mole = new Mole
                 {
-                    PlanetGuid = potentials[Random].guid
+                    PlanetGuid = potentials[Random].Guid
                 };
 
                 targetPlanetName = potentials[Random].Name;

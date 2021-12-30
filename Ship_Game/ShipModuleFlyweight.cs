@@ -1,4 +1,5 @@
 ﻿using System.Xml.Serialization;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Gameplay
 {
@@ -7,109 +8,110 @@ namespace Ship_Game.Gameplay
     //that will allow a parent object to have all of these variables available to them without having them
     //all allocated in memory unless they are needed. By my calculations, this is 313 bytes.       -Gretman
 
+    [StarDataType]
     public sealed class ShipModuleFlyweight
     {
         public static int TotalNumModules { get; private set; } //To track how many advanced modules are being created.
 
-        public readonly float FTLSpeed;
-        public readonly string DeployBuildingOnColonize;
-        public readonly string ResourceStored;
-        public readonly float ResourceStorageAmount;
-        public readonly bool IsCommandModule;
-        public readonly bool IsRepairModule;
-        public readonly string[] PermittedHangarRoles;
-        public readonly short MaximumHangarShipSize;
-        public readonly bool DroneModule      = true;
-        public readonly bool FighterModule    = true;
-        public readonly bool CorvetteModule   = true;
-        public readonly bool FrigateModule    = true;
-        public readonly bool DestroyerModule  = true;
-        public readonly bool CruiserModule    = true;
-        public readonly bool BattleshipModule = true;
-        public readonly bool CapitalModule    = true;
-        public readonly bool FreighterModule  = true;
-        public readonly bool PlatformModule   = true;
-        public readonly bool StationModule    = true;
-        public readonly bool Explodes;
-        public readonly float SensorRange;
-        public readonly float MechanicalBoardingDefense;
-        public readonly float EMPProtection;
-        public readonly int PowerRadius;
-        public readonly int TechLevel;
-        public readonly float OrdnanceAddedPerSecond;
-        public readonly string BombType;
-        public readonly float WarpMassCapacity;
-        public readonly float BonusRepairRate;
-        public readonly float CargoCapacity;
-        public readonly float ShieldRadius;
-        public readonly float ShieldPowerMax;
-        public readonly float ShieldRechargeRate;
-        public readonly float ShieldRechargeCombatRate;
-        public readonly float ShieldRechargeDelay;
-        public readonly float ShieldThreshold;
-        public readonly float ShieldKineticResist;
-        public readonly float ShieldEnergyResist;
-        public readonly float ShieldExplosiveResist;
-        public readonly float ShieldMissileResist;
-        public readonly float ShieldHybridResist;
-        public readonly float ShieldBeamResist;
-        public readonly float NumberOfColonists;
-        public readonly float NumberOfEquipment;
-        public readonly float NumberOfFood;
-        public readonly bool IsSupplyBay;
-        public readonly bool IsTroopBay;
-        public readonly float HangarTimerConstant = 30f;
-        public readonly float Thrust;
-        public readonly float WarpThrust;
-        public readonly float TurnThrust;
-        public readonly float PowerFlowMax;
-        public readonly float PowerDraw;
-        public readonly float PowerDrawAtWarp;
-        public readonly float PowerStoreMax;
-        public readonly float HealPerTurn;
-        public readonly int TroopCapacity;
-        public readonly int TroopsSupplied;
-        public readonly float Cost;
-        public readonly float InhibitionRadius;
-        public readonly float FTLSpoolTime;
-        public readonly float ECM;
-        public readonly float SensorBonus;
-        public readonly float TransporterTimerConstant;
-        public readonly float TransporterRange;
-        public readonly float TransporterPower;
-        public readonly float TransporterOrdnance;
-        public readonly int TransporterTroopLanding;
-        public readonly int TransporterTroopAssault;
+        [StarData] public readonly float FTLSpeed;
+        [StarData] public readonly string DeployBuildingOnColonize;
+        [StarData] public readonly string ResourceStored;
+        [StarData] public readonly float ResourceStorageAmount;
+        [StarData] public readonly bool IsCommandModule;
+        [StarData] public readonly bool IsRepairModule;
+        [StarData] public readonly string[] PermittedHangarRoles;
+        [StarData] public readonly short MaximumHangarShipSize;
+        [StarData] public readonly bool DroneModule      = true;
+        [StarData] public readonly bool FighterModule    = true;
+        [StarData] public readonly bool CorvetteModule   = true;
+        [StarData] public readonly bool FrigateModule    = true;
+        [StarData] public readonly bool DestroyerModule  = true;
+        [StarData] public readonly bool CruiserModule    = true;
+        [StarData] public readonly bool BattleshipModule = true;
+        [StarData] public readonly bool CapitalModule    = true;
+        [StarData] public readonly bool FreighterModule  = true;
+        [StarData] public readonly bool PlatformModule   = true;
+        [StarData] public readonly bool StationModule    = true;
+        [StarData] public readonly bool Explodes;
+        [StarData] public readonly float SensorRange;
+        [StarData] public readonly float MechanicalBoardingDefense;
+        [StarData] public readonly float EMPProtection;
+        [StarData] public readonly int PowerRadius;
+        [StarData] public readonly int TechLevel;
+        [StarData] public readonly float OrdnanceAddedPerSecond;
+        [StarData] public readonly string BombType;
+        [StarData] public readonly float WarpMassCapacity;
+        [StarData] public readonly float BonusRepairRate;
+        [StarData] public readonly float CargoCapacity;
+        [StarData] public readonly float ShieldRadius;
+        [StarData] public readonly float ShieldPowerMax;
+        [StarData] public readonly float ShieldRechargeRate;
+        [StarData] public readonly float ShieldRechargeCombatRate;
+        [StarData] public readonly float ShieldRechargeDelay;
+        [StarData] public readonly float ShieldThreshold;
+        [StarData] public readonly float ShieldKineticResist;
+        [StarData] public readonly float ShieldEnergyResist;
+        [StarData] public readonly float ShieldExplosiveResist;
+        [StarData] public readonly float ShieldMissileResist;
+        [StarData] public readonly float ShieldHybridResist;
+        [StarData] public readonly float ShieldBeamResist;
+        [StarData] public readonly float NumberOfColonists;
+        [StarData] public readonly float NumberOfEquipment;
+        [StarData] public readonly float NumberOfFood;
+        [StarData] public readonly bool IsSupplyBay;
+        [StarData] public readonly bool IsTroopBay;
+        [StarData] public readonly float HangarTimerConstant = 30f;
+        [StarData] public readonly float Thrust;
+        [StarData] public readonly float WarpThrust;
+        [StarData] public readonly float TurnThrust;
+        [StarData] public readonly float PowerFlowMax;
+        [StarData] public readonly float PowerDraw;
+        [StarData] public readonly float PowerDrawAtWarp;
+        [StarData] public readonly float PowerStoreMax;
+        [StarData] public readonly float HealPerTurn;
+        [StarData] public readonly int TroopCapacity;
+        [StarData] public readonly int TroopsSupplied;
+        [StarData] public readonly float Cost;
+        [StarData] public readonly float InhibitionRadius;
+        [StarData] public readonly float FTLSpoolTime;
+        [StarData] public readonly float ECM;
+        [StarData] public readonly float SensorBonus;
+        [StarData] public readonly float TransporterTimerConstant;
+        [StarData] public readonly float TransporterRange;
+        [StarData] public readonly float TransporterPower;
+        [StarData] public readonly float TransporterOrdnance;
+        [StarData] public readonly int TransporterTroopLanding;
+        [StarData] public readonly int TransporterTroopAssault;
 
         //Doctor: these were floats for a reason: they're decimal fractions to define damage resistance. Loading them with sbytes caused crashes from xml and broke the resistance mechanics.
         //Likewise, DamageThreshold is a set damage amount which armour disregards damage value under - immediately broke as a byte as some armours had values higher than 255.
-        public readonly float KineticResist;
-        public readonly float EnergyResist;
-        public readonly float GuidedResist;
-        public readonly float MissileResist;
-        public readonly float HybridResist;
-        public readonly float BeamResist;
-        public readonly float ExplosiveResist;
-        public readonly float TorpedoResist;
-        public readonly float DamageThreshold;
-        public readonly int APResist;
-        public readonly bool IndirectPower;
-        public readonly bool IsPowerArmor;
-        public readonly bool IsBulkhead;
-        public readonly int TargetTracking;
-        public readonly int TargetAccuracy;
-        public readonly bool DisableRotation;
-        public readonly float AmplifyShields;
-        public readonly int ExplosionDamage;
-        public readonly int ExplosionRadius;
-        public readonly float RepairDifficulty = 1f;
-        public readonly string ShieldBubbleColor;
-        public readonly float Regenerate;
-        public float AccuracyPercent;
-        public float WeaponInaccuracyBase;
+        [StarData] public readonly float KineticResist;
+        [StarData] public readonly float EnergyResist;
+        [StarData] public readonly float GuidedResist;
+        [StarData] public readonly float MissileResist;
+        [StarData] public readonly float HybridResist;
+        [StarData] public readonly float BeamResist;
+        [StarData] public readonly float ExplosiveResist;
+        [StarData] public readonly float TorpedoResist;
+        [StarData] public readonly float DamageThreshold;
+        [StarData] public readonly int APResist;
+        [StarData] public readonly bool IndirectPower;
+        [StarData] public readonly bool IsPowerArmor;
+        [StarData] public readonly bool IsBulkhead;
+        [StarData] public readonly int TargetTracking;
+        [StarData] public readonly int TargetAccuracy;
+        [StarData] public readonly bool DisableRotation;
+        [StarData] public readonly float AmplifyShields;
+        [StarData] public readonly int ExplosionDamage;
+        [StarData] public readonly int ExplosionRadius;
+        [StarData] public readonly float RepairDifficulty = 1f;
+        [StarData] public readonly string ShieldBubbleColor;
+        [StarData] public readonly float Regenerate;
+        [StarData] public float AccuracyPercent;
+        [StarData] public readonly float WeaponInaccuracyBase;
+        [StarData] public readonly string UID = string.Empty;
 
         public static readonly ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
-        public readonly string UID = string.Empty;
 
         public ShipModuleFlyweight()
         {

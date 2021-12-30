@@ -68,7 +68,7 @@ namespace Ship_Game
             if (systemGuid != Guid.Empty)
             {
                 foreach (SolarSystem s in SolarSystemsList)
-                    if (s.guid == systemGuid)
+                    if (s.Guid == systemGuid)
                         return s;
             }
             return null;

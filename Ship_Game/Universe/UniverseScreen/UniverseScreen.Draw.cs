@@ -1315,7 +1315,7 @@ namespace Ship_Game
                         for (int i = 0; i < player.data.MoleList.Count; i++)
                         {
                             Mole mole = player.data.MoleList[i];
-                            if (mole.PlanetGuid == planet.guid)
+                            if (mole.PlanetGuid == planet.Guid)
                             {
                                 posOffSet.X += (18 * drawLocationOffset);
                                 DrawTextureWithToolTip(icon_spy_small, Color.White, GameText.IndicatesThatAFriendlyAgent, mousePos,

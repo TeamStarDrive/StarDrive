@@ -3,9 +3,11 @@ using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class RacialTrait
     {
         public enum NameOfTrait
@@ -16,112 +18,112 @@ namespace Ship_Game
             NonCybernetic
         }
         
-        [Serialize(0)] public string Name;
-        [Serialize(1)] public int TraitName;
+        [StarData] public string Name;
+        [StarData] public int TraitName;
         [XmlIgnore][JsonIgnore] public LocalizedText LocalizedName => new LocalizedText(TraitName);
-        [Serialize(2)] public string VideoPath = "";
-        [Serialize(3)] public string ShipType = "";
-        [Serialize(4)] public string Singular;
-        [Serialize(5)] public string Plural;
-        [Serialize(6)] public bool Pack;
-        [Serialize(7)] public float SpyMultiplier;
-        [Serialize(8)] public string Adj1;
-        [Serialize(9)] public string Adj2;
-        [Serialize(10)] public string HomeSystemName;
-        [Serialize(11)] public string HomeworldName;
-        [Serialize(12)] public int FlagIndex;
-        [Serialize(13)] public float R;
-        [Serialize(14)] public float G;
-        [Serialize(15)] public float B;
-        [Serialize(16)] public int Excludes;
-        [Serialize(17)] public int Description;
-        [Serialize(18)] public string Category;
-        [Serialize(19)] public int Cost;
-        [Serialize(20)] public float ConsumptionModifier;
-        [Serialize(21)] public float ReproductionMod;
-        [Serialize(22)] public float PopGrowthMax;
-        [Serialize(23)] public float PopGrowthMin;
-        [Serialize(24)] public float DiplomacyMod; // Initial Trust only
-        [Serialize(25)] public float GenericMaxPopMod;
-        [Serialize(26)] public int Blind;
-        [Serialize(27)] public int BonusExplored;
-        [Serialize(28)] public int Militaristic;
-        [Serialize(29)] public float HomeworldSizeMod;
-        [Serialize(30)] public int Prewarp;
-        [Serialize(31)] public int Prototype;
-        [Serialize(32)] public float Spiritual;
-        [Serialize(33)] public float HomeworldFertMod;
-        [Serialize(34)] public float HomeworldRichMod;
-        [Serialize(35)] public float DodgeMod;
-        [Serialize(36)] public float EnergyDamageMod;
-        [Serialize(37)] public float ResearchMod;
-        [Serialize(38)] public float Mercantile;
-        [Serialize(39)] public int Miners;
-        [Serialize(40)] public float ProductionMod;
-        [Serialize(41)] public float MaintMod; // ex: -0.25
-        [Serialize(42)] public float InBordersSpeedBonus = 0.5f;
-        [Serialize(43)] public float TaxMod; // bonus tax modifier
-        [Serialize(44)] public float ShipCostMod;
-        [Serialize(45)] public float ModHpModifier;
-        [Serialize(46)] public int SmallSize;
-        [Serialize(47)] public int HugeSize;
-        [Serialize(48)] public float PassengerModifier = 1f;
-        [Serialize(49)] public float PassengerBonus;
-        [Serialize(50)] public bool Assimilators;
-        [Serialize(51)] public float GroundCombatModifier;
-        [Serialize(52)] public float RepairMod;
-        [Serialize(53)] public int Cybernetic;
+        [StarData] public string VideoPath = "";
+        [StarData] public string ShipType = "";
+        [StarData] public string Singular;
+        [StarData] public string Plural;
+        [StarData] public bool Pack;
+        [StarData] public float SpyMultiplier;
+        [StarData] public string Adj1;
+        [StarData] public string Adj2;
+        [StarData] public string HomeSystemName;
+        [StarData] public string HomeworldName;
+        [StarData] public int FlagIndex;
+        [StarData] public float R;
+        [StarData] public float G;
+        [StarData] public float B;
+        [StarData] public int Excludes;
+        [StarData] public int Description;
+        [StarData] public string Category;
+        [StarData] public int Cost;
+        [StarData] public float ConsumptionModifier;
+        [StarData] public float ReproductionMod;
+        [StarData] public float PopGrowthMax;
+        [StarData] public float PopGrowthMin;
+        [StarData] public float DiplomacyMod; // Initial Trust only
+        [StarData] public float GenericMaxPopMod;
+        [StarData] public int Blind;
+        [StarData] public int BonusExplored;
+        [StarData] public int Militaristic;
+        [StarData] public float HomeworldSizeMod;
+        [StarData] public int Prewarp;
+        [StarData] public int Prototype;
+        [StarData] public float Spiritual;
+        [StarData] public float HomeworldFertMod;
+        [StarData] public float HomeworldRichMod;
+        [StarData] public float DodgeMod;
+        [StarData] public float EnergyDamageMod;
+        [StarData] public float ResearchMod;
+        [StarData] public float Mercantile;
+        [StarData] public int Miners;
+        [StarData] public float ProductionMod;
+        [StarData] public float MaintMod; // ex: -0.25
+        [StarData] public float InBordersSpeedBonus = 0.5f;
+        [StarData] public float TaxMod; // bonus tax modifier
+        [StarData] public float ShipCostMod;
+        [StarData] public float ModHpModifier;
+        [StarData] public int SmallSize;
+        [StarData] public int HugeSize;
+        [StarData] public float PassengerModifier = 1f;
+        [StarData] public float PassengerBonus;
+        [StarData] public bool Assimilators;
+        [StarData] public float GroundCombatModifier;
+        [StarData] public float RepairMod;
+        [StarData] public int Cybernetic;
 
         //Trait Booleans
-        [Serialize(54)] public bool PhysicalTraitAlluring;
-        [Serialize(55)] public bool PhysicalTraitRepulsive;
-        [Serialize(56)] public bool PhysicalTraitEagleEyed;
-        [Serialize(57)] public bool PhysicalTraitBlind;
-        [Serialize(58)] public bool PhysicalTraitEfficientMetabolism;
-        [Serialize(59)] public bool PhysicalTraitGluttonous;
-        [Serialize(60)] public bool PhysicalTraitFertile;
-        [Serialize(61)] public bool PhysicalTraitLessFertile;
-        [Serialize(62)] public bool PhysicalTraitSmart;
-        [Serialize(63)] public bool PhysicalTraitDumb;
-        [Serialize(64)] public bool PhysicalTraitReflexes;
-        [Serialize(65)] public bool PhysicalTraitPonderous;
-        [Serialize(66)] public bool PhysicalTraitSavage;
-        [Serialize(67)] public bool PhysicalTraitTimid;
-        [Serialize(68)] public bool SociologicalTraitEfficient;
-        [Serialize(69)] public bool SociologicalTraitWasteful;
-        [Serialize(70)] public bool SociologicalTraitIndustrious;
-        [Serialize(71)] public bool SociologicalTraitLazy;
-        [Serialize(72)] public bool SociologicalTraitMercantile;
-        [Serialize(73)] public bool SociologicalTraitMeticulous;
-        [Serialize(74)] public bool SociologicalTraitCorrupt;
-        [Serialize(75)] public bool SociologicalTraitSkilledEngineers;
-        [Serialize(76)] public bool SociologicalTraitHaphazardEngineers;
+        [StarData] public bool PhysicalTraitAlluring;
+        [StarData] public bool PhysicalTraitRepulsive;
+        [StarData] public bool PhysicalTraitEagleEyed;
+        [StarData] public bool PhysicalTraitBlind;
+        [StarData] public bool PhysicalTraitEfficientMetabolism;
+        [StarData] public bool PhysicalTraitGluttonous;
+        [StarData] public bool PhysicalTraitFertile;
+        [StarData] public bool PhysicalTraitLessFertile;
+        [StarData] public bool PhysicalTraitSmart;
+        [StarData] public bool PhysicalTraitDumb;
+        [StarData] public bool PhysicalTraitReflexes;
+        [StarData] public bool PhysicalTraitPonderous;
+        [StarData] public bool PhysicalTraitSavage;
+        [StarData] public bool PhysicalTraitTimid;
+        [StarData] public bool SociologicalTraitEfficient;
+        [StarData] public bool SociologicalTraitWasteful;
+        [StarData] public bool SociologicalTraitIndustrious;
+        [StarData] public bool SociologicalTraitLazy;
+        [StarData] public bool SociologicalTraitMercantile;
+        [StarData] public bool SociologicalTraitMeticulous;
+        [StarData] public bool SociologicalTraitCorrupt;
+        [StarData] public bool SociologicalTraitSkilledEngineers;
+        [StarData] public bool SociologicalTraitHaphazardEngineers;
 
-        [Serialize(77)] public bool HistoryTraitAstronomers;
-        [Serialize(78)] public bool HistoryTraitCybernetic;
-        [Serialize(79)] public bool HistoryTraitManifestDestiny;
-        [Serialize(80)] public bool HistoryTraitMilitaristic;
-        [Serialize(81)] public bool HistoryTraitNavalTraditions;
-        [Serialize(82)] public bool HistoryTraitPackMentality;
-        [Serialize(83)] public bool HistoryTraitPrototypeFlagship;
-        [Serialize(84)] public bool HistoryTraitSpiritual;
-        [Serialize(85)] public bool HistoryTraitPollutedHomeWorld;
-        [Serialize(86)] public bool HistoryTraitIndustrializedHomeWorld;
-        [Serialize(87)] public bool HistoryTraitDuplicitous;
-        [Serialize(88)] public bool HistoryTraitHonest;
-        [Serialize(89)] public bool HistoryTraitHugeHomeWorld;
-        [Serialize(90)] public bool HistoryTraitSmallHomeWorld;
+        [StarData] public bool HistoryTraitAstronomers;
+        [StarData] public bool HistoryTraitCybernetic;
+        [StarData] public bool HistoryTraitManifestDestiny;
+        [StarData] public bool HistoryTraitMilitaristic;
+        [StarData] public bool HistoryTraitNavalTraditions;
+        [StarData] public bool HistoryTraitPackMentality;
+        [StarData] public bool HistoryTraitPrototypeFlagship;
+        [StarData] public bool HistoryTraitSpiritual;
+        [StarData] public bool HistoryTraitPollutedHomeWorld;
+        [StarData] public bool HistoryTraitIndustrializedHomeWorld;
+        [StarData] public bool HistoryTraitDuplicitous;
+        [StarData] public bool HistoryTraitHonest;
+        [StarData] public bool HistoryTraitHugeHomeWorld;
+        [StarData] public bool HistoryTraitSmallHomeWorld;
 
         // Pointless variables
-        [Serialize(91)] public int Aquatic;
-        [Serialize(92)] public int Burrowers;
-        [Serialize(93)] public float SpyModifier;
+        [StarData] public int Aquatic;
+        [StarData] public int Burrowers;
+        [StarData] public float SpyModifier;
 
-        [Serialize(94)] public float ResearchTaxMultiplier = 1;
-        [Serialize(95)] public bool TaxGoods;
-        [Serialize(96)] public bool SmartMissiles;
-        [Serialize(97)] public int TerraformingLevel;  // FB from 0 to 3
-        [Serialize(98)] public float EnemyPlanetInhibitionPercentCounter;  // FB - from 0 to 0.75
+        [StarData] public float ResearchTaxMultiplier = 1;
+        [StarData] public bool TaxGoods;
+        [StarData] public bool SmartMissiles;
+        [StarData] public int TerraformingLevel;  // FB from 0 to 3
+        [StarData] public float EnemyPlanetInhibitionPercentCounter;  // FB - from 0 to 0.75
 
         public float HomeworldSizeMultiplier => 1f + HomeworldSizeMod;
         public float MaintMultiplier => 1f + MaintMod; // Ex: 1.25
