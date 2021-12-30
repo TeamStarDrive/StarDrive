@@ -65,7 +65,7 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 8;
+        public const int SaveGameVersion = 10;
         public const string ZipExt = ".sav.gz";
 
         public readonly UniverseSaveData SaveData = new UniverseSaveData();
@@ -88,7 +88,7 @@ namespace Ship_Game
             screenToSave.Objects.UpdateLists(removeInactiveObjects: true);
 
             SaveData.SaveGameVersion       = SaveGameVersion;
-            SaveData.gameDifficulty        = CurrentGame.Difficulty;
+            SaveData.GameDifficulty        = CurrentGame.Difficulty;
             SaveData.GalaxySize            = CurrentGame.GalaxySize;
             SaveData.StarsModifier         = CurrentGame.StarsModifier;
             SaveData.ExtraPlanets          = CurrentGame.ExtraPlanets;
@@ -110,7 +110,7 @@ namespace Ship_Game
             SaveData.MinimumWarpRange      = GlobalStats.MinimumWarpRange;
             SaveData.TurnTimer             = (byte)GlobalStats.TurnTimer;
             SaveData.IconSize              = GlobalStats.IconSize;
-            SaveData.preventFederations    = GlobalStats.PreventFederations;
+            SaveData.PreventFederations    = GlobalStats.PreventFederations;
             SaveData.GravityWellRange      = GlobalStats.GravityWellRange;
             SaveData.EliminationMode       = GlobalStats.EliminationMode;
             SaveData.EmpireDataList        = new Array<EmpireSaveData>();
@@ -136,7 +136,7 @@ namespace Ship_Game
                 SaveData.SolarSystemDataList.Add(new SolarSystemSaveData
                 {
                     Name           = system.Name,
-                    guid           = system.guid,
+                    Guid           = system.guid,
                     Position       = system.Position,
                     SunPath        = system.Sun.Id,
                     AsteroidsList  = system.AsteroidsList.Clone(),
@@ -159,7 +159,7 @@ namespace Ship_Game
                     empireToSave.Relations.Add(relation.Rel);
                 }
                 empireToSave.Name                 = e.data.Traits.Name;
-                empireToSave.empireData           = e.data.GetClone();
+                empireToSave.EmpireData           = e.data.GetClone();
                 empireToSave.Traits               = e.data.Traits;
                 empireToSave.ResearchTopic        = e.Research.Topic;
                 empireToSave.Money                = e.Money;
@@ -221,7 +221,7 @@ namespace Ship_Game
                         IsCoreFleet     = fleet.Value.IsCoreFleet,
                         TaskStep        = fleet.Value.TaskStep,
                         Key             = fleet.Key,
-                        facing          = fleet.Value.FinalDirection.ToRadians(), // @note Save game compatibility uses radians
+                        Facing          = fleet.Value.FinalDirection.ToRadians(), // @note Save game compatibility uses radians
                         FleetGuid       = fleet.Value.Guid,
                         Position        = fleet.Value.FinalPosition,
                         ShipsInFleet    = new Array<FleetShipSave>(),
@@ -238,8 +238,8 @@ namespace Ship_Game
                     {
                         fs.ShipsInFleet.Add(new FleetShipSave
                         {
-                            fleetOffset = ship.RelativeFleetOffset,
-                            shipGuid = ship.Guid
+                            FleetOffset = ship.RelativeFleetOffset,
+                            ShipGuid = ship.Guid
                         });
                     }
                     empireToSave.FleetsList.Add(fs);
@@ -277,7 +277,7 @@ namespace Ship_Game
                         BuildPosition = g.BuildPosition,
                         GoalStep      = g.Step,
                         ToBuildUID    = g.ToBuildUID,
-                        type          = g.type,
+                        Type          = g.type,
                         GoalGuid      = g.guid,
                         GoalName      = g.UID,
                         ShipLevel     = g.ShipLevel,
@@ -286,14 +286,14 @@ namespace Ship_Game
                         TetherOffset  = g.TetherOffset,
                         StarDateAdded = g.StarDateAdded
                     };
-                    if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.Guid;
-                    if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
-                    if (g.PlanetBuildingAt != null)   gdata.planetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
+                    if (g.FinishedShip != null)       gdata.ColonyShipGuid            = g.FinishedShip.guid;
+                    if (g.ColonizationTarget != null) gdata.MarkedPlanetGuid          = g.ColonizationTarget.guid;
+                    if (g.PlanetBuildingAt != null)   gdata.PlanetWhereBuildingAtGuid = g.PlanetBuildingAt.guid;
                     if (g.TargetSystem != null)       gdata.TargetSystemGuid          = g.TargetSystem.guid;
                     if (g.TargetPlanet != null)       gdata.TargetPlanetGuid          = g.TargetPlanet.guid;
-                    if (g.Fleet != null)              gdata.fleetGuid                 = g.Fleet.Guid;
-                    if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.Guid;
-                    if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.Guid;
+                    if (g.Fleet != null)              gdata.FleetGuid                 = g.Fleet.Guid;
+                    if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
+                    if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.guid;
                     if (g.TargetEmpire != null)       gdata.TargetEmpireId            = g.TargetEmpire.Id;
 
                     return gdata;
@@ -336,7 +336,7 @@ namespace Ship_Game
         public void Save(string saveAs, bool async)
         {
             SaveData.Size = new Vector2(Screen.UniverseSize);
-            SaveData.path = Dir.StarDriveAppData;
+            SaveData.Path = Dir.StarDriveAppData;
             SaveData.SaveAs = saveAs;
 
             string destFolder = DefaultSaveGameFolder;
@@ -373,7 +373,7 @@ namespace Ship_Game
             sdata.Hull = ship.ShipData.Hull;
             sdata.Power = ship.PowerCurrent;
             sdata.Ordnance = ship.Ordinance;
-            sdata.yRotation = ship.YRotation;
+            sdata.YRotation = ship.YRotation;
             sdata.Rotation = ship.Rotation;
             sdata.InCombat = ship.InCombat;
             sdata.FoodCount = ship.GetFood();
@@ -431,7 +431,7 @@ namespace Ship_Game
                     SpeedLimit       = sg.SpeedLimit,
                     MovePosition     = sg.MovePosition,
                     fleetGuid        = sg.Fleet?.Guid ?? Guid.Empty,
-                    goalGuid         = sg.Goal?.guid ?? Guid.Empty,
+                    GoalGuid         = sg.Goal?.guid ?? Guid.Empty,
                     TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
                     TargetShipGuid   = sg.TargetShip?.Guid ?? Guid.Empty,
                     MoveType         = sg.MoveType,
@@ -477,7 +477,7 @@ namespace Ship_Game
             sd.Hull      = ship.ShipData.Hull;
             sd.Power     = ship.PowerCurrent;
             sd.Ordnance  = ship.Ordinance;
-            sd.yRotation = ship.YRotation;
+            sd.YRotation = ship.YRotation;
             sd.Rotation  = ship.Rotation;
             sd.InCombat  = ship.InCombat;
             sd.AISave = new ShipAISave
@@ -571,7 +571,7 @@ namespace Ship_Game
             [StarData] public Array<SpaceRoadSave> SpaceRoadData;
             [StarData] public bool IsFaction;
             [StarData] public RacialTrait Traits;
-            [StarData] public EmpireData empireData;
+            [StarData] public EmpireData EmpireData;
             [StarData] public Array<ShipSaveData> OwnedShips;
             [StarData] public float Money;
             [StarData] public Array<TechEntry> TechTree;
@@ -621,7 +621,7 @@ namespace Ship_Game
             [StarData] public int TaskStep;
             [StarData] public Vector2 Position;
             [StarData] public Guid FleetGuid;
-            [StarData] public float facing;
+            [StarData] public float Facing;
             [StarData] public int Key;
             [StarData] public Array<FleetShipSave> ShipsInFleet;
             [StarData] public Array<FleetDataNode> DataNodes;
@@ -633,24 +633,24 @@ namespace Ship_Game
         [StarDataType]
         public struct FleetShipSave
         {
-            [StarData] public Guid shipGuid;
-            [StarData] public Vector2 fleetOffset;
+            [StarData] public Guid ShipGuid;
+            [StarData] public Vector2 FleetOffset;
 
-            public override string ToString() => $"FleetShipSave {shipGuid} {fleetOffset}";
+            public override string ToString() => $"FleetShipSave {ShipGuid} {FleetOffset}";
         }
 
         [StarDataType]
         public class GoalSave
         {
-            [StarData] public GoalType type;
+            [StarData] public GoalType Type;
             [StarData] public int GoalStep;
-            [StarData] public Guid markedPlanetGuid; // @note renamed to: Goal.ColonizationTarget
-            [StarData] public Guid colonyShipGuid;   // @note renamed to: Goal.FinishedShip
+            [StarData] public Guid MarkedPlanetGuid; // @note renamed to: Goal.ColonizationTarget
+            [StarData] public Guid ColonyShipGuid;   // @note renamed to: Goal.FinishedShip
             [StarData] public Vector2 BuildPosition;
             [StarData] public string ToBuildUID;
-            [StarData] public Guid planetWhereBuildingAtGuid;
+            [StarData] public Guid PlanetWhereBuildingAtGuid;
             [StarData] public string GoalName;
-            [StarData] public Guid fleetGuid;
+            [StarData] public Guid FleetGuid;
             [StarData] public Guid GoalGuid;
             [StarData] public Guid OldShipGuid;
             [StarData] public string VanityName;
@@ -677,8 +677,8 @@ namespace Ship_Game
         [StarDataType]
         public class PGSData
         {
-            [StarData] public int x;
-            [StarData] public int y;
+            [StarData] public int X;
+            [StarData] public int Y;
             [StarData] public Array<Troop> TroopsHere;
             [StarData] public bool Biosphere;
             [StarData] public Building building;
@@ -700,7 +700,7 @@ namespace Ship_Game
         [StarDataType]
         public class PlanetSaveData
         {
-            [StarData] public Guid guid;
+            [StarData] public Guid Guid;
             [StarData] public string SpecialDescription;
             [StarData] public string Name;
             [StarData] public float Scale;
@@ -714,16 +714,16 @@ namespace Ship_Game
             [StarData] public float OrbitalDistance;
             [StarData] public float Radius;
             [StarData] public bool HasRings;
-            [StarData] public float farmerPercentage;
-            [StarData] public float workerPercentage;
-            [StarData] public float researcherPercentage;
-            [StarData] public float foodHere;
-            [StarData] public float prodHere;
+            [StarData] public float FarmerPercentage;
+            [StarData] public float WorkerPercentage;
+            [StarData] public float ResearcherPercentage;
+            [StarData] public float FoodHere;
+            [StarData] public float ProdHere;
             [StarData] public PGSData[] PGSList;
             [StarData] public QueueItemSave[] QISaveList;
             [StarData] public Planet.ColonyType ColonyType;
             [StarData] public Planet.GoodState FoodState;
-            [StarData] public int Crippled_Turns;
+            [StarData] public int TurnsCrippled;
             [StarData] public Planet.GoodState ProdState;
             [StarData] public string[] ExploredBy;
             [StarData] public float TerraformPoints;
@@ -798,13 +798,13 @@ namespace Ship_Game
             [StarData] public string UID;
             [StarData] public Guid GoalGUID;
             [StarData] public float ProgressTowards;
-            [StarData] public bool isBuilding;
-            [StarData] public bool isTroop;
-            [StarData] public bool isShip;
+            [StarData] public bool IsBuilding;
+            [StarData] public bool IsTroop;
+            [StarData] public bool IsShip;
             [StarData] public string DisplayName;
             [StarData] public float Cost;
-            [StarData] public Vector2 pgsVector;
-            [StarData] public bool isPlayerAdded;
+            [StarData] public Vector2 PGSVector;
+            [StarData] public bool IsPlayerAdded;
             [StarData] public Array<Guid> TradeRoutes;
             [StarData] public RectangleData[] AreaOfOperation;
             [StarData] public bool TransportingColonists;
@@ -852,7 +852,7 @@ namespace Ship_Game
         public class ShipGoalSave
         {
             [StarData] public ShipAI.Plan Plan;
-            [StarData] public Guid goalGuid;
+            [StarData] public Guid GoalGuid;
             [StarData] public string VariableString;
             [StarData] public Guid fleetGuid;
             [StarData] public float SpeedLimit;
@@ -896,7 +896,7 @@ namespace Ship_Game
             [StarData] public string Hull; // ShipHull name
             [StarData] public string Name; // ShipData design name
             [StarData] public string VanityName; // User defined name
-            [StarData] public float yRotation;
+            [StarData] public float YRotation;
             [StarData] public float Power;
             [StarData] public float Ordnance;
             [StarData] public bool InCombat;
@@ -949,7 +949,7 @@ namespace Ship_Game
         [StarDataType]
         public class SolarSystemSaveData
         {
-            [StarData] public Guid guid;
+            [StarData] public Guid Guid;
             [StarData] public string SunPath; // old SunPath is actually the ID @todo RENAME
             [StarData] public string Name;
             [StarData] public Vector2 Position;
@@ -979,7 +979,7 @@ namespace Ship_Game
         public class UniverseSaveData
         {
             [StarData] public int SaveGameVersion;
-            [StarData] public string path;
+            [StarData] public string Path;
             [StarData] public string SaveAs;
             [StarData] public string FileName;
             [StarData] public string FogMapBase64;
@@ -991,7 +991,7 @@ namespace Ship_Game
             [StarData] public float GamePacing;
             [StarData] public Array<SolarSystemSaveData> SolarSystemDataList;
             [StarData] public Array<EmpireSaveData> EmpireDataList;
-            [StarData] public UniverseData.GameDifficulty gameDifficulty;
+            [StarData] public UniverseData.GameDifficulty GameDifficulty;
             [StarData] public bool AutoExplore;
             [StarData] public bool AutoColonize;
             [StarData] public bool AutoFreighters;
@@ -1005,7 +1005,7 @@ namespace Ship_Game
             [StarData] public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
             [StarData] public int IconSize;
             [StarData] public byte TurnTimer;
-            [StarData] public bool preventFederations;
+            [StarData] public bool PreventFederations;
             [StarData] public float GravityWellRange = GlobalStats.GravityWellRange;
             [StarData] public bool EliminationMode;
             [StarData] public bool AutoPickBestFreighter;

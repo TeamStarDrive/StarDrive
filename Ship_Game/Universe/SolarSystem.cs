@@ -724,8 +724,8 @@ namespace Ship_Game
 
                 var pdata = new SavedGame.PlanetSaveData
                 {
-                    Crippled_Turns       = planet.CrippledTurns,
-                    guid                 = planet.guid,
+                    TurnsCrippled       = planet.CrippledTurns,
+                    Guid                 = planet.guid,
                     FoodState            = planet.FS,
                     ProdState            = planet.PS,
                     FoodLock             = planet.Food.PercentLock,
@@ -745,12 +745,12 @@ namespace Ship_Game
                     OrbitalDistance      = planet.OrbitalRadius,
                     HasRings             = planet.HasRings,
                     Radius               = planet.ObjectRadius,
-                    farmerPercentage     = planet.Food.Percent,
-                    workerPercentage     = planet.Prod.Percent,
-                    researcherPercentage = planet.Res.Percent,
-                    foodHere             = planet.FoodHere,
+                    FarmerPercentage     = planet.Food.Percent,
+                    WorkerPercentage     = planet.Prod.Percent,
+                    ResearcherPercentage = planet.Res.Percent,
+                    FoodHere             = planet.FoodHere,
                     TerraformPoints      = planet.TerraformPoints,
-                    prodHere             = planet.ProdHere,
+                    ProdHere             = planet.ProdHere,
                     ColonyType           = planet.colonyType,
                     GovOrbitals          = planet.GovOrbitals,
                     GovGroundDefense     = planet.GovGroundDefense,

@@ -1,17 +1,19 @@
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class RandomEvent // Refactored by Fat Bastard - March 29, 2020
     {
-        [Serialize(0)] public string Name;
-        [Serialize(1)] public string NotificationString;
-        [Serialize(2)] public int TurnTimer;
-        [Serialize(3)] public bool InhibitWarp;
+        [StarData] public string Name;
+        [StarData] public string NotificationString;
+        [StarData] public int TurnTimer;
+        [StarData] public bool InhibitWarp;
     }
 
     public sealed class RandomEventManager

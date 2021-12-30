@@ -17,7 +17,7 @@ namespace Ship_Game
         {
             ParentSystem = system;
             
-            guid = data.guid;
+            guid = data.Guid;
             Name = data.Name;
             OrbitalAngle = data.OrbitalAngle;
             
@@ -55,14 +55,14 @@ namespace Ship_Game
             MineralRichness       = data.Richness;
             HasRings              = data.HasRings;
             ShieldStrengthCurrent = data.ShieldStrength;
-            CrippledTurns         = data.Crippled_Turns;
+            CrippledTurns         = data.TurnsCrippled;
             PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
             ObjectRadius          = 1000f * (float)(1 + (Math.Log(Scale) / 1.5));
             
             UpdateTerraformPoints(data.TerraformPoints);
 
             BaseFertilityTerraformRatio = data.BaseFertilityTerraformRatio;
-            SetWorkerPercentages(data.farmerPercentage, data.workerPercentage, data.researcherPercentage);
+            SetWorkerPercentages(data.FarmerPercentage, data.WorkerPercentage, data.ResearcherPercentage);
 
             SetWantedPlatforms(data.WantedPlatforms);
             SetWantedStations(data.WantedStations);

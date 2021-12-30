@@ -4,20 +4,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class TechEntry : IEquatable<TechEntry>
     {
-        [Serialize(0)] public string UID;
-        [Serialize(1)] public float Progress;
-        [Serialize(2)] public bool Discovered;
-        [Serialize(3)] public bool Unlocked;
-        [Serialize(4)] public int Level;
-        [Serialize(5)] public string AcquiredFrom { private get; set; }
-        [Serialize(6)] public bool shipDesignsCanuseThis = true;
-        [Serialize(7)] public Array<string> WasAcquiredFrom;
+        [StarData] public string UID;
+        [StarData] public float Progress;
+        [StarData] public bool Discovered;
+        [StarData] public bool Unlocked;
+        [StarData] public int Level;
+        [StarData] public string AcquiredFrom { private get; set; }
+        [StarData] public bool shipDesignsCanuseThis = true;
+        [StarData] public Array<string> WasAcquiredFrom;
 
 
         public bool Locked => !Unlocked;

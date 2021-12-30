@@ -1,10 +1,12 @@
 using System;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class Mole
     {
-        [Serialize(0)] public Guid PlanetGuid;
+        [StarData] public Guid PlanetGuid;
 
         public static Mole PlantMole(Empire owner, Empire target, out string targetPlanetName)
         {
