@@ -328,11 +328,11 @@ namespace Ship_Game
             if (SelectedShip == null)
                 return;
 
-            Empire leaderLoyalty = SelectedShip.loyalty;
+            Empire leaderLoyalty = SelectedShip.Loyalty;
             if (leaderLoyalty.isFaction)
-                Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.loyalty, this);
+                Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.Loyalty, this);
             else
-                DiplomacyScreen.Show(SelectedShip.loyalty, player, "Greeting");
+                DiplomacyScreen.Show(SelectedShip.Loyalty, player, "Greeting");
         }
 
         public override void LoadContent()
@@ -600,7 +600,7 @@ namespace Ship_Game
             var ships = EmpireManager.Player.OwnedShips;
             foreach (Ship ship in ships)
             {
-                if (ship.fleet != null || ship.OnLowAlert || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active)
+                if (ship.Fleet != null || ship.OnLowAlert || ship.IsHangarShip || ship.IsHomeDefense || !ship.Active)
                     continue;
                 if (nbrship == lastshipcombat)
                 {

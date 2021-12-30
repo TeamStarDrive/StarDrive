@@ -50,7 +50,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             {
                 Screen = screen;
                 Ship = ship;
-                if (!ship.shipData.IsReadonlyDesign && !ship.FromSave)
+                if (!ship.ShipData.IsReadonlyDesign && !ship.FromSave)
                     AddCancel(new Vector2(-30, 0), "Delete this Ship Design", 
                         () => PromptDeleteShip(Ship.Name));
             }
@@ -89,7 +89,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 if (Ship != null)
                 {
                     var bCursor = new Vector2(X + 35f, Y);
-                    batch.Draw(Ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    batch.Draw(Ship.ShipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     batch.DrawString(Fonts.Arial12Bold, Ship.Name, tCursor, Color.White);
@@ -232,7 +232,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             Ship[] ships = ResourceManager.ShipTemplates
                 .Filter(s => CanShowDesign(s, filter))
-                .OrderBy(s => !s.shipData.IsPlayerDesign)
+                .OrderBy(s => !s.ShipData.IsPlayerDesign)
                 .ThenBy(s => s.BaseHull.Style != EmpireManager.Player.data.Traits.ShipType)
                 .ThenBy(s => s.BaseHull.Style)
                 .ThenByDescending(s => s.BaseStrength)
@@ -287,24 +287,24 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (filter.NotEmpty() && !ship.Name.ToLower().Contains(filter))
                 return false;
 
-            if (ShowOnlyPlayerDesigns && !ship.shipData.IsPlayerDesign)
+            if (ShowOnlyPlayerDesigns && !ship.ShipData.IsPlayerDesign)
                 return false;
 
             if (UnlockAllDesigns)
-                return !ship.shipData.Deleted;
+                return !ship.ShipData.Deleted;
 
             string role = Localizer.GetRole(ship.DesignRole, EmpireManager.Player);
-            return !ship.shipData.Deleted
-                && !ship.shipData.IsShipyard
+            return !ship.ShipData.Deleted
+                && !ship.ShipData.IsShipyard
                 && EmpireManager.Player.WeCanBuildThis(ship.Name)
                 && (role.IsEmpty() || role == Localizer.GetRole(ship.DesignRole, EmpireManager.Player))
                 && (Empire.Universe?.Debug == true || !ship.IsSubspaceProjector)
-                && !ResourceManager.ShipRoles[ship.shipData.Role].Protected;
+                && !ResourceManager.ShipRoles[ship.ShipData.Role].Protected;
         }
 
         void LoadShipToScreen()
         {
-            Screen.ChangeHull(SelectedShip?.shipData ?? SelectedWIP);                
+            Screen.ChangeHull(SelectedShip?.ShipData ?? SelectedWIP);                
             ExitScreen();
         }
 

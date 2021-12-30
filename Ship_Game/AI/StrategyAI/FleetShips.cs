@@ -55,14 +55,14 @@ namespace Ship_Game.AI
             if (!ship.ShipIsGoodForGoals())
                 return false;
 
-            if (ship.fleet != null)
+            if (ship.Fleet != null)
             {
-                Log.Error($"FleetRatios: attempting to add a ship already in a fleet '{ship.fleet.Name}'. removing from fleet");
-                ship.fleet.RemoveShip(ship, returnToEmpireAI:false);
+                Log.Error($"FleetRatios: attempting to add a ship already in a fleet '{ship.Fleet.Name}'. removing from fleet");
+                ship.Fleet.RemoveShip(ship, returnToEmpireAI:false);
             }
 
             if (ship.IsPlatformOrStation
-                || ship.fleet != null
+                || ship.Fleet != null
                 || ship.IsHangarShip
                 || ship.AI.State == AIState.Scrap
                 || ship.AI.State == AIState.Resupply
@@ -362,7 +362,7 @@ namespace Ship_Game.AI
             {
                 foreach (var ship in ships)
                 {
-                    if (ship.fleet != null)
+                    if (ship.Fleet != null)
                         throw new Exception("Fleet should be null here.");
 
                     int n = ships.CountRef(ship);

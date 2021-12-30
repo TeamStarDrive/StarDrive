@@ -76,12 +76,12 @@ namespace Ship_Game
                 SubTexture projector = ResourceManager.Texture("ShipIcons/subspace_projector");
                 SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
 
-                SubTexture icon = Ship.IsSubspaceProjector ? projector : Ship.shipData.Icon;
+                SubTexture icon = Ship.IsSubspaceProjector ? projector : Ship.ShipData.Icon;
                 float iconSize = Height;
                 batch.Draw(icon, new Vector2(X, Y), new Vector2(iconSize));
           
                 batch.DrawString(Fonts.Arial10, Ship.Name, X+iconSize+2, Y+4);
-                batch.DrawString(Fonts.Arial8Bold, Ship.shipData.GetRole(), X+iconSize+2, Y+18, Color.Orange);
+                batch.DrawString(Fonts.Arial8Bold, Ship.ShipData.GetRole(), X+iconSize+2, Y+18, Color.Orange);
 
                 float prodX = Right - 120;
                 batch.DrawString(Fonts.Arial8Bold, Ship.GetMaintCost(EmpireManager.Player).String(2)+" BC/Y", prodX, Y+4, Color.Salmon); // Maintenance Cost

@@ -18,7 +18,7 @@ namespace Ship_Game.Ships.Components
 
         public LoyaltyChanges(Ship ship, Empire loyalty)
         {
-            ship.loyalty = loyalty;
+            ship.Loyalty = loyalty;
             ChangeTo = null;
             ChangeType = Type.None;
         }
@@ -28,8 +28,8 @@ namespace Ship_Game.Ships.Components
         // Classic chicken-egg paradox
         public void OnSpawn(Ship ship)
         {
-            if (ship.loyalty != EmpireManager.Void)
-                SetLoyaltyForNewShip(ship.loyalty);
+            if (ship.Loyalty != EmpireManager.Void)
+                SetLoyaltyForNewShip(ship.Loyalty);
         }
 
         // Loyalty change is ignored if loyalty == CurrentLoyalty
@@ -55,7 +55,7 @@ namespace Ship_Game.Ships.Components
         public bool Update(Ship ship)
         {
             Empire changeTo = ChangeTo;
-            if (ChangeType != Type.Spawn && (changeTo == null || changeTo == ship.loyalty))
+            if (ChangeType != Type.Spawn && (changeTo == null || changeTo == ship.Loyalty))
                 return false;
 
             Type type  = ChangeType;
@@ -82,20 +82,20 @@ namespace Ship_Game.Ships.Components
             if (type != Type.Spawn)
                 ship.AI.ClearOrdersAndWayPoints();
 
-            ship.loyalty.AddShipToManagedPools(ship);
+            ship.Loyalty.AddShipToManagedPools(ship);
             return true;
         }
 
         static void LoyaltyChangeDueToSpawn(Ship ship, Empire newLoyalty)
         {
-            ship.loyalty = newLoyalty;
+            ship.Loyalty = newLoyalty;
             IEmpireShipLists newShips = newLoyalty;
             newShips.AddNewShipAtEndOfTurn(ship);
         }
 
         static void LoyaltyChangeDueToBoarding(Ship ship, Empire newLoyalty, bool notification)
         {
-            Empire oldLoyalty = ship.loyalty;
+            Empire oldLoyalty = ship.Loyalty;
             ship.RemoveFromPoolAndFleet(clearOrders: true);
             oldLoyalty.TheyKilledOurShip(newLoyalty, ship);
             newLoyalty.WeKilledTheirShip(oldLoyalty, ship);
@@ -110,7 +110,7 @@ namespace Ship_Game.Ships.Components
 
         static void LoyaltyChangeDueToFederation(Ship ship, Empire newLoyalty, bool notification)
         {
-            Empire oldLoyalty = ship.loyalty;
+            Empire oldLoyalty = ship.Loyalty;
             SafelyTransferShip(ship, oldLoyalty, newLoyalty);
 
             // TODO: change to absorbed ship notification
@@ -124,10 +124,10 @@ namespace Ship_Game.Ships.Components
         {
             // remove ship from fleet but do not add it back to empire pools.
 
-            ship.loyalty = newLoyalty;
+            ship.Loyalty = newLoyalty;
 
             oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
-            ship.shipStatusChanged = true;
+            ship.ShipStatusChanged = true;
             ship.SwitchTroopLoyalty(oldLoyalty, newLoyalty);
             ship.ReCalculateTroopsAfterBoard();
             ship.ScuttleTimer = -1f; // Cancel any active self destruct

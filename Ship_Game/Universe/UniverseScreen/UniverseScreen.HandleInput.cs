@@ -447,7 +447,7 @@ namespace Ship_Game
                 if (targetFleet?.Ships.Count > 0)
                 {
                     // create a list of ships that are not part of the target fleet. 
-                    var ships = new Array<Ship>(SelectedShipList.Filter(s => s.fleet != targetFleet));
+                    var ships = new Array<Ship>(SelectedShipList.Filter(s => s.Fleet != targetFleet));
 
                     // bail if there are no extra ships that are not already part of the target fleet. 
                     if (ships.Count == 0)
@@ -588,7 +588,7 @@ namespace Ship_Game
             if (ship == null || ship != SelectedShip || SelectedShip.IsHangarShip ||
                 SelectedShip.IsConstructor) return false;
 
-            LoadShipMenuNodes(ship.loyalty == player ? 1 : 0);
+            LoadShipMenuNodes(ship.Loyalty == player ? 1 : 0);
             if (!pieMenu.Visible)
             {
                 pieMenu.RootNode = shipMenu;
@@ -709,7 +709,7 @@ namespace Ship_Game
 
             if (SelectedShipList.Count == 1)
             {
-                LoadShipMenuNodes(SelectedShipList[0].loyalty == player ? 1 : 0);
+                LoadShipMenuNodes(SelectedShipList[0].Loyalty == player ? 1 : 0);
                 return;
             }
 
@@ -781,7 +781,7 @@ namespace Ship_Game
 
                 SelectedShip = SelectedShipList[0];
                 ShipInfoUIElement.SetShip(SelectedShip);
-                LoadShipMenuNodes(SelectedShipList[0]?.loyalty == player ? 1 : 0);
+                LoadShipMenuNodes(SelectedShipList[0]?.Loyalty == player ? 1 : 0);
             }
 
             SelectionBox = new Rectangle(0, 0, -1, -1);
@@ -794,8 +794,8 @@ namespace Ship_Game
 
         bool NonCombatShip(Ship ship)
         {
-            return ship != null && (ship.shipData.Role <= RoleName.freighter 
-                                    || ship.shipData.ShipCategory == ShipCategory.Civilian 
+            return ship != null && (ship.ShipData.Role <= RoleName.freighter 
+                                    || ship.ShipData.ShipCategory == ShipCategory.Civilian 
                                     || ship.DesignRole == RoleName.troop
                                     || ship.Weapons.Count == 0 && !ship.Carrier.HasFighterBays
                                     || ship.AI.State == AIState.Colonize);
@@ -816,8 +816,8 @@ namespace Ship_Game
             // TODO: These are not documented to the players
             bool addToSelection = input.IsShiftKeyDown;
             bool selectAll      = input.IsCtrlKeyDown || !hasCombatShips;
-            bool nonPlayer      = input.IsAltKeyDown || !potentialShips.Any(s => s.loyalty.isPlayer);
-            bool onlyPlayer     = !nonPlayer && potentialShips.Any(s => s.loyalty.isPlayer);
+            bool nonPlayer      = input.IsAltKeyDown || !potentialShips.Any(s => s.Loyalty.isPlayer);
+            bool onlyPlayer     = !nonPlayer && potentialShips.Any(s => s.Loyalty.isPlayer);
 
             var ships = new Array<Ship>();
             if (addToSelection)
@@ -825,8 +825,8 @@ namespace Ship_Game
 
             foreach (Ship ship in potentialShips)
             {
-                if       (onlyPlayer && ship.loyalty.isPlayer) ships.AddUnique(ship);
-                else if  (nonPlayer && !ship.loyalty.isPlayer) ships.AddUnique(ship);
+                if       (onlyPlayer && ship.Loyalty.isPlayer) ships.AddUnique(ship);
+                else if  (nonPlayer && !ship.Loyalty.isPlayer) ships.AddUnique(ship);
             }
 
             if (onlyPlayer && !selectAll && fleet == null) // Need to remove non combat ship.
@@ -843,9 +843,9 @@ namespace Ship_Game
                     ships.RemoveAll(s => !s.IsSingleTroopShip);
             }
 
-            if (onlyPlayer && ships.Count > 0 && ships.First.fleet != null)
+            if (onlyPlayer && ships.Count > 0 && ships.First.Fleet != null)
             {
-                Fleet groupFleet = ships.Any(s => s.fleet != ships.First.fleet) ? null : ships.First.fleet;
+                Fleet groupFleet = ships.Any(s => s.Fleet != ships.First.Fleet) ? null : ships.First.Fleet;
                 if (groupFleet != null && groupFleet.Ships.Count == ships.Count)
                     fleet = groupFleet; // All the fleet was selected
             }
@@ -1086,7 +1086,7 @@ namespace Ship_Game
                 foreach (ClickableShip clickTest in ClickableShipsList)
                 {
                     var ship = clickTest.shipToClick;
-                    if (clicked == ship || ship.loyalty != clicked.loyalty)
+                    if (clicked == ship || ship.Loyalty != clicked.Loyalty)
                         continue;
 
                     bool sameHull   = ship.BaseHull == clicked.BaseHull;
@@ -1489,7 +1489,7 @@ namespace Ship_Game
         public bool IsShipUnderFleetIcon(Ship ship, Vector2 screenPos, float fleetIconScreenRadius)
         {
             foreach (ClickableFleet clickableFleet in ClickableFleetsList)
-                if (clickableFleet.fleet == ship.fleet && screenPos.InRadius(clickableFleet.ScreenPos, fleetIconScreenRadius))
+                if (clickableFleet.fleet == ship.Fleet && screenPos.InRadius(clickableFleet.ScreenPos, fleetIconScreenRadius))
                     return true;
             return false;
         }

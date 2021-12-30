@@ -486,7 +486,7 @@ namespace Ship_Game
             if (s != null)
             {
                 recover.ReferencedItem1 = s;
-                recover.IconPath        = s.shipData.BaseHull.IconPath;
+                recover.IconPath        = s.ShipData.BaseHull.IconPath;
                 recover.Action          = "SnapToShip";
             }
             else
@@ -675,7 +675,7 @@ namespace Ship_Game
             string message = $"{Localizer.Token(GameText.DestroyedPirateBase)} {reward.String(0)} credits.";
             AddNotification(new Notification
             {
-                RelevantEmpire  = s.loyalty,
+                RelevantEmpire  = s.Loyalty,
                 Message         = message,
                 ReferencedItem1 = s,
                 DestinationRect = DefaultNotificationRect

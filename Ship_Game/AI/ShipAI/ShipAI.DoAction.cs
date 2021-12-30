@@ -17,7 +17,7 @@ namespace Ship_Game.AI
             HasPriorityTarget = true;
             State             = AIState.Boarding;
             var escortTarget  = EscortTarget;
-            if (Owner.TroopCount < 1 || escortTarget == null || !escortTarget.Active || escortTarget.loyalty == Owner.loyalty)
+            if (Owner.TroopCount < 1 || escortTarget == null || !escortTarget.Active || escortTarget.Loyalty == Owner.Loyalty)
             {
                 ClearOrders(State);
                 if (Owner.IsHangarShip)
@@ -48,14 +48,14 @@ namespace Ship_Game.AI
             if (ship == null)
                 return false;
 
-            if (ship.Active && !ship.dying && !ship.IsInWarp &&
-                Owner.loyalty.IsEmpireAttackable(ship.loyalty, ship))
+            if (ship.Active && !ship.Dying && !ship.IsInWarp &&
+                Owner.Loyalty.IsEmpireAttackable(ship.Loyalty, ship))
                 return true;
 
-            return Owner.loyalty.isPlayer 
+            return Owner.Loyalty.isPlayer 
                    && HasPriorityTarget 
                    && ship.InSensorRange
-                   && !Owner.loyalty.IsAlliedWith(ship.loyalty);
+                   && !Owner.Loyalty.IsAlliedWith(ship.Loyalty);
         }
 
         Ship UpdateCombatTarget()
@@ -95,12 +95,12 @@ namespace Ship_Game.AI
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
 
-                if (FleetNode != null && Owner.fleet != null && HasPriorityOrder)
+                if (FleetNode != null && Owner.Fleet != null && HasPriorityOrder)
                 {
                     // TODO: need to move this into fleet.
-                    if (Owner.fleet.FleetTask == null)
+                    if (Owner.Fleet.FleetTask == null)
                     {
-                        Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                        Vector2 nodePos = Owner.Fleet.AveragePosition() + FleetNode.FleetOffset;
                         if (target.Position.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                         {
                             if (Owner.Position.OutsideRadius(nodePos, 1000f))
@@ -116,7 +116,7 @@ namespace Ship_Game.AI
                     }
                     else
                     {
-                        var task = Owner.fleet.FleetTask;
+                        var task = Owner.Fleet.FleetTask;
                         if (target.Position.OutsideRadius(task.AO, Math.Max(task.AORadius, FleetNode.OrdersRadius)))
                         {
                             DequeueCurrentOrder();
@@ -187,7 +187,7 @@ namespace Ship_Game.AI
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.Loyalty, g.Goal.BuildPosition);
             if (orbital == null)
                 return;
 
@@ -218,7 +218,7 @@ namespace Ship_Game.AI
             }
 
             Planet target = Empire.Universe.GetPlanet(g.Goal.TetherTarget);
-            if (target == null || target.Owner != Owner.loyalty) // FB - Planet owner has changed
+            if (target == null || target.Owner != Owner.Loyalty) // FB - Planet owner has changed
             {
                 OrderScrapShip();
                 return;
@@ -228,7 +228,7 @@ namespace Ship_Game.AI
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.Loyalty, g.Goal.BuildPosition);
             if (orbital != null)
             {
                 orbital.Position = g.Goal.BuildPosition;
@@ -244,14 +244,14 @@ namespace Ship_Game.AI
 
         void AddStructureToRoadsList(ShipGoal g, Ship platform)
         {
-            foreach (SpaceRoad road in Owner.loyalty.SpaceRoadsList)
+            foreach (SpaceRoad road in Owner.Loyalty.SpaceRoadsList)
             {
                 foreach (RoadNode node in road.RoadNodesList)
                 {
                     if (node.Position == g.Goal.BuildPosition)
                     {
                         node.Platform = platform;
-                        StatTracker.StatAddRoad(Empire.Universe.StarDate, node, Owner.loyalty);
+                        StatTracker.StatAddRoad(Empire.Universe.StarDate, node, Owner.Loyalty);
                         return;
                     }
                 }
@@ -264,13 +264,13 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
             if (ExplorationTarget == null)
             {
-                if (!Owner.loyalty.GetEmpireAI().ExpansionAI.AssignExplorationTargetSystem(Owner, out ExplorationTarget))
+                if (!Owner.Loyalty.GetEmpireAI().ExpansionAI.AssignExplorationTargetSystem(Owner, out ExplorationTarget))
                     ClearOrders(); // FB - could not find a new system to explore
             }
             else if (DoExploreSystem(timeStep))
             {
-                Owner.loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
-                ExplorationTarget.AddSystemExploreSuccessMessage(Owner.loyalty);
+                Owner.Loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
+                ExplorationTarget.AddSystemExploreSuccessMessage(Owner.Loyalty);
                 ExplorationTarget = null;
             }
         }
@@ -300,14 +300,14 @@ namespace Ship_Game.AI
 
             if (!TryGetClosestUnexploredPlanet(ExplorationTarget, out PatrolTarget))
             {
-                ExplorationTarget.UpdateFullyExploredBy(Owner.loyalty);
+                ExplorationTarget.UpdateFullyExploredBy(Owner.Loyalty);
                 return true; // All planets explored
             }
 
             MovePosition           = PatrolTarget.Center;
             float distanceToTarget = Owner.Position.Distance(MovePosition);
             if (distanceToTarget < 75000f)
-                PatrolTarget.ParentSystem.SetExploredBy(Owner.loyalty);
+                PatrolTarget.ParentSystem.SetExploredBy(Owner.Loyalty);
 
             if (distanceToTarget >= 5500f)
             {
@@ -317,7 +317,7 @@ namespace Ship_Game.AI
             {
                 ThrustOrWarpToPos(MovePosition, timeStep);
                 if (distanceToTarget < 500f)
-                    PatrolTarget.SetExploredBy(Owner.loyalty);
+                    PatrolTarget.SetExploredBy(Owner.Loyalty);
             }
 
             return false;
@@ -325,13 +325,13 @@ namespace Ship_Game.AI
 
         bool DoExploreEmptySystem(FixedSimTime timeStep, SolarSystem system)
         {
-            if (system.IsExploredBy(Owner.loyalty))
+            if (system.IsExploredBy(Owner.Loyalty))
                 return true;
 
             MovePosition = system.Position;
             if (Owner.Position.InRadius(MovePosition, 75000f))
             {
-                system.SetExploredBy(Owner.loyalty);
+                system.SetExploredBy(Owner.Loyalty);
                 return true;
             }
 
@@ -359,8 +359,8 @@ namespace Ship_Game.AI
         {
             Planet planet = goal.TargetPlanet;
             if (planet.Owner != null 
-                && planet.Owner != Owner.loyalty 
-                && !Owner.loyalty.IsAtWarWith(planet.Owner))
+                && planet.Owner != Owner.Loyalty 
+                && !Owner.Loyalty.IsAtWarWith(planet.Owner))
             {
                 AbortLandNoFleet(planet);
                 return;
@@ -409,7 +409,7 @@ namespace Ship_Game.AI
 
             if (Orbit.InOrbit)
             {
-                if (planet.WeCanLandTroopsViaSpacePort(Owner.loyalty))
+                if (planet.WeCanLandTroopsViaSpacePort(Owner.Loyalty))
                     Owner.LandTroopsOnPlanet(planet); // We can land all our troops without assault bays since its our planet with space port
                 else
                     Owner.Carrier.AssaultPlanet(planet); // Launch Assault shuttles or use Transporters (STSA)
@@ -478,7 +478,7 @@ namespace Ship_Game.AI
 
         void DoOrdinanceTransporterLogic(ShipModule module)
         {
-            var ships = (Array<Ship>)module.GetParent().loyalty.OwnedShips;
+            var ships = (Array<Ship>)module.GetParent().Loyalty.OwnedShips;
             Ship repairMe = ships.FindMinFiltered(
                         filter: ship => Owner.Position.Distance(ship.Position) <= module.TransporterRange + 500f
                                         && ship.Ordinance < ship.OrdinanceMax && !ship.Carrier.HasOrdnanceTransporters,
@@ -504,7 +504,7 @@ namespace Ship_Game.AI
                 return;
 
             ShipWeight ship = NearByShips.Where(
-                    s => s.Ship.loyalty != null && s.Ship.loyalty != Owner.loyalty && s.Ship.shield_power <= 0
+                    s => s.Ship.Loyalty != null && s.Ship.Loyalty != Owner.Loyalty && s.Ship.ShieldPower <= 0
                          && s.Ship.Position.InRadius(Owner.Position, module.TransporterRange + 500f))
                 .OrderBy(sw => Owner.Position.SqDist(sw.Ship.Position))
                 .FirstOrDefault();
@@ -526,7 +526,7 @@ namespace Ship_Game.AI
             if (!Owner.IsHangarShip || !Owner.Mothership.Active)
             {
                 ClearOrders(State);
-                if (Owner.shipData.Role == RoleName.supply)
+                if (Owner.ShipData.Role == RoleName.supply)
                     OrderScrapShip();
                 else
                     GoOrbitNearestPlanetAndResupply(true);
@@ -577,10 +577,10 @@ namespace Ship_Game.AI
 
         void DoReturnHome(FixedSimTime timeStep)
         {
-            if (Owner.HomePlanet?.Owner != Owner.loyalty)
+            if (Owner.HomePlanet?.Owner != Owner.Loyalty)
             {
                 // find another friendly planet to land at
-                Owner.UpdateHomePlanet(Owner.loyalty.RallyShipYardNearestTo(Owner.Position));
+                Owner.UpdateHomePlanet(Owner.Loyalty.RallyShipYardNearestTo(Owner.Position));
                 if (!Owner.IsHomeDefense // new home planet not found
                     || Owner.HomePlanet.ParentSystem != Owner.System && !Owner.BaseCanWarp) // Cannot warp and its in another system
                 {
@@ -703,7 +703,7 @@ namespace Ship_Game.AI
         void DoSystemDefense(FixedSimTime timeStep)
         {
             SystemToDefend = SystemToDefend ?? Owner.System;
-            if (SystemToDefend == null || AwaitClosest?.Owner == Owner.loyalty)
+            if (SystemToDefend == null || AwaitClosest?.Owner == Owner.Loyalty)
                 AwaitOrders(timeStep);
             else
                 OrderSystemDefense(SystemToDefend);
@@ -731,15 +731,15 @@ namespace Ship_Game.AI
         bool DoBombard(FixedSimTime timeStep, ShipGoal goal)
         {
             Planet planet = goal.TargetPlanet;
-            if (!planet.TroopsHereAreEnemies(Owner.loyalty) && planet.Population <= 0f // Everyone is dead
-                || planet.Owner != null && !Owner.loyalty.IsEmpireAttackable(planet.Owner))
+            if (!planet.TroopsHereAreEnemies(Owner.Loyalty) && planet.Population <= 0f // Everyone is dead
+                || planet.Owner != null && !Owner.Loyalty.IsEmpireAttackable(planet.Owner))
             {
                 ClearOrders();
                 AddOrbitPlanetGoal(planet); // Stay in Orbit
             }
 
             Orbit.Orbit(planet, timeStep);
-            if (planet.Owner == Owner.loyalty)
+            if (planet.Owner == Owner.Loyalty)
             {
                 ClearOrders();
                 return true; // skip combat rest of the update
@@ -753,7 +753,7 @@ namespace Ship_Game.AI
         {
             Planet planet = goal.TargetPlanet;
             Orbit.Orbit(planet, timeStep);
-            if (planet.Owner == Owner.loyalty || planet.Owner == null)
+            if (planet.Owner == Owner.Loyalty || planet.Owner == null)
             {
                 ClearOrders();
                 OrderFindExterminationTarget();

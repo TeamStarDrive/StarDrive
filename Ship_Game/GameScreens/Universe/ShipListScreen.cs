@@ -291,10 +291,10 @@ namespace Ship_Game
             }
 
             if (SortName.HandleInput(input))   SortAndReset(SortName,  sl => sl.Ship.VanityName);
-            if (SortRole.HandleInput(input))   SortAndReset(SortRole,  sl => sl.Ship.shipData.Role);
+            if (SortRole.HandleInput(input))   SortAndReset(SortRole,  sl => sl.Ship.ShipData.Role);
             if (SortOrder.HandleInput(input))  SortAndReset(SortOrder, sl => ShipListScreenItem.GetStatusText(sl.Ship));
             if (SortSystem.HandleInput(input)) SortAndReset(SortOrder, sl => sl.Ship.SystemName);
-            if (SortFleet.HandleInput(input))  SortAndReset(SortOrder, sl => sl.Ship.fleet?.Name ?? "None");
+            if (SortFleet.HandleInput(input))  SortAndReset(SortOrder, sl => sl.Ship.Fleet?.Name ?? "None");
             
             UniverseScreen universe = Empire.Universe;
 
@@ -370,9 +370,9 @@ namespace Ship_Game
             bool ShouldAddForCategory(Ship ship, int forCategory)
             {
                 if (ship.IsHangarShip || ship.IsHomeDefense
-                    || PlayerDesignsOnly && !ship.shipData.IsPlayerDesign
-                    || InFleetsOnly && ship.fleet == null
-                    || NotInFleets && ship.fleet != null)
+                    || PlayerDesignsOnly && !ship.ShipData.IsPlayerDesign
+                    || InFleetsOnly && ship.Fleet == null
+                    || NotInFleets && ship.Fleet != null)
                 {
                     return false;
                 }
@@ -391,7 +391,7 @@ namespace Ship_Game
                     case 10: return ship.DesignRole == RoleName.troopShip || ship.DesignRole == RoleName.troop;
                     case 11: return ship.DesignRole == RoleName.support;
                     case 12: return ship.DesignRole <= RoleName.platform || ship.DesignRole == RoleName.station;
-                    case 13: return ship.IsConstructor || ship.DesignRole == RoleName.freighter || ship.shipData.ShipCategory == ShipCategory.Civilian;
+                    case 13: return ship.IsConstructor || ship.DesignRole == RoleName.freighter || ship.ShipData.ShipCategory == ShipCategory.Civilian;
                 }
 
                 return false;

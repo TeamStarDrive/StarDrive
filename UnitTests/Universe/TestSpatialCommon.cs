@@ -131,9 +131,9 @@ namespace UnitTests.Universe
                     if (notShip != null)
                         Assert.AreNotEqual(notShip, foundShip);
                     if (expected != null)
-                        Assert.AreEqual(expected, foundShip.loyalty);
+                        Assert.AreEqual(expected, foundShip.Loyalty);
                     else if (notExpected != null)
-                        Assert.AreNotEqual(notExpected, foundShip.loyalty);
+                        Assert.AreNotEqual(notExpected, foundShip.Loyalty);
                 }
                 else
                     Assert.Fail($"FindNearby result is not a Ship! {foundObj}");
@@ -169,11 +169,11 @@ namespace UnitTests.Universe
                 {
                     MaxResults = 32,
                     Exclude = s,
-                    OnlyLoyalty = s.loyalty,
+                    OnlyLoyalty = s.Loyalty,
                 };
                 GameplayObject[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
-                CheckShipsLoyalty(found, expected:s.loyalty, notShip:s);
+                CheckShipsLoyalty(found, expected:s.Loyalty, notShip:s);
             }
         }
         
@@ -190,11 +190,11 @@ namespace UnitTests.Universe
                 {
                     MaxResults = 32,
                     Exclude = s,
-                    ExcludeLoyalty = s.loyalty,
+                    ExcludeLoyalty = s.Loyalty,
                 };
                 GameplayObject[] found = tree.FindNearby(ref opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
-                CheckShipsLoyalty(found, notExpected:s.loyalty, notShip:s);
+                CheckShipsLoyalty(found, notExpected:s.Loyalty, notShip:s);
             }
         }
         
@@ -214,12 +214,12 @@ namespace UnitTests.Universe
             {
                 MaxResults = 32,
                 Exclude = s,
-                OnlyLoyalty = s.loyalty, // loyalty must be '1', not '0'
+                OnlyLoyalty = s.Loyalty, // loyalty must be '1', not '0'
             };
             GameplayObject[] found = tree.FindNearby(ref opt);
             Assert.AreEqual(3, found.Length, "FindNearby must include all friends and not self");
             CheckFindNearby(found, GameObjectType.Ship, s.Position, 30000);
-            CheckShipsLoyalty(found, expected:s.loyalty, notShip:s);
+            CheckShipsLoyalty(found, expected:s.Loyalty, notShip:s);
         }
         
         [TestMethod]

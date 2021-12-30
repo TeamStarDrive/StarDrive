@@ -79,7 +79,7 @@ namespace Ship_Game.Ships
 
         public static CarrierBays Create(Ship owner, ShipModule[] slots)
         {
-            RoleName role = owner.shipData.Role;
+            RoleName role = owner.ShipData.Role;
             if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar
                             || m.ModuleType == ShipModuleType.Transporter)
                             || role == RoleName.troop)
@@ -241,7 +241,7 @@ namespace Ship_Game.Ships
             if (Owner == null || Owner.IsSpoolingOrInWarp || RecallingShipsBeforeWarp)
                 return;
 
-            ShipModule[] readyHangars = PrepShipHangars(Owner.loyalty);
+            ShipModule[] readyHangars = PrepShipHangars(Owner.Loyalty);
             for (int i = 0; i < readyHangars.Length; ++i)
                 readyHangars[i].ScrambleFighters();
         }
@@ -495,9 +495,9 @@ namespace Ship_Game.Ships
 
                     slowestFighterSpeed = hangarShip.MaxSTLSpeed.UpperBound(slowestFighterSpeed);
                     float rangeToCarrier = hangarShip.Position.Distance(Owner.Position);
-                    if (hangarShip.EMPdisabled
-                        || !hangarShip.hasCommand
-                        || hangarShip.dying
+                    if (hangarShip.EMPDisabled
+                        || !hangarShip.HasCommand
+                        || hangarShip.Dying
                         || hangarShip.EnginesKnockedOut
                         || rangeToCarrier > Owner.SensorRange)
                     {
@@ -741,7 +741,7 @@ namespace Ship_Game.Ships
 
         public void HandleHangarShipsScramble()
         {
-            if (Owner?.loyalty.isPlayer == true)
+            if (Owner?.Loyalty.isPlayer == true)
             {
 
                 if (FightersLaunched) // for ships with hangars and with fighters out button on.
@@ -767,7 +767,7 @@ namespace Ship_Game.Ships
             if (Owner == null)
                 return; // not a carrier
 
-            bool isAI = !Owner.loyalty.isPlayer;
+            bool isAI = !Owner.Loyalty.isPlayer;
             for (int i = 0; i < AllFighterHangars.Length; i++)
             {
                 ShipModule hangar = AllFighterHangars[i];

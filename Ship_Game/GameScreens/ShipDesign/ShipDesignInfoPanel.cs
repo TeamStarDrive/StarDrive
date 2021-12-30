@@ -86,10 +86,10 @@ namespace Ship_Game.GameScreens.ShipDesign
             Val(() => S.Health, GT.TotalHitpoints, GT.TT_HitPoints, Tint.Pos, protect);
             ValNZ(() => S.RepairRate, GT.RepairRate, GT.TT_RepairRate, Tint.Pos, protect);
 
-            Val(() => S.shield_max, GT.ShieldPower, GT.TT_ShieldPower, Tint.Pos, protect, vis: Ds.HasRegularShields);
-            Val(() => S.shield_max, GT.ShieldPower, GT.TT_ShieldPower, Tint.Pos, Color.Gold, vis: Ds.HasAmplifiedMains);
+            Val(() => S.ShieldMax, GT.ShieldPower, GT.TT_ShieldPower, Tint.Pos, protect, vis: Ds.HasRegularShields);
+            Val(() => S.ShieldMax, GT.ShieldPower, GT.TT_ShieldPower, Tint.Pos, Color.Gold, vis: Ds.HasAmplifiedMains);
             ValNZ(() => (int)S.Stats.ShieldAmplifyPerShield, GT.ShieldAmplify, GT.TT_ShieldAmplify, Tint.Pos, protect);
-            ValNZ(() => S.BonusEMP_Protection, GT.EmpProtection, GT.TT_EmpProtection, Tint.Pos, protect);
+            ValNZ(() => S.BonusEMPProtection, GT.EmpProtection, GT.TT_EmpProtection, Tint.Pos, protect);
             ValNZ(() => S.ECMValue, GT.Ecm3, GT.TT_Ecm3, Tint.Pos, protect);
             Line();
 

@@ -55,7 +55,7 @@ namespace Ship_Game.Ships
         /// Optimized quite heavily to handle the most common case
         public void SetProjectorInfluence(Empire empire, bool isInsideInfluence)
         {
-            if (empire == loyalty)
+            if (empire == Loyalty)
             {
                 InOwnerInfluence    = isInsideInfluence;
                 OwnerInfluenceTimer = EmpireConstants.InfluenceEffectTime;
@@ -72,7 +72,7 @@ namespace Ship_Game.Ships
                     }
                 }
 
-                Relationship relation = loyalty.GetRelations(empire);
+                Relationship relation = Loyalty.GetRelations(empire);
                 if (relation == null) 
                     return;
 
@@ -90,7 +90,7 @@ namespace Ship_Game.Ships
 
         public bool IsInBordersOf(Empire empire)
         {
-            if (empire == loyalty) return InOwnerInfluence;
+            if (empire == Loyalty) return InOwnerInfluence;
 
             return Influences?.Any(i=> i.Foreign == empire && i.Timer > 0) ?? false;
         }
@@ -98,7 +98,7 @@ namespace Ship_Game.Ships
         public IEnumerable<Empire> GetProjectorInfluenceEmpires()
         {
             if (InOwnerInfluence)
-                yield return loyalty;
+                yield return Loyalty;
             for (int i = 0; i < InfluenceCount; ++i)
             {
                 if (Influences[i].Timer > 0)
