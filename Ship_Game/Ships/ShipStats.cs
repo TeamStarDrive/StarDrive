@@ -197,6 +197,8 @@ namespace Ship_Game.Ships
             float radsPerSec = TurnThrust / Mass / 700f;
             if (level > 0)
                 radsPerSec += radsPerSec * level * 0.05f;
+
+            radsPerSec *= 1 - S.TractorDamage / Mass;
             return Math.Min(radsPerSec, Ship.MaxTurnRadians);
         }
 
