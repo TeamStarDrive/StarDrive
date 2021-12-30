@@ -702,7 +702,7 @@ namespace Ship_Game.Ships
             return dmg;
         }
 
-        public void DamageShield(float damageAmount, out float remainder)
+        public void DamageShield(float damageAmount, Projectile proj, Beam beam, out float remainder)
         {
             remainder = 0;
             if (damageAmount < 0.01f)
@@ -710,6 +710,19 @@ namespace Ship_Game.Ships
             
             remainder   = (damageAmount - ShieldPower).LowerBound(0);
             ShieldPower = (ShieldPower - damageAmount).LowerBound(0);
+
+            if (proj != null)
+            {
+                if (beam != null)
+                {
+                    CauseSiphonDamage(beam);
+                    BeamTractorDamage(beam, hittingShields: true);
+                }
+
+                if (Parent.IsVisibleToPlayer)
+                    Shield.HitShield(this, proj);
+            }
+
             Parent.UpdateShields();
         }
 
@@ -744,8 +757,8 @@ namespace Ship_Game.Ships
                     : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
             }
 
-            float healthBefore = Health + ShieldPower;
-            if (!TryDamageModule(source, damageAmount * damageModifier))
+            float modifiedDamage = damageAmount * damageModifier;
+            if (!TryDamageModule(source, modifiedDamage, out float grossRemainder))
             {
                 damageRemainder = 0f;
                 if (source != null)
@@ -758,12 +771,12 @@ namespace Ship_Game.Ships
 
             DebugDamageCircle();
 
-            float absorbedDamage = healthBefore - (Health + ShieldPower);
+            float absorbedDamage = modifiedDamage - grossRemainder;
             if (damageModifier <= 1) // below 1, resistance. above 1, vulnerability.
-                absorbedDamage /= damageModifier; // module absorbed more dam because of good resistance
-            // else: extra dam already calculated
+                absorbedDamage /= damageModifier; // module absorbed more damage because of good resistance
 
-            if (source != null) EvtDamageInflicted(source, absorbedDamage);
+            if (source != null)
+                EvtDamageInflicted(source, absorbedDamage);
 
             damageRemainder = (int)(damageAmount - absorbedDamage);
         }
@@ -823,8 +836,11 @@ namespace Ship_Game.Ships
         public override void Damage(GameplayObject source, float damageAmount)
             => Damage(source, damageAmount, out float _);
 
-        bool TryDamageModule(GameplayObject source, float modifiedDamage)
+
+        // Note - this assumes that projectile effect of ignore shield was taken into account. 
+        bool TryDamageModule(GameplayObject source, float modifiedDamage, out float remainder)
         {
+            remainder = modifiedDamage;
             if (source != null)
                 Parent.LastDamagedBy = LastDamagedBy = source;
 
@@ -844,25 +860,9 @@ namespace Ship_Game.Ships
                     return false; // no damage could be done, the projectile was deflected.
             }
 
-            // BUG: So this makes it so that if ShieldPower is greater than zero the module wont be damaged.
-            // even if the damage is greater than the shield amount.
             if (damagingShields)
             {
-                ShieldPower = (ShieldPower - modifiedDamage).Clamped(0, ShieldPower);
-
-                if (proj != null)
-                {
-                    if (beam != null)
-                    {
-                        CauseSiphonDamage(beam);
-                        BeamTractorDamage(beam, hittingShields: true);
-                    }
-
-                    if (Parent.IsVisibleToPlayer)
-                        Shield.HitShield(this, proj);
-                }
-
-                Parent.UpdateShields();
+                DamageShield(modifiedDamage, proj, beam, out remainder);
                 //Log.Info($"{Parent.Name} shields '{UID}' dmg {modifiedDamage} shld {ShieldPower} by {proj?.WeaponType}");
             }
             else
