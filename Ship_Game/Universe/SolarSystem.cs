@@ -18,7 +18,7 @@ namespace Ship_Game
     public sealed class SolarSystem : Explorable
     {
         public string Name = "Random System";
-        public Guid guid = Guid.NewGuid();
+        public Guid Guid = Guid.NewGuid();
         public bool DontStartNearPlayer;
 
         //public Array<Empire> OwnerList = new Array<Empire>();
@@ -66,7 +66,7 @@ namespace Ship_Game
 
         public static SolarSystem GetSolarSystemFromGuid(Guid guid)
         {
-            return UniverseScreen.SolarSystemList.Find(s => s.guid == guid);
+            return UniverseScreen.SolarSystemList.Find(s => s.Guid == guid);
         }
 
         public static Array<SolarSystem> GetSolarSystemsFromGuids(Array<Guid> guids)
@@ -380,7 +380,7 @@ namespace Ship_Game
             if (planetGuid != Guid.Empty)
             {
                 foreach (Planet p in PlanetList)
-                    if (p.guid == planetGuid)
+                    if (p.Guid == planetGuid)
                         return p;
             }
             return null;
@@ -546,7 +546,7 @@ namespace Ship_Game
                 for (int j = 0; j < ringData.Moons.Count; j++)
                 {
                     float orbitRadius = newOrbital.ObjectRadius * 5 + RandomBetween(1000f, 1500f) * (j + 1);
-                    var moon = new Moon(newOrbital.guid,
+                    var moon = new Moon(newOrbital.Guid,
                                     ringData.Moons[j].WhichMoon,
                                     ringData.Moons[j].MoonScale,
                                     orbitRadius,
@@ -725,7 +725,7 @@ namespace Ship_Game
                 var pdata = new SavedGame.PlanetSaveData
                 {
                     TurnsCrippled       = planet.CrippledTurns,
-                    Guid                 = planet.guid,
+                    Guid                 = planet.Guid,
                     FoodState            = planet.FS,
                     ProdState            = planet.PS,
                     FoodLock             = planet.Food.PercentLock,

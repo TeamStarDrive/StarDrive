@@ -26,7 +26,7 @@ namespace Ship_Game.AI
         public AOPlanetData(Planet p, Empire e)
         {
             OwnerPlanet = p;
-            PlanetGuid  = p.guid;
+            PlanetGuid  = p.Guid;
             DataOwner   = e;
         }
 
@@ -124,7 +124,7 @@ namespace Ship_Game.AI
         {
             Radius        = radius;
             CoreWorld     = p;
-            CoreWorldGuid = p.guid;
+            CoreWorldGuid = p.Guid;
             Owner         = p.Owner;
             Center        = p.Center;
             WhichFleet    = p.Owner.CreateFleetKey();
@@ -143,7 +143,7 @@ namespace Ship_Game.AI
         {
             Radius        = radius;
             CoreWorld     = p;
-            CoreWorldGuid = p.guid;
+            CoreWorldGuid = p.Guid;
             Owner         = p.Owner;
             Center        = p.Center;
             WhichFleet    = whichFleet;

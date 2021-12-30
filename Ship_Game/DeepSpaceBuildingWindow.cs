@@ -227,7 +227,7 @@ namespace Ship_Game
                             continue;
                         }
                         TetherOffset = pp - p.planetToClick.Center;
-                        TargetPlanet = p.planetToClick.guid;
+                        TargetPlanet = p.planetToClick.Guid;
                         batch.DrawLine(p.ScreenPos, Screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
                         batch.DrawString(Fonts.Arial20Bold, "Will Orbit "+p.planetToClick.Name,
                             new Vector2(Screen.Input.CursorX, Screen.Input.CursorY + 34f), Color.White);

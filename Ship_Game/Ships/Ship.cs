@@ -551,7 +551,7 @@ namespace Ship_Game.Ships
                 SolarSystem system = System;
                 if (system != null)
                 {
-                    if (attackerToUs.WarnedSystemsList.Contains(system.guid) && !IsFreighter)
+                    if (attackerToUs.WarnedSystemsList.Contains(system.Guid) && !IsFreighter)
                         return true;
 
                     if (DesignRole == RoleName.troop &&

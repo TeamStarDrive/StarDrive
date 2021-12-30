@@ -21,7 +21,7 @@ namespace Ship_Game
                 bool GoodPlanet = true;
                 foreach (Mole m in target.data.MoleList)
                 {
-                    if (m.PlanetGuid != p.guid)
+                    if (m.PlanetGuid != p.Guid)
                     {
                         continue;
                     }
@@ -48,7 +48,7 @@ namespace Ship_Game
                 }
                 mole = new Mole
                 {
-                    PlanetGuid = potentials[Random].guid
+                    PlanetGuid = potentials[Random].Guid
                 };
 
                 targetPlanetName = potentials[Random].Name;

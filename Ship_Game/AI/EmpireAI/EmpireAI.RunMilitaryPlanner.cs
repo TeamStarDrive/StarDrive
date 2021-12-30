@@ -284,7 +284,7 @@ namespace Ship_Game.AI
             foreach (MilitaryTask task in aiSave.MilitaryTaskList)
             {
                 if (task.TargetPlanet != null)
-                    task.TargetPlanetGuid = task.TargetPlanet.guid;
+                    task.TargetPlanetGuid = task.TargetPlanet.Guid;
             }
         }
 

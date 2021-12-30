@@ -115,7 +115,7 @@ namespace Ship_Game.AI.Tasks
                 Type             = TaskType.Exploration,
                 Owner            = owner,
                 TargetPlanet     = targetPlanet,
-                TargetPlanetGuid = targetPlanet.guid,
+                TargetPlanetGuid = targetPlanet.Guid,
                 TargetEmpire     = dominant
             };
 
@@ -246,7 +246,7 @@ namespace Ship_Game.AI.Tasks
 
             Type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
-            TargetPlanetGuid         = target.guid;
+            TargetPlanetGuid         = target.Guid;
             AO                       = target.Center;
             AORadius                 = radius;
             Owner                    = owner;
@@ -278,7 +278,7 @@ namespace Ship_Game.AI.Tasks
         public void ChangeTargetPlanet(Planet planet)
         {
             TargetPlanet     = planet;
-            TargetPlanetGuid = planet.guid;
+            TargetPlanetGuid = planet.Guid;
             AO               = planet.Center;
         }
 
@@ -556,13 +556,13 @@ namespace Ship_Game.AI.Tasks
         public void SetTargetPlanet(Planet p)
         {
             TargetPlanet = p;
-            TargetPlanetGuid = p?.guid ?? Guid.Empty;
+            TargetPlanetGuid = p?.Guid ?? Guid.Empty;
         }
 
         public void SetTargetSystem(SolarSystem s)
         {
             TargetSystem = s;
-            TargetSystemGuid = s?.guid ?? Guid.Empty;
+            TargetSystemGuid = s?.Guid ?? Guid.Empty;
         }
 
         public void SetTargetShip(Ship ship)

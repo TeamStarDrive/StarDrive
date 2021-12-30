@@ -29,7 +29,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             ToBuildUID       = toBuildName;
             PlanetBuildingAt = planet;
             empire           = owner;
-            TetherTarget     = planet.guid;
+            TetherTarget     = planet.Guid;
             Evaluate();
         }
 
@@ -81,7 +81,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             //save game compatibility hack to make up for the missing tether target in save.
             //remove this later
             if (TetherTarget == Guid.Empty)
-                TetherTarget = PlanetBuildingAt.guid;
+                TetherTarget = PlanetBuildingAt.Guid;
             for (int ring = 0; ring < ringLimit; ring++)
             {
                 int degrees    = (int)RandomMath.RandomBetween(0f, 9f);
