@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
-    internal class ArrayListSerializer : TypeSerializer
+    internal class ArrayListSerializer : CollectionSerializer
     {
-        public override string ToString() => $"ArrayListSerializer {ElemType.GetTypeName()}";
-        readonly Type ElemType;
-        readonly TypeSerializer ElemSerializer;
+        public override string ToString() => $"ArrayListSerializer<{ElemType.GetTypeName()}>";
+        readonly Type GenericArrayType;
 
-        public ArrayListSerializer(Type elemType, TypeSerializer elemSerializer)
+        public ArrayListSerializer(Type type, Type elemType, TypeSerializer elemSerializer)
+            : base(type, elemType, elemSerializer)
         {
-            ElemType = elemType;
-            ElemSerializer = elemSerializer;
-            IsCollection = true;
+            GenericArrayType = typeof(Array<>).MakeGenericType(elemType);
         }
 
         public override object Convert(object value)
@@ -25,7 +24,7 @@ namespace Ship_Game.Data.Serialization.Types
 
             if (value is object[] array)
             {
-                IList list = ArrayHelper.NewArrayOfT(ElemType);
+                var list = (IList)Activator.CreateInstance(GenericArrayType);
                 for (int i = 0; i < array.Length; ++i)
                 {
                     object element = ElemSerializer.Convert(array[i]);
@@ -49,7 +48,7 @@ namespace Ship_Game.Data.Serialization.Types
             Array<YamlNode> nodes = node.SequenceOrSubNodes;
             if (nodes?.Count > 0)
             {
-                IList list = ArrayHelper.NewArrayOfT(ElemType);
+                var list = (IList)Activator.CreateInstance(GenericArrayType);
                 for (int i = 0; i < nodes.Count; ++i)
                 {
                     object element = ElemSerializer.Deserialize(nodes[i]);
@@ -96,29 +95,59 @@ namespace Ship_Game.Data.Serialization.Types
             Serialize(list, ElemSerializer, parent);
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var list = (IList)obj;
 
             int count = list.Count;
-            writer.Write(count);
+            writer.BW.WriteVLu32((uint)count);
             for (int i = 0; i < count; ++i)
             {
                 object element = list[i];
-                ElemSerializer.Serialize(writer, element);
+                writer.WriteElement(ElemSerializer, element);
             }
         }
-        
-        public override object Deserialize(BinaryReader reader)
+
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            int count = reader.ReadInt32();
-            IList list = ArrayHelper.NewArrayOfT(ElemType);
+            int count = (int)reader.BR.ReadVLu32();
+            var list = (IList)Activator.CreateInstance(GenericArrayType);
+            TypeInfo elementType = reader.GetType(ElemSerializer);
             for (int i = 0; i < count; ++i)
             {
-                object element = ElemSerializer.Deserialize(reader);
+                object element = reader.ReadElement(elementType, ElemSerializer);
                 list.Add(element);
             }
             return list;
+        }
+
+        public override int Count(object instance)
+        {
+            var list = (IList)instance;
+            return list.Count;
+        }
+
+        public override object GetElementAt(object instance, int index)
+        {
+            var list = (IList)instance;
+            return list[index];
+        }
+
+        public override object CreateInstance()
+        {
+            return Activator.CreateInstance(GenericArrayType);
+        }
+
+        public override void Deserialize(BinarySerializerReader reader, object instance)
+        {
+            int count = (int)reader.BR.ReadVLu32();
+            var list = (IList)instance;
+            TypeInfo elementType = reader.GetType(ElemSerializer);
+            for (int i = 0; i < count; ++i)
+            {
+                object element = reader.ReadElement(elementType, ElemSerializer);
+                list.Add(element);
+            }
         }
     }
 }

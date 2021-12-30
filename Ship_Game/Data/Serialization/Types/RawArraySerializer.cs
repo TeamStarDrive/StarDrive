@@ -1,20 +1,19 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
+using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
-    internal class RawArraySerializer : TypeSerializer
+    internal class RawArraySerializer : CollectionSerializer
     {
-        public override string ToString() => $"RawArraySerializer {ElemType.GetTypeName()}";
-        readonly Type ElemType;
-        readonly TypeSerializer ElemSerializer;
+        public override string ToString() => $"RawArraySerializer<{ElemType.GetTypeName()}>";
 
-        public RawArraySerializer(Type elemType, TypeSerializer elemSerializer)
+        public RawArraySerializer(Type type, Type elemType, TypeSerializer elemSerializer)
+            : base(type, elemType, elemSerializer)
         {
-            ElemType = elemType;
-            ElemSerializer = elemSerializer;
-            IsCollection = true;
+            Category = SerializerCategory.RawArray;
         }
 
         public override object Convert(object value)
@@ -65,28 +64,51 @@ namespace Ship_Game.Data.Serialization.Types
             ArrayListSerializer.Serialize(array, ElemSerializer, parent);
         }
 
-        public override void Serialize(BinaryWriter writer, object obj)
+        public override void Serialize(BinarySerializerWriter writer, object obj)
         {
             var array = (Array)obj;
             int count = array.Length;
-            writer.Write(count);
+            writer.BW.WriteVLu32((uint)count);
             for (int i = 0; i < count; ++i)
             {
                 object element = array.GetValue(i);
-                ElemSerializer.Serialize(writer, element);
+                writer.WriteElement(ElemSerializer, element);
             }
         }
-        
-        public override object Deserialize(BinaryReader reader)
+
+        public override object Deserialize(BinarySerializerReader reader)
         {
-            int count = reader.ReadInt32();
+            int count = (int)reader.BR.ReadVLu32();
             Array converted = Array.CreateInstance(ElemType, count);
+            TypeInfo elementType = reader.GetType(ElemSerializer);
             for (int i = 0; i < count; ++i)
             {
-                object element = ElemSerializer.Deserialize(reader);
+                object element = reader.ReadElement(elementType, ElemSerializer);
                 converted.SetValue(element, i);
             }
             return converted;
+        }
+
+        public override int Count(object instance)
+        {
+            var array = (Array)instance;
+            return array.Length;
+        }
+
+        public override object GetElementAt(object instance, int index)
+        {
+            var array = (Array)instance;
+            return array.GetValue(index);
+        }
+
+        public override object CreateInstance()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Deserialize(BinarySerializerReader reader, object instance)
+        {
+            throw new NotSupportedException();
         }
     }
 }

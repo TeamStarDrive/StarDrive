@@ -3,49 +3,67 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.Data.Serialization
 {
     public abstract class UserTypeSerializer : TypeSerializer
     {
-        public override string ToString() => $"UserTypeSerializer {TheType.GetTypeName()}";
+        public override string ToString() => $"UserTypeSerializer {Type.GetTypeName()}";
 
-        protected Map<string, DataField> Mapping;
-        public TypeSerializerMap TypeMap { get; private set; }
+        // Shared Type Map for caching type serialization information
+        public TypeSerializerMap TypeMap { get; }
+
+        protected Map<string, DataField> Mapping; // field name to DataField mapping
         protected Array<DataField> Index;
         protected DataField PrimaryKeyName;
         protected DataField PrimaryKeyValue;
-        protected readonly Type TheType;
 
         public IReadOnlyList<DataField> Fields => Index;
 
-        protected UserTypeSerializer(Type type)
+        protected UserTypeSerializer(Type type, TypeSerializerMap typeMap) : base(type)
         {
-            TheType = type;
-            if (type.GetCustomAttribute<StarDataTypeAttribute>() == null)
+            TypeMap = typeMap;
+            IsUserClass = true;
+            Category = SerializerCategory.UserClass;
+
+            var a = type.GetCustomAttribute<StarDataTypeAttribute>();
+            if (a == null)
                 throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
+            if (a.TypeName != null)
+                TypeName = a.TypeName;
+
+            // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
         }
 
-        protected abstract TypeSerializerMap CreateTypeMap();
-
-        protected void ResolveTypes()
+        public DataField GetFieldOrNull(string fieldName)
         {
+            return Mapping.TryGetValue(fieldName, out DataField f) ? f : null;
+        }
+
+        // This is somewhat slow, which is why it should be done only once,
+        // and all fields should be immutable
+        public void ResolveTypes()
+        {
+            if (Mapping != null)
+                return;
+
             Mapping = new Map<string, DataField>();
-            Index   = new Array<DataField>();
-            TypeMap = CreateTypeMap();
+            Index = new Array<DataField>();
 
             Type shouldSerialize = typeof(StarDataAttribute);
-            PropertyInfo[] props = TheType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            FieldInfo[]   fields = TheType.GetFields(    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            
+            PropertyInfo[] props = Type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            FieldInfo[]   fields = Type.GetFields(    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            var dataFields = new Array<DataField>();
+
             for (int i = 0; i < fields.Length; ++i)
             {
                 FieldInfo f = fields[i];
                 if (f.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
                 {
-                    AddMapping(a, null, f);
+                    var field = new DataField(TypeMap, a, null, f);
+                    dataFields.Add(field);
+                    CheckPrimaryKeys(a, field);
                 }
             }
             
@@ -56,31 +74,43 @@ namespace Ship_Game.Data.Serialization
                 {
                     MethodInfo setter = p.GetSetMethod(nonPublic: true);
                     if (setter == null)
-                        throw new Exception($"StarDataSerializer Class {TheType.Name} Property {p.Name} has no setter!");
-                    AddMapping(a, p, null);
+                        throw new Exception($"[StarDataType] {Type.GetTypeName()} Property {p.Name} has no setter!");
+
+                    var field = new DataField(TypeMap, a, p, null);
+                    dataFields.Add(field);
+                    CheckPrimaryKeys(a, field);
                 }
+            }
+
+            if (dataFields.IsEmpty)
+            {
+                Log.Warning($"[StarDataType] {Type.GetTypeName()} has no [StarData] fields, consider not serializing it!");
+                return;
+            }
+
+            // sorting by name will give fields easy stability even if they are shuffled around
+            dataFields.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
+
+            foreach (DataField field in dataFields)
+            {
+                field.FieldIdx = Index.Count;
+                Mapping.Add(field.Name, field);
+                Index.Add(field);
             }
         }
 
-        void AddMapping(StarDataAttribute a, PropertyInfo p, FieldInfo f)
+        void CheckPrimaryKeys(StarDataAttribute a, DataField field)
         {
-            string name = a.NameId.NotEmpty() ? a.NameId : (p?.Name ?? f.Name);
-            int id = a.Id != 0 ? a.Id : Index.Count;
-            var field = new DataField(id, TypeMap, p, f);
-
-            Mapping.Add(name, field);
-            Index.Add(field);
-
             if (a.IsPrimaryKeyName)
             {
                 if (PrimaryKeyName != null)
-                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKeyName] attributes! Original {PrimaryKeyValue}, New {field}");
+                    throw new InvalidDataException($"[StarDataType] {Type.GetTypeName()} cannot have more than 1 [StarDataKeyName] attributes! Original {PrimaryKeyValue}, New {field}");
                 PrimaryKeyName = field;
             }
             else if (a.IsPrimaryKeyValue)
             {
                 if (PrimaryKeyValue != null)
-                    throw new InvalidDataException($"StarDataSerializer cannot have more than 1 [StarDataKeyValue] attributes! Original {PrimaryKeyValue}, New {field}");
+                    throw new InvalidDataException($"[StarDataType] {Type.GetTypeName()} cannot have more than 1 [StarDataKeyValue] attributes! Original {PrimaryKeyValue}, New {field}");
                 PrimaryKeyValue = field;
             }
         }
