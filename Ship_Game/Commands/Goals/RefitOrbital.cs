@@ -54,7 +54,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             OldShip.AI.State = AIState.Refit;
             Planet targetPlanet = OldShip.GetTether();
             if (targetPlanet != null)
-                TetherTarget = targetPlanet.guid;
+                TetherTarget = targetPlanet.Guid;
 
             return GoalStep.GoToNextStep;
         }

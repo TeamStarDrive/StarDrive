@@ -559,7 +559,7 @@ namespace Ship_Game
         void UpdateGovOrbitalStats()
         {
             if (Planet.Owner != Empire.Universe.player
-                && !EmpireManager.Player.data.MoleList.Any(m => m.PlanetGuid == Planet.guid))
+                && !EmpireManager.Player.data.MoleList.Any(m => m.PlanetGuid == Planet.Guid))
             {
                 return;
             }

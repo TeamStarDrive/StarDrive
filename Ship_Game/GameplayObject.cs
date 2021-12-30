@@ -5,6 +5,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Xml.Serialization;
 using System;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
@@ -21,6 +22,7 @@ namespace Ship_Game
         Moon       = 32,
     }
 
+    [StarDataType]
     public abstract class GameplayObject
     {
         /**
@@ -32,18 +34,18 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
         [XmlIgnore][JsonIgnore] public SolarSystem SystemBackBuffer { get; private set; }
 
-        [Serialize(0)] public Vector2 Position;
-        [Serialize(1)] public Vector2 Velocity;
+        [StarData] public Vector2 Position;
+        [StarData] public Vector2 Velocity;
 
         // rotation in RADIANS
         // MUST be normalized to [0; +2PI]
-        [Serialize(2)] public float Rotation;
+        [StarData] public float Rotation;
 
-        [Serialize(3)] public float Radius = 1f;
-        [Serialize(4)] public float Mass = 1f;
-        [Serialize(5)] public float Health;
+        [StarData] public float Radius = 1f;
+        [StarData] public float Mass = 1f;
+        [StarData] public float Health;
 
-        [Serialize(6)] public readonly GameObjectType Type;
+        [StarData] public readonly GameObjectType Type;
 
         [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
 

@@ -270,8 +270,8 @@ namespace UnitTests
             s.PlanetList.Add(p);
             if (Universe != null)
             {
-                Universe.PlanetsDict[p.guid] = p;
-                Universe.SolarSystemDict[s.guid] = s;
+                Universe.PlanetsDict[p.Guid] = p;
+                Universe.SolarSystemDict[s.Guid] = s;
             }
         }
 

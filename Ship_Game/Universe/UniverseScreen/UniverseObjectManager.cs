@@ -113,7 +113,7 @@ namespace Ship_Game
                 p => p.Active && p.Type == GameObjectType.Proj && (p.Owner != null || p.Planet != null),
                 p => new SavedGame.ProjectileSaveData
                 {
-                    Owner    = p.Owner?.Guid ?? p.Planet.guid,
+                    Owner    = p.Owner?.Guid ?? p.Planet.Guid,
                     Weapon   = p.Weapon.UID,
                     Duration = p.Duration,
                     Rotation = p.Rotation,
@@ -135,7 +135,7 @@ namespace Ship_Game
                     var beam = (Beam)p;
                     return new SavedGame.BeamSaveData
                     {
-                        Owner    = p.Owner?.Guid ?? p.Planet.guid,
+                        Owner    = p.Owner?.Guid ?? p.Planet.Guid,
                         Weapon   = p.Weapon.UID,
                         Duration = p.Duration,
                         Source   = beam.Source,

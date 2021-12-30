@@ -5,6 +5,7 @@ using System.Threading;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
 
@@ -14,25 +15,26 @@ namespace Ship_Game.AI
     {
         Empire Owner;
 
+        [StarDataType]
         public class Pin
         {
-            [Serialize(0)] public Vector2 Position;
-            [Serialize(1)] public float Strength;
-            [Serialize(2)] public string EmpireName;
+            [StarData] public Vector2 Position;
+            [StarData] public float Strength;
+            [StarData] public string EmpireName;
 
             /// <summary>
             /// This indicates that the PIN is in borders not the current ship status. 
             /// </summary>
-            [Serialize(3)] public bool InBorders;
-            [Serialize(4)] public int EmpireId    = 0;
-            [Serialize(5)] public Guid SystemGuid = Guid.Empty;
-            [Serialize(6)] public Guid PinGuid;
+            [StarData] public bool InBorders;
+            [StarData] public int EmpireId    = 0;
+            [StarData] public Guid SystemGuid = Guid.Empty;
+            [StarData] public Guid PinGuid;
             [XmlIgnore][JsonIgnore] public Ship Ship;
             [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
             
             public void SetSystem(SolarSystem system)
             {
-                SystemGuid = system?.guid ?? Guid.Empty;
+                SystemGuid = system?.Guid ?? Guid.Empty;
                 System     = system;
             }
 
