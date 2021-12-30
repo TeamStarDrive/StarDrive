@@ -225,7 +225,7 @@ namespace Ship_Game
 
             foreach (Mole m in EmpireManager.Player.data.MoleList)
             {
-                if (m.PlanetGuid == Planet.guid)
+                if (m.PlanetGuid == Planet.Guid)
                 {
                     offset += 20;
                     var spyRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);

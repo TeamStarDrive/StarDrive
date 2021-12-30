@@ -17,7 +17,7 @@ namespace Ship_Game
         {
             ParentSystem = system;
             
-            guid = data.Guid;
+            Guid = data.Guid;
             Name = data.Name;
             OrbitalAngle = data.OrbitalAngle;
             

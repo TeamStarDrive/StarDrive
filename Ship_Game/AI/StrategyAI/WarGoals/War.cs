@@ -149,7 +149,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             var contestedSystemGUIDs = new Array<Guid>();
             var systems = ContestedSystems;
-            for (int x = 0; x < systems.Length; x++) contestedSystemGUIDs.Add(systems[x].guid);
+            for (int x = 0; x < systems.Length; x++) contestedSystemGUIDs.Add(systems[x].Guid);
             return contestedSystemGUIDs;
         }
 
@@ -211,8 +211,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void SystemAssaultFailed(SolarSystem system)
         {
-            SystemAssaultFailures.TryGetValue(system.guid, out int count);
-            SystemAssaultFailures[system.guid] = ++count;
+            SystemAssaultFailures.TryGetValue(system.Guid, out int count);
+            SystemAssaultFailures[system.Guid] = ++count;
         }
 
         public float GetGrade()

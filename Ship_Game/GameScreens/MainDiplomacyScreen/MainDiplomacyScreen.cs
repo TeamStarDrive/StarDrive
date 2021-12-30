@@ -65,7 +65,7 @@ namespace Ship_Game
                 {                    
                     foreach(Mole mole in PlayerEmpire.data.MoleList)
                     {
-                        if(p.guid == mole.PlanetGuid)
+                        if(p.Guid == mole.PlanetGuid)
                         {
                             flag =true;
                             empires.Add(empire);                            
@@ -80,7 +80,7 @@ namespace Ship_Game
                     {
                         foreach (Mole mole in friend.data.MoleList)
                         {
-                            if (p.guid == mole.PlanetGuid)
+                            if (p.Guid == mole.PlanetGuid)
                             {
                                 flag = true;
                                 empires.Add(empire);

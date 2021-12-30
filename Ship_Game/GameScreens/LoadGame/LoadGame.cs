@@ -341,7 +341,7 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             var system = new SolarSystem
             {
-                guid          = ssd.Guid,
+                Guid          = ssd.Guid,
                 Name          = ssd.Name,
                 Position      = ssd.Position,
                 Sun           = SunType.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
@@ -404,8 +404,8 @@ namespace Ship_Game.GameScreens.LoadGame
                 var road = new SpaceRoad();
                 foreach (SolarSystem s in data.SolarSystemsList)
                 {
-                    if (roadSave.OriginGUID == s.guid) road.Origin = s;
-                    if (roadSave.DestGUID == s.guid)   road.Destination = s;
+                    if (roadSave.OriginGUID == s.Guid) road.Origin = s;
+                    if (roadSave.DestGUID == s.Guid)   road.Destination = s;
                 }
 
                 foreach (SavedGame.RoadNodeSave roadNode in roadSave.RoadNodes)
@@ -640,14 +640,14 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 foreach (SolarSystem s in data.SolarSystemsList)
                 {
-                    if (s.guid == gsave.TargetSystemGuid)
+                    if (s.Guid == gsave.TargetSystemGuid)
                        g.TargetSystem = s;
 
                     foreach (Planet p in s.PlanetList)
                     {
-                        if (p.guid == gsave.PlanetWhereBuildingAtGuid) g.PlanetBuildingAt   = p;
-                        if (p.guid == gsave.MarkedPlanetGuid)          g.ColonizationTarget = p;
-                        if (p.guid == gsave.TargetPlanetGuid)          g.TargetPlanet       = p;
+                        if (p.Guid == gsave.PlanetWhereBuildingAtGuid) g.PlanetBuildingAt   = p;
+                        if (p.Guid == gsave.MarkedPlanetGuid)          g.ColonizationTarget = p;
+                        if (p.Guid == gsave.TargetPlanetGuid)          g.TargetPlanet       = p;
                     }
                 }
 
