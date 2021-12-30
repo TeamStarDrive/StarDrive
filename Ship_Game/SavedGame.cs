@@ -13,6 +13,7 @@ using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 
@@ -26,25 +27,27 @@ namespace Ship_Game
         public SerializeAttribute(int id) { Id = id; }
     }
 
+    [StarDataType]
     public sealed class HeaderData
     {
-        public int SaveGameVersion;
-        public string SaveName;
-        public string StarDate;
-        public DateTime Time;
-        public string PlayerName;
-        public string RealDate;
-        public string ModName = "";
-        public string ModPath = "";
-        public int Version;
+        [StarData] public int SaveGameVersion;
+        [StarData] public string SaveName;
+        [StarData] public string StarDate;
+        [StarData] public DateTime Time;
+        [StarData] public string PlayerName;
+        [StarData] public string RealDate;
+        [StarData] public string ModName = "";
+        [StarData] public string ModPath = "";
+        [StarData] public int Version;
 
         [XmlIgnore][JsonIgnore] public FileInfo FI;
     }
 
     // XNA.Rectangle cannot be serialized, so we need a proxy object
+    [StarDataType]
     public struct RectangleData
     {
-        public int X, Y, Width, Height;
+        [StarData] public int X, Y, Width, Height;
         public RectangleData(Rectangle r)
         {
             X = r.X;
@@ -560,293 +563,307 @@ namespace Ship_Game
             return usData;
         }
 
+        [StarDataType]
         public class EmpireSaveData
         {
-            [Serialize(0)] public string Name;
-            [Serialize(1)] public Array<Relationship> Relations;
-            [Serialize(2)] public Array<SpaceRoadSave> SpaceRoadData;
-            [Serialize(3)] public bool IsFaction;
-            [Serialize(5)] public RacialTrait Traits;
-            [Serialize(6)] public EmpireData empireData;
-            [Serialize(7)] public Array<ShipSaveData> OwnedShips;
-            [Serialize(8)] public float Money;
-            [Serialize(9)] public Array<TechEntry> TechTree;
-            [Serialize(10)] public GSAISAVE GSAIData;
-            [Serialize(11)] public string ResearchTopic;
-            [Serialize(12)] public Array<AO> AOs;
-            [Serialize(13)] public Array<FleetSave> FleetsList;
-            [Serialize(14)] public string CurrentAutoFreighter;
-            [Serialize(15)] public string CurrentAutoColony;
-            [Serialize(16)] public string CurrentAutoScout;
-            [Serialize(17)] public string CurrentConstructor;
-            [Serialize(18)] public float FastVsBigFreighterRatio;
-            [Serialize(19)] public float AverageFreighterCargoCap;
-            [Serialize(20)] public int PirateLevel;
-            [Serialize(21)] public Map<int, int> PirateThreatLevels;
-            [Serialize(22)] public Map<int, int> PiratePaymentTimers;
-            [Serialize(23)] public Array<Guid> SpawnedShips;
-            [Serialize(24)] public Array<string> ShipsWeCanSpawn;
-            [Serialize(25)] public float NormalizedMoneyVal;
-            [Serialize(26)] public int ExpandSearchTimer;
-            [Serialize(27)] public int MaxSystemsToCheckedDiv;
-            [Serialize(28)] public int AverageFreighterFTLSpeed;
-            [Serialize(29)] public Vector2 WeightedCenter;
-            [Serialize(30)] public bool RushAllConstruction;
-            [Serialize(31)] public float RemnantStoryTriggerKillsXp;
-            [Serialize(32)] public bool RemnantStoryActivated;
-            [Serialize(33)] public int RemnantStoryType;
-            [Serialize(34)] public float RemnantProduction;
-            [Serialize(35)] public int RemnantLevel;
-            [Serialize(36)] public int RemnantStoryStep;
-            [Serialize(37)] public float RemnantPlayerStepTriggerXp;
-            [Serialize(38)] public bool OnlyRemnantLeft;
-            [Serialize(39)] public float RemnantNextLevelUpDate;
-            [Serialize(40)] public int RemnantHibernationTurns;
-            [Serialize(41)] public float RemnantActivationXpNeeded;
-            [Serialize(42)] public Map<int, float> FleetStrEmpireModifier;
-            [Serialize(43)] public List<KeyValuePair<int, string>> DiplomacyContactQueue;
-            [Serialize(44)] public Array<string> ObsoletePlayerShipModules;
-            [Serialize(45)] public Guid CapitalGuid;
+            [StarData] public string Name;
+            [StarData] public Array<Relationship> Relations;
+            [StarData] public Array<SpaceRoadSave> SpaceRoadData;
+            [StarData] public bool IsFaction;
+            [StarData] public RacialTrait Traits;
+            [StarData] public EmpireData empireData;
+            [StarData] public Array<ShipSaveData> OwnedShips;
+            [StarData] public float Money;
+            [StarData] public Array<TechEntry> TechTree;
+            [StarData] public GSAISAVE GSAIData;
+            [StarData] public string ResearchTopic;
+            [StarData] public Array<AO> AOs;
+            [StarData] public Array<FleetSave> FleetsList;
+            [StarData] public string CurrentAutoFreighter;
+            [StarData] public string CurrentAutoColony;
+            [StarData] public string CurrentAutoScout;
+            [StarData] public string CurrentConstructor;
+            [StarData] public float FastVsBigFreighterRatio;
+            [StarData] public float AverageFreighterCargoCap;
+            [StarData] public int PirateLevel;
+            [StarData] public Map<int, int> PirateThreatLevels;
+            [StarData] public Map<int, int> PiratePaymentTimers;
+            [StarData] public Array<Guid> SpawnedShips;
+            [StarData] public Array<string> ShipsWeCanSpawn;
+            [StarData] public float NormalizedMoneyVal;
+            [StarData] public int ExpandSearchTimer;
+            [StarData] public int MaxSystemsToCheckedDiv;
+            [StarData] public int AverageFreighterFTLSpeed;
+            [StarData] public Vector2 WeightedCenter;
+            [StarData] public bool RushAllConstruction;
+            [StarData] public float RemnantStoryTriggerKillsXp;
+            [StarData] public bool RemnantStoryActivated;
+            [StarData] public int RemnantStoryType;
+            [StarData] public float RemnantProduction;
+            [StarData] public int RemnantLevel;
+            [StarData] public int RemnantStoryStep;
+            [StarData] public float RemnantPlayerStepTriggerXp;
+            [StarData] public bool OnlyRemnantLeft;
+            [StarData] public float RemnantNextLevelUpDate;
+            [StarData] public int RemnantHibernationTurns;
+            [StarData] public float RemnantActivationXpNeeded;
+            [StarData] public Map<int, float> FleetStrEmpireModifier;
+            [StarData] public List<KeyValuePair<int, string>> DiplomacyContactQueue;
+            [StarData] public Array<string> ObsoletePlayerShipModules;
+            [StarData] public Guid CapitalGuid;
         }
 
+        [StarDataType]
         public class FleetSave
         {
-            [Serialize(0)] public bool IsCoreFleet;
-            [Serialize(1)] public string Name;
-            [Serialize(2)] public int TaskStep;
-            [Serialize(3)] public Vector2 Position;
-            [Serialize(4)] public Guid FleetGuid;
-            [Serialize(5)] public float facing;
-            [Serialize(6)] public int Key;
-            [Serialize(7)] public Array<FleetShipSave> ShipsInFleet;
-            [Serialize(8)] public Array<FleetDataNode> DataNodes;
-            [Serialize(9)] public bool AutoRequisition;
+            [StarData] public bool IsCoreFleet;
+            [StarData] public string Name;
+            [StarData] public int TaskStep;
+            [StarData] public Vector2 Position;
+            [StarData] public Guid FleetGuid;
+            [StarData] public float facing;
+            [StarData] public int Key;
+            [StarData] public Array<FleetShipSave> ShipsInFleet;
+            [StarData] public Array<FleetDataNode> DataNodes;
+            [StarData] public bool AutoRequisition;
 
             public override string ToString() => $"FleetSave {Name} (core={IsCoreFleet}) {FleetGuid} {Position}";
         }
 
+        [StarDataType]
         public struct FleetShipSave
         {
-            [Serialize(0)] public Guid shipGuid;
-            [Serialize(1)] public Vector2 fleetOffset;
+            [StarData] public Guid shipGuid;
+            [StarData] public Vector2 fleetOffset;
 
             public override string ToString() => $"FleetShipSave {shipGuid} {fleetOffset}";
         }
 
+        [StarDataType]
         public class GoalSave
         {
-            [Serialize(0)] public GoalType type;
-            [Serialize(1)] public int GoalStep;
-            [Serialize(2)] public Guid markedPlanetGuid; // @note renamed to: Goal.ColonizationTarget
-            [Serialize(3)] public Guid colonyShipGuid;   // @note renamed to: Goal.FinishedShip
-            [Serialize(4)] public Vector2 BuildPosition;
-            [Serialize(5)] public string ToBuildUID;
-            [Serialize(6)] public Guid planetWhereBuildingAtGuid;
-            [Serialize(7)] public string GoalName;
-            [Serialize(9)] public Guid fleetGuid;
-            [Serialize(10)] public Guid GoalGuid;
-            [Serialize(11)] public Guid OldShipGuid;
-            [Serialize(12)] public string VanityName;
-            [Serialize(13)] public int ShipLevel;
-            [Serialize(14)] public Guid TetherTarget;
-            [Serialize(15)] public Vector2 TetherOffset;
-            [Serialize(16)] public Guid TargetShipGuid;
-            [Serialize(17)] public int TargetEmpireId;
-            [Serialize(18)] public float StarDateAdded;
-            [Serialize(19)] public Guid TargetSystemGuid;
-            [Serialize(20)] public Guid TargetPlanetGuid;
+            [StarData] public GoalType type;
+            [StarData] public int GoalStep;
+            [StarData] public Guid markedPlanetGuid; // @note renamed to: Goal.ColonizationTarget
+            [StarData] public Guid colonyShipGuid;   // @note renamed to: Goal.FinishedShip
+            [StarData] public Vector2 BuildPosition;
+            [StarData] public string ToBuildUID;
+            [StarData] public Guid planetWhereBuildingAtGuid;
+            [StarData] public string GoalName;
+            [StarData] public Guid fleetGuid;
+            [StarData] public Guid GoalGuid;
+            [StarData] public Guid OldShipGuid;
+            [StarData] public string VanityName;
+            [StarData] public int ShipLevel;
+            [StarData] public Guid TetherTarget;
+            [StarData] public Vector2 TetherOffset;
+            [StarData] public Guid TargetShipGuid;
+            [StarData] public int TargetEmpireId;
+            [StarData] public float StarDateAdded;
+            [StarData] public Guid TargetSystemGuid;
+            [StarData] public Guid TargetPlanetGuid;
         }
 
+        [StarDataType]
         public class GSAISAVE
         {
-            [Serialize(0)] public Array<int> UsedFleets;
-            [Serialize(1)] public GoalSave[] Goals;
-            [Serialize(2)] public Array<MilitaryTask> MilitaryTaskList;
-            [Serialize(3)] public Array<Guid> PinGuids;
-            [Serialize(4)] public Array<ThreatMatrix.Pin> PinList;
+            [StarData] public Array<int> UsedFleets;
+            [StarData] public GoalSave[] Goals;
+            [StarData] public Array<MilitaryTask> MilitaryTaskList;
+            [StarData] public Array<Guid> PinGuids;
+            [StarData] public Array<ThreatMatrix.Pin> PinList;
         }
 
+        [StarDataType]
         public class PGSData
         {
-            [Serialize(0)] public int x;
-            [Serialize(1)] public int y;
-            [Serialize(2)] public Array<Troop> TroopsHere;
-            [Serialize(3)] public bool Biosphere;
-            [Serialize(4)] public Building building;
-            [Serialize(5)] public bool Habitable;
-            [Serialize(6)] public bool Terraformable;
-            [Serialize(7)] public bool CrashSiteActive;
-            [Serialize(8)] public int CrashSiteTroops;
-            [Serialize(9)] public string CrashSiteShipName;
-            [Serialize(10)] public string CrashSiteTroopName;
-            [Serialize(11)] public int CrashSiteEmpireId;
-            [Serialize(12)] public bool CrashSiteRecoverShip;
-            [Serialize(13)] public short EventOutcomeNum;
-            [Serialize(14)] public bool VolcanoHere;
-            [Serialize(15)] public bool VolcanoActive;
-            [Serialize(16)] public bool VolcanoErupting;
-            [Serialize(17)] public float VolcanoActivationChance;
+            [StarData] public int x;
+            [StarData] public int y;
+            [StarData] public Array<Troop> TroopsHere;
+            [StarData] public bool Biosphere;
+            [StarData] public Building building;
+            [StarData] public bool Habitable;
+            [StarData] public bool Terraformable;
+            [StarData] public bool CrashSiteActive;
+            [StarData] public int CrashSiteTroops;
+            [StarData] public string CrashSiteShipName;
+            [StarData] public string CrashSiteTroopName;
+            [StarData] public int CrashSiteEmpireId;
+            [StarData] public bool CrashSiteRecoverShip;
+            [StarData] public short EventOutcomeNum;
+            [StarData] public bool VolcanoHere;
+            [StarData] public bool VolcanoActive;
+            [StarData] public bool VolcanoErupting;
+            [StarData] public float VolcanoActivationChance;
         }
 
+        [StarDataType]
         public class PlanetSaveData
         {
-            [Serialize(0)] public Guid guid;
-            [Serialize(1)] public string SpecialDescription;
-            [Serialize(2)] public string Name;
-            [Serialize(3)] public float Scale;
-            [Serialize(4)] public string Owner;
-            [Serialize(5)] public float Population;
-            [Serialize(6)] public float BasePopPerTile;
-            [Serialize(7)] public float Fertility;
-            [Serialize(8)] public float Richness;
-            [Serialize(9)] public int WhichPlanet;
-            [Serialize(10)] public float OrbitalAngle;
-            [Serialize(11)] public float OrbitalDistance;
-            [Serialize(12)] public float Radius;
-            [Serialize(13)] public bool HasRings;
-            [Serialize(14)] public float farmerPercentage;
-            [Serialize(15)] public float workerPercentage;
-            [Serialize(16)] public float researcherPercentage;
-            [Serialize(17)] public float foodHere;
-            [Serialize(18)] public float prodHere;
-            [Serialize(19)] public PGSData[] PGSList;
-            [Serialize(20)] public QueueItemSave[] QISaveList;
-            [Serialize(21)] public Planet.ColonyType ColonyType;
-            [Serialize(22)] public Planet.GoodState FoodState;
-            [Serialize(23)] public int Crippled_Turns;
-            [Serialize(24)] public Planet.GoodState ProdState;
-            [Serialize(25)] public string[] ExploredBy;
-            [Serialize(26)] public float TerraformPoints;
-            [Serialize(27)] public Guid[] StationsList;
-            [Serialize(28)] public bool FoodLock;
-            [Serialize(29)] public bool ResLock;
-            [Serialize(30)] public bool ProdLock;
-            [Serialize(31)] public float ShieldStrength;
-            [Serialize(32)] public float MaxFertility;
-            [Serialize(33)] public Guid[] IncomingFreighters;
-            [Serialize(34)] public Guid[] OutgoingFreighters;
-            [Serialize(35)] public bool GovOrbitals;
-            [Serialize(36)] public bool GovMilitia;
-            [Serialize(37)] public int NumShipyards;
-            [Serialize(38)] public bool DontScrapBuildings;
-            [Serialize(39)] public int GarrisonSize;
-            [Serialize(40)] public float BaseFertilityTerraformRatio;
-            [Serialize(41)] public bool Quarantine;
-            [Serialize(42)] public bool ManualOrbitals;
-            [Serialize(43)] public byte WantedPlatforms;
-            [Serialize(44)] public byte WantedStations;
-            [Serialize(45)] public byte WantedShipyards;
-            [Serialize(46)] public bool GovGroundDefense;
-            [Serialize(47)] public float ManualCivilianBudget;
-            [Serialize(48)] public float ManualGrdDefBudget;
-            [Serialize(49)] public float ManualSpcDefBudget;
-            [Serialize(50)] public bool HasLimitedResourcesBuildings;
-            [Serialize(51)] public int ManualFoodImportSlots;
-            [Serialize(52)] public int ManualProdImportSlots;
-            [Serialize(53)] public int ManualColoImportSlots;
-            [Serialize(54)] public int ManualFoodExportSlots;
-            [Serialize(55)] public int ManualProdExportSlots;
-            [Serialize(56)] public int ManualColoExportSlots;
-            [Serialize(57)] public float AverageFoodImportTurns;
-            [Serialize(58)] public float AverageProdImportTurns;
-            [Serialize(59)] public float AverageFoodExportTurns;
-            [Serialize(60)] public float AverageProdExportTurns;
-            [Serialize(61)] public bool IsHomeworld;
-            [Serialize(62)] public int BombingIntensity;
+            [StarData] public Guid guid;
+            [StarData] public string SpecialDescription;
+            [StarData] public string Name;
+            [StarData] public float Scale;
+            [StarData] public string Owner;
+            [StarData] public float Population;
+            [StarData] public float BasePopPerTile;
+            [StarData] public float Fertility;
+            [StarData] public float Richness;
+            [StarData] public int WhichPlanet;
+            [StarData] public float OrbitalAngle;
+            [StarData] public float OrbitalDistance;
+            [StarData] public float Radius;
+            [StarData] public bool HasRings;
+            [StarData] public float farmerPercentage;
+            [StarData] public float workerPercentage;
+            [StarData] public float researcherPercentage;
+            [StarData] public float foodHere;
+            [StarData] public float prodHere;
+            [StarData] public PGSData[] PGSList;
+            [StarData] public QueueItemSave[] QISaveList;
+            [StarData] public Planet.ColonyType ColonyType;
+            [StarData] public Planet.GoodState FoodState;
+            [StarData] public int Crippled_Turns;
+            [StarData] public Planet.GoodState ProdState;
+            [StarData] public string[] ExploredBy;
+            [StarData] public float TerraformPoints;
+            [StarData] public Guid[] StationsList;
+            [StarData] public bool FoodLock;
+            [StarData] public bool ResLock;
+            [StarData] public bool ProdLock;
+            [StarData] public float ShieldStrength;
+            [StarData] public float MaxFertility;
+            [StarData] public Guid[] IncomingFreighters;
+            [StarData] public Guid[] OutgoingFreighters;
+            [StarData] public bool GovOrbitals;
+            [StarData] public bool GovMilitia;
+            [StarData] public int NumShipyards;
+            [StarData] public bool DontScrapBuildings;
+            [StarData] public int GarrisonSize;
+            [StarData] public float BaseFertilityTerraformRatio;
+            [StarData] public bool Quarantine;
+            [StarData] public bool ManualOrbitals;
+            [StarData] public byte WantedPlatforms;
+            [StarData] public byte WantedStations;
+            [StarData] public byte WantedShipyards;
+            [StarData] public bool GovGroundDefense;
+            [StarData] public float ManualCivilianBudget;
+            [StarData] public float ManualGrdDefBudget;
+            [StarData] public float ManualSpcDefBudget;
+            [StarData] public bool HasLimitedResourcesBuildings;
+            [StarData] public int ManualFoodImportSlots;
+            [StarData] public int ManualProdImportSlots;
+            [StarData] public int ManualColoImportSlots;
+            [StarData] public int ManualFoodExportSlots;
+            [StarData] public int ManualProdExportSlots;
+            [StarData] public int ManualColoExportSlots;
+            [StarData] public float AverageFoodImportTurns;
+            [StarData] public float AverageProdImportTurns;
+            [StarData] public float AverageFoodExportTurns;
+            [StarData] public float AverageProdExportTurns;
+            [StarData] public bool IsHomeworld;
+            [StarData] public int BombingIntensity;
 
             public override string ToString() => $"PlanetSD {Name}";
         }
 
+        [StarDataType]
         public struct ProjectileSaveData
         {
-            [Serialize(0)] public Guid Owner; // Ship or Planet
-            [Serialize(1)] public string Weapon;
-            [Serialize(2)] public float Duration;
-            [Serialize(3)] public float Rotation;
-            [Serialize(4)] public Vector2 Velocity;
-            [Serialize(5)] public Vector2 Position;
-            [Serialize(6)] public int Loyalty;
+            [StarData] public Guid Owner; // Ship or Planet
+            [StarData] public string Weapon;
+            [StarData] public float Duration;
+            [StarData] public float Rotation;
+            [StarData] public Vector2 Velocity;
+            [StarData] public Vector2 Position;
+            [StarData] public int Loyalty;
         }
 
+        [StarDataType]
         public struct BeamSaveData
         {
-            [Serialize(0)] public Guid Owner; // Ship or Planet
-            [Serialize(1)] public string Weapon;
-            [Serialize(2)] public float Duration;
-            [Serialize(3)] public Vector2 Source;
-            [Serialize(4)] public Vector2 Destination;
-            [Serialize(5)] public Vector2 ActualHitDestination;
-            [Serialize(6)] public Guid Target; // Ship or Projectile
-            [Serialize(7)] public int Loyalty;
+            [StarData] public Guid Owner; // Ship or Planet
+            [StarData] public string Weapon;
+            [StarData] public float Duration;
+            [StarData] public Vector2 Source;
+            [StarData] public Vector2 Destination;
+            [StarData] public Vector2 ActualHitDestination;
+            [StarData] public Guid Target; // Ship or Projectile
+            [StarData] public int Loyalty;
         }
 
+        [StarDataType]
         public class QueueItemSave
         {
-            [Serialize(0)] public string UID;
-            [Serialize(1)] public Guid GoalGUID;
-            [Serialize(2)] public float ProgressTowards;
-            [Serialize(3)] public bool isBuilding;
-            [Serialize(4)] public bool isTroop;
-            [Serialize(5)] public bool isShip;
-            [Serialize(6)] public string DisplayName;
-            [Serialize(7)] public float Cost;
-            [Serialize(8)] public Vector2 pgsVector;
-            [Serialize(9)] public bool isPlayerAdded;
-            [Serialize(10)] public Array<Guid> TradeRoutes;
-            [Serialize(11)] public RectangleData[] AreaOfOperation;
-            [Serialize(12)] public bool TransportingColonists;
-            [Serialize(13)] public bool TransportingFood;
-            [Serialize(14)] public bool TransportingProduction;
-            [Serialize(15)] public bool AllowInterEmpireTrade;
-            [Serialize(16)] public bool IsMilitary;
-            [Serialize(17)] public bool Rush;
+            [StarData] public string UID;
+            [StarData] public Guid GoalGUID;
+            [StarData] public float ProgressTowards;
+            [StarData] public bool isBuilding;
+            [StarData] public bool isTroop;
+            [StarData] public bool isShip;
+            [StarData] public string DisplayName;
+            [StarData] public float Cost;
+            [StarData] public Vector2 pgsVector;
+            [StarData] public bool isPlayerAdded;
+            [StarData] public Array<Guid> TradeRoutes;
+            [StarData] public RectangleData[] AreaOfOperation;
+            [StarData] public bool TransportingColonists;
+            [StarData] public bool TransportingFood;
+            [StarData] public bool TransportingProduction;
+            [StarData] public bool AllowInterEmpireTrade;
+            [StarData] public bool IsMilitary;
+            [StarData] public bool Rush;
         }
 
+        [StarDataType]
         public struct RingSave
         {
-            [Serialize(0)] public PlanetSaveData Planet;
-            [Serialize(1)] public bool Asteroids;
-            [Serialize(2)] public float OrbitalDistance;
+            [StarData] public PlanetSaveData Planet;
+            [StarData] public bool Asteroids;
+            [StarData] public float OrbitalDistance;
 
             public override string ToString() => $"RingSave {OrbitalDistance} Ast:{Asteroids} {Planet}";
         }
 
+        [StarDataType]
         public struct RoadNodeSave
         {
-            [Serialize(0)] public Vector2 Position;
-            [Serialize(1)] public Guid Guid_Platform;
+            [StarData] public Vector2 Position;
+            [StarData] public Guid Guid_Platform;
         }
 
+        [StarDataType]
         public class ShipAISave
         {
-            [Serialize(0)] public AIState State;
-            [Serialize(1)] public AIState DefaultState;
-            [Serialize(2)] public CombatState CombatState;
-            [Serialize(3)] public ShipAI.Flags StateBits;
-            [Serialize(4)] public Array<ShipGoalSave> ShipGoalsList;
-            [Serialize(5)] public Array<WayPoint> WayPoints;
-            [Serialize(6)] public Vector2 MovePosition;
-            [Serialize(7)] public Guid OrbitTarget;
-            [Serialize(8)] public Guid SystemToDefend;
-            [Serialize(9)] public Guid AttackTarget;
-            [Serialize(10)] public Guid EscortTarget;
+            [StarData] public AIState State;
+            [StarData] public AIState DefaultState;
+            [StarData] public CombatState CombatState;
+            [StarData] public ShipAI.Flags StateBits;
+            [StarData] public Array<ShipGoalSave> ShipGoalsList;
+            [StarData] public Array<WayPoint> WayPoints;
+            [StarData] public Vector2 MovePosition;
+            [StarData] public Guid OrbitTarget;
+            [StarData] public Guid SystemToDefend;
+            [StarData] public Guid AttackTarget;
+            [StarData] public Guid EscortTarget;
         }
 
+        [StarDataType]
         public class ShipGoalSave
         {
-            [Serialize(0)] public ShipAI.Plan Plan;
-            [Serialize(1)] public Guid goalGuid;
-            [Serialize(2)] public string VariableString;
-            [Serialize(3)] public Guid fleetGuid;
-            [Serialize(4)] public float SpeedLimit;
-            [Serialize(5)] public Vector2 MovePosition;
-            [Serialize(6)] public Vector2 Direction;
-            [Serialize(7)] public Guid TargetPlanetGuid;
-            [Serialize(8)] public TradePlanSave Trade;
-            [Serialize(9)] public AIState WantedState;
-            [Serialize(10)] public Guid TargetShipGuid;
-            [Serialize(11)] public ShipAI.MoveTypes MoveType;
-            [Serialize(12)] public float VariableNumber;
+            [StarData] public ShipAI.Plan Plan;
+            [StarData] public Guid goalGuid;
+            [StarData] public string VariableString;
+            [StarData] public Guid fleetGuid;
+            [StarData] public float SpeedLimit;
+            [StarData] public Vector2 MovePosition;
+            [StarData] public Vector2 Direction;
+            [StarData] public Guid TargetPlanetGuid;
+            [StarData] public TradePlanSave Trade;
+            [StarData] public AIState WantedState;
+            [StarData] public Guid TargetShipGuid;
+            [StarData] public ShipAI.MoveTypes MoveType;
+            [StarData] public float VariableNumber;
 
             public override string ToString()
             {
@@ -854,57 +871,59 @@ namespace Ship_Game
             }
         }
 
+        [StarDataType]
         public class TradePlanSave
         {
-            [Serialize(0)] public Guid ExportFrom;
-            [Serialize(1)] public Guid ImportTo;
-            [Serialize(2)] public Goods Goods;
-            [Serialize(3)] public float BlockadeTimer;
-            [Serialize(4)] public float StardateAdded;
+            [StarData] public Guid ExportFrom;
+            [StarData] public Guid ImportTo;
+            [StarData] public Goods Goods;
+            [StarData] public float BlockadeTimer;
+            [StarData] public float StardateAdded;
         }
 
+        [StarDataType]
         public class ShipSaveData
         {
-            [Serialize(0)] public Guid GUID;
-            [Serialize(1)] public bool AfterBurnerOn;
-            [Serialize(2)] public ShipAISave AISave;
-            [Serialize(3)] public Vector2 Position;
-            [Serialize(4)] public Vector2 Velocity;
-            [Serialize(5)] public float Rotation;
+            [StarData] public Guid GUID;
+            [StarData] public bool AfterBurnerOn;
+            [StarData] public ShipAISave AISave;
+            [StarData] public Vector2 Position;
+            [StarData] public Vector2 Velocity;
+            [StarData] public float Rotation;
             // 200 IQ solution: store a base64 string of the ship module saves
             // and avoid a bunch of annoying serialization issues
-            [Serialize(6)] public string ModulesBase64;
-            [Serialize(7)] public string Hull; // ShipHull name
-            [Serialize(8)] public string Name; // ShipData design name
-            [Serialize(9)] public string VanityName; // User defined name
-            [Serialize(10)] public float yRotation;
-            [Serialize(11)] public float Power;
-            [Serialize(12)] public float Ordnance;
-            [Serialize(13)] public bool InCombat;
-            [Serialize(13)] public float BaseStrength;
-            [Serialize(13)] public int Level;
-            [Serialize(14)] public float Experience;
-            [Serialize(15)] public int Kills;
-            [Serialize(16)] public Array<Troop> TroopList;
-            [Serialize(17)] public RectangleData[] AreaOfOperation;
-            [Serialize(18)] public float FoodCount;
-            [Serialize(19)] public float ProdCount;
-            [Serialize(20)] public float PopCount;
-            [Serialize(21)] public Guid TetheredTo;
-            [Serialize(22)] public Vector2 TetherOffset;
-            [Serialize(23)] public bool FightersLaunched;
-            [Serialize(24)] public bool TroopsLaunched;
-            [Serialize(25)] public Guid HomePlanetGuid;
-            [Serialize(26)] public bool TransportingFood;
-            [Serialize(27)] public bool TransportingProduction;
-            [Serialize(28)] public bool TransportingColonists;
-            [Serialize(29)] public bool AllowInterEmpireTrade;
-            [Serialize(30)] public Array<Guid> TradeRoutes;
-            [Serialize(31)] public bool SendTroopsToShip;
-            [Serialize(32)] public bool RecallFightersBeforeFTL;
-            [Serialize(33)] public float MechanicalBoardingDefense;
-            [Serialize(34)] public float OrdnanceInSpace; // For carriers
-            [Serialize(35)] public float ScuttleTimer = -1;
+            [StarData] public string ModulesBase64;
+            [StarData] public string Hull; // ShipHull name
+            [StarData] public string Name; // ShipData design name
+            [StarData] public string VanityName; // User defined name
+            [StarData] public float yRotation;
+            [StarData] public float Power;
+            [StarData] public float Ordnance;
+            [StarData] public bool InCombat;
+            [StarData] public float BaseStrength;
+            [StarData] public int Level;
+            [StarData] public float Experience;
+            [StarData] public int Kills;
+            [StarData] public Array<Troop> TroopList;
+            [StarData] public RectangleData[] AreaOfOperation;
+            [StarData] public float FoodCount;
+            [StarData] public float ProdCount;
+            [StarData] public float PopCount;
+            [StarData] public Guid TetheredTo;
+            [StarData] public Vector2 TetherOffset;
+            [StarData] public bool FightersLaunched;
+            [StarData] public bool TroopsLaunched;
+            [StarData] public Guid HomePlanetGuid;
+            [StarData] public bool TransportingFood;
+            [StarData] public bool TransportingProduction;
+            [StarData] public bool TransportingColonists;
+            [StarData] public bool AllowInterEmpireTrade;
+            [StarData] public Array<Guid> TradeRoutes;
+            [StarData] public bool SendTroopsToShip;
+            [StarData] public bool RecallFightersBeforeFTL;
+            [StarData] public float MechanicalBoardingDefense;
+            [StarData] public float OrdnanceInSpace; // For carriers
+            [StarData] public float ScuttleTimer = -1;
 
             public ShipSaveData() {}
 
@@ -927,17 +946,18 @@ namespace Ship_Game
             public override string ToString() => $"ShipSave {GUID} {Name}";
         }
 
+        [StarDataType]
         public class SolarSystemSaveData
         {
-            [Serialize(0)] public Guid guid;
-            [Serialize(1)] public string SunPath; // old SunPath is actually the ID @todo RENAME
-            [Serialize(2)] public string Name;
-            [Serialize(3)] public Vector2 Position;
-            [Serialize(4)] public RingSave[] RingList;
-            [Serialize(5)] public Array<Asteroid> AsteroidsList;
-            [Serialize(6)] public Array<Moon> Moons;
-            [Serialize(7)] public string[] ExploredBy;
-            [Serialize(8)] public bool PiratePresence;
+            [StarData] public Guid guid;
+            [StarData] public string SunPath; // old SunPath is actually the ID @todo RENAME
+            [StarData] public string Name;
+            [StarData] public Vector2 Position;
+            [StarData] public RingSave[] RingList;
+            [StarData] public Array<Asteroid> AsteroidsList;
+            [StarData] public Array<Moon> Moons;
+            [StarData] public string[] ExploredBy;
+            [StarData] public bool PiratePresence;
 
             public override string ToString()
             {
@@ -947,65 +967,67 @@ namespace Ship_Game
             }
         }
 
+        [StarDataType]
         public struct SpaceRoadSave
         {
-            [Serialize(0)] public Array<RoadNodeSave> RoadNodes;
-            [Serialize(1)] public Guid OriginGUID;
-            [Serialize(2)] public Guid DestGUID;
+            [StarData] public Array<RoadNodeSave> RoadNodes;
+            [StarData] public Guid OriginGUID;
+            [StarData] public Guid DestGUID;
         }
 
+        [StarDataType]
         public class UniverseSaveData
         {
-            public int SaveGameVersion;
-            public string path;
-            public string SaveAs;
-            public string FileName;
-            public string FogMapBase64;
-            public string PlayerLoyalty;
-            public Vector3 CamPos;
-            public Vector2 Size;
-            public float StarDate;
-            public float GameScale;
-            public float GamePacing;
-            public Array<SolarSystemSaveData> SolarSystemDataList;
-            public Array<EmpireSaveData> EmpireDataList;
-            public UniverseData.GameDifficulty gameDifficulty;
-            public bool AutoExplore;
-            public bool AutoColonize;
-            public bool AutoFreighters;
-            public bool AutoProjectors;
-            public float FTLModifier = 1.0f;
-            public float EnemyFTLModifier = 1.0f;
-            public bool GravityWells;
-            public RandomEvent RandomEvent;
-            public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
-            public float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
-            public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
-            public int IconSize;
-            public byte TurnTimer;
-            public bool preventFederations;
-            public float GravityWellRange = GlobalStats.GravityWellRange;
-            public bool EliminationMode;
-            public bool AutoPickBestFreighter;
-            public GalSize GalaxySize;
-            public float StarsModifier = 1;
-            public int ExtraPlanets;
-            public ProjectileSaveData[] Projectiles; // New global projectile list
-            public BeamSaveData[] Beams; // new global beam list
-            public bool AutoPickBestColonizer;
-            public float CustomMineralDecay;
-            public bool SuppressOnBuildNotifications;
-            public bool PlanetScreenHideOwned;
-            public bool PlanetsScreenHideUnhabitable;
-            public bool ShipListFilterPlayerShipsOnly;
-            public bool ShipListFilterInFleetsOnly;
-            public bool ShipListFilterNotInFleets;
-            public bool DisableInhibitionWarning;
-            public bool CordrazinePlanetCaptured;
-            public bool DisableVolcanoWarning;
-            public float VolcanicActivity;
-            public bool UsePlayerDesigns;
-            public bool UseUpkeepByHullSize;
+            [StarData] public int SaveGameVersion;
+            [StarData] public string path;
+            [StarData] public string SaveAs;
+            [StarData] public string FileName;
+            [StarData] public string FogMapBase64;
+            [StarData] public string PlayerLoyalty;
+            [StarData] public Vector3 CamPos;
+            [StarData] public Vector2 Size;
+            [StarData] public float StarDate;
+            [StarData] public float GameScale;
+            [StarData] public float GamePacing;
+            [StarData] public Array<SolarSystemSaveData> SolarSystemDataList;
+            [StarData] public Array<EmpireSaveData> EmpireDataList;
+            [StarData] public UniverseData.GameDifficulty gameDifficulty;
+            [StarData] public bool AutoExplore;
+            [StarData] public bool AutoColonize;
+            [StarData] public bool AutoFreighters;
+            [StarData] public bool AutoProjectors;
+            [StarData] public float FTLModifier = 1.0f;
+            [StarData] public float EnemyFTLModifier = 1.0f;
+            [StarData] public bool GravityWells;
+            [StarData] public RandomEvent RandomEvent;
+            [StarData] public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
+            [StarData] public float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
+            [StarData] public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
+            [StarData] public int IconSize;
+            [StarData] public byte TurnTimer;
+            [StarData] public bool preventFederations;
+            [StarData] public float GravityWellRange = GlobalStats.GravityWellRange;
+            [StarData] public bool EliminationMode;
+            [StarData] public bool AutoPickBestFreighter;
+            [StarData] public GalSize GalaxySize;
+            [StarData] public float StarsModifier = 1;
+            [StarData] public int ExtraPlanets;
+            [StarData] public ProjectileSaveData[] Projectiles; // New global projectile list
+            [StarData] public BeamSaveData[] Beams; // new global beam list
+            [StarData] public bool AutoPickBestColonizer;
+            [StarData] public float CustomMineralDecay;
+            [StarData] public bool SuppressOnBuildNotifications;
+            [StarData] public bool PlanetScreenHideOwned;
+            [StarData] public bool PlanetsScreenHideUnhabitable;
+            [StarData] public bool ShipListFilterPlayerShipsOnly;
+            [StarData] public bool ShipListFilterInFleetsOnly;
+            [StarData] public bool ShipListFilterNotInFleets;
+            [StarData] public bool DisableInhibitionWarning;
+            [StarData] public bool CordrazinePlanetCaptured;
+            [StarData] public bool DisableVolcanoWarning;
+            [StarData] public float VolcanicActivity;
+            [StarData] public bool UsePlayerDesigns;
+            [StarData] public bool UseUpkeepByHullSize;
         }
     }
 }
