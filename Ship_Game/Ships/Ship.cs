@@ -488,6 +488,7 @@ namespace Ship_Game.Ships
             if (TractorDamage > Mass)
             {
                 AllStop();
+                HyperspaceReturn();
                 EnginesKnockedOut = true;
             }
         }
