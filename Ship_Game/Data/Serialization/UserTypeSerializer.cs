@@ -88,9 +88,6 @@ namespace Ship_Game.Data.Serialization
                 return;
             }
 
-            // sorting by name will give fields easy stability even if they are shuffled around
-            dataFields.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
-
             foreach (DataField field in dataFields)
             {
                 field.FieldIdx = Index.Count;
