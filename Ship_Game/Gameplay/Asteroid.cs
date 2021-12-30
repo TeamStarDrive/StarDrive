@@ -1,14 +1,16 @@
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.Data.Serialization;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Gameplay
 {
+    [StarDataType]
     public sealed class Asteroid : GameplayObject
     {
-        [Serialize(8)] public float Scale = 1.0f; // serialized
+        [StarData] public float Scale = 1.0f; // serialized
         [XmlIgnore][JsonIgnore] Vector3 RotationRadians;
         [XmlIgnore][JsonIgnore] readonly Vector3 Spin;
         [XmlIgnore][JsonIgnore] readonly int AsteroidId;

@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
@@ -25,7 +26,7 @@ namespace Ship_Game.AI
         public AOPlanetData(Planet p, Empire e)
         {
             OwnerPlanet = p;
-            PlanetGuid  = p.guid;
+            PlanetGuid  = p.Guid;
             DataOwner   = e;
         }
 
@@ -40,6 +41,7 @@ namespace Ship_Game.AI
         }
     }
 
+    [StarDataType]
     public sealed class AO : IShipPool
     {
         public static readonly Planet[] NoPlanets = new Planet[0];
@@ -56,17 +58,17 @@ namespace Ship_Game.AI
         [XmlIgnore][JsonIgnore] Empire Owner;
         [XmlIgnore][JsonIgnore] int ThreatTimer;
 
-        [Serialize(0)] public Guid Guid { get; set; } = Guid.NewGuid();
-        [Serialize(1)] public string Name { get; set; }
-        [Serialize(2)] public int ThreatLevel;
-        [Serialize(3)] public Guid CoreWorldGuid;
-        [Serialize(4)] public Array<Guid> OffensiveForceGuids = new Array<Guid>();
-        [Serialize(5)] public Array<Guid> ShipsWaitingGuids   = new Array<Guid>();
-        [Serialize(6)] public Guid FleetGuid;
-        [Serialize(7)] public int WhichFleet = -1;
-        [Serialize(8)] public float Radius;
-        [Serialize(9)] public Vector2 Center;
-        [Serialize(10)] public float WarValueOfPlanets;
+        [StarData] public Guid Guid { get; set; } = Guid.NewGuid();
+        [StarData] public string Name { get; set; }
+        [StarData] public int ThreatLevel;
+        [StarData] public Guid CoreWorldGuid;
+        [StarData] public Array<Guid> OffensiveForceGuids = new Array<Guid>();
+        [StarData] public Array<Guid> ShipsWaitingGuids   = new Array<Guid>();
+        [StarData] public Guid FleetGuid;
+        [StarData] public int WhichFleet = -1;
+        [StarData] public float Radius;
+        [StarData] public Vector2 Center;
+        [StarData] public float WarValueOfPlanets;
         
         [XmlIgnore][JsonIgnore] public Empire OwnerEmpire => Owner;
         [XmlIgnore][JsonIgnore] public Array<Ship> Ships => OffensiveForcePool;
@@ -122,7 +124,7 @@ namespace Ship_Game.AI
         {
             Radius        = radius;
             CoreWorld     = p;
-            CoreWorldGuid = p.guid;
+            CoreWorldGuid = p.Guid;
             Owner         = p.Owner;
             Center        = p.Center;
             WhichFleet    = p.Owner.CreateFleetKey();
@@ -141,7 +143,7 @@ namespace Ship_Game.AI
         {
             Radius        = radius;
             CoreWorld     = p;
-            CoreWorldGuid = p.guid;
+            CoreWorldGuid = p.Guid;
             Owner         = p.Owner;
             Center        = p.Center;
             WhichFleet    = whichFleet;

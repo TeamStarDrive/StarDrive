@@ -431,9 +431,9 @@ namespace Ship_Game
             SolarSystemDict.Clear();
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                SolarSystemDict.Add(solarSystem.guid, solarSystem);
+                SolarSystemDict.Add(solarSystem.Guid, solarSystem);
                 foreach (Planet planet in solarSystem.PlanetList)
-                    PlanetsDict.Add(planet.guid, planet);
+                    PlanetsDict.Add(planet.Guid, planet);
             }
         }
 

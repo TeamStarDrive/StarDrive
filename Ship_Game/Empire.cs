@@ -3353,7 +3353,7 @@ namespace Ship_Game
         public Planet FindPlanet(Guid planetGuid)
         {
             foreach (Planet p in this.OwnedPlanets)
-                if (p.guid == planetGuid)
+                if (p.Guid == planetGuid)
                     return p;
             return null;
         }
