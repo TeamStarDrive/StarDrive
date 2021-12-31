@@ -133,8 +133,9 @@ namespace Ship_Game
             Vector3 pos = projectilePos.ToVec3(moduleCenter.Z);
             Vector2 impactNormal = moduleCenter.ToVec2().DirectionToTarget(projectilePos);
 
-            if (!beamFlash || RandomMath.RandomBetween(0f, 100f) > 90f)
+            if (!beamFlash || RandomMath.RandomBetween(0f, 100f) > 30f)
                 particles.Flash.AddParticle(pos);
+
 
             for (int i = 0; i < 20; ++i)
             {

@@ -45,7 +45,7 @@
   <!-- Graphical Information -->
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
-  <WeaponEffectType>RocketTrail</WeaponEffectType>
+  <WeaponEffectType>TorpTrail</WeaponEffectType>
   <WeaponType>Missile</WeaponType>
   <ProjectileRadius>8</ProjectileRadius>
   <Scale>1.5</Scale>
