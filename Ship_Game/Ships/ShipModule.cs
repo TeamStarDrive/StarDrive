@@ -867,7 +867,7 @@ namespace Ship_Game.Ships
                     }
 
                     if (Parent.IsVisibleToPlayer)
-                        Shield.HitShield(this, proj);
+                        Shield.HitShield(Empire.Universe, this, proj);
                 }
 
                 Parent.UpdateShields();

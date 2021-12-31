@@ -361,14 +361,18 @@ namespace Ship_Game
 
         public void CreateHitParticles(float centerAxisZ)
         {
-            if (!HasParticleHitEffect(10f)) return;
-            Vector2 impactNormal = (Source - Position).Normalized();
-            var pos = ActualHitDestination.ToVec3(centerAxisZ);
-            Empire.Universe.Particles.Flash.AddParticle(pos, Vector3.Zero);
+            if (!HasParticleHitEffect(10f))
+                return;
+
+            var particles = Empire.Universe.Particles;
+            Vector2 impactNormal = ActualHitDestination.DirectionToTarget(Source);
+            Vector3 pos = ActualHitDestination.ToVec3(centerAxisZ);
+
+            particles.Flash.AddParticle(pos, Vector3.Zero);
             for (int i = 0; i < 20; i++)
             {
                 var vel = new Vector3(impactNormal * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
-                Empire.Universe.Particles.Sparks.AddParticle(pos, vel);
+                particles.Sparks.AddParticle(pos, vel);
             }
         }
 

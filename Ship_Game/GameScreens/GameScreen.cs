@@ -142,6 +142,10 @@ namespace Ship_Game
 
         public void UpdateViewport() => Viewport = GameBase.Viewport;
 
+        // Is it possible to add another dynamic light source?
+        // Returns false if dynamic lights are disabled, or max dynamic lights already in scene
+        public bool CanAddDynamicLight => GlobalStats.MaxDynamicLightSources > ScreenManager.ActiveDynamicLights;
+
         public void AddObject(ISceneObject so)    => ScreenManager.AddObject(so);
         public void RemoveObject(ISceneObject so) => ScreenManager.RemoveObject(so);
         public void AddLight(ILight light, bool dynamic) => ScreenManager.AddLight(light, dynamic);
