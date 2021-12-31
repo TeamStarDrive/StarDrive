@@ -122,8 +122,8 @@
   MaxRotateSpeed: 2
   MinStartSize: 10
   MaxStartSize: 30
-  MinEndSize: 10
-  MaxEndSize: 300
+  MinEndSize: 30
+  MaxEndSize: 60
   SourceBlend: SourceAlpha
   DestinationBlend: InverseSourceAlpha
 
@@ -320,10 +320,10 @@
   MaxColor: [143,109,86,255]
   MinRotateSpeed: -1
   MaxRotateSpeed: 1
-  MinStartSize: 50
-  MaxStartSize: 150
-  MinEndSize: 5
-  MaxEndSize: 10
+  MinStartSize: 48
+  MaxStartSize: 72
+  MinEndSize: 8
+  MaxEndSize: 16
   SourceBlend: SourceAlpha
   DestinationBlend: InverseSourceAlpha
 

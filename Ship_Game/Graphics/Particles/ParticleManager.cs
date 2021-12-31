@@ -67,6 +67,8 @@ namespace Ship_Game.Graphics.Particles
         {
             var settings = ParticleSettings.Get(name);
             var ps = new ParticleSystem(Content, settings, Device, scale, particleCount);
+            if (!scale.AlmostEqual(1f))
+                ps.Name = $"{name} {scale.String(2)}x";
             Tracked.Add(ps);
             return ps;
         }
