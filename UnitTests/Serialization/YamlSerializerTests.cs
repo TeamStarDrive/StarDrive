@@ -33,10 +33,9 @@ namespace UnitTests.Serialization
                 Duration = TimeSpan.FromSeconds(123.5),
                 DurationRandomness = 1,
                 EmitterVelocitySensitivity = 2,
-                MinHorizontalVelocity = 3,
-                MaxHorizontalVelocity = 4.2f,
-                MinVerticalVelocity = 5.4f,
-                MaxVerticalVelocity = 5.8f,
+                AlignRotationToVelocity = 1,
+                RandomVelocityXY = new []{ new Range(3, 4.2f), new Range(5.4f, 5.8f) },
+                AlignRandomVelocityXY = true,
                 EndVelocity = 6,
                 MinColor = new Color(10,20,30,255),
                 MaxColor = new Color(40,50,60,255),
@@ -62,10 +61,9 @@ namespace UnitTests.Serialization
                   Duration: 123.5
                   DurationRandomness: 1
                   EmitterVelocitySensitivity: 2
-                  MinHorizontalVelocity: 3
-                  MaxHorizontalVelocity: 4.2
-                  MinVerticalVelocity: 5.4
-                  MaxVerticalVelocity: 5.8
+                  AlignRotationToVelocity: 1
+                  RandomVelocityXY: [[3,4.2],[5.4,5.8]]
+                  AlignRandomVelocityXY: true
                   EndVelocity: 6
                   MinColor: [10,20,30,255]
                   MaxColor: [40,50,60,255]

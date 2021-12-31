@@ -9,7 +9,7 @@ namespace Ship_Game.Debug.Page
     {
         readonly UniverseScreen Screen;
 
-        Map<IParticleSystem, bool> Selected = new Map<IParticleSystem, bool>();
+        Map<string, bool> Selected = new Map<string, bool>();
         FloatSlider Scale;
         FloatSlider Velocity;
         FloatSlider LoyaltySlider;
@@ -17,6 +17,8 @@ namespace Ship_Game.Debug.Page
 
         ParticleManager Manager => Screen.Particles;
         IParticleSystem[] ParticleSystems => Manager.ParticleSystems.ToArray();
+
+        bool IsSelected(IParticleSystem ps) => Selected.TryGetValue(ps.Name, out bool isSelected) && isSelected;
 
         public ParticleDebug(UniverseScreen screen, DebugInfoScreen parent)
             : base(parent, DebugModes.Particles)
@@ -43,20 +45,20 @@ namespace Ship_Game.Debug.Page
             var left = AddList(20, 320);
             foreach (IParticleSystem ps in ParticleSystems)
             {
-                Selected[ps] = false;
+                Selected[ps.Name] = false;
 
                 var horizontal = left.AddList(Vector2.Zero, new Vector2(400, 20));
                 horizontal.Direction = new Vector2(1f, 0);
 
                 horizontal.AddCheckbox(() => ps.IsEnabled, "on", "Toggle to enable/disable particle system");
                 horizontal.AddCheckbox(() => ps.EnableDebug, "dbg", "Toggle to enable/disable particle DEBUG");
-                horizontal.AddCheckbox(() => Selected[ps], b => Selected[ps] = b, "draw", "Select this particle for drawing");
+                horizontal.AddCheckbox(() => Selected[ps.Name], b => Selected[ps.Name] = b, "draw", "Select this particle for drawing");
 
                 var name = horizontal.AddLabel(new Vector2(100, 20), $"PS {ps.Name}");
                 name.DynamicText = l =>
                 {
-                    if (ps.IsOutOfParticles) l.Color = Color.Orange;
-                    else if (Selected[ps])   l.Color = Color.Green;
+                    if (ps.IsOutOfParticles) l.Color = Color.Red;
+                    else if (IsSelected(ps)) l.Color = Color.Green;
                     else                     l.Color = Color.White;
                     return $"PS {ps.Name}";
                 };
@@ -91,17 +93,20 @@ namespace Ship_Game.Debug.Page
 
         public override void Update(float fixedDeltaTime)
         {
-            foreach (IParticleSystem ps in ParticleSystems)
+            if (!Empire.Universe.Paused)
             {
-                if (Selected[ps])
+                foreach (IParticleSystem ps in ParticleSystems)
                 {
-                    Color color = Color.White;
-                    if      (ps == Manager.ThrustEffect) color = Loyalty.ThrustColor1;
-                    else if (ps == Manager.EngineTrail)  color = Loyalty.EmpireColor;
+                    if (IsSelected(ps))
+                    {
+                        Color color = Color.White;
+                        if (ps == Manager.ThrustEffect) color = Loyalty.ThrustColor1;
+                        else if (ps == Manager.EngineTrail) color = Loyalty.EmpireColor;
 
-                    ps.AddParticle(Screen.CursorWorldPosition,
-                                   new Vector3(Velocity.AbsoluteValue, 0, 0),
-                                   Scale.AbsoluteValue, color);
+                        ps.AddParticle(Screen.CursorWorldPosition,
+                                       new Vector3(Velocity.AbsoluteValue, 0, 0),
+                                       Scale.AbsoluteValue, color);
+                    }
                 }
             }
             base.Update(fixedDeltaTime);

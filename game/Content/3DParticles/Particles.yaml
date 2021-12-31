@@ -11,10 +11,6 @@
   Duration: 0.1
   DurationRandomness: 1
   EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
   EndVelocity: 0
   MinColor: [255,255,255,255]
   MaxColor: [255,255,255,255]
@@ -36,10 +32,6 @@
   Duration: 0.25
   DurationRandomness: 0.05
   EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
   EndVelocity: 0
   MinColor: [255,255,255,100]
   MaxColor: [255,255,255,100]
@@ -61,10 +53,6 @@
   Duration: 0.15
   DurationRandomness: 0.5
   EmitterVelocitySensitivity: 0.95
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
   EndVelocity: 0
   MinColor: [255,255,255,130]
   MaxColor: [255,233,171,190]
@@ -86,10 +74,6 @@
   Duration: 1.66
   DurationRandomness: 0
   EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
   EndVelocity: 0
   MinColor: [255,255,255,50]
   MaxColor: [255,255,255,50]
@@ -111,10 +95,7 @@
   Duration: 1.5
   DurationRandomness: 1
   EmitterVelocitySensitivity: 0.1
-  MinHorizontalVelocity: -50
-  MaxHorizontalVelocity: 50
-  MinVerticalVelocity: -50
-  MaxVerticalVelocity: 50
+  RandomVelocityXY: [ [-50,50], [-50,50] ]
   EndVelocity: 0
   MinColor: [128,128,128,255]
   MaxColor: [169,169,169,255]
@@ -136,10 +117,7 @@
   Duration: 2
   DurationRandomness: 0
   EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: -10
-  MaxHorizontalVelocity: 10
-  MinVerticalVelocity: -10
-  MaxVerticalVelocity: 10
+  RandomVelocityXY: [ [-10,10], [-10,10] ]
   EndVelocity: 0
   MinColor: [0,0,0,255]
   MaxColor: [0,0,0,255]
@@ -161,10 +139,7 @@
   Duration: 2
   DurationRandomness: 1
   EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 15
-  MinVerticalVelocity: -10
-  MaxVerticalVelocity: 10
+  RandomVelocityXY: [ [0,15], [-10,10] ]
   EndVelocity: 1
   MinColor: [255,255,255,10]
   MaxColor: [255,255,255,40]
@@ -186,10 +161,7 @@
   Duration: 1
   DurationRandomness: 0.5
   EmitterVelocitySensitivity: 0.1
-  MinHorizontalVelocity: -4
-  MaxHorizontalVelocity: 4
-  MinVerticalVelocity: -4
-  MaxVerticalVelocity: 4
+  RandomVelocityXY: [ [-4,4], [-4,4] ]
   EndVelocity: 1
   MinColor: [128,128,128,255]
   MaxColor: [169,169,169,255]
@@ -211,10 +183,6 @@
   Duration: 2
   DurationRandomness: 0
   EmitterVelocitySensitivity: 0.1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
   EndVelocity: 0
   MinColor: [46,90,169,100]
   MaxColor: [0,114,188,150]
@@ -236,10 +204,7 @@
   Duration: 0.5
   DurationRandomness: 2
   EmitterVelocitySensitivity: 0.5
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: -10
-  MaxVerticalVelocity: 10
+  RandomVelocityXY: [ [0,0], [-10,10] ]
   EndVelocity: 0
   MinColor: [128,128,128,255]
   MaxColor: [169,169,169,255]
@@ -261,10 +226,6 @@
   Duration: 0.3
   DurationRandomness: 1
   EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
   EndVelocity: 0
   MinColor: [255,255,255,255]
   MaxColor: [255,255,255,255]
@@ -286,10 +247,7 @@
   Duration: 0.2
   DurationRandomness: 1
   EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: -50
-  MaxHorizontalVelocity: 50
-  MinVerticalVelocity: -50
-  MaxVerticalVelocity: 50
+  RandomVelocityXY: [ [-50,50], [-50,50] ]
   EndVelocity: 0
   MinColor: [0,0,255,255]
   MaxColor: [255,255,255,255]
@@ -311,10 +269,7 @@
   Duration: 1.5
   DurationRandomness: 1
   EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: -50
-  MaxHorizontalVelocity: 50
-  MinVerticalVelocity: -50
-  MaxVerticalVelocity: 50
+  RandomVelocityXY: [ [-50,50], [-50,50] ]
   EndVelocity: 0
   MinColor: [0,0,255,255]
   MaxColor: [0,255,255,255]
@@ -336,10 +291,7 @@
   Duration: 2
   DurationRandomness: 1
   EmitterVelocitySensitivity: 0.05
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 1
-  MinVerticalVelocity: -1
-  MaxVerticalVelocity: 1
+  RandomVelocityXY: [ [0,1], [-1,1] ]
   EndVelocity: 1
   MinColor: [93,96,95,255]
   MaxColor: [255,255,255,80]
@@ -361,10 +313,7 @@
   Duration: 3
   DurationRandomness: 2
   EmitterVelocitySensitivity: 0.02
-  MinHorizontalVelocity: -35
-  MaxHorizontalVelocity: 35
-  MinVerticalVelocity: -35
-  MaxVerticalVelocity: 35
+  RandomVelocityXY: [ [-35,35], [-35,35] ]
   EndVelocity: 0
   MinColor: [93,96,95,255]
   MaxColor: [255,255,255,80]
@@ -386,10 +335,7 @@
   Duration: 2
   DurationRandomness: 1
   EmitterVelocitySensitivity: 0.05
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 1
-  MinVerticalVelocity: -1
-  MaxVerticalVelocity: 1
+  RandomVelocityXY: [ [0,1], [-1,1] ]
   EndVelocity: 1
   MinColor: [93,96,95,255]
   MaxColor: [255,255,255,80]
@@ -411,10 +357,7 @@
   Duration: 10
   DurationRandomness: 0
   EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: -15
-  MaxHorizontalVelocity: 15
-  MinVerticalVelocity: -20
-  MaxVerticalVelocity: 20
+  RandomVelocityXY: [ [-15,15], [-20,20] ]
   EndVelocity: 0.8
   MinColor: [143,109,86,255]
   MaxColor: [143,109,86,255]
@@ -429,17 +372,16 @@
 
 - ParticleSettings:
   Name: Sparks
-  TextureName: "spark.png"
+  TextureName: "spark.png" # "blue_flame.png" / "spark.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 20000
   Duration: 3
   DurationRandomness: 1
   EmitterVelocitySensitivity: -0.5
-  MinHorizontalVelocity: -40
-  MaxHorizontalVelocity: 40
-  MinVerticalVelocity: -40
-  MaxVerticalVelocity: 40
+  AlignRotationToVelocity: 1
+  RandomVelocityXY: [ [-40,40], [-40,40] ]
+  AlignRandomVelocityXY: true
   EndVelocity: 0
   MinColor: [255,194,235,255]
   MaxColor: [255,255,255,255]
@@ -495,10 +437,6 @@
   Duration: 20.0
   DurationRandomness: 0
   EmitterVelocitySensitivity: 0.33
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
   EndVelocity: 0
   MinColor: [50,50,50,50]
   MaxColor: [110,110,110,50]

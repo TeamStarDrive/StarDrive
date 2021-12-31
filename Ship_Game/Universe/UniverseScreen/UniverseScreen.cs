@@ -683,10 +683,11 @@ namespace Ship_Game
                 if (Debug)
                     DebugWin?.Update(fixedDeltaTime);
             }
-            catch
+            catch (Exception e)
             {
                 Debug = false;
-                Log.Warning("DebugWindowCrashed");
+                DebugWin = null;
+                Log.Error(e, "DebugWindowCrashed");
             }
 
             GameAudio.Update3DSound(new Vector3((float)CamPos.X, (float)CamPos.Y, 0.0f));
