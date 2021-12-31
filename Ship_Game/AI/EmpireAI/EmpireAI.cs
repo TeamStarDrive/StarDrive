@@ -128,10 +128,10 @@ namespace Ship_Game.AI
             }
         }
 
-        public Array<Planet> GetKnownPlanets()
+        public Array<Planet> GetKnownPlanets(UniverseScreen universe)
         {
             var knownPlanets = new Array<Planet>();
-            foreach (SolarSystem s in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem s in universe.Systems)
             {
                 if (s.IsExploredBy(OwnerEmpire))
                     knownPlanets.AddRange(s.PlanetList);

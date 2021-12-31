@@ -210,7 +210,7 @@ namespace UnitTests
             if (!ResourceManager.GetShipTemplate(shipName, out Ship template))
                 throw new Exception($"Failed to find ship template: {shipName} (did you call LoadStarterShips?)");
 
-            var ship = new TestShip(template, empire, position);
+            var ship = new TestShip(Universe, template, empire, position);
             if (!ship.HasModules)
                 throw new Exception($"Failed to create ship modules: {shipName} (did you load modules?)");
 

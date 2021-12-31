@@ -20,16 +20,13 @@ namespace UnitTests.Fleets
         public FleetTests()
         {
             // Excalibur class has all the bells and whistles
-            LoadStarterShips("Heavy Carrier mk5-b",
-                             "Corsair");
+            LoadStarterShips("Heavy Carrier mk5-b", "Corsair");
             CreateUniverseAndPlayerEmpire();
         }
 
         Ship CreatePlayerShip(string shipName, Vector2 pos)
         {
-            var ship = Ship.CreateShipAtPoint(shipName, Player, pos);
-            ship.SetSystem(null);
-            return ship;
+            return SpawnShip(shipName, Player, pos);
         }
 
         void CreateWantedShipsAndAddThemToList(int numberWanted, string shipName, Array<Ship> shipList)

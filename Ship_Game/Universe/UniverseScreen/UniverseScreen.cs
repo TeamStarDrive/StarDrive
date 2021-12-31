@@ -55,10 +55,10 @@ namespace Ship_Game
         Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         
         public Background bg;
-        public float UniverseSize       = 5000000f; // universe width and height in world units
-        public float FTLModifier        = 1f;
-        public float EnemyFTLModifier   = 1f;
-        public bool FTLInNuetralSystems = true;
+        public float UniverseSize = 5000000f; // universe width and height in world units
+        public float FTLModifier = 1f;
+        public float EnemyFTLModifier = 1f;
+        public bool FTLInNeutralSystems = true;
         public Map<Guid, Planet> PlanetsDict          = new Map<Guid, Planet>();
         public Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
         public BatchRemovalCollection<Bomb> BombList  = new BatchRemovalCollection<Bomb>();
@@ -215,18 +215,20 @@ namespace Ship_Game
             Name = "UniverseScreen";
             CanEscapeFromScreen = false;
          
-            PlayerLoyalty         = thePlayer.data.Traits.Name;
-            PlayerEmpire          = thePlayer;
-            player                = thePlayer;
+            PlayerLoyalty = thePlayer.data.Traits.Name;
+            PlayerEmpire  = thePlayer;
+            player        = thePlayer;
             if (!player.isPlayer)
                 throw new ArgumentException($"Invalid Player Empire, isPlayer==false: {player}");
 
-            UniverseSize          = data.Size.X;
-            FTLModifier           = data.FTLSpeedModifier;
-            EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
-            GravityWells          = data.GravityWells;
-            SolarSystemList       = data.SolarSystemsList;
-            
+            UniverseSize     = data.Size.X;
+            FTLModifier      = data.FTLSpeedModifier;
+            EnemyFTLModifier = data.EnemyFTLSpeedModifier;
+            GravityWells     = data.GravityWells;
+
+            foreach (var system in data.SolarSystemsList)
+                AddSolarSystem(system);
+
             Spatial.Setup(UniverseSize);
             Objects = new UniverseObjectManager(this, Spatial, data);
             Objects.OnShipRemoved += Objects_OnShipRemoved;
@@ -234,6 +236,14 @@ namespace Ship_Game
             ShipCommands = new ShipMoveCommands(this);
             DeepSpaceBuildWindow = new DeepSpaceBuildingWindow(this);
         }
+
+        public void AddSolarSystem(SolarSystem system)
+        {
+            system.Universe = this;
+            SolarSystemList.Add(system);
+        }
+
+        public IReadOnlyList<SolarSystem> Systems => SolarSystemList;
 
         void Objects_OnShipRemoved(Ship ship)
         {
@@ -463,7 +473,7 @@ namespace Ship_Game
                 {
                     if (anomaly.type == "DP")
                     {
-                        anomalyManager.AnomaliesList.Add(new DimensionalPrison(solarSystem.Position + anomaly.Position));
+                        anomalyManager.AnomaliesList.Add(new DimensionalPrison(this, solarSystem.Position + anomaly.Position));
                     }
                 }
 
@@ -489,9 +499,9 @@ namespace Ship_Game
                                        ? empire.data.StartingShip
                                        : empire.data.PrototypeShip;
 
-                Ship.CreateShipAt(starterShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 3), true);
-                Ship.CreateShipAt(colonyShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 2), true);
-                Ship.CreateShipAt(startingScout, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 3), true);
+                Ship.CreateShipAt(this, starterShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 3), true);
+                Ship.CreateShipAt(this, colonyShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 2), true);
+                Ship.CreateShipAt(this, startingScout, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 3), true);
             }
         }
 

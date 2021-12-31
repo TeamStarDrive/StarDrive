@@ -18,6 +18,7 @@ namespace Ship_Game
     public sealed class SolarSystem : Explorable
     {
         public string Name = "Random System";
+        public UniverseScreen Universe;
         public Guid Guid = Guid.NewGuid();
         public bool DontStartNearPlayer;
 
@@ -84,7 +85,7 @@ namespace Ship_Game
         }
 
         public void Update(FixedSimTime timeStep, UniverseScreen universe)
-        {            
+        {
             var player = EmpireManager.Player;
 
             for (int i = 0; i < SunLayers.Length; i++)

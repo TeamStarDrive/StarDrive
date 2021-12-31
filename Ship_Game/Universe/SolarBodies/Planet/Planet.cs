@@ -43,6 +43,7 @@ namespace Ship_Game
         public override string ToString() =>
             $"{Name} ({Owner?.Name ?? "No Owner"}) T:{colonyType} NET(FD:{Food.NetIncome.String()} PR:{Prod.NetIncome.String()}) {ImportsDescr()}";
 
+        public UniverseScreen Universe => ParentSystem.Universe;
         public GeodeticManager GeodeticManager;
         public TroopManager TroopManager;
         public SpaceStation Station = new SpaceStation(null);

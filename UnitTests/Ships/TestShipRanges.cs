@@ -28,7 +28,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipRanges()
         {
-            Ship ship = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", Player, Vector2.Zero);
+            Ship ship = SpawnShip("Heavy Carrier mk5-b", Player, Vector2.Zero);
 
             UpdateStatus(ship, CombatState.Artillery);
             Assert.That.Equal(11500, ship.WeaponsMaxRange);
@@ -68,7 +68,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ShipRangesWithModifiers()
         {
-            Ship ship = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", Player, Vector2.Zero);
+            Ship ship = SpawnShip("Heavy Carrier mk5-b", Player, Vector2.Zero);
             
             WeaponTagModifier kinetic = Player.WeaponBonuses(WeaponTag.Kinetic);
             WeaponTagModifier guided = Player.WeaponBonuses(WeaponTag.Guided);

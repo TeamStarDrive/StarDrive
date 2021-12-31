@@ -37,7 +37,7 @@ namespace UnitTests.Planets
         [TestMethod]
         public void TransferCapital()
         {
-            Ship colonyShip = Ship.CreateShipAtPoint("Colony Ship", Enemy, Vector2.Zero);
+            Ship colonyShip = SpawnShip("Colony Ship", Enemy, Vector2.Zero);
             NewPlanet.Colonize(colonyShip);
             Assert.IsTrue(NewPlanet.Owner == Enemy, "New Planet after colonization is not owned by the enemy");
 

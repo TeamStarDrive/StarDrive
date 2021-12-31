@@ -161,7 +161,7 @@ namespace UnitTests.Ships
 
         Fleet CreateFleet()
         {
-            var friendlyShip = Ship.CreateShipAtPoint("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
+            var friendlyShip = SpawnShip("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
             var fleet = new Fleet(new Array<Ship> { Carrier, friendlyShip }, Player);
             fleet.SetCommandShip(Carrier);
             fleet.AutoArrange();
@@ -184,7 +184,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ScrambleAssaultShips()
         {
-            var friendlyShip = Ship.CreateShipAtPoint("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
+            var friendlyShip = SpawnShip("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
             friendlyShip.Carrier.ScrambleAssaultShips(1);
             RunObjectsSim(ScanInterval);
 

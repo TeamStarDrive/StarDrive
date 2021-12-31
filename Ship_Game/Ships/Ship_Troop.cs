@@ -239,7 +239,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < troopsToRemove && i < toRemove.Length; ++i)
             {
                 Troop troop = toRemove[i];
-                Ship assaultShip = CreateTroopShipAtPoint(Loyalty.GetAssaultShuttleName(), Loyalty, Position, troop);
+                Ship assaultShip = CreateTroopShipAtPoint(Universe, Loyalty.GetAssaultShuttleName(), Loyalty, Position, troop);
                 assaultShip.Velocity = UniverseRandom.RandomDirection() * assaultShip.SpeedLimit + Velocity;
 
                 Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);

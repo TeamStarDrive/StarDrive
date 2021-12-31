@@ -1071,7 +1071,7 @@ namespace Ship_Game.Ships
         // TODO: This needs a performance refactor
         public void UpdateShipStatus(FixedSimTime timeStep)
         {
-            if (!Empire.Universe.Paused && VelocityMaximum <= 0f
+            if (timeStep.FixedTime > 0f && VelocityMaximum <= 0f
                 && !ShipData.IsShipyard && ShipData.Role <= RoleName.station)
             {
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);

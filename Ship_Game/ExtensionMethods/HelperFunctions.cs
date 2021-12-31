@@ -40,7 +40,7 @@ namespace Ship_Game
             return null;
         }
 
-        static Fleet CreateFleetFromData(FleetDesign data, Empire owner, Vector2 position)
+        static Fleet CreateFleetFromData(UniverseScreen universe, FleetDesign data, Empire owner, Vector2 position)
         {
             if (data == null)
                 return null;
@@ -61,7 +61,7 @@ namespace Ship_Game
 
             foreach (FleetDataNode node in fleet.DataNodes)
             {
-                Ship s = Ship.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
+                Ship s = Ship.CreateShipAtPoint(universe, node.ShipName, owner, position + node.FleetOffset);
                 if (s == null) continue;
                 s.AI.CombatState = node.CombatState;
                 s.RelativeFleetOffset = node.FleetOffset;
@@ -72,24 +72,9 @@ namespace Ship_Game
             return fleet;
         }
 
-        static Fleet CreateFleetFromData(FleetDesign data, Empire owner, Vector2 position, CombatState state)
+        public static void CreateFirstFleetAt(UniverseScreen universe, string fleetUid, Empire owner, Vector2 position)
         {
-            var fleet = CreateFleetFromData(data, owner, position);
-            if (fleet == null)
-                return null;
-            foreach (FleetDataNode node in fleet.DataNodes)
-                node.CombatState = state;
-
-            return fleet;
-        }
-
-        public static Fleet CreateFleetAt(string fleetUid, Empire owner, Vector2 position, CombatState state)
-        {
-            return CreateFleetFromData(LoadFleetDesign(fleetUid), owner, position, state);
-        }
-        public static void CreateFirstFleetAt(string fleetUid, Empire owner, Vector2 position)
-        {
-            Fleet fleet = CreateFleetFromData(LoadFleetDesign(fleetUid), owner, position);
+            Fleet fleet = CreateFleetFromData(universe, LoadFleetDesign(fleetUid), owner, position);
             if (fleet != null)
                 owner.FirstFleet = fleet;
         }

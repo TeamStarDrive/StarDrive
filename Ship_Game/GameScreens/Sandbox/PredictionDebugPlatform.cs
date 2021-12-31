@@ -17,8 +17,8 @@ namespace Ship_Game.GameScreens.Sandbox
 
     public class PredictionDebugPlatform : Ship
     {
-        public PredictionDebugPlatform(string shipName, Empire owner, Vector2 position)
-            : base(ResourceManager.GetShipTemplate(shipName), owner, position)
+        public PredictionDebugPlatform(UniverseScreen universe, string shipName, Empire owner, Vector2 position)
+            : base(universe, ResourceManager.GetShipTemplate(shipName), owner, position)
         {
             VanityName = "Prediction Debugger " + shipName;
         }
