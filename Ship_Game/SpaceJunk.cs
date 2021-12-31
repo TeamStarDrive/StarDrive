@@ -1,5 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data.Mesh;
+using Ship_Game.Debug;
+using Ship_Game.Graphics.Particles;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -7,120 +11,130 @@ namespace Ship_Game
 {
     public sealed class SpaceJunk
     {
+        readonly UniverseScreen Universe;
         public SceneObject So;
         public Vector3 Position;
-        private Vector3 RotationRadians;
-        private Vector3 Velocity;
-        private Vector3 Spin;
-        private readonly float ScaleMod;
-        private float Scale    = 1f;
-        private float Duration = 8f;
-        private float MaxDuration;
-        private ParticleEmitter FlameTrail;
-        private ParticleEmitter ProjTrail;
-        private ParticleEmitter StaticSmoke;
-        private readonly bool UseStaticSmoke; // Leaving for now. I may wire this in later to turn off some effects. 
+        Vector3 RotationRadians;
+        Vector3 Velocity;
+        Vector3 Spin;
+        float Scale;
+        float Duration;
+        float MaxDuration;
+        ParticleEmitter FlameTrail;
+        ParticleEmitter ProjTrail;
 
         public SpaceJunk()
         {
         }
 
-        public SpaceJunk(Vector2 parentPos, Vector2 parentVel, float spawnRadius, float scaleMod, bool useStaticSmoke, bool ignite = true)
+        public SpaceJunk(UniverseScreen universe, Vector2 parentPos, Vector2 parentVel,
+                         float maxSize, bool ignite)
         {
-            float radius = spawnRadius + 25f;
-            ScaleMod = scaleMod;                        
-            UseStaticSmoke = useStaticSmoke;
-            Position.X = RandomMath2.RandomBetween(parentPos.X - radius, parentPos.X + radius);
-            Position.Y = RandomMath2.RandomBetween(parentPos.Y - radius, parentPos.Y + radius);
-            Position.Z = RandomMath2.RandomBetween(-radius*0.5f, radius*0.5f);
-            CreateSceneObject(parentPos, ignite);
+            Universe = universe;
+            float spawnInRadius = maxSize + 25f;
+            Position.X = RandomMath2.RandomBetween(parentPos.X - spawnInRadius, parentPos.X + spawnInRadius);
+            Position.Y = RandomMath2.RandomBetween(parentPos.Y - spawnInRadius, parentPos.Y + spawnInRadius);
+            Position.Z = RandomMath2.RandomBetween(-spawnInRadius*0.5f, spawnInRadius*0.5f);
+            CreateSceneObject(universe.Particles, parentPos, maxSize, ignite);
 
             // inherit extra velocity from parent
             Velocity.X += parentVel.X;
             Velocity.Y += parentVel.Y;
         }
 
-        void RandomValues(Vector2 parentPos, float velMin, float velMax, float spinMin, float spinMax, float scaleMin, float scaleMax)
+        void RandomValues(Vector2 pos, Range vel, Range spin, float scale, float scaleRandom)
         {
-            var offsetFromParent = new Vector3(Position.X - parentPos.X, Position.Y - parentPos.Y, 1f);
-            Velocity = RandomMath.Vector3D(velMin, velMax) * offsetFromParent;
-            Spin  = RandomMath.Vector3D(spinMin, spinMax);
-            Scale = RandomMath2.RandomBetween(scaleMin, scaleMax) * ScaleMod;
+            var offsetFromParent = new Vector3(Position.X - pos.X, Position.Y - pos.Y, 1f);
+            Velocity = RandomMath.Vector3D(vel.Min, vel.Max) * offsetFromParent;
+            Spin  = RandomMath.Vector3D(spin.Min, spin.Max);
+            Scale = RandomMath2.RandomBetween(scaleRandom*scale, scale);
         }
 
-        void CreateSceneObject(Vector2 parentPos, bool ignite)
-        {
-            RotationRadians  = RandomMath.Vector3D(0.01f, 1.02f);
-            Duration         = RandomMath2.RandomBetween(0, Duration * 1f) * Scale;
-            MaxDuration      = Duration;
-            int random       = RandomMath2.InRange(ResourceManager.NumJunkModels);
-            float flameParts = 0;
+        static Range Range(float min, float max) => new Range(min, max);
 
-            switch (random)
+        void CreateSceneObject(ParticleManager particles, Vector2 pos, float maxSize, bool ignite)
+        {
+            RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
+            MaxDuration = RandomMath2.RandomBetween(4f, 8f);
+            Duration = MaxDuration;
+
+            float flameParticles = 0f;
+            float trailParticles = 0f;
+
+            int junkIndex = RandomMath2.InRange(ResourceManager.NumJunkModels);
+            var model = ResourceManager.GetJunkModel(junkIndex);
+            float meshDiameter = 2f * ResourceManager.GetJunkModelRadius(junkIndex);
+
+            // set lower bound to max size, otherwise we can't even see the junk
+            float maxAllowedSize = maxSize.LowerBound(8f);
+            float scale = (maxAllowedSize / meshDiameter);
+
+            switch (junkIndex)
             {
-                case 6:
-                    RandomValues(parentPos, -2.5f, 2.5f, 0.01f, 0.5f, 0.5f, 1f);
-                    ignite = false;
+                case 6: // meshRadius = 9.5
+                    RandomValues(pos, vel:Range(-2.5f, 2.5f), spin:Range(0.01f, 0.5f), scale: scale, scaleRandom: 0.5f);
                     break;
-                case 7:
-                    RandomValues(parentPos, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
-                    flameParts = 500f;
-                    ProjTrail  = Empire.Universe.Particles.ProjectileTrail.NewEmitter(200f, Position);
+                case 7: // meshRadius = 23.21
+                    RandomValues(pos, vel:Range(-2.5f, 2.5f), spin:Range(0.01f, 0.5f), scale: scale, scaleRandom: 0.3f);
+                    trailParticles = 60f;
+                    if (ignite) flameParticles = 20f;
                     break;
-                case 8:
-                    RandomValues(parentPos, -5f, 5f, 0.5f, 3.5f, 0.7f, 0.1f);
-                    flameParts = 30f;
-                    ProjTrail  = Empire.Universe.Particles.ProjectileTrail.NewEmitter(200f * Scale, Position);
+                case 8: // meshRadius = 32.18
+                    RandomValues(pos, vel:Range(-5f, 5f), spin:Range(0.5f, 3.5f), scale: scale, scaleRandom: 0.5f);
+                    trailParticles = 60f;
+                    if (ignite) flameParticles = 20f;
                     break;
-                case 11:
-                    RandomValues(parentPos, -5f, 5f, 0.5f, 3.5f, 0.5f, 0.8f);
-                    flameParts = 200f;
+                case 11: // meshRadius = 63.89
+                    RandomValues(pos, vel:Range(-5f, 5f), spin:Range(0.5f, 3.5f), scale: scale, scaleRandom: 0.5f);
+                    if (ignite) flameParticles = 20f;
                     break;
-                case 12:
-                    RandomValues(parentPos, -3f, 3f, 0.01f, 0.5f, 0.3f, 0.8f);
-                    ignite = false;
-                    break;
-                case 13:
-                    RandomValues(parentPos, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
-                    ignite = false;
+                case 12: // meshRadius = 39.29
+                    RandomValues(pos, vel:Range(-3f, 3f), spin:Range(0.01f, 0.5f), scale: scale, scaleRandom: 0.3f);
                     break;
                 default:
-                    RandomValues(parentPos, -2f, 2f, 0.01f, 1.02f, 0.5f, 2f);
-                    flameParts = 30f;
+                    // [0] meshRadius = 9.5
+                    // [1] meshRadius = 24.86
+                    // [2] meshRadius = 43.50
+                    // [3] meshRadius = 54.39
+                    // [4] meshRadius = 53.57
+                    // [5] meshRadius = 18.24
+                    // -- 6 -- 7 -- 8 --
+                    // [9] meshRadius = 48.21
+                    // [10] meshRadius = 50.47
+                    // -- 11 -- 12 --
+                    RandomValues(pos, vel:Range(-2f, 2f), spin:Range(0.01f, 1.02f), scale: scale, scaleRandom: 0.5f);
+                    if (ignite) flameParticles = 20f;
                     break;
             }
 
-            if (ignite)
-                FlameTrail = Empire.Universe.Particles.Flame.NewEmitter(flameParts * Scale, Position);
+            if (trailParticles > 0f)
+                ProjTrail = particles.ProjectileTrail.NewEmitter(trailParticles * Scale, Position, scale: Scale);
 
-            // special Emitter that will degrade faster than the others and doesnt move from the original spawn locaton. 
-            if (UseStaticSmoke)
-                StaticSmoke = Empire.Universe.Particles.SmokePlume.NewEmitter(60 * Scale, Position);
+            if (flameParticles > 0f)
+                FlameTrail = particles.Flame.NewEmitter(flameParticles * Scale, Position, scale: Scale * 0.5f);
 
-            ModelMesh mesh = ResourceManager.GetJunkModel(random).Meshes[0];
-            So = new SceneObject(mesh)
+            So = new SceneObject(model.Meshes[0])
             {
                 ObjectType = ObjectType.Dynamic,
                 Visibility = ObjectVisibility.Rendered,
-                World = Matrix.CreateTranslation(-1000000f, -1000000f, 0f)
             };
+            So.AffineTransform(Position, RotationRadians, Scale);
         }
 
         /**
          * @param spawnRadius Spawned junk is spread around the given radius
          * @param scaleMod Applies additional scale modifier on the spawned junk
          */
-        public static void SpawnJunk(int howMuchJunk, Vector2 position, Vector2 velocity,
-                                     GameplayObject source, float spawnRadius = 1.0f, float scaleMod = 1.0f,
-                                     bool staticSmoke = false, bool ignite = true)
+        public static void SpawnJunk(UniverseScreen universe, int howMuchJunk, Vector2 position, Vector2 velocity,
+                                     GameplayObject source, float maxSize, bool ignite)
         {
-            if (Empire.Universe == null)
+            if (universe == null)
             {
                 Log.Error($"SpawnJunk {howMuchJunk} failed: {source}");
                 return; // we can't spawn junk while loading the game :'/
             }
 
-            if (UniverseScreen.JunkList.Count > 800)
+            if (universe.JunkList.Count > 800)
                 return; // don't allow too much junk
 
             if (!source.IsInFrustum)
@@ -129,53 +143,54 @@ namespace Ship_Game
             var junk = new SpaceJunk[howMuchJunk];
             for (int i = 0; i < howMuchJunk; i++)
             {
-                junk[i] = new SpaceJunk(position, velocity, spawnRadius, scaleMod, staticSmoke, ignite);
+                junk[i] = new SpaceJunk(universe, position, velocity, maxSize, ignite);
             }
 
-            // now lock and add to scene
-            foreach (SpaceJunk j in junk) Empire.Universe.AddObject(j.So);
-            UniverseScreen.JunkList.AddRange(junk);
+            // now add to scene
+            foreach (SpaceJunk j in junk)
+                universe.AddObject(j.So);
+            universe.JunkList.AddRange(junk);
         }
 
         public void Update(FixedSimTime timeStep)
         {
             Duration -= timeStep.FixedTime;
-            if (Duration <= 0f || !Empire.Universe.IsActive)
+            if (Duration <= 0f || !Universe.IsActive)
             {
                 RemoveFromScene();
                 return;
             }
      
-            if (!Empire.Universe.IsSystemViewOrCloser 
-                || !Empire.Universe.Frustum.Contains(Position, 10f))
+            if (!Universe.IsSystemViewOrCloser ||
+                !Universe.Frustum.Contains(Position, 10f))
                 return;
 
-            Position        += Velocity * timeStep.FixedTime;
+            Position += Velocity * timeStep.FixedTime;
             RotationRadians += Spin * timeStep.FixedTime;
             So.AffineTransform(Position, RotationRadians, Scale);
 
             FlameTrail?.Update(timeStep.FixedTime, Position);
             ProjTrail?.Update(timeStep.FixedTime, Position);
 
-            if (UseStaticSmoke && (Duration / MaxDuration) > 0.9f)
-                StaticSmoke.Update(timeStep.FixedTime);
-
+            //if (Universe.Debug)
+            //{
+            //    Universe.DebugWin?.DrawText(Position.ToVec2(), DebugText, Color.Red);
+            //}
         }
 
         public void RemoveFromScene()
         {
-            UniverseScreen.JunkList.QueuePendingRemoval(this);
+            Universe.JunkList.QueuePendingRemoval(this);
             DestroySceneObject();
         }
 
         // Not synchronized, lock it yourself if needed
         public void DestroySceneObject()
         {
-            Empire.Universe.RemoveObject(So);
+            Universe.RemoveObject(So);
             So = null;
             FlameTrail = null;
             ProjTrail = null;
-            StaticSmoke = null;
         }
     }
 }

@@ -293,31 +293,33 @@ namespace Ship_Game.Gameplay
                 ProjectileTexture = ResourceManager.ProjTexture(Weapon.ProjectileTexturePath);
             }
 
-            if (Empire.Universe == null)
+            var particles = Empire.Universe?.Particles;
+            if (particles == null)
                 return;
 
+            var pos3D = new Vector3(Position, -ZStart);
             switch (Weapon.WeaponEffectType)
             {
                 case "RocketTrail":
-                    TrailEmitter     = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Position, -ZStart);
-                    FiretrailEmitter = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Position, -ZStart);
+                    TrailEmitter     = particles.ProjectileTrail.NewEmitter(100f, pos3D);
+                    FiretrailEmitter = particles.FireTrail.NewEmitter(100f, pos3D);
                     break;
                 case "Plasma":
-                    FiretrailEmitter = Empire.Universe.Particles.Flame.NewEmitter(100f, Position, 0f);
+                    FiretrailEmitter = particles.Flame.NewEmitter(100f, Position);
                     break;
                 case "SmokeTrail":
-                    TrailEmitter     = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Position, -ZStart);
+                    TrailEmitter     = particles.ProjectileTrail.NewEmitter(100f, pos3D);
                     break;
                 case "MuzzleSmoke":
-                    FiretrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Position, 0f);
+                    FiretrailEmitter = particles.ProjectileTrail.NewEmitter(100f, Position);
                     break;
                 case "MuzzleSmokeFire":
-                    FiretrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Position, 0f);
-                    TrailEmitter     = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Position, -ZStart);
+                    FiretrailEmitter = particles.ProjectileTrail.NewEmitter(100f, Position);
+                    TrailEmitter     = particles.FireTrail.NewEmitter(100f, pos3D);
                     break;
                 case "FullSmokeMuzzleFire":
-                    TrailEmitter     = Empire.Universe.Particles.ProjectileTrail.NewEmitter(100f, Position, -ZStart);
-                    FiretrailEmitter = Empire.Universe.Particles.FireTrail.NewEmitter(100f, Position, -ZStart);
+                    TrailEmitter     = particles.ProjectileTrail.NewEmitter(100f, pos3D);
+                    FiretrailEmitter = particles.FireTrail.NewEmitter(100f, pos3D);
                     break;
             }
         }
@@ -535,7 +537,9 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
+
             var newPosition = new Vector3(Position.X, Position.Y, -ZStart);
+            newPosition -= Direction.ToVec3() * Radius;
 
             if (FiretrailEmitter != null && InFrustum && TrailTurnedOn)
             {
@@ -906,27 +910,29 @@ namespace Ship_Game.Gameplay
         void AddEnergyParticleHitEffects(float damageAmount, Vector3 center)
         {
             if (Weapon?.Tag_Energy != true) return;
+            var particles = Empire.Universe.Particles;
+
             float flashChance  = GetHitProjectileFlashEmitChance(damageAmount);
             float sparksChance = GetHitProjectileSparksEmitChance(Weapon.ProjectileSpeed);
             if (HasParticleHitEffect(flashChance))
-                Empire.Universe.Particles.Flash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
+                particles.Flash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
             if (!HasParticleHitEffect(sparksChance)) return;
             int randomEffect = RandomMath2.IntBetween(0, 2);
             switch (randomEffect)
             {
                 case 0:
                     for (int i = 0; i < 20; i++)
-                        Empire.Universe.Particles.FireTrail.AddParticle(GetBackgroundPos(center), Vector3.Zero);
+                        particles.FireTrail.AddParticle(GetBackgroundPos(center), Vector3.Zero);
                     for (int i = 0; i < 5; i++)
-                        Empire.Universe.Particles.ExplosionSmoke.AddParticle(GetBackgroundPos(center), Vector3.Zero);
+                        particles.ExplosionSmoke.AddParticle(GetBackgroundPos(center), Vector3.Zero);
                     break;
                 case 1:
                     for (int i = 0; i < 50; i++)
-                        Empire.Universe.Particles.Sparks.AddParticle(GetBackgroundPos(center), Vector3.Zero);
-                    Empire.Universe.Particles.SmokePlume.AddParticle(GetBackgroundPos(center), Vector3.Zero);
+                        particles.Sparks.AddParticle(GetBackgroundPos(center), Vector3.Zero);
+                    particles.SmokePlume.AddParticle(GetBackgroundPos(center), Vector3.Zero);
                     break;
                 case 2:
-                    Empire.Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
+                    particles.BeamFlash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
                     break;
             }
         }
