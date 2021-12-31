@@ -105,9 +105,9 @@ namespace Ship_Game
                 empire = EmpireManager.Corsairs;
 
             if (input.SpawnShip)
-                Ship.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
-            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt("Fleet 2", empire, mouseWorldPos);
-            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt("Fleet 1", empire, mouseWorldPos);
+                Ship.CreateShipAtPoint(this, "Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
+            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt(this, "Fleet 2", empire, mouseWorldPos);
+            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt(this, "Fleet 1", empire, mouseWorldPos);
 
             if (SelectedShip != null)
             {

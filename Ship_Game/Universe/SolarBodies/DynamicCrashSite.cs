@@ -121,12 +121,12 @@ namespace Ship_Game.Universe.SolarBodies
                 e.GetEmpireAI().SendExplorationFleet(p); // Create a task to be processed normally
         }
 
-        public void ActivateSite(Planet p, Empire activatingEmpire, PlanetGridSquare tile)
+        public void ActivateSite(UniverseScreen u, Planet p, Empire activatingEmpire, PlanetGridSquare tile)
         {
-            Active              = false;
-            Empire owner        = p.Owner ?? activatingEmpire;
+            Active = false;
+            Empire owner = p.Owner ?? activatingEmpire;
+            Ship ship = SpawnShip(u, p, activatingEmpire, owner, out string message);
             string troopMessage = "";
-            Ship ship           = SpawnShip(p, activatingEmpire, owner, out string message);
 
             if (ship != null)
                 SpawnSurvivingTroops(p, owner, tile, out troopMessage);
@@ -137,7 +137,7 @@ namespace Ship_Game.Universe.SolarBodies
             p.DestroyBuildingOn(tile);
         }
 
-        Ship SpawnShip(Planet p, Empire activatingEmpire, Empire owner, out string message)
+        Ship SpawnShip(UniverseScreen u, Planet p, Empire activatingEmpire, Empire owner, out string message)
         {
             message = $"Recover efforts of a crashed ship on {p.Name} were futile.\n" +
                       "It was completely wrecked.";
@@ -148,9 +148,9 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (RecoverShip)
             {
-                string otherOwners   = owner.isPlayer ? ".\n" : $" by {owner.Name}.\n";
-                Ship ship            = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
-                message              = $"Ship ({ShipName}) was recovered from the\nsurface of {p.Name}{otherOwners}";
+                string otherOwners = owner.isPlayer ? ".\n" : $" by {owner.Name}.\n";
+                Ship ship = Ship.CreateShipAt(u, ShipName, activatingEmpire, p, true);
+                message = $"Ship ({ShipName}) was recovered from the\nsurface of {p.Name}{otherOwners}";
                 float damageModifier = activatingEmpire == Loyalty ? 0.8f : 1; // If it was our ship, spawn with less damage.
                 ship.DamageByRecoveredFromCrash(damageModifier);
                 return ship;

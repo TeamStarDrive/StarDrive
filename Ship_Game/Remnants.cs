@@ -11,6 +11,7 @@ namespace Ship_Game
 {
     using static RandomMath;
     using static HelperFunctions;
+
     public class Remnants
     {
         public const int MaxLevel = 20;
@@ -650,7 +651,7 @@ namespace Ship_Game
 
             if (shipName.NotEmpty())
             {
-                remnantShip = Ship.CreateShipAtPoint(shipName, Owner, where);
+                remnantShip = Ship.CreateShipAtPoint(Empire.Universe, shipName, Owner, where);
                 if (remnantShip == null)
                     Log.Warning($"Could not spawn required Remnant ship named {shipName} for {Owner.Name}, check race xml");
                 else
@@ -672,7 +673,7 @@ namespace Ship_Game
             }
             else
             {
-                Ship ship = Ship.CreateShipAtPoint("Target Dummy", Owner, pos);
+                Ship ship = Ship.CreateShipAtPoint(Empire.Universe, "Target Dummy", Owner, pos);
                 if (ship == null)
                     Log.Warning("Could not spawn `Target Dummy` ship, it does not exist");
             }

@@ -93,9 +93,9 @@ namespace Ship_Game
                 case GalSize.TrulyEpic: Data.Size = new Vector2(20000000); break;
             }
 
-           //Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
+            //Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
 
-           Data.EmpireList.Add(player);
+            Data.EmpireList.Add(player);
             EmpireManager.Add(player);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
             StatTracker.Reset();
@@ -465,6 +465,13 @@ namespace Ship_Game
             FinalizeEmpires(Progress.NextStep());
             Progress.Finish();
 
+            Planet homePlanet = Player.GetPlanets()[0];
+            us = new UniverseScreen(Data, Player)
+            {
+                ScreenManager = ScreenManager,
+                CamPos = new Vector3d(homePlanet.Center.X, homePlanet.Center.Y, 5000),
+            };
+
             Log.Info(ConsoleColor.Blue,    $"  GenerateInitialSystemData elapsed: {Progress[0].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue,    $"  SubmitSceneObjects        elapsed: {Progress[1].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue,    $"  FinalizeEmpires           elapsed: {Progress[2].ElapsedMillis}ms");
@@ -797,15 +804,7 @@ namespace Ship_Game
                 return false;
 
             GameAudio.StopGenericMusic(immediate: false);
-            Planet homePlanet = Player.GetPlanets()[0];
-            us = new UniverseScreen(Data, Player)
-            {
-                ScreenManager = ScreenManager,
-                CamPos = new Vector3d(homePlanet.Center.X, homePlanet.Center.Y, 5000),
-            };
-
             EmpireHullBonuses.RefreshBonuses();
-
             ScreenManager.AddScreenAndLoadContent(us);
 
             Log.Info("CreatingNewGameScreen.Objects.Update(0.01)");

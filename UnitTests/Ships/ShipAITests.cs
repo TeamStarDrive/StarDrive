@@ -21,9 +21,9 @@ namespace UnitTests.Ships
         public void IsTargetValidTest()
         {
             Empire us = Player;
-            Ship ourShip = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", us, Vector2.Zero);
+            Ship ourShip = SpawnShip("Heavy Carrier mk5-b", us, Vector2.Zero);
             
-            Ship theirShip    = Ship.CreateShipAtPoint("Owlwok Freighter S", Enemy, Vector2.Zero);
+            Ship theirShip    = SpawnShip("Owlwok Freighter S", Enemy, Vector2.Zero);
             ourShip.AI.Target = theirShip;
             var ourRelation   = us.GetRelations(Enemy);
             ourRelation.Known = true;
@@ -195,8 +195,8 @@ namespace UnitTests.Ships
             aggressive.data.DiplomaticPersonality.Trustworthiness = 50;
             peaceful.data.DiplomaticPersonality.Trustworthiness   = 50;
 
-            Ship aggressiveShip = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", aggressive, Vector2.Zero);
-            Ship peacefulShip   = Ship.CreateShipAtPoint("Heavy Carrier mk5-b", peaceful, Vector2.Zero);
+            Ship aggressiveShip = SpawnShip("Heavy Carrier mk5-b", aggressive, Vector2.Zero);
+            Ship peacefulShip   = SpawnShip("Heavy Carrier mk5-b", peaceful, Vector2.Zero);
             var aggressiveRel   = aggressive.GetRelations(peaceful);
             var peacefulRel     = peaceful.GetRelations(aggressive);
 

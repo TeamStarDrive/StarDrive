@@ -192,7 +192,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (!ResourceManager.ShipTemplateExists(q.sData.Name))
                 return false;
 
-            Ship shipAt = Ship.CreateShipAt(q.sData.Name, Owner, P, true);
+            Ship shipAt = Ship.CreateShipAt(Empire.Universe, q.sData.Name, Owner, P, true);
             q.Goal?.ReportShipComplete(shipAt);
             if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
             {

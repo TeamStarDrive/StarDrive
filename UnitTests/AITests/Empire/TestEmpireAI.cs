@@ -47,14 +47,14 @@ namespace UnitTests.AITests.Empire
 
         public void AddPlanetToUniverse(Planet p, bool explored, Vector2 pos)
         {
-            var s1         = new SolarSystem {Position = pos};
-            p.Center       = pos + Vector2.One;
+            var s1 = new SolarSystem {Position = pos};
+            p.Center = pos + Vector2.One;
             p.ParentSystem = s1;
             s1.PlanetList.Add(p);
             if (explored)
                 s1.SetExploredBy(Player);
-            Ship_Game.Empire.Universe.PlanetsDict.Add(Guid.NewGuid(), p);
-            UniverseScreen.SolarSystemList.Add(s1);
+            Universe.PlanetsDict.Add(Guid.NewGuid(), p);
+            Universe.AddSolarSystem(s1);
         }
         public void AddPlanetToUniverse(float fertility, float minerals, float pop, bool explored, Vector2 pos)
         {
