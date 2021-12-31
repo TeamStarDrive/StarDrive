@@ -621,7 +621,7 @@ namespace Ship_Game.Gameplay
                 }
 
                 // Using explosion at a specific module not to affect other ships which might bypass other modulesfor them , like armor
-                if (atModule != null) 
+                if (atModule != null && (IgnoresShields || !atModule.ShieldsAreActive)) 
                     UniverseScreen.Spatial.ExplodeAtModule(this, atModule, IgnoresShields, DamageAmount, DamageRadius);
                 else
                     UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, Position);
@@ -832,7 +832,8 @@ namespace Ship_Game.Gameplay
                 return;
 
             ArmorPiercing -= module.XSize;
-            var projectedModules = parent.RayHitTestModules(module.Position, VelocityDirection, distance:parent.Radius, rayRadius:Radius);
+            var projectedModules = parent.RayHitTestModules(module.Position, 
+                VelocityDirection, distance:parent.Radius, rayRadius:Radius, IgnoresShields);
 
             DebugTargetCircle();
             for (int i = 1; i < projectedModules.Count; i++) // I is 1 since we dealt with the first module above to save performance

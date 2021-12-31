@@ -771,7 +771,7 @@ namespace Ship_Game.Ships
 
             DebugDamageCircle();
 
-            float absorbedDamage = modifiedDamage - grossRemainder;
+            float absorbedDamage = modifiedDamage - grossRemainder.LowerBound(0);
             if (damageModifier <= 1) // below 1, resistance. above 1, vulnerability.
                 absorbedDamage /= damageModifier; // module absorbed more damage because of good resistance
 
@@ -849,11 +849,11 @@ namespace Ship_Game.Ships
             var beam = source as Beam;
             var proj = source as Projectile;
 
-            bool damagingShields = ShieldsAreActive && proj?.IgnoresShields != true;
+            bool damagingShields = ShieldsAreActive;
             if (beam == null) // only for projectiles
             {
                 float damageThreshold = damagingShields ? ShieldThreshold : DamageThreshold;
-                if (proj?.Weapon.EMPDamage >= damageThreshold && !damagingShields)
+                if (proj?.Weapon.EMPDamage > damageThreshold && !damagingShields)
                     CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
 
                 if (modifiedDamage < damageThreshold && proj?.WeaponEffectType != "Plasma")
@@ -869,8 +869,10 @@ namespace Ship_Game.Ships
             {
                 if (beam != null)
                     CauseSpecialBeamDamage(beam);
-                
+
+                float healthBefore = Health;
                 SetHealth(Health - modifiedDamage);
+                remainder = modifiedDamage - healthBefore;
                 DebugPerseveranceNoDamage();
 
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
