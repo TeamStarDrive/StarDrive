@@ -12,7 +12,9 @@ namespace Ship_Game.Graphics.Particles
         public IParticleSystem PhotonExplosion;
         public IParticleSystem ExplosionSmoke;
         public IParticleSystem ProjectileTrail;
+        public IParticleSystem JunkSmoke;
         public IParticleSystem FireTrail;
+        public IParticleSystem MissileSmokeTrail;
         public IParticleSystem SmokePlume;
         public IParticleSystem Fire;
         public IParticleSystem ThrustEffect;
@@ -25,6 +27,8 @@ namespace Ship_Game.Graphics.Particles
         public IParticleSystem StarParticles;
         public IParticleSystem Galaxy;
         public IParticleSystem AsteroidParticles;
+        public IParticleSystem MissileThrust;
+        public IParticleSystem IonTrail;
 
         readonly Data.GameContentManager Content;
         readonly GraphicsDevice Device;
@@ -43,24 +47,28 @@ namespace Ship_Game.Graphics.Particles
         public void Reload()
         {
             UnloadContent();
-            BeamFlash       = Add("BeamFlash");
-            ThrustEffect    = Add("ThrustEffect");
-            EngineTrail     = Add("EngineTrail");
-            Explosion       = Add("Explosion");
-            PhotonExplosion = Add("PhotonExplosion");
-            ExplosionSmoke  = Add("ExplosionSmoke");
-            ProjectileTrail = Add("ProjectileTrail");
-            FireTrail       = Add("FireTrail");
-            SmokePlume      = Add("SmokePlume");
-            Fire            = Add("Fire");
-            Flame           = Add("Flame");
-            SmallFlame      = Add("Flame", 0.25f, (int)(4000 * GlobalStats.DamageIntensity));
-            Sparks          = Add("Sparks");
-            Lightning       = Add("Lightning");
-            Flash           = Add("Flash");
-            StarParticles   = Add("StarParticles");
-            Galaxy          = Add("Galaxy");
-            AsteroidParticles = Add("AsteroidParticles");
+            BeamFlash              = Add("BeamFlash");
+            ThrustEffect           = Add("ThrustEffect");
+            EngineTrail            = Add("EngineTrail");
+            Explosion              = Add("Explosion");
+            PhotonExplosion        = Add("PhotonExplosion");
+            ExplosionSmoke         = Add("ExplosionSmoke");
+            ProjectileTrail        = Add("ProjectileTrail");
+            JunkSmoke              = Add("JunkSmoke");
+            MissileSmokeTrail      = Add("MissileSmokeTrail");
+            FireTrail              = Add("FireTrail");
+            SmokePlume             = Add("SmokePlume");
+            Fire                   = Add("Fire");
+            Flame                  = Add("Flame");
+            SmallFlame             = Add("Flame", 0.25f, (int)(4000 * GlobalStats.DamageIntensity));
+            Sparks                 = Add("Sparks");
+            Lightning              = Add("Lightning");
+            Flash                  = Add("Flash");
+            StarParticles          = Add("StarParticles");
+            Galaxy                 = Add("Galaxy");
+            AsteroidParticles      = Add("AsteroidParticles");
+            MissileThrust          = Add("MissileThrust");
+            IonTrail               = Add("IonTrail");
         }
 
         IParticleSystem Add(string name, float scale = 1, int particleCount = -1)

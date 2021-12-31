@@ -195,8 +195,33 @@
   MaxColor: [169,169,169,255]
   MinRotateSpeed: -8
   MaxRotateSpeed: 8
-  MinStartSize: 25
-  MaxStartSize: 30
+  MinStartSize: 35
+  MaxStartSize: 40
+  MinEndSize: 2
+  MaxEndSize: 5
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
+  Name: IonTrail
+  TextureName: "Glow.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 7000
+  Duration: 2
+  DurationRandomness: 0.5
+  EmitterVelocitySensitivity: 0.1
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: 0
+  MaxVerticalVelocity: 0
+  EndVelocity: 1
+  MinColor: [46,90,169,255]
+  MaxColor: [0,114,188,255]
+  MinRotateSpeed: -8
+  MaxRotateSpeed: 8
+  MinStartSize: 45
+  MaxStartSize: 50
   MinEndSize: 2
   MaxEndSize: 5
   SourceBlend: SourceAlpha

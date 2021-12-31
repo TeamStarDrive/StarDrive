@@ -35,6 +35,8 @@ namespace Ship_Game.Gameplay
         public string WeaponEffectType;
         ParticleEmitter TrailEmitter;
         ParticleEmitter FiretrailEmitter;
+        ParticleEmitter ThrustGlowEmitter;
+        ParticleEmitter IonTrailEmitter;
         SceneObject ProjSO; // this is null for sprite based projectiles
         public Matrix WorldMatrix { get; private set; }
         public string InFlightCue = "";
@@ -301,8 +303,13 @@ namespace Ship_Game.Gameplay
             switch (Weapon.WeaponEffectType)
             {
                 case "RocketTrail":
-                    TrailEmitter     = particles.ProjectileTrail.NewEmitter(100f, pos3D);
-                    FiretrailEmitter = particles.FireTrail.NewEmitter(100f, pos3D);
+                    TrailEmitter            = particles.MissileSmokeTrail.NewEmitter(80f, pos3D);
+                    FiretrailEmitter        = particles.FireTrail.NewEmitter(100f, pos3D);
+                    ThrustGlowEmitter       = particles.MissileThrust.NewEmitter(20f, pos3D);
+                    break;
+                case "TorpTrail":
+                    IonTrailEmitter = particles.IonTrail.NewEmitter(150f, pos3D);
+                    ThrustGlowEmitter = particles.MissileThrust.NewEmitter(20f, pos3D);
                     break;
                 case "Plasma":
                     FiretrailEmitter = particles.Flame.NewEmitter(100f, Position);
@@ -548,11 +555,25 @@ namespace Ship_Game.Gameplay
                     FiretrailEmitter.UpdateProjectileTrail(timeStep.FixedTime, newPosition, Velocity + VelocityDirection * Speed * 1.75f);
                 }
             }
+            if (ThrustGlowEmitter != null && InFrustum && TrailTurnedOn)
+            {
+                if (ParticleDelay <= 0.0f && Duration > 0.5)
+                {
+                    ThrustGlowEmitter.Update(timeStep.FixedTime, newPosition);
+                }
+            }
             if (TrailEmitter != null && InFrustum && TrailTurnedOn)
             {
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
                     TrailEmitter.Update(timeStep.FixedTime, newPosition);
+                }
+            }
+            if (IonTrailEmitter != null && InFrustum && TrailTurnedOn)
+            {
+                if (ParticleDelay <= 0.0f && Duration > 0.5)
+                {
+                    IonTrailEmitter.Update(timeStep.FixedTime, newPosition);
                 }
             }
 
