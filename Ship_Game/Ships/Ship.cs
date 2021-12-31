@@ -1764,9 +1764,8 @@ namespace Ship_Game.Ships
             float shieldPower = 0.0f;
             for (int i = 0; i < Shields.Length; ++i)
                 shieldPower += Shields[i].ShieldPower;
-            if (shieldPower > ShieldMax)
-                shieldPower = ShieldMax;
-            ShieldPower = shieldPower;
+
+            ShieldPower = shieldPower.UpperBound(ShieldMax);
         }
 
         public enum MoveState
