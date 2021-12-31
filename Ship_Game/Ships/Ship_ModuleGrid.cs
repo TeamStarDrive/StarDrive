@@ -281,7 +281,7 @@ namespace Ship_Game.Ships
             return hit;
         }
 
-        // Gets all the shields currently covering a ship Module, starting with the strongest
+        // Gets all the shields currently covering a ship Module, starting with the outside radius first
         public ShipModule[] GetAllActiveShieldsCoveringModule(ShipModule module)
         {
             Array<ShipModule> coveringShields = new Array<ShipModule>();
@@ -292,7 +292,7 @@ namespace Ship_Game.Ships
                     coveringShields.Add(shield);
             }
 
-            return coveringShields.SortedDescending(m => m.ShieldPower);
+            return coveringShields.Sorted(s => s.ShieldRadius - s.Position.Distance(module.Position));
         }
 
         // Gets the strongest shield currently covering internalModule
@@ -698,7 +698,7 @@ namespace Ship_Game.Ships
         // This is also used to damage modules inline when excess damage remains
         // todo Align this with RayHitTestSingle
         public Array<ShipModule> RayHitTestModules(
-            Vector2 startPos, Vector2 direction, float distance, float rayRadius)
+            Vector2 startPos, Vector2 direction, float distance, float rayRadius, bool ignoreShields)
         {
             Vector2 endPos = startPos + direction * distance;
             var path = new Array<ShipModule>();
@@ -718,12 +718,14 @@ namespace Ship_Game.Ships
                     if (m != null && m.Active)
                     {
                         // get covering shields to damage them first
-                        ShipModule[] shields = GetAllActiveShieldsCoveringModule(m);
-                        for (int i = 0; i < shields.Length; i++)
+                        if (!ignoreShields)
                         {
-
-                            ShipModule shield = shields[i];
-                            path.AddUniqueRef(shield);
+                            ShipModule[] shields = GetAllActiveShieldsCoveringModule(m);
+                            for (int i = 0; i < shields.Length; i++)
+                            {
+                                ShipModule shield = shields[i];
+                                path.AddUniqueRef(shield);
+                            }
                         }
 
                         path.AddUniqueRef(m);
