@@ -28,7 +28,7 @@
   <DieCue>sd_explosion_ship_det_small</DieCue>
 
 
-  <Scale>1.1</Scale>
+  <Scale>1.2</Scale>
   <!-- Projectile Information -->
   <DamageAmount>2750</DamageAmount>
   <EffectVsShields>1.15</EffectVsShields>
