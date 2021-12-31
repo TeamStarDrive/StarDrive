@@ -108,13 +108,13 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 3000
-  Duration: 2.5
+  Duration: 2
   DurationRandomness: 0
   EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: -50
-  MaxHorizontalVelocity: 50
-  MinVerticalVelocity: -50
-  MaxVerticalVelocity: 50
+  MinHorizontalVelocity: -10
+  MaxHorizontalVelocity: 10
+  MinVerticalVelocity: -10
+  MaxVerticalVelocity: 10
   EndVelocity: 0
   MinColor: [0,0,0,255]
   MaxColor: [0,0,0,255]
@@ -159,7 +159,7 @@
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 10000
   Duration: 0.2
-  DurationRandomness: 0
+  DurationRandomness: 1
   EmitterVelocitySensitivity: 0
   MinHorizontalVelocity: 0
   MaxHorizontalVelocity: 0
@@ -168,12 +168,12 @@
   EndVelocity: 1
   MinColor: [128,128,128,255]
   MaxColor: [169,169,169,255]
-  MinRotateSpeed: -4
-  MaxRotateSpeed: 4
-  MinStartSize: 1
-  MaxStartSize: 5
-  MinEndSize: 20
-  MaxEndSize: 40
+  MinRotateSpeed: -8
+  MaxRotateSpeed: 8
+  MinStartSize: 10
+  MaxStartSize: 15
+  MinEndSize: 2
+  MaxEndSize: 5
   SourceBlend: SourceAlpha
   DestinationBlend: One
 
@@ -283,22 +283,47 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 10000
-  Duration: 3
-  DurationRandomness: 1.5
-  EmitterVelocitySensitivity: 0.1
+  Duration: 2.5
+  DurationRandomness: 1
+  EmitterVelocitySensitivity: 0.05
   MinHorizontalVelocity: 0
   MaxHorizontalVelocity: 1
   MinVerticalVelocity: -1
   MaxVerticalVelocity: 1
   EndVelocity: 1
-  MinColor: [64,96,128,255]
-  MaxColor: [255,255,255,128]
-  MinRotateSpeed: -4
-  MaxRotateSpeed: 4
-  MinStartSize: 4
-  MaxStartSize: 8
-  MinEndSize: 15
-  MaxEndSize: 45
+  MinColor: [93,96,95,255]
+  MaxColor: [255,255,255,80]
+  MinRotateSpeed: -1
+  MaxRotateSpeed: 1
+  MinStartSize: 15
+  MaxStartSize: 25
+  MinEndSize: 140
+  MaxEndSize: 180
+  SourceBlend: SourceAlpha
+  DestinationBlend: InverseSourceAlpha
+
+- ParticleSettings:
+  Name: JunkSmoke
+  TextureName: "smoke.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 10000
+  Duration: 2.5
+  DurationRandomness: 1
+  EmitterVelocitySensitivity: 0.05
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 1
+  MinVerticalVelocity: -1
+  MaxVerticalVelocity: 1
+  EndVelocity: 1
+  MinColor: [93,96,95,255]
+  MaxColor: [255,255,255,80]
+  MinRotateSpeed: -1
+  MaxRotateSpeed: 1
+  MinStartSize: 15
+  MaxStartSize: 25
+  MinEndSize: 140
+  MaxEndSize: 180
   SourceBlend: SourceAlpha
   DestinationBlend: InverseSourceAlpha
 
