@@ -57,7 +57,7 @@ namespace Ship_Game.Ships
 
         public int Area => XSize * YSize;
 
-        bool CanVisualizeDamage;
+        public bool CanVisualizeDamage;
         public float ShieldPower { get; private set; }
         public short OrdinanceCapacity;
         bool OnFire; // is this module on fire?
@@ -584,20 +584,28 @@ namespace Ship_Game.Ships
             return EmpireManager.Player.ObsoletePlayerShipModules.Contains(UID);
         }
 
+        public struct UpdateEveryFrameArgs
+        {
+            public FixedSimTime TimeStep;
+            public float ParentX;
+            public float ParentY;
+            public float ParentRotation;
+            public float ParentScale;
+            public float Cos;
+            public float Sin;
+            public float Tan;
+        }
+
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
-        public void UpdateEveryFrame(FixedSimTime timeStep, float parentX, float parentY, float parentRotation,
-                                     float cos, float sin, float tan)
+        public void UpdateEveryFrame(in UpdateEveryFrameArgs a)
         {
             Vector2 offset = LocalCenter;
-            float cx = parentX + offset.X * cos - offset.Y * sin;
-            float cy = parentY + offset.X * sin + offset.Y * cos;
+            float cx = a.ParentX + offset.X * a.Cos - offset.Y * a.Sin;
+            float cy = a.ParentY + offset.X * a.Sin + offset.Y * a.Cos;
             Position.X = cx;
             Position.Y = cy;
-            ZPos = tan * offset.X;
-            Rotation = parentRotation; // assume parent rotation is already normalized
-
-            if (CanVisualizeDamage && Parent.PlanetCrash == null)
-                UpdateDamageVisualization(timeStep);
+            ZPos = a.Tan * offset.X;
+            Rotation = a.ParentRotation; // assume parent rotation is already normalized
         }
 
         // radius padding for collision detection
@@ -1183,14 +1191,16 @@ namespace Ship_Game.Ships
         }
 
         // @note This is called every frame for every module for every ship in the universe
-        void UpdateDamageVisualization(FixedSimTime timeStep)
+        public void UpdateDamageVisualization(FixedSimTime timeStep, float scale, bool visible)
         {
-            if (OnFire && Parent.IsVisibleToPlayer)
+            if (visible && OnFire)
             {
-                if (DamageVisualizer == null)
-                    DamageVisualizer = new ShipModuleDamageVisualization(this);
-
-                DamageVisualizer.Update(timeStep, Center3D, Active);
+                var vis = DamageVisualizer;
+                if (vis == null)
+                {
+                    DamageVisualizer = vis = new ShipModuleDamageVisualization(this);
+                }
+                vis.Update(timeStep, Center3D, scale, Active);
             }
             else // destroy immediately when out of vision range or if module is no longer OnFire
             {
@@ -1198,13 +1208,19 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void UpdateWhileDying(FixedSimTime timeStep)
+        public void UpdateWhileDying(FixedSimTime timeStep, float scale, bool visible)
         {
-            if (Parent.PlanetCrash == null || !RandomMath.RollDice(5))
-                return; 
-
             if (CanVisualizeDamage)
-                UpdateDamageVisualization(timeStep);
+            {
+                if (visible)
+                {
+                    UpdateDamageVisualization(timeStep, scale, visible: true);
+                }
+                else
+                {
+                    DamageVisualizer = null;
+                }
+            }
         }
 
         public float Repair(float repairAmount)
