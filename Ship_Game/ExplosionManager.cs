@@ -91,9 +91,6 @@ namespace Ship_Game
 
         static void AddLight(ExplosionState newExp, Vector3 position, float intensity)
         {
-            if (!Empire.Universe.IsSectorViewOrCloser)
-                return;
-
             newExp.Light = new PointLight
             {
                 World        = Matrix.CreateTranslation(position),
@@ -123,7 +120,7 @@ namespace Ship_Game
                 Radius = radius <= 0f ? 1f : radius*expType.Scale
             };
 
-            if (GlobalStats.MaxDynamicLightSources != 0)
+            if (Empire.Universe.CanAddDynamicLight && Empire.Universe.IsSectorViewOrCloser)
                 AddLight(exp, position, intensity);
 
             using (Lock.AcquireWriteLock())
@@ -140,7 +137,7 @@ namespace Ship_Game
                 Radius = radius <= 0f ? 1f : radius,
             };
 
-            if (GlobalStats.MaxDynamicLightSources != 0)
+            if (Empire.Universe.CanAddDynamicLight && Empire.Universe.IsSectorViewOrCloser)
                 AddLight(exp, position, intensity);
 
             using (Lock.AcquireWriteLock())

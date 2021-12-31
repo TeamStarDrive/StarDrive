@@ -556,7 +556,7 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            if (GlobalStats.MaxDynamicLightSources != 0)
+            if (Empire.Universe.CanAddDynamicLight)
             {
                 if (InFrustum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
                 {
