@@ -692,17 +692,14 @@ namespace Ship_Game.Ships
         }
 
 
-        // find ShipModules that collide with a this wide RAY
-        // direction must be normalized!!
-        // results are sorted by distance
-        // This is also used to damage modules inline when excess damage remains
+        // Find an Active ShipModule which collide with a this wide RAY
+        // Direction must be normalized!!
+        // Results are sorted by distance
         // todo Align this with RayHitTestSingle
-        public Array<ShipModule> RayHitTestModules(
+        public ShipModule RayHitTestNextModules(
             Vector2 startPos, Vector2 direction, float distance, float rayRadius, bool ignoreShields)
         {
             Vector2 endPos = startPos + direction * distance;
-            var path = new Array<ShipModule>();
-
             Vector2 a = WorldToGridLocal(startPos);
             Vector2 b = WorldToGridLocal(endPos);
             if (MathExt.ClipLineWithBounds(GridWidth * 16f, GridHeight * 16f, a, b, ref a, ref b)) // guaranteed bounds safety
@@ -721,18 +718,15 @@ namespace Ship_Game.Ships
                         if (!ignoreShields)
                         {
                             ShipModule[] shields = GetAllActiveShieldsCoveringModule(m);
-                            for (int i = 0; i < shields.Length; i++)
-                            {
-                                ShipModule shield = shields[i];
-                                path.AddUniqueRef(shield);
-                            }
+                            if (shields.Length > 0)
+                                return shields[0];
                         }
 
-                        path.AddUniqueRef(m);
+                        return m;
                     }
                 }
             }
-            return path;
+            return null;
         }
 
 
