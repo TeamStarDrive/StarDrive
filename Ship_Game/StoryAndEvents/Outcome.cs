@@ -131,16 +131,17 @@ namespace Ship_Game
             }
         }
 
-        private void ShipGrants(Empire triggeredBy ,Planet p)
+        private void ShipGrants(Empire triggeredBy, Planet p)
         {
+            var universe = Empire.Universe;
             foreach (string shipName in FriendlyShipsToSpawn)
             {
-                Ship.CreateShipAt(shipName, triggeredBy, p, true);
+                Ship.CreateShipAt(universe, shipName, triggeredBy, p, true);
             }
 
             foreach (string shipName in RemnantShipsToSpawn)
             {
-                Ship ship = Ship.CreateShipAt(shipName, EmpireManager.Remnants, p, true);
+                Ship ship = Ship.CreateShipAt(universe, shipName, EmpireManager.Remnants, p, true);
                 ship.AI.DefaultAIState = AIState.Exterminate;
             }
 
@@ -150,7 +151,7 @@ namespace Ship_Game
             Empire pirates = EmpireManager.PirateFactions.RandItem();
             foreach (string shipName in PirateShipsToSpawn)
             {
-                Ship ship = Ship.CreateShipAt(shipName, pirates, p, true);
+                Ship ship = Ship.CreateShipAt(universe, shipName, pirates, p, true);
                 ship?.AI.OrderToOrbit(p);
             }
         }

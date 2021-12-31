@@ -57,7 +57,7 @@ namespace Ship_Game.Spatial
 
         static Ship SpawnShip(string name, Empire loyalty, Vector2 pos, Vector2 dir)
         {
-            var target = Ship.CreateShipAtPoint(name, loyalty, pos);
+            var target = Ship.CreateShipAtPoint(null, name, loyalty, pos);
             target.Rotation = dir.Normalized().ToRadians();
             target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
             return target;

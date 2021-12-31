@@ -288,7 +288,7 @@ namespace Ship_Game
                 if (CrashSite.Active)
                 {
                     if (!planet.SpaceCombatNearPlanet)
-                        CrashSite.ActivateSite(planet, empire, this);
+                        CrashSite.ActivateSite(planet.Universe, planet, empire, this);
                 }
                 else
                 {

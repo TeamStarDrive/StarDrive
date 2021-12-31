@@ -20,11 +20,13 @@ namespace UnitTests.AITests.Ships
             CloseSystem = new SolarSystem();
             CloseSystem.Position = new Vector2(300000, 0); 
             CloseSystem.GenerateRandomSystem("Close System", 1);
-            UniverseScreen.SolarSystemList.Add(CloseSystem);
+            Universe.AddSolarSystem(CloseSystem);
+
             FarSystem = new SolarSystem();
             FarSystem.Position = new Vector2(600000, 0);
             FarSystem.GenerateRandomSystem("Far System", 1);
-            UniverseScreen.SolarSystemList.Add(FarSystem);
+            Universe.AddSolarSystem(FarSystem);
+
             foreach (Planet planet in CloseSystem.PlanetList)
                 planet.RecreateSceneObject(); // needed for object update
 

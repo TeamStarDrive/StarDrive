@@ -1051,7 +1051,7 @@ namespace Ship_Game.Ships
             if (HangarTimer <= 0f && HangarShip == null) // launch the troopship
             {
                 string assaultShuttle = Parent.Loyalty.GetAssaultShuttleName();
-                ship = Ship.CreateTroopShipAtPoint(assaultShuttle, Parent.Loyalty, Position, troop);
+                ship = Ship.CreateTroopShipAtPoint(Parent.Universe, assaultShuttle, Parent.Loyalty, Position, troop);
                 SetHangarShip(ship);
                 HangarShip.Mothership = Parent;
                 HangarShip.DoEscort(Parent);
@@ -1091,7 +1091,7 @@ namespace Ship_Game.Ships
 
             if (HangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
-                SetHangarShip(Ship.CreateShipFromHangar(this, carrier.Loyalty, carrier.Position + LocalCenter, carrier));
+                SetHangarShip(Ship.CreateShipFromHangar(Parent.Universe, this, carrier.Loyalty, carrier.Position + LocalCenter, carrier));
 
                 if (HangarShip == null)
                 {

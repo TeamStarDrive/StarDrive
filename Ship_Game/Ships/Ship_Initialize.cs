@@ -10,9 +10,14 @@ namespace Ship_Game.Ships
     {
         public readonly ShipStats Stats;
 
-        // create a NEW ship from template and add it to the universe
-        protected Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
+        // Universe where this ship was added
+        // If this is null, the Ship is not in any universe
+        public UniverseScreen Universe;
+
+        // create a NEW ship from template
+        protected Ship(UniverseScreen universe, Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
         {
+            Universe = universe;
             Position     = position;
             Name         = template.Name;
             BaseStrength = template.BaseStrength;
@@ -41,9 +46,9 @@ namespace Ship_Game.Ships
         // Create a ship from a savegame or a template or in shipyard
         // You can also call Ship.CreateShip... functions to spawn ships
         // @param shipyardDesign This is a potentially incomplete design from Shipyard
-        protected Ship(Empire empire, ShipDesign data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
+        protected Ship(UniverseScreen universe, Empire empire, ShipDesign data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
         {
-            Position   = new Vector2(200f, 200f);
+            Universe = universe;
             Name       = save.Name;
             VanityName = save.VanityName;
             Level      = save.Level;
@@ -70,7 +75,7 @@ namespace Ship_Game.Ships
         // Create a ship as a template in shipyard or from a save
         // You can also call Ship.CreateShip... functions to spawn ships
         // @param shipyardDesign This is a potentially incomplete design from Shipyard
-        protected Ship(Empire empire, ShipDesign data, bool isTemplate, bool shipyardDesign = false)
+        protected Ship(UniverseScreen universe, Empire empire, ShipDesign data, bool isTemplate, bool shipyardDesign = false)
             : base(GameObjectType.Ship)
         {
             if (!data.IsValidForCurrentMod)
@@ -79,9 +84,9 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            Position   = new Vector2(200f, 200f);
-            Name       = data.Name;
-            ShipData   = data;
+            Universe = universe;
+            Name     = data.Name;
+            ShipData = data;
 
             // loyalty must be set before modules are initialized
             LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
@@ -311,7 +316,7 @@ namespace Ship_Game.Ships
         
         public static Ship CreateNewShipTemplate(Empire voidEmpire, ShipDesign data)
         {
-            var ship = new Ship(voidEmpire, data, isTemplate:true);
+            var ship = new Ship(null, voidEmpire, data, isTemplate:true);
             return ship.HasModules ? ship : null;
         }
 
@@ -349,14 +354,14 @@ namespace Ship_Game.Ships
                 ResourceManager.AddShipTemplate(data, playerDesign: true);
             }
 
-            var ship = new Ship(empire, data, save, savedModules);
+            var ship = new Ship(null, empire, data, save, savedModules);
             if (!ship.HasModules)
                 return null; // module creation failed
             ship.InitializeFromSaveData(save);
             return ship;
         }
 
-        public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
+        public static Ship CreateShipAtPoint(UniverseScreen universe, string shipName, Empire owner, Vector2 position)
         {
             Ship template = GetShipTemplate(shipName);
             if (template == null)
@@ -364,11 +369,11 @@ namespace Ship_Game.Ships
                 Log.Warning($"CreateShip failed, no such design: {shipName}");
                 return null;
             }
-            return CreateShipAtPoint(template, owner, position);
+            return CreateShipAtPoint(universe, template, owner, position);
         }
 
         // Added by RedFox - Debug, Hangar Ship, and Platform creation
-        public static Ship CreateShipAtPoint(Ship template, Empire owner, Vector2 position)
+        public static Ship CreateShipAtPoint(UniverseScreen universe, Ship template, Empire owner, Vector2 position)
         {
             if (!template.ShipData.IsValidForCurrentMod)
             {
@@ -376,17 +381,17 @@ namespace Ship_Game.Ships
                 return null;
             }
 
-            var ship = new Ship(template, owner, position);
+            var ship = new Ship(universe, template, owner, position);
             if (!ship.HasModules)
                 return null;
 
-            Empire.Universe?.Objects.Add(ship);
+            universe?.Objects.Add(ship);
             return ship;
         }
 
-        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
+        public static Ship CreateShipAt(UniverseScreen universe, string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
         {
-            Ship ship = CreateShipAtPoint(shipName, owner, p.Center + deltaPos);
+            Ship ship = CreateShipAtPoint(universe, shipName, owner, p.Center + deltaPos);
             if (doOrbit)
                 ship.OrderToOrbit(p);
             //ship.SetSystem(p.ParentSystem);
@@ -394,15 +399,15 @@ namespace Ship_Game.Ships
         }
 
         // Refactored by RedFox - Normal Shipyard ship creation
-        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit)
+        public static Ship CreateShipAt(UniverseScreen universe, string shipName, Empire owner, Planet p, bool doOrbit)
         {
-            return CreateShipAt(shipName, owner, p, RandomMath.Vector2D(300), doOrbit);
+            return CreateShipAt(universe, shipName, owner, p, RandomMath.Vector2D(300), doOrbit);
         }
 
         // Hangar Ship Creation
-        public static Ship CreateShipFromHangar(ShipModule hangar, Empire owner, Vector2 p, Ship parent)
+        public static Ship CreateShipFromHangar(UniverseScreen universe, ShipModule hangar, Empire owner, Vector2 p, Ship parent)
         {
-            Ship ship = CreateShipAtPoint(hangar.HangarShipUID, owner, p);
+            Ship ship = CreateShipAtPoint(universe, hangar.HangarShipUID, owner, p);
             if (ship == null)
                 return null;
 
@@ -427,18 +432,18 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        public static Ship CreateDefenseShip(string shipName, Empire owner, Vector2 p, Planet planet)
+        public static Ship CreateDefenseShip(UniverseScreen universe, string shipName, Empire owner, Vector2 p, Planet planet)
         {
-            Ship ship = CreateShipAtPoint(shipName, owner, p);
+            Ship ship = CreateShipAtPoint(universe, shipName, owner, p);
             ship.VanityName = "Home Defense";
             ship.UpdateHomePlanet(planet);
             ship.HomePlanet = planet;
             return ship;
         }
 
-        public static Ship CreateTroopShipAtPoint(string shipName, Empire owner, Vector2 point, Troop troop)
+        public static Ship CreateTroopShipAtPoint(UniverseScreen universe, string shipName, Empire owner, Vector2 point, Troop troop)
         {
-            Ship ship = CreateShipAtPoint(shipName, owner, point);
+            Ship ship = CreateShipAtPoint(universe, shipName, owner, point);
             ship.VanityName = troop.DisplayName;
             troop.LandOnShip(ship);
             if (ship.ShipData.Role == RoleName.troop)

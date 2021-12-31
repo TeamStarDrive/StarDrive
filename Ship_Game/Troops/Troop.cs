@@ -458,7 +458,7 @@ namespace Ship_Game
         Ship CreateShipForTroop(Planet planet)
         {
             Vector2 createAt = planet.Center + RandomMath.Vector2D(planet.ObjectRadius * 2);
-            return Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, createAt, this);
+            return Ship.CreateTroopShipAtPoint(planet.Universe, Owner.data.DefaultTroopShip, Owner, createAt, this);
         }
 
         // FB - this is the main logic for land troops
