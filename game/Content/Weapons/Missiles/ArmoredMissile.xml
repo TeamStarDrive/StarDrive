@@ -31,7 +31,7 @@
 <!-- Projectile stats -->
   <DamageAmount>3600</DamageAmount>
   <ProjectileSpeed>1500</ProjectileSpeed>
-  <DamageRadius>38</DamageRadius>
+  <DamageRadius>57</DamageRadius>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
   
