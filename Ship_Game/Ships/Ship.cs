@@ -1151,17 +1151,38 @@ namespace Ship_Game.Ships
 
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)
         {
-            if (Active && AI.BadGuysNear || (InFrustum && isSystemView) || forceUpdate)
-            {  
-                float cos = RadMath.Cos(Rotation);
-                float sin = RadMath.Sin(Rotation);
-                float tan = (float)Math.Tan(YRotation);
-                float parentX = Position.X;
-                float parentY = Position.Y;
-                float rotation = Rotation;
-                for (int i = 0; i < ModuleSlotList.Length; ++i)
+            bool visible = IsVisibleToPlayer;
+            if (Active && (AI.BadGuysNear || visible || forceUpdate))
+            {
+                var a = new ShipModule.UpdateEveryFrameArgs
                 {
-                    ModuleSlotList[i].UpdateEveryFrame(timeStep, parentX, parentY, rotation, cos, sin, tan);
+                    TimeStep = timeStep,
+                    ParentX = Position.X,
+                    ParentY = Position.Y,
+                    ParentRotation = Rotation,
+                    ParentScale = PlanetCrash?.Scale ?? 1f,
+                    Cos = RadMath.Cos(Rotation),
+                    Sin = RadMath.Sin(Rotation),
+                    Tan = (float)Math.Tan(YRotation)
+                };
+
+                if (Active)
+                {
+                    bool enableVisualizeDamage = PlanetCrash == null;
+                    for (int i = 0; i < ModuleSlotList.Length; ++i)
+                    {
+                        ShipModule m = ModuleSlotList[i];
+                        m.UpdateEveryFrame(a);
+                        if (enableVisualizeDamage && m.CanVisualizeDamage)
+                            m.UpdateDamageVisualization(timeStep, a.ParentScale, visible);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < ModuleSlotList.Length; ++i)
+                    {
+                        ModuleSlotList[i].UpdateEveryFrame(a);
+                    }
                 }
             }
         }
@@ -1450,27 +1471,37 @@ namespace Ship_Game.Ships
             }
         }
 
-        void ExplodeShip(float size, bool addWarpExplode)
+        void AddExplosionEffect(bool addWarpExplode)
         {
-            if (!InFrustum || !IsVisibleToPlayer)
-                return;
-
             var position = new Vector3(Position.X, Position.Y, -100f);
 
             float boost = 1f;
             if (GlobalStats.HasMod)
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
-            ExplosionManager.AddExplosion(position, Velocity,
-                PlanetCrash != null ? size * 0.05f : size * boost, 12f, ExplosionType.Ship);
+            float diameter = 2f * Radius * (ShipData.EventOnDeath?.NotEmpty() == true ? 3 : 1);
+            float explosionSize = PlanetCrash != null ? diameter * 0.05f : diameter * boost;
 
-            if (PlanetCrash == null)
+            // the ShipExplode effect itself has a bit of empty space
+            // so the effect needs to be doubled in size, or in some case more
+            switch (ShipData.HullRole)
             {
-                if (addWarpExplode)
-                    ExplosionManager.AddExplosion(position, Velocity, size * 1.75f, 12f, ExplosionType.Warp);
+                case RoleName.scout:      explosionSize *= 2; break;
+                case RoleName.fighter:    explosionSize *= 2; break;
+                case RoleName.corvette:   explosionSize *= 2; break;
+                case RoleName.frigate:    explosionSize *= 2; break;
+                case RoleName.battleship: explosionSize *= 3; break;
+                case RoleName.capital:    explosionSize *= 3; break;
+                case RoleName.cruiser:    explosionSize *= 3; break;
+                case RoleName.station:    explosionSize *= 4; break;
+                default:                  explosionSize *= 3; break;
+            }
 
-                float explosionDamage = GetExplosionDamage();
-                UniverseScreen.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage / 500);
+            ExplosionManager.AddExplosion(position, Velocity, explosionSize, 12f, ExplosionType.Ship);
+
+            if (PlanetCrash == null && addWarpExplode)
+            {
+                ExplosionManager.AddExplosion(position, Velocity, explosionSize * 1.75f, 12f, ExplosionType.Warp);
             }
         }
 
@@ -1536,36 +1567,25 @@ namespace Ship_Game.Ships
             NotifyPlayerIfDiedExploring();
             Loyalty.TryAutoRequisitionShip(Fleet, this);
 
-            float size = Radius * (ShipData.EventOnDeath?.NotEmpty() == true ? 3 : 1);
-            switch (ShipData.HullRole)
-            {
-                case RoleName.corvette:
-                case RoleName.scout:
-                case RoleName.fighter:
-                case RoleName.frigate:   ExplodeShip(size * 10, cleanupOnly); break;
-                case RoleName.battleship:
-                case RoleName.capital:
-                case RoleName.cruiser:
-                case RoleName.station:   ExplodeShip(size * 8, true);         break;
-                default:                 ExplodeShip(size * 8, cleanupOnly);  break;
-            }
-
             if (!HasExploded)
             {
                 HasExploded = true;
+                if (visible)
+                    AddExplosionEffect(addWarpExplode:cleanupOnly);
+
+                if (PlanetCrash == null)
+                {
+                    float explosionDamage = GetExplosionDamage();
+                    UniverseScreen.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage / 500);
+                }
+
                 if (PlanetCrash == null && visible)
                 {
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
-                    float radSqrt = (float)Math.Sqrt(Radius);
-                    float junkScale = (radSqrt * 0.05f).UpperBound(1.4f); // trial and error, depends on junk model sizes // bigger doesn't look good
-
-                    //Log.Info("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
-                    for (int x = 0; x < 3; ++x)
-                    {
-                        int howMuchJunk = (int)RandomMath.RandomBetween(Radius * 0.05f, Radius * 0.15f);
-                        SpaceJunk.SpawnJunk(howMuchJunk, Position.GenerateRandomPointOnCircle(Radius / 2),
-                            Velocity, this, Radius, junkScale, true);
-                    }
+                    int howMuchJunk = (int)(Radius * 0.05f);
+                    Vector2 pos = Position.GenerateRandomPointOnCircle(Radius / 2);
+                    SpaceJunk.SpawnJunk(Empire.Universe, howMuchJunk, pos, Velocity, this,
+                                        maxSize:Radius * 0.1f, ignite:false);
                 }
             }
 

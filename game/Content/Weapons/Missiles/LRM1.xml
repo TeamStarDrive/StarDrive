@@ -33,7 +33,7 @@
 <!-- Projectile stats -->
   <DamageAmount>3000</DamageAmount>
   <ProjectileSpeed>800</ProjectileSpeed>
-  <DamageRadius>28</DamageRadius>
+  <DamageRadius>50</DamageRadius>
   <ProjectileRadius>5</ProjectileRadius>
   <RotationRadsPerSecond>1</RotationRadsPerSecond>
   <HitPoints>10</HitPoints>

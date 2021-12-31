@@ -129,7 +129,7 @@ namespace Ship_Game
         public bool SpawnShip        => KeyPressed(Keys.C);
         public bool SpawnFleet1      => KeyPressed(Keys.Z) && !IsKeyDown(Keys.LeftControl);
         public bool SpawnFleet2      => IsKeyDown(Keys.LeftControl) && KeyPressed(Keys.Z);
-        public bool KillThis         => KeyPressed(Keys.X) || KeyPressed(Keys.Delete);
+        public bool DebugKillShip         => KeyPressed(Keys.X) || KeyPressed(Keys.Delete);
         public bool SpawnRemnant     => KeyPressed(Keys.V);
         public bool SpawnPlayerTroop => KeyPressed(Keys.Z);
 

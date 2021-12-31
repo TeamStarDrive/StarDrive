@@ -95,7 +95,7 @@ namespace Ship_Game
         public void HitShield(Planet planet, Ship ship, Vector2 planetCenter, float shieldRadius)
             => HitShield(planet, ship.GetSO().World, ship.Position.ToVec3(ship.GetSO().World.Translation.Z), planetCenter, shieldRadius);
 
-        public void HitShield(Planet planet, Matrix world, Vector3 pos, Vector2 planetCenter, float shieldRadius)
+        public void HitShield(Planet planet, in Matrix world, Vector3 pos, Vector2 planetCenter, float shieldRadius)
         {
             PlanetCenter = planetCenter;
             Vector3 center3D = PlanetCenter.ToVec3(2500f);
@@ -106,7 +106,7 @@ namespace Ship_Game
             Displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
             TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
             
-            if (GlobalStats.MaxDynamicLightSources != 0)
+            if (Empire.Universe.CanAddDynamicLight)
             {
                 AddLight();
                 Light.World        = world;
@@ -116,31 +116,35 @@ namespace Ship_Game
                 Light.Enabled      = true;
             }
 
-            Vector3 vel = (pos - center3D).Normalized();
 
-            Empire.Universe.Particles.Flash.AddParticle(pos);
+            var particles = Empire.Universe.Particles;
+            Vector3 impactNormal = center3D.DirectionToTarget(pos);
+
+            particles.Flash.AddParticle(pos);
             for (int i = 0; i < 200; ++i)
             {
-                Empire.Universe.Particles.Sparks.AddParticle(pos, vel * RandomMath.Vector3D(25f));
+                particles.Sparks.AddParticle(pos, impactNormal * RandomMath.Vector3D(25f));
             }
         }
 
-        private static void CreateShieldHitParticles(Vector3 victim, Vector2 impact, bool beamFlash)
+        static void CreateShieldHitParticles(Vector2 projectilePos, Vector3 moduleCenter, bool beamFlash)
         {
-            Vector2 vel = (impact - victim.ToVec2()).Normalized();
-            Vector3 pos = impact.ToVec3(victim.Z);
+            var particles = Empire.Universe.Particles;
+            Vector3 pos = projectilePos.ToVec3(moduleCenter.Z);
+            Vector2 impactNormal = moduleCenter.ToVec2().DirectionToTarget(projectilePos);
 
-            if (!beamFlash || RandomMath.RandomBetween(0f, 100f) > 90f)
-                Empire.Universe.Particles.Flash.AddParticle(pos);
+            if (!beamFlash || RandomMath.RandomBetween(0f, 100f) > 30f)
+                particles.Flash.AddParticle(pos);
+
 
             for (int i = 0; i < 20; ++i)
             {
-                var randVel = new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
-                Empire.Universe.Particles.Sparks.AddParticle(pos, randVel);
+                var randVel = new Vector3(impactNormal * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
+                particles.Sparks.AddParticle(pos, randVel);
             }
         }
 
-        public void HitShield(ShipModule module, Projectile proj)
+        public void HitShield(UniverseScreen universe, ShipModule module, Projectile proj)
         {
             GameAudio.PlaySfxAsync("sd_impact_shield_01", module.GetParent().SoundEmitter);
 
@@ -151,7 +155,7 @@ namespace Ship_Game
             TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 10f);
             Displacement = 0.085f * RandomMath.RandomBetween(intensity, 10f);
 
-            if (GlobalStats.MaxDynamicLightSources != 0)
+            if (universe.CanAddDynamicLight)
             {
                 AddLight();
                 Light.World        = proj.WorldMatrix;
@@ -161,7 +165,7 @@ namespace Ship_Game
                 Light.Enabled      = true;
             }
 
-            CreateShieldHitParticles(module.Center3D, proj.Position, beamFlash: false);
+            CreateShieldHitParticles(proj.Position, module.Center3D, beamFlash: false);
         }
 
         public static Color GetBubbleColor(float shieldRate, string colorName = "Green")

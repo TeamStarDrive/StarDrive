@@ -32,7 +32,7 @@
   <ProjectileCount>1</ProjectileCount>
   <DamageAmount>8700</DamageAmount>
   <ProjectileSpeed>950</ProjectileSpeed>
-  <DamageRadius>50</DamageRadius>
+  <DamageRadius>95</DamageRadius>
   <SalvoCount>1</SalvoCount>
   <SalvoTimer>0</SalvoTimer>
   
@@ -47,7 +47,7 @@
   <Explodes>true</Explodes>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 <!-- Projectile textures-->
-  <WeaponEffectType>RocketTrail</WeaponEffectType>
+  <WeaponEffectType>TorpTrail</WeaponEffectType>
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
   <WeaponType>Missile</WeaponType>

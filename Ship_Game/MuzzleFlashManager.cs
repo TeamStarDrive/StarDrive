@@ -46,7 +46,7 @@ namespace Ship_Game
         {
             var f = new MuzzleFlash { Projectile = projectile };
             f.Update();
-            if (GlobalStats.MaxDynamicLightSources != 0)
+            if (Empire.Universe.CanAddDynamicLight)
             {
                 f.Light = new PointLight
                 {

@@ -16,7 +16,21 @@ namespace Ship_Game.Data.Mesh
 
             // and pick the largest diameter
             float maxDiameter = Math.Max(dx, Math.Max(dy, dz));
-            return maxDiameter / 2f;
+            return maxDiameter * 0.5f;
+        }
+
+        // Joins two bounding boxes into a single bigger bb
+        public static BoundingBox Join(this BoundingBox a, in BoundingBox b)
+        {
+            var bb = new BoundingBox();
+            bb.Min.X = Math.Min(a.Min.X, b.Min.X);
+            bb.Min.Y = Math.Min(a.Min.Y, b.Min.Y);
+            bb.Min.Z = Math.Min(a.Min.Z, b.Min.Z);
+
+            bb.Max.X = Math.Max(a.Max.X, b.Max.X);
+            bb.Max.Y = Math.Max(a.Max.Y, b.Max.Y);
+            bb.Max.Z = Math.Max(a.Max.Z, b.Max.Z);
+            return bb;
         }
 
         public static BoundingBox GetMeshBoundingBox(this SceneObject obj)
@@ -30,7 +44,8 @@ namespace Ship_Game.Data.Mesh
 
         public static BoundingBox GetMeshBoundingBox(this RenderableMesh mesh)
         {
-            var bb = new BoundingBox();
+            if (mesh.VertexCount == 0)
+                return new BoundingBox();
 
             VertexDeclaration desc = mesh.VertexDeclaration;
             VertexElement position = desc.GetVertexElements()[0];
@@ -40,8 +55,11 @@ namespace Ship_Game.Data.Mesh
             var vertexData  = new Vector3[mesh.VertexCount];
             mesh.VertexBuffer.GetData(0, vertexData, 0, mesh.VertexCount, stride);
 
-            foreach (Vector3 p in vertexData)
+            Vector3 p = vertexData[0];
+            var bb = new BoundingBox(p, p);
+            for (int i = 1; i < vertexData.Length; ++i)
             {
+                p = vertexData[i];
                 if (p.X < bb.Min.X) bb.Min.X = p.X;
                 if (p.Y < bb.Min.Y) bb.Min.Y = p.Y;
                 if (p.Z < bb.Min.Z) bb.Min.Z = p.Z;
@@ -57,12 +75,11 @@ namespace Ship_Game.Data.Mesh
             return bb;
         }
 
-        
         public static BoundingBox GetMeshBoundingBox(this ModelMesh modelMesh)
         {
-            var bb = new BoundingBox();
-
             ModelMeshPart mesh = modelMesh.MeshParts[0];
+            if (mesh.NumVertices == 0)
+                return new BoundingBox();
 
             VertexDeclaration desc = mesh.VertexDeclaration;
             VertexElement position = desc.GetVertexElements()[0];
@@ -72,8 +89,11 @@ namespace Ship_Game.Data.Mesh
             var vertexData  = new Vector3[mesh.NumVertices];
             modelMesh.VertexBuffer.GetData(0, vertexData, 0, mesh.NumVertices, stride);
 
-            foreach (Vector3 p in vertexData)
+            Vector3 p = vertexData[0];
+            var bb = new BoundingBox(p, p);
+            for (int i = 1; i < vertexData.Length; ++i)
             {
+                p = vertexData[i];
                 if (p.X < bb.Min.X) bb.Min.X = p.X;
                 if (p.Y < bb.Min.Y) bb.Min.Y = p.Y;
                 if (p.Z < bb.Min.Z) bb.Min.Z = p.Z;
@@ -81,6 +101,27 @@ namespace Ship_Game.Data.Mesh
                 if (p.X > bb.Max.X) bb.Max.X = p.X;
                 if (p.Y > bb.Max.Y) bb.Max.Y = p.Y;
                 if (p.Z > bb.Max.Z) bb.Max.Z = p.Z;
+            }
+
+            if (modelMesh.ParentBone != null)
+            {
+                Matrix m = modelMesh.ParentBone.Transform;
+                bb.Min = Vector3.Transform(bb.Min, m);
+                bb.Max = Vector3.Transform(bb.Max, m);
+            }
+            return bb;
+        }
+
+        public static BoundingBox GetBoundingBox(this Model model)
+        {
+            if (model.Meshes.Count == 0)
+                return new BoundingBox();
+
+            BoundingBox bb = GetMeshBoundingBox(model.Meshes[0]);
+            for (int i = 1; i < model.Meshes.Count; ++i)
+            {
+                BoundingBox bb2 = GetMeshBoundingBox(model.Meshes[i]);
+                bb = bb.Join(bb2);
             }
             return bb;
         }
