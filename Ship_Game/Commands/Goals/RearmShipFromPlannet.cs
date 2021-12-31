@@ -45,8 +45,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (SupplyShip == null) 
             {
                 string supplyShipName = empire.GetSupplyShuttleName();
-                SupplyShip = Ship.CreateShipAtPoint(supplyShipName, empire, PlanetBuildingAt.Center
-                    .GenerateRandomPointInsideCircle(PlanetBuildingAt.ObjectRadius + 500));
+                var at = PlanetBuildingAt.Center.GenerateRandomPointInsideCircle(PlanetBuildingAt.ObjectRadius + 500);
+                SupplyShip = Ship.CreateShipAtPoint(TargetShip.Universe, supplyShipName, empire, at);
 
                 if (SupplyShip == null)
                     return GoalStep.GoalFailed;

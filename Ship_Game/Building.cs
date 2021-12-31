@@ -180,7 +180,7 @@ namespace Ship_Game
                 return;
 
             Vector2 launchVector = MathExt.RandomOffsetAndDistance(p.Center, 1000);
-            Ship defenseShip = Ship.CreateDefenseShip(selectedShip.Name, empire, launchVector, p);
+            Ship defenseShip = Ship.CreateDefenseShip(Empire.Universe, selectedShip.Name, empire, launchVector, p);
             if (defenseShip == null)
             {
                 Log.Warning($"Could not create defense ship, ship name = {selectedShip}");

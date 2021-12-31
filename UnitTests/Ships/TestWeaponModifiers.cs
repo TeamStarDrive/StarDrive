@@ -19,7 +19,7 @@ namespace UnitTests.Ships
         {
             Empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
             Empire.TestInitModifiers();
-            Ship = Ship.CreateShipAtPoint("Vulcan Scout", Empire, Vector2.Zero);
+            Ship = SpawnShip("Vulcan Scout", Empire, Vector2.Zero);
             Weapon = CreateWeapon(Ship);
         }
 

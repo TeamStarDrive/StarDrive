@@ -166,7 +166,7 @@ namespace Ship_Game
                 Vector2 pos = origin.GenerateRandomPointInsideCircle(p.GravityWellRadius);
 
                 string meteorName = "Meteor " + METEOR_VARIANTS[RandomMath.RollDie(7) - 1];
-                var meteor = Ship.CreateShipAtPoint(meteorName, EmpireManager.Unknown, pos);
+                var meteor = Ship.CreateShipAtPoint(Empire.Universe, meteorName, EmpireManager.Unknown, pos);
                 if (meteor != null)
                 {
                     float speed = RandomMath.IntBetween(baseSpeed-100, baseSpeed+100);

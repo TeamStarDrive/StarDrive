@@ -17,7 +17,8 @@ namespace UnitTests.Ships
     /// </summary>
     public class TestShip : Ship
     {
-        public TestShip(Ship template, Empire owner, Vector2 position) : base(template, owner, position)
+        public TestShip(UniverseScreen u, Ship template, Empire owner, Vector2 position)
+            : base(u, template, owner, position)
         {
         }
 
