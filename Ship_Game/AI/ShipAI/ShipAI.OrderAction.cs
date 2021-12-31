@@ -747,7 +747,7 @@ namespace Ship_Game.AI
                     Orbit.Orbit(AwaitClosest, timeStep);
                     return;
                 }
-                AwaitClosest = Owner.Loyalty.GetEmpireAI().GetKnownPlanets()
+                AwaitClosest = Owner.Loyalty.GetEmpireAI().GetKnownPlanets(Owner.Universe)
                     .FindMin(p => p.Center.SqDist(Owner.Position) + (Owner.Loyalty != p.Owner ? 300000 : 0));
                 return;
             }

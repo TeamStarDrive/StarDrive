@@ -47,7 +47,7 @@ namespace UnitTests.Universe
 
             // somehow we manage to create one
             var emptyTemplate = new DesignShip(design);
-            var ship = Ship.CreateShipAtPoint(emptyTemplate, Player, Vector2.Zero);
+            var ship = Ship.CreateShipAtPoint(Universe, emptyTemplate, Player, Vector2.Zero);
             RunObjectsSim(TestSimStep);
             Assert.AreEqual(0, Player.OwnedShips.Count, "Ship with empty modules should not be added to Player's Empire OwnedShips");
             Assert.AreEqual(0, Universe.Objects.Ships.Count, "Ship with empty modules should not be added to UniverseObjectManager");

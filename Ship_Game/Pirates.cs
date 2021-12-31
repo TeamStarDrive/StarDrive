@@ -771,11 +771,11 @@ namespace Ship_Game
             return force.Count > 0;
         }
 
-        public bool SpawnShip(PirateShipType shipType, Vector2 where, out Ship pirateShip, int level = 0)
+        bool SpawnShip(PirateShipType shipType, Vector2 where, out Ship pirateShip, int level = 0)
         {
             PirateForces forces = new PirateForces(Owner, level);
-            string shipName     = "";
-            pirateShip          = null;
+            string shipName = "";
+            pirateShip = null;
 
             switch (shipType)
             {
@@ -790,7 +790,7 @@ namespace Ship_Game
 
             if (shipName.NotEmpty())
             {
-                pirateShip = Ship.CreateShipAtPoint(shipName, Owner, where);
+                pirateShip = Ship.CreateShipAtPoint(Empire.Universe, shipName, Owner, where);
                 if (pirateShip != null)
                     SpawnedShips.Add(pirateShip.Guid);
                 else

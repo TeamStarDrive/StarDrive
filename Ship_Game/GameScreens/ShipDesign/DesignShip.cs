@@ -11,7 +11,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         public ShipDesignStats DesignStats;
 
         public DesignShip(Ships.ShipDesign designHull)
-            : base(EmpireManager.Player, designHull, isTemplate:true, shipyardDesign:true)
+            : base(null, EmpireManager.Player, designHull, isTemplate:true, shipyardDesign:true)
         {
             DesignStats = new ShipDesignStats(this);
             Position = new Vector2(0, 0);
