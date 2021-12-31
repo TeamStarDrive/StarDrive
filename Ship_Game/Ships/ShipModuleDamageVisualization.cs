@@ -5,12 +5,10 @@ namespace Ship_Game.Ships
 {
     public class ShipModuleDamageVisualization
     {
-        private readonly ParticleEmitter Lightning;
-        private readonly ParticleEmitter Dust;
-        private readonly ParticleEmitter Smoke;
-        private readonly ParticleEmitter Flame;
-        private readonly float LightningVelZ;
-        private readonly float Area;
+        readonly ParticleEmitter Lightning;
+        readonly ParticleEmitter Dust;
+        readonly ParticleEmitter Smoke;
+        readonly ParticleEmitter Flame;
 
         public static bool CanVisualize(ShipModule module)
         {
@@ -22,7 +20,7 @@ namespace Ship_Game.Ships
 
         public ShipModuleDamageVisualization(ShipModule module)
         {
-            Area = module.XSize * module.YSize;
+            float area = module.Area;
             Vector3 center = module.Center3D;
             ShipModuleType type = module.ModuleType;
 
@@ -30,43 +28,36 @@ namespace Ship_Game.Ships
 
             switch (type) // FB: other special effects based on some module types, use main moduletypes for performance sake
             {
-                case ShipModuleType.Shield:
-                    Lightning = particles.Sparks.NewEmitter(40f, center);
-                    LightningVelZ = -6f;
-                    break;
-                case ShipModuleType.PowerConduit:
-                    Lightning = particles.Sparks.NewEmitter(25f, center);
-                    LightningVelZ = -3f;
-                    return;
-                case ShipModuleType.PowerPlant:
-                    Lightning = particles.PhotonExplosion.NewEmitter(Area * 6f, center);
-                    LightningVelZ = -4;
-                    break;
+                case ShipModuleType.Shield: Lightning = particles.Lightning.NewEmitter(4, center, 0.1f*area); break;
+                case ShipModuleType.PowerPlant: Lightning = particles.PhotonExplosion.NewEmitter(area, center, 0.25f); break;
+                case ShipModuleType.PowerConduit: Lightning = particles.Sparks.NewEmitter(12, center); return; // no other effects!
             }
 
             // after all the special cases and removing irrelevant modules, we come to smoke emitters
-            Dust = particles.SmokePlume.NewEmitter(Area * 0.7f, center);
-            Smoke = particles.ExplosionSmoke.NewEmitter(Area * 3f, center);
+            Dust = particles.SmokePlume.NewEmitter(0.5f, center);
+            Smoke = particles.ExplosionSmoke.NewEmitter(0.5f, center);
 
-            // armor doesnt produce flames. 
+            // armor doesnt produce flames
             if (type != ShipModuleType.Armor)
             {
-                Flame = Area >= 15f ? particles.Flame.NewEmitter(Area * 2 * GlobalStats.DamageIntensity, center) :
-                                      particles.SmallFlame.NewEmitter(Area * 3f * GlobalStats.DamageIntensity, center);
+                Flame = area >= 15f ? particles.Flame.NewEmitter(area * 2 * GlobalStats.DamageIntensity, center) :
+                                      particles.SmallFlame.NewEmitter(area * 3 * GlobalStats.DamageIntensity, center);
             }
         }
 
-        // This is called when module is OnFire or completely dead
-        public void Update(FixedSimTime timeStep, Vector3 center, bool isAlive)
+        // This is called when module is OnFire /or/ completely dead
+        public void Update(FixedSimTime timeStep, in Vector3 center, float scale, bool isAlive)
         {
-            Lightning?.Update(timeStep.FixedTime, center, zVelocity: LightningVelZ);
-            //added zaxis offeset contructor. bury flame into model a bit. 
-            Flame?.Update(timeStep.FixedTime, center, zVelocity: Area / -2 - RandomMath.RandomBetween(2f, 6f), jitter: Area * 2);
+            // the module is on fire
+            Flame?.Update(timeStep.FixedTime, center, zVelocity: -4f, scale: scale);
+            Lightning?.Update(timeStep.FixedTime, center, zVelocity: -4f, scale: scale);
 
             // only spawn smoke from dead modules
-            if (isAlive) return;
-            Dust.Update(timeStep.FixedTime, center, zVelocity: -0.1f);
-            Smoke.Update(timeStep.FixedTime, center, zVelocity: -2.0f);
+            if (!isAlive)
+            {
+                Dust?.Update(timeStep.FixedTime, center, zVelocity: -0.1f, scale: scale);
+                Smoke?.Update(timeStep.FixedTime, center, zVelocity: -2f, scale: scale);
+            }
         }
     }
 }

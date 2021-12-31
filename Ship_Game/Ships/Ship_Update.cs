@@ -280,19 +280,36 @@ namespace Ship_Game.Ships
             UpdateVelocityAndPosition(timeStep);
             PlanetCrash?.Update(timeStep);
 
-            if (!IsMeteor && IsVisibleToPlayer)
+            bool visible = IsVisibleToPlayer;
+            bool visibleAndNotPaused = visible && timeStep.FixedTime > 0f;
+            float scale = PlanetCrash?.Scale ?? 1;
+            float scaledRadius = Radius * scale;
+
+            if (visibleAndNotPaused)
             {
-                int num1 = UniverseRandom.IntBetween(0, 60);
-                if (num1 >= 57 && InFrustum)
+                ShipSO.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
+                             * Matrix.CreateScale(scale)
+                             * Matrix.CreateRotationY(YRotation)
+                             * Matrix.CreateRotationX(XRotation)
+                             * Matrix.CreateRotationZ(Rotation)
+                             * Matrix.CreateTranslation(new Vector3(Position, 0f));
+
+                ShipSO.UpdateAnimation(timeStep.FixedTime);
+            }
+
+            if (visibleAndNotPaused && !IsMeteor)
+            {
+                int num1 = UniverseRandom.IntBetween(0, 100);
+                if (num1 >= 99) // 1% chance
                 {
-                    Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                    ExplosionManager.AddExplosion(position, Velocity, ShipSO.WorldBoundingSphere.Radius, 2.5f, ExplosionType.Ship);
-                    Empire.Universe.Particles.Flash.AddParticle(position);
+                    Vector3 pos = (Position + RandomMath.Vector2D(scaledRadius*0.5f)).ToVec3();
+                    ExplosionManager.AddExplosion(pos, Velocity, scaledRadius*0.5f, 2.5f, ExplosionType.Projectile);
+                    Empire.Universe.Particles.Flash.AddParticle(pos);
                 }
-                if (num1 >= 40)
+                if (num1 >= 50) // 50% chance
                 {
-                    Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                    Empire.Universe.Particles.Sparks.AddParticle(position);
+                    Vector3 pos = (Position + RandomMath.Vector2D(scaledRadius*0.5f)).ToVec3();
+                    Empire.Universe.Particles.Lightning.AddParticle(pos, Velocity.ToVec3(), 0.5f*scale, Color.White);
                 }
             }
 
@@ -301,31 +318,19 @@ namespace Ship_Game.Ships
             Rotation  += DieRotation.Z * timeStep.FixedTime;
             Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
-            if (InSensorRange && Empire.Universe.IsShipViewOrCloser)
+            // Spawn some junk when tumbling and the game is not paused
+            if (visibleAndNotPaused && !IsMeteor && RandomMath.RollDice(10)) // X % chance
             {
-                float scale  = PlanetCrash?.Scale ?? 1;
-                ShipSO.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
-                             * Matrix.CreateScale(scale) 
-                             * Matrix.CreateRotationY(YRotation)
-                             * Matrix.CreateRotationX(XRotation)
-                             * Matrix.CreateRotationZ(Rotation)
-                             * Matrix.CreateTranslation(new Vector3(Position, 0f));
-
-                if (RandomMath.RollDice(10) && !IsMeteor) // Spawn some junk when tumbling
-                {
-                    Vector2 pos = Position.GenerateRandomPointOnCircle(Radius / 20);
-                    SpaceJunk.SpawnJunk(Empire.Universe, 1, pos, Velocity * scale, this, 
-                                        maxSize:Radius*scale*0.1f, ignite:true);
-                }
-
-                ShipSO.UpdateAnimation(timeStep.FixedTime);
+                Vector2 pos = Position.GenerateRandomPointOnCircle(scaledRadius / 20);
+                SpaceJunk.SpawnJunk(Empire.Universe, 1, pos, Velocity * scale, this,
+                                    maxSize: scaledRadius * 0.1f, ignite: true);
             }
 
             SoundEmitter.Position = new Vector3(Position, 0);
 
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
-                ModuleSlotList[i].UpdateWhileDying(timeStep);
+                ModuleSlotList[i].UpdateWhileDying(timeStep, scale, visible);
             }
         }
     }

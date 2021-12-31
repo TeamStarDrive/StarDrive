@@ -111,7 +111,7 @@ namespace Ship_Game
 
             if (SelectedShip != null)
             {
-                if (input.KillThis) // 'X' or 'Delete'
+                if (input.DebugKillShip) // 'X' or 'Delete'
                 {
                     // Apply damage as a percent of module health to all modules.
                     var damage = input.IsShiftKeyDown ? 0.9f : 1f;
@@ -126,7 +126,7 @@ namespace Ship_Game
                         SelectedShip.DebugBlowBiggestExplodingModule();
                 }
             }
-            else if (SelectedPlanet != null && Debug && (input.KillThis))
+            else if (SelectedPlanet != null && Debug && (input.DebugKillShip))
             {
                 foreach (string troopType in ResourceManager.TroopTypes)
                     if (ResourceManager.TryCreateTroop(troopType, EmpireManager.Remnants, out Troop t))
