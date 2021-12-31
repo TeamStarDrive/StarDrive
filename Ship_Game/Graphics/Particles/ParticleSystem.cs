@@ -249,6 +249,7 @@ namespace Ship_Game
             // Set the values of parameters that do not change.
             parameters["Duration"].SetValue((float)Settings.Duration.TotalSeconds);
             parameters["DurationRandomness"].SetValue(Settings.DurationRandomness);
+            parameters["AlignRotationToVelocity"].SetValue(Settings.AlignRotationToVelocity);
             parameters["EndVelocity"].SetValue(Settings.EndVelocity);
             parameters["MinColor"].SetValue(Settings.MinColor.ToVector4());
             parameters["MaxColor"].SetValue(Settings.MaxColor.ToVector4());
@@ -261,9 +262,21 @@ namespace Ship_Game
             ParticleEffect.Parameters["Texture"].SetValue(texture);
 
             string technique = "FullDynamicParticles";
-            if (Settings.Static && Settings.IsRotating) technique = "StaticRotatingParticles";
-            else if (Settings.Static && !Settings.IsRotating) technique = "StaticNonRotatingParticles";
-            else if (!Settings.Static && !Settings.IsRotating) technique = "DynamicNonRotatingParticles";
+            switch (Settings.Static)
+            {
+                case false when Settings.IsAlignRotationToVel:
+                    technique = "DynamicAlignRotationToVelocityParticles";
+                    break;
+                case false when !Settings.IsRotating:
+                    technique = "DynamicNonRotatingParticles";
+                    break;
+                case true when Settings.IsRotating:
+                    technique = "StaticRotatingParticles";
+                    break;
+                case true when !Settings.IsRotating:
+                    technique = "StaticNonRotatingParticles";
+                    break;
+            }
 
             ParticleEffect.CurrentTechnique = ParticleEffect.Techniques[technique];
         }
@@ -559,22 +572,32 @@ namespace Ship_Game
             ThreadSafeRandom random = Random;
 
             // Add in some random amount of horizontal velocity.
-            float horizontalVelocity = Settings.MinHorizontalVelocity.LerpTo(Settings.MaxHorizontalVelocity, random.Float());
-            float horizontalAngle = random.Float() * RadMath.TwoPI;
-            v.X += horizontalVelocity * RadMath.Cos(horizontalAngle);
-            v.Z += horizontalVelocity * RadMath.Sin(horizontalAngle);
+            Range randVelX = Settings.RandomVelocityXY[0];
+            Range randVelY = Settings.RandomVelocityXY[1];
+            float velX = randVelX.Min.LerpTo(randVelX.Max, random.Float());
+            float velY = randVelY.Min.LerpTo(randVelY.Max, random.Float());
 
-            // Add in some random amount of vertical velocity.
-            v.Y += Settings.MinVerticalVelocity.LerpTo(Settings.MaxVerticalVelocity, random.Float());
-            
+            if (Settings.AlignRandomVelocityXY)
+            {
+                // aligned to global camera in Universe
+                Vector3 forward = v.Normalized();
+                Vector3 right = forward.RightVector(new Vector3(0, 0, -1));
+                v += right * velX;
+                v += forward * velY;
+            }
+            else
+            {
+                float horizontalAngle = random.Float() * RadMath.TwoPI;
+                v.X += velX * RadMath.Cos(horizontalAngle);
+                v.Z += velX * RadMath.Sin(horizontalAngle);
+                v.Y += velY;
+            }
+
             // Choose four random control values. These will be used by the vertex
             // shader to give each particle a different size, rotation, and color.
-            var randomValues = new Color(random.Byte(),
-                                         random.Byte(),
-                                         random.Byte(),
-                                         random.Byte());
+            var randomValues = new Color(random.Byte(), random.Byte(), random.Byte(), random.Byte());
 
-            // Fill in the particle vertex structure.
+            // Fill in 4 vertices per 1 particle
             for (int i = 0; i < 4; i++)
             {
                 ref ParticleVertex particle = ref particles[firstFreeParticle * 4 + i];
