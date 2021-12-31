@@ -53,6 +53,31 @@
   DestinationBlend: One
 
 - ParticleSettings:
+  Name: MissileThrust   #missile thrust glow
+  TextureName: "star_yellow.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 6000
+  Duration: 0.15
+  DurationRandomness: 0.5
+  EmitterVelocitySensitivity: 0.95
+  MinHorizontalVelocity: 0
+  MaxHorizontalVelocity: 0
+  MinVerticalVelocity: 0
+  MaxVerticalVelocity: 0
+  EndVelocity: 0
+  MinColor: [255,255,255,130]
+  MaxColor: [255,233,171,190]
+  MinRotateSpeed: 0
+  MaxRotateSpeed: 0
+  MinStartSize: 5
+  MaxStartSize: 10
+  MinEndSize: 410
+  MaxEndSize: 620
+  SourceBlend: SourceAlpha
+  DestinationBlend: One
+
+- ParticleSettings:
   Name: EngineTrail
   TextureName: "Glow.png"
   Effect: ParticleEffect.fx
@@ -93,8 +118,8 @@
   EndVelocity: 0
   MinColor: [128,128,128,255]
   MaxColor: [169,169,169,255]
-  MinRotateSpeed: -1
-  MaxRotateSpeed: 1
+  MinRotateSpeed: 0
+  MaxRotateSpeed: 0
   MinStartSize: 5
   MaxStartSize: 30
   MinEndSize: 75
@@ -157,21 +182,21 @@
   TextureName: "fire.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 10000
-  Duration: 0.2
-  DurationRandomness: 1
-  EmitterVelocitySensitivity: 0
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
+  MaxParticles: 7000
+  Duration: 1
+  DurationRandomness: 0.5
+  EmitterVelocitySensitivity: 0.1
+  MinHorizontalVelocity: -4
+  MaxHorizontalVelocity: 4
+  MinVerticalVelocity: -4
+  MaxVerticalVelocity: 4
   EndVelocity: 1
   MinColor: [128,128,128,255]
   MaxColor: [169,169,169,255]
   MinRotateSpeed: -8
   MaxRotateSpeed: 8
-  MinStartSize: 10
-  MaxStartSize: 15
+  MinStartSize: 25
+  MaxStartSize: 30
   MinEndSize: 2
   MaxEndSize: 5
   SourceBlend: SourceAlpha
@@ -182,14 +207,14 @@
   TextureName: "explosion.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 8000
-  Duration: 0.8
-  DurationRandomness: 1
+  MaxParticles: 5000
+  Duration: 0.5
+  DurationRandomness: 2
   EmitterVelocitySensitivity: 0.5
   MinHorizontalVelocity: 0
   MaxHorizontalVelocity: 0
-  MinVerticalVelocity: -5
-  MaxVerticalVelocity: 6
+  MinVerticalVelocity: -10
+  MaxVerticalVelocity: 10
   EndVelocity: 0
   MinColor: [128,128,128,255]
   MaxColor: [169,169,169,255]
@@ -197,8 +222,8 @@
   MaxRotateSpeed: 1
   MinStartSize: 1
   MaxStartSize: 1
-  MinEndSize: 100
-  MaxEndSize: 300
+  MinEndSize: 150
+  MaxEndSize: 250
   SourceBlend: SourceAlpha
   DestinationBlend: One
 
@@ -220,10 +245,10 @@
   MaxColor: [255,255,255,255]
   MinRotateSpeed: -1
   MaxRotateSpeed: 1
-  MinStartSize: 300
-  MaxStartSize: 300
-  MinEndSize: 300
-  MaxEndSize: 300
+  MinStartSize: 200
+  MaxStartSize: 200
+  MinEndSize: 200
+  MaxEndSize: 200
   SourceBlend: SourceAlpha
   DestinationBlend: One
 
@@ -283,7 +308,7 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 10000
-  Duration: 2.5
+  Duration: 2
   DurationRandomness: 1
   EmitterVelocitySensitivity: 0.05
   MinHorizontalVelocity: 0
@@ -295,10 +320,35 @@
   MaxColor: [255,255,255,80]
   MinRotateSpeed: -1
   MaxRotateSpeed: 1
-  MinStartSize: 15
-  MaxStartSize: 25
-  MinEndSize: 140
-  MaxEndSize: 180
+  MinStartSize: 25
+  MaxStartSize: 15
+  MinEndSize: 5
+  MaxEndSize: 8
+  SourceBlend: SourceAlpha
+  DestinationBlend: InverseSourceAlpha
+
+- ParticleSettings:
+  Name: MissileSmokeTrail
+  TextureName: "smoke.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 8000
+  Duration: 3
+  DurationRandomness: 2
+  EmitterVelocitySensitivity: 0.02
+  MinHorizontalVelocity: -35
+  MaxHorizontalVelocity: 35
+  MinVerticalVelocity: -35
+  MaxVerticalVelocity: 35
+  EndVelocity: 0
+  MinColor: [93,96,95,255]
+  MaxColor: [255,255,255,80]
+  MinRotateSpeed: -1
+  MaxRotateSpeed: 1
+  MinStartSize: 55
+  MaxStartSize: 65
+  MinEndSize: 160
+  MaxEndSize: 220
   SourceBlend: SourceAlpha
   DestinationBlend: InverseSourceAlpha
 
@@ -307,8 +357,8 @@
   TextureName: "smoke.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 10000
-  Duration: 2.5
+  MaxParticles: 3000
+  Duration: 2
   DurationRandomness: 1
   EmitterVelocitySensitivity: 0.05
   MinHorizontalVelocity: 0
@@ -354,26 +404,26 @@
 
 - ParticleSettings:
   Name: Sparks
-  TextureName: "particle.png"
+  TextureName: "spark.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 20000
-  Duration: 0.7
+  Duration: 3
   DurationRandomness: 1
-  EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: -50
-  MaxHorizontalVelocity: 50
-  MinVerticalVelocity: -50
-  MaxVerticalVelocity: 50
+  EmitterVelocitySensitivity: -0.5
+  MinHorizontalVelocity: -40
+  MaxHorizontalVelocity: 40
+  MinVerticalVelocity: -40
+  MaxVerticalVelocity: 40
   EndVelocity: 0
-  MinColor: [0,0,255,255]
+  MinColor: [255,194,235,255]
   MaxColor: [255,255,255,255]
   MinRotateSpeed: 0
   MaxRotateSpeed: 0
-  MinStartSize: 1
-  MaxStartSize: 5
+  MinStartSize: 3
+  MaxStartSize: 7
   MinEndSize: 1
-  MaxEndSize: 2
+  MaxEndSize: 3
   SourceBlend: SourceAlpha
   DestinationBlend: One
 
