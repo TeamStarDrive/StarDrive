@@ -99,7 +99,7 @@ namespace Ship_Game.Ships
             {
                 if (IsInFriendlyProjectorRange)
                     projectorBonus = Empire.Universe.FTLModifier;
-                else if (!Empire.Universe.FTLInNuetralSystems || IsInHostileProjectorRange)
+                else if (!Empire.Universe.FTLInNeutralSystems || IsInHostileProjectorRange)
                     projectorBonus = Empire.Universe.EnemyFTLModifier;
             }
 

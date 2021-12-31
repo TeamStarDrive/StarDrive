@@ -187,7 +187,7 @@ namespace Ship_Game.AI
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.Loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, g.Goal.ToBuildUID, Owner.Loyalty, g.Goal.BuildPosition);
             if (orbital == null)
                 return;
 
@@ -228,7 +228,7 @@ namespace Ship_Game.AI
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(g.Goal.ToBuildUID, Owner.Loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, g.Goal.ToBuildUID, Owner.Loyalty, g.Goal.BuildPosition);
             if (orbital != null)
             {
                 orbital.Position = g.Goal.BuildPosition;

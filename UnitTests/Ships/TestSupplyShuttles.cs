@@ -17,11 +17,9 @@ namespace UnitTests.Ships
             CreateUniverseAndPlayerEmpire();
         }
 
-        static Ship CreateShip(Empire empire, string shipName, Vector2 pos)
+        Ship CreateShip(Empire empire, string shipName, Vector2 pos)
         {
-            var ship = Ship.CreateShipAtPoint(shipName, empire, pos);
-            ship.SetSystem(null);
-            return ship;
+            return SpawnShip(shipName, empire, pos);
         }
 
         void UpdateStatus(Ship ship, CombatState state)

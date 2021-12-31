@@ -17,7 +17,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void AmplifierDestroyed()
         {
-            Ship ship = Ship.CreateShipAtPoint("TEST_ShipShield", Player, Vector2.Zero);;
+            Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);;
             Assert.IsNotNull(ship);
             Assert.That.Equal(ship.ShieldMax, 1400);
 

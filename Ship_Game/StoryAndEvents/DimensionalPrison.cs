@@ -19,19 +19,21 @@ namespace Ship_Game
         private int NumSpawnedRemnants;
         private int NumRemnantsToSpawn = 9;
         private float SpawnCountdown;
+        UniverseScreen Universe;
 
-        public DimensionalPrison(Vector2 plaformCenter)
+        public DimensionalPrison(UniverseScreen universe, Vector2 plaformCenter)
         {
+            Universe = universe;
             PlaformCenter = plaformCenter;
             CreateDimensionalPrison(plaformCenter, 400);
-            Platform1 = SpawnAncientRepulsor(plaformCenter + new Vector2(0f, -400f));
-            Platform2 = SpawnAncientRepulsor(plaformCenter + new Vector2(-400f, 400f));
-            Platform3 = SpawnAncientRepulsor(plaformCenter + new Vector2(400f, -400f));
+            Platform1 = SpawnAncientRepulsor(universe, plaformCenter + new Vector2(0f, -400f));
+            Platform2 = SpawnAncientRepulsor(universe, plaformCenter + new Vector2(-400f, 400f));
+            Platform3 = SpawnAncientRepulsor(universe, plaformCenter + new Vector2(400f, -400f));
         }
 
-        private Ship SpawnAncientRepulsor(Vector2 repulsorPos)
+        private Ship SpawnAncientRepulsor(UniverseScreen universe, Vector2 repulsorPos)
         {
-            Ship repulsor = Ship.CreateShipAtPoint(PlatformName, EmpireManager.Unknown, repulsorPos);
+            Ship repulsor = Ship.CreateShipAtPoint(universe, PlatformName, EmpireManager.Unknown, repulsorPos);
             var beam = new Beam(repulsor, PlaformCenter, 75)
             {
                 Weapon = ResourceManager.GetWeaponTemplate("AncientRepulsor")
@@ -98,7 +100,7 @@ namespace Ship_Game
                 SpawnCountdown -= timeStep.FixedTime;
                 if (SpawnCountdown <= 0f)
                 {
-                    Ship enemy = Ship.CreateShipAtPoint("Heavy Drone", EmpireManager.Remnants, PlaformCenter);
+                    Ship enemy = Ship.CreateShipAtPoint(Universe, "Heavy Drone", EmpireManager.Remnants, PlaformCenter);
                     enemy.Velocity = GenerateRandomV2(100f);
                     enemy.AI.State = AIState.AwaitingOrders;
                     SpawnCountdown = 2f;
@@ -106,7 +108,7 @@ namespace Ship_Game
                 }
                 if (NumSpawnedRemnants == NumRemnantsToSpawn)
                 {
-                    Empire.Universe.anomalyManager.AnomaliesList.QueuePendingRemoval(this);
+                    Universe.anomalyManager.AnomaliesList.QueuePendingRemoval(this);
                 }
             }
         }
