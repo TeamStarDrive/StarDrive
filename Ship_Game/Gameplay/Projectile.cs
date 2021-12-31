@@ -820,6 +820,9 @@ namespace Ship_Game.Gameplay
             if (IgnoresShields || !module.ShieldsAreActive)
                 ArmorPiercing -= module.APResist;
 
+            if (module.Is(ShipModuleType.Armor))
+                ArmorPiercing -= module.XSize;
+
             if (!module.Is(ShipModuleType.Armor) || ArmorPiercing < module.XSize)
             {
                 if (Explodes)
@@ -834,16 +837,14 @@ namespace Ship_Game.Gameplay
             DebugTargetCircle();
             while (DamageAmount > 0)
             {
-                ArmorPiercing -= module.XSize;
                 ShipModule nextModule = parent.RayHitTestNextModules(module.Position, VelocityDirection, parent.Radius, Radius, IgnoresShields);
                 if (nextModule == null)
                     return;
 
-                if (ArmorPiercing > 0 && nextModule.Is(ShipModuleType.Armor))
+                if (ArmorPiercing > 0 && IgnoresShields || !module.ShieldsAreActive)
                 {
-                    ArmorPiercing -= nextModule.APResist;
                     nextModule.DebugDamageCircle();
-                    if (ArmorPiercing >= nextModule.XSize) // armor is always squared anyway.
+                    if (ArmorPiercing >= nextModule.XSize && module.Is(ShipModuleType.Armor)) // armor is always squared anyway.
                     {
                         ArmorPiercing -= nextModule.XSize;
                         continue; // Phase through this armor module (yikes!)
@@ -852,12 +853,9 @@ namespace Ship_Game.Gameplay
 
                 nextModule.DebugDamageCircle();
                 if (Explodes)
-                {
                     RayTracedExplosion(nextModule);
-                    return;
-                }
-
-                nextModule.Damage(this, DamageAmount, out DamageAmount);
+                else
+                    nextModule.Damage(this, DamageAmount, out DamageAmount);
             }
         }
 
