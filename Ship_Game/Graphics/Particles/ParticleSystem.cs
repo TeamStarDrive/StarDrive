@@ -268,22 +268,22 @@ namespace Ship_Game
             ParticleEffect.CurrentTechnique = ParticleEffect.Techniques[technique];
         }
 
-        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition)
+        public ParticleEmitter NewEmitter(float particlesPerSecond, in Vector3 initialPosition)
         {
             return new ParticleEmitter(this, particlesPerSecond, scale: 1f, initialPosition);
         }
 
-        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector3 initialPosition, float scale)
+        public ParticleEmitter NewEmitter(float particlesPerSecond, in Vector3 initialPosition, float scale)
         {
             return new ParticleEmitter(this, particlesPerSecond, scale: scale, initialPosition);
         }
 
-        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialPosition)
+        public ParticleEmitter NewEmitter(float particlesPerSecond, in Vector2 initialPosition)
         {
             return new ParticleEmitter(this, particlesPerSecond, scale: 1f, new Vector3(initialPosition, 0f));
         }
 
-        public ParticleEmitter NewEmitter(float particlesPerSecond, Vector2 initialPosition, float scale)
+        public ParticleEmitter NewEmitter(float particlesPerSecond, in Vector2 initialPosition, float scale)
         {
             return new ParticleEmitter(this, particlesPerSecond, scale: scale, new Vector3(initialPosition, 0f));
         }
@@ -523,7 +523,7 @@ namespace Ship_Game
             }
         }
 
-        public void AddParticle(Vector3 position, Vector3 velocity, float scale, Color color)
+        public void AddParticle(in Vector3 position, in Vector3 velocity, float scale, Color color)
         {
             // when Graphics device is reset, this particle system will be disposed
             // and Particles will be set to null
@@ -554,18 +554,18 @@ namespace Ship_Game
 
             // Adjust the input velocity based on how much
             // this particle system wants to be affected by it.
-            velocity *= Settings.EmitterVelocitySensitivity;
+            Vector3 v = velocity * Settings.EmitterVelocitySensitivity;
 
             ThreadSafeRandom random = Random;
 
             // Add in some random amount of horizontal velocity.
             float horizontalVelocity = Settings.MinHorizontalVelocity.LerpTo(Settings.MaxHorizontalVelocity, random.Float());
             float horizontalAngle = random.Float() * RadMath.TwoPI;
-            velocity.X += horizontalVelocity * RadMath.Cos(horizontalAngle);
-            velocity.Z += horizontalVelocity * RadMath.Sin(horizontalAngle);
+            v.X += horizontalVelocity * RadMath.Cos(horizontalAngle);
+            v.Z += horizontalVelocity * RadMath.Sin(horizontalAngle);
 
             // Add in some random amount of vertical velocity.
-            velocity.Y += Settings.MinVerticalVelocity.LerpTo(Settings.MaxVerticalVelocity, random.Float());
+            v.Y += Settings.MinVerticalVelocity.LerpTo(Settings.MaxVerticalVelocity, random.Float());
             
             // Choose four random control values. These will be used by the vertex
             // shader to give each particle a different size, rotation, and color.
@@ -579,7 +579,7 @@ namespace Ship_Game
             {
                 ref ParticleVertex particle = ref particles[firstFreeParticle * 4 + i];
                 particle.Position = position;
-                particle.Velocity = velocity;
+                particle.Velocity = v;
                 particle.Color = color;
                 particle.Random = randomValues;
                 particle.Scale = scale;
@@ -587,14 +587,19 @@ namespace Ship_Game
             }
         }
 
-        public void AddParticle(Vector3 position, Vector3 velocity)
+        public void AddParticle(in Vector3 position, in Vector3 velocity)
         {
             AddParticle(position, velocity, 1f, Color.White);
         }
 
-        public void AddParticle(Vector3 position)
+        public void AddParticle(in Vector3 position)
         {
             AddParticle(position, Vector3.Zero, 1f, Color.White);
+        }
+
+        public void AddParticle(in Vector3 position, float scale)
+        {
+            AddParticle(position, Vector3.Zero, scale, Color.White);
         }
 
         public void Dispose()

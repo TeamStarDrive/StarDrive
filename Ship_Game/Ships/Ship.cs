@@ -1151,17 +1151,38 @@ namespace Ship_Game.Ships
 
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)
         {
-            if (Active && AI.BadGuysNear || (InFrustum && isSystemView) || forceUpdate)
-            {  
-                float cos = RadMath.Cos(Rotation);
-                float sin = RadMath.Sin(Rotation);
-                float tan = (float)Math.Tan(YRotation);
-                float parentX = Position.X;
-                float parentY = Position.Y;
-                float rotation = Rotation;
-                for (int i = 0; i < ModuleSlotList.Length; ++i)
+            bool visible = IsVisibleToPlayer;
+            if (Active && (AI.BadGuysNear || visible || forceUpdate))
+            {
+                var a = new ShipModule.UpdateEveryFrameArgs
                 {
-                    ModuleSlotList[i].UpdateEveryFrame(timeStep, parentX, parentY, rotation, cos, sin, tan);
+                    TimeStep = timeStep,
+                    ParentX = Position.X,
+                    ParentY = Position.Y,
+                    ParentRotation = Rotation,
+                    ParentScale = PlanetCrash?.Scale ?? 1f,
+                    Cos = RadMath.Cos(Rotation),
+                    Sin = RadMath.Sin(Rotation),
+                    Tan = (float)Math.Tan(YRotation)
+                };
+
+                if (Active)
+                {
+                    bool enableVisualizeDamage = PlanetCrash == null;
+                    for (int i = 0; i < ModuleSlotList.Length; ++i)
+                    {
+                        ShipModule m = ModuleSlotList[i];
+                        m.UpdateEveryFrame(a);
+                        if (enableVisualizeDamage && m.CanVisualizeDamage)
+                            m.UpdateDamageVisualization(timeStep, a.ParentScale, visible);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < ModuleSlotList.Length; ++i)
+                    {
+                        ModuleSlotList[i].UpdateEveryFrame(a);
+                    }
                 }
             }
         }
