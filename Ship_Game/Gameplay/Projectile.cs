@@ -646,7 +646,7 @@ namespace Ship_Game.Gameplay
                 }
 
                 // Using explosion at a specific module not to affect other ships which might bypass other modulesfor them , like armor
-                if (atModule != null) 
+                if (atModule != null && (IgnoresShields || !atModule.ShieldsAreActive)) 
                     UniverseScreen.Spatial.ExplodeAtModule(this, atModule, IgnoresShields, DamageAmount, DamageRadius);
                 else
                     UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, Position);
@@ -766,7 +766,7 @@ namespace Ship_Game.Gameplay
                         return true;
                     }
 
-                    ArmourPiercingTouch(module, parent);
+                    ArmorPiercingTouch(module, parent);
                     Health = 0f;
                     showFx = parent.InSensorRange;
                     break;
@@ -836,11 +836,17 @@ namespace Ship_Game.Gameplay
             Empire.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
-        void ArmourPiercingTouch(ShipModule module, Ship parent)
+        void ArmorPiercingTouch(ShipModule module, Ship parent)
         {
             // Doc: If module has resistance to Armour Piercing effects, 
             // deduct that from the projectile's AP before starting AP and damage checks
-            ArmorPiercing -= module.APResist;
+            // It is possible for a high AP projectile to pierce 1 armor, damage several modules and
+            // them pierce more armor modules as long as it has enough AP left and not exploding, which is cool
+            if (IgnoresShields || !module.ShieldsAreActive)
+                ArmorPiercing -= module.APResist;
+
+            if (module.Is(ShipModuleType.Armor))
+                ArmorPiercing -= module.XSize;
 
             if (!module.Is(ShipModuleType.Armor) || ArmorPiercing < module.XSize)
             {
@@ -853,42 +859,28 @@ namespace Ship_Game.Gameplay
                 module.Damage(this, DamageAmount, out DamageAmount);
             }
 
-            if (DamageAmount <= 0f)
-                return;
-
-            ArmorPiercing -= module.XSize;
-            var projectedModules = parent.RayHitTestModules(module.Position, VelocityDirection, distance:parent.Radius, rayRadius:Radius);
-
             DebugTargetCircle();
-            for (int i = 1; i < projectedModules.Count; i++) // I is 1 since we dealt with the first module above to save performance
+            while (DamageAmount > 0)
             {
-                ShipModule impactModule = projectedModules[i];
-                if (!impactModule.Active)
-                    continue;
+                ShipModule nextModule = parent.RayHitTestNextModules(module.Position, VelocityDirection, parent.Radius, Radius, IgnoresShields);
+                if (nextModule == null)
+                    return;
 
-                if (ArmorPiercing > 0 && impactModule.Is(ShipModuleType.Armor))
+                if (ArmorPiercing > 0 && IgnoresShields || !module.ShieldsAreActive)
                 {
-                    ArmorPiercing -= impactModule.APResist; 
-                    impactModule.DebugDamageCircle();
-                    if (ArmorPiercing >= impactModule.XSize) // armor is always squared anyway.
+                    nextModule.DebugDamageCircle();
+                    if (ArmorPiercing >= nextModule.XSize && module.Is(ShipModuleType.Armor)) // armor is always squared anyway.
                     {
-                        ArmorPiercing -= impactModule.XSize;
+                        ArmorPiercing -= nextModule.XSize;
                         continue; // Phase through this armor module (yikes!)
                     }
                 }
 
-                impactModule.DebugDamageCircle();
+                nextModule.DebugDamageCircle();
                 if (Explodes)
-                {
-                    RayTracedExplosion(impactModule);
-                    return;
-                }
-
-                impactModule.Damage(this, DamageAmount, out DamageAmount);
-                // It is possible for a high AP projectile to pierce 1 armor, damage several modules and them pierce more armor modules
-                // as long as it has enough AP left and not exploding, which is cool
-                if (DamageAmount <= 0f)
-                    return;
+                    RayTracedExplosion(nextModule);
+                else
+                    nextModule.Damage(this, DamageAmount, out DamageAmount);
             }
         }
 

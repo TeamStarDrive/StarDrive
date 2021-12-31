@@ -281,7 +281,7 @@ namespace Ship_Game.Ships
             return hit;
         }
 
-        // Gets all the shields currently covering a ship Module, starting with the strongest
+        // Gets all the shields currently covering a ship Module, starting with the outside radius first
         public ShipModule[] GetAllActiveShieldsCoveringModule(ShipModule module)
         {
             Array<ShipModule> coveringShields = new Array<ShipModule>();
@@ -292,7 +292,7 @@ namespace Ship_Game.Ships
                     coveringShields.Add(shield);
             }
 
-            return coveringShields.SortedDescending(m => m.ShieldPower);
+            return coveringShields.Sorted(s => s.ShieldRadius - s.Position.Distance(module.Position));
         }
 
         // Gets the strongest shield currently covering internalModule
@@ -692,18 +692,14 @@ namespace Ship_Game.Ships
         }
 
 
-        // find ShipModules that collide with a this wide RAY
-        // direction must be normalized!!
-        // results are sorted by distance
-        // warning Ignores shields!!
-        // This is also used to damage modules inline when excess damage remains
+        // Find an Active ShipModule which collide with a this wide RAY
+        // Direction must be normalized!!
+        // Results are sorted by distance
         // todo Align this with RayHitTestSingle
-        public Array<ShipModule> RayHitTestModules(
-            Vector2 startPos, Vector2 direction, float distance, float rayRadius)
+        public ShipModule RayHitTestNextModules(
+            Vector2 startPos, Vector2 direction, float distance, float rayRadius, bool ignoreShields)
         {
             Vector2 endPos = startPos + direction * distance;
-            var path = new Array<ShipModule>();
-
             Vector2 a = WorldToGridLocal(startPos);
             Vector2 b = WorldToGridLocal(endPos);
             if (MathExt.ClipLineWithBounds(GridWidth * 16f, GridHeight * 16f, a, b, ref a, ref b)) // guaranteed bounds safety
@@ -717,13 +713,21 @@ namespace Ship_Game.Ships
                     Point p = GridLocalToPoint(pos);
                     ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
                     if (m != null && m.Active)
-                        path.AddUniqueRef(m);
+                    {
+                        // get covering shields to damage them first
+                        if (!ignoreShields)
+                        {
+                            ShipModule[] shields = GetAllActiveShieldsCoveringModule(m);
+                            if (shields.Length > 0)
+                                return shields[0];
+                        }
+
+                        return m;
+                    }
                 }
             }
-            return path;
+            return null;
         }
-
-
 
 
         // Refactor by RedFox: Picks a random internal module in search range (squared) of the projectile
