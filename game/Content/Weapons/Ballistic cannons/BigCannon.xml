@@ -35,7 +35,7 @@
   <!-- Projectile Information -->
   <DamageAmount>6600</DamageAmount>
   <EffectVsShields>1.25</EffectVsShields>  
-  <Scale>1.2</Scale>
+  <Scale>1.4</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2100</ProjectileSpeed>
   <DamageRadius>75</DamageRadius>
@@ -43,7 +43,7 @@
   <Light>Orange</Light>
   <Animated>1</Animated>
    <Frames>17</Frames>
-  <AnimationPath>Kinetic_Red_Yellow_Red/Kinetic_Red_cc_</AnimationPath>
+  <AnimationPath>Kinetic_Orange/Kinetic_Orange_cc_</AnimationPath>
   <LoopAnimation>1</LoopAnimation>
   <ModelPath>projTear</ModelPath>
   <WeaponType>Ballistic Cannon</WeaponType>
