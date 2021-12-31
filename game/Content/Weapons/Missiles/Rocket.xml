@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>370</DamageAmount>
   <ProjectileSpeed>900</ProjectileSpeed>
-  <DamageRadius>20</DamageRadius>
+  <DamageRadius>30</DamageRadius>
   <Explodes>true</Explodes>
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>

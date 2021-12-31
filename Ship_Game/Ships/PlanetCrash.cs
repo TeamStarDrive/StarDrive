@@ -32,9 +32,9 @@ namespace Ship_Game.Ships
 
         public void Update(FixedSimTime timeStep)
         {
-            Vector2 dir    = Owner.Position.DirectionToTarget(CrashPos);
+            Vector2 dir = Owner.Position.DirectionToTarget(CrashPos);
             Owner.Velocity = dir * (Owner.MaxSTLSpeed * 0.8f).LowerBound(200);
-            Scale          = Owner.Position.Distance(CrashPos) / Distance;
+            Scale = Owner.Position.Distance(CrashPos) / Distance;
 
             if (Owner.Position.InRadius(CrashPos, 200))
             {
@@ -51,14 +51,17 @@ namespace Ship_Game.Ships
             if (!P.Type.EarthLike || !Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f))
                 return;
 
-            Vector3 trailPos = (Owner.Position + dir.Normalized() * Owner.Radius * (Scale/2)).ToVec3(Owner.GetSO().World.Translation.Z-20);
-            if (Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f)
-                && !Owner.Position.InRadius(P.Center, P.ObjectRadius))
+            float z = Owner.GetSO().World.Translation.Z - 20;
+            Vector3 trailPos = (Owner.Position + dir * Owner.Radius * Scale * 0.5f).ToVec3(z);
+            var particles = Empire.Universe.Particles;
+
+            if (Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f) &&
+                !Owner.Position.InRadius(P.Center, P.ObjectRadius))
             {
                 if (FireTrailEmitter == null)
                 {
-                    FireTrailEmitter = Empire.Universe.Particles.FireTrail.NewEmitter(500f, trailPos);
-                    FlameTrail       = Empire.Universe.Particles.Flame.NewEmitter(300, trailPos);
+                    FireTrailEmitter = particles.FireTrail.NewEmitter(500f, trailPos);
+                    FlameTrail       = particles.Flame.NewEmitter(300, trailPos);
                 }
 
                 FireTrailEmitter.Update(timeStep.FixedTime, trailPos);
@@ -68,7 +71,7 @@ namespace Ship_Game.Ships
             if (Owner.Position.InRadius(P.Center, P.ObjectRadius))
             {
                 if (TrailEmitter == null)
-                    TrailEmitter = Empire.Universe.Particles.ProjectileTrail.NewEmitter(500, trailPos);
+                    TrailEmitter = particles.ProjectileTrail.NewEmitter(500, trailPos);
 
                 TrailEmitter.Update(timeStep.FixedTime, trailPos);
             }

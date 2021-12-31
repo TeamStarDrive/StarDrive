@@ -14,6 +14,7 @@ using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.AI;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.Legacy;
 
 namespace Ship_Game
@@ -1090,7 +1091,7 @@ namespace Ship_Game
         }
 
         // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer
-        static void LoadNumberedModels(Array<Model> models, string modelFolder, string modelPrefix)
+        static void LoadNumberedModels(Array<(Model, float)> models, string modelFolder, string modelPrefix)
         {
             models.Clear();
             foreach (FileInfo info in GatherFilesModOrVanilla(modelFolder, "xnb"))
@@ -1102,7 +1103,9 @@ namespace Ship_Game
                     if (nameNoExt.StartsWith(modelPrefix) &&
                         int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
                     {
-                        models.Add(RootContent.Load<Model>(info.RelPath()));
+                        var model = RootContent.Load<Model>(info.RelPath());
+                        float radius = model.GetBoundingBox().Radius();
+                        models.Add((model, radius));
                     }
                 }
                 catch (Exception e)
@@ -1112,22 +1115,32 @@ namespace Ship_Game
             }
         }
 
-        static readonly Array<Model> JunkModels = new Array<Model>();
+        static readonly Array<(Model, float)> JunkModels = new Array<(Model, float)>();
+
         public static int NumJunkModels => JunkModels.Count;
         public static Model GetJunkModel(int idx)
         {
-            return JunkModels[idx];
+            return JunkModels[idx].Item1;
+        }
+        public static float GetJunkModelRadius(int idx)
+        {
+            return JunkModels[idx].Item2;
         }
         static void LoadJunk() // Refactored by RedFox
         {
             LoadNumberedModels(JunkModels, "Model/SpaceJunk/", "spacejunk");
         }
 
-        static readonly Array<Model> AsteroidModels = new Array<Model>();
+        static readonly Array<(Model, float)> AsteroidModels = new Array<(Model, float)>();
+
         public static int NumAsteroidModels => AsteroidModels.Count;
         public static Model GetAsteroidModel(int asteroidId)
         {
-            return AsteroidModels[asteroidId];
+            return AsteroidModels[asteroidId].Item1;
+        }
+        public static float GetAsteroidModelRadius(int asteroidId)
+        {
+            return AsteroidModels[asteroidId].Item2;
         }
         static void LoadAsteroids()
         {

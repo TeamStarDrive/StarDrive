@@ -35,7 +35,7 @@
   <DamageAmount>2900</DamageAmount>
   <RotationRadsPerSecond>0.7</RotationRadsPerSecond>
   <ProjectileSpeed>900</ProjectileSpeed>
-  <DamageRadius>45</DamageRadius>
+  <DamageRadius>70</DamageRadius>
   <Explodes>true</Explodes>
   <HitPoints>10</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
@@ -45,7 +45,7 @@
   <!-- Graphical Information -->
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
-  <WeaponEffectType>RocketTrail</WeaponEffectType>
+  <WeaponEffectType>TorpTrail</WeaponEffectType>
   <WeaponType>Missile</WeaponType>
   <ProjectileRadius>8</ProjectileRadius>
   <Scale>1.5</Scale>
