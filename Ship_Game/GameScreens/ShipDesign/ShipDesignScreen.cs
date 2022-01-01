@@ -20,7 +20,7 @@ namespace Ship_Game
 
     public sealed partial class ShipDesignScreen : GameScreen
     {
-        //public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
+        public UniverseScreen ParentUniverse;
         public DesignStanceButtons OrdersButton;
 
         // this can be Null if we are in HullEdit mode
@@ -95,14 +95,15 @@ namespace Ship_Game
             public int TurretAngle;
         }
 
-        public ShipDesignScreen(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
+        public ShipDesignScreen(UniverseScreen universe, EmpireUIOverlay empireUi) : base(universe)
         {
+            ParentUniverse = universe;
             Name = "ShipDesignScreen";
             EmpireUI = empireUi;
             TransitionOnTime = 2f;
             HullEditMode = false;
-            UnlockAllFactionDesigns = parent is DeveloperUniverse;
-            EnableDebugFeatures = parent is DeveloperUniverse || Empire.Universe.Debug;
+            UnlockAllFactionDesigns = universe is DeveloperUniverse;
+            EnableDebugFeatures = universe is DeveloperUniverse || universe.Debug;
         }
 
         void ReorientActiveModule(ModuleOrientation orientation)
@@ -298,6 +299,7 @@ namespace Ship_Game
             CurrentHull   = cloned.BaseHull;
             CurrentDesign.Name = shipDesignTemplate.Name;
             DesignedShip = new DesignShip(cloned);
+            DesignedShip.Universe = ParentUniverse; // TODO: make a mini-verse in Shipyard
 
             InstallModulesFromDesign(cloned);
             AfterHullChange(zoomToHull:true);

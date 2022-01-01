@@ -193,16 +193,16 @@ namespace Ship_Game
         void UpdateSolarRadiationDebug()
         {
             // some debugging for us developers
-            if (Empire.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.Solar)
+            if (Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.Solar)
             {
                 for (float r = 0.03f; r < 0.5f; r += 0.03f)
                 {
                     float dist = Sun.RadiationRadius*r;
                     var color = new Color(Color.Red, Sun.DamageMultiplier(dist));
-                    Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Solar,
+                    Universe.DebugWin?.DrawCircle(Debug.DebugModes.Solar,
                         Position, dist, color, 0f);
                 }
-                Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.Solar,
+                Universe.DebugWin?.DrawCircle(Debug.DebugModes.Solar,
                     Position, Sun.RadiationRadius, Color.Brown, 0f);
             }
         }
@@ -242,7 +242,7 @@ namespace Ship_Game
 
         public Planet IdentifyGravityWell(Ship ship)
         {
-            if (Empire.Universe.GravityWells)
+            if (Universe.GravityWells)
             {
                 // @todo QuadTree. need to have planets in the quad tree.
                 for (int i = 0; i < PlanetList.Count; i++)
@@ -624,7 +624,7 @@ namespace Ship_Game
             if (OwnerList.Count > 0 && !OwnerList.Contains(empire))
                 message.Append("\nContested system!!!");
 
-            Empire.Universe.NotificationManager.AddNotification(new Notification
+            Universe.NotificationManager.AddNotification(new Notification
             {
                 Pause           = false,
                 Message         = message.ToString(),
