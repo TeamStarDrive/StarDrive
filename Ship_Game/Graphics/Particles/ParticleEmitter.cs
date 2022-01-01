@@ -7,16 +7,16 @@ namespace Ship_Game
 {
     public class ParticleEmitter
     {
-        readonly IParticleSystem ParticleSystem;
+        readonly IParticle Particle;
         Vector3 PreviousPosition;
         float TimeBetweenParticles;
         float TimeLeftOver;
         public float Scale;
 
         // Use ParticleSystem NewEmitter() instead
-        internal ParticleEmitter(IParticleSystem ps, float particlesPerSecond, float scale, in Vector3 initialPosition)
+        internal ParticleEmitter(IParticle ps, float particlesPerSecond, float scale, in Vector3 initialPosition)
         {
-            ParticleSystem = ps;
+            Particle = ps;
             PreviousPosition = initialPosition;
             TimeBetweenParticles = 1f / particlesPerSecond;
             Scale = scale;
@@ -52,7 +52,7 @@ namespace Ship_Game
                     timeToSpend -= TimeBetweenParticles;
                     float mu = currentTime / elapsedTime;
                     Vector3 pos = Vector3.Lerp(PreviousPosition, newPosition, mu);
-                    ParticleSystem.AddParticle(pos, velocity, scale*Scale, Color.White);
+                    Particle.AddParticle(pos, velocity, scale*Scale, Color.White);
                 }
                 TimeLeftOver = timeToSpend;
             }
@@ -72,7 +72,7 @@ namespace Ship_Game
                     timeToSpend -= TimeBetweenParticles;
                     float relTime = currentTime / elapsedTime;
                     Vector3 pos = Vector3.Lerp(PreviousPosition, newPosition, relTime);
-                    ParticleSystem.AddParticle(pos, velocity, scale*Scale, color);
+                    Particle.AddParticle(pos, velocity, scale*Scale, color);
                 }
                 TimeLeftOver = timeToSpend;
             }
@@ -93,7 +93,7 @@ namespace Ship_Game
                     timeToSpend -= TimeBetweenParticles;
                     float mu = currentTime / elapsedTime;
                     Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
-                    ParticleSystem.AddParticle(position, velocity, Scale, Color.White);
+                    Particle.AddParticle(position, velocity, Scale, Color.White);
                 }
                 TimeLeftOver = timeToSpend;
             }

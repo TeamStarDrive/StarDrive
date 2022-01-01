@@ -243,7 +243,7 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HullEditorControls.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen_MirrorSlot.cs" />
     <Compile Include="Ship_Game\GameScreens\Universe\Debug\ResearchDebugUnlocks.cs" />
-    <Compile Include="Ship_Game\Graphics\Particles\IParticleSystem.cs" />
+    <Compile Include="Ship_Game\Graphics\Particles\IParticle.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleManager.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleSettings.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
@@ -1191,7 +1191,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Graphics\Particles\ParticleSystem.cs">
+    <Compile Include="Ship_Game\Graphics\Particles\Particle.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
