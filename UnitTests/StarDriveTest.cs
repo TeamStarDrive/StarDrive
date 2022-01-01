@@ -82,9 +82,10 @@ namespace UnitTests
             Player = data.CreateEmpire(playerData, isPlayer:true);
             Enemy = data.CreateEmpire(enemyData, isPlayer:false);
             Empire.Universe = Universe = new UniverseScreen(data, Player);
+            Player.Universum = Enemy.Universum = Universe;
+            
             Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
             Player.TestInitModifiers();
-
             Player.SetRelationsAsKnown(Enemy);
             Player.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
             Empire.UpdateBilateralRelations(Player, Enemy);
@@ -111,6 +112,7 @@ namespace UnitTests
         public void CreateThirdMajorEmpire()
         {
             ThirdMajor = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.MajorRaces[2], isPlayer:false);
+            ThirdMajor.Universum = Universe;
             EmpireManager.Add(ThirdMajor);
 
             Player.SetRelationsAsKnown(ThirdMajor);
@@ -226,7 +228,7 @@ namespace UnitTests
         SolarSystem AddDummyPlanet(out Planet p)
         {
             p = new Planet();
-            var s = new SolarSystem();
+            var s = new SolarSystem() { Universe = Universe };
             AddPlanetToSolarSystem(s, p);
             return s;
         }
@@ -234,7 +236,7 @@ namespace UnitTests
         public SolarSystem AddDummyPlanet(float fertility, float minerals, float pop, out Planet p)
         {
             p = new Planet(fertility, minerals, pop);
-            var s = new SolarSystem();
+            var s = new SolarSystem() { Universe = Universe };
             AddPlanetToSolarSystem(s, p);
             return s;
         }
