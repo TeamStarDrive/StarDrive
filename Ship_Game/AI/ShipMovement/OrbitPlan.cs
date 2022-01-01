@@ -58,10 +58,10 @@ namespace Ship_Game.AI.ShipMovement
             // always update the OrbitPos, because orbitAround is typically moving around
             OrbitPos = orbitAround + OrbitOffset;
 
-            if (Empire.Universe.SelectedShip == Owner)
+            if (Owner.Universe.SelectedShip == Owner)
             {
-                Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.PathFinder, OrbitPos, WayPointProximity, 0.5f);
-                Empire.Universe.DebugWin?.DrawCircle(Debug.DebugModes.PathFinder, orbitAround, orbitRadius, 1.0f);
+                Owner.Universe.DebugWin?.DrawCircle(Debug.DebugModes.PathFinder, OrbitPos, WayPointProximity, 0.5f);
+                Owner.Universe.DebugWin?.DrawCircle(Debug.DebugModes.PathFinder, orbitAround, orbitRadius, 1.0f);
             }
         }
 
@@ -100,7 +100,7 @@ namespace Ship_Game.AI.ShipMovement
             if (!AI.BadGuysNear)
             {
                 bool visible = orbitTarget.ParentSystem.IsVisible
-                               && Empire.Universe.IsSystemViewOrCloser;
+                               && Owner.Universe.IsSystemViewOrCloser;
                 if (!visible) // don't update orbits in invisible systems
                 {
                     // MAGIC STOP ships when orbiting off screen

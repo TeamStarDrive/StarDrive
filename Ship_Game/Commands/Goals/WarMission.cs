@@ -24,7 +24,7 @@ namespace Ship_Game.Commands.Goals
             empire        = owner;
             TargetEmpire  = enemy;
             TargetPlanet  = targetPlanet;
-            StarDateAdded = Empire.Universe.StarDate;
+            StarDateAdded = empire.Universum.StarDate;
             Evaluate();
             Log.Info(ConsoleColor.Green, $"---- WarMission: New {empire.Name} Vs.: {TargetEmpire.Name} ----");
         }
@@ -34,7 +34,7 @@ namespace Ship_Game.Commands.Goals
             empire        = owner;
             TargetEmpire  = enemy;
             TargetPlanet  = targetPlanet;
-            StarDateAdded = Empire.Universe.StarDate;
+            StarDateAdded = empire.Universum.StarDate;
             ChangeToStep(Process);
             Fleet.CreateStrikeFromCurrentTask(task.Fleet, task, empire, this);
             Log.Info(ConsoleColor.Green, $"---- WarMission: New Strike Force from stage fleet, {empire.Name} Vs. {TargetEmpire.Name} ----");

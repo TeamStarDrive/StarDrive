@@ -23,7 +23,7 @@ namespace Ship_Game.Commands.Goals
         public StandbyColonyShip(Empire e) : this()
         {
             empire        = e;
-            StarDateAdded = Empire.Universe.StarDate;
+            StarDateAdded = empire.Universum.StarDate;
 
             Evaluate();
         }

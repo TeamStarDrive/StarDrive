@@ -48,11 +48,11 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.PaidBy(TargetEmpire) || Pirates.VictimIsDefeated(TargetEmpire))
                 return GoalStep.GoalFailed; // They paid or dead
 
-            StarDateAdded = Empire.Universe.StarDate;
+            StarDateAdded = empire.Universum.StarDate;
             var orbitalType = GetOrbital();
             // orbitalType = Pirates.TargetType.Projector; // TODO for testing
             if (!Pirates.GetTarget(TargetEmpire, orbitalType, out Ship orbital))
-                return Empire.Universe.StarDate.Greater(StarDateAdded + 1) ? GoalStep.GoalFailed : GoalStep.TryAgain;
+                return empire.Universum.StarDate.Greater(StarDateAdded + 1) ? GoalStep.GoalFailed : GoalStep.TryAgain;
 
             TargetShip           = orbital; // This is the main target, we want this dead or possibly boarded
             float spawnDistance  = TargetShip.System?.Radius ?? 80000;
@@ -90,7 +90,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // 25 turns to try finish the job
-            return Empire.Universe.StarDate.Greater(StarDateAdded + 2.5f) ? GoalStep.GoalFailed : GoalStep.TryAgain;
+            return empire.Universum.StarDate.Greater(StarDateAdded + 2.5f) ? GoalStep.GoalFailed : GoalStep.TryAgain;
         }
 
         Pirates.TargetType GetOrbital()

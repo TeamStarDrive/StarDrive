@@ -72,6 +72,8 @@ namespace Ship_Game.Gameplay
         public Ship Owner { get; protected set; }
         public Planet Planet { get; protected set; }
 
+        public UniverseScreen Universe;
+
         public override IDamageModifier DamageMod => Weapon;
 
         public Projectile(Empire loyalty, GameObjectType type = GameObjectType.Proj) : base(type)
@@ -253,7 +255,8 @@ namespace Ship_Game.Gameplay
             LoadContent();
             Initialize();
 
-            Empire.Universe?.Objects.Add(this);
+            Universe = Owner?.Universe ?? Planet?.Universe;
+            Universe?.Objects.Add(this);
 
             if (Owner != null)
             {
@@ -295,7 +298,7 @@ namespace Ship_Game.Gameplay
                 ProjectileTexture = ResourceManager.ProjTexture(Weapon.ProjectileTexturePath);
             }
 
-            var particles = Empire.Universe?.Particles;
+            var particles = Universe?.Particles;
             if (particles == null)
                 return;
 
@@ -342,7 +345,7 @@ namespace Ship_Game.Gameplay
             Velocity             = Speed * newDirection;
             Rotation             = Velocity.Normalized().ToRadians();
             if (RandomMath.RollDie(2) == 2)
-                Empire.Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(deflectionPoint), Vector3.Zero);
+                Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(deflectionPoint), Vector3.Zero);
         }
 
         public void CreateMirv(GameplayObject target)
@@ -436,7 +439,7 @@ namespace Ship_Game.Gameplay
 
             ++DebugInfoScreen.ProjDied;
             if (Light != null)
-                Empire.Universe.RemoveLight(Light, dynamic:true);
+                Universe.RemoveLight(Light, dynamic:true);
 
             if (InFlightSfx.IsPlaying)
                 InFlightSfx.Stop();
@@ -445,7 +448,7 @@ namespace Ship_Game.Gameplay
 
             if (ProjSO != null)
             {
-                Empire.Universe.RemoveObject(ProjSO);
+                Universe.RemoveObject(ProjSO);
             }
 
             SetSystem(null);
@@ -531,7 +534,7 @@ namespace Ship_Game.Gameplay
                                 ObjectType = ObjectType.Dynamic,
                                 World = WorldMatrix
                             };
-                            Empire.Universe.AddObject(ProjSO);
+                            Universe.AddObject(ProjSO);
                         }
                         else
                         {
@@ -577,7 +580,7 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            if (Empire.Universe.CanAddDynamicLight)
+            if (Universe.CanAddDynamicLight)
             {
                 if (InFrustum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
                 {
@@ -601,7 +604,7 @@ namespace Ship_Game.Gameplay
                         case "Purple": Light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f); break;
                         case "Blue":   Light.DiffuseColor = new Vector3(0.0f, 0.8f, 1f);    break;
                     }
-                    Empire.Universe.AddLight(Light, dynamic:true);
+                    Universe.AddLight(Light, dynamic:true);
                 }
                 else if (Light != null && Weapon.Light != null && LightWasAddedToSceneGraph)
                 {
@@ -619,8 +622,8 @@ namespace Ship_Game.Gameplay
         }
 
 
-        bool CloseEnoughForExplosion    => Empire.Universe.IsSectorViewOrCloser;
-        bool CloseEnoughForFlashExplode => Empire.Universe.IsSystemViewOrCloser;
+        bool CloseEnoughForExplosion    => Universe.IsSectorViewOrCloser;
+        bool CloseEnoughForFlashExplode => Universe.IsSystemViewOrCloser;
 
         void ExplodeProjectile(bool cleanupOnly, ShipModule atModule = null)
         {
@@ -641,7 +644,7 @@ namespace Ship_Game.Gameplay
                     if (FlashExplode && CloseEnoughForFlashExplode)
                     {
                         GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                        Empire.Universe.Particles.Flash.AddParticle(origin, Vector3.Zero);
+                        Universe.Particles.Flash.AddParticle(origin, Vector3.Zero);
                     }
                 }
 
@@ -658,7 +661,7 @@ namespace Ship_Game.Gameplay
                 if (FlashExplode && CloseEnoughForFlashExplode)
                 {
                     GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                    Empire.Universe.Particles.Flash.AddParticle(origin, Vector3.Zero);
+                    Universe.Particles.Flash.AddParticle(origin, Vector3.Zero);
                 }
             }
         }
@@ -674,7 +677,7 @@ namespace Ship_Game.Gameplay
                 // if we're still far, apply thrust offset, which will increase our accuracy
                 : ImpactPredictor.ThrustOffset(Position, Velocity, targetPos, 1f);
 
-            //var debug = Empire.Universe?.DebugWin;
+            //var debug = Universe?.DebugWin;
             //debug?.DrawLine(DebugModes.Targeting, Center, adjustedPos, 1f, Color.DarkOrange.Alpha(0.2f), 0f);
             //debug?.DrawLine(DebugModes.Targeting, targetPos, adjustedPos, 1f, Color.DarkRed.Alpha(0.8f), 0f);
             //debug?.DrawCircle(DebugModes.Targeting, adjustedPos, 5f, Color.DarkRed.Alpha(0.28f), 0f);
@@ -791,10 +794,10 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < 20; i++)
                     {
                         Vector3 random = UniverseRandom.Vector3D(250f) * right;
-                        Empire.Universe.Particles.Flame.AddParticle(center, random);
+                        Universe.Particles.Flame.AddParticle(center, random);
 
                         random = UniverseRandom.Vector3D(150f) + backward;
-                        Empire.Universe.Particles.Flame.AddParticle(center, random);
+                        Universe.Particles.Flame.AddParticle(center, random);
                     }
 
                     break;
@@ -803,12 +806,12 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < 20; i++)
                     {
                         Vector3 random = UniverseRandom.Vector3D(500f) * right;
-                        Empire.Universe.Particles.FireTrail.AddParticle(center, random);
+                        Universe.Particles.FireTrail.AddParticle(center, random);
 
                         random = backward + new Vector3(UniverseRandom.RandomBetween(-500f, 500f),
                                      UniverseRandom.RandomBetween(-500f, 500f),
                                      UniverseRandom.RandomBetween(-150f, 150f));
-                        Empire.Universe.Particles.FireTrail.AddParticle(center, random);
+                        Universe.Particles.FireTrail.AddParticle(center, random);
                     }
 
                     break;
@@ -833,7 +836,7 @@ namespace Ship_Game.Gameplay
 
         void DebugTargetCircle()
         {
-            Empire.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
+            Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
         void ArmorPiercingTouch(ShipModule module, Ship parent)
@@ -912,18 +915,18 @@ namespace Ship_Game.Gameplay
             float flashChance = GetHitProjectileFlashEmitChance(damageAmount);
             if (HasParticleHitEffect(flashChance))
             {
-                Empire.Universe.Particles.Flash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
+                Universe.Particles.Flash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
                 return;
             }
             float beamFlashChance = GetHitProjectileBeamFlashEmitChance(Weapon.ProjectileSpeed);
             if (HasParticleHitEffect(beamFlashChance))
-                Empire.Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
+                Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
         }
 
         void AddEnergyParticleHitEffects(float damageAmount, Vector3 center)
         {
             if (Weapon?.Tag_Energy != true) return;
-            var particles = Empire.Universe.Particles;
+            var particles = Universe.Particles;
 
             float flashChance  = GetHitProjectileFlashEmitChance(damageAmount);
             float sparksChance = GetHitProjectileSparksEmitChance(Weapon.ProjectileSpeed);

@@ -112,7 +112,7 @@ namespace Ship_Game.AI
 
             Ship pickedShip = RandomMath.RandItem(bestShips);
 
-            if (false && Empire.Universe?.Debug == true)
+            if (false && empire.Universum?.Debug == true)
             {
                 Debug($"    Sorted Ship List ({bestShips.Length})");
                 foreach (Ship loggedShip in bestShips)
@@ -187,7 +187,7 @@ namespace Ship_Game.AI
                         continue;
 
                     freighters.Add(ship);
-                    if (Empire.Universe?.Debug == true)
+                    if (empire.Universum?.Debug == true)
                     {
                         Log.Info(ConsoleColor.Cyan, $"pick freighter: {ship.Name}: " +
                                                     $"Value: {ship.FreighterValue(empire, fastVsBig)}");
@@ -201,7 +201,7 @@ namespace Ship_Game.AI
 
             freighter = freighters.FindMax(ship => ship.FreighterValue(empire, fastVsBig));
 
-            if (Empire.Universe?.Debug == true)
+            if (empire.Universum?.Debug == true)
                 Log.Info(ConsoleColor.Cyan, $"----- Picked {freighter?.Name ?? "null"}");
 
             return freighter;

@@ -147,7 +147,7 @@ namespace Ship_Game
 
         void SpawnNewColonyBuilding(Building template)
         {
-            Building building = ResourceManager.CreateBuilding(template);
+            Building building = ResourceManager.CreateBuilding(Universe, template);
             building.AssignBuildingToTileOnColonize(this);
             Storage.Max = Math.Max(Storage.Max, building.StorageAdded); // so starting resources could be added
         }

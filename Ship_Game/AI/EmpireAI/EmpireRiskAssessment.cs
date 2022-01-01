@@ -102,7 +102,7 @@ namespace Ship_Game.AI
             }
 
             // size is only the positive half of the universe. so double it.
-            float space = Empire.Universe.UniverseSize * 2;
+            float space = us.Universum.UniverseSize * 2;
             float distanceThreat = (space - distanceToNearest) / space;
             float threat = (float)Them.TotalScore / us.TotalScore;
             float risk = (threat * distanceThreat - 0.5f).LowerBound(0);

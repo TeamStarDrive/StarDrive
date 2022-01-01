@@ -23,7 +23,7 @@ namespace Ship_Game.Commands.Goals
         public EmpireDefense(Empire empire) : this()
         {
             this.empire   = empire;
-            StarDateAdded = Empire.Universe.StarDate;
+            StarDateAdded = empire.Universum.StarDate;
         }
 
 

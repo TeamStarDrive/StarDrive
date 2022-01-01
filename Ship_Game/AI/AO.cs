@@ -117,7 +117,7 @@ namespace Ship_Game.AI
         public AO(Empire empire)
         {
             Center = empire.WeightedCenter;
-            Radius = Empire.Universe.UniverseSize / 4;
+            Radius = empire.Universum.UniverseSize / 4;
         }
 
         public AO(Planet p, float radius)
@@ -242,9 +242,9 @@ namespace Ship_Game.AI
         public void SetupPlanetsInAO()
         {
             WarValueOfPlanets = 0;
-            var planets       = new Array<Planet>();
-            var systems       = new Array<SolarSystem>();
-            foreach(var planet in Empire.Universe.PlanetsDict.Values)
+            var planets = new Array<Planet>();
+            var systems = new Array<SolarSystem>();
+            foreach(var planet in Owner.Universum.PlanetsDict.Values)
             {
                 if (!planet.Center.InRadius(this)) continue;
                 WarValueOfPlanets += planet.ColonyWarValueTo(Owner);
@@ -297,7 +297,8 @@ namespace Ship_Game.AI
 
             UpdateThreatLevel();
 
-            for (int i = 0; i < PlanetData.Length; i++) PlanetData[i].Update(Empire.Universe?.StarDate ?? 0);
+            for (int i = 0; i < PlanetData.Length; i++)
+                PlanetData[i].Update(Owner.Universum?.StarDate ?? 0);
 
             for (int i = ShipsWaitingForCoreFleet.Count - 1; i >= 0; --i)
             {

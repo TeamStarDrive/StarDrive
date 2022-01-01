@@ -66,7 +66,7 @@ namespace Ship_Game.Debug.Page
 
         protected void DrawString(string text)
         {
-            var batch = Empire.Universe.ScreenManager.SpriteBatch;
+            var batch = ScreenManager.Instance.SpriteBatch;
             batch.DrawString(TextFont, text, TextCursor, TextColor);
             NewLine(text.Count(c => c == '\n') + 1);
         }

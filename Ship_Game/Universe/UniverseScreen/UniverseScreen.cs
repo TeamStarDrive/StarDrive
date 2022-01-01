@@ -350,7 +350,7 @@ namespace Ship_Game
             Log.Write(ConsoleColor.Cyan, "UniverseScreen.LoadContent");
             RemoveAll();
             UnloadGraphics();
-            
+
             Empire.Universe = this;
 
             GlobalStats.ResearchRootUIDToDisplay = "Colonization";

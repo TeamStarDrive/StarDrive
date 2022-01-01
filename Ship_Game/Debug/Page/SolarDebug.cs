@@ -20,7 +20,7 @@ namespace Ship_Game.Debug.Page
         
         public override void Update(float fixedDeltaTime)
         {
-            foreach (SolarSystem system in Empire.Universe.SolarSystemDict.Values)
+            foreach (SolarSystem system in Screen.SolarSystemDict.Values)
             {
                 if (system.IsVisible)
                 {

@@ -163,6 +163,8 @@ namespace Ship_Game
         public string IconPath => Type.IconPath;
         public bool Habitable => Type.Habitable;
 
+        public UniverseScreen Universe => ParentSystem.Universe;
+
         public SBProduction Construction;
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
@@ -253,7 +255,7 @@ namespace Ship_Game
 
             if (RandomMath.RollDice(selectedBuilding.EventSpawnChance))
             {
-                Building building = ResourceManager.CreateBuilding(selectedBuilding.BID);
+                Building building = ResourceManager.CreateBuilding(Universe, selectedBuilding.BID);
                 if (!(this is Planet thisPlanet))
                     return;
 
@@ -288,7 +290,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        Building b = ResourceManager.CreateBuilding(template);
+                        Building b = ResourceManager.CreateBuilding(Universe, template);
                         b.AssignBuildingToRandomTile(this as Planet);
                         Log.Info($"Resource Created : '{b.Name}' : on '{Name}' ");
                     }
@@ -327,7 +329,7 @@ namespace Ship_Game
         protected void UpdatePosition(FixedSimTime timeStep)
         {
             PosUpdateTimer -= timeStep.FixedTime;
-            if (!Empire.Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.IsVisible))
+            if (!Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.IsVisible))
             {
                 PosUpdateTimer = 5f;
                 OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
@@ -497,7 +499,7 @@ namespace Ship_Game
             if (IsExploredBy(EmpireManager.Player))
             {
                 if (Owner != null)
-                    Empire.Universe.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
+                    Universe.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
             }
 
             if (newOwner.data.Traits.Assimilators && planetLevel >= 3)

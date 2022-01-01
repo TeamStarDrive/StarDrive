@@ -79,7 +79,7 @@ namespace Ship_Game.Debug
 
             foreach (Empire empire in EmpireManager.Empires)
             {
-                if (empire == Empire.Universe.player || empire.isFaction)
+                if (empire.isPlayer || empire.isFaction)
                     continue;
 
                 bool flag = false;
@@ -493,7 +493,7 @@ namespace Ship_Game.Debug
                 DrawString("InfluenceType: " + (ship.IsInFriendlyProjectorRange ? "Friendly"
                                              :  ship.IsInHostileProjectorRange  ? "Hostile" : "Neutral"));
 
-                string gravityWell = Empire.Universe.GravityWells ? ship?.System?.IdentifyGravityWell(ship)?.Name : "disabled";
+                string gravityWell = ship.Universe.GravityWells ? ship?.System?.IdentifyGravityWell(ship)?.Name : "disabled";
                 DrawString($"GravityWell: {gravityWell}   Inhibited:{ship.IsInhibitedByUnfriendlyGravityWell}");
 
                 DrawString(ship.InCombat ? Color.Green : Color.LightPink,
@@ -1149,7 +1149,7 @@ namespace Ship_Game.Debug
                     ThreatMatrix.Pin pin = pins[i];
                     if (pin?.Ship == null || pin.Position == Vector2.Zero)
                         continue;
-                    float increaser = (int) Empire.Universe.viewState / 100f;
+                    float increaser = (int) e.Universum.viewState / 100f;
                     Screen.DrawCircleProjected(pin.Position,
                         increaser + pin.Ship.Radius, 6, e.EmpireColor);
 

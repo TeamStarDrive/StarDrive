@@ -25,14 +25,14 @@ namespace Ship_Game.Commands.Goals
         public ScoutSystem(Empire empire) : this()
         {
             this.empire   = empire;
-            StarDateAdded = Empire.Universe.StarDate;
+            StarDateAdded = empire.Universum.StarDate;
         }
 
         GoalStep DelayedStart()
         {
-            if (Empire.Universe.StarDate - StarDateAdded > 5)
+            if (empire.Universum.StarDate - StarDateAdded > 5)
             {
-                StarDateAdded = Empire.Universe.StarDate;
+                StarDateAdded = empire.Universum.StarDate;
                 return GoalStep.GoToNextStep;
             }
 

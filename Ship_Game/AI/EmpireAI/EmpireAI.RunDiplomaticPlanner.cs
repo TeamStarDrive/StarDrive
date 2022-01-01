@@ -5,7 +5,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        Empire Player => Empire.Universe.PlayerEmpire;
+        Empire Player => OwnerEmpire.Universum.PlayerEmpire;
 
         private void RunDiplomaticPlanner()
         {

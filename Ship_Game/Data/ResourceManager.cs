@@ -894,8 +894,8 @@ namespace Ship_Game
         public static bool BuildingExists(int buildingId) => 0 < buildingId && buildingId < BuildingsById.Count;
         public static Building GetBuildingTemplate(string whichBuilding) => BuildingsDict[whichBuilding];
         public static Building GetBuildingTemplate(int buildingId) => BuildingsById[buildingId];
-        public static Building CreateBuilding(string whichBuilding) => CreateBuilding(GetBuildingTemplate(whichBuilding));
-        public static Building CreateBuilding(int buildingId) => CreateBuilding(GetBuildingTemplate(buildingId));
+        public static Building CreateBuilding(UniverseScreen us, string whichBuilding) => CreateBuilding(us, GetBuildingTemplate(whichBuilding));
+        public static Building CreateBuilding(UniverseScreen us, int buildingId) => CreateBuilding(us, GetBuildingTemplate(buildingId));
         public static bool GetBuilding(string whichBuilding, out Building b) => BuildingsDict.Get(whichBuilding, out b);
         public static bool GetBuilding(int buildingId, out Building b)
         {
@@ -938,7 +938,7 @@ namespace Ship_Game
             }
         }
 
-        public static Building CreateBuilding(Building template)
+        public static Building CreateBuilding(UniverseScreen us, Building template)
         {
             Building newB = template.Clone();
 
@@ -949,7 +949,7 @@ namespace Ship_Game
                 if (!newB.IsProjector && !(newB.ProjectorRange > 0f))
                 {
                     // @todo NullReference bug here!
-                    newB.ProjectorRange = Empire.Universe?.SubSpaceProjectors.Radius ?? 0f;
+                    newB.ProjectorRange = us?.SubSpaceProjectors.Radius ?? 0f;
                     newB.IsProjector    = true;
                 }
 

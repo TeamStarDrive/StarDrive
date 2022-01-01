@@ -602,8 +602,8 @@ namespace Ship_Game.Fleets
                 FleetTask.EndTask();
             if (FleetTask == null)
                 return;
-            if (Empire.Universe.SelectedFleet == this)
-                Empire.Universe.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, FleetTask.AORadius, Color.AntiqueWhite);
+            if (Owner.Universum.SelectedFleet == this)
+                Owner.Universum.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, FleetTask.AORadius, Color.AntiqueWhite);
 
             TaskCombatStatus = FleetInAreaInCombat(FleetTask.AO, FleetTask.AORadius);
 
@@ -1234,7 +1234,7 @@ namespace Ship_Game.Fleets
                 if (targetEmpire?.isPlayer == true)
                     return false; // The Fleet is already there
 
-                starDateEta = Empire.Universe.StarDate;
+                starDateEta = Owner.Universum.StarDate;
                 return true; // AI might retaliate even if its the same system
             }
 
@@ -1242,7 +1242,7 @@ namespace Ship_Game.Fleets
             float slowestWarpSpeed = Ships.Min(s => s.MaxFTLSpeed).LowerBound(1000);
             float secondsToTarget = distanceToPlanet / slowestWarpSpeed;
             float turnsToTarget = secondsToTarget / GlobalStats.TurnTimer;
-            starDateEta = (Empire.Universe.StarDate + turnsToTarget / 10).RoundToFractionOf10();
+            starDateEta = (Owner.Universum.StarDate + turnsToTarget / 10).RoundToFractionOf10();
 
             return starDateEta.Greater(0);
         }
@@ -1940,7 +1940,7 @@ namespace Ship_Game.Fleets
         }
 
         void DebugInfo(MilitaryTask task, string text)
-            => Empire.Universe?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
+            => Owner.Universum?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool debug = false)
@@ -2306,7 +2306,7 @@ namespace Ship_Game.Fleets
             }
 
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
-                Empire.Universe.DebugWin?.DebugLogText($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}", DebugModes.Normal);
+                Owner.Universum.DebugWin?.DebugLogText($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}", DebugModes.Normal);
 
             RemoveFromAllSquads(ship);
 
@@ -2460,7 +2460,7 @@ namespace Ship_Game.Fleets
 
                 fleetTotals.AddTargetValue(ship);
 
-                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 7500, Color.Yellow);
+                Owner.Universum.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 7500, Color.Yellow);
 
                 // if combat in move position do not move in formation. 
                 if ( !IsAssembling && ship.AI.HasPriorityOrder && ship.engineState == Ship.MoveState.Sublight

@@ -101,7 +101,7 @@ namespace Ship_Game
                 Intensity    = intensity,
                 Enabled      = true
             };
-            Empire.Universe.AddLight(newExp.Light, dynamic:true);
+            ScreenManager.Instance.AddLight(newExp.Light, dynamic:true);
         }
 
         public static void AddExplosion(Vector3 position, Vector2 velocity, float radius, float intensity, ExplosionType type)
