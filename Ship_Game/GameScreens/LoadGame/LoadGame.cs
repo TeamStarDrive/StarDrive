@@ -187,7 +187,7 @@ namespace Ship_Game.GameScreens.LoadGame
             GameBase.Base.ResetElapsedTime();
             us.LoadContent();
 
-            CreateAOs(data);
+            CreateAOs(us, data);
             FinalizeShips(us, data);
             us.Objects.UpdateLists(removeInactiveObjects: false);
 
@@ -595,10 +595,10 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        static void CreateAOs(UniverseData data)
+        static void CreateAOs(UniverseScreen us, UniverseData data)
         {
             foreach (Empire e in data.EmpireList)
-                e.GetEmpireAI().InitializeAOsFromSave();
+                e.GetEmpireAI().InitializeAOsFromSave(us);
         }
 
         static void CreateMilitaryTasks(SavedGame.EmpireSaveData d, Empire e, UniverseData data)
