@@ -115,7 +115,7 @@ namespace Ship_Game.Ships
 
             foreach (Guid planetGuid in TradeRoutes)
             {
-                Planet planet = Empire.Universe.GetPlanet(planetGuid);
+                Planet planet = Universe.GetPlanet(planetGuid);
                 if (planet.Owner == Loyalty)
                     continue;
 

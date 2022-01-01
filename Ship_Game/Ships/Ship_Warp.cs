@@ -105,8 +105,8 @@ namespace Ship_Game.Ships
         // Used for Remnant portal exit
         public void EmergeFromPortal()
         {
-            if (Empire.Universe != null
-                && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (Universe != null
+                && Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
                 FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
             }
@@ -183,7 +183,7 @@ namespace Ship_Game.Ships
                 if (JumpTimer <= 4.0f)
                 {
                     if (IsVisibleToPlayer
-                        && !Empire.Universe.Paused && JumpSfx.IsStopped && JumpSfx.IsReadyToReplay)
+                        && !Universe.Paused && JumpSfx.IsStopped && JumpSfx.IsReadyToReplay)
                     {
                         JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter, replayTimeout: 4.0f);
                     }
