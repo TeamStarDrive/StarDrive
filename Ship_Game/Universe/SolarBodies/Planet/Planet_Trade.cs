@@ -356,7 +356,7 @@ namespace Ship_Game
             if (importPlanet == exportPlanet || startTime == 0)  // startTime is 0 in older saves
                 return; // Express import, ignore
 
-            float numTurns = (Empire.Universe.StarDate - startTime).LowerBound(0.5f); // not * 10 for turns since we are using 10% of value anyway
+            float numTurns = (Universe.StarDate - startTime).LowerBound(0.5f); // not * 10 for turns since we are using 10% of value anyway
             switch (goods)
             {
                 case Goods.Food       when importPlanet == this: AverageFoodImportTurns = AverageFoodImportTurns * 0.9f + numTurns; break;

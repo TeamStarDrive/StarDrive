@@ -202,7 +202,7 @@ namespace Ship_Game
             ScreenManager.InvokePendingEmpireThreadActions();
             if (ProcessTurnEmpires(timeStep))
             {
-                UpdateInfluenceForAllEmpires(timeStep);
+                UpdateInfluenceForAllEmpires(this, timeStep);
 
                 Objects.Update(timeStep);
 
@@ -237,7 +237,7 @@ namespace Ship_Game
             Objects.InitializeFromSave();
 
             // makes sure all empire vision is updated.
-            UpdateInfluenceForAllEmpires(FixedSimTime.Zero);
+            UpdateInfluenceForAllEmpires(this, FixedSimTime.Zero);
             EndOfTurnUpdate(FixedSimTime.Zero);
         }
 
@@ -312,14 +312,14 @@ namespace Ship_Game
         }
 
         // sensor scan is heavy
-        void UpdateInfluenceForAllEmpires(FixedSimTime timeStep)
+        void UpdateInfluenceForAllEmpires(UniverseScreen us, FixedSimTime timeStep)
         {
             EmpireInfluPerf.Start();
 
             for (int i = 0; i < EmpireManager.Empires.Count; ++i)
             {
                 Empire empireToUpdate = EmpireManager.Empires[i];
-                empireToUpdate.UpdateContactsAndBorders(timeStep);
+                empireToUpdate.UpdateContactsAndBorders(us, timeStep);
             }
 
             EmpireInfluPerf.Stop();
@@ -424,7 +424,7 @@ namespace Ship_Game
                 Empire empire = EmpireManager.Empires[i];
                 if (!empire.data.Defeated)
                 {
-                    empire.Update(timeStep);
+                    empire.Update(this, timeStep);
                 }
             }
         }
