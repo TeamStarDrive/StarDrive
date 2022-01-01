@@ -412,7 +412,10 @@ namespace Ship_Game
             CreateStationTethers();
 
             foreach (Empire empire in EmpireManager.Empires)
+            {
+                empire.Universum = this;
                 empire.InitEmpireFromSave();
+            }
 
             WarmUpShipsForLoad();
             RecomputeFleetButtons(true);

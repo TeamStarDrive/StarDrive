@@ -17,12 +17,12 @@ namespace Ship_Game
         Rectangle res5;
         Array<Button> Buttons = new Array<Button>();
         bool LowRes;
-        UniverseScreen Screen;
+        UniverseScreen Universe;
 
-        public EmpireUIOverlay(Empire playerEmpire, GraphicsDevice device, UniverseScreen screen)
+        public EmpireUIOverlay(Empire playerEmpire, GraphicsDevice device, UniverseScreen universe)
         {
             Player = playerEmpire;
-            Screen = screen;
+            Universe = universe;
 
             var iRes1 = ResourceManager.Texture("EmpireTopBar/empiretopbar_res1");
             var iRes2 = ResourceManager.Texture("EmpireTopBar/empiretopbar_res2");
@@ -43,7 +43,7 @@ namespace Ship_Game
             res4 = new Rectangle((int)Cursor.X, 2, iRes4.Width, iRes4.Height);
             Cursor.X = Cursor.X + iRes4.Width;
 
-            Cursor.X = Empire.Universe.ScreenWidth - iRes5.Width;
+            Cursor.X = Universe.ScreenWidth - iRes5.Width;
             res5 = new Rectangle((int)Cursor.X, 2, iRes5.Width, iRes5.Height);
 
             Button r1 = new Button();
@@ -90,7 +90,7 @@ namespace Ship_Game
             //Added by McShooterz: Shifted buttons to add new ones, added dummy espionage button
             Cursor.X = r4.Rect.X + r4.Rect.Width + roomoneitherside;
 
-            if (Empire.Universe.ScreenWidth >= 1920)
+            if (Universe.ScreenWidth >= 1920)
             {
                 float saveY = Cursor.Y;
                 Cursor.X -= 220f;
@@ -226,7 +226,7 @@ namespace Ship_Game
             }
 
             int money = (int)Player.Money;
-            float damoney = Empire.Universe.player.EstimateNetIncomeAtTaxRate(Empire.Universe.player.data.TaxRate);
+            float damoney = Universe.player.EstimateNetIncomeAtTaxRate(Universe.player.data.TaxRate);
             if (damoney <= 0f)
             {
                 textCursor.X = res4.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(money.ToString(), " (", damoney.ToString("#.0"), ")")).X;
@@ -241,7 +241,7 @@ namespace Ship_Game
             }
 
             var starDatePos = new Vector2(res5.X + 75, textCursor.Y);
-            string starDateText = LowRes ? Empire.Universe.StarDateString : "StarDate: " + Empire.Universe.StarDateString;
+            string starDateText = LowRes ? Universe.StarDateString : "StarDate: " + Universe.StarDateString;
             batch.DrawString(Fonts.Arial12Bold, starDateText, starDatePos, new Color(255, 240, 189));
 
             if (Player.Research.NoTopic)
@@ -255,8 +255,8 @@ namespace Ship_Game
                 int xOffset = (int)(Player.Research.Current.PercentResearched * res2.Width);
                 Rectangle gradientSourceRect = res2;
                 gradientSourceRect.X = 159 - xOffset;
-                Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_gradient"), new Rectangle(res2.X, res2.Y, res2.Width, res2.Height), gradientSourceRect, Color.White);
-                Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_over"), res2, Color.White);
+                Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_gradient"), new Rectangle(res2.X, res2.Y, res2.Width, res2.Height), gradientSourceRect, Color.White);
+                Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_over"), res2, Color.White);
                 int research = (int)Player.Research.Current.Progress;
                 int resCost = (int)Player.Research.Current.TechCost;
                 float plusRes = Player.Research.NetResearch;
@@ -278,50 +278,50 @@ namespace Ship_Game
                 if (input.KeyPressed(Keys.R))
                 {
                     GameAudio.EchoAffirmative();
-                    Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
+                    Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, this));
                 }
                 if (input.KeyPressed(Keys.T))
                 {
                     GameAudio.EchoAffirmative();
-                    Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
+                    Universe.ScreenManager.AddScreen(new BudgetScreen(Universe));
                 }
                 if (input.KeyPressed(Keys.Y))
                 {
                     GameAudio.EchoAffirmative();
-                    Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
+                    Universe.ScreenManager.AddScreen(new ShipDesignScreen(Universe, this));
                 }
                 if (input.KeyPressed(Keys.U))
                 {
                     GameAudio.EchoAffirmative();
-                    Empire.Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Empire.Universe, this));
+                    Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Universe, this));
                 }
                 if (input.KeyPressed(Keys.I))
                 {
                     GameAudio.EchoAffirmative();
-                    Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
+                    Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Universe));
                 }
                 if (input.KeyPressed(Keys.O))
                 {
                     GameAudio.EchoAffirmative();
-                    Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
+                    Universe.ScreenManager.AddScreen(new GameplayMMScreen(Universe));
                 }
                 if (input.KeyPressed(Keys.E))
                 {
                     GameAudio.EchoAffirmative();
-                    Empire.Universe.ScreenManager.AddScreen(new EspionageScreen(Empire.Universe));
+                    Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
                 }
                 if (input.KeyPressed(Keys.P))
                 {
                     GameAudio.TacticalPause();
-                    Empire.Universe.ScreenManager.AddScreen(new InGameWiki(Empire.Universe));
+                    Universe.ScreenManager.AddScreen(new InGameWiki(Universe));
                 }
                 if (input.KeyPressed(Keys.Home))
                 {
                     if (EmpireManager.Player.GetCurrentCapital(out Planet capital))
                     {
                         GameAudio.SubBassWhoosh();
-                        Screen.SelectedPlanet = capital;
-                        Screen.CamDestination = new Vector3d(capital.Center.X, capital.Center.Y + 400f, 9000);
+                        Universe.SelectedPlanet = capital;
+                        Universe.CamDestination = new Vector3d(capital.Center.X, capital.Center.Y + 400f, 9000);
                     }
                     else
                     {
@@ -416,12 +416,12 @@ namespace Ship_Game
                         if (str3 == "Research")
                         {
                             GameAudio.EchoAffirmative();
-                            Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
+                            Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, this));
                         }
                         else if (str3 == "Budget")
                         {
                             GameAudio.EchoAffirmative();
-                            Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
+                            Universe.ScreenManager.AddScreen(new BudgetScreen(Universe));
                         }
                     }
                     string str4 = b.launches;
@@ -433,42 +433,42 @@ namespace Ship_Game
                     if (str5 == "Main Menu")
                     {
                         GameAudio.EchoAffirmative();
-                        Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
+                        Universe.ScreenManager.AddScreen(new GameplayMMScreen(Universe));
                     }
                     else if (str5 == "Shipyard")
                     {
                         GameAudio.EchoAffirmative();
-                        Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
+                        Universe.ScreenManager.AddScreen(new ShipDesignScreen(Universe, this));
                     }
                     else if (str5 == "Fleets")
                     {
                         GameAudio.EchoAffirmative();
-                        Empire.Universe.ScreenManager.AddScreen(new FleetDesignScreen(Empire.Universe, this));
+                        Universe.ScreenManager.AddScreen(new FleetDesignScreen(Universe, this));
                     }
                     else if (str5 == "ShipList")
                     {
                         GameAudio.EchoAffirmative();
-                        Empire.Universe.ScreenManager.AddScreen(new ShipListScreen(Empire.Universe, this));
+                        Universe.ScreenManager.AddScreen(new ShipListScreen(Universe, this));
                     }
                     else if (str5 == "Empire")
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Empire.Universe, this));
+                        Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Universe, this));
                         GameAudio.EchoAffirmative();
                     }
                     else if (str5 == "Diplomacy")
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
+                        Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Universe));
                         GameAudio.EchoAffirmative();
                     }
                     else if (str5 == "Espionage")
                     {
-                        Empire.Universe.ScreenManager.AddScreen(new EspionageScreen(Empire.Universe));
+                        Universe.ScreenManager.AddScreen(new EspionageScreen(Universe));
                         GameAudio.EchoAffirmative();
                     }
                     else if (str5 == "?")
                     {
                         GameAudio.TacticalPause();
-                        Empire.Universe.ScreenManager.AddScreen(new InGameWiki(Empire.Universe));
+                        Universe.ScreenManager.AddScreen(new InGameWiki(Universe));
                     }
                 }
             }
@@ -523,7 +523,7 @@ namespace Ship_Game
                                 GameAudio.EchoAffirmative();
                                 if (!(caller is ResearchScreenNew))
                                 {
-                                    Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
+                                    Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, this));
                                 }
                             }
                             else if (str1 == "Budget")
@@ -531,7 +531,7 @@ namespace Ship_Game
                                 GameAudio.EchoAffirmative();
                                 if (!(caller is BudgetScreen))
                                 {
-                                    Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
+                                    Universe.ScreenManager.AddScreen(new BudgetScreen(Universe));
                                 }
                             }
                         }
@@ -544,7 +544,7 @@ namespace Ship_Game
                         if (str3 == "Main Menu")
                         {
                             GameAudio.EchoAffirmative();
-                            Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe, caller));
+                            Universe.ScreenManager.AddScreen(new GameplayMMScreen(Universe, caller));
                         }
                         else if (str3 == "Shipyard")
                         {
@@ -553,7 +553,7 @@ namespace Ship_Game
                                 continue;
                             }
                             GameAudio.EchoAffirmative();
-                            Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
+                            Universe.ScreenManager.AddScreen(new ShipDesignScreen(Universe, this));
                         }
                         else if (str3 == "Fleets")
                         {
@@ -562,22 +562,22 @@ namespace Ship_Game
                                 continue;
                             }
                             GameAudio.EchoAffirmative();
-                            Empire.Universe.ScreenManager.AddScreen(new FleetDesignScreen(Empire.Universe, this));
+                            Universe.ScreenManager.AddScreen(new FleetDesignScreen(Universe, this));
                         }
                         else if (str3 == "Empire")
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Empire.Universe, this));
+                            Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Universe, this));
                             GameAudio.EchoAffirmative();
                         }
                         else if (str3 == "Diplomacy")
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
+                            Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Universe));
                             GameAudio.EchoAffirmative();
                         }
                         else if (str3 == "?")
                         {
                             GameAudio.TacticalPause();
-                            Empire.Universe.ScreenManager.AddScreen(new InGameWiki(Empire.Universe));
+                            Universe.ScreenManager.AddScreen(new InGameWiki(Universe));
                         }
                     }
                 }
