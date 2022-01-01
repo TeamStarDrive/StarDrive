@@ -37,7 +37,9 @@ namespace UnitTests.Serialization
                 RandomVelocityXY = new []{ new Range(3, 4.2f), new Range(5.4f, 5.8f) },
                 AlignRandomVelocityXY = true,
                 EndVelocity = 6,
-                ColorRange = new[]{ new Color(10,20,30,255), new Color(40,50,60,255) },
+                StartColorRange = new[]{ new Color(10,20,30,255), new Color(40,50,60,255) },
+                EndColorRange = new[] { new Color(0, 0, 255, 255) },
+                EndColorTime = 0.75f,
                 RotateSpeed = new Range(7,8),
                 StartEndSize = new[]{ new Range(9,10), new Range(11,12) },
                 SrcDstBlend = new[]{ Blend.BlendFactor, Blend.InverseBlendFactor },
@@ -59,7 +61,9 @@ namespace UnitTests.Serialization
                   RandomVelocityXY: [[3,4.2],[5.4,5.8]]
                   AlignRandomVelocityXY: true
                   EndVelocity: 6
-                  ColorRange: [[10,20,30,255],[40,50,60,255]]
+                  StartColorRange: [[10,20,30,255],[40,50,60,255]]
+                  EndColorRange: [[0,0,255,255]]
+                  EndColorTime: 0.75
                   RotateSpeed: [7,8]
                   StartEndSize: [[9,10],[11,12]]
                   SrcDstBlend: [BlendFactor,InverseBlendFactor]
