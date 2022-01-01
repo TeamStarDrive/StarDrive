@@ -277,6 +277,7 @@ namespace Ship_Game.Data
         // Load the asset with the given name or path
         // Path must be relative to project root, such as:
         // "Textures/myTexture" or "Textures/myTexture.xnb"
+        // If a Mod file with the same relative path exists, the mod file is loaded instead
         public override T Load<T>(string assetName)
         {
             return LoadAsset<T>(assetName, useCache:true);

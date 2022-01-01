@@ -16,9 +16,9 @@ namespace Ship_Game.Debug.Page
         Empire Loyalty;
 
         ParticleManager Manager => Screen.Particles;
-        IParticleSystem[] ParticleSystems => Manager.ParticleSystems.ToArray();
+        IParticle[] ParticleSystems => Manager.ParticleSystems.ToArray();
 
-        bool IsSelected(IParticleSystem ps) => Selected.TryGetValue(ps.Name, out bool isSelected) && isSelected;
+        bool IsSelected(IParticle ps) => Selected.TryGetValue(ps.Name, out bool isSelected) && isSelected;
 
         public ParticleDebug(UniverseScreen screen, DebugInfoScreen parent)
             : base(parent, DebugModes.Particles)
@@ -43,7 +43,7 @@ namespace Ship_Game.Debug.Page
             };
 
             var left = AddList(20, 320);
-            foreach (IParticleSystem ps in ParticleSystems)
+            foreach (IParticle ps in ParticleSystems)
             {
                 Selected[ps.Name] = false;
 
@@ -95,7 +95,7 @@ namespace Ship_Game.Debug.Page
         {
             if (!Screen.Paused)
             {
-                foreach (IParticleSystem ps in ParticleSystems)
+                foreach (IParticle ps in ParticleSystems)
                 {
                     if (IsSelected(ps))
                     {

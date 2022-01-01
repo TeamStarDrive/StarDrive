@@ -904,52 +904,44 @@ namespace Ship_Game.Gameplay
 
         public void CreateHitParticles(float damageAmount, Vector3 center)
         {
-            AddKineticParticleHitEffects(damageAmount, center);
-            AddEnergyParticleHitEffects(damageAmount, center);
-        }
+            var p = Universe.Particles;
+            var backgroundPos = new Vector3(center.X, center.Y, center.Z - 50f);
 
-        void AddKineticParticleHitEffects(float damageAmount, Vector3 center)
-        {
-            if (Weapon?.Tag_Kinetic != true) return;
-
-            float flashChance = GetHitProjectileFlashEmitChance(damageAmount);
-            if (HasParticleHitEffect(flashChance))
+            if (Weapon.Tag_Kinetic && !Weapon.Tag_Explosive)
             {
-                Universe.Particles.Flash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
-                return;
+                if (CanEmitFlash(damageAmount))
+                {
+                    p.Flash.AddParticle(backgroundPos, Vector3.Zero);
+                }
+                else if (CanEmitBeamFlash(Weapon.ProjectileSpeed))
+                {
+                    p.BeamFlash.AddParticle(backgroundPos, Vector3.Zero);
+                }
             }
-            float beamFlashChance = GetHitProjectileBeamFlashEmitChance(Weapon.ProjectileSpeed);
-            if (HasParticleHitEffect(beamFlashChance))
-                Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
-        }
-
-        void AddEnergyParticleHitEffects(float damageAmount, Vector3 center)
-        {
-            if (Weapon?.Tag_Energy != true) return;
-            var particles = Universe.Particles;
-
-            float flashChance  = GetHitProjectileFlashEmitChance(damageAmount);
-            float sparksChance = GetHitProjectileSparksEmitChance(Weapon.ProjectileSpeed);
-            if (HasParticleHitEffect(flashChance))
-                particles.Flash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
-            if (!HasParticleHitEffect(sparksChance)) return;
-            int randomEffect = RandomMath2.IntBetween(0, 2);
-            switch (randomEffect)
+            else if (Weapon.Tag_Energy)
             {
-                case 0:
-                    for (int i = 0; i < 20; i++)
-                        particles.FireTrail.AddParticle(GetBackgroundPos(center), Vector3.Zero);
-                    for (int i = 0; i < 5; i++)
-                        particles.ExplosionSmoke.AddParticle(GetBackgroundPos(center), Vector3.Zero);
-                    break;
-                case 1:
-                    for (int i = 0; i < 50; i++)
-                        particles.Sparks.AddParticle(GetBackgroundPos(center), Vector3.Zero);
-                    particles.SmokePlume.AddParticle(GetBackgroundPos(center), Vector3.Zero);
-                    break;
-                case 2:
-                    particles.BeamFlash.AddParticle(GetBackgroundPos(center), Vector3.Zero);
-                    break;
+                if (CanEmitFlash(damageAmount))
+                {
+                    p.Flash.AddParticle(backgroundPos);
+                }
+
+                if (CanEmitSparks(Weapon.ProjectileSpeed))
+                {
+                    switch (RandomMath2.IntBetween(0, 2)) // pick a random effect
+                    {
+                        case 0:
+                            p.FireTrail.AddMultipleParticles(20, backgroundPos);
+                            p.ExplosionSmoke.AddMultipleParticles(5, backgroundPos);
+                            break;
+                        case 1:
+                            p.Sparks.AddMultipleParticles(50, backgroundPos);
+                            p.SmokePlume.AddParticle(backgroundPos);
+                            break;
+                        case 2:
+                            p.BeamFlash.AddParticle(backgroundPos);
+                            break;
+                    }
+                }
             }
         }
 
@@ -958,13 +950,9 @@ namespace Ship_Game.Gameplay
             TrailTurnedOn = true;
         }
 
-        static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
-
-        static float GetHitProjectileFlashEmitChance(float damage) => damage >= 1000f ? 100f : damage / 10f;
-
-        static float GetHitProjectileBeamFlashEmitChance(float speed) => speed > 10000f ? 100f : speed / 100f;
-
-        static float GetHitProjectileSparksEmitChance(float speed) => speed > 10000f ? 100f : speed / 100f;
+        static bool CanEmitFlash(float damage) => RandomMath.RollDice(percent: damage * 0.1f);
+        static bool CanEmitBeamFlash(float speed) => RandomMath.RollDice(percent: speed * 0.01f);
+        static bool CanEmitSparks(float speed) => RandomMath.RollDice(percent: speed * 0.01f);
 
         static Vector3 GetBackgroundPos(Vector3 pos) => new Vector3(pos.X, pos.Y, pos.Z - 50f);
     }
