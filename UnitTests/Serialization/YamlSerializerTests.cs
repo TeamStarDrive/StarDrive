@@ -32,22 +32,15 @@ namespace UnitTests.Serialization
                 MaxParticles = 10,
                 Duration = TimeSpan.FromSeconds(123.5),
                 DurationRandomness = 1,
-                EmitterVelocitySensitivity = 2,
-                MinHorizontalVelocity = 3,
-                MaxHorizontalVelocity = 4.2f,
-                MinVerticalVelocity = 5.4f,
-                MaxVerticalVelocity = 5.8f,
+                InheritOwnerVelocity = 2,
+                AlignRotationToVelocity = 1,
+                RandomVelocityXY = new []{ new Range(3, 4.2f), new Range(5.4f, 5.8f) },
+                AlignRandomVelocityXY = true,
                 EndVelocity = 6,
-                MinColor = new Color(10,20,30,255),
-                MaxColor = new Color(40,50,60,255),
-                MinRotateSpeed = 7,
-                MaxRotateSpeed = 8,
-                MinStartSize = 9,
-                MaxStartSize = 10,
-                MinEndSize = 11,
-                MaxEndSize = 12,
-                SourceBlend = Blend.BlendFactor,
-                DestinationBlend = Blend.InverseBlendFactor,
+                ColorRange = new[]{ new Color(10,20,30,255), new Color(40,50,60,255) },
+                RotateSpeed = new Range(7,8),
+                StartEndSize = new[]{ new Range(9,10), new Range(11,12) },
+                SrcDstBlend = new[]{ Blend.BlendFactor, Blend.InverseBlendFactor },
             };
 
             string text = SerializeToString(ps);
@@ -61,22 +54,15 @@ namespace UnitTests.Serialization
                   MaxParticles: 10
                   Duration: 123.5
                   DurationRandomness: 1
-                  EmitterVelocitySensitivity: 2
-                  MinHorizontalVelocity: 3
-                  MaxHorizontalVelocity: 4.2
-                  MinVerticalVelocity: 5.4
-                  MaxVerticalVelocity: 5.8
+                  InheritOwnerVelocity: 2
+                  AlignRotationToVelocity: 1
+                  RandomVelocityXY: [[3,4.2],[5.4,5.8]]
+                  AlignRandomVelocityXY: true
                   EndVelocity: 6
-                  MinColor: [10,20,30,255]
-                  MaxColor: [40,50,60,255]
-                  MinRotateSpeed: 7
-                  MaxRotateSpeed: 8
-                  MinStartSize: 9
-                  MaxStartSize: 10
-                  MinEndSize: 11
-                  MaxEndSize: 12
-                  SourceBlend: BlendFactor
-                  DestinationBlend: InverseBlendFactor
+                  ColorRange: [[10,20,30,255],[40,50,60,255]]
+                  RotateSpeed: [7,8]
+                  StartEndSize: [[9,10],[11,12]]
+                  SrcDstBlend: [BlendFactor,InverseBlendFactor]
                 ".Replace("\r\n", "\n").Replace("                ", "");
 
             Assert.That.Equal(yaml, text);

@@ -404,6 +404,10 @@ namespace Ship_Game.Debug
             float y = (ScreenHeight - 700f).Clamped(100, 450);
             SetTextCursor(Win.X + 10, y, Color.White);
 
+            // never show ship info in particle debug
+            if (Mode == DebugModes.Particles)
+                return;
+
             if (Screen.SelectedFleet != null)
             {
                 Fleet fleet = Screen.SelectedFleet;

@@ -1,6 +1,7 @@
 ####
 # This file contains all particle types in the game
 # It is hotloaded whenever this file changes
+# For docs see: https://bitbucket.org/codegremlins/stardrive-blackbox/src/develop/Ship_Game/Graphics/Particles/ParticleSettings.cs
 
 - ParticleSettings:
   Name: BeamFlash
@@ -10,22 +11,12 @@
   MaxParticles: 200
   Duration: 0.1
   DurationRandomness: 1
-  EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
+  InheritOwnerVelocity: 1
   EndVelocity: 0
-  MinColor: [255,255,255,255]
-  MaxColor: [255,255,255,255]
-  MinRotateSpeed: -1
-  MaxRotateSpeed: 1
-  MinStartSize: 200
-  MaxStartSize: 200
-  MinEndSize: 200
-  MaxEndSize: 200
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[255,255,255,255],[255,255,255,255]]
+  RotateSpeed: [-1,1]
+  StartEndSize: [200, 200]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: ThrustEffect
@@ -35,22 +26,12 @@
   MaxParticles: 16000
   Duration: 0.25
   DurationRandomness: 0.05
-  EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
+  InheritOwnerVelocity: 1
   EndVelocity: 0
-  MinColor: [255,255,255,100]
-  MaxColor: [255,255,255,100]
-  MinRotateSpeed: 0
-  MaxRotateSpeed: 0
-  MinStartSize: 28
-  MaxStartSize: 32
-  MinEndSize: 6
-  MaxEndSize: 8
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[255,255,255,100],[255,255,255,100]]
+  RotateSpeed: [0]
+  StartEndSize: [ [28,32], [6,8] ] # shrinking particle
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: MissileThrust   #missile thrust glow
@@ -60,22 +41,12 @@
   MaxParticles: 6000
   Duration: 0.15
   DurationRandomness: 0.5
-  EmitterVelocitySensitivity: 0.95
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
+  InheritOwnerVelocity: 0.95
   EndVelocity: 0
-  MinColor: [255,255,255,130]
-  MaxColor: [255,233,171,190]
-  MinRotateSpeed: 0
-  MaxRotateSpeed: 0
-  MinStartSize: 5
-  MaxStartSize: 10
-  MinEndSize: 410
-  MaxEndSize: 620
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[255,255,255,130],[255,233,171,190]]
+  RotateSpeed: [0]
+  StartEndSize: [ [5,10], [410,620] ] # growing particle
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: EngineTrail
@@ -85,22 +56,12 @@
   MaxParticles: 32000
   Duration: 1.66
   DurationRandomness: 0
-  EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
+  InheritOwnerVelocity: 1
   EndVelocity: 0
-  MinColor: [255,255,255,50]
-  MaxColor: [255,255,255,50]
-  MinRotateSpeed: 0
-  MaxRotateSpeed: 0
-  MinStartSize: 15
-  MaxStartSize: 17
-  MinEndSize: 3
-  MaxEndSize: 5
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[255,255,255,50],[255,255,255,50]]
+  RotateSpeed: [0]
+  StartEndSize: [ [15,17], [3,5] ] # shrinking trail
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: Explosion
@@ -110,22 +71,13 @@
   MaxParticles: 3000
   Duration: 1.5
   DurationRandomness: 1
-  EmitterVelocitySensitivity: 0.1
-  MinHorizontalVelocity: -50
-  MaxHorizontalVelocity: 50
-  MinVerticalVelocity: -50
-  MaxVerticalVelocity: 50
+  InheritOwnerVelocity: 0.1
+  RandomVelocityXY: [ [-50,50], [-50,50] ]
   EndVelocity: 0
-  MinColor: [128,128,128,255]
-  MaxColor: [169,169,169,255]
-  MinRotateSpeed: 0
-  MaxRotateSpeed: 0
-  MinStartSize: 5
-  MaxStartSize: 30
-  MinEndSize: 75
-  MaxEndSize: 150
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[128,128,128,255],[169,169,169,255]]
+  RotateSpeed: [0]
+  StartEndSize: [ [5,30], [75,150] ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: ExplosionSmoke
@@ -135,22 +87,13 @@
   MaxParticles: 3000
   Duration: 2
   DurationRandomness: 0
-  EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: -10
-  MaxHorizontalVelocity: 10
-  MinVerticalVelocity: -10
-  MaxVerticalVelocity: 10
+  InheritOwnerVelocity: 1
+  RandomVelocityXY: [ [-10,10], [-10,10] ]
   EndVelocity: 0
-  MinColor: [0,0,0,255]
-  MaxColor: [0,0,0,255]
-  MinRotateSpeed: -2
-  MaxRotateSpeed: 2
-  MinStartSize: 10
-  MaxStartSize: 30
-  MinEndSize: 30
-  MaxEndSize: 60
-  SourceBlend: SourceAlpha
-  DestinationBlend: InverseSourceAlpha
+  ColorRange: [[0,0,0,255],[0,0,0,255]]
+  RotateSpeed: [-2,2]
+  StartEndSize: [ [10,30], [30,60] ]
+  SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
 
 - ParticleSettings:
   Name: Fire
@@ -160,22 +103,13 @@
   MaxParticles: 10000
   Duration: 2
   DurationRandomness: 1
-  EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 15
-  MinVerticalVelocity: -10
-  MaxVerticalVelocity: 10
+  InheritOwnerVelocity: 1
+  RandomVelocityXY: [ [0,15], [-10,10] ]
   EndVelocity: 1
-  MinColor: [255,255,255,10]
-  MaxColor: [255,255,255,40]
-  MinRotateSpeed: 0
-  MaxRotateSpeed: 0
-  MinStartSize: 5
-  MaxStartSize: 10
-  MinEndSize: 10
-  MaxEndSize: 40
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[255,255,255,10],[255,255,255,40]]
+  RotateSpeed: [0]
+  StartEndSize: [ [5,10], [10,40] ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: FireTrail
@@ -185,22 +119,13 @@
   MaxParticles: 7000
   Duration: 1
   DurationRandomness: 0.5
-  EmitterVelocitySensitivity: 0.1
-  MinHorizontalVelocity: -4
-  MaxHorizontalVelocity: 4
-  MinVerticalVelocity: -4
-  MaxVerticalVelocity: 4
+  InheritOwnerVelocity: 0.1
+  RandomVelocityXY: [ [-4,4], [-4,4] ]
   EndVelocity: 1
-  MinColor: [128,128,128,255]
-  MaxColor: [169,169,169,255]
-  MinRotateSpeed: -8
-  MaxRotateSpeed: 8
-  MinStartSize: 35
-  MaxStartSize: 40
-  MinEndSize: 2
-  MaxEndSize: 5
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[128,128,128,255],[169,169,169,255]]
+  RotateSpeed: [-8,8]
+  StartEndSize: [ [35,40], [2,5] ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: IonTrail
@@ -210,22 +135,12 @@
   MaxParticles: 7000
   Duration: 2
   DurationRandomness: 0
-  EmitterVelocitySensitivity: 0.1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
+  InheritOwnerVelocity: 0.1
   EndVelocity: 0
-  MinColor: [46,90,169,100]
-  MaxColor: [0,114,188,150]
-  MinRotateSpeed: -8
-  MaxRotateSpeed: 8
-  MinStartSize: 55
-  MaxStartSize: 60
-  MinEndSize: 2
-  MaxEndSize: 5
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[46,90,169,100],[0,114,188,150]]
+  RotateSpeed: [-8,8]
+  StartEndSize: [ [55,60], [2,5] ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: Flame
@@ -235,22 +150,13 @@
   MaxParticles: 5000
   Duration: 0.5
   DurationRandomness: 2
-  EmitterVelocitySensitivity: 0.5
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: -10
-  MaxVerticalVelocity: 10
+  InheritOwnerVelocity: 0.5
+  RandomVelocityXY: [ [0,0], [-10,10] ]
   EndVelocity: 0
-  MinColor: [128,128,128,255]
-  MaxColor: [169,169,169,255]
-  MinRotateSpeed: -1
-  MaxRotateSpeed: 1
-  MinStartSize: 1
-  MaxStartSize: 1
-  MinEndSize: 150
-  MaxEndSize: 250
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[128,128,128,255],[169,169,169,255]]
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [1,1], [150,250] ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: Flash
@@ -260,22 +166,12 @@
   MaxParticles: 200
   Duration: 0.3
   DurationRandomness: 1
-  EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
+  InheritOwnerVelocity: 1
   EndVelocity: 0
-  MinColor: [255,255,255,255]
-  MaxColor: [255,255,255,255]
-  MinRotateSpeed: -1
-  MaxRotateSpeed: 1
-  MinStartSize: 200
-  MaxStartSize: 200
-  MinEndSize: 200
-  MaxEndSize: 200
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[255,255,255,255],[255,255,255,255]]
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [195,200], [195,200] ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: Lightning
@@ -285,22 +181,13 @@
   MaxParticles: 20000
   Duration: 0.2
   DurationRandomness: 1
-  EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: -50
-  MaxHorizontalVelocity: 50
-  MinVerticalVelocity: -50
-  MaxVerticalVelocity: 50
+  InheritOwnerVelocity: 1
+  RandomVelocityXY: [ [-50,50], [-50,50] ]
   EndVelocity: 0
-  MinColor: [0,0,255,255]
-  MaxColor: [255,255,255,255]
-  MinRotateSpeed: -100
-  MaxRotateSpeed: 100
-  MinStartSize: 100
-  MaxStartSize: 150
-  MinEndSize: 100
-  MaxEndSize: 150
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[0,0,255,255],[255,255,255,255]]
+  RotateSpeed: [-100,100]
+  StartEndSize: [ [100,150], [100,150] ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: PhotonExplosion
@@ -310,22 +197,13 @@
   MaxParticles: 3000
   Duration: 1.5
   DurationRandomness: 1
-  EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: -50
-  MaxHorizontalVelocity: 50
-  MinVerticalVelocity: -50
-  MaxVerticalVelocity: 50
+  InheritOwnerVelocity: 1
+  RandomVelocityXY: [ [-50,50], [-50,50] ]
   EndVelocity: 0
-  MinColor: [0,0,255,255]
-  MaxColor: [0,255,255,255]
-  MinRotateSpeed: -1
-  MaxRotateSpeed: 1
-  MinStartSize: 5
-  MaxStartSize: 30
-  MinEndSize: 200
-  MaxEndSize: 250
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[0,0,255,255],[0,255,255,255]]
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [5,30], [200,250] ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: ProjectileTrail
@@ -335,22 +213,13 @@
   MaxParticles: 10000
   Duration: 2
   DurationRandomness: 1
-  EmitterVelocitySensitivity: 0.05
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 1
-  MinVerticalVelocity: -1
-  MaxVerticalVelocity: 1
+  InheritOwnerVelocity: 0.05
+  RandomVelocityXY: [ [0,1], [-1,1] ]
   EndVelocity: 1
-  MinColor: [93,96,95,255]
-  MaxColor: [255,255,255,80]
-  MinRotateSpeed: -1
-  MaxRotateSpeed: 1
-  MinStartSize: 25
-  MaxStartSize: 15
-  MinEndSize: 5
-  MaxEndSize: 8
-  SourceBlend: SourceAlpha
-  DestinationBlend: InverseSourceAlpha
+  ColorRange: [[93,96,95,255],[255,255,255,80]]
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [25,15], [5,8] ]
+  SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
 
 - ParticleSettings:
   Name: MissileSmokeTrail
@@ -360,22 +229,13 @@
   MaxParticles: 8000
   Duration: 3
   DurationRandomness: 2
-  EmitterVelocitySensitivity: 0.02
-  MinHorizontalVelocity: -35
-  MaxHorizontalVelocity: 35
-  MinVerticalVelocity: -35
-  MaxVerticalVelocity: 35
+  InheritOwnerVelocity: 0.02
+  RandomVelocityXY: [ [-35,35], [-35,35] ]
   EndVelocity: 0
-  MinColor: [93,96,95,255]
-  MaxColor: [255,255,255,80]
-  MinRotateSpeed: -1
-  MaxRotateSpeed: 1
-  MinStartSize: 55
-  MaxStartSize: 65
-  MinEndSize: 160
-  MaxEndSize: 220
-  SourceBlend: SourceAlpha
-  DestinationBlend: InverseSourceAlpha
+  ColorRange: [[93,96,95,255],[255,255,255,80]]
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [55,65], [160,220] ]
+  SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
 
 - ParticleSettings:
   Name: JunkSmoke
@@ -385,22 +245,13 @@
   MaxParticles: 3000
   Duration: 2
   DurationRandomness: 1
-  EmitterVelocitySensitivity: 0.05
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 1
-  MinVerticalVelocity: -1
-  MaxVerticalVelocity: 1
+  InheritOwnerVelocity: 0.05
+  RandomVelocityXY: [ [0,1], [-1,1] ]
   EndVelocity: 1
-  MinColor: [93,96,95,255]
-  MaxColor: [255,255,255,80]
-  MinRotateSpeed: -1
-  MaxRotateSpeed: 1
-  MinStartSize: 15
-  MaxStartSize: 25
-  MinEndSize: 140
-  MaxEndSize: 180
-  SourceBlend: SourceAlpha
-  DestinationBlend: InverseSourceAlpha
+  ColorRange: [[93,96,95,255],[255,255,255,80]]
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [15,25], [140,180] ]
+  SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
 
 - ParticleSettings:
   Name: SmokePlume
@@ -410,47 +261,31 @@
   MaxParticles: 3000
   Duration: 10
   DurationRandomness: 0
-  EmitterVelocitySensitivity: 1
-  MinHorizontalVelocity: -15
-  MaxHorizontalVelocity: 15
-  MinVerticalVelocity: -20
-  MaxVerticalVelocity: 20
+  InheritOwnerVelocity: 1
+  RandomVelocityXY: [ [-15,15], [-20,20] ]
   EndVelocity: 0.8
-  MinColor: [143,109,86,255]
-  MaxColor: [143,109,86,255]
-  MinRotateSpeed: -1
-  MaxRotateSpeed: 1
-  MinStartSize: 48
-  MaxStartSize: 72
-  MinEndSize: 8
-  MaxEndSize: 16
-  SourceBlend: SourceAlpha
-  DestinationBlend: InverseSourceAlpha
+  ColorRange: [[143,109,86,255],[143,109,86,255]]
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [48,72], [8,16] ]
+  SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
 
 - ParticleSettings:
   Name: Sparks
-  TextureName: "spark.png"
+  TextureName: "spark.png" # "blue_flame.png" / "spark.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 20000
   Duration: 3
   DurationRandomness: 1
-  EmitterVelocitySensitivity: -0.5
-  MinHorizontalVelocity: -40
-  MaxHorizontalVelocity: 40
-  MinVerticalVelocity: -40
-  MaxVerticalVelocity: 40
+  InheritOwnerVelocity: -0.5
+  AlignRotationToVelocity: 1
+  RandomVelocityXY: [ [-40,40], [-40,40] ]
+  AlignRandomVelocityXY: true
   EndVelocity: 0
-  MinColor: [255,194,235,255]
-  MaxColor: [255,255,255,255]
-  MinRotateSpeed: 0
-  MaxRotateSpeed: 0
-  MinStartSize: 3
-  MaxStartSize: 7
-  MinEndSize: 1
-  MaxEndSize: 3
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[255,194,235,255],[255,255,255,255]]
+  RotateSpeed: [0,0]
+  StartEndSize: [ [3,7], [1,3] ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: Galaxy
@@ -458,16 +293,10 @@
   Effect: ParticleEffect.fx
   Static: true
   MaxParticles: 50000
-  MinColor: [0,0,255,255]
-  MaxColor: [255,255,255,255]
-  MinRotateSpeed: -0.2
-  MaxRotateSpeed: 0.2
-  MinStartSize: 120000000
-  MaxStartSize: 120000000
-  MinEndSize: 100000000
-  MaxEndSize: 100000000
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[0,0,255,255],[255,255,255,255]]
+  RotateSpeed: [-0.2,0.2]
+  StartEndSize: [ [120000000,120000000], [100000000,100000000] ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: StarParticles
@@ -475,16 +304,10 @@
   Effect: ParticleEffect.fx
   Static: true
   MaxParticles: 50000
-  MinColor: [255,255,255,255]
-  MaxColor: [255,255,255,255]
-  MinRotateSpeed: -0.2
-  MaxRotateSpeed: 0.2
-  MinStartSize: 12000
-  MaxStartSize: 12000
-  MinEndSize: 12000
-  MaxEndSize: 12000
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[255,255,255,255],[255,255,255,255]]
+  RotateSpeed: [-0.2,0.2]
+  StartEndSize: [ 12000, 12000 ]
+  SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: AsteroidParticles
@@ -494,19 +317,9 @@
   MaxParticles: 50000
   Duration: 20.0
   DurationRandomness: 0
-  EmitterVelocitySensitivity: 0.33
-  MinHorizontalVelocity: 0
-  MaxHorizontalVelocity: 0
-  MinVerticalVelocity: 0
-  MaxVerticalVelocity: 0
+  InheritOwnerVelocity: 0.33
   EndVelocity: 0
-  MinColor: [50,50,50,50]
-  MaxColor: [110,110,110,50]
-  MinRotateSpeed: -0.2
-  MaxRotateSpeed: 0.2
-  MinStartSize: 600
-  MaxStartSize: 800
-  MinEndSize: 100
-  MaxEndSize: 150
-  SourceBlend: SourceAlpha
-  DestinationBlend: One
+  ColorRange: [[50,50,50,50],[110,110,110,50]]
+  RotateSpeed: [-0.2,0.2]
+  StartEndSize: [ [600,800], [100,150] ]
+  SrcDstBlend: [SourceAlpha, One]
