@@ -148,7 +148,7 @@ namespace Ship_Game.Ships
 
         public float InitializeMass(ShipModule[] modules, Empire loyalty, int surfaceArea, float ordnancePercent)
         {
-            int minMass = (int)(surfaceArea * 0.5f * (1 + surfaceArea / 500f));
+            int minMass = (int)(surfaceArea * 0.5f * (1 + surfaceArea * 0.002f));
             float mass = minMass;
 
             for (int i = 0; i < modules.Length; i++)
