@@ -213,8 +213,8 @@ namespace Ship_Game.AI
             SetPlanet(Planet.GetPlanetFromGuid(CoreWorldGuid));
             Owner = owner;
             SetupPlanetsInAO();
-            OffensiveForcePool = Ship.GetShipsFromGuids(OffensiveForceGuids);
-            ShipsWaitingForCoreFleet = Ship.GetShipsFromGuids(ShipsWaitingGuids);
+            OffensiveForcePool = Ship.GetShipsFromGuids(Empire.Universe, OffensiveForceGuids);
+            ShipsWaitingForCoreFleet = Ship.GetShipsFromGuids(Empire.Universe, ShipsWaitingGuids);
             
             var fleet = owner.GetFleetsDict().FilterValues(f => f.Guid == FleetGuid).FirstOrDefault();
 

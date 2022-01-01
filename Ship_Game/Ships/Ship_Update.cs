@@ -31,7 +31,7 @@ namespace Ship_Game.Ships
         }
 
         public bool IsVisibleToPlayer => InFrustum && InSensorRange
-                                      && (Empire.Universe?.IsSystemViewOrCloser == true);
+                                      && (Universe?.IsSystemViewOrCloser == true);
 
         // NOTE: This is called on the main UI Thread by UniverseScreen
         // check UniverseScreen.QueueShipSceneObject()
@@ -41,7 +41,7 @@ namespace Ship_Game.Ships
                 return; // allow creating invisible ships in Unit Tests
 
             //Log.Info($"CreateSO {Id} {Name}");
-            ShipData.LoadModel(out ShipSO, Empire.Universe.ContentManager);
+            ShipData.LoadModel(out ShipSO, Universe.ContentManager);
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position + ShipData.BaseHull.MeshOffset, 0f));
 
             NotVisibleToPlayerTimer = 0;
@@ -122,7 +122,7 @@ namespace Ship_Game.Ships
                 for (int i = 5 - 1; i >= 0; --i)
                 {
                     Vector3 randPos = UniverseRandom.Vector32D(third);
-                    Empire.Universe.Particles.Lightning.AddParticle(Position.ToVec3() + randPos);
+                    Universe.Particles.Lightning.AddParticle(Position.ToVec3() + randPos);
                 }
             }
 
@@ -149,7 +149,7 @@ namespace Ship_Game.Ships
                 }
                 else // auto-create scene objects if possible
                 {
-                    Empire.Universe?.QueueSceneObjectCreation(this);
+                    Universe?.QueueSceneObjectCreation(this);
                 }
             }
 
@@ -175,7 +175,7 @@ namespace Ship_Game.Ships
                     {
                         if (Loyalty == EmpireManager.Player)
                         {
-                            Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
+                            Universe.NotificationManager.AddFoundSomethingInteresting(p);
                         }
                         else if (p.Owner == null)
                         {
@@ -241,7 +241,7 @@ namespace Ship_Game.Ships
                     // tscale is in world units, engine-trail effect width at scale=1 is 32 units
                     float thrustScale = thruster.Scale / 32f;
                     float thrustPower = (thruster.heat * (Thrust / 32f)).Clamped(64, 320) * thrustScale;
-                    EngineTrail.Update(Empire.Universe.Particles, thruster.WorldPos, direction3d, 
+                    EngineTrail.Update(Universe.Particles, thruster.WorldPos, direction3d, 
                                        thrustScale, thrustPower, thrust1, thrust2);
                 }
             }
@@ -304,12 +304,12 @@ namespace Ship_Game.Ships
                 {
                     Vector3 pos = (Position + RandomMath.Vector2D(scaledRadius*0.5f)).ToVec3();
                     ExplosionManager.AddExplosion(pos, Velocity, scaledRadius*0.5f, 2.5f, ExplosionType.Projectile);
-                    Empire.Universe.Particles.Flash.AddParticle(pos);
+                    Universe.Particles.Flash.AddParticle(pos);
                 }
                 if (num1 >= 50) // 50% chance
                 {
                     Vector3 pos = (Position + RandomMath.Vector2D(scaledRadius*0.5f)).ToVec3();
-                    Empire.Universe.Particles.Lightning.AddParticle(pos, Velocity.ToVec3(), 0.5f*scale, Color.White);
+                    Universe.Particles.Lightning.AddParticle(pos, Velocity.ToVec3(), 0.5f*scale, Color.White);
                 }
             }
 
@@ -322,7 +322,7 @@ namespace Ship_Game.Ships
             if (visibleAndNotPaused && !IsMeteor && RandomMath.RollDice(10)) // X % chance
             {
                 Vector2 pos = Position.GenerateRandomPointOnCircle(scaledRadius / 20);
-                SpaceJunk.SpawnJunk(Empire.Universe, 1, pos, Velocity * scale, this,
+                SpaceJunk.SpawnJunk(Universe, 1, pos, Velocity * scale, this,
                                     maxSize: scaledRadius * 0.1f, ignite: true);
             }
 
