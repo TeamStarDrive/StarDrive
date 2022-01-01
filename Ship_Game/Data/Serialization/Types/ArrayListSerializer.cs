@@ -72,9 +72,15 @@ namespace Ship_Game.Data.Serialization.Types
                 if (isPrimitive)
                 {
                     object[] items = new object[count];
-                    parent.Value = items;
                     for (int i = 0; i < items.Length; ++i)
-                        items[i] = list[i];
+                    {
+                        object element = list[i];
+                        // use `parent.Value` as a buffer for Serializing
+                        // primitives like Int, String, Range, Vector4...
+                        ser.Serialize(parent, element);
+                        items[i] = parent.Value;
+                    }
+                    parent.Value = items;
                 }
                 else
                 {

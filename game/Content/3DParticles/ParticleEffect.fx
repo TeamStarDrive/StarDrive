@@ -19,6 +19,7 @@ float CurrentTime;
 // Parameters describing how the particles animate.
 float Duration;
 float DurationRandomness;
+float AlignRotationToVelocity;
 float EndVelocity;
 float4 MinColor;
 float4 MaxColor;
@@ -77,26 +78,21 @@ float4 ToScreenCoords(float3 pos)
     return mul(mul(float4(pos, 1), View), Projection);
 }
 
-float4 GetPosition(float3 position, float3 velocity,
-                   float age, float normalizedAge)
+float4 GetPosition(float3 position, float3 velocity, float time)
 {
-    float startVelocity = length(velocity);
+    float V_start = length(velocity);
 
     // Work out how fast the particle should be moving at the end of its life,
     // by applying a constant scaling factor to its starting velocity.
-    float endVelocity = startVelocity * EndVelocity;
-    
-    // Our particles have constant acceleration, so given a starting velocity
-    // S and ending velocity E, at time T their velocity should be S + (E-S)*T.
-    // The particle position is the sum of this velocity over the range 0 to T.
-    // To compute the position directly, we must integrate the velocity
-    // equation. Integrating S + (E-S)*T for T produces S*T + (E-S)*T*T/2.
-
-    float velocityIntegral = startVelocity * normalizedAge +
-                             (endVelocity - startVelocity) * normalizedAge *
-                                                             normalizedAge / 2;
+    float V_end = V_start * EndVelocity;
+ 
+    // Constant acceleration formula for calculating distance.
+    // We are using normalized time [0.0;1.0], so Duration = 1.0
+    // a = (V_end - V_start)/Duration
+    // S = V_start*t + (at^2)/2
+    float distance = V_start*time + (V_end-V_start)*time*time*0.5;
      
-    position += normalize(velocity) * velocityIntegral * Duration;
+    position += normalize(velocity) * distance * Duration;
     
     return ToScreenCoords(position);
 }
@@ -133,26 +129,52 @@ float4 GetParticleColor(float randomValue, float normalizedAge)
     return color;
 }
 
-float2x2 GetRandomizedRotation(float randomValue, float age)
-{    
-    // Apply a random factor to make each particle rotate at a different speed.
-    float rotateSpeed = lerp(RotateSpeed.x, RotateSpeed.y, randomValue);
-    
-    float rotation = rotateSpeed * age;
-
-    // Compute a 2x2 rotation matrix.
+float2x2 RotationToMatrix(float rotation) // Get a 2x2 rotation matrix from rotation radians
+{
     float c = cos(rotation);
     float s = sin(rotation);
-    
     return float2x2(c, -s, s, c);
+}
+
+float2x2 GetVelocityRotation(float3 velocity)
+{
+    const float PI = 3.14159265358979;
+
+    float2 dir = normalize(float2(velocity.x, velocity.y));
+    
+    // by default AlignRotationToVelocity = 1 means that TOP of the particle image
+    // is traveling towards velocity direction
+    float rot = atan2(dir.x, dir.y) - PI;
+    
+    if (AlignRotationToVelocity > 0)
+    {
+        // if AlignRotationToVelocity = +1.0, rot = 20 + (180 - 180*+1.0) = 20 + 0 = 0
+        // if AlignRotationToVelocity = +0.5, rot = 20 + (180 - 180*+0.5) = 20 + 90 = 110 (+90 degrees)
+        rot = rot + (PI - PI*AlignRotationToVelocity);
+    }
+    else
+    {
+        // if AlignRotationToVelocity = -1.0, rot = 20 + 180*-1.0) = 20 - 180 = -160 [rotation - PI]
+        // if AlignRotationToVelocity = -0.5, rot = 20 + 180*-0.5) = 20 - 90  = -70  (-90 degrees)
+        rot = rot + (PI*AlignRotationToVelocity);
+    }
+    return RotationToMatrix(rot);
+}
+
+float2x2 GetRandomizedRotation(float randomValue, float age)
+{
+    // Apply a random factor to make each particle rotate at a different speed.
+    float rotateSpeed = lerp(RotateSpeed.x, RotateSpeed.y, randomValue);
+    float rotation = rotateSpeed * age;
+    return RotationToMatrix(rotation);
 }
 
 float GetParticleAge(float time, float random)
 {
     float age = CurrentTime - time;
     // Apply a random factor to make different particles age at different rates.
-    age *= 1 + random * DurationRandomness;
-    return age;
+    // ActualDuration = Duration + Duration*DurationRandomness*Random(0.0, 1.0)
+    return age + age*DurationRandomness*random;
 }
 
 // Normalize the age into the range zero to one.
@@ -168,17 +190,34 @@ VertexShaderOutput DynamicParticleVS(VertexShaderInput input)
     float age = GetParticleAge(input.Time, input.Random.x);
     float normalizedAge = GetNormalizedAge(age);
     float size = GetParticleSize(input.Random.y, normalizedAge) * input.Scale;
-    float2x2 rotation = GetRandomizedRotation(input.Random.w, age);
+    float2x2 rot = GetRandomizedRotation(input.Random.w, age);
 
-    output.Position = GetPosition(input.Position, input.Velocity, age, normalizedAge);
+    output.Position = GetPosition(input.Position, input.Velocity, normalizedAge);
     // this cleverly scales the Quad corners
-    output.Position.xy += mul(input.Corner, rotation) * size * ViewportScale;
+    output.Position.xy += mul(input.Corner, rot) * size * ViewportScale;
     output.Color = GetParticleColor(input.Random.z, normalizedAge) * input.Color;
     output.TextureCoordinate = (input.Corner + 1) / 2;
     return output;
 }
 
-VertexShaderOutput DynamicNonRotatingParticleVS(VertexShaderInput input)
+VertexShaderOutput DynamicAlignRotationToVelocityVS(VertexShaderInput input)
+{
+    VertexShaderOutput output;
+    
+    float age = GetParticleAge(input.Time, input.Random.x);
+    float normalizedAge = GetNormalizedAge(age);
+    float size = GetParticleSize(input.Random.y, normalizedAge) * input.Scale;
+    float2x2 rot = GetVelocityRotation(input.Velocity);
+
+    output.Position = GetPosition(input.Position, input.Velocity, normalizedAge);
+    // this cleverly scales the Quad corners
+    output.Position.xy += mul(input.Corner, rot) * size * ViewportScale;
+    output.Color = GetParticleColor(input.Random.z, normalizedAge) * input.Color;
+    output.TextureCoordinate = (input.Corner + 1) / 2;
+    return output;
+}
+
+VertexShaderOutput DynamicNonRotatingVS(VertexShaderInput input)
 {
     VertexShaderOutput output;
     
@@ -186,7 +225,7 @@ VertexShaderOutput DynamicNonRotatingParticleVS(VertexShaderInput input)
     float normalizedAge = GetNormalizedAge(age);
     float size = GetParticleSize(input.Random.y, normalizedAge) * input.Scale;
 
-    output.Position = GetPosition(input.Position, input.Velocity, age, normalizedAge);
+    output.Position = GetPosition(input.Position, input.Velocity, normalizedAge);
     // this cleverly scales the Quad corners
     output.Position.xy += input.Corner * size * ViewportScale;
     output.Color = GetParticleColor(input.Random.z, normalizedAge) * input.Color;
@@ -194,7 +233,7 @@ VertexShaderOutput DynamicNonRotatingParticleVS(VertexShaderInput input)
     return output;
 }
 
-VertexShaderOutput StaticRotatingParticleVS(VertexShaderInput input)
+VertexShaderOutput StaticRotatingVS(VertexShaderInput input)
 {
     VertexShaderOutput output;
     
@@ -211,7 +250,7 @@ VertexShaderOutput StaticRotatingParticleVS(VertexShaderInput input)
     return output;
 }
 
-VertexShaderOutput StaticNonRotatingParticleVS(VertexShaderInput input)
+VertexShaderOutput StaticNonRotatingVS(VertexShaderInput input)
 {
     VertexShaderOutput output;
     
@@ -243,12 +282,21 @@ technique FullDynamicParticles
     }
 }
 
+technique DynamicAlignRotationToVelocityParticles
+{
+    pass P0
+    {
+        VertexShader = compile vs_2_0 DynamicAlignRotationToVelocityVS();
+        PixelShader = compile ps_2_0 ParticlePixelShader();
+    }
+}
+
 // Particles that move but do not rotate
 technique DynamicNonRotatingParticles
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 DynamicNonRotatingParticleVS();
+        VertexShader = compile vs_2_0 DynamicNonRotatingVS();
         PixelShader = compile ps_2_0 ParticlePixelShader();
     }
 }
@@ -258,7 +306,7 @@ technique StaticRotatingParticles
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 StaticRotatingParticleVS();
+        VertexShader = compile vs_2_0 StaticRotatingVS();
         PixelShader = compile ps_2_0 ParticlePixelShader();
     }
 }
@@ -268,7 +316,7 @@ technique StaticNonRotatingParticle
 {
     pass P0
     {
-        VertexShader = compile vs_2_0 StaticNonRotatingParticleVS();
+        VertexShader = compile vs_2_0 StaticNonRotatingVS();
         PixelShader = compile ps_2_0 ParticlePixelShader();
     }
 }
