@@ -60,8 +60,24 @@ namespace Ship_Game
         // 0.5 means the particle has half the velocity when it dies
         [StarData] public float EndVelocity = 1f;
 
-        // Linear color range randomly assigned to a particle
-        [StarData] public Color[] ColorRange = { Color.White, Color.White };
+        // Linear Starting Color Range assigned at the start of the particle
+        //
+        // Alpha fades based on the age of the particle. This curve is hard coded
+        // to make the particle fade in fairly quickly, then fade out more slowly.
+        // The 6.75 constant scales the curve so the alpha will reach 1.0 at relativeAge=0.33
+        // enter x*(1-x)*(1-x)*6.75 for x=0:1 into a plotting program to see the curve
+        // https://www.desmos.com/calculator/bhcidfwd0e
+        // https://www.wolframalpha.com/input/?i=x*%281-x%29*%281-x%29*6.75+for+x%3D0%3A1
+        [StarData] public Color[] StartColorRange = { Color.White, Color.White };
+
+        // Linearly interpolate towards a random EndColor
+        // Default value is equal to StartColorRange
+        // Particle reaches EndColor at relativeAge=EndColorTime
+        [StarData] public Color[] EndColorRange = null;
+
+        // relativeAge [0.0; 1.0] when particle reaches it EndColor value
+        // default is 1.0, which while not ideal, is predictable
+        [StarData] public float EndColorTime = 1.0f;
 
         // random rotation speed range in radians/s
         [StarData] public Range RotateSpeed;
