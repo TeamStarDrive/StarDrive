@@ -1,7 +1,100 @@
 ####
 # This file contains all particle types in the game
 # It is hotloaded whenever this file changes
-# For docs see: https://bitbucket.org/codegremlins/stardrive-blackbox/src/develop/Ship_Game/Graphics/Particles/ParticleSettings.cs
+# For latest docs see: https://bitbucket.org/codegremlins/stardrive-blackbox/src/develop/Ship_Game/Graphics/Particles/ParticleSettings.cs
+
+##### Brief Syntax with default values
+##
+##- ParticleSettings:
+##  // Unique Name of the ParticleSystem
+##  Name: Flame
+##
+##  // Which particle texture to use from `Content/3DParticles/`
+##  // If a file with the same name exists in `Mods/MyMod/Content/3DParticles`, then it is used instead
+##  TextureName: "trail 1.png"
+##
+##  // Path to a ParticleEffect.fx HLSL shader in `Content/3DParticles`
+##  // Can be used to create your own (better) particle effects if needed
+##  Effect: ParticleEffect.fx
+##
+##  // if true, particle never disappears and cannot move (but may rotate)
+##  Static: false
+##  
+##  // if true, particle is only rendered when game camera is deemed as "nearView"
+##  OnlyNearView: true
+##  
+##  // Maximum number of allowed particles on screen
+##  MaxParticles: 100
+##  
+##  // Duration / Lifetime of a single particle
+##  Duration: 1.0
+##  
+##  // Random amount of extra time added to Duration
+##  // ActualDuration = Duration + Duration*DurationRandomness*Random(0.0, 1.0)
+##  DurationRandomness: 0
+##  
+##  // How much velocity to inherit from the Emitter (float)
+##  // 0: no velocity inherited
+##  // +1: all velocity
+##  // -1: reverse direction
+##  InheritOwnerVelocity: 1.0
+##  
+##  // How much the particle rotation should follow velocity direction
+##  // 0: particle rotates how it wants (default)
+##  // +1: particle rotation is always fixed to its velocity direction
+##  // -1: particle rotation is reverse of its velocity direction
+##  AlignRotationToVelocity: 0
+##  
+##  // Additional random velocity added for each particle in global X and Y axis
+##  // If you want to align XY random to velocity vector, see `AlignRandomVelocityXY`
+##  RandomVelocityXY: [ [0.0, 0.0], [0.0, 0.0] ]
+##  
+##  // if true, `RandomVelocityXY` is aligned to current velocity vector,
+##  // meaning X is perpendicular to particle velocity vector and Y is parallel to particle velocity
+##  AlignRandomVelocityXY: false
+##  
+##  // Multiplier for setting the end velocity of the particle
+##  // 0.5 means the particle has half the velocity when it dies
+##  EndVelocity: 1.0
+##  
+##  // Linear Starting Color Range assigned at the start of the particle
+##  //
+##  // Alpha fades based on the age of the particle. This curve is hard coded
+##  // to make the particle fade in fairly quickly, then fade out more slowly.
+##  // The 6.75 constant scales the curve so the alpha will reach 1.0 at relativeAge=0.33
+##  // enter x*(1-x)*(1-x)*6.75 for x=0:1 into a plotting program to see the curve
+##  // https://www.desmos.com/calculator/bhcidfwd0e
+##  // https://www.wolframalpha.com/input/?i=x*%281-x%29*%281-x%29*6.75+for+x%3D0%3A1
+##  StartColorRange: [ [255,255,255,255], [255,255,255,255] ]
+##  
+##  // Linearly interpolate towards a random EndColor
+##  // Default value is equal to StartColorRange
+##  // Particle reaches EndColor at relativeAge=EndColorTime
+##  EndColorRange: (default is equal to value set in StartColorRange) [ [0,0,255,255], [0,0,255,255] ] 
+##  
+##  // relativeAge [0.0; 1.0] when particle reaches it EndColor value
+##  // default is 1.0, which while not ideal, is predictable
+##  EndColorTime: 1.0
+##  
+##  // random rotation speed range in radians/s
+##  RotateSpeed: [0.0, 0.0]
+##  
+##  // random start and end size ranges
+##  // Examples:
+##  //  StartEndSize: [ [16,32], [4,8] ]  # randomly shrinking particle
+##  //  StartEndSize: [ [4,8], [16,32] ]  # randomly growing particle
+##  //  StartEndSize: [ 32, 4 ]  # linearly shrinking particle (no random)
+##  //  StartEndSize: [ 4, 32 ]  # linearly growing particle (no random)
+##  //  StartEndSize: [ 32 ]  # constant size particle
+##  StartEndSize: [ [32,32], [32,32] ]
+##  
+##  // DirectX HLSL blend modes
+##  // This requires some advanced knowledge of how DirectX Pixel Shaders work
+##  // Extra reading here: 
+##  // https://takinginitiative.wordpress.com/2010/04/09/directx-10-tutorial-6-transparency-and-alpha-blending/
+##  // http://www.directxtutorial.com/Lesson.aspx?lessonid=9-4-10
+##  SrcDstBlend: [BlendFactor,InverseBlendFactor]
+############
 
 - ParticleSettings:
   Name: BeamFlash
@@ -13,7 +106,7 @@
   DurationRandomness: 1
   InheritOwnerVelocity: 1
   EndVelocity: 0
-  ColorRange: [[255,255,255,255],[255,255,255,255]]
+  StartColorRange: [[255,255,255,255],[255,255,255,255]]  # each bracket represent randomness in colour on life start 
   RotateSpeed: [-1,1]
   StartEndSize: [200, 200]
   SrcDstBlend: [SourceAlpha, One]
@@ -28,7 +121,7 @@
   DurationRandomness: 0.05
   InheritOwnerVelocity: 1
   EndVelocity: 0
-  ColorRange: [[255,255,255,100],[255,255,255,100]]
+  StartColorRange: [[255,255,255,100],[255,255,255,100]]
   RotateSpeed: [0]
   StartEndSize: [ [28,32], [6,8] ] # shrinking particle
   SrcDstBlend: [SourceAlpha, One]
@@ -43,7 +136,7 @@
   DurationRandomness: 0.5
   InheritOwnerVelocity: 0.95
   EndVelocity: 0
-  ColorRange: [[255,255,255,130],[255,233,171,190]]
+  StartColorRange: [[255,255,255,130],[255,233,171,190]]
   RotateSpeed: [0]
   StartEndSize: [ [5,10], [410,620] ] # growing particle
   SrcDstBlend: [SourceAlpha, One]
@@ -58,7 +151,7 @@
   DurationRandomness: 0
   InheritOwnerVelocity: 1
   EndVelocity: 0
-  ColorRange: [[255,255,255,50],[255,255,255,50]]
+  StartColorRange: [[255,255,255,50],[255,255,255,50]]
   RotateSpeed: [0]
   StartEndSize: [ [15,17], [3,5] ] # shrinking trail
   SrcDstBlend: [SourceAlpha, One]
@@ -74,7 +167,7 @@
   InheritOwnerVelocity: 0.1
   RandomVelocityXY: [ [-50,50], [-50,50] ]
   EndVelocity: 0
-  ColorRange: [[128,128,128,255],[169,169,169,255]]
+  StartColorRange: [[128,128,128,255],[169,169,169,255]]
   RotateSpeed: [0]
   StartEndSize: [ [5,30], [75,150] ]
   SrcDstBlend: [SourceAlpha, One]
@@ -90,7 +183,7 @@
   InheritOwnerVelocity: 1
   RandomVelocityXY: [ [-10,10], [-10,10] ]
   EndVelocity: 0
-  ColorRange: [[0,0,0,255],[0,0,0,255]]
+  StartColorRange: [[0,0,0,255],[0,0,0,255]]
   RotateSpeed: [-2,2]
   StartEndSize: [ [10,30], [30,60] ]
   SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
@@ -101,14 +194,16 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 10000
-  Duration: 2
-  DurationRandomness: 1
-  InheritOwnerVelocity: 1
-  RandomVelocityXY: [ [0,15], [-10,10] ]
-  EndVelocity: 1
-  ColorRange: [[255,255,255,10],[255,255,255,40]]
+  Duration: 1.5
+  DurationRandomness: 0.5
+  InheritOwnerVelocity: 0.1
+  AlignRotationToVelocity: 1
+  RandomVelocityXY: [ [-20,20], [-20,20] ]
+  AlignRandomVelocityXY: false
+  EndVelocity: 0
+  StartColorRange: [[255,255,255,150],[255,255,255,200]]
   RotateSpeed: [0]
-  StartEndSize: [ [5,10], [10,40] ]
+  StartEndSize: [ [35,55], [7,15] ]
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
@@ -121,8 +216,8 @@
   DurationRandomness: 0.5
   InheritOwnerVelocity: 0.1
   RandomVelocityXY: [ [-4,4], [-4,4] ]
-  EndVelocity: 1
-  ColorRange: [[128,128,128,255],[169,169,169,255]]
+  EndVelocity: 0
+  StartColorRange: [[128,128,128,255],[169,169,169,255]]
   RotateSpeed: [-8,8]
   StartEndSize: [ [35,40], [2,5] ]
   SrcDstBlend: [SourceAlpha, One]
@@ -137,23 +232,23 @@
   DurationRandomness: 0
   InheritOwnerVelocity: 0.1
   EndVelocity: 0
-  ColorRange: [[46,90,169,100],[0,114,188,150]]
+  StartColorRange: [[46,90,169,100],[0,114,188,150]]
   RotateSpeed: [-8,8]
   StartEndSize: [ [55,60], [2,5] ]
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
   Name: Flame
-  TextureName: "explosion.png"
+  TextureName: "fire.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 5000
   Duration: 0.5
   DurationRandomness: 2
-  InheritOwnerVelocity: 0.5
+  InheritOwnerVelocity: 0.1
   RandomVelocityXY: [ [0,0], [-10,10] ]
   EndVelocity: 0
-  ColorRange: [[128,128,128,255],[169,169,169,255]]
+  StartColorRange: [[128,128,128,255],[169,169,169,255]]
   RotateSpeed: [-1,1]
   StartEndSize: [ [1,1], [150,250] ]
   SrcDstBlend: [SourceAlpha, One]
@@ -168,7 +263,7 @@
   DurationRandomness: 1
   InheritOwnerVelocity: 1
   EndVelocity: 0
-  ColorRange: [[255,255,255,255],[255,255,255,255]]
+  StartColorRange: [[255,255,255,255],[255,255,255,255]]
   RotateSpeed: [-1,1]
   StartEndSize: [ [195,200], [195,200] ]
   SrcDstBlend: [SourceAlpha, One]
@@ -184,7 +279,7 @@
   InheritOwnerVelocity: 1
   RandomVelocityXY: [ [-50,50], [-50,50] ]
   EndVelocity: 0
-  ColorRange: [[0,0,255,255],[255,255,255,255]]
+  StartColorRange: [[0,0,255,255],[255,255,255,255]]
   RotateSpeed: [-100,100]
   StartEndSize: [ [100,150], [100,150] ]
   SrcDstBlend: [SourceAlpha, One]
@@ -197,10 +292,10 @@
   MaxParticles: 3000
   Duration: 1.5
   DurationRandomness: 1
-  InheritOwnerVelocity: 1
-  RandomVelocityXY: [ [-50,50], [-50,50] ]
+  InheritOwnerVelocity: 0.2
+  RandomVelocityXY: [ [-10,10], [-10,10] ]
   EndVelocity: 0
-  ColorRange: [[0,0,255,255],[0,255,255,255]]
+  StartColorRange: [[0,0,255,255],[0,255,255,255]]
   RotateSpeed: [-1,1]
   StartEndSize: [ [5,30], [200,250] ]
   SrcDstBlend: [SourceAlpha, One]
@@ -216,7 +311,7 @@
   InheritOwnerVelocity: 0.05
   RandomVelocityXY: [ [0,1], [-1,1] ]
   EndVelocity: 1
-  ColorRange: [[93,96,95,255],[255,255,255,80]]
+  StartColorRange: [[155,155,155,255],[255,255,255,250]]
   RotateSpeed: [-1,1]
   StartEndSize: [ [25,15], [5,8] ]
   SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
@@ -232,7 +327,7 @@
   InheritOwnerVelocity: 0.02
   RandomVelocityXY: [ [-35,35], [-35,35] ]
   EndVelocity: 0
-  ColorRange: [[93,96,95,255],[255,255,255,80]]
+  StartColorRange: [[93,96,95,255],[255,255,255,80]]
   RotateSpeed: [-1,1]
   StartEndSize: [ [55,65], [160,220] ]
   SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
@@ -248,7 +343,7 @@
   InheritOwnerVelocity: 0.05
   RandomVelocityXY: [ [0,1], [-1,1] ]
   EndVelocity: 1
-  ColorRange: [[93,96,95,255],[255,255,255,80]]
+  StartColorRange: [[93,96,95,255],[255,255,255,80]]
   RotateSpeed: [-1,1]
   StartEndSize: [ [15,25], [140,180] ]
   SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
@@ -259,19 +354,19 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 3000
-  Duration: 10
+  Duration: 4
   DurationRandomness: 0
-  InheritOwnerVelocity: 1
+  InheritOwnerVelocity: 0.2
   RandomVelocityXY: [ [-15,15], [-20,20] ]
-  EndVelocity: 0.8
-  ColorRange: [[143,109,86,255],[143,109,86,255]]
+  EndVelocity: 0
+  StartColorRange: [[143,109,86,255],[143,109,86,255]]
   RotateSpeed: [-1,1]
   StartEndSize: [ [48,72], [8,16] ]
   SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
 
 - ParticleSettings:
   Name: Sparks
-  TextureName: "spark.png" # "blue_flame.png" / "spark.png"
+  TextureName: "white_spark.png" # "blue_flame.png" / "spark.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 20000
@@ -279,10 +374,32 @@
   DurationRandomness: 1
   InheritOwnerVelocity: -0.5
   AlignRotationToVelocity: 1
-  RandomVelocityXY: [ [-40,40], [-40,40] ]
+  RandomVelocityXY: [ [-60,60], [-60,60] ]
   AlignRandomVelocityXY: true
   EndVelocity: 0
-  ColorRange: [[255,194,235,255],[255,255,255,255]]
+  StartColorRange: [[250,243,152,255],[255,255,255,255]]
+  EndColorRange: [[232,168,34,255],[232,210,34,255]]
+  EndColorTime: 0.8
+  RotateSpeed: [0,0]
+  StartEndSize: [ [3,7], [1,3] ]
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: BlueSparks                #repair sparks
+  TextureName: "white_spark.png" # "blue_flame.png" / "spark.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 20000
+  Duration: 2
+  DurationRandomness: 1
+  InheritOwnerVelocity: 0
+  AlignRotationToVelocity: 1
+  RandomVelocityXY: [ [-60,60], [-60,60] ]
+  AlignRandomVelocityXY: true
+  EndVelocity: 0
+  StartColorRange: [[194,231,239,255],[255,255,255,255]]
+  EndColorRange: [[0,0,255,255],[0,0,255,255]]
+  EndColorTime: 0.8
   RotateSpeed: [0,0]
   StartEndSize: [ [3,7], [1,3] ]
   SrcDstBlend: [SourceAlpha, One]
@@ -293,7 +410,7 @@
   Effect: ParticleEffect.fx
   Static: true
   MaxParticles: 50000
-  ColorRange: [[0,0,255,255],[255,255,255,255]]
+  StartColorRange: [[0,0,255,255],[255,255,255,255]]
   RotateSpeed: [-0.2,0.2]
   StartEndSize: [ [120000000,120000000], [100000000,100000000] ]
   SrcDstBlend: [SourceAlpha, One]
@@ -304,7 +421,7 @@
   Effect: ParticleEffect.fx
   Static: true
   MaxParticles: 50000
-  ColorRange: [[255,255,255,255],[255,255,255,255]]
+  StartColorRange: [[255,255,255,255],[255,255,255,255]]
   RotateSpeed: [-0.2,0.2]
   StartEndSize: [ 12000, 12000 ]
   SrcDstBlend: [SourceAlpha, One]
@@ -319,7 +436,23 @@
   DurationRandomness: 0
   InheritOwnerVelocity: 0.33
   EndVelocity: 0
-  ColorRange: [[50,50,50,50],[110,110,110,50]]
+  StartColorRange: [[50,50,50,50],[110,110,110,50]]
   RotateSpeed: [-0.2,0.2]
   StartEndSize: [ [600,800], [100,150] ]
   SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: ModuleSmoke
+  TextureName: "smoke.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 10000
+  Duration: 3
+  DurationRandomness: 1
+  InheritOwnerVelocity: 0.05
+  RandomVelocityXY: [ [-6,6], [-6,6] ]
+  EndVelocity: 1
+  StartColorRange: [[155,155,155,255],[255,255,255,250]]
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [40,30], [5,8] ]
+  SrcDstBlend: [SourceAlpha, InverseSourceAlpha]

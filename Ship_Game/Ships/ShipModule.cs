@@ -1268,7 +1268,7 @@ namespace Ship_Game.Ships
                 modelZ = modelZ.Clamped(0, 200) * -1;
                 Vector3 repairEffectOrigin = Position.ToVec3(modelZ);
                 for (int i = 0; i < 50; i++)
-                    Empire.Universe.Particles.Sparks.AddParticle(repairEffectOrigin);
+                    Empire.Universe.Particles.BlueSparks.AddParticle(repairEffectOrigin);
             }
         }
 

@@ -11,19 +11,26 @@ float4x4 View;
 float4x4 Projection;
 float2 ViewportScale;
 
-
 // The current time, in seconds.
 float CurrentTime;
-
 
 // Parameters describing how the particles animate.
 float Duration;
 float DurationRandomness;
 float AlignRotationToVelocity;
 float EndVelocity;
-float4 MinColor;
-float4 MaxColor;
 
+// [min; max] color range at start of particle life
+float4 StartMinColor;
+float4 StartMaxColor;
+// [min; max] color range reached according to EndColorTimeMul
+float4 EndMinColor;
+float4 EndMaxColor;
+
+// multiplier for controlling relativeAge when particle reaches EndColor
+// could be 1.33 so it reaches EndColor faster
+// or it could be 1.0 so it reaches EndColor at total end of particle life
+float EndColorTimeMul;
 
 // These float2 parameters describe the min and max of a range.
 // The actual value is chosen differently for each particle,
@@ -112,20 +119,29 @@ float GetParticleSize(float randomValue, float normalizedAge)
 
 float4 GetStaticParticleColor(float randomValue)
 {
-    // Apply a random factor to make each particle a slightly different color.
-    return lerp(MinColor, MaxColor, randomValue);
+    return lerp(StartMinColor, StartMaxColor, randomValue);
 }
 
 float4 GetParticleColor(float randomValue, float normalizedAge)
 {
-    float4 color = GetStaticParticleColor(randomValue);
+    // get this particle's Start and End color based on `randomValue`
+    // the color is interpolated linearly, so it will stay consistent
+    float4 startColor = lerp(StartMinColor, StartMaxColor, randomValue);
+    float4 endColor = lerp(EndMinColor, EndMaxColor, randomValue);
     
-    // Fade the alpha based on the age of the particle. This curve is hard coded
-    // to make the particle fade in fairly quickly, then fade out more slowly:
-    // plot x*(1-x)*(1-x) for x=0:1 in a graphing program if you want to see what
-    // this looks like. The 6.7 scaling factor normalizes the curve so the alpha
-    // will reach all the way up to fully solid.
-    color.a *= normalizedAge * (1-normalizedAge) * (1-normalizedAge) * 6.7;
+    // Alpha fades based on the age of the particle. This curve is hard coded
+    // to make the particle fade in fairly quickly, then fade out more slowly.
+    // The 6.75 constant scales the curve so the alpha will reach 1.0 at relativeAge=0.33
+    // enter x*(1-x)*(1-x)*6.75 for x=0:1 into a plotting program to see the curve
+    // https://www.desmos.com/calculator/bhcidfwd0e
+    // https://www.wolframalpha.com/input/?i=x*%281-x%29*%281-x%29*6.75+for+x%3D0%3A1
+    float alpha = normalizedAge * (1-normalizedAge) * (1-normalizedAge) * 6.75;
+
+    // linearly interpolate towards end color, using EndColorTimeMul multiplier
+    float colorAge = saturate(normalizedAge * EndColorTimeMul);
+    float4 color = lerp(startColor, endColor, colorAge);
+
+    color.a *= alpha;
     return color;
 }
 
@@ -177,10 +193,10 @@ float GetParticleAge(float time, float random)
     return age + age*DurationRandomness*random;
 }
 
-// Normalize the age into the range zero to one.
+// Normalize the age into the range [0.0; 1.0]
 float GetNormalizedAge(float age)
 {
-    return saturate(age / Duration);
+    return saturate(age / Duration); // clamp(x, 0, 1)
 }
 
 VertexShaderOutput DynamicParticleVS(VertexShaderInput input)

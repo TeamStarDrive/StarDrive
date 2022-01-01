@@ -121,7 +121,7 @@ namespace Ship_Game
             Vector3 impactNormal = center3D.DirectionToTarget(pos);
 
             particles.Flash.AddParticle(pos);
-            for (int i = 0; i < 200; ++i)
+            for (int i = 0; i < 80; ++i)
             {
                 particles.Sparks.AddParticle(pos, impactNormal * RandomMath.Vector3D(25f));
             }
