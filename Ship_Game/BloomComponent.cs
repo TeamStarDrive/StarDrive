@@ -127,14 +127,14 @@ namespace Ship_Game
 
 		private void DrawFullscreenQuad(Texture2D texture, int width, int height, Effect effect, IntermediateBuffer currentBuffer)
 		{
-			Empire.Universe.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
+			ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
 			if (ShowBuffer >= currentBuffer)
 			{
 				effect.Begin();
 				effect.CurrentTechnique.Passes[0].Begin();
 			}
-			Empire.Universe.ScreenManager.SpriteBatch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
-			Empire.Universe.ScreenManager.SpriteBatch.End();
+			ScreenManager.SpriteBatch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
+			ScreenManager.SpriteBatch.End();
 			if (ShowBuffer >= currentBuffer)
 			{
 				effect.CurrentTechnique.Passes[0].End();

@@ -46,7 +46,8 @@ namespace Ship_Game.AI
             if (Missile.Weapon != null && Missile.Weapon.Tag_Torpedo)
                 MaxNozzleDirection = 0.02f; // Torpedoes wiggle less
 
-            if (Empire.Universe == null)
+            var universe = Missile.Owner?.Universe ?? Missile.Planet?.Universe;
+            if (universe == null)
                 return;
             
             Ship owningShip = Missile.Owner;

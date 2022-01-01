@@ -27,7 +27,6 @@ namespace Ship_Game
         public override string ToString() =>
             $"{Name} ({Owner?.Name ?? "No Owner"}) T:{colonyType} NET(FD:{Food.NetIncome.String()} PR:{Prod.NetIncome.String()}) {ImportsDescr()}";
 
-        public UniverseScreen Universe => ParentSystem.Universe;
         public GeodeticManager GeodeticManager;
         public TroopManager TroopManager;
         public SpaceStation Station = new SpaceStation(null);
@@ -359,7 +358,7 @@ namespace Ship_Game
 
         public float GravityWellForEmpire(Empire empire)
         {
-            if (!Empire.Universe.GravityWells)
+            if (!Universe.GravityWells)
                 return 0;
 
             if (Owner == null)
@@ -386,7 +385,7 @@ namespace Ship_Game
         public void SetInGroundCombat(Empire empire, bool notify = false)
         {
             if (!RecentCombat && notify && Owner == EmpireManager.Player && Owner.IsAtWarWith(empire))
-                Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification(this, empire);
+                Universe.NotificationManager.AddEnemyTroopsLandedNotification(this, empire);
 
             TroopManager.SetInCombat();
         }
@@ -780,7 +779,7 @@ namespace Ship_Game
                     return;
 
                 QueueEmptySent = true;
-                Empire.Universe.NotificationManager.AddEmptyQueueNotification(this);
+                Universe.NotificationManager.AddEmptyQueueNotification(this);
             }
             else if (ConstructionQueue.Count > 0)
             {
@@ -1053,7 +1052,7 @@ namespace Ship_Game
             Money.Update();
 
             if (!loadUniverse)
-                Station.SetVisibility(HasSpacePort, Empire.Universe.ScreenManager, this);
+                Station.SetVisibility(HasSpacePort, Universe.ScreenManager, this);
 
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }
@@ -1214,8 +1213,8 @@ namespace Ship_Game
                 if (damage > ShieldStrengthCurrent)
                     return false; // Shield not strong enough
 
-                if (Empire.Universe.IsSystemViewOrCloser
-                    && Empire.Universe.Frustum.Contains(Center, OrbitalRadius * 2))
+                if (Universe.IsSystemViewOrCloser
+                    && Universe.Frustum.Contains(Center, OrbitalRadius * 2))
                 {
                     Shield.HitShield(this, ship, Center, SO.WorldBoundingSphere.Radius + 100f);
                 }
@@ -1232,7 +1231,7 @@ namespace Ship_Game
             {
                 DestroyBuildingOn(tile); // todo notify
                 if (Owner == EmpireManager.Player)
-                    Empire.Universe.NotificationManager.AddBuildingDestroyedByMeteor(this, tile.Building);
+                    Universe.NotificationManager.AddBuildingDestroyedByMeteor(this, tile.Building);
             }
 
             int bid;
@@ -1266,11 +1265,11 @@ namespace Ship_Game
                 message = $"{message}\n{Localizer.Token(GameText.MineralRichnessWasIncreasedBy)}";
             }
 
-            Building b = ResourceManager.CreateBuilding(bid);
+            Building b = ResourceManager.CreateBuilding(Universe, bid);
             tile.PlaceBuilding(b, this);
             SetHasDynamicBuildings(true);
-            if (Owner == EmpireManager.Player)
-                Empire.Universe.NotificationManager.AddMeteorRelated(this, message);
+            if (Owner.isPlayer)
+                Universe.NotificationManager.AddMeteorRelated(this, message);
 
             Population = (Population - popKilled).LowerBound(0);
             if (Owner != null && Population.AlmostZero())
@@ -1298,7 +1297,7 @@ namespace Ship_Game
                     if (b.FoodCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
-                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
+                            Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
 
                         RemoveBuildingFromPlanet(b, destroy: true);
                     }
@@ -1311,7 +1310,7 @@ namespace Ship_Game
                     if (b.ProdCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
-                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
+                            Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
 
                         RemoveBuildingFromPlanet(b, destroy: true);
                     }
@@ -1373,7 +1372,7 @@ namespace Ship_Game
                 if (notifyPlayer)
                 {
                     string fullText = $"{Name} {Localizer.Token(GameText.MineralRichnessHasGoneDown)}";
-                    Empire.Universe.NotificationManager.AddRandomEventNotification(
+                    Universe.NotificationManager.AddRandomEventNotification(
                         fullText, Type.IconPath, "SnapToPlanet", this);
                 }
 
@@ -1474,7 +1473,7 @@ namespace Ship_Game
             UpdateTerraformPoints(0);
             Owner.RemovePlanet(this, attacker);
             if (IsExploredBy(EmpireManager.Player) && (Owner.isPlayer || attacker.isPlayer))
-                Empire.Universe.NotificationManager.AddPlanetDiedNotification(this);
+                Universe.NotificationManager.AddPlanetDiedNotification(this);
 
             bool removeOwner = true;
             foreach (Planet other in ParentSystem.PlanetList)

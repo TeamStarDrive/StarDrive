@@ -22,7 +22,7 @@ namespace Ship_Game.Commands.Goals
         {
             empire        = owner;
             TargetEmpire  = enemy;
-            StarDateAdded = Empire.Universe.StarDate;
+            StarDateAdded = empire.Universum.StarDate;
             Log.Info(ConsoleColor.Green, $"---- War: New War Goal {warType} vs.: {TargetEmpire.Name} ----");
         }
 

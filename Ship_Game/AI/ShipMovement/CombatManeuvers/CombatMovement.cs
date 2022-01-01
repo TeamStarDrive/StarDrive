@@ -122,7 +122,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 MoveState = ExecuteAttack(timeStep);
             }
 
-            if (Empire.Universe.Debug && Empire.Universe.SelectedShip != null)
+            if (Owner.Universe.Debug && Owner.Universe.SelectedShip != null)
             {
                 DrawDebugText($"Chase: {ChaseStates}");
                 DrawDebugText($"MoveState: {MoveState}");
@@ -347,22 +347,22 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         public void DrawDebugTarget(Vector2 pip, float radius)
         {
             if (DebugInfoScreen.Mode == DebugModes.Targeting &&
-                Empire.Universe.DebugWin?.Visible == true &&
-                Empire.Universe.SelectedShip == Owner)
+                Owner.Universe.DebugWin?.Visible == true &&
+                Owner.Universe.SelectedShip == Owner)
             {
-                Empire.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, pip, radius, Owner.Loyalty.EmpireColor, 0f);
-                Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, AI.Target.Position, pip, 1f, Owner.Loyalty.EmpireColor, 0f);
+                Owner.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, pip, radius, Owner.Loyalty.EmpireColor, 0f);
+                Owner.Universe.DebugWin?.DrawLine(DebugModes.Targeting, AI.Target.Position, pip, 1f, Owner.Loyalty.EmpireColor, 0f);
             }
         }
 
         public void DrawDebugText(string text)
         {
             if (DebugInfoScreen.Mode == DebugModes.Targeting &&
-                Empire.Universe.DebugWin?.Visible == true &&
-                Empire.Universe.SelectedShip == Owner)
+                Owner.Universe.DebugWin?.Visible == true &&
+                Owner.Universe.SelectedShip == Owner)
             {
                 DebugTextIndex++;
-                Empire.Universe.DebugWin?.DrawText(DebugModes.Targeting,
+                Owner.Universe.DebugWin?.DrawText(DebugModes.Targeting,
                     Owner.Position + new Vector2(Owner.Radius, Owner.Radius + 50 * DebugTextIndex), text, Color.Red, 0f);
             }
         }

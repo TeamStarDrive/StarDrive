@@ -38,7 +38,7 @@ namespace Ship_Game.AI
                 them.UnlockTech(tech, TechUnlockType.Diplomacy, us);
                 usToThem.NumTechsWeGave += 1;
                 Log.Info(System.ConsoleColor.White, $"{us.Name} gave {tech} to {them.Name}");
-                if (Empire.Universe.PlayerEmpire != us)
+                if (us.Universum.PlayerEmpire != us)
                 {
                     float cost = ResourceManager.Tech(tech).DiplomaticValueTo(us, them);
                     usToThem.AddTrustEntry(attitude, TrustEntryType.Technology, cost, turnTimer:40);
@@ -137,7 +137,7 @@ namespace Ship_Game.AI
             Relationship rel = us.GetRelations(them);
             rel.AtWar = false;
             rel.CancelPrepareForWar();
-            rel.ActiveWar.EndStarDate = Empire.Universe.StarDate;
+            rel.ActiveWar.EndStarDate = us.Universum.StarDate;
             rel.WarHistory.Add(rel.ActiveWar);
 
             DTrait persona = us.data.DiplomaticPersonality;
@@ -182,10 +182,10 @@ namespace Ship_Game.AI
                 AcceptPeaceTreaty(them, us, attitude);
 
                 if (us.isPlayer || them.isPlayer ||
-                    (EmpireManager.Player.IsKnown(us) &&
-                     EmpireManager.Player.IsKnown(them)))
+                    (us.Universum.player.IsKnown(us) &&
+                     us.Universum.player.IsKnown(them)))
                 {
-                    Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(us, them);
+                    us.Universum.NotificationManager.AddPeaceTreatyEnteredNotification(us, them);
                 }
             }
 
@@ -534,7 +534,7 @@ namespace Ship_Game.AI
 
             if (usToThem.ActiveWar != null)
             {
-                if (Empire.Universe.StarDate - usToThem.ActiveWar.StartDate < 10)
+                if (us.Universum.StarDate - usToThem.ActiveWar.StartDate < 10)
                     return ProcessPeace("REJECT_OFFER_PEACE_UNWILLING_BC");
             }
 

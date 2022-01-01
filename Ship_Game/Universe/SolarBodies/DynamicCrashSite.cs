@@ -54,7 +54,7 @@ namespace Ship_Game.Universe.SolarBodies
         bool TryCreateCrashSite(Planet p, PlanetGridSquare tile, out string message)
         {
             message    = $"A ship has crashed landed on {p.Name}.";
-            Building b = ResourceManager.CreateBuilding("Dynamic Crash Site");
+            Building b = ResourceManager.CreateBuilding(p.Universe, "Dynamic Crash Site");
 
             if (b == null)
                 return false;

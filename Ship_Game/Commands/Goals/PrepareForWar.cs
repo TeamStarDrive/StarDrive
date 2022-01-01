@@ -24,7 +24,7 @@ namespace Ship_Game.Commands.Goals
         {
             empire        = owner;
             TargetEmpire  = enemy;
-            StarDateAdded = Empire.Universe.StarDate;
+            StarDateAdded = empire.Universum.StarDate;
             Log.Info(ConsoleColor.Green, $"---- Prepare For War: New {empire.Name} Vs.: {TargetEmpire.Name} ----");
         }
 
@@ -68,7 +68,7 @@ namespace Ship_Game.Commands.Goals
             if (empire.ShouldGoToWar(rel, TargetEmpire))
             {
                 if (empire.DetectPrepareForWarVsPlayer(TargetEmpire))
-                    Empire.Universe.NotificationManager.NotifyPreparingForWar(empire);
+                    empire.Universum.NotificationManager.NotifyPreparingForWar(empire);
 
                 return GoalStep.GoToNextStep;
             }

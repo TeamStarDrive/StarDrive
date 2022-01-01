@@ -163,7 +163,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return false;
             }
 
-            Building b = ResourceManager.CreateBuilding(q.Building.Name);
+            Building b = ResourceManager.CreateBuilding(P.Universe, q.Building.Name);
             b.IsPlayerAdded = q.IsPlayerAdded;
             q.pgs.PlaceBuilding(b, P);
             if (!GlobalStats.SuppressOnBuildNotifications

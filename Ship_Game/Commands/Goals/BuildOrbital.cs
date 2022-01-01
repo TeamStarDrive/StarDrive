@@ -112,7 +112,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             foreach (Ship orbital in GetTetherPlanet.OrbitalStations)
             {
-                Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
+                empire.Universum?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                     orbital.Position, 1000, Color.LightCyan, 10.0f);
                 if (position.InRadius(orbital.Position, 1000))
                     return true;
@@ -129,7 +129,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             {
                 if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) && g.Goal.TetherTarget == TetherTarget)
                 {
-                    Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
+                    empire.Universum?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                         g.Goal.BuildPosition, 1000, Color.LightCyan, 10.0f);
                     if (position.InRadius(g.Goal.BuildPosition, 1000))
                         return true;

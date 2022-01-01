@@ -75,7 +75,7 @@ namespace Ship_Game.AI.ExpansionAI
     
         int GoalsModifierByRank() // increase goals if we are behind other empires
         {
-            if (Empire.Universe.StarDate < 1002)
+            if (Owner.Universum.StarDate < 1002)
                 return 0;
 
             var empires = EmpireManager.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);

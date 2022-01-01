@@ -117,7 +117,6 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
         [XmlIgnore][JsonIgnore] public float AvailableTrust => Trust - TrustUsed;
-        [XmlIgnore][JsonIgnore] Empire Player => Empire.Universe.PlayerEmpire;
         [XmlIgnore][JsonIgnore] public EmpireInformation KnownInformation;
         [XmlIgnore][JsonIgnore] public int WarAnger => (int)(TotalAnger - Trust.LowerBound(-50));
 
@@ -324,7 +323,7 @@ namespace Ship_Game.Gameplay
             if (us.data.DiplomaticPersonality == null || us.isPlayer)
                 return;
 
-            if (GlobalStats.RestrictAIPlayerInteraction &&  them == Empire.Universe.PlayerEmpire)
+            if (GlobalStats.RestrictAIPlayerInteraction && them.isPlayer)
                 return;
 
             if (them.isPlayer)
@@ -347,39 +346,39 @@ namespace Ship_Game.Gameplay
                         TimesSpiedOnAlly += 1;
                         if (TimesSpiedOnAlly == 1)
                         {
-                            if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                            if (them.isPlayer && !us.isFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_1");
 
                             turnsSinceLastContact = 0;
                         }
                         else if (TimesSpiedOnAlly > 1)
                         {
-                            if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                            if (them.isPlayer && !us.isFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
 
                             us.BreakAllTreatiesWith(them);
                             turnsSinceLastContact = 0;
                         }
                     }
-                    else if (SpiesDetected == 1 && !AtWar && Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                    else if (SpiesDetected == 1 && !AtWar && them.isPlayer && !us.isFaction)
                     {
                         if (SpiesDetected == 1)
                         {
-                            if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                            if (them.isPlayer && !us.isFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_1");
 
                             turnsSinceLastContact = 0;
                         }
                         else if (SpiesDetected == 2)
                         {
-                            if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                            if (them.isPlayer && !us.isFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_2");
 
                             turnsSinceLastContact = 0;
                         }
                         else if (SpiesDetected >= 3)
                         {
-                            if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                            if (them.isPlayer && !us.isFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_3");
 
                             us.BreakAllTreatiesWith(them);
@@ -400,19 +399,19 @@ namespace Ship_Game.Gameplay
                         TimesSpiedOnAlly += 1;
                         if (TimesSpiedOnAlly == 1)
                         {
-                            if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                            if (them.isPlayer && !us.isFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_1");
                         }
                         else if (TimesSpiedOnAlly > 1)
                         {
-                            if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                            if (them.isPlayer && !us.isFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
 
                             us.BreakAllTreatiesWith(them);
                             Posture = Posture.Hostile;
                         }
                     }
-                    else if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                    else if (them.isPlayer && !us.isFaction)
                     {
                         DiplomacyScreen.ShowEndOnly(us, them, "Killed_Spy_1");
                     }
@@ -470,7 +469,7 @@ namespace Ship_Game.Gameplay
                         if (AtWar)
                             return;
 
-                        if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                        if (them.isPlayer && !us.isFaction)
                         {
                             if (!WarnedAboutShips)
                                 DiplomacyScreen.Show(us, them, "Colonized Warning", p);
@@ -495,7 +494,7 @@ namespace Ship_Game.Gameplay
                     {
                         AddAngerMilitaryConflict(amount);
                         Trust -= amount;
-                        if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
+                        if (them.isPlayer && !us.isFaction)
                         {
                             if (Anger_MilitaryConflict < 2f)
                                 DiplomacyScreen.Show(us, them, "Aggression Warning");
@@ -912,7 +911,7 @@ namespace Ship_Game.Gameplay
             };
 
             Offer offer2 = new Offer { TradeTreaty = true };
-            if (them == Player)
+            if (them.isPlayer)
                 DiplomacyScreen.Show(us, "Offer Trade", offer2, offer1);
             else
                 them.GetEmpireAI().AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
@@ -1237,7 +1236,7 @@ namespace Ship_Game.Gameplay
                                                x => HaveRejectedDemandTech = x)
             };
 
-            if (them == Player)
+            if (them.isPlayer)
                 DiplomacyScreen.Show(us, "Xeno Demand Tech", demandTech, theirDemand);
             else
                 them.GetEmpireAI().AnalyzeOffer(theirDemand, demandTech, us, Offer.Attitude.Threaten);
@@ -1248,7 +1247,7 @@ namespace Ship_Game.Gameplay
         void TradeTech(Empire us)
         {
             Empire them = Them;
-            if (them == Player || ActiveWar != null || turnsSinceLastContact < TechTradeTurns || Posture == Posture.Hostile)
+            if (them.isPlayer || ActiveWar != null || turnsSinceLastContact < TechTradeTurns || Posture == Posture.Hostile)
                 return;
 
             Relationship themToUs = them.GetRelations(us);

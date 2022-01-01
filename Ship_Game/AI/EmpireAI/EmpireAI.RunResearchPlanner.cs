@@ -5,7 +5,7 @@ namespace Ship_Game.AI
     public sealed partial class EmpireAI
     {
         public ChooseTech TechChooser;
-        private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
+        private void DebugLog(string text) => OwnerEmpire.Universum?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
         private void RunResearchPlanner(string command = "CHEAPEST")
         {

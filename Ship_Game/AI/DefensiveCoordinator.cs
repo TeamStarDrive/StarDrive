@@ -144,7 +144,7 @@ namespace Ship_Game.AI
 
         void ClearEmptyPlanetsOfTroops()
         {
-            foreach (Planet p in Empire.Universe.PlanetsDict.Values)
+            foreach (Planet p in Us.Universum.PlanetsDict.Values)
                 //@TODO move this to planet.
                 // FB - This code is crappy. And it launches troops into space combat zones as well
                 // and it doesnt only clear empty planets but also adds the planet to defense dict. very misleading
@@ -297,7 +297,7 @@ namespace Ship_Game.AI
 
         public SolarSystem GetNearestSystemNeedingTroops(Vector2 fromPos, Empire empire)
         {
-            float width = Empire.Universe.UniverseSize;
+            float width = empire.Universum.UniverseSize;
             return DefenseDict.FindMaxKeyByValuesFiltered(
                 com => com.TroopStrengthNeeded > 0
                        && com.System.PlanetList.Count > 0

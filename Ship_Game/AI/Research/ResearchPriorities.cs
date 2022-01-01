@@ -209,7 +209,7 @@ namespace Ship_Game.AI.Research
                 return p + b;
         }
 
-        void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
+        void DebugLog(string text) => OwnerEmpire.Universum?.DebugWin?.ResearchLog(text, OwnerEmpire);
     }
 
 }

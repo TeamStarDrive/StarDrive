@@ -29,7 +29,7 @@ namespace Ship_Game.Commands.Goals
         {
             empire             = e;
             ColonizationTarget = toColonize;
-            StarDateAdded      = Empire.Universe.StarDate;
+            StarDateAdded      = empire.Universum.StarDate;
             if (PositiveEnemyPresence(out _) && AIControlsColonization) 
                 return;
 
@@ -51,7 +51,7 @@ namespace Ship_Game.Commands.Goals
             empire             = e;
             ColonizationTarget = toColonize;
             FinishedShip       = colonyShip;
-            StarDateAdded      = Empire.Universe.StarDate;
+            StarDateAdded      = empire.Universum.StarDate;
             ChangeToStep(WaitForColonizationComplete);
         }
 

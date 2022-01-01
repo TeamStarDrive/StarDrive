@@ -36,13 +36,13 @@ namespace Ship_Game.AI.Research
             ScriptType     = Strategy?.TechPath?.Count > 0 ? ResearchStrategy.Scripted : ResearchStrategy.Random;
         }
 
-        private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
+        private void DebugLog(string text) => OwnerEmpire.Universum?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
         public ResearchPriorities GetPriorities() => ResearchPriorities;
 
         public void PickResearchTopic(string command)
         {
-            Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
+            OwnerEmpire.Universum?.DebugWin?.ClearResearchLog(OwnerEmpire);
             OwnerEmpire.data.TechDelayTime++;
             ResearchPriorities = new ResearchPriorities(OwnerEmpire, ResearchMods);
             CostNormalizer = OwnerEmpire.Research.NetResearch.LowerBound(1) / 100f;

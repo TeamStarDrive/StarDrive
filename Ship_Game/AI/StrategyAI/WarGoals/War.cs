@@ -122,7 +122,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public static War CreateInstance(Empire owner, Empire target, WarType warType)
         {
-            var war = new War(owner, target, Empire.Universe.StarDate, warType);
+            var war = new War(owner, target, owner.Universum.StarDate, warType);
             return war;
         }
 
@@ -161,15 +161,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void RestoreFromSave(bool activeWar)
         {
+            Us = EmpireManager.GetEmpireByName(UsName);
+            Them = EmpireManager.GetEmpireByName(ThemName);
+
             ContestedSystems = new SolarSystem[ContestedSystemsGUIDs.Count];
             for (int i = 0; i < ContestedSystemsGUIDs.Count; i++)
             {
                 var guid = ContestedSystemsGUIDs[i];
-                SolarSystem solarSystem = Empire.Universe.SolarSystemDict[guid];
+                SolarSystem solarSystem = Us.Universum.SolarSystemDict[guid];
                 ContestedSystems[i] = solarSystem;
             }
-            Us   = EmpireManager.GetEmpireByName(UsName);
-            Them = EmpireManager.GetEmpireByName(ThemName);
             // The Us == Them is used in EmpireDefense and relations should be null
             OurRelationToThem = Us.GetRelationsOrNull(Them);
             
@@ -232,7 +233,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void WarDebugData(ref DebugTextBlock debug)
         {
-            debug.AddLine($"Duration Years: {Empire.Universe.StarDate - StartDate:n1}");
+            debug.AddLine($"Duration Years: {Us.Universum.StarDate - StartDate:n1}");
             debug.AddLine($"ThreatRatio = {(int)(TotalThreatAgainst * 100):p0}");
             debug.AddLine($"StartDate {StartDate}");
             debug.AddLine($"killed: {StrengthKilled:n0} Lost: {StrengthLost:n0} Ratio: {(int)(SpaceWarKd * 100):p0}");

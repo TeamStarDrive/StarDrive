@@ -79,7 +79,7 @@ namespace Ship_Game.Commands.Goals
                 return; // save support - can be removed in 2021
 
             Vector2 systemPos = Portal.System?.Position 
-                                ?? Empire.Universe.SolarSystemDict.Values.ToArray().FindMin(s => s.Position.SqDist(Portal.Position)).Position;
+                                ?? empire.Universum.SolarSystemDict.Values.ToArray().FindMin(s => s.Position.SqDist(Portal.Position)).Position;
 
             Vector2 desiredPos = Portal.Position = systemPos + TetherOffset;
             if (!Portal.Position.InRadius(desiredPos, 1000))
@@ -110,7 +110,7 @@ namespace Ship_Game.Commands.Goals
             UpdatePosition();
             if (Portal.System != null)
             {
-                float production = Empire.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
+                float production = empire.Universum.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
                 if (Portal.InCombat && Portal.AI.Target?.System == Portal.System)
                     production /= 2;
 

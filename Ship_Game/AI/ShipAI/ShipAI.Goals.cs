@@ -471,7 +471,7 @@ namespace Ship_Game.AI
                 Goods         = goodsType;
                 BlockadeTimer = blockadeTimer;
                 Freighter     = freighter;
-                StardateAdded = Empire.Universe.StarDate;
+                StardateAdded = exportPlanet.Universe.StarDate;
 
                 ExportFrom.AddToOutgoingFreighterList(freighter);
                 ImportTo.AddToIncomingFreighterList(freighter);

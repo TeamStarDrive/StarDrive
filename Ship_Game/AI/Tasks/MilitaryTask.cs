@@ -314,7 +314,7 @@ namespace Ship_Game.AI.Tasks
 
             if (FindClosestAO() == null)
             {
-                if (Fleet.IsCoreFleet || Owner == Empire.Universe.player)
+                if (Fleet.IsCoreFleet || Owner.isPlayer)
                     return;
 
                 DisbandTaskForce(Fleet);

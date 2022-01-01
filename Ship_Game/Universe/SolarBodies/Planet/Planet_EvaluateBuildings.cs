@@ -730,7 +730,7 @@ namespace Ship_Game
         public bool RemoveCapital()
         {
             SetHomeworld(false);
-            if (Construction.Cancel(ResourceManager.CreateBuilding(Building.CapitalId)))
+            if (Construction.Cancel(ResourceManager.CreateBuilding(Universe, Building.CapitalId)))
                 return true;
 
             Building capital = BuildingList.Find(b => b.IsCapital);
@@ -745,7 +745,7 @@ namespace Ship_Game
 
         public void RemoveOutpost()
         {
-            Construction.Cancel(ResourceManager.CreateBuilding(Building.OutpostId));
+            Construction.Cancel(ResourceManager.CreateBuilding(Universe, Building.OutpostId));
             Building outpost = BuildingList.Find(b => b.IsOutpost);
             if (outpost != null)
                 ScrapBuilding(outpost);
@@ -771,7 +771,7 @@ namespace Ship_Game
 
             // Build it!
             int id = IsHomeworld ? Building.CapitalId : Building.OutpostId;
-            Construction.Enqueue(ResourceManager.CreateBuilding(id));
+            Construction.Enqueue(ResourceManager.CreateBuilding(Universe, id));
 
             // Move Outpost to the top of the list
             for (int i = 1; i < ConstructionQueue.Count; ++i)

@@ -39,7 +39,7 @@ namespace Ship_Game.Commands.Goals
         {
             foreach (Empire e in EmpireManager.MajorEmpires)
             {
-                var planets = Empire.Universe.PlanetsDict.Values.Filter(p => p.IsExploredBy(e));
+                var planets = empire.Universum.PlanetsDict.Values.Filter(p => p.IsExploredBy(e));
                 for (int i = 0; i < planets.Length; ++i)
                 {
                     Planet p = planets[i];
