@@ -14,10 +14,12 @@ namespace Ship_Game
         // Name of the ParticleSystem
         [StarData] public string Name;
 
-        // Which particle texture to use
+        // Which particle texture to use from `Content/3DParticles/`
+        // If a file with the same name exists in `Mods/MyMod/Content/3DParticles`, then it is used instead
         [StarData] public string TextureName;
 
-        // Path to a ParticleEffect.fx HLSL shader
+        // Path to a ParticleEffect.fx HLSL shader in `Content/3DParticles`
+        // Can be used to create your own (better) particle effects if needed
         [StarData] public string Effect;
         
         // if true, particle never disappears and cannot move (but may rotate)

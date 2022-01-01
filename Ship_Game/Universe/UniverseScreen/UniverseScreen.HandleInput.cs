@@ -126,7 +126,7 @@ namespace Ship_Game
                         SelectedShip.DebugBlowBiggestExplodingModule();
                 }
             }
-            else if (SelectedPlanet != null && Debug && (input.DebugKillShip))
+            else if (SelectedPlanet != null && input.DebugKillShip)
             {
                 foreach (string troopType in ResourceManager.TroopTypes)
                     if (ResourceManager.TryCreateTroop(troopType, EmpireManager.Remnants, out Troop t))
