@@ -632,11 +632,6 @@ namespace Ship_Game
             }
         }
 
-        public void AddParticle(in Vector3 position, in Vector3 velocity)
-        {
-            AddParticle(position, velocity, 1f, Color.White);
-        }
-
         public void AddParticle(in Vector3 position)
         {
             AddParticle(position, Vector3.Zero, 1f, Color.White);
@@ -646,6 +641,30 @@ namespace Ship_Game
         {
             AddParticle(position, Vector3.Zero, scale, Color.White);
         }
+
+        public void AddParticle(in Vector3 position, in Vector3 velocity)
+        {
+            AddParticle(position, velocity, 1f, Color.White);
+        }
+
+        public void AddMultipleParticles(int numParticles, in Vector3 position)
+        {
+            AddMultipleParticles(numParticles, position, Vector3.Zero, 1f, Color.White);
+        }
+        public void AddMultipleParticles(int numParticles, in Vector3 position, float scale)
+        {
+            AddMultipleParticles(numParticles, position, Vector3.Zero, scale, Color.White);
+        }
+        public void AddMultipleParticles(int numParticles, in Vector3 position, in Vector3 velocity)
+        {
+            AddMultipleParticles(numParticles, position, velocity, 1f, Color.White);
+        }
+        public void AddMultipleParticles(int numParticles, in Vector3 position, in Vector3 velocity, float scale, Color color)
+        {
+            for (int i = 0; i < numParticles; ++i)
+                AddParticle(position, velocity, scale, color);
+        }
+
 
         public void Dispose()
         {
