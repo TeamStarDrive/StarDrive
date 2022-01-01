@@ -8,7 +8,7 @@ using Ship_Game.Graphics.Particles;
 
 namespace Ship_Game
 {
-    public sealed class ParticleSystem : IParticleSystem, IDisposable
+    public sealed class Particle : IParticle, IDisposable
     {
         // Settings class controls the appearance and animation of this particle system.
         ParticleSettings Settings;
@@ -170,7 +170,7 @@ namespace Ship_Game
             public const int SizeInBytes = 44;
         }
 
-        public ParticleSystem(GameContentManager content, ParticleSettings settings, GraphicsDevice device, float scale, int maxParticles)
+        public Particle(GameContentManager content, ParticleSettings settings, GraphicsDevice device, float scale, int maxParticles)
         {
             Name = settings.Name;
             GraphicsDevice = device;
@@ -675,7 +675,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        ~ParticleSystem()
+        ~Particle()
         {
             VertexBuffer?.Dispose(ref VertexBuffer);
             IndexBuffer?.Dispose(ref IndexBuffer);
