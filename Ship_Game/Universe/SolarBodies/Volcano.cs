@@ -253,14 +253,21 @@ namespace Ship_Game.Universe.SolarBodies
 
 
         /// <summary>
-        /// This will remove the Volcano and the class. Use it when you want to completely get rid of theVolcano
+        /// This will remove the Volcano and the class. Use it when you want to completely get rid of the Volcano
         /// </summary>
         public static void RemoveVolcano(PlanetGridSquare tile, Planet planet)
         {
+            bool wasHabitable = tile.Habitable;
+            bool wasTerraformable = tile.Terraformable;
             planet.DestroyBuildingOn(tile);
             planet.DestroyTile(tile);
             tile.Volcano = null;
             planet.ResetHasDynamicBuildings();
+
+            if (wasHabitable)
+                planet.MakeTileHabitable(tile);
+            else
+                tile.Terraformable = wasTerraformable;
         }
 
         public string ActivationChanceText(out Color color)
