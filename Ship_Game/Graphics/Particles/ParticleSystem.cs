@@ -251,12 +251,14 @@ namespace Ship_Game
             parameters["DurationRandomness"].SetValue(Settings.DurationRandomness);
             parameters["AlignRotationToVelocity"].SetValue(Settings.AlignRotationToVelocity);
             parameters["EndVelocity"].SetValue(Settings.EndVelocity);
-            parameters["MinColor"].SetValue(Settings.MinColor.ToVector4());
-            parameters["MaxColor"].SetValue(Settings.MaxColor.ToVector4());
+            parameters["MinColor"].SetValue(Settings.ColorRange[0].ToVector4());
+            parameters["MaxColor"].SetValue(Settings.ColorRange[1].ToVector4());
+            parameters["RotateSpeed"].SetValue(new Vector2(Settings.RotateSpeed.Min, Settings.RotateSpeed.Max));
 
-            parameters["RotateSpeed"].SetValue(new Vector2(Settings.MinRotateSpeed, Settings.MaxRotateSpeed));
-            parameters["StartSize"].SetValue(new Vector2(Settings.MinStartSize, Settings.MaxStartSize) * Scale);
-            parameters["EndSize"].SetValue(new Vector2(Settings.MinEndSize, Settings.MaxEndSize) * Scale);
+            Range startSize = Settings.StartEndSize[0];
+            Range endSize = Settings.StartEndSize[Settings.StartEndSize.Length - 1];
+            parameters["StartSize"].SetValue(new Vector2(startSize.Min, startSize.Max) * Scale);
+            parameters["EndSize"].SetValue(new Vector2(endSize.Min, endSize.Max) * Scale);
             
             Texture2D texture = Settings.GetTexture(Content);
             ParticleEffect.Parameters["Texture"].SetValue(texture);
@@ -419,8 +421,8 @@ namespace Ship_Game
                 var rs = device.RenderState;
                 rs.AlphaBlendEnable       = true;
                 rs.AlphaBlendOperation    = BlendFunction.Add;
-                rs.SourceBlend            = Settings.SourceBlend;
-                rs.DestinationBlend       = Settings.DestinationBlend;
+                rs.SourceBlend            = Settings.SrcDstBlend[0];
+                rs.DestinationBlend       = Settings.SrcDstBlend[1];
                 rs.AlphaTestEnable        = true;
                 rs.AlphaFunction          = CompareFunction.Greater;
                 rs.ReferenceAlpha         = 0;
@@ -567,7 +569,7 @@ namespace Ship_Game
 
             // Adjust the input velocity based on how much
             // this particle system wants to be affected by it.
-            Vector3 v = velocity * Settings.EmitterVelocitySensitivity;
+            Vector3 v = velocity * Settings.InheritOwnerVelocity;
 
             ThreadSafeRandom random = Random;
 
@@ -580,8 +582,17 @@ namespace Ship_Game
             if (Settings.AlignRandomVelocityXY)
             {
                 // aligned to global camera in Universe
-                Vector3 forward = v.Normalized();
-                Vector3 right = forward.RightVector(new Vector3(0, 0, -1));
+                Vector3 forward = (Settings.InheritOwnerVelocity == 0 ? velocity : v).Normalized();
+                Vector3 right;
+                if (forward == Vector3.Zero) // emitter is stationary, follow universe coordinates
+                {
+                    forward = new Vector3(0, -1, 0); // -Y is UP in universe
+                    right = Vector3.UnitX; // since forward is pointing up, we must point +X = right
+                }
+                else
+                {
+                    right = forward.RightVector(new Vector3(0, 0, -1));
+                }
                 v += right * velX;
                 v += forward * velY;
             }
