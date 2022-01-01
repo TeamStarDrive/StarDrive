@@ -98,9 +98,9 @@ namespace Ship_Game.Ships
             if (System != null)
             {
                 if (IsInFriendlyProjectorRange)
-                    projectorBonus = Empire.Universe.FTLModifier;
-                else if (!Empire.Universe.FTLInNeutralSystems || IsInHostileProjectorRange)
-                    projectorBonus = Empire.Universe.EnemyFTLModifier;
+                    projectorBonus = Universe.FTLModifier;
+                else if (!Universe.FTLInNeutralSystems || IsInHostileProjectorRange)
+                    projectorBonus = Universe.EnemyFTLModifier;
             }
 
             FTLModifier = 1f;
@@ -472,7 +472,7 @@ namespace Ship_Game.Ships
             if (!InCombat && !ignoreNonCombat) // No need for escape vector if not in combat - turn around
                 return false;
 
-            if (IsInFriendlyProjectorRange || !Empire.Universe.GravityWells)
+            if (IsInFriendlyProjectorRange || !Universe.GravityWells)
                 return true; // Wont be inhibited - straight through
 
             switch (System)

@@ -22,12 +22,12 @@ namespace Ship_Game.Ships
             throw new InvalidOperationException(
                 $"BUG! Ship must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Ship XXX;` PROPERTIES/FIELDS. {this}");
 
-        public static Array<Ship> GetShipsFromGuids(Array<Guid> guids)
+        public static Array<Ship> GetShipsFromGuids(UniverseScreen u, Array<Guid> guids)
         {
             var ships = new Array<Ship>();
             for (int i = 0; i < guids.Count; i++)
             {
-                Ship ship = Empire.Universe.Objects.FindShip(guids[i]);
+                Ship ship = u.Objects.FindShip(guids[i]);
                 if (ship != null)
                     ships.AddUnique(ship);
             }
@@ -522,12 +522,12 @@ namespace Ship_Game.Ships
                     // again, damage also depends on module radius and their energy resistance
                     float damageAbsorb = 1 - module.EnergyResist;
                     module.Damage(damageCauser, damage * damageAbsorb * module.Radius);
-                    if (InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
+                    if (InFrustum && Universe?.IsShipViewOrCloser == true)
                     {
                         // visualize radiation hits on external modules
                         Vector3 center = module.Center3D;
                         for (int j = 0; j < 50; j++)
-                            Empire.Universe.Particles.Sparks.AddParticle(center);
+                            Universe.Particles.Sparks.AddParticle(center);
                     }
                 }
             }
@@ -699,7 +699,7 @@ namespace Ship_Game.Ships
         public bool DoingRefit
         {
             get => AI.State == AIState.Refit;
-            set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
+            set => Universe.ScreenManager.AddScreen(new RefitToWindow(Universe, this));
         }
 
         public bool DoingScuttle => AI.State == AIState.Scuttle;
@@ -1449,7 +1449,7 @@ namespace Ship_Game.Ships
         {
             if (Loyalty.isPlayer && AI.IsExploring)
             {
-                Empire.Universe.NotificationManager.AddExplorerDestroyedNotification(this);
+                Universe.NotificationManager.AddExplorerDestroyedNotification(this);
             }
         }
 
@@ -1584,7 +1584,7 @@ namespace Ship_Game.Ships
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
                     int howMuchJunk = (int)(Radius * 0.05f);
                     Vector2 pos = Position.GenerateRandomPointOnCircle(Radius / 2);
-                    SpaceJunk.SpawnJunk(Empire.Universe, howMuchJunk, pos, Velocity, this,
+                    SpaceJunk.SpawnJunk(Universe, howMuchJunk, pos, Velocity, this,
                                         maxSize:Radius * 0.1f, ignite:false);
                 }
             }
@@ -1592,8 +1592,8 @@ namespace Ship_Game.Ships
             if (ShipData.EventOnDeath != null)
             {
                 var evt = ResourceManager.EventsDict[ShipData.EventOnDeath];
-                Empire.Universe.ScreenManager.AddScreen(
-                    new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
+                Universe.ScreenManager.AddScreen(
+                    new EventPopup(Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
         }
 
@@ -1960,7 +1960,7 @@ namespace Ship_Game.Ships
             }
             bool warpTimeGood = rangeStatus >= Status.Excellent;
             if (!warpTimeGood && !IsPlatformOrStation)
-                Empire.Universe?.DebugWin?.DebugLogText(
+                Universe?.DebugWin?.DebugLogText(
                     $"WARNING ship design {Name} with hull {ShipData.Hull} :{rangeStatus} WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}",
                     DebugModes.Normal);
 

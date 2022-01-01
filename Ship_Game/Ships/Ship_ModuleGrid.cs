@@ -221,22 +221,22 @@ namespace Ship_Game.Ships
             return SparseModuleGrid[gridPos.X + gridPos.Y*GridWidth];
         }
 
-        static void DebugDrawShield(ShipModule s)
+        void DebugDrawShield(ShipModule s)
         {
             var color = s.ShieldsAreActive ? Color.AliceBlue : Color.DarkBlue;
-            Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, s.Position, s.ShieldHitRadius, color, 2f);
+            Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, s.Position, s.ShieldHitRadius, color, 2f);
         }
 
-        static void DebugDrawShieldHit(ShipModule s)
+        void DebugDrawShieldHit(ShipModule s)
         {
-            Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, s.Position, s.ShieldHitRadius, Color.BlueViolet, 2f);
+            Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, s.Position, s.ShieldHitRadius, Color.BlueViolet, 2f);
         }
 
-        static void DebugDrawShieldHit(ShipModule s, Vector2 start, Vector2 end)
+        void DebugDrawShieldHit(ShipModule s, Vector2 start, Vector2 end)
         {
-            Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, s.Position, s.ShieldHitRadius, Color.BlueViolet, 2f);
+            Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, s.Position, s.ShieldHitRadius, Color.BlueViolet, 2f);
             if (start != end)
-                Empire.Universe.DebugWin?.DrawLine(DebugModes.SpatialManager, start, end, 2f, Color.BlueViolet, 2f);
+                Universe.DebugWin?.DrawLine(DebugModes.SpatialManager, start, end, 2f, Color.BlueViolet, 2f);
         }
 
         // The simplest form of collision against shields. This is handled in all other HitTest functions
@@ -585,14 +585,14 @@ namespace Ship_Game.Ships
         void DebugGridStep(Vector2 p, Color color)
         {
             Vector2 gridWorldPos = GridLocalPointToWorld(GridLocalToPoint(p)) + new Vector2(8f);
-            Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, gridWorldPos, 4f, color.Alpha(0.33f), 2.0f);
+            Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, gridWorldPos, 4f, color.Alpha(0.33f), 2.0f);
         }
 
         void DebugGridStep(Vector2 a, Vector2 b, Color color, float width = 1f)
         {
             Vector2 worldPosA = GridLocalPointToWorld(GridLocalToPoint(a)) + new Vector2(8f);
             Vector2 worldPosB = GridLocalPointToWorld(GridLocalToPoint(b)) + new Vector2(8f);
-            Empire.Universe.DebugWin?.DrawLine(DebugModes.SpatialManager, worldPosA, worldPosB, width, color.Alpha(0.75f), 2.0f);
+            Universe.DebugWin?.DrawLine(DebugModes.SpatialManager, worldPosA, worldPosB, width, color.Alpha(0.75f), 2.0f);
         }
 
         // take one step in the module grid
@@ -660,7 +660,7 @@ namespace Ship_Game.Ships
                 if (m != null)
                 {
                     //if (DebugInfoScreen.Mode == DebugModes.Targeting)
-                    //    Empire.Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, m.Position, 6f, Color.IndianRed.Alpha(0.5f), 3f);
+                    //    Universe.DebugWin?.DrawCircle(DebugModes.SpatialManager, m.Position, 6f, Color.IndianRed.Alpha(0.5f), 3f);
                     return m;
                 }
             }
