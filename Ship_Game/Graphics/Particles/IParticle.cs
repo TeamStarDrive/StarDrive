@@ -4,11 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Graphics.Particles
 {
-    public interface IParticleSystem : IDisposable
+    public interface IParticle : IDisposable
     {
         string Name { get; }
 
-        // Is this particle system enabled to update and draw ?
+        // Is this particle enabled to update and draw ?
         bool IsEnabled { get; set; }
 
         bool EnableDebug { get; set; }
