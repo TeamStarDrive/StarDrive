@@ -13,7 +13,7 @@
   DurationRandomness: 1
   InheritOwnerVelocity: 1
   EndVelocity: 0
-  StartColorRange: [[255,255,255,255],[255,255,255,255]]
+  StartColorRange: [[255,255,255,255],[255,255,255,255]]  # each bracket represent randomness in colour on life start 
   RotateSpeed: [-1,1]
   StartEndSize: [200, 200]
   SrcDstBlend: [SourceAlpha, One]
