@@ -1470,7 +1470,7 @@ namespace Ship_Game
             }
         }
 
-        public void Update(FixedSimTime timeStep)
+        public void Update(UniverseScreen us, FixedSimTime timeStep)
         {
             #if PLAYERONLY
                 if(!this.isPlayer && !this.isFaction)
@@ -1580,7 +1580,7 @@ namespace Ship_Game
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
                 AssignNewHomeWorldIfNeeded();
-                TakeTurn();
+                TakeTurn(us);
             }
             SetRallyPoints();
             UpdateFleets(timeStep);
@@ -2405,11 +2405,11 @@ namespace Ship_Game
         /// when a new node is wanted it is pulled from the pending pool, wiped and used or created new.
         /// this should cut down on garbage collection as the objects are cycled often.
         /// </summary>
-        void ResetBorders()
+        void ResetBorders(UniverseScreen us)
         {
-            bool wellKnown = isPlayer || EmpireManager.Player.IsAlliedWith(this) ||
+            bool wellKnown = isPlayer || us.player.IsAlliedWith(this) ||
                 Universe.Debug && (Universe.SelectedShip == null || Universe.SelectedShip.Loyalty == this);
-            bool known = wellKnown || EmpireManager.Player.IsTradeOrOpenBorders(this);
+            bool known = wellKnown || us.player.IsTradeOrOpenBorders(this);
 
             SetBordersKnownByAllies(TempSensorNodes);
             SetBordersByPlanet(known, TempBorderNodes, TempSensorNodes);
@@ -2419,7 +2419,7 @@ namespace Ship_Game
             // Moles are spies who have successfully been planted during 'Infiltrate' type missions, I believe - Doctor
             foreach (Mole mole in data.MoleList)
             {
-                var p = Planet.GetPlanetFromGuid(mole.PlanetGuid);
+                var p = us.GetPlanet(mole.PlanetGuid);
                 if (p == null)
                     continue;
                 TempSensorNodes.Add(new InfluenceNode
@@ -2554,9 +2554,10 @@ namespace Ship_Game
             g.Evaluate();
         }
 
-        private void TakeTurn()
+        private void TakeTurn(UniverseScreen us)
         {
-            if (IsEmpireDead()) return;
+            if (IsEmpireDead())
+                return;
 
             var list1 = new Array<Planet>();
             foreach (Planet planet in OwnedPlanets.AtomicCopy())
@@ -2597,7 +2598,7 @@ namespace Ship_Game
             if (isPlayer)
             {
                 ExecuteDiplomacyContacts();
-                CheckFederationVsPlayer();
+                CheckFederationVsPlayer(us);
                 RandomEventManager.UpdateEvents();
 
                 if ((Money / AllSpending.LowerBound(1)) < 2)
@@ -2695,9 +2696,9 @@ namespace Ship_Game
         }
 
 
-        void CheckFederationVsPlayer()
+        void CheckFederationVsPlayer(UniverseScreen us)
         {
-            if (Universe.StarDate < 1100f || (Universe.StarDate % 1).NotZero() || GlobalStats.PreventFederations)
+            if (GlobalStats.PreventFederations || us.StarDate < 1100f || (us.StarDate % 1).NotZero())
                 return;
 
             float playerScore    = TotalScore;
@@ -3055,10 +3056,10 @@ namespace Ship_Game
             }
 
             target.SetAsMerged();
-            ResetBorders();
+            ResetBorders(Universe);
             UpdateShipsWeCanBuild();
 
-            if (this != EmpireManager.Player)
+            if (this != Universe.player)
             {
                 EmpireAI.EndAllTasks();
                 EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();
@@ -3441,14 +3442,14 @@ namespace Ship_Game
         float ThreatMatrixUpdateTimer;
         const float ResetThreatMatrixSeconds = 2;
 
-        public void UpdateContactsAndBorders(FixedSimTime timeStep)
+        public void UpdateContactsAndBorders(UniverseScreen us, FixedSimTime timeStep)
         {
             if (IsEmpireDead())
                 return;
 
             Universe.ResetBordersPerf.Start();
             {
-                ResetBorders();
+                ResetBorders(us);
             }
             Universe.ResetBordersPerf.Stop();
 

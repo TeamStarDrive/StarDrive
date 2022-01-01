@@ -13,22 +13,6 @@ namespace Ship_Game
 {
     public partial class Planet : SolarSystemBody, IDisposable
     {
-        public static Array<Planet> GetPlanetsFromGuids(Array<Guid> guids)
-        {
-            var items = new Array<Planet>();
-            for (int i = 0; i < guids.Count; i++)
-            {
-                var guid = guids[i];
-                var item = GetPlanetFromGuid(guid);
-                if (item != null)
-                    items.Add(item);
-            }
-
-            return items;
-        }
-
-        public static Planet GetPlanetFromGuid(Guid guid) => Empire.Universe.GetPlanet(guid);
-
         public enum ColonyType
         {
             Core = 0,

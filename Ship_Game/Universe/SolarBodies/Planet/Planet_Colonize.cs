@@ -27,7 +27,7 @@ namespace Ship_Game
             SetInGroundCombat(Owner);
             AbortLandingPlayerFleets();
             Owner.TryTransferCapital(this);
-            StatTracker.StatAddColony(Empire.Universe.StarDate, this);
+            StatTracker.StatAddColony(Universe.StarDate, this);
         }
 
         void SetupColonyType()
@@ -38,7 +38,7 @@ namespace Ship_Game
                 colonyType = Owner.AssessColonyNeeds(this);
 
             if (Owner.isPlayer)
-                Empire.Universe.NotificationManager.AddColonizedNotification(this, EmpireManager.Player);
+                Universe.NotificationManager.AddColonizedNotification(this, EmpireManager.Player);
         }
 
         void NewColonyAffectRelations()
@@ -68,7 +68,7 @@ namespace Ship_Game
                 if (fleet.Ships.Any(s => s.IsTroopShipAndRebasingOrAssaulting(this)))
                 {
                     fleet.OrderAbortMove();
-                    Empire.Universe.NotificationManager.AddAbortLandNotification(this, fleet);
+                    Universe.NotificationManager.AddAbortLandNotification(this, fleet);
                 }
             }
         }
@@ -100,9 +100,9 @@ namespace Ship_Game
         void OnTroopsRemoved(bool playerTroopsRemoved)
         {
             if (playerTroopsRemoved)
-                Empire.Universe.NotificationManager.AddTroopsRemovedNotification(this);
+                Universe.NotificationManager.AddTroopsRemovedNotification(this);
             else if (Owner.isPlayer)
-                Empire.Universe.NotificationManager.AddForeignTroopsRemovedNotification(this);
+                Universe.NotificationManager.AddForeignTroopsRemovedNotification(this);
         }
 
         void UnloadTroops(Ship colonyShip)

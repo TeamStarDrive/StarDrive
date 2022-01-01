@@ -208,13 +208,13 @@ namespace Ship_Game.AI
 
         public bool Contains(Ship ship) => ship.Pool == this;
 
-        public void InitFromSave(Empire owner)
+        public void InitFromSave(UniverseScreen us, Empire owner)
         {
-            SetPlanet(Planet.GetPlanetFromGuid(CoreWorldGuid));
+            SetPlanet(us.GetPlanet(CoreWorldGuid));
             Owner = owner;
             SetupPlanetsInAO();
-            OffensiveForcePool = Ship.GetShipsFromGuids(Empire.Universe, OffensiveForceGuids);
-            ShipsWaitingForCoreFleet = Ship.GetShipsFromGuids(Empire.Universe, ShipsWaitingGuids);
+            OffensiveForcePool = Ship.GetShipsFromGuids(us, OffensiveForceGuids);
+            ShipsWaitingForCoreFleet = Ship.GetShipsFromGuids(us, ShipsWaitingGuids);
             
             var fleet = owner.GetFleetsDict().FilterValues(f => f.Guid == FleetGuid).FirstOrDefault();
 
