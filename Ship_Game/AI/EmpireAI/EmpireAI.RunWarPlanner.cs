@@ -12,9 +12,9 @@ namespace Ship_Game.AI
         public static void ShowWarDeclaredNotification(Empire us, Empire them)
         {
             if (us.isPlayer || them.isPlayer ||
-                (EmpireManager.Player.IsKnown(us) && EmpireManager.Player.IsKnown(them)))
+                (us.Universum.player.IsKnown(us) && us.Universum.player.IsKnown(them)))
             {
-                Empire.Universe.NotificationManager?.AddWarDeclaredNotification(us, them);
+                us.Universum.NotificationManager?.AddWarDeclaredNotification(us, them);
             }
         }
 
@@ -206,7 +206,7 @@ namespace Ship_Game.AI
             if (them.isPlayer && !usToThem.AtWar)
             {
                 AIDeclaresWarOnPlayer(them, wt, usToThem);
-                Empire.Universe.NotificationManager.AddDeclareWarViaAllyCall(OwnerEmpire, requestingEmpire);
+                us.Universum.NotificationManager.AddDeclareWarViaAllyCall(OwnerEmpire, requestingEmpire);
             }
 
             ShowWarDeclaredNotification(OwnerEmpire, them);
@@ -280,7 +280,7 @@ namespace Ship_Game.AI
                 {
                     rel.AtWar = false;
                     rel.CancelPrepareForWar();
-                    rel.ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                    rel.ActiveWar.EndStarDate = other.Universum.StarDate;
                     rel.WarHistory.Add(rel.ActiveWar);
                     rel.Posture = Posture.Neutral;
                 }

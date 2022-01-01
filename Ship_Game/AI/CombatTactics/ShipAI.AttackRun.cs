@@ -217,10 +217,10 @@ namespace Ship_Game.AI.CombatTactics
             }
 
             if (DebugInfoScreen.Mode == DebugModes.Targeting &&
-                Empire.Universe.DebugWin?.Visible == true &&
-                Empire.Universe.SelectedShip == Owner)
+                Owner.Universe.DebugWin?.Visible == true &&
+                Owner.Universe.SelectedShip == Owner)
             {
-                DebugInfoScreen debug = Empire.Universe.DebugWin;
+                DebugInfoScreen debug = Owner.Universe.DebugWin;
                 debug.DrawCircle(DebugModes.Targeting, DisengagePos1, 30f, Owner.Loyalty.EmpireColor, 0f);
                 debug.DrawCircle(DebugModes.Targeting, DisengagePos2, 30f, Owner.Loyalty.EmpireColor, 0f);
                 debug.DrawCircle(DebugModes.Targeting, DisengageStart, disengageLimit, Color.Bisque, 0f);

@@ -128,7 +128,7 @@ namespace Ship_Game.GameScreens.LoadGame
         // Universe does not exist yet !
         UniverseData LoadEverything(SavedGame.UniverseSaveData saveData, ProgressCounter step)
         {
-            step.Start(9); // arbitrary count... check # of calls below:
+            step.Start(11); // arbitrary count... check # of calls below:
 
             ScreenManager.Instance.RemoveAllObjects();
             var data = new UniverseData
@@ -159,8 +159,7 @@ namespace Ship_Game.GameScreens.LoadGame
             CreatePlanetImportExportShipLists(saveData, data); step.Advance();
             UpdateDefenseShipBuildingOffense();                step.Advance();
             UpdatePopulation();                                step.Advance();
-            RestoreCapitals(saveData, data);                   step.Advance();
-            RestoreSolarSystemCQs(saveData, data);             step.Finish();
+            RestoreCapitals(saveData, data);                   step.Finish();
             return data;
         }
 
@@ -175,25 +174,27 @@ namespace Ship_Game.GameScreens.LoadGame
                 CreateSimThread = StartSimThread,
             };
 
+            RestoreSolarSystemCQs(save, data, us);
+
             step.StartAbsolute(0.05f, 0.5f, 2f);
 
             EmpireHullBonuses.RefreshBonuses();
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep());
             CreateSceneObjects(data);
-            AllSystemsLoaded(data, step.NextStep());
+            AllSystemsLoaded(us, data, step.NextStep());
 
             step.NextStep().Start(1); // This last step is a mess, using arbitrary count
-            
-            GameBase.Base.ResetElapsedTime();
-            us.LoadContent();
 
+            GameBase.Base.ResetElapsedTime();
             CreateAOs(us, data);
             FinalizeShips(us, data);
+
+            us.LoadContent();
             us.Objects.UpdateLists(removeInactiveObjects: false);
 
             foreach(Empire empire in EmpireManager.Empires)
             {
-                empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave();
+                empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave(us);
             }
 
             GameAudio.StopGenericMusic(immediate: false);
@@ -214,12 +215,12 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 if (ship.Loyalty != EmpireManager.Player && !ship.Loyalty.isFaction && ship.Fleet == null)
                 {
-                    if (!ship.AddedOnLoad) ship.Loyalty.AddShipToManagedPools(ship);
+                    if (ship.Pool != null)
+                        ship.Loyalty.AddShipToManagedPools(ship);
                 }
                 else if (ship.AI.State == AIState.SystemDefender)
                 {
-                    ship.Loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
-                    ship.AddedOnLoad = true;
+                    ship.Loyalty.GetEmpireAI().DefensiveCoordinator.Add(ship);
                 }
 
                 if (ship.Carrier.HasHangars)
@@ -246,20 +247,26 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        void AllSystemsLoaded(UniverseData data, ProgressCounter step)
+        void AllSystemsLoaded(UniverseScreen us, UniverseData data, ProgressCounter step)
         {
             Stopwatch s = Stopwatch.StartNew();
             step.Start(data.MasterShipList.Count);
             foreach (Ship ship in data.MasterShipList)
             {
+                ship.Universe = us;
                 ship.InitializeShip(loadingFromSaveGame: true);
                 step.Advance();
             }
             foreach (SolarSystem sys in data.SolarSystemsList)
             {
+                sys.Universe = us;
                 sys.FiveClosestSystems = data.SolarSystemsList.FindMinItemsFiltered(5,
                                             filter => filter != sys,
                                             select => select.Position.SqDist(sys.Position));
+            }
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                empire.Universum = us;
             }
             Log.Info(ConsoleColor.Cyan, $"AllSystemsLoaded {s.Elapsed.TotalMilliseconds}ms");
         }
@@ -428,7 +435,7 @@ namespace Ship_Game.GameScreens.LoadGame
             data.MasterShipList.Add(ship);
         }
 
-        static void RestorePlanetConstructionQueue(SavedGame.UniverseSaveData saveData, SavedGame.RingSave rsave, Planet p)
+        static void RestorePlanetConstructionQueue(SavedGame.RingSave rsave, Planet p, UniverseScreen us)
         {
             foreach (SavedGame.QueueItemSave qisave in rsave.Planet.QISaveList)
             {
@@ -438,7 +445,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 {
                     qi.isBuilding    = true;
                     qi.IsMilitary    = qisave.IsMilitary;
-                    qi.Building      = ResourceManager.CreateBuilding(qisave.UID);
+                    qi.Building      = ResourceManager.CreateBuilding(us, qisave.UID);
                     qi.Cost          = qi.Building.ActualCost;
                     qi.NotifyOnEmpty = false;
                     qi.IsPlayerAdded = qisave.IsPlayerAdded;
@@ -512,7 +519,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
         
-        static void RestoreSolarSystemCQs(SavedGame.UniverseSaveData saveData, UniverseData data)
+        static void RestoreSolarSystemCQs(SavedGame.UniverseSaveData saveData, UniverseData data, UniverseScreen us)
         {
             foreach (SavedGame.SolarSystemSaveData sdata in saveData.SolarSystemDataList)
             {
@@ -523,7 +530,7 @@ namespace Ship_Game.GameScreens.LoadGame
                         Planet p = data.FindPlanetOrNull(rsave.Planet.Guid);
                         if (p?.Owner != null)
                         {
-                            RestorePlanetConstructionQueue(saveData, rsave, p);
+                            RestorePlanetConstructionQueue(rsave, p, us);
                         }
                     }
                 }

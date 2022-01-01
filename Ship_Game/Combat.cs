@@ -80,7 +80,7 @@ namespace Ship_Game
             if (isViewing)
             {
                 GameAudio.PlaySfxAsync("sd_troop_attack_hit");
-                ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(DefendingTroop?.ClickRect ?? DefenseTile.ClickRect, 1);
+                ((CombatScreen)Planet.Universe.workersPanel).AddExplosion(DefendingTroop?.ClickRect ?? DefenseTile.ClickRect, 1);
             }
 
             if (DefendingTroop != null)
@@ -88,7 +88,7 @@ namespace Ship_Game
                 if (isViewing && DefenseTile.TroopsHere.Contains(DefendingTroop))
                 {
                     GameAudio.PlaySfxAsync("Explo1");
-                    ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(DefenseTile.ClickRect, 4);
+                    ((CombatScreen)Planet.Universe.workersPanel).AddExplosion(DefenseTile.ClickRect, 4);
                 }
 
                 DefendingTroop.DamageTroop(damage, Planet, DefenseTile, out bool dead);

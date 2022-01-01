@@ -97,7 +97,7 @@ namespace Ship_Game.Commands.Goals
                 Pirates.Owner.SetRelationsAsKnown(TargetEmpire);
 
             if (TargetEmpire.isPlayer)
-                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe);
+                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, empire.Universum);
             else
                 DemandMoneyFromAI();
 

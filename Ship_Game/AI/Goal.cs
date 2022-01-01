@@ -111,8 +111,9 @@ namespace Ship_Game.AI
             }
             set => StaticBuildPosition = value;
         }
+
         public Planet GetTetherPlanet => TetherTarget != Guid.Empty
-            ? Empire.Universe.GetPlanet(TetherTarget) : null;
+            ? empire.Universum.GetPlanet(TetherTarget) : null;
 
         public bool IsDeploymentGoal => ToBuildUID.NotEmpty() && !BuildPosition.AlmostZero();
         public abstract string UID { get; }
@@ -252,7 +253,7 @@ namespace Ship_Game.AI
         /// <summary>
         /// 1 is 10 turns, 5 is 50 turns
         /// </summary>
-        public float LifeTime => Empire.Universe.StarDate - StarDateAdded;
+        public float LifeTime => empire.Universum.StarDate - StarDateAdded;
         public bool IsMainGoalCompleted => MainGoalCompleted;
 
         // @note Goals are mainly evaluated during Empire update

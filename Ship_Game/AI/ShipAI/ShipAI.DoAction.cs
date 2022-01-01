@@ -175,7 +175,7 @@ namespace Ship_Game.AI
             Planet target = g.TargetPlanet;
             if (target == null && g.Goal.TetherTarget != Guid.Empty)
             {
-                target = Empire.Universe.GetPlanet(g.Goal.TetherTarget);
+                target = Owner.Universe.GetPlanet(g.Goal.TetherTarget);
                 if (target == null) 
                 {
                     OrderScrapShip();
@@ -195,7 +195,7 @@ namespace Ship_Game.AI
 
             if (g.Goal.TetherTarget != Guid.Empty)
             {
-                Planet planetToTether = Empire.Universe.GetPlanet(g.Goal.TetherTarget);
+                Planet planetToTether = Owner.Universe.GetPlanet(g.Goal.TetherTarget);
                 orbital.TetherToPlanet(planetToTether);
                 orbital.TetherOffset = g.Goal.TetherOffset;
                 planetToTether.OrbitalStations.Add(orbital);
@@ -217,7 +217,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Planet target = Empire.Universe.GetPlanet(g.Goal.TetherTarget);
+            Planet target = Owner.Universe.GetPlanet(g.Goal.TetherTarget);
             if (target == null || target.Owner != Owner.Loyalty) // FB - Planet owner has changed
             {
                 OrderScrapShip();
@@ -251,7 +251,7 @@ namespace Ship_Game.AI
                     if (node.Position == g.Goal.BuildPosition)
                     {
                         node.Platform = platform;
-                        StatTracker.StatAddRoad(Empire.Universe.StarDate, node, Owner.Loyalty);
+                        StatTracker.StatAddRoad(Owner.Universe.StarDate, node, Owner.Loyalty);
                         return;
                     }
                 }

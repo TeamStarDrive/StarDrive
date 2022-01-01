@@ -22,7 +22,7 @@ namespace Ship_Game.Commands.Goals
         public DefendSystem(Empire empire, SolarSystem system, float strengthWanted, int fleetCount) : this()
         {
             this.empire    = empire;
-            StarDateAdded  = Empire.Universe.StarDate;
+            StarDateAdded  = empire.Universum.StarDate;
             TargetSystem   = system;
             Vector2 center = system.Position;
             float radius   = system.Radius * 1.5f;

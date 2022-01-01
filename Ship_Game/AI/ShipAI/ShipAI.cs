@@ -553,7 +553,7 @@ namespace Ship_Game.AI
             {
                 OrderRebaseToNearest();
                 if (Owner.Loyalty.isPlayer)
-                    Empire.Universe.NotificationManager.AddAbortLandNotification(planet, Owner);
+                    Owner.Universe.NotificationManager.AddAbortLandNotification(planet, Owner);
             }
         }
 

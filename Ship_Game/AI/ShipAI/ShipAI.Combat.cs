@@ -116,7 +116,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ++Empire.Universe.Objects.Scans;
+            ++sensorShip.Universe.Objects.Scans;
 
             var findFriends = new SearchOptions(sensorShip.Position, sensorRadius, GameObjectType.Ship)
             {
@@ -146,7 +146,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ++Empire.Universe.Objects.Scans;
+            ++sensorShip.Universe.Objects.Scans;
             BadGuysNear = false;
 
             Empire us = sensorShip.Loyalty;
@@ -192,7 +192,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ++Empire.Universe.Objects.Scans;
+            ++sensorShip.Universe.Objects.Scans;
 
             // as optimization we use WeaponsMaxRange instead
             var opt = new SearchOptions(sensorShip.Position, sensorShip.WeaponsMaxRange, GameObjectType.Proj)
@@ -627,7 +627,7 @@ namespace Ship_Game.AI
                 {
                     Owner.ChangeOrdnance(-bombBay.InstalledWeapon.OrdinanceRequiredToFire);
                     bomb.SetTarget(goal.TargetPlanet);
-                    Empire.Universe.BombList.Add(bomb);
+                    Owner.Universe.BombList.Add(bomb);
                     bombBay.InstalledWeapon.CooldownTimer = bombBay.InstalledWeapon.FireDelay;
                 }
             }

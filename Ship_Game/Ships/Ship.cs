@@ -57,7 +57,6 @@ namespace Ship_Game.Ships
         public ShipResupply Supply;
         public bool ShipStatusChanged;
         public Guid Guid = Guid.NewGuid();
-        public bool AddedOnLoad;
         public bool HasRegeneratingModules;
         public bool IsMeteor { get; private set; }
 

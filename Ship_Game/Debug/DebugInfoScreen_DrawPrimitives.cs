@@ -15,12 +15,12 @@ namespace Ship_Game.Debug
         // since they are only cleaned up while the game is running
         bool ShouldNotAddPrimitive(DebugModes mode)
         {
-            return mode != Mode || !Visible || Empire.Universe.Paused;
+            return mode != Mode || !Visible || Screen.Paused;
         }
 
         bool ShouldNotAddPrimitive()
         {
-            return !Visible || Empire.Universe.Paused;
+            return !Visible || Screen.Paused;
         }
 
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, float lifeTime)
@@ -86,22 +86,22 @@ namespace Ship_Game.Debug
         public void DrawCircleImm(Vector2 worldPos, float radius, Color color, float thickness = 1f)
         {
             if (!Visible) return;
-            Empire.Universe.DrawCircleProjected(worldPos, radius, color, thickness);
+            Screen.DrawCircleProjected(worldPos, radius, color, thickness);
         }
 
         public void DrawLineImm(Vector2 worldA, Vector2 worldB, Color color, float thickness = 1f)
         {
             if (!Visible) return;
-            Vector2d screenA = Empire.Universe.ProjectToScreenPosition(worldA);
-            Vector2d screenB = Empire.Universe.ProjectToScreenPosition(worldB);
+            Vector2d screenA = Screen.ProjectToScreenPosition(worldA);
+            Vector2d screenB = Screen.ProjectToScreenPosition(worldB);
             DrawLine(screenA, screenB, color, thickness);
         }
 
         public void DrawArrowImm(Vector2 worldA, Vector2 worldB, Color color, float thickness = 1f)
         {
             if (!Visible) return;
-            Vector2d screenA = Empire.Universe.ProjectToScreenPosition(worldA);
-            Vector2d screenB = Empire.Universe.ProjectToScreenPosition(worldB);
+            Vector2d screenA = Screen.ProjectToScreenPosition(worldA);
+            Vector2d screenB = Screen.ProjectToScreenPosition(worldB);
             DrawLine(screenA, screenB, color, thickness);
 
             Vector2d screenDir = screenA.DirectionToTarget(screenB);

@@ -33,7 +33,7 @@ namespace Ship_Game.Empires.Components
             if (ship.IsSubspaceProjector)
             {
                 // Need to use Contains() here instead of ContainsRef() because of the SafeArray impl
-                if (Empire.Universe?.DebugWin != null && ActualOwnedProjectors.Contains(ship))
+                if (ship.Universe?.DebugWin != null && ActualOwnedProjectors.Contains(ship))
                 {
                     Log.Error($"Attempted to add an existing projector {ship}");
                 }
@@ -45,7 +45,7 @@ namespace Ship_Game.Empires.Components
             }
             else
             {
-                if (Empire.Universe?.DebugWin != null && ActualOwnedShips.Contains(ship))
+                if (ship.Universe?.DebugWin != null && ActualOwnedShips.Contains(ship))
                 {
                     Log.Error($"Attempted to add an existing ship {ship}");
                 }

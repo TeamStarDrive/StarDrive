@@ -81,8 +81,8 @@ namespace Ship_Game.Commands.Goals
             TargetShip.DisengageExcessTroops(TargetShip.TroopCount);
             TargetShip.LoyaltyChangeByGift(EmpireToProtect);
             TargetShip.AI.ClearOrders();
-            if (EmpireToProtect == EmpireManager.Player)
-                Empire.Universe.NotificationManager.AddWeProtectedYou(Pirates.Owner);
+            if (EmpireToProtect.isPlayer)
+                empire.Universum.NotificationManager.AddWeProtectedYou(Pirates.Owner);
 
             return GoalStep.GoalComplete;
         }

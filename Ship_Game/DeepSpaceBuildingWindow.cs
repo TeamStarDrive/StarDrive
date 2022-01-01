@@ -155,7 +155,7 @@ namespace Ship_Game
 
             bool okToBuild = TargetPlanet == Guid.Empty
                              || TargetPlanet != Guid.Empty &&
-                             !Empire.Universe.PlanetsDict[TargetPlanet].IsOutOfOrbitalsLimit(itemToBuild);
+                             !Screen.PlanetsDict[TargetPlanet].IsOutOfOrbitalsLimit(itemToBuild);
 
             if (okToBuild)
             {

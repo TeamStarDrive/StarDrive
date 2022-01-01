@@ -96,7 +96,7 @@ namespace Ship_Game
                 var tile = PlanetGridSquare.FromSaveData(tileData);
 
                 if (tile.Biosphere)
-                    BuildingList.Add(ResourceManager.CreateBuilding(Building.BiospheresId));
+                    BuildingList.Add(ResourceManager.CreateBuilding(Universe, Building.BiospheresId));
 
                 if (tileData.CrashSiteActive)
                     tile.CrashSite.CrashShip(tileData, this, tile);

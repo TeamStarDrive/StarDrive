@@ -180,7 +180,7 @@ namespace Ship_Game
                 return;
 
             Vector2 launchVector = MathExt.RandomOffsetAndDistance(p.Center, 1000);
-            Ship defenseShip = Ship.CreateDefenseShip(Empire.Universe, selectedShip.Name, empire, launchVector, p);
+            Ship defenseShip = Ship.CreateDefenseShip(p.Universe, selectedShip.Name, empire, launchVector, p);
             if (defenseShip == null)
             {
                 Log.Warning($"Could not create defense ship, ship name = {selectedShip}");
@@ -388,10 +388,10 @@ namespace Ship_Game
             p.AddBuildingsFertility(MaxFertilityOnBuild);
             p.MineralRichness += IncreaseRichness.LowerBound(0); // This must be positive. since richness cannot go below 0.
             p.BuildingList.Add(this);
-            if (IsSpacePort && Empire.Universe != null)
+            if (IsSpacePort && p.Universe != null)
             {
                 p.Station.Planet = p;
-                p.Station.LoadContent(Empire.Universe.ScreenManager, p.Owner);
+                p.Station.LoadContent(ScreenManager.Instance, p.Owner);
             }
 
             p.HasSpacePort |= IsSpacePort || AllowShipBuilding;
@@ -404,7 +404,7 @@ namespace Ship_Game
 
             if (EventOnBuild != null && p.Owner?.isPlayer == true)
             {
-                UniverseScreen u = Empire.Universe;
+                UniverseScreen u = p.Universe;
                 ExplorationEvent e = ResourceManager.Event(EventOnBuild);
                 u.ScreenManager.AddScreen(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true, p));
             }

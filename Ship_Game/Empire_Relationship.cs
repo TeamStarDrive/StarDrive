@@ -73,7 +73,7 @@ namespace Ship_Game
             }
 
             if (notify)
-                Universe.NotificationManager.AddTreatyBreak(this, type);
+                Universum.NotificationManager.AddTreatyBreak(this, type);
         }
 
         public void BreakAllTreatiesWith(Empire them, bool includingPeace = false)
@@ -757,7 +757,7 @@ namespace Ship_Game
             else
             {
                 absorber.AbsorbEmpire(this);
-                Universe.NotificationManager.AddEmpireMergedOrSurrendered(this,
+                Universum.NotificationManager.AddEmpireMergedOrSurrendered(this,
                     GetMergeNotificationMessage(absorber, enemy));
             }
 

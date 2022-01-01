@@ -51,9 +51,9 @@ namespace Ship_Game.AI
 
             public Pin(){}
 
-            public void RestoreUnSerializedData(in Guid shipGuid)
+            public void RestoreUnSerializedData(UniverseScreen us, in Guid shipGuid)
             {
-                Ship ship = Empire.Universe.Objects.FindShip(shipGuid);
+                Ship ship = us.Objects.FindShip(shipGuid);
                 if (ship == null) return;
 
                 PinGuid = shipGuid;
@@ -643,11 +643,11 @@ namespace Ship_Game.AI
             }
         }
 
-        public void RestorePinGuidsFromSave()
+        public void RestorePinGuidsFromSave(UniverseScreen us)
         {
             foreach (var kv in Pins)
             {
-                kv.Value.RestoreUnSerializedData(kv.Key);
+                kv.Value.RestoreUnSerializedData(us, kv.Key);
             }
         }
 

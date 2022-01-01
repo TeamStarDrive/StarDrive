@@ -63,7 +63,7 @@ namespace Ship_Game
 
             if (Owner != null 
                 && Owner.InFrustum 
-                && Empire.Universe.IsSystemViewOrCloser
+                && Owner.Universe.IsSystemViewOrCloser
                 && (Owner.InSensorRange || target is ShipModule m && m.GetParent()?.InSensorRange == true))
             {
                 weapon.PlayToggleAndFireSfx(Emitter);
@@ -119,7 +119,7 @@ namespace Ship_Game
                 QuadVertexDecl = new VertexDeclaration(GameBase.Base.GraphicsDevice,
                                         VertexPositionNormalTexture.VertexElements);
 
-            Empire.Universe?.Objects.Add(this);
+            Owner.Universe?.Objects.Add(this);
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -364,7 +364,7 @@ namespace Ship_Game
             if (!HasParticleHitEffect(10f))
                 return;
 
-            var particles = Empire.Universe.Particles;
+            var particles = Owner.Universe.Particles;
             Vector2 impactNormal = ActualHitDestination.DirectionToTarget(Source);
             Vector3 pos = ActualHitDestination.ToVec3(centerAxisZ);
 
