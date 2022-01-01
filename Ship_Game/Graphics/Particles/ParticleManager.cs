@@ -7,34 +7,36 @@ namespace Ship_Game.Graphics.Particles
 {
     public class ParticleManager : IDisposable
     {
-        public IParticleSystem BeamFlash;
-        public IParticleSystem Explosion;
-        public IParticleSystem PhotonExplosion;
-        public IParticleSystem ExplosionSmoke;
-        public IParticleSystem ProjectileTrail;
-        public IParticleSystem JunkSmoke;
-        public IParticleSystem FireTrail;
-        public IParticleSystem MissileSmokeTrail;
-        public IParticleSystem SmokePlume;
-        public IParticleSystem Fire;
-        public IParticleSystem ThrustEffect;
-        public IParticleSystem EngineTrail;
-        public IParticleSystem Flame;
-        public IParticleSystem SmallFlame;
-        public IParticleSystem Sparks;
-        public IParticleSystem Lightning;
-        public IParticleSystem Flash;
-        public IParticleSystem StarParticles;
-        public IParticleSystem Galaxy;
-        public IParticleSystem AsteroidParticles;
-        public IParticleSystem MissileThrust;
-        public IParticleSystem IonTrail;
+        public IParticle BeamFlash;
+        public IParticle Explosion;
+        public IParticle PhotonExplosion;
+        public IParticle ExplosionSmoke;
+        public IParticle ProjectileTrail;
+        public IParticle JunkSmoke;
+        public IParticle FireTrail;
+        public IParticle MissileSmokeTrail;
+        public IParticle SmokePlume;
+        public IParticle Fire;
+        public IParticle ThrustEffect;
+        public IParticle EngineTrail;
+        public IParticle Flame;
+        public IParticle SmallFire;
+        public IParticle Sparks;
+        public IParticle Lightning;
+        public IParticle Flash;
+        public IParticle StarParticles;
+        public IParticle Galaxy;
+        public IParticle AsteroidParticles;
+        public IParticle MissileThrust;
+        public IParticle IonTrail;
+        public IParticle BlueSparks;
+        public IParticle ModuleSmoke;
 
         readonly Data.GameContentManager Content;
         readonly GraphicsDevice Device;
-        readonly Array<IParticleSystem> Tracked = new Array<IParticleSystem>();
+        readonly Array<IParticle> Tracked = new Array<IParticle>();
 
-        public IReadOnlyList<IParticleSystem> ParticleSystems => Tracked;
+        public IReadOnlyList<IParticle> ParticleSystems => Tracked;
 
         public ParticleManager(Data.GameContentManager content, GraphicsDevice device)
         {
@@ -47,34 +49,36 @@ namespace Ship_Game.Graphics.Particles
         public void Reload()
         {
             UnloadContent();
-            BeamFlash              = Add("BeamFlash");
-            ThrustEffect           = Add("ThrustEffect");
-            EngineTrail            = Add("EngineTrail");
-            Explosion              = Add("Explosion");
-            PhotonExplosion        = Add("PhotonExplosion");
-            ExplosionSmoke         = Add("ExplosionSmoke");
-            ProjectileTrail        = Add("ProjectileTrail");
-            JunkSmoke              = Add("JunkSmoke");
-            MissileSmokeTrail      = Add("MissileSmokeTrail");
-            FireTrail              = Add("FireTrail");
-            SmokePlume             = Add("SmokePlume");
-            Fire                   = Add("Fire");
-            Flame                  = Add("Flame");
-            SmallFlame             = Add("Flame", 0.25f, (int)(4000 * GlobalStats.DamageIntensity));
-            Sparks                 = Add("Sparks");
-            Lightning              = Add("Lightning");
-            Flash                  = Add("Flash");
-            StarParticles          = Add("StarParticles");
-            Galaxy                 = Add("Galaxy");
-            AsteroidParticles      = Add("AsteroidParticles");
-            MissileThrust          = Add("MissileThrust");
-            IonTrail               = Add("IonTrail");
+            BeamFlash         = Add("BeamFlash");
+            ThrustEffect      = Add("ThrustEffect");
+            EngineTrail       = Add("EngineTrail");
+            Explosion         = Add("Explosion");
+            PhotonExplosion   = Add("PhotonExplosion");
+            ExplosionSmoke    = Add("ExplosionSmoke");
+            ProjectileTrail   = Add("ProjectileTrail");
+            JunkSmoke         = Add("JunkSmoke");
+            MissileSmokeTrail = Add("MissileSmokeTrail");
+            FireTrail         = Add("FireTrail");
+            SmokePlume        = Add("SmokePlume");
+            Fire              = Add("Fire");
+            Flame             = Add("Flame");
+            SmallFire         = Add("Fire", 0.35f, (int)(4000 * GlobalStats.DamageIntensity));
+            Sparks            = Add("Sparks");
+            Lightning         = Add("Lightning");
+            Flash             = Add("Flash");
+            StarParticles     = Add("StarParticles");
+            Galaxy            = Add("Galaxy");
+            AsteroidParticles = Add("AsteroidParticles");
+            MissileThrust     = Add("MissileThrust");
+            IonTrail          = Add("IonTrail");
+            BlueSparks        = Add("BlueSparks");
+            ModuleSmoke       = Add("ModuleSmoke");
         }
 
-        IParticleSystem Add(string name, float scale = 1, int particleCount = -1)
+        IParticle Add(string name, float scale = 1, int particleCount = -1)
         {
             var settings = ParticleSettings.Get(name);
-            var ps = new ParticleSystem(Content, settings, Device, scale, particleCount);
+            var ps = new Particle(Content, settings, Device, scale, particleCount);
             if (!scale.AlmostEqual(1f))
                 ps.Name = $"{name} {scale.String(2)}x";
             Tracked.Add(ps);
@@ -83,7 +87,7 @@ namespace Ship_Game.Graphics.Particles
 
         public void UnloadContent()
         {
-            foreach (IParticleSystem sys in Tracked)
+            foreach (IParticle sys in Tracked)
                 sys.Dispose();
             Tracked.Clear();
         }
@@ -97,7 +101,7 @@ namespace Ship_Game.Graphics.Particles
         {
             for (int i = 0; i < Tracked.Count; ++i)
             {
-                IParticleSystem ps = Tracked[i];
+                IParticle ps = Tracked[i];
                 ps.Update(elapsed);
             }
         }
@@ -106,7 +110,7 @@ namespace Ship_Game.Graphics.Particles
         {
             for (int i = 0; i < Tracked.Count; ++i)
             {
-                IParticleSystem ps = Tracked[i];
+                IParticle ps = Tracked[i];
                 ps.Draw(view, projection, nearView);
             }
         }

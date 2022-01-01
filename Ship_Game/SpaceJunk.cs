@@ -77,16 +77,16 @@ namespace Ship_Game
                 case 7: // meshRadius = 23.21
                     RandomValues(pos, vel:Range(-2.5f, 2.5f), spin:Range(0.01f, 0.5f), scale: scale, scaleRandom: 0.3f);
                     trailParticles = 60f;
-                    if (ignite) flameParticles = 20f;
+                    if (ignite) flameParticles = 15f;
                     break;
                 case 8: // meshRadius = 32.18
                     RandomValues(pos, vel:Range(-5f, 5f), spin:Range(0.5f, 3.5f), scale: scale, scaleRandom: 0.5f);
                     trailParticles = 60f;
-                    if (ignite) flameParticles = 20f;
+                    if (ignite) flameParticles = 15f;
                     break;
                 case 11: // meshRadius = 63.89
                     RandomValues(pos, vel:Range(-5f, 5f), spin:Range(0.5f, 3.5f), scale: scale, scaleRandom: 0.5f);
-                    if (ignite) flameParticles = 20f;
+                    if (ignite) flameParticles = 15f;
                     break;
                 case 12: // meshRadius = 39.29
                     RandomValues(pos, vel:Range(-3f, 3f), spin:Range(0.01f, 0.5f), scale: scale, scaleRandom: 0.3f);

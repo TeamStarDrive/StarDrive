@@ -8,7 +8,7 @@ using Ship_Game.Graphics.Particles;
 
 namespace Ship_Game
 {
-    public sealed class ParticleSystem : IParticleSystem, IDisposable
+    public sealed class Particle : IParticle, IDisposable
     {
         // Settings class controls the appearance and animation of this particle system.
         ParticleSettings Settings;
@@ -170,7 +170,7 @@ namespace Ship_Game
             public const int SizeInBytes = 44;
         }
 
-        public ParticleSystem(GameContentManager content, ParticleSettings settings, GraphicsDevice device, float scale, int maxParticles)
+        public Particle(GameContentManager content, ParticleSettings settings, GraphicsDevice device, float scale, int maxParticles)
         {
             Name = settings.Name;
             GraphicsDevice = device;
@@ -251,8 +251,19 @@ namespace Ship_Game
             parameters["DurationRandomness"].SetValue(Settings.DurationRandomness);
             parameters["AlignRotationToVelocity"].SetValue(Settings.AlignRotationToVelocity);
             parameters["EndVelocity"].SetValue(Settings.EndVelocity);
-            parameters["MinColor"].SetValue(Settings.ColorRange[0].ToVector4());
-            parameters["MaxColor"].SetValue(Settings.ColorRange[1].ToVector4());
+
+            Color[] startColor = Settings.StartColorRange;
+            Color[] endColor = Settings.EndColorRange ?? startColor;
+            parameters["StartMinColor"].SetValue(startColor[0].ToVector4());
+            parameters["StartMaxColor"].SetValue(startColor[startColor.Length-1].ToVector4());
+            parameters["EndMinColor"].SetValue(endColor[0].ToVector4());
+            parameters["EndMaxColor"].SetValue(endColor[endColor.Length-1].ToVector4());
+
+            // To reach endColor at relativeAge=EndColorTime
+            // Set EndColorTimeMul multiplier to 1/EndColorTime so it reaches EndColor at that relativeAge
+            // Ex: EndColorTime=0.75, EndColorTimeMul=1/0.75=1.33, EndColor is reached at relativeAge*1.33, so faster
+            parameters["EndColorTimeMul"].SetValue(1f / Settings.EndColorTime);
+
             parameters["RotateSpeed"].SetValue(new Vector2(Settings.RotateSpeed.Min, Settings.RotateSpeed.Max));
 
             Range startSize = Settings.StartEndSize[0];
@@ -621,11 +632,6 @@ namespace Ship_Game
             }
         }
 
-        public void AddParticle(in Vector3 position, in Vector3 velocity)
-        {
-            AddParticle(position, velocity, 1f, Color.White);
-        }
-
         public void AddParticle(in Vector3 position)
         {
             AddParticle(position, Vector3.Zero, 1f, Color.White);
@@ -636,6 +642,30 @@ namespace Ship_Game
             AddParticle(position, Vector3.Zero, scale, Color.White);
         }
 
+        public void AddParticle(in Vector3 position, in Vector3 velocity)
+        {
+            AddParticle(position, velocity, 1f, Color.White);
+        }
+
+        public void AddMultipleParticles(int numParticles, in Vector3 position)
+        {
+            AddMultipleParticles(numParticles, position, Vector3.Zero, 1f, Color.White);
+        }
+        public void AddMultipleParticles(int numParticles, in Vector3 position, float scale)
+        {
+            AddMultipleParticles(numParticles, position, Vector3.Zero, scale, Color.White);
+        }
+        public void AddMultipleParticles(int numParticles, in Vector3 position, in Vector3 velocity)
+        {
+            AddMultipleParticles(numParticles, position, velocity, 1f, Color.White);
+        }
+        public void AddMultipleParticles(int numParticles, in Vector3 position, in Vector3 velocity, float scale, Color color)
+        {
+            for (int i = 0; i < numParticles; ++i)
+                AddParticle(position, velocity, scale, color);
+        }
+
+
         public void Dispose()
         {
             Particles = null;
@@ -645,7 +675,7 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        ~ParticleSystem()
+        ~Particle()
         {
             VertexBuffer?.Dispose(ref VertexBuffer);
             IndexBuffer?.Dispose(ref IndexBuffer);
