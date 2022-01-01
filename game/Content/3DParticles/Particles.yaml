@@ -194,14 +194,16 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 10000
-  Duration: 2
-  DurationRandomness: 1
-  InheritOwnerVelocity: 1
-  RandomVelocityXY: [ [0,15], [-10,10] ]
-  EndVelocity: 1
-  StartColorRange: [[255,255,255,10],[255,255,255,40]]
+  Duration: 1.5
+  DurationRandomness: 0.5
+  InheritOwnerVelocity: 0.1
+  AlignRotationToVelocity: 1
+  RandomVelocityXY: [ [-20,20], [-20,20] ]
+  AlignRandomVelocityXY: false
+  EndVelocity: 0
+  StartColorRange: [[255,255,255,150],[255,255,255,200]]
   RotateSpeed: [0]
-  StartEndSize: [ [5,10], [10,40] ]
+  StartEndSize: [ [35,55], [7,15] ]
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
@@ -214,7 +216,7 @@
   DurationRandomness: 0.5
   InheritOwnerVelocity: 0.1
   RandomVelocityXY: [ [-4,4], [-4,4] ]
-  EndVelocity: 1
+  EndVelocity: 0
   StartColorRange: [[128,128,128,255],[169,169,169,255]]
   RotateSpeed: [-8,8]
   StartEndSize: [ [35,40], [2,5] ]
@@ -237,13 +239,13 @@
 
 - ParticleSettings:
   Name: Flame
-  TextureName: "explosion.png"
+  TextureName: "fire.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 5000
   Duration: 0.5
   DurationRandomness: 2
-  InheritOwnerVelocity: 0.5
+  InheritOwnerVelocity: 0.1
   RandomVelocityXY: [ [0,0], [-10,10] ]
   EndVelocity: 0
   StartColorRange: [[128,128,128,255],[169,169,169,255]]
@@ -290,8 +292,8 @@
   MaxParticles: 3000
   Duration: 1.5
   DurationRandomness: 1
-  InheritOwnerVelocity: 1
-  RandomVelocityXY: [ [-50,50], [-50,50] ]
+  InheritOwnerVelocity: 0.2
+  RandomVelocityXY: [ [-10,10], [-10,10] ]
   EndVelocity: 0
   StartColorRange: [[0,0,255,255],[0,255,255,255]]
   RotateSpeed: [-1,1]
@@ -309,7 +311,7 @@
   InheritOwnerVelocity: 0.05
   RandomVelocityXY: [ [0,1], [-1,1] ]
   EndVelocity: 1
-  StartColorRange: [[93,96,95,255],[255,255,255,80]]
+  StartColorRange: [[155,155,155,255],[255,255,255,250]]
   RotateSpeed: [-1,1]
   StartEndSize: [ [25,15], [5,8] ]
   SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
@@ -352,11 +354,11 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 3000
-  Duration: 10
+  Duration: 4
   DurationRandomness: 0
-  InheritOwnerVelocity: 1
+  InheritOwnerVelocity: 0.2
   RandomVelocityXY: [ [-15,15], [-20,20] ]
-  EndVelocity: 0.8
+  EndVelocity: 0
   StartColorRange: [[143,109,86,255],[143,109,86,255]]
   RotateSpeed: [-1,1]
   StartEndSize: [ [48,72], [8,16] ]
@@ -375,7 +377,27 @@
   RandomVelocityXY: [ [-60,60], [-60,60] ]
   AlignRandomVelocityXY: true
   EndVelocity: 0
-  StartColorRange: [[255,194,235,255],[255,255,255,255]]
+  StartColorRange: [[250,243,152,255],[255,255,255,255]]
+  EndColorRange: [[232,168,34,255],[232,210,34,255]]
+  EndColorTime: 0.8
+  RotateSpeed: [0,0]
+  StartEndSize: [ [3,7], [1,3] ]
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: BlueSparks                #repair sparks
+  TextureName: "white_spark.png" # "blue_flame.png" / "spark.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 20000
+  Duration: 2
+  DurationRandomness: 1
+  InheritOwnerVelocity: 0
+  AlignRotationToVelocity: 1
+  RandomVelocityXY: [ [-60,60], [-60,60] ]
+  AlignRandomVelocityXY: true
+  EndVelocity: 0
+  StartColorRange: [[194,231,239,255],[255,255,255,255]]
   EndColorRange: [[0,0,255,255],[0,0,255,255]]
   EndColorTime: 0.8
   RotateSpeed: [0,0]
@@ -418,3 +440,19 @@
   RotateSpeed: [-0.2,0.2]
   StartEndSize: [ [600,800], [100,150] ]
   SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: ModuleSmoke
+  TextureName: "smoke.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 10000
+  Duration: 3
+  DurationRandomness: 1
+  InheritOwnerVelocity: 0.05
+  RandomVelocityXY: [ [-6,6], [-6,6] ]
+  EndVelocity: 1
+  StartColorRange: [[155,155,155,255],[255,255,255,250]]
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [40,30], [5,8] ]
+  SrcDstBlend: [SourceAlpha, InverseSourceAlpha]

@@ -20,7 +20,7 @@ namespace Ship_Game.Graphics.Particles
         public IParticleSystem ThrustEffect;
         public IParticleSystem EngineTrail;
         public IParticleSystem Flame;
-        public IParticleSystem SmallFlame;
+        public IParticleSystem SmallFire;
         public IParticleSystem Sparks;
         public IParticleSystem Lightning;
         public IParticleSystem Flash;
@@ -29,6 +29,8 @@ namespace Ship_Game.Graphics.Particles
         public IParticleSystem AsteroidParticles;
         public IParticleSystem MissileThrust;
         public IParticleSystem IonTrail;
+        public IParticleSystem BlueSparks;
+        public IParticleSystem ModuleSmoke;
 
         readonly Data.GameContentManager Content;
         readonly GraphicsDevice Device;
@@ -60,7 +62,7 @@ namespace Ship_Game.Graphics.Particles
             SmokePlume             = Add("SmokePlume");
             Fire                   = Add("Fire");
             Flame                  = Add("Flame");
-            SmallFlame             = Add("Flame", 0.25f, (int)(4000 * GlobalStats.DamageIntensity));
+            SmallFire              = Add("Fire", 0.35f, (int)(4000 * GlobalStats.DamageIntensity));
             Sparks                 = Add("Sparks");
             Lightning              = Add("Lightning");
             Flash                  = Add("Flash");
@@ -69,6 +71,8 @@ namespace Ship_Game.Graphics.Particles
             AsteroidParticles      = Add("AsteroidParticles");
             MissileThrust          = Add("MissileThrust");
             IonTrail               = Add("IonTrail");
+            BlueSparks             = Add("BlueSparks");
+            ModuleSmoke            = Add("ModuleSmoke");
         }
 
         IParticleSystem Add(string name, float scale = 1, int particleCount = -1)
