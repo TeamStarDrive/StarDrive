@@ -251,8 +251,19 @@ namespace Ship_Game
             parameters["DurationRandomness"].SetValue(Settings.DurationRandomness);
             parameters["AlignRotationToVelocity"].SetValue(Settings.AlignRotationToVelocity);
             parameters["EndVelocity"].SetValue(Settings.EndVelocity);
-            parameters["MinColor"].SetValue(Settings.ColorRange[0].ToVector4());
-            parameters["MaxColor"].SetValue(Settings.ColorRange[1].ToVector4());
+
+            Color[] startColor = Settings.StartColorRange;
+            Color[] endColor = Settings.EndColorRange ?? startColor;
+            parameters["StartMinColor"].SetValue(startColor[0].ToVector4());
+            parameters["StartMaxColor"].SetValue(startColor[startColor.Length-1].ToVector4());
+            parameters["EndMinColor"].SetValue(endColor[0].ToVector4());
+            parameters["EndMaxColor"].SetValue(endColor[endColor.Length-1].ToVector4());
+
+            // To reach endColor at relativeAge=EndColorTime
+            // Set EndColorTimeMul multiplier to 1/EndColorTime so it reaches EndColor at that relativeAge
+            // Ex: EndColorTime=0.75, EndColorTimeMul=1/0.75=1.33, EndColor is reached at relativeAge*1.33, so faster
+            parameters["EndColorTimeMul"].SetValue(1f / Settings.EndColorTime);
+
             parameters["RotateSpeed"].SetValue(new Vector2(Settings.RotateSpeed.Min, Settings.RotateSpeed.Max));
 
             Range startSize = Settings.StartEndSize[0];
