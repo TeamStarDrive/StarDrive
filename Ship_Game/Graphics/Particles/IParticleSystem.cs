@@ -23,10 +23,16 @@ namespace Ship_Game.Graphics.Particles
         bool IsOutOfParticles { get; }
 
         // Spawn a new particle
-        void AddParticle(in Vector3 position, in Vector3 velocity, float scale, Color color);
-        void AddParticle(in Vector3 position, in Vector3 velocity);
         void AddParticle(in Vector3 position);
         void AddParticle(in Vector3 position, float scale);
+        void AddParticle(in Vector3 position, in Vector3 velocity);
+        void AddParticle(in Vector3 position, in Vector3 velocity, float scale, Color color);
+
+        // Spawn multiple particles in a loop
+        void AddMultipleParticles(int numParticles, in Vector3 position);
+        void AddMultipleParticles(int numParticles, in Vector3 position, float scale);
+        void AddMultipleParticles(int numParticles, in Vector3 position, in Vector3 velocity);
+        void AddMultipleParticles(int numParticles, in Vector3 position, in Vector3 velocity, float scale, Color color);
 
         // Create a new emitter with 3D position
         ParticleEmitter NewEmitter(float particlesPerSecond, in Vector3 initialPosition);
