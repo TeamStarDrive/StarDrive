@@ -250,7 +250,16 @@ namespace Ship_Game.GameScreens.LoadGame
         void AllSystemsLoaded(UniverseScreen us, UniverseData data, ProgressCounter step)
         {
             Stopwatch s = Stopwatch.StartNew();
-            step.Start(data.MasterShipList.Count);
+            step.Start(data.MasterShipList.Count + data.SolarSystemsList.Count);
+
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                empire.Universum = us;
+            }
+            foreach (Projectile projectile in data.MasterProjectileList)
+            {
+                projectile.Universe = us;
+            }
             foreach (Ship ship in data.MasterShipList)
             {
                 ship.Universe = us;
@@ -263,10 +272,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 sys.FiveClosestSystems = data.SolarSystemsList.FindMinItemsFiltered(5,
                                             filter => filter != sys,
                                             select => select.Position.SqDist(sys.Position));
-            }
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                empire.Universum = us;
+                step.Advance();
             }
             Log.Info(ConsoleColor.Cyan, $"AllSystemsLoaded {s.Elapsed.TotalMilliseconds}ms");
         }
