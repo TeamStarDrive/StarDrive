@@ -40,7 +40,7 @@ namespace Ship_Game
         // 0: no velocity inherited
         // +1: all velocity
         // -1: reverse direction
-        [StarData] public float EmitterVelocitySensitivity = 1f;
+        [StarData] public float InheritOwnerVelocity = 1f;
 
         // How much the particle rotation should follow velocity direction
         // 0: particle rotates how it wants (default)
@@ -60,25 +60,31 @@ namespace Ship_Game
         // 0.5 means the particle has half the velocity when it dies
         [StarData] public float EndVelocity = 1f;
 
-        [StarData] public Color MinColor = Color.White;
-        [StarData] public Color MaxColor = Color.White;
+        // Linear color range randomly assigned to a particle
+        [StarData] public Color[] ColorRange = { Color.White, Color.White };
 
-        // random rotation speed range
-        [StarData] public float MinRotateSpeed;
-        [StarData] public float MaxRotateSpeed;
+        // random rotation speed range in radians/s
+        [StarData] public Range RotateSpeed;
 
-        [StarData] public float MinStartSize = 100f;
-        [StarData] public float MaxStartSize = 100f;
-        [StarData] public float MinEndSize = 100f;
-        [StarData] public float MaxEndSize = 100f;
+        // random start and end size ranges
+        // Examples:
+        //  StartEndSize: [ [16,32], [4,8] ]  # randomly shrinking particle
+        //  StartEndSize: [ [4,8], [16,32] ]  # randomly growing particle
+        //  StartEndSize: [ 32, 4 ]  # linearly shrinking particle (no random)
+        //  StartEndSize: [ 4, 32 ]  # linearly growing particle (no random)
+        //  StartEndSize: [ 32 ]  # constant size particle
+        [StarData] public Range[] StartEndSize = { new Range(32), new Range(32) };
 
         // DirectX HLSL blend modes
-        [StarData] public Blend SourceBlend = Blend.SourceAlpha;
-        [StarData] public Blend DestinationBlend = Blend.InverseSourceAlpha;
+        // This requires some advanced knowledge of how DirectX Pixel Shaders work
+        // Extra reading here: 
+        // https://takinginitiative.wordpress.com/2010/04/09/directx-10-tutorial-6-transparency-and-alpha-blending/
+        // http://www.directxtutorial.com/Lesson.aspx?lessonid=9-4-10
+        [StarData] public Blend[] SrcDstBlend = { Blend.SourceAlpha, Blend.InverseSourceAlpha };
 
 
         // Is this a rotating particle? important for effect technique selection
-        public bool IsRotating => MinRotateSpeed != 0f || MaxRotateSpeed != 0f;
+        public bool IsRotating => RotateSpeed.HasValues;
         public bool IsAlignRotationToVel => AlignRotationToVelocity != 0f;
 
         static Map<string, ParticleSettings> Settings = new Map<string, ParticleSettings>();

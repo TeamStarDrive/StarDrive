@@ -46,6 +46,7 @@ namespace Ship_Game
         {
             Min = min; Max = max;
         }
+        public bool HasValues => Min != 0f && Max != 0f;
         [Pure] public bool Equals(Range other)
         {
             return Min == other.Min && Max == other.Max;
