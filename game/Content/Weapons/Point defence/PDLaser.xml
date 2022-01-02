@@ -33,7 +33,7 @@
   <FireCueName>sd_weapon_laser_small_alt5_01</FireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>1</DamageAmount>
+  <DamageAmount>2</DamageAmount>
   <ProjectileSpeed>1500</ProjectileSpeed>
   <Explodes>false</Explodes>
   <Scale>.75</Scale>
@@ -42,6 +42,6 @@
   <WeaponEffectType>HeavyDisruptor</WeaponEffectType>
   <WeaponType>AA Weapons</WeaponType>
   <ProjectileCount>1</ProjectileCount>
-  <ProjectileRadius>20</ProjectileRadius> 
+  <ProjectileRadius>30</ProjectileRadius> 
   <FireArc>0</FireArc>
 </Weapon>

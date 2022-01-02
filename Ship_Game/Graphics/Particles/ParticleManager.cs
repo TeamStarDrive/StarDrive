@@ -32,6 +32,7 @@ namespace Ship_Game.Graphics.Particles
         public IParticle BlueSparks;
         public IParticle ModuleSmoke;
         public IParticle IonRing;
+        public IParticle IonRingReversed;
 
         readonly Data.GameContentManager Content;
         readonly GraphicsDevice Device;
@@ -75,6 +76,7 @@ namespace Ship_Game.Graphics.Particles
             BlueSparks        = Add("BlueSparks");
             ModuleSmoke       = Add("ModuleSmoke");
             IonRing           = Add("IonRing");
+            IonRingReversed   = Add("IonRingReversed");
         }
 
         IParticle Add(string name, float scale = 1, int particleCount = -1)
