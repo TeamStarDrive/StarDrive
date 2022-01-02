@@ -218,7 +218,7 @@ namespace Ship_Game.Data.Mesh
                 // This happens a lot. Many ships share a common base texture.
                 if (AlreadySavedTextures.TryGetValue(texture, out string alreadySavedPath))
                 {
-                    return alreadySavedPath;
+                    return Path.GetFileName(alreadySavedPath);
                 }
 
                 AlreadySavedTextures.Add(texture, writeTo);
