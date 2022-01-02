@@ -912,11 +912,12 @@ namespace Ship_Game.Gameplay
         public float GetShieldDamageMod(ShipModule module)
         {
             float damageModifier = EffectVsShields;
-            if      (Tag_Kinetic) damageModifier *= (1f - module.ShieldKineticResist);
-            if      (Tag_Energy)  damageModifier *= (1f - module.ShieldEnergyResist);
-            if      (Tag_Beam)    damageModifier *= (1f - module.ShieldBeamResist);
-            if      (Tag_Missile) damageModifier *= (1f - module.ShieldMissileResist);
-            if      (Tag_Hybrid)  damageModifier *= (1f - module.ShieldHybridResist);
+            if (Tag_Kinetic) damageModifier *= (1f - module.ShieldKineticResist);
+            if (Tag_Energy)  damageModifier *= (1f - module.ShieldEnergyResist);
+            if (Tag_Beam)    damageModifier *= (1f - module.ShieldBeamResist);
+            if (Tag_Missile) damageModifier *= (1f - module.ShieldMissileResist);
+            if (Tag_Hybrid)  damageModifier *= (1f - module.ShieldHybridResist);
+
             return damageModifier;
         }
 
