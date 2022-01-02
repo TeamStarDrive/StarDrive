@@ -27,7 +27,7 @@
   <FireCueName>sd_ground_ralyeh_01</FireCueName>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
-  <DamageAmount>375</DamageAmount>
+  <DamageAmount>300</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2000</ProjectileSpeed>
   <SalvoCount>3</SalvoCount>

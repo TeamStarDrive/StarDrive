@@ -30,9 +30,9 @@
   <!-- for shield items -->
   <ShieldPowerMax>10000</ShieldPowerMax>
   <ShieldRechargeDelay>20</ShieldRechargeDelay>
-  <ShieldRechargeRate>100.0</ShieldRechargeRate>
+  <ShieldRechargeRate>200.0</ShieldRechargeRate>
   <ShieldRadius>160</ShieldRadius>
-  <ShieldRechargeCombatRate>90</ShieldRechargeCombatRate>
+  <ShieldRechargeCombatRate>200</ShieldRechargeCombatRate>
 
   <!-- for PowerPlant Items -->
   <Explodes>false</Explodes>

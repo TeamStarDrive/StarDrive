@@ -30,7 +30,7 @@
 
   <Scale>1.2</Scale>
   <!-- Projectile Information -->
-  <DamageAmount>2750</DamageAmount>
+  <DamageAmount>2200</DamageAmount>
   <EffectVsShields>1.15</EffectVsShields>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2000</ProjectileSpeed>
