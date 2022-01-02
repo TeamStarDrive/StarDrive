@@ -390,12 +390,12 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 20000
-  Duration: 2
+  Duration: 1.5
   DurationRandomness: 1
-  InheritOwnerVelocity: 0
+  InheritOwnerVelocity: 1
   AlignRotationToVelocity: 1
   RandomVelocityXY: [ [-60,60], [-60,60] ]
-  AlignRandomVelocityXY: true
+  AlignRandomVelocityXY: false
   EndVelocity: 0
   StartColorRange: [[194,231,239,255],[255,255,255,255]]
   EndColorRange: [[0,0,255,255],[0,0,255,255]]
