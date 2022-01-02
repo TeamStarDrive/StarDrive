@@ -249,6 +249,8 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool CanContainExplosion => IsBulkhead || Is(ShipModuleType.Armor);
+
         public bool IsFighterHangar => !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
 
         public float HealthPercent => Health / ActualMaxHealth;
@@ -738,15 +740,42 @@ namespace Ship_Game.Ships
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
         public bool DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
         {
-            float moduleRadius = ShieldsAreActive ? ShieldHitRadius : Radius;
-            float damage = damageInOut * DamageFalloff(worldHitPos, Position, damageRadius, moduleRadius);
-            if (damage <= 0.001f)
-                return true;
+            /*
+            float damage = GetExplosiveDamage(worldHitPos, damageRadius, damageInOut);
+            if (damage <= 0.1f)
+                return true;*/
 
             //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
 
-            Damage(source, damage, out damageInOut);
+            Damage(source, damageInOut, out damageInOut);
             return damageInOut <= 0f;
+        }
+
+        /*
+        public void DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, float damageAmount)
+        {
+            float damage = GetExplosiveDamage(worldHitPos, damageRadius, damageAmount);
+            if (damage > 0.1f)
+            {
+                //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
+                Damage(source, damage, out _);
+            }
+        }*/
+
+        /// <summary>
+        /// Damages the module by explosion and returns true if the module was able to
+        /// contain the explosion
+        /// </summary>
+        public bool TryDamageExplosiveAndContain(GameplayObject damageSource, Vector2 worldHitPos, float hitRadius, ref float damageAmount)
+        {
+            DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount);
+            return Active; // Withstood the explosion
+        }
+
+        float GetExplosiveDamage(Vector2 worldHitPos, float damageRadius, float damageAmount)
+        {
+            float moduleRadius = ShieldsAreActive ? ShieldHitRadius : Radius;
+            return damageAmount * DamageFalloff(worldHitPos, Position, damageRadius, moduleRadius);
         }
 
         void EvtDamageInflicted(GameplayObject source, float amount)
@@ -1004,8 +1033,9 @@ namespace Ship_Game.Ships
 
                 if (Explodes)
                 {
+                    float explosionDamage = ExplosionDamage / ((XSize + YSize) * 2f);
                     UniverseScreen.Spatial.ExplodeAtModule(source, this,
-                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
+                        ignoresShields: true, damageAmount: explosionDamage, damageRadius: ExplosionRadius);
                 }
             }
         }
