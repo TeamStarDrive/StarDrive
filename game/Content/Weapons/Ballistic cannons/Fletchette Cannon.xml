@@ -33,7 +33,7 @@
   <EffectVsShields>1</EffectVsShields>
   <ShieldPenChance>30</ShieldPenChance>
   <!-- Projectile Information -->
-  <DamageAmount>50</DamageAmount>
+  <DamageAmount>43</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2000</ProjectileSpeed>
   <Scale>1</Scale>

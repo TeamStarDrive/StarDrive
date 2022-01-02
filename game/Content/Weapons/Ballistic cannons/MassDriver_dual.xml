@@ -21,7 +21,7 @@
 
 
   <UID>MassDriver_dual</UID>
-  <FireDelay>11.0</FireDelay>
+  <FireDelay>13.0</FireDelay>
   <Range>15000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>13</OrdinanceRequiredToFire>
@@ -33,7 +33,7 @@
   <ProjectileRadius>10</ProjectileRadius>
   <Scale>1.3</Scale>
   <!-- Projectile Information -->
-  <DamageAmount>2750</DamageAmount>
+  <DamageAmount>2200</DamageAmount>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
   <EffectVsShields>1.20</EffectVsShields>  

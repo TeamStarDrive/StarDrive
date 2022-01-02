@@ -20,7 +20,7 @@
   <ExcludesFighters>true</ExcludesFighters>  
 
   <UID>BigCannon</UID>
-  <FireDelay>12</FireDelay>
+  <FireDelay>15</FireDelay>
   <Range>18000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>34</OrdinanceRequiredToFire>
@@ -33,7 +33,7 @@
  <!-- <ToggleSoundName>sd_weapon_vulcan_spinloop_01</ToggleSoundName> -->
 
   <!-- Projectile Information -->
-  <DamageAmount>6600</DamageAmount>
+  <DamageAmount>5050</DamageAmount>
   <EffectVsShields>1.25</EffectVsShields>  
   <Scale>1.4</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
