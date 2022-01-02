@@ -76,7 +76,7 @@ namespace Ship_Game
                 }
                 else if (key == "--export-meshes")
                 {
-                    GlobalStats.ExportMeshes = true;
+                    GlobalStats.ExportMeshes = value.IsEmpty() ? "obj" : value;
                 }
                 else if (key == "--generate-hulls")
                 {
