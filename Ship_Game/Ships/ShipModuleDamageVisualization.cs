@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
             // armor doesnt produce flames
             if (!smokeOnly && type != ShipModuleType.Armor)
             {
-                Flame = area >= 9 ? p.Fire.NewEmitter(14 * GlobalStats.DamageIntensity, center)
+                Flame = area >= 6 ? p.Fire.NewEmitter(14 * GlobalStats.DamageIntensity, center)
                                   : p.ModuleSmoke.NewEmitter(20 * GlobalStats.DamageIntensity, center);
             }
         }
