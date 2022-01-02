@@ -37,6 +37,7 @@ namespace Ship_Game.Gameplay
         ParticleEmitter FiretrailEmitter;
         ParticleEmitter ThrustGlowEmitter;
         ParticleEmitter IonTrailEmitter;
+        ParticleEmitter IonRingEmitter;
         SceneObject ProjSO; // this is null for sprite based projectiles
         public Matrix WorldMatrix { get; private set; }
         public string InFlightCue = "";
@@ -313,6 +314,7 @@ namespace Ship_Game.Gameplay
                 case "TorpTrail":
                     IonTrailEmitter = particles.IonTrail.NewEmitter(150f, pos3D);
                     ThrustGlowEmitter = particles.MissileThrust.NewEmitter(20f, pos3D);
+                    IonRingEmitter = particles.IonRing.NewEmitter(20f, pos3D);
                     break;
                 case "Plasma":
                     FiretrailEmitter = particles.Flame.NewEmitter(100f, Position);
@@ -579,7 +581,13 @@ namespace Ship_Game.Gameplay
                     IonTrailEmitter.Update(timeStep.FixedTime, newPosition);
                 }
             }
-
+            if (IonRingEmitter != null && InFrustum && TrailTurnedOn)
+            {
+                if (ParticleDelay <= 0.0f && Duration > 0.5)
+                {
+                    IonRingEmitter.Update(timeStep.FixedTime, newPosition);
+                }
+            }
             if (Universe.CanAddDynamicLight)
             {
                 if (InFrustum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
