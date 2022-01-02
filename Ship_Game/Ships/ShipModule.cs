@@ -589,6 +589,7 @@ namespace Ship_Game.Ships
             public FixedSimTime TimeStep;
             public float ParentX;
             public float ParentY;
+            public float ParentZ;
             public float ParentRotation;
             public float ParentScale;
             public float Cos;
@@ -604,7 +605,7 @@ namespace Ship_Game.Ships
             float cy = a.ParentY + offset.X * a.Sin + offset.Y * a.Cos;
             Position.X = cx;
             Position.Y = cy;
-            ZPos = a.Tan * offset.X;
+            ZPos = a.ParentZ - a.Tan * offset.X;
             Rotation = a.ParentRotation; // assume parent rotation is already normalized
         }
 
@@ -1262,13 +1263,12 @@ namespace Ship_Game.Ships
 
         public void VisualizeRepair()
         {
-            if (Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
+            if (Parent.IsVisibleToPlayer)
             {
-                float modelZ = Parent.BaseHull.ModelZ;
-                modelZ = modelZ.Clamped(0, 200) * -1;
-                Vector3 repairEffectOrigin = Position.ToVec3(modelZ);
-                for (int i = 0; i < 50; i++)
-                    Empire.Universe.Particles.BlueSparks.AddParticle(repairEffectOrigin);
+                Vector3 repairEffectOrigin = Position.ToVec3(ZPos - 50f); // -Z is up towards the camera
+                var p = Parent.Universe.Particles;
+                for (int i = 0; i < 2; i++)
+                    p.BlueSparks.AddParticle(repairEffectOrigin);
             }
         }
 

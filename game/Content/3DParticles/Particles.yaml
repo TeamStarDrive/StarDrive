@@ -238,6 +238,22 @@
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
+  Name: IonRing
+  TextureName: "ring.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 7000
+  Duration: 1
+  DurationRandomness: 0
+  InheritOwnerVelocity: 0.1
+  AlignRotationToVelocity: 1
+  EndVelocity: 0
+  StartColorRange: [[46,90,169,100],[0,114,188,150]]
+  RotateSpeed: [-8,8]
+  StartEndSize: [ [55,60], [2,5] ]
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
   Name: Flame
   TextureName: "fire.png"
   Effect: ParticleEffect.fx
@@ -390,12 +406,12 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 20000
-  Duration: 2
+  Duration: 1.5
   DurationRandomness: 1
-  InheritOwnerVelocity: 0
+  InheritOwnerVelocity: 1
   AlignRotationToVelocity: 1
   RandomVelocityXY: [ [-60,60], [-60,60] ]
-  AlignRandomVelocityXY: true
+  AlignRandomVelocityXY: false
   EndVelocity: 0
   StartColorRange: [[194,231,239,255],[255,255,255,255]]
   EndColorRange: [[0,0,255,255],[0,0,255,255]]
