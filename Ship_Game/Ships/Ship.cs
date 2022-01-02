@@ -1158,6 +1158,8 @@ namespace Ship_Game.Ships
                     TimeStep = timeStep,
                     ParentX = Position.X,
                     ParentY = Position.Y,
+                    // TODO: Figure out a more accurate, yet FAST way to approximate hull height
+                    ParentZ = BaseHull.ModelZ.Clamped(0, 200) * -1f,
                     ParentRotation = Rotation,
                     ParentScale = PlanetCrash?.Scale ?? 1f,
                     Cos = RadMath.Cos(Rotation),
