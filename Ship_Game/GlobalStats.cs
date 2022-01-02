@@ -195,7 +195,7 @@ namespace Ship_Game
         public static float Unsupported_ProjectorRadius = -1;
 
         public static bool ExportTextures; // export all XNB and PNG textures into StarDrive/ExportedTextures
-        public static bool ExportMeshes; // export all XNB meshes into StarDrive/ExportedMeshes
+        public static string ExportMeshes; // export all XNB meshes into StarDrive/ExportedMeshes into "obj" or "fbx"
         public static int RunLocalizer; // process all localization files
         public static bool ContinueToGame; // Continue into the game after running Localizer or other Tools
 
