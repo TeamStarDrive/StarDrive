@@ -134,7 +134,7 @@
   MaxParticles: 6000
   Duration: 0.15
   DurationRandomness: 0.5
-  InheritOwnerVelocity: 0.95
+  InheritOwnerVelocity: 0.99
   EndVelocity: 0
   StartColorRange: [[255,255,255,130],[255,233,171,190]]
   RotateSpeed: [0]
@@ -232,9 +232,11 @@
   DurationRandomness: 0
   InheritOwnerVelocity: 0.1
   EndVelocity: 0
-  StartColorRange: [[46,90,169,100],[0,114,188,150]]
+  StartColorRange: [[255,255,255,255],[255,255,255,255]]
+  EndColorRange: [[46,90,169,255],[0,114,188,255]]
+  EndColorTime: 0.1
   RotateSpeed: [-8,8]
-  StartEndSize: [ [55,60], [2,5] ]
+  StartEndSize: [ [45,50], [2,5] ]
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
@@ -243,14 +245,32 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 7000
-  Duration: 1
-  DurationRandomness: 0
-  InheritOwnerVelocity: 0.1
+  Duration: 0.5
+  DurationRandomness: 0.2
+  InheritOwnerVelocity: 0.5
   AlignRotationToVelocity: 1
   EndVelocity: 0
-  StartColorRange: [[46,90,169,100],[0,114,188,150]]
+  StartColorRange: [[255,255,255,255],[255,255,255,255]]
+  EndColorRange: [[46,90,169,255],[0,114,188,255]]
   RotateSpeed: [-8,8]
-  StartEndSize: [ [55,60], [2,5] ]
+  StartEndSize: [ [10,15], [115,100] ]
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: IonRingReversed
+  TextureName: "ring.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 7000
+  Duration: 0.5
+  DurationRandomness: 0.2
+  InheritOwnerVelocity: 0.7
+  AlignRotationToVelocity: 1
+  EndVelocity: 0
+  StartColorRange: [[255,255,255,255],[255,255,255,255]]
+  EndColorRange: [[46,90,169,255],[0,114,188,255]]
+  RotateSpeed: [-8,8]
+  StartEndSize: [ [60,55], [10,5] ]
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
@@ -338,9 +358,9 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 8000
-  Duration: 3
+  Duration: 2
   DurationRandomness: 2
-  InheritOwnerVelocity: 0.02
+  InheritOwnerVelocity: 0.01
   RandomVelocityXY: [ [-35,35], [-35,35] ]
   EndVelocity: 0
   StartColorRange: [[93,96,95,255],[255,255,255,80]]
@@ -388,7 +408,7 @@
   MaxParticles: 20000
   Duration: 3
   DurationRandomness: 1
-  InheritOwnerVelocity: -0.5
+  InheritOwnerVelocity: 1
   AlignRotationToVelocity: 1
   RandomVelocityXY: [ [-60,60], [-60,60] ]
   AlignRandomVelocityXY: true
