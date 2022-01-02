@@ -1266,10 +1266,10 @@ namespace Ship_Game.Ships
             if (Parent.IsVisibleToPlayer)
             {
                 Vector3 repairEffectOrigin = Position.ToVec3(ZPos - 50f); // -Z is up towards the camera
-                Vector3 parentVelocity = Parent.Velocity.ToVec3(-5f);
+                
                 var p = Parent.Universe.Particles;
-                for (int i = 0; i < 5; i++)
-                    p.BlueSparks.AddParticle(repairEffectOrigin, parentVelocity);
+                for (int i = 0; i < 2; i++)
+                    p.BlueSparks.AddParticle(repairEffectOrigin);
             }
         }
 
