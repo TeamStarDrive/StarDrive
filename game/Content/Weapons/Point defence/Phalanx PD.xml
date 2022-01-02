@@ -24,7 +24,7 @@
 
   <UID>Phalanx PD</UID>
   <FireDelay>2</FireDelay>
-  <Range>3500</Range>
+  <Range>5500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.08</OrdinanceRequiredToFire>
 
@@ -35,8 +35,8 @@
   <FireCueName>sd_weapon_vulcan_alt02_01</FireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>3</DamageAmount>
-  <SalvoCount>9</SalvoCount>
+  <DamageAmount>4</DamageAmount>
+  <SalvoCount>10</SalvoCount>
   <SalvoTimer>0.6</SalvoTimer>
   <Scale>0.5</Scale>
   <ProjectileRadius>35</ProjectileRadius> 
