@@ -913,10 +913,10 @@ namespace Ship_Game.Gameplay
         {
             float damageModifier = EffectVsShields;
             if      (Tag_Kinetic) damageModifier *= (1f - module.ShieldKineticResist);
-            else if (Tag_Energy)  damageModifier *= (1f - module.ShieldEnergyResist);
-            else if (Tag_Beam)    damageModifier *= (1f - module.ShieldBeamResist);
-            else if (Tag_Missile) damageModifier *= (1f - module.ShieldMissileResist);
-            else if (Tag_Hybrid)  damageModifier *= (1f - module.ShieldHybridResist);
+            if      (Tag_Energy)  damageModifier *= (1f - module.ShieldEnergyResist);
+            if      (Tag_Beam)    damageModifier *= (1f - module.ShieldBeamResist);
+            if      (Tag_Missile) damageModifier *= (1f - module.ShieldMissileResist);
+            if      (Tag_Hybrid)  damageModifier *= (1f - module.ShieldHybridResist);
             return damageModifier;
         }
 
@@ -927,10 +927,10 @@ namespace Ship_Game.Gameplay
             if (Tag_Explosive)                   damageModifier *= (1f - module.ExplosiveResist);
             if (Tag_Hybrid)                      damageModifier *= (1f - module.HybridResist);
             if (Tag_Kinetic)                     damageModifier *= (1f - module.KineticResist);
-            else if (Tag_Beam)                   damageModifier *= (1f - module.BeamResist);
-            else if (Tag_Energy)                 damageModifier *= (1f - module.EnergyResist);
-            else if (Tag_Missile)                damageModifier *= (1f - module.MissileResist);
-            else if (Tag_Torpedo)                damageModifier *= (1f - module.TorpedoResist);
+            if (Tag_Beam)                        damageModifier *= (1f - module.BeamResist);
+            if (Tag_Energy)                      damageModifier *= (1f - module.EnergyResist);
+            if (Tag_Missile)                     damageModifier *= (1f - module.MissileResist);
+            if (Tag_Torpedo)                     damageModifier *= (1f - module.TorpedoResist);
             return damageModifier;
         }
 
