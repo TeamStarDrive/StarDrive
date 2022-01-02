@@ -27,7 +27,7 @@
   <FireCueName>sd_weapon_Turretgun_001</FireCueName>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
-  <DamageAmount>357</DamageAmount>
+  <DamageAmount>321</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1900</ProjectileSpeed>
   <Explodes>true</Explodes>
