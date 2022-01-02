@@ -21,7 +21,7 @@
   <ProjectileRadius>20</ProjectileRadius>
   <Explodes>false</Explodes>
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>
-  <ModelPath>projTear</ModelPath>
+  <ModelPath>projLong</ModelPath>
   <WeaponType>Ballistic Cannon</WeaponType>
   <FireCone>0</FireCone>
 </Weapon>
