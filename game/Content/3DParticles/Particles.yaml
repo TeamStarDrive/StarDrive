@@ -252,7 +252,7 @@
   EndVelocity: 0
   StartColorRange: [[255,255,255,255],[255,255,255,255]]
   EndColorRange: [[46,90,169,255],[0,114,188,255]]
-  RotateSpeed: [-8,8]
+  RotateSpeed: [-2,2]
   StartEndSize: [ [10,15], [115,100] ]
   SrcDstBlend: [SourceAlpha, One]
 
@@ -269,7 +269,7 @@
   EndVelocity: 0
   StartColorRange: [[255,255,255,255],[255,255,255,255]]
   EndColorRange: [[46,90,169,255],[0,114,188,255]]
-  RotateSpeed: [-8,8]
+  RotateSpeed: [-2,2]
   StartEndSize: [ [60,55], [10,5] ]
   SrcDstBlend: [SourceAlpha, One]
 
@@ -492,3 +492,21 @@
   RotateSpeed: [-1,1]
   StartEndSize: [ [40,30], [5,8] ]
   SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
+
+- ParticleSettings:
+  Name: Bubble
+  TextureName: "bubble.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 10000
+  Duration: 2
+  DurationRandomness: 0.5
+  InheritOwnerVelocity: 0.1
+  RandomVelocityXY: [ [-20,20], [-90,90] ]
+  EndVelocity: 0
+  StartColorRange: [[255,255,255,155],[255,255,255,155]]
+  EndColorRange: [[46,90,169,255],[0,114,188,255]]
+  EndColorTime: 0.5
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [10,15], [50,60] ]
+  SrcDstBlend: [SourceAlpha, One]

@@ -33,6 +33,7 @@ namespace Ship_Game.Graphics.Particles
         public IParticle ModuleSmoke;
         public IParticle IonRing;
         public IParticle IonRingReversed;
+        public IParticle Bubble;
 
         readonly Data.GameContentManager Content;
         readonly GraphicsDevice Device;
@@ -77,6 +78,7 @@ namespace Ship_Game.Graphics.Particles
             ModuleSmoke       = Add("ModuleSmoke");
             IonRing           = Add("IonRing");
             IonRingReversed   = Add("IonRingReversed");
+            Bubble            = Add("Bubble");
         }
 
         IParticle Add(string name, float scale = 1, int particleCount = -1)
