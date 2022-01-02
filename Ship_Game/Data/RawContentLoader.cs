@@ -151,7 +151,8 @@ namespace Ship_Game.Data
             try
             {
                 Model model = Content.LoadModel(relativePath);
-                Log.Info($"  Export StaticMesh: {savePath}");
+                Log.Write(ConsoleColor.Blue, $"  Export StaticMesh: {savePath}");
+                GameLoadingScreen.SetStatus("ExportMesh", savePath);
                 MeshExport.Export(model, nameNoExt, savePath);
                 return;
             }
@@ -178,14 +179,16 @@ namespace Ship_Game.Data
                     {
                         var tex = Content.Load<Texture2D>(relativePath);
                         string texSavePath = TexExport.GetSaveAutoFormatPath(tex, savePath);
-                        Log.Info($"  Export Texture: {texSavePath}");
+                        Log.Write(ConsoleColor.Green, $"  Export Texture: {texSavePath}");
+                        GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
                         TexExport.SaveAutoFormat(tex, texSavePath);
                     }
                     else
                     {
                         var tex3d = Content.Load<Texture3D>(relativePath);
                         string texSavePath = Path.ChangeExtension(savePath, "dds");
-                        Log.Info($"  Export Texture3D: {texSavePath}");
+                        Log.Write(ConsoleColor.DarkYellow, $"  Export Texture3D: {texSavePath}");
+                        GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
                         TexExport.Save(tex3d, texSavePath);
                     }
                 }
@@ -199,7 +202,8 @@ namespace Ship_Game.Data
             try
             {
                 SkinnedModel model = Content.LoadSkinnedModel(relativePath);
-                Log.Info($"  Export AnimatedMesh: {savePath}");
+                Log.Write(ConsoleColor.Cyan, $"  Export AnimatedMesh: {savePath}");
+                GameLoadingScreen.SetStatus("ExportMesh", savePath);
                 MeshExport.Export(model, nameNoExt, savePath);
             }
             catch (ContentLoadException e)
