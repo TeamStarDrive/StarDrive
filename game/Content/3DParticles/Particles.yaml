@@ -508,5 +508,5 @@
   EndColorRange: [[46,90,169,255],[0,114,188,255]]
   EndColorTime: 0.5
   RotateSpeed: [-1,1]
-  StartEndSize: [ [10,15], [50,60] ]
+  StartEndSize: [ [5,10], [40,50] ]
   SrcDstBlend: [SourceAlpha, One]
