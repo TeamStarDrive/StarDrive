@@ -67,8 +67,6 @@ namespace Ship_Game.Debug
                         : TextFont.LineSpacing + 2) * lines;
         }
 
-
-        
         public bool DebugLogText(string text, DebugModes mode)
         {
             if (IsOpen && (mode == DebugModes.Last || Mode == mode) && GlobalStats.VerboseLogging)

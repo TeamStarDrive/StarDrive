@@ -3,10 +3,29 @@ using Ship_Game.AI;
 
 namespace Ship_Game.Ships
 {
-    /// <summary>
-    /// This should be doing a lot more than it is.
-    /// 
-    /// </summary>
+    public enum WarpStatus
+    {
+        // This ship is not able to warp because of damage, inhibition, EMP damage, ...
+        UnableToWarp,
+
+        // This ship is waiting for other ships in the formation, or is recalling fighters
+        WaitingOrRecalling,
+
+        // Ship is completely ready to warp
+        ReadyToWarp,
+
+        // DO NOT ADD ANY MORE STATES HERE, IT WILL BREAK ALL WARP STATUS LOGIC 100%
+    }
+
+    public enum EngineStatus
+    {
+        // All engines on this ship have been destroyed or disabled by EMP
+        Disabled,
+
+        // Engines are up and running
+        Active,
+    }
+
     public class ShipEngines
     {
         Ship Owner;
@@ -15,9 +34,9 @@ namespace Ship_Game.Ships
         public ShipModule[] Engines { get; private set; }
         public ShipModule[] ActiveEngines => Engines.Filter(e=> e.Active);
 
-        public Status EngineStatus { get; private set; }
-        public Status ReadyForWarp { get; private set; }
-        public Status ReadyForFormationWarp { get; private set; }
+        public EngineStatus EngineStatus { get; private set; }
+        public WarpStatus ReadyForWarp { get; private set; }
+        public WarpStatus ReadyForFormationWarp { get; private set; }
 
         public ShipEngines(Ship owner, ShipModule[] slots)
         {
@@ -34,23 +53,19 @@ namespace Ship_Game.Ships
         public void Update()
         {
             // These need to be done in order
-            EngineStatus          = GetEngineStatus();
-            ReadyForWarp          = GetWarpReadyStatus();
+            EngineStatus = GetEngineStatus();
+            ReadyForWarp = GetWarpReadyStatus();
             ReadyForFormationWarp = GetFormationWarpReadyStatus();
         }
 
-        Status GetEngineStatus()
+        EngineStatus GetEngineStatus()
         {
-            if (Owner.EnginesKnockedOut)
-                return Status.Critical;
-            if (Owner.Inhibited || Owner.EMPDisabled)
-                return Status.Poor;
-
-            //add more status based on engine damage.
-            return Status.Excellent;
+            if (Owner.EnginesKnockedOut || Owner.Inhibited || Owner.EMPDisabled)
+                return EngineStatus.Disabled;
+            return EngineStatus.Active;
         }
 
-        Status GetFormationWarpReadyStatus()
+        WarpStatus GetFormationWarpReadyStatus()
         {
             if (Owner.Fleet == null || Owner.AI.State != AIState.FormationWarp) 
                 return ReadyForWarp;
@@ -58,12 +73,12 @@ namespace Ship_Game.Ships
             if (!Owner.CanTakeFleetMoveOrders())
                 return ReadyForWarp;
 
-            if (Owner.engineState == Ship.MoveState.Warp && ReadyForWarp <= Status.Good)
+            if (Owner.engineState == Ship.MoveState.Warp && ReadyForWarp < WarpStatus.ReadyToWarp)
                 return ReadyForWarp;
 
             float speedLimit = Owner.Fleet.GetSpeedLimitFor(Owner);
             if (speedLimit < 1 || speedLimit == float.MaxValue)
-                return Status.NotApplicable;
+                return WarpStatus.WaitingOrRecalling;
 
             if (!Owner.Position.InRadius(Owner.Fleet.FinalPosition + Owner.FleetOffset, 1000)
                 && Owner.AI.State != AIState.AwaitingOrders)
@@ -75,31 +90,27 @@ namespace Ship_Game.Ships
                     movePosition = Owner.Fleet.FinalPosition;
 
                 float facingFleetDirection = Owner.AngleDifferenceToPosition(movePosition);
-                if (facingFleetDirection > 0.02)
-                    return Status.Poor;
+                if (facingFleetDirection > 0.02f)
+                    return WarpStatus.WaitingOrRecalling;
             }
             return ReadyForWarp;
         }
 
-        Status GetWarpReadyStatus()
+        WarpStatus GetWarpReadyStatus()
         {
-            if (Owner.MaxFTLSpeed < 1 || !Owner.Active)
-                return Status.NotApplicable;
-
-            Status engineStatus = GetEngineStatus();
-
-            // less than average means the ship engines are not warp ready ATM;
+            if (EngineStatus == EngineStatus.Disabled || !Owner.Active || Owner.MaxFTLSpeed < 1)
+                return WarpStatus.UnableToWarp;
 
             if (Owner.engineState == Ship.MoveState.Warp)
-                return Status.Good;
-
-            if (engineStatus < Status.Average)
-                return Status.Critical;
+                return WarpStatus.ReadyToWarp;
 
             if (Owner.Carrier.RecallingFighters())
-                return Status.Poor;
+                return WarpStatus.WaitingOrRecalling;
 
-            return Owner.WarpRangeStatus(7500f);
+            if (!Owner.IsWarpRangeGood(10000f))
+                return WarpStatus.UnableToWarp;
+
+            return WarpStatus.ReadyToWarp;
         }
     }
 }

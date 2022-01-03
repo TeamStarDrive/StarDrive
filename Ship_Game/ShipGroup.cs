@@ -640,6 +640,7 @@ namespace Ship_Game
         {
             if (Ships.Count == 0)
                 return;
+
             float slowestSpeed = float.MaxValue;
             for (int i = 0; i < Ships.Count; i++) 
             {
@@ -651,6 +652,7 @@ namespace Ship_Game
                         slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
                 }
             }
+
             SpeedLimit = Math.Max(200, (float)Math.Round(slowestSpeed));
         }
     }

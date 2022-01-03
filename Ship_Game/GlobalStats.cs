@@ -75,7 +75,7 @@ namespace Ship_Game
         public static bool DisableRemnantStory;
         public static bool UsePlayerDesigns;
         public static float ShipMaintenanceMulti = 1;
-        public static float MinimumWarpRange;
+        public static float MinAcceptableShipWarpRange;
 
         public static float StartingPlanetRichness;
         public static int IconSize;
@@ -331,7 +331,7 @@ namespace Ship_Game
             GetSetting("ExtraNotifications",   ref ExtraNotifications);
             GetSetting("PauseOnNotification",  ref PauseOnNotification);
             GetSetting("ExtraPlanets",         ref ExtraPlanets);
-            GetSetting("MinimumWarpRange",     ref MinimumWarpRange);
+            GetSetting("MinAcceptableShipWarpRange", ref MinAcceptableShipWarpRange);
             GetSetting("ShipMaintenanceMulti", ref ShipMaintenanceMulti);
             GetSetting("IconSize",             ref IconSize);
             GetSetting("preventFederations",   ref PreventFederations);
@@ -372,7 +372,7 @@ namespace Ship_Game
             WriteSetting(config, "ExtraNotifications",  ExtraNotifications);
             WriteSetting(config, "PauseOnNotification", PauseOnNotification);
             WriteSetting(config, "ExtraPlanets",        ExtraPlanets);
-            WriteSetting(config, "MinimumWarpRange",    MinimumWarpRange);
+            WriteSetting(config, "MinAcceptableShipWarpRange", MinAcceptableShipWarpRange);
             WriteSetting(config, "ShipMaintenanceMulti",ShipMaintenanceMulti);
             WriteSetting(config, "IconSize",            IconSize);
             WriteSetting(config, "PreventFederations",  PreventFederations);
