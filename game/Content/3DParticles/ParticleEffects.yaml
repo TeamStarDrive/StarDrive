@@ -1,26 +1,109 @@
-# Defines usable ParticleEffect instances
+# Defines ParticleEffect instances which can be
+# referenced by name in data files
 
-- ParticleEffect:
+#Emitter:
+#  // name of the Particle effect defined in Particles.yaml
+#  Particle: "ThrustEffect"
+#
+#  // Rate of particles emitted per second
+#  Rate: 10.0
+#
+#  // a global scale for this emitter, default = 1.0
+#  Scale: 1.0
+#
+#  // overriding color source for this particle effect, default is White color (inherit Particle color)
+#  ColorSource: Default
+#
+#  // scales emitter velocity, default = 1.0
+#  VelocityScale: 1.0
+#  
+#  // local offset in relation to velocity direction
+#  LocalOffset: [0.0, 0.0, 0.0]
+#
+#  // multiplies LocalOffset in increments and then repeats from 0
+#  // ex: multiplier=3 --> [LocalOffset*0, LocalOffset*1, LocalOffset*2, LocalOffset*0, ...]
+#  IncrementalOffsetMultiplier: 0
+#
+
+- ParticleEffect: # Ship thrust effect 1
   Name: EngineThrust1
   Emitters:
     - Emitter:
-      Particle: "ThrustEffect"
-      ParticlesPerSecond: 60
-      ColorSource: EmpireColor2
+      Particle: ThrustEffect
+      Rate: 60
+      ColorSource: ThrustColor1
       LocalOffset: [0, 3] # in relation to velocity
       IncrementalOffsetMultiplier: 3 # multiplies LocalOffset by [0, 1, 2] then repeats
     - Emitter:
-      Particle: "EngineTrail"
-      ParticlesPerSecond: 60
-      ColorSource: EmpireColor1
+      Particle: EngineTrail
+      Rate: 60
+      ColorSource: ThrustColor0
       VelocityScale: 0.5
       LocalOffset: [0, 16] # in relation to velocity
 
-- ParticleEffect:
+
+- ParticleEffect: # Projectile Trail effect
   Name: RocketTrail
   Emitters:
-    - Emitter: { Particle: "MissileSmokeTrail", ParticlesPerSecond: 80 }
-    - Emitter: { Particle: "FireTrail", ParticlesPerSecond: 120, VelocityScale: 1.5 }
-    - Emitter: { Particle: "MissileThrust", ParticlesPerSecond: 20, ColorSource: EmpireColor1 }
+    - Emitter: { Particle: MissileSmokeTrail, Rate: 80 }
+    - Emitter: { Particle: FireTrail, Rate: 120, VelocityScale: 1.5 }
+    - Emitter: { Particle: MissileThrust, Rate: 20, VelocityScale: 0 }
 
-  
+
+- ParticleEffect: # Projectile Trail effect
+  Name: TorpTrail
+  Emitters:
+    - Emitter: { Particle: IonTrail, Rate: 150 }
+    - Emitter: { Particle: MissileThrust, Rate: 15, VelocityScale: 0 }
+    - Emitter: { Particle: IonRingReversed, Rate: 10 }
+
+
+- ParticleEffect: # Projectile Trail effect
+  Name: BubbleTrail
+  Emitters:
+    - Emitter: { Particle: Bubble, Rate: 20 }
+    - Emitter: { Particle: MissileThrust, Rate: 15, VelocityScale: 1.5 }
+    - Emitter: { Particle: IonRing, Rate: 10 }
+
+
+- ParticleEffect: # Projectile Trail effect
+  Name: Plasma
+  Emitters:
+    - Emitter: { Particle: Flame, Rate: 100 }
+
+
+- ParticleEffect: # Projectile Trail effect
+  Name: Bubble
+  Emitters:
+    - Emitter: { Particle: Bubble, Rate: 15 }
+
+
+- ParticleEffect: # Projectile Trail effect
+  Name: SmokeTrail
+  Emitters:
+    - Emitter: { Particle: ProjectileTrail, Rate: 100 }
+
+
+- ParticleEffect: # Projectile Trail effect
+  Name: MuzzleSmoke
+  Emitters:
+    - Emitter: { Particle: ProjectileTrail, Rate: 100 }
+
+
+- ParticleEffect: # Projectile Trail effect
+  Name: MuzzleSmokeFire
+  Emitters:
+    - Emitter: { Particle: ProjectileTrail, Rate: 100 }
+    - Emitter: { Particle: FireTrail, Rate: 100 }
+
+
+- ParticleEffect: # Projectile Trail effect
+  Name: FullSmokeMuzzleFire
+  Emitters:
+    - Emitter: { Particle: ProjectileTrail, Rate: 100 }
+    - Emitter: { Particle: FireTrail, Rate: 100 }
+
+
+
+
+

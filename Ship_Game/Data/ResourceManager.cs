@@ -1641,7 +1641,6 @@ namespace Ship_Game
             LoadContent(loadShips:false);
 
             // essential graphics:
-            ParticleSettings.LoadAll();
             SunType.LoadSunTypes(enableHotLoading: false);
             Fonts.LoadFonts(RootContent, Localizer.Language);
             LoadProjectileMeshes();
