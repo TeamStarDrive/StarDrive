@@ -50,8 +50,6 @@ namespace Ship_Game.Ships
             return Status.Excellent;
         }
 
-        // need to think about how to organzie this. 
-        // i think we only need public value
         Status GetFormationWarpReadyStatus()
         {
             if (Owner.Fleet == null || Owner.AI.State != AIState.FormationWarp) 
@@ -60,36 +58,27 @@ namespace Ship_Game.Ships
             if (!Owner.CanTakeFleetMoveOrders())
                 return ReadyForWarp;
 
-            Status warpStatus = ReadyForWarp;
-            if (Owner.engineState == Ship.MoveState.Warp)
-            {
-                if (warpStatus == Status.Good) return Status.Good;
-                if (warpStatus == Status.Poor) return Status.Poor;
-                if (warpStatus == Status.Critical) return Status.Good;
-            }
+            if (Owner.engineState == Ship.MoveState.Warp && ReadyForWarp <= Status.Good)
+                return ReadyForWarp;
 
             float speedLimit = Owner.Fleet.GetSpeedLimitFor(Owner);
             if (speedLimit < 1 || speedLimit == float.MaxValue)
                 return Status.NotApplicable;
 
-            Vector2 movePosition;
-            if (AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.MovePosition != Vector2.Zero)
-            {
-                movePosition = goal.MovePosition;
-            }
-            else
-            {
-                movePosition = Owner.Fleet.FinalPosition;
-            }
-
             if (!Owner.Position.InRadius(Owner.Fleet.FinalPosition + Owner.FleetOffset, 1000)
                 && Owner.AI.State != AIState.AwaitingOrders)
             {
+                Vector2 movePosition;
+                if (AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.MovePosition != Vector2.Zero)
+                    movePosition = goal.MovePosition;
+                else
+                    movePosition = Owner.Fleet.FinalPosition;
+
                 float facingFleetDirection = Owner.AngleDifferenceToPosition(movePosition);
                 if (facingFleetDirection > 0.02)
-                    warpStatus = Status.Poor;
+                    return Status.Poor;
             }
-            return warpStatus;
+            return ReadyForWarp;
         }
 
         Status GetWarpReadyStatus()
