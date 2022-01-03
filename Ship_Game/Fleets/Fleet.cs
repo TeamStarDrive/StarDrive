@@ -2481,7 +2481,7 @@ namespace Ship_Game.Fleets
                 if (readyForWarp)
                     readyForWarp = ship.ShipEngines.ReadyForFormationWarp > Status.Poor;
 
-                // once in warp clear assembling flag. 
+                // once in warp clear assembling flag.
                 if (ship.engineState == Ship.MoveState.Warp) IsAssembling = false;
             }
 
