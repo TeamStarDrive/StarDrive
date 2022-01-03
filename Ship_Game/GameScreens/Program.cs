@@ -109,13 +109,13 @@ namespace Ship_Game
         static void PrintHelp()
         {
             Log.Write("StarDrive BlackBox Command Line Interface (CLI)");
-            Log.Write("  --help             Shows this help message");
-            Log.Write("  --mod=\"<mod>\"    Load the game with the specified <mod>, eg: --mod=\"Combined Arms\" ");
-            Log.Write("  --export-textures  Exports all texture files as PNG and DDS to game/ExportedTextures");
-            Log.Write("  --export-meshes    Exports all mesh files as FBX");
-            Log.Write("  --generate-hulls   Generates new .hull files from old XML hulls");
-            Log.Write("  --generate-ships   Generates new ship .design files from old XML ships");
-            Log.Write("  --fix-roles        Fixes Role and Category for all .design ships");
+            Log.Write("  --help              Shows this help message");
+            Log.Write("  --mod=\"<mod>\"     Load the game with the specified <mod>, eg: --mod=\"Combined Arms\" ");
+            Log.Write("  --export-textures   Exports all texture files as PNG and DDS to game/ExportedTextures");
+            Log.Write("  --export-meshes=obj Exports all mesh files and textures, options: fbx obj fbx+obj");
+            Log.Write("  --generate-hulls    Generates new .hull files from old XML hulls");
+            Log.Write("  --generate-ships    Generates new ship .design files from old XML ships");
+            Log.Write("  --fix-roles         Fixes Role and Category for all .design ships");
             Log.Write("  --run-localizer=[0-2] Run localization tool to merge missing translations and generate id-s");
             Log.Write("                        0: disabled  1: generate with YAML NameIds  2: generate with C# NameIds");
             Log.Write("  --continue         After running CLI tasks, continue to game as normal");

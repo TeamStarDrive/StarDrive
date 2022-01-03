@@ -18,6 +18,11 @@ namespace Ship_Game.Data.Mesh
             TexExport = new TextureExporter(Content);
         }
 
+        public void Reset()
+        {
+            AlreadySavedTextures.Clear();
+        }
+
         public bool Export(Model model, string name, string modelFilePath)
         {
             return Export(model, null, null, name, modelFilePath);
@@ -213,7 +218,6 @@ namespace Ship_Game.Data.Mesh
             {
                 string writeTo = Path.Combine(modelExportDir, Path.GetFileName(textureName));
                 writeTo = TexExport.GetSaveAutoFormatPath(texture, writeTo);
-                Log.Write(ConsoleColor.Green, $"  Export Texture: {writeTo}");
 
                 // This happens a lot. Many ships share a common base texture.
                 if (AlreadySavedTextures.TryGetValue(texture, out string alreadySavedPath))
@@ -224,6 +228,7 @@ namespace Ship_Game.Data.Mesh
                 AlreadySavedTextures.Add(texture, writeTo);
                 if (!File.Exists(writeTo))
                 {
+                    Log.Write(ConsoleColor.Green, $"  Export Texture: {writeTo}");
                     TexExport.SaveAutoFormat(texture, writeTo);
                 }
 
