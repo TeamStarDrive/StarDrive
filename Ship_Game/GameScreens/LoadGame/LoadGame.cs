@@ -96,7 +96,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
             GlobalStats.GravityWellRange     = usData.GravityWellRange;
             GlobalStats.IconSize             = usData.IconSize;
-            GlobalStats.MinimumWarpRange     = usData.MinimumWarpRange;
+            GlobalStats.MinAcceptableShipWarpRange = usData.MinAcceptableShipWarpRange;
             GlobalStats.ShipMaintenanceMulti = usData.OptionIncreaseShipMaintenance;
             GlobalStats.PreventFederations   = usData.PreventFederations;
             GlobalStats.EliminationMode      = usData.EliminationMode;
