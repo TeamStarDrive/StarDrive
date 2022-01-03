@@ -146,7 +146,7 @@
   TextureName: "Glow.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 100 # 32000
+  MaxParticles: 32000
   Duration: 1.66
   DurationRandomness: 0
   InheritOwnerVelocity: 1

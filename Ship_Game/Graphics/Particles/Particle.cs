@@ -108,34 +108,27 @@ namespace Ship_Game
         // using them. These need to be kept around for a few more frames before they
         // can be reallocated.
         // [ _ _ _ |fRetired x x x x x |fActive a a a a |fNew n n n |fFree _ _ _ _ _ ]
+        int FirstRetiredParticle; // this is the first particle which was completely retired
         int FirstActiveParticle; // active range is [FirstActiveParticle, FirstFreeParticle)
-        // keep track of exact number of allocated particles
-        // this is needed to properly the case of queue overflow
-        // Retired + Active
-        int NumAllocatedParticles;
         int FirstNewParticle; // exists only in CPU memory
         int FirstFreeParticle; // can allocate new particle here
-        int FirstRetiredParticle; // this is the first particle which was completely retired
 
-        // # of slots between [first, second] position in the queue
-        int QueueCount(int first, int second)
-        {
-            if (first <= second) // before wrap, simple subtraction
-                return second - first;
-            return second + (MaxParticles - first); // after second has wrapped
-        }
+        // keep track of exact number of allocated particles
+        // this makes it easier to check for MaxParticles overflow
+        // Retired+Active+New
+        public int AllocatedParticles { get; private set; }
+
+        // This is the actual particle count, which is Particles.Length / 4
+        public int MaxParticles { get; }
 
         // Number of Particles that have been added and are being drawn
         // This includes retired particles and particles that are in queue to be added to gpu
-        public int ActiveParticles => QueueCount(FirstActiveParticle, FirstFreeParticle);
-        public int NewParticles => QueueCount(FirstNewParticle, FirstFreeParticle);
-        public int FreeParticles => QueueCount(FirstFreeParticle, FirstRetiredParticle);
-        public int RetiredParticles => QueueCount(FirstRetiredParticle, FirstActiveParticle);
-
-        public bool IsOutOfParticles => NumAllocatedParticles == MaxParticles;
-
-        // This is the actual particle count, which is Particles.Length / 4
-        public int MaxParticles { get; private set; }
+        // [ _ _ _ |fRetired x x x x x |fActive a a a a |fNew n n n |fFree _ _ _ _ _ ]
+        public int RetiredParticles => FirstActiveParticle - FirstRetiredParticle;
+        public int ActiveParticles  => FirstFreeParticle - FirstActiveParticle;
+        public int NewParticles     => FirstFreeParticle - FirstNewParticle;
+        public int FreeParticles    => MaxParticles - AllocatedParticles;
+        public bool IsOutOfParticles => AllocatedParticles == MaxParticles;
 
         // Store the current time, in seconds.
         float CurrentTime;
@@ -201,11 +194,7 @@ namespace Ship_Game
             GraphicsDevice = device;
             Content        = content;
             Scale          = scale;
-            LoadContent(settings, maxParticles);
-        }
-        
-        void LoadContent(ParticleSettings settings, int maxParticles)
-        {
+
             MaxParticles = maxParticles > 0 ? maxParticles : settings.MaxParticles;
             Settings = settings.Clone();
             Settings.MaxParticles = MaxParticles; 
@@ -333,7 +322,7 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Updates the particle system.
+        /// Updates the Particle queue by retiring aged particles and submitting pending particles
         /// </summary>
         public void Update(DrawTimes elapsed)
         {
@@ -343,18 +332,11 @@ namespace Ship_Game
 
             CurrentTime += elapsed.RealTime.Seconds;
 
-            if (!Settings.Static)
+            int numAllocated = AllocatedParticles;
+            if (numAllocated > 0 && !Settings.Static)
             {
                 RetireActiveParticles(particles);
-                FreeRetiredParticles(particles);
-
-                // If we let our timer go on increasing for ever, it would eventually
-                // run out of floating point precision, at which point the particles
-                // would render incorrectly. An easy way to prevent this is to notice
-                // that the time value doesn't matter when no particles are being drawn,
-                // so we can reset it back to zero any time the active queue is empty.
-                if (FirstActiveParticle == FirstFreeParticle)
-                    CurrentTime = 0f;
+                AllocatedParticles = numAllocated = FreeRetiredParticles(particles, numAllocated);
             }
 
             lock (Sync)
@@ -368,18 +350,16 @@ namespace Ship_Game
             {
                 ParticleVertex[] backBuffer = BackBuffer.GetInternalArrayItems();
 
-                for (int i = 0; i < count && NumAllocatedParticles < MaxParticles; ++i)
+                for (int i = 0; i < count && numAllocated < MaxParticles; ++i)
                 {
-                    ++NumAllocatedParticles;
-                    int nextFree = FirstFreeParticle++;
-                    if (FirstFreeParticle == MaxParticles)
-                        FirstFreeParticle = 0;
+                    int nextFreeIdx = FirstFreeParticle++ % MaxParticles;
+                    ++numAllocated;
 
                     ref ParticleVertex srcVertex = ref backBuffer[i];
-                    ref ParticleVertex dstVertex0 = ref particles[nextFree * 4];
-                    ref ParticleVertex dstVertex1 = ref particles[nextFree * 4 + 1];
-                    ref ParticleVertex dstVertex2 = ref particles[nextFree * 4 + 2];
-                    ref ParticleVertex dstVertex3 = ref particles[nextFree * 4 + 3];
+                    ref ParticleVertex dstVertex0 = ref particles[nextFreeIdx * 4];
+                    ref ParticleVertex dstVertex1 = ref particles[nextFreeIdx * 4 + 1];
+                    ref ParticleVertex dstVertex2 = ref particles[nextFreeIdx * 4 + 2];
+                    ref ParticleVertex dstVertex3 = ref particles[nextFreeIdx * 4 + 3];
                     dstVertex0 = srcVertex;
                     dstVertex1 = srcVertex;
                     dstVertex2 = srcVertex;
@@ -389,7 +369,24 @@ namespace Ship_Game
                     dstVertex2.Corner = new Short2(+1, +1); // BotRight
                     dstVertex3.Corner = new Short2(-1, +1); // BotLeft
                 }
+
+                AllocatedParticles = numAllocated;
                 BackBuffer.Clear();
+            }
+            // if we have no more particles allocated, reset all counters to mitigate potential overflow
+            else if (numAllocated == 0 && FirstActiveParticle != 0)
+            {
+                // If we let our timer go on increasing for ever, it would eventually
+                // run out of floating point precision, at which point the particles
+                // would render incorrectly. An easy way to prevent this is to notice
+                // that the time value doesn't matter when NO particles are being drawn,
+                // so we can reset it back to zero any time the active queue is empty.
+                CurrentTime = 0f;
+                FirstRetiredParticle = 0;
+                FirstActiveParticle = 0;
+                FirstNewParticle = 0;
+                FirstFreeParticle = 0;
+                DrawCounter = 0;
             }
         }
 
@@ -399,17 +396,15 @@ namespace Ship_Game
         /// </summary>
         void RetireActiveParticles(ParticleVertex[] particles)
         {
-            if (NumAllocatedParticles == 0)
-                return; // nothing to retire
-
             float particleDuration = (float)Settings.Duration.TotalSeconds;
 
-            while (FirstActiveParticle != FirstNewParticle)
+            while (FirstActiveParticle < FirstNewParticle)
             {
                 // Is this particle old enough to retire?
                 // We multiply the active particle index by four, because each
                 // particle consists of a quad that is made up of four vertices.
-                ref ParticleVertex particle = ref particles[FirstActiveParticle * 4];
+                int idx = FirstActiveParticle % MaxParticles;
+                ref ParticleVertex particle = ref particles[idx * 4];
                 float particleAge = CurrentTime - particle.Time;
                 if (particleAge < particleDuration)
                     break;
@@ -419,8 +414,6 @@ namespace Ship_Game
 
                 // Move the particle from the active to the retired queue.
                 ++FirstActiveParticle;
-                if (FirstActiveParticle == MaxParticles)
-                    FirstActiveParticle = 0;
             }
         }
 
@@ -429,14 +422,16 @@ namespace Ship_Game
         /// enough that we can be sure the GPU is no longer using them and move
         /// old particles from the retired area of the queue to the free section.
         /// </summary>
-        void FreeRetiredParticles(ParticleVertex[] particles)
+        /// <returns>New # of Allocated Particles</returns>
+        int FreeRetiredParticles(ParticleVertex[] particles, int numAllocated)
         {
-            while (NumAllocatedParticles > 0 && FirstRetiredParticle != FirstActiveParticle)
+            while (numAllocated > 0 && FirstRetiredParticle < FirstActiveParticle)
             {
                 // Has this particle been unused long enough that the GPU is sure to be finished with it?
                 // We multiply the retired particle index by four, because each
                 // particle consists of a quad that is made up of four vertices.
-                int age = DrawCounter - (int)particles[FirstRetiredParticle * 4].Time;
+                int idx = FirstRetiredParticle % MaxParticles;
+                int age = DrawCounter - (int)particles[idx * 4].Time;
 
                 // The GPU is never supposed to get more than 2 frames behind the CPU.
                 // We add 1 to that, just to be safe in case of buggy drivers that
@@ -446,10 +441,9 @@ namespace Ship_Game
 
                 // Move the particle from the retired to the free queue.
                 ++FirstRetiredParticle;
-                if (FirstRetiredParticle == MaxParticles)
-                    FirstRetiredParticle = 0;
-                --NumAllocatedParticles;
+                --numAllocated;
             }
+            return numAllocated;
         }
 
         public void Draw(in Matrix view, in Matrix projection, bool nearView)
@@ -457,10 +451,10 @@ namespace Ship_Game
             var particles = Particles;
             if (particles == null || !IsEnabled || (!nearView && Settings.OnlyNearView))
                 return;
-
+            
+            int firstActive = FirstActiveParticle;
             int firstNew = FirstNewParticle;
             int firstFree = FirstFreeParticle;
-            int firstActive = FirstActiveParticle;
 
             // Restore the vertex buffer contents if the graphics device was lost.
             if (VertexBuffer.IsContentLost)
@@ -468,15 +462,21 @@ namespace Ship_Game
                 VertexBuffer.SetData(particles);
             }
 
+            int activeIdx = firstActive % MaxParticles;
+            int freeIdx = firstFree % MaxParticles;
+
             // If there are any particles waiting in the newly added queue,
             // we'd better upload them to the GPU ready for drawing.
-            if (firstNew != firstFree)
+            if (firstNew < firstFree)
             {
-                FirstNewParticle = AddNewParticlesToVertexBuffer(particles, firstNew, firstFree);
+                int newIdx = firstNew % MaxParticles;
+                AddNewParticlesToVertexBuffer(particles, newIdx, freeIdx);
+                // Reset NewParticles pointer to the end of the queue
+                FirstNewParticle = firstFree;
             }
 
             // If there are any active particles, draw them now!
-            if (firstActive != firstFree)
+            if (firstActive < firstFree)
             {
                 GraphicsDevice device = GraphicsDevice;
                 var rs = device.RenderState;
@@ -517,26 +517,26 @@ namespace Ship_Game
                 {
                     pass.Begin();
 
-                    if (firstActive < firstFree)
+                    if (activeIdx < freeIdx)
                     {
                         // If the active particles are all in one consecutive range,
                         // we can draw them all in a single call.
-                        int numParticles = (firstFree - firstActive);
+                        int numParticles = (freeIdx - activeIdx);
                         device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                                     firstActive * 4, numParticles * 4, // 4 points
-                                                     firstActive * 6, numParticles * 2); // 2 triangles
+                                                     activeIdx * 4, numParticles * 4, // 4 points
+                                                     activeIdx * 6, numParticles * 2); // 2 triangles
                     }
                     else
                     {
-                        int numParticles = (MaxParticles - firstActive);
+                        int numParticles = (MaxParticles - activeIdx);
                         device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                                     firstActive * 4, numParticles * 4, // 4 points
-                                                     firstActive * 6, numParticles * 2); // 2 triangles
-                        if (firstFree > 0)
+                                                     activeIdx * 4, numParticles * 4, // 4 points
+                                                     activeIdx * 6, numParticles * 2); // 2 triangles
+                        if (freeIdx > 0)
                         {
                             device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                                         0, firstFree * 4,
-                                                         0, firstFree * 2);
+                                                         0, freeIdx * 4,
+                                                         0, freeIdx * 2);
                         }
                     }
                     pass.End();
@@ -551,38 +551,35 @@ namespace Ship_Game
         /// <summary>
         /// Upload new particles from our managed array to the GPU vertex buffer.
         /// </summary>
-        /// <return>New value for FirstNewParticle</return>
-        int AddNewParticlesToVertexBuffer(ParticleVertex[] particles, int firstNew, int firstFree)
+        void AddNewParticlesToVertexBuffer(ParticleVertex[] particles, int newIdx, int freeIdx)
         {
             const int stride = ParticleVertex.SizeInBytes;
-            if (firstNew < firstFree)
+
+            if (newIdx < freeIdx)
             {
                 // If the new particles are all in one consecutive range,
                 // we can upload them all in a single call.
-                VertexBuffer.SetData(firstNew * stride * 4, particles,
-                                     firstNew * 4,
-                                     (firstFree - firstNew) * 4,
+                int numParticles = freeIdx - newIdx;
+                VertexBuffer.SetData(newIdx * stride * 4, particles,
+                                     startIndex: newIdx * 4, elementCount: numParticles * 4,
                                      stride, SetDataOptions.NoOverwrite);
             }
             else
             {
                 // If the new particle range wraps past the end of the queue
                 // back to the start, we must split them over two upload calls.
-                VertexBuffer.SetData(firstNew * stride * 4, particles,
-                                     firstNew * 4,
-                                     (MaxParticles - firstNew) * 4,
+                int numParticles = (MaxParticles - newIdx);
+                VertexBuffer.SetData(newIdx * stride * 4, particles,
+                                     startIndex: newIdx * 4, elementCount: numParticles * 4,
                                      stride, SetDataOptions.NoOverwrite);
 
-                if (firstFree > 0)
+                if (freeIdx > 0)
                 {
                     VertexBuffer.SetData(0, particles,
-                                         0, firstFree * 4,
+                                         startIndex: 0, elementCount: freeIdx * 4,
                                          stride, SetDataOptions.NoOverwrite);
                 }
             }
-
-            // Move the particles we just uploaded from the new to the active queue.
-            return firstFree;
         }
 
         public void AddParticle(in Vector3 position, in Vector3 velocity, float scale, Color color)
@@ -592,8 +589,10 @@ namespace Ship_Game
             if (Particles == null || !IsEnabled)
                 return;
 
-            // thread unsafe check: is it possible to add any particles?
-            if (NumAllocatedParticles == MaxParticles)
+            // thread unsafe check: can we even add any particles?
+            // consider half of the retired particles to be potentially free
+            int maybeFreeParticles = (MaxParticles - AllocatedParticles) + (RetiredParticles / 2);
+            if (maybeFreeParticles == 0)
                 return;
 
             // Adjust the input velocity based on how much
