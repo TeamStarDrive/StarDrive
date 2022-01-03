@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
@@ -8,7 +7,7 @@ using Ship_Game.Graphics.Particles;
 
 namespace Ship_Game
 {
-    public sealed class Particle : IParticle, IDisposable
+    public sealed class Particle : IParticle
     {
         // Settings class controls the appearance and animation of this particle system.
         ParticleSettings Settings;
@@ -110,6 +109,10 @@ namespace Ship_Game
         // can be reallocated.
         // [ _ _ _ |fRetired x x x x x |fActive a a a a |fNew n n n |fFree _ _ _ _ _ ]
         int FirstActiveParticle; // active range is [FirstActiveParticle, FirstFreeParticle)
+        // keep track of exact number of allocated particles
+        // this is needed to properly the case of queue overflow
+        // Retired + Active
+        int NumAllocatedParticles;
         int FirstNewParticle; // exists only in CPU memory
         int FirstFreeParticle; // can allocate new particle here
         int FirstRetiredParticle; // this is the first particle which was completely retired
@@ -129,7 +132,7 @@ namespace Ship_Game
         public int FreeParticles => QueueCount(FirstFreeParticle, FirstRetiredParticle);
         public int RetiredParticles => QueueCount(FirstRetiredParticle, FirstActiveParticle);
 
-        public bool IsOutOfParticles => FirstFreeParticle == FirstRetiredParticle && FirstFreeParticle != 0;
+        public bool IsOutOfParticles => NumAllocatedParticles == MaxParticles;
 
         // This is the actual particle count, which is Particles.Length / 4
         public int MaxParticles { get; private set; }
@@ -156,6 +159,10 @@ namespace Ship_Game
 
         readonly ThreadSafeRandom Random = new ThreadSafeRandom();
         readonly GraphicsDevice GraphicsDevice;
+
+        readonly object Sync = new object();
+        Array<ParticleVertex> PendingParticles = new Array<ParticleVertex>();
+        Array<ParticleVertex> BackBuffer = new Array<ParticleVertex>();
 
         struct ParticleVertex
         {
@@ -208,7 +215,7 @@ namespace Ship_Game
             VertexDeclaration = new VertexDeclaration(GraphicsDevice, ParticleVertex.VertexElements);
             VertexBuffer = new DynamicVertexBuffer(GraphicsDevice, ParticleVertex.SizeInBytes*MaxParticles*4,
                                                    BufferUsage.WriteOnly);
-            
+
             // Allocate the particle array, and fill in the corner fields (which never change).
             Particles = new ParticleVertex[MaxParticles * 4];
 
@@ -348,19 +355,53 @@ namespace Ship_Game
                 // so we can reset it back to zero any time the active queue is empty.
                 if (FirstActiveParticle == FirstFreeParticle)
                     CurrentTime = 0f;
+            }
 
-                if (FirstRetiredParticle == FirstActiveParticle)
-                    DrawCounter = 0;
+            lock (Sync)
+            {
+                // swap PendingParticles into BackBuffer
+                (BackBuffer, PendingParticles) = (PendingParticles, BackBuffer);
+            }
+
+            int count = BackBuffer.Count;
+            if (count > 0)
+            {
+                ParticleVertex[] backBuffer = BackBuffer.GetInternalArrayItems();
+
+                for (int i = 0; i < count && NumAllocatedParticles < MaxParticles; ++i)
+                {
+                    ++NumAllocatedParticles;
+                    int nextFree = FirstFreeParticle++;
+                    if (FirstFreeParticle == MaxParticles)
+                        FirstFreeParticle = 0;
+
+                    ref ParticleVertex srcVertex = ref backBuffer[i];
+                    ref ParticleVertex dstVertex0 = ref particles[nextFree * 4];
+                    ref ParticleVertex dstVertex1 = ref particles[nextFree * 4 + 1];
+                    ref ParticleVertex dstVertex2 = ref particles[nextFree * 4 + 2];
+                    ref ParticleVertex dstVertex3 = ref particles[nextFree * 4 + 3];
+                    dstVertex0 = srcVertex;
+                    dstVertex1 = srcVertex;
+                    dstVertex2 = srcVertex;
+                    dstVertex3 = srcVertex;
+                    dstVertex0.Corner = new Short2(-1, -1); // TopLeft
+                    dstVertex1.Corner = new Short2(+1, -1); // TopRight
+                    dstVertex2.Corner = new Short2(+1, +1); // BotRight
+                    dstVertex3.Corner = new Short2(-1, +1); // BotLeft
+                }
+                BackBuffer.Clear();
             }
         }
 
         /// <summary>
-        /// Helper for checking when active particles have reached the end of
-        /// their life. It moves old particles from the active area of the queue
-        /// to the retired section.
+        /// Checking when active particles have reached the end of their life and
+        /// move old particles from the active area of the queue to the retired section.
         /// </summary>
         void RetireActiveParticles(ParticleVertex[] particles)
         {
+            if (NumAllocatedParticles == 0)
+                return; // nothing to retire
+
             float particleDuration = (float)Settings.Duration.TotalSeconds;
 
             while (FirstActiveParticle != FirstNewParticle)
@@ -378,23 +419,21 @@ namespace Ship_Game
 
                 // Move the particle from the active to the retired queue.
                 ++FirstActiveParticle;
-
-                if (FirstActiveParticle >= MaxParticles)
+                if (FirstActiveParticle == MaxParticles)
                     FirstActiveParticle = 0;
             }
         }
-        
+
         /// <summary>
-        /// Helper for checking when retired particles have been kept around long
-        /// enough that we can be sure the GPU is no longer using them. It moves
+        /// Check if retired particles have been kept around long
+        /// enough that we can be sure the GPU is no longer using them and move
         /// old particles from the retired area of the queue to the free section.
         /// </summary>
         void FreeRetiredParticles(ParticleVertex[] particles)
         {
-            while (FirstRetiredParticle != FirstActiveParticle)
+            while (NumAllocatedParticles > 0 && FirstRetiredParticle != FirstActiveParticle)
             {
-                // Has this particle been unused long enough that
-                // the GPU is sure to be finished with it?
+                // Has this particle been unused long enough that the GPU is sure to be finished with it?
                 // We multiply the retired particle index by four, because each
                 // particle consists of a quad that is made up of four vertices.
                 int age = DrawCounter - (int)particles[FirstRetiredParticle * 4].Time;
@@ -407,9 +446,9 @@ namespace Ship_Game
 
                 // Move the particle from the retired to the free queue.
                 ++FirstRetiredParticle;
-
-                if (FirstRetiredParticle >= MaxParticles)
+                if (FirstRetiredParticle == MaxParticles)
                     FirstRetiredParticle = 0;
+                --NumAllocatedParticles;
             }
         }
 
@@ -418,7 +457,7 @@ namespace Ship_Game
             var particles = Particles;
             if (particles == null || !IsEnabled || (!nearView && Settings.OnlyNearView))
                 return;
-            
+
             int firstNew = FirstNewParticle;
             int firstFree = FirstFreeParticle;
             int firstActive = FirstActiveParticle;
@@ -441,14 +480,14 @@ namespace Ship_Game
             {
                 GraphicsDevice device = GraphicsDevice;
                 var rs = device.RenderState;
-                rs.AlphaBlendEnable       = true;
-                rs.AlphaBlendOperation    = BlendFunction.Add;
-                rs.SourceBlend            = Settings.SrcDstBlend[0];
-                rs.DestinationBlend       = Settings.SrcDstBlend[1];
-                rs.AlphaTestEnable        = true;
-                rs.AlphaFunction          = CompareFunction.Greater;
-                rs.ReferenceAlpha         = 0;
-                rs.DepthBufferEnable      = true;
+                rs.AlphaBlendEnable = true;
+                rs.AlphaBlendOperation = BlendFunction.Add;
+                rs.SourceBlend = Settings.SrcDstBlend[0];
+                rs.DestinationBlend = Settings.SrcDstBlend[1];
+                rs.AlphaTestEnable = true;
+                rs.AlphaFunction = CompareFunction.Greater;
+                rs.ReferenceAlpha = 0;
+                rs.DepthBufferEnable = true;
                 rs.DepthBufferWriteEnable = false;
 
                 EffectViewParameter.SetValue(view);
@@ -510,8 +549,7 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Helper for uploading new particles from our managed
-        /// array to the GPU vertex buffer.
+        /// Upload new particles from our managed array to the GPU vertex buffer.
         /// </summary>
         /// <return>New value for FirstNewParticle</return>
         int AddNewParticlesToVertexBuffer(ParticleVertex[] particles, int firstNew, int firstFree)
@@ -544,53 +582,18 @@ namespace Ship_Game
             }
 
             // Move the particles we just uploaded from the new to the active queue.
-            firstNew = firstFree;
-            return firstNew;
-        }
-
-        int GetNextFreeParticle()
-        {
-            lock (this)
-            {
-                if (FirstFreeParticle == FirstRetiredParticle && FirstRetiredParticle != FirstActiveParticle)
-                    return -1;
-
-                int nextFree = FirstFreeParticle++;
-                if (FirstFreeParticle == MaxParticles)
-                    FirstFreeParticle = 0;
-                return nextFree;
-            }
-
-            while (true)
-            {
-                // TODO: 
-                // Figure out where in the circular queue to allocate the new particle.
-                // Need to increment this index thread-safely because multiple threads will be adding particles
-                int nextFreeParticle = Interlocked.Add(ref FirstFreeParticle, 1);
-                int firstFreeParticle = nextFreeParticle - 1;
-
-                // reset during exact overflow (concurrent increment)
-                if (nextFreeParticle == MaxParticles)
-                    FirstFreeParticle = 0;
-
-                if (firstFreeParticle < MaxParticles)
-                    return firstFreeParticle; // all good
-                // else: We couldn't grab an appropriate slot, retry
-            }
+            return firstFree;
         }
 
         public void AddParticle(in Vector3 position, in Vector3 velocity, float scale, Color color)
         {
             // when Graphics device is reset, this particle system will be disposed
             // and Particles will be set to null
-            var particles = Particles;
-            if (particles == null || !IsEnabled)
+            if (Particles == null || !IsEnabled)
                 return;
 
-            int firstFreeParticle = GetNextFreeParticle();
-
-            // If there are no free particles, we just have to give up.
-            if (firstFreeParticle == -1)
+            // thread unsafe check: is it possible to add any particles?
+            if (NumAllocatedParticles == MaxParticles)
                 return;
 
             // Adjust the input velocity based on how much
@@ -634,16 +637,19 @@ namespace Ship_Game
             // shader to give each particle a different size, rotation, and color.
             var randomValues = new Color(random.Byte(), random.Byte(), random.Byte(), random.Byte());
 
-            // Fill in 4 vertices per 1 particle
-            for (int i = 0; i < 4; i++)
+            var vertex = new ParticleVertex()
             {
-                ref ParticleVertex particle = ref particles[firstFreeParticle * 4 + i];
-                particle.Position = position;
-                particle.Velocity = v;
-                particle.Color = color;
-                particle.Random = randomValues;
-                particle.Scale = scale;
-                particle.Time = CurrentTime;
+                Position = position,
+                Velocity = v,
+                Color = color,
+                Random = randomValues,
+                Scale = scale,
+                Time = CurrentTime,
+            };
+
+            lock (Sync)
+            {
+                PendingParticles.Add(vertex);
             }
         }
 
