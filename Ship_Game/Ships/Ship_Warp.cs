@@ -71,10 +71,10 @@ namespace Ship_Game.Ships
         public void EngageStarDrive()
         {
             // Check warp status for Fighter recall
-            Status warpStatus = ShipEngines.ReadyForFormationWarp;
-            if (warpStatus <= Status.Poor)
+            WarpStatus warpStatus = ShipEngines.ReadyForFormationWarp;
+            if (warpStatus != WarpStatus.ReadyToWarp)
             {
-                if (warpStatus == Status.Critical)
+                if (warpStatus == WarpStatus.WaitingOrRecalling)
                     HyperspaceReturn();
             }
             else if (!IsSpoolingOrInWarp && !Inhibited)
@@ -96,10 +96,10 @@ namespace Ship_Game.Ships
                     GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
                     FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
                 }
-                engineState     = MoveState.Sublight;
-                IsSpooling      = false;
+                engineState = MoveState.Sublight;
+                IsSpooling = false;
                 VelocityMaximum = MaxSTLSpeed;
-                SpeedLimit      = VelocityMaximum;
+                SpeedLimit = VelocityMaximum;
             }
         }
 
@@ -167,40 +167,37 @@ namespace Ship_Game.Ships
             InhibitedCheckTimer = secondsToInhibit;
         }
 
-        // TODO: move this to ship engines.
         public void UpdateWarpSpooling(FixedSimTime timeStep)
         {
             JumpTimer -= timeStep.FixedTime;
 
-            if (ShipEngines.ReadyForFormationWarp < Status.Poor)
+            // sometimes a ship stars warping to escape for resupply or any other reason
+            // but hostiles manage to take out all the engines
+            if (ShipEngines.ReadyForFormationWarp < WarpStatus.ReadyToWarp)
             {
-                Log.Info("ship not ready for warp but spool timer was activated.\n " +
-                        $"               warp Status: {ShipEngines.ReadyForFormationWarp} \n " +
-                        $"               Fleet:       {Fleet}\n " +
-                        $"               Ship:        {this} ");
+                IsSpooling = false;
+                ResetJumpTimer();
+                return;
             }
-            else
-            {
-                if (JumpTimer <= 4.0f)
-                {
-                    if (IsVisibleToPlayer
-                        && !Universe.Paused && JumpSfx.IsStopped && JumpSfx.IsReadyToReplay)
-                    {
-                        JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter, replayTimeout: 4.0f);
-                    }
-                }
 
-                if (JumpTimer <= 0.1f)
+            if (JumpTimer <= 4.0f)
+            {
+                if (IsVisibleToPlayer && !Universe.Paused && JumpSfx.IsStopped && JumpSfx.IsReadyToReplay)
                 {
-                    if (engineState == MoveState.Sublight)
-                    {
-                        if (IsVisibleToPlayer)
-                            FTLManager.EnterFTL(Position.ToVec3(), Direction3D, Radius);
-                        engineState = MoveState.Warp;
-                    }
-                    IsSpooling = false;
-                    ResetJumpTimer();
+                    JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter, replayTimeout: 4.0f);
                 }
+            }
+
+            if (JumpTimer <= 0.1f)
+            {
+                if (engineState == MoveState.Sublight)
+                {
+                    if (IsVisibleToPlayer)
+                        FTLManager.EnterFTL(Position.ToVec3(), Direction3D, Radius);
+                    engineState = MoveState.Warp;
+                }
+                IsSpooling = false;
+                ResetJumpTimer();
             }
         }
 
@@ -223,14 +220,12 @@ namespace Ship_Game.Ships
             return false;
         }
 
-        /// <summary>
-        /// Returns a ship status based on how well it can reach the wanted range in warp before running out of power.
-        /// by default it will try and warp 300k units which is the current diameter of a solar system.
-        /// </summary>
-        public Status WarpRangeStatus(float neededRange = 300000)
+        /// @return TRUE if ship can effectively warp the given distance in 1 jump
+        public bool IsWarpRangeGood(float neededRange)
         {
             float powerDuration = NetPower.PowerDuration(MoveState.Warp, PowerCurrent);
-            return ToShipStatus(powerDuration * MaxFTLSpeed, neededRange);
+            float maxFTLRange = powerDuration * MaxFTLSpeed;
+            return maxFTLRange >= neededRange;
         }
 
         public void SetWarpPercent(FixedSimTime timeStep, float warpPercent)
