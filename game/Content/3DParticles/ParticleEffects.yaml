@@ -1,0 +1,26 @@
+# Defines usable ParticleEffect instances
+
+- ParticleEffect:
+  Name: EngineThrust1
+  Emitters:
+    - Emitter:
+      Particles: "ThrustEffect"
+      ParticlesPerSecond: 60
+      ColorSource: EmpireColor2
+      LocalOffset: [0, 3] # in relation to velocity
+      IncrementalOffsetMultiplier: 3 # multiplies LocalOffset by [0, 1, 2] then repeats
+    - Emitter:
+      Particles: "EngineTrail"
+      ParticlesPerSecond: 60
+      ColorSource: EmpireColor1
+      VelocityScale: 0.5
+      LocalOffset: [0, 16] # in relation to velocity
+
+- ParticleEffect:
+  Name: RocketTrail
+  Emitters:
+    - Emitter: { Particles: "MissileSmokeTrail", ParticlesPerSecond: 80 }
+    - Emitter: { Particles: "FireTrail", ParticlesPerSecond: 120, VelocityScale: 1.5 }
+    - Emitter: { Particles: "MissileThrust", ParticlesPerSecond: 20, ColorSource: EmpireColor1 }
+
+  
