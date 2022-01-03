@@ -114,7 +114,7 @@ namespace SdMesh
         {
             auto* dst = Resize(group.Normals, group.NormalsMapping, numVertices);
             for (int i = 0; i < numVertices; ++i) {
-                Vector3 normal = transform * (*src);
+                Vector3 normal = (transform * (*src)).normalized();
                 dst[i] = { normal.x, -normal.z, -normal.y };
                 src = Next(src, stride);
             }

@@ -383,7 +383,14 @@ namespace Ship_Game
                 RootContent.RawContent.ExportAllTextures();
 
             if (GlobalStats.ExportMeshes != null)
-                RootContent.RawContent.ExportAllXnbMeshes(GlobalStats.ExportMeshes);
+            {
+                // "fbx+obj"
+                string[] formats = GlobalStats.ExportMeshes.Split('+');
+                foreach (string ext in formats)
+                {
+                    RootContent.RawContent.ExportAllXnbMeshes(ext);
+                }
+            }
         }
 
         static FileInfo ModInfo(string file) => new FileInfo( ModContentDirectory + file );

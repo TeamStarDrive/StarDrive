@@ -229,6 +229,7 @@ namespace Ship_Game.Data
             }
             //Parallel.For(files.Count, ExportMeshes, Parallel.NumPhysicalCores * 2);
             ExportMeshes(0, files.Count);
+            MeshExport.Reset();
         }
 
         public void ExportAllTextures()

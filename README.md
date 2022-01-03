@@ -92,7 +92,7 @@ C:\Projects\BlackBox\game>StarDrive.exe --help
 13:50:43.769ms:   --help             Shows this help message
 13:50:43.769ms:   --mod="<mod>"    Load the game with the specified <mod>, eg: --mod="Combined Arms"
 13:50:43.769ms:   --export-textures  Exports all texture files as PNG and DDS to game/ExportedTextures
-13:50:43.769ms:   --export-meshes    Exports all mesh files as FBX
+13:50:43.769ms:   --export-meshes=obj Exports all mesh files and textures, options: fbx obj fbx+obj
 13:50:43.769ms:   --generate-hulls   Generates new .hull files from old XML hulls
 13:50:43.769ms:   --generate-ships   Generates new ship .design files from old XML ships
 13:50:43.769ms:   --fix-roles        Fixes Role and Category for all .design ships
