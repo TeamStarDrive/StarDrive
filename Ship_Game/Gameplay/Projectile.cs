@@ -33,6 +33,7 @@ namespace Ship_Game.Gameplay
         public bool Explodes;
         public ShipModule Module;
         public string WeaponEffectType;
+        
         ParticleEmitter TrailEmitter;
         ParticleEmitter FiretrailEmitter;
         ParticleEmitter ThrustGlowEmitter;
@@ -40,6 +41,8 @@ namespace Ship_Game.Gameplay
         ParticleEmitter IonRingEmitter;
         ParticleEmitter IonRingReversedEmitter;
         ParticleEmitter BubbleEmitter;
+
+
         SceneObject ProjSO; // this is null for sprite based projectiles
         public Matrix WorldMatrix { get; private set; }
         public string InFlightCue = "";

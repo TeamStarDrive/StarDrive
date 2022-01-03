@@ -105,56 +105,9 @@ namespace Ship_Game
         public bool IsRotating => RotateSpeed.HasValues;
         public bool IsAlignRotationToVel => AlignRotationToVelocity != 0f;
 
-        static Map<string, ParticleSettings> Settings = new Map<string, ParticleSettings>();
-
         public ParticleSettings Clone()
         {
             return (ParticleSettings)MemberwiseClone();
-        }
-
-        public static void LoadAll()
-        {
-            GameLoadingScreen.SetStatus("LoadParticles");
-
-            FileInfo file = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/Particles.yaml", LoadParticles);
-            LoadParticles(file);
-        }
-
-        public static void Unload()
-        {
-            GameBase.ScreenManager.RemoveHotLoadTarget("Particles");
-            Settings.Clear();
-        }
-
-        static void LoadParticles(FileInfo file)
-        {
-            Settings.Clear();
-            using (var parser = new YamlParser(file))
-            {
-                Array<ParticleSettings> list = parser.DeserializeArray<ParticleSettings>();
-                foreach (ParticleSettings ps in list)
-                {
-                    if (Settings.ContainsKey(ps.Name))
-                    {
-                        Log.Error($"ParticleSetting duplicate definition='{ps.Name}' in Particles.yaml. Ignoring.");
-                    }
-                    else
-                    {
-                        Settings.Add(ps.Name, ps);
-                        ps.GetEffect(ResourceManager.RootContent); // compile
-                    }
-                }
-            }
-            Empire.Universe?.Particles.Reload();
-        }
-
-        public static ParticleSettings Get(string name)
-        {
-            if (Settings.Count == 0)
-                throw new InvalidOperationException("ParticleSettings have not been loaded!");
-            if (!Settings.TryGetValue(name, out ParticleSettings ps))
-                throw new InvalidDataException($"Unknown ParticleSettings Name: {name}");
-            return ps;
         }
 
         public Effect GetEffect(GameContentManager content)
