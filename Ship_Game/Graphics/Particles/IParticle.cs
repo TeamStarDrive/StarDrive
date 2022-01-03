@@ -16,10 +16,22 @@ namespace Ship_Game.Graphics.Particles
         // Max number of active particles
         int MaxParticles { get; }
 
-        // Current number of active particles
+        // Number of Active particles on the GPU and also particles pending upload to GPU
         int ActiveParticles { get; }
 
-        // ParticleSystem is maxed out?
+        // Number of particles pending upload to GPU
+        int NewParticles { get; }
+
+        // Number of unallocated particles
+        int FreeParticles { get; }
+
+        // Number of retired particles which are still on the GPU, but will be removed in 1-2 frames
+        int RetiredParticles { get; }
+
+        // Current number of allocated particles, typically slightly larger than ActiveParticles
+        int AllocatedParticles { get; }
+
+        // TRUE if no more particles can be allocated due to MaxParticles
         bool IsOutOfParticles { get; }
 
         // Spawn a new particle

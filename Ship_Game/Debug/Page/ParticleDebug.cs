@@ -64,7 +64,7 @@ namespace Ship_Game.Debug.Page
                 };
 
                 var stats = horizontal.AddLabel(new Vector2(200, 20), "");
-                stats.DynamicText = l => $" Active:{ps.ActiveParticles}  Max:{ps.MaxParticles}  Out:{ps.IsOutOfParticles}";
+                stats.DynamicText = l => $"  {ps.ActiveParticles}/{ps.MaxParticles}  {(100f*ps.AllocatedParticles/ps.MaxParticles).String(1)}%";
             }
         }
 
