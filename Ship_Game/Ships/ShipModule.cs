@@ -740,10 +740,9 @@ namespace Ship_Game.Ships
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
         public bool DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
         {
-            /*
             float damage = GetExplosiveDamage(worldHitPos, damageRadius, damageInOut);
             if (damage <= 0.1f)
-                return true;*/
+                return true;
 
             //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
 
@@ -751,7 +750,6 @@ namespace Ship_Game.Ships
             return damageInOut <= 0f;
         }
 
-        /*
         public void DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, float damageAmount)
         {
             float damage = GetExplosiveDamage(worldHitPos, damageRadius, damageAmount);
@@ -760,17 +758,19 @@ namespace Ship_Game.Ships
                 //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
                 Damage(source, damage, out _);
             }
-        }*/
+        }
 
+
+        /*
         /// <summary>
         /// Damages the module by explosion and returns true if the module was able to
         /// contain the explosion
         /// </summary>
-        public bool TryDamageExplosiveAndContain(GameplayObject damageSource, Vector2 worldHitPos, float hitRadius, ref float damageAmount)
+        public bool TryDamageExplosiveAndContain(GameplayObject damageSource, Vector2 worldHitPos, float hitRadius)
         {
-            DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount);
+            DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
             return Active; // Withstood the explosion
-        }
+        }*/
 
         float GetExplosiveDamage(Vector2 worldHitPos, float damageRadius, float damageAmount)
         {
