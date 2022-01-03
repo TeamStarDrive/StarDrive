@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data;
+using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Graphics.Particles
 {
@@ -35,23 +38,56 @@ namespace Ship_Game.Graphics.Particles
         public IParticle IonRingReversed;
         public IParticle Bubble;
 
-        readonly Data.GameContentManager Content;
-        readonly GraphicsDevice Device;
+        readonly GameContentManager Content;
         readonly Array<IParticle> Tracked = new Array<IParticle>();
+        readonly Map<string, IParticle> ByName = new Map<string, IParticle>();
+        readonly Map<string, ParticleEffect> Effects = new Map<string, ParticleEffect>();
+        readonly Map<string, ParticleSettings> Settings = new Map<string, ParticleSettings>();
 
         public IReadOnlyList<IParticle> ParticleSystems => Tracked;
 
-        public ParticleManager(Data.GameContentManager content, GraphicsDevice device)
+        public ParticleManager(GameContentManager content)
         {
             Content = content;
-            Device = device;
             Reload();
+        }
+
+        public void Unload()
+        {
+            GameBase.ScreenManager.RemoveHotLoadTarget("3DParticles/Particles.yaml");
+
+            var effects = Effects.Values.ToArray();
+            lock (Effects)
+            {
+                Effects.Clear();
+                foreach (var fx in effects)
+                    fx.Dispose();
+            }
+
+            foreach (IParticle sys in Tracked)
+            {
+                sys.Dispose();
+            }
+
+            Tracked.Clear();
+            ByName.Clear();
+            Settings.Clear();
+        }
+
+        public void Dispose()
+        {
+            Unload();
         }
 
         // You can call this to Reload content
         public void Reload()
         {
-            UnloadContent();
+            GameLoadingScreen.SetStatus("LoadParticles");
+            Unload();
+
+            FileInfo pSettings = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/Particles.yaml", f => Reload());
+            LoadParticleSettings(pSettings);
+
             BeamFlash         = Add("BeamFlash");
             ThrustEffect      = Add("ThrustEffect");
             EngineTrail       = Add("EngineTrail");
@@ -65,7 +101,7 @@ namespace Ship_Game.Graphics.Particles
             SmokePlume        = Add("SmokePlume");
             Fire              = Add("Fire");
             Flame             = Add("Flame");
-            SmallFire         = Add("Fire", 0.35f, (int)(4000 * GlobalStats.DamageIntensity));
+            SmallFire         = Add("SmallFire");
             Sparks            = Add("Sparks");
             Lightning         = Add("Lightning");
             Flash             = Add("Flash");
@@ -79,28 +115,74 @@ namespace Ship_Game.Graphics.Particles
             IonRing           = Add("IonRing");
             IonRingReversed   = Add("IonRingReversed");
             Bubble            = Add("Bubble");
+
+            FileInfo pEffects = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/ParticleEffects.yaml", f => Reload());
+            LoadParticleEffects(pEffects);
         }
 
-        IParticle Add(string name, float scale = 1, int particleCount = -1)
+        void LoadParticleSettings(FileInfo file)
         {
-            var settings = ParticleSettings.Get(name);
-            var ps = new Particle(Content, settings, Device, scale, particleCount);
-            if (!scale.AlmostEqual(1f))
-                ps.Name = $"{name} {scale.String(2)}x";
-            Tracked.Add(ps);
+            Array<ParticleSettings> list = YamlParser.DeserializeArray<ParticleSettings>(file);
+            foreach (ParticleSettings ps in list)
+            {
+                if (Settings.ContainsKey(ps.Name))
+                {
+                    Log.Error($"ParticleSetting duplicate definition='{ps.Name}' in Particles.yaml. Ignoring.");
+                }
+                else
+                {
+                    Settings.Add(ps.Name, ps);
+                    ps.GetEffect(ResourceManager.RootContent); // compile
+                }
+            }
+        }
+
+        void LoadParticleEffects(FileInfo file)
+        {
+            var effectsData = YamlParser.DeserializeArray<ParticleEffect.ParticleEffectData>(file);
+            lock (Effects)
+            {
+                // create the effect templates
+                foreach (ParticleEffect.ParticleEffectData effectData in effectsData)
+                {
+                    Effects[effectData.Name] = new ParticleEffect(effectData, this);
+                }
+            }
+        }
+
+        ParticleSettings GetSettings(string name)
+        {
+            if (Settings.Count == 0)
+                throw new InvalidOperationException("ParticleSettings have not been loaded!");
+            if (!Settings.TryGetValue(name, out ParticleSettings ps))
+                throw new InvalidDataException($"Unknown ParticleSettings Name: {name}");
             return ps;
         }
 
-        public void UnloadContent()
+        IParticle Add(string name)
         {
-            foreach (IParticle sys in Tracked)
-                sys.Dispose();
-            Tracked.Clear();
+            var settings = GetSettings(name);
+            var ps = new Particle(Content, settings, id: Tracked.Count);
+            Tracked.Add(ps);
+            ByName.Add(name, ps);
+            return ps;
         }
 
-        public void Dispose()
+        public IParticle GetParticleOrNull(string particleName)
         {
-            UnloadContent();
+            return ByName.Get(particleName, out IParticle p) ? p : null;
+        }
+
+        public ParticleEffect GetEffectOrNull(string effectName)
+        {
+            // lock because this might be called from a background thread in Ship.Update()
+            lock (Effects)
+            {
+                if (Effects.TryGetValue(effectName, out ParticleEffect effect))
+                    return effect;
+            }
+            Log.Error($"ParticleEffect '{effectName}' not found!");
+            return null;
         }
 
         public void Update(DrawTimes elapsed)
