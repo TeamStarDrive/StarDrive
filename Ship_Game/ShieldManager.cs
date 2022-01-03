@@ -19,7 +19,7 @@ namespace Ship_Game
         {
             GameLoadingScreen.SetStatus("LoadShields");
             ShieldModel     = content.Load<Model>("Model/Projectiles/shield");
-            ShieldTexture   = content.Load<Texture2D>("Model/Projectiles/shield_d");
+            ShieldTexture   = content.Load<Texture2D>("Model/Projectiles/shield_d.dds");
             GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient");
             ShieldEffect    = content.Load<Effect>("Effects/scale");
         }
@@ -126,8 +126,8 @@ namespace Ship_Game
                     if (shield.TexScale > 0f)
                     {
                         shield.UpdateLightIntensity(2.45f);
-                        shield.Displacement += 0.085f;
-                        shield.TexScale -= 0.185f;
+                        shield.Displacement += 0.01f;
+                        shield.TexScale -= 0.003f;
                     }
                 }
             }
