@@ -68,8 +68,9 @@ namespace Ship_Game.Ships
         string GetStartWarpCue() => GetStartWarpCue(Loyalty.data, SurfaceArea);
         string GetEndWarpCue()   => GetEndWarpCue(Loyalty.data, SurfaceArea);
 
-        public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
+        public void EngageStarDrive()
         {
+            // Check warp status for Fighter recall
             Status warpStatus = ShipEngines.ReadyForFormationWarp;
             if (warpStatus <= Status.Poor)
             {
