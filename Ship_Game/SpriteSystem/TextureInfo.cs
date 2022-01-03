@@ -85,13 +85,14 @@ namespace Ship_Game.SpriteSystem
             Texture = null;
         }
 
-        public void SaveAsPng(string filename)
+        public string SaveAsPng(string filename)
         {
             string path = Path.ChangeExtension(filename, "png");
             Texture.Save(path, ImageFileFormat.Png);
+            return path;
         }
 
-        public void SaveAsDds(string filename)
+        public string SaveAsDds(string filename)
         {
             string path = Path.ChangeExtension(filename, "dds");
             SurfaceFormat format = Texture.Format;
@@ -120,6 +121,7 @@ namespace Ship_Game.SpriteSystem
                 Log.Error($"Unsupported format '{format}' from texture '{Name}.{Type}': "
                           +"Ensure you are using BGRA32 or BGR32 textures.");
             }
+            return path;
         }
     }
 }

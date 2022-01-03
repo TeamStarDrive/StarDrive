@@ -133,7 +133,7 @@ namespace Ship_Game.Data
             return modelFiles;
         }
 
-        public void ExportXnbMesh(FileInfo file, bool alwaysOverwrite = false)
+        public void ExportXnbMesh(FileInfo file, string meshExtension, bool alwaysOverwrite = true)
         {
             string relativePath = file.RelPath();
             Log.Info(relativePath);
@@ -141,29 +141,69 @@ namespace Ship_Game.Data
             if (relativePath.StartsWith("Content\\"))
                 relativePath = relativePath.Substring(8);
 
-            string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, "fbx");
+            string savePath = "MeshExport\\" + Path.ChangeExtension(relativePath, meshExtension);
             if (!alwaysOverwrite && File.Exists(savePath))
                 return;
 
             string nameNoExt = Path.GetFileNameWithoutExtension(file.Name);
+            bool isTexture2D = false;
+            bool isTexture3D = false;
             try
             {
                 Model model = Content.LoadModel(relativePath);
-                Log.Info($"  Export StaticMesh: {savePath}");
+                Log.Write(ConsoleColor.Blue, $"  Export StaticMesh: {savePath}");
+                GameLoadingScreen.SetStatus("ExportMesh", savePath);
                 MeshExport.Export(model, nameNoExt, savePath);
                 return;
             }
             catch (Exception e)
             {
-                if (e.Message.Contains("File contains Microsoft.Xna.Framework.Graphics.") ||
-                    e.Message.Contains("already loaded as 'Microsoft.Xna.Framework.Graphics"))
-                    return;
+                if (e.Message.Contains("File contains Microsoft.Xna.Framework.Graphics.Texture2D") ||
+                    e.Message.Contains("already loaded as 'Microsoft.Xna.Framework.Graphics.Texture2D"))
+                    isTexture2D = true;
+                else if(e.Message.Contains("File contains Microsoft.Xna.Framework.Graphics.Texture3D") ||
+                    e.Message.Contains("already loaded as 'Microsoft.Xna.Framework.Graphics.Texture3D"))
+                    isTexture3D = true;
+                else if (e.Message.Contains("File contains Microsoft.Xna.Framework.Graphics.") ||
+                    e.Message.Contains("already loaded as 'Microsoft.Xna.Framework.Graphics."))
+                    return; // ignore this one
+            }
+
+            if (isTexture2D || isTexture3D)
+            {
+                // but then just export it as texture instead
+                // because we might need it later
+                try
+                {
+                    if (isTexture2D)
+                    {
+                        var tex = Content.Load<Texture2D>(relativePath);
+                        string texSavePath = TexExport.GetSaveAutoFormatPath(tex, savePath);
+                        Log.Write(ConsoleColor.Green, $"  Export Texture: {texSavePath}");
+                        GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
+                        TexExport.SaveAutoFormat(tex, texSavePath);
+                    }
+                    else
+                    {
+                        var tex3d = Content.Load<Texture3D>(relativePath);
+                        string texSavePath = Path.ChangeExtension(savePath, "dds");
+                        Log.Write(ConsoleColor.DarkYellow, $"  Export Texture3D: {texSavePath}");
+                        GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
+                        TexExport.Save(tex3d, texSavePath);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, "Failed to load Texture");
+                }
+                return;
             }
 
             try
             {
                 SkinnedModel model = Content.LoadSkinnedModel(relativePath);
-                Log.Info($"  Export AnimatedMesh: {savePath}");
+                Log.Write(ConsoleColor.Cyan, $"  Export AnimatedMesh: {savePath}");
+                GameLoadingScreen.SetStatus("ExportMesh", savePath);
                 MeshExport.Export(model, nameNoExt, savePath);
             }
             catch (ContentLoadException e)
@@ -172,7 +212,7 @@ namespace Ship_Game.Data
             }
         }
 
-        public void ExportAllXnbMeshes()
+        public void ExportAllXnbMeshes(string extension)
         {
             var files = new Array<FileInfo>();
             files.AddRange(GetAllXnbModelFiles("Effects"));
@@ -184,11 +224,12 @@ namespace Ship_Game.Data
             {
                 for (int i = start; i < end; ++i)
                 {
-                    ExportXnbMesh(files[i]);
+                    ExportXnbMesh(files[i], extension);
                 }
             }
             //Parallel.For(files.Count, ExportMeshes, Parallel.NumPhysicalCores * 2);
             ExportMeshes(0, files.Count);
+            MeshExport.Reset();
         }
 
         public void ExportAllTextures()
