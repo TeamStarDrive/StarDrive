@@ -1073,6 +1073,7 @@ namespace Ship_Game.Ships
             if (timeStep.FixedTime > 0f && VelocityMaximum <= 0f
                 && !ShipData.IsShipyard && ShipData.Role <= RoleName.station)
             {
+                // rotate Platform and SSP:
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
             }
 
