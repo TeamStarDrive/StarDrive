@@ -32,13 +32,13 @@ namespace Ship_Game.Graphics.Particles
             // name of the Particle effect defined in Particles.yaml
             [StarData] public readonly string Particle; // eg "ThrustEffect"
 
-            // how many particles to generate per second
-            [StarData] public readonly float ParticlesPerSecond = 10.0f;
+            // Rate of particles emitted per second
+            [StarData] public readonly float Rate = 10.0f;
 
             // a global scale for this emitter, default = 1.0
             [StarData] public readonly float Scale = 1.0f;
 
-            // overriding color source for this particle effect
+            // overriding color source for this particle effect, default is White color (inherit Particle color)
             [StarData] public ColorSource ColorSource = ColorSource.Default;
 
             // scales emitter velocity, default = 1.0
@@ -72,6 +72,8 @@ namespace Ship_Game.Graphics.Particles
             float TimeLeftOver;
             readonly Color Color;
             int IncrementCounter;
+
+            public override string ToString() => $"Emitter {Data.Particle} Rate:{Data.Rate} Scale:{Data.Scale}";
 
             public EmitterState(ParticleEmitterData ed, IParticle particle)
             {
@@ -111,7 +113,13 @@ namespace Ship_Game.Graphics.Particles
                 float timeBetweenParticles = Data.TimeBetweenParticles;
                 float totalScale = scale * Data.Scale;
 
-                Vector3 v = Data.VelocityScale == 1f ? vel : vel * Data.VelocityScale;
+                Vector3 v;
+                if (Data.VelocityScale == 1f)
+                    v = vel;
+                else if (Data.VelocityScale == 0f)
+                    v = Vector3.Zero;
+                else
+                    v = vel * Data.VelocityScale;
 
                 while (timeToSpend >= timeBetweenParticles)
                 {
@@ -147,6 +155,8 @@ namespace Ship_Game.Graphics.Particles
         public EmitterState[] Emitters { get; private set; }
         Vector3 PrevPos;
 
+        public override string ToString() => $"ParticleEffect {Name} Emitters:{Emitters.Length}";
+
         // initialize a new template
         public ParticleEffect(ParticleEffectData data, ParticleManager manager)
         {
@@ -160,7 +170,7 @@ namespace Ship_Game.Graphics.Particles
                 IParticle p = manager.GetParticleOrNull(ed.Particle);
                 if (p != null)
                 {
-                    ed.TimeBetweenParticles = 1f / ed.ParticlesPerSecond;
+                    ed.TimeBetweenParticles = 1f / ed.Rate;
                     emitters.Add(new EmitterState(ed, p));
                 }
                 else
@@ -199,7 +209,7 @@ namespace Ship_Game.Graphics.Particles
 
         bool ReloadAfterDisposed()
         {
-            ParticleEffect template = Data.Manager.GetEffectOrNull(Data.Name);
+            ParticleEffect template = Data.Manager.GetEffectTemplate(Data.Name);
             if (template == null) // effect was removed
                 return false;
 

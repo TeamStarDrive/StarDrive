@@ -173,7 +173,16 @@ namespace Ship_Game.Graphics.Particles
             return ByName.Get(particleName, out IParticle p) ? p : null;
         }
 
-        public ParticleEffect GetEffectOrNull(string effectName)
+        public ParticleEffect CreateEffect(string effectName, in Vector3 initialPos, GameplayObject context)
+        {
+            ParticleEffect template = GetEffectTemplate(effectName);
+            if (template == null)
+                return null;
+            return new ParticleEffect(template, initialPos, context);
+        }
+
+        // Get a ParticleEffect Template
+        public ParticleEffect GetEffectTemplate(string effectName)
         {
             // lock because this might be called from a background thread in Ship.Update()
             lock (Effects)
