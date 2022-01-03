@@ -9373,13 +9373,13 @@ AddToAllStartingEmpire:
  Id: 4122
  ENG: "Add to all Starting Empire Planets this Value."
  RUS: "Добавляет это значение ко всем стартовым планетам Империи."
-MinimumWarpRange:
+MinAcceptableShipWarpRange:
  Id: 4123
- ENG: "Minimum Warp Range"
+ ENG: "Min acceptable ship warp range"
  RUS: "Минимальная дистанция варп-прыжка"
-MinimumWarpRangeAShip:
+MinAcceptableWarpRangeAShip:
  Id: 4124
- ENG: "Minimum warp range a ship must have before it needs to recharge for the AI to build it."
+ ENG: "Min Acceptable warp range a Ship must have before it needs to recharge for the AI to build it."
  RUS: "Для создания корабля, ИИ необходима информация о минимальном запасе хода варп-двигателя до момента выхода на перезарядку энерго-ячеек."
 SecondsPerTurn:
  Id: 4125
