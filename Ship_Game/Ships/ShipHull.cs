@@ -107,8 +107,15 @@ namespace Ship_Game.Ships
 
                 if (Volume.X.AlmostEqual(0f))
                 {
-                    Volume = shipSO.GetMeshBoundingBox().Max;
-                    ModelZ = Volume.Z;
+                    try
+                    {
+                        Volume = shipSO.GetMeshBoundingBox().Max;
+                        ModelZ = Volume.Z;
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, $"GetMeshBoundingBox failed: {ModelPath}");
+                    }
                 }
             }
         }

@@ -38,6 +38,8 @@ namespace Ship_Game.Gameplay
         ParticleEmitter ThrustGlowEmitter;
         ParticleEmitter IonTrailEmitter;
         ParticleEmitter IonRingEmitter;
+        ParticleEmitter IonRingReversedEmitter;
+        ParticleEmitter BubbleEmitter;
         SceneObject ProjSO; // this is null for sprite based projectiles
         public Matrix WorldMatrix { get; private set; }
         public string InFlightCue = "";
@@ -121,7 +123,7 @@ namespace Ship_Game.Gameplay
             {
                 Weapon  = weapon,
                 Planet  = planet,
-                ZStart  = -2500f
+                ZStart  = 2500f, // +Z: deep in background, away from camera
             };
             projectile.Initialize(weapon.Origin, direction, target, playSound: true, Vector2.Zero);
             return projectile;
@@ -252,12 +254,12 @@ namespace Ship_Game.Gameplay
                 Vector2 missileVelocity = inheritedVelocity != Vector2.Zero ? inheritedVelocity : Weapon.Owner?.Velocity ?? Vector2.Zero;
                 MissileAI               = new MissileAI(this, target, missileVelocity);
             }
-            
-            LoadContent();
-            Initialize();
 
             Universe = Owner?.Universe ?? Planet?.Universe;
             Universe?.Objects.Add(this);
+
+            LoadContent();
+            Initialize();
 
             if (Owner != null)
             {
@@ -303,21 +305,29 @@ namespace Ship_Game.Gameplay
             if (particles == null)
                 return;
 
-            var pos3D = new Vector3(Position, -ZStart);
+            var pos3D = new Vector3(Position, ZStart);
             switch (Weapon.WeaponEffectType)
             {
                 case "RocketTrail":
-                    TrailEmitter            = particles.MissileSmokeTrail.NewEmitter(80f, pos3D);
-                    FiretrailEmitter        = particles.FireTrail.NewEmitter(100f, pos3D);
-                    ThrustGlowEmitter       = particles.MissileThrust.NewEmitter(20f, pos3D);
+                    TrailEmitter = particles.MissileSmokeTrail.NewEmitter(80f, pos3D);
+                    FiretrailEmitter = particles.FireTrail.NewEmitter(100f, pos3D);
+                    ThrustGlowEmitter = particles.MissileThrust.NewEmitter(20f, pos3D);
                     break;
                 case "TorpTrail":
                     IonTrailEmitter = particles.IonTrail.NewEmitter(150f, pos3D);
-                    ThrustGlowEmitter = particles.MissileThrust.NewEmitter(20f, pos3D);
-                    IonRingEmitter = particles.IonRing.NewEmitter(20f, pos3D);
+                    ThrustGlowEmitter = particles.MissileThrust.NewEmitter(15f, pos3D);
+                    IonRingReversedEmitter = particles.IonRingReversed.NewEmitter(10f, pos3D);
+                    break;
+                case "BubbleTrail":
+                    BubbleEmitter = particles.Bubble.NewEmitter(20f, pos3D);
+                    ThrustGlowEmitter = particles.MissileThrust.NewEmitter(15f, pos3D);
+                    IonRingEmitter = particles.IonRing.NewEmitter(10f, pos3D);
                     break;
                 case "Plasma":
                     FiretrailEmitter = particles.Flame.NewEmitter(100f, Position);
+                    break;
+                case "Bubble":
+                    BubbleEmitter = particles.Bubble.NewEmitter(15f, Position);
                     break;
                 case "SmokeTrail":
                     TrailEmitter     = particles.ProjectileTrail.NewEmitter(100f, pos3D);
@@ -404,7 +414,7 @@ namespace Ship_Game.Gameplay
             {
                 if (Animation != null)
                 {
-                    screen.ProjectToScreenCoords(Position, -ZStart, 20f * Weapon.ProjectileRadius * Weapon.Scale,
+                    screen.ProjectToScreenCoords(Position, ZStart, 20f * Weapon.ProjectileRadius * Weapon.Scale,
                                                  out Vector2d pos, out double size);
 
                     Animation.Draw(batch, pos, new Vector2d(size), Rotation, 1f);
@@ -484,8 +494,8 @@ namespace Ship_Game.Gameplay
                 Die(this, false);
                 return;
             }
-            
-            if (Weapon.Animated == 1 && InFrustum)
+
+            if (InFrustum && Weapon.Animated == 1)
             {
                 Animation.Update(timeStep.FixedTime);
             }
@@ -504,6 +514,7 @@ namespace Ship_Game.Gameplay
                     return;
                 }
             }
+
             MissileAI?.Think(timeStep);
             DroneAI?.Think(timeStep);
             if (FirstRun && Module != null)
@@ -517,118 +528,112 @@ namespace Ship_Game.Gameplay
 
             if (InFrustum)
             {
-                if (ZStart < -25.0)
-                    ZStart += VelocityMax * timeStep.FixedTime;
+                // always put missiles below ships, +25 means away from camera into background
+                if (ZStart > 25f)
+                    ZStart -= VelocityMax * timeStep.FixedTime; // come closer to camera
                 else
-                    ZStart = -25f;
+                    ZStart = 25f;
 
-                WorldMatrix = Matrix.CreateScale(Weapon.Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(Position.X, Position.Y, -ZStart);
+                WorldMatrix = Matrix.CreateScale(Weapon.Scale) 
+                            * Matrix.CreateRotationZ(Rotation)
+                            * Matrix.CreateTranslation(Position.X, Position.Y, ZStart);
 
                 if (UsesVisibleMesh) // lazy init rocket projectile meshes
                 {
-                    if (ProjSO == null)
-                    {
-                        if (ResourceManager.ProjectileMeshDict.TryGetValue(ModelPath, out ModelMesh mesh))
-                        {
-                            ProjSO = new SceneObject(mesh)
-                            {
-                                Visibility = ObjectVisibility.Rendered,
-                                ObjectType = ObjectType.Dynamic,
-                                World = WorldMatrix
-                            };
-                            Universe.AddObject(ProjSO);
-                        }
-                        else
-                        {
-                            Log.Warning($"No such mesh: '{ModelPath}'");
-                        }
-                    }
-                    else
-                    {
-                        ProjSO.World = WorldMatrix;
-                    }
+                    UpdateMesh();
                 }
-            }
 
-            var newPosition = new Vector3(Position.X, Position.Y, -ZStart);
-            newPosition -= Direction.ToVec3() * Radius;
+                if (TrailTurnedOn && ParticleDelay <= 0f && Duration > 0.5f)
+                {
+                    UpdateTrailEmitters(timeStep.FixedTime);
+                }
 
-            if (FiretrailEmitter != null && InFrustum && TrailTurnedOn)
-            {
-                if (ParticleDelay <= 0.0f && Duration > 0.5)
-                {
-                    FiretrailEmitter.UpdateProjectileTrail(timeStep.FixedTime, newPosition, Velocity + VelocityDirection * Speed * 1.75f);
-                }
-            }
-            if (ThrustGlowEmitter != null && InFrustum && TrailTurnedOn)
-            {
-                if (ParticleDelay <= 0.0f && Duration > 0.5)
-                {
-                    ThrustGlowEmitter.Update(timeStep.FixedTime, newPosition);
-                }
-            }
-            if (TrailEmitter != null && InFrustum && TrailTurnedOn)
-            {
-                if (ParticleDelay <= 0.0f && Duration > 0.5)
-                {
-                    TrailEmitter.Update(timeStep.FixedTime, newPosition);
-                }
-            }
-            if (IonTrailEmitter != null && InFrustum && TrailTurnedOn)
-            {
-                if (ParticleDelay <= 0.0f && Duration > 0.5)
-                {
-                    IonTrailEmitter.Update(timeStep.FixedTime, newPosition);
-                }
-            }
-            if (IonRingEmitter != null && InFrustum && TrailTurnedOn)
-            {
-                if (ParticleDelay <= 0.0f && Duration > 0.5)
-                {
-                    IonRingEmitter.Update(timeStep.FixedTime, newPosition);
-                }
-            }
-            if (Universe.CanAddDynamicLight)
-            {
-                if (InFrustum && Light == null && Weapon.Light != null && !LightWasAddedToSceneGraph)
+                if (!LightWasAddedToSceneGraph && Weapon.Light != null && Light == null && Universe.CanAddDynamicLight)
                 {
                     LightWasAddedToSceneGraph = true;
-                    var pos = new Vector3(Position.X, Position.Y, -25f);
-                    Light = new PointLight
-                    {
-                        Position   = pos,
-                        Radius     = 100f,
-                        World      = Matrix.CreateTranslation(pos),
-                        ObjectType = ObjectType.Dynamic,
-                        Intensity  = 1.7f,
-                        FillLight  = true,
-                        Enabled    = true
-                    };
-                    switch (Weapon.Light)
-                    {
-                        case "Green":  Light.DiffuseColor = new Vector3(0.0f, 0.8f, 0.0f);  break;
-                        case "Red":    Light.DiffuseColor = new Vector3(1f, 0.0f, 0.0f);    break;
-                        case "Orange": Light.DiffuseColor = new Vector3(0.9f, 0.7f, 0.0f);  break;
-                        case "Purple": Light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f); break;
-                        case "Blue":   Light.DiffuseColor = new Vector3(0.0f, 0.8f, 1f);    break;
-                    }
-                    Universe.AddLight(Light, dynamic:true);
+                    Light = CreateLight();
+                    Universe.AddLight(Light, dynamic: true);
                 }
                 else if (Light != null && Weapon.Light != null && LightWasAddedToSceneGraph)
                 {
                     Light.Position = new Vector3(Position.X, Position.Y, -25f);
                     Light.World = Matrix.CreateTranslation(Light.Position);
                 }
+
+                if (!MuzzleFlashAdded && Module?.InstalledWeapon?.MuzzleFlash != null)
+                {
+                    MuzzleFlashAdded = true;
+                    MuzzleFlashManager.AddFlash(this);
+                }
             }
 
-            if (Module != null && !MuzzleFlashAdded && Module.InstalledWeapon?.MuzzleFlash != null && InFrustum)
-            {
-                MuzzleFlashAdded = true;
-                MuzzleFlashManager.AddFlash(this);
-            }
             base.Update(timeStep);
         }
 
+        void UpdateMesh()
+        {
+            if (ProjSO == null)
+            {
+                if (ResourceManager.ProjectileMeshDict.TryGetValue(ModelPath, out ModelMesh mesh))
+                {
+                    ProjSO = new SceneObject(mesh)
+                    {
+                        Visibility = ObjectVisibility.Rendered,
+                        ObjectType = ObjectType.Dynamic,
+                        World = WorldMatrix
+                    };
+                    Universe.AddObject(ProjSO);
+                }
+                else
+                {
+                    Log.Warning($"No such mesh: '{ModelPath}'");
+                }
+            }
+            else
+            {
+                ProjSO.World = WorldMatrix;
+            }
+        }
+
+        void UpdateTrailEmitters(float timeStep)
+        {
+            var forward = Direction;
+            var trailPos = new Vector3(Position.X - forward.X * Radius,
+                                       Position.Y - forward.Y * Radius, ZStart);
+            Vector2 trailVel = Velocity + VelocityDirection * Speed * 1.75f;
+
+            FiretrailEmitter?.UpdateProjectileTrail(timeStep, trailPos, trailVel);
+            ThrustGlowEmitter?.Update(timeStep, trailPos);
+            TrailEmitter?.Update(timeStep, trailPos);
+            IonTrailEmitter?.Update(timeStep, trailPos);
+            IonRingEmitter?.Update(timeStep, trailPos);
+            IonRingReversedEmitter?.Update(timeStep, trailPos);
+            BubbleEmitter?.Update(timeStep, trailPos);
+        }
+
+        PointLight CreateLight()
+        {
+            var pos = new Vector3(Position.X, Position.Y, -25f);
+            var light = new PointLight
+            {
+                Position = pos,
+                Radius = 100f,
+                World = Matrix.CreateTranslation(pos),
+                ObjectType = ObjectType.Dynamic,
+                Intensity = 1.7f,
+                FillLight = true,
+                Enabled = true
+            };
+            switch (Weapon.Light)
+            {
+                case "Green":  light.DiffuseColor = new Vector3(0.0f, 0.8f, 0.00f); break;
+                case "Red":    light.DiffuseColor = new Vector3(1.0f, 0.0f, 0.00f); break;
+                case "Orange": light.DiffuseColor = new Vector3(0.9f, 0.7f, 0.00f); break;
+                case "Purple": light.DiffuseColor = new Vector3(0.8f, 0.8f, 0.95f); break;
+                case "Blue":   light.DiffuseColor = new Vector3(0.0f, 0.8f, 1.00f); break;
+            }
+            return light;
+        }
 
         bool CloseEnoughForExplosion    => Universe.IsSectorViewOrCloser;
         bool CloseEnoughForFlashExplode => Universe.IsSystemViewOrCloser;

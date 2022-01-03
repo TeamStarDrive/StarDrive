@@ -27,7 +27,10 @@ namespace SynapseGaming.LightingSystem.Processors.Forward
             
             //Console.WriteLine($"Read LightningEffect {input.AssetName}");
             fx = new LightingEffect(device);
-            fx.MaterialName             = input.ReadString();
+            fx.MaterialName = input.ReadString();
+            if (string.IsNullOrEmpty(fx.MaterialName))
+                fx.MaterialName = input.AssetName;
+
             fx.MaterialFile             = input.ReadString();
             fx.ProjectFile              = input.ReadString();
             fx.DiffuseMapFile           = input.ReadString();
