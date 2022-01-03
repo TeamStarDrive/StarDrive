@@ -82,7 +82,8 @@ namespace Ship_Game
         // @example if (RandomMath.RollDice(33)) {..} // 33% chance
         public static bool RollDice(float percent)
         {
-            return RandomBetween(0f, 100f) < percent;
+            float randomFloat = Random.Float(0f, 100f);
+            return randomFloat < percent;
         }
 
         // returns a specific die size roll, like 1d20, 1d6, etc. Minimum value can be changed

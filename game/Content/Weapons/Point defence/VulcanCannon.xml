@@ -35,11 +35,11 @@
  <!-- <ToggleSoundName>sd_weapon_vulcan_spinloop_01</ToggleSoundName> -->
 
   <!-- Projectile Information -->
-  <DamageAmount>1</DamageAmount>
+  <DamageAmount>2</DamageAmount>
   <Scale>.7</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1450</ProjectileSpeed>
-  <ProjectileRadius>20</ProjectileRadius> 
+  <ProjectileRadius>30</ProjectileRadius> 
   
   <Explodes>false</Explodes>
   <ProjectileTexturePath>projPulse_01_yellow_1_small</ProjectileTexturePath>

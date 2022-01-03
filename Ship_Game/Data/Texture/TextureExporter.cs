@@ -30,21 +30,40 @@ namespace Ship_Game.Data.Texture
 
                 string dir = Path.GetDirectoryName(outPath);
                 DirectoryInfo d = Directory.CreateDirectory(dir);
-                if (!d.Exists)
-                    return false;
-
-                var texInfo = new TextureInfo(texture);
-                switch (fmt)
+                if (d.Exists)
                 {
-                    case TextureFileFormat.PNG: texInfo.SaveAsPng(outPath); break;
-                    case TextureFileFormat.DDS: texInfo.SaveAsDds(outPath); break;
+                    var texInfo = new TextureInfo(texture);
+                    switch (fmt)
+                    {
+                        case TextureFileFormat.PNG: texInfo.SaveAsPng(outPath); break;
+                        case TextureFileFormat.DDS: texInfo.SaveAsDds(outPath); break;
+                    }
+                    return true;
                 }
-                return true;
             }
             catch
             {
-                return false;
             }
+            return false;
+        }
+
+        public bool Save(Texture3D texture, string outPath)
+        {
+            try
+            {
+                SurfaceFormat f = texture.Format;
+                string dir = Path.GetDirectoryName(outPath);
+                DirectoryInfo d = Directory.CreateDirectory(dir);
+                if (d.Exists)
+                {
+                    texture.Save(outPath, ImageFileFormat.Dds);
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+            return false;
         }
 
         // picks suitable format to represent the texture without losing quality
@@ -52,31 +71,51 @@ namespace Ship_Game.Data.Texture
         // RGBA color: PNG
         public bool SaveAutoFormat(Texture2D texture, string outPath)
         {
+            return SaveAutoFormat(texture, outPath, out string _);
+        }
+
+        public bool SaveAutoFormat(Texture2D texture, string outPath, out string savedPath)
+        {
             try
             {
                 SurfaceFormat f = texture.Format;
                 if (f == SurfaceFormat.NormalizedByte2)
                 {
                     Log.Warning($"Unsupported pixel format {f} for {texture.Name} -> {outPath}");
+                    savedPath = null;
                     return false;
                 }
 
                 string dir = Path.GetDirectoryName(outPath);
                 DirectoryInfo d = Directory.CreateDirectory(dir);
-                if (!d.Exists)
-                    return false;
-
-                var texInfo = new TextureInfo(texture);
-                if (f == SurfaceFormat.Dxt1 || f == SurfaceFormat.Dxt5)
-                    texInfo.SaveAsDds(outPath);
-                else
-                    texInfo.SaveAsPng(outPath);
-                return true;
+                if (d.Exists)
+                {
+                    var texInfo = new TextureInfo(texture);
+                    if (f == SurfaceFormat.Dxt1 || f == SurfaceFormat.Dxt5)
+                        savedPath = texInfo.SaveAsDds(outPath);
+                    else
+                        savedPath = texInfo.SaveAsPng(outPath);
+                    return true;
+                }
             }
             catch
             {
-                return false;
             }
+            savedPath = null;
+            return false;
+        }
+
+        // previews which extension the texture will be saved as
+        public string GetSaveAutoFormatPath(Texture2D texture, string outPath)
+        {
+            SurfaceFormat f = texture.Format;
+            if (f == SurfaceFormat.NormalizedByte2)
+                return null;
+
+            if (f == SurfaceFormat.Dxt1 || f == SurfaceFormat.Dxt5)
+                return Path.ChangeExtension(outPath, "dds");
+
+            return Path.ChangeExtension(outPath, "png");
         }
 
         // Takes only the A channel from a Texture2D and converts it into a Base64 string

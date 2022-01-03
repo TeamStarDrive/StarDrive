@@ -4,14 +4,23 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SgMotion;
+using Ship_Game.Data.Texture;
 using SynapseGaming.LightingSystem.Effects;
 
 namespace Ship_Game.Data.Mesh
 {
     public class MeshExporter : MeshInterface
     {
+        readonly TextureExporter TexExport;
+
         public MeshExporter(GameContentManager content) : base(content)
         {
+            TexExport = new TextureExporter(Content);
+        }
+
+        public void Reset()
+        {
+            AlreadySavedTextures.Clear();
         }
 
         public bool Export(Model model, string name, string modelFilePath)
@@ -51,7 +60,7 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
-        static unsafe void CreateBones(SdMesh* mesh, Model model, 
+        static unsafe void CreateBones(SdMesh* mesh, Model model,
                                        SkinnedModelBoneCollection animBones,
                                        AnimationClipDictionary animClips)
         {
@@ -175,17 +184,21 @@ namespace Ship_Game.Data.Mesh
                     {
                         if (effect is BaseMaterialEffect sunburn)
                         {
-                            string matName = sunburn.MaterialName.NotEmpty() ? sunburn.MaterialName : name+i;
+                            string matName = sunburn.MaterialName;
+                            if (matName.IsEmpty())
+                                matName = name+i;
                             exported[effect] = (long)ExportMaterial(mesh, sunburn, matName, exportDir);
                         }
-                        else if (effect is BasicEffect basic)
+                        else if (effect is BasicEffect basic && basic.Texture != null)
                         {
-                            string matName = basic.Texture != null && basic.Texture.Name.NotEmpty()
-                                ? basic.Texture.Name : name+i;
+                            string matName = basic.Texture.Name;
+                            if (matName.IsEmpty())
+                                matName = name + i;
                             exported[effect] = (long)ExportMaterial(mesh, basic, matName, exportDir);
                         }
                         else
                         {
+                            Log.Warning($"No texture for mesh {exportDir}/{name} effect {i}");
                             exported[effect] = 0;
                         }
                     }
@@ -194,23 +207,33 @@ namespace Ship_Game.Data.Mesh
             return exported;
         }
 
+        Map<Texture2D, string> AlreadySavedTextures = new Map<Texture2D, string>();
+
         string TrySaveTexture(string modelExportDir, string textureName, Texture2D texture)
         {
             if (textureName.IsEmpty() || texture == null)
                 return "";
 
-            string name = Path.ChangeExtension(Path.GetFileName(textureName), "dds");
-            string writeTo = Path.Combine(modelExportDir, name);
-
             lock (texture) // Texture2D.Save will crash if 2 threads try to save the same texture
             {
+                string writeTo = Path.Combine(modelExportDir, Path.GetFileName(textureName));
+                writeTo = TexExport.GetSaveAutoFormatPath(texture, writeTo);
+
+                // This happens a lot. Many ships share a common base texture.
+                if (AlreadySavedTextures.TryGetValue(texture, out string alreadySavedPath))
+                {
+                    return Path.GetFileName(alreadySavedPath);
+                }
+
+                AlreadySavedTextures.Add(texture, writeTo);
                 if (!File.Exists(writeTo))
                 {
-                    Log.Warning($"  ExportTexture: {writeTo}");
-                    texture.Save(writeTo, ImageFileFormat.Dds);
+                    Log.Write(ConsoleColor.Green, $"  Export Texture: {writeTo}");
+                    TexExport.SaveAutoFormat(texture, writeTo);
                 }
+
+                return Path.GetFileName(writeTo);
             }
-            return name;
         }
 
         unsafe SdMaterial* ExportMaterial(SdMesh* mesh, BaseMaterialEffect fx, string name, string modelExportDir)
