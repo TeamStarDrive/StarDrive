@@ -92,8 +92,13 @@ namespace Ship_Game.AI
             }
             else
             {
-                if (Owner.engineState == Ship.MoveState.Warp)
+                // Do the Picard Maneuver: disengage from Warp only at desired combat range,
+                // otherwise at 7500 we probably can't reach the target and will be stuck in a warp-in-out loop
+                if (Owner.engineState == Ship.MoveState.Warp &&
+                    distanceToTarget < Owner.DesiredCombatRange*0.8f)
+                {
                     Owner.HyperspaceReturn();
+                }
 
                 if (FleetNode != null && Owner.Fleet != null && HasPriorityOrder)
                 {
