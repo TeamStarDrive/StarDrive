@@ -18,6 +18,9 @@ namespace Ship_Game.Graphics.Particles
 
         // Current number of active particles
         int ActiveParticles { get; }
+        int NewParticles { get; }
+        int FreeParticles { get; }
+        int RetiredParticles { get; }
 
         // ParticleSystem is maxed out?
         bool IsOutOfParticles { get; }
