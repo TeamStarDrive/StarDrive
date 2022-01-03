@@ -43,7 +43,7 @@ namespace Ship_Game
         // are in use. When a new particle is created, this is allocated from the
         // beginning of the array. If more than one particle is created, these will
         // always be stored in a consecutive block of array elements. Because all
-        // particles last for the same amount of time, old particles will always be
+        // particles last for a similar amount of time, old particles will always be
         // removed in order from the start of this active particle region, so the
         // active and free regions will never be intermingled. Because the queue is
         // circular, there can be times when the active particle region wraps from the
@@ -108,11 +108,29 @@ namespace Ship_Game
         // being drawn, but were drawn recently enough that the GPU could still be
         // using them. These need to be kept around for a few more frames before they
         // can be reallocated.
+        // [ _ _ _ |fRetired x x x x x |fActive a a a a |fNew n n n |fFree _ _ _ _ _ ]
         int FirstActiveParticle; // active range is [FirstActiveParticle, FirstFreeParticle)
         int FirstNewParticle; // exists only in CPU memory
         int FirstFreeParticle; // can allocate new particle here
         int FirstRetiredParticle; // this is the first particle which was completely retired
-        
+
+        // # of slots between [first, second] position in the queue
+        int QueueCount(int first, int second)
+        {
+            if (first <= second) // before wrap, simple subtraction
+                return second - first;
+            return second + (MaxParticles - first); // after second has wrapped
+        }
+
+        // Number of Particles that have been added and are being drawn
+        // This includes retired particles and particles that are in queue to be added to gpu
+        public int ActiveParticles => QueueCount(FirstActiveParticle, FirstFreeParticle);
+        public int NewParticles => QueueCount(FirstNewParticle, FirstFreeParticle);
+        public int FreeParticles => QueueCount(FirstFreeParticle, FirstRetiredParticle);
+        public int RetiredParticles => QueueCount(FirstRetiredParticle, FirstActiveParticle);
+
+        public bool IsOutOfParticles => FirstFreeParticle == FirstRetiredParticle && FirstFreeParticle != 0;
+
         // This is the actual particle count, which is Particles.Length / 4
         public int MaxParticles { get; private set; }
 
@@ -182,13 +200,6 @@ namespace Ship_Game
         void LoadContent(ParticleSettings settings, int maxParticles)
         {
             MaxParticles = maxParticles > 0 ? maxParticles : settings.MaxParticles;
-
-            //// each particle requires 4 vertices, using ushort indices
-            //// we can render only up to 16383 particles
-            //const int maxPossibleParticles = ushort.MaxValue / 4;
-            //if (MaxParticles > maxPossibleParticles)
-            //    MaxParticles = maxPossibleParticles;
-
             Settings = settings.Clone();
             Settings.MaxParticles = MaxParticles; 
 
@@ -361,10 +372,10 @@ namespace Ship_Game
                 float particleAge = CurrentTime - particle.Time;
                 if (particleAge < particleDuration)
                     break;
-                
+
                 // Remember the time at which we retired this particle.
                 particle.Time = DrawCounter;
-                
+
                 // Move the particle from the active to the retired queue.
                 ++FirstActiveParticle;
 
@@ -393,7 +404,7 @@ namespace Ship_Game
                 // might bend the rules and let the GPU get further behind.
                 if (age < 3)
                     break;
-                
+
                 // Move the particle from the retired to the free queue.
                 ++FirstRetiredParticle;
 
@@ -537,15 +548,34 @@ namespace Ship_Game
             return firstNew;
         }
 
-        public bool IsOutOfParticles => FirstFreeParticle == FirstRetiredParticle && FirstFreeParticle != 0;
-        
-        public int ActiveParticles
+        int GetNextFreeParticle()
         {
-            get
+            lock (this)
             {
-                if (FirstActiveParticle < FirstFreeParticle)
-                    return (FirstFreeParticle - FirstActiveParticle);
-                return FirstFreeParticle + (MaxParticles - FirstActiveParticle);
+                if (FirstFreeParticle == FirstRetiredParticle && FirstRetiredParticle != FirstActiveParticle)
+                    return -1;
+
+                int nextFree = FirstFreeParticle++;
+                if (FirstFreeParticle == MaxParticles)
+                    FirstFreeParticle = 0;
+                return nextFree;
+            }
+
+            while (true)
+            {
+                // TODO: 
+                // Figure out where in the circular queue to allocate the new particle.
+                // Need to increment this index thread-safely because multiple threads will be adding particles
+                int nextFreeParticle = Interlocked.Add(ref FirstFreeParticle, 1);
+                int firstFreeParticle = nextFreeParticle - 1;
+
+                // reset during exact overflow (concurrent increment)
+                if (nextFreeParticle == MaxParticles)
+                    FirstFreeParticle = 0;
+
+                if (firstFreeParticle < MaxParticles)
+                    return firstFreeParticle; // all good
+                // else: We couldn't grab an appropriate slot, retry
             }
         }
 
@@ -557,25 +587,10 @@ namespace Ship_Game
             if (particles == null || !IsEnabled)
                 return;
 
-            int firstFreeParticle;
-            while (true)
-            {
-                // Figure out where in the circular queue to allocate the new particle.
-                // Need to increment this index thread-safely because multiple threads will be adding particles
-                int nextFreeParticle = Interlocked.Add(ref FirstFreeParticle, 1);
-                firstFreeParticle = nextFreeParticle - 1;
-
-                // reset during exact overflow (concurrent increment)
-                if (nextFreeParticle == MaxParticles)
-                    FirstFreeParticle = 0;
-
-                if (firstFreeParticle < MaxParticles)
-                    break; // all good
-                // else: We couldn't grab an appropriate slot, retry
-            }
+            int firstFreeParticle = GetNextFreeParticle();
 
             // If there are no free particles, we just have to give up.
-            if (firstFreeParticle == FirstRetiredParticle)
+            if (firstFreeParticle == -1)
                 return;
 
             // Adjust the input velocity based on how much
@@ -636,12 +651,10 @@ namespace Ship_Game
         {
             AddParticle(position, Vector3.Zero, 1f, Color.White);
         }
-
         public void AddParticle(in Vector3 position, float scale)
         {
             AddParticle(position, Vector3.Zero, scale, Color.White);
         }
-
         public void AddParticle(in Vector3 position, in Vector3 velocity)
         {
             AddParticle(position, velocity, 1f, Color.White);
@@ -664,7 +677,6 @@ namespace Ship_Game
             for (int i = 0; i < numParticles; ++i)
                 AddParticle(position, velocity, scale, color);
         }
-
 
         public void Dispose()
         {
