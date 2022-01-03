@@ -3890,10 +3890,10 @@ namespace Ship_Game
         StartingPlanetRichnessBonus = 4121,
         /// <summary>Add to all Starting Empire Planets this Value.</summary>
         AddToAllStartingEmpire = 4122,
-        /// <summary>Minimum Warp Range</summary>
-        MinimumWarpRange = 4123,
+        /// <summary>Min Acceptable Ship Warp Range</summary>
+        MinAcceptableShipWarpRange = 4123,
         /// <summary>Minimum warp range a ship must have before it needs</summary>
-        MinimumWarpRangeAShip = 4124,
+        MinAcceptableWarpRangeAShip = 4124,
         /// <summary>Seconds Per Turn</summary>
         SecondsPerTurn = 4125,
         /// <summary>Time in seconds per turn. Production, Food, Research and Treasury</summary>

@@ -19,7 +19,7 @@ namespace Ship_Game
         public float FTLModifier;
         public float EnemyFTLModifier;
         public float OptionIncreaseShipMaintenance;
-        public float MinimumWarpRange;
+        public float MinAcceptableShipWarpRange;
         public int TurnTimer;
         public bool PreventFederations;
         public float GravityWellRange;
@@ -59,7 +59,7 @@ namespace Ship_Game
             FTLModifier                   = GlobalStats.FTLInSystemModifier;
             EnemyFTLModifier              = GlobalStats.EnemyFTLInSystemModifier;
             OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
-            MinimumWarpRange              = GlobalStats.MinimumWarpRange;
+            MinAcceptableShipWarpRange    = GlobalStats.MinAcceptableShipWarpRange;
             TurnTimer                     = GlobalStats.TurnTimer;
             PreventFederations            = GlobalStats.PreventFederations;
             GravityWellRange              = GlobalStats.GravityWellRange;
