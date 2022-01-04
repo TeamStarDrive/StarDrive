@@ -18,7 +18,7 @@
 
   <UID>Aegis</UID>
   <IsBeam>true</IsBeam>
-  <FireDelay>10</FireDelay>
+  <FireDelay>14</FireDelay>
   <Range>22000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
@@ -30,7 +30,7 @@
   <BeamTexture>beam_green</BeamTexture>
   
   <!-- Projectile Information -->
-  <DamageAmount>80</DamageAmount>
+  <DamageAmount>75</DamageAmount>
   <BeamThickness>260</BeamThickness>
   <BeamPowerCostPerSecond>3200</BeamPowerCostPerSecond>
     <EffectVsArmor>1.25</EffectVsArmor>
