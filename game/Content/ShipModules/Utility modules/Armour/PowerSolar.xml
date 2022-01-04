@@ -41,7 +41,7 @@
 
 
   <!-- for PowerPlant Items -->
-  <Explodes>false</Explodes>
+  
   <PowerFlowMax>15</PowerFlowMax>
   <PowerStoreMax>0</PowerStoreMax>
   <PowerRadius>1</PowerRadius>

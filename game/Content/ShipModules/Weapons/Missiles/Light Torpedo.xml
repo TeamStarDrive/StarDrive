@@ -38,7 +38,7 @@
   <DescriptionIndex>8208</DescriptionIndex>
 
   <!-- for PowerPlant Items -->
-  <Explodes>false</Explodes>
+  
   <PowerFlowMax>0</PowerFlowMax>
   <PowerStoreMax>0</PowerStoreMax>
 

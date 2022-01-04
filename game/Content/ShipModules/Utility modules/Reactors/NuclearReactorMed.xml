@@ -42,8 +42,7 @@
 
 
   <!-- for PowerPlant Items -->
-  <Explodes>true</Explodes>
-  <ExplosionDamage>2000</ExplosionDamage>
+  <ExplosionDamage>3000</ExplosionDamage>
   <ExplosionRadius>92</ExplosionRadius>  
   <PowerFlowMax>230</PowerFlowMax>
   <PowerStoreMax>10</PowerStoreMax>

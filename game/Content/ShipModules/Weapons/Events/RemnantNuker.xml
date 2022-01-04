@@ -28,7 +28,7 @@
 	<NameIndex>17924</NameIndex>
 	<DescriptionIndex>17926</DescriptionIndex>
 	<!-- for PowerPlant Items -->
-	<Explodes>false</Explodes>
+	
 	<PowerFlowMax>0</PowerFlowMax>
 	<PowerStoreMax>0</PowerStoreMax>
 	<!-- for Weapons -->
