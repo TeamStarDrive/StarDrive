@@ -281,8 +281,8 @@ namespace Ship_Game.Ships
             return hit;
         }
 
-        // Gets all the shields currently covering a ship Module, starting with the outside radius first
-        public ShipModule[] GetAllActiveShieldsCoveringModule(ShipModule module)
+        // Gets the first shield currently covering a ship Module, starting with the outside radius first
+        public Array<ShipModule> GetAllActiveShieldsCoveringModule(ShipModule module)
         {
             Array<ShipModule> coveringShields = new Array<ShipModule>();
             for (int i = 0; i < Shields.Length; ++i)
@@ -292,7 +292,11 @@ namespace Ship_Game.Ships
                     coveringShields.Add(shield);
             }
 
-            return coveringShields.Sorted(s => s.ShieldRadius - s.Position.Distance(module.Position));
+            return coveringShields;
+            // FB - For wanted to create a shield grid, for performance. so i am omitting the sort of shields. 
+            // The sorting was done so that the outer shields will be returned first and get the damage first.
+            // This code is called quite rarely
+            //.Sorted(s => s.ShieldRadius - s.Position.Distance(module.Position));
         }
 
         // Gets the strongest shield currently covering internalModule
