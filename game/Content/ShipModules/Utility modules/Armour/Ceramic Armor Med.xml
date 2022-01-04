@@ -27,6 +27,7 @@
     <KineticResist>0</KineticResist>
     <BeamResist>0</BeamResist>  
 	<HybridResist>0</HybridResist>
+	<ExplosiveResist>10</ExplosiveResist>
 	<!-- Power Drawn -->
 	<PowerDraw>0</PowerDraw>
 	<!-- Crew Reqs -->
@@ -35,5 +36,5 @@
 	<!-- for Weapons -->
 	<!-- Description -->
 	<Description>New generation of Ceramic Armor.</Description>
-	<APResist>01</APResist>
+	<APResist>1</APResist>
 </ShipModule>
