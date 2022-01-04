@@ -17,7 +17,7 @@
   <Tag_Torpedo>false</Tag_Torpedo>
 
   <UID>DefenseMissile</UID>
-  <FireDelay>2.0</FireDelay>
+  <FireDelay>4.0</FireDelay>
   <Range>6000</Range>
   <HitPoints>10</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
@@ -27,7 +27,7 @@
   <DieCue>sd_weapon_rocket_explode_01</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   <!-- Projectile Information -->
-  <DamageAmount>1800</DamageAmount>
+  <DamageAmount>1400</DamageAmount>
   <ProjectileSpeed>650</ProjectileSpeed>
   <DamageRadius>60</DamageRadius>
   <Explodes>true</Explodes>

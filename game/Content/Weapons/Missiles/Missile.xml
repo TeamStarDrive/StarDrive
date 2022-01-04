@@ -21,7 +21,7 @@
   <Tag_Cannon>false</Tag_Cannon>
   
   <!-- Range and Rate of Fire -->
-  <FireDelay>15</FireDelay>
+  <FireDelay>18</FireDelay>
   <Range>13000</Range>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -31,7 +31,7 @@
   
   
   <!-- Projectile Information -->
-  <DamageAmount>1450</DamageAmount>
+  <DamageAmount>1230</DamageAmount>
   <RotationRadsPerSecond>1</RotationRadsPerSecond>
   <ProjectileSpeed>800</ProjectileSpeed>
   <DamageRadius>40</DamageRadius>
