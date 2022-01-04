@@ -15,6 +15,7 @@ using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.AI;
 using Ship_Game.Data.Mesh;
+using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships.Legacy;
 
 namespace Ship_Game
@@ -257,7 +258,6 @@ namespace Ship_Game
             Profiled(LoadAsteroids);
             Profiled(LoadProjTexts);
             Profiled(LoadProjectileMeshes);
-            Profiled("LoadParticles", ParticleSettings.LoadAll);
             Profiled("LoadSunTypes", () => SunType.LoadSunTypes()); // Hotspot #3 174.8ms  7.91%
             Profiled("LoadBeamFX", () =>
             {
@@ -308,7 +308,6 @@ namespace Ship_Game
             ProjectileModelDict.Clear();
             ProjectileMeshDict.Clear();
 
-            ParticleSettings.Unload();
             SunType.Unload();
             ShieldManager.UnloadContent();
             Beam.BeamEffect = null;
@@ -1642,7 +1641,6 @@ namespace Ship_Game
             LoadContent(loadShips:false);
 
             // essential graphics:
-            ParticleSettings.LoadAll();
             SunType.LoadSunTypes(enableHotLoading: false);
             Fonts.LoadFonts(RootContent, Localizer.Language);
             LoadProjectileMeshes();

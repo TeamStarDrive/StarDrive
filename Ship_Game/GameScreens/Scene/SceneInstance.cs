@@ -66,7 +66,7 @@ namespace Ship_Game.GameScreens.Scene
 
             FTLManager.LoadContent(screen);
 
-            Particles = new ParticleManager(screen.TransientContent, screen.Device);
+            Particles = new ParticleManager(screen.TransientContent);
 
             foreach (SceneGroup fleet in Groups)
             {
