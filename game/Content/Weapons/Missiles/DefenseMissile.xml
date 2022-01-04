@@ -33,9 +33,12 @@
   <Explodes>true</Explodes>
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
-  <WeaponEffectType>RocketTrail</WeaponEffectType>
   <WeaponType>Missile</WeaponType>
   <ProjectileRadius>10</ProjectileRadius>
   <Scale>1.5</Scale>
   <CanCollideProjectiles>true</CanCollideProjectiles>
+
+  <!-- Deterimines trail effect from ParticleEffects.yaml and also the trail offset behind missile center -->
+  <WeaponEffectType>RocketTrail</WeaponEffectType>
+  <TrailOffset>-32</TrailOffset>
 </Weapon>

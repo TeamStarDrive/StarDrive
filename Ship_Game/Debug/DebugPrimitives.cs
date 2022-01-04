@@ -24,9 +24,9 @@ namespace Ship_Game.Debug
 
     public class DebugCircle : DebugPrimitive
     {
-        readonly Vector2 Center;
+        readonly Vector3 Center;
         readonly float Radius;
-        public DebugCircle(Vector2 centerInWorld, float radius,
+        public DebugCircle(Vector3 centerInWorld, float radius,
             Color color, float lifeTime) : base(color, lifeTime)
         {
             Radius = radius;
@@ -34,7 +34,8 @@ namespace Ship_Game.Debug
         }
         public override void Draw(UniverseScreen screen)
         {
-            screen.DrawCircleProjected(Center, Radius, Color, 2);
+            Vector2d screenPos = screen.ProjectToScreenPosition(Center);
+            screen.DrawCircle(screenPos, Radius, Color, 2);
         }
     }
 

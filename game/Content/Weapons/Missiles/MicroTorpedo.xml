@@ -45,9 +45,12 @@
   <!-- Graphical Information -->
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
-  <WeaponEffectType>TorpTrail</WeaponEffectType>
   <WeaponType>Missile</WeaponType>
   <ProjectileRadius>8</ProjectileRadius>
   <Scale>1.5</Scale>
+  
+  <!-- Deterimines trail effect from ParticleEffects.yaml and also the trail offset behind missile center -->
+  <WeaponEffectType>TorpTrail</WeaponEffectType>
+  <TrailOffset>-32</TrailOffset>
 
 </Weapon>

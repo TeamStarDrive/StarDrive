@@ -258,7 +258,7 @@ namespace Ship_Game.Graphics.Particles
 
                 for (int i = 0; i < Emitters.Length; ++i)
                 {
-                    Emitters[i].Update(fixedStep, PrevPos, newPos, velocity, scale);
+                    Emitters[i].Update(fixedStep, newPos, newPos, velocity, scale);
                 }
             }
             PrevPos = newPos;
