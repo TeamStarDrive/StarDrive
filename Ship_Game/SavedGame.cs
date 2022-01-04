@@ -107,7 +107,7 @@ namespace Ship_Game
             SaveData.PlayerLoyalty         = screenToSave.PlayerLoyalty;
             SaveData.RandomEvent           = RandomEventManager.ActiveEvent;
             SaveData.CamPos                = screenToSave.CamPos.ToVec3f();
-            SaveData.MinimumWarpRange      = GlobalStats.MinimumWarpRange;
+            SaveData.MinAcceptableShipWarpRange      = GlobalStats.MinAcceptableShipWarpRange;
             SaveData.TurnTimer             = (byte)GlobalStats.TurnTimer;
             SaveData.IconSize              = GlobalStats.IconSize;
             SaveData.PreventFederations    = GlobalStats.PreventFederations;
@@ -1002,7 +1002,7 @@ namespace Ship_Game
             [StarData] public RandomEvent RandomEvent;
             [StarData] public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
             [StarData] public float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
-            [StarData] public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
+            [StarData] public float MinAcceptableShipWarpRange = GlobalStats.MinAcceptableShipWarpRange;
             [StarData] public int IconSize;
             [StarData] public byte TurnTimer;
             [StarData] public bool PreventFederations;

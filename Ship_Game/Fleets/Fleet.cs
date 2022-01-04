@@ -2477,12 +2477,11 @@ namespace Ship_Game.Fleets
 
                 UpdateOurFleetShip(ship);
 
-
-                if (readyForWarp)
-                    readyForWarp = ship.ShipEngines.ReadyForFormationWarp > Status.Poor;
+                readyForWarp = readyForWarp && ship.ShipEngines.ReadyForFormationWarp == WarpStatus.ReadyToWarp;
 
                 // once in warp clear assembling flag.
-                if (ship.engineState == Ship.MoveState.Warp) IsAssembling = false;
+                if (ship.engineState == Ship.MoveState.Warp)
+                    IsAssembling = false;
             }
 
             if (Ships.Count > 0 && HasFleetGoal)

@@ -119,7 +119,7 @@ namespace Ship_Game.Ships
             if (EMPDisabled)
             {
                 float third = Radius / 3f;
-                for (int i = 5 - 1; i >= 0; --i)
+                for (int i = 0; i < 4; ++i)
                 {
                     Vector3 randPos = UniverseRandom.Vector32D(third);
                     Universe.Particles.Lightning.AddParticle(Position.ToVec3() + randPos);
