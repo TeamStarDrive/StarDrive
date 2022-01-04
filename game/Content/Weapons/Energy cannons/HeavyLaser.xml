@@ -28,7 +28,7 @@
   <FireCueName>heavylaser1</FireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>450</DamageAmount>
+  <DamageAmount>383</DamageAmount>
   <ProjectileSpeed>2100</ProjectileSpeed>
   <Explodes>false</Explodes>
   <Light>Red</Light>

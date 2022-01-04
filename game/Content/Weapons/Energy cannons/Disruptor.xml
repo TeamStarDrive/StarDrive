@@ -28,7 +28,7 @@
   <FireCueName>disruptor</FireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>548</DamageAmount>
+  <DamageAmount>490</DamageAmount>
   <ProjectileRadius>10</ProjectileRadius>
   <ProjectileSpeed>2200</ProjectileSpeed>
   <Light>Green</Light>
