@@ -47,12 +47,17 @@ namespace Ship_Game.Graphics.Particles
             // local offset in relation to velocity direction
             [StarData] public Vector3 LocalOffset;
 
-            // multiplies LocalOffset in increments and then repeats from 0
-            // ex: multiplier=3 --> [LocalOffset*0, LocalOffset*1, LocalOffset*2, LocalOffset*0, ...]
-            [StarData] public int IncrementalOffsetMultiplier;
+            // changes the emitter position in integer increments
+            // so you can make this same emitter create particles from multiple locations
+            // values are always rounded to integers!
+            // Ex: [-1, +1] --> [LocalOffset*-1,LocalOffset*0,LocalOffset*1,  LocalOffset*-1,LocalOffset*0,LocalOffset*1,  ...]            [StarData] public Range PositionIncrements;
+            [StarData] public Range PositionIncrements;
 
             // always recalculated
             public float TimeBetweenParticles;
+
+            public int PositionIncrementMin;
+            public int PositionIncrementMax;
 
             public bool IsDisposed; // for hot-loading
         }
@@ -71,14 +76,19 @@ namespace Ship_Game.Graphics.Particles
             public IParticle Particle;
             float TimeLeftOver;
             readonly Color Color;
-            int IncrementCounter;
+            int PositionIncrement;
 
             public override string ToString() => $"Emitter {Data.Particle} Rate:{Data.Rate} Scale:{Data.Scale}";
 
             public EmitterState(ParticleEmitterData ed, IParticle particle)
             {
+                // set defaults
+                ed.TimeBetweenParticles = 1f / ed.Rate;
+                ed.PositionIncrementMin = (int)Math.Round(ed.PositionIncrements.Min);
+                ed.PositionIncrementMax = (int)Math.Round(ed.PositionIncrements.Max);
                 Data = ed;
                 Particle = particle;
+                PositionIncrement = Data.PositionIncrementMin;
             }
 
             public EmitterState(EmitterState es, GameplayObject context)
@@ -86,6 +96,7 @@ namespace Ship_Game.Graphics.Particles
                 Data = es.Data;
                 Particle = es.Particle;
                 Color = GetColorFromContext(Data.ColorSource, context);
+                PositionIncrement = es.PositionIncrement;
             }
 
             static Color GetColorFromContext(ColorSource source, GameplayObject context)
@@ -128,19 +139,21 @@ namespace Ship_Game.Graphics.Particles
                     float relTime = currentTime / timeStep;
 
                     Vector3 offset = Data.LocalOffset;
-                    if (Data.IncrementalOffsetMultiplier != 0)
+                    if (Data.PositionIncrementMin != Data.PositionIncrementMax)
                     {
-                        offset *= IncrementCounter;
-                        ++IncrementCounter;
-                        if (IncrementCounter >= Data.IncrementalOffsetMultiplier)
-                            IncrementCounter = 0;
+                        offset *= PositionIncrement;
+                        ++PositionIncrement;
+                        if (PositionIncrement > Data.PositionIncrementMax)
+                            PositionIncrement = Data.PositionIncrementMin;
                     }
 
                     Vector3 pos = prevPos.LerpTo(newPos, relTime);
 
                     if (offset != Vector3.Zero)
                     {
-                        pos += vel.Normalized() * offset;
+                        Vector3 dir = vel.Normalized();
+                        pos += dir.RightVector(new Vector3(0, 0, -1)) * offset.X;
+                        pos += dir * offset.Y;
                     }
 
                     Particle.AddParticle(pos, v, totalScale, Color);
@@ -170,7 +183,6 @@ namespace Ship_Game.Graphics.Particles
                 IParticle p = manager.GetParticleOrNull(ed.Particle);
                 if (p != null)
                 {
-                    ed.TimeBetweenParticles = 1f / ed.Rate;
                     emitters.Add(new EmitterState(ed, p));
                 }
                 else
