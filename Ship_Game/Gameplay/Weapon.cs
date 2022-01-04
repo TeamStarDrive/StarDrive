@@ -917,6 +917,7 @@ namespace Ship_Game.Gameplay
             if (Tag_Beam)    damageModifier *= (1f - module.ShieldBeamResist);
             if (Tag_Missile) damageModifier *= (1f - module.ShieldMissileResist);
             if (Tag_Hybrid)  damageModifier *= (1f - module.ShieldHybridResist);
+
             return damageModifier;
         }
 
