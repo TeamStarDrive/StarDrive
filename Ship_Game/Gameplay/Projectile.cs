@@ -8,7 +8,7 @@ using Ship_Game.Audio;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-
+using Ship_Game.Graphics.Particles;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
@@ -33,13 +33,9 @@ namespace Ship_Game.Gameplay
         public bool Explodes;
         public ShipModule Module;
         public string WeaponEffectType;
-        ParticleEmitter TrailEmitter;
-        ParticleEmitter FiretrailEmitter;
-        ParticleEmitter ThrustGlowEmitter;
-        ParticleEmitter IonTrailEmitter;
-        ParticleEmitter IonRingEmitter;
-        ParticleEmitter IonRingReversedEmitter;
-        ParticleEmitter BubbleEmitter;
+
+        ParticleEffect TrailEffect;
+
         SceneObject ProjSO; // this is null for sprite based projectiles
         public Matrix WorldMatrix { get; private set; }
         public string InFlightCue = "";
@@ -301,48 +297,10 @@ namespace Ship_Game.Gameplay
                 ProjectileTexture = ResourceManager.ProjTexture(Weapon.ProjectileTexturePath);
             }
 
-            var particles = Universe?.Particles;
-            if (particles == null)
-                return;
-
-            var pos3D = new Vector3(Position, ZStart);
-            switch (Weapon.WeaponEffectType)
+            if (Weapon.WeaponEffectType.NotEmpty() && Universe.Particles != null)
             {
-                case "RocketTrail":
-                    TrailEmitter = particles.MissileSmokeTrail.NewEmitter(80f, pos3D);
-                    FiretrailEmitter = particles.FireTrail.NewEmitter(100f, pos3D);
-                    ThrustGlowEmitter = particles.MissileThrust.NewEmitter(20f, pos3D);
-                    break;
-                case "TorpTrail":
-                    IonTrailEmitter = particles.IonTrail.NewEmitter(150f, pos3D);
-                    ThrustGlowEmitter = particles.MissileThrust.NewEmitter(15f, pos3D);
-                    IonRingReversedEmitter = particles.IonRingReversed.NewEmitter(10f, pos3D);
-                    break;
-                case "BubbleTrail":
-                    BubbleEmitter = particles.Bubble.NewEmitter(20f, pos3D);
-                    ThrustGlowEmitter = particles.MissileThrust.NewEmitter(15f, pos3D);
-                    IonRingEmitter = particles.IonRing.NewEmitter(10f, pos3D);
-                    break;
-                case "Plasma":
-                    FiretrailEmitter = particles.Flame.NewEmitter(100f, Position);
-                    break;
-                case "Bubble":
-                    BubbleEmitter = particles.Bubble.NewEmitter(15f, Position);
-                    break;
-                case "SmokeTrail":
-                    TrailEmitter     = particles.ProjectileTrail.NewEmitter(100f, pos3D);
-                    break;
-                case "MuzzleSmoke":
-                    FiretrailEmitter = particles.ProjectileTrail.NewEmitter(100f, Position);
-                    break;
-                case "MuzzleSmokeFire":
-                    FiretrailEmitter = particles.ProjectileTrail.NewEmitter(100f, Position);
-                    TrailEmitter     = particles.FireTrail.NewEmitter(100f, pos3D);
-                    break;
-                case "FullSmokeMuzzleFire":
-                    TrailEmitter     = particles.ProjectileTrail.NewEmitter(100f, pos3D);
-                    FiretrailEmitter = particles.FireTrail.NewEmitter(100f, pos3D);
-                    break;
+                var pos3D = new Vector3(Position, ZStart);
+                TrailEffect = Universe.Particles.CreateEffect(Weapon.WeaponEffectType, pos3D, context: this);
             }
         }
 
@@ -543,9 +501,9 @@ namespace Ship_Game.Gameplay
                     UpdateMesh();
                 }
 
-                if (TrailTurnedOn && ParticleDelay <= 0f && Duration > 0.5f)
+                if (TrailTurnedOn && ParticleDelay <= 0f && Duration > 0.5f && TrailEffect != null)
                 {
-                    UpdateTrailEmitters(timeStep.FixedTime);
+                    UpdateProjectileTrailEffect(timeStep);
                 }
 
                 if (!LightWasAddedToSceneGraph && Weapon.Light != null && Light == null && Universe.CanAddDynamicLight)
@@ -595,20 +553,14 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        void UpdateTrailEmitters(float timeStep)
+        void UpdateProjectileTrailEffect(FixedSimTime timeStep)
         {
             var forward = Direction;
             var trailPos = new Vector3(Position.X - forward.X * Radius,
                                        Position.Y - forward.Y * Radius, ZStart);
-            Vector2 trailVel = Velocity + VelocityDirection * Speed * 1.75f;
+            var trailVel = new Vector3(Velocity + VelocityDirection * Speed * 1.75f, 0f);
 
-            FiretrailEmitter?.UpdateProjectileTrail(timeStep, trailPos, trailVel);
-            ThrustGlowEmitter?.Update(timeStep, trailPos);
-            TrailEmitter?.Update(timeStep, trailPos);
-            IonTrailEmitter?.Update(timeStep, trailPos);
-            IonRingEmitter?.Update(timeStep, trailPos);
-            IonRingReversedEmitter?.Update(timeStep, trailPos);
-            BubbleEmitter?.Update(timeStep, trailPos);
+            TrailEffect.Update(timeStep, trailPos, trailVel);
         }
 
         PointLight CreateLight()

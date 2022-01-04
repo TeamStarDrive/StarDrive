@@ -65,7 +65,7 @@ namespace Ship_Game
             {
                 Vector3 velocity = (newPosition - PreviousPosition) / elapsedTime;
                 float timeToSpend = TimeLeftOver + elapsedTime;
-                float currentTime = -TimeLeftOver;                
+                float currentTime = -TimeLeftOver;
                 while (timeToSpend > TimeBetweenParticles)
                 {
                     currentTime += TimeBetweenParticles;
