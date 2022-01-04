@@ -50,7 +50,7 @@
   Name: RocketTrail
   Emitters:
     - Emitter: { Particle: MissileSmokeTrail, Rate: 80 }
-    - Emitter: { Particle: FireTrail, Rate: 120, VelocityScale: 1.5, LocalOffset: [64, 0], PositionIncrements: [-1, +1] }
+    - Emitter: { Particle: FireTrail, Rate: 120, VelocityScale: 1.5 }
     - Emitter: { Particle: MissileThrust, Rate: 20, VelocityScale: 0 }
 
 

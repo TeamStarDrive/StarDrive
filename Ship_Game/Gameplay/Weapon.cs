@@ -139,7 +139,12 @@ namespace Ship_Game.Gameplay
         public string ProjectileTexturePath;
         public string ModelPath;
         public string WeaponType;
+
+        // Determines trail effect from ParticleEffects.yaml
         public string WeaponEffectType;
+        // The trail offset behind missile center
+        public float TrailOffset;
+
         public string UID;
         [XmlIgnore][JsonIgnore] public ShipModule Module;
         [XmlIgnore][JsonIgnore] public float CooldownTimer;

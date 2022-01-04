@@ -33,6 +33,7 @@ namespace Ship_Game.Gameplay
         public bool Explodes;
         public ShipModule Module;
         public string WeaponEffectType;
+        float TrailOffset;
 
         ParticleEffect TrailEffect;
 
@@ -47,7 +48,7 @@ namespace Ship_Game.Gameplay
         public DroneAI DroneAI { get; private set; }
         public Weapon Weapon;
         public string ModelPath;
-        float ZStart = -25f;
+        float ZPos = -25f;
         float ParticleDelay;
         PointLight Light;
         public bool FirstRun = true;
@@ -119,7 +120,7 @@ namespace Ship_Game.Gameplay
             {
                 Weapon  = weapon,
                 Planet  = planet,
-                ZStart  = 2500f, // +Z: deep in background, away from camera
+                ZPos  = 2500f, // +Z: deep in background, away from camera
             };
             projectile.Initialize(weapon.Origin, direction, target, playSound: true, Vector2.Zero);
             return projectile;
@@ -211,6 +212,7 @@ namespace Ship_Game.Gameplay
             Health                = Weapon.HitPoints;
             Speed                 = Weapon.ProjectileSpeed;
             WeaponEffectType      = Weapon.WeaponEffectType;
+            TrailOffset           = Weapon.TrailOffset;
             WeaponType            = Weapon.WeaponType;
             RotationRadsPerSecond = Weapon.RotationRadsPerSecond;
             ArmorPiercing         = Weapon.ArmorPen;
@@ -299,7 +301,7 @@ namespace Ship_Game.Gameplay
 
             if (Weapon.WeaponEffectType.NotEmpty() && Universe.Particles != null)
             {
-                var pos3D = new Vector3(Position, ZStart);
+                var pos3D = new Vector3(Position, ZPos);
                 TrailEffect = Universe.Particles.CreateEffect(Weapon.WeaponEffectType, pos3D, context: this);
             }
         }
@@ -372,7 +374,7 @@ namespace Ship_Game.Gameplay
             {
                 if (Animation != null)
                 {
-                    screen.ProjectToScreenCoords(Position, ZStart, 20f * Weapon.ProjectileRadius * Weapon.Scale,
+                    screen.ProjectToScreenCoords(Position, ZPos, 20f * Weapon.ProjectileRadius * Weapon.Scale,
                                                  out Vector2d pos, out double size);
 
                     Animation.Draw(batch, pos, new Vector2d(size), Rotation, 1f);
@@ -487,14 +489,14 @@ namespace Ship_Game.Gameplay
             if (InFrustum)
             {
                 // always put missiles below ships, +25 means away from camera into background
-                if (ZStart > 25f)
-                    ZStart -= VelocityMax * timeStep.FixedTime; // come closer to camera
+                if (ZPos > 25f)
+                    ZPos -= VelocityMax * timeStep.FixedTime; // come closer to camera
                 else
-                    ZStart = 25f;
+                    ZPos = 25f;
 
                 WorldMatrix = Matrix.CreateScale(Weapon.Scale) 
                             * Matrix.CreateRotationZ(Rotation)
-                            * Matrix.CreateTranslation(Position.X, Position.Y, ZStart);
+                            * Matrix.CreateTranslation(Position.X, Position.Y, ZPos);
 
                 if (UsesVisibleMesh) // lazy init rocket projectile meshes
                 {
@@ -503,7 +505,7 @@ namespace Ship_Game.Gameplay
 
                 if (TrailTurnedOn && ParticleDelay <= 0f && Duration > 0.5f && TrailEffect != null)
                 {
-                    UpdateProjectileTrailEffect(timeStep);
+                    UpdateTrailEffect(timeStep);
                 }
 
                 if (!LightWasAddedToSceneGraph && Weapon.Light != null && Light == null && Universe.CanAddDynamicLight)
@@ -553,12 +555,22 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        void UpdateProjectileTrailEffect(FixedSimTime timeStep)
+        void UpdateTrailEffect(FixedSimTime timeStep)
         {
             var forward = Direction;
-            var trailPos = new Vector3(Position.X - forward.X * Radius,
-                                       Position.Y - forward.Y * Radius, ZStart);
-            var trailVel = new Vector3(Velocity + VelocityDirection * Speed * 1.75f, 0f);
+
+            var pos3d = new Vector3(Position, ZPos);
+            var trailPos = new Vector3(pos3d.X + forward.X * TrailOffset,
+                                       pos3d.Y + forward.Y * TrailOffset, pos3d.Z);
+
+            // always set trail velocity to negative direction, ignore true velocity
+            var trailVel = new Vector3(forward * Speed * -1.75f, 0f);
+
+            if (Universe.Debug && DebugInfoScreen.Mode == DebugModes.Particles)
+            {
+                Universe.DebugWin.DrawCircle(DebugModes.Particles, trailPos, 8, Color.Red);
+                Universe.DebugWin.DrawCircle(DebugModes.Particles, pos3d, 8, Color.Yellow);
+            }
 
             TrailEffect.Update(timeStep, trailPos, trailVel);
         }
@@ -640,7 +652,7 @@ namespace Ship_Game.Gameplay
 
             Vector2 adjustedPos = finalPhase ? targetPos // if we get close, then just aim at targetPos
                 // if we're still far, apply thrust offset, which will increase our accuracy
-                : ImpactPredictor.ThrustOffset(Position, Velocity, targetPos, 1f);
+                : ImpactPredictor.ThrustOffset(Position, Velocity, targetPos);
 
             //var debug = Universe?.DebugWin;
             //debug?.DrawLine(DebugModes.Targeting, Center, adjustedPos, 1f, Color.DarkOrange.Alpha(0.2f), 0f);
@@ -683,7 +695,7 @@ namespace Ship_Game.Gameplay
 
             float maxVel = VelocityMax * (terminalPhase ? Weapon.TerminalPhaseSpeedMod : 1f);
             if (Velocity.Length() > maxVel)
-                Velocity = Velocity.Normalized() * maxVel;    
+                Velocity = Velocity.Normalized() * maxVel;
         }
 
         public void MoveStraight()
