@@ -23,7 +23,7 @@ namespace Ship_Game
                 GlobalStats.FTLInSystemModifier      = ss.FTLModifier;
                 GlobalStats.EnemyFTLInSystemModifier = ss.EnemyFTLModifier;
                 GlobalStats.ShipMaintenanceMulti     = ss.OptionIncreaseShipMaintenance;
-                GlobalStats.MinimumWarpRange         = ss.MinimumWarpRange;
+                GlobalStats.MinAcceptableShipWarpRange = ss.MinAcceptableShipWarpRange;
                 GlobalStats.TurnTimer                = ss.TurnTimer;
                 GlobalStats.PreventFederations       = ss.PreventFederations;
                 GlobalStats.GravityWellRange         = ss.GravityWellRange;

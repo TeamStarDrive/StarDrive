@@ -252,8 +252,12 @@ namespace Ship_Game.Ships
         }
 
         Status FleetCapableStatus;
-        public bool CanTakeFleetMoveOrders() => 
-            Active && FleetCapableStatus == Status.Good && ShipEngines.EngineStatus >= Status.Poor;
+
+        public bool CanTakeFleetMoveOrders()
+        {
+            return Active && FleetCapableStatus == Status.Good
+                && ShipEngines.EngineStatus >= EngineStatus.Disabled;
+        }
 
         void SetFleetCapableStatus()
         {
@@ -1943,29 +1947,16 @@ namespace Ship_Game.Ships
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {
-            if (!Active) return false;
-            empire = empire ?? Loyalty;
+            if (!Active)
+                return false;
 
-            //bool goodWarp = rangeStatus >= Status.Excellent;
-            //float goodPowerSupply = PowerFlowMax - NetPower.NetWarpPowerDraw;
-            //float powerTime = GlobalStats.MinimumWarpRange;
-            //if (goodPowerSupply < 0)
-            //    powerTime = PowerStoreMax / -goodPowerSupply * MaxFTLSpeed;
-
-            //bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
-            //if (!warpTimeGood || empire == null)
-            
-            Status rangeStatus = Status.Critical;
-            if (empire != null)
-            {
-                 rangeStatus= WarpRangeStatus(GlobalStats.MinimumWarpRange);
-            }
-            bool warpTimeGood = rangeStatus >= Status.Excellent;
+            bool warpTimeGood = (empire ?? Loyalty) != null && IsWarpRangeGood(GlobalStats.MinAcceptableShipWarpRange);
             if (!warpTimeGood && !IsPlatformOrStation)
+            {
                 Universe?.DebugWin?.DebugLogText(
-                    $"WARNING ship design {Name} with hull {ShipData.Hull} :{rangeStatus} WarpTime. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}",
+                    $"WARNING ship design {Name} with hull {ShipData.Hull} WarpTime was bad. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}",
                     DebugModes.Normal);
-
+            }
             return warpTimeGood;
         }
 

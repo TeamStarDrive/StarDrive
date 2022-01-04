@@ -11,7 +11,7 @@ namespace Ship_Game
         private FloatSlider GravityWellSize;
         private FloatSlider ExtraPlanets;
         private FloatSlider IncreaseMaintenance;
-        private FloatSlider MinimumWarpRange;
+        private FloatSlider MinAcceptableShipWarpRange;
         private FloatSlider StartingRichness;
         private FloatSlider TurnTimer;
         private FloatSlider CustomMineralDecay;
@@ -41,7 +41,7 @@ namespace Ship_Game
                 GlobalStats.EnemyFTLInSystemModifier = EnemyFTLPenaltySlider.RelativeValue;
                 GlobalStats.GravityWellRange         = GravityWellSize.AbsoluteValue;
                 GlobalStats.ExtraPlanets             = (int)ExtraPlanets.AbsoluteValue;
-                GlobalStats.MinimumWarpRange         = MinimumWarpRange.AbsoluteValue;
+                GlobalStats.MinAcceptableShipWarpRange = MinAcceptableShipWarpRange.AbsoluteValue;
                 GlobalStats.ShipMaintenanceMulti     = IncreaseMaintenance.AbsoluteValue;
                 GlobalStats.StartingPlanetRichness   = StartingRichness.AbsoluteValue;
                 GlobalStats.TurnTimer                = (byte)TurnTimer.AbsoluteValue;
@@ -100,9 +100,9 @@ namespace Ship_Game
             var minimumWarpRange = new Rectangle(x, leftRect.Y + 450, 270, 50);
             var maintenanceRect  = new Rectangle(x, leftRect.Y + 510, 270, 50);
 
-            TurnTimer           = Slider(optionTurnTimer,  GameText.SecondsPerTurn, 2, 18f,      GlobalStats.TurnTimer);
-            MinimumWarpRange    = Slider(minimumWarpRange, GameText.MinimumWarpRange, 0, 1200000f, GlobalStats.MinimumWarpRange);
-            IncreaseMaintenance = Slider(maintenanceRect,  GameText.MaintenanceMultiplier, 1, 10f,      GlobalStats.ShipMaintenanceMulti);
+            TurnTimer           = Slider(optionTurnTimer,  GameText.SecondsPerTurn, 2, 18f, GlobalStats.TurnTimer);
+            MinAcceptableShipWarpRange    = Slider(minimumWarpRange, GameText.MinAcceptableShipWarpRange, 0, 1200000f, GlobalStats.MinAcceptableShipWarpRange);
+            IncreaseMaintenance = Slider(maintenanceRect,  GameText.MaintenanceMultiplier, 1, 10f, GlobalStats.ShipMaintenanceMulti);
 
             FTLPenaltySlider.Tip      = GameText.UsingThisSliderYouCan;
             EnemyFTLPenaltySlider.Tip = GameText.UsingThisSliderYouCan2;
@@ -115,7 +115,7 @@ namespace Ship_Game
                 extraPlanetsTip = $"{extraPlanetsTip} {Localizer.Token(GameText.ThisWillSlightlyIncreaseResearch)}";
 
             ExtraPlanets.Tip        = extraPlanetsTip;
-            MinimumWarpRange.Tip    = GameText.MinimumWarpRangeAShip;
+            MinAcceptableShipWarpRange.Tip    = GameText.MinAcceptableWarpRangeAShip;
             IncreaseMaintenance.Tip = GameText.MultiplyGlobalMaintenanceCostBy;
             TurnTimer.Tip           = GameText.TimeInSecondsPerTurn;
             StartingRichness.Tip    = GameText.AddToAllStartingEmpire;

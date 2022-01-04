@@ -543,10 +543,11 @@ namespace Ship_Game.AI
             }
             else
             {
-                // TODO: Why exit warp when status is Excellent/Maximum/NotApplicable??
                 if (Owner.engineState == Ship.MoveState.Warp && 
-                    Owner.ShipEngines.ReadyForFormationWarp > Status.Good)
+                    Owner.ShipEngines.ReadyForFormationWarp == WarpStatus.WaitingOrRecalling)
+                {
                     Owner.HyperspaceReturn();
+                }
             }
         }
 

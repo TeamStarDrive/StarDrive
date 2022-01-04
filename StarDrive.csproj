@@ -244,6 +244,7 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen_MirrorSlot.cs" />
     <Compile Include="Ship_Game\GameScreens\Universe\Debug\ResearchDebugUnlocks.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\IParticle.cs" />
+    <Compile Include="Ship_Game\Graphics\Particles\ParticleEffect.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleManager.cs" />
     <Compile Include="Ship_Game\Graphics\Particles\ParticleSettings.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />

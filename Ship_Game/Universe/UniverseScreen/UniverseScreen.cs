@@ -517,7 +517,7 @@ namespace Ship_Game
             int width   = GameBase.ScreenWidth;
             int height  = GameBase.ScreenHeight;
 
-            Particles = new ParticleManager(content, device);
+            Particles = new ParticleManager(content);
 
             if (GlobalStats.DrawStarfield)
             {
