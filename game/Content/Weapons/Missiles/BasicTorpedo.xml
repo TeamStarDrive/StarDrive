@@ -20,7 +20,7 @@
 
 
   <UID>BasicTorpedo</UID>
-  <FireDelay>20</FireDelay>
+  <FireDelay>24</FireDelay>
   <Range>18000</Range>
   <HitPoints>45</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
@@ -33,7 +33,7 @@
   
   
   <!-- Projectile Information -->
-  <DamageAmount>19400</DamageAmount>
+  <DamageAmount>13500</DamageAmount>
   <ProjectileSpeed>1000</ProjectileSpeed>
   <DamageRadius>200</DamageRadius>
   <Explodes>true</Explodes>
