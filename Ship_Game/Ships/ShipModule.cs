@@ -249,8 +249,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool CanContainExplosion => IsBulkhead || Is(ShipModuleType.Armor);
-
         public bool IsFighterHangar => !IsTroopBay && !IsSupplyBay && ModuleType != ShipModuleType.Transporter;
 
         public float HealthPercent => Health / ActualMaxHealth;
@@ -1021,9 +1019,8 @@ namespace Ship_Game.Ships
 
                 if (Explodes)
                 {
-                    float explosionDamage = ExplosionDamage / ((XSize + YSize) * 2f);
                     UniverseScreen.Spatial.ExplodeAtModule(source, this,
-                        ignoresShields: true, damageAmount: explosionDamage, damageRadius: ExplosionRadius);
+                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }
             }
         }
