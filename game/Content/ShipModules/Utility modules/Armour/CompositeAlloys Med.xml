@@ -28,6 +28,7 @@
 	<BeamResist>0</BeamResist>
 	<EnergyResist>0</EnergyResist>    
 	<HybridResist>0</HybridResist>
+	<ExplosiveResist>20</ExplosiveResist>
 	<!-- Power Drawn -->
 	<PowerDraw>0</PowerDraw>
 	<!-- Crew Reqs -->
