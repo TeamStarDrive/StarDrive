@@ -682,7 +682,7 @@ namespace Ship_Game.Ships
 
         public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius, float minFalloff = 0.4f)
         {
-            float explodeDist = explosionCenter.Distance(affectedPoint) - moduleRadius;
+            float explodeDist = Math.Abs(explosionCenter.Distance(affectedPoint) - moduleRadius);
             if (explodeDist < moduleRadius) explodeDist = 0;
 
             return Math.Min(1.0f, (damageRadius - explodeDist) / (damageRadius + minFalloff));
@@ -759,18 +759,6 @@ namespace Ship_Game.Ships
                 Damage(source, damage, out _);
             }
         }
-
-
-        /*
-        /// <summary>
-        /// Damages the module by explosion and returns true if the module was able to
-        /// contain the explosion
-        /// </summary>
-        public bool TryDamageExplosiveAndContain(GameplayObject damageSource, Vector2 worldHitPos, float hitRadius)
-        {
-            DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
-            return Active; // Withstood the explosion
-        }*/
 
         float GetExplosiveDamage(Vector2 worldHitPos, float damageRadius, float damageAmount)
         {
