@@ -616,7 +616,7 @@ namespace Ship_Game.Ships
                 }
 
                 if (!didExpand) 
-                    return; // ;looks like we're done here!
+                    return; // Looks like we're done here!
             }
         }
 
