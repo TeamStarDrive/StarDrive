@@ -28,7 +28,7 @@
 	<PowerDrawAtWarp>-80</PowerDrawAtWarp>
 	<!-- Armor resistance -->
 	<!-- for PowerPlant Items -->
-    <Explodes>false</Explodes>
+    
 	<AmplifyShields>6500</AmplifyShields>
 
 	<!-- Crew Reqs -->

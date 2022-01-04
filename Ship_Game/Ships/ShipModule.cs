@@ -117,7 +117,6 @@ namespace Ship_Game.Ships
         public bool FreighterModule              => Flyweight.FreighterModule;
         public bool PlatformModule               => Flyweight.PlatformModule;
         public bool StationModule                => Flyweight.StationModule;
-        public bool Explodes                     => Flyweight.Explodes;
         public float SensorRange                 => Flyweight.SensorRange;
         public float MechanicalBoardingDefense   => Flyweight.MechanicalBoardingDefense;
         public float EMPProtection               => Flyweight.EMPProtection;
@@ -203,6 +202,8 @@ namespace Ship_Game.Ships
         /// </summary>
         public float AccuracyPercent      => Flyweight?.AccuracyPercent ?? -1;
         public float WeaponInaccuracyBase => Flyweight?.WeaponInaccuracyBase ?? 1;
+
+        public bool Explodes => ExplosionDamage > 0;
 
         public bool IsWeaponOrBomb => ModuleType == ShipModuleType.Spacebomb
                                    || ModuleType == ShipModuleType.Turret
