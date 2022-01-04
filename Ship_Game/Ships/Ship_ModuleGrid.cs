@@ -560,7 +560,10 @@ namespace Ship_Game.Ships
                  return; // withstood the explosion
             }
 
-            // spread out the damage in 4 directions
+            // spread out the damage in 4 directions - increasing the expansion box until reaching  the scan bounding box
+            // the explosion, however, will not damage modules if an inner module survived the damage, meaning the 
+            // explosion path can be contained - this is the "if (innerModule == null || !innerModule.Active)"
+            // in each direction
             for (;;)
             {
 
