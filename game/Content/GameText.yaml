@@ -13671,7 +13671,7 @@ BB_PrismTechDescr:
  ENG: "Creating millions of nanoscope prisms in beam lensing technologies allowed for higher voltage discharges creating more damaging beam. "
 BB_PrismBonus:
  Id: 17625
- ENG: "Nanoprism technology provides a 30% bonus damage to beam weapons."
+ ENG: "Nanoprism technology provides a 20% bonus damage to beam weapons."
 BB_CombatEngines:
  Id: 17626
  ENG: "Combat Thrusters"
