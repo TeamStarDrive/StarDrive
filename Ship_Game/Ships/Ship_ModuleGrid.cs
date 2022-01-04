@@ -293,9 +293,11 @@ namespace Ship_Game.Ships
             }
 
             return coveringShields;
-            // FB - For wanted to create a shield grid, for performance. so i am omitting the sort of shields. 
+            // FB - RedFox wanted to create a shield grid, for performance. so i am omitting the sort of shields. 
             // The sorting was done so that the outer shields will be returned first and get the damage first.
-            // This code is called quite rarely
+            // With out the sorting, a projectile next module hit search will pop up a shield with might be smaller then 
+            // the correct shield which should be damages. meaning that the order of damaging shields might not
+            // be correct and look strange to the player.
             //.Sorted(s => s.ShieldRadius - s.Position.Distance(module.Position));
         }
 
@@ -755,8 +757,8 @@ namespace Ship_Game.Ships
                         // get covering shields to damage them first
                         if (!ignoreShields)
                         {
-                            ShipModule[] shields = GetAllActiveShieldsCoveringModule(m);
-                            if (shields.Length > 0)
+                            Array<ShipModule> shields = GetAllActiveShieldsCoveringModule(m);
+                            if (shields.Count > 0)
                                 return shields[0];
                         }
 
