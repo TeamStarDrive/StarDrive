@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,6 +12,8 @@ namespace Ship_Game.SpriteSystem
             var textures = new TextureInfo[textureFiles.Length];
 
             bool noPackAll = ResourceManager.AtlasExcludeFolder.Contains(path.OriginalName);
+            if (noPackAll)
+                Debugger.Break();
             HashSet<string> ignore = ResourceManager.AtlasExcludeTextures; // HACK
 
             for (int i = 0; i < textureFiles.Length; ++i)
