@@ -15,6 +15,7 @@ using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.AI;
 using Ship_Game.Data.Mesh;
+using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships.Legacy;
 
 namespace Ship_Game
@@ -255,9 +256,8 @@ namespace Ship_Game
 
             Profiled(LoadJunk);
             Profiled(LoadAsteroids);
-            Profiled(LoadProjTexts);
+            Profiled(LoadProjectileTextures);
             Profiled(LoadProjectileMeshes);
-            Profiled("LoadParticles", ParticleSettings.LoadAll);
             Profiled("LoadSunTypes", () => SunType.LoadSunTypes()); // Hotspot #3 174.8ms  7.91%
             Profiled("LoadBeamFX", () =>
             {
@@ -308,7 +308,6 @@ namespace Ship_Game
             ProjectileModelDict.Clear();
             ProjectileMeshDict.Clear();
 
-            ParticleSettings.Unload();
             SunType.Unload();
             ShieldManager.UnloadContent();
             Beam.BeamEffect = null;
@@ -437,7 +436,10 @@ namespace Ship_Game
         }
 
         // This gathers an union of Mod and Vanilla files. Any vanilla file is replaced by mod files.
-        public static FileInfo[] GatherFilesUnified(string dir, string ext, bool recursive = true)
+        // @param recursive Find files recursively
+        // @param alwaysUnify Force file unification by filename, ignore extension restrictions
+        public static FileInfo[] GatherFilesUnified(string dir, string ext,
+                                                    bool recursive = true, bool alwaysUnify = false)
         {
             string pattern = "*." + ext;
             SearchOption search = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
@@ -450,7 +452,7 @@ namespace Ship_Game
             // Which means the unification has to be done via `file.Name`
             // For other files such as XNB textures, we use the full path normalized to relative content path
             // such as: "Mods/MyMod/Textures/TechIcons/Aeroponics.xnb" --> "Textures/TechIcons/Aeroponics.xnb"
-            bool fileNames = ext == "xml" || ext == "hull" || ext == "design";
+            bool fileNames = alwaysUnify || ext == "xml" || ext == "hull" || ext == "design";
 
             FileInfo[] vanilla = Dir.GetFiles("Content/" + dir, pattern, search);
             string vanillaPath = Path.GetFullPath("Content/");
@@ -780,7 +782,7 @@ namespace Ship_Game
         });
         public static readonly HashSet<string> AtlasExcludeFolder = new HashSet<string>(new[]
         {
-            "Beams", "Ships"
+            "Beams", "Ships", "Model/Projectiles/textures"
         });
         // For these Atlases, quality suffers too much, so compression is forbidden
         public static readonly HashSet<string> AtlasNoCompressFolders = new HashSet<string>(new []
@@ -1273,16 +1275,17 @@ namespace Ship_Game
         }
 
 
-        static void LoadProjTexts()
+        static void LoadProjectileTextures()
         {
             ProjTextDict.ClearAndDispose();
-            var files = GatherFilesUnified("Model/Projectiles/textures", "xnb", recursive: false);
+            var files = GatherFilesUnified("Model/Projectiles/textures", "*", recursive: false);
 
             var nameTexPairs = Parallel.Select(files, file =>
             {
+                GameLoadingScreen.SetStatus("LoadProjectileTex", file.Name);
                 string shortName = file.NameNoExt();
-                GameLoadingScreen.SetStatus("LoadProjectileTex", shortName);
-                Texture2D tex = RootContent.LoadTexture(file, "xnb");
+                string ext = file.Extension.Substring(1);
+                Texture2D tex = RootContent.LoadTexture(file, ext);
                 return (shortName, tex);
             });
 
@@ -1642,7 +1645,6 @@ namespace Ship_Game
             LoadContent(loadShips:false);
 
             // essential graphics:
-            ParticleSettings.LoadAll();
             SunType.LoadSunTypes(enableHotLoading: false);
             Fonts.LoadFonts(RootContent, Localizer.Language);
             LoadProjectileMeshes();

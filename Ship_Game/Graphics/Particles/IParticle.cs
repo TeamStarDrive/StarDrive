@@ -8,6 +8,9 @@ namespace Ship_Game.Graphics.Particles
     {
         string Name { get; }
 
+        // Unique ID for fast indexing via ParticleManager
+        int ParticleId { get; }
+
         // Is this particle enabled to update and draw ?
         bool IsEnabled { get; set; }
 

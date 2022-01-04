@@ -136,9 +136,10 @@ namespace Ship_Game
         // Count how many times Draw has been called. This is used to know
         // when it is safe to retire old particles back into the free list.
         int DrawCounter;
-        readonly float Scale;
 
         public string Name { get; set; }
+
+        public int ParticleId { get; }
 
         /// <summary>
         /// Can be used to disable this particle system (for debugging purposes or otherwise)
@@ -188,14 +189,14 @@ namespace Ship_Game
             public const int SizeInBytes = 44;
         }
 
-        public Particle(GameContentManager content, ParticleSettings settings, GraphicsDevice device, float scale, int maxParticles)
+        public Particle(GameContentManager content, ParticleSettings settings, int id)
         {
             Name = settings.Name;
-            GraphicsDevice = device;
-            Content        = content;
-            Scale          = scale;
+            GraphicsDevice = content.Device;
+            Content = content;
+            ParticleId = id;
 
-            MaxParticles = maxParticles > 0 ? maxParticles : settings.MaxParticles;
+            MaxParticles = settings.MaxParticles;
             Settings = settings.Clone();
             Settings.MaxParticles = MaxParticles; 
 
@@ -275,8 +276,8 @@ namespace Ship_Game
 
             Range startSize = Settings.StartEndSize[0];
             Range endSize = Settings.StartEndSize[Settings.StartEndSize.Length - 1];
-            parameters["StartSize"].SetValue(new Vector2(startSize.Min, startSize.Max) * Scale);
-            parameters["EndSize"].SetValue(new Vector2(endSize.Min, endSize.Max) * Scale);
+            parameters["StartSize"].SetValue(new Vector2(startSize.Min, startSize.Max));
+            parameters["EndSize"].SetValue(new Vector2(endSize.Min, endSize.Max));
             
             Texture2D texture = Settings.GetTexture(Content);
             ParticleEffect.Parameters["Texture"].SetValue(texture);

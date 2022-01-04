@@ -444,7 +444,7 @@ namespace Ship_Game
             FileInfo file = ResourceManager.GetModOrVanillaFile(relativePath);
             if (file == null)
                 throw new FileNotFoundException($"No such file: {relativePath}");
-            
+
             AddHotLoadTarget(screen, file, onModified);
             return file;
         }
