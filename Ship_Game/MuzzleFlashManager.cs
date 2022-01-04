@@ -9,8 +9,8 @@ using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game
 {
-	internal sealed class MuzzleFlashManager
-	{
+    internal sealed class MuzzleFlashManager
+    {
         sealed class MuzzleFlash
         {
             public float Life  = 0.02f;
@@ -29,17 +29,17 @@ namespace Ship_Game
             }
         }
 
-		static SubTexture FlashTexture;
-		static Model flashModel;
+        static SubTexture FlashTexture;
+        static Model flashModel;
 
-		static readonly Array<MuzzleFlash> FlashList = new Array<MuzzleFlash>();
+        static readonly Array<MuzzleFlash> FlashList = new Array<MuzzleFlash>();
         static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         public static void LoadContent(GameContentManager content)
         {
-            flashModel   = content.Load<Model>("Model/Projectiles/muzzleEnergy");
-            string texPath = "Model/Projectiles/Textures/MuzzleFlash_01";
-            FlashTexture = new SubTexture("MuzzleFlash_01", content.Load<Texture2D>(texPath), texPath);
+            flashModel = content.Load<Model>("Model/Projectiles/muzzleEnergy");
+            string texPath = "Model/Projectiles/Textures/muzzleFlash_01.dds";
+            FlashTexture = new SubTexture("muzzleFlash_01", content.Load<Texture2D>(texPath), texPath);
         }
 
         public static void AddFlash(Projectile projectile)
@@ -67,8 +67,8 @@ namespace Ship_Game
             }
         }
 
-	    public static void Update(float elapsedTime)
-		{
+        public static void Update(float elapsedTime)
+        {
             using (Lock.AcquireWriteLock())
             {
                 for (int i = 0; i < FlashList.Count; i++)
@@ -92,7 +92,7 @@ namespace Ship_Game
                         f.Light.Position = f.Position;
                 }
             }
-		}
+        }
 
         public static void Draw(UniverseScreen us)
         {
@@ -108,5 +108,5 @@ namespace Ship_Game
                 }
             }
         }
-	}
+    }
 }
