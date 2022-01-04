@@ -44,9 +44,12 @@
   <!-- Graphical Information -->
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
-  <WeaponEffectType>RocketTrail</WeaponEffectType>
   <WeaponType>Missile</WeaponType>
   <ProjectileRadius>18</ProjectileRadius>
   <Scale>1.5</Scale>
+  
+  <!-- Deterimines trail effect from ParticleEffects.yaml and also the trail offset behind missile center -->
+  <WeaponEffectType>RocketTrail</WeaponEffectType>
+  <TrailOffset>-32</TrailOffset>
 
 </Weapon>

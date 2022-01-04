@@ -47,7 +47,6 @@
   <Explodes>true</Explodes>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 <!-- Projectile textures-->
-  <WeaponEffectType>TorpTrail</WeaponEffectType>
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
   <WeaponType>Missile</WeaponType>
@@ -55,4 +54,8 @@
   <FireCueName>sd_weapon_torpedo_01</FireCueName>
   <DieCue>sd_weapon_rocket_explode_01</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
+  
+  <!-- Deterimines trail effect from ParticleEffects.yaml and also the trail offset behind missile center -->
+  <WeaponEffectType>TorpTrail</WeaponEffectType>
+  <TrailOffset>-32</TrailOffset>
 </Weapon>

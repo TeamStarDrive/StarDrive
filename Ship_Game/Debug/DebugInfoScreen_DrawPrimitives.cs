@@ -26,16 +26,22 @@ namespace Ship_Game.Debug
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, float lifeTime)
         {
             if (ShouldNotAddPrimitive(mode)) return;
-            AddPrimitive(new DebugCircle(worldPos, radius, Color.Yellow, lifeTime));
+            AddPrimitive(new DebugCircle(worldPos.ToVec3(), radius, Color.Yellow, lifeTime));
         }
 
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color, float lifeTime)
         {
             if (ShouldNotAddPrimitive(mode)) return;
-            AddPrimitive(new DebugCircle(worldPos, radius, color, lifeTime));
+            AddPrimitive(new DebugCircle(worldPos.ToVec3(), radius, color, lifeTime));
         }
 
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color)
+        {
+            if (ShouldNotAddPrimitive(mode)) return;
+            AddPrimitive(new DebugCircle(worldPos.ToVec3(), radius, color, 0f));
+        }
+
+        public void DrawCircle(DebugModes mode, Vector3 worldPos, float radius, Color color)
         {
             if (ShouldNotAddPrimitive(mode)) return;
             AddPrimitive(new DebugCircle(worldPos, radius, color, 0f));

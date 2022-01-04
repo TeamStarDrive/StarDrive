@@ -203,7 +203,7 @@ namespace Ship_Game.Gameplay
             return movePos;
         }
 
-        public static Vector2 ThrustOffset(Vector2 ourPos, Vector2 ourVel, Vector2 targetPos, float magnitude = 1f)
+        public static Vector2 ThrustOffset(Vector2 ourPos, Vector2 ourVel, Vector2 targetPos)
         {
             Vector2 forward = ourPos.DirectionToTarget(targetPos);
             Vector2 left = forward.LeftVector(); // perpendicular to forward vector
@@ -212,8 +212,6 @@ namespace Ship_Game.Gameplay
 
             // only place movePos on the same axis as left vector
             Vector2 movePos = targetPos + left*(dot*speed);
-            if (magnitude.NotEqual(1f))
-                movePos = targetPos.LerpTo(movePos, magnitude);
             return movePos;
         }
 
