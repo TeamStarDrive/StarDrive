@@ -46,7 +46,7 @@
   <ShieldRadius>0</ShieldRadius>
 
   <!-- for PowerPlant Items -->
-  <Explodes>false</Explodes>
+  
   <PowerFlowMax>10</PowerFlowMax>
   <PowerStoreMax>2000</PowerStoreMax>
   <PowerRadius>1</PowerRadius>

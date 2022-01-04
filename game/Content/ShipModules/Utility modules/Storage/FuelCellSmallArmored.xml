@@ -38,7 +38,7 @@
 
 
   <!-- for PowerPlant Items -->
-  <Explodes>false</Explodes>
+  
   <PowerFlowMax>0</PowerFlowMax>
   <PowerStoreMax>1099</PowerStoreMax>
   

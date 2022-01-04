@@ -32,7 +32,6 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly bool FreighterModule  = true;
         [StarData] public readonly bool PlatformModule   = true;
         [StarData] public readonly bool StationModule    = true;
-        [StarData] public readonly bool Explodes;
         [StarData] public readonly float SensorRange;
         [StarData] public readonly float MechanicalBoardingDefense;
         [StarData] public readonly float EMPProtection;
@@ -141,7 +140,6 @@ namespace Ship_Game.Gameplay
             FreighterModule             = s.FreighterModule;
             PlatformModule              = s.PlatformModule;
             StationModule               = s.StationModule;
-            Explodes                    = s.Explodes;
             SensorRange                 = s.SensorRange;
             MechanicalBoardingDefense   = s.MechanicalBoardingDefense;
             EMPProtection               = s.EMPProtection;
@@ -202,8 +200,8 @@ namespace Ship_Game.Gameplay
             TorpedoResist               = s.TorpedoResist;
             DamageThreshold             = s.DamageThreshold;
             APResist                    = s.APResist;
-            ExplosionDamage             = s.ExplosionDamage > 0 ? s.ExplosionDamage : s.XSize * s.YSize * 2500;
-            ExplosionRadius             = s.ExplosionRadius > 0 ? s.ExplosionRadius: s.XSize * s.YSize * 64;
+            ExplosionDamage             = s.ExplosionDamage;
+            ExplosionRadius             = s.ExplosionRadius > 0 ? ExplosionRadius : 16;
             RepairDifficulty            = s.RepairDifficulty;
             Regenerate                  = s.Regenerate;
             ShieldBubbleColor           = s.ShieldBubbleColor;
@@ -251,7 +249,6 @@ namespace Ship_Game.Gameplay
         public bool FreighterModule  = true;
         public bool PlatformModule   = true;
         public bool StationModule    = true;
-        public bool Explodes;
         public float SensorRange;
         public float MechanicalBoardingDefense;
         public float EMPProtection;
