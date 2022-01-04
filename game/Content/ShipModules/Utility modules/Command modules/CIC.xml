@@ -53,7 +53,7 @@
   <EMPProtection>400</EMPProtection>
 
   <!-- for PowerPlant Items -->
-  <Explodes>false</Explodes>
+  
   <PowerStoreMax>200</PowerStoreMax>
 
   <!-- for Weapons -->
