@@ -169,9 +169,7 @@ namespace Ship_Game.Gameplay
             if (damageRadius <= 0f)
                 return;
 
-            // min search radius of 512. problem was that at very small search radius neighbors would not be found.
-            // I tried to make the min to a the smallest cell size. 
-            GameplayObject[] ships = FindNearby(GameObjectType.Ship, source, Math.Max(damageRadius, 512),
+            GameplayObject[] ships = FindNearby(GameObjectType.Ship, source, damageRadius,
                                                     maxResults:32, excludeLoyalty:source.Owner?.Loyalty);
             ships.SortByDistance(center);
 

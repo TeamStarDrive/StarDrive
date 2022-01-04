@@ -680,7 +680,7 @@ namespace Ship_Game.Ships
 
         public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius, float minFalloff = 0.4f)
         {
-            float explodeDist = explosionCenter.Distance(affectedPoint) - moduleRadius;
+            float explodeDist = Math.Abs(explosionCenter.Distance(affectedPoint) - moduleRadius);
             if (explodeDist < moduleRadius) explodeDist = 0;
 
             return Math.Min(1.0f, (damageRadius - explodeDist) / (damageRadius + minFalloff));
@@ -738,15 +738,30 @@ namespace Ship_Game.Ships
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
         public bool DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
         {
-            float moduleRadius = ShieldsAreActive ? ShieldHitRadius : Radius;
-            float damage = damageInOut * DamageFalloff(worldHitPos, Position, damageRadius, moduleRadius);
-            if (damage <= 0.001f)
+            float damage = GetExplosiveDamage(worldHitPos, damageRadius, damageInOut);
+            if (damage <= 0.1f)
                 return true;
 
             //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
 
-            Damage(source, damage, out damageInOut);
+            Damage(source, damageInOut, out damageInOut);
             return damageInOut <= 0f;
+        }
+
+        public void DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, float damageAmount)
+        {
+            float damage = GetExplosiveDamage(worldHitPos, damageRadius, damageAmount);
+            if (damage > 0.1f)
+            {
+                //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
+                Damage(source, damage, out _);
+            }
+        }
+
+        float GetExplosiveDamage(Vector2 worldHitPos, float damageRadius, float damageAmount)
+        {
+            float moduleRadius = ShieldsAreActive ? ShieldHitRadius : Radius;
+            return damageAmount * DamageFalloff(worldHitPos, Position, damageRadius, moduleRadius);
         }
 
         void EvtDamageInflicted(GameplayObject source, float amount)
