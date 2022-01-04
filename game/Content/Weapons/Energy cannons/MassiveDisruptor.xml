@@ -30,7 +30,7 @@
   <FireCueName>disruptor</FireCueName>
   
   <!-- Projectile Information -->
-  <DamageAmount>1689</DamageAmount>
+  <DamageAmount>1350</DamageAmount>
   <EMPDamage>35</EMPDamage>
   <ProjectileSpeed>2200</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
