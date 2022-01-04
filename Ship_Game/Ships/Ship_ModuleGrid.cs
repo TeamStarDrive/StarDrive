@@ -281,8 +281,8 @@ namespace Ship_Game.Ships
             return hit;
         }
 
-        // Gets all the shields currently covering a ship Module, starting with the outside radius first
-        public ShipModule[] GetAllActiveShieldsCoveringModule(ShipModule module)
+        // Gets the first shield currently covering a ship Module, starting with the outside radius first
+        public Array<ShipModule> GetAllActiveShieldsCoveringModule(ShipModule module)
         {
             Array<ShipModule> coveringShields = new Array<ShipModule>();
             for (int i = 0; i < Shields.Length; ++i)
@@ -292,7 +292,13 @@ namespace Ship_Game.Ships
                     coveringShields.Add(shield);
             }
 
-            return coveringShields.Sorted(s => s.ShieldRadius - s.Position.Distance(module.Position));
+            return coveringShields;
+            // FB - RedFox wanted to create a shield grid, for performance. so i am omitting the sort of shields. 
+            // The sorting was done so that the outer shields will be returned first and get the damage first.
+            // With out the sorting, a projectile next module hit search will pop up a shield with might be smaller then 
+            // the correct shield which should be damages. meaning that the order of damaging shields might not
+            // be correct and look strange to the player.
+            //.Sorted(s => s.ShieldRadius - s.Position.Distance(module.Position));
         }
 
         // Gets the strongest shield currently covering internalModule
@@ -505,16 +511,15 @@ namespace Ship_Game.Ships
         public void DamageModulesExplosive(GameplayObject damageSource, float damageAmount,
                                            Vector2 worldHitPos, float hitRadius, bool ignoresShields)
         {
-            float damageTracker = damageAmount;
             if (!ignoresShields)
             {
                 for (int i = 0; i < Shields.Length; ++i)
                 {
-                    ShipModule module = Shields[i];
-                    if (module.ShieldsAreActive && module.HitTestShield(worldHitPos, hitRadius))
+                    ShipModule shield = Shields[i];
+                    if (shield.ShieldsAreActive && shield.HitTestShield(worldHitPos, hitRadius))
                     {
-                        if (module.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker))
-                            return; // no more damage to dish, exit early
+                        if (shield.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount))
+                            return; // No more damage to dish, shields absorbed the blast
                     }
                 }
             }
@@ -527,58 +532,96 @@ namespace Ship_Game.Ships
                     return;
             }
 
-
             ShipModule[] grid = SparseModuleGrid;
             int width = GridWidth;
             ShipModule m;
             if (a == b)
             {
-                if ((m = grid[a.X + a.Y*width]) != null && m.Active
-                    && m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker))
-                    return;
+                if ((m = grid[a.X + a.Y * width]) != null && m.Active)
+                    m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount);
+
                 return;
             }
+
             int firstX = Math.Min(a.X, b.X); // this is the max bounding box range of the scan
             int firstY = Math.Min(a.Y, b.Y);
             int lastX  = Math.Max(a.X, b.X);
             int lastY  = Math.Max(a.Y, b.Y);
-            //damageTracker = damageAmount;
+
             Point cx = WorldToGridLocalPointClipped(worldHitPos); // clip the start, because it's often near an edge
-            int minX = cx.X, minY = cx.Y;
-            int maxX = cx.X, maxY = cx.Y;
-            if ((m = grid[minX + minY*width]) != null && m.Active)
-                  m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
 
-            // spread out the damage in 4 directions but apply a new set of full damage to external modules.
+            int minX = cx.X;
+            int minY = cx.Y;
+            int maxX = cx.X;
+            int maxY = cx.Y;
+            if ((m = grid[minX + minY * width]) != null && m.Active
+                && m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount))
+            {
+                 return; // withstood the explosion
+            }
 
+            // spread out the damage in 4 directions - increasing the expansion box until reaching  the scan bounding box
+            // the explosion, however, will not damage modules if an inner module survived the damage, meaning the 
+            // explosion path can be contained - this is the "if (innerModule == null || !innerModule.Active)"
+            // in each direction
             for (;;)
             {
+
                 bool didExpand = false;
-                if (minX > firstX) { // test all modules to the left
-                    --minX; didExpand = true;
+                if (minX > firstX) // test all modules to the left
+                { 
+                    --minX;
+                    didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[minX + y * width]) != null && m.Active)
-                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
+                        {
+                            ShipModule innerModule = grid[minX+1 + y * width];
+                            if (innerModule == null || !innerModule.Active)
+                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
+                        }
                 }
-                if (maxX < lastX) { // test all modules to the right
-                    ++maxX; didExpand = true;
+
+                if (maxX < lastX) // test all modules to the right
+                { 
+                    ++maxX;
+                    didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         if ((m = grid[maxX + y * width]) != null && m.Active)
-                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
+                        {
+                            ShipModule innerModule = grid[maxX-1 + y * width];
+                            if (innerModule == null || !innerModule.Active)
+                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
+                        }
                 }
-                if (minY > firstY) { // test all top modules
-                    --minY; didExpand = true;
+                
+                if (minY > firstY) // test all top modules
+                { 
+                    --minY;
+                    didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
                         if ((m = grid[x + minY * width]) != null && m.Active)
-                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
+                        {
+                            ShipModule innerModule = grid[x + (minY+1) * width];
+                            if (innerModule == null || !innerModule.Active)
+                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
+                        }
                 }
-                if (maxY < lastY) { // test all bottom modules
-                    ++maxY; didExpand = true;
+
+                if (maxY < lastY) // test all bottom modules
+                { 
+                    ++maxY;
+                    didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
                         if ((m = grid[x + maxY * width]) != null && m.Active)
-                            m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageTracker);
+                        {
+                            ShipModule innerModule = grid[x + (maxY-1) * width];
+                            if (innerModule == null || !innerModule.Active)
+                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
+                        }
                 }
-                if (!didExpand) return; // wellll, looks like we're done here!
+
+                if (!didExpand) 
+                    return; // Looks like we're done here!
             }
         }
 
@@ -717,8 +760,8 @@ namespace Ship_Game.Ships
                         // get covering shields to damage them first
                         if (!ignoreShields)
                         {
-                            ShipModule[] shields = GetAllActiveShieldsCoveringModule(m);
-                            if (shields.Length > 0)
+                            Array<ShipModule> shields = GetAllActiveShieldsCoveringModule(m);
+                            if (shields.Count > 0)
                                 return shields[0];
                         }
 
