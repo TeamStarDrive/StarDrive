@@ -17,13 +17,14 @@
 #  // scales emitter velocity, default = 1.0
 #  VelocityScale: 1.0
 #  
-#  // local offset in relation to velocity direction
+#  // local offset in relation to velocity direction. Basically moves emitter position
 #  LocalOffset: [0.0, 0.0, 0.0]
 #
-#  // multiplies LocalOffset in increments and then repeats from 0
+#  // multiplies LocalOffset in increments and then repeats from 0. How many times the emitters from LocalOffset is being crated, then emmits particles between the number in a loop
 #  // ex: multiplier=3 --> [LocalOffset*0, LocalOffset*1, LocalOffset*2, LocalOffset*0, ...]
 #  IncrementalOffsetMultiplier: 0
 #
+# VelocityScale - how much velocity is being inherited from emmiter, 1=100%, 0=0%
 
 - ParticleEffect: # Ship thrust effect 1
   Name: EngineThrust1
