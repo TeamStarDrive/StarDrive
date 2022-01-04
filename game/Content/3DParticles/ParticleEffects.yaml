@@ -15,14 +15,17 @@
 #  ColorSource: Default
 #
 #  // scales emitter velocity, default = 1.0
+#  // how much velocity is being inherited from emmiter, 1=100%, 0=0%
 #  VelocityScale: 1.0
 #  
 #  // local offset in relation to velocity direction. Basically moves emitter position
 #  LocalOffset: [0.0, 0.0, 0.0]
 #
-#  // multiplies LocalOffset in increments and then repeats from 0. How many times the emitters from LocalOffset is being crated, then emmits particles between the number in a loop
-#  // ex: multiplier=3 --> [LocalOffset*0, LocalOffset*1, LocalOffset*2, LocalOffset*0, ...]
-#  IncrementalOffsetMultiplier: 0
+#  // changes the emitter position in integer increments
+#  // so you can make this same emitter create particles from multiple locations
+#  // values are always rounded to integers!
+#  // Ex: [-1, +1] --> [LocalOffset*-1,LocalOffset*0,LocalOffset*1,  LocalOffset*-1,LocalOffset*0,LocalOffset*1,  ...]
+#  PositionIncrements: [-1, +1]
 #
 # VelocityScale - how much velocity is being inherited from emmiter, 1=100%, 0=0%
 
@@ -34,7 +37,7 @@
       Rate: 60
       ColorSource: ThrustColor1
       LocalOffset: [0, 3] # in relation to velocity
-      IncrementalOffsetMultiplier: 3 # multiplies LocalOffset by [0, 1, 2] then repeats
+      PositionIncrements: [-1, +1]
     - Emitter:
       Particle: EngineTrail
       Rate: 60
@@ -47,7 +50,7 @@
   Name: RocketTrail
   Emitters:
     - Emitter: { Particle: MissileSmokeTrail, Rate: 80 }
-    - Emitter: { Particle: FireTrail, Rate: 120, VelocityScale: 1.5 }
+    - Emitter: { Particle: FireTrail, Rate: 120, VelocityScale: 1.5, LocalOffset: [64, 0], PositionIncrements: [-1, +1] }
     - Emitter: { Particle: MissileThrust, Rate: 20, VelocityScale: 0 }
 
 
