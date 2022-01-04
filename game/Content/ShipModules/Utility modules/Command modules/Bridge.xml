@@ -51,7 +51,7 @@
   <AmplifyShields>1500</AmplifyShields>
 
   <!-- for PowerPlant Items -->
-  <Explodes>false</Explodes>
+  
   <PowerFlowMax>0</PowerFlowMax>
   <PowerStoreMax>110</PowerStoreMax>
 
