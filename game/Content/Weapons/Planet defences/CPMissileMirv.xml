@@ -46,7 +46,7 @@
 
   <ProjectileTexturePath>LRM_d</ProjectileTexturePath>
   <ModelPath>LRM</ModelPath>
-  <WeaponType>Missile </WeaponType> 
+  <WeaponType>Missile</WeaponType> 
  <WeaponHitEffect></WeaponHitEffect> 
 
 <!-- name of XACT audio cue to play on firing this weapon -->

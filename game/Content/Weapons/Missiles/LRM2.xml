@@ -45,7 +45,7 @@
 <!-- Projectile textures-->
   <ProjectileTexturePath>MRM_d</ProjectileTexturePath>
   <ModelPath>MRM</ModelPath>
-  <WeaponType>Missile </WeaponType> 
+  <WeaponType>Missile</WeaponType> 
  <WeaponHitEffect></WeaponHitEffect> 
 
 <!-- name of XACT audio cue to play on firing this weapon -->
