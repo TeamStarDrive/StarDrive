@@ -8,7 +8,7 @@
   <UID>MassivePhasorTurret</UID>
   <IsBeam>true</IsBeam>
   <FireDelay>2</FireDelay>
-  <Range>10000</Range>
+  <Range>7000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <BeamDuration>1</BeamDuration>

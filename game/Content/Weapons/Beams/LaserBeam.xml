@@ -20,7 +20,7 @@
   <UID>LaserBeam</UID>
   <IsBeam>true</IsBeam>
   <FireDelay>1.5</FireDelay>
-  <Range>5000</Range>
+  <Range>3500</Range>
   <BeamDuration>0.5</BeamDuration>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>

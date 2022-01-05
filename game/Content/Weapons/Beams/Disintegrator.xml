@@ -21,7 +21,7 @@
   <UID>Disintegrator</UID>
   <IsBeam>true</IsBeam>
   <FireDelay>11</FireDelay>
-  <Range>16000</Range>
+  <Range>11000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <BeamDuration>4</BeamDuration>
