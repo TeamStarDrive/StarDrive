@@ -16,9 +16,9 @@
   <Health>13000</Health>
   <HealthMax>13000</HealthMax>
   <energyreq>25</energyreq>
-  <modRadius>4</modRadius>
+  
   <CrewRequired>10</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>20</PowerDraw>
 
 

@@ -15,10 +15,10 @@
   <Health>400</Health>
   <HealthMax>400</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>This warp engine provides twice the benefit of a normal engine for warp purposes, but only half the thrust of a normal engine at sublight speeds.   </Description>
-  <CrewRequired>1</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>10</PowerDraw>
 
 

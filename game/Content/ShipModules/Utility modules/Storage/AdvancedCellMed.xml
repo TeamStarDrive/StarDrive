@@ -17,9 +17,9 @@
   <Health>2080</Health>
   <HealthMax>2080</HealthMax>
   <energyreq>1</energyreq>
-  <modRadius>4</modRadius>
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
+  
   <Description>Fuel cells capture and store power from a ship's powerplant, increasing the ship's effective operational range as well as its stamina in combat.</Description>
   <PowerDraw>0</PowerDraw>
 

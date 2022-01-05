@@ -19,7 +19,7 @@
   <energyreq>0</energyreq>
   <Description>Disruptors fire fast-moving, high-energy projectiles.  </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>5</PowerDraw>
   
   <NameIndex>932</NameIndex>
@@ -42,7 +42,7 @@
   <!-- for Weapons -->
   <WeaponType>Disruptor</WeaponType>
   <FieldOfFire>90</FieldOfFire>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   
   <!-- for Engines -->
   <Thrust>0</Thrust>

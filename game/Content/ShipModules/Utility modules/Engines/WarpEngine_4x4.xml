@@ -19,10 +19,10 @@
   <Health>9280</Health>
   <HealthMax>9280</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>A massive warp engine for a massive ship. </Description>
-  <CrewRequired>1</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>130</PowerDraw>
 
   <NameIndex>1082</NameIndex>

@@ -17,10 +17,10 @@
   <Health>100</Health>
   <HealthMax>100</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>This shield has a decent sized protection radius but is only capable of taking a few hits. However it does have a quick recharge rate.</Description>
-   <CrewRequired>1</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+   
+  
   <PowerDraw>20</PowerDraw>
 
 

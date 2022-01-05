@@ -20,11 +20,11 @@
   <Health>200</Health>
   <HealthMax>200</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>Carries power across a ship
   </Description>
-  <CrewRequired>1</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>0</PowerDraw>
 
 

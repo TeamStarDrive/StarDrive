@@ -21,11 +21,11 @@
   <Health>200</Health>
   <HealthMax>200</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>Power Plants are the beating hearts of spaceships.  This basic fission model provides a moderate level of power output and power storage. Explodes when destroyed.
   </Description>
-  <CrewRequired>1</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>0</PowerDraw>
 
   <NameIndex>1004</NameIndex>

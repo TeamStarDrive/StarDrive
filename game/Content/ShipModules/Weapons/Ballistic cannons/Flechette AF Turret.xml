@@ -19,7 +19,7 @@
   <energyreq>0</energyreq>
 
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>4</PowerDraw>
 
   <NameIndex>2249</NameIndex>
@@ -43,7 +43,7 @@
   <WeaponType>Fletchette Cannon</WeaponType>
   <FieldOfFire>180</FieldOfFire>
   <OrdinanceCapacity>16</OrdinanceCapacity>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   <!-- for Engines -->
   <Thrust>0</Thrust>
   

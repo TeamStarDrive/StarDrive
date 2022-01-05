@@ -22,8 +22,8 @@
   <HealthMax>3900</HealthMax>
   <energyreq>0</energyreq>
   <Description>Light Torpedo</Description>
-  <CrewRequired>5</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>5</PowerDraw>
 
   <!-- for shield items -->

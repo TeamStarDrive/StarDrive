@@ -50,11 +50,11 @@
 
   <!-- Crew Reqs -->
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
 
  
   <!-- for Weapons -->
   <WeaponType>DarkMatterCannon_1x2</WeaponType>
   <FieldOfFire>30</FieldOfFire>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
 </ShipModule>

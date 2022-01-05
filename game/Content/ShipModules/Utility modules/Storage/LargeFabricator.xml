@@ -18,8 +18,8 @@
   <HealthMax>8000</HealthMax>
   <energyreq>0</energyreq>
   <Description>.</Description>
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>200</PowerDraw>
   <PowerDrawAtWarp>-100</PowerDrawAtWarp>
 

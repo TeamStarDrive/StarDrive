@@ -22,7 +22,7 @@
   <Description>Flak Turrets are mounted on omni-directional swivel platforms for a 90 degree field of fire.  They fire explosive shells with a moderate damaging radius, but the projectiles are somewhat slow and ill-suited for tracking swift targets.  Furthermore, this weapon requires ordnance to fire.
   </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>6</PowerDraw>
 
   <NameIndex>17487</NameIndex>
@@ -46,7 +46,7 @@
   <WeaponType>MagneticTurret_2x2</WeaponType>
   <FieldOfFire>90</FieldOfFire>
   <OrdinanceCapacity>5</OrdinanceCapacity>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   <!-- for Engines -->
   <Thrust>0</Thrust>
   

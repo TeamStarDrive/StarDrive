@@ -29,7 +29,7 @@
   <HealthMax>3000</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <PowerDraw>20</PowerDraw>
   <BonusRepairRate>20</BonusRepairRate>
   <NameIndex>1930</NameIndex>

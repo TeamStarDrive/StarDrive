@@ -19,8 +19,8 @@
   <energyreq>0</energyreq>
   <Description>.
   </Description>
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>50</PowerDraw>
   <PowerDrawAtWarp>-25</PowerDrawAtWarp>
 

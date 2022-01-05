@@ -32,7 +32,7 @@
 
   <!-- Crew Reqs -->
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
 
  
   <!-- for Weapons -->
@@ -41,7 +41,7 @@
   <Left>1</Left>
   <Right>1</Right>
   <Rear>1</Rear>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
 
   <!-- Description -->
   <Description>This is a heavier variant of the standard laser cannon.  Its increased size allows for the creation and delivery of a higher-energy laser pulse.</Description>

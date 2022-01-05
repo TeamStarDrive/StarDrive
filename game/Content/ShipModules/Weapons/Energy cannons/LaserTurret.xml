@@ -34,13 +34,13 @@
 
   <!-- Crew Reqs -->
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
 
  
   <!-- for Weapons -->
   <WeaponType>2x2LaserTurret</WeaponType>
   <FieldOfFire>90</FieldOfFire>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   <!-- Description -->
   <Description>This weapon is a laser cannon mounted on a swivel turret to provide a 90 degree field of fire.</Description>
   

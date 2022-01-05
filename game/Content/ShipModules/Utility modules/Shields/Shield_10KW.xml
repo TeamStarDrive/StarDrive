@@ -16,10 +16,10 @@
   <Health>3200</Health>
   <HealthMax>3200</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>This is a large shield that provides heavy protection at a heavy power cost</Description>
-  <CrewRequired>3</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>200</PowerDraw>
 
   <NameIndex>1048</NameIndex>

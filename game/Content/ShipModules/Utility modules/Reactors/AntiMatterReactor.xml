@@ -20,10 +20,10 @@
   <Health>3450</Health>
   <HealthMax>3450</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>Harnesses a matter/anti-matter reaction to create large amounts of power</Description>
   <CrewRequired>10</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>0</PowerDraw>
 
   <NameIndex>906</NameIndex>
