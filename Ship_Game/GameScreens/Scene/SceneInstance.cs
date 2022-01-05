@@ -171,7 +171,7 @@ namespace Ship_Game.GameScreens.Scene
             batch.End();
 
             Particles.Draw(Screen.View, Screen.Projection, nearView: true);
-            Particles.Update(elapsed);
+            Particles.Update(elapsed.CurrentGameTime);
         }
     }
 }

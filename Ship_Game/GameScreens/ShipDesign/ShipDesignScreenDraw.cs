@@ -20,7 +20,7 @@ namespace Ship_Game
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
             Empire.Universe.DrawStarField();
             Empire.Universe.Particles.Draw(View, Projection, nearView:true);
-            Empire.Universe.Particles.Update(elapsed);
+            Empire.Universe.Particles.Update(elapsed.CurrentGameTime);
 
             ScreenManager.RenderSceneObjects();
 
