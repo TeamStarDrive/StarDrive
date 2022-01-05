@@ -25,8 +25,8 @@
 
   <!-- Mass and Health -->
   <Mass>6</Mass>
-  <Health>1600</Health>
-  <HealthMax>1600</HealthMax>
+  <Health>2000</Health>
+  <HealthMax>2000</HealthMax>
 
 
 <!-- Armor resistance -->
@@ -34,7 +34,7 @@
 	<BeamResist>0</BeamResist>
 	<EnergyResist>0</EnergyResist>    
 	<HybridResist>0</HybridResist>
-	<ExplosiveResist>5</ExplosiveResist>
+	<ExplosiveResist>0.05</ExplosiveResist>
 
   <!-- Description -->
   <Description>This is a small plate of thick steel armor.  It is cheap and heavy but provides significant protection.</Description>
