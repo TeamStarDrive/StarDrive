@@ -25,15 +25,15 @@
 
   <!-- Mass and Health -->
   <Mass>27</Mass>
-  <Health>23200</Health>
-  <HealthMax>23200</HealthMax>
+  <Health>28000</Health>
+  <HealthMax>28000</HealthMax>
 
   <!-- Armor resistance -->
 	<KineticResist>0</KineticResist>
 	<BeamResist>0</BeamResist>
 	<EnergyResist>0</EnergyResist>    
 	<HybridResist>0</HybridResist>
-	<ExplosiveResist>14</ExplosiveResist>
+	<ExplosiveResist>0.14</ExplosiveResist>
   
   <!-- Description -->
   <Description>Plasteel armor provides approximately 25% less protection than steel armor but does so with half of the mass</Description>

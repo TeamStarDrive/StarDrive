@@ -25,15 +25,15 @@
 
   <!-- Mass and Health -->
   <Mass>24</Mass>
-  <Health>7660</Health>
-  <HealthMax>7660</HealthMax>
+  <Health>9200</Health>
+  <HealthMax>9200</HealthMax>
 
   <!-- Armor resistance -->
 	<KineticResist>0</KineticResist>
 	<BeamResist>0</BeamResist>
 	<EnergyResist>0</EnergyResist>    
 	<HybridResist>0</HybridResist>
-	<ExplosiveResist>7</ExplosiveResist>
+	<ExplosiveResist>0.07</ExplosiveResist>
 
   <!-- Description -->
   <Description>This is a medium-sized slab of thick steel armor.  It is cheap and heavy but provides significant protection.</Description>

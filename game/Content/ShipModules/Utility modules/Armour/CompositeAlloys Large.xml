@@ -29,7 +29,7 @@
 	<BeamResist>0</BeamResist>
 	<EnergyResist>0</EnergyResist>    
 	<HybridResist>0</HybridResist>
-	<ExplosiveResist>24</ExplosiveResist>
+	<ExplosiveResist>0.24</ExplosiveResist>
 
 	<!-- Description -->
 	<Description>Composite Alloys provides massive defence however the mass is also very "massive".</Description>

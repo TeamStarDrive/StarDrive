@@ -45,7 +45,7 @@
   <KineticResist>0</KineticResist>
   <BeamResist>0</BeamResist>  
   <HybridResist>0</HybridResist>
-  <ExplosiveResist>15</ExplosiveResist>
+  <ExplosiveResist>0.15</ExplosiveResist>
 
   <!-- Description -->
   <Description>New generation of Ceramic Armor.</Description>
