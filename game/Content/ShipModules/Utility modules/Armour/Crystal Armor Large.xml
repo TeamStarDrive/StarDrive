@@ -28,14 +28,9 @@
 	<KineticResist>0</KineticResist>
 	<EnergyResist>0</EnergyResist>  
 	<BeamResist>0</BeamResist>
-	<ExplosiveResist>30</ExplosiveResist>	  
+	<ExplosiveResist>34</ExplosiveResist>	  
 	<HybridResist>0</HybridResist>
-	<!-- Power Drawn -->
-	<PowerDraw>0</PowerDraw>
-	<!-- Crew Reqs -->
-	<CrewRequired>0</CrewRequired>
-	<CrewSupplied>0</CrewSupplied>
-	<!-- for Weapons -->
+
 	<!-- Description -->
 	<Description>Through using Crystal materials, the mass of armor has been greatly decreased. </Description>
 	<APResist>2</APResist>

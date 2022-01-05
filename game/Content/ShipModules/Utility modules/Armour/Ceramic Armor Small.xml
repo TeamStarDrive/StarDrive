@@ -45,17 +45,7 @@
   <KineticResist>0</KineticResist>
   <BeamResist>0</BeamResist>  
   <HybridResist>0</HybridResist>
-  <ExplosiveResist>10</ExplosiveResist>
-  <!-- Power Drawn -->
-  <PowerDraw>0</PowerDraw>
-
-
-  <!-- Crew Reqs -->
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
-
-  <!-- for Weapons -->
-
+  <ExplosiveResist>15</ExplosiveResist>
 
   <!-- Description -->
   <Description>New generation of Ceramic Armor.</Description>

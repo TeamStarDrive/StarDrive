@@ -28,16 +28,12 @@
   <Health>8600</Health>
   <HealthMax>8600</HealthMax>
 
-  <!-- Power Drawn -->
-  <PowerDraw>0</PowerDraw>
-
-
-  <!-- Crew Reqs -->
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
-
-  <!-- for Weapons -->
-
+  <!-- Armor resistance -->
+	<KineticResist>0</KineticResist>
+	<BeamResist>0</BeamResist>
+	<EnergyResist>0</EnergyResist>    
+	<HybridResist>0</HybridResist>
+	<ExplosiveResist>12</ExplosiveResist>
 
   <!-- Description -->
   <Description>Plasteel armor provides approximately 25% less protection than steel armor but does so with half of the mass</Description>

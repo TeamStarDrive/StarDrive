@@ -28,18 +28,5 @@
   <Health>900</Health>
   <HealthMax>900</HealthMax>
   <ExplosiveResist>0.7</ExplosiveResist>
-  <!-- Power Drawn -->
-  <PowerDraw>0</PowerDraw>
-
-
-  <!-- Crew Reqs -->
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
-
-  <!-- for Weapons -->
-
-
-  <!-- Description -->
-
 
 </ShipModule>
