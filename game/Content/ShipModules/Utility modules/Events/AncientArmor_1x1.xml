@@ -46,19 +46,6 @@
   <HealthMax>4565</HealthMax>
   <RepairDifficulty>6</RepairDifficulty>
   <DamageThreshold>0</DamageThreshold>
-  <HybridResist>0</HybridResist>
-  <!-- Power Drawn -->
-  <PowerDraw>0</PowerDraw>
-
-
-  <!-- Crew Reqs -->
-  
-  
-
-  <!-- for Weapons -->
-
-
-  <!-- Description -->
-
+  <ExplosiveResist>0.15</ExplosiveResist>
 
 </ShipModule>
