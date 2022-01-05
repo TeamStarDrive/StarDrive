@@ -739,8 +739,7 @@ namespace Ship_Game.Ships
         // Direction must be normalized!!
         // Results are sorted by distance
         // todo Align this with RayHitTestSingle
-        public ShipModule RayHitTestNextModules(
-            Vector2 startPos, Vector2 direction, float distance, float rayRadius, bool ignoreShields)
+        public ShipModule RayHitTestNextModules(Vector2 startPos, Vector2 direction, float distance, bool ignoreShields)
         {
             Vector2 endPos = startPos + direction * distance;
             Vector2 a = WorldToGridLocal(startPos);

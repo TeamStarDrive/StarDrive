@@ -119,9 +119,9 @@ namespace Ship_Game.Spatial
                     var proj = (Projectile)(isProjA ? objectA : objectB);
                     GameplayObject victim = isProjA ? objectB : objectA;
 
-                    if (HitTestProj(timeStep.FixedTime, proj, victim, out ShipModule hitModule))
+                    if (HitTestProj(timeStep.FixedTime, proj, victim, out ShipModule hitModule, out Vector2 hitPos))
                     {
-                        if (proj.Touch(hitModule ?? victim))
+                        if (proj.Touch(hitModule ?? victim, hitPos))
                             ++numCollisions;
                     }
                 }
@@ -191,8 +191,9 @@ namespace Ship_Game.Spatial
             return victim.Position.RayCircleIntersect(victim.Radius, beamStart, beamEnd, out distanceToHit);
         }
 
-        static bool HitTestProj(float simTimeStep, Projectile proj, GameplayObject victim, out ShipModule hitModule)
+        static bool HitTestProj(float simTimeStep, Projectile proj, GameplayObject victim, out ShipModule hitModule, out Vector2 hitPos)
         {
+            hitPos = proj.Position;
             // NOTE: this is for Projectile<->Projectile collision!
             if (victim.Type != GameObjectType.Ship) // target not a ship, collision success
             {
@@ -213,11 +214,13 @@ namespace Ship_Game.Spatial
                 Vector2 dir = proj.Velocity / velocity;
                 var prevPos = new Vector2(center.X - dir.X*maxDistPerFrame, center.Y - dir.Y*maxDistPerFrame);
                 hitModule = ship.RayHitTestSingle(prevPos, center, proj.Radius, proj.IgnoresShields);
+                hitPos = prevPos;
             }
             else
             {
                   hitModule = ship.HitTestSingle(center, proj.Radius, proj.IgnoresShields);
             }
+
             return hitModule != null;
         }
 
