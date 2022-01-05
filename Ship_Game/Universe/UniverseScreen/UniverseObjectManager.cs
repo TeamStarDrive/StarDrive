@@ -393,10 +393,13 @@ namespace Ship_Game
             {
                 for (int i = start; i < end; ++i)
                 {
-                    SolarSystem system = UniverseScreen.SolarSystemList[i];
+                    SolarSystem system = Universe.Systems[i];
                     system.ShipList.Clear();
 
                     //int debugId = (system.Name == "Opteris") ? 11 : 0;
+                    if (Ships.Count == 0)
+                        continue; // all ships were killed, nothing to do here
+
                     GameplayObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
                                                                         system.Position, system.Radius,
                                                                         maxResults:Ships.Count/*, debugId:debugId*/);
@@ -416,13 +419,13 @@ namespace Ship_Game
                     Ships[i].SetSystemFromBackBuffer();
             }
 
-            UpdateSystems(0, UniverseScreen.SolarSystemList.Count);
+            UpdateSystems(0, Universe.Systems.Count);
             //Parallel.For(UniverseScreen.SolarSystemList.Count, UpdateSystems, Universe.MaxTaskCores);
 
             // TODO: SolarSystem.Update is not thread safe because of resource loading
-            for (int i = 0; i < UniverseScreen.SolarSystemList.Count; ++i)
+            for (int i = 0; i < Universe.Systems.Count; ++i)
             {
-                SolarSystem system = UniverseScreen.SolarSystemList[i];
+                SolarSystem system = Universe.Systems[i];
                 system.Update(timeStep, Universe);
             }
 
