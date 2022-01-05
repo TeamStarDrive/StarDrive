@@ -22,7 +22,7 @@
   <UID>FocusPhasorBeam</UID>
   <IsBeam>true</IsBeam>
   <FireDelay>10</FireDelay>
-  <Range>14000</Range>
+  <Range>9800</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <BeamDuration>4</BeamDuration>
