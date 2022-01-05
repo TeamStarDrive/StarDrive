@@ -113,7 +113,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             OurRelationToThem           = us.GetRelationsOrNull(them);
             Score                       = new WarScore(this, Us);
 
-            PopulateHistoricLostSystems();
+            PopulateHistoricLostSystems(us.Universum);
             if (!Us.isPlayer && !Us.isFaction && !them.isFaction)
                 Us.GetEmpireAI().AddGoal(new WarManager(Us, Them, WarType));
 
@@ -126,10 +126,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return war;
         }
 
-        void PopulateHistoricLostSystems()
+        void PopulateHistoricLostSystems(UniverseScreen us)
         {
             if (OurRelationToThem == null) return;
-            foreach (var lostSystem in OurRelationToThem.GetPlanetsLostFromWars())
+            foreach (var lostSystem in OurRelationToThem.GetPlanetsLostFromWars(us))
             {
                 if (lostSystem.OwnerList.Contains(Them))
                     HistoricLostSystems.AddUniqueRef(lostSystem);
@@ -159,7 +159,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Them = t;
         }
 
-        public void RestoreFromSave(bool activeWar)
+        public void RestoreFromSave(UniverseScreen us, bool activeWar)
         {
             Us = EmpireManager.GetEmpireByName(UsName);
             Them = EmpireManager.GetEmpireByName(ThemName);
@@ -168,14 +168,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             for (int i = 0; i < ContestedSystemsGUIDs.Count; i++)
             {
                 var guid = ContestedSystemsGUIDs[i];
-                SolarSystem solarSystem = Us.Universum.SolarSystemDict[guid];
+                SolarSystem solarSystem = Us.Universum.GetSystem(guid);
                 ContestedSystems[i] = solarSystem;
             }
             // The Us == Them is used in EmpireDefense and relations should be null
             OurRelationToThem = Us.GetRelationsOrNull(Them);
             
             if (activeWar)
-                PopulateHistoricLostSystems();
+                PopulateHistoricLostSystems(us);
         }
 
         public void ShipWeLost(Ship target)

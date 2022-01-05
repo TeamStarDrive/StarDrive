@@ -111,11 +111,13 @@ namespace Ship_Game.Universe.SolarBodies
         static void OnSunsFileModified(FileInfo file)
         {
             LoadSuns(file, loadIcons: true);
-            if (Empire.Universe != null)
+
+            var currentUniverse = Empire.Universe;
+            if (currentUniverse != null)
             {
                 // re-initialize all solar systems suns
                 Log.Write(ConsoleColor.Magenta, "Reinitializing Solar Systems...");
-                foreach (SolarSystem system in Empire.Universe.SolarSystemDict.Values)
+                foreach (SolarSystem system in currentUniverse.Systems)
                     system.Sun = FindSun(system.Sun.Id);
             }
         }

@@ -14,8 +14,10 @@ namespace Ship_Game
         readonly Vector2 TitlePos;
         readonly Menu2 EMenu;
 
-        public Planet SelectedPlanet { get; private set; }
+        public UniverseScreen Universe;
         public EmpireUIOverlay EmpireUI;
+
+        public Planet SelectedPlanet { get; private set; }
         readonly ScrollList2<PlanetListScreenItem> PlanetSL;
 
         readonly SortButton sb_Sys;
@@ -51,12 +53,15 @@ namespace Ship_Game
         // by the player - the distance will be 0, logically.
         readonly Map<Planet, float> PlanetDistanceToClosestColony = new Map<Planet, float>();
 
-        public PlanetListScreen(GameScreen parent, EmpireUIOverlay empireUi, string audioCue = "")
+        public PlanetListScreen(UniverseScreen parent, EmpireUIOverlay empireUi, string audioCue = "")
             : base(parent)
         {
             if(!string.IsNullOrEmpty(audioCue))
                 GameAudio.PlaySfxAsync(audioCue);
+
+            Universe = parent;
             EmpireUI = empireUi;
+
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
             IsPopup = true;
@@ -85,7 +90,7 @@ namespace Ship_Game
             sb_Owned    = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.Owner));
             sb_Distance = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.Proximity));
 
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => distance.Position.Distance(EmpireManager.Player.WeightedCenter)))
+            foreach (SolarSystem system in Universe.Systems.OrderBy(s => s.Position.Distance(Universe.player.WeightedCenter)))
             {
                 foreach (Planet p in system.PlanetList)
                 {

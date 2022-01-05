@@ -9,7 +9,6 @@ namespace Ship_Game.Ships
         readonly ParticleEmitter Dust;
         readonly ParticleEmitter Smoke;
         readonly ParticleEmitter Flame;
-        bool FireOnly;
 
         public static bool CanVisualize(ShipModule module)
         {
@@ -19,13 +18,11 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        public ShipModuleDamageVisualization(ShipModule module)
+        public ShipModuleDamageVisualization(ShipModule module, ParticleManager p)
         {
             float area = module.Area;
             Vector3 center = module.Center3D;
             ShipModuleType type = module.ModuleType;
-
-            ParticleManager p = Empire.Universe.Particles;
 
             switch (type) // FB: other special effects based on some module types, use main moduletypes for performance sake
             {

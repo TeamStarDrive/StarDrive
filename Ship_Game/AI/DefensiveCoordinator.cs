@@ -144,7 +144,7 @@ namespace Ship_Game.AI
 
         void ClearEmptyPlanetsOfTroops()
         {
-            foreach (Planet p in Us.Universum.PlanetsDict.Values)
+            foreach (Planet p in Us.Universum.Planets)
                 //@TODO move this to planet.
                 // FB - This code is crappy. And it launches troops into space combat zones as well
                 // and it doesnt only clear empty planets but also adds the planet to defense dict. very misleading

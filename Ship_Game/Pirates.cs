@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 namespace Ship_Game
 {
     using static HelperFunctions;
+
     public class Pirates // Created by Fat Bastard April 2020
     {
         // Pirates Class is created for factions which are defined as pirates in their XML
@@ -234,7 +235,7 @@ namespace Ship_Game
             }
         }
 
-        public void TryLevelUp(bool alwaysLevelUp = false)
+        public void TryLevelUp(UniverseScreen u, bool alwaysLevelUp = false)
         {
             if (Level == MaxLevel)
                 return;
@@ -243,7 +244,7 @@ namespace Ship_Game
             if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
-                if (NewLevelOperations(newLevel))
+                if (NewLevelOperations(u, newLevel))
                 {
                     IncreaseLevel();
                     AlertPlayerAboutPirateOps(PirateOpsWarning.LevelUp);
@@ -269,17 +270,17 @@ namespace Ship_Game
             }
         }
 
-        bool NewLevelOperations(int level)
+        bool NewLevelOperations(UniverseScreen u, int level)
         {
             bool success;
             NewBaseSpot spotType = (NewBaseSpot)RandomMath.IntBetween(0, 4);
             switch (spotType)
             {
                 case NewBaseSpot.GasGiant:
-                case NewBaseSpot.Habitable:    success = BuildBaseOrbitingPlanet(spotType, level); break;
-                case NewBaseSpot.AsteroidBelt: success = BuildBaseInAsteroids(level);              break;
+                case NewBaseSpot.Habitable:    success = BuildBaseOrbitingPlanet(u, spotType, level); break;
+                case NewBaseSpot.AsteroidBelt: success = BuildBaseInAsteroids(u, level);              break;
                 case NewBaseSpot.DeepSpace:    success = BuildBaseInDeepSpace(level);              break;
-                case NewBaseSpot.LoneSystem:   success = BuildBaseInLoneSystem(level);             break;
+                case NewBaseSpot.LoneSystem:   success = BuildBaseInLoneSystem(u, level);             break;
                 default:                       success = false;                                    break;
             }
 
@@ -373,9 +374,9 @@ namespace Ship_Game
             return true;
         }
 
-        bool BuildBaseInAsteroids(int level)
+        bool BuildBaseInAsteroids(UniverseScreen u, int level)
         {
-            if (GetBaseAsteroidsSpot(out Vector2 pos, out SolarSystem system)
+            if (GetBaseAsteroidsSpot(u, out Vector2 pos, out SolarSystem system)
                 && SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
             {
                 AddGoalBase(pirateBase, system.Name);
@@ -386,9 +387,9 @@ namespace Ship_Game
             return BuildBaseInDeepSpace(level);
         }
 
-        bool BuildBaseInLoneSystem(int level)
+        bool BuildBaseInLoneSystem(UniverseScreen u, int level)
         {
-            if (GetLoneSystem(out SolarSystem system))
+            if (GetLoneSystem(u, out SolarSystem system))
             {
                 Vector2 pos = system.Position.GenerateRandomPointOnCircle((system.Radius * 0.75f).LowerBound(10000));
                 if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
@@ -402,9 +403,9 @@ namespace Ship_Game
             return BuildBaseInDeepSpace(level);
         }
 
-        bool BuildBaseOrbitingPlanet(NewBaseSpot spot, int level)
+        bool BuildBaseOrbitingPlanet(UniverseScreen u, NewBaseSpot spot, int level)
         {
-            if (GetBasePlanet(spot, out Planet planet))
+            if (GetBasePlanet(u, spot, out Planet planet))
             {
                 Vector2 pos = planet.Center.GenerateRandomPointOnCircle(planet.ObjectRadius + 2000);
                 if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
@@ -461,12 +462,12 @@ namespace Ship_Game
             return pos;
         }
 
-        bool GetBaseAsteroidsSpot(out Vector2 position, out SolarSystem system)
+        bool GetBaseAsteroidsSpot(UniverseScreen u, out Vector2 position, out SolarSystem system)
         {
             position   = Vector2.Zero;
             system     = null;
 
-            if (!GetUnownedSystems(out SolarSystem[] systems))
+            if (!GetUnownedSystems(u, out SolarSystem[] systems))
                 return false;
 
             var systemsWithAsteroids = systems.Filter(s => s.RingList
@@ -486,10 +487,10 @@ namespace Ship_Game
             return position != Vector2.Zero;
         }
         
-        bool GetBasePlanet(NewBaseSpot spot, out Planet selectedPlanet)
+        bool GetBasePlanet(UniverseScreen u, NewBaseSpot spot, out Planet selectedPlanet)
         {
             selectedPlanet = null;
-            if (!GetUnownedSystems(out SolarSystem[] systems))
+            if (!GetUnownedSystems(u, out SolarSystem[] systems))
                 return false;
 
             Array<Planet> planets = new Array<Planet>();
@@ -530,7 +531,7 @@ namespace Ship_Game
 
         void RemovePiratePresenceFromSystem()
         {
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem system in Owner.Universum.Systems)
             {
                 if (!system.ShipList.Any(s => s.IsPlatformOrStation && s.Loyalty.WeArePirates))
                     system.SetPiratePresence(false);
@@ -814,7 +815,7 @@ namespace Ship_Game
 
         void SalvageFreighter(Ship freighter)
         {
-            TryLevelUp();
+            TryLevelUp(freighter.Universe);
             freighter.QueueTotalRemoval();
         }
 
@@ -827,7 +828,7 @@ namespace Ship_Game
                     ShipsWeCanSpawn.AddUnique(ship.Name);
 
                 ship.QueueTotalRemoval();
-                TryLevelUp();
+                TryLevelUp(ship.Universe);
             }
             else
             {

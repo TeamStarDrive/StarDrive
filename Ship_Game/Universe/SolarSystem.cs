@@ -58,31 +58,9 @@ namespace Ship_Game
         public Array<Ring> RingList = new Array<Ring>();
         int NumberOfRings;
         public Array<SolarSystem> FiveClosestSystems = new Array<SolarSystem>();
-        public Array<string> ShipsToSpawn = new Array<string>();
-        public Array<FleetAndPos> FleetsToSpawn = new Array<FleetAndPos>();
         public Array<Anomaly> AnomaliesList = new Array<Anomaly>();
         public bool IsStartingSystem;
-        public Array<string> DefensiveFleets = new Array<string>();
         [XmlIgnore][JsonIgnore] bool WasVisibleLastFrame;
-
-        public static SolarSystem GetSolarSystemFromGuid(Guid guid)
-        {
-            return UniverseScreen.SolarSystemList.Find(s => s.Guid == guid);
-        }
-
-        public static Array<SolarSystem> GetSolarSystemsFromGuids(Array<Guid> guids)
-        {
-            var systems = new Array<SolarSystem>();
-            for (int i = 0; i < guids.Count; i++)
-            {
-                var guid = guids[i];
-                var system = GetSolarSystemFromGuid(guid);
-                if (system != null)
-                    systems.Add(system);
-            }
-
-            return systems;
-        }
 
         public void Update(FixedSimTime timeStep, UniverseScreen universe)
         {
@@ -93,6 +71,7 @@ namespace Ship_Game
                 SunLayerState layer = SunLayers[i];
                 layer.Update(timeStep);
             }
+
             var solarStatus = Status.Values.ToArray();
             for (int i = 0; i < solarStatus.Length; i++)
             {

@@ -169,18 +169,14 @@ namespace Ship_Game
             }
         }
 
-        private bool SetRandomPlanet()
+        private bool SetRandomPlanet(UniverseScreen u)
         {
             if (!SelectRandomPlanet) return false;
             Array<Planet> potentials = new Array<Planet>();
-            foreach (SolarSystem s in UniverseScreen.SolarSystemList)
+            foreach (Planet rp in u.Planets)
             {
-                foreach (Planet rp in s.PlanetList)
+                if (rp.Habitable && rp.Owner == null)
                 {
-                    if (!rp.Habitable || rp.Owner != null)
-                    {
-                        continue;
-                    }
                     potentials.Add(rp);
                 }
             }
@@ -235,7 +231,7 @@ namespace Ship_Game
             return OnlyTriggerOnce && AlreadyTriggered && triggeredBy.isPlayer;
         }
 
-        public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggeredBy, EventPopup popup)
+        public void CheckOutComes(Planet p, PlanetGridSquare eventLocation, Empire triggeredBy, EventPopup popup)
         {
             //artifact setup
             if (GrantArtifact)
@@ -244,11 +240,10 @@ namespace Ship_Game
                 Array<Artifact> potentials = new Array<Artifact>();
                 foreach (var kv in ResourceManager.ArtifactsDict)
                 {
-                    if (kv.Value.Discovered)
+                    if (!kv.Value.Discovered)
                     {
-                        continue;
+                        potentials.Add(kv.Value);
                     }
-                    potentials.Add(kv.Value);
                 }
                 //if no artifact is available just give them money
                 if (potentials.Count <= 0)
@@ -277,20 +272,19 @@ namespace Ship_Game
             {
                 BuildingActions(p, eventLocation);
                 TroopActions(triggeredBy, p, eventLocation);
-                return;
             }
-
-            //events that trigger on other planets
-            if(!SetRandomPlanet()) return;
-            p = SelectedPlanet;
-
-            if (eventLocation == null)
+            else if (SetRandomPlanet(p.Universe)) //events that trigger on other planets
             {
-                eventLocation = p.TilesList[17];
-            }
+                p = SelectedPlanet;
 
-            BuildingActions(p, eventLocation);
-            TroopActions(triggeredBy, p, eventLocation);
+                if (eventLocation == null)
+                {
+                    eventLocation = p.TilesList[17];
+                }
+
+                BuildingActions(p, eventLocation);
+                TroopActions(triggeredBy, p, eventLocation);
+            }
         }
     }
 }

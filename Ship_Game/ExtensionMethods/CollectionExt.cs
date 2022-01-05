@@ -54,6 +54,19 @@ namespace Ship_Game
             return null;
         }
 
+        // @return First item found or NULL if nothing passes the predicate
+        public static T Find<T>(this IReadOnlyList<T> items, Predicate<T> predicate) where T : class
+        {
+            int count = items.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                T item = items[i];
+                if (predicate(item))
+                    return item;
+            }
+            return null;
+        }
+
         // @return Find with index of next element
         public static bool FindFirstValid<T>(this T[] items, int count, Predicate<T> predicate,
                                              out int nextIndex, out T firstValid)

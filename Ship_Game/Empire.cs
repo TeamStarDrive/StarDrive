@@ -546,7 +546,7 @@ namespace Ship_Game
 
                 //super failSafe. just take any planet.
                 if (rallyPlanets.Count == 0)
-                    rallyPlanets.Add(Universum.PlanetsDict.First().Value);
+                    rallyPlanets.Add(Universum.Planets[0]);
 
                 RallyPoints = rallyPlanets.ToArray();
                 RallyPoints.Sort(rp => rp.ParentSystem.OwnerList.Count > 1);
@@ -630,7 +630,7 @@ namespace Ship_Game
 
             if (home == null)
             {
-                home = Universum.PlanetsDict.FindMinValue(p => p.Center.Distance(ship.Position));
+                home = Universum.Planets.FindMin(p => p.Center.Distance(ship.Position));
             }
 
             return home;
@@ -705,11 +705,11 @@ namespace Ship_Game
 
         public Planet GetNearestUnOwnedPlanet()
         {
-            foreach(var kv in Universum.SolarSystemDict)
+            foreach(var s in Universum.Systems)
             {
-                if (kv.Value.OwnerList.Count > 0) continue;
-                if (kv.Value.PlanetList.Count == 0) continue;
-                return kv.Value.PlanetList[0];
+                if (s.OwnerList.Count > 0) continue;
+                if (s.PlanetList.Count == 0) continue;
+                return s.PlanetList[0];
             }
             return null;
         }
@@ -730,7 +730,7 @@ namespace Ship_Game
 
             data.Defeated = true;
             ClearInfluenceList();
-            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem solarSystem in Universum.Systems)
                 solarSystem.OwnerList.Remove(this);
 
             if (isFaction)
@@ -771,7 +771,7 @@ namespace Ship_Game
 
             data.Defeated = true;
             ClearInfluenceList();
-            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem solarSystem in Universum.Systems)
                 solarSystem.OwnerList.Remove(this);
 
             if (isFaction)
@@ -1533,7 +1533,7 @@ namespace Ship_Game
                 //fbedard: Number of planets where you have combat
                 empirePlanetCombat = 0;
                 if (isPlayer)
-                    foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+                    foreach (SolarSystem system in Universum.Systems)
                     {
                         foreach (Planet p in system.PlanetList)
                         {
@@ -1622,9 +1622,9 @@ namespace Ship_Game
         void InitializeHostilesInSystemDict() // For Player warnings
         {
             HostilesDictForPlayerInitialized = true;
-            for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
+            for (int i = 0; i < Universum.Systems.Count; i++)
             {
-                SolarSystem system = UniverseScreen.SolarSystemList[i];
+                SolarSystem system = Universum.Systems[i];
                 if (!system.HasPlanetsOwnedBy(EmpireManager.Player) || GlobalStats.NotifyEnemyInSystemAfterLoad)
                 {
                     HostilesLogged.Add(system, false);
@@ -2603,7 +2603,7 @@ namespace Ship_Game
             {
                 ExecuteDiplomacyContacts();
                 CheckFederationVsPlayer(us);
-                RandomEventManager.UpdateEvents();
+                RandomEventManager.UpdateEvents(Universum);
 
                 if ((Money / AllSpending.LowerBound(1)) < 2)
                     Universum.NotificationManager.AddMoneyWarning();
@@ -2998,17 +2998,14 @@ namespace Ship_Game
                     planet.ParentSystem.OwnerList.Remove(target);
                 }
             }
-            foreach (KeyValuePair<Guid, SolarSystem> keyValuePair in Universum.SolarSystemDict)
+
+            foreach (Planet planet in Universum.Planets)
             {
-                foreach (Planet planet in keyValuePair.Value.PlanetList)
-                {
-                    foreach (Troop troop in planet.TroopsHere)
-                    {
-                        if (troop.Loyalty == target)
-                            troop.ChangeLoyalty(this);
-                    }
-                }
+                foreach (Troop troop in planet.TroopsHere)
+                    if (troop.Loyalty == target)
+                        troop.ChangeLoyalty(this);
             }
+
             target.ClearAllPlanets();
             var ships = target.OwnedShips;
             for (int i = ships.Count - 1; i >= 0; i--)
@@ -3228,7 +3225,7 @@ namespace Ship_Game
             if (isPlayer && !AutoExplore)
                 return;
 
-            int unexplored = UniverseScreen.SolarSystemList.Count(s => !s.IsFullyExploredBy(this)).UpperBound(21);
+            int unexplored = Universum.Systems.Count(s => !s.IsFullyExploredBy(this)).UpperBound(21);
             var ships = OwnedShips;
             if (unexplored == 0 && isPlayer)
             {
@@ -3624,7 +3621,7 @@ namespace Ship_Game
             //restore relationShipData
             foreach ((Empire them, Relationship rel) in ActiveRelations)
             {
-                rel.RestoreWarsFromSave();
+                rel.RestoreWarsFromSave(Universum);
             }
         }
 

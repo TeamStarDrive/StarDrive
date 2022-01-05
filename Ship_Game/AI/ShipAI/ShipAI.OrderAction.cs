@@ -132,13 +132,8 @@ namespace Ship_Game.AI
         {
             if (ExterminationTarget?.Owner == null)
             {
-                var plist = new Array<Planet>();
-                foreach (var planetsDict in Owner.Universe.PlanetsDict)
-                {
-                    if (planetsDict.Value.Owner != null) plist.Add(planetsDict.Value);
-                }
-
-                Planet closest = plist.FindMin(p => Owner.Position.SqDist(p.Center));
+                Planet closest = Owner.Universe.Planets.Filter(p => p.Owner != null)
+                                                       .FindMin(p => Owner.Position.SqDist(p.Center));
                 if (closest != null)
                     OrderExterminatePlanet(closest);
             }
@@ -298,7 +293,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            var emergencyPlanet = Owner.Universe.PlanetsDict.Values.ToArray().Filter(p => p.Owner == null);
+            var emergencyPlanet = Owner.Universe.Planets.Filter(p => p.Owner == null);
             emergencyPlanet.Sort(p => p.Center.SqDist(Owner.Position));
             OrbitTarget = emergencyPlanet[0];
         }
@@ -314,7 +309,7 @@ namespace Ship_Game.AI
 
                 ResupplyTarget = Owner.Loyalty.GetPlanets().FindClosestTo(Owner, IsSafePlanet)
                              // fallback to any safe planet - this is a very rare case where no alternatives were found
-                             ?? Owner.Universe.PlanetsDict.Values.ToArray().FindClosestTo(Owner, IsSafePlanet);
+                             ?? Owner.Universe.Planets.FindClosestTo(Owner, IsSafePlanet);
 
             if (ResupplyTarget != null)
                 AddOrbitPlanetGoal(ResupplyTarget, AIState.Flee);
@@ -637,13 +632,13 @@ namespace Ship_Game.AI
                 AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
                 if (AwaitClosest == null)
                 {
-                    var system = Owner.Universe.SolarSystemDict.FindMinValue(ss =>
+                    var system = Owner.Universe.Systems.FindMin(ss =>
                                  Owner.Position.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
                     AwaitClosest = system?.PlanetList.FindClosestTo(Owner);
                 }
                 if (AwaitClosest == null)
                 {
-                    AwaitClosest = Owner.Universe.PlanetsDict.FindMinValue(p =>
+                    AwaitClosest = Owner.Universe.Planets.FindMin(p =>
                         p.Center.SqDist(Owner.Position));
                 }
             }
@@ -671,7 +666,7 @@ namespace Ship_Game.AI
 
                 if (AwaitClosest == null) //Find any system with no owners and planets.
                 {
-                    var system = Owner.Universe.SolarSystemDict.FindMinValue(ss =>
+                    var system = Owner.Universe.Systems.FindMin(ss =>
                                Owner.Position.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
                     if (system == null)
                         return false;

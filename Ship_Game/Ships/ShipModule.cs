@@ -337,7 +337,7 @@ namespace Ship_Game.Ships
             TemplateMaxHealth     = template.HealthMax;
 
             Radius = (XSize > YSize ? XSize : YSize) * CollisionRadiusMultiplier;
-            
+
             CanVisualizeDamage = ShipModuleDamageVisualization.CanVisualize(this);
 
             // initialize `isWeapon` and other InstalledWeapon attributes for module template
@@ -426,7 +426,7 @@ namespace Ship_Game.Ships
         // this is used during Ship loading from save
         public static ShipModule Create(ModuleSaveData slot, Ship parent)
         {
-             ShipModule m = Create(slot as DesignSlot, parent, isTemplate:false);
+            ShipModule m = Create(slot as DesignSlot, parent, isTemplate:false);
 
             m.Active = slot.Health > 0.01f;
             m.ShieldPower = slot.ShieldPower;
@@ -1000,10 +1000,15 @@ namespace Ship_Game.Ships
             {
                 var center = new Vector3(Position.X, Position.Y, -100f);
                 bool parentAlive = !Parent.Dying;
-                for (int i = 0; i < 30; ++i)
+
+                var p = Parent.Universe.Particles;
+                if (p != null) // can be null in unit tests
                 {
-                    Vector3 pos = parentAlive ? center : new Vector3(Parent.Position, UniverseRandom.RandomBetween(-25f, 25f));
-                    Empire.Universe.Particles.Explosion.AddParticle(pos);
+                    for (int i = 0; i < 30; ++i)
+                    {
+                        Vector3 pos = parentAlive ? center : new Vector3(Parent.Position, UniverseRandom.RandomBetween(-25f, 25f));
+                        p.Explosion.AddParticle(pos);
+                    }
                 }
 
                 SpawnDebris(Parent.Velocity, 0, ignite: true);
@@ -1212,12 +1217,17 @@ namespace Ship_Game.Ships
         {
             if (visible && OnFire)
             {
-                var vis = DamageVisualizer;
-                if (vis == null)
+                var p = Parent.Universe.Particles;
+                if (p != null)
                 {
-                    DamageVisualizer = vis = new ShipModuleDamageVisualization(this);
+                    var vis = DamageVisualizer;
+                    if (vis == null)
+                    {
+
+                            DamageVisualizer = vis = new ShipModuleDamageVisualization(this, p);
+                    }
+                    vis.Update(timeStep, Center3D, scale, Active);
                 }
-                vis.Update(timeStep, Center3D, scale, Active);
             }
             else // destroy immediately when out of vision range or if module is no longer OnFire
             {
@@ -1279,10 +1289,13 @@ namespace Ship_Game.Ships
         {
             if (Parent.IsVisibleToPlayer)
             {
-                Vector3 repairEffectOrigin = Position.ToVec3(ZPos - 50f); // -Z is up towards the camera
                 var p = Parent.Universe.Particles;
-                for (int i = 0; i < 2; i++)
-                    p.BlueSparks.AddParticle(repairEffectOrigin);
+                if (p != null) // null in unit tests
+                {
+                    Vector3 repairEffectOrigin = Position.ToVec3(ZPos - 50f); // -Z is up towards the camera
+                    for (int i = 0; i < 2; i++)
+                        p.BlueSparks.AddParticle(repairEffectOrigin);
+                }
             }
         }
 
@@ -1308,7 +1321,7 @@ namespace Ship_Game.Ships
         {
             float healthPercent = HealthPercent;
 
-            if (Empire.Universe.Debug && IsExternal)
+            if (Parent.Universe.Debug && IsExternal)
             {
                 if (healthPercent >= 0.5f) return Color.Blue;
                 if (healthPercent >  0.0f) return Color.DarkSlateBlue;

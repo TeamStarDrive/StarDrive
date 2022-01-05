@@ -107,7 +107,8 @@ namespace Ship_Game.AI.ExpansionAI
                     return; // We have not reached our pop capacity threshold (for AI only) 
                 }
             }
-            
+
+            UniverseScreen universe = Owner.Universum;
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
             int claimTasks                    = Owner.GetEmpireAI().GetNumClaimTasks();
 
@@ -124,16 +125,16 @@ namespace Ship_Game.AI.ExpansionAI
             Log.Info(ConsoleColor.Magenta, $"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
             float ownerStrength  = Owner.OffensiveStrength;
             var ownedSystems     = Owner.GetOwnedSystems();
-            var potentialSystems = UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(Owner)
-                                                                         && !s.HasPlanetsOwnedBy(Owner)
-                                                                         && s.PlanetList.Any(p => p.Habitable)
-                                                                         && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength/4)
-                                                                         && !s.OwnerList.Any(o=> !o.isFaction && Owner.IsAtWarWith(o))
+            var potentialSystems = universe.Systems.Filter(s => s.IsExploredBy(Owner)
+                                                             && !s.HasPlanetsOwnedBy(Owner)
+                                                             && s.PlanetList.Any(p => p.Habitable)
+                                                             && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength/4)
+                                                             && !s.OwnerList.Any(o=> !o.isFaction && Owner.IsAtWarWith(o))
             );
 
             // We are going to keep a list of wanted planets. 
             // We are limiting the number of foreign systems to check based on galaxy size and race traits
-            int maxCheckedSystems = (UniverseScreen.SolarSystemList.Count / MaxSystemsToCheckedDiv).LowerBound(3);
+            int maxCheckedSystems = (universe.Systems.Count / MaxSystemsToCheckedDiv).LowerBound(3);
             Vector2 empireCenter  = Owner.WeightedCenter;
 
             Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(ownedSystems);
@@ -284,10 +285,10 @@ namespace Ship_Game.AI.ExpansionAI
         public bool AssignScoutSystemTarget(Ship ship, out SolarSystem targetSystem)
         {
             targetSystem   = null;
-            var potentials = UniverseScreen.SolarSystemList.Filter(sys => sys.IsFullyExploredBy(Owner)
-                                                                   && ship.System != sys
-                                                                   && Owner.KnownEnemyStrengthIn(sys) > 10
-                                                                   && sys.ShipList.Any(s => s.IsGuardian));
+            var potentials = ship.Universe.Systems.Filter(sys => sys.IsFullyExploredBy(Owner)
+                                                              && ship.System != sys
+                                                              && Owner.KnownEnemyStrengthIn(sys) > 10
+                                                              && sys.ShipList.Any(s => s.IsGuardian));
 
             if (potentials.Length == 0)
                 return false;
@@ -298,13 +299,13 @@ namespace Ship_Game.AI.ExpansionAI
 
         public bool AssignExplorationTargetSystem(Ship ship, out SolarSystem targetSystem)
         {
-            targetSystem          = null;
-            var potentials        = new Array<SolarSystem>();
+            targetSystem = null;
+            var potentials = new Array<SolarSystem>();
             var potentialHostiles = new Array<SolarSystem>();
 
-            for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
+            for (int i = 0; i < ship.Universe.Systems.Count; i++)
             {
-                SolarSystem s = UniverseScreen.SolarSystemList[i];
+                SolarSystem s = ship.Universe.Systems[i];
                 if (!s.IsFullyExploredBy(Owner) && !MarkedForExploration.Contains(s))
                 {
                     if (Owner.KnownEnemyStrengthIn(s) < 10)

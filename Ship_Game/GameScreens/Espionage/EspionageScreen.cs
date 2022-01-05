@@ -8,12 +8,14 @@ namespace Ship_Game.GameScreens.Espionage
 {
     public sealed class EspionageScreen : GameScreen
     {
+        public UniverseScreen Universe;
         public Empire SelectedEmpire;
         public AgentComponent Agents { get; private set; }
         public static readonly Color PanelBackground = new Color(23, 20, 14);
 
-        public EspionageScreen(GameScreen parent) : base(parent)
+        public EspionageScreen(UniverseScreen parent) : base(parent)
         {
+            Universe = parent;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;

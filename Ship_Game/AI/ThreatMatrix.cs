@@ -60,7 +60,7 @@ namespace Ship_Game.AI
                 Ship    = ship;
 
                 if (SystemGuid != Guid.Empty)
-                    System = SolarSystem.GetSolarSystemFromGuid(SystemGuid);
+                    System = us.GetSystem(SystemGuid);
             }
 
             public Empire GetEmpire()

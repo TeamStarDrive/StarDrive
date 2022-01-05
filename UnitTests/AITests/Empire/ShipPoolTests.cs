@@ -22,7 +22,7 @@ namespace UnitTests.AITests.Empire
         {
             LoadStarterShips("Heavy Carrier mk5-b", "Medium Freighter");
             CreateUniverseAndPlayerEmpire();
-            AddHomeWorldToEmpire(Enemy, out Homeworld);
+            Homeworld = AddHomeWorldToEmpire(Enemy);
             Enemy.Update(Universe, TestSimStep); // need to update the empire first to create AO's
             Universe.Objects.Update(TestSimStep);
         }
