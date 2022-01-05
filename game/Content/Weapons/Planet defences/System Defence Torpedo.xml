@@ -39,7 +39,7 @@
   <ModelPath>torpedo</ModelPath>
   <WeaponTrailEffect>RocketTrail</WeaponTrailEffect> 
 
-  <WeaponType>Missile </WeaponType> 
+  <WeaponType>Missile</WeaponType> 
  <WeaponHitEffect></WeaponHitEffect> 
 
   <ProjectileRadius>8</ProjectileRadius>
