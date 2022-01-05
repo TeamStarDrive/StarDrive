@@ -24,8 +24,8 @@
   <OffPowerMod>3</OffPowerMod>
 
   <UID>PDLaser</UID>
-  <FireDelay>0.3</FireDelay>
-  <Range>3800</Range>
+  <FireDelay>0.4</FireDelay>
+  <Range>3000</Range>
   <PowerRequiredToFire>5</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
@@ -33,13 +33,12 @@
   <FireCueName>sd_weapon_laser_small_alt5_01</FireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>2</DamageAmount>
+  <DamageAmount>1</DamageAmount>
   <ProjectileSpeed>1500</ProjectileSpeed>
   <Explodes>false</Explodes>
   <Scale>.75</Scale>
   <ProjectileTexturePath>projPulse_01_red_1</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponEffectType>HeavyDisruptor</WeaponEffectType>
   <WeaponType>AA Weapons</WeaponType>
   <ProjectileCount>1</ProjectileCount>
   <ProjectileRadius>30</ProjectileRadius> 
