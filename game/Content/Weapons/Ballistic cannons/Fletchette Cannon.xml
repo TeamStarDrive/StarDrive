@@ -39,5 +39,7 @@
   <Scale>1</Scale>
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponType>Ballistic Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

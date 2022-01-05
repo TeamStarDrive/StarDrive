@@ -37,8 +37,11 @@
   <Explodes>true</Explodes>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
   <ModelPath>torpedo</ModelPath>
-  <WeaponEffectType>RocketTrail</WeaponEffectType>
-  <WeaponType>Missile</WeaponType>
+  <WeaponTrailEffect>RocketTrail</WeaponTrailEffect> 
+
+  <WeaponType>Missile </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <ProjectileRadius>8</ProjectileRadius>
   <Scale>2</Scale>
   <CanCollideProjectiles>true</CanCollideProjectiles>

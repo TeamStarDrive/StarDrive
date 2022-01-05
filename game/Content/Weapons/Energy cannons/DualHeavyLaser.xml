@@ -41,6 +41,8 @@
   <ProjectileCount>1</ProjectileCount>
   <FireArc>0</FireArc>
 
-  <WeaponType>Energy Cannon</WeaponType>
+  <WeaponType>Energy Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 
 </Weapon>

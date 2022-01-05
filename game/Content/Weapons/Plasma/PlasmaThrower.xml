@@ -35,9 +35,12 @@
   <DamageRadius>15</DamageRadius>
   <ProjectileTexturePath>blank</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>Plasma</WeaponType>
+  <WeaponType>Plasma </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <FireCone>5</FireCone>
-  <WeaponEffectType>Plasma</WeaponEffectType>
+  <WeaponTrailEffect>Plasma</WeaponTrailEffect> 
+
   <ProjectileRadius>10</ProjectileRadius>
   
 </Weapon>

@@ -40,8 +40,11 @@
   <Explodes>false</Explodes>
   <ProjectileTexturePath>projPulse_01_green_dual</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponEffectType>DisruptorCannon</WeaponEffectType>
+  <WeaponTrailEffect>DisruptorCannon</WeaponTrailEffect> 
 
 
-  <WeaponType>Energy Cannon</WeaponType>
+
+  <WeaponType>Energy Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

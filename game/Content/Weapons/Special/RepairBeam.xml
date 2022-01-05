@@ -20,6 +20,8 @@
   <BeamThickness>50</BeamThickness>
   <BeamPowerCostPerSecond>0</BeamPowerCostPerSecond>
 
-  <WeaponType>Energy Beam</WeaponType>
+  <WeaponType>Energy Beam </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   
 </Weapon>
