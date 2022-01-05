@@ -8,7 +8,7 @@
   <Range>4500</Range>
   <OrdinanceRequiredToFire>0.2</OrdinanceRequiredToFire>
   <SalvoCount>4</SalvoCount>
-  <SalvoTimer>0.4</SalvoTimer>
+  <SalvoTimer>0.7</SalvoTimer>
   
   <FireCueName>sd_weapon_vulcan_alt02_01</FireCueName>  
 
