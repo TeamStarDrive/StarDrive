@@ -17,11 +17,8 @@
   <TexturePath>Textures/transparent</TexturePath>
   <IconTexturePath>Modules/NuclearReactorMedium</IconTexturePath>
 
-
   <NameIndex>1002</NameIndex>
   <DescriptionIndex>1003</DescriptionIndex>
-
-
 
   <Mass>32</Mass>
   <Health>800</Health>
@@ -33,28 +30,11 @@
   <CrewSupplied>0</CrewSupplied>
   <PowerDraw>0</PowerDraw>
 
-  <!-- for shield items -->
-  
-  <ShieldPowerMax>0</ShieldPowerMax>
-  <ShieldRechargeDelay>0</ShieldRechargeDelay>
-  <ShieldRechargeRate>0</ShieldRechargeRate>
-  <ShieldRadius>0</ShieldRadius>
-
-
   <!-- for PowerPlant Items -->
   <ExplosionDamage>3000</ExplosionDamage>
   <ExplosionRadius>92</ExplosionRadius>  
   <PowerFlowMax>230</PowerFlowMax>
   <PowerStoreMax>10</PowerStoreMax>
   <PowerRadius>1</PowerRadius>
-
-  <!-- for Weapons -->
-
-
-
-  <!-- for Engines -->
-  <Thrust>0</Thrust>
-
-
 
 </ShipModule>
