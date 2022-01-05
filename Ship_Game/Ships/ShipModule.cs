@@ -679,12 +679,12 @@ namespace Ship_Game.Ships
             return distanceFromStart > 0f;
         }
 
-        public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius, float minFalloff = 0.4f)
+        public static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float moduleRadius)
         {
-            float explodeDist = Math.Abs(explosionCenter.Distance(affectedPoint) - moduleRadius);
-            if (explodeDist < moduleRadius) explodeDist = 0;
-
-            return Math.Min(1.0f, (damageRadius - explodeDist) / (damageRadius + minFalloff));
+            float explodeDist = Math.Max(0f, explosionCenter.Distance(affectedPoint) - moduleRadius);
+            float relativeDist = explodeDist / damageRadius;
+            float falloff = (1f - relativeDist).Clamped(0f, 1f);
+            return falloff * falloff; // (1-x)^2 where x=[0:1]
         }
 
         public void DebugDamageCircle()
