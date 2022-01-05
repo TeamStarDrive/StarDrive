@@ -356,7 +356,7 @@ namespace Ship_Game
                           * Matrix.CreateTranslation(new Vector3(Center, 2500f));
                 SO.Visibility = ObjectVisibility.Rendered;
             }
-            else
+            else if (SO != null)  // SO is null in Unit Tests
                 SO.Visibility = ObjectVisibility.None;
         }
 
@@ -375,7 +375,7 @@ namespace Ship_Game
                       * Matrix.CreateScale(5f)
                       * Matrix.CreateTranslation(new Vector3(Center, 2500f));
 
-            ScreenManager.Instance?.AddObject(SO);
+            Universe?.AddObject(SO);
         }
 
         protected void UpdateDescription()

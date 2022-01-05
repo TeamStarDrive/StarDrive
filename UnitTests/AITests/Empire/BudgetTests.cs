@@ -9,33 +9,18 @@ namespace UnitTests.AITests.Empire
     [TestClass]
     public class BudgetTests : StarDriveTest
     {
-        public BudgetTests()
-        { }
-
-        void UsePlanetAndShipContent()
+        void CreatePlanets(int extraPlanets)
         {
             CreateUniverseAndPlayerEmpire("Cordrazine");
-            CreatePlanets();
-        }
-
-        void UsePlanetContent(int extraPlanets)
-        {
-            CreateUniverseAndPlayerEmpire("Cordrazine");
-            CreatePlanets(extraPlanets);
-        }
-
-        void CreatePlanets(int extraPlanets = 5)
-        {
-            AddDummyPlanet(2, 2, 4, out _);
-            AddDummyPlanet(1.9f, 1.9f, 4, out _);
-            AddDummyPlanet(1.7f, 1.7f, 4, out _);
+            AddDummyPlanet(2, 2, 4);
+            AddDummyPlanet(1.9f, 1.9f, 4);
+            AddDummyPlanet(1.7f, 1.7f, 4);
             for (int x = 0; x < 5; x++)
-                AddDummyPlanet(0.1f, 0.1f, 1, out _).SetExploredBy(Enemy);
-            AddHomeWorldToEmpire(Player, out Planet hw1).SetExploredBy(Enemy);
-            var s = AddHomeWorldToEmpire(Enemy, out Planet hw2);
-            s.Position = new Vector2(2000);
+                AddDummyPlanet(0.1f, 0.1f, 1).ParentSystem.SetExploredBy(Enemy);
+            AddHomeWorldToEmpire(Player).ParentSystem.SetExploredBy(Enemy);
+            AddHomeWorldToEmpire(Enemy, new Vector2(2000)).ParentSystem.Position = new Vector2(2000);
             Universe.Objects.UpdateLists(true);
-            AddHomeWorldToEmpire(Enemy, out _);
+            AddHomeWorldToEmpire(Enemy);
             for (int x = 0; x < extraPlanets; x++)
                 AddDummyPlanetToEmpire(Enemy, 1, 1, 1);
         }
@@ -55,7 +40,7 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void TestTreasuryIsSetToExpectedValues()
         {
-            UsePlanetAndShipContent();
+            CreatePlanets(extraPlanets: 5);
             var budget = new BudgetPriorities(Enemy);
             int budgetAreas = Enum.GetNames(typeof(BudgetPriorities.BudgetAreas)).Length;
 
@@ -68,7 +53,7 @@ namespace UnitTests.AITests.Empire
             Enemy.UpdateNetPlanetIncomes();
             Enemy.GetEmpireAI().RunEconomicPlanner();
 
-            foreach (var planet in Universe.PlanetsDict.Values)
+            foreach (var planet in Universe.Planets)
             {
                 if (planet.Owner != Enemy)
                 {
@@ -90,7 +75,7 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void TestTaxes()
         {
-            UsePlanetContent(extraPlanets: 0);
+            CreatePlanets(extraPlanets: 0);
 
             Enemy.data.TaxRate = 1;
             Enemy.UpdateEmpirePlanets();

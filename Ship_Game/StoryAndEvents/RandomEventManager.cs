@@ -20,25 +20,21 @@ namespace Ship_Game
     {
         public static RandomEvent ActiveEvent;
 
-        public static void TryEventSpawn()
+        public static void TryEventSpawn(UniverseScreen u)
         {
-            if (ActiveEvent != null)
-                return;
-
             int random = RandomMath.RollDie(2000);
-
-            if      (random == 1) HyperSpaceFlux();
-            else if (random <= 3) ShiftInOrbit();
-            else if (random <= 5) FoundMinerals();
-            else if (random <= 7) VolcanicToHabitable();
-            else if (random <= 15) Meteors();
+            if      (random == 1) HyperSpaceFlux(u);
+            else if (random <= 3) ShiftInOrbit(u);
+            else if (random <= 5) FoundMinerals(u);
+            else if (random <= 7) VolcanicToHabitable(u);
+            else if (random <= 15) Meteors(u);
         }
 
-        static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
+        static bool GetAffectedPlanet(UniverseScreen u, Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
         {
             affectedPlanet = null;
-            var planetList = allowCapital ? Empire.Universe.PlanetsDict.Values.ToArray() 
-                                          : Empire.Universe.PlanetsDict.Values.ToArray().Filter(p => !p.HasCapital);
+            var planetList = allowCapital ? u.Planets.ToArray()
+                                          : u.Planets.Filter(p => !p.HasCapital);
 
             var potentials = new Array<Planet>();
             foreach (Planet planet in planetList)
@@ -57,11 +53,11 @@ namespace Ship_Game
             return affectedPlanet != null;
         }
 
-        public static void UpdateEvents()
+        public static void UpdateEvents(UniverseScreen u)
         {
             if (ActiveEvent == null)
             {
-                TryEventSpawn();
+                TryEventSpawn(u);
                 return;
             }
             RandomEvent activeEvent = ActiveEvent;
@@ -110,7 +106,7 @@ namespace Ship_Game
         // Event types
         // ***********
 
-        static void HyperSpaceFlux()
+        static void HyperSpaceFlux(UniverseScreen u)
         {
             ActiveEvent = new RandomEvent
             {
@@ -119,14 +115,12 @@ namespace Ship_Game
                 NotificationString = Localizer.Token(GameText.AMassiveHyperspaceFluxnisInhibiting),
                 InhibitWarp        = true
             };
-
-            Empire.Universe.NotificationManager.AddRandomEventNotification(
-                ActiveEvent.NotificationString, null, null, null);
+            u.NotificationManager.AddRandomEventNotification(ActiveEvent.NotificationString, null, null, null);
         }
 
-        static void ShiftInOrbit() // Shifted in orbit (+ MaxFertility)
+        static void ShiftInOrbit(UniverseScreen u) // Shifted in orbit (+ MaxFertility)
         {
-            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet)) 
+            if (!GetAffectedPlanet(u, Potentials.Habitable, out Planet planet)) 
                 return;
 
             planet.AddMaxBaseFertility(RandomMath.RollDie(5) / 10f); // 0.1 to 0.5 max base fertility
@@ -134,9 +128,9 @@ namespace Ship_Game
             Log.Info($"Event Notification: Orbit Shift at {planet}");
         }
 
-        static void Meteors()
+        static void Meteors(UniverseScreen u)
         {
-            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet))
+            if (!GetAffectedPlanet(u, Potentials.Habitable, out Planet planet))
                 return;
 
             CreateMeteors(planet);
@@ -195,9 +189,9 @@ namespace Ship_Game
             return system.Position.GenerateRandomPointOnCircle(originRadius);
         }
 
-        static void VolcanicToHabitable()
+        static void VolcanicToHabitable(UniverseScreen u)
         {
-            if (!GetAffectedPlanet(Potentials.Improved, out Planet planet)) 
+            if (!GetAffectedPlanet(u, Potentials.Improved, out Planet planet)) 
                 return;
 
             PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren : PlanetCategory.Desert;
@@ -219,9 +213,9 @@ namespace Ship_Game
             Log.Info($"Event Notification: Volcanic to Habitable at {planet} with {numVolcanoes} wanted");
         }
 
-        static void FoundMinerals() // Increase Mineral Richness
+        static void FoundMinerals(UniverseScreen u) // Increase Mineral Richness
         {
-            if (!GetAffectedPlanet(Potentials.HasOwner, out Planet planet)) 
+            if (!GetAffectedPlanet(u, Potentials.HasOwner, out Planet planet)) 
                 return;
 
             float size = RandomMath.RandomBetween(-0.25f, 0.75f).LowerBound(0.2f);

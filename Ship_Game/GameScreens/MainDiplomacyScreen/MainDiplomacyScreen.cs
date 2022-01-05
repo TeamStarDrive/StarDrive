@@ -725,7 +725,7 @@ namespace Ship_Game
         float GetPopInExploredPlanetsFor(Empire exploringEmpire, Empire empire)
         {
             float pop = 0;
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(exploringEmpire)))
+            foreach (SolarSystem system in exploringEmpire.Universum.Systems.Filter(s => s.IsExploredBy(exploringEmpire)))
             {
                 foreach (Planet p in system.PlanetList)
                 {

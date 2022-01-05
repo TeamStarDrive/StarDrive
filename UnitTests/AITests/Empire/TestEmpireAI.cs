@@ -30,37 +30,17 @@ namespace UnitTests.AITests.Empire
 
             CreateUniverseAndPlayerEmpire("Cordrazine");
 
-            AddPlanetToUniverse(2, 2, 40000, true, Vector2.One);
-            AddPlanetToUniverse(1.9f, 1.9f, 40000, true, new Vector2(5000));
-            AddPlanetToUniverse(1.7f, 1.7f, 40000, true, new Vector2(-5000));
+            AddDummyPlanet(2, 2, 40000, Vector2.One, explored:true);
+            AddDummyPlanet(1.9f, 1.9f, 40000, new Vector2(5000), explored:true);
+            AddDummyPlanet(1.7f, 1.7f, 40000, new Vector2(-5000), explored:true);
             for (int x = 0; x < 50; x++)
-                AddPlanetToUniverse(0.1f, 0.1f, 1000, true, Vector2.One);
-            AddHomeWorldToEmpire(Player, out Planet hw1);
-            AddPlanetToUniverse(hw1, true, Vector2.Zero);
-            AddHomeWorldToEmpire(Enemy, out Planet hw2);
-            AddPlanetToUniverse(hw2, true, new Vector2(2000));
+                AddDummyPlanet(0.1f, 0.1f, 1000, Vector2.One, explored:true);
+            AddHomeWorldToEmpire(Player, Vector2.Zero, explored:true);
+            AddHomeWorldToEmpire(Enemy, new Vector2(2000), explored:true);
 
             UnlockAllShipsFor(Player);
 
             Universe.Objects.UpdateLists(true);
-        }
-
-        public void AddPlanetToUniverse(Planet p, bool explored, Vector2 pos)
-        {
-            var s1 = new SolarSystem {Position = pos};
-            p.Center = pos + Vector2.One;
-            p.ParentSystem = s1;
-            s1.PlanetList.Add(p);
-            if (explored)
-                s1.SetExploredBy(Player);
-            Universe.PlanetsDict.Add(Guid.NewGuid(), p);
-            Universe.AddSolarSystem(s1);
-        }
-        public void AddPlanetToUniverse(float fertility, float minerals, float pop, bool explored, Vector2 pos)
-        {
-            AddDummyPlanet(fertility, minerals, pop, out Planet p);
-            p.Center = pos;
-            AddPlanetToUniverse(p, explored, pos);
         }
 
         /* going to add tests here
@@ -301,7 +281,7 @@ namespace UnitTests.AITests.Empire
             foreach(var empire in EmpireManager.Empires)
             {
                 empire.data.Defeated = false;
-                foreach(var planet in Universe.PlanetsDict.Values)
+                foreach(var planet in Universe.Planets)
                 {
                     if (RandomMath.RollDice(50))
                     {

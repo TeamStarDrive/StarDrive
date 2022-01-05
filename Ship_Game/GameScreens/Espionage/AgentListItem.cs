@@ -7,6 +7,13 @@ namespace Ship_Game.GameScreens.Espionage
     public class AgentListItem : ScrollListItem<AgentListItem>
     {
         public Agent Agent;
+        public UniverseScreen Universe;
+
+        public AgentListItem(Agent agent, UniverseScreen universe)
+        {
+            Agent = agent;
+            Universe = universe;
+        }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
@@ -42,7 +49,7 @@ namespace Ship_Game.GameScreens.Espionage
                 {
                     Vector2 targetCursor = namecursor;
                     targetCursor.X += 75f;
-                    string mission = Localizer.Token(GameText.Target) + ": " + Empire.Universe.PlanetsDict[Agent.TargetGUID].Name;
+                    string mission = Localizer.Token(GameText.Target) + ": " + Universe.GetPlanet(Agent.TargetGUID).Name;
                     batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
                 }
 

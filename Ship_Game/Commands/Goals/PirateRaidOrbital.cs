@@ -78,13 +78,13 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null || !TargetShip.Active)
             {
-                Pirates.TryLevelUp();
+                Pirates.TryLevelUp(TargetEmpire.Universum);
                 return GoalStep.GoalComplete; // Target was destroyed
             }
 
             if (TargetShip.Loyalty == Pirates.Owner)
             {
-                Pirates.TryLevelUp();
+                Pirates.TryLevelUp(TargetEmpire.Universum);
                 TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
                 return GoalStep.GoalComplete; // Target was boarded
             }

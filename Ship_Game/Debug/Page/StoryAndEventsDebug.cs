@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Input;
@@ -101,16 +102,7 @@ namespace Ship_Game.Debug.Page
         {
             if (input.IsCtrlKeyDown && input.KeyPressed(Keys.M))
             {
-                SolarSystem system = null;
-                foreach (var sys in UniverseScreen.SolarSystemList)
-                {
-                    if (sys.IsVisible)
-                    {
-                        system = sys;
-                        break;
-                    }
-                }
-
+                SolarSystem system = Universe.Systems.Find(s => s.IsVisible);
                 if (system != null && system.PlanetList.Count > 0)
                 {
                     RandomEventManager.CreateMeteors(system.PlanetList[0]);

@@ -23,7 +23,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateGuardians()
         {
-            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem solarSystem in empire.Universum.Systems)
             {
                 foreach (Planet p in solarSystem.PlanetList)
                 {
@@ -39,7 +39,7 @@ namespace Ship_Game.Commands.Goals
         {
             foreach (Empire e in EmpireManager.MajorEmpires)
             {
-                var planets = empire.Universum.PlanetsDict.Values.Filter(p => p.IsExploredBy(e));
+                var planets = empire.Universum.Planets.Filter(p => p.IsExploredBy(e));
                 for (int i = 0; i < planets.Length; ++i)
                 {
                     Planet p = planets[i];

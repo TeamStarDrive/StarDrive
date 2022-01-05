@@ -7,6 +7,8 @@ namespace Ship_Game.GameScreens.Espionage
 {
     public sealed class AgentComponent : UIElementContainer
     {
+        public UniverseScreen Universe;
+        public EspionageScreen EspionageScreen;
         public Agent SelectedAgent;
 
         public Rectangle ComponentRect;
@@ -22,8 +24,6 @@ namespace Ship_Game.GameScreens.Espionage
         private ScreenManager ScreenManager;
 
         public DanButton RecruitButton;
-
-        public EspionageScreen EspionageScreen;
 
         private MissionListItem Training;
 
@@ -44,6 +44,7 @@ namespace Ship_Game.GameScreens.Espionage
 
         public AgentComponent(EspionageScreen espionageScreen, Rectangle r, Rectangle operationsRect) : base(r)
         {
+            Universe = espionageScreen.Universe;
             EspionageScreen = espionageScreen;
 
             ComponentRect = r;
@@ -53,10 +54,8 @@ namespace Ship_Game.GameScreens.Espionage
             AgentSL = new ScrollList2<AgentListItem>(new Submenu(ComponentRect), 40);
             AgentSL.OnClick = OnAgentItemClicked;
             foreach (Agent agent in EmpireManager.Player.data.AgentList)
-                AgentSL.AddItem(new AgentListItem { Agent = agent });
+                AgentSL.AddItem(new AgentListItem(agent, Universe));
             Add(AgentSL);
-
-
 
             Rectangle c = ComponentRect;
             c.X = OpsSubRect.X;
@@ -200,7 +199,7 @@ namespace Ship_Game.GameScreens.Espionage
                     int randomPlanetIndex = RandomMath.InRange(EmpireManager.Player.GetPlanets().Count);
                     agent.HomePlanet = EmpireManager.Player.GetPlanets()[randomPlanetIndex].Name;
                     EmpireManager.Player.data.AgentList.Add(agent);
-                    AgentSL.AddItem(new AgentListItem{ Agent = agent });
+                    AgentSL.AddItem(new AgentListItem(agent, Universe));
                     agent.AssignMission(AgentMission.Training, EmpireManager.Player, "");
                 }
             }
