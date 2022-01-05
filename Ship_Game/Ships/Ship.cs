@@ -934,36 +934,37 @@ namespace Ship_Game.Ships
         public Weapon[] OffensiveWeapons => Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
 
         /// <summary>
-        /// get weapons filtered  by the below.
-        /// If that gives no weapons use any weapon.<list type="bullet"><item> active</item><item>Have a damage greater than 0</item><item>Are not <font color="#b7dde8"><font style="background-color: #D8D8D8;"><strong>TruePD</strong></font></font>weapons</item></list><para><font color="#333333"></font></para></summary>
-        Array<Weapon> GetActiveWeapons()
+        /// Get Active weapons, preferring Offensive weapons at first.
+        /// If there's no Offensive weapons, it returns all Active weapons.
+        /// </summary>
+        public Array<Weapon> ActiveWeapons
         {
-            var weapons = new Array<Weapon>();
-            // prefer offensive weapons:
-            for (int i = 0; i < Weapons.Count; ++i) // using raw loops for perf
+            get
             {
-                Weapon w = Weapons[i];
-                if (w.Module?.Active == true
-                    && w.DamageAmount > 0.1f
-                    && !w.TruePD
-                    && Ordinance >= w.OrdinanceRequiredToFire)
-                {
-                    weapons.Add(w);
-                }
-            }
-
-            // maybe we are equipped with Phalanx PD's only?
-            // just us any active weapon then
-            if (weapons.Count == 0)
-            {
+                var weapons = new Array<Weapon>();
+                // prefer offensive weapons:
                 for (int i = 0; i < Weapons.Count; ++i) // using raw loops for perf
                 {
                     Weapon w = Weapons[i];
-                    if (w.Module?.Active == true)
+                    if (w.Module?.Active == true && w.DamageAmount > 0.1f && !w.TruePD && Ordinance >= w.OrdinanceRequiredToFire)
+                    {
                         weapons.Add(w);
+                    }
                 }
+
+                // maybe we are equipped with Phalanx PD's only?
+                // just us any active weapon then
+                if (weapons.Count == 0)
+                {
+                    for (int i = 0; i < Weapons.Count; ++i) // using raw loops for perf
+                    {
+                        Weapon w = Weapons[i];
+                        if (w.Module?.Active == true)
+                            weapons.Add(w);
+                    }
+                }
+                return weapons;
             }
-            return weapons;
         }
 
         /// <summary>
@@ -998,14 +999,14 @@ namespace Ship_Game.Ships
         /// </summary>
         void UpdateWeaponRanges()
         {
-            Array<Weapon> weapons = GetActiveWeapons();
+            Array<Weapon> weapons = ActiveWeapons;
             float[] ranges = GetWeaponsRanges(weapons);
 
             // Carriers will use the carrier range for max range.
             // for min range carriers will use the max range of normal weapons.
             if (Carrier.IsPrimaryCarrierRoleForLaunchRange)
             {
-                WeaponsMinRange = Math.Min(ranges.Max(), Carrier.HangarRange);
+                WeaponsMinRange = Math.Max(ranges.Min(), Carrier.HangarRange);
                 WeaponsMaxRange = Math.Max(Carrier.HangarRange, ranges.Max());
                 float sumRanges = ranges.Sum() + Carrier.HangarRange;
                 WeaponsAvgRange = (int)Math.Min(sumRanges / (ranges.Length + 1), ranges.Max());
@@ -1026,7 +1027,7 @@ namespace Ship_Game.Ships
         // Not performance critical.
         float GetDesiredCombatRangeForState(CombatState state)
         {
-            float[] ranges = GetWeaponsRanges(GetActiveWeapons());
+            float[] ranges = GetWeaponsRanges(ActiveWeapons);
             return CalcDesiredDesiredCombatRange(ranges, state);
         }
 

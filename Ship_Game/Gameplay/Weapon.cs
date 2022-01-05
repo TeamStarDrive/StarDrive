@@ -9,7 +9,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using Ship_Game.Audio;
-using static Ship_Game.EmpireManager;
 
 namespace Ship_Game.Gameplay
 {
@@ -879,8 +878,10 @@ namespace Ship_Game.Gameplay
 
         public float GetActualRange(Empire owner = null)
         {
-            owner = owner ?? Owner?.Loyalty ?? Player;
+            owner = owner ?? Owner?.Loyalty ?? EmpireManager.Player;
             float range = BaseRange;
+
+            // apply extra range bonus based on weapon tag type:
             for (int i = 0; i < ActiveWeaponTags.Length; ++i)
             {
                 WeaponTagModifier mod = owner.data.WeaponTags[ ActiveWeaponTags[i] ];
@@ -1072,6 +1073,6 @@ namespace Ship_Game.Gameplay
             SalvoTarget   = null;
         }
 
-        public override string ToString() => $"Weapon {WeaponType} {WeaponEffectType} {Name}";
+        public override string ToString() => $"Weapon Type={WeaponType} UID={UID} Fx={WeaponEffectType} Name={Name}";
     }
 }

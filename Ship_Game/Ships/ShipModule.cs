@@ -1174,8 +1174,6 @@ namespace Ship_Game.Ships
 
             if (TransporterTimer > 0)
                 TransporterTimer -= timeStep.FixedTime;
-
-            base.Update(timeStep);
         }
 
         float RechargeShields(float shieldPower, float shieldMax, FixedSimTime timeStep)
