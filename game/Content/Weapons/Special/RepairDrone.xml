@@ -36,8 +36,11 @@
   <Explodes>false</Explodes>
   <ProjectileTexturePath>spacemine_d</ProjectileTexturePath>
   <ModelPath>spacemine</ModelPath>
-  <WeaponType>Drone </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Drone</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
 
   <ProjectileRadius>20</ProjectileRadius>
   <Scale>1.5</Scale>

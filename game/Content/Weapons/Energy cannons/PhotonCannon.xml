@@ -49,8 +49,11 @@
   
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projBall</ModelPath>
-  <WeaponType>Energy Cannon </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Energy Cannon</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
 
 
   <FireArc>0</FireArc>

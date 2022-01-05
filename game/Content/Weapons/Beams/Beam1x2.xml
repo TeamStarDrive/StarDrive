@@ -23,8 +23,10 @@
   <BeamThickness>20</BeamThickness>
   <BeamPowerCostPerSecond>340</BeamPowerCostPerSecond>
 
-  <WeaponType>Energy Beam </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Energy Beam</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
 
   
 </Weapon>

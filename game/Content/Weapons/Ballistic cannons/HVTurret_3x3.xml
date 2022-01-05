@@ -41,7 +41,10 @@
   <Scale>0.9</Scale>
   <!--the projectile count is spread over the fire arc-->
   <FireCone>0</FireCone>
-  <WeaponType>Ballistic Cannon </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Ballistic Cannon</WeaponType> 
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
 
 </Weapon>
