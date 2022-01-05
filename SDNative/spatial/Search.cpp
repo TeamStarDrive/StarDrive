@@ -8,6 +8,11 @@ namespace spatial
                                   const ObjectCollection& objects,
                                   const SearchOptions& opt)
     {
+        // don't crash if someone asks for 0 results
+        int maxResults = opt.MaxResults;
+        if (outResults == nullptr || maxResults <= 0)
+            return 0;
+
         // we use a bit array to ignore duplicate objects
         // duplication is present by design to handle grid border overlap
         // this filtering is faster than other more complicated structural methods
@@ -25,7 +30,6 @@ namespace spatial
         bool useSearchRadius = opt.RadialFilter.radius > 0;
 
         SearchFilterFunc filterFunc = opt.FilterFunction;
-        int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
 
         FoundCell* cells = this->cells;
         int numCells = this->count;

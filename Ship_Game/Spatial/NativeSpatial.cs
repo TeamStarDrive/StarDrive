@@ -202,6 +202,9 @@ namespace Ship_Game.Spatial
 
         public GameplayObject[] FindNearby(ref SearchOptions opt)
         {
+            if (opt.MaxResults == 0)
+                return Empty<GameplayObject>.Array;
+
             int ignoreId = -1;
             if (opt.Exclude != null && opt.Exclude.SpatialIndex >= 0)
                 ignoreId = opt.Exclude.SpatialIndex;
