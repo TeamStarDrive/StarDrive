@@ -310,7 +310,7 @@ namespace UnitTests
         /// Loops up to `timeout` seconds While condition is True
         /// if `fatal` == true, throws exception if timeout is reached and the test should fail
         /// </summary>
-        /// <returns>TRUE if Loop completed without timeout, if `fatal` is set, then false if there was a timeout</returns>
+        /// <returns>TRUE if Loop completed without timeout, FALSE if !fatal and there was a timeout</returns>
         public static bool LoopWhile((double timeout, bool fatal) timeout, Func<bool> condition, Action body)
         {
             var sw = Stopwatch.StartNew();
