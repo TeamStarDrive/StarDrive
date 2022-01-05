@@ -1,6 +1,16 @@
 # Defines ParticleEffect instances which can be
 # referenced by name in data files
 
+#ParticleEffect:
+#  // Unique name of this particle effect group
+#  Name: EngineThrust1
+#
+#  // List of emitters, sorted from TopMost effect, to BottomMost
+#  Emitters:
+#    - Emitter: { ... } # topmost
+#    - Emitter: { ... } # second
+#    - Emitter: { ... } # bottommost
+
 #Emitter:
 #  // name of the Particle effect defined in Particles.yaml
 #  Particle: "ThrustEffect"
@@ -14,9 +24,19 @@
 #  // overriding color source for this particle effect, default is White color (inherit Particle color)
 #  ColorSource: Default
 #
-#  // scales emitter velocity, default = 1.0
-#  // how much velocity is being inherited from emmiter, 1=100%, 0=0%
-#  VelocityScale: 1.0
+#  // scales emitter spray velocity, default = 1.0
+#  // how much velocity is being inherited from emitter spray, 1=100%, 0=0%
+#  // eg, a missile has thrust exhaust at specific spray velocity
+#  // 1.0 = particle moves with emitter spray (is spraying)
+#  // 0.0 = particle does not spray
+#  InheritSprayVelocity: 1.0
+#  
+#  // scales movement velocity, default = 1.0
+#  // how much object movement is being inherited from emitter, 1=100%, 0=0%
+#  // eg. a missile is flying through space,
+#  // 1.0 = particle moves with the missile,
+#  // 0.0 = stay behind like a trail
+#  InheritMoveVelocity: 1.0
 #  
 #  // local offset in relation to velocity direction. Basically moves emitter position
 #  LocalOffset: [0.0, 0.0, 0.0]
@@ -27,7 +47,6 @@
 #  // Ex: [-1, +1] --> [LocalOffset*-1,LocalOffset*0,LocalOffset*1,  LocalOffset*-1,LocalOffset*0,LocalOffset*1,  ...]
 #  PositionIncrements: [-1, +1]
 #
-# VelocityScale - how much velocity is being inherited from emmiter, 1=100%, 0=0%
 
 - ParticleEffect: # Ship thrust effect 1
   Name: EngineThrust1
@@ -42,32 +61,32 @@
       Particle: EngineTrail
       Rate: 60
       ColorSource: ThrustColor0
-      VelocityScale: 0.5
+      InheritSprayVelocity: 0.5
       LocalOffset: [0, 16] # in relation to velocity
 
 
 - ParticleEffect: # Projectile Trail effect
   Name: RocketTrail
   Emitters:
+    - Emitter: { Particle: MissileThrustFlare, Rate: 20, InheritSprayVelocity: 0 }
+    - Emitter: { Particle: FireTrail, Rate: 120, InheritSprayVelocity: 1.5 }
     - Emitter: { Particle: MissileSmokeTrail, Rate: 80 }
-    - Emitter: { Particle: FireTrail, Rate: 120, VelocityScale: 1.5 }
-    - Emitter: { Particle: MissileThrust, Rate: 20, VelocityScale: 0 }
 
 
 - ParticleEffect: # Projectile Trail effect
   Name: TorpTrail
   Emitters:
-    - Emitter: { Particle: IonTrail, Rate: 150 }
-    - Emitter: { Particle: MissileThrust, Rate: 15, VelocityScale: 0 }
+    - Emitter: { Particle: MissileThrustFlare, Rate: 15, InheritSprayVelocity: 0 }
     - Emitter: { Particle: IonRingReversed, Rate: 10 }
+    - Emitter: { Particle: IonTrail, Rate: 150 }
 
 
 - ParticleEffect: # Projectile Trail effect
   Name: BubbleTrail
   Emitters:
-    - Emitter: { Particle: Bubble, Rate: 20 }
-    - Emitter: { Particle: MissileThrust, Rate: 15, VelocityScale: 1.5 }
+    - Emitter: { Particle: MissileThrustFlare, Rate: 15, InheritSprayVelocity: 1.5 }
     - Emitter: { Particle: IonRing, Rate: 10 }
+    - Emitter: { Particle: Bubble, Rate: 20 }
 
 
 - ParticleEffect: # Projectile Trail effect
@@ -97,15 +116,15 @@
 - ParticleEffect: # Projectile Trail effect
   Name: MuzzleSmokeFire
   Emitters:
-    - Emitter: { Particle: ProjectileTrail, Rate: 100 }
     - Emitter: { Particle: FireTrail, Rate: 100 }
+    - Emitter: { Particle: ProjectileTrail, Rate: 100 }
 
 
 - ParticleEffect: # Projectile Trail effect
   Name: FullSmokeMuzzleFire
   Emitters:
-    - Emitter: { Particle: ProjectileTrail, Rate: 100 }
     - Emitter: { Particle: FireTrail, Rate: 100 }
+    - Emitter: { Particle: ProjectileTrail, Rate: 100 }
 
 
 

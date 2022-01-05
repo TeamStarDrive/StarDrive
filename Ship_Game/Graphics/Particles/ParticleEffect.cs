@@ -41,8 +41,19 @@ namespace Ship_Game.Graphics.Particles
             // overriding color source for this particle effect, default is White color (inherit Particle color)
             [StarData] public ColorSource ColorSource = ColorSource.Default;
 
-            // scales emitter velocity, default = 1.0
-            [StarData] public float VelocityScale = 1.0f;
+            // scales emitter spray velocity, default = 1.0
+            // how much velocity is being inherited from emitter spray, 1=100%, 0=0%
+            // eg, a missile has thrust exhaust at specific spray velocity
+            // 1.0 = particle moves with emitter spray (is spraying)
+            // 0.0 = particle does not spray
+            [StarData] public float InheritSprayVelocity = 1.0f;
+
+            // scales movement velocity, default = 1.0
+            // how much object movement is being inherited from emitter, 1=100%, 0=0%
+            // eg. a missile is flying through space,
+            // 1.0 = particle moves with the missile,
+            // 0.0 = stay behind like a trail
+            [StarData] public float InheritMoveVelocity = 1.0f;
 
             // local offset in relation to velocity direction
             [StarData] public Vector3 LocalOffset;
@@ -117,20 +128,25 @@ namespace Ship_Game.Graphics.Particles
                 return Color.White;
             }
 
-            public void Update(float timeStep, in Vector3 prevPos, in Vector3 newPos, in Vector3 vel, float scale)
+            public void Update(
+                float timeStep,
+                in Vector3 prevPos,
+                in Vector3 newPos,
+                in Vector3 moveVel,
+                in Vector3 sprayVel,
+                float scale)
             {
                 float timeToSpend = TimeLeftOver + timeStep;
                 float currentTime = -TimeLeftOver;
                 float timeBetweenParticles = Data.TimeBetweenParticles;
                 float totalScale = scale * Data.Scale;
 
-                Vector3 v;
-                if (Data.VelocityScale == 1f)
-                    v = vel;
-                else if (Data.VelocityScale == 0f)
-                    v = Vector3.Zero;
-                else
-                    v = vel * Data.VelocityScale;
+                // sum up the velocities
+                Vector3 v = default;
+                if (Data.InheritMoveVelocity != 0f)
+                    v += moveVel * Data.InheritMoveVelocity;
+                if (Data.InheritSprayVelocity != 0f)
+                    v += sprayVel * Data.InheritSprayVelocity;
 
                 while (timeToSpend >= timeBetweenParticles)
                 {
@@ -151,7 +167,7 @@ namespace Ship_Game.Graphics.Particles
 
                     if (offset != Vector3.Zero)
                     {
-                        Vector3 dir = vel.Normalized();
+                        Vector3 dir = v != Vector3.Zero ? v.Normalized() : new Vector3(0, -1, 0); // -Y is UP in universe
                         pos += dir.RightVector(new Vector3(0, 0, -1)) * offset.X;
                         pos += dir * offset.Y;
                     }
@@ -191,12 +207,15 @@ namespace Ship_Game.Graphics.Particles
                 }
             }
 
+            // since we want to show Emitters[0] as topmost, we must reverse the array
+            emitters.Reverse();
             Emitters = emitters.ToArray();
         }
 
         // clone an instance based on an existing template
         public ParticleEffect(ParticleEffect template, in Vector3 initialPos, GameplayObject context)
         {
+            Context = context;
             Data = template.Data;
             PrevPos = initialPos;
             Emitters = CreateEmitters(template);
@@ -231,6 +250,9 @@ namespace Ship_Game.Graphics.Particles
             return true;
         }
 
+        /// <param name="timeStep">Fixed Simulation TimeStep</param>
+        /// <param name="newPos">Latest position for the emitter</param>
+        /// <param name="scale">Size scale of the effect</param>
         public void Update(FixedSimTime timeStep, in Vector3 newPos, float scale = 1f)
         {
             float fixedStep = timeStep.FixedTime;
@@ -239,26 +261,32 @@ namespace Ship_Game.Graphics.Particles
                 if (Data.IsDisposed && !ReloadAfterDisposed())
                     return; // effect is not available right now, wait until hot-load user corrects the issue
 
-                Vector3 vel = (newPos - PrevPos) / fixedStep;
+                Vector3 moveVel = (newPos - PrevPos) / fixedStep;
+                Vector3 sprayVel = Vector3.Zero;
                 for (int i = 0; i < Emitters.Length; ++i)
                 {
-                    Emitters[i].Update(fixedStep, PrevPos, newPos, vel, scale);
+                    Emitters[i].Update(fixedStep, PrevPos, newPos, moveVel, sprayVel, scale);
                 }
             }
             PrevPos = newPos;
         }
 
-        public void Update(FixedSimTime timeStep, in Vector3 newPos, in Vector3 velocity, float scale = 1f)
+        /// <param name="timeStep">Fixed Simulation TimeStep</param>
+        /// <param name="newPos">Latest position for the emitter</param>
+        /// <param name="sprayVel">Emitter Spray velocity, to make particles spray out in particular direction</param>
+        /// <param name="scale">Size scale of the effect</param>
+        public void Update(FixedSimTime timeStep, in Vector3 newPos, in Vector3 sprayVel, float scale = 1f)
         {
             float fixedStep = timeStep.FixedTime;
             if (fixedStep > 0f)
             {
                 if (Data.IsDisposed && !ReloadAfterDisposed())
                     return; // effect is not available right now, wait until hot-load user corrects the issue
-
+                
+                Vector3 moveVel = (newPos - PrevPos) / fixedStep;
                 for (int i = 0; i < Emitters.Length; ++i)
                 {
-                    Emitters[i].Update(fixedStep, newPos, newPos, velocity, scale);
+                    Emitters[i].Update(fixedStep, PrevPos, newPos, moveVel, sprayVel, scale);
                 }
             }
             PrevPos = newPos;
