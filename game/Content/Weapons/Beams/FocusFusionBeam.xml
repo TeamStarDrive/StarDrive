@@ -24,7 +24,8 @@
   <DamageAmount>15</DamageAmount>
   <BeamThickness>32</BeamThickness>
   <BeamPowerCostPerSecond>1150</BeamPowerCostPerSecond>
-    <EffectVsArmor>1.15</EffectVsArmor>
+  <EffectVsArmor>1.15</EffectVsArmor>
+  <EffectVsShield>0.85</EffectVsShield>
   <WeaponType>Energy Beam</WeaponType>
   
   
