@@ -39,7 +39,9 @@
   <Scale>.75</Scale>
   <ProjectileTexturePath>projPulse_01_red_1</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>AA Weapons</WeaponType>
+  <WeaponType>AA Weapons </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <ProjectileCount>1</ProjectileCount>
   <ProjectileRadius>30</ProjectileRadius> 
   <FireArc>0</FireArc>

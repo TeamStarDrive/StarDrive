@@ -34,6 +34,8 @@
   <ProjectileRadius>30</ProjectileRadius>
   <ProjectileTexturePath>projExotic_01</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponType>Ballistic Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <FireCone>0</FireCone>
 </Weapon>

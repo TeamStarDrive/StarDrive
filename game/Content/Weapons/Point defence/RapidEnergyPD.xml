@@ -30,6 +30,8 @@
   <ModelPath>projTear</ModelPath>
   <TargetChangeTimer>1</TargetChangeTimer>
   <ProjectileCount>1</ProjectileCount>
-<WeaponType>AA Weapons</WeaponType>
+<WeaponType>AA Weapons </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
  <FireCone>8</FireCone>
 </Weapon>

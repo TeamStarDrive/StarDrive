@@ -43,8 +43,11 @@
   <Light>Red</Light>
   <ModelPath>LRM</ModelPath>
   <ProjectileTexturePath>LRM_d</ProjectileTexturePath>
-  <WeaponEffectType>RocketTrail</WeaponEffectType>
-  <WeaponType>Missile</WeaponType>
+  <WeaponTrailEffect>RocketTrail</WeaponTrailEffect> 
+
+  <WeaponType>Missile </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <ProjectileRadius>10</ProjectileRadius>
   <Scale>3</Scale>
   <CanCollideProjectiles>true</CanCollideProjectiles>

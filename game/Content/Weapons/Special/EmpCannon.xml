@@ -46,5 +46,7 @@
   <Explodes>false</Explodes>
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projBall</ModelPath>
-  <WeaponType>Energy Cannon</WeaponType>
+  <WeaponType>Energy Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

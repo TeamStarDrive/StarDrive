@@ -32,5 +32,7 @@
   <ModelPath>projTear</ModelPath>
   <!--the projectile count is spread over the fire arc-->
   <FireCone>0</FireCone>
-  <WeaponType>AA Weapons</WeaponType>
+  <WeaponType>AA Weapons </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

@@ -39,6 +39,8 @@
   <SalvoTimer>0.2</SalvoTimer>
   <FireCone>0</FireCone>
   <OffPowerMod>1</OffPowerMod>
-  <WeaponType>Energy Cannon</WeaponType>
+  <WeaponType>Energy Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <ProjectileRadius>20</ProjectileRadius>
 </Weapon>

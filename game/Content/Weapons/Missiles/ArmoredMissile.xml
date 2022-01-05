@@ -51,6 +51,7 @@
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
 
   <!-- Deterimines trail effect from ParticleEffects.yaml and also the trail offset behind missile center -->
-  <WeaponEffectType>RocketTrail</WeaponEffectType>
+  <WeaponTrailEffect>RocketTrail</WeaponTrailEffect> 
+
   <TrailOffset>-32</TrailOffset>
 </Weapon>

@@ -41,5 +41,7 @@
 
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponType>Ballistic Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

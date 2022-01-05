@@ -42,10 +42,13 @@
   <Explodes>true</Explodes>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 <!-- Projectile textures-->
-  <WeaponEffectType>RocketTrail</WeaponEffectType>
+  <WeaponTrailEffect>RocketTrail</WeaponTrailEffect> 
+
   <ProjectileTexturePath>LRM_d</ProjectileTexturePath>
   <ModelPath>LRM</ModelPath>
-  <WeaponType>Missile</WeaponType>
+  <WeaponType>Missile </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 <!-- name of XACT audio cue to play on firing this weapon -->
   <FireCueName>sd_weapon_missile_heavy_01</FireCueName>
   <DieCue>sd_weapon_rocket_explode_01</DieCue>

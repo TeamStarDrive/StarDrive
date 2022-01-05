@@ -22,6 +22,8 @@
   <Explodes>false</Explodes>
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>
   <ModelPath>projLong</ModelPath>
-  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponType>Ballistic Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <FireCone>0</FireCone>
 </Weapon>

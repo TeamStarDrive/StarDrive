@@ -29,5 +29,7 @@
   
   <ProjectileCount>1</ProjectileCount>
   <FireArc>0</FireArc>
-  <WeaponType>AA Weapons</WeaponType>
+  <WeaponType>AA Weapons </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

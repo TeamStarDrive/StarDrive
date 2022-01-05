@@ -42,5 +42,7 @@
   <ProjectileCount>3</ProjectileCount>
   <!--the projectile count is spread over the fire arc-->
   <FireArc>0</FireArc>
-  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponType>Ballistic Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>
