@@ -20,7 +20,7 @@
   
   <UID>HeavyLaser</UID>
   <FireDelay>6.5</FireDelay>
-  <Range>6500</Range>
+  <Range>4500</Range>
   <PowerRequiredToFire>514</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
@@ -29,7 +29,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>383</DamageAmount>
-  <ProjectileSpeed>2100</ProjectileSpeed>
+  <ProjectileSpeed>1900</ProjectileSpeed>
   <Explodes>false</Explodes>
   <Light>Red</Light>
   <ProjectileTexturePath>projLong_02_red</ProjectileTexturePath>

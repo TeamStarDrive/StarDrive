@@ -22,7 +22,7 @@
   
   <UID>DualHeavyLaser</UID>
   <FireDelay>2</FireDelay>
-  <Range>7600</Range>
+  <Range>4500</Range>
   <PowerRequiredToFire>640</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
@@ -31,7 +31,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>470</DamageAmount>
-  <ProjectileSpeed>2150</ProjectileSpeed>
+  <ProjectileSpeed>1900</ProjectileSpeed>
   <DamageRadius>5</DamageRadius>
   <Explodes>false</Explodes>
   <Light>Red</Light>

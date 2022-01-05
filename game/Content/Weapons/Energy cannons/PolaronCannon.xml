@@ -20,7 +20,7 @@
   
   <UID>PolaronCannon</UID>
   <FireDelay>4</FireDelay>
-  <Range>10000</Range>
+  <Range>7000</Range>
   <PowerRequiredToFire>1150</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   

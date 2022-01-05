@@ -23,7 +23,7 @@
   <UID>HeavyIonBeam</UID>
   <IsBeam>true</IsBeam>
   <FireDelay>5</FireDelay>
-  <Range>9500</Range>
+  <Range>6700</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->

@@ -23,7 +23,7 @@
   
   <UID>VulcanCannon</UID>
   <FireDelay>3</FireDelay>
-  <Range>4500</Range>
+  <Range>3800</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.02</OrdinanceRequiredToFire>
   <SalvoCount>7</SalvoCount>

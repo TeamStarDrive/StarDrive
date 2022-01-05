@@ -19,7 +19,7 @@
 
   <UID>MassDriver</UID>
   <FireDelay>10.0</FireDelay>
-  <Range>13000</Range>
+  <Range>9100</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>13</OrdinanceRequiredToFire>
 
@@ -33,7 +33,7 @@
   <DamageAmount>2200</DamageAmount>
   <EffectVsShields>1.15</EffectVsShields>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2000</ProjectileSpeed>
+  <ProjectileSpeed>1600</ProjectileSpeed>
   <ProjectileRadius>15</ProjectileRadius>
   <DamageRadius>45</DamageRadius>
   <Light>Orange</Light>

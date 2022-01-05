@@ -20,7 +20,7 @@
   
   <UID>Disruptor</UID>
   <FireDelay>4</FireDelay>
-  <Range>8500</Range>
+  <Range>6000</Range>
   <PowerRequiredToFire>672</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>490</DamageAmount>
   <ProjectileRadius>10</ProjectileRadius>
-  <ProjectileSpeed>2200</ProjectileSpeed>
+  <ProjectileSpeed>2000</ProjectileSpeed>
   <Light>Green</Light>
   <DamageRadius>1</DamageRadius>
   <Explodes>false</Explodes>

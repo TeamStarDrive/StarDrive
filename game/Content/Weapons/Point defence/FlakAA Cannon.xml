@@ -10,8 +10,9 @@
   
   <UID>FlakAA Cannon</UID>
   <FireDelay>0.2</FireDelay>
+  <TargetChangeTimer>0.5</TargetChangeTimer>
   <SalvoCount>1</SalvoCount> 
-  <Range>5500</Range>
+  <Range>4500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.6</OrdinanceRequiredToFire>
 

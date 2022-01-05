@@ -19,7 +19,7 @@
 
   <UID>MagneticTurret_3x3</UID>
   <FireDelay>6</FireDelay>
-  <Range>11500</Range>
+  <Range>8000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>4</OrdinanceRequiredToFire>
 
@@ -29,7 +29,7 @@
   <!-- Projectile Information -->
   <DamageAmount>776</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2000</ProjectileSpeed>
+  <ProjectileSpeed>1800</ProjectileSpeed>
   <Explodes>true</Explodes>
   <DamageRadius>32</DamageRadius>
 

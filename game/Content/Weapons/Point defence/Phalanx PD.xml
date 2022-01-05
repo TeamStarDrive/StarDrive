@@ -24,7 +24,7 @@
 
   <UID>Phalanx PD</UID>
   <FireDelay>2</FireDelay>
-  <Range>5500</Range>
+  <Range>4500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.08</OrdinanceRequiredToFire>
 
@@ -36,7 +36,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>4</DamageAmount>
-  <SalvoCount>10</SalvoCount>
+  <SalvoCount>8</SalvoCount>
   <SalvoTimer>0.6</SalvoTimer>
   <Scale>0.5</Scale>
   <ProjectileRadius>35</ProjectileRadius> 

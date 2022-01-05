@@ -11,7 +11,8 @@
 
   <UID>HeavyEnergyPD</UID>
   <FireDelay>0.2</FireDelay>
-  <Range>5500</Range>
+  <TargetChangeTimer>0.5</TargetChangeTimer>
+  <Range>4500</Range>
   <PowerRequiredToFire>80</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -25,7 +26,7 @@
   <Light>Blue</Light>
   <ProjectileTexturePath>projPulse_01_cyan_dual</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <TargetChangeTimer>0.5</TargetChangeTimer>
+  
   <ProjectileCount>1</ProjectileCount>
   <FireArc>0</FireArc>
   <WeaponType>AA Weapons</WeaponType>

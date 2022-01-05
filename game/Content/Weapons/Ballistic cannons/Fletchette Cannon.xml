@@ -19,7 +19,7 @@
 
   <UID>Fletchette Cannon</UID>
   <FireDelay>2</FireDelay>
-  <Range>4400</Range>
+  <Range>3000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.04</OrdinanceRequiredToFire>
   <SalvoCount>8</SalvoCount>
@@ -35,7 +35,7 @@
   <!-- Projectile Information -->
   <DamageAmount>43</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2000</ProjectileSpeed>
+  <ProjectileSpeed>1800</ProjectileSpeed>
   <Scale>1</Scale>
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>

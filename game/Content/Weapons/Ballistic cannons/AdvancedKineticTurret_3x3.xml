@@ -19,7 +19,7 @@
 
   <UID>AdvancedKineticTurret_3x3</UID>
   <FireDelay>6</FireDelay>
-  <Range>9500</Range>
+  <Range>6600</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>1.40</OrdinanceRequiredToFire>
 
@@ -29,7 +29,7 @@
   <!-- Projectile Information -->
   <DamageAmount>321</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>1900</ProjectileSpeed>
+  <ProjectileSpeed>1700</ProjectileSpeed>
   <Explodes>true</Explodes>
   <DamageRadius>28</DamageRadius>
   <ProjectileRadius>10</ProjectileRadius>
