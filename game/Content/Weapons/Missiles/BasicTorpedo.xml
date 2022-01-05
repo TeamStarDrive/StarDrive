@@ -39,14 +39,15 @@
   <Explodes>true</Explodes>
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
-  <WeaponType>Missile</WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
 
   <ProjectileRadius>12</ProjectileRadius>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 
-  <!-- Deterimines trail effect from ParticleEffects.yaml and also the trail offset behind missile center -->
-  <WeaponTrailEffect>TorpTrail</WeaponTrailEffect> 
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Missile</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
+  <WeaponTrailEffect>TorpTrail</WeaponTrailEffect>
 
   <TrailOffset>-32</TrailOffset>
 </Weapon>

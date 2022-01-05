@@ -30,8 +30,11 @@
   <ModelPath>projTear</ModelPath>
   <TargetChangeTimer>1</TargetChangeTimer>
   <ProjectileCount>1</ProjectileCount>
-<WeaponType>AA Weapons </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>AA Weapons</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
 
  <FireCone>8</FireCone>
 </Weapon>

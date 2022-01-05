@@ -37,10 +37,12 @@
   <Explodes>true</Explodes>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
   <ModelPath>torpedo</ModelPath>
-  <WeaponTrailEffect>RocketTrail</WeaponTrailEffect> 
 
-  <WeaponType>Missile</WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Missile</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
+  <WeaponTrailEffect>RocketTrail</WeaponTrailEffect>
 
   <ProjectileRadius>8</ProjectileRadius>
   <Scale>2</Scale>

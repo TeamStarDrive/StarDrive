@@ -40,7 +40,9 @@
   <ProjectileTexturePath>projBall_03_purple</ProjectileTexturePath>
   <ModelPath>projBall</ModelPath>
 
-  <WeaponType>Energy Torpedo </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Energy Torpedo</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
 
 </Weapon>
