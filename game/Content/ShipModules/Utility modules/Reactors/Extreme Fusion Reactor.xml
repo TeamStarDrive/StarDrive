@@ -27,18 +27,9 @@
   <CrewSupplied>0</CrewSupplied>
   <PowerDraw>0</PowerDraw>
 
-
   <NameIndex>8047</NameIndex>
   <DescriptionIndex>8049</DescriptionIndex>
   <RepairDifficulty>3</RepairDifficulty>
-
-  <!-- for shield items -->
-  
-  <ShieldPowerMax>0</ShieldPowerMax>
-  <ShieldRechargeDelay>0</ShieldRechargeDelay>
-  <ShieldRechargeRate>0</ShieldRechargeRate>
-  <ShieldRadius>0</ShieldRadius>
-
 
   <!-- for PowerPlant Items -->
   <ExplosionDamage>6000</ExplosionDamage>
@@ -46,14 +37,5 @@
   <PowerFlowMax>420</PowerFlowMax>
   <PowerStoreMax>100</PowerStoreMax>
   <PowerRadius>1</PowerRadius>
-
-  <!-- for Weapons -->
-
-
-
-  <!-- for Engines -->
-  <Thrust>0</Thrust>
-
-
 
 </ShipModule>

@@ -33,18 +33,5 @@
   <Health>300</Health>
   <HealthMax>300</HealthMax>
   <RepairDifficulty>0.5</RepairDifficulty>
-  <!-- Power Drawn -->
-  <PowerDraw>0</PowerDraw>
-
-
-  <!-- Crew Reqs -->
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
-
-  <!-- for Weapons -->
-
-
-  <!-- Description -->
-
 
 </ShipModule>

@@ -23,11 +23,8 @@
   <CrewSupplied>0</CrewSupplied>
   <PowerDraw>1100</PowerDraw>
 
-
-
   <NameIndex>916</NameIndex>
   <DescriptionIndex>917</DescriptionIndex>
-
 
   <!-- for shield items -->
   <ShieldPowerMax>25000</ShieldPowerMax>
@@ -35,18 +32,5 @@
   <ShieldRechargeRate>1200</ShieldRechargeRate>
   <ShieldRadius>400</ShieldRadius>
   <ShieldRechargeCombatRate>600</ShieldRechargeCombatRate>
-
-  <!-- for PowerPlant Items -->
-  
-  <PowerFlowMax>0</PowerFlowMax>
-  <PowerStoreMax>0</PowerStoreMax>
-  
-  <!-- for Weapons -->
-  
-  
-  <!-- for Engines -->
-  <Thrust>0</Thrust>
-  
-  
 
 </ShipModule>

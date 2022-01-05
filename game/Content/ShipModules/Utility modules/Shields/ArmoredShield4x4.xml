@@ -25,7 +25,7 @@
   <NameIndex>17555</NameIndex>
   <DescriptionIndex>17556</DescriptionIndex>
 
-  <ExplosiveResist>0.2</ExplosiveResist>
+  <ExplosiveResist>0.25</ExplosiveResist>
 
   <!-- for shield items -->
   <ShieldPowerMax>22000</ShieldPowerMax>
@@ -33,18 +33,5 @@
   <ShieldRechargeRate>440</ShieldRechargeRate>
   <ShieldRadius>240</ShieldRadius>
   <ShieldRechargeCombatRate>440</ShieldRechargeCombatRate>
-
-  <!-- for PowerPlant Items -->
-  
-  <PowerFlowMax>0</PowerFlowMax>
-  <PowerStoreMax>0</PowerStoreMax>
-  
-  <!-- for Weapons -->
-  
-  
-  <!-- for Engines -->
-  <Thrust>0</Thrust>
-  
-  
 
 </ShipModule>
