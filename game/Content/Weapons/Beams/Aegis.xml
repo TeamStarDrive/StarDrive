@@ -19,7 +19,7 @@
   <UID>Aegis</UID>
   <IsBeam>true</IsBeam>
   <FireDelay>14</FireDelay>
-  <Range>22000</Range>
+  <Range>14000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <BeamDuration>4</BeamDuration>

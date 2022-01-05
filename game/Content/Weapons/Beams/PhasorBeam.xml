@@ -21,7 +21,7 @@
   <UID>PhasorBeam</UID>
   <IsBeam>true</IsBeam>
   <FireDelay>1.5</FireDelay>
-  <Range>9000</Range>
+  <Range>6300</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <BeamDuration>0.5</BeamDuration>

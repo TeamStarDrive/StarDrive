@@ -6,7 +6,7 @@
   <UID>FusionBeam</UID>
   <IsBeam>true</IsBeam>
   <FireDelay>1.5</FireDelay>
-  <Range>8000</Range>
+  <Range>5600</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <BeamDuration>0.5</BeamDuration>
