@@ -34,14 +34,17 @@ namespace Ship_Game.AI
             Missile              = missile;
             Target               = target;
             DelayedIgnitionTimer = missile.Weapon.DelayedIgnition;
-            Missile.Velocity     = initialVelocity;
-
-            if (Missile.Weapon.DelayedIgnition.Greater(0))
+            
+            if (Missile.Weapon.DelayedIgnition > 0f)
             {
                 float launchDir = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
                 float rotation = Missile.Weapon.Owner?.Rotation ?? Missile.Rotation;
-                Missile.Velocity += (rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(100));
+
+                // throw the missile out sideways
+                initialVelocity += (rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(100));
             }
+
+            Missile.SetInitialVelocity(initialVelocity, rotateToVelocity: false);
 
             if (Missile.Weapon != null && Missile.Weapon.Tag_Torpedo)
                 MaxNozzleDirection = 0.02f; // Torpedoes wiggle less
@@ -201,10 +204,10 @@ namespace Ship_Game.AI
                     CalculatedJamming = true;
                 }
 
-                if (DelayedIgnitionTimer > 0) // ignition phase for some missiles
+                if (DelayedIgnitionTimer > 0f) // ignition phase for some missiles
                 {
                     DelayedIgnitionTimer -= timeStep.FixedTime;
-                    if (DelayedIgnitionTimer.LessOrEqual(0))
+                    if (DelayedIgnitionTimer <= 0f)
                         Missile.IgniteEngine();
 
                     return;
@@ -224,7 +227,8 @@ namespace Ship_Game.AI
 
                 if (Missile.Weapon.TerminalPhaseAttack && distanceToTarget <= Missile.Weapon.TerminalPhaseDistance)
                 {
-                    Missile.GuidedMoveTowards(timeStep, targetIntercept, 0f, terminalPhase: true);
+                    Missile.TerminalPhase = true;
+                    Missile.GuidedMoveTowards(timeStep, targetIntercept, 0f);
                     return;
                 }
             }
