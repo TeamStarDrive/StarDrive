@@ -223,7 +223,7 @@ namespace Ship_Game
             Vertices[3].Position = new Vector3(src + (right * Thickness), BeamZ); // topright
         }
 
-        public new bool Touch(GameplayObject target)
+        public bool Touch(GameplayObject target)
         {
             if (target == null || target == Owner || target is Ship)
                 return false;

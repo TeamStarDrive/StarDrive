@@ -7,21 +7,21 @@ namespace UnitTests.Planets
     [TestClass]
     public class TestOrbitalBomb : StarDriveTest
     {
+        readonly Planet P; // Player.Capital
+        readonly Bomb B;
+
         public TestOrbitalBomb()
         {
             CreateUniverseAndPlayerEmpire();
             AddDummyPlanetToEmpire(Player);
-            AddHomeWorldToEmpire(Player, out P);
+            P = AddHomeWorldToEmpire(Player);
             B = new Bomb(Vector3.Zero, Player, "NuclearBomb", shipLevel: 15, shipHealthPercent: 1);
         }
 
-        readonly Planet P; // Player.Capital
-        readonly Bomb B;
-
-
         PlanetGridSquare FindHabitableTargetTile(SolarSystemBody p)
             => p.TilesList.Find(tile => tile.Habitable && !tile.Biosphere);
-        PlanetGridSquare FindUnhabitableTargetTile(SolarSystemBody p) 
+
+        PlanetGridSquare FindUnhabitableTargetTile(SolarSystemBody p)
             => p.TilesList.Find(tile => !tile.Habitable);
 
         void CreateOrbitalDrop(out OrbitalDrop ob, PlanetGridSquare tile)

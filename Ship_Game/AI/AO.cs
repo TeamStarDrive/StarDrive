@@ -244,7 +244,7 @@ namespace Ship_Game.AI
             WarValueOfPlanets = 0;
             var planets = new Array<Planet>();
             var systems = new Array<SolarSystem>();
-            foreach(var planet in Owner.Universum.PlanetsDict.Values)
+            foreach(var planet in Owner.Universum.Planets)
             {
                 if (!planet.Center.InRadius(this)) continue;
                 WarValueOfPlanets += planet.ColonyWarValueTo(Owner);

@@ -9,6 +9,7 @@ namespace Ship_Game
 {
     internal sealed class ReplayElement
     {
+        UniverseScreen Universe;
         private GenericButton ShipCount;
 
         private GenericButton MilStrength;
@@ -46,8 +47,9 @@ namespace Ship_Game
         private int FrameCount;
         Rectangle MapRect;
 
-        public ReplayElement(Rectangle r)
+        public ReplayElement(UniverseScreen u, Rectangle r)
         {
+            Universe = u;
             ElementRect = r;
             TextRect = new Rectangle(r.X, r.Y + r.Height, r.Width, 128);
             ShipCount = new GenericButton(new Vector2(ElementRect.X - 10, ElementRect.Y + 40), "Ship Count", Fonts.Pirulen16, Fonts.Pirulen12);
@@ -84,7 +86,7 @@ namespace Ship_Game
 
             MapRect = new Rectangle(ElementRect.X + 30, ElementRect.Y + 30, ElementRect.Width - 60, ElementRect.Height - 60);
             batch.Draw(ResourceManager.Texture("EndGameScreen/ReplayHousing"), ElementRect, Color.White);
-            float scale = (ElementRect.Width - 60) / (Empire.Universe.UniverseSize * 2);        //Correction for negative map values -Gretman
+            float scale = (ElementRect.Width - 60) / (Universe.UniverseSize * 2);        //Correction for negative map values -Gretman
             if (Grid)
             {
                 for (int x = 0; x < 21; x++)
@@ -188,7 +190,7 @@ namespace Ship_Game
 
         void DrawSolarSystemStats(SpriteBatch batch, float scale)
         {
-            foreach (SolarSystem star in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem star in Universe.Systems)
             {
                 Vector2 starPos = (star.Position * scale) + MapRect.PosVec();
                 starPos.X += (MapRect.Width / 2f); // Correction for negative map values -Gretman

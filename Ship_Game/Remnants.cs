@@ -15,6 +15,7 @@ namespace Ship_Game
     public class Remnants
     {
         public const int MaxLevel = 20;
+        public readonly UniverseScreen Universe;
         public readonly Empire Owner;
         public readonly BatchRemovalCollection<Goal> Goals;
         public float StoryTriggerKillsXp { get; private set; }
@@ -33,6 +34,7 @@ namespace Ship_Game
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
+            Universe = owner.Universum;
             Owner = owner;
             Goals = goals;
 
@@ -78,7 +80,7 @@ namespace Ship_Game
                 {
                     PlayerStepTriggerXp = 0;
                     if (GetStoryEvent(out ExplorationEvent expEvent))
-                        Empire.Universe.NotificationManager.AddRemnantUpdateNotify(expEvent, Owner);
+                        Universe.NotificationManager.AddRemnantUpdateNotify(expEvent, Owner);
 
                     StoryStep += 1;
                 }
@@ -102,7 +104,7 @@ namespace Ship_Game
                 case RemnantStory.AncientExterminators:
                 case RemnantStory.AncientRaidersRandom:
                     Goals.Add(new RemnantEngagements(Owner));
-                    Empire.Universe.NotificationManager.AddRemnantsStoryActivation(Owner);
+                    Universe.NotificationManager.AddRemnantsStoryActivation(Owner);
                     break;
             }
 
@@ -114,13 +116,13 @@ namespace Ship_Game
             if (espionageStr <= Level * 3)
                 return; // not enough espionage strength to learn about Remnant activities
 
-            Empire.Universe.NotificationManager.AddRemnantsAreGettingStronger(Owner);
+            Universe.NotificationManager.AddRemnantsAreGettingStronger(Owner);
         }
 
         public bool TryLevelUpByDate(out int newLevel)
         {
             newLevel = 0;
-            if (Empire.Universe.StarDate.GreaterOrEqual(NextLevelUpDate))
+            if (Universe.StarDate.GreaterOrEqual(NextLevelUpDate))
             {
                 int turnsLevelUp = TurnsLevelUp + ExtraLevelUpEffort;
                 turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.ProductionPace);
@@ -130,7 +132,7 @@ namespace Ship_Game
                 if (Level < MaxLevel)
                 {
                     Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level+1}. Next level up in Stardate {NextLevelUpDate} ----");
-                    if (Empire.Universe.StarDate.Less(NextLevelUpDate)) // do not notify on multiple initial level ups
+                    if (Universe.StarDate.Less(NextLevelUpDate)) // do not notify on multiple initial level ups
                         NotifyPlayerOnLevelUp();
                 }
 
@@ -165,7 +167,7 @@ namespace Ship_Game
         void CheckHibernation() // Start Hibernation some time before leveling up
         {
             float hibernationDate = (NextLevelUpDate - NeededHibernationTurns / 10f).RoundToFractionOf10();
-            if (Empire.Universe.StarDate.AlmostEqual(hibernationDate))
+            if (Universe.StarDate.AlmostEqual(hibernationDate))
                 HibernationTurns = NeededHibernationTurns;
         }
 
@@ -216,7 +218,7 @@ namespace Ship_Game
 
             if (GetStoryEvent(out ExplorationEvent expEvent, true))
             {
-                Empire.Universe.NotificationManager.AddRemnantUpdateNotify(expEvent, Owner);
+                Universe.NotificationManager.AddRemnantUpdateNotify(expEvent, Owner);
                 OnlyRemnantLeft = true;
                 TriggerVsPlayerEndGame();
             }
@@ -409,7 +411,7 @@ namespace Ship_Game
                                                && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
                 {
                     string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
-                    Empire.Universe.NotificationManager.AddIncomingRemnants(planet, message);
+                    Universe.NotificationManager.AddIncomingRemnants(planet, message);
                 }
             }
             else  // AI scramble defense
@@ -475,7 +477,7 @@ namespace Ship_Game
 
         public void CallGuardians(Ship portal) // One guarding from each relevant system
         {
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem system in portal.Universe.Systems)
             {
                 var guardians = system.ShipList.Filter(s => s != null && s.IsGuardian && !s.InCombat && s.BaseStrength < 1000);
                 if (guardians.Length > 0)
@@ -525,22 +527,23 @@ namespace Ship_Game
 
         public bool CreatePortal()
         {
-            if (!CreatePortal(out Ship portal, out string systemName))
-                return false;
-
-            Goals.Add(new RemnantPortal(Owner, portal, systemName));
-            return true;
+            if (CreatePortal(Universe, out Ship portal, out string systemName))
+            {
+                Goals.Add(new RemnantPortal(Owner, portal, systemName));
+                return true;
+            }
+            return false;
         }
 
-        bool CreatePortal(out Ship portal, out string systemName)
+        bool CreatePortal(UniverseScreen u, out Ship portal, out string systemName)
         {
             portal             = null;
             SolarSystem system = null;
             systemName         = "";
 
-            if (!GetRadiatingStars(out SolarSystem[] systems)) // Prefer stars which emit radiation
-                if (!GetLoneSystem(out system)) // Try a lone system
-                    if (!GetUnownedSystems(out systems)) // Fallback to any unowned system
+            if (!GetRadiatingStars(u, out SolarSystem[] systems)) // Prefer stars which emit radiation
+                if (!GetLoneSystem(u, out system)) // Try a lone system
+                    if (!GetUnownedSystems(u, out systems)) // Fallback to any unowned system
                         return false; // Could not find a spot
 
             if (system == null)
@@ -651,7 +654,7 @@ namespace Ship_Game
 
             if (shipName.NotEmpty())
             {
-                remnantShip = Ship.CreateShipAtPoint(Empire.Universe, shipName, Owner, where);
+                remnantShip = Ship.CreateShipAtPoint(Universe, shipName, Owner, where);
                 if (remnantShip == null)
                     Log.Warning($"Could not spawn required Remnant ship named {shipName} for {Owner.Name}, check race xml");
                 else
@@ -673,7 +676,7 @@ namespace Ship_Game
             }
             else
             {
-                Ship ship = Ship.CreateShipAtPoint(Empire.Universe, "Target Dummy", Owner, pos);
+                Ship ship = Ship.CreateShipAtPoint(Universe, "Target Dummy", Owner, pos);
                 if (ship == null)
                     Log.Warning("Could not spawn `Target Dummy` ship, it does not exist");
             }

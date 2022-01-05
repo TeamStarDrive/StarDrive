@@ -243,56 +243,29 @@ namespace Ship_Game
             return empire.DifficultyModifiers.DataVisibleToPlayer;
         }
 
-        public static SortedList<int, Array<T>> BucketItems<T>(Array<T> items, Func<T, int> bucketSort)
-        {
-            //SortRoles
-            /*
-             * take each ship and create buckets using the bucketSort ascending.
-             */
-            var sort = new SortedList<int, Array<T>>();
-
-            foreach (T item in items)
-            {
-                int key = bucketSort(item);
-                if (sort.TryGetValue(key, out Array<T> test))
-                    test.Add(item);
-                else
-                {
-                    test = new Array<T> { item };
-                    sort.Add(key, test);
-                }
-            }
-            return sort;
-        }
-
-        public static bool GetLoneSystem(out SolarSystem system)
+        public static bool GetLoneSystem(UniverseScreen u, out SolarSystem system)
         {
             system = null;
-            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0
-                                                                     && !s.PiratePresence);
-
+            var systems = u.Systems.Filter(s => s.RingList.Count == 0 && !s.PiratePresence);
             if (systems.Length > 0)
                 system = systems.RandItem();
-
             return system != null;
         }
 
-        public static bool GetUnownedSystems(out SolarSystem[] systems)
+        public static bool GetUnownedSystems(UniverseScreen u, out SolarSystem[] systems)
         {
-            systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0
-                                                                 && s.RingList.Count > 0
-                                                                 && !s.PiratePresence
-                                                                 && !s.ShipList.Any(g => g.IsGuardian));
-
+            systems = u.Systems.Filter(s => s.OwnerList.Count == 0
+                                         && s.RingList.Count > 0
+                                         && !s.PiratePresence
+                                         && !s.ShipList.Any(g => g.IsGuardian));
             return systems.Length > 0;
         }
 
-        public static bool GetRadiatingStars(out SolarSystem[] systems)
+        public static bool GetRadiatingStars(UniverseScreen u, out SolarSystem[] systems)
         {
-            systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0
-                                                                 && !s.PiratePresence
-                                                                 && s.Sun.RadiationRadius.Greater(0));
-
+            systems = u.Systems.Filter(s => s.OwnerList.Count == 0
+                                         && !s.PiratePresence
+                                         && s.Sun.RadiationRadius.Greater(0));
             return systems.Length > 0;
         }
     }

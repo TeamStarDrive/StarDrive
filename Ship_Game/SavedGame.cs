@@ -131,7 +131,7 @@ namespace Ship_Game
             SaveData.CordrazinePlanetCaptured      = GlobalStats.CordrazinePlanetCaptured;
             SaveData.DisableVolcanoWarning         = GlobalStats.DisableVolcanoWarning;
             
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem system in screenToSave.Systems)
             {
                 SaveData.SolarSystemDataList.Add(new SolarSystemSaveData
                 {

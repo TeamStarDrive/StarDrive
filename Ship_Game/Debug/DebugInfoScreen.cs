@@ -1068,9 +1068,9 @@ namespace Ship_Game.Debug
                 {
                     MilitaryTask task = tasks[j];
                     string sysName = "Deep Space";
-                    for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
+                    for (int i = 0; i < e.Universum.Systems.Count; i++)
                     {
-                        SolarSystem sys = UniverseScreen.SolarSystemList[i];
+                        SolarSystem sys = e.Universum.Systems[i];
                         if (task.AO.InRadius(sys.Position, sys.Radius))
                             sysName = sys.Name;
                     }

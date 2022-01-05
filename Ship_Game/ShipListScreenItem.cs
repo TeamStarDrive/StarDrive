@@ -263,8 +263,8 @@ namespace Ship_Game
 
                         if (!ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))
                         {
-                            SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
-                            if (system.IsExploredBy(EmpireManager.Player))
+                            SolarSystem system = ship.Universe.FindClosestSystem(ship.AI.MovePosition);
+                            if (system.IsExploredBy(ship.Universe.player))
                                 return string.Concat(moveText, Localizer.Token(GameText.DeepSpaceNear), " ", system.Name);
                             return Localizer.Token(GameText.ExploringTheGalaxy);
                         }
@@ -277,8 +277,8 @@ namespace Ship_Game
                         }
                         else
                         {
-                            SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
-                            if (system.IsExploredBy(EmpireManager.Player))
+                            SolarSystem system = ship.Universe.FindClosestSystem(ship.AI.MovePosition);
+                            if (system.IsExploredBy(ship.Universe.player))
                                 return moveText + system.Name;
                             return Localizer.Token(GameText.ExploringTheGalaxy);
                         }

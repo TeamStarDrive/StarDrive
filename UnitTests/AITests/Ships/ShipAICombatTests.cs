@@ -41,7 +41,7 @@ namespace UnitTests.AITests.Ships
             ThirdShip.AI.TargetProjectiles = true;
         }
 
-        SolarSystem SpawnEnemyPlanet()
+        Planet SpawnEnemyPlanet()
         {
             return AddDummyPlanetToEmpire(Enemy);
         }
@@ -252,9 +252,9 @@ namespace UnitTests.AITests.Ships
             Update(TestSimStep);
             Assert.IsFalse(OurShip.InCombat, "ship should not be in combat yet");
 
-            var solarSystem = SpawnEnemyPlanet();
-            OurShip.SetSystem(solarSystem);
-            OurShip.SetSystemBackBuffer(solarSystem);
+            var p = SpawnEnemyPlanet();
+            OurShip.SetSystem(p.ParentSystem);
+            OurShip.SetSystemBackBuffer(p.ParentSystem);
             Update(EnemyScanInterval);
             // verify block
             Assert.IsTrue(OurShip.System != null, "Test wont work without being in system");
@@ -262,7 +262,7 @@ namespace UnitTests.AITests.Ships
 
             Assert.IsFalse(OurShip.InCombat, "ship should not be in combat with a planet");
             Update(EnemyScanInterval);
-            Assert.IsTrue(OurShip.OnHighAlert, "Enemy planet did not set high alert status");
+            Assert.IsTrue(OurShip.OnHighAlert, "Enemy planet should have set OnHighAlert");
 
             float timer = 15;
             LoopWhile((10, true), () => OurShip.OnHighAlert, () =>

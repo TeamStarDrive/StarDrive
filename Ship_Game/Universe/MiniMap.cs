@@ -13,6 +13,8 @@ namespace Ship_Game
 {
     public sealed class MiniMap : UIElementContainer
     {
+        readonly UniverseScreen Universe;
+
         readonly Rectangle Housing;
 
         Rectangle ActualMap;
@@ -25,19 +27,19 @@ namespace Ship_Game
         readonly ToggleButton AIScreen;
         readonly ToggleButton DeepSpaceBuild;
         readonly ToggleButton Fleets;
-        public UniverseScreen Screen => Empire.Universe;
 
         readonly SubTexture MiniMapHousing;
         readonly SubTexture Node;
         readonly SubTexture Node1;
         readonly float Scale;
         readonly Vector2 MiniMapZero;
-        Empire Player => EmpireManager.Player;
-        float pulseTime => Screen.NormalFlashTimer;
-        float quickPulseTime => Screen.FastFlashTimer;
+        Empire Player => Universe.player;
+        float pulseTime => Universe.NormalFlashTimer;
+        float quickPulseTime => Universe.FastFlashTimer;
 
-        public MiniMap(in Rectangle housing) : base(housing)
+        public MiniMap(UniverseScreen universe, in Rectangle housing) : base(housing)
         {
+            Universe = universe;
             Housing        = housing;
             MiniMapHousing = ResourceManager.Texture("Minimap/radar_over");
             Node           = ResourceManager.Texture("UI/node");
@@ -54,7 +56,7 @@ namespace Ship_Game
             DeepSpaceBuild = list.Add(new ToggleButton(ToggleButtonStyle.Button,  "UI/icon_dsbw", DeepSpaceBuild_OnClick));
             AIScreen       = list.Add(new ToggleButton(ToggleButtonStyle.ButtonDown, "AI", AIScreen_OnClick));
 
-            Scale = ActualMap.Width / (Screen.UniverseSize * 2.1f); // Updated to play nice with the new negative map values
+            Scale = ActualMap.Width / (Universe.UniverseSize * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
 
         }
@@ -81,7 +83,7 @@ namespace Ship_Game
             screen.DrawRectangle(inflateMap, Color.Black, Color.Black);
             batch.Draw(MiniMapHousing, Housing, Color.White);
             
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem system in Universe.Systems)
             {
                 Vector2 miniSystemPos = WorldToMiniPos(system.Position);
                 var star = new Rectangle((int)miniSystemPos.X, (int)miniSystemPos.Y, 2, 2);
@@ -169,7 +171,7 @@ namespace Ship_Game
                 if (system.OwnerList.Count > 0) continue;
                 var pin = system;
                 var point = WorldToMiniPos(pin.Position);
-                radius = 0.025f * Screen.SlowFlashTimer;
+                radius = 0.025f * Universe.SlowFlashTimer;
                 var color = Color.Yellow;
                 batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 batch.Draw(Node1, point, color, 0f, Node.CenterF, radius - 0.0055f, SpriteEffects.None, 1f);
@@ -181,7 +183,7 @@ namespace Ship_Game
             {
                 var pin = badBase;
                 var point = WorldToMiniPos(pin.Position);
-                radius = 0.025f * Screen.SlowFlashTimer;
+                radius = 0.025f * Universe.SlowFlashTimer;
                 var color = pin.GetEmpire().EmpireColor;
                 var warningColor = new Color(Color.Yellow, 200);
                 batch.Draw(Node1, point, warningColor, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
@@ -193,11 +195,11 @@ namespace Ship_Game
 
         void DrawSelected(SpriteBatch batch, Empire empire)
         {
-            Ship ship     = Screen.SelectedShip;
-            Planet planet = Screen.SelectedPlanet;
-            var system    = Screen.SelectedSystem;
-            var fleet     = Screen.SelectedFleet;
-            Ship[] containsShip = Screen.SelectedShipList.ToArray();
+            Ship ship     = Universe.SelectedShip;
+            Planet planet = Universe.SelectedPlanet;
+            var system    = Universe.SelectedSystem;
+            var fleet     = Universe.SelectedFleet;
+            Ship[] containsShip = Universe.SelectedShipList.ToArray();
 
             Array<Vector2> centers = new Array<Vector2>();
 
@@ -286,7 +288,7 @@ namespace Ship_Game
                     continue;
 
                 Relationship rel = EmpireManager.Player.GetRelations(e);
-                if (rel.Known || Screen.Debug)
+                if (rel.Known || Universe.Debug)
                 {
                     DrawEmpireNodes(batch, e);
                 }
@@ -315,30 +317,30 @@ namespace Ship_Game
 
         public void DeepSpaceBuild_OnClick(ToggleButton toggleButton)
         {
-            Screen.InputOpenDeepSpaceBuildWindow();
+            Universe.InputOpenDeepSpaceBuildWindow();
         }
 
         public void PlanetScreen_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
-            Screen.ScreenManager.AddScreen(new PlanetListScreen(Screen, Screen.EmpireUI));
+            Universe.ScreenManager.AddScreen(new PlanetListScreen(Universe, Universe.EmpireUI));
         }
 
         public void ShipScreen_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
-            Screen.showingFTLOverlay = !Screen.showingFTLOverlay;
+            Universe.showingFTLOverlay = !Universe.showingFTLOverlay;
         }
 
         public void Fleets_OnClick(ToggleButton toggleButton)
         {
             GameAudio.AcceptClick();
-            Screen.showingRangeOverlay = !Screen.showingRangeOverlay;            
+            Universe.showingRangeOverlay = !Universe.showingRangeOverlay;            
         }
 
         public void AIScreen_OnClick(ToggleButton toggleButton)
         {
-            Screen.aw.ToggleVisibility();
+            Universe.aw.ToggleVisibility();
         }
         
         public bool HandleInput(InputState input, UniverseScreen screen)

@@ -79,7 +79,7 @@ namespace Ship_Game.Commands.Goals
                 return; // save support - can be removed in 2021
 
             Vector2 systemPos = Portal.System?.Position 
-                                ?? empire.Universum.SolarSystemDict.Values.ToArray().FindMin(s => s.Position.SqDist(Portal.Position)).Position;
+                                ?? empire.Universum.Systems.FindMin(s => s.Position.SqDist(Portal.Position)).Position;
 
             Vector2 desiredPos = Portal.Position = systemPos + TetherOffset;
             if (!Portal.Position.InRadius(desiredPos, 1000))

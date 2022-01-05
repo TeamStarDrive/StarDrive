@@ -8,6 +8,7 @@ namespace Ship_Game
 {
     public sealed class YouWinScreen : GameScreen
     {
+        UniverseScreen Universe;
         string txt;
         Effect desaturateEffect;
         Rectangle Portrait;
@@ -25,8 +26,9 @@ namespace Ship_Game
         float Saturation = 255f;
         bool ShowingReplay;
 
-        public YouWinScreen(GameScreen parent) : base(parent)
+        public YouWinScreen(UniverseScreen parent) : base(parent)
         {
+            Universe = parent;
             IsPopup = false;
             TransitionOnTime = 30f;
             TransitionOffTime = 0.25f;
@@ -95,11 +97,11 @@ namespace Ship_Game
                 {
                     if (!LowRes)
                     {
-                        replay = new ReplayElement(new Rectangle(ScreenWidth / 2 - 376, ScreenHeight / 2 - 376, 752, 752));
+                        replay = new ReplayElement(Universe, new Rectangle(ScreenWidth / 2 - 376, ScreenHeight / 2 - 376, 752, 752));
                     }
                     else
                     {
-                        replay = new ReplayElement(new Rectangle(ScreenWidth / 2 - 290, ScreenHeight / 2 - 354, 580, 580));
+                        replay = new ReplayElement(Universe, new Rectangle(ScreenWidth / 2 - 290, ScreenHeight / 2 - 354, 580, 580));
                     }
                 }
                 ShowingReplay = true;

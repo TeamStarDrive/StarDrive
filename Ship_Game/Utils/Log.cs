@@ -593,9 +593,10 @@ namespace Ship_Game
                     evt["Mod"] = "Vanilla";
                 }
 
-                evt["StarDate"]  = Empire.Universe?.StarDateString ?? "NULL";
-                evt["Ships"]     = Empire.Universe?.GetMasterShipList().Count.ToString() ?? "NULL";
-                evt["Planets"]   = Empire.Universe?.PlanetsDict?.Count.ToString() ?? "NULL";
+                var universe = Empire.Universe;
+                evt["StarDate"]  = universe?.StarDateString ?? "NULL";
+                evt["Ships"]     = universe?.GetMasterShipList().Count.ToString() ?? "NULL";
+                evt["Planets"]   = universe?.Planets?.Count.ToString() ?? "NULL";
 
                 evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
                 evt["XnaMemory"] = StarDriveGame.Instance != null ? (StarDriveGame.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";

@@ -1371,9 +1371,8 @@ namespace Ship_Game
                 MineralRichness  -= 0.01f;
                 if (notifyPlayer)
                 {
-                    string fullText = $"{Name} {Localizer.Token(GameText.MineralRichnessHasGoneDown)}";
-                    Universe.NotificationManager.AddRandomEventNotification(
-                        fullText, Type.IconPath, "SnapToPlanet", this);
+                    Universe.NotificationManager?.AddRandomEventNotification(
+                        $"{Name} {Localizer.Token(GameText.MineralRichnessHasGoneDown)}", Type.IconPath, "SnapToPlanet", this);
                 }
 
                 Log.Info($"Mineral Decay in {Name}, Owner: {Owner}, Current Richness: {MineralRichness}");

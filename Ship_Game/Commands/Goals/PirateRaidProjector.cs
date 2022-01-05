@@ -96,7 +96,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null || !TargetShip.Active)
             {
-                Pirates.TryLevelUp();
+                Pirates.TryLevelUp(TargetEmpire.Universum);
                 return GoalStep.GoalComplete;
             }
 

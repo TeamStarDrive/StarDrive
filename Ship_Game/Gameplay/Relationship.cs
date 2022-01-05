@@ -275,7 +275,7 @@ namespace Ship_Game.Gameplay
             return netIncome.RoundToFractionOf10();
         }
 
-        public SolarSystem[] GetPlanetsLostFromWars()
+        public SolarSystem[] GetPlanetsLostFromWars(UniverseScreen us)
         {
             var lostSystems = new Array<SolarSystem>();
             for (int i = 0; i < WarHistory.Count; i++)
@@ -283,7 +283,7 @@ namespace Ship_Game.Gameplay
                 var war = WarHistory[i];
                 var owner = EmpireManager.GetEmpireByName(war.UsName);
                 if (war.ContestedSystemsGUIDs.IsEmpty) continue;
-                var systems = SolarSystem.GetSolarSystemsFromGuids(war.ContestedSystemsGUIDs);
+                var systems = us.GetSolarSystemsFromGuids(war.ContestedSystemsGUIDs);
                 for (int j = 0; j < systems.Count; j++)
                 {
                     SolarSystem system = systems[j];
@@ -460,7 +460,7 @@ namespace Ship_Game.Gameplay
                         return;
                     }
 
-                    float expansion = UniverseScreen.SolarSystemList.Count / us.GetOwnedSystems().Count + them.GetOwnedSystems().Count;
+                    float expansion = us.Universum.Systems.Count / us.GetOwnedSystems().Count + them.GetOwnedSystems().Count;
                     AddAngerTerritorialConflict(amount + expansion);
                     Trust -= amount;
 
@@ -510,7 +510,8 @@ namespace Ship_Game.Gameplay
 
         public bool GetContestedSystem(out SolarSystem contested)
         {
-            return Empire.Universe.SolarSystemDict.TryGetValue(contestedSystemGuid, out contested);
+            contested = contestedSystemGuid != Guid.Empty ? Empire.Universe.GetSystem(contestedSystemGuid) : null;
+            return contested != null;
         }
 
         public float GetStrength()
@@ -1781,12 +1782,12 @@ namespace Ship_Game.Gameplay
             FearEntries?.Dispose(ref FearEntries);
         }
 
-        public void RestoreWarsFromSave()
+        public void RestoreWarsFromSave(UniverseScreen us)
         {
-            ActiveWar?.RestoreFromSave(true);
-            
+            ActiveWar?.RestoreFromSave(us, true);
+
             foreach (var war in WarHistory)
-                war.RestoreFromSave(false);
+                war.RestoreFromSave(us, false);
         }
 
         public DebugTextBlock DebugWar(Empire us)

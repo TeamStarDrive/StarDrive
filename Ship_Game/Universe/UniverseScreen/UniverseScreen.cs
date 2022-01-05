@@ -34,9 +34,6 @@ namespace Ship_Game
         public bool GameOver = false;
 
         // TODO: Encapsulate
-        public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
-
-        // TODO: Encapsulate
         public BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
         
         public float GamePace = 1f;
@@ -51,7 +48,10 @@ namespace Ship_Game
         
         Array<ClickableSystem> ClickableSystems = new Array<ClickableSystem>();
         Array<ClickableShip> ClickableShipsList = new Array<ClickableShip>();
-        
+
+        readonly Map<Guid, Planet> PlanetsDict          = new Map<Guid, Planet>();
+        readonly Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
+
         Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         
         public Background bg;
@@ -59,8 +59,6 @@ namespace Ship_Game
         public float FTLModifier = 1f;
         public float EnemyFTLModifier = 1f;
         public bool FTLInNeutralSystems = true;
-        public Map<Guid, Planet> PlanetsDict          = new Map<Guid, Planet>();
-        public Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
         public BatchRemovalCollection<Bomb> BombList  = new BatchRemovalCollection<Bomb>();
         readonly AutoResetEvent DrawCompletedEvt = new AutoResetEvent(false);
 
@@ -237,13 +235,60 @@ namespace Ship_Game
             DeepSpaceBuildWindow = new DeepSpaceBuildingWindow(this);
         }
 
+        readonly Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
+        readonly Array<Planet> AllPlanetsList = new Array<Planet>();
+
+        // @return All SolarSystems in the Universe
+        public IReadOnlyList<SolarSystem> Systems => SolarSystemList;
+
+        // @return All Planets in the Universe
+        public IReadOnlyList<Planet> Planets => AllPlanetsList;
+
+        // Adds a new solar system to the universe
+        // and registers all planets as unique entries in AllPlanetsList
         public void AddSolarSystem(SolarSystem system)
         {
             system.Universe = this;
+            SolarSystemDict.Add(system.Guid, system);
             SolarSystemList.Add(system);
+            foreach (Planet planet in system.PlanetList)
+            {
+                planet.ParentSystem = system;
+                PlanetsDict.Add(planet.Guid, planet);
+                AllPlanetsList.Add(planet);
+            }
         }
 
-        public IReadOnlyList<SolarSystem> Systems => SolarSystemList;
+        public SolarSystem GetSystem(in Guid systemGuid)
+        {
+            return SolarSystemDict[systemGuid];
+        }
+
+        public Planet GetPlanet(in Guid planetGuid)
+        {
+            return PlanetsDict[planetGuid];
+        }
+
+        public SolarSystem FindClosestSystem(Vector2 pos)
+        {
+            return SolarSystemList.FindClosestTo(pos);
+        }
+
+        public Planet FindClosestPlanet(Vector2 pos)
+        {
+            return AllPlanetsList.FindClosestTo(pos);
+        }
+
+        public Array<SolarSystem> GetSolarSystemsFromGuids(Array<Guid> guids)
+        {
+            var systems = new Array<SolarSystem>();
+            for (int i = 0; i < guids.Count; i++)
+            {
+                if (SolarSystemDict.TryGetValue(guids[i], out SolarSystem s))
+                    systems.Add(s);
+            }
+            return systems;
+        }
 
         void Objects_OnShipRemoved(Ship ship)
         {
@@ -408,7 +453,6 @@ namespace Ship_Game
             IsUniverseInitialized = true;
             CreateStartingShips();
             InitializeSolarSystems();
-            CreatePlanetsLookupTable();
             CreateStationTethers();
 
             foreach (Empire empire in EmpireManager.Empires)
@@ -532,7 +576,7 @@ namespace Ship_Game
             Frustum            = new BoundingFrustum(View * Projection);
             mmHousing          = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
             MinimapDisplayRect = new Rectangle(mmHousing.X + 61 + minimapOffSet, mmHousing.Y + 43, 200, 200);
-            minimap            = Add(new MiniMap(mmHousing));
+            minimap            = Add(new MiniMap(this, mmHousing));
             mmShowBorders      = new Rectangle(MinimapDisplayRect.X, MinimapDisplayRect.Y - 25, 32, 32);
             SelectedStuffRect  = new Rectangle(0, height - 247, 407, 242);
             ShipInfoUIElement  = new ShipInfoUIElement(SelectedStuffRect, ScreenManager, this);
