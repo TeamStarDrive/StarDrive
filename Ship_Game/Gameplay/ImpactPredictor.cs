@@ -75,10 +75,6 @@ namespace Ship_Game.Gameplay
             Pos = proj.Position;
             Vel = proj.Velocity;
             InterceptSpeed = proj.Speed;
-            // guided missiles should not account for speed, since they are
-            // ramming devices and always have more velocity
-            //if (proj.Weapon.Tag_Guided)
-            //    Speed = 1.0f;
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
@@ -99,7 +95,8 @@ namespace Ship_Game.Gameplay
             return new TargetInfo
             {
                 Pos = target.Position,
-                Vel = target.Velocity
+                Vel = target.Velocity,
+                Acc = target.Acceleration,
             };
         }
 

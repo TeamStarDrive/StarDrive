@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
@@ -15,7 +16,7 @@ using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Gameplay
 {
-    public class Projectile : GameplayObject, IDisposable
+    public class Projectile : PhysicsObject, IDisposable
     {
         public float ShieldDamageBonus;
         public float ArmorDamageBonus;
@@ -67,10 +68,12 @@ namespace Ship_Game.Gameplay
         public bool FlashExplode;
         bool Deflected;
         public bool TrailTurnedOn { get; protected set; } = true;
-   
 
         public Ship Owner { get; protected set; }
         public Planet Planet { get; protected set; }
+
+        // Only Guided Missiles can slow down, but lower the acceleration
+        const float DecelThrustPower = 0.1f;
 
         public UniverseScreen Universe;
 
@@ -230,9 +233,8 @@ namespace Ship_Game.Gameplay
             // @todo Do not inherit parent velocity until we fix target prediction code
             // it is passed as vector zero parameter for now, unless it is MIRV
             // Vector2 inheritedVelocity = Vector2.Zero; // (Owner?.Velocity ?? Vector2.Zero);
-            VelocityMax = Speed; // + inheritedVelocity.Length();
-            Velocity    = Speed * direction + inheritedVelocity;
-            Rotation    = Velocity.Normalized().ToRadians(); // used for drawing the projectile in correct direction
+            VelocityMax = Speed;
+            SetInitialVelocity(Speed * direction + inheritedVelocity);
 
             InitialDuration = Duration = (Range/Speed + Weapon.DelayedIgnition) * durationMod;
             ParticleDelay  += Weapon.ParticleDelay;
@@ -250,7 +252,7 @@ namespace Ship_Game.Gameplay
                     Rotation = Owner?.Rotation + Weapon.Module?.TurretAngleRads ?? Rotation;
 
                 Vector2 missileVelocity = inheritedVelocity != Vector2.Zero ? inheritedVelocity : Weapon.Owner?.Velocity ?? Vector2.Zero;
-                MissileAI               = new MissileAI(this, target, missileVelocity);
+                MissileAI = new MissileAI(this, target, missileVelocity);
             }
 
             Universe = Owner?.Universe ?? Planet?.Universe;
@@ -308,14 +310,13 @@ namespace Ship_Game.Gameplay
 
         public void Deflect(Empire empire, Vector3 deflectionPoint)
         {
-            Loyalty              = empire;
-            Deflected            = true;
+            Loyalty = empire;
+            Deflected = true;
             Vector2 newDirection = RandomMath.RandomDirection();
-            float momentumLoss   = 9 - RandomMath.RollDie(6);
-            Duration            *= momentumLoss / 10;
-            Speed               *= momentumLoss / 10;
-            Velocity             = Speed * newDirection;
-            Rotation             = Velocity.Normalized().ToRadians();
+            float momentumLoss = 9 - RandomMath.RollDie(6);
+            Duration *= momentumLoss / 10;
+            Speed    *= momentumLoss / 10;
+            SetInitialVelocity(Speed * newDirection);
             if (RandomMath.RollDie(2) == 2)
                 Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(deflectionPoint), Vector3.Zero);
         }
@@ -428,11 +429,37 @@ namespace Ship_Game.Gameplay
             Owner = null;
         }
 
+        public bool TerminalPhase;
+
+        void UpdateVelocityAndPos(float dt)
+        {
+            float maxVel = VelocityMax * (TerminalPhase ? Weapon.TerminalPhaseSpeedMod : 1f);
+            var a = new AccelerationState(Velocity, maxVel, Rotation, ThrustAcceleration, DecelThrustPower);
+
+            // standard particles have no acceleration
+            if (ThrustThisFrame == Thrust.Coast && Acceleration == Vector2.Zero)
+            {
+                if (a.Velocity > a.MaxVelocity)
+                    Velocity = a.VelocityDir * a.MaxVelocity;
+
+                // constant acceleration can be calculated more easily
+                IntegrateExplicitEulerConstantVelocity(dt);
+            }
+            else
+            {
+                // update Position Velocity and Acceleration using Velocity Verlet
+                Vector2 acc = GetThrustAcceleration(a);
+                IntegratePosVelocityVerlet(dt, acc);
+            }
+
+            ResetForcesThisFrame();
+        }
+
         public void TestUpdatePhysics(FixedSimTime timeStep)
         {
             if (!Active)
                 return;
-            Position += Velocity * timeStep.FixedTime;
+            UpdateVelocityAndPos(timeStep.FixedTime);
             Duration -= timeStep.FixedTime;
             if (Duration < 0f)
             {
@@ -483,7 +510,7 @@ namespace Ship_Game.Gameplay
                 FirstRun = false;
             }
 
-            Position += Velocity * timeStep.FixedTime;
+            UpdateVelocityAndPos(timeStep.FixedTime);
             Emitter.Position = new Vector3(Position, 0.0f);
 
             if (InFrustum)
@@ -643,11 +670,9 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void GuidedMoveTowards(FixedSimTime timeStep, Vector2 targetPos, float thrustNozzleRotation,
-                                      bool terminalPhase = false)
+        public void GuidedMoveTowards(FixedSimTime timeStep, Vector2 targetPos, float thrustNozzleRotation)
         {
             float distance = Position.Distance(targetPos);
-            
             bool finalPhase = distance <= 1000f;
 
             Vector2 adjustedPos = finalPhase ? targetPos // if we get close, then just aim at targetPos
@@ -684,24 +709,18 @@ namespace Ship_Game.Gameplay
                 // 0.52 ~ 30 degrees 
                 nozzleRotation = nozzleRotation.Clamped(-0.52f, +0.52f);
 
-                Vector2 thrustDirection = (Rotation + nozzleRotation).RadiansToDirection();
-                Velocity += thrustDirection * (acceleration * timeStep.FixedTime);
+                SetThrustThisFrame(acceleration, nozzleRotation, Thrust.Forward);
             }
-            else if (Velocity.Length() > 200) // apply magic braking effect, this helps avoid useless rocket spirals
+            else if (Velocity.Length() > 200f) // apply magic braking effect, this helps avoid useless rocket spirals
             {
-                acceleration *= -0.2f;
-                Velocity += Velocity.Normalized() * (acceleration * timeStep.FixedTime * 0.5f);
+                SetThrustThisFrame(acceleration * 0.1f, 0f, Thrust.Reverse);
             }
-
-            float maxVel = VelocityMax * (terminalPhase ? Weapon.TerminalPhaseSpeedMod : 1f);
-            if (Velocity.Length() > maxVel)
-                Velocity = Velocity.Normalized() * maxVel;
         }
 
         public void MoveStraight()
         {
             if (TrailTurnedOn) // engine is ignited
-                Velocity = Direction * VelocityMax; 
+                SetThrustThisFrame(VelocityMax*0.5f, 0f, Thrust.Forward);
         }
         
         public bool Touch(GameplayObject target)
