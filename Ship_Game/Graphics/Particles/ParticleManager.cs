@@ -30,7 +30,7 @@ namespace Ship_Game.Graphics.Particles
         public IParticle StarParticles;
         public IParticle Galaxy;
         public IParticle AsteroidParticles;
-        public IParticle MissileThrust;
+        public IParticle MissileThrustFlare;
         public IParticle IonTrail;
         public IParticle BlueSparks;
         public IParticle ModuleSmoke;
@@ -108,7 +108,7 @@ namespace Ship_Game.Graphics.Particles
             StarParticles     = Add("StarParticles");
             Galaxy            = Add("Galaxy");
             AsteroidParticles = Add("AsteroidParticles");
-            MissileThrust     = Add("MissileThrust");
+            MissileThrustFlare= Add("MissileThrustFlare");
             IonTrail          = Add("IonTrail");
             BlueSparks        = Add("BlueSparks");
             ModuleSmoke       = Add("ModuleSmoke");
@@ -194,12 +194,13 @@ namespace Ship_Game.Graphics.Particles
             return null;
         }
 
-        public void Update(DrawTimes elapsed)
+        // @param totalSimulationTime Total seconds elapsed since simulation started
+        public void Update(float totalSimulationTime)
         {
             for (int i = 0; i < Tracked.Count; ++i)
             {
                 IParticle ps = Tracked[i];
-                ps.Update(elapsed);
+                ps.Update(totalSimulationTime);
             }
         }
 

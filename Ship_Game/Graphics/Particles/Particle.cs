@@ -325,13 +325,13 @@ namespace Ship_Game
         /// <summary>
         /// Updates the Particle queue by retiring aged particles and submitting pending particles
         /// </summary>
-        public void Update(DrawTimes elapsed)
+        public void Update(float totalSimulationTime)
         {
             var particles = Particles;
             if (particles == null || !IsEnabled)
                 return;
 
-            CurrentTime += elapsed.RealTime.Seconds;
+            CurrentTime = totalSimulationTime;
 
             int numAllocated = AllocatedParticles;
             if (numAllocated > 0 && !Settings.Static)
