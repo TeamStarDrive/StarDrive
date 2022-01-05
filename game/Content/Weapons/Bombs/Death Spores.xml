@@ -36,8 +36,10 @@
   <Explodes>true</Explodes>
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>Ballistic Cannon </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+
+  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
 
 
   <BombPopulationKillPerHit>.1</BombPopulationKillPerHit>

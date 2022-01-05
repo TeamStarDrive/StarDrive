@@ -37,8 +37,10 @@
   <ModelPath>projLong</ModelPath>
   <ProjectileCount>1</ProjectileCount>
   <FireArc>0</FireArc>
-  <WeaponType>Energy Cannon </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
 
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Energy Cannon</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
   
 </Weapon>

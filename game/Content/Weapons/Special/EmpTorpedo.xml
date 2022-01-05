@@ -30,13 +30,14 @@
   <ProjectileSpeed>400</ProjectileSpeed>
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
-  <WeaponTrailEffect>RocketTrail</WeaponTrailEffect> 
-
 
   <ProjectileRadius>10</ProjectileRadius>
 
-  <WeaponType>Missile </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Missile</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
+  <WeaponTrailEffect>RocketTrail</WeaponTrailEffect>
 
   <CanCollideProjectiles>true</CanCollideProjectiles>
 </Weapon>

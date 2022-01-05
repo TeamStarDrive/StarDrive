@@ -23,8 +23,11 @@
   <Explodes>false</Explodes>
   <ProjectileTexturePath>projLong_02_orange_dual</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>Ballistic Cannon </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
 
   <FireCone>0</FireCone>
 </Weapon>

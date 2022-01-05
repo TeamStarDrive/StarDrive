@@ -39,8 +39,11 @@
   <SalvoTimer>0.2</SalvoTimer>
   <FireCone>0</FireCone>
   <OffPowerMod>1</OffPowerMod>
-  <WeaponType>Energy Cannon </WeaponType> 
- <WeaponHitEffect></WeaponHitEffect> 
+
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Energy Cannon</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
 
   <ProjectileRadius>20</ProjectileRadius>
 </Weapon>
