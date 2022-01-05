@@ -35,7 +35,9 @@
   <Scale>1.2</Scale>
   <ProjectileTexturePath>projLong_02_red</ProjectileTexturePath>
   <ModelPath>projLong</ModelPath>
-  <WeaponType>Energy Cannon</WeaponType>
+  <WeaponType>Energy Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <ProjectileCount>1</ProjectileCount>
   <ProjectileRadius>20</ProjectileRadius>
   <FireArc>0</FireArc>

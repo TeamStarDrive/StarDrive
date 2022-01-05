@@ -44,7 +44,9 @@
   <Explodes>false</Explodes>
   <ProjectileTexturePath>projPulse_01_yellow_1_small</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>AA Weapons</WeaponType>
+  <WeaponType>AA Weapons </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <FireCone>2</FireCone>
 
 </Weapon>

@@ -41,5 +41,7 @@
   <SalvoCount>6</SalvoCount>
   <SalvoTimer>0.6</SalvoTimer>
   <FireCone>0</FireCone>
-  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponType>Ballistic Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

@@ -38,5 +38,7 @@
   <BeamPowerCostPerSecond>2530</BeamPowerCostPerSecond>
   <EffectVsArmor>1.20</EffectVsArmor>
   <EffectVsShield>0.80</EffectVsShield>
-  <WeaponType>Energy Beam</WeaponType>
+  <WeaponType>Energy Beam </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

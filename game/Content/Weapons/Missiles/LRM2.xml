@@ -45,13 +45,16 @@
 <!-- Projectile textures-->
   <ProjectileTexturePath>MRM_d</ProjectileTexturePath>
   <ModelPath>MRM</ModelPath>
-  <WeaponType>Missile</WeaponType>
+  <WeaponType>Missile </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 <!-- name of XACT audio cue to play on firing this weapon -->
   <FireCueName>sd_weapon_missile_heavy_01</FireCueName>
   <DieCue>Explo1</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   
   <!-- Deterimines trail effect from ParticleEffects.yaml and also the trail offset behind missile center -->
-  <WeaponEffectType>RocketTrail</WeaponEffectType>
+  <WeaponTrailEffect>RocketTrail</WeaponTrailEffect> 
+
   <TrailOffset>-32</TrailOffset>
 </Weapon>

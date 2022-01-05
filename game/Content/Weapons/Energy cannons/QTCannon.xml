@@ -40,5 +40,7 @@
   <ProjectileTexturePath>projBall_03_purple</ProjectileTexturePath>
   <ModelPath>projBall</ModelPath>
 
-  <WeaponType>Energy Torpedo</WeaponType>
+  <WeaponType>Energy Torpedo </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

@@ -41,5 +41,7 @@
   <Scale>0.9</Scale>
   <!--the projectile count is spread over the fire arc-->
   <FireCone>0</FireCone>
-  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponType>Ballistic Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

@@ -24,5 +24,7 @@
   <ProjectileCount>4</ProjectileCount>
   <Scale>.8</Scale>
   <FireArc>15</FireArc>
-  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponType>Ballistic Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

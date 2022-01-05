@@ -36,5 +36,7 @@
   <Explodes>false</Explodes>
   <ProjectileTexturePath>projTear_03_green</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>Energy Cannon</WeaponType>
+  <WeaponType>Energy Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 </Weapon>

@@ -49,13 +49,16 @@
 <!-- Projectile textures-->
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
-  <WeaponType>Missile</WeaponType>
+  <WeaponType>Missile </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 <!-- name of XACT audio cue to play on firing this weapon -->
   <FireCueName>sd_weapon_torpedo_01</FireCueName>
   <DieCue>sd_weapon_rocket_explode_01</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   
   <!-- Deterimines trail effect from ParticleEffects.yaml and also the trail offset behind missile center -->
-  <WeaponEffectType>TorpTrail</WeaponEffectType>
+  <WeaponTrailEffect>TorpTrail</WeaponTrailEffect> 
+
   <TrailOffset>-32</TrailOffset>
 </Weapon>

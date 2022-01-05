@@ -46,7 +46,9 @@
   <Explodes>false</Explodes>
   <ProjectileTexturePath>projTear_01_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>AA Weapons</WeaponType>
+  <WeaponType>AA Weapons </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <FireCone>8</FireCone>
 
 </Weapon>

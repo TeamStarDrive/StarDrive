@@ -35,7 +35,9 @@
   <Light>Blue</Light>
   <ProjectileTexturePath>projLong_02_blue</ProjectileTexturePath>
   <ModelPath>projLong</ModelPath>
-  <WeaponType>Energy Cannon</WeaponType>
+  <WeaponType>Energy Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <ProjectileCount>1</ProjectileCount>
   <FireArc>0</FireArc>
 

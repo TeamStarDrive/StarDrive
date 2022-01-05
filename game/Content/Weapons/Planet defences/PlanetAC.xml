@@ -23,6 +23,8 @@
   <Explodes>false</Explodes>
   <ProjectileTexturePath>projLong_02_orange_dual</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponType>Ballistic Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <FireCone>0</FireCone>
 </Weapon>

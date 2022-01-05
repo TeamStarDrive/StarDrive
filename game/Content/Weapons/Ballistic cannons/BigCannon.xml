@@ -46,6 +46,8 @@
   <AnimationPath>Kinetic_Orange/Kinetic_Orange_cc_</AnimationPath>
   <LoopAnimation>1</LoopAnimation>
   <ModelPath>projTear</ModelPath>
-  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponType>Ballistic Cannon </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
 
 </Weapon>

@@ -36,7 +36,9 @@
   <Explodes>false</Explodes>
   <ProjectileTexturePath>spacemine_d</ProjectileTexturePath>
   <ModelPath>spacemine</ModelPath>
-  <WeaponType>Drone</WeaponType>
+  <WeaponType>Drone </WeaponType> 
+ <WeaponHitEffect></WeaponHitEffect> 
+
   <ProjectileRadius>20</ProjectileRadius>
   <Scale>1.5</Scale>
   <CanCollideProjectiles>true</CanCollideProjectiles>
