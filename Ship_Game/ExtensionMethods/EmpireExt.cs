@@ -36,13 +36,5 @@ namespace Ship_Game
 
             return ships;
         }
-
-        public static bool AddModuleTypeToList(this ShipModule module, ShipModuleType moduleType, bool isTrue = true, Array<ShipModule> addToList = null )
-        {
-            if (module.ModuleType != moduleType || !isTrue)
-                return false;
-            addToList?.Add(module);
-            return true;
-        }
     }
 }
