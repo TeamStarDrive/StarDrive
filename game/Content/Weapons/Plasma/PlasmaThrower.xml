@@ -20,7 +20,7 @@
 
   <UID>PlasmaThrower</UID>
   <FireDelay>0.025</FireDelay>
-  <Range>1800</Range>
+  <Range>1300</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>.01</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->

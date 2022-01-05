@@ -21,7 +21,7 @@
 
   <UID>BigCannon</UID>
   <FireDelay>15</FireDelay>
-  <Range>18000</Range>
+  <Range>12500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>34</OrdinanceRequiredToFire>
   <SalvoCount>3</SalvoCount>
@@ -37,7 +37,7 @@
   <EffectVsShields>1.25</EffectVsShields>  
   <Scale>1.4</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2100</ProjectileSpeed>
+  <ProjectileSpeed>1800</ProjectileSpeed>
   <DamageRadius>75</DamageRadius>
   <Explodes>true</Explodes>
   <Light>Orange</Light>

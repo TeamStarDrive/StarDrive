@@ -19,7 +19,7 @@
   
   <UID>Railgun</UID>
   <FireDelay>8</FireDelay>
-  <Range>11000</Range>
+  <Range>7700</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>2.8</OrdinanceRequiredToFire>
 
@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>510</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>1950</ProjectileSpeed>
+  <ProjectileSpeed>1600</ProjectileSpeed>
   <ProjectileRadius>30</ProjectileRadius>
   <ProjectileTexturePath>projExotic_01</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>

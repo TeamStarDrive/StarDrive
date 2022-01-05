@@ -5,7 +5,7 @@
   
   <UID>HVVulcan</UID>
   <FireDelay>5</FireDelay>
-  <Range>4500</Range>
+  <Range>3100</Range>
   <OrdinanceRequiredToFire>0.2</OrdinanceRequiredToFire>
   <SalvoCount>4</SalvoCount>
   <SalvoTimer>0.7</SalvoTimer>
@@ -17,7 +17,7 @@
   <!--<EffectVsArmor>2</EffectVsArmor> -->
   <Scale>0.9</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>1650</ProjectileSpeed>
+  <ProjectileSpeed>1400</ProjectileSpeed>
   <ProjectileRadius>20</ProjectileRadius>
   <Explodes>false</Explodes>
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>

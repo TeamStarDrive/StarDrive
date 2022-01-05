@@ -21,7 +21,7 @@
 
   <UID>DualEmpCannon</UID>
   <FireDelay>4</FireDelay>
-  <Range>8500</Range>
+  <Range>6000</Range>
   <PowerRequiredToFire>1800</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 

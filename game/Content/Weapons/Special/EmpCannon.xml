@@ -20,7 +20,7 @@
 
   <UID>EmpCannon</UID>
   <FireDelay>4.0</FireDelay>
-  <Range>7500</Range>
+  <Range>5500</Range>
   <PowerRequiredToFire>800</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 

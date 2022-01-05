@@ -19,7 +19,7 @@
   
   <UID>Flak</UID>
   <FireDelay>6</FireDelay>
-  <Range>6500</Range>
+  <Range>4500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.57</OrdinanceRequiredToFire>
   <SalvoCount>5</SalvoCount>
@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>115</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>1750</ProjectileSpeed>
+  <ProjectileSpeed>1500</ProjectileSpeed>
 
 
   <FakeExplode>true</FakeExplode>

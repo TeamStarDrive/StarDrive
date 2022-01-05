@@ -19,7 +19,7 @@
   
   <UID>QTCannon</UID>
   <FireDelay>7</FireDelay>
-  <Range>18000</Range>
+  <Range>12000</Range>
   <PowerRequiredToFire>3000</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
@@ -33,7 +33,7 @@
   <DamageAmount>9500</DamageAmount>
   <Scale>1</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>1700</ProjectileSpeed>
+  <ProjectileSpeed>1400</ProjectileSpeed>
   <DamageRadius>115</DamageRadius>
   <Explodes>true</Explodes>
   <Light>Purple</Light>

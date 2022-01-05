@@ -20,7 +20,7 @@
   
   <UID>DualDisruptor</UID>
   <FireDelay>3</FireDelay>
-  <Range>9000</Range>
+  <Range>6500</Range>
   <PowerRequiredToFire>1180</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>900</DamageAmount>
   <ProjectileRadius>10</ProjectileRadius>
-  <ProjectileSpeed>2200</ProjectileSpeed>
+  <ProjectileSpeed>2000</ProjectileSpeed>
   <Light>Green</Light>
   <DamageRadius>1</DamageRadius>
   <Explodes>false</Explodes>

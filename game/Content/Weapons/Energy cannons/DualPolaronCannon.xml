@@ -20,7 +20,7 @@
   
   <UID>DualPolaronCannon</UID>
   <FireDelay>3</FireDelay>
-  <Range>10500</Range>
+  <Range>7400</Range>
   <PowerRequiredToFire>2030</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
@@ -29,7 +29,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>1600</DamageAmount>
-  <ProjectileSpeed>2300</ProjectileSpeed>
+  <ProjectileSpeed>2100</ProjectileSpeed>
 
   <Explodes>false</Explodes>
   <Light>Blue</Light>
