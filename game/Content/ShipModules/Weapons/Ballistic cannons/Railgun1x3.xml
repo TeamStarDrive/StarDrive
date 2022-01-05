@@ -37,7 +37,7 @@
   <Right>1</Right>
   <Rear>1</Rear>
   <OrdinanceCapacity>5</OrdinanceCapacity>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   
   <!-- Description -->
   <Description>This is a fixed-mount railgun suitable for more agile ships. It has excellent range and is very efficient for its size. </Description>

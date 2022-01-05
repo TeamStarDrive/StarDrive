@@ -19,7 +19,7 @@
   <energyreq>0</energyreq>
   <Description>A very old and very powerful repulsor weapon that acts as a sort of reverse tractor beam. </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>10</PowerDraw>
 
   <NameIndex>902</NameIndex>

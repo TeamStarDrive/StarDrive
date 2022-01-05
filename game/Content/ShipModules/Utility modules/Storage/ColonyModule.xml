@@ -17,9 +17,9 @@
   <Health>100</Health>
   <HealthMax>100</HealthMax>
   <energyreq>30</energyreq>
-  <modRadius>4</modRadius>
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
+  
   <Description>This module contains all of the equipment, food, and colonists neccessary to start a new colony on a distant world.  It contains: 2000 colonists packed like sardines in stasis, 2 Food, and 2 Equipment.</Description>
   <PowerDraw>0</PowerDraw>
   <DeployBuildingOnColonize>Outpost</DeployBuildingOnColonize>

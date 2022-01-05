@@ -24,7 +24,7 @@
   <Description>This is a long range multiple rocket launching system.
   </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>8</PowerDraw>
 
   <NameIndex>17506</NameIndex>

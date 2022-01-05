@@ -23,7 +23,7 @@
   <Description>A turret mounted photon cannon weapon, highly effective in any combat situation.  
   </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>10</PowerDraw>
 
   <NameIndex>1016</NameIndex>
@@ -46,7 +46,7 @@
   <!-- for Weapons -->
   <WeaponType>PhotonCannon</WeaponType>
   <FieldOfFire>90</FieldOfFire>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   
   <!-- for Engines -->
   <Thrust>0</Thrust>

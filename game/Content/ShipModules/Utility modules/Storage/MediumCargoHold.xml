@@ -21,9 +21,9 @@
   <Health>1200</Health>
   <HealthMax>1200</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
+  
   <Description>A basic cargo hold with rudimentary life support capabilities.  This particular hold can store 1 unit of food, production, or other goods.  </Description>
 
 

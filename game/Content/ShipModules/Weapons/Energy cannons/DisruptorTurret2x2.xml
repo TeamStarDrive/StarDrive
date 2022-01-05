@@ -19,7 +19,7 @@
   <energyreq>0</energyreq>
   <Description>A crude but effective high-energy cannon weapon </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>10</PowerDraw>
 
 
@@ -44,7 +44,7 @@
   <!-- for Weapons -->
   <WeaponType>Disruptor</WeaponType>
   <FieldOfFire>90</FieldOfFire>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   
   <!-- for Engines -->
   <Thrust>0</Thrust>

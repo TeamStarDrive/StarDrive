@@ -21,7 +21,7 @@
   <Health>8000</Health>
   <HealthMax>8000</HealthMax>
   <energyreq>16</energyreq>
-  <modRadius>4</modRadius>
+  
   <PowerDraw>25</PowerDraw>
 
   <NameIndex>2040</NameIndex>

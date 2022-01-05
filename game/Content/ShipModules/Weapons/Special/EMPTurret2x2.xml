@@ -19,7 +19,7 @@
   <Description>A turret mounted EMP cannon weapon, useful for disabling enemy ships. 
   </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>10</PowerDraw>
 
 

@@ -17,10 +17,10 @@
   <Health>4680</Health>
   <HealthMax>4680</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>A ship that requires more strategic mobility than tactical mobility would do well to install this massive warp engine. </Description>
-  <CrewRequired>1</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>75</PowerDraw>
 
 

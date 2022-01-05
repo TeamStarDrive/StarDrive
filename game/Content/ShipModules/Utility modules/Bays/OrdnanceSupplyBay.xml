@@ -20,8 +20,8 @@
   <energyreq>0</energyreq>
   <Description>An ordnance supply bay allows a ship to launch resupply shuttles filled with ammunition to resupply friendly ships. Only one shuttle may be active per bay at a time. Supply shuttles can ferry 50 ordnance at a time.
   </Description>
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>5</PowerDraw>
 
 

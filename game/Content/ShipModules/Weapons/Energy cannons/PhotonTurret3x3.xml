@@ -33,7 +33,7 @@
   <!-- for Weapons -->
   <WeaponType>DualPhotonCannon</WeaponType>
   <FieldOfFire>120</FieldOfFire>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   
   
   

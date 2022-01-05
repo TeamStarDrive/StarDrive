@@ -31,8 +31,8 @@
 	<AmplifyShields>950</AmplifyShields>
 
 	<!-- Crew Reqs -->
-	<CrewRequired>0</CrewRequired>
-	<CrewSupplied>0</CrewSupplied>
+	
+	
 	<!-- for Weapons -->
 	<!-- Description -->
 	<Description>Advanced Armored Solar collector, procides power within a small radius.</Description>

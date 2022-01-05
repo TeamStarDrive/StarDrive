@@ -26,7 +26,7 @@
   <HealthMax>12480</HealthMax>
   <RepairDifficulty>8</RepairDifficulty>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>The combat information center consolidates all command and control functions into a single module. From here the crew can coordinate sensor data, manage damage control teams, organize shipboard defensive actions, and more. </Description>
   <PowerDraw>32</PowerDraw>
   <BonusRepairRate>200</BonusRepairRate>
