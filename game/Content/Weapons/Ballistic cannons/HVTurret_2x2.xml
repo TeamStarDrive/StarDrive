@@ -19,7 +19,7 @@
   
   <UID>HVTurret_2x2</UID>
   <FireDelay>6</FireDelay>
-  <Range>11500</Range>
+  <Range>8000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>3.8</OrdinanceRequiredToFire>
 
@@ -29,7 +29,7 @@
   <!-- Projectile Information -->
   <DamageAmount>538</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2150</ProjectileSpeed>
+  <ProjectileSpeed>1900</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.2</SalvoTimer>
   <Explodes>true</Explodes>

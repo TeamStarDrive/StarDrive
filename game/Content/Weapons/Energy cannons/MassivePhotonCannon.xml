@@ -20,7 +20,7 @@
 
   <UID>DualPhotonCannon4x4</UID>
   <FireDelay>4</FireDelay>
-  <Range>10200</Range>
+  <Range>7200</Range>
   <PowerRequiredToFire>2620</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 

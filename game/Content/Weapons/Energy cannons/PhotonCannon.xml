@@ -20,7 +20,7 @@
 
   <UID>PhotonCannon</UID>
   <FireDelay>4</FireDelay>
-  <Range>9500</Range>
+  <Range>6600</Range>
   <PowerRequiredToFire>924</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 

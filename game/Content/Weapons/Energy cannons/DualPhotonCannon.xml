@@ -18,7 +18,7 @@
 
   <UID>DualPhotonCannon</UID>
   <FireDelay>3</FireDelay>
-  <Range>10000</Range>
+  <Range>7000</Range>
   <PowerRequiredToFire>1620</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>1200</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>2250</ProjectileSpeed>
+  <ProjectileSpeed>2000</ProjectileSpeed>
 
   <!-- Animation Information -->
   <Animated>1</Animated>

@@ -25,7 +25,7 @@
 
   <UID>PDLaser</UID>
   <FireDelay>0.3</FireDelay>
-  <Range>4500</Range>
+  <Range>3800</Range>
   <PowerRequiredToFire>5</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   

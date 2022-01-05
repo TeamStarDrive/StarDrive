@@ -19,7 +19,7 @@
 
   <UID>ArmoredTurret</UID>
   <FireDelay>4</FireDelay>
-  <Range>13000</Range>
+  <Range>9100</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.7</OrdinanceRequiredToFire>
   <SalvoCount>2</SalvoCount>
@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>408</DamageAmount>
   <MuzzleFlash>Yes</MuzzleFlash>
-  <ProjectileSpeed>1995</ProjectileSpeed>
+  <ProjectileSpeed>1800</ProjectileSpeed>
   <Explodes>true</Explodes>
   <DamageRadius>20</DamageRadius>
   <ProjectileRadius>20</ProjectileRadius>

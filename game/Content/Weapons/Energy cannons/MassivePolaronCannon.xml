@@ -21,7 +21,7 @@
   
   <UID>MassivePolaronCannon</UID>
   <FireDelay>4</FireDelay>
-  <Range>11000</Range>
+  <Range>7700</Range>
   <PowerRequiredToFire>3400</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
@@ -31,7 +31,7 @@
   <!-- Projectile Information -->
   <DamageAmount>2340</DamageAmount>
   <EMPDamage>70</EMPDamage>
-  <ProjectileSpeed>2300</ProjectileSpeed>
+  <ProjectileSpeed>2100</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.5</SalvoTimer>
   <Explodes>false</Explodes>

@@ -20,7 +20,7 @@
   
   <UID>AF_Repeater</UID>
   <FireDelay>0.2</FireDelay>
-  <Range>4400</Range>
+  <Range>3000</Range>
   <PowerRequiredToFire>50</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
@@ -30,7 +30,7 @@
   <!-- Projectile Information -->
   <DamageAmount>30</DamageAmount>
   <ProjectileRadius>15</ProjectileRadius>
-  <ProjectileSpeed>2150</ProjectileSpeed>
+  <ProjectileSpeed>1900</ProjectileSpeed>
   <Light>Green</Light>
   <DamageRadius>1</DamageRadius>
   <Explodes>false</Explodes>

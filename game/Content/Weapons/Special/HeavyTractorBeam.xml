@@ -20,7 +20,7 @@
   <UID>HeavyTractorBeam</UID>
   <IsBeam>true</IsBeam>
   <FireDelay>4.5</FireDelay>
-  <Range>12000</Range>
+  <Range>8400</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <BeamDuration>8</BeamDuration>
