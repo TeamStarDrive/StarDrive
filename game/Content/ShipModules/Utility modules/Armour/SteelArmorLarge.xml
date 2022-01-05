@@ -28,16 +28,12 @@
   <Health>20682</Health>
   <HealthMax>20682</HealthMax>
 
-  <!-- Power Drawn -->
-  <PowerDraw>0</PowerDraw>
-
-
-  <!-- Crew Reqs -->
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
-
-  <!-- for Weapons -->
-
+  <!-- Armor resistance -->
+	<KineticResist>0</KineticResist>
+	<BeamResist>0</BeamResist>
+	<EnergyResist>0</EnergyResist>    
+	<HybridResist>0</HybridResist>
+	<ExplosiveResist>9</ExplosiveResist>
 
   <!-- Description -->
   <Description>This large slab of steel armor is forged as a single seamless unit, which provides greater protection than a series of smaller armor slabs.  Steel armor is cheap and durable, with its primary drawback being its weight.</Description>
