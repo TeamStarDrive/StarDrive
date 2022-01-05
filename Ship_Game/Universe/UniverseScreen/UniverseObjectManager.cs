@@ -15,7 +15,7 @@ namespace Ship_Game
         /// <summary>
         /// Should be TRUE by default. Can be used to detect threading issues.
         /// </summary>
-        static bool EnableParallelUpdate = true;
+        public bool EnableParallelUpdate = true;
 
         /// <summary>
         /// All objects: ships, projectiles, beams

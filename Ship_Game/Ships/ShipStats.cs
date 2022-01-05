@@ -92,7 +92,6 @@ namespace Ship_Game.Ships
                     S.TargetingAccuracy = Math.Max(module.TargetingAccuracy, S.TargetingAccuracy);
                     S.TrackingPower    += module.TargetTracking;
                     S.ECMValue = Math.Max(S.ECMValue, module.ECM).Clamped(0f, 1f);
-                    module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.IsRepairBeam == true, addToList: S.RepairBeams);
                 }
             }
             
