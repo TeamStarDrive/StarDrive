@@ -308,7 +308,13 @@ namespace Ship_Game
             return len > 0.0000001f ? new Vector3(v.X / len, v.Y / len, v.Z / len) : default;
         }
 
-        
+        public static void GetDirectionAndLength(this Vector2 v, out Vector2 dir, out float len)
+        {
+            float l = (float)Sqrt(v.X*v.X + v.Y*v.Y);
+            dir = l > 0.0000001f ? new Vector2(v.X / l, v.Y / l) : default;
+            len = l;
+        }
+
         // True if this given position is within the radius of Circle [center,radius]
         public static bool InRadius(this Vector2 position, Vector2 center, float radius)
             => position.SqDist(center) <= radius*radius;

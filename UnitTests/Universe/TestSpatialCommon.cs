@@ -381,6 +381,7 @@ namespace UnitTests.Universe
                     var p = Projectile.Create(weapon, ship.Position + new Vector2(200), Vectors.Up, null, false);
                     p.Radius = go.Radius / 2;
                     p.Velocity = go.Velocity.LeftVector();
+                    p.VelocityMax = p.Velocity.Length();
                     p.Duration = 10;
                     AllObjects.Add(p);
                 }
@@ -399,7 +400,7 @@ namespace UnitTests.Universe
                 {
                     if (go is Ship s)
                     {
-                        s.IntegratePosVelocityVerlet(TestSimStep.FixedTime, Vector2.Zero);
+                        s.UpdateVelocityAndPosition(TestSimStep.FixedTime, Vector2.Zero);
                         s.UpdateModulePositions(TestSimStep, true);
                     }
                     else if (go is Projectile p)

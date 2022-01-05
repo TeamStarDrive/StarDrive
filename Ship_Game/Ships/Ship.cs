@@ -16,7 +16,7 @@ using System.Threading;
 
 namespace Ship_Game.Ships
 {
-    public partial class Ship : GameplayObject, IDisposable
+    public partial class Ship : PhysicsObject, IDisposable
     {
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
             throw new InvalidOperationException(
