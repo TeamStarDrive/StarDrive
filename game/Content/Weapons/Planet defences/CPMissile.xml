@@ -45,7 +45,7 @@
   <ProjectileTexturePath>LRM_d</ProjectileTexturePath>
   <WeaponTrailEffect>RocketTrail</WeaponTrailEffect> 
 
-  <WeaponType>Missile </WeaponType> 
+  <WeaponType>Missile</WeaponType> 
  <WeaponHitEffect></WeaponHitEffect> 
 
   <ProjectileRadius>10</ProjectileRadius>

@@ -44,7 +44,7 @@
   <!-- Graphical Information -->
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
-  <WeaponType>Missile </WeaponType> 
+  <WeaponType>Missile</WeaponType> 
  <WeaponHitEffect></WeaponHitEffect> 
 
   <ProjectileRadius>18</ProjectileRadius>
