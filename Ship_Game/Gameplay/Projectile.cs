@@ -723,7 +723,7 @@ namespace Ship_Game.Gameplay
                 SetThrustThisFrame(VelocityMax*0.5f, 0f, Thrust.Forward);
         }
         
-        public bool Touch(GameplayObject target)
+        public bool Touch(GameplayObject target, Vector2 hitPos)
         {
             if (Miss || target == Owner)
                 return false;
@@ -765,7 +765,7 @@ namespace Ship_Game.Gameplay
                         return true;
                     }
 
-                    ArmorPiercingTouch(module, parent);
+                    ArmorPiercingTouch(module, parent, hitPos);
                     Health = 0f;
                     showFx = parent.InSensorRange;
                     break;
@@ -835,7 +835,7 @@ namespace Ship_Game.Gameplay
             Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
-        void ArmorPiercingTouch(ShipModule module, Ship parent)
+        void ArmorPiercingTouch(ShipModule module, Ship parent, Vector2 hitPos)
         {
             // Doc: If module has resistance to Armour Piercing effects, 
             // deduct that from the projectile's AP before starting AP and damage checks
@@ -859,12 +859,27 @@ namespace Ship_Game.Gameplay
             }
 
             DebugTargetCircle();
+            ShipModule moduleToTest = module; // Starting the next modules scan from the hit module
             while (DamageAmount > 0)
             {
-                ShipModule nextModule = parent.RayHitTestNextModules(module.Position, VelocityDirection, parent.Radius, Radius, IgnoresShields);
+                Vector2 pos = moduleToTest.Position;
+                float distance = parent.Radius;
+
+                // using hitPos for ray traced hitPos if the module is a shield since shields have bigger radii and we must check
+                // the actual hitPos and not continue from the module - since we do not know if the shields were damaged
+                // or the actual module.
+                if (moduleToTest.Is(ShipModuleType.Shield) && !IgnoresShields)
+                {
+                    pos = hitPos;
+                    distance = distance.LowerBound(moduleToTest.ShieldRadius);
+                }
+
+                ShipModule nextModule = parent.RayHitTestNextModules(pos, VelocityDirection, distance, IgnoresShields);
+
                 if (nextModule == null)
                     return;
 
+                moduleToTest = nextModule;
                 if (ArmorPiercing > 0 && IgnoresShields || !module.ShieldsAreActive)
                 {
                     nextModule.DebugDamageCircle();
