@@ -49,7 +49,7 @@
 <!-- Projectile textures-->
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
-  <WeaponType>Missile </WeaponType> 
+  <WeaponType>Missile</WeaponType> 
  <WeaponHitEffect></WeaponHitEffect> 
 
 <!-- name of XACT audio cue to play on firing this weapon -->

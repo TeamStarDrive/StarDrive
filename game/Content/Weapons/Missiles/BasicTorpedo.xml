@@ -39,7 +39,7 @@
   <Explodes>true</Explodes>
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
-  <WeaponType>Missile </WeaponType> 
+  <WeaponType>Missile</WeaponType> 
  <WeaponHitEffect></WeaponHitEffect> 
 
   <ProjectileRadius>12</ProjectileRadius>
