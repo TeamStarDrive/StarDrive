@@ -21,38 +21,20 @@
   <Health>600</Health>
   <HealthMax>600</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>Solar Panels can be placed on the outside of a ship to provide additional power. Whilst their output is minimal compared to a Nuclear Reactor, they do not explode.
   </Description>
-  <CrewRequired>1</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>0</PowerDraw>
 
   <NameIndex>12005</NameIndex>
   <DescriptionIndex>12006</DescriptionIndex>
-
-
-  <!-- for shield items -->
-  
-  <ShieldPowerMax>0</ShieldPowerMax>
-  <ShieldRechargeDelay>0</ShieldRechargeDelay>
-  <ShieldRechargeRate>0</ShieldRechargeRate>
-  <ShieldRadius>0</ShieldRadius>
-
 
   <!-- for PowerPlant Items -->
   
   <PowerFlowMax>15</PowerFlowMax>
   <PowerStoreMax>0</PowerStoreMax>
   <PowerRadius>1</PowerRadius>
-  
-  <!-- for Weapons -->
-
-  
-  
-  <!-- for Engines -->
-  <Thrust>0</Thrust>
-  
-  
 
 </ShipModule>

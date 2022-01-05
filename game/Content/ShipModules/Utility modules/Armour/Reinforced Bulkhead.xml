@@ -26,17 +26,6 @@
   <Mass>16</Mass>
   <Health>3600</Health>
   <HealthMax>3600</HealthMax>
-  <ExplosiveResist>0.7</ExplosiveResist>
-  <!-- Power Drawn -->
-  <PowerDraw>0</PowerDraw>
-
-
-  <!-- Crew Reqs -->
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
-
-  <!-- for Weapons -->
-
-
+  <ExplosiveResist>0.75</ExplosiveResist>
 
 </ShipModule>
