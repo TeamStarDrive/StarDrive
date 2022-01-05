@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -389,6 +390,8 @@ namespace Ship_Game
 
             SysPerf.Start();
 
+            var shipsInSystems = new BitArray(Ships.Count);
+
             void UpdateSystems(int start, int end)
             {
                 for (int i = start; i < end; ++i)
@@ -396,10 +399,10 @@ namespace Ship_Game
                     SolarSystem system = Universe.Systems[i];
                     system.ShipList.Clear();
 
-                    //int debugId = (system.Name == "Opteris") ? 11 : 0;
                     if (Ships.Count == 0)
                         continue; // all ships were killed, nothing to do here
 
+                    //int debugId = (system.Name == "Opteris") ? 11 : 0;
                     GameplayObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
                                                                         system.Position, system.Radius,
                                                                         maxResults:Ships.Count/*, debugId:debugId*/);
@@ -407,20 +410,25 @@ namespace Ship_Game
                     {
                         var ship = (Ship)shipsInSystem[j];
                         system.ShipList.Add(ship);
-                        ship.SetSystemBackBuffer(system);
+                        shipsInSystems.Set(i); // this ship was seen in a system
+                        ship.SetSystem(system);
                         system.SetExploredBy(ship.Loyalty);
                     }
                 }
             }
 
+            UpdateSystems(0, Universe.Systems.Count);
+            //Parallel.For(UniverseScreen.SolarSystemList.Count, UpdateSystems, Universe.MaxTaskCores);
+            
+            // now set all ships which were not found in any solar system with system = null
             lock (ShipsLocker)
             {
                 for (int i = 0; i < Ships.Count; ++i)
-                    Ships[i].SetSystemFromBackBuffer();
+                {
+                    if (!shipsInSystems.IsSet(i))
+                        Ships[i].SetSystem(null);
+                }
             }
-
-            UpdateSystems(0, Universe.Systems.Count);
-            //Parallel.For(UniverseScreen.SolarSystemList.Count, UpdateSystems, Universe.MaxTaskCores);
 
             // TODO: SolarSystem.Update is not thread safe because of resource loading
             for (int i = 0; i < Universe.Systems.Count; ++i)

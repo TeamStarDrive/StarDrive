@@ -33,7 +33,6 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public bool Active = true;
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
-        [XmlIgnore][JsonIgnore] public SolarSystem SystemBackBuffer { get; private set; }
 
         [StarData] public Vector2 Position;
         [StarData] public Vector2 Velocity;
@@ -115,17 +114,6 @@ namespace Ship_Game
         public void SetSystem(SolarSystem system)
         {
             System = system;
-        }
-
-        public void SetSystemBackBuffer(SolarSystem system)
-        {
-            SystemBackBuffer = system;
-        }
-
-        public void SetSystemFromBackBuffer()
-        {
-            System           = SystemBackBuffer;
-            SystemBackBuffer = null;
         }
 
         [Pure] public int GetLoyaltyId()
