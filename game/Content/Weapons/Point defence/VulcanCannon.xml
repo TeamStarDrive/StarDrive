@@ -23,10 +23,10 @@
   
   <UID>VulcanCannon</UID>
   <FireDelay>3</FireDelay>
-  <Range>3800</Range>
+  <Range>3000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.02</OrdinanceRequiredToFire>
-  <SalvoCount>7</SalvoCount>
+  <SalvoCount>6</SalvoCount>
   <SalvoTimer>0.5</SalvoTimer>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -35,7 +35,7 @@
  <!-- <ToggleSoundName>sd_weapon_vulcan_spinloop_01</ToggleSoundName> -->
 
   <!-- Projectile Information -->
-  <DamageAmount>2</DamageAmount>
+  <DamageAmount>1</DamageAmount>
   <Scale>.7</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1450</ProjectileSpeed>

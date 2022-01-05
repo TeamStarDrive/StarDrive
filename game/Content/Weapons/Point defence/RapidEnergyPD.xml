@@ -9,8 +9,8 @@
   <OffPowerMod>6</OffPowerMod>
 
   <UID>RapidEnergyPD</UID>
-  <FireDelay>2</FireDelay>
-  <Range>4500</Range>
+  <FireDelay>3</FireDelay>
+  <Range>4000</Range>
   <PowerRequiredToFire>20</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <PlaySoundOncePerSalvo>true</PlaySoundOncePerSalvo>
@@ -18,7 +18,7 @@
   <FireCueName>sd_weapon_laser_burst_01</FireCueName> -->
   <FireCueName>sd_weapon_laser_small_alt5_01</FireCueName>
   <!-- Projectile Information -->
-  <DamageAmount>4</DamageAmount>
+  <DamageAmount>3</DamageAmount>
   <SalvoCount>8</SalvoCount>
   <SalvoTimer>0.6</SalvoTimer>
   <ProjectileSpeed>2000</ProjectileSpeed>

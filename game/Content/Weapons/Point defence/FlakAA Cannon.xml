@@ -9,10 +9,10 @@
   <OffPowerMod>6</OffPowerMod>
   
   <UID>FlakAA Cannon</UID>
-  <FireDelay>0.2</FireDelay>
+  <FireDelay>0.5</FireDelay>
   <TargetChangeTimer>0.5</TargetChangeTimer>
   <SalvoCount>1</SalvoCount> 
-  <Range>4500</Range>
+  <Range>4000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.6</OrdinanceRequiredToFire>
 
@@ -21,7 +21,7 @@
   <PlaySoundOncePerSalvo>false</PlaySoundOncePerSalvo>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
-  <DamageAmount>23</DamageAmount>
+  <DamageAmount>20</DamageAmount>
   <Scale>0.8</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2000</ProjectileSpeed>
