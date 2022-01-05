@@ -684,7 +684,7 @@ namespace Ship_Game
 
             if (!Paused) // Particle pools need to be updated
             {
-                Particles.Update(elapsed);
+                Particles.Update(CurrentSimTime);
             }
 
             DrawParticles.Stop();

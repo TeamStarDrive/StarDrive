@@ -127,7 +127,7 @@
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
-  Name: MissileThrust   #missile thrust glow
+  Name: MissileThrustFlare   #missile thrust glow
   TextureName: "star_yellow.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in

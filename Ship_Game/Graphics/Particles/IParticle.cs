@@ -58,7 +58,8 @@ namespace Ship_Game.Graphics.Particles
         ParticleEmitter NewEmitter(float particlesPerSecond, in Vector2 initialPosition, float scale);
 
         // Update the particles
-        void Update(DrawTimes elapsed);
+        // @param totalSimulationTime Total seconds elapsed since simulation started
+        void Update(float totalSimulationTime);
 
         // Draw the entire particle system
         void Draw(in Matrix view, in Matrix projection, bool nearView);
