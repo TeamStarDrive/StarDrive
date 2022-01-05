@@ -1554,7 +1554,6 @@ namespace Ship_Game.Ships
             InstalledWeapon?.Dispose(ref InstalledWeapon);
             LastDamagedBy = null;
             SetSystem(null);
-            SetSystemBackBuffer(null);
         }
     }
 }

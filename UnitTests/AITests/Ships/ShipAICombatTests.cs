@@ -15,7 +15,7 @@ namespace UnitTests.AITests.Ships
     {
         Ship OurShip, TheirShip, ThirdShip;
 
-        FixedSimTime EnemyScanInterval = new FixedSimTime(EmpireConstants.EnemyScanInterval);
+        readonly FixedSimTime EnemyScanInterval = new FixedSimTime(EmpireConstants.EnemyScanInterval);
 
         public ShipAICombatTests()
         {
@@ -252,10 +252,9 @@ namespace UnitTests.AITests.Ships
             Update(TestSimStep);
             Assert.IsFalse(OurShip.InCombat, "ship should not be in combat yet");
 
-            var p = SpawnEnemyPlanet();
-            OurShip.SetSystem(p.ParentSystem);
-            OurShip.SetSystemBackBuffer(p.ParentSystem);
+            SpawnEnemyPlanet();
             Update(EnemyScanInterval);
+
             // verify block
             Assert.IsTrue(OurShip.System != null, "Test wont work without being in system");
             Assert.IsTrue(OurShip.AI.BadGuysNear, "Test wont work if badguys near false");

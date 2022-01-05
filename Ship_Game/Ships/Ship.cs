@@ -131,9 +131,13 @@ namespace Ship_Game.Ships
         public float TractorDamage { get; private set; }
         private bool BeingTractored;
         float UpdateTimer;
+
         int HighAlertTimer;
         public bool OnHighAlert => HighAlertTimer > 0;
         public bool OnLowAlert => HighAlertTimer <= 0;
+        public void SetHighAlertStatus() => HighAlertTimer = 10;
+
+
         public float HealPerTurn;
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
         Vector3 DieRotation;
@@ -1151,8 +1155,6 @@ namespace Ship_Game.Ships
             // scan universe and make decisions for combat
             AI.ScanForTargets(timeStep);
         }
-
-        public void SetHighAlertStatus() => HighAlertTimer = 10;
 
         public void UpdateModulePositions(FixedSimTime timeStep, bool isSystemView, bool forceUpdate = false)
         {
