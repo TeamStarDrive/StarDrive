@@ -18,8 +18,8 @@
   <energyreq>0</energyreq>
   <Description>Ordnance represents a ship's stores of munitions and explosives such as bullets, missiles, torpedoes, mines, and other special weapons.  A basic ordnance locker such as this one provides a captain with a safe and convenient place to store his munitions.
   </Description>
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>0</PowerDraw>
 
 

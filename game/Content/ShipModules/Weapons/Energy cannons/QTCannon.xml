@@ -20,7 +20,7 @@
   <Description>A devastatingly powerful energy cannon
   </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>80</PowerDraw>
 
   <NameIndex>1036</NameIndex>
@@ -43,7 +43,7 @@
   <!-- for Weapons -->
   <WeaponType>QTCannon</WeaponType>
   <FieldOfFire>15</FieldOfFire>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   
   <!-- for Engines -->
   <Thrust>0</Thrust>

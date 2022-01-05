@@ -16,9 +16,9 @@
   <Health>9600</Health>
   <HealthMax>9600</HealthMax>
   <energyreq>25</energyreq>
-  <modRadius>4</modRadius>
+  
   <CrewRequired>10</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <Description>This hangar bay supports a single fighter-class ship at a time.  If the fighter is destroyed in combat, it will respawn from this bay after a cooldown. You may designate which of your fighter designs launches from this bay in the ship design screen</Description>
   <PowerDraw>10</PowerDraw>
 

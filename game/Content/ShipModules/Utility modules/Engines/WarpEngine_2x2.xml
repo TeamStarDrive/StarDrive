@@ -20,10 +20,10 @@
   <Health>1840</Health>
   <HealthMax>1840</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>This medium-sized warp engine provides greater warp performance at the expense of sublight performance. </Description>
-  <CrewRequired>5</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>35</PowerDraw>
 
 

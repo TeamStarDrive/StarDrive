@@ -17,9 +17,9 @@
   <Health>1100</Health>
   <HealthMax>1100</HealthMax>
   <energyreq>1</energyreq>
-  <modRadius>4</modRadius>
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
+  
   <Description>This armored fuel cell is reinforced with triple hitpoints at the expense of increased mass and cost and slightly reduced fuel capacity.</Description>
   <PowerDraw>0</PowerDraw>
 

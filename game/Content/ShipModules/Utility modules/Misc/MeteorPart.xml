@@ -28,7 +28,7 @@
   <Health>1000</Health>
   <HealthMax>1000</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <PowerDraw>0</PowerDraw>
   <SensorRange>10000</SensorRange>
   <NameIndex>4279</NameIndex>

@@ -23,7 +23,7 @@
   <Description>Flak Turrets are mounted on omni-directional swivel platforms for a full field of fire.  They fire explosive shells with a wide damaging radius, but the projectiles are somewhat slow and have a limited range.  Furthermore, this weapon requires ordnance to fire.
   </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>14</PowerDraw>
 
   <NameIndex>17481</NameIndex>
@@ -48,7 +48,6 @@
   <WeaponType>HVTurret_3x3</WeaponType>
   <FieldOfFire>120</FieldOfFire>
   <OrdinanceCapacity>15</OrdinanceCapacity>
-  <AccuracyPercent>0.2</AccuracyPercent>
   <!-- for Engines -->
   <Thrust>0</Thrust>
   

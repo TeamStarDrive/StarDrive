@@ -21,8 +21,8 @@
 	<RepairDifficulty>2</RepairDifficulty>
 	<energyreq>0</energyreq>
 	<Description>RemnantNuker</Description>
-	<CrewRequired>5</CrewRequired>
-	<CrewSupplied>0</CrewSupplied>
+	
+	
 	<PowerDraw>10</PowerDraw>
 
 	<NameIndex>17924</NameIndex>

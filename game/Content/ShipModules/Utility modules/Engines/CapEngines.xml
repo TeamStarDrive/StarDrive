@@ -19,10 +19,10 @@
   <Health>4680</Health>
   <HealthMax>4680</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>This massive engine will provide awesome thrust at an awesome power cost.  </Description>
-  <CrewRequired>1</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>75</PowerDraw>
 	<PowerDrawAtWarp>-75</PowerDrawAtWarp>
 

@@ -17,10 +17,10 @@
   <Health>6188</Health>
   <HealthMax>6188</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>This is a monstrous shield with the a high resistance and a massive protection radius, making it ideal for capital ships or specialized shield ships.  The power costs are enormous.</Description>
-  <CrewRequired>3</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>1100</PowerDraw>
 
   <NameIndex>916</NameIndex>

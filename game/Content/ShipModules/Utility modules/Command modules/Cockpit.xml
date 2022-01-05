@@ -23,7 +23,7 @@
   <Health>500</Health>
   <HealthMax>500</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>This cockpit has enough room for a small flight crew and their workstations.   From here, the crew can receive basic sensor data, coordinate ship repairs, and pilot the ship.</Description>
 
   <PowerDraw>2</PowerDraw>

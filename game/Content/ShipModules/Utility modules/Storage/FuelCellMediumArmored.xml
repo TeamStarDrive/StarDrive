@@ -17,9 +17,9 @@
   <Health>4400</Health>
   <HealthMax>4400</HealthMax>
   <energyreq>1</energyreq>
-  <modRadius>4</modRadius>
-  <CrewRequired>0</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
+  
   <Description>This medium-sized fuel cell is heavily armored, with triple hitpoints but an increased cost and reduced fuel capacity.</Description>
   <PowerDraw>0</PowerDraw>
 

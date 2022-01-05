@@ -23,9 +23,9 @@
   <HealthMax>4800</HealthMax>
   <RepairDifficulty>3</RepairDifficulty>
   <energyreq>25</energyreq>
-  <modRadius>4</modRadius>
+  
   <CrewRequired>10</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <Description>This hangar bay will launch an assault shuttle capable of performing a ship-to-ship boarding action. A ship that launches an assault shuttle will have its Boarding Defense lowered by the power of the troops leaving the ship for the assault. Only one shuttle per bay may be launched at a time.  </Description>
   <PowerDraw>10</PowerDraw>
 

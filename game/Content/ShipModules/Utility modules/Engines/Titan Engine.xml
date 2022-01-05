@@ -19,10 +19,10 @@
   <Health>9280</Health>
   <HealthMax>9280</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>This titanic engine requires considerable power but provides unparalleled thrust.  </Description>
-  <CrewRequired>1</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>130</PowerDraw>
 	<PowerDrawAtWarp>-130</PowerDrawAtWarp>
   <NameIndex>1066</NameIndex>

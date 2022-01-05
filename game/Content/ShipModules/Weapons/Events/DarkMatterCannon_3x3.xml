@@ -36,7 +36,7 @@
   <energyreq>0</energyreq>
   <Description>A crude but effective high-energy cannon weapon </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>200</PowerDraw>
 
 
@@ -61,7 +61,7 @@
   <!-- for Weapons -->
   <WeaponType>DarkMatterCannon_3x3</WeaponType>
   <FieldOfFire>120</FieldOfFire>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   
   <!-- for Engines -->    
   

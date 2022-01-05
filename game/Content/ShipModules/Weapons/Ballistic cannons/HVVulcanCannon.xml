@@ -51,7 +51,7 @@
   <WeaponType>HVVulcan</WeaponType>
   <FieldOfFire>45</FieldOfFire>
   <OrdinanceCapacity>1</OrdinanceCapacity>
-  <AccuracyPercent>0.2</AccuracyPercent>
+   
   <!-- for Engines -->
   <Thrust>0</Thrust>
 

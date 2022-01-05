@@ -20,11 +20,11 @@
   <Health>1100</Health>
   <HealthMax>1100</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description> This particular model is a very basic 1 KW shieid (2000 hp) with a 75 meter protective radius and a low recharge speed.
   </Description>
-  <CrewRequired>1</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
+  
   <PowerDraw>75</PowerDraw>
 
   <NameIndex>1050</NameIndex>

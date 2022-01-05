@@ -21,10 +21,10 @@
   <Health>1550</Health>
   <HealthMax>1550</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>Overload AntiMatter, will provide more power(1.5 times) than normal ones. But very unstateable and have a small power supply range.</Description>
   <CrewRequired>10</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>0</PowerDraw>
 
   <NameIndex>8047</NameIndex>

@@ -20,7 +20,7 @@
   <Description>This monstrous cannon fires fast-moving, high explosive shells.  It consumes considerable ordnance to fire this weapon but its power is unquestionable.  That said, only a few few ships are large enough to mount this weapon.
   </Description>
   <CrewRequired>12</CrewRequired>
-  <CrewSupplied>0</CrewSupplied>
+  
   <PowerDraw>40</PowerDraw>
   <TechLevel>4</TechLevel>
   <NameIndex>912</NameIndex>
@@ -43,7 +43,7 @@
   <WeaponType>BigCannon</WeaponType>
   <FieldOfFire>20</FieldOfFire>
   <OrdinanceCapacity>38</OrdinanceCapacity>
-  <AccuracyPercent>0.2</AccuracyPercent>
+  
   <!-- for Engines -->
   <Thrust>0</Thrust>
   

@@ -29,9 +29,9 @@
   <Health>10800</Health>
   <HealthMax>10800</HealthMax>
   <energyreq>0</energyreq>
-  <modRadius>4</modRadius>
+  
   <Description>This barracks houses 4 Marine platoons. Marines increase a ship's boarding defense and can also be used offensively if their ship has an assault shuttle. Marines receive any racial ground combat bonuses or penalties. </Description>
-  <CrewRequired>1</CrewRequired>
+  
   <CrewSupplied>9</CrewSupplied>
   <PowerDraw>0</PowerDraw>
 
