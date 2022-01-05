@@ -23,13 +23,12 @@
   <modRadius>4</modRadius>
   <Description> This particular model is a very basic 1 KW shieid (2000 hp) with a 75 meter protective radius and a low recharge speed.
   </Description>
-    <CrewRequired>1</CrewRequired>
+  <CrewRequired>1</CrewRequired>
   <CrewSupplied>0</CrewSupplied>
   <PowerDraw>75</PowerDraw>
 
   <NameIndex>1050</NameIndex>
   <DescriptionIndex>1051</DescriptionIndex>
-
 
   <!-- for shield items -->
   <ShieldPowerMax>3000</ShieldPowerMax>
@@ -37,18 +36,5 @@
   <ShieldRechargeRate>80.0</ShieldRechargeRate>
   <ShieldRadius>98</ShieldRadius>
   <ShieldRechargeCombatRate>80</ShieldRechargeCombatRate>
-
-  <!-- for PowerPlant Items -->
-  
-  <PowerFlowMax>0</PowerFlowMax>
-  <PowerStoreMax>0</PowerStoreMax>
-  
-  <!-- for Weapons -->
-  
-  
-  <!-- for Engines -->
-  <Thrust>0</Thrust>
-  
-  
 
 </ShipModule>

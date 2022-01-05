@@ -31,29 +31,11 @@
   <NameIndex>1004</NameIndex>
   <DescriptionIndex>1005</DescriptionIndex>
 
-
-  <!-- for shield items -->
-  
-  <ShieldPowerMax>0</ShieldPowerMax>
-  <ShieldRechargeDelay>0</ShieldRechargeDelay>
-  <ShieldRechargeRate>0</ShieldRechargeRate>
-  <ShieldRadius>0</ShieldRadius>
-
-
   <!-- for PowerPlant Items -->
   <ExplosionDamage>1500</ExplosionDamage>
   <ExplosionRadius>40</ExplosionRadius> 
   <PowerFlowMax>45</PowerFlowMax>
   <PowerStoreMax>10</PowerStoreMax>
   <PowerRadius>1</PowerRadius>
-  
-  <!-- for Weapons -->
-
-  
-  
-  <!-- for Engines -->
-  <Thrust>0</Thrust>
-  
-  
 
 </ShipModule>
