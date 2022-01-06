@@ -881,7 +881,7 @@ namespace Ship_Game.Ships
                 if (proj?.Weapon.EMPDamage > damageThreshold && !damagingShields)
                     CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
 
-                if (modifiedDamage < damageThreshold && proj?.WeaponEffectType != "Plasma")
+                if (modifiedDamage < damageThreshold && proj?.WeaponType != "Plasma")
                     return false; // no damage could be done, the projectile was deflected.
             }
 
@@ -905,8 +905,8 @@ namespace Ship_Game.Ships
 
             if (Parent.IsVisibleToPlayer)
             {
-                if      (beam != null)            beam.CreateHitParticles(ZPos);
-                else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
+                if      (beam != null)            beam.CreateBeamHitParticles(ZPos, damagingShields);
+                else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D, damagingShields);
 
                 CreateHitDebris(proj);
             }

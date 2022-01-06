@@ -5,6 +5,15 @@
 #  // Unique name of this particle effect group
 #  Name: EngineThrust1
 #
+#  // if > 0, generates random spray velocities in a loop
+#  // see `RandomizedSpray` to control the random spray
+#  // if you set this to 20, effect.Update() will be called 20 times, so be careful!!
+#  RandomizedSprayParticles: 0
+#
+#  // if `RandomizedSprayParticles` > 0, then this controls the maximum
+#  // magnitudes of spray particles. Default value = [ [-50,-50,-50], [50,50,50] ]
+#  RandomizedSpray: [ [-50,-50,-50], [50,50,50] ]
+#
 #  // List of emitters, sorted from TopMost effect, to BottomMost
 #  Emitters:
 #    - Emitter: { ... } # topmost
@@ -48,6 +57,10 @@
 #  PositionIncrements: [-1, +1]
 #
 
+#####################
+## Engine effects
+#####################
+
 - ParticleEffect: # Ship thrust effect 1
   Name: EngineThrust1
   Emitters:
@@ -64,6 +77,9 @@
       InheritSprayVelocity: 0.5
       LocalOffset: [0, 16] # in relation to velocity
 
+#####################
+## Projectile Trail effects
+#####################
 
 - ParticleEffect: # Projectile Trail effect
   Name: RocketTrail
@@ -72,14 +88,12 @@
     - Emitter: { Particle: FireTrail, Rate: 120, InheritSprayVelocity: 1.5 }
     - Emitter: { Particle: MissileSmokeTrail, Rate: 80 }
 
-
 - ParticleEffect: # Projectile Trail effect
   Name: TorpTrail
   Emitters:
     - Emitter: { Particle: MissileThrustFlare, Rate: 15, InheritSprayVelocity: 0 }
     - Emitter: { Particle: IonRingReversed, Rate: 10 }
     - Emitter: { Particle: IonTrail, Rate: 150 }
-
 
 - ParticleEffect: # Projectile Trail effect
   Name: BubbleTrail
@@ -88,37 +102,31 @@
     - Emitter: { Particle: IonRing, Rate: 10 }
     - Emitter: { Particle: Bubble, Rate: 20 }
 
-
 - ParticleEffect: # Projectile Trail effect
   Name: Plasma
   Emitters:
     - Emitter: { Particle: Flame, Rate: 100 }
-
 
 - ParticleEffect: # Projectile Trail effect
   Name: Bubble
   Emitters:
     - Emitter: { Particle: Bubble, Rate: 15 }
 
-
 - ParticleEffect: # Projectile Trail effect
   Name: SmokeTrail
   Emitters:
     - Emitter: { Particle: ProjectileTrail, Rate: 100 }
-
 
 - ParticleEffect: # Projectile Trail effect
   Name: MuzzleSmoke
   Emitters:
     - Emitter: { Particle: ProjectileTrail, Rate: 100 }
 
-
 - ParticleEffect: # Projectile Trail effect
   Name: MuzzleSmokeFire
   Emitters:
     - Emitter: { Particle: FireTrail, Rate: 100 }
     - Emitter: { Particle: ProjectileTrail, Rate: 100 }
-
 
 - ParticleEffect: # Projectile Trail effect
   Name: FullSmokeMuzzleFire
@@ -127,6 +135,68 @@
     - Emitter: { Particle: ProjectileTrail, Rate: 100 }
 
 
+#####################
+## Death effects
+#####################
+
+- ParticleEffect:
+  Name: Projectile_Death_Plasma
+  RandomizedSprayParticles: 20
+  RandomizedSpray: [ [250,250,250] ]
+  Emitters:
+    - Emitter: { Particle: FireTrail, Rate: 100 }
 
 
+#####################
+## Kinetic Hit effects
+#####################
 
+- ParticleEffect:
+  Name: Kinetic_Hit_Armor
+  Emitters:
+    - Emitter: { Particle: BeamFlash, Rate: 40 }
+    - Emitter: { Particle: Flash, Rate: 20 }
+
+- ParticleEffect:
+  Name: Kinetic_Hit_Shield
+  Emitters:
+    - Emitter: { Particle: BlueSparks, Rate: 40 }
+    - Emitter: { Particle: Flash, Rate: 20 }
+
+
+#####################
+## Energy Hit effects
+#####################
+
+- ParticleEffect:
+  Name: Energy_Hit_Armor
+  Emitters:
+    - Emitter: { Particle: BeamFlash, Rate: 40 }
+    - Emitter: { Particle: Flash, Rate: 20 }
+
+- ParticleEffect:
+  Name: Energy_Hit_Shield
+  Emitters:
+    - Emitter: { Particle: BlueSparks, Rate: 40 }
+    - Emitter: { Particle: Flash, Rate: 20 }
+
+
+#####################
+## Beam Hit effects
+#####################
+
+- ParticleEffect:
+  Name: Beam_Hit_Armor
+  RandomizedSprayParticles: 20
+  RandomizedSpray: [ [40,40,-25], [80,80,25] ]
+  Emitters:
+    - Emitter: { Particle: Sparks, Rate: 40 }
+    - Emitter: { Particle: Flash, Rate: 20 }
+
+- ParticleEffect:
+  Name: Beam_Hit_Shield
+  RandomizedSprayParticles: 20
+  RandomizedSpray: [ [40,40,-25], [80,80,25] ]
+  Emitters:
+    - Emitter: { Particle: BlueSparks, Rate: 40 }
+    - Emitter: { Particle: Flash, Rate: 20 }

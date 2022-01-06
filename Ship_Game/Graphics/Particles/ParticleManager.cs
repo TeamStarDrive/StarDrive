@@ -173,6 +173,7 @@ namespace Ship_Game.Graphics.Particles
             return ByName.Get(particleName, out IParticle p) ? p : null;
         }
 
+        // Creates a new effect instance, OR returns null if effect does not exist
         public ParticleEffect CreateEffect(string effectName, in Vector3 initialPos, GameplayObject context)
         {
             ParticleEffect template = GetEffectTemplate(effectName);
