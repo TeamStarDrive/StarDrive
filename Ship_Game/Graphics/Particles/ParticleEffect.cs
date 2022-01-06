@@ -19,7 +19,18 @@ namespace Ship_Game.Graphics.Particles
         [StarDataType]
         public class ParticleEffectData
         {
+            // Unique identifier of this ParticleEffect in ParticleEffects.yaml
             [StarData] public readonly string Name;
+
+            // if > 0, generates random spray velocities in a loop
+            // see `RandomizedSpray` to control the random spray
+            // if you set this to 20, effect.Update() will be called 20 times, so be careful!!
+            [StarData] public readonly int RandomizedSprayParticles;
+
+            // if `RandomizedSprayParticles` > 0, then this controls the maximum
+            // magnitudes of spray particles. Default value = [ [-50,-50,-50], [50,50,50] ]
+            [StarData] public readonly Vector3[] RandomizedSpray = { new Vector3(-50, -50, -50), new Vector3(50, 50, 50) };
+
             [StarData] public readonly ParticleEmitterData[] Emitters;
 
             public ParticleManager Manager;
@@ -255,20 +266,10 @@ namespace Ship_Game.Graphics.Particles
         /// <param name="scale">Size scale of the effect</param>
         public void Update(FixedSimTime timeStep, in Vector3 newPos, float scale = 1f)
         {
-            float fixedStep = timeStep.FixedTime;
-            if (fixedStep > 0f)
-            {
-                if (Data.IsDisposed && !ReloadAfterDisposed())
-                    return; // effect is not available right now, wait until hot-load user corrects the issue
-
-                Vector3 moveVel = (newPos - PrevPos) / fixedStep;
-                Vector3 sprayVel = Vector3.Zero;
-                for (int i = 0; i < Emitters.Length; ++i)
-                {
-                    Emitters[i].Update(fixedStep, PrevPos, newPos, moveVel, sprayVel, scale);
-                }
-            }
-            PrevPos = newPos;
+            // no randomized spray, use sprayVelocity = Zero
+            // randomized spray, use sprayVelocity = One so we inherit from effect settings
+            Vector3 sprayVel = Data.RandomizedSprayParticles <= 0 ? Vector3.Zero : Vector3.One;
+            Update(timeStep, newPos, sprayVel, scale);
         }
 
         /// <param name="timeStep">Fixed Simulation TimeStep</param>
@@ -282,11 +283,30 @@ namespace Ship_Game.Graphics.Particles
             {
                 if (Data.IsDisposed && !ReloadAfterDisposed())
                     return; // effect is not available right now, wait until hot-load user corrects the issue
-                
+
                 Vector3 moveVel = (newPos - PrevPos) / fixedStep;
-                for (int i = 0; i < Emitters.Length; ++i)
+
+                int sprayCount = Data.RandomizedSprayParticles;
+                if (sprayCount <= 0)
                 {
-                    Emitters[i].Update(fixedStep, PrevPos, newPos, moveVel, sprayVel, scale);
+                    for (int i = 0; i < Emitters.Length; ++i)
+                    {
+                        Emitters[i].Update(fixedStep, PrevPos, newPos, moveVel, sprayVel, scale);
+                    }
+                }
+                else
+                {
+                    Vector3 sprayMin = Data.RandomizedSpray[0];
+                    Vector3 sprayMax = Data.RandomizedSpray[Data.RandomizedSpray.Length-1];
+
+                    for (int j = 0; j < sprayCount; ++j)
+                    {
+                        var randomSpray = sprayVel * RandomMath.Vector3D(sprayMin, sprayMax);
+                        for (int i = 0; i < Emitters.Length; ++i)
+                        {
+                            Emitters[i].Update(fixedStep, PrevPos, newPos, moveVel, randomSpray, scale);
+                        }
+                    }
                 }
             }
             PrevPos = newPos;
