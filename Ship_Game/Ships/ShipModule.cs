@@ -906,7 +906,7 @@ namespace Ship_Game.Ships
             if (Parent.IsVisibleToPlayer)
             {
                 if      (beam != null)            beam.CreateBeamHitParticles(ZPos, damagingShields);
-                else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D, damagingShields);
+                else if (proj?.Explodes == false) proj.CreateHitParticles(Center3D, damagingShields);
 
                 CreateHitDebris(proj);
             }
