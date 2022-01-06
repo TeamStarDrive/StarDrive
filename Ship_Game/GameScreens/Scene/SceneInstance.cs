@@ -64,7 +64,8 @@ namespace Ship_Game.GameScreens.Scene
             screen.SetViewMatrix(Matrix.CreateLookAt(CameraPos, LookAt, Vector3.Down));
             screen.SetPerspectiveProjection(maxDistance: 35000);
 
-            FTLManager.LoadContent(screen);
+            // always reload because we might have switched mods (which unloaded the content)
+            FTLManager.LoadContent(screen, reload:true);
 
             Particles = new ParticleManager(screen.TransientContent);
 
