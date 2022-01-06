@@ -43,8 +43,9 @@
   <ModelPath>projTear</ModelPath>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
-  <WeaponType>Ballistic Cannon</WeaponType> 
-  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponType>Ballistic Cannon</WeaponType>
+  <WeaponHitEffect>Kinetic_Hit_Armor</WeaponHitEffect>
+  <WeaponShieldHitEffect>Kinetic_Hit_Shield</WeaponShieldHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
 
 </Weapon>

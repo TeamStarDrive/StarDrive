@@ -510,7 +510,8 @@ namespace Ship_Game.Gameplay
 
             if (HitEffect != null)
             {
-                HitEffect.Fx?.Update(timeStep, HitEffect.HitPos, HitEffect.Normal);
+                if (InFrustum)
+                    HitEffect.Fx?.Update(timeStep, HitEffect.HitPos, HitEffect.Normal);
                 HitEffect.Timer -= timeStep.FixedTime;
                 if (HitEffect.Timer < 0f)
                     HitEffect = null;
@@ -640,6 +641,30 @@ namespace Ship_Game.Gameplay
             }
 
             TrailEffect.Update(timeStep, trailPos, trailVel);
+        }
+        
+        protected HitEffectState CreateHitEffect(bool damagingShields, in Vector3 pos)
+        {
+            string effect = damagingShields ? Weapon.WeaponShieldHitEffect : Weapon.WeaponHitEffect;
+            if (effect.IsEmpty())
+                return null;
+            var fx = Owner.Universe.Particles?.CreateEffect(effect, pos, this);
+            if (fx == null)
+                return null; // effect not found
+            return new HitEffectState(fx);
+        }
+
+        public void CreateHitParticles(in Vector3 center, bool damagingShields)
+        {
+            if (HitEffect == null)
+            {
+                HitEffect = CreateHitEffect(damagingShields, center);
+            }
+
+            if (HitEffect != null)
+            {
+                HitEffect?.Update(center, Vector3.One, 0.1f);
+            }
         }
 
         PointLight CreateLight()
@@ -922,25 +947,6 @@ namespace Ship_Game.Gameplay
         }
 
         public override string ToString() => $"Proj[{WeaponType}] Wep={Weapon?.Name} Pos={Position} Rad={Radius} Loy=[{Loyalty}]";
-
-        protected HitEffectState CreateHitEffect(bool damagingShields, in Vector3 pos)
-        {
-            string effect = damagingShields ? Weapon.WeaponShieldHitEffect : Weapon.WeaponHitEffect;
-            if (effect.IsEmpty())
-                return null;
-            var fx = Owner.Universe.Particles?.CreateEffect(effect, pos, this);
-            if (fx == null)
-                return null; // effect not found
-            return new HitEffectState(fx);
-        }
-
-        public void CreateHitParticles(float damageAmount, in Vector3 center, bool damagingShields)
-        {
-            if (HitEffect == null)
-                HitEffect = CreateHitEffect(damagingShields, center);
-
-            HitEffect?.Update(center, Vector3.One, 0.1f);
-        }
 
         public void IgniteEngine()
         {

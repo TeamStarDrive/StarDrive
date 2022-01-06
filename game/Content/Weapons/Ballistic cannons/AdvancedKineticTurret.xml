@@ -43,7 +43,8 @@
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Ballistic Cannon</WeaponType>
-  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponHitEffect>Kinetic_Hit_Armor</WeaponHitEffect>
+  <WeaponShieldHitEffect>Kinetic_Hit_Shield</WeaponShieldHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
 
 </Weapon>
