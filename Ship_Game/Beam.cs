@@ -45,7 +45,6 @@ namespace Ship_Game
             Range                   = weapon.BaseRange;
             Duration                = weapon.BeamDuration;
             Thickness               = weapon.BeamThickness;
-            WeaponEffectType        = weapon.WeaponEffectType;
             WeaponType              = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
@@ -359,24 +358,17 @@ namespace Ship_Game
 
         public override string ToString() => $"Beam[{WeaponType}] Wep={Weapon?.Name} Src={Source} Dst={Destination} Loy=[{Loyalty}]";
 
-        public void CreateHitParticles(float centerAxisZ)
+        public void CreateBeamHitParticles(float centerAxisZ, bool damagingShields)
         {
-            if (!HasParticleHitEffect(10f))
-                return;
+            var impactNormal = new Vector3(ActualHitDestination.DirectionToTarget(Source), 1f);
+            var pos = ActualHitDestination.ToVec3(centerAxisZ);
 
-            var particles = Owner.Universe.Particles;
-            Vector2 impactNormal = ActualHitDestination.DirectionToTarget(Source);
-            Vector3 pos = ActualHitDestination.ToVec3(centerAxisZ);
+            if (HitEffect == null)
+                HitEffect = CreateHitEffect(damagingShields, pos);
 
-            particles.Flash.AddParticle(pos, Vector3.Zero);
-            for (int i = 0; i < 20; i++)
-            {
-                var vel = new Vector3(impactNormal * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
-                particles.Sparks.AddParticle(pos, vel);
-            }
+            // if effect was created successfully
+            HitEffect?.Update(pos, impactNormal, 0.1f);
         }
-
-        static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
     }
 
     public sealed class DroneBeam : Beam

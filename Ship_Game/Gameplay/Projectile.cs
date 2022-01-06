@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
@@ -33,10 +32,32 @@ namespace Ship_Game.Gameplay
         public float Duration;
         public bool Explodes;
         public ShipModule Module;
-        public string WeaponEffectType;
+
+        // projectile has a trail (like missile trail)
+        ParticleEffect TrailEffect;
         float TrailOffset;
 
-        ParticleEffect TrailEffect;
+        // the particle itself explodes
+        ParticleEffect DeathEffect;
+
+        protected class HitEffectState
+        {
+            public ParticleEffect Fx;
+            public float Timer;
+            public Vector3 HitPos;
+            public Vector3 Normal;
+            public HitEffectState(ParticleEffect fx)  { Fx = fx; }
+            public void Update(in Vector3 hitPos, in Vector3 normal, float timer)
+            {
+                Timer = timer;
+                HitPos = hitPos;
+                Normal = normal;
+            }
+        }
+
+        // currently active HitEffect (if any)
+        // beams have different hit effects, and hitting shields or armor has different effects as well
+        protected HitEffectState HitEffect;
 
         SceneObject ProjSO; // this is null for sprite based projectiles
         public Matrix WorldMatrix { get; private set; }
@@ -214,7 +235,6 @@ namespace Ship_Game.Gameplay
             ExplosionRadiusMod    = Weapon.ExplosionRadiusVisual;
             Health                = Weapon.HitPoints;
             Speed                 = Weapon.ProjectileSpeed;
-            WeaponEffectType      = Weapon.WeaponEffectType;
             TrailOffset           = Weapon.TrailOffset;
             WeaponType            = Weapon.WeaponType;
             RotationRadsPerSecond = Weapon.RotationRadsPerSecond;
@@ -301,10 +321,10 @@ namespace Ship_Game.Gameplay
                 ProjectileTexture = ResourceManager.ProjTexture(Weapon.ProjectileTexturePath);
             }
 
-            if (Weapon.WeaponEffectType.NotEmpty() && Universe.Particles != null)
+            if (Weapon.WeaponTrailEffect.NotEmpty() && Universe.Particles != null)
             {
                 var pos3D = new Vector3(Position, ZPos);
-                TrailEffect = Universe.Particles.CreateEffect(Weapon.WeaponEffectType, pos3D, context: this);
+                TrailEffect = Universe.Particles.CreateEffect(Weapon.WeaponTrailEffect, pos3D, context: this);
             }
         }
 
@@ -318,7 +338,10 @@ namespace Ship_Game.Gameplay
             Speed    *= momentumLoss / 10;
             SetInitialVelocity(Speed * newDirection);
             if (RandomMath.RollDie(2) == 2)
-                Universe.Particles.BeamFlash.AddParticle(GetBackgroundPos(deflectionPoint), Vector3.Zero);
+            {
+                var foregroundPos = new Vector3(deflectionPoint.X, deflectionPoint.Y, deflectionPoint.Z - 50f);
+                Universe.Particles.BeamFlash.AddParticle(foregroundPos, Vector3.Zero);
+            }
         }
 
         public void CreateMirv(GameplayObject target)
@@ -476,6 +499,23 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
+            var pos3d = new Vector3(Position.X, Position.Y, ZPos - 10f);
+
+            // death effect can only trigger once
+            if (DeathEffect != null)
+            {
+                DeathEffect.Update(timeStep, pos3d);
+                DeathEffect = null;
+            }
+
+            if (HitEffect != null)
+            {
+                HitEffect.Fx?.Update(timeStep, HitEffect.HitPos, HitEffect.Normal);
+                HitEffect.Timer -= timeStep.FixedTime;
+                if (HitEffect.Timer < 0f)
+                    HitEffect = null;
+            }
+
             if (DieNextFrame)
             {
                 Die(this, false);
@@ -511,7 +551,7 @@ namespace Ship_Game.Gameplay
             }
 
             UpdateVelocityAndPos(timeStep.FixedTime);
-            Emitter.Position = new Vector3(Position, 0.0f);
+            Emitter.Position = pos3d;
 
             if (InFrustum)
             {
@@ -543,7 +583,7 @@ namespace Ship_Game.Gameplay
                 }
                 else if (Light != null && Weapon.Light != null && LightWasAddedToSceneGraph)
                 {
-                    Light.Position = new Vector3(Position.X, Position.Y, -25f);
+                    Light.Position = pos3d;
                     Light.World = Matrix.CreateTranslation(Light.Position);
                 }
 
@@ -734,7 +774,6 @@ namespace Ship_Game.Gameplay
                 return false;
             }
 
-            bool showFx = true;
             switch (target)
             {
                 case Projectile projectile:
@@ -746,6 +785,8 @@ namespace Ship_Game.Gameplay
                         return false;                
                     projectile.DamageMissile(this, DamageAmount);
                     DieNextFrame = true;
+                    if (InFrustum) // TODO: efficiently check sensor range here
+                        CreateWeaponDeathEffect(target);
                     return true;
                 case Asteroid _:
                     if (!Explodes)
@@ -767,60 +808,29 @@ namespace Ship_Game.Gameplay
 
                     ArmorPiercingTouch(module, parent, hitPos);
                     Health = 0f;
-                    showFx = parent.InSensorRange;
+                    if (parent.InSensorRange)
+                        CreateWeaponDeathEffect(target);
                     break;
             }
-
-            if (showFx)
-                CreateWeaponTypeFx(target);
 
             DieNextFrame = !Deflected;
             return true;
         }
 
-        void CreateWeaponTypeFx(GameplayObject target)
+        void CreateWeaponDeathEffect(GameplayObject target)
         {
-            var center       = new Vector3(Position.X, Position.Y, -100f);
-            Vector3 forward  = Rotation.RadiansToDirection3D();
-            Vector3 right    = forward.RightVector2D(z: 1f);
-            Vector3 backward = -forward;
-            switch (WeaponEffectType)
+            if (Weapon.WeaponDeathEffect.NotEmpty())
             {
-                case "Plasma":
-                    for (int i = 0; i < 20; i++)
-                    {
-                        Vector3 random = UniverseRandom.Vector3D(250f) * right;
-                        Universe.Particles.Flame.AddParticle(center, random);
+                var pos3d = new Vector3(Position.X, Position.Y, ZPos - 10f);
+                DeathEffect = Universe.Particles.CreateEffect(Weapon.WeaponDeathEffect, pos3d, this);
+            }
 
-                        random = UniverseRandom.Vector3D(150f) + backward;
-                        Universe.Particles.Flame.AddParticle(center, random);
-                    }
-
-                    break;
-                // currently unused
-                case "MuzzleBlast":
-                    for (int i = 0; i < 20; i++)
-                    {
-                        Vector3 random = UniverseRandom.Vector3D(500f) * right;
-                        Universe.Particles.FireTrail.AddParticle(center, random);
-
-                        random = backward + new Vector3(UniverseRandom.RandomBetween(-500f, 500f),
-                                     UniverseRandom.RandomBetween(-500f, 500f),
-                                     UniverseRandom.RandomBetween(-150f, 150f));
-                        Universe.Particles.FireTrail.AddParticle(center, random);
-                    }
-
-                    break;
-                default:
-                    if (WeaponType == "Ballistic Cannon")
-                    {
-                        if (target is ShipModule shipModule && !shipModule.Is(ShipModuleType.Shield))
-                            GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
-                    }
-                    break;
+            if (WeaponType == "Ballistic Cannon")
+            {
+                if (target is ShipModule shipModule && !shipModule.Is(ShipModuleType.Shield))
+                    GameAudio.PlaySfxAsync("sd_impact_bullet_small_01", Emitter);
             }
         }
-
 
         void RayTracedExplosion(ShipModule module)
         {
@@ -907,64 +917,34 @@ namespace Ship_Game.Gameplay
         ~Projectile() { Dispose(false); }
 
         protected virtual void Dispose(bool disposing)
-        {            
+        {
             DroneAI = null;
         }
 
         public override string ToString() => $"Proj[{WeaponType}] Wep={Weapon?.Name} Pos={Position} Rad={Radius} Loy=[{Loyalty}]";
 
-        public void CreateHitParticles(float damageAmount, Vector3 center)
+        protected HitEffectState CreateHitEffect(bool damagingShields, in Vector3 pos)
         {
-            var p = Universe.Particles;
-            var backgroundPos = new Vector3(center.X, center.Y, center.Z - 50f);
+            string effect = damagingShields ? Weapon.WeaponShieldHitEffect : Weapon.WeaponHitEffect;
+            if (effect.IsEmpty())
+                return null;
+            var fx = Owner.Universe.Particles?.CreateEffect(effect, pos, this);
+            if (fx == null)
+                return null; // effect not found
+            return new HitEffectState(fx);
+        }
 
-            if (Weapon.Tag_Kinetic && !Weapon.Tag_Explosive)
-            {
-                if (CanEmitFlash(damageAmount))
-                {
-                    p.Flash.AddParticle(backgroundPos, Vector3.Zero);
-                }
-                else if (CanEmitBeamFlash(Weapon.ProjectileSpeed))
-                {
-                    p.BeamFlash.AddParticle(backgroundPos, Vector3.Zero);
-                }
-            }
-            else if (Weapon.Tag_Energy)
-            {
-                if (CanEmitFlash(damageAmount))
-                {
-                    p.Flash.AddParticle(backgroundPos);
-                }
+        public void CreateHitParticles(float damageAmount, in Vector3 center, bool damagingShields)
+        {
+            if (HitEffect == null)
+                HitEffect = CreateHitEffect(damagingShields, center);
 
-                if (CanEmitSparks(Weapon.ProjectileSpeed))
-                {
-                    switch (RandomMath2.IntBetween(0, 2)) // pick a random effect
-                    {
-                        case 0:
-                            p.FireTrail.AddMultipleParticles(20, backgroundPos);
-                            p.ExplosionSmoke.AddMultipleParticles(5, backgroundPos);
-                            break;
-                        case 1:
-                            p.Sparks.AddMultipleParticles(50, backgroundPos);
-                            p.SmokePlume.AddParticle(backgroundPos);
-                            break;
-                        case 2:
-                            p.BeamFlash.AddParticle(backgroundPos);
-                            break;
-                    }
-                }
-            }
+            HitEffect?.Update(center, Vector3.One, 0.1f);
         }
 
         public void IgniteEngine()
         {
             TrailTurnedOn = true;
         }
-
-        static bool CanEmitFlash(float damage) => RandomMath.RollDice(percent: damage * 0.1f);
-        static bool CanEmitBeamFlash(float speed) => RandomMath.RollDice(percent: speed * 0.01f);
-        static bool CanEmitSparks(float speed) => RandomMath.RollDice(percent: speed * 0.01f);
-
-        static Vector3 GetBackgroundPos(Vector3 pos) => new Vector3(pos.X, pos.Y, pos.Z - 50f);
     }
 }

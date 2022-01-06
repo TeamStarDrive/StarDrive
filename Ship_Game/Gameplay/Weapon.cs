@@ -139,8 +139,12 @@ namespace Ship_Game.Gameplay
         public string ModelPath;
         public string WeaponType;
 
-        // Determines trail effect from ParticleEffects.yaml
-        public string WeaponEffectType;
+        // Determines Hit, ShieldHit, Death and Trail effects from ParticleEffects.yaml
+        public string WeaponHitEffect;
+        public string WeaponShieldHitEffect;
+        public string WeaponDeathEffect;
+        public string WeaponTrailEffect;
+
         // The trail offset behind missile center
         public float TrailOffset;
 
@@ -1073,6 +1077,6 @@ namespace Ship_Game.Gameplay
             SalvoTarget   = null;
         }
 
-        public override string ToString() => $"Weapon Type={WeaponType} UID={UID} Fx={WeaponEffectType} Name={Name}";
+        public override string ToString() => $"Weapon Type={WeaponType} UID={UID} Name={Name}";
     }
 }
