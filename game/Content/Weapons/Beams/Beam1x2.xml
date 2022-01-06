@@ -25,7 +25,8 @@
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Energy Beam</WeaponType>
-  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponHitEffect>Beam_Hit_Armor</WeaponHitEffect>
+  <WeaponShieldHitEffect>Beam_Hit_Shield</WeaponShieldHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
 
   
