@@ -34,7 +34,7 @@
 
 
   <FakeExplode>true</FakeExplode>
-  <DamageRadius>15</DamageRadius>
+  <DamageRadius>15</DamageRadius> <!-- This Projectile Explodes -->
   
   <ProjectileRadius>20</ProjectileRadius>
   

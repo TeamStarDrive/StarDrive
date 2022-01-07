@@ -26,8 +26,8 @@
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2000</ProjectileSpeed>
   <ProjectileRadius>45</ProjectileRadius>  
-  <DamageRadius>20</DamageRadius>
-  <Explodes>true</Explodes>
+  <DamageRadius>20</DamageRadius> <!-- This Projectile Explodes -->
+  
   <ProjectileTexturePath>projTear_02_purple_dual</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <!--the projectile count is spread over the fire arc-->

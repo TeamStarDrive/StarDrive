@@ -37,7 +37,7 @@
   <SalvoTimer>0.4</SalvoTimer>
   <Scale>1.4</Scale>
   <Light>Green</Light>
-  <Explodes>false</Explodes>
+  
   <ProjectileTexturePath>projPulse_01_green_dual</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
 

@@ -32,7 +32,7 @@
   
   <ProjectileSpeed>1600</ProjectileSpeed>
  
-  <DamageRadius>15</DamageRadius>
+  <DamageRadius>15</DamageRadius> <!-- This Projectile Explodes -->
   <ProjectileTexturePath>blank</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <WeaponType>Plasma</WeaponType>
