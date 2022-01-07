@@ -31,7 +31,7 @@
   <DamageAmount>1600</DamageAmount>
   <ProjectileSpeed>2100</ProjectileSpeed>
 
-  <Explodes>false</Explodes>
+  
   <Light>Blue</Light>
   <ProjectileTexturePath>projLong_02_blue</ProjectileTexturePath>
   <ModelPath>projLong</ModelPath>

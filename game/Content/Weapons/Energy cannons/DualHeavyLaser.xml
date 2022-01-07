@@ -32,8 +32,7 @@
   <!-- Projectile Information -->
   <DamageAmount>470</DamageAmount>
   <ProjectileSpeed>1900</ProjectileSpeed>
-  <DamageRadius>5</DamageRadius>
-  <Explodes>false</Explodes>
+  
   <Light>Red</Light>
   <ProjectileTexturePath>projLong_02_red</ProjectileTexturePath>
   <ModelPath>projLong</ModelPath>

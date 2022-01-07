@@ -34,8 +34,8 @@
   <Scale>2</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2700</ProjectileSpeed>
-  <DamageRadius>75</DamageRadius>
-  <Explodes>true</Explodes>
+  <DamageRadius>75</DamageRadius> <!-- This Projectile Explodes -->
+  
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
 
