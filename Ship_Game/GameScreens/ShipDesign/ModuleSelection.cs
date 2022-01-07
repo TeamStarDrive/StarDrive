@@ -260,7 +260,7 @@ namespace Ship_Game
                 if (weaponTemplate.Tag_Guided)    sb.Append("GUIDED ");
                 if (weaponTemplate.Tag_Intercept) sb.Append("INTERCEPTABLE ");
                 if (weaponTemplate.Tag_Energy)    sb.Append("ENERGY ");
-                if (weaponTemplate.Tag_Hybrid)    sb.Append("HYBRID ");
+                if (weaponTemplate.Tag_Plasma)    sb.Append("PLASMA ");
                 if (weaponTemplate.Tag_Kinetic)   sb.Append("KINETIC ");
                 if (weaponTemplate.Tag_Explosive && !weaponTemplate.Tag_Flak) sb.Append("EXPLOSIVE ");
                 if (weaponTemplate.Tag_Subspace)  sb.Append("SUBSPACE ");
@@ -365,7 +365,7 @@ namespace Ship_Game
             DrawStatCustomColor(ref modTitlePos, GameText.EnergySr, mod.ShieldEnergyResist, GameText.IndicatesShieldBubblesResistanceTo2, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.ExplSr, mod.ShieldExplosiveResist, GameText.IndicatesShieldBubblesResistanceTo3, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.MissileSr, mod.ShieldMissileResist, GameText.IndicatesShieldBubblesResistanceTo4, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.HybridSr, mod.ShieldHybridResist, GameText.IndicatesShieldBubblesResistanceTo6, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, GameText.HybridSr, mod.ShieldPlasmaResist, GameText.IndicatesShieldBubblesResistanceTo6, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.BeamSr, mod.ShieldBeamResist, GameText.IndicatesShieldBubblesResistanceTo10, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.SdDeflect, mod.ShieldThreshold, GameText.WeaponsWhichDoLessDamage2, shieldResistColor, isPercent: false);
 
@@ -411,7 +411,7 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, GameText.KineticRes, mod.KineticResist, GameText.IndicatesResistanceToKinetictypeDamage, true);
             DrawStat(ref modTitlePos, GameText.EnergyRes, mod.EnergyResist, GameText.IndicatesResistanceToEnergyWeapon,  true);
             DrawStat(ref modTitlePos, GameText.MissileRes, mod.MissileResist, GameText.IndicatesResistanceToMissileWeapon, isPercent: true);
-            DrawStat(ref modTitlePos, GameText.HybridRes, mod.HybridResist, GameText.IndicatesResistanceToHybridWeapon, isPercent: true);
+            DrawStat(ref modTitlePos, GameText.HybridRes, mod.PlasmaResist, GameText.IndicatesResistanceToHybridWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.BeamRes, mod.BeamResist, GameText.IndicatesResistanceToBeamWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.ExplRes, mod.ExplosiveResist, GameText.IndicatesResistanceToExplosiveDamage, isPercent: true);
             DrawStat(ref modTitlePos, GameText.TorpRes, mod.TorpedoResist, GameText.IndicatesResistanceToTorpedoWeapon, isPercent: true);

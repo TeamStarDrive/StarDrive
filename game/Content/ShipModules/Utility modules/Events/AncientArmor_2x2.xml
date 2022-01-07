@@ -46,6 +46,6 @@
   <HealthMax>22375</HealthMax>
   <RepairDifficulty>6</RepairDifficulty> 
   <DamageThreshold>0</DamageThreshold>
-  <HybridResist>0</HybridResist>
+  <PlasmaResist>0</PlasmaResist>
   <ExplosiveResist>0.17</ExplosiveResist>
 </ShipModule>
