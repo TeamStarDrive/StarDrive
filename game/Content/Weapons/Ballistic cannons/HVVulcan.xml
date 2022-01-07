@@ -19,7 +19,7 @@
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1400</ProjectileSpeed>
   <ProjectileRadius>20</ProjectileRadius>
-  <Explodes>false</Explodes>
+  
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>
   <ModelPath>projLong</ModelPath>
 

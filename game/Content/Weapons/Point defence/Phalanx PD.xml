@@ -43,7 +43,7 @@
   <ProjectileSpeed>2000</ProjectileSpeed>
   
   
-  <Explodes>false</Explodes>
+  
   <ProjectileTexturePath>projTear_01_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
 

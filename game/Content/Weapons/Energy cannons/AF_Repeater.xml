@@ -32,8 +32,7 @@
   <ProjectileRadius>15</ProjectileRadius>
   <ProjectileSpeed>1900</ProjectileSpeed>
   <Light>Green</Light>
-  <DamageRadius>1</DamageRadius>
-  <Explodes>false</Explodes>
+  
   <ProjectileTexturePath>projTear_03_green</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
 

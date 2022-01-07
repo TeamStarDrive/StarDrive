@@ -35,9 +35,9 @@
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1600</ProjectileSpeed>
   <ProjectileRadius>15</ProjectileRadius>
-  <DamageRadius>45</DamageRadius>
+  <DamageRadius>45</DamageRadius> <!-- This Projectile Explodes -->
   <Light>Orange</Light>
-  <Explodes>true</Explodes>
+  
   <Animated>1</Animated>
    <Frames>18</Frames>
   <AnimationPath>Kinetic_Orange/Kinetic_Orange_cc_</AnimationPath>

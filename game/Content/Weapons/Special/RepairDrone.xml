@@ -32,8 +32,7 @@
   <!-- Projectile Information -->
   <DamageAmount>0</DamageAmount>
   <ProjectileSpeed>650</ProjectileSpeed>
-  <DamageRadius>0</DamageRadius>
-  <Explodes>false</Explodes>
+  
   <ProjectileTexturePath>spacemine_d</ProjectileTexturePath>
   <ModelPath>spacemine</ModelPath>
 
