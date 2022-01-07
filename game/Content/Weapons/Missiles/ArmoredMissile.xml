@@ -51,7 +51,7 @@
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
-  <WeaponType>Energy Torpedo</WeaponType>
+  <WeaponType>Missile</WeaponType>
   <WeaponHitEffect></WeaponHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
   <WeaponTrailEffect>RocketTrail</WeaponTrailEffect>
