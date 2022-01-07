@@ -5,7 +5,7 @@
   <Tag_Energy>false</Tag_Energy>
   <Tag_Guided>true</Tag_Guided>
   <Tag_Missile>true</Tag_Missile>
-  <Tag_Hybrid>false</Tag_Hybrid>
+  <Tag_Plasma>false</Tag_Plasma>
   <Tag_Beam>false</Tag_Beam>
   <Tag_Intercept>true</Tag_Intercept>
   <Tag_Explosive>false</Tag_Explosive>

@@ -11940,9 +11940,9 @@ IndicatesResistanceToMissileWeapon:
  SPA: "Indica la resistencia a los misiles, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
 IndicatesResistanceToHybridWeapon:
  Id: 7050
- ENG: "Indicates resistance to hybrid weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source."
- RUS: "Указывает на устойчивость к урону гибридного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника."
- SPA: "Indica la resistencia al daño híbrido, donde un 100% es inmunidad total. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
+ ENG: "Indicates resistance to Plasma weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source."
+ RUS: "Указывает на устойчивость к урону плазменного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что этот модуль получает дополнительный урон от этого источника."
+ SPA: "Indica la resistencia al daño del arma de plasma, donde el 100% es inmunidad total. Los porcentajes negativos significan que este módulo recibe un daño adicional de esa fuente."
 IndicatesResistanceToBeamWeapon:
  Id: 7051
  ENG: "Indicates resistance to beam weapon damage, where 100% is total immunity. Negative percentages mean this module takes extra damage from that source."
@@ -12045,9 +12045,9 @@ IndicatesShieldBubblesResistanceTo5:
  SPA: "Indica la resistencia de la burbuja del escudo al daño Flak. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
 IndicatesShieldBubblesResistanceTo6:
  Id: 7071
- ENG: "Indicates shield bubble's resistance to hybrid weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
- RUS: "Указывает на устойчивость пузыря щита к урону гибридного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника."
- SPA: "IIndica la resistencia de la burbuja del escudo al daño híbrido. Un valor negativo significa que este módulo recibe daño extra de ese tipo de daño."
+ ENG: "Indicates shield bubble's resistance to Plasma weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."
+ RUS: "Указывает на сопротивление пузыря щита урону плазменного оружия, где 100% - это общий иммунитет. Отрицательный процент означает, что щит получает дополнительный урон от этого источника."
+ SPA: "Indica la resistencia de la burbuja de escudo al daño del arma de plasma, donde el 100% es inmunidad total. Los porcentajes negativos significan que el escudo recibe daño adicional de esa fuente."
 IndicatesShieldBubblesResistanceTo7:
  Id: 7072
  ENG: "Indicates shield bubble's resistance to railgun weapon damage, where 100% is total immunity. Negative percentages mean the shield takes extra damage from that source."

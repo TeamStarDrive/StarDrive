@@ -19,7 +19,7 @@ namespace Ship_Game.Gameplay
         Energy    = (1 << 1),
         Guided    = (1 << 2),
         Missile   = (1 << 3),
-        Hybrid    = (1 << 4),
+        Plasma    = (1 << 4),
         Beam      = (1 << 5),
         Explosive = (1 << 6),
         Intercept = (1 << 7),
@@ -57,7 +57,7 @@ namespace Ship_Game.Gameplay
         public bool Tag_Energy    { get => Tag(WeaponTag.Energy);    set => Tag(WeaponTag.Energy, value);    }
         public bool Tag_Guided    { get => Tag(WeaponTag.Guided);    set => Tag(WeaponTag.Guided, value);    }
         public bool Tag_Missile   { get => Tag(WeaponTag.Missile);   set => Tag(WeaponTag.Missile, value);   }
-        public bool Tag_Hybrid    { get => Tag(WeaponTag.Hybrid);    set => Tag(WeaponTag.Hybrid, value);    }
+        public bool Tag_Plasma    { get => Tag(WeaponTag.Plasma);    set => Tag(WeaponTag.Plasma, value);    }
         public bool Tag_Beam      { get => Tag(WeaponTag.Beam);      set => Tag(WeaponTag.Beam, value);      }
         public bool Tag_Explosive { get => Tag(WeaponTag.Explosive); set => Tag(WeaponTag.Explosive, value); }
         public bool Tag_Intercept { get => Tag(WeaponTag.Intercept); set => Tag(WeaponTag.Intercept, value); }
@@ -928,7 +928,7 @@ namespace Ship_Game.Gameplay
             if (Tag_Energy)  damageModifier *= (1f - module.ShieldEnergyResist);
             if (Tag_Beam)    damageModifier *= (1f - module.ShieldBeamResist);
             if (Tag_Missile) damageModifier *= (1f - module.ShieldMissileResist);
-            if (Tag_Hybrid)  damageModifier *= (1f - module.ShieldHybridResist);
+            if (Tag_Plasma)  damageModifier *= (1f - module.ShieldPlasmaResist);
 
             return damageModifier;
         }
@@ -938,7 +938,7 @@ namespace Ship_Game.Gameplay
             float damageModifier = 1f;
             if (module.Is(ShipModuleType.Armor)) damageModifier *= EffectVsArmor;
             if (Tag_Explosive)                   damageModifier *= (1f - module.ExplosiveResist);
-            if (Tag_Hybrid)                      damageModifier *= (1f - module.HybridResist);
+            if (Tag_Plasma)                      damageModifier *= (1f - module.PlasmaResist);
             if (Tag_Kinetic)                     damageModifier *= (1f - module.KineticResist);
             if (Tag_Beam)                        damageModifier *= (1f - module.BeamResist);
             if (Tag_Energy)                      damageModifier *= (1f - module.EnergyResist);
