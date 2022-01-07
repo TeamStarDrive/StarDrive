@@ -32,7 +32,7 @@
   <ProjectileCount>1</ProjectileCount>
   <DamageAmount>6000</DamageAmount>
   <ProjectileSpeed>950</ProjectileSpeed>
-  <DamageRadius>95</DamageRadius>
+  <DamageRadius>95</DamageRadius> <!-- This Projectile Explodes -->
   <SalvoCount>1</SalvoCount>
   <SalvoTimer>0</SalvoTimer>
   
@@ -44,7 +44,7 @@
   <EffectVsShields>1</EffectVsShields>
   <EffectVsArmor>1</EffectVsArmor>
   <Scale>0.6</Scale>
-  <Explodes>true</Explodes>
+  
   <CanCollideProjectiles>true</CanCollideProjectiles>
 <!-- Projectile textures-->
   <ModelPath>torpedo</ModelPath>

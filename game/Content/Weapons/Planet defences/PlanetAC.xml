@@ -15,12 +15,12 @@
   <MuzzleFlash>Yes</MuzzleFlash>
   <!-- Projectile Information -->
   <DamageAmount>550</DamageAmount>
-    <SalvoCount>2</SalvoCount>
+  <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.3</SalvoTimer>  
   <Scale>1.2</Scale>
   <ProjectileSpeed>1500</ProjectileSpeed>
   <ProjectileRadius>8</ProjectileRadius> 
-  <Explodes>false</Explodes>
+  
   <ProjectileTexturePath>projLong_02_orange_dual</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
 

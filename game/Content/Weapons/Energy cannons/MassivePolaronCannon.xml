@@ -34,7 +34,7 @@
   <ProjectileSpeed>2100</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.5</SalvoTimer>
-  <Explodes>false</Explodes>
+  
   <Light>Blue</Light>
   <ProjectileTexturePath>projLong_02_blue_dual</ProjectileTexturePath>
   <ModelPath>projLong</ModelPath>

@@ -22,7 +22,7 @@
   <DamageAmount>20</DamageAmount>
   <ProjectileSpeed>2000</ProjectileSpeed>
   <ProjectileRadius>45</ProjectileRadius>  
-  <Explodes>false</Explodes>
+  
   <Light>Blue</Light>
   <ProjectileTexturePath>projPulse_01_cyan_dual</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>

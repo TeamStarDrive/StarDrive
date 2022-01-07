@@ -29,7 +29,7 @@
   <!-- Projectile Information -->
   <DamageAmount>65</DamageAmount>
   <ProjectileSpeed>1700</ProjectileSpeed>
-  <Explodes>false</Explodes>
+  
   <Scale>1.2</Scale>
   <Light>Blue</Light>
   <ProjectileTexturePath>projPulse_01_blue_1</ProjectileTexturePath>
