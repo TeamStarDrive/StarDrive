@@ -52,7 +52,7 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly float ShieldEnergyResist;
         [StarData] public readonly float ShieldExplosiveResist;
         [StarData] public readonly float ShieldMissileResist;
-        [StarData] public readonly float ShieldHybridResist;
+        [StarData] public readonly float ShieldPlasmaResist;
         [StarData] public readonly float ShieldBeamResist;
         [StarData] public readonly float NumberOfColonists;
         [StarData] public readonly float NumberOfEquipment;
@@ -88,7 +88,7 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly float EnergyResist;
         [StarData] public readonly float GuidedResist;
         [StarData] public readonly float MissileResist;
-        [StarData] public readonly float HybridResist;
+        [StarData] public readonly float PlasmaResist;
         [StarData] public readonly float BeamResist;
         [StarData] public readonly float ExplosiveResist;
         [StarData] public readonly float TorpedoResist;
@@ -161,7 +161,7 @@ namespace Ship_Game.Gameplay
             ShieldEnergyResist          = s.ShieldEnergyResist;
             ShieldExplosiveResist       = s.ShieldExplosiveResist;
             ShieldMissileResist         = s.ShieldMissileResist;
-            ShieldHybridResist          = s.ShieldHybridResist;
+            ShieldPlasmaResist          = s.ShieldPlasmaResist;
             ShieldBeamResist            = s.ShieldBeamResist;
             NumberOfColonists           = s.NumberOfColonists;
             NumberOfEquipment           = s.NumberOfEquipment;
@@ -194,7 +194,7 @@ namespace Ship_Game.Gameplay
             EnergyResist                = s.EnergyResist;
             GuidedResist                = s.GuidedResist;
             MissileResist               = s.MissileResist;
-            HybridResist                = s.HybridResist;
+            PlasmaResist                = s.PlasmaResist;
             BeamResist                  = s.BeamResist;
             ExplosiveResist             = s.ExplosiveResist;
             TorpedoResist               = s.TorpedoResist;
@@ -277,7 +277,7 @@ namespace Ship_Game.Gameplay
         public float ShieldEnergyResist;
         public float ShieldExplosiveResist;
         public float ShieldMissileResist;
-        public float ShieldHybridResist;
+        public float ShieldPlasmaResist;
         public float ShieldBeamResist;
         public float NumberOfColonists;
         public float NumberOfEquipment;
@@ -320,7 +320,7 @@ namespace Ship_Game.Gameplay
         public float EnergyResist;
         public float GuidedResist;
         public float MissileResist;
-        public float HybridResist;
+        public float PlasmaResist;
         public float BeamResist;
         public float ExplosiveResist;
         public float TorpedoResist;
