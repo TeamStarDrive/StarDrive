@@ -38,8 +38,8 @@
   <MirvWeapon>CPMissileMirv</MirvWeapon>
   <MirvWarheads>4</MirvWarheads>
   <MirvSeparationDistance>4000</MirvSeparationDistance>    
-  <Explodes>true</Explodes>
-  <DamageRadius>90</DamageRadius>
+  
+  <DamageRadius>90</DamageRadius> <!-- This Projectile Explodes -->
   <Light>Red</Light>
   <ModelPath>LRM</ModelPath>
   <ProjectileTexturePath>LRM_d</ProjectileTexturePath>

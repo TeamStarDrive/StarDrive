@@ -153,8 +153,7 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] public float CooldownTimer;
         public float FireDelay;
         public float PowerRequiredToFire;
-        public bool Explodes;
-        public float DamageRadius;
+        public float DamageRadius; // If > 0 it means the projectile wil explode
         public string FireCueName;
         public string MuzzleFlash;
         public bool IsRepairDrone;
@@ -269,6 +268,9 @@ namespace Ship_Game.Gameplay
 
         [XmlIgnore][JsonIgnore] // 3 salvos with salvo duration of 2 seconds will give  1.5 salvos per second 
         float SalvoProjectilesPerSecond => SalvoDuration.Greater(0) ? SalvoCount / SalvoDuration : 1;
+
+        [XmlIgnore][JsonIgnore]
+        public bool Explodes => DamageRadius > 0;
 
         [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;

@@ -32,8 +32,8 @@
   <ProjectileSpeed>1800</ProjectileSpeed>
   <SalvoCount>3</SalvoCount>
   <SalvoTimer>0.3</SalvoTimer>
-  <Explodes>true</Explodes>
-  <DamageRadius>24</DamageRadius>
+  
+  <DamageRadius>24</DamageRadius> <!-- This Projectile Explodes -->
   
 
   <Scale>0.9</Scale>

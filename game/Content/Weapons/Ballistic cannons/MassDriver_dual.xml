@@ -40,9 +40,9 @@
   <EffectVsShields>1.20</EffectVsShields>  
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1700</ProjectileSpeed>
-  <DamageRadius>50</DamageRadius>
+  <DamageRadius>50</DamageRadius> <!-- This Projectile Explodes -->
   <Light>Orange</Light>
-  <Explodes>true</Explodes>
+  
   <Animated>1</Animated>
    <Frames>17</Frames>
   <AnimationPath>Kinetic_Red/Kinetic_Red_cc_</AnimationPath>
