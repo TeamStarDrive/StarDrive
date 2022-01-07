@@ -390,7 +390,13 @@ namespace Ship_Game
 
             SysPerf.Start();
 
-            var shipsInSystems = new BitArray(Ships.Count);
+            // # of ships can INCREASE while we are updating systems
+            // however it should never decrease since ships removal is done after systems update
+            int shipsCount;
+            lock (ShipsLocker)
+                shipsCount = Ships.Count;
+
+            var shipsInSystems = new BitArray(shipsCount);
 
             void UpdateSystems(int start, int end)
             {
@@ -398,14 +404,13 @@ namespace Ship_Game
                 {
                     SolarSystem system = Universe.Systems[i];
                     system.ShipList.Clear();
-
-                    if (Ships.Count == 0)
+                    if (shipsCount == 0)
                         continue; // all ships were killed, nothing to do here
 
                     //int debugId = (system.Name == "Opteris") ? 11 : 0;
                     GameplayObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
                                                                         system.Position, system.Radius,
-                                                                        maxResults:Ships.Count/*, debugId:debugId*/);
+                                                                        maxResults:shipsCount/*, debugId:debugId*/);
                     for (int j = 0; j < shipsInSystem.Length; ++j)
                     {
                         var ship = (Ship)shipsInSystem[j];
@@ -419,11 +424,11 @@ namespace Ship_Game
 
             UpdateSystems(0, Universe.Systems.Count);
             //Parallel.For(UniverseScreen.SolarSystemList.Count, UpdateSystems, Universe.MaxTaskCores);
-            
+
             // now set all ships which were not found in any solar system with system = null
             lock (ShipsLocker)
             {
-                for (int i = 0; i < Ships.Count; ++i)
+                for (int i = 0; i < shipsCount; ++i)
                 {
                     if (!shipsInSystems.IsSet(i))
                         Ships[i].SetSystem(null);
