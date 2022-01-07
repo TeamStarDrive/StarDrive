@@ -43,9 +43,9 @@
   <LoopAnimation>1</LoopAnimation>
 
   <!-- Explosion Information -->
-  <Explodes>true</Explodes>
+  
   <ExpColor>Blue_1</ExpColor>
-  <DamageRadius>20</DamageRadius>
+  <DamageRadius>20</DamageRadius> <!-- This Projectile Explodes -->
   
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projBall</ModelPath>

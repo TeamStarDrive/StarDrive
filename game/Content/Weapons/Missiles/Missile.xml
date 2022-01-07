@@ -34,8 +34,8 @@
   <DamageAmount>1230</DamageAmount>
   <RotationRadsPerSecond>1</RotationRadsPerSecond>
   <ProjectileSpeed>800</ProjectileSpeed>
-  <DamageRadius>40</DamageRadius>
-  <Explodes>true</Explodes>
+  <DamageRadius>40</DamageRadius> <!-- This Projectile Explodes -->
+  
   <HitPoints>9</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>8</OrdinanceRequiredToFire>

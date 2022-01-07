@@ -16,9 +16,9 @@
 
   <DamageAmount>175</DamageAmount>
   <ProjectileSpeed>1200</ProjectileSpeed>
-  <DamageRadius>25</DamageRadius> 
+  <DamageRadius>25</DamageRadius> <!-- This Projectile Explodes --> 
   <ProjectileRadius>6</ProjectileRadius>
-  <Explodes>true</Explodes>
+  
   <ProjectileTexturePath>projTear_01_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <ProjectileCount>4</ProjectileCount>
