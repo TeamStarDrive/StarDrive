@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
@@ -390,13 +391,25 @@ namespace Ship_Game
 
             SysPerf.Start();
 
+            UpdateSolarSystemShips();
+
+            // TODO: SolarSystem.Update is not thread safe because of resource loading
+            for (int i = 0; i < Universe.Systems.Count; ++i)
+            {
+                SolarSystem system = Universe.Systems[i];
+                system.Update(timeStep, Universe);
+            }
+
+            SysPerf.Stop();
+        }
+
+        void UpdateSolarSystemShips()
+        {
             // # of ships can INCREASE while we are updating systems
             // however it should never decrease since ships removal is done after systems update
             int shipsCount;
-            lock (ShipsLocker)
-                shipsCount = Ships.Count;
-
-            var shipsInSystems = new BitArray(shipsCount);
+            lock (ShipsLocker) shipsCount = Ships.Count;
+            var shipsInSystems = new HashSet<int>(shipsCount); // by Ship.Id
 
             void UpdateSystems(int start, int end)
             {
@@ -414,8 +427,10 @@ namespace Ship_Game
                     for (int j = 0; j < shipsInSystem.Length; ++j)
                     {
                         var ship = (Ship)shipsInSystem[j];
+
                         system.ShipList.Add(ship);
-                        shipsInSystems.Set(i); // this ship was seen in a system
+                        shipsInSystems.Add(ship.Id); // this ship was seen in a system
+
                         ship.SetSystem(system);
                         system.SetExploredBy(ship.Loyalty);
                     }
@@ -430,19 +445,11 @@ namespace Ship_Game
             {
                 for (int i = 0; i < shipsCount; ++i)
                 {
-                    if (!shipsInSystems.IsSet(i))
-                        Ships[i].SetSystem(null);
+                    Ship ship = Ships[i];
+                    if (!shipsInSystems.Contains(ship.Id))
+                        ship.SetSystem(null);
                 }
             }
-
-            // TODO: SolarSystem.Update is not thread safe because of resource loading
-            for (int i = 0; i < Universe.Systems.Count; ++i)
-            {
-                SolarSystem system = Universe.Systems[i];
-                system.Update(timeStep, Universe);
-            }
-
-            SysPerf.Stop();
         }
 
         void UpdateAllShips(FixedSimTime timeStep)
