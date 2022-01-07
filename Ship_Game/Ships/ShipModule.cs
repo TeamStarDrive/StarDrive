@@ -136,7 +136,7 @@ namespace Ship_Game.Ships
         public float ShieldEnergyResist          => Flyweight.ShieldEnergyResist;
         public float ShieldExplosiveResist       => Flyweight.ShieldExplosiveResist;
         public float ShieldMissileResist         => Flyweight.ShieldMissileResist;
-        public float ShieldHybridResist          => Flyweight.ShieldHybridResist;
+        public float ShieldPlasmaResist          => Flyweight.ShieldPlasmaResist;
         public float ShieldBeamResist            => Flyweight.ShieldBeamResist;
         public float NumberOfColonists           => Flyweight.NumberOfColonists; // In Millions!
         public float NumberOfEquipment           => Flyweight.NumberOfEquipment;
@@ -168,7 +168,7 @@ namespace Ship_Game.Ships
         public float KineticResist               => Flyweight.KineticResist;
         public float EnergyResist                => Flyweight.EnergyResist;
         public float MissileResist               => Flyweight.MissileResist;
-        public float HybridResist                => Flyweight.HybridResist;
+        public float PlasmaResist                => Flyweight.PlasmaResist;
         public float BeamResist                  => Flyweight.BeamResist;
         public float ExplosiveResist             => Flyweight.ExplosiveResist;
         public float TorpedoResist               => Flyweight.TorpedoResist;
@@ -1390,7 +1390,7 @@ namespace Ship_Game.Ships
             def *= 1 + KineticResist / 5 ;
             def *= 1 + EnergyResist / 5;
             def *= 1 + MissileResist / 5;
-            def *= 1 + HybridResist / 5;
+            def *= 1 + PlasmaResist / 5;
             def *= 1 + ExplosiveResist / 5;
             def *= 1 + TorpedoResist / 5;
 
