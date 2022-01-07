@@ -10,12 +10,12 @@
   <Tag_Plasma>false</Tag_Plasma>
   <Tag_Beam>false</Tag_Beam>
   <Tag_Intercept>true</Tag_Intercept>
-  <Tag_Explosive>true</Tag_Explosive>
+  
   <Tag_Bomb>false</Tag_Bomb>
-  <Tag_Railgun>false</Tag_Railgun>
+  
   <Tag_BioWeapon>false</Tag_BioWeapon>
-  <Tag_Warp>false</Tag_Warp>
-  <Tag_Subspace>false</Tag_Subspace>
+  
+  
   <Tag_Drone>false</Tag_Drone>
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
@@ -35,7 +35,7 @@
   <DamageAmount>2000</DamageAmount>
   <RotationRadsPerSecond>0.7</RotationRadsPerSecond>
   <ProjectileSpeed>900</ProjectileSpeed>
-  <DamageRadius>70</DamageRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>70</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <HitPoints>10</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>

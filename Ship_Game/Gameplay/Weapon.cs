@@ -21,21 +21,14 @@ namespace Ship_Game.Gameplay
         Missile   = (1 << 3),
         Plasma    = (1 << 4),
         Beam      = (1 << 5),
-        Explosive = (1 << 6),
-        Intercept = (1 << 7),
-        Railgun   = (1 << 8),
-        Bomb      = (1 << 9),
-        SpaceBomb = (1 << 10),
-        BioWeapon = (1 << 11),
-        Drone     = (1 << 12),
-        Warp      = (1 << 13),
-        Torpedo   = (1 << 14),
-        Cannon    = (1 << 15),
-        Subspace  = (1 << 16),
-        PD        = (1 << 17),
-        Flak      = (1 << 18),
-        Array     = (1 << 19),
-        Tractor   = (1 << 20)
+        Intercept = (1 << 6),
+        Bomb      = (1 << 7),
+        SpaceBomb = (1 << 8),
+        BioWeapon = (1 << 9),
+        Drone     = (1 << 10),
+        Torpedo   = (1 << 11),
+        Cannon    = (1 << 12),
+        PD        = (1 << 13),
     }
 
     public sealed class Weapon : IDisposable, IDamageModifier
@@ -59,21 +52,14 @@ namespace Ship_Game.Gameplay
         public bool Tag_Missile   { get => Tag(WeaponTag.Missile);   set => Tag(WeaponTag.Missile, value);   }
         public bool Tag_Plasma    { get => Tag(WeaponTag.Plasma);    set => Tag(WeaponTag.Plasma, value);    }
         public bool Tag_Beam      { get => Tag(WeaponTag.Beam);      set => Tag(WeaponTag.Beam, value);      }
-        public bool Tag_Explosive { get => Tag(WeaponTag.Explosive); set => Tag(WeaponTag.Explosive, value); }
         public bool Tag_Intercept { get => Tag(WeaponTag.Intercept); set => Tag(WeaponTag.Intercept, value); }
-        public bool Tag_Railgun   { get => Tag(WeaponTag.Railgun);   set => Tag(WeaponTag.Railgun, value);   }
         public bool Tag_Bomb      { get => Tag(WeaponTag.Bomb);      set => Tag(WeaponTag.Bomb, value);      }
         public bool Tag_SpaceBomb { get => Tag(WeaponTag.SpaceBomb); set => Tag(WeaponTag.SpaceBomb, value); }
         public bool Tag_BioWeapon { get => Tag(WeaponTag.BioWeapon); set => Tag(WeaponTag.BioWeapon, value); }
         public bool Tag_Drone     { get => Tag(WeaponTag.Drone);     set => Tag(WeaponTag.Drone, value);     }
-        public bool Tag_Warp      { get => Tag(WeaponTag.Warp);      set => Tag(WeaponTag.Warp, value);      }
         public bool Tag_Torpedo   { get => Tag(WeaponTag.Torpedo);   set => Tag(WeaponTag.Torpedo, value);   }
         public bool Tag_Cannon    { get => Tag(WeaponTag.Cannon);    set => Tag(WeaponTag.Cannon, value);    }
-        public bool Tag_Subspace  { get => Tag(WeaponTag.Subspace);  set => Tag(WeaponTag.Subspace, value);  }
         public bool Tag_PD        { get => Tag(WeaponTag.PD);        set => Tag(WeaponTag.PD, value);        }
-        public bool Tag_Flak      { get => Tag(WeaponTag.Flak);      set => Tag(WeaponTag.Flak, value);      }
-        public bool Tag_Array     { get => Tag(WeaponTag.Array);     set => Tag(WeaponTag.Array, value);     }
-        public bool Tag_Tractor   { get => Tag(WeaponTag.Tractor);   set => Tag(WeaponTag.Tractor, value);   }
 
         [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
 
@@ -153,7 +139,7 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] public float CooldownTimer;
         public float FireDelay;
         public float PowerRequiredToFire;
-        public float DamageRadius; // If > 0 it means the projectile wil explode
+        public float ExplosionRadius; // If > 0 it means the projectile wil explode
         public string FireCueName;
         public string MuzzleFlash;
         public bool IsRepairDrone;
@@ -270,7 +256,7 @@ namespace Ship_Game.Gameplay
         float SalvoProjectilesPerSecond => SalvoDuration.Greater(0) ? SalvoCount / SalvoDuration : 1;
 
         [XmlIgnore][JsonIgnore]
-        public bool Explodes => DamageRadius > 0;
+        public bool Explodes => ExplosionRadius > 0;
 
         [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
@@ -786,7 +772,7 @@ namespace Ship_Game.Gameplay
             if (target != null && !Owner.Loyalty.IsEmpireAttackable(target.GetLoyalty()))
                 return destination;
 
-            if (Tag_Tractor || IsRepairBeam)
+            if (IsRepairBeam)
                 return destination;
 
             Vector2 beamDestination = AdjustedImpactPoint(source, destination, GetTargetError(target));
@@ -873,7 +859,7 @@ namespace Ship_Game.Gameplay
             p.Range                 += weaponTag.Range * BaseRange;
             p.Speed                 += weaponTag.Speed * ProjectileSpeed;
             p.Health                += weaponTag.HitPoints * HitPoints;
-            p.DamageRadius          += weaponTag.ExplosionRadius * DamageRadius;
+            p.DamageRadius          += weaponTag.ExplosionRadius * ExplosionRadius;
             p.ArmorPiercing         += (int)weaponTag.ArmourPenetration;
             p.ArmorDamageBonus      += weaponTag.ArmorDamage;
             p.ShieldDamageBonus     += weaponTag.ShieldDamage;
@@ -937,7 +923,7 @@ namespace Ship_Game.Gameplay
         {
             float damageModifier = 1f;
             if (module.Is(ShipModuleType.Armor)) damageModifier *= EffectVsArmor;
-            if (Tag_Explosive)                   damageModifier *= (1f - module.ExplosiveResist);
+            if (Explodes)                        damageModifier *= (1f - module.ExplosiveResist);
             if (Tag_Plasma)                      damageModifier *= (1f - module.PlasmaResist);
             if (Tag_Kinetic)                     damageModifier *= (1f - module.KineticResist);
             if (Tag_Beam)                        damageModifier *= (1f - module.BeamResist);
@@ -1003,7 +989,7 @@ namespace Ship_Game.Gameplay
             off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.LowerBound(2) : 1;
 
             // FB: offense calcs for damage radius
-            off *= DamageRadius > 32 && !TruePD ? DamageRadius / 32 : 1f;
+            off *= ExplosionRadius > 32 && !TruePD ? ExplosionRadius / 32 : 1f;
 
             // FB: Added shield pen chance
             off *= 1 + ShieldPenChance / 100;

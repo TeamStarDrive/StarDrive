@@ -75,21 +75,14 @@
     Missile:  1.00
     Plasma:   1.00
     Beam:     1.00
-    Explosive:1.00
     Intercept:1.00
-    Railgun:  1.00
     Bomb:     1.00
     SpaceBomb:1.00
     BioWeapon:1.00
     Drone:    1.00
-    Warp:     1.00
     Torpedo:  1.00
     Cannon:   1.00
-    Subspace: 1.00
     PD:       1.00
-    Flak:     1.00
-    Array:    1.00
-    Tractor:  1.00
     
 # Empire specific modifiers. 
 # these will override the "All" settings.
