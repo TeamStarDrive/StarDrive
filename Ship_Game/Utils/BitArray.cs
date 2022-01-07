@@ -16,6 +16,15 @@ namespace Ship_Game.Utils
             Values = new uint[(size / 32) + 1];
         }
 
+        // Maximum number of flags supported by this fixed size BitArray
+        public int MaxFlags => Values.Length * 32;
+
+        // Amount of MB memory used by this BitArray
+        public float MegabytesUsed => (Values.Length * 4) / (1024f * 1024f);
+
+        // Amount of KB memory used by this BitArray
+        public float KilobytesUsed => (Values.Length * 4) / (1024f);
+
         // Clears all bits
         public void Clear()
         {

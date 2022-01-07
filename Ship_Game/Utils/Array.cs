@@ -917,6 +917,7 @@ namespace Ship_Game
             return allAdded;
         }
 
+        // @note This is a stable remove, maintaining object ordering
         public static void RemoveInActiveObjects<T>(this Array<T> list) where T : GameplayObject
         {
             int size = 0;
