@@ -311,7 +311,6 @@ namespace Ship_Game
         {
             Color color;
             if (w.Tag_Cannon && !w.Tag_Energy)        color = new Color(255, 255, 0, 255);
-            else if (w.Tag_Railgun || w.Tag_Subspace) color = new Color(255, 0, 255, 255);
             else if (w.Tag_Cannon)                    color = new Color(0, 255, 0, 255);
             else if (!w.IsBeam)                       color = new Color(255, 0, 0, 255);
             else                                      color = new Color(0, 0, 255, 255);

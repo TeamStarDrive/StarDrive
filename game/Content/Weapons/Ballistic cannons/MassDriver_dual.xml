@@ -7,12 +7,12 @@
   <Tag_Plasma>false</Tag_Plasma>
   <Tag_Beam>false</Tag_Beam>
   <Tag_Intercept>false</Tag_Intercept>
-  <Tag_Explosive>true</Tag_Explosive>
+  
   <Tag_Bomb>false</Tag_Bomb>
-  <Tag_Railgun>true</Tag_Railgun>
+  
   <Tag_BioWeapon>false</Tag_BioWeapon>
-  <Tag_Warp>false</Tag_Warp>
-  <Tag_Subspace>false</Tag_Subspace>
+  
+  
   <Tag_Drone>false</Tag_Drone>
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
@@ -40,7 +40,7 @@
   <EffectVsShields>1.20</EffectVsShields>  
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1700</ProjectileSpeed>
-  <DamageRadius>50</DamageRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>50</ExplosionRadius> <!-- This Projectile Explodes -->
   <Light>Orange</Light>
   
   <Animated>1</Animated>

@@ -10,12 +10,12 @@
   <Tag_Plasma>false</Tag_Plasma>
   <Tag_Beam>false</Tag_Beam>
   <Tag_Intercept>true</Tag_Intercept>
-  <Tag_Explosive>true</Tag_Explosive>
+  
   <Tag_Bomb>false</Tag_Bomb>
-  <Tag_Railgun>false</Tag_Railgun>
+  
   <Tag_BioWeapon>false</Tag_BioWeapon>
-  <Tag_Warp>false</Tag_Warp>
-  <Tag_Subspace>false</Tag_Subspace>
+  
+  
   <Tag_Drone>false</Tag_Drone>
   <Tag_Torpedo>true</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
@@ -39,7 +39,7 @@
   <MirvWarheads>4</MirvWarheads>
   <MirvSeparationDistance>4000</MirvSeparationDistance>    
   
-  <DamageRadius>90</DamageRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>90</ExplosionRadius> <!-- This Projectile Explodes -->
   <Light>Red</Light>
   <ModelPath>LRM</ModelPath>
   <ProjectileTexturePath>LRM_d</ProjectileTexturePath>

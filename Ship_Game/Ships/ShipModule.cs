@@ -916,7 +916,7 @@ namespace Ship_Game.Ships
 
         void CreateHitDebris(Projectile proj)
         {
-            if (proj != null && (proj.Weapon.Tag_Kinetic || proj.Weapon.Tag_Explosive))
+            if (proj != null && (proj.Weapon.Tag_Kinetic || proj.Weapon.Explodes))
             {
                 if (RandomMath.RollDice(20)) // X % out of 100 that we spawn debris
                 {

@@ -28,7 +28,6 @@ namespace Ship_Game
         //added by The Doctor
         public bool enableECM;
         public bool useDestroyers;
-        public bool expandedWeaponCats;
         public bool usePlanetaryProjection;
         public bool UseUpkeepByHullSize;
         public bool reconDropDown;

@@ -7,12 +7,12 @@
   <Tag_Plasma>false</Tag_Plasma>
   <Tag_Beam>false</Tag_Beam>
   <Tag_Intercept>false</Tag_Intercept>
-  <Tag_Explosive>false</Tag_Explosive>
+  
   <Tag_Bomb>true</Tag_Bomb>
-  <Tag_Railgun>false</Tag_Railgun>
+  
   <Tag_BioWeapon>true</Tag_BioWeapon>
-  <Tag_Warp>false</Tag_Warp>
-  <Tag_Subspace>false</Tag_Subspace>
+  
+  
   <Tag_Drone>false</Tag_Drone>
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
@@ -34,7 +34,7 @@
   <Scale>2</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2700</ProjectileSpeed>
-  <DamageRadius>75</DamageRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>75</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
