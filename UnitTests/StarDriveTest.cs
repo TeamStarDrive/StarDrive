@@ -104,8 +104,8 @@ namespace UnitTests
 
         public void DestroyUniverse()
         {
-            EmpireManager.Clear();
             Empire.Universe?.ExitScreen();
+            EmpireManager.Clear();
             Empire.Universe?.Dispose();
             Empire.Universe = Universe = null;
         }

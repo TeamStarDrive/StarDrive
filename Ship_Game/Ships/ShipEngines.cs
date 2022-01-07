@@ -38,6 +38,8 @@ namespace Ship_Game.Ships
         public WarpStatus ReadyForWarp { get; private set; }
         public WarpStatus ReadyForFormationWarp { get; private set; }
 
+        public override string ToString() => $"Status:{EngineStatus} Warp:{ReadyForWarp} FWarp:{ReadyForFormationWarp}";
+
         public ShipEngines(Ship owner, ShipModule[] slots)
         {
             Owner   = owner;
