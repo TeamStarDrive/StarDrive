@@ -140,20 +140,7 @@ namespace Ship_Game
                 if (m.IsWeapon)
                 {
                     Weapon w = m.InstalledWeapon;
-                    if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.expandedWeaponCats)
-                    {
-                        if      (w.Tag_Flak)    AddCategoryItem(400, "Flak Cannon", m);
-                        else if (w.Tag_Railgun) AddCategoryItem(401, "Magnetic Cannon", m);
-                        else if (w.Tag_Array)   AddCategoryItem(401, "Beam Array", m);
-                        else if (w.Tag_Tractor) AddCategoryItem(401, "Tractor Beam", m);
-                        else if (w.Tag_Missile
-                             && !w.Tag_Guided)  AddCategoryItem(401, "Unguided Rocket", m);
-                        else                    AddCategoryItem(w.WeaponType.GetHashCode(), w.WeaponType, m);
-                    }
-                    else
-                    {
-                        AddCategoryItem(w.WeaponType.GetHashCode(), w.WeaponType, m);
-                    }
+                    AddCategoryItem(w.WeaponType.GetHashCode(), w.WeaponType, m);
                 }
                 else if (m.ModuleType == ShipModuleType.Bomb)
                 {
