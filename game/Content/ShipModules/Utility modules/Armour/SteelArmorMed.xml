@@ -32,7 +32,7 @@
 	<KineticResist>0</KineticResist>
 	<BeamResist>0</BeamResist>
 	<EnergyResist>0</EnergyResist>    
-	<HybridResist>0</HybridResist>
+	<PlasmaResist>0</PlasmaResist>
 	<ExplosiveResist>0.07</ExplosiveResist>
 
   <!-- Description -->

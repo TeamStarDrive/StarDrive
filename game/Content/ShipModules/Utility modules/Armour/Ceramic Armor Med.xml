@@ -26,7 +26,7 @@
 	<!-- Armor resistance -->
     <KineticResist>0</KineticResist>
     <BeamResist>0</BeamResist>  
-	<HybridResist>0</HybridResist>
+	<PlasmaResist>0</PlasmaResist>
 	<ExplosiveResist>0.17</ExplosiveResist>
 
 	<!-- Description -->
