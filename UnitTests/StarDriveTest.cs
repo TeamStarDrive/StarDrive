@@ -328,6 +328,31 @@ namespace UnitTests
         }
 
         /// <summary>
+        /// Runs object simulation for up to `simTimeout` simulation seconds
+        /// Each step is taken using TestSimTimeStep (1/60)
+        /// if `fatal` == true, throws exception if timeout is reached and the test should fail
+        /// </summary>
+        /// <returns>TRUE if Loop completed without timeout, FALSE if !fatal and there was a timeout</returns>
+        public bool RunSimWhile((double simTimeout, bool fatal) timeout, Func<bool> condition = null, Action body = null)
+        {
+            float elapsedSimTime = 0f;
+            while (condition == null || condition())
+            {
+                Universe.Objects.Update(TestSimStep);
+                body?.Invoke();
+
+                elapsedSimTime += TestSimStep.FixedTime;
+                if (elapsedSimTime > timeout.simTimeout)
+                {
+                    if (timeout.fatal)
+                        throw new TimeoutException("Timed out in RunSimWhile");
+                    return false; // timed out
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Update Universe.Objects for provided seconds
         /// </summary>
         public void RunObjectsSim(float totalSeconds)
@@ -336,7 +361,6 @@ namespace UnitTests
             for (float time = 0f; time < totalSeconds; time += TestSimStep.FixedTime)
             {
                 Universe.Objects.Update(TestSimStep);
-                OnObjectSimStep();
             }
         }
 
@@ -345,9 +369,5 @@ namespace UnitTests
             RunObjectsSim(totalTime.FixedTime);
         }
 
-        // Can override this function to do work between sim steps
-        protected virtual void OnObjectSimStep()
-        {
-        }
     }
 }
