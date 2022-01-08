@@ -8,12 +8,12 @@
   <Tag_Plasma>true</Tag_Plasma>
   <Tag_Beam>false</Tag_Beam>
   <Tag_Intercept>false</Tag_Intercept>
-  <Tag_Explosive>false</Tag_Explosive>
+  
   <Tag_Bomb>false</Tag_Bomb>
-  <Tag_Railgun>false</Tag_Railgun>
+  
   <Tag_BioWeapon>false</Tag_BioWeapon>
-  <Tag_Warp>false</Tag_Warp>
-  <Tag_Subspace>false</Tag_Subspace>
+  
+  
   <Tag_Drone>false</Tag_Drone>
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>true</Tag_Cannon>
@@ -32,7 +32,7 @@
   
   <ProjectileSpeed>1600</ProjectileSpeed>
  
-  <DamageRadius>15</DamageRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>15</ExplosionRadius> <!-- This Projectile Explodes -->
   <ProjectileTexturePath>blank</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <WeaponType>Plasma</WeaponType>

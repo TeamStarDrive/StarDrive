@@ -231,7 +231,7 @@ namespace Ship_Game.Gameplay
             Radius                = Weapon.ProjectileRadius;
             Explodes              = Weapon.Explodes;
             DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
-            DamageRadius          = Weapon.DamageRadius;
+            DamageRadius          = Weapon.ExplosionRadius;
             ExplosionRadiusMod    = Weapon.ExplosionRadiusVisual;
             Health                = Weapon.HitPoints;
             Speed                 = Weapon.ProjectileSpeed;

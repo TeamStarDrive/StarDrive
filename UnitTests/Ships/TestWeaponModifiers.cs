@@ -49,7 +49,7 @@ namespace UnitTests.Ships
         public void ApplyModsToProjectile()
         {
             Weapon.HitPoints = 100;
-            Weapon.DamageRadius = 10;
+            Weapon.ExplosionRadius = 10;
 
             Projectile p1 = Projectile.Create(Weapon, new Vector2(), Vectors.Up, null, false);
             Assert.That.Equal(2, p1.RotationRadsPerSecond);
@@ -71,7 +71,7 @@ namespace UnitTests.Ships
             m.Speed  = 1; // p.Speed
             m.Rate   = 1; // ??
             m.HitPoints         = 1; // p.Health
-            m.ExplosionRadius   = 1; // p.DamageRadius
+            m.ExplosionRadius   = 1; // p.ExplosionRadius
             m.ArmourPenetration = 10; // p.ArmorPiercing
             m.ArmorDamage       = 10; // p.ArmorDamageBonus
             m.ShieldDamage      = 10; // p.ShieldDamageBonus
