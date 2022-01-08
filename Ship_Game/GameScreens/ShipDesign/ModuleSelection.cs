@@ -262,21 +262,10 @@ namespace Ship_Game
                 if (weaponTemplate.Tag_Energy)    sb.Append("ENERGY ");
                 if (weaponTemplate.Tag_Plasma)    sb.Append("PLASMA ");
                 if (weaponTemplate.Tag_Kinetic)   sb.Append("KINETIC ");
-                if (weaponTemplate.Tag_Explosive && !weaponTemplate.Tag_Flak) sb.Append("EXPLOSIVE ");
-                if (weaponTemplate.Tag_Subspace)  sb.Append("SUBSPACE ");
-                if (weaponTemplate.Tag_Warp)      sb.Append("WARP ");
+                if (weaponTemplate.Explodes)      sb.Append("EXPLOSIVE ");
                 if (weaponTemplate.Tag_PD)        sb.Append("POINT DEFENSE ");
-                if (weaponTemplate.Tag_Flak)      sb.Append("FLAK ");
-
-                if (GlobalStats.ActiveModInfo?.expandedWeaponCats == true && weaponTemplate.Tag_Missile && !weaponTemplate.Tag_Guided)
-                    sb.Append("ROCKET ");
-                else if (weaponTemplate.Tag_Missile)
-                    sb.Append("MISSILE ");
-
-                if (weaponTemplate.Tag_Tractor)   sb.Append("TRACTOR ");
+                if (weaponTemplate.Tag_Missile)   sb.Append("MISSILE ");
                 if (weaponTemplate.Tag_Beam)      sb.Append("BEAM ");
-                if (weaponTemplate.Tag_Array)     sb.Append("ARRAY ");
-                if (weaponTemplate.Tag_Railgun)   sb.Append("RAILGUN ");
                 if (weaponTemplate.Tag_Torpedo)   sb.Append("TORPEDO ");
                 if (weaponTemplate.Tag_Bomb)      sb.Append("BOMB ");
                 if (weaponTemplate.Tag_BioWeapon) sb.Append("BIOWEAPON ");
@@ -525,7 +514,7 @@ namespace Ship_Game
 
             if (wOrMirv.Explodes)
             {
-                DrawStat(ref cursor, "Blast Rad", wOrMirv.DamageRadius / 16, GameText.TheRadiusOfTheProjectiles);
+                DrawStat(ref cursor, "Blast Rad", wOrMirv.ExplosionRadius / 16, GameText.TheRadiusOfTheProjectiles);
             }
 
             if (wOrMirv.TerminalPhaseAttack)

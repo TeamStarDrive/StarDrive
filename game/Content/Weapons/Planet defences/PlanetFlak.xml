@@ -2,7 +2,7 @@
 
   <Tag_Cannon>true</Tag_Cannon>
   <Tag_Kinetic>true</Tag_Kinetic>
-  <Tag_Explosive>true</Tag_Explosive>
+  
   
   <UID>PlanetFlak</UID>
   <FireDelay>4</FireDelay>
@@ -16,7 +16,7 @@
 
   <DamageAmount>175</DamageAmount>
   <ProjectileSpeed>1200</ProjectileSpeed>
-  <DamageRadius>25</DamageRadius> <!-- This Projectile Explodes --> 
+  <ExplosionRadius>25</ExplosionRadius> <!-- This Projectile Explodes --> 
   <ProjectileRadius>6</ProjectileRadius>
   
   <ProjectileTexturePath>projTear_01_orange</ProjectileTexturePath>
