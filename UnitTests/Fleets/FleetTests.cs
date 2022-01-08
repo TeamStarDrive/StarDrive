@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -91,55 +90,105 @@ namespace UnitTests.Fleets
             }
         }
 
-        [TestMethod]
-        public void FleetIsAbleToWarpMove()
+        Fleet CreateMassivePlayerFleet(Vector2 initialDir)
         {
-            CreateWantedShipsAndAddThemToList(3, "Terran-Prototype", PlayerShips);
-            CreateWantedShipsAndAddThemToList(200, "Vulcan Scout", PlayerShips);
+            CreateWantedShipsAndAddThemToList(5, "Terran-Prototype", PlayerShips);
+            CreateWantedShipsAndAddThemToList(195, "Vulcan Scout", PlayerShips);
+            foreach (Ship s in PlayerShips)
+                s.Direction = initialDir;
+
             Fleet fleet = CreateTestFleet(PlayerShips, PlayerFleets);
             fleet.AutoArrange();
+            return fleet;
+        }
 
-            // assign a warp move command forward by 40k
-            // 
-            // if Fleet Warp works correctly, all ships should enter Warp within 5 seconds
-            var forward = PlayerShips[0].Direction;
-            var target = PlayerShips[0].Position + forward*40_000f;
-            fleet.MoveToNow(target, forward);
+        [TestMethod]
+        public void FleetIsAbleToWarpMoveUp()
+        {
+            // move up
+            var offset = new Vector2(0, -40_000f);
+            Fleet fleet = CreateMassivePlayerFleet(offset.Normalized());
+            Vector2 target = FleetMoveTo(fleet, offset);
+            AssertAllShipsWarpedToTarget(fleet, target);
+        }
 
+        [TestMethod]
+        public void FleetIsAbleToWarpMoveLeft()
+        {
+            // move left
+            var offset = new Vector2(-40_000f, 0f);
+            Fleet fleet = CreateMassivePlayerFleet(offset.Normalized());
+            Vector2 target = FleetMoveTo(fleet, offset);
+            AssertAllShipsWarpedToTarget(fleet, target);
+        }
+
+        [TestMethod]
+        public void FleetIsAbleToWarpMoveDown()
+        {
+            // move down
+            var offset = new Vector2(0, 40_000f);
+            Fleet fleet = CreateMassivePlayerFleet(offset.Normalized());
+            Vector2 target = FleetMoveTo(fleet, offset);
+            AssertAllShipsWarpedToTarget(fleet, target);
+        }
+
+        [TestMethod]
+        public void FleetIsAbleToWarpMoveRight()
+        {
+            // move right
+            var offset = new Vector2(40_000f, 0);
+            Fleet fleet = CreateMassivePlayerFleet(offset.Normalized());
+            Vector2 target = FleetMoveTo(fleet, offset);
+            AssertAllShipsWarpedToTarget(fleet, target);
+        }
+
+        Vector2 FleetMoveTo(Fleet fleet, Vector2 offset)
+        {
+            Vector2 target = PlayerShips[0].Position + offset;
+            Log.Write($"Fleet.MoveToNow({target.X},{target.Y})");
+            fleet.MoveToNow(target, finalDirection: offset.Normalized());
+            return target;
+        }
+
+        void AssertAllShipsWarpedToTarget(Fleet fleet, Vector2 target)
+        {
             var shipsThatWereInWarp = new HashSet<Ship>();
-            Universe.Objects.EnableParallelUpdate = false;
-
-            LoopWhile((timeout:5.0, fatal:false), () => fleet.Ships.Any(s => !s.IsInWarp), () =>
+            RunSimWhile((simTimeout:8.0, fatal:false), body:() =>
             {
                 foreach (Ship s in fleet.Ships)
                     if (s.IsInWarp) shipsThatWereInWarp.Add(s);
-                RunObjectsSim(TestSimStep);
             });
 
-            LoopWhile((timeout:1.0, fatal:false), () => true, () =>
+            float Dist(Ship s) => s.Position.Distance(target);
+            void Print(string wat, Ship s)
             {
-                RunObjectsSim(TestSimStep);
-            });
-
-            if (shipsThatWereInWarp.Count != fleet.Ships.Count)
-            {
-                var notInWarp = new Array<Ship>(fleet.Ships.Except(shipsThatWereInWarp));
-                for (int i = 0; i < notInWarp.Count && i < 10; ++i)
-                {
-                    Ship s = notInWarp[i];
-                    Log.Write($"dist={target.Distance(s.Position)} maxSpeed={s.SpeedLimit} vel={s.Velocity.Length()} state={s.ShipEngines}\n\t\t\t\t\t{s}");
-                }
-                Assert.Fail($"{notInWarp.Count} fleet ships did not enter warp!");
+                Log.Write($"{wat} dist:{Dist(s)} V:{s.Velocity.Length()} Vmax:{s.SpeedLimit}");
+                Log.Write($"\t\t\tstate:{s.engineState} {s.ShipEngines}");
+                Log.Write($"\t\t\t{s}");
             }
 
-            foreach (Ship s in shipsThatWereInWarp)
+            var didWarp = shipsThatWereInWarp.ToArray().Sorted(s => s.Id);
+            if (didWarp.Length != fleet.Ships.Count)
             {
-                float distance = target.Distance(s.Position);
-                if (distance > 7500+500)
-                {
-                    Log.Write($"dist={distance} maxSpeed={s.SpeedLimit} vel={s.Velocity.Length()} state={s.ShipEngines}\n\t\t\t\t\t{s}");
-                }
+                var notInWarp = fleet.Ships.Except(didWarp);
+                string error = $"{notInWarp.Length} fleet ships did not enter warp!";
+                Log.Write(error);
+                for (int i = 0; i < notInWarp.Length && i < 10; ++i)
+                    Print("DID_NOT_WARP", notInWarp[i]);
+                Assert.Fail(error);
             }
+
+            var didNotArrive = didWarp.Filter(s => Dist(s) > 7500+500);
+            if (didNotArrive.Length != 0)
+            {
+                string error = $"{didNotArrive.Length} fleet ships did not arrive at destination!";
+                Log.Write(error);
+                for (int i = 0; i < didNotArrive.Length && i < 10; ++i)
+                    Print("DID_NOT_ARRIVE", didNotArrive[i]);
+                Assert.Fail(error);
+            }
+
+            Log.Write("All ships arrived at destination");
         }
     }
 }

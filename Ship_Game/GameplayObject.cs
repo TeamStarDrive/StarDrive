@@ -60,9 +60,19 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool ReinsertSpatial = false; // if true, this object should be reinserted to spatial manager
         [XmlIgnore][JsonIgnore] public bool InFrustum; // Updated by UniverseObjectManager
 
-        // current rotation converted into a direction vector
-        [XmlIgnore][JsonIgnore] public Vector2 Direction   => Rotation.RadiansToDirection();
-        [XmlIgnore][JsonIgnore] public Vector3 Direction3D => Rotation.RadiansToDirection3D();
+        /// <summary>
+        /// Current Rotation converted into a Direction unit vector
+        /// </summary>
+        [XmlIgnore][JsonIgnore] public Vector2 Direction
+        {
+            get => Rotation.RadiansToDirection();
+            set => Rotation = value.ToRadians(); // allow setting the rotation with a direction vector
+        }
+        [XmlIgnore][JsonIgnore] public Vector3 Direction3D
+        {
+            get => Rotation.RadiansToDirection3D();
+            set => Rotation = new Vector2(value.X, value.Y).ToRadians();
+        }
 
         // Current direction of the Velocity vector, or Vector2.Zero if Velocity is Zero
         [XmlIgnore][JsonIgnore] public Vector2 VelocityDirection => Velocity.Normalized();

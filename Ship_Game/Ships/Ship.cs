@@ -1946,7 +1946,7 @@ namespace Ship_Game.Ships
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
         public override string ToString() =>
-            $"Ship Id={Id} '{ShipName}' Pos {Position} {System} Loyalty {Loyalty} Role {DesignRole} State {AI?.State}" ;
+            $"Ship:{Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State}" ;
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {
