@@ -50,9 +50,6 @@
   <FireCueName>sd_weapon_missile_heavy_01</FireCueName>
   <DieCue>Explo1</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
-  <TerminalPhaseAttack>true</TerminalPhaseAttack>      
-  <TerminalPhaseDistance>4000</TerminalPhaseDistance>      
-  <TerminalPhaseSpeedMod>-3.5</TerminalPhaseSpeedMod>  
   
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Missile</WeaponType>
