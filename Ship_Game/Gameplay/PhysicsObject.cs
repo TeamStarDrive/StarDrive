@@ -123,6 +123,8 @@ namespace Ship_Game.Gameplay
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected Vector2 GetAppliedForceAcceleration()
         {
+            if (AppliedExternalForce == Vector2.Zero)
+                return Vector2.Zero;
             return new Vector2(AppliedExternalForce.X / Mass, AppliedExternalForce.Y / Mass);
         }
 
