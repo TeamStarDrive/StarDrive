@@ -155,7 +155,7 @@ namespace Ship_Game.Ships
         public PlanetCrash PlanetCrash;
         private bool ReallyDie;
         private bool HasExploded;
-        public int TotalDps { get; private set; }
+        public float TotalDps { get; private set; }
 
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool HasRepairBeam;
