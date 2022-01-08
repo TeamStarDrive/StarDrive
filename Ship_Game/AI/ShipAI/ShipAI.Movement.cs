@@ -369,11 +369,6 @@ namespace Ship_Game.AI
             return prediction;
         }
 
-        internal void CombatThrust()
-        {
-
-        }
-
         /**
          * Thrusts towards a position and engages StarDrive if needed
          * Thrust direction will be adjusted according to current velocity,
@@ -570,5 +565,48 @@ namespace Ship_Game.AI
         }
 
         public bool IsOrbiting(Planet p) => OrbitTarget == p && Orbit.InOrbit;
+
+        public void KeepDistanceUsingFlocking(FixedSimTime timeStep)
+        {
+            if (timeStep.FixedTime <= 0f || FriendliesNearby.Length == 0)
+                return;
+
+            const float desiredSeparation = 16f;
+            Vector2 mean = Vector2.Zero;
+            int shipsTooClose = 0;
+
+            var u = Owner.Universe;
+            for (int i = 0; i < FriendliesNearby.Length; ++i)
+            {
+                Ship friend = FriendliesNearby[i];
+                float distance = Owner.Distance(friend);
+                if (distance > 0f && distance < (Owner.Radius + friend.Radius + desiredSeparation))
+                {
+                    Vector2 deflectionVector = (Owner.Position - friend.Position);
+                    mean += deflectionVector.Normalized() / distance;
+                    ++shipsTooClose;
+
+                    //if (u.Debug && u.DebugWin != null)
+                    //{
+                    //    u.DebugWin.DrawLine(Debug.DebugModes.Normal, Owner.Position, friend.Position, 0.8f, Color.Orange, 0f);
+                    //}
+                }
+            }
+
+            if (shipsTooClose > 0)
+            {
+                Vector2 scaledDir = mean / shipsTooClose;
+
+                // F = m*a
+                Vector2 force = 10_000f * Owner.Mass * scaledDir;
+                Owner.ApplyForce(force);
+
+                //if (u.Debug && u.DebugWin != null)
+                //{
+                //    u.DebugWin.DrawCircle(Debug.DebugModes.Normal, Owner.Position, Owner.Radius, Color.Brown);
+                //    u.DebugWin.DrawArrow(Debug.DebugModes.Normal, Owner.Position, Owner.Position+force*0.01f, 0.8f, Color.Red, 0f);
+                //}
+            }
+        }
     }
 }
