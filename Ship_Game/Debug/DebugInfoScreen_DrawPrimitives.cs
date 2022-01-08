@@ -54,6 +54,13 @@ namespace Ship_Game.Debug
             AddPrimitive(new DebugLine(startInWorld, endInWorld, width, color, lifeTime));
         }
 
+        public void DrawArrow(DebugModes mode, Vector2 startInWorld, Vector2 endInWorld,
+            float width, Color color, float lifeTime)
+        {
+            if (ShouldNotAddPrimitive(mode)) return;
+            AddPrimitive(new DebugArrow(startInWorld, endInWorld, width, color, lifeTime));
+        }
+
         public void DrawGameObject(DebugModes mode, GameplayObject obj)
         {
             if (ShouldNotAddPrimitive(mode) || !obj.IsInFrustum) return;
@@ -125,6 +132,5 @@ namespace Ship_Game.Debug
             DrawLine(arrowTip, left, color, thickness);
             DrawLine(arrowTip, right, color, thickness);
         }
-
     }
 }
