@@ -28,7 +28,11 @@ namespace Ship_Game.Ships
         public bool SendTroopsToShip { get; private set; }
         public bool RecallFightersBeforeFTL { get; private set; }
         public bool RecallingShipsBeforeWarp { get; private set; }
-        public static float DefaultHangarRange = 7500;
+
+        // for testing purposes, disable fighters
+        public bool DisableFighterLaunch;
+
+        public const float DefaultHangarRange = 7500;
         public SupplyShuttles SupplyShuttle;
         public float HangarRange => HasActiveHangars ? DefaultHangarRange : 0;
         public bool IsPrimaryCarrierRoleForLaunchRange => 
@@ -238,7 +242,7 @@ namespace Ship_Game.Ships
 
         public void ScrambleFighters()
         {
-            if (Owner == null || Owner.IsSpoolingOrInWarp || RecallingShipsBeforeWarp)
+            if (Owner == null || Owner.IsSpoolingOrInWarp || RecallingShipsBeforeWarp || DisableFighterLaunch)
                 return;
 
             ShipModule[] readyHangars = PrepShipHangars(Owner.Loyalty);
