@@ -41,6 +41,11 @@ namespace Ship_Game
         {
             return $"FixedSimTime  sim:{FixedTime*1000,2:0.0}ms";
         }
+
+        public static FixedSimTime operator *(in FixedSimTime t, int multiplier)
+        {
+            return new FixedSimTime(t.FixedTime * multiplier);
+        }
     }
 
     /// <summary>
