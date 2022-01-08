@@ -87,6 +87,24 @@ namespace Ship_Game
         // @return Distance from `this` to `target`
         public float Distance(GameplayObject target) => Position.Distance(target.Position);
 
+        // @return True if `this` is overlapping with `target`
+        public bool InRadius(GameplayObject target)
+        {
+            float dx = Position.X - target.Position.X;
+            float dy = Position.Y - target.Position.Y;
+            float r2 = Radius + target.Radius;
+            return (dx*dx + dy*dy) <= (r2*r2);
+        }
+
+        // @return True if `this` is overlapping with `target`
+        public bool InRadius(GameplayObject target, float extraRadius)
+        {
+            float dx = Position.X - target.Position.X;
+            float dy = Position.Y - target.Position.Y;
+            float r2 = Radius + target.Radius + extraRadius;
+            return (dx*dx + dy*dy) <= (r2*r2);
+        }
+
         static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 

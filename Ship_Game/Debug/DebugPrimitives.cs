@@ -35,7 +35,8 @@ namespace Ship_Game.Debug
         public override void Draw(UniverseScreen screen)
         {
             Vector2d screenPos = screen.ProjectToScreenPosition(Center);
-            screen.DrawCircle(screenPos, Radius, Color, 2);
+            double radius = screen.ProjectToScreenSize(Radius);
+            screen.DrawCircle(screenPos, radius, Color, 2);
         }
     }
 
@@ -54,6 +55,41 @@ namespace Ship_Game.Debug
         public override void Draw(UniverseScreen screen)
         {
             screen.DrawLineWideProjected(StartInWorld, EndInWorld, Color, Width);
+        }
+    }
+
+    public class DebugArrow : DebugPrimitive
+    {
+        readonly Vector2 StartInWorld;
+        readonly Vector2 EndInWorld;
+        readonly float Width;
+        public DebugArrow(Vector2 startInWorld, Vector2 endInWorld, float width,
+            Color color, float lifeTime) : base(color, lifeTime)
+        {
+            StartInWorld = startInWorld;
+            EndInWorld = endInWorld;
+            Width = width;
+        }
+        public override void Draw(UniverseScreen screen)
+        {
+            Vector2d screenA = screen.ProjectToScreenPosition(StartInWorld);
+            Vector2d screenB = screen.ProjectToScreenPosition(EndInWorld);
+            screen.DrawLine(screenA, screenB, Color, Width);
+
+            Vector2d screenDir = screenA.DirectionToTarget(screenB);
+            Vector2d rightDir = screenDir.RightVector();
+
+            double arrowSize = screenA.Distance(screenB) * 0.1;
+            arrowSize = arrowSize.Clamped(5f, screen.ScreenWidth * 0.05f);
+
+            Vector2d thickOffset = rightDir*Width;
+            Vector2d arrowTip = screenB + thickOffset;
+            Vector2d arrowButt = screenB - screenDir*arrowSize;
+            Vector2d left  = arrowButt + screenDir.LeftVector()*arrowSize;
+            Vector2d right = arrowButt + thickOffset + rightDir*arrowSize;
+
+            screen.DrawLine(arrowTip, left, Color, Width);
+            screen.DrawLine(arrowTip, right, Color, Width);
         }
     }
 
