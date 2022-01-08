@@ -16,16 +16,7 @@ namespace Ship_Game
     {
         public const int MaxLevel = 20;
         public readonly Empire Owner;
-
-        public UniverseScreen Universe
-        {
-            get
-            {
-                var u = Owner.Universum;
-                if (u != null) return u;
-                throw new Exception("Remnants.Owner empire Universe reference was null, this is a bug!");
-            }
-        }
+        public UniverseScreen Universe => Owner.Universum ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
 
         public readonly BatchRemovalCollection<Goal> Goals;
         public float StoryTriggerKillsXp { get; private set; }
