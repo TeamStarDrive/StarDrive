@@ -355,14 +355,13 @@ namespace Ship_Game
 
         public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
 
-        
-        // Angle degrees from origin to tgt; result between [0, 360)
+        // Angle degrees from origin to tgt; result between [0, 360), so always positive
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
         {
             return (float)(180 - Atan2(target.X - origin.X, target.Y - origin.Y) * 180.0 / PI);
         }
 
-        // result between [0, +2PI)
+        // result between [0, +2PI), so always positive
         public static float RadiansToTarget(this Vector2 origin, Vector2 target)
         {
             return (float)(PI - Atan2(target.X - origin.X, target.Y - origin.Y));
@@ -370,6 +369,7 @@ namespace Ship_Game
 
         // how many radian difference from our current direction
         // versus when looking towards position
+        // @return Radians between [0, +PI], always positive
         public static float AngleDifference(in Vector2 wantedForward, in Vector2 currentForward)
         {
             float dot = wantedForward.UnitDot(currentForward);
@@ -378,6 +378,7 @@ namespace Ship_Game
 
         // how many radian difference from our current direction
         // versus when looking towards position
+        // @return Radians between [0, +PI], always positive
         public static float AngleDifferenceToPosition(this GameplayObject origin, Vector2 targetPos)
         {
             Vector2 wantedForward = origin.Position.DirectionToTarget(targetPos);

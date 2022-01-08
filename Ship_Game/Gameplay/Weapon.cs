@@ -174,7 +174,7 @@ namespace Ship_Game.Gameplay
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
-        [XmlIgnore][JsonIgnore] public int DamagePerSecond { get; private set; }
+        [XmlIgnore][JsonIgnore] public float DamagePerSecond { get; private set; }
 
         // Number of salvos that will be sequentially spawned.
         // For example, Vulcan Cannon fires a salvo of 20
@@ -261,22 +261,34 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
-        public void CalcDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
+        public float GetDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
         {
-            Weapon wOrMirv = this; 
+            Weapon wOrMirv = this;
             if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
             {
-                Weapon warhead = ResourceManager.CreateWeapon(MirvWeapon);
-                wOrMirv        = warhead;
+                wOrMirv = ResourceManager.GetWeaponTemplate(MirvWeapon);
             }
 
-            int salvos           = SalvoCount.LowerBound(1);
-            float beamMultiplier = IsBeam && !IsRepairBeam ? BeamDuration * 60f : 0f;
-            float dps            = IsBeam 
-                ? DamageAmount * beamMultiplier / NetFireDelay
-                : (salvos / NetFireDelay) * wOrMirv.ProjectileCount * wOrMirv.DamageAmount * MirvWarheads.LowerBound(1);
+            // TODO: This is all duplicated in `ModuleSelection.cs` and needs to be rewritten!
+            float dps;
+            if (IsBeam)
+            {
+                float beamMultiplier = !IsRepairBeam ? BeamDuration * 60f : 0f;
+                float damage = DamageAmount != 0 ? DamageAmount : PowerDamage;
+                dps = (damage * beamMultiplier) / NetFireDelay;
+            }
+            else
+            {
+                dps = (SalvoCount.LowerBound(1) / NetFireDelay)
+                    * wOrMirv.ProjectileCount
+                    * wOrMirv.DamageAmount * MirvWarheads.LowerBound(1);
+            }
+            return dps;
+        }
 
-            DamagePerSecond = (int)dps;
+        public void InitDamagePerSecond()
+        {
+            DamagePerSecond = GetDamagePerSecond();
         }
 
         // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.

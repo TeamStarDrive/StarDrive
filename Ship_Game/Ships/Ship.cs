@@ -102,10 +102,17 @@ namespace Ship_Game.Ships
         public double ShieldPercent;
         public float ArmorMax;
         public float ShieldMax;
-        public float ShieldPower;
-        // total number of internal slots (@todo this should be in ShipTemplate !!)
-        public int InternalSlotCount { get; private set; }
-        public int ActiveInternalSlotCount; // active slots have Health > 0
+
+        // Total sum of all active shield module's current power
+        public float ShieldPower { get; private set; }
+
+        // total number of installed module SLOTS with Internal Restrictions
+        // example: a 2x2 internal module would give +4
+        public int TotalInternalModuleSlots { get; private set; }
+
+        // active internal modules SLOTS that have health > 0
+        public int ActiveInternalModuleSlots;
+
         public float PowerCurrent;
         public float PowerFlowMax;
         public float PowerStoreMax;
@@ -132,10 +139,11 @@ namespace Ship_Game.Ships
         private bool BeingTractored;
         float UpdateTimer;
 
-        int HighAlertTimer;
-        public bool OnHighAlert => HighAlertTimer > 0;
-        public bool OnLowAlert => HighAlertTimer <= 0;
-        public void SetHighAlertStatus() => HighAlertTimer = 10;
+        float HighAlertTimer;
+        public bool OnHighAlert => HighAlertTimer > 0f;
+        public bool OnLowAlert => HighAlertTimer <= 0f;
+        public const float HighAlertSeconds = 10;
+        public void SetHighAlertStatus() => HighAlertTimer = HighAlertSeconds;
 
 
         public float HealPerTurn;
@@ -147,7 +155,7 @@ namespace Ship_Game.Ships
         public PlanetCrash PlanetCrash;
         private bool ReallyDie;
         private bool HasExploded;
-        public int TotalDps { get; private set; }
+        public float TotalDps { get; private set; }
 
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool HasRepairBeam;
@@ -1072,8 +1080,8 @@ namespace Ship_Game.Ships
 
         public void SetActiveInternalSlotCount(int activeInternalSlots)
         {
-            ActiveInternalSlotCount = activeInternalSlots;
-            InternalSlotsHealthPercent = (float)activeInternalSlots / InternalSlotCount;
+            ActiveInternalModuleSlots = activeInternalSlots;
+            InternalSlotsHealthPercent = (float)activeInternalSlots / TotalInternalModuleSlots;
         }
 
         // TODO: This needs a performance refactor
@@ -1106,15 +1114,14 @@ namespace Ship_Game.Ships
             AI.CombatAI.SetCombatTactics(AI.CombatState);
 
             UpdateTimer -= timeStep.FixedTime;
-
             if (UpdateTimer <= 0f)
             {
                 UpdateTimer += 1f; // update the ship modules and status only once per second
                 UpdateModulesAndStatus(FixedSimTime.One);
                 SecondsAlive += 1;
-                HighAlertTimer -= 1;
 
-                if (HighAlertTimer <= 0)
+                HighAlertTimer -= 1f;
+                if (HighAlertTimer < 0) // less than 0, because if HighAlertTimer is set to 0.016f, this should run at least once
                 {
                     if (AI.BadGuysNear || InCombat)
                         SetHighAlertStatus();
@@ -1946,7 +1953,7 @@ namespace Ship_Game.Ships
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
         public override string ToString() =>
-            $"Ship:{Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State}" ;
+            $"Ship:{Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {

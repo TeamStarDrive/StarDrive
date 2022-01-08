@@ -84,6 +84,9 @@ namespace Ship_Game
             set => Rotation = value.ToRadians();
         }
 
+        // @return Distance from `this` to `target`
+        public float Distance(GameplayObject target) => Position.Distance(target.Position);
+
         static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 

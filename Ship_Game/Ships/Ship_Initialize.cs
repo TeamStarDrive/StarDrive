@@ -14,7 +14,8 @@ namespace Ship_Game.Ships
         // If this is null, the Ship is not in any universe
         public UniverseScreen Universe;
 
-        // create a NEW ship from template
+        // Create a NEW ship from an existing template
+        // You should call Ship.CreateShip() functions to spawn ships
         protected Ship(UniverseScreen universe, Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
         {
             Universe = universe;
@@ -43,9 +44,8 @@ namespace Ship_Game.Ships
             SetInitialCrewLevel();
         }
 
-        // Create a ship from a savegame or a template or in shipyard
-        // You can also call Ship.CreateShip... functions to spawn ships
-        // @param shipyardDesign This is a potentially incomplete design from Shipyard
+        // Create a ship from a SavedGame
+        // You should call Ship.CreateShip() functions to spawn ships
         protected Ship(UniverseScreen universe, Empire empire, ShipDesign data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
         {
             Universe = universe;
@@ -72,9 +72,9 @@ namespace Ship_Game.Ships
             InitializeStatus(fromSave:true);
         }
 
-        // Create a ship as a template in shipyard or from a save
-        // You can also call Ship.CreateShip... functions to spawn ships
-        // @param shipyardDesign This is a potentially incomplete design from Shipyard
+        // Create a ship as a new template or shipyard WIP design
+        // You should call Ship.CreateShip() functions to spawn ships
+        // @param shipyardDesign This is a WIP design from Shipyard
         protected Ship(UniverseScreen universe, Empire empire, ShipDesign data, bool isTemplate, bool shipyardDesign = false)
             : base(GameObjectType.Ship)
         {
