@@ -694,20 +694,12 @@ namespace Ship_Game.Ships
 
         public float GetExplosionDamageOnShipExplode()
         {
-            float dmg = 0;
-            if (Active)
-            {
-                if (Explodes)
-                    dmg += ExplosionDamage;
+            if (!Active)
+                return 0f;
 
-                if (ExplosiveResist > 0)
-                {
-                    float resist = 1f / (1f - ExplosiveResist);
-                    dmg = (dmg - Health * resist).LowerBound(0);
-                }
-            }
-
-            return dmg;
+            float resist = ExplosiveResist > 0f ? Health / (1f - ExplosiveResist) : 0f;
+            float dmg = Explodes ? ExplosionDamage : 0f;
+            return dmg - resist; // Allow negative damage (damage reducer)
         }
 
         public void DamageShield(float damageAmount, Projectile proj, Beam beam, out float remainder)
