@@ -15,8 +15,18 @@ namespace Ship_Game
     public class Remnants
     {
         public const int MaxLevel = 20;
-        public readonly UniverseScreen Universe;
         public readonly Empire Owner;
+
+        public UniverseScreen Universe
+        {
+            get
+            {
+                var u = Owner.Universum;
+                if (u != null) return u;
+                throw new Exception("Remnants.Owner empire Universe reference was null, this is a bug!");
+            }
+        }
+
         public readonly BatchRemovalCollection<Goal> Goals;
         public float StoryTriggerKillsXp { get; private set; }
         public float PlayerStepTriggerXp { get; private set; }
@@ -34,7 +44,6 @@ namespace Ship_Game
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
-            Universe = owner.Universum;
             Owner = owner;
             Goals = goals;
 
