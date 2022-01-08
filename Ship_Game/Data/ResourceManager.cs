@@ -1508,10 +1508,14 @@ namespace Ship_Game
                         if (shipDesign == null)
                             continue;
 
-                        if (info.NameNoExt() != shipDesign.Name)
-                            Log.Warning($"File name '{info.NameNoExt()}' does not match ship name '{shipDesign.Name}'." +
+                        string nameNoExt = info.NameNoExt();
+                        if (nameNoExt != shipDesign.Name)
+                        {
+                            Log.Warning($"File name '{nameNoExt}' does not match ship name '{shipDesign.Name}'." +
                                          "\n This can prevent loading of ships that have this filename in the XML :" +
-                                        $"\n path '{info.PathNoExt()}'");
+                                        $"\n path '{info.FullName}'. Overwriting ship name to '{nameNoExt}'. ");
+                            shipDesign.Name = nameNoExt;
+                        }
 
                         if (GlobalStats.FixDesignRoleAndCategory)
                         {
@@ -1777,7 +1781,7 @@ namespace Ship_Game
 
             foreach (Weapon w in WeaponsDict.Values)
             {
-                w.CalcDamagePerSecond();
+                w.InitDamagePerSecond();
             }
         }
 

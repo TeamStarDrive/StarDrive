@@ -52,7 +52,7 @@ namespace Ship_Game.Ships
 
             float maxSensorBonus = 0f;
             int activeInternalSlots = 0;
-            S.ActiveInternalSlotCount = 0;
+            S.ActiveInternalModuleSlots = 0;
             S.BonusEMPProtection     = 0f;
             S.PowerStoreMax           = 0f;
             S.PowerFlowMax            = 0f;
