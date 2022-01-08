@@ -357,7 +357,7 @@ namespace Ship_Game.AI
                 return Target;
             }
 
-            return PickHighestPriorityTarget(); // This is the alternative logic
+            return GetHighestPriorityTarget(); // This is the alternative logic
         }
 
         static bool IsTargetActive(Ship target)
@@ -365,7 +365,7 @@ namespace Ship_Game.AI
             return target != null && target.Active && !target.Dying;
         }
 
-        Ship PickHighestPriorityTarget()
+        public Ship GetHighestPriorityTarget()
         {
             if (Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 return null;
@@ -377,37 +377,79 @@ namespace Ship_Game.AI
             return null;
         }
 
-        float GetTargetPriority(Ship ship)
+        // Set this to get debug output of GetTargetPriority() weights
+        public static bool EnableTargetPriorityDebug;
+
+        float GetTargetPriority(Ship tgt)
         {
-            if (ship.IsInWarp)
+            if (tgt.IsInWarp)
                 return 0;
 
-            float minimumDistance = Owner.Radius + ship.Radius;
-            float value = ship.TotalDps + 100;
-            value *= 1 + ship.Carrier.AllFighterHangars.Length/2;
-            value *= 1 + ship.TroopCapacity/2;
-            value *= 1 + (ship.HasBombs && ship.AI.OrbitTarget?.Owner == Owner.Loyalty
-                        ? ship.BombBays.Count
-                        : ship.BombBays.Count/2);
+            // when selecting enemy targets, we should see how easy they are to kill
+            // if we chose strongest enemies, we could make 0 effect and get whittled down by small fries
+            // so instead choose base value from how killable the ship is
+            float dps = Owner.TotalDps;
+            if (dps == 0f) // not all ships have DPS, so equate them with a weak ship
+                dps = 100f;
 
-            float angleMod = Owner.AngleDifferenceToPosition(ship.Position).Clamped(0.5f, 3);
-            if (Owner.AI.EscortTarget != null && ship.AI.Target == Owner.AI.EscortTarget)
+            float value = (10000f * dps) / (tgt.Health + tgt.ShieldPower);
+            value *= 1f + tgt.Carrier.AllFighterHangars.Length*0.75f;
+            value *= 1 + tgt.TroopCapacity/2;
+            value *= 1 + (tgt.HasBombs ? tgt.BombBays.Count*2 : tgt.BombBays.Count/2);
+
+            bool debug = EnableTargetPriorityDebug && (Owner.Loyalty.isPlayer);
+            void Debug(string s) => Log.Write(
+                $"{tgt.Loyalty.data.ArchetypeName} {tgt.DesignRole,9}={value.String(),-6} | "+
+                $"{s,-16} | tgt: {tgt.Name+tgt.Id,-20} | us: {Owner.Name+Owner.Id,-20} |");
+
+            if (debug) Debug($"str={tgt.GetStrength().String()}");
+            if (Owner.AI.EscortTarget != null && tgt.AI.Target == Owner.AI.EscortTarget)
             {
-                value   *= 10;
-                angleMod = 1;
+                value *= 10; // higher priority to anyone attacking the ship we are escorting
+            }
+            else
+            {
+                float angleDiff = Owner.AngleDifferenceToPosition(tgt.Position);
+                // treat everything inside -45 and +45 degs as 1.0
+                // targets at 90 degs will be 2.0, anything above 135 degs will be 3.0
+                float angleMod = angleDiff.Clamped(RadMath.Deg45AsRads, RadMath.Deg135AsRads) / RadMath.Deg45AsRads;
+                value /= angleMod;
+                if (debug) Debug($"angle={angleDiff.String()}");
+            }
+            
+            float minimumDistance = Owner.Radius + tgt.Radius;
+            float distance = Owner.Distance(tgt).LowerBound(minimumDistance);
+            if (tgt.AI.Target == Owner && distance < tgt.DesiredCombatRange) // prefer enemies targeting us (within range)
+                value *= 2.0f;
+            if (tgt.Resupplying) // lower priority to enemies that are retreating
+                value *= 0.1f;
+
+            float relDist = (distance / Owner.DesiredCombatRange) * 10;
+            value /= relDist; // prefer targets that are closer, but in 50m increments
+            if (debug) Debug($"d={distance.String(),-4} dv={relDist.String(2),-4}");
+
+            // make ships prefer targets which are closer to their own size
+            // this ensures fighters prefer fighters and frigates prefer frigates
+            float relSize = (float)tgt.SurfaceArea / Owner.SurfaceArea;
+            if (relSize < 1f)
+            {
+                // if target is smaller, then 0.5^2 = 0.25, smaller ships are almost always weaker than us
+                // so they're not a huge priority - other ships of same size are more important
+                // value = 100 * 0.25 = 25
+                value *= (relSize * relSize);
+            }
+            else if (relSize > 1f)
+            {
+                // if target is bigger than us, use division to make us less afraid of it
+                // value = 100 / (2.0 * 0.25) = 200 (2x stronger? good target)
+                // value = 100 / (4.0 * 0.25) = 100 (4x stronger? not afraid at all)
+                // value = 100 / (4.47 * 0.25) = 89.4 (a bit afraid)
+                value /= (relSize * 0.25f);
             }
 
-
-            float distance = Owner.Position.Distance(ship.Position).LowerBound(minimumDistance);
-            if (ship.AI.Target == Owner && distance < ship.DesiredCombatRange)
-                value *= 2;
-
-            if (ship.Resupplying)
-                value /= 10;
-
-            float sizeMod  = ((float)ship.SurfaceArea / Owner.SurfaceArea).UpperBound(1);
-            value /= angleMod;
-            return value / (distance*distance) * sizeMod;
+            if (debug) Debug($"relSize={relSize.String(2),-4}");
+            if (debug) Debug($"{value.String(2)}");
+            return value;
         }
         
         // Checks whether it's time to run a SensorScan

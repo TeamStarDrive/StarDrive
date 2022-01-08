@@ -1087,7 +1087,6 @@ namespace Ship_Game.Ships
             return false;
         }
 
-        //added by gremlin fighter rearm fix
         public void ScrambleFighters()
         {
             if (IsTroopBay || IsSupplyBay || !Powered)

@@ -468,8 +468,7 @@ namespace Ship_Game
             Weapon wOrMirv = w; // We want some stats to show warhead stats and not weapon stats
             if (w.MirvWarheads > 0 && w.MirvWeapon.NotEmpty())
             {
-                Weapon warhead = ResourceManager.CreateWeapon(w.MirvWeapon);
-                wOrMirv        = warhead;
+                wOrMirv = ResourceManager.GetWeaponTemplate(w.MirvWeapon);
             }
 
 
