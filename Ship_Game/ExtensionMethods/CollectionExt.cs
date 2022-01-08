@@ -158,37 +158,6 @@ namespace Ship_Game
             }
             return false;
         }
-        
-        /// <summary>
-        /// Excludes items from this array. All elements in the arrays must be unique to speed this algorithm up.
-        /// The resulting exclusion array will be UNSTABLE, meaning item ordering will be changed for performance reasons
-        /// </summary>
-        public static T[] UniqueExclude<T>(this T[] arr, T[] itemsToExclude) where T : class
-        {
-            int count  = arr.Length;
-            if (count == 0)
-                return Empty<T>.Array;
-
-            var unique = new T[count];
-            Memory.HybridCopyRefs(unique, 0, arr, count); // good average copy performance
-
-            for (int i = 0; i < itemsToExclude.Length; ++i) {
-                T item = itemsToExclude[i];
-                for (int j = 0; j < count; ++j) {
-                    if (unique[j] == item) {
-                        unique[j] = unique[--count];
-                        break;
-                    }
-                }
-            }
-
-            if (count >= unique.Length)
-                return unique;
-
-            var items = new T[count]; // trim excess
-            Memory.HybridCopyRefs(items, 0, unique, count);
-            return items;
-        }
 
         // The following methods are all specific implementations
         // of ToArray() and ToList() as ToArrayList(); Main goal is to improve performance
@@ -428,23 +397,6 @@ namespace Ship_Game
             Memory.HybridCopyRefs(result = new T[newLength], 0, array, array.Length);
             result[newLength] = item;
         }
-
-        public static U[] Select<T, U>(this T[] items, Func<T, U> selector)
-        {
-            var selected = new U[items.Length];
-            for (int i = 0; i < items.Length; ++i)
-                selected[i] = selector(items[i]);
-            return selected;
-        }
-
-        public static U[] Select<T, U>(this IReadOnlyList<T> items, Func<T, U> selector)
-        {
-            var selected = new U[items.Count];
-            for (int i = 0; i < selected.Length; ++i)
-                selected[i] = selector(items[i]);
-            return selected;
-        }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] UniqueGameObjects<T>(this T[] items) where T : GameplayObject

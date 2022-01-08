@@ -5,7 +5,6 @@ using Ship_Game.Debug;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
@@ -45,7 +44,7 @@ namespace Ship_Game.Fleets
         public bool IsCoreFleet;
         public bool AutoRequisition { get; private set; }
 
-        Array<Ship> AllButRearShips => Ships.Except(RearShips).ToArrayList();
+        Ship[] AllButRearShips => Ships.Except(RearShips);
         public bool HasRepair { get; private set; }  //fbedard: ships in fleet with repair capability will not return for repair.
         public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
         public bool ReadyForWarp { get; private set; }
@@ -1049,7 +1048,7 @@ namespace Ship_Game.Fleets
             if (potentialSystems.Length == 0)
                 return null;
 
-            SolarSystem potentialSystem = potentialSystems.Sorted(s => s.GetKnownStrengthHostileTo(Owner)).First();
+            SolarSystem potentialSystem = potentialSystems.FindMin(s => s.GetKnownStrengthHostileTo(Owner));
             return potentialSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
         }
 
@@ -1709,7 +1708,7 @@ namespace Ship_Game.Fleets
             var ownerSystems = Owner.GetOwnedSystems().Filter(s => AveragePos.InRadius(s.Position, s.Radius));
             if (ownerSystems.Length == 1)
             {
-                SolarSystem system = ownerSystems.First();
+                SolarSystem system = ownerSystems[0];
                 if (system.DangerousForcesPresent(Owner) && Ships.Any(s => s.System == system && s.InCombat))
                     return false;
             }
@@ -1823,11 +1822,12 @@ namespace Ship_Game.Fleets
 
         bool AttackEnemyStrengthClumpsInAO(MilitaryTask task) => AttackEnemyStrengthClumpsInAO(task, AvailableShips);
 
-        bool AttackEnemyStrengthClumpsInAO(MilitaryTask task, IEnumerable<Ship> ships)
+        bool AttackEnemyStrengthClumpsInAO(MilitaryTask task, IReadOnlyList<Ship> ships)
         {
-            var availableShips = new Array<Ship>(ships);
-            if (availableShips.Count == 0) return false;
+            if (ships.Count == 0)
+                return false;
 
+            var availableShips = new Array<Ship>(ships);
             Map<Vector2, float> enemyClumpsDict = Owner.GetEmpireAI().ThreatMatrix
                 .PingRadarStrengthClusters(task.AO, task.AORadius, 10000, Owner);
 
@@ -1836,7 +1836,8 @@ namespace Ship_Game.Fleets
 
             while (availableShips.Count > 0)
             {
-                foreach (var kv in enemyClumpsDict.OrderBy(dis => dis.Key.SqDist(task.AO)))
+                var sortedClumps = System.Linq.Enumerable.OrderBy(enemyClumpsDict, dis => dis.Key.SqDist(task.AO));
+                foreach (KeyValuePair<Vector2, float> kv in sortedClumps)
                 {
                     if (availableShips.Count == 0)
                         break;
