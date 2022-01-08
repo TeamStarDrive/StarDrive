@@ -697,8 +697,6 @@ namespace Ship_Game.Ships
             float dmg = 0;
             if (Active)
             {
-                dmg += ActualPowerFlowMax + ActualPowerStoreMax;
-
                 if (Explodes)
                     dmg += ExplosionDamage;
 
