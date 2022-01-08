@@ -514,7 +514,7 @@ namespace Ship_Game
 
             if (wOrMirv.Explodes)
             {
-                DrawStat(ref cursor, "Blast Rad", wOrMirv.DamageRadius / 16, GameText.TheRadiusOfTheProjectiles);
+                DrawStat(ref cursor, "Blast Rad", wOrMirv.ExplosionRadius / 16, GameText.TheRadiusOfTheProjectiles);
             }
 
             if (wOrMirv.TerminalPhaseAttack)
