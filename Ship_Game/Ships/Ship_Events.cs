@@ -17,7 +17,7 @@ namespace Ship_Game.Ships
                 UpdateExternalSlots(m, becameActive: false);
             if (m.HasInternalRestrictions)
             {
-                SetActiveInternalSlotCount(ActiveInternalSlotCount - m.Area);
+                SetActiveInternalSlotCount(ActiveInternalModuleSlots - m.Area);
             }
 
             // kill the ship if all modules exploded or internal slot percent is below critical
@@ -36,7 +36,7 @@ namespace Ship_Game.Ships
             UpdateExternalSlots(m, becameActive: true);
             if (m.HasInternalRestrictions)
             {
-                SetActiveInternalSlotCount(ActiveInternalSlotCount + m.Area);
+                SetActiveInternalSlotCount(ActiveInternalModuleSlots + m.Area);
             }
         }
 
