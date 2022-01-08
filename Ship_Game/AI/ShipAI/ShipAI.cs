@@ -287,6 +287,7 @@ namespace Ship_Game.AI
             }
 
             UpdateCombatStateAI(timeStep);
+            KeepDistanceUsingFlocking(timeStep);
 
             if (UpdateOrderQueueAI(timeStep))
                 return;
