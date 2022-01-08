@@ -1523,7 +1523,7 @@ namespace Ship_Game.Ships
                 damage += m.GetExplosionDamageOnShipExplode();
             }
 
-            damage += PowerCurrent + Ordinance + Health/10;
+            damage += PowerCurrent + Ordinance + Health*0.05f;
             return damage.LowerBound(Radius * 10);
         }
 
