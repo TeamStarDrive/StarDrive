@@ -69,7 +69,7 @@ namespace Ship_Game.Ships
 
             var shields    = new Array<ShipModule>();
             var amplifiers = new Array<ShipModule>();
-            InternalSlotCount = 0;
+            TotalInternalModuleSlots = 0;
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
@@ -81,7 +81,7 @@ namespace Ship_Game.Ships
                     amplifiers.Add(module);
 
                 if (module.HasInternalRestrictions)
-                    InternalSlotCount += module.XSize * module.YSize;
+                    TotalInternalModuleSlots += module.XSize * module.YSize;
             }
 
             Shields    = shields.ToArray();

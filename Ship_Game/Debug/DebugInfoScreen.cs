@@ -521,7 +521,7 @@ namespace Ship_Game.Debug
                 DrawString($"HP: {ship.Health.String(0)} / {ship.HealthMax.String(0)}");
                 DrawString("Ship Mass: " + ship.Mass.String(0));
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
-                DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
+                DrawString("ActiveIntSlots: " + ship.ActiveInternalModuleSlots + " / " + ship.TotalInternalModuleSlots + " (" + Math.Round((decimal)ship.ActiveInternalModuleSlots / ship.TotalInternalModuleSlots * 100,1) + "%)");
                 DrawString($"Total DPS: {ship.TotalDps}");
                 SetTextCursor(Win.X + 250, 600f, Color.White);
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.Loyalty.GetEmpireAI().DefensiveCoordinator.DefenseDict)
