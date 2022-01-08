@@ -122,7 +122,7 @@ namespace Ship_Game
         /// <summary>
         /// Optimized version of LINQ Max(x => x.Value), tailored specifically to T[].
         /// </summary>
-        /// <returns>Max item from selected range</returns>
+        /// <returns>Min item from selected range</returns>
         public static float Max<T>(this T[] items, Func<T, float> valueFromItem)
         {
             if (items.Length == 0)
@@ -134,5 +134,67 @@ namespace Ship_Game
             return max;
         }
 
+        /// <summary>
+        /// Optimized version of LINQ Min(x => x.Value), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Min item from selected range</returns>
+        public static float Min<T>(this Array<T> items, Func<T, int> valueFromItem)
+        {
+            return Min(items.GetInternalArrayItems(), items.Count, valueFromItem);
+        }
+        /// <summary>
+        /// Optimized version of LINQ Min(x => x.Value), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Max item from selected range</returns>
+        public static float Min<T>(this T[] items, Func<T, int> valueFromItem)
+        {
+            return Min(items, items.Length, valueFromItem);
+        }
+        /// <summary>
+        /// Optimized version of LINQ Min(x => x.Value), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Min item from selected range</returns>
+        public static int Min<T>(this T[] items, int count, Func<T, int> valueFromItem)
+        {
+            if (count == 0)
+                return 0;
+
+            int max = valueFromItem(items[0]);
+            for (int i = 1; i < count; ++i)
+                max = Math.Min(max, valueFromItem(items[i]));
+            return max;
+        }
+        
+
+        /// <summary>
+        /// Optimized version of LINQ Min(x => x.Value), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Min item from selected range</returns>
+        public static float Min<T>(this Array<T> items, Func<T, float> valueFromItem)
+        {
+            return Min(items.GetInternalArrayItems(), items.Count, valueFromItem);
+        }
+        /// <summary>
+        /// Optimized version of LINQ Min(x => x.Value), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Min item from selected range</returns>
+        public static float Min<T>(this T[] items, Func<T, float> valueFromItem)
+        {
+            return Min(items, items.Length, valueFromItem);
+        }
+        /// <summary>
+        /// Optimized version of LINQ Min(x => x.Value), tailored specifically to T[].
+        /// </summary>
+        /// <returns>Min item from selected range</returns>
+        public static float Min<T>(this T[] items, int count, Func<T, float> valueFromItem)
+        {
+            if (count == 0)
+                return 0f;
+
+            float max = valueFromItem(items[0]);
+            for (int i = 1; i < count; ++i)
+                max = Math.Min(max, valueFromItem(items[i]));
+            return max;
+        }
     }
 }

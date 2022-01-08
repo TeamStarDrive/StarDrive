@@ -229,6 +229,9 @@
     <Compile Include="Ship_Game\Data\Serialization\SerializerCategory.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\MapSerializer.cs" />
     <Compile Include="Ship_Game\Debug\Page\ParticleDebug.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionExclude.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionFilterSelect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Vector2d.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Vector3d.cs" />
     <Compile Include="Ship_Game\Gameplay\PhysicsObject.cs" />
