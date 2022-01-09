@@ -152,7 +152,7 @@ namespace Ship_Game
 
             Rotation     = module.Position.RadiansToTarget(proj.Position);
             Radius       = module.ShieldHitRadius;
-            TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 10f);
+            TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 5f);
             Displacement = 0.085f * RandomMath.RandomBetween(intensity, 10f);
 
             if (universe.CanAddDynamicLight)
