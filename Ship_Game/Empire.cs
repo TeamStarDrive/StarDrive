@@ -1484,6 +1484,8 @@ namespace Ship_Game
                     return;
             #endif
 
+            // TODO: figure out another way to initialize Universe for Rebel Factions
+            Universum = us;
             UpdateTimer -= timeStep.FixedTime;
 
             if (UpdateTimer <= 0f && !data.Defeated)
