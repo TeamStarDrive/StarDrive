@@ -137,6 +137,8 @@ namespace UnitTests.AITests.Ships
 
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
             Assert.AreEqual(FrigateTarget, Us.AI.Target, "Expected large target to be selected since designation is AntiShip");
+
+            Us.ShipData.HangarDesignation = HangarOptions.General;
         }
 
         [TestMethod]
@@ -148,6 +150,8 @@ namespace UnitTests.AITests.Ships
 
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
             Assert.AreEqual(ScoutTarget, Us.AI.Target, "Expected small target to be selected since designation is Interceptor");
+
+            Us.ShipData.HangarDesignation = HangarOptions.General;
         }
 
         [TestMethod]
