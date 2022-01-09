@@ -566,46 +566,152 @@ namespace Ship_Game.AI
 
         public bool IsOrbiting(Planet p) => OrbitTarget == p && Orbit.InOrbit;
 
+        // Minimum desired distance between two ships bounding Radius
+        // This can be negative as well, to tweak the overlaps
+        public const float FlockingSeparation = 0f;
+
+        // Minimum distance where ships start checking for rotation alignment
+        // This needs to be a bit farther away so ships start turning before they collide
+        public const float FlockingMinSteeringDistance = 128f;
+
+        // Size of the arc that the ship checks for steering Left or Right
+        public const float FlockingSteeringArc = RadMath.Deg90AsRads;
+
+        // Currently friends are not sorted by distance, so this limit should be very high
+        // If we can optimize FriendliesNearby so that sorting becomes feasible, this could be reduced
+        public const int FlockingMaxNeighbors = 100;
+
+        // Very simple implementation for basic flocking behaviour
+        // It's not designed to be perfect, but rather work with performance constraints
+        // And give at least some separation to ships, instead of 100-ship death stacks
+        //
+        // This also improves collision performance, because stacked ships don't benefit from Quadtree subdivision
+        // It's a bit long
         public void KeepDistanceUsingFlocking(FixedSimTime timeStep)
         {
-            if (timeStep.FixedTime <= 0f || FriendliesNearby.Length == 0)
-                return;
+            // all deflection vectors summed by scaled direction vectors
+            Vector2 meanDeflect = Vector2.Zero;
 
-            const float desiredSeparation = 16f;
-            Vector2 mean = Vector2.Zero;
-            int shipsTooClose = 0;
+            // max amount of deflection to apply in the final direction
+            float maxDeflectionPower = 0f;
 
+            // rotation change needed to avoid colliding with 
+            float rotationChange = 0f;
+
+            Vector2 ourPos = Owner.Position;
             var u = Owner.Universe;
-            for (int i = 0; i < FriendliesNearby.Length; ++i)
+
+            for (int i = 0; i < FriendliesNearby.Length && i < FlockingMaxNeighbors; ++i)
             {
                 Ship friend = FriendliesNearby[i];
-                float distance = Owner.Distance(friend);
-                if (distance > 0f && distance < (Owner.Radius + friend.Radius + desiredSeparation))
-                {
-                    Vector2 deflectionVector = (Owner.Position - friend.Position);
-                    mean += deflectionVector.Normalized() / distance;
-                    ++shipsTooClose;
 
-                    //if (u.Debug && u.DebugWin != null)
-                    //{
-                    //    u.DebugWin.DrawLine(Debug.DebugModes.Normal, Owner.Position, friend.Position, 0.8f, Color.Orange, 0f);
-                    //}
+                // we want to deflect away from friend, so get vector facing towards us
+                Vector2 friendPos = friend.Position;
+                (ourPos - friendPos).GetDirectionAndLength(out Vector2 deflectionDir, out float distance);
+
+                float combinedRadius = Owner.Radius + friend.Radius;
+                float separationDist = combinedRadius + FlockingSeparation;
+                if (distance < separationDist)
+                {
+                    if (u.Debug && u.DebugWin != null)
+                    {
+                        u.DebugWin.DrawLine(Debug.DebugModes.Normal, ourPos, friendPos, 0.8f, Color.Orange, 0f);
+                    }
+
+                    // edge case, two ships are on top of each other, so assign a random direction
+                    if (distance < 16f)
+                    {
+                        meanDeflect += RandomMath.RandomDirection();
+                        maxDeflectionPower = 1.0f; // fully deflect away
+
+                        // we don't need to get any more friends, this single random direction is enough
+                        // and we also don't want to apply any more rotation changes
+                        break;
+                    }
+                    else
+                    {
+                        // relative distance to desired separation,
+                        // 0.01 if ships are on top of each other; 0.99 if ship is almost out of range
+                        // thanks to previous checks, this can never be 0.0 or 1.0
+                        float relativeDist = distance / separationDist;
+
+                        // weight deflection direction by the distance
+                        // if relativeDistance = 0.01 power is 0.99
+                        // if relativeDistance = 0.99 power is 0.01
+                        float deflectionPower = 1.0f - relativeDist; // guaranteed (0.0 - 1.0)
+
+                        meanDeflect += deflectionDir * deflectionPower;
+                        maxDeflectionPower = Math.Max(maxDeflectionPower, deflectionPower);
+                    }
+                }
+
+                // TODO: requires new rotation logic to prevent 2 rotations from cancelling out ship rotation
+                if (false && rotationChange == 0f)
+                {
+                    float rotationDist = combinedRadius + FlockingMinSteeringDistance;
+                    if (distance < rotationDist)
+                    {
+                        if (u.Debug && u.DebugWin != null)
+                        {
+                            u.DebugWin.DrawLine(Debug.DebugModes.Normal, ourPos, friendPos, 0.8f, Color.Green, 0f);
+                            u.DebugWin.DrawCircle(Debug.DebugModes.Normal, friendPos, 64, Color.Green);
+
+                            Vector2 left  = (Owner.Rotation - FlockingSteeringArc * 0.5f).RadiansToDirection();
+                            Vector2 right = (Owner.Rotation + FlockingSteeringArc * 0.5f).RadiansToDirection();
+                            u.DebugWin.DrawLine(Debug.DebugModes.Normal, ourPos, ourPos + left * distance, 0.8f, Color.Green, 0f);
+                            u.DebugWin.DrawLine(Debug.DebugModes.Normal, ourPos, ourPos + right * distance, 0.8f, Color.Green, 0f);
+                        }
+
+                        // simply check if predicted impact point is ahead of us and inside distance check
+                        if (RadMath.IsTargetInsideArc(ourPos, friendPos, Owner.Rotation, FlockingSteeringArc))
+                        {
+                            // is target on the left side?
+                            bool left = RadMath.IsTargetInsideArc(ourPos, friendPos,
+                                                                  Owner.Rotation - FlockingSteeringArc, FlockingSteeringArc);
+                            // then rotation will be opposite of that: +1 to right, -1 to left
+                            rotationChange = left ? +1f : -1f;
+                        }
+                    }
                 }
             }
 
-            if (shipsTooClose > 0)
-            {
-                Vector2 scaledDir = mean / shipsTooClose;
+            ApplyFlocking(timeStep, meanDeflect, maxDeflectionPower, rotationChange);
+        }
 
-                // F = m*a
-                Vector2 force = 10_000f * Owner.Mass * scaledDir;
+        void ApplyFlocking(FixedSimTime timeStep, Vector2 meanDeflect, float maxDeflectionPower, float rotationChange)
+        {
+            if (maxDeflectionPower > 0f)
+            {
+                // Ship acceleration already makes use of Thrust Force
+                // so just use that, and ship velocity update takes care of the rest
+                float thrustForce = Owner.Stats.Thrust;
+                Vector2 force = meanDeflect.Normalized() * maxDeflectionPower * thrustForce;
                 Owner.ApplyForce(force);
 
-                //if (u.Debug && u.DebugWin != null)
-                //{
-                //    u.DebugWin.DrawCircle(Debug.DebugModes.Normal, Owner.Position, Owner.Radius, Color.Brown);
-                //    u.DebugWin.DrawArrow(Debug.DebugModes.Normal, Owner.Position, Owner.Position+force*0.01f, 0.8f, Color.Red, 0f);
-                //}
+                var u = Owner.Universe;
+                if (u.Debug && u.DebugWin != null)
+                {
+                    u.DebugWin.DrawCircle(Debug.DebugModes.Normal, Owner.Position, Owner.Radius+FlockingSeparation, Color.Brown);
+                    u.DebugWin.DrawArrow(Debug.DebugModes.Normal, Owner.Position, Owner.Position + force * 0.01f, 0.8f, Color.Red, 0f);
+                }
+            }
+
+            if (rotationChange != 0f)
+            {
+                Vector2 wantedDir = (Owner.Rotation + rotationChange).RadiansToDirection();
+                RotateToDirection(wantedDir, timeStep, 0.05f);
+                //Owner.RotateToFacing(timeStep, rotationChange, rotationChange, 0.05f);
+
+                var u = Owner.Universe;
+                if (u.Debug && u.DebugWin != null)
+                {
+                    var ahead = Owner.Position + Owner.Direction*Owner.Radius;
+                    var right = Owner.Direction.RightVector();
+                    var offset = right*rotationChange*64f;
+                    u.DebugWin.DrawCircle(Debug.DebugModes.Normal, Owner.Position, Owner.Radius+FlockingMinSteeringDistance, Color.LightBlue);
+                    u.DebugWin.DrawLine(Debug.DebugModes.Normal, Owner.Position, ahead, 0.8f, Color.Blue, 0f);
+                    u.DebugWin.DrawArrow(Debug.DebugModes.Normal, ahead, ahead+offset, 0.8f, Color.Blue, 0f);
+                }
             }
         }
     }

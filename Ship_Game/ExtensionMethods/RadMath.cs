@@ -29,6 +29,7 @@ namespace Ship_Game
         public const float Deg20AsRads = Deg10AsRads*2; // 20 degrees, expressed as radians
         public const float Deg3AsRads  = Deg10AsRads * 0.3f; // 3 degrees, expressed as radians
         public const float Deg45AsRads = PI / 4; // 45 degrees, expressed as radians
+        public const float Deg90AsRads = PI / 2; // 90 degrees, expressed as radians
         public const float Deg135AsRads = Deg45AsRads * 3; // 135 degrees, expressed as radians
         public const float Deg180AsRads = PI; // 180 degrees, expressed as radians
 
@@ -204,6 +205,9 @@ namespace Ship_Game
             return radians;
         }
 
+        /// <summary>
+        /// Checks if `target` is inside `arcSizeRadians` absolute arc size
+        /// </summary>
         public static bool IsTargetInsideArc(Vector2 origin, Vector2 target,
             float arcFacingRads, float arcSizeRadians)
         {

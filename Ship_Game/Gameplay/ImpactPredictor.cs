@@ -192,8 +192,10 @@ namespace Ship_Game.Gameplay
         {
             Vector2 forward = Pos.DirectionToTarget(TargetPos);
             Vector2 left = forward.LeftVector(); // perpendicular to forward vector
-            float dot = -left.Dot(Vel.Normalized()); // get the velocity negation direction
-            float speed = Vel.Length(); // negation magnitude
+
+            // speed: negation magnitude
+            Vel.GetDirectionAndLength(out Vector2 dir, out float speed);
+            float dot = -left.Dot(dir); // get the velocity negation direction
 
             // only place movePos on the same axis as left vector
             Vector2 movePos = TargetPos + left*(dot*speed);
