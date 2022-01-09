@@ -105,7 +105,7 @@
 - ParticleEffect: # Projectile Trail effect
   Name: Plasma
   Emitters:
-    - Emitter: { Particle: Flame, Rate: 100 }
+    - Emitter: { Particle: Flame, Rate: 50 }
 
 - ParticleEffect: # Projectile Trail effect
   Name: Bubble

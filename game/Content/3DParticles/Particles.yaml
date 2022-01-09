@@ -300,11 +300,12 @@
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 5000
   Duration: 0.5
-  DurationRandomness: 2
-  InheritOwnerVelocity: 0.1
-  RandomVelocityXY: [ [0,0], [-10,10] ]
+  DurationRandomness: 1
+  InheritOwnerVelocity: 0
+  RandomVelocityXY: [ [0,0], [-15,15] ]
   EndVelocity: 0
   StartColorRange: [[128,128,128,255],[169,169,169,255]]
+  EndColorTime: 0.5
   RotateSpeed: [-1,1]
   StartEndSize: [ [1,1], [150,250] ]
   SrcDstBlend: [SourceAlpha, One]
