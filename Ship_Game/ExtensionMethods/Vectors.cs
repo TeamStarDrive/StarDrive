@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -210,7 +211,7 @@ namespace Ship_Game
         
         // Gets the Squared distance from source point a to destination b
         // This is faster than Vector2.Distance()
-        public static float SqDist(this Vector2 a, Vector2 b)
+        [Pure] public static float SqDist(this Vector2 a, Vector2 b)
         {
             float dx = a.X - b.X;
             float dy = a.Y - b.Y;
@@ -218,7 +219,7 @@ namespace Ship_Game
         }
 
         // Squared distance between two Vector3's
-        public static float SqDist(this in Vector3 a, in Vector3 b)
+        [Pure] public static float SqDist(this in Vector3 a, in Vector3 b)
         {
             float dx = a.X - b.X;
             float dy = a.Y - b.Y;
@@ -230,23 +231,16 @@ namespace Ship_Game
         // Gets the accurate distance from source point a to destination b
         // This is slower than Vector2.SqDist()
 
-        public static float Distance(this Vector2 a, Vector2 b)
+        [Pure] public static float Distance(this in Vector2 a, Vector2 b)
         {
             float dx = a.X - b.X;
             float dy = a.Y - b.Y;
             return (float)Sqrt(dx*dx + dy*dy);
         }
 
-        public static float Distance(this Vector2 a, ref Vector2 b)
-        {
-            float dx = a.X - b.X;
-            float dy = a.Y - b.Y;
-            return (float)Sqrt(dx * dx + dy * dy);
-        }
-
         // Gets the accurate distance from source point a to destination b
         // This is slower than Vector3.SqDist()
-        public static float Distance(this in Vector3 a, in Vector3 b)
+        [Pure] public static float Distance(this in Vector3 a, in Vector3 b)
         {
             float dx = a.X - b.X;
             float dy = a.Y - b.Y;
@@ -262,18 +256,18 @@ namespace Ship_Game
         /// 0: a and b are perpendicular, not specifying if left or right, |_ or _|
         /// -1: a and b are point in opposite directions --> <-- 
         /// </summary>
-        public static float Dot(this Vector2 a, Vector2 b) => a.X*b.X + a.Y*b.Y;
+        [Pure] public static float Dot(this in Vector2 a, Vector2 b) => a.X*b.X + a.Y*b.Y;
 
         /// <summary>
         /// 3D Version of the Dot product, +1 same dir, 0 perpendicular in some axis, -1 opposite dirs
         /// </summary>
-        public static float Dot(this Vector3 a, Vector3 b) => a.X*b.X + a.Y*b.Y + a.Z*b.Z;
+        [Pure] public static float Dot(this in Vector3 a, in Vector3 b) => a.X*b.X + a.Y*b.Y + a.Z*b.Z;
 
         /// <summary>
         /// Dot product which assumes Vectors a and b are both unit vectors
         /// The return value is always guaranteed to be within [-1; +1]
         /// </summary>
-        public static float UnitDot(this Vector2 a, Vector2 b)
+        [Pure] public static float UnitDot(this in Vector2 a, Vector2 b)
         {
             float dot = a.X*b.X + a.Y*b.Y;
             if      (dot < -1f) dot = -1f;
@@ -281,7 +275,7 @@ namespace Ship_Game
             return dot;
         }
 
-        public static Vector3 Cross(this in Vector3 a, in Vector3 b)
+        [Pure] public static Vector3 Cross(this in Vector3 a, in Vector3 b)
         {
             Vector3 v;
             v.X = (a.Y * b.Z - a.Z * b.Y);
@@ -290,25 +284,25 @@ namespace Ship_Game
             return v;
         }
 
-        public static Vector2 Normalized(this Vector2 v)
+        [Pure] public static Vector2 Normalized(this in Vector2 v)
         {
             float len = (float)Sqrt(v.X*v.X + v.Y*v.Y);
             return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : default;
         }
 
-        public static Vector2 Normalized(this Vector2 v, float newMagnitude)
+        [Pure] public static Vector2 Normalized(this in Vector2 v, float newMagnitude)
         {
             float len = (float)Sqrt(v.X*v.X + v.Y*v.Y) / newMagnitude;
             return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : default;
         }
 
-        public static Vector3 Normalized(this Vector3 v)
+        [Pure] public static Vector3 Normalized(this in Vector3 v)
         {
             float len = (float)Sqrt(v.X*v.X + v.Y*v.Y + v.Z*v.Z);
             return len > 0.0000001f ? new Vector3(v.X / len, v.Y / len, v.Z / len) : default;
         }
 
-        public static void GetDirectionAndLength(this Vector2 v, out Vector2 dir, out float len)
+        [Pure] public static void GetDirectionAndLength(this in Vector2 v, out Vector2 dir, out float len)
         {
             float l = (float)Sqrt(v.X*v.X + v.Y*v.Y);
             dir = l > 0.0000001f ? new Vector2(v.X / l, v.Y / l) : default;
@@ -331,7 +325,7 @@ namespace Ship_Game
         public static bool OutsideRadius(this Vector3 position, in Vector3 center, float radius)
             => position.SqDist(center) > radius*radius;
 
-        
+
         // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f
         public static Vector3 ToVec3(this Vector2 a) => new Vector3(a.X, a.Y, 0f);
 

@@ -573,7 +573,6 @@ namespace Ship_Game.Ships
         {
             Stats.UpdateMassRelated();
 
-            Thrust = Stats.Thrust;
             Mass = Stats.Mass;
 
             UpdateMaxVelocity();

@@ -110,6 +110,10 @@ namespace Ship_Game
         public static bool DisableVolcanoWarning;
         public static bool UseUpkeepByHullSize;
 
+        // if true, Ships will try to keep their distance from nearby friends
+        // to prevent stacking
+        public static bool EnableShipFlocking = true;
+
         // if true, Counts Ship Design's internal modules from Hull Slots
         // (any Module overlapping an I slot)
         // if false, Count Ship's internal modules only
