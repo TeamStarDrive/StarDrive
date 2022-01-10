@@ -287,7 +287,9 @@ namespace Ship_Game.AI
             }
 
             UpdateCombatStateAI(timeStep);
-            KeepDistanceUsingFlocking(timeStep);
+
+            if (timeStep.FixedTime > 0f && FriendliesNearby.Length != 0 && GlobalStats.EnableShipFlocking)
+                KeepDistanceUsingFlocking(timeStep);
 
             if (UpdateOrderQueueAI(timeStep))
                 return;

@@ -31,7 +31,6 @@ namespace Ship_Game.Ships
         // reset at the end of each update
         public float SpeedLimit { get; private set; }
         public float VelocityMaximum; // maximum velocity magnitude
-        public float Thrust;
         public float RotationRadiansPerSecond;
         public ShipEngines ShipEngines;
 
