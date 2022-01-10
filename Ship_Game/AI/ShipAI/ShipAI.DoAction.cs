@@ -84,18 +84,26 @@ namespace Ship_Game.AI
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 CombatState = CombatState.Evade;
 
-            // in range:
             float distanceToTarget = target.Position.Distance(Owner.Position);
-            if (HasPriorityOrder || distanceToTarget > Owner.DesiredCombatRange && distanceToTarget > 7500f)
+
+            // if ship has priority order, then move towards that order, EVEN when in combat
+            if (HasPriorityOrder)
             {
                 MoveToEngageTarget(target, timeStep);
             }
-            else
+            // if we're outside of 7500 and also of desired combat range (which can be huge for carriers) then move towards target
+            else if (distanceToTarget > 7500f && distanceToTarget > Owner.DesiredCombatRange)
             {
-                // Do the Picard Maneuver: disengage from Warp only at desired combat range,
-                // otherwise at 7500 we probably can't reach the target and will be stuck in a warp-in-out loop
+                MoveToEngageTarget(target, timeStep);
+            }
+            else // we are in range:
+            {
+                // Disengage from warp if we get close enough to the target
+                // For big ships this can be 70% of DesiredCombatRange,
+                // but also ensure we are far enough to prevent warping on top of enemy fleets
+                //   which can be a detriment and also an exploit by players
                 if (Owner.engineState == Ship.MoveState.Warp &&
-                    distanceToTarget < Owner.DesiredCombatRange*0.8f)
+                    (distanceToTarget < 5000f || distanceToTarget < Owner.DesiredCombatRange*0.7f))
                 {
                     Owner.HyperspaceReturn();
                 }
