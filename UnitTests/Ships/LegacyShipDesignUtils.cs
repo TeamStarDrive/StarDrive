@@ -89,10 +89,10 @@ namespace UnitTests.Ships
 
         static void MarkShipsUnlockable(Map<Technology, Array<string>> shipTechs, ProgressCounter step)
         {
-            IReadOnlyList<ShipDesign> templates = ResourceManager.ShipDesigns;
+            IReadOnlyList<IShipDesign> templates = ResourceManager.ShipDesigns;
             step?.Start(templates.Count);
 
-            foreach (ShipDesign ship in templates)
+            foreach (IShipDesign ship in templates)
             {
                 step?.Advance();
 

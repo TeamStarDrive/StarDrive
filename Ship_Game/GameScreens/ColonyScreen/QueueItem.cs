@@ -18,7 +18,7 @@ namespace Ship_Game
         public bool isOrbital;
         public bool isTroop;
         public bool IsCivilianBuilding => isBuilding && !IsMilitary;
-        public ShipDesign sData;
+        public IShipDesign sData;
         public Building Building;
         public string TroopType;
         public Array<Guid> TradeRoutes = new Array<Guid>();

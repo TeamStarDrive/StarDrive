@@ -104,7 +104,6 @@ namespace Ship_Game.Ships
             AllFighterHangars = Hangars.Filter(h => h.IsFighterHangar);
             Weapons = weapons.ToArray();
 
-
             // Updating the Design Role is always done in the Shipyard
             // However, it can be overriden with --fix-roles to update all ship designs
             if (updateRole || GlobalStats.FixDesignRoleAndCategory)
@@ -125,6 +124,10 @@ namespace Ship_Game.Ships
             IsBomber          = Role == RoleName.bomber;
             IsFreighter       = Role == RoleName.freighter && ShipCategory == ShipCategory.Civilian;
             IsCandidateForTradingBuild = IsFreighter && !IsConstructor;
+
+            // make sure SingleTroopShips are set to Conservative internal damage tolerance
+            if (IsSingleTroopShip)
+                ShipCategory = ShipCategory.Conservative;
         }
 
         public float GetCost(Empire e)

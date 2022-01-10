@@ -8,11 +8,13 @@ namespace Ship_Game.GameScreens.ShipDesign
     {
         Array<ShipModule> PrevModules;
 
+        public Ships.ShipDesign Design;
         public ShipDesignStats DesignStats;
 
         public DesignShip(Ships.ShipDesign designHull)
             : base(null, EmpireManager.Player, designHull, isTemplate:true, shipyardDesign:true)
         {
+            Design = designHull;
             DesignStats = new ShipDesignStats(this);
             Position = new Vector2(0, 0);
         }
@@ -23,7 +25,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 return;
 
             PrevModules = placedModules;
-            CreateModuleSlotsFromShipyardModules(placedModules);
+            CreateModuleSlotsFromShipyardModules(placedModules, Design);
             InitializeShip();
             DesignStats.Update();
         }

@@ -11,15 +11,15 @@ namespace Ship_Game.Ships
         readonly HashSet<string> Names = new HashSet<string>();
 
         // Ship designs, mapped by ship.Name
-        readonly Map<string, ShipDesign> DesignsMap = new Map<string, ShipDesign>();
+        readonly Map<string, IShipDesign> DesignsMap = new Map<string, IShipDesign>();
         readonly Map<string, Ship> ShipsMap = new Map<string, Ship>();
-        readonly Array<ShipDesign> AllDesigns = new Array<ShipDesign>();
+        readonly Array<IShipDesign> AllDesigns = new Array<IShipDesign>();
         readonly Array<Ship> AllShips = new Array<Ship>();
 
         readonly object Sync = new object();
 
         public IReadOnlyCollection<string> ShipNames => Names;
-        public IReadOnlyList<ShipDesign> Designs => AllDesigns;
+        public IReadOnlyList<IShipDesign> Designs => AllDesigns;
         public IReadOnlyList<Ship> Ships => AllShips;
 
         readonly Empire VoidEmpire = EmpireManager.Void; // thread-safety: initialize this lazy property only once
@@ -33,7 +33,7 @@ namespace Ship_Game.Ships
             foreach (Ship s in AllShips)
                 s.Dispose();
 
-            foreach (ShipDesign s in AllDesigns)
+            foreach (IShipDesign s in AllDesigns)
                 s.Dispose();
 
             Names.Clear();
@@ -60,7 +60,7 @@ namespace Ship_Game.Ships
             lock (Sync)
             {
                 // Delete existing, to allow overwrite
-                if (DesignsMap.TryGetValue(name, out ShipDesign design))
+                if (DesignsMap.TryGetValue(name, out IShipDesign design))
                 {
                     if (shipDesign == design)
                         return; // it's already added, deleting would corrupt it
@@ -78,10 +78,9 @@ namespace Ship_Game.Ships
 
         public void Delete(string shipName)
         {
-            if (DesignsMap.TryGetValue(shipName, out ShipDesign design))
+            if (DesignsMap.TryGetValue(shipName, out IShipDesign design))
             {
                 Ship ship = ShipsMap[shipName];
-                design.Deleted = true;
                 design.Dispose();
                 ship.Dispose();
 
@@ -112,17 +111,17 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        public bool GetDesign(string shipName, out ShipDesign template)
+        public bool GetDesign(string shipName, out IShipDesign template)
         {
             return DesignsMap.TryGetValue(shipName, out template);
         }
 
-        public ShipDesign GetDesign(string shipName, bool throwIfError = true)
+        public IShipDesign GetDesign(string shipName, bool throwIfError = true)
         {
             if (throwIfError)
                 return DesignsMap[shipName];
 
-            DesignsMap.TryGetValue(shipName, out ShipDesign ship);
+            DesignsMap.TryGetValue(shipName, out IShipDesign ship);
             return ship;
         }
     }

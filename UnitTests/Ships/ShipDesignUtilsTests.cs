@@ -38,14 +38,14 @@ namespace UnitTests.Ships
             return techs;
         }
 
-        static ShipDesign GetFirstShipData() => ResourceManager.ShipDesigns[0];
+        static IShipDesign GetFirstShipData() => ResourceManager.ShipDesigns[0];
         static ShipHull GetFirstBaseHull() => GetFirstShipData().BaseHull;
         static string ToString(HashSet<string> techsNeeded) => string.Join(",", ToArray(techsNeeded));
 
         void PrintInfo(string prefix)
         {
             ShipHull firstBase = GetFirstBaseHull();
-            ShipDesign firstShip = GetFirstShipData();
+            IShipDesign firstShip = GetFirstShipData();
             Log.Info($"{prefix} Hull {firstBase.HullName} Unlockable: {firstBase.Unlockable} TechsNeeded: {ToString(firstBase.TechsNeeded)}");
             Log.Info($"{prefix} Ship {firstShip.Name} Unlockable: {firstShip.Unlockable} TechsNeeded: {ToString(firstShip.TechsNeeded)}");
         }

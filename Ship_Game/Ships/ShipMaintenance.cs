@@ -23,7 +23,7 @@ namespace Ship_Game.Ships
             return GetBaseMaintenance(ship.ShipData, empire, troopCount);
         }
 
-        public static float GetBaseMaintenance(ShipDesign ship, Empire empire, int numTroops)
+        public static float GetBaseMaintenance(IShipDesign ship, Empire empire, int numTroops)
         {
             bool hullUpkeep = GlobalStats.UseUpkeepByHullSize;
             float maint;

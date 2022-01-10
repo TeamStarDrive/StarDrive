@@ -6,14 +6,14 @@ namespace Ship_Game.Commands.Goals
 {
     public abstract class BuildShipsGoalBase : Goal
     {
-        ShipDesign ShipTemplate;
+        IShipDesign ShipTemplate;
         float FindPlanetRetryTimer;
 
         protected BuildShipsGoalBase(GoalType type) : base(type)
         {
         }
 
-        protected bool GetShipTemplate(string uid, out ShipDesign template)
+        protected bool GetShipTemplate(string uid, out IShipDesign template)
         {
             if (ShipTemplate == null)
             {
@@ -22,7 +22,7 @@ namespace Ship_Game.Commands.Goals
             return (template = ShipTemplate) != null;
         }
 
-        protected bool GetFreighter(out ShipDesign freighterTemplate)
+        protected bool GetFreighter(out IShipDesign freighterTemplate)
         {
             if (ShipTemplate == null)
             {
@@ -36,7 +36,7 @@ namespace Ship_Game.Commands.Goals
 
         protected enum SpacePortType { Any, Safe }
 
-        protected bool FindPlanetToBuildShipAt(SpacePortType portType, ShipDesign ship, out Planet planet, float priority)
+        protected bool FindPlanetToBuildShipAt(SpacePortType portType, IShipDesign ship, out Planet planet, float priority)
         {
             FindPlanetRetryTimer -= 0.016f; // fixed countdown
             if (FindPlanetRetryTimer > 0f)
@@ -62,7 +62,7 @@ namespace Ship_Game.Commands.Goals
 
         protected GoalStep TryBuildShip(SpacePortType portType)
         {
-            if (!GetShipTemplate(ToBuildUID, out ShipDesign template))
+            if (!GetShipTemplate(ToBuildUID, out IShipDesign template))
                 return GoalStep.GoalFailed;
 
             if (!FindPlanetToBuildShipAt(portType, template, out Planet planet, priority: 1f))

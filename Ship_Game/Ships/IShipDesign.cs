@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using Ship_Game.AI;
+using Ship_Game.Data;
 using Ship_Game.Gameplay;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
@@ -22,7 +24,6 @@ namespace Ship_Game.Ships
         string SelectionGraphic { get; }
 
         float FixedUpkeep { get; }
-        int FixedCost { get; }
         bool IsShipyard { get; }
         bool IsOrbitalDefense { get; }
         bool IsCarrierOnly { get; } // this ship is restricted to Carriers only
@@ -37,7 +38,10 @@ namespace Ship_Game.Ships
         // Complete list of all the unique module UID-s found in this design
         string[] UniqueModuleUIDs { get; }
 
-        bool Unlockable { get; }  // unlocked=true by default
+        /// <summary>
+        /// TODO: perhaps this can be done inside ShipDesign init?
+        /// </summary>
+        bool Unlockable { get; set; }  // unlocked=true by default
         HashSet<string> TechsNeeded { get; }
 
         // BaseHull is the template layout of the ship hull design
@@ -92,5 +96,29 @@ namespace Ship_Game.Ships
         // All invalid modules in this design
         // If this is not null, this ship cannot be spawned, but can still be listed and loaded in Shipyard
         string InvalidModules { get; }
+
+        // Access the design slots
+        // These might not be loaded into memory yet
+        DesignSlot[] GetOrLoadDesignSlots();
+
+        // Deep clone of this ShipDesign
+        // Feel free to edit the cloned design
+        ShipDesign GetClone();
+
+        // Marks the this design as Deleted and performs
+        // aggressive cleanup of ShipDesign to assist the Garbage Collector
+        // Which is not always able to clean up everything due to dangling references
+        void Dispose();
+
+        void LoadModel(out SceneObject shipSO, GameContentManager content);
+
+        float GetCost(Empire e);
+
+        float GetMaintenanceCost(Empire empire, int troopCount);
+
+        // Role name as a string
+        string GetRole();
+
+        bool AreModulesEqual(ModuleSaveData[] saved);
     }
 }

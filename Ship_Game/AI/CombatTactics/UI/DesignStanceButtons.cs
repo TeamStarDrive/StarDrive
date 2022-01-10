@@ -5,27 +5,20 @@ namespace Ship_Game.AI.CombatTactics.UI
 {
     public class DesignStanceButtons : StanceButtons
     {
-        Array<Ship> SelectedShips = new Array<Ship>();
+        ShipDesign Design;
+
         public DesignStanceButtons(GameScreen screen, Vector2 position) : base(screen, position){}
         
-        public void ResetButtons(Ship ship)
+        public void ResetButtons(ShipDesign design)
         {
-            ResetButtons(new Array<Ship>() { ship });
-        }
-
-        public void ResetButtons(Array<Ship> ships)
-        {
-            SelectedShips = ships;
-            if (ships.IsEmpty)
-                Reset(new CombatState[0]);
-            else
-                Reset(ships.Select(s => s.ShipData.DefaultCombatState));
+            Design = design;
+            Reset(new []{ design.DefaultCombatState });
         }
 
         protected override void ApplyStance(CombatState stance)
         {
-            foreach (var ship in SelectedShips)
-                ship.ShipData.DefaultCombatState = stance;
+            if (Design != null)
+                Design.DefaultCombatState = stance;
         }
 
         protected override void OnOrderButtonHovered(OrdersToggleButton b) { }
