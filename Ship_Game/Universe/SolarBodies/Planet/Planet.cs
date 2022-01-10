@@ -987,8 +987,11 @@ namespace Ship_Game
             if (Owner == null)
                 return;
 
-            bool spacePort            = false;
-            AllowInfantry             = false;
+            bool spacePort = false;
+            bool allowInfantry = false;
+            float totalStorage = 0;
+            float sensorRange  = 0;
+            float projectorRange = 0;
             InfraStructure            = 1;
             RepairPerTurn             = 0;
             TerraformToAdd            = 0;
@@ -997,11 +1000,8 @@ namespace Ship_Game
             SensorRange               = ObjectRadius + 2000;
             TotalDefensiveStrength    = 0;
             PlusFlatPopulationPerTurn = 0;
-            float totalStorage        = 0;
-            float projectorRange      = 0;
-            float sensorRange         = 0;
 
-            NumShipyards         = OrbitalStations.Count(s => s.Active && s.ShipData.IsShipyard);
+            NumShipyards = OrbitalStations.Count(s => s.Active && s.ShipData.IsShipyard);
             ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -1017,14 +1017,14 @@ namespace Ship_Game
                     sensorRange = b.SensorRange;
 
                 projectorRange = Math.Max(projectorRange, b.ProjectorRange + ObjectRadius);
-                if (b.AllowInfantry)
-                    AllowInfantry = true;
+                allowInfantry |= b.AllowInfantry;
                 if (b.WinsGame)
                     HasWinBuilding = true;
-                if (b.AllowShipBuilding || b.IsSpacePort)
-                    spacePort = true;
+
+                spacePort |= b.AllowShipBuilding || b.IsSpacePort;
             }
 
+            AllowInfantry = allowInfantry;
             InfraStructure = InfraStructure.LowerBound(1);
             RepairPerTurn  = RepairPerTurn.LowerBound(0);
 
