@@ -160,13 +160,6 @@ namespace UnitTests
         {
             ShipDesignUtils.MarkDesignsUnlockable();
 
-            // why??
-            foreach (var design in ResourceManager.ShipDesigns)
-            {
-                design.ShipStyle = Enemy.data.PortraitName;
-                design.BaseHull.Style = Enemy.data.PortraitName;
-            }
-
             Player.ShipsWeCanBuild.Clear();
             Enemy.ShipsWeCanBuild.Clear();
             var techs = Enemy.TechEntries;

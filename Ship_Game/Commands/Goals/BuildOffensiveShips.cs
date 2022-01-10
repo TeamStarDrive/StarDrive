@@ -78,7 +78,7 @@ namespace Ship_Game.Commands.Goals
 
             public ShipInfo(Empire owner, BuildOffensiveShips goal)
             {
-                if (goal.GetShipTemplate(goal.ToBuildUID, out ShipDesign template))
+                if (goal.GetShipTemplate(goal.ToBuildUID, out IShipDesign template))
                 {
                     Role = template.Role;
                     Upkeep = template.GetMaintenanceCost(owner, 0);

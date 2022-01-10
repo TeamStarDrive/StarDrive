@@ -105,6 +105,7 @@ namespace Ship_Game.Ships
         }
 
         // Deep clone of this ShipDesign
+        // Feel free to edit the cloned design
         public ShipDesign GetClone()
         {
             var clone = (ShipDesign)MemberwiseClone();
@@ -115,10 +116,12 @@ namespace Ship_Game.Ships
             return clone;
         }
 
-        // Aggressive cleanup of ShipDesign to assist the Garbage Collector
+        // Marks the this design as Deleted and performs
+        // aggressive cleanup of ShipDesign to assist the Garbage Collector
         // Which is not always able to clean up everything due to dangling references
         public void Dispose()
         {
+            Deleted = true;
             DesignSlots = Empty<DesignSlot>.Array;
             Hangars = Empty<ShipModule>.Array;
             AllFighterHangars = Empty<ShipModule>.Array;
@@ -178,7 +181,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        public static ShipDesign FromSave(ModuleSaveData[] saved, string[] moduleUIDs, ShipDesign template)
+        public static ShipDesign FromSave(ModuleSaveData[] saved, string[] moduleUIDs, IShipDesign template)
         {
             // savedModules are different, grab the existing template's defaults but apply the new ship's modules
             // this is pretty inefficient but it's currently the only way to handle obsolete designs without crashing
