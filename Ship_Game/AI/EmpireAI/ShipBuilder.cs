@@ -126,7 +126,7 @@ namespace Ship_Game.AI
             return pickedShip;
         }
 
-        public static bool PickColonyShip(Empire empire, out ShipDesign colonyShip)
+        public static bool PickColonyShip(Empire empire, out IShipDesign colonyShip)
         {
             if (empire.isPlayer && !empire.AutoPickBestColonizer)
             {
