@@ -14,7 +14,7 @@ namespace Ship_Game.Ships
     ///
     /// This class is Serialized/Deserialized using a custom text-based format
     /// </summary>
-    public sealed partial class ShipDesign
+    public sealed partial class ShipDesign : IShipDesign
     {
         // Current version of ShipData files
         // If we introduce incompatibilities we need to convert old to new
@@ -24,28 +24,28 @@ namespace Ship_Game.Ships
             throw new InvalidOperationException(
                 $"BUG! ShipData must not be automatically serialized! Add [XmlIgnore][JsonIgnore] to `public ShipData XXX;` PROPERTIES/FIELDS. {this}");
 
-        public string Name; // ex: "Dodaving", just an arbitrary name
-        public string Hull; // ID of the hull, ex: "Cordrazine/Dodaving"
-        public string ModName = ""; // "" if vanilla, else mod name eg "Combined Arms"
-        public string ShipStyle; // "Terran"
-        public string Description; // "Early Rocket fighter, great against unshielded foes, but die easily"
-        public string IconPath; // "ShipIcons/shuttle"
+        public string Name { get; set; } // ex: "Dodaving", just an arbitrary name
+        public string Hull { get; set; }  // ID of the hull, ex: "Cordrazine/Dodaving"
+        public string ModName { get; set; } = ""; // "" if vanilla, else mod name eg "Combined Arms"
+        public string ShipStyle { get; set; } // "Terran"
+        public string Description { get; set; } // "Early Rocket fighter, great against unshielded foes, but die easily"
+        public string IconPath { get; set; } // "ShipIcons/shuttle"
         
-        public string EventOnDeath;
-        public string SelectionGraphic = "";
+        public string EventOnDeath { get; set; }
+        public string SelectionGraphic { get; set; } = "";
 
-        public float FixedUpkeep;
-        public int FixedCost;
-        public readonly bool IsShipyard;
-        public readonly bool IsOrbitalDefense;
-        public bool IsCarrierOnly; // this ship is restricted to Carriers only
+        public float FixedUpkeep { get; set; }
+        public int FixedCost { get; set; }
+        public bool IsShipyard { get; set; }
+        public bool IsOrbitalDefense { get; set; }
+        public bool IsCarrierOnly { get; set; } // this ship is restricted to Carriers only
 
-        public ShipCategory ShipCategory = ShipCategory.Unclassified;
-        public HangarOptions HangarDesignation = HangarOptions.General;
-        public AIState DefaultAIState;
-        public CombatState DefaultCombatState;
+        public ShipCategory ShipCategory { get; set; } = ShipCategory.Unclassified;
+        public HangarOptions HangarDesignation { get; set; } = HangarOptions.General;
+        public AIState DefaultAIState { get; set; } = AIState.DoNothing;
+        public CombatState DefaultCombatState { get; set; } = CombatState.AttackRuns;
 
-        public ShipGridInfo GridInfo;
+        public ShipGridInfo GridInfo { get; set; }
 
         // All the slots of the ShipDesign
         // NOTE: This is loaded on-demand when a new ship is being initialized
@@ -54,17 +54,17 @@ namespace Ship_Game.Ships
         // Complete list of all the unique module UID-s found in this design
         public string[] UniqueModuleUIDs { get; private set; } = Empty<string>.Array;
 
-        public bool Unlockable = true; // unlocked=true by default
-        public HashSet<string> TechsNeeded = new HashSet<string>();
+        public bool Unlockable { get; set; } = true; // unlocked=true by default
+        public HashSet<string> TechsNeeded { get; set; } = new HashSet<string>();
 
         // BaseHull is the template layout of the ship hull design
         public ShipHull BaseHull { get; }
         public HullBonus Bonuses { get; }
         public FileInfo Source { get; }
 
-        public bool IsPlayerDesign;
-        public bool IsReadonlyDesign;
-        public bool Deleted;
+        public bool IsPlayerDesign { get; set; }
+        public bool IsReadonlyDesign { get; set; }
+        public bool Deleted { get; set; }
 
         public bool IsValidForCurrentMod => ModName.IsEmpty() || ModName == GlobalStats.ModName;
 
@@ -105,6 +105,7 @@ namespace Ship_Game.Ships
         }
 
         // Deep clone of this ShipDesign
+        // Feel free to edit the cloned design
         public ShipDesign GetClone()
         {
             var clone = (ShipDesign)MemberwiseClone();
@@ -115,10 +116,12 @@ namespace Ship_Game.Ships
             return clone;
         }
 
-        // Aggressive cleanup of ShipDesign to assist the Garbage Collector
+        // Marks the this design as Deleted and performs
+        // aggressive cleanup of ShipDesign to assist the Garbage Collector
         // Which is not always able to clean up everything due to dangling references
         public void Dispose()
         {
+            Deleted = true;
             DesignSlots = Empty<DesignSlot>.Array;
             Hangars = Empty<ShipModule>.Array;
             AllFighterHangars = Empty<ShipModule>.Array;
@@ -178,7 +181,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        public static ShipDesign FromSave(ModuleSaveData[] saved, string[] moduleUIDs, ShipDesign template)
+        public static ShipDesign FromSave(ModuleSaveData[] saved, string[] moduleUIDs, IShipDesign template)
         {
             // savedModules are different, grab the existing template's defaults but apply the new ship's modules
             // this is pretty inefficient but it's currently the only way to handle obsolete designs without crashing

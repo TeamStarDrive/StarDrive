@@ -150,7 +150,7 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null)
                 return GoalStep.GoToNextStep;
 
-            if (!ShipBuilder.PickColonyShip(empire, out ShipDesign colonyShip))
+            if (!ShipBuilder.PickColonyShip(empire, out IShipDesign colonyShip))
                 return GoalStep.GoalFailed;
 
             if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, colonyShip, out Planet planet))

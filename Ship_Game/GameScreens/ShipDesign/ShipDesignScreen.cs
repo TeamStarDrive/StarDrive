@@ -286,7 +286,7 @@ namespace Ship_Game
             DesignedShip.ShowSceneObjectAt(DesignedShip.Position, 0);
         }
 
-        public void ChangeHull(ShipDesign shipDesignTemplate)
+        public void ChangeHull(IShipDesign shipDesignTemplate)
         {
             if (shipDesignTemplate == null) // if ShipDesignLoadScreen has no selected design
                 return;
@@ -322,7 +322,7 @@ namespace Ship_Game
 
             if (!HullEditMode)
             {
-                OrdersButton.ResetButtons(DesignedShip);
+                OrdersButton.ResetButtons(CurrentDesign);
                 UpdateCarrierShip();
             }
 

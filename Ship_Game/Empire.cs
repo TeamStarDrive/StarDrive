@@ -337,7 +337,7 @@ namespace Ship_Game
         /// 1 is above average. 0.2 is below average.
         /// the default is below average. not recommended to set above 1 but you can.
         /// </summary>
-        public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, ShipDesign ship, out Planet chosen, float priority = 1f)
+        public bool FindPlanetToBuildShipAt(IReadOnlyList<Planet> ports, IShipDesign ship, out Planet chosen, float priority = 1f)
         {
             if (ports.Count != 0)
             {
@@ -377,7 +377,7 @@ namespace Ship_Game
             return false;
         }
 
-        Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, ShipDesign sData, float priority = 1f)
+        Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, IShipDesign sData, float priority = 1f)
         {
             // focus on the best producing planets (number depends on the empire size)
             if (GetBestPorts(ports, out Planet[] bestPorts))
@@ -2057,7 +2057,7 @@ namespace Ship_Game
 
         public bool WeCanBuildThis(string shipName)
         {
-            if (!ResourceManager.Ships.GetDesign(shipName, out ShipDesign shipData))
+            if (!ResourceManager.Ships.GetDesign(shipName, out IShipDesign shipData))
             {
                 Log.Warning($"Ship does not exist: {shipName}");
                 return false;
@@ -2066,7 +2066,7 @@ namespace Ship_Game
             return WeCanBuildThis(shipData);
         }
 
-        bool WeCanBuildThis(ShipDesign shipData)
+        bool WeCanBuildThis(IShipDesign shipData)
         {
             // If this hull is not unlocked, then we can't build it
             if (!IsHullUnlocked(shipData.Hull))
@@ -3196,15 +3196,15 @@ namespace Ship_Game
                 EmpireAI.Goals.Add(new ScoutSystem(this));
         }
 
-        public bool ChooseScoutShipToBuild(out ShipDesign scout)
+        public bool ChooseScoutShipToBuild(out IShipDesign scout)
         {
             if (isPlayer && ResourceManager.Ships.GetDesign(EmpireManager.Player.data.CurrentAutoScout, out scout))
                 return true;
 
-            var scoutShipsWeCanBuild = new Array<ShipDesign>();
+            var scoutShipsWeCanBuild = new Array<IShipDesign>();
             foreach (string shipName in ShipsWeCanBuild)
             {
-                if (ResourceManager.Ships.GetDesign(shipName, out ShipDesign ship) &&
+                if (ResourceManager.Ships.GetDesign(shipName, out IShipDesign ship) &&
                     ship.Role == RoleName.scout)
                 {
                     scoutShipsWeCanBuild.Add(ship);

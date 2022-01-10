@@ -69,7 +69,7 @@ namespace Ship_Game.Ships
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
         public float ECMValue;
-        public ShipDesign ShipData;
+        public IShipDesign ShipData;
         public int Kills;
         public float Experience;
         public bool EnginesKnockedOut;

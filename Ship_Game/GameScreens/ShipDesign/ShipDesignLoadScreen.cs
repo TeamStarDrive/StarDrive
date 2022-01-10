@@ -22,7 +22,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         ShipInfoOverlayComponent ShipInfoOverlay;
 
         Ship SelectedShip;
-        Ships.ShipDesign SelectedWIP;
+        IShipDesign SelectedWIP;
 
         Array<Ships.ShipDesign> WIPs = new Array<Ships.ShipDesign>();
 

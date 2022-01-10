@@ -107,10 +107,10 @@ namespace Ship_Game.GameScreens.NewGame
         static void MarkShipsUnlockable(Map<string, string> moduleUnlocks,
                                         Map<string, string[]> techTreePaths, ProgressCounter step)
         {
-            IReadOnlyList<Ships.ShipDesign> templates = ResourceManager.ShipDesigns;
+            IReadOnlyList<IShipDesign> templates = ResourceManager.ShipDesigns;
             step?.Start(templates.Count);
 
-            foreach (Ships.ShipDesign ship in templates)
+            foreach (IShipDesign ship in templates)
             {
                 step?.Advance();
 
