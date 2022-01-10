@@ -104,6 +104,17 @@ namespace Ship_Game.Ships
             InitializeCommonStats(BaseHull, DesignSlots);
         }
 
+        // Deep clone of this ShipDesign
+        public ShipDesign GetClone()
+        {
+            var clone = (ShipDesign)MemberwiseClone();
+            clone.TechsNeeded = new HashSet<string>(TechsNeeded);
+            clone.DesignSlots = new DesignSlot[DesignSlots.Length];
+            for (int i = 0; i < DesignSlots.Length; ++i)
+                clone.DesignSlots[i] = new DesignSlot(DesignSlots[i]);
+            return clone;
+        }
+
         // Aggressive cleanup of ShipDesign to assist the Garbage Collector
         // Which is not always able to clean up everything due to dangling references
         public void Dispose()
@@ -196,11 +207,6 @@ namespace Ship_Game.Ships
 
             data.InitializeCommonStats(hull, data.DesignSlots);
             return data;
-        }
-
-        public ShipDesign GetClone()
-        {
-            return (ShipDesign)MemberwiseClone();
         }
 
         public void LoadModel(out SceneObject shipSO, GameContentManager content)
