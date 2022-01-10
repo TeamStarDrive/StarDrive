@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Data;
@@ -173,6 +171,7 @@ namespace Ship_Game.Ships
             DesignSlot[] modules = null;
             int numModules = 0;
             ShipHull hull = null;
+            ShipGridInfo gridInfo = default;
 
             while (p.ReadLine(out StringView line))
             {
@@ -206,16 +205,16 @@ namespace Ship_Game.Ships
                     }
                     else if (key == "Style")       ShipStyle = value.Text;
                     else if (key == "Description") Description = value.Text;
-                    else if (key == "Size")        GridInfo.Size = PointSerializer.FromString(value);
-                    else if (key == "GridCenter")  GridInfo.Center = PointSerializer.FromString(value);
+                    else if (key == "Size")        gridInfo.Size = PointSerializer.FromString(value);
+                    else if (key == "GridCenter")  gridInfo.Center = PointSerializer.FromString(value);
                     else if (key == "IconPath")    IconPath = value.Text;
                     else if (key == "SelectIcon")  SelectionGraphic = value.Text;
                     else if (key == "FixedCost")   FixedCost = value.ToInt();
                     else if (key == "FixedUpkeep") FixedUpkeep = value.ToFloat();
-                    else if (key == "DefaultAIState")     Enum.TryParse(value.Text, out DefaultAIState);
-                    else if (key == "DefaultCombatState") Enum.TryParse(value.Text, out DefaultCombatState);
-                    else if (key == "ShipCategory")       Enum.TryParse(value.Text, out ShipCategory);
-                    else if (key == "HangarDesignation")  Enum.TryParse(value.Text, out HangarDesignation);
+                    else if (key == "DefaultAIState")     DefaultAIState = Enum.TryParse(value.Text, out AIState das) ? das : DefaultAIState;
+                    else if (key == "DefaultCombatState") DefaultCombatState = Enum.TryParse(value.Text, out CombatState dcs) ? dcs : DefaultCombatState;
+                    else if (key == "ShipCategory")       ShipCategory = Enum.TryParse(value.Text, out ShipCategory sc) ? sc : ShipCategory;
+                    else if (key == "HangarDesignation")  HangarDesignation = Enum.TryParse(value.Text, out HangarOptions ho) ? ho : HangarDesignation;
                     else if (key == "IsShipyard")         IsShipyard       = value.ToBool();
                     else if (key == "IsOrbitalDefense")   IsOrbitalDefense = value.ToBool();
                     else if (key == "IsCarrierOnly")      IsCarrierOnly    = value.ToBool();
@@ -239,6 +238,7 @@ namespace Ship_Game.Ships
                 }
             }
 
+            GridInfo = gridInfo;
             BaseHull = hull;
             Bonuses = hull.Bonuses;
             IsShipyard |= hull.IsShipyard;

@@ -55,7 +55,10 @@ namespace Ship_Game.Ships
         {
             if (ShipStyle.IsEmpty()) ShipStyle = hull.Style;
             if (IconPath.IsEmpty())  IconPath  = hull.IconPath;
-            GridInfo.SurfaceArea = hull.SurfaceArea;
+
+            var info = GridInfo;
+            info.SurfaceArea = hull.SurfaceArea;
+            GridInfo = info;
 
             float baseCost = 0f;
             float baseWarp = 0f;
