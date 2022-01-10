@@ -450,7 +450,7 @@ namespace Ship_Game.AI
             }
             else if (relSize > 1f)
             {
-                // if we are anti-frigate ships, always prefer to target big ships:
+                // if we are anti-ship, always prefer to target big ships:
                 // value = 100 * (1.25*1.25) = 156.25 (stronger? prefer it)
                 if (Owner.ShipData.HangarDesignation == HangarOptions.AntiShip)
                 {
