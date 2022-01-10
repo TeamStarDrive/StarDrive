@@ -32,8 +32,8 @@ namespace UnitTests.Universe
         [TestMethod]
         public void DesignShipIsNotAddedToEmpireAndUniverse()
         {
-            ShipDesign design = ResourceManager.Ships.GetDesign("Vulcan Scout");
-            var ship = new DesignShip(design);
+            IShipDesign design = ResourceManager.Ships.GetDesign("Vulcan Scout");
+            var mustNotBeAddedToEmpireOrUniverse = new DesignShip(design as ShipDesign);
             RunObjectsSim(TestSimStep);
             Assert.AreEqual(0, Player.OwnedShips.Count, "DesignShip should not be added to Player's Empire OwnedShips");
             Assert.AreEqual(0, Universe.Objects.Ships.Count, "DesignShip should not be added to UniverseObjectManager");
@@ -47,7 +47,7 @@ namespace UnitTests.Universe
 
             // somehow we manage to create one
             var emptyTemplate = new DesignShip(design);
-            var ship = Ship.CreateShipAtPoint(Universe, emptyTemplate, Player, Vector2.Zero);
+            var mustNotBeAddedToEmpireOrUniverse = Ship.CreateShipAtPoint(Universe, emptyTemplate, Player, Vector2.Zero);
             RunObjectsSim(TestSimStep);
             Assert.AreEqual(0, Player.OwnedShips.Count, "Ship with empty modules should not be added to Player's Empire OwnedShips");
             Assert.AreEqual(0, Universe.Objects.Ships.Count, "Ship with empty modules should not be added to UniverseObjectManager");

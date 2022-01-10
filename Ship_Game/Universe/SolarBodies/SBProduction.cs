@@ -287,7 +287,7 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public void Enqueue(Ship platform, ShipDesign constructor, Goal goal = null)
+        public void Enqueue(Ship platform, IShipDesign constructor, Goal goal = null)
         {
             var qi = new QueueItem(P)
             {
@@ -305,7 +305,7 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void Enqueue(Ship orbitalRefit, ShipDesign constructor, float refitCost, Goal goal)
+        public void Enqueue(Ship orbitalRefit, IShipDesign constructor, float refitCost, Goal goal)
         {
             var qi = new QueueItem(P)
             {
@@ -323,7 +323,7 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void Enqueue(ShipDesign ship, Goal goal = null, bool notifyOnEmpty = true, string displayName = "")
+        public void Enqueue(IShipDesign ship, Goal goal = null, bool notifyOnEmpty = true, string displayName = "")
         {
             var qi = new QueueItem(P)
             {
@@ -444,7 +444,7 @@ namespace Ship_Game.Universe.SolarBodies
             q.OnComplete?.Invoke(success: false);
         }
 
-        public void PrioritizeShip(ShipDesign ship, int atPeace, int atWar = 4)
+        public void PrioritizeShip(IShipDesign ship, int atPeace, int atWar = 4)
         {
             int queueOffset = Owner.IsAtWarWithMajorEmpire ? atWar : atPeace;
             if (ConstructionQueue.Count > queueOffset + 1)

@@ -1449,7 +1449,7 @@ namespace Ship_Game
         public static readonly ShipsManager Ships = new ShipsManager();
 
         public static IReadOnlyList<Ship>         ShipTemplates   => Ships.Ships;
-        public static IReadOnlyList<ShipDesign>   ShipDesigns     => Ships.Designs;
+        public static IReadOnlyList<IShipDesign>  ShipDesigns     => Ships.Designs;
         public static IReadOnlyCollection<string> ShipTemplateIds => Ships.ShipNames;
 
         public static void AddShipTemplate(ShipDesign shipDesign, bool playerDesign, bool readOnly = false)
@@ -1920,20 +1920,20 @@ namespace Ship_Game
             return encounter != null;
         }
 
-        static ShipDesign Assert(IEmpireData e, string shipName, string usage)
+        static IShipDesign Assert(IEmpireData e, string shipName, string usage)
         {
             if (shipName == null) // the ship is not defined
                 return null;
-            if (Ships.GetDesign(shipName, out ShipDesign design))
+            if (Ships.GetDesign(shipName, out IShipDesign design))
                 return design;
             string empire = e == null ? "" : $" empire={e.Name,-20}";
             Log.Error($"Assert Ship Exists failed! {usage,-20}  ship={shipName,-20} {empire}");
             return null;
         }
 
-        static void Assert(IEmpireData e, string shipName, string usage, Func<ShipDesign, bool> flag, string flagName)
+        static void Assert(IEmpireData e, string shipName, string usage, Func<IShipDesign, bool> flag, string flagName)
         {
-            ShipDesign design = Assert(e, shipName, usage);
+            IShipDesign design = Assert(e, shipName, usage);
             if (design != null && !flag(design))
                 Log.Error($"Assert Ship.{flagName} failed! {usage,-20}  ship={design.Name,-20}  role={design.Role,-12}  empire={e.Name,-20}");
         }

@@ -478,7 +478,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 if (qisave.IsShip)
                 {
                     qi.isShip = true;
-                    if (!ResourceManager.Ships.GetDesign(qisave.UID, out Ships.ShipDesign shipTemplate))
+                    if (!ResourceManager.Ships.GetDesign(qisave.UID, out IShipDesign shipTemplate))
                         continue;
 
                     qi.sData           = shipTemplate;
@@ -673,7 +673,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 if (g.type == GoalType.Refit && gsave.ToBuildUID != null)
                 {
-                    Ships.ShipDesign shipToBuild = ResourceManager.Ships.GetDesign(gsave.ToBuildUID, false);
+                    IShipDesign shipToBuild = ResourceManager.Ships.GetDesign(gsave.ToBuildUID, false);
                     if (shipToBuild != null)
                         g.ShipToBuild = shipToBuild;
                     else
