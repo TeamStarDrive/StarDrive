@@ -46,7 +46,7 @@ namespace Ship_Game.Ships
 
         // Create a ship from a SavedGame
         // You should call Ship.CreateShip() functions to spawn ships
-        protected Ship(UniverseScreen universe, Empire empire, ShipDesign data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
+        protected Ship(UniverseScreen universe, Empire empire, IShipDesign data, SavedGame.ShipSaveData save, ModuleSaveData[] savedModules) : base(GameObjectType.Ship)
         {
             Universe = universe;
             Name       = save.Name;
@@ -75,7 +75,7 @@ namespace Ship_Game.Ships
         // Create a ship as a new template or shipyard WIP design
         // You should call Ship.CreateShip() functions to spawn ships
         // @param shipyardDesign This is a WIP design from Shipyard
-        protected Ship(UniverseScreen universe, Empire empire, ShipDesign data, bool isTemplate, bool shipyardDesign = false)
+        protected Ship(UniverseScreen universe, Empire empire, IShipDesign data, bool isTemplate, bool shipyardDesign = false)
             : base(GameObjectType.Ship)
         {
             if (!data.IsValidForCurrentMod)
@@ -173,8 +173,9 @@ namespace Ship_Game.Ships
         }
 
         // use placed modules from ModuleGrid in Shipyard
-        protected void CreateModuleSlotsFromShipyardModules(Array<ShipModule> placedModules)
+        protected void CreateModuleSlotsFromShipyardModules(Array<ShipModule> placedModules, ShipDesign design)
         {
+            ShipData = design;
             ResetSlots(placedModules.Count);
 
             for (int i = 0; i < placedModules.Count; ++i)
@@ -185,7 +186,7 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i] = m;
             }
 
-            ShipData.SetDesignSlots(DesignSlot.FromModules(placedModules));
+            design.SetDesignSlots(DesignSlot.FromModules(placedModules));
             CreateModuleGrid(ShipData.GridInfo, isTemplate:true, shipyardDesign:true);
         }
 
@@ -334,7 +335,7 @@ namespace Ship_Game.Ships
                 return null;
             }
 
-            if (ResourceManager.Ships.GetDesign(save.Name, out ShipDesign data))
+            if (ResourceManager.Ships.GetDesign(save.Name, out IShipDesign data))
             {
                 // the ship from the save is not the same as the template
                 // this will be a unique snowflake in the universe
@@ -351,7 +352,7 @@ namespace Ship_Game.Ships
 
                 // this ShipData doesn't exist in the game designs, it comes from the savegame only
                 data = ShipDesign.FromSave(savedModules, moduleUIDs, save, hull);
-                ResourceManager.AddShipTemplate(data, playerDesign: true);
+                ResourceManager.AddShipTemplate((ShipDesign)data, playerDesign: true);
             }
 
             var ship = new Ship(null, empire, data, save, savedModules);
@@ -446,8 +447,6 @@ namespace Ship_Game.Ships
             Ship ship = CreateShipAtPoint(universe, shipName, owner, point);
             ship.VanityName = troop.DisplayName;
             troop.LandOnShip(ship);
-            if (ship.ShipData.Role == RoleName.troop)
-                ship.ShipData.ShipCategory = ShipCategory.Conservative;
             return ship;
         }
 

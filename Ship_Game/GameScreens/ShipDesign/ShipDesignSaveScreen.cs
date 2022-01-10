@@ -36,11 +36,11 @@ namespace Ship_Game
         public class ShipDesignListItem : ScrollListItem<ShipDesignListItem>
         {
             public readonly string ShipName;
-            public readonly ShipDesign Design;
+            public readonly IShipDesign Design;
             readonly ShipHull Hull;
             readonly bool CanBuild;
             readonly bool CanModifyDesign;
-            public ShipDesignListItem(ShipDesign template, bool canBuild)
+            public ShipDesignListItem(IShipDesign template, bool canBuild)
             {
                 ShipName = template.Name;
                 Design = template;
@@ -113,7 +113,7 @@ namespace Ship_Game
             }
             else
             {
-                ShipDesign[] shipList = ResourceManager.Ships.Designs
+                IShipDesign[] shipList = ResourceManager.Ships.Designs
                     .Filter(s => !s.Deleted && s.Name.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(shipList.Select(s => 
@@ -219,7 +219,7 @@ namespace Ship_Game
             }
             else
             {
-                ShipDesign ship = ResourceManager.ShipDesigns.FirstOrDefault(s => s.Name == shipOrHullName);
+                IShipDesign ship = ResourceManager.ShipDesigns.FirstOrDefault(s => s.Name == shipOrHullName);
                 exists = ship != null;
                 source = ship?.Source;
                 reserved = ship?.IsReadonlyDesign == true;
