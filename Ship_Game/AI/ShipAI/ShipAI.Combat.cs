@@ -433,32 +433,38 @@ namespace Ship_Game.AI
             float relSize = (float)tgt.SurfaceArea / Owner.SurfaceArea;
             if (relSize < 1f)
             {
-                // if target is smaller and we are not interceptors,
-                // then 0.5^2 = 0.25, smaller ships are almost always weaker than us
-                // so they're not a huge priority - other ships of same size are more important
-                // value = 100 * 0.25 = 25
                 // if we are interceptors - we want to get these smaller ships.
                 // value = 100 * (1/0.25) = 400
                 if (Owner.ShipData.HangarDesignation != HangarOptions.Interceptor)
+                {
                     value *= (relSize * relSize);
+                }
+                // if target is smaller then 0.5^2 = 0.25, smaller ships are
+                // almost always weaker than us so they're not a huge priority
+                // - other ships of same size are more important
+                // value = 100 * 0.25 = 25
                 else
+                {
                     value *= (1 / relSize);
+                }
             }
             else if (relSize > 1f)
             {
-                // if target is bigger than us, and we are not designed as anti ship
-                // use division to make us less afraid of it
+                // if we are anti-frigate ships, always prefer to target big ships:
+                // value = 100 * (1.25*1.25) = 156.25 (stronger? prefer it)
+                // value = 100 * (0.75*0.75) = 56.25 (same as us? rather ignore)
+                if (Owner.ShipData.HangarDesignation != HangarOptions.AntiShip)
+                {
+                    value /= (relSize * 0.25f);
+                }
+                // if target is bigger than us, use division to make us less afraid of it
                 // value = 100 / (2.0 * 0.25) = 200 (2x stronger? good target)
                 // value = 100 / (4.0 * 0.25) = 100 (4x stronger? not afraid at all)
                 // value = 100 / (4.47 * 0.25) = 89.4 (a bit afraid)
-                // but if we are designed to hit bigger ships, prefer them
-                // value = 100 * (1.25*1.25) = 156.25
-
-                if (Owner.ShipData.HangarDesignation != HangarOptions.AntiShip)
-                    value /= (relSize * 0.25f);
                 else
+                {
                     value *= (relSize * relSize);
-
+                }
             }
 
             if (debug) Debug($"relSize={relSize.String(2),-4}");

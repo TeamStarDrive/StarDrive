@@ -132,26 +132,24 @@ namespace UnitTests.AITests.Ships
         public void FighterAntiShipPreferLargerTarget()
         {
             SpawnOurShip(ScoutName);
+            Us.ShipData = Us.ShipData.GetClone();
             Us.ShipData.HangarDesignation = HangarOptions.AntiShip;
             SpawnStrongerEnemyGroup();
 
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
             Assert.AreEqual(FrigateTarget, Us.AI.Target, "Expected large target to be selected since designation is AntiShip");
-
-            Us.ShipData.HangarDesignation = HangarOptions.General;
         }
 
         [TestMethod]
         public void FrigateInterceptorsPreferSmallerTarget()
         {
             SpawnOurShip(FrigateName);
+            Us.ShipData = Us.ShipData.GetClone();
             Us.ShipData.HangarDesignation = HangarOptions.Interceptor;
             SpawnStrongerEnemyGroup();
 
             Assert.IsNotNull(Us.AI.Target, "No Target! BUG in ScanForCombatTargets()");
             Assert.AreEqual(ScoutTarget, Us.AI.Target, "Expected small target to be selected since designation is Interceptor");
-
-            Us.ShipData.HangarDesignation = HangarOptions.General;
         }
 
         [TestMethod]
