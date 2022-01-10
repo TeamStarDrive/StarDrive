@@ -126,8 +126,8 @@ namespace Ship_Game
                     if (shield.TexScale > 0f)
                     {
                         shield.UpdateLightIntensity(2.45f);
-                        shield.Displacement += 0.01f;
-                        shield.TexScale -= 0.003f;
+                        shield.Displacement += 0.025f;
+                        shield.TexScale -= 0.004f;
                     }
                 }
             }
