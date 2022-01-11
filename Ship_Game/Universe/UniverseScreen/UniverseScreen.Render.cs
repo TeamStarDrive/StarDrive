@@ -715,9 +715,8 @@ namespace Ship_Game
                         {
                             if (p.Type.EarthLike)
                             {
-                                Matrix clouds = p.CloudMatrix;
-                                DrawClouds(device, xnaPlanetModel, clouds, p);
-                                DrawAtmo(device, xnaPlanetModel, clouds);
+                                DrawClouds(device, p.CloudMatrix, p);
+                                DrawAtmo(device, p.CloudMatrix);
                             }
                             if (p.HasRings)
                             {
