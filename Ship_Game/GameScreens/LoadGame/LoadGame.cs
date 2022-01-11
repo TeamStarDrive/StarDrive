@@ -363,8 +363,12 @@ namespace Ship_Game.GameScreens.LoadGame
             system.SetPiratePresence(ssd.PiratePresence);
             system.AsteroidsList.AddRange(ssd.AsteroidsList);
             system.MoonList.AddRange(ssd.Moons);
+            foreach (Moon moon in system.MoonList)
+                moon.SetSystem(system); // restore system
+
             system.SetExploredBy(ssd.ExploredBy);
             system.RingList = new Array<SolarSystem.Ring>();
+
             foreach (SavedGame.RingSave ring in ssd.RingList)
             {
                 if (ring.Asteroids)
