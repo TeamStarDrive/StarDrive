@@ -93,13 +93,13 @@ namespace Ship_Game
         public Empire PlayerEmpire;
         public string PlayerLoyalty;
         public string FogMapBase64;
-        public Model xnaPlanetModel;
-        public Texture2D RingTexture;
+
+        Effect PlanetHaloFx; // planet atmosphere rendering effect
+
         public UnivScreenState viewState;
         public bool LookingAtPlanet;
         public bool snappingToShip;
         public bool returnToShip;
-        public Texture2D cloudTex;
         public EmpireUIOverlay EmpireUI;
         public BloomComponent bloomComponent;
         public Texture2D FogMap;
@@ -163,8 +163,7 @@ namespace Ship_Game
         int FBTimer = 60;
         bool pickedSomethingThisFrame;
         bool SelectingWithBox;
-        Effect AtmoEffect;
-        Model atmoModel;
+
         public PlanetScreen workersPanel;
         CursorState cState;
         int SelectorFrame;
@@ -602,11 +601,7 @@ namespace Ship_Game
             CreateFogMap(content, device, backBufferFormat);
             LoadMenu();
 
-            xnaPlanetModel = content.Load<Model>("Model/SpaceObjects/planet");
-            atmoModel      = content.Load<Model>("Model/sphere");
-            AtmoEffect     = content.Load<Effect>("Effects/PlanetHalo");
-            cloudTex       = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap");
-            RingTexture    = content.Load<Texture2D>("Model/SpaceObjects/planet_rings");
+            PlanetHaloFx = content.Load<Effect>("Effects/PlanetHalo");
 
             Glows = new Map<PlanetGlow, SubTexture>(new []
             {

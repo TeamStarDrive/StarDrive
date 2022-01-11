@@ -4,6 +4,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 
@@ -25,20 +26,16 @@ namespace Ship_Game
             device.RenderState.DestinationBlend       = Blend.InverseSourceAlpha;
             device.RenderState.DepthBufferWriteEnable = false;
             device.RenderState.CullMode               = CullMode.None;
-            foreach (BasicEffect basicEffect in xnaPlanetModel.Meshes[1].Effects)
-            {
-                basicEffect.World = Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * world;
-                basicEffect.View = View;
-                basicEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
-                basicEffect.Texture = RingTexture;
-                basicEffect.TextureEnabled = true;
-                basicEffect.Projection = Projection;
-            }
-            xnaPlanetModel.Meshes[1].Draw();
+
+            BasicEffect ringEffect = ResourceManager.PlanetRingsEffect;
+            ringEffect.World = Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * world;
+            ringEffect.View = View;
+            ringEffect.Projection = Projection;
+            StaticMesh.Draw(ResourceManager.PlanetRingsModel, ringEffect);
             device.RenderState.DepthBufferWriteEnable = true;
         }
 
-        private void DrawAtmo(GraphicsDevice device, Model model, in Matrix world)
+        void DrawAtmo(GraphicsDevice device, in Matrix world)
         {
             device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -50,89 +47,60 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = false;
             rs.CullMode = CullMode.CullClockwiseFace;
 
-            ModelMesh modelMesh = model.Meshes[0];
-            SubTexture atmosphere = ResourceManager.Texture("Atmos");
+            // draw blueish transparent atmosphere sphere
+            var atmoColorFx = ResourceManager.AtmoColorEffect;
+            atmoColorFx.World = Matrix.CreateScale(4.1f) * world; // 4.1: slightly bigger than clouds
+            atmoColorFx.View = View;
+            atmoColorFx.Projection = Projection;
+            StaticMesh.Draw(ResourceManager.AtmosphereModel, atmoColorFx);
 
-            foreach (BasicEffect effect in modelMesh.Effects)
-            {
-                effect.World = Matrix.CreateScale(4.1f) * world;
-                effect.View = View;
-                // @todo 3D Texture Atlas support?
-                effect.Texture = atmosphere.Texture;
-                effect.TextureEnabled = true;
-                effect.Projection = Projection;
-                effect.LightingEnabled = true;
-                effect.DirectionalLight0.DiffuseColor = new Vector3(1f, 1f, 1f);
-                effect.DirectionalLight0.Enabled = true;
-                effect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
-                effect.DirectionalLight0.Direction = new Vector3(0.98f, -0.025f, 0.2f);
-                effect.DirectionalLight1.DiffuseColor = new Vector3(1f, 1f, 1f);
-                effect.DirectionalLight1.Enabled = true;
-                effect.DirectionalLight1.SpecularColor = new Vector3(1f, 1f, 1f);
-                effect.DirectionalLight1.Direction = new Vector3(0.98f, -0.025f, 0.2f);
-            }
-            modelMesh.Draw();
-            DrawAtmo1(world);
+            DrawPlanetHalo(world);
+
             rs.DepthBufferWriteEnable = true;
             rs.CullMode = CullMode.CullCounterClockwiseFace;
             rs.AlphaBlendEnable = false;
         }
 
-        private void DrawAtmo1(in Matrix world)
+        void DrawPlanetHalo(in Matrix world)
         {
-            AtmoEffect.Parameters["World"].SetValue(Matrix.CreateScale(3.83f) * world);
-            AtmoEffect.Parameters["Projection"].SetValue(Projection);
-            AtmoEffect.Parameters["View"].SetValue(View);
-            AtmoEffect.Parameters["CameraPosition"].SetValue(new Vector3(0.0f, 0.0f, 1500f));
-            AtmoEffect.Parameters["DiffuseLightDirection"].SetValue(new Vector3(-0.98f, 0.425f, -0.4f));
-            for (int pass = 0; pass < AtmoEffect.CurrentTechnique.Passes.Count; ++pass)
-            {
-                for (int mesh = 0; mesh < atmoModel.Meshes.Count; ++mesh)
-                {
-                    ModelMesh modelMesh = atmoModel.Meshes[mesh];
-                    for (int part = 0; part < modelMesh.MeshParts.Count; ++part)
-                        modelMesh.MeshParts[part].Effect = AtmoEffect;
-                    modelMesh.Draw();
-                }
-            }
+            Matrix haloWorldMatrix = Matrix.CreateScale(3.83f) * world; // 3.83 smaller than clouds
+            PlanetHaloFx.Parameters["World"].SetValue(haloWorldMatrix);
+            PlanetHaloFx.Parameters["Projection"].SetValue(Projection);
+            PlanetHaloFx.Parameters["View"].SetValue(View);
+            PlanetHaloFx.Parameters["CameraPosition"].SetValue(new Vector3(0.0f, 0.0f, 1500f));
+            PlanetHaloFx.Parameters["DiffuseLightDirection"].SetValue(new Vector3(-0.98f, 0.425f, -0.4f));
+            StaticMesh.Draw(ResourceManager.AtmosphereModel, PlanetHaloFx);
         }
 
-        private void DrawClouds(GraphicsDevice device, Model model, in Matrix world, Planet p)
+        void DrawClouds(GraphicsDevice device, in Matrix world, Planet p)
         {
             device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             RenderState rs = device.RenderState;
-            rs.AlphaBlendEnable       = true;
-            rs.AlphaBlendOperation    = BlendFunction.Add;
-            rs.SourceBlend            = Blend.SourceAlpha;
-            rs.DestinationBlend       = Blend.InverseSourceAlpha;
+            rs.AlphaBlendEnable = true;
+            rs.AlphaBlendOperation = BlendFunction.Add;
+            rs.SourceBlend = Blend.SourceAlpha;
+            rs.DestinationBlend = Blend.InverseSourceAlpha;
             rs.DepthBufferWriteEnable = false;
 
-            ModelMesh modelMesh = model.Meshes[0];
-            foreach (BasicEffect effect in modelMesh.Effects)
+            var cloudsFx = ResourceManager.CloudsEffect;
+            cloudsFx.World = Matrix.CreateScale(4.05f) * world; // 4.05: bigger than halo, smaller than atmo color
+            cloudsFx.View = View;
+            cloudsFx.Projection = Projection;
+            if (UseRealLights)
             {
-                effect.World                           = Matrix.CreateScale(4.05f) * world;
-                effect.View                            = View;
-                effect.Texture                         = cloudTex;
-                effect.TextureEnabled                  = true;
-                effect.Projection                      = Projection;
-                effect.LightingEnabled                 = true;
-                effect.DirectionalLight0.DiffuseColor  = new Vector3(1f, 1f, 1f);
-                effect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
-                effect.SpecularPower                   = 4;
-                if (UseRealLights)
-                {
-                    Vector2 sunToPlanet = p.Center - p.ParentSystem.Position;
-                    effect.DirectionalLight0.Direction = sunToPlanet.ToVec3().Normalized();
-                }
-                else
-                {
-                    Vector2 universeCenterToPlanet = p.Center - new Vector2(0, 0);
-                    effect.DirectionalLight0.Direction = universeCenterToPlanet.ToVec3().Normalized();
-                }
-                effect.DirectionalLight0.Enabled = true;
+                Vector2 sunToPlanet = p.Center - p.ParentSystem.Position;
+                cloudsFx.DirectionalLight0.Direction = sunToPlanet.ToVec3().Normalized();
             }
-            modelMesh.Draw();
+            else
+            {
+                Vector2 universeCenterToPlanet = p.Center - new Vector2(0, 0);
+                cloudsFx.DirectionalLight0.Direction = universeCenterToPlanet.ToVec3().Normalized();
+            }
+            cloudsFx.DirectionalLight0.Enabled = true;
+
+            StaticMesh.Draw(ResourceManager.PlanetSphereModel, cloudsFx);
+
             rs.DepthBufferWriteEnable = true;
         }
 
