@@ -133,27 +133,22 @@ namespace Ship_Game.Gameplay
             // get the current thrust dir and reset the vector for now
             Vector2 thrustDir = GetThrustVector();
             Vector2 acc = default;
-
-            if (ThrustThisFrame == Thrust.AllStop)
-            {
-                PrecisionStop(ref acc, thrustDir, a.Velocity, a);
-            }
-            // If ship is traveling backwards or sideways, set max velocity to 0.5x
+            // If ship is traveling backwards or sideways, limit max velocity
             float maxVelocity = a.Travel < -0.15f ? a.MaxVelocity * 0.6f : a.MaxVelocity;
 
             if (ThrustThisFrame == Thrust.AllStop)
             {
                 PrecisionStop(ref acc, thrustDir, a.Velocity, a);
             }
-                else if (a.Velocity >= maxVelocity) // we are at the speed limit already
-                {
+            else if (a.Velocity >= maxVelocity) // we are at the speed limit already
+            {
                 // in order to have direction control at max velocity limit
                 // we spend use thrust to slow down in velocity dir and thrust to speed up in wanted dir
                 // if we are already facing wanted direction, then this is a no-op
                 if (ThrustThisFrame == Thrust.Forward && a.Travel > 0.2f/*we are going forward*/)
                 {
                     // if we're over speed limit, then accelerate a bit less than we decelerate
-                    float overLimit = (a.Velocity - a.MaxVelocity);
+                    float overLimit = (a.Velocity - maxVelocity);
                     float accelerate = overLimit > 1f ? a.ThrustAcc * 0.5f : a.ThrustAcc;
                     Decelerate(ref acc, a.VelocityDir, a.ThrustAcc);
                     Accelerate(ref acc, thrustDir, accelerate);
