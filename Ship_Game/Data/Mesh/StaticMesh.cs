@@ -60,44 +60,43 @@ namespace Ship_Game.Data.Mesh
         static DrawDelegate ModelMeshDraw;
 
         // Draw a model with a custom material effect override
+        // TODO: Instead of using ModelMesh, implement Draw() for StaticMesh by looking at ModelMesh impl.
         public static void Draw(Model model, Effect effect)
-        {
-            int count = model.Meshes.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                Draw(model.Meshes[i], effect);
-            }
-        }
-
-        public static void Draw(ModelMesh mesh, Effect effect)
         {
             if (ModelMeshDraw == null)
             {
-                ModelMeshDraw = (DrawDelegate)mesh.GetType().GetMethod("Draw", BindingFlags.NonPublic|BindingFlags.Instance).CreateDelegate(typeof(DrawDelegate));
+                var draw = typeof(ModelMeshPart).GetMethod("Draw", BindingFlags.NonPublic|BindingFlags.Instance);
+                ModelMeshDraw = (DrawDelegate)draw.CreateDelegate(typeof(DrawDelegate));
             }
 
             var passes = effect.CurrentTechnique.Passes;
             int numPasses = passes.Count;
-
-            int numParts = mesh.MeshParts.Count;
-            for (int meshPartIdx = 0; meshPartIdx < numParts; ++meshPartIdx)
+            effect.Begin(SaveStateMode.None);
+            try
             {
-                ModelMeshPart meshPart = mesh.MeshParts[meshPartIdx];
-                effect.Begin(SaveStateMode.None);
-                try
+                for (int passIdx = 0; passIdx < numPasses; ++passIdx)
                 {
-                    for (int passIdx = 0; passIdx < numPasses; ++passIdx)
+                    EffectPass pass = passes[passIdx];
+                    pass.Begin();
+                    
+                    int numMeshes = model.Meshes.Count;
+                    for (int i = 0; i < numMeshes; ++i)
                     {
-                        EffectPass pass = passes[passIdx];
-                        pass.Begin();
-                        ModelMeshDraw(meshPart);
-                        pass.End();
+                        ModelMesh mesh = model.Meshes[i];
+                        int numParts = mesh.MeshParts.Count;
+                        for (int meshPartIdx = 0; meshPartIdx < numParts; ++meshPartIdx)
+                        {
+                            ModelMeshPart meshPart = mesh.MeshParts[meshPartIdx];
+                            ModelMeshDraw(meshPart);
+                        }
                     }
+
+                    pass.End();
                 }
-                finally
-                {
-                    effect.End();
-                }
+            }
+            finally
+            {
+                effect.End();
             }
         }
 
