@@ -33,12 +33,12 @@
 <!-- Projectile stats -->
   <DamageAmount>2100</DamageAmount>
   <ProjectileSpeed>800</ProjectileSpeed>
-  <ExplosionRadius>50</ExplosionRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>60</ExplosionRadius> <!-- This Projectile Explodes -->
   <ProjectileRadius>5</ProjectileRadius>
   <RotationRadsPerSecond>1</RotationRadsPerSecond>
   <HitPoints>10</HitPoints>
 <!--Projectile atributes-->
-  <Scale>1.2</Scale>
+  <Scale>1.1</Scale>
   
   <CanCollideProjectiles>true</CanCollideProjectiles>
 <!-- Projectile textures-->
