@@ -64,13 +64,20 @@ namespace Ship_Game.Data
             return "Content/" + contentName;
         }
 
-        public object LoadAsset(string fileNameWithExt, string ext)
+        public object LoadAsset(Type type, string fileNameWithExt, string ext)
         {
             if (IsSupportedMeshExtension(ext))
             {
-                Log.Info(ConsoleColor.Magenta, $"Raw LoadMesh: {fileNameWithExt}");
                 string meshPath = GetContentPath(fileNameWithExt);
-                return MeshImport.Import(meshPath, fileNameWithExt);
+                if (type == typeof(StaticMesh))
+                {
+                    Log.Info(ConsoleColor.Magenta, $"Raw LoadStaticMesh: {fileNameWithExt}");
+                    return MeshImport.ImportStaticMesh(meshPath, fileNameWithExt);
+                }
+                else if (type == typeof(Model))
+                {
+                    return MeshImport.ImportModel(meshPath, fileNameWithExt);
+                }
             }
 
             //Log.Info(ConsoleColor.Magenta, $"Raw LoadTexture: {fileNameWithExt}");
@@ -106,7 +113,7 @@ namespace Ship_Game.Data
         public StaticMesh LoadStaticMesh(string meshName)
         {
             string meshPath = GetContentPath(meshName);
-            return MeshImport.Import(meshPath, meshName);
+            return MeshImport.ImportStaticMesh(meshPath, meshName);
         }
 
         public Array<FileInfo> GetAllXnbModelFiles(string folder)
@@ -220,10 +227,10 @@ namespace Ship_Game.Data
         public void ExportAllXnbMeshes(string extension)
         {
             var files = new Array<FileInfo>();
-            files.AddRange(GetAllXnbModelFiles("Effects"));
-            files.AddRange(GetAllXnbModelFiles("Model"));
-            files.AddRange(GetAllXnbModelFiles("mod models"));
-            files.AddRange(GetAllXnbModelFiles("model"));
+            //files.AddRange(GetAllXnbModelFiles("Effects"));
+            //files.AddRange(GetAllXnbModelFiles("mod models"));
+            //files.AddRange(GetAllXnbModelFiles("Model"));
+            files.AddRange(GetAllXnbModelFiles("Model/SpaceObjects"));
 
             void ExportMeshes(int start, int end)
             {
