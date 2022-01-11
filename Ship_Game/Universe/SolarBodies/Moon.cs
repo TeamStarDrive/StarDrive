@@ -46,10 +46,8 @@ namespace Ship_Game.Gameplay
             if (So != null)
                 return;
 
-            var content = System?.Universe?.ContentManager ?? ResourceManager.RootContent;
-
             PlanetType moon = ResourceManager.Planet(MoonId);
-            So = StaticMesh.GetPlanetarySceneMesh(content, moon.MeshPath);
+            So = moon.CreatePlanetSO();
             So.ObjectType = ObjectType.Static;
             So.Visibility = GlobalStats.AsteroidVisibility;
             Radius = So.ObjectBoundingSphere.Radius * MoonScale * 0.65f;
