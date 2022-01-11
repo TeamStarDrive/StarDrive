@@ -418,14 +418,12 @@ namespace Ship_Game.Data.Mesh
             if (fx.SpecularColorMapFile.NotEmpty())  fx.SpecularColorMapTexture  = content.Load<Texture2D>(fx.SpecularColorMapFile);
             //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
             //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
-            fx.Skinned         = false;
-            fx.DoubleSided     = false;
+            fx.Skinned     = false;
+            fx.DoubleSided = false;
 
-            Texture2D alphaMap = alpha.NotEmpty()
-                ? content.Load<Texture2D>(alpha)
-                : fx.DiffuseMapTexture;
+            //Texture2D alphaMap = alpha.NotEmpty() ? content.Load<Texture2D>(alpha) : null;
+            //fx.SetTransparencyModeAndMap(TransparencyMode.None, 1f, alphaMap);
 
-            fx.SetTransparencyModeAndMap(TransparencyMode.None, 1f, alphaMap);
             fx.SpecularPower                 = 14.0f * specularPower;
             fx.SpecularAmount                = 6.0f * specularPower;
             fx.FresnelReflectBias            = 0.0f;

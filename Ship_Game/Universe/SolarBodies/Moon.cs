@@ -48,7 +48,6 @@ namespace Ship_Game.Gameplay
 
             PlanetType moon = ResourceManager.Planet(MoonId);
             So = moon.CreatePlanetSO();
-            So.ObjectType = ObjectType.Static;
             So.Visibility = GlobalStats.AsteroidVisibility;
             Radius = So.ObjectBoundingSphere.Radius * MoonScale * 0.65f;
 
