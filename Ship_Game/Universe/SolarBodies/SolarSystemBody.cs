@@ -353,7 +353,7 @@ namespace Ship_Game
         void UpdateWorldMatrix()
         {
             var pos3d = Matrix.CreateTranslation(new Vector3(Center, 2500f));
-            var scale = Matrix.CreateScale(Scale * 3f);
+            var scale = Matrix.CreateScale(9f * Scale); // Matrix.CreateScale(Scale * 3f * 3f);
             var tilt = Matrix.CreateRotationX(-45f.ToRadians());
 
             SO.World    = scale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
@@ -363,6 +363,12 @@ namespace Ship_Game
 
         protected void CreatePlanetSceneObject()
         {
+            if (Universe == null)
+            {
+                Log.Warning("CreatePlanetSceneObject failed: Universe was null!");
+                return;
+            }
+
             if (SO != null)
             {
                 Log.Info($"RemoveSolarSystemBody: {Name}");
@@ -371,14 +377,7 @@ namespace Ship_Game
 
             SO = Type.CreatePlanetSO();
             UpdateWorldMatrix();
-            SO.World = Matrix.CreateScale(Scale * 3)
-                     * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-
-            RingWorld = Matrix.CreateRotationX(RingTilt.ToRadians())
-                      * Matrix.CreateScale(5f)
-                      * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-
-            Universe?.AddObject(SO);
+            Universe.AddObject(SO);
         }
 
         protected void UpdateDescription()

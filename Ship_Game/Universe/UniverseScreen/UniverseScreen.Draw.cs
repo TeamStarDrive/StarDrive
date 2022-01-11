@@ -49,10 +49,10 @@ namespace Ship_Game
 
             // draw blueish transparent atmosphere sphere
             var atmoColorFx = ResourceManager.AtmoColorEffect;
-            atmoColorFx.World = Matrix.CreateScale(4.1f) * world; // 4.1: slightly bigger than clouds
+            atmoColorFx.World = Matrix.CreateScale(1.1f) * world; // slightly bigger than clouds
             atmoColorFx.View = View;
             atmoColorFx.Projection = Projection;
-            StaticMesh.Draw(ResourceManager.AtmosphereModel, atmoColorFx);
+            StaticMesh.Draw(ResourceManager.PlanetSphereModel, atmoColorFx);
 
             DrawPlanetHalo(world);
 
@@ -61,17 +61,17 @@ namespace Ship_Game
             rs.AlphaBlendEnable = false;
         }
 
-        // Not quite sure what this "HaloFx" does, however
-        // it seems to add a small shine to the atmosphere
+        // This is a small shine effect on top of the atmosphere
+        // It is very subtle
         void DrawPlanetHalo(in Matrix world)
         {
-            Matrix haloWorldMatrix = Matrix.CreateScale(3.83f) * world; // 3.83 smaller than clouds
+            Matrix haloWorldMatrix = Matrix.CreateScale(1.05f) * world;
             PlanetHaloFx.Parameters["World"].SetValue(haloWorldMatrix);
             PlanetHaloFx.Parameters["Projection"].SetValue(Projection);
             PlanetHaloFx.Parameters["View"].SetValue(View);
             PlanetHaloFx.Parameters["CameraPosition"].SetValue(new Vector3(0.0f, 0.0f, 1500f));
             PlanetHaloFx.Parameters["DiffuseLightDirection"].SetValue(new Vector3(-0.98f, 0.425f, -0.4f));
-            StaticMesh.Draw(ResourceManager.AtmosphereModel, PlanetHaloFx);
+            StaticMesh.Draw(ResourceManager.PlanetSphereModel, PlanetHaloFx);
         }
 
         void DrawClouds(GraphicsDevice device, in Matrix world, Planet p)
@@ -86,24 +86,29 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = false;
 
             var cloudsFx = ResourceManager.CloudsEffect;
-            cloudsFx.World = Matrix.CreateScale(4.05f) * world; // 4.05: bigger than halo, smaller than atmo color
+            cloudsFx.World = Matrix.CreateScale(1.05f) * world; // bigger than halo, smaller than atmo color
             cloudsFx.View = View;
             cloudsFx.Projection = Projection;
-            if (UseRealLights)
-            {
-                Vector2 sunToPlanet = p.Center - p.ParentSystem.Position;
-                cloudsFx.DirectionalLight0.Direction = sunToPlanet.ToVec3().Normalized();
-            }
-            else
-            {
-                Vector2 universeCenterToPlanet = p.Center - new Vector2(0, 0);
-                cloudsFx.DirectionalLight0.Direction = universeCenterToPlanet.ToVec3().Normalized();
-            }
+
+            Vector2 sunToPlanet = p.Center - p.ParentSystem.Position;
+            cloudsFx.DirectionalLight0.Direction = sunToPlanet.ToVec3().Normalized();
             cloudsFx.DirectionalLight0.Enabled = true;
 
+            // the atmosphere model is tilted in a particular way to make clouds look correct
             StaticMesh.Draw(ResourceManager.PlanetSphereModel, cloudsFx);
 
             rs.DepthBufferWriteEnable = true;
+        }
+
+        // Blue/Red/etc glow effect around the planet
+        void DrawAtmosphericGlow(SpriteBatch batch, Planet planet, Vector2 screenPlanetCenter, float screenRadius)
+        {
+            SubTexture glow = Glows[planet.Type.Glow];
+
+            var size = new Vector2(screenRadius * 0.65f);
+            batch.Draw(glow, screenPlanetCenter - size, size*2, Color.White);
+            Renderer.DrawScreenRect(screenPlanetCenter, size, Color.Red);
+            Renderer.DrawScreenRect(screenPlanetCenter, new Vector2(screenRadius), Color.Green);
         }
 
         void DrawSystemAndPlanetBrackets(SpriteBatch batch)

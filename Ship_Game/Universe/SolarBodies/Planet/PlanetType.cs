@@ -64,7 +64,8 @@ namespace Ship_Game
 
         public SceneObject CreatePlanetSO()
         {
-            return StaticMesh.SceneObjectFromModel(PlanetModel, Material);
+            var so = StaticMesh.SceneObjectFromModel(PlanetModel, Material);
+            return so;
         }
     }
 
