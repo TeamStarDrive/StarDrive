@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
 using SgMotion;
 using SgMotion.Controllers;
 using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Data.Mesh
@@ -54,7 +56,79 @@ namespace Ship_Game.Data.Mesh
             return so;
         }
 
-        static SceneObject SceneObjectFromModel(GameContentManager content, string modelName, int maxSubMeshes = 0)
+        delegate void DrawDelegate(ModelMeshPart mesh);
+        static DrawDelegate ModelMeshDraw;
+
+        // Draw a model with a custom material effect override
+        public static void Draw(Model model, Effect effect)
+        {
+            int count = model.Meshes.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                Draw(model.Meshes[i], effect);
+            }
+        }
+
+        public static void Draw(ModelMesh mesh, Effect effect)
+        {
+            if (ModelMeshDraw == null)
+            {
+                ModelMeshDraw = (DrawDelegate)mesh.GetType().GetMethod("Draw", BindingFlags.NonPublic|BindingFlags.Instance).CreateDelegate(typeof(DrawDelegate));
+            }
+
+            var passes = effect.CurrentTechnique.Passes;
+            int numPasses = passes.Count;
+
+            int numParts = mesh.MeshParts.Count;
+            for (int meshPartIdx = 0; meshPartIdx < numParts; ++meshPartIdx)
+            {
+                ModelMeshPart meshPart = mesh.MeshParts[meshPartIdx];
+                effect.Begin(SaveStateMode.None);
+                try
+                {
+                    for (int passIdx = 0; passIdx < numPasses; ++passIdx)
+                    {
+                        EffectPass pass = passes[passIdx];
+                        pass.Begin();
+                        ModelMeshDraw(meshPart);
+                        pass.End();
+                    }
+                }
+                finally
+                {
+                    effect.End();
+                }
+            }
+        }
+
+        public static Model LoadModel(GameContentManager content, string modelName)
+        {
+            try
+            {
+                Model model = content.LoadModel(modelName);
+                return model;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"LoadModel failed: {modelName}");
+            }
+            return null;
+        }
+
+        public static SceneObject SceneObjectFromModel(Model model, Effect effect)
+        {
+            var so = new SceneObject(model.Root.Name) { ObjectType = ObjectType.Dynamic };
+            ModelMeshCollection meshes = model.Meshes;
+            for (int i = 0; i < meshes.Count; ++i)
+                so.Add(meshes[i], effect);
+            return so;
+        }
+
+        public static SceneObject SceneObjectFromModel(
+            GameContentManager content,
+            string modelName,
+            int maxSubMeshes = 0,
+            Effect effect = null)
         {
             var so = new SceneObject(modelName) { ObjectType = ObjectType.Dynamic };
             try
@@ -63,7 +137,7 @@ namespace Ship_Game.Data.Mesh
                 ModelMeshCollection meshes = model.Meshes;
                 int count = SubMeshCount(maxSubMeshes, meshes.Count);
                 for (int i = 0; i < count; ++i)
-                    so.Add(meshes[i]);
+                    so.Add(meshes[i], effect);
             }
             catch (Exception e)
             {
