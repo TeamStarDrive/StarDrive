@@ -1816,12 +1816,20 @@ namespace Ship_Game
         static readonly Map<BuildRatio, int[]> BuildRatios = new Map<BuildRatio, int[]>();
         static Array<PlanetType> PlanetTypes;
         static Map<int, PlanetType> PlanetTypeMap;
+        static Map<PlanetCategory, PlanetType[]> PlanetTypesByCategory;
 
-        public static PlanetType RandomPlanet() => RandomMath.RandItem(PlanetTypes);
+        public static PlanetType RandomPlanet()
+        {
+            if (PlanetTypes.IsEmpty)
+                throw new InvalidDataException("No defined PlanetTypes!");
+            return RandomMath.RandItem(PlanetTypes);
+        }
 
         public static PlanetType RandomPlanet(PlanetCategory category)
         {
-            return RandomMath.RandItem(PlanetTypes.Filter(p => p.Category == category));
+            if (PlanetTypes.IsEmpty)
+                throw new InvalidDataException("No defined PlanetTypes!");
+            return RandomMath.RandItem(PlanetTypesByCategory[category]);
         }
 
         public static PlanetType PlanetOrRandom(int planetId)
@@ -1829,16 +1837,35 @@ namespace Ship_Game
             return PlanetTypeMap.TryGetValue(planetId, out PlanetType type)
                  ? type : RandomPlanet();
         }
+
         public static PlanetType Planet(int planetId) => PlanetTypeMap[planetId];
+
+        /// <summary>
+        /// Gets a new random moon based on allowed types for host planet
+        /// WARNING: some planets do not allow moons, in which case this will return null
+        /// </summary>
+        public static PlanetType RandomMoon(PlanetType forHostPlanet)
+        {
+            if (forHostPlanet.MoonTypes.Length == 0)
+                throw new InvalidDataException($"No defined MoonTypes for {forHostPlanet.Name}!");
+
+            PlanetCategory c = RandomMath.RandItem(forHostPlanet.MoonTypes);
+            return RandomMath.RandItem(PlanetTypesByCategory[c]);
+        }
 
         static void LoadPlanetTypes()
         {
             GameLoadingScreen.SetStatus("PlanetTypes");
             PlanetTypes = YamlParser.DeserializeArray<PlanetType>("PlanetTypes.yaml");
             PlanetTypes.Sort(p => p.Id);
+
             PlanetTypeMap = new Map<int, PlanetType>(PlanetTypes.Count);
             foreach (PlanetType type in PlanetTypes)
                 PlanetTypeMap[type.Id] = type;
+
+            PlanetTypesByCategory = new Map<PlanetCategory, PlanetType[]>();
+            foreach (PlanetCategory c in Enum.GetValues(typeof(PlanetCategory)))
+                PlanetTypesByCategory[c] = PlanetTypes.Filter(pt => pt.Category == c);
         }
 
         public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone)
