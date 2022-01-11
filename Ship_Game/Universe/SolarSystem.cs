@@ -526,7 +526,8 @@ namespace Ship_Game
                 for (int j = 0; j < ringData.Moons.Count; j++)
                 {
                     float orbitRadius = newOrbital.ObjectRadius * 5 + RandomBetween(1000f, 1500f) * (j + 1);
-                    var moon = new Moon(newOrbital.Guid,
+                    var moon = new Moon(this,
+                                    newOrbital.Guid,
                                     ringData.Moons[j].WhichMoon,
                                     ringData.Moons[j].MoonScale,
                                     orbitRadius,
