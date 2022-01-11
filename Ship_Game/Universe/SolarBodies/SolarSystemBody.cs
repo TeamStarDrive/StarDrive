@@ -341,23 +341,24 @@ namespace Ship_Game
             if (ParentSystem.IsVisible)
             {
                 Zrotate += ZrotateAmount * timeStep.FixedTime;
-                SO.World = Matrix.CreateScale(3f)
-                         * Matrix.CreateScale(Scale)
-                         * Matrix.CreateRotationZ(-Zrotate)
-                         * Matrix.CreateRotationX(-45f.ToRadians())
-                         * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                CloudMatrix = Matrix.CreateScale(3f)
-                            * Matrix.CreateScale(Scale)
-                            * Matrix.CreateRotationZ(-Zrotate / 1.5f)
-                            * Matrix.CreateRotationX(-45f.ToRadians())
-                            * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                RingWorld = Matrix.CreateRotationX(RingTilt.ToRadians())
-                          * Matrix.CreateScale(5f)
-                          * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+                UpdateWorldMatrix();
                 SO.Visibility = ObjectVisibility.Rendered;
             }
             else if (SO != null)  // SO is null in Unit Tests
+            {
                 SO.Visibility = ObjectVisibility.None;
+            }
+        }
+
+        void UpdateWorldMatrix()
+        {
+            var pos3d = Matrix.CreateTranslation(new Vector3(Center, 2500f));
+            var scale = Matrix.CreateScale(Scale * 3f);
+            var tilt = Matrix.CreateRotationX(-45f.ToRadians());
+
+            SO.World    = scale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
+            CloudMatrix = scale * Matrix.CreateRotationZ(-Zrotate / 1.5f) * tilt * pos3d;
+            RingWorld   = Matrix.CreateRotationX(RingTilt.ToRadians()) * Matrix.CreateScale(5f) * pos3d;
         }
 
         protected void CreatePlanetSceneObject()
@@ -369,6 +370,7 @@ namespace Ship_Game
             }
 
             SO = Type.CreatePlanetSO();
+            UpdateWorldMatrix();
             SO.World = Matrix.CreateScale(Scale * 3)
                      * Matrix.CreateTranslation(new Vector3(Center, 2500f));
 

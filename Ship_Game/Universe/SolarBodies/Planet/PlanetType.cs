@@ -52,11 +52,11 @@ namespace Ship_Game
             PlanetModel = planetModel;
             Material = MeshInterface.CreateMaterialEffect(
                 content,
-                $"Mat_Planet_{Id}_{Name}",
-                DiffuseMap,
-                SpecularMap,
-                NormalMap,
-                EmissiveMap,
+                matName:$"Mat_Planet_{Id}_{Name}",
+                diffuse:DiffuseMap,
+                specular:SpecularMap,
+                normal:NormalMap,
+                emissive:EmissiveMap,
                 alpha:"",
                 SpecularPower
             );

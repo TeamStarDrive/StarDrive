@@ -61,6 +61,8 @@ namespace Ship_Game
             rs.AlphaBlendEnable = false;
         }
 
+        // Not quite sure what this "HaloFx" does, however
+        // it seems to add a small shine to the atmosphere
         void DrawPlanetHalo(in Matrix world)
         {
             Matrix haloWorldMatrix = Matrix.CreateScale(3.83f) * world; // 3.83 smaller than clouds
