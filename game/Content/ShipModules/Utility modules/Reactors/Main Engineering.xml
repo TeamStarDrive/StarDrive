@@ -41,7 +41,7 @@
   <ExplosionDamage>20000</ExplosionDamage>
   <ExplosionRadius>160</ExplosionRadius>
   <PowerFlowMax>2100</PowerFlowMax>
-  <PowerStoreMax>6000</PowerStoreMax>
+  <PowerStoreMax>3000</PowerStoreMax>
   <PowerRadius>9</PowerRadius>
 
   <!-- for Engines -->
