@@ -191,7 +191,8 @@ namespace Ship_Game.Data.Mesh
                         }
                         else if (effect is BasicEffect basic && basic.Texture != null)
                         {
-                            string matName = basic.Texture.Name;
+                            // ex: "Model\\SpaceObjects\\arazius3night_0.xnb"
+                            string matName = Path.GetFileNameWithoutExtension(basic.Texture.Name);
                             if (matName.IsEmpty())
                                 matName = name + i;
                             exported[effect] = (long)ExportMaterial(mesh, basic, matName, exportDir);
@@ -209,16 +210,26 @@ namespace Ship_Game.Data.Mesh
 
         Map<Texture2D, string> AlreadySavedTextures = new Map<Texture2D, string>();
 
-        string TrySaveTexture(string modelExportDir, string textureName, Texture2D texture)
+        public bool IsAlreadySavedTexture(Texture2D tex)
+        {
+            return AlreadySavedTextures.ContainsKey(tex);
+        }
+
+        public void AddAlreadySavedTexture(Texture2D tex, string texSavePath)
+        {
+            AlreadySavedTextures[tex] = texSavePath;
+        }
+
+        string TrySaveTexture(string modelExportDir, string matName, string textureName, Texture2D texture)
         {
             if (textureName.IsEmpty() || texture == null)
                 return "";
 
+            string writeTo = Path.Combine(modelExportDir, Path.GetFileName(textureName));
+            writeTo = TexExport.GetSaveAutoFormatPath(texture, writeTo);
+
             lock (texture) // Texture2D.Save will crash if 2 threads try to save the same texture
             {
-                string writeTo = Path.Combine(modelExportDir, Path.GetFileName(textureName));
-                writeTo = TexExport.GetSaveAutoFormatPath(texture, writeTo);
-
                 // This happens a lot. Many ships share a common base texture.
                 if (AlreadySavedTextures.TryGetValue(texture, out string alreadySavedPath))
                 {
@@ -228,7 +239,7 @@ namespace Ship_Game.Data.Mesh
                 AlreadySavedTextures.Add(texture, writeTo);
                 if (!File.Exists(writeTo))
                 {
-                    Log.Write(ConsoleColor.Green, $"  Export Texture: {writeTo}");
+                    Log.Write(ConsoleColor.Green, $"  Export Mesh MaterialTex: {matName} {writeTo}");
                     TexExport.SaveAutoFormat(texture, writeTo);
                 }
 
@@ -236,26 +247,26 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
-        unsafe SdMaterial* ExportMaterial(SdMesh* mesh, BaseMaterialEffect fx, string name, string modelExportDir)
+        unsafe SdMaterial* ExportMaterial(SdMesh* mesh, BaseMaterialEffect fx, string matName, string modelExportDir)
         {
-            string diffusePath  = TrySaveTexture(modelExportDir, fx.DiffuseMapFile,       fx.DiffuseMapTexture);
-            string specularPath = TrySaveTexture(modelExportDir, fx.SpecularColorMapFile, fx.SpecularColorMapTexture);
-            string normalPath   = TrySaveTexture(modelExportDir, fx.NormalMapFile,        fx.NormalMapTexture);
-            string emissivePath = TrySaveTexture(modelExportDir, fx.EmissiveMapFile,      fx.EmissiveMapTexture);
+            string diffusePath  = TrySaveTexture(modelExportDir, matName, fx.DiffuseMapFile,       fx.DiffuseMapTexture);
+            string specularPath = TrySaveTexture(modelExportDir, matName, fx.SpecularColorMapFile, fx.SpecularColorMapTexture);
+            string normalPath   = TrySaveTexture(modelExportDir, matName, fx.NormalMapFile,        fx.NormalMapTexture);
+            string emissivePath = TrySaveTexture(modelExportDir, matName, fx.EmissiveMapFile,      fx.EmissiveMapTexture);
 
-            return SDMeshCreateMaterial(mesh, name, 
+            return SDMeshCreateMaterial(mesh, matName, 
                 diffusePath, alphaPath:"",  specularPath, normalPath, emissivePath, 
                 ambientColor:Vector3.One, fx.DiffuseColor, specularColor:Vector3.One, Vector3.Zero, 
                 fx.SpecularAmount / 16f, fx.Transparency);
         }
 
-        unsafe SdMaterial* ExportMaterial(SdMesh* mesh, BasicEffect fx, string name, string modelExportDir)
+        unsafe SdMaterial* ExportMaterial(SdMesh* mesh, BasicEffect fx, string matName, string modelExportDir)
         {
             string diffusePath, specularPath = "", normalPath = "", emissivePath = "";
             if (fx.Texture == null)
             {
-                string baseName = name.NotEmpty() && char.IsLetter(name[name.Length - 1]) 
-                                ? name.Substring(0, name.Length-1) : name;
+                string baseName = matName.NotEmpty() && char.IsLetter(matName[matName.Length - 1]) 
+                                ? matName.Substring(0, matName.Length-1) : matName;
 
                 diffusePath  = baseName + "_d.png";
                 specularPath = baseName + "_s.png";
@@ -264,10 +275,10 @@ namespace Ship_Game.Data.Mesh
             }
             else
             {
-                diffusePath  = TrySaveTexture(modelExportDir, name+".png", fx.Texture);
+                diffusePath = TrySaveTexture(modelExportDir, matName, matName+".png", fx.Texture);
             }
 
-            return SDMeshCreateMaterial(mesh, name, 
+            return SDMeshCreateMaterial(mesh, matName, 
                 diffusePath, alphaPath:"", specularPath, normalPath, emissivePath, 
                 fx.AmbientLightColor, fx.DiffuseColor, fx.SpecularColor, fx.EmissiveColor, 
                 fx.SpecularPower, fx.Alpha);
