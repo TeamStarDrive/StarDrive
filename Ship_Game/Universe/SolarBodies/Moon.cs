@@ -23,16 +23,16 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] SceneObject So;
         [XmlIgnore][JsonIgnore] Planet OrbitPlanet;
 
-        // Serialize from save game
-        public Moon(SolarSystem system) : base(GameObjectType.Moon)
+        // Serialize from save game (CANNOT HAVE ARGUMENTS!)
+        public Moon() : base(GameObjectType.Moon)
         {
-            SetSystem(system);
         }
 
         // Creating new game:
         public Moon(SolarSystem system, Guid orbitTgt, int moon, float moonScale,
-                    float orbitRadius, float orbitalAngle, Vector2 pos) : this(system)
+                    float orbitRadius, float orbitalAngle, Vector2 pos) : this()
         {
+            SetSystem(system);
             OrbitTarget = orbitTgt;
             MoonId = moon;
             MoonScale = moonScale;
