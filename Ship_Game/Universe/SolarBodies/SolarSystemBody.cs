@@ -367,7 +367,8 @@ namespace Ship_Game
                 Log.Info($"RemoveSolarSystemBody: {Name}");
                 ScreenManager.Instance?.RemoveObject(SO);
             }
-            SO = StaticMesh.GetPlanetarySceneMesh(ResourceManager.RootContent, Type.MeshPath);
+
+            SO = Type.CreatePlanetSO();
             SO.World = Matrix.CreateScale(Scale * 3)
                      * Matrix.CreateTranslation(new Vector3(Center, 2500f));
 
