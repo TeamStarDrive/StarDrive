@@ -13,6 +13,7 @@ namespace Ship_Game
     public class PlanetType
     {
         [StarData] public readonly int Id;
+        [StarData] public readonly string Name; // descriptive name of this PlanetType, used in error message etc
         [StarData] public readonly PlanetCategory Category;
         [StarData] public readonly LocalizedText Composition;
         [StarData] public readonly string IconPath;
@@ -27,7 +28,10 @@ namespace Ship_Game
         [StarData] public readonly float MinBaseFertility; // Clamp(MinFertility, float.Max)
         [StarData] public readonly float Scale = 0f;
 
-        public override string ToString() => $"PlanetType {Id} {Category} {IconPath} {MeshPath}";
+        // Allowed moon types for this planet
+        [StarData] public readonly PlanetCategory[] MoonTypes = Empty<PlanetCategory>.Array;
+
+        public override string ToString() => $"PlanetType {Id} {Name} {Category} {IconPath} {MeshPath}";
     }
 
     public enum PlanetGlow

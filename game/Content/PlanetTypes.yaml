@@ -1,6 +1,7 @@
 # Barren planets
 - PlanetType:
   Id: 3 # this is the legacy planet ID
+  Name: Barren_3 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Barren
   Composition: 1702
   IconPath: Planets/3
@@ -9,9 +10,11 @@
   HabitableTileChance: 1
   PopPerTile: [50, 100]
   BaseFertility: 0
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 4
+  Name: Barren_4 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Barren
   Composition: 1702
   IconPath: Planets/4
@@ -20,9 +23,11 @@
   HabitableTileChance: 2
   PopPerTile: [50, 150]
   BaseFertility: 0
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 5 # Venus
+  Name: Barren_Venus
   Category: Barren
   Composition: 1703
   IconPath: Planets/5
@@ -33,9 +38,11 @@
   HabitableTileChance: 1
   PopPerTile: [50, 200]
   BaseFertility: 0
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 7 # Mercury
+  Name: Barren_Mercury
   Category: Barren
   Composition: 1704
   IconPath: Planets/7
@@ -45,9 +52,11 @@
   HabitableTileChance: 1
   PopPerTile: [50, 100]
   BaseFertility: 0
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 8 # Mars
+  Name: Barren_Mars
   Category: Barren
   Composition: 1703
   IconPath: Planets/8
@@ -57,10 +66,12 @@
   HabitableTileChance: 5
   PopPerTile: [150, 300]
   BaseFertility: 0
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Barren Planet with some chance for habitable tiles
 - PlanetType:
   Id: 16
+  Name: Barren_16
   Category: Barren
   Composition: 1712
   IconPath: Planets/16
@@ -70,9 +81,11 @@
   HabitableTileChance: 5
   PopPerTile: [50, 100]
   BaseFertility: 0
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 24
+  Name: Barren_24
   Category: Barren
   Composition: 1719
   IconPath: Planets/24
@@ -81,9 +94,11 @@
   HabitableTileChance: 0
   PopPerTile: [75, 125]
   BaseFertility: 0
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 20 # Moon, rocky barren
+  Name: Barren_Luna
   Category: Barren
   Composition: 1711
   IconPath: Planets/20
@@ -92,27 +107,33 @@
   HabitableTileChance: 0
   PopPerTile: [50, 100]
   BaseFertility: 0
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Volcanic
 - PlanetType:
   Id: 9
+  Name: Volcanic_9
   Category: Volcanic
   Composition: 1705
   IconPath: Planets/9
   MeshPath: Model/SpaceObjects/planet_9
   Glow: Red
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 23 # Kahless
+  Name: Volcanic_Kahless
   Category: Volcanic
   Composition: 1718
   IconPath: Planets/23
   MeshPath: Model/SpaceObjects/planet_23
   Glow: Red
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Ice
 - PlanetType:
   Id: 17 # Kholin:Jasnah
+  Name: Ice_Jasnah
   Category: Ice
   Composition: 1713
   IconPath: Planets/17
@@ -123,10 +144,12 @@
   PopPerTile: [250, 400]
   BaseFertility: [0.5, 1.0]
   MinBaseFertility: 0.7
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Ice, better pop but less tiles
 - PlanetType:
   Id: 32 
+  Name: Ice_32 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Ice
   Composition: 1713
   IconPath: Planets/17
@@ -136,10 +159,12 @@
   HabitableTileChance: [25, 60]
   PopPerTile: [100, 300]
   BaseFertility: [-0.25, 0.5]
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Ice, almost barren
 - PlanetType:
   Id: 33 
+  Name: Ice_17 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Ice
   Composition: 1713
   IconPath: Planets/17
@@ -149,10 +174,12 @@
   HabitableTileChance: [20, 50]
   PopPerTile: [50, 150]
   BaseFertility: [-0.5, 0.25]
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Swamp
 - PlanetType:
   Id: 19 # Polmar:Sporl
+  Name: Swamp_Sporl
   Category: Swamp
   Composition: 1715
   IconPath: Planets/19
@@ -164,10 +191,12 @@
   PopPerTile: [200, 400]
   BaseFertility: [0.5, 1.5]
   MinBaseFertility: 1.0
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Swamp, slightly harsher
 - PlanetType:
   Id: 34
+  Name: Swamp_34 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Swamp
   Composition: 1715
   IconPath: Planets/19
@@ -179,10 +208,12 @@
   PopPerTile: [100, 200]
   BaseFertility: [-0.5, 1.5]
   MinBaseFertility: 0.25
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Swamp, wider magrins on this planet
 - PlanetType:
-  Id: 35 
+  Id: 35
+  Name: Swamp_35 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Swamp
   Composition: 1715
   IconPath: Planets/19
@@ -194,10 +225,12 @@
   PopPerTile: [100, 500]
   BaseFertility: [-0.25, 1]
   MinBaseFertility: 0.25
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Oceanic 
 - PlanetType:
   Id: 21
+  Name: Oceanic_21 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Oceanic
   Composition: 1716
   IconPath: Planets/21
@@ -209,10 +242,12 @@
   PopPerTile: [200, 400]
   BaseFertility: [-1.0, 2.5]
   MinBaseFertility: 0.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
     
 # Oceanic, more oceans so less tiles 
 - PlanetType:
   Id: 36
+  Name: Oceanic_36 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Oceanic
   Composition: 1716
   IconPath: Planets/21
@@ -224,10 +259,12 @@
   PopPerTile: [100, 300]
   BaseFertility: [-0.5, 2]
   MinBaseFertility: 0.3
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Oceanic, many isle, so more tiles but less pop 
 - PlanetType:
   Id: 37
+  Name: Oceanic_37 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Oceanic
   Composition: 1716
   IconPath: Planets/21
@@ -238,10 +275,12 @@
   HabitableTileChance: [50, 85]
   PopPerTile: [150, 250]
   BaseFertility: [0.25, 1]
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Desert
 - PlanetType:
   Id: 14 # Mradeep:Arrachus
+  Name: Desert_Arrachus
   Category: Desert
   Composition: 1710
   IconPath: Planets/14
@@ -252,10 +291,12 @@
   PopPerTile: [100, 450]
   BaseFertility: [-1.0, 1]
   MinBaseFertility: 0.4
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
   
 # Desert
 - PlanetType:
   Id: 30
+  Name: Desert_30 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Desert
   Composition: 1710
   IconPath: Planets/14
@@ -266,10 +307,12 @@
   PopPerTile: [75, 300]
   BaseFertility: [-0.1, 0.5]
   MinBaseFertility: 0.25
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Desert, big (tatooine style)
 - PlanetType:
   Id: 38
+  Name: Desert_Tatooine
   Category: Desert
   Composition: 1710
   IconPath: Planets/14
@@ -281,10 +324,12 @@
   BaseFertility: [-0.25, 0.25]
   MinBaseFertility: 0.1
   Scale: 1.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
   
 # Tundra
 - PlanetType:
   Id: 11 # Pandora, Rathi:Bul
+  Name: Tundra_Pandora
   Category: Tundra
   Composition: 1707
   IconPath: Planets/11
@@ -295,10 +340,12 @@
   HabitableTileChance: [15, 30]
   PopPerTile: [300, 500]
   BaseFertility: [0.5, 1.0]
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
   
-# Tundra, harsg
+# Tundra, harsh
 - PlanetType:
-  Id: 39 
+  Id: 39
+  Name: Tundra_Harsh
   Category: Tundra
   Composition: 1707
   IconPath: Planets/11
@@ -309,10 +356,12 @@
   HabitableTileChance: [20, 45]
   PopPerTile: [150, 600]
   BaseFertility: [0.25, 0.5]
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Tundra, dense
 - PlanetType:
-  Id: 40 
+  Id: 40
+  Name: Tundra_Dense
   Category: Tundra
   Composition: 1707
   IconPath: Planets/11
@@ -323,10 +372,12 @@
   HabitableTileChance: [35, 65]
   PopPerTile: [125, 250]
   BaseFertility: [0.25, 1.5]
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
   
 # Steppe
 - PlanetType:
   Id: 18
+  Name: Steppe_18 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Steppe
   Composition: 1714
   IconPath: Planets/18
@@ -338,10 +389,12 @@
   PopPerTile: [150, 600]
   BaseFertility: [0.25, 2.1]
   MinBaseFertility: 0.8
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
   
 # Steppe
 - PlanetType:
   Id: 41
+  Name: Steppe_41 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Steppe
   Composition: 1714
   IconPath: Planets/18
@@ -352,10 +405,12 @@
   HabitableTileChance: [15, 45]
   PopPerTile: [200, 400]
   BaseFertility: [0.25, 1.0]
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Steppe
 - PlanetType:
   Id: 42
+  Name: Steppe_42 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Steppe
   Composition: 1714
   IconPath: Planets/18
@@ -366,10 +421,12 @@
   HabitableTileChance: [35, 70]
   PopPerTile: [200, 500]
   BaseFertility: [-0.5, 1.5]
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Terran
 - PlanetType:
   Id: 1
+  Name: Terran_1 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Terran
   Composition: 1700
   IconPath: Planets/1
@@ -380,9 +437,11 @@
   HabitableTileChance: 10
   PopPerTile: [200, 500]
   BaseFertility: [0.4, 0.75]
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 13
+  Name: Terran_13 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Terran
   Composition: 1709
   IconPath: Planets/13
@@ -394,9 +453,11 @@
   HabitableTileChance: 75
   PopPerTile: [500, 750]
   BaseFertility: [0.5, 1.5]
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 22 # Kholin:Adolin
+  Name: Terran_Adolin
   Category: Terran
   Composition: 1717
   IconPath: Planets/22
@@ -409,9 +470,11 @@
   PopPerTile: [300, 600]
   BaseFertility: [0.2, 1.5]
   MinBaseFertility: 0.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 25
+  Name: Terran_25 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Terran
   Composition: 1720
   IconPath: Planets/25
@@ -423,9 +486,11 @@
   PopPerTile: [300, 600]
   BaseFertility: [-0.2, 1.5]
   MinBaseFertility: 0.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 27 # Rathi:Tor
+  Name: Terran_Tor
   Category: Terran
   Composition: 1721
   IconPath: Planets/27
@@ -437,9 +502,11 @@
   PopPerTile: [450, 700]
   BaseFertility: [-5.0, 3.0]
   MinBaseFertility: 1.0
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 29
+  Name: Terran_29 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
   Category: Terran
   Composition: 1722
   IconPath: Planets/29
@@ -451,60 +518,75 @@
   PopPerTile: [300, 500]
   BaseFertility: [-3.0, 1.2]
   MinBaseFertility: 0.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # GasGiants
 - PlanetType:
   Id: 2 # Less Stripey Light Beige Giant
+  Name: GasGiant_LightBeige
   Category: GasGiant
   Composition: 1701
   IconPath: Planets/2
   MeshPath: Model/SpaceObjects/planet_2
   Scale: 2.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 6 # Blood Red Giant
+  Name: GasGiant_BloodRed
   Category: GasGiant
   Composition: 1701
   IconPath: Planets/6
   MeshPath: Model/SpaceObjects/planet_6
   Scale: 2.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 10 # Yellow Giant
+  Name: GasGiant_Yellow
   Category: GasGiant
   Composition: 1706
   IconPath: Planets/10
   MeshPath: Model/SpaceObjects/planet_10
   Scale: 2.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 12 # Pink Giant
+  Name: GasGiant_Pink
   Category: GasGiant
   Composition: 1708
   IconPath: Planets/12
   MeshPath: Model/SpaceObjects/planet_12
   Scale: 2.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
+
 - PlanetType:
   Id: 15 # Polyphemus, Uranus, Cyan/LightBlue giant
+  Name: GasGiant_Uranus
   Category: GasGiant
   Composition: 1711
   IconPath: Planets/15
   MeshPath: Model/SpaceObjects/planet_15
   Scale: 2.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 26 # Neptune, Blue giant
+  Name: GasGiant_Neptune
   Category: GasGiant
   Composition: 1711
   IconPath: Planets/26
   MeshPath: Model/SpaceObjects/planet_26
   Scale: 2.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
   Id: 28 # Jupiter, striped beige giant
+  Name: GasGiant_Jupiter
   Category: GasGiant
   Composition: 1710
   IconPath: Planets/28
   MeshPath: Model/SpaceObjects/planet_28
-  Habitable: false
   Scale: 2.5
+  MoonTypes: [Barren,Desert,Volcanic,Ice]

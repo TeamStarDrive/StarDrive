@@ -573,15 +573,20 @@ namespace Ship_Game
             Owner.TryTransferCapital(thisPlanet);
         }
 
-        protected void GenerateMoons(Planet newOrbital)
+        protected void GenerateMoons(SolarSystem system, Planet newOrbital)
         {
-            int moonCount = (int)Math.Ceiling(ObjectRadius * .004f);
-            moonCount = (int)Math.Round(RandomMath.AvgRandomBetween(-moonCount * .75f, moonCount));
+            if (newOrbital.Type.MoonTypes.Length == 0)
+                return; // this planet does not support moons
+
+            int moonCount = (int)Math.Ceiling(ObjectRadius * 0.004f);
+            moonCount = (int)Math.Round(RandomMath.AvgRandomBetween(-moonCount * 0.75f, moonCount));
             for (int j = 0; j < moonCount; j++)
             {
+                PlanetType moonType = ResourceManager.RandomMoon(newOrbital.Type);
                 float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
-                var moon = new Moon(newOrbital.Guid,
-                                    RandomMath.IntBetween(1, 29),
+                var moon = new Moon(system,
+                                    newOrbital.Guid,
+                                    moonType.Id,
                                     1f, orbitRadius,
                                     RandomMath.RandomBetween(0f, 360f),
                                     newOrbital.Center.GenerateRandomPointOnCircle(orbitRadius));

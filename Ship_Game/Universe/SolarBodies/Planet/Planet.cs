@@ -298,7 +298,7 @@ namespace Ship_Game
             Center = system.Position + MathExt.PointOnCircle(randomAngle, ringRadius);
             PlanetTilt = RandomMath.RandomBetween(45f, 135f);
 
-            GenerateMoons(this);
+            GenerateMoons(system, newOrbital:this);
 
             if (RandomMath.RandomBetween(1f, 100f) < 15f)
             {
