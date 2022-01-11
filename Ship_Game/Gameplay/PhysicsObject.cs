@@ -138,8 +138,15 @@ namespace Ship_Game.Gameplay
             {
                 PrecisionStop(ref acc, thrustDir, a.Velocity, a);
             }
-            else if (a.Velocity >= a.MaxVelocity) // we are at the speed limit already
+            // If ship is traveling backwards or sideways, set max velocity to 0.5x
+            float maxVelocity = a.Travel < -0.15f ? a.MaxVelocity * 0.6f : a.MaxVelocity;
+
+            if (ThrustThisFrame == Thrust.AllStop)
             {
+                PrecisionStop(ref acc, thrustDir, a.Velocity, a);
+            }
+                else if (a.Velocity >= maxVelocity) // we are at the speed limit already
+                {
                 // in order to have direction control at max velocity limit
                 // we spend use thrust to slow down in velocity dir and thrust to speed up in wanted dir
                 // if we are already facing wanted direction, then this is a no-op

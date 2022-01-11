@@ -144,14 +144,14 @@ namespace Ship_Game
             var hit = new Vector3(ActualHitDestination, BeamZ);
             if (BeamCollidedThisFrame) // a cool hit effect
             {
-                u.Particles.Sparks.AddParticle(hit, new Vector3(50f));
-                u.Particles.FireTrail.AddParticle(hit, new Vector3(50f));
-                u.Particles.FireTrail.AddParticle(hit, Vector3.Zero);
+                u.Particles.Sparks.AddParticle(hit, new Vector3(20f));
+                u.Particles.SmallFire.AddParticle(hit, new Vector3(10f));
+                u.Particles.SmallFire.AddParticle(hit, Vector3.Zero);
             }
             else // dispersion effect
             {
-                u.Particles.Sparks.AddParticle(hit, Vector3.Zero);
-                u.Particles.Sparks.AddParticle(hit, Vector3.Zero);
+                u.Particles.Lightning.AddParticle(hit, Vector3.Zero);
+                u.Particles.Lightning.AddParticle(hit, Vector3.Zero);
             }
 
             device.VertexDeclaration = QuadVertexDecl;
