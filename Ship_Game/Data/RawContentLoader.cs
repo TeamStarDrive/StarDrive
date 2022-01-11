@@ -178,16 +178,21 @@ namespace Ship_Game.Data
                     if (isTexture2D)
                     {
                         var tex = Content.Load<Texture2D>(relativePath);
-                        string texSavePath = TexExport.GetSaveAutoFormatPath(tex, savePath);
-                        Log.Write(ConsoleColor.Green, $"  Export Texture: {texSavePath}");
-                        GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
-                        TexExport.SaveAutoFormat(tex, texSavePath);
+                        if (!MeshExport.IsAlreadySavedTexture(tex))
+                        {
+                            string texSavePath = TexExport.GetSaveAutoFormatPath(tex, savePath);
+                            texSavePath = texSavePath.Replace("_0.", ".");
+                            Log.Write(ConsoleColor.Green, $"  Export Lone Texture: {texSavePath}");
+                            GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
+                            TexExport.SaveAutoFormat(tex, texSavePath);
+                            MeshExport.AddAlreadySavedTexture(tex, texSavePath);
+                        }
                     }
                     else
                     {
                         var tex3d = Content.Load<Texture3D>(relativePath);
                         string texSavePath = Path.ChangeExtension(savePath, "dds");
-                        Log.Write(ConsoleColor.DarkYellow, $"  Export Texture3D: {texSavePath}");
+                        Log.Write(ConsoleColor.DarkYellow, $"  Export Lone Texture3D: {texSavePath}");
                         GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
                         TexExport.Save(tex3d, texSavePath);
                     }
