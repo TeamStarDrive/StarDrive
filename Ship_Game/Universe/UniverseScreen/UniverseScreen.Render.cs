@@ -65,7 +65,11 @@ namespace Ship_Game
                     {
                         for (int i = 0; i < solarSystem.PlanetList.Count; i++)
                         {
-                            DrawPlanetInSectorView(solarSystem.PlanetList[i]);
+                            Planet planet = solarSystem.PlanetList[i];
+                            if (Frustum.Contains(planet.Center, planet.ObjectRadius*2f))
+                            {
+                                DrawPlanetInSectorView(batch, planet);
+                            }
                         }
                     }
                 }
@@ -149,21 +153,14 @@ namespace Ship_Game
             }
         }
 
-        void DrawPlanetInSectorView(Planet planet)
+        void DrawPlanetInSectorView(SpriteBatch batch, Planet planet)
         {
-            ProjectToScreenCoords(planet.Center, 2500f, planet.SO.WorldBoundingSphere.Radius,
+            ProjectToScreenCoords(planet.Center, 2500f, planet.ObjectRadius,
                                   out Vector2d planetScreenPos, out double planetScreenRadius);
-            Vector2 pos = planetScreenPos.ToVec2fRounded();
-            float scale = (float)(planetScreenRadius / 115.0);
+            Vector2 pos = planetScreenPos.ToVec2f();
 
-            // atmospheric glow
             if (planet.Type.Glow != PlanetGlow.None)
-            {
-                SubTexture glow = Glows[planet.Type.Glow];
-                ScreenManager.SpriteBatch.Draw(glow, pos,
-                    Color.White, 0.0f, new Vector2(128f, 128f), scale,
-                    SpriteEffects.None, 1f);
-            }
+                DrawAtmosphericGlow(batch, planet, pos, (float)planetScreenRadius);
 
             lock (GlobalStats.ClickableSystemsLock)
             {

@@ -481,18 +481,6 @@ namespace Ship_Game
             SimThread.Start();
         }
 
-        void CreatePlanetsLookupTable()
-        {
-            PlanetsDict.Clear();
-            SolarSystemDict.Clear();
-            foreach (SolarSystem solarSystem in SolarSystemList)
-            {
-                SolarSystemDict.Add(solarSystem.Guid, solarSystem);
-                foreach (Planet planet in solarSystem.PlanetList)
-                    PlanetsDict.Add(planet.Guid, planet);
-            }
-        }
-
         void CreateStationTethers()
         {
             foreach (Ship ship in GetMasterShipList())
@@ -513,19 +501,24 @@ namespace Ship_Game
         {
             anomalyManager = new AnomalyManager();
 
-            foreach (SolarSystem solarSystem in SolarSystemList)
+            foreach (SolarSystem system in SolarSystemList)
             {
-                foreach (Anomaly anomaly in solarSystem.AnomaliesList)
+                foreach (Anomaly anomaly in system.AnomaliesList)
                 {
                     if (anomaly.type == "DP")
                     {
-                        anomalyManager.AnomaliesList.Add(new DimensionalPrison(this, solarSystem.Position + anomaly.Position));
+                        anomalyManager.AnomaliesList.Add(new DimensionalPrison(this, system.Position + anomaly.Position));
                     }
                 }
 
                 foreach (Empire empire in EmpireManager.ActiveEmpires)
                 {
-                    solarSystem.UpdateFullyExploredBy(empire);
+                    system.UpdateFullyExploredBy(empire);
+                }
+
+                foreach (Planet planet in system.PlanetList)
+                {
+                    planet.InitializePlanetMesh();
                 }
             }
         }

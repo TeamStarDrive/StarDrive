@@ -361,12 +361,12 @@ namespace Ship_Game.Data.Mesh
             fx.EmissiveMapFile       = mat->EmissivePath.AsString;
             fx.NormalMapFile         = mat->NormalPath.AsString;
             fx.SpecularColorMapFile  = mat->SpecularPath.AsString;
-            fx.DiffuseAmbientMapFile = "";
-            fx.ParallaxMapFile       = "";
-            if (fx.DiffuseMapFile.NotEmpty())        fx.DiffuseMapTexture        = content.Load<Texture2D>(fx.DiffuseMapFile);
-            if (fx.EmissiveMapFile.NotEmpty())       fx.EmissiveMapTexture       = content.Load<Texture2D>(fx.EmissiveMapFile);
-            if (fx.NormalMapFile.NotEmpty())         fx.NormalMapTexture         = content.Load<Texture2D>(fx.NormalMapFile);
-            if (fx.SpecularColorMapFile.NotEmpty())  fx.SpecularColorMapTexture  = content.Load<Texture2D>(fx.SpecularColorMapFile);
+            //fx.DiffuseAmbientMapFile = "";
+            //fx.ParallaxMapFile       = "";
+            fx.DiffuseMapTexture = TryLoadTexture(content, fx.DiffuseMapFile);
+            fx.EmissiveMapTexture = TryLoadTexture(content, fx.EmissiveMapFile);
+            fx.NormalMapTexture = TryLoadTexture(content, fx.NormalMapFile);
+            fx.SpecularColorMapTexture = TryLoadTexture(content, fx.SpecularColorMapFile);
             //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
             //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
             fx.Skinned         = false;
@@ -410,12 +410,12 @@ namespace Ship_Game.Data.Mesh
             fx.EmissiveMapFile       = emissive;
             fx.NormalMapFile         = normal;
             fx.SpecularColorMapFile  = specular;
-            fx.DiffuseAmbientMapFile = "";
-            fx.ParallaxMapFile       = "";
-            if (fx.DiffuseMapFile.NotEmpty())        fx.DiffuseMapTexture        = content.Load<Texture2D>(fx.DiffuseMapFile);
-            if (fx.EmissiveMapFile.NotEmpty())       fx.EmissiveMapTexture       = content.Load<Texture2D>(fx.EmissiveMapFile);
-            if (fx.NormalMapFile.NotEmpty())         fx.NormalMapTexture         = content.Load<Texture2D>(fx.NormalMapFile);
-            if (fx.SpecularColorMapFile.NotEmpty())  fx.SpecularColorMapTexture  = content.Load<Texture2D>(fx.SpecularColorMapFile);
+            //fx.DiffuseAmbientMapFile = "";
+            //fx.ParallaxMapFile       = "";
+            fx.DiffuseMapTexture = TryLoadTexture(content, fx.DiffuseMapFile);
+            fx.EmissiveMapTexture = TryLoadTexture(content, fx.EmissiveMapFile);
+            fx.NormalMapTexture = TryLoadTexture(content, fx.NormalMapFile);
+            fx.SpecularColorMapTexture = TryLoadTexture(content, fx.SpecularColorMapFile);
             //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
             //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
             fx.Skinned     = false;
@@ -429,14 +429,22 @@ namespace Ship_Game.Data.Mesh
             fx.FresnelReflectBias            = 0.0f;
             fx.FresnelReflectOffset          = 0.0f;
             fx.FresnelMicrofacetDistribution = 0.0f;
-            fx.ParallaxScale                 = 0.0f;
+            fx.ParallaxScale                 = 1.0f;
             fx.ParallaxOffset                = 0.0f;
+            fx.DiffuseColor = Vector3.One;
             //fx.DiffuseColor  = diffuseColor;
             //fx.EmissiveColor = mat->EmissiveColor;
-            fx.AddressModeU  = TextureAddressMode.Wrap;
-            fx.AddressModeV  = TextureAddressMode.Wrap;
-            fx.AddressModeW  = TextureAddressMode.Wrap;
+            //fx.AddressModeU  = TextureAddressMode.Wrap;
+            //fx.AddressModeV  = TextureAddressMode.Wrap;
+            //fx.AddressModeW  = TextureAddressMode.Wrap;
             return fx;
+        }
+
+        static Texture2D TryLoadTexture(GameContentManager content, string texturePath)
+        {
+            if (texturePath.IsEmpty())
+                return null;
+            return content.Load<Texture2D>(texturePath);
         }
     }
 }
