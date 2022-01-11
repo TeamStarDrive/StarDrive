@@ -171,38 +171,48 @@ namespace Ship_Game.Data.Mesh
 
         void SetBones(Model model, ModelBone[] bones)
         {
-            var bonesCollection = (ModelBoneCollection)Activator.CreateInstance(typeof(ModelBoneCollection), args:new object[]{ bones });
-            model.GetType().GetField("bones", BindingFlags.NonPublic).SetValue(model, bonesCollection);
-            model.GetType().GetField("root", BindingFlags.NonPublic).SetValue(model, bones[0]);
+            var bonesCollection = DynamicCtor<ModelBoneCollection>(new object[]{ bones });
+
+            typeof(Model).GetField("bones", BindingFlags.NonPublic|BindingFlags.Instance).SetValue(model, bonesCollection);
+            typeof(Model).GetField("root", BindingFlags.NonPublic|BindingFlags.Instance).SetValue(model, bones[0]);
         }
 
         void SetMeshes(Model model, Array<ModelMesh> meshes)
         {
             ModelMesh[] meshArray = meshes.ToArray();
-            var meshCollection = (ModelMeshCollection)Activator.CreateInstance(typeof(ModelMeshCollection), args:new object[]{ meshArray });
-            model.GetType().GetField("meshes", BindingFlags.NonPublic).SetValue(model, meshCollection);
+            var meshCollection = DynamicCtor<ModelMeshCollection>(new object[]{ meshArray });
+
+            typeof(Model).GetField("meshes", BindingFlags.NonPublic|BindingFlags.Instance).SetValue(model, meshCollection);
         }
 
-        ModelMesh CreateNewModelMesh(
-            string name, ModelBone parentBone, BoundingSphere boundingSphere, VertexBuffer vertexBuffer, IndexBuffer indexBuffer, ModelMeshPart[] meshParts)
+        static ModelMesh CreateNewModelMesh(
+            string name, ModelBone parentBone, BoundingSphere boundingSphere, 
+            VertexBuffer vertexBuffer, IndexBuffer indexBuffer, ModelMeshPart[] meshParts)
         {
-            return (ModelMesh)Activator.CreateInstance(
-                typeof(ModelMesh), name, parentBone, boundingSphere, vertexBuffer, indexBuffer, meshParts, new object()
-            );
+            return DynamicCtor<ModelMesh>(name, parentBone, boundingSphere,
+                                          vertexBuffer, indexBuffer, meshParts, new object());
         }
 
-        ModelMeshPart CreateModelMeshPart(
-            int streamOffset, int baseVertex, int numVertices, int startIndex, int primitiveCount, VertexBuffer vertexBuffer, IndexBuffer indexBuffer, VertexDeclaration vertexDeclaration)
+        static ModelMeshPart CreateModelMeshPart(
+            int streamOffset, int baseVertex, int numVertices, int startIndex, int primitiveCount,
+            VertexBuffer vertexBuffer, IndexBuffer indexBuffer, VertexDeclaration vertexDeclaration)
         {
-            return (ModelMeshPart)Activator.CreateInstance(
-                typeof(ModelMeshPart), streamOffset, baseVertex, numVertices, startIndex, primitiveCount, vertexBuffer, indexBuffer, vertexDeclaration
-            );
+            return DynamicCtor<ModelMeshPart>(streamOffset, baseVertex, numVertices, startIndex, primitiveCount,
+                                              vertexBuffer, indexBuffer, vertexDeclaration, new object());
         }
 
-        ModelBone CreateModelBone(string name, Matrix transform, int index)
+        static ModelBone CreateModelBone(string name, Matrix transform, int index)
         {
-            return (ModelBone)Activator.CreateInstance(typeof(ModelBone), name, transform, index);
+            return DynamicCtor<ModelBone>(name, transform, index);
         }
 
+        static T DynamicCtor<T>(params object[] arguments)
+        {
+            Type[] argTypes = arguments.Select(o => o.GetType());
+            var ctor = typeof(T).GetConstructor(BindingFlags.NonPublic|BindingFlags.Instance, null, argTypes, null);
+            if (ctor == null)
+                throw new InvalidOperationException($"No suitable constructor found: {typeof(T).Name}({string.Join(",", argTypes.Select(t => t.Name))})");
+            return (T)ctor.Invoke(arguments);
+        }
     }
 }
