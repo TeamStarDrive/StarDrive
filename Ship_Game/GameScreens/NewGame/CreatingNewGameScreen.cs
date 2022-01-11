@@ -219,28 +219,6 @@ namespace Ship_Game
 
         }
 
-        void SubmitSceneObjects(ProgressCounter step)
-        {
-            step.Start(Data.SolarSystemsList.Count);
-            for (int i = 0; i < Data.SolarSystemsList.Count; ++i)
-            {
-                step.Advance();
-                SolarSystem wipSystem = Data.SolarSystemsList[i];
-                
-                foreach (Planet planet in wipSystem.PlanetList)
-                {
-                    planet.ParentSystem = wipSystem;
-                    planet.Center += wipSystem.Position;
-                    planet.InitializePlanetMesh();
-                }
-                foreach (Asteroid asteroid in wipSystem.AsteroidsList)
-                {
-                    asteroid.Position += wipSystem.Position;
-                }
-            }
-            step.Finish();
-        }
-
         void GenerateInitialSystemData(ProgressCounter step)
         {
             // expected times of each step
@@ -458,9 +436,8 @@ namespace Ship_Game
 
         void GenerateSystems()
         {
-            Progress.Start(0.5f, 0.3f, 0.2f);
+            Progress.Start(0.65f, 0.35f);
             GenerateInitialSystemData(Progress.NextStep());
-            SubmitSceneObjects(Progress.NextStep());
             FinalizeSolarSystems();
             FinalizeEmpires(Progress.NextStep());
             Progress.Finish();
@@ -473,8 +450,7 @@ namespace Ship_Game
             };
 
             Log.Info(ConsoleColor.Blue,    $"  GenerateInitialSystemData elapsed: {Progress[0].ElapsedMillis}ms");
-            Log.Info(ConsoleColor.Blue,    $"  SubmitSceneObjects        elapsed: {Progress[1].ElapsedMillis}ms");
-            Log.Info(ConsoleColor.Blue,    $"  FinalizeEmpires           elapsed: {Progress[2].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.Blue,    $"  FinalizeEmpires           elapsed: {Progress[1].ElapsedMillis}ms");
             Log.Info(ConsoleColor.DarkRed, $"TOTAL GenerateSystems       elapsed: {Progress.ElapsedMillis}ms");
         }
 

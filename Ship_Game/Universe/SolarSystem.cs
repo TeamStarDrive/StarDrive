@@ -344,17 +344,6 @@ namespace Ship_Game
             //Log.Info($"The {empire.Name} have fully explored {Name}");
         }
 
-        public bool ShouldSniffAroundIt(Empire empire)
-        {
-            if (empire.KnownEnemyStrengthIn(this) > 10)
-            {
-                if (!IsFullyExploredBy(empire))
-                    return true;
-            }
-
-            return false;
-        }
-
         public Planet FindPlanet(in Guid planetGuid)
         {
             if (planetGuid != Guid.Empty)
@@ -373,13 +362,13 @@ namespace Ship_Game
                 ? SunType.FindSun("star_binary")
                 : SunType.RandomHabitableSun(s => s.Id != "star_binary");
 
-            Name              = name;
-            int starRadius    = (int)(IntBetween(250, 500) * systemScale);
-            float ringMax     = starRadius * 300;
-            float ringBase    = ringMax * 0.1f;
-            int minR          = AvgRandomBetween(GlobalStats.ExtraPlanets, 3, iterations: 2);
-            int maxR          = IntBetween(minR, 7 + minR);
-            NumberOfRings     = IntBetween(minR, maxR);
+            Name = name;
+            int starRadius = (int)(IntBetween(250, 500) * systemScale);
+            float ringMax = starRadius * 300;
+            float ringBase = ringMax * 0.1f;
+            int minR = AvgRandomBetween(GlobalStats.ExtraPlanets, 3, iterations: 2);
+            int maxR = IntBetween(minR, 7 + minR);
+            NumberOfRings = IntBetween(minR, maxR);
 
             // when generating homeworld systems, we want at least 5 rings
             if (owner != null)
@@ -444,7 +433,7 @@ namespace Ship_Game
                 Sun = SunType.RandomBarrenSun();
             }
 
-            UpdateSystemRadius();
+            FinalizeGeneratedSystem();
         }
 
         public void GenerateStartingSystem(string name, float systemScale, Empire owner)
@@ -499,7 +488,7 @@ namespace Ship_Game
                     OrbitalAngle       = randomAngle,
                     ParentSystem       = this,
                     SpecialDescription = ringData.SpecialDescription,
-                    Center             = MathExt.PointOnCircle(randomAngle, orbitalDistance),
+                    Center             = Position.PointFromAngle(randomAngle, orbitalDistance),
                     ObjectRadius       = planetRadius,
                     OrbitalRadius      = orbitalDistance,
                     PlanetTilt         = RandomBetween(45f, 135f)
@@ -509,8 +498,6 @@ namespace Ship_Game
                     newOrbital.GeneratePlanetFromSystemData(ringData, type, scale);
                 else // home planet
                     newOrbital.GenerateNewHomeWorld(owner, ringData.MaxPopDefined);
-
-                newOrbital.InitializePlanetMesh();
 
                 if (ringData.HasRings != null)
                 {
@@ -545,7 +532,7 @@ namespace Ship_Game
                 });
             }
             
-            UpdateSystemRadius();
+            FinalizeGeneratedSystem();
         }
 
         public static SolarSystem GenerateSystemFromData(SolarSystemData data, Empire owner)
@@ -559,7 +546,7 @@ namespace Ship_Game
             return newSys;
         }
 
-        void UpdateSystemRadius()
+        void FinalizeGeneratedSystem()
         {
             Radius = MinRadius;
             if (!RingList.IsEmpty)
@@ -670,8 +657,8 @@ namespace Ship_Game
             AsteroidsList.Capacity += numberOfAsteroids;
             for (int i = 0; i < numberOfAsteroids; ++i)
             {
-                AsteroidsList.Add(new Asteroid(scaleMin, scaleMax,
-                    GenerateAsteroidPos(orbitalDistance, spread)));
+                var pos = GenerateAsteroidPos(orbitalDistance, spread);
+                AsteroidsList.Add(new Asteroid(scaleMin, scaleMax, pos));
             }
             RingList.Add(new Ring
             {

@@ -180,7 +180,6 @@ namespace Ship_Game.GameScreens.LoadGame
 
             EmpireHullBonuses.RefreshBonuses();
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep());
-            CreateSceneObjects(data);
             AllSystemsLoaded(us, data, step.NextStep());
 
             step.NextStep().Start(1); // This last step is a mess, using arbitrary count
@@ -234,19 +233,6 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        void CreateSceneObjects(UniverseData data)
-        {
-            for (int i = 0; i < data.SolarSystemsList.Count; ++i)
-            {
-                SolarSystem system = data.SolarSystemsList[i];
-                foreach (Planet p in system.PlanetList)
-                {
-                    p.ParentSystem = system;
-                    p.InitializePlanetMesh();
-                }
-            }
-        }
-
         void AllSystemsLoaded(UniverseScreen us, UniverseData data, ProgressCounter step)
         {
             Stopwatch s = Stopwatch.StartNew();
@@ -260,18 +246,18 @@ namespace Ship_Game.GameScreens.LoadGame
             {
                 projectile.Universe = us;
             }
-            foreach (Ship ship in data.MasterShipList)
-            {
-                ship.Universe = us;
-                ship.InitializeShip(loadingFromSaveGame: true);
-                step.Advance();
-            }
             foreach (SolarSystem sys in data.SolarSystemsList)
             {
                 sys.Universe = us;
                 sys.FiveClosestSystems = data.SolarSystemsList.FindMinItemsFiltered(5,
                                             filter => filter != sys,
                                             select => select.Position.SqDist(sys.Position));
+                step.Advance();
+            }
+            foreach (Ship ship in data.MasterShipList)
+            {
+                ship.Universe = us;
+                ship.InitializeShip(loadingFromSaveGame: true);
                 step.Advance();
             }
             Log.Info(ConsoleColor.Cyan, $"AllSystemsLoaded {s.Elapsed.TotalMilliseconds}ms");
