@@ -332,6 +332,11 @@ namespace Ship_Game
             GravityWellRadius = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(Scale)) / 1.5)));
         }
 
+        public void UpdatePositionOnly()
+        {
+            Center = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
+        }
+
         protected void UpdatePosition(FixedSimTime timeStep)
         {
             PosUpdateTimer -= timeStep.FixedTime;
@@ -341,7 +346,7 @@ namespace Ship_Game
                 OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
                 if (OrbitalAngle >= 360f)
                     OrbitalAngle -= 360f;
-                Center = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
+                UpdatePositionOnly();
             }
 
             if (ParentSystem.IsVisible)

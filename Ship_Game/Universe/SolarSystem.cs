@@ -488,7 +488,7 @@ namespace Ship_Game
                     OrbitalAngle       = randomAngle,
                     ParentSystem       = this,
                     SpecialDescription = ringData.SpecialDescription,
-                    Center             = Position.PointFromAngle(randomAngle, orbitalDistance),
+                    Center             = Vector2.Zero.PointFromAngle(randomAngle, orbitalDistance),
                     ObjectRadius       = planetRadius,
                     OrbitalRadius      = orbitalDistance,
                     PlanetTilt         = RandomBetween(45f, 135f)

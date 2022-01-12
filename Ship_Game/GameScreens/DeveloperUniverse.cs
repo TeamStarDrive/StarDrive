@@ -84,9 +84,7 @@ namespace Ship_Game
 
             foreach (SolarSystem system in sandbox.SolarSystemsList)
             {
-                system.FiveClosestSystems = sandbox.SolarSystemsList.FindMinItemsFiltered(5,
-                                            filter => filter != system,
-                                            select => select.Position.SqDist(system.Position));
+                system.FiveClosestSystems = sandbox.GetFiveClosestSystems(system);
             }
 
             ShipDesignUtils.MarkDesignsUnlockable();
