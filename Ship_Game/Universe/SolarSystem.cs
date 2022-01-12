@@ -502,7 +502,7 @@ namespace Ship_Game
                 if (ringData.HasRings != null)
                 {
                     newOrbital.HasRings = true;
-                    newOrbital.RingTilt = RandomBetween(-80f, -45f);
+                    newOrbital.RingTilt = RandomBetween(-80f, -45f).ToRadians();
                 }
 
                 // Add buildings to planet

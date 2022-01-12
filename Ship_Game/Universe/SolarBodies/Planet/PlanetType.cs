@@ -29,8 +29,9 @@ namespace Ship_Game
         [StarData] public readonly float SpecularPower = 0.0f; // 0.0 == no specural effects at all
 
         [StarData] public readonly string PlanetTile;
-        [StarData] public readonly PlanetGlow Glow;
-        [StarData] public readonly bool EarthLike;
+        [StarData] public readonly Color? Glow; // planetary glow
+        [StarData] public readonly bool Clouds;
+        [StarData] public readonly bool Atmosphere;
         [StarData] public readonly bool Habitable;
         [StarData] public readonly Range HabitableTileChance = new Range(minMax:20);
         [StarData] public readonly Range PopPerTile;
