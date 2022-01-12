@@ -4,7 +4,7 @@
   <UID>Warp Inhibitor</UID> 
   <Version>2</Version>
 
-  <Cost>50</Cost>
+  <Cost>250</Cost>
   <!-- Tech Level Used by AI for Upgrading Ships -->
   <TechLevel>2</TechLevel>
   
@@ -23,13 +23,14 @@
 
 
   <!-- Mass and Health -->
-  <Mass>50</Mass>
+  <Mass>200</Mass>
   <Health>3840</Health>
   <HealthMax>3840</HealthMax>
 
-  <InhibitionRadius>30000</InhibitionRadius>
+  <InhibitionRadius>40000</InhibitionRadius>
   <!-- Power Drawn -->
   <PowerDraw>750</PowerDraw>
+  <PowerDrawAtWarp>-750</PowerDrawAtWarp>
 
 
 </ShipModule>
