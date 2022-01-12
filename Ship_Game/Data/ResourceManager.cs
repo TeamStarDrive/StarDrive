@@ -16,6 +16,7 @@ using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.AI;
 using Ship_Game.Data.Mesh;
+using Ship_Game.Data.Texture;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships.Legacy;
 
@@ -1885,13 +1886,14 @@ namespace Ship_Game
 
             PlanetSphereModel = RootContent.LoadModel("Model/SpaceObjects/planet_sphere.obj");
             PlanetRingsModel  = RootContent.LoadModel("Model/SpaceObjects/planet_rings.obj");
-            PlanetGlowModel   = RootContent.LoadModel("Model/SpaceObjects/planet_glow_plane.obj");
+            PlanetGlowModel   = RootContent.LoadModel("Model/SpaceObjects/planet_glow_ring.obj");
             AtmosphereModel   = RootContent.LoadModel("Model/SpaceObjects/atmo_sphere.obj");
             
             CloudsTexture      = RootContent.Load<Texture2D>("Model/SpaceObjects/earthcloudmap.dds");
             PlanetRingsTexture = RootContent.Load<Texture2D>("Model/SpaceObjects/planet_rings.dds");
             AtmosphereColorTexture = RootContent.Load<Texture2D>("Model/SpaceObjects/AtmosphereColor.dds");
-            PlanetGlowTexture = RootContent.Load<Texture2D>("Model/SpaceObjects/planet_glow.png");
+            PlanetGlowTexture = RootContent.Load<Texture2D>("Model/SpaceObjects/planet_glow_fresnel.png");
+            ImageUtils.ConvertToPreMultipliedAlphaMap(PlanetGlowTexture);
 
             PlanetRingsEffect = new BasicEffect(RootContent.Device, null);
             PlanetRingsEffect.Texture = PlanetRingsTexture;

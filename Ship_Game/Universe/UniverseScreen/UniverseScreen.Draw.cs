@@ -35,41 +35,10 @@ namespace Ship_Game
             rs.AlphaBlendOperation = BlendFunction.Add;
             rs.SourceBlend = Blend.SourceAlpha;
             rs.DestinationBlend = Blend.InverseSourceAlpha;
+            //rs.DepthBufferEnable = true;
             rs.DepthBufferWriteEnable = false;
 
             Vector3 sunToPlanet = (p.Center - p.ParentSystem.Position).ToVec3().Normalized();
-
-            if (CanDrawPlanetGlow(p))
-            {
-                rs.CullMode = CullMode.None;
-
-                // get direction from camera to planet, set camera pos really high
-                // to avoid excessive rotation when moving camera while zoomed in
-                // TODO: our camera works in coordinate space where +Z is out of the screen and -Z is background
-                // TODO: but our 3D coordinate system works with -Z out of the screen and +Z is background
-                // HACK: planetPos Z is flipped
-                Matrix rotation;
-                if (CamPos.Z < 75_000.0)
-                {
-                    Vector3 cameraPos = CamPos.ToVec3f();
-                    Vector3 planetPos = p.Center3D * new Vector3(1, 1, -1);
-                    Vector3 camToPlanet = (planetPos - cameraPos).Normalized();
-                    rotation = Matrix.CreateLookAt(Vector3.Zero, camToPlanet, Vector3.Up);
-                }
-                else // we're far enough, no need to rotate towards camera
-                {
-                    rotation = Matrix.Identity;
-                }
-
-                var glowFx = ResourceManager.PlanetGlowEffect;
-                glowFx.World = Matrix.CreateScale(1.05f) * rotation * p.GlowMatrix;
-                glowFx.View = View;
-                glowFx.Projection = Projection;
-                var color = p.Type.Glow.Value.ToVector4();
-                glowFx.DiffuseColor = new Vector3(color.X, color.Y, color.Z);
-                glowFx.Alpha = color.W;
-                StaticMesh.Draw(ResourceManager.PlanetGlowModel, glowFx);
-            }
 
             if (p.Type.Clouds)
             {
@@ -82,6 +51,37 @@ namespace Ship_Game
                 cloudsFx.DirectionalLight0.Direction = sunToPlanet;
                 cloudsFx.DirectionalLight0.Enabled = true;
                 StaticMesh.Draw(ResourceManager.PlanetSphereModel, cloudsFx);
+            }
+            
+            if (CanDrawPlanetGlow(p))
+            {
+                rs.CullMode = CullMode.None;
+
+                // rotate the glow effect always towards the camera by getting direction from camera to planet
+                // TODO: our camera works in coordinate space where +Z is out of the screen and -Z is background
+                // TODO: but our 3D coordinate system works with -Z out of the screen and +Z is background
+                // HACK: planetPos Z is flipped
+                Vector3 cameraPos = CamPos.ToVec3f();
+                Vector3 planetPos = p.Center3D * new Vector3(1, 1, -1);
+
+                // HACK: flip XZ so the planet glow mesh faces correctly towards us
+                Vector3 camToPlanet = planetPos - cameraPos;
+                camToPlanet.X = -camToPlanet.X;
+                camToPlanet.Z = -camToPlanet.Z;
+
+                var scale = Matrix.CreateScale(10f * p.Scale);
+                var rot = Matrix.CreateLookAt(Vector3.Zero, camToPlanet.Normalized(), Vector3.Up);
+                var pos3d = Matrix.CreateTranslation(p.Center3D);
+                Matrix glowMatrix = scale * rot * pos3d;
+
+                var glowFx = ResourceManager.PlanetGlowEffect;
+                glowFx.World = glowMatrix;
+                glowFx.View = View;
+                glowFx.Projection = Projection;
+                var color = p.Type.Glow.Value.ToVector4();
+                glowFx.DiffuseColor = new Vector3(color.X, color.Y, color.Z);
+                glowFx.Alpha = color.W;
+                StaticMesh.Draw(ResourceManager.PlanetGlowModel, glowFx);
             }
 
             if (p.Type.Atmosphere)
