@@ -74,6 +74,12 @@ namespace Ship_Game
             return null;
         }
 
+        public Array<SolarSystem> GetFiveClosestSystems(SolarSystem system)
+        {
+            return SolarSystemsList.FindMinItemsFiltered(5, filter => filter != system,
+                                                            select => select.Position.SqDist(system.Position));
+        }
+
         public bool FindPlanet(in Guid planetGuid, out Planet foundPlanet)
         {
             return (foundPlanet = FindPlanetOrNull(planetGuid)) != null;
