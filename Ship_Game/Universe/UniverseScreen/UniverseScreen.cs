@@ -93,13 +93,11 @@ namespace Ship_Game
         public Empire PlayerEmpire;
         public string PlayerLoyalty;
         public string FogMapBase64;
-        public Model xnaPlanetModel;
-        public Texture2D RingTexture;
+
         public UnivScreenState viewState;
         public bool LookingAtPlanet;
         public bool snappingToShip;
         public bool returnToShip;
-        public Texture2D cloudTex;
         public EmpireUIOverlay EmpireUI;
         public BloomComponent bloomComponent;
         public Texture2D FogMap;
@@ -163,8 +161,7 @@ namespace Ship_Game
         int FBTimer = 60;
         bool pickedSomethingThisFrame;
         bool SelectingWithBox;
-        Effect AtmoEffect;
-        Model atmoModel;
+
         public PlanetScreen workersPanel;
         CursorState cState;
         int SelectorFrame;
@@ -254,6 +251,7 @@ namespace Ship_Game
             foreach (Planet planet in system.PlanetList)
             {
                 planet.ParentSystem = system;
+                planet.UpdatePositionOnly();
                 PlanetsDict.Add(planet.Guid, planet);
                 AllPlanetsList.Add(planet);
             }
@@ -482,18 +480,6 @@ namespace Ship_Game
             SimThread.Start();
         }
 
-        void CreatePlanetsLookupTable()
-        {
-            PlanetsDict.Clear();
-            SolarSystemDict.Clear();
-            foreach (SolarSystem solarSystem in SolarSystemList)
-            {
-                SolarSystemDict.Add(solarSystem.Guid, solarSystem);
-                foreach (Planet planet in solarSystem.PlanetList)
-                    PlanetsDict.Add(planet.Guid, planet);
-            }
-        }
-
         void CreateStationTethers()
         {
             foreach (Ship ship in GetMasterShipList())
@@ -514,19 +500,24 @@ namespace Ship_Game
         {
             anomalyManager = new AnomalyManager();
 
-            foreach (SolarSystem solarSystem in SolarSystemList)
+            foreach (SolarSystem system in SolarSystemList)
             {
-                foreach (Anomaly anomaly in solarSystem.AnomaliesList)
+                foreach (Anomaly anomaly in system.AnomaliesList)
                 {
                     if (anomaly.type == "DP")
                     {
-                        anomalyManager.AnomaliesList.Add(new DimensionalPrison(this, solarSystem.Position + anomaly.Position));
+                        anomalyManager.AnomaliesList.Add(new DimensionalPrison(this, system.Position + anomaly.Position));
                     }
                 }
 
                 foreach (Empire empire in EmpireManager.ActiveEmpires)
                 {
-                    solarSystem.UpdateFullyExploredBy(empire);
+                    system.UpdateFullyExploredBy(empire);
+                }
+
+                foreach (Planet planet in system.PlanetList)
+                {
+                    planet.InitializePlanetMesh();
                 }
             }
         }
@@ -601,21 +592,6 @@ namespace Ship_Game
 
             CreateFogMap(content, device, backBufferFormat);
             LoadMenu();
-
-            xnaPlanetModel = content.Load<Model>("Model/SpaceObjects/planet");
-            atmoModel      = content.Load<Model>("Model/sphere");
-            AtmoEffect     = content.Load<Effect>("Effects/PlanetHalo");
-            cloudTex       = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap");
-            RingTexture    = content.Load<Texture2D>("Model/SpaceObjects/planet_rings");
-
-            Glows = new Map<PlanetGlow, SubTexture>(new []
-            {
-                (PlanetGlow.Terran, ResourceManager.Texture("PlanetGlows/Glow_Terran")),
-                (PlanetGlow.Red,    ResourceManager.Texture("PlanetGlows/Glow_Red")),
-                (PlanetGlow.White,  ResourceManager.Texture("PlanetGlows/Glow_White")),
-                (PlanetGlow.Aqua,   ResourceManager.Texture("PlanetGlows/Glow_Aqua")),
-                (PlanetGlow.Orange, ResourceManager.Texture("PlanetGlows/Glow_Orange"))
-            });
 
             Arc15  = ResourceManager.Texture("Arcs/Arc15");
             Arc20  = ResourceManager.Texture("Arcs/Arc20");
@@ -774,11 +750,11 @@ namespace Ship_Game
             }
         }
 
-        void ProjectPieMenu(Vector2 position, float z)
+        void ProjectPieMenu(Vector3 position)
         {
-            Vector3 proj = Viewport.Project(position.ToVec3(z), Projection, View, Matrix.Identity);
-            pieMenu.Position    = proj.ToVec2();
-            pieMenu.Radius      = 75f;
+            Vector3 proj = Viewport.Project(position, Projection, View, Matrix.Identity);
+            pieMenu.Position = proj.ToVec2();
+            pieMenu.Radius = 75f;
             pieMenu.ScaleFactor = 1f;
         }
 

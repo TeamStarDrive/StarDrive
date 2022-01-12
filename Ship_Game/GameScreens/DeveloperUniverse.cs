@@ -84,13 +84,8 @@ namespace Ship_Game
 
             foreach (SolarSystem system in sandbox.SolarSystemsList)
             {
-                system.FiveClosestSystems = sandbox.SolarSystemsList.FindMinItemsFiltered(5,
-                                            filter => filter != system,
-                                            select => select.Position.SqDist(system.Position));
+                system.FiveClosestSystems = sandbox.GetFiveClosestSystems(system);
             }
-
-            foreach (SolarSystem system in sandbox.SolarSystemsList)
-                SubmitSceneObjectsForRendering(system);
 
             ShipDesignUtils.MarkDesignsUnlockable();
             Log.Info($"CreateSandboxUniverse elapsed:{s.Elapsed.TotalMilliseconds}");
@@ -117,18 +112,6 @@ namespace Ship_Game
                     return sysPos; // we got it!
             }
             return sysPos;
-        }
-
-        static void SubmitSceneObjectsForRendering(SolarSystem wipSystem)
-        {
-            foreach (Planet planet in wipSystem.PlanetList)
-            {
-                planet.InitializePlanetMesh();
-            }
-            foreach (Asteroid asteroid in wipSystem.AsteroidsList)
-            {
-                asteroid.Position += wipSystem.Position;
-            }
         }
     }
 }

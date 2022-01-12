@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens.DiplomacyScreen;
@@ -15,6 +16,7 @@ using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.AI;
 using Ship_Game.Data.Mesh;
+using Ship_Game.Data.Texture;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships.Legacy;
 
@@ -359,8 +361,7 @@ namespace Ship_Game
             ZoneDistribution.Clear();
             BuildRatios.Clear();
 
-            PlanetTypes?.Clear();
-            PlanetTypeMap?.Clear();
+            UnloadPlanetTypes();
 
             DiplomacyDialogs.Clear();
             Empires.Clear();
@@ -829,7 +830,6 @@ namespace Ship_Game
                 "Textures/Ships",
                 "Textures/hqspace",
                 "Textures/Suns",
-                "Textures/PlanetGlows",
                 "Textures/TacticalIcons",
                 "Textures/Planets",
                 "Textures/PlanetTiles",
@@ -1853,6 +1853,24 @@ namespace Ship_Game
             return RandomMath.RandItem(PlanetTypesByCategory[c]);
         }
 
+        // Planet graphics
+        public static Model PlanetSphereModel { get; private set; }
+        public static Model PlanetRingsModel { get; private set; }
+        public static Model PlanetGlowRing { get; private set; }
+        public static Model PlanetGlowFresnel { get; private set; }
+        public static Model AtmosphereModel { get; private set; }
+
+        public static BasicEffect PlanetRingsEffect { get; private set; }
+        public static BasicEffect CloudsEffect { get; private set; }
+        public static BasicEffect AtmoColorEffect { get; private set; }
+        public static BasicEffect PlanetGlowEffect { get; private set; }
+        public static Effect PlanetHaloFx { get; private set; }
+
+        public static Texture2D CloudsTexture { get; private set; }
+        public static Texture2D PlanetRingsTexture { get; private set; }
+        public static Texture2D AtmosphereColorTexture { get; private set; }
+        public static Texture2D PlanetGlowTexture { get; private set; }
+
         static void LoadPlanetTypes()
         {
             GameLoadingScreen.SetStatus("PlanetTypes");
@@ -1866,6 +1884,78 @@ namespace Ship_Game
             PlanetTypesByCategory = new Map<PlanetCategory, PlanetType[]>();
             foreach (PlanetCategory c in Enum.GetValues(typeof(PlanetCategory)))
                 PlanetTypesByCategory[c] = PlanetTypes.Filter(pt => pt.Category == c);
+
+            PlanetSphereModel = RootContent.LoadModel("Model/SpaceObjects/planet_sphere.obj");
+            PlanetRingsModel  = RootContent.LoadModel("Model/SpaceObjects/planet_rings.obj");
+            PlanetGlowRing    = RootContent.LoadModel("Model/SpaceObjects/planet_glow_ring.obj");
+            PlanetGlowFresnel = RootContent.LoadModel("Model/SpaceObjects/planet_glow_fresnel.obj");
+            AtmosphereModel   = RootContent.LoadModel("Model/SpaceObjects/atmo_sphere.obj");
+            
+            CloudsTexture      = RootContent.Load<Texture2D>("Model/SpaceObjects/earthcloudmap.dds");
+            PlanetRingsTexture = RootContent.Load<Texture2D>("Model/SpaceObjects/planet_rings.dds");
+            AtmosphereColorTexture = RootContent.Load<Texture2D>("Model/SpaceObjects/AtmosphereColor.dds");
+            PlanetGlowTexture = RootContent.Load<Texture2D>("Model/SpaceObjects/planet_glow_fresnel.png");
+            ImageUtils.ConvertToAlphaMap(PlanetGlowTexture, preMultiplied:false);
+
+            PlanetRingsEffect = new BasicEffect(RootContent.Device, null);
+            PlanetRingsEffect.Texture = PlanetRingsTexture;
+            PlanetRingsEffect.TextureEnabled = true;
+            PlanetRingsEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
+
+            CloudsEffect = new BasicEffect(RootContent.Device, null);
+            CloudsEffect.Texture = CloudsTexture;
+            CloudsEffect.TextureEnabled = true;
+            CloudsEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
+            CloudsEffect.LightingEnabled = true;
+            CloudsEffect.DirectionalLight0.DiffuseColor  = new Vector3(1f, 1f, 1f);
+            CloudsEffect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
+            CloudsEffect.SpecularPower = 4;
+
+            AtmoColorEffect = new BasicEffect(RootContent.Device, null);
+            AtmoColorEffect.Texture = AtmosphereColorTexture;
+            AtmoColorEffect.TextureEnabled = true;
+            AtmoColorEffect.LightingEnabled = true;
+            AtmoColorEffect.DirectionalLight0.DiffuseColor = new Vector3(1f, 1f, 1f);
+            AtmoColorEffect.DirectionalLight0.Enabled = true;
+            AtmoColorEffect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
+            AtmoColorEffect.DirectionalLight0.Direction = new Vector3(0.98f, -0.025f, 0.2f);
+            AtmoColorEffect.DirectionalLight1.DiffuseColor = new Vector3(1f, 1f, 1f);
+            AtmoColorEffect.DirectionalLight1.Enabled = true;
+            AtmoColorEffect.DirectionalLight1.SpecularColor = new Vector3(1f, 1f, 1f);
+            AtmoColorEffect.DirectionalLight1.Direction = new Vector3(0.98f, -0.025f, 0.2f);
+
+            PlanetGlowEffect = new BasicEffect(RootContent.Device, null);
+            PlanetGlowEffect.TextureEnabled = true;
+            PlanetGlowEffect.Texture = PlanetGlowTexture;
+
+            PlanetHaloFx = RootContent.Load<Effect>("Effects/PlanetHalo");
+
+            foreach (PlanetType type in PlanetTypes)
+                type.Initialize(RootContent, PlanetSphereModel);
+        }
+
+        static void UnloadPlanetTypes()
+        {
+            PlanetSphereModel = null;
+            PlanetRingsModel = null;
+            PlanetGlowRing = null;
+            AtmosphereModel = null;
+            CloudsTexture = null;
+            PlanetRingsTexture = null;
+            AtmosphereColorTexture = null;
+
+            PlanetRingsEffect?.Dispose();
+            CloudsEffect?.Dispose();
+            AtmoColorEffect?.Dispose();
+            PlanetGlowEffect?.Dispose();
+
+            PlanetRingsEffect = null;
+            CloudsEffect = null;
+            AtmoColorEffect = null;
+            PlanetGlowEffect = null;
+
+            PlanetTypes?.Clear();
+            PlanetTypeMap?.Clear();
         }
 
         public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone)

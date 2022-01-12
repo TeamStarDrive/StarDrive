@@ -173,15 +173,20 @@ namespace Ship_Game
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;
         public int NumConstructing => Construction.Count;
-        public Array<string> PlanetFleets = new Array<string>();
         public Array<Ship> OrbitalStations = new Array<Ship>();
-        public Matrix RingWorld;
-        public SceneObject SO;
+
         public Guid Guid = Guid.NewGuid();
         protected AudioEmitter Emit = new AudioEmitter();
         public Vector2 Center;
+        public Vector3 Center3D => new Vector3(Center, 2500);
+
         public SolarSystem ParentSystem;
-        public Matrix CloudMatrix;
+
+        public Matrix PlanetMatrix;
+        public Matrix CloudMatrix; // tilted a bit differently than PlanetMatrix, and they constantly rotate
+        public Matrix RingWorld; // bigger and tilted in a third way
+        public SceneObject SO;
+
         public string SpecialDescription;
         public bool HasSpacePort;
         public string Name;
@@ -191,7 +196,7 @@ namespace Ship_Game
         public float OrbitalRadius;
         public bool HasRings;
         public float PlanetTilt;
-        public float RingTilt;
+        public float RingTilt; // tilt in Radians
         public float Scale;
         public Matrix World;
         protected float Zrotate;
@@ -326,6 +331,11 @@ namespace Ship_Game
             GravityWellRadius = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(Scale)) / 1.5)));
         }
 
+        public void UpdatePositionOnly()
+        {
+            Center = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
+        }
+
         protected void UpdatePosition(FixedSimTime timeStep)
         {
             PosUpdateTimer -= timeStep.FixedTime;
@@ -335,47 +345,59 @@ namespace Ship_Game
                 OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
                 if (OrbitalAngle >= 360f)
                     OrbitalAngle -= 360f;
-                Center = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
+                UpdatePositionOnly();
             }
 
             if (ParentSystem.IsVisible)
             {
                 Zrotate += ZrotateAmount * timeStep.FixedTime;
-                SO.World = Matrix.CreateScale(3f)
-                         * Matrix.CreateScale(Scale)
-                         * Matrix.CreateRotationZ(-Zrotate)
-                         * Matrix.CreateRotationX(-45f.ToRadians())
-                         * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                CloudMatrix = Matrix.CreateScale(3f)
-                            * Matrix.CreateScale(Scale)
-                            * Matrix.CreateRotationZ(-Zrotate / 1.5f)
-                            * Matrix.CreateRotationX(-45f.ToRadians())
-                            * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-                RingWorld = Matrix.CreateRotationX(RingTilt.ToRadians())
-                          * Matrix.CreateScale(5f)
-                          * Matrix.CreateTranslation(new Vector3(Center, 2500f));
+                UpdateWorldMatrix();
                 SO.Visibility = ObjectVisibility.Rendered;
             }
             else if (SO != null)  // SO is null in Unit Tests
+            {
                 SO.Visibility = ObjectVisibility.None;
+            }
+        }
+
+        // Planetary sphere relative scales
+        // All of these are relative to Planet world matrix
+        public static Matrix PlanetRingsScale = Matrix.CreateScale(3f);
+        public static Matrix PlanetCloudsScale = Matrix.CreateScale(1.02f); // only slightly bigger than the planet
+        public static Matrix PlanetBlueAtmosphereScale = Matrix.CreateScale(1.03f); // slightly bigger than clouds
+        public static Matrix PlanetHaloScale = Matrix.CreateScale(1.0f);
+
+        void UpdateWorldMatrix()
+        {
+            // mesh diameter is 100 units, we want 1000 diameter by default
+            var scale = Matrix.CreateScale(10f * Scale);
+            var pos3d = Matrix.CreateTranslation(Center3D);
+            var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
+
+            PlanetMatrix = scale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
+            CloudMatrix  = scale * Matrix.CreateRotationZ(-Zrotate / 1.5f) * tilt * pos3d;
+            RingWorld    = scale * Matrix.CreateRotationX(RingTilt) * pos3d;
+            if (SO != null)
+                SO.World = PlanetMatrix;
         }
 
         protected void CreatePlanetSceneObject()
         {
+            if (Universe == null)
+            {
+                Log.Warning("CreatePlanetSceneObject failed: Universe was null!");
+                return;
+            }
+
             if (SO != null)
             {
                 Log.Info($"RemoveSolarSystemBody: {Name}");
                 ScreenManager.Instance?.RemoveObject(SO);
             }
-            SO = StaticMesh.GetPlanetarySceneMesh(ResourceManager.RootContent, Type.MeshPath);
-            SO.World = Matrix.CreateScale(Scale * 3)
-                     * Matrix.CreateTranslation(new Vector3(Center, 2500f));
 
-            RingWorld = Matrix.CreateRotationX(RingTilt.ToRadians())
-                      * Matrix.CreateScale(5f)
-                      * Matrix.CreateTranslation(new Vector3(Center, 2500f));
-
-            Universe?.AddObject(SO);
+            SO = Type.CreatePlanetSO();
+            UpdateWorldMatrix();
+            Universe.AddObject(SO);
         }
 
         protected void UpdateDescription()

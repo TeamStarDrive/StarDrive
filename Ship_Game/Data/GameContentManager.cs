@@ -301,7 +301,7 @@ namespace Ship_Game.Data
             
             T loaded;
             if (asset.NonXnaAsset)
-                loaded = (T)RawContent.LoadAsset(asset.RelPathWithExt, asset.Extension);
+                loaded = (T)RawContent.LoadAsset(typeof(T), asset.RelPathWithExt, asset.Extension);
             else
                 loaded = ReadXnaAsset<T>(asset.RelPathWithExt);
 

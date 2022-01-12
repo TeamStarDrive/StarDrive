@@ -339,11 +339,11 @@ namespace Ship_Game
 
             if (SelectedShip != null)
             {
-                ProjectPieMenu(SelectedShip.Position, 0.0f);
+                ProjectPieMenu(new Vector3(SelectedShip.Position, 0.0f));
             }
             else if (SelectedPlanet != null)
             {
-                ProjectPieMenu(SelectedPlanet.Center, 2500f);
+                ProjectPieMenu(SelectedPlanet.Center3D);
             }
 
             // todo figure what to do with this
