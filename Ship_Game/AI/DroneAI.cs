@@ -11,7 +11,7 @@ namespace Ship_Game.AI
         private float ThinkTimer;
         public Weapon DroneWeapon;
         private float OrbitalAngle;
-        readonly Array<DroneBeam> Beams = new Array<DroneBeam>();
+        private Beam Beam;
 
         public DroneAI(Projectile drone)
         {
@@ -69,19 +69,9 @@ namespace Ship_Game.AI
 
             if (DroneTarget == null)
             {
-                if (Beams.NotEmpty)
-                {
-                    for (int i = 0; i < Beams.Count; ++i)
-                    {
-                        Beam beam = Beams[i];
-                        if (beam.Active)
-                            beam.Die(null, false);
-                    }
-                    Beams.Clear();
-                }
-
-                if (Drone.Owner != null)
-                    OrbitShip(Drone.Owner, timeStep);
+                // We want to immediately kill the beam, since there is a possibility it is infinite.
+                // very strange implementation for drone repair logic
+                Beam.Die(null, false); 
             }
             else
             {
@@ -92,7 +82,7 @@ namespace Ship_Game.AI
 
         void TryFireDroneBeam()
         {
-            if (Beams.Count == 0 &&
+            if (Beam == null &&
                 DroneTarget.Health < DroneTarget.HealthMax &&
                 DroneWeapon.CooldownTimer <= 0f &&
                 DroneTarget != null &&
@@ -100,8 +90,14 @@ namespace Ship_Game.AI
             {
                 // NOTE: Beam projectile is updated by universe
                 DroneBeam droneBeam = DroneWeapon.FireDroneBeam(this);
-                Beams.Add(droneBeam);
+                Beam = droneBeam;
+                DroneWeapon.CooldownTimer = DroneWeapon.NetFireDelay;
             }
+        }
+
+        public void ClearBeam()
+        {
+            Beam = null;
         }
     }
 }

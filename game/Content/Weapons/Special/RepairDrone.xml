@@ -8,12 +8,8 @@
   <Tag_Plasma>false</Tag_Plasma>
   <Tag_Beam>false</Tag_Beam>
   <Tag_Intercept>false</Tag_Intercept>
-  
   <Tag_Bomb>false</Tag_Bomb>
-  
   <Tag_BioWeapon>false</Tag_BioWeapon>
-  
-  
   <Tag_Drone>true</Tag_Drone>
   <Tag_Torpedo>false</Tag_Torpedo>
   <Tag_Cannon>false</Tag_Cannon>
