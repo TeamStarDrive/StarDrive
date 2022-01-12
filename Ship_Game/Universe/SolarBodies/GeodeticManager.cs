@@ -128,7 +128,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         {
             if (Owner != null && !Owner.IsAtWarWith(bomb.Owner)
                               && TurnsSinceTurnover > 10
-                              && Empire.Universe.PlayerEmpire == bomb.Owner)
+                              && bomb.Owner.isPlayer)
             {
                 Owner.GetEmpireAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
             }
@@ -136,8 +136,8 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void DamageColonyShields(Bomb bomb)
         {
-            if (Empire.Universe.IsSystemViewOrCloser
-                && Empire.Universe.Frustum.Contains(P.Center, P.OrbitalRadius * 2))
+            if (P.Universe.IsSystemViewOrCloser
+                && P.Universe.Frustum.Contains(P.Center, P.OrbitalRadius * 2))
             {
                 Shield.HitShield(P, bomb, Center, SO.WorldBoundingSphere.Radius + 100f);
             }

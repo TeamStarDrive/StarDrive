@@ -176,69 +176,15 @@ namespace Ship_Game
 
         void FinalizeSolarSystems()
         {
-            foreach (SolarSystem solarSystem1 in Data.SolarSystemsList)
+            // once the map is generated, update all planet positions:
+            foreach (SolarSystem system in Data.SolarSystemsList)
             {
-                var list = new Array<SysDisPair>();
-                foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
+                system.FiveClosestSystems = Data.GetFiveClosestSystems(system);
+                foreach (Planet planet in system.PlanetList)
                 {
-                    if (solarSystem1 != solarSystem2)
-                    {
-                        float num1 = solarSystem1.Position.Distance(solarSystem2.Position);
-                        if (list.Count < 5)
-                        {
-                            list.Add(new SysDisPair
-                            {
-                                System = solarSystem2,
-                                Distance = num1
-                            });
-                        }
-                        else
-                        {
-                            int index1 = 0;
-                            float num2 = 0.0f;
-                            for (int index2 = 0; index2 < 5; ++index2)
-                            {
-                                if (list[index2].Distance > num2)
-                                {
-                                    index1 = index2;
-                                    num2 = list[index2].Distance;
-                                }
-                            }
-                            if (num1 < num2)
-                                list[index1] = new SysDisPair
-                                {
-                                    System = solarSystem2,
-                                    Distance = num1
-                                };
-                        }
-                    }
-                }
-                foreach (SysDisPair sysDisPair in list)
-                    solarSystem1.FiveClosestSystems.Add(sysDisPair.System);
-            }
-
-        }
-
-        void SubmitSceneObjects(ProgressCounter step)
-        {
-            step.Start(Data.SolarSystemsList.Count);
-            for (int i = 0; i < Data.SolarSystemsList.Count; ++i)
-            {
-                step.Advance();
-                SolarSystem wipSystem = Data.SolarSystemsList[i];
-                
-                foreach (Planet planet in wipSystem.PlanetList)
-                {
-                    planet.ParentSystem = wipSystem;
-                    planet.Center += wipSystem.Position;
-                    planet.InitializePlanetMesh();
-                }
-                foreach (Asteroid asteroid in wipSystem.AsteroidsList)
-                {
-                    asteroid.Position += wipSystem.Position;
+                    planet.UpdatePositionOnly();
                 }
             }
-            step.Finish();
         }
 
         void GenerateInitialSystemData(ProgressCounter step)
@@ -300,6 +246,28 @@ namespace Ship_Game
                 Data.CreateEmpire(readOnlyData, isPlayer: false);
                 step.Advance();
             }
+        }
+        
+        readonly ProgressCounter Progress = new ProgressCounter();
+
+        void GenerateSystems()
+        {
+            Progress.Start(0.65f, 0.35f);
+            GenerateInitialSystemData(Progress.NextStep());
+            FinalizeSolarSystems();
+            FinalizeEmpires(Progress.NextStep());
+            Progress.Finish();
+
+            Planet homePlanet = Player.GetPlanets()[0];
+            us = new UniverseScreen(Data, Player)
+            {
+                ScreenManager = ScreenManager,
+                CamPos = new Vector3d(homePlanet.Center.X, homePlanet.Center.Y, 5000),
+            };
+
+            Log.Info(ConsoleColor.Blue,    $"  GenerateInitialSystemData elapsed: {Progress[0].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.Blue,    $"  FinalizeEmpires           elapsed: {Progress[1].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.DarkRed, $"TOTAL GenerateSystems       elapsed: {Progress.ElapsedMillis}ms");
         }
 
         void LoadEmpireStartingSystems(ProgressCounter step)
@@ -454,38 +422,14 @@ namespace Ship_Game
             return whichcorner;
         }
 
-        readonly ProgressCounter Progress = new ProgressCounter();
-
-        void GenerateSystems()
-        {
-            Progress.Start(0.5f, 0.3f, 0.2f);
-            GenerateInitialSystemData(Progress.NextStep());
-            SubmitSceneObjects(Progress.NextStep());
-            FinalizeSolarSystems();
-            FinalizeEmpires(Progress.NextStep());
-            Progress.Finish();
-
-            Planet homePlanet = Player.GetPlanets()[0];
-            us = new UniverseScreen(Data, Player)
-            {
-                ScreenManager = ScreenManager,
-                CamPos = new Vector3d(homePlanet.Center.X, homePlanet.Center.Y, 5000),
-            };
-
-            Log.Info(ConsoleColor.Blue,    $"  GenerateInitialSystemData elapsed: {Progress[0].ElapsedMillis}ms");
-            Log.Info(ConsoleColor.Blue,    $"  SubmitSceneObjects        elapsed: {Progress[1].ElapsedMillis}ms");
-            Log.Info(ConsoleColor.Blue,    $"  FinalizeEmpires           elapsed: {Progress[2].ElapsedMillis}ms");
-            Log.Info(ConsoleColor.DarkRed, $"TOTAL GenerateSystems       elapsed: {Progress.ElapsedMillis}ms");
-        }
-
         Vector2 GenerateRandomSysPos(float spacing)
         {
-            float safteyBreak = 1;
+            float safetyBreak = 1f;
             Vector2 sysPos;
             do {
-                spacing *= safteyBreak;
+                spacing *= safetyBreak;
                 sysPos = RandomMath.Vector2D(Data.Size.X - 100000f);
-                safteyBreak *= .97f;
+                safetyBreak *= 0.97f;
             } while (!SystemPosOK(sysPos, spacing));
 
             ClaimedSpots.Add(sysPos);
@@ -857,12 +801,6 @@ namespace Ship_Game
         {
             LoadingScreenTexture?.Dispose(ref LoadingScreenTexture);                
             base.Destroy();
-        }
-
-        struct SysDisPair
-        {
-            public SolarSystem System;
-            public float Distance;
         }
     }
 }

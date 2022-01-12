@@ -88,7 +88,10 @@ namespace Ship_Game
 
             SetHomeworld(data.IsHomeworld);
             if (HasRings)
-                RingTilt = RandomMath.RandomBetween(-80f, -45f);
+            {
+                // TODO: save RingTilt into PlanetSaveData
+                RingTilt = RandomMath.RandomBetween(-80f, -45f).ToRadians();
+            }
             
             //TODO: I'd rather have these injected already constructed into the Planet constructor but until we unwind the multiple back and forth calls it'll stay here.
             foreach (SavedGame.PGSData tileData in data.PGSList)
