@@ -193,5 +193,40 @@ namespace Ship_Game.Data.Texture
                 return HasTransparentPixels(pImg, width, height);
             }
         }
+
+        /// <summary>
+        /// Converts the supplied 32-bit BGRA map into a pre-multiplied alpha map
+        /// </summary>
+        public static unsafe void ConvertToPreMultipliedAlphaMap(Texture2D rgbMap)
+        {
+            if (rgbMap.Format == SurfaceFormat.Color)
+            {
+                int numPixels = rgbMap.Width * rgbMap.Height * 4;
+                var pixels = new byte[numPixels];
+                rgbMap.GetData(pixels);
+
+                fixed (byte* pPixels = pixels)
+                {
+                    for (int i = 0; i < numPixels; i += 4)
+                    {
+                        byte* pixel = pPixels + i; // note: XNA uses BGR
+                        byte b = pixel[0];
+                        byte g = pixel[1];
+                        byte r = pixel[2];
+                        byte a = (byte)((b + g + r) / 3);
+                        pixel[0] = a; // B := A
+                        pixel[1] = a; // G := A
+                        pixel[2] = a; // R := A
+                        pixel[3] = a; // A := A
+                    }
+                }
+
+                rgbMap.SetData(pixels);
+            }
+            else
+            {
+                throw new Exception("ConvertRGBToRGBAlphaMap failed: Texture is not an RGB Color texture");
+            }
+        }
     }
 }
