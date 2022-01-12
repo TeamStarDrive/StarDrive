@@ -195,9 +195,9 @@ namespace Ship_Game.Data.Texture
         }
 
         /// <summary>
-        /// Converts the supplied 32-bit BGRA map into a pre-multiplied alpha map
+        /// Converts the supplied 32-bit BGRA map into a non-multiplied OR pre-multiplied alpha map
         /// </summary>
-        public static unsafe void ConvertToPreMultipliedAlphaMap(Texture2D rgbMap)
+        public static unsafe void ConvertToAlphaMap(Texture2D rgbMap, bool preMultiplied)
         {
             if (rgbMap.Format == SurfaceFormat.Color)
             {
@@ -207,17 +207,35 @@ namespace Ship_Game.Data.Texture
 
                 fixed (byte* pPixels = pixels)
                 {
-                    for (int i = 0; i < numPixels; i += 4)
+                    if (preMultiplied)
                     {
-                        byte* pixel = pPixels + i; // note: XNA uses BGR
-                        byte b = pixel[0];
-                        byte g = pixel[1];
-                        byte r = pixel[2];
-                        byte a = (byte)((b + g + r) / 3);
-                        pixel[0] = a; // B := A
-                        pixel[1] = a; // G := A
-                        pixel[2] = a; // R := A
-                        pixel[3] = a; // A := A
+                        for (int i = 0; i < numPixels; i += 4)
+                        {
+                            byte* pixel = pPixels + i; // note: XNA uses BGR
+                            byte b = pixel[0];
+                            byte g = pixel[1];
+                            byte r = pixel[2];
+                            byte a = (byte)((b + g + r) / 3);
+                            pixel[0] = a; // B := A
+                            pixel[1] = a; // G := A
+                            pixel[2] = a; // R := A
+                            pixel[3] = a; // A := A
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < numPixels; i += 4)
+                        {
+                            byte* pixel = pPixels + i; // note: XNA uses BGR
+                            byte b = pixel[0];
+                            byte g = pixel[1];
+                            byte r = pixel[2];
+                            byte a = (byte)((b + g + r) / 3);
+                            pixel[0] = 255; // B := A
+                            pixel[1] = 255; // G := A
+                            pixel[2] = 255; // R := A
+                            pixel[3] = a; // A := A
+                        }
                     }
                 }
 
