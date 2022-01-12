@@ -94,8 +94,6 @@ namespace Ship_Game
         public string PlayerLoyalty;
         public string FogMapBase64;
 
-        Effect PlanetHaloFx; // planet atmosphere rendering effect
-
         public UnivScreenState viewState;
         public bool LookingAtPlanet;
         public bool snappingToShip;
@@ -594,17 +592,6 @@ namespace Ship_Game
             CreateFogMap(content, device, backBufferFormat);
             LoadMenu();
 
-            PlanetHaloFx = content.Load<Effect>("Effects/PlanetHalo");
-
-            Glows = new Map<PlanetGlow, SubTexture>(new []
-            {
-                (PlanetGlow.Terran, ResourceManager.Texture("PlanetGlows/Glow_Terran")),
-                (PlanetGlow.Red,    ResourceManager.Texture("PlanetGlows/Glow_Red")),
-                (PlanetGlow.White,  ResourceManager.Texture("PlanetGlows/Glow_White")),
-                (PlanetGlow.Aqua,   ResourceManager.Texture("PlanetGlows/Glow_Aqua")),
-                (PlanetGlow.Orange, ResourceManager.Texture("PlanetGlows/Glow_Orange"))
-            });
-
             Arc15  = ResourceManager.Texture("Arcs/Arc15");
             Arc20  = ResourceManager.Texture("Arcs/Arc20");
             Arc45  = ResourceManager.Texture("Arcs/Arc45");
@@ -762,11 +749,11 @@ namespace Ship_Game
             }
         }
 
-        void ProjectPieMenu(Vector2 position, float z)
+        void ProjectPieMenu(Vector3 position)
         {
-            Vector3 proj = Viewport.Project(position.ToVec3(z), Projection, View, Matrix.Identity);
-            pieMenu.Position    = proj.ToVec2();
-            pieMenu.Radius      = 75f;
+            Vector3 proj = Viewport.Project(position, Projection, View, Matrix.Identity);
+            pieMenu.Position = proj.ToVec2();
+            pieMenu.Radius = 75f;
             pieMenu.ScaleFactor = 1f;
         }
 

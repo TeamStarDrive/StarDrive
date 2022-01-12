@@ -10,8 +10,6 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        Map<PlanetGlow, SubTexture> Glows;
-
         public void DrawStarField()
         {
             if (GlobalStats.DrawStarfield)
@@ -132,7 +130,7 @@ namespace Ship_Game
             for (int i = 0; i < sys.PlanetList.Count; i++)
             {
                 Planet planet = sys.PlanetList[i];
-                Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f).ToVec2f();
+                Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center3D).ToVec2f();
                 float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
 
                 if (viewState > UnivScreenState.ShipView && !IsCinematicModeEnabled)
@@ -155,12 +153,9 @@ namespace Ship_Game
 
         void DrawPlanetInSectorView(SpriteBatch batch, Planet planet)
         {
-            ProjectToScreenCoords(planet.Center, 2500f, planet.ObjectRadius,
+            ProjectToScreenCoords(planet.Center3D, planet.ObjectRadius,
                                   out Vector2d planetScreenPos, out double planetScreenRadius);
             Vector2 pos = planetScreenPos.ToVec2f();
-
-            if (planet.Type.Glow != PlanetGlow.None)
-                DrawAtmosphericGlow(batch, planet, pos, (float)planetScreenRadius);
 
             lock (GlobalStats.ClickableSystemsLock)
             {
@@ -710,15 +705,7 @@ namespace Ship_Game
                         Planet p = solarSystem.PlanetList[j];
                         if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
                         {
-                            if (p.Type.EarthLike)
-                            {
-                                DrawClouds(device, p.CloudMatrix, p);
-                                DrawAtmo(device, p.CloudMatrix);
-                            }
-                            if (p.HasRings)
-                            {
-                                DrawRings(device, p.RingWorld, p.Scale);
-                            }
+                            DrawPlanet(device, p);
                         }
                     }
                 }

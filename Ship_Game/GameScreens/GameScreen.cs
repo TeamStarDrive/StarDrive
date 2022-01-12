@@ -532,6 +532,15 @@ namespace Ship_Game
             return ProjectToScreenPosition(new Vector3d(posInWorld, zAxis));
         }
 
+        public void ProjectToScreenCoords(Vector3 posInWorld, float sizeInWorld,
+                                          out Vector2d posOnScreen, out double sizeOnScreen)
+        {
+            // TODO: check accuracy of Pos and Size
+            posOnScreen = ProjectToScreenPosition(posInWorld);
+            var pos2 = ProjectToScreenPosition(new Vector3(posInWorld.X + sizeInWorld, posInWorld.Y, posInWorld.Z));
+            sizeOnScreen = pos2.Distance(posOnScreen);
+        }
+
         public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld,
                                           out Vector2d posOnScreen, out double sizeOnScreen)
         {
