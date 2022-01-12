@@ -395,7 +395,10 @@ namespace Ship_Game
 
             UpdateBeamMesh();
             if (Active && Duration < 0f && !Infinite)
+            {
+                AI.ClearBeam();
                 Die(null, true);
+            }
         }
     }
 }
