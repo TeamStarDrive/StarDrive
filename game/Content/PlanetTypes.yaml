@@ -9,7 +9,7 @@
   SpecularMap:   
   NormalMap:     Model/SpaceObjects/planet_tex3_normal.dds
   EmissiveMap:   
-  SpecularPower: 15.625
+  SpecularPower: 0.5
   Habitable: true
   HabitableTileChance: 1
   PopPerTile: [50, 100]
@@ -26,7 +26,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex4_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex4_normal.dds
   EmissiveMap:   Model/SpaceObjects/planet_tex4_emis.dds
-  SpecularPower: 46.875
+  SpecularPower: 0.5
   Habitable: true
   HabitableTileChance: 2
   PopPerTile: [50, 150]
@@ -43,8 +43,8 @@
   SpecularMap:   
   NormalMap:     Model/SpaceObjects/planet_tex5_normal.dds
   EmissiveMap:   
-  SpecularPower: 15.625
-  Glow: [172,29,5,255] # Red
+  SpecularPower: 0.5
+  Glow: [152,29,5,200] # Red
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
   Habitable: true
@@ -63,8 +63,8 @@
   SpecularMap:   
   NormalMap:     Model/SpaceObjects/mercurynormal.dds
   EmissiveMap:   
-  SpecularPower: 31.25
-  Glow: [172,29,5,255] # Red
+  SpecularPower: 0.5
+  Glow: [152,29,5,200] # Red
   Habitable: true
   HabitableTileChance: 1
   PopPerTile: [50, 100]
@@ -81,8 +81,8 @@
   SpecularMap:   
   NormalMap:     Model/SpaceObjects/MarsNormal.dds
   EmissiveMap:   
-  SpecularPower: 21.875
-  Glow: [172,29,5,255] # Red
+  SpecularPower: 0.5
+  Glow: [152,29,5,200] # Red
   Habitable: true
   HabitableTileChance: 5
   PopPerTile: [150, 300]
@@ -100,7 +100,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex16_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex16_normal.dds
   EmissiveMap:   
-  SpecularPower: 31.25
+  SpecularPower: 0.5
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
   Habitable: true
@@ -119,7 +119,7 @@
   SpecularMap:   
   NormalMap:     
   EmissiveMap:   
-  SpecularPower: 0
+  SpecularPower: 0.5
   Habitable: true
   HabitableTileChance: 0
   PopPerTile: [75, 125]
@@ -136,7 +136,7 @@
   SpecularMap:   
   NormalMap:     
   EmissiveMap:   
-  SpecularPower: 0
+  SpecularPower: 0.5
   Habitable: true
   HabitableTileChance: 0
   PopPerTile: [50, 100]
@@ -154,8 +154,8 @@
   SpecularMap:   Model/SpaceObjects/planet_9spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex9_normal.dds
   EmissiveMap:   Model/SpaceObjects/planet_9emiss.dds
-  SpecularPower: 31.25
-  Glow: [172,29,5,255] # Red
+  SpecularPower: 4
+  Glow: [152,29,5,200] # Red
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 - PlanetType:
@@ -168,8 +168,8 @@
   SpecularMap:   Model/SpaceObjects/planet_23spec.dds
   NormalMap:     Model/SpaceObjects/planet_23normalalt.dds
   EmissiveMap:   Model/SpaceObjects/planet_23emis.dds
-  SpecularPower: 31.25
-  Glow: [172,29,5,255] # Red
+  SpecularPower: 4
+  Glow: [152,29,5,200] # Red
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
 # Ice
@@ -183,7 +183,7 @@
   SpecularMap:   
   NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [255,255,255,255] # White
   Habitable: true
   HabitableTileChance: [35, 75]
@@ -203,7 +203,7 @@
   SpecularMap:   
   NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [255,255,255,255] # White
   Habitable: true
   HabitableTileChance: [25, 60]
@@ -222,7 +222,7 @@
   SpecularMap:   
   NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [255,255,255,255] # White
   Habitable: true
   HabitableTileChance: [20, 50]
@@ -241,7 +241,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [44,204,149,255] # Aqua
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -263,7 +263,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [44,204,149,255] # Aqua
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -285,7 +285,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [44,204,149,255] # Aqua
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -307,7 +307,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex21_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex21_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -329,7 +329,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex21_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex21_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -351,7 +351,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex21_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex21_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -372,7 +372,7 @@
   SpecularMap:   
   NormalMap:     Model/SpaceObjects/planet_tex14_normal.dds
   EmissiveMap:   
-  SpecularPower: 0
+  SpecularPower: 0.5
   Glow: [249,229,91,255] # Orange
   Habitable: true
   HabitableTileChance: [10, 45]
@@ -392,7 +392,7 @@
   SpecularMap:   
   NormalMap:     Model/SpaceObjects/planet_tex14_normal.dds
   EmissiveMap:   
-  SpecularPower: 0
+  SpecularPower: 0.5
   Glow: [249,229,91,255] # Orange
   Habitable: true
   HabitableTileChance: [45, 75]
@@ -412,7 +412,7 @@
   SpecularMap:   
   NormalMap:     Model/SpaceObjects/planet_tex14_normal.dds
   EmissiveMap:   
-  SpecularPower: 0
+  SpecularPower: 0.5
   Glow: [249,229,91,255] # Orange
   Habitable: true
   HabitableTileChance: [5, 40]
@@ -433,7 +433,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex11_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex11_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -454,7 +454,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex11_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex11_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -475,7 +475,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex11_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex11_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -496,7 +496,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
   EmissiveMap:   
-  SpecularPower: 31.25
+  SpecularPower: 4
   Glow: [249,229,91,255] # Orange
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -518,7 +518,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
   EmissiveMap:   
-  SpecularPower: 31.25
+  SpecularPower: 4
   Glow: [249,229,91,255] # Orange
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -539,7 +539,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
   EmissiveMap:   
-  SpecularPower: 31.25
+  SpecularPower: 4
   Glow: [249,229,91,255] # Orange
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -560,7 +560,7 @@
   SpecularMap:   Model/SpaceObjects/planet1_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex1_normal.dds
   EmissiveMap:   
-  SpecularPower: 31.25
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -580,7 +580,7 @@
   SpecularMap:   Model/SpaceObjects/planet_13spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex13_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   PlanetTile: Terran_2
   Clouds: true # give it earthlike clouds layer
@@ -601,7 +601,7 @@
   SpecularMap:   Model/SpaceObjects/planet_tex22_spec.dds
   NormalMap:     Model/SpaceObjects/planet_tex22_normal.dds
   EmissiveMap:   
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   PlanetTile: Terran_3
   Clouds: true # give it earthlike clouds layer
@@ -623,7 +623,7 @@
   SpecularMap:   Model/SpaceObjects/earthspec1k.dds
   NormalMap:     Model/SpaceObjects/earthnormal.dds
   EmissiveMap:   Model/SpaceObjects/earthlights1k.dds
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -644,7 +644,7 @@
   SpecularMap:   Model/SpaceObjects/arazius3spec.dds
   NormalMap:     Model/SpaceObjects/arazius3normal.dds
   EmissiveMap:   Model/SpaceObjects/arazius3night.dds
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -665,7 +665,7 @@
   SpecularMap:   Model/SpaceObjects/NovaTerra_specular.dds
   NormalMap:     Model/SpaceObjects/NovaTerra_normal.dds
   EmissiveMap:   Model/SpaceObjects/NovaTerra_emissive.dds
-  SpecularPower: 62.5
+  SpecularPower: 4
   Glow: [57,146,215,255] # Terran Blue
   Clouds: true # give it earthlike clouds layer
   Atmosphere: true # give it earthlike atmosphere layer
@@ -678,7 +678,7 @@
 
 # GasGiants
 - PlanetType:
-  Id: 2 # Less Stripey Light Beige Giant
+  Id: 2 # Less Stripey Light Beige Giant, Saturn?
   Name: GasGiant_LightBeige
   Category: GasGiant
   Composition: 1701
@@ -687,7 +687,8 @@
   SpecularMap:   
   NormalMap:     
   EmissiveMap:   
-  SpecularPower: 1
+  SpecularPower: 0.5
+  Glow: [249,229,91,128] # Orange with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -701,7 +702,8 @@
   SpecularMap:   
   NormalMap:     
   EmissiveMap:   
-  SpecularPower: 1
+  SpecularPower: 0.5
+  Glow: [172,29,5,128] # Red with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -715,7 +717,8 @@
   SpecularMap:   
   NormalMap:     
   EmissiveMap:   
-  SpecularPower: 1
+  SpecularPower: 0.5
+  Glow: [249,229,91,128] # Orange with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -729,7 +732,8 @@
   SpecularMap:   
   NormalMap:     
   EmissiveMap:   
-  SpecularPower: 1
+  SpecularPower: 0.5
+  Glow: [172,29,5,128] # Red with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -743,7 +747,8 @@
   SpecularMap:   
   NormalMap:     
   EmissiveMap:   
-  SpecularPower: 1
+  SpecularPower: 0.5
+  Glow: [44,204,149,128] # Aqua with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -757,7 +762,8 @@
   SpecularMap:   
   NormalMap:     
   EmissiveMap:   
-  SpecularPower: 1
+  SpecularPower: 0.5
+  Glow: [57,146,215,128] # Blue with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -771,6 +777,7 @@
   SpecularMap:   
   NormalMap:     
   EmissiveMap:   
-  SpecularPower: 1
+  SpecularPower: 0.5
+  Glow: [249,229,91,128] # Orange with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]

@@ -50,17 +50,34 @@ namespace Ship_Game
         // pre-load everything necessary
         public void Initialize(GameContentManager content, Model planetModel)
         {
+            var fx = new LightingEffect(content.Device);
+            fx.MaterialName          = $"Mat_Planet_{Id}_{Name}";
+            fx.MaterialFile          = "";
+            fx.ProjectFile           = "PlanetType.cs";
+            fx.DiffuseMapFile        = DiffuseMap;
+            fx.EmissiveMapFile       = EmissiveMap;
+            fx.NormalMapFile         = NormalMap;
+            fx.SpecularColorMapFile  = SpecularMap;
+            fx.DiffuseMapTexture  = TryLoadTexture(content, DiffuseMap);
+            fx.EmissiveMapTexture = TryLoadTexture(content, EmissiveMap);
+            fx.NormalMapTexture   = TryLoadTexture(content, NormalMap);
+            fx.SpecularColorMapTexture = TryLoadTexture(content, SpecularMap);
+            fx.SpecularPower  = SpecularPower; // default: 4
+            fx.SpecularAmount = 0.25f; // default: 0.25
+            fx.FresnelReflectBias            = 0.0f; // default: 0
+            fx.FresnelReflectOffset          = 1.0f; // default: 1
+            fx.FresnelMicrofacetDistribution = 0.4f; // default: 0.4
+            fx.ParallaxScale                 = 0.0f; // default: 0
+            fx.ParallaxOffset                = 0.0f; // default: 0
+            Material = fx;
             PlanetModel = planetModel;
-            Material = MeshInterface.CreateMaterialEffect(
-                content,
-                matName:$"Mat_Planet_{Id}_{Name}",
-                diffuse:DiffuseMap,
-                specular:SpecularMap,
-                normal:NormalMap,
-                emissive:EmissiveMap,
-                alpha:"",
-                SpecularPower
-            );
+        }
+
+        static Texture2D TryLoadTexture(GameContentManager content, string texturePath)
+        {
+            if (texturePath.IsEmpty())
+                return null;
+            return content.Load<Texture2D>(texturePath);
         }
 
         public SceneObject CreatePlanetSO()
@@ -68,10 +85,5 @@ namespace Ship_Game
             var so = StaticMesh.SceneObjectFromModel(PlanetModel, Material);
             return so;
         }
-    }
-
-    public enum PlanetGlow
-    {
-        None, Terran, Red, White, Aqua, Orange
     }
 }
