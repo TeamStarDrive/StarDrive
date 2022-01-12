@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
 using SgMotion;
 using SgMotion.Controllers;
 using SynapseGaming.LightingSystem.Core;
+using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Data.Mesh
@@ -54,7 +56,64 @@ namespace Ship_Game.Data.Mesh
             return so;
         }
 
-        static SceneObject SceneObjectFromModel(GameContentManager content, string modelName, int maxSubMeshes = 0)
+        delegate void DrawDelegate(ModelMeshPart mesh);
+        static DrawDelegate ModelMeshDraw;
+
+        // Draw a model with a custom material effect override
+        // TODO: Instead of using ModelMesh, implement Draw() for StaticMesh by looking at ModelMesh impl.
+        public static void Draw(Model model, Effect effect)
+        {
+            if (ModelMeshDraw == null)
+            {
+                var draw = typeof(ModelMeshPart).GetMethod("Draw", BindingFlags.NonPublic|BindingFlags.Instance);
+                ModelMeshDraw = (DrawDelegate)draw.CreateDelegate(typeof(DrawDelegate));
+            }
+
+            var passes = effect.CurrentTechnique.Passes;
+            int numPasses = passes.Count;
+            effect.Begin(SaveStateMode.None);
+            try
+            {
+                for (int passIdx = 0; passIdx < numPasses; ++passIdx)
+                {
+                    EffectPass pass = passes[passIdx];
+                    pass.Begin();
+                    
+                    int numMeshes = model.Meshes.Count;
+                    for (int i = 0; i < numMeshes; ++i)
+                    {
+                        ModelMesh mesh = model.Meshes[i];
+                        int numParts = mesh.MeshParts.Count;
+                        for (int meshPartIdx = 0; meshPartIdx < numParts; ++meshPartIdx)
+                        {
+                            ModelMeshPart meshPart = mesh.MeshParts[meshPartIdx];
+                            ModelMeshDraw(meshPart);
+                        }
+                    }
+
+                    pass.End();
+                }
+            }
+            finally
+            {
+                effect.End();
+            }
+        }
+
+        public static SceneObject SceneObjectFromModel(Model model, Effect effect)
+        {
+            var so = new SceneObject(model.Root.Name) { ObjectType = ObjectType.Dynamic };
+            ModelMeshCollection meshes = model.Meshes;
+            for (int i = 0; i < meshes.Count; ++i)
+                so.Add(meshes[i], effect);
+            return so;
+        }
+
+        public static SceneObject SceneObjectFromModel(
+            GameContentManager content,
+            string modelName,
+            int maxSubMeshes = 0,
+            Effect effect = null)
         {
             var so = new SceneObject(modelName) { ObjectType = ObjectType.Dynamic };
             try
@@ -63,7 +122,7 @@ namespace Ship_Game.Data.Mesh
                 ModelMeshCollection meshes = model.Meshes;
                 int count = SubMeshCount(maxSubMeshes, meshes.Count);
                 for (int i = 0; i < count; ++i)
-                    so.Add(meshes[i]);
+                    so.Add(meshes[i], effect);
             }
             catch (Exception e)
             {
@@ -106,13 +165,6 @@ namespace Ship_Game.Data.Mesh
             if (animated)
                 return SceneObjectFromSkinnedModel(content, modelName);
             return SceneObjectFromModel(content, modelName);
-        }
-
-        public static SceneObject GetPlanetarySceneMesh(GameContentManager content, string modelName)
-        {
-            if (RawContentLoader.IsSupportedMesh(modelName))
-                return FromFbx(content, modelName, 1);
-            return SceneObjectFromModel(content, modelName, 1);
         }
     }
 }

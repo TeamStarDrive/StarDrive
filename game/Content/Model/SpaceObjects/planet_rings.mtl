@@ -1,0 +1,8 @@
+# 3ds Max Wavefront OBJ Exporter v0.99 - (c)2007 guruware
+# File Created: 11.01.2022 17:59:07
+
+newmtl planet_rings
+	Kd 1.0000 1.0000 1.0000
+	d 1.0000
+	illum 2
+	map_Kd planet_rings.dds

@@ -64,13 +64,20 @@ namespace Ship_Game.Data
             return "Content/" + contentName;
         }
 
-        public object LoadAsset(string fileNameWithExt, string ext)
+        public object LoadAsset(Type type, string fileNameWithExt, string ext)
         {
             if (IsSupportedMeshExtension(ext))
             {
-                Log.Info(ConsoleColor.Magenta, $"Raw LoadMesh: {fileNameWithExt}");
                 string meshPath = GetContentPath(fileNameWithExt);
-                return MeshImport.Import(meshPath, fileNameWithExt);
+                if (type == typeof(StaticMesh))
+                {
+                    Log.Info(ConsoleColor.Magenta, $"Raw LoadStaticMesh: {fileNameWithExt}");
+                    return MeshImport.ImportStaticMesh(meshPath, fileNameWithExt);
+                }
+                else if (type == typeof(Model))
+                {
+                    return MeshImport.ImportModel(meshPath, fileNameWithExt);
+                }
             }
 
             //Log.Info(ConsoleColor.Magenta, $"Raw LoadTexture: {fileNameWithExt}");
@@ -106,7 +113,7 @@ namespace Ship_Game.Data
         public StaticMesh LoadStaticMesh(string meshName)
         {
             string meshPath = GetContentPath(meshName);
-            return MeshImport.Import(meshPath, meshName);
+            return MeshImport.ImportStaticMesh(meshPath, meshName);
         }
 
         public Array<FileInfo> GetAllXnbModelFiles(string folder)
@@ -178,16 +185,21 @@ namespace Ship_Game.Data
                     if (isTexture2D)
                     {
                         var tex = Content.Load<Texture2D>(relativePath);
-                        string texSavePath = TexExport.GetSaveAutoFormatPath(tex, savePath);
-                        Log.Write(ConsoleColor.Green, $"  Export Texture: {texSavePath}");
-                        GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
-                        TexExport.SaveAutoFormat(tex, texSavePath);
+                        if (!MeshExport.IsAlreadySavedTexture(tex))
+                        {
+                            string texSavePath = TexExport.GetSaveAutoFormatPath(tex, savePath);
+                            texSavePath = texSavePath.Replace("_0.", ".");
+                            Log.Write(ConsoleColor.Green, $"  Export Lone Texture: {texSavePath}");
+                            GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
+                            TexExport.SaveAutoFormat(tex, texSavePath);
+                            MeshExport.AddAlreadySavedTexture(tex, texSavePath);
+                        }
                     }
                     else
                     {
                         var tex3d = Content.Load<Texture3D>(relativePath);
                         string texSavePath = Path.ChangeExtension(savePath, "dds");
-                        Log.Write(ConsoleColor.DarkYellow, $"  Export Texture3D: {texSavePath}");
+                        Log.Write(ConsoleColor.DarkYellow, $"  Export Lone Texture3D: {texSavePath}");
                         GameLoadingScreen.SetStatus("ExportTexture", texSavePath);
                         TexExport.Save(tex3d, texSavePath);
                     }
@@ -215,10 +227,10 @@ namespace Ship_Game.Data
         public void ExportAllXnbMeshes(string extension)
         {
             var files = new Array<FileInfo>();
-            files.AddRange(GetAllXnbModelFiles("Effects"));
-            files.AddRange(GetAllXnbModelFiles("Model"));
-            files.AddRange(GetAllXnbModelFiles("mod models"));
-            files.AddRange(GetAllXnbModelFiles("model"));
+            //files.AddRange(GetAllXnbModelFiles("Effects"));
+            //files.AddRange(GetAllXnbModelFiles("mod models"));
+            //files.AddRange(GetAllXnbModelFiles("Model"));
+            files.AddRange(GetAllXnbModelFiles("Model/SpaceObjects"));
 
             void ExportMeshes(int start, int end)
             {

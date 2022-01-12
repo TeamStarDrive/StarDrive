@@ -295,7 +295,7 @@ namespace Ship_Game
             float planetRadius = 1000f * (float)(1 + (Math.Log(Scale) / 1.5));
             ObjectRadius = planetRadius;
             OrbitalRadius = ringRadius + planetRadius;
-            Center = system.Position + MathExt.PointOnCircle(randomAngle, ringRadius);
+            Center = MathExt.PointOnCircle(randomAngle, ringRadius);
             PlanetTilt = RandomMath.RandomBetween(45f, 135f);
 
             GenerateMoons(system, newOrbital:this);
@@ -303,7 +303,7 @@ namespace Ship_Game
             if (RandomMath.RandomBetween(1f, 100f) < 15f)
             {
                 HasRings = true;
-                RingTilt = RandomMath.RandomBetween(-80f, -45f);
+                RingTilt = RandomMath.RandomBetween(-80f, -45f).ToRadians();
             }
         }
 
@@ -1160,7 +1160,7 @@ namespace Ship_Game
                 if (!ship.CanBeRefitted)
                     chance *= 0.1f; // Dont recover hangar ships or home defense ships so easily.
 
-                if (!Type.EarthLike)
+                if (!Type.Atmosphere)
                     chance *= 1.5f; // No atmosphere, not able to burn during planetfall
 
                 chance *= 1 + ship.Loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
