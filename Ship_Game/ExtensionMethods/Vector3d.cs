@@ -43,7 +43,7 @@ namespace Ship_Game
 
         public override string ToString()
         {
-            return string.Format($"{{X:{X:0.###} Y:{Y:0.###} Z:{Z:0.###}}}");
+            return string.Format($"[{X:0.###}, {Y:0.###}, {Z:0.###}]");
         }
 
         [Pure] public Vector2 ToVec2f() => new Vector2((float)X, (float)Y);

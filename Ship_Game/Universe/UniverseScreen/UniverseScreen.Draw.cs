@@ -16,7 +16,7 @@ namespace Ship_Game
         static readonly Vector2 FleetNameOffset = new Vector2(10f, -6f);
         public static float PulseTimer { get; private set; }
 
-        bool CanDrawPlanetGlow(Planet p) => viewState < UnivScreenState.SystemView && p.Type.Glow.HasValue;
+        bool CanDrawPlanetGlow(Planet p) => CamPos.Z < 300000.0 && p.Type.Glow.HasValue;
 
         // This draws the clouds and atmosphere layers:
         // 1. layer: clouds sphere              (if PlanetType.Clouds == true)
@@ -41,17 +41,25 @@ namespace Ship_Game
 
             if (CanDrawPlanetGlow(p))
             {
-                rs.CullMode = CullMode.CullClockwiseFace;
+                rs.CullMode = CullMode.None;
 
                 // get direction from camera to planet, set camera pos really high
                 // to avoid excessive rotation when moving camera while zoomed in
                 // TODO: our camera works in coordinate space where +Z is out of the screen and -Z is background
                 // TODO: but our 3D coordinate system works with -Z out of the screen and +Z is background
                 // HACK: planetPos Z is flipped
-                Vector3 cameraPos = CamPos.ToVec3f();
-                Vector3 planetPos = p.Center3D * new Vector3(1, 1, -1);
-                Vector3 camToPlanet = (planetPos - cameraPos).Normalized();
-                Matrix rotation = Matrix.CreateLookAt(Vector3.Zero, camToPlanet, Vector3.Up);
+                Matrix rotation;
+                if (CamPos.Z < 75_000.0)
+                {
+                    Vector3 cameraPos = CamPos.ToVec3f();
+                    Vector3 planetPos = p.Center3D * new Vector3(1, 1, -1);
+                    Vector3 camToPlanet = (planetPos - cameraPos).Normalized();
+                    rotation = Matrix.CreateLookAt(Vector3.Zero, camToPlanet, Vector3.Up);
+                }
+                else // we're far enough, no need to rotate towards camera
+                {
+                    rotation = Matrix.Identity;
+                }
 
                 var glowFx = ResourceManager.PlanetGlowEffect;
                 glowFx.World = Matrix.CreateScale(1.05f) * rotation * p.GlowMatrix;

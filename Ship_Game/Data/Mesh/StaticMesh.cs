@@ -100,20 +100,6 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
-        public static Model LoadModel(GameContentManager content, string modelName)
-        {
-            try
-            {
-                Model model = content.LoadModel(modelName);
-                return model;
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"LoadModel failed: {modelName}");
-            }
-            return null;
-        }
-
         public static SceneObject SceneObjectFromModel(Model model, Effect effect)
         {
             var so = new SceneObject(model.Root.Name) { ObjectType = ObjectType.Dynamic };
@@ -179,13 +165,6 @@ namespace Ship_Game.Data.Mesh
             if (animated)
                 return SceneObjectFromSkinnedModel(content, modelName);
             return SceneObjectFromModel(content, modelName);
-        }
-
-        public static SceneObject GetPlanetarySceneMesh(GameContentManager content, string modelName)
-        {
-            if (RawContentLoader.IsSupportedMesh(modelName))
-                return FromFbx(content, modelName, 1);
-            return SceneObjectFromModel(content, modelName, 1);
         }
     }
 }
