@@ -183,7 +183,6 @@ namespace Ship_Game
         public SolarSystem ParentSystem;
 
         public Matrix PlanetMatrix;
-        public Matrix GlowMatrix; // planetary glow matrix, always flat with universe plane
         public Matrix CloudMatrix; // tilted a bit differently than PlanetMatrix, and they constantly rotate
         public Matrix RingWorld; // bigger and tilted in a third way
         public SceneObject SO;
@@ -375,7 +374,6 @@ namespace Ship_Game
             var pos3d = Matrix.CreateTranslation(Center3D);
             var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
 
-            GlowMatrix = scale * pos3d;
             PlanetMatrix = scale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
             CloudMatrix  = scale * Matrix.CreateRotationZ(-Zrotate / 1.5f) * tilt * pos3d;
             RingWorld    = scale * Matrix.CreateRotationX(RingTilt) * pos3d;
