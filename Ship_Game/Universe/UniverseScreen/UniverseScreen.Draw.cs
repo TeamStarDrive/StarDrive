@@ -55,7 +55,7 @@ namespace Ship_Game
             
             if (CanDrawPlanetGlow(p))
             {
-                rs.CullMode = CullMode.None;
+                rs.CullMode = CullMode.CullCounterClockwiseFace;
 
                 // rotate the glow effect always towards the camera by getting direction from camera to planet
                 // TODO: our camera works in coordinate space where +Z is out of the screen and -Z is background
@@ -67,6 +67,7 @@ namespace Ship_Game
                 // HACK: flip XZ so the planet glow mesh faces correctly towards us
                 Vector3 camToPlanet = planetPos - cameraPos;
                 camToPlanet.X = -camToPlanet.X;
+                //camToPlanet.Y = -camToPlanet.Y;
                 camToPlanet.Z = -camToPlanet.Z;
 
                 var scale = Matrix.CreateScale(10f * p.Scale);
@@ -81,7 +82,8 @@ namespace Ship_Game
                 var color = p.Type.Glow.Value.ToVector4();
                 glowFx.DiffuseColor = new Vector3(color.X, color.Y, color.Z);
                 glowFx.Alpha = color.W;
-                StaticMesh.Draw(ResourceManager.PlanetGlowModel, glowFx);
+                StaticMesh.Draw(ResourceManager.PlanetGlowRing, glowFx);
+                StaticMesh.Draw(ResourceManager.PlanetGlowFresnel, glowFx);
             }
 
             if (p.Type.Atmosphere)

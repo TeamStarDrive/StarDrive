@@ -184,7 +184,7 @@
   NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
   EmissiveMap:   
   SpecularPower: 4
-  Glow: [255,255,255,128] # White
+  Glow: [255,255,255,80] # White
   Habitable: true
   HabitableTileChance: [35, 75]
   PopPerTile: [250, 400]
@@ -204,7 +204,7 @@
   NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
   EmissiveMap:   
   SpecularPower: 4
-  Glow: [255,255,255,128] # White
+  Glow: [255,255,255,80] # White
   Habitable: true
   HabitableTileChance: [25, 60]
   PopPerTile: [100, 300]
@@ -223,7 +223,7 @@
   NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
   EmissiveMap:   
   SpecularPower: 4
-  Glow: [255,255,255,128] # White
+  Glow: [255,255,255,80] # White
   Habitable: true
   HabitableTileChance: [20, 50]
   PopPerTile: [50, 150]
@@ -688,7 +688,7 @@
   NormalMap:     
   EmissiveMap:   
   SpecularPower: 0.5
-  Glow: [249,229,91,128] # Orange with alpha
+  Glow: [249,229,91,100] # Yellow with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -703,7 +703,7 @@
   NormalMap:     
   EmissiveMap:   
   SpecularPower: 0.5
-  Glow: [172,29,5,128] # Red with alpha
+  Glow: [172,79,25,100] # DarkOrange with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -718,7 +718,7 @@
   NormalMap:     
   EmissiveMap:   
   SpecularPower: 0.5
-  Glow: [249,229,91,128] # Orange with alpha
+  Glow: [249,229,91,100] # Yellow with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -733,7 +733,7 @@
   NormalMap:     
   EmissiveMap:   
   SpecularPower: 0.5
-  Glow: [172,29,5,128] # Red with alpha
+  Glow: [172,79,25,100] # DarkOrange with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -748,7 +748,7 @@
   NormalMap:     
   EmissiveMap:   
   SpecularPower: 0.5
-  Glow: [44,204,149,128] # Aqua with alpha
+  Glow: [44,204,149,100] # Aqua with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -763,7 +763,7 @@
   NormalMap:     
   EmissiveMap:   
   SpecularPower: 0.5
-  Glow: [57,146,215,128] # Blue with alpha
+  Glow: [57,146,215,100] # Blue with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -778,6 +778,6 @@
   NormalMap:     
   EmissiveMap:   
   SpecularPower: 0.5
-  Glow: [249,229,91,128] # Orange with alpha
+  Glow: [249,229,91,100] # Yellow with alpha
   Scale: 2.5
   MoonTypes: [Barren,Desert,Volcanic,Ice]

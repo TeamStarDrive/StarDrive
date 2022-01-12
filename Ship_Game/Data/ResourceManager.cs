@@ -1856,7 +1856,8 @@ namespace Ship_Game
         // Planet graphics
         public static Model PlanetSphereModel { get; private set; }
         public static Model PlanetRingsModel { get; private set; }
-        public static Model PlanetGlowModel { get; private set; }
+        public static Model PlanetGlowRing { get; private set; }
+        public static Model PlanetGlowFresnel { get; private set; }
         public static Model AtmosphereModel { get; private set; }
 
         public static BasicEffect PlanetRingsEffect { get; private set; }
@@ -1886,14 +1887,15 @@ namespace Ship_Game
 
             PlanetSphereModel = RootContent.LoadModel("Model/SpaceObjects/planet_sphere.obj");
             PlanetRingsModel  = RootContent.LoadModel("Model/SpaceObjects/planet_rings.obj");
-            PlanetGlowModel   = RootContent.LoadModel("Model/SpaceObjects/planet_glow_ring.obj");
+            PlanetGlowRing    = RootContent.LoadModel("Model/SpaceObjects/planet_glow_ring.obj");
+            PlanetGlowFresnel = RootContent.LoadModel("Model/SpaceObjects/planet_glow_fresnel.obj");
             AtmosphereModel   = RootContent.LoadModel("Model/SpaceObjects/atmo_sphere.obj");
             
             CloudsTexture      = RootContent.Load<Texture2D>("Model/SpaceObjects/earthcloudmap.dds");
             PlanetRingsTexture = RootContent.Load<Texture2D>("Model/SpaceObjects/planet_rings.dds");
             AtmosphereColorTexture = RootContent.Load<Texture2D>("Model/SpaceObjects/AtmosphereColor.dds");
             PlanetGlowTexture = RootContent.Load<Texture2D>("Model/SpaceObjects/planet_glow_fresnel.png");
-            ImageUtils.ConvertToPreMultipliedAlphaMap(PlanetGlowTexture);
+            ImageUtils.ConvertToAlphaMap(PlanetGlowTexture, preMultiplied:false);
 
             PlanetRingsEffect = new BasicEffect(RootContent.Device, null);
             PlanetRingsEffect.Texture = PlanetRingsTexture;
@@ -1936,7 +1938,7 @@ namespace Ship_Game
         {
             PlanetSphereModel = null;
             PlanetRingsModel = null;
-            PlanetGlowModel = null;
+            PlanetGlowRing = null;
             AtmosphereModel = null;
             CloudsTexture = null;
             PlanetRingsTexture = null;
