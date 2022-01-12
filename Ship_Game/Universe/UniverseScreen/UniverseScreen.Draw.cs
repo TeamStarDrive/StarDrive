@@ -16,27 +16,18 @@ namespace Ship_Game
         static readonly Vector2 FleetNameOffset = new Vector2(10f, -6f);
         public static float PulseTimer { get; private set; }
 
-        private void DrawRings(GraphicsDevice device, in Matrix world, float scale)
-        {
-            device.SamplerStates[0].AddressU          = TextureAddressMode.Wrap;
-            device.SamplerStates[0].AddressV          = TextureAddressMode.Wrap;
-            device.RenderState.AlphaBlendEnable       = true;
-            device.RenderState.AlphaBlendOperation    = BlendFunction.Add;
-            device.RenderState.SourceBlend            = Blend.SourceAlpha;
-            device.RenderState.DestinationBlend       = Blend.InverseSourceAlpha;
-            device.RenderState.DepthBufferWriteEnable = false;
-            device.RenderState.CullMode               = CullMode.None;
+        bool CanDrawPlanetGlow(Planet p) => viewState < UnivScreenState.SystemView && p.Type.Glow.HasValue;
 
-            BasicEffect ringEffect = ResourceManager.PlanetRingsEffect;
-            ringEffect.World = Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * world;
-            ringEffect.View = View;
-            ringEffect.Projection = Projection;
-            StaticMesh.Draw(ResourceManager.PlanetRingsModel, ringEffect);
-            device.RenderState.DepthBufferWriteEnable = true;
-        }
-
-        void DrawAtmo(GraphicsDevice device, in Matrix world)
+        // This draws the clouds and atmosphere layers:
+        // 1. layer: clouds sphere              (if PlanetType.Clouds == true)
+        // 2. layer: blueish transparent sphere (if PlanetType.Atmosphere == true)
+        // 3. layer: subtle halo effect         (if PlanetType.Atmosphere == true)
+        // 4. layer: rings                      (if any)
+        void DrawPlanet(GraphicsDevice device, Planet p)
         {
+            if (!p.HasRings && !p.Type.Clouds && !p.Type.Atmosphere && !CanDrawPlanetGlow(p))
+                return;
+
             device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             RenderState rs = device.RenderState;
@@ -45,70 +36,96 @@ namespace Ship_Game
             rs.SourceBlend = Blend.SourceAlpha;
             rs.DestinationBlend = Blend.InverseSourceAlpha;
             rs.DepthBufferWriteEnable = false;
-            rs.CullMode = CullMode.CullClockwiseFace;
 
-            // draw blueish transparent atmosphere sphere
-            var atmoColorFx = ResourceManager.AtmoColorEffect;
-            atmoColorFx.World = Matrix.CreateScale(1.1f) * world; // slightly bigger than clouds
-            atmoColorFx.View = View;
-            atmoColorFx.Projection = Projection;
-            StaticMesh.Draw(ResourceManager.PlanetSphereModel, atmoColorFx);
+            Vector3 sunToPlanet = (p.Center - p.ParentSystem.Position).ToVec3().Normalized();
 
-            DrawPlanetHalo(world);
+            if (CanDrawPlanetGlow(p))
+            {
+                rs.CullMode = CullMode.CullClockwiseFace;
+
+                // get direction from camera to planet, set camera pos really high
+                // to avoid excessive rotation when moving camera while zoomed in
+                // TODO: our camera works in coordinate space where +Z is out of the screen and -Z is background
+                // TODO: but our 3D coordinate system works with -Z out of the screen and +Z is background
+                // HACK: planetPos Z is flipped
+                Vector3 cameraPos = CamPos.ToVec3f();
+                Vector3 planetPos = p.Center3D * new Vector3(1, 1, -1);
+                Vector3 camToPlanet = (planetPos - cameraPos).Normalized();
+                Matrix rotation = Matrix.CreateLookAt(Vector3.Zero, camToPlanet, Vector3.Up);
+
+                var glowFx = ResourceManager.PlanetGlowEffect;
+                glowFx.World = Matrix.CreateScale(1.05f) * rotation * p.GlowMatrix;
+                glowFx.View = View;
+                glowFx.Projection = Projection;
+                var color = p.Type.Glow.Value.ToVector4();
+                glowFx.DiffuseColor = new Vector3(color.X, color.Y, color.Z);
+                glowFx.Alpha = color.W;
+                StaticMesh.Draw(ResourceManager.PlanetGlowModel, glowFx);
+            }
+
+            if (p.Type.Clouds)
+            {
+                rs.CullMode = CullMode.CullCounterClockwiseFace; // default is CCW, this means we draw the clouds as usual
+
+                var cloudsFx = ResourceManager.CloudsEffect;
+                cloudsFx.World = SolarSystemBody.PlanetCloudsScale * p.CloudMatrix;
+                cloudsFx.View = View;
+                cloudsFx.Projection = Projection;
+                cloudsFx.DirectionalLight0.Direction = sunToPlanet;
+                cloudsFx.DirectionalLight0.Enabled = true;
+                StaticMesh.Draw(ResourceManager.PlanetSphereModel, cloudsFx);
+            }
+
+            if (p.Type.Atmosphere)
+            {
+                // for blue atmosphere and planet halo, use CW, which means the sphere is inverted
+                rs.CullMode = CullMode.CullClockwiseFace;
+
+                // draw blueish transparent atmosphere sphere
+                var atmoColorFx = ResourceManager.AtmoColorEffect;
+                atmoColorFx.World = SolarSystemBody.PlanetBlueAtmosphereScale * p.CloudMatrix;
+                atmoColorFx.View = View;
+                atmoColorFx.Projection = Projection;
+                atmoColorFx.DirectionalLight0.Direction = sunToPlanet;
+                atmoColorFx.DirectionalLight0.Enabled = true;
+                StaticMesh.Draw(ResourceManager.PlanetSphereModel, atmoColorFx);
+
+                // This is a small shine effect on top of the atmosphere
+                // It is very subtle
+                //var diffuseLightDirection = new Vector3(-0.98f, 0.425f, -0.4f);
+                //Vector3 camPosition = CamPos.ToVec3f();
+                var camPosition = new Vector3(0.0f, 0.0f, 1500f);
+                Vector3 diffuseLightDirection = -sunToPlanet;
+                var haloFx = ResourceManager.PlanetHaloFx;
+                haloFx.Parameters["World"].SetValue(SolarSystemBody.PlanetHaloScale * p.CloudMatrix);
+                haloFx.Parameters["Projection"].SetValue(Projection);
+                haloFx.Parameters["View"].SetValue(View);
+                haloFx.Parameters["CameraPosition"].SetValue(camPosition);
+                haloFx.Parameters["DiffuseLightDirection"].SetValue(diffuseLightDirection);
+                StaticMesh.Draw(ResourceManager.PlanetSphereModel, haloFx);
+            }
+
+            if (p.HasRings)
+            {
+                rs.CullMode = CullMode.None;
+
+                BasicEffect ringEffect = ResourceManager.PlanetRingsEffect;
+                ringEffect.World = SolarSystemBody.PlanetRingsScale * p.RingWorld;
+                ringEffect.View = View;
+                ringEffect.Projection = Projection;
+                StaticMesh.Draw(ResourceManager.PlanetRingsModel, ringEffect);
+            }
 
             rs.DepthBufferWriteEnable = true;
             rs.CullMode = CullMode.CullCounterClockwiseFace;
             rs.AlphaBlendEnable = false;
-        }
 
-        // This is a small shine effect on top of the atmosphere
-        // It is very subtle
-        void DrawPlanetHalo(in Matrix world)
-        {
-            Matrix haloWorldMatrix = Matrix.CreateScale(1.05f) * world;
-            PlanetHaloFx.Parameters["World"].SetValue(haloWorldMatrix);
-            PlanetHaloFx.Parameters["Projection"].SetValue(Projection);
-            PlanetHaloFx.Parameters["View"].SetValue(View);
-            PlanetHaloFx.Parameters["CameraPosition"].SetValue(new Vector3(0.0f, 0.0f, 1500f));
-            PlanetHaloFx.Parameters["DiffuseLightDirection"].SetValue(new Vector3(-0.98f, 0.425f, -0.4f));
-            StaticMesh.Draw(ResourceManager.PlanetSphereModel, PlanetHaloFx);
-        }
-
-        void DrawClouds(GraphicsDevice device, in Matrix world, Planet p)
-        {
-            device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            RenderState rs = device.RenderState;
-            rs.AlphaBlendEnable = true;
-            rs.AlphaBlendOperation = BlendFunction.Add;
-            rs.SourceBlend = Blend.SourceAlpha;
-            rs.DestinationBlend = Blend.InverseSourceAlpha;
-            rs.DepthBufferWriteEnable = false;
-
-            var cloudsFx = ResourceManager.CloudsEffect;
-            cloudsFx.World = Matrix.CreateScale(1.05f) * world; // bigger than halo, smaller than atmo color
-            cloudsFx.View = View;
-            cloudsFx.Projection = Projection;
-
-            Vector2 sunToPlanet = p.Center - p.ParentSystem.Position;
-            cloudsFx.DirectionalLight0.Direction = sunToPlanet.ToVec3().Normalized();
-            cloudsFx.DirectionalLight0.Enabled = true;
-
-            // the atmosphere model is tilted in a particular way to make clouds look correct
-            StaticMesh.Draw(ResourceManager.PlanetSphereModel, cloudsFx);
-
-            rs.DepthBufferWriteEnable = true;
-        }
-
-        // Blue/Red/etc glow effect around the planet
-        void DrawAtmosphericGlow(SpriteBatch batch, Planet planet, Vector2 screenPlanetCenter, float screenRadius)
-        {
-            SubTexture glow = Glows[planet.Type.Glow];
-
-            var size = new Vector2(screenRadius * 0.65f);
-            batch.Draw(glow, screenPlanetCenter - size, size*2, Color.White);
-            Renderer.DrawScreenRect(screenPlanetCenter, size, Color.Red);
-            Renderer.DrawScreenRect(screenPlanetCenter, new Vector2(screenRadius), Color.Green);
+            //ProjectToScreenCoords(p.Center3D, p.ObjectRadius, out Vector2d planetScreenPos, out double planetScreenRadius);
+            //Vector2 pScreenCenter = planetScreenPos.ToVec2f();
+            //var size = new Vector2((float)planetScreenRadius * 0.65f);
+            //Renderer.DrawScreenString(pScreenCenter - new Vector2(0, size.Y + 20), p.Type.ToString(), Color.Red);
+            //Renderer.DrawScreenRect(pScreenCenter, size, Color.Red);
+            //Renderer.DrawScreenRect(pScreenCenter, new Vector2((float)planetScreenRadius), Color.Green);
         }
 
         void DrawSystemAndPlanetBrackets(SpriteBatch batch)
@@ -337,11 +354,10 @@ namespace Ship_Game
             if (PulseTimer < 0) PulseTimer = 1;
 
             AdjustCamera(elapsed.RealTime.Seconds);
-            SetViewMatrix(Matrix.CreateTranslation(0.0f, 0.0f, 0.0f)
-                        * Matrix.CreateRotationY(180f.ToRadians())
-                        * Matrix.CreateRotationX(0.0f.ToRadians())
-                        * Matrices.CreateLookAtDown(-CamPos.X, CamPos.Y, CamPos.Z));
-            Matrix matrix = View;
+
+            Matrix matrix = Matrix.CreateRotationY(180f.ToRadians())
+                          * Matrices.CreateLookAtDown(-CamPos.X, CamPos.Y, CamPos.Z);
+            SetViewMatrix(matrix);
 
             GraphicsDevice graphics = ScreenManager.GraphicsDevice;
             graphics.SetRenderTarget(0, MainTarget);
@@ -749,7 +765,7 @@ namespace Ship_Game
                 foreach (Planet planet in system.PlanetList)
                 {
                     float fIconScale      = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
-                    Vector2 planetIconPos = ProjectToScreenPosition(planet.Center, 2500).ToVec2fRounded();
+                    Vector2 planetIconPos = ProjectToScreenPosition(planet.Center3D).ToVec2fRounded();
                     Vector2 flagIconPos   = planetIconPos - new Vector2(0, 15);
 
                     SubTexture planetTex = planet.PlanetTexture;
@@ -1268,7 +1284,7 @@ namespace Ship_Game
                 for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                 {
                     Planet planet = solarSystem.PlanetList[j];
-                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Center, 2500f).ToVec2fRounded();
+                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Center3D).ToVec2fRounded();
                     Vector2 posOffSet = screenPosPlanet;
                     posOffSet.X += 20f;
                     posOffSet.Y += 37f;

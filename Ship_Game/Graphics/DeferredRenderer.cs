@@ -15,8 +15,8 @@ namespace Ship_Game.Graphics
     {
         enum PrimitiveType
         {
-            Point, Circle, Line, Rect,
-            ScreenRect,
+            Point, Circle, Line, Rect, String,
+            ScreenRect, ScreenString,
         }
 
         struct Primitive
@@ -25,9 +25,10 @@ namespace Ship_Game.Graphics
             public Vector2 A; // A = Point, Circle Center, Line A, or Rectangle TopLeft
             public Vector2 B; // B = Circle radius(X), Line B, or Rectangle BottomLeft
             public Color Color;
-            public Primitive(PrimitiveType type, Vector2 a, Vector2 b, Color color)
+            public string String;
+            public Primitive(PrimitiveType type, Vector2 a, Vector2 b, Color color, string s = null)
             {
-                Type = type; A = a; B = b; Color = color;
+                Type = type; A = a; B = b; Color = color; String = s;
             }
         }
 
@@ -82,8 +83,15 @@ namespace Ship_Game.Graphics
                         posB = Screen.ProjectToScreenPosition(p.B);
                         batch.DrawRectangle(new AABoundingBox2Dd(posA, posB), p.Color);
                         break;
+                    case PrimitiveType.String:
+                        posA = Screen.ProjectToScreenPosition(p.A);
+                        batch.DrawString(Fonts.Arial12, p.String, posA.ToVec2f(), p.Color);
+                        break;
                     case PrimitiveType.ScreenRect:
                         batch.DrawRectangle(new AABoundingBox2D(p.A, p.B), p.Color);
+                        break;
+                    case PrimitiveType.ScreenString:
+                        batch.DrawString(Fonts.Arial12, p.String, p.A, p.Color);
                         break;
                 }
             }
@@ -175,6 +183,26 @@ namespace Ship_Game.Graphics
             {
                 CheckDeferredPrimitives();
                 PrimitivesQueue.Add(new Primitive(PrimitiveType.ScreenRect, a, b, color));
+            }
+        }
+
+        // world coordinates
+        public void DrawStringDeferred(in Vector2 center, string text, Color color)
+        {
+            lock (Locker)
+            {
+                CheckDeferredPrimitives();
+                PrimitivesQueue.Add(new Primitive(PrimitiveType.String, center, Vector2.Zero, color, text));
+            }
+        }
+
+        // screen coordinates
+        public void DrawScreenString(Vector2 center, string text, Color color)
+        {
+            lock (Locker)
+            {
+                CheckDeferredPrimitives();
+                PrimitivesQueue.Add(new Primitive(PrimitiveType.ScreenString, center, Vector2.Zero, color, text));
             }
         }
     }
