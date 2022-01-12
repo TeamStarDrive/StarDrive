@@ -251,6 +251,7 @@ namespace Ship_Game
             foreach (Planet planet in system.PlanetList)
             {
                 planet.ParentSystem = system;
+                planet.UpdatePositionOnly();
                 PlanetsDict.Add(planet.Guid, planet);
                 AllPlanetsList.Add(planet);
             }

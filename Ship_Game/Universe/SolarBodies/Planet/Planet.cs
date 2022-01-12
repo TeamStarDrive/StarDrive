@@ -295,7 +295,7 @@ namespace Ship_Game
             float planetRadius = 1000f * (float)(1 + (Math.Log(Scale) / 1.5));
             ObjectRadius = planetRadius;
             OrbitalRadius = ringRadius + planetRadius;
-            Center = system.Position + MathExt.PointOnCircle(randomAngle, ringRadius);
+            Center = MathExt.PointOnCircle(randomAngle, ringRadius);
             PlanetTilt = RandomMath.RandomBetween(45f, 135f);
 
             GenerateMoons(system, newOrbital:this);

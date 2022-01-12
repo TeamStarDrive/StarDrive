@@ -249,9 +249,7 @@ namespace Ship_Game.GameScreens.LoadGame
             foreach (SolarSystem sys in data.SolarSystemsList)
             {
                 sys.Universe = us;
-                sys.FiveClosestSystems = data.SolarSystemsList.FindMinItemsFiltered(5,
-                                            filter => filter != sys,
-                                            select => select.Position.SqDist(sys.Position));
+                sys.FiveClosestSystems = data.GetFiveClosestSystems(sys);
                 step.Advance();
             }
             foreach (Ship ship in data.MasterShipList)
