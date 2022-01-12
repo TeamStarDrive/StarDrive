@@ -66,7 +66,19 @@ namespace Ship_Game
                             Planet planet = solarSystem.PlanetList[i];
                             if (Frustum.Contains(planet.Center, planet.ObjectRadius*2f))
                             {
-                                DrawPlanetInSectorView(batch, planet);
+                                ProjectToScreenCoords(planet.Center3D, planet.ObjectRadius,
+                                                      out Vector2d planetScreenPos, out double planetScreenRadius);
+                                Vector2 pos = planetScreenPos.ToVec2f();
+
+                                lock (GlobalStats.ClickableSystemsLock)
+                                {
+                                    ClickPlanetList.Add(new ClickablePlanets
+                                    {
+                                        ScreenPos = pos,
+                                        Radius = planetScreenRadius < 8.0 ? 8f : (float)planetScreenRadius,
+                                        planetToClick = planet
+                                    });
+                                }
                             }
                         }
                     }
@@ -148,23 +160,6 @@ namespace Ship_Game
                         DrawCircle(sysScreenPos, planetOrbitRadius, empireColor, 3f);
                     }
                 }
-            }
-        }
-
-        void DrawPlanetInSectorView(SpriteBatch batch, Planet planet)
-        {
-            ProjectToScreenCoords(planet.Center3D, planet.ObjectRadius,
-                                  out Vector2d planetScreenPos, out double planetScreenRadius);
-            Vector2 pos = planetScreenPos.ToVec2f();
-
-            lock (GlobalStats.ClickableSystemsLock)
-            {
-                ClickPlanetList.Add(new ClickablePlanets
-                {
-                    ScreenPos = pos,
-                    Radius = planetScreenRadius < 8.0 ? 8f : (float)planetScreenRadius,
-                    planetToClick = planet
-                });
             }
         }
 

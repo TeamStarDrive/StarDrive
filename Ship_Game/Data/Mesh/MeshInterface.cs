@@ -350,6 +350,7 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
+        // TODO: this is not very useful, consider removing
         protected static unsafe LightingEffect CreateMaterialEffect(
             SdMaterial* mat, GraphicsDevice device, GameContentManager content, string materialFile)
         {
@@ -389,54 +390,6 @@ namespace Ship_Game.Data.Mesh
             fx.AddressModeU  = TextureAddressMode.Wrap;
             fx.AddressModeV  = TextureAddressMode.Wrap;
             fx.AddressModeW  = TextureAddressMode.Wrap;
-            return fx;
-        }
-
-        public static LightingEffect CreateMaterialEffect(
-            GameContentManager content,
-            string matName,
-            string diffuse,
-            string specular,
-            string normal,
-            string emissive,
-            string alpha,
-            float specularPower)
-        {
-            var fx = new LightingEffect(content.Device);
-            fx.MaterialName          = matName;
-            fx.MaterialFile          = "";
-            fx.ProjectFile           = "Ship_Game/Data/RawContentLoader.cs";
-            fx.DiffuseMapFile        = diffuse;
-            fx.EmissiveMapFile       = emissive;
-            fx.NormalMapFile         = normal;
-            fx.SpecularColorMapFile  = specular;
-            //fx.DiffuseAmbientMapFile = "";
-            //fx.ParallaxMapFile       = "";
-            fx.DiffuseMapTexture = TryLoadTexture(content, fx.DiffuseMapFile);
-            fx.EmissiveMapTexture = TryLoadTexture(content, fx.EmissiveMapFile);
-            fx.NormalMapTexture = TryLoadTexture(content, fx.NormalMapFile);
-            fx.SpecularColorMapTexture = TryLoadTexture(content, fx.SpecularColorMapFile);
-            //if (fx.DiffuseAmbientMapFile.NotEmpty()) fx.DiffuseAmbientMapTexture = content.Load<Texture2D>(fx.DiffuseAmbientMapFile);
-            //if (fx.ParallaxMapFile.NotEmpty())       fx.ParallaxMapTexture       = CoreUtils.ConvertToLuminance8(device, content.Load<Texture2D>(fx.ParallaxMapFile));
-            fx.Skinned     = false;
-            fx.DoubleSided = false;
-
-            //Texture2D alphaMap = alpha.NotEmpty() ? content.Load<Texture2D>(alpha) : null;
-            //fx.SetTransparencyModeAndMap(TransparencyMode.None, 1f, alphaMap);
-
-            fx.SpecularPower                 = 14.0f * specularPower;
-            fx.SpecularAmount                = 6.0f * specularPower;
-            fx.FresnelReflectBias            = 0.0f;
-            fx.FresnelReflectOffset          = 0.0f;
-            fx.FresnelMicrofacetDistribution = 0.0f;
-            fx.ParallaxScale                 = 1.0f;
-            fx.ParallaxOffset                = 0.0f;
-            fx.DiffuseColor = Vector3.One;
-            //fx.DiffuseColor  = diffuseColor;
-            //fx.EmissiveColor = mat->EmissiveColor;
-            //fx.AddressModeU  = TextureAddressMode.Wrap;
-            //fx.AddressModeV  = TextureAddressMode.Wrap;
-            //fx.AddressModeW  = TextureAddressMode.Wrap;
             return fx;
         }
 
