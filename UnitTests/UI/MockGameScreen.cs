@@ -7,7 +7,7 @@ namespace UnitTests.UI
     class MockGameScreen : GameScreen
     {
         public MockGameScreen()
-            : base(null, new Rectangle(0,0,GameBase.ScreenWidth,GameBase.ScreenHeight), false)
+            : base(null, new Rectangle(0,0,GameBase.ScreenWidth,GameBase.ScreenHeight), toPause: null)
         {
         }
     }

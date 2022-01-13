@@ -25,7 +25,7 @@ namespace Ship_Game
         ScrollList2<ModsListItem> ModsList;
         ModEntry SelectedMod;
 
-        public ModManager(MainMenuScreen mainMenu) : base(mainMenu)
+        public ModManager(MainMenuScreen mainMenu) : base(mainMenu, toPause: null)
         {
             MainMenu = mainMenu;
             IsPopup = true;

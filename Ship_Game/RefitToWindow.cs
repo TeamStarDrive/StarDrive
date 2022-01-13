@@ -23,7 +23,7 @@ namespace Ship_Game
         DanButton ConfirmRefit;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
-        public RefitToWindow(ShipListScreen screen, ShipListScreenItem item) : base(screen)
+        public RefitToWindow(ShipListScreen screen, ShipListScreenItem item) : base(screen, toPause: null)
         {
             Screen = screen;
             ShipToRefit = item.Ship;
@@ -32,7 +32,7 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
-        public RefitToWindow(GameScreen parent, Ship ship) : base(parent)
+        public RefitToWindow(UniverseScreen parent, Ship ship) : base(parent, toPause: parent)
         {
             ShipToRefit = ship;
             IsPopup = true;

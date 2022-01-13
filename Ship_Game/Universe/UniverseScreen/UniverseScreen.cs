@@ -192,12 +192,12 @@ namespace Ship_Game
         public bool IsPlanetViewOrCloser => viewState <= UnivScreenState.PlanetView;
         public bool IsShipViewOrCloser   => viewState <= UnivScreenState.ShipView;
 
-        public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
+        public UniverseScreen(UniverseData data, Empire loyalty) : base(null, toPause: null) // new game
         {
             SetupUniverseScreen(data, loyalty);
         }
 
-        public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
+        public UniverseScreen(UniverseData data, string loyalty) : base(null, toPause: null) // savegame
         {
             loading = true;
             FogMapBase64 = data.FogMapBase64;

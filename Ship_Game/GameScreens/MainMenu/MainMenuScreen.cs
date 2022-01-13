@@ -25,7 +25,7 @@ namespace Ship_Game.GameScreens.MainMenu
         UIElementContainer VersionArea;
         MainMenuType Type;
 
-        public MainMenuScreen(MainMenuType type = MainMenuType.Default) : base(null /*no parent*/)
+        public MainMenuScreen(MainMenuType type = MainMenuType.Default) : base(null /*no parent*/, toPause: null)
         {
             CanEscapeFromScreen = false;
             TransitionOnTime  = 1.0f;

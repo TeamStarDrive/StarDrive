@@ -67,7 +67,7 @@ namespace Ship_Game.Debug
         //readonly FloatSlider DebugPlatformSpeed;
         //bool CanDebugPlatformFire;
 
-        public DebugInfoScreen(UniverseScreen screen) : base(screen, pause:false)
+        public DebugInfoScreen(UniverseScreen screen) : base(screen, toPause: null)
         {
             Screen = screen;
             //if (screen is DeveloperUniverse)

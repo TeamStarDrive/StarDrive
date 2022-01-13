@@ -18,7 +18,7 @@ namespace Ship_Game
         DropOptions<int> ScoutDropDown;
         DropOptions<int> ConstructorDropDown;
 
-        public AutomationWindow(UniverseScreen universe) : base(universe, pause:false)
+        public AutomationWindow(UniverseScreen universe) : base(universe, toPause: null)
         {
             Universe = universe;
             const int windowWidth = 210;
