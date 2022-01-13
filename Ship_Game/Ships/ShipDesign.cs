@@ -106,13 +106,15 @@ namespace Ship_Game.Ships
 
         // Deep clone of this ShipDesign
         // Feel free to edit the cloned design
-        public ShipDesign GetClone()
+        public ShipDesign GetClone(string newName)
         {
             var clone = (ShipDesign)MemberwiseClone();
             clone.TechsNeeded = new HashSet<string>(TechsNeeded);
             clone.DesignSlots = new DesignSlot[DesignSlots.Length];
             for (int i = 0; i < DesignSlots.Length; ++i)
                 clone.DesignSlots[i] = new DesignSlot(DesignSlots[i]);
+            if (newName.NotEmpty())
+                clone.Name = newName;
             return clone;
         }
 
@@ -186,7 +188,7 @@ namespace Ship_Game.Ships
             // savedModules are different, grab the existing template's defaults but apply the new ship's modules
             // this is pretty inefficient but it's currently the only way to handle obsolete designs without crashing
             // TODO: implement obsolete ships and ship versioning
-            ShipDesign data = template.GetClone();
+            ShipDesign data = template.GetClone(null);
 
             data.UniqueModuleUIDs = moduleUIDs;
             data.DesignSlots = new DesignSlot[saved.Length];

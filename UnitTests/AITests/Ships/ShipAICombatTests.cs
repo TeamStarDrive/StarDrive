@@ -132,7 +132,7 @@ namespace UnitTests.AITests.Ships
         public void FighterAntiShipPreferLargerTarget()
         {
             SpawnOurShip(ScoutName);
-            var design = Us.ShipData.GetClone();
+            var design = Us.ShipData.GetClone(null);
             design.HangarDesignation = HangarOptions.AntiShip;
             Us.ShipData = design;
             SpawnStrongerEnemyGroup();
@@ -145,7 +145,7 @@ namespace UnitTests.AITests.Ships
         public void FrigateInterceptorsPreferSmallerTarget()
         {
             SpawnOurShip(FrigateName);
-            var design = Us.ShipData.GetClone();
+            var design = Us.ShipData.GetClone(null);
             design.HangarDesignation = HangarOptions.Interceptor;
             Us.ShipData = design;
             SpawnStrongerEnemyGroup();
