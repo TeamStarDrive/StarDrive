@@ -82,7 +82,7 @@ namespace UnitTests
 
             Player = data.CreateEmpire(playerData, isPlayer:true);
             Enemy = data.CreateEmpire(enemyData, isPlayer:false);
-            Empire.Universe = Universe = new UniverseScreen(data, Player);
+            Universe = new UniverseScreen(data, Player);
             Player.Universum = Enemy.Universum = Universe;
             
             Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
@@ -97,7 +97,7 @@ namespace UnitTests
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
         {
             var data = DeveloperUniverse.Create(playerPreference, numOpponents);
-            Empire.Universe = Universe = new DeveloperUniverse(data, data.EmpireList.First, paused);
+            Universe = new DeveloperUniverse(data, data.EmpireList.First, paused);
             Player = EmpireManager.Player;
             Enemy  = EmpireManager.NonPlayerEmpires[0];
         }
@@ -106,7 +106,7 @@ namespace UnitTests
         {
             Universe?.ExitScreen();
             Universe?.Dispose();
-            Empire.Universe = Universe = null;
+            Universe = null;
         }
 
         public void CreateThirdMajorEmpire()

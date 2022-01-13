@@ -130,8 +130,6 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             if (EmpireManager.NumEmpires != 0)
                 throw new Exception("LoadGame.LoadEverything: EmpireManager.NumEmpires must be 0!");
-            if (Empire.Universe != null)
-                throw new Exception("LoadGame.LoadEverything: Empire.Universe must be null!");
 
             step.Start(11); // arbitrary count... check # of calls below:
 
