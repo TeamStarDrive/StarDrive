@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
 
         // Deep clone of this ShipDesign
         // Feel free to edit the cloned design
-        ShipDesign GetClone();
+        ShipDesign GetClone(string newName);
 
         // Marks the this design as Deleted and performs
         // aggressive cleanup of ShipDesign to assist the Garbage Collector

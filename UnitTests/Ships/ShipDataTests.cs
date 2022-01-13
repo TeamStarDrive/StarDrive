@@ -173,7 +173,7 @@ namespace UnitTests.Ships
         public void ShipDesign_Clone_EqualToOriginal()
         {
             ShipDesign original = ShipDesign.Parse("Content/ShipDesigns/Prototypes/Terran-Prototype.design");
-            ShipDesign clone = original.GetClone();
+            ShipDesign clone = original.GetClone(null);
             AssertAreEqual(original, clone, true);
         }
 

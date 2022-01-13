@@ -561,8 +561,7 @@ namespace Ship_Game
 
         ShipDesign CloneCurrentDesign(string newName)
         {
-            ShipDesign design = CurrentDesign.GetClone();
-            design.Name = newName;
+            ShipDesign design = CurrentDesign.GetClone(newName);
             design.SetDesignSlots(DesignSlot.FromModules(ModuleGrid.CopyModulesList()));
             return design;
         }
