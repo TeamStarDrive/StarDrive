@@ -64,7 +64,7 @@ namespace Ship_Game.AI
                 var targets = new Array<Ship>();
 
                 // find nearby enemy ships
-                GameplayObject[] nearbyShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
+                GameplayObject[] nearbyShips = universe.Spatial.FindNearby(GameObjectType.Ship,
                             Missile, Missile.Planet.GravityWellRadius, maxResults:32, excludeLoyalty:Missile.Loyalty);
 
                 foreach (GameplayObject go in nearbyShips)

@@ -1396,8 +1396,7 @@ namespace Ship_Game
                 return;
 
             // find ships in radius of node.
-            GameplayObject[] targets = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
-                                                        node.Position, node.Radius, maxResults:1024);
+            GameplayObject[] targets = Universum.Spatial.FindNearby(GameObjectType.Ship, node.Position, node.Radius, maxResults:1024);
             for (int i = 0; i < targets.Length; i++)
             {
                 var targetShip = (Ship)targets[i];
@@ -1408,8 +1407,7 @@ namespace Ship_Game
         void ScanForInfluence(ref InfluenceNode node, FixedSimTime timeStep)
         {
             // find anyone within this influence node
-            GameplayObject[] targets = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
-                                                       node.Position, node.Radius, maxResults:128);
+            GameplayObject[] targets = Universum.Spatial.FindNearby(GameObjectType.Ship, node.Position, node.Radius, maxResults:128);
             for (int i = 0; i < targets.Length; i++)
             {
                 var ship = (Ship)targets[i];
