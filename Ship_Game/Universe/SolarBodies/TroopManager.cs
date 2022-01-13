@@ -51,7 +51,7 @@ namespace Ship_Game
 
         public void Update(FixedSimTime timeStep)
         {
-            if (Empire.Universe.Paused) 
+            if (Ground.Universe.Paused) 
                 return;
 
             if (Init)
@@ -372,7 +372,7 @@ namespace Ship_Game
             if (Owner == null || invadingForces <= NumInvadersLast || invadingEmpires.Count == 0)
                 return; // FB - nothing to change if no new troops invade
 
-            Empire player = Empire.Universe.PlayerEmpire;
+            Empire player = Ground.Universe.PlayerEmpire;
             if (invadingEmpires.Any(e => e.isPlayer) && !Owner.isFaction && !player.IsAtWarWith(Owner))
             {
                 if (player.IsNAPactWith(Owner))
@@ -394,8 +394,8 @@ namespace Ship_Game
 
         private void ResolvePlanetaryBattle(FixedSimTime timeStep, ref bool startCombatTimer)
         {
-            if (Empire.Universe.LookingAtPlanet 
-                && Empire.Universe.workersPanel is CombatScreen screen 
+            if (Ground.Universe.LookingAtPlanet 
+                && Ground.Universe.workersPanel is CombatScreen screen 
                 && screen.P == Ground)
             {
                 ResolveTacticalCombats(timeStep, isViewing: true);

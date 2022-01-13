@@ -29,7 +29,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            bool captured = Node.HandleInput(input, Screen.ScreenManager, Screen.camera);
+            bool captured = Node.HandleInput(input, Screen.ScreenManager, Screen.camera, Screen.Universe);
             captured |= base.HandleInput(input);
             return captured;
         }

@@ -44,9 +44,11 @@ namespace Ship_Game
         Effect CloudEffect;
         EffectParameter CloudEffectPos;
         Vector2 CloudPos;
+        GameScreen Parent;
 
         public StarField(GameScreen screen)
         {
+            Parent = screen;
             StarFieldR = new Rectangle(0, 0, screen.ScreenWidth, screen.ScreenHeight);
             CloudTex = ResourceManager.Texture("clouds");
             CloudEffect = screen.TransientContent.Load<Effect>("Effects/Clouds");
@@ -131,8 +133,8 @@ namespace Ship_Game
             int numSmallStars = 0;
             int numMedStars = 0;
             int numLargeStars = 0;
-            int viewportWidth  = Empire.Universe.Viewport.Width;
-            int viewportHeight = Empire.Universe.Viewport.Height;
+            int viewportWidth  = Parent.Viewport.Width;
+            int viewportHeight = Parent.Viewport.Height;
             for (int i = 0; i < Stars.Length; i++)
             {
                 ref Star star = ref Stars[i];

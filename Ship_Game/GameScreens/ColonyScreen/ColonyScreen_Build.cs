@@ -116,7 +116,7 @@ namespace Ship_Game
             Ship[] buildableShips;
 
             // enable all ships in the sandbox
-            if (Empire.Universe.Debug && Empire.Universe is DeveloperUniverse)
+            if (P.Universe.Debug && P.Universe is DeveloperUniverse)
                 buildableShips = ResourceManager.ShipTemplates.ToArray();
             else
                 buildableShips = P.Owner.ShipsWeCanBuild
@@ -182,7 +182,7 @@ namespace Ship_Game
 
         void OnBuildableItemDoubleClicked(BuildableListItem item)
         {
-            if (P.Owner != Player && !Empire.Universe.Debug)
+            if (P.Owner != Player && !P.Universe.Debug)
                 return;
 
             item.BuildIt(1);

@@ -1034,7 +1034,7 @@ namespace Ship_Game.Ships
 
             if (count != 0)
             {
-                SpaceJunk.SpawnJunk(Empire.Universe, count, Position, velocity, this,
+                SpaceJunk.SpawnJunk(Parent.Universe, count, Position, velocity, this,
                                     maxSize:Math.Max(Radius, 32), ignite:ignite);
             }
         }

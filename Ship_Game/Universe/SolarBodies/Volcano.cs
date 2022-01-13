@@ -42,7 +42,7 @@ namespace Ship_Game.Universe.SolarBodies
         void CreateLavaPool(PlanetGridSquare tile) // Must get a tile with no Volcano on it
         {
             if (tile.BuildingOnTile && P.Owner == Player)
-                Empire.Universe.NotificationManager.AddBuildingDestroyedByLava(P, tile.Building);
+                P.Universe.NotificationManager.AddBuildingDestroyedByLava(P, tile.Building);
 
             int bid = Building.Lava1Id;
             P.DestroyTile(tile);
@@ -100,7 +100,7 @@ namespace Ship_Game.Universe.SolarBodies
             Active     = true;
             CreateVolcanoBuilding(Building.ActiveVolcanoId);
             if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
-                Empire.Universe.NotificationManager.AddVolcanoRelated(P, Localizer.Token(GameText.ADormantVolcanoBecameActivenit), ActiveVolcanoTexPath);
+                P.Universe.NotificationManager.AddVolcanoRelated(P, Localizer.Token(GameText.ADormantVolcanoBecameActivenit), ActiveVolcanoTexPath);
         }
 
         void TryErupt()
@@ -125,7 +125,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             if (ShouldNotifyPlayer)
-                Empire.Universe.NotificationManager.AddVolcanoRelated(P, message, EruptingVolcanoTexPath);
+                P.Universe.NotificationManager.AddVolcanoRelated(P, message, EruptingVolcanoTexPath);
         }
 
         void TryCalmDown()
@@ -138,13 +138,13 @@ namespace Ship_Game.Universe.SolarBodies
             ActivationChance = InitActivationChance();
             if (RandomMath.RollDice(ActiveEruptionChance * 2))
             {
-                float increaseBy   = RandomMath.RollDice(75) ? 0.1f : 0.2f;
-                message            = $"{message}\n{Localizer.Token(GameText.ANewMineralVainWas)} {increaseBy.String(1)}.";
+                float increaseBy = RandomMath.RollDice(75) ? 0.1f : 0.2f;
+                message = $"{message}\n{Localizer.Token(GameText.ANewMineralVainWas)} {increaseBy.String(1)}.";
                 P.MineralRichness += increaseBy;
             }
 
             if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
-                Empire.Universe.NotificationManager.AddVolcanoRelated(P, message, DormantVolcanoTexPath);
+                P.Universe.NotificationManager.AddVolcanoRelated(P, message, DormantVolcanoTexPath);
         }
 
         bool TryDeactivate()
@@ -156,7 +156,7 @@ namespace Ship_Game.Universe.SolarBodies
             Erupting = false;
             CreateDormantVolcano();
             if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
-                Empire.Universe.NotificationManager.AddVolcanoRelated(P, Localizer.Token(GameText.AnActiveVolcanoBecameDormant), DormantVolcanoTexPath);
+                P.Universe.NotificationManager.AddVolcanoRelated(P, Localizer.Token(GameText.AnActiveVolcanoBecameDormant), DormantVolcanoTexPath);
 
             return true;
         }
@@ -240,8 +240,8 @@ namespace Ship_Game.Universe.SolarBodies
             if (RandomMath.RollDice(75))
             {
                 planet.MakeTileHabitable(tile);
-                if (planet.Owner == EmpireManager.Player && !GlobalStats.DisableVolcanoWarning)
-                    Empire.Universe.NotificationManager.AddVolcanoRelated(planet, Localizer.Token(GameText.ALavaPoolHasSolidified), lavaPath);
+                if (planet.Owner.isPlayer && !GlobalStats.DisableVolcanoWarning)
+                    planet.Universe.NotificationManager.AddVolcanoRelated(planet, Localizer.Token(GameText.ALavaPoolHasSolidified), lavaPath);
             }
         }
 

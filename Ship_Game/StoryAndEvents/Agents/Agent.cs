@@ -37,6 +37,10 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         public LocalizedText MissionName => ResourceManager.AgentMissionData.GetMissionName(Mission);
 
+        public Agent()
+        {
+        }
+
         public void AssignMission(AgentMission mission, Empire owner, string targetEmpire)
         {
             (int turns, int cost) = ResourceManager.AgentMissionData.GetTurnsAndCost(mission);
