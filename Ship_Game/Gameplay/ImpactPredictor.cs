@@ -120,12 +120,12 @@ namespace Ship_Game.Gameplay
             return pos.Distance(target) / speed;
         }
 
-        void DebugPip(string text, Vector2 predicted, float spd, float t, in Color color)
-        {
-            //float d = Pos.Distance(TargetPos);
-            //Console.WriteLine($"PIP {text} ({predicted.X.String(1)} {predicted.Y.String(1)}) d:{d.String()}m {t.String(2)}s|{spd.String()}m/s");
-            Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"{text}: {t.String(2)}", color, 0f);
-        }
+        //void DebugPip(string text, Vector2 predicted, float spd, float t, in Color color)
+        //{
+        //    //float d = Pos.Distance(TargetPos);
+        //    //Console.WriteLine($"PIP {text} ({predicted.X.String(1)} {predicted.Y.String(1)}) d:{d.String()}m {t.String(2)}s|{spd.String()}m/s");
+        //    Empire.Universe?.DebugWin?.DrawText(Debug.DebugModes.Targeting, Pos, $"{text}: {t.String(2)}", color, 0f);
+        //}
 
         Vector2 PredictProjectileImpact(Vector2 targetAcc)
         {

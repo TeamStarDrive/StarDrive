@@ -10,6 +10,7 @@ namespace Ship_Game
 {
     public sealed class EmpireManagementScreen : GameScreen
     {
+        UniverseScreen Universe;
         EmpireUIOverlay eui;
         private readonly ScrollList2<ColoniesListItem> ColoniesList;
         private readonly GovernorDetailsComponent GovernorDetails;
@@ -29,8 +30,9 @@ namespace Ship_Game
 
         public Planet SelectedPlanet { get; private set; }
         
-        public EmpireManagementScreen(GameScreen parent, EmpireUIOverlay empUI) : base(parent)
+        public EmpireManagementScreen(UniverseScreen parent, EmpireUIOverlay empUI) : base(parent)
         {
+            Universe = parent;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
             IsPopup = true;
@@ -266,8 +268,8 @@ namespace Ship_Game
 
         void OnColonyListItemDoubleClicked(ColoniesListItem item)
         {
-            Empire.Universe.SelectedPlanet = item.P;
-            Empire.Universe.SnapViewColony(combatView: false);
+            Universe.SelectedPlanet = item.P;
+            Universe.SnapViewColony(combatView: false);
             ExitScreen();
         }
 

@@ -373,7 +373,7 @@ namespace Ship_Game.AI
         void CreateAgent()
         {
             string[] spyNames = SpyNames();
-            var agent = new Agent { Name = AgentComponent.GetName(spyNames) };
+            var agent = new Agent() { Name = AgentComponent.GetName(spyNames) };
             OwnerEmpire.data.AgentList.Add(agent);
             OwnerEmpire.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
             DeductSpyBudget(ResourceManager.AgentMissionData.AgentCost);

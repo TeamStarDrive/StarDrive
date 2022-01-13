@@ -278,7 +278,7 @@ namespace Ship_Game
                 if (input.KeyPressed(Keys.R))
                 {
                     GameAudio.EchoAffirmative();
-                    Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, this));
+                    Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, Universe, this));
                 }
                 if (input.KeyPressed(Keys.T))
                 {
@@ -416,7 +416,7 @@ namespace Ship_Game
                         if (str3 == "Research")
                         {
                             GameAudio.EchoAffirmative();
-                            Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, this));
+                            Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, Universe, this));
                         }
                         else if (str3 == "Budget")
                         {
@@ -523,7 +523,7 @@ namespace Ship_Game
                                 GameAudio.EchoAffirmative();
                                 if (!(caller is ResearchScreenNew))
                                 {
-                                    Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, this));
+                                    Universe.ScreenManager.AddScreen(new ResearchScreenNew(Universe, Universe, this));
                                 }
                             }
                             else if (str1 == "Budget")

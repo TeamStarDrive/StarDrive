@@ -52,10 +52,10 @@ namespace Ship_Game.Universe.SolarBodies
                 return false; // Not enough credits to rush
 
             // dont charge rush fees if in debug and the rush button was clicked
-            bool rushFees = !Empire.Universe.Debug || !rushButton;
+            bool rushFees = !P.Universe.Debug || !rushButton;
 
             // inject artificial surplus to instantly rush & finish production
-            if (Empire.Universe.Debug && rushButton)
+            if (P.Universe.Debug && rushButton)
                 amount = SurplusThisTurn = 1000;
 
             return ApplyProductionToQueue(maxAmount: amount, itemIndex, rushFees);
@@ -76,7 +76,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             float netSpend     = spendMax - spend;
             q.ProductionSpent += netSpend; // apply it
-            if (!Empire.Universe.Debug)
+            if (!P.Universe.Debug)
                 Owner.ChargeCreditsOnProduction(q, netSpend);
 
             // if we spent everything, this QueueItem is complete
@@ -97,7 +97,7 @@ namespace Ship_Game.Universe.SolarBodies
                 QueueItem item = ConstructionQueue[itemIndex];
                 SpendProduction(item, maxAmount);
 
-                if (rushFees && (!Owner.isPlayer || !Empire.Universe.Debug))
+                if (rushFees && (!Owner.isPlayer || !P.Universe.Debug))
                 {
                     Owner.ChargeRushFees(maxAmount);
                 }
@@ -167,11 +167,11 @@ namespace Ship_Game.Universe.SolarBodies
             b.IsPlayerAdded = q.IsPlayerAdded;
             q.pgs.PlaceBuilding(b, P);
             if (!GlobalStats.SuppressOnBuildNotifications
-                && !Empire.Universe.IsViewingColonyScreen(P)
-                && P.Owner == EmpireManager.Player
+                && !P.Universe.IsViewingColonyScreen(P)
+                && P.Owner.isPlayer
                 && (q.IsPlayerAdded || q.Building.IsCapital))
             {
-                Empire.Universe.NotificationManager.AddBuildingConstructed(P, b);
+                P.Universe.NotificationManager.AddBuildingConstructed(P, b);
             }
 
             return true;
@@ -192,7 +192,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (!ResourceManager.ShipTemplateExists(q.sData.Name))
                 return false;
 
-            Ship shipAt = Ship.CreateShipAt(Empire.Universe, q.sData.Name, Owner, P, true);
+            Ship shipAt = Ship.CreateShipAt(P.Universe, q.sData.Name, Owner, P, true);
             q.Goal?.ReportShipComplete(shipAt);
             if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
             {

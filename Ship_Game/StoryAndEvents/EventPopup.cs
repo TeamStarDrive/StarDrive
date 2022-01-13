@@ -9,6 +9,7 @@ namespace Ship_Game
     // Exploration Event popup
     public sealed class EventPopup : PopupWindow
     {
+        UniverseScreen Universe;
         public ExplorationEvent ExpEvent;
         readonly Outcome Outcome;
         readonly Planet Planet;
@@ -20,6 +21,7 @@ namespace Ship_Game
                           Outcome outcome, bool triggerNow, Planet p = null)
             : base(s, 600, 720)
         {
+            Universe = s;
             if (triggerNow)
                 e.TriggerOutcome(playerEmpire, outcome);
 
@@ -47,7 +49,7 @@ namespace Ship_Game
 
             if (Planet != null)
             {
-                Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, TitleText);
+                Universe.NotificationManager.AddAnomalyInvestigated(Planet, TitleText);
             }
 
             const string defaultImage = "Textures/Encounters/1.png";

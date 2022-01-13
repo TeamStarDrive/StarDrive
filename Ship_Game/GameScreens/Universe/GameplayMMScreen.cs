@@ -95,7 +95,7 @@ namespace Ship_Game
         void Save_OnClick(UIButton button)
         {
             if (SavedGame.NotSaving) // no save in progress
-                ScreenManager.AddScreen(new SaveGameScreen(Empire.Universe));
+                ScreenManager.AddScreen(new SaveGameScreen(Universe));
             else GameAudio.NegativeClick();
         }
 
@@ -103,7 +103,7 @@ namespace Ship_Game
         {
             if (SavedGame.NotSaving)
             {
-                ScreenManager.AddScreen(new LoadSaveScreen(Empire.Universe));
+                ScreenManager.AddScreen(new LoadSaveScreen(Universe));
                 ExitScreen();
             }
             else GameAudio.NegativeClick();

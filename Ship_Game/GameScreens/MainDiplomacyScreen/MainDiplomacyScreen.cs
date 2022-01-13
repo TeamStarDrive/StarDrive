@@ -11,6 +11,7 @@ namespace Ship_Game
 {
     public sealed class MainDiplomacyScreen : GameScreen
     {
+        UniverseScreen Universe;
         public DanButton Contact;
 
         private Menu2 TitleBar;
@@ -47,10 +48,11 @@ namespace Ship_Game
 
         public MainDiplomacyScreen(UniverseScreen screen) : base(screen)
         {
+            Universe = screen;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
-            PlayerEmpire = EmpireManager.Player;
+            PlayerEmpire = screen.player;
             Friends = EmpireManager.GetPlayerAllies();
             Traders = EmpireManager.GetTradePartners(PlayerEmpire);
             HashSet<Empire> empires = new HashSet<Empire>();            
@@ -608,9 +610,9 @@ namespace Ship_Game
                 if (SelectedEmpire.data.Traits.MaintMod != 0)
                     DrawStat(Localizer.Token(GameText.MaintenanceModifier), SelectedEmpire.data.Traits.MaintMod, ref textCursor, true);
                 DrawStat(Localizer.Token(GameText.InbordersFtlBonus), SelectedEmpire.data.Traits.InBordersSpeedBonus, ref textCursor, false);
-                if (Empire.Universe.FTLModifier != 1f)
+                if (Universe.FTLModifier != 1f)
                 {
-                    float fTLModifier = Empire.Universe.FTLModifier * 100f;
+                    float fTLModifier = Universe.FTLModifier * 100f;
                     DrawBadStat(Localizer.Token(GameText.InsystemFtlSpeed), fTLModifier.ToString("##")+"%", ref textCursor);
                 }
                 DrawStat(Localizer.Token(GameText.FtlSpeedMultiplier), string.Concat(SelectedEmpire.data.FTLModifier, "x"), ref textCursor);

@@ -872,7 +872,7 @@ namespace Ship_Game
                                     SnapToExpandedSystem(n.ReferencedItem2 as Planet, n.ReferencedItem1 as SolarSystem);
                                     break;
                                 case "ShipDesign":
-                                    ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, Screen.EmpireUI));
+                                    ScreenManager.AddScreen(new ShipDesignScreen(Screen, Screen.EmpireUI));
                                     break;
                                 case "SnapToShip":
                                     SnapToShip(n.ReferencedItem1 as Ship);
