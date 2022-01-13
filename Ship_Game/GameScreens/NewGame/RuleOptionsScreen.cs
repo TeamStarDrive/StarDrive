@@ -17,7 +17,7 @@ namespace Ship_Game
         private FloatSlider CustomMineralDecay;
         private FloatSlider VolcanicActivity;
 
-        public RuleOptionsScreen(GameScreen parent) : base(parent)
+        public RuleOptionsScreen(GameScreen parent) : base(parent, toPause: null)
         {
             IsPopup = true;
             TransitionOnTime  = 0.25f;

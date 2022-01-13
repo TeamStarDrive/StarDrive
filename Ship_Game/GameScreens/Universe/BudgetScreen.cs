@@ -18,7 +18,7 @@ namespace Ship_Game.GameScreens
         FloatSlider TreasuryGoal;
         UILabel EmpireNetIncome;
 
-        public BudgetScreen(UniverseScreen screen) : base(screen)
+        public BudgetScreen(UniverseScreen screen) : base(screen, toPause: screen)
         {
             Player            = screen.player;
             IsPopup           = true;

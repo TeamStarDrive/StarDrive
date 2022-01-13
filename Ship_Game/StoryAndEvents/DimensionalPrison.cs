@@ -47,10 +47,9 @@ namespace Ship_Game
 
         private void CreateDimensionalPrison(Vector2 center, int radius)
         {
-            var screen = Empire.Universe;
             var r = new Rectangle((int)center.X - radius, (int)center.Y - radius, radius*2, radius*2);
             Prison = new BackgroundItem();
-            Prison.LoadContent(screen.ScreenManager);
+            Prison.LoadContent(Universe.ScreenManager);
             Prison.UpperLeft  = new Vector3(r.X, r.Y, 0f);
             Prison.LowerLeft  = Prison.UpperLeft + new Vector3(0f, r.Height, 0f);
             Prison.UpperRight = Prison.UpperLeft + new Vector3(r.Width, 0f, 0f);
@@ -61,8 +60,7 @@ namespace Ship_Game
 
         public override void Draw()
         {
-            var screen = Empire.Universe;
-            var manager = screen.ScreenManager;
+            var manager = Universe.ScreenManager;
             manager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             manager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             manager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
@@ -73,13 +71,13 @@ namespace Ship_Game
             manager.GraphicsDevice.RenderState.CullMode = CullMode.None;
             for (int i = 0; i < 20; i++)
             {
-                screen.Particles.Sparks.AddParticle(new Vector3(PlaformCenter, 0f) + GenerateRandomWithin(100f), GenerateRandomWithin(25f));
+                Universe.Particles.Sparks.AddParticle(new Vector3(PlaformCenter, 0f) + GenerateRandomWithin(100f), GenerateRandomWithin(25f));
             }
             if (RandomMath.RandomBetween(0f, 100f) > 97f)
             {
-                screen.Particles.Flash.AddParticle(new Vector3(PlaformCenter, 0f));
+                Universe.Particles.Flash.AddParticle(new Vector3(PlaformCenter, 0f));
             }
-            Prison.Draw(manager, screen.View, screen.Projection, 1f);
+            Prison.Draw(manager, Universe.View, Universe.Projection, 1f);
         }
 
         private Vector2 GenerateRandomV2(float radius)

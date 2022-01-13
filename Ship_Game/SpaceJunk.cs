@@ -137,7 +137,7 @@ namespace Ship_Game
             if (universe.JunkList.Count > 800)
                 return; // don't allow too much junk
 
-            if (!source.IsInFrustum)
+            if (!source.IsInFrustum(universe))
                 return; // not visible on the screen, so lets forget about it :)
 
             var junk = new SpaceJunk[howMuchJunk];

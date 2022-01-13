@@ -88,10 +88,10 @@ namespace Ship_Game.Gameplay
             UpdateTime.Stop();
         }
 
-        public void CollideAll(FixedSimTime timeStep)
+        public void CollideAll(FixedSimTime timeStep, bool showCollisions)
         {
             CollisionTime.Start();
-            Collisions = Spatial.CollideAll(timeStep);
+            Collisions = Spatial.CollideAll(timeStep, showCollisions);
             CollisionTime.Stop();
         }
 

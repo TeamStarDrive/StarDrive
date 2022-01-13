@@ -1,10 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Graphics
 {
@@ -33,14 +31,16 @@ namespace Ship_Game.Graphics
         }
 
         readonly GameScreen Screen;
-        object Locker = new object();
+        readonly Func<int> SimTurnSource;
+        readonly object Locker = new object();
         Array<Primitive> PrimitivesQueue = new Array<Primitive>();
         Array<Primitive> PrimitivesDrawing = new Array<Primitive>();
         int LastSimTurnId;
 
-        public DeferredRenderer(GameScreen screen)
+        public DeferredRenderer(GameScreen screen, Func<int> simTurnSource)
         {
             Screen = screen;
+            SimTurnSource = simTurnSource;
         }
 
         public void Draw(SpriteBatch batch)
@@ -48,11 +48,9 @@ namespace Ship_Game.Graphics
             lock (Locker)
             {
                 // swap Queued items with Drawing
-                var tmp = PrimitivesQueue;
-                PrimitivesQueue = PrimitivesDrawing;
-                PrimitivesDrawing = tmp;
+                (PrimitivesQueue, PrimitivesDrawing) = (PrimitivesDrawing, PrimitivesQueue);
                 PrimitivesQueue.Clear();
-                LastSimTurnId = Empire.Universe?.SimTurnId ?? LastSimTurnId + 1;
+                LastSimTurnId = SimTurnSource?.Invoke() ?? LastSimTurnId + 1;
             }
 
             int count = PrimitivesDrawing.Count;
@@ -100,11 +98,16 @@ namespace Ship_Game.Graphics
         void CheckDeferredPrimitives()
         {
             // simulation has already elapsed to a new frame
-            int simTurnId = Empire.Universe.SimTurnId;
-            if (simTurnId > LastSimTurnId)
+            // before any of primitives in the queue were submitted
+            // in this case we just discard the queue
+            if (SimTurnSource != null)
             {
-                LastSimTurnId = simTurnId;
-                PrimitivesQueue.Clear();
+                int simTurnId = SimTurnSource();
+                if (simTurnId > LastSimTurnId)
+                {
+                    LastSimTurnId = simTurnId;
+                    PrimitivesQueue.Clear();
+                }
             }
         }
         

@@ -26,7 +26,7 @@ namespace Ship_Game
         bool ShowingReplay;
         //string RememberedAs = "A footnote in a treatise on failed governance.";
 
-        public YouLoseScreen(UniverseScreen parent) : base(parent)
+        public YouLoseScreen(UniverseScreen parent) : base(parent, toPause: parent)
         {
             Universe = parent;
             IsPopup = false;

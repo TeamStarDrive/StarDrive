@@ -46,6 +46,8 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly float RadiationDamage = 0f; // is this star dangerous and damages nearby ships??
         [StarData] public readonly float RadiationRadius = 0f;
         [StarData] public readonly Array<SunLayerInfo> Layers;
+
+        public bool Disposed; // if true, this SunType was Disposed because of Hotloading
         public SubTexture Icon { get; private set; } // lo-res icon used in background star fields
 
         public override string ToString() => $"SunType {Id}  {IconPath}  Light:{LightColor}  Habit:{Habitable}";
@@ -68,16 +70,12 @@ namespace Ship_Game.Universe.SolarBodies
             return Map.FilterValues(s => s.Icon != null).Select(s => s.Icon);
         }
 
-        public static void LoadSunTypes(bool enableHotLoading = true)
+        public static void LoadSunTypes(bool loadIcons = true)
         {
             GameLoadingScreen.SetStatus("LoadSunTypes");
 
-            FileInfo file = ResourceManager.GetModOrVanillaFile("Suns.yaml");
-            if (enableHotLoading)
-            {
-                GameBase.ScreenManager.AddHotLoadTarget(null, file, OnSunsFileModified);
-            }
-            LoadSuns(file, loadIcons: enableHotLoading);
+            FileInfo file = GameBase.ScreenManager.AddHotLoadTarget(null, "Suns.yaml", (f) => LoadSuns(f, loadIcons));
+            LoadSuns(file, loadIcons);
         }
 
         public static void Unload()
@@ -90,6 +88,14 @@ namespace Ship_Game.Universe.SolarBodies
 
         static void LoadSuns(FileInfo file, bool loadIcons = true)
         {
+            // mark any previous suns as Disposed
+            if (Map.Count != 0)
+            {
+                Log.Write(ConsoleColor.Magenta, "Reinitializing Solar Systems...");
+                foreach (SunType sun in Map.Values)
+                    sun.Disposed = true;
+            }
+
             Array<SunType> all = YamlParser.DeserializeArray<SunType>(file);
 
             if (loadIcons) // load all sun icons if needed (not necessary for unit tests)
@@ -108,20 +114,6 @@ namespace Ship_Game.Universe.SolarBodies
             BarrenSuns    = all.Filter(s => !s.Habitable);
         }
 
-        static void OnSunsFileModified(FileInfo file)
-        {
-            LoadSuns(file, loadIcons: true);
-
-            var currentUniverse = Empire.Universe;
-            if (currentUniverse != null)
-            {
-                // re-initialize all solar systems suns
-                Log.Write(ConsoleColor.Magenta, "Reinitializing Solar Systems...");
-                foreach (SolarSystem system in currentUniverse.Systems)
-                    system.Sun = FindSun(system.Sun.Id);
-            }
-        }
-        
         public float DamageMultiplier(float distFromSun)
         {
             // https://www.desmos.com/calculator/lc2u7qxmhj

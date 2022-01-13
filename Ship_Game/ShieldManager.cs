@@ -34,14 +34,14 @@ namespace Ship_Game
             ShieldEffect = null;
         }
 
-        public static void Draw(Matrix view, Matrix projection)
+        public static void Draw(UniverseScreen u, in Matrix view, in Matrix projection)
         {
             using (ShieldList.AcquireReadLock())
             {
                 for (int i = 0; i < ShieldList.Count; i++)
                 {
                     Shield shield = ShieldList[i];
-                    if (shield.TexScale > 0f && shield.InFrustum())
+                    if (shield.TexScale > 0f && shield.InFrustum(u))
                         DrawShield(shield, view, projection);
                 }
             }
@@ -50,13 +50,13 @@ namespace Ship_Game
                 for (int i = 0; i < PlanetaryShieldList.Count; i++)
                 {
                     Shield shield = PlanetaryShieldList[i];
-                    if (shield.TexScale > 0f && shield.InFrustum())
+                    if (shield.TexScale > 0f && shield.InFrustum(u))
                         DrawShield(shield, view, projection);
                 }
             }
         }
 
-        static void DrawShield(Shield shield, Matrix view, Matrix projection)
+        static void DrawShield(Shield shield, in Matrix view, in Matrix projection)
         {
             shield.UpdateWorldTransform();
             ShieldEffect.Parameters["World"]       .SetValue(shield.World);
@@ -96,13 +96,13 @@ namespace Ship_Game
             return shield;
         }
 
-        public static void RemoveShieldLights(ShipModule[] shields)
+        public static void RemoveShieldLights(UniverseScreen u, ShipModule[] shields)
         {
             for (int i = 0; i < shields.Length; ++i)
-                shields[i].Shield.RemoveLight();
+                shields[i].Shield.RemoveLight(u);
         }
 
-        public static void Update()
+        public static void Update(UniverseScreen u)
         {
             using (PlanetaryShieldList.AcquireReadLock())
             {
@@ -140,7 +140,7 @@ namespace Ship_Game
                     if (shield.Owner != null && !shield.Owner.Active)
                     {
                         ShieldList.RemoveAtSwapLast(i);
-                        shield.RemoveLight();
+                        shield.RemoveLight(u);
                     }
                 }
             }

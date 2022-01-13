@@ -21,7 +21,8 @@ namespace Ship_Game
 
         readonly bool Hulls;
 
-        public ShipDesignSaveScreen(ShipDesignScreen screen, string shipName, bool hullDesigner = false) : base(screen)
+        public ShipDesignSaveScreen(ShipDesignScreen screen, string shipName, bool hullDesigner = false)
+            : base(screen, toPause: null)
         {
             Screen = screen;
             Rect = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);

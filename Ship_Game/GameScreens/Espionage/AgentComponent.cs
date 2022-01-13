@@ -48,7 +48,7 @@ namespace Ship_Game.GameScreens.Espionage
             EspionageScreen = espionageScreen;
 
             ComponentRect = r;
-            ScreenManager = Empire.Universe.ScreenManager;
+            ScreenManager = Universe.ScreenManager;
             SubRect = new Rectangle(ComponentRect.X, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
             OpsSubRect = new Rectangle(operationsRect.X + 20, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
             AgentSL = new ScrollList2<AgentListItem>(new Submenu(ComponentRect), 40);
@@ -189,7 +189,7 @@ namespace Ship_Game.GameScreens.Espionage
                 else
                 {
                     EmpireManager.Player.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
-                    var agent = new Agent
+                    var agent = new Agent()
                     {
                         Name = GetName(LoadNames()),
                         Age = RandomMath.RandomBetween(20, 30)

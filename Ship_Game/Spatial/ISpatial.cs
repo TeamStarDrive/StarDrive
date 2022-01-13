@@ -37,7 +37,14 @@ namespace Ship_Game
 
         void Clear();
         void UpdateAll(Array<GameplayObject> allObjects);
-        int CollideAll(FixedSimTime timeStep);
+
+        /// <summary>
+        /// Collides all objects
+        /// </summary>
+        /// <param name="timeStep">Simulation timestep</param>
+        /// <param name="showCollisions">If true, collision results are stored for debugging purposes (SLOW)</param>
+        /// <returns></returns>
+        int CollideAll(FixedSimTime timeStep, bool showCollisions);
         
         /// <summary>
         /// Finds nearby GameplayObjects using multiple filters

@@ -192,12 +192,12 @@ namespace Ship_Game
         public bool IsPlanetViewOrCloser => viewState <= UnivScreenState.PlanetView;
         public bool IsShipViewOrCloser   => viewState <= UnivScreenState.ShipView;
 
-        public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
+        public UniverseScreen(UniverseData data, Empire loyalty) : base(null, toPause: null) // new game
         {
             SetupUniverseScreen(data, loyalty);
         }
 
-        public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
+        public UniverseScreen(UniverseData data, string loyalty) : base(null, toPause: null) // savegame
         {
             loading = true;
             FogMapBase64 = data.FogMapBase64;
@@ -393,8 +393,6 @@ namespace Ship_Game
             Log.Write(ConsoleColor.Cyan, "UniverseScreen.LoadContent");
             RemoveAll();
             UnloadGraphics();
-
-            Empire.Universe = this;
 
             GlobalStats.ResearchRootUIDToDisplay = "Colonization";
             SolarsystemOverlay.SysFont  = Fonts.Arial12Bold;
@@ -592,15 +590,6 @@ namespace Ship_Game
 
             CreateFogMap(content, device, backBufferFormat);
             LoadMenu();
-
-            Arc15  = ResourceManager.Texture("Arcs/Arc15");
-            Arc20  = ResourceManager.Texture("Arcs/Arc20");
-            Arc45  = ResourceManager.Texture("Arcs/Arc45");
-            Arc60  = ResourceManager.Texture("Arcs/Arc60");
-            Arc90  = ResourceManager.Texture("Arcs/Arc90");
-            Arc120 = ResourceManager.Texture("Arcs/Arc120");
-            Arc180 = ResourceManager.Texture("Arcs/Arc180");
-            Arc360 = ResourceManager.Texture("Arcs/Arc360");
 
             FTLManager.LoadContent(this);
             MuzzleFlashManager.LoadContent(content);
@@ -821,8 +810,6 @@ namespace Ship_Game
             SolarSystemDict.Clear();
 
             Spatial.Destroy();
-
-            Empire.Universe = null;
             StatTracker.Reset();
 
             base.ExitScreen();
@@ -867,32 +854,6 @@ namespace Ship_Game
             foreach (SpaceJunk spaceJunk in JunkList)
                 spaceJunk.DestroySceneObject();
             JunkList.Clear();
-        }
-
-
-        // Refactored by RedFox
-        // this draws the colored empire borders
-        // the borders are drawn into a separate framebuffer texture and later blended with final visual
-
-        SubTexture Arc15;
-        SubTexture Arc20;
-        SubTexture Arc45;
-        SubTexture Arc60;
-        SubTexture Arc90;
-        SubTexture Arc120;
-        SubTexture Arc180;
-        SubTexture Arc360;
-
-        public SubTexture GetArcTexture(float weaponArc)
-        {
-            if (weaponArc >= 240f) return Arc360; // @note We're doing loose ARC matching to catch freak angles
-            if (weaponArc >= 150f) return Arc180;
-            if (weaponArc >= 105f) return Arc120;
-            if (weaponArc >= 75f)  return Arc90;
-            if (weaponArc >= 52.5f) return Arc60;
-            if (weaponArc >= 32.5f) return Arc45;
-            if (weaponArc >= 17.5f) return Arc20;
-            return Arc15;
         }
 
         public struct ClickablePlanets

@@ -29,7 +29,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         Empire Player => EmpireManager.Player;
         Empire SelectedEmpire;
 
-        public RelationshipsDiagramScreen(GameScreen screen, Array<EmpireAndIntelLevel> empiresAndIntel) : base(screen)
+        public RelationshipsDiagramScreen(GameScreen screen, Array<EmpireAndIntelLevel> empiresAndIntel)
+            : base(screen, toPause: null)
         {
             IsPopup           = true;
             TransitionOnTime  = 0.25f;

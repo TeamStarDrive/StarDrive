@@ -54,7 +54,7 @@ namespace Ship_Game
         readonly Map<Planet, float> PlanetDistanceToClosestColony = new Map<Planet, float>();
 
         public PlanetListScreen(UniverseScreen parent, EmpireUIOverlay empireUi, string audioCue = "")
-            : base(parent)
+            : base(parent, toPause: parent)
         {
             if(!string.IsNullOrEmpty(audioCue))
                 GameAudio.PlaySfxAsync(audioCue);
@@ -308,10 +308,10 @@ namespace Ship_Game
         {
             ExitScreen();
             GameAudio.AcceptClick();
-            Empire.Universe.SelectedPlanet = item.Planet;
-            Empire.Universe.ViewingShip = false;
-            Empire.Universe.returnToShip = false;
-            Empire.Universe.CamDestination = new Vector3d(item.Planet.Center, 10000);
+            Universe.SelectedPlanet = item.Planet;
+            Universe.ViewingShip = false;
+            Universe.returnToShip = false;
+            Universe.CamDestination = new Vector3d(item.Planet.Center, 10000);
         }
 
         public void ResetList()

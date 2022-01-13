@@ -23,7 +23,7 @@ namespace Ship_Game
 
         private void BuildPlatformsAndStations(PlanetBudget budget) // Rewritten by Fat Bastard
         {
-            if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals
+            if (colonyType == ColonyType.Colony || OwnerIsPlayer && !GovOrbitals
                                                 || SpaceCombatNearPlanet
                                                 || !HasSpacePort)
             {
@@ -52,7 +52,7 @@ namespace Ship_Game
         void BuildOrScrapPlatforms(Array<Ship> orbitals, byte wanted, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, RoleName.platform, budget);
 
-        bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings;
+        bool GovernorShouldNotScrapBuilding => OwnerIsPlayer && DontScrapBuildings;
 
         private Array<Ship> FilterOrbitals(RoleName role)
         {
@@ -363,7 +363,7 @@ namespace Ship_Game
 
         public void BuildTroopsForEvents()
         {
-            if (TroopsHere.Count > 0 || Owner.isPlayer || TroopsInTheWorks || !EventsOnTiles())
+            if (TroopsHere.Count > 0 || OwnerIsPlayer || TroopsInTheWorks || !EventsOnTiles())
                 return;
 
             if (CanBuildInfantry)
@@ -372,7 +372,7 @@ namespace Ship_Game
 
         public void BuildTroops() // Relevant only for players with the Garrison Checkbox checked.
         {
-            if (!Owner.isPlayer || !AutoBuildTroops || RecentCombat)
+            if (!OwnerIsPlayer || !AutoBuildTroops || RecentCombat)
                 return;
 
             int numTroopsInTheWorks = NumTroopsInTheWorks;
@@ -410,7 +410,7 @@ namespace Ship_Game
 
         void BuildAndScrapMilitaryBuildings(float budget)
         {
-            if (Owner.isPlayer && !GovGroundDefense)
+            if (OwnerIsPlayer && !GovGroundDefense)
                 return;
 
             if (MilitaryBuildingInTheWorks)

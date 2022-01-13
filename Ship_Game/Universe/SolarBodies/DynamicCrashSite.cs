@@ -93,7 +93,7 @@ namespace Ship_Game.Universe.SolarBodies
                                        && ships.Any(s => s?.Position.InRadius(p.Center, s.SensorRange) == true))
                 {
                     if (e.isPlayer)
-                        Empire.Universe.NotificationManager.AddShipCrashed(p, message);
+                        p.Universe.NotificationManager.AddShipCrashed(p, message);
                     else
                         AiProcessCrashSite(p, e, shipSize);
                 }
@@ -132,7 +132,7 @@ namespace Ship_Game.Universe.SolarBodies
                 SpawnSurvivingTroops(p, owner, tile, out troopMessage);
 
             if (owner.isPlayer || !owner.isPlayer && Loyalty.isPlayer && NumTroopsSurvived > 0)
-                Empire.Universe.NotificationManager.AddShipRecovered(p, ship, $"{message}{troopMessage}");
+                u.NotificationManager.AddShipRecovered(p, ship, $"{message}{troopMessage}");
 
             p.DestroyBuildingOn(tile);
         }
@@ -244,8 +244,8 @@ namespace Ship_Game.Universe.SolarBodies
 
             // Remove the Crater
             string path = tile.BuildingOnTile ? tile.Building.IconPath64 : "";
-            if (planet.Owner == EmpireManager.Player)
-                Empire.Universe.NotificationManager.AddMeteorRelated(planet, Localizer.Token(GameText.AMeteorCraterWasFlattened), path);
+            if (planet.OwnerIsPlayer)
+                planet.Universe.NotificationManager.AddMeteorRelated(planet, Localizer.Token(GameText.AMeteorCraterWasFlattened), path);
 
             planet.DestroyBuildingOn(tile);
         }

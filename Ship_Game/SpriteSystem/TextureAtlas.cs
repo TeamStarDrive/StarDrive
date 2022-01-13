@@ -45,6 +45,7 @@ namespace Ship_Game.SpriteSystem
         public SubTexture this[int index] => Sorted[index].GetOrLoadTexture();
         public SubTexture this[string name] => Lookup[name].GetOrLoadTexture();
         public TextureBinding GetBinding(int index) => Sorted[index];
+        public TextureBinding GetBinding(string name) => Lookup[name];
 
         // Grabs a random texture from this texture atlas
         public SubTexture RandomTexture() => RandomMath.RandItem(Sorted).GetOrLoadTexture();

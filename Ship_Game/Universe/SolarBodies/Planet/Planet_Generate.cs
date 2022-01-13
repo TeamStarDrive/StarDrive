@@ -151,7 +151,7 @@ namespace Ship_Game
             SetHomeworldTiles();
             ResetGarrisonSize();
 
-            if (Owner.isPlayer)
+            if (OwnerIsPlayer)
                 colonyType = ColonyType.Colony;
 
             CreateHomeWorldFertilityAndRichness();
@@ -351,7 +351,7 @@ namespace Ship_Game
                 SetBaseFertility(alignedFertility, alignedMaxFertility);
             }
 
-            if (!Owner.isPlayer) // Re-assess colony type after terraform, this might change for the AI
+            if (!OwnerIsPlayer) // Re-assess colony type after terraform, this might change for the AI
                 colonyType = Owner.AssessColonyNeeds(this);
         }
 
@@ -398,7 +398,7 @@ namespace Ship_Game
             }
 
             // Notify player that the planet was terraformed
-            if (Owner.isPlayer)
+            if (OwnerIsPlayer)
             {
                 string msg = $"{Localizer.Token(GameText.TerraformLevel)} {Owner.data.Traits.TerraformingLevel}:\n" +
                              $"{Name} {Localizer.Token(GameText.TerraformingCompletedAndTerraformersWere)}";
