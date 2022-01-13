@@ -132,7 +132,7 @@ namespace Ship_Game
                 }
             }
 
-            if (!ClickedTroop && (P.Owner.isPlayer || P.Universe.Debug))
+            if (!ClickedTroop && (P.OwnerIsPlayer || P.Universe.Debug))
             {
                 foreach (PlanetGridSquare pgs in P.TilesList)
                 {
@@ -193,7 +193,7 @@ namespace Ship_Game
 
         bool HandleCycleColoniesLeftRight(InputState input)
         {
-            bool canView = (P.Universe.Debug || P.Owner.isPlayer);
+            bool canView = (P.Universe.Debug || P.OwnerIsPlayer);
             if (canView && (input.Left || input.Right))
             {
                 int change = input.Left ? -1 : +1;

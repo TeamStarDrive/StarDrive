@@ -417,8 +417,8 @@ namespace Ship_Game
             if (b.IsMilitary
                 || b.IsTerraformer
                 || b.IsBiospheres  // Different logic for the above
-                || Owner.isPlayer && b.BuildOnlyOnce
-                || !Owner.isPlayer && b.BuildOnlyOnce && Level < (int)DevelopmentLevel.MegaWorld
+                || OwnerIsPlayer && b.BuildOnlyOnce
+                || !OwnerIsPlayer && b.BuildOnlyOnce && Level < (int)DevelopmentLevel.MegaWorld
                 // If starving and dont have low prod potential and this building does not produce
                 // food while we have food buildings available for build, filter it
                 || NonCybernetic && IsStarving && !LowProdPotential && !b.ProducesFood && BuildingsCanBuild.Any(f => f.ProducesFood))
@@ -437,7 +437,7 @@ namespace Ship_Game
         {
             if (b.IsBiospheres
                 || !b.Scrappable
-                || b.IsPlayerAdded && Owner.isPlayer
+                || b.IsPlayerAdded && OwnerIsPlayer
                 || b.IsTerraformer
                 || b.IsMilitary
                 || b.BuildOnlyOnce
@@ -654,7 +654,7 @@ namespace Ship_Game
 
         void TryScrapBiospheres()
         {
-            if (Owner.isPlayer && GovernorShouldNotScrapBuilding || !BuildingList.Any(b => b.IsBiospheres && !b.IsPlayerAdded))
+            if (OwnerIsPlayer && GovernorShouldNotScrapBuilding || !BuildingList.Any(b => b.IsBiospheres && !b.IsPlayerAdded))
                 return;
 
             var potentialBio = TilesList.Filter(t => t.Biosphere 

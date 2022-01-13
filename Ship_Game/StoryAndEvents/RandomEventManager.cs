@@ -82,7 +82,7 @@ namespace Ship_Game
             }
             else
             {
-                if (!planet.Owner.isPlayer 
+                if (!planet.OwnerIsPlayer 
                     && !planet.Owner.IsAlliedWith(EmpireManager.Player)
                     && !planet.Owner.IsTradeOrOpenBorders(EmpireManager.Player))
                 {
@@ -135,7 +135,7 @@ namespace Ship_Game
 
             CreateMeteors(planet);
 
-            if (planet.Owner.isPlayer)
+            if (planet.OwnerIsPlayer)
                 u.NotificationManager.AddMeteorShowerTargetingOurPlanet(planet);
             else if (planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player))
                 u.NotificationManager.AddMeteorShowerInSystem(planet);

@@ -18,7 +18,7 @@ namespace Ship_Game
             Planet = item.Planet;
             Item   = item;
             LowRes = lowRes;
-            if (Planet.Owner.isPlayer || Planet.Universe.Debug)
+            if (Planet.OwnerIsPlayer || Planet.Universe.Debug)
             {
                 AddUp(new Vector2(-120, 0), /*Queue up*/GameText.ClickToMoveUpIn, OnUpClicked);
                 AddDown(new Vector2(-90, 0), /*Queue down*/GameText.ClickToMoveDownIn, OnDownClicked);
