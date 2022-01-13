@@ -539,10 +539,7 @@ namespace Ship_Game
                 DrawTopCenterStatusText(batch, "Cinematic Mode - Press F11 to exit", Color.White, 3);
             }
 
-            if (!EmpireManager.Player.Research.NoResearchLeft 
-                && EmpireManager.Player.Research.NoTopic
-                && !EmpireManager.Player.AutoResearch
-                && !Empire.Universe.Debug)
+            if (!player.Research.NoResearchLeft && player.Research.NoTopic && !player.AutoResearch && !Debug)
             {
                 DrawTopCenterStatusText(batch, "No Research!",  ApplyCurrentAlphaToColor(Color.Red), 2);
             }
@@ -575,9 +572,9 @@ namespace Ship_Game
 
                     if ((ship?.SensorRange ?? 0) > 0)
                     {
-                        if (Empire.Universe.SelectedShip == ship)
+                        if (SelectedShip == ship)
                         {
-                            Color color = (ship.Loyalty == EmpireManager.Player)
+                            Color color = (ship.Loyalty.isPlayer)
                                 ? new Color(0, 100, 200, 20)
                                 : new Color(200, 0, 0, 10);
                             byte edgeAlpha = 85;
@@ -1270,7 +1267,7 @@ namespace Ship_Game
                 renderState.SourceBlend = Blend.SourceAlpha;
                 renderState.DestinationBlend = Blend.One;
                 renderState.DepthBufferWriteEnable = false;
-                ShieldManager.Draw(View, Projection);
+                ShieldManager.Draw(this, View, Projection);
             }
             DrawShieldsPerf.Stop();
         }

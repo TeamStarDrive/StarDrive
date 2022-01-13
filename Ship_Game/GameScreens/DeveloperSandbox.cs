@@ -11,7 +11,7 @@ namespace Ship_Game
         DeveloperUniverse Universe;
         TaskResult<UniverseData> CreateTask;
 
-        public DeveloperSandbox() : base(null)
+        public DeveloperSandbox() : base(null, toPause: null)
         {
             IsPopup = true;
         }

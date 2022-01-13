@@ -65,7 +65,7 @@ namespace Ship_Game
             if (ActiveEvent.TurnTimer <= 0)
             {
                 ActiveEvent = null;
-                Empire.Universe.NotificationManager.AddRandomEventNotification(Localizer.Token(GameText.TheHyperspaceFluxHasAbatednships), null, null, null);
+                u.NotificationManager.AddRandomEventNotification(Localizer.Token(GameText.TheHyperspaceFluxHasAbatednships), null, null, null);
             }
         }
 
@@ -82,7 +82,7 @@ namespace Ship_Game
             }
             else
             {
-                if (!planet.Owner.isPlayer 
+                if (!planet.OwnerIsPlayer 
                     && !planet.Owner.IsAlliedWith(EmpireManager.Player)
                     && !planet.Owner.IsTradeOrOpenBorders(EmpireManager.Player))
                 {
@@ -91,7 +91,7 @@ namespace Ship_Game
             }
 
             string fullText = $"{planet.Name} {Localizer.Token(message)} {postText}";
-            Empire.Universe.NotificationManager.AddRandomEventNotification(
+            planet.Universe.NotificationManager.AddRandomEventNotification(
                 fullText, planet.Type.IconPath, "SnapToPlanet", planet);
         }
 
@@ -135,16 +135,16 @@ namespace Ship_Game
 
             CreateMeteors(planet);
 
-            if (planet.Owner == EmpireManager.Player)
-                Empire.Universe.NotificationManager.AddMeteorShowerTargetingOurPlanet(planet);
+            if (planet.OwnerIsPlayer)
+                u.NotificationManager.AddMeteorShowerTargetingOurPlanet(planet);
             else if (planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player))
-                Empire.Universe.NotificationManager.AddMeteorShowerInSystem(planet);
+                u.NotificationManager.AddMeteorShowerInSystem(planet);
         }
 
         public static void CreateMeteors(Planet p)
         {
             int rand = RandomMath.RollDie(12);
-            int numMeteors = RandomMath.IntBetween(rand * 3, rand * 10).Clamped(3, (int)Empire.Universe.StarDate - 1000);
+            int numMeteors = RandomMath.IntBetween(rand * 3, rand * 10).Clamped(3, (int)p.Universe.StarDate - 1000);
 
             int baseSpeed = RandomMath.RollDie(1000, 500);
             Vector2 origin = GetMeteorOrigin(p);
@@ -160,7 +160,7 @@ namespace Ship_Game
                 Vector2 pos = origin.GenerateRandomPointInsideCircle(p.GravityWellRadius);
 
                 string meteorName = "Meteor " + METEOR_VARIANTS[RandomMath.RollDie(7) - 1];
-                var meteor = Ship.CreateShipAtPoint(Empire.Universe, meteorName, EmpireManager.Unknown, pos);
+                var meteor = Ship.CreateShipAtPoint(p.Universe, meteorName, EmpireManager.Unknown, pos);
                 if (meteor != null)
                 {
                     float speed = RandomMath.IntBetween(baseSpeed-100, baseSpeed+100);

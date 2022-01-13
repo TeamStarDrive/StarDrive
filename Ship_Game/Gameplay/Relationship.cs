@@ -510,7 +510,7 @@ namespace Ship_Game.Gameplay
 
         public bool GetContestedSystem(out SolarSystem contested)
         {
-            contested = contestedSystemGuid != Guid.Empty ? Empire.Universe.GetSystem(contestedSystemGuid) : null;
+            contested = contestedSystemGuid != Guid.Empty ? Them.Universum.GetSystem(contestedSystemGuid) : null;
             return contested != null;
         }
 
@@ -597,7 +597,7 @@ namespace Ship_Game.Gameplay
             {
                 CancelPrepareForWar();
                 AtWar = false;
-                ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                ActiveWar.EndStarDate = us.Universum.StarDate;
                 WarHistory.Add(ActiveWar);
                 ActiveWar = null;
             }
@@ -639,7 +639,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 us.EndPeaceWith(them);
-                Empire.Universe.NotificationManager?.AddPeaceTreatyExpiredNotification(them);
+                us.Universum.NotificationManager?.AddPeaceTreatyExpiredNotification(them);
             }
         }
         
@@ -826,7 +826,7 @@ namespace Ship_Game.Gameplay
             if (FedQuest == null) 
                 return false;
 
-            Empire player = Empire.Universe.PlayerEmpire;
+            Empire player = aiEmpire.Universum.PlayerEmpire;
             Empire enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
             if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
             {
@@ -944,7 +944,7 @@ namespace Ship_Game.Gameplay
             };
 
             Offer offer2 = new Offer { NAPact = true };
-            if (them == Empire.Universe.PlayerEmpire)
+            if (them == us.Universum.PlayerEmpire)
                 DiplomacyScreen.Show(us, "Offer NAPact", offer2, offer1);
             else
                 them.GetEmpireAI().AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
@@ -1022,7 +1022,7 @@ namespace Ship_Game.Gameplay
             };
 
             Offer offer2 = new Offer();
-            if (them == Empire.Universe.PlayerEmpire)
+            if (them == us.Universum.PlayerEmpire)
             {
                 DiplomacyScreen.Show(us, "OFFER_ALLIANCE", offer2, offer1);
             }
@@ -1057,7 +1057,7 @@ namespace Ship_Game.Gameplay
             if ((themToUs.Trust >= 150 || themToUs.Trust >= 100 && them.TotalPopBillion < us.TotalPopBillion / 3)
                 && Is3RdPartyBiggerThenUs())
             {
-                Empire.Universe.NotificationManager.AddPeacefulMergerNotification(us, them);
+                us.Universum.NotificationManager.AddPeacefulMergerNotification(us, them);
                 us.AbsorbEmpire(them);
             }
 
@@ -1091,7 +1091,7 @@ namespace Ship_Game.Gameplay
                     if (!RefusedMerge)
                     {
                         EmpireManager.Player.AbsorbEmpire(us);
-                        Empire.Universe.NotificationManager.AddMergeWithPlayer(us);
+                        us.Universum.NotificationManager.AddMergeWithPlayer(us);
                     }
                 })
             };
@@ -1204,7 +1204,7 @@ namespace Ship_Game.Gameplay
             string dialogue = whichPeace;
             Offer ourOffer  = new Offer { PeaceTreaty = true };
 
-            if (them == Empire.Universe.PlayerEmpire)
+            if (them == us.Universum.PlayerEmpire)
                 DiplomacyScreen.Show(us, dialogue, ourOffer, offerPeace);
             else
                 them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);

@@ -13,7 +13,7 @@ namespace Ship_Game.GameScreens.Espionage
         public AgentComponent Agents { get; private set; }
         public static readonly Color PanelBackground = new Color(23, 20, 14);
 
-        public EspionageScreen(UniverseScreen parent) : base(parent)
+        public EspionageScreen(UniverseScreen parent) : base(parent, toPause: parent)
         {
             Universe = parent;
             IsPopup = true;

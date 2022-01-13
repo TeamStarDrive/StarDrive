@@ -320,7 +320,7 @@ namespace UnitTests.Universe
                     AllObjects.RemoveInActiveObjects();
                     objects = AllObjects.ToArray();
 
-                    tree.CollideAll(TestSimStep);
+                    tree.CollideAll(TestSimStep, showCollisions: false);
                 }
             });
 
@@ -409,7 +409,7 @@ namespace UnitTests.Universe
                     }
                 }
                 tree.UpdateAll(AllObjects);
-                total += tree.CollideAll(TestSimStep);
+                total += tree.CollideAll(TestSimStep, showCollisions: false);
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- CollideAll 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");

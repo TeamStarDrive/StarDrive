@@ -94,7 +94,7 @@ namespace Ship_Game
             public int TurretAngle;
         }
 
-        public ShipDesignScreen(UniverseScreen universe, EmpireUIOverlay empireUi) : base(universe)
+        public ShipDesignScreen(UniverseScreen universe, EmpireUIOverlay empireUi) : base(universe, toPause: universe)
         {
             ParentUniverse = universe;
             Name = "ShipDesignScreen";
@@ -293,7 +293,10 @@ namespace Ship_Game
 
             if (HullEditMode)
                 hullTemplate = hullTemplate.GetClone();
-            ChangeHull(new ShipDesign(hullTemplate), zoomToHull: zoomToHull);
+
+            // In Debug, show the modder HullName=`Misc/HaulerSmall` instead of VisibleName=`Small Freighter`
+            string name = ParentUniverse.Debug ? hullTemplate.HullName : hullTemplate.VisibleName;
+            ChangeHull(new ShipDesign(hullTemplate, name), zoomToHull: zoomToHull);
         }
 
         // @param zoomToHull whether to use the zoom-to-hull animation, not needed in some cases
@@ -566,7 +569,7 @@ namespace Ship_Game
                 {
                     if (ResourceManager.Hull(hull, out ShipHull hullData))
                     {
-                        if ((!hullData.IsShipyard || Empire.Universe.Debug))
+                        if ((!hullData.IsShipyard || ParentUniverse.Debug))
                         {
                             hullData.ReloadIfNeeded();
                             AvailableHulls.Add(hullData);

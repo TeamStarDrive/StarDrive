@@ -13,7 +13,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         private readonly ScrollList2<ShipDesignIssuesListItem> IssueList;
         private readonly Graphics.Font LargeFont = Fonts.Arial20Bold;
 
-        public ShipDesignIssuesScreen(GameScreen screen, Array<DesignIssueDetails> issues) : base(screen)
+        public ShipDesignIssuesScreen(GameScreen screen, Array<DesignIssueDetails> issues) : base(screen, toPause: null)
         {
             DesignIssues      = issues;
             IsPopup           = true;

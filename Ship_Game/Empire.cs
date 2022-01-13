@@ -101,7 +101,6 @@ namespace Ship_Game
         public Remnants Remnants { get; private set; }
 
         public Color EmpireColor;
-        public static UniverseScreen Universe;
 
         public UniverseScreen Universum; // Alias for static Empire.Universum
 

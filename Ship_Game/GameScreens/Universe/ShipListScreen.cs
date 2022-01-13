@@ -10,6 +10,7 @@ namespace Ship_Game
 {
     public sealed class ShipListScreen : GameScreen
     {
+        UniverseScreen Universe;
         private readonly Menu2 TitleBar;
         private readonly Vector2 TitlePos;
         private readonly Menu2 EMenu;
@@ -65,8 +66,10 @@ namespace Ship_Game
         private Rectangle STL;
         private readonly SortButton SB_STL;
 
-        public ShipListScreen(UniverseScreen parent, EmpireUIOverlay empUi, string audioCue = "") : base(parent)
+        public ShipListScreen(UniverseScreen parent, EmpireUIOverlay empUi, string audioCue = "")
+            : base(parent, toPause: parent)
         {
+            Universe = parent;
             if (!string.IsNullOrEmpty(audioCue))
                 GameAudio.PlaySfxAsync(audioCue);
 
@@ -232,13 +235,13 @@ namespace Ship_Game
         void OnShipListScreenItemClicked(ShipListScreenItem item)
         {
             ExitScreen();
-            UniverseScreen universe = Empire.Universe;
-            if (universe.SelectedShip != null && universe.previousSelection != universe.SelectedShip && universe.SelectedShip != item.Ship) // fbedard
-                universe.previousSelection = universe.SelectedShip;
-            universe.SelectedShipList.Clear();
-            universe.SelectedShip = item.Ship;
-            universe.ViewToShip();
-            universe.returnToShip = true;
+            UniverseScreen u = Universe;
+            if (u.SelectedShip != null && u.previousSelection != u.SelectedShip && u.SelectedShip != item.Ship) // fbedard
+                u.previousSelection = u.SelectedShip;
+            u.SelectedShipList.Clear();
+            u.SelectedShip = item.Ship;
+            u.ViewToShip();
+            u.returnToShip = true;
         }
 
         public override bool HandleInput(InputState input)
@@ -296,35 +299,35 @@ namespace Ship_Game
             if (SortSystem.HandleInput(input)) SortAndReset(SortOrder, sl => sl.Ship.SystemName);
             if (SortFleet.HandleInput(input))  SortAndReset(SortOrder, sl => sl.Ship.Fleet?.Name ?? "None");
             
-            UniverseScreen universe = Empire.Universe;
+            UniverseScreen u = Universe;
 
             if (input.KeyPressed(Keys.K) && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
 
-                universe.SelectedShipList.Clear();
-                universe.returnToShip = false;
+                u.SelectedShipList.Clear();
+                u.returnToShip = false;
                 if (SelectedShip !=null)
                 {                   
-                    universe.SelectedFleet = null;
-                    universe.SelectedItem = null;
-                    universe.SelectedSystem = null;
-                    universe.SelectedPlanet = null;
-                    universe.returnToShip = false;
+                    u.SelectedFleet = null;
+                    u.SelectedItem = null;
+                    u.SelectedSystem = null;
+                    u.SelectedPlanet = null;
+                    u.returnToShip = false;
                     foreach (ShipListScreenItem sel in ShipSL.AllEntries)
-                        if (sel.Selected) universe.SelectedShipList.AddUnique(sel.Ship);
+                        if (sel.Selected) u.SelectedShipList.AddUnique(sel.Ship);
 
-                    if (universe.SelectedShipList.Count == 1)
+                    if (u.SelectedShipList.Count == 1)
                     {
-                        if (universe.SelectedShip != null && universe.previousSelection != universe.SelectedShip) //fbedard
-                            universe.previousSelection = universe.SelectedShip;
-                        universe.SelectedShip = SelectedShip;
-                        universe.ShipInfoUIElement.SetShip(SelectedShip);
-                        universe.SelectedShipList.Clear();
+                        if (u.SelectedShip != null && u.previousSelection != u.SelectedShip) //fbedard
+                            u.previousSelection = u.SelectedShip;
+                        u.SelectedShip = SelectedShip;
+                        u.ShipInfoUIElement.SetShip(SelectedShip);
+                        u.SelectedShipList.Clear();
                     }
-                    else if (universe.SelectedShipList.Count > 1)
-                        universe.shipListInfoUI.SetShipList(universe.SelectedShipList, false);
+                    else if (u.SelectedShipList.Count > 1)
+                        u.shipListInfoUI.SetShipList(u.SelectedShipList, false);
                 }
                 return base.HandleInput(input);
             }
@@ -332,28 +335,28 @@ namespace Ship_Game
             if (input.Escaped || input.RightMouseClick)
             {
                 ExitScreen();
-                universe.SelectedShipList.Clear();
-                universe.returnToShip = false;
+                u.SelectedShipList.Clear();
+                u.returnToShip = false;
                 if (SelectedShip !=null)
                 {                   
-                    universe.SelectedFleet  = null;
-                    universe.SelectedItem   = null;
-                    universe.SelectedSystem = null;
-                    universe.SelectedPlanet = null;
-                    universe.returnToShip   = false;
+                    u.SelectedFleet  = null;
+                    u.SelectedItem   = null;
+                    u.SelectedSystem = null;
+                    u.SelectedPlanet = null;
+                    u.returnToShip   = false;
                     foreach (ShipListScreenItem sel in ShipSL.AllEntries)
-                        if (sel.Selected) universe.SelectedShipList.AddUnique(sel.Ship);
+                        if (sel.Selected) u.SelectedShipList.AddUnique(sel.Ship);
 
-                    if (universe.SelectedShipList.Count == 1)
+                    if (u.SelectedShipList.Count == 1)
                     {
-                        if (universe.SelectedShip != null && universe.previousSelection != universe.SelectedShip) //fbedard
-                            universe.previousSelection = universe.SelectedShip;
-                        universe.SelectedShip = SelectedShip;
-                        universe.ShipInfoUIElement.SetShip(SelectedShip);
-                        universe.SelectedShipList.Clear();
+                        if (u.SelectedShip != null && u.previousSelection != u.SelectedShip) //fbedard
+                            u.previousSelection = u.SelectedShip;
+                        u.SelectedShip = SelectedShip;
+                        u.ShipInfoUIElement.SetShip(SelectedShip);
+                        u.SelectedShipList.Clear();
                     }
-                    else if (universe.SelectedShipList.Count > 1)
-                        universe.shipListInfoUI.SetShipList(universe.SelectedShipList, false);
+                    else if (u.SelectedShipList.Count > 1)
+                        u.shipListInfoUI.SetShipList(u.SelectedShipList, false);
                 }
                 return true;
             }

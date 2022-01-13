@@ -11,7 +11,7 @@ namespace Ship_Game
         Rectangle BridgeRect;
         int Index;
 
-        public TutorialScreen(GameScreen parent) : base(parent)
+        public TutorialScreen(GameScreen parent) : base(parent, toPause: null)
         {
             IsPopup = true;
             TransitionOnTime = 0.25f;

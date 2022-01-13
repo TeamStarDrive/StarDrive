@@ -32,12 +32,12 @@ namespace Ship_Game
 
         void SetupColonyType()
         {
-            if (Owner.isPlayer && !Owner.AutoColonize)
+            if (OwnerIsPlayer && !Owner.AutoColonize)
                 colonyType = ColonyType.Colony;
             else
                 colonyType = Owner.AssessColonyNeeds(this);
 
-            if (Owner.isPlayer)
+            if (OwnerIsPlayer)
                 Universe.NotificationManager.AddColonizedNotification(this, EmpireManager.Player);
         }
 
@@ -101,7 +101,7 @@ namespace Ship_Game
         {
             if (playerTroopsRemoved)
                 Universe.NotificationManager.AddTroopsRemovedNotification(this);
-            else if (Owner.isPlayer)
+            else if (OwnerIsPlayer)
                 Universe.NotificationManager.AddForeignTroopsRemovedNotification(this);
         }
 

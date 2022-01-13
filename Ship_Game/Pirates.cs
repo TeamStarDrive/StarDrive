@@ -229,7 +229,7 @@ namespace Ship_Game
             {
                 Owner.GetEmpireAI().Goals.Clear();
                 Owner.SetAsDefeated();
-                Empire.Universe.NotificationManager.AddEmpireDiedNotification(Owner);
+                Owner.Universum.NotificationManager.AddEmpireDiedNotification(Owner);
             }
             else
             {
@@ -266,9 +266,9 @@ namespace Ship_Game
 
             switch (warningType)
             {
-                case PirateOpsWarning.LevelUp:   Empire.Universe.NotificationManager.AddPiratesAreGettingStronger(Owner, Level); break;
-                case PirateOpsWarning.LevelDown: Empire.Universe.NotificationManager.AddPiratesAreGettingWeaker(Owner, Level);   break;
-                case PirateOpsWarning.Flagship:  Empire.Universe.NotificationManager.AddPiratesFlagshipSighted(Owner);           break;
+                case PirateOpsWarning.LevelUp:   Owner.Universum.NotificationManager.AddPiratesAreGettingStronger(Owner, Level); break;
+                case PirateOpsWarning.LevelDown: Owner.Universum.NotificationManager.AddPiratesAreGettingWeaker(Owner, Level);   break;
+                case PirateOpsWarning.Flagship:  Owner.Universum.NotificationManager.AddPiratesFlagshipSighted(Owner);           break;
             }
         }
 
@@ -459,7 +459,7 @@ namespace Ship_Game
             do
             {
                 pos = system.Position.GenerateRandomPointOnCircle(radius);
-            } while (!HelperFunctions.IsInUniverseBounds(Empire.Universe.UniverseSize, pos));
+            } while (!IsInUniverseBounds(system.Universe.UniverseSize, pos));
 
             return pos;
         }
@@ -793,7 +793,7 @@ namespace Ship_Game
 
             if (shipName.NotEmpty())
             {
-                pirateShip = Ship.CreateShipAtPoint(Empire.Universe, shipName, Owner, where);
+                pirateShip = Ship.CreateShipAtPoint(Owner.Universum, shipName, Owner, where);
                 if (pirateShip != null)
                     SpawnedShips.Add(pirateShip.Guid);
                 else
@@ -934,7 +934,7 @@ namespace Ship_Game
             float reward = (500 + RandomMath.RollDie(1000) + Level * 100).RoundUpToMultipleOf(10);
             killer.AddMoney(reward);
             if (killer.isPlayer)
-                Empire.Universe.NotificationManager.AddDestroyedPirateBase(killedShip, reward);
+                Owner.Universum.NotificationManager.AddDestroyedPirateBase(killedShip, reward);
         }
 
         bool FoundPirateBaseInSystemOf(Empire victim, out Ship pirateBase)

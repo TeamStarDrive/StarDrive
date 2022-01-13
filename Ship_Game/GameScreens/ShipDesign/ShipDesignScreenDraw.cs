@@ -18,9 +18,9 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
-            Empire.Universe.DrawStarField();
-            Empire.Universe.Particles.Draw(View, Projection, nearView:true);
-            Empire.Universe.Particles.Update(elapsed.CurrentGameTime);
+            ParentUniverse.DrawStarField();
+            ParentUniverse.Particles.Draw(View, Projection, nearView:true);
+            ParentUniverse.Particles.Update(elapsed.CurrentGameTime);
 
             ScreenManager.RenderSceneObjects();
 
@@ -320,7 +320,7 @@ namespace Ship_Game
             Vector2 pos = posOnScreen.ToVec2f();
             float size = (float)sizeOnScreen;
 
-            SubTexture arcTexture = Empire.Universe.GetArcTexture(m.FieldOfFire.ToDegrees());
+            SubTexture arcTexture = ResourceManager.GetArcTexture(m.FieldOfFire.ToDegrees());
 
             var texOrigin = new Vector2(250f, 250f);
             var rect = new RectF(pos, new Vector2(size));

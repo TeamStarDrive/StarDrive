@@ -128,6 +128,9 @@ namespace Ship_Game.GameScreens.LoadGame
         // Universe does not exist yet !
         UniverseData LoadEverything(SavedGame.UniverseSaveData saveData, ProgressCounter step)
         {
+            if (EmpireManager.NumEmpires != 0)
+                throw new Exception("LoadGame.LoadEverything: EmpireManager.NumEmpires must be 0!");
+
             step.Start(11); // arbitrary count... check # of calls below:
 
             ScreenManager.Instance.RemoveAllObjects();
@@ -145,10 +148,7 @@ namespace Ship_Game.GameScreens.LoadGame
             RandomEventManager.ActiveEvent = saveData.RandomEvent;
             int numEmpires = saveData.EmpireDataList.Filter(e => !e.IsFaction).Length; 
             CurrentGame.StartNew(data, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets, numEmpires);
-            
-            EmpireManager.Clear();
-            Empire.Universe?.Objects.Clear();
-            
+
             CreateEmpires(saveData, data);                     step.Advance();
             GiftShipsFromServantEmpire(data);                  step.Advance();
             CreateRelations(saveData);                         step.Advance();

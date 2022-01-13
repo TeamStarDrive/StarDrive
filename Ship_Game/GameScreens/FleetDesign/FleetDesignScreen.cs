@@ -15,6 +15,7 @@ namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen : GameScreen
     {
+        UniverseScreen Universe;
         public Camera2D Camera;
         //private Background bg = new Background();
         StarField StarField;
@@ -64,8 +65,10 @@ namespace Ship_Game
         readonly ShipInfoOverlayComponent ShipInfoOverlay;
         FleetStanceButtons OrdersButtons;
 
-        public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)
+        public FleetDesignScreen(UniverseScreen u, EmpireUIOverlay empireUI, string audioCue ="")
+            : base(u, toPause: u)
         {
+            Universe = u;
             GameAudio.PlaySfxAsync(audioCue);
             SelectedFleet = new Fleet() { Owner = EmpireManager.Player }; ;
             EmpireUI = empireUI;
@@ -151,7 +154,7 @@ namespace Ship_Game
         {
             if (!StarDriveGame.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
             {
-                Empire.Universe.RecomputeFleetButtons(true);
+                Universe.RecomputeFleetButtons(true);
             }
             base.ExitScreen();
         }

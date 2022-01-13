@@ -11,7 +11,7 @@ namespace Ship_Game
         ScrollList2<SearchTechItem> TechList;
         UITextEntry SearchTech;
 
-        public SearchTechScreen(ResearchScreenNew screen) : base(screen)
+        public SearchTechScreen(ResearchScreenNew screen) : base(screen, toPause: null)
         {
             IsPopup = true;
             TransitionOnTime  = 0.25f;

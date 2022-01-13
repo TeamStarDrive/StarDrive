@@ -404,7 +404,7 @@ namespace Ship_Game
             if (planet.Owner == null || planet.Owner.isFaction)
                 return;
 
-            if (planet.Owner.isPlayer) // Warn the player is able
+            if (planet.OwnerIsPlayer) // Warn the player is able
             {
                 SolarSystem system = planet.ParentSystem;
                 if (system.PlanetList.Any(p => p.Owner == EmpireManager.Player

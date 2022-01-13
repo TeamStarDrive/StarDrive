@@ -29,7 +29,8 @@ namespace UnitTests.Universe
         {
         };
 
-        public SpatialVisualization(Array<GameplayObject> allObjects, ISpatial spat, bool moveShips) : base(null)
+        public SpatialVisualization(Array<GameplayObject> allObjects, ISpatial spat, bool moveShips)
+            : base(null, toPause: null)
         {
             AllObjects = allObjects;
             Spat = spat;
@@ -84,7 +85,7 @@ namespace UnitTests.Universe
                 UpdateTime = timer1.Elapsed;
 
                 var timer2 = new PerfTimer();
-                Collisions += Spat.CollideAll(simTime);
+                Collisions += Spat.CollideAll(simTime, showCollisions: true);
                 CollideTime = timer2.Elapsed;
             }
 
