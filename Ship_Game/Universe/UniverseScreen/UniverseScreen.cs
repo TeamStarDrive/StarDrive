@@ -24,7 +24,7 @@ namespace Ship_Game
 {
     public partial class UniverseScreen : GameScreen
     {
-        public static readonly SpatialManager Spatial = new SpatialManager();
+        public readonly SpatialManager Spatial = new SpatialManager();
 
         /// <summary>
         /// Manages universe objects in a thread-safe manner
