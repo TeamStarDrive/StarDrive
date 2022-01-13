@@ -535,9 +535,6 @@
     <Compile Include="Ship_Game\PathFinder\Astar.cs" />
     <Compile Include="Ship_Game\PathFinder\Node.cs" />
     <Compile Include="Ship_Game\PathFinder\NodeVector.cs" />
-    <Compile Include="Ship_Game\Sensors\BasicSensors.cs" />
-    <Compile Include="Ship_Game\Sensors\TargetData.cs" />
-    <Compile Include="Ship_Game\Sensors\TimedScanner.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\Components\KnownByEmpire.cs" />
@@ -1719,6 +1716,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Ship_Game\Sensors\" />
     <Folder Include="Ship_Game\Universe\SolarBodies\AI\" />
   </ItemGroup>
   <ItemGroup>

@@ -785,7 +785,7 @@ namespace Ship_Game
         Array<Troop> GetOrbitingTroops(Empire owner)
         {
             // get our friendly ships
-            GameplayObject[] orbitingShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
+            GameplayObject[] orbitingShips = P.Universe.Spatial.FindNearby(GameObjectType.Ship,
                                                 P.Center, P.ObjectRadius+1500f, maxResults:128, onlyLoyalty:owner);
 
             // get a list of all the troops on those ships

@@ -1592,7 +1592,7 @@ namespace Ship_Game.Ships
                 if (PlanetCrash == null)
                 {
                     float explosionDamage = GetExplosionDamage();
-                    UniverseScreen.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage / 500);
+                    Universe.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage / 500);
                 }
 
                 if (PlanetCrash == null && visible)
