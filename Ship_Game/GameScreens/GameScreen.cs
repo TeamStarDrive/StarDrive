@@ -95,9 +95,10 @@ namespace Ship_Game
             ScreenManager    = parent?.ScreenManager ?? GameBase.ScreenManager;
             UpdateViewport();
 
-            if (pause & Empire.Universe?.IsActive == true && Empire.Universe?.Paused == false)
+            UniverseScreen universe = Empire.Universe;
+            if (pause & universe?.IsActive == true && universe?.Paused == false)
             {
-                Empire.Universe.Paused = true;
+                universe.Paused = true;
             }
             else
             {
@@ -115,7 +116,7 @@ namespace Ship_Game
             LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
             HiRes  = ScreenWidth > 1920 || ScreenHeight > 1400;
 
-            Renderer = new DeferredRenderer(this);
+            Renderer = new DeferredRenderer(this, universe);
         }
 
         ~GameScreen() { Destroy(); }
@@ -159,8 +160,9 @@ namespace Ship_Game
 
         public virtual void ExitScreen()
         {
-            if (Pauses && Empire.Universe != null)
-                Empire.Universe.Paused = Pauses = false;
+            UniverseScreen universe = Empire.Universe;
+            if (Pauses && universe != null)
+                universe.Paused = Pauses = false;
 
             // if we got any tooltips, clear them now
             ToolTip.Clear();

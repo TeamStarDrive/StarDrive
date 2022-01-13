@@ -53,7 +53,7 @@ namespace UnitTests.Planets
             Assert.IsTrue(NewPlanet.TestIsCapitalInQueue(), "New Planet Should have a capital in queue");
 
             Enemy.AddMoney(1000);
-            Empire.Universe.Debug = true; // to get the debug rush
+            Universe.Debug = true; // to get the debug rush
             NewPlanet.Construction.RushProduction(0, 1000, rushButton: true);
             Assert.IsTrue(NewPlanet.IsHomeworld, "New planet should be a homeworld");
             Assert.IsTrue(NewPlanet.HasCapital, "New planet should have a capital, after rushing");

@@ -689,7 +689,7 @@ namespace Ship_Game.Ships
 
         public void DebugDamageCircle()
         {
-            Parent.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
+            Parent.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Parent.Universe);
         }
 
         public float GetExplosionDamageOnShipExplode()

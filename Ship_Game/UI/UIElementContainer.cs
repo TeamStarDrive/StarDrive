@@ -120,10 +120,13 @@ namespace Ship_Game
             if (Visible && Enabled)
             {
                 if (LastInputFrameId != GameBase.Base.FrameId)
+                {
                     LastInputFrameId = GameBase.Base.FrameId;
+                }
                 else
-                    Empire.Universe.DebugWin?.DebugLogText(
-                        "UIElement.HandleInput called twice per frame. This is a potential bug: " + this, Debug.DebugModes.input);
+                {
+                    Log.Warning(ConsoleColor.Red, "UIElement.HandleInput called twice per frame. This is a potential bug: " + this);
+                }
 
                 // iterate input in reverse, so we handle topmost objects before
                 for (int i = Elements.Count - 1; i >= 0; --i)

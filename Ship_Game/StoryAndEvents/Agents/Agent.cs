@@ -483,7 +483,7 @@ namespace Ship_Game
             if (ReassignedDueToVictimDefeated(us, victim))
                 return;
 
-            float diceRoll                 = SpyRoll(us, victim);
+            float diceRoll = SpyRoll(us, victim);
             SpyMissionStatus missionStatus = data.SpyRollResult(Mission, diceRoll, out short xpToAdd);
 
             MissionResolve aftermath = new MissionResolve(us, victim);
@@ -499,7 +499,7 @@ namespace Ship_Game
                 case AgentMission.Recovering:      aftermath = ResolveRecovery(us);                             break;
             }
 
-            aftermath.PerformPostMissionActions(this, xpToAdd, missionStatus);
+            aftermath.PerformPostMissionActions(us.Universum, this, xpToAdd, missionStatus);
             RepeatMission(us);
         }
 
@@ -593,7 +593,7 @@ namespace Ship_Game
                         if (Mission == AgentMission.Training && Level == 3 && owner.data.SpyMissionRepeat)
                             message += "\nTraining is stopped since the agent has reached Level 3";
 
-                        Empire.Universe.NotificationManager.AddAgentResult(true, message, owner);
+                        owner.Universum.NotificationManager.AddAgentResult(true, message, owner);
                     }
                 }
                 else
@@ -609,7 +609,7 @@ namespace Ship_Game
                              $"All agents below Level 6 gain 1 Level\n" +
                              "due to this agent's tutoring and vast experience";
 
-            Empire.Universe.NotificationManager.AddAgentResult(true, message, owner);
+            owner.Universum.NotificationManager.AddAgentResult(true, message, owner);
             owner.data.AgentList.QueuePendingRemoval(this);
             for (int i = 0; i < owner.data.AgentList.Count; i++)
             {
@@ -649,10 +649,10 @@ namespace Ship_Game
                 DamageReason    = "";
             }
 
-            public void PerformPostMissionActions(Agent agent, int xpToAdd, SpyMissionStatus missionStatus)
+            public void PerformPostMissionActions(UniverseScreen us, Agent agent, int xpToAdd, SpyMissionStatus missionStatus)
             {
                 AgentRelatedActions(agent, xpToAdd, missionStatus);
-                SendNotifications(agent);
+                SendNotifications(us, agent);
             }
 
             void AgentRelatedActions(Agent agent, int xpToAdd, SpyMissionStatus missionStatus)
@@ -683,16 +683,16 @@ namespace Ship_Game
                 }
             }
 
-            void SendNotifications(Agent agent)
+            void SendNotifications(UniverseScreen u, Agent agent)
             {
                 if (Message.NotEmpty) // default message
-                    Empire.Universe.NotificationManager.AddAgentResult(GoodResult, $"{agent.Name} {Message.Text}", Us);
+                    u.NotificationManager.AddAgentResult(GoodResult, $"{agent.Name} {Message.Text}", Us);
 
                 if (CustomMessage.NotEmpty())
-                    Empire.Universe.NotificationManager.AddAgentResult(GoodResult, CustomMessage, Us);
+                    u.NotificationManager.AddAgentResult(GoodResult, CustomMessage, Us);
 
                 if (MessageToVictim.NotEmpty())
-                    Empire.Universe.NotificationManager.AddAgentResult(!GoodResult, MessageToVictim, Victim);
+                    u.NotificationManager.AddAgentResult(!GoodResult, MessageToVictim, Victim);
 
                 if (RelationDamage > 0 && DamageReason.NotEmpty())
                     Victim.GetRelations(Us).DamageRelationship(Victim, Us, DamageReason, RelationDamage, null);

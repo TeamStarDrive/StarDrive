@@ -134,10 +134,9 @@ namespace Ship_Game
         {
         }
 
-        [XmlIgnore][JsonIgnore]
-        public bool IsInFrustum => Empire.Universe != null &&
-            Empire.Universe.IsSystemViewOrCloser &&
-            Empire.Universe.Frustum.Contains(Position, 2000f);
+        // in system view and inside frustum
+        public bool IsInFrustum(UniverseScreen u) =>
+            u.IsSystemViewOrCloser && u.Frustum.Contains(Position, 2000f);
 
         [XmlIgnore][JsonIgnore]
         public string SystemName => System?.Name ?? "Deep Space";

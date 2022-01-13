@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Ship_Game.Graphics.Particles;
 
 namespace Ship_Game.Ships
 {
@@ -30,7 +31,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void Update(FixedSimTime timeStep)
+        public void Update(ParticleManager particles, FixedSimTime timeStep)
         {
             Vector2 dir = Owner.Position.DirectionToTarget(CrashPos);
             Owner.Velocity = dir * (Owner.MaxSTLSpeed * 0.8f).LowerBound(200);
@@ -53,7 +54,6 @@ namespace Ship_Game.Ships
 
             float z = Owner.GetSO().World.Translation.Z - 20;
             Vector3 trailPos = (Owner.Position + dir * Owner.Radius * Scale * 0.5f).ToVec3(z);
-            var particles = Empire.Universe.Particles;
 
             if (Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f) &&
                 !Owner.Position.InRadius(P.Center, P.ObjectRadius))
