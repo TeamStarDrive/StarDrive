@@ -136,7 +136,7 @@ namespace Ship_Game.Spatial
             var t1 = new PerfTimer();
             for (int i = 0; i < iterations; ++i)
             {
-                tree.CollideAll(timeStep);
+                tree.CollideAll(timeStep, showCollisions: false);
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- CollideAll 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");

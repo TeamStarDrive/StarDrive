@@ -1267,7 +1267,7 @@ namespace Ship_Game
                 renderState.SourceBlend = Blend.SourceAlpha;
                 renderState.DestinationBlend = Blend.One;
                 renderState.DepthBufferWriteEnable = false;
-                ShieldManager.Draw(View, Projection);
+                ShieldManager.Draw(this, View, Projection);
             }
             DrawShieldsPerf.Stop();
         }
