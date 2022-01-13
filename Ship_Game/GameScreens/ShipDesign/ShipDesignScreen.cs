@@ -286,7 +286,19 @@ namespace Ship_Game
             DesignedShip.ShowSceneObjectAt(DesignedShip.Position, 0);
         }
 
-        public void ChangeHull(IShipDesign shipDesignTemplate)
+        // @param zoomToHull whether to use the zoom-to-hull animation, not needed in some cases
+        public void ChangeHull(ShipHull hullTemplate, bool zoomToHull = true)
+        {
+            if (hullTemplate == null) // if ShipDesignLoadScreen has no selected design
+                return;
+
+            if (HullEditMode)
+                hullTemplate = hullTemplate.GetClone();
+            ChangeHull(new ShipDesign(hullTemplate), zoomToHull: zoomToHull);
+        }
+
+        // @param zoomToHull whether to use the zoom-to-hull animation, not needed in some cases
+        public void ChangeHull(IShipDesign shipDesignTemplate, bool zoomToHull = true)
         {
             if (shipDesignTemplate == null) // if ShipDesignLoadScreen has no selected design
                 return;
@@ -302,21 +314,6 @@ namespace Ship_Game
             DesignedShip.Universe = ParentUniverse; // TODO: make a mini-verse in Shipyard
 
             InstallModulesFromDesign(cloned);
-            AfterHullChange(zoomToHull:true);
-        }
-
-        public void ChangeHull(ShipHull hullTemplate, bool zoomToHull = true)
-        {
-            if (hullTemplate == null) // if ShipDesignLoadScreen has no selected design
-                return;
-
-            if (HullEditMode)
-                hullTemplate = hullTemplate.GetClone();
-            ChangeHull(new ShipDesign(hullTemplate));
-        }
-
-        void AfterHullChange(bool zoomToHull)
-        {
             CreateSOFromCurrentHull();
             BindListsToActiveHull();
 
