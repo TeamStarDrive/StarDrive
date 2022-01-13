@@ -240,7 +240,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (RandomMath.RollDice(75))
             {
                 planet.MakeTileHabitable(tile);
-                if (planet.Owner.isPlayer && !GlobalStats.DisableVolcanoWarning)
+                if (planet.OwnerIsPlayer && !GlobalStats.DisableVolcanoWarning)
                     planet.Universe.NotificationManager.AddVolcanoRelated(planet, Localizer.Token(GameText.ALavaPoolHasSolidified), lavaPath);
             }
         }

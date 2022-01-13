@@ -28,11 +28,11 @@ namespace Ship_Game
                 return; // No Governor? Never mind!
 
             // Switch to Core for AI if there is nothing in the research queue (Does not actually change assigned Governor)
-            if ((!Owner.isPlayer || Owner.AutoResearch) && colonyType == ColonyType.Research && Owner.Research.NoTopic)
+            if ((!OwnerIsPlayer || Owner.AutoResearch) && colonyType == ColonyType.Research && Owner.Research.NoTopic)
                 colonyType = ColonyType.Core;
 
             // Change to core colony if there is only 1 planet so the AI can build stuff
-            if (!Owner.isPlayer && Owner.GetPlanets().Count == 1)
+            if (!OwnerIsPlayer && Owner.GetPlanets().Count == 1)
                 colonyType = ColonyType.Core;
 
             Food.Percent = 0;
