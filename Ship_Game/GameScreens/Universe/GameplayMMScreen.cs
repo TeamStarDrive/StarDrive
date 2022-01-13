@@ -14,20 +14,17 @@ namespace Ship_Game
         UILabel SavingText;
         UIButton SaveButton;
 
-        GameplayMMScreen(GameScreen parent) : base(parent, pause: true)
+        public GameplayMMScreen(UniverseScreen screen) : base(screen, toPause: screen)
         {
+            Universe = screen;
             IsPopup = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
         }
-        public GameplayMMScreen(UniverseScreen screen) : this((GameScreen)screen)
-        {
-            Universe = screen;
-        }
+
         public GameplayMMScreen(UniverseScreen screen, GameScreen caller) : this(screen)
         {
             Caller = caller;
-            Universe = screen;
         }
         
         public override void LoadContent()
@@ -87,8 +84,6 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            if (Caller == null)
-                Universe.Paused = false;
             base.ExitScreen();
         }
 
@@ -103,8 +98,8 @@ namespace Ship_Game
         {
             if (SavedGame.NotSaving)
             {
+                ExitScreen(); // exit before opening new screen
                 ScreenManager.AddScreen(new LoadSaveScreen(Universe));
-                ExitScreen();
             }
             else GameAudio.NegativeClick();
         }

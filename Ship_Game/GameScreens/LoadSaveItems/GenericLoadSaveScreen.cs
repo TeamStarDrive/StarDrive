@@ -35,7 +35,7 @@ namespace Ship_Game
 
         protected GenericLoadSaveScreen(
             GameScreen parent, SLMode mode, string initText, string title, string tabText, bool saveExport = false)
-            : base(parent)
+            : base(parent, toPause: parent as UniverseScreen)
         {
             Mode = mode;
             InitText = initText;

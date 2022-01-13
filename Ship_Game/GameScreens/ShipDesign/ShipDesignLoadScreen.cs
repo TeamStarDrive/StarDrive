@@ -26,7 +26,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         Array<Ships.ShipDesign> WIPs = new Array<Ships.ShipDesign>();
 
-        public ShipDesignLoadScreen(ShipDesignScreen screen, bool unlockAll) : base(screen)
+        public ShipDesignLoadScreen(ShipDesignScreen screen, bool unlockAll) : base(screen, toPause: null)
         {
             Screen = screen;
             IsPopup = true;

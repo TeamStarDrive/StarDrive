@@ -60,7 +60,6 @@ namespace Ship_Game
         public Vector2 MousePos     => Input.CursorPosition;
         public Vector2 ScreenArea   => GameBase.ScreenSize;
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
-        bool Pauses = true;
 
         // event called right after the screen has been loaded
         public Action OnLoaded;
@@ -82,27 +81,32 @@ namespace Ship_Game
         // Thread safe queue for running UI commands
         readonly SafeQueue<Action> PendingActions = new SafeQueue<Action>();
 
+        // If this is set, the universe was paused
+        UniverseScreen PausedUniverse;
 
-        protected GameScreen(GameScreen parent, bool pause = true) 
-            : this(parent, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), pause)
+        /// <param name="parent">Parent to this screen, or null</param>
+        /// <param name="toPause">If not null, pauses the universe simulation until this screen finishes</param>
+        protected GameScreen(GameScreen parent, UniverseScreen toPause) 
+            : this(parent, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), toPause)
         {
         }
-        
-        protected GameScreen(GameScreen parent, in Rectangle rect, bool pause = true) : base(rect)
+
+        /// <param name="parent">Parent to this screen, or null</param>
+        /// <param name="rect">Initial container rect for this screen</param>
+        /// <param name="toPause">If not null, pauses the universe simulation until this screen finishes</param>
+        protected GameScreen(GameScreen parent, in Rectangle rect, UniverseScreen toPause) : base(rect)
         {
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? GameBase.Base.Content, GetType().Name);
             ScreenManager    = parent?.ScreenManager ?? GameBase.ScreenManager;
             UpdateViewport();
 
-            UniverseScreen universe = Empire.Universe;
-            if (pause & universe?.IsActive == true && universe?.Paused == false)
+            // if we have `toPause`, check if it's active and not already paused
+            // this way only a single pausing screen will be allowed to resume the simulation automatically
+            if (toPause != null && toPause.IsActive && !toPause.Paused)
             {
-                universe.Paused = true;
-            }
-            else
-            {
-                Pauses = false;
+                toPause.Paused = true;
+                PausedUniverse = toPause;
             }
 
             if (Input == null)
@@ -116,7 +120,7 @@ namespace Ship_Game
             LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
             HiRes  = ScreenWidth > 1920 || ScreenHeight > 1400;
 
-            Renderer = new DeferredRenderer(this, universe);
+            Renderer = new DeferredRenderer(this);
         }
 
         ~GameScreen() { Destroy(); }
@@ -160,9 +164,11 @@ namespace Ship_Game
 
         public virtual void ExitScreen()
         {
-            UniverseScreen universe = Empire.Universe;
-            if (Pauses && universe != null)
-                universe.Paused = Pauses = false;
+            if (PausedUniverse != null)
+            {
+                PausedUniverse.Paused = false;
+                PausedUniverse = null;
+            }
 
             // if we got any tooltips, clear them now
             ToolTip.Clear();
