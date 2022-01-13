@@ -244,7 +244,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             // Remove the Crater
             string path = tile.BuildingOnTile ? tile.Building.IconPath64 : "";
-            if (planet.Owner?.isPlayer == true)
+            if (planet.OwnerIsPlayer)
                 planet.Universe.NotificationManager.AddMeteorRelated(planet, Localizer.Token(GameText.AMeteorCraterWasFlattened), path);
 
             planet.DestroyBuildingOn(tile);
