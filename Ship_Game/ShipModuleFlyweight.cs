@@ -95,8 +95,6 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly float DamageThreshold;
         [StarData] public readonly int APResist;
         [StarData] public readonly bool IndirectPower;
-        [StarData] public readonly bool IsPowerArmor;
-        [StarData] public readonly bool IsBulkhead;
         [StarData] public readonly int TargetTracking;
         [StarData] public readonly int TargetAccuracy;
         [StarData] public readonly bool DisableRotation;
@@ -206,8 +204,6 @@ namespace Ship_Game.Gameplay
             Regenerate                  = s.Regenerate;
             ShieldBubbleColor           = s.ShieldBubbleColor;
             IndirectPower               = s.IndirectPower;
-            IsPowerArmor                = s.IsPowerArmor;
-            IsBulkhead                  = s.IsBulkhead;
             TargetTracking              = s.TargetTracking;
             TargetAccuracy              = s.TargetAccuracy;
             DisableRotation             = s.DisableRotation;
@@ -327,8 +323,6 @@ namespace Ship_Game.Gameplay
         public float DamageThreshold;
         public int APResist;
         public bool IndirectPower;
-        public bool IsPowerArmor;
-        public bool IsBulkhead;
         public int TargetTracking;
         public int TargetAccuracy;
         public bool DisableRotation;
