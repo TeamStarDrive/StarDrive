@@ -86,7 +86,7 @@ namespace Ship_Game.Debug.Page
 
         void MakeItRain(float offset, float velocity, float radius, ExplosionType type)
         {
-            ExplosionManager.AddExplosion(Screen.CursorWorldPosition + RandomMath.Vector3D(offset),
+            ExplosionManager.AddExplosion(Screen, Screen.CursorWorldPosition + RandomMath.Vector3D(offset),
                                           velocity:RandomMath.Vector2D(velocity),
                                           radius: radius, intensity:5.0f, type:type);
         }

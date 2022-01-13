@@ -303,7 +303,7 @@ namespace Ship_Game.Ships
                 if (num1 >= 99) // 1% chance
                 {
                     Vector3 pos = (Position + RandomMath.Vector2D(scaledRadius*0.5f)).ToVec3();
-                    ExplosionManager.AddExplosion(pos, Velocity, scaledRadius*0.5f, 2.5f, ExplosionType.Projectile);
+                    ExplosionManager.AddExplosion(Universe, pos, Velocity, scaledRadius*0.5f, 2.5f, ExplosionType.Projectile);
                     Universe.Particles.Flash.AddParticle(pos);
                 }
                 if (num1 >= 50) // 50% chance
