@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
+using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Lights;
 
@@ -55,19 +56,19 @@ namespace Ship_Game
             }
         }
 
-        public bool InFrustum()
+        public bool InFrustum(UniverseScreen u)
         {
             Vector2 center = Owner?.Position ?? PlanetCenter;
-            return Empire.Universe.Frustum.Contains(center, Radius);
+            return u.Frustum.Contains(center, Radius);
         }
 
-        public void AddLight()
+        public void AddLight(UniverseScreen u)
         {
             if (Light != null)
                 return;
             
             Light = new PointLight();
-            Empire.Universe.AddLight(Light, dynamic:true);
+            u.AddLight(Light, dynamic:true);
         }
 
         public void RemoveLight()
@@ -105,10 +106,10 @@ namespace Ship_Game
             Radius       = shieldRadius;
             Displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
             TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-            
-            if (Empire.Universe.CanAddDynamicLight)
+
+            if (planet.Universe.CanAddDynamicLight)
             {
-                AddLight();
+                AddLight(planet.Universe);
                 Light.World        = world;
                 Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
                 Light.Radius       = Radius* RandomMath.RandomBetween(1, 2);
@@ -117,7 +118,7 @@ namespace Ship_Game
             }
 
 
-            var particles = Empire.Universe.Particles;
+            var particles = planet.Universe.Particles;
             Vector3 impactNormal = center3D.DirectionToTarget(pos);
 
             particles.Flash.AddParticle(pos);
@@ -127,9 +128,8 @@ namespace Ship_Game
             }
         }
 
-        static void CreateShieldHitParticles(Vector2 projectilePos, Vector3 moduleCenter, bool beamFlash)
+        static void CreateShieldHitParticles(ParticleManager particles, Vector2 projectilePos, Vector3 moduleCenter, bool beamFlash)
         {
-            var particles = Empire.Universe.Particles;
             Vector3 pos = projectilePos.ToVec3(moduleCenter.Z);
             Vector2 impactNormal = moduleCenter.ToVec2().DirectionToTarget(projectilePos);
 
@@ -157,7 +157,7 @@ namespace Ship_Game
 
             if (universe.CanAddDynamicLight)
             {
-                AddLight();
+                AddLight(universe);
                 Light.World        = proj.WorldMatrix;
                 Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
                 Light.Radius       = module.ShieldHitRadius;
@@ -165,7 +165,7 @@ namespace Ship_Game
                 Light.Enabled      = true;
             }
 
-            CreateShieldHitParticles(proj.Position, module.Center3D, beamFlash: false);
+            CreateShieldHitParticles(universe.Particles, proj.Position, module.Center3D, beamFlash: false);
         }
 
         public static Color GetBubbleColor(float shieldRate, string colorName = "Green")
