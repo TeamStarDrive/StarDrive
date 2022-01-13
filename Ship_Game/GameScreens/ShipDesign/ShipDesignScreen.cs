@@ -25,11 +25,11 @@ namespace Ship_Game
 
         // this can be Null if we are in HullEdit mode
         public DesignShip DesignedShip { get; private set; }
-        public ShipDesign CurrentDesign;
-        public ShipHull CurrentHull; // never Null
+        public ShipDesign CurrentDesign; // never Null, even in Hull Editor
+        public ShipHull CurrentHull => CurrentDesign.BaseHull;
         public DesignModuleGrid ModuleGrid;
 
-        public string DesignOrHullName => CurrentDesign?.Name ?? CurrentHull.VisibleName;
+        public string DesignOrHullName => CurrentDesign.Name;
 
         public EmpireUIOverlay EmpireUI;
 
@@ -305,13 +305,10 @@ namespace Ship_Game
 
             RemoveVisibleMesh();
 
-            ShipDesign cloned = shipDesignTemplate.GetClone();
+            ShipDesign cloned = shipDesignTemplate.GetClone(shipDesignTemplate.Name);
             ModuleGrid = new DesignModuleGrid(this, cloned);
             CurrentDesign = cloned;
-            CurrentHull   = cloned.BaseHull;
-            CurrentDesign.Name = shipDesignTemplate.Name;
-            DesignedShip = new DesignShip(cloned);
-            DesignedShip.Universe = ParentUniverse; // TODO: make a mini-verse in Shipyard
+            DesignedShip = new DesignShip(ParentUniverse, cloned); // TODO: make a mini-verse in Shipyard
 
             InstallModulesFromDesign(cloned);
             CreateSOFromCurrentHull();

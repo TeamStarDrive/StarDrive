@@ -65,9 +65,9 @@ namespace UnitTests.Ships
             PrintInfo("2");
 
             var legacyUnlockable = new Dictionary<string, ShipDesign>();
-            foreach (ShipDesign tOld in ResourceManager.ShipDesigns)
+            foreach (IShipDesign tOld in ResourceManager.ShipDesigns)
             {
-                legacyUnlockable.Add(tOld.Name, tOld.GetClone()); //Because it gets disposed later on and we get a NPE
+                legacyUnlockable.Add(tOld.Name, tOld.GetClone(null)); //Because it gets disposed later on and we get a NPE
             }
 
             // now try with the new optimized algorithm and make sure it matches
@@ -75,7 +75,7 @@ namespace UnitTests.Ships
             ShipDesignUtils.MarkDesignsUnlockable();
             PrintInfo("3");
 
-            foreach (ShipDesign @new in ResourceManager.ShipDesigns)
+            foreach (IShipDesign @new in ResourceManager.ShipDesigns)
             {
                 if (legacyUnlockable.TryGetValue(@new.Name, out ShipDesign legacy))
                 {
