@@ -13,12 +13,14 @@ namespace UnitTests.Ships
     {
         Ship Ship;
         Weapon Weapon;
+        Empire Empire;
 
         public TestWeaponModifiers()
         {
             CreateUniverseAndPlayerEmpire();
-            Player.TestInitModifiers();
-            Ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            Empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
+            Empire.TestInitModifiers();
+            Ship = SpawnShip("Vulcan Scout", Empire, Vector2.Zero);
             Weapon = CreateWeapon(Ship);
         }
 
@@ -36,7 +38,7 @@ namespace UnitTests.Ships
         {
             Assert.That.Equal(1000, Weapon.GetActualRange());
 
-            WeaponTagModifier m = Player.WeaponBonuses(WeaponTag.Kinetic);
+            WeaponTagModifier m = Empire.WeaponBonuses(WeaponTag.Kinetic);
             m.Range = 1; // +100% increase
             Assert.That.Equal(2000, Weapon.GetActualRange());
 
@@ -63,7 +65,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(false, p1.IgnoresShields);
             Assert.That.Equal(0.96f, p1.Duration);
 
-            WeaponTagModifier m = Player.WeaponBonuses(WeaponTag.Kinetic);
+            WeaponTagModifier m = Empire.WeaponBonuses(WeaponTag.Kinetic);
             m.Turn   = 1; // p.RotationRadsPerSecond
             m.Damage = 1; // p.DamageAmount
             m.Range  = 1; // p.Range
