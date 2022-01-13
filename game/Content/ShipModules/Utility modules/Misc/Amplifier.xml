@@ -16,7 +16,6 @@
 	<IconTexturePath>Modules/Amplifier</IconTexturePath>
 	<NameIndex>17495</NameIndex>
 	<DescriptionIndex>17496</DescriptionIndex>
-	<IsPowerArmor>true</IsPowerArmor>
 	<!-- Mass and Health -->
 	<Mass>2</Mass>
 	<Health>600</Health>
