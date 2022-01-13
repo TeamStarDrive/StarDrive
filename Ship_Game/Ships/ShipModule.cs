@@ -175,8 +175,6 @@ namespace Ship_Game.Ships
         public float DamageThreshold             => Flyweight.DamageThreshold;
         public int APResist                      => Flyweight.APResist;
         public bool AlwaysPowered                => Flyweight.IndirectPower;
-        public bool IsPowerArmor                 => Flyweight.IsPowerArmor;
-        public bool IsBulkhead                   => Flyweight.IsBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;
         public int TargetingAccuracy             => Flyweight.TargetAccuracy;
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
@@ -204,6 +202,16 @@ namespace Ship_Game.Ships
         public float WeaponInaccuracyBase => Flyweight?.WeaponInaccuracyBase ?? 1;
 
         public bool Explodes => ExplosionDamage > 0;
+
+        // used in module selection category
+        public bool IsPowerArmor => Is(ShipModuleType.Armor) && !IsBulkhead && (PowerDraw > 0 || PowerFlowMax > 0);
+
+        // used in module selection category
+        public bool IsBulkhead => Is(ShipModuleType.Armor) && 
+                                  (Restrictions == Restrictions.I 
+                                   || Restrictions == Restrictions.IE 
+                                   || Restrictions == Restrictions.xI);
+
 
         public bool IsWeaponOrBomb => ModuleType == ShipModuleType.Spacebomb
                                    || ModuleType == ShipModuleType.Turret

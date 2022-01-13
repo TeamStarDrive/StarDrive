@@ -17,7 +17,6 @@
 	<IconTexturePath>Modules/AdvAmplifier</IconTexturePath>
 	<NameIndex>17497</NameIndex>
 	<DescriptionIndex>17499</DescriptionIndex>
-	<IsPowerArmor>true</IsPowerArmor>
 	<!-- Mass and Health -->
 	<Mass>8</Mass>
 	<Health>2760</Health>
