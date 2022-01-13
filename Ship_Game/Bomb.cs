@@ -63,7 +63,7 @@ namespace Ship_Game
             if (Owner.Universum.IsSystemViewOrCloser && TargetPlanet.ParentSystem.IsVisible)
             {
                 TargetPlanet.PlayPlanetSfx("sd_bomb_impact_01", Position);
-                ExplosionManager.AddExplosionNoFlames(Position, 200f, 7.5f);
+                ExplosionManager.AddExplosionNoFlames(Owner.Universum, Position, 200f, 7.5f);
                 Owner.Universum.Particles.Flash.AddParticle(Position, Vector3.Zero);
                 for (int i = 0; i < 50; i++)
                     Owner.Universum.Particles.Explosion.AddParticle(Position, Vector3.Zero);

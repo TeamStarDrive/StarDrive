@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Audio;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
@@ -104,7 +102,8 @@ namespace Ship_Game
             ScreenManager.Instance.AddLight(newExp.Light, dynamic:true);
         }
 
-        public static void AddExplosion(Vector3 position, Vector2 velocity, float radius, float intensity, ExplosionType type)
+        public static void AddExplosion(UniverseScreen u, Vector3 position, Vector2 velocity,
+                                        float radius, float intensity, ExplosionType type)
         {
             Array<Explosion> explosions = Types[type];
             if (explosions.IsEmpty)
@@ -120,7 +119,7 @@ namespace Ship_Game
                 Radius = radius <= 0f ? 1f : radius*expType.Scale
             };
 
-            if (Empire.Universe.CanAddDynamicLight && Empire.Universe.IsSectorViewOrCloser)
+            if (u.CanAddDynamicLight && u.IsSectorViewOrCloser)
                 AddLight(exp, position, intensity);
 
             using (Lock.AcquireWriteLock())
@@ -128,7 +127,7 @@ namespace Ship_Game
         }
 
         // Light flash only, no explosion anim texture is played
-        public static void AddExplosionNoFlames(Vector3 position, float radius, float intensity)
+        public static void AddExplosionNoFlames(UniverseScreen u, Vector3 position, float radius, float intensity)
         {
             var exp = new ExplosionState
             {
@@ -137,7 +136,7 @@ namespace Ship_Game
                 Radius = radius <= 0f ? 1f : radius,
             };
 
-            if (Empire.Universe.CanAddDynamicLight && Empire.Universe.IsSectorViewOrCloser)
+            if (u.CanAddDynamicLight && u.IsSectorViewOrCloser)
                 AddLight(exp, position, intensity);
 
             using (Lock.AcquireWriteLock())
