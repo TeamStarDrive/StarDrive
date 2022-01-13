@@ -97,7 +97,7 @@ namespace Ship_Game.Universe.SolarBodies
                 QueueItem item = ConstructionQueue[itemIndex];
                 SpendProduction(item, maxAmount);
 
-                if (rushFees && (!Owner.isPlayer || !P.Universe.Debug))
+                if (rushFees && (!P.OwnerIsPlayer || !P.Universe.Debug))
                 {
                     Owner.ChargeRushFees(maxAmount);
                 }
@@ -168,7 +168,7 @@ namespace Ship_Game.Universe.SolarBodies
             q.pgs.PlaceBuilding(b, P);
             if (!GlobalStats.SuppressOnBuildNotifications
                 && !P.Universe.IsViewingColonyScreen(P)
-                && P.Owner.isPlayer
+                && P.OwnerIsPlayer
                 && (q.IsPlayerAdded || q.Building.IsCapital))
             {
                 P.Universe.NotificationManager.AddBuildingConstructed(P, b);
@@ -239,7 +239,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         void TryPlayerRush() // Apply rush if player marked items as continuous rush
         {
-            if (!Owner.isPlayer || Count == 0 || P.CrippledTurns > 0 || P.RecentCombat)
+            if (!P.OwnerIsPlayer || Count == 0 || P.CrippledTurns > 0 || P.RecentCombat)
                 return;
 
             QueueItem item = ConstructionQueue[0];

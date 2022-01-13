@@ -211,7 +211,7 @@ namespace Ship_Game
             BuildableList.EnableItemHighlight = true;
             BuildableList.OnDoubleClick       = OnBuildableItemDoubleClicked;
             BuildableList.OnHovered           = OnBuildableHoverChange;
-            if (p.Owner.isPlayer || p.Universe.Debug)
+            if (p.OwnerIsPlayer || p.Universe.Debug)
                 BuildableList.OnDragOut = OnBuildableListDrag;
 
             PlayerDesignsToggle = Add(new ToggleButton(new Vector2(BuildableTabs.Right - 270, BuildableTabs.Y),
@@ -227,7 +227,7 @@ namespace Ship_Game
 
             ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
             ConstructionQueue.EnableItemHighlight = true;
-            if (p.Owner.isPlayer || p.Universe.Debug)
+            if (p.OwnerIsPlayer || p.Universe.Debug)
                 ConstructionQueue.OnDragReorder = OnConstructionItemReorder;
 
             int iconSize = LowRes ? 80 : 128;
