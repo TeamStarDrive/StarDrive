@@ -82,7 +82,7 @@ namespace Ship_Game.Spatial
             }
         }
 
-        public unsafe int CollideAll(FixedSimTime timeStep)
+        public unsafe int CollideAll(FixedSimTime timeStep, bool showCollisions)
         {
             var collider = new Collider(SpatialObjects.Length);
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);

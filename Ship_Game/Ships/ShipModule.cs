@@ -689,7 +689,7 @@ namespace Ship_Game.Ships
 
         public void DebugDamageCircle()
         {
-            Empire.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
+            Parent.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
         }
 
         public float GetExplosionDamageOnShipExplode()
@@ -720,7 +720,7 @@ namespace Ship_Game.Ships
                 }
 
                 if (Parent.IsVisibleToPlayer)
-                    Shield.HitShield(Empire.Universe, this, proj);
+                    Shield.HitShield(Parent.Universe, this, proj);
             }
 
             Parent.UpdateShields();
@@ -798,7 +798,7 @@ namespace Ship_Game.Ships
 
         void Deflect(GameplayObject source)
         {
-            if (!Parent.InFrustum || Empire.Universe?.IsShipViewOrCloser == false)
+            if (!Parent.InFrustum || Parent.Universe?.IsShipViewOrCloser == false)
                 return;
 
             if (!(source is Projectile proj))
@@ -965,7 +965,7 @@ namespace Ship_Game.Ships
         void DebugPerseveranceNoDamage()
         {
         #if DEBUG
-            if (!Empire.Universe.Debug || Parent.VanityName != "Perseverance")
+            if (!Parent.Universe.Debug || Parent.VanityName != "Perseverance")
                 return;
             if (Health < 10) // never give up, never surrender! F_F
                 SetHealth(10);

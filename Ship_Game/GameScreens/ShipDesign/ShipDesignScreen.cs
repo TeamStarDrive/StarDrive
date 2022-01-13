@@ -293,7 +293,10 @@ namespace Ship_Game
 
             if (HullEditMode)
                 hullTemplate = hullTemplate.GetClone();
-            ChangeHull(new ShipDesign(hullTemplate), zoomToHull: zoomToHull);
+
+            // In Debug, show the modder HullName=`Misc/HaulerSmall` instead of VisibleName=`Small Freighter`
+            string name = ParentUniverse.Debug ? hullTemplate.HullName : hullTemplate.VisibleName;
+            ChangeHull(new ShipDesign(hullTemplate, name), zoomToHull: zoomToHull);
         }
 
         // @param zoomToHull whether to use the zoom-to-hull animation, not needed in some cases
