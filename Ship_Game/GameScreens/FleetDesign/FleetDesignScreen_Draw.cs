@@ -19,7 +19,7 @@ namespace Ship_Game
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
-            Empire.Universe.DrawStarField();
+            Universe.DrawStarField();
 
             batch.Begin();
             DrawGrid();

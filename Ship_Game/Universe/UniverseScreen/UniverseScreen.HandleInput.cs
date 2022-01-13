@@ -1153,8 +1153,8 @@ namespace Ship_Game
                 {
                     foreach (Planet p in system.PlanetList)
                     {
-                        if (!p.IsExploredBy(EmpireManager.Player) || !p.RecentCombat) continue;
-                        if (p.Owner == Empire.Universe.PlayerEmpire)
+                        if (!p.IsExploredBy(player) || !p.RecentCombat) continue;
+                        if (p.Owner == PlayerEmpire)
                         {
                             if (nbrplanet == lastplanetcombat)
                                 planetToView = p;
@@ -1165,7 +1165,7 @@ namespace Ship_Game
                             flagPlanet = false;
                             foreach (Troop troop in p.TroopsHere)
                             {
-                                if (troop.Loyalty != null && troop.Loyalty == Empire.Universe.PlayerEmpire)
+                                if (troop.Loyalty != null && troop.Loyalty == PlayerEmpire)
                                 {
                                     flagPlanet = true;
                                     break;

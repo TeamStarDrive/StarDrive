@@ -308,10 +308,10 @@ namespace Ship_Game
         {
             ExitScreen();
             GameAudio.AcceptClick();
-            Empire.Universe.SelectedPlanet = item.Planet;
-            Empire.Universe.ViewingShip = false;
-            Empire.Universe.returnToShip = false;
-            Empire.Universe.CamDestination = new Vector3d(item.Planet.Center, 10000);
+            Universe.SelectedPlanet = item.Planet;
+            Universe.ViewingShip = false;
+            Universe.returnToShip = false;
+            Universe.CamDestination = new Vector3d(item.Planet.Center, 10000);
         }
 
         public void ResetList()

@@ -533,7 +533,7 @@ namespace Ship_Game
 
         void UpdateButtons()
         {
-            if (Planet.Owner != Empire.Universe.player)
+            if (Planet.Owner != Planet.Universe.player)
                 return;
             var ships = Planet.Owner.OwnedShips;
 
@@ -558,8 +558,8 @@ namespace Ship_Game
 
         void UpdateGovOrbitalStats()
         {
-            if (Planet.Owner != Empire.Universe.player
-                && !EmpireManager.Player.data.MoleList.Any(m => m.PlanetGuid == Planet.Guid))
+            if (Planet.Owner != Planet.Universe.player
+                && !Planet.Universe.player.data.MoleList.Any(m => m.PlanetGuid == Planet.Guid))
             {
                 return;
             }

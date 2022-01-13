@@ -441,25 +441,25 @@ namespace Ship_Game
                 {
                     case "Research":
                         GameAudio.EchoAffirmative();
-                        ScreenManager.AddScreen(new ResearchScreenNew(this, EmpireUI));
+                        ScreenManager.AddScreen(new ResearchScreenNew(this, ParentUniverse, EmpireUI));
                         break;
                     case "Budget":
                         GameAudio.EchoAffirmative();
-                        ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
+                        ScreenManager.AddScreen(new BudgetScreen(ParentUniverse));
                         break;
                     case "Main Menu":
                         GameAudio.EchoAffirmative();
-                        ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
+                        ScreenManager.AddScreen(new GameplayMMScreen(ParentUniverse));
                         break;
                     case "Shipyard":
                         GameAudio.EchoAffirmative();
                         break;
                     case "Empire":
-                        ScreenManager.AddScreen(new EmpireManagementScreen(Empire.Universe, EmpireUI));
+                        ScreenManager.AddScreen(new EmpireManagementScreen(ParentUniverse, EmpireUI));
                         GameAudio.EchoAffirmative();
                         break;
                     case "Diplomacy":
-                        ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
+                        ScreenManager.AddScreen(new MainDiplomacyScreen(ParentUniverse));
                         GameAudio.EchoAffirmative();
                         break;
                     case "?":

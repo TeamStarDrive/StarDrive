@@ -18,9 +18,9 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
-            Empire.Universe.DrawStarField();
-            Empire.Universe.Particles.Draw(View, Projection, nearView:true);
-            Empire.Universe.Particles.Update(elapsed.CurrentGameTime);
+            ParentUniverse.DrawStarField();
+            ParentUniverse.Particles.Draw(View, Projection, nearView:true);
+            ParentUniverse.Particles.Update(elapsed.CurrentGameTime);
 
             ScreenManager.RenderSceneObjects();
 
