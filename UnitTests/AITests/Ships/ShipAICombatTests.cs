@@ -258,7 +258,10 @@ namespace UnitTests.AITests.Ships
             RunSimWhile((simTimeout:20, fatal:false), () => Us.OnHighAlert, () => {
                 timer += TestSimStep.FixedTime;
             });
-            Assert.AreEqual(Ship.HighAlertSeconds, timer, 1f, $"Ship should remain OnHighAlert for {Ship.HighAlertSeconds} after combat was over");
+
+            Log.Write($"Target.HighAlertTimer: {Us.GetHighAlertTimer():0.#####}");
+            Assert.AreEqual(Ship.HighAlertSeconds, timer, 0.25f,
+                $"Ship should remain OnHighAlert for {Ship.HighAlertSeconds} seconds after combat was over");
         }
 
         [TestMethod]

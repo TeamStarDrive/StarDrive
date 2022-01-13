@@ -144,6 +144,7 @@ namespace Ship_Game.Ships
         public bool OnLowAlert => HighAlertTimer <= 0f;
         public const float HighAlertSeconds = 10;
         public void SetHighAlertStatus() => HighAlertTimer = HighAlertSeconds;
+        public float GetHighAlertTimer() => HighAlertTimer;
 
 
         public float HealPerTurn;
@@ -1113,19 +1114,23 @@ namespace Ship_Game.Ships
 
             AI.CombatAI.SetCombatTactics(AI.CombatState);
 
+            if (HighAlertTimer > 0f)
+            {
+                // NOTE: need to constantly update HighAlertTimer, using the 1 second update block doesn't work well
+                HighAlertTimer -= timeStep.FixedTime; 
+                if (HighAlertTimer < 0f) // < 0, cause if it starts at 0.016f, it should run at least once
+                {
+                    if (AI.BadGuysNear || InCombat)
+                        SetHighAlertStatus();
+                }
+            }
+
             UpdateTimer -= timeStep.FixedTime;
             if (UpdateTimer <= 0f)
             {
                 UpdateTimer += 1f; // update the ship modules and status only once per second
                 UpdateModulesAndStatus(FixedSimTime.One);
                 SecondsAlive += 1;
-
-                HighAlertTimer -= 1f;
-                if (HighAlertTimer < 0) // less than 0, because if HighAlertTimer is set to 0.016f, this should run at least once
-                {
-                    if (AI.BadGuysNear || InCombat)
-                        SetHighAlertStatus();
-                }
 
                 if (TractorDamage > 0 && !BeingTractored)
                 {
