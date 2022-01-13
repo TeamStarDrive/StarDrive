@@ -183,7 +183,7 @@ namespace Ship_Game
 
         public void UpdateDropDowns()
         {
-            EmpireData playerData = Universe.player.data;
+            EmpireData playerData = Universe.Player.data;
 
             InitDropOptions(FreighterDropDown, ref playerData.CurrentAutoFreighter, playerData.DefaultSmallTransport, 
                 ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsFreighter);

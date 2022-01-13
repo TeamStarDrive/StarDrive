@@ -1440,10 +1440,10 @@ namespace Ship_Game
             if (Universum.Debug)
                 return;
 
-            if (GlobalStats.RestrictAIPlayerInteraction && Universum.player == this)
+            if (GlobalStats.RestrictAIPlayerInteraction && Universum.Player == this)
                 return;
 
-            if (Universum.PlayerEmpire == this)
+            if (isPlayer)
             {
                 if (them.isFaction)
                     DoFactionFirstContact(them);
@@ -1462,7 +1462,7 @@ namespace Ship_Game
             if (firstContacts.Length > 0)
             {
                 Encounter encounter = firstContacts.First();
-                EncounterPopup.Show(Universum, Universum.PlayerEmpire, e, encounter);
+                EncounterPopup.Show(Universum, Universum.Player, e, encounter);
             }
             else
             {
@@ -1487,7 +1487,7 @@ namespace Ship_Game
 
             if (UpdateTimer <= 0f && !data.Defeated)
             {
-                if (this == Universum.PlayerEmpire)
+                if (isPlayer)
                 {
                     Universum.UpdateStarDateAndTriggerEvents(Universum.StarDate + 0.1f);
                     StatTracker.StatUpdateStarDate(Universum.StarDate);
@@ -1536,16 +1536,18 @@ namespace Ship_Game
                     {
                         foreach (Planet p in system.PlanetList)
                         {
-                            if (!p.IsExploredBy(Universum.PlayerEmpire) || !p.RecentCombat)
+                            if (!p.IsExploredBy(Universum.Player) || !p.RecentCombat)
                                 continue;
 
-                            if (p.Owner != Universum.PlayerEmpire)
+                            if (p.Owner != Universum.Player)
                             {
                                 foreach (Troop troop in p.TroopsHere)
                                 {
-                                    if (troop?.Loyalty != Universum.PlayerEmpire) continue;
-                                    empirePlanetCombat++;
-                                    break;
+                                    if ((troop?.Loyalty) == Universum.Player)
+                                    {
+                                        empirePlanetCombat++;
+                                        break;
+                                    }
                                 }
                             }
                             else empirePlanetCombat++;
@@ -2410,9 +2412,9 @@ namespace Ship_Game
         /// </summary>
         void ResetBorders(UniverseScreen us)
         {
-            bool wellKnown = isPlayer || us.player.IsAlliedWith(this) ||
+            bool wellKnown = isPlayer || us.Player.IsAlliedWith(this) ||
                 Universum.Debug && (Universum.SelectedShip == null || Universum.SelectedShip.Loyalty == this);
-            bool known = wellKnown || us.player.IsTradeOrOpenBorders(this);
+            bool known = wellKnown || us.Player.IsTradeOrOpenBorders(this);
 
             SetBordersKnownByAllies(TempSensorNodes);
             SetBordersByPlanet(known, TempBorderNodes, TempSensorNodes);
@@ -3059,7 +3061,7 @@ namespace Ship_Game
             ResetBorders(Universum);
             UpdateShipsWeCanBuild();
 
-            if (this != Universum.player)
+            if (this != Universum.Player)
             {
                 EmpireAI.EndAllTasks();
                 EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();

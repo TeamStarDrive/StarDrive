@@ -90,8 +90,8 @@ namespace Ship_Game
 
         public Background3D bg3d;
         public bool GravityWells;
-        public Empire PlayerEmpire;
-        public string PlayerLoyalty;
+        public Empire Player;
+        public string PlayerLoyalty => Player.data.Traits.Name;
         public string FogMapBase64;
 
         public UnivScreenState viewState;
@@ -117,7 +117,6 @@ namespace Ship_Game
         public SolarsystemOverlay SystemInfoOverlay;
         public ShipListInfoUIElement shipListInfoUI;
         public VariableUIElement vuiElement;
-        public Empire player;
         MiniMap minimap;
         bool loading;
         public float transitionElapsedTime;
@@ -210,11 +209,9 @@ namespace Ship_Game
             Name = "UniverseScreen";
             CanEscapeFromScreen = false;
          
-            PlayerLoyalty = thePlayer.data.Traits.Name;
-            PlayerEmpire  = thePlayer;
-            player        = thePlayer;
-            if (!player.isPlayer)
-                throw new ArgumentException($"Invalid Player Empire, isPlayer==false: {player}");
+            Player = thePlayer;
+            if (!Player.isPlayer)
+                throw new ArgumentException($"Invalid Player Empire, isPlayer==false: {Player}");
 
             UniverseSize     = data.Size.X;
             FTLModifier      = data.FTLSpeedModifier;
@@ -385,7 +382,7 @@ namespace Ship_Game
             if (leaderLoyalty.isFaction)
                 Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.Loyalty, this);
             else
-                DiplomacyScreen.Show(SelectedShip.Loyalty, player, "Greeting");
+                DiplomacyScreen.Show(SelectedShip.Loyalty, Player, "Greeting");
         }
 
         public override void LoadContent()
@@ -436,7 +433,7 @@ namespace Ship_Game
                 MaxCamHeight = CAM_MAX;
 
             if (!loading)
-                CamPos = new Vector3d(PlayerEmpire.GetPlanets()[0].Center, 2750);
+                CamPos = new Vector3d(Player.GetPlanets()[0].Center, 2750);
 
             CamDestination = CamPos;
         }
@@ -573,7 +570,7 @@ namespace Ship_Game
             pInfoUI            = new PlanetInfoUIElement(SelectedStuffRect, ScreenManager, this);
             shipListInfoUI     = new ShipListInfoUIElement(SelectedStuffRect, ScreenManager, this);
             vuiElement         = new VariableUIElement(SelectedStuffRect, ScreenManager, this);
-            EmpireUI           = new EmpireUIOverlay(player, device, this);
+            EmpireUI           = new EmpireUIOverlay(Player, device, this);
 
             if (GlobalStats.RenderBloom)
             {
@@ -597,8 +594,8 @@ namespace Ship_Game
             ShipsInCombat = ButtonMediumMenu(width - 275, height - 280, "Ships: 0");
             ShipsInCombat.DynamicText = () =>
             {
-                ShipsInCombat.Style = player.empireShipCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
-                return $"Ships: {player.empireShipCombat}";
+                ShipsInCombat.Style = Player.empireShipCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
+                return $"Ships: {Player.empireShipCombat}";
             };
             ShipsInCombat.Tooltip = "Cycle through ships not in fleet that are in combat";
             ShipsInCombat.OnClick = ShipsInCombatClick;
@@ -607,8 +604,8 @@ namespace Ship_Game
             PlanetsInCombat = ButtonMediumMenu(width - 135, height - 280, "Planets: 0");
             PlanetsInCombat.DynamicText = () =>
             {
-                PlanetsInCombat.Style = player.empirePlanetCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
-                return $"Planets: {player.empirePlanetCombat}";
+                PlanetsInCombat.Style = Player.empirePlanetCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
+                return $"Planets: {Player.empirePlanetCombat}";
             };
             PlanetsInCombat.OnClick = CyclePlanetsInCombat;
             PlanetsInCombat.Tooltip = "Cycle through planets that are in combat";
@@ -617,7 +614,7 @@ namespace Ship_Game
         void ShipsInCombatClick(UIButton b)
         {
             int nbrship = 0;
-            if (lastshipcombat >= player.empireShipCombat)
+            if (lastshipcombat >= Player.empireShipCombat)
                 lastshipcombat = 0;
             var ships = EmpireManager.Player.OwnedShips;
             foreach (Ship ship in ships)

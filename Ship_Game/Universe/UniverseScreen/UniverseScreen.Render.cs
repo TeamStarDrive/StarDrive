@@ -220,7 +220,7 @@ namespace Ship_Game
 
             if (viewState > UnivScreenState.SectorView)
             {
-                var currentEmpire = SelectedShip?.Loyalty ?? player;
+                var currentEmpire = SelectedShip?.Loyalty ?? Player;
                 var enemies = EmpireManager.GetEnemies(currentEmpire);
                 var ssps    = EmpireManager.Player.GetProjectors();
                 for (int i = 0; i < ssps.Count; i++)
@@ -241,7 +241,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                foreach (IncomingThreat threat in player.SystemsWithThreat)
+                foreach (IncomingThreat threat in Player.SystemsWithThreat)
                 {
                     if (threat.ThreatTimedOut) continue;
 
@@ -280,13 +280,13 @@ namespace Ship_Game
                     View, Matrix.Identity);
             float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
             Vector2 vector2 = new Vector2(position.X, position.Y);
-            if ((solarSystem.IsExploredBy(player) || Debug) && SelectedSystem != solarSystem)
+            if ((solarSystem.IsExploredBy(Player) || Debug) && SelectedSystem != solarSystem)
             {
                 if (Debug)
                 {
-                    solarSystem.SetExploredBy(player);
+                    solarSystem.SetExploredBy(Player);
                     foreach (Planet planet in solarSystem.PlanetList)
-                        planet.SetExploredBy(player);
+                        planet.SetExploredBy(Player);
                 }
 
                 
@@ -338,7 +338,7 @@ namespace Ship_Game
                     bool flag = false;
                     foreach (Planet planet in solarSystem.PlanetList)
                     {
-                        if (planet.IsExploredBy(player))
+                        if (planet.IsExploredBy(Player))
                         {
                             for (int index = 0; index < planet.BuildingList.Count; ++index)
                             {
@@ -425,7 +425,7 @@ namespace Ship_Game
                     bool flag = false;
                     foreach (Planet planet in solarSystem.PlanetList)
                     {
-                        if (planet.IsExploredBy(player))
+                        if (planet.IsExploredBy(Player))
                         {
                             for (int index = 0; index < planet.BuildingList.Count; ++index)
                             {
@@ -694,7 +694,7 @@ namespace Ship_Game
                 for (int i = 0; i < SolarSystemList.Count; i++)
                 {
                     SolarSystem system = SolarSystemList[i];
-                    if (system.IsExploredBy(player))
+                    if (system.IsExploredBy(Player))
                     {
                         for (int j = 0; j < system.PlanetList.Count; j++)
                         {
@@ -719,8 +719,8 @@ namespace Ship_Game
             {
                 if (SelectedShip != null && (Debug
                                              || SelectedShip.Loyalty.isPlayer
-                                             || !player.DifficultyModifiers.HideTacticalData 
-                                             || player.IsAlliedWith(SelectedShip.Loyalty)
+                                             || !Player.DifficultyModifiers.HideTacticalData 
+                                             || Player.IsAlliedWith(SelectedShip.Loyalty)
                                              || SelectedShip.AI.Target != null))
                 {
                     DrawShipGoalsAndWayPoints(SelectedShip, alpha);
@@ -731,9 +731,9 @@ namespace Ship_Game
                     {
                         Ship ship = SelectedShipList[i];
                         if (ship.Loyalty.isPlayer
-                            || player.IsAlliedWith(ship.Loyalty)
+                            || Player.IsAlliedWith(ship.Loyalty)
                             || Debug
-                            || !player.DifficultyModifiers.HideTacticalData
+                            || !Player.DifficultyModifiers.HideTacticalData
                             || ship.AI.Target != null)
                         {
                             DrawShipGoalsAndWayPoints(ship, alpha);
