@@ -120,7 +120,12 @@ namespace Ship_Game
             LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
             HiRes  = ScreenWidth > 1920 || ScreenHeight > 1400;
 
-            Renderer = new DeferredRenderer(this);
+            Func<int> simTurnSource = null;
+            if (parent is UniverseScreen us)
+            {
+                simTurnSource = () => us.SimTurnId;
+            }
+            Renderer = new DeferredRenderer(this, simTurnSource);
         }
 
         ~GameScreen() { Destroy(); }
