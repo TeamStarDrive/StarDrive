@@ -402,7 +402,7 @@ namespace Ship_Game
             if (FoodCache.Greater(0) && PlusFlatFoodAmount.Greater(0))
                 p.SetHasLimitedResourceBuilding(true);
 
-            if (EventOnBuild != null && p.Owner?.isPlayer == true)
+            if (EventOnBuild != null && p.OwnerIsPlayer)
             {
                 UniverseScreen u = p.Universe;
                 ExplorationEvent e = ResourceManager.Event(EventOnBuild);
