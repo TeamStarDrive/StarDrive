@@ -363,11 +363,11 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship s = Ships[i];
-                if (s.OnHighAlert)
-                    continue;
-
-                s.AI.OrderAllStop();
-                s.AI.OrderThrustTowardsPosition(FinalPosition + s.FleetOffset, FinalDirection, false);
+                if (!s.OnHighAlert)
+                {
+                    s.AI.OrderAllStop();
+                    s.AI.OrderThrustTowardsPosition(FinalPosition + s.FleetOffset, FinalDirection, false);
+                }
             }
         }
 
