@@ -20,8 +20,8 @@ namespace UnitTests.Ships
 
         GameplayObject[] FindNearbyShips(Empire loyalty)
         {
-            return UniverseScreen.Spatial.FindNearby(GameObjectType.Ship, Vector2.Zero,
-                                                     1000, 10, onlyLoyalty: loyalty);
+            return loyalty.Universum.Spatial.FindNearby(GameObjectType.Ship, Vector2.Zero,
+                                                        1000, 10, onlyLoyalty: loyalty);
         }
 
         void EnsureSpawnedLoyaltyAndSpatialCoherence(Ship playerShip)

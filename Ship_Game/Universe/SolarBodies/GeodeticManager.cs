@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Ship_Game.Sensors;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
