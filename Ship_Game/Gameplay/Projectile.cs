@@ -719,9 +719,9 @@ namespace Ship_Game.Gameplay
 
                 // Using explosion at a specific module not to affect other ships which might bypass other modulesfor them , like armor
                 if (atModule != null && (IgnoresShields || !atModule.ShieldsAreActive)) 
-                    UniverseScreen.Spatial.ExplodeAtModule(this, atModule, IgnoresShields, DamageAmount, DamageRadius);
+                    Universe.Spatial.ExplodeAtModule(this, atModule, IgnoresShields, DamageAmount, DamageRadius);
                 else
-                    UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, Position);
+                    Universe.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, Position);
             }
             else if (Weapon.FakeExplode && CloseEnoughForExplosion && visibleToPlayer)
             {
