@@ -48,7 +48,7 @@ namespace Ship_Game
             EmpireColor     = Planet.Owner?.EmpireColor ?? new Color(255, 239, 208);
             CanSendTroops   = canSendTroops;
 
-            foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
+            foreach (Goal g in planet.Universe.player.GetEmpireAI().Goals)
             {
                 if (g.ColonizationTarget != null && g.ColonizationTarget == planet)
                     MarkedForColonization = true;
@@ -400,7 +400,7 @@ namespace Ship_Game
             if (!MarkedForColonization)
             {
                 Player.GetEmpireAI().Goals.Add(
-                    new MarkForColonization(Planet, Empire.Universe.player));
+                    new MarkForColonization(Planet, Planet.Universe.player));
 
                 Colonize.Text = "Cancel Colonize";
                 Colonize.Style = ButtonStyle.Default;
@@ -408,7 +408,7 @@ namespace Ship_Game
                 return;
             }
 
-            Empire.Universe.player.GetEmpireAI().CancelColonization(Planet);
+            Planet.Universe.player.GetEmpireAI().CancelColonization(Planet);
             MarkedForColonization = false;
             Colonize.Text  = "Colonize";
             Colonize.Style = ButtonStyle.BigDip;

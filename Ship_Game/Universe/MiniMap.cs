@@ -77,10 +77,9 @@ namespace Ship_Game
             if (!Visible)
                 return;
 
-            UniverseScreen screen = Empire.Universe;
             Rectangle inflateMap = ActualMap;
             inflateMap.Inflate(10, 10);
-            screen.DrawRectangle(inflateMap, Color.Black, Color.Black);
+            Universe.DrawRectangle(inflateMap, Color.Black, Color.Black);
             batch.Draw(MiniMapHousing, Housing, Color.White);
             
             foreach (SolarSystem system in Universe.Systems)
@@ -101,17 +100,17 @@ namespace Ship_Game
                 Log.Error($"MiniMap Draw crashed {e.InnerException}");
             }
 
-            Vector2 upperLeftView = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
+            Vector2 upperLeftView = Universe.UnprojectToWorldPosition(new Vector2(0f, 0f));
             upperLeftView = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 1), HelperFunctions.RoundTo(upperLeftView.Y, 1));
             
-            var right = screen.UnprojectToWorldPosition(new Vector2(screen.ScreenWidth, 0f));
+            var right = Universe.UnprojectToWorldPosition(new Vector2(Universe.ScreenWidth, 0f));
 
             right = new Vector2(HelperFunctions.RoundTo(right.X, 1), 0f);
             
             float xdist = (right.X - upperLeftView.X) * Scale;
             xdist = HelperFunctions.RoundTo(xdist, 1);
 
-            float ydist = xdist * screen.ScreenHeight / screen.ScreenWidth;
+            float ydist = xdist * Universe.ScreenHeight / Universe.ScreenWidth;
             ydist = HelperFunctions.RoundTo(ydist, 1);
             // draw and clamp minimap viewing area rectangle.
             var lookingAt = new Rectangle((int)MiniMapZero.X + (int)(upperLeftView.X * Scale), 
@@ -141,10 +140,10 @@ namespace Ship_Game
             batch.DrawLine(new Vector2(ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
             batch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
 
-            ShipScreen.IsToggled     = screen.showingFTLOverlay;
-            DeepSpaceBuild.IsToggled = screen.DeepSpaceBuildWindow.Visible;
-            AIScreen.IsToggled       = screen.aw.IsOpen;
-            Fleets.IsToggled         = screen.showingRangeOverlay;
+            ShipScreen.IsToggled     = Universe.showingFTLOverlay;
+            DeepSpaceBuild.IsToggled = Universe.DeepSpaceBuildWindow.Visible;
+            AIScreen.IsToggled       = Universe.aw.IsOpen;
+            Fleets.IsToggled         = Universe.showingRangeOverlay;
             
             base.Draw(batch, elapsed);
         }
@@ -305,13 +304,13 @@ namespace Ship_Game
 
         void ZoomToShip_OnClick(ToggleButton toggleButton)
         {
-            Empire.Universe.InputZoomToShip();
+            Universe.InputZoomToShip();
             GameAudio.AcceptClick();
         }
 
         void ZoomOut_OnClick(ToggleButton toggleButton)
         {
-            Empire.Universe.InputZoomOut();
+            Universe.InputZoomOut();
             GameAudio.AcceptClick();
         }
 

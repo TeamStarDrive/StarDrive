@@ -53,9 +53,9 @@ namespace Ship_Game
             AssetsRect          = new Rectangle(10, 48, 225, 200);
             SelectedItemRect    = new Rectangle(10, 250, 225, 380);
             HoveredItemRect     = new Rectangle(10, 250, 225, 380);
-            AssetsUI = Add(new OrbitalAssetsUIElement(AssetsRect, ScreenManager, Empire.Universe, p));
-            TInfo = Add(new TroopInfoUIElement(SelectedItemRect, ScreenManager, Empire.Universe));
-            HInfo = Add(new TroopInfoUIElement(HoveredItemRect, ScreenManager, Empire.Universe));
+            AssetsUI = Add(new OrbitalAssetsUIElement(AssetsRect, ScreenManager, p.Universe, p));
+            TInfo = Add(new TroopInfoUIElement(SelectedItemRect, ScreenManager, p.Universe));
+            HInfo = Add(new TroopInfoUIElement(HoveredItemRect, ScreenManager, p.Universe));
             TInfo.Visible = HInfo.Visible = false;
             
             int assetsX = AssetsRect.X + 20;
@@ -561,7 +561,7 @@ namespace Ship_Game
         {
             bool inputCaptured = base.HandleInput(input);
 
-            if (Empire.Universe?.Debug == true && (input.SpawnRemnant || input.SpawnPlayerTroop))
+            if (P.Universe.Debug && (input.SpawnRemnant || input.SpawnPlayerTroop))
             {
                 Empire spawnFor = input.SpawnRemnant ? EmpireManager.Remnants : EmpireManager.Player;
                 if (EmpireManager.Remnants == null)
@@ -777,7 +777,7 @@ namespace Ship_Game
             foreach (Troop troop in toAdd)
                 OrbitSL.AddItem(new CombatScreenOrbitListItem(troop));
 
-            UpdateLaunchAllButton(P.TroopsHere.Count(t => t.Loyalty == Empire.Universe.player && t.CanLaunch));
+            UpdateLaunchAllButton(P.TroopsHere.Count(t => t.Loyalty == P.Universe.player && t.CanLaunch));
             UpdateLandAllButton(OrbitSL.NumEntries);
             UpdateBombersButton();
         }

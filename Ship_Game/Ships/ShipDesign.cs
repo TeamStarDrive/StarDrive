@@ -79,9 +79,9 @@ namespace Ship_Game.Ships
         }
 
         // Create a new empty ShipData from a ShipHull
-        public ShipDesign(ShipHull hull)
+        public ShipDesign(ShipHull hull, string newName)
         {
-            Name = Empire.Universe.Debug  ? hull.HullName : hull.VisibleName;
+            Name = newName;
             Hull = hull.HullName;
             ModName = GlobalStats.ModName;
             ShipStyle = hull.Style;
@@ -200,9 +200,7 @@ namespace Ship_Game.Ships
 
         public static ShipDesign FromSave(ModuleSaveData[] saved, string[] moduleUIDs, SavedGame.ShipSaveData save, ShipHull hull)
         {
-            var data = new ShipDesign(hull);
-
-            data.Name = save.Name;
+            var data = new ShipDesign(hull, save.Name);
             data.ModName = GlobalStats.ModName;
 
             data.UniqueModuleUIDs = moduleUIDs;

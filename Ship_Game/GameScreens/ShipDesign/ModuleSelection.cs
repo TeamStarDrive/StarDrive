@@ -182,7 +182,7 @@ namespace Ship_Game
                 modTitlePos.Y += (Fonts.Arial14Bold.LineSpacing + 4);
             }
 
-            if (Empire.Universe.Debug)
+            if (Screen.ParentUniverse.Debug)
             {
                 batch.DrawString(Fonts.Arial12, $"Debug Tech Cost: {DebugGetModuleTechCost(mod).String(1)}", modTitlePos, Color.Gold);
                 modTitlePos.Y += (Fonts.Arial12.LineSpacing + 4);

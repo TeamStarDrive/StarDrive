@@ -30,7 +30,8 @@ namespace Ship_Game
 
         public CreatingNewGameScreen(Empire player, GalSize universeSize, int numSystems, 
                 float starNumModifier, int numOpponents, RaceDesignScreen.GameMode mode, 
-                float pace, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(null)
+                float pace, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu)
+            : base(null, toPause: null)
         {
             CanEscapeFromScreen = false;
             MainMenu = mainMenu;

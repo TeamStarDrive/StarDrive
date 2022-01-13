@@ -315,34 +315,34 @@ namespace Ship_Game
         {
             if (Planet.Owner != null)
             {
-                WorldDescription.Visible   = GovernorTabView && Planet.Owner.isPlayer;
-                ColonyTypeList.Visible     = GovernorTabView && Planet.Owner.isPlayer;
+                WorldDescription.Visible   = GovernorTabView && Planet.OwnerIsPlayer;
+                ColonyTypeList.Visible     = GovernorTabView && Planet.OwnerIsPlayer;
                 Portrait.Visible           = GovernorTabView;
                 WorldType.Visible          = GovernorTabView;
-                Quarantine.Visible         = GovernorTabView && Planet.Owner.isPlayer;
+                Quarantine.Visible         = GovernorTabView && Planet.OwnerIsPlayer;
                 Quarantine.TextColor       = Planet.Quarantine ? Color.Red : Color.Gray;
-                BudgetLimitReached.Visible = GovernorTabView && Planet.Owner.isPlayer && GovernorOn && BudgetLimitWarningVisible;
+                BudgetLimitReached.Visible = GovernorTabView && Planet.OwnerIsPlayer && GovernorOn && BudgetLimitWarningVisible;
                 BudgetLimitReached.Color   = Screen.CurrentFlashColorRed;
                 BuildCapital.Visible       = GovernorTabView 
-                                             && Planet.Owner.isPlayer 
+                                             && Planet.OwnerIsPlayer 
                                              && !Planet.Owner.GetPlanets().Any(p => p.IsHomeworld);
 
-                if (Planet.Owner.isPlayer && Planet.Owner.Capital == Planet && Planet.HasCapital)
+                if (Planet.OwnerIsPlayer && Planet.Owner.Capital == Planet && Planet.HasCapital)
                     BuildCapital.Visible = false; // This is for old save support. It can be removed post Mars.
 
                 // Not for trade hubs, which do not build structures anyway
-                GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn && Planet.Owner.isPlayer;
+                GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn && Planet.OwnerIsPlayer;
 
                 int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(EmpireManager.Player);
                 Planet.GarrisonSize       = (int)Math.Round(Garrison.AbsoluteValue);
-                CallTroops.Visible        = DefenseTabView && Planet.Owner.isPlayer;
+                CallTroops.Visible        = DefenseTabView && Planet.OwnerIsPlayer;
                 LaunchSingleTroop.Visible = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 0;
                 LaunchAllTroops.Visible   = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 1;
-                Garrison.Visible          = DefenseTabView && Planet.Owner.isPlayer;
-                AutoTroops.Visible        = DefenseTabView && Planet.Owner.isPlayer;
-                GovOrbitals.Visible       = DefenseTabView && Planet.Owner.isPlayer && GovernorOn;
+                Garrison.Visible          = DefenseTabView && Planet.OwnerIsPlayer;
+                AutoTroops.Visible        = DefenseTabView && Planet.OwnerIsPlayer;
+                GovOrbitals.Visible       = DefenseTabView && Planet.OwnerIsPlayer && GovernorOn;
                 GovGround.Visible         = GovOrbitals.Visible;
-                BuildPlatform.Visible     = DefenseTabView && Planet.Owner.isPlayer && (!Planet.GovOrbitals || GovernorOff);
+                BuildPlatform.Visible     = DefenseTabView && Planet.OwnerIsPlayer && (!Planet.GovOrbitals || GovernorOff);
                 BuildShipyard.Visible     = BuildPlatform.Visible;
                 BuildStation.Visible      = BuildPlatform.Visible;
                 PlatformsText.Visible     = DefenseTabView;
@@ -378,7 +378,7 @@ namespace Ship_Game
 
                 BudgetSum.Visible       = BudgetTabView;
                 BudgetPercent.Visible   = BudgetTabView && GovernorOn;
-                OverrideCiv.Visible     = BudgetTabView && GovernorOn && Planet.Owner.isPlayer;
+                OverrideCiv.Visible     = BudgetTabView && GovernorOn && Planet.OwnerIsPlayer;
                 OverrideGrd.Visible     = OverrideCiv.Visible;
                 OverrideSpc.Visible     = OverrideCiv.Visible;
                 ManualCivBudget.Visible = OverrideCiv.Visible && OverrideCiv.Checked;
@@ -439,7 +439,7 @@ namespace Ship_Game
 
         void UpdateOrbitalTextPos()
         {
-            if ((Planet.GovOrbitals || !Planet.Owner.isPlayer) && GovernorOn)
+            if ((Planet.GovOrbitals || !Planet.OwnerIsPlayer) && GovernorOn)
             {
                 PlatformsText.Pos = new Vector2(BuildPlatform.X, BuildPlatform.Y + 3);
                 ShipyardsText.Pos = new Vector2(BuildShipyard.X, BuildShipyard.Y + 3);
@@ -533,7 +533,7 @@ namespace Ship_Game
 
         void UpdateButtons()
         {
-            if (Planet.Owner != Empire.Universe.player)
+            if (Planet.Owner != Planet.Universe.player)
                 return;
             var ships = Planet.Owner.OwnedShips;
 
@@ -558,8 +558,8 @@ namespace Ship_Game
 
         void UpdateGovOrbitalStats()
         {
-            if (Planet.Owner != Empire.Universe.player
-                && !EmpireManager.Player.data.MoleList.Any(m => m.PlanetGuid == Planet.Guid))
+            if (Planet.Owner != Planet.Universe.player
+                && !Planet.Universe.player.data.MoleList.Any(m => m.PlanetGuid == Planet.Guid))
             {
                 return;
             }
@@ -570,7 +570,7 @@ namespace Ship_Game
             int currentShipyards = Planet.NumShipyards + Planet.ShipyardsBeingBuilt();
             ColonyRank.Text      = $"{Localizer.Token(GameText.GovernorColonyRank)} {rank}/15";
 
-            if ((Planet.GovOrbitals || !Planet.Owner.isPlayer) && GovernorOn)
+            if ((Planet.GovOrbitals || !Planet.OwnerIsPlayer) && GovernorOn)
             {
                 PlatformsText.Text  = $"{Localizer.Token(GameText.Platforms)} {currentPlatforms}/{Planet.WantedPlatforms}";
                 ShipyardsText.Text  = $"{Localizer.Token(GameText.Shipyards2)} {currentShipyards}/{Planet.WantedShipyards}";

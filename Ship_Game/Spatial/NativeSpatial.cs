@@ -179,13 +179,13 @@ namespace Ship_Game.Spatial
                 return (Objects, Root);
         }
 
-        public int CollideAll(FixedSimTime timeStep)
+        public int CollideAll(FixedSimTime timeStep, bool showCollisions)
         {
             var p = new CollisionParams
             {
                 IgnoreSameLoyalty = 1,
                 SortCollisionsById = 0,
-                ShowCollisions = (byte)(Empire.Universe?.Debug == true ? 1 : 0),
+                ShowCollisions = (byte)(showCollisions ? 1 : 0),
             };
             
             GameplayObject[] objects = Objects;

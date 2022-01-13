@@ -14,7 +14,7 @@ namespace Ship_Game.Ships
         private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
         public Array<OrdersButton> Orders = new Array<OrdersButton>();
 
-        private readonly UniverseScreen Screen;
+        private readonly UniverseScreen Universe;
         public Ship Ship;
         private readonly Selector Sel;
         public Rectangle LeftRect;
@@ -37,9 +37,9 @@ namespace Ship_Game.Ships
         private bool ShowModules = true;
         private Vector2 StatusArea;
 
-        public ShipInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
+        public ShipInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen universe)
         {
-            Screen = screen;
+            Universe = universe;
             ScreenManager = sm;
             ElementRect = r;
             FlagRect = new Rectangle(r.X + 365, r.Y + 71, 18, 18);
@@ -74,7 +74,7 @@ namespace Ship_Game.Ships
             ToolTipItems.Add(new TippedItem(TroopRect, GameText.IndicatesTheNumberOfTroops));
 
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
-            Vector2 gridRect = new Vector2(Housing.X + 16, Screen.ScreenHeight - 45);
+            Vector2 gridRect = new Vector2(Housing.X + 16, Universe.ScreenHeight - 45);
             GridButton = new ToggleButton(gridRect, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
                 IsToggled = true
@@ -83,7 +83,7 @@ namespace Ship_Game.Ships
             float startX = OBar.pBar.X - 15;
             var ordersBarPos = new Vector2(startX, (Ordnance.Y + Ordnance.Height + spacing + 3));
 
-            OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
+            OrdersButtons = new ShipStanceButtons(universe, ordersBarPos);
         }
 
         void DrawOrderButtons(SpriteBatch batch, float transitionOffset)
@@ -97,7 +97,7 @@ namespace Ship_Game.Ships
         }
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            if (Screen.SelectedShip == null)
+            if (Universe.SelectedShip == null)
                 return;  //fbedard
 
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
@@ -150,7 +150,7 @@ namespace Ship_Game.Ships
             //fbedard: Display race icon
             batch.Draw(ResourceManager.Flag(Ship.Loyalty), FlagRect, Ship.Loyalty.EmpireColor);
 
-            Vector2 mousePos = Screen.Input.CursorPosition;
+            Vector2 mousePos = Universe.Input.CursorPosition;
 
             //Added by McShooterz: new experience level display
             var star     = new Rectangle(TroopRect.X, TroopRect.Y + 23, 22, 22);
@@ -297,7 +297,7 @@ namespace Ship_Game.Ships
 
         void DrawInhibitWarning(SpriteBatch batch, int numStatus, Vector2 mousePos)
         {
-            if (GlobalStats.DisableInhibitionWarning || Screen.showingFTLOverlay)
+            if (GlobalStats.DisableInhibitionWarning || Universe.showingFTLOverlay)
                 return;
 
             string text     = "Inhibited";
@@ -305,14 +305,14 @@ namespace Ship_Game.Ships
             var rect        = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y - 24,
                         (int)font.MeasureString(text).X, (int)font.MeasureString(text).Y);
 
-            batch.DrawString(Fonts.Arial20Bold, text, rect.PosVec(), Screen.CurrentFlashColorRed);
+            batch.DrawString(Fonts.Arial20Bold, text, rect.PosVec(), Universe.CurrentFlashColorRed);
             if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(GameText.ThisShipIsInhibitedAnd);
 
             Planet p = Ship.System?.IdentifyGravityWell(Ship);
             if (p == null)
                 return;
 
-            Screen.DrawCircleProjected(p.Center, p.GravityWellRadius, Screen.CurrentFlashColorRed);
+            Universe.DrawCircleProjected(p.Center, p.GravityWellRadius, Universe.CurrentFlashColorRed);
         }
 
         void DrawCargoUsed(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
@@ -439,7 +439,7 @@ namespace Ship_Game.Ships
    
         public override bool HandleInput(InputState input)
         {
-            if (Screen.SelectedShip == null || Screen.LookingAtPlanet)
+            if (Universe.SelectedShip == null || Universe.LookingAtPlanet)
             {
                 ShipNameArea.StopInput();
                 return false;
@@ -478,12 +478,13 @@ namespace Ship_Game.Ships
 
             if (input.LeftMouseDoubleClick && ShipInfoRect.HitTest(input.CursorPosition))
             {
-                Empire.Universe.ViewingShip = false;
-                Empire.Universe.AdjustCamTimer = 0.5f;
-                Empire.Universe.CamDestination.X = Ship.Position.X;
-                Empire.Universe.CamDestination.Y = Ship.Position.Y;
-                if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
-                    Empire.Universe.CamDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
+                // TODO: should not modify UniverseScreen state directly
+                Universe.ViewingShip = false;
+                Universe.AdjustCamTimer = 0.5f;
+                Universe.CamDestination.X = Ship.Position.X;
+                Universe.CamDestination.Y = Ship.Position.Y;
+                if (Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
+                    Universe.CamDestination.Z = Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
             }
             if (OrdersButtons.HandleInput(input))
                 return true;
@@ -544,9 +545,9 @@ namespace Ship_Game.Ships
             {
                 var ao = new OrdersButton(Ship, OrderType.DefineAO, GameText.AllowsYouToCustomizeAn)
                 {
-                    ValueToModify = new Ref<bool>(() => Screen.DefiningAO, x => {
-                        Screen.DefiningAO = x;
-                        Screen.AORect     = Rectangle.Empty;
+                    ValueToModify = new Ref<bool>(() => Universe.DefiningAO, x => {
+                        Universe.DefiningAO = x;
+                        Universe.AORect     = Rectangle.Empty;
                     })
                 };
                 Orders.Add(ao);
@@ -572,7 +573,7 @@ namespace Ship_Game.Ships
                 Orders.Add(allowInterEmpireTrade);
                 var tradeRoutes = new OrdersButton(Ship, OrderType.DefineTradeRoutes, GameText.ChooseAListOfPlanets)
                 {
-                    ValueToModify = new Ref<bool>(() => Screen.DefiningTradeRoutes, x => { Screen.DefiningTradeRoutes = x; })
+                    ValueToModify = new Ref<bool>(() => Universe.DefiningTradeRoutes, x => { Universe.DefiningTradeRoutes = x; })
                 };
                 Orders.Add(tradeRoutes);
             }

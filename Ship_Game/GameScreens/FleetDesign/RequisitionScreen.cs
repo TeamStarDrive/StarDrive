@@ -22,7 +22,7 @@ namespace Ship_Game
         private int NumThatFit;
         private UICheckBox AutoRequisition;
         Rectangle AutoRequisitionRect;
-        public RequisitionScreen(FleetDesignScreen fds) : base(fds)
+        public RequisitionScreen(FleetDesignScreen fds) : base(fds, toPause: null)
         {
             Fds               = fds;
             F                 = fds.SelectedFleet;

@@ -26,7 +26,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         Array<Ships.ShipDesign> WIPs = new Array<Ships.ShipDesign>();
 
-        public ShipDesignLoadScreen(ShipDesignScreen screen, bool unlockAll) : base(screen)
+        public ShipDesignLoadScreen(ShipDesignScreen screen, bool unlockAll) : base(screen, toPause: null)
         {
             Screen = screen;
             IsPopup = true;
@@ -298,7 +298,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 && !ship.ShipData.IsShipyard
                 && EmpireManager.Player.WeCanBuildThis(ship.Name)
                 && (role.IsEmpty() || role == Localizer.GetRole(ship.DesignRole, EmpireManager.Player))
-                && (Empire.Universe?.Debug == true || !ship.IsSubspaceProjector)
+                && (Screen.ParentUniverse.Debug || !ship.IsSubspaceProjector)
                 && !ResourceManager.ShipRoles[ship.ShipData.Role].Protected;
         }
 

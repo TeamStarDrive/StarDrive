@@ -44,7 +44,8 @@ namespace Ship_Game
         }
 
         protected PopupWindow(GameScreen parent, int width, int height)
-            : base(parent, CenterScreen(width, height))
+            : base(parent, CenterScreen(width, height),
+                   toPause: parent as UniverseScreen/*only pause if popup on top of universe*/)
         {
             IsPopup = true;
         }

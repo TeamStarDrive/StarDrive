@@ -275,7 +275,7 @@ namespace Ship_Game
                 }
                 
                 // trigger all Hit events
-                Spatial.CollideAll(timeStep);
+                Spatial.CollideAll(timeStep, showCollisions: Universe.Debug);
 
                 // update sensors AFTER spatial update, but only if we are not paused!
                 UpdateAllSensors(timeStep);

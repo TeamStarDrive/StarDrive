@@ -97,14 +97,13 @@ namespace Ship_Game.Debug
     public class DebugGameObject : DebugPrimitive
     {
         readonly GameplayObject Obj;
-        public DebugGameObject(GameplayObject obj,
-            Color color, float lifeTime) : base(color, lifeTime)
+        public DebugGameObject(GameplayObject obj, Color color, float lifeTime) : base(color, lifeTime)
         {
             Obj = obj;
         }
         public override bool Update(float gameDeltaTime)
         {
-            if (!Obj.Active || !Obj.IsInFrustum)
+            if (!Obj.Active)
                 return true; // REMOVE
             return base.Update(gameDeltaTime);
         }

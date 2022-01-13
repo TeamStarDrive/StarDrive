@@ -301,6 +301,7 @@ namespace Ship_Game
             LargeStars?.Dispose(ref LargeStars);
             FlagTextures?.Dispose(ref FlagTextures);
 
+            Arcs.Clear();
             ProjTextDict.ClearAndDispose();
             
             // meshes are loaded through GameContent, so they should be auto-disposed
@@ -1070,6 +1071,38 @@ namespace Ship_Game
             }
         }
 
+        static readonly Array<TextureBinding> Arcs = new Array<TextureBinding>();
+
+        public static SubTexture GetArcTexture(float weaponArc)
+        {
+            if (Arcs.IsEmpty)
+            {
+                var arcs = TextureAtlas.FromFolder("Arcs");
+                Arcs.Add(arcs.GetBinding("Arc15"));
+                Arcs.Add(arcs.GetBinding("Arc20"));
+                Arcs.Add(arcs.GetBinding("Arc45"));
+                Arcs.Add(arcs.GetBinding("Arc60"));
+                Arcs.Add(arcs.GetBinding("Arc90"));
+                Arcs.Add(arcs.GetBinding("Arc120"));
+                Arcs.Add(arcs.GetBinding("Arc180"));
+                Arcs.Add(arcs.GetBinding("Arc360"));
+            }
+
+            // @note We're doing loose ARC matching to catch freak angles
+            // TODO: maybe there's an easier way to bucket these
+            int arcIdx;
+            if      (weaponArc >= 240f)  arcIdx = 7; // Arc360
+            else if (weaponArc >= 150f)  arcIdx = 6; // Arc180
+            else if (weaponArc >= 105f)  arcIdx = 5; // Arc120
+            else if (weaponArc >= 75f)   arcIdx = 4; // Arc90
+            else if (weaponArc >= 52.5f) arcIdx = 3; // Arc60
+            else if (weaponArc >= 32.5f) arcIdx = 2; // Arc45
+            else if (weaponArc >= 17.5f) arcIdx = 1; // Arc20
+            else                         arcIdx = 0; // Arc15
+
+            return Arcs[arcIdx].GetOrLoadTexture();
+        }
+
         static TextureAtlas FlagTextures;
         
         public static SubTexture Flag(int index) =>
@@ -1649,7 +1682,7 @@ namespace Ship_Game
             LoadContent(loadShips:false);
 
             // essential graphics:
-            SunType.LoadSunTypes(enableHotLoading: false);
+            SunType.LoadSunTypes(loadIcons: false);
             Fonts.LoadFonts(RootContent, Localizer.Language);
             LoadProjectileMeshes();
         }

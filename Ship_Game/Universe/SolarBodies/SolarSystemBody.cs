@@ -192,6 +192,7 @@ namespace Ship_Game
         public string Name;
         public string Description;
         public Empire Owner;
+        public bool OwnerIsPlayer => Owner != null && Owner.isPlayer;
         public float OrbitalAngle;
         public float OrbitalRadius;
         public bool HasRings;

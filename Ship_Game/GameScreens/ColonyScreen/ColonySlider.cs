@@ -145,7 +145,7 @@ namespace Ship_Game
             }
             if (DrawIcons && !LockHover) // maybe hovering over icon?
             {
-                if (IconRect().HitTest(input.CursorPosition) && Empire.Universe.IsActive)
+                if (IconRect().HitTest(input.CursorPosition) && P.Universe.IsActive)
                     ToolTip.CreateTooltip(Tooltip());
             }
             return false;

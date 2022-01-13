@@ -770,7 +770,7 @@ namespace Ship_Game
 
         private void NotifyEmptyQueue()
         {
-            if (!GlobalStats.ExtraNotifications || Owner == null || !Owner.isPlayer)
+            if (!GlobalStats.ExtraNotifications || !OwnerIsPlayer)
                 return;
 
             if (ConstructionQueue.Count == 0 && !QueueEmptySent)
@@ -1268,7 +1268,7 @@ namespace Ship_Game
             Building b = ResourceManager.CreateBuilding(Universe, bid);
             tile.PlaceBuilding(b, this);
             SetHasDynamicBuildings(true);
-            if (Owner.isPlayer)
+            if (OwnerIsPlayer)
                 Universe.NotificationManager.AddMeteorRelated(this, message);
 
             Population = (Population - popKilled).LowerBound(0);
@@ -1392,7 +1392,7 @@ namespace Ship_Game
                     return 0;
 
                 int threshold = 0;
-                if (Owner.isPlayer)
+                if (OwnerIsPlayer)
                     threshold = AutoBuildTroops ? 0 : GarrisonSize;
 
                 return (TroopsHere.Count - threshold).LowerBound(0);
@@ -1471,7 +1471,7 @@ namespace Ship_Game
 
             UpdateTerraformPoints(0);
             Owner.RemovePlanet(this, attacker);
-            if (IsExploredBy(EmpireManager.Player) && (Owner.isPlayer || attacker.isPlayer))
+            if (IsExploredBy(EmpireManager.Player) && (OwnerIsPlayer || attacker.isPlayer))
                 Universe.NotificationManager.AddPlanetDiedNotification(this);
 
             bool removeOwner = true;

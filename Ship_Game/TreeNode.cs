@@ -175,7 +175,7 @@ namespace Ship_Game
             batch.DrawRectangleGlow(UnlocksRect);
         }
 
-        public bool HandleInput(InputState input, ScreenManager ScreenManager, Camera2D camera)
+        public bool HandleInput(InputState input, ScreenManager ScreenManager, Camera2D camera, UniverseScreen u)
         {
             Vector2 RectPos = camera.GetScreenSpaceFromWorldSpace(new Vector2(BaseRect.X, BaseRect.Y));
             Rectangle moddedRect = new Rectangle((int)RectPos.X, (int)RectPos.Y, BaseRect.Width, BaseRect.Height);
@@ -199,7 +199,7 @@ namespace Ship_Game
                 if (input.RightMouseClick)
                 {
                     Screen.RightClicked = true;
-                    ScreenManager.AddScreen(new ResearchPopup(Empire.Universe, Entry.UID));
+                    ScreenManager.AddScreen(new ResearchPopup(u, Entry.UID));
                     return true; // input captured
                 }
             }

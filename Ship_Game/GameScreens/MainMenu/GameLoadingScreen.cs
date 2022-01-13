@@ -19,7 +19,7 @@ namespace Ship_Game
         readonly bool ResetResources;
         Graphics.Font StatusFont;
 
-        public GameLoadingScreen(bool showSplash, bool resetResources) : base(null/*no parent*/)
+        public GameLoadingScreen(bool showSplash, bool resetResources) : base(null/*no parent*/, toPause: null)
         {
             CanEscapeFromScreen = false;
             ShowSplash = showSplash;

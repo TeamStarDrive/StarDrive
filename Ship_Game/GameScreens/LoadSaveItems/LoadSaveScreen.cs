@@ -43,6 +43,7 @@ namespace Ship_Game
         {
             if (SelectedFile != null)
             {
+                // if caller was UniverseScreen, this will Unload the previous universe
                 Screen?.ExitScreen();
                 ScreenManager.AddScreen(new LoadUniverseScreen(SelectedFile.FileLink));
             }

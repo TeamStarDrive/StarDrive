@@ -593,7 +593,8 @@ namespace Ship_Game
                     evt["Mod"] = "Vanilla";
                 }
 
-                var universe = Empire.Universe;
+                // find root UniverseScreen from ScreenManager
+                var universe = ScreenManager.Instance.FindScreen<UniverseScreen>();
                 evt["StarDate"]  = universe?.StarDateString ?? "NULL";
                 evt["Ships"]     = universe?.GetMasterShipList().Count.ToString() ?? "NULL";
                 evt["Planets"]   = universe?.Planets?.Count.ToString() ?? "NULL";

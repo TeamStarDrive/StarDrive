@@ -14,7 +14,7 @@ namespace Ship_Game
         Texture2D LoadingImage;
         TaskResult<UniverseScreen> AsyncUniverse;
 
-        public LoadUniverseScreen(FileInfo activeFile) : base(null/*no parent*/)
+        public LoadUniverseScreen(FileInfo activeFile) : base(null/*no parent*/, toPause: null)
         {
             CanEscapeFromScreen = false;
 

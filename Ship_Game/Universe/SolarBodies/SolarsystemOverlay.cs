@@ -128,7 +128,7 @@ namespace Ship_Game
                         }
 
                         j = 0;
-                        if (planet.Owner != null && planet.Owner.isPlayer)
+                        if (planet.OwnerIsPlayer)
                         while (j < Sys.PlanetList[i].TroopsHere.Count)
                         {
                             if (!Sys.PlanetList[i].TroopsHere[j].Loyalty.isPlayer)

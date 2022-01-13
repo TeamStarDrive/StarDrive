@@ -10,6 +10,7 @@ namespace Ship_Game
 {
     public sealed class ResearchScreenNew : GameScreen
     {
+        public UniverseScreen Universe;
         public Camera2D camera = new Camera2D();
 
         readonly Map<string, RootNode> RootNodes = new Map<string, RootNode>(StringComparer.OrdinalIgnoreCase);
@@ -36,8 +37,10 @@ namespace Ship_Game
 
         ResearchDebugUnlocks DebugUnlocks;
 
-        public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
+        public ResearchScreenNew(GameScreen parent, UniverseScreen u, EmpireUIOverlay empireUi)
+            : base(parent, toPause: u)
         {
+            Universe = u;
             empireUI = empireUi;
             IsPopup = false;
             CanEscapeFromScreen = true;
@@ -101,7 +104,7 @@ namespace Ship_Game
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            DebugUnlocks.Visible = Empire.Universe.Debug || Empire.Universe is DeveloperUniverse;
+            DebugUnlocks.Visible = Universe.Debug || Universe is DeveloperUniverse;
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
@@ -280,7 +283,7 @@ namespace Ship_Game
             RightClicked = false;
             foreach (TreeNode node in SubNodes.Values)
             {
-                if (!node.HandleInput(input, ScreenManager, camera))
+                if (!node.HandleInput(input, ScreenManager, camera, Universe))
                     continue;
 
                 if (RightClicked) // node was right clicked
