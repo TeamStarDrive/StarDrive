@@ -71,12 +71,12 @@ namespace Ship_Game
             u.AddLight(Light, dynamic:true);
         }
 
-        public void RemoveLight()
+        public void RemoveLight(UniverseScreen u)
         {
             if (Light == null)
                 return;
 
-            Empire.Universe.RemoveLight(Light, dynamic:true);
+            u.RemoveLight(Light, dynamic:true);
             Light = null;
         }
 

@@ -33,14 +33,16 @@ namespace Ship_Game.Graphics
         }
 
         readonly GameScreen Screen;
-        object Locker = new object();
+        readonly UniverseScreen Universe;
+        readonly object Locker = new object();
         Array<Primitive> PrimitivesQueue = new Array<Primitive>();
         Array<Primitive> PrimitivesDrawing = new Array<Primitive>();
         int LastSimTurnId;
 
-        public DeferredRenderer(GameScreen screen)
+        public DeferredRenderer(GameScreen screen, UniverseScreen universe)
         {
             Screen = screen;
+            Universe = universe;
         }
 
         public void Draw(SpriteBatch batch)
@@ -48,11 +50,9 @@ namespace Ship_Game.Graphics
             lock (Locker)
             {
                 // swap Queued items with Drawing
-                var tmp = PrimitivesQueue;
-                PrimitivesQueue = PrimitivesDrawing;
-                PrimitivesDrawing = tmp;
+                (PrimitivesQueue, PrimitivesDrawing) = (PrimitivesDrawing, PrimitivesQueue);
                 PrimitivesQueue.Clear();
-                LastSimTurnId = Empire.Universe?.SimTurnId ?? LastSimTurnId + 1;
+                LastSimTurnId = Universe?.SimTurnId ?? LastSimTurnId + 1;
             }
 
             int count = PrimitivesDrawing.Count;
@@ -100,7 +100,9 @@ namespace Ship_Game.Graphics
         void CheckDeferredPrimitives()
         {
             // simulation has already elapsed to a new frame
-            int simTurnId = Empire.Universe.SimTurnId;
+            // before any of primitives in the queue were submitted
+            // in this case we just discard the queue
+            int simTurnId = Universe.SimTurnId;
             if (simTurnId > LastSimTurnId)
             {
                 LastSimTurnId = simTurnId;

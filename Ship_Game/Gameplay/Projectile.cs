@@ -275,8 +275,8 @@ namespace Ship_Game.Gameplay
                 MissileAI = new MissileAI(this, target, missileVelocity);
             }
 
-            Universe = Owner?.Universe ?? Planet?.Universe;
-            Universe?.Objects.Add(this);
+            Universe = Owner?.Universe ?? Planet.Universe;
+            Universe.Objects.Add(this);
 
             LoadContent();
             Initialize();
@@ -290,7 +290,7 @@ namespace Ship_Game.Gameplay
                 SetSystem(Planet.ParentSystem);
             }
 
-            if (playSound && IsInFrustum)
+            if (playSound && IsInFrustum(Universe))
             {
                 Weapon.PlayToggleAndFireSfx(Emitter);
                 string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).DieCue;
@@ -867,7 +867,7 @@ namespace Ship_Game.Gameplay
 
         void DebugTargetCircle()
         {
-            Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this);
+            Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Universe);
         }
 
         void ArmorPiercingTouch(ShipModule module, Ship parent, Vector2 hitPos)

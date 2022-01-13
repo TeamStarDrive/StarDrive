@@ -422,7 +422,7 @@ namespace Ship_Game.Ships
                 radius = HoldPositionRange;
             else
                 radius = GetDesiredCombatRangeForState(state);
-            
+
             screen.Renderer.DrawCircleDeferred(Position, radius, Colors.CombatOrders());
         }
     }

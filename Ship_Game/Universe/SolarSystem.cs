@@ -47,7 +47,14 @@ namespace Ship_Game
 
         public SunType Sun
         {
-            get => TheSunType;
+            get
+            {
+                if (TheSunType.Disposed) // attempt to reload the sun data automatically
+                {
+                    Sun = SunType.FindSun(TheSunType.Id); // full reload
+                }
+                return TheSunType;
+            }
             set
             {
                 TheSunType = value;
