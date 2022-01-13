@@ -1513,11 +1513,11 @@ namespace Ship_Game.Ships
                 default:                  explosionSize *= 3; break;
             }
 
-            ExplosionManager.AddExplosion(position, Velocity, explosionSize, 12f, ExplosionType.Ship);
+            ExplosionManager.AddExplosion(Universe, position, Velocity, explosionSize, 12f, ExplosionType.Ship);
 
             if (PlanetCrash == null && addWarpExplode)
             {
-                ExplosionManager.AddExplosion(position, Velocity, explosionSize * 1.75f, 12f, ExplosionType.Warp);
+                ExplosionManager.AddExplosion(Universe, position, Velocity, explosionSize * 1.75f, 12f, ExplosionType.Warp);
             }
         }
 

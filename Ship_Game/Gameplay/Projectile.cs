@@ -707,7 +707,7 @@ namespace Ship_Game.Gameplay
 
                 if (!cleanupOnly && CloseEnoughForExplosion && visibleToPlayer)
                 {
-                    ExplosionManager.AddExplosion(origin, Velocity*0.1f,
+                    ExplosionManager.AddExplosion(Universe, origin, Velocity*0.1f,
                         DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
 
                     if (FlashExplode && CloseEnoughForFlashExplode)
@@ -725,7 +725,7 @@ namespace Ship_Game.Gameplay
             }
             else if (Weapon.FakeExplode && CloseEnoughForExplosion && visibleToPlayer)
             {
-                ExplosionManager.AddExplosion(origin, Velocity*0.1f, 
+                ExplosionManager.AddExplosion(Universe, origin, Velocity*0.1f, 
                     DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
                 if (FlashExplode && CloseEnoughForFlashExplode)
                 {
