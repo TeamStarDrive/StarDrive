@@ -320,7 +320,7 @@ namespace Ship_Game
             Vector2 pos = posOnScreen.ToVec2f();
             float size = (float)sizeOnScreen;
 
-            SubTexture arcTexture = Empire.Universe.GetArcTexture(m.FieldOfFire.ToDegrees());
+            SubTexture arcTexture = ResourceManager.GetArcTexture(m.FieldOfFire.ToDegrees());
 
             var texOrigin = new Vector2(250f, 250f);
             var rect = new RectF(pos, new Vector2(size));

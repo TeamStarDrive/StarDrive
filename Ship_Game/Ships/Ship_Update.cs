@@ -276,9 +276,9 @@ namespace Ship_Game.Ships
                 return;
 
             // for a cool death effect, make the ship accelerate out of control:
-            ApplyThrust(100f, Ships.Thrust.Forward);
+            ApplyThrust(100f, Thrust.Forward);
             UpdateVelocityAndPosition(timeStep);
-            PlanetCrash?.Update(timeStep);
+            PlanetCrash?.Update(Universe.Particles, timeStep);
 
             bool visible = IsVisibleToPlayer;
             bool visibleAndNotPaused = visible && timeStep.FixedTime > 0f;

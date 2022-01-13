@@ -96,13 +96,13 @@ namespace Ship_Game
             return shield;
         }
 
-        public static void RemoveShieldLights(ShipModule[] shields)
+        public static void RemoveShieldLights(UniverseScreen u, ShipModule[] shields)
         {
             for (int i = 0; i < shields.Length; ++i)
-                shields[i].Shield.RemoveLight();
+                shields[i].Shield.RemoveLight(u);
         }
 
-        public static void Update()
+        public static void Update(UniverseScreen u)
         {
             using (PlanetaryShieldList.AcquireReadLock())
             {
@@ -140,7 +140,7 @@ namespace Ship_Game
                     if (shield.Owner != null && !shield.Owner.Active)
                     {
                         ShieldList.RemoveAtSwapLast(i);
-                        shield.RemoveLight();
+                        shield.RemoveLight(u);
                     }
                 }
             }
