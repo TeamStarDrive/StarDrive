@@ -23,10 +23,9 @@ namespace Ship_Game
         public UniverseScreen ParentUniverse;
         public DesignStanceButtons OrdersButton;
 
-        // this can be Null if we are in HullEdit mode
         public DesignShip DesignedShip { get; private set; }
-        public ShipDesign CurrentDesign; // never Null, even in Hull Editor
-        public ShipHull CurrentHull => CurrentDesign.BaseHull;
+        public ShipDesign CurrentDesign; // only Null during first time init, otherwise never Null, even in Hull Editor
+        public ShipHull CurrentHull => CurrentDesign?.BaseHull; // can be null during first time init
         public DesignModuleGrid ModuleGrid;
 
         public string DesignOrHullName => CurrentDesign.Name;
@@ -402,17 +401,17 @@ namespace Ship_Game
         public override void LoadContent()
         {
             Log.Info("ShipDesignScreen.LoadContent");
+
             UpdateAvailableHulls();
             CreateGUI();
             InitializeCamera();
-            ShipDesign lastWIP = ShipDesignWIP.GetLatestWipToLoad();
+            AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
 
+            ShipDesign lastWIP = ShipDesignWIP.GetLatestWipToLoad();
             if (lastWIP != null)
                 ChangeHull(lastWIP);
             else
                 ChangeHull(AvailableHulls[0]);
-
-            AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
         }
 
         void OnReloadAfterTechChange()
