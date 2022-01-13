@@ -72,21 +72,21 @@ namespace Ship_Game
                 return;
             }
 
-            if (!SelectedPlanet.ParentSystem.IsExploredBy(player))
+            if (!SelectedPlanet.ParentSystem.IsExploredBy(Player))
             {
                 GameAudio.NegativeClick();
             }
             else
             {
                 bool flag = false;
-                if (SelectedPlanet.Owner == player && combatView 
-                    || SelectedPlanet.Owner != player && player.data.MoleList.Any(m => m.PlanetGuid == SelectedPlanet.Guid) && combatView)
+                if (SelectedPlanet.Owner == Player && combatView 
+                    || SelectedPlanet.Owner != Player && Player.data.MoleList.Any(m => m.PlanetGuid == SelectedPlanet.Guid) && combatView)
                 {
                     OpenCombatMenu();
                     return;
                 }                    
 
-                foreach (Mole mole in player.data.MoleList)
+                foreach (Mole mole in Player.data.MoleList)
                 {
                     if (mole.PlanetGuid == SelectedPlanet.Guid)
                     {
@@ -95,7 +95,7 @@ namespace Ship_Game
                     }
                 }
 
-                if (SelectedPlanet.Owner == player || flag || Debug)
+                if (SelectedPlanet.Owner == Player || flag || Debug)
                 {
                     if (SelectedPlanet.Owner != null)
                         workersPanel = new ColonyScreen(this, SelectedPlanet, EmpireUI);
@@ -103,10 +103,10 @@ namespace Ship_Game
                         workersPanel = new UnexploredPlanetScreen(this, SelectedPlanet);
                 }
                 else if (combatView && SelectedPlanet.Habitable
-                                    && SelectedPlanet.IsExploredBy(player)
-                                    && (SelectedPlanet.WeAreInvadingHere(player) || !player.DifficultyModifiers.HideTacticalData
-                                                                                 || SelectedPlanet.ParentSystem.OwnerList.Contains(player)
-                                                                                 || SelectedPlanet.OurShipsCanScanSurface(player)))
+                                    && SelectedPlanet.IsExploredBy(Player)
+                                    && (SelectedPlanet.WeAreInvadingHere(Player) || !Player.DifficultyModifiers.HideTacticalData
+                                                                                 || SelectedPlanet.ParentSystem.OwnerList.Contains(Player)
+                                                                                 || SelectedPlanet.OurShipsCanScanSurface(Player)))
 
                 {
                     OpenCombatMenu();

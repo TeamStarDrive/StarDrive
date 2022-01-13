@@ -264,7 +264,7 @@ namespace Ship_Game
                         if (!ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))
                         {
                             SolarSystem system = ship.Universe.FindClosestSystem(ship.AI.MovePosition);
-                            if (system.IsExploredBy(ship.Universe.player))
+                            if (system.IsExploredBy(ship.Universe.Player))
                                 return string.Concat(moveText, Localizer.Token(GameText.DeepSpaceNear), " ", system.Name);
                             return Localizer.Token(GameText.ExploringTheGalaxy);
                         }
@@ -278,7 +278,7 @@ namespace Ship_Game
                         else
                         {
                             SolarSystem system = ship.Universe.FindClosestSystem(ship.AI.MovePosition);
-                            if (system.IsExploredBy(ship.Universe.player))
+                            if (system.IsExploredBy(ship.Universe.Player))
                                 return moveText + system.Name;
                             return Localizer.Token(GameText.ExploringTheGalaxy);
                         }

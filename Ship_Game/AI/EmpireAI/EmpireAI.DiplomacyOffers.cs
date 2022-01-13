@@ -38,7 +38,7 @@ namespace Ship_Game.AI
                 them.UnlockTech(tech, TechUnlockType.Diplomacy, us);
                 usToThem.NumTechsWeGave += 1;
                 Log.Info(System.ConsoleColor.White, $"{us.Name} gave {tech} to {them.Name}");
-                if (us.Universum.PlayerEmpire != us)
+                if (!us.isPlayer)
                 {
                     float cost = ResourceManager.Tech(tech).DiplomaticValueTo(us, them);
                     usToThem.AddTrustEntry(attitude, TrustEntryType.Technology, cost, turnTimer:40);
@@ -182,8 +182,8 @@ namespace Ship_Game.AI
                 AcceptPeaceTreaty(them, us, attitude);
 
                 if (us.isPlayer || them.isPlayer ||
-                    (us.Universum.player.IsKnown(us) &&
-                     us.Universum.player.IsKnown(them)))
+                    (us.Universum.Player.IsKnown(us) &&
+                     us.Universum.Player.IsKnown(them)))
                 {
                     us.Universum.NotificationManager.AddPeaceTreatyEnteredNotification(us, them);
                 }

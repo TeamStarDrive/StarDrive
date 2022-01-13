@@ -298,7 +298,7 @@ namespace Ship_Game
             get
             {
                 // todo: double loop sum. 
-                var ships = Screen.player.OwnedShips;
+                var ships = Screen.Player.OwnedShips;
                 return ships
                     .Where(s => s != null && s.HasOurTroops &&
                                 s.AI.OrderQueue.Any(g => g.Plan == ShipAI.Plan.LandTroop && g.TargetPlanet == P))

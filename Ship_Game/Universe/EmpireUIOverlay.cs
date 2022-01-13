@@ -226,7 +226,7 @@ namespace Ship_Game
             }
 
             int money = (int)Player.Money;
-            float damoney = Universe.player.EstimateNetIncomeAtTaxRate(Universe.player.data.TaxRate);
+            float damoney = Universe.Player.EstimateNetIncomeAtTaxRate(Universe.Player.data.TaxRate);
             if (damoney <= 0f)
             {
                 textCursor.X = res4.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(money.ToString(), " (", damoney.ToString("#.0"), ")")).X;

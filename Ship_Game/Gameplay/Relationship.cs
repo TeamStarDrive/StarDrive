@@ -826,7 +826,7 @@ namespace Ship_Game.Gameplay
             if (FedQuest == null) 
                 return false;
 
-            Empire player = aiEmpire.Universum.PlayerEmpire;
+            Empire player = aiEmpire.Universum.Player;
             Empire enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
             if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
             {
@@ -944,7 +944,7 @@ namespace Ship_Game.Gameplay
             };
 
             Offer offer2 = new Offer { NAPact = true };
-            if (them == us.Universum.PlayerEmpire)
+            if (them.isPlayer)
                 DiplomacyScreen.Show(us, "Offer NAPact", offer2, offer1);
             else
                 them.GetEmpireAI().AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
@@ -1022,7 +1022,7 @@ namespace Ship_Game.Gameplay
             };
 
             Offer offer2 = new Offer();
-            if (them == us.Universum.PlayerEmpire)
+            if (them.isPlayer)
             {
                 DiplomacyScreen.Show(us, "OFFER_ALLIANCE", offer2, offer1);
             }
@@ -1204,7 +1204,7 @@ namespace Ship_Game.Gameplay
             string dialogue = whichPeace;
             Offer ourOffer  = new Offer { PeaceTreaty = true };
 
-            if (them == us.Universum.PlayerEmpire)
+            if (them.isPlayer)
                 DiplomacyScreen.Show(us, dialogue, ourOffer, offerPeace);
             else
                 them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);

@@ -52,7 +52,7 @@ namespace Ship_Game
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
-            PlayerEmpire = screen.player;
+            PlayerEmpire = screen.Player;
             Friends = EmpireManager.GetPlayerAllies();
             Traders = EmpireManager.GetTradePartners(PlayerEmpire);
             HashSet<Empire> empires = new HashSet<Empire>();            

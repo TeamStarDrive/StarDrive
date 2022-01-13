@@ -777,7 +777,7 @@ namespace Ship_Game
             foreach (Troop troop in toAdd)
                 OrbitSL.AddItem(new CombatScreenOrbitListItem(troop));
 
-            UpdateLaunchAllButton(P.TroopsHere.Count(t => t.Loyalty == P.Universe.player && t.CanLaunch));
+            UpdateLaunchAllButton(P.TroopsHere.Count(t => t.Loyalty == P.Universe.Player && t.CanLaunch));
             UpdateLandAllButton(OrbitSL.NumEntries);
             UpdateBombersButton();
         }

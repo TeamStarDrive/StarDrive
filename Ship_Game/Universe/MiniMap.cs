@@ -33,7 +33,7 @@ namespace Ship_Game
         readonly SubTexture Node1;
         readonly float Scale;
         readonly Vector2 MiniMapZero;
-        Empire Player => Universe.player;
+        Empire Player => Universe.Player;
         float pulseTime => Universe.NormalFlashTimer;
         float quickPulseTime => Universe.FastFlashTimer;
 

@@ -18,7 +18,7 @@ namespace Ship_Game
                 {
                     if (ship.DesignRole == role && !spawnedMeshes.Contains(ship.BaseHull.ModelPath))
                     {
-                        Ship.CreateShipAtPoint(this, ship.Name, player, mouseWorldPos + RandomMath.Vector2D(500f));
+                        Ship.CreateShipAtPoint(this, ship.Name, Player, mouseWorldPos + RandomMath.Vector2D(500f));
                         spawnedMeshes.Add(ship.BaseHull.ModelPath);
                     }
                 }
