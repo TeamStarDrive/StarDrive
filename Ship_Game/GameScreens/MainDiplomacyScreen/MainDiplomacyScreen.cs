@@ -46,7 +46,7 @@ namespace Ship_Game
         Rectangle LeftRect;
 
 
-        public MainDiplomacyScreen(UniverseScreen screen) : base(screen)
+        public MainDiplomacyScreen(UniverseScreen screen) : base(screen, toPause: screen)
         {
             Universe = screen;
             IsPopup = true;

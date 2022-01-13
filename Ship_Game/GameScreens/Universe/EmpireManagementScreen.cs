@@ -30,7 +30,8 @@ namespace Ship_Game
 
         public Planet SelectedPlanet { get; private set; }
         
-        public EmpireManagementScreen(UniverseScreen parent, EmpireUIOverlay empUI) : base(parent)
+        public EmpireManagementScreen(UniverseScreen parent, EmpireUIOverlay empUI)
+            : base(parent, toPause: parent)
         {
             Universe = parent;
             TransitionOnTime = 0.25f;

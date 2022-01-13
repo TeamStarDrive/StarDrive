@@ -39,10 +39,10 @@ namespace Ship_Game.Graphics
         Array<Primitive> PrimitivesDrawing = new Array<Primitive>();
         int LastSimTurnId;
 
-        public DeferredRenderer(GameScreen screen, UniverseScreen universe)
+        public DeferredRenderer(GameScreen screen)
         {
             Screen = screen;
-            Universe = universe;
+            Universe = Empire.Universe;
         }
 
         public void Draw(SpriteBatch batch)

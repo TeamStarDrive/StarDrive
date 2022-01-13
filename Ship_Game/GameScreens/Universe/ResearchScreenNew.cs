@@ -37,7 +37,8 @@ namespace Ship_Game
 
         ResearchDebugUnlocks DebugUnlocks;
 
-        public ResearchScreenNew(GameScreen parent, UniverseScreen u, EmpireUIOverlay empireUi) : base(parent)
+        public ResearchScreenNew(GameScreen parent, UniverseScreen u, EmpireUIOverlay empireUi)
+            : base(parent, toPause: u)
         {
             Universe = u;
             empireUI = empireUi;

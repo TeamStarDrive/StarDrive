@@ -73,25 +73,25 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         readonly Empire[] AlliedEmpiresAtWar;
         readonly Empire[] EmpiresTheyAreAlliedWith;
 
-
         // BASE constructor
-        DiplomacyScreen(GameScreen parent, Empire them, Empire us, string whichDialog) : base(parent)
+        DiplomacyScreen(GameScreen parent, Empire them, Empire us, string whichDialog, UniverseScreen toPause)
+            : base(parent, toPause: toPause)
         {
-            Them                            = them;
-            Us                              = us;
-            ThemAndUs                       = them.GetRelations(us);
+            Us = us;
+            Them = them;
+            ThemAndUs = them.GetRelations(us);
+            UsAndThem = us.GetRelations(them);
             ThemAndUs.turnsSinceLastContact = 0;
-            UsAndThem                       = us.GetRelations(them);
-            WhichDialog                     = whichDialog;
-            IsPopup                         = true;
-            TransitionOnTime                = 1.0f;
+            WhichDialog = whichDialog;
+            IsPopup = true;
+            TransitionOnTime = 1.0f;
 
-            AlliedEmpiresAtWar       = GetAlliedEmpiresTheyAreAtWarWith(them, us);
+            AlliedEmpiresAtWar = GetAlliedEmpiresTheyAreAtWarWith(them, us);
             EmpiresTheyAreAlliedWith = GetAiAlliedEmpires(them, us);
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, GameScreen parent)
-            : this(parent, them, us, whichDialog)
+            : this(parent, them, us, whichDialog, us.Universum)
         {
             switch (whichDialog)
             {
@@ -118,7 +118,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, Empire empireToDiscuss, bool endOnly)
-            : this(them.Universum, them, us, whichDialog)
+            : this(them.Universum, them, us, whichDialog, toPause: them.Universum)
         {
             TheirText       = GetDialogueByName(whichDialog);
             DState          = DialogState.End;
@@ -126,7 +126,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, Offer ourOffer, Offer theirOffer, Empire targetEmpire)
-            : this(them.Universum, them, us, whichDialog)
+            : this(them.Universum, them, us, whichDialog, toPause: them.Universum)
         {
             TheirText       = GetDialogueByName(whichDialog);
             DState          = DialogState.TheirOffer;
@@ -136,7 +136,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, Planet p)
-            : this(them.Universum, them, us, whichDialog)
+            : this(them.Universum, them, us, whichDialog, toPause: them.Universum)
         {
             SysToDiscuss = p.ParentSystem;
 
@@ -156,7 +156,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, SolarSystem s)
-            : this(them.Universum, them, us, whichDialog)
+            : this(them.Universum, them, us, whichDialog, toPause: them.Universum)
         {
             SysToDiscuss = s;
 

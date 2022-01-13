@@ -26,7 +26,7 @@ namespace Ship_Game
         float Saturation = 255f;
         bool ShowingReplay;
 
-        public YouWinScreen(UniverseScreen parent) : base(parent)
+        public YouWinScreen(UniverseScreen parent) : base(parent, toPause: parent)
         {
             Universe = parent;
             IsPopup = false;
@@ -34,7 +34,7 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
-        public YouWinScreen(GameScreen parent, string text) : base(parent)
+        public YouWinScreen(UniverseScreen parent, string text) : base(parent, toPause: parent)
         {
             txt = text;
             txt = Fonts.Arial20Bold.ParseText(txt, 500f);

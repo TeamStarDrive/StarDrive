@@ -94,7 +94,7 @@ namespace Ship_Game
             public int TurretAngle;
         }
 
-        public ShipDesignScreen(UniverseScreen universe, EmpireUIOverlay empireUi) : base(universe)
+        public ShipDesignScreen(UniverseScreen universe, EmpireUIOverlay empireUi) : base(universe, toPause: universe)
         {
             ParentUniverse = universe;
             Name = "ShipDesignScreen";

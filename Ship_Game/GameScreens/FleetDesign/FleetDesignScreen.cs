@@ -65,7 +65,8 @@ namespace Ship_Game
         readonly ShipInfoOverlayComponent ShipInfoOverlay;
         FleetStanceButtons OrdersButtons;
 
-        public FleetDesignScreen(UniverseScreen u, EmpireUIOverlay empireUI, string audioCue ="") : base(u)
+        public FleetDesignScreen(UniverseScreen u, EmpireUIOverlay empireUI, string audioCue ="")
+            : base(u, toPause: u)
         {
             Universe = u;
             GameAudio.PlaySfxAsync(audioCue);

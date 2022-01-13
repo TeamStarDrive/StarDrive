@@ -54,7 +54,7 @@ namespace Ship_Game
         readonly Map<Planet, float> PlanetDistanceToClosestColony = new Map<Planet, float>();
 
         public PlanetListScreen(UniverseScreen parent, EmpireUIOverlay empireUi, string audioCue = "")
-            : base(parent)
+            : base(parent, toPause: parent)
         {
             if(!string.IsNullOrEmpty(audioCue))
                 GameAudio.PlaySfxAsync(audioCue);

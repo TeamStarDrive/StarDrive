@@ -54,7 +54,7 @@ namespace Ship_Game
         string HomeSysName { get => SysEntry.Text;  set => SysEntry.Text  = value; }
         string HomeWorldName = "Earth";
 
-        public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu)
+        public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu, toPause: null)
         {
             IsPopup = true; // it has to be a popup, otherwise the MainMenuScreen will not be drawn
             MainMenu = mainMenu;

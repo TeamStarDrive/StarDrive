@@ -66,7 +66,8 @@ namespace Ship_Game
         private Rectangle STL;
         private readonly SortButton SB_STL;
 
-        public ShipListScreen(UniverseScreen parent, EmpireUIOverlay empUi, string audioCue = "") : base(parent)
+        public ShipListScreen(UniverseScreen parent, EmpireUIOverlay empUi, string audioCue = "")
+            : base(parent, toPause: parent)
         {
             Universe = parent;
             if (!string.IsNullOrEmpty(audioCue))
