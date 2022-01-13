@@ -20,7 +20,7 @@ namespace Ship_Game.GameScreens
 
         public BudgetScreen(UniverseScreen screen) : base(screen, toPause: screen)
         {
-            Player            = screen.player;
+            Player            = screen.Player;
             IsPopup           = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;

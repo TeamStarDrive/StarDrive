@@ -230,11 +230,11 @@ namespace Ship_Game
                 Debug = !Debug;
                 foreach (SolarSystem solarSystem in SolarSystemList)
                 {
-                    solarSystem.SetExploredBy(player);
+                    solarSystem.SetExploredBy(Player);
                     foreach (Planet planet in solarSystem.PlanetList)
-                        planet.SetExploredBy(player);
+                        planet.SetExploredBy(Player);
 
-                    solarSystem.UpdateFullyExploredBy(player);
+                    solarSystem.UpdateFullyExploredBy(Player);
                 }
                 GlobalStats.LimitSpeed = GlobalStats.LimitSpeed || Debug;
             }
@@ -326,7 +326,7 @@ namespace Ship_Game
                 SelectedSystem = null;
             }
 
-            if (input.ScrapShip && (SelectedItem != null && SelectedItem.AssociatedGoal.empire == player))
+            if (input.ScrapShip && (SelectedItem != null && SelectedItem.AssociatedGoal.empire == Player))
                 HandleInputScrap(input);
 
             pickedSomethingThisFrame = false;
@@ -404,13 +404,13 @@ namespace Ship_Game
             if (index == -1) 
                 return;
 
-            bool moveToFleet = SelectedFleet == player.GetFleetsDict()[index];
+            bool moveToFleet = SelectedFleet == Player.GetFleetsDict()[index];
 
             // replace ships in fleet from selection
             // or remove selected fleet if not ships are selected.
             if (input.ReplaceFleet)
             {
-                var selectedFleet = player.GetFleetsDict()[index];
+                var selectedFleet = Player.GetFleetsDict()[index];
                 if (SelectedShipList.Count == 0)
                 {
                     selectedFleet.Ships.ForEach(s => s?.UnsafeClearFleet());
@@ -429,9 +429,9 @@ namespace Ship_Game
                 var newFleet   = AddSelectedShipsToNewFleet(SelectedShipList);
                 string str     = Fleet.GetDefaultFleetNames(index);
                 newFleet.Name  = str + " Fleet";
-                newFleet.Owner = player;
+                newFleet.Owner = Player;
 
-                player.GetFleetsDict()[index] = newFleet;
+                Player.GetFleetsDict()[index] = newFleet;
                 RecomputeFleetButtons(true);
             }
             else if (input.AddToFleet) // added by gremlin add ships to exiting fleet
@@ -443,7 +443,7 @@ namespace Ship_Game
                 }
 
                 Fleet fleet = null;
-                var targetFleet = player.GetFleetsDict()[index];
+                var targetFleet = Player.GetFleetsDict()[index];
                 if (targetFleet?.Ships.Count > 0)
                 {
                     // create a list of ships that are not part of the target fleet. 
@@ -462,7 +462,7 @@ namespace Ship_Game
                 else
                 {
                     fleet = AddSelectedShipsToNewFleet(SelectedShipList);
-                    player.GetFleetsDict()[index] = fleet;
+                    Player.GetFleetsDict()[index] = fleet;
                 }
 
                 // do UI and fleet list maintenance. 
@@ -489,7 +489,7 @@ namespace Ship_Game
                 InputCheckPreviousShip();
 
                 SelectedShip = null;
-                Fleet fleet = player.GetFleetsDict()[index] ?? new Fleet();
+                Fleet fleet = Player.GetFleetsDict()[index] ?? new Fleet();
                 if (fleet.Ships.Count > 0)
                 {
                     SelectedFleet = fleet;
@@ -588,7 +588,7 @@ namespace Ship_Game
             if (ship == null || ship != SelectedShip || SelectedShip.IsHangarShip ||
                 SelectedShip.IsConstructor) return false;
 
-            LoadShipMenuNodes(ship.Loyalty == player ? 1 : 0);
+            LoadShipMenuNodes(ship.Loyalty == Player ? 1 : 0);
             if (!pieMenu.Visible)
             {
                 pieMenu.RootNode = shipMenu;
@@ -709,7 +709,7 @@ namespace Ship_Game
 
             if (SelectedShipList.Count == 1)
             {
-                LoadShipMenuNodes(SelectedShipList[0].Loyalty == player ? 1 : 0);
+                LoadShipMenuNodes(SelectedShipList[0].Loyalty == Player ? 1 : 0);
                 return;
             }
 
@@ -781,7 +781,7 @@ namespace Ship_Game
 
                 SelectedShip = SelectedShipList[0];
                 ShipInfoUIElement.SetShip(SelectedShip);
-                LoadShipMenuNodes(SelectedShipList[0]?.Loyalty == player ? 1 : 0);
+                LoadShipMenuNodes(SelectedShipList[0]?.Loyalty == Player ? 1 : 0);
             }
 
             SelectionBox = new Rectangle(0, 0, -1, -1);
@@ -861,7 +861,7 @@ namespace Ship_Game
             lock (GlobalStats.ClickableItemLocker)
                 ItemsToBuild.Clear();
 
-            EmpireAI playerAI = player.GetEmpireAI();
+            EmpireAI playerAI = Player.GetEmpireAI();
             for (int index = 0; index < playerAI.Goals.Count; ++index)
             {
                 Goal goal = playerAI.Goals[index];
@@ -1041,7 +1041,7 @@ namespace Ship_Game
                     {
                         GameAudio.SubBassWhoosh();
                         SelectedPlanet = clickablePlanets.planetToClick;
-                        SnapViewColony(SelectedPlanet.Owner != player && !Debug);
+                        SnapViewColony(SelectedPlanet.Owner != Player && !Debug);
                     }
                 }
             }
@@ -1055,7 +1055,7 @@ namespace Ship_Game
                     ClickableSystem system = ClickableSystems[i];
                     if (input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
                     {
-                        if (system.systemToClick.IsExploredBy(player))
+                        if (system.systemToClick.IsExploredBy(Player))
                         {
                             GameAudio.SubBassWhoosh();
                             ViewSystem(system.systemToClick);
@@ -1141,11 +1141,11 @@ namespace Ship_Game
         
         void CyclePlanetsInCombat(UIButton b)
         {
-            if (player.empirePlanetCombat > 0)
+            if (Player.empirePlanetCombat > 0)
             {
                 Planet planetToView = null;
                 int nbrplanet = 0;
-                if (lastplanetcombat >= player.empirePlanetCombat)
+                if (lastplanetcombat >= Player.empirePlanetCombat)
                     lastplanetcombat = 0;
                 bool flagPlanet;
 
@@ -1153,8 +1153,8 @@ namespace Ship_Game
                 {
                     foreach (Planet p in system.PlanetList)
                     {
-                        if (!p.IsExploredBy(player) || !p.RecentCombat) continue;
-                        if (p.Owner == PlayerEmpire)
+                        if (!p.IsExploredBy(Player) || !p.RecentCombat) continue;
+                        if (p.Owner.isPlayer)
                         {
                             if (nbrplanet == lastplanetcombat)
                                 planetToView = p;
@@ -1165,7 +1165,7 @@ namespace Ship_Game
                             flagPlanet = false;
                             foreach (Troop troop in p.TroopsHere)
                             {
-                                if (troop.Loyalty != null && troop.Loyalty == PlayerEmpire)
+                                if (troop.Loyalty != null && troop.Loyalty.isPlayer)
                                 {
                                     flagPlanet = true;
                                     break;
@@ -1220,9 +1220,9 @@ namespace Ship_Game
 
         void HandleInputScrap(InputState input)
         {
-            player.GetEmpireAI().Goals.QueuePendingRemoval(SelectedItem.AssociatedGoal);
+            Player.GetEmpireAI().Goals.QueuePendingRemoval(SelectedItem.AssociatedGoal);
             bool flag = false;
-            var ships = player.OwnedShips;
+            var ships = Player.OwnedShips;
             foreach (Ship ship in ships)
             {
                 if (ship.IsConstructor && ship.AI.OrderQueue.NotEmpty)
@@ -1240,7 +1240,7 @@ namespace Ship_Game
             }
             if (!flag)
             {
-                foreach (Planet planet in player.GetPlanets())
+                foreach (Planet planet in Player.GetPlanets())
                 {
                     foreach (QueueItem qi in planet.ConstructionQueue)
                     {
@@ -1264,7 +1264,7 @@ namespace Ship_Game
                 }
                 ItemsToBuild.ApplyPendingRemovals();
             }
-            player.GetEmpireAI().Goals.ApplyPendingRemovals();
+            Player.GetEmpireAI().Goals.ApplyPendingRemovals();
             SelectedItem = null;
         }
 
@@ -1274,7 +1274,7 @@ namespace Ship_Game
 
             ships.ForEach(s => s.UnsafeClearFleet());
 
-            var newFleet = new Fleet(ships, player);
+            var newFleet = new Fleet(ships, Player);
             
             InputCheckPreviousShip();
             GameAudio.FleetClicked();
@@ -1300,7 +1300,7 @@ namespace Ship_Game
             foreach (var ship in ships) ship?.UnsafeClearFleet();
 
             // create a fake fleet to assign positions.
-            var positioningFleet = new Fleet(ships, player);
+            var positioningFleet = new Fleet(ships, Player);
             positioningFleet.AutoArrange();
             
             // offset from the fleet we are adding to
@@ -1331,7 +1331,7 @@ namespace Ship_Game
             {
                 int shipCounter = 0;
                 FleetButtons.Clear();
-                foreach (KeyValuePair<int, Fleet> kv in player.GetFleetsDict())
+                foreach (KeyValuePair<int, Fleet> kv in Player.GetFleetsDict())
                 {
                     if (kv.Value.Ships.Count <= 0) continue;
 

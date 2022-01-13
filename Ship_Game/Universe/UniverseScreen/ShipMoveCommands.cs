@@ -25,7 +25,7 @@ namespace Ship_Game.Universe
             if (targetShip == null || selectedShip == targetShip || !selectedShip.PlayerShipCanTakeFleetOrders())
                 return false;
 
-            if (targetShip.Loyalty == Universe.player)
+            if (targetShip.Loyalty == Universe.Player)
             {
                 if (selectedShip.DesignRole == RoleName.troop)
                 {
@@ -95,7 +95,7 @@ namespace Ship_Game.Universe
 
         void PlanetRightClickTroopShip(Ship ship, Planet planet, bool offensiveMove = false)
         {
-            if (planet.Owner != null && planet.Owner == Universe.player)
+            if (planet.Owner != null && planet.Owner == Universe.Player)
             {
                 if (ship.IsDefaultTroopTransport)
                     // Rebase to this planet if it is ours and this is a single troop transport
@@ -122,7 +122,7 @@ namespace Ship_Game.Universe
         {
             if (ship?.Active != true) return;
 
-            Empire player    = Universe.player;
+            Empire player    = Universe.Player;
             if (planet.Owner != player)
             {
                 if (player.IsEmpireAttackable(planet.Owner))
@@ -161,7 +161,7 @@ namespace Ship_Game.Universe
             }
 
             GameAudio.AffirmativeClick();
-            if (target.Loyalty == Universe.player)
+            if (target.Loyalty == Universe.Player)
             {
                 if (ship.ShipData.Role == RoleName.troop)
                 {
@@ -189,7 +189,7 @@ namespace Ship_Game.Universe
 
         bool TryFleetAttackShip(ShipGroup fleet, Ship shipToAttack)
         {
-            if (shipToAttack == null || shipToAttack.Loyalty == Universe.player)
+            if (shipToAttack == null || shipToAttack.Loyalty == Universe.Player)
                 return false;
 
             fleet.FinalPosition = shipToAttack.Position;
@@ -230,7 +230,7 @@ namespace Ship_Game.Universe
                     ship.AI.ResetPriorityOrder(!Input.QueueAction);
             }
 
-            Universe.player.GetEmpireAI().DefensiveCoordinator.RemoveShipList(Universe.SelectedShipList);
+            Universe.Player.GetEmpireAI().DefensiveCoordinator.RemoveShipList(Universe.SelectedShipList);
 
             if (TryFleetAttackShip(fleet, shipClicked))
                 return;

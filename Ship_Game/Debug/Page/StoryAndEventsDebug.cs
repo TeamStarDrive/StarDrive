@@ -66,9 +66,9 @@ namespace Ship_Game.Debug.Page
                     var item = ExplorationEvents.AddItem(new EvtItem(evt, outcome));
                     item.OnClick = () =>
                     {
-                        Planet homeworld = screen.player.GetPlanets()[0];
-                        PlanetGridSquare tile = homeworld.TilesList.Find(t => t.IsTileFree(screen.player));
-                        evt.DebugTriggerOutcome(homeworld, screen.player, outcome, tile);
+                        Planet homeworld = screen.Player.GetPlanets()[0];
+                        PlanetGridSquare tile = homeworld.TilesList.Find(t => t.IsTileFree(screen.Player));
+                        evt.DebugTriggerOutcome(homeworld, screen.Player, outcome, tile);
                     };
                 }
             }
@@ -83,7 +83,7 @@ namespace Ship_Game.Debug.Page
                 var item = EncounterDialogs.AddItem(new EvtItem(e));
                 item.OnClick = () =>
                 {
-                    EncounterPopup.Show(screen, screen.player, faction, e);
+                    EncounterPopup.Show(screen, screen.Player, faction, e);
                 };
             }
 

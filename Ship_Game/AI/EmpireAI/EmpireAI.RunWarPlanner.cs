@@ -12,7 +12,7 @@ namespace Ship_Game.AI
         public static void ShowWarDeclaredNotification(Empire us, Empire them)
         {
             if (us.isPlayer || them.isPlayer ||
-                (us.Universum.player.IsKnown(us) && us.Universum.player.IsKnown(them)))
+                (us.Universum.Player.IsKnown(us) && us.Universum.Player.IsKnown(them)))
             {
                 us.Universum.NotificationManager?.AddWarDeclaredNotification(us, them);
             }

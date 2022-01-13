@@ -49,7 +49,7 @@ namespace Ship_Game
                 SelectedFleet.ProjectPos(Project.FleetCenter, Project.Direction);
                 CurrentGroup = SelectedFleet;
             }
-            else if (SelectedShip != null && SelectedShip.Loyalty == player)
+            else if (SelectedShip != null && SelectedShip.Loyalty == Player)
             {
                 if (SelectedShip.IsConstructor || SelectedShip.IsSupplyShuttle)
                 {
@@ -70,11 +70,11 @@ namespace Ship_Game
             {
                 foreach (Ship ship in SelectedShipList)
                 {
-                    if (ship.Loyalty != player)
+                    if (ship.Loyalty != Player)
                         return;
                 }
 
-                CurrentGroup = new ShipGroup(SelectedShipList, Project.Start, Project.End, Project.Direction, player);
+                CurrentGroup = new ShipGroup(SelectedShipList, Project.Start, Project.End, Project.Direction, Player);
             }
         }
 
@@ -83,14 +83,14 @@ namespace Ship_Game
             Log.Info($"MoveSelectedShipsToProjectedPositions  start:{Input.StartRightHold}");
 
             Project.Started = false;
-            if (SelectedFleet != null && SelectedFleet.Owner == player)
+            if (SelectedFleet != null && SelectedFleet.Owner == Player)
             {
                 SelectedSomethingTimer = 3f;
                 MoveFleetToMouse(SelectedFleet, null, null, wasProjecting: true);
             }
-            else if (SelectedShip != null && SelectedShip?.Loyalty == player)
+            else if (SelectedShip != null && SelectedShip?.Loyalty == Player)
             {
-                player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
+                Player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
                 SelectedSomethingTimer = 3f;
                 if (UnselectableShip())
                 {
@@ -106,7 +106,7 @@ namespace Ship_Game
                 SelectedSomethingTimer = 3f;
                 foreach (Ship ship in SelectedShipList)
                 {
-                    if (ship.Loyalty != player || UnselectableShip(ship))
+                    if (ship.Loyalty != Player || UnselectableShip(ship))
                         return;
                 }
 
@@ -130,7 +130,7 @@ namespace Ship_Game
             }
             else if (SelectedShip != null && SelectedShip.Loyalty.isPlayer)
             {
-                player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
+                Player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
                 SelectedSomethingTimer = 3f;
 
                 if (shipClicked != null && shipClicked != SelectedShip)
@@ -166,7 +166,7 @@ namespace Ship_Game
                 {
                     foreach (Ship selectedShip in SelectedShipList)
                     {
-                        player.GetEmpireAI().DefensiveCoordinator.Remove(selectedShip);
+                        Player.GetEmpireAI().DefensiveCoordinator.Remove(selectedShip);
                         ShipCommands.RightClickOnShip(selectedShip, shipClicked);
                         if (planetClicked != null)
                             ShipCommands.RightClickOnPlanet(selectedShip, planetClicked);
@@ -256,7 +256,7 @@ namespace Ship_Game
                 
                 Vector2 fleetCenter = ShipGroup.GetAveragePosition(SelectedShipList);
                 Vector2 direction = fleetCenter.DirectionToTarget(finalPos);
-                CurrentGroup = new ShipGroup(SelectedShipList, finalPos, finalPos, direction, player);
+                CurrentGroup = new ShipGroup(SelectedShipList, finalPos, finalPos, direction, Player);
                 CurrentGroup.FormationWarpTo(CurrentGroup.ProjectedPos, direction, queue, offensiveMove: Input.IsCtrlKeyDown);
             }
             else // move existing group

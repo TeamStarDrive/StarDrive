@@ -71,7 +71,7 @@ namespace Ship_Game
             var uiNode= ResourceManager.Texture("UI/node");
             var viewport = Viewport;
 
-            var sensorNodes = player.SensorNodes;
+            var sensorNodes = Player.SensorNodes;
             for (int i = 0; i < sensorNodes.Length; ++i)
             {
                 ref Empire.InfluenceNode @in = ref sensorNodes[i];
@@ -106,7 +106,7 @@ namespace Ship_Game
             Empire[] empires = EmpireManager.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)
             {
-                if (!Debug && empire != player && !player.IsKnown(empire))
+                if (!Debug && empire != Player && !Player.IsKnown(empire))
                     continue;
 
                 Color empireColor = empire.EmpireColor;
@@ -200,7 +200,7 @@ namespace Ship_Game
             double worldSizeToMaskSize = (512.0 / universeWidth);
 
             var uiNode = ResourceManager.Texture("UI/node");
-            var ships = player.OwnedShips;
+            var ships = Player.OwnedShips;
             var shipSensorMask = new Color(255, 0, 0, 255);
             foreach (Ship ship in ships)
             {
@@ -417,7 +417,7 @@ namespace Ship_Game
                 DrawTopCenterStatusText(batch, "Cinematic Mode - Press F11 to exit", Color.White, 3);
             }
 
-            if (!player.Research.NoResearchLeft && player.Research.NoTopic && !player.AutoResearch && !Debug)
+            if (!Player.Research.NoResearchLeft && Player.Research.NoTopic && !Player.AutoResearch && !Debug)
             {
                 DrawTopCenterStatusText(batch, "No Research!",  ApplyCurrentAlphaToColor(Color.Red), 2);
             }
@@ -493,7 +493,7 @@ namespace Ship_Game
                 {
                     var transparentBlue = new Color(30, 30, 150, 150);
                     var transparentGreen = new Color(0, 200, 0, 20);
-                    Empire.InfluenceNode[] borders = player.BorderNodes;
+                    Empire.InfluenceNode[] borders = Player.BorderNodes;
                     for (int i = 0; i < borders.Length; ++i)
                     {
                         ref Empire.InfluenceNode @in = ref borders[i];
@@ -579,11 +579,11 @@ namespace Ship_Game
             if (viewState < UnivScreenState.SectorView)
                 return;
             bool debug = Debug && SelectedShip == null;
-            Empire empireLooking = Debug ? SelectedShip?.Loyalty ?? player : player;
+            Empire empireLooking = Debug ? SelectedShip?.Loyalty ?? Player : Player;
             for (int i = 0; i < EmpireManager.Empires.Count; i++)
             { 
                 Empire empire = EmpireManager.Empires[i];
-                bool doDraw = debug || !(player.DifficultyModifiers.HideTacticalData && empireLooking.IsEmpireAttackable(empire));
+                bool doDraw = debug || !(Player.DifficultyModifiers.HideTacticalData && empireLooking.IsEmpireAttackable(empire));
                 if (!doDraw) 
                     continue;
 
@@ -614,7 +614,7 @@ namespace Ship_Game
                         ClickRadius = 15f
                     });
                     ScreenManager.SpriteBatch.Draw(icon, fleetCenterOnScreen, empire.EmpireColor, 0.0f, icon.CenterF, 0.35f, SpriteEffects.None, 1f);
-                    if (!player.DifficultyModifiers.HideTacticalData || debug || fleet.Owner.isPlayer || fleet.Owner.IsAlliedWith(empireLooking))
+                    if (!Player.DifficultyModifiers.HideTacticalData || debug || fleet.Owner.isPlayer || fleet.Owner.IsAlliedWith(empireLooking))
                         ScreenManager.SpriteBatch.DrawDropShadowText(fleet.Name, fleetCenterOnScreen + FleetNameOffset, Fonts.Arial8Bold);
                 }
             }
@@ -628,7 +628,7 @@ namespace Ship_Game
                 if (ship == null || !ship.Active)
                     continue;
 
-                if (Debug || ship.Loyalty.isPlayer || ship.Loyalty.IsAlliedWith(player) || !player.DifficultyModifiers.HideTacticalData)
+                if (Debug || ship.Loyalty.isPlayer || ship.Loyalty.IsAlliedWith(Player) || !Player.DifficultyModifiers.HideTacticalData)
                 {
                     Vector2 shipScreenPos = ProjectToScreenPosition(ship.Position).ToVec2fRounded();
                     ScreenManager.SpriteBatch.DrawLine(shipScreenPos, fleetCenterOnScreen, FleetLineColor);
@@ -644,7 +644,7 @@ namespace Ship_Game
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
                 SolarSystem system = SolarSystemList[i];
-                if (!system.IsExploredBy(player) || !system.IsVisible)
+                if (!system.IsExploredBy(Player) || !system.IsVisible)
                     continue;
 
                 foreach (Planet planet in system.PlanetList)
@@ -654,7 +654,7 @@ namespace Ship_Game
                     Vector2 flagIconPos   = planetIconPos - new Vector2(0, 15);
 
                     SubTexture planetTex = planet.PlanetTexture;
-                    if (planet.Owner != null && (player.IsKnown(planet.Owner) || planet.Owner == player))
+                    if (planet.Owner != null && (Player.IsKnown(planet.Owner) || planet.Owner == Player))
                     {
                         batch.Draw(planetTex, planetIconPos, Color.White, 0.0f, planetTex.CenterF, fIconScale, SpriteEffects.None, 1f);
                         SubTexture flag = ResourceManager.Flag(planet.Owner);
@@ -911,8 +911,8 @@ namespace Ship_Game
                     if (SelectedShip == ship || SelectedShipList.Contains(ship))
                     {
                         Color color = Color.LightGreen;
-                        if (player != ship.Loyalty)
-                            color = player.IsEmpireAttackable(ship.Loyalty) ? Color.Red : Color.Yellow;
+                        if (Player != ship.Loyalty)
+                            color = Player.IsEmpireAttackable(ship.Loyalty) ? Color.Red : Color.Yellow;
                         else if (ship.Resupplying)
                             color = Color.Gray;
 
@@ -1163,7 +1163,7 @@ namespace Ship_Game
             for (int k = 0; k < SolarSystemList.Count; k++)
             {
                 SolarSystem solarSystem = SolarSystemList[k];
-                if (!solarSystem.IsExploredBy(player) || !solarSystem.IsVisible)
+                if (!solarSystem.IsExploredBy(Player) || !solarSystem.IsVisible)
                     continue;
 
                 for (int j = 0; j < solarSystem.PlanetList.Count; j++)
@@ -1186,11 +1186,11 @@ namespace Ship_Game
                                                (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         ++drawLocationOffset;
                     }
-                    if (player.data.MoleList.Count > 0)
+                    if (Player.data.MoleList.Count > 0)
                     {
-                        for (int i = 0; i < player.data.MoleList.Count; i++)
+                        for (int i = 0; i < Player.data.MoleList.Count; i++)
                         {
-                            Mole mole = player.data.MoleList[i];
+                            Mole mole = Player.data.MoleList[i];
                             if (mole.PlanetGuid == planet.Guid)
                             {
                                 posOffSet.X += (18 * drawLocationOffset);
@@ -1210,7 +1210,7 @@ namespace Ship_Game
                                                (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                         break;
                     }
-                    int troopCount = planet.CountEmpireTroops(player);
+                    int troopCount = planet.CountEmpireTroops(Player);
                     if (troopCount > 0)
                     {
                         posOffSet.X += (18 * drawLocationOffset);

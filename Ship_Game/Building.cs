@@ -406,7 +406,7 @@ namespace Ship_Game
             {
                 UniverseScreen u = p.Universe;
                 ExplorationEvent e = ResourceManager.Event(EventOnBuild);
-                u.ScreenManager.AddScreen(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true, p));
+                u.ScreenManager.AddScreen(new EventPopup(u, u.Player, e, e.PotentialOutcomes[0], true, p));
             }
 
             if (IsCapital)
