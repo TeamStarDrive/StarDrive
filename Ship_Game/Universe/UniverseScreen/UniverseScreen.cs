@@ -394,8 +394,6 @@ namespace Ship_Game
             RemoveAll();
             UnloadGraphics();
 
-            Empire.Universe = this;
-
             GlobalStats.ResearchRootUIDToDisplay = "Colonization";
             SolarsystemOverlay.SysFont  = Fonts.Arial12Bold;
             SolarsystemOverlay.DataFont = Fonts.Arial10;
@@ -812,8 +810,6 @@ namespace Ship_Game
             SolarSystemDict.Clear();
 
             Spatial.Destroy();
-
-            Empire.Universe = null;
             StatTracker.Reset();
 
             base.ExitScreen();

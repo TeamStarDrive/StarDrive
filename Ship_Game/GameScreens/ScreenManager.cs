@@ -136,9 +136,14 @@ namespace Ship_Game
 
         public bool IsShowing<T>() where T : GameScreen
         {
+            return FindScreen<T>() != null;
+        }
+
+        public T FindScreen<T>() where T : GameScreen
+        {
             foreach (GameScreen gs in GameScreens)
-                if (gs is T) return true;
-            return false;
+                if (gs is T gt) return gt;
+            return null;
         }
 
         public bool IsMainThread => Thread.CurrentThread.ManagedThreadId == GameBase.MainThreadId;
