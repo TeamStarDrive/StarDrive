@@ -688,22 +688,26 @@ namespace Ship_Game
             DrawPlanetsPerf.Start();
             if (viewState < UnivScreenState.SectorView)
             {
-                GraphicsDevice device = ScreenManager.GraphicsDevice;
+                var r = ResourceManager.PlanetRenderer;
+                r.BeginRendering(Device, CamPos.ToVec3f(), View, Projection);
+
                 for (int i = 0; i < SolarSystemList.Count; i++)
                 {
-                    SolarSystem solarSystem = SolarSystemList[i];
-                    if (!solarSystem.IsExploredBy(player))
-                        continue;
-
-                    for (int j = 0; j < solarSystem.PlanetList.Count; j++)
+                    SolarSystem system = SolarSystemList[i];
+                    if (system.IsExploredBy(player))
                     {
-                        Planet p = solarSystem.PlanetList[j];
-                        if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
+                        for (int j = 0; j < system.PlanetList.Count; j++)
                         {
-                            DrawPlanet(device, p);
+                            Planet p = system.PlanetList[j];
+                            if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
+                            {
+                                r.Render(p);
+                            }
                         }
                     }
                 }
+
+                r.EndRendering();
             }
             DrawPlanetsPerf.Stop();
         }

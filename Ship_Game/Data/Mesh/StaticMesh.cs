@@ -100,6 +100,12 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
+        public static void Draw(Model model, BasicEffect effect, Texture2D texture)
+        {
+            effect.Texture = texture;
+            Draw(model, effect);
+        }
+
         public static SceneObject SceneObjectFromModel(Model model, Effect effect)
         {
             var so = new SceneObject(model.Root.Name) { ObjectType = ObjectType.Dynamic };
