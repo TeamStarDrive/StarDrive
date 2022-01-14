@@ -22,7 +22,7 @@
 
   <TexturePath>Textures/transparent</TexturePath>
   <IconTexturePath>Modules/Structure</IconTexturePath>
-  <IsBulkhead>true</IsBulkhead>
+  
 
   <NameIndex>18048</NameIndex>
   <DescriptionIndex>18049</DescriptionIndex>
