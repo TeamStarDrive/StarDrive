@@ -18,20 +18,20 @@ AtmosphereTypes:
   - { Id: "Clouds",      Clouds: Model/SpaceObjects/earthcloudmap.dds }
   - { Id: "NoHalo",      NoHalo: true }
   - { Id: "NoAtmosphere",NoAtmosphere: true }
-  - { Id: "Barren",      Glow: [152,29,5, 0.1] }
-  - { Id: "BarrenRed",   Glow: [152,29,5, 0.3] }
-  - { Id: "VolcanicRed", Glow: [152,29,5, 0.45] }
-  - { Id: "IceBlue",     Glow: [180,220,255, 0.5] }
-  - { Id: "SwampAqua",   Glow: [44,204,149,  0.5] }
-  - { Id: "OceanicBlue", Glow: [57,146,215,  0.6] }
-  - { Id: "TerranBlue",  Glow: [57,146,215,  0.4] }
-  - { Id: "TundraBlue",  Glow: [57,146,195,  0.35] }
-  - { Id: "SteppeYellow",Glow: [249,229,91, 0.4] }
-  - { Id: "DesertOrange",Glow: [172,79,25,  0.4] }
-  - { Id: "GasYellow",   Glow: [249,229,91, 0.4], Fresnel: 0.5 }
-  - { Id: "GasOrange",   Glow: [172,79,25,  0.4] }
-  - { Id: "GasAqua",     Glow: [44,204,149, 0.4] }
-  - { Id: "GasBlue",     Glow: [57,146,215, 0.4] }
+  - { Id: "Barren",      Glow: [152,29,5, 0.1],  Fresnel: 1.0 }
+  - { Id: "BarrenRed",   Glow: [152,29,5, 0.3],  Fresnel: 1.0 }
+  - { Id: "VolcanicRed", Glow: [152,29,5, 0.45], Fresnel: 1.0 }
+  - { Id: "IceBlue",     Glow: [180,220,255,0.5],  Fresnel: 1.0 }
+  - { Id: "SwampAqua",   Glow: [44,204,149, 0.5],  Fresnel: 1.0 }
+  - { Id: "OceanicBlue", Glow: [57,146,215, 0.6],  Fresnel: 1.0 }
+  - { Id: "TerranBlue",  Glow: [57,146,215, 0.4],  Fresnel: 0.6 }
+  - { Id: "TundraBlue",  Glow: [57,146,195, 0.35], Fresnel: 1.0 }
+  - { Id: "SteppeYellow",Glow: [249,229,91, 0.35], Fresnel: 0.4 }
+  - { Id: "DesertOrange",Glow: [172,79,25,  0.4],  Fresnel: 1.0 }
+  - { Id: "GasYellow",   Glow: [249,229,91, 0.4],  Fresnel: 0.25 }
+  - { Id: "GasOrange",   Glow: [172,79,25,  0.4],  Fresnel: 1.0 }
+  - { Id: "GasAqua",     Glow: [44,204,149, 0.2],  Fresnel: 1.0 }
+  - { Id: "GasBlue",     Glow: [57,146,215, 0.4],  Fresnel: 1.0 }
 
 Types:
   #################################################################

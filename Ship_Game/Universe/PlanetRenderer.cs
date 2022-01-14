@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
-using Ship_Game.Data.Texture;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -43,14 +42,11 @@ namespace Ship_Game.Universe.SolarBodies
             MeshGlowFresnel = content.LoadModel("Model/SpaceObjects/planet_glow_fresnel.obj");
             MeshAtmosphere = content.LoadModel("Model/SpaceObjects/atmo_sphere.obj");
 
-            TexRings = content.Load<Texture2D>("Model/SpaceObjects/planet_rings.dds");
-            TexAtmosphere = content.Load<Texture2D>("Model/SpaceObjects/AtmosphereColor.dds");
+            TexRings = content.RawContent.LoadTexture("Model/SpaceObjects/planet_rings.dds");
+            TexAtmosphere = content.RawContent.LoadTexture("Model/SpaceObjects/AtmosphereColor.dds");
 
-            TexGlow = content.Load<Texture2D>("Model/SpaceObjects/planet_glow.png");
-            ImageUtils.ConvertToAlphaMap(TexGlow, preMultiplied:false);
-
-            TexFresnel = content.Load<Texture2D>("Model/SpaceObjects/planet_fresnel.png");
-            ImageUtils.ConvertToAlphaMap(TexFresnel, preMultiplied:false);
+            TexGlow = content.RawContent.LoadAlphaTexture("Model/SpaceObjects/planet_glow.png", preMultiplied:false);
+            TexFresnel = content.RawContent.LoadAlphaTexture("Model/SpaceObjects/planet_fresnel.png", preMultiplied:false);
 
             FxRings = new BasicEffect(content.Device, null);
             FxRings.TextureEnabled = true;
@@ -91,14 +87,17 @@ namespace Ship_Game.Universe.SolarBodies
             MeshRings = null;
             MeshGlowRing = null;
             MeshAtmosphere = null;
-            TexRings = null;
-            TexAtmosphere = null;
 
             FxRings?.Dispose(ref FxRings);
             FxClouds?.Dispose(ref FxClouds);
             FxAtmoColor?.Dispose(ref FxAtmoColor);
             FxGlow?.Dispose(ref FxGlow);
             FxFresnel?.Dispose(ref FxFresnel);
+
+            TexRings?.Dispose(ref TexRings);
+            TexAtmosphere?.Dispose(ref TexAtmosphere);
+            TexGlow?.Dispose(ref TexGlow);
+            TexFresnel?.Dispose(ref TexFresnel);
 
             Device = null;
         }
