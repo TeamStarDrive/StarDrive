@@ -356,7 +356,7 @@ namespace Ship_Game
             DrawStatCustomColor(ref modTitlePos, GameText.MissileSr, mod.ShieldMissileResist, GameText.IndicatesShieldBubblesResistanceTo4, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.HybridSr, mod.ShieldPlasmaResist, GameText.IndicatesShieldBubblesResistanceTo6, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, GameText.BeamSr, mod.ShieldBeamResist, GameText.IndicatesShieldBubblesResistanceTo10, shieldResistColor);
-            DrawStatCustomColor(ref modTitlePos, GameText.SdDeflect, mod.ShieldThreshold, GameText.WeaponsWhichDoLessDamage2, shieldResistColor, isPercent: false);
+            DrawStatCustomColor(ref modTitlePos, GameText.SdDeflect, mod.ShieldDeflection, GameText.WeaponsWhichDoLessDamage2, shieldResistColor, isPercent: false);
 
             DrawStat(ref modTitlePos, GameText.Regenerate, mod.Regenerate, GameText.ThisModuleHasSelfRegeneration);
             DrawStat(ref modTitlePos, GameText.Range,  mod.SensorRange, GameText.IndicatesTheAdditionalSensorRange);
@@ -405,7 +405,7 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, GameText.ExplRes, mod.ExplosiveResist, GameText.IndicatesResistanceToExplosiveDamage, isPercent: true);
             DrawStat(ref modTitlePos, GameText.TorpRes, mod.TorpedoResist, GameText.IndicatesResistanceToTorpedoWeapon, isPercent: true);
             DrawStat(ref modTitlePos, GameText.ApRes, mod.APResist, GameText.IndicatesResistanceToArmourPiercing);
-            DrawStat(ref modTitlePos, GameText.Deflection, mod.DamageThreshold, GameText.WeaponsWhichDoLessDamage);
+            DrawStat(ref modTitlePos, GameText.Deflection, mod.Deflection, GameText.WeaponsWhichDoLessDamage);
             DrawStat(ref modTitlePos, GameText.EmpProt, mod.EMPProtection, GameText.IndicatesTheAmountOfEmp2);
             DrawStat(ref modTitlePos, GameText.FireControl, mod.TargetingAccuracy, GameText.ThisValueRepresentsTheComplexity);
             DrawStat(ref modTitlePos, $"+{Localizer.Token(GameText.FcsPower)}", mod.TargetTracking, GameText.ThisIsABonusTo);
@@ -591,7 +591,7 @@ namespace Ship_Game
                     DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), GameText.RandomChanceThisWeaponWill, isPercent: true);
             }
             DrawStat(ref cursor, GameText.Ordnance, m.OrdinanceCapacity, GameText.IndicatesTheAmountOfOrdnance2);
-            DrawStat(ref cursor, GameText.Deflection, m.DamageThreshold, GameText.WeaponsWhichDoLessDamage);
+            DrawStat(ref cursor, GameText.Deflection, m.Deflection, GameText.WeaponsWhichDoLessDamage);
             if (m.RepairDifficulty > 0) DrawStat(ref cursor, GameText.Complexity, m.RepairDifficulty, GameText.TheMoreComplexTheModule); // Complexity
 
             if (wOrMirv.TruePD)
