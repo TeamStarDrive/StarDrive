@@ -47,7 +47,7 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly float ShieldRechargeRate;
         [StarData] public readonly float ShieldRechargeCombatRate;
         [StarData] public readonly float ShieldRechargeDelay;
-        [StarData] public readonly float ShieldThreshold;
+        [StarData] public readonly float ShieldDeflection;
         [StarData] public readonly float ShieldKineticResist;
         [StarData] public readonly float ShieldEnergyResist;
         [StarData] public readonly float ShieldExplosiveResist;
@@ -92,7 +92,7 @@ namespace Ship_Game.Gameplay
         [StarData] public readonly float BeamResist;
         [StarData] public readonly float ExplosiveResist;
         [StarData] public readonly float TorpedoResist;
-        [StarData] public readonly float DamageThreshold;
+        [StarData] public readonly float Deflection;
         [StarData] public readonly int APResist;
         [StarData] public readonly bool IndirectPower;
         [StarData] public readonly int TargetTracking;
@@ -154,7 +154,7 @@ namespace Ship_Game.Gameplay
             ShieldRechargeRate          = s.ShieldRechargeRate;
             ShieldRechargeCombatRate    = s.ShieldRechargeCombatRate;
             ShieldRechargeDelay         = s.ShieldRechargeDelay;
-            ShieldThreshold             = s.ShieldThreshold;
+            ShieldDeflection            = s.ShieldDeflection;
             ShieldKineticResist         = s.ShieldKineticResist;
             ShieldEnergyResist          = s.ShieldEnergyResist;
             ShieldExplosiveResist       = s.ShieldExplosiveResist;
@@ -196,7 +196,7 @@ namespace Ship_Game.Gameplay
             BeamResist                  = s.BeamResist;
             ExplosiveResist             = s.ExplosiveResist;
             TorpedoResist               = s.TorpedoResist;
-            DamageThreshold             = s.DamageThreshold;
+            Deflection                  = s.Deflection;
             APResist                    = s.APResist;
             ExplosionDamage             = s.ExplosionDamage;
             ExplosionRadius             = s.ExplosionRadius > 0 ? ExplosionRadius : 16;
@@ -268,7 +268,7 @@ namespace Ship_Game.Gameplay
         public float ShieldRechargeRate;
         public float ShieldRechargeCombatRate;
         public float ShieldRechargeDelay;
-        public float ShieldThreshold;
+        public float ShieldDeflection;
         public float ShieldKineticResist;
         public float ShieldEnergyResist;
         public float ShieldExplosiveResist;
@@ -320,7 +320,7 @@ namespace Ship_Game.Gameplay
         public float BeamResist;
         public float ExplosiveResist;
         public float TorpedoResist;
-        public float DamageThreshold;
+        public float Deflection;
         public int APResist;
         public bool IndirectPower;
         public int TargetTracking;

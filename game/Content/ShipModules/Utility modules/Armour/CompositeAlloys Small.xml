@@ -40,7 +40,7 @@
   <Health>4700</Health>
   <HealthMax>4700</HealthMax>
   <RepairDifficulty>1.25</RepairDifficulty>
-  <DamageThreshold>90</DamageThreshold>			  
+  <Deflection>90</Deflection>			  
   <!-- Armor resistance -->
   <KineticResist>0</KineticResist>
   <BeamResist>0</BeamResist>
