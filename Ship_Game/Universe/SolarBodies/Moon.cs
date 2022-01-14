@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Universe.SolarBodies;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -46,7 +47,7 @@ namespace Ship_Game.Gameplay
             if (So != null)
                 return;
 
-            PlanetType moon = ResourceManager.Planet(MoonId);
+            PlanetType moon = ResourceManager.Planets.Planet(MoonId);
             So = moon.CreatePlanetSO();
             So.Visibility = GlobalStats.AsteroidVisibility;
             Radius = So.ObjectBoundingSphere.Radius * MoonScale * 0.65f;

@@ -79,7 +79,7 @@ namespace Ship_Game
         static PlanetType ChooseTypeByWeight(SunZone sunZone)
         {
             PlanetCategory chosenCategory = ResourceManager.RandomPlanetCategoryFor(sunZone);
-            return ResourceManager.RandomPlanet(chosenCategory);
+            return ResourceManager.Planets.RandomPlanet(chosenCategory);
         }
 
         public PlanetGridSquare FindTileUnderMouse(Vector2 mousePos)
@@ -216,7 +216,7 @@ namespace Ship_Game
             PlanetCategory preferred = Owner.data.PreferredEnv == PlanetCategory.Other ? PlanetCategory.Terran
                                                                                        : Owner.data.PreferredEnv;
 
-            Type = ResourceManager.RandomPlanet(preferred);
+            Type = ResourceManager.Planets.RandomPlanet(preferred);
             Zone = SunZone.Any;
         }
 
@@ -430,7 +430,7 @@ namespace Ship_Game
             if (Category == newCategory)
                 return; // A planet with the same category was Terraformed (probably to increase fertility)
 
-            Type = ResourceManager.RandomPlanet(newCategory);
+            Type = ResourceManager.Planets.RandomPlanet(newCategory);
             CreatePlanetSceneObject();
             UpdateDescription();
             UpdateMaxPopulation();

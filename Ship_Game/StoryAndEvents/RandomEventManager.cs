@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -195,7 +196,7 @@ namespace Ship_Game
                 return;
 
             PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren : PlanetCategory.Desert;
-            PlanetType newType = ResourceManager.RandomPlanet(category);
+            PlanetType newType = ResourceManager.Planets.RandomPlanet(category);
             planet.GenerateNewFromPlanetType(newType, planet.Scale);
             planet.RecreateSceneObject();
             NotifyPlayerIfAffected(planet, GameText.HasExperiencedAMassiveVolcanic);

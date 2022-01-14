@@ -261,7 +261,7 @@ namespace UnitTests
             var p = AddDummyPlanet(fertility, minerals, maxPop);
             empire.AddPlanet(p);
             p.Owner = empire;
-            p.Type = ResourceManager.PlanetOrRandom(0);
+            p.Type = ResourceManager.Planets.PlanetOrRandom(0);
             p.ParentSystem.OwnerList.Add(empire);
             return p;
         }
