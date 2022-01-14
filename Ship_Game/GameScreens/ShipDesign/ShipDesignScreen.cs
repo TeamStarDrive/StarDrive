@@ -258,7 +258,7 @@ namespace Ship_Game
             {
                 SlotStruct slot = ModuleGrid.SlotsList[i];
                 ShipModule module = slot.Module;
-                if (module != null && module.DamageThreshold <= 0 &&
+                if (module != null && module.Deflection <= 0 &&
                     !module.Is(ShipModuleType.Armor) && !module.Is(ShipModuleType.Engine) &&
                     !module.Is(ShipModuleType.Shield) && !module.Is(ShipModuleType.Command))
                 {

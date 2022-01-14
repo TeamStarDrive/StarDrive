@@ -23,7 +23,7 @@
 	<Health>85530</Health>
 	<HealthMax>85530</HealthMax>
 	<RepairDifficulty>1.5</RepairDifficulty>
-    <DamageThreshold>240</DamageThreshold>			  	
+    <Deflection>240</Deflection>			  	
     <!-- Armor resistance -->
 	<KineticResist>0</KineticResist>
 	<EnergyResist>0</EnergyResist>  
