@@ -343,6 +343,8 @@
     <Compile Include="Ship_Game\UI\RelSize.cs" />
     <Compile Include="Ship_Game\UI\UILine.cs" />
     <Compile Include="Ship_Game\Universe\PlanetRenderer.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\AtmosphereType.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetTypes.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Save.cs" />
     <Compile Include="Ship_Game\Utils\BitArray.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />
@@ -665,7 +667,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Colonize.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Trade.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\SunZoneData.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetType.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_ConstructionQueue.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_EvaluateBuildings.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Generate.cs" />

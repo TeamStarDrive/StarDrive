@@ -457,7 +457,6 @@ namespace Ship_Game
         // HotLoading allows for modifying game content while the game is running
         // Different content managers are triggered through `OnModified`
         // which will reload appropriate subsystems
-        // @param key Unique key to categorize the hot load target
         // @param file File to check
         // @param onModified Event to trigger if File was changed
         public void AddHotLoadTarget(GameScreen screen, FileInfo file, Action<FileInfo> onModified)
@@ -496,6 +495,28 @@ namespace Ship_Game
                 HotLoadTargets.Remove(relativePath);
             };
             return file;
+        }
+
+        /// <summary>
+        /// Adds a generic HotLoad target.
+        /// This is the newest and most streamlined overload, where loading is
+        /// always done via `onModified` callback.
+        /// 
+        /// HotLoading allows for modifying game content while the game is running.
+        /// Different content managers are triggered through `OnModified`
+        /// which will reload appropriate subsystems.
+        /// 
+        /// </summary>
+        /// <param name="relativePath">File to check</param>
+        /// <param name="onModified">Event to trigger if File was changed</param>
+        public void LoadAndEnableHotLoad(string relativePath, Action<FileInfo> onModified)
+        {
+            FileInfo file = ResourceManager.GetModOrVanillaFile(relativePath);
+            if (file == null)
+                throw new FileNotFoundException($"No such file: {relativePath}");
+
+            AddHotLoadTarget(null, file, onModified);
+            onModified(file); // Load It!
         }
 
         // Remove an entry from registered hot load targets

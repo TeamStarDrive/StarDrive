@@ -256,7 +256,7 @@ namespace Ship_Game
             MineralRichness   = minerals;
             BasePopPerTileVal = maxPop;
             if (fertility > 0)
-                Type = ResourceManager.RandomPlanet(PlanetCategory.Terran);
+                Type = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null, float preDefinedPop = 0)
@@ -1159,7 +1159,7 @@ namespace Ship_Game
                 if (!ship.CanBeRefitted)
                     chance *= 0.1f; // Dont recover hangar ships or home defense ships so easily.
 
-                if (!Type.Atmosphere)
+                if (!Type.Clouds)
                     chance *= 1.5f; // No atmosphere, not able to burn during planetfall
 
                 chance *= 1 + ship.Loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
