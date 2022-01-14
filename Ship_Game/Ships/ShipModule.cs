@@ -131,7 +131,7 @@ namespace Ship_Game.Ships
         public float ShieldRechargeRate          => Flyweight.ShieldRechargeRate;
         public float ShieldRechargeCombatRate    => Flyweight.ShieldRechargeCombatRate;
         public float ShieldRechargeDelay         => Flyweight.ShieldRechargeDelay;
-        public float ShieldThreshold             => Flyweight.ShieldThreshold;
+        public float ShieldDeflection            => Flyweight.ShieldDeflection;
         public float ShieldKineticResist         => Flyweight.ShieldKineticResist;
         public float ShieldEnergyResist          => Flyweight.ShieldEnergyResist;
         public float ShieldExplosiveResist       => Flyweight.ShieldExplosiveResist;
@@ -172,7 +172,7 @@ namespace Ship_Game.Ships
         public float BeamResist                  => Flyweight.BeamResist;
         public float ExplosiveResist             => Flyweight.ExplosiveResist;
         public float TorpedoResist               => Flyweight.TorpedoResist;
-        public float DamageThreshold             => Flyweight.DamageThreshold;
+        public float Deflection                  => Flyweight.Deflection;
         public int APResist                      => Flyweight.APResist;
         public bool AlwaysPowered                => Flyweight.IndirectPower;
         public int TargetTracking                => Flyweight.TargetTracking;
@@ -875,7 +875,7 @@ namespace Ship_Game.Ships
             bool damagingShields = ShieldsAreActive;
             if (beam == null) // only for projectiles
             {
-                float damageThreshold = damagingShields ? ShieldThreshold : DamageThreshold;
+                float damageThreshold = damagingShields ? ShieldDeflection : Deflection;
                 if (proj?.Weapon.EMPDamage > damageThreshold && !damagingShields)
                     CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
 
@@ -1378,7 +1378,7 @@ namespace Ship_Game.Ships
                 shieldDef *= ShieldRechargeDelay > 0 ? 1f / ShieldRechargeDelay : 1f;
                 shieldDef *= ShieldRechargeCombatRate > 0 ? 1 + ShieldRechargeCombatRate / (shieldsMax / 25) : 1f;
 
-                shieldDef *= 1 + ShieldThreshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it apples to the shield bubble.
+                shieldDef *= 1 + ShieldDeflection / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it apples to the shield bubble.
                 def       += shieldDef;
             }
 
@@ -1391,7 +1391,7 @@ namespace Ship_Game.Ships
             def *= 1 + ExplosiveResist / 5;
             def *= 1 + TorpedoResist / 5;
 
-            def *= 1 + DamageThreshold / 100f;
+            def *= 1 + Deflection / 100f;
             def *= ModuleType == ShipModuleType.Armor ? 1 + APResist / 2 : 1f;
 
             def += ECM;
