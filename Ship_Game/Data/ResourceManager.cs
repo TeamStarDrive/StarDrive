@@ -1082,7 +1082,7 @@ namespace Ship_Game
         {
             if (Arcs.IsEmpty)
             {
-                var arcs = TextureAtlas.FromFolder("Arcs");
+                var arcs = TextureAtlas.FromFolder("Textures/Arcs");
                 Arcs.Add(arcs.GetBinding("Arc15"));
                 Arcs.Add(arcs.GetBinding("Arc20"));
                 Arcs.Add(arcs.GetBinding("Arc45"));
