@@ -7,55 +7,56 @@ using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Texture;
 
-namespace Ship_Game.Universe
+namespace Ship_Game.Universe.SolarBodies
 {
     public class PlanetRenderer : IDisposable
     {
-        public Model MeshSphere;
-        public Model MeshRings;
-        public Model MeshGlowRing;
-        public Model MeshGlowFresnel;
-        public Model MeshAtmosphere;
-
-        public BasicEffect FxRings;
-        public BasicEffect FxClouds;
-        public BasicEffect FxAtmoColor;
-        public BasicEffect FxGlow;
-        public Effect PlanetHaloFx;
-
-        public Texture2D TexClouds;
-        public Texture2D TexRings;
-        public Texture2D TexAtmosphere;
-        public Texture2D TexGlow;
-        public Texture2D TexFresnel;
-
-        Vector3 CamPos;
+        PlanetTypes Types;
         GraphicsDevice Device;
 
-        public PlanetRenderer(GameContentManager content)
+        public Model MeshSphere;
+        Model MeshRings;
+        Model MeshGlowRing;
+        Model MeshGlowFresnel;
+        Model MeshAtmosphere;
+
+        BasicEffect FxRings;
+        BasicEffect FxClouds;
+        BasicEffect FxAtmoColor;
+        BasicEffect FxGlow;
+        BasicEffect FxFresnel;
+        Effect PlanetHaloFx;
+
+        Texture2D TexRings;
+        Texture2D TexAtmosphere;
+        Texture2D TexGlow;
+        Texture2D TexFresnel;
+
+        Vector3 CamPos;
+
+        public PlanetRenderer(GameContentManager content, PlanetTypes types)
         {
+            Types = types;
             MeshSphere = content.LoadModel("Model/SpaceObjects/planet_sphere.obj");
-            MeshRings  = content.LoadModel("Model/SpaceObjects/planet_rings.obj");
-            MeshGlowRing    = content.LoadModel("Model/SpaceObjects/planet_glow_ring.obj");
+            MeshRings = content.LoadModel("Model/SpaceObjects/planet_rings.obj");
+            MeshGlowRing = content.LoadModel("Model/SpaceObjects/planet_glow_ring.obj");
             MeshGlowFresnel = content.LoadModel("Model/SpaceObjects/planet_glow_fresnel.obj");
-            MeshAtmosphere   = content.LoadModel("Model/SpaceObjects/atmo_sphere.obj");
-            
-            TexClouds      = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap.dds");
+            MeshAtmosphere = content.LoadModel("Model/SpaceObjects/atmo_sphere.obj");
+
             TexRings = content.Load<Texture2D>("Model/SpaceObjects/planet_rings.dds");
             TexAtmosphere = content.Load<Texture2D>("Model/SpaceObjects/AtmosphereColor.dds");
 
             TexGlow = content.Load<Texture2D>("Model/SpaceObjects/planet_glow.png");
             ImageUtils.ConvertToAlphaMap(TexGlow, preMultiplied:false);
+
             TexFresnel = content.Load<Texture2D>("Model/SpaceObjects/planet_fresnel.png");
             ImageUtils.ConvertToAlphaMap(TexFresnel, preMultiplied:false);
 
             FxRings = new BasicEffect(content.Device, null);
-            FxRings.Texture = TexRings;
             FxRings.TextureEnabled = true;
             FxRings.DiffuseColor = new Vector3(1f, 1f, 1f);
 
             FxClouds = new BasicEffect(content.Device, null);
-            FxClouds.Texture = TexClouds;
             FxClouds.TextureEnabled = true;
             FxClouds.DiffuseColor = new Vector3(1f, 1f, 1f);
             FxClouds.LightingEnabled = true;
@@ -64,7 +65,6 @@ namespace Ship_Game.Universe
             FxClouds.SpecularPower = 4;
 
             FxAtmoColor = new BasicEffect(content.Device, null);
-            FxAtmoColor.Texture = TexAtmosphere;
             FxAtmoColor.TextureEnabled = true;
             FxAtmoColor.LightingEnabled = true;
             FxAtmoColor.DirectionalLight0.DiffuseColor = new Vector3(1f, 1f, 1f);
@@ -79,6 +79,9 @@ namespace Ship_Game.Universe
             FxGlow = new BasicEffect(content.Device, null);
             FxGlow.TextureEnabled = true;
 
+            FxFresnel = new BasicEffect(content.Device, null);
+            FxFresnel.TextureEnabled = true;
+
             PlanetHaloFx = content.Load<Effect>("Effects/PlanetHalo");
         }
 
@@ -88,19 +91,14 @@ namespace Ship_Game.Universe
             MeshRings = null;
             MeshGlowRing = null;
             MeshAtmosphere = null;
-            TexClouds = null;
             TexRings = null;
             TexAtmosphere = null;
 
-            FxRings?.Dispose();
-            FxClouds?.Dispose();
-            FxAtmoColor?.Dispose();
-            FxGlow?.Dispose();
-
-            FxRings = null;
-            FxClouds = null;
-            FxAtmoColor = null;
-            FxGlow = null;
+            FxRings?.Dispose(ref FxRings);
+            FxClouds?.Dispose(ref FxClouds);
+            FxAtmoColor?.Dispose(ref FxAtmoColor);
+            FxGlow?.Dispose(ref FxGlow);
+            FxFresnel?.Dispose(ref FxFresnel);
 
             Device = null;
         }
@@ -118,6 +116,7 @@ namespace Ship_Game.Universe
             CamPos = cameraPos;
             SetViewProjection(FxClouds, view, projection);
             SetViewProjection(FxGlow, view, projection);
+            SetViewProjection(FxFresnel, view, projection);
             SetViewProjection(FxAtmoColor, view, projection);
             SetViewProjection(FxRings, view, projection);
             PlanetHaloFx.Parameters["View"].SetValue(view);
@@ -141,8 +140,6 @@ namespace Ship_Game.Universe
             rs.AlphaBlendEnable = false;
         }
 
-        bool CanDrawPlanetGlow(Planet p) => CamPos.Z < 300000.0f && p.Type.Glow.HasValue;
-
         // This draws the clouds and atmosphere layers:
         // 1. layer: clouds sphere              (if PlanetType.Clouds == true)
         // 2. layer: fake fresnel effect of the atmosphere
@@ -152,68 +149,52 @@ namespace Ship_Game.Universe
         // 6. layer: rings                      (if any)
         public void Render(Planet p)
         {
-            if (!p.HasRings && !p.Type.Clouds && !p.Type.Atmosphere && !CanDrawPlanetGlow(p))
-                return;
+            PlanetType type = p.Type;
+            bool drawPlanetGlow = CamPos.Z < 300000.0f && type.Glow;
 
-            bool drawPlanetGlow = CanDrawPlanetGlow(p);
+            if (!p.HasRings && !type.Clouds && !drawPlanetGlow)
+                return;
 
             Vector3 sunToPlanet = (p.Center - p.ParentSystem.Position).ToVec3().Normalized();
 
-            if (p.Type.Clouds)
+            // tilted a bit differently than PlanetMatrix, and they constantly rotate
+            Matrix cloudMatrix = default;
+            var pos3d = Matrix.CreateTranslation(p.Center3D);
+            var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
+            Matrix baseScale = p.ScaleMatrix;
+
+            if (type.Clouds)
             {
+                cloudMatrix = baseScale * Matrix.CreateRotationZ(-p.Zrotate / 1.5f) * tilt * pos3d;
+
                 // default is CCW, this means we draw the clouds as usual
                 Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
 
-                var cloudsFx = FxClouds;
-                cloudsFx.World = SolarSystemBody.PlanetCloudsScale * p.CloudMatrix;
+                FxClouds.World = Types.CloudsScaleMatrix * cloudMatrix;
+                FxClouds.DirectionalLight0.Direction = sunToPlanet;
+                FxClouds.DirectionalLight0.Enabled = true;
+                StaticMesh.Draw(MeshSphere, FxClouds, type.CloudsMap);
 
-                cloudsFx.DirectionalLight0.Direction = sunToPlanet;
-                cloudsFx.DirectionalLight0.Enabled = true;
-                StaticMesh.Draw(MeshSphere, cloudsFx);
-            }
-
-            if (p.Type.Atmosphere)
-            {
                 // for blue atmosphere and planet halo, use CW, which means the sphere is inverted
                 Device.RenderState.CullMode = CullMode.CullClockwiseFace;
 
-                // draw blueish transparent atmosphere sphere
-                // it is better visible near planet edges
-                FxAtmoColor.World = SolarSystemBody.PlanetBlueAtmosphereScale * p.CloudMatrix;
-                FxAtmoColor.DirectionalLight0.Direction = sunToPlanet;
-                FxAtmoColor.DirectionalLight0.Enabled = true;
-                StaticMesh.Draw(MeshSphere, FxAtmoColor);
+                if (type.NoAtmosphere == false)
+                {
+                    // draw blueish transparent atmosphere sphere
+                    // it is better visible near planet edges
+                    FxAtmoColor.World = Types.AtmosphereScaleMatrix * cloudMatrix;
+                    FxAtmoColor.DirectionalLight0.Direction = sunToPlanet;
+                    FxAtmoColor.DirectionalLight0.Enabled = true;
+                    StaticMesh.Draw(MeshSphere, FxAtmoColor, TexAtmosphere);
+                }
             }
 
             if (drawPlanetGlow)
             {
-                Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
-
-                // rotate the glow effect always towards the camera by getting direction from camera to planet
-                // TODO: our camera works in coordinate space where +Z is out of the screen and -Z is background
-                // TODO: but our 3D coordinate system works with -Z out of the screen and +Z is background
-                // HACK: planetPos Z is flipped
-                Vector3 planetPos = p.Center3D * new Vector3(1, 1, -1);
-
-                // HACK: flip XZ so the planet glow mesh faces correctly towards us
-                Vector3 camToPlanet = planetPos - CamPos;
-                camToPlanet.X = -camToPlanet.X;
-                //camToPlanet.Y = -camToPlanet.Y;
-                camToPlanet.Z = -camToPlanet.Z;
-
-                var scale = Matrix.CreateScale(10f * p.Scale);
-                var rot = Matrix.CreateLookAt(Vector3.Zero, camToPlanet.Normalized(), Vector3.Up);
-                var pos3d = Matrix.CreateTranslation(p.Center3D);
-                Matrix glowMatrix = scale * rot * pos3d;
-                var color = p.Type.Glow.Value.ToVector4();
-                FxGlow.DiffuseColor = new Vector3(color.X, color.Y, color.Z);
-                FxGlow.World = glowMatrix;
-                FxGlow.Alpha = color.W;
-                StaticMesh.Draw(MeshGlowFresnel, FxGlow, TexFresnel);
-                StaticMesh.Draw(MeshGlowRing, FxGlow, TexGlow);
+                RenderPlanetGlow(p, type, pos3d, baseScale);
             }
 
-            if (p.Type.Atmosphere)
+            if (type.Clouds && type.NoHalo == false) // draw the halo effect
             {
                 // inverted sphere
                 Device.RenderState.CullMode = CullMode.CullClockwiseFace;
@@ -223,7 +204,7 @@ namespace Ship_Game.Universe
                 //Vector3 camPosition = CamPos.ToVec3f();
                 var camPosition = new Vector3(0.0f, 0.0f, 1500f);
                 Vector3 diffuseLightDirection = -sunToPlanet;
-                PlanetHaloFx.Parameters["World"].SetValue(SolarSystemBody.PlanetHaloScale * p.CloudMatrix);
+                PlanetHaloFx.Parameters["World"].SetValue(Types.HaloScaleMatrix * cloudMatrix);
                 PlanetHaloFx.Parameters["CameraPosition"].SetValue(camPosition);
                 PlanetHaloFx.Parameters["DiffuseLightDirection"].SetValue(diffuseLightDirection);
                 StaticMesh.Draw(MeshSphere, PlanetHaloFx);
@@ -232,8 +213,45 @@ namespace Ship_Game.Universe
             if (p.HasRings)
             {
                 Device.RenderState.CullMode = CullMode.None;
-                FxRings.World = SolarSystemBody.PlanetRingsScale * p.RingWorld;
-                StaticMesh.Draw(MeshRings, FxRings);
+                FxRings.World = Types.RingsScaleMatrix * baseScale * Matrix.CreateRotationX(p.RingTilt) * pos3d;
+                StaticMesh.Draw(MeshRings, FxRings, TexRings);
+            }
+        }
+
+        void RenderPlanetGlow(Planet p, PlanetType type, in Matrix pos3d, in Matrix baseScale)
+        {
+            Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
+
+            // rotate the glow effect always towards the camera by getting direction from camera to planet
+            // TODO: our camera works in coordinate space where +Z is out of the screen and -Z is background
+            // TODO: but our 3D coordinate system works with -Z out of the screen and +Z is background
+            // HACK: planetPos Z is flipped
+            Vector3 planetPos = p.Center3D * new Vector3(1, 1, -1);
+
+            // HACK: flip XZ so the planet glow mesh faces correctly towards us
+            Vector3 camToPlanet = planetPos - CamPos;
+            camToPlanet.X = -camToPlanet.X;
+            camToPlanet.Z = -camToPlanet.Z;
+
+            var rot = Matrix.CreateLookAt(Vector3.Zero, camToPlanet.Normalized(), Vector3.Up);
+            Matrix world = baseScale * rot * pos3d;
+
+            var glow = new Vector3(type.GlowColor.X, type.GlowColor.Y, type.GlowColor.Z);
+
+            if (type.Fresnel > 0f)
+            {
+                FxFresnel.World = world;
+                FxFresnel.DiffuseColor = glow;
+                FxFresnel.Alpha = type.GlowColor.W * type.Fresnel;
+                StaticMesh.Draw(MeshGlowFresnel, FxFresnel, TexFresnel);
+            }
+
+            {
+                FxGlow.World = world;
+                FxGlow.DiffuseColor = glow;
+                FxGlow.Alpha = type.GlowColor.W;
+                //FxGlow.EmissiveColor = glow;
+                StaticMesh.Draw(MeshGlowRing, FxGlow, TexGlow);
             }
         }
     }
