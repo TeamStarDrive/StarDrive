@@ -183,8 +183,6 @@ namespace Ship_Game
         public SolarSystem ParentSystem;
 
         public Matrix PlanetMatrix;
-        public Matrix CloudMatrix; // tilted a bit differently than PlanetMatrix, and they constantly rotate
-        public Matrix RingWorld; // bigger and tilted in a third way
         public SceneObject SO;
 
         public string SpecialDescription;
@@ -200,7 +198,7 @@ namespace Ship_Game
         public float RingTilt; // tilt in Radians
         public float Scale;
         public Matrix World;
-        protected float Zrotate;
+        public float Zrotate;
         public bool UniqueHab = false;
         public int UniqueHabPercent;
         public SunZone Zone { get; protected set; }
@@ -361,23 +359,15 @@ namespace Ship_Game
             }
         }
 
-        // Planetary sphere relative scales
-        // All of these are relative to Planet world matrix
-        public static Matrix PlanetRingsScale = Matrix.CreateScale(3f);
-        public static Matrix PlanetCloudsScale = Matrix.CreateScale(1.02f); // only slightly bigger than the planet
-        public static Matrix PlanetBlueAtmosphereScale = Matrix.CreateScale(1.03f); // slightly bigger than clouds
-        public static Matrix PlanetHaloScale = Matrix.CreateScale(1.0f);
+        public Matrix ScaleMatrix => Matrix.CreateScale(Type.Scale * Type.Types.PlanetScale);
 
         void UpdateWorldMatrix()
         {
-            // mesh diameter is 100 units, we want 1000 diameter by default
-            var scale = Matrix.CreateScale(10f * Scale);
             var pos3d = Matrix.CreateTranslation(Center3D);
             var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
+            var baseScale = ScaleMatrix;
 
-            PlanetMatrix = scale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
-            CloudMatrix  = scale * Matrix.CreateRotationZ(-Zrotate / 1.5f) * tilt * pos3d;
-            RingWorld    = scale * Matrix.CreateRotationX(RingTilt) * pos3d;
+            PlanetMatrix = baseScale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
             if (SO != null)
                 SO.World = PlanetMatrix;
         }
@@ -605,7 +595,7 @@ namespace Ship_Game
             moonCount = (int)Math.Round(RandomMath.AvgRandomBetween(-moonCount * 0.75f, moonCount));
             for (int j = 0; j < moonCount; j++)
             {
-                PlanetType moonType = ResourceManager.RandomMoon(newOrbital.Type);
+                PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.Type);
                 float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
                 var moon = new Moon(system,
                                     newOrbital.Guid,

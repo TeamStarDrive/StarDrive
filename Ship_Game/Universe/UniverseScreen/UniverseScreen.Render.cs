@@ -688,7 +688,7 @@ namespace Ship_Game
             DrawPlanetsPerf.Start();
             if (viewState < UnivScreenState.SectorView)
             {
-                var r = ResourceManager.PlanetRenderer;
+                var r = ResourceManager.Planets.Renderer;
                 r.BeginRendering(Device, CamPos.ToVec3f(), View, Projection);
 
                 for (int i = 0; i < SolarSystemList.Count; i++)
