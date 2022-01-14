@@ -98,9 +98,18 @@ namespace Ship_Game.Data
             return TexImport.Load(file);
         }
 
-        public Texture2D LoadTexture(string fullPath)
+        public Texture2D LoadTexture(string fileNameWithExt)
         {
-            return TexImport.Load(fullPath);
+            string contentPath = GetContentPath(fileNameWithExt);
+            return TexImport.Load(contentPath);
+        }
+
+        public Texture2D LoadAlphaTexture(string fileNameWithExt, bool preMultiplied)
+        {
+            string contentPath = GetContentPath(fileNameWithExt);
+            Texture2D tex = TexImport.Load(contentPath);
+            ImageUtils.ConvertToAlphaMap(tex, preMultiplied: preMultiplied);
+            return tex;
         }
 
         public void SaveTexture(Texture2D texture, string fullPath)

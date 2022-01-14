@@ -20,7 +20,13 @@ namespace Ship_Game.Data.Serialization.Types
                     if (objects.Length >= 1) r = Byte(objects[0]);
                     if (objects.Length >= 2) g = Byte(objects[1]);
                     if (objects.Length >= 3) b = Byte(objects[2]);
-                    if (objects.Length >= 4) a = Byte(objects[3]);
+                    if (objects.Length >= 4)
+                    {
+                        if (objects[3] is float fa)
+                            a = (byte)(fa * 255).Clamped(0, 255);
+                        else
+                            a = Byte(objects[3]);
+                    }
                     return new Color(r, g, b, a);
                 }
                 else
