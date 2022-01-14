@@ -29,7 +29,7 @@ namespace Ship_Game
             public override string ToString()
             {
                 if (WhichPlanet != 0)
-                    return $"{Planet} Rings:{HasRings} {ResourceManager.Planet(WhichPlanet)}";
+                    return $"{Planet} Rings:{HasRings} {ResourceManager.Planets.Planet(WhichPlanet)}";
                 return $"{Planet} Ast:{Asteroids} Rings:{HasRings}";
             }
         }
@@ -39,7 +39,7 @@ namespace Ship_Game
             public int WhichMoon;
             public float MoonScale;
 
-            public override string ToString() => $"Moon  P:{ResourceManager.Planet(WhichMoon)}";
+            public override string ToString() => $"Moon  P:{ResourceManager.Planets.Planet(WhichMoon)}";
         }
     }
 }

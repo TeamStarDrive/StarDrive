@@ -73,6 +73,11 @@ namespace Ship_Game
         static RacialTraits RacialTraits;
         static DiplomaticTraits DiplomacyTraits;
 
+        /// <summary>
+        /// Holds all metadata about Planets and how to Render them
+        /// </summary>
+        public static PlanetTypes Planets;
+
         public static SubTexture Blank;
 
         // This 1x1 White pixel texture is used for drawing Lines and other primitives
@@ -238,7 +243,7 @@ namespace Ship_Game
             Profiled(LoadExpEvents);
 
             Profiled(LoadArtifacts);
-            Profiled(LoadPlanetTypes);
+            Profiled("PlanetTypes", () => PlanetTypes.LoadPlanetTypes(RootContent));
             Profiled(LoadSunZoneData);
             Profiled(LoadBuildRatios);
             Profiled(LoadEcoResearchStrats);
@@ -362,7 +367,7 @@ namespace Ship_Game
             ZoneDistribution.Clear();
             BuildRatios.Clear();
 
-            UnloadPlanetTypes();
+            Planets.Dispose(ref Planets);
 
             DiplomacyDialogs.Clear();
             Empires.Clear();
@@ -1844,76 +1849,7 @@ namespace Ship_Game
             }
         }
 
-
         static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new Map<SunZone, Array<PlanetCategory>>();
-        static readonly Map<BuildRatio, int[]> BuildRatios = new Map<BuildRatio, int[]>();
-        static Array<PlanetType> PlanetTypes;
-        static Map<int, PlanetType> PlanetTypeMap;
-        static Map<PlanetCategory, PlanetType[]> PlanetTypesByCategory;
-
-        public static PlanetType RandomPlanet()
-        {
-            if (PlanetTypes.IsEmpty)
-                throw new InvalidDataException("No defined PlanetTypes!");
-            return RandomMath.RandItem(PlanetTypes);
-        }
-
-        public static PlanetType RandomPlanet(PlanetCategory category)
-        {
-            if (PlanetTypes.IsEmpty)
-                throw new InvalidDataException("No defined PlanetTypes!");
-            return RandomMath.RandItem(PlanetTypesByCategory[category]);
-        }
-
-        public static PlanetType PlanetOrRandom(int planetId)
-        {
-            return PlanetTypeMap.TryGetValue(planetId, out PlanetType type)
-                 ? type : RandomPlanet();
-        }
-
-        public static PlanetType Planet(int planetId) => PlanetTypeMap[planetId];
-
-        /// <summary>
-        /// Gets a new random moon based on allowed types for host planet
-        /// WARNING: some planets do not allow moons, in which case this will return null
-        /// </summary>
-        public static PlanetType RandomMoon(PlanetType forHostPlanet)
-        {
-            if (forHostPlanet.MoonTypes.Length == 0)
-                throw new InvalidDataException($"No defined MoonTypes for {forHostPlanet.Name}!");
-
-            PlanetCategory c = RandomMath.RandItem(forHostPlanet.MoonTypes);
-            return RandomMath.RandItem(PlanetTypesByCategory[c]);
-        }
-
-        public static Universe.PlanetRenderer PlanetRenderer;
-
-        static void LoadPlanetTypes()
-        {
-            GameLoadingScreen.SetStatus("PlanetTypes");
-            PlanetTypes = YamlParser.DeserializeArray<PlanetType>("PlanetTypes.yaml");
-            PlanetTypes.Sort(p => p.Id);
-
-            PlanetTypeMap = new Map<int, PlanetType>(PlanetTypes.Count);
-            foreach (PlanetType type in PlanetTypes)
-                PlanetTypeMap[type.Id] = type;
-
-            PlanetTypesByCategory = new Map<PlanetCategory, PlanetType[]>();
-            foreach (PlanetCategory c in Enum.GetValues(typeof(PlanetCategory)))
-                PlanetTypesByCategory[c] = PlanetTypes.Filter(pt => pt.Category == c);
-
-            PlanetRenderer = new Universe.PlanetRenderer(RootContent);
-
-            foreach (PlanetType type in PlanetTypes)
-                type.Initialize(RootContent, PlanetRenderer.MeshSphere);
-        }
-
-        static void UnloadPlanetTypes()
-        {
-            PlanetRenderer.Dispose(ref PlanetRenderer);
-            PlanetTypes?.Clear();
-            PlanetTypeMap?.Clear();
-        }
 
         public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone)
         {
@@ -1930,6 +1866,8 @@ namespace Ship_Game
             ZoneDistribution[SunZone.Far]     = SunZoneData.CreateDistribution(zones, SunZone.Far);
             ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
         }
+
+        static readonly Map<BuildRatio, int[]> BuildRatios = new Map<BuildRatio, int[]>();
 
         public static int[] GetFleetRatios(BuildRatio canBuild)
         {

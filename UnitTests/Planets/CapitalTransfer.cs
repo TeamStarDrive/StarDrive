@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Ships;
+using Ship_Game.Universe.SolarBodies;
 
 namespace UnitTests.Planets
 {
@@ -21,7 +22,7 @@ namespace UnitTests.Planets
             Homeworld = AddHomeWorldToEmpire(Player);
             EnemyHome = AddHomeWorldToEmpire(Enemy);
 
-            PlanetType type = ResourceManager.RandomPlanet(PlanetCategory.Terran);
+            PlanetType type = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
             NewPlanet.GenerateNewFromPlanetType(type, scale:1.5f, preDefinedPop:16);
         }
 

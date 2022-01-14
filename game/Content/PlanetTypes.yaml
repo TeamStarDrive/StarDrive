@@ -1,783 +1,792 @@
-# Barren planets
-- PlanetType:
-  Id: 3 # this is the legacy planet ID
-  Name: Barren_3 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Barren
-  Composition: 1702
-  IconPath: Planets/3
-  DiffuseMap:    Model/SpaceObjects/planet_tex3_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     Model/SpaceObjects/planet_tex3_normal.dds
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Habitable: true
-  HabitableTileChance: 1
-  PopPerTile: [50, 100]
-  BaseFertility: 0
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+# PlanetTypes describes everything related to planet surface and how to render it
 
-- PlanetType:
-  Id: 4
-  Name: Barren_4 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Barren
-  Composition: 1702
-  IconPath: Planets/4
-  DiffuseMap:    Model/SpaceObjects/planet_tex4_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex4_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex4_normal.dds
-  EmissiveMap:   Model/SpaceObjects/planet_tex4_emis.dds
-  SpecularPower: 0.5
-  Habitable: true
-  HabitableTileChance: 2
-  PopPerTile: [50, 150]
-  BaseFertility: 0
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+# Planetary sphere relative scales
+PlanetScale: 10.0 # base scale of the planet, mesh diameter is 100 units, we want 1000 diameter by default
+RingsScale: 3 # slightly bigger than the planet
+CloudsScale: 1.015 # slightly bigger than the planet
+AtmosphereScale: 1.03 # slightly bigger than clouds, a very subtle atmosphere effect, enabled for clouds, see `NoAtmosphere`
+HaloScale: 1.0 # a very subtle halo effect, enabled for clouds, see `NoHalo`
 
-- PlanetType:
-  Id: 5 # Venus
-  Name: Barren_Venus
-  Category: Barren
-  Composition: 1703
-  IconPath: Planets/5
-  DiffuseMap:    Model/SpaceObjects/planet_tex5_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     Model/SpaceObjects/planet_tex5_normal.dds
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [152,29,5,128] # Red
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: 1
-  PopPerTile: [50, 200]
-  BaseFertility: 0
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+#AtmosphereType:
+#  Clouds:  enable clouds effect with a specified clouds map
+#  Glow:    enable glow with [R,G,B,A] color, alpha controls intensity
+#  Fresnel: control fresnel intensity for glow, [0.0; 1.0], default: 1.0
+#  NoHalo:  disable atmosphere halo (very subtle)
+#  NoAtmosphere: disable atmosphere sphere (very subtle)
+AtmosphereTypes:
+  - { Id: "None" }
+  - { Id: "Clouds",      Clouds: Model/SpaceObjects/earthcloudmap.dds }
+  - { Id: "NoHalo",      NoHalo: true }
+  - { Id: "NoAtmosphere",NoAtmosphere: true }
+  - { Id: "Barren",      Glow: [152,29,5, 0.1],  Fresnel: 1.0 }
+  - { Id: "BarrenRed",   Glow: [152,29,5, 0.3],  Fresnel: 1.0 }
+  - { Id: "VolcanicRed", Glow: [152,29,5, 0.45], Fresnel: 1.0 }
+  - { Id: "IceBlue",     Glow: [180,220,255,0.5],  Fresnel: 1.0 }
+  - { Id: "SwampAqua",   Glow: [44,204,149, 0.5],  Fresnel: 1.0 }
+  - { Id: "OceanicBlue", Glow: [57,146,215, 0.6],  Fresnel: 1.0 }
+  - { Id: "TerranBlue",  Glow: [57,146,215, 0.4],  Fresnel: 0.6 }
+  - { Id: "TundraBlue",  Glow: [57,146,195, 0.35], Fresnel: 1.0 }
+  - { Id: "SteppeYellow",Glow: [249,229,91, 0.35], Fresnel: 0.4 }
+  - { Id: "DesertOrange",Glow: [172,79,25,  0.4],  Fresnel: 1.0 }
+  - { Id: "GasYellow",   Glow: [249,229,91, 0.4],  Fresnel: 0.25 }
+  - { Id: "GasOrange",   Glow: [172,79,25,  0.4],  Fresnel: 1.0 }
+  - { Id: "GasAqua",     Glow: [44,204,149, 0.2],  Fresnel: 1.0 }
+  - { Id: "GasBlue",     Glow: [57,146,215, 0.4],  Fresnel: 1.0 }
 
-- PlanetType:
-  Id: 7 # Mercury
-  Name: Barren_Mercury
-  Category: Barren
-  Composition: 1704
-  IconPath: Planets/7
-  DiffuseMap:    Model/SpaceObjects/mercurymap.dds
-  SpecularMap:   
-  NormalMap:     Model/SpaceObjects/mercurynormal.dds
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [152,29,5,128] # Red
-  Habitable: true
-  HabitableTileChance: 1
-  PopPerTile: [50, 100]
-  BaseFertility: 0
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+Types:
+  #################################################################
+  # Barren planets
+  - PlanetType:
+    Id: 3 # this is the legacy planet ID
+    Name: Barren_3 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Barren
+    Composition: 1702
+    IconPath: Planets/3
+    DiffuseMap:    Model/SpaceObjects/planet_tex3_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/planet_tex3_normal.dds
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [Barren]
+    Habitable: true
+    HabitableTileChance: 1
+    PopPerTile: [50, 100]
+    BaseFertility: 0
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 8 # Mars
-  Name: Barren_Mars
-  Category: Barren
-  Composition: 1703
-  IconPath: Planets/8
-  DiffuseMap:    Model/SpaceObjects/Mars8k-modified.dds
-  SpecularMap:   
-  NormalMap:     Model/SpaceObjects/MarsNormal.dds
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [152,29,5,128] # Red
-  Habitable: true
-  HabitableTileChance: 5
-  PopPerTile: [150, 300]
-  BaseFertility: 0
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 4
+    Name: Barren_4 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Barren
+    Composition: 1702
+    IconPath: Planets/4
+    DiffuseMap:    Model/SpaceObjects/planet_tex4_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex4_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex4_normal.dds
+    EmissiveMap:   Model/SpaceObjects/planet_tex4_emis.dds
+    SpecularPower: 0.5
+    AtmosphereType: [Barren]
+    Habitable: true
+    HabitableTileChance: 2
+    PopPerTile: [50, 150]
+    BaseFertility: 0
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Barren Planet with some chance for habitable tiles
-- PlanetType:
-  Id: 16
-  Name: Barren_16
-  Category: Barren
-  Composition: 1712
-  IconPath: Planets/16
-  DiffuseMap:    Model/SpaceObjects/planet_tex16_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex16_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex16_normal.dds
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: 5
-  PopPerTile: [50, 100]
-  BaseFertility: 0
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 5 # Venus
+    Name: Barren_Venus
+    Category: Barren
+    Composition: 1703
+    IconPath: Planets/5
+    DiffuseMap:    Model/SpaceObjects/planet_tex5_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/planet_tex5_normal.dds
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [BarrenRed,Clouds]
+    Habitable: true
+    HabitableTileChance: 1
+    PopPerTile: [50, 200]
+    BaseFertility: 0
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 24
-  Name: Barren_24
-  Category: Barren
-  Composition: 1719
-  IconPath: Planets/24
-  DiffuseMap:    Model/SpaceObjects/planet_tex24_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Habitable: true
-  HabitableTileChance: 0
-  PopPerTile: [75, 125]
-  BaseFertility: 0
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 7 # Mercury
+    Name: Barren_Mercury
+    Category: Barren
+    Composition: 1704
+    IconPath: Planets/7
+    DiffuseMap:    Model/SpaceObjects/mercurymap.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/mercurynormal.dds
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [Barren]
+    Habitable: true
+    HabitableTileChance: 1
+    PopPerTile: [50, 100]
+    BaseFertility: 0
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 20 # Moon, rocky barren
-  Name: Barren_Luna
-  Category: Barren
-  Composition: 1711
-  IconPath: Planets/20
-  DiffuseMap:    Model/SpaceObjects/new_moon_d.dds
-  SpecularMap:   
-  NormalMap:     
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Habitable: true
-  HabitableTileChance: 0
-  PopPerTile: [50, 100]
-  BaseFertility: 0
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 8 # Mars
+    Name: Barren_Mars
+    Category: Barren
+    Composition: 1703
+    IconPath: Planets/8
+    DiffuseMap:    Model/SpaceObjects/Mars8k-modified.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/MarsNormal.dds
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [BarrenRed,Clouds]
+    Habitable: true
+    HabitableTileChance: 5
+    PopPerTile: [150, 300]
+    BaseFertility: 0
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Volcanic
-- PlanetType:
-  Id: 9
-  Name: Volcanic_9
-  Category: Volcanic
-  Composition: 1705
-  IconPath: Planets/9
-  DiffuseMap:    Model/SpaceObjects/planet_tex9_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_9spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex9_normal.dds
-  EmissiveMap:   Model/SpaceObjects/planet_9emiss.dds
-  SpecularPower: 4
-  Glow: [152,29,5,128] # Red
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  # Barren Planet with some chance for habitable tiles
+  - PlanetType:
+    Id: 16
+    Name: Barren_16
+    Category: Barren
+    Composition: 1712
+    IconPath: Planets/16
+    DiffuseMap:    Model/SpaceObjects/planet_tex16_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex16_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex16_normal.dds
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [Clouds]
+    Habitable: true
+    HabitableTileChance: 5
+    PopPerTile: [50, 100]
+    BaseFertility: 0
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 23 # Kahless
-  Name: Volcanic_Kahless
-  Category: Volcanic
-  Composition: 1718
-  IconPath: Planets/23
-  DiffuseMap:    Model/SpaceObjects/planet_tex23_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_23spec.dds
-  NormalMap:     Model/SpaceObjects/planet_23normalalt.dds
-  EmissiveMap:   Model/SpaceObjects/planet_23emis.dds
-  SpecularPower: 4
-  Glow: [152,29,5,128] # Red
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 24
+    Name: Barren_24
+    Category: Barren
+    Composition: 1719
+    IconPath: Planets/24
+    DiffuseMap:    Model/SpaceObjects/planet_tex24_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     
+    EmissiveMap:   
+    SpecularPower: 0.5
+    Habitable: true
+    HabitableTileChance: 0
+    PopPerTile: [75, 125]
+    BaseFertility: 0
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Ice
-- PlanetType:
-  Id: 17 # Kholin:Jasnah
-  Name: Ice_Jasnah
-  Category: Ice
-  Composition: 1713
-  IconPath: Planets/17
-  DiffuseMap:    Model/SpaceObjects/icemars.dds
-  SpecularMap:   
-  NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [255,255,255,80] # White
-  Habitable: true
-  HabitableTileChance: [35, 75]
-  PopPerTile: [250, 400]
-  BaseFertility: [0.5, 1.0]
-  MinBaseFertility: 0.7
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 20 # Moon, rocky barren
+    Name: Barren_Luna
+    Category: Barren
+    Composition: 1711
+    IconPath: Planets/20
+    DiffuseMap:    Model/SpaceObjects/new_moon_d.dds
+    SpecularMap:   
+    NormalMap:     
+    EmissiveMap:   
+    SpecularPower: 0.5
+    Habitable: true
+    HabitableTileChance: 0
+    PopPerTile: [50, 100]
+    BaseFertility: 0
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Ice, better pop but less tiles
-- PlanetType:
-  Id: 32 
-  Name: Ice_32 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Ice
-  Composition: 1713
-  IconPath: Planets/17
-  DiffuseMap:    Model/SpaceObjects/icemars.dds
-  SpecularMap:   
-  NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [255,255,255,80] # White
-  Habitable: true
-  HabitableTileChance: [25, 60]
-  PopPerTile: [100, 300]
-  BaseFertility: [-0.25, 0.5]
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  #################################################################
+  # Volcanic
+  - PlanetType:
+    Id: 9
+    Name: Volcanic_9
+    Category: Volcanic
+    Composition: 1705
+    IconPath: Planets/9
+    DiffuseMap:    Model/SpaceObjects/planet_tex9_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_9spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex9_normal.dds
+    EmissiveMap:   Model/SpaceObjects/planet_9emiss.dds
+    SpecularPower: 4
+    AtmosphereType: [VolcanicRed,Clouds]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Ice, almost barren
-- PlanetType:
-  Id: 33 
-  Name: Ice_17 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Ice
-  Composition: 1713
-  IconPath: Planets/17
-  DiffuseMap:    Model/SpaceObjects/icemars.dds
-  SpecularMap:   
-  NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [255,255,255,80] # White
-  Habitable: true
-  HabitableTileChance: [20, 50]
-  PopPerTile: [50, 150]
-  BaseFertility: [-0.5, 0.25]
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 23 # Kahless
+    Name: Volcanic_Kahless
+    Category: Volcanic
+    Composition: 1718
+    IconPath: Planets/23
+    DiffuseMap:    Model/SpaceObjects/planet_tex23_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_23spec.dds
+    NormalMap:     Model/SpaceObjects/planet_23normalalt.dds
+    EmissiveMap:   Model/SpaceObjects/planet_23emis.dds
+    SpecularPower: 4
+    AtmosphereType: [VolcanicRed]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Swamp
-- PlanetType:
-  Id: 19 # Polmar:Sporl
-  Name: Swamp_Sporl
-  Category: Swamp
-  Composition: 1715
-  IconPath: Planets/19
-  DiffuseMap:    Model/SpaceObjects/planet_tex19_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [44,204,149,128] # Aqua
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [35, 70]
-  PopPerTile: [200, 400]
-  BaseFertility: [0.5, 1.5]
-  MinBaseFertility: 1.0
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  #################################################################
+  # Ice
+  - PlanetType:
+    Id: 17 # Kholin:Jasnah
+    Name: Ice_Jasnah
+    Category: Ice
+    Composition: 1713
+    IconPath: Planets/17
+    DiffuseMap:    Model/SpaceObjects/icemars.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [IceBlue]
+    Habitable: true
+    HabitableTileChance: [35, 75]
+    PopPerTile: [250, 400]
+    BaseFertility: [0.5, 1.0]
+    MinBaseFertility: 0.7
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Swamp, slightly harsher
-- PlanetType:
-  Id: 34
-  Name: Swamp_34 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Swamp
-  Composition: 1715
-  IconPath: Planets/19
-  DiffuseMap:    Model/SpaceObjects/planet_tex19_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [44,204,149,128] # Aqua
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [15, 45]
-  PopPerTile: [100, 200]
-  BaseFertility: [-0.5, 1.5]
-  MinBaseFertility: 0.25
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  # Ice, better pop but less tiles
+  - PlanetType:
+    Id: 32 
+    Name: Ice_32 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Ice
+    Composition: 1713
+    IconPath: Planets/17
+    DiffuseMap:    Model/SpaceObjects/icemars.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [IceBlue]
+    Habitable: true
+    HabitableTileChance: [25, 60]
+    PopPerTile: [100, 300]
+    BaseFertility: [-0.25, 0.5]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Swamp, wider magrins on this planet
-- PlanetType:
-  Id: 35
-  Name: Swamp_35 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Swamp
-  Composition: 1715
-  IconPath: Planets/19
-  DiffuseMap:    Model/SpaceObjects/planet_tex19_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [44,204,149,128] # Aqua
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: 40
-  PopPerTile: [100, 500]
-  BaseFertility: [-0.25, 1]
-  MinBaseFertility: 0.25
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  # Ice, almost barren
+  - PlanetType:
+    Id: 33 
+    Name: Ice_17 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Ice
+    Composition: 1713
+    IconPath: Planets/17
+    DiffuseMap:    Model/SpaceObjects/icemars.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/planet_tex17_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [IceBlue]
+    Habitable: true
+    HabitableTileChance: [20, 50]
+    PopPerTile: [50, 150]
+    BaseFertility: [-0.5, 0.25]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Oceanic 
-- PlanetType:
-  Id: 21
-  Name: Oceanic_21 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Oceanic
-  Composition: 1716
-  IconPath: Planets/21
-  DiffuseMap:    Model/SpaceObjects/planet_tex21_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex21_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex21_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [40, 60]
-  PopPerTile: [200, 400]
-  BaseFertility: [-1.0, 2.5]
-  MinBaseFertility: 0.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  #################################################################
+  # Swamp
+  - PlanetType:
+    Id: 19 # Polmar:Sporl
+    Name: Swamp_Sporl
+    Category: Swamp
+    Composition: 1715
+    IconPath: Planets/19
+    DiffuseMap:    Model/SpaceObjects/planet_tex19_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [SwampAqua,Clouds]
+    Habitable: true
+    HabitableTileChance: [35, 70]
+    PopPerTile: [200, 400]
+    BaseFertility: [0.5, 1.5]
+    MinBaseFertility: 1.0
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
+
+  # Swamp, slightly harsher
+  - PlanetType:
+    Id: 34
+    Name: Swamp_34 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Swamp
+    Composition: 1715
+    IconPath: Planets/19
+    DiffuseMap:    Model/SpaceObjects/planet_tex19_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [SwampAqua,Clouds]
+    Habitable: true
+    HabitableTileChance: [15, 45]
+    PopPerTile: [100, 200]
+    BaseFertility: [-0.5, 1.5]
+    MinBaseFertility: 0.25
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
+
+  # Swamp, wider magrins on this planet
+  - PlanetType:
+    Id: 35
+    Name: Swamp_35 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Swamp
+    Composition: 1715
+    IconPath: Planets/19
+    DiffuseMap:    Model/SpaceObjects/planet_tex19_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [SwampAqua,Clouds]
+    Habitable: true
+    HabitableTileChance: 40
+    PopPerTile: [100, 500]
+    BaseFertility: [-0.25, 1]
+    MinBaseFertility: 0.25
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
+
+  #################################################################
+  # Oceanic 
+  - PlanetType:
+    Id: 21
+    Name: Oceanic_21 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Oceanic
+    Composition: 1716
+    IconPath: Planets/21
+    DiffuseMap:    Model/SpaceObjects/planet_tex21_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex21_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex21_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [OceanicBlue,Clouds]
+    Habitable: true
+    HabitableTileChance: [40, 60]
+    PopPerTile: [200, 400]
+    BaseFertility: [-1.0, 2.5]
+    MinBaseFertility: 0.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
+      
+  # Oceanic, more oceans so less tiles 
+  - PlanetType:
+    Id: 36
+    Name: Oceanic_36 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Oceanic
+    Composition: 1716
+    IconPath: Planets/21
+    DiffuseMap:    Model/SpaceObjects/planet_tex21_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex21_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex21_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [OceanicBlue,Clouds]
+    Habitable: true
+    HabitableTileChance: [15, 45]
+    PopPerTile: [100, 300]
+    BaseFertility: [-0.5, 2]
+    MinBaseFertility: 0.3
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
+
+  # Oceanic, many isle, so more tiles but less pop 
+  - PlanetType:
+    Id: 37
+    Name: Oceanic_37 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Oceanic
+    Composition: 1716
+    IconPath: Planets/21
+    DiffuseMap:    Model/SpaceObjects/planet_tex21_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex21_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex21_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [OceanicBlue,Clouds]
+    Habitable: true
+    HabitableTileChance: [50, 85]
+    PopPerTile: [150, 250]
+    BaseFertility: [0.25, 1]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
+
+  #################################################################
+  # Desert
+  - PlanetType:
+    Id: 14 # Mradeep:Arrachus
+    Name: Desert_Arrachus
+    Category: Desert
+    Composition: 1710
+    IconPath: Planets/14
+    DiffuseMap:    Model/SpaceObjects/planet_tex14_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/planet_tex14_normal.dds
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [DesertOrange]
+    Habitable: true
+    HabitableTileChance: [10, 45]
+    PopPerTile: [100, 450]
+    BaseFertility: [-1.0, 1]
+    MinBaseFertility: 0.4
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
     
-# Oceanic, more oceans so less tiles 
-- PlanetType:
-  Id: 36
-  Name: Oceanic_36 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Oceanic
-  Composition: 1716
-  IconPath: Planets/21
-  DiffuseMap:    Model/SpaceObjects/planet_tex21_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex21_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex21_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [15, 45]
-  PopPerTile: [100, 300]
-  BaseFertility: [-0.5, 2]
-  MinBaseFertility: 0.3
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  # Desert
+  - PlanetType:
+    Id: 30
+    Name: Desert_30 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Desert
+    Composition: 1710
+    IconPath: Planets/14
+    DiffuseMap:    Model/SpaceObjects/planet_tex14_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/planet_tex14_normal.dds
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [DesertOrange]
+    Habitable: true
+    HabitableTileChance: [45, 75]
+    PopPerTile: [75, 300]
+    BaseFertility: [-0.1, 0.5]
+    MinBaseFertility: 0.25
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Oceanic, many isle, so more tiles but less pop 
-- PlanetType:
-  Id: 37
-  Name: Oceanic_37 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Oceanic
-  Composition: 1716
-  IconPath: Planets/21
-  DiffuseMap:    Model/SpaceObjects/planet_tex21_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex21_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex21_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [50, 85]
-  PopPerTile: [150, 250]
-  BaseFertility: [0.25, 1]
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
-
-# Desert
-- PlanetType:
-  Id: 14 # Mradeep:Arrachus
-  Name: Desert_Arrachus
-  Category: Desert
-  Composition: 1710
-  IconPath: Planets/14
-  DiffuseMap:    Model/SpaceObjects/planet_tex14_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     Model/SpaceObjects/planet_tex14_normal.dds
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [249,229,91,128] # Orange
-  Habitable: true
-  HabitableTileChance: [10, 45]
-  PopPerTile: [100, 450]
-  BaseFertility: [-1.0, 1]
-  MinBaseFertility: 0.4
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  # Desert, big (tatooine style)
+  - PlanetType:
+    Id: 38
+    Name: Desert_Tatooine
+    Category: Desert
+    Composition: 1710
+    IconPath: Planets/14
+    DiffuseMap:    Model/SpaceObjects/planet_tex14_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     Model/SpaceObjects/planet_tex14_normal.dds
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [DesertOrange]
+    Habitable: true
+    HabitableTileChance: [5, 40]
+    PopPerTile: [50, 600]
+    BaseFertility: [-0.25, 0.25]
+    MinBaseFertility: 0.1
+    Scale: 1.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
   
-# Desert
-- PlanetType:
-  Id: 30
-  Name: Desert_30 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Desert
-  Composition: 1710
-  IconPath: Planets/14
-  DiffuseMap:    Model/SpaceObjects/planet_tex14_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     Model/SpaceObjects/planet_tex14_normal.dds
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [249,229,91,128] # Orange
-  Habitable: true
-  HabitableTileChance: [45, 75]
-  PopPerTile: [75, 300]
-  BaseFertility: [-0.1, 0.5]
-  MinBaseFertility: 0.25
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  #################################################################
+  # Tundra
+  - PlanetType:
+    Id: 11 # Pandora, Rathi:Bul
+    Name: Tundra_Pandora
+    Category: Tundra
+    Composition: 1707
+    IconPath: Planets/11
+    DiffuseMap:    Model/SpaceObjects/planet_tex11_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex11_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex11_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [TundraBlue,Clouds]
+    Habitable: true
+    HabitableTileChance: [15, 30]
+    PopPerTile: [300, 500]
+    BaseFertility: [0.5, 1.0]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
+    
+  # Tundra, harsh
+  - PlanetType:
+    Id: 39
+    Name: Tundra_Harsh
+    Category: Tundra
+    Composition: 1707
+    IconPath: Planets/11
+    DiffuseMap:    Model/SpaceObjects/planet_tex11_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex11_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex11_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [TundraBlue,Clouds]
+    Habitable: true
+    HabitableTileChance: [20, 45]
+    PopPerTile: [150, 600]
+    BaseFertility: [0.25, 0.5]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Desert, big (tatooine style)
-- PlanetType:
-  Id: 38
-  Name: Desert_Tatooine
-  Category: Desert
-  Composition: 1710
-  IconPath: Planets/14
-  DiffuseMap:    Model/SpaceObjects/planet_tex14_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     Model/SpaceObjects/planet_tex14_normal.dds
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [249,229,91,128] # Orange
-  Habitable: true
-  HabitableTileChance: [5, 40]
-  PopPerTile: [50, 600]
-  BaseFertility: [-0.25, 0.25]
-  MinBaseFertility: 0.1
-  Scale: 1.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  # Tundra, dense
+  - PlanetType:
+    Id: 40
+    Name: Tundra_Dense
+    Category: Tundra
+    Composition: 1707
+    IconPath: Planets/11
+    DiffuseMap:    Model/SpaceObjects/planet_tex11_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex11_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex11_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [TundraBlue,Clouds]
+    Habitable: true
+    HabitableTileChance: [35, 65]
+    PopPerTile: [125, 250]
+    BaseFertility: [0.25, 1.5]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
   
-# Tundra
-- PlanetType:
-  Id: 11 # Pandora, Rathi:Bul
-  Name: Tundra_Pandora
-  Category: Tundra
-  Composition: 1707
-  IconPath: Planets/11
-  DiffuseMap:    Model/SpaceObjects/planet_tex11_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex11_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex11_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [15, 30]
-  PopPerTile: [300, 500]
-  BaseFertility: [0.5, 1.0]
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
-  
-# Tundra, harsh
-- PlanetType:
-  Id: 39
-  Name: Tundra_Harsh
-  Category: Tundra
-  Composition: 1707
-  IconPath: Planets/11
-  DiffuseMap:    Model/SpaceObjects/planet_tex11_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex11_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex11_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [20, 45]
-  PopPerTile: [150, 600]
-  BaseFertility: [0.25, 0.5]
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  #################################################################
+  # Steppe
+  - PlanetType:
+    Id: 18
+    Name: Steppe_18 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Steppe
+    Composition: 1714
+    IconPath: Planets/18
+    DiffuseMap:    Model/SpaceObjects/planet_tex18_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [SteppeYellow,Clouds]
+    Habitable: true
+    HabitableTileChance: [15, 45]
+    PopPerTile: [150, 600]
+    BaseFertility: [0.25, 2.1]
+    MinBaseFertility: 0.8
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
+    
+  # Steppe
+  - PlanetType:
+    Id: 41
+    Name: Steppe_41 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Steppe
+    Composition: 1714
+    IconPath: Planets/18
+    DiffuseMap:    Model/SpaceObjects/planet_tex18_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [SteppeYellow,Clouds]
+    Habitable: true
+    HabitableTileChance: [15, 45]
+    PopPerTile: [200, 400]
+    BaseFertility: [0.25, 1.0]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Tundra, dense
-- PlanetType:
-  Id: 40
-  Name: Tundra_Dense
-  Category: Tundra
-  Composition: 1707
-  IconPath: Planets/11
-  DiffuseMap:    Model/SpaceObjects/planet_tex11_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex11_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex11_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [35, 65]
-  PopPerTile: [125, 250]
-  BaseFertility: [0.25, 1.5]
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
-  
-# Steppe
-- PlanetType:
-  Id: 18
-  Name: Steppe_18 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Steppe
-  Composition: 1714
-  IconPath: Planets/18
-  DiffuseMap:    Model/SpaceObjects/planet_tex18_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [249,229,91,128] # Orange
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [15, 45]
-  PopPerTile: [150, 600]
-  BaseFertility: [0.25, 2.1]
-  MinBaseFertility: 0.8
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
-  
-# Steppe
-- PlanetType:
-  Id: 41
-  Name: Steppe_41 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Steppe
-  Composition: 1714
-  IconPath: Planets/18
-  DiffuseMap:    Model/SpaceObjects/planet_tex18_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [249,229,91,128] # Orange
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [15, 45]
-  PopPerTile: [200, 400]
-  BaseFertility: [0.25, 1.0]
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  # Steppe
+  - PlanetType:
+    Id: 42
+    Name: Steppe_42 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Steppe
+    Composition: 1714
+    IconPath: Planets/18
+    DiffuseMap:    Model/SpaceObjects/planet_tex18_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [SteppeYellow,Clouds]
+    Habitable: true
+    HabitableTileChance: [35, 70]
+    PopPerTile: [200, 500]
+    BaseFertility: [-0.5, 1.5]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Steppe
-- PlanetType:
-  Id: 42
-  Name: Steppe_42 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Steppe
-  Composition: 1714
-  IconPath: Planets/18
-  DiffuseMap:    Model/SpaceObjects/planet_tex18_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex19_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex19_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [249,229,91,128] # Orange
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [35, 70]
-  PopPerTile: [200, 500]
-  BaseFertility: [-0.5, 1.5]
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  #################################################################
+  # Terran
+  - PlanetType:
+    Id: 1
+    Name: Terran_1 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Terran
+    Composition: 1700
+    IconPath: Planets/1
+    DiffuseMap:    Model/SpaceObjects/planet_tex1_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet1_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex1_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [TerranBlue,Clouds]
+    Habitable: true
+    HabitableTileChance: 10
+    PopPerTile: [200, 500]
+    BaseFertility: [0.4, 0.75]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# Terran
-- PlanetType:
-  Id: 1
-  Name: Terran_1 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Terran
-  Composition: 1700
-  IconPath: Planets/1
-  DiffuseMap:    Model/SpaceObjects/planet_tex1_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet1_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex1_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: 10
-  PopPerTile: [200, 500]
-  BaseFertility: [0.4, 0.75]
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 13
+    Name: Terran_13 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Terran
+    Composition: 1709
+    IconPath: Planets/13
+    DiffuseMap:    Model/SpaceObjects/planet_tex13_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_13spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex13_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [TerranBlue,Clouds]
+    PlanetTile: Terran_2
+    Habitable: true
+    HabitableTileChance: 75
+    PopPerTile: [500, 750]
+    BaseFertility: [0.5, 1.5]
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 13
-  Name: Terran_13 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Terran
-  Composition: 1709
-  IconPath: Planets/13
-  DiffuseMap:    Model/SpaceObjects/planet_tex13_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_13spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex13_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  PlanetTile: Terran_2
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: 75
-  PopPerTile: [500, 750]
-  BaseFertility: [0.5, 1.5]
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 22 # Kholin:Adolin
+    Name: Terran_Adolin
+    Category: Terran
+    Composition: 1717
+    IconPath: Planets/22
+    DiffuseMap:    Model/SpaceObjects/planet_tex22_2048x1024.dds
+    SpecularMap:   Model/SpaceObjects/planet_tex22_spec.dds
+    NormalMap:     Model/SpaceObjects/planet_tex22_normal.dds
+    EmissiveMap:   
+    SpecularPower: 4
+    AtmosphereType: [TerranBlue,Clouds]
+    PlanetTile: Terran_3
+    Habitable: true
+    HabitableTileChance: [60, 90]
+    PopPerTile: [300, 600]
+    BaseFertility: [0.2, 1.5]
+    MinBaseFertility: 0.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 22 # Kholin:Adolin
-  Name: Terran_Adolin
-  Category: Terran
-  Composition: 1717
-  IconPath: Planets/22
-  DiffuseMap:    Model/SpaceObjects/planet_tex22_2048x1024.dds
-  SpecularMap:   Model/SpaceObjects/planet_tex22_spec.dds
-  NormalMap:     Model/SpaceObjects/planet_tex22_normal.dds
-  EmissiveMap:   
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  PlanetTile: Terran_3
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [60, 90]
-  PopPerTile: [300, 600]
-  BaseFertility: [0.2, 1.5]
-  MinBaseFertility: 0.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 25
+    Name: Terran_25 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Terran
+    Composition: 1720
+    IconPath: Planets/25
+    DiffuseMap:    Model/SpaceObjects/earthmap1k.dds
+    SpecularMap:   Model/SpaceObjects/earthspec1k.dds
+    NormalMap:     Model/SpaceObjects/earthnormal.dds
+    EmissiveMap:   Model/SpaceObjects/earthlights1k.dds
+    SpecularPower: 4
+    AtmosphereType: [TerranBlue,Clouds]
+    Habitable: true
+    HabitableTileChance: [60, 90]
+    PopPerTile: [300, 600]
+    BaseFertility: [-0.2, 1.5]
+    MinBaseFertility: 0.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 25
-  Name: Terran_25 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Terran
-  Composition: 1720
-  IconPath: Planets/25
-  DiffuseMap:    Model/SpaceObjects/earthmap1k.dds
-  SpecularMap:   Model/SpaceObjects/earthspec1k.dds
-  NormalMap:     Model/SpaceObjects/earthnormal.dds
-  EmissiveMap:   Model/SpaceObjects/earthlights1k.dds
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [60, 90]
-  PopPerTile: [300, 600]
-  BaseFertility: [-0.2, 1.5]
-  MinBaseFertility: 0.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 27 # Rathi:Tor
+    Name: Terran_Tor
+    Category: Terran
+    Composition: 1721
+    IconPath: Planets/27
+    DiffuseMap:    Model/SpaceObjects/arazius3.dds
+    SpecularMap:   Model/SpaceObjects/arazius3spec.dds
+    NormalMap:     Model/SpaceObjects/arazius3normal.dds
+    EmissiveMap:   Model/SpaceObjects/arazius3night.dds
+    SpecularPower: 4
+    AtmosphereType: [TerranBlue,Clouds]
+    Habitable: true
+    HabitableTileChance: [60, 90]
+    PopPerTile: [450, 700]
+    BaseFertility: [-5.0, 3.0]
+    MinBaseFertility: 1.0
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 27 # Rathi:Tor
-  Name: Terran_Tor
-  Category: Terran
-  Composition: 1721
-  IconPath: Planets/27
-  DiffuseMap:    Model/SpaceObjects/arazius3.dds
-  SpecularMap:   Model/SpaceObjects/arazius3spec.dds
-  NormalMap:     Model/SpaceObjects/arazius3normal.dds
-  EmissiveMap:   Model/SpaceObjects/arazius3night.dds
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [60, 90]
-  PopPerTile: [450, 700]
-  BaseFertility: [-5.0, 3.0]
-  MinBaseFertility: 1.0
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 29
+    Name: Terran_29 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
+    Category: Terran
+    Composition: 1722
+    IconPath: Planets/29
+    DiffuseMap:    Model/SpaceObjects/NovaTerra_diffuse.dds
+    SpecularMap:   Model/SpaceObjects/NovaTerra_specular.dds
+    NormalMap:     Model/SpaceObjects/NovaTerra_normal.dds
+    EmissiveMap:   Model/SpaceObjects/NovaTerra_emissive.dds
+    SpecularPower: 4
+    AtmosphereType: [TerranBlue,Clouds]
+    Habitable: true
+    HabitableTileChance: [50, 80]
+    PopPerTile: [300, 500]
+    BaseFertility: [-3.0, 1.2]
+    MinBaseFertility: 0.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 29
-  Name: Terran_29 # TODO: GIVE DESCRIPTIVE NAMES BASED ON PLANET TEXTURE
-  Category: Terran
-  Composition: 1722
-  IconPath: Planets/29
-  DiffuseMap:    Model/SpaceObjects/NovaTerra_diffuse.dds
-  SpecularMap:   Model/SpaceObjects/NovaTerra_specular.dds
-  NormalMap:     Model/SpaceObjects/NovaTerra_normal.dds
-  EmissiveMap:   Model/SpaceObjects/NovaTerra_emissive.dds
-  SpecularPower: 4
-  Glow: [57,146,215,128] # Terran Blue
-  Clouds: true # give it earthlike clouds layer
-  Atmosphere: true # give it earthlike atmosphere layer
-  Habitable: true
-  HabitableTileChance: [50, 80]
-  PopPerTile: [300, 500]
-  BaseFertility: [-3.0, 1.2]
-  MinBaseFertility: 0.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  #################################################################
+  # GasGiants
+  - PlanetType:
+    Id: 2 # Less Stripey Light Beige Giant, Saturn?
+    Name: GasGiant_LightBeige
+    Category: GasGiant
+    Composition: 1701
+    IconPath: Planets/2
+    DiffuseMap:    Model/SpaceObjects/planet_tex2_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [GasYellow]
+    Scale: 2.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-# GasGiants
-- PlanetType:
-  Id: 2 # Less Stripey Light Beige Giant, Saturn?
-  Name: GasGiant_LightBeige
-  Category: GasGiant
-  Composition: 1701
-  IconPath: Planets/2
-  DiffuseMap:    Model/SpaceObjects/planet_tex2_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [249,229,91,100] # Yellow with alpha
-  Scale: 2.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 6 # Blood Red Giant
+    Name: GasGiant_BloodRed
+    Category: GasGiant
+    Composition: 1701
+    IconPath: Planets/6
+    DiffuseMap:    Model/SpaceObjects/planet_tex6_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [GasOrange]
+    Scale: 2.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 6 # Blood Red Giant
-  Name: GasGiant_BloodRed
-  Category: GasGiant
-  Composition: 1701
-  IconPath: Planets/6
-  DiffuseMap:    Model/SpaceObjects/planet_tex6_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [172,79,25,100] # DarkOrange with alpha
-  Scale: 2.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 10 # Yellow Giant
+    Name: GasGiant_Yellow
+    Category: GasGiant
+    Composition: 1706
+    IconPath: Planets/10
+    DiffuseMap:    Model/SpaceObjects/planet_tex10_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [GasYellow]
+    Scale: 2.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 10 # Yellow Giant
-  Name: GasGiant_Yellow
-  Category: GasGiant
-  Composition: 1706
-  IconPath: Planets/10
-  DiffuseMap:    Model/SpaceObjects/planet_tex10_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [249,229,91,100] # Yellow with alpha
-  Scale: 2.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 12 # Pink Giant
+    Name: GasGiant_Pink
+    Category: GasGiant
+    Composition: 1708
+    IconPath: Planets/12
+    DiffuseMap:    Model/SpaceObjects/planet_tex12_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [GasOrange]
+    Scale: 2.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 12 # Pink Giant
-  Name: GasGiant_Pink
-  Category: GasGiant
-  Composition: 1708
-  IconPath: Planets/12
-  DiffuseMap:    Model/SpaceObjects/planet_tex12_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [172,79,25,100] # DarkOrange with alpha
-  Scale: 2.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 15 # Polyphemus, Uranus, Cyan/LightBlue giant
+    Name: GasGiant_Uranus
+    Category: GasGiant
+    Composition: 1711
+    IconPath: Planets/15
+    DiffuseMap:    Model/SpaceObjects/planet_tex15_2048x1024.dds
+    SpecularMap:   
+    NormalMap:     
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [GasAqua]
+    Scale: 2.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 15 # Polyphemus, Uranus, Cyan/LightBlue giant
-  Name: GasGiant_Uranus
-  Category: GasGiant
-  Composition: 1711
-  IconPath: Planets/15
-  DiffuseMap:    Model/SpaceObjects/planet_tex15_2048x1024.dds
-  SpecularMap:   
-  NormalMap:     
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [44,204,149,100] # Aqua with alpha
-  Scale: 2.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 26 # Neptune, Blue giant
+    Name: GasGiant_Neptune
+    Category: GasGiant
+    Composition: 1711
+    IconPath: Planets/26
+    DiffuseMap:    Model/SpaceObjects/perun2.dds
+    SpecularMap:   
+    NormalMap:     
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [GasBlue]
+    Scale: 2.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
 
-- PlanetType:
-  Id: 26 # Neptune, Blue giant
-  Name: GasGiant_Neptune
-  Category: GasGiant
-  Composition: 1711
-  IconPath: Planets/26
-  DiffuseMap:    Model/SpaceObjects/perun2.dds
-  SpecularMap:   
-  NormalMap:     
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [57,146,215,100] # Blue with alpha
-  Scale: 2.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
-
-- PlanetType:
-  Id: 28 # Jupiter, striped beige giant
-  Name: GasGiant_Jupiter
-  Category: GasGiant
-  Composition: 1710
-  IconPath: Planets/28
-  DiffuseMap:    Model/SpaceObjects/jupiter.dds
-  SpecularMap:   
-  NormalMap:     
-  EmissiveMap:   
-  SpecularPower: 0.5
-  Glow: [249,229,91,100] # Yellow with alpha
-  Scale: 2.5
-  MoonTypes: [Barren,Desert,Volcanic,Ice]
+  - PlanetType:
+    Id: 28 # Jupiter, striped beige giant
+    Name: GasGiant_Jupiter
+    Category: GasGiant
+    Composition: 1710
+    IconPath: Planets/28
+    DiffuseMap:    Model/SpaceObjects/jupiter.dds
+    SpecularMap:   
+    NormalMap:     
+    EmissiveMap:   
+    SpecularPower: 0.5
+    AtmosphereType: [GasYellow]
+    Scale: 2.5
+    MoonTypes: [Barren,Desert,Volcanic,Ice]
