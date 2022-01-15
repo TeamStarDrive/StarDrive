@@ -343,28 +343,33 @@ namespace Ship_Game
                 UpdatePositionOnly();
             }
 
-            if (ParentSystem.IsVisible)
+            bool visible = ParentSystem.IsVisible;
+            if (visible)
             {
                 Zrotate += ZrotateAmount * timeStep.FixedTime;
-                UpdateWorldMatrix();
-                SO.Visibility = ObjectVisibility.Rendered;
             }
-            else if (SO != null)  // SO is null in Unit Tests
+
+            if (SO != null)
             {
-                SO.Visibility = ObjectVisibility.None;
+                UpdateSO(visible);
             }
         }
 
         public Matrix ScaleMatrix => Matrix.CreateScale(Type.Scale * Type.Types.PlanetScale);
 
-        void UpdateWorldMatrix()
+        void UpdateSO(bool visible)
         {
-            if (SO != null)
+            if (visible)
             {
                 var pos3d = Matrix.CreateTranslation(Center3D);
                 var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
                 var baseScale = ScaleMatrix;
                 SO.World = baseScale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
+                SO.Visibility = ObjectVisibility.Rendered;
+            }
+            else
+            {
+                SO.Visibility = ObjectVisibility.None;
             }
         }
 
@@ -379,12 +384,15 @@ namespace Ship_Game
             if (SO != null)
             {
                 Log.Info($"RemoveSolarSystemBody: {Name}");
-                ScreenManager.Instance?.RemoveObject(SO);
+                Universe.RemoveObject(SO);
             }
 
-            SO = Type.CreatePlanetSO();
-            UpdateWorldMatrix();
-            Universe.AddObject(SO);
+            if (!Type.Types.NewRenderer)
+            {
+                SO = Type.CreatePlanetSO();
+                UpdateSO(visible: true);
+                Universe.AddObject(SO);
+            }
         }
 
         protected void UpdateDescription()
