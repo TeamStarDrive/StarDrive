@@ -327,13 +327,18 @@ namespace Ship_Game
 
             foreach (SolarSystem system in SolarSystemList)
             {
+                system.Lights.Clear();
+
                 Color color     = system.Sun.LightColor;
                 float intensity = system.Sun.LightIntensity;
                 float radius    = system.Sun.Radius;
-                AddLight("Key",               system, intensity,         radius,         color, -5500);
-                AddLight("OverSaturationKey", system, intensity * 5.00f, radius * 0.05f, color, -1500);
-                AddLight("LocalFill",         system, intensity * 0.55f, radius,         Color.White, 0);
+                var light1 = AddLight("Key",               system, intensity,         radius,         color, -5500);
+                var light2 = AddLight("OverSaturationKey", system, intensity * 5.00f, radius * 0.05f, color, -1500);
+                var light3 = AddLight("LocalFill",         system, intensity * 0.55f, radius,         Color.White, 0);
                 //AddLight("Back", system, intensity * 0.5f , radius, color, 2500, fallOff: 0, fillLight: true);
+                system.Lights.Add(light1);
+                system.Lights.Add(light2);
+                system.Lights.Add(light3);
             }
         }
 
@@ -342,14 +347,14 @@ namespace Ship_Game
             ScreenManager.RemoveAllLights();
         }
 
-        void AddLight(string name, SolarSystem system, float intensity, float radius, Color color, float zpos, float fallOff = 1f, bool fillLight = false)
+        PointLight AddLight(string name, SolarSystem system, float intensity, float radius, Color color, float zpos, float fallOff = 1f, bool fillLight = false)
         {
-            AddLight($"{system.Name} - {system.Sun.Id} - {name}", system.Position, intensity, radius, color,
-                     zpos, fillLight: fillLight, fallOff:fallOff, shadowQuality:0f);
+            return AddLight($"{system.Name} - {system.Sun.Id} - {name}", system.Position, intensity, radius, color,
+                            zpos, fillLight: fillLight, fallOff:fallOff, shadowQuality:0f);
         }
 
-        void AddLight(string name, Vector2 source, float intensity, float radius, Color color,
-                      float zpos, bool fillLight, float fallOff = 0, float shadowQuality = 1)
+        PointLight AddLight(string name, Vector2 source, float intensity, float radius, Color color,
+                            float zpos, bool fillLight, float fallOff = 0, float shadowQuality = 1)
         {
             var light = new PointLight
             {
@@ -371,6 +376,7 @@ namespace Ship_Game
 
             light.World = Matrix.CreateTranslation(light.Position);
             AddLight(light, dynamic:false);
+            return light;
         }
 
         public void ContactLeader()
@@ -825,7 +831,7 @@ namespace Ship_Game
                     planet.TilesList = new Array<PlanetGridSquare>();
                     if (planet.SO != null)
                     {
-                        ScreenManager.RemoveObject(planet.SO);
+                        RemoveObject(planet.SO);
                         planet.SO = null;
                     }
                 }

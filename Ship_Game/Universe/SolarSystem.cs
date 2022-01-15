@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
+using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game
 {
@@ -27,6 +28,8 @@ namespace Ship_Game
         public bool IsVisible;
         public Vector2 Position;
         public bool PiratePresence { get; private set; }
+
+        public Array<ILight> Lights = new Array<ILight>();
 
         // this is the minimum solar system radius
         // needs to be big enough to properly trigger system-radius related events

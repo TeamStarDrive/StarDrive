@@ -11,7 +11,7 @@ PlanetMesh: "Model/SpaceObjects/planet_sphere.obj"
 RingsMesh: ["Model/SpaceObjects/planet_rings.obj", "Model/SpaceObjects/planet_rings.dds"]
 GlowEffect: ["Model/SpaceObjects/planet_glow_ring.obj", "Model/SpaceObjects/planet_glow.png"]
 FresnelEffect: ["Model/SpaceObjects/planet_glow_fresnel.obj", "Model/SpaceObjects/planet_fresnel.png"]
-NewRenderer: false
+NewRenderer: false # WIP, for when we migrate engines
 
 #AtmosphereType:
 #  Clouds:  enable clouds effect with a specified clouds map
