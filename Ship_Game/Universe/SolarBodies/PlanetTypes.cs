@@ -16,6 +16,13 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public float AtmosphereScale; // slightly bigger than clouds, a very subtle atmosphere effect, enabled for clouds, see `NoAtmosphere`
         [StarData] public float HaloScale; // a very subtle halo effect, enabled for clouds, see `NoHalo`
 
+        [StarData] public string PlanetMesh;
+        [StarData] public string[] RingsMesh; // [rings.obj, rings.dds]
+        [StarData] public string[] GlowEffect; // [glow.obj, glow.png]
+        [StarData] public string[] FresnelEffect; // [fresnel.obj, fresnel.png]
+
+        [StarData] public bool NewRenderer;
+
         [StarData] public AtmosphereType[] AtmosphereTypes;
         [StarData] public PlanetType[] Types;
 

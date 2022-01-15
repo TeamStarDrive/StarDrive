@@ -104,11 +104,17 @@ namespace Ship_Game.Data
             return TexImport.Load(contentPath);
         }
 
-        public Texture2D LoadAlphaTexture(string fileNameWithExt, bool preMultiplied)
+        // loads an RGB texture and converts it to an AlphaMap, from RGB luminosity
+        /// <summary>
+        /// loads an RGB texture and converts it to an AlphaMap, from RGB luminosity
+        /// </summary>
+        /// <param name="fileNameWithExt"></param>
+        /// <param name="toPreMultipliedAlpha">If true, pixel=[A,A,A,A] if false, pixel=[255,255,255,A]</param>
+        public Texture2D LoadAlphaTexture(string fileNameWithExt, bool toPreMultipliedAlpha)
         {
             string contentPath = GetContentPath(fileNameWithExt);
             Texture2D tex = TexImport.Load(contentPath);
-            ImageUtils.ConvertToAlphaMap(tex, preMultiplied: preMultiplied);
+            ImageUtils.ConvertToAlphaMap(tex, toPreMultipliedAlpha: toPreMultipliedAlpha);
             return tex;
         }
 
@@ -123,6 +129,12 @@ namespace Ship_Game.Data
         {
             string meshPath = GetContentPath(meshName);
             return MeshImport.ImportStaticMesh(meshPath, meshName);
+        }
+
+        public Model LoadModel(string meshName)
+        {
+            string meshPath = GetContentPath(meshName);
+            return MeshImport.ImportModel(meshPath, meshName);
         }
 
         public Array<FileInfo> GetAllXnbModelFiles(string folder)
