@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
@@ -17,7 +15,6 @@ namespace Ship_Game.Universe.SolarBodies
         Model MeshRings;
         Model MeshGlowRing;
         Model MeshGlowFresnel;
-        Model MeshAtmosphere;
 
         BasicEffect FxRings;
         BasicEffect FxClouds;
@@ -36,17 +33,18 @@ namespace Ship_Game.Universe.SolarBodies
         public PlanetRenderer(GameContentManager content, PlanetTypes types)
         {
             Types = types;
-            MeshSphere = content.LoadModel("Model/SpaceObjects/planet_sphere.obj");
-            MeshRings = content.LoadModel("Model/SpaceObjects/planet_rings.obj");
-            MeshGlowRing = content.LoadModel("Model/SpaceObjects/planet_glow_ring.obj");
-            MeshGlowFresnel = content.LoadModel("Model/SpaceObjects/planet_glow_fresnel.obj");
-            MeshAtmosphere = content.LoadModel("Model/SpaceObjects/atmo_sphere.obj");
+            MeshSphere = content.RawContent.LoadModel(types.PlanetMesh);
+            MeshRings = content.RawContent.LoadModel(types.RingsMesh[0]);
+            TexRings = content.RawContent.LoadTexture(types.RingsMesh[1]);
 
-            TexRings = content.RawContent.LoadTexture("Model/SpaceObjects/planet_rings.dds");
+            MeshGlowRing = content.LoadModel(types.GlowEffect[0]);
+            TexGlow = content.RawContent.LoadAlphaTexture(types.GlowEffect[1], toPreMultipliedAlpha: false);
+
+            MeshGlowFresnel = content.LoadModel(types.FresnelEffect[0]);
+            TexFresnel = content.RawContent.LoadAlphaTexture(types.FresnelEffect[1], toPreMultipliedAlpha: false);
+
+            // this old AtmosphereColor.dds has a weird checkered transparent blue texture
             TexAtmosphere = content.RawContent.LoadTexture("Model/SpaceObjects/AtmosphereColor.dds");
-
-            TexGlow = content.RawContent.LoadAlphaTexture("Model/SpaceObjects/planet_glow.png", preMultiplied:false);
-            TexFresnel = content.RawContent.LoadAlphaTexture("Model/SpaceObjects/planet_fresnel.png", preMultiplied:false);
 
             FxRings = new BasicEffect(content.Device, null);
             FxRings.TextureEnabled = true;
@@ -86,7 +84,7 @@ namespace Ship_Game.Universe.SolarBodies
             MeshSphere = null;
             MeshRings = null;
             MeshGlowRing = null;
-            MeshAtmosphere = null;
+            MeshGlowFresnel = null;
 
             FxRings?.Dispose(ref FxRings);
             FxClouds?.Dispose(ref FxClouds);
