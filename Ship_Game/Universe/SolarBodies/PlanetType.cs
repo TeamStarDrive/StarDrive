@@ -53,6 +53,11 @@ namespace Ship_Game.Universe.SolarBodies
         public bool NoAtmosphere;
 
         public Model PlanetModel;
+        public Texture2D DiffuseTex;
+        public Texture2D SpecularTex;
+        public Texture2D NormalsTex;
+        public Texture2D EmissiveTex;
+
         public LightingEffect Material;
 
         // pre-load everything necessary
@@ -60,26 +65,12 @@ namespace Ship_Game.Universe.SolarBodies
         {
             Types = types;
 
-            var fx = new LightingEffect(content.Device);
-            fx.MaterialName          = $"Mat_Planet_{Id}_{Name}";
-            fx.MaterialFile          = "";
-            fx.ProjectFile           = "PlanetType.cs";
-            fx.DiffuseMapFile        = DiffuseMap;
-            fx.EmissiveMapFile       = EmissiveMap;
-            fx.NormalMapFile         = NormalMap;
-            fx.SpecularColorMapFile  = SpecularMap;
-            fx.DiffuseMapTexture  = TryLoadTexture(content, DiffuseMap);
-            fx.EmissiveMapTexture = TryLoadTexture(content, EmissiveMap);
-            fx.NormalMapTexture   = TryLoadTexture(content, NormalMap);
-            fx.SpecularColorMapTexture = TryLoadTexture(content, SpecularMap);
-            fx.SpecularPower  = SpecularPower; // default: 4
-            fx.SpecularAmount = 0.25f; // default: 0.25
-            fx.FresnelReflectBias            = 0.0f; // default: 0
-            fx.FresnelReflectOffset          = 1.0f; // default: 1
-            fx.FresnelMicrofacetDistribution = 0.4f; // default: 0.4
-            fx.ParallaxScale                 = 0.0f; // default: 0
-            fx.ParallaxOffset                = 0.0f; // default: 0
-            Material = fx;
+            DiffuseTex = TryLoadTexture(content, DiffuseMap);
+            SpecularTex = TryLoadTexture(content, SpecularMap);
+            NormalsTex = TryLoadTexture(content, NormalMap);
+            EmissiveTex = TryLoadTexture(content, EmissiveMap);
+
+            Material = CreateMaterial(content);
             PlanetModel = planetModel;
 
             foreach (string atmoType in AtmosphereType)
@@ -111,6 +102,30 @@ namespace Ship_Game.Universe.SolarBodies
                 NoHalo |= atm.NoHalo;
                 NoAtmosphere |= atm.NoAtmosphere;
             }
+        }
+
+        LightingEffect CreateMaterial(GameContentManager content)
+        {
+            var fx = new LightingEffect(content.Device);
+            fx.MaterialName = $"Mat_Planet_{Id}_{Name}";
+            fx.MaterialFile = "";
+            fx.ProjectFile = "PlanetType.cs";
+            fx.DiffuseMapFile = DiffuseMap;
+            fx.EmissiveMapFile = EmissiveMap;
+            fx.NormalMapFile = NormalMap;
+            fx.SpecularColorMapFile = SpecularMap;
+            fx.DiffuseMapTexture = DiffuseTex;
+            fx.EmissiveMapTexture = EmissiveTex;
+            fx.NormalMapTexture = NormalsTex;
+            fx.SpecularColorMapTexture = SpecularTex;
+            fx.SpecularPower = SpecularPower; // default: 4
+            fx.SpecularAmount = 0.25f; // default: 0.25
+            fx.FresnelReflectBias = 0.0f; // default: 0
+            fx.FresnelReflectOffset = 1.0f; // default: 1
+            fx.FresnelMicrofacetDistribution = 0.4f; // default: 0.4
+            fx.ParallaxScale = 0.0f; // default: 0
+            fx.ParallaxOffset = 0.0f; // default: 0
+            return fx;
         }
 
         static Texture2D TryLoadTexture(GameContentManager content, string texturePath)

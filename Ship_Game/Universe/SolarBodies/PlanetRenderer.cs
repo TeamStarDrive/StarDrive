@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
+using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -16,6 +18,7 @@ namespace Ship_Game.Universe.SolarBodies
         Model MeshGlowRing;
         Model MeshGlowFresnel;
 
+        BasicEffect FxPlanet;
         BasicEffect FxRings;
         BasicEffect FxClouds;
         BasicEffect FxAtmoColor;
@@ -29,6 +32,7 @@ namespace Ship_Game.Universe.SolarBodies
         Texture2D TexFresnel;
 
         Vector3 CamPos;
+        Matrix View, Projection;
 
         public PlanetRenderer(GameContentManager content, PlanetTypes types)
         {
@@ -45,6 +49,9 @@ namespace Ship_Game.Universe.SolarBodies
 
             // this old AtmosphereColor.dds has a weird checkered transparent blue texture
             TexAtmosphere = content.RawContent.LoadTexture("Model/SpaceObjects/AtmosphereColor.dds");
+
+            FxPlanet = new BasicEffect(content.Device, null);
+            FxPlanet.TextureEnabled = true;
 
             FxRings = new BasicEffect(content.Device, null);
             FxRings.TextureEnabled = true;
@@ -86,6 +93,7 @@ namespace Ship_Game.Universe.SolarBodies
             MeshGlowRing = null;
             MeshGlowFresnel = null;
 
+            FxPlanet?.Dispose(ref FxPlanet);
             FxRings?.Dispose(ref FxRings);
             FxClouds?.Dispose(ref FxClouds);
             FxAtmoColor?.Dispose(ref FxAtmoColor);
@@ -111,6 +119,10 @@ namespace Ship_Game.Universe.SolarBodies
         {
             Device = device;
             CamPos = cameraPos;
+            View = view;
+            Projection = projection;
+
+            SetViewProjection(FxPlanet, view, projection);
             SetViewProjection(FxClouds, view, projection);
             SetViewProjection(FxGlow, view, projection);
             SetViewProjection(FxFresnel, view, projection);
@@ -159,6 +171,21 @@ namespace Ship_Game.Universe.SolarBodies
             var pos3d = Matrix.CreateTranslation(p.Center3D);
             var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
             Matrix baseScale = p.ScaleMatrix;
+
+            if (Types.NewRenderer)
+            {
+                Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
+
+                FxPlanet.World = baseScale * Matrix.CreateRotationZ(-p.Zrotate) * tilt * pos3d;
+                FxPlanet.Texture = type.DiffuseTex;
+                // herp-derp, Specular and Normals not supported
+
+                var lights = p.ParentSystem.Lights;
+                SetLight(FxPlanet.DirectionalLight0, sunToPlanet, lights[0]);
+                //SetLight(FxPlanet.DirectionalLight1, sunToPlanet, lights[1]);
+                //SetLight(FxPlanet.DirectionalLight2, sunToPlanet, lights[2]);
+                StaticMesh.Draw(MeshSphere, FxPlanet);
+            }
 
             if (type.Clouds)
             {
@@ -250,6 +277,13 @@ namespace Ship_Game.Universe.SolarBodies
                 //FxGlow.EmissiveColor = glow;
                 StaticMesh.Draw(MeshGlowRing, FxGlow, TexGlow);
             }
+        }
+
+        void SetLight(BasicDirectionalLight light, in Vector3 direction, ILight sunburnLight)
+        {
+            light.Enabled = true;
+            light.Direction = direction;
+            light.DiffuseColor = sunburnLight.CompositeColorAndIntensity;
         }
     }
 }
