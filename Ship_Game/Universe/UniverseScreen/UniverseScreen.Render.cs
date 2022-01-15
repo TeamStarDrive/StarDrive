@@ -691,19 +691,13 @@ namespace Ship_Game
                 var r = ResourceManager.Planets.Renderer;
                 r.BeginRendering(Device, CamPos.ToVec3f(), View, Projection);
 
-                for (int i = 0; i < SolarSystemList.Count; i++)
+                foreach (SolarSystem system in SolarSystemList)
                 {
-                    SolarSystem system = SolarSystemList[i];
-                    if (system.IsExploredBy(Player))
+                    if (system.IsVisible)
                     {
-                        for (int j = 0; j < system.PlanetList.Count; j++)
-                        {
-                            Planet p = system.PlanetList[j];
-                            if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
-                            {
+                        foreach (Planet p in system.PlanetList)
+                            if (p.IsVisible)
                                 r.Render(p);
-                            }
-                        }
                     }
                 }
 

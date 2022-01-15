@@ -104,7 +104,7 @@ namespace Ship_Game
             ZRotation += RadiansPerSecond * timeStep.FixedTime;
 
             if ((Planet.Owner?.data.SpacePortModel.NotEmpty() == true || InnerSO != null) 
-                && OuterSO != null && Planet.SO.Visibility == ObjectVisibility.Rendered)
+                && OuterSO != null && Planet.IsVisible)
             {
                 UpdateTransforms();
             }

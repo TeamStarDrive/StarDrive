@@ -32,7 +32,7 @@ namespace Ship_Game
             if (SelectedPlanet != null && !LookingAtPlanet &&  viewState < UnivScreenState.GalaxyView)
             {
                 Vector2 planetPos = SelectedPlanet.Center;
-                float planetRadius = SelectedPlanet.SO.WorldBoundingSphere.Radius;
+                float planetRadius = SelectedPlanet.ObjectRadius;
                 Vector2 center = Viewport.Project(new Vector3(planetPos, 2500f), Projection, View, Matrix.Identity).ToVec2();
                 Vector2 edge = Viewport.Project(new Vector3(planetPos.X + planetRadius, planetPos.Y, 2500f), Projection, View, Matrix.Identity).ToVec2();
                 float radius = center.Distance(edge);
