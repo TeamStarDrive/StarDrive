@@ -195,9 +195,11 @@ namespace Ship_Game.Data.Texture
         }
 
         /// <summary>
-        /// Converts the supplied 32-bit BGRA map into a non-multiplied OR pre-multiplied alpha map
+        /// Converts the supplied 32-bit BGRA map into a non-multiplied OR pre-multiplied alpha map,
+        /// from RGB Luminosity: A = (B + G + R)/3
         /// </summary>
-        public static unsafe void ConvertToAlphaMap(Texture2D rgbMap, bool preMultiplied)
+        /// <param name="toPreMultipliedAlpha">If true, pixel=[A,A,A,A] if false, pixel=[255,255,255,A]</param>
+        public static unsafe void ConvertToAlphaMap(Texture2D rgbMap, bool toPreMultipliedAlpha)
         {
             if (rgbMap.Format == SurfaceFormat.Color)
             {
@@ -207,7 +209,7 @@ namespace Ship_Game.Data.Texture
 
                 fixed (byte* pPixels = pixels)
                 {
-                    if (preMultiplied)
+                    if (toPreMultipliedAlpha)
                     {
                         for (int i = 0; i < numPixels; i += 4)
                         {
@@ -231,9 +233,9 @@ namespace Ship_Game.Data.Texture
                             byte g = pixel[1];
                             byte r = pixel[2];
                             byte a = (byte)((b + g + r) / 3);
-                            pixel[0] = 255; // B := A
-                            pixel[1] = 255; // G := A
-                            pixel[2] = 255; // R := A
+                            pixel[0] = 255;
+                            pixel[1] = 255;
+                            pixel[2] = 255;
                             pixel[3] = a; // A := A
                         }
                     }

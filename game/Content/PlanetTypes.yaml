@@ -7,6 +7,12 @@ CloudsScale: 1.015 # slightly bigger than the planet
 AtmosphereScale: 1.03 # slightly bigger than clouds, a very subtle atmosphere effect, enabled for clouds, see `NoAtmosphere`
 HaloScale: 1.0 # a very subtle halo effect, enabled for clouds, see `NoHalo`
 
+PlanetMesh: "Model/SpaceObjects/planet_sphere.obj"
+RingsMesh: ["Model/SpaceObjects/planet_rings.obj", "Model/SpaceObjects/planet_rings.dds"]
+GlowEffect: ["Model/SpaceObjects/planet_glow_ring.obj", "Model/SpaceObjects/planet_glow.png"]
+FresnelEffect: ["Model/SpaceObjects/planet_glow_fresnel.obj", "Model/SpaceObjects/planet_fresnel.png"]
+NewRenderer: false
+
 #AtmosphereType:
 #  Clouds:  enable clouds effect with a specified clouds map
 #  Glow:    enable glow with [R,G,B,A] color, alpha controls intensity
