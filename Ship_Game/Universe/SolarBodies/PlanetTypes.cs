@@ -16,6 +16,9 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public float AtmosphereScale; // slightly bigger than clouds, a very subtle atmosphere effect, enabled for clouds, see `NoAtmosphere`
         [StarData] public float HaloScale; // a very subtle halo effect, enabled for clouds, see `NoHalo`
 
+        // Mesh.BoundingSphere.Radius * PlanetScale
+        public float BasePlanetRadius;
+
         [StarData] public string PlanetMesh;
         [StarData] public string[] RingsMesh; // [rings.obj, rings.dds]
         [StarData] public string[] GlowEffect; // [glow.obj, glow.png]
@@ -59,6 +62,8 @@ namespace Ship_Game.Universe.SolarBodies
             HaloScaleMatrix = Matrix.CreateScale(HaloScale);
 
             Renderer = new PlanetRenderer(content, this);
+
+            BasePlanetRadius = Renderer.MeshSphere.Meshes[0].BoundingSphere.Radius * PlanetScale;
 
             foreach (PlanetType type in Types)
                 type.Initialize(this, content, Renderer.MeshSphere);

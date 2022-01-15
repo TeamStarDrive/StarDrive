@@ -57,7 +57,6 @@ namespace Ship_Game
             ShieldStrengthCurrent = data.ShieldStrength;
             CrippledTurns         = data.TurnsCrippled;
             PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
-            ObjectRadius          = 1000f * (float)(1 + (Math.Log(Scale) / 1.5));
             
             UpdateTerraformPoints(data.TerraformPoints);
 

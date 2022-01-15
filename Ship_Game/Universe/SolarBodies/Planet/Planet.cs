@@ -291,9 +291,7 @@ namespace Ship_Game
                 InitNewMinorPlanet(chosenType, scale);
             }
 
-            float planetRadius = 1000f * (float)(1 + (Math.Log(Scale) / 1.5));
-            ObjectRadius = planetRadius;
-            OrbitalRadius = ringRadius + planetRadius;
+            OrbitalRadius = ringRadius + ObjectRadius;
             Center = MathExt.PointOnCircle(randomAngle, ringRadius);
             PlanetTilt = RandomMath.RandomBetween(45f, 135f);
 
@@ -479,6 +477,8 @@ namespace Ship_Game
             UpdateHabitable(timeStep);
             UpdatePosition(timeStep);
 
+            if (IsVisible && HasSpacePort)
+                Station.Update(timeStep);
         }
 
         void UpdateHabitable(FixedSimTime timeStep)
@@ -1215,7 +1215,7 @@ namespace Ship_Game
                 if (Universe.IsSystemViewOrCloser
                     && Universe.Frustum.Contains(Center, OrbitalRadius * 2))
                 {
-                    Shield.HitShield(this, ship, Center, SO.WorldBoundingSphere.Radius + 100f);
+                    Shield.HitShield(this, ship, Center, ObjectRadius + 100f);
                 }
 
                 ShieldStrengthCurrent = (ShieldStrengthCurrent - damage).LowerBound(0);

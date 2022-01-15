@@ -13,7 +13,6 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private Empire Owner      => P.Owner;
         private Shield Shield     => P.Shield;
         private Vector2 Center    => P.Center;
-        private SceneObject SO    => P.SO;
         private bool HasSpacePort => P.HasSpacePort;
         private int Level         => P.Level;
         private int NumShipYards  => P.OrbitalStations.Count(s => s.ShipData.IsShipyard);
@@ -138,7 +137,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             if (P.Universe.IsSystemViewOrCloser
                 && P.Universe.Frustum.Contains(P.Center, P.OrbitalRadius * 2))
             {
-                Shield.HitShield(P, bomb, Center, SO.WorldBoundingSphere.Radius + 100f);
+                Shield.HitShield(P, bomb, Center, P.ObjectRadius + 100f);
             }
 
             P.ShieldStrengthCurrent = Math.Max(P.ShieldStrengthCurrent - bomb.HardDamageMax, 0);
