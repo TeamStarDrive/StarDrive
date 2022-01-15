@@ -181,9 +181,8 @@ namespace Ship_Game
         public Vector3 Center3D => new Vector3(Center, 2500);
 
         public SolarSystem ParentSystem;
-
-        public Matrix PlanetMatrix;
         public SceneObject SO;
+        public bool IsVisible; // set by renderer
 
         public string SpecialDescription;
         public bool HasSpacePort;
@@ -203,7 +202,6 @@ namespace Ship_Game
         public int UniqueHabPercent;
         public SunZone Zone { get; protected set; }
         protected AudioEmitter Emitter;
-        protected float InvisibleRadius;
         public float GravityWellRadius { get; protected set; }
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
         public float Density;
@@ -231,11 +229,9 @@ namespace Ship_Game
             Emitter.Position = position;
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
-        public float ObjectRadius
-        {
-            get => SO?.WorldBoundingSphere.Radius ?? InvisibleRadius;
-            set => InvisibleRadius = SO?.WorldBoundingSphere.Radius ?? value;
-        }
+
+        public float ObjectRadius => Type.Types.BasePlanetRadius * Scale;
+
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
         public IReadOnlyList<Building> GetBuildingsCanBuild() => BuildingsCanBuild;
@@ -363,13 +359,13 @@ namespace Ship_Game
 
         void UpdateWorldMatrix()
         {
-            var pos3d = Matrix.CreateTranslation(Center3D);
-            var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
-            var baseScale = ScaleMatrix;
-
-            PlanetMatrix = baseScale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
             if (SO != null)
-                SO.World = PlanetMatrix;
+            {
+                var pos3d = Matrix.CreateTranslation(Center3D);
+                var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
+                var baseScale = ScaleMatrix;
+                SO.World = baseScale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
+            }
         }
 
         protected void CreatePlanetSceneObject()

@@ -105,7 +105,7 @@ namespace Ship_Game
         public void SetTarget(Planet p)
         {
             TargetPlanet = p;
-            PlanetRadius = TargetPlanet.SO.WorldBoundingSphere.Radius;
+            PlanetRadius = TargetPlanet.ObjectRadius;
             Vector3 vtt = TargetPlanet.Center3D + 
                 new Vector3(RandomMath2.RandomBetween(-500f, 500f) * p.Scale, 
                             RandomMath2.RandomBetween(-500f, 500f) * p.Scale, 0f) - Position;

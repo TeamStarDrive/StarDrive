@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -119,9 +118,8 @@ namespace Ship_Game
             for (int i = 0; i < PlanetList.Count; i++)
             {
                 Planet planet = PlanetList[i];
+                planet.IsVisible = IsVisible && universe.Frustum.Contains(planet.Center3D, planet.ObjectRadius);
                 planet.Update(timeStep);
-                if (planet.HasSpacePort && IsVisible)
-                    planet.Station.Update(timeStep);
             }
 
             if (Sun.RadiationDamage > 0f)
@@ -486,8 +484,7 @@ namespace Ship_Game
                 else
                     scale = RandomBetween(0.9f, 1.8f) + type.Scale;
 
-                float planetRadius = 1000f * (float) (1 + ((Math.Log(scale)) / 1.5));
-                float randomAngle  = RandomBetween(0f, 360f);
+                float randomAngle = RandomBetween(0f, 360f);
 
                 var newOrbital = new Planet
                 {
@@ -496,7 +493,6 @@ namespace Ship_Game
                     ParentSystem       = this,
                     SpecialDescription = ringData.SpecialDescription,
                     Center             = Vector2.Zero.PointFromAngle(randomAngle, orbitalDistance),
-                    ObjectRadius       = planetRadius,
                     OrbitalRadius      = orbitalDistance,
                     PlanetTilt         = RandomBetween(45f, 135f)
                 };
