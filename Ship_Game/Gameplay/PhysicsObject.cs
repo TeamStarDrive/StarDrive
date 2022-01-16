@@ -134,7 +134,7 @@ namespace Ship_Game.Gameplay
             Vector2 thrustDir = GetThrustVector();
             Vector2 acc = default;
             // If ship is traveling backwards or sideways, limit max velocity
-            float maxVelocity = a.Travel < -0.15f ? a.MaxVelocity * 0.6f : a.MaxVelocity;
+            float maxVelocity = a.Travel < -0.15f ? a.MaxVelocity * 0.75f : a.MaxVelocity;
 
             if (ThrustThisFrame == Thrust.AllStop)
             {
