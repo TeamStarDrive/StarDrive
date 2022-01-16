@@ -1,0 +1,41 @@
+﻿Version=1
+Name=Crescent mk2-a
+Hull=Draylok/Crescent
+Role=corvette
+Style=Draylok
+Size=10,6
+GridCenter=5,3
+DefaultAIState=DoNothing
+DefaultCombatState=ShortRange
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=BasicFuelCell;HeavyLaserCannon;NuclearReactorMed;PowerConduit;Maneuvering_Thruster_1x1;Engine;Cockpit;WarpEngine_1x1
+Modules=23
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+4,0;0
+5,0;0
+4,1;0
+5,1;0
+0,2;1;1,3
+4,2;2;2,2
+9,2;1;1,3
+1,3;0
+3,3;3
+6,3;3
+8,3;0
+1,4;0
+2,4;4
+3,4;0
+4,4;5
+5,4;5
+6,4;6
+7,4;4
+8,4;0
+3,5;7
+4,5;5
+5,5;5
+6,5;7
