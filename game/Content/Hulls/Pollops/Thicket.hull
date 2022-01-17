@@ -17,5 +17,5 @@ Slots
 ___|O  |___|___|O  |___
 ___|O  |IO |IO |O  |___
 O  |IO |I  |I  |IO |O  
-___|IO |I  |IC |IO |___
-___|___|E  |E  |___|___
+O  |IO |I  |IC |IO |O  
+___|IO |E  |E  |IO |___
