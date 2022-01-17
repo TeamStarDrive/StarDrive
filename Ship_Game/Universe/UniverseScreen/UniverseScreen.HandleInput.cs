@@ -193,13 +193,15 @@ namespace Ship_Game
                     }
                     if (SelectedShipList.Count == 1)
                     {
-                        InputCheckPreviousShip(SelectedShipList[0]);
-                        SelectedShip = SelectedShipList[0];
+                        InputCheckPreviousShip(SelectedShipList.First);
+                        SelectedShip = SelectedShipList.First;
                         ShipInfoUIElement.SetShip(SelectedShip);
                         SelectedShipList.Clear();
                     }
                     else if (SelectedShipList.Count > 1)
+                    {
                         shipListInfoUI.SetShipList(SelectedShipList, true);
+                    }
 
                     SelectedSomethingTimer = 3f;
 
@@ -404,122 +406,131 @@ namespace Ship_Game
             if (index == -1) 
                 return;
 
-            bool moveToFleet = SelectedFleet == Player.GetFleetsDict()[index];
+            Fleet selectedFleet = Player.GetFleetsDict()[index];
 
-            // replace ships in fleet from selection
-            // or remove selected fleet if not ships are selected.
             if (input.ReplaceFleet)
             {
-                Fleet selectedFleet = Player.GetFleetsDict()[index];
-
-                // clear the fleet if pressing ctrl + the same fleet number
-                if (SelectedShipList.Count == 0 ||
-                    (selectedFleet == SelectedFleet && SelectedFleet?.Ships.Count > 0))
-                {
-                    selectedFleet.Reset();
-                    RecomputeFleetButtons(true);
-                    return;
-                }
-
-                selectedFleet.RemoveAllShips(returnShipsToEmpireAI: true, clearOrders: false);
-
-                var newFleet = AddSelectedShipsToNewFleet(SelectedShipList);
-                newFleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
-                newFleet.Owner = Player;
-
-                Player.GetFleetsDict()[index] = newFleet;
-                RecomputeFleetButtons(true);
+                CreateNewFleet(selectedFleet, index);
             }
-            else if (input.AddToFleet) // added by gremlin add ships to exiting fleet
+            else if (input.AddToFleet)
             {
-                if (SelectedShipList.Count == 0 )
+                AddShipsToExistingFleet(selectedFleet, index);
+            }
+            else
+            {
+                ShowSelectedFleetInfo(selectedFleet);
+            }
+        }
+
+        void CreateNewFleet(Fleet selectedFleet, int index)
+        {
+            // clear the fleet if no ships selected and pressing Ctrl + NumKey[1-9]
+            if (SelectedShipList.Count == 0)
+            {
+                selectedFleet.Reset();
+                RecomputeFleetButtons(true);
+                return;
+            }
+
+            // else: we have selected some ships, delete old fleet
+            selectedFleet.Reset(returnShipsToEmpireAI: true, clearOrders: false);
+
+            // create new fleet
+            var fleet = AddSelectedShipsToNewFleet(SelectedShipList);
+            fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
+            fleet.Owner = Player;
+
+            Player.GetFleetsDict()[index] = fleet;
+            RecomputeFleetButtons(true);
+            UpdateFleetSelection(fleet);
+        }
+
+        void AddShipsToExistingFleet(Fleet selectedFleet, int index)
+        {
+            if (SelectedShipList.Count == 0)
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
+            Fleet fleet;
+            if (selectedFleet?.Ships.Count > 0)
+            {
+                // create a list of ships that are not part of the target fleet.
+                var newShips = SelectedShipList.Filter(s => s.Fleet != selectedFleet);
+                if (newShips.Length == 0) // nothing to add
                 {
                     GameAudio.NegativeClick();
                     return;
                 }
 
-                Fleet fleet = null;
-                var targetFleet = Player.GetFleetsDict()[index];
-                if (targetFleet?.Ships.Count > 0)
-                {
-                    // create a list of ships that are not part of the target fleet. 
-                    var ships = new Array<Ship>(SelectedShipList.Filter(s => s.Fleet != targetFleet));
-
-                    // bail if there are no extra ships that are not already part of the target fleet. 
-                    if (ships.Count == 0)
-                    {
-                        GameAudio.NegativeClick();
-                        return;
-                    }
-
-                    // do the work.
-                    fleet = AddShipsToExistingFleet(targetFleet, ships);
-                }
-                else
-                {
-                    fleet = AddSelectedShipsToNewFleet(SelectedShipList);
-                    Player.GetFleetsDict()[index] = fleet;
-                }
-
-                // do UI and fleet list maintenance. 
-                SelectedFleet = fleet;
-
-                SelectedShipList = new BatchRemovalCollection<Ship>(fleet.Ships);
-                shipListInfoUI.SetShipList(SelectedShipList, true);  //fbedard:display new fleet in UI
-                fleet.SetCommandShip(null);
-                
-                if (fleet.Name.Contains("Fleet") || fleet.Name.IsEmpty())
-                {
-                    string str = Fleet.GetDefaultFleetNames(index);
-
-                    fleet.Name = str + " Fleet";
-                }
-                
-                fleet.Update(FixedSimTime.Zero/*paused during init*/);
-
-                RecomputeFleetButtons(true);
+                fleet = AddShipsToExistingFleet(selectedFleet, newShips);
+                fleet.AutoArrange(); // arrange new ships into formation
             }
-            else // populate ship info UI with ships in fleet
+            else
             {
-                SelectedPlanet = null;
-                InputCheckPreviousShip();
+                fleet = AddSelectedShipsToNewFleet(SelectedShipList);
+                Player.GetFleetsDict()[index] = fleet;
+            }
 
-                SelectedShip = null;
-                Fleet fleet = Player.GetFleetsDict()[index] ?? new Fleet();
-                if (fleet.Ships.Count > 0)
-                {
-                    SelectedFleet = fleet;
-                    GameAudio.FleetClicked();
-                }
-                else
-                    SelectedFleet = null;
-                SelectedShipList.Clear();
-                foreach (Ship ship in fleet.Ships)
-                {
-                    SelectedShipList.Add(ship);
-                    SelectedSomethingTimer = 3f;
-                }
-                if (SelectedShipList.Count == 1) //fbedard:display new fleet in UI
-                {
-                    InputCheckPreviousShip(SelectedShipList[0]);
-                    SelectedShip = SelectedShipList[0];
-                    ShipInfoUIElement.SetShip(SelectedShip);
-                }
-                else if (SelectedShipList.Count > 1)
-                    shipListInfoUI.SetShipList(SelectedShipList, true);
+            UpdateFleetSelection(fleet);
+            fleet.SetCommandShip(null);
 
-                if (SelectedFleet != null && moveToFleet)
-                {
-                    ViewingShip    = false;
-                    AdjustCamTimer = 0.5f;
-                    CamDestination = SelectedFleet.AveragePosition().ToVec3d(CamDestination.Z);
+            if (fleet.Name.IsEmpty() || fleet.Name.Contains("Fleet"))
+                fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
 
-                    if (CamPos.Z < GetZfromScreenState(UnivScreenState.SystemView))
-                        CamDestination.Z = GetZfromScreenState(UnivScreenState.PlanetView);
-                }
+            fleet.Update(FixedSimTime.Zero /*paused during init*/);
+
+            RecomputeFleetButtons(true);
+        }
+
+        void ShowSelectedFleetInfo(Fleet selectedFleet)
+        {
+            bool snapToFleet = SelectedFleet == selectedFleet; // user pressed fleet Number twice
+            InputCheckPreviousShip();
+
+            SelectedPlanet = null;
+            SelectedShip = null;
+            SelectedFleet = null;
+
+            // nothing selected
+            if (selectedFleet == null)
+                return;
+
+            UpdateFleetSelection(selectedFleet);
+            GameAudio.FleetClicked();
+
+            if (SelectedShipList.Count == 1)
+            {
+                InputCheckPreviousShip(SelectedShipList.First);
+            }
+
+            if (SelectedFleet != null && snapToFleet)
+            {
+                ViewingShip = false;
+                AdjustCamTimer = 0.5f;
+                CamDestination = SelectedFleet.AveragePosition().ToVec3d(CamDestination.Z);
+
+                if (CamPos.Z < GetZfromScreenState(UnivScreenState.SystemView))
+                    CamDestination.Z = GetZfromScreenState(UnivScreenState.PlanetView);
             }
         }
 
+        void UpdateFleetSelection(Fleet newlySelectedFleet)
+        {
+            SelectedFleet = newlySelectedFleet;
+            SelectedShipList.Assign(newlySelectedFleet.Ships);
+            SelectedSomethingTimer = 3f;
+
+            if (newlySelectedFleet.Ships.Count == 1)
+            {
+                SelectedShip = SelectedShipList.First;
+            }
+            else
+            {
+                shipListInfoUI.SetShipList(newlySelectedFleet.Ships, isFleet: true);
+            }
+        }
 
         Ship CheckShipClick(InputState input)
         {
@@ -1210,8 +1221,11 @@ namespace Ship_Game
 
         void InputCheckPreviousShip(Ship ship = null)
         {
-            if (SelectedShip != null  && previousSelection != SelectedShip && SelectedShip != ship) //fbedard
+            // previously selected ship is not null, and we selected a new ship, and new ship is not previous ship
+            if (SelectedShip != null && previousSelection != SelectedShip && SelectedShip != ship)
+            {
                 previousSelection = SelectedShip;
+            }
         }
 
         void HandleInputScrap(InputState input)
@@ -1264,9 +1278,9 @@ namespace Ship_Game
             SelectedItem = null;
         }
 
-        Fleet AddSelectedShipsToNewFleet(Array<Ship> ships)
+        Fleet AddSelectedShipsToNewFleet(IReadOnlyList<Ship> ships)
         {
-            if (ships?.NotEmpty != true)
+            if (ships.Count == 0)
                 return null;
 
             var newFleet = new Fleet(Player);
@@ -1277,18 +1291,14 @@ namespace Ship_Game
             newFleet.SetCommandShip(null);
             newFleet.Update(FixedSimTime.Zero/*paused during init*/);
             newFleet.AutoArrange();
-            shipListInfoUI.SetShipList(SelectedShipList, true);  //fbedard:display new fleet in UI
             return newFleet;
         }
 
-        Fleet AddShipsToExistingFleet(Fleet fleet, Array<Ship> ships)
+        Fleet AddShipsToExistingFleet(Fleet fleet, Ship[] ships)
         {
             // must have a fleet must have ships to add
-            if (fleet?.Ships.NotEmpty != true || ships?.NotEmpty != true)
-            {
-                fleet = null;
+            if (fleet.Ships.IsEmpty || ships.Length == 0)
                 return null;
-            }
 
             GameAudio.FleetClicked();
             InputCheckPreviousShip();
@@ -1298,10 +1308,10 @@ namespace Ship_Game
         }
 
         // move to thread safe update
-        public void RecomputeFleetButtons(bool now)
+        public void RecomputeFleetButtons(bool forceUpdate)
         {
             ++FBTimer;
-            if (FBTimer <= 60 && !now)
+            if (FBTimer <= 60 && !forceUpdate)
                 return;
             lock (GlobalStats.FleetButtonLocker)
             {

@@ -77,13 +77,13 @@ namespace Ship_Game.Fleets
             Name = index + suffix + " fleet";
         }
 
-        public void AddShips(Array<Ship> ships)
+        public void AddShips(IReadOnlyList<Ship> ships)
         {
             for (int i = 0; i < ships.Count; i++)
                 AddShip(ships[i]);
         }
 
-        public void AddShips(Array<Ship> ships, bool removeFromExisting, bool clearOrders)
+        public void AddShips(IReadOnlyList<Ship> ships, bool removeFromExisting, bool clearOrders)
         {
             for (int i = 0; i < ships.Count; i++)
             {
@@ -2285,11 +2285,6 @@ namespace Ship_Game.Fleets
                 return false;
             }
 
-            if (ship.Active && ship.AI.State != AIState.AwaitingOrders)
-            {
-                Log.Warning($"Fleet.RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}");
-            }
-
             RemoveFromAllSquads(ship);
             bool removed = Ships.RemoveRef(ship);
 
@@ -2330,9 +2325,9 @@ namespace Ship_Game.Fleets
         /// <summary>
         /// Resets this entire fleet by removing all ships and clearing fleet tasks & goals
         /// </summary>
-        public void Reset(bool returnShipsToEmpireAI = true)
+        public void Reset(bool returnShipsToEmpireAI = true, bool clearOrders = true)
         {
-            RemoveAllShips(returnShipsToEmpireAI, clearOrders: true);
+            RemoveAllShips(returnShipsToEmpireAI, clearOrders: clearOrders);
             TaskStep = 0;
             FleetTask = null;
             ClearFleetGoals();
