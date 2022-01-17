@@ -147,7 +147,7 @@ namespace Ship_Game
 
             if (!finalDirection.IsUnitVector())
                 Log.Error($"AssembleFleet newDirection {finalDirection} must be a direction unit vector!");
-            
+
             FinalPosition  = finalPosition;
             FinalDirection = finalDirection;
             float facing = finalDirection.ToRadians();
@@ -407,35 +407,6 @@ namespace Ship_Game
             return Ships.FindMin(ship => ship.Position.SqDist(worldPos));
         }
 
-        protected bool IsFleetSupplied(float wantedSupplyRatio =.1f)
-        {
-            float currentAmmo = 0.0f;
-            float maxAmmo = 0.0f;
-            float ammoDps = 0.0f;
-            float energyDps = 0.0f;
-
-            //TODO: make sure this is the best way. Likely these values can be done in ship update and totaled here rather than recalculated.
-            for (int i = 0; i < Ships.Count; ++i)
-            {
-                Ship ship = Ships[i];
-                if (!ship.AI.HasPriorityOrder)
-                {
-                    currentAmmo += ship.Ordinance;
-                    maxAmmo += ship.OrdinanceMax;
-                    foreach (Weapon weapon in ship.Weapons)
-                    {
-                        if (weapon.OrdinanceRequiredToFire > 0.0)
-                            ammoDps = weapon.DamageAmount / weapon.FireDelay;
-                        if (weapon.PowerRequiredToFire > 0.0)
-                            energyDps = weapon.DamageAmount / weapon.FireDelay;
-                    }
-                }
-            }
-            return !(maxAmmo > 0)
-                || !(ammoDps >= (ammoDps + energyDps) * 0.5f)
-                || !(currentAmmo <= maxAmmo * wantedSupplyRatio);
-        }
-
         public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder, bool offensiveMove = false, bool forceAssembly = false)
         {
             GoalStack.Clear();
@@ -455,23 +426,6 @@ namespace Ship_Game
                     else
                         ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
 
-                    ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
-                }
-            }
-        }
-
-        public void MoveToDirectly(Vector2 finalPosition, Vector2 finalDirection)
-        {
-            GoalStack.Clear();
-            AssembleFleet(finalPosition, finalDirection);
-            
-            foreach (Ship ship in Ships)
-            {
-                // Prevent fleets with no tasks from and are near their destination from being dumb.
-                if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
-                {
-                    ship.AI.ResetPriorityOrder(true);
-                    ship.AI.OrderMoveDirectlyTo(FinalPosition + ship.FleetOffset, finalDirection, true, AIState.MoveTo);
                     ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
                 }
             }
