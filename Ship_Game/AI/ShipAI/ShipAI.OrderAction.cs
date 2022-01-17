@@ -179,13 +179,13 @@ namespace Ship_Game.AI
         }
 
         public void OrderMoveTo(Vector2 position, Vector2 finalDir, bool clearWayPoints, 
-                                        AIState wantedState, Goal goal = null, bool offensiveMove = false, bool pinPoint = false)
+                                AIState wantedState, Goal goal = null, bool offensiveMove = false, bool pinPoint = false)
         {
             AddWayPoint(position, finalDir, clearWayPoints, speedLimit:0f, wantedState, offensiveMove, stop:true, pinPoint, goal);
         }
 
         public void OrderMoveToNoStop(Vector2 position, Vector2 finalDir, bool clearWayPoints,
-                                        AIState wantedState, Goal goal = null, bool offensiveMove = false, bool pinPoint = false)
+                                      AIState wantedState, Goal goal = null, bool offensiveMove = false, bool pinPoint = false)
         {
             AddWayPoint(position, finalDir, clearWayPoints, speedLimit: 0f, wantedState, offensiveMove, stop:false, pinPoint, goal);
         }

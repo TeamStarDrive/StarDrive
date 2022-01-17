@@ -31,7 +31,7 @@ namespace UnitTests.Fleets
 
         void CreateWantedShipsAndAddThemToList(int numberWanted, string shipName, Array<Ship> shipList)
         {
-            for (int i =0; i < numberWanted; i++)
+            for (int i = 0; i < numberWanted; i++)
             {
                 shipList.Add(CreatePlayerShip(shipName, Vector2.Zero));
             }
@@ -102,6 +102,22 @@ namespace UnitTests.Fleets
             return fleet;
         }
 
+        Vector2 FleetMoveTo(Fleet fleet, Vector2 offset)
+        {
+            Vector2 target = fleet.FinalPosition + offset;
+            Log.Write($"Fleet.MoveToNow({target.X},{target.Y})");
+            fleet.MoveToNow(target, finalDirection: offset.Normalized());
+            return target;
+        }
+
+        Vector2 FleetQueueMoveOrder(Fleet fleet, Vector2 offset)
+        {
+            Vector2 target = fleet.FinalPosition + offset;
+            Log.Write($"Fleet.QueueMoveOrder({target.X},{target.Y})");
+            fleet.FormationWarpTo(target, finalDirection: offset.Normalized(), queueOrder: true);
+            return target;
+        }
+
         [TestMethod]
         public void FleetIsAbleToWarpMoveUp()
         {
@@ -109,7 +125,7 @@ namespace UnitTests.Fleets
             var offset = new Vector2(0, -40_000f);
             Fleet fleet = CreateMassivePlayerFleet(offset.Normalized());
             Vector2 target = FleetMoveTo(fleet, offset);
-            AssertAllShipsWarpedToTarget(fleet, target);
+            AssertAllShipsWarpedToTarget(fleet, target, simTimeout: 8.0);
         }
 
         [TestMethod]
@@ -119,7 +135,7 @@ namespace UnitTests.Fleets
             var offset = new Vector2(-40_000f, 0f);
             Fleet fleet = CreateMassivePlayerFleet(offset.Normalized());
             Vector2 target = FleetMoveTo(fleet, offset);
-            AssertAllShipsWarpedToTarget(fleet, target);
+            AssertAllShipsWarpedToTarget(fleet, target, simTimeout: 8.0);
         }
 
         [TestMethod]
@@ -129,7 +145,7 @@ namespace UnitTests.Fleets
             var offset = new Vector2(0, 40_000f);
             Fleet fleet = CreateMassivePlayerFleet(offset.Normalized());
             Vector2 target = FleetMoveTo(fleet, offset);
-            AssertAllShipsWarpedToTarget(fleet, target);
+            AssertAllShipsWarpedToTarget(fleet, target, simTimeout: 8.0);
         }
 
         [TestMethod]
@@ -139,21 +155,56 @@ namespace UnitTests.Fleets
             var offset = new Vector2(40_000f, 0);
             Fleet fleet = CreateMassivePlayerFleet(offset.Normalized());
             Vector2 target = FleetMoveTo(fleet, offset);
-            AssertAllShipsWarpedToTarget(fleet, target);
+            AssertAllShipsWarpedToTarget(fleet, target, simTimeout: 8.0);
         }
 
-        Vector2 FleetMoveTo(Fleet fleet, Vector2 offset)
+        Fleet CreateRandomizedPlayerFleet(int randomSeed)
         {
-            Vector2 target = PlayerShips[0].Position + offset;
-            Log.Write($"Fleet.MoveToNow({target.X},{target.Y})");
-            fleet.MoveToNow(target, finalDirection: offset.Normalized());
-            return target;
+            Log.Write($"RandomizedFleet seed={randomSeed}");
+            CreateWantedShipsAndAddThemToList(5, "Terran-Prototype", PlayerShips);
+            CreateWantedShipsAndAddThemToList(195, "Vulcan Scout", PlayerShips);
+
+            // scatter the ships
+            var random = new ThreadSafeRandom();
+            foreach (Ship s in PlayerShips)
+            {
+                s.Direction = random.Direction2D();
+                s.Position = random.Vector2D(2000);
+            }
+
+            Fleet fleet = CreateTestFleet(PlayerShips, PlayerFleets);
+            fleet.AutoArrange();
+            return fleet;
         }
 
-        void AssertAllShipsWarpedToTarget(Fleet fleet, Vector2 target)
+        [TestMethod]
+        public void FleetCanAssembleAndFormationWarp()
+        {
+            Fleet fleet = CreateRandomizedPlayerFleet(12345);
+            fleet.AssembleFleet(new Vector2(0, 10_000), Vectors.Down); // assemble the fleet in distance
+
+            // order it to warp forward at an angle
+            var finalTarget = FleetMoveTo(fleet, new Vector2(50_000, 50_000));
+            AssertAllShipsWarpedToTarget(fleet, finalTarget, simTimeout: 30.0);
+        }
+
+        [TestMethod]
+        public void FleetCanAssembleAndFormationWarpToMultipleWayPoints()
+        {
+            Fleet fleet = CreateRandomizedPlayerFleet(12345);
+            fleet.AssembleFleet(new Vector2(0, 10_000), Vectors.Down); // assemble the fleet in distance
+
+            // order it to warp forward at an angle
+            FleetMoveTo(fleet, new Vector2(50_000, 50_000));
+            // and then queue up another WayPoint to the fleet
+            var finalTarget = FleetQueueMoveOrder(fleet, new Vector2(-20_000, 40_000));
+            AssertAllShipsWarpedToTarget(fleet, finalTarget, simTimeout: 30.0);
+        }
+
+        void AssertAllShipsWarpedToTarget(Fleet fleet, Vector2 target, double simTimeout)
         {
             var shipsThatWereInWarp = new HashSet<Ship>();
-            RunSimWhile((simTimeout:8.0, fatal:false), body:() =>
+            RunSimWhile((simTimeout, fatal:false), body:() =>
             {
                 foreach (Ship s in fleet.Ships)
                     if (s.IsInWarp) shipsThatWereInWarp.Add(s);
