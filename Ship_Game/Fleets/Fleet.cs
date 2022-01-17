@@ -287,7 +287,8 @@ namespace Ship_Game.Fleets
 
         void FlankToCenterOffset(Array<Squad> flank, FlankType flankType)
         {
-            if (flank.IsEmpty) return;
+            if (flank.IsEmpty)
+                return;
 
             Vector2 centerFlankSize = GetFlankSize(CenterFlank);
             int buildDirection = flankType == FlankType.Left ? -1 : 1;
@@ -562,7 +563,7 @@ namespace Ship_Game.Fleets
                 
                 if (row > rowMax)
                 {
-                    row =  0;
+                    row = 0;
                     squadOffset.Y = (flank == FlankType.Screen ? -1 : 1) * tallestSquad;
                     previousSizeLeft = previousSizeRight = Vector2.Zero;
                     tallestSquad = 0;
@@ -2210,15 +2211,6 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void PostInvasionStayInAO()
-        {
-            foreach (Ship ship in Ships)
-            {
-                if (ship.Position.SqDist(FleetTask.AO) > ship.AI.FleetNode.OrdersRadius)
-                    ship.AI.OrderThrustTowardsPosition(FleetTask.AO + ship.FleetOffset, 60f.AngleToDirection(), true);
-            }
-        }
-
         public void UpdateAI(FixedSimTime timeStep, int which)
         {
             if (FleetTask != null)
@@ -2356,18 +2348,6 @@ namespace Ship_Game.Fleets
                 var ship = Ships.PopLast();
                 RemoveShip(ship, returnToEmpireAI: returnShipsToEmpireAI, clearOrders: clearOrders);
             }
-        }
-
-        // @return The desired formation pos for this ship
-        public Vector2 GetFormationPos(Ship ship) => AveragePosition() + ship.FleetOffset; //- AverageOffsetFromZero;
-
-        // @return The Final destination position for this ship
-        public Vector2 GetFinalPos(Ship ship)
-        {
-            if (CommandShip?.InCombat == true && FinalPosition.InRadius(CommandShip.Position, CommandShip.AI.FleetNode.OrdersRadius))
-                return CommandShip.Position + ship.FleetOffset;
-            
-            return FinalPosition + ship.FleetOffset;
         }
 
         public float FormationWarpSpeed(Ship ship)
@@ -2564,89 +2544,81 @@ namespace Ship_Game.Fleets
             public Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
             public Array<Ship> Ships = new Array<Ship>();
             public Fleet Fleet;
-            public Vector2 Offset;
+            public Vector2 Offset; // squad offset within fleet
 
-            public float GetShipDirectionFromShip(Ship ship)
-            {
-                return GetShipIndexDirection(Ships.IndexOfRef(ship));
-            }
+            public const float SquadSpacing = ShipAI.FlockingSeparation + 100f;
 
             public float GetShipIndexDirection(int index)
             {
-                float radiansAngle = 0;
                 switch (index)
                 {
                     default:
-                    case 0:
-                        radiansAngle = RadMath.RadiansUp;
-                        break;
-                    case 1:
-                        radiansAngle = RadMath.RadiansLeft;
-                        break;
-                    case 2:
-                        radiansAngle = RadMath.RadiansRight;
-                        break;
-                    case 3:
-                        radiansAngle = RadMath.RadiansDown;
-                        break;
+                    case 0: return RadMath.RadiansUp;
+                    case 1: return RadMath.RadiansLeft;
+                    case 2: return RadMath.RadiansRight;
+                    case 3: return RadMath.RadiansDown;
                 }
-                return radiansAngle;
             }
 
             public Vector2 GetSquadSize()
             {
                 float x = 0;
                 float y = 0;
-
                 for (int i = 0; i < DataNodes.Count; i++)
                 {
-                    var n        = DataNodes[i];
+                    FleetDataNode n = DataNodes[i];
                     float width  = n.Ship?.GridWidth * 8f ?? 0;
                     float height = n.Ship?.GridHeight * 8f ?? 0;
-                    Vector2 relativeOffset = Offset - Fleet.AveragePos;
                     float nodeX  = Math.Abs((n.FleetOffset - Offset).X);
                     float nodeY  = Math.Abs((n.FleetOffset - Offset).Y);
 
-                    x = Math.Max(x, nodeX) + width + 75f;
-                    y = Math.Max(y, nodeY) + height + 75f;
-                    
+                    x = Math.Max(x, nodeX) + width + SquadSpacing;
+                    y = Math.Max(y, nodeY) + height + SquadSpacing;
                 }
-                return new Vector2(x,y);
+                return new Vector2(x, y);
             }
 
             public void SetNodeOffsets(float facing = 0.0f)
             {
-                for (int index = 0; index < DataNodes.Count; ++index)
+                int count = DataNodes.Count;
+                if (count == 0)
+                    return;
+
+                float squadOffsetAngle = Offset.Normalized().ToRadians();
+                float squadOffsetLen = Offset.Length();
+
+                for (int i = 0; i < DataNodes.Count; ++i)
                 {
-                    var node = DataNodes[index];
-                    var ship = node?.Ship;
-                    if (ship == null) continue;
+                    FleetDataNode n = DataNodes[i];
+                    Ship ship = n.Ship;
+                    if (ship != null)
+                    {
+                        float radiansAngle = GetShipIndexDirection(i);
+                        Vector2 offset = (facing + squadOffsetAngle).RadiansToDirection() * squadOffsetLen;
+                        float spacing = (ship.Radius + SquadSpacing);
 
-                    float radiansAngle = GetShipIndexDirection(index);
-                    Vector2 offset = (facing + Offset.ToRadians()).RadiansToDirection() * Offset.Length();
-
-                    node.Ship.FleetOffset         = offset;
-                    node.Ship.RelativeFleetOffset = offset;
-                    node.CombatState              = node.Ship.AI.CombatState;
-                    ship.FleetOffset              = offset + (facing + radiansAngle).RadiansToDirection() * (ship.Radius + 75f);
-                    ship.RelativeFleetOffset      = Offset + radiansAngle.RadiansToDirection() * (ship.Radius + 75f);
+                        ship.FleetOffset = offset + (facing + radiansAngle).RadiansToDirection() * spacing;
+                        ship.RelativeFleetOffset = Offset + radiansAngle.RadiansToDirection() * spacing;
+                        n.CombatState = n.Ship.AI.CombatState;
+                    }
                 }
             }
 
             void ClearSquadOffsets()
             {
                 Offset = Vector2.Zero;
-                foreach (var node in DataNodes)
+                for (int i = 0; i < DataNodes.Count; ++i)
                 {
-                    node.FleetOffset  = Vector2.Zero;
-                    node.OrdersOffset = Vector2.Zero;
+                    FleetDataNode n = DataNodes[i];
+                    n.FleetOffset  = Vector2.Zero;
+                    n.OrdersOffset = Vector2.Zero;
 
-                    if (node.Ship != null)
+                    if (n.Ship != null)
                     {
-                        node.Ship.FleetOffset         = Vector2.Zero;
-                        node.Ship.RelativeFleetOffset = Vector2.Zero;
-                        node.CombatState              = node.Ship.AI.CombatState;
-                        node.OrdersRadius             = node.Ship.SensorRange;
+                        n.Ship.FleetOffset = Vector2.Zero;
+                        n.Ship.RelativeFleetOffset = Vector2.Zero;
+                        n.CombatState  = n.Ship.AI.CombatState;
+                        n.OrdersRadius = n.Ship.SensorRange;
                     }
                 }
             }
@@ -2663,8 +2635,8 @@ namespace Ship_Game.Fleets
                 for (int i = 0; i < Ships.Count; i++)
                 {
                     var ship = Ships[i];
-                    if (ship == null) continue;
-                    tactic(ship);
+                    if (ship != null)
+                        tactic(ship);
                 }
             }
         }
