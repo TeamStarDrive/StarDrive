@@ -78,21 +78,19 @@ namespace Ship_Game.Ships
             if (Owner.engineState == Ship.MoveState.Warp && ReadyForWarp < WarpStatus.ReadyToWarp)
                 return ReadyForWarp;
 
-            float speedLimit = Owner.Fleet.GetSpeedLimitFor(Owner);
-            if (speedLimit < 1 || speedLimit == float.MaxValue)
-                return WarpStatus.WaitingOrRecalling;
-
-            if (!Owner.Position.InRadius(Owner.Fleet.FinalPosition + Owner.FleetOffset, 1000)
-                && Owner.AI.State != AIState.AwaitingOrders)
+            if (Owner.AI.State != AIState.AwaitingOrders &&
+                !Owner.Fleet.IsShipAtFinalPosition(Owner, 2000))
             {
                 Vector2 movePosition;
                 if (AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal) && goal.MovePosition != Vector2.Zero)
                     movePosition = goal.MovePosition;
                 else
-                    movePosition = Owner.Fleet.FinalPosition;
+                    movePosition = Owner.Fleet.GetFinalPos(Owner);
 
                 float facingFleetDirection = Owner.AngleDifferenceToPosition(movePosition);
-                if (facingFleetDirection > 0.02f)
+                // WARNING: BE EXTREMELY CAREFUL WITH THIS ANGLE HERE,
+                //          IF YOU MAKE IT TOO SMALL, FORMATION WARP WILL NOT WORK!
+                if (facingFleetDirection > 0.05f)
                     return WarpStatus.WaitingOrRecalling;
             }
             return ReadyForWarp;
