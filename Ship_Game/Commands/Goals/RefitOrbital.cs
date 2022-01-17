@@ -50,7 +50,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;  // No planet to refit
             }
 
-            OldShip.ClearFleet();
+            OldShip.ClearFleet(returnToManagedPools: false, clearOrders: true);
             OldShip.AI.State = AIState.Refit;
             Planet targetPlanet = OldShip.GetTether();
             if (targetPlanet != null)

@@ -83,7 +83,7 @@ namespace Ship_Game.Empires.ShipPools
             if (ship.Pool != this)
                 return false;
 
-            ship.ClearFleet(returnToManagedPools: false);
+            ship.ClearFleet(returnToManagedPools: false, clearOrders: false/*we don't have the authority to clear orders here*/);
             ForcePool.RemoveItemImmediate(ship);
             ship.Pool = null;
             return true;

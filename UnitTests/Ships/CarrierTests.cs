@@ -162,7 +162,8 @@ namespace UnitTests.Ships
         Fleet CreateFleet()
         {
             var friendlyShip = SpawnShip("Alliance-Class Mk Ia Hvy Assault", Player, Vector2.Zero);
-            var fleet = new Fleet(new Array<Ship> { Carrier, friendlyShip }, Player);
+            var fleet = new Fleet(Player);
+            fleet.AddShips(new Array<Ship>{ Carrier, friendlyShip });
             fleet.SetCommandShip(Carrier);
             fleet.AutoArrange();
             Player.FirstFleet = fleet;

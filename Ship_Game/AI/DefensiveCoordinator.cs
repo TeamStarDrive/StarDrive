@@ -122,8 +122,7 @@ namespace Ship_Game.AI
 
             if (found)
             {
-                ship.AI.SystemToDefend = null;
-                ship.AI.ClearOrders();
+                ship.AI.ClearOrders(); // TODO: is this ClearOrders needed?
                 Us.AddShipToManagedPools(ship);
             }
 
