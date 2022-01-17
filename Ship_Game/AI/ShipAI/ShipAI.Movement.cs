@@ -589,6 +589,14 @@ namespace Ship_Game.AI
         // It's a bit long
         public void KeepDistanceUsingFlocking(FixedSimTime timeStep)
         {
+            // special case for fleets: if ship is already at its final position
+            // ignore all flocking rules and stay put - other ships that are not in place
+            // will do their own thing
+            if (Owner.Fleet != null && Owner.Fleet.IsShipAtFinalPosition(Owner, 200))
+            {
+                return;
+            }
+
             // all deflection vectors summed by scaled direction vectors
             Vector2 meanDeflect = Vector2.Zero;
 

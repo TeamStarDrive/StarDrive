@@ -628,11 +628,56 @@ namespace Ship_Game
             }
         }
 
+        // @return The desired formation pos for this ship
+        public Vector2 GetFormationPos(Ship ship)
+        {
+            return AveragePosition() + ship.FleetOffset;
+        }
+
+        /// <summary>
+        /// The Final destination position for this ship:
+        ///   Fleet.FinalPosition + ship.FleetOffset
+        /// </summary>
+        public Vector2 GetFinalPos(Ship ship)
+        {
+            if (CommandShip?.InCombat == true && 
+                FinalPosition.InRadius(CommandShip.Position, CommandShip.AI.FleetNode.OrdersRadius))
+            {
+                return CommandShip.Position + ship.FleetOffset;
+            }
+
+            return FinalPosition + ship.FleetOffset;
+        }
+
+        /// <summary>
+        /// Return TRUE if ship is within `range` of its designated Fleet formation Offset
+        /// </summary>
+        public bool IsShipInFormation(Ship ship, float range)
+        {
+            return ship.Position.InRadius(GetFormationPos(ship), range);
+        }
+
+        /// <summary>
+        /// Returns TRUE if ship is within `range` of this fleets FinalPosition + ship.FleetOffset
+        /// </summary>
+        /// <param name="ship"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
+        public bool IsShipAtFinalPosition(Ship ship, float range)
+        {
+            return ship.Position.InRadius(GetFinalPos(ship), range);
+        }
+
+        /// <summary>
+        /// Gets the imposed speed limit set by the formation, or 0.0 which means there is no speed limit
+        /// </summary>
         public float GetSpeedLimitFor(Ship ship)
         {
-            if (ship.Position.InRadius(AveragePos + ship.FleetOffset, 1000))
+            // if ship is within its formation position, use formation speed limit
+            if (IsShipInFormation(ship, 1000f))
                 return SpeedLimit;
-            return 0;
+
+            return 0; // otherwise, there is no limit
         }
 
         public void SetSpeed()
@@ -640,19 +685,32 @@ namespace Ship_Game
             if (Ships.Count == 0)
                 return;
 
+            bool gotShipsWithinFormation = false;
             float slowestSpeed = float.MaxValue;
-            for (int i = 0; i < Ships.Count; i++) 
+
+            for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
 
                 if (ship.CanTakeFleetMoveOrders() && !ship.InCombat)
                 {
-                    if (CommandShip == null || ship.Position.InRadius(AveragePos + ship.FleetOffset, 15000))
+                    if (CommandShip == null || IsShipInFormation(ship, 15000f))
+                    {
+                        gotShipsWithinFormation = true;
                         slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
+                    }
                 }
             }
 
-            SpeedLimit = Math.Max(200, (float)Math.Round(slowestSpeed));
+            // none of the ships are close to the formation
+            if (!gotShipsWithinFormation)
+            {
+                SpeedLimit = 0f; // no speed limit at all
+            }
+            else
+            {
+                SpeedLimit = Math.Max(200, (float)Math.Round(slowestSpeed));
+            }
         }
     }
 }

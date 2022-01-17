@@ -317,7 +317,6 @@ namespace Ship_Game
                         }
 
                         node.Ship.ShowSceneObjectAt(node.Ship.RelativeFleetOffset, -500000f);
-                        SelectedFleet.Ships.Remove(node.Ship);
                         node.Ship.Fleet?.RemoveShip(node.Ship, returnToEmpireAI: true, clearOrders: true);
                     }
 
