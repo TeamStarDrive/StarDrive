@@ -58,7 +58,7 @@ namespace Ship_Game.AI
             if (ship.Fleet != null)
             {
                 Log.Error($"FleetRatios: attempting to add a ship already in a fleet '{ship.Fleet.Name}'. removing from fleet");
-                ship.Fleet.RemoveShip(ship, returnToEmpireAI:false);
+                ship.ClearFleet(returnToManagedPools: false, clearOrders: false);
             }
 
             if (ship.IsPlatformOrStation

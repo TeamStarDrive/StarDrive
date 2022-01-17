@@ -273,7 +273,7 @@ namespace Ship_Game
             {
                 Ship ship = fleet.Ships[i];
                 ship.ShowSceneObjectAt(ship.RelativeFleetOffset, -1000000f);
-                ship.ClearFleet();
+                ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
             }
             SelectedFleet.DataNodes.Clear();
             SelectedFleet.Ships.Clear();

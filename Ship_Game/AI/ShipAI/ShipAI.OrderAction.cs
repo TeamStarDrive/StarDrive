@@ -482,10 +482,13 @@ namespace Ship_Game.AI
             ClearWayPoints();
 
             if (!Owner.Loyalty.isPlayer)
-                Owner.Fleet?.RemoveShip(Owner, returnToEmpireAI: false); // Avoid lingering fleets for the AI
+            {
+                // bugfix: Avoid lingering fleets for the AI
+                Owner.Fleet?.RemoveShip(Owner, returnToEmpireAI: false, clearOrders: clearOrders);
+            }
 
-            Target       = null;
-            OrbitTarget  = toOrbit;
+            Target = null;
+            OrbitTarget = toOrbit;
             AwaitClosest = toOrbit;
             AddResupplyPlanetGoal(toOrbit);
 
