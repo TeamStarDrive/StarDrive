@@ -54,19 +54,15 @@ namespace Ship_Game.Fleets
         public override string ToString()
             => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} guid={Guid} id={FleetTask?.WhichFleet ?? -1}";
 
-        public void ClearFleetTask() => FleetTask = null;
         public Fleet()
         {
             FleetIconIndex = RandomMath.IntBetween(1, 10);
             SetCommandShip(null);
         }
 
-        public Fleet(Array<Ship> ships, Empire empire)
+        public Fleet(Empire owner) : this()
         {
-            Owner          = empire;
-            FleetIconIndex = RandomMath.IntBetween(1, 10);
-            SetCommandShip(null);
-            AddShips(ships);
+            Owner = owner;
         }
 
         public void SetNameByFleetIndex(int index)
@@ -87,6 +83,22 @@ namespace Ship_Game.Fleets
                 AddShip(ships[i]);
         }
 
+        public void AddShips(Array<Ship> ships, bool removeFromExisting, bool clearOrders)
+        {
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                if (ship.Fleet != this)
+                {
+                    if (removeFromExisting)
+                        ship.ClearFleet(returnToManagedPools: false, clearOrders: clearOrders);
+                    AddShip(ship);
+                }
+            }
+        }
+
+        /// @return TRUE if ship was added to the Fleet,
+        /// FALSE if ship cannot be assigned to a fleet (already in fleet, or a platform/station)
         public override bool AddShip(Ship newShip)
         {
             if (newShip == null) // Added ship should never be null
@@ -107,8 +119,8 @@ namespace Ship_Game.Fleets
             {
                 if (newShip.Fleet != this)
                 {
-                    Log.Warning($"{newShip}: \n already in fleet:\n{newShip.Fleet}\nthis fleet:\n{this}");
-                    return false; // recover
+                    Log.Warning($"{newShip}: \n already in another fleet:\n{newShip.Fleet}\nthis fleet:\n{this}");
+                    return false; // this ship is not added to the fleet
                 }
                 Log.Warning($"{newShip}: \n Added to fleet it was already part of:\n{newShip.Fleet}");
                 return true;
@@ -575,26 +587,6 @@ namespace Ship_Game.Fleets
         public void AssembleFleet2(Vector2 finalPosition, Vector2 finalDirection)
             => AssembleFleet(finalPosition, finalDirection, IsCoreFleet);
 
-        public void Reset(bool returnShipsToEmpireAI = true)
-        {
-            while (Ships.Count > 0)
-            {
-                var ship = Ships.PopLast();
-                RemoveShip(ship, returnShipsToEmpireAI);
-            }
-            TaskStep = 0;
-            FleetTask = null;
-            ClearFleetGoals();
-        }
-
-        /// <summary>Only For Specific fake fleet destruction </summary>
-        public void UnSafeRemoveShip(Ship ship)
-        {
-            RemoveFromAllSquads(ship);
-            Ships.Remove(ship);
-            ship.Fleet = null;
-        }
-
         void EvaluateTask(FixedSimTime timeStep)
         {
             if (Ships.Count == 0)
@@ -749,8 +741,7 @@ namespace Ship_Game.Fleets
                 Ship ship = Ships[i];
                 if (ship.DesignRole == RoleName.troop)
                 {
-                    ship.AI.ClearOrders();
-                    RemoveShip(ship, returnToEmpireAI: true);
+                    RemoveShip(ship, returnToEmpireAI: true, clearOrders: true);
                 }
             }
         }
@@ -2228,9 +2219,6 @@ namespace Ship_Game.Fleets
             }
         }
 
-        bool PostInvasionAnyShipsOutOfAO(MilitaryTask task) =>
-            Ships.Any((Predicate<Ship>)(ship => task.AO.OutsideRadius((Vector2)ship.Position, ship.AI.FleetNode.OrdersRadius)));
-
         public void UpdateAI(FixedSimTime timeStep, int which)
         {
             if (FleetTask != null)
@@ -2282,7 +2270,6 @@ namespace Ship_Game.Fleets
                             LeftShips.RemoveRef(ship);
                             RightShips.RemoveRef(ship);
                             RearShips.RemoveRef(ship);
-
                         }
                     }
                 }
@@ -2290,10 +2277,15 @@ namespace Ship_Game.Fleets
         }
 
         /// <summary>
-        /// removes the ship from fleet and error checks.
-        /// option to not give back to AI for new assignments
+        /// Removes the ship from this Fleet, performing error checks.
+        /// If the ship does not belong to this fleet, its orders are not cleared nor returned to empire AI
         /// </summary>
-        public bool RemoveShip(Ship ship, bool returnToEmpireAI)
+        /// <param name="returnToEmpireAI">
+        /// Whether the ship should be assigned to Empire's ShipPools
+        /// for new AI controlled assignments</param>
+        /// <param name="clearOrders">Clear any standing orders?</param>
+        /// <returns>TRUE if this ship was actually removed from this Fleet</returns>
+        public bool RemoveShip(Ship ship, bool returnToEmpireAI, bool clearOrders)
         {
             if (ship == null)
             {
@@ -2301,32 +2293,69 @@ namespace Ship_Game.Fleets
                 return false;
             }
 
-            if (ship.Active && ship.Fleet != this)
+            if (ship.Active && ship.AI.State != AIState.AwaitingOrders)
             {
-                Log.Warning($"{ship.Fleet?.Name ?? "No Fleet"} : not equal {Name}");
+                Log.Warning($"Fleet.RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}");
             }
-
-            if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
-                Owner.Universum.DebugWin?.DebugLogText($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}", DebugModes.Normal);
 
             RemoveFromAllSquads(ship);
+            bool removed = Ships.RemoveRef(ship);
 
-            // Todo - this if block is strange. It removes the ship before and then checks if its active.
-            // If it is active , it adds the ship again. It does not seem right.
-            if (ship.Fleet == this && ship.Active)
+            if (ship.Fleet == this)
             {
                 ship.Fleet = null;
-                ship.AI.ClearOrders();
-                if (returnToEmpireAI)
-                    ship.Loyalty.AddShipToManagedPools(ship);
-                ship.HyperspaceReturn();
+                if (ship.Active) // if ship is not dead, it means it's being transferred
+                {
+                    if (clearOrders)
+                    {
+                        ship.AI.ClearOrders();
+                        ship.HyperspaceReturn(); // only exit hyperspace if we are clearing orders
+                    }
+                    if (returnToEmpireAI)
+                    {
+                        ship.Loyalty.AddShipToManagedPools(ship);
+                    }
+                }
             }
-            else 
+            else
             {
-                if (ship.Active)
-                    Log.Warning($"Ship was not part of this fleet: {this} ---- Ship: {ship} ");
+                Log.Warning($"Fleet.RemoveShip: Ship was not part of this fleet: {this} ---- Ship: {ship} ");
             }
-            return Ships.Remove(ship);
+
+            return removed;
+        }
+
+        /// <summary>
+        /// Removes all ships from their respective fleets.
+        /// And optionally returns them to their empire's managed AI pool
+        /// </summary>
+        public static void RemoveShipsFromFleets(IReadOnlyList<Ship> ships, bool returnToManagedPools, bool clearOrders)
+        {
+            for (int i = 0; i < ships.Count; ++i)
+                ships[i].ClearFleet(returnToManagedPools: returnToManagedPools, clearOrders: clearOrders);
+        }
+
+        /// <summary>
+        /// Resets this entire fleet by removing all ships and clearing fleet tasks & goals
+        /// </summary>
+        public void Reset(bool returnShipsToEmpireAI = true)
+        {
+            RemoveAllShips(returnShipsToEmpireAI, clearOrders: true);
+            TaskStep = 0;
+            FleetTask = null;
+            ClearFleetGoals();
+        }
+
+        /// <summary>
+        /// Removes all ships from this fleet, without resetting fleet goals
+        /// </summary>
+        public void RemoveAllShips(bool returnShipsToEmpireAI, bool clearOrders)
+        {
+            while (Ships.Count > 0)
+            {
+                var ship = Ships.PopLast();
+                RemoveShip(ship, returnToEmpireAI: returnShipsToEmpireAI, clearOrders: clearOrders);
+            }
         }
 
         // @return The desired formation pos for this ship
@@ -2443,13 +2472,13 @@ namespace Ship_Game.Fleets
                 Ship ship = Ships[i];
                 if (!ship.Active)
                 {
-                    RemoveShip(ship, returnToEmpireAI: true);
+                    RemoveShip(ship, returnToEmpireAI: false, clearOrders: false);
                     continue;
                 }
                 if (ship.Fleet != this)
                 {
-                    RemoveShip(ship, returnToEmpireAI: true);
-                    Log.Warning("Fleet Update. Ship in fleet was not assigned to this fleet");
+                    RemoveShip(ship, returnToEmpireAI: true, clearOrders: true);
+                    Log.Warning("Fleet.Update: Removing invalid ship: ship.Fleet != this");
                     continue;
                 }
 

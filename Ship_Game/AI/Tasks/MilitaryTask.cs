@@ -454,9 +454,7 @@ namespace Ship_Game.AI.Tasks
 
                     foreach (Ship ship in Owner.GetFleetOrNull(WhichFleet).Ships)
                     {
-                        ship.AI.ClearOrders();
-                        ship.ClearFleet();
-                        ship.HyperspaceReturn();
+                        ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
 
                         if (ship.ShipData.Role != RoleName.troop)
                         {

@@ -63,7 +63,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 }
             }
 
-            OldShip.ClearFleet();
+            OldShip.ClearFleet(returnToManagedPools: false, clearOrders: true);
             OldShip.AI.OrderRefitTo(PlanetBuildingAt, this);
             return GoalStep.GoToNextStep;
         }

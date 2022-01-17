@@ -206,17 +206,32 @@ namespace Ship_Game.Ships
         /// <summary>
         /// Removes ship from any pools and fleets and doesn't put them back into Empire Force Pools
         /// </summary>
+        /// <param name="clearOrders">Clear Ship AI orders?</param>
         public void RemoveFromPoolAndFleet(bool clearOrders)
         {
             if (clearOrders)
                 AI?.ClearOrders();
             Pool?.Remove(this);
-            Fleet?.RemoveShip(this, returnToEmpireAI: false);
+            ClearFleet(returnToManagedPools: false, clearOrders: clearOrders);
         }
 
-        public bool RemoveFromPool() => Pool?.Remove(this) ?? false;
-        public void ClearFleet(bool returnToManagedPools = true) => Fleet?.RemoveShip(this, returnToManagedPools);
-        public void UnsafeClearFleet() => Fleet?.UnSafeRemoveShip(this);
+        /// <summary>
+        /// Removes this ship from its assigned ShipPool
+        /// </summary>
+        public bool RemoveFromPool()
+        {
+            return Pool?.Remove(this) ?? false;
+        }
+
+        /// <summary>
+        /// Removes this ship from its assigned Fleet (if any)
+        /// </summary>
+        /// <param name="returnToManagedPools">if true, return the ship to empire's AI pool for reassignment</param>
+        /// <param name="clearOrders">if true, AI orders are cleared upon successful removal</param>
+        public void ClearFleet(bool returnToManagedPools, bool clearOrders)
+        {
+            Fleet?.RemoveShip(this, returnToEmpireAI: returnToManagedPools, clearOrders: clearOrders);
+        }
 
         public bool IsConstructor => ShipData.IsConstructor;
 

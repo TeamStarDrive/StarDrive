@@ -197,9 +197,9 @@ namespace Ship_Game.AI
 
             ship.Pool = null;
 
-            if (ship.Fleet?.IsCoreFleet ?? false)
+            if (ship.Fleet == CoreFleet)
             {
-                CoreFleet.RemoveShip(ship, returnToEmpireAI: true);
+                CoreFleet.RemoveShip(ship, returnToEmpireAI: true, clearOrders: true);
             }
             ShipsWaitingForCoreFleet.RemoveRef(ship);
             OffensiveForcePool.RemoveRef(ship);
