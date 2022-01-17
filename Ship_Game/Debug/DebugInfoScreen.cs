@@ -436,7 +436,7 @@ namespace Ship_Game.Debug
                     DrawString(fleet.Name);
                     DrawString("Ships: " + fleet.Ships.Count);
                     DrawString("Strength: " + fleet.GetStrength());
-                    DrawString("FleetSpeed: " + fleet.SpeedLimit);
+                    DrawString("SpeedLimit: " + fleet.SpeedLimit);
                     DrawString("Distance: " + fleet.FinalPosition.Distance(fleet.AveragePosition()));
 
                     DrawString("Ready For Warp: " + fleet.ReadyForWarp);
