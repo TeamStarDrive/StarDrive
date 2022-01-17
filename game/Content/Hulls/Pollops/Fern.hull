@@ -4,7 +4,7 @@ VisibleName=Fern
 Role=frigate
 Style=Pollops
 Size=16,8
-MeshOffset=0,0
+MeshOffset=0,8
 IconPath=ShipIcons/fern
 ModelPath=Model/Ships/Pollops/Fern
 SelectIcon=15c
@@ -12,13 +12,13 @@ Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=1,34,0,80
+Thruster=0,32,0,130
 Slots
 ___|O  |___|___|O  |___|___|O  |O  |___|___|O  |___|___|O  |___
 ___|O  |O  |___|O  |___|O  |IO |IO |O  |___|O  |___|O  |O  |___
-___|___|O  |O  |O  |O  |O  |IO |IO |O  |O  |O  |O  |O  |___|___
+___|O  |O  |O  |O  |O  |O  |IO |IO |O  |O  |O  |O  |O  |O  |___
 O  |O  |O  |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |O  |O  |O  
 ___|O  |O  |IO |IO |I  |I  |I  |IC |I  |I  |IO |IO |O  |O  |___
-___|___|___|O  |IO |I  |I  |I  |I  |I  |I  |IO |O  |___|___|___
-___|___|___|___|O  |O  |E  |E  |E  |E  |O  |O  |___|___|___|___
-___|___|___|___|___|___|E  |E  |E  |E  |___|___|___|___|___|___
+___|___|O  |O  |IO |I  |I  |I  |I  |I  |I  |IO |O  |O  |___|___
+___|___|___|O  |O  |IO |E  |E  |E  |E  |IO |O  |O  |___|___|___
+___|___|___|___|___|O  |E  |E  |E  |E  |O  |___|___|___|___|___

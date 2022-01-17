@@ -48,16 +48,16 @@
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Power Flow Bonus</Name>
-      <Bonus>0.10</Bonus>
-      <Description>Gain an empire-wide 10% bonus to the amount of power produced by reactors</Description>
+      <Bonus>0.08</Bonus>
+      <Description>Gain an empire-wide 8% bonus to the amount of power produced by reactors</Description>
       <BonusIndex>18089</BonusIndex>
       <Type>Pollops</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Hull Strengthening</Name>
       <BonusType>Module HP Bonus</BonusType>
-      <Bonus>0.15</Bonus>
-      <Description>Provides a 15% hit point bonus to all ship modules. </Description>
+      <Bonus>0.20</Bonus>
+      <Description>Provides a 20% hit point bonus to all ship modules. </Description>
       <BonusIndex>622</BonusIndex>
       <Type>Ralyeh</Type>
     </UnlockedBonus>

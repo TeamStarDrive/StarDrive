@@ -13147,7 +13147,7 @@ AdvancedMaterials_Bonus:
  RUS: "Новые материалы снижают эффективную массу корабля на 5% по всем направлениям."
 PowerFlow_Bonus:
  Id: 18089
- ENG: "Exotic particles discovered by this race have increased Power Reactors efficiency by 10%."
+ ENG: "Exotic particles discovered by this race have increased Power Reactors efficiency by 8%."
 SmartMissiles_Bonus:
  Id: 18074
  ENG: "Our missiles will now  seek new targets if their original target is not valid."
