@@ -663,7 +663,7 @@ namespace Ship_Game
             }
             else
             {
-                SpeedLimit = Math.Max(200, (float)Math.Round(slowestSpeed));
+                SpeedLimit = Math.Max(100, (float)Math.Round(slowestSpeed));
             }
         }
     }
