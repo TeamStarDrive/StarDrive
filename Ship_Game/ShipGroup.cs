@@ -365,7 +365,8 @@ namespace Ship_Game
             if (LastAveragePosUpdate != (StarDriveGame.Instance?.FrameId ?? -1) || force)
             {
                 LastAveragePosUpdate = StarDriveGame.Instance?.FrameId ?? LastAveragePosUpdate;
-                AveragePos = GetAveragePosition(Ships, CommandShip);
+                // TODO: use CommandShip properly
+                AveragePos = GetAveragePosition(Ships);
                 AverageOffsetFromZero = GetAverageOffsetFromZero(Ships);
             }
             return AveragePos;
@@ -663,7 +664,9 @@ namespace Ship_Game
             }
             else
             {
-                SpeedLimit = Math.Max(100, (float)Math.Round(slowestSpeed));
+                // in order to allow ships to speed up / slow down
+                // slightly to hold formation, set the fleet speed a bit lower
+                SpeedLimit = Math.Max(100, (float)Math.Round(slowestSpeed * 0.8f));
             }
         }
     }
