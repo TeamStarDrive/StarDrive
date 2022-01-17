@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>MassiveDisruptors</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>816</Cost>
+  <Cost>680</Cost>
   <RootNode>0</RootNode>
   <Name>MassiveDisruptors</Name>
   <NameIndex>17530</NameIndex>
