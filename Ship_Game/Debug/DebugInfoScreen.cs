@@ -601,7 +601,9 @@ namespace Ship_Game.Debug
             if (ship?.Fleet != null)
             {
                 Vector2 formationPos = ship.Fleet.GetFormationPos(ship);
+                Vector2 finalPos = ship.Fleet.GetFinalPos(ship);
                 Color color = Color.Magenta.Alpha(0.5f);
+                DrawCircleImm(finalPos, ship.Radius*0.5f, Color.Blue.Alpha(0.5f), 0.8f);
                 DrawCircleImm(formationPos, ship.Radius-10, color, 0.8f);
                 DrawLineImm(ship.Position, formationPos, color, 0.8f);
             }

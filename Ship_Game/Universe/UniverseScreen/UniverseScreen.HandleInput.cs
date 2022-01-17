@@ -497,8 +497,12 @@ namespace Ship_Game
             if (selectedFleet == null)
                 return;
 
-            UpdateFleetSelection(selectedFleet);
-            GameAudio.FleetClicked();
+            if (selectedFleet.Ships.Count > 0)
+            {
+                SelectedFleet = selectedFleet;
+                UpdateFleetSelection(selectedFleet);
+                GameAudio.FleetClicked();
+            }
 
             if (SelectedShipList.Count == 1)
             {
