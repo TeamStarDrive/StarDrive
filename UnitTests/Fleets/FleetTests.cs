@@ -199,14 +199,16 @@ namespace UnitTests.Fleets
             FleetMoveTo(fleet, new Vector2(50_000, 50_000));
             // and then queue up another WayPoint to the fleet
             var finalTarget = FleetQueueMoveOrder(fleet, new Vector2(-20_000, 40_000));
-            AssertAllShipsWarpedToTarget(fleet, finalTarget, simTimeout: 60.0);
+            AssertAllShipsWarpedToTarget(fleet, finalTarget, simTimeout: 90.0);
         }
 
         void AssertAllShipsWarpedToTarget(Fleet fleet, Vector2 target, double simTimeout)
         {
             var shipsThatWereInWarp = new HashSet<Ship>();
+
             RunSimWhile((simTimeout, fatal:false), body:() =>
             {
+                fleet.Update(TestSimStep);
                 foreach (Ship s in fleet.Ships)
                     if (s.IsInWarp) shipsThatWereInWarp.Add(s);
             });

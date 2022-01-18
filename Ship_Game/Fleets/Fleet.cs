@@ -2488,8 +2488,8 @@ namespace Ship_Game.Fleets
             if (commandShip != null)
                 SetCommandShip(commandShip);
 
-            ReadyForWarp          = readyForWarp;
-            TotalFleetAttributes  = fleetTotals;
+            ReadyForWarp = readyForWarp;
+            TotalFleetAttributes = fleetTotals;
             AverageFleetAttributes = TotalFleetAttributes.GetAveragedValues();
         }
 

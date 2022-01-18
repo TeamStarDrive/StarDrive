@@ -744,7 +744,6 @@ namespace Ship_Game.Ships
         {
             if (Owner?.Loyalty.isPlayer == true)
             {
-
                 if (FightersLaunched) // for ships with hangars and with fighters out button on.
                     ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
 
