@@ -2151,16 +2151,16 @@ namespace Ship_Game.Fleets
         /// </summary>
         bool OrderShipsToInvade(IEnumerable<Ship> ships, MilitaryTask task, bool targetBeingBombed)
         {
-            float planetAssaultStrength = 0.0f;
-            int shipsInvading           = 0;
-            float theirGroundStrength   = GetGroundStrOfPlanet(task.TargetPlanet);
-            float ourGroundStrength     = FleetTask.TargetPlanet.GetGroundStrength(Owner);
-            var invasionShips           = ships.ToArray();
+            int shipsInvading = 0;
+            float planetAssaultStrength = 0f;
+            float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
+            float ourGroundStrength = FleetTask.TargetPlanet.GetGroundStrength(Owner);
+            var invasionShips = ships.ToArray();
 
             // collect current invasion stats from all ships in fleet. 
             for (int i = 0; i < Ships.Count; i++)
             {
-                Ship ship              = Ships[i];
+                Ship ship = Ships[i];
                 planetAssaultStrength += ship.Carrier.PlanetAssaultStrength; 
 
                 if (ship.AI.State == AIState.AssaultPlanet) shipsInvading++;
@@ -2345,7 +2345,13 @@ namespace Ship_Game.Fleets
             }
         }
 
-        public float FormationWarpSpeed(Ship ship)
+
+        /// <summary>
+        /// Gives the suitable formation speed for our Ship
+        /// This ensures ships slow down or speed up depending on
+        /// distance to their formation position
+        /// </summary>
+        public float GetFormationSpeedFor(Ship ship)
         {
             // this is the desired position inside the fleet formation
             Vector2 desiredFormationPos = GetFormationPos(ship);
@@ -2356,15 +2362,13 @@ namespace Ship_Game.Fleets
             float distFromFormationToFinal = desiredFormationPos.Distance(desiredFinalPos);
             float shipSpeed = SpeedLimit;
 
-
             // Outside of fleet formation
             if (distToFinalPos > distFromFormationToFinal + ship.CurrentVelocity + 75f)
             {
                 shipSpeed = ship.VelocityMaximum;
             }
-            else
             // FINAL APPROACH
-            if (distToFinalPos < ship.FleetOffset.Length()
+            else if (distToFinalPos < ship.FleetOffset.Length()
                 // NON FINAL: we are much further from the formation
                 || distFromFormation > distToFinalPos)
             {

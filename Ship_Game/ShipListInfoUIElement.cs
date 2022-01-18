@@ -372,7 +372,7 @@ namespace Ship_Game
         {
             Orders.Clear();
             IsFleet  = isFleet;
-            ShipList = shipList;
+            ShipList = shipList.Clone(); // always copy!
             SelectedShipsSL.Reset();
             AllShipsMine        = true;
             bool allResupply    = true;
