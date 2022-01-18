@@ -1757,7 +1757,7 @@ namespace Ship_Game.Fleets
             Vector2 averagePos = AveragePosition();
             Vector2 finalPos = position.OffsetTowards(averagePos, offsetToAO);
             Vector2 finalDir = averagePos.DirectionToTarget(position);
-            FormationWarpTo(finalPos, finalDir, queueOrder: false, offensiveMove: combatMove);
+            FormationWarpTo(finalPos, finalDir, queueOrder: false, offensiveMove: combatMove, forceAssembly: false);
         }
 
         void HoldFleetPosition()
@@ -2323,7 +2323,6 @@ namespace Ship_Game.Fleets
             RemoveAllShips(returnShipsToEmpireAI, clearOrders: clearOrders);
             TaskStep = 0;
             FleetTask = null;
-            ClearFleetGoals();
         }
 
         /// <summary>
@@ -2485,9 +2484,6 @@ namespace Ship_Game.Fleets
                 if (ship.engineState == Ship.MoveState.Warp)
                     IsAssembling = false;
             }
-
-            if (Ships.Count > 0 && HasFleetGoal)
-                GoalStack.Peek().Evaluate(timeStep);
 
             if (commandShip != null)
                 SetCommandShip(commandShip);

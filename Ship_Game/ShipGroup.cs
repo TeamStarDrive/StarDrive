@@ -5,7 +5,6 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using Ship_Game.Fleets;
-using Ship_Game.Fleets.FleetGoals;
 
 namespace Ship_Game
 {
@@ -39,9 +38,6 @@ namespace Ship_Game
         public Vector2 ProjectedPos;
         public Vector2 ProjectedDirection;
 
-        // WORK IN PROGRESS
-        protected readonly Stack<FleetGoal> GoalStack = new Stack<FleetGoal>();
-
         /// <summary>
         /// Cached average position of the fleet.
         /// The average pos is the command ship's pos, if exists
@@ -59,11 +55,6 @@ namespace Ship_Game
         public int CountShips => Ships.Count;
         public override string ToString() => $"FleetGroup ships={Ships.Count}";
 
-        //// Fleet Goal Access | We don't want to expose the inner details ////
-        public bool HasFleetGoal => GoalStack.Count > 0;
-        public Vector2 NextGoalMovePosition => GoalStack.Peek().MovePosition;
-        public FleetGoal PopGoalStack() => GoalStack.Pop();
-        public void ClearFleetGoals() => GoalStack.Clear();
         ///////////////////////////////////////////////////////////////////////
 
         public ShipGroup()
@@ -141,7 +132,13 @@ namespace Ship_Game
             }
         }
 
-        public void AssembleFleet(Vector2 finalPosition, Vector2 finalDirection, bool forceAssembly = false)
+        /// <summary>
+        /// Assembles the fleet at final position and direction
+        /// </summary>
+        /// <param name="finalPosition">Final position of the formation</param>
+        /// <param name="finalDirection">Final direction of the formation</param>
+        /// <param name="forceAssembly">Whether to always recalculate FleetOffset</param>
+        public void AssembleFleet(Vector2 finalPosition, Vector2 finalDirection, bool forceAssembly)
         {
             IsAssembling = true;
 
@@ -408,9 +405,8 @@ namespace Ship_Game
         }
 
         public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder,
-                                    bool offensiveMove = false, bool forceAssembly = false)
+                                    bool offensiveMove, bool forceAssembly)
         {
-            GoalStack.Clear();
             AssembleFleet(finalPosition, finalDirection, forceAssembly: forceAssembly);
 
             for (int i = 0; i < Ships.Count; ++i)
@@ -422,19 +418,16 @@ namespace Ship_Game
 
                 if (ship.PlayerShipCanTakeFleetOrders())
                 {
-                    if (queueOrder)
-                        ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
-                    else
-                        ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
-
-                    ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
+                    Vector2 finalPos = FinalPosition + ship.FleetOffset;
+                    ship.AI.OrderFormationWarp(finalPos, finalDirection, queueOrder, offensiveMove: offensiveMove);
+                    ship.AI.OrderHoldPositionOffensive(finalPos, finalDirection);
                 }
             }
         }
 
-        public void MoveToNow(Vector2 finalPosition, Vector2 finalDirection, bool offensiveMove = false)
+        public void MoveToNow(Vector2 finalPosition, Vector2 finalDirection, bool offensiveMove)
         {
-            AssembleFleet(finalPosition, finalDirection, true);
+            AssembleFleet(finalPosition, finalDirection, forceAssembly: true);
 
             foreach (Ship ship in Ships)
             {
@@ -444,9 +437,10 @@ namespace Ship_Game
                     // Allow AI ships in gravity wells to react to incoming attacks
                     if (!ship.Loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
                         offensiveMove = true;
-
-                    ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, AIState.MoveTo, null, offensiveMove);
-                    ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
+                    
+                    Vector2 finalPos = FinalPosition + ship.FleetOffset;
+                    ship.AI.OrderMoveTo(finalPos, finalDirection, clearWayPoints:true, AIState.MoveTo, null, offensiveMove);
+                    ship.AI.OrderHoldPositionOffensive(finalPos, finalDirection);
                 }
             }
         }
