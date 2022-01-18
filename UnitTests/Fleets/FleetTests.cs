@@ -198,7 +198,7 @@ namespace UnitTests.Fleets
             FleetMoveTo(fleet, new Vector2(50_000, 50_000));
             // and then queue up another WayPoint to the fleet
             var finalTarget = FleetQueueMoveOrder(fleet, new Vector2(-20_000, 40_000));
-            AssertAllShipsWarpedToTarget(fleet, finalTarget, simTimeout: 90.0);
+            AssertAllShipsWarpedToTarget(fleet, finalTarget, simTimeout: 120.0);
         }
 
         void AssertAllShipsWarpedToTarget(Fleet fleet, Vector2 target, double simTimeout)
@@ -220,7 +220,7 @@ namespace UnitTests.Fleets
                 Log.Write($"\t\t\t{s}");
             }
 
-            var didWarp = shipsThatWereInWarp.ToArray().Sorted(s => s.Id);
+            var didWarp = shipsThatWereInWarp.ToArray().Sorted(s => s.Id).Sorted(s => (int)s.ShipEngines.ReadyForFormationWarp);
             if (didWarp.Length != fleet.Ships.Count)
             {
                 var notInWarp = fleet.Ships.Except(didWarp);
