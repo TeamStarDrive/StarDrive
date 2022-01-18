@@ -439,7 +439,7 @@ namespace Ship_Game
                         offensiveMove = true;
                     
                     Vector2 finalPos = FinalPosition + ship.FleetOffset;
-                    ship.AI.OrderMoveTo(finalPos, finalDirection, clearWayPoints:true, AIState.MoveTo, null, offensiveMove);
+                    ship.AI.OrderMoveTo(finalPos, finalDirection, clearWayPoints: true, AIState.MoveTo, null, offensiveMove);
                     ship.AI.OrderHoldPositionOffensive(finalPos, finalDirection);
                 }
             }
