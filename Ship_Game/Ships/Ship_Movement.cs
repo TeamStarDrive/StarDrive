@@ -201,11 +201,11 @@ namespace Ship_Game.Ships
         {
             ResetForcesThisFrame();
 
-            if (!Carrier.RecallingShipsBeforeWarp)
-                SetSpeedLimit(VelocityMaximum);
+            //if (!Carrier.RecallingShipsBeforeWarp)
+            //    SetSpeedLimit(VelocityMaximum);
 
-            if (AI.State == AIState.FormationWarp)
-                SetSpeedLimit(AI.FormationWarpSpeed(VelocityMaximum));
+            //if (AI.State == AIState.FormationWarp)
+            //    SetSpeedLimit(AI.FormationWarpSpeed(VelocityMaximum));
         }
 
         // Called from Ship.Update

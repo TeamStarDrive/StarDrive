@@ -532,7 +532,7 @@ namespace Ship_Game
             }
             else
             {
-                shipListInfoUI.SetShipList(newlySelectedFleet.Ships, isFleet: true);
+                shipListInfoUI.SetShipList(SelectedShipList, isFleet: true);
             }
         }
 

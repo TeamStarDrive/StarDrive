@@ -365,7 +365,6 @@ namespace Ship_Game
             if (LastAveragePosUpdate != (StarDriveGame.Instance?.FrameId ?? -1) || force)
             {
                 LastAveragePosUpdate = StarDriveGame.Instance?.FrameId ?? LastAveragePosUpdate;
-                // TODO: use CommandShip properly
                 AveragePos = GetAveragePosition(Ships);
                 AverageOffsetFromZero = GetAverageOffsetFromZero(Ships);
             }

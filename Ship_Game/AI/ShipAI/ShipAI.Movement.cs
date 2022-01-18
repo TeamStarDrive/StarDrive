@@ -450,9 +450,12 @@ namespace Ship_Game.AI
             }
             else // In a fleet
             {
-                if (Owner.Fleet.AveragePosition().Distance(Owner.Position) > 15000)
+                Vector2 fleetPos = Owner.Fleet.AveragePosition();
+                float distFromFleetCenter = fleetPos.Distance(Owner.Position);
+                if (distFromFleetCenter > 15000f)
                 {
                     // This ship is far away from the fleet
+                    // Enter warp and continue next frame in UpdateWarpThrust()
                     Owner.EngageStarDrive();
                 }
                 else
@@ -466,7 +469,7 @@ namespace Ship_Game.AI
                         DisEngageFormationWarp();
                     }
 
-                    speedLimit = FormationWarpSpeed(speedLimit);
+                    speedLimit = GetFormationSpeed(speedLimit);
                     Owner.SubLightAccelerate(speedLimit);
                 }
             }
@@ -557,11 +560,13 @@ namespace Ship_Game.AI
             }
         }
 
-        public float FormationWarpSpeed(float currentSpeedLimit)
+        public float GetFormationSpeed(float currentSpeedLimit)
         {
             if (Owner.Fleet == null)
                 return currentSpeedLimit;
-            return Math.Min(Owner.Fleet.FormationWarpSpeed(Owner), currentSpeedLimit);
+            // always follow formation speed, completely ignore currentSpeedLimit because
+            // formation status knows best whether ship should slow down or speed up
+            return Owner.Fleet.GetFormationSpeedFor(Owner);
         }
 
         public bool IsOrbiting(Planet p) => OrbitTarget == p && Orbit.InOrbit;

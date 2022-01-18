@@ -62,9 +62,20 @@ namespace Ship_Game.Ships
 
         EngineStatus GetEngineStatus()
         {
-            if (Owner.EnginesKnockedOut || Owner.Inhibited || Owner.EMPDisabled)
+            if (Owner.EnginesKnockedOut || Owner.Inhibited || Owner.EMPDisabled ||
+                Owner.Dying || !Owner.HasCommand)
                 return EngineStatus.Disabled;
-            return EngineStatus.Active;
+
+            var engines = Engines;
+            for (int i = 0; i < engines.Length; ++i)
+            {
+                ShipModule e = engines[i];
+                if (e.Active && e.Powered)
+                    return EngineStatus.Active;
+            }
+
+            // no engines are powered
+            return EngineStatus.Disabled;
         }
 
         WarpStatus GetFormationWarpReadyStatus()

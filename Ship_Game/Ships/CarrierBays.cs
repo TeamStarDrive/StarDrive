@@ -499,10 +499,7 @@ namespace Ship_Game.Ships
 
                     slowestFighterSpeed = hangarShip.MaxSTLSpeed.UpperBound(slowestFighterSpeed);
                     float rangeToCarrier = hangarShip.Position.Distance(Owner.Position);
-                    if (hangarShip.EMPDisabled
-                        || !hangarShip.HasCommand
-                        || hangarShip.Dying
-                        || hangarShip.EnginesKnockedOut
+                    if (hangarShip.ShipEngines.EngineStatus == EngineStatus.Disabled
                         || rangeToCarrier > Owner.SensorRange)
                     {
                         recallFighters = false;
