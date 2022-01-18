@@ -571,7 +571,7 @@ namespace Ship_Game.AI.Tasks
                     break; // No more troops
 
                 Vector2 dir = troopShip.Position.DirectionToTarget(TargetPlanet.ParentSystem.Position);
-                troopShip.AI.OrderMoveTo(TargetPlanet.ParentSystem.Position, dir, true, AIState.MoveTo);
+                troopShip.AI.OrderMoveTo(TargetPlanet.ParentSystem.Position, dir);
                 troopStr += troopShip.GetOurTroopStrength(maxTroops: 500);
                 moreTroops.Add(troopShip);
             }

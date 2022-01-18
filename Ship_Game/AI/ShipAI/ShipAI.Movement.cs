@@ -49,7 +49,7 @@ namespace Ship_Game.AI
             if (goal != null && Owner.Position.Distance(goal.MovePosition) > 100f)
             {
                 // previous order is finished and now we want to return to original position
-                OrderMoveTo(goal.MovePosition, goal.Direction, true, AIState.HoldPosition);
+                OrderMoveTo(goal.MovePosition, goal.Direction, AIState.HoldPosition);
                 OrderHoldPositionOffensive(goal.MovePosition, goal.Direction);
             }
         }

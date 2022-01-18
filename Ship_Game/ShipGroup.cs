@@ -386,43 +386,31 @@ namespace Ship_Game
             return Ships.FindMin(ship => ship.Position.SqDist(worldPos));
         }
 
-        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder,
-                                    bool offensiveMove, bool forceAssembly)
+        /// <summary>
+        /// Unified MoveTo command with ability to Queue WayPoints
+        /// </summary>
+        /// <param name="finalPos">Final position of the fleet</param>
+        /// <param name="finalDir">Final direction of the fleet</param>
+        /// <param name="order">MoveTo parameters, @see MoveOrder enum</param>
+        public void MoveTo(Vector2 finalPos, Vector2 finalDir, MoveOrder order = MoveOrder.Defensive/*DO NOT ADD ANY MORE PARAMETERS HERE FOR GOD SAKES, USE FLAGS*/)
         {
-            AssembleFleet(finalPosition, finalDirection, forceAssembly: forceAssembly);
-
-            for (int i = 0; i < Ships.Count; ++i)
-            {
-                Ship ship = Ships[i];
-                // Allow AI ships in gravity wells to react to incoming attacks
-                if (!ship.Loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
-                    offensiveMove = true;
-
-                if (ship.PlayerShipCanTakeFleetOrders())
-                {
-                    Vector2 finalPos = FinalPosition + ship.FleetOffset;
-                    ship.AI.OrderFormationWarp(finalPos, finalDirection, queueOrder, offensiveMove: offensiveMove);
-                    ship.AI.OrderHoldPositionOffensive(finalPos, finalDirection);
-                }
-            }
-        }
-
-        public void MoveToNow(Vector2 finalPosition, Vector2 finalDirection, bool offensiveMove)
-        {
-            AssembleFleet(finalPosition, finalDirection, forceAssembly: true);
+            bool queueWayPoint = order.HasFlag(MoveOrder.AddWayPoint);
+            AssembleFleet(finalPos, finalDir, forceAssembly: queueWayPoint);
 
             foreach (Ship ship in Ships)
             {
                 if (ship.PlayerShipCanTakeFleetOrders())
                 {
-                    ship.AI.ResetPriorityOrder(false);
+                    // set PriorityOrder = true, so that our ships don't scatter after arriving
+                    ship.AI.ResetPriorityOrder(clearOrders: false);
+
                     // Allow AI ships in gravity wells to react to incoming attacks
                     if (!ship.Loyalty.isPlayer && ship.IsInhibitedByUnfriendlyGravityWell)
-                        offensiveMove = true;
-                    
-                    Vector2 finalPos = FinalPosition + ship.FleetOffset;
-                    ship.AI.OrderMoveTo(finalPos, finalDirection, clearWayPoints: true, AIState.MoveTo, null, offensiveMove);
-                    ship.AI.OrderHoldPositionOffensive(finalPos, finalDirection);
+                        order |= MoveOrder.Aggressive;
+
+                    Vector2 finalShipPos = FinalPosition + ship.FleetOffset;
+                    ship.AI.OrderMoveTo(finalShipPos, finalDir, order);
+                    //ship.AI.OrderHoldPositionOffensive(finalPos, finalDirection);
                 }
             }
         }
@@ -443,7 +431,7 @@ namespace Ship_Game
                 if (ship.AI.State == AIState.Orbit || !ship.Position.InRadius(position, radius))
                     continue;
 
-                ship.OrderToOrbit(planet, true);
+                ship.OrderToOrbit(planet, MoveOrder.Aggressive);
             }
         }
 

@@ -17,8 +17,19 @@ namespace Ship_Game.Universe
             Input = universe.Input;
         }
 
-        bool OffensiveMove => Input.IsCtrlKeyDown;
-        bool PinPointMove  => Input.IsAltKeyDown;
+        /// Depending on User Input: Aggressive, Defensive, StandGround Movement Types
+        public AI.MoveOrder GetMoveOrderType()
+        {
+            AI.MoveOrder addWayPoint = Input.QueueAction ? AI.MoveOrder.AddWayPoint : AI.MoveOrder.Defensive;
+            return addWayPoint|GetStanceType();
+        }
+
+        public AI.MoveOrder GetStanceType()
+        {
+            if (Input.IsCtrlKeyDown) return AI.MoveOrder.Aggressive;
+            if (Input.IsAltKeyDown)  return AI.MoveOrder.StandGround;
+            return AI.MoveOrder.Defensive;
+        }
 
         public bool RightClickOnShip(Ship selectedShip, Ship targetShip)
         {
@@ -59,10 +70,9 @@ namespace Ship_Game.Universe
                 return;
             }
 
-            bool offensiveMove = Input.IsCtrlKeyDown;
             if (Input.IsShiftKeyDown) // Always order orbit if shift is down when right clicking on a planet
             {
-                ship.OrderToOrbit(planet, offensiveMove);
+                ship.OrderToOrbit(planet, GetStanceType());
             }
             else
             {
@@ -72,11 +82,11 @@ namespace Ship_Game.Universe
                 if (ship.ShipData.IsColonyShip)
                     PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
                 else if (ship.Carrier.AnyAssaultOpsAvailable)
-                    PlanetRightClickTroopShip(ship, planet); // This ship can assault planets
+                    PlanetRightClickTroopShip(ship, planet, AI.MoveOrder.Defensive); // This ship can assault planets
                 else if (ship.HasBombs)
                     PlanetRightClickBomber(ship, planet); // This ship can bomb planets
                 else
-                    ship.OrderToOrbit(planet, offensiveMove); // Default logic of right clicking
+                    ship.OrderToOrbit(planet, GetStanceType()); // Default logic of right clicking
             }
         }
 
@@ -93,7 +103,7 @@ namespace Ship_Game.Universe
             }
         }
 
-        void PlanetRightClickTroopShip(Ship ship, Planet planet, bool offensiveMove = false)
+        void PlanetRightClickTroopShip(Ship ship, Planet planet, AI.MoveOrder order)
         {
             if (planet.Owner != null && planet.Owner == Universe.Player)
             {
@@ -104,7 +114,7 @@ namespace Ship_Game.Universe
                     // If our planet is being invaded, land the troops there
                     ship.AI.OrderLandAllTroops(planet);
                 else
-                    ship.OrderToOrbit(planet, offensiveMove); // Just orbit
+                    ship.OrderToOrbit(planet, order); // Just orbit
             }
             else if (planet.Habitable && (planet.Owner == null ||
                                           ship.Loyalty.IsEmpireAttackable(planet.Owner)))
@@ -114,7 +124,7 @@ namespace Ship_Game.Universe
             }
             else
             {
-                ship.OrderToOrbit(planet, offensiveMove);
+                ship.OrderToOrbit(planet, order);
             }
         }
 
@@ -210,9 +220,7 @@ namespace Ship_Game.Universe
                 foreach (Ship ship in fleet.Ships)
                     ship.AI.ClearOrdersIfCombat();
 
-                // have to set forceAssembly, otherwise the formation at each WayPoint
-                // will have incorrect offset and heading
-                fleet.FormationWarpTo(movePosition, direction, queueOrder: true, offensiveMove: OffensiveMove, forceAssembly: true);
+                fleet.MoveTo(movePosition, direction, GetMoveOrderType());
                 return true;
             }
 
@@ -247,45 +255,19 @@ namespace Ship_Game.Universe
                 if (ship.PlayerShipCanTakeFleetOrders())
                     ship.AI.ClearOrders();
 
-            if (Input.IsAltKeyDown)
-                fleet.MoveToNow(movePosition, facingDir, offensiveMove: OffensiveMove);
-            else
-                fleet.FormationWarpTo(movePosition, facingDir, queueOrder: false, offensiveMove: OffensiveMove, forceAssembly: true);
+            fleet.MoveTo(movePosition, facingDir, GetMoveOrderType());
         }
 
         public void MoveShipToLocation(Vector2 pos, Vector2 direction, Ship ship)
         {
-            if  (ship.IsPlatformOrStation)
+            if (ship.IsPlatformOrStation)
             {
                 GameAudio.NegativeClick();
                 return;
             }
 
             GameAudio.AffirmativeClick();
-            if (Input.QueueAction)
-            {
-                if (Input.MoveDirectly)
-                {
-                    ship.AI.OrderMoveDirectlyTo(pos, direction, false, AI.AIState.MoveTo, 
-                        offensiveMove: OffensiveMove, pinPoint: PinPointMove);
-                }
-                else
-                {
-                    ship.AI.OrderMoveTo(pos, direction, false, AI.AIState.MoveTo, 
-                        offensiveMove: OffensiveMove, pinPoint: PinPointMove);
-                }
-            }
-            else if (Input.MoveDirectly)
-            {
-                ship.AI.OrderMoveDirectlyTo(pos, direction, true, AI.AIState.MoveTo, 
-                    offensiveMove: OffensiveMove, pinPoint: PinPointMove);
-            }
-            else
-            {
-                ship.AI.OrderMoveTo(pos, direction, true, AI.AIState.MoveTo, 
-                    offensiveMove: OffensiveMove, pinPoint: PinPointMove);
-            }
-
+            ship.AI.OrderMoveTo(pos, direction, GetMoveOrderType());
             ship.AI.OrderHoldPositionOffensive(pos, direction);
         }
     }

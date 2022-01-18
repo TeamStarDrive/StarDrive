@@ -221,21 +221,21 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndColonize(Planet planet, Goal g)
         {
-            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, true, AIState.Colonize);
+            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Colonize);
             AddShipGoal(Plan.Colonize, planet.Center, Vectors.Up, planet, g, AIState.Colonize);
         }
 
         public void OrderMoveAndRebase(Planet p)
         {
             Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
-            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.Rebase);
+            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, AIState.Rebase, MoveOrder.AddWayPoint);
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
         public void OrderSupplyShipLand(Planet p)
         {
             Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
-            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.SupplyReturnHome);
+            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, AIState.SupplyReturnHome, MoveOrder.AddWayPoint);
             IgnoreCombat = true;
             EscortTarget = null;
             SetPriorityOrder(true);
@@ -245,7 +245,7 @@ namespace Ship_Game.AI
         {
             if (!Owner.IsPlatformOrStation)
             {
-                OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, true, AIState.Refit);
+                OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Refit);
                 IgnoreCombat = true;
                 ResetPriorityOrder(clearOrders: false);
             }
@@ -260,13 +260,13 @@ namespace Ship_Game.AI
         {
             Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
             OrbitTarget = p;
-            OrderMoveTo(GetPositionOnPlanet(p), direction, true, AIState.Scrap);
+            OrderMoveTo(GetPositionOnPlanet(p), direction, AIState.Scrap);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
         }
 
         public void OderMoveAndDefendSystem(Planet p)
         {
-            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, true, AIState.SystemDefender);
+            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, AIState.SystemDefender);
             AddShipGoal(Plan.DefendSystem, AIState.SystemDefender);
         }
 
@@ -435,9 +435,8 @@ namespace Ship_Game.AI
 
                 if (!lastWayPoint && distance > 0)   return combat;
                 if (distance > 10000)                return combat;
-                if (distance < 1000 && Goal == null) return true;
 
-                return Goal?.IsPriorityMovement() ?? combat;
+                return Goal != null || combat;
             }
 
             ~ShipGoal() { Destroy(); } // finalizer

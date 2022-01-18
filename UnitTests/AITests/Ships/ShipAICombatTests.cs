@@ -299,8 +299,8 @@ namespace UnitTests.AITests.Ships
             Assert.IsTrue(Us.InCombat, "ship should be in combat");
             InjectSteroids(Us);
 
-            // now assign offensive move order
-            Us.AI.OrderMoveTo(colonyShip.Position, Vectors.Up, true, AIState.AwaitingOrders, offensiveMove: true);
+            // now assign Aggressive move order
+            Us.AI.OrderMoveTo(colonyShip.Position, Vectors.Up, AIState.AwaitingOrders, MoveOrder.Aggressive);
 
             Assert.IsFalse(Us.InCombat, "ship must exit combat after giving a move order, since giving a move order clears orders");
             Us.AI.CombatState = CombatState.HoldPosition;

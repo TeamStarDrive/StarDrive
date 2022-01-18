@@ -129,15 +129,6 @@ namespace Ship_Game.AI
             set => ShipBuilt = value;
         }
 
-        /// <summary>
-        /// Returns the priority of the goal movement.
-        /// If a ship is passed it will set the ship to priority order. 
-        /// </summary>
-        public virtual bool IsPriorityMovement()
-        {
-            return true;
-        }
-
         public override string ToString() => $"{type} Goal.{UID} {ToBuildUID}";
 
         static Goal CreateInstance(string uid)

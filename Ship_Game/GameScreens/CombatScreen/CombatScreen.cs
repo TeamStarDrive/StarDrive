@@ -478,7 +478,7 @@ namespace Ship_Game
             {
                 Bombard.Style = ButtonStyle.DanButtonBlue;
                 foreach (Ship bomber in bombingNowList)
-                    bomber.AI.OrderToOrbit(P, true);
+                    bomber.AI.OrderToOrbit(P, AI.MoveOrder.Aggressive);
             }
             else
             {
