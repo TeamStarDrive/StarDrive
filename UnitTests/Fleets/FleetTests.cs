@@ -80,7 +80,6 @@ namespace UnitTests.Fleets
             }
 
             Fleet fleet = CreateTestFleet(PlayerShips, PlayerFleets);
-            fleet.SetCommandShip(null);
             fleet.Update(FixedSimTime.Zero/*paused during init*/);
             fleet.AutoArrange();
             foreach (var ship in PlayerShips)

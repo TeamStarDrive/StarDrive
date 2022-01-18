@@ -464,8 +464,7 @@ namespace Ship_Game
                     return;
                 }
 
-                fleet = AddShipsToExistingFleet(selectedFleet, newShips);
-                fleet.AutoArrange(); // arrange new ships into formation
+                fleet = AddShipsToFleet(selectedFleet, newShips);
             }
             else
             {
@@ -474,7 +473,6 @@ namespace Ship_Game
             }
 
             UpdateFleetSelection(fleet);
-            fleet.SetCommandShip(null);
 
             if (fleet.Name.IsEmpty() || fleet.Name.Contains("Fleet"))
                 fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
@@ -1288,26 +1286,23 @@ namespace Ship_Game
                 return null;
 
             var newFleet = new Fleet(Player);
-            newFleet.AddShips(ships, removeFromExisting: true, clearOrders: false);
-
-            InputCheckPreviousShip();
-            GameAudio.FleetClicked();
-            newFleet.SetCommandShip(null);
-            newFleet.Update(FixedSimTime.Zero/*paused during init*/);
-            newFleet.AutoArrange();
+            AddShipsToFleet(newFleet, ships);
             return newFleet;
         }
 
-        Fleet AddShipsToExistingFleet(Fleet fleet, Ship[] ships)
+        Fleet AddShipsToFleet(Fleet fleet, IReadOnlyList<Ship> ships)
         {
-            // must have a fleet must have ships to add
-            if (fleet.Ships.IsEmpty || ships.Length == 0)
-                return null;
+            if (ships.Count != 0)
+            {
+                fleet.AddShips(ships, removeFromExisting: true, clearOrders: false);
+                fleet.SetCommandShip(null);
+                fleet.AutoArrange(); // arrange new ships into formation
+                fleet.Update(FixedSimTime.Zero/*paused during init*/);
 
-            GameAudio.FleetClicked();
-            InputCheckPreviousShip();
-
-            fleet.AddShips(ships, removeFromExisting: true, clearOrders: false);
+                GameAudio.FleetClicked();
+                InputCheckPreviousShip();
+                return fleet;
+            }
             return fleet;
         }
 
