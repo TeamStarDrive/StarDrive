@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
+using Ship_Game.AI;
 using Ship_Game.Ships;
 
 namespace UnitTests.AITests.Ships
@@ -35,8 +36,7 @@ namespace UnitTests.AITests.Ships
 
             // order ship to move, ignoring enemies
             var movePosition = new Vector2(60000, 0);
-            ship.AI.OrderMoveDirectlyTo(movePosition, new Vector2(1,0), true, 
-                                        Ship_Game.AI.AIState.AwaitingOrders, 0, offensiveMove:false);
+            ship.AI.OrderMoveTo(movePosition, new Vector2(1,0), AIState.AwaitingOrders);
 
             // wait for ship to enter warp
             WaitForEngineChangeTo(Ship.MoveState.Warp, ship, () =>
@@ -67,8 +67,7 @@ namespace UnitTests.AITests.Ships
 
             // order ship to move, CombatMove
             var movePosition = new Vector2(60000, 0);
-            ship.AI.OrderMoveDirectlyTo(movePosition, new Vector2(1,0), true, 
-                                        Ship_Game.AI.AIState.AwaitingOrders, 0, offensiveMove:true);
+            ship.AI.OrderMoveTo(movePosition, new Vector2(1,0), AIState.AwaitingOrders, MoveOrder.Aggressive);
 
             // wait for ship to enter warp
             WaitForEngineChangeTo(Ship.MoveState.Warp, ship, () =>
@@ -100,7 +99,7 @@ namespace UnitTests.AITests.Ships
             Assert.AreEqual(0, ship.YRotation, "Ship's Y rotation should be 0 when spawned");
             Vector2 newPos = new Vector2(2000, 2000);
             Universe.Objects.Update(TestSimStep);
-            ship.AI.OrderMoveTo(newPos, Vector2.Zero, false, Ship_Game.AI.AIState.MoveTo);
+            ship.AI.OrderMoveTo(newPos, Vector2.Zero);
             Universe.Objects.Update(TestSimStep);
             Assert.That.GreaterThan(Math.Abs(ship.YRotation), 0);
 

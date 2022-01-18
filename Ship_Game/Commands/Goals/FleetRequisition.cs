@@ -70,14 +70,13 @@ namespace Ship_Game.Commands.Goals
                 node.GoalGUID = Guid.Empty;
 
                 if (Fleet.Ships.Count == 0)
-                    Fleet.FinalPosition = ship.Position + RandomMath.Vector2D(3000f);        
+                    Fleet.FinalPosition = ship.Position + RandomMath.Vector2D(3000f);
                 if (Fleet.FinalPosition == Vector2.Zero)
                     Fleet.FinalPosition = empire.FindNearestRallyPoint(ship.Position).Center;
 
                 Fleet.AddExistingShip(ship,node);
                 ship.AI.ResetPriorityOrder(false);
-                ship.AI.OrderMoveTo(Fleet.FinalPosition + ship.FleetOffset,
-                    ship.Fleet.FinalDirection, true, AIState.MoveTo);
+                ship.AI.OrderMoveTo(Fleet.GetFinalPos(ship), ship.Fleet.FinalDirection);
 
                 return GoalStep.GoalComplete;
             } 
