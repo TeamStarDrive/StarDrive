@@ -210,7 +210,9 @@ namespace Ship_Game.Universe
                 foreach (Ship ship in fleet.Ships)
                     ship.AI.ClearOrdersIfCombat();
 
-                fleet.FormationWarpTo(movePosition, direction, queueOrder: true, OffensiveMove);
+                // have to set forceAssembly, otherwise the formation at each WayPoint
+                // will have incorrect offset and heading
+                fleet.FormationWarpTo(movePosition, direction, queueOrder: true, offensiveMove: OffensiveMove, forceAssembly: true);
                 return true;
             }
 
