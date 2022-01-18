@@ -362,7 +362,9 @@ namespace Ship_Game.AI
 
             SetPriorityOrder(true);
             if (State != AIState.Resupply && State != AIState.ResupplyEscort)
+            {
                 DecideWhereToResupply(nearestRallyPoint);
+            }
         }
 
         void SetUpSupplyEscort(Ship supplyShip, string supplyType = "All")
@@ -530,7 +532,7 @@ namespace Ship_Game.AI
                     case AIState.AwaitingOrders: AIStateAwaitingOrders(timeStep); break;
                     case AIState.Escort:         AIStateEscort(timeStep);         break;
                     case AIState.SystemDefender: AwaitOrders(timeStep); break;
-                    case AIState.Resupply:       AwaitOrders(timeStep); break;
+                    case AIState.Resupply:       AwaitOrders(timeStep); break; // @see Ship.UpdateResupply()
                     case AIState.ReturnToHangar: DoReturnToHangar(timeStep); break;
                     case AIState.AwaitingOffenseOrders: break;
                     case AIState.Exterminate:

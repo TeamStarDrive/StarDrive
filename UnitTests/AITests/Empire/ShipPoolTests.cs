@@ -24,7 +24,7 @@ namespace UnitTests.AITests.Empire
             CreateUniverseAndPlayerEmpire();
             Homeworld = AddHomeWorldToEmpire(Enemy);
             Enemy.Update(Universe, TestSimStep); // need to update the empire first to create AO's
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
         }
         
         [TestMethod]
@@ -33,7 +33,7 @@ namespace UnitTests.AITests.Empire
             // Only AI ships will be auto-added to Pools
             Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
             Assert.AreEqual(null, ship.Pool);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
 
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
             Assert.AreEqual(ship.Loyalty, ship.Pool.OwnerEmpire);
@@ -45,7 +45,7 @@ namespace UnitTests.AITests.Empire
         {
             Ship ship = SpawnShip("Heavy Carrier mk5-b", Enemy, Vector2.Zero);
             Assert.AreEqual(null, ship.Pool);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
 
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
             Assert.AreEqual(ship.Loyalty, ship.Pool.OwnerEmpire);
@@ -56,7 +56,7 @@ namespace UnitTests.AITests.Empire
         public void ColonyShipIsNotAddedToForcePools()
         {
             Ship ship = SpawnShip("Colony Ship", Enemy, Vector2.Zero);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreEqual(null, ship.Pool, "Colony Ship should not be added to any Force Pools");
         }
         
@@ -64,7 +64,7 @@ namespace UnitTests.AITests.Empire
         public void FreighterIsNotAddedToForcePools()
         {
             Ship ship = SpawnShip("Medium Freighter", Enemy, Vector2.Zero);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreEqual(null, ship.Pool, "Freighter should not be added to any Force Pools");
         }
 
@@ -73,11 +73,11 @@ namespace UnitTests.AITests.Empire
         public void ScrappingShipMustNotBeInAPool()
         {
             Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
 
             ship.AI.OrderScrapShip();
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreEqual(null, ship.Pool, "Ship must be removed from ShipPools after OrderScrap");
         }
 
@@ -86,11 +86,11 @@ namespace UnitTests.AITests.Empire
         public void ScuttlingShipMustNotBeInAPool()
         {
             Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
 
             ship.AI.OrderScuttleShip();
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreEqual(null, ship.Pool, "Ship must be removed from ShipPools after OrderScuttle");
         }
 
@@ -99,41 +99,41 @@ namespace UnitTests.AITests.Empire
         public void RefittingShipMustNotBeInAPool()
         {
             Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
 
             ship.AI.OrderRefitTo(Homeworld, new RefitShip(ship, "Rocket Scout", Enemy));
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreEqual(null, ship.Pool, "Ship must be removed from ShipPools after OrderScrap");
         }
 
         // AIState.Resupply
         [TestMethod]
-        public void ResupplyingShipMustNotBeInAPool()
+        public void ResupplyingShipMustRemainInItsPool()
         {
-            Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
-            ship.Position = new Vector2(10000, 10000);
-            Universe.Objects.Update(TestSimStep);
+            Ship ship = SpawnShip("Vulcan Scout", Enemy, new Vector2(10000, 10000));
+            RunObjectsSim(TestSimStep);
+
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
             IShipPool originalPool = ship.Pool;
-
-            ship.AI.OrderResupply(Homeworld, true);
-            while (ship.AI.State == AIState.Resupply)
+            
+            ship.ChangeOrdnance(-25);
+            ship.AI.OrderResupply(Homeworld, clearOrders:true);
+            RunSimWhile((simTimeout:90, fatal:true), () => ship.AI.State == AIState.Resupply, () =>
             {
-                Universe.Objects.Update(TestSimStep);
                 Assert.AreEqual(originalPool, ship.Pool, "Ship must remain in the same pool during Resupply");
-            }
+            });
         }
 
         [TestMethod]
         public void ShipIsRemovedFromPoolsAfterDeath()
         {
             Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
 
             ship.Die(ship, cleanupOnly: true);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreEqual(null, ship.Pool, "Ship must be removed from ShipPools after Death");
         }
 
@@ -143,13 +143,13 @@ namespace UnitTests.AITests.Empire
             CreateThirdMajorEmpire();
             Enemy.GetEmpireAI().AreasOfOperations.Add(new AO());
             Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
 
             // Third major empire boards the ship
             var oldPool = ship.Pool;
             ship.LoyaltyChangeFromBoarding(ThirdMajor, false);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             Assert.AreNotEqual(oldPool, ship.Pool, "Ship must be moved to new pool");
         }
     }

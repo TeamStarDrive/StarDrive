@@ -153,6 +153,13 @@ namespace Ship_Game.Ships
         private float DieTimer;
         public float BaseStrength;
         public bool Dying;
+
+        /// TRUE if this ship has been completely destroyed, or is displaying its Dying animation
+        public bool IsDeadOrDying => !Active || Dying;
+
+        /// TRUE if this ship is Active and not displaying its Dying animation
+        public bool IsAlive => Active && !Dying;
+
         public PlanetCrash PlanetCrash;
         private bool ReallyDie;
         private bool HasExploded;
@@ -1132,12 +1139,7 @@ namespace Ship_Game.Ships
             if (HighAlertTimer > 0f)
             {
                 // NOTE: need to constantly update HighAlertTimer, using the 1 second update block doesn't work well
-                HighAlertTimer -= timeStep.FixedTime; 
-                if (HighAlertTimer < 0f) // < 0, cause if it starts at 0.016f, it should run at least once
-                {
-                    if (AI.BadGuysNear || InCombat)
-                        SetHighAlertStatus();
-                }
+                HighAlertTimer -= timeStep.FixedTime;
             }
 
             UpdateTimer -= timeStep.FixedTime;

@@ -579,7 +579,6 @@ namespace Ship_Game.AI
 
             // always override the combat state
             State = combatState;
-            Owner.SetHighAlertStatus();
 
             switch (OrderQueue.PeekFirst?.Plan)
             {
@@ -604,8 +603,6 @@ namespace Ship_Game.AI
             }
 
             //Log.Write(ConsoleColor.Red, $"EXIT combat: {Owner}");
-            if (Owner.InCombat)
-                Owner.SetHighAlertStatus();
             Owner.InCombat = false;
 
             if (OrderQueue.IsEmpty) // need to change the state to prevent re-enter combat bug
@@ -621,6 +618,12 @@ namespace Ship_Game.AI
         {
             bool badGuysNear = BadGuysNear;
             bool inCombat = Owner.InCombat;
+ 
+            // if there are Enemies nearby, or ship is in combat, always set HighAlert
+            if (badGuysNear || inCombat)
+            {
+                Owner.SetHighAlertStatus();
+            }
 
             if (badGuysNear && !inCombat && ShouldEnterAutoCombat())
             {

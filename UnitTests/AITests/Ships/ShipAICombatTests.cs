@@ -254,13 +254,11 @@ namespace UnitTests.AITests.Ships
 
         void AssertHighAlertTimesOutCorrectly()
         {
-            float timer = 0f;
-            RunSimWhile((simTimeout:20, fatal:false), () => Us.OnHighAlert, () => {
-                timer += TestSimStep.FixedTime;
-            });
+            double highAlertTime = RunSimWhile((simTimeout:20, fatal:false), () => Us.OnHighAlert);
 
             Log.Write($"Target.HighAlertTimer: {Us.GetHighAlertTimer():0.#####}");
-            Assert.AreEqual(Ship.HighAlertSeconds, timer, 0.25f,
+            // delta must be set to EnemyScanInterval, because that is the accuracy of HighAlert status
+            Assert.AreEqual(Ship.HighAlertSeconds, highAlertTime, delta:EmpireConstants.EnemyScanInterval,
                 $"Ship should remain OnHighAlert for {Ship.HighAlertSeconds} seconds after combat was over");
         }
 
@@ -274,14 +272,14 @@ namespace UnitTests.AITests.Ships
             Assert.IsTrue(Us.InCombat, "ship should be in combat");
             InjectSteroids(Us);
 
-            RunSimWhile((simTimeout:60, fatal:false), () => colonyShip.Active, () =>
+            RunSimWhile((simTimeout:60, fatal:false), () => colonyShip.Active && !colonyShip.Dying, () =>
             {
                 DebugPrintStatus(colonyShip);
                 Assert.IsTrue(Us.InCombat || !colonyShip.Active, "ship must stay in combat until target destroyed");
                 colonyShip.Velocity = Vector2.Zero; // BUG: there is a strange drift effect in sim
             });
 
-            if (colonyShip.Active)
+            if (colonyShip.Active && !colonyShip.Dying)
             {
                 DebugPrintKillFailure(colonyShip);
                 Assert.Fail("Failed to kill colony ship");
@@ -320,7 +318,7 @@ namespace UnitTests.AITests.Ships
                 Assert.AreEqual(CombatState.HoldPosition, colonyShip.AI.CombatState);
             });
 
-            if (colonyShip.Active)
+            if (colonyShip.Active && !colonyShip.Dying)
             {
                 DebugPrintKillFailure(colonyShip);
                 Assert.Fail("Failed to kill colony ship");
@@ -363,22 +361,22 @@ namespace UnitTests.AITests.Ships
         public void NotInCombatWithHostilePlanets()
         {
             SpawnOurShip(ScoutName);
-            Assert.IsFalse(Us.InCombat, "ship should not be in combat yet");
+            Assert.IsFalse(Us.InCombat, "Ship should not start with InCombat set");
 
             AddDummyPlanetToEmpire(Enemy);
             RunObjectsSim(EnemyScanInterval);
 
-            // verify block
-            Assert.IsTrue(Us.System != null, "Test wont work without being in system");
-            Assert.IsTrue(Us.AI.BadGuysNear, "Test wont work if badguys near false");
+            Assert.AreNotEqual(null, Us.System, "Ship.System must be valid");
+            Assert.IsTrue(Us.AI.BadGuysNear, "Ship.BadGuysNear must be set by planet");
 
-            Assert.IsFalse(Us.InCombat, "ship should not be in combat with a planet");
+            Assert.IsFalse(Us.InCombat, "Ship should not be in combat with a planet");
             RunObjectsSim(EnemyScanInterval);
-            Assert.IsTrue(Us.OnHighAlert, "Enemy planet should have set OnHighAlert");
+            Assert.IsTrue(Us.OnHighAlert, "Enemy planet should set our Ship OnHighAlert");
 
             // now teleport ship to safety:
             Us.Position = new Vector2(200_000f);
             Us.AI.HoldPosition();
+            RunObjectsSim(EnemyScanInterval); // wait another scan interval to detect high alert change
 
             AssertHighAlertTimesOutCorrectly();
         }

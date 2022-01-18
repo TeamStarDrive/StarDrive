@@ -69,8 +69,8 @@ namespace Ship_Game.AI
             for (int index = 0; index < DefensiveForcePool.Count; index++)
             {
                 Ship ship = DefensiveForcePool[index];
-                if (!ship.Active || ship.Dying) continue;
-                strength += ship.GetStrength();
+                if (ship.Active && !ship.Dying)
+                    strength += ship.GetStrength();
             }
 
             return strength;

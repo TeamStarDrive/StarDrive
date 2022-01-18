@@ -83,9 +83,7 @@ namespace Ship_Game.AI.ShipMovement
 
             if (distance > 15000f) // we are still far away, thrust towards the planet
             {
-                AI.ThrustOrWarpToPos(orbitTarget.Center, timeStep);
-                OrbitPos         = orbitTarget.Center + OrbitOffset;
-                OrbitUpdateTimer = 0f;
+                ThrustTowardsPlanet(orbitTarget, timeStep);
                 return;
             }
 
@@ -103,9 +101,16 @@ namespace Ship_Game.AI.ShipMovement
                                && Owner.Universe.IsSystemViewOrCloser;
                 if (!visible) // don't update orbits in invisible systems
                 {
-                    // MAGIC STOP ships when orbiting off screen
-                    Owner.Velocity = Vector2.Zero;
-                    InOrbit = true;
+                    if (distance > 2000f) // we need to get closer to get RESUPPLIED (!)
+                    {
+                        ThrustTowardsPlanet(orbitTarget, timeStep);
+                    }
+                    else
+                    {
+                        // MAGIC STOP ships when orbiting off screen
+                        Owner.Velocity = Vector2.Zero;
+                        InOrbit = true;
+                    }
                     return;
                 }
             }
@@ -139,6 +144,13 @@ namespace Ship_Game.AI.ShipMovement
         {
             UpdateOrbitPos(ship.Position, 1500f, timeStep);
             AI.ThrustOrWarpToPos(OrbitPos, timeStep, OrbitalSpeedLimit);
+        }
+
+        void ThrustTowardsPlanet(Planet orbitTarget, FixedSimTime timeStep)
+        {
+            AI.ThrustOrWarpToPos(orbitTarget.Center, timeStep);
+            OrbitPos = orbitTarget.Center + OrbitOffset;
+            OrbitUpdateTimer = 0f;
         }
     }
 }

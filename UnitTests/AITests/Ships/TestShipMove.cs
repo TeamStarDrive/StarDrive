@@ -16,7 +16,7 @@ namespace UnitTests.AITests.Ships
 
         void WaitForEngineChangeTo(Ship.MoveState state, Ship ship, Action update)
         {
-            LoopWhile((timeout:5, fatal:true), () => ship.engineState != state, update);
+            RunSimWhile((simTimeout:15, fatal:true), () => ship.engineState != state, update);
         }
 
         void SpawnShips(out Ship ship, out Ship enemy)
@@ -41,8 +41,6 @@ namespace UnitTests.AITests.Ships
             // wait for ship to enter warp
             WaitForEngineChangeTo(Ship.MoveState.Warp, ship, () =>
             {
-                Universe.Objects.Update(TestSimStep); // update ships and do scans
-                ship.Update(TestSimStep);
             });
 
             bool sawEnemyShip = false;
@@ -50,7 +48,6 @@ namespace UnitTests.AITests.Ships
             // wait for ship to exit warp
             WaitForEngineChangeTo(Ship.MoveState.Sublight, ship, () =>
             {
-                Universe.Objects.Update(TestSimStep); // update ships and do scans
                 sawEnemyShip |= ship.AI.BadGuysNear;
             });
 
@@ -76,7 +73,6 @@ namespace UnitTests.AITests.Ships
             // wait for ship to enter warp
             WaitForEngineChangeTo(Ship.MoveState.Warp, ship, () =>
             {
-                Universe.Objects.Update(TestSimStep); // update ships and do scans
                 ship.Update(TestSimStep);
             });
 
@@ -85,7 +81,6 @@ namespace UnitTests.AITests.Ships
             // wait for ship to exit warp
             WaitForEngineChangeTo(Ship.MoveState.Sublight, ship, () =>
             {
-                Universe.Objects.Update(TestSimStep); // update ships and do scans
                 sawEnemyShip |= ship.AI.BadGuysNear;
             });
 
@@ -109,11 +104,10 @@ namespace UnitTests.AITests.Ships
             Universe.Objects.Update(TestSimStep);
             Assert.That.GreaterThan(Math.Abs(ship.YRotation), 0);
 
-            float maxYBank     = ship.GetMaxBank(); 
+            float maxYBank = ship.GetMaxBank(); 
             float yBankReached = 0;
-            LoopWhile((timeout: 10, fatal: true), () => ship.Position.OutsideRadius(newPos, 100), () =>
+            RunSimWhile((simTimeout: 25, fatal: true), () => ship.Position.OutsideRadius(newPos, 100), () =>
             {
-                Universe.Objects.Update(TestSimStep);
                 yBankReached = Math.Max(Math.Abs(ship.YRotation), yBankReached);
             });
 
