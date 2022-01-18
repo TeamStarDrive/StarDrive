@@ -13,6 +13,7 @@ namespace Ship_Game
         public readonly Array<Ship> Ships = new Array<Ship>();
         public Empire Owner;
         protected bool IsAssembling = false;
+
         public Ship CommandShip
         {
             get         => LeadShip?.Leader;
@@ -44,9 +45,6 @@ namespace Ship_Game
         /// </summary>
         protected Vector2 AveragePos;
 
-        // entire ship group average offset from [0,0]
-        // this is relevant because ships are not perfectly aligned
-        protected Vector2 AverageOffsetFromZero;
         int LastAveragePosUpdate = -1;
 
         protected float Strength;
@@ -300,56 +298,42 @@ namespace Ship_Game
             return true;
         }
 
-        public static Vector2 GetAveragePosition(Array<Ship> ships, Ship commandShip = null)
+        public static Vector2 GetAveragePosition(Array<Ship> ships)
         {
             int count = ships.Count;
             if (count == 0)
                 return Vector2.Zero;
 
-            if (commandShip != null) return commandShip.Position - commandShip.FleetOffset; 
-
-            float fleetCapableShipCount = 1;
             Ship[] items = ships.GetInternalArrayItems();
-            commandShip = commandShip ?? items[0];
-            Vector2 avg = commandShip.Position - commandShip.FleetOffset;
-            float commandShipSize = commandShip.SurfaceArea;
- 
-            for (int i = 0; i < count; ++i)
+
+            Ship biggestShip = items[0];
+            float biggestSize = biggestShip.SurfaceArea;
+            for (int i = 1; i < count; ++i)
             {
                 Ship ship = items[i];
-                if (ship != commandShip && ship.CanTakeFleetMoveOrders())
+                if (biggestSize < ship.SurfaceArea && ship.CanTakeFleetMoveOrders())
                 {
-                    float ratio = ship.SurfaceArea / commandShipSize;
-                    fleetCapableShipCount += (1f * ratio);
+                    biggestShip = ship;
+                    biggestSize = ship.SurfaceArea;
+                }
+            }
+
+            float totalRatioSum = 1f;
+            Vector2 avg = biggestShip.Position - biggestShip.FleetOffset;
+ 
+            for (int i = 1; i < count; ++i)
+            {
+                Ship ship = items[i];
+                if (ship.CanTakeFleetMoveOrders())
+                {
+                    float ratio = ship.SurfaceArea / biggestSize;
+                    totalRatioSum += ratio;
                     Vector2 p = (ship.Position -  ship.FleetOffset) * ratio;
                     avg.X += p.X;
                     avg.Y += p.Y;
                 }
             }
-            return avg / fleetCapableShipCount;
-        }
-
-        static Vector2 GetAverageOffsetFromZero(Array<Ship> ships)
-        {
-            int count = ships.Count;
-            if (count == 0)
-                return Vector2.Zero;
-
-            Ship[] items = ships.GetInternalArrayItems();
-            Vector2 avg = items[0].AI.FleetNode?.FleetOffset ?? items[0].FleetOffset;
-            for (int i = 1; i < count; ++i)
-            {
-                // The dispose process should be tracked here to figure out why this ship goes null here
-                // AGGRESSIVE DISPOSE
-                var ship = items[i];
-                if (ship?.Active == true)
-                {
-                    Vector2 p = ship.AI.FleetNode?.FleetOffset ?? ship.FleetOffset;
-                    avg.X += p.X;
-                    avg.Y += p.Y;
-                }
-            }
-            return avg / count;
+            return avg / totalRatioSum;
         }
 
         /// <summary> Use for DrawThread </summary>
@@ -359,22 +343,20 @@ namespace Ship_Game
         {
             // Update Pos once per frame, OR if LastAveragePosUpdate was invalidated
             // force check is pretty rare so evaluate last
-            if (LastAveragePosUpdate != (StarDriveGame.Instance?.FrameId ?? -1) || force)
+            if (force || StarDriveGame.Instance == null || LastAveragePosUpdate != StarDriveGame.Instance.FrameId)
             {
-                LastAveragePosUpdate = StarDriveGame.Instance?.FrameId ?? LastAveragePosUpdate;
+                LastAveragePosUpdate = StarDriveGame.Instance?.FrameId ?? 0;
                 AveragePos = GetAveragePosition(Ships);
-                AverageOffsetFromZero = GetAverageOffsetFromZero(Ships);
             }
             return AveragePos;
         }
 
-        // Needs a storage value
         public float GetStrength()
         {
             // Update Strength once per frame, OR if LastStrengthUpdate was invalidated
-            if (LastStrengthUpdate != StarDriveGame.Instance?.FrameId)
+            if (StarDriveGame.Instance == null || LastStrengthUpdate != StarDriveGame.Instance.FrameId)
             {
-                LastStrengthUpdate = StarDriveGame.Instance?.FrameId ?? LastAveragePosUpdate + 1;
+                LastStrengthUpdate = StarDriveGame.Instance?.FrameId ?? 0;
                 Strength = 0f;
                 for (int i = 0; i < Ships.Count; i++)
                 {

@@ -1683,18 +1683,6 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void SetPriorityOrderToShipsIf(Array<Ship> ships, Func<Ship, bool> condition, bool clearOtherOrders = false)
-        {
-            for (int i = 0; i < ships.Count; ++i)
-            {
-                Ship ship = Ships[i];
-                if (condition(ship))
-                    ship.AI.SetPriorityOrder(true);
-            }
-        }
-
-        void SetAllShipsPriorityOrder() => SetPriorityOrderToShipsIf(Ships, s => s.CanTakeFleetOrders);
-
         bool FleetTaskGatherAtRally(MilitaryTask task)
         {
             var ownerSystems = Owner.GetOwnedSystems().Filter(s => AveragePos.InRadius(s.Position, s.Radius));
@@ -2429,12 +2417,15 @@ namespace Ship_Game.Fleets
 
         public void Update(FixedSimTime timeStep)
         {
-            InFormationWarp   = false;
-            HasRepair         = false;
+            InFormationWarp = false;
+            HasRepair = false;
+            if (Ships.Count == 0)
+                return;
+
             bool readyForWarp = true;
-            Ship commandShip  = null;
+            Ship commandShip = null;
             var fleetTotals = new ShipAI.TargetParameterTotals();
-            if (Ships.Count == 0) return;
+
             if (CommandShip?.Fleet != this || !CommandShip.CanTakeFleetMoveOrders())
                 SetCommandShip(null);
 
@@ -2455,7 +2446,7 @@ namespace Ship_Game.Fleets
 
                 if (CommandShip == null && ship.CanTakeFleetOrders)
                 {
-                    if ((commandShip?.SurfaceArea ?? 0) < ship.SurfaceArea)
+                    if (commandShip == null || commandShip.SurfaceArea < ship.SurfaceArea)
                         commandShip = ship;
                 }
 
