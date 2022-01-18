@@ -409,8 +409,7 @@ namespace Ship_Game.AI
             Owner.AI.SetPriorityOrder(false);
             Owner.AI.IgnoreCombat = false;
             if (Owner.Fleet != null)
-                OrderMoveTo(Owner.Fleet.FinalPosition + Owner.RelativeFleetOffset,
-                    Owner.Fleet.FinalDirection, true, State);
+                OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, State);
 
             Owner.Loyalty.AddShipToManagedPools(Owner);
         }
@@ -635,7 +634,7 @@ namespace Ship_Game.AI
         {
             ClearWayPoints();
             State = AIState.AwaitingOrders;
-            OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, true, AIState.MoveTo);
+            OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, AIState.MoveTo);
         }
 
         public bool HasTradeGoal(Goods goods)

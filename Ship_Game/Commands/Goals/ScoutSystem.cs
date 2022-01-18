@@ -94,7 +94,7 @@ namespace Ship_Game.Commands.Goals
             {
                 FinishedShip.AI.ClearOrders();
                 if (FinishedShip.TryGetScoutFleeVector(out Vector2 escapePos))
-                    FinishedShip.AI.OrderMoveToNoStop(escapePos, FinishedShip.Direction.DirectionToTarget(escapePos), true, AIState.Flee);
+                    FinishedShip.AI.OrderMoveToNoStop(escapePos, FinishedShip.Direction.DirectionToTarget(escapePos), AIState.Flee);
                 else
                     FinishedShip.AI.OrderFlee();
 
