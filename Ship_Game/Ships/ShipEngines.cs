@@ -62,11 +62,12 @@ namespace Ship_Game.Ships
 
         EngineStatus GetEngineStatus()
         {
+            // this should cover most cases,
+            // be careful when adding new conditions, because it might be redundant
             if (Owner.EnginesKnockedOut || Owner.EMPDisabled || Owner.Dying || !Owner.HasCommand)
                 return EngineStatus.Disabled;
 
-            // no engines are powered and alive
-            return EngineStatus.Disabled;
+            return EngineStatus.Active;
         }
 
         WarpStatus GetFormationWarpReadyStatus()
