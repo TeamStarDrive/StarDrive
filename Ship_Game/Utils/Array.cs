@@ -207,7 +207,7 @@ namespace Ship_Game
             }
         }
 
-        void Grow(int capacity)
+        void Grow(int count, int capacity)
         {
             if (capacity >= 4)
             {
@@ -221,8 +221,8 @@ namespace Ship_Game
             else capacity = 4;
 
             var newArray = new T[capacity];
-            if (Count != 0)
-                Array.Copy(Items, 0, newArray, 0, Count);
+            if (count != 0)
+                Array.Copy(Items, 0, newArray, 0, count);
             Items = newArray;
         }
 
@@ -250,7 +250,7 @@ namespace Ship_Game
             int capacity = Items.Length;
             int count = Count;
             if (count == capacity)
-                Grow(capacity);
+                Grow(count, capacity);
             Items[count] = item;
             Count = count + 1;
         }
@@ -271,7 +271,7 @@ namespace Ship_Game
                 ThrowIndexOutOfBounds(index);
 
             if (count == Items.Length)
-                Grow(Items.Length);
+                Grow(count, Items.Length);
 
             if (index < count) Array.Copy(Items, index, Items, index + 1, count - index);
             Items[index] = item;
