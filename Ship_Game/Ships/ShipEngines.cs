@@ -32,7 +32,7 @@ namespace Ship_Game.Ships
         ShipAI AI => Owner.AI;
 
         public ShipModule[] Engines { get; private set; }
-        public ShipModule[] ActiveEngines => Engines.Filter(e=> e.Active);
+        public ShipModule[] ActiveEngines => Engines.Filter(e => e.Active && (e.Powered || e.PowerDraw <= 0f));
 
         public EngineStatus EngineStatus { get; private set; }
         public WarpStatus ReadyForWarp { get; private set; }
@@ -62,19 +62,10 @@ namespace Ship_Game.Ships
 
         EngineStatus GetEngineStatus()
         {
-            if (Owner.EnginesKnockedOut || Owner.Inhibited || Owner.EMPDisabled ||
-                Owner.Dying || !Owner.HasCommand)
+            if (Owner.EnginesKnockedOut || Owner.EMPDisabled || Owner.Dying || !Owner.HasCommand)
                 return EngineStatus.Disabled;
 
-            var engines = Engines;
-            for (int i = 0; i < engines.Length; ++i)
-            {
-                ShipModule e = engines[i];
-                if (e.Active && e.Powered)
-                    return EngineStatus.Active;
-            }
-
-            // no engines are powered
+            // no engines are powered and alive
             return EngineStatus.Disabled;
         }
 
@@ -109,7 +100,8 @@ namespace Ship_Game.Ships
 
         WarpStatus GetWarpReadyStatus()
         {
-            if (EngineStatus == EngineStatus.Disabled || !Owner.Active || Owner.MaxFTLSpeed < 1)
+            if (EngineStatus == EngineStatus.Disabled || !Owner.Active ||
+                Owner.Inhibited || Owner.MaxFTLSpeed < 1)
                 return WarpStatus.UnableToWarp;
 
             if (Owner.engineState == Ship.MoveState.Warp)
