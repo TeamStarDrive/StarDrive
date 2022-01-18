@@ -599,7 +599,7 @@ namespace Ship_Game.AI
 
             if (DoNearFleetOffset(timeStep))
             {
-                if (State != AIState.HoldPosition && !Owner.Fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
+                if (State != AIState.HoldPosition && Owner.CanTakeFleetMoveOrders())
                     State = AIState.AwaitingOrders;
                 return;
             }
@@ -624,7 +624,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                if (State != AIState.HoldPosition && !Owner.Fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
+                if (State != AIState.HoldPosition && Owner.CanTakeFleetMoveOrders())
                     State = AIState.AwaitingOrders;
             }
         }
@@ -633,16 +633,7 @@ namespace Ship_Game.AI
         {
             ClearWayPoints();
             State = AIState.AwaitingOrders;
-            if (Owner.Fleet.HasFleetGoal)
-            {
-                // TODO: do we need this? Is this even correct?
-                WayPoints.Enqueue(new WayPoint(Owner.Fleet.NextGoalMovePosition + Owner.FleetOffset,
-                                               Owner.Fleet.FinalDirection));
-            }
-            else
-            {
-                OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, true, AIState.MoveTo);
-            }
+            OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, true, AIState.MoveTo);
         }
 
         public bool HasTradeGoal(Goods goods)

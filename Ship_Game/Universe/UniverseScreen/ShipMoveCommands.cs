@@ -248,9 +248,9 @@ namespace Ship_Game.Universe
                     ship.AI.ClearOrders();
 
             if (Input.IsAltKeyDown)
-                fleet.MoveToNow(movePosition, facingDir);
+                fleet.MoveToNow(movePosition, facingDir, offensiveMove: OffensiveMove);
             else
-                fleet.FormationWarpTo(movePosition, facingDir, false, offensiveMove: OffensiveMove);
+                fleet.FormationWarpTo(movePosition, facingDir, queueOrder: false, offensiveMove: OffensiveMove, forceAssembly: true);
         }
 
         public void MoveShipToLocation(Vector2 pos, Vector2 direction, Ship ship)

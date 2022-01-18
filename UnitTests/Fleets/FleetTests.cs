@@ -106,15 +106,16 @@ namespace UnitTests.Fleets
         {
             Vector2 target = fleet.FinalPosition + offset;
             Log.Write($"Fleet.MoveToNow({target.X},{target.Y})");
-            fleet.MoveToNow(target, finalDirection: offset.Normalized());
+            fleet.MoveToNow(target, finalDirection: offset.Normalized(), offensiveMove: true);
             return target;
         }
 
         Vector2 FleetQueueMoveOrder(Fleet fleet, Vector2 offset)
         {
             Vector2 target = fleet.FinalPosition + offset;
+            Vector2 finalDir = offset.Normalized();
             Log.Write($"Fleet.QueueMoveOrder({target.X},{target.Y})");
-            fleet.FormationWarpTo(target, finalDirection: offset.Normalized(), queueOrder: true);
+            fleet.FormationWarpTo(target, finalDir, queueOrder: true, offensiveMove: false, forceAssembly: true);
             return target;
         }
 
@@ -181,7 +182,7 @@ namespace UnitTests.Fleets
         public void FleetCanAssembleAndFormationWarp()
         {
             Fleet fleet = CreateRandomizedPlayerFleet(12345);
-            fleet.AssembleFleet(new Vector2(0, 10_000), Vectors.Down); // assemble the fleet in distance
+            fleet.AssembleFleet(new Vector2(0, 10_000), Vectors.Down, forceAssembly:true); // assemble the fleet in distance
 
             // order it to warp forward at an angle
             var finalTarget = FleetMoveTo(fleet, new Vector2(50_000, 50_000));
@@ -192,13 +193,13 @@ namespace UnitTests.Fleets
         public void FleetCanAssembleAndFormationWarpToMultipleWayPoints()
         {
             Fleet fleet = CreateRandomizedPlayerFleet(12345);
-            fleet.AssembleFleet(new Vector2(0, 10_000), Vectors.Down); // assemble the fleet in distance
+            fleet.AssembleFleet(new Vector2(0, 10_000), Vectors.Down, forceAssembly:true); // assemble the fleet in distance
 
             // order it to warp forward at an angle
             FleetMoveTo(fleet, new Vector2(50_000, 50_000));
             // and then queue up another WayPoint to the fleet
             var finalTarget = FleetQueueMoveOrder(fleet, new Vector2(-20_000, 40_000));
-            AssertAllShipsWarpedToTarget(fleet, finalTarget, simTimeout: 30.0);
+            AssertAllShipsWarpedToTarget(fleet, finalTarget, simTimeout: 60.0);
         }
 
         void AssertAllShipsWarpedToTarget(Fleet fleet, Vector2 target, double simTimeout)

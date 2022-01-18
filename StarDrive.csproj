@@ -471,7 +471,6 @@
     <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindClosestTo.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Vectors.cs" />
-    <Compile Include="Ship_Game\Fleets\FleetGoals\FleetGoal.cs" />
     <Compile Include="Ship_Game\Fleets\FleetTactics\CombatPreferences.cs" />
     <Compile Include="Ship_Game\Fleets\GroupLeader.cs" />
     <Compile Include="Ship_Game\Gameplay\CurrentGame.cs" />
@@ -1719,6 +1718,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Ship_Game\Fleets\FleetGoals\" />
     <Folder Include="Ship_Game\Sensors\" />
     <Folder Include="Ship_Game\Universe\SolarBodies\AI\" />
   </ItemGroup>

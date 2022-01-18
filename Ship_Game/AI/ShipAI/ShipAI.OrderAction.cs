@@ -143,17 +143,10 @@ namespace Ship_Game.AI
             }
         }
 
-        public void OrderFormationWarp(Vector2 destination, Vector2 direction, bool offensiveMove)
+        public void OrderFormationWarp(Vector2 destination, Vector2 direction, bool queueOrder, bool offensiveMove)
         {
             float speedLimit = Owner.Fleet?.GetSpeedLimitFor(Owner) ?? 0;
-            OrderMoveDirectlyTo(destination, direction, true, AIState.FormationWarp, speedLimit, offensiveMove);
-        }
-
-        public void OrderFormationWarpQ(Vector2 destination, Vector2 direction, bool offensiveMove)
-        {
-            float speedLimit = Owner.Fleet?.GetSpeedLimitFor(Owner) ?? 0;
-            OrderMoveDirectlyTo(destination, direction, false, AIState.FormationWarp, speedLimit, offensiveMove);
-            State = AIState.FormationWarp;
+            OrderMoveDirectlyTo(destination, direction, clearWayPoints: !queueOrder, AIState.FormationWarp, speedLimit, offensiveMove);
         }
 
         public void OrderInterceptShip(Ship toIntercept)
