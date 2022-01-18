@@ -74,8 +74,11 @@ namespace Ship_Game.UI.Effects
                 if (Points.Count == 1) // not a curve:
                     return Points[0].Y;
 
-                if (!CalculateCurve())
-                    return -1f;
+                lock (Curve) // curve initialization must be thread-safe
+                {
+                    if (!CalculateCurve())
+                        return -1f;
+                }
             }
 
             int min = 0;
