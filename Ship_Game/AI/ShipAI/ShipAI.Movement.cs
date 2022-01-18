@@ -504,7 +504,9 @@ namespace Ship_Game.AI
             if (angleDiff > maxTurn) // we can't make the turn
             {
                 // ok, just cut the corner to next WayPoint maybe?
-                if (WayPoints.Count >= 2 && distance > Owner.Loyalty.GetProjectorRadius() * 0.5f)
+                // However, this is not allowed for Fleets - to prevent individual ships cutting corners
+                // and getting ahead of the fleet
+                if (Owner.Fleet == null && WayPoints.Count >= 2 && distance > Owner.Loyalty.GetProjectorRadius() * 0.5f)
                 {
                     WayPoint next = WayPoints.ElementAt(1);
                     float nextDistance = Owner.Position.Distance(next.Position);
@@ -597,7 +599,7 @@ namespace Ship_Game.AI
             // special case for fleets: if ship is already at its final position
             // ignore all flocking rules and stay put - other ships that are not in place
             // will do their own thing
-            if (Owner.Fleet != null && Owner.Fleet.IsShipAtFinalPosition(Owner, 200))
+            if (Owner.Fleet != null && Owner.Fleet.IsShipAtFinalPosition(Owner, 500))
             {
                 return;
             }

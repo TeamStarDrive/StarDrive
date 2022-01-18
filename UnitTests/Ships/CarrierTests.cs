@@ -176,7 +176,7 @@ namespace UnitTests.Ships
             SpawnEnemyShipAndEnsureFightersLaunch();
 
             Fleet fleet = CreateFleet();
-            fleet.MoveToNow(new Vector2(30000, 30000), Vectors.Up);
+            fleet.MoveToNow(new Vector2(30000, 30000), Vectors.Up, offensiveMove: false);
             RunObjectsSim(ScanInterval);
             
             AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling during fleet move");
