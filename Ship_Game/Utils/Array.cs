@@ -165,23 +165,25 @@ namespace Ship_Game
         public T[] GetInternalArrayItems() => Items;
 
         // Separated throw from this[] to enable MS IL inlining
-        void ThrowIndexOutOfBounds(int index)
+        void ThrowIndexOutOfBounds(int index, int count)
         {
-            throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
+            throw new IndexOutOfRangeException($"Index [{index}] out of range({count}) {ToString()}");
         }
 
         public T this[int index]
         {
             get
             {
-                if ((uint)index >= (uint)Count)
-                    ThrowIndexOutOfBounds(index);
+                int count = Count;
+                if ((uint)index >= (uint)count)
+                    ThrowIndexOutOfBounds(index, count);
                 return Items[index];
             }
             set
             {
-                if ((uint)index >= (uint)Count)
-                    ThrowIndexOutOfBounds(index);
+                int count = Count;
+                if ((uint)index >= (uint)count)
+                    ThrowIndexOutOfBounds(index, count);
                 Items[index] = value;
             }
         }
@@ -268,7 +270,7 @@ namespace Ship_Game
         {
             int count = Count;
             if ((uint)index > (uint)count)
-                ThrowIndexOutOfBounds(index);
+                ThrowIndexOutOfBounds(index, count);
 
             if (count == Items.Length)
                 Grow(count, Items.Length);
@@ -408,7 +410,7 @@ namespace Ship_Game
         {
             int count = Count;
             if ((uint)index >= (uint)count)
-                ThrowIndexOutOfBounds(index);
+                ThrowIndexOutOfBounds(index, count);
 
             Count = --count;
             if (index < count) Array.Copy(Items, index + 1, Items, index, count - index);
@@ -419,8 +421,9 @@ namespace Ship_Game
         // if index is outside bounds, an OOB exception will throw
         public void RemoveAtSwapLast(int index)
         {
-            if ((uint)index >= (uint)Count)
-                ThrowIndexOutOfBounds(index);
+            int count = Count;
+            if ((uint)index >= (uint)count)
+                ThrowIndexOutOfBounds(index, count);
             int last = --Count;
             Items[index] = Items[last];
             Items[last]  = default;
@@ -451,7 +454,7 @@ namespace Ship_Game
         public T PopFirst()
         {
             if (Count == 0)
-                ThrowIndexOutOfBounds(0);
+                ThrowIndexOutOfBounds(0, 0);
 
             T item = Items[0];
             --Count;
@@ -463,7 +466,7 @@ namespace Ship_Game
         public T PopLast()
         {
             if (Count == 0)
-                ThrowIndexOutOfBounds(0);
+                ThrowIndexOutOfBounds(0, 0);
             --Count;
             T item = Items[Count];
             Items[Count] = default;
@@ -503,8 +506,9 @@ namespace Ship_Game
         /// <param name="newIndex">New index of the element</param>
         public void Reorder(int oldIndex, int newIndex)
         {
-            if ((uint)oldIndex >= (uint)Count) ThrowIndexOutOfBounds(oldIndex);
-            if ((uint)newIndex >= (uint)Count) ThrowIndexOutOfBounds(newIndex);
+            int count = Count;
+            if ((uint)oldIndex >= (uint)count) ThrowIndexOutOfBounds(oldIndex, count);
+            if ((uint)newIndex >= (uint)count) ThrowIndexOutOfBounds(newIndex, count);
             
             T itemToMove = Items[oldIndex];
 
@@ -544,8 +548,8 @@ namespace Ship_Game
         public ArrayView<T> SubRange(int start, int end)
         {
             int count = Count;
-            if ((uint)start >= (uint)count) ThrowIndexOutOfBounds(start);
-            if ((uint)end   >  (uint)count) ThrowIndexOutOfBounds(end);
+            if ((uint)start >= (uint)count) ThrowIndexOutOfBounds(start, count);
+            if ((uint)end   >  (uint)count) ThrowIndexOutOfBounds(end, count);
             return new ArrayView<T>(start, end, Items);
         }
 
