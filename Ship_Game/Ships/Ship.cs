@@ -284,7 +284,7 @@ namespace Ship_Game.Ships
         public bool CanTakeFleetMoveOrders()
         {
             return Active && FleetCapableStatus == Status.Good
-                && ShipEngines.EngineStatus >= EngineStatus.Disabled;
+                && ShipEngines.EngineStatus == EngineStatus.Active;
         }
 
         void SetFleetCapableStatus()

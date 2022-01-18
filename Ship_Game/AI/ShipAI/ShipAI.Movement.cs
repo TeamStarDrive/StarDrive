@@ -431,7 +431,8 @@ namespace Ship_Game.AI
             }
 
             // engage StarDrive if we're moderately far
-            if (State != AIState.FormationWarp || Owner.Fleet == null) // not in a fleet
+            bool notAFleet = Owner.Fleet == null || State != AIState.FormationWarp;
+            if (notAFleet) // not in a fleet or ship group
             {
                 // only warp towards actual warp pos
                 if (predictionDiff < 0.05f && Owner.MaxFTLSpeed > 0)
