@@ -31,7 +31,8 @@ namespace UnitTests
         public Empire ThirdMajor { get; private set; }
         public Empire Faction { get; private set; }
 
-        public readonly FixedSimTime TestSimStep = new FixedSimTime(1f / 60f);
+        public readonly double TestSimStepD = 1.0 / 60.0;
+        public readonly FixedSimTime TestSimStep = new FixedSimTime((float)(1.0 / 60.0));
 
         public StarDriveTest()
         {
@@ -293,30 +294,10 @@ namespace UnitTests
         {
             return Universe.Objects.GetProjectiles(ship);
         }
+
         public int GetProjectileCount(Ship ship)
         {
             return GetProjectiles(ship).Count;
-        }
-
-        /// <summary>
-        /// Loops up to `timeout` seconds While condition is True
-        /// if `fatal` == true, throws exception if timeout is reached and the test should fail
-        /// </summary>
-        /// <returns>TRUE if Loop completed without timeout, FALSE if !fatal and there was a timeout</returns>
-        public static bool LoopWhile((double timeout, bool fatal) timeout, Func<bool> condition, Action body)
-        {
-            var sw = Stopwatch.StartNew();
-            while (condition())
-            {
-                body();
-                if (sw.Elapsed.TotalSeconds > timeout.timeout)
-                {
-                    if (timeout.fatal)
-                        throw new TimeoutException("Timed out in LoopWhile");
-                    return false; // timed out
-                }
-            }
-            return true;
         }
 
         /// <summary>
@@ -324,42 +305,46 @@ namespace UnitTests
         /// Each step is taken using TestSimTimeStep (1/60)
         /// if `fatal` == true, throws exception if timeout is reached and the test should fail
         /// </summary>
-        /// <returns>TRUE if Loop completed without timeout, FALSE if !fatal and there was a timeout</returns>
-        public bool RunSimWhile((double simTimeout, bool fatal) timeout, Func<bool> condition = null, Action body = null)
+        /// <returns>Elapsed Simulation Time</returns>
+        public double RunSimWhile((double simTimeout, bool fatal) timeout, Func<bool> condition = null, Action body = null)
         {
-            float elapsedSimTime = 0f;
+            double elapsedSimTime = 0.0;
             while (condition == null || condition())
             {
-                Universe.Objects.Update(TestSimStep);
                 body?.Invoke();
 
-                elapsedSimTime += TestSimStep.FixedTime;
-                if (elapsedSimTime > timeout.simTimeout)
+                // update after invoking body, to avoid side-effects in condition()
+                // if we update universe before body(), then body() CAN observe condition() == false
+                Universe.Objects.Update(TestSimStep);
+
+                elapsedSimTime += TestSimStepD;
+                if (elapsedSimTime >= timeout.simTimeout)
                 {
                     if (timeout.fatal)
                         throw new TimeoutException("Timed out in RunSimWhile");
-                    return false; // timed out
+                    return elapsedSimTime; // timed out
                 }
             }
-            return true;
+            return elapsedSimTime;
         }
 
         /// <summary>
-        /// Update Universe.Objects for provided seconds
+        /// Update Universe.Objects simulation for `totalSimSeconds`
         /// </summary>
-        public void RunObjectsSim(float totalSeconds)
+        public float RunObjectsSim(float totalSimSeconds)
         {
-            // we run multiple iterations in order to allow the universe to properly simulate
-            for (float time = 0f; time < totalSeconds; time += TestSimStep.FixedTime)
+            // we run multiple iterations in order to allow the universe to properly simulate in fixed steps
+            float time = 0f;
+            for (; time < totalSimSeconds; time += TestSimStep.FixedTime)
             {
                 Universe.Objects.Update(TestSimStep);
             }
+            return time;
         }
 
-        public void RunObjectsSim(FixedSimTime totalTime)
+        public float RunObjectsSim(FixedSimTime totalTime)
         {
-            RunObjectsSim(totalTime.FixedTime);
+            return RunObjectsSim(totalTime.FixedTime);
         }
-
     }
 }
