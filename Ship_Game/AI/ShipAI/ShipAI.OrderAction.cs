@@ -484,7 +484,9 @@ namespace Ship_Game.AI
             AddResupplyPlanetGoal(toOrbit);
 
             if (Owner.TryGetEscapeVector(out Vector2 escapePos))
+            {
                 OrderResupplyEscape(escapePos, Owner.Direction);
+            }
         }
 
         // Thread-Safe: orders the ship to return to Hangar during next ship AI update

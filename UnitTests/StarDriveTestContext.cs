@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
 using UnitTests.UI;
@@ -36,11 +32,11 @@ namespace UnitTests
 
             var s1 = Stopwatch.StartNew();
             CreateGameInstance();
-            Log.Info($"CreateGameInstance elapsed: {s1.Elapsed.TotalMilliseconds}ms");
+            Log.Info($"CreateGameInstance elapsed: {s1.Elapsed.TotalMilliseconds:0.##}ms");
 
             var s2 = Stopwatch.StartNew();
             LoadStarterContent();
-            Log.Info($"LoadStarterContent elapsed: {s2.Elapsed.TotalMilliseconds}ms");
+            Log.Info($"LoadStarterContent elapsed: {s2.Elapsed.TotalMilliseconds:0.##}ms");
         }
 
         [AssemblyCleanup]

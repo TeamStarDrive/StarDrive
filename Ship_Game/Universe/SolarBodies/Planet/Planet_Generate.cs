@@ -227,6 +227,7 @@ namespace Ship_Game
             Storage.Max = BuildingList.Sum(b => b.StorageAdded);
             FoodHere    = Storage.Max;
             ProdHere    = Storage.Max / 2;
+            AllowInfantry = true; // for initialization only, before we reach planet Update
         }
 
         void ApplyTerraforming() // Added by Fat Bastard

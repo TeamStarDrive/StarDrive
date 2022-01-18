@@ -588,9 +588,8 @@ namespace Ship_Game.AI
                 // Deal with only pins ships that are known to the empire
                 if (pinShip?.KnownByEmpires.KnownBy(owner) == true)
                 {
-                    if (pinShip.Dying == false 
-                        && pinShip.Active
-                        && pinShip.Loyalty != owner && !owner.IsAlliedWith(pinShip.Loyalty))
+                    if (pinShip.Active && !pinShip.Dying && pinShip.Loyalty != owner &&
+                        !owner.IsAlliedWith(pinShip.Loyalty))
                     {
                         threatCopy.AddOrUpdatePin(pinShip, pinShip.IsInBordersOf(owner), true);
                     }
