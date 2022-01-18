@@ -237,8 +237,7 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
 
-            bool debug = Owner.Universe.Debug && Owner.Universe.DebugWin != null
-                                               && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
+            bool debug = Owner.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
 
             // to make the ship perfectly centered
             Vector2 direction = Owner.Direction;
@@ -248,7 +247,7 @@ namespace Ship_Game.AI
                 if (debug) Owner.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(timeStep))
                 {
-                    DequeueCurrentOrder();
+                    DequeueWayPointAndOrder();
                 }
                 return;
             }
