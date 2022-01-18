@@ -275,8 +275,9 @@ namespace Ship_Game
                 ship.ShowSceneObjectAt(ship.RelativeFleetOffset, -1000000f);
                 ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
             }
+
+            SelectedFleet.Reset();
             SelectedFleet.DataNodes.Clear();
-            SelectedFleet.Ships.Clear();
             ClickableNodes.Clear();
             foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
             {
