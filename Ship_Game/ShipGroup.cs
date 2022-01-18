@@ -407,7 +407,8 @@ namespace Ship_Game
             return Ships.FindMin(ship => ship.Position.SqDist(worldPos));
         }
 
-        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder, bool offensiveMove = false, bool forceAssembly = false)
+        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder,
+                                    bool offensiveMove = false, bool forceAssembly = false)
         {
             GoalStack.Clear();
             AssembleFleet(finalPosition, finalDirection, forceAssembly: forceAssembly);

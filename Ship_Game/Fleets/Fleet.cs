@@ -1747,15 +1747,17 @@ namespace Ship_Game.Fleets
             FleetMoveToPosition(task.AO, distanceFromAO, false);
         }
 
-        void CombatMoveToAO(MilitaryTask task, float distanceFromAO) => FleetMoveToPosition(task.AO, distanceFromAO, true);
+        void CombatMoveToAO(MilitaryTask task, float distanceFromAO)
+        {
+            FleetMoveToPosition(task.AO, distanceFromAO, combatMove: true);
+        }
 
         void FleetMoveToPosition(Vector2 position, float offsetToAO, bool combatMove)
         {
-            FinalPosition = position.OffsetTowards(AveragePosition(), offsetToAO);
-            FormationWarpTo(FinalPosition
-                , AveragePosition().DirectionToTarget(position)
-                , queueOrder: false
-                , offensiveMove: combatMove);
+            Vector2 averagePos = AveragePosition();
+            Vector2 finalPos = position.OffsetTowards(averagePos, offsetToAO);
+            Vector2 finalDir = averagePos.DirectionToTarget(position);
+            FormationWarpTo(finalPos, finalDir, queueOrder: false, offensiveMove: combatMove);
         }
 
         void HoldFleetPosition()
@@ -1767,15 +1769,6 @@ namespace Ship_Game.Fleets
                 if (ship.ShipData.Role == RoleName.troop)
                     ship.AI.HoldPosition();
             }
-        }
-
-        bool ArrivedAtOffsetRally(MilitaryTask task)
-        {
-            if (FleetMoveStatus(5000f).HasFlag(MoveStatus.Dispersed))
-                return false;
-
-            HoldFleetPosition();
-            return true;
         }
 
         bool ArrivedAtCombatRally(Vector2 position, float radius = 0)

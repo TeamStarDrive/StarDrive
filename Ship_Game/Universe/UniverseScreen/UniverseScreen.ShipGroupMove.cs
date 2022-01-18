@@ -253,7 +253,6 @@ namespace Ship_Game
             {
                 Log.Info("MoveShipGroupToMouse (NEW)");
                 // assemble brand new group
-                
                 Vector2 fleetCenter = ShipGroup.GetAveragePosition(SelectedShipList);
                 Vector2 direction = fleetCenter.DirectionToTarget(finalPos);
                 CurrentGroup = new ShipGroup(SelectedShipList, finalPos, finalPos, direction, Player);
@@ -264,7 +263,7 @@ namespace Ship_Game
                 Log.Info("MoveShipGroupToMouse (existing)");
                 Ship centerMost = CurrentGroup.GetClosestShipTo(CurrentGroup.AveragePosition());
                 Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
-                CurrentGroup.FormationWarpTo(finalPos, finalDir, queue, offensiveMove: Input.IsCtrlKeyDown, true);
+                CurrentGroup.FormationWarpTo(finalPos, finalDir, queue, offensiveMove: Input.IsCtrlKeyDown, forceAssembly: true);
             }
         }
     }
