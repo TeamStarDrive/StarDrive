@@ -415,18 +415,17 @@ namespace Ship_Game.AI
                 }
             }
 
-            // prediction to enhance movement precision
-            // not at warp though. 
-            // because we are warping to the actual point but changing direction to the predicted point. 
-            //Vector2 predictedPoint = distance > 30000 ?  PredictThrustPosition(pos) : pos;
+            // Use predicted thrust position to enhance movement precision and cancel out lateral movement
             Vector2 predictedPoint = PredictThrustPosition(pos);
-            Owner.RotationNeededForTarget(predictedPoint, 0f, out float predictionDiff, out float rotationDir);
 
-            float angleCheck = Owner.engineState != Ship.MoveState.Warp ? 0.02f : 0.0001f;
+            // use different angle errors depending if we are warping or not
+            float maxAngleError = Owner.engineState == Ship.MoveState.Warp ? 0.01f : 0.02f;
 
-            if (predictionDiff > angleCheck) // do we need to rotate ourselves before thrusting?
+            // do we need to rotate ourselves before thrusting?
+            if (Owner.RotationNeededForTarget(predictedPoint, maxAngleError,
+                                              out float predictionDiff, out float rotationDir))
             {
-                Owner.RotateToFacing(timeStep, predictionDiff, rotationDir, angleCheck);
+                Owner.RotateToFacing(timeStep, predictionDiff, rotationDir, maxAngleError);
                 return; // don't accelerate until we're faced correctly
             }
 
@@ -434,8 +433,8 @@ namespace Ship_Game.AI
             bool notAFleet = Owner.Fleet == null || State != AIState.FormationWarp;
             if (notAFleet) // not in a fleet or ship group
             {
-                // only warp towards actual warp pos
-                if (predictionDiff < 0.05f && Owner.MaxFTLSpeed > 0)
+                // only engage warp if we are facing towards actual warp pos
+                if (actualDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
                     if (distance > 7500f)
