@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Audio;
+using Ship_Game.GameScreens;
 
 namespace Ship_Game
 {
@@ -385,11 +386,11 @@ namespace Ship_Game
             if (!IsCinematicModeEnabled)
             {
                 CinematicModeTextTimer = 3;
-                StarDriveGame.Instance.SetCinematicCursor();
+                GameCursors.SetCurrentCursor(GameCursors.Cinematic);
             }
             else
             {
-                StarDriveGame.Instance.SetGameCursor();
+                GameCursors.SetCurrentCursor(GameCursors.Regular);
             }
             IsCinematicModeEnabled = !IsCinematicModeEnabled;
         }
