@@ -40,16 +40,26 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.Stop, AIState.HoldPosition);
         }
 
-        // Holds position without reacting to anything else
+        // Forces the ship to HoldPosition at its current location
+        // MoveOrder parameter controls how the ship responds to threats
+        // if MoveOrder.StandGround, then ship will have priority HoldPosition
         public void OrderHoldPosition(MoveOrder order = MoveOrder.Regular)
         {
             OrderHoldPosition(Owner.Position, Owner.Direction, order);
         }
-
+        
+        // Forces the ship to HoldPosition at `position`, facing `direction`
+        // MoveOrder parameter controls how the ship responds to threats
+        // if MoveOrder.StandGround, then ship will have priority HoldPosition
         public void OrderHoldPosition(Vector2 position, Vector2 direction, MoveOrder order = MoveOrder.Regular)
         {
             AddMoveOrder(Plan.HoldPosition, new WayPoint(position, direction), AIState.HoldPosition, 0f, order);
             IgnoreCombat = false;
+            if (order.HasFlag(MoveOrder.StandGround))
+            {
+                SetPriorityOrder(true);
+                CombatState = CombatState.HoldPosition;
+            }
         }
 
         public void OrderAttackSpecificTarget(Ship toAttack)
@@ -245,6 +255,11 @@ namespace Ship_Game.AI
               ////// --               FINAL WARNING                   -- //////
              ////// -- DO NOT MODIFY ANY OF THIS WITHOUT CODE REVIEW -- //////
             ////// --    IT'S INCREDIBLY EASY TO FUBAR THIS CODE!   -- //////
+            ////// --                                               -- //////
+             ////// --  IF AND WHEN YOU FUBAR THIS ANYWAY INCREASE   -- //////
+              ////// --       THIS COUNTER AS WARNING TO OTHERS       -- //////
+               ////// --        total_hours_wasted_here = 112          -- //////
+                /////////////////////////////////////////////////////////////////
             AddMoveOrder(Plan.RotateToFaceMovePosition, wayPoints[0], State, speedLimit, o);
 
             // Set all WayPoints except the last one

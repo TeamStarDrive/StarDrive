@@ -684,7 +684,7 @@ namespace Ship_Game.AI
             // fbedard: civilian ships will evade combat (nice target practice)
             if (badGuysNear && Owner.ShipData.ShipCategory == ShipCategory.Civilian)
             {
-                if (Owner.WeaponsMaxRange <= 0)
+                if (Owner.WeaponsMaxRange <= 0 && !HasPriorityOrder)
                 {
                     CombatState = CombatState.Evade;
                 }
