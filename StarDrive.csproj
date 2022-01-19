@@ -236,6 +236,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\Vector3d.cs" />
     <Compile Include="Ship_Game\Gameplay\PhysicsObject.cs" />
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\RelationshipsDiagramScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\GameCursors.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenusDescr.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\ObjectSpawnInfo.cs" />
     <Compile Include="Ship_Game\GameScreens\Scene\SceneActions.cs" />

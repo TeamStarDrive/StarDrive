@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime;
 using System.Windows.Forms;
 using Ship_Game.Audio;
+using Ship_Game.GameScreens;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
 
 namespace Ship_Game
@@ -57,35 +58,6 @@ namespace Ship_Game
             IsFixedTimeStep = true;
         }
 
-        public void SetGameCursor()
-        {
-            FileInfo file = ResourceManager.GetModOrVanillaFile("Cursors/Cursor.png");
-            if (file != null)
-            {
-                var cursor = new Bitmap(file.FullName, true);
-                Form.Cursor = new Cursor(cursor.GetHicon());
-            }
-            else
-            {
-                Form.Cursor = Cursors.Default;
-            }
-            IsMouseVisible = true;
-        }
-
-        public void SetCinematicCursor()
-        {
-            FileInfo file = ResourceManager.GetModOrVanillaFile("Cursors/CinematicCursor.png");
-            if (file != null)
-            {
-                var cursor = new Bitmap(file.FullName, true);
-                Form.Cursor = new Cursor(cursor.GetHicon());
-            }
-            else
-            {
-                SetGameCursor();
-            }
-        }
-
         public void SetSteamAchievement(string name)
         {
             if (SteamManager.SteamInitialize())
@@ -121,7 +93,7 @@ namespace Ship_Game
                 return;
             
             ResourceManager.InitContentDir();
-            SetGameCursor();
+            GameCursors.Initialize(this);
 
             // Quite rare, but brutal case for all graphic resource reload
             if (GraphicsDeviceWasReset)
