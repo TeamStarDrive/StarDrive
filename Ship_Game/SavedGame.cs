@@ -422,36 +422,7 @@ namespace Ship_Game
             sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
 
             foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
-            {
-                var s = new ShipGoalSave
-                {
-                    Plan             = sg.Plan,
-                    Direction        = sg.Direction,
-                    VariableString   = sg.VariableString,
-                    SpeedLimit       = sg.SpeedLimit,
-                    MovePosition     = sg.MovePosition,
-                    fleetGuid        = sg.Fleet?.Guid ?? Guid.Empty,
-                    GoalGuid         = sg.Goal?.guid ?? Guid.Empty,
-                    TargetPlanetGuid = sg.TargetPlanet?.Guid ?? Guid.Empty,
-                    TargetShipGuid   = sg.TargetShip?.Guid ?? Guid.Empty,
-                    MoveType         = sg.MoveType,
-                    VariableNumber   = sg.VariableNumber,
-                    WantedState      = sg.WantedState
-                };
-
-                if (sg.Trade != null)
-                {
-                    s.Trade = new TradePlanSave
-                    {
-                        Goods         = sg.Trade.Goods,
-                        ExportFrom    = sg.Trade.ExportFrom?.Guid ?? Guid.Empty,
-                        ImportTo      = sg.Trade.ImportTo?.Guid ?? Guid.Empty,
-                        BlockadeTimer = sg.Trade.BlockadeTimer,
-                        StardateAdded = sg.Trade.StardateAdded
-                    };
-                }
-                sdata.AISave.ShipGoalsList.Add(s);
-            }
+                sdata.AISave.ShipGoalsList.Add(sg.ToSaveData());
 
             if (ship.AI.OrbitTarget != null)
                 sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.Guid;
@@ -862,7 +833,7 @@ namespace Ship_Game
             [StarData] public TradePlanSave Trade;
             [StarData] public AIState WantedState;
             [StarData] public Guid TargetShipGuid;
-            [StarData] public ShipAI.MoveTypes MoveType;
+            [StarData] public MoveOrder MoveOrder;
             [StarData] public float VariableNumber;
 
             public override string ToString()

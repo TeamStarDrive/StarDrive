@@ -34,7 +34,6 @@ namespace Ship_Game.Fleets
         int DefenseTurns = 50;
         public MilitaryTask FleetTask;
         MilitaryTask CoreFleetSubTask;
-        public FleetCombatStatus Fcs;
         public CombatStatus TaskCombatStatus = CombatStatus.InCombat;
 
         public int FleetIconIndex;
@@ -667,7 +666,7 @@ namespace Ship_Game.Fleets
                     {
                         TaskStep = 4;
                         var combatOffset = task.AO.OffsetTowards(AveragePosition(), targetPlanet.GravityWellRadius);
-                        EscortingToPlanet(combatOffset, false);
+                        EscortingToPlanet(combatOffset, MoveOrder.Regular);
                     }
                     break;
                 case 4:
@@ -682,7 +681,7 @@ namespace Ship_Game.Fleets
                         break;
                     }
                     var planetGuard = task.AO.OffsetTowards(AveragePosition(), 500);
-                    EngageCombatToPlanet(planetGuard, true);
+                    EngageCombatToPlanet(planetGuard, MoveOrder.Aggressive);
                     TaskStep = 5;
                     break;
 
@@ -867,7 +866,7 @@ namespace Ship_Game.Fleets
                     if (ShipsUnderAttackInAo(RearShips, task.TargetPlanet.Center,
                         task.TargetPlanet.ParentSystem.Radius, out Ship shipBeingTargeted))
                     {
-                        EngageCombatToPlanet(shipBeingTargeted.Position, true);
+                        EngageCombatToPlanet(shipBeingTargeted.Position, MoveOrder.Aggressive);
                         ClearPriorityOrderForShipsInAO(Ships, shipBeingTargeted.Position, shipBeingTargeted.SensorRange);
                         TaskStep = 6;
                         break;
@@ -906,11 +905,11 @@ namespace Ship_Game.Fleets
                     }
 
                     Vector2 resetPos = task.AO.OffsetTowards(AveragePosition(), 1500);
-                    EngageCombatToPlanet(resetPos, true);
+                    EngageCombatToPlanet(resetPos, MoveOrder.Aggressive);
                     TaskStep = 6;
                     break;
                 case 6:
-                    RearShipsToCombat(true);
+                    RearShipsToCombat(MoveOrder.Aggressive);
                     switch (StatusOfPlanetAssault(task))
                     {
                         case Status.NotApplicable: TaskStep = 5; break;
@@ -937,7 +936,7 @@ namespace Ship_Game.Fleets
                             if (CanInvadeNow(newTarget, task))
                             {
                                 TaskStep = 6;
-                                EscortingToPlanet(newTarget.Center, true);
+                                EscortingToPlanet(newTarget.Center, MoveOrder.Aggressive);
                             }
                             else
                             {
@@ -1164,7 +1163,7 @@ namespace Ship_Game.Fleets
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 3:
-                    FleetMoveToPosition(task.AO, target.GravityWellRadius * 1.5f, false);
+                    FleetMoveToPosition(task.AO, target.GravityWellRadius * 1.5f, MoveOrder.Regular);
                     TaskStep = 4;
                     break;
                 case 4:
@@ -1427,7 +1426,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 4;
                     break;
                 case 4:
-                    EngageCombatToPlanet(task.TargetPlanet.Center, true);
+                    EngageCombatToPlanet(task.TargetPlanet.Center, MoveOrder.Aggressive);
                     StartBombing(task.TargetPlanet);
                     TaskStep = 5;
                     break;
@@ -1697,7 +1696,7 @@ namespace Ship_Game.Fleets
             Vector2 movePoint   = planet.Center;
             Vector2 finalFacing = movePoint.DirectionToTarget(task.AO);
 
-            MoveToNow(movePoint, finalFacing, false);
+            MoveTo(movePoint, finalFacing);
             return true;
         }
 
@@ -1710,7 +1709,8 @@ namespace Ship_Game.Fleets
                 && !CommandShip.Position.InRadius(FinalPosition, fleetRadius) 
                 && (CommandShip.AI.State == AIState.AwaitingOrders || CommandShip.AI.State == AIState.HoldPosition))
             {
-                CommandShip.AI.OrderMoveTo(FinalPosition, FinalDirection, true, AIState.MoveTo, null, CommandShip.IsInhibitedByUnfriendlyGravityWell);
+                MoveOrder order = CommandShip.IsInhibitedByUnfriendlyGravityWell ? MoveOrder.Aggressive : MoveOrder.Regular;
+                CommandShip.AI.OrderMoveTo(FinalPosition, FinalDirection, order);
             }
 
             if (FinalPosition.InRadius(AveragePos, fleetRadius) )
@@ -1732,31 +1732,20 @@ namespace Ship_Game.Fleets
 
         void GatherAtAO(MilitaryTask task, float distanceFromAO)
         {
-            FleetMoveToPosition(task.AO, distanceFromAO, false);
+            FleetMoveToPosition(task.AO, distanceFromAO, MoveOrder.StandGround);
         }
 
         void CombatMoveToAO(MilitaryTask task, float distanceFromAO)
         {
-            FleetMoveToPosition(task.AO, distanceFromAO, combatMove: true);
+            FleetMoveToPosition(task.AO, distanceFromAO, MoveOrder.Aggressive);
         }
 
-        void FleetMoveToPosition(Vector2 position, float offsetToAO, bool combatMove)
+        void FleetMoveToPosition(Vector2 position, float offsetToAO, MoveOrder order)
         {
             Vector2 averagePos = AveragePosition();
             Vector2 finalPos = position.OffsetTowards(averagePos, offsetToAO);
             Vector2 finalDir = averagePos.DirectionToTarget(position);
-            FormationWarpTo(finalPos, finalDir, queueOrder: false, offensiveMove: combatMove, forceAssembly: false);
-        }
-
-        void HoldFleetPosition()
-        {
-            for (int index = 0; index < Ships.Count; index++)
-            {
-                Ship ship = Ships[index];
-                ship.AI.State = AIState.HoldPosition;
-                if (ship.ShipData.Role == RoleName.troop)
-                    ship.AI.HoldPosition();
-            }
+            MoveTo(finalPos, finalDir, order);
         }
 
         bool ArrivedAtCombatRally(Vector2 position, float radius = 0)
@@ -1784,8 +1773,7 @@ namespace Ship_Game.Fleets
                         continue;
                     if (ship.InRadius(position, radius)) continue;
                     Vector2 movePos = position + ship.AI.FleetNode.FleetOffset / size;
-                    ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO)
-                        , true, AIState.AwaitingOrders, null, true);
+                    ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO), AIState.AwaitingOrders, MoveOrder.Aggressive);
                 }
             }
             return status.HasFlag(MoveStatus.MajorityAssembled);
@@ -1828,7 +1816,7 @@ namespace Ship_Game.Fleets
                             continue;
                         }
                         Vector2 vFacing = ship.Position.DirectionToTarget(kv.Key);
-                        ship.AI.OrderMoveTo(kv.Key, vFacing, true, AIState.MoveTo, offensiveMove: true);
+                        ship.AI.OrderMoveTo(kv.Key, vFacing, MoveOrder.Aggressive);
 
                         availableShips.RemoveAtSwapLast(i);
                         attackStr += ship.GetStrength();
@@ -1844,7 +1832,7 @@ namespace Ship_Game.Fleets
             }
 
             foreach (Ship ship in availableShips)
-                ship.AI.OrderMoveDirectlyTo(task.AO, FinalPosition.DirectionToTarget(task.AO), true, AIState.MoveTo);
+                ship.AI.OrderMoveTo(task.AO, FinalPosition.DirectionToTarget(task.AO));
 
             return true;
         }
@@ -1863,7 +1851,7 @@ namespace Ship_Game.Fleets
             if (strengthCluster.Strength <= 0) 
                 return false;
 
-            FleetMoveToPosition(strengthCluster.Position, 7500, true);
+            FleetMoveToPosition(strengthCluster.Position, 7500, MoveOrder.Aggressive);
             return true;
         }
 
@@ -1972,7 +1960,7 @@ namespace Ship_Game.Fleets
             return stillMissionEffective;
         }
 
-        void InvadeTactics(IEnumerable<Ship> flankShips, InvasionTactics type, Vector2 moveTo, bool combatMove)
+        void InvadeTactics(IEnumerable<Ship> flankShips, InvasionTactics type, Vector2 moveTo, MoveOrder order)
         {
             foreach (Ship ship in flankShips)
             {
@@ -1993,42 +1981,41 @@ namespace Ship_Game.Fleets
                 {
                     case InvasionTactics.Screen:
                         {
-                            TacticalMove(ship, moveTo, fleetSizeRatio, combatMove, SpeedLimit);
+                            TacticalMove(ship, moveTo, fleetSizeRatio, order, SpeedLimit);
                             break;
                         }
 
                     case InvasionTactics.Rear:
                         if (!ai.HasPriorityOrder)
                         {
-                            TacticalMove(ship, moveTo, fleetSizeRatio, combatMove, SpeedLimit * 0.5f);
+                            TacticalMove(ship, moveTo, fleetSizeRatio, order, SpeedLimit * 0.5f);
                         }
                         break;
 
                     case InvasionTactics.MainBattleGroup:
                         {
-                            TacticalMove(ship, moveTo, fleetSizeRatio, combatMove, SpeedLimit * 0.75f);
+                            TacticalMove(ship, moveTo, fleetSizeRatio, order, SpeedLimit * 0.75f);
                             break;
                         }
                     case InvasionTactics.FlankGuard:
                         {
-                            TacticalMove(ship, moveTo, fleetSizeRatio, combatMove, SpeedLimit *.05f);
+                            TacticalMove(ship, moveTo, fleetSizeRatio, order, SpeedLimit * 0.05f);
                             break;
                         }
                     case InvasionTactics.Wait:
-                        ai.HoldPosition();
+                        ai.OrderHoldPosition();
                         break;
                 }
             }
         }
 
-        void TacticalMove(Ship ship, Vector2 moveTo, float fleetSizeRatio, bool combatMove, float speedLimit)
+        void TacticalMove(Ship ship, Vector2 moveTo, float fleetSizeRatio, MoveOrder order, float speedLimit)
         {
-            var ai              = ship.AI;
-            Vector2 offset      = ship.FleetOffset / fleetSizeRatio;
+            Vector2 offset = ship.FleetOffset / fleetSizeRatio;
             Vector2 fleetMoveTo = moveTo + offset;
-            FinalDirection      = fleetMoveTo.DirectionToTarget(FleetTask.AO);
+            FinalDirection = fleetMoveTo.DirectionToTarget(FleetTask.AO);
 
-            ai.OrderMoveDirectlyTo(fleetMoveTo, FinalDirection, true, ai.State, speedLimit, combatMove);
+            ship.AI.OrderMoveTo(fleetMoveTo, FinalDirection, ship.AI.State, order, speedLimit);
         }
 
         private enum InvasionTactics
@@ -2055,32 +2042,32 @@ namespace Ship_Game.Fleets
             Wait
         }
 
-        void EscortingToPlanet(Vector2 position, bool combatMove)
+        void EscortingToPlanet(Vector2 position, MoveOrder order)
         {
             FinalPosition = position;
             FinalDirection = FinalPosition.DirectionToTarget(FinalPosition);
 
-            InvadeTactics(ScreenShips, InvasionTactics.Screen, FinalPosition, combatMove);
-            InvadeTactics(CenterShips, InvasionTactics.MainBattleGroup, FinalPosition, combatMove);
+            InvadeTactics(ScreenShips, InvasionTactics.Screen, FinalPosition, order);
+            InvadeTactics(CenterShips, InvasionTactics.MainBattleGroup, FinalPosition, order);
 
-            InvadeTactics(RearShips, InvasionTactics.Wait, FinalPosition, combatMove);
+            InvadeTactics(RearShips, InvasionTactics.Wait, FinalPosition, order);
             
-            InvadeTactics(RightShips, InvasionTactics.FlankGuard, FinalPosition, combatMove);
-            InvadeTactics(LeftShips, InvasionTactics.FlankGuard, FinalPosition, combatMove);
+            InvadeTactics(RightShips, InvasionTactics.FlankGuard, FinalPosition, order);
+            InvadeTactics(LeftShips, InvasionTactics.FlankGuard, FinalPosition, order);
         }
 
-        void EngageCombatToPlanet(Vector2 position, bool combatMove)
+        void EngageCombatToPlanet(Vector2 position, MoveOrder order)
         {
             FinalPosition = position;
             FinalDirection = FinalPosition.DirectionToTarget(FinalPosition);
 
-            InvadeTactics(ScreenShips, InvasionTactics.Screen, FinalPosition, combatMove);
-            InvadeTactics(CenterShips, InvasionTactics.MainBattleGroup, FinalPosition, combatMove);
-            InvadeTactics(RightShips, InvasionTactics.FlankGuard, FinalPosition, combatMove);
-            InvadeTactics(LeftShips, InvasionTactics.FlankGuard, FinalPosition, combatMove);
+            InvadeTactics(ScreenShips, InvasionTactics.Screen, FinalPosition, order);
+            InvadeTactics(CenterShips, InvasionTactics.MainBattleGroup, FinalPosition, order);
+            InvadeTactics(RightShips, InvasionTactics.FlankGuard, FinalPosition, order);
+            InvadeTactics(LeftShips, InvasionTactics.FlankGuard, FinalPosition, order);
         }
 
-        void RearShipsToCombat(bool combatMove)
+        void RearShipsToCombat(MoveOrder order)
         {
             var notBombersOrTroops = new Array<Ship>();
             foreach(var ship in RearShips)
@@ -2089,7 +2076,7 @@ namespace Ship_Game.Fleets
                     notBombersOrTroops.Add(ship);
             }
 
-            InvadeTactics(notBombersOrTroops, InvasionTactics.Screen, FinalPosition, combatMove);
+            InvadeTactics(notBombersOrTroops, InvasionTactics.Screen, FinalPosition, order);
         }
 
         bool StartBombing(Planet planet)
@@ -2502,13 +2489,6 @@ namespace Ship_Game.Fleets
             fleetTactics.SetTacticIntercept(RightShips);
             fleetTactics.SetTacticDefense(RearShips);
             fleetTactics.SetTacticDefense(CenterShips, CommandShip?.SensorRange ?? 150000);
-        }
-
-        public enum FleetCombatStatus
-        {
-            Maintain,
-            Loose,
-            Free
         }
 
         public void AddFleetDataNodes(Array<FleetDataNode> nodes)

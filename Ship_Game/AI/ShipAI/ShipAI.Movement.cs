@@ -36,21 +36,28 @@ namespace Ship_Game.AI
                 WayPoints.Enqueue(wp);
         }
 
-        public void HoldPosition()
+        // Executes the active HoldPosition ShipGoal Plan while respecting MoveOrder stance
+        void DoHoldPositionPlan(ShipGoal goal)
         {
-            Owner.HyperspaceReturn();
             State = AIState.HoldPosition;
-            CombatState = CombatState.HoldPosition;
-        }
 
-        public void HoldPositionOffensive()
-        {
-            ShipGoal goal = OrderQueue.PeekFirst;
-            if (goal != null && Owner.Position.Distance(goal.MovePosition) > 100f)
+            if (goal != null)
             {
-                // previous order is finished and now we want to return to original position
-                OrderMoveTo(goal.MovePosition, goal.Direction, true, AIState.HoldPosition);
-                OrderHoldPositionOffensive(goal.MovePosition, goal.Direction);
+                MoveOrder order = goal.MoveOrder;
+                Vector2 holdAt = goal.MovePosition;
+
+                // if our ship drifts too far from HoldPosition target,
+                // order MoveTo with the original MoveOrder stance
+                float distanceFromHoldAt = Owner.Position.Distance(holdAt);
+                if (distanceFromHoldAt > 100f)
+                {
+                    OrderMoveTo(holdAt, goal.Direction, AIState.HoldPosition, order);
+                    OrderHoldPosition(holdAt, goal.Direction, order);
+                }
+                else if (BadGuysNear && CanEnterCombatFromCurrentStance(order))
+                {
+                    EnterCombatState(AIState.Combat);
+                }
             }
         }
 
@@ -156,64 +163,22 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
-                    DequeueOrder(goal.HasCombatMove(distance));
+                    DequeueWayPointAndOrder();
             }
             else if (distance <= 1000f)
             {
-                DequeueOrder(goal.HasCombatMove(distance));
+                DequeueWayPointAndOrder();
             }
 
-            if (Owner.AI.BadGuysNear && goal.HasCombatMove(distance))
+            // does current ship stance require us to enter combat?
+            if (BadGuysNear && CanEnterCombatFromCurrentStance(goal.MoveOrder))
             {
-                if (Owner.Fleet != null && FleetNode != null)
+                // in Regular stance, distance from goal has to be small enough
+                bool canStartEngagingTargets = !goal.HasRegularMoveOrder || distance <= 1500f;
+                if (canStartEngagingTargets)
                 {
-                    Ship closestShip = Owner.AI.Target;
-                    if (closestShip == null)
-                    {
-                        float targetStrength = Owner.AI.PotentialTargets.Sum(s => s.GetStrength());
-                        if (targetStrength > 0)
-                            closestShip = Owner.AI.PotentialTargets.FindMin(s => s.Position.Distance(Owner.Position));
-                    }
-
-                    if (closestShip != null)
-                    {
-                        float fleetDistance = 0;
-                        float actualDistance = Owner.Position.Distance(closestShip.Position);
-                        switch (Owner.Fleet.Fcs)
-                        {
-                            case Fleet.FleetCombatStatus.Maintain:
-                                fleetDistance = (Owner.Fleet.AveragePosition() + Owner.AI.FleetNode.FleetOffset).Distance(closestShip.Position);
-                                if (actualDistance < Owner.AI.FleetNode.OrdersRadius && fleetDistance <= Owner.AI.FleetNode.OrdersRadius)
-                                    SetPriorityOrder(false);
-                                break;
-                            case Fleet.FleetCombatStatus.Loose:
-                                fleetDistance = Owner.Fleet.AveragePosition().Distance(closestShip.Position);
-                                if (actualDistance < Owner.AI.FleetNode.OrdersRadius && fleetDistance <= Owner.AI.FleetNode.OrdersRadius)
-                                    SetPriorityOrder(false);
-                                break;
-                            case Fleet.FleetCombatStatus.Free:
-                                if (actualDistance <= Owner.SensorRange)
-                                    SetPriorityOrder(false);
-                                break;
-                        }
-                    }
+                    EnterCombatState(AIState.Combat);
                 }
-                else
-                {
-                    SetPriorityOrder(false);
-                }
-            }
-        }
-
-        void DequeueOrder(bool combat)
-        {
-            if (combat)
-            {
-                DequeueCurrentOrderAndPriority();
-            }
-            else
-            {
-                DequeueCurrentOrder();
             }
         }
 
@@ -221,7 +186,7 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
 
-            if (goal.HasCombatMove(0))
+            if (goal.HasAggressiveMoveOrder)
             {
                 if (HasPriorityOrder && !Owner.Loyalty.isPlayer) // For AI fleets doing priority order
                 {
@@ -252,12 +217,13 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (distance > 1000)
+            // edge case: we accidentally drifted way past final approach range, so move to 1000 again
+            if (distance > 1250f)
             {
-                PushGoalToFront(new ShipGoal(Plan.MoveToWithin1000, targetPos, goal.Direction, AIState.AwaitingOrders, MoveTypes.LastWayPoint, 0, null));
+                PushGoalToFront(new ShipGoal(Plan.MoveToWithin1000, targetPos, goal.Direction, AIState.AwaitingOrders, goal.MoveOrder, 0, null));
             }
 
-            if (distance > 75)
+            if (distance > 75f)
             {
                 // prediction to enhance movement precision
                 Vector2 predictedPoint = PredictThrustPosition(targetPos);

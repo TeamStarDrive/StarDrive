@@ -74,7 +74,7 @@ namespace Ship_Game.AI.ShipMovement
 
             if (orbitTarget == null)
             {
-                AI.HoldPositionOffensive();
+                AI.OrderHoldPosition();
                 return;
             }
           

@@ -297,7 +297,7 @@ namespace Ship_Game.AI
                 ClearOrders();
                 if (Owner.TryGetScoutFleeVector(out Vector2 escapePos))
                 {
-                    OrderMoveToNoStop(escapePos, Owner.Direction.DirectionToTarget(escapePos), true, AIState.Flee);
+                    OrderMoveTo(escapePos, Owner.Direction.DirectionToTarget(escapePos), AIState.Flee, MoveOrder.NoStop);
                     AddShipGoal(Plan.Explore, AIState.Explore); // Add a new exploration order to the queue to fall back to after flee is done
                 }
                 else

@@ -409,8 +409,7 @@ namespace Ship_Game.AI
             Owner.AI.SetPriorityOrder(false);
             Owner.AI.IgnoreCombat = false;
             if (Owner.Fleet != null)
-                OrderMoveTo(Owner.Fleet.FinalPosition + Owner.RelativeFleetOffset,
-                    Owner.Fleet.FinalDirection, true, State);
+                OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, State);
 
             Owner.Loyalty.AddShipToManagedPools(Owner);
         }
@@ -512,8 +511,7 @@ namespace Ship_Game.AI
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
                 case Plan.ReturnHome:               DoReturnHome(timeStep);                   break;
                 case Plan.RebaseToShip:             DoRebaseToShip(timeStep);                 break;
-                case Plan.HoldPosition:             HoldPosition();                           break;
-                case Plan.HoldPositionOffensive:    HoldPositionOffensive();                  break;
+                case Plan.HoldPosition:             DoHoldPositionPlan(goal);                 break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
                 case Plan.Meteor:                   DoMeteor(timeStep, goal);                 break;
             }
@@ -608,34 +606,13 @@ namespace Ship_Game.AI
 
             if (ShouldReturnToFleet())
             {
-                // check if inside minimum warp jump range. If not do a full warp process.
-                if (Owner.Fleet.FinalPosition.InRadius(Owner.Position, 7500))
-                {
-                    SetPriorityOrder(true);  // FB this might cause serious issues that make orbiting ships stuck with PO and not available anymore for the AI.
-                    State = AIState.AwaitingOrders;
-                    AddShipGoal(Plan.MakeFinalApproach,
-                        Owner.Fleet.GetFormationPos(Owner), Owner.Fleet.FinalDirection, AIState.MoveTo);
-
-                    AddShipGoal(Plan.RotateToDesiredFacing,
-                        Owner.Fleet.GetFormationPos(Owner), Owner.Fleet.FinalDirection, AIState.MoveTo);
-                }
-                else
-                {
-                    WarpToFleet();
-                }
+                OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, AIState.MoveTo);
             }
             else
             {
                 if (State != AIState.HoldPosition && Owner.CanTakeFleetMoveOrders())
-                    State = AIState.AwaitingOrders;
+                    OrderAwaitOrders(false);
             }
-        }
-
-        void WarpToFleet()
-        {
-            ClearWayPoints();
-            State = AIState.AwaitingOrders;
-            OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, true, AIState.MoveTo);
         }
 
         public bool HasTradeGoal(Goods goods)

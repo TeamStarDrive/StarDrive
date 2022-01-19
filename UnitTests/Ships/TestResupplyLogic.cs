@@ -54,7 +54,7 @@ namespace UnitTests.Ships
             Assert.IsTrue(orbitGoal.TargetPlanet == Homeworld, "Resupplying ship should want to orbit a planet");
 
             // Now manually order the ship to move, like a player might do
-            OurShip.AI.OrderMoveTo(Homeworld.Center, Vector2.Zero, true, AIState.MoveTo);
+            OurShip.AI.OrderMoveTo(Homeworld.Center, Vector2.Zero);
             Assert.IsFalse(OurShip.AI.IgnoreCombat, "Move command should cancel Ignore Combat (cancel orders)");
             resupplyReason = OurShip.Supply.Resupply();
             Assert.IsTrue(resupplyReason == ResupplyReason.NotNeeded, "Override command by player, ship should  not resupply");
