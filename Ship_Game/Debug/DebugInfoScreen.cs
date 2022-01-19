@@ -461,6 +461,9 @@ namespace Ship_Game.Debug
                     VisualizeShipGoal(ship, false);
 
                 DrawString($"ShipGroup ({group.CountShips})  x {(int)group.FinalPosition.X} y {(int)group.FinalPosition.Y}");
+                DrawString("");
+                DrawString("-- First Ship AIState:");
+                DrawShipOrderQueueInfo(Screen.SelectedShipList.First);
             }
             else if (Screen.SelectedShip != null)
             {

@@ -233,7 +233,7 @@ namespace Ship_Game
 
         void MoveShipGroupToMouse(bool wasProjecting)
         {
-            MoveOrder moveType = ShipCommands.GetMoveOrderType();
+            MoveOrder moveType = ShipCommands.GetMoveOrderType() | MoveOrder.ForceReassembly;
 
             if (wasProjecting) // dragging right mouse
             {
