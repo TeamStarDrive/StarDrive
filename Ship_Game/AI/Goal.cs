@@ -211,9 +211,8 @@ namespace Ship_Game.AI
         {
         }
 
-        public virtual bool IsRaid       => false;
-        public virtual bool IsWarGoal    => false;
-        public virtual bool IsWarMission => false;
+        public virtual bool IsRaid => false; // Is this goal a pirate raid?
+        public virtual bool IsWarMission => false; // Is this goal related to war logic?
 
         protected Goal(GoalType type)
         {
