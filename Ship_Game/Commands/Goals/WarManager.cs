@@ -26,8 +26,6 @@ namespace Ship_Game.Commands.Goals
             Log.Info(ConsoleColor.Green, $"---- War: New War Goal {warType} vs.: {TargetEmpire.Name} ----");
         }
 
-        public override bool IsWarGoal => true; // todo might not be needed
-
         WarType GetWarType() => empire.GetRelations(TargetEmpire).ActiveWar.WarType;
 
         GoalStep SelectTargetSystems()
