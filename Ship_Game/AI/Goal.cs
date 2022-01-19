@@ -207,6 +207,8 @@ namespace Ship_Game.AI
             return g;
         }
 
+        // This is used to assign variables for better code readability in specific goals
+        // after they are created or loaded from save
         public virtual void PostInit()
         {
         }
