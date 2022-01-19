@@ -34,7 +34,7 @@ namespace UnitTests.Ships
         void SpawnEnemyShip()
         {
             Hostile = SpawnShip("Ving Defender", Enemy, new Vector2(5000));
-            Hostile.AI.HoldPosition();
+            Hostile.AI.OrderHoldPosition();
             RunObjectsSim(ScanInterval);
         }
         
