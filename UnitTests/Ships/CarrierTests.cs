@@ -34,7 +34,7 @@ namespace UnitTests.Ships
         void SpawnEnemyShip()
         {
             Hostile = SpawnShip("Ving Defender", Enemy, new Vector2(5000));
-            Hostile.AI.HoldPosition();
+            Hostile.AI.OrderHoldPosition();
             RunObjectsSim(ScanInterval);
         }
         
@@ -83,7 +83,7 @@ namespace UnitTests.Ships
             SpawnEnemyShipAndEnsureFightersLaunch();
 
             float dist = CarrierBays.RecallMoveDistance + 5000;
-            Carrier.AI.OrderMoveTo(new Vector2(dist), Vectors.Up, true, AIState.AwaitingOrders);
+            Carrier.AI.OrderMoveTo(new Vector2(dist), Vectors.Up, AIState.AwaitingOrders);
             RunObjectsSim(TestSimStep);
 
             AssertFighters(active: MaxFighters, recalling: MaxFighters, "All fighters should be recalling due to Warp move");
@@ -94,7 +94,7 @@ namespace UnitTests.Ships
         {
             SpawnEnemyShipAndEnsureFightersLaunch();
 
-            Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
+            Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, AIState.AwaitingOrders);
             RunObjectsSim(ScanInterval);
             
             AssertFighters(active: MaxFighters, recalling: 0, "NO fighters should be recalling during combat");
@@ -105,7 +105,7 @@ namespace UnitTests.Ships
         {
             SpawnEnemyShipAndEnsureFightersLaunch();
 
-            Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
+            Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, AIState.AwaitingOrders);
             RunObjectsSim(ScanInterval);
             
             AssertFighters(active: MaxFighters, recalling: 0, "NO fighters should be recalling within 10k");
@@ -120,8 +120,8 @@ namespace UnitTests.Ships
             AssertFighters(active: MaxFighters, recalling: 0, "Fighters should not recall yet");
 
             // start combat warp, the ships should NOT recall, because there are enemies to fight
-            Carrier.AI.OrderMoveTo(Carrier.Position + new Vector2(10000), Vectors.Up, true,
-                                   AIState.AwaitingOrders, offensiveMove:true);
+            Carrier.AI.OrderMoveTo(Carrier.Position + new Vector2(10000), Vectors.Up,
+                                   AIState.AwaitingOrders, MoveOrder.Aggressive);
             RunObjectsSim(TestSimStep);
             AssertFighters(active: MaxFighters, recalling: 0, "Fighters should NOT recall during combat move");
         }
@@ -135,8 +135,7 @@ namespace UnitTests.Ships
             Carrier.Position = new Vector2(Carrier.SensorRange + 35000);
 
             // start warping even farther
-            Carrier.AI.OrderMoveTo(Carrier.Position + new Vector2(15000),
-                                   Vectors.Up, true, AIState.AwaitingOrders);
+            Carrier.AI.OrderMoveTo(Carrier.Position + new Vector2(15000), Vectors.Up, AIState.AwaitingOrders);
 
             // fighters should recall because Carrier is really far
             // this must override combat state
@@ -153,7 +152,7 @@ namespace UnitTests.Ships
             Carrier.Position = new Vector2(Carrier.SensorRange + 25000);
 
             // start warping away
-            Carrier.AI.OrderMoveToNoStop(Carrier.Position + new Vector2(10000), Vectors.Up, true, AIState.AwaitingOrders);
+            Carrier.AI.OrderMoveToNoStop(Carrier.Position + new Vector2(10000), Vectors.Up, AIState.AwaitingOrders);
             
             RunObjectsSim(ScanInterval);
             AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling during no stop move");
@@ -176,7 +175,7 @@ namespace UnitTests.Ships
             SpawnEnemyShipAndEnsureFightersLaunch();
 
             Fleet fleet = CreateFleet();
-            fleet.MoveToNow(new Vector2(30000, 30000), Vectors.Up, offensiveMove: false);
+            fleet.MoveTo(new Vector2(30000, 30000), Vectors.Up);
             RunObjectsSim(ScanInterval);
             
             AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling during fleet move");

@@ -17,11 +17,6 @@ namespace Ship_Game
                 SelectedShip.ScuttleTimer = 10f;
         }
 
-        public void DoHoldPosition()
-        {
-            SelectedShip?.AI.HoldPosition();
-        }
-
         public void DoExplore()
         {
             SelectedShip?.AI.OrderExplore();
@@ -33,13 +28,6 @@ namespace Ship_Game
                 return;
             Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(SelectedShip);
             SelectedShip.AI.ClearOrders(AIState.SystemDefender);
-        }
-
-        public void DoTransportGoods() // @todo FB - check this
-        {
-            if (SelectedShip == null)
-                return;
-            SelectedShip.AI.State = AIState.SystemTrader;
         }
 
         private void MarkForColonization()

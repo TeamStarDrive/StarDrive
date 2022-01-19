@@ -267,7 +267,7 @@ namespace UnitTests.AITests.Ships
         {
             SpawnOurShip(ScoutName);
             TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(0,-500));
-            colonyShip.AI.PriorityHoldPosition();
+            colonyShip.AI.OrderHoldPosition();
             RunObjectsSim(EnemyScanInterval);
             Assert.IsTrue(Us.InCombat, "ship should be in combat");
             InjectSteroids(Us);
@@ -294,13 +294,13 @@ namespace UnitTests.AITests.Ships
         {
             SpawnOurShip(ScoutName);
             TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(0,-500));
-            colonyShip.AI.PriorityHoldPosition();
+            colonyShip.AI.OrderHoldPosition(MoveOrder.StandGround);
             RunObjectsSim(EnemyScanInterval);
             Assert.IsTrue(Us.InCombat, "ship should be in combat");
             InjectSteroids(Us);
 
-            // now assign offensive move order
-            Us.AI.OrderMoveTo(colonyShip.Position, Vectors.Up, true, AIState.AwaitingOrders, offensiveMove: true);
+            // now assign Aggressive move order
+            Us.AI.OrderMoveTo(colonyShip.Position, Vectors.Up, AIState.AwaitingOrders, MoveOrder.Aggressive);
 
             Assert.IsFalse(Us.InCombat, "ship must exit combat after giving a move order, since giving a move order clears orders");
             Us.AI.CombatState = CombatState.HoldPosition;
@@ -375,7 +375,7 @@ namespace UnitTests.AITests.Ships
 
             // now teleport ship to safety:
             Us.Position = new Vector2(200_000f);
-            Us.AI.HoldPosition();
+            Us.AI.OrderHoldPosition();
             RunObjectsSim(EnemyScanInterval); // wait another scan interval to detect high alert change
 
             AssertHighAlertTimesOutCorrectly();

@@ -104,8 +104,9 @@ namespace UnitTests.Fleets
         Vector2 FleetMoveTo(Fleet fleet, Vector2 offset)
         {
             Vector2 target = fleet.FinalPosition + offset;
+            Vector2 finalDir = offset.Normalized();
             Log.Write($"Fleet.MoveToNow({target.X},{target.Y})");
-            fleet.MoveToNow(target, finalDirection: offset.Normalized(), offensiveMove: true);
+            fleet.MoveTo(target, finalDir, MoveOrder.Regular);
             return target;
         }
 
@@ -114,7 +115,7 @@ namespace UnitTests.Fleets
             Vector2 target = fleet.FinalPosition + offset;
             Vector2 finalDir = offset.Normalized();
             Log.Write($"Fleet.QueueMoveOrder({target.X},{target.Y})");
-            fleet.FormationWarpTo(target, finalDir, queueOrder: true, offensiveMove: false, forceAssembly: true);
+            fleet.MoveTo(target, finalDir, MoveOrder.AddWayPoint);
             return target;
         }
 

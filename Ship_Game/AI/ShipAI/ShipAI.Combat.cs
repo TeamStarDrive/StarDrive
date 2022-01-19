@@ -335,7 +335,7 @@ namespace Ship_Game.AI
                 {
                     Target = null;
                     if (!HasPriorityOrder && !Owner.Loyalty.isPlayer)
-                        State = AIState.AwaitingOrders;
+                        OrderAwaitOrders(false);
                     return null;
                 }
             }
@@ -548,25 +548,59 @@ namespace Ship_Game.AI
             }
         }
 
+        // can the ship automatically enter combat from any existing goal?
         bool ShouldEnterAutoCombat()
         {
-            if (Target == null || State == AIState.Combat ||
-                HasPriorityOrder || IgnoreCombat || IsNonCombatant)
+            // not if we're already in combat, or we have a priority order 
+            if (State == AIState.Combat || HasPriorityOrder)
+                return false;
+            // Get the active Movement stance, or Regular
+            // if ship is warping, it will always have this MoveOrder available
+            MoveOrder order = OrderQueue.PeekFirst?.MoveOrder ?? MoveOrder.Regular;
+            return CanEnterCombatFromCurrentStance(order);
+        }
+
+        // does current CombatState and Move Stance allows us to enter combat with `Target`
+        bool CanEnterCombatFromCurrentStance(MoveOrder order)
+        {
+            if (Target == null || IgnoreCombat || IsNonCombatant)
                 return false;
 
             bool canAttack = Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters;
             if (!canAttack)
                 return false;
 
-            if (CombatState == CombatState.GuardMode && 
-                !Target.Position.InRadius(Owner.Position, Ship.GuardModeRange))
-                return false;
+            // always enter combat if we're in Aggressive Stance, even if ship is in warp
+            if (order.HasFlag(MoveOrder.Aggressive))
+                return true; // waaaagh!
 
-            if (CombatState == CombatState.HoldPosition &&
-                !Target.Position.InRadius(Owner.Position, Ship.HoldPositionRange))
-                return false;
+            // in regular move stance, respect CombatState settings
+            if (order.HasFlag(MoveOrder.Regular))
+            {
+                // regular move stance never exits warp
+                if (Owner.IsInWarp)
+                    return false;
+                // are we close enough to automatically engage this enemy?
+                float enterCombatRange = GetEnterCombatRangeFromCombatState(CombatState);
+                if (Target.Position.InRadius(Owner.Position, enterCombatRange))
+                    return true;
+                return false; // no combat
+            }
 
-            return true;
+            // in StandGround, never enter combat
+            if (order.HasFlag(MoveOrder.StandGround)) // this is here for correctness sake, or if we decide to add to it
+                return false; // no combat
+
+            return false; // should not reach here
+        }
+
+        float GetEnterCombatRangeFromCombatState(CombatState cs)
+        {
+            // GuardMode and HoldPosition Stances are for avoiding combat, so significantly smaller
+            if (cs == CombatState.GuardMode) return Ship.GuardModeRange;
+            if (cs == CombatState.HoldPosition) return Ship.HoldPositionRange;
+            // for all other Combat stances, enter combat from Sensor Range
+            return Owner.SensorRange;
         }
 
         void EnterCombatState(AIState combatState)
@@ -580,16 +614,21 @@ namespace Ship_Game.AI
             // always override the combat state
             State = combatState;
 
+            // check if DoCombat is already the first ShipGoal
             switch (OrderQueue.PeekFirst?.Plan)
             {
-                // if not in combative state, enter auto-combat AFTER current order queue is finished
+                // if we haven't already queued a DoCombat order (eg MoveTo + Attack)
+                // then push a new DoCombat ShipGoal into the front of the queue
+                // once combat is over, ShipAI will automatically resume any previous goals
                 default:
                     if (!FindGoal(Plan.DoCombat, out ShipGoal _))
+                    {
                         AddShipGoal(Plan.DoCombat, combatState, pushToFront: true);
+                    }
                     break;
-                case Plan.DoCombat:
-                case Plan.Bombard:
-                case Plan.BoardShip:
+
+                // the first Goal is already one of these combat Plans, we don't need to do anything:
+                case Plan.DoCombat: case Plan.Bombard: case Plan.BoardShip:
                     break;
             }
         }
@@ -599,6 +638,7 @@ namespace Ship_Game.AI
             if (OrderQueue.TryPeekFirst(out ShipGoal goal) &&
                 goal?.WantedState == AIState.Combat)
             {
+                Log.Info($"ExitCombat {Owner.Name}: DequeueOrder {goal}");
                 DequeueCurrentOrder();
             }
 
@@ -606,7 +646,7 @@ namespace Ship_Game.AI
             Owner.InCombat = false;
 
             if (OrderQueue.IsEmpty) // need to change the state to prevent re-enter combat bug
-                State = AIState.AwaitingOrders;
+                OrderAwaitOrders(false);
 
             int count = Owner.Weapons.Count;
             Weapon[] items = Owner.Weapons.GetInternalArrayItems();
@@ -625,7 +665,7 @@ namespace Ship_Game.AI
                 Owner.SetHighAlertStatus();
             }
 
-            if (badGuysNear && !inCombat && ShouldEnterAutoCombat())
+            if (badGuysNear && !inCombat && Target != null && ShouldEnterAutoCombat())
             {
                 EnterCombatState(AIState.Combat);
             }
@@ -644,7 +684,7 @@ namespace Ship_Game.AI
             // fbedard: civilian ships will evade combat (nice target practice)
             if (badGuysNear && Owner.ShipData.ShipCategory == ShipCategory.Civilian)
             {
-                if (Owner.WeaponsMaxRange <= 0)
+                if (Owner.WeaponsMaxRange <= 0 && !HasPriorityOrder)
                 {
                     CombatState = CombatState.Evade;
                 }
