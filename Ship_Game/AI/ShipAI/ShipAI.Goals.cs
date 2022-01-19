@@ -16,15 +16,6 @@ namespace Ship_Game.AI
             DequeueCurrentOrder();
         }
 
-        void DequeueCurrentOrderAndPriority()
-        {
-            DequeueCurrentOrder();
-            ShipGoal goal = OrderQueue.PeekFirst;
-            // remove priority order only if there are no way points
-            if (goal == null || goal.Plan != Plan.MoveToWithin1000)
-                SetPriorityOrder(false);
-        }
-
         void DequeueCurrentOrder()
         {
             if (OrderQueue.TryDequeue(out ShipGoal goal))
@@ -38,11 +29,11 @@ namespace Ship_Game.AI
         public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
             DisposeOrders();
-            EscortTarget   = null;
-            PatrolTarget   = null;
-            OrbitTarget    = null;
+            EscortTarget = null;
+            PatrolTarget = null;
+            OrbitTarget = null;
             SystemToDefend = null;
-            IgnoreCombat   = false;
+            IgnoreCombat = false;
             ExitCombatState();
             ChangeAIState(newState); // Must come after ExitCombatState since ExitCombatState change the AIstate to awaiting orders.
             if (ExplorationTarget != null)
@@ -171,9 +162,9 @@ namespace Ship_Game.AI
             return true;
         }
 
-        void AddMoveOrder(Plan plan, WayPoint wayPoint, AIState state, float speedLimit, MoveTypes move, Goal goal = null)
+        void AddMoveOrder(Plan plan, WayPoint wayPoint, AIState state, float speedLimit, MoveOrder order, Goal goal = null)
         {
-            EnqueueOrPush(new ShipGoal(plan, wayPoint.Position, wayPoint.Direction, state, move, speedLimit, goal));
+            EnqueueOrPush(new ShipGoal(plan, wayPoint.Position, wayPoint.Direction, state, order, speedLimit, goal));
         }
 
         void EnqueueOrPush(ShipGoal goal, bool pushToFront = false)
@@ -221,21 +212,21 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndColonize(Planet planet, Goal g)
         {
-            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, true, AIState.Colonize);
+            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Colonize);
             AddShipGoal(Plan.Colonize, planet.Center, Vectors.Up, planet, g, AIState.Colonize);
         }
 
         public void OrderMoveAndRebase(Planet p)
         {
             Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
-            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.Rebase);
+            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, AIState.Rebase, MoveOrder.AddWayPoint);
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
         public void OrderSupplyShipLand(Planet p)
         {
             Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
-            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.SupplyReturnHome);
+            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, AIState.SupplyReturnHome, MoveOrder.AddWayPoint);
             IgnoreCombat = true;
             EscortTarget = null;
             SetPriorityOrder(true);
@@ -245,7 +236,7 @@ namespace Ship_Game.AI
         {
             if (!Owner.IsPlatformOrStation)
             {
-                OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, true, AIState.Refit);
+                OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Refit);
                 IgnoreCombat = true;
                 ResetPriorityOrder(clearOrders: false);
             }
@@ -260,13 +251,13 @@ namespace Ship_Game.AI
         {
             Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
             OrbitTarget = p;
-            OrderMoveTo(GetPositionOnPlanet(p), direction, true, AIState.Scrap);
+            OrderMoveTo(GetPositionOnPlanet(p), direction, AIState.Scrap);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
         }
 
         public void OderMoveAndDefendSystem(Planet p)
         {
-            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, true, AIState.SystemDefender);
+            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, AIState.SystemDefender);
             AddShipGoal(Plan.DefendSystem, AIState.SystemDefender);
         }
 
@@ -281,23 +272,6 @@ namespace Ship_Game.AI
         Vector2 GetPositionOnPlanet(Planet p)
         {
             return MathExt.RandomOffsetAndDistance(p.Center, p.ObjectRadius);
-        }
-
-        [Flags]
-        public enum MoveTypes
-        {
-            None             = 0,
-            Combat           = 1,
-            WayPoint         = 2,
-            Positioning      = 4,
-            Begin            = 8,
-            End              = 16,
-            FirstWayPoint    = Begin | WayPoint,
-            PrepareForWarp   = Begin | Positioning,
-            LastWayPoint     = End | WayPoint,
-            SubLightApproach = End | Positioning,
-            CombatWayPoint   = Combat | WayPoint,
-            CombatApproach   = Combat | SubLightApproach
         }
 
         public class ShipGoal : IDisposable
@@ -335,11 +309,17 @@ namespace Ship_Game.AI
             public readonly float VariableNumber;
             public readonly AIState WantedState; 
             public TradePlan Trade;
-            public readonly MoveTypes MoveType;
+            public readonly MoveOrder MoveOrder;
+
+            /// If this is a Move Order, is it an Aggressive move?
+            public bool HasAggressiveMoveOrder => (MoveOrder & MoveOrder.Aggressive) != 0;
+
+            /// If this a Move Order, is it just a plain old Regular move? (default)
+            public bool HasRegularMoveOrder => (MoveOrder & MoveOrder.Regular) != 0;
 
             public float GetSpeedLimitFor(Ship ship) => ship.Fleet?.GetSpeedLimitFor(ship) ?? SpeedLimit;
 
-            public override string ToString() => $"{Plan} pos:{MovePosition} dir:{Direction}";
+            public override string ToString() => $"{Plan} {MoveOrder} pos:{MovePosition} dir:{Direction}";
 
             public ShipGoal(Plan plan, AIState wantedState)
             {
@@ -362,27 +342,27 @@ namespace Ship_Game.AI
                 TargetShip     = targetShip;
             }
 
-            public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, Ship freighter, float blockadeTimer, AIState wantedState)
+            public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, 
+                            Ship freighter, float blockadeTimer, AIState wantedState)
             {
                 Plan        = plan;
                 Trade       = new TradePlan(exportPlanet, importPlanet, goods, freighter, blockadeTimer);
                 WantedState = wantedState;
             }
 
-            public ShipGoal(Plan plan, Vector2 waypoint, Vector2 direction, AIState state, MoveTypes moveType, float speedLimit, Goal goal)
+            public ShipGoal(Plan plan, Vector2 waypoint, Vector2 direction, AIState state, 
+                            MoveOrder order, float speedLimit, Goal goal)
             {
                 Plan         = plan;
                 MovePosition = waypoint;
                 Direction    = direction;
                 WantedState  = state;
-                MoveType     = moveType;
                 Goal         = goal;
+                MoveOrder    = order;
+                SpeedLimit   = speedLimit;
             }
 
-            //public ShipGoal(Plan plan, Vector2 waypoint, AIState state, MoveTypes moveType, float speedLimit)
-            //    : this(plan, waypoint, new Vector2(1, 0), state, moveType, speedLimit) { }
-        
-
+            // restore from SaveGame
             public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
             {
                 Plan         = sg.Plan;
@@ -395,7 +375,9 @@ namespace Ship_Game.AI
 
                 VariableString = sg.VariableString;
                 VariableNumber = sg.VariableNumber;
-                SpeedLimit     = sg.SpeedLimit;
+                SpeedLimit = sg.SpeedLimit;
+                MoveOrder  = sg.MoveOrder;
+
                 Empire loyalty = ship.Loyalty;
 
                 if (sg.fleetGuid != Guid.Empty)
@@ -425,19 +407,40 @@ namespace Ship_Game.AI
 
                 if (Plan == Plan.SupplyShip)
                     ship.AI.EscortTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, ship.Ordinance);
-                MoveType = sg.MoveType;
             }
 
-            public bool HasCombatMove(float distance)
+            // Convert this ShipGoal into a ShipGoalSave
+            public SavedGame.ShipGoalSave ToSaveData()
             {
-                bool combat       = MoveType.HasFlag(MoveTypes.Combat);
-                bool lastWayPoint = MoveType.HasFlag(MoveTypes.LastWayPoint);
+                var s = new SavedGame.ShipGoalSave
+                {
+                    Plan             = Plan,
+                    Direction        = Direction,
+                    VariableString   = VariableString,
+                    SpeedLimit       = SpeedLimit,
+                    MovePosition     = MovePosition,
+                    fleetGuid        = Fleet?.Guid ?? Guid.Empty,
+                    GoalGuid         = Goal?.guid ?? Guid.Empty,
+                    TargetPlanetGuid = TargetPlanet?.Guid ?? Guid.Empty,
+                    TargetShipGuid   = TargetShip?.Guid ?? Guid.Empty,
+                    MoveOrder        = MoveOrder,
+                    VariableNumber   = VariableNumber,
+                    WantedState      = WantedState
+                };
 
-                if (!lastWayPoint && distance > 0)   return combat;
-                if (distance > 10000)                return combat;
-                if (distance < 1000 && Goal == null) return true;
+                if (Trade != null)
+                {
+                    s.Trade = new SavedGame.TradePlanSave
+                    {
+                        Goods         = Trade.Goods,
+                        ExportFrom    = Trade.ExportFrom?.Guid ?? Guid.Empty,
+                        ImportTo      = Trade.ImportTo?.Guid ?? Guid.Empty,
+                        BlockadeTimer = Trade.BlockadeTimer,
+                        StardateAdded = Trade.StardateAdded
+                    };
+                }
 
-                return Goal?.IsPriorityMovement() ?? combat;
+                return s;
             }
 
             ~ShipGoal() { Destroy(); } // finalizer
@@ -526,7 +529,6 @@ namespace Ship_Game.AI
             RebaseToShip,
             ReturnHome,
             DeployOrbital,
-            HoldPositionOffensive,
             Escort,
             RearmShipFromPlanet,
             Meteor

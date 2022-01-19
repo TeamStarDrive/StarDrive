@@ -6,6 +6,7 @@ using Ship_Game.Universe.SolarBodies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI;
 using Ship_Game.Spatial;
 using Ship_Game.Gameplay;
 
@@ -1577,7 +1578,7 @@ namespace Ship_Game
                 {
                     // Move Offensively to planet
                     Vector2 finalDir = ship.Position.DirectionToTarget(Center);
-                    ship.AI.OrderMoveToNoStop(Center, finalDir, false, AI.AIState.MoveTo, null, true);
+                    ship.AI.OrderMoveTo(Center, finalDir, MoveOrder.Aggressive|MoveOrder.AddWayPoint|MoveOrder.NoStop);
                 }
             }
         }

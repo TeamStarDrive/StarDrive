@@ -26,8 +26,6 @@ namespace Ship_Game
         [StarData] public float DPSWeight = 0.5f;
         [StarData] public float SizeWeight = 0.5f;
         [StarData] public float ArmoredWeight = 0.5f;
-        [XmlElement(ElementName = "orders")]
-        [StarData] public Orders Order;
         [StarData] public CombatState CombatState;
         [StarData] public Vector2 OrdersOffset;
         [StarData] public float OrdersRadius = 500000;//0.5f;
