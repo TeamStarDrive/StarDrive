@@ -9,21 +9,23 @@ namespace Ship_Game.AI
     [Flags]
     public enum MoveOrder
     {
-        // the default move stance is defensive
-        // no drop from warp, engage enemies that are within range 
-        // this depends heavily on the unit default stance,
-        // because if default stance is AttackRuns, the ship will hunt anything in the solar system -_-
-        Defensive = (1 << 1),
+        // The default move stance
+        // No drop from warp
+        // Depends heavily on the unit Combat Stance,
+        //      If CombatStance=AttackRuns, the ship will hunt anything in the solar system
+        Regular = (1 << 1),
 
-        // kill anything on the way, drop out of warp, resume to destination after enemy destroyed
+        // Kill anything on the way, drop out of warp, resume to destination after enemy destroyed
         Aggressive = (1 << 2),
-        
-        // no drop from warp, don't chase enemies, only shoot if they are in range
-        StandGround = (1 << 3),
-        
-        AddWayPoint = (1 << 4), // Whether to QUEUE this as the next move WayPoint
 
-        NoStop = (1 << 5), // Ships will not perform stopping actions after WayPoint completion
+        // No drop from warp, don't chase enemies, only shoot at targets of opportunity
+        StandGround = (1 << 3),
+
+        // Whether to QUEUE this as the next move WayPoint
+        AddWayPoint = (1 << 4),
+
+        // Ships will not perform stopping actions after WayPoint completion
+        NoStop = (1 << 5),
     }
 
     public sealed partial class ShipAI
@@ -36,21 +38,14 @@ namespace Ship_Game.AI
         }
 
         // Holds position without reacting to anything else
-        public void PriorityHoldPosition()
+        public void OrderHoldPosition(MoveOrder order = MoveOrder.Regular)
         {
-            OrderHoldPosition(Owner.Position, Owner.Direction);
+            OrderHoldPosition(Owner.Position, Owner.Direction, order);
         }
 
-        public void OrderHoldPosition(Vector2 position, Vector2 direction)
+        public void OrderHoldPosition(Vector2 position, Vector2 direction, MoveOrder order = MoveOrder.Regular)
         {
-            AddShipGoal(Plan.HoldPosition, position, direction, AIState.HoldPosition);
-            SetPriorityOrder(true);
-            IgnoreCombat = true;
-        }
-
-        public void OrderHoldPositionOffensive(Vector2 position, Vector2 direction)
-        {
-            AddShipGoal(Plan.HoldPositionOffensive, position, direction, AIState.HoldPosition);
+            AddMoveOrder(Plan.HoldPosition, new WayPoint(position, direction), AIState.HoldPosition, 0f, order);
             IgnoreCombat = false;
         }
 
@@ -120,7 +115,7 @@ namespace Ship_Game.AI
         {
             ClearWayPoints();
             ClearOrders();
-            OrderMoveToNoStop(target.Position, Owner.Direction, AIState.Explore, MoveOrder.Defensive, g);
+            OrderMoveToNoStop(target.Position, Owner.Direction, AIState.Explore, MoveOrder.Regular, g);
             ExplorationTarget = target;
         }
 
@@ -178,7 +173,7 @@ namespace Ship_Game.AI
                 AddLandTroopGoal(target);
         }
 
-        public void OrderMoveTo(Vector2 position, Vector2 finalDir, MoveOrder order = MoveOrder.Defensive)
+        public void OrderMoveTo(Vector2 position, Vector2 finalDir, MoveOrder order = MoveOrder.Regular)
         {
             AddWayPoint(position, finalDir, AIState.MoveTo, order, 0f, null);
         }
@@ -190,21 +185,21 @@ namespace Ship_Game.AI
 
         // DO NOT ADD MORE ARGUMENTS. USE `MoveOrder` FLAGS INSTEAD.
         public void OrderMoveTo(Vector2 position, Vector2 finalDir, AIState wantedState,
-                                MoveOrder order = MoveOrder.Defensive, Goal goal = null)
+                                MoveOrder order = MoveOrder.Regular, Goal goal = null)
         {
             AddWayPoint(position, finalDir, wantedState, order, 0f, goal);
         }
         
         // DO NOT ADD MORE ARGUMENTS. USE `MoveOrder` FLAGS INSTEAD.
         public void OrderMoveToNoStop(Vector2 position, Vector2 finalDir, AIState wantedState,
-                                      MoveOrder order = MoveOrder.Defensive, Goal goal = null)
+                                      MoveOrder order = MoveOrder.Regular, Goal goal = null)
         {
             AddWayPoint(position, finalDir, wantedState, order|MoveOrder.NoStop, 0f, goal);
         }
 
         public void OrderResupplyEscape(Vector2 position, Vector2 finalDir)
         {
-            var goal = new ShipGoal(Plan.MoveToWithin1000, position, finalDir, AIState.Resupply, MoveTypes.WayPoint, 0, null);
+            var goal = new ShipGoal(Plan.MoveToWithin1000, position, finalDir, AIState.Resupply, MoveOrder.StandGround, 0, null);
             PushGoalToFront(goal);
         }
 
@@ -216,13 +211,18 @@ namespace Ship_Game.AI
                 Log.Error($"GenerateOrdersFromWayPoints finalDirection {finalDir} must be a direction unit vector!");
 
             Target = null;
-            if (!order.HasFlag(MoveOrder.AddWayPoint))
+            bool queueNewWayPoint = order.HasFlag(MoveOrder.AddWayPoint);
+            if (!queueNewWayPoint)
             {
                 ClearWayPoints();
             }
 
-            // FB - if offensive move it true, ships will break and attack targets on the way to the destination
-            // BUG: IF WE DON'T SET PRIORITY=true, OUR SHIPS WILL ALWAYS SCATTER TO NEAREST BASE!
+            // clean up the move order so we don't have conflicting values
+            order &= ~MoveOrder.AddWayPoint;
+            if      ((order & MoveOrder.Aggressive) != 0) order &= ~(MoveOrder.Regular | MoveOrder.StandGround);
+            else if ((order & MoveOrder.StandGround) != 0) order &= ~(MoveOrder.Regular | MoveOrder.Aggressive);
+
+            // FB - if offensive move is true, ships will break and attack targets on the way to the destination
             bool offensiveMove = order.HasFlag(MoveOrder.Aggressive);
             ClearOrders(wantedState, priority: !offensiveMove);
 
@@ -236,35 +236,25 @@ namespace Ship_Game.AI
             //              priority movement for all of the above while in combat
             //              Verify ships can complete move to planet goals like colonization.
             WayPoint[] wayPoints = WayPoints.ToArray();
-            WayPoint wp = wayPoints[0];
 
-            AddMoveOrder(Plan.RotateToFaceMovePosition, wp, State, speedLimit, MoveTypes.FirstWayPoint);
-
-            MoveTypes combatMidMove = offensiveMove ? MoveTypes.Combat : MoveTypes.None;
-            MoveTypes combatEndMove = (goal != null || !offensiveMove) ? MoveTypes.None : MoveTypes.Combat;
+            AddMoveOrder(Plan.RotateToFaceMovePosition, wayPoints[0], State, speedLimit, order);
 
             // Set all WayPoints except the last one
             for (int i = 0; i < wayPoints.Length - 1; ++i)
             {
-                AddMoveOrder(Plan.MoveToWithin1000, wayPoints[i], State, speedLimit, MoveTypes.WayPoint | combatMidMove);
+                AddMoveOrder(Plan.MoveToWithin1000, wayPoints[i], State, speedLimit, order);
             }
 
-            wp = wayPoints[wayPoints.Length - 1];
+            WayPoint wp = wayPoints[wayPoints.Length - 1];
+            AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, order);
 
-            // Allow ships to engage combat if within 1000 of the move target
-            MoveTypes lastMove = Owner.Loyalty.isPlayer && !offensiveMove
-                ? MoveTypes.None
-                : MoveTypes.LastWayPoint | combatEndMove;
-
-            AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, lastMove);
-
-            // FB - Do not make final approach and stop, since the ship has more orders which do not
-            // require stopping or rotating. 
-            // If stopping, it will go the the set pos and not to the dynamic target planet center.
+            // FB - Do not make final approach and stop, since the ship has more orders which don't
+            // require stopping or rotating. Otherwise go to the set pos and not to the dynamic target planet center.
             if (!order.HasFlag(MoveOrder.NoStop))
             {
-                AddMoveOrder(Plan.MakeFinalApproach, wp, State, 0, MoveTypes.SubLightApproach | combatEndMove, goal);
-                AddMoveOrder(Plan.RotateToDesiredFacing, wp, State,0, MoveTypes.SubLightApproach | combatEndMove, goal);
+                AddMoveOrder(Plan.MakeFinalApproach, wp, State, speedLimit, order, goal);
+                AddMoveOrder(Plan.RotateToDesiredFacing, wp, State, 0, order, goal);
+                OrderHoldPosition(position, finalDir, order);
             }
         }
 
@@ -596,7 +586,7 @@ namespace Ship_Game.AI
             OrderMoveTo(position, direction, AIState.MoveTo);
         }
 
-        public void OrderToOrbit(Planet toOrbit, MoveOrder order = MoveOrder.Defensive)
+        public void OrderToOrbit(Planet toOrbit, MoveOrder order = MoveOrder.Regular)
         {
             ClearWayPoints();
             ClearOrders();

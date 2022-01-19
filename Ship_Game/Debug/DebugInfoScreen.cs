@@ -444,6 +444,13 @@ namespace Ship_Game.Debug
                     DrawCircleImm(fleet.AveragePosition(), 30, Color.Magenta);
                     DrawCircleImm(fleet.AveragePosition(), 60, Color.DarkMagenta);
                 }
+
+                if (fleet.Ships.NotEmpty)
+                {
+                    DrawString("");
+                    DrawString("-- First Ship AIState:");
+                    DrawShipOrderQueueInfo(fleet.Ships.First);
+                }
             }
             // only show CurrentGroup if we selected more than one ship
             else if (Screen.CurrentGroup != null && Screen.SelectedShipList.Count > 1)
@@ -460,9 +467,12 @@ namespace Ship_Game.Debug
                 Ship ship = Screen.SelectedShip;
 
                 DrawString($"Ship {ship.ShipName}  x {(int)ship.Position.X} y {(int)ship.Position.Y}");
-                DrawString($"VEL: {(int)ship.Velocity.Length()}  "
-                          +$"LIMIT: {(int)ship.SpeedLimit}  {ship.WarpState}"
-                          +$"  {ship.ThrustThisFrame}  {ship.DebugThrustStatus}");
+                DrawString($"VEL: {ship.Velocity.Length().String(0)}  "
+                          +$"LIMIT: {ship.SpeedLimit.String(0)}  "
+                          +$"Vmax: {ship.VelocityMaximum.String(0)}  "
+                          +$"FTLMax: {ship.MaxFTLSpeed.String(0)}  "
+                          +$"{ship.WarpState}  {ship.ThrustThisFrame}  {ship.DebugThrustStatus}");
+
                 VisualizeShipOrderQueue(ship);
                 DrawWeaponArcs(ship);
                 DrawSensorInfo(ship);
@@ -511,13 +521,13 @@ namespace Ship_Game.Debug
                     DrawString("Target: "+ shipTarget.Name);
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
-                DrawString($"Strength: {ship.GetStrength().String(0)} / {ship.BaseStrength.String(0)}");
-                DrawString($"VelocityMax: {ship.VelocityMaximum.String(0)}  FTLMax: {ship.MaxFTLSpeed.String(0)}");
-                DrawString($"HP: {ship.Health.String(0)} / {ship.HealthMax.String(0)}");
-                DrawString("Ship Mass: " + ship.Mass.String(0));
-                DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
-                DrawString("ActiveIntSlots: " + ship.ActiveInternalModuleSlots + " / " + ship.TotalInternalModuleSlots + " (" + Math.Round((decimal)ship.ActiveInternalModuleSlots / ship.TotalInternalModuleSlots * 100,1) + "%)");
-                DrawString($"Total DPS: {ship.TotalDps}");
+                float currentStr = ship.GetStrength(), baseStr = ship.BaseStrength;
+                DrawString($"Strength: {currentStr.String(0)} / {baseStr.String(0)}  ({(currentStr/baseStr).PercentString()})");
+                DrawString($"HP: {ship.Health.String(0)} / {ship.HealthMax.String(0)}  ({ship.HealthPercent.PercentString()})");
+                DrawString($"Mass: {ship.Mass.String(0)}");
+                DrawString($"EMP Damage: {ship.EMPDamage} / {ship.EmpTolerance} :Recovery: {ship.EmpRecovery}");
+                DrawString($"IntSlots: {ship.ActiveInternalModuleSlots}/{ship.TotalInternalModuleSlots}  ({ship.InternalSlotsHealthPercent.PercentString()})");
+                DrawString($"DPS: {ship.TotalDps}");
                 SetTextCursor(Win.X + 250, 600f, Color.White);
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.Loyalty.GetEmpireAI().DefensiveCoordinator.DefenseDict)
                     foreach (var defender in entry.Value.OurShips) {
@@ -607,30 +617,36 @@ namespace Ship_Game.Debug
         void VisualizeShipOrderQueue(Ship ship)
         {
             VisualizeShipGoal(ship);
+            DrawShipOrderQueueInfo(ship);
 
-            if (ship.AI.OrderQueue.NotEmpty)
-            {
-                ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
-                Vector2 pos = goals[0].TargetPlanet?.Center ?? ship.AI.Target?.Position ?? goals[0].MovePosition;
-                DrawString($"Ship distance from goal: {pos.Distance(ship.Position)}");
-                DrawString($"AI State: {ship.AI.State}");
-                DrawString($"Combat State: {ship.AI.CombatState}");
-                DrawString($"OrderQueue ({goals.Length}):");
-                for (int i = 0; i < goals.Length; ++i)
-                    DrawString($"  {i}: {goals[i].Plan}");
-            }
-            else
-            {
-                DrawString($"AI State: {ship.AI.State}");
-                DrawString($"Combat State: {ship.AI.CombatState}");
-                DrawString("OrderQueue is EMPTY");
-            }
             if (ship.AI.HasWayPoints)
             {
                 WayPoint[] wayPoints = ship.AI.CopyWayPoints();
                 DrawString($"WayPoints ({wayPoints.Length}):");
                 for (int i = 0; i < wayPoints.Length; ++i)
-                    DrawString($"  {i}:  {wayPoints[i].Position}");
+                    DrawString($"  {i+1}:  {wayPoints[i].Position}");
+            }
+        }
+
+        void DrawShipOrderQueueInfo(Ship ship)
+        {
+            if (ship.AI.OrderQueue.NotEmpty)
+            {
+                ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
+                Vector2 pos = ship.AI.GoalTarget;
+                DrawString($"DistanceTo GoalTarget: {pos.Distance(ship.Position)}");
+                DrawString($"AIState: {ship.AI.State}  CombatState: {ship.AI.CombatState}");
+                DrawString($"OrderQueue ({goals.Length}):");
+                for (int i = 0; i < goals.Length; ++i)
+                {
+                    ShipGoal g = goals[i];
+                    DrawString($"  {i+1}:  {g.Plan}  {g.MoveOrder}");
+                }
+            }
+            else
+            {
+                DrawString($"AIState: {ship.AI.State}  CombatState: {ship.AI.CombatState}");
+                DrawString("OrderQueue is EMPTY");
             }
         }
 

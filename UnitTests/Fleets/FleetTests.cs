@@ -106,7 +106,7 @@ namespace UnitTests.Fleets
             Vector2 target = fleet.FinalPosition + offset;
             Vector2 finalDir = offset.Normalized();
             Log.Write($"Fleet.MoveToNow({target.X},{target.Y})");
-            fleet.MoveTo(target, finalDir, MoveOrder.Defensive);
+            fleet.MoveTo(target, finalDir, MoveOrder.Regular);
             return target;
         }
 
