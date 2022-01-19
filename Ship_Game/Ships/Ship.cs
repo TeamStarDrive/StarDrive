@@ -928,7 +928,7 @@ namespace Ship_Game.Ships
             AI.State = AIState.SystemDefender;
         }
 
-        public void OrderToOrbit(Planet orbit, MoveOrder order = MoveOrder.Defensive)
+        public void OrderToOrbit(Planet orbit, MoveOrder order = MoveOrder.Regular)
         {
             AI.OrderToOrbit(orbit, order);
         }

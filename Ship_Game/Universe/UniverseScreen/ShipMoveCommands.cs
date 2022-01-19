@@ -20,7 +20,7 @@ namespace Ship_Game.Universe
         /// Depending on User Input: Aggressive, Defensive, StandGround Movement Types
         public AI.MoveOrder GetMoveOrderType()
         {
-            AI.MoveOrder addWayPoint = Input.QueueAction ? AI.MoveOrder.AddWayPoint : AI.MoveOrder.Defensive;
+            AI.MoveOrder addWayPoint = Input.QueueAction ? AI.MoveOrder.AddWayPoint : AI.MoveOrder.Regular;
             return addWayPoint|GetStanceType();
         }
 
@@ -28,7 +28,7 @@ namespace Ship_Game.Universe
         {
             if (Input.IsCtrlKeyDown) return AI.MoveOrder.Aggressive;
             if (Input.IsAltKeyDown)  return AI.MoveOrder.StandGround;
-            return AI.MoveOrder.Defensive;
+            return AI.MoveOrder.Regular;
         }
 
         public bool RightClickOnShip(Ship selectedShip, Ship targetShip)
@@ -82,7 +82,7 @@ namespace Ship_Game.Universe
                 if (ship.ShipData.IsColonyShip)
                     PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
                 else if (ship.Carrier.AnyAssaultOpsAvailable)
-                    PlanetRightClickTroopShip(ship, planet, AI.MoveOrder.Defensive); // This ship can assault planets
+                    PlanetRightClickTroopShip(ship, planet, AI.MoveOrder.Regular); // This ship can assault planets
                 else if (ship.HasBombs)
                     PlanetRightClickBomber(ship, planet); // This ship can bomb planets
                 else
@@ -268,7 +268,6 @@ namespace Ship_Game.Universe
 
             GameAudio.AffirmativeClick();
             ship.AI.OrderMoveTo(pos, direction, GetMoveOrderType());
-            ship.AI.OrderHoldPositionOffensive(pos, direction);
         }
     }
 }

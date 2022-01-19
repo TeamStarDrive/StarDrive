@@ -392,7 +392,7 @@ namespace Ship_Game
         /// <param name="finalPos">Final position of the fleet</param>
         /// <param name="finalDir">Final direction of the fleet</param>
         /// <param name="order">MoveTo parameters, @see MoveOrder enum</param>
-        public void MoveTo(Vector2 finalPos, Vector2 finalDir, MoveOrder order = MoveOrder.Defensive/*DO NOT ADD ANY MORE PARAMETERS HERE FOR GOD SAKES, USE FLAGS*/)
+        public void MoveTo(Vector2 finalPos, Vector2 finalDir, MoveOrder order = MoveOrder.Regular/*DO NOT ADD ANY MORE PARAMETERS HERE FOR GOD SAKES, USE FLAGS*/)
         {
             bool queueWayPoint = order.HasFlag(MoveOrder.AddWayPoint);
             AssembleFleet(finalPos, finalDir, forceAssembly: queueWayPoint);
@@ -410,7 +410,6 @@ namespace Ship_Game
 
                     Vector2 finalShipPos = FinalPosition + ship.FleetOffset;
                     ship.AI.OrderMoveTo(finalShipPos, finalDir, order);
-                    //ship.AI.OrderHoldPositionOffensive(finalPos, finalDirection);
                 }
             }
         }
