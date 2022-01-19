@@ -26,6 +26,9 @@ namespace Ship_Game.AI
 
         // Ships will not perform stopping actions after WayPoint completion
         NoStop = (1 << 5),
+
+        // Forces the Fleet or ShipGroup to Reassemble individual ship offsets
+        ForceReassembly = (1 << 6),
     }
 
     public sealed partial class ShipAI
@@ -208,7 +211,7 @@ namespace Ship_Game.AI
         void AddWayPoint(Vector2 position, Vector2 finalDir, AIState wantedState, MoveOrder order, float speedLimit, Goal goal)
         {
             if (!finalDir.IsUnitVector())
-                Log.Error($"GenerateOrdersFromWayPoints finalDirection {finalDir} must be a direction unit vector!");
+                Log.Error($"AddWayPoint finalDir {finalDir} must be a direction unit vector!");
 
             Target = null;
             bool queueNewWayPoint = order.HasFlag(MoveOrder.AddWayPoint);
@@ -217,10 +220,11 @@ namespace Ship_Game.AI
                 ClearWayPoints();
             }
 
-            // clean up the move order so we don't have conflicting values
-            order &= ~MoveOrder.AddWayPoint;
-            if      ((order & MoveOrder.Aggressive) != 0) order &= ~(MoveOrder.Regular | MoveOrder.StandGround);
-            else if ((order & MoveOrder.StandGround) != 0) order &= ~(MoveOrder.Regular | MoveOrder.Aggressive);
+            // clean up the move order so we only pass forward essentialy information
+            MoveOrder o = default;
+            if (order.HasFlag(MoveOrder.Aggressive)) o = MoveOrder.Aggressive;
+            else if (order.HasFlag(MoveOrder.Regular)) o = MoveOrder.Regular;
+            else if (order.HasFlag(MoveOrder.StandGround)) o = MoveOrder.StandGround;
 
             // FB - if offensive move is true, ships will break and attack targets on the way to the destination
             bool offensiveMove = order.HasFlag(MoveOrder.Aggressive);
@@ -229,7 +233,7 @@ namespace Ship_Game.AI
             WayPoints.Enqueue(new WayPoint(position, finalDir));
             MovePosition = position;
 
-            // NOTE: please don't 'FIX' anything here without caution and testing.
+            // WARNING: please don't 'FIX' anything here without caution and testing.
             //   Checklist: single ship move & queued move,
             //              fleet move & queued move,
             //              ship group move & queued move,
@@ -237,24 +241,28 @@ namespace Ship_Game.AI
             //              Verify ships can complete move to planet goals like colonization.
             WayPoint[] wayPoints = WayPoints.ToArray();
 
-            AddMoveOrder(Plan.RotateToFaceMovePosition, wayPoints[0], State, speedLimit, order);
+               /////////////////////////////////////////////////////////////////
+              ////// --               FINAL WARNING                   -- //////
+             ////// -- DO NOT MODIFY ANY OF THIS WITHOUT CODE REVIEW -- //////
+            ////// --    IT'S INCREDIBLY EASY TO FUBAR THIS CODE!   -- //////
+            AddMoveOrder(Plan.RotateToFaceMovePosition, wayPoints[0], State, speedLimit, o);
 
             // Set all WayPoints except the last one
             for (int i = 0; i < wayPoints.Length - 1; ++i)
             {
-                AddMoveOrder(Plan.MoveToWithin1000, wayPoints[i], State, speedLimit, order);
+                AddMoveOrder(Plan.MoveToWithin1000, wayPoints[i], State, speedLimit, o);
             }
 
             WayPoint wp = wayPoints[wayPoints.Length - 1];
-            AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, order);
+            AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, o);
 
             // FB - Do not make final approach and stop, since the ship has more orders which don't
             // require stopping or rotating. Otherwise go to the set pos and not to the dynamic target planet center.
             if (!order.HasFlag(MoveOrder.NoStop))
             {
-                AddMoveOrder(Plan.MakeFinalApproach, wp, State, speedLimit, order, goal);
-                AddMoveOrder(Plan.RotateToDesiredFacing, wp, State, 0, order, goal);
-                OrderHoldPosition(position, finalDir, order);
+                AddMoveOrder(Plan.MakeFinalApproach, wp, State, speedLimit, o, goal);
+                AddMoveOrder(Plan.RotateToDesiredFacing, wp, State, 0, o, goal);
+                OrderHoldPosition(position, finalDir, o);
             }
         }
 

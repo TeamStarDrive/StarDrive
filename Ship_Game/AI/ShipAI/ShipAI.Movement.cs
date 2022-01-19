@@ -163,11 +163,11 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
-                    DequeueCurrentOrder();
+                    DequeueWayPointAndOrder();
             }
             else if (distance <= 1000f)
             {
-                DequeueCurrentOrder();
+                DequeueWayPointAndOrder();
             }
 
             // does current ship stance require us to enter combat?

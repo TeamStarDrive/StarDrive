@@ -394,8 +394,8 @@ namespace Ship_Game
         /// <param name="order">MoveTo parameters, @see MoveOrder enum</param>
         public void MoveTo(Vector2 finalPos, Vector2 finalDir, MoveOrder order = MoveOrder.Regular/*DO NOT ADD ANY MORE PARAMETERS HERE FOR GOD SAKES, USE FLAGS*/)
         {
-            bool queueWayPoint = order.HasFlag(MoveOrder.AddWayPoint);
-            AssembleFleet(finalPos, finalDir, forceAssembly: queueWayPoint);
+            bool forceAssembly = order.HasFlag(MoveOrder.AddWayPoint) || order.HasFlag(MoveOrder.ForceReassembly);
+            AssembleFleet(finalPos, finalDir, forceAssembly: forceAssembly);
 
             foreach (Ship ship in Ships)
             {
