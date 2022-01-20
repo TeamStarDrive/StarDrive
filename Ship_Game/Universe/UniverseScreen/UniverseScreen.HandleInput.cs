@@ -388,23 +388,28 @@ namespace Ship_Game
             return false;
         }
 
-        protected override void UpdateCurrentCursor()
+        protected override GameCursor GetCurrentCursor()
         {
             if (IsCinematicModeEnabled)
-            {
-                GameCursors.SetCurrentCursor(GameCursors.Cinematic);
-                return;
-            }
+                return GameCursors.Cinematic;
 
             if (SelectedFleet != null || SelectedShip != null || SelectedShipList.NotEmpty)
             {
-                if (Input.QueueAction)
+                MoveOrder mo = ShipCommands.GetMoveOrderType();
+                if (mo.HasFlag(MoveOrder.AddWayPoint))
                 {
-                    GameCursors.SetCurrentCursor(GameCursors.RegularNav);
-                    return;
+                    if (mo.HasFlag(MoveOrder.Aggressive)) return GameCursors.AggressiveNav;
+                    if (mo.HasFlag(MoveOrder.StandGround)) return GameCursors.StandGroundNav;
+                    return GameCursors.RegularNav;
+                }
+                else
+                {
+                    if (mo.HasFlag(MoveOrder.Aggressive)) return GameCursors.Aggressive;
+                    if (mo.HasFlag(MoveOrder.StandGround)) return GameCursors.StandGround;
+                    return GameCursors.Regular;
                 }
             }
-            base.UpdateCurrentCursor();
+            return GameCursors.Regular;
         }
 
         static int InputFleetSelection(InputState input)
