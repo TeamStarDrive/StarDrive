@@ -3,55 +3,104 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Graphics.Color;
 
 namespace Ship_Game.GameScreens
 {
     public static class GameCursors
     {
-        // The Standard game Cursor
-        public static Cursor Regular;
-        // Standard Cursor for WayPoints
-        public static Cursor RegularNav;
-
-        // Miniature cursor for Cinematic Universe View
-        public static Cursor Cinematic;
-
-        static Cursor CurrentCursor;
-        static Form TargetForm;
-
-        public static void Initialize(GameBase game)
+        public class WrappedCursor
         {
-            Regular    = LoadCursor("Cursors/Cursor.png", 0.5f, 0.5f);
-            RegularNav = LoadCursor("Cursors/CursorNav.png", 0f, 0f);
-            Cinematic  = LoadCursor("Cursors/CinematicCursor.png", 0.5f, 0.5f);
-
-            TargetForm = game.Form;
-            TargetForm.Cursor = Regular;
-            CurrentCursor = Regular;
-            game.IsMouseVisible = true;
+            public Cursor OSCursor;
+            public Texture2D SoftwareCursor;
+            public Vector2 HotSpot;
         }
 
-        public static void SetCurrentCursor(Cursor cursor)
+        // fallback OS cursor
+        public static WrappedCursor DefaultOSCursor;
+
+        // The Standard game Cursor
+        public static WrappedCursor Regular;
+        // Standard Cursor for WayPoints
+        public static WrappedCursor RegularNav;
+
+        // Miniature cursor for Cinematic Universe View
+        public static WrappedCursor Cinematic;
+
+        static WrappedCursor CurrentCursor;
+        static Cursor CurrentOSCursor;
+        static Form TargetForm;
+
+        public static void Initialize(GameBase game, bool software)
         {
-            if (CurrentCursor != cursor)
+            DefaultOSCursor = LoadCursor(game, software:false, "Cursors/Cursor.png", 0f, 0f);
+            if (DefaultOSCursor == null)
+                throw new NullReferenceException("GameCursors.Initialize: Default OS Cursor cannot be null! [Cursors/Cursor.png]");
+
+            Regular    = LoadCursor(game, software, "Cursors/Cursor.png", 0f, 0f);
+            RegularNav = LoadCursor(game, software, "Cursors/CursorNav.png", 0f, 0f);
+            Cinematic  = LoadCursor(game, software, "Cursors/CinematicCursor.png", 0.5f, 0.5f);
+
+            TargetForm = game.Form;
+            CurrentCursor = Regular;
+            game.IsMouseVisible = !software;
+        }
+
+        public static void SetCurrentCursor(WrappedCursor cursor)
+        {
+            CurrentCursor = cursor;
+        }
+
+        public static void Draw(GameBase game, SpriteBatch batch, Vector2 cursorScreenPos, bool software)
+        {
+            // attempt to draw software cursor, if that fails, draw OS cursor instead
+            if (software && CurrentCursor.SoftwareCursor?.IsDisposed == false)
             {
-                CurrentCursor = cursor;
-                TargetForm.Cursor = cursor;
+                game.IsMouseVisible = false;
+                batch.Begin();
+                batch.Draw(CurrentCursor.SoftwareCursor, cursorScreenPos, null, Color.White, 0f, 
+                           CurrentCursor.HotSpot, 1f, SpriteEffects.None, 1f);
+                batch.End();
+            }
+            else
+            {
+                game.IsMouseVisible = true;
+                var osCursor = CurrentCursor.OSCursor ?? DefaultOSCursor.OSCursor;
+                if (CurrentOSCursor != osCursor)
+                {
+                    CurrentOSCursor = osCursor;
+                    TargetForm.Cursor = osCursor;
+                }
             }
         }
 
-        static Cursor LoadCursor(string fileName, float hotSpotX, float hotSpotY)
+        static WrappedCursor LoadCursor(GameBase game, bool software, string fileName, float hotSpotX, float hotSpotY)
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile(fileName);
             if (file == null)
-                return Regular ?? Cursors.Default;
-            // useIcm: to use color correction for this Bitmap
-            var bitmap = new Bitmap(file.FullName, useIcm: true);
-            //var cursor = new Cursor(bitmap.GetHicon());
-            int hotX = (int)(bitmap.Width * hotSpotX);
-            int hotY = (int)(bitmap.Height * hotSpotY);
-            var cursor = CreateCursorNoResize(bitmap, hotX, hotY);
-            return cursor;
+                return Regular;
+
+            var wrappedCursor = new WrappedCursor();
+            if (software)
+            {
+                Texture2D texture = game.Content.LoadTexture(file);
+                wrappedCursor.SoftwareCursor = texture;
+                wrappedCursor.HotSpot = new Vector2(hotSpotX*texture.Width, hotSpotY*texture.Height);
+            }
+            else
+            {
+                // useIcm: to use color correction for this Bitmap
+                var bitmap = new Bitmap(file.FullName, useIcm: true);
+                //var cursor = new Cursor(bitmap.GetHicon());
+                int hotX = (int)(bitmap.Width * hotSpotX);
+                int hotY = (int)(bitmap.Height * hotSpotY);
+                var cursor = CreateCursorNoResize(bitmap, hotX, hotY);
+                wrappedCursor.OSCursor = cursor;
+                wrappedCursor.HotSpot = new Vector2(hotX, hotY);
+            }
+            return wrappedCursor;
         }
 
         public struct IconInfo

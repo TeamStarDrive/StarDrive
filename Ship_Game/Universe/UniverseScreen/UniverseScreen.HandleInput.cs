@@ -261,8 +261,6 @@ namespace Ship_Game
 
             HandleEdgeDetection(input);
 
-            HandleGameCursorChange(input);
-
             if (HandleDragAORect(input))
                 return true;
 
@@ -390,7 +388,7 @@ namespace Ship_Game
             return false;
         }
 
-        void HandleGameCursorChange(InputState input)
+        protected override void UpdateCurrentCursor()
         {
             if (IsCinematicModeEnabled)
             {
@@ -400,15 +398,13 @@ namespace Ship_Game
 
             if (SelectedFleet != null || SelectedShip != null || SelectedShipList.NotEmpty)
             {
-                if (input.QueueAction)
+                if (Input.QueueAction)
                 {
                     GameCursors.SetCurrentCursor(GameCursors.RegularNav);
                     return;
                 }
             }
-
-            // default to regular cursor
-            GameCursors.SetCurrentCursor(GameCursors.Regular);
+            base.UpdateCurrentCursor();
         }
 
         static int InputFleetSelection(InputState input)

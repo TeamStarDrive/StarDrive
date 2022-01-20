@@ -353,12 +353,20 @@ namespace Ship_Game.Data
             return ReadXnaAsset<Texture2D>(file.RelPath());
         }
 
-        public Texture2D LoadTexture(FileInfo file, string ext)
+        // Loads a texture and caches it inside GameContentManager
+        public Texture2D LoadTexture(FileInfo file)
         {
-            if (ext != "xnb")
-                return RawContent.LoadTexture(file);
             string assetName = file.RelPath();
-            Texture2D tex = ReadXnaAsset<Texture2D>(assetName);
+            Texture2D tex;
+            string ext = file.Extension.Substring(1);
+            if (ext != "xnb")
+            {
+                tex = RawContent.LoadTexture(file);
+            }
+            else
+            {
+                tex = ReadXnaAsset<Texture2D>(assetName);
+            }
             RecordCacheObject(assetName, tex);
             return tex;
         }
