@@ -2,6 +2,7 @@
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
   <Cost>16</Cost>
+  <OffPowerMod>2</OffPowerMod>
   
   <!-- common traits shared by all ship modules -->
   <ModuleType>FuelCell</ModuleType>
