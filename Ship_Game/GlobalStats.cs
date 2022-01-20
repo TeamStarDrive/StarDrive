@@ -153,6 +153,10 @@ namespace Ship_Game
         public static bool RestrictAIPlayerInteraction;
         public static bool DisableAIEmpires;
 
+        // If true, use software cursors (rendered by the game engine)
+        // otherwise use OS Cursor (rendered by the OS ontop of current window)
+        public static bool UseSoftwareCursor = true;
+
         ////////////////////////////////
         // From old Config
         public static int XRES = 1920;

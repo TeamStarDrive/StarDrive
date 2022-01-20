@@ -327,8 +327,13 @@ namespace Ship_Game
                     }
                 }
             }
-            
+
             ToolTip.Draw(batch, DrawLoopTime);
+
+            // draw software cursor / or update OS cursor
+            // don't use software cursor in loading screens
+            bool software = GlobalStats.UseSoftwareCursor && !IsShowing<GameLoadingScreen>();
+            GameCursors.Draw(GameInstance, batch, input.CursorPosition, software);
         }
 
         public void ExitAll(bool clear3DObjects)

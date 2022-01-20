@@ -296,7 +296,13 @@ namespace Ship_Game
                         : ScreenState.Active;
                 }
             }
-            SlowFlashTimer   -= elapsed.RealTime.Seconds / 4;            
+
+            if (!otherScreenHasFocus && !coveredByOtherScreen)
+            {
+                UpdateCurrentCursor();
+            }
+
+            SlowFlashTimer   -= elapsed.RealTime.Seconds / 4;
             NormalFlashTimer -= elapsed.RealTime.Seconds;
             FastFlashTimer   -= elapsed.RealTime.Seconds * 2;
 
@@ -872,6 +878,12 @@ namespace Ship_Game
         {
             while (PendingActions.TryDequeue(out Action action))
                 action();
+        }
+
+        protected virtual void UpdateCurrentCursor()
+        {
+            // default to regular cursor
+            GameCursors.SetCurrentCursor(GameCursors.Regular);
         }
     }
 }

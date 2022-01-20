@@ -881,7 +881,7 @@ namespace Ship_Game
             FileInfo[] files = GatherFilesModOrVanilla("LoadingScreen", "xnb");
 
             FileInfo file = files[RandomMath.InRange(0, files.Length)];
-            return content.LoadTexture(file, "xnb");
+            return content.LoadTexture(file);
         }
 
         // advice is temporary and only sticks around while loading
@@ -1322,8 +1322,7 @@ namespace Ship_Game
             {
                 GameLoadingScreen.SetStatus("LoadProjectileTex", file.Name);
                 string shortName = file.NameNoExt();
-                string ext = file.Extension.Substring(1);
-                Texture2D tex = RootContent.LoadTexture(file, ext);
+                Texture2D tex = RootContent.LoadTexture(file);
                 return (shortName, tex);
             });
 

@@ -91,9 +91,9 @@ namespace Ship_Game
         {
             if (IsLoaded)
                 return;
-            
+
             ResourceManager.InitContentDir();
-            GameCursors.Initialize(this);
+            GameCursors.Initialize(this, GlobalStats.UseSoftwareCursor);
 
             // Quite rare, but brutal case for all graphic resource reload
             if (GraphicsDeviceWasReset)
@@ -102,7 +102,7 @@ namespace Ship_Game
                 GraphicsDeviceWasReset = false;
                 ResourceManager.LoadGraphicsResources(ScreenManager);
             }
-            
+
             ScreenManager.LoadContent();
             IsLoaded = true;
 
