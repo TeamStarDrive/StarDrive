@@ -9,46 +9,59 @@ using Color = Microsoft.Xna.Framework.Graphics.Color;
 
 namespace Ship_Game.GameScreens
 {
+    public class GameCursor
+    {
+        public Cursor OSCursor;
+        public Texture2D SoftwareCursor;
+        public Vector2 HotSpot;
+    }
+
     public static class GameCursors
     {
-        public class WrappedCursor
-        {
-            public Cursor OSCursor;
-            public Texture2D SoftwareCursor;
-            public Vector2 HotSpot;
-        }
-
         // fallback OS cursor
-        public static WrappedCursor DefaultOSCursor;
-
-        // The Standard game Cursor
-        public static WrappedCursor Regular;
-        // Standard Cursor for WayPoints
-        public static WrappedCursor RegularNav;
+        public static GameCursor DefaultOSCursor;
+        
+        // The Standard game Cursors
+        public static GameCursor Regular;
+        public static GameCursor RegularNav; // WayPoints
 
         // Miniature cursor for Cinematic Universe View
-        public static WrappedCursor Cinematic;
+        public static GameCursor Cinematic;
 
-        static WrappedCursor CurrentCursor;
+        // Aggressive Stance Cursor
+        public static GameCursor Aggressive;
+        public static GameCursor AggressiveNav;
+
+        // StandGround Stance Cursor
+        public static GameCursor StandGround;
+        public static GameCursor StandGroundNav;
+
+        static GameCursor CurrentCursor;
         static Cursor CurrentOSCursor;
         static Form TargetForm;
 
         public static void Initialize(GameBase game, bool software)
         {
-            DefaultOSCursor = LoadCursor(game, software:false, "Cursors/Cursor.png", 0f, 0f);
+            DefaultOSCursor = LoadCursor(game, software:false, "Cursors/Regular.png");
             if (DefaultOSCursor == null)
                 throw new NullReferenceException("GameCursors.Initialize: Default OS Cursor cannot be null! [Cursors/Cursor.png]");
 
-            Regular    = LoadCursor(game, software, "Cursors/Cursor.png", 0f, 0f);
-            RegularNav = LoadCursor(game, software, "Cursors/CursorNav.png", 0f, 0f);
-            Cinematic  = LoadCursor(game, software, "Cursors/CinematicCursor.png", 0.5f, 0.5f);
+            Regular    = LoadCursor(game, software, "Cursors/Regular.png");
+            RegularNav = LoadCursor(game, software, "Cursors/RegularNav.png");
+            Cinematic  = LoadCursor(game, software, "Cursors/Cinematic.png", 0.5f, 0.5f);
+
+            Aggressive    = LoadCursor(game, software, "Cursors/Aggressive.png");
+            AggressiveNav = LoadCursor(game, software, "Cursors/AggressiveNav.png");
+
+            StandGround    = LoadCursor(game, software, "Cursors/StandGround.png");
+            StandGroundNav = LoadCursor(game, software, "Cursors/StandGroundNav.png");
 
             TargetForm = game.Form;
             CurrentCursor = Regular;
             game.IsMouseVisible = !software;
         }
 
-        public static void SetCurrentCursor(WrappedCursor cursor)
+        public static void SetCurrentCursor(GameCursor cursor)
         {
             CurrentCursor = cursor;
         }
@@ -76,13 +89,16 @@ namespace Ship_Game.GameScreens
             }
         }
 
-        static WrappedCursor LoadCursor(GameBase game, bool software, string fileName, float hotSpotX, float hotSpotY)
+        static GameCursor LoadCursor(GameBase game, bool software, string fileName, float hotSpotX=0f, float hotSpotY=0f)
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile(fileName);
             if (file == null)
+            {
+                Log.Error($"GameCursors.LoadCursor failed: {fileName} not found!");
                 return Regular;
+            }
 
-            var wrappedCursor = new WrappedCursor();
+            var wrappedCursor = new GameCursor();
             if (software)
             {
                 Texture2D texture = game.Content.LoadTexture(file);

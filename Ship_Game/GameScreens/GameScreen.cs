@@ -299,7 +299,7 @@ namespace Ship_Game
 
             if (!otherScreenHasFocus && !coveredByOtherScreen)
             {
-                UpdateCurrentCursor();
+                GameCursors.SetCurrentCursor(GetCurrentCursor());
             }
 
             SlowFlashTimer   -= elapsed.RealTime.Seconds / 4;
@@ -880,10 +880,9 @@ namespace Ship_Game
                 action();
         }
 
-        protected virtual void UpdateCurrentCursor()
+        protected virtual GameCursor GetCurrentCursor()
         {
-            // default to regular cursor
-            GameCursors.SetCurrentCursor(GameCursors.Regular);
+            return GameCursors.Regular; // default to regular cursor
         }
     }
 }
