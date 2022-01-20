@@ -449,6 +449,7 @@ namespace Ship_Game.Debug
                     DrawString("");
                     DrawString("-- First Ship AIState:");
                     DrawShipOrderQueueInfo(fleet.Ships.First);
+                    DrawWayPointsInfo(fleet.Ships.First);
                 }
             }
             // only show CurrentGroup if we selected more than one ship
@@ -603,8 +604,12 @@ namespace Ship_Game.Debug
             if (ship?.AI.HasWayPoints == true)
             {
                 WayPoint[] wayPoints = ship.AI.CopyWayPoints();
-                for (int i = 1; i < wayPoints.Length; ++i) // draw WayPoints chain
-                    DrawLineImm(wayPoints[i-1].Position, wayPoints[i].Position, Color.ForestGreen);
+                if (wayPoints.Length > 0)
+                {
+                    DrawLineImm(ship.Position, wayPoints[0].Position, Color.ForestGreen);
+                    for (int i = 1; i < wayPoints.Length; ++i) // draw WayPoints chain
+                        DrawLineImm(wayPoints[i-1].Position, wayPoints[i].Position, Color.ForestGreen);
+                }
             }
             if (ship?.Fleet != null)
             {
@@ -621,14 +626,7 @@ namespace Ship_Game.Debug
         {
             VisualizeShipGoal(ship);
             DrawShipOrderQueueInfo(ship);
-
-            if (ship.AI.HasWayPoints)
-            {
-                WayPoint[] wayPoints = ship.AI.CopyWayPoints();
-                DrawString($"WayPoints ({wayPoints.Length}):");
-                for (int i = 0; i < wayPoints.Length; ++i)
-                    DrawString($"  {i+1}:  {wayPoints[i].Position}");
-            }
+            DrawWayPointsInfo(ship);
         }
 
         void DrawShipOrderQueueInfo(Ship ship)
@@ -650,6 +648,17 @@ namespace Ship_Game.Debug
             {
                 DrawString($"AIState: {ship.AI.State}  CombatState: {ship.AI.CombatState}");
                 DrawString("OrderQueue is EMPTY");
+            }
+        }
+
+        void DrawWayPointsInfo(Ship ship)
+        {
+            if (ship.AI.HasWayPoints)
+            {
+                WayPoint[] wayPoints = ship.AI.CopyWayPoints();
+                DrawString($"WayPoints ({wayPoints.Length}):");
+                for (int i = 0; i < wayPoints.Length; ++i)
+                    DrawString($"  {i+1}:  {wayPoints[i].Position}");
             }
         }
 

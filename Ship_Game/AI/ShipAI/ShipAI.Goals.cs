@@ -9,9 +9,9 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        void DequeueWayPointAndOrder()
+        void DequeueCurrentOrder(MoveOrder order)
         {
-            if (WayPoints.Count > 0)
+            if (order.HasFlag(MoveOrder.DequeueWayPoint) && WayPoints.Count > 0)
                 WayPoints.Dequeue();
             DequeueCurrentOrder();
         }
@@ -23,6 +23,21 @@ namespace Ship_Game.AI
                 goal.Dispose();
                 ShipGoal nextGoal = OrderQueue.PeekFirst;
                 ChangeAIState(nextGoal?.WantedState ?? DefaultAIState);
+            }
+        }
+
+        void DequeueOrdersUntilWayPointDequeued()
+        {
+            while (OrderQueue.TryDequeue(out ShipGoal goal))
+            {
+                goal.Dispose();
+                ShipGoal nextGoal = OrderQueue.PeekFirst;
+                ChangeAIState(nextGoal?.WantedState ?? DefaultAIState);
+                if (goal.MoveOrder.HasFlag(MoveOrder.DequeueWayPoint) && WayPoints.Count > 0)
+                {
+                    WayPoints.Dequeue();
+                    break;
+                }
             }
         }
 

@@ -30,9 +30,11 @@ namespace Ship_Game.AI
         // Forces the Fleet or ShipGroup to Reassemble individual ship offsets
         ForceReassembly = (1 << 6),
 
-        // This is a Fleet or ShipGroup MoveTo order,
-        // which implies special handling
-        FleetMoveOrder = (1 << 7),
+        // Forces Fleet ships to reform between WayPoints
+        ReformAtWayPoint = (1 << 7),
+
+        // Flag for WayPoint movement system to Dequeue WayPoints
+        DequeueWayPoint = (1 << 8),
     }
 
     public sealed partial class ShipAI
@@ -236,7 +238,6 @@ namespace Ship_Game.AI
 
             // clean up the move order so we only pass forward essentialy information
             MoveOrder o = default;
-            if (order.HasFlag(MoveOrder.FleetMoveOrder))   o |= MoveOrder.FleetMoveOrder;
             if (order.HasFlag(MoveOrder.Aggressive))       o |= MoveOrder.Aggressive;
             else if (order.HasFlag(MoveOrder.Regular))     o |= MoveOrder.Regular;
             else if (order.HasFlag(MoveOrder.StandGround)) o |= MoveOrder.StandGround;
@@ -267,14 +268,30 @@ namespace Ship_Game.AI
                 /////////////////////////////////////////////////////////////////
             AddMoveOrder(Plan.RotateToFaceMovePosition, wayPoints[0], State, speedLimit, o);
 
+            // this allows fleets to keep their cohesion between waypoints
+            // it makes fleet warps slower, but keeps the fleet together which is more important
+            bool assembleBetweenWayPoints = order.HasFlag(MoveOrder.ReformAtWayPoint);
+
             // Set all WayPoints except the last one
+            WayPoint wp;
             for (int i = 0; i < wayPoints.Length - 1; ++i)
             {
-                AddMoveOrder(Plan.MoveToWithin1000, wayPoints[i], State, speedLimit, o);
+                wp = wayPoints[i];
+                if (assembleBetweenWayPoints)
+                {
+                    AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, o|MoveOrder.DequeueWayPoint);
+                    AddMoveOrder(Plan.MakeFinalApproach, wp, State, speedLimit, o, goal);
+                    Vector2 dirToNext = wp.Position.DirectionToTarget(wayPoints[i + 1].Position);
+                    AddMoveOrder(Plan.RotateToDesiredFacing, new WayPoint(wp.Position, dirToNext), State, 0, o, goal);
+                }
+                else
+                {
+                    AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, o|MoveOrder.DequeueWayPoint);
+                }
             }
 
-            WayPoint wp = wayPoints[wayPoints.Length - 1];
-            AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, o);
+            wp = wayPoints[wayPoints.Length - 1];
+            AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, o|MoveOrder.DequeueWayPoint);
 
             // FB - Do not make final approach and stop, since the ship has more orders which don't
             // require stopping or rotating. Otherwise go to the set pos and not to the dynamic target planet center.
