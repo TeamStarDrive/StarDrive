@@ -394,6 +394,7 @@ namespace Ship_Game
         /// <param name="order">MoveTo parameters, @see MoveOrder enum</param>
         public void MoveTo(Vector2 finalPos, Vector2 finalDir, MoveOrder order = MoveOrder.Regular/*DO NOT ADD ANY MORE PARAMETERS HERE FOR GOD SAKES, USE FLAGS*/)
         {
+            if (this is Fleet) order |= MoveOrder.ReformAtWayPoint;
             bool forceAssembly = order.HasFlag(MoveOrder.AddWayPoint) || order.HasFlag(MoveOrder.ForceReassembly);
             AssembleFleet(finalPos, finalDir, forceAssembly: forceAssembly);
 

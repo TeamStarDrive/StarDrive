@@ -163,11 +163,11 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
-                    DequeueWayPointAndOrder();
+                    DequeueCurrentOrder(goal.MoveOrder);
             }
             else if (distance <= 1000f)
             {
-                DequeueWayPointAndOrder();
+                DequeueCurrentOrder(goal.MoveOrder);
             }
 
             // does current ship stance require us to enter combat?
@@ -211,7 +211,7 @@ namespace Ship_Game.AI
                 if (debug) Owner.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(timeStep))
                 {
-                    DequeueWayPointAndOrder();
+                    DequeueCurrentOrder(goal.MoveOrder);
                 }
                 return;
             }
@@ -493,7 +493,7 @@ namespace Ship_Game.AI
                         if (nextDiff < angleDiff && nextDiff < nextMaxTurn)
                         {
                             //Log.Write(ConsoleColor.Green, $"Shortcut!  nextDiff: {nextDiff.DegreeString()}  <  nextMaxTurn: {nextMaxTurn.DegreeString()}");
-                            DequeueWayPointAndOrder(); // shortcut!
+                            DequeueOrdersUntilWayPointDequeued(); // shortcut!
                             return true;
                         }
                     }
