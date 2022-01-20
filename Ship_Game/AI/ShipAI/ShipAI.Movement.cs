@@ -205,7 +205,6 @@ namespace Ship_Game.AI
             bool debug = Owner.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
 
             // to make the ship perfectly centered
-            Vector2 direction = Owner.Direction;
             float distance = Owner.Position.Distance(targetPos);
             if (distance <= 75) // final stop, by this point our speed should be sufficiently
             {
@@ -223,6 +222,7 @@ namespace Ship_Game.AI
                 PushGoalToFront(new ShipGoal(Plan.MoveToWithin1000, targetPos, goal.Direction, AIState.AwaitingOrders, goal.MoveOrder, 0, null));
             }
 
+            Vector2 direction;
             if (distance > 75f)
             {
                 // prediction to enhance movement precision
@@ -351,12 +351,19 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
 
+            // Use predicted thrust position to enhance movement precision and cancel out lateral movement
+            Vector2 predictedPos = PredictThrustPosition(pos);
+
+            // use different angle errors depending if we are warping or not
+            float maxAngleError = Owner.engineState == Ship.MoveState.Warp ? 0.001f : 0.02f;
+
+            // do we need to rotate ourselves before thrusting?
+            (Vector2 wantedForward, float distance) = Owner.Position.GetDirectionAndLength(predictedPos);
+            Vector2 currentForward = Owner.Rotation.RadiansToDirection();
+            float predictionDiff = Vectors.AngleDifference(wantedForward, currentForward);
+
             // this just checks if warp thrust is good
-            // we don't need to use predicted position here, since warp is more linear
-            // and prediction errors can cause warp to disengage due to sharp angle
-            float actualDiff = Owner.AngleDifferenceToPosition(pos);
-            float distance = pos.Distance(Owner.Position);
-            if (UpdateWarpThrust(timeStep, actualDiff, distance))
+            if (UpdateWarpThrust(timeStep, predictionDiff, distance, wantedForward))
             {
                 return; // WayPoint short-cut
             }
@@ -381,26 +388,19 @@ namespace Ship_Game.AI
                 }
             }
 
-            // Use predicted thrust position to enhance movement precision and cancel out lateral movement
-            Vector2 predictedPoint = PredictThrustPosition(pos);
-
-            // use different angle errors depending if we are warping or not
-            float maxAngleError = Owner.engineState == Ship.MoveState.Warp ? 0.01f : 0.02f;
-
-            // do we need to rotate ourselves before thrusting?
-            if (Owner.RotationNeededForTarget(predictedPoint, maxAngleError,
-                                              out float predictionDiff, out float rotationDir))
+            if (predictionDiff > maxAngleError)
             {
+                float rotationDir = Vectors.RotationDirection(wantedForward, currentForward);
                 Owner.RotateToFacing(timeStep, predictionDiff, rotationDir, maxAngleError);
-                return; // don't accelerate until we're faced correctly
+                return; // don't SubLightAccelerate until we're faced correctly
             }
 
             // engage StarDrive if we're moderately far
             bool notAFleet = Owner.Fleet == null || State != AIState.FormationWarp;
             if (notAFleet) // not in a fleet or ship group
             {
-                // only engage warp if we are facing towards actual warp pos
-                if (actualDiff < 0.05f && Owner.MaxFTLSpeed > 0)
+                // only engage warp if we are facing towards thrust position
+                if (predictionDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
                     if (distance > 7500f)
@@ -440,18 +440,16 @@ namespace Ship_Game.AI
             }
         }
 
-        float EstimateMaxTurn(float distance)
+        float EstimateMaxWarpTurn(float distance)
         {
-            float timeToTarget = distance / Owner.MaxFTLSpeed;
+            float timeToTarget = distance / Owner.Velocity.Length();
             float maxTurn = Owner.RotationRadiansPerSecond * timeToTarget;
-            maxTurn *= 0.4f; // ships can't really turn as numbers would predict...
-            // and we don't allow over certain degrees either
-            const float minAngle = 5f  * RadMath.DegreeToRadian;
-            const float maxAngle = 60f * RadMath.DegreeToRadian;
+            const float minAngle = 15.0f * RadMath.DegreeToRadian;
+            const float maxAngle = 65.0f * RadMath.DegreeToRadian;
             return maxTurn.Clamped(minAngle, maxAngle);
         }
 
-        bool UpdateWarpThrust(FixedSimTime timeStep, float angleDiff, float distance)
+        bool UpdateWarpThrust(FixedSimTime timeStep, float angleDiff, float distance, Vector2 wantedForward)
         {
             if (Owner.engineState != Ship.MoveState.Warp)
             {
@@ -460,17 +458,28 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            if (angleDiff > 0.04f)
+            // get the ship's velocity and intended heading vector relation (+1 same dir, -1 opposite dirs)
+            float travel = Owner.Velocity.Normalized().Dot(wantedForward);
+            if (travel < 0.2f) // the ship is drifting sideways
+            {
+                //Log.Write(ConsoleColor.Red, $"Drifting!  travel: {travel.String(2)}  distance: {distance.String(0)}");
+                Owner.HyperspaceReturn();
+                return false;
+            }
+
+            // if we are off even by little, aggressively reduce speed
+            if (angleDiff > RadMath.Deg1AsRads*0.5f)
                 Owner.SetWarpPercent(timeStep, 0.05f); // SLOW DOWN to % warp speed
             else if (Owner.WarpPercent < 1f)
                 Owner.SetWarpPercent(timeStep, 1f); // back to normal
 
-            float maxTurn = EstimateMaxTurn(distance);
+            float maxTurn = EstimateMaxWarpTurn(distance);
+            //Log.Write($"angleDiff: {angleDiff.DegreeString()}  maxTurn: {maxTurn.DegreeString()}  travel: {travel.String(2)}  distance: {distance.String(0)}  ");
+
             if (angleDiff > maxTurn) // we can't make the turn
             {
-                // ok, just cut the corner to next WayPoint maybe?
-                // However, this is not allowed for Fleets - to prevent individual ships cutting corners
-                // and getting ahead of the fleet
+                // just cut the corner to next WayPoint maybe?
+                // this is not allowed for Fleets - to prevent individual ships cutting corners and getting ahead of the fleet
                 if (Owner.Fleet == null && WayPoints.Count >= 2 && distance > Owner.Loyalty.GetProjectorRadius() * 0.5f)
                 {
                     WayPoint next = WayPoints.ElementAt(1);
@@ -478,20 +487,23 @@ namespace Ship_Game.AI
                     if (nextDistance < Owner.Loyalty.GetProjectorRadius() * 5f) // within cut range
                     {
                         float nextDiff = Owner.AngleDifferenceToPosition(next.Position);
-                        float nextMaxTurn = EstimateMaxTurn(nextDistance);
+                        float nextMaxTurn = EstimateMaxWarpTurn(nextDistance);
 
                         // Angle to next WayPoint is better than angle to this one
-                        if (angleDiff > nextDiff || nextDiff < nextMaxTurn)
+                        if (nextDiff < angleDiff && nextDiff < nextMaxTurn)
                         {
+                            //Log.Write(ConsoleColor.Green, $"Shortcut!  nextDiff: {nextDiff.DegreeString()}  <  nextMaxTurn: {nextMaxTurn.DegreeString()}");
                             DequeueWayPointAndOrder(); // shortcut!
                             return true;
                         }
                     }
                 }
+
                 // we definitely can't correct this!
-                float tooSharp = Math.Max(1f, maxTurn*1.25f);
-                if (angleDiff > tooSharp || angleDiff > (float)Math.PI)
+                float tooSharp = Math.Min(RadMath.Deg90AsRads, maxTurn * 1.25f);
+                if (angleDiff > tooSharp)
                 {
+                    //Log.Write(ConsoleColor.Red, $"TooSharp! {angleDiff.DegreeString()}  distance: {distance.String(0)}");
                     Owner.HyperspaceReturn(); // Too sharp of a turn. Drop out of warp
                     return false;
                 }

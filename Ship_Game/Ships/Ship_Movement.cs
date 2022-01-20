@@ -174,7 +174,7 @@ namespace Ship_Game.Ships
             if (engineState == MoveState.Warp)
             {
                 maxVelocity = Math.Max(maxVelocity, LightSpeedConstant);
-                ThrustThisFrame = Ships.Thrust.Forward; // in Warp, we can only thrust forward
+                ThrustThisFrame = Thrust.Forward; // in Warp, we can only thrust forward
             }
 
             // combine all different acceleration sources

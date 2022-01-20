@@ -340,6 +340,19 @@ namespace Ship_Game
             return new Vector2((float)(dx / len), (float)(dy / len));
         }
 
+        // Equivalent to:
+        // Vector2 direction = origin.DirectionToTarget(target);
+        // float distance = origin.Distance(target);
+        [Pure] public static (Vector2, float) GetDirectionAndLength(this Vector2 origin, Vector2 target)
+        {
+            double dx = target.X - origin.X;
+            double dy = target.Y - origin.Y;
+            double len = Sqrt(dx*dx + dy*dy);
+            if (len.AlmostZero())
+                return (Vector2.Zero, (float)len);
+            return (new Vector2((float)(dx / len), (float)(dy / len)), (float)len);
+        }
+
         public static Vector2 PredictImpact(this Ship ourShip, GameplayObject target)
         {
             return new ImpactPredictor(ourShip, target)
