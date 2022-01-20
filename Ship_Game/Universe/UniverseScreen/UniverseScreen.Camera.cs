@@ -386,11 +386,6 @@ namespace Ship_Game
             if (!IsCinematicModeEnabled)
             {
                 CinematicModeTextTimer = 3;
-                GameCursors.SetCurrentCursor(GameCursors.Cinematic);
-            }
-            else
-            {
-                GameCursors.SetCurrentCursor(GameCursors.Regular);
             }
             IsCinematicModeEnabled = !IsCinematicModeEnabled;
         }

@@ -10,6 +10,8 @@ namespace Ship_Game.GameScreens
     {
         // The Standard game Cursor
         public static Cursor Regular;
+        // Standard Cursor for WayPoints
+        public static Cursor RegularNav;
 
         // Miniature cursor for Cinematic Universe View
         public static Cursor Cinematic;
@@ -19,8 +21,9 @@ namespace Ship_Game.GameScreens
 
         public static void Initialize(GameBase game)
         {
-            Regular = LoadCursor("Cursors/Cursor.png") ?? Cursors.Default;
-            Cinematic = LoadCursor("Cursors/CinematicCursor.png") ?? Cursors.Default;
+            Regular    = LoadCursor("Cursors/Cursor.png", 0.5f, 0.5f);
+            RegularNav = LoadCursor("Cursors/CursorNav.png", 0f, 0f);
+            Cinematic  = LoadCursor("Cursors/CinematicCursor.png", 0.5f, 0.5f);
 
             TargetForm = game.Form;
             TargetForm.Cursor = Regular;
@@ -37,15 +40,17 @@ namespace Ship_Game.GameScreens
             }
         }
 
-        static Cursor LoadCursor(string fileName)
+        static Cursor LoadCursor(string fileName, float hotSpotX, float hotSpotY)
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile(fileName);
             if (file == null)
-                return null;
+                return Regular ?? Cursors.Default;
             // useIcm: to use color correction for this Bitmap
             var bitmap = new Bitmap(file.FullName, useIcm: true);
             //var cursor = new Cursor(bitmap.GetHicon());
-            var cursor = CreateCursorNoResize(bitmap, bitmap.Width/2, bitmap.Height/2);
+            int hotX = (int)(bitmap.Width * hotSpotX);
+            int hotY = (int)(bitmap.Height * hotSpotY);
+            var cursor = CreateCursorNoResize(bitmap, hotX, hotY);
             return cursor;
         }
 

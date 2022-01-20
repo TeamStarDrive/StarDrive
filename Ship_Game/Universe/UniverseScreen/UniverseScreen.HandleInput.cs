@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
+using Ship_Game.GameScreens;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace Ship_Game
@@ -259,6 +260,9 @@ namespace Ship_Game
             ResetLighting(forceReset: false);
 
             HandleEdgeDetection(input);
+
+            HandleGameCursorChange(input);
+
             if (HandleDragAORect(input))
                 return true;
 
@@ -384,6 +388,27 @@ namespace Ship_Game
                 }
             }
             return false;
+        }
+
+        void HandleGameCursorChange(InputState input)
+        {
+            if (IsCinematicModeEnabled)
+            {
+                GameCursors.SetCurrentCursor(GameCursors.Cinematic);
+                return;
+            }
+
+            if (SelectedFleet != null || SelectedShip != null || SelectedShipList.NotEmpty)
+            {
+                if (input.QueueAction)
+                {
+                    GameCursors.SetCurrentCursor(GameCursors.RegularNav);
+                    return;
+                }
+            }
+
+            // default to regular cursor
+            GameCursors.SetCurrentCursor(GameCursors.Regular);
         }
 
         static int InputFleetSelection(InputState input)
