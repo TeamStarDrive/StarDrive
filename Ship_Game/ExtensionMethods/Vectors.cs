@@ -370,6 +370,12 @@ namespace Ship_Game
             return (float)Acos(dot);
         }
 
+        // Gets the rotation direction needed (+1 or -1) to achieved `wantedForward` vector
+        public static float RotationDirection(in Vector2 wantedForward, in Vector2 currentForward)
+        {
+            return wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
+        }
+
         // how many radian difference from our current direction
         // versus when looking towards position
         // @return Radians between [0, +PI], always positive
@@ -389,7 +395,7 @@ namespace Ship_Game
             angleDiff = AngleDifference(wantedForward, currentForward);
             if (angleDiff > minDiff)
             {
-                rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
+                rotationDir = RotationDirection(wantedForward, currentForward);
                 return true;
             }
             rotationDir = 0f;
