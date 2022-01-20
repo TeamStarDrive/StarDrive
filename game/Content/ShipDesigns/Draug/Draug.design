@@ -14,7 +14,7 @@ IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=PlaSteelArmorSmall;FuelCellSmallArmored;Shield_1KW;LaserTurretHeavy;PowerSolar;Amplifier;Bridge;Fusion Reactor;NuclearReactorSmall;Maneuvering_Thruster_1x1;FrigateEngine;WarpEngine_2x2
-Modules=46
+Modules=54
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 1,0;0
 4,0;0
@@ -31,12 +31,14 @@ Modules=46
 11,1;1
 13,1;0
 14,1;0
+1,2;0
 2,2;3;3,3;345
 5,2;0
 6,2;4
 9,2;4
 10,2;0
 11,2;3;3,3;15
+14,2;0
 0,3;0
 1,3;4
 5,3;5
@@ -50,15 +52,21 @@ Modules=46
 5,4;7;2,2
 9,4;7;2,2
 14,4;4
+2,5;0
 3,5;4
 4,5;8
 7,5;8
 8,5;8
 11,5;8
 12,5;4
+13,5;0
+3,6;0
 4,6;0
 5,6;9
 6,6;10;2,2
 8,6;11;2,2
 10,6;9
 11,6;0
+12,6;0
+5,7;0
+10,7;0
