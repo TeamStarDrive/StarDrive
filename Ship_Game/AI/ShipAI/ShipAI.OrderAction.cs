@@ -29,6 +29,10 @@ namespace Ship_Game.AI
 
         // Forces the Fleet or ShipGroup to Reassemble individual ship offsets
         ForceReassembly = (1 << 6),
+
+        // This is a Fleet or ShipGroup MoveTo order,
+        // which implies special handling
+        FleetMoveOrder = (1 << 7),
     }
 
     public sealed partial class ShipAI
@@ -232,9 +236,10 @@ namespace Ship_Game.AI
 
             // clean up the move order so we only pass forward essentialy information
             MoveOrder o = default;
-            if (order.HasFlag(MoveOrder.Aggressive)) o = MoveOrder.Aggressive;
-            else if (order.HasFlag(MoveOrder.Regular)) o = MoveOrder.Regular;
-            else if (order.HasFlag(MoveOrder.StandGround)) o = MoveOrder.StandGround;
+            if (order.HasFlag(MoveOrder.FleetMoveOrder))   o |= MoveOrder.FleetMoveOrder;
+            if (order.HasFlag(MoveOrder.Aggressive))       o |= MoveOrder.Aggressive;
+            else if (order.HasFlag(MoveOrder.Regular))     o |= MoveOrder.Regular;
+            else if (order.HasFlag(MoveOrder.StandGround)) o |= MoveOrder.StandGround;
 
             // FB - if offensive move is true, ships will break and attack targets on the way to the destination
             bool offensiveMove = order.HasFlag(MoveOrder.Aggressive);

@@ -341,7 +341,6 @@ namespace Ship_Game.Debug
                 float facing = ship.Rotation + m.TurretAngleRads;
                 float range = w.GetActualRange();
 
-                // TODO: This doesn't account for Ship's rotation...
                 Vector2 moduleCenter = m.Position + m.WorldSize*0.5f;
                 ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch, Screen, w, m, moduleCenter, 
                                                 range * 0.25f, ship.Rotation, m.TurretAngle);
@@ -477,7 +476,8 @@ namespace Ship_Game.Debug
                           +$"{ship.WarpState}  {ship.ThrustThisFrame}  {ship.DebugThrustStatus}");
 
                 VisualizeShipOrderQueue(ship);
-                DrawWeaponArcs(ship);
+                if (Screen.IsSystemViewOrCloser)
+                    DrawWeaponArcs(ship);
                 DrawSensorInfo(ship);
 
                 DrawString($"On Defense: {ship.Loyalty.GetEmpireAI().DefensiveCoordinator.Contains(ship)}");

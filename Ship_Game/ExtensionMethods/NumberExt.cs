@@ -89,6 +89,13 @@ namespace Ship_Game
             return ((int)percentage) + "%";
         }
 
+        /// Converts Radians to Degrees and appends degrees symbol
+        /// Example: DegreeString(3.14...) => "180°"
+        public static string DegreeString(this float radians, int numDecimals = 1)
+        {
+            return radians.ToDegrees().String(numDecimals) + "°";
+        }
+
         /// <summary>
         /// Always 2 decimal places
         /// Example: 100.5 => "100.50"

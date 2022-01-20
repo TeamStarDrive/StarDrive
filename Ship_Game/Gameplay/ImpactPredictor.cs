@@ -117,6 +117,7 @@ namespace Ship_Game.Gameplay
         {
             if (speed.AlmostZero())
                 return 0f;
+            // t = dS / v
             return pos.Distance(target) / speed;
         }
 
