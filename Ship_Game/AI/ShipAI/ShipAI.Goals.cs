@@ -523,6 +523,7 @@ namespace Ship_Game.AI
             RotateToDesiredFacing,
             MoveToWithin1000,
             MakeFinalApproach,
+            FleetReformAtWayPoint,
             RotateInlineWithVelocity,
             Orbit,
             Colonize,

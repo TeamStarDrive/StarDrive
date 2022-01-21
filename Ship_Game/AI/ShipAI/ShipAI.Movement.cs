@@ -196,8 +196,8 @@ namespace Ship_Game.AI
             }
 
             Vector2 targetPos = goal.MovePosition;
-            if (goal.Fleet != null && targetPos.AlmostZero()) 
-                targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
+            if (goal.Fleet != null && targetPos == Vector2.Zero) 
+                targetPos = goal.Fleet.GetFinalPos(Owner);
 
             if (Owner.EnginesKnockedOut)
                 return;
@@ -262,6 +262,16 @@ namespace Ship_Game.AI
             }
         }
 
+        void FleetReformAtWayPoint(FixedSimTime timeStep, ShipGoal goal)
+        {
+            // force fleet to reassemble
+            // which means warp will be disabled until all ships in the fleet are ready to continue
+            Owner.Fleet.IsAssembling = true;
+
+            DequeueCurrentOrder(goal.MoveOrder);
+        }
+
+        // face towards velocity direction
         void RotateInLineWithVelocity(FixedSimTime timeStep)
         {
             if (Owner.Velocity.AlmostZero())

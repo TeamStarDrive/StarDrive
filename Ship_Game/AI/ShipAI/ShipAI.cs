@@ -490,6 +490,7 @@ namespace Ship_Game.AI
                 case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(timeStep, goal);    break;
                 case Plan.MoveToWithin1000:         MoveToWithin1000(timeStep, goal);         break;
                 case Plan.MakeFinalApproach:        MakeFinalApproach(timeStep, goal);        break;
+                case Plan.FleetReformAtWayPoint:    FleetReformAtWayPoint(timeStep, goal);    break;
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(timeStep);       break;
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, timeStep); break;
                 case Plan.Colonize:                 Colonize(goal);                           break;
