@@ -305,7 +305,7 @@ namespace Ship_Game
                 case AIState.ReturnToHangar:   return Localizer.Token(GameText.ReturningToHangar);
                 case AIState.Ferrying:         return Localizer.Token(GameText.FerryingOrdnance);
                 case AIState.Refit:            return ship.IsPlatformOrStation ? Localizer.Token(GameText.WaitingForRefitShip) : Localizer.Token(GameText.MovingToShipyardForRefit);
-                case AIState.FormationWarp:    return "Moving in Formation";
+                case AIState.FormationMoveTo:    return "Moving in Formation";
                 case AIState.Scuttle:          return "Self Destruct: " + ship.ScuttleTimer.ToString("#");
                 case AIState.ReturnHome:       return "Defense Ship Returning Home";
                 case AIState.SupplyReturnHome: return "Supply Ship Returning Home";

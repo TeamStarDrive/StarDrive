@@ -29,7 +29,7 @@ namespace Ship_Game.AI
         Ferrying,
         Refit,
         Intercept,
-        FormationWarp,
+        FormationMoveTo,
         AssaultPlanet,
         Exterminate,
         Scuttle,

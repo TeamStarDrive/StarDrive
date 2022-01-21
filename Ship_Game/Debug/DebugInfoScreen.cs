@@ -417,32 +417,20 @@ namespace Ship_Game.Debug
                 foreach (Ship ship in fleet.Ships)
                     VisualizeShipGoal(ship, false);
 
+                DrawString($"Fleet: {fleet.Name}  IsCoreFleet:{fleet.IsCoreFleet}");
+                DrawString($"Ships:{fleet.Ships.Count} STR:{fleet.GetStrength()} SPD:{fleet.SpeedLimit}");
+                DrawString($"Distance: {fleet.AveragePosition().Distance(fleet.FinalPosition)}");
+                DrawString($"FormationMove:{fleet.InFormationMove}  ReadyForWarp:{fleet.ReadyForWarp}");
+
                 if (fleet.FleetTask != null)
                 {
                     DrawString(fleet.FleetTask.Type.ToString());
-
                     if (fleet.FleetTask.TargetPlanet != null)
                         DrawString(fleet.FleetTask.TargetPlanet.Name);
-
-                    DrawString("Step: "+fleet.TaskStep);
-                    DrawString("Fleet Speed: " + fleet.SpeedLimit);
-                    DrawString("Ready For Warp: " + fleet.ReadyForWarp);
-                    DrawString("In Formation Warp: " + fleet.InFormationWarp);
-                    DrawString("Ships: " + fleet.Ships.Count);
-                    DrawString("Strength: " + fleet.GetStrength());
+                    DrawString($"Step: {fleet.TaskStep}");
                 }
                 else
                 {
-                    // @todo DrawLines similar to UniverseScreen.DrawLines. This code should be refactored
-                    DrawString("Core fleet :" + fleet.IsCoreFleet);
-                    DrawString(fleet.Name);
-                    DrawString("Ships: " + fleet.Ships.Count);
-                    DrawString("Strength: " + fleet.GetStrength());
-                    DrawString("SpeedLimit: " + fleet.SpeedLimit);
-                    DrawString("Distance: " + fleet.FinalPosition.Distance(fleet.AveragePosition()));
-
-                    DrawString("Ready For Warp: " + fleet.ReadyForWarp);
-                    DrawString("In Formation Warp: " + fleet.InFormationWarp);
                     DrawCircleImm(fleet.AveragePosition(), 30, Color.Magenta);
                     DrawCircleImm(fleet.AveragePosition(), 60, Color.DarkMagenta);
                 }
@@ -479,6 +467,8 @@ namespace Ship_Game.Debug
                           +$"FTLMax: {ship.MaxFTLSpeed.String(0)}  "
                           +$"{ship.WarpState}  {ship.ThrustThisFrame}  {ship.DebugThrustStatus}");
 
+                DrawString($"ENG:{ship.ShipEngines.EngineStatus} FTL:{ship.ShipEngines.ReadyForWarp} FLEET:{ship.ShipEngines.ReadyForFormationWarp}");
+
                 VisualizeShipOrderQueue(ship);
                 if (Screen.IsSystemViewOrCloser)
                     DrawWeaponArcs(ship);
@@ -487,8 +477,7 @@ namespace Ship_Game.Debug
                 DrawString($"On Defense: {ship.Loyalty.GetEmpireAI().DefensiveCoordinator.Contains(ship)}");
                 if (ship.Fleet != null)
                 {
-                    DrawString($"Fleet {ship.Fleet.Name}  {(int)ship.Fleet.FinalPosition.X}x{(int)ship.Fleet.FinalPosition.Y}");
-                    DrawString($"Fleet speed: {ship.Fleet.SpeedLimit}");
+                    DrawString($"Fleet: {ship.Fleet.Name}  {(int)ship.Fleet.FinalPosition.X}x{(int)ship.Fleet.FinalPosition.Y}  SPD:{ship.Fleet.SpeedLimit}");
                 }
 
                 DrawString(ship.Pool != null ? "In Force Pool" : "NOT In Force Pool");
@@ -499,21 +488,20 @@ namespace Ship_Game.Debug
                     DrawString($"Defending {systemToDefend?.Name ?? "Awaiting Order"}");
                 }
 
-                DrawString(ship.System == null ? "Deep Space" : $"{ship.System.Name} system");
+                DrawString(ship.System == null ? "Deep Space" : $"System: {ship.System.Name}");
                 string[] influence = ship.GetProjectorInfluenceEmpires().Select(e=>e.Name).ToArray();
-                DrawString("Influences: " + string.Join(",", influence));
-                DrawString("InfluenceType: " + (ship.IsInFriendlyProjectorRange ? "Friendly"
-                                             :  ship.IsInHostileProjectorRange  ? "Hostile" : "Neutral"));
+                DrawString("Influence: " + (ship.IsInFriendlyProjectorRange ? "Friendly"
+                                         :  ship.IsInHostileProjectorRange  ? "Hostile" : "Neutral")
+                                         + " | " + string.Join(",", influence));
 
                 string gravityWell = ship.Universe.GravityWells ? ship?.System?.IdentifyGravityWell(ship)?.Name : "disabled";
                 DrawString($"GravityWell: {gravityWell}   Inhibited:{ship.IsInhibitedByUnfriendlyGravityWell}");
 
-                DrawString(ship.InCombat ? Color.Green : Color.LightPink,
-                           ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");
-                DrawString(ship.AI.HasPriorityTarget ? "Priority Target" : "No Priority Target");
-                DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
+                var combatColor = ship.InCombat ? Color.Green : Color.LightPink;
+                var inCombat = ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "NotInCombat";
+                DrawString(combatColor, $"{inCombat} PriTarget:{ship.AI.HasPriorityTarget} PriOrder:{ship.AI.HasPriorityOrder}");
                 if (ship.AI.IgnoreCombat)
-                    DrawString(Color.Pink, "Ignoring Combat!" );
+                    DrawString(Color.Pink, "Ignoring Combat!");
                 if (ship.IsFreighter)
                 {
                     DrawString($"Trade Timer:{ship.TradeTimer}");
@@ -638,8 +626,7 @@ namespace Ship_Game.Debug
             {
                 ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
                 Vector2 pos = ship.AI.GoalTarget;
-                DrawString($"DistanceTo GoalTarget: {pos.Distance(ship.Position)}");
-                DrawString($"AIState: {ship.AI.State}  CombatState: {ship.AI.CombatState}");
+                DrawString($"AIState: {ship.AI.State}  CombatState: {ship.AI.CombatState}  FromTarget: {pos.Distance(ship.Position).String(0)}");
                 DrawString($"OrderQueue ({goals.Length}):");
                 for (int i = 0; i < goals.Length; ++i)
                 {

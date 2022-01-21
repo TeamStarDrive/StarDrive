@@ -490,7 +490,6 @@ namespace Ship_Game.AI
                 case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(timeStep, goal);    break;
                 case Plan.MoveToWithin1000:         MoveToWithin1000(timeStep, goal);         break;
                 case Plan.MakeFinalApproach:        MakeFinalApproach(timeStep, goal);        break;
-                case Plan.FleetReformAtWayPoint:    FleetReformAtWayPoint(timeStep, goal);    break;
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(timeStep);       break;
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, timeStep); break;
                 case Plan.Colonize:                 Colonize(goal);                           break;
@@ -580,7 +579,7 @@ namespace Ship_Game.AI
                 return false;
             // separated for clarity as this section can be very confusing.
             // we might need a toggle for the player action here.
-            if (State == AIState.FormationWarp && HasPriorityOrder || HadPO)
+            if (State == AIState.FormationMoveTo && HasPriorityOrder || HadPO)
                 return true;
             if (HasPriorityOrder || HadPO)
                 return false;

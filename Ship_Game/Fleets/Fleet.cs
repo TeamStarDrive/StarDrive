@@ -48,7 +48,7 @@ namespace Ship_Game.Fleets
         public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
         public bool ReadyForWarp { get; private set; }
 
-        public bool InFormationWarp { get; private set; }
+        public bool InFormationMove { get; private set; }
 
         public override string ToString()
             => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} guid={Guid} id={FleetTask?.WhichFleet ?? -1}";
@@ -378,7 +378,7 @@ namespace Ship_Game.Fleets
                 if (!s.OnHighAlert)
                 {
                     s.AI.OrderAllStop();
-                    s.AI.OrderThrustTowardsPosition(FinalPosition + s.FleetOffset, FinalDirection, false);
+                    s.AI.OrderThrustTowardsPosition(GetFinalPos(s), FinalDirection, false);
                 }
             }
         }
@@ -393,7 +393,7 @@ namespace Ship_Game.Fleets
                     continue;
 
                 s.AI.OrderAllStop();
-                s.AI.OrderThrustTowardsPosition(FinalPosition + s.FleetOffset, FinalDirection, false);
+                s.AI.OrderThrustTowardsPosition(GetFinalPos(s), FinalDirection, false);
             }
         }
 
@@ -1664,7 +1664,7 @@ namespace Ship_Game.Fleets
             foreach (Ship ship in Ships)
             {
                 if (ship.CanTakeFleetOrders && !ship.Position.OutsideRadius(pos, radius) &&
-                    ship.AI.State == AIState.FormationWarp)
+                    ship.AI.State == AIState.FormationMoveTo)
                 {
                     ship.AI.State = AIState.AwaitingOrders;
                     ship.AI.ClearPriorityOrderAndTarget();
@@ -2322,43 +2322,51 @@ namespace Ship_Game.Fleets
         {
             // this is the desired position inside the fleet formation
             Vector2 desiredFormationPos = GetFormationPos(ship);
-            Vector2 desiredFinalPos = GetFinalPos(ship);
 
-            float distToFinalPos = ship.Position.Distance(desiredFinalPos);
-            float distFromFormation = ship.Position.Distance(desiredFormationPos);
-            float distFromFormationToFinal = desiredFormationPos.Distance(desiredFinalPos);
+            ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
+            Vector2 nextWayPoint = goal?.MovePosition ?? FinalPosition;
+            //Vector2 formationDir = goal?.Direction ?? FinalDirection;
+            //float travel = formationDir.Dot(ship.Direction);
+
+            float distToWP = ship.Position.Distance(nextWayPoint);
+            float distToSquadPos = ship.Position.Distance(desiredFormationPos);
+            float distSquadPosToWP = desiredFormationPos.Distance(nextWayPoint);
             float shipSpeed = SpeedLimit;
 
             // Outside of fleet formation
-            if (distToFinalPos > distFromFormationToFinal + ship.CurrentVelocity + 75f)
+            if (distToWP > distSquadPosToWP + ship.CurrentVelocity + 75f)
             {
                 shipSpeed = ship.VelocityMaximum;
             }
             // FINAL APPROACH
-            else if (distToFinalPos < ship.FleetOffset.Length()
+            else if (distToWP < ship.FleetOffset.Length()
                 // NON FINAL: we are much further from the formation
-                || distFromFormation > distToFinalPos)
+                || distToSquadPos > distToWP)
             {
                 shipSpeed = SpeedLimit * 2;
             }
             // formation is behind us? We are going way too fast
-            else if (distFromFormationToFinal > distToFinalPos + 75f)
+            else if (distToWP < distSquadPosToWP)
             {
                 // SLOW DOWN MAN! but never slower than 50% of fleet speed
-                shipSpeed = Math.Max(SpeedLimit - distFromFormation, SpeedLimit * 0.5f);
+                shipSpeed = Math.Max(SpeedLimit - distToSquadPos, SpeedLimit * 0.5f);
             }
             // CLOSER TO FORMATION: we are too far from desired position
-            else if (distFromFormation > SpeedLimit)
+            else if (distToSquadPos > SpeedLimit)
             {
                 // hurry up! set a really high speed
                 // but at least fleet speed, not less in case we get really close
-                shipSpeed = Math.Max(distFromFormation - SpeedLimit, SpeedLimit);
+                shipSpeed = Math.Max(distToSquadPos - SpeedLimit, SpeedLimit);
             }
             // getting close to our formation pos
-            else if (distFromFormation < SpeedLimit * 0.5f)
+            else if (distToSquadPos < SpeedLimit * 0.5f)
             {
                 // we are in formation, CRUISING SPEED
-                shipSpeed = SpeedLimit;
+                if (distToSquadPos < 25f)
+                    shipSpeed = SpeedLimit;
+                // try to slowly reach final pos
+                else
+                    shipSpeed = SpeedLimit + distToSquadPos;
             }
             return shipSpeed;
         }
@@ -2404,7 +2412,7 @@ namespace Ship_Game.Fleets
 
         public void Update(FixedSimTime timeStep)
         {
-            InFormationWarp = false;
+            InFormationMove = false;
             HasRepair = false;
             if (Ships.Count == 0)
                 return;
@@ -2439,28 +2447,12 @@ namespace Ship_Game.Fleets
 
                 fleetTotals.AddTargetValue(ship);
 
-                Owner.Universum.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 7500, Color.Yellow);
-
-                // if combat in move position do not move in formation. 
-                if ( !IsAssembling && ship.AI.HasPriorityOrder && ship.engineState == Ship.MoveState.Sublight
-                                   && ship.AI.State == AIState.FormationWarp)
-                {
-                    if (CombatStatusOfShipInArea(ship, FinalPosition, 7500) != CombatStatus.ClearSpace)
-                    {
-                        ClearPriorityOrderIfSubLight(ship);
-                    }
-                }
-
-                if (!InFormationWarp)
-                    InFormationWarp = ship.AI.State == AIState.FormationWarp;
+                if (!InFormationMove)
+                    InFormationMove = ship.AI.State == AIState.FormationMoveTo;
 
                 UpdateOurFleetShip(ship);
 
                 readyForWarp = readyForWarp && ship.ShipEngines.ReadyForFormationWarp == WarpStatus.ReadyToWarp;
-
-                // once in warp clear assembling flag.
-                if (ship.engineState == Ship.MoveState.Warp)
-                    IsAssembling = false;
             }
 
             if (commandShip != null)
