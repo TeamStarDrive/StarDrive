@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -80,10 +81,31 @@ namespace Ship_Game
         }
 
         /// <returns>Ordinal integer value of the Enum value</returns>
-        public static int GetOrdinal<TEnum>(this TEnum value)
-            where TEnum : Enum
+        public static unsafe int GetOrdinal<TEnum>(this TEnum value) where TEnum : Enum
         {
-            return ((IConvertible)value).ToInt32(null);
+            int ordinal;
+            Unsafe.Copy(&ordinal, ref value);
+            return ordinal;
+        }
+
+        /// <summary>
+        /// Faster than `Enum.HasFlag(flag)` by roughly 10x in Release, because it skips type check and uses raw pointer copy.
+        ///
+        /// However raw bits `(flags & MyEnum.Flag1) != 0` is still roughly 3-4x faster than this
+        ///
+        /// Some relative performance metrics from 100000 iterations in `Release` build:
+        ///   raw bits:  0.110ms
+        ///   IsSet ext: 0.350ms
+        ///   HasFlag:   4.750ms
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe bool IsSet<TEnum>(this TEnum flags, TEnum flag) where TEnum : Enum
+        {
+            int flagsValue, flagValue;
+            Unsafe.Copy(&flagsValue, ref flags);
+            Unsafe.Copy(&flagValue, ref flag);
+            return (flagsValue & flagValue) != 0;
         }
 
         /// <summary>
