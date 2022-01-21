@@ -65,6 +65,11 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// Get currently elapsed value (in milliseconds)
+        /// </summary>
+        public float ElapsedMillis => Elapsed * 1000f;
+
         public override string ToString()
         {
             return $"{Elapsed*1000f,5:0.0}ms";
