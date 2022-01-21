@@ -283,7 +283,7 @@ namespace Ship_Game.AI
                     AddMoveOrder(Plan.MakeFinalApproach, wp, State, speedLimit, o, goal);
                     (Vector2 dirToNext, float dist) = wp.Position.GetDirectionAndLength(wayPoints[i + 1].Position);
                     Vector2 nextPos = wp.Position + dirToNext*Math.Min(1000f, dist*0.25f);
-                    AddMoveOrder(Plan.FleetReformAtWayPoint, new WayPoint(nextPos, dirToNext), State, 0, o, goal);
+                    AddMoveOrder(Plan.RotateToFaceMovePosition, new WayPoint(nextPos, dirToNext), State, speedLimit, o, goal);
                 }
                 else
                 {
@@ -293,8 +293,6 @@ namespace Ship_Game.AI
 
             wp = wayPoints[wayPoints.Length - 1];
             AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, o|MoveOrder.DequeueWayPoint);
-            if (assembleBetweenWayPoints)
-                AddMoveOrder(Plan.FleetReformAtWayPoint, wp, State, 0, o, goal);
 
             // FB - Do not make final approach and stop, since the ship has more orders which don't
             // require stopping or rotating. Otherwise go to the set pos and not to the dynamic target planet center.

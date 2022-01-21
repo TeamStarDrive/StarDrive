@@ -93,22 +93,45 @@ namespace Ship_Game.Ships
 
         WarpStatus GetFormationWarpReadyStatus()
         {
-            if (Owner.Fleet == null || Owner.AI.State != AIState.FormationWarp) 
+            if (Owner.Fleet == null || Owner.AI.State != AIState.FormationMoveTo) 
                 return ReadyForWarp;
 
             if (!Owner.CanTakeFleetMoveOrders())
                 return ReadyForWarp;
 
-            if (Owner.engineState == Ship.MoveState.Warp && ReadyForWarp < WarpStatus.ReadyToWarp)
+            if (Owner.engineState == Ship.MoveState.Warp)
                 return ReadyForWarp;
 
-            // FinalPosition: this is the FINAL arrival destination,
-            //                so with several WayPoints, this will 
-            if (Owner.AI.State != AIState.AwaitingOrders && 
-                !Owner.Fleet.IsShipAtFinalPosition(Owner, AtFinalFleetPos))
+            // we are already at the final position, allow everyone else to FormationWarp
+            Vector2 finalPos = Owner.Fleet.GetFinalPos(Owner);
+            if (Owner.Position.InRadius(finalPos, AtFinalFleetPos))
+                return WarpStatus.ReadyToWarp;
+
+            // WARNING: THIS PART GETS COMPLICATED AND VERY EASY TO BREAK FORMATION WARP
+            //          Must be in-sync with ShipAI.AddWayPoint()
+
+            //////////////////////////////////////
+            //////  FORMATION  WARP  LOGIC  //////
+            //////////////////////////////////////
+
+            ShipAI.ShipGoal goal = Owner.AI.OrderQueue.PeekFirst;
+
+            // we are still rotating towards the next move position
+            if (goal.Plan == ShipAI.Plan.RotateToFaceMovePosition)
+                return WarpStatus.WaitingOrRecalling; // tell everyone to plz wait
+
+            // not quite ready yet, we are moving towards last WayPoint position
+            // sometimes ships can get stuck with this
+            // TODO: Implement new ShipGoal system where every goal gets a timer
+            //       this way we can ensure FinalApproach times out. Currently I won't touch this.
+            if (goal.Plan == ShipAI.Plan.MakeFinalApproach)
+                return WarpStatus.WaitingOrRecalling; // tell everyone to plz wait
+
+            // The only other possible state should be MoveToWithin1000
+            // Here we must make sure we are facing towards the final target
+            if (goal.Plan == ShipAI.Plan.MoveToWithin1000)
             {
-                // IMPORTANT: ONLY CHECK AGAINST AI.ThrustTarget, OTHERWISE THE SHIP
-                //            WILL BE FOREVER STUCK, UNABLE TO WARP!
+                // IMPORTANT: ONLY CHECK AGAINST AI.ThrustTarget, OTHERWISE THE SHIP WILL BE FOREVER STUCK, UNABLE TO WARP!
                 Vector2 targetPos = AI.ThrustTarget;
                 if (targetPos == Vector2.Zero)
                     targetPos = AI.GoalTarget;
@@ -121,6 +144,8 @@ namespace Ship_Game.Ships
                 if (facingFleetDirection > RadMath.Deg10AsRads)
                     return WarpStatus.WaitingOrRecalling;
             }
+
+            // should be ready for warp
             return ReadyForWarp;
         }
     }
