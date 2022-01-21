@@ -641,7 +641,7 @@ namespace Ship_Game.AI.Tasks
             return taskCat;
         }
 
-        public bool IsWarTask => GetTaskCategory().HasFlag(TaskCategory.War);
+        public bool IsWarTask => GetTaskCategory().IsSet(TaskCategory.War);
 
         public void RestoreFromSaveNoUniverse(Empire e, UniverseData data)
         {

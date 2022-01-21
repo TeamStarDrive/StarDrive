@@ -61,7 +61,7 @@ namespace Ship_Game.AI
         {
             AddMoveOrder(Plan.HoldPosition, new WayPoint(position, direction), AIState.HoldPosition, 0f, order);
             IgnoreCombat = false;
-            if (order.HasFlag(MoveOrder.StandGround))
+            if (order.IsSet(MoveOrder.StandGround))
             {
                 SetPriorityOrder(true);
                 CombatState = CombatState.HoldPosition;
@@ -230,7 +230,7 @@ namespace Ship_Game.AI
                 Log.Error($"AddWayPoint finalDir {finalDir} must be a direction unit vector!");
 
             Target = null;
-            bool queueNewWayPoint = order.HasFlag(MoveOrder.AddWayPoint);
+            bool queueNewWayPoint = order.IsSet(MoveOrder.AddWayPoint);
             if (!queueNewWayPoint)
             {
                 ClearWayPoints();
@@ -238,12 +238,12 @@ namespace Ship_Game.AI
 
             // clean up the move order so we only pass forward essentialy information
             MoveOrder o = default;
-            if (order.HasFlag(MoveOrder.Aggressive))       o |= MoveOrder.Aggressive;
-            else if (order.HasFlag(MoveOrder.Regular))     o |= MoveOrder.Regular;
-            else if (order.HasFlag(MoveOrder.StandGround)) o |= MoveOrder.StandGround;
+            if (order.IsSet(MoveOrder.Aggressive))       o |= MoveOrder.Aggressive;
+            else if (order.IsSet(MoveOrder.Regular))     o |= MoveOrder.Regular;
+            else if (order.IsSet(MoveOrder.StandGround)) o |= MoveOrder.StandGround;
 
             // FB - if offensive move is true, ships will break and attack targets on the way to the destination
-            bool offensiveMove = order.HasFlag(MoveOrder.Aggressive);
+            bool offensiveMove = order.IsSet(MoveOrder.Aggressive);
             ClearOrders(wantedState, priority: !offensiveMove);
 
             WayPoints.Enqueue(new WayPoint(position, finalDir));
@@ -270,7 +270,7 @@ namespace Ship_Game.AI
 
             // this allows fleets to keep their cohesion between waypoints
             // it makes fleet warps slower, but keeps the fleet together which is more important
-            bool assembleBetweenWayPoints = order.HasFlag(MoveOrder.ReformAtWayPoint);
+            bool assembleBetweenWayPoints = order.IsSet(MoveOrder.ReformAtWayPoint);
 
             // Set all WayPoints except the last one
             WayPoint wp;
@@ -295,7 +295,7 @@ namespace Ship_Game.AI
 
             // FB - Do not make final approach and stop, since the ship has more orders which don't
             // require stopping or rotating. Otherwise go to the set pos and not to the dynamic target planet center.
-            if (!order.HasFlag(MoveOrder.NoStop))
+            if (!order.IsSet(MoveOrder.NoStop))
             {
                 AddMoveOrder(Plan.MakeFinalApproach, wp, State, speedLimit, o, goal);
                 AddMoveOrder(Plan.RotateToDesiredFacing, wp, State, 0, o, goal);
@@ -639,7 +639,7 @@ namespace Ship_Game.AI
             // FB - this will give priority order for the movement. if offensiveMove is false,
             // it means the player ordered this specifically wanting combat ships to engage targets
             // of opportunity, even dropping our of warp to engage them.
-            if (!order.HasFlag(MoveOrder.Aggressive) || Owner.ShipData.ShipCategory == ShipCategory.Civilian)
+            if (!order.IsSet(MoveOrder.Aggressive) || Owner.ShipData.ShipCategory == ShipCategory.Civilian)
             {
                 // only order to move if we are too far, no need to waste time here.
                 float threshold = toOrbit.ObjectRadius + 1000 * toOrbit.Scale;
