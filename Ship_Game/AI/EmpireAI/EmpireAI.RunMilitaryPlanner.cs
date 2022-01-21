@@ -76,11 +76,6 @@ namespace Ship_Game.AI
             TasksToAdd.Add(task);
         }
 
-        public void AddPendingTasks(Array<MilitaryTask> tasks)
-        {
-            TasksToAdd.AddRange(tasks);
-        }
-
         public void EndAllTasks()
         {
             foreach (MilitaryTask task in TaskList.ToArray())
@@ -115,37 +110,9 @@ namespace Ship_Game.AI
             return TaskList.ToArray();
         }
 
-        public MilitaryTask[] GetMilitaryTasksTargeting(Empire empire)
-        {
-            return TaskList.Filter(task => task.TargetPlanet?.Owner == empire);
-        }
-
         public MilitaryTask[] GetWarTasks()
         {
             return TaskList.Filter(task => task.IsWarTask);
-        }
-
-        public MilitaryTask[] GetWarTasks(Empire targetEmpire)
-        {
-            return TaskList.Filter(task =>
-            {
-                if (task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.War))
-                {
-                    if (task.TargetPlanet?.Owner == targetEmpire)
-                        return true;
-                }
-                return false;
-            });
-        }
-
-        public MilitaryTask[] GetTasksNeedingAFleet()
-        {
-            return TaskList.Filter(task => task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.FleetNeeded));
-        }
-
-        public float GetStrengthNeededByTasks(Predicate<MilitaryTask> filter)
-        {
-            return TaskList.Sum(task => filter(task) ? task.MinimumTaskForceStrength : 0);
         }
 
         public float GetAvgStrengthNeededByExpansionTasks(Empire targetEmpire)
@@ -162,12 +129,6 @@ namespace Ship_Game.AI
         {
             return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendClaim
                                         && task.TargetPlanet != null);
-        }
-
-        public MilitaryTask[] GetClaimTasks(SolarSystem targetSystem)
-        {
-            return TaskList.Filter(task => task.Type == MilitaryTask.TaskType.DefendClaim
-                                        && task.TargetPlanet?.ParentSystem == targetSystem);
         }
 
         public MilitaryTask[] GetDefendVsRemnantTasks()
@@ -217,7 +178,7 @@ namespace Ship_Game.AI
 
         public int GetNumClaimTasks()
         {
-            return TaskList.Filter(t => t.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.Expansion)).Length;
+            return TaskList.Filter(t => t.GetTaskCategory().IsSet(MilitaryTask.TaskCategory.Expansion)).Length;
         }
 
         public bool HasAssaultPirateBaseTask(Ship targetBase, out MilitaryTask militaryTask)
@@ -254,27 +215,6 @@ namespace Ship_Game.AI
             }
 
             return militaryTask != null;
-        }
-
-        public bool HasTaskOfType(MilitaryTask.TaskType type)
-        {
-            for (int i = TaskList.Count - 1; i >= 0; --i)
-                if (TaskList[i].Type == type)
-                    return true;
-            return false;
-        }
-
-        public MilitaryTask GetTaskByGuid(Guid guid) => TaskList.Find(t => t.TaskGuid == guid);
-
-        public bool EndTaskByGuid(Guid guid)
-        {
-            var task = GetTaskByGuid(guid);
-            if (task == null) return false;
-            if (!TasksToRemove.Contains(task))
-            {
-                task.EndTask();
-            }
-            return true;
         }
 
         public void WriteToSave(SavedGame.GSAISAVE aiSave)

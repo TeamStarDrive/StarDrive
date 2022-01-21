@@ -396,16 +396,16 @@ namespace Ship_Game
             if (SelectedFleet != null || SelectedShip != null || SelectedShipList.NotEmpty)
             {
                 MoveOrder mo = ShipCommands.GetMoveOrderType();
-                if (mo.HasFlag(MoveOrder.AddWayPoint))
+                if (mo.IsSet(MoveOrder.AddWayPoint))
                 {
-                    if (mo.HasFlag(MoveOrder.Aggressive)) return GameCursors.AggressiveNav;
-                    if (mo.HasFlag(MoveOrder.StandGround)) return GameCursors.StandGroundNav;
+                    if (mo.IsSet(MoveOrder.Aggressive)) return GameCursors.AggressiveNav;
+                    if (mo.IsSet(MoveOrder.StandGround)) return GameCursors.StandGroundNav;
                     return GameCursors.RegularNav;
                 }
                 else
                 {
-                    if (mo.HasFlag(MoveOrder.Aggressive)) return GameCursors.Aggressive;
-                    if (mo.HasFlag(MoveOrder.StandGround)) return GameCursors.StandGround;
+                    if (mo.IsSet(MoveOrder.Aggressive)) return GameCursors.Aggressive;
+                    if (mo.IsSet(MoveOrder.StandGround)) return GameCursors.StandGround;
                     return GameCursors.Regular;
                 }
             }

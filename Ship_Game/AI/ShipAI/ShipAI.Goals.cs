@@ -11,7 +11,7 @@ namespace Ship_Game.AI
     {
         void DequeueCurrentOrder(MoveOrder order)
         {
-            if (order.HasFlag(MoveOrder.DequeueWayPoint) && WayPoints.Count > 0)
+            if (order.IsSet(MoveOrder.DequeueWayPoint) && WayPoints.Count > 0)
                 WayPoints.Dequeue();
             DequeueCurrentOrder();
         }
@@ -33,7 +33,7 @@ namespace Ship_Game.AI
                 goal.Dispose();
                 ShipGoal nextGoal = OrderQueue.PeekFirst;
                 ChangeAIState(nextGoal?.WantedState ?? DefaultAIState);
-                if (goal.MoveOrder.HasFlag(MoveOrder.DequeueWayPoint) && WayPoints.Count > 0)
+                if (goal.MoveOrder.IsSet(MoveOrder.DequeueWayPoint) && WayPoints.Count > 0)
                 {
                     WayPoints.Dequeue();
                     break;

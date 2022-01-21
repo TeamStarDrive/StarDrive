@@ -105,10 +105,10 @@ namespace Ship_Game.AI.CombatTactics
             {
                 // figure out if the target ship is drifting towards our facing or if it's drifting away
                 ChaseState chase = ChaseStates;
-                if (chase.HasFlag(ChaseState.WeAreChasing)) // they are trying to escape us
+                if (chase.IsSet(ChaseState.WeAreChasing)) // they are trying to escape us
                 {
                     // we can't catch these bastards, so we need some jump drive assistance
-                    if (chase.HasFlag(ChaseState.CantCatch))
+                    if (chase.IsSet(ChaseState.CantCatch))
                     {
                         debugStatus = "";
                         return 0f;
@@ -139,7 +139,7 @@ namespace Ship_Game.AI.CombatTactics
             if (distanceToAttack <= spacerDistance)
                 return true;
 
-            if (ChaseStates.HasFlag(ChaseState.WeAreChasing))
+            if (ChaseStates.IsSet(ChaseState.WeAreChasing))
                 return false;
 
             float distanceToDesiredCombatRangeRatio = distanceToAttack / Owner.DesiredCombatRange;
