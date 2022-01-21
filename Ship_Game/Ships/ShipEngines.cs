@@ -70,36 +70,6 @@ namespace Ship_Game.Ships
             return EngineStatus.Active;
         }
 
-        WarpStatus GetFormationWarpReadyStatus()
-        {
-            if (Owner.Fleet == null || Owner.AI.State != AIState.FormationWarp) 
-                return ReadyForWarp;
-
-            if (!Owner.CanTakeFleetMoveOrders())
-                return ReadyForWarp;
-
-            if (Owner.engineState == Ship.MoveState.Warp && ReadyForWarp < WarpStatus.ReadyToWarp)
-                return ReadyForWarp;
-
-            if (Owner.AI.State != AIState.AwaitingOrders && !Owner.Fleet.IsShipAtFinalPosition(Owner, 7500f))
-            {
-                // IMPORTANT: ONLY CHECK AGAINST AI.ThrustTarget, OTHERWISE THE SHIP
-                //            WILL BE FOREVER STUCK, UNABLE TO WARP!
-                Vector2 targetPos = AI.ThrustTarget;
-                if (targetPos == Vector2.Zero)
-                    targetPos = AI.GoalTarget;
-                if (targetPos == Vector2.Zero)
-                    targetPos = Owner.Fleet.GetFinalPos(Owner);
-
-                float facingFleetDirection = Owner.AngleDifferenceToPosition(targetPos);
-                // WARNING: BE EXTREMELY CAREFUL WITH THIS ANGLE HERE,
-                //          IF YOU MAKE IT TOO SMALL, FORMATION WARP WILL NOT WORK!
-                if (facingFleetDirection > RadMath.Deg10AsRads)
-                    return WarpStatus.WaitingOrRecalling;
-            }
-            return ReadyForWarp;
-        }
-
         WarpStatus GetWarpReadyStatus()
         {
             if (EngineStatus == EngineStatus.Disabled || !Owner.Active ||
@@ -116,6 +86,42 @@ namespace Ship_Game.Ships
                 return WarpStatus.UnableToWarp;
 
             return WarpStatus.ReadyToWarp;
+        }
+
+        // consider ship at final position if 
+        public const float AtFinalFleetPos = 1000f;
+
+        WarpStatus GetFormationWarpReadyStatus()
+        {
+            if (Owner.Fleet == null || Owner.AI.State != AIState.FormationWarp) 
+                return ReadyForWarp;
+
+            if (!Owner.CanTakeFleetMoveOrders())
+                return ReadyForWarp;
+
+            if (Owner.engineState == Ship.MoveState.Warp && ReadyForWarp < WarpStatus.ReadyToWarp)
+                return ReadyForWarp;
+
+            // FinalPosition: this is the FINAL arrival destination,
+            //                so with several WayPoints, this will 
+            if (Owner.AI.State != AIState.AwaitingOrders && 
+                !Owner.Fleet.IsShipAtFinalPosition(Owner, AtFinalFleetPos))
+            {
+                // IMPORTANT: ONLY CHECK AGAINST AI.ThrustTarget, OTHERWISE THE SHIP
+                //            WILL BE FOREVER STUCK, UNABLE TO WARP!
+                Vector2 targetPos = AI.ThrustTarget;
+                if (targetPos == Vector2.Zero)
+                    targetPos = AI.GoalTarget;
+                if (targetPos == Vector2.Zero)
+                    targetPos = Owner.Fleet.GetFinalPos(Owner);
+
+                float facingFleetDirection = Owner.AngleDifferenceToPosition(targetPos);
+                // WARNING: BE EXTREMELY CAREFUL WITH THIS ANGLE HERE,
+                //          IF YOU MAKE IT TOO SMALL, FORMATION WARP WILL NOT WORK!
+                if (facingFleetDirection > RadMath.Deg10AsRads)
+                    return WarpStatus.WaitingOrRecalling;
+            }
+            return ReadyForWarp;
         }
     }
 }

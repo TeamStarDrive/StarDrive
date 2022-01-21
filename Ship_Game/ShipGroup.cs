@@ -12,7 +12,7 @@ namespace Ship_Game
     {
         public readonly Array<Ship> Ships = new Array<Ship>();
         public Empire Owner;
-        protected bool IsAssembling = false;
+        public bool IsAssembling;
 
         public Ship CommandShip
         {
@@ -509,7 +509,6 @@ namespace Ship_Game
             InCombat = 0,
             EnemiesNear,
             ClearSpace,
-            NotApplicable
         }
 
         public CombatStatus FleetInAreaInCombat(Vector2 position, float radius)

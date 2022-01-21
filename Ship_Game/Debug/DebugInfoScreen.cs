@@ -411,6 +411,9 @@ namespace Ship_Game.Debug
             {
                 Fleet fleet = Screen.SelectedFleet;
                 DrawArrowImm(fleet.FinalPosition, fleet.FinalPosition+fleet.FinalDirection*200f, Color.OrangeRed);
+                DrawCircleImm(fleet.FinalPosition, fleet.GetRelativeSize().Length(), Color.Red);
+                DrawCircleImm(fleet.FinalPosition, ShipEngines.AtFinalFleetPos, Color.MediumVioletRed);
+
                 foreach (Ship ship in fleet.Ships)
                     VisualizeShipGoal(ship, false);
 
