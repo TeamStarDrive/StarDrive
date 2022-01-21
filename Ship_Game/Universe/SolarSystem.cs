@@ -97,7 +97,7 @@ namespace Ship_Game
                 WasVisibleLastFrame = true;
                 for (int i = 0; i < AsteroidsList.Count; i++)
                 {
-                    AsteroidsList[i].UpdateVisibleAsteroid(timeStep);
+                    AsteroidsList[i].UpdateVisibleAsteroid(Position, timeStep);
                 }
                 for (int i = 0; i < MoonList.Count; i++)
                 {
