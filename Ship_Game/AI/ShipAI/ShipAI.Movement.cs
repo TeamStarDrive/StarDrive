@@ -262,15 +262,6 @@ namespace Ship_Game.AI
             }
         }
 
-        void FleetReformAtWayPoint(FixedSimTime timeStep, ShipGoal goal)
-        {
-            // force fleet to reassemble
-            // which means warp will be disabled until all ships in the fleet are ready to continue
-            Owner.Fleet.IsAssembling = true;
-
-            DequeueCurrentOrder(goal.MoveOrder);
-        }
-
         // face towards velocity direction
         void RotateInLineWithVelocity(FixedSimTime timeStep)
         {
@@ -406,8 +397,28 @@ namespace Ship_Game.AI
             }
 
             // engage StarDrive if we're moderately far
-            bool notAFleet = Owner.Fleet == null || State != AIState.FormationWarp;
-            if (notAFleet) // not in a fleet or ship group
+            bool inFleet = Owner.Fleet != null && State == AIState.FormationMoveTo;
+            if (inFleet) // FLEET MOVE
+            {
+                float distFromFleet = Owner.Fleet.AveragePosition().Distance(Owner.Position);
+                if (distFromFleet > 15000f)
+                {
+                    // This ship is far away from the fleet
+                    // Enter warp and continue next frame in UpdateWarpThrust()
+                    Owner.EngageStarDrive();
+                }
+                else
+                {
+                    if (distance > 7500f) // Not near destination
+                        EngageFormationWarp();
+                    else
+                        DisEngageFormationWarp();
+
+                    speedLimit = GetFormationSpeed(speedLimit);
+                    Owner.SubLightAccelerate(speedLimit);
+                }
+            }
+            else // SINGLE SHIP MOVE
             {
                 // only engage warp if we are facing towards thrust position
                 if (predictionDiff < 0.05f && Owner.MaxFTLSpeed > 0)
@@ -422,31 +433,6 @@ namespace Ship_Game.AI
                     }
                 }
                 Owner.SubLightAccelerate(speedLimit);
-            }
-            else // In a fleet
-            {
-                Vector2 fleetPos = Owner.Fleet.AveragePosition();
-                float distFromFleetCenter = fleetPos.Distance(Owner.Position);
-                if (distFromFleetCenter > 15000f)
-                {
-                    // This ship is far away from the fleet
-                    // Enter warp and continue next frame in UpdateWarpThrust()
-                    Owner.EngageStarDrive();
-                }
-                else
-                {
-                    if (distance > 7500f) // Not near destination
-                    {
-                        EngageFormationWarp();
-                    }
-                    else
-                    {
-                        DisEngageFormationWarp();
-                    }
-
-                    speedLimit = GetFormationSpeed(speedLimit);
-                    Owner.SubLightAccelerate(speedLimit);
-                }
             }
         }
 
@@ -468,13 +454,17 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            // get the ship's velocity and intended heading vector relation (+1 same dir, -1 opposite dirs)
-            float travel = Owner.Velocity.Normalized().Dot(wantedForward);
-            if (travel < 0.2f) // the ship is drifting sideways
+            Owner.Velocity.GetDirectionAndLength(out Vector2 velDir, out float speed);
+            if (speed > 1f)
             {
-                //Log.Write(ConsoleColor.Red, $"Drifting!  travel: {travel.String(2)}  distance: {distance.String(0)}");
-                Owner.HyperspaceReturn();
-                return false;
+                // get the ship's velocity and intended heading vector relation (+1 same dir, -1 opposite dirs)
+                float travel = velDir.Dot(wantedForward);
+                if (travel < 0.2f) // the ship is drifting sideways
+                {
+                    //Log.Write(ConsoleColor.Red, $"Drifting!  travel: {travel.String(2)}  distance: {distance.String(0)}");
+                    Owner.HyperspaceReturn();
+                    return false;
+                }
             }
 
             // if we are off even by little, aggressively reduce speed
@@ -586,7 +576,7 @@ namespace Ship_Game.AI
             // special case for fleets: if ship is already at its final position
             // ignore all flocking rules and stay put - other ships that are not in place
             // will do their own thing
-            if (Owner.Fleet != null && Owner.Fleet.IsShipAtFinalPosition(Owner, 500))
+            if (Owner.Fleet != null && !Owner.InCombat && Owner.Fleet.IsShipInFormation(Owner, 500))
             {
                 return;
             }

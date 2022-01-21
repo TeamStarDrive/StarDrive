@@ -12,7 +12,6 @@ namespace Ship_Game
     {
         public readonly Array<Ship> Ships = new Array<Ship>();
         public Empire Owner;
-        public bool IsAssembling;
 
         public Ship CommandShip
         {
@@ -138,8 +137,6 @@ namespace Ship_Game
         /// <param name="forceAssembly">Whether to always recalculate FleetOffset</param>
         public void AssembleFleet(Vector2 finalPosition, Vector2 finalDirection, bool forceAssembly)
         {
-            IsAssembling = true;
-
             if (!finalDirection.IsUnitVector())
                 Log.Error($"AssembleFleet newDirection {finalDirection} must be a direction unit vector!");
 
@@ -410,7 +407,7 @@ namespace Ship_Game
                         order |= MoveOrder.Aggressive;
 
                     Vector2 finalShipPos = FinalPosition + ship.FleetOffset;
-                    ship.AI.OrderMoveTo(finalShipPos, finalDir, order);
+                    ship.AI.OrderMoveTo(finalShipPos, finalDir, AIState.FormationMoveTo, order);
                 }
             }
         }
