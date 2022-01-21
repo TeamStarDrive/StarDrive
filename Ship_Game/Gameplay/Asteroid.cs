@@ -32,7 +32,7 @@ namespace Ship_Game.Gameplay
             Position = pos;
         }
 
-        void CreateSceneObject()
+        void CreateSceneObject(Vector2 systemPos)
         {
             if (So != null)
                 return;
@@ -43,7 +43,7 @@ namespace Ship_Game.Gameplay
                 Visibility = GlobalStats.AsteroidVisibility
             };
             Radius = So.ObjectBoundingSphere.Radius * Scale * 0.65f;
-            So.AffineTransform(new Vector3(Position, -500f), RotationRadians, Scale);
+            So.AffineTransform(new Vector3(systemPos + Position, -500f), RotationRadians, Scale);
             ScreenManager.Instance.AddObject(So);
         }
 
@@ -58,16 +58,16 @@ namespace Ship_Game.Gameplay
 
         // NOTE: Asteroids are updated ONLY if they are visible!
         //       so we do NOT need additional visibility checks
-        public void UpdateVisibleAsteroid(FixedSimTime timeStep)
+        public void UpdateVisibleAsteroid(Vector2 systemPos, FixedSimTime timeStep)
         {
             if (So != null)
             {
                 RotationRadians += Spin * timeStep.FixedTime;
-                So.AffineTransform(new Vector3(Position, -500f), RotationRadians, Scale);
+                So.AffineTransform(new Vector3(systemPos + Position, -500f), RotationRadians, Scale);
             }
             else
             {
-                CreateSceneObject();
+                CreateSceneObject(systemPos);
             }
         }
     }
