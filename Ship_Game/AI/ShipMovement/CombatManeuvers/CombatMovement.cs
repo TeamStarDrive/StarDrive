@@ -65,7 +65,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         
         protected Ship OwnerTarget => AI.Target;
 
-        protected bool WeAreChasingAndCantCatchThem => ChaseStates.HasFlag(ChaseState.ChasingCantCatch) && !WeAreRetrograding;
+        protected bool WeAreChasingAndCantCatchThem => ChaseStates.IsSet(ChaseState.ChasingCantCatch) && !WeAreRetrograding;
 
         /// <summary>
         /// If dot product is negative, our velocity is opposite of our ship's facing, we are retrograding
@@ -250,10 +250,10 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
 
         protected ChaseState CanCatchState(ChaseState chaseState, float distance)
         {
-            if (chaseState.HasFlag(ChaseState.WeAreChasing))
+            if (chaseState.IsSet(ChaseState.WeAreChasing))
                 return WeCantCatchThem(distance) ? ChaseState.CantCatch : ChaseState.None;
             
-            if (ChaseStates.HasFlag(ChaseState.TheyAreChasing))
+            if (ChaseStates.IsSet(ChaseState.TheyAreChasing))
                 return WeCantCatchThem(distance) ? ChaseState.CantCatch : ChaseState.None;
 
             return ChaseState.None;

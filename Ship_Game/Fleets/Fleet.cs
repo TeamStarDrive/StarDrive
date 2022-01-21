@@ -672,9 +672,9 @@ namespace Ship_Game.Fleets
                 case 4:
                     var planetMoveStatus = FleetMoveStatus(targetPlanet.GravityWellRadius, FinalPosition);
 
-                    if (!planetMoveStatus.HasFlag(MoveStatus.MajorityAssembled))
+                    if (!planetMoveStatus.IsSet(MoveStatus.MajorityAssembled))
                     {
-                        if (planetMoveStatus.HasFlag(MoveStatus.AssembledInCombat))
+                        if (planetMoveStatus.IsSet(MoveStatus.AssembledInCombat))
                         {
                             ClearPriorityOrderForShipsInAO(Ships, FinalPosition, targetPlanet.GravityWellRadius);
                         }
@@ -879,12 +879,12 @@ namespace Ship_Game.Fleets
                     break;
                 case 4:
                     MoveStatus combatRally = FleetMoveStatus(0, FinalPosition);
-                    if (!combatRally.HasFlag(MoveStatus.MajorityAssembled))
+                    if (!combatRally.IsSet(MoveStatus.MajorityAssembled))
                     {
-                        if (combatRally.HasFlag(MoveStatus.AssembledInCombat))
+                        if (combatRally.IsSet(MoveStatus.AssembledInCombat))
                             ClearPriorityOrderForShipsInAO(Ships, FinalPosition, GetRelativeSize().Length() / 2);
 
-                        if (combatRally.HasFlag(MoveStatus.Dispersed))
+                        if (combatRally.IsSet(MoveStatus.Dispersed))
                         {
                             GatherAtAO(task, distanceFromAO: 30000);
                             TaskStep = 3;
@@ -898,9 +898,9 @@ namespace Ship_Game.Fleets
                 case 5:
                     Vector2 combatOffset  = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
                     MoveStatus inPosition = FleetMoveStatus(task.TargetPlanet.GravityWellRadius, combatOffset);
-                    if (!inPosition.HasFlag(MoveStatus.MajorityAssembled))
+                    if (!inPosition.IsSet(MoveStatus.MajorityAssembled))
                     {
-                        if (inPosition.HasFlag(MoveStatus.AssembledInCombat))
+                        if (inPosition.IsSet(MoveStatus.AssembledInCombat))
                             ClearPriorityOrderForShipsInAO(Ships, combatOffset, GetRelativeSize().Length());
                     }
 
@@ -1403,7 +1403,7 @@ namespace Ship_Game.Fleets
                     break;
                 case 1:
                     MoveStatus moveStatus = FleetMoveStatus(task.RallyPlanet.ParentSystem.Radius);
-                    if (moveStatus.HasFlag(MoveStatus.MajorityAssembled) && !task.RallyPlanet.ParentSystem.HostileForcesPresent(Owner))
+                    if (moveStatus.IsSet(MoveStatus.MajorityAssembled) && !task.RallyPlanet.ParentSystem.HostileForcesPresent(Owner))
                     {
                         if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
                             AddFleetProjectorGoal();
@@ -1715,19 +1715,19 @@ namespace Ship_Game.Fleets
 
             if (FinalPosition.InRadius(AveragePos, fleetRadius) )
             {
-                if (status.HasFlag(MoveStatus.MajorityAssembled))
+                if (status.IsSet(MoveStatus.MajorityAssembled))
                 {
                     return true;
                 }
             }
 
-            if (!status.HasFlag(MoveStatus.Assembled))
+            if (!status.IsSet(MoveStatus.Assembled))
                 return false;
 
-            if (EndInvalidTask(status.HasFlag(MoveStatus.AssembledInCombat)))
+            if (EndInvalidTask(status.IsSet(MoveStatus.AssembledInCombat)))
                 return false;
 
-            return !status.HasFlag(MoveStatus.Dispersed);
+            return !status.IsSet(MoveStatus.Dispersed);
         }
 
         void GatherAtAO(MilitaryTask task, float distanceFromAO)
@@ -1754,11 +1754,11 @@ namespace Ship_Game.Fleets
             radius = Math.Max(1000, radius);
             MoveStatus status = FleetMoveStatus(radius, position);
 
-            if (status.HasFlag(MoveStatus.AssembledInCombat))
+            if (status.IsSet(MoveStatus.AssembledInCombat))
             {
                 ClearPriorityOrderForShipsInAO(Ships, position, radius);
             }
-            if (status.HasFlag(MoveStatus.Assembled))
+            if (status.IsSet(MoveStatus.Assembled))
             {
                 float fleetRadius = GetRelativeSize().Length() / 2;
                 float size = 1;
@@ -1776,7 +1776,7 @@ namespace Ship_Game.Fleets
                     ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO), AIState.AwaitingOrders, MoveOrder.Aggressive);
                 }
             }
-            return status.HasFlag(MoveStatus.MajorityAssembled);
+            return status.IsSet(MoveStatus.MajorityAssembled);
         }
 
         Ship[] AvailableShips => AllButRearShips.Filter(ship => !ship.AI.HasPriorityOrder);

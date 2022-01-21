@@ -571,11 +571,11 @@ namespace Ship_Game.AI
                 return false;
 
             // always enter combat if we're in Aggressive Stance, even if ship is in warp
-            if (order.HasFlag(MoveOrder.Aggressive))
+            if (order.IsSet(MoveOrder.Aggressive))
                 return true; // waaaagh!
 
             // in regular move stance, respect CombatState settings
-            if (order.HasFlag(MoveOrder.Regular))
+            if (order.IsSet(MoveOrder.Regular))
             {
                 // regular move stance never exits warp
                 if (Owner.IsInWarp)
@@ -588,7 +588,7 @@ namespace Ship_Game.AI
             }
 
             // in StandGround, never enter combat
-            if (order.HasFlag(MoveOrder.StandGround)) // this is here for correctness sake, or if we decide to add to it
+            if (order.IsSet(MoveOrder.StandGround)) // this is here for correctness sake, or if we decide to add to it
                 return false; // no combat
 
             return false; // should not reach here

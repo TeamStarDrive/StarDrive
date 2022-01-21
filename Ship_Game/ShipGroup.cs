@@ -395,7 +395,7 @@ namespace Ship_Game
         public void MoveTo(Vector2 finalPos, Vector2 finalDir, MoveOrder order = MoveOrder.Regular/*DO NOT ADD ANY MORE PARAMETERS HERE FOR GOD SAKES, USE FLAGS*/)
         {
             if (this is Fleet) order |= MoveOrder.ReformAtWayPoint;
-            bool forceAssembly = order.HasFlag(MoveOrder.AddWayPoint) || order.HasFlag(MoveOrder.ForceReassembly);
+            bool forceAssembly = order.IsSet(MoveOrder.AddWayPoint) || order.IsSet(MoveOrder.ForceReassembly);
             AssembleFleet(finalPos, finalDir, forceAssembly: forceAssembly);
 
             foreach (Ship ship in Ships)
@@ -462,7 +462,7 @@ namespace Ship_Game
 
             for (int i = 0; i < Ships.Count; i++)
             {
-                if (moveStatus.HasFlag(MoveStatus.All)) break;
+                if (moveStatus.IsSet(MoveStatus.All)) break;
 
                 Ship ship = Ships[i];
                 if (ship.AI.State == AIState.Bombard || ship.AI.State == AIState.AssaultPlanet

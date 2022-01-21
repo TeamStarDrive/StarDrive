@@ -236,12 +236,12 @@ namespace Ship_Game
             sb.Append(log.Message);
             sb.Append('\n');
 
-            if (log.Target.HasFlag(LogTarget.LogFile))
+            if ((log.Target & LogTarget.LogFile) != 0)
             {
                 LogFile?.Write(sb.Characters, 0, sb.Length);
             }
 
-            if (log.Target.HasFlag(LogTarget.Console))
+            if ((log.Target & LogTarget.Console) != 0)
             {
                 SetConsoleColor(log.Color, force: false);
                 Console.Write(sb.Characters, 0, sb.Length);
