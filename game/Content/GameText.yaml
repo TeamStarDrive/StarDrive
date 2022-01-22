@@ -12807,7 +12807,7 @@ Aplifier:
  ENG: "Amplifier"
 Aplifierdescr:
  Id: 17496
- ENG: "This module increases the strength of closest energy shield emitter by considerable amount."
+ ENG: "Increases the strength of all primary shields by considerable amount while keeping the power consumption relatively low. The amplification is divided by the number of main shields installed on the ship."
 ADVAplifiertech:
  Id: 17497
  ENG: "Advanced Amplifier"
@@ -12816,7 +12816,7 @@ ADVAplifiertechDescr:
  ENG: "Considerable advancements in shielding technologies lead into developing bigger and more advanced Amplifier to save energy consumption of the bigger shield emitters."
 ADVAplifierDescr:
  Id: 17499
- ENG: "This advanced amplifying module increases the strength of closest energy shield emitter by considerable amount while keeping the power consumption relatively low."
+ ENG: "This advanced amplifying module increases the strength of all primary shields by considerable amount while keeping the power consumption relatively low. The amplification is divided by the number of main shields installed on the ship. "
 StarshipDefences:
  Id: 1100
  ENG: "Starship Defences"
