@@ -33,7 +33,7 @@
   
   
   <!-- Projectile Information -->
-  <DamageAmount>13500</DamageAmount>
+  <DamageAmount>15500</DamageAmount>
   <ProjectileSpeed>1000</ProjectileSpeed>
   <ExplosionRadius>200</ExplosionRadius> <!-- This Projectile Explodes -->
   
