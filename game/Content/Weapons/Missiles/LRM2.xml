@@ -30,7 +30,7 @@
   <OrdinanceRequiredToFire>23</OrdinanceRequiredToFire>
 
 <!-- Projectile stats -->
-  <DamageAmount>3400</DamageAmount>
+  <DamageAmount>3900</DamageAmount>
   <ProjectileSpeed>900</ProjectileSpeed>
   <ExplosionRadius>70</ExplosionRadius> <!-- This Projectile Explodes -->
   <SalvoCount>2</SalvoCount>
