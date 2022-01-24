@@ -71,7 +71,7 @@ namespace Ship_Game.AI
             {
                 // We want to immediately kill the beam, since there is a possibility it is infinite.
                 // very strange implementation for drone repair logic
-                Beam.Die(null, false); 
+                Beam?.Die(null, false); 
             }
             else
             {
