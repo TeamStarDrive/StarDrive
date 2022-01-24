@@ -14,7 +14,7 @@
   <SalvoCount>1</SalvoCount> 
   <Range>4000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>0.6</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>0.02</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
   <FireCueName>sd_weapon_flakcannon_01</FireCueName>

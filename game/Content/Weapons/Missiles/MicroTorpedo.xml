@@ -32,7 +32,7 @@
   <ExcludesFighters>true</ExcludesFighters>  
 
   <!-- Projectile Information -->
-  <DamageAmount>2000</DamageAmount>
+  <DamageAmount>2300</DamageAmount>
   <RotationRadsPerSecond>0.7</RotationRadsPerSecond>
   <ProjectileSpeed>900</ProjectileSpeed>
   <ExplosionRadius>70</ExplosionRadius> <!-- This Projectile Explodes -->
