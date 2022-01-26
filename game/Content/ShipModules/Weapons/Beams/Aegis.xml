@@ -4,11 +4,11 @@
   <UID>Aegis</UID> 
   <Version>2</Version>
 
-  <Cost>189</Cost>
+  <Cost>400</Cost>
 
   <!-- common traits shared by all ship modules -->
   <XSize>6</XSize>
-  <YSize>7</YSize>
+  <YSize>6</YSize>
   <ModuleType>MainGun</ModuleType>
   <Name>Disintegrator Array</Name>
   <Restrictions>IO</Restrictions>
@@ -20,7 +20,7 @@
   <DescriptionIndex>17615</DescriptionIndex>
 
   <!-- Mass and Health -->
-  <Mass>1500</Mass>
+  <Mass>12000</Mass>
   <Health>20880</Health>
   <HealthMax>20880</HealthMax>
 

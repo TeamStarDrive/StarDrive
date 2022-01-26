@@ -18,22 +18,22 @@
 
   <UID>Aegis</UID>
   <IsBeam>true</IsBeam>
-  <FireDelay>14</FireDelay>
+  <FireDelay>16</FireDelay>
   <Range>14000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
-  <BeamDuration>4</BeamDuration>
+  <BeamDuration>6</BeamDuration>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
   <FireCueName>sd_weapon_flame_start_01</FireCueName>
   <ToggleSoundName>sd_weapon_phasor_01</ToggleSoundName>
-  <BeamTexture>beam_green</BeamTexture>
+  <BeamTexture>beam_yellow</BeamTexture>
   
   <!-- Projectile Information -->
   <DamageAmount>75</DamageAmount>
   <BeamThickness>260</BeamThickness>
-  <BeamPowerCostPerSecond>3200</BeamPowerCostPerSecond>
-  <EffectVsArmor>1.25</EffectVsArmor>
+  <BeamPowerCostPerSecond>2500</BeamPowerCostPerSecond>
+  <EffectVsArmor>1.35</EffectVsArmor>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Energy Beam</WeaponType>
