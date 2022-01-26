@@ -1,0 +1,36 @@
+﻿Version=1
+Name=Thicket mk1-c
+Hull=Pollops/Thicket
+Role=corvette
+Style=Pollops
+Size=6,5
+GridCenter=3,3
+DefaultAIState=DoNothing
+DefaultCombatState=ShortRange
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=HeavyLaserCannon;SteelArmorSmall;BasicFuelCell;Cockpit;NuclearReactorSmall;Maneuvering_Thruster_1x1;Engine;WarpEngine_1x1
+Modules=18
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+1,0;0;1,3
+4,0;0;1,3
+2,1;1
+3,1;1
+0,2;2
+2,2;3
+3,2;4
+5,2;2
+0,3;2
+1,3;4
+2,3;4
+3,3;4
+4,3;4
+5,3;2
+1,4;5
+2,4;6
+3,4;7
+4,4;5
