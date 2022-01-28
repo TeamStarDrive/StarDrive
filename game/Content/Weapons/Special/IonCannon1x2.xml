@@ -36,7 +36,7 @@
 
   <PowerDamage>15</PowerDamage>
   <SiphonDamage>5</SiphonDamage>
-  <DamageAmount>0</DamageAmount>
+  <DamageAmount>2</DamageAmount>
   <BeamThickness>25</BeamThickness>
   <BeamPowerCostPerSecond>60</BeamPowerCostPerSecond>
 

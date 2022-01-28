@@ -30,7 +30,7 @@
   <InFlightCue>sd_weapon_photon_flight_01</InFlightCue>
 
   <!-- Projectile Information -->
-  <DamageAmount>0</DamageAmount>
+  <DamageAmount>50</DamageAmount>
   <SiphonDamage>600</SiphonDamage>
   <EMPDamage>30</EMPDamage>
   <ShieldPenChance>35</ShieldPenChance>
