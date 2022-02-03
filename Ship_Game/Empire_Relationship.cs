@@ -310,8 +310,8 @@ namespace Ship_Game
                 empire.SetRelationsAsKnown(this);
         }
 
-        public static void InitializeRelationships(Array<Empire> empires,
-                                                   UniverseData.GameDifficulty difficulty)
+        public static void InitializeRelationships(IReadOnlyList<Empire> empires,
+                                                   GameDifficulty difficulty)
         {
             foreach (Empire ourEmpire in empires)
             {
@@ -322,7 +322,7 @@ namespace Ship_Game
 
                     var rel = new Relationship(them.data.Traits.Name);
 
-                    if (them.isPlayer && difficulty > UniverseData.GameDifficulty.Hard) // TODO see if this increased anger bit can be removed
+                    if (them.isPlayer && difficulty > GameDifficulty.Hard) // TODO see if this increased anger bit can be removed
                     {
                         float difficultyRatio = (int) difficulty / 10f;
                         float trustMod = difficultyRatio * (100 - ourEmpire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);

@@ -321,7 +321,7 @@ namespace Ship_Game.Ships
             return ship.HasModules ? ship : null;
         }
 
-        public static Ship CreateShipFromSave(Empire empire, SavedGame.ShipSaveData save)
+        public static Ship CreateShipFromSave(UniverseScreen us, Empire empire, SavedGame.ShipSaveData save)
         {
             ModuleSaveData[] savedModules;
             string[] moduleUIDs;
@@ -355,10 +355,11 @@ namespace Ship_Game.Ships
                 ResourceManager.AddShipTemplate((ShipDesign)data, playerDesign: true);
             }
 
-            var ship = new Ship(null, empire, data, save, savedModules);
+            var ship = new Ship(us, empire, data, save, savedModules);
             if (!ship.HasModules)
                 return null; // module creation failed
             ship.InitializeFromSaveData(save);
+            us.Objects.AddImmediate(ship);
             return ship;
         }
 
