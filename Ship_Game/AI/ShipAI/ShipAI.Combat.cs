@@ -575,7 +575,7 @@ namespace Ship_Game.AI
                 return true; // waaaagh!
 
             // in regular move stance, respect CombatState settings
-            if (order.IsSet(MoveOrder.Regular))
+            if (order == 0 || order.IsSet(MoveOrder.Regular))
             {
                 // regular move stance never exits warp
                 if (Owner.IsInWarp)

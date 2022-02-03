@@ -325,7 +325,7 @@ namespace Ship_Game.AI
             public readonly float VariableNumber;
             public readonly AIState WantedState; 
             public TradePlan Trade;
-            public readonly MoveOrder MoveOrder;
+            public readonly MoveOrder MoveOrder = MoveOrder.Regular;
 
             /// If this is a Move Order, is it an Aggressive move?
             public bool HasAggressiveMoveOrder => (MoveOrder & MoveOrder.Aggressive) != 0;
