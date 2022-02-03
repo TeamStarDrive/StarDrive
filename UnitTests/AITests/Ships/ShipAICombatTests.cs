@@ -23,10 +23,10 @@ namespace UnitTests.AITests.Ships
         {
             LoadStarterShips(ScoutName, RocketFName, CorvetteName, FrigateName, CarrierName);
             CreateUniverseAndPlayerEmpire("Human");
-            Assert.AreEqual(0, Universe.Objects.Ships.Count);
+            Assert.AreEqual(0, UState.Objects.Ships.Count);
 
             // settings these flags to get detailed and readable debug output
-            Universe.Objects.EnableParallelUpdate = false;
+            UState.Objects.EnableParallelUpdate = false;
             ShipAI.EnableTargetPriorityDebug = true;
         }
 
@@ -54,7 +54,7 @@ namespace UnitTests.AITests.Ships
             ScoutTarget = SpawnNonCombat(ScoutName, Enemy, 0, -800);
             RocketFTarget = SpawnNonCombat(RocketFName, Enemy, 0, -900);
             RunObjectsSim(EnemyScanInterval);
-            Assert.AreEqual(1+2, Universe.Objects.Ships.Count, "Expected limited # of Ships in AI Combat test");
+            Assert.AreEqual(1+2, UState.Objects.Ships.Count, "Expected limited # of Ships in AI Combat test");
             PrintTargets();
         }
 
@@ -65,7 +65,7 @@ namespace UnitTests.AITests.Ships
             CorvetteTarget = SpawnNonCombat(CorvetteName, Enemy, 0, -700);
             FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -800);
             RunObjectsSim(EnemyScanInterval);
-            Assert.AreEqual(1+4, Universe.Objects.Ships.Count, "Expected limited # of Ships in AI Combat test");
+            Assert.AreEqual(1+4, UState.Objects.Ships.Count, "Expected limited # of Ships in AI Combat test");
             PrintTargets();
         }
 
@@ -77,7 +77,7 @@ namespace UnitTests.AITests.Ships
             FrigateTarget = SpawnNonCombat(FrigateName, Enemy, 0, -800);
             CarrierTarget = SpawnNonCombat(CarrierName, Enemy, 0, -900);
             RunObjectsSim(EnemyScanInterval);
-            Assert.AreEqual(1+5, Universe.Objects.Ships.Count, "Expected limited # of Ships in AI Combat test");
+            Assert.AreEqual(1+5, UState.Objects.Ships.Count, "Expected limited # of Ships in AI Combat test");
             PrintTargets();
         }
 

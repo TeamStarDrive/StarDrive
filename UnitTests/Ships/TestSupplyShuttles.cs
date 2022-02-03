@@ -35,7 +35,7 @@ namespace UnitTests.Ships
         {
             Ship ship = CreateShip(Player, "TEST_Excalibur-Class Supercarrier", Vector2.Zero);
             Ship target = CreateShip(Player, "Corsair", new Vector2(1000, 1000));
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
 
             target.ChangeOrdnance(-target.OrdinanceMax * 0.5f);
             UpdateStatus(ship, CombatState.Artillery);
@@ -47,7 +47,7 @@ namespace UnitTests.Ships
         public void TestSelfSupplyShuttle()
         {
             Ship ship = CreateShip(Player, "TEST_Excalibur-Class Supercarrier", Vector2.Zero);
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
 
             ship.ChangeOrdnance(-(ship.OrdinanceMax -50));
             UpdateStatus(ship, CombatState.Artillery);

@@ -1,4 +1,6 @@
-﻿namespace Ship_Game
+﻿using Ship_Game.Universe;
+
+namespace Ship_Game
 {
     /// <summary>
     /// This is a proxy workaround for the current buggy implementation
@@ -18,7 +20,7 @@
         public static float SettingsResearchModifier = 1f;
         public static float RemnantPaceModifier = 20;
 
-        public static void StartNew(UniverseScreen us, float pace, float starsMod, int extraPlanets, int numEmpires)
+        public static void StartNew(UniverseState us, float pace, float starsMod, int extraPlanets, int numEmpires)
         {
             Difficulty      = us.Difficulty;
             GalaxySize      = us.GalaxySize;

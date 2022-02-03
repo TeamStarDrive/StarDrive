@@ -263,7 +263,7 @@ namespace Ship_Game
             }
             else
             {
-                p.Universe.LookingAtPlanet = false;
+                p.Universe.Screen.LookingAtPlanet = false;
             }
 
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));

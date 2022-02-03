@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Ship_Game.Utils;
 
 namespace Ship_Game
@@ -12,6 +13,7 @@ namespace Ship_Game
     public class UniverseObjectManager
     {
         readonly UniverseScreen Universe;
+        readonly UniverseState UState;
         readonly SpatialManager Spatial;
 
         /// <summary>
@@ -64,9 +66,10 @@ namespace Ship_Game
         public Projectile[] VisibleProjectiles { get; private set; } = Empty<Projectile>.Array;
         public Beam[] VisibleBeams { get; private set; } = Empty<Beam>.Array;
 
-        public UniverseObjectManager(UniverseScreen universe, SpatialManager spatial)
+        public UniverseObjectManager(UniverseScreen uScreen, UniverseState uState, SpatialManager spatial)
         {
-            Universe = universe;
+            Universe = uScreen;
+            UState = uState;
             Spatial = spatial;
         }
 
@@ -278,7 +281,7 @@ namespace Ship_Game
         public void Update(FixedSimTime timeStep)
         {
             // crash in findnearby when on game over screen
-            if (Universe.GameOver || Universe.IsExiting)
+            if (UState.GameOver || Universe.IsExiting)
                 return;
 
             TotalTime.Start();
@@ -425,9 +428,9 @@ namespace Ship_Game
             UpdateSolarSystemShips();
 
             // TODO: SolarSystem.Update is not thread safe because of resource loading
-            for (int i = 0; i < Universe.Systems.Count; ++i)
+            for (int i = 0; i < UState.Systems.Count; ++i)
             {
-                SolarSystem system = Universe.Systems[i];
+                SolarSystem system = UState.Systems[i];
                 system.Update(timeStep, Universe);
             }
 
@@ -446,7 +449,7 @@ namespace Ship_Game
             {
                 for (int i = start; i < end; ++i)
                 {
-                    SolarSystem system = Universe.Systems[i];
+                    SolarSystem system = UState.Systems[i];
                     system.ShipList.Clear();
                     if (shipsCount == 0)
                         continue; // all ships were killed, nothing to do here
@@ -468,7 +471,7 @@ namespace Ship_Game
                 }
             }
 
-            UpdateSystems(0, Universe.Systems.Count);
+            UpdateSystems(0, UState.Systems.Count);
             //Parallel.For(UniverseScreen.SolarSystemList.Count, UpdateSystems, Universe.MaxTaskCores);
 
             // now set all ships which were not found in any solar system with system = null

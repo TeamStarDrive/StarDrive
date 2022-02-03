@@ -12,6 +12,7 @@ using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -40,7 +41,7 @@ namespace Ship_Game
             return null;
         }
 
-        static Fleet CreateFleetFromData(UniverseScreen universe, FleetDesign data, Empire owner, Vector2 position)
+        static Fleet CreateFleetFromData(UniverseState universe, FleetDesign data, Empire owner, Vector2 position)
         {
             if (data == null)
                 return null;
@@ -72,7 +73,7 @@ namespace Ship_Game
             return fleet;
         }
 
-        public static void CreateFirstFleetAt(UniverseScreen universe, string fleetUid, Empire owner, Vector2 position)
+        public static void CreateFirstFleetAt(UniverseState universe, string fleetUid, Empire owner, Vector2 position)
         {
             Fleet fleet = CreateFleetFromData(universe, LoadFleetDesign(fleetUid), owner, position);
             if (fleet != null)
@@ -243,7 +244,7 @@ namespace Ship_Game
             return empire.DifficultyModifiers.DataVisibleToPlayer;
         }
 
-        public static bool GetLoneSystem(UniverseScreen u, out SolarSystem system)
+        public static bool GetLoneSystem(UniverseState u, out SolarSystem system)
         {
             system = null;
             var systems = u.Systems.Filter(s => s.RingList.Count == 0 && !s.PiratePresence);
@@ -252,7 +253,7 @@ namespace Ship_Game
             return system != null;
         }
 
-        public static bool GetUnownedSystems(UniverseScreen u, out SolarSystem[] systems)
+        public static bool GetUnownedSystems(UniverseState u, out SolarSystem[] systems)
         {
             systems = u.Systems.Filter(s => s.OwnerList.Count == 0
                                          && s.RingList.Count > 0
@@ -261,7 +262,7 @@ namespace Ship_Game
             return systems.Length > 0;
         }
 
-        public static bool GetRadiatingStars(UniverseScreen u, out SolarSystem[] systems)
+        public static bool GetRadiatingStars(UniverseState u, out SolarSystem[] systems)
         {
             systems = u.Systems.Filter(s => s.OwnerList.Count == 0
                                          && !s.PiratePresence

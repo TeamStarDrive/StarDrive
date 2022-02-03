@@ -12,7 +12,7 @@ namespace Ship_Game
         public Background3D(UniverseScreen screen)
         {
             Screen = screen;
-            float universeSize = screen.UniverseSize;
+            float universeSize = screen.UState.Size;
 
             int size = (int) RandomMath.AvgRandomBetween(1_000_000 + universeSize / 4f, universeSize);
             

@@ -113,7 +113,7 @@ namespace Ship_Game
         public void Replace(Planet p)
         {
             Remove();
-            LoadContent(p.Universe.ScreenManager, p.Owner);
+            LoadContent(p.Universe.Screen.ScreenManager, p.Owner);
         }
 
         void Remove()

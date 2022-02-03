@@ -19,7 +19,7 @@ namespace UnitTests.AITests.Empire
                 AddDummyPlanet(0.1f, 0.1f, 1).ParentSystem.SetExploredBy(Enemy);
             AddHomeWorldToEmpire(Player).ParentSystem.SetExploredBy(Enemy);
             AddHomeWorldToEmpire(Enemy, new Vector2(2000)).ParentSystem.Position = new Vector2(2000);
-            Universe.Objects.UpdateLists(true);
+            UState.Objects.UpdateLists(true);
             AddHomeWorldToEmpire(Enemy);
             for (int x = 0; x < extraPlanets; x++)
                 AddDummyPlanetToEmpire(Enemy, 1, 1, 1);
@@ -53,7 +53,7 @@ namespace UnitTests.AITests.Empire
             Enemy.UpdateNetPlanetIncomes();
             Enemy.GetEmpireAI().RunEconomicPlanner();
 
-            foreach (var planet in Universe.Planets)
+            foreach (var planet in UState.Planets)
             {
                 if (planet.Owner != Enemy)
                 {

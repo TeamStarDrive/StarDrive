@@ -14,7 +14,7 @@ namespace Ship_Game.AI
             if (us.isPlayer || them.isPlayer ||
                 (us.Universum.Player.IsKnown(us) && us.Universum.Player.IsKnown(them)))
             {
-                us.Universum.NotificationManager?.AddWarDeclaredNotification(us, them);
+                us.Universum.Notifications?.AddWarDeclaredNotification(us, them);
             }
         }
 
@@ -206,7 +206,7 @@ namespace Ship_Game.AI
             if (them.isPlayer && !usToThem.AtWar)
             {
                 AIDeclaresWarOnPlayer(them, wt, usToThem);
-                us.Universum.NotificationManager.AddDeclareWarViaAllyCall(OwnerEmpire, requestingEmpire);
+                us.Universum.Notifications.AddDeclareWarViaAllyCall(OwnerEmpire, requestingEmpire);
             }
 
             ShowWarDeclaredNotification(OwnerEmpire, them);

@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Graphics.Particles;
+using Ship_Game.Universe;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
@@ -96,7 +97,7 @@ namespace Ship_Game.Gameplay
         // Only Guided Missiles can slow down, but lower the acceleration
         const float DecelThrustPower = 0.1f;
 
-        public UniverseScreen Universe;
+        public UniverseState Universe;
 
         public override IDamageModifier DamageMod => Weapon;
 
@@ -159,7 +160,7 @@ namespace Ship_Game.Gameplay
         }
 
         public static bool GetOwners(in Guid ownerGuid, int loyaltyId, string weaponUID, bool isBeam,
-                                     UniverseScreen us, out ProjectileOwnership o)
+                                     UniverseState us, out ProjectileOwnership o)
         {
             o = default;
             o.Owner = us.GetShip(ownerGuid);
@@ -202,7 +203,7 @@ namespace Ship_Game.Gameplay
         }
 
         // loading from savegame
-        public static Projectile CreateFromSave(in SavedGame.ProjectileSaveData pdata, UniverseScreen us)
+        public static Projectile CreateFromSave(in SavedGame.ProjectileSaveData pdata, UniverseState us)
         {
             if (!GetOwners(pdata.Owner, pdata.Loyalty, pdata.Weapon, false, us, out ProjectileOwnership o))
                 return null; // this owner or weapon no longer exists
@@ -297,7 +298,7 @@ namespace Ship_Game.Gameplay
                 SetSystem(Planet.ParentSystem);
             }
 
-            bool inFrustum = IsInFrustum(Universe);
+            bool inFrustum = IsInFrustum(Universe.Screen);
             if (playSound && inFrustum)
             {
                 Weapon.PlayToggleAndFireSfx(Emitter);
@@ -335,10 +336,10 @@ namespace Ship_Game.Gameplay
                 ProjectileTexture = ResourceManager.ProjTexture(Weapon.ProjectileTexturePath);
             }
 
-            if (Weapon.WeaponTrailEffect.NotEmpty() && Universe.Particles != null)
+            if (Weapon.WeaponTrailEffect.NotEmpty() && Universe.Screen.Particles != null)
             {
                 var pos3D = new Vector3(Position, ZPos);
-                TrailEffect = Universe.Particles.CreateEffect(Weapon.WeaponTrailEffect, pos3D, context: this);
+                TrailEffect = Universe.Screen.Particles.CreateEffect(Weapon.WeaponTrailEffect, pos3D, context: this);
             }
         }
 
@@ -354,7 +355,7 @@ namespace Ship_Game.Gameplay
             if (RandomMath.RollDie(2) == 2)
             {
                 var foregroundPos = new Vector3(deflectionPoint.X, deflectionPoint.Y, deflectionPoint.Z - 50f);
-                Universe.Particles.BeamFlash.AddParticle(foregroundPos, Vector3.Zero);
+                Universe.Screen.Particles.BeamFlash.AddParticle(foregroundPos, Vector3.Zero);
             }
         }
 
@@ -449,7 +450,7 @@ namespace Ship_Game.Gameplay
 
             ++DebugInfoScreen.ProjDied;
             if (Light != null)
-                Universe.RemoveLight(Light, dynamic:true);
+                Universe.Screen.RemoveLight(Light, dynamic:true);
 
             if (InFlightSfx.IsPlaying)
                 InFlightSfx.Stop();
@@ -458,7 +459,7 @@ namespace Ship_Game.Gameplay
 
             if (ProjSO != null)
             {
-                Universe.RemoveObject(ProjSO);
+                Universe.Screen.RemoveObject(ProjSO);
             }
 
             SetSystem(null);
@@ -588,11 +589,11 @@ namespace Ship_Game.Gameplay
                     UpdateTrailEffect(timeStep);
                 }
 
-                if (!LightWasAddedToSceneGraph && Weapon.Light != null && Light == null && Universe.CanAddDynamicLight)
+                if (!LightWasAddedToSceneGraph && Weapon.Light != null && Light == null && Universe.Screen.CanAddDynamicLight)
                 {
                     LightWasAddedToSceneGraph = true;
                     Light = CreateLight();
-                    Universe.AddLight(Light, dynamic: true);
+                    Universe.Screen.AddLight(Light, dynamic: true);
                 }
                 else if (Light != null && Weapon.Light != null && LightWasAddedToSceneGraph)
                 {
@@ -629,7 +630,7 @@ namespace Ship_Game.Gameplay
                         ObjectType = ObjectType.Dynamic,
                         World = WorldMatrix
                     };
-                    Universe.AddObject(ProjSO);
+                    Universe.Screen.AddObject(ProjSO);
                 }
                 else
                 {
@@ -667,7 +668,7 @@ namespace Ship_Game.Gameplay
             string effect = damagingShields ? Weapon.WeaponShieldHitEffect : Weapon.WeaponHitEffect;
             if (effect.IsEmpty())
                 return null;
-            var fx = Owner.Universe.Particles?.CreateEffect(effect, pos, this);
+            var fx = Owner.Universe.Screen.Particles?.CreateEffect(effect, pos, this);
             if (fx == null)
                 return null; // effect not found
             return new HitEffectState(fx);
@@ -710,8 +711,8 @@ namespace Ship_Game.Gameplay
             return light;
         }
 
-        bool CloseEnoughForExplosion    => Universe.IsSectorViewOrCloser;
-        bool CloseEnoughForFlashExplode => Universe.IsSystemViewOrCloser;
+        bool CloseEnoughForExplosion    => Universe.Screen.IsSectorViewOrCloser;
+        bool CloseEnoughForFlashExplode => Universe.Screen.IsSystemViewOrCloser;
 
         void ExplodeProjectile(bool cleanupOnly, ShipModule atModule = null)
         {
@@ -726,13 +727,13 @@ namespace Ship_Game.Gameplay
 
                 if (!cleanupOnly && CloseEnoughForExplosion && visibleToPlayer)
                 {
-                    ExplosionManager.AddExplosion(Universe, origin, Velocity*0.1f,
+                    ExplosionManager.AddExplosion(Universe.Screen, origin, Velocity*0.1f,
                         DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
 
                     if (FlashExplode && CloseEnoughForFlashExplode)
                     {
                         GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                        Universe.Particles.Flash.AddParticle(origin, Vector3.Zero);
+                        Universe.Screen.Particles.Flash.AddParticle(origin, Vector3.Zero);
                     }
                 }
 
@@ -744,12 +745,12 @@ namespace Ship_Game.Gameplay
             }
             else if (Weapon.FakeExplode && CloseEnoughForExplosion && visibleToPlayer)
             {
-                ExplosionManager.AddExplosion(Universe, origin, Velocity*0.1f, 
+                ExplosionManager.AddExplosion(Universe.Screen, origin, Velocity*0.1f, 
                     DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
                 if (FlashExplode && CloseEnoughForFlashExplode)
                 {
                     GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                    Universe.Particles.Flash.AddParticle(origin, Vector3.Zero);
+                    Universe.Screen.Particles.Flash.AddParticle(origin, Vector3.Zero);
                 }
             }
         }
@@ -866,7 +867,7 @@ namespace Ship_Game.Gameplay
             if (Weapon.WeaponDeathEffect.NotEmpty())
             {
                 var pos3d = new Vector3(Position.X, Position.Y, ZPos - 10f);
-                DeathEffect = Universe.Particles.CreateEffect(Weapon.WeaponDeathEffect, pos3d, this);
+                DeathEffect = Universe.Screen.Particles.CreateEffect(Weapon.WeaponDeathEffect, pos3d, this);
             }
 
             if (WeaponType == "Ballistic Cannon")
@@ -886,7 +887,7 @@ namespace Ship_Game.Gameplay
 
         void DebugTargetCircle()
         {
-            Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Universe);
+            Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Universe.Screen);
         }
 
         void ArmorPiercingTouch(ShipModule module, Ship parent, Vector2 hitPos)
