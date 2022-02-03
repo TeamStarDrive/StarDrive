@@ -51,7 +51,7 @@
         /// </summary>
         public readonly float ExpansionMultiplier; 
 
-        public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
+        public DifficultyModifiers(Empire empire, GameDifficulty difficulty)
         {
             float remnantGeneralStr = 2; // Vanilla will be 2
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.RemnantDesignStrMultiplier > 0.01f)
@@ -69,7 +69,7 @@
             switch (difficulty)
             {
                 default:
-                case UniverseData.GameDifficulty.Normal:
+                case GameDifficulty.Normal:
                     ShipBuildStrMin      = 0.7f;
                     ShipBuildStrMax      = 0.9f;
                     ColonyRankModifier   = 0;
@@ -105,7 +105,7 @@
                     }
 
                     break;
-                case UniverseData.GameDifficulty.Hard:
+                case GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
                     ShipBuildStrMax      = 1f;
                     ColonyRankModifier   = 1;
@@ -146,7 +146,7 @@
                     }
 
                     break;
-                case UniverseData.GameDifficulty.Brutal:
+                case GameDifficulty.Brutal:
                     ShipBuildStrMin      = 0.9f;
                     ShipBuildStrMax      = 1f;
                     ColonyRankModifier   = 2;
@@ -187,7 +187,7 @@
                     }
 
                     break;
-                case UniverseData.GameDifficulty.Insane:
+                case GameDifficulty.Insane:
                     ShipBuildStrMin      = 0.9f;
                     ShipBuildStrMax      = 1f;
                     ColonyRankModifier   = 2;
@@ -242,7 +242,7 @@
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;
 
-                if (GlobalStats.FixedPlayerCreditCharge && difficulty > UniverseData.GameDifficulty.Normal)
+                if (GlobalStats.FixedPlayerCreditCharge && difficulty > GameDifficulty.Normal)
                     CreditsMultiplier = 0.2f;
             }
         }

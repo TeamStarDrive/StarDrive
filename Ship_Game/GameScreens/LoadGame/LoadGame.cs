@@ -16,7 +16,6 @@ namespace Ship_Game.GameScreens.LoadGame
     public class LoadGame
     {
         readonly FileInfo SaveFile;
-        UniverseScreen Universe;
         string PlayerLoyalty;
         TaskResult<UniverseScreen> BackgroundTask;
         readonly ProgressCounter Progress = new ProgressCounter();
@@ -49,16 +48,16 @@ namespace Ship_Game.GameScreens.LoadGame
                 SavedGame.UniverseSaveData save = DecompressSaveGame(SaveFile, Progress.NextStep()); // 641ms
                 Log.Info(ConsoleColor.Blue, $"  DecompressSaveGame     elapsed: {Progress[0].ElapsedMillis}ms");
 
-                UniverseData data = LoadEverything(save, Progress.NextStep()); // 992ms
+                UniverseScreen us = LoadEverything(save, Progress.NextStep()); // 992ms
                 Log.Info(ConsoleColor.Blue, $"  LoadEverything         elapsed: {Progress[1].ElapsedMillis}ms");
 
-                Universe = CreateUniverseScreen(data, save, Progress.NextStep()); // 1244ms
+                SetupUniverseScreen(us, save, Progress.NextStep()); // 1244ms
                 Log.Info(ConsoleColor.Blue, $"  CreateUniverseScreen   elapsed: {Progress[2].ElapsedMillis}ms");
 
                 Progress.Finish();
 
                 Log.Info(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
-                return Universe;
+                return us;
             }
             catch (Exception e)
             {
@@ -125,8 +124,8 @@ namespace Ship_Game.GameScreens.LoadGame
             return usData;
         }
 
-        // Universe does not exist yet !
-        UniverseData LoadEverything(SavedGame.UniverseSaveData saveData, ProgressCounter step)
+        // Universe SETUP is done after loading individual objects like Systems / Ships 
+        UniverseScreen LoadEverything(SavedGame.UniverseSaveData saveData, ProgressCounter step)
         {
             if (EmpireManager.NumEmpires != 0)
                 throw new Exception("LoadGame.LoadEverything: EmpireManager.NumEmpires must be 0!");
@@ -134,59 +133,55 @@ namespace Ship_Game.GameScreens.LoadGame
             step.Start(11); // arbitrary count... check # of calls below:
 
             ScreenManager.Instance.RemoveAllObjects();
-            var data = new UniverseData
+
+            var us = new UniverseScreen(saveData)
             {
-                FogMapBase64          = saveData.FogMapBase64,
-                Difficulty            = saveData.GameDifficulty,
-                GalaxySize            = saveData.GalaxySize,
-                Size                  = saveData.Size,
-                FTLSpeedModifier      = saveData.FTLModifier,
-                EnemyFTLSpeedModifier = saveData.EnemyFTLModifier,
-                GravityWells          = saveData.GravityWells
+                CreateSimThread = StartSimThread,
+                FogMapBase64     = saveData.FogMapBase64,
+                UniverseSize     = saveData.UniverseSize,
+
+                FTLModifier      = saveData.FTLModifier,
+                EnemyFTLModifier = saveData.EnemyFTLModifier,
+                GravityWells        = saveData.GravityWells,
+                FTLInNeutralSystems = saveData.FTLInNeutralSystems,
+
+                Difficulty       = saveData.GameDifficulty,
+                GalaxySize       = saveData.GalaxySize,
             };
 
             RandomEventManager.ActiveEvent = saveData.RandomEvent;
             int numEmpires = saveData.EmpireDataList.Filter(e => !e.IsFaction).Length; 
-            CurrentGame.StartNew(data, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets, numEmpires);
+            CurrentGame.StartNew(us, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets, numEmpires);
 
-            CreateEmpires(saveData, data);                     step.Advance();
-            GiftShipsFromServantEmpire(data);                  step.Advance();
-            CreateRelations(saveData);                         step.Advance();
-            CreateSolarSystems(saveData, data);                step.Advance();
-            CreateAllObjects(saveData, data);                  step.Advance();
-            CreateFleetsFromSave(saveData, data);              step.Advance();
-            CreateTasksGoalsRoads(saveData, data);             step.Advance();
-            CreatePlanetImportExportShipLists(saveData, data); step.Advance();
-            UpdateDefenseShipBuildingOffense();                step.Advance();
-            UpdatePopulation();                                step.Advance();
-            RestoreCapitals(saveData, data);                   step.Finish();
-            return data;
+            CreateEmpires(us, saveData);                     step.Advance();
+            GiftShipsFromServantEmpire(us);                  step.Advance();
+            CreateRelations(saveData);                       step.Advance();
+            CreateSolarSystems(us, saveData);                step.Advance();
+            CreateAllObjects(us, saveData);                  step.Advance();
+            CreateFleetsFromSave(us, saveData);              step.Advance();
+            CreateTasksGoalsRoads(us, saveData);             step.Advance();
+            CreatePlanetImportExportShipLists(us, saveData); step.Advance();
+            UpdateDefenseShipBuildingOffense();              step.Advance();
+            UpdatePopulation();                              step.Advance();
+            RestoreCapitals(saveData, us);                   step.Finish();
+            return us;
         }
 
-        UniverseScreen CreateUniverseScreen(UniverseData data, SavedGame.UniverseSaveData save, ProgressCounter step)
+        void SetupUniverseScreen(UniverseScreen us, SavedGame.UniverseSaveData save, ProgressCounter step)
         {
-            var us = new UniverseScreen(data, PlayerLoyalty)
-            {
-                GamePace = save.GamePacing,
-                StarDate = save.StarDate,
-                CamPos = new Vector3d(save.CamPos),
-                Paused = true,
-                CreateSimThread = StartSimThread,
-            };
-
-            RestoreSolarSystemCQs(save, data, us);
+            RestoreSolarSystemCQs(save, us);
 
             step.StartAbsolute(0.05f, 0.5f, 2f);
 
             EmpireHullBonuses.RefreshBonuses();
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep());
-            AllSystemsLoaded(us, data, step.NextStep());
+            AllSystemsLoaded(us, step.NextStep());
 
             step.NextStep().Start(1); // This last step is a mess, using arbitrary count
 
             GameBase.Base.ResetElapsedTime();
-            CreateAOs(us, data);
-            FinalizeShips(us, data);
+            CreateAOs(us);
+            FinalizeShips(us);
 
             us.LoadContent();
             us.Objects.UpdateLists(removeInactiveObjects: false);
@@ -202,10 +197,9 @@ namespace Ship_Game.GameScreens.LoadGame
             Log.Info(ConsoleColor.Blue, $"    ## MarkShipDesignsUnlockable elapsed: {step[0].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue, $"    ## AllSystemsLoaded          elapsed: {step[1].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue, $"    ## LoadContent               elapsed: {step[2].ElapsedMillis}ms");
-            return us;
         }
 
-        static void FinalizeShips(UniverseScreen us, UniverseData data)
+        static void FinalizeShips(UniverseScreen us)
         {
             foreach (Ship ship in us.GetMasterShipList())
             {
@@ -226,35 +220,21 @@ namespace Ship_Game.GameScreens.LoadGame
                 {
                     foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
                     {
-                        if (data.FindShip(ship.Loyalty, hangar.HangarShipGuid, out Ship hangarShip))
+                        if (us.GetShip(hangar.HangarShipGuid, out Ship hangarShip))
                             hangar.ResetHangarShip(hangarShip);
                     }
                 }
             }
         }
 
-        void AllSystemsLoaded(UniverseScreen us, UniverseData data, ProgressCounter step)
+        void AllSystemsLoaded(UniverseScreen us, ProgressCounter step)
         {
             Stopwatch s = Stopwatch.StartNew();
-            step.Start(data.MasterShipList.Count + data.SolarSystemsList.Count);
+            step.Start(us.GetMasterShipList().Count);
 
-            foreach (Empire empire in EmpireManager.Empires)
+            // TODO: Maybe run this in parallel?
+            foreach (Ship ship in us.GetMasterShipList())
             {
-                empire.Universum = us;
-            }
-            foreach (Projectile projectile in data.MasterProjectileList)
-            {
-                projectile.Universe = us;
-            }
-            foreach (SolarSystem sys in data.SolarSystemsList)
-            {
-                sys.Universe = us;
-                sys.FiveClosestSystems = data.GetFiveClosestSystems(sys);
-                step.Advance();
-            }
-            foreach (Ship ship in data.MasterShipList)
-            {
-                ship.Universe = us;
                 ship.InitializeShip(loadingFromSaveGame: true);
                 step.Advance();
             }
@@ -334,7 +314,7 @@ namespace Ship_Game.GameScreens.LoadGame
             return e;
         }
 
-        SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssd)
+        SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssd, UniverseScreen us)
         {
             var system = new SolarSystem
             {
@@ -397,36 +377,25 @@ namespace Ship_Game.GameScreens.LoadGame
             return system;
         }
 
-        static void CreateSpaceRoads(UniverseData data, SavedGame.EmpireSaveData d, Empire e)
+        static void CreateSpaceRoads(UniverseScreen us, SavedGame.EmpireSaveData d, Empire e)
         {
             e.SpaceRoadsList = new Array<SpaceRoad>();
             foreach (SavedGame.SpaceRoadSave roadSave in d.SpaceRoadData)
             {
                 var road = new SpaceRoad();
-                foreach (SolarSystem s in data.SolarSystemsList)
-                {
-                    if (roadSave.OriginGUID == s.Guid) road.Origin = s;
-                    if (roadSave.DestGUID == s.Guid)   road.Destination = s;
-                }
+                road.Origin      = us.GetSystem(roadSave.OriginGUID);
+                road.Destination = us.GetSystem(roadSave.DestGUID);
 
                 foreach (SavedGame.RoadNodeSave roadNode in roadSave.RoadNodes)
                 {
                     var node = new RoadNode();
-                    data.FindShip(roadNode.Guid_Platform, out node.Platform);
+                    us.GetShip(roadNode.Guid_Platform, out node.Platform);
                     node.Position = roadNode.Position;
                     road.RoadNodesList.Add(node);
                 }
 
                 e.SpaceRoadsList.Add(road);
             }
-        }
-
-        static void CreateShipFromSave(UniverseData data, SavedGame.ShipSaveData shipSave, Empire e)
-        {
-            Ship ship = Ship.CreateShipFromSave(e, shipSave);
-            if (ship == null) // happens if module creation failed
-                return;
-            data.MasterShipList.Add(ship);
         }
 
         static void RestorePlanetConstructionQueue(SavedGame.RingSave rsave, Planet p, UniverseScreen us)
@@ -503,17 +472,17 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        static void RestoreCapitals(SavedGame.UniverseSaveData sData, UniverseData data)
+        static void RestoreCapitals(SavedGame.UniverseSaveData sData, UniverseScreen us)
         {
             foreach (SavedGame.EmpireSaveData d in sData.EmpireDataList)
             {
-                Empire e       = EmpireManager.GetEmpireByName(d.Name);
-                data.FindPlanet(d.CapitalGuid, out Planet capital);
+                Empire e = EmpireManager.GetEmpireByName(d.Name);
+                us.GetPlanet(d.CapitalGuid, out Planet capital);
                 e.SetCapital(capital);
             }
         }
         
-        static void RestoreSolarSystemCQs(SavedGame.UniverseSaveData saveData, UniverseData data, UniverseScreen us)
+        static void RestoreSolarSystemCQs(SavedGame.UniverseSaveData saveData, UniverseScreen us)
         {
             foreach (SavedGame.SolarSystemSaveData sdata in saveData.SolarSystemDataList)
             {
@@ -521,7 +490,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 {
                     if (rsave.Planet != null)
                     {
-                        Planet p = data.FindPlanetOrNull(rsave.Planet.Guid);
+                        Planet p = us.GetPlanet(rsave.Planet.Guid);
                         if (p?.Owner != null)
                         {
                             RestorePlanetConstructionQueue(rsave, p, us);
@@ -531,8 +500,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        
-        static void CreateFleetsFromSave(SavedGame.UniverseSaveData saveData, UniverseData data)
+        static void CreateFleetsFromSave(UniverseScreen us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
@@ -552,18 +520,8 @@ namespace Ship_Game.GameScreens.LoadGame
 
                     foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
                     {
-                        foreach (Ship ship in data.MasterShipList)
+                        if (us.Objects.FindShip(ssave.ShipGuid, out Ship ship) && ship.Fleet == null)
                         {
-                            if (ship.Guid != ssave.ShipGuid)
-                                continue;
-
-                            // fleet saves can be corrupted because in older saves,
-                            // so for avoiding bugs, don't add ship to the same fleet twice
-                            // @todo @hack This "Core Fleet" stuff is just a temp hack, please solve this issue
-                            if (ship.Fleet == fleet ||
-                                ship.Fleet != null && (fleet.Name.IsEmpty() || fleet.Name == "Core Fleet"))
-                                continue;
-
                             ship.RelativeFleetOffset = ssave.FleetOffset;
                             fleet.AddShip(ship);
                         }
@@ -596,17 +554,17 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        static void CreateAOs(UniverseScreen us, UniverseData data)
+        static void CreateAOs(UniverseScreen us)
         {
-            foreach (Empire e in data.EmpireList)
+            foreach (Empire e in us.Empires)
                 e.GetEmpireAI().InitializeAOsFromSave(us);
         }
 
-        static void CreateMilitaryTasks(SavedGame.EmpireSaveData d, Empire e, UniverseData data)
+        static void CreateMilitaryTasks(UniverseScreen us, SavedGame.EmpireSaveData d, Empire e)
         {
             for (int i = 0; i < d.GSAIData.MilitaryTaskList.Count; i++)
             {
-                d.GSAIData.MilitaryTaskList[i].RestoreFromSaveNoUniverse(e, data);
+                d.GSAIData.MilitaryTaskList[i].RestoreFromSaveNoUniverse(us, e);
             }
 
             e.GetEmpireAI().ReadFromSave(d.GSAIData);
@@ -623,7 +581,7 @@ namespace Ship_Game.GameScreens.LoadGame
             return g.ToBuildUID != null && !ResourceManager.ShipTemplateExists(g.ToBuildUID);
         }
         
-        static void CreateGoals(SavedGame.EmpireSaveData esd, Empire e, UniverseData data)
+        static void CreateGoals(UniverseScreen us, SavedGame.EmpireSaveData esd, Empire e)
         {
             foreach (SavedGame.GoalSave gsave in esd.GSAIData.Goals)
             {
@@ -639,25 +597,13 @@ namespace Ship_Game.GameScreens.LoadGame
                     }
                 }
 
-                foreach (SolarSystem s in data.SolarSystemsList)
-                {
-                    if (s.Guid == gsave.TargetSystemGuid)
-                       g.TargetSystem = s;
-
-                    foreach (Planet p in s.PlanetList)
-                    {
-                        if (p.Guid == gsave.PlanetWhereBuildingAtGuid) g.PlanetBuildingAt   = p;
-                        if (p.Guid == gsave.MarkedPlanetGuid)          g.ColonizationTarget = p;
-                        if (p.Guid == gsave.TargetPlanetGuid)          g.TargetPlanet       = p;
-                    }
-                }
-
-                foreach (Ship s in data.MasterShipList)
-                {
-                    if      (gsave.ColonyShipGuid == s.Guid) g.FinishedShip = s;
-                    else if (gsave.OldShipGuid    == s.Guid) g.OldShip      = s;
-                    else if (gsave.TargetShipGuid == s.Guid) g.TargetShip   = s;
-                }
+                g.TargetSystem = us.GetSystem(gsave.TargetSystemGuid);
+                g.PlanetBuildingAt   = us.GetPlanet(gsave.PlanetWhereBuildingAtGuid);
+                g.ColonizationTarget = us.GetPlanet(gsave.MarkedPlanetGuid);
+                g.TargetPlanet       = us.GetPlanet(gsave.TargetPlanetGuid);
+                g.FinishedShip = us.GetShip(gsave.ColonyShipGuid);
+                g.OldShip      = us.GetShip(gsave.OldShipGuid);
+                g.TargetShip   = us.GetShip(gsave.TargetShipGuid);
 
                 if (g.type == GoalType.Refit && gsave.ToBuildUID != null)
                 {
@@ -676,35 +622,35 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        static void CreateShipGoals(SavedGame.EmpireSaveData esd, UniverseData data, Empire e)
+        static void CreateShipGoals(UniverseScreen us, SavedGame.EmpireSaveData esd)
         {
             foreach (SavedGame.ShipSaveData shipData in esd.OwnedShips)
             {
-                if (!data.FindShip(shipData.GUID, out Ship ship))
+                if (!us.Objects.FindShip(shipData.GUID, out Ship ship))
                     continue;
 
                 if (shipData.AISave.WayPoints != null)
                     ship.AI.SetWayPoints(shipData.AISave.WayPoints);
 
-                ship.AI.Target         = data.FindShipOrNull(shipData.AISave.AttackTarget);
-                ship.AI.EscortTarget   = data.FindShipOrNull(shipData.AISave.EscortTarget);
-                ship.AI.OrbitTarget    = data.FindPlanetOrNull(shipData.AISave.OrbitTarget);
-                ship.AI.SystemToDefend = data.FindSystemOrNull(shipData.AISave.SystemToDefend);
+                ship.AI.Target         = us.GetShip(shipData.AISave.AttackTarget);
+                ship.AI.EscortTarget   = us.GetShip(shipData.AISave.EscortTarget);
+                ship.AI.OrbitTarget    = us.GetPlanet(shipData.AISave.OrbitTarget);
+                ship.AI.SystemToDefend = us.GetSystem(shipData.AISave.SystemToDefend);
 
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
-                    ship.AI.AddGoalFromSave(sg, data);
+                    ship.AI.AddGoalFromSave(sg, us);
                 }
             }
         }
 
-        void CreateEmpires(SavedGame.UniverseSaveData saveData, UniverseData data)
+        void CreateEmpires(UniverseScreen us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 bool isPlayer = d.Traits.Name == PlayerLoyalty;
                 Empire e = CreateEmpireFromEmpireSaveData(d, isPlayer);
-                data.EmpireList.Add(e);
+                us.AddEmpire(e);
                 if (isPlayer)
                 {
                     e.AutoColonize          = saveData.AutoColonize;
@@ -714,8 +660,6 @@ namespace Ship_Game.GameScreens.LoadGame
                     e.AutoPickBestColonizer = saveData.AutoPickBestColonizer;
                     e.AutoBuild             = saveData.AutoProjectors;
                 }
-
-                EmpireManager.Add(e);
             }
 
             // FB: moved from empire int to after all empires created otherwise it wont work
@@ -723,9 +667,9 @@ namespace Ship_Game.GameScreens.LoadGame
                 e.ResetTechsUsableByShips(e.GetOurFactionShips(), unlockBonuses: false);
         }
 
-        static void GiftShipsFromServantEmpire(UniverseData data)
+        static void GiftShipsFromServantEmpire(UniverseScreen us)
         {
-            foreach (Empire e in data.EmpireList)
+            foreach (Empire e in us.Empires)
             {
                 if (e.data.AbsorbedBy == null)
                     continue;
@@ -737,22 +681,22 @@ namespace Ship_Game.GameScreens.LoadGame
         }
 
 
-        static void CreateTasksGoalsRoads(SavedGame.UniverseSaveData saveData, UniverseData data)
+        static void CreateTasksGoalsRoads(UniverseScreen us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.EmpireSaveData esd in saveData.EmpireDataList)
             {
                 Empire e = EmpireManager.GetEmpireByName(esd.Name);
 
-                CreateSpaceRoads(data, esd, e);
-                CreateGoals(esd, e, data);
+                CreateSpaceRoads(us, esd, e);
+                CreateGoals(us, esd, e);
                 e.GetEmpireAI().ThreatMatrix.AddFromSave(esd.GSAIData, e);
                 e.GetEmpireAI().UsedFleets = esd.GSAIData.UsedFleets;
-                CreateMilitaryTasks(esd, e, data);
-                CreateShipGoals(esd, data, e);
+                CreateMilitaryTasks(us, esd, e);
+                CreateShipGoals(us, esd);
             }
         }
 
-        void CreatePlanetImportExportShipLists(SavedGame.UniverseSaveData saveData, UniverseData data)
+        void CreatePlanetImportExportShipLists(UniverseScreen us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.SolarSystemSaveData ssd in saveData.SolarSystemDataList)
                 foreach (SavedGame.RingSave ring in ssd.RingList)
@@ -761,14 +705,14 @@ namespace Ship_Game.GameScreens.LoadGame
                         continue;
 
                     SavedGame.PlanetSaveData savedPlanet = ring.Planet;
-                    if (data.FindPlanet(savedPlanet.Guid, out Planet planet))
+                    if (us.GetPlanet(savedPlanet.Guid, out Planet planet))
                     {
                         if (savedPlanet.IncomingFreighters != null)
                         {
                             foreach (Guid freighterGuid in savedPlanet.IncomingFreighters)
                             {
-                                data.FindShip(freighterGuid, out Ship freighter);
-                                planet.AddToIncomingFreighterList(freighter);
+                                if (us.GetShip(freighterGuid, out Ship freighter))
+                                    planet.AddToIncomingFreighterList(freighter);
                             }
                         }
 
@@ -776,47 +720,46 @@ namespace Ship_Game.GameScreens.LoadGame
                         {
                             foreach (Guid freighterGuid in savedPlanet.OutgoingFreighters)
                             {
-                                data.FindShip(freighterGuid, out Ship freighter);
-                                planet.AddToOutgoingFreighterList(freighter);
+                                if (us.GetShip(freighterGuid, out Ship freighter))
+                                    planet.AddToOutgoingFreighterList(freighter);
                             }
                         }
                     }
                 }
         }
 
-        static void CreateAllObjects(SavedGame.UniverseSaveData saveData, UniverseData data)
+        static void CreateAllObjects(UniverseScreen us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 Empire e = EmpireManager.GetEmpireByName(d.EmpireData.Traits.Name);
-                foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
-                    CreateShipFromSave(data, shipData, e);
+                foreach (SavedGame.ShipSaveData shipSave in d.OwnedShips)
+                    Ship.CreateShipFromSave(us, e, shipSave);
             }
 
             if (saveData.Projectiles != null) // NULL check: backwards compatibility
             {
                 foreach (SavedGame.ProjectileSaveData projData in saveData.Projectiles)
-                {
-                    var p = Projectile.Create(projData, data);
-                    if (p != null) // invalid projectile data, maybe savegame issue
-                        data.MasterProjectileList.Add(p);
-                }
+                    Projectile.CreateFromSave(projData, us);
             }
             if (saveData.Beams != null) // NULL check: backwards compatibility
             {
                 foreach (SavedGame.BeamSaveData beamData in saveData.Beams)
-                {
-                    var b = Beam.Create(beamData, data);
-                    if (b != null) // invalid beam data, maybe savegame issue
-                        data.MasterProjectileList.Add(b);
-                }
+                    Beam.CreateFromSave(beamData, us);
             }
         }
 
-        void CreateSolarSystems(SavedGame.UniverseSaveData saveData, UniverseData data)
+        void CreateSolarSystems(UniverseScreen us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.SolarSystemSaveData ssd in saveData.SolarSystemDataList)
-                data.SolarSystemsList.Add(CreateSystemFromData(ssd));
+            {
+                SolarSystem system = CreateSystemFromData(ssd, us);
+                us.AddSolarSystem(system);
+            }
+            foreach (SolarSystem system in us.Systems)
+            {
+                system.FiveClosestSystems = us.GetFiveClosestSystems(system);
+            }
         }
 
         void UpdateDefenseShipBuildingOffense()

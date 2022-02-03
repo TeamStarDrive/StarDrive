@@ -121,9 +121,9 @@ namespace Ship_Game
         {
         }
 
-        public virtual void Initialize()
-        {
-        }
+        //public virtual void Initialize()
+        //{
+        //}
 
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {

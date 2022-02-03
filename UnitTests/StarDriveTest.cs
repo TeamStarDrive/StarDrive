@@ -70,7 +70,6 @@ namespace UnitTests
 
             EmpireManager.Clear();
 
-            var data = new UniverseData();
             IEmpireData playerData = ResourceManager.MajorRaces[0];
             IEmpireData enemyData = ResourceManager.MajorRaces[1];
             if (playerArchetype != null)
@@ -81,9 +80,9 @@ namespace UnitTests
                 enemyData = ResourceManager.MajorRaces.FirstOrDefault(e => e != playerData);
             }
 
-            Player = data.CreateEmpire(playerData, isPlayer:true);
-            Enemy = data.CreateEmpire(enemyData, isPlayer:false);
-            Universe = new UniverseScreen(data, Player);
+            Universe = new UniverseScreen(2_000_000f);
+            Player = Universe.CreateEmpire(playerData, isPlayer:true);
+            Enemy = Universe.CreateEmpire(enemyData, isPlayer:false);
             Player.Universum = Enemy.Universum = Universe;
             
             Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
@@ -97,9 +96,8 @@ namespace UnitTests
         
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
         {
-            var data = DeveloperUniverse.Create(playerPreference, numOpponents);
-            Universe = new DeveloperUniverse(data, data.EmpireList.First, paused);
-            Player = EmpireManager.Player;
+            Universe = DeveloperUniverse.Create(playerPreference, numOpponents);
+            Player = Universe.Player;
             Enemy  = EmpireManager.NonPlayerEmpires[0];
         }
 

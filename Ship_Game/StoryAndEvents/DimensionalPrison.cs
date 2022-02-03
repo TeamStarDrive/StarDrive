@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -34,14 +35,13 @@ namespace Ship_Game
         private Ship SpawnAncientRepulsor(UniverseScreen universe, Vector2 repulsorPos)
         {
             Ship repulsor = Ship.CreateShipAtPoint(universe, PlatformName, EmpireManager.Unknown, repulsorPos);
-            var beam = new Beam(repulsor, PlaformCenter, 75)
-            {
-                Weapon = ResourceManager.GetWeaponTemplate("AncientRepulsor")
-            };
-            beam.Infinite     = true;
-            beam.Range        = 2500f;
-            beam.PowerCost    = 0f;
+            Weapon weapon = ResourceManager.CreateWeapon("AncientRepulsor");
+            var beam = new Beam(weapon, repulsor, PlaformCenter, 75);
+            beam.Infinite = true;
+            beam.Range = 2500f;
+            beam.PowerCost = 0f;
             beam.DamageAmount = 0f;
+            beam.Initialize(universe, loading: false);
             return repulsor;
         }
 

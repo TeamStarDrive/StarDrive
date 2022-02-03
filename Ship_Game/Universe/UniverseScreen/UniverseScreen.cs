@@ -24,12 +24,15 @@ namespace Ship_Game
 {
     public partial class UniverseScreen : GameScreen
     {
-        public readonly SpatialManager Spatial = new SpatialManager();
-
         /// <summary>
         /// Manages universe objects in a thread-safe manner
         /// </summary>
-        public UniverseObjectManager Objects;
+        public readonly UniverseObjectManager Objects;
+
+        /// <summary>
+        /// Spatial search interface for Universe Objects, updated once per frame
+        /// </summary>
+        public readonly SpatialManager Spatial;
 
         public bool GameOver = false;
 
@@ -49,16 +52,17 @@ namespace Ship_Game
         Array<ClickableSystem> ClickableSystems = new Array<ClickableSystem>();
         Array<ClickableShip> ClickableShipsList = new Array<ClickableShip>();
 
-        readonly Map<Guid, Planet> PlanetsDict          = new Map<Guid, Planet>();
-        readonly Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
-
         Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         
         public Background bg;
-        public float UniverseSize = 5000000f; // universe width and height in world units
+
+        public float UniverseSize = 5_000_000f; // universe width and height in world units
         public float FTLModifier = 1f;
         public float EnemyFTLModifier = 1f;
         public bool FTLInNeutralSystems = true;
+        public GameDifficulty Difficulty;
+        public GalSize GalaxySize;
+
         public BatchRemovalCollection<Bomb> BombList  = new BatchRemovalCollection<Bomb>();
         readonly AutoResetEvent DrawCompletedEvt = new AutoResetEvent(false);
 
@@ -191,46 +195,46 @@ namespace Ship_Game
         public bool IsPlanetViewOrCloser => viewState <= UnivScreenState.PlanetView;
         public bool IsShipViewOrCloser   => viewState <= UnivScreenState.ShipView;
 
-        public UniverseScreen(UniverseData data, Empire loyalty) : base(null, toPause: null) // new game
+        public UniverseScreen(float universeSize) : base(null, toPause: null)
         {
-            SetupUniverseScreen(data, loyalty);
-        }
-
-        public UniverseScreen(UniverseData data, string loyalty) : base(null, toPause: null) // savegame
-        {
-            loading = true;
-            FogMapBase64 = data.FogMapBase64;
-            Empire thePlayer = EmpireManager.GetEmpireByName(loyalty);
-            SetupUniverseScreen(data, thePlayer);
-        }
-
-        void SetupUniverseScreen(UniverseData data, Empire thePlayer)
-        {
+            UniverseSize = universeSize;
             Name = "UniverseScreen";
             CanEscapeFromScreen = false;
-         
-            Player = thePlayer;
-            if (!Player.isPlayer)
-                throw new ArgumentException($"Invalid Player Empire, isPlayer==false: {Player}");
 
-            UniverseSize     = data.Size.X;
-            FTLModifier      = data.FTLSpeedModifier;
-            EnemyFTLModifier = data.EnemyFTLSpeedModifier;
-            GravityWells     = data.GravityWells;
+            if (UniverseSize < 1f)
+                throw new ArgumentException("UniverseSize not set!");
 
-            foreach (var system in data.SolarSystemsList)
-                AddSolarSystem(system);
-
+            Spatial = new SpatialManager();
             Spatial.Setup(UniverseSize);
-            Objects = new UniverseObjectManager(this, Spatial, data);
+
+            Objects = new UniverseObjectManager(this, Spatial);
             Objects.OnShipRemoved += Objects_OnShipRemoved;
+
             SubSpaceProjectors = new SubSpaceProjectors(UniverseSize);
+
             ShipCommands = new ShipMoveCommands(this);
             DeepSpaceBuildWindow = new DeepSpaceBuildingWindow(this);
         }
 
+        public UniverseScreen(SavedGame.UniverseSaveData save) : this(save.UniverseSize) // load game
+        {
+            loading = true;
+            Paused = true;
+            GamePace = save.GamePacing;
+            StarDate = save.StarDate;
+            CamPos = new Vector3d(save.CamPos);
+        }
+
+        readonly Array<Empire> EmpireList = new Array<Empire>();
+
+        readonly Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
         readonly Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
+        
+        readonly Map<Guid, Planet> PlanetsDict = new Map<Guid, Planet>();
         readonly Array<Planet> AllPlanetsList = new Array<Planet>();
+        
+        // @return All Empires in the Universe
+        public IReadOnlyList<Empire> Empires => EmpireList;
 
         // @return All SolarSystems in the Universe
         public IReadOnlyList<SolarSystem> Systems => SolarSystemList;
@@ -254,14 +258,55 @@ namespace Ship_Game
             }
         }
 
-        public SolarSystem GetSystem(in Guid systemGuid)
+        public Empire CreateEmpire(IEmpireData readOnlyData, bool isPlayer)
         {
-            return SolarSystemDict[systemGuid];
+            if (EmpireManager.GetEmpireByName(readOnlyData.Name) != null)
+                throw new InvalidOperationException($"BUG: Empire already created! {readOnlyData.Name}");
+            Empire e = EmpireManager.CreateEmpireFromEmpireData(readOnlyData, isPlayer);
+            return AddEmpire(e);
         }
 
-        public Planet GetPlanet(in Guid planetGuid)
+        public Empire AddEmpire(Empire e)
         {
-            return PlanetsDict[planetGuid];
+            e.Universum = this;
+            EmpireList.Add(e);
+            EmpireManager.Add(e);
+
+            if (e.isPlayer)
+            {
+                if (Player != null)
+                    throw new InvalidOperationException($"Duplicate Player empire! previous={Player}  new={e}");
+                Player = e;
+            }
+            return e;
+        }
+
+        public Empire GetEmpire(string loyalty)
+        {
+            return EmpireList.Find(e => e.data.Traits.Name == loyalty);
+        }
+
+        public SolarSystem GetSystem(in Guid guid)
+        {
+            if (guid == Guid.Empty) return null;
+            if (SolarSystemDict.TryGetValue(guid, out SolarSystem system))
+                return system;
+            Log.Error($"System not found: {guid}");
+            return null;
+        }
+
+        public Planet GetPlanet(in Guid guid)
+        {
+            if (guid == Guid.Empty) return null;
+            if (PlanetsDict.TryGetValue(guid, out Planet planet))
+                return planet;
+            Log.Error($"Planet not found: {guid}");
+            return null;
+        }
+
+        public bool GetPlanet(in Guid guid, out Planet found)
+        {
+            return (found = GetPlanet(guid)) != null;
         }
 
         public SolarSystem FindClosestSystem(Vector2 pos)
@@ -272,6 +317,32 @@ namespace Ship_Game
         public Planet FindClosestPlanet(Vector2 pos)
         {
             return AllPlanetsList.FindClosestTo(pos);
+        }
+
+        public SolarSystem FindSolarSystemAt(Vector2 point)
+        {
+            foreach (SolarSystem s in SolarSystemList)
+            {
+                if (point.InRadius(s.Position, s.Radius*2))
+                    return s;
+            }
+            return null;
+        }
+
+        public bool FindSystem(in Guid systemGuid, out SolarSystem foundSystem)
+        {
+            return SolarSystemDict.TryGetValue(systemGuid, out foundSystem);
+        }
+
+        public SolarSystem FindSystem(in Guid systemGuid)
+        {
+            return SolarSystemDict.TryGetValue(systemGuid, out SolarSystem system) ? system : null;
+        }
+
+        public Array<SolarSystem> GetFiveClosestSystems(SolarSystem system)
+        {
+            return SolarSystemList.FindMinItemsFiltered(5, filter => filter != system,
+                                                           select => select.Position.SqDist(system.Position));
         }
 
         public Array<SolarSystem> GetSolarSystemsFromGuids(Array<Guid> guids)
@@ -285,6 +356,26 @@ namespace Ship_Game
             return systems;
         }
 
+        public Ship GetShip(in Guid guid)
+        {
+            return Objects.FindShip(guid);
+        }
+
+        public bool GetShip(in Guid guid, out Ship found)
+        {
+            return Objects.FindShip(guid, out found);
+        }
+
+        public GameplayObject GetObject(in Guid guid)
+        {
+            return Objects.FindObject(guid);
+        }
+
+        public bool GetObject(in Guid guid, out GameplayObject found)
+        {
+            return Objects.FindObject(guid, out found);
+        }
+
         void Objects_OnShipRemoved(Ship ship)
         {
             void RemoveShip()
@@ -294,15 +385,6 @@ namespace Ship_Game
                 SelectedShipList.RemoveRef(ship);
             }
             RunOnNextFrame(RemoveShip);
-        }
-
-        public Planet GetPlanet(Guid guid)
-        {
-            if (guid == Guid.Empty) return null;
-            if (PlanetsDict.TryGetValue(guid, out Planet planet))
-                return planet;
-            Log.Error($"Guid for planet not found: {guid}");
-            return null;
         }
 
         // NOTE: this relies on MaxCamHeight and UniverseSize

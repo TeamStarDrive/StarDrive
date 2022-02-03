@@ -37,20 +37,19 @@ namespace Ship_Game
         {
             // there is an error here in beam creation where the weapon has no module.
             // i am setting these values in the weapon CreateDroneBeam where possible.
-            Weapon                  = weapon;
-            Target                  = target;
-            Module                  = weapon.Module;
-            DamageAmount            = weapon.GetDamageWithBonuses(weapon.Owner);
-            PowerCost               = weapon.BeamPowerCostPerSecond;
-            Range                   = weapon.BaseRange;
-            Duration                = weapon.BeamDuration;
-            Thickness               = weapon.BeamThickness;
-            WeaponType              = weapon.WeaponType;
+            Weapon = weapon;
+            Target = target;
+            Module = weapon.Module;
+            DamageAmount = weapon.GetDamageWithBonuses(weapon.Owner);
+            PowerCost  = weapon.BeamPowerCostPerSecond;
+            Range      = weapon.BaseRange;
+            Duration   = weapon.BeamDuration;
+            Thickness  = weapon.BeamThickness;
+            WeaponType = weapon.WeaponType;
             // for repair weapons, we ignore all collisions
             DisableSpatialCollision = DamageAmount < 0f;
-            Emitter.Position        = new Vector3(source, 0f);
-            Owner                   = weapon.Owner;
-            Source                  = source;
+            Owner = weapon.Owner;
+            Source  = source;
 
             Destination = destination ;
             SetActualHitDestination(Destination);
@@ -58,37 +57,35 @@ namespace Ship_Game
 
             weapon.ApplyDamageModifiers(this);
 
-            Initialize();
-
             if (Owner != null 
                 && Owner.InFrustum 
                 && Owner.Universe.IsSystemViewOrCloser
                 && (Owner.InSensorRange || target is ShipModule m && m.GetParent()?.InSensorRange == true))
             {
+                Emitter.Position = new Vector3(source, 0f);
                 weapon.PlayToggleAndFireSfx(Emitter);
             }
         }
 
         // Create a spatially fixed beam spawned from a ship center
         // Used by DIMENSIONAL PRISON
-        public Beam(Ship ship, Vector2 destination, int thickness)
+        public Beam(Weapon weapon, Ship ship, Vector2 destination, int thickness)
             : base(ship.Loyalty, GameObjectType.Beam)
         {
-            Owner       = ship;
-            Source      = ship.Position;
+            Weapon = weapon;
+            Owner = ship;
+            Source = ship.Position;
             Destination = destination;
-            Thickness   = thickness;
-
-            Initialize();
+            Thickness = thickness;
         }
 
         // loading from savegame
-        public static Beam Create(in SavedGame.BeamSaveData bdata, UniverseData data)
+        public static void CreateFromSave(in SavedGame.BeamSaveData bdata, UniverseScreen us)
         {
-            if (!GetOwners(bdata.Owner, bdata.Loyalty, bdata.Weapon, true, data, out ProjectileOwnership o))
-                return null; // this owner or weapon no longer exists
-            
-            GameplayObject target = data.FindObjectOrNull(bdata.Target);
+            if (!GetOwners(bdata.Owner, bdata.Loyalty, bdata.Weapon, true, us, out ProjectileOwnership o))
+                return; // this owner or weapon no longer exists
+
+            GameplayObject target = us.GetObject(bdata.Target);
             var beam = new Beam(o.Weapon, bdata.Source, bdata.Destination, target)
             {
                 Owner = o.Owner,
@@ -98,12 +95,11 @@ namespace Ship_Game
             beam.SetActualHitDestination(bdata.ActualHitDestination);
             beam.Duration = bdata.Duration;
             beam.FirstRun = false;
-            return beam;
+            beam.Initialize(us, loading: true);
         }
 
-        public override void Initialize()
+        public void Initialize(UniverseScreen us, bool loading)
         {
-            base.Initialize();
             if (Owner != null)
             {
                 Loyalty = Owner?.Loyalty ?? DroneAI?.Drone?.Loyalty;
@@ -118,7 +114,11 @@ namespace Ship_Game
                 QuadVertexDecl = new VertexDeclaration(GameBase.Base.GraphicsDevice,
                                         VertexPositionNormalTexture.VertexElements);
 
-            Owner.Universe?.Objects.Add(this);
+            Universe = us;
+            if (loading)
+                us.Objects.AddImmediate(this);
+            else
+                us.Objects.Add(this);
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -374,11 +374,12 @@ namespace Ship_Game
     public sealed class DroneBeam : Beam
     {
         readonly DroneAI AI;
-        public DroneBeam(DroneAI ai) :
-            base(ai.DroneWeapon, ai.Drone.Position, ai.DroneTarget.Position, ai.DroneTarget)
+        public DroneBeam(DroneAI ai)
+            : base(ai.DroneWeapon, ai.Drone.Position, ai.DroneTarget.Position, ai.DroneTarget)
         {
             AI = ai;
             Owner = ai.Drone.Owner;
+            Initialize(Owner.Universe, loading:false);
         }
 
         public override void Update(FixedSimTime timeStep)
