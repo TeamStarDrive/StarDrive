@@ -159,10 +159,10 @@ namespace Ship_Game.Gameplay
         }
 
         public static bool GetOwners(in Guid ownerGuid, int loyaltyId, string weaponUID, bool isBeam,
-                                     UniverseData data, out ProjectileOwnership o)
+                                     UniverseScreen us, out ProjectileOwnership o)
         {
             o = default;
-            o.Owner = data.FindShipOrNull(ownerGuid);
+            o.Owner = us.GetShip(ownerGuid);
             if (o.Owner != null)
             {
                 if (weaponUID.NotEmpty())
@@ -170,7 +170,7 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                o.Planet          = data.FindPlanetOrNull(ownerGuid);
+                o.Planet = us.GetPlanet(ownerGuid);
                 Building building = o.Planet?.BuildingList.Find(b => b.Weapon == weaponUID);
                 if (building != null)
                     o.Weapon = building.TheWeapon;
@@ -202,9 +202,9 @@ namespace Ship_Game.Gameplay
         }
 
         // loading from savegame
-        public static Projectile Create(in SavedGame.ProjectileSaveData pdata, UniverseData data)
+        public static Projectile CreateFromSave(in SavedGame.ProjectileSaveData pdata, UniverseScreen us)
         {
-            if (!GetOwners(pdata.Owner, pdata.Loyalty, pdata.Weapon, false, data, out ProjectileOwnership o))
+            if (!GetOwners(pdata.Owner, pdata.Loyalty, pdata.Weapon, false, us, out ProjectileOwnership o))
                 return null; // this owner or weapon no longer exists
 
             var p = new Projectile(o.Loyalty)
@@ -212,7 +212,8 @@ namespace Ship_Game.Gameplay
                 Weapon = o.Weapon,
                 Module = o.Weapon.Module,
                 Owner = o.Owner,
-                Planet = o.Planet
+                Planet = o.Planet,
+                Universe = us,
             };
 
             p.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
@@ -275,11 +276,17 @@ namespace Ship_Game.Gameplay
                 MissileAI = new MissileAI(this, target, missileVelocity);
             }
 
-            Universe = Owner?.Universe ?? Planet.Universe;
-            Universe.Objects.Add(this);
+            if (Universe != null) // load game
+            {
+                Universe.Objects.AddImmediate(this);
+            }
+            else
+            {
+                Universe = Owner?.Universe ?? Planet.Universe;
+                Universe.Objects.Add(this);
+            }
 
             LoadContent();
-            Initialize();
 
             if (Owner != null)
             {
@@ -290,12 +297,19 @@ namespace Ship_Game.Gameplay
                 SetSystem(Planet.ParentSystem);
             }
 
-            if (playSound && IsInFrustum(Universe))
+            bool inFrustum = IsInFrustum(Universe);
+            if (playSound && inFrustum)
             {
                 Weapon.PlayToggleAndFireSfx(Emitter);
                 string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).DieCue;
                 if (cueName.NotEmpty())     DieCueName  = cueName;
                 if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;
+            }
+
+            // TODO:
+            //if (inFrustum)
+            {
+                UpdateWorldMatrix();
             }
         }
 
@@ -562,9 +576,7 @@ namespace Ship_Game.Gameplay
                 else
                     ZPos = 25f;
 
-                WorldMatrix = Matrix.CreateScale(Weapon.Scale) 
-                            * Matrix.CreateRotationZ(Rotation)
-                            * Matrix.CreateTranslation(Position.X, Position.Y, ZPos);
+                UpdateWorldMatrix();
 
                 if (UsesVisibleMesh) // lazy init rocket projectile meshes
                 {
@@ -596,6 +608,13 @@ namespace Ship_Game.Gameplay
             }
 
             base.Update(timeStep);
+        }
+
+        void UpdateWorldMatrix()
+        {
+            WorldMatrix = Matrix.CreateScale(Weapon.Scale) 
+                        * Matrix.CreateRotationZ(Rotation)
+                        * Matrix.CreateTranslation(Position.X, Position.Y, ZPos);
         }
 
         void UpdateMesh()

@@ -10,7 +10,7 @@ namespace Ship_Game
         readonly SetupSave SS;
 
         public SaveNewGameSetupScreen(RaceDesignScreen screen,
-            UniverseData.GameDifficulty gameDifficulty,
+            GameDifficulty gameDifficulty,
             RaceDesignScreen.StarNum numStars,
             GalSize galaxySize,
             int gamePacing,

@@ -961,7 +961,7 @@ namespace Ship_Game
             if (p.EventsOnTiles())
                 EmpireAI.SendExplorationFleet(p);
 
-            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Hard || p.ParentSystem.IsExclusivelyOwnedBy(this))
+            if (CurrentGame.Difficulty <= GameDifficulty.Hard || p.ParentSystem.IsExclusivelyOwnedBy(this))
                 return;
 
             if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())

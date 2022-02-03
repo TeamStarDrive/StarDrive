@@ -41,7 +41,7 @@ namespace Ship_Game
         int FlagIndex;
         public int TotalPointsUsed { get; private set; } = 8;
 
-        UniverseData.GameDifficulty SelectedDifficulty = UniverseData.GameDifficulty.Normal;
+        GameDifficulty SelectedDifficulty = GameDifficulty.Normal;
         public IEmpireData SelectedData { get; private set; }
 
         UITextEntry NameEntry;
@@ -86,7 +86,7 @@ namespace Ship_Game
             return t;
         }
         
-        public void SetCustomSetup(UniverseData.GameDifficulty gameDifficulty,
+        public void SetCustomSetup(GameDifficulty gameDifficulty,
             StarNum numStars, GalSize galaxySize, int pacing,
             ExtraRemnantPresence extraRemnants, int numOpponents, GameMode mode)
         {

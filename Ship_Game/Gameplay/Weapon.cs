@@ -799,6 +799,7 @@ namespace Ship_Game.Gameplay
 
             PrepareToFire();
             var beam = new Beam(this, source, destination, target);
+            beam.Initialize(Owner.Universe, loading: false);
             return true;
         }
 

@@ -65,7 +65,7 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 10;
+        public const int SaveGameVersion = 11;
         public const string ZipExt = ".sav.gz";
 
         public readonly UniverseSaveData SaveData = new UniverseSaveData();
@@ -103,6 +103,7 @@ namespace Ship_Game
             SaveData.StarDate              = screenToSave.StarDate;
             SaveData.FTLModifier           = screenToSave.FTLModifier;
             SaveData.EnemyFTLModifier      = screenToSave.EnemyFTLModifier;
+            SaveData.FTLInNeutralSystems   = screenToSave.FTLInNeutralSystems;
             SaveData.GravityWells          = screenToSave.GravityWells;
             SaveData.PlayerLoyalty         = screenToSave.PlayerLoyalty;
             SaveData.RandomEvent           = RandomEventManager.ActiveEvent;
@@ -335,7 +336,7 @@ namespace Ship_Game
 
         public void Save(string saveAs, bool async)
         {
-            SaveData.Size = new Vector2(Screen.UniverseSize);
+            SaveData.UniverseSize = Screen.UniverseSize;
             SaveData.Path = Dir.StarDriveAppData;
             SaveData.SaveAs = saveAs;
 
@@ -956,19 +957,20 @@ namespace Ship_Game
             [StarData] public string FogMapBase64;
             [StarData] public string PlayerLoyalty;
             [StarData] public Vector3 CamPos;
-            [StarData] public Vector2 Size;
+            [StarData] public float UniverseSize;
             [StarData] public float StarDate;
             [StarData] public float GameScale;
             [StarData] public float GamePacing;
             [StarData] public Array<SolarSystemSaveData> SolarSystemDataList;
             [StarData] public Array<EmpireSaveData> EmpireDataList;
-            [StarData] public UniverseData.GameDifficulty GameDifficulty;
+            [StarData] public GameDifficulty GameDifficulty;
             [StarData] public bool AutoExplore;
             [StarData] public bool AutoColonize;
             [StarData] public bool AutoFreighters;
             [StarData] public bool AutoProjectors;
             [StarData] public float FTLModifier = 1.0f;
             [StarData] public float EnemyFTLModifier = 1.0f;
+            [StarData] public bool FTLInNeutralSystems;
             [StarData] public bool GravityWells;
             [StarData] public RandomEvent RandomEvent;
             [StarData] public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;

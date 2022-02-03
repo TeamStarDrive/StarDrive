@@ -282,10 +282,10 @@ namespace Ship_Game
             return PlanetList.Sum(p => p.ColonyPotentialValue(e));
         }
 
-        public float AverageValueForEmpires(Array<Empire> empireList)
+        public float AverageValueForEmpires(IReadOnlyList<Empire> empireList)
         {
             float totalValue = 0;
-            float numOpponents = empireList.Count(e => !e.isFaction);
+            int numOpponents = empireList.Count(e => !e.isFaction);
             for (int i = 0; i < empireList.Count; i++)
             {
                 Empire empire = empireList[i];
