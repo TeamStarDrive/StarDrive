@@ -6,6 +6,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Xml.Serialization;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -59,7 +60,7 @@ namespace Ship_Game
 
             if (Owner != null 
                 && Owner.InFrustum 
-                && Owner.Universe.IsSystemViewOrCloser
+                && Owner.Universe.Screen.IsSystemViewOrCloser
                 && (Owner.InSensorRange || target is ShipModule m && m.GetParent()?.InSensorRange == true))
             {
                 Emitter.Position = new Vector3(source, 0f);
@@ -80,7 +81,7 @@ namespace Ship_Game
         }
 
         // loading from savegame
-        public static void CreateFromSave(in SavedGame.BeamSaveData bdata, UniverseScreen us)
+        public static void CreateFromSave(in SavedGame.BeamSaveData bdata, UniverseState us)
         {
             if (!GetOwners(bdata.Owner, bdata.Loyalty, bdata.Weapon, true, us, out ProjectileOwnership o))
                 return; // this owner or weapon no longer exists
@@ -98,7 +99,7 @@ namespace Ship_Game
             beam.Initialize(us, loading: true);
         }
 
-        public void Initialize(UniverseScreen us, bool loading)
+        public void Initialize(UniverseState us, bool loading)
         {
             if (Owner != null)
             {

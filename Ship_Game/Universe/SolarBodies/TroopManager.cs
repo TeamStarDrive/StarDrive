@@ -394,8 +394,8 @@ namespace Ship_Game
 
         private void ResolvePlanetaryBattle(FixedSimTime timeStep, ref bool startCombatTimer)
         {
-            if (Ground.Universe.LookingAtPlanet 
-                && Ground.Universe.workersPanel is CombatScreen screen 
+            if (Ground.Universe.Screen.LookingAtPlanet 
+                && Ground.Universe.Screen.workersPanel is CombatScreen screen 
                 && screen.P == Ground)
             {
                 ResolveTacticalCombats(timeStep, isViewing: true);

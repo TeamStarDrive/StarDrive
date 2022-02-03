@@ -30,7 +30,7 @@ namespace Ship_Game
         readonly PerfTimer TimeSinceLastAutoFPS = new PerfTimer();
 
         int CurrentSimFPS => GlobalStats.SimulationFramesPerSecond + SimFPSModifier;
-        int ActualSimFPS => (int)(TurnTimePerf.MeasuredSamples / GameSpeed);
+        int ActualSimFPS => (int)(TurnTimePerf.MeasuredSamples / UState.GameSpeed);
 
         /// <summary>
         /// NOTE: This must be called from UI Update thread to advance the simulation time forward
@@ -45,7 +45,7 @@ namespace Ship_Game
                 float lag = TargetSimTime - CurrentSimTime;
                 if (lag <= 1.0f)
                 {
-                    TargetSimTime += deltaTimeFromUI * GameSpeed;
+                    TargetSimTime += deltaTimeFromUI * UState.GameSpeed;
                 }
             }
         }
@@ -104,7 +104,7 @@ namespace Ship_Game
 
         void ProcessSimulationTurns()
         {
-            if (Paused)
+            if (UState.Paused)
             {
                 // Execute all the actions submitted from UI thread
                 // into this Simulation / Empire thread
@@ -114,7 +114,7 @@ namespace Ship_Game
                 // recalculates empire stats and updates lists using current shiplists
                 EndOfTurnUpdate(FixedSimTime.Zero/*paused*/);
 
-                Objects.Update(FixedSimTime.Zero/*paused*/);
+                UState.Objects.Update(FixedSimTime.Zero/*paused*/);
                 RecomputeFleetButtons(true);
             }
             else
@@ -130,13 +130,13 @@ namespace Ship_Game
                     // If we increase GameSpeed, also do less simulation steps to speed things up
                     // And at 0.5x speed, do twice as many steps.
                     // Note: beyond 2x step we suffer major precision issues, so we use clamp
-                    float gameSpeed = GameSpeed.UpperBound(1);
+                    float gameSpeed = UState.GameSpeed.UpperBound(1);
                     float fixedTimeStep = (1f / CurrentSimFPS) * gameSpeed;
                     var fixedSimStep = new FixedSimTime(fixedTimeStep);
 
                     // put a limit to simulation iterations
                     // because sometimes we cannot catch up
-                    int MAX_ITERATIONS = (int)(30 * GameSpeed);
+                    int MAX_ITERATIONS = (int)(30 * UState.GameSpeed);
 
                     // run the allotted number of game turns
                     // if Simulation FPS is `10` and game speed is `0.5`, this will run 5x per second
@@ -165,13 +165,13 @@ namespace Ship_Game
 
                     if (GlobalStats.RestrictAIPlayerInteraction)
                     {
-                        if (TurnTimePerf.MeasuredSamples > 0 && TurnTimePerf.AvgTime * GameSpeed < 0.05f)
+                        if (TurnTimePerf.MeasuredSamples > 0 && TurnTimePerf.AvgTime * UState.GameSpeed < 0.05f)
                         {
-                            ++GameSpeed;
+                            ++UState.GameSpeed;
                         }
-                        else if (--GameSpeed < 1.0f)
+                        else if (--UState.GameSpeed < 1.0f)
                         {
-                            GameSpeed = 1.0f;
+                            UState.GameSpeed = 1.0f;
                         }
                     }
                 }
@@ -204,7 +204,7 @@ namespace Ship_Game
             {
                 UpdateInfluenceForAllEmpires(this, timeStep);
 
-                Objects.Update(timeStep);
+                UState.Objects.Update(timeStep);
 
                 ProcessTurnUpdateMisc(timeStep);
                 EndOfTurnUpdate(timeStep);
@@ -234,7 +234,7 @@ namespace Ship_Game
                 RemoveDuplicateProjectorWorkAround(empire); 
 
             // We need to update objects at least once to have visibility
-            Objects.InitializeFromSave();
+            UState.Objects.InitializeFromSave();
 
             // makes sure all empire vision is updated.
             UpdateInfluenceForAllEmpires(this, FixedSimTime.Zero);
@@ -243,12 +243,12 @@ namespace Ship_Game
 
         public void UpdateStarDateAndTriggerEvents(float newStarDate)
         {
-            StarDate = (float)Math.Round(newStarDate, 1);
+            UState.StarDate = (float)Math.Round(newStarDate, 1);
 
-            ExplorationEvent evt = ResourceManager.EventByDate(StarDate);
+            ExplorationEvent evt = ResourceManager.EventByDate(UState.StarDate);
             if (evt != null)
             {
-                Log.Info($"Trigger Timed Exploration Event  StarDate:{StarDate}");
+                Log.Info($"Trigger Timed Exploration Event  StarDate:{StarDateString}");
                 evt.TriggerExplorationEvent(this);
             }
         }
@@ -258,7 +258,7 @@ namespace Ship_Game
             EmpireMiscPerf.Start();
             UpdateClickableItems();
 
-            JunkList.ApplyPendingRemovals();
+            UState.JunkList.ApplyPendingRemovals();
 
             for (int i = 0; i < anomalyManager.AnomaliesList.Count; i++)
             {
@@ -285,8 +285,8 @@ namespace Ship_Game
                 ShieldManager.Update(this);
                 FTLManager.Update(this, timeStep);
 
-                for (int index = 0; index < JunkList.Count; ++index)
-                    JunkList[index].Update(timeStep);
+                for (int index = 0; index < UState.JunkList.Count; ++index)
+                    UState.JunkList[index].Update(timeStep);
             }
             EmpireMiscPerf.Stop();
         }
@@ -373,14 +373,14 @@ namespace Ship_Game
 
             PreEmpirePerf.Stop();
             
-            if (!Paused && IsActive)
+            if (!UState.Paused && IsActive)
             {
                 EmpireUpdatePerf.Start();
                 UpdateEmpires(timeStep);
                 EmpireUpdatePerf.Stop();
             }
             
-            return !Paused;
+            return !UState.Paused;
         }
 
         /// <summary>
@@ -424,7 +424,7 @@ namespace Ship_Game
                 Empire empire = EmpireManager.Empires[i];
                 if (!empire.data.Defeated)
                 {
-                    empire.Update(this, timeStep);
+                    empire.Update(UState, timeStep);
                 }
             }
         }
@@ -451,21 +451,22 @@ namespace Ship_Game
         void HandleGameSpeedChange(InputState input)
         {
             if (input.SpeedReset)
-                GameSpeed = 1f;
+                UState.GameSpeed = 1f;
             else if (input.SpeedUp || input.SpeedDown)
             {
                 bool unlimited = GlobalStats.UnlimitedSpeed || Debug;
                 float speedMin = unlimited ? 0.0625f : 0.25f;
                 float speedMax = unlimited ? 128f    : 6f;
-                GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);
+                UState.GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);
             }
         }
 
         float GetGameSpeedAdjust(bool increase)
         {
+            float speed = UState.GameSpeed;
             return increase
-                ? GameSpeed <= 1 ? GameSpeed * 2 : GameSpeed + 1
-                : GameSpeed <= 1 ? GameSpeed / 2 : GameSpeed - 1;
+                ? speed <= 1 ? speed * 2 : speed + 1
+                : speed <= 1 ? speed / 2 : speed - 1;
         }
     }
 }

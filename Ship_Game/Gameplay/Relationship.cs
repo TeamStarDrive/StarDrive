@@ -10,6 +10,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.Empires.Components;
 using Ship_Game.GameScreens.DiplomacyScreen;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Gameplay
 {
@@ -275,7 +276,7 @@ namespace Ship_Game.Gameplay
             return netIncome.RoundToFractionOf10();
         }
 
-        public SolarSystem[] GetPlanetsLostFromWars(UniverseScreen us)
+        public SolarSystem[] GetPlanetsLostFromWars(UniverseState us)
         {
             var lostSystems = new Array<SolarSystem>();
             for (int i = 0; i < WarHistory.Count; i++)
@@ -639,7 +640,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 us.EndPeaceWith(them);
-                us.Universum.NotificationManager?.AddPeaceTreatyExpiredNotification(them);
+                us.Universum.Notifications?.AddPeaceTreatyExpiredNotification(them);
             }
         }
         
@@ -1057,7 +1058,7 @@ namespace Ship_Game.Gameplay
             if ((themToUs.Trust >= 150 || themToUs.Trust >= 100 && them.TotalPopBillion < us.TotalPopBillion / 3)
                 && Is3RdPartyBiggerThenUs())
             {
-                us.Universum.NotificationManager.AddPeacefulMergerNotification(us, them);
+                us.Universum.Notifications.AddPeacefulMergerNotification(us, them);
                 us.AbsorbEmpire(them);
             }
 
@@ -1091,7 +1092,7 @@ namespace Ship_Game.Gameplay
                     if (!RefusedMerge)
                     {
                         EmpireManager.Player.AbsorbEmpire(us);
-                        us.Universum.NotificationManager.AddMergeWithPlayer(us);
+                        us.Universum.Notifications.AddMergeWithPlayer(us);
                     }
                 })
             };
@@ -1782,7 +1783,7 @@ namespace Ship_Game.Gameplay
             FearEntries?.Dispose(ref FearEntries);
         }
 
-        public void RestoreWarsFromSave(UniverseScreen us)
+        public void RestoreWarsFromSave(UniverseState us)
         {
             ActiveWar?.RestoreFromSave(us, true);
 

@@ -85,7 +85,7 @@ namespace Ship_Game
             Screen = screenToSave;
 
             // clean up and submit objects before saving
-            screenToSave.Objects.UpdateLists(removeInactiveObjects: true);
+            screenToSave.UState.Objects.UpdateLists(removeInactiveObjects: true);
 
             SaveData.SaveGameVersion       = SaveGameVersion;
             SaveData.GameDifficulty        = CurrentGame.Difficulty;
@@ -100,11 +100,11 @@ namespace Ship_Game
             SaveData.AutoProjectors        = EmpireManager.Player.AutoBuild;
             SaveData.GamePacing            = CurrentGame.Pace;
             SaveData.GameScale             = 1f;
-            SaveData.StarDate              = screenToSave.StarDate;
-            SaveData.FTLModifier           = screenToSave.FTLModifier;
-            SaveData.EnemyFTLModifier      = screenToSave.EnemyFTLModifier;
-            SaveData.FTLInNeutralSystems   = screenToSave.FTLInNeutralSystems;
-            SaveData.GravityWells          = screenToSave.GravityWells;
+            SaveData.StarDate              = screenToSave.UState.StarDate;
+            SaveData.FTLModifier           = screenToSave.UState.FTLModifier;
+            SaveData.EnemyFTLModifier      = screenToSave.UState.EnemyFTLModifier;
+            SaveData.FTLInNeutralSystems   = screenToSave.UState.FTLInNeutralSystems;
+            SaveData.GravityWells          = screenToSave.UState.GravityWells;
             SaveData.PlayerLoyalty         = screenToSave.PlayerLoyalty;
             SaveData.RandomEvent           = RandomEventManager.ActiveEvent;
             SaveData.CamPos                = screenToSave.CamPos.ToVec3f();
@@ -132,7 +132,7 @@ namespace Ship_Game
             SaveData.CordrazinePlanetCaptured      = GlobalStats.CordrazinePlanetCaptured;
             SaveData.DisableVolcanoWarning         = GlobalStats.DisableVolcanoWarning;
             
-            foreach (SolarSystem system in screenToSave.Systems)
+            foreach (SolarSystem system in screenToSave.UState.Systems)
             {
                 SaveData.SolarSystemDataList.Add(new SolarSystemSaveData
                 {
@@ -313,8 +313,8 @@ namespace Ship_Game
                 SaveData.EmpireDataList.Add(empireToSave);
             }
 
-            SaveData.Projectiles = screenToSave.Objects.GetProjectileSaveData();
-            SaveData.Beams       = screenToSave.Objects.GetBeamSaveData();
+            SaveData.Projectiles = screenToSave.UState.Objects.GetProjectileSaveData();
+            SaveData.Beams       = screenToSave.UState.Objects.GetBeamSaveData();
 
             SaveData.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
             foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> e in StatTracker.SnapshotsMap)
@@ -336,7 +336,7 @@ namespace Ship_Game
 
         public void Save(string saveAs, bool async)
         {
-            SaveData.UniverseSize = Screen.UniverseSize;
+            SaveData.UniverseSize = Screen.UState.Size;
             SaveData.Path = Dir.StarDriveAppData;
             SaveData.SaveAs = saveAs;
 

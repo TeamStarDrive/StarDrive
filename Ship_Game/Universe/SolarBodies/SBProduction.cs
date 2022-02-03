@@ -167,11 +167,11 @@ namespace Ship_Game.Universe.SolarBodies
             b.IsPlayerAdded = q.IsPlayerAdded;
             q.pgs.PlaceBuilding(b, P);
             if (!GlobalStats.SuppressOnBuildNotifications
-                && !P.Universe.IsViewingColonyScreen(P)
+                && !P.Universe.Screen.IsViewingColonyScreen(P)
                 && P.OwnerIsPlayer
                 && (q.IsPlayerAdded || q.Building.IsCapital))
             {
-                P.Universe.NotificationManager.AddBuildingConstructed(P, b);
+                P.Universe.Notifications.AddBuildingConstructed(P, b);
             }
 
             return true;

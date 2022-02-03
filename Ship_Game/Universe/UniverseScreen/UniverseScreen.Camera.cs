@@ -277,8 +277,8 @@ namespace Ship_Game
                     CamPos.Z = minCamHeight;
             }
 
-            CamPos.X = CamPos.X.Clamped(-UniverseSize, +UniverseSize);
-            CamPos.Y = CamPos.Y.Clamped(-UniverseSize, +UniverseSize);
+            CamPos.X = CamPos.X.Clamped(-UState.Size, +UState.Size);
+            CamPos.Y = CamPos.Y.Clamped(-UState.Size, +UState.Size);
             CamPos.Z = CamPos.Z.Clamped(minCamHeight, MaxCamHeight);
 
             //Log.Write(ConsoleColor.Green, $"CamPos {CamPos.X:0.00} {CamPos.Y:0.00} {CamPos.Z:0.00}  Dest {CamDestination.X:0.00} {CamDestination.Y:0.00} {CamDestination.Z:0.00}");

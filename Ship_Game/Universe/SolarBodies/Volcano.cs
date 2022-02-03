@@ -42,7 +42,7 @@ namespace Ship_Game.Universe.SolarBodies
         void CreateLavaPool(PlanetGridSquare tile) // Must get a tile with no Volcano on it
         {
             if (tile.BuildingOnTile && P.Owner == Player)
-                P.Universe.NotificationManager.AddBuildingDestroyedByLava(P, tile.Building);
+                P.Universe.Notifications.AddBuildingDestroyedByLava(P, tile.Building);
 
             int bid = Building.Lava1Id;
             P.DestroyTile(tile);
@@ -100,7 +100,7 @@ namespace Ship_Game.Universe.SolarBodies
             Active     = true;
             CreateVolcanoBuilding(Building.ActiveVolcanoId);
             if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
-                P.Universe.NotificationManager.AddVolcanoRelated(P, Localizer.Token(GameText.ADormantVolcanoBecameActivenit), ActiveVolcanoTexPath);
+                P.Universe.Notifications.AddVolcanoRelated(P, Localizer.Token(GameText.ADormantVolcanoBecameActivenit), ActiveVolcanoTexPath);
         }
 
         void TryErupt()
@@ -125,7 +125,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             if (ShouldNotifyPlayer)
-                P.Universe.NotificationManager.AddVolcanoRelated(P, message, EruptingVolcanoTexPath);
+                P.Universe.Notifications.AddVolcanoRelated(P, message, EruptingVolcanoTexPath);
         }
 
         void TryCalmDown()
@@ -144,7 +144,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
-                P.Universe.NotificationManager.AddVolcanoRelated(P, message, DormantVolcanoTexPath);
+                P.Universe.Notifications.AddVolcanoRelated(P, message, DormantVolcanoTexPath);
         }
 
         bool TryDeactivate()
@@ -156,7 +156,7 @@ namespace Ship_Game.Universe.SolarBodies
             Erupting = false;
             CreateDormantVolcano();
             if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
-                P.Universe.NotificationManager.AddVolcanoRelated(P, Localizer.Token(GameText.AnActiveVolcanoBecameDormant), DormantVolcanoTexPath);
+                P.Universe.Notifications.AddVolcanoRelated(P, Localizer.Token(GameText.AnActiveVolcanoBecameDormant), DormantVolcanoTexPath);
 
             return true;
         }
@@ -241,7 +241,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 planet.MakeTileHabitable(tile);
                 if (planet.OwnerIsPlayer && !GlobalStats.DisableVolcanoWarning)
-                    planet.Universe.NotificationManager.AddVolcanoRelated(planet, Localizer.Token(GameText.ALavaPoolHasSolidified), lavaPath);
+                    planet.Universe.Notifications.AddVolcanoRelated(planet, Localizer.Token(GameText.ALavaPoolHasSolidified), lavaPath);
             }
         }
 

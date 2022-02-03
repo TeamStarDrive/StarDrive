@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using Ship_Game.Ships.AI;
+using Ship_Game.Universe;
 
 namespace Ship_Game.AI
 {
@@ -122,7 +123,7 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public void AddGoalFromSave(SavedGame.ShipGoalSave sg, UniverseScreen us)
+        public void AddGoalFromSave(SavedGame.ShipGoalSave sg, UniverseState us)
         {
             var goal = new ShipGoal(sg, us, Owner);
             EnqueueGoal(goal);
@@ -378,7 +379,7 @@ namespace Ship_Game.AI
             }
 
             // restore from SaveGame
-            public ShipGoal(SavedGame.ShipGoalSave sg, UniverseScreen us, Ship ship)
+            public ShipGoal(SavedGame.ShipGoalSave sg, UniverseState us, Ship ship)
             {
                 Plan         = sg.Plan;
                 MovePosition = sg.MovePosition;
@@ -495,7 +496,7 @@ namespace Ship_Game.AI
                 ImportTo.AddToIncomingFreighterList(freighter);
             }
 
-            public TradePlan(SavedGame.TradePlanSave save, UniverseScreen us, Ship freighter)
+            public TradePlan(SavedGame.TradePlanSave save, UniverseState us, Ship freighter)
             {
                 Goods         = save.Goods;
                 ExportFrom    = us.GetPlanet(save.ExportFrom);

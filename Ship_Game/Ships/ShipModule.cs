@@ -697,7 +697,7 @@ namespace Ship_Game.Ships
 
         public void DebugDamageCircle()
         {
-            Parent.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Parent.Universe);
+            Parent.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Parent.Universe.Screen);
         }
 
         public float GetExplosionDamageOnShipExplode()
@@ -728,7 +728,7 @@ namespace Ship_Game.Ships
                 }
 
                 if (Parent.IsVisibleToPlayer)
-                    Shield.HitShield(Parent.Universe, this, proj);
+                    Shield.HitShield(Parent.Universe.Screen, this, proj);
             }
 
             Parent.UpdateShields();
@@ -806,7 +806,7 @@ namespace Ship_Game.Ships
 
         void Deflect(GameplayObject source)
         {
-            if (!Parent.InFrustum || Parent.Universe?.IsShipViewOrCloser == false)
+            if (!Parent.InFrustum || Parent.Universe.Screen.IsShipViewOrCloser == false)
                 return;
 
             if (!(source is Projectile proj))
@@ -999,7 +999,7 @@ namespace Ship_Game.Ships
                 var center = new Vector3(Position.X, Position.Y, -100f);
                 bool parentAlive = !Parent.Dying;
 
-                var p = Parent.Universe.Particles;
+                var p = Parent.Universe.Screen.Particles;
                 if (p != null) // can be null in unit tests
                 {
                     for (int i = 0; i < 30; ++i)
@@ -1214,7 +1214,7 @@ namespace Ship_Game.Ships
         {
             if (visible && OnFire)
             {
-                var p = Parent.Universe.Particles;
+                var p = Parent.Universe.Screen.Particles;
                 if (p != null)
                 {
                     var vis = DamageVisualizer;
@@ -1286,7 +1286,7 @@ namespace Ship_Game.Ships
         {
             if (Parent.IsVisibleToPlayer)
             {
-                var p = Parent.Universe.Particles;
+                var p = Parent.Universe.Screen.Particles;
                 if (p != null) // null in unit tests
                 {
                     Vector3 repairEffectOrigin = Position.ToVec3(ZPos - 50f); // -Z is up towards the camera

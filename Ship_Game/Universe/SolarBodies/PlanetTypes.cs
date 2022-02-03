@@ -88,7 +88,7 @@ namespace Ship_Game.Universe.SolarBodies
             var universe = ScreenManager.Instance.FindScreen<UniverseScreen>();
             if (universe != null)
             {
-                foreach (Planet planet in universe.Planets)
+                foreach (Planet planet in universe.UState.Planets)
                     planet.Type = types.Planet(planet.Type.Id);
             }
         }

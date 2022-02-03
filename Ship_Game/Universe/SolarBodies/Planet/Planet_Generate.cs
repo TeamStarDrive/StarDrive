@@ -403,7 +403,7 @@ namespace Ship_Game
             {
                 string msg = $"{Localizer.Token(GameText.TerraformLevel)} {Owner.data.Traits.TerraformingLevel}:\n" +
                              $"{Name} {Localizer.Token(GameText.TerraformingCompletedAndTerraformersWere)}";
-                Universe.NotificationManager.AddRandomEventNotification(msg, Type.IconPath, "SnapToPlanet", this);
+                Universe.Notifications.AddRandomEventNotification(msg, Type.IconPath, "SnapToPlanet", this);
             }
         }
 

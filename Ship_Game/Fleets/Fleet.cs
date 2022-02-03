@@ -593,7 +593,7 @@ namespace Ship_Game.Fleets
                 FleetTask.EndTask();
             if (FleetTask == null)
                 return;
-            if (Owner.Universum.SelectedFleet == this)
+            if (Owner.Universum.Screen.SelectedFleet == this)
                 Owner.Universum.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, FleetTask.AORadius, Color.AntiqueWhite);
 
             TaskCombatStatus = FleetInAreaInCombat(FleetTask.AO, FleetTask.AORadius);

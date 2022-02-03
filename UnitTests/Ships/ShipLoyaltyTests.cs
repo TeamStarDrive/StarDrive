@@ -27,12 +27,12 @@ namespace UnitTests.Ships
         void EnsureSpawnedLoyaltyAndSpatialCoherence(Ship playerShip)
         {
             // NOTE: This covers the LoyaltyChangeAtSpawn case
-            Assert.AreEqual(0, Universe.Objects.Ships.Count);
+            Assert.AreEqual(0, UState.Objects.Ships.Count);
             Assert.IsFalse(Player.OwnedShips.Contains(playerShip), "Player.OwnedShips must NOT contain the ship");
             Assert.IsFalse(Enemy.OwnedShips.Contains(playerShip), "Enemy.OwnedShips must NOT contain the ship");
-            Universe.Objects.Update(TestSimStep);
+            UState.Objects.Update(TestSimStep);
             
-            Assert.AreEqual(1, Universe.Objects.Ships.Count);
+            Assert.AreEqual(1, UState.Objects.Ships.Count);
             Assert.IsTrue(Player.OwnedShips.Contains(playerShip), "Player.OwnedShips MUST contain the ship, the ship was not added to Empire?");
             Assert.IsFalse(Enemy.OwnedShips.Contains(playerShip), "Enemy.OwnedShips must NOT contain the ship");
 
@@ -48,12 +48,12 @@ namespace UnitTests.Ships
 
         void EnsureLoyaltyTransferAndSpatialCoherence(Ship transferredShip)
         {
-            Assert.AreEqual(1, Universe.Objects.Ships.Count);
+            Assert.AreEqual(1, UState.Objects.Ships.Count);
             Assert.IsTrue(Player.OwnedShips.Contains(transferredShip), "Player.OwnedShips MUST contain the ship before update");
             Assert.IsFalse(Enemy.OwnedShips.Contains(transferredShip), "Enemy.OwnedShips must NOT contain the ship before update");
-            Universe.Objects.Update(TestSimStep);
-            Universe.Objects.Update(TestSimStep);
-            Assert.AreEqual(1, Universe.Objects.Ships.Count);
+            RunObjectsSim(TestSimStep);
+            RunObjectsSim(TestSimStep);
+            Assert.AreEqual(1, UState.Objects.Ships.Count);
             Assert.IsFalse(Player.OwnedShips.Contains(transferredShip), "Player.OwnedShips must NOT contain the ship AFTER transfer and update");
             Assert.IsTrue(Enemy.OwnedShips.Contains(transferredShip), "Enemy.OwnedShips MUST contain the ship  AFTER transfer and update");
 

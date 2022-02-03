@@ -888,7 +888,7 @@ namespace Ship_Game
                             retValue    = true;
                             // ADDED BY SHAHMATT (to unpause game on right clicking notification icon)
                             if (GlobalStats.PauseOnNotification && n.Pause)
-                                Screen.Paused = false;
+                                Screen.UState.Paused = false;
                         }
                         n.ShowMessage = true;
                     }
@@ -955,7 +955,7 @@ namespace Ship_Game
                     // ADDED BY SHAHMATT (pause game when there are any notifications)
                     //fbedard : Add filter to pause
                     if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
-                        Screen.Paused = true;
+                        Screen.UState.Paused = true;
                 }
                 if (NotificationList.Count > MaxEntriesToDisplay)  //fbedard: remove excess notifications
                 {
