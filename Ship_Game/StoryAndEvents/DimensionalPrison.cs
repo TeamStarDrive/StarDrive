@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -20,9 +21,9 @@ namespace Ship_Game
         private int NumSpawnedRemnants;
         private int NumRemnantsToSpawn = 9;
         private float SpawnCountdown;
-        UniverseScreen Universe;
+        UniverseState Universe;
 
-        public DimensionalPrison(UniverseScreen universe, Vector2 plaformCenter)
+        public DimensionalPrison(UniverseState universe, Vector2 plaformCenter)
         {
             Universe = universe;
             PlaformCenter = plaformCenter;
@@ -32,7 +33,7 @@ namespace Ship_Game
             Platform3 = SpawnAncientRepulsor(universe, plaformCenter + new Vector2(400f, -400f));
         }
 
-        private Ship SpawnAncientRepulsor(UniverseScreen universe, Vector2 repulsorPos)
+        private Ship SpawnAncientRepulsor(UniverseState universe, Vector2 repulsorPos)
         {
             Ship repulsor = Ship.CreateShipAtPoint(universe, PlatformName, EmpireManager.Unknown, repulsorPos);
             Weapon weapon = ResourceManager.CreateWeapon("AncientRepulsor");
@@ -49,7 +50,7 @@ namespace Ship_Game
         {
             var r = new Rectangle((int)center.X - radius, (int)center.Y - radius, radius*2, radius*2);
             Prison = new BackgroundItem();
-            Prison.LoadContent(Universe.ScreenManager);
+            Prison.LoadContent(Universe.Screen.ScreenManager);
             Prison.UpperLeft  = new Vector3(r.X, r.Y, 0f);
             Prison.LowerLeft  = Prison.UpperLeft + new Vector3(0f, r.Height, 0f);
             Prison.UpperRight = Prison.UpperLeft + new Vector3(r.Width, 0f, 0f);
@@ -60,7 +61,7 @@ namespace Ship_Game
 
         public override void Draw()
         {
-            var manager = Universe.ScreenManager;
+            var manager = Universe.Screen.ScreenManager;
             manager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             manager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             manager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
@@ -71,13 +72,13 @@ namespace Ship_Game
             manager.GraphicsDevice.RenderState.CullMode = CullMode.None;
             for (int i = 0; i < 20; i++)
             {
-                Universe.Particles.Sparks.AddParticle(new Vector3(PlaformCenter, 0f) + GenerateRandomWithin(100f), GenerateRandomWithin(25f));
+                Universe.Screen.Particles.Sparks.AddParticle(new Vector3(PlaformCenter, 0f) + GenerateRandomWithin(100f), GenerateRandomWithin(25f));
             }
             if (RandomMath.RandomBetween(0f, 100f) > 97f)
             {
-                Universe.Particles.Flash.AddParticle(new Vector3(PlaformCenter, 0f));
+                Universe.Screen.Particles.Flash.AddParticle(new Vector3(PlaformCenter, 0f));
             }
-            Prison.Draw(manager, Universe.View, Universe.Projection, 1f);
+            Prison.Draw(manager, Universe.Screen.View, Universe.Screen.Projection, 1f);
         }
 
         private Vector2 GenerateRandomV2(float radius)
@@ -106,7 +107,7 @@ namespace Ship_Game
                 }
                 if (NumSpawnedRemnants == NumRemnantsToSpawn)
                 {
-                    Universe.anomalyManager.AnomaliesList.QueuePendingRemoval(this);
+                    Universe.Screen.anomalyManager.AnomaliesList.QueuePendingRemoval(this);
                 }
             }
         }

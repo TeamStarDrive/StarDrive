@@ -18,7 +18,7 @@ namespace Ship_Game
     public sealed class SolarSystem : Explorable
     {
         public string Name = "Random System";
-        public UniverseScreen Universe;
+        public UniverseState Universe;
         public Guid Guid = Guid.NewGuid();
         public bool DontStartNearPlayer;
 
@@ -597,7 +597,7 @@ namespace Ship_Game
             if (OwnerList.Count > 0 && !OwnerList.Contains(empire))
                 message.Append("\nContested system!!!");
 
-            Universe.NotificationManager.AddNotification(new Notification
+            Universe.Notifications.AddNotification(new Notification
             {
                 Pause           = false,
                 Message         = message.ToString(),

@@ -46,7 +46,7 @@ namespace Ship_Game
         {
             var f = new MuzzleFlash { Projectile = projectile };
             f.Update();
-            if (projectile.Universe.CanAddDynamicLight)
+            if (projectile.Universe.Screen.CanAddDynamicLight)
             {
                 f.Light = new PointLight
                 {
@@ -58,7 +58,7 @@ namespace Ship_Game
                     FillLight    = false,
                     Enabled      = true
                 };
-                projectile.Universe.AddLight(f.Light, dynamic:true);
+                projectile.Universe.Screen.AddLight(f.Light, dynamic:true);
             }
 
             using (Lock.AcquireWriteLock())

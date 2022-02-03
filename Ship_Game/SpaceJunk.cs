@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Debug;
 using Ship_Game.Graphics.Particles;
+using Ship_Game.Universe;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -11,7 +12,7 @@ namespace Ship_Game
 {
     public sealed class SpaceJunk
     {
-        readonly UniverseScreen Universe;
+        readonly UniverseState Universe;
         public SceneObject So;
         public Vector3 Position;
         Vector3 RotationRadians;
@@ -27,7 +28,7 @@ namespace Ship_Game
         {
         }
 
-        public SpaceJunk(UniverseScreen universe, Vector2 parentPos, Vector2 parentVel,
+        public SpaceJunk(UniverseState universe, Vector2 parentPos, Vector2 parentVel,
                          float maxSize, bool ignite)
         {
             Universe = universe;
@@ -35,7 +36,7 @@ namespace Ship_Game
             Position.X = RandomMath2.RandomBetween(parentPos.X - spawnInRadius, parentPos.X + spawnInRadius);
             Position.Y = RandomMath2.RandomBetween(parentPos.Y - spawnInRadius, parentPos.Y + spawnInRadius);
             Position.Z = RandomMath2.RandomBetween(-spawnInRadius*0.5f, spawnInRadius*0.5f);
-            CreateSceneObject(universe.Particles, parentPos, maxSize, ignite);
+            CreateSceneObject(universe.Screen.Particles, parentPos, maxSize, ignite);
 
             // inherit extra velocity from parent
             Velocity.X += parentVel.X;
@@ -125,7 +126,7 @@ namespace Ship_Game
          * @param spawnRadius Spawned junk is spread around the given radius
          * @param scaleMod Applies additional scale modifier on the spawned junk
          */
-        public static void SpawnJunk(UniverseScreen universe, int howMuchJunk, Vector2 position, Vector2 velocity,
+        public static void SpawnJunk(UniverseState universe, int howMuchJunk, Vector2 position, Vector2 velocity,
                                      GameplayObject source, float maxSize, bool ignite)
         {
             if (universe == null)
@@ -137,7 +138,7 @@ namespace Ship_Game
             if (universe.JunkList.Count > 800)
                 return; // don't allow too much junk
 
-            if (!source.IsInFrustum(universe))
+            if (!source.IsInFrustum(universe.Screen))
                 return; // not visible on the screen, so lets forget about it :)
 
             var junk = new SpaceJunk[howMuchJunk];
@@ -148,21 +149,21 @@ namespace Ship_Game
 
             // now add to scene
             foreach (SpaceJunk j in junk)
-                universe.AddObject(j.So);
+                universe.Screen.AddObject(j.So);
             universe.JunkList.AddRange(junk);
         }
 
         public void Update(FixedSimTime timeStep)
         {
             Duration -= timeStep.FixedTime;
-            if (Duration <= 0f || !Universe.IsActive)
+            if (Duration <= 0f || !Universe.Screen.IsActive)
             {
                 RemoveFromScene();
                 return;
             }
      
-            if (!Universe.IsSystemViewOrCloser ||
-                !Universe.Frustum.Contains(Position, 10f))
+            if (!Universe.Screen.IsSystemViewOrCloser ||
+                !Universe.Screen.Frustum.Contains(Position, 10f))
                 return;
 
             Position += Velocity * timeStep.FixedTime;
@@ -187,7 +188,7 @@ namespace Ship_Game
         // Not synchronized, lock it yourself if needed
         public void DestroySceneObject()
         {
-            Universe.RemoveObject(So);
+            Universe.Screen.RemoveObject(So);
             So = null;
             FlameTrail = null;
             ProjTrail = null;

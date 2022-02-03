@@ -347,6 +347,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\AtmosphereType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetTypes.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Save.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseState.cs" />
     <Compile Include="Ship_Game\Utils\BitArray.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />
     <Compile Include="Ship_Game\Data\InterningStringConverter.cs" />

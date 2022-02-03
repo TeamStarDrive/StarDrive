@@ -93,7 +93,7 @@ namespace Ship_Game.Debug.Page
 
         public override void Update(float fixedDeltaTime)
         {
-            if (!Screen.Paused)
+            if (!Screen.UState.Paused)
             {
                 foreach (IParticle ps in ParticleSystems)
                 {

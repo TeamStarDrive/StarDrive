@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Ships
 {
@@ -22,7 +23,7 @@ namespace Ship_Game.Ships
             throw new InvalidOperationException(
                 $"BUG! Ship must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Ship XXX;` PROPERTIES/FIELDS. {this}");
 
-        public static Array<Ship> GetShipsFromGuids(UniverseScreen u, Array<Guid> guids)
+        public static Array<Ship> GetShipsFromGuids(UniverseState u, Array<Guid> guids)
         {
             var ships = new Array<Ship>();
             for (int i = 0; i < guids.Count; i++)
@@ -560,12 +561,12 @@ namespace Ship_Game.Ships
                     // again, damage also depends on module radius and their energy resistance
                     float damageAbsorb = 1 - module.EnergyResist;
                     module.Damage(damageCauser, damage * damageAbsorb * module.Radius);
-                    if (InFrustum && Universe?.IsShipViewOrCloser == true)
+                    if (InFrustum && Universe.Screen?.IsShipViewOrCloser == true)
                     {
                         // visualize radiation hits on external modules
                         Vector3 center = module.Center3D;
                         for (int j = 0; j < 50; j++)
-                            Universe.Particles.Sparks.AddParticle(center);
+                            Universe.Screen.Particles.Sparks.AddParticle(center);
                     }
                 }
             }
@@ -737,7 +738,7 @@ namespace Ship_Game.Ships
         public bool DoingRefit
         {
             get => AI.State == AIState.Refit;
-            set => Universe.ScreenManager.AddScreen(new RefitToWindow(Universe, this));
+            set => Universe.Screen.ScreenManager.AddScreen(new RefitToWindow(Universe.Screen, this));
         }
 
         public bool DoingScuttle => AI.State == AIState.Scuttle;
@@ -1297,7 +1298,7 @@ namespace Ship_Game.Ships
             UpdateTroops(timeSinceLastUpdate);
 
             if (!AI.BadGuysNear)
-                ShieldManager.RemoveShieldLights(Universe, Shields);
+                ShieldManager.RemoveShieldLights(Universe.Screen, Shields);
         }
 
         public bool CanRepair => !AI.BadGuysNear || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair;
@@ -1487,7 +1488,7 @@ namespace Ship_Game.Ships
         {
             if (Loyalty.isPlayer && AI.IsExploring)
             {
-                Universe.NotificationManager.AddExplorerDestroyedNotification(this);
+                Universe.Screen.NotificationManager.AddExplorerDestroyedNotification(this);
             }
         }
 
@@ -1535,11 +1536,11 @@ namespace Ship_Game.Ships
                 default:                  explosionSize *= 3; break;
             }
 
-            ExplosionManager.AddExplosion(Universe, position, Velocity, explosionSize, 12f, ExplosionType.Ship);
+            ExplosionManager.AddExplosion(Universe.Screen, position, Velocity, explosionSize, 12f, ExplosionType.Ship);
 
             if (PlanetCrash == null && addWarpExplode)
             {
-                ExplosionManager.AddExplosion(Universe, position, Velocity, explosionSize * 1.75f, 12f, ExplosionType.Warp);
+                ExplosionManager.AddExplosion(Universe.Screen, position, Velocity, explosionSize * 1.75f, 12f, ExplosionType.Warp);
             }
         }
 
@@ -1630,8 +1631,8 @@ namespace Ship_Game.Ships
             if (ShipData.EventOnDeath != null)
             {
                 var evt = ResourceManager.EventsDict[ShipData.EventOnDeath];
-                Universe.ScreenManager.AddScreen(
-                    new EventPopup(Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
+                Universe.Screen.ScreenManager.AddScreen(
+                    new EventPopup(Universe.Screen, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
         }
 

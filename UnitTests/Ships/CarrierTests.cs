@@ -28,7 +28,7 @@ namespace UnitTests.Ships
             CreateUniverseAndPlayerEmpire();
             UnlockAllShipsFor(Player);
             Carrier = SpawnShip("TEST_Heavy Carrier mk1", Player, Vector2.Zero);
-            Universe.Objects.Update(TestSimStep);
+            UState.Objects.Update(TestSimStep);
         }
 
         void SpawnEnemyShip()

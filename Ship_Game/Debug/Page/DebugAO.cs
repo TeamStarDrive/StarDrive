@@ -52,7 +52,7 @@ namespace Ship_Game.Debug.Page
         {
             if (EmpireAtWar.data.Defeated) return;
 
-            var allShips = Screen.GetMasterShipList().ToArray().Filter(s=> s.Loyalty == EmpireAtWar && s.Active);
+            var allShips = Screen.UState.Ships.Filter(s => s.Loyalty == EmpireAtWar && s.Active);
             var ourShips = new Array<Ship>(EmpireAtWar.OwnedShips);
             var hangarShips = ourShips.Filter(s => s.IsHangarShip);
             var civilianShips = ourShips.Filter(s => s.DesignRoleType == RoleType.Civilian);

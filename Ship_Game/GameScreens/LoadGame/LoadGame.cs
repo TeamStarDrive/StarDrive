@@ -9,6 +9,7 @@ using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game.GameScreens.LoadGame
@@ -51,7 +52,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 UniverseScreen us = LoadEverything(save, Progress.NextStep()); // 992ms
                 Log.Info(ConsoleColor.Blue, $"  LoadEverything         elapsed: {Progress[1].ElapsedMillis}ms");
 
-                SetupUniverseScreen(us, save, Progress.NextStep()); // 1244ms
+                SetupUniverseScreen(us.UState, save, Progress.NextStep()); // 1244ms
                 Log.Info(ConsoleColor.Blue, $"  CreateUniverseScreen   elapsed: {Progress[2].ElapsedMillis}ms");
 
                 Progress.Finish();
@@ -134,20 +135,19 @@ namespace Ship_Game.GameScreens.LoadGame
 
             ScreenManager.Instance.RemoveAllObjects();
 
-            var us = new UniverseScreen(saveData)
+            var universe = new UniverseScreen(saveData)
             {
                 CreateSimThread = StartSimThread,
                 FogMapBase64     = saveData.FogMapBase64,
-                UniverseSize     = saveData.UniverseSize,
-
-                FTLModifier      = saveData.FTLModifier,
-                EnemyFTLModifier = saveData.EnemyFTLModifier,
-                GravityWells        = saveData.GravityWells,
-                FTLInNeutralSystems = saveData.FTLInNeutralSystems,
-
-                Difficulty       = saveData.GameDifficulty,
-                GalaxySize       = saveData.GalaxySize,
             };
+
+            UniverseState us = universe.UState;
+            us.FTLModifier      = saveData.FTLModifier;
+            us.EnemyFTLModifier = saveData.EnemyFTLModifier;
+            us.GravityWells        = saveData.GravityWells;
+            us.FTLInNeutralSystems = saveData.FTLInNeutralSystems;
+            us.Difficulty       = saveData.GameDifficulty;
+            us.GalaxySize       = saveData.GalaxySize;
 
             RandomEventManager.ActiveEvent = saveData.RandomEvent;
             int numEmpires = saveData.EmpireDataList.Filter(e => !e.IsFaction).Length; 
@@ -164,10 +164,10 @@ namespace Ship_Game.GameScreens.LoadGame
             UpdateDefenseShipBuildingOffense();              step.Advance();
             UpdatePopulation();                              step.Advance();
             RestoreCapitals(saveData, us);                   step.Finish();
-            return us;
+            return universe;
         }
 
-        void SetupUniverseScreen(UniverseScreen us, SavedGame.UniverseSaveData save, ProgressCounter step)
+        void SetupUniverseScreen(UniverseState us, SavedGame.UniverseSaveData save, ProgressCounter step)
         {
             RestoreSolarSystemCQs(save, us);
 
@@ -183,7 +183,7 @@ namespace Ship_Game.GameScreens.LoadGame
             CreateAOs(us);
             FinalizeShips(us);
 
-            us.LoadContent();
+            us.Screen.LoadContent();
             us.Objects.UpdateLists(removeInactiveObjects: false);
 
             foreach(Empire empire in EmpireManager.Empires)
@@ -199,9 +199,9 @@ namespace Ship_Game.GameScreens.LoadGame
             Log.Info(ConsoleColor.Blue, $"    ## LoadContent               elapsed: {step[2].ElapsedMillis}ms");
         }
 
-        static void FinalizeShips(UniverseScreen us)
+        static void FinalizeShips(UniverseState us)
         {
-            foreach (Ship ship in us.GetMasterShipList())
+            foreach (Ship ship in us.Ships)
             {
                 if (!ship.Active)
                     continue;
@@ -227,13 +227,13 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        void AllSystemsLoaded(UniverseScreen us, ProgressCounter step)
+        void AllSystemsLoaded(UniverseState us, ProgressCounter step)
         {
             Stopwatch s = Stopwatch.StartNew();
-            step.Start(us.GetMasterShipList().Count);
+            step.Start(us.Ships.Count);
 
             // TODO: Maybe run this in parallel?
-            foreach (Ship ship in us.GetMasterShipList())
+            foreach (Ship ship in us.Ships)
             {
                 ship.InitializeShip(loadingFromSaveGame: true);
                 step.Advance();
@@ -248,47 +248,39 @@ namespace Ship_Game.GameScreens.LoadGame
             p.Population = psdata.Population;
         }
 
-        static Empire CreateEmpireFromEmpireSaveData(SavedGame.EmpireSaveData sdata, bool isPlayer)
+        static Empire CreateEmpireFromEmpireSaveData(SavedGame.EmpireSaveData sdata, UniverseState us, bool isPlayer)
         {
             var e = new Empire();
             e.isPlayer = isPlayer;
-            //TempEmpireData  Tdata = new TempEmpireData();
-
             e.isFaction = sdata.IsFaction;
-            if (sdata.EmpireData == null)
-            {
-                e.data.Traits = sdata.Traits;
-                e.EmpireColor = sdata.Traits.Color;
-            }
-            else
-            {
-                e.data = sdata.EmpireData;
-                e.data.ResearchQueue = sdata.EmpireData.ResearchQueue;
-                e.Research.SetTopic(sdata.ResearchTopic);
-                e.PortraitName = e.data.PortraitName;
-                e.dd           = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
-                e.EmpireColor  = e.data.Traits.Color;
-                e.UpdateNormalizedMoney(sdata.NormalizedMoneyVal, fromSave:true);
-                e.data.CurrentAutoScout       = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
-                e.data.CurrentAutoColony      = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
-                e.data.CurrentAutoFreighter   = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
-                e.data.CurrentConstructor     = sdata.CurrentConstructor   ?? e.data.ConstructorShip;
-                e.IncreaseFastVsBigFreighterRatio(sdata.FastVsBigFreighterRatio - e.FastVsBigFreighterRatio);
-                if (e.data.DefaultTroopShip.IsEmpty())
-                    e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
+            e.data = sdata.EmpireData;
+            us.AddEmpire(e);
 
-                e.SetAverageFreighterCargoCap(sdata.AverageFreighterCargoCap);
-                e.SetAverageFreighterFTLSpeed(sdata.AverageFreighterFTLSpeed);
+            e.data.ResearchQueue = sdata.EmpireData.ResearchQueue;
+            e.Research.SetTopic(sdata.ResearchTopic);
+            e.PortraitName = e.data.PortraitName;
+            e.dd           = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
+            e.EmpireColor  = e.data.Traits.Color;
+            e.UpdateNormalizedMoney(sdata.NormalizedMoneyVal, fromSave:true);
+            e.data.CurrentAutoScout       = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
+            e.data.CurrentAutoColony      = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
+            e.data.CurrentAutoFreighter   = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
+            e.data.CurrentConstructor     = sdata.CurrentConstructor   ?? e.data.ConstructorShip;
+            e.IncreaseFastVsBigFreighterRatio(sdata.FastVsBigFreighterRatio - e.FastVsBigFreighterRatio);
+            if (e.data.DefaultTroopShip.IsEmpty())
+                e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
 
-                e.RestoreFleetStrEmpireMultiplier(sdata.FleetStrEmpireModifier);
-                e.RestoreDiplomacyConcatQueue(sdata.DiplomacyContactQueue);
+            e.SetAverageFreighterCargoCap(sdata.AverageFreighterCargoCap);
+            e.SetAverageFreighterFTLSpeed(sdata.AverageFreighterFTLSpeed);
 
-                e.RushAllConstruction = sdata.RushAllConstruction;
-                e.WeightedCenter      = sdata.WeightedCenter;
+            e.RestoreFleetStrEmpireMultiplier(sdata.FleetStrEmpireModifier);
+            e.RestoreDiplomacyConcatQueue(sdata.DiplomacyContactQueue);
 
-                if (sdata.ObsoletePlayerShipModules != null)
-                    e.ObsoletePlayerShipModules = sdata.ObsoletePlayerShipModules;
-            }
+            e.RushAllConstruction = sdata.RushAllConstruction;
+            e.WeightedCenter      = sdata.WeightedCenter;
+
+            if (sdata.ObsoletePlayerShipModules != null)
+                e.ObsoletePlayerShipModules = sdata.ObsoletePlayerShipModules;
 
             foreach (TechEntry tech in sdata.TechTree)
             {
@@ -314,7 +306,7 @@ namespace Ship_Game.GameScreens.LoadGame
             return e;
         }
 
-        SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssd, UniverseScreen us)
+        SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssd)
         {
             var system = new SolarSystem
             {
@@ -377,7 +369,7 @@ namespace Ship_Game.GameScreens.LoadGame
             return system;
         }
 
-        static void CreateSpaceRoads(UniverseScreen us, SavedGame.EmpireSaveData d, Empire e)
+        static void CreateSpaceRoads(UniverseState us, SavedGame.EmpireSaveData d, Empire e)
         {
             e.SpaceRoadsList = new Array<SpaceRoad>();
             foreach (SavedGame.SpaceRoadSave roadSave in d.SpaceRoadData)
@@ -398,7 +390,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        static void RestorePlanetConstructionQueue(SavedGame.RingSave rsave, Planet p, UniverseScreen us)
+        static void RestorePlanetConstructionQueue(SavedGame.RingSave rsave, Planet p, UniverseState us)
         {
             foreach (SavedGame.QueueItemSave qisave in rsave.Planet.QISaveList)
             {
@@ -472,7 +464,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        static void RestoreCapitals(SavedGame.UniverseSaveData sData, UniverseScreen us)
+        static void RestoreCapitals(SavedGame.UniverseSaveData sData, UniverseState us)
         {
             foreach (SavedGame.EmpireSaveData d in sData.EmpireDataList)
             {
@@ -482,7 +474,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
         
-        static void RestoreSolarSystemCQs(SavedGame.UniverseSaveData saveData, UniverseScreen us)
+        static void RestoreSolarSystemCQs(SavedGame.UniverseSaveData saveData, UniverseState us)
         {
             foreach (SavedGame.SolarSystemSaveData sdata in saveData.SolarSystemDataList)
             {
@@ -500,7 +492,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        static void CreateFleetsFromSave(UniverseScreen us, SavedGame.UniverseSaveData saveData)
+        static void CreateFleetsFromSave(UniverseState us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
@@ -554,13 +546,13 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        static void CreateAOs(UniverseScreen us)
+        static void CreateAOs(UniverseState us)
         {
             foreach (Empire e in us.Empires)
                 e.GetEmpireAI().InitializeAOsFromSave(us);
         }
 
-        static void CreateMilitaryTasks(UniverseScreen us, SavedGame.EmpireSaveData d, Empire e)
+        static void CreateMilitaryTasks(UniverseState us, SavedGame.EmpireSaveData d, Empire e)
         {
             for (int i = 0; i < d.GSAIData.MilitaryTaskList.Count; i++)
             {
@@ -581,7 +573,7 @@ namespace Ship_Game.GameScreens.LoadGame
             return g.ToBuildUID != null && !ResourceManager.ShipTemplateExists(g.ToBuildUID);
         }
         
-        static void CreateGoals(UniverseScreen us, SavedGame.EmpireSaveData esd, Empire e)
+        static void CreateGoals(UniverseState us, SavedGame.EmpireSaveData esd, Empire e)
         {
             foreach (SavedGame.GoalSave gsave in esd.GSAIData.Goals)
             {
@@ -622,7 +614,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        static void CreateShipGoals(UniverseScreen us, SavedGame.EmpireSaveData esd)
+        static void CreateShipGoals(UniverseState us, SavedGame.EmpireSaveData esd)
         {
             foreach (SavedGame.ShipSaveData shipData in esd.OwnedShips)
             {
@@ -644,13 +636,12 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        void CreateEmpires(UniverseScreen us, SavedGame.UniverseSaveData saveData)
+        void CreateEmpires(UniverseState us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 bool isPlayer = d.Traits.Name == PlayerLoyalty;
-                Empire e = CreateEmpireFromEmpireSaveData(d, isPlayer);
-                us.AddEmpire(e);
+                Empire e = CreateEmpireFromEmpireSaveData(d, us, isPlayer);
                 if (isPlayer)
                 {
                     e.AutoColonize          = saveData.AutoColonize;
@@ -667,7 +658,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 e.ResetTechsUsableByShips(e.GetOurFactionShips(), unlockBonuses: false);
         }
 
-        static void GiftShipsFromServantEmpire(UniverseScreen us)
+        static void GiftShipsFromServantEmpire(UniverseState us)
         {
             foreach (Empire e in us.Empires)
             {
@@ -681,7 +672,7 @@ namespace Ship_Game.GameScreens.LoadGame
         }
 
 
-        static void CreateTasksGoalsRoads(UniverseScreen us, SavedGame.UniverseSaveData saveData)
+        static void CreateTasksGoalsRoads(UniverseState us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.EmpireSaveData esd in saveData.EmpireDataList)
             {
@@ -696,7 +687,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        void CreatePlanetImportExportShipLists(UniverseScreen us, SavedGame.UniverseSaveData saveData)
+        void CreatePlanetImportExportShipLists(UniverseState us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.SolarSystemSaveData ssd in saveData.SolarSystemDataList)
                 foreach (SavedGame.RingSave ring in ssd.RingList)
@@ -728,7 +719,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 }
         }
 
-        static void CreateAllObjects(UniverseScreen us, SavedGame.UniverseSaveData saveData)
+        static void CreateAllObjects(UniverseState us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
@@ -749,11 +740,11 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        void CreateSolarSystems(UniverseScreen us, SavedGame.UniverseSaveData saveData)
+        void CreateSolarSystems(UniverseState us, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.SolarSystemSaveData ssd in saveData.SolarSystemDataList)
             {
-                SolarSystem system = CreateSystemFromData(ssd, us);
+                SolarSystem system = CreateSystemFromData(ssd);
                 us.AddSolarSystem(system);
             }
             foreach (SolarSystem system in us.Systems)

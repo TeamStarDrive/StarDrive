@@ -196,7 +196,7 @@ namespace Ship_Game
             device.Clear(Color.TransparentWhite);
             batch.Begin(SpriteBlendMode.Additive);
             batch.Draw(FogMap, new Rectangle(0, 0, 512, 512), Color.White);
-            double universeWidth = UniverseSize * 2.0;
+            double universeWidth = UState.Size * 2.0;
             double worldSizeToMaskSize = (512.0 / universeWidth);
 
             var uiNode = ResourceManager.Texture("UI/node");
@@ -223,7 +223,7 @@ namespace Ship_Game
             batch.Begin(SpriteBlendMode.AlphaBlend);
             if (!Debug) // don't draw fog of war in debug
             {
-                Rectangle fogRect = ProjectToScreenCoords(new Vector2(-UniverseSize), UniverseSize*2f);
+                Rectangle fogRect = ProjectToScreenCoords(new Vector2(-UState.Size), UState.Size*2f);
                 batch.FillRectangle(new Rectangle(0, 0, ScreenWidth, ScreenHeight), new Color(0, 0, 0, 170));
                 batch.Draw(FogMap, fogRect, new Color(255, 255, 255, 55));
             }
@@ -281,7 +281,7 @@ namespace Ship_Game
             IconsGroupTotalPerf.Stop();
 
             // Advance the simulation time just before we Notify
-            if (!Paused && IsActive)
+            if (!UState.Paused && IsActive)
             {
                 AdvanceSimulationTargetTime(elapsed.RealTime.Seconds);
             }
@@ -389,7 +389,7 @@ namespace Ship_Game
 
         void DrawGeneralStatusText(SpriteBatch batch, DrawTimes elapsed)
         {
-            if (Paused)
+            if (UState.Paused)
             {
                 DrawTopCenterStatusText(batch, GameText.Paused, Color.Gold, 0);
             }
@@ -404,9 +404,9 @@ namespace Ship_Game
                 DrawTopCenterStatusText(batch, "Saving...", CurrentFlashColor, 2);
             }
 
-            if (IsActive && !GameSpeed.AlmostEqual(1)) //don't show "1.0x"
+            if (IsActive && !UState.GameSpeed.AlmostEqual(1)) //don't show "1.0x"
             {
-                string speed = GameSpeed.ToString("0.0##") + "x";
+                string speed = UState.GameSpeed.ToString("0.0##") + "x";
                 var pos = new Vector2(ScreenWidth - Fonts.Pirulen16.TextWidth(speed) - 13f, 64f);
                 batch.DrawString(Fonts.Pirulen16, speed, pos, Color.White);
             }
@@ -641,9 +641,9 @@ namespace Ship_Game
             if (LookingAtPlanet || viewState <= UnivScreenState.SystemView || viewState >= UnivScreenState.GalaxyView)
                 return;
 
-            for (int i = 0; i < SolarSystemList.Count; i++)
+            for (int i = 0; i < UState.Systems.Count; i++)
             {
-                SolarSystem system = SolarSystemList[i];
+                SolarSystem system = UState.Systems[i];
                 if (!system.IsExploredBy(Player) || !system.IsVisible)
                     continue;
 
@@ -861,14 +861,14 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = false;
             rs.CullMode = CullMode.None;
 
-            Ship[] ships = Objects.VisibleShips;
+            Ship[] ships = UState.Objects.VisibleShips;
 
             if (viewState <= UnivScreenState.PlanetView)
             {
                 DrawProj.Start();
 
-                Projectile[] projectiles = Objects.VisibleProjectiles;
-                Beam[] beams = Objects.VisibleBeams;
+                Projectile[] projectiles = UState.Objects.VisibleProjectiles;
+                Beam[] beams = UState.Objects.VisibleBeams;
 
                 for (int i = 0; i < projectiles.Length; ++i)
                 {
@@ -1162,9 +1162,9 @@ namespace Ship_Game
             SubTexture icon_spy_small = ResourceManager.Texture("UI/icon_spy_small");
             SubTexture icon_anomaly_small = ResourceManager.Texture("UI/icon_anomaly_small");
             SubTexture icon_troop = ResourceManager.Texture("UI/icon_troop");
-            for (int k = 0; k < SolarSystemList.Count; k++)
+            for (int k = 0; k < UState.Systems.Count; k++)
             {
-                SolarSystem solarSystem = SolarSystemList[k];
+                SolarSystem solarSystem = UState.Systems[k];
                 if (!solarSystem.IsExploredBy(Player) || !solarSystem.IsVisible)
                     continue;
 

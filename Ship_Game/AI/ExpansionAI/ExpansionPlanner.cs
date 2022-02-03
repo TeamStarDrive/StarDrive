@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.AI.ExpansionAI
 {
@@ -108,7 +109,7 @@ namespace Ship_Game.AI.ExpansionAI
                 }
             }
 
-            UniverseScreen universe = Owner.Universum;
+            UniverseState universe = Owner.Universum;
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
             int claimTasks                    = Owner.GetEmpireAI().GetNumClaimTasks();
 

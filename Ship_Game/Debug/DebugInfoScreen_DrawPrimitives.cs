@@ -15,12 +15,12 @@ namespace Ship_Game.Debug
         // since they are only cleaned up while the game is running
         bool ShouldNotAddPrimitive(DebugModes mode)
         {
-            return mode != Mode || !Visible || Screen.Paused;
+            return mode != Mode || !Visible || Screen.UState.Paused;
         }
 
         bool ShouldNotAddPrimitive()
         {
-            return !Visible || Screen.Paused;
+            return !Visible || Screen.UState.Paused;
         }
 
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, float lifeTime)
@@ -87,7 +87,7 @@ namespace Ship_Game.Debug
                 {
                     DebugPrimitive primitive = Primitives[i];
                     primitive.Draw(Screen);
-                    if (!Screen.Paused && primitive.Update(gameDeltaTime))
+                    if (!Screen.UState.Paused && primitive.Update(gameDeltaTime))
                     {
                         Primitives.RemoveAtSwapLast(i);
                     }

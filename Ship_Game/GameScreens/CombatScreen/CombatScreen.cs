@@ -53,9 +53,9 @@ namespace Ship_Game
             AssetsRect          = new Rectangle(10, 48, 225, 200);
             SelectedItemRect    = new Rectangle(10, 250, 225, 380);
             HoveredItemRect     = new Rectangle(10, 250, 225, 380);
-            AssetsUI = Add(new OrbitalAssetsUIElement(AssetsRect, ScreenManager, p.Universe, p));
-            TInfo = Add(new TroopInfoUIElement(SelectedItemRect, ScreenManager, p.Universe));
-            HInfo = Add(new TroopInfoUIElement(HoveredItemRect, ScreenManager, p.Universe));
+            AssetsUI = Add(new OrbitalAssetsUIElement(AssetsRect, ScreenManager, p.Universe.Screen, p));
+            TInfo = Add(new TroopInfoUIElement(SelectedItemRect, ScreenManager, p.Universe.Screen));
+            HInfo = Add(new TroopInfoUIElement(HoveredItemRect, ScreenManager, p.Universe.Screen));
             TInfo.Visible = HInfo.Visible = false;
             
             int assetsX = AssetsRect.X + 20;

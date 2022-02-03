@@ -218,7 +218,7 @@ namespace Ship_Game.AI.CombatTactics
 
             if (DebugInfoScreen.Mode == DebugModes.Targeting &&
                 Owner.Universe.DebugWin?.Visible == true &&
-                Owner.Universe.SelectedShip == Owner)
+                Owner.Universe.Screen.SelectedShip == Owner)
             {
                 DebugInfoScreen debug = Owner.Universe.DebugWin;
                 debug.DrawCircle(DebugModes.Targeting, DisengagePos1, 30f, Owner.Loyalty.EmpireColor, 0f);
