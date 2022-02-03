@@ -1984,12 +1984,6 @@ namespace Ship_Game.Ships
                 return false;
 
             bool warpTimeGood = (empire ?? Loyalty) != null && IsWarpRangeGood(GlobalStats.MinAcceptableShipWarpRange);
-            if (!warpTimeGood && !IsPlatformOrStation)
-            {
-                Universe?.DebugWin?.DebugLogText(
-                    $"WARNING ship design {Name} with hull {ShipData.Hull} WarpTime was bad. {NetPower.NetWarpPowerDraw}/{PowerFlowMax}",
-                    DebugModes.Normal);
-            }
             return warpTimeGood;
         }
 
