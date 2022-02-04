@@ -18,7 +18,7 @@
       <UID>Shipyards</UID>
     </LeadsToTech>
     <LeadsToTech>
-      <UID>FigateEngines</UID>
+      <UID>WarpTheory</UID>
     </LeadsToTech>
     <LeadsToTech>
       <UID>Fleet Supply</UID>
@@ -41,12 +41,9 @@
       <ModuleUID>Cockpit</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
-      <ModuleUID>Engine</ModuleUID>
+      <ModuleUID>PreWarpEngine2x1</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
-      <ModuleUID>WarpEngine_1x1</ModuleUID>
-    </UnlockedMod>
-        <UnlockedMod>
       <ModuleUID>Maneuvering_Thruster_1x1</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
