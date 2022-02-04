@@ -1,8 +1,8 @@
 ﻿Version=1
 Name=Draug Station-Mk2
-Hull=Terran/Terran_Station
+Hull=Draugar/DraugarStation
 Role=station
-Style=Terran
+Style=Draugar
 Size=50,48
 GridCenter=25,22
 DefaultAIState=DoNothing
