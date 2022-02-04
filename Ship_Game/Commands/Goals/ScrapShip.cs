@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
@@ -11,7 +12,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public const string ID = "ScrapShip";
         public override string UID => ID;
 
-        public ScrapShip() : base(GoalType.ScrapShip)
+        public ScrapShip(int id, UniverseState us)
+            : base(GoalType.ScrapShip, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,7 +24,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public ScrapShip(Ship shipToScrap, Empire owner, bool immediateScuttle) : this()
+        public ScrapShip(Ship shipToScrap, Empire owner, bool immediateScuttle)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             OldShip = shipToScrap;
             empire  = owner;

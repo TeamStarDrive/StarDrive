@@ -2,7 +2,8 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
-    
+using Ship_Game.Universe;
+
 namespace Ship_Game.Commands.Goals
 {
     public class DefendSystem : Goal
@@ -10,7 +11,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "Defend System";
         public override string UID => ID;
 
-        public DefendSystem() : base(GoalType.DefendSystem)
+        public DefendSystem(int id, UniverseState us)
+            : base(GoalType.DefendSystem, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -19,7 +21,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public DefendSystem(Empire empire, SolarSystem system, float strengthWanted, int fleetCount) : this()
+        public DefendSystem(Empire empire, SolarSystem system, float strengthWanted, int fleetCount)
+            : this(empire.Universum.CreateId(), empire.Universum)
         {
             this.empire    = empire;
             StarDateAdded  = empire.Universum.StarDate;
@@ -31,8 +34,8 @@ namespace Ship_Game.Commands.Goals
             {
                 FleetCount               = fleetCount,
                 MinimumTaskForceStrength = strengthWanted,
-                Goal     = this,
-                GoalGuid = guid
+                Goal   = this,
+                GoalId = Id
             };
 
             empire.GetEmpireAI().AddPendingTask(task);

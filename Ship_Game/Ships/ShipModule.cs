@@ -6,6 +6,7 @@ using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
 using System.Diagnostics.Contracts;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Ships
 {
@@ -74,7 +75,7 @@ namespace Ship_Game.Ships
         public Shield Shield { get; private set; }
         public string HangarShipUID;
         Ship HangarShip;
-        public Guid HangarShipGuid;
+        public int HangarShipId;
         public float HangarTimer;
         public bool IsWeapon;
         public Weapon InstalledWeapon;
@@ -315,13 +316,13 @@ namespace Ship_Game.Ships
         public bool IsHangarShipActive => TryGetHangarShip(out Ship ship) && ship.Active;
         public bool TryGetHangarShipActive(out Ship ship) => TryGetHangarShip(out ship) && ship.Active;
 
-        ShipModule() : base(GameObjectType.ShipModule)
+        ShipModule(int id) : base(id, GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
             Flyweight = ShipModuleFlyweight.Empty;
         }
 
-        ShipModule(ShipModule_XMLTemplate template) : base(GameObjectType.ShipModule)
+        ShipModule(ShipModule_XMLTemplate template) : base(0, GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
             Flyweight = new ShipModuleFlyweight(template);
@@ -380,9 +381,9 @@ namespace Ship_Game.Ships
 
         // Called by Create() and ShipDesignScreen.CreateDesignModule
         // LOYALTY can be null
-        public static ShipModule CreateNoParent(ShipModule template, Empire loyalty, ShipHull hull)
+        public static ShipModule CreateNoParent(UniverseState us, ShipModule template, Empire loyalty, ShipHull hull)
         {
-            var module = new ShipModule
+            var module = new ShipModule(us?.CreateId() ?? -1)
             {
                 Flyweight         = template.Flyweight,
                 Bonuses           = EmpireHullBonuses.Get(loyalty, hull),
@@ -413,10 +414,10 @@ namespace Ship_Game.Ships
         }
 
         // this is used during Ship creation
-        public static ShipModule Create(DesignSlot slot, Ship parent, bool isTemplate)
+        public static ShipModule Create(UniverseState us, DesignSlot slot, Ship parent, bool isTemplate)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(slot.ModuleUID);
-            ShipModule m = CreateNoParent(template, parent.Loyalty, parent.BaseHull);
+            ShipModule m = CreateNoParent(us, template, parent.Loyalty, parent.BaseHull);
 
             if (m.ModuleType == ShipModuleType.Hangar && !m.IsTroopBay)
                 m.HangarShipUID = slot.HangarShipUID;
@@ -432,23 +433,22 @@ namespace Ship_Game.Ships
         }
 
         // this is used during Ship loading from save
-        public static ShipModule Create(ModuleSaveData slot, Ship parent)
+        public static ShipModule Create(UniverseState us, ModuleSaveData slot, Ship parent)
         {
-            ShipModule m = Create(slot as DesignSlot, parent, isTemplate:false);
+            ShipModule m = Create(us, slot as DesignSlot, parent, isTemplate:false);
 
             m.Active = slot.Health > 0.01f;
             m.ShieldPower = slot.ShieldPower;
             m.SetHealth(slot.Health, fromSave: true);
-            if (slot.HangarShipGuid.NotEmpty())
-                m.HangarShipGuid = Guid.Parse(slot.HangarShipGuid);
+            m.HangarShipId = slot.HangarShipId;
             return m;
         }
 
-        public static ShipModule CreateDesignModule(string uid, ModuleOrientation moduleRot, 
+        public static ShipModule CreateDesignModule(UniverseState us, string uid, ModuleOrientation moduleRot, 
                                                     int turretAngle, string hangarShipUID, ShipHull hull)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(uid);
-            ShipModule m = CreateNoParent(template, EmpireManager.Player, hull);
+            ShipModule m = CreateNoParent(us, template, EmpireManager.Player, hull);
 
             // don't set HangarShipUID if this isn't actually a Hangar (because Shipyard sets default to DynamicLaunch)
             if (m.ModuleType == ShipModuleType.Hangar)
@@ -1137,7 +1137,7 @@ namespace Ship_Game.Ships
         public void SetHangarShip(Ship ship)
         {
             HangarShip = ship;
-            HangarShipGuid = ship?.Guid ?? Guid.Empty;
+            HangarShipId = ship?.Id ?? 0;
         }
 
         public void ResetHangarShip(Ship newShipToLink)

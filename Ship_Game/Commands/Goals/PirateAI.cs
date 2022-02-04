@@ -5,6 +5,7 @@ using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -14,14 +15,16 @@ namespace Ship_Game.Commands.Goals
         public override string UID => ID;
         private Pirates Pirates;
 
-        public PirateAI() : base(GoalType.PirateAI)
+        public PirateAI(int id, UniverseState us)
+            : base(GoalType.PirateAI, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
                PiratePlan
             };
         }
-        public PirateAI(Empire owner) : this()
+        public PirateAI(Empire owner)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire = owner;
         }

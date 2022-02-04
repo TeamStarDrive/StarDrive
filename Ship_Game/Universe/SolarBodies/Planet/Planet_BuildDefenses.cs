@@ -82,7 +82,7 @@ namespace Ship_Game
             {
                 Goal g = goals[i];
                 if (g != null && g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this 
-                              || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == Guid)
+                              || g.type == GoalType.DeepSpaceConstruction && g.TetherPlanetId == Id)
                 {
                     if (ResourceManager.GetShipTemplate(g.ToBuildUID, out Ship orbital) && orbital.ShipData.Role == role
                                                                                         && !orbital.ShipData.IsShipyard)
@@ -104,7 +104,7 @@ namespace Ship_Game
 
             int shipyardsInQ = 0;
             foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
-                                                                     || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == Guid))
+                                                                     || g.type == GoalType.DeepSpaceConstruction && g.TetherPlanetId == Id))
             {
                 if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship shipyard) && shipyard.ShipData.IsShipyard)
                     shipyardsInQ++;

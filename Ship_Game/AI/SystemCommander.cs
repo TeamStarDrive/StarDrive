@@ -29,7 +29,7 @@ namespace Ship_Game.AI
         public float RankImportance;
         public int TroopCount;
         public int TroopsWanted => IdealTroopCount - TroopCount;
-        public Map<Guid, Ship> OurShips = new Map<Guid, Ship>();
+        public Map<int, Ship> OurShips = new Map<int, Ship>();
 
         public Map<Planet, PlanetTracker> PlanetValues = new Map<Planet, PlanetTracker>();
         readonly int GameDifficultyModifier;
@@ -116,7 +116,7 @@ namespace Ship_Game.AI
 
         public bool RemoveShip(Ship shipToRemove)
         {
-            if (OurShips.Remove(shipToRemove.Guid))
+            if (OurShips.Remove(shipToRemove.Id))
             {
                 CurrentShipStr -= (int)shipToRemove.BaseStrength;
                 shipToRemove.AI.ClearOrders();
@@ -128,18 +128,18 @@ namespace Ship_Game.AI
         public bool AddShip(Ship ship)
         {
             if (CurrentShipStr > IdealShipStrength) return false;
-            if (OurShips.TryGetValue(ship.Guid, out Ship existing))
+            if (OurShips.TryGetValue(ship.Id, out Ship existing))
             {
                 if (existing != ship) // @todo Why is this check here? Wtf?
                 {
                     CurrentShipStr -= (int)existing.BaseStrength;
                     CurrentShipStr += (int)ship.BaseStrength;
-                    OurShips[ship.Guid] = ship;
+                    OurShips[ship.Id] = ship;
                 }
             }
             else
             {
-                OurShips.Add(ship.Guid, ship);
+                OurShips.Add(ship.Id, ship);
                 CurrentShipStr += (int)ship.BaseStrength;
             }
 

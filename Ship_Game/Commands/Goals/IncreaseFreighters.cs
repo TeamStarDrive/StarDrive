@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -9,7 +10,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "IncreaseFreighters";
         public override string UID => ID;
 
-        public IncreaseFreighters() : base(GoalType.IncreaseFreighters)
+        public IncreaseFreighters(int id, UniverseState us)
+            : base(GoalType.IncreaseFreighters, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -19,7 +21,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public IncreaseFreighters(Empire empire) : this()
+        public IncreaseFreighters(Empire empire)
+            : this(empire.Universum.CreateId(), empire.Universum)
         {
             this.empire = empire;
         }

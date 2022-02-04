@@ -14,7 +14,7 @@ namespace Ship_Game.Fleets
     public sealed class Fleet : ShipGroup
     {
         public readonly Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
-        public Guid Guid = Guid.NewGuid();
+        public readonly int Id;
         public string Name = "";
         public ShipAI.TargetParameterTotals TotalFleetAttributes;
         public ShipAI.TargetParameterTotals AverageFleetAttributes;
@@ -51,15 +51,16 @@ namespace Ship_Game.Fleets
         public bool InFormationMove { get; private set; }
 
         public override string ToString()
-            => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} guid={Guid} id={FleetTask?.WhichFleet ?? -1}";
+            => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} ID={Id} task={FleetTask?.WhichFleet ?? -1}";
 
-        public Fleet()
+        public Fleet(int id)
         {
+            Id = id;
             FleetIconIndex = RandomMath.IntBetween(1, 10);
             SetCommandShip(null);
         }
 
-        public Fleet(Empire owner) : this()
+        public Fleet(int id, Empire owner) : this(id)
         {
             Owner = owner;
         }
@@ -423,7 +424,7 @@ namespace Ship_Game.Fleets
 
         bool AssignExistingOrCreateNewNode(Ship ship)
         {
-            FleetDataNode node = DataNodes.Find(n => n.Ship == ship || n.Ship == null && n.ShipName == ship.Name && n.GoalGUID == Guid.Empty);
+            FleetDataNode node = DataNodes.Find(n => n.Ship == ship || n.Ship == null && n.ShipName == ship.Name && n.GoalId == 0);
             bool nodeFound = node != null;
 
             if (node == null)
@@ -494,7 +495,7 @@ namespace Ship_Game.Fleets
 
                 int order = bValue - aValue;
                 if (order != 0) return order;
-                return b.Guid.CompareTo(a.Guid);
+                return ((GameplayObject)b).Id.CompareTo(((GameplayObject)a).Id);
             });
 
             var squad = new Squad { Fleet = this };
@@ -777,7 +778,7 @@ namespace Ship_Game.Fleets
             var strikeFleet = new MilitaryTask(task.TargetPlanet, owner)
             {
                 Type           = MilitaryTask.TaskType.StrikeForce,
-                GoalGuid       = goal.guid,
+                GoalId         = goal.Id,
                 Goal           = goal,
                 NeedEvaluation = false,
                 WhichFleet     = task.WhichFleet
@@ -2377,32 +2378,31 @@ namespace Ship_Game.Fleets
             return node != null;
         }
 
-        public bool GoalGuidExists(Guid guid)
+        public bool GoalIdExists(int goalId)
         {
-            return DataNodes.Any(n => n.GoalGUID == guid);
+            return DataNodes.Any(n => n.GoalId == goalId);
         }
 
-        public bool FindNodeWithGoalGuid(Guid guid, out FleetDataNode node)
+        public bool FindNodeWithGoalId(int goalId, out FleetDataNode node)
         {
-            node = DataNodes.Find(n => n.GoalGUID == guid);
-            return node != null;
+            return (node = DataNodes.Find(n => n.GoalId == goalId)) != null;
         }
 
-        public void AssignGoalGuid(FleetDataNode node, Guid goalGuid)
+        public void AssignGoalId(FleetDataNode node, int goalId)
         {
-            node.GoalGUID = goalGuid;
+            node.GoalId = goalId;
         }
 
         public void RemoveGoalGuid(FleetDataNode node)
         {
             if (node != null)
-                AssignGoalGuid(node, Guid.Empty);
+                AssignGoalId(node, 0);
         }
 
-        public void RemoveGoalGuid(Guid guid)
+        public void RemoveGoalGuid(int goalId)
         {
-            if (FindNodeWithGoalGuid(guid, out FleetDataNode node))
-                AssignGoalGuid(node, Guid.Empty);
+            if (FindNodeWithGoalId(goalId, out FleetDataNode node))
+                AssignGoalId(node, 0);
         }
 
         public void AssignShipName(FleetDataNode node, string name)

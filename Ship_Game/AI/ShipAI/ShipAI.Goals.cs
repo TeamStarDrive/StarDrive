@@ -386,8 +386,8 @@ namespace Ship_Game.AI
                 Direction    = sg.Direction;
                 WantedState  = sg.WantedState;
 
-                TargetPlanet = us.GetPlanet(sg.TargetPlanetGuid);
-                TargetShip   = us.GetShip(sg.TargetShipGuid);
+                TargetPlanet = us.GetPlanet(sg.TargetPlanetId);
+                TargetShip   = us.GetShip(sg.TargetShipId);
 
                 VariableString = sg.VariableString;
                 VariableNumber = sg.VariableNumber;
@@ -396,26 +396,26 @@ namespace Ship_Game.AI
 
                 Empire loyalty = ship.Loyalty;
 
-                if (sg.fleetGuid != Guid.Empty)
+                if (sg.FleetId != 0)
                 {
                     foreach (KeyValuePair<int, Fleet> empireFleet in loyalty.GetFleetsDict())
-                        if (empireFleet.Value.Guid == sg.fleetGuid)
+                        if (empireFleet.Value.Id == sg.FleetId)
                             Fleet = empireFleet.Value;
                 }
 
-                if (sg.GoalGuid != Guid.Empty)
+                if (sg.GoalId != 0)
                 {
                     Array<Goal> goals = loyalty.GetEmpireAI().Goals;
                     foreach (Goal empireGoal in goals)
                     {
-                        if (sg.GoalGuid == empireGoal.guid)
+                        if (sg.GoalId == empireGoal.Id)
                         {
                             Goal = empireGoal;
                             break;
                         }
                     }
                     if (Goal == null)
-                        Log.Warning($"ShipGoalSave {sg.Plan}: failed to find Empire.Goal {sg.GoalGuid}");
+                        Log.Warning($"ShipGoalSave {sg.Plan}: failed to find Empire.Goal {sg.GoalId}");
                 }
 
                 if (sg.Trade != null)
@@ -435,10 +435,10 @@ namespace Ship_Game.AI
                     VariableString   = VariableString,
                     SpeedLimit       = SpeedLimit,
                     MovePosition     = MovePosition,
-                    fleetGuid        = Fleet?.Guid ?? Guid.Empty,
-                    GoalGuid         = Goal?.guid ?? Guid.Empty,
-                    TargetPlanetGuid = TargetPlanet?.Guid ?? Guid.Empty,
-                    TargetShipGuid   = TargetShip?.Guid ?? Guid.Empty,
+                    FleetId        = Fleet?.Id ?? 0,
+                    GoalId         = Goal?.Id ?? 0,
+                    TargetPlanetId = TargetPlanet?.Id ?? 0,
+                    TargetShipId   = TargetShip?.Id ?? 0,
                     MoveOrder        = MoveOrder,
                     VariableNumber   = VariableNumber,
                     WantedState      = WantedState
@@ -449,8 +449,8 @@ namespace Ship_Game.AI
                     s.Trade = new SavedGame.TradePlanSave
                     {
                         Goods         = Trade.Goods,
-                        ExportFrom    = Trade.ExportFrom?.Guid ?? Guid.Empty,
-                        ImportTo      = Trade.ImportTo?.Guid ?? Guid.Empty,
+                        ExportFrom    = Trade.ExportFrom?.Id ?? 0,
+                        ImportTo      = Trade.ImportTo?.Id ?? 0,
                         BlockadeTimer = Trade.BlockadeTimer,
                         StardateAdded = Trade.StardateAdded
                     };

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
@@ -11,7 +12,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public const string ID = "RefitOrbital";
         public override string UID => ID;
 
-        public RefitOrbital() : base(GoalType.RefitOrbital)
+        public RefitOrbital(int id, UniverseState us)
+            : base(GoalType.RefitOrbital, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,7 +25,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitOrbital(Ship oldShip, string toBuildName, Empire owner) : this()
+        public RefitOrbital(Ship oldShip, string toBuildName, Empire owner)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             OldShip    = oldShip;
             ShipLevel  = oldShip.Level;
@@ -54,7 +57,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             OldShip.AI.State = AIState.Refit;
             Planet targetPlanet = OldShip.GetTether();
             if (targetPlanet != null)
-                TetherTarget = targetPlanet.Guid;
+                TetherPlanetId = targetPlanet.Id;
 
             return GoalStep.GoToNextStep;
         }

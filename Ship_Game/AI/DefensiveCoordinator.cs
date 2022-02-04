@@ -16,13 +16,14 @@ namespace Ship_Game.AI
         int TotalValue;
         public float TroopsToTroopsWantedRatio;
 
-        public Guid Guid { get; } = Guid.NewGuid();
+        public int Id { get; }
         public string Name { get; }
         public Empire OwnerEmpire => Us;
         public Array<Ship> Ships => DefensiveForcePool;
 
-        public DefensiveCoordinator(Empire e, string name)
+        public DefensiveCoordinator(int id, Empire e, string name)
         {
+            Id = id;
             Us = e;
             Name = name;
         }
@@ -236,7 +237,7 @@ namespace Ship_Game.AI
                 if (kv.Value.IdealShipStrength < min) kv.Value.IdealShipStrength = min;
             }
 
-            var assignedShips = new Map<Guid, Ship>();
+            var assignedShips = new Map<int, Ship>();
             var shipsAvailableForAssignment = new Array<Ship>();
             //Remove excess force:
             foreach (var kv in DefenseDict)
@@ -284,10 +285,10 @@ namespace Ship_Game.AI
                             continue;
                         }
 
-                        if (assignedShips.ContainsKey(ship.Guid)) continue;
+                        if (assignedShips.ContainsKey(ship.Id)) continue;
                         if (startingStr <= 0f || !kv.Value.AddShip(ship)) break;
 
-                        assignedShips.Add(ship.Guid, ship);
+                        assignedShips.Add(ship.Id, ship);
                         startingStr = startingStr - ship.GetStrength();
                     }
                 }

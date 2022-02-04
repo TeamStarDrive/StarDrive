@@ -1311,7 +1311,7 @@ namespace Ship_Game
             if (ships.Count == 0)
                 return null;
 
-            var newFleet = new Fleet(Player);
+            var newFleet = new Fleet(UState.CreateId(), Player);
             AddShipsToFleet(newFleet, ships);
             return newFleet;
         }

@@ -112,7 +112,7 @@ namespace UnitTests
 
         public void CreateThirdMajorEmpire()
         {
-            ThirdMajor = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.MajorRaces[2], isPlayer:false);
+            ThirdMajor = EmpireManager.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[2], isPlayer:false);
             UState.AddEmpire(ThirdMajor);
 
             Player.SetRelationsAsKnown(ThirdMajor);
@@ -220,7 +220,7 @@ namespace UnitTests
 
         public SolarSystem CreateNewSolarSystemWithPlanet(Planet p)
         {
-            var s = new SolarSystem
+            var s = new SolarSystem(UState)
             {
                 Sun = SunType.RandomBarrenSun()
             };
@@ -230,21 +230,21 @@ namespace UnitTests
 
         Planet AddDummyPlanet()
         {
-            var p = new Planet();
+            var p = new Planet(UState.CreateId());
             CreateNewSolarSystemWithPlanet(p);
             return p;
         }
 
         public Planet AddDummyPlanet(float fertility, float minerals, float pop)
         {
-            var p = new Planet(fertility, minerals, pop);
+            var p = new Planet(UState.CreateId(), fertility, minerals, pop);
             CreateNewSolarSystemWithPlanet(p);
             return p;
         }
 
         public Planet AddDummyPlanet(float fertility, float minerals, float pop, Vector2 pos, bool explored)
         {
-            var p = new Planet(fertility, minerals, pop) { Center = pos };
+            var p = new Planet(UState.CreateId(), fertility, minerals, pop) { Center = pos };
             var s = CreateNewSolarSystemWithPlanet(p);
             if (explored) s.SetExploredBy(Player);
             return p;

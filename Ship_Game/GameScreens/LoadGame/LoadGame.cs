@@ -220,7 +220,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 {
                     foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
                     {
-                        if (us.GetShip(hangar.HangarShipGuid, out Ship hangarShip))
+                        if (us.GetShip(hangar.HangarShipId, out Ship hangarShip))
                             hangar.ResetHangarShip(hangarShip);
                     }
                 }
@@ -250,7 +250,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
         static Empire CreateEmpireFromEmpireSaveData(SavedGame.EmpireSaveData sdata, UniverseState us, bool isPlayer)
         {
-            var e = new Empire();
+            var e = new Empire(us);
             e.isPlayer = isPlayer;
             e.isFaction = sdata.IsFaction;
             e.data = sdata.EmpireData;
@@ -306,14 +306,13 @@ namespace Ship_Game.GameScreens.LoadGame
             return e;
         }
 
-        SolarSystem CreateSystemFromData(SavedGame.SolarSystemSaveData ssd)
+        SolarSystem CreateSystemFromData(UniverseState us, SavedGame.SolarSystemSaveData ssd)
         {
-            var system = new SolarSystem
+            var system = new SolarSystem(us, ssd.Id)
             {
-                Guid          = ssd.Guid,
-                Name          = ssd.Name,
-                Position      = ssd.Position,
-                Sun           = SunType.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
+                Name = ssd.Name,
+                Position = ssd.Position,
+                Sun = SunType.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
             };
 
             system.SetPiratePresence(ssd.PiratePresence);
@@ -375,13 +374,13 @@ namespace Ship_Game.GameScreens.LoadGame
             foreach (SavedGame.SpaceRoadSave roadSave in d.SpaceRoadData)
             {
                 var road = new SpaceRoad();
-                road.Origin      = us.GetSystem(roadSave.OriginGUID);
-                road.Destination = us.GetSystem(roadSave.DestGUID);
+                road.Origin      = us.GetSystem(roadSave.OriginId);
+                road.Destination = us.GetSystem(roadSave.DestinationId);
 
                 foreach (SavedGame.RoadNodeSave roadNode in roadSave.RoadNodes)
                 {
                     var node = new RoadNode();
-                    us.GetShip(roadNode.Guid_Platform, out node.Platform);
+                    us.GetShip(roadNode.PlatformId, out node.Platform);
                     node.Position = roadNode.Position;
                     road.RoadNodesList.Add(node);
                 }
@@ -448,7 +447,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 foreach (Goal g in p.Owner.GetEmpireAI().Goals)
                 {
-                    if (g.guid != qisave.GoalGUID)
+                    if (g.Id != qisave.GoalId)
                         continue;
                     qi.Goal = g;
                     qi.NotifyOnEmpty = false;
@@ -469,7 +468,7 @@ namespace Ship_Game.GameScreens.LoadGame
             foreach (SavedGame.EmpireSaveData d in sData.EmpireDataList)
             {
                 Empire e = EmpireManager.GetEmpireByName(d.Name);
-                us.GetPlanet(d.CapitalGuid, out Planet capital);
+                us.GetPlanet(d.CapitalId, out Planet capital);
                 e.SetCapital(capital);
             }
         }
@@ -482,7 +481,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 {
                     if (rsave.Planet != null)
                     {
-                        Planet p = us.GetPlanet(rsave.Planet.Guid);
+                        Planet p = us.GetPlanet(rsave.Planet.Id);
                         if (p?.Owner != null)
                         {
                             RestorePlanetConstructionQueue(rsave, p, us);
@@ -499,9 +498,8 @@ namespace Ship_Game.GameScreens.LoadGame
                 Empire e = EmpireManager.GetEmpireByName(d.Name);
                 foreach (SavedGame.FleetSave fleetsave in d.FleetsList)
                 {
-                    var fleet = new Fleet
+                    var fleet = new Fleet(fleetsave.FleetId)
                     {
-                        Guid = fleetsave.FleetGuid,
                         IsCoreFleet = fleetsave.IsCoreFleet,
                         // @note savegame compatibility uses facing in radians
                         FinalDirection = fleetsave.Facing.RadiansToDirection(),
@@ -512,7 +510,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
                     foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
                     {
-                        if (us.Objects.FindShip(ssave.ShipGuid, out Ship ship) && ship.Fleet == null)
+                        if (us.Objects.FindShip(ssave.ShipId, out Ship ship) && ship.Fleet == null)
                         {
                             ship.RelativeFleetOffset = ssave.FleetOffset;
                             fleet.AddShip(ship);
@@ -523,14 +521,12 @@ namespace Ship_Game.GameScreens.LoadGame
                     {
                         foreach (Ship ship in fleet.Ships)
                         {
-                            if (!(node.ShipGuid != Guid.Empty) || !(ship.Guid == node.ShipGuid))
+                            if (ship.Id == node.ShipId)
                             {
-                                continue;
+                                node.Ship = ship;
+                                node.ShipName = ship.Name;
+                                break;
                             }
-
-                            node.Ship = ship;
-                            node.ShipName = ship.Name;
-                            break;
                         }
                     }
 
@@ -580,22 +576,22 @@ namespace Ship_Game.GameScreens.LoadGame
                 if (IsShipGoalInvalid(gsave))
                     continue;
 
-                Goal g = Goal.Deserialize(gsave.GoalName, e, gsave);
-                if (gsave.FleetGuid != Guid.Empty)
+                Goal g = Goal.Deserialize(gsave.GoalName, us, e, gsave);
+                if (gsave.FleetId != 0)
                 {
                     foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
                     {
-                        if (fleet.Value.Guid == gsave.FleetGuid) g.Fleet = fleet.Value;
+                        if (fleet.Value.Id == gsave.FleetId) g.Fleet = fleet.Value;
                     }
                 }
 
-                g.TargetSystem = us.GetSystem(gsave.TargetSystemGuid);
+                g.TargetSystem = us.GetSystem(gsave.TargetSystemId);
                 g.PlanetBuildingAt   = us.GetPlanet(gsave.PlanetWhereBuildingAtGuid);
-                g.ColonizationTarget = us.GetPlanet(gsave.MarkedPlanetGuid);
-                g.TargetPlanet       = us.GetPlanet(gsave.TargetPlanetGuid);
-                g.FinishedShip = us.GetShip(gsave.ColonyShipGuid);
-                g.OldShip      = us.GetShip(gsave.OldShipGuid);
-                g.TargetShip   = us.GetShip(gsave.TargetShipGuid);
+                g.ColonizationTarget = us.GetPlanet(gsave.MarkedPlanetId);
+                g.TargetPlanet       = us.GetPlanet(gsave.TargetPlanetId);
+                g.FinishedShip = us.GetShip(gsave.ColonyShipId);
+                g.OldShip      = us.GetShip(gsave.OldShipId);
+                g.TargetShip   = us.GetShip(gsave.TargetShipId);
 
                 if (g.type == GoalType.Refit && gsave.ToBuildUID != null)
                 {
@@ -618,16 +614,16 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             foreach (SavedGame.ShipSaveData shipData in esd.OwnedShips)
             {
-                if (!us.Objects.FindShip(shipData.GUID, out Ship ship))
+                if (!us.Objects.FindShip(shipData.Id, out Ship ship))
                     continue;
 
                 if (shipData.AISave.WayPoints != null)
                     ship.AI.SetWayPoints(shipData.AISave.WayPoints);
 
-                ship.AI.Target         = us.GetShip(shipData.AISave.AttackTarget);
-                ship.AI.EscortTarget   = us.GetShip(shipData.AISave.EscortTarget);
-                ship.AI.OrbitTarget    = us.GetPlanet(shipData.AISave.OrbitTarget);
-                ship.AI.SystemToDefend = us.GetSystem(shipData.AISave.SystemToDefend);
+                ship.AI.Target         = us.GetShip(shipData.AISave.AttackTargetId);
+                ship.AI.EscortTarget   = us.GetShip(shipData.AISave.EscortTargetId);
+                ship.AI.OrbitTarget    = us.GetPlanet(shipData.AISave.OrbitTargetId);
+                ship.AI.SystemToDefend = us.GetSystem(shipData.AISave.SystemToDefendId);
 
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
@@ -696,22 +692,22 @@ namespace Ship_Game.GameScreens.LoadGame
                         continue;
 
                     SavedGame.PlanetSaveData savedPlanet = ring.Planet;
-                    if (us.GetPlanet(savedPlanet.Guid, out Planet planet))
+                    if (us.GetPlanet(savedPlanet.Id, out Planet planet))
                     {
                         if (savedPlanet.IncomingFreighters != null)
                         {
-                            foreach (Guid freighterGuid in savedPlanet.IncomingFreighters)
+                            foreach (int freighterId in savedPlanet.IncomingFreighters)
                             {
-                                if (us.GetShip(freighterGuid, out Ship freighter))
+                                if (us.GetShip(freighterId, out Ship freighter))
                                     planet.AddToIncomingFreighterList(freighter);
                             }
                         }
 
                         if (savedPlanet.OutgoingFreighters != null)
                         {
-                            foreach (Guid freighterGuid in savedPlanet.OutgoingFreighters)
+                            foreach (int freighterId in savedPlanet.OutgoingFreighters)
                             {
-                                if (us.GetShip(freighterGuid, out Ship freighter))
+                                if (us.GetShip(freighterId, out Ship freighter))
                                     planet.AddToOutgoingFreighterList(freighter);
                             }
                         }
@@ -744,7 +740,7 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             foreach (SavedGame.SolarSystemSaveData ssd in saveData.SolarSystemDataList)
             {
-                SolarSystem system = CreateSystemFromData(ssd);
+                SolarSystem system = CreateSystemFromData(us, ssd);
                 us.AddSolarSystem(system);
             }
             foreach (SolarSystem system in us.Systems)

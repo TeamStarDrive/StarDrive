@@ -36,7 +36,7 @@ namespace UnitTests.Ships
 
             Assert.AreEqual(expected.Health, actual.Health);
             Assert.AreEqual(expected.ShieldPower, actual.ShieldPower);
-            Assert.AreEqual(expected.HangarShipGuid, actual.HangarShipGuid);
+            Assert.AreEqual(expected.HangarShipId, actual.HangarShipId);
         }
 
         public static void AssertAreEqual(ShipModule expected, ShipModule actual)
@@ -50,14 +50,14 @@ namespace UnitTests.Ships
 
             Assert.AreEqual(expected.Health, actual.Health, 0.001f);
             Assert.AreEqual(expected.ShieldPower, actual.ShieldPower, 0.001f);
-            Assert.AreEqual(expected.HangarShipGuid, actual.HangarShipGuid);
+            Assert.AreEqual(expected.HangarShipId, actual.HangarShipId);
         }
 
         [TestMethod]
         public void CreateModule_WithWeapon()
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, new Vector2(1000, 1000));
-            var m = ShipModule.Create(new DesignSlot(new Point(1, 2), "LaserBeam2x3", new Point(3,2), 45, ModuleOrientation.Left, null), ship, false);
+            var m = ShipModule.Create(null, new DesignSlot(new Point(1, 2), "LaserBeam2x3", new Point(3,2), 45, ModuleOrientation.Left, null), ship, false);
             Assert.AreEqual("LaserBeam2x3", m.UID);
             Assert.AreEqual(new Point(3,2), m.GetSize()); // DesignSlot size is always already oriented
             Assert.AreEqual(new Point(1, 2), m.Pos, "Module Grid Position was not set");
@@ -85,7 +85,7 @@ namespace UnitTests.Ships
         public void Module_Uninstall()
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, new Vector2(1000, 1000));
-            var m = ShipModule.Create(new DesignSlot(new Point(1, 2), "LaserBeam2x3", new Point(3,2), 45, ModuleOrientation.Left, null), ship, false);
+            var m = ShipModule.Create(null, new DesignSlot(new Point(1, 2), "LaserBeam2x3", new Point(3,2), 45, ModuleOrientation.Left, null), ship, false);
             m.IsExternal = true;
             m.Powered = true;
 
@@ -117,13 +117,13 @@ namespace UnitTests.Ships
             var ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
 
             var dData = new DesignSlot(new Point(4,8), "FighterBay", new Point(3,4), 180, ModuleOrientation.Rear, "Vulcan Scout");
-            var oData = new ModuleSaveData(dData, health:555, shieldPower:0, "");
-            var original = ShipModule.Create(oData, ship);
+            var oData = new ModuleSaveData(dData, health:555, shieldPower:0, 0);
+            var original = ShipModule.Create(null, oData, ship);
 
             var data = new ModuleSaveData(original);
             AssertAreEqual(oData, data);
 
-            var recreated = ShipModule.Create(data, ship);
+            var recreated = ShipModule.Create(null, data, ship);
             AssertAreEqual(original, recreated);
         }
 

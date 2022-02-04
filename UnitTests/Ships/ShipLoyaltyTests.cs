@@ -40,7 +40,7 @@ namespace UnitTests.Ships
 
             var nearbyPlayerShips = FindNearbyShips(Player);
             Assert.AreEqual(1, nearbyPlayerShips.Length, "There should be 1 Player ship nearby");
-            Assert.AreEqual(playerShip.Id, nearbyPlayerShips[0].Id);
+            Assert.AreEqual(((GameplayObject)playerShip).Id, nearbyPlayerShips[0].Id);
 
             var nearbyEnemyShips = FindNearbyShips(Enemy);
             Assert.AreEqual(0, nearbyEnemyShips.Length, "There should be 0 Enemy ships nearby");
@@ -64,7 +64,7 @@ namespace UnitTests.Ships
 
             var nearbyEnemyShips = FindNearbyShips(Enemy);
             Assert.AreEqual(1, nearbyEnemyShips.Length, "There should be 1 Enemy ship nearby");
-            Assert.AreEqual(transferredShip.Id, nearbyEnemyShips[0].Id);
+            Assert.AreEqual(((GameplayObject)transferredShip).Id, nearbyEnemyShips[0].Id);
         }
 
         [TestMethod]

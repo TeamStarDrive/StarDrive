@@ -33,8 +33,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public GameplayObject Target { get; }
 
         // Create a beam with an initial destination position that optionally follows GameplayObject [target]
-        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null)
-            : base(weapon.Owner.Loyalty, GameObjectType.Beam)
+        public Beam(int id, Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null)
+            : base(id, weapon.Owner.Loyalty, GameObjectType.Beam)
         {
             // there is an error here in beam creation where the weapon has no module.
             // i am setting these values in the weapon CreateDroneBeam where possible.
@@ -70,8 +70,8 @@ namespace Ship_Game
 
         // Create a spatially fixed beam spawned from a ship center
         // Used by DIMENSIONAL PRISON
-        public Beam(Weapon weapon, Ship ship, Vector2 destination, int thickness)
-            : base(ship.Loyalty, GameObjectType.Beam)
+        public Beam(int id, Weapon weapon, Ship ship, Vector2 destination, int thickness)
+            : base(id, ship.Loyalty, GameObjectType.Beam)
         {
             Weapon = weapon;
             Owner = ship;
@@ -83,11 +83,11 @@ namespace Ship_Game
         // loading from savegame
         public static void CreateFromSave(in SavedGame.BeamSaveData bdata, UniverseState us)
         {
-            if (!GetOwners(bdata.Owner, bdata.Loyalty, bdata.Weapon, true, us, out ProjectileOwnership o))
+            if (!GetOwners(bdata.OwnerId, bdata.Loyalty, bdata.Weapon, true, us, out ProjectileOwnership o))
                 return; // this owner or weapon no longer exists
 
-            GameplayObject target = us.GetObject(bdata.Target);
-            var beam = new Beam(o.Weapon, bdata.Source, bdata.Destination, target)
+            GameplayObject target = us.GetObject(bdata.TargetId);
+            var beam = new Beam(bdata.Id, o.Weapon, bdata.Source, bdata.Destination, target)
             {
                 Owner = o.Owner,
                 Planet = o.Planet
@@ -375,8 +375,8 @@ namespace Ship_Game
     public sealed class DroneBeam : Beam
     {
         readonly DroneAI AI;
-        public DroneBeam(DroneAI ai)
-            : base(ai.DroneWeapon, ai.Drone.Position, ai.DroneTarget.Position, ai.DroneTarget)
+        public DroneBeam(int id, DroneAI ai)
+            : base(id, ai.DroneWeapon, ai.Drone.Position, ai.DroneTarget.Position, ai.DroneTarget)
         {
             AI = ai;
             Owner = ai.Drone.Owner;

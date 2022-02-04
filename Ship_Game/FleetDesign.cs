@@ -15,8 +15,8 @@ namespace Ship_Game
     {
         [XmlIgnore][JsonIgnore] public Ship Ship { get; set; }
 
-        [StarData] public Guid ShipGuid;
-        [StarData] public Guid GoalGUID;
+        [StarData] public int ShipId;
+        [StarData] public int GoalId;
         [StarData] public string ShipName;
         [StarData] public Vector2 FleetOffset;
         [StarData] public float VultureWeight = 0.5f;

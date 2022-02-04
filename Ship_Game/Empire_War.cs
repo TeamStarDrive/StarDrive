@@ -123,7 +123,7 @@ namespace Ship_Game
             MilitaryTask task = new MilitaryTask(targetPlanet, this)
             {
                 Type                 = taskType,
-                GoalGuid             = goal.guid,
+                GoalId             = goal.Id,
                 Goal                 = goal,
                 TargetPlanetWarValue = (int)(targetPlanet.ColonyBaseValue(enemy) + targetPlanet.ColonyPotentialValue(enemy))
             };

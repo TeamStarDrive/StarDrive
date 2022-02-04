@@ -527,9 +527,9 @@ namespace Ship_Game
                 // Draw Specific Trade Routes to planets
                 if (SelectedShip.IsFreighter)
                 {
-                    foreach (Guid planetGuid in SelectedShip.TradeRoutes)
+                    foreach (int planetId in SelectedShip.TradeRoutes)
                     {
-                        Planet planet = UState.GetPlanet(planetGuid);
+                        Planet planet = UState.GetPlanet(planetId);
                         if (planet.Owner != null)
                         {
                             DrawLineToPlanet(SelectedShip.Position, planet.Center, planet.Owner.EmpireColor);

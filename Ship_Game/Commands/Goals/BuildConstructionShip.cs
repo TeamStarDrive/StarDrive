@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -10,7 +11,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "BuildConstructionShip";
         public override string UID => ID;
 
-        public BuildConstructionShip() : base(GoalType.DeepSpaceConstruction)
+        public BuildConstructionShip(int id, UniverseState us)
+            : base(GoalType.DeepSpaceConstruction, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -21,7 +23,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public BuildConstructionShip(Vector2 buildPosition, string platformUid, Empire owner) : this()
+        public BuildConstructionShip(Vector2 buildPosition, string platformUid, Empire owner)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             BuildPosition = buildPosition;
             ToBuildUID = platformUid;

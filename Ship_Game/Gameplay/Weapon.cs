@@ -798,14 +798,14 @@ namespace Ship_Game.Gameplay
                 return false;
 
             PrepareToFire();
-            var beam = new Beam(this, source, destination, target);
+            var beam = new Beam(Owner.Universe.CreateId(), this, source, destination, target);
             beam.Initialize(Owner.Universe, loading: false);
             return true;
         }
 
         public DroneBeam FireDroneBeam(DroneAI droneAI)
         {
-            return new DroneBeam(droneAI);
+            return new DroneBeam(Owner.Universe.CreateId(), droneAI);
         }
 
         public void FireTargetedBeam(GameplayObject target)

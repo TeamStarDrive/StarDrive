@@ -12,8 +12,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         public Ships.ShipDesign Design;
         public ShipDesignStats DesignStats;
 
-        public DesignShip(UniverseState universe, Ships.ShipDesign designHull)
-            : base(universe, EmpireManager.Player, designHull, isTemplate:true, shipyardDesign:true)
+        public DesignShip(UniverseState us, Ships.ShipDesign designHull)
+            : base(us, us.CreateId(), EmpireManager.Player, designHull, isTemplate:true, shipyardDesign:true)
         {
             Design = designHull;
             DesignStats = new ShipDesignStats(this);

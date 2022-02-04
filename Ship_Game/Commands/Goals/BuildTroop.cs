@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Ship_Game.AI;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -9,7 +10,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "Build Troop";
         public override string UID => ID;
 
-        public BuildTroop() : base(GoalType.BuildTroop)
+        public BuildTroop(int id, UniverseState us)
+            : base(GoalType.BuildTroop, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -18,7 +20,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public BuildTroop(Troop toCopy, Empire owner) : this()
+        public BuildTroop(Troop toCopy, Empire owner)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             ToBuildUID = toCopy.Name;
             empire = owner;

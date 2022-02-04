@@ -2,6 +2,7 @@
 using System;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Fleets;
+using Ship_Game.Universe;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
@@ -11,7 +12,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public const string ID = "DefendVsRemnants";
         public override string UID => ID;
 
-        public DefendVsRemnants() : base(GoalType.DefendVsRemnants)
+        public DefendVsRemnants(int id, UniverseState us)
+            : base(GoalType.DefendVsRemnants, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -19,7 +21,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public DefendVsRemnants(Planet targetPlanet, Empire owner, Fleet fleet) : this()
+        public DefendVsRemnants(Planet targetPlanet, Empire owner, Fleet fleet)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire             = owner;
             TargetPlanet       = targetPlanet;

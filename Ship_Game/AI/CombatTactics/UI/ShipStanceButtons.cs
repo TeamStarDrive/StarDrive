@@ -43,7 +43,7 @@ namespace Ship_Game.AI.CombatTactics.UI
             var ships = SelectedShips.Filter(s => s.Active && s.IsVisibleToPlayer);
             
             // sort the ships so that when draw limited the circles wont jump around as much when the list order changes. 
-            ships = ships.SortedDescending(s => $"{s.Fleet != null} - {(int)s.Radius : 000000} - {s.Id : 00000000}");
+            ships = ships.SortedDescending(s => $"{s.Fleet != null} - {(int)s.Radius : 000000} - {((GameplayObject)s).Id : 00000000}");
             
             // too many circles will cause perf issues, oom crashes, and UI horror.
             // always draw the first 20 in the list. there after skip some so we limit to about 40

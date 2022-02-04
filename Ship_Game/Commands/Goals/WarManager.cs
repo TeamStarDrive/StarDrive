@@ -1,5 +1,6 @@
 ﻿using System;
 using Ship_Game.AI;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -8,7 +9,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "WarManager";
         public override string UID => ID;
 
-        public WarManager() : base(GoalType.WarManager)
+        public WarManager(int id, UniverseState us)
+            : base(GoalType.WarManager, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -18,7 +20,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public WarManager(Empire owner, Empire enemy, WarType warType) : this()
+        public WarManager(Empire owner, Empire enemy, WarType warType)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire        = owner;
             TargetEmpire  = enemy;

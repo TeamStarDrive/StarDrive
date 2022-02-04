@@ -49,7 +49,7 @@ namespace Ship_Game
         Rectangle eRect;
         SortButton LastSorted;
 
-        // FB - this will store each planet GUID and it's distance to the closest player colony. If the planet is owned
+        // FB - this will store each planet and it's distance to the closest player colony. If the planet is owned
         // by the player - the distance will be 0, logically.
         readonly Map<Planet, float> PlanetDistanceToClosestColony = new Map<Planet, float>();
 

@@ -532,17 +532,13 @@ namespace Ship_Game
             RaceSummary.Adj1           = SelectedData.Adj1;
             RaceSummary.Adj2           = SelectedData.Adj2;
 
-            var player = new Empire
-            {
-                EmpireColor = Picker.CurrentColor,
-                data        = SelectedData.CreateInstance(copyTraits: false)
-            };
-            player.data.SpyModifier = RaceSummary.SpyMultiplier;
-            player.data.Traits      = RaceSummary;
-            player.data.DiplomaticPersonality = new DTrait();
+            EmpireData playerData = SelectedData.CreateInstance(copyTraits: false);
+            playerData.SpyModifier = RaceSummary.SpyMultiplier;
+            playerData.Traits      = RaceSummary;
+            playerData.DiplomaticPersonality = new DTrait();
 
             float pace = Pacing / 100f;
-            var ng = new CreatingNewGameScreen(player, GalaxySize, GetSystemsNum(), StarNumModifier, 
+            var ng = new CreatingNewGameScreen(playerData, GalaxySize, GetSystemsNum(), StarNumModifier, 
                                                NumOpponents, Mode, pace, SelectedDifficulty, MainMenu);
 
             ScreenManager.GoToScreen(ng, clear3DObjects:true);

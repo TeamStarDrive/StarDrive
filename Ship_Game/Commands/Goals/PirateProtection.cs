@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -13,7 +14,8 @@ namespace Ship_Game.Commands.Goals
         private Ship ShipToProtect;
         private Empire EmpireToProtect;
 
-        public PirateProtection() : base(GoalType.PirateProtection)
+        public PirateProtection(int id, UniverseState us)
+            : base(GoalType.PirateProtection, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,7 +25,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateProtection(Empire owner, Empire targetEmpire, Ship targetShip) : this()
+        public PirateProtection(Empire owner, Empire targetEmpire, Ship targetShip)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire       = owner;
             TargetEmpire = targetEmpire;

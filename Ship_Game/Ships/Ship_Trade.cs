@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
         public bool TransportingFood       { get; set; }
         public bool TransportingProduction { get; set; }
         public bool AllowInterEmpireTrade  { get; set; }
-        public Array<Guid> TradeRoutes     { get; private set; } = new Array<Guid>();
+        public Array<int> TradeRoutes      { get; private set; } = new Array<int>();
 
         public bool IsCandidateForTradingBuild => ShipData.IsCandidateForTradingBuild;
         public bool IsFreighter => ShipData.IsFreighter;
@@ -33,7 +33,7 @@ namespace Ship_Game.Ships
 
             if (planet.Owner == Loyalty || Loyalty.IsTradeTreaty(planet.Owner))
             {
-                TradeRoutes.AddUnique(planet.Guid);
+                TradeRoutes.AddUnique(planet.Id);
                 return true;
             }
 
@@ -105,7 +105,7 @@ namespace Ship_Game.Ships
 
         public void RemoveTradeRoute(Planet planet)
         {
-            TradeRoutes.Remove(planet.Guid);
+            TradeRoutes.Remove(planet.Id);
         }
 
         public void RefreshTradeRoutes()
@@ -113,9 +113,9 @@ namespace Ship_Game.Ships
             if (!Loyalty.isPlayer)
                 return; // Trade routes are available only for players
 
-            foreach (Guid planetGuid in TradeRoutes)
+            foreach (int planetId in TradeRoutes)
             {
-                Planet planet = Universe.GetPlanet(planetGuid);
+                Planet planet = Universe.GetPlanet(planetId);
                 if (planet.Owner == Loyalty)
                     continue;
 
@@ -129,11 +129,9 @@ namespace Ship_Game.Ships
             if (TradeRoutes.IsEmpty)
                 return true; // need at least 2 routes or AO for it to filter
 
-            foreach (Guid g in TradeRoutes)
-            {
-                if (g == planet.Guid)
+            foreach (int planetId in TradeRoutes)
+                if (planetId == planet.Id)
                     return true;
-            }
             return false;
         }
 
@@ -160,9 +158,9 @@ namespace Ship_Game.Ships
             return score * lowCargoPenalty;
         }
 
-        public void DownloadTradeRoutes(Array<Guid> tradeRoutes)
+        public void DownloadTradeRoutes(Array<int> tradeRoutes)
         {
-            TradeRoutes = tradeRoutes;
+            TradeRoutes = tradeRoutes.Clone();
         }
 
         public float CheckExpectedGoods(Goods goods)

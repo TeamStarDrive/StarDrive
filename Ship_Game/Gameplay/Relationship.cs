@@ -81,14 +81,14 @@ namespace Ship_Game.Gameplay
         [StarData] public bool HaveRejected_Alliance;
         [StarData] public int NumberStolenClaims;
 
-        [StarData] public Array<Guid> StolenSystems = new Array<Guid>();
+        [StarData] public Array<int> StolenSystems = new Array<int>();
         [StarData] public bool HaveInsulted_Military;
         [StarData] public bool HaveComplimented_Military;
         [StarData] public bool XenoDemandedTech;
-        [StarData] public Array<Guid> WarnedSystemsList = new Array<Guid>();
+        [StarData] public Array<int> WarnedSystemsList = new Array<int>();
         [StarData] public bool HaveWarnedTwice;
         [StarData] public bool HaveWarnedThrice;
-        [StarData] public Guid contestedSystemGuid;
+        [StarData] public int ContestedSystemId;
         [StarData] public bool AtWar;
         [StarData] public bool PreparingForWar; // Use prepareForWar or CancelPrepareForWar
         [StarData] public WarType PreparingForWarType = WarType.ImperialistWar;  // Use prepareForWar or CancelPrepareForWar
@@ -283,8 +283,8 @@ namespace Ship_Game.Gameplay
             {
                 var war = WarHistory[i];
                 var owner = EmpireManager.GetEmpireByName(war.UsName);
-                if (war.ContestedSystemsGUIDs.IsEmpty) continue;
-                var systems = us.GetSolarSystemsFromGuids(war.ContestedSystemsGUIDs);
+                if (war.ContestedSystemsIds.IsEmpty) continue;
+                var systems = us.GetSolarSystemsFromIds(war.ContestedSystemsIds);
                 for (int j = 0; j < systems.Count; j++)
                 {
                     SolarSystem system = systems[j];
@@ -302,8 +302,8 @@ namespace Ship_Game.Gameplay
             AddAngerTerritorialConflict(5f + (float)Math.Pow(5, NumberStolenClaims));
             Trust -= owner.DifficultyModifiers.TrustLostStoleColony;
             Trust -= owner.data.DiplomaticPersonality.Territorialism/5 * StolenSystems.Count.LowerBound(1);
-            newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem.Guid);
-            StolenSystems.AddUnique(claimedPlanet.ParentSystem.Guid);
+            newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem.Id);
+            StolenSystems.AddUnique(claimedPlanet.ParentSystem.Id);
         }
 
         public void WarnClaimThiefPlayer(Planet claimedPlanet, Empire victim)
@@ -454,7 +454,7 @@ namespace Ship_Game.Gameplay
                             matchFound = true;
                             break;
                         }
-                        if (!matchFound || !us.GetRelations(them).WarnedSystemsList.Contains(sharedSystem.Guid))
+                        if (!matchFound || !us.GetRelations(them).WarnedSystemsList.Contains(sharedSystem.Id))
                         {
                             continue;
                         }
@@ -481,7 +481,7 @@ namespace Ship_Game.Gameplay
                             WarnedAboutColonizing  = true;
 
                             if (p != null)
-                                contestedSystemGuid = p.ParentSystem.Guid;
+                                ContestedSystemId = p.ParentSystem.Id;
                         }
                     }
                 }
@@ -511,7 +511,7 @@ namespace Ship_Game.Gameplay
 
         public bool GetContestedSystem(out SolarSystem contested)
         {
-            contested = contestedSystemGuid != Guid.Empty ? Them.Universum.GetSystem(contestedSystemGuid) : null;
+            contested = ContestedSystemId != 0 ? Them.Universum.GetSystem(ContestedSystemId) : null;
             return contested != null;
         }
 
@@ -558,7 +558,7 @@ namespace Ship_Game.Gameplay
             {
                 foreach (Planet p in theirPlanets)
                 {
-                    if (p.Guid != mole.PlanetGuid)
+                    if (p.Id != mole.PlanetId)
                         continue;
                     moleCount++;
                 }

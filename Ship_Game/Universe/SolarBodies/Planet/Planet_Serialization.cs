@@ -13,11 +13,10 @@ namespace Ship_Game
         /// <summary>
         /// Saved game data constructor
         /// </summary>
-        private Planet(SolarSystem system, SavedGame.PlanetSaveData data): this()
+        private Planet(SolarSystem system, SavedGame.PlanetSaveData data): this(data.Id)
         {
             ParentSystem = system;
-            
-            Guid = data.Guid;
+
             Name = data.Name;
             OrbitalAngle = data.OrbitalAngle;
             

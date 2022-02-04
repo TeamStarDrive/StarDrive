@@ -230,15 +230,16 @@ namespace Ship_Game
             AIManagedShips.Add(s);
         }
 
-        public Empire()
+        public Empire(UniverseState us)
         {
+            Universum = us;
             Research = new EmpireResearch(this);
-            
-            AIManagedShips = new ShipPool(this, "AIManagedShips");
+
+            AIManagedShips = new ShipPool(us?.CreateId() ?? -1, this, "AIManagedShips");
             EmpireShips = new LoyaltyLists(this);
         }
 
-        public Empire(Empire parentEmpire) : this()
+        public Empire(UniverseState us, Empire parentEmpire) : this(us)
         {
             TechnologyDict = parentEmpire.TechnologyDict;
         }
@@ -1037,7 +1038,7 @@ namespace Ship_Game
 
             for (int i = 1; i < 10; ++i)
             {
-                Fleet fleet = new Fleet { Owner = this };
+                Fleet fleet = new Fleet(Universum.CreateId()) { Owner = this };
                 fleet.SetNameByFleetIndex(i);
                 FleetsDict.Add(i, fleet);
             }
@@ -2423,7 +2424,7 @@ namespace Ship_Game
             // Moles are spies who have successfully been planted during 'Infiltrate' type missions, I believe - Doctor
             foreach (Mole mole in data.MoleList)
             {
-                var p = us.GetPlanet(mole.PlanetGuid);
+                var p = us.GetPlanet(mole.PlanetId);
                 if (p == null)
                     continue;
                 TempSensorNodes.Add(new InfluenceNode
@@ -2553,7 +2554,7 @@ namespace Ship_Game
             }
 
             var g = new FleetRequisition(ship.Name, this, false) { Fleet = fleet };
-            node.GoalGUID = g.guid;
+            node.GoalId = g.Id;
             EmpireAI.Goals.Add(g);
             g.Evaluate();
         }
@@ -3343,17 +3344,17 @@ namespace Ship_Game
 
         public bool WillInhibit(Empire e) => e != this && !e.WeAreRemnants && IsAtWarWith(e);
 
-        public Planet FindPlanet(Guid planetGuid)
+        public Planet FindPlanet(int planetId)
         {
-            foreach (Planet p in this.OwnedPlanets)
-                if (p.Guid == planetGuid)
+            foreach (Planet p in OwnedPlanets)
+                if (p.Id == planetId)
                     return p;
             return null;
         }
 
         public Planet FindPlanet(string planetName)
         {
-            foreach (Planet p in this.OwnedPlanets)
+            foreach (Planet p in OwnedPlanets)
                 if (p.Name == planetName)
                     return p;
             return null;

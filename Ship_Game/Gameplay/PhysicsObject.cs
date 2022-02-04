@@ -34,7 +34,7 @@ namespace Ship_Game.Gameplay
         // Currently applied external force. All of the external force is converted into acceleration
         protected Vector2 AppliedExternalForce;
 
-        public PhysicsObject(GameObjectType type) : base(type)
+        public PhysicsObject(int id, GameObjectType type) : base(id, type)
         {
         }
 

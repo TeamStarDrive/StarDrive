@@ -7,6 +7,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
+using Ship_Game.Universe;
 
 namespace Ship_Game.AI.Tasks
 {
@@ -85,7 +86,7 @@ namespace Ship_Game.AI.Tasks
 
         private void CreateFleet(Array<Ship> ships, string name)
         {
-            var newFleet = new Fleet
+            var newFleet = new Fleet(Owner.Universum.CreateId())
             {
                 Name  = name,
                 Owner = Owner
@@ -107,7 +108,7 @@ namespace Ship_Game.AI.Tasks
 
         public void CreateRemnantFleet(Empire owner, Ship ship, string name, out Fleet newFleet)
         {
-            newFleet = new Fleet
+            newFleet = new Fleet(owner.Universum.CreateId())
             {
                 Name = name,
                 Owner = owner,

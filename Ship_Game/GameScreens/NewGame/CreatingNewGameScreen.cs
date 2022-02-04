@@ -29,7 +29,7 @@ namespace Ship_Game
         UniverseScreen us;
         UniverseState UState;
 
-        public CreatingNewGameScreen(Empire player, GalSize universeSize, int numSystems, 
+        public CreatingNewGameScreen(EmpireData playerData, GalSize universeSize, int numSystems, 
                 float starNumModifier, int numOpponents, RaceDesignScreen.GameMode mode, 
                 float pace, GameDifficulty difficulty, MainMenuScreen mainMenu)
             : base(null, toPause: null)
@@ -70,15 +70,20 @@ namespace Ship_Game
 
             GlobalStats.DisableInhibitionWarning = UState.Difficulty > GameDifficulty.Hard;
             CurrentGame.StartNew(UState, pace, starNumModifier, GlobalStats.ExtraPlanets, NumOpponents + 1); // +1 is the player empire
-            Player = player;
-            player.isPlayer = true;
-            UState.AddEmpire(player); // this binds Player to the universe
+            Player = new Empire(UState)
+            {
+                EmpireColor = playerData.Traits.Color,
+                data        = playerData,
+                isPlayer = true,
+            };
 
-            player.Initialize();
-            player.data.CurrentAutoScout     = player.data.ScoutShip;
-            player.data.CurrentAutoColony    = player.data.ColonyShip;
-            player.data.CurrentAutoFreighter = player.data.FreighterShip;
-            player.data.CurrentConstructor   = player.data.ConstructorShip;
+            UState.AddEmpire(Player); // this binds Player to the universe
+
+            Player.Initialize();
+            Player.data.CurrentAutoScout     = Player.data.ScoutShip;
+            Player.data.CurrentAutoColony    = Player.data.ColonyShip;
+            Player.data.CurrentAutoFreighter = Player.data.FreighterShip;
+            Player.data.CurrentConstructor   = Player.data.ConstructorShip;
 
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
             StatTracker.Reset();
@@ -260,12 +265,12 @@ namespace Ship_Game
                 SolarSystemData systemData = ResourceManager.LoadSolarSystemData(e.data.Traits.HomeSystemName);
                 if (systemData == null)
                 {
-                    sys = new SolarSystem();
-                    sys.GenerateStartingSystem(e.data.Traits.HomeSystemName, 1f, e);
+                    sys = new SolarSystem(UState);
+                    sys.GenerateStartingSystem(UState, e.data.Traits.HomeSystemName, 1f, e);
                 }
                 else
                 {
-                    sys = SolarSystem.GenerateSystemFromData(systemData, e);
+                    sys = SolarSystem.GenerateSystemFromData(UState, systemData, e);
                 }
 
                 if (e.GetOwnedSystems().Count == 0)
@@ -285,7 +290,7 @@ namespace Ship_Game
             {
                 if (systemCount > NumSystems)
                     break;
-                var solarSystem = SolarSystem.GenerateSystemFromData(systemData, null);
+                var solarSystem = SolarSystem.GenerateSystemFromData(UState, systemData, null);
                 solarSystem.DontStartNearPlayer = true; // Added by Gretman
                 UState.AddSolarSystem(solarSystem);
                 systemCount++;
@@ -295,8 +300,8 @@ namespace Ship_Game
             var nameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
             for (; systemCount < NumSystems; ++systemCount)
             {
-                var solarSystem2 = new SolarSystem();
-                solarSystem2.GenerateRandomSystem(nameGenerator.NextName, 1f);
+                var solarSystem2 = new SolarSystem(UState);
+                solarSystem2.GenerateRandomSystem(UState, nameGenerator.NextName, 1f);
                 UState.AddSolarSystem(solarSystem2);
                 step.Advance();
             }

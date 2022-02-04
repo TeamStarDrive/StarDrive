@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -11,7 +12,8 @@ namespace Ship_Game.Commands.Goals
         public override string UID => ID;
         private Pirates Pirates;
 
-        public PirateRaidOrbital() : base(GoalType.PirateRaidOrbital)
+        public PirateRaidOrbital(int id, UniverseState us)
+            : base(GoalType.PirateRaidOrbital, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,7 +22,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateRaidOrbital(Empire owner, Empire targetEmpire) : this()
+        public PirateRaidOrbital(Empire owner, Empire targetEmpire)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire       = owner;
             TargetEmpire = targetEmpire;

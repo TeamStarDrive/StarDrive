@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
@@ -10,7 +11,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public const string ID = "RearmShipFromPlanet";
         public override string UID => ID;
 
-        public RearmShipFromPlanet() : base(GoalType.RearmShipFromPlanet)
+        public RearmShipFromPlanet(int id, UniverseState us)
+            : base(GoalType.RearmShipFromPlanet, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,7 +22,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RearmShipFromPlanet(Ship shipToRearm, Planet planet, Empire owner) : this()
+        public RearmShipFromPlanet(Ship shipToRearm, Planet planet, Empire owner)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             TargetShip       = shipToRearm;
             empire           = owner;
@@ -29,7 +32,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             Evaluate();
         }
 
-        public RearmShipFromPlanet(Ship shipToRearm, Ship existingSupplyShip, Planet planet, Empire owner) : this()
+        public RearmShipFromPlanet(Ship shipToRearm, Ship existingSupplyShip, Planet planet, Empire owner)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             TargetShip       = shipToRearm;
             empire           = owner;

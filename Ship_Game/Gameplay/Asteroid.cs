@@ -17,7 +17,7 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] SceneObject So;
 
         // Serialized (SaveGame) asteroid
-        public Asteroid() : base(GameObjectType.Asteroid)
+        public Asteroid() : base(0, GameObjectType.Asteroid)
         {
             Spin            = RandomMath.Vector3D(0.01f, 0.2f);
             RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
@@ -26,8 +26,10 @@ namespace Ship_Game.Gameplay
         }
 
         // New asteroid
-        public Asteroid(float scaleMin, float scaleMax, Vector2 pos) : this()
+        public Asteroid(int id, float scaleMin, float scaleMax, Vector2 pos)
+            : this()
         {
+            Id = id;
             Scale = RandomMath.RandomBetween(scaleMin, scaleMax);
             Position = pos;
         }

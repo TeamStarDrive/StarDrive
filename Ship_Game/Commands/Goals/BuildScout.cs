@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -9,7 +10,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "Build Scout";
         public override string UID => ID;
 
-        public BuildScout() : base(GoalType.BuildScout)
+        public BuildScout(int id, UniverseState us)
+            : base(GoalType.BuildScout, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -19,7 +21,9 @@ namespace Ship_Game.Commands.Goals
                 ReportGoalCompleteToEmpire
             };
         }
-        public BuildScout(Empire empire) : this()
+
+        public BuildScout(Empire empire)
+            : this(empire.Universum.CreateId(), empire.Universum)
         {
             this.empire = empire;
         }

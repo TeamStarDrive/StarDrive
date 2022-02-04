@@ -14,7 +14,7 @@ namespace UnitTests.Technologies
         public TestTechnologyUnlock()
         {
             CreateUniverseAndPlayerEmpire();
-            MajorEnemy = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.MajorRaces[1], isPlayer:false);
+            MajorEnemy = EmpireManager.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[1], isPlayer:false);
             Universe.aw = new AutomationWindow(Universe);
         }
 
