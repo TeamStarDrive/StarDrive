@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Ship_Game.Data;
@@ -1152,6 +1153,10 @@ namespace Ship_Game
                         int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
                     {
                         var model = RootContent.Load<Model>(info.RelPath());
+
+                        var fieldName = typeof(ModelMesh).GetField("name", BindingFlags.Instance| BindingFlags.NonPublic);
+                        fieldName.SetValue(model.Meshes[0], $"{modelFolder}{nameNoExt}.xnb");
+
                         float radius = model.GetBoundingBox().Radius();
                         models.Add((model, radius));
                     }

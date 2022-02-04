@@ -30,7 +30,7 @@ namespace Ship_Game
 
         public GeodeticManager GeodeticManager;
         public TroopManager TroopManager;
-        public SpaceStation Station = new SpaceStation(null);
+        public SpaceStation Station;
 
         public bool DontScrapBuildings = false;
         public bool Quarantine         = false;
@@ -476,8 +476,18 @@ namespace Ship_Game
             UpdateHabitable(timeStep);
             UpdatePosition(timeStep);
 
-            if (IsVisible && HasSpacePort)
-                Station.Update(timeStep);
+            if (HasSpacePort && IsVisible)
+            {
+                if (Station == null) Station = new SpaceStation();
+                Station.UpdateVisibleStation(this, timeStep);
+            }
+            else
+            {
+                Station?.DestroySceneObject();
+            }
+
+            if (!HasSpacePort)
+                Station = null;
         }
 
         void UpdateHabitable(FixedSimTime timeStep)
@@ -1048,9 +1058,6 @@ namespace Ship_Game
             Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);
             Money.Update();
-
-            if (!loadUniverse)
-                Station.SetVisibility(HasSpacePort, Universe.Screen.ScreenManager, this);
 
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }

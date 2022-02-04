@@ -133,7 +133,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
             step.Start(11); // arbitrary count... check # of calls below:
 
-            ScreenManager.Instance.RemoveAllObjects();
+            ScreenManager.Instance.ClearScene();
 
             var universe = new UniverseScreen(saveData)
             {
@@ -333,14 +333,9 @@ namespace Ship_Game.GameScreens.LoadGame
                     
                     foreach (Building b in p.BuildingList)
                     {
-                        if (!b.IsSpacePort)
-                            continue;
-
-                        p.Station = new SpaceStation(p);
-                        p.Station.LoadContent(ScreenManager.Instance, p.Owner);
-                        p.HasSpacePort = true;
+                        p.HasSpacePort |= b.IsSpacePort;
                     }
-                    
+
                     if (p.Owner != null && !system.OwnerList.Contains(p.Owner))
                         system.OwnerList.Add(p.Owner);
 

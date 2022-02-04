@@ -183,12 +183,14 @@ namespace Ship_Game.GameScreens.Scene
             if (type == "asteroid")
             {
                 int id = RandomMath2.InRange(ResourceManager.NumAsteroidModels);
-                return new SceneObject(ResourceManager.GetAsteroidModel(id).Meshes[0]) { ObjectType = ObjectType.Dynamic };
+                var model = ResourceManager.GetAsteroidModel(id);
+                return new SceneObject(model.Meshes[0]) { Name = model.Meshes[0].Name, ObjectType = ObjectType.Dynamic };
             }
             if (type == "spacejunk")
             {
                 int id = RandomMath2.InRange(ResourceManager.NumJunkModels);
-                return new SceneObject(ResourceManager.GetJunkModel(id).Meshes[0]) { ObjectType = ObjectType.Dynamic };
+                var model = ResourceManager.GetJunkModel(id);
+                return new SceneObject(model.Meshes[0]) { Name = model.Meshes[0].Name, ObjectType = ObjectType.Dynamic };
             }
             return null;
         }
