@@ -9,7 +9,7 @@ namespace Ship_Game.Ships
 {
     public interface IShipPool
     {
-        Guid Guid { get; }
+        int Id { get; }
         string Name { get; }
         Empire OwnerEmpire { get; }
         Array<Ship> Ships { get; }

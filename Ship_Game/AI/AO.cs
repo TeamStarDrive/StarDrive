@@ -17,7 +17,7 @@ namespace Ship_Game.AI
     // ReSharper disable once InconsistentNaming
     public sealed class AOPlanetData
     {
-        public Guid PlanetGuid;
+        public int PlanetId;
         readonly Planet OwnerPlanet;
         public int BuildingCount;
         public float WarValue;
@@ -27,7 +27,7 @@ namespace Ship_Game.AI
         public AOPlanetData(Planet p, Empire e)
         {
             OwnerPlanet = p;
-            PlanetGuid  = p.Guid;
+            PlanetId  = p.Id;
             DataOwner   = e;
         }
 
@@ -59,13 +59,13 @@ namespace Ship_Game.AI
         [XmlIgnore][JsonIgnore] Empire Owner;
         [XmlIgnore][JsonIgnore] int ThreatTimer;
 
-        [StarData] public Guid Guid { get; set; } = Guid.NewGuid();
+        [StarData] public int Id { get; set; }
         [StarData] public string Name { get; set; }
         [StarData] public int ThreatLevel;
-        [StarData] public Guid CoreWorldGuid;
-        [StarData] public Array<Guid> OffensiveForceGuids = new Array<Guid>();
-        [StarData] public Array<Guid> ShipsWaitingGuids   = new Array<Guid>();
-        [StarData] public Guid FleetGuid;
+        [StarData] public int CoreWorldId;
+        [StarData] public Array<int> OffensiveForceIds = new Array<int>();
+        [StarData] public Array<int> ShipsWaitingIds   = new Array<int>();
+        [StarData] public int FleetId;
         [StarData] public int WhichFleet = -1;
         [StarData] public float Radius;
         [StarData] public Vector2 Center;
@@ -105,32 +105,38 @@ namespace Ship_Game.AI
         public bool OffensiveForcePoolContains(Ship s) => OffensiveForcePool.ContainsRef(s);
         public bool WaitingShipsContains(Ship s)       => ShipsWaitingForCoreFleet.ContainsRef(s);
 
+        // for deserialization only
         public AO()
         {
         }
 
-        public AO(Vector2 center, float radius)
+        public AO(UniverseState us)
+        {
+            Id = us.CreateId();
+        }
+
+        public AO(UniverseState us, Vector2 center, float radius) : this(us)
         {
             Center = center;
             Radius = radius;
         }
 
-        public AO(Empire empire)
+        public AO(UniverseState us, Empire empire) : this(us)
         {
             Center = empire.WeightedCenter;
             Radius = empire.Universum.Size / 4;
         }
 
-        public AO(Planet p, float radius)
+        public AO(UniverseState us, Planet p, float radius) : this(us)
         {
             Radius        = radius;
             CoreWorld     = p;
-            CoreWorldGuid = p.Guid;
+            CoreWorldId   = p.Id;
             Owner         = p.Owner;
             Center        = p.Center;
             WhichFleet    = p.Owner.CreateFleetKey();
 
-            CoreFleet = new Fleet();
+            CoreFleet = new Fleet(p.Universe.CreateId());
             CoreFleet.Name = "Core Fleet";
             CoreFleet.FinalPosition = p.Center;
             CoreFleet.Owner         = p.Owner;
@@ -140,18 +146,18 @@ namespace Ship_Game.AI
             SetupPlanetsInAO();
         }
 
-        public AO(Planet p, float radius, int whichFleet, Fleet coreFleet)
+        public AO(UniverseState us, Planet p, float radius, int whichFleet, Fleet coreFleet) : this(us)
         {
             Radius        = radius;
             CoreWorld     = p;
-            CoreWorldGuid = p.Guid;
+            CoreWorldId   = p.Id;
             Owner         = p.Owner;
             Center        = p.Center;
             WhichFleet    = whichFleet;
 
             if (coreFleet == null)
             {
-                CoreFleet = new Fleet();
+                CoreFleet = new Fleet(p.Universe.CreateId());
                 CoreFleet.Name          = "Core Fleet";
                 CoreFleet.FinalPosition = p.Center;
                 CoreFleet.Owner         = p.Owner;
@@ -211,19 +217,19 @@ namespace Ship_Game.AI
 
         public void InitFromSave(UniverseState us, Empire owner)
         {
-            SetPlanet(us.GetPlanet(CoreWorldGuid));
+            SetPlanet(us.GetPlanet(CoreWorldId));
             Owner = owner;
             SetupPlanetsInAO();
-            OffensiveForcePool = Ship.GetShipsFromGuids(us, OffensiveForceGuids);
-            ShipsWaitingForCoreFleet = Ship.GetShipsFromGuids(us, ShipsWaitingGuids);
+            OffensiveForcePool = us.GetShipsFromIds(OffensiveForceIds);
+            ShipsWaitingForCoreFleet = us.GetShipsFromIds(ShipsWaitingIds);
             
-            var fleet = owner.GetFleetsDict().FilterValues(f => f.Guid == FleetGuid).FirstOrDefault();
+            var fleet = owner.GetFleetsDict().FilterValues(f => f.Id == FleetId).FirstOrDefault();
 
             if (fleet != null)
             {
                 SetFleet(fleet);
             }
-            else if (FleetGuid != Guid.Empty)
+            else if (FleetId != 0)
             {
                 if (WhichFleet == -1)
                     return;
@@ -231,11 +237,11 @@ namespace Ship_Game.AI
                 if (owner.GetFleetsDict().TryGetValue(WhichFleet, out Fleet f))
                 {
                     string fleetName = WhichFleet != -1 ? f.Name : "";
-                    Log.Warning($"Savegame FleetGuid {FleetGuid} ({owner.Name} fleetIdx:{WhichFleet} [{fleetName}]) not found in owner FleetsDict!!");
+                    Log.Warning($"Savegame FleetId {FleetId} ({owner.Name} fleetIdx:{WhichFleet} [{fleetName}]) not found in owner FleetsDict!!");
                 }
                 else
                 {
-                    Log.Warning($"Savegame FleetGuid {FleetGuid} ({owner.Name} fleetIdx:{WhichFleet}) not found in owner FleetsDict!!");
+                    Log.Warning($"Savegame FleetId {FleetId} ({owner.Name} fleetIdx:{WhichFleet}) not found in owner FleetsDict!!");
                 }
             }
         }
@@ -268,13 +274,13 @@ namespace Ship_Game.AI
 
         public void PrepareForSave()
         {
-            OffensiveForceGuids.Clear();
-            ShipsWaitingGuids.Clear();
+            OffensiveForceIds.Clear();
+            ShipsWaitingIds.Clear();
             foreach (Ship ship in OffensiveForcePool)
-                OffensiveForceGuids.Add(ship.Guid);
+                OffensiveForceIds.Add(ship.Id);
             foreach (Ship ship in ShipsWaitingForCoreFleet)
-                ShipsWaitingGuids.Add(ship.Guid);
-            FleetGuid = CoreFleet?.Guid ?? Guid.Empty; 
+                ShipsWaitingIds.Add(ship.Id);
+            FleetId = CoreFleet?.Id ?? 0; 
         }
 
         public void SetFleet(Fleet f)

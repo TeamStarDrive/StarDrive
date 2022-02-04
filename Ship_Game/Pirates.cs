@@ -39,7 +39,7 @@ namespace Ship_Game
         public readonly BatchRemovalCollection<Goal> Goals;
         public Map<int, int> ThreatLevels { get; private set; }    = new Map<int, int>();  // Empire IDs are used here
         public Map<int, int> PaymentTimers { get; private set; }   = new Map<int, int>(); // Empire IDs are used here
-        public Array<Guid> SpawnedShips { get; private set; }      = new Array<Guid>();
+        public Array<int> SpawnedShips { get; private set; }       = new Array<int>();
         public Array<string> ShipsWeCanSpawn { get; private set; } = new Array<string>();
         public int Level { get; private set; }
 
@@ -543,11 +543,11 @@ namespace Ship_Game
 
         public void ProcessShip(Ship ship, Ship pirateBase)
         {
-            if (SpawnedShips.Contains(ship.Guid))
+            if (SpawnedShips.Contains(ship.Id))
             {
                 // We cannot salvage ships that we spawned
                 // remove it with no benefits
-                SpawnedShips.RemoveSwapLast(ship.Guid);
+                SpawnedShips.RemoveSwapLast(ship.Id);
                 ship.QueueTotalRemoval();
                 CleanUpSpawnedShips();
             }
@@ -561,9 +561,9 @@ namespace Ship_Game
         {
             for (int i = SpawnedShips.Count - 1; i >= 0;  i--)
             {
-                Guid shipGuid = SpawnedShips[i];
+                int shipId = SpawnedShips[i];
                 {
-                    if (!Owner.OwnedShips.Any(s => s.Guid == shipGuid))
+                    if (Owner.OwnedShips.All(s => s.Id != shipId))
                         SpawnedShips.RemoveAtSwapLast(i);
                 }
             }
@@ -796,7 +796,7 @@ namespace Ship_Game
             {
                 pirateShip = Ship.CreateShipAtPoint(Owner.Universum, shipName, Owner, where);
                 if (pirateShip != null)
-                    SpawnedShips.Add(pirateShip.Guid);
+                    SpawnedShips.Add(pirateShip.Id);
                 else
                     Log.Warning($"Could not spawn required pirate ship named {shipName} for {Owner.Name}, check race xml");
             }

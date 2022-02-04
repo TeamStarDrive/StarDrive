@@ -1,6 +1,7 @@
 ﻿using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -9,7 +10,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "StandbyColonyShip";
         public override string UID => ID;
 
-        public StandbyColonyShip() : base(GoalType.StandbyColonyShip)
+        public StandbyColonyShip(int id, UniverseState us)
+            : base(GoalType.StandbyColonyShip, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,7 +22,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public StandbyColonyShip(Empire e) : this()
+        public StandbyColonyShip(Empire e)
+            : this(e.Universum.CreateId(), e.Universum)
         {
             empire        = e;
             StarDateAdded = empire.Universum.StarDate;

@@ -338,7 +338,7 @@ namespace Ship_Game.Ships
                  // NOTE: "0" must be written out, so that StringViewParser doesn't ignore the line!
                 fields[0] = slot.Health > 0 ? slot.Health.String(1) : "0";
                 fields[1] = slot.ShieldPower > 0 ? slot.ShieldPower.String(1) : "";
-                fields[2] = slot.HangarShipGuid;
+                fields[2] = slot.HangarShipId > 0 ? slot.HangarShipId.ToString() : "";
 
                 int count = GetMaxValidFields(fields);
                 string stateString = string.Join(";", fields, 0, count);
@@ -372,14 +372,14 @@ namespace Ship_Game.Ships
                 DesignSlot s = ParseDesignSlot(line1, moduleUIDs);
                 
                 StringView line2 = p.ReadLine();
-                StringView hp = line2.Next(';');
-                StringView sp = line2.Next(';');
-                StringView hs = line2.Next(';');
+                StringView healthPts = line2.Next(';');
+                StringView shieldPwr = line2.Next(';');
+                StringView hangarShp = line2.Next(';');
 
                 var msd = new ModuleSaveData(s,
-                    hp.IsEmpty ? 0 : hp.ToFloat(),
-                    sp.IsEmpty ? 0 : sp.ToFloat(),
-                    hs.IsEmpty ? "" : hs.Text
+                    healthPts.IsEmpty ? 0 : healthPts.ToFloat(),
+                    shieldPwr.IsEmpty ? 0 : shieldPwr.ToFloat(),
+                    hangarShp.IsEmpty ? 0 : hangarShp.ToInt()
                 );
                 modules[i] = msd;
             }

@@ -153,6 +153,7 @@ namespace Ship_Game
 
     public class SolarSystemBody : Explorable
     {
+        public readonly int Id;
         public PlanetType Type;
         public SubTexture PlanetTexture => ResourceManager.Texture(Type.IconPath);
         public PlanetCategory Category => Type.Category;
@@ -176,7 +177,6 @@ namespace Ship_Game
         public int NumConstructing => Construction.Count;
         public Array<Ship> OrbitalStations = new Array<Ship>();
 
-        public Guid Guid = Guid.NewGuid();
         protected AudioEmitter Emit = new AudioEmitter();
         public Vector2 Center;
         public Vector3 Center3D => new Vector3(Center, 2500);
@@ -236,6 +236,11 @@ namespace Ship_Game
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
         public IReadOnlyList<Building> GetBuildingsCanBuild() => BuildingsCanBuild;
+
+        public SolarSystemBody(int id)
+        {
+            Id = id;
+        }
 
         protected void AddTileEvents()
         {
@@ -603,7 +608,7 @@ namespace Ship_Game
                 PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.Type);
                 float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
                 var moon = new Moon(system,
-                                    newOrbital.Guid,
+                                    newOrbital.Id,
                                     moonType.Id,
                                     1f, orbitRadius,
                                     RandomMath.RandomBetween(0f, 360f),

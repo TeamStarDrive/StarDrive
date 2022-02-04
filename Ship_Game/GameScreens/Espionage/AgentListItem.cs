@@ -45,11 +45,11 @@ namespace Ship_Game.GameScreens.Espionage
                                      EmpireManager.GetEmpireByName(Agent.TargetEmpire).data.Traits.Plural;
                     batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
                 }
-                else if (Agent.TargetGUID != Guid.Empty && Agent.Mission == AgentMission.Undercover)
+                else if (Agent.TargetPlanetId != 0 && Agent.Mission == AgentMission.Undercover)
                 {
                     Vector2 targetCursor = namecursor;
                     targetCursor.X += 75f;
-                    string mission = Localizer.Token(GameText.Target) + ": " + Universe.UState.GetPlanet(Agent.TargetGUID).Name;
+                    string mission = Localizer.Token(GameText.Target) + ": " + Universe.UState.GetPlanet(Agent.TargetPlanetId).Name;
                     batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
                 }
 

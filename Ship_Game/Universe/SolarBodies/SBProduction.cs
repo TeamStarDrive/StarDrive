@@ -429,7 +429,7 @@ namespace Ship_Game.Universe.SolarBodies
 
                 if (q.Goal.Fleet != null)
                 {
-                    q.Goal.Fleet.RemoveGoalGuid(q.Goal.guid);
+                    q.Goal.Fleet.RemoveGoalGuid(q.Goal.Id);
                     Owner.GetEmpireAI().Goals.Remove(q.Goal);
                 }
 

@@ -19,7 +19,7 @@ namespace Ship_Game
         [StarData] public string PreviousTarget;
         [StarData] public int TurnsRemaining;
         [StarData] public string TargetEmpire = "";
-        [StarData] public Guid TargetGUID;
+        [StarData] public int TargetPlanetId;
         [StarData] public bool spyMute;
         [StarData] public string HomePlanet = "";
         [StarData] public float Age = 30f;
@@ -52,7 +52,7 @@ namespace Ship_Game
             {
                 foreach (Mole m in owner.data.MoleList)
                 {
-                    if (m.PlanetGuid != TargetGUID)
+                    if (m.PlanetId != TargetPlanetId)
                     {
                         continue;
                     }
@@ -524,7 +524,7 @@ namespace Ship_Game
         void InfiltratePlanet(Empire us, Empire victim, out string planetName)
         {
             Mole m = Mole.PlantMole(us, victim, out planetName);
-            TargetGUID = m.PlanetGuid;
+            TargetPlanetId = m.PlanetId;
         }
 
         void AssassinateEnemyAgent(Empire us, Empire victim, out string targetName)
@@ -537,7 +537,7 @@ namespace Ship_Game
 
             foreach (Mole mole in us.data.MoleList)
             {
-                if (mole.PlanetGuid == targetAgent.TargetGUID)
+                if (mole.PlanetId == targetAgent.TargetPlanetId)
                 {
                     us.data.MoleList.QueuePendingRemoval(mole);
                     break;

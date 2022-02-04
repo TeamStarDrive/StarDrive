@@ -16,9 +16,9 @@ namespace Ship_Game.AI.Tasks
     public partial class MilitaryTask
     {
         [StarData] public bool IsCoreFleetTask;
-        [StarData] public Guid GoalGuid;
+        [StarData] public int GoalId;
         [StarData] public bool NeedEvaluation = true;
-        [StarData] public Guid TargetPlanetGuid = Guid.Empty;
+        [StarData] public int TargetPlanetId;
         [StarData] public TaskType Type;
         [StarData] public Vector2 AO;
         [StarData] public float AORadius;
@@ -28,12 +28,11 @@ namespace Ship_Game.AI.Tasks
         [StarData] public int NeededTroopStrength;
         [StarData] public int Priority = 5;
         [StarData] public int TaskBombTimeNeeded;
-        [StarData] public Guid TargetShipGuid = Guid.Empty;
-        [StarData] public Guid TaskGuid = Guid.NewGuid();
+        [StarData] public int TargetShipId;
         [StarData] public Array<Vector2> PatrolPoints;
         [StarData] public int TargetEmpireId = -1;
         [StarData] public int TargetPlanetWarValue; // Used for doom fleets to affect colony lost value in war
-        [StarData] public Guid TargetSystemGuid = Guid.Empty;
+        [StarData] public int TargetSystemId;
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
@@ -111,13 +110,13 @@ namespace Ship_Game.AI.Tasks
             Empire dominant  = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
             var militaryTask = new MilitaryTask
             {
-                AO               = targetPlanet.Center,
-                AORadius         = 50000f,
-                Type             = TaskType.Exploration,
-                Owner            = owner,
-                TargetPlanet     = targetPlanet,
-                TargetPlanetGuid = targetPlanet.Guid,
-                TargetEmpire     = dominant
+                AO             = targetPlanet.Center,
+                AORadius       = 50000f,
+                Type           = TaskType.Exploration,
+                Owner          = owner,
+                TargetPlanet   = targetPlanet,
+                TargetPlanetId = targetPlanet.Id,
+                TargetEmpire   = dominant
             };
 
             return militaryTask;
@@ -167,7 +166,7 @@ namespace Ship_Game.AI.Tasks
                 AORadius                 = 20000,
                 Owner                    = empire,
                 EnemyStrength            = targetShip.BaseStrength,
-                TargetShipGuid           = targetShip.Guid,
+                TargetShipId             = ((GameplayObject)targetShip).Id,
                 MinimumTaskForceStrength = (targetShip.BaseStrength + pingStr) * empire.GetFleetStrEmpireMultiplier(targetShip.Loyalty),
                 TargetEmpire             = targetShip.Loyalty
             };
@@ -247,7 +246,7 @@ namespace Ship_Game.AI.Tasks
 
             Type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
-            TargetPlanetGuid         = target.Guid;
+            TargetPlanetId           = target.Id;
             AO                       = target.Center;
             AORadius                 = radius;
             Owner                    = owner;
@@ -278,9 +277,9 @@ namespace Ship_Game.AI.Tasks
 
         public void ChangeTargetPlanet(Planet planet)
         {
-            TargetPlanet     = planet;
-            TargetPlanetGuid = planet.Guid;
-            AO               = planet.Center;
+            TargetPlanet   = planet;
+            TargetPlanetId = planet.Id;
+            AO             = planet.Center;
         }
 
         public void ChangeAO(Vector2 position)
@@ -555,19 +554,19 @@ namespace Ship_Game.AI.Tasks
         public void SetTargetPlanet(Planet p)
         {
             TargetPlanet = p;
-            TargetPlanetGuid = p?.Guid ?? Guid.Empty;
+            TargetPlanetId = p?.Id ?? 0;
         }
 
         public void SetTargetSystem(SolarSystem s)
         {
             TargetSystem = s;
-            TargetSystemGuid = s?.Guid ?? Guid.Empty;
+            TargetSystemId = s?.Id ?? 0;
         }
 
         public void SetTargetShip(Ship ship)
         {
-            TargetShip     = ship;
-            TargetShipGuid = ship.Guid;
+            TargetShip = ship;
+            TargetShipId = ((GameplayObject)ship).Id;
         }
 
         //need to examine this fleet key thing. i believe there is a leak.
@@ -646,9 +645,9 @@ namespace Ship_Game.AI.Tasks
 
         public void RestoreFromSaveNoUniverse(UniverseState us, Empire e)
         {
-            Planet p = us.GetPlanet(TargetPlanetGuid);
-            Ship ship = us.GetShip(TargetShipGuid);
-            SolarSystem system = us.GetSystem(TargetSystemGuid);
+            Planet p = us.GetPlanet(TargetPlanetId);
+            Ship ship = us.GetShip(TargetShipId);
+            SolarSystem system = us.GetSystem(TargetSystemId);
             RestoreFromSaveFromSave(e, ship, p, system);
 
             if (system == null)
@@ -679,7 +678,7 @@ namespace Ship_Game.AI.Tasks
 
             foreach (Goal g in e.GetEmpireAI().Goals)
             {
-                if (g.guid == GoalGuid)
+                if (g.Id == GoalId)
                 {
                     Goal = g;
                     break;

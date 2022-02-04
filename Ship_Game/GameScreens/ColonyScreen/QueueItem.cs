@@ -21,7 +21,7 @@ namespace Ship_Game
         public IShipDesign sData;
         public Building Building;
         public string TroopType;
-        public Array<Guid> TradeRoutes = new Array<Guid>();
+        public Array<int> TradeRoutes = new Array<int>();
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         public Rectangle rect;
         public Rectangle removeRect;
@@ -149,7 +149,7 @@ namespace Ship_Game
             if (qi.IsBuilding) qi.UID = Building.Name;
             if (qi.IsShip)     qi.UID = sData.Name;
             if (qi.IsTroop)    qi.UID = TroopType;
-            if (Goal != null) qi.GoalGUID  = Goal.guid;
+            if (Goal != null) qi.GoalId  = Goal.Id;
             if (pgs != null)  qi.PGSVector = new Vector2(pgs.X, pgs.Y);
             return qi;
         }

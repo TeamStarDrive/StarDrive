@@ -219,7 +219,7 @@ namespace Ship_Game.Gameplay
     [XmlType("ShipModule")]
     public sealed class ShipModule_XMLTemplate : GameplayObject
     {
-        public ShipModule_XMLTemplate() : base(GameObjectType.ShipModule)
+        public ShipModule_XMLTemplate() : base(0, GameObjectType.ShipModule)
         {
         }
 

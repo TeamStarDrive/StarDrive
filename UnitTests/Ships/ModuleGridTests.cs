@@ -77,7 +77,7 @@ namespace UnitTests.Ships
             };
 
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
-            ShipModule[] modules = design.Select(slot => ShipModule.Create(slot, ship, false));
+            ShipModule[] modules = design.Select(slot => ShipModule.Create(null, slot, ship, false));
 
             var gridInfo = new ShipGridInfo(modules);
             Assert.AreEqual(4, gridInfo.SurfaceArea);

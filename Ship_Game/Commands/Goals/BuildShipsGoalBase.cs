@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -9,7 +10,7 @@ namespace Ship_Game.Commands.Goals
         IShipDesign ShipTemplate;
         float FindPlanetRetryTimer;
 
-        protected BuildShipsGoalBase(GoalType type) : base(type)
+        protected BuildShipsGoalBase(GoalType type, int id, UniverseState us) : base(type, id, us)
         {
         }
 

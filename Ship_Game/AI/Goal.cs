@@ -8,6 +8,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.Universe;
 
 namespace Ship_Game.AI
 {
@@ -63,13 +64,14 @@ namespace Ship_Game.AI
 
     public abstract class Goal
     {
-        public Guid guid = Guid.NewGuid();
+        public readonly int Id;
+        public UniverseState UState;
         public Empire empire;
         public GoalType type;
         public int Step { get; private set; }
         public Fleet Fleet;
         public Vector2 TetherOffset;
-        public Guid TetherTarget;
+        public int TetherPlanetId;
         Vector2 StaticBuildPosition;
         public string ToBuildUID;
         public string VanityName;
@@ -112,8 +114,7 @@ namespace Ship_Game.AI
             set => StaticBuildPosition = value;
         }
 
-        public Planet GetTetherPlanet => TetherTarget != Guid.Empty
-            ? empire.Universum.GetPlanet(TetherTarget) : null;
+        public Planet GetTetherPlanet => empire.Universum.GetPlanet(TetherPlanetId);
 
         public bool IsDeploymentGoal => ToBuildUID.NotEmpty() && !BuildPosition.AlmostZero();
         public abstract string UID { get; }
@@ -131,63 +132,69 @@ namespace Ship_Game.AI
 
         public override string ToString() => $"{type} Goal.{UID} {ToBuildUID}";
 
-        static Goal CreateInstance(string uid)
+        protected Goal(GoalType type, int id, UniverseState us)
+        {
+            this.type = type;
+            Id = id;
+            UState = us;
+        }
+
+        static Goal CreateInstance(string uid, int id, UniverseState us)
         {
             switch (uid)
             {
-                case BuildConstructionShip.ID:  return new BuildConstructionShip();
-                case BuildOffensiveShips.ID:    return new BuildOffensiveShips();
-                case BuildScout.ID:             return new BuildScout();
-                case BuildTroop.ID:             return new BuildTroop();
-                case FleetRequisition.ID:       return new FleetRequisition();
-                case IncreaseFreighters.ID:     return new IncreaseFreighters();
-                case MarkForColonization.ID:    return new MarkForColonization();
-                case RefitShip.ID:              return new RefitShip();
-                case RefitOrbital.ID:           return new RefitOrbital();
-                case BuildOrbital.ID:           return new BuildOrbital();
-                case RemnantInit.ID:            return new RemnantInit();
-                case PirateAI.ID:               return new PirateAI();
-                case PirateDirectorPayment.ID:  return new PirateDirectorPayment();
-                case PirateDirectorRaid.ID:     return new PirateDirectorRaid();
-                case PirateRaidTransport.ID:    return new PirateRaidTransport();
-                case PirateRaidOrbital.ID:      return new PirateRaidOrbital();
-                case PirateRaidProjector.ID:    return new PirateRaidProjector();
-                case PirateRaidCombatShip.ID:   return new PirateRaidCombatShip();
-                case PirateBase.ID:             return new PirateBase();
-                case PirateDefendBase.ID:       return new PirateDefendBase();
-                case PirateProtection.ID:       return new PirateProtection();
-                case AssaultPirateBase.ID:      return new AssaultPirateBase();
-                case DeployFleetProjector.ID:   return new DeployFleetProjector();
-                case RemnantEngagements.ID:     return new RemnantEngagements();
-                case RemnantPortal.ID:          return new RemnantPortal();
-                case RemnantEngageEmpire.ID:    return new RemnantEngageEmpire();
-                case ScrapShip.ID:              return new ScrapShip();
-                case RearmShipFromPlanet.ID:    return new RearmShipFromPlanet();
-                case DefendVsRemnants.ID:       return new DefendVsRemnants();
-                case StandbyColonyShip.ID:      return new StandbyColonyShip();
-                case ScoutSystem.ID:            return new ScoutSystem();
-                case AssaultBombers.ID:         return new AssaultBombers();
-                case EmpireDefense.ID:          return new EmpireDefense();
-                case DefendSystem.ID:           return new DefendSystem();
-                case WarMission.ID:             return new WarMission();
-                case WarManager.ID:             return new WarManager();
-                case PrepareForWar.ID:          return new PrepareForWar();
+                case BuildConstructionShip.ID:  return new BuildConstructionShip(id, us);
+                case BuildOffensiveShips.ID:    return new BuildOffensiveShips(id, us);
+                case BuildScout.ID:             return new BuildScout(id, us);
+                case BuildTroop.ID:             return new BuildTroop(id, us);
+                case FleetRequisition.ID:       return new FleetRequisition(id, us);
+                case IncreaseFreighters.ID:     return new IncreaseFreighters(id, us);
+                case MarkForColonization.ID:    return new MarkForColonization(id, us);
+                case RefitShip.ID:              return new RefitShip(id, us);
+                case RefitOrbital.ID:           return new RefitOrbital(id, us);
+                case BuildOrbital.ID:           return new BuildOrbital(id, us);
+                case RemnantInit.ID:            return new RemnantInit(id, us);
+                case PirateAI.ID:               return new PirateAI(id, us);
+                case PirateDirectorPayment.ID:  return new PirateDirectorPayment(id, us);
+                case PirateDirectorRaid.ID:     return new PirateDirectorRaid(id, us);
+                case PirateRaidTransport.ID:    return new PirateRaidTransport(id, us);
+                case PirateRaidOrbital.ID:      return new PirateRaidOrbital(id, us);
+                case PirateRaidProjector.ID:    return new PirateRaidProjector(id, us);
+                case PirateRaidCombatShip.ID:   return new PirateRaidCombatShip(id, us);
+                case PirateBase.ID:             return new PirateBase(id, us);
+                case PirateDefendBase.ID:       return new PirateDefendBase(id, us);
+                case PirateProtection.ID:       return new PirateProtection(id, us);
+                case AssaultPirateBase.ID:      return new AssaultPirateBase(id, us);
+                case DeployFleetProjector.ID:   return new DeployFleetProjector(id, us);
+                case RemnantEngagements.ID:     return new RemnantEngagements(id, us);
+                case RemnantPortal.ID:          return new RemnantPortal(id, us);
+                case RemnantEngageEmpire.ID:    return new RemnantEngageEmpire(id, us);
+                case ScrapShip.ID:              return new ScrapShip(id, us);
+                case RearmShipFromPlanet.ID:    return new RearmShipFromPlanet(id, us);
+                case DefendVsRemnants.ID:       return new DefendVsRemnants(id, us);
+                case StandbyColonyShip.ID:      return new StandbyColonyShip(id, us);
+                case ScoutSystem.ID:            return new ScoutSystem(id, us);
+                case AssaultBombers.ID:         return new AssaultBombers(id, us);
+                case EmpireDefense.ID:          return new EmpireDefense(id, us);
+                case DefendSystem.ID:           return new DefendSystem(id, us);
+                case WarMission.ID:             return new WarMission(id, us);
+                case WarManager.ID:             return new WarManager(id, us);
+                case PrepareForWar.ID:          return new PrepareForWar(id, us);
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
 
-        public static Goal Deserialize(string uid, Empire e, SavedGame.GoalSave gsave)
+        public static Goal Deserialize(string uid, UniverseState us, Empire e, SavedGame.GoalSave gsave)
         {
-            Goal g = CreateInstance(uid);
+            Goal g = CreateInstance(uid, gsave.GoalId, us);
             g.empire        = e;
             g.ToBuildUID    = gsave.ToBuildUID;
             g.Step          = gsave.GoalStep;
-            g.guid          = gsave.GoalGuid;
             g.BuildPosition = gsave.BuildPosition;
             g.VanityName    = gsave.VanityName;
             g.ShipLevel     = gsave.ShipLevel;
             g.StarDateAdded = gsave.StarDateAdded;
-            g.TetherTarget  = gsave.TetherTarget;
+            g.TetherPlanetId  = gsave.TetherTarget;
             g.TetherOffset  = gsave.TetherOffset;
             if ((uint)g.Step >= g.Steps.Length)
             {
@@ -206,11 +213,6 @@ namespace Ship_Game.AI
 
         public virtual bool IsRaid => false; // Is this goal a pirate raid?
         public virtual bool IsWarMission => false; // Is this goal related to war logic?
-
-        protected Goal(GoalType type)
-        {
-            this.type = type;
-        }
 
         protected GoalStep DummyStepTryAgain()     => GoalStep.TryAgain;
         protected GoalStep DummyStepGoalComplete() => GoalStep.GoalComplete;

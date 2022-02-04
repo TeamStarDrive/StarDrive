@@ -81,7 +81,7 @@ namespace Ship_Game
             {
                 bool flag = false;
                 if (SelectedPlanet.Owner == Player && combatView 
-                    || SelectedPlanet.Owner != Player && Player.data.MoleList.Any(m => m.PlanetGuid == SelectedPlanet.Guid) && combatView)
+                    || SelectedPlanet.Owner != Player && Player.data.MoleList.Any(m => m.PlanetId == SelectedPlanet.Id) && combatView)
                 {
                     OpenCombatMenu();
                     return;
@@ -89,7 +89,7 @@ namespace Ship_Game
 
                 foreach (Mole mole in Player.data.MoleList)
                 {
-                    if (mole.PlanetGuid == SelectedPlanet.Guid)
+                    if (mole.PlanetId == SelectedPlanet.Id)
                     {
                         flag = true;
                         break;

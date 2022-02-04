@@ -526,7 +526,7 @@ namespace Ship_Game.Debug
                 SetTextCursor(Win.X + 250, 600f, Color.White);
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.Loyalty.GetEmpireAI().DefensiveCoordinator.DefenseDict)
                     foreach (var defender in entry.Value.OurShips) {
-                        if (defender.Key == ship.Guid)
+                        if (defender.Key == ship.Id)
                             DrawString(entry.Value.System.Name);
                     }
             }

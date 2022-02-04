@@ -73,39 +73,39 @@ namespace Ship_Game
             Spatial = spatial;
         }
 
-        public Ship FindShip(in Guid guid)
+        public Ship FindShip(int id)
         {
-            if (guid == Guid.Empty)
+            if (id <= 0)
                 return null;
             lock (ShipsLocker)
             {
                 for (int i = 0; i < Ships.Count; ++i)
-                    if (Ships[i].Guid == guid)
+                    if (((GameplayObject)Ships[i]).Id == id)
                         return Ships[i];
             }
             lock (PendingShipLocker)
             {
                 for (int i = 0; i < PendingShips.Count; ++i)
-                    if (PendingShips[i].Guid == guid)
+                    if (((GameplayObject)PendingShips[i]).Id == id)
                         return PendingShips[i];
             }
             return null;
         }
 
-        public bool FindShip(in Guid guid, out Ship found)
+        public bool FindShip(int id, out Ship found)
         {
-            return (found = FindShip(guid)) != null;
+            return (found = FindShip(id)) != null;
         }
 
-        public GameplayObject FindObject(in Guid guid)
+        public GameplayObject FindObject(int id)
         {
             // TODO: ADD PROJECTILE AND BEAM SUPPORT
-            return FindShip(guid);
+            return FindShip(id);
         }
 
-        public bool FindObject(in Guid guid, out GameplayObject found)
+        public bool FindObject(int id, out GameplayObject found)
         {
-            return (found = FindObject(guid)) != null;
+            return (found = FindObject(id)) != null;
         }
 
         public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
@@ -116,7 +116,8 @@ namespace Ship_Game
                 p => p.Active && p.Type == GameObjectType.Proj && (p.Owner != null || p.Planet != null),
                 p => new SavedGame.ProjectileSaveData
                 {
-                    Owner    = p.Owner?.Guid ?? p.Planet.Guid,
+                    Id = p.Id,
+                    OwnerId  = p.Owner?.Id ?? p.Planet.Id,
                     Weapon   = p.Weapon.UID,
                     Duration = p.Duration,
                     Rotation = p.Rotation,
@@ -138,13 +139,14 @@ namespace Ship_Game
                     var beam = (Beam)p;
                     return new SavedGame.BeamSaveData
                     {
-                        Owner    = p.Owner?.Guid ?? p.Planet.Guid,
+                        Id = beam.Id,
+                        OwnerId  = p.Owner?.Id ?? p.Planet.Id,
                         Weapon   = p.Weapon.UID,
                         Duration = p.Duration,
                         Source   = beam.Source,
                         Destination = beam.Destination,
                         ActualHitDestination = beam.ActualHitDestination,
-                        Target  = beam.Target is Ship ship ? ship.Guid : Guid.Empty,
+                        TargetId  = beam.Target is Ship ship ? ((GameplayObject)ship).Id : 0,
                         Loyalty = p.Loyalty.Id,
                     };
                 });
@@ -463,7 +465,7 @@ namespace Ship_Game
                         var ship = (Ship)shipsInSystem[j];
 
                         system.ShipList.Add(ship);
-                        shipsInSystems.Add(ship.Id); // this ship was seen in a system
+                        shipsInSystems.Add(((GameplayObject)ship).Id); // this ship was seen in a system
 
                         ship.SetSystem(system);
                         system.SetExploredBy(ship.Loyalty);
@@ -480,7 +482,7 @@ namespace Ship_Game
                 for (int i = 0; i < shipsCount; ++i)
                 {
                     Ship ship = Ships[i];
-                    if (!shipsInSystems.Contains(ship.Id))
+                    if (!shipsInSystems.Contains(((GameplayObject)ship).Id))
                         ship.SetSystem(null);
                 }
             }

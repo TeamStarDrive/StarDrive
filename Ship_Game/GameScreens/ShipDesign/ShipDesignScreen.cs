@@ -10,6 +10,7 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -123,7 +124,8 @@ namespace Ship_Game
         {
             if (!ResourceManager.GetModuleTemplate(uid, out ShipModule moduleTemplate))
                 return null; // this module UID doesn't exist anymore
-            return ShipModule.CreateDesignModule(uid, moduleRot, turretAngle, hangarShipUID, CurrentHull);
+            UniverseState us = ParentUniverse.UState;
+            return ShipModule.CreateDesignModule(us, uid, moduleRot, turretAngle, hangarShipUID, CurrentHull);
         }
 
         // spawn a new active module under cursor

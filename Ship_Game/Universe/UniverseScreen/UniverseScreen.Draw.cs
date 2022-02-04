@@ -553,7 +553,7 @@ namespace Ship_Game
             {
                 Goal goal = SelectedItem.AssociatedGoal;
                 EmpireAI ai = goal.empire.GetEmpireAI();
-                if (ai.HasGoal(goal.guid))
+                if (ai.HasGoal(goal.Id))
                 {
                     string titleText = $"({ResourceManager.GetShipTemplate(SelectedItem.UID).Name})";
                     string bodyText = goal.PlanetBuildingAt != null
@@ -1193,7 +1193,7 @@ namespace Ship_Game
                         for (int i = 0; i < Player.data.MoleList.Count; i++)
                         {
                             Mole mole = Player.data.MoleList[i];
-                            if (mole.PlanetGuid == planet.Guid)
+                            if (mole.PlanetId == planet.Id)
                             {
                                 posOffSet.X += (18 * drawLocationOffset);
                                 DrawTextureWithToolTip(icon_spy_small, Color.White, GameText.IndicatesThatAFriendlyAgent, mousePos,

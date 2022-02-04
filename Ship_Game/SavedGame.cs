@@ -16,6 +16,7 @@ using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -85,11 +86,14 @@ namespace Ship_Game
             Screen = screenToSave;
 
             // clean up and submit objects before saving
-            screenToSave.UState.Objects.UpdateLists(removeInactiveObjects: true);
+            UniverseState us = screenToSave.UState;
+            us.Objects.UpdateLists(removeInactiveObjects: true);
+
 
             SaveData.SaveGameVersion       = SaveGameVersion;
-            SaveData.GameDifficulty        = CurrentGame.Difficulty;
-            SaveData.GalaxySize            = CurrentGame.GalaxySize;
+            SaveData.ObjectIds             = us.UniqueObjectIds;
+            SaveData.GameDifficulty        = us.Difficulty;
+            SaveData.GalaxySize            = us.GalaxySize;
             SaveData.StarsModifier         = CurrentGame.StarsModifier;
             SaveData.ExtraPlanets          = CurrentGame.ExtraPlanets;
             SaveData.AutoColonize          = EmpireManager.Player.AutoColonize;
@@ -100,11 +104,11 @@ namespace Ship_Game
             SaveData.AutoProjectors        = EmpireManager.Player.AutoBuild;
             SaveData.GamePacing            = CurrentGame.Pace;
             SaveData.GameScale             = 1f;
-            SaveData.StarDate              = screenToSave.UState.StarDate;
-            SaveData.FTLModifier           = screenToSave.UState.FTLModifier;
-            SaveData.EnemyFTLModifier      = screenToSave.UState.EnemyFTLModifier;
-            SaveData.FTLInNeutralSystems   = screenToSave.UState.FTLInNeutralSystems;
-            SaveData.GravityWells          = screenToSave.UState.GravityWells;
+            SaveData.StarDate              = us.StarDate;
+            SaveData.FTLModifier           = us.FTLModifier;
+            SaveData.EnemyFTLModifier      = us.EnemyFTLModifier;
+            SaveData.FTLInNeutralSystems   = us.FTLInNeutralSystems;
+            SaveData.GravityWells          = us.GravityWells;
             SaveData.PlayerLoyalty         = screenToSave.PlayerLoyalty;
             SaveData.RandomEvent           = RandomEventManager.ActiveEvent;
             SaveData.CamPos                = screenToSave.CamPos.ToVec3f();
@@ -137,7 +141,7 @@ namespace Ship_Game
                 SaveData.SolarSystemDataList.Add(new SolarSystemSaveData
                 {
                     Name           = system.Name,
-                    Guid           = system.Guid,
+                    Id             = system.Id,
                     Position       = system.Position,
                     SunPath        = system.Sun.Id,
                     AsteroidsList  = system.AsteroidsList.Clone(),
@@ -181,7 +185,7 @@ namespace Ship_Game
                 empireToSave.FleetStrEmpireModifier    = e.FleetStrEmpireMultiplier;
                 empireToSave.DiplomacyContactQueue     = e.DiplomacyContactQueue;
                 empireToSave.ObsoletePlayerShipModules = e.ObsoletePlayerShipModules;
-                empireToSave.CapitalGuid               = e.Capital?.Guid ?? Guid.Empty;
+                empireToSave.CapitalId               = e.Capital?.Id ?? 0;
 
                 if (e.WeArePirates)
                 {
@@ -223,7 +227,7 @@ namespace Ship_Game
                         TaskStep        = fleet.Value.TaskStep,
                         Key             = fleet.Key,
                         Facing          = fleet.Value.FinalDirection.ToRadians(), // @note Save game compatibility uses radians
-                        FleetGuid       = fleet.Value.Guid,
+                        FleetId         = fleet.Value.Id,
                         Position        = fleet.Value.FinalPosition,
                         ShipsInFleet    = new Array<FleetShipSave>(),
                         AutoRequisition = fleet.Value.AutoRequisition
@@ -232,7 +236,7 @@ namespace Ship_Game
                     {
                         // only save ships that are currently alive (race condition when saving during intense battles)
                         if (node.Ship != null && node.Ship.Active)
-                            node.ShipGuid = node.Ship.Guid;
+                            node.ShipId = ((GameplayObject)node.Ship).Id;
                     }
                     fs.DataNodes = fleet.Value.DataNodes;
                     foreach (Ship ship in fleet.Value.Ships)
@@ -240,7 +244,7 @@ namespace Ship_Game
                         fs.ShipsInFleet.Add(new FleetShipSave
                         {
                             FleetOffset = ship.RelativeFleetOffset,
-                            ShipGuid = ship.Guid
+                            ShipId = ((GameplayObject)ship).Id
                         });
                     }
                     empireToSave.FleetsList.Add(fs);
@@ -250,14 +254,14 @@ namespace Ship_Game
                 {
                     var rdata = new SpaceRoadSave
                     {
-                        OriginGUID = road.Origin.Guid,
-                        DestGUID = road.Destination.Guid,
+                        OriginId = road.Origin.Id,
+                        DestinationId = road.Destination.Id,
                         RoadNodes = new Array<RoadNodeSave>()
                     };
                     foreach (RoadNode node in road.RoadNodesList)
                     {
                         var ndata = new RoadNodeSave { Position = node.Position };
-                        if (node.Platform != null) ndata.Guid_Platform = node.Platform.Guid;
+                        if (node.Platform != null) ndata.PlatformId = ((GameplayObject)node.Platform).Id;
                         rdata.RoadNodes.Add(ndata);
                     }
                     empireToSave.SpaceRoadData.Add(rdata);
@@ -279,23 +283,23 @@ namespace Ship_Game
                         GoalStep      = g.Step,
                         ToBuildUID    = g.ToBuildUID,
                         Type          = g.type,
-                        GoalGuid      = g.guid,
+                        GoalId        = g.Id,
                         GoalName      = g.UID,
                         ShipLevel     = g.ShipLevel,
                         VanityName    = g.VanityName,
-                        TetherTarget  = g.TetherTarget,
+                        TetherTarget  = g.TetherPlanetId,
                         TetherOffset  = g.TetherOffset,
                         StarDateAdded = g.StarDateAdded
                     };
-                    if (g.FinishedShip != null)       gdata.ColonyShipGuid            = g.FinishedShip.Guid;
-                    if (g.ColonizationTarget != null) gdata.MarkedPlanetGuid          = g.ColonizationTarget.Guid;
-                    if (g.PlanetBuildingAt != null)   gdata.PlanetWhereBuildingAtGuid = g.PlanetBuildingAt.Guid;
-                    if (g.TargetSystem != null)       gdata.TargetSystemGuid          = g.TargetSystem.Guid;
-                    if (g.TargetPlanet != null)       gdata.TargetPlanetGuid          = g.TargetPlanet.Guid;
-                    if (g.Fleet != null)              gdata.FleetGuid                 = g.Fleet.Guid;
-                    if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.Guid;
-                    if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.Guid;
-                    if (g.TargetEmpire != null)       gdata.TargetEmpireId            = g.TargetEmpire.Id;
+                    if (g.FinishedShip != null)       gdata.ColonyShipId       = g.FinishedShip.Id;
+                    if (g.ColonizationTarget != null) gdata.MarkedPlanetId     = g.ColonizationTarget.Id;
+                    if (g.PlanetBuildingAt != null)   gdata.PlanetBuildingAtId = g.PlanetBuildingAt.Id;
+                    if (g.TargetSystem != null)       gdata.TargetSystemId     = g.TargetSystem.Id;
+                    if (g.TargetPlanet != null)       gdata.TargetPlanetId     = g.TargetPlanet.Id;
+                    if (g.Fleet != null)              gdata.FleetId            = g.Fleet.Id;
+                    if (g.OldShip != null)            gdata.OldShipId          = g.OldShip.Id;
+                    if (g.TargetShip != null)         gdata.TargetShipId       = g.TargetShip.Id;
+                    if (g.TargetEmpire != null)       gdata.TargetEmpireId     = g.TargetEmpire.Id;
 
                     return gdata;
                 });
@@ -366,7 +370,7 @@ namespace Ship_Game
             var sdata = new ShipSaveData(ship);
             if (ship.GetTether() != null)
             {
-                sdata.TetheredTo = ship.GetTether().Guid;
+                sdata.TetheredTo = ship.GetTether().Id;
                 sdata.TetherOffset = ship.TetherOffset;
             }
             sdata.Name = ship.Name;
@@ -392,14 +396,14 @@ namespace Ship_Game
             sdata.ScuttleTimer = ship.ScuttleTimer;
 
             if (ship.IsHomeDefense)
-                sdata.HomePlanetGuid = ship.HomePlanet.Guid;
+                sdata.HomePlanetId = ship.HomePlanet.Id;
 
             if (ship.TradeRoutes?.NotEmpty == true)
             {
-                sdata.TradeRoutes = new Array<Guid>();
-                foreach (Guid planetGuid in ship.TradeRoutes)
+                sdata.TradeRoutes = new Array<int>();
+                foreach (int planetId in ship.TradeRoutes)
                 {
-                    sdata.TradeRoutes.Add(planetGuid);
+                    sdata.TradeRoutes.Add(planetId);
                 }
             }
 
@@ -416,7 +420,7 @@ namespace Ship_Game
             };
             if (ship.AI.Target is Ship targetShip)
             {
-                sdata.AISave.AttackTarget = targetShip.Guid;
+                sdata.AISave.AttackTargetId = ((GameplayObject)targetShip).Id;
             }
             sdata.AISave.MovePosition = ship.AI.MovePosition;
             sdata.AISave.WayPoints = new Array<WayPoint>(ship.AI.CopyWayPoints());
@@ -426,13 +430,13 @@ namespace Ship_Game
                 sdata.AISave.ShipGoalsList.Add(sg.ToSaveData());
 
             if (ship.AI.OrbitTarget != null)
-                sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.Guid;
+                sdata.AISave.OrbitTargetId = ship.AI.OrbitTarget.Id;
 
             if (ship.AI.SystemToDefend != null)
-                sdata.AISave.SystemToDefend = ship.AI.SystemToDefend.Guid;
+                sdata.AISave.SystemToDefendId = ship.AI.SystemToDefend.Id;
 
             if (ship.AI.EscortTarget != null)
-                sdata.AISave.EscortTarget = ship.AI.EscortTarget.Guid;
+                sdata.AISave.EscortTargetId = ((GameplayObject)ship.AI.EscortTarget).Id;
             return sdata;
         }
 
@@ -441,7 +445,7 @@ namespace Ship_Game
             var sd = new ShipSaveData(ship);
             if (ship.GetTether() != null)
             {
-                sd.TetheredTo = ship.GetTether().Guid;
+                sd.TetheredTo = ship.GetTether().Id;
                 sd.TetherOffset = ship.TetherOffset;
             }
             sd.Name = ship.Name;
@@ -560,7 +564,7 @@ namespace Ship_Game
             [StarData] public int PirateLevel;
             [StarData] public Map<int, int> PirateThreatLevels;
             [StarData] public Map<int, int> PiratePaymentTimers;
-            [StarData] public Array<Guid> SpawnedShips;
+            [StarData] public Array<int> SpawnedShips;
             [StarData] public Array<string> ShipsWeCanSpawn;
             [StarData] public float NormalizedMoneyVal;
             [StarData] public int ExpandSearchTimer;
@@ -582,7 +586,7 @@ namespace Ship_Game
             [StarData] public Map<int, float> FleetStrEmpireModifier;
             [StarData] public List<KeyValuePair<int, string>> DiplomacyContactQueue;
             [StarData] public Array<string> ObsoletePlayerShipModules;
-            [StarData] public Guid CapitalGuid;
+            [StarData] public int CapitalId;
         }
 
         [StarDataType]
@@ -592,23 +596,23 @@ namespace Ship_Game
             [StarData] public string Name;
             [StarData] public int TaskStep;
             [StarData] public Vector2 Position;
-            [StarData] public Guid FleetGuid;
+            [StarData] public int FleetId;
             [StarData] public float Facing;
             [StarData] public int Key;
             [StarData] public Array<FleetShipSave> ShipsInFleet;
             [StarData] public Array<FleetDataNode> DataNodes;
             [StarData] public bool AutoRequisition;
 
-            public override string ToString() => $"FleetSave {Name} (core={IsCoreFleet}) {FleetGuid} {Position}";
+            public override string ToString() => $"FleetSave {Name} (core={IsCoreFleet}) {FleetId} {Position}";
         }
 
         [StarDataType]
         public struct FleetShipSave
         {
-            [StarData] public Guid ShipGuid;
+            [StarData] public int ShipId;
             [StarData] public Vector2 FleetOffset;
 
-            public override string ToString() => $"FleetShipSave {ShipGuid} {FleetOffset}";
+            public override string ToString() => $"FleetShipSave {ShipId} {FleetOffset}";
         }
 
         [StarDataType]
@@ -616,24 +620,24 @@ namespace Ship_Game
         {
             [StarData] public GoalType Type;
             [StarData] public int GoalStep;
-            [StarData] public Guid MarkedPlanetGuid; // @note renamed to: Goal.ColonizationTarget
-            [StarData] public Guid ColonyShipGuid;   // @note renamed to: Goal.FinishedShip
+            [StarData] public int MarkedPlanetId; // @note renamed to: Goal.ColonizationTarget
+            [StarData] public int ColonyShipId;   // @note renamed to: Goal.FinishedShip
             [StarData] public Vector2 BuildPosition;
             [StarData] public string ToBuildUID;
-            [StarData] public Guid PlanetWhereBuildingAtGuid;
+            [StarData] public int PlanetBuildingAtId;
             [StarData] public string GoalName;
-            [StarData] public Guid FleetGuid;
-            [StarData] public Guid GoalGuid;
-            [StarData] public Guid OldShipGuid;
+            [StarData] public int FleetId;
+            [StarData] public int GoalId;
+            [StarData] public int OldShipId;
             [StarData] public string VanityName;
             [StarData] public int ShipLevel;
-            [StarData] public Guid TetherTarget;
+            [StarData] public int TetherTarget;
             [StarData] public Vector2 TetherOffset;
-            [StarData] public Guid TargetShipGuid;
+            [StarData] public int TargetShipId;
             [StarData] public int TargetEmpireId;
             [StarData] public float StarDateAdded;
-            [StarData] public Guid TargetSystemGuid;
-            [StarData] public Guid TargetPlanetGuid;
+            [StarData] public int TargetSystemId;
+            [StarData] public int TargetPlanetId;
         }
 
         [StarDataType]
@@ -642,7 +646,7 @@ namespace Ship_Game
             [StarData] public Array<int> UsedFleets;
             [StarData] public GoalSave[] Goals;
             [StarData] public Array<MilitaryTask> MilitaryTaskList;
-            [StarData] public Array<Guid> PinGuids;
+            [StarData] public Array<int> PinIds;
             [StarData] public Array<ThreatMatrix.Pin> PinList;
         }
 
@@ -672,7 +676,7 @@ namespace Ship_Game
         [StarDataType]
         public class PlanetSaveData
         {
-            [StarData] public Guid Guid;
+            [StarData] public int Id;
             [StarData] public string SpecialDescription;
             [StarData] public string Name;
             [StarData] public float Scale;
@@ -699,14 +703,14 @@ namespace Ship_Game
             [StarData] public Planet.GoodState ProdState;
             [StarData] public string[] ExploredBy;
             [StarData] public float TerraformPoints;
-            [StarData] public Guid[] StationsList;
+            [StarData] public int[] StationsList;
             [StarData] public bool FoodLock;
             [StarData] public bool ResLock;
             [StarData] public bool ProdLock;
             [StarData] public float ShieldStrength;
             [StarData] public float MaxFertility;
-            [StarData] public Guid[] IncomingFreighters;
-            [StarData] public Guid[] OutgoingFreighters;
+            [StarData] public int[] IncomingFreighters;
+            [StarData] public int[] OutgoingFreighters;
             [StarData] public bool GovOrbitals;
             [StarData] public bool GovMilitia;
             [StarData] public int NumShipyards;
@@ -742,7 +746,8 @@ namespace Ship_Game
         [StarDataType]
         public struct ProjectileSaveData
         {
-            [StarData] public Guid Owner; // Ship or Planet
+            [StarData] public int Id; // unique ID of the object
+            [StarData] public int OwnerId; // Ship or Planet
             [StarData] public string Weapon;
             [StarData] public float Duration;
             [StarData] public float Rotation;
@@ -754,13 +759,14 @@ namespace Ship_Game
         [StarDataType]
         public struct BeamSaveData
         {
-            [StarData] public Guid Owner; // Ship or Planet
+            [StarData] public int Id; // unique ID of the object
+            [StarData] public int OwnerId; // Ship or Planet
             [StarData] public string Weapon;
             [StarData] public float Duration;
             [StarData] public Vector2 Source;
             [StarData] public Vector2 Destination;
             [StarData] public Vector2 ActualHitDestination;
-            [StarData] public Guid Target; // Ship or Projectile
+            [StarData] public int TargetId; // Ship or Projectile
             [StarData] public int Loyalty;
         }
 
@@ -768,7 +774,7 @@ namespace Ship_Game
         public class QueueItemSave
         {
             [StarData] public string UID;
-            [StarData] public Guid GoalGUID;
+            [StarData] public int GoalId;
             [StarData] public float ProgressTowards;
             [StarData] public bool IsBuilding;
             [StarData] public bool IsTroop;
@@ -777,7 +783,7 @@ namespace Ship_Game
             [StarData] public float Cost;
             [StarData] public Vector2 PGSVector;
             [StarData] public bool IsPlayerAdded;
-            [StarData] public Array<Guid> TradeRoutes;
+            [StarData] public Array<int> TradeRoutes;
             [StarData] public RectangleData[] AreaOfOperation;
             [StarData] public bool TransportingColonists;
             [StarData] public bool TransportingFood;
@@ -801,7 +807,7 @@ namespace Ship_Game
         public struct RoadNodeSave
         {
             [StarData] public Vector2 Position;
-            [StarData] public Guid Guid_Platform;
+            [StarData] public int PlatformId;
         }
 
         [StarDataType]
@@ -814,40 +820,40 @@ namespace Ship_Game
             [StarData] public Array<ShipGoalSave> ShipGoalsList;
             [StarData] public Array<WayPoint> WayPoints;
             [StarData] public Vector2 MovePosition;
-            [StarData] public Guid OrbitTarget;
-            [StarData] public Guid SystemToDefend;
-            [StarData] public Guid AttackTarget;
-            [StarData] public Guid EscortTarget;
+            [StarData] public int OrbitTargetId;
+            [StarData] public int SystemToDefendId;
+            [StarData] public int AttackTargetId;
+            [StarData] public int EscortTargetId;
         }
 
         [StarDataType]
         public class ShipGoalSave
         {
             [StarData] public ShipAI.Plan Plan;
-            [StarData] public Guid GoalGuid;
+            [StarData] public int GoalId;
             [StarData] public string VariableString;
-            [StarData] public Guid fleetGuid;
+            [StarData] public int FleetId;
             [StarData] public float SpeedLimit;
             [StarData] public Vector2 MovePosition;
             [StarData] public Vector2 Direction;
-            [StarData] public Guid TargetPlanetGuid;
+            [StarData] public int TargetPlanetId;
             [StarData] public TradePlanSave Trade;
             [StarData] public AIState WantedState;
-            [StarData] public Guid TargetShipGuid;
+            [StarData] public int TargetShipId;
             [StarData] public MoveOrder MoveOrder;
             [StarData] public float VariableNumber;
 
             public override string ToString()
             {
-                return $"SGSave {Plan} MP={MovePosition} TS={TargetShipGuid} TP={TargetPlanetGuid}";
+                return $"SGSave {Plan} MP={MovePosition} TS={TargetShipId} TP={TargetPlanetId}";
             }
         }
 
         [StarDataType]
         public class TradePlanSave
         {
-            [StarData] public Guid ExportFrom;
-            [StarData] public Guid ImportTo;
+            [StarData] public int ExportFrom;
+            [StarData] public int ImportTo;
             [StarData] public Goods Goods;
             [StarData] public float BlockadeTimer;
             [StarData] public float StardateAdded;
@@ -856,7 +862,7 @@ namespace Ship_Game
         [StarDataType]
         public class ShipSaveData
         {
-            [StarData] public Guid GUID;
+            [StarData] public int Id;
             [StarData] public bool AfterBurnerOn;
             [StarData] public ShipAISave AISave;
             [StarData] public Vector2 Position;
@@ -881,16 +887,16 @@ namespace Ship_Game
             [StarData] public float FoodCount;
             [StarData] public float ProdCount;
             [StarData] public float PopCount;
-            [StarData] public Guid TetheredTo;
+            [StarData] public int TetheredTo;
             [StarData] public Vector2 TetherOffset;
             [StarData] public bool FightersLaunched;
             [StarData] public bool TroopsLaunched;
-            [StarData] public Guid HomePlanetGuid;
+            [StarData] public int HomePlanetId;
             [StarData] public bool TransportingFood;
             [StarData] public bool TransportingProduction;
             [StarData] public bool TransportingColonists;
             [StarData] public bool AllowInterEmpireTrade;
-            [StarData] public Array<Guid> TradeRoutes;
+            [StarData] public Array<int> TradeRoutes;
             [StarData] public bool SendTroopsToShip;
             [StarData] public bool RecallFightersBeforeFTL;
             [StarData] public float MechanicalBoardingDefense;
@@ -903,7 +909,7 @@ namespace Ship_Game
             {
                 Name = ship.Name;
                 MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
-                GUID = ship.Guid;
+                Id = ((GameplayObject)ship).Id;
                 Position   = ship.Position;
 
                 BaseStrength = ship.BaseStrength;
@@ -915,13 +921,13 @@ namespace Ship_Game
                 ModulesBase64 = ShipDesign.GetBase64ModulesString(ship);
             }
 
-            public override string ToString() => $"ShipSave {GUID} {Name}";
+            public override string ToString() => $"ShipSave {Id} {Name}";
         }
 
         [StarDataType]
         public class SolarSystemSaveData
         {
-            [StarData] public Guid Guid;
+            [StarData] public int Id;
             [StarData] public string SunPath; // old SunPath is actually the ID @todo RENAME
             [StarData] public string Name;
             [StarData] public Vector2 Position;
@@ -943,14 +949,15 @@ namespace Ship_Game
         public struct SpaceRoadSave
         {
             [StarData] public Array<RoadNodeSave> RoadNodes;
-            [StarData] public Guid OriginGUID;
-            [StarData] public Guid DestGUID;
+            [StarData] public int OriginId;
+            [StarData] public int DestinationId;
         }
 
         [StarDataType]
         public class UniverseSaveData
         {
             [StarData] public int SaveGameVersion;
+            [StarData] public int ObjectIds;
             [StarData] public string Path;
             [StarData] public string SaveAs;
             [StarData] public string FileName;

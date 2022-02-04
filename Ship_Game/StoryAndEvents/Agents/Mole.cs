@@ -6,7 +6,7 @@ namespace Ship_Game
     [StarDataType]
     public sealed class Mole
     {
-        [StarData] public Guid PlanetGuid;
+        [StarData] public int PlanetId;
 
         public static Mole PlantMole(Empire owner, Empire target, out string targetPlanetName)
         {
@@ -21,7 +21,7 @@ namespace Ship_Game
                 bool GoodPlanet = true;
                 foreach (Mole m in target.data.MoleList)
                 {
-                    if (m.PlanetGuid != p.Guid)
+                    if (m.PlanetId != p.Id)
                     {
                         continue;
                     }
@@ -48,7 +48,7 @@ namespace Ship_Game
                 }
                 mole = new Mole
                 {
-                    PlanetGuid = potentials[Random].Guid
+                    PlanetId = potentials[Random].Id
                 };
 
                 targetPlanetName = potentials[Random].Name;

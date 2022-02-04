@@ -17,9 +17,9 @@ namespace Ship_Game
     using static RandomMath;
     public sealed class SolarSystem : Explorable
     {
+        public readonly int Id;
         public string Name = "Random System";
         public UniverseState Universe;
-        public Guid Guid = Guid.NewGuid();
         public bool DontStartNearPlayer;
 
         //public Array<Empire> OwnerList = new Array<Empire>();
@@ -70,6 +70,16 @@ namespace Ship_Game
         public Array<Anomaly> AnomaliesList = new Array<Anomaly>();
         public bool IsStartingSystem;
         [XmlIgnore][JsonIgnore] bool WasVisibleLastFrame;
+
+        public SolarSystem(UniverseState us, int id)
+        {
+            Universe = us;
+            Id = id;
+        }
+
+        public SolarSystem(UniverseState us) : this(us, us.CreateId())
+        {
+        }
 
         public void Update(FixedSimTime timeStep, UniverseScreen universe)
         {
@@ -352,18 +362,18 @@ namespace Ship_Game
             //Log.Info($"The {empire.Name} have fully explored {Name}");
         }
 
-        public Planet FindPlanet(in Guid planetGuid)
+        public Planet FindPlanet(int planetId)
         {
-            if (planetGuid != Guid.Empty)
+            if (planetId != 0)
             {
                 foreach (Planet p in PlanetList)
-                    if (p.Guid == planetGuid)
+                    if (p.Id == planetId)
                         return p;
             }
             return null;
         }
 
-        public void GenerateRandomSystem(string name, float systemScale, Empire owner = null)
+        public void GenerateRandomSystem(UniverseState us, string name, float systemScale, Empire owner = null)
         {
             // Changed by RedFox: 3% chance to get a tri-sun "star_binary"
             Sun = RollDice(percent:3)
@@ -396,7 +406,7 @@ namespace Ship_Game
                 float ringRadius = NextRingRadius(ringNum);
                 float randomAngle = RandomBetween(0f, 360f);
                 string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(ringNum);
-                var newOrbital    = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
+                var newOrbital    = new Planet(us.CreateId(), this, randomAngle, ringRadius, planetName, ringMax, owner);
 
                 PlanetList.Add(newOrbital);
                 ringRadius += newOrbital.ObjectRadius;
@@ -444,13 +454,13 @@ namespace Ship_Game
             FinalizeGeneratedSystem();
         }
 
-        public void GenerateStartingSystem(string name, float systemScale, Empire owner)
+        public void GenerateStartingSystem(UniverseState us, string name, float systemScale, Empire owner)
         {
             IsStartingSystem = true;
-            GenerateRandomSystem(name, systemScale, owner);
+            GenerateRandomSystem(us, name, systemScale, owner);
         }
 
-        void GenerateFromData(SolarSystemData data, Empire owner)
+        void GenerateFromData(UniverseState us, SolarSystemData data, Empire owner)
         {
             int numberOfRings = data.RingList.Count;
             int fixedSpacing  = IntBetween(50, 500);
@@ -489,7 +499,7 @@ namespace Ship_Game
 
                 float randomAngle = RandomBetween(0f, 360f);
 
-                var newOrbital = new Planet
+                var newOrbital = new Planet(us.CreateId())
                 {
                     Name               = ringData.Planet,
                     OrbitalAngle       = randomAngle,
@@ -520,7 +530,7 @@ namespace Ship_Game
                 {
                     float orbitRadius = newOrbital.ObjectRadius * 5 + RandomBetween(1000f, 1500f) * (j + 1);
                     var moon = new Moon(this,
-                                    newOrbital.Guid,
+                                    newOrbital.Id,
                                     ringData.Moons[j].WhichMoon,
                                     ringData.Moons[j].MoonScale,
                                     orbitRadius,
@@ -541,14 +551,14 @@ namespace Ship_Game
             FinalizeGeneratedSystem();
         }
 
-        public static SolarSystem GenerateSystemFromData(SolarSystemData data, Empire owner)
+        public static SolarSystem GenerateSystemFromData(UniverseState us, SolarSystemData data, Empire owner)
         {
-            var newSys = new SolarSystem
+            var newSys = new SolarSystem(us)
             {
                 Sun  = SunType.FindSun(data.SunPath),
                 Name = data.Name
             };
-            newSys.GenerateFromData(data, owner);
+            newSys.GenerateFromData(us, data, owner);
             return newSys;
         }
 
@@ -664,7 +674,7 @@ namespace Ship_Game
             for (int i = 0; i < numberOfAsteroids; ++i)
             {
                 var pos = GenerateAsteroidPos(orbitalDistance, spread);
-                AsteroidsList.Add(new Asteroid(scaleMin, scaleMax, pos));
+                AsteroidsList.Add(new Asteroid(Universe.CreateId(), scaleMin, scaleMax, pos));
             }
             RingList.Add(new Ring
             {
@@ -698,8 +708,8 @@ namespace Ship_Game
 
                 var pdata = new SavedGame.PlanetSaveData
                 {
-                    TurnsCrippled       = planet.CrippledTurns,
-                    Guid                 = planet.Guid,
+                    Id = planet.Id,
+                    TurnsCrippled        = planet.CrippledTurns,
                     FoodState            = planet.FS,
                     ProdState            = planet.PS,
                     FoodLock             = planet.Food.PercentLock,
@@ -743,7 +753,7 @@ namespace Ship_Game
                     SpecialDescription   = planet.SpecialDescription,
                     IncomingFreighters   = planet.IncomingFreighterIds,
                     OutgoingFreighters   = planet.OutgoingFreighterIds,
-                    StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.Guid).ToArray(),
+                    StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.Id).ToArray(),
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     BaseFertilityTerraformRatio  = planet.BaseFertilityTerraformRatio,
                     HasLimitedResourcesBuildings = planet.HasLimitedResourceBuilding,

@@ -372,9 +372,9 @@ namespace Ship_Game
         {
             foreach (Ship ship in UState.Ships)
             {
-                if (ship.TetherGuid != Guid.Empty)
+                if (ship.TetheredId != 0)
                 {
-                    Planet p = UState.GetPlanet(ship.TetherGuid);
+                    Planet p = UState.GetPlanet(ship.TetheredId);
                     if (p != null)
                     {
                         ship.TetherToPlanet(p);

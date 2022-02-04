@@ -27,16 +27,16 @@ namespace Ship_Game.AI
             /// This indicates that the PIN is in borders not the current ship status. 
             /// </summary>
             [StarData] public bool InBorders;
-            [StarData] public int EmpireId    = 0;
-            [StarData] public Guid SystemGuid = Guid.Empty;
-            [StarData] public Guid PinGuid;
+            [StarData] public int EmpireId;
+            [StarData] public int SystemId;
+            [StarData] public int PinId;
             [XmlIgnore][JsonIgnore] public Ship Ship;
             [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
             
             public void SetSystem(SolarSystem system)
             {
-                SystemGuid = system?.Guid ?? Guid.Empty;
-                System     = system;
+                SystemId = system?.Id ?? 0;
+                System   = system;
             }
 
             public Pin(Ship ship, bool inBorders)
@@ -46,22 +46,22 @@ namespace Ship_Game.AI
                 EmpireName = ship.Loyalty.data.Traits.Name;
                 InBorders  = inBorders;
                 Ship       = ship;
-                PinGuid    = ship.Guid;
+                PinId      = ship.Id;
                 SetSystem(ship.System);
             }
 
             public Pin(){}
 
-            public void RestoreUnSerializedData(UniverseState us, in Guid shipGuid)
+            public void RestoreUnSerializedData(UniverseState us, int shipId)
             {
-                Ship ship = us.Objects.FindShip(shipGuid);
+                Ship ship = us.Objects.FindShip(shipId);
                 if (ship == null) return;
 
-                PinGuid = shipGuid;
-                Ship    = ship;
+                PinId = shipId;
+                Ship = ship;
 
-                if (SystemGuid != Guid.Empty)
-                    System = us.GetSystem(SystemGuid);
+                if (SystemId != 0)
+                    System = us.GetSystem(SystemId);
             }
 
             public Empire GetEmpire()
@@ -92,14 +92,14 @@ namespace Ship_Game.AI
                 return Position.InRadius(point, radius);
             }
 
-            public static Pin FindPinByGuid(Guid pinGuid, Empire empire)
+            public static Pin FindPinByGuid(int pinId, Empire empire)
             {
                 var pins = empire.GetEmpireAI().ThreatMatrix.GetPins();
-                var pin = pins.Find(p => p.PinGuid == pinGuid);
+                var pin = pins.Find(p => p.PinId == pinId);
                 return pin;
             }
 
-            public Guid GetGuid() => Ship?.Guid ?? PinGuid;
+            public int GetGuid() => Ship?.Id ?? PinId;
         }
 
         public ThreatMatrix(Empire empire)
@@ -120,20 +120,20 @@ namespace Ship_Game.AI
         public Pin[] GetKnownBases() => KnownBases;
         public SolarSystem[] GetHostileSystems() => KnownSystemsWithEnemies;
 
-        public ThreatMatrix(Dictionary<Guid,Pin> matrix, Empire empire)
+        public ThreatMatrix(Map<int,Pin> matrix, Empire empire)
         {
-            Pins = new Map<Guid, Pin>(matrix);
+            Pins = matrix;
             Owner = empire;
         }
         // not sure we need this.
         readonly ReaderWriterLockSlim PinsMutex = new ReaderWriterLockSlim();
-        Map<Guid, Pin> Pins = new Map<Guid, Pin>();
+        Map<int, Pin> Pins = new Map<int, Pin>();
 
         [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingThreadActions = new SafeQueue<Action>();
 
-        public bool ContainsGuid(Guid guid)
+        public bool ContainsGuid(int pinId)
         {
-            return Pins.ContainsKey(guid);
+            return Pins.ContainsKey(pinId);
         }
         
         public float StrengthOfAllEmpireShipsInBorders(Empire us, Empire them)
@@ -408,7 +408,7 @@ namespace Ship_Game.AI
 
         Map<SolarSystem, Pin[]> GetSystemPinMap()
         {
-            var map = new Map<SolarSystem, Array<KeyValuePair<Guid, Pin>>>();
+            var map = new Map<SolarSystem, Array<KeyValuePair<int, Pin>>>();
             using (PinsMutex.AcquireReadLock())
                 map = Pins.GroupByFiltered(p => p.Value.System,
                 p => p.Value.System != null && Owner.IsEmpireHostile(p.Value.GetEmpire()));
@@ -443,7 +443,7 @@ namespace Ship_Game.AI
 
         Map<Empire, Pin[]> GetEmpirePinMap()
         {
-            var map = new Map<Empire, Array<KeyValuePair<Guid, Pin>>>();
+            var map = new Map<Empire, Array<KeyValuePair<int, Pin>>>();
             using (PinsMutex.AcquireReadLock())
                 map = Pins.GroupByFiltered(p => p.Value.GetEmpire(),
                 p => p.Value.Strength > 0);
@@ -502,13 +502,13 @@ namespace Ship_Game.AI
 
         public void AddOrUpdatePin(Ship ship, bool shipInBorders, bool inSensorRadius)
         {
-            if (!Pins.TryGetValue(ship?.Guid ?? Guid.Empty, out Pin pin))
+            if (!Pins.TryGetValue(ship?.Id ?? 0, out Pin pin))
             {
                 if (!inSensorRadius)
                     return; // don't add new pin if not in sensor radius
 
                 pin = new Pin(ship, shipInBorders);
-                Pins.Add(ship.Guid, pin);
+                Pins.Add(ship.Id, pin);
             }
             else if (ship?.Active == true)
                 pin.Refresh(ship, inSensorRadius, shipInBorders);
@@ -536,8 +536,7 @@ namespace Ship_Game.AI
             ThreatMatrix threatCopy;
             using (PinsMutex.AcquireReadLock())
             {
-                var pins = Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
-                threatCopy = new ThreatMatrix(pins, owner);
+                threatCopy = new ThreatMatrix(new Map<int, Pin>(Pins), owner);
             }
 
             var ships      = new Array<Ship>(owner.OwnedShips);
@@ -552,7 +551,7 @@ namespace Ship_Game.AI
                 ships.AddRange(empire.GetProjectors());
             }
 
-            var pinsNeedRemoval = new Array<KeyValuePair<Guid, Pin>>();
+            var pinsNeedRemoval = new Array<KeyValuePair<int, Pin>>();
             // add or update pins for ship targets
             for (int i = 0; i < ships.Count; i++)
             {
@@ -575,9 +574,9 @@ namespace Ship_Game.AI
                     if (ship.Position.InRadius(pin.Position, ship.SensorRange))
                     {
                         if (pin.Ship?.Active != true)
-                            threatCopy.Pins.Remove(pin.PinGuid);
+                            threatCopy.Pins.Remove(pin.PinId);
                         else if (!ship.Position.InRadius(pin.Ship.Position, ship.SensorRange))
-                            threatCopy.Pins.Remove(pin.PinGuid);
+                            threatCopy.Pins.Remove(pin.PinId);
                     }
                 }
             }
@@ -621,12 +620,12 @@ namespace Ship_Game.AI
 
         public Pin[] GetPins() => Pins.AtomicValuesArray();
 
-        public bool RemovePin(Ship ship) => RemovePin(ship.Guid);
+        public bool RemovePin(Ship ship) => RemovePin(ship.Id);
 
-        bool RemovePin(Guid shipGuid)
+        bool RemovePin(int shipId)
         {
             using(PinsMutex.AcquireWriteLock())
-                return Pins.Remove(shipGuid);
+                return Pins.Remove(shipId);
         }
 
         public void AddFromSave(SavedGame.GSAISAVE aiSave, Empire owner)
@@ -634,9 +633,9 @@ namespace Ship_Game.AI
             Owner = owner;
             using (PinsMutex.AcquireWriteLock())
             {
-                for (int i = 0; i < aiSave.PinGuids.Count; i++)
+                for (int i = 0; i < aiSave.PinIds.Count; i++)
                 {
-                    var key = aiSave.PinGuids[i];
+                    var key = aiSave.PinIds[i];
                     var value = aiSave.PinList[i];
                     Pins.Add(key, value);
                 }
@@ -653,15 +652,15 @@ namespace Ship_Game.AI
 
         public void WriteToSave(SavedGame.GSAISAVE aiSave)
         {
-            aiSave.PinGuids = new Array<Guid>();
+            aiSave.PinIds = new Array<int>();
             aiSave.PinList = new Array<Pin>();
 
             using (PinsMutex.AcquireReadLock())
             {
-                foreach (KeyValuePair<Guid, Pin> guid in Pins)
+                foreach (KeyValuePair<int, Pin> pin in Pins)
                 {
-                    aiSave.PinGuids.Add(guid.Key);
-                    aiSave.PinList.Add(guid.Value);
+                    aiSave.PinIds.Add(pin.Key);
+                    aiSave.PinList.Add(pin.Value);
                 }
             }
         }

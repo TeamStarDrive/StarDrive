@@ -55,44 +55,27 @@ namespace Ship_Game
             PlayerEmpire = screen.Player;
             Friends = EmpireManager.GetPlayerAllies();
             Traders = EmpireManager.GetTradePartners(PlayerEmpire);
-            HashSet<Empire> empires = new HashSet<Empire>();            
+
+            // find empires where player or friends have moles
+            var empires = new HashSet<Empire>();
             foreach(Empire empire in EmpireManager.Empires)
             {
-                bool flag =false;
-                if(empire.isPlayer || empire.isFaction)
-                {
+                if (empire.isPlayer || empire.isFaction)
                     continue;
+
+                if (PlayerEmpire.data.MoleList.Any(m => empire.FindPlanet(m.PlanetId) != null))
+                {
+                    empires.Add(empire);
                 }
-                foreach(Planet p in empire.GetPlanets())
-                {                    
-                    foreach(Mole mole in PlayerEmpire.data.MoleList)
-                    {
-                        if(p.Guid == mole.PlanetGuid)
-                        {
-                            flag =true;
-                            empires.Add(empire);                            
-                            break;
-                        }
-
-
-                    }
-                    if(flag)
-                        break;
+                else
+                {
                     foreach(Empire friend in Friends)
                     {
-                        foreach (Mole mole in friend.data.MoleList)
+                        if (friend.data.MoleList.Any(m => empire.FindPlanet(m.PlanetId) != null))
                         {
-                            if (p.Guid == mole.PlanetGuid)
-                            {
-                                flag = true;
-                                empires.Add(empire);
-                                break;
-                            }
-
-
-                        }
-                        if (flag)
+                            empires.Add(empire);
                             break;
+                        }
                     }
                 }
             }

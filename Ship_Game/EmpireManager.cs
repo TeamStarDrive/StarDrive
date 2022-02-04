@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -205,7 +206,7 @@ namespace Ship_Game
         // Creates a new completely empty empire, with no ID
         public static Empire CreateNewEmpire(string name)
         {
-            var empire = new Empire
+            var empire = new Empire(null)
             {
                 data = new EmpireData(),
                 Id = -1
@@ -228,11 +229,11 @@ namespace Ship_Game
             return null;
         }
 
-        public static Empire CreateEmpireFromEmpireData(IEmpireData readOnlyData, bool isPlayer)
+        public static Empire CreateEmpireFromEmpireData(UniverseState us, IEmpireData readOnlyData, bool isPlayer)
         {
             EmpireData data = readOnlyData.CreateInstance();
             DiplomaticTraits dt = ResourceManager.DiplomaticTraits;
-            var empire = new Empire { data = data };
+            var empire = new Empire(us) { data = data };
             empire.isPlayer = isPlayer;
 
             if      (data.IsFaction) Log.Info($"Creating Faction {data.Traits.Name}");
@@ -269,7 +270,7 @@ namespace Ship_Game
             Empire rebelEmpire = GetEmpireByName(data.RebelName);
             if (rebelEmpire != null) return rebelEmpire;
 
-            var empire = new Empire(parent)
+            var empire = new Empire(parent.Universum, parent)
             {
                 isFaction = true,
                 data = data
