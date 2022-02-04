@@ -15,7 +15,7 @@
   <Restrictions>IO</Restrictions>
   <Name>Small Cargo Hold</Name>
   <IconTexturePath>Modules/cargoSmall</IconTexturePath>
-  <Mass>2</Mass>
+  <Mass>3</Mass>
   <Health>300</Health>
   <HealthMax>10</HealthMax>
   <energyreq>0</energyreq>
