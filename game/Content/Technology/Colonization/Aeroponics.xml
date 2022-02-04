@@ -4,7 +4,7 @@
  <Version>2</Version>
   <UID>Aeroponics</UID>
   <TechnologyType>Colonization</TechnologyType>
-  <Cost>180</Cost>
+  <Cost>350</Cost>
   <RootNode>0</RootNode>
   <Name>Aeroponics</Name>
   <NameIndex>503</NameIndex>
