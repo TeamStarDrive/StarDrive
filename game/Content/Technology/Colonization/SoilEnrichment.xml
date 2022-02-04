@@ -3,14 +3,14 @@
  <Version>2</Version>
   <UID>SoilEnrichment</UID>
   <TechnologyType>Colonization</TechnologyType>
-  <Cost>800</Cost>
+  <Cost>120</Cost>
   <RootNode>0</RootNode>
   <Name>Vertical Farming</Name>
   <NameIndex>10041</NameIndex>
   <DescriptionIndex>10042</DescriptionIndex>
   <LeadsTo>
     <LeadsToTech>
-      <UID>Vertical Farming</UID>
+      <UID>Aeroponics</UID>
     </LeadsToTech>
   </LeadsTo>
   <HiddenFrom>
