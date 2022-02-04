@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>FrigateConstruction</UID>
   <TechnologyType>ShipHull</TechnologyType>
-  <Cost>320</Cost>
+  <Cost>480</Cost>
   <RootNode>0</RootNode>
   <Name>Frigate Construction</Name>
   <NameIndex>568</NameIndex>

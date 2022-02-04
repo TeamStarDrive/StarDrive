@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>Corvettes</UID>
   <TechnologyType>ShipHull</TechnologyType>
-  <Cost>110</Cost>
+  <Cost>200</Cost>
   <RootNode>0</RootNode>
   <Name>Corvettes</Name>
   <NameIndex>585</NameIndex>

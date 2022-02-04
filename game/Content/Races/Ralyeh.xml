@@ -3,15 +3,15 @@
   <PortraitName>Ralyeh</PortraitName>
   <MusicCue>Ralyeh_03_loop</MusicCue>
   <DiplomacyDialogPath>Ralyeh</DiplomacyDialogPath>
-  <StartingShip>Ralyeh Interceptor</StartingShip>
-  <StartingScout>Inquisitor Scout</StartingScout>
+  <StartingShip>PreWarp-Ralyeh Interceptor</StartingShip>
+  <StartingScout>PreWarp-Inquisitor Scout</StartingScout>
   <PrototypeShip>Ralyeh-Prototype</PrototypeShip>
-  <DefaultSmallTransport>Ralyeh Transport S</DefaultSmallTransport>
-  <DefaultTroopShip>Ralyeh Troop</DefaultTroopShip>
-  <DefaultColonyShip>Ralyeh Colonizer</DefaultColonyShip>
-  <DefaultConstructor>Ralyeh Constructor</DefaultConstructor>
+  <DefaultSmallTransport>PreWarp-Ralyeh Transport</DefaultSmallTransport>
+  <DefaultTroopShip>PreWarp-Ralyeh Troop</DefaultTroopShip>
+  <DefaultColonyShip>PreWarp-Ralyeh Colonizer</DefaultColonyShip>
+  <DefaultConstructor>PreWarp-Ralyeh Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Ralyeh Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>Ralyeh-Supply</DefaultSupplyShuttle>  
+  <DefaultSupplyShuttle>PreWarp-Ralyeh-Supply</DefaultSupplyShuttle>  
   <SpacePortModel>Model/Ships/Ralyeh/Ralyeh_Station</SpacePortModel>
   
   <RebelName>Ralyeh Apostates</RebelName>

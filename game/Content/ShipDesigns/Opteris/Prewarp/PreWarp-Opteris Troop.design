@@ -1,0 +1,42 @@
+﻿Version=1
+Name=PreWarp-Opteris Troop
+Hull=Opteris/Creeper
+Role=troop
+Style=Opteris
+Size=4,8
+GridCenter=2,4
+DefaultAIState=DoNothing
+DefaultCombatState=AttackRuns
+ShipCategory=Conservative
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=PowerSolar;Structure;NuclearReactorSmall;Maneuvering_Thruster_1x1;PowerConduit;Cockpit;PreWarpEngine2x1
+Modules=24
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+1,0;0
+2,0;0
+0,1;0
+1,1;1
+2,1;1
+3,1;0
+0,2;1
+1,2;1
+2,2;1
+3,2;1
+0,3;1
+1,3;1
+2,3;1
+3,3;1
+0,4;1
+1,4;2
+2,4;2
+3,4;1
+0,5;3
+1,5;4
+2,5;5
+3,5;3
+1,6;6;2,1
+1,7;6;2,1

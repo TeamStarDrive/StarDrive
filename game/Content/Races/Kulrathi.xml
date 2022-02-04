@@ -4,15 +4,15 @@
   <MusicCue>sd_races_Kulrathi</MusicCue>
   <DiplomacyDialogPath>Kulrathi</DiplomacyDialogPath>
   <DiplomacyDialogPath>Kulrathi</DiplomacyDialogPath>
-  <StartingShip>Fang Strafer</StartingShip>
-  <StartingScout>Fang Scout</StartingScout>
+  <StartingShip>PreWarp-Fang Strafer</StartingShip>
+  <StartingScout>PreWarp-Fang Scout</StartingScout>
   <PrototypeShip>Kulrathi-Prototype</PrototypeShip>
-  <DefaultSmallTransport>Kuma Small</DefaultSmallTransport>
-  <DefaultTroopShip>Kulrathi Troop</DefaultTroopShip>
-  <DefaultColonyShip>Kulrathi Colonizer</DefaultColonyShip>
-  <DefaultConstructor>Kulrathi Constructor</DefaultConstructor>
+  <DefaultSmallTransport>PreWarp-Kuma Small</DefaultSmallTransport>
+  <DefaultTroopShip>PreWarp-Kulrathi Troop</DefaultTroopShip>
+  <DefaultColonyShip>PreWarp-Kulrathi Colonizer</DefaultColonyShip>
+  <DefaultConstructor>PreWarp-Kulrathi Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Kulrathi Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>Kulrathi-Supply</DefaultSupplyShuttle>
+  <DefaultSupplyShuttle>PreWarp-Kulrathi-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Kulrathi/Kulrathi_Station</SpacePortModel>
 
   <TechTree>Kulrathi</TechTree>
