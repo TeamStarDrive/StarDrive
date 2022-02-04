@@ -43,6 +43,7 @@ namespace Ship_Game
         {
             var s = Stopwatch.StartNew();
             EmpireManager.Clear();
+            ScreenManager.Instance.ClearScene();
 
             var universe = new DeveloperUniverse(1_000_000f);
             UniverseState us = universe.UState;

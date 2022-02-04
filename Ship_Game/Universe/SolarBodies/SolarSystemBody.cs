@@ -579,7 +579,7 @@ namespace Ship_Game
             TurnsSinceTurnover        = 0;
             thisPlanet.Quarantine     = false;
             thisPlanet.ManualOrbitals = false;
-            thisPlanet.Station.Replace(thisPlanet);
+            thisPlanet.Station?.DestroySceneObject(); // remove current SO, so it can get reloaded properly
 
             ParentSystem.OwnerList.Clear();
             foreach (Planet planet in ParentSystem.PlanetList)

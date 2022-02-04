@@ -36,11 +36,13 @@ namespace Ship_Game.Gameplay
 
         void CreateSceneObject(Vector2 systemPos)
         {
-            if (So != null)
+            if (So != null || GlobalStats.AsteroidVisibility == ObjectVisibility.None)
                 return;
 
-            So = new SceneObject(ResourceManager.GetAsteroidModel(AsteroidId).Meshes[0])
+            var model = ResourceManager.GetAsteroidModel(AsteroidId);
+            So = new SceneObject(model.Meshes[0])
             {
+                Name = model.Meshes[0].Name,
                 ObjectType = ObjectType.Static,
                 Visibility = GlobalStats.AsteroidVisibility
             };
