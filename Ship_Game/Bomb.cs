@@ -55,27 +55,27 @@ namespace Ship_Game
         public void DoImpact()
         {
             TargetPlanet.DropBomb(this);
-            Owner.Universum.BombList.QueuePendingRemoval(this);
+            Owner.Universum.Screen.BombList.QueuePendingRemoval(this);
         }
 
         private void SurfaceImpactEffects()
         {
-            if (Owner.Universum.IsSystemViewOrCloser && TargetPlanet.ParentSystem.IsVisible)
+            if (Owner.Universum.Screen.IsSystemViewOrCloser && TargetPlanet.ParentSystem.IsVisible)
             {
                 TargetPlanet.PlayPlanetSfx("sd_bomb_impact_01", Position);
-                ExplosionManager.AddExplosionNoFlames(Owner.Universum, Position, 200f, 7.5f);
-                Owner.Universum.Particles.Flash.AddParticle(Position, Vector3.Zero);
+                ExplosionManager.AddExplosionNoFlames(Owner.Universum.Screen, Position, 200f, 7.5f);
+                Owner.Universum.Screen.Particles.Flash.AddParticle(Position, Vector3.Zero);
                 for (int i = 0; i < 50; i++)
-                    Owner.Universum.Particles.Explosion.AddParticle(Position, Vector3.Zero);
+                    Owner.Universum.Screen.Particles.Explosion.AddParticle(Position, Vector3.Zero);
             }
         }
 
         public void PlayCombatScreenEffects(Planet planet, OrbitalDrop od)
         {
-            if (Owner.Universum.IsViewingCombatScreen(planet))
+            if (Owner.Universum.Screen.IsViewingCombatScreen(planet))
             {
                 GameAudio.PlaySfxAsync("Explo1");
-                ((CombatScreen)Owner.Universum.workersPanel).AddExplosion(od.TargetTile.ClickRect, 4);
+                ((CombatScreen)Owner.Universum.Screen.workersPanel).AddExplosion(od.TargetTile.ClickRect, 4);
             }
             else
                 SurfaceImpactEffects(); // If viewing the planet from space
@@ -133,8 +133,8 @@ namespace Ship_Game
             if (TrailEmitter == null)
             {
                 Velocity *= 0.65f;
-                TrailEmitter     = Owner.Universum.Particles.ProjectileTrail.NewEmitter(500f, Position);
-                FireTrailEmitter = Owner.Universum.Particles.FireTrail.NewEmitter(500f, Position);
+                TrailEmitter     = Owner.Universum.Screen.Particles.ProjectileTrail.NewEmitter(500f, Position);
+                FireTrailEmitter = Owner.Universum.Screen.Particles.FireTrail.NewEmitter(500f, Position);
             }
             TrailEmitter.Update(timeStep.FixedTime, Position);
             FireTrailEmitter.Update(timeStep.FixedTime, Position);

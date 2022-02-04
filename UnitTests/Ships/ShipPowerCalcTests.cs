@@ -41,7 +41,7 @@ namespace UnitTests.Ships
             TestShip[] ships = CreateShips("Vulcan Scout",
                         "Colony Ship", "Small Transport", "Supply Shuttle",
                         "Subspace Projector", "Terran-Prototype");
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             AssertAllModulesPowered(ships);
         }
         
@@ -49,7 +49,7 @@ namespace UnitTests.Ships
         public void LargeShipsPowered()
         {
             TestShip[] ships = CreateShips("Heavy Carrier mk5-b", "Fang Strafer");
-            Universe.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
             AssertAllModulesPowered(ships);
         }
 

@@ -66,14 +66,14 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.GetPortals(out Ship[] portals))
             {
                 empire.SetAsDefeated();
-                empire.Universum.NotificationManager.AddEmpireDiedNotification(empire);
+                empire.Universum.Notifications.AddEmpireDiedNotification(empire);
                 return GoalStep.GoalFailed;
             }
 
             if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10)
             {
                 if (Remnants.CreatePortal()) // Second portal at level 10
-                    empire.Universum.NotificationManager.AddRemnantsNewPortal(empire);
+                    empire.Universum.Notifications.AddRemnantsNewPortal(empire);
             }
 
             EngageEmpire(portals);

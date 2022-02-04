@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.GameScreens.Sandbox
 {
@@ -17,7 +18,7 @@ namespace Ship_Game.GameScreens.Sandbox
 
     public class PredictionDebugPlatform : Ship
     {
-        public PredictionDebugPlatform(UniverseScreen universe, string shipName, Empire owner, Vector2 position)
+        public PredictionDebugPlatform(UniverseState universe, string shipName, Empire owner, Vector2 position)
             : base(universe, ResourceManager.GetShipTemplate(shipName), owner, position)
         {
             VanityName = "Prediction Debugger " + shipName;

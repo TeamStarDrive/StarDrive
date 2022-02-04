@@ -556,7 +556,7 @@ namespace Ship_Game.AI
             {
                 OrderRebaseToNearest();
                 if (Owner.Loyalty.isPlayer)
-                    Owner.Universe.NotificationManager.AddAbortLandNotification(planet, Owner);
+                    Owner.Universe.Notifications.AddAbortLandNotification(planet, Owner);
             }
         }
 

@@ -37,8 +37,8 @@ namespace Ship_Game
 
             // Debug eval planet if we have colony screen open
             return Debugger.IsAttached
-                   && Universe.LookingAtPlanet
-                   && Universe.workersPanel is ColonyScreen colony
+                   && Universe.Screen.LookingAtPlanet
+                   && Universe.Screen.workersPanel is ColonyScreen colony
                    && colony.P == this;
         }
 

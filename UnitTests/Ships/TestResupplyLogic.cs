@@ -33,7 +33,7 @@ namespace UnitTests.Ships
 
         void Update(FixedSimTime timeStep)
         {
-            Universe.Objects.Update(timeStep);
+            UState.Objects.Update(timeStep);
         }
 
         [TestMethod]

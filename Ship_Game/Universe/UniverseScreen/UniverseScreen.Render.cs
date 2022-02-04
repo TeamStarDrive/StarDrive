@@ -39,9 +39,9 @@ namespace Ship_Game
                 ClickableSystems.Clear();
             }
 
-            for (int index = 0; index < SolarSystemList.Count; index++)
+            for (int index = 0; index < UState.Systems.Count; index++)
             {
-                SolarSystem solarSystem = SolarSystemList[index];
+                SolarSystem solarSystem = UState.Systems[index];
                 if (!Frustum.Contains(solarSystem.Position, solarSystem.Radius))
                     continue;
 
@@ -108,7 +108,7 @@ namespace Ship_Game
         void UpdateClickableShips()
         {
             ClickableShipsList.Clear();
-            Ship[] ships = Objects.VisibleShips;
+            Ship[] ships = UState.Objects.VisibleShips;
 
             for (int i = 0; i < ships.Length; i++)
             {
@@ -171,10 +171,10 @@ namespace Ship_Game
             for (int index = 0; index < 41; ++index)
             {
                 Vector3 vector3_1 = Viewport.Project(
-                    new Vector3((float) (index * (double) UniverseSize / 40.0), 0.0f, 0.0f), Projection,
+                    new Vector3((float) (index * (double) UState.Size / 40.0), 0.0f, 0.0f), Projection,
                     View, Matrix.Identity);
                 Vector3 vector3_2 = Viewport.Project(
-                    new Vector3((float) (index * (double) UniverseSize / 40.0), UniverseSize, 0.0f),
+                    new Vector3((float) (index * (double) UState.Size / 40.0), UState.Size, 0.0f),
                     Projection, View, Matrix.Identity);
                 ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
                     new Vector2(vector3_2.X, vector3_2.Y), new Color(211, 211, 211, 70));
@@ -182,10 +182,10 @@ namespace Ship_Game
             for (int index = 0; index < 41; ++index)
             {
                 Vector3 vector3_1 = Viewport.Project(
-                    new Vector3(0.0f, (float) (index * (double) UniverseSize / 40.0), 40f), Projection,
+                    new Vector3(0.0f, (float) (index * (double) UState.Size / 40.0), 40f), Projection,
                     View, Matrix.Identity);
                 Vector3 vector3_2 = Viewport.Project(
-                    new Vector3(UniverseSize, (float) (index * (double) UniverseSize / 40.0), 0.0f),
+                    new Vector3(UState.Size, (float) (index * (double) UState.Size / 40.0), 0.0f),
                     Projection, View, Matrix.Identity);
                 ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
                     new Vector2(vector3_2.X, vector3_2.Y), new Color(211, 211, 211, 70));
@@ -206,7 +206,7 @@ namespace Ship_Game
                 batch.Draw(BorderRT.GetTexture(), new Rectangle(0, 0, ScreenWidth, ScreenHeight), color);
             }
 
-            foreach (SolarSystem sys in SolarSystemList)
+            foreach (SolarSystem sys in UState.Systems)
             {
                 if (viewState >= UnivScreenState.SectorView)
                 {
@@ -484,7 +484,7 @@ namespace Ship_Game
             if (viewState > UnivScreenState.ShipView)
                 return;
 
-            Ship[] ships = Objects.VisibleShips;
+            Ship[] ships = UState.Objects.VisibleShips;
             for (int i = 0; i < ships.Length; ++i)
             {
                 Ship ship = ships[i];
@@ -529,7 +529,7 @@ namespace Ship_Game
                 {
                     foreach (Guid planetGuid in SelectedShip.TradeRoutes)
                     {
-                        Planet planet = GetPlanet(planetGuid);
+                        Planet planet = UState.GetPlanet(planetGuid);
                         if (planet.Owner != null)
                         {
                             DrawLineToPlanet(SelectedShip.Position, planet.Center, planet.Owner.EmpireColor);
@@ -669,7 +669,7 @@ namespace Ship_Game
 
             Particles.Draw(View, Projection, nearView: viewState < UnivScreenState.SectorView);
 
-            if (!Paused) // Particle pools need to be updated
+            if (!UState.Paused) // Particle pools need to be updated
             {
                 Particles.Update(CurrentSimTime);
             }
@@ -691,7 +691,7 @@ namespace Ship_Game
                 var r = ResourceManager.Planets.Renderer;
                 r.BeginRendering(Device, CamPos.ToVec3f(), View, Projection);
 
-                foreach (SolarSystem system in SolarSystemList)
+                foreach (SolarSystem system in UState.Systems)
                 {
                     if (system.IsVisible)
                     {

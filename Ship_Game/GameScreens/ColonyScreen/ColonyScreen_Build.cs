@@ -116,7 +116,7 @@ namespace Ship_Game
             Ship[] buildableShips;
 
             // enable all ships in the sandbox
-            if (P.Universe.Debug && P.Universe is DeveloperUniverse)
+            if (P.Universe.Debug && P.Universe.Screen is DeveloperUniverse)
                 buildableShips = ResourceManager.ShipTemplates.ToArray();
             else
                 buildableShips = P.Owner.ShipsWeCanBuild

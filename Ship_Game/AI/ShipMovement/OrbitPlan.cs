@@ -58,7 +58,7 @@ namespace Ship_Game.AI.ShipMovement
             // always update the OrbitPos, because orbitAround is typically moving around
             OrbitPos = orbitAround + OrbitOffset;
 
-            if (Owner.Universe.SelectedShip == Owner)
+            if (Owner.Universe.Screen.SelectedShip == Owner)
             {
                 Owner.Universe.DebugWin?.DrawCircle(Debug.DebugModes.PathFinder, OrbitPos, WayPointProximity, 0.5f);
                 Owner.Universe.DebugWin?.DrawCircle(Debug.DebugModes.PathFinder, orbitAround, orbitRadius, 1.0f);
@@ -98,7 +98,7 @@ namespace Ship_Game.AI.ShipMovement
             if (!AI.BadGuysNear)
             {
                 bool visible = orbitTarget.ParentSystem.IsVisible
-                               && Owner.Universe.IsSystemViewOrCloser;
+                               && Owner.Universe.Screen.IsSystemViewOrCloser;
                 if (!visible) // don't update orbits in invisible systems
                 {
                     if (distance > 2000f) // we need to get closer to get RESUPPLIED (!)

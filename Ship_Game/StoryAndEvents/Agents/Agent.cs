@@ -4,6 +4,7 @@ using Ship_Game.Gameplay;
 using System;
 using System.Xml.Serialization;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -593,7 +594,7 @@ namespace Ship_Game
                         if (Mission == AgentMission.Training && Level == 3 && owner.data.SpyMissionRepeat)
                             message += "\nTraining is stopped since the agent has reached Level 3";
 
-                        owner.Universum.NotificationManager.AddAgentResult(true, message, owner);
+                        owner.Universum.Notifications.AddAgentResult(true, message, owner);
                     }
                 }
                 else
@@ -609,7 +610,7 @@ namespace Ship_Game
                              $"All agents below Level 6 gain 1 Level\n" +
                              "due to this agent's tutoring and vast experience";
 
-            owner.Universum.NotificationManager.AddAgentResult(true, message, owner);
+            owner.Universum.Notifications.AddAgentResult(true, message, owner);
             owner.data.AgentList.QueuePendingRemoval(this);
             for (int i = 0; i < owner.data.AgentList.Count; i++)
             {
@@ -649,7 +650,7 @@ namespace Ship_Game
                 DamageReason    = "";
             }
 
-            public void PerformPostMissionActions(UniverseScreen us, Agent agent, int xpToAdd, SpyMissionStatus missionStatus)
+            public void PerformPostMissionActions(UniverseState us, Agent agent, int xpToAdd, SpyMissionStatus missionStatus)
             {
                 AgentRelatedActions(agent, xpToAdd, missionStatus);
                 SendNotifications(us, agent);
@@ -683,16 +684,16 @@ namespace Ship_Game
                 }
             }
 
-            void SendNotifications(UniverseScreen u, Agent agent)
+            void SendNotifications(UniverseState u, Agent agent)
             {
                 if (Message.NotEmpty) // default message
-                    u.NotificationManager.AddAgentResult(GoodResult, $"{agent.Name} {Message.Text}", Us);
+                    u.Notifications.AddAgentResult(GoodResult, $"{agent.Name} {Message.Text}", Us);
 
                 if (CustomMessage.NotEmpty())
-                    u.NotificationManager.AddAgentResult(GoodResult, CustomMessage, Us);
+                    u.Notifications.AddAgentResult(GoodResult, CustomMessage, Us);
 
                 if (MessageToVictim.NotEmpty())
-                    u.NotificationManager.AddAgentResult(!GoodResult, MessageToVictim, Victim);
+                    u.Notifications.AddAgentResult(!GoodResult, MessageToVictim, Victim);
 
                 if (RelationDamage > 0 && DamageReason.NotEmpty())
                     Victim.GetRelations(Us).DamageRelationship(Victim, Us, DamageReason, RelationDamage, null);

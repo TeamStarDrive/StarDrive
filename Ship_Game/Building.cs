@@ -404,7 +404,7 @@ namespace Ship_Game
 
             if (EventOnBuild != null && p.OwnerIsPlayer)
             {
-                UniverseScreen u = p.Universe;
+                UniverseScreen u = p.Universe.Screen;
                 ExplorationEvent e = ResourceManager.Event(EventOnBuild);
                 u.ScreenManager.AddScreen(new EventPopup(u, u.Player, e, e.PotentialOutcomes[0], true, p));
             }

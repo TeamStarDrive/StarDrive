@@ -93,7 +93,7 @@ namespace Ship_Game.Universe.SolarBodies
                                        && ships.Any(s => s?.Position.InRadius(p.Center, s.SensorRange) == true))
                 {
                     if (e.isPlayer)
-                        p.Universe.NotificationManager.AddShipCrashed(p, message);
+                        p.Universe.Notifications.AddShipCrashed(p, message);
                     else
                         AiProcessCrashSite(p, e, shipSize);
                 }
@@ -121,7 +121,7 @@ namespace Ship_Game.Universe.SolarBodies
                 e.GetEmpireAI().SendExplorationFleet(p); // Create a task to be processed normally
         }
 
-        public void ActivateSite(UniverseScreen u, Planet p, Empire activatingEmpire, PlanetGridSquare tile)
+        public void ActivateSite(UniverseState u, Planet p, Empire activatingEmpire, PlanetGridSquare tile)
         {
             Active = false;
             Empire owner = p.Owner ?? activatingEmpire;
@@ -132,12 +132,12 @@ namespace Ship_Game.Universe.SolarBodies
                 SpawnSurvivingTroops(p, owner, tile, out troopMessage);
 
             if (owner.isPlayer || !owner.isPlayer && Loyalty.isPlayer && NumTroopsSurvived > 0)
-                u.NotificationManager.AddShipRecovered(p, ship, $"{message}{troopMessage}");
+                u.Notifications.AddShipRecovered(p, ship, $"{message}{troopMessage}");
 
             p.DestroyBuildingOn(tile);
         }
 
-        Ship SpawnShip(UniverseScreen u, Planet p, Empire activatingEmpire, Empire owner, out string message)
+        Ship SpawnShip(UniverseState u, Planet p, Empire activatingEmpire, Empire owner, out string message)
         {
             message = $"Recover efforts of a crashed ship on {p.Name} were futile.\n" +
                       "It was completely wrecked.";
@@ -245,7 +245,7 @@ namespace Ship_Game.Universe.SolarBodies
             // Remove the Crater
             string path = tile.BuildingOnTile ? tile.Building.IconPath64 : "";
             if (planet.OwnerIsPlayer)
-                planet.Universe.NotificationManager.AddMeteorRelated(planet, Localizer.Token(GameText.AMeteorCraterWasFlattened), path);
+                planet.Universe.Notifications.AddMeteorRelated(planet, Localizer.Token(GameText.AMeteorCraterWasFlattened), path);
 
             planet.DestroyBuildingOn(tile);
         }

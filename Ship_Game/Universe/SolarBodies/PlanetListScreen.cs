@@ -90,7 +90,7 @@ namespace Ship_Game
             sb_Owned    = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.Owner));
             sb_Distance = new SortButton(empireUi.Player.data.PLSort, Localizer.Token(GameText.Proximity));
 
-            foreach (SolarSystem system in Universe.Systems.OrderBy(s => s.Position.Distance(Universe.Player.WeightedCenter)))
+            foreach (SolarSystem system in Universe.UState.Systems.OrderBy(s => s.Position.Distance(Universe.Player.WeightedCenter)))
             {
                 foreach (Planet p in system.PlanetList)
                 {

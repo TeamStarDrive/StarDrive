@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Universe;
 
 namespace Ship_Game.AI.Tasks
 {
@@ -643,16 +644,16 @@ namespace Ship_Game.AI.Tasks
 
         public bool IsWarTask => GetTaskCategory().IsSet(TaskCategory.War);
 
-        public void RestoreFromSaveNoUniverse(Empire e, UniverseData data)
+        public void RestoreFromSaveNoUniverse(UniverseState us, Empire e)
         {
-            data.FindPlanet(TargetPlanetGuid, out Planet p);
-            data.FindShip(TargetShipGuid, out Ship ship);
-            data.FindSystem(TargetSystemGuid, out SolarSystem system);
+            Planet p = us.GetPlanet(TargetPlanetGuid);
+            Ship ship = us.GetShip(TargetShipGuid);
+            SolarSystem system = us.GetSystem(TargetSystemGuid);
             RestoreFromSaveFromSave(e, ship, p, system);
 
             if (system == null)
             {
-                foreach (var sys in data.SolarSystemsList)
+                foreach (SolarSystem sys in us.Systems)
                 {
                     if (IsTaskAOInSystem(sys))
                         SetTargetSystem(sys);

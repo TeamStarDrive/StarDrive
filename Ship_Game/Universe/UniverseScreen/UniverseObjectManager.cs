@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Ship_Game.Utils;
 
 namespace Ship_Game
@@ -12,6 +13,7 @@ namespace Ship_Game
     public class UniverseObjectManager
     {
         readonly UniverseScreen Universe;
+        readonly UniverseState UState;
         readonly SpatialManager Spatial;
 
         /// <summary>
@@ -64,21 +66,11 @@ namespace Ship_Game
         public Projectile[] VisibleProjectiles { get; private set; } = Empty<Projectile>.Array;
         public Beam[] VisibleBeams { get; private set; } = Empty<Beam>.Array;
 
-
-        public UniverseObjectManager(UniverseScreen universe, SpatialManager spatial, UniverseData data)
+        public UniverseObjectManager(UniverseScreen uScreen, UniverseState uState, SpatialManager spatial)
         {
-            Universe = universe;
+            Universe = uScreen;
+            UState = uState;
             Spatial = spatial;
-
-            Ships.AddRange(data.MasterShipList);
-            Projectiles.AddRange(data.MasterProjectileList);
-
-            Objects.AddRange(Ships);
-            Objects.AddRange(Projectiles);
-
-            foreach (GameplayObject go in Objects)
-                if (!go.Active)
-                    Log.Warning($"Inactive object added from savegame: {go}");
         }
 
         public Ship FindShip(in Guid guid)
@@ -100,11 +92,20 @@ namespace Ship_Game
             return null;
         }
 
+        public bool FindShip(in Guid guid, out Ship found)
+        {
+            return (found = FindShip(guid)) != null;
+        }
+
         public GameplayObject FindObject(in Guid guid)
         {
-            // TODO: Currently only Ships are supported,
-            //       but in the future we will use GameplayObject.Id instead of the slow Guid
+            // TODO: ADD PROJECTILE AND BEAM SUPPORT
             return FindShip(guid);
+        }
+
+        public bool FindObject(in Guid guid, out GameplayObject found)
+        {
+            return (found = FindObject(guid)) != null;
         }
 
         public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
@@ -187,7 +188,7 @@ namespace Ship_Game
             }
         }
 
-        /// <summary>Thread-safely Adds a new Object to the Universe</summary>
+        /// <summary>DEFERRED: Thread-safely Adds a new Object to the Universe</summary>
         public void Add(GameplayObject go)
         {
             if (go.Type == GameObjectType.Ship)
@@ -199,17 +200,50 @@ namespace Ship_Game
                 Add((Projectile)go);
             }
         }
-        /// <summary>Thread-safely Adds a new Ship to the Universe</summary>
+        /// <summary>DEFERRED: Thread-safely Adds a new Ship to the Universe</summary>
         public void Add(Ship ship)
         {
+            ship.ReinsertSpatial = true;
             lock (PendingShipLocker)
                 PendingShips.Add(ship);
         }
-        /// <summary>Thread-safely Adds a new PROJECTILE or BEAM to the Universe</summary>
+        /// <summary>DEFERRED: Thread-safely Adds a new PROJECTILE or BEAM to the Universe</summary>
         public void Add(Projectile projectile)
         {
+            projectile.ReinsertSpatial = true;
             lock (PendingProjectileLocker)
                 PendingProjectiles.Add(projectile);
+        }
+
+        /// <summary>IMMEDIATE: Thread-safely Adds a new Object to the Universe</summary>
+        public void AddImmediate(GameplayObject go)
+        {
+            if (go.Type == GameObjectType.Ship)
+            {
+                AddImmediate((Ship)go);
+            }
+            else if (go.Type == GameObjectType.Beam || go.Type == GameObjectType.Proj)
+            {
+                AddImmediate((Projectile)go);
+            }
+        }
+        /// <summary>IMMEDIATE: Thread-safely Adds a new Ship to the Universe</summary>
+        public void AddImmediate(Ship ship)
+        {
+            ship.ReinsertSpatial = true;
+            lock (ShipsLocker)
+                Ships.Add(ship);
+            lock (AllObjectsLocker)
+                Objects.Add(ship);
+        }
+        /// <summary>IMMEDIATE: Thread-safely Adds a new PROJECTILE or BEAM to the Universe</summary>
+        public void AddImmediate(Projectile projectile)
+        {
+            projectile.ReinsertSpatial = true;
+            lock (ProjectilesLocker)
+                Projectiles.Add(projectile);
+            lock (AllObjectsLocker)
+                Objects.Add(projectile);
         }
 
         public void Clear()
@@ -247,7 +281,7 @@ namespace Ship_Game
         public void Update(FixedSimTime timeStep)
         {
             // crash in findnearby when on game over screen
-            if (Universe.GameOver || Universe.IsExiting)
+            if (UState.GameOver || Universe.IsExiting)
                 return;
 
             TotalTime.Start();
@@ -394,9 +428,9 @@ namespace Ship_Game
             UpdateSolarSystemShips();
 
             // TODO: SolarSystem.Update is not thread safe because of resource loading
-            for (int i = 0; i < Universe.Systems.Count; ++i)
+            for (int i = 0; i < UState.Systems.Count; ++i)
             {
-                SolarSystem system = Universe.Systems[i];
+                SolarSystem system = UState.Systems[i];
                 system.Update(timeStep, Universe);
             }
 
@@ -415,7 +449,7 @@ namespace Ship_Game
             {
                 for (int i = start; i < end; ++i)
                 {
-                    SolarSystem system = Universe.Systems[i];
+                    SolarSystem system = UState.Systems[i];
                     system.ShipList.Clear();
                     if (shipsCount == 0)
                         continue; // all ships were killed, nothing to do here
@@ -437,7 +471,7 @@ namespace Ship_Game
                 }
             }
 
-            UpdateSystems(0, Universe.Systems.Count);
+            UpdateSystems(0, UState.Systems.Count);
             //Parallel.For(UniverseScreen.SolarSystemList.Count, UpdateSystems, Universe.MaxTaskCores);
 
             // now set all ships which were not found in any solar system with system = null

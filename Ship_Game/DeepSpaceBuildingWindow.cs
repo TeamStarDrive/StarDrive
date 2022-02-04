@@ -153,7 +153,7 @@ namespace Ship_Game
             var pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
                 pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
 
-            bool okToBuild = TargetPlanet == Guid.Empty || !Screen.GetPlanet(TargetPlanet).IsOutOfOrbitalsLimit(itemToBuild);
+            bool okToBuild = TargetPlanet == Guid.Empty || !Screen.UState.GetPlanet(TargetPlanet).IsOutOfOrbitalsLimit(itemToBuild);
 
             if (okToBuild)
             {

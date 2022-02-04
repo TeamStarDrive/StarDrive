@@ -25,7 +25,7 @@ namespace Ship_Game.Debug.Page
             : base(parent, DebugModes.SpatialManager)
         {
             Screen = screen;
-            Spatial = screen.Spatial;
+            Spatial = screen.UState.Spatial;
             Loyalty = EmpireManager.GetEmpireById(1);
 
             var list = AddList(50, 160);

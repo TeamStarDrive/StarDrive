@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Fleets;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -16,7 +17,7 @@ namespace Ship_Game
     {
         public const int MaxLevel = 20;
         public readonly Empire Owner;
-        public UniverseScreen Universe => Owner.Universum ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
+        public UniverseState Universe => Owner.Universum ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
 
         public readonly BatchRemovalCollection<Goal> Goals;
         public float StoryTriggerKillsXp { get; private set; }
@@ -80,7 +81,7 @@ namespace Ship_Game
                 {
                     PlayerStepTriggerXp = 0;
                     if (GetStoryEvent(out ExplorationEvent expEvent))
-                        Universe.NotificationManager.AddRemnantUpdateNotify(expEvent, Owner);
+                        Universe.Notifications.AddRemnantUpdateNotify(expEvent, Owner);
 
                     StoryStep += 1;
                 }
@@ -104,7 +105,7 @@ namespace Ship_Game
                 case RemnantStory.AncientExterminators:
                 case RemnantStory.AncientRaidersRandom:
                     Goals.Add(new RemnantEngagements(Owner));
-                    Universe.NotificationManager.AddRemnantsStoryActivation(Owner);
+                    Universe.Notifications.AddRemnantsStoryActivation(Owner);
                     break;
             }
 
@@ -116,7 +117,7 @@ namespace Ship_Game
             if (espionageStr <= Level * 3)
                 return; // not enough espionage strength to learn about Remnant activities
 
-            Universe.NotificationManager.AddRemnantsAreGettingStronger(Owner);
+            Universe.Notifications.AddRemnantsAreGettingStronger(Owner);
         }
 
         public bool TryLevelUpByDate(out int newLevel)
@@ -218,7 +219,7 @@ namespace Ship_Game
 
             if (GetStoryEvent(out ExplorationEvent expEvent, true))
             {
-                Universe.NotificationManager.AddRemnantUpdateNotify(expEvent, Owner);
+                Universe.Notifications.AddRemnantUpdateNotify(expEvent, Owner);
                 OnlyRemnantLeft = true;
                 TriggerVsPlayerEndGame();
             }
@@ -411,7 +412,7 @@ namespace Ship_Game
                                                && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
                 {
                     string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
-                    Universe.NotificationManager.AddIncomingRemnants(planet, message);
+                    Universe.Notifications.AddIncomingRemnants(planet, message);
                 }
             }
             else  // AI scramble defense
@@ -535,7 +536,7 @@ namespace Ship_Game
             return false;
         }
 
-        bool CreatePortal(UniverseScreen u, out Ship portal, out string systemName)
+        bool CreatePortal(UniverseState u, out Ship portal, out string systemName)
         {
             portal             = null;
             SolarSystem system = null;

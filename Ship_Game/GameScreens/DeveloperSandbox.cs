@@ -9,7 +9,7 @@ namespace Ship_Game
     internal class DeveloperSandbox : GameScreen
     {
         DeveloperUniverse Universe;
-        TaskResult<UniverseData> CreateTask;
+        TaskResult<DeveloperUniverse> CreateTask;
 
         public DeveloperSandbox() : base(null, toPause: null)
         {
@@ -43,9 +43,8 @@ namespace Ship_Game
                 Thread.Sleep(15); // @note This hugely speeds up loading
                 if (CreateTask?.IsComplete == true)
                 {
-                    UniverseData sandbox = CreateTask.Result;
+                    Universe = CreateTask.Result;
                     CreateTask = null;
-                    Universe = new DeveloperUniverse(sandbox, sandbox.EmpireList.First, paused:false);
                     ScreenManager.GoToScreen(Universe, clear3DObjects:false);
                 }
             }

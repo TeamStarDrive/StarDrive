@@ -5,6 +5,9 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
+    /// <summary>
+    /// 2D Projection of a ShipGroup, when user right-click drags a fleet of ships
+    /// </summary>
     public class ShipGroupProject
     {
         public Vector2 Start { get; private set; }
