@@ -1,6 +1,6 @@
 ﻿Version=1
 HullName=Misc/HaulerSmall
-VisibleName=Small Freighter
+VisibleName=HaulerSmall
 Role=freighter
 Style=Misc
 Size=4,10
@@ -12,8 +12,8 @@ Animated=false
 IsShipyard=false
 IsOrbitalDefense=false
 #Thruster PosX,PosY,PosZ,Scale
-Thruster=17,83,0,30
-Thruster=-14,79,0,30
+Thruster=15,64,0,39
+Thruster=-16,64,0,37
 Slots
 ___|IO |IO |___
 ___|IO |IO |___
