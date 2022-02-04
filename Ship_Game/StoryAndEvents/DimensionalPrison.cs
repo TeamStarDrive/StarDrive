@@ -33,16 +33,16 @@ namespace Ship_Game
             Platform3 = SpawnAncientRepulsor(universe, plaformCenter + new Vector2(400f, -400f));
         }
 
-        private Ship SpawnAncientRepulsor(UniverseState universe, Vector2 repulsorPos)
+        private Ship SpawnAncientRepulsor(UniverseState us, Vector2 repulsorPos)
         {
-            Ship repulsor = Ship.CreateShipAtPoint(universe, PlatformName, EmpireManager.Unknown, repulsorPos);
+            Ship repulsor = Ship.CreateShipAtPoint(us, PlatformName, EmpireManager.Unknown, repulsorPos);
             Weapon weapon = ResourceManager.CreateWeapon("AncientRepulsor");
-            var beam = new Beam(weapon, repulsor, PlaformCenter, 75);
+            var beam = new Beam(us.CreateId(), weapon, repulsor, PlaformCenter, 75);
             beam.Infinite = true;
             beam.Range = 2500f;
             beam.PowerCost = 0f;
             beam.DamageAmount = 0f;
-            beam.Initialize(universe, loading: false);
+            beam.Initialize(us, loading: false);
             return repulsor;
         }
 

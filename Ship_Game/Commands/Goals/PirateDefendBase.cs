@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -11,7 +12,8 @@ namespace Ship_Game.Commands.Goals
         private Pirates Pirates;
         private Ship BaseToDefend;
 
-        public PirateDefendBase() : base(GoalType.PirateDefendBase)
+        public PirateDefendBase(int id, UniverseState us)
+            : base(GoalType.PirateDefendBase, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -19,7 +21,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateDefendBase(Empire owner, Ship baseToDefend) : this()
+        public PirateDefendBase(Empire owner, Ship baseToDefend)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire     = owner;
             TargetShip = baseToDefend;
@@ -53,7 +56,7 @@ namespace Ship_Game.Commands.Goals
         void SendMoreForces()
         {
             var potentialShips = Pirates.Owner.OwnedShips.Filter(s => !s.IsFreighter
-                                                                      && !Pirates.SpawnedShips.Contains(s.Guid)
+                                                                      && !Pirates.SpawnedShips.Contains(((GameplayObject)s).Id)
                                                                       && s.BaseStrength > 0
                                                                       && !s.InCombat
                                                                       && !s.IsPlatformOrStation

@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -10,7 +11,8 @@ namespace Ship_Game.Commands.Goals
         public override string UID => ID;
         private bool SkipFirstRun = true;
 
-        public PrepareForWar() : base(GoalType.PrepareForWar)
+        public PrepareForWar(int id, UniverseState us)
+            : base(GoalType.PrepareForWar, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,7 +22,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PrepareForWar(Empire owner, Empire enemy) : this()
+        public PrepareForWar(Empire owner, Empire enemy)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire        = owner;
             TargetEmpire  = enemy;

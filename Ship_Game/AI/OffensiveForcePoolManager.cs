@@ -109,14 +109,14 @@ namespace Ship_Game.AI
 
         public AO CreateAO(Planet coreWorld, float radius)
         {
-            var newAO = new AO(coreWorld, radius);
+            var newAO = new AO(coreWorld.Universe, coreWorld, radius);
             EmpireAI.AreasOfOperations.Add(newAO);
             return newAO;
         }
 
         public AO CreateAO(Planet coreWorld, float radius, AO fromAO)
         {
-            var newAO = new AO(coreWorld, radius, fromAO.WhichFleet, fromAO.CoreFleet);
+            var newAO = new AO(coreWorld.Universe, coreWorld, radius, fromAO.WhichFleet, fromAO.CoreFleet);
             EmpireAI.AreasOfOperations.Add(newAO);
             return newAO;
         }

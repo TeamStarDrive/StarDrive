@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -10,7 +11,8 @@ namespace Ship_Game.Commands.Goals
         public override string UID => ID;
         private Remnants Remnants;
 
-        public RemnantEngagements() : base(GoalType.RemnantEngagements)
+        public RemnantEngagements(int id, UniverseState us)
+            : base(GoalType.RemnantEngagements, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,7 +22,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public RemnantEngagements(Empire owner) : this()
+        public RemnantEngagements(Empire owner)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire = owner;
 

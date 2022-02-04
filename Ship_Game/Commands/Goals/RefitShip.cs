@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
@@ -11,7 +12,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public const string ID = "RefitShips";
         public override string UID => ID;
 
-        public RefitShip() : base(GoalType.Refit)
+        public RefitShip(int id, UniverseState us)
+            : base(GoalType.Refit, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,7 +25,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitShip(Ship oldShip, string toBuildName, Empire owner) : this()
+        public RefitShip(Ship oldShip, string toBuildName, Empire owner)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             OldShip     = oldShip;
             ShipLevel   = oldShip.Level;
@@ -58,7 +61,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             {
                 if (Fleet.FindShipNode(OldShip, out FleetDataNode node))
                 {
-                    Fleet.AssignGoalGuid(node, guid);
+                    Fleet.AssignGoalId(node, Id);
                     Fleet.AssignShipName(node, ToBuildUID);
                 }
             }
@@ -126,7 +129,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             FinishedShip.Level = ShipLevel;
             if (Fleet != null)
             {
-                if (Fleet.FindNodeWithGoalGuid(guid, out FleetDataNode node))
+                if (Fleet.FindNodeWithGoalId(Id, out FleetDataNode node))
                 {
                     Fleet.AddExistingShip(FinishedShip, node);
                     Fleet.RemoveGoalGuid(node);
@@ -168,7 +171,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         void RemoveGoalFromFleet()
         {
-            Fleet?.RemoveGoalGuid(guid);
+            Fleet?.RemoveGoalGuid(Id);
         }
 
         void RemoveOldRefitGoal()

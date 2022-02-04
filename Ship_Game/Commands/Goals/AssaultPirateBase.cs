@@ -3,6 +3,7 @@ using Ship_Game.AI.Tasks;
 using Ship_Game.Ships;
 using System;
 using Microsoft.Xna.Framework;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,7 +13,8 @@ namespace Ship_Game.Commands.Goals
         public override string UID => ID;
         private Pirates Pirates;
 
-        public AssaultPirateBase() : base(GoalType.AssaultPirateBase)
+        public AssaultPirateBase(int id, UniverseState us)
+            : base(GoalType.AssaultPirateBase, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,7 +24,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public AssaultPirateBase(Empire e, Empire pirateEmpire, Ship targetBase = null) : this()
+        public AssaultPirateBase(Empire e, Empire pirateEmpire, Ship targetBase = null)
+            : this(e.Universum.CreateId(), e.Universum)
         {
             empire       = e;
             TargetEmpire = pirateEmpire;

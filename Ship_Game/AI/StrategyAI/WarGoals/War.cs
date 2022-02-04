@@ -12,7 +12,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public class War
     {
-        public Guid WarGuid = Guid.NewGuid();
         public WarType WarType;
         public float OurStartingStrength;
         public float TheirStartingStrength;
@@ -24,7 +23,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public int ColoniesValueWon;
         public int ColoniesValueLost;
         public Array<string> AlliesCalled = new Array<string>();
-        public Array<Guid> ContestedSystemsGUIDs = new Array<Guid>();
+        public Array<int> ContestedSystemsIds = new Array<int>();
         public float TurnsAtWar;
         public float EndStarDate;
         public float StartDate;
@@ -33,7 +32,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public string ThemName;
         public bool Initialized;
         readonly WarScore Score;
-        public Map<Guid, int> SystemAssaultFailures = new Map<Guid, int>();
+        public Map<int, int> SystemAssaultFailures = new Map<int, int>();
         public int StartingNumContestedSystems;
 
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => Score.GetBorderConflictState(coloniesOffered);
@@ -109,8 +108,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             TheirStartingStrength       = them.CurrentMilitaryStrength;
             TheirStartingGroundStrength = them.CurrentTroopStrength;
             ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
-            ContestedSystemsGUIDs       = FindContestedSystemGUIDs();
-            StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
+            ContestedSystemsIds       = FindContestedSystemGUIDs();
+            StartingNumContestedSystems = ContestedSystemsIds.Count;
             OurRelationToThem           = us.GetRelationsOrNull(them);
             Score                       = new WarScore(this, Us);
 
@@ -146,12 +145,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                                 .Filter(s => Us.GetEmpireAI().IsInOurAOs(s.Position));
         public SolarSystem[] GetTheirNearSystems() => Them.GetOurBorderSystemsTo(Us, true).ToArray();
 
-        Array<Guid> FindContestedSystemGUIDs()
+        Array<int> FindContestedSystemGUIDs()
         {
-            var contestedSystemGUIDs = new Array<Guid>();
-            var systems = ContestedSystems;
-            for (int x = 0; x < systems.Length; x++) contestedSystemGUIDs.Add(systems[x].Guid);
-            return contestedSystemGUIDs;
+            var contestedSystemIds = new Array<int>();
+            for (int x = 0; x < ContestedSystems.Length; x++)
+                contestedSystemIds.Add(ContestedSystems[x].Id);
+            return contestedSystemIds;
         }
 
         public void SetCombatants(Empire u, Empire t)
@@ -165,11 +164,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Us = EmpireManager.GetEmpireByName(UsName);
             Them = EmpireManager.GetEmpireByName(ThemName);
 
-            ContestedSystems = new SolarSystem[ContestedSystemsGUIDs.Count];
-            for (int i = 0; i < ContestedSystemsGUIDs.Count; i++)
+            ContestedSystems = new SolarSystem[ContestedSystemsIds.Count];
+            for (int i = 0; i < ContestedSystemsIds.Count; i++)
             {
-                var guid = ContestedSystemsGUIDs[i];
-                SolarSystem solarSystem = Us.Universum.GetSystem(guid);
+                int systemId = ContestedSystemsIds[i];
+                SolarSystem solarSystem = Us.Universum.GetSystem(systemId);
                 ContestedSystems[i] = solarSystem;
             }
             // The Us == Them is used in EmpireDefense and relations should be null
@@ -213,8 +212,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void SystemAssaultFailed(SolarSystem system)
         {
-            SystemAssaultFailures.TryGetValue(system.Guid, out int count);
-            SystemAssaultFailures[system.Guid] = ++count;
+            SystemAssaultFailures.TryGetValue(system.Id, out int count);
+            SystemAssaultFailures[system.Id] = ++count;
         }
 
         public float GetGrade()

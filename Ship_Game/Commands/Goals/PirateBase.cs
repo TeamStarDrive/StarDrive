@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -11,7 +12,8 @@ namespace Ship_Game.Commands.Goals
         private Pirates Pirates;
         private Ship Base;
 
-        public PirateBase() : base(GoalType.PirateBase)
+        public PirateBase(int id, UniverseState us)
+            : base(GoalType.PirateBase, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -19,7 +21,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateBase(Empire owner, Ship ship, string systemName) : this()
+        public PirateBase(Empire owner, Ship ship, string systemName)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire     = owner;
             TargetShip = ship;

@@ -400,7 +400,7 @@ namespace Ship_Game.AI
             bool debug = EnableTargetPriorityDebug && (Owner.Loyalty.isPlayer);
             void Debug(string s) => Log.Write(
                 $"{tgt.Loyalty.data.ArchetypeName} {tgt.DesignRole,9}={value.String(),-6} | "+
-                $"{s,-16} | tgt: {tgt.Name+tgt.Id,-20} | us: {Owner.Name+Owner.Id,-20} |");
+                $"{s,-16} | tgt: {tgt.Name+((GameplayObject)tgt).Id,-20} | us: {Owner.Name+((GameplayObject)Owner).Id,-20} |");
 
             if (debug) Debug($"str={tgt.GetStrength().String()}");
             if (Owner.AI.EscortTarget != null && tgt.AI.Target == Owner.AI.EscortTarget)

@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,7 +13,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "DeployFleetProjector";
         public override string UID => ID;
 
-        public DeployFleetProjector() : base(GoalType.DeployFleetProjector)
+        public DeployFleetProjector(int id, UniverseState us)
+            : base(GoalType.DeployFleetProjector, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,7 +24,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public DeployFleetProjector(Fleet fleet, Planet claim, Empire e) : this()
+        public DeployFleetProjector(Fleet fleet, Planet claim, Empire e)
+            : this(e.Universum.CreateId(), e.Universum)
         {
             empire             = e;
             ColonizationTarget = claim;

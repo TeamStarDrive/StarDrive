@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,7 +13,8 @@ namespace Ship_Game.Commands.Goals
         public override string UID => ID;
         private bool Rush; // no need for saving this as it is used immediately
 
-        public FleetRequisition() : base(GoalType.FleetRequisition)
+        public FleetRequisition(int id, UniverseState us)
+            : base(GoalType.FleetRequisition, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,7 +24,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public FleetRequisition(string shipName, Empire owner, bool rush) : this()
+        public FleetRequisition(string shipName, Empire owner, bool rush)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire      = owner;
             ToBuildUID  = shipName;
@@ -62,12 +65,12 @@ namespace Ship_Game.Commands.Goals
 
             foreach (FleetDataNode node in Fleet.DataNodes)
             {
-                if (node.GoalGUID != guid)
+                if (node.GoalId != Id)
                     continue;
 
-                Ship ship     = FinishedShip;
-                node.Ship     = ship;
-                node.GoalGUID = Guid.Empty;
+                Ship ship = FinishedShip;
+                node.Ship = ship;
+                node.GoalId = 0;
 
                 if (Fleet.Ships.Count == 0)
                     Fleet.FinalPosition = ship.Position + RandomMath.Vector2D(3000f);

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -10,7 +11,7 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "Scout System";
         public override string UID => ID;
 
-        public ScoutSystem() : base(GoalType.ScoutSystem)
+        public ScoutSystem(int id, UniverseState us) : base(GoalType.ScoutSystem, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,7 +23,8 @@ namespace Ship_Game.Commands.Goals
                 SniffAround
             };
         }
-        public ScoutSystem(Empire empire) : this()
+        public ScoutSystem(Empire empire)
+            : this(empire.Universum.CreateId(), empire.Universum)
         {
             this.empire   = empire;
             StarDateAdded = empire.Universum.StarDate;

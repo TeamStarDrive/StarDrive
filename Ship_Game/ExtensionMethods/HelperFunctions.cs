@@ -46,7 +46,7 @@ namespace Ship_Game
             if (data == null)
                 return null;
 
-            var fleet = new Fleet
+            var fleet = new Fleet(universe.CreateId())
             {
                 FinalPosition = position,
                 Owner = owner

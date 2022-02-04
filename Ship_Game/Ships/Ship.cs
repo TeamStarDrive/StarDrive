@@ -23,18 +23,6 @@ namespace Ship_Game.Ships
             throw new InvalidOperationException(
                 $"BUG! Ship must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Ship XXX;` PROPERTIES/FIELDS. {this}");
 
-        public static Array<Ship> GetShipsFromGuids(UniverseState u, Array<Guid> guids)
-        {
-            var ships = new Array<Ship>();
-            for (int i = 0; i < guids.Count; i++)
-            {
-                Ship ship = u.Objects.FindShip(guids[i]);
-                if (ship != null)
-                    ships.AddUnique(ship);
-            }
-            return ships;
-        }
-
         public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
 
         public float RepairRate  = 1f;
@@ -57,13 +45,12 @@ namespace Ship_Game.Ships
         public CarrierBays Carrier;
         public ShipResupply Supply;
         public bool ShipStatusChanged;
-        public Guid Guid = Guid.NewGuid();
         public bool HasRegeneratingModules;
         public bool IsMeteor { get; private set; }
 
         Planet TetheredTo;
         public Vector2 TetherOffset;
-        public Guid TetherGuid;
+        public int TetheredId;
         public float EMPDamage { get; private set; }
         public Fleet Fleet;
         public float YRotation;
@@ -590,7 +577,7 @@ namespace Ship_Game.Ships
                 SolarSystem system = System;
                 if (system != null)
                 {
-                    if (attackerToUs.WarnedSystemsList.Contains(system.Guid) && !IsFreighter)
+                    if (attackerToUs.WarnedSystemsList.Contains(system.Id) && !IsFreighter)
                         return true;
 
                     if (DesignRole == RoleName.troop &&
@@ -1685,7 +1672,7 @@ namespace Ship_Game.Ships
         public void RemoveTether()
         {
             TetheredTo = null;
-            TetherGuid = Guid.Empty;
+            TetheredId = 0;
         }
 
         /// <summary>
@@ -1976,7 +1963,7 @@ namespace Ship_Game.Ships
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
         public override string ToString() =>
-            $"Ship:{Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
+            $"Ship:{((GameplayObject)this).Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {

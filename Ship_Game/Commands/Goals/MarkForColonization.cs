@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.Gameplay;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,7 +13,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "MarkForColonization";
         public override string UID => ID;
 
-        public MarkForColonization() : base(GoalType.Colonize)
+        public MarkForColonization(int id, UniverseState us)
+            : base(GoalType.Colonize, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -25,7 +27,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public MarkForColonization(Planet toColonize, Empire e) : this()
+        public MarkForColonization(Planet toColonize, Empire e)
+            : this(e.Universum.CreateId(), e.Universum)
         {
             empire             = e;
             ColonizationTarget = toColonize;
@@ -46,7 +49,8 @@ namespace Ship_Game.Commands.Goals
         }
 
         // Player ordered an existing colony ship to colonize
-        public MarkForColonization(Ship colonyShip, Planet toColonize, Empire e) : this()
+        public MarkForColonization(Ship colonyShip, Planet toColonize, Empire e)
+            : this(e.Universum.CreateId(), e.Universum)
         {
             empire             = e;
             ColonizationTarget = toColonize;

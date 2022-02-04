@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,7 +13,8 @@ namespace Ship_Game.Commands.Goals
         private Remnants Remnants;
         private Ship Portal;
 
-        public RemnantPortal() : base(GoalType.RemnantPortal)
+        public RemnantPortal(int id, UniverseState us)
+            : base(GoalType.RemnantPortal, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -21,7 +23,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public RemnantPortal(Empire owner, Ship portal, string systemName) : this()
+        public RemnantPortal(Empire owner, Ship portal, string systemName)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire     = owner;
             TargetShip = portal;

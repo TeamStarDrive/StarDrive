@@ -39,7 +39,7 @@ namespace UnitTests.Fleets
 
         Fleet CreateTestFleet(Array<Ship> ships, Array<Fleet> fleets)
         {
-            var fleet = new Fleet {Owner = ships[0].Loyalty};
+            var fleet = new Fleet(UState.CreateId()) {Owner = ships[0].Loyalty};
             foreach(var ship in ships)
             {
                 fleet.AddShip(ship);
@@ -221,7 +221,7 @@ namespace UnitTests.Fleets
                 Log.Write($"\t\t\t{s}");
             }
 
-            var didWarp = shipsThatWereInWarp.ToArray().Sorted(s => s.Id).Sorted(s => (int)s.ShipEngines.ReadyForFormationWarp);
+            var didWarp = shipsThatWereInWarp.ToArray().Sorted(s => ((GameplayObject)s).Id).Sorted(s => (int)s.ShipEngines.ReadyForFormationWarp);
             if (didWarp.Length != fleet.Ships.Count)
             {
                 var notInWarp = fleet.Ships.Except(didWarp);

@@ -11,7 +11,7 @@ namespace Ship_Game.Empires.ShipPools
         readonly Empire Owner;
         readonly ChangePendingList<Ship> ForcePool;
 
-        public Guid Guid { get; } = Guid.NewGuid();
+        public int Id { get; }
         public string Name { get; }
         public Empire OwnerEmpire => Owner;
         public EmpireAI OwnerAI => Owner.GetEmpireAI();
@@ -27,11 +27,12 @@ namespace Ship_Game.Empires.ShipPools
 
         public override string ToString()
         {
-            return $"ShipPool {Guid} {Name} {Owner.Name} Ships={Ships.Count}";
+            return $"ShipPool {Id} {Name} {Owner.Name} Ships={Ships.Count}";
         }
 
-        public ShipPool(Empire empire, string name)
+        public ShipPool(int id, Empire empire, string name)
         {
+            Id = id;
             Owner = empire;
             Name = name;
             ForcePool = new ChangePendingList<Ship>();

@@ -16,7 +16,7 @@ namespace Ship_Game.Gameplay
     {
         [StarData] public float MoonScale;
         [StarData] public int MoonId;
-        [StarData] public Guid OrbitTarget;
+        [StarData] public int OrbitPlanetId;
         [StarData] public float OrbitRadius;
         [StarData] public float OrbitalAngle;
         [StarData] public Vector3 RotationRadians;
@@ -25,16 +25,17 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] Planet OrbitPlanet;
 
         // Serialize from save game (CANNOT HAVE ARGUMENTS!)
-        public Moon() : base(GameObjectType.Moon)
+        public Moon() : base(0, GameObjectType.Moon)
         {
         }
 
         // Creating new game:
-        public Moon(SolarSystem system, Guid orbitTgt, int moon, float moonScale,
+        public Moon(SolarSystem system, int orbitPlanetId, int moon, float moonScale,
                     float orbitRadius, float orbitalAngle, Vector2 pos) : this()
         {
+            Id = system.Universe.CreateId();
             SetSystem(system);
-            OrbitTarget = orbitTgt;
+            OrbitPlanetId = orbitPlanetId;
             MoonId = moon;
             MoonScale = moonScale;
             OrbitRadius = orbitRadius;
@@ -78,7 +79,7 @@ namespace Ship_Game.Gameplay
 
             if (OrbitPlanet == null)
             {
-                OrbitPlanet = System.Universe.GetPlanet(OrbitTarget);
+                OrbitPlanet = System.Universe.GetPlanet(OrbitPlanetId);
             }
 
             Position = OrbitPlanet.Center.PointFromAngle(OrbitalAngle, OrbitRadius);

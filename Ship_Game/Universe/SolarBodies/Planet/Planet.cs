@@ -243,16 +243,13 @@ namespace Ship_Game
             Res.Update(0f);
         }
 
-        public Planet()
+        public Planet(int id) : base(id)
         {
             CreateManagers();
-            HasSpacePort = false;
         }
 
-        public Planet(float fertility, float minerals, float maxPop)
+        public Planet(int id, float fertility, float minerals, float maxPop) : this(id)
         {
-            CreateManagers();
-            HasSpacePort      = false;
             BaseFertility     = fertility;
             MineralRichness   = minerals;
             BasePopPerTileVal = maxPop;
@@ -260,7 +257,8 @@ namespace Ship_Game
                 Type = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
         }
 
-        public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null, float preDefinedPop = 0)
+        public Planet(int id, SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, 
+                      Empire owner = null, float preDefinedPop = 0) : this(id)
         {
             CreateManagers();
 

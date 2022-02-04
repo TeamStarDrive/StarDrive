@@ -41,7 +41,7 @@ namespace Ship_Game.AI
             EmpireName                = e.data.Traits.Name;
             OwnerEmpire               = e;
             ThreatMatrix              = new ThreatMatrix(e);
-            DefensiveCoordinator      = new DefensiveCoordinator(e, "DefensiveCoordinator");
+            DefensiveCoordinator      = new DefensiveCoordinator(e.Universum.CreateId(), e, "DefensiveCoordinator");
             OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
             TechChooser               = new Research.ChooseTech(e);
             ExpansionAI               = new ExpansionAI.ExpansionPlanner(OwnerEmpire);
@@ -145,7 +145,7 @@ namespace Ship_Game.AI
             var aos = AreasOfOperations;
             if (aos.Count == 0)
             {
-                var ao = new AO(OwnerEmpire);
+                var ao = new AO(OwnerEmpire.Universum, OwnerEmpire);
                 AreasOfOperations.Add(ao);
                 return ao;
             }
@@ -191,7 +191,7 @@ namespace Ship_Game.AI
             foreach (Goal ourGoal in ourColonizationGoals)
             {
                 var system = ourGoal.ColonizationTarget.ParentSystem;
-                if (usToThem.WarnedSystemsList.Contains(system.Guid))
+                if (usToThem.WarnedSystemsList.Contains(system.Id))
                     continue; // Already warned them
 
                 // Non allied empires will always warn if the system is exclusively owned by them
@@ -214,7 +214,7 @@ namespace Ship_Game.AI
                         if (them.isPlayer)
                             DiplomacyScreen.Show(OwnerEmpire, "Claim System", system);
 
-                        usToThem.WarnedSystemsList.AddUnique(system.Guid);
+                        usToThem.WarnedSystemsList.AddUnique(system.Id);
                     }
                 }
             }
@@ -235,7 +235,7 @@ namespace Ship_Game.AI
                     if (warnExclusive || warnAnyway)
                         return true;
 
-                    if (themToUs.WarnedSystemsList.Contains(goal.ColonizationTarget.ParentSystem.Guid))
+                    if (themToUs.WarnedSystemsList.Contains(goal.ColonizationTarget.ParentSystem.Id))
                         return false; // They warned us, so no need to warn them
 
                     // If they stole planets from us, we will value our targets more.
@@ -344,10 +344,10 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public bool HasGoal(in Guid guid)
+        public bool HasGoal(int goalId)
         {
             for (int i = 0; i < Goals.Count; ++i)
-                if (Goals[i].guid == guid) return true;
+                if (Goals[i].Id == goalId) return true;
             return false;
         }
 

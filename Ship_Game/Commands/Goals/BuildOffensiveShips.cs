@@ -2,6 +2,7 @@
 using System.Linq;
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -10,7 +11,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "BuildOffensiveShips";
         public override string UID => ID;
 
-        public BuildOffensiveShips() : base(GoalType.BuildOffensiveShips)
+        public BuildOffensiveShips(int id, UniverseState us)
+            : base(GoalType.BuildOffensiveShips, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,7 +22,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public BuildOffensiveShips(string shipType, Empire e) : this()
+        public BuildOffensiveShips(string shipType, Empire e)
+            : this(e.Universum.CreateId(), e.Universum)
         {
             ToBuildUID = shipType;
             empire = e;

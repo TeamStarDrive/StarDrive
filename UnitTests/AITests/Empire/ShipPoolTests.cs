@@ -141,7 +141,7 @@ namespace UnitTests.AITests.Empire
         public void ShipIsMovedToNewPoolAfterLoyaltyChange()
         {
             CreateThirdMajorEmpire();
-            Enemy.GetEmpireAI().AreasOfOperations.Add(new AO());
+            Enemy.GetEmpireAI().AreasOfOperations.Add(new AO(UState));
             Ship ship = SpawnShip("Vulcan Scout", Enemy, Vector2.Zero);
             RunObjectsSim(TestSimStep);
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");

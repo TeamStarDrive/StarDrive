@@ -44,12 +44,13 @@ namespace Ship_Game
             var s = Stopwatch.StartNew();
             EmpireManager.Clear();
 
-            var us = new DeveloperUniverse(1_000_000f);
-            us.UState.FTLModifier      = GlobalStats.FTLInSystemModifier;
-            us.UState.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
-            us.UState.GravityWells        = GlobalStats.PlanetaryGravityWells;
-            us.UState.FTLInNeutralSystems = GlobalStats.WarpInSystem;
-            CurrentGame.StartNew(us.UState, pace:1f, 1, 0, 1);
+            var universe = new DeveloperUniverse(1_000_000f);
+            UniverseState us = universe.UState;
+            us.FTLModifier      = GlobalStats.FTLInSystemModifier;
+            us.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
+            us.GravityWells        = GlobalStats.PlanetaryGravityWells;
+            us.FTLInNeutralSystems = GlobalStats.WarpInSystem;
+            CurrentGame.StartNew(us, pace:1f, 1, 0, 1);
 
             IEmpireData[] candidates = ResourceManager.MajorRaces.Filter(d => PlayerFilter(d, playerPreference));
             IEmpireData player = candidates[0];
@@ -62,36 +63,36 @@ namespace Ship_Game
 
             foreach (IEmpireData data in races)
             {
-                Empire e = us.UState.CreateEmpire(data, isPlayer: (data == player));
+                Empire e = us.CreateEmpire(data, isPlayer: (data == player));
                 e.data.CurrentAutoScout     = e.data.ScoutShip;
                 e.data.CurrentAutoColony    = e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = e.data.FreighterShip;
                 e.data.CurrentConstructor   = e.data.ConstructorShip;
 
                 // Now, generate system for our empire:
-                var system = new SolarSystem();
-                system.Position = GenerateRandomSysPos(10000, us.UState);
-                system.GenerateStartingSystem(e.data.Traits.HomeSystemName, 1f, e);
+                var system = new SolarSystem(us);
+                system.Position = GenerateRandomSysPos(10000, us);
+                system.GenerateStartingSystem(us, e.data.Traits.HomeSystemName, 1f, e);
                 system.OwnerList.Add(e);
 
-                us.UState.AddSolarSystem(system);
+                us.AddSolarSystem(system);
             }
 
             foreach (IEmpireData data in ResourceManager.MinorRaces) // init minor races
             {
-                us.UState.CreateEmpire(data, isPlayer: false);
+                us.CreateEmpire(data, isPlayer: false);
             }
 
             Empire.InitializeRelationships(EmpireManager.Empires, GameDifficulty.Hard);
 
-            foreach (SolarSystem system in us.UState.Systems)
+            foreach (SolarSystem system in universe.UState.Systems)
             {
-                system.FiveClosestSystems = us.UState.GetFiveClosestSystems(system);
+                system.FiveClosestSystems = universe.UState.GetFiveClosestSystems(system);
             }
 
             ShipDesignUtils.MarkDesignsUnlockable();
             Log.Info($"CreateSandboxUniverse elapsed:{s.Elapsed.TotalMilliseconds}");
-            return us;
+            return universe;
         }
         
         static bool PlayerFilter(IEmpireData d, string playerPreference)

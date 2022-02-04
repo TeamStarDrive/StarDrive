@@ -2,6 +2,7 @@
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Fleets;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -10,7 +11,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "WarMission";
         public override string UID => ID;
 
-        public WarMission() : base(GoalType.WarMission)
+        public WarMission(int id, UniverseState us)
+            : base(GoalType.WarMission, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -19,7 +21,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public WarMission(Empire owner, Empire enemy, Planet targetPlanet) : this()
+        public WarMission(Empire owner, Empire enemy, Planet targetPlanet)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire        = owner;
             TargetEmpire  = enemy;
@@ -29,7 +32,8 @@ namespace Ship_Game.Commands.Goals
             Log.Info(ConsoleColor.Green, $"---- WarMission: New {empire.Name} Vs.: {TargetEmpire.Name} ----");
         }
 
-        public WarMission(Empire owner, Empire enemy, Planet targetPlanet, MilitaryTask task) : this()
+        public WarMission(Empire owner, Empire enemy, Planet targetPlanet, MilitaryTask task)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire        = owner;
             TargetEmpire  = enemy;

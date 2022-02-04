@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Empires.Components;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -11,7 +12,8 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "Empire Defense";
         public override string UID => ID;
 
-        public EmpireDefense() : base(GoalType.EmpireDefense)
+        public EmpireDefense(int id, UniverseState us)
+            : base(GoalType.EmpireDefense, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,7 +22,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public EmpireDefense(Empire empire) : this()
+        public EmpireDefense(Empire empire)
+            : this(empire.Universum.CreateId(), empire.Universum)
         {
             this.empire   = empire;
             StarDateAdded = empire.Universum.StarDate;

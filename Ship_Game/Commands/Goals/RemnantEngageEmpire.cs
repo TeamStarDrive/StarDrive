@@ -2,6 +2,7 @@
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,7 +13,8 @@ namespace Ship_Game.Commands.Goals
         private Remnants Remnants;
         private int BombersLevel;
 
-        public RemnantEngageEmpire() : base(GoalType.RemnantEngageEmpire)
+        public RemnantEngageEmpire(int id, UniverseState us)
+            : base(GoalType.RemnantEngageEmpire, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,7 +25,8 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public RemnantEngageEmpire(Empire owner, Ship portal, Empire target) : this()
+        public RemnantEngageEmpire(Empire owner, Ship portal, Empire target)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             empire       = owner;
             TargetEmpire = target;

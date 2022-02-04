@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Ship_Game.Debug;
@@ -26,6 +27,11 @@ namespace Ship_Game.Universe
         public GalSize GalaxySize;
         public bool GravityWells;
         public Empire Player;
+
+        // Global unique ID counter for this Universe
+        // Can be used to assign ID-s for any kind of object
+        // Id <= 0 is always invalid, valid ID-s start at 1
+        public int UniqueObjectIds = 0;
         
         public bool Paused = true; // always start paused
         public bool Debug;
@@ -49,10 +55,10 @@ namespace Ship_Game.Universe
 
         readonly Array<Empire> EmpireList = new Array<Empire>();
 
-        readonly Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
+        readonly Map<int, SolarSystem> SolarSystemDict = new Map<int, SolarSystem>();
         readonly Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         
-        readonly Map<Guid, Planet> PlanetsDict = new Map<Guid, Planet>();
+        readonly Map<int, Planet> PlanetsDict = new Map<int, Planet>();
         readonly Array<Planet> AllPlanetsList = new Array<Planet>();
         
         // @return All Empires in the Universe
@@ -91,6 +97,12 @@ namespace Ship_Game.Universe
 
             Projectors = new SubSpaceProjectors(universeSize);
             Objects = new UniverseObjectManager(screen, this, Spatial);
+        }
+
+        // @return New Unique ID for this Universe
+        public int CreateId()
+        {
+            return Interlocked.Increment(ref UniqueObjectIds);
         }
 
         public void Clear()
@@ -147,14 +159,19 @@ namespace Ship_Game.Universe
         // and registers all planets as unique entries in AllPlanetsList
         public void AddSolarSystem(SolarSystem system)
         {
-            system.Universe = this;
-            SolarSystemDict.Add(system.Guid, system);
+            if (system.Universe != this)
+                throw new InvalidOperationException($"AddSolarSystem System was not created for this Universe: {system}");
+            if (system.Id <= 0)
+                throw new InvalidOperationException($"AddSolarSystem System.Id must be valid: {system}");
+            SolarSystemDict.Add(system.Id, system);
             SolarSystemList.Add(system);
             foreach (Planet planet in system.PlanetList)
             {
+                if (planet.Id <= 0)
+                    throw new InvalidOperationException($"AddSolarSystem Planet.Id must be valid: {planet}");
                 planet.ParentSystem = system;
                 planet.UpdatePositionOnly();
-                PlanetsDict.Add(planet.Guid, planet);
+                PlanetsDict.Add(planet.Id, planet);
                 AllPlanetsList.Add(planet);
             }
         }
@@ -163,13 +180,15 @@ namespace Ship_Game.Universe
         {
             if (EmpireManager.GetEmpireByName(readOnlyData.Name) != null)
                 throw new InvalidOperationException($"BUG: Empire already created! {readOnlyData.Name}");
-            Empire e = EmpireManager.CreateEmpireFromEmpireData(readOnlyData, isPlayer);
+            Empire e = EmpireManager.CreateEmpireFromEmpireData(this, readOnlyData, isPlayer);
             return AddEmpire(e);
         }
 
         public Empire AddEmpire(Empire e)
         {
-            e.Universum = this;
+            if (e.Universum == null)
+                throw new ArgumentNullException("Empire.Universum cannot be null");
+
             EmpireList.Add(e);
             EmpireManager.Add(e);
 
@@ -187,27 +206,27 @@ namespace Ship_Game.Universe
             return EmpireList.Find(e => e.data.Traits.Name == loyalty);
         }
 
-        public SolarSystem GetSystem(in Guid guid)
+        public SolarSystem GetSystem(int id)
         {
-            if (guid == Guid.Empty) return null;
-            if (SolarSystemDict.TryGetValue(guid, out SolarSystem system))
+            if (id <= 0) return null;
+            if (SolarSystemDict.TryGetValue(id, out SolarSystem system))
                 return system;
-            Log.Error($"System not found: {guid}");
+            Log.Error($"System not found: {id}");
             return null;
         }
 
-        public Planet GetPlanet(in Guid guid)
+        public Planet GetPlanet(int id)
         {
-            if (guid == Guid.Empty) return null;
-            if (PlanetsDict.TryGetValue(guid, out Planet planet))
+            if (id <= 0) return null;
+            if (PlanetsDict.TryGetValue(id, out Planet planet))
                 return planet;
-            Log.Error($"Planet not found: {guid}");
+            Log.Error($"Planet not found: {id}");
             return null;
         }
 
-        public bool GetPlanet(in Guid guid, out Planet found)
+        public bool GetPlanet(int id, out Planet found)
         {
-            return (found = GetPlanet(guid)) != null;
+            return (found = GetPlanet(id)) != null;
         }
 
         public SolarSystem FindClosestSystem(Vector2 pos)
@@ -230,14 +249,14 @@ namespace Ship_Game.Universe
             return null;
         }
 
-        public bool FindSystem(in Guid systemGuid, out SolarSystem foundSystem)
+        public bool FindSystem(int id, out SolarSystem foundSystem)
         {
-            return SolarSystemDict.TryGetValue(systemGuid, out foundSystem);
+            return SolarSystemDict.TryGetValue(id, out foundSystem);
         }
 
-        public SolarSystem FindSystem(in Guid systemGuid)
+        public SolarSystem FindSystem(int id)
         {
-            return SolarSystemDict.TryGetValue(systemGuid, out SolarSystem system) ? system : null;
+            return SolarSystemDict.TryGetValue(id, out SolarSystem system) ? system : null;
         }
 
         public Array<SolarSystem> GetFiveClosestSystems(SolarSystem system)
@@ -246,35 +265,47 @@ namespace Ship_Game.Universe
                                                            select => select.Position.SqDist(system.Position));
         }
 
-        public Array<SolarSystem> GetSolarSystemsFromGuids(Array<Guid> guids)
+        public Array<SolarSystem> GetSolarSystemsFromIds(Array<int> ids)
         {
             var systems = new Array<SolarSystem>();
-            for (int i = 0; i < guids.Count; i++)
+            for (int i = 0; i < ids.Count; i++)
             {
-                if (SolarSystemDict.TryGetValue(guids[i], out SolarSystem s))
+                if (SolarSystemDict.TryGetValue(ids[i], out SolarSystem s))
                     systems.Add(s);
             }
             return systems;
         }
 
-        public Ship GetShip(in Guid guid)
+        public Array<Ship> GetShipsFromIds(Array<int> ids)
         {
-            return Objects.FindShip(guid);
+            var ships = new Array<Ship>();
+            for (int i = 0; i < ids.Count; i++)
+            {
+                Ship ship = Objects.FindShip(ids[i]);
+                if (ship != null)
+                    ships.AddUnique(ship);
+            }
+            return ships;
         }
 
-        public bool GetShip(in Guid guid, out Ship found)
+        public Ship GetShip(int id)
         {
-            return Objects.FindShip(guid, out found);
+            return Objects.FindShip(id);
         }
 
-        public GameplayObject GetObject(in Guid guid)
+        public bool GetShip(int id, out Ship found)
         {
-            return Objects.FindObject(guid);
+            return Objects.FindShip(id, out found);
         }
 
-        public bool GetObject(in Guid guid, out GameplayObject found)
+        public GameplayObject GetObject(int id)
         {
-            return Objects.FindObject(guid, out found);
+            return Objects.FindObject(id);
+        }
+
+        public bool GetObject(int id, out GameplayObject found)
+        {
+            return Objects.FindObject(id, out found);
         }
     }
 }

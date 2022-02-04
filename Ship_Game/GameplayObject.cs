@@ -30,10 +30,11 @@ namespace Ship_Game
          *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
          *        will be accidentally serialized!
          */
-
+        
+        [StarData] public int Id;
         [XmlIgnore][JsonIgnore] public bool Active = true;
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
-
+        
         [StarData] public Vector2 Position;
         [StarData] public Vector2 Velocity;
 
@@ -105,13 +106,11 @@ namespace Ship_Game
             return (dx*dx + dy*dy) <= (r2*r2);
         }
 
-        static int GameObjIds;
-        [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
-
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";
 
-        protected GameplayObject(GameObjectType type)
+        protected GameplayObject(int id, GameObjectType type)
         {
+            Id = id;
             Type = type;
         }
 

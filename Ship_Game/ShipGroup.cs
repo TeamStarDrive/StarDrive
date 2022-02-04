@@ -190,7 +190,7 @@ namespace Ship_Game
             {
                 int order = GetShipOrder(a) - GetShipOrder(b);
                 if (order != 0) return order;
-                return a.Guid.CompareTo(b.Guid); // otherwise sort by ship GUID which never changes
+                return a.Id.CompareTo(b.Id); // otherwise sort by ship ID which never changes
             });
         }
 

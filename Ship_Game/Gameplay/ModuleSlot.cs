@@ -148,22 +148,22 @@ namespace Ship_Game.Gameplay
         /// --- Saved ShipModule state ---
         public float Health;
         public float ShieldPower;
-        public string HangarShipGuid;
+        public int HangarShipId;
 
         public ModuleSaveData(ShipModule m)
             : base(m.Pos, m.UID, m.GetSize(), m.TurretAngle, m.ModuleRot, m.HangarShipUID)
         {
             Health = m.Health;
             ShieldPower = m.ShieldPower;
-            HangarShipGuid = m.HangarShipGuid != Guid.Empty ? m.HangarShipGuid.ToString() : "";
+            HangarShipId = m.HangarShipId;
         }
 
-        public ModuleSaveData(DesignSlot s, float health, float shieldPower, string hangarShipGuid)
+        public ModuleSaveData(DesignSlot s, float health, float shieldPower, int hangarShipId)
             : base(s)
         {
             Health = health;
             ShieldPower = shieldPower;
-            HangarShipGuid = hangarShipGuid;
+            HangarShipId = hangarShipId;
         }
 
         public DesignSlot ToDesignSlot() // abandon the state

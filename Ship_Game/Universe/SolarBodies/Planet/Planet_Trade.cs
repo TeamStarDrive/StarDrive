@@ -19,8 +19,8 @@ namespace Ship_Game
 
         public int NumIncomingFreighters   => IncomingFreighters.Count;
         public int NumOutgoingFreighters   => OutgoingFreighters.Count;
-        public Guid[] IncomingFreighterIds => IncomingFreighters.FilterSelect(s => s != null, s => s.Guid);
-        public Guid[] OutgoingFreighterIds => OutgoingFreighters.FilterSelect(s => s != null, s => s.Guid);
+        public int[] IncomingFreighterIds => IncomingFreighters.FilterSelect(s => s != null, s => s.Id);
+        public int[] OutgoingFreighterIds => OutgoingFreighters.FilterSelect(s => s != null, s => s.Id);
 
         public int IncomingFoodFreighters      => FreighterTraffic(IncomingFreighters, Goods.Food);
         public int IncomingProdFreighters      => FreighterTraffic(IncomingFreighters, Goods.Production);

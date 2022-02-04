@@ -632,7 +632,7 @@ namespace Ship_Game
         public bool WarnedThemAboutThisSystem(SolarSystem s, Empire them)
         {
             Relationship rel = GetRelations(them);
-            return rel?.WarnedSystemsList.Contains(s.Guid) == true;
+            return rel?.WarnedSystemsList.Contains(s.Id) == true;
         }
 
         /// <summary>

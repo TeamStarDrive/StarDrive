@@ -1,6 +1,7 @@
 ﻿using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.Universe;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
@@ -10,7 +11,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public const string ID = "AssaultBombers";
         public override string UID => ID;
 
-        public AssaultBombers() : base(GoalType.AssaultBombers)
+        public AssaultBombers(int id, UniverseState us)
+            : base(GoalType.AssaultBombers, id, us)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -19,7 +21,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public AssaultBombers(Planet planet, Empire owner, Empire enemy) : this()
+        public AssaultBombers(Planet planet, Empire owner, Empire enemy)
+            : this(owner.Universum.CreateId(), owner.Universum)
         {
             PlanetBuildingAt = planet;
             empire           = owner;

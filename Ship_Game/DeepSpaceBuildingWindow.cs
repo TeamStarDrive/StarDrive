@@ -16,7 +16,7 @@ namespace Ship_Game
         ScrollList2<ConstructionListItem> SL;
         public Ship itemToBuild;
         Vector2 TetherOffset;
-        Guid TargetPlanet = Guid.Empty;
+        int TargetPlanetId;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
         public DeepSpaceBuildingWindow(UniverseScreen screen)
@@ -153,15 +153,15 @@ namespace Ship_Game
             var pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
                 pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
 
-            bool okToBuild = TargetPlanet == Guid.Empty || !Screen.UState.GetPlanet(TargetPlanet).IsOutOfOrbitalsLimit(itemToBuild);
+            bool okToBuild = TargetPlanetId == 0 || !Screen.UState.GetPlanet(TargetPlanetId).IsOutOfOrbitalsLimit(itemToBuild);
 
             if (okToBuild)
             {
                 Goal buildStuff = new BuildConstructionShip(pickedPosition.ToVec2(), itemToBuild.Name, EmpireManager.Player);
-                if (TargetPlanet != Guid.Empty)
+                if (TargetPlanetId != 0)
                 {
                     buildStuff.TetherOffset = TetherOffset;
-                    buildStuff.TetherTarget = TargetPlanet;
+                    buildStuff.TetherPlanetId = TargetPlanetId;
                 }
 
                 EmpireManager.Player.GetEmpireAI().Goals.Add(buildStuff);
@@ -214,7 +214,7 @@ namespace Ship_Game
                 float k = -pickRay.Position.Z / pickRay.Direction.Z;
                 Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
                 Vector2 pp = new Vector2(pickedPosition.X, pickedPosition.Y);
-                TargetPlanet = Guid.Empty;
+                TargetPlanetId = 0;
                 TetherOffset = Vector2.Zero;
                 lock (GlobalStats.ClickableSystemsLock)
                 {
@@ -225,7 +225,7 @@ namespace Ship_Game
                             continue;
                         }
                         TetherOffset = pp - p.planetToClick.Center;
-                        TargetPlanet = p.planetToClick.Guid;
+                        TargetPlanetId = p.planetToClick.Id;
                         batch.DrawLine(p.ScreenPos, Screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
                         batch.DrawString(Fonts.Arial20Bold, "Will Orbit "+p.planetToClick.Name,
                             new Vector2(Screen.Input.CursorX, Screen.Input.CursorY + 34f), Color.White);
