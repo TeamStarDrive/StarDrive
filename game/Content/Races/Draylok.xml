@@ -8,11 +8,11 @@
   <StartingScout>PreWarp-Wisp Scout</StartingScout>
   <PrototypeShip>Draylok-Prototype</PrototypeShip>
   <DefaultSmallTransport>PreWarp-Draylok Transporter</DefaultSmallTransport>
-  <DefaultTroopShip>PreWarp-Draylok Troop</DefaultTroopShip>
+  <DefaultTroopShip>Draylok Troop</DefaultTroopShip>
   <DefaultColonyShip>PreWarp-Draylok Colonizer</DefaultColonyShip>
   <DefaultConstructor>PreWarp-Draylok Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Draylok Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>PreWarp-Draylok-Supply</DefaultSupplyShuttle>
+  <DefaultSupplyShuttle>Draylok-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Draylok/Draylok_Station</SpacePortModel>
   
   <RebelName>Draylok Democrats</RebelName>
