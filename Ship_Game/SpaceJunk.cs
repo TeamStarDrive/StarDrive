@@ -116,6 +116,7 @@ namespace Ship_Game
 
             So = new SceneObject(model.Meshes[0])
             {
+                Name = model.Meshes[0].Name,
                 ObjectType = ObjectType.Dynamic,
                 Visibility = ObjectVisibility.Rendered,
             };

@@ -388,11 +388,6 @@ namespace Ship_Game
             p.AddBuildingsFertility(MaxFertilityOnBuild);
             p.MineralRichness += IncreaseRichness.LowerBound(0); // This must be positive. since richness cannot go below 0.
             p.BuildingList.Add(this);
-            if (IsSpacePort && p.Universe != null)
-            {
-                p.Station.Planet = p;
-                p.Station.LoadContent(ScreenManager.Instance, p.Owner);
-            }
 
             p.HasSpacePort |= IsSpacePort || AllowShipBuilding;
 

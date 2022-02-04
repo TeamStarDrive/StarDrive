@@ -127,12 +127,6 @@ namespace Ship_Game
                         foreach (Planet planet2 in planet.ParentSystem.PlanetList)
                             planet2.SetExploredBy(empire);
                     }
-
-                    if (planet.HasSpacePort)
-                    {
-                        planet.Station = new SpaceStation(planet);
-                        planet.Station.LoadContent(ScreenManager, empire);
-                    }
                 }
             }
 
