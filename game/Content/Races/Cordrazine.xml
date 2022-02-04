@@ -7,11 +7,11 @@
   <StartingScout>PreWarp-Vingscout</StartingScout>
   <PrototypeShip>Cordrazine-Prototype</PrototypeShip>
   <DefaultSmallTransport>PreWarp-Owlwok Freighter</DefaultSmallTransport>
-  <DefaultTroopShip>PreWarp-Cordrazine Troop</DefaultTroopShip>
+  <DefaultTroopShip>Cordrazine Troop</DefaultTroopShip>
   <DefaultColonyShip>PreWarp-Cordrazine Colonizer</DefaultColonyShip>
   <DefaultConstructor>PreWarp-Owlwok Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Cordrazine Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>PreWarp-Cordrazine-Supply</DefaultSupplyShuttle>
+  <DefaultSupplyShuttle>Cordrazine-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Cordrazine/Cordrazine_Station</SpacePortModel>
   
   <RebelName>Free Owlwok Nation</RebelName>

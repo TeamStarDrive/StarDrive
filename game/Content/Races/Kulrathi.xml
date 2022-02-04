@@ -8,11 +8,11 @@
   <StartingScout>PreWarp-Fang Scout</StartingScout>
   <PrototypeShip>Kulrathi-Prototype</PrototypeShip>
   <DefaultSmallTransport>PreWarp-Kuma Small</DefaultSmallTransport>
-  <DefaultTroopShip>PreWarp-Kulrathi Troop</DefaultTroopShip>
+  <DefaultTroopShip>Kulrathi Troop</DefaultTroopShip>
   <DefaultColonyShip>PreWarp-Kulrathi Colonizer</DefaultColonyShip>
   <DefaultConstructor>PreWarp-Kulrathi Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Kulrathi Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>PreWarp-Kulrathi-Supply</DefaultSupplyShuttle>
+  <DefaultSupplyShuttle>Kulrathi-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Kulrathi/Kulrathi_Station</SpacePortModel>
 
   <TechTree>Kulrathi</TechTree>

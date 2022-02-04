@@ -7,11 +7,11 @@
   <StartingScout>PreWarp-Unarmed Scout</StartingScout>
   <PrototypeShip>Terran-Prototype</PrototypeShip>
   <DefaultSmallTransport>PreWarp-Small Transport</DefaultSmallTransport>
-  <DefaultTroopShip>PreWarp-Human Troop</DefaultTroopShip>
+  <DefaultTroopShip>Human Troop</DefaultTroopShip>
   <DefaultColonyShip>PreWarp-Colony Ship</DefaultColonyShip>
   <DefaultConstructor>PreWarp-Terran Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Terran Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>PreWarp-Terran-Supply</DefaultSupplyShuttle>
+  <DefaultSupplyShuttle>Terran-Supply</DefaultSupplyShuttle>
   <ThrustColor0R>95</ThrustColor0R>
   <ThrustColor0G>158</ThrustColor0G>
   <ThrustColor0B>160</ThrustColor0B>

@@ -2,19 +2,17 @@
   <Name>Capital City</Name>
   <Maintenance>0</Maintenance>
   <Description>The Capital City is a unique building that provides research while improving industrial and agricultural capacity. Capital Cities also provide excellent self defense and can withstand a sustained siege by determined opponents. Finally, Capital cities allow you to recruit basic infantry units. </Description>
-  <PlusResearchPerColonist>.2</PlusResearchPerColonist>
-  <PlusFlatResearchAmount>2</PlusFlatResearchAmount>
+  <PlusFlatResearchAmount>3</PlusFlatResearchAmount>
   <PlusTaxPercentage>.40</PlusTaxPercentage>
-  <CreditsPerColonist>4</CreditsPerColonist>
-  <Infrastructure>4</Infrastructure>
+  <Infrastructure>8</Infrastructure>
   <StorageAdded>50</StorageAdded>
   <Icon>megacity</Icon>
+  <AllowInfantry>true</AllowInfantry>
   <Strength>25</Strength>
   <CombatStrength>25</CombatStrength>
   <SoftAttack>50</SoftAttack>
   <Defense>40</Defense>
   <HardAttack>50</HardAttack>
-  <AllowInfantry>true</AllowInfantry>
   <ShortDescription>A unique building at the heart of your empire</ShortDescription>
   <Scrappable>false</Scrappable>
   <IsSensor>true</IsSensor>

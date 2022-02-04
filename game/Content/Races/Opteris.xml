@@ -7,11 +7,11 @@
   <StartingScout>PreWarp-Drone Scout</StartingScout>
   <PrototypeShip>Opteris-Prototype</PrototypeShip>
   <DefaultSmallTransport>PreWarp-Creeper Transport</DefaultSmallTransport>
-  <DefaultTroopShip>PreWarp-Opteris Troop</DefaultTroopShip>
+  <DefaultTroopShip>Opteris Troop</DefaultTroopShip>
   <DefaultColonyShip>PreWarp-Opteris Hivepod</DefaultColonyShip>
   <DefaultConstructor>PreWarp-Opteris Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Opteris Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>PreWarp-Opteris-Supply</DefaultSupplyShuttle>
+  <DefaultSupplyShuttle>Opteris-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Opteris/OpterisStation</SpacePortModel>
   
   <RebelName>Liberated Opteris AI</RebelName>
