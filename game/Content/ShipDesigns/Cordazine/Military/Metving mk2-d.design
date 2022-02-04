@@ -1,0 +1,57 @@
+﻿Version=1
+Name=Metving mk2-d
+Hull=Cordrazine/Metving
+Role=frigate
+Style=Cordrazine
+Size=12,14
+GridCenter=6,7
+DefaultAIState=DoNothing
+DefaultCombatState=ShortRange
+ShipCategory=Unclassified
+HangarDesignation=General
+IsShipyard=false
+IsOrbitalDefense=false
+IsCarrierOnly=false
+# Maps module UIDs to Index, first UID has index 0
+ModuleUIDs=PlaSteelArmorSmall;PlaSteelArmorMed;FuelCellSmallArmored;Cockpit;Fighter Shield;DisruptorTurret3x3;Fusion Reactor;PowerSolar;PowerConduit;DisruptorTurret2x2;WarpEngine_2x2;Maneuvering_Thruster_1x2;NuclearReactorSmall;LaserCannon;FrigateEngine
+Modules=39
+# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
+5,0;0
+6,0;0
+4,1;1;2,2
+6,1;1;2,2
+3,2;0
+8,2;0
+2,3;0
+3,3;2
+4,3;3
+5,3;4
+6,3;4
+7,3;3
+8,3;2
+9,3;0
+1,4;5;3,3;345
+4,4;6;2,2
+6,4;6;2,2
+8,4;5;3,3;15
+0,5;0
+11,5;0
+0,6;7
+4,6;8
+5,6;6;2,2
+7,6;8
+11,6;7
+3,7;9;2,2
+7,7;9;2,2
+5,8;10;2,2
+2,9;11;2,1
+4,9;12
+7,9;12
+8,9;11;2,1
+4,10;13;;330
+5,10;14;2,2
+7,10;13;;30
+5,12;7
+6,12;7
+5,13;2
+6,13;2
