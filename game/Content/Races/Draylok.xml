@@ -4,15 +4,15 @@
   <!--if true, it will look for the video file in Mods/Video-->
   <MusicCue>Female_02_loop</MusicCue>
   <DiplomacyDialogPath>Draylok</DiplomacyDialogPath>
-  <StartingShip>Wisp Fighter</StartingShip>
-  <StartingScout>Wisp Scout</StartingScout>
+  <StartingShip>PreWarp-Wisp Fighter</StartingShip>
+  <StartingScout>PreWarp-Wisp Scout</StartingScout>
   <PrototypeShip>Draylok-Prototype</PrototypeShip>
-  <DefaultSmallTransport>Draylok Transporter S</DefaultSmallTransport>
-  <DefaultTroopShip>Draylok Troop</DefaultTroopShip>
-  <DefaultColonyShip>Draylok Colonizer</DefaultColonyShip>
-  <DefaultConstructor>Draylok Constructor</DefaultConstructor>
+  <DefaultSmallTransport>PreWarp-Draylok Transporter</DefaultSmallTransport>
+  <DefaultTroopShip>PreWarp-Draylok Troop</DefaultTroopShip>
+  <DefaultColonyShip>PreWarp-Draylok Colonizer</DefaultColonyShip>
+  <DefaultConstructor>PreWarp-Draylok Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Draylok Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>Draylok-Supply</DefaultSupplyShuttle>
+  <DefaultSupplyShuttle>PreWarp-Draylok-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Draylok/Draylok_Station</SpacePortModel>
   
   <RebelName>Draylok Democrats</RebelName>
