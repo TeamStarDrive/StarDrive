@@ -7,11 +7,11 @@
   <StartingScout>PreWarp-Type I Scout</StartingScout>
   <PrototypeShip>Vulfar-Prototype</PrototypeShip>
   <DefaultSmallTransport>PreWarp-Vulfar Transport</DefaultSmallTransport>
-  <DefaultTroopShip>PreWarp-Vulfen Troop</DefaultTroopShip>
+  <DefaultTroopShip>Vulfen Troop</DefaultTroopShip>
   <DefaultColonyShip>PreWarp-Vulfen Colonizer</DefaultColonyShip>
   <DefaultConstructor>PreWarp-Vulfar Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Vulfar Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>PreWarp-Vulfar-Supply</DefaultSupplyShuttle>
+  <DefaultSupplyShuttle>Vulfar-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Vulfen/Vulfar_Station</SpacePortModel>
   
   

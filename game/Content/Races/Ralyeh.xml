@@ -7,11 +7,11 @@
   <StartingScout>PreWarp-Inquisitor Scout</StartingScout>
   <PrototypeShip>Ralyeh-Prototype</PrototypeShip>
   <DefaultSmallTransport>PreWarp-Ralyeh Transport</DefaultSmallTransport>
-  <DefaultTroopShip>PreWarp-Ralyeh Troop</DefaultTroopShip>
+  <DefaultTroopShip>Ralyeh Troop</DefaultTroopShip>
   <DefaultColonyShip>PreWarp-Ralyeh Colonizer</DefaultColonyShip>
   <DefaultConstructor>PreWarp-Ralyeh Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Ralyeh Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>PreWarp-Ralyeh-Supply</DefaultSupplyShuttle>  
+  <DefaultSupplyShuttle>Ralyeh-Supply</DefaultSupplyShuttle>  
   <SpacePortModel>Model/Ships/Ralyeh/Ralyeh_Station</SpacePortModel>
   
   <RebelName>Ralyeh Apostates</RebelName>

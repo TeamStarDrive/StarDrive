@@ -7,11 +7,11 @@
   <StartingScout>PreWarp-Unarmed Thorn Scout</StartingScout>
   <PrototypeShip>Pollops-Prototype</PrototypeShip>
   <DefaultSmallTransport>PreWarp-Seeder Transport</DefaultSmallTransport>
-  <DefaultTroopShip>PreWarp-Pollops Troop</DefaultTroopShip>
+  <DefaultTroopShip>Pollops Troop</DefaultTroopShip>
   <DefaultColonyShip>PreWarp-Pollop Sporeship</DefaultColonyShip>
   <DefaultConstructor>PreWarp-Pollops Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Pollops Assault Shuttle</DefaultAssaultShuttle>
-  <DefaultSupplyShuttle>PreWarp-Pollops-Supply</DefaultSupplyShuttle>
+  <DefaultSupplyShuttle>Pollops-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Pollops/Pollops_Station</SpacePortModel>
 
 
