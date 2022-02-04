@@ -138,17 +138,9 @@ namespace Ship_Game.GameScreens.LoadGame
             var universe = new UniverseScreen(saveData)
             {
                 CreateSimThread = StartSimThread,
-                FogMapBase64     = saveData.FogMapBase64,
             };
 
             UniverseState us = universe.UState;
-            us.FTLModifier      = saveData.FTLModifier;
-            us.EnemyFTLModifier = saveData.EnemyFTLModifier;
-            us.GravityWells        = saveData.GravityWells;
-            us.FTLInNeutralSystems = saveData.FTLInNeutralSystems;
-            us.Difficulty       = saveData.GameDifficulty;
-            us.GalaxySize       = saveData.GalaxySize;
-
             RandomEventManager.ActiveEvent = saveData.RandomEvent;
             int numEmpires = saveData.EmpireDataList.Filter(e => !e.IsFaction).Length; 
             CurrentGame.StartNew(us, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets, numEmpires);
@@ -586,7 +578,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 }
 
                 g.TargetSystem = us.GetSystem(gsave.TargetSystemId);
-                g.PlanetBuildingAt   = us.GetPlanet(gsave.PlanetWhereBuildingAtGuid);
+                g.PlanetBuildingAt   = us.GetPlanet(gsave.PlanetBuildingAtId);
                 g.ColonizationTarget = us.GetPlanet(gsave.MarkedPlanetId);
                 g.TargetPlanet       = us.GetPlanet(gsave.TargetPlanetId);
                 g.FinishedShip = us.GetShip(gsave.ColonyShipId);

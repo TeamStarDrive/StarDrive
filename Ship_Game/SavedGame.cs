@@ -66,7 +66,7 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 11;
+        public const int SaveGameVersion = 12;
         public const string ZipExt = ".sav.gz";
 
         public readonly UniverseSaveData SaveData = new UniverseSaveData();
@@ -91,7 +91,7 @@ namespace Ship_Game
 
 
             SaveData.SaveGameVersion       = SaveGameVersion;
-            SaveData.ObjectIds             = us.UniqueObjectIds;
+            SaveData.UniqueObjectIds             = us.UniqueObjectIds;
             SaveData.GameDifficulty        = us.Difficulty;
             SaveData.GalaxySize            = us.GalaxySize;
             SaveData.StarsModifier         = CurrentGame.StarsModifier;
@@ -957,7 +957,7 @@ namespace Ship_Game
         public class UniverseSaveData
         {
             [StarData] public int SaveGameVersion;
-            [StarData] public int ObjectIds;
+            [StarData] public int UniqueObjectIds;
             [StarData] public string Path;
             [StarData] public string SaveAs;
             [StarData] public string FileName;
