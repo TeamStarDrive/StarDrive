@@ -298,7 +298,7 @@ namespace Ship_Game.Debug
 
         void Targeting()
         {
-            IReadOnlyList<Ship> masterShipList = Screen.GetMasterShipList();
+            IReadOnlyList<Ship> masterShipList = Screen.UState.Ships;
             for (int i = 0; i < masterShipList.Count; ++i)
             {
                 Ship ship = masterShipList[i];
@@ -544,7 +544,7 @@ namespace Ship_Game.Debug
 
         IEnumerable<PredictionDebugPlatform> GetPredictionDebugPlatforms()
         {
-            IReadOnlyList<Ship> ships = Screen.GetMasterShipList();
+            IReadOnlyList<Ship> ships = Screen.UState.Ships;
             for (int i = 0; i < ships.Count; ++i)
                 if (ships[i] is PredictionDebugPlatform platform)
                     yield return platform;
@@ -1164,7 +1164,7 @@ namespace Ship_Game.Debug
                     ThreatMatrix.Pin pin = pins[i];
                     if (pin?.Ship == null || pin.Position == Vector2.Zero)
                         continue;
-                    float increaser = (int) e.Universum.viewState / 100f;
+                    float increaser = (int) e.Universum.Screen.viewState / 100f;
                     Screen.DrawCircleProjected(pin.Position,
                         increaser + pin.Ship.Radius, 6, e.EmpireColor);
 

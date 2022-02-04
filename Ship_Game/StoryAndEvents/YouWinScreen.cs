@@ -34,9 +34,9 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
-        public YouWinScreen(UniverseScreen parent, string text) : base(parent, toPause: parent)
+        public YouWinScreen(UniverseScreen parent, LocalizedText text) : base(parent, toPause: parent)
         {
-            txt = text;
+            txt = text.Text;
             txt = Fonts.Arial20Bold.ParseText(txt, 500f);
             IsPopup = false;
             TransitionOnTime = 30f;

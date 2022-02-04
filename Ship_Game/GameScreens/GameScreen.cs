@@ -103,9 +103,9 @@ namespace Ship_Game
 
             // if we have `toPause`, check if it's active and not already paused
             // this way only a single pausing screen will be allowed to resume the simulation automatically
-            if (toPause != null && toPause.IsActive && !toPause.Paused)
+            if (toPause != null && toPause.IsActive && !toPause.UState.Paused)
             {
-                toPause.Paused = true;
+                toPause.UState.Paused = true;
                 PausedUniverse = toPause;
             }
 
@@ -171,7 +171,7 @@ namespace Ship_Game
         {
             if (PausedUniverse != null)
             {
-                PausedUniverse.Paused = false;
+                PausedUniverse.UState.Paused = false;
                 PausedUniverse = null;
             }
 

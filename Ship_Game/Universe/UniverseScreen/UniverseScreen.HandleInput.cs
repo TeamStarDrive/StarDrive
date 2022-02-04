@@ -25,9 +25,9 @@ namespace Ship_Game
                 if (input.LeftMouseDown)
                 {
                     Vector2 pos = input.CursorPosition - new Vector2(MinimapDisplayRect.X, MinimapDisplayRect.Y);
-                    float num = MinimapDisplayRect.Width / (UniverseSize * 2);
-                    CamDestination.X = -UniverseSize + (pos.X / num); //Fixed clicking on the mini-map on location with negative coordinates -Gretman
-                    CamDestination.Y = -UniverseSize + (pos.Y / num);
+                    float num = MinimapDisplayRect.Width / (UState.Size * 2);
+                    CamDestination.X = -UState.Size + (pos.X / num); //Fixed clicking on the mini-map on location with negative coordinates -Gretman
+                    CamDestination.Y = -UState.Size + (pos.Y / num);
                     snappingToShip = false;
                     ViewingShip = false;
                 }
@@ -106,9 +106,9 @@ namespace Ship_Game
                 empire = EmpireManager.Corsairs;
 
             if (input.SpawnShip)
-                Ship.CreateShipAtPoint(this, "Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
-            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt(this, "Fleet 2", empire, mouseWorldPos);
-            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt(this, "Fleet 1", empire, mouseWorldPos);
+                Ship.CreateShipAtPoint(UState, "Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
+            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 2", empire, mouseWorldPos);
+            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 1", empire, mouseWorldPos);
 
             if (SelectedShip != null)
             {
@@ -138,7 +138,7 @@ namespace Ship_Game
                 EmpireManager.Remnants.Remnants.DebugSpawnRemnant(input.EmpireToggle, mouseWorldPos);
 
             if (input.ToggleSpatialManagerType)
-                Spatial.ToggleSpatialType();
+                UState.Spatial.ToggleSpatialType();
 
             if (input.IsShiftKeyDown && input.KeyPressed(Keys.B))
                 StressTestShipLoading();
@@ -226,12 +226,12 @@ namespace Ship_Game
             Input = input;
 
             if (input.PauseGame && !GlobalStats.TakingInput)
-                Paused = !Paused;
+                UState.Paused = !UState.Paused;
 
             if (input.DebugMode)
             {
-                Debug = !Debug;
-                foreach (SolarSystem solarSystem in SolarSystemList)
+                UState.Debug = !UState.Debug;
+                foreach (SolarSystem solarSystem in UState.Systems)
                 {
                     solarSystem.SetExploredBy(Player);
                     foreach (Planet planet in solarSystem.PlanetList)
@@ -293,7 +293,7 @@ namespace Ship_Game
 
             if (input.QuickSave && !SavedGame.IsSaving)
             {
-                string saveName = $"Quicksave, {EmpireManager.Player.data.Traits.Name}, {StarDate.String()}";
+                string saveName = $"Quicksave, {EmpireManager.Player.data.Traits.Name}, {UState.StarDate.String()}";
                 RunOnEmpireThread(() => Save(saveName));
             }
 
@@ -304,12 +304,12 @@ namespace Ship_Game
             }
             if (input.ShowExceptionTracker)
             {
-                Paused = true;
+                UState.Paused = true;
                 Log.OpenURL("https://bitbucket.org/codegremlins/stardrive-blackbox/issues/new");
             }
             if (input.SendKudos)
             {
-                Paused = true;
+                UState.Paused = true;
                 Log.OpenURL("http://steamcommunity.com/id/v-danbe/recommended/220660");
             }
 
@@ -1184,7 +1184,7 @@ namespace Ship_Game
                     lastplanetcombat = 0;
                 bool flagPlanet;
 
-                foreach (SolarSystem system in SolarSystemList)
+                foreach (SolarSystem system in UState.Systems)
                 {
                     foreach (Planet p in system.PlanetList)
                     {
@@ -1406,8 +1406,8 @@ namespace Ship_Game
                 ViewingShip    = false;
             }
 
-            CamDestination.X = CamDestination.X.Clamped(-UniverseSize, UniverseSize);
-            CamDestination.Y = CamDestination.Y.Clamped(-UniverseSize, UniverseSize);
+            CamDestination.X = CamDestination.X.Clamped(-UState.Size, UState.Size);
+            CamDestination.Y = CamDestination.Y.Clamped(-UState.Size, UState.Size);
         }
 
         void HandleScrolls(InputState input)

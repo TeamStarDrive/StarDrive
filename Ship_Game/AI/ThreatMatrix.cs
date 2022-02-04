@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Ship_Game.Utils;
 
 namespace Ship_Game.AI
@@ -51,7 +52,7 @@ namespace Ship_Game.AI
 
             public Pin(){}
 
-            public void RestoreUnSerializedData(UniverseScreen us, in Guid shipGuid)
+            public void RestoreUnSerializedData(UniverseState us, in Guid shipGuid)
             {
                 Ship ship = us.Objects.FindShip(shipGuid);
                 if (ship == null) return;
@@ -642,7 +643,7 @@ namespace Ship_Game.AI
             }
         }
 
-        public void RestorePinGuidsFromSave(UniverseScreen us)
+        public void RestorePinGuidsFromSave(UniverseState us)
         {
             foreach (var kv in Pins)
             {

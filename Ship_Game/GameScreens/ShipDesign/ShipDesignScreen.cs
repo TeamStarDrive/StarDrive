@@ -310,7 +310,7 @@ namespace Ship_Game
             ShipDesign cloned = shipDesignTemplate.GetClone(shipDesignTemplate.Name);
             ModuleGrid = new DesignModuleGrid(this, cloned);
             CurrentDesign = cloned;
-            DesignedShip = new DesignShip(ParentUniverse, cloned); // TODO: make a mini-verse in Shipyard
+            DesignedShip = new DesignShip(ParentUniverse.UState, cloned); // TODO: make a mini-verse in Shipyard
 
             InstallModulesFromDesign(cloned);
             CreateSOFromCurrentHull();

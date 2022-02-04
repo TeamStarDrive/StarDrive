@@ -383,7 +383,7 @@ namespace Ship_Game
         public void SetInGroundCombat(Empire empire, bool notify = false)
         {
             if (!RecentCombat && notify && Owner == EmpireManager.Player && Owner.IsAtWarWith(empire))
-                Universe.NotificationManager.AddEnemyTroopsLandedNotification(this, empire);
+                Universe.Notifications.AddEnemyTroopsLandedNotification(this, empire);
 
             TroopManager.SetInCombat();
         }
@@ -779,7 +779,7 @@ namespace Ship_Game
                     return;
 
                 QueueEmptySent = true;
-                Universe.NotificationManager.AddEmptyQueueNotification(this);
+                Universe.Notifications.AddEmptyQueueNotification(this);
             }
             else if (ConstructionQueue.Count > 0)
             {
@@ -1052,7 +1052,7 @@ namespace Ship_Game
             Money.Update();
 
             if (!loadUniverse)
-                Station.SetVisibility(HasSpacePort, Universe.ScreenManager, this);
+                Station.SetVisibility(HasSpacePort, Universe.Screen.ScreenManager, this);
 
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }
@@ -1213,8 +1213,8 @@ namespace Ship_Game
                 if (damage > ShieldStrengthCurrent)
                     return false; // Shield not strong enough
 
-                if (Universe.IsSystemViewOrCloser
-                    && Universe.Frustum.Contains(Center, OrbitalRadius * 2))
+                if (Universe.Screen.IsSystemViewOrCloser
+                    && Universe.Screen.Frustum.Contains(Center, OrbitalRadius * 2))
                 {
                     Shield.HitShield(this, ship, Center, ObjectRadius + 100f);
                 }
@@ -1231,7 +1231,7 @@ namespace Ship_Game
             {
                 DestroyBuildingOn(tile); // todo notify
                 if (Owner == EmpireManager.Player)
-                    Universe.NotificationManager.AddBuildingDestroyedByMeteor(this, tile.Building);
+                    Universe.Notifications.AddBuildingDestroyedByMeteor(this, tile.Building);
             }
 
             int bid;
@@ -1269,7 +1269,7 @@ namespace Ship_Game
             tile.PlaceBuilding(b, this);
             SetHasDynamicBuildings(true);
             if (OwnerIsPlayer)
-                Universe.NotificationManager.AddMeteorRelated(this, message);
+                Universe.Notifications.AddMeteorRelated(this, message);
 
             Population = (Population - popKilled).LowerBound(0);
             if (Owner != null && Population.AlmostZero())
@@ -1297,7 +1297,7 @@ namespace Ship_Game
                     if (b.FoodCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
-                            Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
+                            Universe.Notifications.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
 
                         RemoveBuildingFromPlanet(b, destroy: true);
                     }
@@ -1310,7 +1310,7 @@ namespace Ship_Game
                     if (b.ProdCache.LessOrEqual(0))
                     {
                         if (Owner == EmpireManager.Player)
-                            Universe.NotificationManager.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
+                            Universe.Notifications.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
 
                         RemoveBuildingFromPlanet(b, destroy: true);
                     }
@@ -1371,7 +1371,7 @@ namespace Ship_Game
                 MineralRichness  -= 0.01f;
                 if (notifyPlayer)
                 {
-                    Universe.NotificationManager?.AddRandomEventNotification(
+                    Universe.Screen.NotificationManager?.AddRandomEventNotification(
                         $"{Name} {Localizer.Token(GameText.MineralRichnessHasGoneDown)}", Type.IconPath, "SnapToPlanet", this);
                 }
 
@@ -1472,7 +1472,7 @@ namespace Ship_Game
             UpdateTerraformPoints(0);
             Owner.RemovePlanet(this, attacker);
             if (IsExploredBy(EmpireManager.Player) && (OwnerIsPlayer || attacker.isPlayer))
-                Universe.NotificationManager.AddPlanetDiedNotification(this);
+                Universe.Screen.NotificationManager.AddPlanetDiedNotification(this);
 
             bool removeOwner = true;
             foreach (Planet other in ParentSystem.PlanetList)

@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -33,7 +34,7 @@ namespace Ship_Game
 
         public const int MaxLevel = 20;
         public readonly Empire Owner;
-        public UniverseScreen Universe => Owner.Universum ?? throw new NullReferenceException("Pirates.Owner.Universe must not be null");
+        public UniverseState Universe => Owner.Universum ?? throw new NullReferenceException("Pirates.Owner.Universe must not be null");
 
         public readonly BatchRemovalCollection<Goal> Goals;
         public Map<int, int> ThreatLevels { get; private set; }    = new Map<int, int>();  // Empire IDs are used here
@@ -229,7 +230,7 @@ namespace Ship_Game
             {
                 Owner.GetEmpireAI().Goals.Clear();
                 Owner.SetAsDefeated();
-                Owner.Universum.NotificationManager.AddEmpireDiedNotification(Owner);
+                Owner.Universum.Notifications.AddEmpireDiedNotification(Owner);
             }
             else
             {
@@ -237,7 +238,7 @@ namespace Ship_Game
             }
         }
 
-        public void TryLevelUp(UniverseScreen u, bool alwaysLevelUp = false)
+        public void TryLevelUp(UniverseState u, bool alwaysLevelUp = false)
         {
             if (Level == MaxLevel)
                 return;
@@ -266,13 +267,13 @@ namespace Ship_Game
 
             switch (warningType)
             {
-                case PirateOpsWarning.LevelUp:   Owner.Universum.NotificationManager.AddPiratesAreGettingStronger(Owner, Level); break;
-                case PirateOpsWarning.LevelDown: Owner.Universum.NotificationManager.AddPiratesAreGettingWeaker(Owner, Level);   break;
-                case PirateOpsWarning.Flagship:  Owner.Universum.NotificationManager.AddPiratesFlagshipSighted(Owner);           break;
+                case PirateOpsWarning.LevelUp:   Owner.Universum.Notifications.AddPiratesAreGettingStronger(Owner, Level); break;
+                case PirateOpsWarning.LevelDown: Owner.Universum.Notifications.AddPiratesAreGettingWeaker(Owner, Level);   break;
+                case PirateOpsWarning.Flagship:  Owner.Universum.Notifications.AddPiratesFlagshipSighted(Owner);           break;
             }
         }
 
-        bool NewLevelOperations(UniverseScreen u, int level)
+        bool NewLevelOperations(UniverseState u, int level)
         {
             bool success;
             NewBaseSpot spotType = (NewBaseSpot)RandomMath.IntBetween(0, 4);
@@ -376,7 +377,7 @@ namespace Ship_Game
             return true;
         }
 
-        bool BuildBaseInAsteroids(UniverseScreen u, int level)
+        bool BuildBaseInAsteroids(UniverseState u, int level)
         {
             if (GetBaseAsteroidsSpot(u, out Vector2 pos, out SolarSystem system)
                 && SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
@@ -389,7 +390,7 @@ namespace Ship_Game
             return BuildBaseInDeepSpace(level);
         }
 
-        bool BuildBaseInLoneSystem(UniverseScreen u, int level)
+        bool BuildBaseInLoneSystem(UniverseState u, int level)
         {
             if (GetLoneSystem(u, out SolarSystem system))
             {
@@ -405,7 +406,7 @@ namespace Ship_Game
             return BuildBaseInDeepSpace(level);
         }
 
-        bool BuildBaseOrbitingPlanet(UniverseScreen u, NewBaseSpot spot, int level)
+        bool BuildBaseOrbitingPlanet(UniverseState u, NewBaseSpot spot, int level)
         {
             if (GetBasePlanet(u, spot, out Planet planet))
             {
@@ -459,12 +460,12 @@ namespace Ship_Game
             do
             {
                 pos = system.Position.GenerateRandomPointOnCircle(radius);
-            } while (!IsInUniverseBounds(system.Universe.UniverseSize, pos));
+            } while (!IsInUniverseBounds(system.Universe.Size, pos));
 
             return pos;
         }
 
-        bool GetBaseAsteroidsSpot(UniverseScreen u, out Vector2 position, out SolarSystem system)
+        bool GetBaseAsteroidsSpot(UniverseState u, out Vector2 position, out SolarSystem system)
         {
             position   = Vector2.Zero;
             system     = null;
@@ -489,7 +490,7 @@ namespace Ship_Game
             return position != Vector2.Zero;
         }
         
-        bool GetBasePlanet(UniverseScreen u, NewBaseSpot spot, out Planet selectedPlanet)
+        bool GetBasePlanet(UniverseState u, NewBaseSpot spot, out Planet selectedPlanet)
         {
             selectedPlanet = null;
             if (!GetUnownedSystems(u, out SolarSystem[] systems))
@@ -616,8 +617,8 @@ namespace Ship_Game
 
                 switch (CurrentGame.Difficulty) // Don't let pirates spawn advanced tech too early at lower difficulty
                 {
-                    case UniverseData.GameDifficulty.Normal: levelDivider = 3; break;
-                    case UniverseData.GameDifficulty.Hard:   levelDivider = 2; break;
+                    case GameDifficulty.Normal: levelDivider = 3; break;
+                    case GameDifficulty.Hard:   levelDivider = 2; break;
                 }
 
                 switch (effectiveLevel / levelDivider)
@@ -934,7 +935,7 @@ namespace Ship_Game
             float reward = (500 + RandomMath.RollDie(1000) + Level * 100).RoundUpToMultipleOf(10);
             killer.AddMoney(reward);
             if (killer.isPlayer)
-                Owner.Universum.NotificationManager.AddDestroyedPirateBase(killedShip, reward);
+                Owner.Universum.Notifications.AddDestroyedPirateBase(killedShip, reward);
         }
 
         bool FoundPirateBaseInSystemOf(Empire victim, out Ship pirateBase)

@@ -6,6 +6,7 @@ using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Data.Mesh;
+using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -163,7 +164,7 @@ namespace Ship_Game
         public string IconPath => Type.IconPath;
         public bool Habitable => Type.Habitable;
 
-        public UniverseScreen Universe => ParentSystem.Universe;
+        public UniverseState Universe => ParentSystem.Universe;
 
         public SBProduction Construction;
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
@@ -384,14 +385,14 @@ namespace Ship_Game
             if (SO != null)
             {
                 Log.Info($"RemoveSolarSystemBody: {Name}");
-                Universe.RemoveObject(SO);
+                Universe.Screen.RemoveObject(SO);
             }
 
             if (!Type.Types.NewRenderer)
             {
                 SO = Type.CreatePlanetSO();
                 UpdateSO(visible: true);
-                Universe.AddObject(SO);
+                Universe.Screen.AddObject(SO);
             }
         }
 
@@ -516,7 +517,7 @@ namespace Ship_Game
             if (IsExploredBy(EmpireManager.Player))
             {
                 if (Owner != null)
-                    Universe.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
+                    Universe.Screen.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
             }
 
             if (newOwner.data.Traits.Assimilators && planetLevel >= 3)

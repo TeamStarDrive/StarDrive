@@ -354,9 +354,9 @@ namespace Ship_Game
                     if (!CheckSource(type, empire))
                     {
                         if (triggeredEvent.CustomMessage != null)
-                            empire.Universum.NotificationManager.AddNotify(triggeredEvent, triggeredEvent.CustomMessage);
+                            empire.Universum.Notifications.AddNotify(triggeredEvent, triggeredEvent.CustomMessage);
                         else
-                            empire.Universum.NotificationManager.AddNotify(triggeredEvent);
+                            empire.Universum.Notifications.AddNotify(triggeredEvent);
                         triggered = true;
                     }
                 }

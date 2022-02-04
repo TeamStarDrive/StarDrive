@@ -20,12 +20,12 @@ namespace UnitTests.AITests.Ships
             CloseSystem = new SolarSystem();
             CloseSystem.Position = new Vector2(300000, 0); 
             CloseSystem.GenerateRandomSystem("Close System", 1);
-            Universe.AddSolarSystem(CloseSystem);
+            UState.AddSolarSystem(CloseSystem);
 
             FarSystem = new SolarSystem();
             FarSystem.Position = new Vector2(600000, 0);
             FarSystem.GenerateRandomSystem("Far System", 1);
-            Universe.AddSolarSystem(FarSystem);
+            UState.AddSolarSystem(FarSystem);
 
             foreach (Planet planet in CloseSystem.PlanetList)
                 planet.RecreateSceneObject(); // needed for object update
@@ -65,7 +65,7 @@ namespace UnitTests.AITests.Ships
             // Move the scout into the system below 75000 from the explored planet so it should mark the system as
             // explored (not fully explored, though).
             scout.Position = planetToExplore.Center.GenerateRandomPointInsideCircle(70000); 
-            Universe.Objects.Update(TestSimStep);
+            UState.Objects.Update(TestSimStep);
             scout.AI.DoExplore(TestSimStep);
             Assert.IsTrue(CloseSystem.IsExploredBy(Player), $"{CloseSystem.Name} is not set as explored but it should be explored" +
                                                              " as the ship is within 75000 of system center");
@@ -80,7 +80,7 @@ namespace UnitTests.AITests.Ships
             scout.DoExplore();
             scout.AI.DoExplore(TestSimStep); // First get the system to explore
 
-            Universe.Objects.Update(TestSimStep);
+            UState.Objects.Update(TestSimStep);
             CloseSystem.ShipList.Add(enemy);
             CloseSystem.ShipList.Add(scout);
             scout.SetSystem(CloseSystem);

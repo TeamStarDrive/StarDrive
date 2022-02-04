@@ -213,7 +213,7 @@ namespace Ship_Game
             var color = Colors.Cream;
             batch.DrawString(TextFont, P.PopulationStringForPlayer, position3, color);
             var rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Population) + ":").X, TextFont.LineSpacing);
-            if (rect.HitTest(Input.CursorPosition) && P.Universe.IsActive)
+            if (rect.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
                 ToolTip.CreateTooltip(GameText.AColonysPopulationIsA);
             cursor.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(cursor.X + num5, cursor.Y);
@@ -241,7 +241,7 @@ namespace Ship_Game
 
             UpdateData();
             rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, TextFont.LineSpacing);
-            if (rect.HitTest(Input.CursorPosition) && P.Universe.IsActive)
+            if (rect.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
                 ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
 
             cursor.Y += TextFont.LineSpacing + 2;
@@ -249,7 +249,7 @@ namespace Ship_Game
             batch.DrawString(TextFont, Localizer.Token(GameText.Richness) + ":", cursor, Color.Orange);
             batch.DrawString(TextFont, P.MineralRichness.String(), position3, Colors.Cream);
             rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString(Localizer.Token(GameText.Richness) + ":").X, TextFont.LineSpacing);
-            if (rect.HitTest(Input.CursorPosition) && P.Universe.IsActive)
+            if (rect.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
                 ToolTip.CreateTooltip(GameText.APlanetsMineralRichnessDirectly);
 
             cursor.Y += TextFont.LineSpacing * 2 + 4;
@@ -313,9 +313,9 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
             batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
 
-            if (FoodStorageIcon.HitTest(Input.CursorPosition) && P.Universe.IsActive)
+            if (FoodStorageIcon.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
                 ToolTip.CreateTooltip(GameText.IndicatesTheAmountOfFood);
-            if (ProfStorageIcon.HitTest(Input.CursorPosition) && P.Universe.IsActive)
+            if (ProfStorageIcon.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
                 ToolTip.CreateTooltip(GameText.IndicatesTheAmountOfProduction);
         }
 

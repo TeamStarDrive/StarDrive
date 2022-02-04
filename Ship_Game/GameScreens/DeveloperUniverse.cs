@@ -3,18 +3,16 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
     public class DeveloperUniverse : UniverseScreen
     {
-        readonly UniverseData SandBox;
-
-        public DeveloperUniverse(UniverseData sandbox, Empire player, bool paused) : base(sandbox, player)
+        public DeveloperUniverse(float universeSize) : base(universeSize)
         {
-            SandBox = sandbox;
-            NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
-            Paused = paused;
+            UState.NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
+            UState.Paused = false; // start simulating right away for Sandbox
         }
 
         public override void LoadContent()
@@ -40,15 +38,18 @@ namespace Ship_Game
             Log.Write(ConsoleColor.DarkMagenta, "DeveloperUniverse.LoadContent");
         }
         
-        public static UniverseData Create(string playerPreference = "United",
-                                          int numOpponents = 1)
+        public static DeveloperUniverse Create(string playerPreference = "United",
+                                               int numOpponents = 1)
         {
             var s = Stopwatch.StartNew();
             EmpireManager.Clear();
 
-            var sandbox = new UniverseData();
-            sandbox.GravityWells = true;
-            CurrentGame.StartNew(sandbox, pace:1f, 1, 0, 1);
+            var us = new DeveloperUniverse(1_000_000f);
+            us.UState.FTLModifier      = GlobalStats.FTLInSystemModifier;
+            us.UState.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
+            us.UState.GravityWells        = GlobalStats.PlanetaryGravityWells;
+            us.UState.FTLInNeutralSystems = GlobalStats.WarpInSystem;
+            CurrentGame.StartNew(us.UState, pace:1f, 1, 0, 1);
 
             IEmpireData[] candidates = ResourceManager.MajorRaces.Filter(d => PlayerFilter(d, playerPreference));
             IEmpireData player = candidates[0];
@@ -61,7 +62,7 @@ namespace Ship_Game
 
             foreach (IEmpireData data in races)
             {
-                Empire e = sandbox.CreateEmpire(data, isPlayer: (data == player));
+                Empire e = us.UState.CreateEmpire(data, isPlayer: (data == player));
                 e.data.CurrentAutoScout     = e.data.ScoutShip;
                 e.data.CurrentAutoColony    = e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = e.data.FreighterShip;
@@ -69,27 +70,28 @@ namespace Ship_Game
 
                 // Now, generate system for our empire:
                 var system = new SolarSystem();
-                system.Position = GenerateRandomSysPos(10000, sandbox);
+                system.Position = GenerateRandomSysPos(10000, us.UState);
                 system.GenerateStartingSystem(e.data.Traits.HomeSystemName, 1f, e);
                 system.OwnerList.Add(e);
-                sandbox.SolarSystemsList.Add(system);
+
+                us.UState.AddSolarSystem(system);
             }
 
             foreach (IEmpireData data in ResourceManager.MinorRaces) // init minor races
             {
-                sandbox.CreateEmpire(data, isPlayer: false);
+                us.UState.CreateEmpire(data, isPlayer: false);
             }
 
-            Empire.InitializeRelationships(EmpireManager.Empires, UniverseData.GameDifficulty.Hard);
+            Empire.InitializeRelationships(EmpireManager.Empires, GameDifficulty.Hard);
 
-            foreach (SolarSystem system in sandbox.SolarSystemsList)
+            foreach (SolarSystem system in us.UState.Systems)
             {
-                system.FiveClosestSystems = sandbox.GetFiveClosestSystems(system);
+                system.FiveClosestSystems = us.UState.GetFiveClosestSystems(system);
             }
 
             ShipDesignUtils.MarkDesignsUnlockable();
             Log.Info($"CreateSandboxUniverse elapsed:{s.Elapsed.TotalMilliseconds}");
-            return sandbox;
+            return us;
         }
         
         static bool PlayerFilter(IEmpireData d, string playerPreference)
@@ -102,13 +104,13 @@ namespace Ship_Game
             return true;
         }
 
-        static Vector2 GenerateRandomSysPos(float spacing, UniverseData data)
+        static Vector2 GenerateRandomSysPos(float spacing, UniverseState us)
         {
             Vector2 sysPos = Vector2.Zero;
             for (int i = 0; i < 20; ++i) // max 20 tries
             {
-                sysPos = RandomMath.Vector2D(data.Size.X - 100000f);
-                if (data.FindSolarSystemAt(sysPos) == null)
+                sysPos = RandomMath.Vector2D(us.Size - 100000f);
+                if (us.FindSolarSystemAt(sysPos) == null)
                     return sysPos; // we got it!
             }
             return sysPos;

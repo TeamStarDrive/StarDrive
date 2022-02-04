@@ -122,7 +122,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 MoveState = ExecuteAttack(timeStep);
             }
 
-            if (Owner.Universe.Debug && Owner.Universe.SelectedShip != null)
+            if (Owner.Universe.Debug && Owner.Universe.Screen.SelectedShip != null)
             {
                 DrawDebugText($"Chase: {ChaseStates}");
                 DrawDebugText($"MoveState: {MoveState}");
@@ -348,7 +348,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         {
             if (DebugInfoScreen.Mode == DebugModes.Targeting &&
                 Owner.Universe.DebugWin?.Visible == true &&
-                Owner.Universe.SelectedShip == Owner)
+                Owner.Universe.Screen.SelectedShip == Owner)
             {
                 Owner.Universe.DebugWin?.DrawCircle(DebugModes.Targeting, pip, radius, Owner.Loyalty.EmpireColor, 0f);
                 Owner.Universe.DebugWin?.DrawLine(DebugModes.Targeting, AI.Target.Position, pip, 1f, Owner.Loyalty.EmpireColor, 0f);
@@ -359,7 +359,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         {
             if (DebugInfoScreen.Mode == DebugModes.Targeting &&
                 Owner.Universe.DebugWin?.Visible == true &&
-                Owner.Universe.SelectedShip == Owner)
+                Owner.Universe.Screen.SelectedShip == Owner)
             {
                 DebugTextIndex++;
                 Owner.Universe.DebugWin?.DrawText(DebugModes.Targeting,

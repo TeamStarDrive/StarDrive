@@ -37,7 +37,7 @@ namespace UnitTests.Universe
             ISpatial tree = Create(worldSize);
             if (!AllObjects.IsEmpty)
             {
-                Universe.Objects.Clear();
+                UState.Objects.Clear();
                 AllObjects.Clear();
             }
             AllObjects = QtreePerfTests.CreateTestSpace(tree, numShips, spawnProjectilesWithOffset, 

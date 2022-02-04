@@ -8,6 +8,7 @@ using Ship_Game.Data;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using UnitTests.Ships;
 using UnitTests.UI;
@@ -26,6 +27,7 @@ namespace UnitTests
 
         // Universe and Player/Enemy empires are specific for each test instance
         public UniverseScreen Universe { get; private set; }
+        public UniverseState UState { get; private set; }
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
         public Empire ThirdMajor { get; private set; }
@@ -70,7 +72,6 @@ namespace UnitTests
 
             EmpireManager.Clear();
 
-            var data = new UniverseData();
             IEmpireData playerData = ResourceManager.MajorRaces[0];
             IEmpireData enemyData = ResourceManager.MajorRaces[1];
             if (playerArchetype != null)
@@ -81,10 +82,10 @@ namespace UnitTests
                 enemyData = ResourceManager.MajorRaces.FirstOrDefault(e => e != playerData);
             }
 
-            Player = data.CreateEmpire(playerData, isPlayer:true);
-            Enemy = data.CreateEmpire(enemyData, isPlayer:false);
-            Universe = new UniverseScreen(data, Player);
-            Player.Universum = Enemy.Universum = Universe;
+            Universe = new UniverseScreen(2_000_000f);
+            UState = Universe.UState;
+            Player = UState.CreateEmpire(playerData, isPlayer:true);
+            Enemy = UState.CreateEmpire(enemyData, isPlayer:false);
             
             Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
             Player.TestInitModifiers();
@@ -97,9 +98,8 @@ namespace UnitTests
         
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
         {
-            var data = DeveloperUniverse.Create(playerPreference, numOpponents);
-            Universe = new DeveloperUniverse(data, data.EmpireList.First, paused);
-            Player = EmpireManager.Player;
+            Universe = DeveloperUniverse.Create(playerPreference, numOpponents);
+            Player = Universe.Player;
             Enemy  = EmpireManager.NonPlayerEmpires[0];
         }
 
@@ -113,8 +113,7 @@ namespace UnitTests
         public void CreateThirdMajorEmpire()
         {
             ThirdMajor = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.MajorRaces[2], isPlayer:false);
-            ThirdMajor.Universum = Universe;
-            EmpireManager.Add(ThirdMajor);
+            UState.AddEmpire(ThirdMajor);
 
             Player.SetRelationsAsKnown(ThirdMajor);
             Enemy.SetRelationsAsKnown(ThirdMajor);
@@ -206,11 +205,11 @@ namespace UnitTests
             if (!ResourceManager.GetShipTemplate(shipName, out Ship template))
                 throw new Exception($"Failed to find ship template: {shipName} (did you call LoadStarterShips?)");
 
-            var ship = new TestShip(Universe, template, empire, position);
+            var ship = new TestShip(UState, template, empire, position);
             if (!ship.HasModules)
                 throw new Exception($"Failed to create ship modules: {shipName} (did you load modules?)");
 
-            Universe?.Objects.Add(ship);
+            UState?.Objects.Add(ship);
             ship.Rotation = shipDirection.Normalized().ToRadians();
             ship.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             ship.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
@@ -223,7 +222,6 @@ namespace UnitTests
         {
             var s = new SolarSystem
             {
-                Universe = Universe,
                 Sun = SunType.RandomBarrenSun()
             };
             AddPlanetToSolarSystem(s, p);
@@ -287,12 +285,12 @@ namespace UnitTests
             var r = new SolarSystem.Ring { Asteroids = false, OrbitalDistance = distance, planet = p };
             s.RingList.Add(r);
             s.PlanetList.Add(p);
-            Universe.AddSolarSystem(s);
+            UState.AddSolarSystem(s);
         }
 
         public Array<Projectile> GetProjectiles(Ship ship)
         {
-            return Universe.Objects.GetProjectiles(ship);
+            return UState.Objects.GetProjectiles(ship);
         }
 
         public int GetProjectileCount(Ship ship)
@@ -315,7 +313,7 @@ namespace UnitTests
 
                 // update after invoking body, to avoid side-effects in condition()
                 // if we update universe before body(), then body() CAN observe condition() == false
-                Universe.Objects.Update(TestSimStep);
+                UState.Objects.Update(TestSimStep);
 
                 elapsedSimTime += TestSimStepD;
                 if (elapsedSimTime >= timeout.simTimeout)
@@ -337,7 +335,7 @@ namespace UnitTests
             float time = 0f;
             for (; time < totalSimSeconds; time += TestSimStep.FixedTime)
             {
-                Universe.Objects.Update(TestSimStep);
+                UState.Objects.Update(TestSimStep);
             }
             return time;
         }

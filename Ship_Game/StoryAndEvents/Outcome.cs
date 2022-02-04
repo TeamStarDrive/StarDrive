@@ -1,5 +1,6 @@
 using Ship_Game.AI;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -125,7 +126,7 @@ namespace Ship_Game
 
                 PlanetGridSquare tile = potentialTiles.RandItem();
                 if (p.Owner == EmpireManager.Player && tile.BuildingOnTile && !tile.VolcanoHere)
-                    p.Universe.NotificationManager.AddBuildingDestroyed(p, tile.Building, Localizer.Token(GameText.WasDestroyedInAnExploration));
+                    p.Universe.Notifications.AddBuildingDestroyed(p, tile.Building, Localizer.Token(GameText.WasDestroyedInAnExploration));
 
                 p.DestroyTile(tile);
             }
@@ -169,7 +170,7 @@ namespace Ship_Game
             }
         }
 
-        private bool SetRandomPlanet(UniverseScreen u)
+        private bool SetRandomPlanet(UniverseState u)
         {
             if (!SelectRandomPlanet) return false;
             Array<Planet> potentials = new Array<Planet>();

@@ -68,7 +68,7 @@ namespace Ship_Game.Commands.Goals
             if (empire.ShouldGoToWar(rel, TargetEmpire))
             {
                 if (empire.DetectPrepareForWarVsPlayer(TargetEmpire))
-                    empire.Universum.NotificationManager.NotifyPreparingForWar(empire);
+                    empire.Universum.Notifications.NotifyPreparingForWar(empire);
 
                 return GoalStep.GoToNextStep;
             }

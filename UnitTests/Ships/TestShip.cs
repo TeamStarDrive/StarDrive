@@ -3,9 +3,7 @@ using Ship_Game;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Ship_Game.Universe;
 
 namespace UnitTests.Ships
 {
@@ -17,7 +15,7 @@ namespace UnitTests.Ships
     /// </summary>
     public class TestShip : Ship
     {
-        public TestShip(UniverseScreen u, Ship template, Empire owner, Vector2 position)
+        public TestShip(UniverseState u, Ship template, Empire owner, Vector2 position)
             : base(u, template, owner, position)
         {
         }

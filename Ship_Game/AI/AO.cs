@@ -10,6 +10,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.AI
 {
@@ -117,7 +118,7 @@ namespace Ship_Game.AI
         public AO(Empire empire)
         {
             Center = empire.WeightedCenter;
-            Radius = empire.Universum.UniverseSize / 4;
+            Radius = empire.Universum.Size / 4;
         }
 
         public AO(Planet p, float radius)
@@ -208,7 +209,7 @@ namespace Ship_Game.AI
 
         public bool Contains(Ship ship) => ship.Pool == this;
 
-        public void InitFromSave(UniverseScreen us, Empire owner)
+        public void InitFromSave(UniverseState us, Empire owner)
         {
             SetPlanet(us.GetPlanet(CoreWorldGuid));
             Owner = owner;

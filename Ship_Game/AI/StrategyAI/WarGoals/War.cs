@@ -6,6 +6,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
@@ -126,7 +127,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return war;
         }
 
-        void PopulateHistoricLostSystems(UniverseScreen us)
+        void PopulateHistoricLostSystems(UniverseState us)
         {
             if (OurRelationToThem == null) return;
             foreach (var lostSystem in OurRelationToThem.GetPlanetsLostFromWars(us))
@@ -159,7 +160,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Them = t;
         }
 
-        public void RestoreFromSave(UniverseScreen us, bool activeWar)
+        public void RestoreFromSave(UniverseState us, bool activeWar)
         {
             Us = EmpireManager.GetEmpireByName(UsName);
             Them = EmpireManager.GetEmpireByName(ThemName);

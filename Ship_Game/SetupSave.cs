@@ -11,7 +11,7 @@ namespace Ship_Game
         public string ModName = "";
         public string ModPath = "";
         public int Version;
-        public UniverseData.GameDifficulty GameDifficulty;
+        public GameDifficulty GameDifficulty;
         public RaceDesignScreen.StarNum StarEnum;
         public GalSize GalaxySize;
         public int Pacing;
@@ -41,7 +41,7 @@ namespace Ship_Game
         {
         }
 
-        public SetupSave(UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum starNum, 
+        public SetupSave(GameDifficulty gameDifficulty, RaceDesignScreen.StarNum starNum, 
                          GalSize galaxySize, int pacing, ExtraRemnantPresence extraRemnant, int numOpponents, 
                          RaceDesignScreen.GameMode mode)
         {

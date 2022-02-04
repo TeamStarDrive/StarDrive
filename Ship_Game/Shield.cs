@@ -107,9 +107,9 @@ namespace Ship_Game
             Displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
             TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
 
-            if (planet.Universe.CanAddDynamicLight)
+            if (planet.Universe.Screen.CanAddDynamicLight)
             {
-                AddLight(planet.Universe);
+                AddLight(planet.Universe.Screen);
                 Light.World        = world;
                 Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
                 Light.Radius       = Radius* RandomMath.RandomBetween(1, 2);
@@ -118,7 +118,7 @@ namespace Ship_Game
             }
 
 
-            var particles = planet.Universe.Particles;
+            var particles = planet.Universe.Screen.Particles;
             Vector3 impactNormal = center3D.DirectionToTarget(pos);
 
             particles.Flash.AddParticle(pos);

@@ -101,7 +101,7 @@ namespace Ship_Game
             {
                 Empire.UnlockTech(tech, TechUnlockType.Normal);
                 if (Empire.isPlayer)
-                    Empire.Universum?.NotificationManager.AddResearchComplete(tech.UID, Empire);
+                    Empire.Universum?.Notifications.AddResearchComplete(tech.UID, Empire);
             }
         }
 

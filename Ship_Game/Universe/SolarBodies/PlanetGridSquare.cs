@@ -292,7 +292,8 @@ namespace Ship_Game
                 }
                 else
                 {
-                    ResourceManager.Event(Building.EventTriggerUID).TriggerPlanetEvent(planet, EventOutcomeNum , empire, this, planet.Universe);
+                    ResourceManager.Event(Building.EventTriggerUID)
+                        .TriggerPlanetEvent(planet, EventOutcomeNum , empire, this, planet.Universe.Screen);
                 }
             }
         }
