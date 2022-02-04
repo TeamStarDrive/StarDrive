@@ -252,9 +252,6 @@ namespace Ship_Game
             if (ShowRoles.HandleInput(input))
                 return true;
 
-            if (ShipSL.HandleInput(input))
-                return true;
-
             if (ShowRoles.ActiveIndex != IndexLast)
             {
                 ResetList(ShowRoles.ActiveValue);
@@ -262,8 +259,37 @@ namespace Ship_Game
                 return true;
             }
 
+            if (base.HandleInput(input))
+                return true;
+
+            if (HandleShipListSortButtonClick(input))
+                return true;
+
+            if (input.KeyPressed(Keys.K) && !GlobalStats.TakingInput)
+            {
+                GameAudio.EchoAffirmative();
+                ExitScreen();
+                ResetUniverseShipSelectionMessy(Universe);
+                return true;
+            }
+
+            if (input.Escaped || input.RightMouseClick)
+            {
+                ExitScreen();
+                ResetUniverseShipSelectionMessy(Universe);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool HandleShipListSortButtonClick(InputState input)
+        {
+            bool clickedOnSomething = false;
+
             void Sort<T>(SortButton button, Func<ShipListScreenItem, T> sortPredicate)
             {
+                clickedOnSomething = true;
                 GameAudio.AcceptClick();
                 button.Ascending = !button.Ascending;
                 if (button.Ascending) ShipSL.Sort(sortPredicate);
@@ -287,6 +313,7 @@ namespace Ship_Game
 
             void SortAndReset<T>(SortButton button, Func<ShipListScreenItem, T> sortPredicate)
             {
+                clickedOnSomething = true;
                 GameAudio.BlipClick();
                 button.Ascending = !button.Ascending;
                 if (button.Ascending) ShipSL.Sort(sortPredicate);
@@ -298,69 +325,35 @@ namespace Ship_Game
             if (SortOrder.HandleInput(input))  SortAndReset(SortOrder, sl => ShipListScreenItem.GetStatusText(sl.Ship));
             if (SortSystem.HandleInput(input)) SortAndReset(SortOrder, sl => sl.Ship.SystemName);
             if (SortFleet.HandleInput(input))  SortAndReset(SortOrder, sl => sl.Ship.Fleet?.Name ?? "None");
-            
-            UniverseScreen u = Universe;
 
-            if (input.KeyPressed(Keys.K) && !GlobalStats.TakingInput)
+            return clickedOnSomething;
+        }
+
+        void ResetUniverseShipSelectionMessy(UniverseScreen u)
+        {
+            u.SelectedShipList.Clear();
+            u.returnToShip = false;
+            if (SelectedShip != null)
             {
-                GameAudio.EchoAffirmative();
-                ExitScreen();
+                u.SelectedFleet  = null;
+                u.SelectedItem   = null;
+                u.SelectedSystem = null;
+                u.SelectedPlanet = null;
+                u.returnToShip   = false;
+                foreach (ShipListScreenItem sel in ShipSL.AllEntries)
+                    if (sel.Selected) u.SelectedShipList.AddUnique(sel.Ship);
 
-                u.SelectedShipList.Clear();
-                u.returnToShip = false;
-                if (SelectedShip !=null)
-                {                   
-                    u.SelectedFleet = null;
-                    u.SelectedItem = null;
-                    u.SelectedSystem = null;
-                    u.SelectedPlanet = null;
-                    u.returnToShip = false;
-                    foreach (ShipListScreenItem sel in ShipSL.AllEntries)
-                        if (sel.Selected) u.SelectedShipList.AddUnique(sel.Ship);
-
-                    if (u.SelectedShipList.Count == 1)
-                    {
-                        if (u.SelectedShip != null && u.previousSelection != u.SelectedShip) //fbedard
-                            u.previousSelection = u.SelectedShip;
-                        u.SelectedShip = SelectedShip;
-                        u.ShipInfoUIElement.SetShip(SelectedShip);
-                        u.SelectedShipList.Clear();
-                    }
-                    else if (u.SelectedShipList.Count > 1)
-                        u.shipListInfoUI.SetShipList(u.SelectedShipList, false);
+                if (u.SelectedShipList.Count == 1)
+                {
+                    if (u.SelectedShip != null && u.previousSelection != u.SelectedShip) //fbedard
+                        u.previousSelection = u.SelectedShip;
+                    u.SelectedShip = SelectedShip;
+                    u.ShipInfoUIElement.SetShip(SelectedShip);
+                    u.SelectedShipList.Clear();
                 }
-                return base.HandleInput(input);
+                else if (u.SelectedShipList.Count > 1)
+                    u.shipListInfoUI.SetShipList(u.SelectedShipList, false);
             }
-
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                u.SelectedShipList.Clear();
-                u.returnToShip = false;
-                if (SelectedShip !=null)
-                {                   
-                    u.SelectedFleet  = null;
-                    u.SelectedItem   = null;
-                    u.SelectedSystem = null;
-                    u.SelectedPlanet = null;
-                    u.returnToShip   = false;
-                    foreach (ShipListScreenItem sel in ShipSL.AllEntries)
-                        if (sel.Selected) u.SelectedShipList.AddUnique(sel.Ship);
-
-                    if (u.SelectedShipList.Count == 1)
-                    {
-                        if (u.SelectedShip != null && u.previousSelection != u.SelectedShip) //fbedard
-                            u.previousSelection = u.SelectedShip;
-                        u.SelectedShip = SelectedShip;
-                        u.ShipInfoUIElement.SetShip(SelectedShip);
-                        u.SelectedShipList.Clear();
-                    }
-                    else if (u.SelectedShipList.Count > 1)
-                        u.shipListInfoUI.SetShipList(u.SelectedShipList, false);
-                }
-                return true;
-            }
-            return base.HandleInput(input);
         }
 
         public void ResetList(int category)
