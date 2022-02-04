@@ -99,18 +99,12 @@
   Name: BubbleTrail
   Emitters:
     - Emitter: { Particle: MissileThrustFlare, Rate: 15, InheritSprayVelocity: 1.5 }
-    - Emitter: { Particle: IonRing, Rate: 10 }
-    - Emitter: { Particle: Bubble, Rate: 20 }
+    - Emitter: { Particle: RemnantBubbleEffect, Rate: 20 }
 
 - ParticleEffect: # Projectile Trail effect
   Name: Plasma
   Emitters:
     - Emitter: { Particle: Flame, Rate: 50 }
-
-- ParticleEffect: # Projectile Trail effect
-  Name: Bubble
-  Emitters:
-    - Emitter: { Particle: Bubble, Rate: 15 }
 
 - ParticleEffect: # Projectile Trail effect
   Name: SmokeTrail
