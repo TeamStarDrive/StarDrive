@@ -176,8 +176,18 @@ namespace Ship_Game
         public UniverseScreen(SavedGame.UniverseSaveData save) : this(save.UniverseSize) // load game
         {
             loading = true;
-            UState.GamePace = save.GamePacing;
-            UState.StarDate = save.StarDate;
+            
+            UniverseState us = UState;
+            us.UniqueObjectIds = save.UniqueObjectIds;
+            us.GamePace = save.GamePacing;
+            us.StarDate = save.StarDate;
+            us.FTLModifier      = save.FTLModifier;
+            us.EnemyFTLModifier = save.EnemyFTLModifier;
+            us.GravityWells        = save.GravityWells;
+            us.FTLInNeutralSystems = save.FTLInNeutralSystems;
+            us.Difficulty = save.GameDifficulty;
+            us.GalaxySize = save.GalaxySize;
+            FogMapBase64  = save.FogMapBase64;
             CamPos = new Vector3d(save.CamPos);
         }
 
