@@ -341,10 +341,12 @@ namespace Ship_Game
         {
             Universe.aw.ToggleVisibility();
         }
-        
-        public bool HandleInput(InputState input, UniverseScreen screen)
+
+        public override bool HandleInput(InputState input)
         {
-            if (!Housing.HitTest(input.CursorPosition)) return false;
+            if (!Housing.HitTest(input.CursorPosition))
+                return false;
+
             if (ZoomToShip.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.ZoomsToYourCurrentlySelected, "Page Up");
 
@@ -366,7 +368,7 @@ namespace Ship_Game
             if (AIScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(GameText.OpensTheAutomationPanelWhich, "H");
 
-            return HandleInput(input);
+            return base.HandleInput(input);
         }
     }
 }

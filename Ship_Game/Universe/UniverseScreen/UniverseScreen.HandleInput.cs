@@ -51,9 +51,6 @@ namespace Ship_Game
                 captured |= !LookingAtPlanet && SystemInfoOverlay.HandleInput(input);
             }
 
-            if (minimap.HandleInput(input, this))
-                return true;
-
             if (NotificationManager.HandleInput(input))
                 return true;
 
