@@ -1,8 +1,8 @@
 ﻿Version=1
 Name=Corsair Station
-Hull=Terran/Terran_Station
+Hull=Corsair/CorsairStation
 Role=station
-Style=Terran
+Style=Corsairs
 Size=50,48
 GridCenter=25,22
 DefaultAIState=DoNothing
