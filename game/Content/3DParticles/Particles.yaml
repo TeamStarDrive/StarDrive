@@ -531,3 +531,21 @@
   RotateSpeed: [-1,1]
   StartEndSize: [ [5,10], [40,50] ]
   SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: RemnantBubbleEffect
+  TextureName: "bubble.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 10000
+  Duration: 2
+  DurationRandomness: 0.5
+  InheritOwnerVelocity: 0.1
+  RandomVelocityXY: [ [-20,20], [-90,90] ]
+  EndVelocity: 0
+  StartColorRange: [[0,255,0,155],[0,255,0,155]]
+  EndColorRange: [[0,255,0,155],[0,255,0,155]]
+  EndColorTime: 0.5
+  RotateSpeed: [-1,1]
+  StartEndSize: [ [5,10], [40,50] ]
+  SrcDstBlend: [SourceAlpha, One]
