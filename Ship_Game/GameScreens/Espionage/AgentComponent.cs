@@ -162,16 +162,13 @@ namespace Ship_Game.GameScreens.Espionage
         //added by gremlin deveksmod Spy Handleinput
         public override bool HandleInput(InputState input)
         {
-            if (AgentSL.HandleInput(input))
+            if (base.HandleInput(input))
                 return true;
 
             if (SelectedAgent != null)
             {
                 foreach (MissionListItem mission in OpsSL.AllEntries)
                     mission.UpdateMissionAvailability();
-
-                if (OpsSL.HandleInput(input))
-                    return true;
             }
 
             if (RecruitButton.r.HitTest(input.CursorPosition))
@@ -202,9 +199,9 @@ namespace Ship_Game.GameScreens.Espionage
                     AgentSL.AddItem(new AgentListItem(agent, Universe));
                     agent.AssignMission(AgentMission.Training, EmpireManager.Player, "");
                 }
+                return true;
             }
-
-            return base.HandleInput(input);
+            return false;
         }
 
         public void Reinitialize()
