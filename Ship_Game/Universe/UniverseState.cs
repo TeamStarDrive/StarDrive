@@ -31,7 +31,7 @@ namespace Ship_Game.Universe
         // Global unique ID counter for this Universe
         // Can be used to assign ID-s for any kind of object
         // Id <= 0 is always invalid, valid ID-s start at 1
-        public int UniqueObjectIds = 0;
+        public int UniqueObjectIds;
         
         public bool Paused = true; // always start paused
         public bool Debug;
@@ -99,7 +99,8 @@ namespace Ship_Game.Universe
             Objects = new UniverseObjectManager(screen, this, Spatial);
         }
 
-        // @return New Unique ID for this Universe
+        // @return New Unique ID in this Universe
+        //         The ID-s are ever increasing, and persistent between saves
         public int CreateId()
         {
             return Interlocked.Increment(ref UniqueObjectIds);
