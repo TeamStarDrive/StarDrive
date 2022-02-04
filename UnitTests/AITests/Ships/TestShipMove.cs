@@ -98,9 +98,9 @@ namespace UnitTests.AITests.Ships
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
             Assert.AreEqual(0, ship.YRotation, "Ship's Y rotation should be 0 when spawned");
             Vector2 newPos = new Vector2(2000, 2000);
-            Universe.Objects.Update(TestSimStep);
+            UState.Objects.Update(TestSimStep);
             ship.AI.OrderMoveTo(newPos, Vector2.Zero);
-            Universe.Objects.Update(TestSimStep);
+            UState.Objects.Update(TestSimStep);
             Assert.That.GreaterThan(Math.Abs(ship.YRotation), 0);
 
             float maxYBank = ship.GetMaxBank(); 

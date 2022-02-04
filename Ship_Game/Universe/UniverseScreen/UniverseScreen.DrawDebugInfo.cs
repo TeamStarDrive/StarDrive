@@ -64,10 +64,11 @@ namespace Ship_Game
                 DebugStats = Add(new ScrollList2<DebugStatItem>(220f, 40f, 400f, 600f, 20));
                 DebugStats.EnableItemEvents = true;
 
+                var uObjects = UState.Objects;
                 DebugStats.AddItem(new DebugStatItem("Time",
                     () => $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime - CurrentSimTime) * 1000:0.0}ms"));
-                DebugStats.AddItem(new DebugStatItem("Ships", () => Objects.Ships.Count.ToString()));
-                DebugStats.AddItem(new DebugStatItem("Proj", () => Objects.Projectiles.Count.ToString()));
+                DebugStats.AddItem(new DebugStatItem("Ships", () => uObjects.Ships.Count.ToString()));
+                DebugStats.AddItem(new DebugStatItem("Proj", () => uObjects.Projectiles.Count.ToString()));
                 DebugStats.AddItem(new DebugStatItem("DyLights", () => ScreenManager.ActiveDynamicLights.ToString()));
                 DebugStats.AddItem(new DebugStatItem("Perf", () => "avg-sample  max-sample  total/sec"));
 
@@ -82,20 +83,20 @@ namespace Ship_Game
                 turn.AddSubItem(new DebugStatItem(" ResetBorders", ResetBordersPerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem(" ScanInfluence", ScanInfluencePerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem(" ThreatMatrix", ThreatMatrixPerf, TurnTimePerf));
-                turn.AddSubItem(new DebugStatItem("Objects", Objects.TotalTime, TurnTimePerf));
+                turn.AddSubItem(new DebugStatItem("Objects", uObjects.TotalTime, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Misc", EmpireMiscPerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("PostEmp", PostEmpirePerf, TurnTimePerf));
 
-                var objects = DebugStats.AddItem(new DebugStatItem("Objects", Objects.TotalTime, true));
-                objects.AddSubItem(new DebugStatItem("List", Objects.ListTime, Objects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Systems", Objects.SysPerf, Objects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Ships", Objects.ShipsPerf, Objects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Projectiles", Objects.ProjPerf, Objects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Sensors", Objects.SensorPerf, Objects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Sensors", () => $"current:{Objects.Scans} per/s:{Objects.ScansPerSec}"));
-                objects.AddSubItem(new DebugStatItem("Visibility", Objects.VisPerf, Objects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Spatial", Spatial.UpdateTime, Objects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Collide", Spatial.CollisionTime, Objects.TotalTime));
+                var objects = DebugStats.AddItem(new DebugStatItem("Objects", uObjects.TotalTime, true));
+                objects.AddSubItem(new DebugStatItem("List", uObjects.ListTime, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Systems", uObjects.SysPerf, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Ships", uObjects.ShipsPerf, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Projectiles", uObjects.ProjPerf, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Sensors", uObjects.SensorPerf, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Sensors", () => $"current:{uObjects.Scans} per/s:{uObjects.ScansPerSec}"));
+                objects.AddSubItem(new DebugStatItem("Visibility", uObjects.VisPerf, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Spatial", UState.Spatial.UpdateTime, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Collide", UState.Spatial.CollisionTime, uObjects.TotalTime));
 
                 DebugStats.AddItem(new DebugStatItem("TotalDraw", DrawGroupTotalPerf, true));
 

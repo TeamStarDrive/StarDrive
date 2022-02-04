@@ -18,7 +18,7 @@ namespace Ship_Game
     public sealed class SolarSystem : Explorable
     {
         public string Name = "Random System";
-        public UniverseScreen Universe;
+        public UniverseState Universe;
         public Guid Guid = Guid.NewGuid();
         public bool DontStartNearPlayer;
 
@@ -282,10 +282,10 @@ namespace Ship_Game
             return PlanetList.Sum(p => p.ColonyPotentialValue(e));
         }
 
-        public float AverageValueForEmpires(Array<Empire> empireList)
+        public float AverageValueForEmpires(IReadOnlyList<Empire> empireList)
         {
             float totalValue = 0;
-            float numOpponents = empireList.Count(e => !e.isFaction);
+            int numOpponents = empireList.Count(e => !e.isFaction);
             for (int i = 0; i < empireList.Count; i++)
             {
                 Empire empire = empireList[i];
@@ -597,7 +597,7 @@ namespace Ship_Game
             if (OwnerList.Count > 0 && !OwnerList.Contains(empire))
                 message.Append("\nContested system!!!");
 
-            Universe.NotificationManager.AddNotification(new Notification
+            Universe.Notifications.AddNotification(new Notification
             {
                 Pause           = false,
                 Message         = message.ToString(),

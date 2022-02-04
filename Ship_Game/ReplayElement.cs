@@ -86,7 +86,7 @@ namespace Ship_Game
 
             MapRect = new Rectangle(ElementRect.X + 30, ElementRect.Y + 30, ElementRect.Width - 60, ElementRect.Height - 60);
             batch.Draw(ResourceManager.Texture("EndGameScreen/ReplayHousing"), ElementRect, Color.White);
-            float scale = (ElementRect.Width - 60) / (Universe.UniverseSize * 2);        //Correction for negative map values -Gretman
+            float scale = (ElementRect.Width - 60) / (Universe.UState.Size * 2);        //Correction for negative map values -Gretman
             if (Grid)
             {
                 for (int x = 0; x < 21; x++)
@@ -190,7 +190,7 @@ namespace Ship_Game
 
         void DrawSolarSystemStats(SpriteBatch batch, float scale)
         {
-            foreach (SolarSystem star in Universe.Systems)
+            foreach (SolarSystem star in Universe.UState.Systems)
             {
                 Vector2 starPos = (star.Position * scale) + MapRect.PosVec();
                 starPos.X += (MapRect.Width / 2f); // Correction for negative map values -Gretman

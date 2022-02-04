@@ -14,6 +14,7 @@ using Ship_Game.Empires.Components;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
+using Ship_Game.Universe;
 using Ship_Game.Utils;
 
 namespace Ship_Game
@@ -33,7 +34,7 @@ namespace Ship_Game
             throw new InvalidOperationException(
                 $"BUG! Empire must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Empire XXX;` PROPERTIES/FIELDS. {this}");
 
-        public float GetProjectorRadius() => Universum?.SubSpaceProjectors.Radius * data.SensorModifier ?? 10000;
+        public float GetProjectorRadius() => Universum?.Projectors.Radius * data.SensorModifier ?? 10000;
         public float GetProjectorRadius(Planet planet) => GetProjectorRadius() + 10000f * planet.PopulationBillion;
         readonly Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
 
@@ -102,7 +103,7 @@ namespace Ship_Game
 
         public Color EmpireColor;
 
-        public UniverseScreen Universum; // Alias for static Empire.Universum
+        public UniverseState Universum; // Alias for static Empire.Universum
 
         EmpireAI EmpireAI;
         float UpdateTimer;
@@ -896,7 +897,7 @@ namespace Ship_Game
             var directionToThem = ownCenter.DirectionToTarget(theirCenter);
             float midDistance   = ownCenter.Distance(theirCenter) / 2;
             Vector2 midPoint    = directionToThem * midDistance;
-            float mapDistance   = (Universum.UniverseSize * percentageOfMapSize).UpperBound(ownCenter.Distance(theirCenter) * 1.2f);
+            float mapDistance   = (Universum.Size * percentageOfMapSize).UpperBound(ownCenter.Distance(theirCenter) * 1.2f);
 
             var solarSystems = new Array<SolarSystem>();
             foreach (var solarSystem in GetOwnedSystems())
@@ -961,7 +962,7 @@ namespace Ship_Game
             if (p.EventsOnTiles())
                 EmpireAI.SendExplorationFleet(p);
 
-            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Hard || p.ParentSystem.IsExclusivelyOwnedBy(this))
+            if (CurrentGame.Difficulty <= GameDifficulty.Hard || p.ParentSystem.IsExclusivelyOwnedBy(this))
                 return;
 
             if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
@@ -1354,7 +1355,7 @@ namespace Ship_Game
                     }
 
                     float strRatio = StrRatio(system, checkedEmpire);
-                    Universum.NotificationManager.AddBeingInvadedNotification(system, checkedEmpire, strRatio);
+                    Universum.Notifications.AddBeingInvadedNotification(system, checkedEmpire, strRatio);
                     HostilesLogged[system] = true;
                     break;
                 }
@@ -1419,7 +1420,7 @@ namespace Ship_Game
                     ssp.HasSeenEmpires.Update(timeStep, ssp.Loyalty);
                     if (ship.Fleet != null)
                     {
-                        if (isPlayer || Universum.Debug && Universum.SelectedShip?.Loyalty == this)
+                        if (isPlayer || Universum.Debug && Universum.Screen.SelectedShip?.Loyalty == this)
                         {
                             if (IsEmpireHostile(ship.Loyalty))
                                 ssp.HasSeenEmpires.SetSeen(ship.Loyalty);
@@ -1462,7 +1463,7 @@ namespace Ship_Game
             if (firstContacts.Length > 0)
             {
                 Encounter encounter = firstContacts.First();
-                EncounterPopup.Show(Universum, Universum.Player, e, encounter);
+                EncounterPopup.Show(Universum.Screen, Universum.Player, e, encounter);
             }
             else
             {
@@ -1471,7 +1472,7 @@ namespace Ship_Game
             }
         }
 
-        public void Update(UniverseScreen us, FixedSimTime timeStep)
+        public void Update(UniverseState us, FixedSimTime timeStep)
         {
             #if PLAYERONLY
                 if(!this.isPlayer && !this.isFaction)
@@ -1481,15 +1482,13 @@ namespace Ship_Game
                     return;
             #endif
 
-            // TODO: figure out another way to initialize Universe for Rebel Factions
-            Universum = us;
             UpdateTimer -= timeStep.FixedTime;
 
             if (UpdateTimer <= 0f && !data.Defeated)
             {
                 if (isPlayer)
                 {
-                    Universum.UpdateStarDateAndTriggerEvents(Universum.StarDate + 0.1f);
+                    Universum.Screen.UpdateStarDateAndTriggerEvents(Universum.StarDate + 0.1f);
                     StatTracker.StatUpdateStarDate(Universum.StarDate);
                     if (Universum.StarDate.AlmostEqual(1000.09f))
                     {
@@ -2037,7 +2036,7 @@ namespace Ship_Game
                     bool shipAdded = ShipsWeCanBuild.Add(ship.Name);
 
                     if (isPlayer)
-                        Universum?.aw?.UpdateDropDowns();
+                        Universum.Screen?.aw?.UpdateDropDowns();
 
                     if (shipAdded)
                     {
@@ -2226,7 +2225,7 @@ namespace Ship_Game
                 if (p.IsHomeworld && EmpireManager.MajorEmpires.Any(e => e.Capital != p))
                 {
                     if (p.RemoveCapital() && isPlayer)
-                        Universum.NotificationManager.AddCapitalTransfer(p, newHomeworld);
+                        Universum.Notifications.AddCapitalTransfer(p, newHomeworld);
                 }
             }
 
@@ -2410,10 +2409,10 @@ namespace Ship_Game
         /// when a new node is wanted it is pulled from the pending pool, wiped and used or created new.
         /// this should cut down on garbage collection as the objects are cycled often.
         /// </summary>
-        void ResetBorders(UniverseScreen us)
+        void ResetBorders(UniverseState us)
         {
             bool wellKnown = isPlayer || us.Player.IsAlliedWith(this) ||
-                Universum.Debug && (Universum.SelectedShip == null || Universum.SelectedShip.Loyalty == this);
+                Universum.Debug && (us.Screen.SelectedShip == null || us.Screen.SelectedShip.Loyalty == this);
             bool known = wellKnown || us.Player.IsTradeOrOpenBorders(this);
 
             SetBordersKnownByAllies(TempSensorNodes);
@@ -2495,7 +2494,7 @@ namespace Ship_Game
 
         void SetBordersKnownByAllies(Array<InfluenceNode> sensorNodes)
         {
-            bool isPlayerInDebug = Universum.Debug && isPlayer && Universum.SelectedShip == null;
+            bool isPlayerInDebug = Universum.Debug && isPlayer && Universum.Screen.SelectedShip == null;
             foreach(var empire in EmpireManager.Empires)
             {
                 if (GetRelations(empire, out Relationship relation) &&
@@ -2559,7 +2558,7 @@ namespace Ship_Game
             g.Evaluate();
         }
 
-        private void TakeTurn(UniverseScreen us)
+        private void TakeTurn(UniverseState us)
         {
             if (IsEmpireDead())
                 return;
@@ -2607,7 +2606,7 @@ namespace Ship_Game
                 RandomEventManager.UpdateEvents(Universum);
 
                 if ((Money / AllSpending.LowerBound(1)) < 2)
-                    Universum.NotificationManager.AddMoneyWarning();
+                    Universum.Notifications.AddMoneyWarning();
 
                 if (!Universum.NoEliminationVictory)
                 {
@@ -2627,8 +2626,7 @@ namespace Ship_Game
                         Empire remnants = EmpireManager.Remnants;
                         if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated || !remnants.Remnants.Activated)
                         {
-                            Universum.ScreenManager.AddScreen(new YouWinScreen(Universum));
-                            Universum.GameOver = true;
+                            Universum.Screen.OnPlayerWon();
                         }
                         else
                         {
@@ -2641,7 +2639,7 @@ namespace Ship_Game
                 {
                     if (planet.HasWinBuilding)
                     {
-                        Universum.ScreenManager.AddScreen(new YouWinScreen(Universum, Localizer.Token(GameText.AsTheRemnantExterminatorsSweep)));
+                        Universum.Screen.OnPlayerWon(GameText.AsTheRemnantExterminatorsSweep);
                         return;
                     }
                 }
@@ -2701,7 +2699,7 @@ namespace Ship_Game
         }
 
 
-        void CheckFederationVsPlayer(UniverseScreen us)
+        void CheckFederationVsPlayer(UniverseState us)
         {
             if (GlobalStats.PreventFederations || us.StarDate < 1100f || (us.StarDate % 1).NotZero())
                 return;
@@ -2727,9 +2725,9 @@ namespace Ship_Game
             {
                 Empire strongest = leaders.FindMax(emp => biggestAI.GetRelations(emp).GetStrength());
                 if (!biggestAI.IsAtWarWith(strongest))
-                    Universum.NotificationManager.AddPeacefulMergerNotification(biggestAI, strongest);
+                    Universum.Notifications.AddPeacefulMergerNotification(biggestAI, strongest);
                 else
-                    Universum.NotificationManager.AddSurrendered(biggestAI, strongest);
+                    Universum.Notifications.AddSurrendered(biggestAI, strongest);
 
                 biggestAI.AbsorbEmpire(strongest);
                 if (biggestAI.GetRelations(this).ActiveWar == null)
@@ -2754,8 +2752,7 @@ namespace Ship_Game
                     if (OwnedPlanets.FindMax(out Planet planet, p => WeightedCenter.SqDist(p.Center)))
                     {
                         if (isPlayer)
-                            Universum.NotificationManager.AddRebellionNotification(planet,
-                                rebels);
+                            Universum.Notifications.AddRebellionNotification(planet, rebels);
 
                         for (int index = 0; index < planet.PopulationBillion * 2; ++index)
                         {
@@ -2812,19 +2809,12 @@ namespace Ship_Game
             SetAsDefeated();
             if (!isPlayer)
             {
-                if (EmpireManager.Player.IsKnown(this))
-                    Universum.NotificationManager.AddEmpireDiedNotification(this);
+                if (Universum.Player.IsKnown(this))
+                    Universum.Notifications.AddEmpireDiedNotification(this);
                 return true;
             }
 
-            StarDriveGame.Instance?.EndingGame(true);
-            Universum.GameOver = true;
-            Universum.Paused = true;
-            Universum.Objects.Clear();
-            HelperFunctions.CollectMemory();
-            StarDriveGame.Instance?.EndingGame(false);
-            Universum.ScreenManager.AddScreen(new YouLoseScreen(Universum));
-            Universum.Paused = false;
+            Universum.Screen.OnPlayerDefeated();
             return true;
         }
 
@@ -2858,12 +2848,12 @@ namespace Ship_Game
                 if (hullTech.Unlocked)
                 {
                     string message = $"{hullString}{Localizer.Token(GameText.ReverseEngineered)}";
-                    Universum.NotificationManager.AddScrapUnlockNotification(message, modelIcon, "ShipDesign");
+                    Universum.Notifications.AddScrapUnlockNotification(message, modelIcon, "ShipDesign");
                 }
                 else
                 {
                     string message = $"{hullString}{Localizer.Token(GameText.HullScrappedAdvancingResearch)}";
-                    Universum.NotificationManager.AddScrapProgressNotification(message, modelIcon, "ResearchScreen", hullTech.UID);
+                    Universum.Notifications.AddScrapProgressNotification(message, modelIcon, "ResearchScreen", hullTech.UID);
                 }
             }
         }
@@ -2926,7 +2916,7 @@ namespace Ship_Game
         {
             if (!isPlayer)
                 return;
-            Universum.NotificationManager?.AddBoardNotification(Localizer.Token(GameText.ShipCapturedByYou),
+            Universum.Notifications?.AddBoardNotification(Localizer.Token(GameText.ShipCapturedByYou),
                                                               ship.BaseHull.IconPath, "SnapToShip", ship, null);
         }
 
@@ -2936,7 +2926,7 @@ namespace Ship_Game
                 return;
 
             string message = $"{Localizer.Token(GameText.YourShipWasCaptured)} {boarder.Name}!";
-            Universum.NotificationManager?.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, boarder);
+            Universum.Notifications?.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, boarder);
         }
 
         public void AddMutinyNotification(Ship ship, GameText text, Empire initiator)
@@ -2945,7 +2935,7 @@ namespace Ship_Game
                 return;
 
             string message = $"{Localizer.Token(text)} {initiator.Name}!";
-            Universum.NotificationManager.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, initiator);
+            Universum.Notifications.AddBoardNotification(message, ship.BaseHull.IconPath, "SnapToShip", ship, initiator);
         }
 
         void CalculateScore(bool fromSave = false)
@@ -3449,17 +3439,17 @@ namespace Ship_Game
             if (IsEmpireDead())
                 return;
 
-            Universum.ResetBordersPerf.Start();
+            us.ResetBordersPerf.Start();
             {
-                ResetBorders(us);
+                ResetBorders(us.UState);
             }
-            Universum.ResetBordersPerf.Stop();
+            us.ResetBordersPerf.Stop();
 
-            Universum.ScanInfluencePerf.Start();
+            us.ScanInfluencePerf.Start();
             {
                 ScanFromAllInfluenceNodes(timeStep);
             }
-            Universum.ScanInfluencePerf.Stop();
+            us.ScanInfluencePerf.Stop();
 
             CheckForFirstContacts();
 
@@ -3468,16 +3458,16 @@ namespace Ship_Game
             {
                 ThreatMatrixUpdateTimer = ResetThreatMatrixSeconds;
 
-                Universum.ThreatMatrixPerf.Start();
+                us.ThreatMatrixPerf.Start();
                 Parallel.Run(() => EmpireAI.ThreatMatrix.UpdateAllPins(this));
-                Universum.ThreatMatrixPerf.Stop();
+                us.ThreatMatrixPerf.Stop();
             }
         }
 
         public void IncrementCordrazineCapture()
         {
             if (!GlobalStats.CordrazinePlanetCaptured)
-                Universum.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
+                Universum.Notifications.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
 
             GlobalStats.CordrazinePlanetCaptured = true;
         }

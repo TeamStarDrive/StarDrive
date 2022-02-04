@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.GameScreens.ShipDesign
@@ -11,7 +12,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         public Ships.ShipDesign Design;
         public ShipDesignStats DesignStats;
 
-        public DesignShip(UniverseScreen universe, Ships.ShipDesign designHull)
+        public DesignShip(UniverseState universe, Ships.ShipDesign designHull)
             : base(universe, EmpireManager.Player, designHull, isTemplate:true, shipyardDesign:true)
         {
             Design = designHull;

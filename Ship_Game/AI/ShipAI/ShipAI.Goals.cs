@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using Ship_Game.Ships.AI;
+using Ship_Game.Universe;
 
 namespace Ship_Game.AI
 {
@@ -122,9 +123,9 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public void AddGoalFromSave(SavedGame.ShipGoalSave sg, UniverseData data)
+        public void AddGoalFromSave(SavedGame.ShipGoalSave sg, UniverseState us)
         {
-            var goal = new ShipGoal(sg, data, Owner);
+            var goal = new ShipGoal(sg, us, Owner);
             EnqueueGoal(goal);
         }
 
@@ -324,7 +325,7 @@ namespace Ship_Game.AI
             public readonly float VariableNumber;
             public readonly AIState WantedState; 
             public TradePlan Trade;
-            public readonly MoveOrder MoveOrder;
+            public readonly MoveOrder MoveOrder = MoveOrder.Regular;
 
             /// If this is a Move Order, is it an Aggressive move?
             public bool HasAggressiveMoveOrder => (MoveOrder & MoveOrder.Aggressive) != 0;
@@ -378,15 +379,15 @@ namespace Ship_Game.AI
             }
 
             // restore from SaveGame
-            public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
+            public ShipGoal(SavedGame.ShipGoalSave sg, UniverseState us, Ship ship)
             {
                 Plan         = sg.Plan;
                 MovePosition = sg.MovePosition;
                 Direction    = sg.Direction;
                 WantedState  = sg.WantedState;
 
-                TargetPlanet = data.FindPlanetOrNull(sg.TargetPlanetGuid);
-                TargetShip   = data.FindShipOrNull(sg.TargetShipGuid);
+                TargetPlanet = us.GetPlanet(sg.TargetPlanetGuid);
+                TargetShip   = us.GetShip(sg.TargetShipGuid);
 
                 VariableString = sg.VariableString;
                 VariableNumber = sg.VariableNumber;
@@ -418,7 +419,7 @@ namespace Ship_Game.AI
                 }
 
                 if (sg.Trade != null)
-                    Trade = new TradePlan(sg.Trade, data, ship);
+                    Trade = new TradePlan(sg.Trade, us, ship);
 
                 if (Plan == Plan.SupplyShip)
                     ship.AI.EscortTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, ship.Ordinance);
@@ -495,11 +496,11 @@ namespace Ship_Game.AI
                 ImportTo.AddToIncomingFreighterList(freighter);
             }
 
-            public TradePlan(SavedGame.TradePlanSave save, UniverseData data, Ship freighter)
+            public TradePlan(SavedGame.TradePlanSave save, UniverseState us, Ship freighter)
             {
                 Goods         = save.Goods;
-                ExportFrom    = data.FindPlanetOrNull(save.ExportFrom);
-                ImportTo      = data.FindPlanetOrNull(save.ImportTo);
+                ExportFrom    = us.GetPlanet(save.ExportFrom);
+                ImportTo      = us.GetPlanet(save.ImportTo);
                 BlockadeTimer = save.BlockadeTimer;
                 Freighter     = freighter;
                 StardateAdded = save.StardateAdded;

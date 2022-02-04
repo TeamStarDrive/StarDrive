@@ -107,7 +107,7 @@ namespace Ship_Game.Ships
         public void EmergeFromPortal()
         {
             if (Universe != null
-                && Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                && Universe.Screen.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
                 FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
             }

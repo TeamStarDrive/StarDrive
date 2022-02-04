@@ -9,6 +9,7 @@ using Ship_Game.AI.Compnonents;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.GameScreens.DiplomacyScreen;
+using Ship_Game.Universe;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -128,7 +129,7 @@ namespace Ship_Game.AI
             }
         }
 
-        public Array<Planet> GetKnownPlanets(UniverseScreen universe)
+        public Array<Planet> GetKnownPlanets(UniverseState universe)
         {
             var knownPlanets = new Array<Planet>();
             foreach (SolarSystem s in universe.Systems)
@@ -160,7 +161,7 @@ namespace Ship_Game.AI
 
         public bool IsInOurAOs(Vector2 location) => AoContainingPosition(location) != null;
 
-        public void InitializeAOsFromSave(UniverseScreen us)
+        public void InitializeAOsFromSave(UniverseState us)
         {
             foreach (AO area in AreasOfOperations)
                 area.InitFromSave(us, OwnerEmpire);

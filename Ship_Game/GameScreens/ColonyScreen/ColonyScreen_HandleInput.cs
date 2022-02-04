@@ -147,7 +147,7 @@ namespace Ship_Game
                                 ToScrap = pgs.Building;
                                 string message = $"Do you wish to scrap {pgs.Building.TranslatedName.Text}? "
                                                + "Half of the building's construction cost will be recovered to your storage.";
-                                var messageBox = new MessageBoxScreen(P.Universe, message);
+                                var messageBox = new MessageBoxScreen(P.Universe.Screen, message);
                                 messageBox.Accepted = ScrapAccepted;
                                 ScreenManager.AddScreen(messageBox);
                             }
@@ -163,7 +163,7 @@ namespace Ship_Game
                         {
                             BioToScrap     = pgs;
                             string message = Localizer.Token(GameText.DoYouWishToScrap);
-                            var messageBox = new MessageBoxScreen(P.Universe, message);
+                            var messageBox = new MessageBoxScreen(P.Universe.Screen, message);
                             messageBox.Accepted = ScrapBioAccepted;
                             ScreenManager.AddScreen(messageBox);
                             ClickedTroop = true;
@@ -186,7 +186,7 @@ namespace Ship_Game
             Planet nextOrPrevPlanet = planets[newIndex];
             if (nextOrPrevPlanet != P)
             {
-                P.Universe.workersPanel = new ColonyScreen(P.Universe, nextOrPrevPlanet, Eui,
+                P.Universe.Screen.workersPanel = new ColonyScreen(P.Universe.Screen, nextOrPrevPlanet, Eui,
                     GovernorDetails.CurrentTabIndex, PFacilitiesPlayerTabSelected);
             }
         }

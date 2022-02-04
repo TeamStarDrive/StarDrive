@@ -1,4 +1,6 @@
-﻿namespace Ship_Game
+﻿using Ship_Game.Universe;
+
+namespace Ship_Game
 {
     /// <summary>
     /// This is a proxy workaround for the current buggy implementation
@@ -11,17 +13,17 @@
         // @note GamePace is used all over the place while UniverseData is still being constructed
         //       So we need to pull it out of UniverseScreen
         public static float Pace { get; private set; } = 1f;
-        public static UniverseData.GameDifficulty Difficulty { get; private set; }
+        public static GameDifficulty Difficulty { get; private set; }
         public static GalSize GalaxySize = GalSize.Medium;
         public static int ExtraPlanets;
         public static float StarsModifier = 1f;
         public static float SettingsResearchModifier = 1f;
         public static float RemnantPaceModifier = 20;
 
-        public static void StartNew(UniverseData data, float pace, float starsMod, int extraPlanets, int numEmpires)
+        public static void StartNew(UniverseState us, float pace, float starsMod, int extraPlanets, int numEmpires)
         {
-            Difficulty      = data.Difficulty;
-            GalaxySize      = data.GalaxySize;
+            Difficulty      = us.Difficulty;
+            GalaxySize      = us.GalaxySize;
             Pace            = pace;
             StarsModifier   = starsMod;
             ExtraPlanets    = extraPlanets;
@@ -61,5 +63,13 @@
         }
 
         public static float ProductionPace => 1 + (Pace - 1) * 0.5f;
+    }
+
+    public enum GameDifficulty
+    {
+        Normal,
+        Hard,
+        Brutal,
+        Insane
     }
 }

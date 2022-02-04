@@ -185,7 +185,7 @@ namespace Ship_Game.AI
                     (us.Universum.Player.IsKnown(us) &&
                      us.Universum.Player.IsKnown(them)))
                 {
-                    us.Universum.NotificationManager.AddPeaceTreatyEnteredNotification(us, them);
+                    us.Universum.Notifications.AddPeaceTreatyEnteredNotification(us, them);
                 }
             }
 

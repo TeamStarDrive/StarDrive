@@ -31,7 +31,7 @@ namespace Ship_Game.Ships
         }
 
         public bool IsVisibleToPlayer => InFrustum && InSensorRange
-                                      && (Universe?.IsSystemViewOrCloser == true);
+                                      && (Universe.Screen?.IsSystemViewOrCloser == true);
 
         // NOTE: This is called on the main UI Thread by UniverseScreen
         // check UniverseScreen.QueueShipSceneObject()
@@ -41,7 +41,7 @@ namespace Ship_Game.Ships
                 return; // allow creating invisible ships in Unit Tests
 
             //Log.Info($"CreateSO {Id} {Name}");
-            ShipData.LoadModel(out ShipSO, Universe.ContentManager);
+            ShipData.LoadModel(out ShipSO, Universe.Screen.ContentManager);
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position + ShipData.BaseHull.MeshOffset, 0f));
 
             NotVisibleToPlayerTimer = 0;
@@ -122,7 +122,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < 4; ++i)
                 {
                     Vector3 randPos = UniverseRandom.Vector32D(third);
-                    Universe.Particles.Lightning.AddParticle(Position.ToVec3() + randPos);
+                    Universe.Screen.Particles.Lightning.AddParticle(Position.ToVec3() + randPos);
                 }
             }
 
@@ -149,7 +149,7 @@ namespace Ship_Game.Ships
                 }
                 else // auto-create scene objects if possible
                 {
-                    Universe?.QueueSceneObjectCreation(this);
+                    Universe.Screen?.QueueSceneObjectCreation(this);
                 }
             }
 
@@ -175,12 +175,12 @@ namespace Ship_Game.Ships
                     {
                         if (Loyalty == EmpireManager.Player)
                         {
-                            Universe.NotificationManager.AddFoundSomethingInteresting(p);
+                            Universe.Screen.NotificationManager.AddFoundSomethingInteresting(p);
                         }
                         else if (p.Owner == null)
                         {
                             Loyalty.GetEmpireAI().SendExplorationFleet(p);
-                            if (CurrentGame.Difficulty > UniverseData.GameDifficulty.Hard 
+                            if (CurrentGame.Difficulty > GameDifficulty.Hard 
                                 && PlanetRanker.IsGoodValueForUs(p, Loyalty)
                                 && p.ParentSystem.GetKnownStrengthHostileTo(Loyalty).AlmostZero())
                             {
@@ -241,7 +241,7 @@ namespace Ship_Game.Ships
                     // tscale is in world units, engine-trail effect width at scale=1 is 32 units
                     float thrustScale = thruster.Scale / 32f;
                     float thrustPower = (thruster.heat * (Stats.Thrust / 32f)).Clamped(64, 320) * thrustScale;
-                    EngineTrail.Update(Universe.Particles, thruster.WorldPos, direction3d, 
+                    EngineTrail.Update(Universe.Screen.Particles, thruster.WorldPos, direction3d, 
                                        thrustScale, thrustPower, thrust1, thrust2);
                 }
             }
@@ -278,7 +278,7 @@ namespace Ship_Game.Ships
             // for a cool death effect, make the ship accelerate out of control:
             ApplyThrust(100f, Thrust.Forward);
             UpdateVelocityAndPosition(timeStep);
-            PlanetCrash?.Update(Universe.Particles, timeStep);
+            PlanetCrash?.Update(Universe.Screen.Particles, timeStep);
 
             bool visible = IsVisibleToPlayer;
             bool visibleAndNotPaused = visible && timeStep.FixedTime > 0f;
@@ -303,13 +303,13 @@ namespace Ship_Game.Ships
                 if (num1 >= 99) // 1% chance
                 {
                     Vector3 pos = (Position + RandomMath.Vector2D(scaledRadius*0.5f)).ToVec3();
-                    ExplosionManager.AddExplosion(Universe, pos, Velocity, scaledRadius*0.5f, 2.5f, ExplosionType.Projectile);
-                    Universe.Particles.Flash.AddParticle(pos);
+                    ExplosionManager.AddExplosion(Universe.Screen, pos, Velocity, scaledRadius*0.5f, 2.5f, ExplosionType.Projectile);
+                    Universe.Screen.Particles.Flash.AddParticle(pos);
                 }
                 if (num1 >= 50) // 50% chance
                 {
                     Vector3 pos = (Position + RandomMath.Vector2D(scaledRadius*0.5f)).ToVec3();
-                    Universe.Particles.Lightning.AddParticle(pos, Velocity.ToVec3(), 0.5f*scale, Color.White);
+                    Universe.Screen.Particles.Lightning.AddParticle(pos, Velocity.ToVec3(), 0.5f*scale, Color.White);
                 }
             }
 

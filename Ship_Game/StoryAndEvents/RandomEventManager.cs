@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
@@ -21,7 +22,7 @@ namespace Ship_Game
     {
         public static RandomEvent ActiveEvent;
 
-        public static void TryEventSpawn(UniverseScreen u)
+        public static void TryEventSpawn(UniverseState u)
         {
             int random = RandomMath.RollDie(2000);
             if      (random == 1) HyperSpaceFlux(u);
@@ -31,7 +32,7 @@ namespace Ship_Game
             else if (random <= 15) Meteors(u);
         }
 
-        static bool GetAffectedPlanet(UniverseScreen u, Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
+        static bool GetAffectedPlanet(UniverseState u, Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
         {
             affectedPlanet = null;
             var planetList = allowCapital ? u.Planets.ToArray()
@@ -54,7 +55,7 @@ namespace Ship_Game
             return affectedPlanet != null;
         }
 
-        public static void UpdateEvents(UniverseScreen u)
+        public static void UpdateEvents(UniverseState u)
         {
             if (ActiveEvent == null)
             {
@@ -66,7 +67,7 @@ namespace Ship_Game
             if (ActiveEvent.TurnTimer <= 0)
             {
                 ActiveEvent = null;
-                u.NotificationManager.AddRandomEventNotification(Localizer.Token(GameText.TheHyperspaceFluxHasAbatednships), null, null, null);
+                u.Notifications.AddRandomEventNotification(Localizer.Token(GameText.TheHyperspaceFluxHasAbatednships), null, null, null);
             }
         }
 
@@ -92,7 +93,7 @@ namespace Ship_Game
             }
 
             string fullText = $"{planet.Name} {Localizer.Token(message)} {postText}";
-            planet.Universe.NotificationManager.AddRandomEventNotification(
+            planet.Universe.Notifications.AddRandomEventNotification(
                 fullText, planet.Type.IconPath, "SnapToPlanet", planet);
         }
 
@@ -107,7 +108,7 @@ namespace Ship_Game
         // Event types
         // ***********
 
-        static void HyperSpaceFlux(UniverseScreen u)
+        static void HyperSpaceFlux(UniverseState u)
         {
             ActiveEvent = new RandomEvent
             {
@@ -116,10 +117,10 @@ namespace Ship_Game
                 NotificationString = Localizer.Token(GameText.AMassiveHyperspaceFluxnisInhibiting),
                 InhibitWarp        = true
             };
-            u.NotificationManager.AddRandomEventNotification(ActiveEvent.NotificationString, null, null, null);
+            u.Notifications.AddRandomEventNotification(ActiveEvent.NotificationString, null, null, null);
         }
 
-        static void ShiftInOrbit(UniverseScreen u) // Shifted in orbit (+ MaxFertility)
+        static void ShiftInOrbit(UniverseState u) // Shifted in orbit (+ MaxFertility)
         {
             if (!GetAffectedPlanet(u, Potentials.Habitable, out Planet planet)) 
                 return;
@@ -129,7 +130,7 @@ namespace Ship_Game
             Log.Info($"Event Notification: Orbit Shift at {planet}");
         }
 
-        static void Meteors(UniverseScreen u)
+        static void Meteors(UniverseState u)
         {
             if (!GetAffectedPlanet(u, Potentials.Habitable, out Planet planet))
                 return;
@@ -137,9 +138,9 @@ namespace Ship_Game
             CreateMeteors(planet);
 
             if (planet.OwnerIsPlayer)
-                u.NotificationManager.AddMeteorShowerTargetingOurPlanet(planet);
+                u.Notifications.AddMeteorShowerTargetingOurPlanet(planet);
             else if (planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player))
-                u.NotificationManager.AddMeteorShowerInSystem(planet);
+                u.Notifications.AddMeteorShowerInSystem(planet);
         }
 
         public static void CreateMeteors(Planet p)
@@ -190,7 +191,7 @@ namespace Ship_Game
             return system.Position.GenerateRandomPointOnCircle(originRadius);
         }
 
-        static void VolcanicToHabitable(UniverseScreen u)
+        static void VolcanicToHabitable(UniverseState u)
         {
             if (!GetAffectedPlanet(u, Potentials.Improved, out Planet planet)) 
                 return;
@@ -214,7 +215,7 @@ namespace Ship_Game
             Log.Info($"Event Notification: Volcanic to Habitable at {planet} with {numVolcanoes} wanted");
         }
 
-        static void FoundMinerals(UniverseScreen u) // Increase Mineral Richness
+        static void FoundMinerals(UniverseState u) // Increase Mineral Richness
         {
             if (!GetAffectedPlanet(u, Potentials.HasOwner, out Planet planet)) 
                 return;
