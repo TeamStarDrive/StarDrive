@@ -87,34 +87,35 @@ namespace Ship_Game.Graphics.Particles
 
             FileInfo pSettings = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/Particles.yaml", f => Reload());
             LoadParticleSettings(pSettings);
+            CreateParticles();
 
-            BeamFlash         = Add("BeamFlash");
-            ThrustEffect      = Add("ThrustEffect");
-            EngineTrail       = Add("EngineTrail");
-            Explosion         = Add("Explosion");
-            PhotonExplosion   = Add("PhotonExplosion");
-            ExplosionSmoke    = Add("ExplosionSmoke");
-            ProjectileTrail   = Add("ProjectileTrail");
-            JunkSmoke         = Add("JunkSmoke");
-            MissileSmokeTrail = Add("MissileSmokeTrail");
-            FireTrail         = Add("FireTrail");
-            SmokePlume        = Add("SmokePlume");
-            Fire              = Add("Fire");
-            Flame             = Add("Flame");
-            SmallFire         = Add("SmallFire");
-            Sparks            = Add("Sparks");
-            Lightning         = Add("Lightning");
-            Flash             = Add("Flash");
-            StarParticles     = Add("StarParticles");
-            Galaxy            = Add("Galaxy");
-            AsteroidParticles = Add("AsteroidParticles");
-            MissileThrustFlare= Add("MissileThrustFlare");
-            IonTrail          = Add("IonTrail");
-            BlueSparks        = Add("BlueSparks");
-            ModuleSmoke       = Add("ModuleSmoke");
-            IonRing           = Add("IonRing");
-            IonRingReversed   = Add("IonRingReversed");
-            Bubble            = Add("Bubble");
+            BeamFlash         = Get("BeamFlash");
+            ThrustEffect      = Get("ThrustEffect");
+            EngineTrail       = Get("EngineTrail");
+            Explosion         = Get("Explosion");
+            PhotonExplosion   = Get("PhotonExplosion");
+            ExplosionSmoke    = Get("ExplosionSmoke");
+            ProjectileTrail   = Get("ProjectileTrail");
+            JunkSmoke         = Get("JunkSmoke");
+            MissileSmokeTrail = Get("MissileSmokeTrail");
+            FireTrail         = Get("FireTrail");
+            SmokePlume        = Get("SmokePlume");
+            Fire              = Get("Fire");
+            Flame             = Get("Flame");
+            SmallFire         = Get("SmallFire");
+            Sparks            = Get("Sparks");
+            Lightning         = Get("Lightning");
+            Flash             = Get("Flash");
+            StarParticles     = Get("StarParticles");
+            Galaxy            = Get("Galaxy");
+            AsteroidParticles = Get("AsteroidParticles");
+            MissileThrustFlare= Get("MissileThrustFlare");
+            IonTrail          = Get("IonTrail");
+            BlueSparks        = Get("BlueSparks");
+            ModuleSmoke       = Get("ModuleSmoke");
+            IonRing           = Get("IonRing");
+            IonRingReversed   = Get("IonRingReversed");
+            Bubble            = Get("Bubble");
 
             FileInfo pEffects = GameBase.ScreenManager.AddHotLoadTarget(null, "3DParticles/ParticleEffects.yaml", f => Reload());
             LoadParticleEffects(pEffects);
@@ -137,6 +138,16 @@ namespace Ship_Game.Graphics.Particles
             }
         }
 
+        void CreateParticles()
+        {
+            foreach (var setting in Settings)
+            {
+                var ps = new Particle(Content, setting.Value, id: Tracked.Count);
+                Tracked.Add(ps);
+                ByName.Add(setting.Key, ps);
+            }
+        }
+
         void LoadParticleEffects(FileInfo file)
         {
             var effectsData = YamlParser.DeserializeArray<ParticleEffect.ParticleEffectData>(file);
@@ -150,22 +161,9 @@ namespace Ship_Game.Graphics.Particles
             }
         }
 
-        ParticleSettings GetSettings(string name)
+        IParticle Get(string name)
         {
-            if (Settings.Count == 0)
-                throw new InvalidOperationException("ParticleSettings have not been loaded!");
-            if (!Settings.TryGetValue(name, out ParticleSettings ps))
-                throw new InvalidDataException($"Unknown ParticleSettings Name: {name}");
-            return ps;
-        }
-
-        IParticle Add(string name)
-        {
-            var settings = GetSettings(name);
-            var ps = new Particle(Content, settings, id: Tracked.Count);
-            Tracked.Add(ps);
-            ByName.Add(name, ps);
-            return ps;
+            return ByName[name];
         }
 
         public IParticle GetParticleOrNull(string particleName)
