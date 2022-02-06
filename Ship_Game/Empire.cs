@@ -1151,7 +1151,7 @@ namespace Ship_Game
             var ourShips = GetOurFactionShips();
 
             UnlockedTroops.Clear();
-            ResetTechsUsableByShips(ourShips, unlockBonuses: true); // this will also unlock troops. Very confusing
+            ResetTechsUsableByShips(ourShips, unlockBonuses: false); // this will also unlock troops. Very confusing
             ShipsWeCanBuild.Clear();
             foreach (string ship in data.unlockShips)
                 ShipsWeCanBuild.Add(ship);
@@ -3572,6 +3572,8 @@ namespace Ship_Game
         }
 
         public void ResetAllTechsAndBonuses()
+        // FB - There is a bug here. Some tech bonuses are not reset after they are unlocked
+        // For instance - pop growth is not reset
         {
             Research.Reset(); // clear research progress bar and queue
             Research.SetNoResearchLeft(false);
