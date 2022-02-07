@@ -98,8 +98,7 @@
 - ParticleEffect: # Projectile Trail effect
   Name: BubbleTrail
   Emitters:
-    - Emitter: { Particle: MissileThrustFlare, Rate: 15, InheritSprayVelocity: 1.5 }
-    - Emitter: { Particle: RemnantBubbleEffect, Rate: 20 }
+    - Emitter: { Particle: RemnantBubble, Rate: 15 }
 
 - ParticleEffect: # Projectile Trail effect
   Name: Plasma

@@ -32,7 +32,7 @@
   <DamageAmount>2500</DamageAmount>
   <ProjectileSpeed>1500</ProjectileSpeed>
   <ExplosionRadius>57</ExplosionRadius> <!-- This Projectile Explodes -->
-
+  <DelayedIgnition>1.5</DelayedIgnition>
   
   <ProjectileRadius>10</ProjectileRadius>
   <RotationRadsPerSecond>1</RotationRadsPerSecond>

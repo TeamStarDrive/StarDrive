@@ -35,9 +35,9 @@
   <FireCueName>sd_weapon_vulcan_alt02_01</FireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>3</DamageAmount>
-  <SalvoCount>8</SalvoCount>
-  <SalvoTimer>0.6</SalvoTimer>
+  <DamageAmount>4</DamageAmount>
+  <SalvoCount>7</SalvoCount>
+  <SalvoTimer>0.5</SalvoTimer>
   <Scale>0.5</Scale>
   <ProjectileRadius>35</ProjectileRadius> 
   <ProjectileSpeed>2000</ProjectileSpeed>
