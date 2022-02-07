@@ -1,13 +1,11 @@
 ﻿<SolarSystemData>
   <Name>Rathi</Name>
   <RingList>
-
     <Ring>
       <Planet>Kahless</Planet>
       <SpecialDescription>The Kulrathi named this hostile planet after a legendary warrior and poet </SpecialDescription>
       <WhichPlanet>23</WhichPlanet>
       <Population>0</Population>
-
     </Ring>
     <Ring>
       <Asteroids>Yes</Asteroids>
@@ -15,7 +13,7 @@
     <Ring>
       <Planet>Tor</Planet>
       <SpecialDescription>The Kulrathi homeworld of Rathi Tor displays a curious mix of high technology with rustic simplicity. Its megacities reach into the sky with massive, ornamented towers. Outside of these very vertical cities, however, the land is quite wild. Many massive and dangerous beasts still roam freely in the countryside. The Warrior Castes hunt these beasts for honors and trophies. </SpecialDescription>
-      <WhichPlanet>27</WhichPlanet>
+      <WhichPlanet>11</WhichPlanet>
       <HomePlanet>true</HomePlanet>
       <Station>Yes</Station>
     </Ring>
@@ -24,8 +22,27 @@
       <SpecialDescription>The planet of Bul is hostile planet of near-perpetual winter. The Kulrathi have long coveted this world, knowing that their thick fur and hearty dispositions would suit them well in such a harsh environment. </SpecialDescription>
       <WhichPlanet>11</WhichPlanet>
     </Ring>
- 
-
-
+    <Ring>
+      <Planet>Rathi IV</Planet>
+      <WhichPlanet>4</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Rathi V</Planet>
+      <WhichPlanet>16</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Rathi VI</Planet>
+      <WhichPlanet>3</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Rathi VII</Planet>
+      <WhichPlanet>12</WhichPlanet>
+      <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Planet>Rathi VIII</Planet>
+      <WhichPlanet>10</WhichPlanet>
+      <HasRings>Yes</HasRings>
+    </Ring>
   </RingList>
 </SolarSystemData>
