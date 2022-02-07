@@ -1,0 +1,42 @@
+﻿<SolarSystemData>
+  <Name>Drell</Name>
+  <RingList>
+    <Ring>
+      <Planet>Drell I</Planet>
+      <WhichPlanet>9</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Drell II</Planet>
+      <WhichPlanet>16</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Drell III</Planet>
+      <WhichPlanet>27</WhichPlanet>
+      <HomePlanet>true</HomePlanet>
+      <Station>Yes</Station>  
+    </Ring>
+    <Ring>
+      <Planet>Drell IV</Planet>
+      <WhichPlanet>41</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Planet>Drell V</Planet>
+      <WhichPlanet>12</WhichPlanet>
+      <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Planet>Drell VI</Planet>
+      <WhichPlanet>3</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Drell VII</Planet>
+      <WhichPlanet>33</WhichPlanet>
+    </Ring>
+  </RingList>
+</SolarSystemData>
