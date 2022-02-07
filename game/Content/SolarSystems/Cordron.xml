@@ -1,0 +1,46 @@
+﻿<SolarSystemData>
+  <Name>Cordron</Name>
+  <RingList>
+    <Ring>
+      <Planet>Cordron I</Planet>
+      <WhichPlanet>9</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Cordron II</Planet>
+      <WhichPlanet>23</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Cordron III</Planet>
+      <WhichPlanet>7</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Cordron IV</Planet>
+      <WhichPlanet>14</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Cordron V</Planet>
+      <WhichPlanet>1</WhichPlanet>
+      <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Planet>Cordron VI</Planet>
+      <WhichPlanet>18</WhichPlanet>
+      <HomePlanet>true</HomePlanet>
+      <Station>Yes</Station>
+    </Ring>
+    <Ring>
+      <Planet>Cordron VII</Planet>
+      <WhichPlanet>8</WhichPlanet>
+      <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Planet>Cordron VIII</Planet>
+      <WhichPlanet>12</WhichPlanet>
+      <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Planet>Cordron IX</Planet>
+      <WhichPlanet>20</WhichPlanet>
+    </Ring>
+  </RingList>
+</SolarSystemData>
