@@ -18,9 +18,9 @@
   <FireCueName>sd_weapon_laser_burst_01</FireCueName> -->
   <FireCueName>sd_weapon_laser_small_alt5_01</FireCueName>
   <!-- Projectile Information -->
-  <DamageAmount>3</DamageAmount>
-  <SalvoCount>8</SalvoCount>
-  <SalvoTimer>0.6</SalvoTimer>
+  <DamageAmount>4</DamageAmount>
+  <SalvoCount>7</SalvoCount>
+  <SalvoTimer>0.5</SalvoTimer>
   <ProjectileSpeed>2000</ProjectileSpeed>
   <ProjectileRadius>35</ProjectileRadius>  
   
