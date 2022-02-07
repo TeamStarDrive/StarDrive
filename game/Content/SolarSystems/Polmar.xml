@@ -3,9 +3,12 @@
   <SunPath>star_green</SunPath>
   <RingList>
     <Ring>
+      <Planet>Polmar I</Planet>
+      <WhichPlanet>9</WhichPlanet>
+    </Ring>
+    <Ring>
       <Asteroids>Yes</Asteroids>
     </Ring>
-
     <Ring>
       <Planet>Sporl</Planet>
       <SpecialDescription>Sporl is a vast jungle planet absolutely teeming with life. The sentient species on this planet have integrated their advanced technologies into their ecosystems in a completely sustainable and compatible manner. It is difficult to tell apart those structures that have been built by sentient minds from those that have grown organically.</SpecialDescription>
@@ -16,9 +19,23 @@
     <Ring>
       <Planet>Brightmoon</Planet>
       <SpecialDescription>Brightmoon gains its name from the brilliance of it and its crystalline rings in the night sky of Sporl. It has captivated the imaginations of billions of Pollops since time immemorial. </SpecialDescription>
-      <WhichPlanet>7</WhichPlanet>
-      <Population>0</Population>
+      <WhichPlanet>21</WhichPlanet>
       <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Planet>Polmar IV</Planet>
+      <WhichPlanet>7</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Polmar V</Planet>
+      <WhichPlanet>10</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Polmar VI</Planet>
+      <WhichPlanet>15</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
     </Ring>
     <Ring>
       <Planet>Darkmoon</Planet>
