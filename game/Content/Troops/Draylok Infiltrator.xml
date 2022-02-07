@@ -18,7 +18,7 @@
 
   <sound_attack>sd_ground_drayloktrooper_01</sound_attack>
   
-  <Cost>50</Cost>
+  <Cost>90</Cost>
   <Strength>10</Strength>
   <MaxStrength>10</MaxStrength>
   <Movement>1</Movement>
