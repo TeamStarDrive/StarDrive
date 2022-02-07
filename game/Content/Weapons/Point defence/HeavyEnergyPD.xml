@@ -10,8 +10,10 @@
   <OffPowerMod>6</OffPowerMod>
 
   <UID>HeavyEnergyPD</UID>
-  <FireDelay>0.5</FireDelay>
+  <FireDelay>1</FireDelay>
   <TargetChangeTimer>0.5</TargetChangeTimer>
+  <SalvoCount>2</SalvoCount>
+  <SalvoTimer>0.2</SalvoTimer> 
   <Range>4000</Range>
   <PowerRequiredToFire>80</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
@@ -29,6 +31,7 @@
   
   <ProjectileCount>1</ProjectileCount>
   <FireArc>0</FireArc>
+  <FireCone>2</FireCone>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>AA Weapons</WeaponType>

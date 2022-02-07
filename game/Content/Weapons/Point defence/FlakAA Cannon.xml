@@ -9,9 +9,10 @@
   <OffPowerMod>6</OffPowerMod>
   
   <UID>FlakAA Cannon</UID>
-  <FireDelay>0.5</FireDelay>
+  <FireDelay>1</FireDelay>
   <TargetChangeTimer>0.5</TargetChangeTimer>
-  <SalvoCount>1</SalvoCount> 
+  <SalvoCount>2</SalvoCount>
+  <SalvoTimer>0.2</SalvoTimer> 
   <Range>4000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.02</OrdinanceRequiredToFire>
@@ -32,6 +33,7 @@
   <ModelPath>projTear</ModelPath>
   <!--the projectile count is spread over the fire arc-->
   <FireCone>0</FireCone>
+  <FireCone>2</FireCone>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>AA Weapons</WeaponType>
