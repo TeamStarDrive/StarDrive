@@ -1,0 +1,50 @@
+﻿<SolarSystemData>
+  <Name>Vater</Name>
+  <RingList>
+    <Ring>
+      <Planet>Vater I</Planet>
+      <WhichPlanet>3</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Vater II</Planet>
+      <WhichPlanet>14</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Vater III</Planet>
+      <WhichPlanet>17</WhichPlanet>
+      <HomePlanet>true</HomePlanet>
+      <Station>Yes</Station>  
+    </Ring>
+    <Ring>
+      <Planet>Vater IV</Planet>
+      <WhichPlanet>18</WhichPlanet>
+      <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Planet>Vater V</Planet>
+      <WhichPlanet>10</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Vater VI</Planet>
+      <WhichPlanet>11</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Vater VII</Planet>
+      <WhichPlanet>12</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Vater VIII</Planet>
+      <WhichPlanet>24</WhichPlanet>
+      <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+  </RingList>
+</SolarSystemData>

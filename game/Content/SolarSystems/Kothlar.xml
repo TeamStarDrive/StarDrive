@@ -1,0 +1,43 @@
+﻿<SolarSystemData>
+  <Name>Kothlar</Name>
+  <RingList>
+    <Ring>
+      <Planet>Kothlar I</Planet>
+      <WhichPlanet>2</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Kothlar II</Planet>
+      <WhichPlanet>12</WhichPlanet>
+      <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Asteroids>Yes</Asteroids>
+    </Ring>
+    <Ring>
+      <Planet>Kothlar III</Planet>
+      <WhichPlanet>21</WhichPlanet>
+      <HomePlanet>true</HomePlanet>
+      <Station>Yes</Station>  
+    </Ring>
+    <Ring>
+      <Planet>Kothlar IV</Planet>
+      <WhichPlanet>41</WhichPlanet>
+      <HasRings>Yes</HasRings>
+    </Ring>
+    <Ring>
+      <Planet>Kothlar V</Planet>
+      <WhichPlanet>17</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Kothlar VI</Planet>
+      <WhichPlanet>10</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Kothlar VII</Planet>
+      <WhichPlanet>4</WhichPlanet>
+    </Ring>
+  </RingList>
+</SolarSystemData>
