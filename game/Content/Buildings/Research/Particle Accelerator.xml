@@ -4,7 +4,7 @@
   <Description> A particle accelerator, as the name implies, accelerates particles to nearly the speed of light and then smashes them together to find new data about the makeup of the universe in the debris. Provides 1 point of research per scientist and may spawn a black hole that swallows the entire system.</Description>
   <PlusResearchPerColonist>0.4</PlusResearchPerColonist>
   <PlusFlatResearchAmount>1</PlusFlatResearchAmount>
-  <Cost>400</Cost>
+  <Cost>1200</Cost>
   <Icon>particleaccelerator</Icon>
   <NameTranslationIndex>10019</NameTranslationIndex>
   <DescriptionIndex>10020</DescriptionIndex>
