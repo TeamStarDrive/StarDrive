@@ -2,10 +2,10 @@
   <Name>Nano Mine</Name>
   <Maintenance>0</Maintenance>
   <Description>This ancient alien mine has been cleared of its infestation and repaired to good use. It is an incredibly productive mine. </Description>
-  <Cost>40</Cost>
+  <Cost>200</Cost>
   <PlusFlatProductionAmount>2</PlusFlatProductionAmount>
   <Icon>mine</Icon>
-  <Infrastructure>2</Infrastructure>
+  <Infrastructure>1</Infrastructure>
   <ShortDescription>+2 production per turn</ShortDescription>
 
   <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->

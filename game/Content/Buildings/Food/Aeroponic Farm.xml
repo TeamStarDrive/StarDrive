@@ -2,9 +2,9 @@
   <Name>Aeroponic Farm</Name>
   <Description>Aeroponics is the use of a hydro-atomized spray to deliver nutrients to plants suspended in the air. This technique offers excellent plant growth and elminates the need for soil while at the same time minimizing pathogen risks. +1 flat bonus to Food production. </Description>
   <PlusFlatFoodAmount>1</PlusFlatFoodAmount>
-    <Cost>50</Cost>
+  <Cost>150</Cost>
   <Icon>aerofarm</Icon>
-  <Maintenance>0.2</Maintenance>
+  <Maintenance>0.5</Maintenance>
   <NameTranslationIndex>403</NameTranslationIndex>
   <DescriptionIndex>404</DescriptionIndex>
   <ShortDescriptionIndex>405</ShortDescriptionIndex>

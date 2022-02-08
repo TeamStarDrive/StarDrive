@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>ArmorTheory</UID>
   <TechnologyType>ShipDefense</TechnologyType>
-  <Cost>150</Cost>
+  <Cost>210</Cost>
   <RootNode>0</RootNode>
   <Name>Armor Theory</Name>
   <NameIndex>515</NameIndex>

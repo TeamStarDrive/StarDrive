@@ -1,8 +1,8 @@
 ﻿<Building>
   <Name>Soil Enrichment Center</Name>
   <Description>In an attempt to improve agricultural output, the planet's soil is enriched to support plant growth, increasing fertility. </Description>
-  <MaxFertilityOnBuild>0.5</MaxFertilityOnBuild>
-  <Cost>40</Cost>
+  <MaxFertilityOnBuild>0.3</MaxFertilityOnBuild>
+  <Cost>90</Cost>
   <Icon>soilenrichment</Icon>
   <Maintenance>0.5</Maintenance>
   <Scrappable>true</Scrappable>

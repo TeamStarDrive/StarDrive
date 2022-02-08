@@ -2,7 +2,7 @@
   <Name>Outpost</Name>
   <Cost>50</Cost>
   <Description>An Outpost building is the humble first step in a civilization's efforts to colonize a new world.  Outposts provide for a base level of agricultural, industrial, and scientific capacity.  When built on a barren planet, it is critical for an outpost to be supplemented with an aeroponic farm. Outposts are also capable of rudimentary self-defense in case of invasion. </Description>
-  <PlusResearchPerColonist>.25</PlusResearchPerColonist>
+  <PlusResearchPerColonist>.1</PlusResearchPerColonist>
   <StorageAdded>30</StorageAdded>
   <Icon>biosphere</Icon>
   <Strength>10</Strength>
