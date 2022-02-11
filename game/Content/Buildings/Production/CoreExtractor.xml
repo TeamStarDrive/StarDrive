@@ -5,7 +5,7 @@
   <PlusProdPerRichness>8</PlusProdPerRichness>
    <PlusProdPerColonist>0.4</PlusProdPerColonist>
   <MaxFertilityOnBuild>-1</MaxFertilityOnBuild>
-  <Cost>400</Cost>
+  <Cost>320</Cost>
   <Icon>CoreExtractor</Icon>
   <ShortDescription>+ production equal to planetary richness; -1 fertility </ShortDescription>
 

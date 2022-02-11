@@ -2,7 +2,7 @@
   <Name>Warehouse</Name>
   <Description>A simple building with a simple purpose, the warehouse provides an environmentally controlled environment where 100 extra food and production can be stored. </Description>
   <StorageAdded>100</StorageAdded>
-  <Cost>10</Cost>
+  <Cost>30</Cost>
   <Icon>warehouse</Icon>
   <ShortDescription>+100 maximum good storage</ShortDescription>
   <Infrastructure>1</Infrastructure>

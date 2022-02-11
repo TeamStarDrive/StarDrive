@@ -2,7 +2,7 @@
   <Name>Weather Manipulation Center</Name>
   <Description>Using advanced computers and a network of specialized satelittes, this buildings monitors the global weather and directs measures to manipulate it to improve plantgrowth. This increases the average fertility of the planet. </Description>
   <MaxFertilityOnBuild>1</MaxFertilityOnBuild>
-  <Cost>500</Cost>
+  <Cost>400</Cost>
   <Icon>weather</Icon>
   <Maintenance>1</Maintenance>
   <Scrappable>true</Scrappable>

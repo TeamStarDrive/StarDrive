@@ -3,7 +3,7 @@
   <Description>Xeno mines are the first real step toward's exploiting a planet's mineral deposits, creating +1 production per colonist assigned to industrial tasks. </Description>
   <PlusProdPerColonist>1.2</PlusProdPerColonist>
   <Infrastructure>2</Infrastructure>
-  <Cost>150</Cost>
+  <Cost>250</Cost>
   <Icon>Upgraded_Xeno_mines</Icon>
   <Maintenance>0.5</Maintenance>
   <NameTranslationIndex>8073</NameTranslationIndex>

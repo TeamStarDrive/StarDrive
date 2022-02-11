@@ -2,7 +2,7 @@
   <Name>Imperial Bank</Name>
   <Maintenance>0</Maintenance>
   <Description>The Imperial Bank building increases the efficiency of your planetary tax operations by 50%. </Description>
-  <Cost>50</Cost>
+  <Cost>400</Cost>
   <Icon>banking_center</Icon>
   <PlusTaxPercentage>.5</PlusTaxPercentage>
   <ShortDescription>+50% tax revenues</ShortDescription>

@@ -4,7 +4,7 @@
   <Description>Deep Core Mines are extremely effective at rapidly extracting minerals from deep within a planet's core, but are environmentally disastrous. Adds flat rate production equal to a planet's mineral richness but permanently decreases a planet's fertility. </Description>
   <PlusProdPerRichness>5</PlusProdPerRichness>
   <MaxFertilityOnBuild>-0.6</MaxFertilityOnBuild>
-  <Cost>400</Cost>
+  <Cost>220</Cost>
   <Icon>mine_deepcore</Icon>
   <ShortDescription>+ production equal to planetary richness; -1 fertility </ShortDescription>
 
