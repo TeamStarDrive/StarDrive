@@ -1,7 +1,7 @@
 ﻿<Building>
   <Name>Colony Shield</Name>
   <Description>This massive installation projects an incredibly large energy shield into the upper atmosphere of a planet and provides substantial protection against planetary bombardments. </Description>
-  <Cost>50</Cost>
+  <Cost>150</Cost>
   <Maintenance>0.25</Maintenance>
   <PlanetaryShieldStrengthAdded>300</PlanetaryShieldStrengthAdded>
   <Icon>pshield_small</Icon>

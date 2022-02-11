@@ -4,7 +4,7 @@
   <Description>Manned and automated rovers provide indispensible labor savings to fledgling colonies, increasing the production of the colony with a flat +1 production bonus. </Description>
   <PlusFlatProductionAmount>1</PlusFlatProductionAmount>
   <PlusProdPerRichness>0.5</PlusProdPerRichness>
-  <Cost>25</Cost>
+  <Cost>125</Cost>
   <Icon>roverbay</Icon>
   <ShortDescription>+1 production per turn</ShortDescription>
 

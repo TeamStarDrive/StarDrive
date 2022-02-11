@@ -2,7 +2,7 @@
   <Name>Space Port</Name>
   <Maintenance>1</Maintenance>
   <Description>A space port connects to the orbital star base above and allows for the construction of ships here using materials produced on the planet</Description>
-  <Cost>50</Cost>
+  <Cost>150</Cost>
   <Icon>spaceport</Icon>
   <PlusTaxPercentage>.5</PlusTaxPercentage>
   <Infrastructure>2</Infrastructure>
