@@ -1,6 +1,6 @@
 ﻿<Building>
   <Name>Vertical Farm</Name>
-  <PlusFoodPerColonist>0.6</PlusFoodPerColonist>
+  <PlusFoodPerColonist>0.3</PlusFoodPerColonist>
   <Cost>300</Cost>
   <Icon>arcology</Icon>
   <Maintenance>1.0</Maintenance>

@@ -1,7 +1,7 @@
 ﻿<Building>
   <Name>Military Outpost</Name>
   <Description>This basic facility provides a barracks, armory, mess, firing range, and other facilities needed to train and equip infantry for ground combat. </Description>
-  <Cost>25</Cost>
+  <Cost>125</Cost>
   <Icon>military_outpost</Icon>
   <Strength>15</Strength>
   <CombatStrength>15</CombatStrength>

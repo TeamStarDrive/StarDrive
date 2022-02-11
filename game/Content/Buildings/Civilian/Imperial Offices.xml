@@ -2,10 +2,10 @@
   <Name>Imperial Offices</Name>
   <Maintenance>0</Maintenance>
   <Description>Imperial Offices allow for the direct taxation of the citizenry, granting incomes at a rate of .25 credits per colonist per turn. </Description>
-  <Cost>50</Cost>
+  <Cost>150</Cost>
   <Icon>offices</Icon>
-  <CreditsPerColonist>.25</CreditsPerColonist>
-  <ShortDescription>+.25 credits per colonist</ShortDescription>
+  <CreditsPerColonist>.4</CreditsPerColonist>
+  <ShortDescription>+.4 credits per colonist</ShortDescription>
   
   
   <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->

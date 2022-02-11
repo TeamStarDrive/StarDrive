@@ -5,7 +5,7 @@
   <PlusFlatResearchAmount>0.3</PlusFlatResearchAmount>
   <PlusResearchPerColonist>.2</PlusResearchPerColonist>
   <TechBranch>Discovery</TechBranch>
-  <Cost>75</Cost>
+  <Cost>150</Cost>
   <Icon>research_station</Icon>
   <ShortDescription>+1 research per turn</ShortDescription>
 
