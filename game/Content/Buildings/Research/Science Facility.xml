@@ -1,0 +1,16 @@
+﻿<Building>
+  <Name>Science Facility</Name>
+  <Maintenance>0.6</Maintenance>
+  <Description>A dedicated research lab allows colonists to begin in earnest the study of their new home.  Provides a flat +1 per turn research bonus to any colony.  </Description>
+  <PlusResearchPerColonist>.2</PlusResearchPerColonist>
+  <PlusFlatResearchAmount>0.25</PlusFlatResearchAmount>
+  <Cost>120</Cost>
+  <Icon>Science_facility</Icon>
+
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>10085</NameTranslationIndex>
+  <DescriptionIndex>10086</DescriptionIndex>
+  <ShortDescriptionIndex>10087</ShortDescriptionIndex>
+  
+</Building>
