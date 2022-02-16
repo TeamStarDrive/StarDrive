@@ -41,7 +41,7 @@
       <ModuleUID>Cockpit</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
-      <ModuleUID>PreWarpEngine2x1</ModuleUID>
+      <ModuleUID>UnstableWarpEngine2x1</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
       <ModuleUID>Maneuvering_Thruster_1x1</ModuleUID>
