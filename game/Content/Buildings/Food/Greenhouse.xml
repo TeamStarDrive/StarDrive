@@ -1,0 +1,12 @@
+﻿<Building>
+  <Name>Greenhouse</Name>
+  <PlusFoodPerColonist>0.2</PlusFoodPerColonist>
+  <Cost>70</Cost>
+  <Icon>Greenhouse</Icon>
+  <Maintenance>0.3</Maintenance>
+
+  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <NameTranslationIndex>10079</NameTranslationIndex>
+  <DescriptionIndex>10080</DescriptionIndex>
+  <ShortDescriptionIndex>10081</ShortDescriptionIndex>
+</Building>

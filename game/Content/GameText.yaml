@@ -1907,9 +1907,9 @@ ImperialOffices:
  SPA: "Oficinas imperiales"
 CreditsPerColonist:
  Id: 432
- ENG: "+.25 credits per colonist"
- RUS: "+0,25 кредитов на колониста"
- SPA: "+0,25 créditos por colono"
+ ENG: "+0.4 credits per colonist"
+ RUS: "+0,4 кредитов на колониста"
+ SPA: "+0,4 créditos por colono"
 IonCannon:
  Id: 433
  ENG: "Ion Cannon"
@@ -2095,9 +2095,9 @@ XenoFarm:
  SPA: "Xenogranja"
 FoodPerAssignedColonist:
  Id: 472
- ENG: "+0.4 food per assigned colonist"
- RUS: "+0,4 к еде за каждого занятого колониста"
- SPA: "+0,4 de comida por colono asignado"
+ ENG: "+0.2 food per assigned colonist"
+ RUS: "+0,2 к еде за каждого занятого колониста"
+ SPA: "+0,2 de comida por colono asignado"
 XenoMine:
  Id: 473
  ENG: "Xeno Mine"
@@ -7775,9 +7775,9 @@ VerticalFarm:
  SPA: "Granja vertical"
 FoodPerTurn3:
  Id: 2291
- ENG: "+0.8 food per assigned colonist"
- RUS: "+0.8 еды за задействованного колониста"
- SPA: "+0.8 de comida por colono asignado"
+ ENG: "+0.3 food per assigned colonist"
+ RUS: "+0.3 еды за задействованного колониста"
+ SPA: "+0.3 de comida por colono asignado"
 ThisMegastructureEmploysAdvancedAgricultural:
  Id: 2292
  ENG: "This megastructure employs advanced agricultural techniques and robotics to create massive quantities of food"
@@ -8561,14 +8561,14 @@ ThisShieldProvidesHpOf:
  SPA: "Este escudo ofrece una protección de 25 000 puntos de vida en un radio de 400; su consumo energético es elevadísimo. "
 DeepCoreMinesAreExtremely:
  Id: 419
- ENG: "Deep Core Mines are extremely effective at rapidly extracting minerals from deep within a planet's core, but are environmentally disastrous. Adds flat rate production equal to four times a planet's mineral richness but permanently decreases a planet's fertility by 2."
- RUS: "Сверхглубокие шахты очень эффективны для быстрого извлечения минералов и руд из прилегающих к ядру слове планетарной коры, но при этом они оказывают колоссальный негативный эффект на экосистему планеты. Добавляет фиксированный бонус производства в количестве 4х богатства планеты минералами и перманентно снижает ее индекс плодородия на 2."
- SPA: "Las minas de núcleo profundo son sumamente eficaces a la hora de extraer minerales de las profundidades de un planeta, pero son devastadoras para el medio ambiente. Añade una producción a un ritmo constante igual a cuatro veces la riqueza mineral del planeta, pero reduce permanentemente su fertilidad en 2."
+ ENG: "Deep Core Mines are extremely effective at rapidly extracting minerals from deep within a planet's core, but are environmentally disastrous. Adds flat rate production equal to 5 times a planet's mineral richness but permanently decreases a planet's fertility by 0.6."
+ RUS: "Сверхглубокие шахты очень эффективны для быстрого извлечения минералов и руд из прилегающих к ядру слове планетарной коры, но при этом они оказывают колоссальный негативный эффект на экосистему планеты. Добавляет фиксированный бонус производства в количестве 4х богатства планеты минералами и перманентно снижает ее индекс плодородия на 0.6."
+ SPA: "Las minas de núcleo profundo son sumamente eficaces a la hora de extraer minerales de las profundidades de un planeta, pero son devastadoras para el medio ambiente. Añade una producción a un ritmo constante igual a cuatro veces la riqueza mineral del planeta, pero reduce permanentemente su fertilidad en 0.6."
 FertilityOnBuildXProduction:
  Id: 420
- ENG: "-0,6 fertility on build, +4x production richness bonus"
- RUS: "+ 4х богатства планеты к производству; -0.6 к плодородию"
- SPA: "Aumento de producción igual a 4 veces la riqueza del planeta; -0.6 de fertilidad"
+ ENG: "-0,6 fertility on build, +5x production richness bonus"
+ RUS: "+ 5х богатства планеты к производству; -0.6 к плодородию"
+ SPA: "Aumento de producción igual a 5 veces la riqueza del planeta; -0.6 de fertilidad"
 PopulationPerTurn:
  Id: 414
  ENG: "+0.02 population per turn"
@@ -12661,8 +12661,8 @@ TheseMinesAreEquippedWith:
  RUS: "Эти шахты оснащены более совершенными технологиями для разработки большего количества месторождений полезных ископаемых планеты. Их побочные продукты могут продаваться на местных рынках, принося небольшой доход."
 AdvXenoMineStats:
  Id: 17410
- ENG: " +1.2 production per assigned colonist,+0.1 Credits per Colonist, +2 Infrastructure"
- RUS: "+1.2 продукции за задействованного колиниста,+0.1 кредитов за колониста, +2 к инфраструктуре"
+ ENG: " +1.2 production per assigned colonist, +2 Infrastructure"
+ RUS: "+1.2 продукции за задействованного колиниста, +2 к инфраструктуре"
 Tech_ImperialUni_Name:
  Id: 10344
  ENG: "Imperial University"
@@ -12711,6 +12711,10 @@ InAnAttemptToImprove:
  Id: 10028
  ENG: "In an attempt to improve agricultural output, the planet's soil is enriched to support plant growth. Though increasing small amount of fertility, the building is cheap to build and maintain."
  RUS: "В попытке улучшить сельскохозяйственное производство почва планеты обогащается, чтобы поддерживать рост растений, повышая плодородие."
+FertilityOnBuild2:
+ Id: 10029
+ ENG: " (+0.3) fertility on build"
+ RUS: "(+0.3) плодородия за постройку"
 WeatherManipulationCenter:
  Id: 10033
  ENG: "Weather Manipulation Center"
@@ -13049,10 +13053,6 @@ ThePlanetaryStockExchangeAllows:
  Id: 10022
  ENG: "The Planetary Stock exchange allows stocks of planetary companies to be traded. This improves commerce on the planet and thus tax revenue."
  RUS: "Планетарная фондовая биржа позволяет торговать акциями планетарных компаний.  Это улучшает торговлю на планете и, следовательно, налоговые поступления."
-FertilityOnBuild2:
- Id: 10080
- ENG: " (+0.3) fertility on build"
- RUS: "(+0.3) плодородия за постройку"
 FertilityOnBuild3:
  Id: 10081
  ENG: " (+0.6) fertility on build"
@@ -13289,18 +13289,55 @@ RemnDisrupt:
 RemnDisruptdescr:
  Id: 10074
  ENG: "Super top secret weapon of remnant you should not see this nor use it! You cheater!"
-PreWarpEngine:
+UnstableWarpEngine:
  Id: 10075
- ENG: "Primitive Engine"
-PreWarpEngineDescr:
+ ENG: "Early Warp Engine"
+UnstableWarpEngineDescr:
  Id: 10076
- ENG: "Basic engine using chemical reactions for propulsion"
+ ENG: "First warp cappable engine, warp technology is still in its infancy stage and its unstable, heavily limiting max speed."
 WarpBubbleTech:
  Id: 10077
  ENG: "Warp theory"
 WarpBubbleTechDescr:
  Id: 10078
  ENG: "Warp drive technology is based on bending timespace by creating a warp bubble around ship letting it move in speeds far beyond lightspeed. "
+Greenhouse:
+ Id: 10079
+ ENG: "Greenhouse"
+GreenhouseDescr:
+ Id: 10080
+ ENG: "Building designed for the protection of tender or out-of-season plants against excessive cold or heat. "
+GreenhouseBonuses:
+ Id: 10081
+ ENG: "Provides 0.2 food per assigned colonist."
+Orerefinery:
+ Id: 10082
+ ENG: "Ore refinery"
+OrerefineryDescr:
+ Id: 10083
+ ENG: "Facility for processing raw mineral ores."
+OrerefineryBonus:
+ Id: 10084
+ ENG: "fertility, +2 production per 1 richness"
+ScienceFacility:
+ Id: 10085
+ ENG: "Science Facility"
+ScienceFacilityDescr:
+ Id: 10086
+ ENG: "Building specialy designed to perform science experiments."
+ScienceFacilityBonuses:
+ Id: 10087
+ ENG: "Provides 0.2 reseach per assigned colonist."
+TaxOffice:
+ Id: 10088
+ ENG: "Tax Office"
+TaxOfficeDescr:
+ Id: 10089
+ ENG: "Government agency responsible for the intake of government revenue, including taxes and sometimes non-tax revenue."
+TaxOfficeBonuses:
+ Id: 10090
+ ENG: "+0.25 credits per colonist."
+
 
 
 MissileTurret:
@@ -13588,7 +13625,7 @@ PhasorFocusTechDescr:
  ENG: "Evolution of beam weapons lead us into discovering a powerful Phasor's. Using previously known methods of focusing beams we managed to apply most of the old schematics with new advanced components. "
 CoreExtractDescShort:
  Id: 17594
- ENG: "-1 fertility on build, +6x production richness bonus, +1 production per assigned colonist."
+ ENG: "-1 fertility on build, +8x production richness bonus, +1 production per assigned colonist."
 LightBeam:
  Id: 17595
  ENG: "Light beam array"
