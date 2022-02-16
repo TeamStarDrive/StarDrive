@@ -11,7 +11,7 @@
   <YSize>1</YSize>
   <Name>Medium Engine</Name>
   <Restrictions>E</Restrictions>
-  <UID>PreWarpEngine2x1</UID> 
+  <UID>UnstableWarpEngine2x1</UID> 
   <Version>2</Version>
 
 
@@ -51,10 +51,10 @@
   
   
   <!-- for Engines -->
-  <Thrust>25000</Thrust>
+  <Thrust>21000</Thrust>
   <!-- amount of thrust used to calculate the engine's turn speed bonus or penalty. Set to same as thrust for default -->
   <TurnThrust>7000</TurnThrust>
-  <WarpThrust>0</WarpThrust>
+  <WarpThrust>6000</WarpThrust>
   
 
 </ShipModule>
