@@ -64,6 +64,18 @@
     <UnlockedBuilding>
       <Name>Space Port</Name>
     </UnlockedBuilding>
+        <UnlockedBuilding>
+      <Name>Tax Office</Name>
+    </UnlockedBuilding>
+        <UnlockedBuilding>
+      <Name>Science Facility</Name>
+    </UnlockedBuilding>
+        <UnlockedBuilding>
+      <Name>Ore refinery</Name>
+    </UnlockedBuilding>
+        <UnlockedBuilding>
+      <Name>Greenhouse</Name>
+    </UnlockedBuilding>
     <UnlockedBuilding>
       <Name>Outpost</Name>
     </UnlockedBuilding>
