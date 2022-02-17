@@ -13,8 +13,8 @@ namespace Ship_Game
     {
         sealed class MuzzleFlash
         {
-            public float Life  = 0.02f;
-            public float Scale = 0.25f;
+            public float Life  = 0.1f;
+            public float Scale = 0.05f;
             public Projectile Projectile;
             public PointLight Light;
             public Vector3 Position;
@@ -38,8 +38,8 @@ namespace Ship_Game
         public static void LoadContent(GameContentManager content)
         {
             flashModel = content.Load<Model>("Model/Projectiles/muzzleEnergy");
-            string texPath = "Model/Projectiles/Textures/muzzleFlash_01.dds";
-            FlashTexture = new SubTexture("muzzleFlash_01", content.Load<Texture2D>(texPath), texPath);
+            string texPath = "Model/Projectiles/Textures/muzzleFlash.png";
+            FlashTexture = new SubTexture("muzzleFlash", content.Load<Texture2D>(texPath), texPath);
         }
 
         public static void AddFlash(Projectile projectile)
@@ -84,8 +84,8 @@ namespace Ship_Game
                     }
 
                     f.Scale *= 2f;
-                    if (f.Scale > 6f)
-                        f.Scale = 6f;
+                    if (f.Scale > 1.5f)
+                        f.Scale = 1.5f;
 
                     f.Update();
                     if (f.Light != null)
