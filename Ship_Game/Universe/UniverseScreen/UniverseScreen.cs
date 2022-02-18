@@ -492,7 +492,6 @@ namespace Ship_Game
             LoadMenu();
 
             FTLManager.LoadContent(this);
-            MuzzleFlashManager.LoadContent(content);
 
             ShipsInCombat = ButtonMediumMenu(width - 275, height - 280, "Ships: 0");
             ShipsInCombat.DynamicText = () =>
