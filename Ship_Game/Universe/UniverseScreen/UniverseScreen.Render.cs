@@ -664,7 +664,7 @@ namespace Ship_Game
             if (viewState < UnivScreenState.SectorView)
             {
                 RenderThrusters();
-                DrawWarpFlash();
+                FTLManager.DrawFTLModels(ScreenManager.SpriteBatch, this);
             }
 
             Particles.Draw(View, Projection, nearView: viewState < UnivScreenState.SectorView);
@@ -675,12 +675,6 @@ namespace Ship_Game
             }
 
             DrawParticles.Stop();
-        }
-
-        private void DrawWarpFlash()
-        {
-            FTLManager.DrawFTLModels(ScreenManager.SpriteBatch, this);
-            MuzzleFlashManager.Draw(this);
         }
 
         private void DrawPlanets()
