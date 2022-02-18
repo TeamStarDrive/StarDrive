@@ -84,7 +84,6 @@ namespace Ship_Game.Gameplay
         public string DieCueName = "";
         bool LightWasAddedToSceneGraph;
         bool UsesVisibleMesh;
-        bool MuzzleFlashAdded;
         public Vector2 FixedError;
         public bool ErrorSet = false;
         public bool FlashExplode;
@@ -308,6 +307,11 @@ namespace Ship_Game.Gameplay
                 string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).DieCue;
                 if (cueName.NotEmpty())     DieCueName  = cueName;
                 if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;
+            }
+
+            if (inFrustum && Module?.InstalledWeapon?.MuzzleFlash != null)
+            {
+                Universe.Screen.Particles.BeamFlash.AddParticle(new Vector3(origin, ZPos), 0.4f);
             }
 
             // TODO:
@@ -602,12 +606,6 @@ namespace Ship_Game.Gameplay
                 {
                     Light.Position = pos3d;
                     Light.World = Matrix.CreateTranslation(Light.Position);
-                }
-
-                if (!MuzzleFlashAdded && Module?.InstalledWeapon?.MuzzleFlash != null)
-                {
-                    MuzzleFlashAdded = true;
-                    MuzzleFlashManager.AddFlash(this);
                 }
             }
 

@@ -271,7 +271,6 @@ namespace Ship_Game
             if (timeStep.FixedTime > 0)
             {
                 ExplosionManager.Update(this, timeStep.FixedTime);
-                MuzzleFlashManager.Update(this, timeStep.FixedTime);
 
                 using (BombList.AcquireReadLock())
                 {
