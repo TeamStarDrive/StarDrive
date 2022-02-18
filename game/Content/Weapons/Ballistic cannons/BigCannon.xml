@@ -46,9 +46,9 @@
   <AnimationPath>Kinetic_Orange/Kinetic_Orange_cc_</AnimationPath>
   <LoopAnimation>1</LoopAnimation>
   <ModelPath>projTear</ModelPath>
-
-  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Ballistic Cannon</WeaponType>
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponTrailEffect>SmokeTrail</WeaponTrailEffect> 
   <WeaponHitEffect>Kinetic_Hit_Armor</WeaponHitEffect>
   <WeaponShieldHitEffect>Kinetic_Hit_Shield</WeaponShieldHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>

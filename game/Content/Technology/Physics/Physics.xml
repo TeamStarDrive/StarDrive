@@ -32,9 +32,17 @@
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Subspace Projection</Name>
+      <BonusType>In Borders FTL Bonus</BonusType>
       <Bonus>0.2</Bonus>
       <Description>Gain the ability to build subspace projector platforms in deep space. </Description>
       <BonusIndex>631</BonusIndex>
+    </UnlockedBonus>
+    <UnlockedBonus>
+      <Name>Slipstreams</Name>
+      <BonusType>FTL Speed Bonus</BonusType>
+      <Bonus>0</Bonus>
+      <Description></Description>
+      <BonusIndex>678</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>
   <TroopsUnlocked />

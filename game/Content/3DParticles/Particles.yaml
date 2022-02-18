@@ -284,13 +284,13 @@
   MaxParticles: 7000
   Duration: 0.5
   DurationRandomness: 0.2
-  InheritOwnerVelocity: 0.7
-  AlignRotationToVelocity: 1
+  InheritOwnerVelocity: 0.05
+  AlignRotationToVelocity: -1
   EndVelocity: 0
   StartColorRange: [[255,255,255,255],[255,255,255,255]]
   EndColorRange: [[46,90,169,255],[0,114,188,255]]
   RotateSpeed: [-2,2]
-  StartEndSize: [ [60,55], [10,5] ]
+  StartEndSize: [ [90,40], [10,5] ]
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
@@ -331,14 +331,14 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 20000
-  Duration: 0.2
+  Duration: 0.4
   DurationRandomness: 1
-  InheritOwnerVelocity: 1
+  InheritOwnerVelocity: 0.6
   RandomVelocityXY: [ [-50,50], [-50,50] ]
   EndVelocity: 0
-  StartColorRange: [[0,0,255,255],[255,255,255,255]]
-  RotateSpeed: [-100,100]
-  StartEndSize: [ [100,150], [100,150] ]
+  StartColorRange: [[255,255,255,255],[255,255,255,255]]
+  RotateSpeed: [-10,10]
+  StartEndSize: [ [80,110], [80,110] ]
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
@@ -363,14 +363,14 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 10000
-  Duration: 2
+  Duration: 1
   DurationRandomness: 1
   InheritOwnerVelocity: 0.05
   RandomVelocityXY: [ [0,1], [-1,1] ]
   EndVelocity: 1
   StartColorRange: [[155,155,155,255],[255,255,255,250]]
   RotateSpeed: [-1,1]
-  StartEndSize: [ [25,15], [5,8] ]
+  StartEndSize: [ [35,25], [5,8] ]
   SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
 
 - ParticleSettings:
@@ -540,12 +540,63 @@
   MaxParticles: 10000
   Duration: 1
   DurationRandomness: 0.5
-  InheritOwnerVelocity: 0.1
+  InheritOwnerVelocity: 0
   RandomVelocityXY: [ [-20,20], [-90,90] ]
   EndVelocity: 0
-  StartColorRange: [[0,255,0,155],[0,255,0,155]]
+  StartColorRange: [[0,255,0,255],[0,255,0,255]]
   EndColorRange: [[0,255,0,155],[0,255,0,155]]
   EndColorTime: 0.5
   RotateSpeed: [-1,1]
-  StartEndSize: [ [30,40], [5,10] ]
+  StartEndSize: [ [10,20], [1,3] ]
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: Remnglow   #missile thrust glow
+  TextureName: "Glow.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 6000
+  Duration: 0.15
+  DurationRandomness: 0.5
+  InheritOwnerVelocity: -1.2
+  EndVelocity: 1
+  StartColorRange: [[255,255,255,255],[255,233,171,255]]
+  EndColorRange: [[0,255,0,155],[0,255,0,155]]
+  RotateSpeed: [0]
+  StartEndSize: [ [180,200], [5,10] ] # growing particle
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: RemnRing
+  TextureName: "ring.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 7000
+  Duration: 0.8
+  DurationRandomness: 0.2
+  InheritOwnerVelocity: 0.05
+  AlignRotationToVelocity: -1
+  EndVelocity: 0
+  StartColorRange: [[255,255,255,255],[255,255,255,255]]
+  EndColorRange: [[0,255,0,155],[0,255,0,155]]
+  RotateSpeed: [-2,2]
+  StartEndSize: [ [90,40], [10,5] ]
+  SrcDstBlend: [SourceAlpha, One]
+
+###SHIELD HIT PARTICLES
+- ParticleSettings:
+  Name: Shard1                #repair sparks
+  TextureName: "Shard1.png" # "blue_flame.png" / "spark.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 20000
+  Duration: 1
+  DurationRandomness: 1
+  InheritOwnerVelocity: 1
+  AlignRotationToVelocity: 1
+  RandomVelocityXY: [ [-60,60], [-60,60] ]
+  AlignRandomVelocityXY: false
+  EndVelocity: 0
+  RotateSpeed: [10,25]
+  StartEndSize: [ [30,70], [10,30] ]
   SrcDstBlend: [SourceAlpha, One]
