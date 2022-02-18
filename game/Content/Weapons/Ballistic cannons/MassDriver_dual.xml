@@ -29,7 +29,7 @@
   <!-- name of XACT audio cue to play on firing this weapon -->
   <FireCueName>sd_weapon_railgun_massive_01</FireCueName>
   <DieCue>sd_explosion_ship_det_small</DieCue>
-  <WeaponTrailEffect>SmokeTrail</WeaponTrailEffect> 
+  
 
   <ProjectileRadius>10</ProjectileRadius>
   <Scale>1.3</Scale>
@@ -48,9 +48,10 @@
   <AnimationPath>Kinetic_Red/Kinetic_Red_cc_</AnimationPath>
   <LoopAnimation>1</LoopAnimation>
   <ModelPath>projTear</ModelPath>
-
-  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Ballistic Cannon</WeaponType>
+  
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponTrailEffect>SmokeTrail</WeaponTrailEffect> 
   <WeaponHitEffect>Kinetic_Hit_Armor</WeaponHitEffect>
   <WeaponShieldHitEffect>Kinetic_Hit_Shield</WeaponShieldHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>

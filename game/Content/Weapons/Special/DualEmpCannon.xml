@@ -32,7 +32,7 @@
 
   <!-- Projectile Information -->
   <DamageAmount>0</DamageAmount>
-  <EMPDamage>500</EMPDamage>
+  <EMPDamage>250</EMPDamage>
   <SiphonDamage>500</SiphonDamage>
   
   <MuzzleFlash>Yes</MuzzleFlash>

@@ -41,7 +41,8 @@
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
 
   <ProjectileRadius>12</ProjectileRadius>
-  <CanCollideProjectiles>true</CanCollideProjectiles>
+  <CanCollideProjectiles>false</CanCollideProjectiles>
+  <RotationRadsPerSecond>0.6</RotationRadsPerSecond>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Missile</WeaponType>
