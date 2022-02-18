@@ -31,7 +31,11 @@
 #  Scale: 1.0
 #
 #  // overriding color source for this particle effect, default is White color (inherit Particle color)
+#  // valid values: Default, EmpireColor, ThrustColor0, ThrustColor1; @see Graphics/Particles/ParticleEffect.cs
 #  ColorSource: Default
+#
+#  // overriding Color for this particle effect, default is null
+#  Color: [255, 0, 0]
 #
 #  // scales emitter spray velocity, default = 1.0
 #  // how much velocity is being inherited from emitter spray, 1=100%, 0=0%

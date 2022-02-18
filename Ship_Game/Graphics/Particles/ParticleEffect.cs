@@ -50,7 +50,11 @@ namespace Ship_Game.Graphics.Particles
             [StarData] public readonly float Scale = 1.0f;
 
             // overriding color source for this particle effect, default is White color (inherit Particle color)
+            // valid values: Default, EmpireColor, ThrustColor0, ThrustColor1; @see Graphics/Particles/ParticleEffect.cs
             [StarData] public ColorSource ColorSource = ColorSource.Default;
+
+            // overriding Color for this particle effect, default is null
+            [StarData] public Color? Color;
 
             // scales emitter spray velocity, default = 1.0
             // how much velocity is being inherited from emitter spray, 1=100%, 0=0%
@@ -117,24 +121,28 @@ namespace Ship_Game.Graphics.Particles
             {
                 Data = es.Data;
                 Particle = es.Particle;
-                Color = GetColorFromContext(Data.ColorSource, context);
+                Color = GetColor(context);
                 PositionIncrement = es.PositionIncrement;
             }
 
-            static Color GetColorFromContext(ColorSource source, GameplayObject context)
+            Color GetColor(GameplayObject context)
             {
-                if (source != ColorSource.Default && context != null)
+                if (Data.ColorSource != ColorSource.Default && context != null)
                 {
                     var loyalty = context.GetLoyalty();
                     if (loyalty != null)
                     {
-                        switch (source)
+                        switch (Data.ColorSource)
                         {
                             case ColorSource.EmpireColor: return loyalty.EmpireColor;
                             case ColorSource.ThrustColor0: return loyalty.ThrustColor0;
                             case ColorSource.ThrustColor1: return loyalty.ThrustColor1;
                         }
                     }
+                }
+                else if (Data.Color.HasValue)
+                {
+                    return Data.Color.Value;
                 }
                 return Color.White;
             }
