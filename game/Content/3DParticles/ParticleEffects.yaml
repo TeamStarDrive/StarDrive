@@ -102,7 +102,20 @@
 - ParticleEffect: # Projectile Trail effect
   Name: BubbleTrail
   Emitters:
-    - Emitter: { Particle: RemnantBubble, Rate: 15 }
+    - Emitter: { Particle: RemnantBubble, Rate: 25 }
+    - Emitter: { Particle: Remnglow, Rate: 4}
+
+- ParticleEffect: # Projectile Trail effect
+  Name: RemnMissile
+  Emitters:
+    - Emitter: { Particle: Remnglow, Rate: 4}
+
+
+- ParticleEffect: # Projectile Trail effect
+  Name: EcannonTrail
+  Emitters:
+    - Emitter: { Particle: Remnglow, Rate: 15, InheritMoveVelocity: 1, LocalOffset: [0.0, 0, 0.0], Scale: 0.9 }
+    - Emitter: { Particle: BlueSparks, Rate: 30, InheritMoveVelocity: 2, Scale: 4 }
 
 - ParticleEffect: # Projectile Trail effect
   Name: Plasma
@@ -157,7 +170,7 @@
 - ParticleEffect:
   Name: Kinetic_Hit_Shield
   Emitters:
-    - Emitter: { Particle: BlueSparks, Rate: 40 }
+    - Emitter: { Particle: Shard1, Rate: 10 }
     - Emitter: { Particle: Flash, Rate: 20 }
 
 
@@ -174,7 +187,7 @@
 - ParticleEffect:
   Name: Energy_Hit_Shield
   Emitters:
-    - Emitter: { Particle: BlueSparks, Rate: 40 }
+    - Emitter: { Particle: Shard1, Rate: 10 }
     - Emitter: { Particle: Flash, Rate: 20 }
 
 
@@ -195,5 +208,5 @@
   RandomizedSprayParticles: 20
   RandomizedSpray: [ [40,40,-25], [80,80,25] ]
   Emitters:
-    - Emitter: { Particle: BlueSparks, Rate: 40 }
-    - Emitter: { Particle: Flash, Rate: 20 }
+    - Emitter: { Particle: Shard1, Rate: 10 }
+    - Emitter: { Particle: Flash, Rate: 50 }
