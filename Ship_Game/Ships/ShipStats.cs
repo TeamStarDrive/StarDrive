@@ -17,7 +17,6 @@ namespace Ship_Game.Ships
         public float WarpThrust;
         public float TurnThrust;
 
-        public float VelocityMax;
         public float TurnRadsPerSec;
 
         public float MaxFTLSpeed;
@@ -127,7 +126,6 @@ namespace Ship_Game.Ships
             Mass = InitializeMass(modules, e, S.SurfaceArea, S.OrdnancePercent);
 
             (Thrust, WarpThrust, TurnThrust) = GetThrust(modules);
-            UpdateVelocityMax();
             TurnRadsPerSec = GetTurnRadsPerSec(S.Level);
 
             MaxFTLSpeed  = GetFTLSpeed(Mass, e);
@@ -199,12 +197,6 @@ namespace Ship_Game.Ships
 
             radsPerSec *= 1 - S.TractorDamage / Mass;
             return Math.Min(radsPerSec, Ship.MaxTurnRadians);
-        }
-
-        public float UpdateVelocityMax()
-        {
-            VelocityMax = Thrust / Mass;
-            return VelocityMax;
         }
 
         public float GetFTLSpeed(float mass, Empire e)

@@ -80,13 +80,13 @@ namespace Ship_Game
             lock (ShipsLocker)
             {
                 for (int i = 0; i < Ships.Count; ++i)
-                    if (((GameplayObject)Ships[i]).Id == id)
+                    if (Ships[i].Id == id)
                         return Ships[i];
             }
             lock (PendingShipLocker)
             {
                 for (int i = 0; i < PendingShips.Count; ++i)
-                    if (((GameplayObject)PendingShips[i]).Id == id)
+                    if (PendingShips[i].Id == id)
                         return PendingShips[i];
             }
             return null;
@@ -146,7 +146,7 @@ namespace Ship_Game
                         Source   = beam.Source,
                         Destination = beam.Destination,
                         ActualHitDestination = beam.ActualHitDestination,
-                        TargetId  = beam.Target is Ship ship ? ((GameplayObject)ship).Id : 0,
+                        TargetId  = beam.Target is Ship ship ? ship.Id : 0,
                         Loyalty = p.Loyalty.Id,
                     };
                 });
@@ -465,7 +465,7 @@ namespace Ship_Game
                         var ship = (Ship)shipsInSystem[j];
 
                         system.ShipList.Add(ship);
-                        shipsInSystems.Add(((GameplayObject)ship).Id); // this ship was seen in a system
+                        shipsInSystems.Add(ship.Id); // this ship was seen in a system
 
                         ship.SetSystem(system);
                         system.SetExploredBy(ship.Loyalty);
@@ -482,7 +482,7 @@ namespace Ship_Game
                 for (int i = 0; i < shipsCount; ++i)
                 {
                     Ship ship = Ships[i];
-                    if (!shipsInSystems.Contains(((GameplayObject)ship).Id))
+                    if (!shipsInSystems.Contains(ship.Id))
                         ship.SetSystem(null);
                 }
             }

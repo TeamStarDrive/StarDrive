@@ -166,7 +166,7 @@ namespace Ship_Game.AI.Tasks
                 AORadius                 = 20000,
                 Owner                    = empire,
                 EnemyStrength            = targetShip.BaseStrength,
-                TargetShipId             = ((GameplayObject)targetShip).Id,
+                TargetShipId             = targetShip.Id,
                 MinimumTaskForceStrength = (targetShip.BaseStrength + pingStr) * empire.GetFleetStrEmpireMultiplier(targetShip.Loyalty),
                 TargetEmpire             = targetShip.Loyalty
             };
@@ -566,7 +566,7 @@ namespace Ship_Game.AI.Tasks
         public void SetTargetShip(Ship ship)
         {
             TargetShip = ship;
-            TargetShipId = ((GameplayObject)ship).Id;
+            TargetShipId = ship.Id;
         }
 
         //need to examine this fleet key thing. i believe there is a leak.

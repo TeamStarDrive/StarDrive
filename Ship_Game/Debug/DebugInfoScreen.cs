@@ -418,7 +418,7 @@ namespace Ship_Game.Debug
                     VisualizeShipGoal(ship, false);
 
                 DrawString($"Fleet: {fleet.Name}  IsCoreFleet:{fleet.IsCoreFleet}");
-                DrawString($"Ships:{fleet.Ships.Count} STR:{fleet.GetStrength()} SPD:{fleet.SpeedLimit}");
+                DrawString($"Ships:{fleet.Ships.Count} STR:{fleet.GetStrength()} Vmax:{fleet.SpeedLimit}");
                 DrawString($"Distance: {fleet.AveragePosition().Distance(fleet.FinalPosition)}");
                 DrawString($"FormationMove:{fleet.InFormationMove}  ReadyForWarp:{fleet.ReadyForWarp}");
 
@@ -460,11 +460,11 @@ namespace Ship_Game.Debug
             {
                 Ship ship = Screen.SelectedShip;
 
-                DrawString($"Ship {ship.ShipName}  x {(int)ship.Position.X} y {(int)ship.Position.Y}");
-                DrawString($"VEL: {ship.Velocity.Length().String(0)}  "
-                          +$"LIMIT: {ship.SpeedLimit.String(0)}  "
-                          +$"Vmax: {ship.VelocityMaximum.String(0)}  "
-                          +$"FTLMax: {ship.MaxFTLSpeed.String(0)}  "
+                DrawString($"Ship {ship.ShipName}  x {ship.Position.X:0} y {ship.Position.Y:0}");
+                DrawString($"VEL: {ship.Velocity.Length():0}  "
+                          +$"LIMIT: {ship.SpeedLimit:0}  "
+                          +$"Vmax: {ship.VelocityMax:0}  "
+                          +$"FTLMax: {ship.MaxFTLSpeed:0}  "
                           +$"{ship.WarpState}  {ship.ThrustThisFrame}  {ship.DebugThrustStatus}");
 
                 DrawString($"ENG:{ship.ShipEngines.EngineStatus} FTL:{ship.ShipEngines.ReadyForWarp} FLEET:{ship.ShipEngines.ReadyForFormationWarp}");
@@ -477,7 +477,7 @@ namespace Ship_Game.Debug
                 DrawString($"On Defense: {ship.Loyalty.GetEmpireAI().DefensiveCoordinator.Contains(ship)}");
                 if (ship.Fleet != null)
                 {
-                    DrawString($"Fleet: {ship.Fleet.Name}  {(int)ship.Fleet.FinalPosition.X}x{(int)ship.Fleet.FinalPosition.Y}  SPD:{ship.Fleet.SpeedLimit}");
+                    DrawString($"Fleet: {ship.Fleet.Name}  {(int)ship.Fleet.FinalPosition.X}x{(int)ship.Fleet.FinalPosition.Y}  Vmax:{ship.Fleet.SpeedLimit}");
                 }
 
                 DrawString(ship.Pool != null ? "In Force Pool" : "NOT In Force Pool");

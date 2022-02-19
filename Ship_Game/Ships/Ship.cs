@@ -36,7 +36,11 @@ namespace Ship_Game.Ships
         float JumpTimer = 3f;
         public AudioEmitter SoundEmitter = new AudioEmitter();
         public float ScuttleTimer = -1f;
+
+        // Ship's rotated offset from fleet center
         public Vector2 FleetOffset;
+
+        // Unrotated fleet offset from [0,0]
         public Vector2 RelativeFleetOffset;
 
         public ShipModule[] Shields;
@@ -274,17 +278,16 @@ namespace Ship_Game.Ships
             ShipStatusChanged = true;
         }
 
-        Status FleetCapableStatus;
-
         public bool CanTakeFleetMoveOrders()
         {
-            return Active && FleetCapableStatus == Status.Good
-                && ShipEngines.EngineStatus == EngineStatus.Active;
+            return Active
+                && ShipEngines.EngineStatus == EngineStatus.Active
+                && CanTakeFleetOrders;
         }
 
-        void SetFleetCapableStatus()
+        public bool CanTakeFleetOrders
         {
-            if (!EMPDisabled)
+            get
             {
                 switch (AI.State)
                 {
@@ -292,25 +295,14 @@ namespace Ship_Game.Ships
                     case AIState.Refit:
                     case AIState.Scrap:
                     case AIState.Scuttle:
-                        FleetCapableStatus = Status.Poor;
-                        break;
+                        return false;
                     default:
-                        FleetCapableStatus = Status.Good;
-                        break;
+                        if (EMPDisabled)
+                            return false;
+                        return true;
                 }
             }
-            else
-                FleetCapableStatus = Status.Poor;
         }
-
-        public bool CanTakeFleetOrders => FleetCapableStatus == Status.Good;
-
-        // This bit field marks all the empires which are influencing
-        // us within their borders via Subspace projectors
-
-        // Somewhat ugly, but optimized book-keeping of projector influences
-        // for every ship.
-        // Each bit in the bitfield marks whether an empire is influencing us or not
 
         public bool InsideAreaOfOperation(Planet planet)
         {
@@ -452,7 +444,7 @@ namespace Ship_Game.Ships
 
         float GetYBankAmount(FixedSimTime timeStep)
         {
-            float yBank = RotationRadiansPerSecond * timeStep.FixedTime;
+            float yBank = RotationRadsPerSecond * timeStep.FixedTime;
             switch (ShipData.Role)
             {
                 default:
@@ -749,7 +741,7 @@ namespace Ship_Game.Ships
                 return 0;
 
             float warpK = MaxFTLSpeed / 1000;
-            float score = warpK + MaxSTLSpeed / 10 + RotationRadiansPerSecond.ToDegrees();
+            float score = warpK + MaxSTLSpeed / 10 + RotationRadsPerSecond.ToDegrees();
             return score;
         }
 
@@ -780,7 +772,7 @@ namespace Ship_Game.Ships
             if (angleDiff > 180)
                 angleDiff = 360 - Position.AngleToTarget(targetPos) + RotationDegrees;
 
-            float rotationTime = angleDiff / RotationRadiansPerSecond.ToDegrees().LowerBound(1);
+            float rotationTime = angleDiff / RotationRadsPerSecond.ToDegrees().LowerBound(1);
             float distanceFTL  = Math.Max(distance - distanceSTL, 0);
             float travelSTL    = distanceSTL / MaxSTLSpeed.LowerBound(1);
             float travelFTL    = distanceFTL / MaxFTLSpeed.LowerBound(1);
@@ -1098,7 +1090,7 @@ namespace Ship_Game.Ships
         // TODO: This needs a performance refactor
         public void UpdateShipStatus(FixedSimTime timeStep)
         {
-            if (timeStep.FixedTime > 0f && VelocityMaximum <= 0f
+            if (timeStep.FixedTime > 0f && VelocityMax <= 0f
                 && !ShipData.IsShipyard && ShipData.Role <= RoleName.station)
             {
                 // rotate Platform and SSP:
@@ -1167,7 +1159,6 @@ namespace Ship_Game.Ships
             // update our knowledge of the surrounding universe
             UpdateInfluence(timeStep);
             KnownByEmpires.Update(timeStep, Loyalty);
-            SetFleetCapableStatus();
 
             // scan universe and make decisions for combat
             AI.ScanForTargets(timeStep);
@@ -1963,7 +1954,7 @@ namespace Ship_Game.Ships
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
         public override string ToString() =>
-            $"Ship:{((GameplayObject)this).Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
+            $"Ship:{this.Id} {DesignRole} '{ShipName}' {Loyalty.data.ArchetypeName} Pos:{{{Position.X.String(2)},{Position.Y.String(2)}}} {System} State:{AI?.State} Health:{(HealthPercent*100f).String()}%";
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {

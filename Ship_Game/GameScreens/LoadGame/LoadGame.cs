@@ -522,7 +522,7 @@ namespace Ship_Game.GameScreens.LoadGame
                     fleet.TaskStep = fleetsave.TaskStep;
                     fleet.Owner = e;
                     fleet.FinalPosition = fleetsave.Position;
-                    fleet.SetSpeed();
+                    fleet.UpdateSpeedLimit();
                     fleet.SetAutoRequisition(fleetsave.AutoRequisition);
                     e.GetFleetsDict()[fleetsave.Key] = fleet;
                 }

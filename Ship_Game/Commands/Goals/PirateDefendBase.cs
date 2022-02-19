@@ -56,7 +56,7 @@ namespace Ship_Game.Commands.Goals
         void SendMoreForces()
         {
             var potentialShips = Pirates.Owner.OwnedShips.Filter(s => !s.IsFreighter
-                                                                      && !Pirates.SpawnedShips.Contains(((GameplayObject)s).Id)
+                                                                      && !Pirates.SpawnedShips.Contains(s.Id)
                                                                       && s.BaseStrength > 0
                                                                       && !s.InCombat
                                                                       && !s.IsPlatformOrStation
