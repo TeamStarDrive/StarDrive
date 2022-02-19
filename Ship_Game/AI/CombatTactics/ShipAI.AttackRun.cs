@@ -116,7 +116,7 @@ namespace Ship_Game.AI.CombatTactics
                     
                     debugStatus = "Chase";
                     return (distance - Owner.DesiredCombatRange*0.6f)
-                        .Clamped(targetSpeed + Owner.VelocityMaximum*0.05f, Owner.VelocityMaximum);
+                        .Clamped(targetSpeed + Owner.VelocityMax*0.05f, Owner.VelocityMax);
                 }
                 
                 // they are coming towards us or just flew past us
@@ -127,8 +127,8 @@ namespace Ship_Game.AI.CombatTactics
             // enemy is really slow, so we're not in a hurry
             // using distance gives a nice slow-down effect when we get closer to the target
             debugStatus = "SlowStrafe";
-            return (distance - Owner.VelocityMaximum*0.4f)
-                .Clamped(Owner.VelocityMaximum*0.15f, Owner.VelocityMaximum*0.9f);
+            return (distance - Owner.VelocityMax*0.4f)
+                .Clamped(Owner.VelocityMax*0.15f, Owner.VelocityMax*0.9f);
         }
 
         bool ShouldDisengage(float distanceToAttack, float spacerDistance)
@@ -182,7 +182,7 @@ namespace Ship_Game.AI.CombatTactics
             float disengageLimit = DesiredCombatRange * 0.25f + SpacerDistance;
             float distance = DisengageStart.Distance(Owner.Position).LowerBound(SpacerDistance);
 
-            float disengageSpeed = (Owner.VelocityMaximum * 0.8f).Clamped(200f, 1000f);
+            float disengageSpeed = (Owner.VelocityMax * 0.8f).Clamped(200f, 1000f);
             if (State == RunState.Disengage1)
             {
                 if (distance > disengageLimit) // Disengage1 success
@@ -197,22 +197,18 @@ namespace Ship_Game.AI.CombatTactics
                 }
                 else
                 {
-                    AI.SubLightContinuousMoveInDirection(Owner.Position.DirectionToTarget(DisengagePos1),
-                    timeStep, disengageSpeed);
-
+                    AI.SubLightContinuousMoveInDirection(Owner.Position.DirectionToTarget(DisengagePos1), timeStep, disengageSpeed);
                 }
             }
             else if (State == RunState.Disengage2)
             {
-                if (DistanceToTarget > Owner.DesiredCombatRange || 
-                    DirectionToTarget.Dot(Owner.Direction) > 0.7f) // Disengage2 success
+                if (DistanceToTarget > Owner.DesiredCombatRange || DirectionToTarget.Dot(Owner.Direction) > 0.7f) // Disengage2 success
                 {
                     State = RunState.Strafing;
                 }
                 else
                 {
-                    AI.SubLightContinuousMoveInDirection(Owner.Position.DirectionToTarget(DisengagePos2),
-                    timeStep, disengageSpeed);
+                    AI.SubLightContinuousMoveInDirection(Owner.Position.DirectionToTarget(DisengagePos2), timeStep, disengageSpeed);
                 }
             }
 

@@ -514,7 +514,9 @@ namespace Ship_Game.Ships
 
                 if (recallFighters)
                 {
-                    Owner.SetSpeedLimit((slowestFighterSpeed * 0.25f).UpperBound(Owner.MaxSTLSpeed));
+                    // not faster than MaxSTLSpeed or max fighter speed
+                    float maxCarrierSpeed = Math.Min(Owner.MaxSTLSpeed, slowestFighterSpeed * 0.25f);
+                    Owner.SetSpeedLimit(maxCarrierSpeed);
                     return true;
                 }
             }

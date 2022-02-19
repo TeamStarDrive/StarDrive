@@ -696,11 +696,11 @@ namespace Ship_Game.AI
             var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, goal.Direction);
             float distanceToEscortSpot = Owner.Position.Distance(escortVector);
             float supplyShipVelocity   = EscortTarget.CurrentVelocity;
-            float escortVelocity       = Owner.VelocityMaximum;
+            float escortVelocity       = Owner.VelocityMax;
             if (distanceToEscortSpot < 50)
                 escortVelocity = distanceToEscortSpot;
             else if (distanceToEscortSpot < 2000) // ease up thrust on approach to escort spot
-                escortVelocity = distanceToEscortSpot / 2000 * Owner.VelocityMaximum + supplyShipVelocity + 25;
+                escortVelocity = distanceToEscortSpot / 2000 * Owner.VelocityMax + supplyShipVelocity + 25;
 
             ThrustOrWarpToPos(escortVector, timeStep, escortVelocity);
 

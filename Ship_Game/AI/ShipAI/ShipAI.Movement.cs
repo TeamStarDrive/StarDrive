@@ -312,7 +312,7 @@ namespace Ship_Game.AI
                 return true;
             }
             
-            float deceleration = (Owner.VelocityMaximum * timeStep.FixedTime);
+            float deceleration = (Owner.VelocityMax * timeStep.FixedTime);
             if (Owner.CurrentVelocity.LessOrEqual(deceleration)) // we are almost at zero, lets stop.
             {
                 Owner.Velocity = Vector2.Zero;
@@ -439,7 +439,7 @@ namespace Ship_Game.AI
         float EstimateMaxWarpTurn(float distance)
         {
             float timeToTarget = distance / Owner.Velocity.Length();
-            float maxTurn = Owner.RotationRadiansPerSecond * timeToTarget;
+            float maxTurn = Owner.RotationRadsPerSecond * timeToTarget;
             const float minAngle = 15.0f * RadMath.DegreeToRadian;
             const float maxAngle = 65.0f * RadMath.DegreeToRadian;
             return maxTurn.Clamped(minAngle, maxAngle);
@@ -455,7 +455,10 @@ namespace Ship_Game.AI
             }
 
             Owner.Velocity.GetDirectionAndLength(out Vector2 velDir, out float speed);
-            if (speed > 1f)
+
+            // ensure ship is already at light speed,
+            // otherwise we could drop out of warp due to minor sideways drift when ship enters warp
+            if (speed >= Ship.LightSpeedConstant)
             {
                 // get the ship's velocity and intended heading vector relation (+1 same dir, -1 opposite dirs)
                 float travel = velDir.Dot(wantedForward);

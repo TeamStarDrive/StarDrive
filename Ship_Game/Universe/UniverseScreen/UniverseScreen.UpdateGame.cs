@@ -405,7 +405,7 @@ namespace Ship_Game
                             if (kv.Value.Ships.NotEmpty)
                             {
                                 kv.Value.AveragePosition();
-                                kv.Value.SetSpeed();
+                                kv.Value.UpdateSpeedLimit();
                             }
                         }
                     }
