@@ -173,6 +173,8 @@ namespace Ship_Game
 
         public void Clear()
         {
+            Ships.ApplyChanges();
+
             var ships = Ships.GetItems();
             for (int i = 0; i < ships.Length; ++i)
                 ships[i].RemoveFromUniverseUnsafe();

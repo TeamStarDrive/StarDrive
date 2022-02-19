@@ -328,10 +328,9 @@ namespace UnitTests.Universe
                 const float defaultSensorRange = 30000f;
                 while (timer.Elapsed < 1.0)
                 {
-                    GameplayObject[] objs = AllObjects;
-                    for (int i = 0; i < objs.Length; ++i)
+                    for (int i = 0; i < AllObjects.Length; ++i)
                     {
-                        if (objs[i] is Ship s)
+                        if (AllObjects[i] is Ship s)
                         {
                             var shipOpt = new SearchOptions(s.Position, defaultSensorRange, GameObjectType.Ship);
                             var projOpt = new SearchOptions(s.Position, defaultSensorRange, GameObjectType.Proj);

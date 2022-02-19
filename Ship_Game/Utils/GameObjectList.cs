@@ -37,10 +37,25 @@ namespace Ship_Game.Utils
             if (id <= 0)
                 return null;
 
-            var items = GetItems();
-            for (int i = 0; i < items.Length; ++i)
-                if (items[i].Id == id)
-                    return items[i];
+            // if we haven't applied changes yet, use the Back-Buffer (SLOW)
+            if (Changed)
+            {
+                lock (Back)
+                {
+                    T[] items = Back.GetInternalArrayItems();
+                    int count = Back.Count;
+                    for (int i = 0; i < count; ++i)
+                        if (items[i].Id == id)
+                            return items[i];
+                }
+            }
+            else
+            {
+                T[] items = Front;
+                for (int i = 0; i < items.Length; ++i)
+                    if (items[i].Id == id)
+                        return items[i];
+            }
 
             return null;
         }
@@ -70,14 +85,7 @@ namespace Ship_Game.Utils
         ///     ...
         /// }
         /// </example>
-        public T[] GetItems()
-        {
-            if (!Changed)
-                return Front;
-
-            ApplyChanges();
-            return Front;
-        }
+        public T[] GetItems() => Front;
 
         /// <summary>
         /// Adds an item to the back buffer

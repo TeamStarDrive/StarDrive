@@ -27,7 +27,7 @@ namespace UnitTests.Ships
         void EnsureSpawnedLoyaltyAndSpatialCoherence(Ship playerShip)
         {
             // NOTE: This covers the LoyaltyChangeAtSpawn case
-            Assert.AreEqual(0, UState.Objects.NumShips);
+            Assert.AreEqual(1, UState.Objects.NumShips);
             Assert.IsFalse(Player.OwnedShips.Contains(playerShip), "Player.OwnedShips must NOT contain the ship");
             Assert.IsFalse(Enemy.OwnedShips.Contains(playerShip), "Enemy.OwnedShips must NOT contain the ship");
             UState.Objects.Update(TestSimStep);
