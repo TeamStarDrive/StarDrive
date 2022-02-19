@@ -279,15 +279,8 @@ namespace Ship_Game.Gameplay
                 MissileAI = new MissileAI(this, target, missileVelocity);
             }
 
-            if (Universe != null) // load game
-            {
-                Universe.Objects.AddImmediate(this);
-            }
-            else
-            {
-                Universe = Owner?.Universe ?? Planet.Universe;
-                Universe.Objects.Add(this);
-            }
+            Universe = Owner?.Universe ?? Planet.Universe;
+            Universe.Objects.Add(this);
 
             LoadContent();
 

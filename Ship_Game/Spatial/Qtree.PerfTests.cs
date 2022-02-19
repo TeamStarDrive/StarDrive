@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -9,10 +10,8 @@ namespace Ship_Game.Spatial
     {
         public delegate Ship SpawnShipFunc(string name, Empire loyalty, Vector2 pos, Vector2 dir);
 
-        public static Array<GameplayObject> CreateTestSpace(ISpatial tree, int numShips,
-                                                            float spawnProjectilesWithOffset,
-                                                            Empire player, Empire enemy,
-                                                            SpawnShipFunc spawnShip)
+        public static GameplayObject[] CreateTestSpace(ISpatial tree, int numShips,
+            float spawnProjectilesWithOffset, Empire player, Empire enemy, SpawnShipFunc spawnShip)
         {
             var allObjects = new Array<GameplayObject>();
             var ships = new Array<Ship>();
@@ -51,8 +50,9 @@ namespace Ship_Game.Spatial
                 }
             }
 
-            tree.UpdateAll(allObjects);
-            return allObjects;
+            var objects = allObjects.ToArray();
+            tree.UpdateAll(objects);
+            return objects;
         }
 
         static Ship SpawnShip(string name, Empire loyalty, Vector2 pos, Vector2 dir)
@@ -63,7 +63,8 @@ namespace Ship_Game.Spatial
             return target;
         }
 
-        public static void SpawnProjectilesFromEachShip(ISpatial tree, Array<GameplayObject> allObjects, Vector2 offset)
+        public static GameplayObject[] SpawnProjectilesFromEachShip(
+            ISpatial tree, GameplayObject[] allObjects, Vector2 offset)
         {
             var projectiles = new Array<Projectile>();
             foreach (GameplayObject go in allObjects)
@@ -75,14 +76,15 @@ namespace Ship_Game.Spatial
                 projectiles.Add(p);
             }
 
-            allObjects.AddRange(projectiles);
-            tree.UpdateAll(allObjects);
+            var objects = allObjects.Concat(projectiles).ToArray();
+            tree.UpdateAll(objects);
+            return objects;
         }
 
         public static void RunSearchPerfTest()
         {
             var tree = new Qtree(500_000f);
-            Array<GameplayObject> ships = CreateTestSpace(tree, 10000, 0,
+            GameplayObject[] ships = CreateTestSpace(tree, 10000, 0,
                 EmpireManager.Void, EmpireManager.Void, SpawnShip);
 
             const float defaultSensorRange = 30000f;
@@ -91,7 +93,7 @@ namespace Ship_Game.Spatial
             var t1 = new PerfTimer();
             for (int x = 0; x < iterations; ++x)
             {
-                for (int i = 0; i < ships.Count; ++i)
+                for (int i = 0; i < ships.Length; ++i)
                 {
                     var s = (Ship)ships[i];
                     var opt = new SearchOptions(s.Position, defaultSensorRange)
@@ -107,7 +109,7 @@ namespace Ship_Game.Spatial
             var t2 = new PerfTimer();
             for (int x = 0; x < iterations; ++x)
             {
-                for (int i = 0; i < ships.Count; ++i)
+                for (int i = 0; i < ships.Length; ++i)
                 {
                     var s = (Ship)ships[i];
                     var opt = new SearchOptions(s.Position, defaultSensorRange)
@@ -127,7 +129,7 @@ namespace Ship_Game.Spatial
         public static void RunCollisionPerfTest()
         {
             var tree = new Qtree(500_000f);
-            Array<GameplayObject> ships = CreateTestSpace(tree, 10000, 0,
+            GameplayObject[] ships = CreateTestSpace(tree, 10000, 0,
                 EmpireManager.Void, EmpireManager.Void, SpawnShip);
 
             const int iterations = 1000;

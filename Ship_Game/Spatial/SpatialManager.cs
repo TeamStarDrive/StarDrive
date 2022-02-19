@@ -67,12 +67,12 @@ namespace Ship_Game.Gameplay
             Spatial.DebugVisualize(screen, VisOpt);
         }
 
-        public void Update(Array<GameplayObject> allObjects)
+        public void Update(GameplayObject[] allObjects)
         {
             if (ResetToNewSpatial != null)
             {
                 // wipe all objects from spatial
-                for (int i = 0; i < allObjects.Count; ++i)
+                for (int i = 0; i < allObjects.Length; ++i)
                     allObjects[i].SpatialIndex = -1;
 
                 Spatial.Clear();
