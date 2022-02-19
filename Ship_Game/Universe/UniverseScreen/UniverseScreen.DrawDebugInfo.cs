@@ -67,8 +67,8 @@ namespace Ship_Game
                 var uObjects = UState.Objects;
                 DebugStats.AddItem(new DebugStatItem("Time",
                     () => $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime - CurrentSimTime) * 1000:0.0}ms"));
-                DebugStats.AddItem(new DebugStatItem("Ships", () => uObjects.Ships.Count.ToString()));
-                DebugStats.AddItem(new DebugStatItem("Proj", () => uObjects.Projectiles.Count.ToString()));
+                DebugStats.AddItem(new DebugStatItem("Ships", () => uObjects.NumShips.ToString()));
+                DebugStats.AddItem(new DebugStatItem("Proj", () => uObjects.NumProjectiles.ToString()));
                 DebugStats.AddItem(new DebugStatItem("DyLights", () => ScreenManager.ActiveDynamicLights.ToString()));
                 DebugStats.AddItem(new DebugStatItem("Perf", () => "avg-sample  max-sample  total/sec"));
 

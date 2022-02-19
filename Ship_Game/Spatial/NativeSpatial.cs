@@ -119,16 +119,14 @@ namespace Ship_Game.Spatial
             }
         }
 
-        public void UpdateAll(Array<GameplayObject> allObjects)
+        public void UpdateAll(GameplayObject[] allObjects)
         {
-            int count = allObjects.Count;
-            int maxObjects = Math.Max(MaxObjects, count);
+            int maxObjects = Math.Max(MaxObjects, allObjects.Length);
 
             var objects = new GameplayObject[maxObjects];
-            GameplayObject[] gameObjects = allObjects.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
+            for (int i = 0; i < allObjects.Length; ++i)
             {
-                GameplayObject go = gameObjects[i];
+                GameplayObject go = allObjects[i];
                 int objectId = go.SpatialIndex;
                 if (go.Active)
                 {

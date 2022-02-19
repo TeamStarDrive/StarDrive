@@ -24,28 +24,17 @@ namespace Ship_Game
         /// <summary>
         /// All objects: ships, projectiles, beams
         /// </summary>
-        public readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
+        readonly GameObjectList<GameplayObject> Objects = new GameObjectList<GameplayObject>();
 
         /// <summary>
         /// All ships
         /// </summary>
-        public readonly Array<Ship> Ships = new Array<Ship>();
+        readonly GameObjectList<Ship> Ships = new GameObjectList<Ship>();
 
         /// <summary>
         /// All projectiles: projectiles, beams
         /// </summary>
-        public readonly Array<Projectile> Projectiles = new Array<Projectile>();
-
-        // pending ships and projectiles submitted to object manager
-        readonly Array<Ship> PendingShips = new Array<Ship>();
-        readonly Array<Projectile> PendingProjectiles = new Array<Projectile>();
-
-        readonly object PendingShipLocker = new object();
-        readonly object PendingProjectileLocker = new object();
-        // locks down any modification of object lists
-        readonly object ShipsLocker = new object();
-        readonly object ProjectilesLocker = new object();
-        readonly object AllObjectsLocker = new object();
+        readonly GameObjectList<Projectile> Projectiles = new GameObjectList<Projectile>();
 
         public readonly AggregatePerfTimer TotalTime = new AggregatePerfTimer();
         public readonly AggregatePerfTimer ListTime = new AggregatePerfTimer();
@@ -66,6 +55,21 @@ namespace Ship_Game
         public Projectile[] VisibleProjectiles { get; private set; } = Empty<Projectile>.Array;
         public Beam[] VisibleBeams { get; private set; } = Empty<Beam>.Array;
 
+        /// <summary>
+        /// Number of currently tracked ships
+        /// </summary>
+        public int NumShips => Ships.NumBackingItems;
+
+        /// <summary>
+        /// Number of currently tracked projectiles
+        /// </summary>
+        public int NumProjectiles => Projectiles.NumBackingItems;
+
+        /// <summary>
+        /// Currently submitted objects (excludes pending)
+        /// </summary>
+        public IReadOnlyList<Ship> GetShips() => Ships.GetItems();
+
         public UniverseObjectManager(UniverseScreen uScreen, UniverseState uState, SpatialManager spatial)
         {
             Universe = uScreen;
@@ -73,46 +77,18 @@ namespace Ship_Game
             Spatial = spatial;
         }
 
-        public Ship FindShip(int id)
-        {
-            if (id <= 0)
-                return null;
-            lock (ShipsLocker)
-            {
-                for (int i = 0; i < Ships.Count; ++i)
-                    if (Ships[i].Id == id)
-                        return Ships[i];
-            }
-            lock (PendingShipLocker)
-            {
-                for (int i = 0; i < PendingShips.Count; ++i)
-                    if (PendingShips[i].Id == id)
-                        return PendingShips[i];
-            }
-            return null;
-        }
+        public Ship FindShip(int id) => Ships.Find(id);
+        public bool FindShip(int id, out Ship found) => Ships.Find(id, out found);
+        public bool ContainsShip(int id) => Ships.Contains(id);
 
-        public bool FindShip(int id, out Ship found)
-        {
-            return (found = FindShip(id)) != null;
-        }
-
-        public GameplayObject FindObject(int id)
-        {
-            // TODO: ADD PROJECTILE AND BEAM SUPPORT
-            return FindShip(id);
-        }
-
-        public bool FindObject(int id, out GameplayObject found)
-        {
-            return (found = FindObject(id)) != null;
-        }
+        public GameplayObject FindObject(int id) => Objects.Find(id);
+        public bool FindObject(int id, out GameplayObject found) => Objects.Find(id, out found);
+        public bool ContainsObject(int id) => Objects.Contains(id);
 
         public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
         {
-            lock (ProjectilesLocker)
-            {
-                return Projectiles.FilterSelect(
+            var projectiles = Projectiles.GetItems();
+            return projectiles.FilterSelect(
                 p => p.Active && p.Type == GameObjectType.Proj && (p.Owner != null || p.Planet != null),
                 p => new SavedGame.ProjectileSaveData
                 {
@@ -125,14 +101,12 @@ namespace Ship_Game
                     Position = p.Position,
                     Loyalty  = p.Loyalty.Id,
                 });
-            }
         }
 
         public SavedGame.BeamSaveData[] GetBeamSaveData()
         {
-            lock (ProjectilesLocker)
-            {
-                return Projectiles.FilterSelect(
+            var projectiles = Projectiles.GetItems();
+            return projectiles.FilterSelect(
                 p => p.Active && p.Type == GameObjectType.Beam && (p.Owner != null || p.Planet != null),
                 p =>
                 {
@@ -150,44 +124,24 @@ namespace Ship_Game
                         Loyalty = p.Loyalty.Id,
                     };
                 });
-            }
         }
 
         // NOTE: SLOW !! Should only be used for UNIT TESTS
         // Only returns projectiles NOT BEAMS
-        public Array<Projectile> GetProjectiles(Ship ship)
+        public Projectile[] GetProjectiles(Ship ship)
         {
-            var projectiles = new Array<Projectile>();
-            lock (ProjectilesLocker)
-            {
-                for (int i = 0; i < Projectiles.Count; ++i)
-                {
-                    Projectile p = Projectiles[i];
-                    if (p.Type == GameObjectType.Proj && p.Owner == ship)
-                        projectiles.Add(p);
-                }
-            }
-            lock (PendingProjectileLocker)
-            {
-                for (int i = 0; i < PendingProjectiles.Count; ++i)
-                {
-                    Projectile p = PendingProjectiles[i];
-                    if (p.Type == GameObjectType.Proj && p.Owner == ship)
-                        projectiles.Add(p);
-                }
-            }
-            return projectiles;
+            var projectiles = Projectiles.GetItems();
+            return projectiles.Filter(
+                p => p.Active && p.Type == GameObjectType.Proj && p.Owner == ship);
         }
 
         /// <summary>SLOW !! Only for UNIT TESTS</summary>
         public Beam[] GetBeams(Ship ship)
         {
-            lock (ProjectilesLocker)
-            {
-                return Projectiles.FilterSelect(
-                    p => p.Active && p.Type == GameObjectType.Beam && p.Owner == ship,
-                    p => (Beam)p);
-            }
+            var projectiles = Projectiles.GetItems();
+            return projectiles.FilterSelect(
+                p => p.Active && p.Type == GameObjectType.Beam && p.Owner == ship,
+                p => (Beam)p);
         }
 
         /// <summary>DEFERRED: Thread-safely Adds a new Object to the Universe</summary>
@@ -202,70 +156,30 @@ namespace Ship_Game
                 Add((Projectile)go);
             }
         }
-        /// <summary>DEFERRED: Thread-safely Adds a new Ship to the Universe</summary>
+        /// <summary>Thread-safely Adds a new Ship to the Universe</summary>
         public void Add(Ship ship)
         {
             ship.ReinsertSpatial = true;
-            lock (PendingShipLocker)
-                PendingShips.Add(ship);
+            Ships.Add(ship);
+            Objects.Add(ship);
         }
-        /// <summary>DEFERRED: Thread-safely Adds a new PROJECTILE or BEAM to the Universe</summary>
+        /// <summary>Thread-safely Adds a new PROJECTILE or BEAM to the Universe</summary>
         public void Add(Projectile projectile)
         {
             projectile.ReinsertSpatial = true;
-            lock (PendingProjectileLocker)
-                PendingProjectiles.Add(projectile);
-        }
-
-        /// <summary>IMMEDIATE: Thread-safely Adds a new Object to the Universe</summary>
-        public void AddImmediate(GameplayObject go)
-        {
-            if (go.Type == GameObjectType.Ship)
-            {
-                AddImmediate((Ship)go);
-            }
-            else if (go.Type == GameObjectType.Beam || go.Type == GameObjectType.Proj)
-            {
-                AddImmediate((Projectile)go);
-            }
-        }
-        /// <summary>IMMEDIATE: Thread-safely Adds a new Ship to the Universe</summary>
-        public void AddImmediate(Ship ship)
-        {
-            ship.ReinsertSpatial = true;
-            lock (ShipsLocker)
-                Ships.Add(ship);
-            lock (AllObjectsLocker)
-                Objects.Add(ship);
-        }
-        /// <summary>IMMEDIATE: Thread-safely Adds a new PROJECTILE or BEAM to the Universe</summary>
-        public void AddImmediate(Projectile projectile)
-        {
-            projectile.ReinsertSpatial = true;
-            lock (ProjectilesLocker)
-                Projectiles.Add(projectile);
-            lock (AllObjectsLocker)
-                Objects.Add(projectile);
+            Projectiles.Add(projectile);
+            Objects.Add(projectile);
         }
 
         public void Clear()
         {
-            lock (PendingShipLocker)
-                PendingShips.Clear();
-            
-            lock (PendingProjectileLocker)
-                PendingProjectiles.Clear();
+            var ships = Ships.GetItems();
+            for (int i = 0; i < ships.Length; ++i)
+                ships[i].RemoveFromUniverseUnsafe();
 
-            lock (ShipsLocker)
-            {
-                for (int i = 0; i < Ships.Count; ++i)
-                    Ships[i]?.RemoveFromUniverseUnsafe();
-                Ships.Clear();
-            }
-            lock (ProjectilesLocker)
-                Projectiles.Clear();
-            lock (AllObjectsLocker)
-                Objects.Clear();
+            Ships.ClearAndApplyChanges();
+            Projectiles.ClearAndApplyChanges();
+            Objects.ClearAndApplyChanges();
 
             Spatial.Clear();
         }
@@ -303,13 +217,13 @@ namespace Ship_Game
                 //   add objects with no spatial Id
                 //   remove objects that are !Active
                 //   update objects that have spatial Id
-                lock (AllObjectsLocker)
                 {
-                    Spatial.Update(Objects);
+                    var objects = Objects.GetItems();
+                    Spatial.Update(objects);
                     // remove inactive objects only after Spatial has seen them as inactive
-                    Objects.RemoveInActiveObjects();
+                    Objects.RemoveInActiveAndApplyChanges();
                 }
-                
+
                 // trigger all Hit events
                 Spatial.CollideAll(timeStep, showCollisions: Universe.Debug);
 
@@ -333,9 +247,9 @@ namespace Ship_Game
         {
             UpdateLists(removeInactiveObjects: true);
             UpdateAllSystems(FixedSimTime.Zero);
-            lock (AllObjectsLocker)
             {
-                Spatial.Update(Objects);
+                var objects = Objects.GetItems();
+                Spatial.Update(objects);
             }
             UpdateAllSensors(FixedSimTime.Zero);
             UpdateVisibleObjects();
@@ -349,66 +263,51 @@ namespace Ship_Game
         public void UpdateLists(bool removeInactiveObjects = true)
         {
             ListTime.Start();
-
-            lock (PendingShipLocker)
-            {
-                lock (ShipsLocker)
-                    Ships.AddRange(PendingShips);
-                lock (AllObjectsLocker)
-                    Objects.AddRange(PendingShips);
-                PendingShips.Clear();
-            }
-            lock (PendingProjectileLocker)
-            {
-                lock (ProjectilesLocker)
-                    Projectiles.AddRange(PendingProjectiles);
-                lock (AllObjectsLocker)
-                    Objects.AddRange(PendingProjectiles);
-                PendingProjectiles.Clear();
-            }
+            
+            Ships.ApplyChanges();
+            Projectiles.ApplyChanges();
+            Objects.ApplyChanges();
 
             if (removeInactiveObjects)
             {
-                lock (ShipsLocker)
+                var ships = Ships.GetItems();
+                for (int i = 0; i < ships.Length; ++i)
                 {
-                    for (int i = 0; i < Ships.Count; ++i)
+                    Ship ship = ships[i];
+                    if (!ship.Active)
                     {
-                        Ship ship = Ships[i];
-                        if (!ship.Active)
-                        {
-                            OnShipRemoved?.Invoke(ship);
-                            ship.RemoveFromUniverseUnsafe();
-                        }
-                        else
-                        {
-                            // apply loyalty change and make sure it's reinserted to Spatial with new loyalty
-                            bool loyaltyChanged = ship.LoyaltyTracker.Update(ship);
-                            if (loyaltyChanged)
-                                ship.ReinsertSpatial = true;
-                        }
+                        OnShipRemoved?.Invoke(ship);
+                        ship.RemoveFromUniverseUnsafe();
                     }
-                    Ships.RemoveInActiveObjects();
+                    else
+                    {
+                        // apply loyalty change and make sure it's reinserted to Spatial with new loyalty
+                        bool loyaltyChanged = ship.LoyaltyTracker.Update(ship);
+                        if (loyaltyChanged)
+                            ship.ReinsertSpatial = true;
+                    }
                 }
 
-                lock (ProjectilesLocker)
+                Ships.RemoveInActiveAndApplyChanges();
+
+                var projectiles = Projectiles.GetItems();
+                for (int i = 0; i < projectiles.Length; ++i)
                 {
-                    for (int i = 0; i < Projectiles.Count; ++i)
+                    Projectile proj = projectiles[i];
+                    if (proj.Active && proj.DieNextFrame)
                     {
-                        Projectile proj = Projectiles[i];
-                        if (proj.Active && proj.DieNextFrame)
+                        proj.Die(proj, false);
+                    }
+                    else if (proj is Beam beam)
+                    {
+                        if (beam.Owner?.Active == false)
                         {
-                            proj.Die(proj, false);
-                        }
-                        else if (proj is Beam beam)
-                        {
-                            if (beam.Owner?.Active == false)
-                            {
-                                beam.Die(beam, false);
-                            }
+                            beam.Die(beam, false);
                         }
                     }
-                    Projectiles.RemoveInActiveObjects();
                 }
+
+                Projectiles.RemoveInActiveAndApplyChanges();
             }
 
             for (int x = 0; x < EmpireManager.Empires.Count; x++)
@@ -441,11 +340,8 @@ namespace Ship_Game
 
         void UpdateSolarSystemShips()
         {
-            // # of ships can INCREASE while we are updating systems
-            // however it should never decrease since ships removal is done after systems update
-            int shipsCount;
-            lock (ShipsLocker) shipsCount = Ships.Count;
-            var shipsInSystems = new HashSet<int>(shipsCount); // by Ship.Id
+            Ship[] allShips = Ships.GetItems();
+            var shipsInSystems = new HashSet<int>(allShips.Length); // by Ship.Id
 
             void UpdateSystems(int start, int end)
             {
@@ -453,13 +349,13 @@ namespace Ship_Game
                 {
                     SolarSystem system = UState.Systems[i];
                     system.ShipList.Clear();
-                    if (shipsCount == 0)
+                    if (allShips.Length == 0)
                         continue; // all ships were killed, nothing to do here
 
                     //int debugId = (system.Name == "Opteris") ? 11 : 0;
                     GameplayObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
                                                                         system.Position, system.Radius,
-                                                                        maxResults:shipsCount/*, debugId:debugId*/);
+                                                                        maxResults:allShips.Length/*, debugId:debugId*/);
                     for (int j = 0; j < shipsInSystem.Length; ++j)
                     {
                         var ship = (Ship)shipsInSystem[j];
@@ -476,15 +372,12 @@ namespace Ship_Game
             UpdateSystems(0, UState.Systems.Count);
             //Parallel.For(UniverseScreen.SolarSystemList.Count, UpdateSystems, Universe.MaxTaskCores);
 
-            // now set all ships which were not found in any solar system with system = null
-            lock (ShipsLocker)
+            // now set null systems for ships not found in any solar system
+            for (int i = 0; i < allShips.Length; ++i)
             {
-                for (int i = 0; i < shipsCount; ++i)
-                {
-                    Ship ship = Ships[i];
-                    if (!shipsInSystems.Contains(ship.Id))
-                        ship.SetSystem(null);
-                }
+                Ship ship = allShips[i];
+                if (!shipsInSystems.Contains(ship.Id))
+                    ship.SetSystem(null);
             }
         }
 
@@ -492,31 +385,28 @@ namespace Ship_Game
         {
             ShipsPerf.Start();
 
-            lock (ShipsLocker)
+            bool isSystemView = Universe.IsSystemViewOrCloser;
+            Ship[] allShips = Ships.GetItems();
+
+            void UpdateShips(int start, int end)
             {
-                bool isSystemView = Universe.IsSystemViewOrCloser;
-                Ship[] allShips = Ships.GetInternalArrayItems();
-
-                void UpdateShips(int start, int end)
+                bool debug = Universe.Debug;
+                for (int i = start; i < end; ++i)
                 {
-                    bool debug = Universe.Debug;
-                    for (int i = start; i < end; ++i)
-                    {
-                        Ship ship = allShips[i];
-                        ship.Update(timeStep);
-                        ship.UpdateModulePositions(timeStep, isSystemView);
+                    Ship ship = allShips[i];
+                    ship.Update(timeStep);
+                    ship.UpdateModulePositions(timeStep, isSystemView);
 
-                        // make sure dying ships can be seen. and show all ships in DEBUG
-                        if ((ship.Dying && ship.KnownByEmpires.KnownByPlayer) || debug)
-                            ship.KnownByEmpires.SetSeenByPlayer();
-                    }
+                    // make sure dying ships can be seen. and show all ships in DEBUG
+                    if ((ship.Dying && ship.KnownByEmpires.KnownByPlayer) || debug)
+                        ship.KnownByEmpires.SetSeenByPlayer();
                 }
-
-                if (EnableParallelUpdate)
-                    Parallel.For(Ships.Count, UpdateShips, Universe.MaxTaskCores);
-                else
-                    UpdateShips(0, Ships.Count);
             }
+
+            if (EnableParallelUpdate)
+                Parallel.For(allShips.Length, UpdateShips, Universe.MaxTaskCores);
+            else
+                UpdateShips(0, allShips.Length);
 
             ShipsPerf.Stop();
         }
@@ -527,23 +417,20 @@ namespace Ship_Game
 
             if (timeStep.FixedTime > 0)
             {
-                lock (ProjectilesLocker)
+                Projectile[] allProjectiles = Projectiles.GetItems();
+                void UpdateProjectiles(int start, int end)
                 {
-                    Projectile[] allProjectiles = Projectiles.GetInternalArrayItems();
-                    void UpdateProjectiles(int start, int end)
+                    for (int i = start; i < end; ++i)
                     {
-                        for (int i = start; i < end; ++i)
-                        {
-                            Projectile proj = allProjectiles[i];
-                            proj.Update(timeStep);
-                        }
+                        Projectile proj = allProjectiles[i];
+                        proj.Update(timeStep);
                     }
-
-                    if (EnableParallelUpdate)
-                        Parallel.For(Projectiles.Count, UpdateProjectiles, Universe.MaxTaskCores);
-                    else
-                        UpdateProjectiles(0, Projectiles.Count);
                 }
+
+                if (EnableParallelUpdate)
+                    Parallel.For(allProjectiles.Length, UpdateProjectiles, Universe.MaxTaskCores);
+                else
+                    UpdateProjectiles(0, allProjectiles.Length);
             }
 
             ProjPerf.Stop();
@@ -558,24 +445,21 @@ namespace Ship_Game
             SensorPerf.Start();
             Scans = 0;
 
-            lock (ShipsLocker)
+            Ship[] allShips = Ships.GetItems();
+            void UpdateSensors(int start, int end)
             {
-                Ship[] allShips = Ships.GetInternalArrayItems();
-                void UpdateSensors(int start, int end)
+                for (int i = start; i < end; ++i)
                 {
-                    for (int i = start; i < end; ++i)
-                    {
-                        Ship ship = allShips[i];
-                        if (ship.Active && !ship.Dying)
-                            ship.UpdateSensorsAndInfluence(timeStep);
-                    }
+                    Ship ship = allShips[i];
+                    if (ship.Active && !ship.Dying)
+                        ship.UpdateSensorsAndInfluence(timeStep);
                 }
-
-                if (EnableParallelUpdate)
-                    Parallel.For(Ships.Count, UpdateSensors, Universe.MaxTaskCores);
-                else
-                    UpdateSensors(0, Ships.Count);
             }
+
+            if (EnableParallelUpdate)
+                Parallel.For(allShips.Length, UpdateSensors, Universe.MaxTaskCores);
+            else
+                UpdateSensors(0, allShips.Length);
 
             ScansAcc += Scans;
 
@@ -588,24 +472,21 @@ namespace Ship_Game
 
         void UpdateAllShipAI(FixedSimTime timeStep)
         {
-            lock (ShipsLocker)
+            Ship[] allShips = Ships.GetItems();
+            void UpdateAI(int start, int end)
             {
-                Ship[] allShips = Ships.GetInternalArrayItems();
-                void UpdateAI(int start, int end)
+                for (int i = start; i < end; ++i)
                 {
-                    for (int i = start; i < end; ++i)
-                    {
-                        Ship ship = allShips[i];
-                        if (ship.Active && !ship.Dying && !ship.EMPDisabled)
-                            ship.AI.Update(timeStep);
-                    }
+                    Ship ship = allShips[i];
+                    if (ship.Active && !ship.Dying && !ship.EMPDisabled)
+                        ship.AI.Update(timeStep);
                 }
-
-                if (EnableParallelUpdate)
-                    Parallel.For(Ships.Count, UpdateAI, Universe.MaxTaskCores);
-                else
-                    UpdateAI(0, Ships.Count);
             }
+
+            if (EnableParallelUpdate)
+                Parallel.For(allShips.Length, UpdateAI, Universe.MaxTaskCores);
+            else
+                UpdateAI(0, allShips.Length);
         }
 
         void UpdateVisibleObjects()

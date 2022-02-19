@@ -36,7 +36,7 @@ namespace Ship_Game
         int Count { get; }
 
         void Clear();
-        void UpdateAll(Array<GameplayObject> allObjects);
+        void UpdateAll(GameplayObject[] allObjects);
 
         /// <summary>
         /// Collides all objects
