@@ -396,7 +396,7 @@ namespace Ship_Game
             UpdateViewMatrix(CameraPos);
 
             var simTime = new FixedSimTime(elapsed.RealTime.Seconds);
-            DesignedShip.ApplyThrust(100, Thrust.Forward);
+            DesignedShip.SubLightAccelerate(100);
             DesignedShip.Velocity = new Vector2(0, 100);
             DesignedShip.UpdateThrusters(simTime);
 

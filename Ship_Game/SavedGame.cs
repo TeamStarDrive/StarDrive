@@ -236,7 +236,7 @@ namespace Ship_Game
                     {
                         // only save ships that are currently alive (race condition when saving during intense battles)
                         if (node.Ship != null && node.Ship.Active)
-                            node.ShipId = ((GameplayObject)node.Ship).Id;
+                            node.ShipId = node.Ship.Id;
                     }
                     fs.DataNodes = fleet.Value.DataNodes;
                     foreach (Ship ship in fleet.Value.Ships)
@@ -244,7 +244,7 @@ namespace Ship_Game
                         fs.ShipsInFleet.Add(new FleetShipSave
                         {
                             FleetOffset = ship.RelativeFleetOffset,
-                            ShipId = ((GameplayObject)ship).Id
+                            ShipId = ship.Id
                         });
                     }
                     empireToSave.FleetsList.Add(fs);
@@ -261,7 +261,7 @@ namespace Ship_Game
                     foreach (RoadNode node in road.RoadNodesList)
                     {
                         var ndata = new RoadNodeSave { Position = node.Position };
-                        if (node.Platform != null) ndata.PlatformId = ((GameplayObject)node.Platform).Id;
+                        if (node.Platform != null) ndata.PlatformId = node.Platform.Id;
                         rdata.RoadNodes.Add(ndata);
                     }
                     empireToSave.SpaceRoadData.Add(rdata);
@@ -420,7 +420,7 @@ namespace Ship_Game
             };
             if (ship.AI.Target is Ship targetShip)
             {
-                sdata.AISave.AttackTargetId = ((GameplayObject)targetShip).Id;
+                sdata.AISave.AttackTargetId = targetShip.Id;
             }
             sdata.AISave.MovePosition = ship.AI.MovePosition;
             sdata.AISave.WayPoints = new Array<WayPoint>(ship.AI.CopyWayPoints());
@@ -436,7 +436,7 @@ namespace Ship_Game
                 sdata.AISave.SystemToDefendId = ship.AI.SystemToDefend.Id;
 
             if (ship.AI.EscortTarget != null)
-                sdata.AISave.EscortTargetId = ((GameplayObject)ship.AI.EscortTarget).Id;
+                sdata.AISave.EscortTargetId = ship.AI.EscortTarget.Id;
             return sdata;
         }
 
@@ -909,7 +909,7 @@ namespace Ship_Game
             {
                 Name = ship.Name;
                 MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
-                Id = ((GameplayObject)ship).Id;
+                Id = ship.Id;
                 Position   = ship.Position;
 
                 BaseStrength = ship.BaseStrength;

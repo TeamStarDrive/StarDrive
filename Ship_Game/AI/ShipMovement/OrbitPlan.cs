@@ -69,7 +69,7 @@ namespace Ship_Game.AI.ShipMovement
         public void Orbit(Planet orbitTarget, FixedSimTime timeStep)
         {
             InOrbit = false;
-            if (Owner.VelocityMaximum < 1 || Owner.EnginesKnockedOut)
+            if (Owner.VelocityMax < 1 || Owner.EnginesKnockedOut)
                 return;
 
             if (orbitTarget == null)
@@ -118,7 +118,7 @@ namespace Ship_Game.AI.ShipMovement
             UpdateOrbitPos(orbitTarget.Center, radius, timeStep);
 
             // precision move, this fixes uneven thrusting while orbiting
-            float maxVel = (float)Math.Floor(Owner.VelocityMaximum*0.95f);
+            float maxVel = (float)Math.Floor(Owner.VelocityMax*0.95f);
             float precisionSpeed = Math.Min(OrbitalSpeedLimit, maxVel);
 
             // We are within orbit radius, so do actual orbiting:

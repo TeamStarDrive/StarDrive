@@ -95,7 +95,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             Val(() => S.MaxFTLSpeed, GT.FtlSpeed, GT.TT_FtlSpeed, Tint.No, engines, vis: Ds.IsWarpCapable, col: ColGreater(20_000));
             Val(() => S.MaxSTLSpeed, GT.SublightSpeed, GT.TT_SublightSpeed, Tint.No, engines, col: ColGreater(50));
-            Val(() => S.RotationRadiansPerSecond.ToDegrees(), GT.TurnRate, GT.TT_TurnRate, Tint.No, engines, col: ColGreater(15));
+            Val(() => S.RotationRadsPerSecond.ToDegrees(), GT.TurnRate, GT.TT_TurnRate, Tint.No, engines, col: ColGreater(15));
             Line();
 
             ValNZ(() => S.OrdAddedPerSecond, GT.OrdnanceCreated, GT.TT_OrdnanceCreated, Tint.No, ordnance);

@@ -574,12 +574,9 @@ namespace Ship_Game.Ships
         void UpdateMassRelated()
         {
             Stats.UpdateMassRelated();
-
             Mass = Stats.Mass;
 
-            UpdateMaxVelocity();
-            SetMaxFTLSpeed();
-            SetMaxSTLSpeed();
+            UpdateVelocityMax();
         }
 
         void InitConstantsBeforeUpdate(bool fromSave)

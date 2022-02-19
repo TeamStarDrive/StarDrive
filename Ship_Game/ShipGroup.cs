@@ -395,6 +395,8 @@ namespace Ship_Game
             bool forceAssembly = order.IsSet(MoveOrder.AddWayPoint) || order.IsSet(MoveOrder.ForceReassembly);
             AssembleFleet(finalPos, finalDir, forceAssembly: forceAssembly);
 
+            UpdateSpeedLimit();
+
             foreach (Ship ship in Ships)
             {
                 if (ship.PlayerShipCanTakeFleetOrders())
@@ -595,7 +597,7 @@ namespace Ship_Game
             return 0; // otherwise, there is no limit
         }
 
-        public void SetSpeed()
+        public void UpdateSpeedLimit()
         {
             if (Ships.Count == 0)
                 return;
@@ -612,7 +614,7 @@ namespace Ship_Game
                     if (CommandShip == null || IsShipInFormation(ship, 15000f))
                     {
                         gotShipsWithinFormation = true;
-                        slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
+                        slowestSpeed = Math.Min(ship.VelocityMax, slowestSpeed);
                     }
                 }
             }
@@ -626,7 +628,7 @@ namespace Ship_Game
             {
                 // in order to allow ships to speed up / slow down
                 // slightly to hold formation, set the fleet speed a bit lower
-                SpeedLimit = Math.Max(100, (float)Math.Round(slowestSpeed * 0.8f));
+                SpeedLimit = Math.Max(50, (float)Math.Round(slowestSpeed * 0.8f));
             }
         }
     }

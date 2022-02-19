@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Fleets;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace UnitTests.Fleets
@@ -22,18 +21,17 @@ namespace UnitTests.Fleets
             // Excalibur class has all the bells and whistles
             LoadStarterShips("Heavy Carrier mk5-b", "Corsair", "Terran-Prototype");
             CreateUniverseAndPlayerEmpire();
-        }
-
-        Ship CreatePlayerShip(string shipName, Vector2 pos)
-        {
-            return SpawnShip(shipName, Player, pos);
+            //Universe.UState.Objects.EnableParallelUpdate = false;
         }
 
         void CreateWantedShipsAndAddThemToList(int numberWanted, string shipName, Array<Ship> shipList)
         {
             for (int i = 0; i < numberWanted; i++)
             {
-                shipList.Add(CreatePlayerShip(shipName, Vector2.Zero));
+                var ship = SpawnShip(shipName, Player, Vector2.Zero);
+                shipList.Add(ship);
+                if (ship.MaxFTLSpeed < Ship.LightSpeedConstant)
+                    throw new InvalidOperationException($"Invalid FleetTest ship: '{ship.Name}' CANNOT WARP! MaxFTLSpeed: {ship.MaxFTLSpeed:0}");
             }
         }
 
@@ -159,10 +157,11 @@ namespace UnitTests.Fleets
             AssertAllShipsWarpedToTarget(fleet, target, simTimeout: 8.0);
         }
 
-        Fleet CreateRandomizedPlayerFleet(int randomSeed)
+        Fleet CreateRandomizedPlayerFleet(int randomSeed, bool bigShips)
         {
             Log.Write($"RandomizedFleet seed={randomSeed}");
-            CreateWantedShipsAndAddThemToList(5, "Terran-Prototype", PlayerShips);
+            if (bigShips)
+                CreateWantedShipsAndAddThemToList(5, "Terran-Prototype", PlayerShips);
             CreateWantedShipsAndAddThemToList(195, "Vulcan Scout", PlayerShips);
 
             // scatter the ships
@@ -181,7 +180,7 @@ namespace UnitTests.Fleets
         [TestMethod]
         public void FleetCanAssembleAndFormationWarp()
         {
-            Fleet fleet = CreateRandomizedPlayerFleet(12345);
+            Fleet fleet = CreateRandomizedPlayerFleet(12345, bigShips:true);
             fleet.AssembleFleet(new Vector2(0, 10_000), Vectors.Down, forceAssembly:true); // assemble the fleet in distance
 
             // order it to warp forward at an angle
@@ -192,36 +191,42 @@ namespace UnitTests.Fleets
         [TestMethod]
         public void FleetCanAssembleAndFormationWarpToMultipleWayPoints()
         {
-            Fleet fleet = CreateRandomizedPlayerFleet(12345);
+            Fleet fleet = CreateRandomizedPlayerFleet(12345, bigShips:false);
             fleet.AssembleFleet(new Vector2(0, 10_000), Vectors.Down, forceAssembly:true); // assemble the fleet in distance
 
             // order it to warp forward at an angle
-            FleetMoveTo(fleet, new Vector2(50_000, 50_000));
+            FleetMoveTo(fleet, new Vector2(20_000, 20_000));
             // and then queue up another WayPoint to the fleet
-            var finalTarget = FleetQueueMoveOrder(fleet, new Vector2(-20_000, 40_000));
+            var finalTarget = FleetQueueMoveOrder(fleet, new Vector2(-20_000, 20_000));
             AssertAllShipsWarpedToTarget(fleet, finalTarget, simTimeout: 120.0);
         }
 
         void AssertAllShipsWarpedToTarget(Fleet fleet, Vector2 target, double simTimeout)
         {
             var shipsThatWereInWarp = new HashSet<Ship>();
+            const float arrivalDist = 8000;
 
-            RunSimWhile((simTimeout, fatal:false), body:() =>
+            // run while some ships are still not within arrivalDist
+            RunSimWhile((simTimeout, fatal:false), () => fleet.Ships.Any(s => Dist(s) > arrivalDist), body:() =>
             {
                 fleet.Update(TestSimStep);
                 foreach (Ship s in fleet.Ships)
                     if (s.IsInWarp) shipsThatWereInWarp.Add(s);
             });
 
-            float Dist(Ship s) => s.Position.Distance(target);
+            float Dist(Ship s)
+            {
+                return s.Position.Distance(target + s.FleetOffset);
+            }
+
             void Print(string wat, Ship s)
             {
-                Log.Write($"{wat} dist:{Dist(s)} V:{s.Velocity.Length()} Vmax:{s.SpeedLimit}");
-                Log.Write($"\t\t\tstate:{s.engineState} {s.ShipEngines}");
+                Log.Write($"{wat} dist:{Dist(s):0} V:{s.Velocity.Length():0} Smax:{s.SpeedLimit:0} Vmax:{s.VelocityMax:0}");
+                Log.Write($"\t\t\tstate:{s.engineState} Goal:{s.AI.OrderQueue.PeekFirst?.Plan} {s.ShipEngines}");
                 Log.Write($"\t\t\t{s}");
             }
 
-            var didWarp = shipsThatWereInWarp.ToArray().Sorted(s => ((GameplayObject)s).Id).Sorted(s => (int)s.ShipEngines.ReadyForFormationWarp);
+            var didWarp = shipsThatWereInWarp.ToArray().Sorted(s => s.Id).Sorted(s => (int)s.ShipEngines.ReadyForFormationWarp);
             if (didWarp.Length != fleet.Ships.Count)
             {
                 var notInWarp = fleet.Ships.Except(didWarp);

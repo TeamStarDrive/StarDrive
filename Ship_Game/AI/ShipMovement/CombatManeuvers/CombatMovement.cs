@@ -322,9 +322,9 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
 
             int rng = RandomMath.RollAvgPercentVarianceFrom50();
             
-            float mod = 5 * (Owner.RotationRadiansPerSecond * (1 + Owner.Level + racialMod)).Clamped(0, 10);
+            float mod = 5 * (Owner.RotationRadsPerSecond * (1 + Owner.Level + racialMod)).Clamped(0, 10);
 
-            ErraticTimer = 2 / (Owner.RotationRadiansPerSecond + 1);
+            ErraticTimer = 2 / (Owner.RotationRadsPerSecond + 1);
 
             if (rng < 25 - mod)
             {
@@ -335,11 +335,11 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 Vector2 dir = Owner.Position.DirectionToTarget(AI.Target.Position);
                 if (RandomMath.IntBetween(0, 1) == 1)
                 {
-                    ZigZag = dir.RightVector() * 100 * Owner.RotationRadiansPerSecond;
+                    ZigZag = dir.RightVector() * 100 * Owner.RotationRadsPerSecond;
                 }
                 else
                 {
-                    ZigZag = dir.LeftVector() * 100 * Owner.RotationRadiansPerSecond;
+                    ZigZag = dir.LeftVector() * 100 * Owner.RotationRadsPerSecond;
                 }
             }
         }

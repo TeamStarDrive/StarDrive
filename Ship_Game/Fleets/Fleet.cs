@@ -343,7 +343,7 @@ namespace Ship_Game.Fleets
         public void AutoArrange()
         {
             ResetFlankLists(); // set up center, left, right, screen, rear...
-            SetSpeed();
+            UpdateSpeedLimit();
 
             CenterFlank = SortSquadBySpeed(CenterShips);
             LeftFlank   = SortSquadBySpeed(LeftShips);
@@ -495,7 +495,7 @@ namespace Ship_Game.Fleets
 
                 int order = bValue - aValue;
                 if (order != 0) return order;
-                return ((GameplayObject)b).Id.CompareTo(((GameplayObject)a).Id);
+                return b.Id.CompareTo(a.Id);
             });
 
             var squad = new Squad { Fleet = this };
@@ -2337,7 +2337,7 @@ namespace Ship_Game.Fleets
             // Outside of fleet formation
             if (distToWP > distSquadPosToWP + ship.CurrentVelocity + 75f)
             {
-                shipSpeed = ship.VelocityMaximum;
+                shipSpeed = ship.VelocityMax;
             }
             // FINAL APPROACH
             else if (distToWP < ship.FleetOffset.Length()

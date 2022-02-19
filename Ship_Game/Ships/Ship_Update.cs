@@ -102,7 +102,7 @@ namespace Ship_Game.Ships
             if (TetheredTo != null)
             {
                 Position = TetheredTo.Center + TetherOffset;
-                VelocityMaximum = 0;
+                VelocityMax = 0;
             }
 
             if (IsHangarShip && !Mothership.Active) //Problematic for drones...
@@ -202,7 +202,7 @@ namespace Ship_Game.Ships
             Color thrust1 = Loyalty.ThrustColor1;
             Color thrust2 = Loyalty.EmpireColor;
             float velocity = Velocity.Length();
-            float velocityPercent = velocity / VelocityMaximum;
+            float velocityPercent = velocity / VelocityMax;
             bool notPaused = timeStep.FixedTime > 0f;
 
             Vector3 direction3d = Direction3D;
@@ -276,7 +276,7 @@ namespace Ship_Game.Ships
                 return;
 
             // for a cool death effect, make the ship accelerate out of control:
-            ApplyThrust(100f, Thrust.Forward);
+            SubLightAccelerate(100f);
             UpdateVelocityAndPosition(timeStep);
             PlanetCrash?.Update(Universe.Screen.Particles, timeStep);
 

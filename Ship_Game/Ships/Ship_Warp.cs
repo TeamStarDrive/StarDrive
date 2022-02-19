@@ -98,8 +98,7 @@ namespace Ship_Game.Ships
                 }
                 engineState = MoveState.Sublight;
                 IsSpooling = false;
-                VelocityMaximum = MaxSTLSpeed;
-                SpeedLimit = VelocityMaximum;
+                UpdateVelocityMax();
             }
         }
 
