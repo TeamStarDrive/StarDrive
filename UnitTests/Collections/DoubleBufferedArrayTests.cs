@@ -4,22 +4,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ship_Game;
 using Ship_Game.Utils;
+using UnitTests.Ships;
 
 namespace UnitTests.Utils
 {
     [TestClass]
     public class DoubleBufferedArrayTests : StarDriveTest
     {
+        class DummyShip : GameplayObject
+        {
+            string Name;
+            public DummyShip(string name) : base(0, GameObjectType.Ship)
+            {
+                Name = name;
+            }
+            public override string ToString() => $"DummyShip {Name}";
+        }
         [TestMethod]
         public void AddDoesNotAffectFrontBuffer()
         {
-            var arr = new DoubleBufferedArray<string>();
+            var arr = new GameObjectList<GameplayObject>();
 
-            arr.Add("ship1");
+            arr.Add(new DummyShip("ship1"));
             var front = arr.GetItems();
             Assert.AreEqual(0, front.Length);
-            arr.Add("ship2");
+            arr.Add(new DummyShip("ship2"));
             Assert.AreEqual(0, front.Length);
 
             arr.ApplyChanges();
@@ -27,7 +38,7 @@ namespace UnitTests.Utils
 
             var newFront = arr.GetItems();
             Assert.AreEqual(2, newFront.Length);
-            arr.Add("ship3");
+            arr.Add(new DummyShip("ship3"));
             Assert.AreEqual(2, newFront.Length);
 
             arr.ApplyChanges();

@@ -171,13 +171,13 @@ namespace Ship_Game.Spatial
             }
         }
 
-        unsafe QtreeNode CreateFullTree(Array<GameplayObject> allObjects, SpatialObj* spatialObjects)
+        unsafe QtreeNode CreateFullTree(GameplayObject[] allObjects, SpatialObj* spatialObjects)
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
             QtreeNode newRoot = FrontBuffer.Create(-half, -half, +half, +half);
 
-            for (int i = 0; i < allObjects.Count; ++i)
+            for (int i = 0; i < allObjects.Length; ++i)
             {
                 GameplayObject go = allObjects[i];
                 if (go.Active)
@@ -188,17 +188,17 @@ namespace Ship_Game.Spatial
                     InsertAt(newRoot, Levels, &spatialObjects[objectId]);
                 }
             }
-            Count = allObjects.Count;
+            Count = allObjects.Length;
             return newRoot;
         }
 
-        public unsafe void UpdateAll(Array<GameplayObject> allObjects)
+        public unsafe void UpdateAll(GameplayObject[] allObjects)
         {
             // prepare our node buffer for allocation
             FrontBuffer.MarkAllNodesInactive();
 
             // create the new tree from current world state
-            var spatialObjects = new SpatialObj[allObjects.Count];
+            var spatialObjects = new SpatialObj[allObjects.Length];
             GCHandle pinned = GCHandle.Alloc(spatialObjects, GCHandleType.Pinned);
             var pSpatialObjects = (SpatialObj*)pinned.AddrOfPinnedObject();
 

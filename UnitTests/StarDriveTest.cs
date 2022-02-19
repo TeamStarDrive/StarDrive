@@ -288,14 +288,14 @@ namespace UnitTests
             UState.AddSolarSystem(s);
         }
 
-        public Array<Projectile> GetProjectiles(Ship ship)
+        public Projectile[] GetProjectiles(Ship ship)
         {
             return UState.Objects.GetProjectiles(ship);
         }
 
         public int GetProjectileCount(Ship ship)
         {
-            return GetProjectiles(ship).Count;
+            return GetProjectiles(ship).Length;
         }
 
         /// <summary>
