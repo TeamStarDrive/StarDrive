@@ -12,7 +12,7 @@ namespace Ship_Game
     // TODO: GroundCombatScreen
     public sealed class CombatScreen : PlanetScreen
     {
-        public Planet P;
+        public readonly Planet P;
         readonly Vector2 TitlePos;
         readonly Rectangle GridPos;
 
@@ -47,6 +47,8 @@ namespace Ship_Game
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {
             P = p;
+            if (p == null)
+                throw new ArgumentNullException(nameof(p));
             GridRect            = new Rectangle(ScreenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
             Rectangle titleRect = new Rectangle(ScreenWidth / 2 - 250, 44, 500, 80);
             TitlePos            = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
