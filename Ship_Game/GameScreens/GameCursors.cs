@@ -68,6 +68,9 @@ namespace Ship_Game.GameScreens
 
         public static void Draw(GameBase game, SpriteBatch batch, Vector2 cursorScreenPos, bool software)
         {
+            if (DefaultOSCursor == null)
+                return; // unit tests don't load cursors
+
             // attempt to draw software cursor, if that fails, draw OS cursor instead
             if (software && CurrentCursor.SoftwareCursor?.IsDisposed == false)
             {
