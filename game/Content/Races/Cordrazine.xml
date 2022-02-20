@@ -3,13 +3,13 @@
   <PortraitName>Cordrazine</PortraitName>
   <MusicCue>Colomn_03_loop</MusicCue>
   <DiplomacyDialogPath>Cordrazine</DiplomacyDialogPath>
-  <StartingShip>PreWarp-Ving</StartingShip>
-  <StartingScout>PreWarp-Vingscout</StartingScout>
+  <StartingShip>Ving Defender</StartingShip>
+  <StartingScout>Vingscout</StartingScout>
   <PrototypeShip>Cordrazine-Prototype</PrototypeShip>
-  <DefaultSmallTransport>PreWarp-Owlwok Freighter</DefaultSmallTransport>
+  <DefaultSmallTransport>Owlwok Freighter S</DefaultSmallTransport>
   <DefaultTroopShip>Cordrazine Troop</DefaultTroopShip>
-  <DefaultColonyShip>PreWarp-Cordrazine Colonizer</DefaultColonyShip>
-  <DefaultConstructor>PreWarp-Owlwok Constructor</DefaultConstructor>
+  <DefaultColonyShip>Cordrazine Colonizer</DefaultColonyShip>
+  <DefaultConstructor>Owlwok Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Cordrazine Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Cordrazine-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Cordrazine/Cordrazine_Station</SpacePortModel>

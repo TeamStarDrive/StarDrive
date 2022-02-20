@@ -3,13 +3,13 @@
   <PortraitName>Opteris</PortraitName>
   <MusicCue>Bug_02_loop</MusicCue>
   <DiplomacyDialogPath>Opteris</DiplomacyDialogPath>
-  <StartingShip>PreWarp-Drone Interceptor</StartingShip>
-  <StartingScout>PreWarp-Drone Scout</StartingScout>
+  <StartingShip>Drone Interceptor</StartingShip>
+  <StartingScout>Drone Scout</StartingScout>
   <PrototypeShip>Opteris-Prototype</PrototypeShip>
-  <DefaultSmallTransport>PreWarp-Creeper Transport</DefaultSmallTransport>
+  <DefaultSmallTransport>Creeper Transport</DefaultSmallTransport>
   <DefaultTroopShip>Opteris Troop</DefaultTroopShip>
-  <DefaultColonyShip>PreWarp-Opteris Hivepod</DefaultColonyShip>
-  <DefaultConstructor>PreWarp-Opteris Constructor</DefaultConstructor>
+  <DefaultColonyShip>Opteris Hivepod</DefaultColonyShip>
+  <DefaultConstructor>Opteris Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Opteris Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Opteris-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Opteris/OpterisStation</SpacePortModel>

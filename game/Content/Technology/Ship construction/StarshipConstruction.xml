@@ -41,7 +41,10 @@
       <ModuleUID>Cockpit</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
-      <ModuleUID>UnstableWarpEngine2x1</ModuleUID>
+      <ModuleUID>Engine</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
+      <ModuleUID>WarpEngine_1x1</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
       <ModuleUID>Maneuvering_Thruster_1x1</ModuleUID>
@@ -134,5 +137,13 @@
       <Name>Platforms/Platform Base</Name>
     </UnlockedHull>
   </HullsUnlocked>
-  
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>StarDrive Enhancement</Name>
+      <BonusType>FTL Speed Bonus</BonusType>
+      <Bonus>-0.65</Bonus>
+      <Description>Increase effective StarDrive speeds by 20% for all ships in your empire</Description>
+      <BonusIndex>674</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
 </Technology>
