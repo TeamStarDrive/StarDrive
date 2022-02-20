@@ -38,7 +38,7 @@
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
   <EffectVsShields>1.20</EffectVsShields>  
-  <MuzzleFlash>Yes</MuzzleFlash>
+  <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1700</ProjectileSpeed>
   <ExplosionRadius>50</ExplosionRadius> <!-- This Projectile Explodes -->
   <Light>Orange</Light>

@@ -34,7 +34,7 @@
   <ShieldPenChance>30</ShieldPenChance>
   <!-- Projectile Information -->
   <DamageAmount>43</DamageAmount>
-  <MuzzleFlash>Yes</MuzzleFlash>
+  <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1800</ProjectileSpeed>
   <Scale>1</Scale>
   <ProjectileTexturePath>superlong_yellow</ProjectileTexturePath>

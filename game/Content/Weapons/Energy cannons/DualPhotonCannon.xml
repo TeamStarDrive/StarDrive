@@ -29,7 +29,6 @@
   
   <!-- Projectile Information -->
   <DamageAmount>1200</DamageAmount>
-  <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2000</ProjectileSpeed>
 
   <!-- Animation Information -->
@@ -52,6 +51,7 @@
   <WeaponType>Energy Cannon</WeaponType>
   <WeaponHitEffect></WeaponHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
+  <MuzzleFlash>EcannonMuzzle</MuzzleFlash>
 
 
   <FireArc>0</FireArc>

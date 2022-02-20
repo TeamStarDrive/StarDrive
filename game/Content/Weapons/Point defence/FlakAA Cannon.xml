@@ -39,5 +39,6 @@
   <WeaponType>AA Weapons</WeaponType>
   <WeaponHitEffect></WeaponHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
+  <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
 
 </Weapon>

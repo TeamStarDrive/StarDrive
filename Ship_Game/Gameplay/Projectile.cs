@@ -311,7 +311,7 @@ namespace Ship_Game.Gameplay
 
             if (inFrustum && Module?.InstalledWeapon?.MuzzleFlash != null)
             {
-                Universe.Screen.Particles.BeamFlash.AddParticle(new Vector3(origin, ZPos), 0.4f);
+                Universe.Screen.Particles.BeamFlash.AddParticle(new Vector3(origin, ZPos), 0.5f);
             }
 
             // TODO:

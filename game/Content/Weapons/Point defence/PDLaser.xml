@@ -44,6 +44,7 @@
   <WeaponType>AA Weapons</WeaponType>
   <WeaponHitEffect></WeaponHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
+  <MuzzleFlash>EcannonMuzzle</MuzzleFlash>
 
   <ProjectileCount>1</ProjectileCount>
   <ProjectileRadius>30</ProjectileRadius> 
