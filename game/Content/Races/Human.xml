@@ -3,13 +3,13 @@
     <PortraitName>Human</PortraitName>
   <MusicCue>sd_races_Terran</MusicCue>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
-  <StartingShip>PreWarp-Vulcan Fighter</StartingShip>
-  <StartingScout>PreWarp-Unarmed Scout</StartingScout>
+  <StartingShip>Vulcan Scout</StartingShip>
+  <StartingScout>Unarmed Scout</StartingScout>
   <PrototypeShip>Terran-Prototype</PrototypeShip>
-  <DefaultSmallTransport>PreWarp-Small Transport</DefaultSmallTransport>
+  <DefaultSmallTransport>Small Transport</DefaultSmallTransport>
   <DefaultTroopShip>Human Troop</DefaultTroopShip>
-  <DefaultColonyShip>PreWarp-Colony Ship</DefaultColonyShip>
-  <DefaultConstructor>PreWarp-Terran Constructor</DefaultConstructor>
+  <DefaultColonyShip>Colony Ship</DefaultColonyShip>
+  <DefaultConstructor>Terran Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Terran Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Terran-Supply</DefaultSupplyShuttle>
   <ThrustColor0R>95</ThrustColor0R>
