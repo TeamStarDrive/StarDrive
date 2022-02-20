@@ -3,13 +3,13 @@
   <PortraitName>Pollops</PortraitName>
   <MusicCue>sd_races_Gracie</MusicCue>
   <DiplomacyDialogPath>Pollops</DiplomacyDialogPath>
-  <StartingShip>PreWarp-Vulcan Thorn</StartingShip>
-  <StartingScout>PreWarp-Unarmed Thorn Scout</StartingScout>
+  <StartingShip>Vulcan Thorn</StartingShip>
+  <StartingScout>Unarmed Thorn Scout</StartingScout>
   <PrototypeShip>Pollops-Prototype</PrototypeShip>
-  <DefaultSmallTransport>PreWarp-Seeder Transport</DefaultSmallTransport>
+  <DefaultSmallTransport>Seeder Transport</DefaultSmallTransport>
   <DefaultTroopShip>Pollops Troop</DefaultTroopShip>
-  <DefaultColonyShip>PreWarp-Pollop Sporeship</DefaultColonyShip>
-  <DefaultConstructor>PreWarp-Pollops Constructor</DefaultConstructor>
+  <DefaultColonyShip>Pollop Sporeship</DefaultColonyShip>
+  <DefaultConstructor>Pollops Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Pollops Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Pollops-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Pollops/Pollops_Station</SpacePortModel>

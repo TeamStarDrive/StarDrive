@@ -3,13 +3,13 @@
   <PortraitName>Vulfen</PortraitName>
   <MusicCue>sd_races_Wulv_01</MusicCue>
   <DiplomacyDialogPath>Vulfen</DiplomacyDialogPath>
-  <StartingShip>PreWarp-Type I Vulcan</StartingShip>
-  <StartingScout>PreWarp-Type I Scout</StartingScout>
+  <StartingShip>Type I Vulcan</StartingShip>
+  <StartingScout>Type I Scout</StartingScout>
   <PrototypeShip>Vulfar-Prototype</PrototypeShip>
-  <DefaultSmallTransport>PreWarp-Vulfar Transport</DefaultSmallTransport>
+  <DefaultSmallTransport>Vulfar Transport S</DefaultSmallTransport>
   <DefaultTroopShip>Vulfen Troop</DefaultTroopShip>
-  <DefaultColonyShip>PreWarp-Vulfen Colonizer</DefaultColonyShip>
-  <DefaultConstructor>PreWarp-Vulfar Constructor</DefaultConstructor>
+  <DefaultColonyShip>Vulfen Colonizer</DefaultColonyShip>
+  <DefaultConstructor>Vulfar Constructor</DefaultConstructor>
   <DefaultAssaultShuttle>Vulfar Assault Shuttle</DefaultAssaultShuttle>
   <DefaultSupplyShuttle>Vulfar-Supply</DefaultSupplyShuttle>
   <SpacePortModel>Model/Ships/Vulfen/Vulfar_Station</SpacePortModel>
