@@ -331,11 +331,10 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 20000
-  Duration: 0.4
+  Duration: 0.1
   DurationRandomness: 1
-  InheritOwnerVelocity: 0.6
-  RandomVelocityXY: [ [-50,50], [-50,50] ]
-  EndVelocity: 0
+  InheritOwnerVelocity: 1
+  EndVelocity: 1
   StartColorRange: [[255,255,255,255],[255,255,255,255]]
   RotateSpeed: [-10,10]
   StartEndSize: [ [80,110], [80,110] ]
@@ -583,7 +582,22 @@
   StartEndSize: [ [90,40], [10,5] ]
   SrcDstBlend: [SourceAlpha, One]
 
-###SHIELD HIT PARTICLES
+- ParticleSettings:
+  Name: BallisticMuzzleFlash
+  TextureName: "MuzzleFlash.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 200
+  Duration: 0.1
+  DurationRandomness: 1
+  InheritOwnerVelocity: 1
+  EndVelocity: 1
+  StartColorRange: [[250,180,10,255],[250,255,255,200]]  # each bracket represent randomness in colour on life start 
+  RotateSpeed: [-1,1]
+  StartEndSize: [10, 80]
+  SrcDstBlend: [SourceAlpha, One]  
+
+###      SHIELD HIT PARTICLES     ####
 - ParticleSettings:
   Name: Shard1                #repair sparks
   TextureName: "Shard1.png" # "blue_flame.png" / "spark.png"

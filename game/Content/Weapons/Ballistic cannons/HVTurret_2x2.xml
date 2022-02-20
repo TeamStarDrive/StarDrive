@@ -28,7 +28,7 @@
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
   <DamageAmount>538</DamageAmount>
-  <MuzzleFlash>Yes</MuzzleFlash>
+  <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1900</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.2</SalvoTimer>

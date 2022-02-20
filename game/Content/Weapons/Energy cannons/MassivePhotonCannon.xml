@@ -32,7 +32,6 @@
   <!-- Projectile Information -->
   <DamageAmount>1750</DamageAmount>
   <EMPDamage>50</EMPDamage>
-  <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2250</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
@@ -57,7 +56,8 @@
   <WeaponType>Energy Cannon</WeaponType>
   <WeaponHitEffect></WeaponHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
-  <WeaponTrailEffect>EcannonTrail</WeaponTrailEffect> 
+  <WeaponTrailEffect>EcannonTrail</WeaponTrailEffect>
+  <MuzzleFlash>EcannonMuzzle</MuzzleFlash> 
 
 
   <FireArc>0</FireArc>
