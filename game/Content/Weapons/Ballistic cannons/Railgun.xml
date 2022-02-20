@@ -29,7 +29,7 @@
   <Scale>1.2</Scale>
   <!-- Projectile Information -->
   <DamageAmount>510</DamageAmount>
-  <MuzzleFlash>Yes</MuzzleFlash>
+  <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1600</ProjectileSpeed>
   <ProjectileRadius>30</ProjectileRadius>
   <ProjectileTexturePath>projExotic_01</ProjectileTexturePath>

@@ -39,6 +39,7 @@
   <WeaponType>Energy Cannon</WeaponType>
   <WeaponHitEffect></WeaponHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
+  <MuzzleFlash>EcannonMuzzle</MuzzleFlash>
 
   <ProjectileCount>1</ProjectileCount>
   <FireArc>0</FireArc>

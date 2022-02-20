@@ -41,5 +41,6 @@
   <WeaponHitEffect></WeaponHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
   <WeaponTrailEffect>DisruptorCannon</WeaponTrailEffect>
+  <MuzzleFlash>EcannonMuzzle</MuzzleFlash>
 
 </Weapon>

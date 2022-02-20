@@ -32,7 +32,7 @@
   <!-- Projectile Information -->
   <DamageAmount>2200</DamageAmount>
   <EffectVsShields>1.15</EffectVsShields>
-  <MuzzleFlash>Yes</MuzzleFlash>
+  <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1600</ProjectileSpeed>
   <ProjectileRadius>15</ProjectileRadius>
   <ExplosionRadius>45</ExplosionRadius> <!-- This Projectile Explodes -->

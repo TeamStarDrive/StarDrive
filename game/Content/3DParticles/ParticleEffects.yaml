@@ -95,9 +95,9 @@
 - ParticleEffect: # Projectile Trail effect
   Name: TorpTrail
   Emitters:
-    - Emitter: { Particle: MissileThrustFlare, Rate: 15, InheritSprayVelocity: 0 }
-    - Emitter: { Particle: IonRingReversed, Rate: 10 }
-    - Emitter: { Particle: IonTrail, Rate: 150 }
+    - Emitter: { Particle: MissileThrustFlare, Rate: 15, InheritSprayVelocity: 0, ColorSource: EmpireColor }
+    - Emitter: { Particle: IonRingReversed, Rate: 10, ColorSource: EmpireColor }
+    - Emitter: { Particle: IonTrail, Rate: 150, ColorSource: EmpireColor }
 
 - ParticleEffect: # Projectile Trail effect
   Name: BubbleTrail
@@ -114,8 +114,8 @@
 - ParticleEffect: # Projectile Trail effect
   Name: EcannonTrail
   Emitters:
-    - Emitter: { Particle: Remnglow, Rate: 15, InheritMoveVelocity: 1, LocalOffset: [0.0, 0, 0.0], Scale: 0.9 }
-    - Emitter: { Particle: BlueSparks, Rate: 30, InheritMoveVelocity: 2, Scale: 4 }
+    - Emitter: { Particle: Remnglow, Rate: 15, InheritMoveVelocity: 1, LocalOffset: [0.0, 0, 0.0], Scale: 0.9, ColorSource: EmpireColor }
+    - Emitter: { Particle: BlueSparks, Rate: 45, InheritMoveVelocity: 2, Scale: 4, ColorSource: EmpireColor }
 
 - ParticleEffect: # Projectile Trail effect
   Name: Plasma
@@ -210,3 +210,19 @@
   Emitters:
     - Emitter: { Particle: Shard1, Rate: 10 }
     - Emitter: { Particle: Flash, Rate: 50 }
+
+#####################
+## Muzzle Flash effects
+#####################
+
+- ParticleEffect:
+  Name: BallisticMuzzle
+  Emitters:
+    - Emitter: { Particle: Flash, Rate: 10 }
+    - Emitter: { Particle: BallisticMuzzleFlash, Rate: 30 }
+
+- ParticleEffect:
+  Name: EcannonMuzzle
+  Emitters:
+    - Emitter: { Particle: Lightning, Rate: 30 }
+    - Emitter: { Particle: Flash, Rate: 10 }

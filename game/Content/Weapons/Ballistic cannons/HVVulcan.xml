@@ -16,7 +16,7 @@
   <DamageAmount>41</DamageAmount>
   <!--<EffectVsArmor>2</EffectVsArmor> -->
   <Scale>0.9</Scale>
-  <MuzzleFlash>Yes</MuzzleFlash>
+  <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1400</ProjectileSpeed>
   <ProjectileRadius>20</ProjectileRadius>
   

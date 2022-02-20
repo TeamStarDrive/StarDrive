@@ -35,6 +35,7 @@
   <WeaponType>AA Weapons</WeaponType>
   <WeaponHitEffect></WeaponHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
+  <MuzzleFlash>EcannonMuzzle</MuzzleFlash>
 
  <FireCone>8</FireCone>
 </Weapon>
