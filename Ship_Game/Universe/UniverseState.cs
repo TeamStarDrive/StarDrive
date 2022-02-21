@@ -74,7 +74,7 @@ namespace Ship_Game.Universe
         /// Thread unsafe view of all ships.
         /// It's only safe to use from simulation thread or when sim is paused
         /// </summary>
-        public IReadOnlyList<Ship> Ships => Objects.Ships;
+        public IReadOnlyList<Ship> Ships => Objects.GetShips();
 
         // TODO: attempt to stop relying on visual state
         public readonly UniverseScreen Screen;

@@ -361,7 +361,7 @@ namespace Ship_Game.Ships
             if (!ship.HasModules)
                 return null; // module creation failed
             ship.InitializeFromSaveData(save);
-            us.Objects.AddImmediate(ship);
+            us.Objects.Add(ship);
             return ship;
         }
 
