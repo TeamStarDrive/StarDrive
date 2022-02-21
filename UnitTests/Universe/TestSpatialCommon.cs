@@ -14,9 +14,7 @@ namespace UnitTests.Universe
     {
         protected static bool EnableVisualization = false;
         protected static bool EnableMovingShips = true;
-        //protected Array<Ship> AllShips = new Array<Ship>();
-        protected Array<GameplayObject> AllObjects = new Array<GameplayObject>();
-
+        protected GameplayObject[] AllObjects = Empty<GameplayObject>.Array;
 
         protected TestSpatialCommon()
         {
@@ -35,10 +33,10 @@ namespace UnitTests.Universe
         protected ISpatial CreateQuadTree(int worldSize, int numShips, float spawnProjectilesWithOffset = 0f)
         {
             ISpatial tree = Create(worldSize);
-            if (!AllObjects.IsEmpty)
+            if (AllObjects.Length != 0)
             {
                 UState.Objects.Clear();
-                AllObjects.Clear();
+                AllObjects = Empty<GameplayObject>.Array;
             }
             AllObjects = QtreePerfTests.CreateTestSpace(tree, numShips, spawnProjectilesWithOffset, 
                                                         Player, Enemy, SpawnShip);
@@ -64,7 +62,7 @@ namespace UnitTests.Universe
         public void BasicInsert()
         {
             ISpatial tree = CreateQuadTree(100_000, 100);
-            Assert.AreEqual(AllObjects.Count, tree.Count);
+            Assert.AreEqual(AllObjects.Length, tree.Count);
 
             foreach (GameplayObject go in AllObjects)
             {
@@ -82,7 +80,7 @@ namespace UnitTests.Universe
         {
             ISpatial tree = CreateQuadTree(100_000, 1);
 
-            Ship s = (Ship)AllObjects.First;
+            Ship s = (Ship)AllObjects[0];
             var offset = new Vector2(0, 256);
             GameplayObject[] found1 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 256);
             Assert.AreEqual(1, found1.Length, "FindNearby exact 256 must return match");
@@ -251,7 +249,7 @@ namespace UnitTests.Universe
             const float defaultSensorRange = 30000f;
 
             var t1 = new PerfTimer();
-            for (int i = 0; i < AllObjects.Count; ++i)
+            for (int i = 0; i < AllObjects.Length; ++i)
             {
                 var s = (Ship)AllObjects[i];
                 var opt = new SearchOptions(s.Position, defaultSensorRange);
@@ -261,7 +259,7 @@ namespace UnitTests.Universe
             Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
 
             var t2 = new PerfTimer();
-            for (int i = 0; i < AllObjects.Count; ++i)
+            for (int i = 0; i < AllObjects.Length; ++i)
             {
                 var s = (Ship)AllObjects[i];
                 var opt = new SearchOptions(s.Position, defaultSensorRange);
@@ -283,8 +281,8 @@ namespace UnitTests.Universe
         {
             ISpatial tree = CreateQuadTree(500_000, 5_000);
             
-            GameplayObject[] objects = Empty<GameplayObject>.Array;
             var timer = new PerfTimer();
+            var allObjects = new Array<GameplayObject>();
 
             // update
             TaskResult updateResult = Parallel.Run(() =>
@@ -294,9 +292,9 @@ namespace UnitTests.Universe
 
                 while (timer.Elapsed < 1.0)
                 {
-                    for (int i = 0; i < AllObjects.Count; ++i)
+                    for (int i = 0; i < allObjects.Count; ++i)
                     {
-                        if (AllObjects[i] is Ship ship)
+                        if (allObjects[i] is Ship ship)
                         {
                             ship.Position.X += 10f;
                             ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
@@ -306,10 +304,10 @@ namespace UnitTests.Universe
                                 spawned.Add(ship);
                                 Weapon weapon = ship.Weapons.First;
                                 var p = Projectile.Create(weapon, ship.Position, Vectors.Up, null, false);
-                                AllObjects.Add(p);
+                                allObjects.Add(p);
                             }
                         }
-                        else if (AllObjects[i] is Projectile proj)
+                        else if (allObjects[i] is Projectile proj)
                         {
                             proj.Update(TestSimStep);
                         }
@@ -317,8 +315,8 @@ namespace UnitTests.Universe
 
                     tree.UpdateAll(AllObjects);
 
-                    AllObjects.RemoveInActiveObjects();
-                    objects = AllObjects.ToArray();
+                    allObjects.RemoveInActiveObjects();
+                    AllObjects = allObjects.ToArray();
 
                     tree.CollideAll(TestSimStep, showCollisions: false);
                 }
@@ -330,10 +328,9 @@ namespace UnitTests.Universe
                 const float defaultSensorRange = 30000f;
                 while (timer.Elapsed < 1.0)
                 {
-                    GameplayObject[] objs = objects;
-                    for (int i = 0; i < objs.Length; ++i)
+                    for (int i = 0; i < AllObjects.Length; ++i)
                     {
-                        if (objs[i] is Ship s)
+                        if (AllObjects[i] is Ship s)
                         {
                             var shipOpt = new SearchOptions(s.Position, defaultSensorRange, GameObjectType.Ship);
                             var projOpt = new SearchOptions(s.Position, defaultSensorRange, GameObjectType.Proj);
@@ -365,9 +362,10 @@ namespace UnitTests.Universe
         public void CollisionPerformance()
         {
             ISpatial tree = CreateQuadTree(40_000, 2_000);
+            var allObjects = new Array<GameplayObject>();
 
             int x = 0;
-            foreach (GameplayObject go in AllObjects.ToArray())
+            foreach (GameplayObject go in allObjects.ToArray())
             {
                 go.Radius *= 2;
                 ++x;
@@ -383,10 +381,11 @@ namespace UnitTests.Universe
                     p.Velocity = go.Velocity.LeftVector();
                     p.VelocityMax = p.Velocity.Length();
                     p.Duration = 10;
-                    AllObjects.Add(p);
+                    allObjects.Add(p);
                 }
             }
 
+            AllObjects = allObjects.ToArray();
             tree.UpdateAll(AllObjects);
             //DebugVisualize(tree, enableMovingShips:false, updateObjects:true);
 

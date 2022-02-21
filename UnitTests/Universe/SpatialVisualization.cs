@@ -10,7 +10,7 @@ namespace UnitTests.Universe
 {
     class SpatialVisualization : GameScreen
     {
-        Array<GameplayObject> AllObjects;
+        GameplayObject[] AllObjects;
         ISpatial Spat;
         public bool MoveShips;
         Vector3 Camera;
@@ -29,7 +29,7 @@ namespace UnitTests.Universe
         {
         };
 
-        public SpatialVisualization(Array<GameplayObject> allObjects, ISpatial spat, bool moveShips)
+        public SpatialVisualization(GameplayObject[] allObjects, ISpatial spat, bool moveShips)
             : base(null, toPause: null)
         {
             AllObjects = allObjects;
