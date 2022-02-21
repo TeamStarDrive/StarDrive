@@ -96,10 +96,10 @@ namespace Ship_Game
             beam.SetActualHitDestination(bdata.ActualHitDestination);
             beam.Duration = bdata.Duration;
             beam.FirstRun = false;
-            beam.Initialize(us, loading: true);
+            beam.Initialize(us);
         }
 
-        public void Initialize(UniverseState us, bool loading)
+        public void Initialize(UniverseState us)
         {
             if (Owner != null)
             {
@@ -116,10 +116,7 @@ namespace Ship_Game
                                         VertexPositionNormalTexture.VertexElements);
 
             Universe = us;
-            if (loading)
-                us.Objects.AddImmediate(this);
-            else
-                us.Objects.Add(this);
+            us.Objects.Add(this);
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -380,7 +377,7 @@ namespace Ship_Game
         {
             AI = ai;
             Owner = ai.Drone.Owner;
-            Initialize(Owner.Universe, loading:false);
+            Initialize(Owner.Universe);
         }
 
         public override void Update(FixedSimTime timeStep)
