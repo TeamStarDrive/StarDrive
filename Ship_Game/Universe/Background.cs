@@ -117,10 +117,14 @@ namespace Ship_Game
             if (width > 2048)
                 BkgRect.Width = BkgRect.Height = 2600;
 
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
-            batch.Draw(ResourceManager.BigNebula(1), BkgRect, new Color(255, 255, 255, 60));
-            batch.Draw(ResourceManager.BigNebula(3), BkgRect, new Color(255, 255, 255, 60));
-            batch.End();
+         ///// blends 3 main background nebulas, best if 1 of those 3 would be picked at random on game start
+         ///// Drawing the BigNebula causes less visibility in the universe, often mistaking game stars(solar systems) at max zoom with start in the nebula texture.
+         
+         // batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
+         // batch.Draw(ResourceManager.BigNebula(1), BkgRect, new Color(255, 255, 255, 220));
+         // batch.Draw(ResourceManager.BigNebula(2), BkgRect, new Color(255, 255, 255, 180));
+         // batch.Draw(ResourceManager.BigNebula(3), BkgRect, new Color(255, 255, 255, 180));
+         // batch.End();
         }
 
         bool NebulaPosOk(Nebula neb)
