@@ -20,8 +20,8 @@
     <UnlockedBonus>
       <Name>Slipstreams</Name>
       <BonusType>In Borders FTL Bonus</BonusType>
-      <Bonus>0.2</Bonus>
-      <Description>Ships traveling within your own empire's borders gain 20% bonus to their FTL speeds. </Description>
+      <Bonus>0.25</Bonus>
+      <Description>Ships traveling within your own empire's borders gain 25% bonus to their FTL speeds. </Description>
       <BonusIndex>660</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>
