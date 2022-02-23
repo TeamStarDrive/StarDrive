@@ -2899,9 +2899,9 @@ BB_Tech_SlipstreamProjection_Desc:
  SPA: "Al enfocar las manipulaciones subespaciales delante de una nave cercana, un proyector subespacial puede \"roturar\" el subespacio, aunque solo sea momentáneamente, para aumentar la velocidad supraluminal de una nave."
 BB_Tech_SlipstreamProjection_InBordersFTLBonus_Bonus:
  Id: 660
- ENG: "Ships traveling within your own empire's borders gain 20% bonus to their FTL speeds. "
- RUS: "Корабли, путешествующие в пределах вашей империи, получают 20% бонус к сверхсветовым скоростям."
- SPA: "Las naves que viajen entre las fronteras de tu imperio lo harán a una velocidad supraluminal un 20% mayor. "
+ ENG: "Ships traveling within your own empire's borders gain 25% bonus to their FTL speeds. "
+ RUS: "Корабли, путешествующие в пределах вашей империи, получают 25% бонус к сверхсветовым скоростям."
+ SPA: "Las naves que viajen entre las fronteras de tu imperio lo harán a una velocidad supraluminal un 25% mayor. "
 BB_Tech_SpaceWeapons_Name:
  Id: 661
  ENG: "Ballistics"
@@ -2964,9 +2964,9 @@ BB_Tech_SubspaceTheory_Desc:
  SPA: "Sabemos desde hace tiempo que las fuerzas más allá de nuestra realidad observable influyen sobre ella.  Con un mejor conocimiento de la teoría del subespacio, podemos empezar a beneficiarnos de sus aplicaciones prácticas.  "
 BB_Tech_SubspaceTheory_FTLSpeedBonus_Bonus:
  Id: 674
- ENG: "Increase effective StarDrive speeds by 20% for all ships in your empire"
- RUS: "Увеличивает эффективную скорость всех кораблей в вашей империи на 20%"
- SPA: "Aumenta las velocidades efectivas de StarDrive en un 20% para todas las naves de tu imperio"
+ ENG: "Increase effective Warp speeds by 15% for all ships in your empire influence zone."
+ RUS: "Увеличивает эффективную скорость всех кораблей в вашей империи на 15%"
+ SPA: "Aumenta las velocidades efectivas de Warp en un 15% para todas las naves de tu imperio"
 BB_Tech_SubspatialDynamics_Name:
  Id: 675
  ENG: "Sub-spatial Dynamics"
@@ -13289,18 +13289,18 @@ RemnDisrupt:
 RemnDisruptdescr:
  Id: 10074
  ENG: "Super top secret weapon of remnant you should not see this nor use it! You cheater!"
-UnstableWarpEngine:
+StableWarp:
  Id: 10075
- ENG: "Early Warp Engine"
-UnstableWarpEngineDescr:
+ ENG: "Increase warp speeds by 50% for all ships."
+AdvancedWarpField:
  Id: 10076
- ENG: "First warp cappable engine, warp technology is still in its infancy stage and its unstable, heavily limiting max speed."
+ ENG: "Increase warp speeds by 70% for all ships."
 WarpBubbleTech:
  Id: 10077
  ENG: "Warp theory"
 WarpBubbleTechDescr:
  Id: 10078
- ENG: "Warp drive technology is based on bending timespace by creating a warp bubble around ship letting it move in speeds far beyond lightspeed. "
+ ENG: "Warp drive technology is based on bending timespace by creating a warp bubble around ship letting it move in speeds far beyond lightspeed."
 Greenhouse:
  Id: 10079
  ENG: "Greenhouse"
@@ -13337,6 +13337,12 @@ TaxOfficeDescr:
 TaxOfficeBonuses:
  Id: 10090
  ENG: "+0.25 credits per colonist."
+AdvancedWarp:
+ Id: 10091
+ ENG: "Advanced Warp Field"
+AdvancedWarpDescr:
+ Id: 10092
+ ENG: "New Research in quantum mechanics discovered a exotic esoteric particles that can impove our warp drives, making them even faster than before."
 
 
 

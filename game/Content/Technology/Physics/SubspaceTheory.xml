@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>SubspaceTheory</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
-  <Cost>220</Cost>
+  <Cost>120</Cost>
   <RootNode>0</RootNode>
   <Name>Subspace Theory</Name>
   <NameIndex>672</NameIndex>
@@ -19,9 +19,9 @@
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>StarDrive Enhancement</Name>
-      <BonusType>FTL Speed Bonus</BonusType>
-      <Bonus>0.2</Bonus>
-      <Description>Increase effective StarDrive speeds by 20% for all ships in your empire</Description>
+      <BonusType>In Borders FTL Bonus</BonusType>
+      <Bonus>0.15</Bonus>
+      <Description>Increase effective Warp speeds by 15% for all ships in your empire influence zone.</Description>
       <BonusIndex>674</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

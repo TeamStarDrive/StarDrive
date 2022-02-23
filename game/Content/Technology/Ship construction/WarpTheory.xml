@@ -23,11 +23,11 @@
   </HullsUnlocked>
   <BonusUnlocked>
     <UnlockedBonus>
-      <Name>StarDrive Enhancement</Name>
+      <Name>Stable Warp</Name>
       <BonusType>FTL Speed Bonus</BonusType>
-      <Bonus>0.65</Bonus>
-      <Description>Increase effective StarDrive speeds by 20% for all ships in your empire</Description>
-      <BonusIndex>674</BonusIndex>
+      <Bonus>0.50</Bonus>
+      <Description>Increase warp speeds by 50%</Description>
+      <BonusIndex>10075</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>
 </Technology>
