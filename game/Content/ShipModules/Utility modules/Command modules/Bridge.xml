@@ -3,7 +3,7 @@
 
   <DroneModule>false</DroneModule>
   
-  <Cost>15</Cost>
+  <Cost>30</Cost>
   <!-- Tech Level Used by AI for Upgrading Ships -->
   <TechLevel>3</TechLevel>
   

@@ -3,7 +3,7 @@
 
   <DroneModule>false</DroneModule>
   
-  <Cost>4</Cost>
+  <Cost>5</Cost>
   <!-- Tech Level -->
   <TechLevel>0</TechLevel>
   <TechBranch>Command</TechBranch>

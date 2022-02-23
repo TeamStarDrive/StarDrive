@@ -5,7 +5,7 @@
   <FighterModule>false</FighterModule>
   <CorvetteModule>false</CorvetteModule>
   
-  <Cost>50</Cost>
+  <Cost>120</Cost>
   <!-- Tech Level -->
   <TechLevel>4</TechLevel>
   <TechBranch>Command</TechBranch>
