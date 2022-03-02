@@ -10,7 +10,7 @@
   <Restrictions>I</Restrictions>
   <UID>Fabricator</UID> 
   <Version>2</Version>
-
+  <OffPowerMod>2</OffPowerMod>
 
   <IconTexturePath>Modules/Fabricator</IconTexturePath>
   <Mass>22</Mass>
@@ -30,7 +30,7 @@
   <DescriptionIndex>2047</DescriptionIndex>
 
 
-  <OrdnanceAddedPerSecond>1</OrdnanceAddedPerSecond>
+  <OrdnanceAddedPerSecond>1.4</OrdnanceAddedPerSecond>
 
   <!-- for shield items -->
   
