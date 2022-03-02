@@ -14,14 +14,14 @@
   <Name>Canopy Shield</Name>
   <IconTexturePath>Modules/shield_3x6</IconTexturePath>
   <Mass>150</Mass>
-  <Health>6188</Health>
-  <HealthMax>6188</HealthMax>
+  <Health>9188</Health>
+  <HealthMax>9188</HealthMax>
   <energyreq>0</energyreq>
   
   <Description>This is a monstrous shield with the a high resistance and a massive protection radius, making it ideal for capital ships or specialized shield ships.  The power costs are enormous.</Description>
   
   
-  <PowerDraw>1100</PowerDraw>
+  <PowerDraw>900</PowerDraw>
 
   <NameIndex>916</NameIndex>
   <DescriptionIndex>917</DescriptionIndex>
@@ -31,6 +31,6 @@
   <ShieldRechargeDelay>30</ShieldRechargeDelay>
   <ShieldRechargeRate>1200</ShieldRechargeRate>
   <ShieldRadius>400</ShieldRadius>
-  <ShieldRechargeCombatRate>300</ShieldRechargeCombatRate>
+  <ShieldRechargeCombatRate>350</ShieldRechargeCombatRate>
   <ShieldEnergyResist>0.25</ShieldEnergyResist>
 </ShipModule>

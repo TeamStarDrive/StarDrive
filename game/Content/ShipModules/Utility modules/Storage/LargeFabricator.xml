@@ -10,7 +10,7 @@
   <Restrictions>I</Restrictions>
   <UID>LargeFabricator</UID> 
   <Version>2</Version>
-
+  <OffPowerMod>3</OffPowerMod>
 
   <IconTexturePath>Modules/LargeFabricator</IconTexturePath>
   <Mass>88</Mass>
@@ -27,7 +27,7 @@
   <DescriptionIndex>2047</DescriptionIndex>
 
 
-  <OrdnanceAddedPerSecond>6</OrdnanceAddedPerSecond>
+  <OrdnanceAddedPerSecond>8</OrdnanceAddedPerSecond>
 
   <!-- for shield items -->
   
@@ -43,7 +43,7 @@
   <PowerStoreMax>0</PowerStoreMax>
 
   <!-- for Weapons -->
-  <OrdinanceCapacity>120</OrdinanceCapacity>
+  <OrdinanceCapacity>150</OrdinanceCapacity>
 
   <!-- for Engines -->
   <Thrust>0</Thrust>
