@@ -108,8 +108,9 @@
 - ParticleEffect: # Projectile Trail effect
   Name: RemnMissile
   Emitters:
-    - Emitter: { Particle: Remnglow, Rate: 4}
-
+    - Emitter: { Particle: Remnglow, Rate: 10}
+    - Emitter: { Particle: IonTrail, Rate: 150, ColorSource: EmpireColor }
+    - Emitter: { Particle: RemnantBubble, Rate: 25 }
 
 - ParticleEffect: # Projectile Trail effect
   Name: EcannonTrail
