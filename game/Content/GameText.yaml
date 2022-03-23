@@ -13343,6 +13343,38 @@ AdvancedWarp:
 AdvancedWarpDescr:
  Id: 10092
  ENG: "New Research in quantum mechanics discovered a exotic esoteric particles that can impove our warp drives, making them even faster than before."
+CorvetteDefencetech:
+ Id: 10093
+ ENG: "Corvette Defence"
+CorvetteDefencetechDescr:
+ Id: 10094
+ ENG: "Stationary force of several Corvette class ships ready to deploy from planet surface when planetary scanners pick up hostile signatures. Launched ships will always use best designs with newest technologies that were researched."
+FrigateDefencetech:
+ Id: 10095
+ ENG: "Frigate Defence"
+FrigateDefencetechDescr:
+ Id: 10096
+ ENG: "Stationary force of several Frigate class ships ready to deploy from planet surface when planetary scanners pick up hostile signatures. Launched ships will always use best designs with newest technologies that were researched."
+CorvetteLaunchPad:
+ Id: 10097
+ ENG: "Corvette Launch Pad"
+CorvetteLaunchPadDescrShort:
+ Id: 10098
+ ENG: "A wing of 6 Home Defense Corvettes."
+CorvetteLaunchPadDescr:
+ Id: 10099
+ ENG: "This facility will support a wing of 6 Corvettes that will leap into the colony's defense when an enemy is spotted. It will launch the best Corvettes available in your empire. You will be able to control them only in battle. They cost Money to Launch, but you get it back if they make it back home."
+FrigateLaunchPad:
+ Id: 10100
+ ENG: "Frigate Launch Pad"
+FrigateLaunchPadDescrShort:
+ Id: 10101
+ ENG: "A squadron of 4 Home Defense Frigates."
+FrigateLaunchPadDescr:
+ Id: 10102
+ ENG: "This facility will support a squadron of 4 Frigates that will leap into the colony's defense when an enemy is spotted. It will launch the best Frigates available in your empire. You will be able to control them only in battle. They cost Money to Launch, but you get it back if they make it back home."
+
+
 
 
 
