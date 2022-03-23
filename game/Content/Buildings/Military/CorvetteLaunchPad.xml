@@ -1,0 +1,19 @@
+<Building>
+	<Name>CorvetteLaunchPad</Name>
+	<Description>An air strip for 3 Home Defense Corvettes</Description>
+	<Cost>150</Cost>
+	<Maintenance>0.4</Maintenance>
+	<Icon>CorvetteLaunchPad</Icon>
+	<Strength>5</Strength>
+	<CombatStrength>5</CombatStrength>
+	<Defense>30</Defense>	
+	<SoftAttack>10</SoftAttack>
+	<HardAttack>10</HardAttack>
+	<StorageAdded>10</StorageAdded>
+    <DefenseShipsCapacity>6</DefenseShipsCapacity>
+	<DefenseShipsRole>corvette</DefenseShipsRole>
+	<ShortDescription>Allows infantry construction; defensive building</ShortDescription>
+	<NameTranslationIndex>10097</NameTranslationIndex>
+	<ShortDescriptionIndex>10098</ShortDescriptionIndex>	
+	<DescriptionIndex>10099</DescriptionIndex>
+</Building>
