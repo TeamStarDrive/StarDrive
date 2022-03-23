@@ -13,9 +13,9 @@
   <OffPowerMod>3</OffPowerMod>
 
   <IconTexturePath>Modules/LargeFabricator</IconTexturePath>
-  <Mass>88</Mass>
-  <Health>8000</Health>
-  <HealthMax>8000</HealthMax>
+  <Mass>55</Mass>
+  <Health>11000</Health>
+  <HealthMax>11000</HealthMax>
   <energyreq>0</energyreq>
   <Description>.</Description>
   
@@ -43,7 +43,7 @@
   <PowerStoreMax>0</PowerStoreMax>
 
   <!-- for Weapons -->
-  <OrdinanceCapacity>150</OrdinanceCapacity>
+  <OrdinanceCapacity>250</OrdinanceCapacity>
 
   <!-- for Engines -->
   <Thrust>0</Thrust>
