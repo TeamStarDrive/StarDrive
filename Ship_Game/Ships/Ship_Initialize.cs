@@ -396,9 +396,8 @@ namespace Ship_Game.Ships
         public static Ship CreateShipAt(UniverseState us, string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
         {
             Ship ship = CreateShipAtPoint(us, shipName, owner, p.Center + deltaPos);
-            if (doOrbit)
-                ship.OrderToOrbit(p);
-            //ship.SetSystem(p.ParentSystem);
+            if (doOrbit && ship != null)
+                ship.OrderToOrbit(p, clearOrders:true);
             return ship;
         }
 

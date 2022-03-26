@@ -966,7 +966,7 @@ namespace Ship_Game
                 Vector2 pos = p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius * 2);
                 if (SpawnShip(type, pos, out Ship ship))
                 {
-                    ship.OrderToOrbit(p, MoveOrder.Aggressive);
+                    ship.OrderToOrbit(p, clearOrders:true, MoveOrder.Aggressive);
                     ship.SetSystem(p.ParentSystem); // needed for Threat Matrix update pins to register the threatened system 
                     ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / divider) * StoryTurnsLevelUpModifier();
 

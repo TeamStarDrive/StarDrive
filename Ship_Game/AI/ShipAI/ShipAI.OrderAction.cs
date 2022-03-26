@@ -104,9 +104,10 @@ namespace Ship_Game.AI
             EnterCombatState(AIState.AttackTarget);
         }
 
-        public void OrderBombardPlanet(Planet toBombard)
+        public void OrderBombardPlanet(Planet toBombard, bool clearOrders)
         {
-            ClearOrdersAndWayPoints();
+            if (clearOrders)
+                ClearOrdersAndWayPoints();
             AddPlanetGoal(Plan.Bombard, toBombard, AIState.Bombard);
             EnterCombatState(AIState.Bombard);
         }
@@ -184,9 +185,11 @@ namespace Ship_Game.AI
             Target = toIntercept;
         }
 
-        public void OrderLandAllTroops(Planet target)
+        public void OrderLandAllTroops(Planet target, bool clearOrders)
         {
-            ResetPriorityOrderWithClear();
+            if (clearOrders)
+                ResetPriorityOrderWithClear();
+
             // anyassaultops is broken and doesnt work with troop shuttles. 
             if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle ||  Owner.Carrier.AnyAssaultOpsAvailable) // This deals also with single Troop Ships / Assault Shuttles
                 AddLandTroopGoal(target);
@@ -366,9 +369,12 @@ namespace Ship_Game.AI
             bool IsSafePlanet(Planet p) => !p.ParentSystem.DangerousForcesPresent(Owner.Loyalty);
         }
 
-        public void OrderOrbitPlanet(Planet p)
+        public void OrderOrbitPlanet(Planet p, bool clearOrders)
         {
-            ClearOrdersAndWayPoints();
+            if (clearOrders)
+            {
+                ClearOrdersAndWayPoints();
+            }
 
             Target = null;
             Intercepting = false;
@@ -632,10 +638,12 @@ namespace Ship_Game.AI
             OrderMoveTo(position, direction, AIState.MoveTo);
         }
 
-        public void OrderToOrbit(Planet toOrbit, MoveOrder order = MoveOrder.Regular)
+        public void OrderToOrbit(Planet toOrbit, bool clearOrders, MoveOrder order = MoveOrder.Regular)
         {
-            ClearWayPoints();
-            ClearOrders();
+            if (clearOrders)
+            {
+                ClearOrdersAndWayPoints();
+            }
 
             // FB - this will give priority order for the movement. if offensiveMove is false,
             // it means the player ordered this specifically wanting combat ships to engage targets
