@@ -2,12 +2,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Graphics;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
     public partial class ColonyScreen : PlanetScreen
     {
         public Planet P;
+        public UniverseState Universe => P.Universe;
         readonly ToggleButton PlayerDesignsToggle;
         readonly Menu2 TitleBar;
         readonly Vector2 TitlePos;

@@ -57,7 +57,7 @@ namespace Ship_Game
         {
             if (Ship != null)
             {
-                var sdScreen = new ShipDesignScreen(Ship.Universe.Screen, Screen.Eui);
+                var sdScreen = new ShipDesignScreen(Screen.Universe.Screen, Screen.Eui);
                 sdScreen.OnLoaded = () => { sdScreen.ChangeHull(Ship.ShipData); };
                 Screen.ScreenManager.AddScreen(sdScreen);
             }
