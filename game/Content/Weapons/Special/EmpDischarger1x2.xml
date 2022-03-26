@@ -43,8 +43,6 @@
   <AnimationPath>projBall_01_plasma_1/projBall_01_plasma_1_cc_</AnimationPath>
   <LoopAnimation>1</LoopAnimation>
   
-  
-  <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projBall</ModelPath>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->

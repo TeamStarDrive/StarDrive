@@ -37,20 +37,15 @@
   
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1450</ProjectileSpeed>
-  <Animated>1</Animated>
   <Light>Blue</Light>
   <Scale>1.5</Scale>
-  <Frames>31</Frames>
-  <AnimationPath>projBall_01_plasma_1/projBall_01_plasma_1_cc_</AnimationPath>
-  <LoopAnimation>1</LoopAnimation>
-  
-  
-  <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
-  <ModelPath>projBall</ModelPath>
-  
+  <ProjectileTexturePath>blank</ProjectileTexturePath>
+  <ModelPath>projLong</ModelPath>
+
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Energy Cannon</WeaponType>
   <WeaponHitEffect></WeaponHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>
+  <WeaponTrailEffect>EmpProj</WeaponTrailEffect>
 
 </Weapon>
