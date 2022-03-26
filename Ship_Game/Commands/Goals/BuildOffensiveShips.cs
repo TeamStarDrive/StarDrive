@@ -65,7 +65,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             Planet planetToOrbit = empire.GetOrbitPlanetAfterBuild(PlanetBuildingAt);
-            FinishedShip.AI.OrderToOrbit(planetToOrbit);
+            FinishedShip.OrderToOrbit(planetToOrbit, clearOrders: true);
 
             return GoalStep.GoalComplete;
         }

@@ -429,8 +429,7 @@ namespace Ship_Game.AI
 
                 if (!Owner.HasOurTroops)
                 {
-                    ClearOrders();
-                    OrderOrbitPlanet(planet);
+                    OrderOrbitPlanet(planet, clearOrders: true);
                 }
             }
         }

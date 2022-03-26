@@ -41,23 +41,27 @@ namespace Ship_Game.AI
         {
             State = AIState.HoldPosition;
 
-            if (goal != null)
+            // if HoldPosition is not the last goal, then we should stop holding position
+            if (OrderQueue.PeekLast != goal)
             {
-                MoveOrder order = goal.MoveOrder;
-                Vector2 holdAt = goal.MovePosition;
+                DequeueCurrentOrder();
+                return;
+            }
 
-                // if our ship drifts too far from HoldPosition target,
-                // order MoveTo with the original MoveOrder stance
-                float distanceFromHoldAt = Owner.Position.Distance(holdAt);
-                if (distanceFromHoldAt > 100f)
-                {
-                    OrderMoveTo(holdAt, goal.Direction, AIState.HoldPosition, order);
-                    OrderHoldPosition(holdAt, goal.Direction, order);
-                }
-                else if (BadGuysNear && CanEnterCombatFromCurrentStance(order))
-                {
-                    EnterCombatState(AIState.Combat);
-                }
+            MoveOrder order = goal.MoveOrder;
+            Vector2 holdAt = goal.MovePosition;
+
+            // if our ship drifts too far from HoldPosition target,
+            // order MoveTo with the original MoveOrder stance
+            float distanceFromHoldAt = Owner.Position.Distance(holdAt);
+            if (distanceFromHoldAt > 100f)
+            {
+                OrderMoveTo(holdAt, goal.Direction, AIState.HoldPosition, order);
+                OrderHoldPosition(holdAt, goal.Direction, order);
+            }
+            else if (BadGuysNear && CanEnterCombatFromCurrentStance(order))
+            {
+                EnterCombatState(AIState.Combat);
             }
         }
 
