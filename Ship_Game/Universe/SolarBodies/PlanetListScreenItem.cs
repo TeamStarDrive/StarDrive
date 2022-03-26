@@ -348,7 +348,7 @@ namespace Ship_Game
             if (Player.GetTroopShipForRebase(out Ship troopShip, Planet.Center, Planet.Name))
             {
                 GameAudio.EchoAffirmative();
-                troopShip.AI.OrderLandAllTroops(Planet);
+                troopShip.AI.OrderLandAllTroops(Planet, clearOrders:true);
                 Screen.RefreshSendTroopButtonsVisibility();
                 UpdateButtonSendTroops();
             }

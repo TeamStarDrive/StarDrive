@@ -209,7 +209,7 @@ namespace Ship_Game.AI
             {
                 OrbitTarget = planet;
                 if (priority)
-                    ResetPriorityOrder(false);
+                    ResetPriorityOrder(clearOrders: false);
             }
         }
 

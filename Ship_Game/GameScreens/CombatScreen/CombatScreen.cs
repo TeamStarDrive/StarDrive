@@ -424,7 +424,7 @@ namespace Ship_Game
                     && troopShip.AI.State != AI.AIState.RebaseToShip
                     && troopShip.AI.State != AI.AIState.AssaultPlanet)
                 {
-                    troopShip.AI.OrderLandAllTroops(P);
+                    troopShip.AI.OrderLandAllTroops(P, clearOrders:true);
                 }
             }
             OrbitSL.Reset();
@@ -480,7 +480,7 @@ namespace Ship_Game
             {
                 Bombard.Style = ButtonStyle.DanButtonBlue;
                 foreach (Ship bomber in bombingNowList)
-                    bomber.AI.OrderToOrbit(P, AI.MoveOrder.Aggressive);
+                    bomber.OrderToOrbit(P, clearOrders:!Input.IsShiftKeyDown, AI.MoveOrder.Aggressive);
             }
             else
             {
@@ -488,7 +488,7 @@ namespace Ship_Game
                 Bombard.Style = ButtonStyle.DanButtonRed;
                 foreach (Ship bomber in bomberList)
                 {
-                    bomber.AI.OrderBombardPlanet(P);
+                    bomber.AI.OrderBombardPlanet(P, clearOrders:true);
                 }
             }
         }
@@ -540,7 +540,7 @@ namespace Ship_Game
         {
             Ship ship = item.Troop.HostShip;
             if (ship != null && ship.Carrier.TryScrambleSingleAssaultShuttle(item.Troop, out Ship shuttle))
-                shuttle.AI.OrderLandAllTroops(P);
+                shuttle.AI.OrderLandAllTroops(P, clearOrders:true);
         }
 
         void TryLandTroop(CombatScreenOrbitListItem item,

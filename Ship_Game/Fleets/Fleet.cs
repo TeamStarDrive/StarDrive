@@ -1170,7 +1170,7 @@ namespace Ship_Game.Fleets
                 case 4:
                     if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
                     {
-                        BombPlanet(FleetTask);
+                        StartBombing(FleetTask.TargetPlanet);
                         break;
                     }
 
@@ -1180,24 +1180,24 @@ namespace Ship_Game.Fleets
                 case 5:
                     if (FleetInAreaInCombat(task.AO, task.AORadius) == CombatStatus.InCombat)
                     {
-                        BombPlanet(FleetTask);
+                        StartBombing(FleetTask.TargetPlanet);
                         AttackEnemyStrengthClumpsInAO(task);
                         if (target.Owner == null)
                             TaskStep = 7;
                         break;
                     }
 
-                    OrderFleetOrbit(target);
+                    OrderFleetOrbit(target, clearOrders:true);
                     TaskStep = 6;
                     break;
                 case 6:
-                    if (BombPlanet(FleetTask))
+                    if (StartBombing(FleetTask.TargetPlanet))
                         break;
 
                     TaskStep = 7;
                     break;
                 case 7:
-                    OrderFleetOrbit(target);
+                    OrderFleetOrbit(target, clearOrders:true);
                     break; // Change in task step is done from Remnant goals
                 case 8: // Go back to portal, this step is set from the Remnant goal
                     ClearOrders();
@@ -1262,7 +1262,7 @@ namespace Ship_Game.Fleets
                     break;
             }
 
-            OrderFleetOrbit(task.TargetPlanet);
+            OrderFleetOrbit(task.TargetPlanet, clearOrders:true);
         }
 
         void DoDefendVsRemnant(MilitaryTask task)
@@ -1599,12 +1599,12 @@ namespace Ship_Game.Fleets
             return true;
         }
 
-        void OrderFleetOrbit(Planet planet)
+        void OrderFleetOrbit(Planet planet, bool clearOrders)
         {
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                ship.OrderToOrbit(planet);
+                ship.OrderToOrbit(planet, clearOrders);
                 ship.AI.SetPriorityOrder(false);
             }
         }
@@ -1888,7 +1888,7 @@ namespace Ship_Game.Fleets
         /// </summary>
         Status StatusOfPlanetAssault(MilitaryTask task)
         {
-            bool bombing = BombPlanet(task);
+            bool bombing = StartBombing(task.TargetPlanet);
             bool readyToInvade = ReadyToInvade(task);
 
             if (readyToInvade)
@@ -2079,7 +2079,11 @@ namespace Ship_Game.Fleets
 
             InvadeTactics(notBombersOrTroops, InvasionTactics.Screen, FinalPosition, order);
         }
-
+        
+        /// <summary>
+        /// @return TRUE if any ships are bombing planet
+        /// Bombing is done if possible.
+        /// </summary>
         bool StartBombing(Planet planet)
         {
             if (planet.Owner == null)
@@ -2094,22 +2098,13 @@ namespace Ship_Game.Fleets
                 Ship ship = ships[x];
                 if (ship.HasBombs && !ship.AI.HasPriorityOrder && ship.AI.State != AIState.Bombard)
                 {
-                    ship.AI.OrderBombardPlanet(planet);
+                    ship.AI.OrderBombardPlanet(planet, clearOrders:true);
                     ship.AI.SetPriorityOrder(true);
                 }
                 anyShipsBombing |= ship.AI.State == AIState.Bombard;
             }
 
             return anyShipsBombing;
-        }
-
-        /// <summary>
-        /// @return TRUE if any ships are bombing planet
-        /// Bombing is done if possible.
-        /// </summary>
-        bool BombPlanet(MilitaryTask task)
-        {
-            return StartBombing(task.TargetPlanet);
         }
 
         /// <summary>
@@ -2158,8 +2153,7 @@ namespace Ship_Game.Fleets
                 Ship ship = invasionShips[x];
                 if (ship.IsTroopShip && ship.AI.State != AIState.AssaultPlanet && ship.Carrier.PlanetAssaultStrength > 0)
                 {
-                    ship.AI.ClearOrders();
-                    ship.AI.OrderLandAllTroops(task.TargetPlanet);
+                    ship.AI.OrderLandAllTroops(task.TargetPlanet, clearOrders:true);
                     numberOfShipsToSend--;
                     shipsInvading++;
                 }

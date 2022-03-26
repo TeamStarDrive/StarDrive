@@ -435,7 +435,7 @@ namespace Ship_Game.Ships
                     && !hangarShip.AI.HasPriorityOrder
                     && hangarShip.HasOurTroops)
                 {
-                    hangarShip.AI.OrderLandAllTroops(planet);
+                    hangarShip.AI.OrderLandAllTroops(planet, clearOrders:true);
                     hangarShip.Rotation = Owner.Position.DirectionToTarget(planet.Center).ToRadians();
                 }
             }

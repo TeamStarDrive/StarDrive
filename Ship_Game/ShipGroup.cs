@@ -430,7 +430,7 @@ namespace Ship_Game
                 if (ship.AI.State == AIState.Orbit || !ship.Position.InRadius(position, radius))
                     continue;
 
-                ship.OrderToOrbit(planet, MoveOrder.Aggressive);
+                ship.OrderToOrbit(planet, clearOrders:true, MoveOrder.Aggressive);
             }
         }
 

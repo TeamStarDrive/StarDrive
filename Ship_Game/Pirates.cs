@@ -315,7 +315,7 @@ namespace Ship_Game
                 Planet planet   = pirateBase.GetTether();
                 if (SpawnShip(PirateShipType.FlagShip, planet.Center, out Ship flagShip))
                 {
-                    flagShip.AI.OrderToOrbit(planet);
+                    flagShip.OrderToOrbit(planet, clearOrders:true);
                     AlertPlayerAboutPirateOps(PirateOpsWarning.Flagship);
                 }
             }

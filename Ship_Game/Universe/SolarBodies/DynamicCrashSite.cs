@@ -116,7 +116,7 @@ namespace Ship_Game.Universe.SolarBodies
         void SendTroop(Empire e, Planet p)
         {
             if (e.GetTroopShipForRebase(out Ship troopShip, p.Center, p.Name))
-                troopShip.AI.OrderLandAllTroops(p);
+                troopShip.AI.OrderLandAllTroops(p, clearOrders:true);
             else
                 e.GetEmpireAI().SendExplorationFleet(p); // Create a task to be processed normally
         }
