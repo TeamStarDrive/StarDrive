@@ -91,13 +91,14 @@
     - Emitter: { Particle: MissileThrustFlare, Rate: 20, InheritSprayVelocity: 0 }
     - Emitter: { Particle: FireTrail, Rate: 120, InheritSprayVelocity: 1.5 }
     - Emitter: { Particle: MissileSmokeTrail, Rate: 80 }
+      LocalOffset: [0.0, 50.0, 0.0]
 
 - ParticleEffect: # Projectile Trail effect
   Name: TorpTrail
   Emitters:
     - Emitter: { Particle: MissileThrustFlare, Rate: 15, InheritSprayVelocity: 0, ColorSource: EmpireColor }
     - Emitter: { Particle: IonRingReversed, Rate: 10, ColorSource: EmpireColor }
-    - Emitter: { Particle: IonTrail, Rate: 150, ColorSource: EmpireColor }
+    - Emitter: { Particle: IonTrail, Rate: 120, ColorSource: EmpireColor }
 
 - ParticleEffect: # Projectile Trail effect
   Name: BubbleTrail
@@ -109,7 +110,7 @@
   Name: RemnMissile
   Emitters:
     - Emitter: { Particle: Remnglow, Rate: 10}
-    - Emitter: { Particle: IonTrail, Rate: 150, ColorSource: EmpireColor }
+    - Emitter: { Particle: IonTrail, Rate: 120, ColorSource: EmpireColor }
     - Emitter: { Particle: RemnantBubble, Rate: 25 }
 
 - ParticleEffect: # Projectile Trail effect
@@ -123,6 +124,55 @@
   Emitters:
     - Emitter: { Particle: Flame, Rate: 50 }
 
+####################################################
+###Particle effects used for blank texture projectiles
+#####################################################
+
+- ParticleEffect: # BlueProjectile
+  Name: BlueProj
+  Emitters:
+    - Emitter: { Particle: BlueProjectile, Rate: 60 }
+      PositionIncrements: [-2, +2]
+      LocalOffset: [1, 0]
+    - Emitter: { Particle: IonRing, Rate: 15 }
+      Scale: 1.2
+
+- ParticleEffect: # BlueProjectile
+  Name: PlasmaProj
+  Emitters:
+    - Emitter: { Particle: PlasmaProjectile, Rate: 60 }
+      PositionIncrements: [-3, +3]
+      LocalOffset: [1, 0]
+    - Emitter: { Particle: Flare, Rate: 15 }
+      Scale: 0.7
+
+- ParticleEffect: # Projectile Trail effect
+  Name: BubbleProj
+  Emitters:
+    - Emitter: { Particle: DarkMatterTrail, Rate: 50 }
+    - Emitter: { Particle: MissileThrustFlare, Rate: 25, InheritSprayVelocity: 0 }
+      Scale: 1.5
+
+- ParticleEffect: # Projectile Trail effect
+  Name: CurveTrailProj
+  Emitters:
+    - Emitter: { Particle: MissileThrustFlare, Rate: 30, InheritSprayVelocity: 0 }
+      Scale: 1.5
+    - Emitter: { Particle: CurveTrail, Rate: 50 }
+
+- ParticleEffect: # Projectile Trail effect
+  Name: EmpProj
+  Emitters:
+    - Emitter: { Particle: BlueProjectile, Rate: 60 }
+      PositionIncrements: [-2, +2]
+      LocalOffset: [1, 0]
+    - Emitter: { Particle: LightningBubble, Rate: 20 }
+      Scale: 2.3
+    - Emitter: { Particle: LBolt, Rate: 5 }
+      Scale: 1.3
+###############################################################
+#!!!!!!!!!!!!! PARTICLE EFFECTS BELOW NOT USED!!!!!!!!!!!!!!!
+################################################################
 - ParticleEffect: # Projectile Trail effect
   Name: SmokeTrail
   Emitters:
