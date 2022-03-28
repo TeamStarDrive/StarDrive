@@ -41,7 +41,6 @@ namespace Ship_Game
         public static StringComparer CaseControl;
 
         // @todo Get rid of all global locks
-        public static object ClickableSystemsLock = new object();
         public static object ClickableItemLocker  = new object();
         public static object FleetButtonLocker    = new object();
 

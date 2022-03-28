@@ -24,13 +24,13 @@ namespace Ship_Game
 
         public string StarDateString => UState.StarDate.StarDateString();
         public float LastAutosaveTime = 0;
-        public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
         public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<ClickableItemUnderConstruction>();
         
         public Array<Ship> SelectedShipList = new Array<Ship>();
         
-        Array<ClickableSystem> ClickableSystems = new Array<ClickableSystem>();
-        Array<ClickableShip> ClickableShipsList = new Array<ClickableShip>();
+        public ClickablePlanet[] ClickablePlanets = Empty<ClickablePlanet>.Array;
+        ClickableSystem[] ClickableSystems = Empty<ClickableSystem>.Array;
+        ClickableShip[] ClickableShips = Empty<ClickableShip>.Array;
 
         Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         
@@ -99,7 +99,7 @@ namespace Ship_Game
 
         // @note Initialize with a default frustum for UnitTests
         public BoundingFrustum Frustum = new BoundingFrustum(Matrix.CreateTranslation(1000000, 1000000, 0));
-        ClickablePlanets tippedPlanet;
+        ClickablePlanet TippedPlanet;
         ClickableSystem tippedSystem;
         bool ShowingSysTooltip;
         bool ShowingPlanetToolTip;
@@ -720,9 +720,9 @@ namespace Ship_Game
 
             ShieldManager.Clear();
             ClickableFleetsList.Clear();
-            ClickableShipsList.Clear();
-            ClickPlanetList.Clear();
-            ClickableSystems.Clear();
+            ClickableShips = Empty<ClickableShip>.Array;
+            ClickablePlanets = Empty<ClickablePlanet>.Array;
+            ClickableSystems = Empty<ClickableSystem>.Array;
 
             StatTracker.Reset();
 
@@ -732,11 +732,11 @@ namespace Ship_Game
             HelperFunctions.CollectMemory();
         }
 
-        public struct ClickablePlanets
+        public struct ClickablePlanet
         {
             public Vector2 ScreenPos;
             public float Radius;
-            public Planet planetToClick;
+            public Planet Planet;
             public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, Radius);
         }
 
@@ -744,7 +744,7 @@ namespace Ship_Game
         {
             public Vector2 ScreenPos;
             public float Radius;
-            public Ship shipToClick;
+            public Ship Ship;
             public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, Radius);
         }
 
@@ -752,7 +752,7 @@ namespace Ship_Game
         {
             public Vector2 ScreenPos;
             public float Radius;
-            public SolarSystem systemToClick;
+            public SolarSystem System;
             public bool Touched(Vector2 touchPoint)
             {
                 if (!touchPoint.InRadius(ScreenPos, Radius)) return false;

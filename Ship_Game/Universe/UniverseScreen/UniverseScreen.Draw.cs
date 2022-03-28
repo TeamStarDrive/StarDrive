@@ -179,11 +179,11 @@ namespace Ship_Game
         {
             if (ShowShipNames && !LookingAtPlanet)
             {
-                for (int i = 0; i < ClickableShipsList.Count; i++)
+                for (int i = 0; i < ClickableShips.Length; i++)
                 {
-                    ClickableShip clickable = ClickableShipsList[i];
-                    if (clickable.shipToClick.IsVisibleToPlayer)
-                        clickable.shipToClick.DrawShieldBubble(this);
+                    ref ClickableShip clickable = ref ClickableShips[i];
+                    if (clickable.Ship.IsVisibleToPlayer)
+                        clickable.Ship.DrawShieldBubble(this);
                 }
             }
         }
@@ -428,9 +428,9 @@ namespace Ship_Game
             if (showingRangeOverlay && !LookingAtPlanet)
             {
                 var shipRangeTex = ResourceManager.Texture("UI/node_shiprange");
-                foreach (ClickableShip clickable in ClickableShipsList)
+                foreach (ClickableShip clickable in ClickableShips)
                 {
-                    Ship ship = clickable.shipToClick;
+                    Ship ship = clickable.Ship;
                     if (ship != null &&  ship.IsVisibleToPlayer && ship.WeaponsMaxRange > 0f)
                     {
                         Color color = ship.Loyalty == EmpireManager.Player
@@ -469,23 +469,20 @@ namespace Ship_Game
             if (showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
             {
                 var inhibit = ResourceManager.Texture("UI/node_inhibit");
-                lock (GlobalStats.ClickableSystemsLock)
+                foreach (ClickablePlanet cplanet in ClickablePlanets)
                 {
-                    foreach (ClickablePlanets cplanet in ClickPlanetList)
-                    {
-                        float radius = cplanet.planetToClick.GravityWellRadius;
-                        DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 50, 0, 150), 1f,
-                            inhibit, new Color(200, 0, 0, 50));
-                    }
+                    float radius = cplanet.Planet.GravityWellRadius;
+                    DrawCircleProjected(cplanet.Planet.Center, radius, new Color(255, 50, 0, 150), 1f,
+                                        inhibit, new Color(200, 0, 0, 50));
                 }
 
-                foreach (ClickableShip ship in ClickableShipsList)
+                foreach (ClickableShip ship in ClickableShips)
                 {
-                    if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0f && ship.shipToClick.IsVisibleToPlayer)
+                    if (ship.Ship != null && ship.Ship.InhibitionRadius > 0f && ship.Ship.IsVisibleToPlayer)
                     {
-                        float radius = ship.shipToClick.InhibitionRadius;
-                        DrawCircleProjected(ship.shipToClick.Position, radius, new Color(255, 50, 0, 150), 1f,
-                            inhibit, new Color(200, 0, 0, 40));
+                        float radius = ship.Ship.InhibitionRadius;
+                        DrawCircleProjected(ship.Ship.Position, radius, new Color(255, 50, 0, 150), 1f,
+                                            inhibit, new Color(200, 0, 0, 40));
                     }
                 }
 
