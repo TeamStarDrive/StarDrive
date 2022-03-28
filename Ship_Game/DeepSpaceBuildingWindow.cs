@@ -144,20 +144,13 @@ namespace Ship_Game
 
         void TryPlaceBuildable(InputState input)
         {
-            Vector3 nearPoint = Screen.Viewport.Unproject(new Vector3(input.CursorPosition, 0f),
-                Screen.Projection, Screen.View, Matrix.Identity);
-            Vector3 farPoint = Screen.Viewport.Unproject(new Vector3(input.CursorPosition, 1f),
-                Screen.Projection, Screen.View, Matrix.Identity);
-            var pickRay = new Ray(nearPoint, nearPoint.DirectionToTarget(farPoint));
-            float k = -pickRay.Position.Z / pickRay.Direction.Z;
-            var pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
-                pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
+            Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
 
             bool okToBuild = TargetPlanetId == 0 || !Screen.UState.GetPlanet(TargetPlanetId).IsOutOfOrbitalsLimit(itemToBuild);
 
             if (okToBuild)
             {
-                Goal buildStuff = new BuildConstructionShip(pickedPosition.ToVec2(), itemToBuild.Name, EmpireManager.Player);
+                Goal buildStuff = new BuildConstructionShip(cursorWorldPos, itemToBuild.Name, EmpireManager.Player);
                 if (TargetPlanetId != 0)
                 {
                     buildStuff.TetherOffset = TetherOffset;
@@ -179,14 +172,11 @@ namespace Ship_Game
                 return;
 
             var nodeTex = ResourceManager.Texture("UI/node1");
-            lock (GlobalStats.ClickableSystemsLock)
+            foreach (UniverseScreen.ClickablePlanet cplanet in Screen.ClickablePlanets)
             {
-                foreach (UniverseScreen.ClickablePlanets cplanet in Screen.ClickPlanetList)
-                {
-                    float radius = 2500f * cplanet.planetToClick.Scale;
-                    Screen.DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 165, 0, 100), 2f,
-                        nodeTex, new Color(0, 0, 255, 100));
-                }
+                float radius = 2500f * cplanet.Planet.Scale;
+                Screen.DrawCircleProjected(cplanet.Planet.Center, radius, new Color(255, 165, 0, 100), 2f,
+                                           nodeTex, new Color(0, 0, 255, 100));
             }
 
             base.Draw(batch, elapsed);
@@ -194,40 +184,26 @@ namespace Ship_Game
             if (itemToBuild != null)
             {
                 SubTexture platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
-                double scale = (double)itemToBuild.SurfaceArea / platform.Width;
                 var IconOrigin = new Vector2((platform.Width / 2f), (platform.Width / 2f));
-                scale = scale * 4000.0 / Screen.CamPos.Z;
-                if (scale > 1f)
-                {
-                    scale = 1f;
-                }
-                if (scale < 0.15f)
-                {
-                    scale = 0.15f;
-                }
 
-                Vector3 nearPoint = Screen.Viewport.Unproject(new Vector3(Screen.Input.CursorPosition, 0f), Screen.Projection, Screen.View, Matrix.Identity);
-                Vector3 farPoint = Screen.Viewport.Unproject(new Vector3(Screen.Input.CursorPosition, 1f), Screen.Projection, Screen.View, Matrix.Identity);
-                Vector3 direction = farPoint - nearPoint;
-                direction.Normalize();
-                Ray pickRay = new Ray(nearPoint, direction);
-                float k = -pickRay.Position.Z / pickRay.Direction.Z;
-                Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-                Vector2 pp = new Vector2(pickedPosition.X, pickedPosition.Y);
+                double scale = (double)itemToBuild.SurfaceArea / platform.Width;
+                scale *= 4000.0 / Screen.CamPos.Z;
+                if (scale > 1f)
+                    scale = 1f;
+                if (scale < 0.15f)
+                    scale = 0.15f;
+
+                Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
                 TargetPlanetId = 0;
                 TetherOffset = Vector2.Zero;
-                lock (GlobalStats.ClickableSystemsLock)
+                foreach (UniverseScreen.ClickablePlanet p in Screen.ClickablePlanets)
                 {
-                    foreach (UniverseScreen.ClickablePlanets p in Screen.ClickPlanetList)
+                    if (p.Planet.Center.Distance(cursorWorldPos) <= (2500f * p.Planet.Scale))
                     {
-                        if (Vector2.Distance(p.planetToClick.Center, pp) > (2500f * p.planetToClick.Scale))
-                        {
-                            continue;
-                        }
-                        TetherOffset = pp - p.planetToClick.Center;
-                        TargetPlanetId = p.planetToClick.Id;
+                        TetherOffset = cursorWorldPos - p.Planet.Center;
+                        TargetPlanetId = p.Planet.Id;
                         batch.DrawLine(p.ScreenPos, Screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
-                        batch.DrawString(Fonts.Arial20Bold, "Will Orbit "+p.planetToClick.Name,
+                        batch.DrawString(Fonts.Arial20Bold, "Will Orbit " + p.Planet.Name,
                             new Vector2(Screen.Input.CursorX, Screen.Input.CursorY + 34f), Color.White);
                     }
                 }
