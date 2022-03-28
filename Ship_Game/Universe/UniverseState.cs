@@ -277,6 +277,12 @@ namespace Ship_Game.Universe
             return systems;
         }
 
+        // Returns all solar systems within frustum
+        public SolarSystem[] FindSolarSystems(BoundingFrustum frustum)
+        {
+            return SolarSystemList.Filter(s => frustum.Contains(s.Position, s.Radius));
+        }
+
         public Array<Ship> GetShipsFromIds(Array<int> ids)
         {
             var ships = new Array<Ship>();

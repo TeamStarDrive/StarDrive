@@ -31,63 +31,9 @@ namespace Ship_Game
 
             batch.Begin();
 
-            UpdateClickableShips();
-
-            lock (GlobalStats.ClickableSystemsLock)
-            {
-                ClickPlanetList.Clear();
-                ClickableSystems.Clear();
-            }
-
-            for (int index = 0; index < UState.Systems.Count; index++)
-            {
-                SolarSystem solarSystem = UState.Systems[index];
-                if (!Frustum.Contains(solarSystem.Position, solarSystem.Radius))
-                    continue;
-
-                ProjectToScreenCoords(solarSystem.Position, 4500f, out Vector2d sysScreenPos, out double sysScreenPosDisToRight);
-                Vector2 screenPos = sysScreenPos.ToVec2f();
-
-                lock (GlobalStats.ClickableSystemsLock)
-                {
-                    ClickableSystems.Add(new ClickableSystem
-                    {
-                        Radius = sysScreenPosDisToRight < 8 ? 8f : (float)sysScreenPosDisToRight,
-                        ScreenPos = screenPos,
-                        systemToClick = solarSystem
-                    });
-                }
-                if (viewState <= UnivScreenState.SectorView)
-                {
-                    if (solarSystem.IsExploredBy(EmpireManager.Player))
-                    {
-                        for (int i = 0; i < solarSystem.PlanetList.Count; i++)
-                        {
-                            Planet planet = solarSystem.PlanetList[i];
-                            if (Frustum.Contains(planet.Center, planet.ObjectRadius*2f))
-                            {
-                                ProjectToScreenCoords(planet.Center3D, planet.ObjectRadius,
-                                                      out Vector2d planetScreenPos, out double planetScreenRadius);
-                                Vector2 pos = planetScreenPos.ToVec2f();
-
-                                lock (GlobalStats.ClickableSystemsLock)
-                                {
-                                    ClickPlanetList.Add(new ClickablePlanets
-                                    {
-                                        ScreenPos = pos,
-                                        Radius = planetScreenRadius < 8.0 ? 8f : (float)planetScreenRadius,
-                                        planetToClick = planet
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-                if (viewState < UnivScreenState.GalaxyView)
-                {
-                    DrawSolarSysWithOrbits(solarSystem, screenPos);
-                }
-            }
+            // if we're zoomed in enough, display solar system overlays with orbits
+            if (viewState < UnivScreenState.GalaxyView)
+                DrawSolarSystemsWithOrbits();
 
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -105,26 +51,17 @@ namespace Ship_Game
             BackdropPerf.Stop();
         }
 
-        void UpdateClickableShips()
+        void DrawSolarSystemsWithOrbits()
         {
-            ClickableShipsList.Clear();
-            Ship[] ships = UState.Objects.VisibleShips;
-
-            for (int i = 0; i < ships.Length; i++)
+            for (int i = 0; i < UState.Systems.Count; i++)
             {
-                Ship ship = ships[i];
-                if (viewState == UnivScreenState.GalaxyView && ship.IsPlatform)
-                    continue;
-
-                ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
-                Vector2 screenPos = shipScreenPos.ToVec2f();
-
-                ClickableShipsList.Add(new ClickableShip
+                SolarSystem solarSystem = UState.Systems[i];
+                if (Frustum.Contains(solarSystem.Position, solarSystem.Radius))
                 {
-                    Radius = screenRadius < 7.0 ? 7f : (float)screenRadius,
-                    ScreenPos = screenPos,
-                    shipToClick = ship
-                });
+                    ProjectToScreenCoords(solarSystem.Position, 4500f, out Vector2d sysScreenPos, out double sysScreenPosDisToRight);
+                    Vector2 screenPos = sysScreenPos.ToVec2f();
+                    DrawSolarSysWithOrbits(solarSystem, screenPos);
+                }
             }
         }
 
