@@ -319,6 +319,8 @@
     <Compile Include="Ship_Game\Empires\EmpireConstants.cs" />
     <Compile Include="Ship_Game\GameScreens\DeveloperUniverse.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame.cs" />
+    <Compile Include="Ship_Game\Graphics\RenderStates.cs" />
+    <Compile Include="Ship_Game\Graphics\RenderTargets.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
     <Compile Include="Ship_Game\Ships\EngineTrail.cs" />
     <Compile Include="Ship_Game\Ships\HangarOptions.cs" />
@@ -802,10 +804,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\BloomSettings.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\ItemToOffer.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -826,7 +824,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\BloomComponent.cs">
+    <Compile Include="Ship_Game\Graphics\BloomComponent.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -933,10 +931,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\AI\DefensiveCoordinator.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\BloomPostProcessor.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

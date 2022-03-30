@@ -13,6 +13,7 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
 using Ship_Game.Fleets;
+using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;
 
 namespace Ship_Game
@@ -454,26 +455,28 @@ namespace Ship_Game
 
             if (GlobalStats.DrawStarfield)
             {
-                bg = new Background(this);
+                bg = new Background(this, device);
             }
 
             if (GlobalStats.DrawNebulas)
             {
                 bg3d = new Background3D(this);
             }
-            
-            Frustum            = new BoundingFrustum(View * Projection);
-            mmHousing          = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
+
+            Frustum = new BoundingFrustum(View * Projection);
+            mmHousing = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
+            minimap = Add(new MiniMap(this, mmHousing));
+
             MinimapDisplayRect = new Rectangle(mmHousing.X + 61 + minimapOffSet, mmHousing.Y + 43, 200, 200);
-            minimap            = Add(new MiniMap(this, mmHousing));
-            mmShowBorders      = new Rectangle(MinimapDisplayRect.X, MinimapDisplayRect.Y - 25, 32, 32);
-            SelectedStuffRect  = new Rectangle(0, height - 247, 407, 242);
-            ShipInfoUIElement  = new ShipInfoUIElement(SelectedStuffRect, ScreenManager, this);
-            SystemInfoOverlay            = new SolarsystemOverlay(SelectedStuffRect, ScreenManager, this);
-            pInfoUI            = new PlanetInfoUIElement(SelectedStuffRect, ScreenManager, this);
-            shipListInfoUI     = new ShipListInfoUIElement(SelectedStuffRect, ScreenManager, this);
-            vuiElement         = new VariableUIElement(SelectedStuffRect, ScreenManager, this);
-            EmpireUI           = new EmpireUIOverlay(Player, device, this);
+            mmShowBorders = new Rectangle(MinimapDisplayRect.X, MinimapDisplayRect.Y - 25, 32, 32);
+
+            SelectedStuffRect = new Rectangle(0, height - 247, 407, 242);
+            ShipInfoUIElement = new ShipInfoUIElement(SelectedStuffRect, ScreenManager, this);
+            SystemInfoOverlay = new SolarsystemOverlay(SelectedStuffRect, ScreenManager, this);
+            pInfoUI           = new PlanetInfoUIElement(SelectedStuffRect, ScreenManager, this);
+            shipListInfoUI    = new ShipListInfoUIElement(SelectedStuffRect, ScreenManager, this);
+            vuiElement        = new VariableUIElement(SelectedStuffRect, ScreenManager, this);
+            EmpireUI          = new EmpireUIOverlay(Player, device, this);
 
             if (GlobalStats.RenderBloom)
             {
@@ -481,14 +484,13 @@ namespace Ship_Game
                 bloomComponent.LoadContent();
             }
 
-            SurfaceFormat backBufferFormat = device.PresentationParameters.BackBufferFormat;
-            MainTarget    = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
-            LightsTarget  = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
-            BorderRT      = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
+            MainTarget   = RenderTargets.Create(device);
+            LightsTarget = RenderTargets.Create(device);
+            BorderRT     = RenderTargets.Create(device);
 
             NotificationManager.ReSize();
 
-            CreateFogMap(content, device, backBufferFormat);
+            CreateFogMap(content, device);
             LoadMenu();
 
             FTLManager.LoadContent(this);
@@ -538,7 +540,7 @@ namespace Ship_Game
             }
         }
 
-        void CreateFogMap(Data.GameContentManager content, GraphicsDevice device, SurfaceFormat backBufferFormat)
+        void CreateFogMap(Data.GameContentManager content, GraphicsDevice device)
         {
             if (FogMapBase64 != null)
             {
@@ -551,9 +553,7 @@ namespace Ship_Game
                 FogMap = ResourceManager.Texture2D("UniverseFeather.dds");
             }
 
-            FogMapTarget = new RenderTarget2D(device, 512, 512, 1, backBufferFormat,
-                device.PresentationParameters.MultiSampleType,
-                device.PresentationParameters.MultiSampleQuality);
+            FogMapTarget = RenderTargets.Create(device, 512, 512);
             basicFogOfWarEffect = content.Load<Effect>("Effects/BasicFogOfWar");
         }
 

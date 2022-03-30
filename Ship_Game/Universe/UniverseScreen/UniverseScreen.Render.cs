@@ -4,30 +4,36 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Empires.Components;
 using Ship_Game.Gameplay;
+using Ship_Game.Graphics;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        public void DrawStarField()
+        public void DrawStarField(SpriteBatch batch)
         {
             if (GlobalStats.DrawStarfield)
             {
-                bg?.Draw(this);
+                bg?.Draw(this, batch);
+            }
+        }
+
+        public void DrawNebulae(GraphicsDevice device)
+        {
+            if (GlobalStats.DrawNebulas)
+            {
+                bg3d?.Draw(device);
             }
         }
 
         void RenderBackdrop(SpriteBatch batch)
         {
             BackdropPerf.Start();
-
-            DrawStarField();
-
-            if (GlobalStats.DrawNebulas)
-            {
-                bg3d?.Draw();
-            }
+            
+            var device = Device;
+            DrawStarField(batch);
+            DrawNebulae(device);
 
             batch.Begin();
 
@@ -35,17 +41,6 @@ namespace Ship_Game
             if (viewState < UnivScreenState.GalaxyView)
                 DrawSolarSystemsWithOrbits();
 
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            var rs = ScreenManager.GraphicsDevice.RenderState;
-            rs.AlphaBlendEnable = true;
-            rs.AlphaBlendOperation = BlendFunction.Add;
-            rs.SourceBlend = Blend.SourceAlpha;
-            rs.DestinationBlend = Blend.One;
-            rs.DepthBufferWriteEnable = false;
-            rs.CullMode = CullMode.None;
-            rs.DepthBufferWriteEnable = true;
-            rs.MultiSampleAntiAlias = true;            
             batch.End();
 
             BackdropPerf.Stop();
@@ -539,6 +534,9 @@ namespace Ship_Game
 
             RenderBackdrop(batch);
 
+            RenderStates.BasicBlendMode(Device, additive:false, depthWrite:true);
+            RenderStates.EnableMultiSampleAA(Device);
+
             batch.Begin();
             DrawShipAOAndTradeRoutes();
             SelectShipLinesToDraw();
@@ -552,8 +550,7 @@ namespace Ship_Game
             }
             SunburnDrawPerf.Stop();
 
-            RenderState rs = ScreenManager.GraphicsDevice.RenderState;
-            DrawAnomalies(rs);
+            DrawAnomalies(Device);
             DrawPlanets();
 
             EndSunburnPerf.Start();
@@ -564,23 +561,22 @@ namespace Ship_Game
 
             // render shield and particle effects after Sunburn 3D models
             DrawShields();
-            DrawAndUpdateParticles(elapsed, rs);
+            DrawAndUpdateParticles(elapsed, Device);
             DrawExplosions(batch);
             DrawOverlayShieldBubbles(batch);
 
             RenderGroupTotalPerf.Stop();
 
-            rs.DepthBufferWriteEnable = true;
+            RenderStates.EnableDepthWrite(Device);
         }
 
-        private void DrawAnomalies(RenderState rs)
+        private void DrawAnomalies(GraphicsDevice device)
         {
             if (anomalyManager == null)
                 return;
 
-            rs.DepthBufferWriteEnable = true;
-            rs.SourceBlend = Blend.SourceAlpha;
-            rs.DestinationBlend = Blend.One;
+            RenderStates.BasicBlendMode(device, additive:true, depthWrite:true);
+
             for (int x = 0; x < anomalyManager.AnomaliesList.Count; x++)
             {
                 Anomaly anomaly = anomalyManager.AnomaliesList[x];
@@ -588,15 +584,11 @@ namespace Ship_Game
             }
         }
 
-        private void DrawAndUpdateParticles(DrawTimes elapsed, RenderState rs)
+        private void DrawAndUpdateParticles(DrawTimes elapsed, GraphicsDevice device)
         {
             DrawParticles.Start();
 
-            rs.AlphaBlendEnable = true;
-            rs.SourceBlend = Blend.SourceAlpha;
-            rs.DestinationBlend = Blend.One;
-            rs.DepthBufferWriteEnable = false;
-            rs.CullMode = CullMode.None;
+            RenderStates.BasicBlendMode(device, additive:true, depthWrite:false);
 
             if (viewState < UnivScreenState.SectorView)
             {

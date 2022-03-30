@@ -7,6 +7,7 @@ using System;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
+using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
@@ -94,11 +95,8 @@ namespace Ship_Game
             graphics.SetRenderTarget(0, BorderRT);
             graphics.Clear(Color.TransparentBlack);
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-            graphics.RenderState.SeparateAlphaBlendEnabled = true;
-            graphics.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            graphics.RenderState.AlphaSourceBlend = Blend.One;
-            graphics.RenderState.AlphaDestinationBlend = Blend.One;
-            graphics.RenderState.MultiSampleAntiAlias = true;
+
+            RenderStates.BasicBlendMode(graphics, additive:true, depthWrite:false);
 
             var nodeCorrected = ResourceManager.Texture("UI/nodecorrected");
             var nodeConnect = ResourceManager.Texture("UI/nodeconnect");
@@ -848,21 +846,12 @@ namespace Ship_Game
 
         void DrawShipsAndProjectiles(SpriteBatch batch)
         {
-            Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            var rs = Device.RenderState;
-            rs.AlphaBlendEnable = true;
-            rs.AlphaBlendOperation = BlendFunction.Add;
-            rs.SourceBlend = Blend.SourceAlpha;
-            rs.DestinationBlend = Blend.One;
-            rs.DepthBufferWriteEnable = false;
-            rs.CullMode = CullMode.None;
-
             Ship[] ships = UState.Objects.VisibleShips;
 
             if (viewState <= UnivScreenState.PlanetView)
             {
                 DrawProj.Start();
+                RenderStates.BasicBlendMode(Device, additive:true, depthWrite:true);
 
                 Projectile[] projectiles = UState.Objects.VisibleProjectiles;
                 Beam[] beams = UState.Objects.VisibleBeams;
@@ -885,14 +874,7 @@ namespace Ship_Game
                 DrawProj.Stop();
             }
 
-            Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            rs.AlphaBlendEnable       = true;
-            rs.AlphaBlendOperation    = BlendFunction.Add;
-            rs.SourceBlend            = Blend.SourceAlpha;
-            rs.DestinationBlend       = Blend.InverseSourceAlpha;
-            rs.DepthBufferWriteEnable = false;
-            rs.CullMode               = CullMode.None;
+            RenderStates.BasicBlendMode(Device, additive:false, depthWrite:false);
 
             DrawShips.Start();
             for (int i = 0; i < ships.Length; ++i)
@@ -1138,12 +1120,7 @@ namespace Ship_Game
             DrawShieldsPerf.Start();
             if (viewState < UnivScreenState.SectorView)
             {
-                var renderState = ScreenManager.GraphicsDevice.RenderState;
-                renderState.AlphaBlendEnable = true;
-                renderState.AlphaBlendOperation = BlendFunction.Add;
-                renderState.SourceBlend = Blend.SourceAlpha;
-                renderState.DestinationBlend = Blend.One;
-                renderState.DepthBufferWriteEnable = false;
+                RenderStates.BasicBlendMode(Device, additive:true, depthWrite:false);
                 ShieldManager.Draw(this, View, Projection);
             }
             DrawShieldsPerf.Stop();

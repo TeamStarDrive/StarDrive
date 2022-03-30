@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
@@ -18,8 +19,9 @@ namespace Ship_Game
         const int ItAmount = 512;
 
         StarField StarField;
+        Texture2D BackgroundTexture;
 
-        public Background(UniverseScreen universe)
+        public Background(UniverseScreen universe, GraphicsDevice device)
         {
             // support unit tests
             if (!ResourceManager.HasLoadedNebulae)
@@ -53,6 +55,16 @@ namespace Ship_Game
                     AddNebula(x, y, ResourceManager.SmallNebulaRandom());
                 }
             }
+
+            //using (RenderTarget2D rt = RenderTargets.Create(device))
+            //{
+            //    device.SetRenderTarget(0, rt);
+            //    RenderStates.EnableAlphaBlend(device, Blend.SourceAlpha, Blend.InverseSourceAlpha);
+            //    DrawBackgroundStars(universe, universe.ScreenManager.SpriteBatch);
+            //    device.SetRenderTarget(0, null);
+
+            //    BackgroundTexture = rt.GetTexture();
+            //}
         }
 
         ~Background() { Destroy(); }
@@ -68,14 +80,9 @@ namespace Ship_Game
             StarField?.Dispose(ref StarField);
         }
 
-        public void Draw(UniverseScreen u)
+        void DrawBackgroundStars(UniverseScreen u, SpriteBatch batch)
         {
-            Vector2 camPos = u.CamPos.ToVec2f();
             var blackRect = new Rectangle(0, 0, u.ScreenWidth, u.ScreenHeight);
-
-            SpriteBatch batch = u.ScreenManager.SpriteBatch;
-            float width  = u.ScreenWidth;
-            float height = u.ScreenHeight;
 
             // these are drawn with RenderState Additive
             batch.Begin();
@@ -99,32 +106,44 @@ namespace Ship_Game
             //}
 
             var c = new Color(255, 255, 255, 160);
-            if (width > 2048)
+            if (u.ScreenWidth > 2048)
                 batch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, c);
             else
                 batch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, blackRect, c);
             batch.End();
+        }
 
+        public void Draw(UniverseScreen u, SpriteBatch batch)
+        {
+            float width  = u.ScreenWidth;
+            float height = u.ScreenHeight;
+
+            DrawBackgroundStars(u, batch);
+            //batch.Begin();
+            //batch.Draw(BackgroundTexture, new RectF(0, 0, width, height));
+            //batch.End();
+
+            Vector2 camPos = u.CamPos.ToVec2f();
             float percentX = camPos.X / 500000f;
             float percentY = camPos.Y / 500000f;
-            float xDiff = blackRect.Width / 10f;
-            float yDiff = blackRect.Height / 10f;
+            float xDiff = width / 10f;
+            float yDiff = height / 10f;
             Camera.Pos = new Vector2(percentX * xDiff, percentY * yDiff);
             StarField.Draw(Camera.Pos, batch);
-            
+
             BkgRect = new Rectangle((int)(Camera.Pos.X - width  / 2f - Camera.Pos.X / 30f - 200f),
                                     (int)(Camera.Pos.Y - height / 2f - Camera.Pos.Y / 30f) - 200, 2048, 2048);
             if (width > 2048)
                 BkgRect.Width = BkgRect.Height = 2600;
 
-         ///// blends 3 main background nebulas, best if 1 of those 3 would be picked at random on game start
-         ///// Drawing the BigNebula causes less visibility in the universe, often mistaking game stars(solar systems) at max zoom with start in the nebula texture.
-         
-         // batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
-         // batch.Draw(ResourceManager.BigNebula(1), BkgRect, new Color(255, 255, 255, 220));
-         // batch.Draw(ResourceManager.BigNebula(2), BkgRect, new Color(255, 255, 255, 180));
-         // batch.Draw(ResourceManager.BigNebula(3), BkgRect, new Color(255, 255, 255, 180));
-         // batch.End();
+             ///// blends 3 main background nebulas, best if 1 of those 3 would be picked at random on game start
+             ///// Drawing the BigNebula causes less visibility in the universe, often mistaking game stars(solar systems) at max zoom with start in the nebula texture.
+
+             // batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
+             // batch.Draw(ResourceManager.BigNebula(1), BkgRect, new Color(255, 255, 255, 220));
+             // batch.Draw(ResourceManager.BigNebula(2), BkgRect, new Color(255, 255, 255, 180));
+             // batch.Draw(ResourceManager.BigNebula(3), BkgRect, new Color(255, 255, 255, 180));
+             // batch.End();
         }
 
         bool NebulaPosOk(Nebula neb)
