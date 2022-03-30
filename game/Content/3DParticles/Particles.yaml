@@ -135,9 +135,9 @@
   Duration: 0.15
   DurationRandomness: 0.5
   InheritOwnerVelocity: 0.99
-  EndVelocity: 0
+  EndVelocity: 0.2
   StartColorRange: [[255,255,255,130],[255,233,171,190]]
-  RotateSpeed: [0]
+  RotateSpeed: [15,-15]
   StartEndSize: [ [5,10], [410,620] ] # growing particle
   SrcDstBlend: [SourceAlpha, One]
 
@@ -290,7 +290,7 @@
   DurationRandomness: 0.2
   InheritOwnerVelocity: -1
   RandomVelocityXY: [ [-8,8], [-8,8] ]
-  EndVelocity: 0
+  EndVelocity: 0.5
   StartColorRange: [[194,198,48,255],[255,255,255,255]]
   EndColorRange:  [[134,37,26,255],[131,67,29,255]]
   EndColorTime: 0.3
@@ -356,7 +356,7 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 7000
-  Duration: 2
+  Duration: 1.5
   DurationRandomness: 0
   InheritOwnerVelocity: 0.1
   EndVelocity: 0
@@ -365,6 +365,59 @@
   EndColorTime: 0.1
   RotateSpeed: [-8,8]
   StartEndSize: [ [45,50], [2,5] ]
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: ZigZagTrail
+  TextureName: "blue_flame.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 7000
+  Duration: 1
+  DurationRandomness: 0
+  InheritOwnerVelocity: -0.9
+  EndVelocity: 0.3
+  StartColorRange: [[255,255,255,255],[255,255,255,255]]
+  EndColorRange: [[255,166,0,255],[255,166,0,255]]
+  EndColorTime: 0.3
+  RotateSpeed: [-5,5]
+  StartEndSize: [ [75,65], [32,25] ]
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: RailGunRing
+  TextureName: "ring.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 7000
+  Duration: 1.2
+  DurationRandomness: 0.1
+  InheritOwnerVelocity: -0.01
+  AlignRotationToVelocity: 1
+  EndVelocity: 0
+  StartColorRange: [[255,200,89,255],[255,200,89,255]]
+  EndColorRange: [[255,166,0,255],[255,166,0,255]]
+  EndColorTime: 0.5
+  RotateSpeed: [0,0]
+  StartEndSize: [ [70,70], [70,70] ]
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
+  Name: RailGunTrail
+  TextureName: "blue_flame.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 7000
+  Duration: 1.2
+  DurationRandomness: 0
+  InheritOwnerVelocity: -1
+  EndVelocity: 0.9
+  AlignRotationToVelocity: -1
+  StartColorRange: [[255,200,89,170],[255,200,89,170]]
+  EndColorRange: [[255,166,0,170],[255,166,0,170]]
+  EndColorTime: 0.1
+  RotateSpeed: [-8,8]
+  StartEndSize: [ [30,30], [20,20] ]
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:

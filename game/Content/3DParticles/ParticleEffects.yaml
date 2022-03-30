@@ -96,9 +96,23 @@
 - ParticleEffect: # Projectile Trail effect
   Name: TorpTrail
   Emitters:
-    - Emitter: { Particle: MissileThrustFlare, Rate: 15, InheritSprayVelocity: 0, ColorSource: EmpireColor }
+    - Emitter: { Particle: MissileThrustFlare, Rate: 15, InheritSprayVelocity: 0 }
+      Scale: 1.5
     - Emitter: { Particle: IonRingReversed, Rate: 10, ColorSource: EmpireColor }
     - Emitter: { Particle: IonTrail, Rate: 120, ColorSource: EmpireColor }
+
+- ParticleEffect: # Projectile Trail effect
+  Name: RailGunTrail
+  Emitters:
+    - Emitter: { Particle: PlasmaProjectile, Rate: 60 }
+      PositionIncrements: [-1, +1]
+      LocalOffset: [1, 20]
+    - Emitter: { Particle: MissileThrustFlare, Rate: 25, InheritSprayVelocity: 0 }
+      Scale: 1.5
+    - Emitter: { Particle: RailGunRing, Rate: 15}
+      LocalOffset: [1, -80]
+    - Emitter: { Particle: RailGunTrail, Rate: 100}
+
 
 - ParticleEffect: # Projectile Trail effect
   Name: BubbleTrail
@@ -141,8 +155,8 @@
   Name: PlasmaProj
   Emitters:
     - Emitter: { Particle: PlasmaProjectile, Rate: 60 }
-      PositionIncrements: [-3, +3]
-      LocalOffset: [1, 0]
+      PositionIncrements: [-1, +1]
+      LocalOffset: [1, 20]
     - Emitter: { Particle: Flare, Rate: 15 }
       Scale: 0.7
 
