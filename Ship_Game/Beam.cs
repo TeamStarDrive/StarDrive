@@ -6,6 +6,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Xml.Serialization;
+using Ship_Game.Graphics;
 using Ship_Game.Universe;
 
 namespace Ship_Game
@@ -163,32 +164,31 @@ namespace Ship_Game
 
             BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, Displacement));
             BeamEffect.Begin();
-            var rs = device.RenderState;
-            rs.AlphaTestEnable = true;
-            rs.AlphaFunction   = CompareFunction.GreaterEqual;
-            rs.ReferenceAlpha  = 200;
+
+            RenderStates.EnableAlphaTest(device, CompareFunction.GreaterEqual, 200);
+
             foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
             {
                 pass.Begin();
                 device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
                 pass.End();
             }
-            rs.DepthBufferWriteEnable = false;
-            rs.AlphaBlendEnable       = true;
-            rs.SourceBlend            = Blend.SourceAlpha;
-            rs.DestinationBlend       = Blend.InverseSourceAlpha;
-            rs.AlphaTestEnable        = true;
-            rs.AlphaFunction          = CompareFunction.Less;
-            rs.ReferenceAlpha         = 200;
+
+            RenderStates.DisableDepthWrite(device);
+            RenderStates.EnableAlphaBlend(device, Blend.SourceAlpha, Blend.InverseSourceAlpha);
+            RenderStates.EnableAlphaTest(device, CompareFunction.Less, 200);
+
             foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
             {
                 pass.Begin();
                 device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
                 pass.End();
             }
-            rs.AlphaBlendEnable = false;
-            rs.DepthBufferWriteEnable = true;
-            rs.AlphaTestEnable = false;
+            
+            RenderStates.DisableAlphaTest(device);
+            RenderStates.EnableClassicAlphaBlend(device); // restore default
+            RenderStates.EnableDepthWrite(device);
+
             BeamEffect.End();
         }
 
