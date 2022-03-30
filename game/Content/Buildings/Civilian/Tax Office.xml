@@ -4,7 +4,7 @@
   <Description>The Imperial Bank building increases the efficiency of your planetary tax operations by 50%. </Description>
   <Cost>80</Cost>
   <Icon>Tax_Office</Icon>
-  <CreditsPerColonist>0.25</CreditsPerColonist>
+  <CreditsPerColonist>0.5</CreditsPerColonist>
 
   <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
   <NameTranslationIndex>10088</NameTranslationIndex>
