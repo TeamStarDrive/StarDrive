@@ -6,7 +6,7 @@
   <Infrastructure>1</Infrastructure>
   <Icon>hdzone</Icon>
   <MaxFertilityOnBuild>-0.15</MaxFertilityOnBuild>
-  <MaxPopIncrease>500</MaxPopIncrease>
+  <MaxPopIncrease>1000</MaxPopIncrease>
   <Strength>20</Strength>
 
   <NameTranslationIndex>17776</NameTranslationIndex>
