@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Graphics;
 
 namespace Ship_Game.UI
 {
@@ -93,11 +94,11 @@ namespace Ship_Game.UI
             // NOTE: SaveState restores graphics device settings
             //       just in case we mix 3D rendering with 2D rendering
 
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, 
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
                 saveState ? SaveStateMode.SaveState : SaveStateMode.None);
-            batch.GraphicsDevice.RenderState.SourceBlend      = Blend.InverseDestinationColor;
-            batch.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
-            batch.GraphicsDevice.RenderState.BlendFunction    = BlendFunction.Add;
+
+            // TODO: this is a weird alpha setting
+            RenderStates.EnableAlphaBlend(batch.GraphicsDevice, Blend.InverseDestinationColor, Blend.One);
         }
         
         static void BatchDrawAdditive(SpriteBatch batch, DrawTimes elapsed, Array<UIElementV2> elements)
