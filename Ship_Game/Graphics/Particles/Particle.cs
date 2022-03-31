@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Ship_Game.Data;
+using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;
 
 namespace Ship_Game
@@ -480,24 +481,17 @@ namespace Ship_Game
             if (firstActive < firstFree)
             {
                 GraphicsDevice device = GraphicsDevice;
-                var rs = device.RenderState;
-                rs.AlphaBlendEnable = true;
-                rs.AlphaBlendOperation = BlendFunction.Add;
-                rs.SourceBlend = Settings.SrcDstBlend[0];
-                rs.DestinationBlend = Settings.SrcDstBlend[1];
-                rs.AlphaTestEnable = true;
-                rs.AlphaFunction = CompareFunction.Greater;
-                rs.ReferenceAlpha = 0;
-                rs.DepthBufferEnable = true;
-                rs.DepthBufferWriteEnable = false;
+                RenderStates.EnableAlphaBlend(device, Settings.SrcDstBlend[0], Settings.SrcDstBlend[1]);
+                RenderStates.EnableAlphaTest(device, CompareFunction.Greater, referenceAlpha:0);
+                RenderStates.DisableDepthWrite(device);
 
                 EffectViewParameter.SetValue(view);
                 EffectProjectionParameter.SetValue(projection);
 
                 if (EnableDebug)
                 {
-                    rs.AlphaBlendEnable = false;
-                    rs.AlphaTestEnable = false;
+                    RenderStates.DisableAlphaBlend(device);
+                    RenderStates.DisableAlphaTest(device);
                 }
 
                 // Set an effect parameter describing the viewport size. This is
@@ -544,7 +538,8 @@ namespace Ship_Game
                 }
                 ParticleEffect.End();
 
-                rs.DepthBufferWriteEnable = true;
+                RenderStates.DisableAlphaTest(device);
+                RenderStates.EnableDepthWrite(device);
             }
             ++DrawCounter;
         }
