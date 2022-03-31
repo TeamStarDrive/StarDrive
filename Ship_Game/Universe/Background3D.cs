@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
@@ -143,27 +144,17 @@ namespace Ship_Game
             BGItems.Add(neb3);
         }
 
-        public void Draw()
+        public void Draw(GraphicsDevice device)
         {
-            GraphicsDevice device = Screen.ScreenManager.GraphicsDevice;
-            device.SamplerStates[0].AddressU          = TextureAddressMode.Wrap;
-            device.SamplerStates[0].AddressV          = TextureAddressMode.Wrap;
-            device.RenderState.AlphaBlendEnable       = true;
-            device.RenderState.AlphaBlendOperation    = BlendFunction.Add;
-            device.RenderState.SourceBlend            = Blend.SourceAlpha;
-            device.RenderState.DestinationBlend       = Blend.One;
-            device.RenderState.DepthBufferWriteEnable = false;
-            device.RenderState.CullMode               = CullMode.None;
+            RenderStates.BasicBlendMode(device, additive:true, depthWrite:false);
 
             double alpha = Screen.CamPos.Z / (Screen.GetZfromScreenState(UniverseScreen.UnivScreenState.SectorView) * 2);
             float a = (float)alpha.Clamped(0.1, 0.3);
 
             for (int i = 0; i < BGItems.Count; i++)
             {
-                BGItems[i].Draw(Screen.ScreenManager, Screen.View, Screen.Projection, a);
+                BGItems[i].Draw(device, Screen.View, Screen.Projection, a);
             }
-
-            device.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
         }
     }
 }
