@@ -30,16 +30,17 @@ namespace Ship_Game
         void RenderBackdrop(SpriteBatch batch)
         {
             BackdropPerf.Start();
-            
-            var device = Device;
+
             DrawStarField(batch);
-            DrawNebulae(device);
+            DrawNebulae(Device);
 
             batch.Begin();
 
             // if we're zoomed in enough, display solar system overlays with orbits
             if (viewState < UnivScreenState.GalaxyView)
+            {
                 DrawSolarSystemsWithOrbits();
+            }
 
             batch.End();
 
@@ -63,6 +64,7 @@ namespace Ship_Game
         // This draws the hi-res 3D sun and orbital circles
         void DrawSolarSysWithOrbits(SolarSystem sys, Vector2 sysScreenPos)
         {
+            RenderStates.BasicBlendMode(Device, additive:false, depthWrite:true);
             sys.Sun.DrawSunMesh(sys, View, Projection);
             //DrawSunMesh(sys, sys.Zrotate);
             //if (sys.Sun.DoubleLayered) // draw second sun layer

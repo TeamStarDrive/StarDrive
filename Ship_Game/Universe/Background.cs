@@ -19,7 +19,7 @@ namespace Ship_Game
         const int ItAmount = 512;
 
         StarField StarField;
-        Texture2D BackgroundTexture;
+        //Texture2D BackgroundTexture;
 
         public Background(UniverseScreen universe, GraphicsDevice device)
         {
@@ -59,7 +59,7 @@ namespace Ship_Game
             //using (RenderTarget2D rt = RenderTargets.Create(device))
             //{
             //    device.SetRenderTarget(0, rt);
-            //    RenderStates.EnableAlphaBlend(device, Blend.SourceAlpha, Blend.InverseSourceAlpha);
+            //    RenderStates.BasicBlendMode(device, additive:true, depthWrite:true);
             //    DrawBackgroundStars(universe, universe.ScreenManager.SpriteBatch);
             //    device.SetRenderTarget(0, null);
 
@@ -115,11 +115,13 @@ namespace Ship_Game
 
         public void Draw(UniverseScreen u, SpriteBatch batch)
         {
+            RenderStates.BasicBlendMode(u.ScreenManager.GraphicsDevice, additive:false, depthWrite:true);
+
             float width  = u.ScreenWidth;
             float height = u.ScreenHeight;
-
             DrawBackgroundStars(u, batch);
             //batch.Begin();
+            //batch.FillRectangle(new RectF(0, 0, width, height), Color.Black); // new Color(12, 17, 24));
             //batch.Draw(BackgroundTexture, new RectF(0, 0, width, height));
             //batch.End();
 
@@ -129,7 +131,7 @@ namespace Ship_Game
             float xDiff = width / 10f;
             float yDiff = height / 10f;
             Camera.Pos = new Vector2(percentX * xDiff, percentY * yDiff);
-            StarField.Draw(Camera.Pos, batch);
+            //StarField.Draw(Camera.Pos, batch);
 
             BkgRect = new Rectangle((int)(Camera.Pos.X - width  / 2f - Camera.Pos.X / 30f - 200f),
                                     (int)(Camera.Pos.Y - height / 2f - Camera.Pos.Y / 30f) - 200, 2048, 2048);
