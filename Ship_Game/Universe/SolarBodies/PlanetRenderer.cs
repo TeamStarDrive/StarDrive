@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
+using Ship_Game.Graphics;
 using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game.Universe.SolarBodies
@@ -32,7 +33,6 @@ namespace Ship_Game.Universe.SolarBodies
         Texture2D TexFresnel;
 
         Vector3 CamPos;
-        Matrix View, Projection;
 
         public PlanetRenderer(GameContentManager content, PlanetTypes types)
         {
@@ -119,8 +119,6 @@ namespace Ship_Game.Universe.SolarBodies
         {
             Device = device;
             CamPos = cameraPos;
-            View = view;
-            Projection = projection;
 
             SetViewProjection(FxPlanet, view, projection);
             SetViewProjection(FxClouds, view, projection);
@@ -131,22 +129,14 @@ namespace Ship_Game.Universe.SolarBodies
             PlanetHaloFx.Parameters["View"].SetValue(view);
             PlanetHaloFx.Parameters["Projection"].SetValue(projection);
 
-            RenderState rs = device.RenderState;
-            device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            rs.AlphaBlendEnable = true;
-            rs.AlphaBlendOperation = BlendFunction.Add;
-            rs.SourceBlend = Blend.SourceAlpha;
-            rs.DestinationBlend = Blend.InverseSourceAlpha;
-            rs.DepthBufferWriteEnable = false;
+            RenderStates.BasicBlendMode(device, additive:true, depthWrite:false);
         }
 
         public void EndRendering()
         {
-            RenderState rs = Device.RenderState;
-            rs.DepthBufferWriteEnable = true;
-            rs.CullMode = CullMode.CullCounterClockwiseFace;
-            rs.AlphaBlendEnable = false;
+            RenderStates.EnableDepthWrite(Device);
+            RenderStates.SetCullMode(Device, CullMode.CullCounterClockwiseFace);
+            RenderStates.DisableAlphaBlend(Device);
         }
 
         // This draws the clouds and atmosphere layers:
@@ -174,7 +164,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (Types.NewRenderer)
             {
-                Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
+                RenderStates.SetCullMode(Device, CullMode.CullCounterClockwiseFace);
 
                 FxPlanet.World = baseScale * Matrix.CreateRotationZ(-p.Zrotate) * tilt * pos3d;
                 FxPlanet.Texture = type.DiffuseTex;
@@ -192,7 +182,7 @@ namespace Ship_Game.Universe.SolarBodies
                 cloudMatrix = baseScale * Matrix.CreateRotationZ(-p.Zrotate / 1.5f) * tilt * pos3d;
 
                 // default is CCW, this means we draw the clouds as usual
-                Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
+                RenderStates.SetCullMode(Device, CullMode.CullCounterClockwiseFace);
 
                 FxClouds.World = Types.CloudsScaleMatrix * cloudMatrix;
                 FxClouds.DirectionalLight0.Direction = sunToPlanet;
@@ -200,7 +190,7 @@ namespace Ship_Game.Universe.SolarBodies
                 StaticMesh.Draw(MeshSphere, FxClouds, type.CloudsMap);
 
                 // for blue atmosphere and planet halo, use CW, which means the sphere is inverted
-                Device.RenderState.CullMode = CullMode.CullClockwiseFace;
+                RenderStates.SetCullMode(Device, CullMode.CullClockwiseFace);
 
                 if (type.NoAtmosphere == false)
                 {
@@ -221,7 +211,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (type.Clouds && type.NoHalo == false) // draw the halo effect
             {
                 // inverted sphere
-                Device.RenderState.CullMode = CullMode.CullClockwiseFace;
+                RenderStates.SetCullMode(Device, CullMode.CullClockwiseFace);
                 // This is a small shine effect on top of the atmosphere
                 // It is very subtle
                 //var diffuseLightDirection = new Vector3(-0.98f, 0.425f, -0.4f);
@@ -236,7 +226,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (p.HasRings)
             {
-                Device.RenderState.CullMode = CullMode.None;
+                RenderStates.SetCullMode(Device, CullMode.None);
                 FxRings.World = Types.RingsScaleMatrix * baseScale * Matrix.CreateRotationX(p.RingTilt) * pos3d;
                 StaticMesh.Draw(MeshRings, FxRings, TexRings);
             }
@@ -244,7 +234,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         void RenderPlanetGlow(Planet p, PlanetType type, in Matrix pos3d, in Matrix baseScale)
         {
-            Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
+            RenderStates.SetCullMode(Device, CullMode.CullCounterClockwiseFace);
 
             // rotate the glow effect always towards the camera by getting direction from camera to planet
             // TODO: our camera works in coordinate space where +Z is out of the screen and -Z is background

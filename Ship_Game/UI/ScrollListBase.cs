@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Graphics;
 
 namespace Ship_Game
 {
@@ -551,11 +552,11 @@ namespace Ship_Game
             if (EnableItemHighlight)
                 Highlight?.Draw(batch, elapsed);
 
-            batch.GraphicsDevice.RenderState.ScissorTestEnable = true;
-            batch.GraphicsDevice.ScissorRectangle = new Rectangle(ItemsHousing.X - 10, ItemsHousing.Y - 5, ItemsHousing.Width + 20, ItemsHousing.Height + 5);
+            RenderStates.EnableScissorTest(batch.GraphicsDevice, 
+                new Rectangle(ItemsHousing.X - 10, ItemsHousing.Y - 5, ItemsHousing.Width + 20, ItemsHousing.Height + 5));
             batch.End();
             batch.Begin();
-            batch.GraphicsDevice.RenderState.ScissorTestEnable = false;
+            RenderStates.DisableScissorTest(batch.GraphicsDevice);
             
             // Draw the currently dragged entry
             if (DraggedEntry != null)

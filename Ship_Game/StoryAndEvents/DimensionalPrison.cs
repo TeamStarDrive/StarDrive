@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Ship_Game.Graphics;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 
@@ -61,15 +62,9 @@ namespace Ship_Game
 
         public override void Draw()
         {
-            var manager = Universe.Screen.ScreenManager;
-            manager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            manager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            manager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            manager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            manager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            manager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
-            manager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            manager.GraphicsDevice.RenderState.CullMode = CullMode.None;
+            var device = Universe.Screen.ScreenManager.GraphicsDevice;
+            RenderStates.BasicBlendMode(device, additive:true, depthWrite:false);
+
             for (int i = 0; i < 20; i++)
             {
                 Universe.Screen.Particles.Sparks.AddParticle(new Vector3(PlaformCenter, 0f) + GenerateRandomWithin(100f), GenerateRandomWithin(25f));
@@ -78,7 +73,7 @@ namespace Ship_Game
             {
                 Universe.Screen.Particles.Flash.AddParticle(new Vector3(PlaformCenter, 0f));
             }
-            Prison.Draw(manager, Universe.Screen.View, Universe.Screen.Projection, 1f);
+            Prison.Draw(device, Universe.Screen.View, Universe.Screen.Projection, 1f);
         }
 
         private Vector2 GenerateRandomV2(float radius)
