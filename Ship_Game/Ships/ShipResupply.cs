@@ -141,6 +141,9 @@ namespace Ship_Game.Ships
             if (PlayerKamikaze)
                 return false; // Only player manual command will convince Kamikaze ship to resupply
 
+            if (Ship.Ordinance < Ship.OrdnanceMin)
+                return true;
+
             float threshold = InCombat 
                               ? OrdnanceThresholdCombat 
                               : Ship.IsPlatformOrStation ? OrdnanceThresholdNonCombatOrbital : OrdnanceThresholdNonCombat;
