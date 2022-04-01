@@ -12,7 +12,7 @@
   <BeamDuration>0.5</BeamDuration>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
-  <FireCueName>sd_weapon_laser_large_alt_04</FireCueName>
+
   <ToggleSoundName>sd_weapon_beam_fusion_med</ToggleSoundName>
   
   
