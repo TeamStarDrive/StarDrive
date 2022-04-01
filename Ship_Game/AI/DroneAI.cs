@@ -23,7 +23,7 @@ namespace Ship_Game.AI
         public void ChooseTarget()
         {
             var target = Drone.Owner?.AI.FriendliesNearby
-                .FindMinFiltered(ship => ship.Active 
+                .FindMinFiltered(ship => !ship.IsDeadOrDying
                                          && !ship.IsHangarShip
                                          && ship.HealthStatus < Status.Maximum
                                          && ship.Position.InRadius(Drone.Owner.Position, 10000)
@@ -71,7 +71,8 @@ namespace Ship_Game.AI
             {
                 // We want to immediately kill the beam, since there is a possibility it is infinite.
                 // very strange implementation for drone repair logic
-                Beam?.Die(null, false); 
+                if (Beam?.Active == true)
+                    Beam.Die(null, false); 
             }
             else
             {
