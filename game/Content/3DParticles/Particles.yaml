@@ -251,11 +251,11 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 7000
-  Duration: 1
-  DurationRandomness: 0.5
-  InheritOwnerVelocity: 0.1
+  Duration: 0.4
+  DurationRandomness: 0.2
+  InheritOwnerVelocity: 0.2
   RandomVelocityXY: [ [-4,4], [-4,4] ]
-  EndVelocity: 0
+  EndVelocity: -0.5
   StartColorRange: [[194,198,48,255],[215,205,60,255]]
   EndColorRange:  [[134,37,26,255],[131,67,29,255]]
   EndColorTime: 0.2
@@ -356,15 +356,15 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 7000
-  Duration: 1.5
+  Duration: 1.1
   DurationRandomness: 0
-  InheritOwnerVelocity: 0.1
+  InheritOwnerVelocity: 0
   EndVelocity: 0
   StartColorRange: [[255,255,255,255],[255,255,255,255]]
   EndColorRange: [[46,90,169,255],[0,114,188,255]]
   EndColorTime: 0.1
   RotateSpeed: [-8,8]
-  StartEndSize: [ [45,50], [2,5] ]
+  StartEndSize: [ [45,50], [12,15] ]
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
@@ -422,19 +422,19 @@
 
 - ParticleSettings:
   Name: IonRing
-  TextureName: "ring.png"
+  TextureName: "ring2.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 7000
-  Duration: 0.2
+  Duration: 0.3
   DurationRandomness: 0.1
-  InheritOwnerVelocity: -2
+  InheritOwnerVelocity: -0.2
   AlignRotationToVelocity: 1
-  EndVelocity: -0.1
+  EndVelocity: 0
   StartColorRange: [[255,255,255,255],[255,255,255,255]]
   EndColorRange: [[46,90,169,255],[0,114,188,255]]
   RotateSpeed: [-2,2]
-  StartEndSize: [ [5,7], [115,100] ]
+  StartEndSize: [ [25,27], [200,190] ]
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
@@ -557,13 +557,13 @@
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 8000
   Duration: 2
-  DurationRandomness: 2
+  DurationRandomness: 0.2
   InheritOwnerVelocity: 0.01
   RandomVelocityXY: [ [-35,35], [-35,35] ]
   EndVelocity: 0
   StartColorRange: [[93,96,95,255],[255,255,255,80]]
   RotateSpeed: [-1,1]
-  StartEndSize: [ [55,65], [160,220] ]
+  StartEndSize: [ [55,65], [120,180] ]
   SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
 
 - ParticleSettings:
