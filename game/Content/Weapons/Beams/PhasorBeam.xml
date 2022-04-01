@@ -27,7 +27,7 @@
   <BeamDuration>0.5</BeamDuration>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
-  <FireCueName>sd_weapon_flame_start_01</FireCueName>
+ 
   <ToggleSoundName>sd_weapon_phasor_01</ToggleSoundName>
   <BeamTexture>beam_red</BeamTexture>
   
