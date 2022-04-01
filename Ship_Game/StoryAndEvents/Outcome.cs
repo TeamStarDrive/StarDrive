@@ -132,9 +132,16 @@ namespace Ship_Game
             }
         }
 
-        private void ShipGrants(Empire triggeredBy, Planet p)
+        void ShipGrants(Planet p, Empire triggeredBy)
         {
-            var universe = p.Universe;
+            p = p ?? triggeredBy.Capital;
+            if (p == null)
+            {
+                Log.Error("ShipGrants failed: no planet");
+                return;
+            }
+
+            var universe = triggeredBy.Universum;
             foreach (string shipName in FriendlyShipsToSpawn)
             {
                 Ship.CreateShipAt(universe, shipName, triggeredBy, p, true);
@@ -156,8 +163,11 @@ namespace Ship_Game
             }
         }
 
-        private void BuildingActions(Planet p, PlanetGridSquare eventLocation)
+        void BuildingActions(Planet p, PlanetGridSquare eventLocation)
         {
+            if (p == null || eventLocation == null)
+                return;
+
             if (RemoveTrigger)
             {
                 p.DestroyBuildingOn(eventLocation);
@@ -169,7 +179,7 @@ namespace Ship_Game
             }
         }
 
-        private bool SetRandomPlanet(UniverseState u)
+        bool SetRandomPlanet(UniverseState u)
         {
             if (!SelectRandomPlanet) return false;
             Array<Planet> potentials = new Array<Planet>();
@@ -189,7 +199,7 @@ namespace Ship_Game
             return false;
         }
 
-        private void TroopActions(Empire triggeredBy, Planet p, PlanetGridSquare eventLocation)
+        void TroopActions(Empire triggeredBy, Planet p, PlanetGridSquare eventLocation)
         {
             if (TroopsGranted != null)
             {
@@ -226,11 +236,6 @@ namespace Ship_Game
             }
         }
 
-        public bool InValidOutcome(Empire triggeredBy)
-        {
-            return OnlyTriggerOnce && AlreadyTriggered && triggeredBy.isPlayer;
-        }
-
         public void CheckOutComes(Planet p, PlanetGridSquare eventLocation, Empire triggeredBy, EventPopup popup)
         {
             //artifact setup
@@ -264,7 +269,7 @@ namespace Ship_Game
             //Generic grants
             FlatGrants(triggeredBy);
             TechGrants(triggeredBy);
-            ShipGrants(triggeredBy, p);
+            ShipGrants(p, triggeredBy);
             PlanetGrants(p, eventLocation);
 
             //planet triggered events
@@ -273,7 +278,7 @@ namespace Ship_Game
                 BuildingActions(p, eventLocation);
                 TroopActions(triggeredBy, p, eventLocation);
             }
-            else if (SetRandomPlanet(p.Universe)) //events that trigger on other planets
+            else if (SetRandomPlanet(triggeredBy.Universum)) //events that trigger on other planets
             {
                 p = SelectedPlanet;
 
