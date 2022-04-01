@@ -611,10 +611,16 @@ namespace Ship_Game.Ships
                         break;
                 }
 
-                if (module.InstalledWeapon?.IsRepairBeam == true)
+                if (module.InstalledWeapon != null)
                 {
-                    RepairBeams.Add(module);
-                    HasRepairBeam = true;
+                    if (module.InstalledWeapon.IsRepairBeam)
+                    {
+                        RepairBeams.Add(module);
+                        HasRepairBeam = true;
+                    }
+
+                    if (!module.InstalledWeapon.TruePD && !module.InstalledWeapon.Tag_PD)
+                        OrdnanceMin = Math.Max(module.InstalledWeapon.OrdinanceRequiredToFire,OrdnanceMin);
                 }
 
                 HasRepairModule |= module.IsRepairModule;

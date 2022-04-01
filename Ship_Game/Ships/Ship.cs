@@ -88,6 +88,7 @@ namespace Ship_Game.Ships
         public int SurfaceArea { get; private set; }
 
         public float Ordinance { get; private set; } // FB: use ChanceOrdnance function to control Ordnance
+        public float OrdnanceMin { get; private set; } // FB: minimum ordnance required to fire any of the ship's weapons
         public float OrdinanceMax;
         public ShipAI AI { get; private set; }
 
