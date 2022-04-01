@@ -17,7 +17,7 @@ namespace Ship_Game
 
         public void TriggerOutcome(Empire triggeredBy, Outcome triggeredOutcome)
         {
-            triggeredOutcome.CheckOutComes(null , null, triggeredBy,null);
+            triggeredOutcome.CheckOutComes(null, null, triggeredBy, null);
         }
 
         public void TriggerPlanetEvent(Planet p, short outcomeNum, Empire triggeredBy,
