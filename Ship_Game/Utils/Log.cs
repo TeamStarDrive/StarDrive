@@ -385,12 +385,6 @@ namespace Ship_Game
             Error(string.Format(format, args));
         }
 
-        class StackTraceEx : Exception
-        {
-            public override string StackTrace { get; }
-            public StackTraceEx(string stackTrace) { StackTrace = stackTrace; }
-        }
-        
         public static void Error(string error)
         {
             string text = "(!) Error: " + error;
@@ -418,7 +412,7 @@ namespace Ship_Game
         public static void Error(Exception ex, string error = null, SentryLevel errorLevel = SentryLevel.Error)
         {
             string text = ExceptionString(ex, "(!) Exception: ", error);
-            LogWriteAsync(text, ConsoleColor.DarkRed);
+            LogWriteAsync(text, ConsoleColor.Red);
             FlushAllLogs();
             
         #if DEBUG && !NOBREAK
@@ -444,7 +438,7 @@ namespace Ship_Game
             IsTerminating = exitCode != 0;
 
             string text = ExceptionString(ex, "(!) Exception: ", error);
-            LogWriteAsync(text, ConsoleColor.DarkRed);
+            LogWriteAsync(text, ConsoleColor.Red);
             FlushAllLogs();
 
             if (!HasDebugger && IsTerminating) // only log errors to sentry if debugger not attached
