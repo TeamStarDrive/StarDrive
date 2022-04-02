@@ -453,5 +453,14 @@ namespace Ship_Game
                     Log.Warning($"Tech {UID} unlock unavailable : {moduleU.ModuleUID}");
             }
         }
+
+        public bool UnlocksBonusOnly()
+        {
+            return ModulesUnlocked.Count == 0
+                && BuildingsUnlocked.Count == 0
+                && HullsUnlocked.Count == 0
+                && TroopsUnlocked.Count == 0
+                && BonusUnlocked.Count > 0;
+        }
     }
 }

@@ -586,6 +586,10 @@ namespace Ship_Game
         }
         public void DebugUnlockFromTechScreen(Empire us, Empire them, bool bonusUnlock = true)
         {
+            // FB: Don't unlock bonus only tech, leave them so modders can unlock specific techs later.
+            if (!bonusUnlock && Tech.UnlocksBonusOnly())
+                return;
+
             SetDiscovered(us);
             UnlockWithBonus(us, them, bonusUnlock);
         }
