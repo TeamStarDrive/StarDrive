@@ -558,32 +558,24 @@ namespace Ship_Game
 
         void UpdateClickableShips()
         {
-            if (viewState == UnivScreenState.GalaxyView)
+            Ship[] ships = UState.Objects.VisibleShips;
+            var clickable = new Array<ClickableShip>();
+            for (int i = 0; i < ships.Length; i++)
             {
-                ClickableShips = Empty<ClickableShip>.Array;
-            }
-            else
-            {
-                Ship[] ships = UState.Objects.VisibleShips;
+                Ship ship = ships[i];
+                if (ship.IsPlatform)
+                    continue;
 
-                var clickable = new Array<ClickableShip>();
-                for (int i = 0; i < ships.Length; i++)
+                ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
+                clickable.Add(new ClickableShip
                 {
-                    Ship ship = ships[i];
-                    if (ship.IsPlatform)
-                        continue;
-
-                    ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
-                    clickable.Add(new ClickableShip
-                    {
-                        Radius = screenRadius < 7.0 ? 7f : (float)screenRadius,
-                        ScreenPos = shipScreenPos.ToVec2f(),
-                        Ship = ship
-                    });
-                }
-
-                ClickableShips = clickable.ToArray();
+                    Radius = screenRadius < 7.0 ? 7f : (float)screenRadius,
+                    ScreenPos = shipScreenPos.ToVec2f(),
+                    Ship = ship
+                });
             }
+
+            ClickableShips = clickable.ToArray();
         }
 
         void UpdateClickableSystemsAndPlanets()

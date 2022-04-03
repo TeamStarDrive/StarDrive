@@ -193,7 +193,7 @@ namespace Ship_Game.AI
 
             ship.Pool?.Remove(ship);
             ship.Pool = this;
-            OffensiveForcePool.Add(ship);
+            OffensiveForcePool.AddUnique(ship);
             return true;
         }
 
