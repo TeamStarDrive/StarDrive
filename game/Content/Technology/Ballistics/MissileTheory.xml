@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>MissileTheory</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>300</Cost>
+  <Cost>380</Cost>
   <RootNode>0</RootNode>
   <Name>Missile Theory</Name>
   <NameIndex>618</NameIndex>

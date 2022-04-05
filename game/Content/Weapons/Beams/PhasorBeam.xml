@@ -32,7 +32,7 @@
   <BeamTexture>beam_red</BeamTexture>
   
   <!-- Projectile Information -->
-  <DamageAmount>12</DamageAmount>
+  <DamageAmount>13.5</DamageAmount>
   <BeamThickness>25</BeamThickness>
   <BeamPowerCostPerSecond>1053</BeamPowerCostPerSecond>
 

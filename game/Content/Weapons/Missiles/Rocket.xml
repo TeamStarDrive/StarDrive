@@ -22,14 +22,14 @@
   <Range>12000</Range>
   <HitPoints>3</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>2</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>3</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
   <FireCueName>sd_weapon_rocket_01</FireCueName>
   <DieCue>sd_weapon_rocket_explode_01</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   <!-- Projectile Information -->
-  <DamageAmount>350</DamageAmount>
-  <ProjectileSpeed>900</ProjectileSpeed>
+  <DamageAmount>300</DamageAmount>
+  <ProjectileSpeed>600</ProjectileSpeed>
   <ExplosionRadius>30</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>

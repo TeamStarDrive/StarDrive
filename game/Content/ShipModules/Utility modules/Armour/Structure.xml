@@ -30,8 +30,8 @@
 
   <!-- Mass and Health -->
   <Mass>1</Mass>
-  <Health>300</Health>
-  <HealthMax>300</HealthMax>
+  <Health>200</Health>
+  <HealthMax>200</HealthMax>
   <RepairDifficulty>0.5</RepairDifficulty>
 
 </ShipModule>

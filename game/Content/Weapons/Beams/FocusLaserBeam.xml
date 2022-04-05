@@ -33,7 +33,7 @@
   <!-- Projectile Information -->
   <BeamTexture>beam_blue</BeamTexture>
   
-  <DamageAmount>6.5</DamageAmount>
+  <DamageAmount>7.2</DamageAmount>
   <BeamThickness>30</BeamThickness>
   <BeamPowerCostPerSecond>632</BeamPowerCostPerSecond>
   <EffectVsArmor>1.10</EffectVsArmor>

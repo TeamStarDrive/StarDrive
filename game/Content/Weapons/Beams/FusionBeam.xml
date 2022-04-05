@@ -20,7 +20,7 @@
   <BeamTexture>beam_purple</BeamTexture>
   
   
-  <DamageAmount>9</DamageAmount>
+  <DamageAmount>10.5</DamageAmount>
   <BeamThickness>24</BeamThickness>
   <BeamPowerCostPerSecond>682</BeamPowerCostPerSecond>
 

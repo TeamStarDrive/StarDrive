@@ -11,7 +11,7 @@
     </Ring>
     <Ring>
       <Planet>Opteris III</Planet>
-      <WhichPlanet>14</WhichPlanet>
+      <WhichPlanet>40</WhichPlanet>
       <HasRings>Yes</HasRings>
     </Ring>
     <Ring>
@@ -29,14 +29,14 @@
     </Ring>
     <Ring>
       <Planet>Opteris VI</Planet>
-      <WhichPlanet>23</WhichPlanet>
+      <WhichPlanet>38</WhichPlanet>
     </Ring>
     <Ring>
       <Asteroids>Yes</Asteroids>
     </Ring>
     <Ring>
       <Planet>Opteris VII</Planet>
-      <WhichPlanet>6</WhichPlanet>
+      <WhichPlanet>32</WhichPlanet>
     </Ring>
   </RingList>
 </SolarSystemData>
