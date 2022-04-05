@@ -34,7 +34,7 @@
   <BeamTexture>beam_blue</BeamTexture>
   
   
-  <DamageAmount>6</DamageAmount>
+  <DamageAmount>6.8</DamageAmount>
   <BeamThickness>22</BeamThickness>
   <BeamPowerCostPerSecond>546</BeamPowerCostPerSecond>
 

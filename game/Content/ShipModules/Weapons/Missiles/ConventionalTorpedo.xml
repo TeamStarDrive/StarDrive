@@ -12,7 +12,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/conventionalTorpedo</IconTexturePath>
-  <Mass>145</Mass>
+  <Mass>232</Mass>
   <Health>14500</Health>
   <HealthMax>14500</HealthMax>
   <energyreq>0</energyreq>

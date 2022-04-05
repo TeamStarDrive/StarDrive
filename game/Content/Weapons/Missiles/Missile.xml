@@ -31,14 +31,14 @@
   
   
   <!-- Projectile Information -->
-  <DamageAmount>1400</DamageAmount>
+  <DamageAmount>1200</DamageAmount>
   <RotationRadsPerSecond>1</RotationRadsPerSecond>
-  <ProjectileSpeed>800</ProjectileSpeed>
+  <ProjectileSpeed>650</ProjectileSpeed>
   <ExplosionRadius>40</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <HitPoints>9</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
-  <OrdinanceRequiredToFire>8</OrdinanceRequiredToFire>
+  <OrdinanceRequiredToFire>10</OrdinanceRequiredToFire>
 
 
   <!-- Graphical Information -->

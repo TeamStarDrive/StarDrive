@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>FocusedLaserBeam</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>240</Cost>
+  <Cost>200</Cost>
   <RootNode>0</RootNode>
   <Name>Energy Weapons</Name>
   <NameIndex>17520</NameIndex>

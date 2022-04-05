@@ -42,15 +42,10 @@
   <ExcludedDTraits>
     <string>Pacifist</string>
     <string>Honorable</string>
-    <string>Cunning</string>
     <string>Xenophobic</string>
-    <string>Aggressive</string>
   </ExcludedDTraits>
   <ExcludedETraits>
-    <string>Industrialists</string>
     <string>Generalists</string>
-    <string>Militarists</string>
-    <string>Expansionists</string>
   </ExcludedETraits>
   <Traits>
     <Name>Opteris</Name>
@@ -66,19 +61,19 @@
     <R>90</R>
     <G>87</G>
     <B>51</B>
-    <RaceDescription>KWAK!</RaceDescription>
+    <RaceDescription>bzzz!</RaceDescription>
     <Cost>0</Cost>
     <ConsumptionModifier>-.25</ConsumptionModifier>
     <PopGrowthMin>.01</PopGrowthMin>
     <ReproductionMod>0.01</ReproductionMod>
-    <DiplomacyMod>-.25</DiplomacyMod>
+    <DiplomacyMod>0</DiplomacyMod>
     <GenericMaxPopMod>0</GenericMaxPopMod>
     <Aquatic>0</Aquatic>
     <Burrowers>0</Burrowers>
     <Blind>0</Blind>
     <BonusExplored>0</BonusExplored>
     <Pioneers>0</Pioneers>
-    <Militaristic>0</Militaristic>
+    <Militaristic>1</Militaristic>
     <HomeworldSizeMod>-.25</HomeworldSizeMod>
     <Prewarp>0</Prewarp>
     <Spiritual>0</Spiritual>
@@ -90,15 +85,17 @@
     <Miners>0</Miners>
     <ProductionMod>.35</ProductionMod>
     <MaintMod>0</MaintMod>
-    <TaxMod>0</TaxMod>
+    <TaxMod>-0.2</TaxMod>
     <ShipCostMod>0</ShipCostMod>
     <ModHpModifier>0</ModHpModifier>
     <SmallSize>0</SmallSize>
     <HugeSize>0</HugeSize>
     <HomeworldRichMod>1.0</HomeworldRichMod>
-    <GroundCombatModifier>0</GroundCombatModifier>
+    <GroundCombatModifier>-.20</GroundCombatModifier>
     <RepairRateMod>0</RepairRateMod>
     <Cybernetic>1</Cybernetic>
+    <Prototype>1</Prototype>
+    <SpyMultiplier>-10</SpyMultiplier>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>

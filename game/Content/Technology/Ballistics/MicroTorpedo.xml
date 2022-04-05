@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>MicroTorpedo</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>680</Cost>
+  <Cost>800</Cost>
   <RootNode>0</RootNode>
   <Name>MicroTorpedo</Name>
   <NameIndex>18248</NameIndex>

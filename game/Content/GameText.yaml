@@ -2017,7 +2017,7 @@ ADedicatedResearchLabAllows:
  SPA: "Un laboratorio de investigación especializado permite a los colonos emprender el estudio a fondo de su nuevo mundo.  Proporciona a una colonia una bonificación única de investigación de +0.3 por turno. "
 ResearchPerTurn2:
  Id: 454
- ENG: "+0.3 research per turn, 0.2 research per colonist"
+ ENG: "+0.3 research per turn, 0.3 research per colonist"
  RUS: "+0.3 к науке в ход, +0.2 к науке за колониста"
  SPA: "+0.3 de investigación por turno"
 RoverBay:
@@ -2095,9 +2095,9 @@ XenoFarm:
  SPA: "Xenogranja"
 FoodPerAssignedColonist:
  Id: 472
- ENG: "+0.2 food per assigned colonist"
- RUS: "+0,2 к еде за каждого занятого колониста"
- SPA: "+0,2 de comida por colono asignado"
+ ENG: "+0.3 food per assigned colonist"
+ RUS: "+0,3 к еде за каждого занятого колониста"
+ SPA: "+0,3 de comida por colono asignado"
 XenoMine:
  Id: 473
  ENG: "Xeno Mine"
@@ -7775,9 +7775,9 @@ VerticalFarm:
  SPA: "Granja vertical"
 FoodPerTurn3:
  Id: 2291
- ENG: "+0.3 food per assigned colonist"
- RUS: "+0.3 еды за задействованного колониста"
- SPA: "+0.3 de comida por colono asignado"
+ ENG: "+0.6 food per assigned colonist"
+ RUS: "+0.6 еды за задействованного колониста"
+ SPA: "+0.6 de comida por colono asignado"
 ThisMegastructureEmploysAdvancedAgricultural:
  Id: 2292
  ENG: "This megastructure employs advanced agricultural techniques and robotics to create massive quantities of food"
@@ -8566,9 +8566,9 @@ DeepCoreMinesAreExtremely:
  SPA: "Las minas de núcleo profundo son sumamente eficaces a la hora de extraer minerales de las profundidades de un planeta, pero son devastadoras para el medio ambiente. Añade una producción a un ritmo constante igual a cuatro veces la riqueza mineral del planeta, pero reduce permanentemente su fertilidad en 0.6."
 FertilityOnBuildXProduction:
  Id: 420
- ENG: "-0,6 fertility on build, +5x production richness bonus"
- RUS: "+ 5х богатства планеты к производству; -0.6 к плодородию"
- SPA: "Aumento de producción igual a 5 veces la riqueza del planeta; -0.6 de fertilidad"
+ ENG: "(-0.4) lower fertility on build, +5x production richness bonus"
+ RUS: "+ 5х богатства планеты к производству; -0.4 к плодородию"
+ SPA: "Aumento de producción igual a 5 veces la riqueza del planeta; -0.4 de fertilidad"
 PopulationPerTurn:
  Id: 414
  ENG: "+0.02 population per turn"
@@ -12673,8 +12673,8 @@ Tech_ImperialUni_Desc:
  RUS: "Объединение лучших и самых ярких представителей нашей Империи принесет огромную пользу исследованиям и разработкам. В одном месте наши ученые и инженеры могут сотрудничать без ограничений."
 ResearchPerAssignedColonistProduction:
  Id: 10346
- ENG: "+0.2 research per assigned colonist"
- RUS: "+0.2 к исследованиям за задействованного колониста"
+ ENG: "+0.6 research per assigned colonist"
+ RUS: "+0.6 к исследованиям за задействованного колониста"
 Tech_InvasiveMining_Name:
  Id: 8075
  ENG: "Invasive Mining"
@@ -12694,7 +12694,7 @@ ARoboticFactoryAGreat:
 FertilityOnBuildFlatProduction:
  Id: 8079
  ENG: " (-0.3) Fertility On Build, +6 flat production per turn, +1 Infrastructure"
- RUS: " (-0.3) плодородия за постройку, +6 продукции за ход, +1 к инфраструтуре."
+ RUS: " -0.3 плодородия за постройку, +6 продукции за ход, +1 к инфраструтуре."
 ParticleAccelerator:
  Id: 10019
  ENG: "Particle Accelerator"
@@ -13318,7 +13318,7 @@ OrerefineryDescr:
  ENG: "Facility for processing raw mineral ores."
 OrerefineryBonus:
  Id: 10084
- ENG: "fertility, +2 production per 1 richness"
+ ENG: "(-0.5) lower fertility on build, +2 production per 1 richness"
 ScienceFacility:
  Id: 10085
  ENG: "Science Facility"
@@ -13327,7 +13327,7 @@ ScienceFacilityDescr:
  ENG: "Building specialy designed to perform science experiments."
 ScienceFacilityBonuses:
  Id: 10087
- ENG: "Provides 0.2 reseach per assigned colonist."
+ ENG: "Provides 0.2 reseach per assigned colonist and 0.25 flat research per turn."
 TaxOffice:
  Id: 10088
  ENG: "Tax Office"
@@ -13663,7 +13663,7 @@ PhasorFocusTechDescr:
  ENG: "Evolution of beam weapons lead us into discovering a powerful Phasor's. Using previously known methods of focusing beams we managed to apply most of the old schematics with new advanced components. "
 CoreExtractDescShort:
  Id: 17594
- ENG: "-1 fertility on build, +8x production richness bonus, +1 production per assigned colonist."
+ ENG: "(-0.6) lower fertility on build, +8x production richness bonus, +1 production per assigned colonist."
 LightBeam:
  Id: 17595
  ENG: "Light beam array"

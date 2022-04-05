@@ -25,8 +25,8 @@
 
   <IconTexturePath>Modules/ConstructionArray</IconTexturePath>
   <Mass>36</Mass>
-  <Health>3000</Health>
-  <HealthMax>3000</HealthMax>
+  <Health>700</Health>
+  <HealthMax>700</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
   <energyreq>0</energyreq>
   
