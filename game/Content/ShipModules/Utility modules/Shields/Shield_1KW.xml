@@ -33,7 +33,7 @@
   <!-- for shield items -->
   <ShieldPowerMax>3000</ShieldPowerMax>
   <ShieldRechargeDelay>15</ShieldRechargeDelay>
-  <ShieldRechargeRate>80.0</ShieldRechargeRate>
+  <ShieldRechargeRate>50.0</ShieldRechargeRate>
   <ShieldRadius>98</ShieldRadius>
   <ShieldRechargeCombatRate>40</ShieldRechargeCombatRate>
   <ShieldEnergyResist>0.1</ShieldEnergyResist>

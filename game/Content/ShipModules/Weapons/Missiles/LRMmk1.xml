@@ -14,7 +14,7 @@
   <Version>2</Version>
 
   <IconTexturePath>Modules/LRMmk1</IconTexturePath>
-  <Mass>48</Mass>
+  <Mass>77</Mass>
   <Health>2300</Health>
   <HealthMax>2300</HealthMax>
   <RepairDifficulty>1.5</RepairDifficulty>
