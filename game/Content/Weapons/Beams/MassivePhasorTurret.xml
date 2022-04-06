@@ -19,7 +19,7 @@
   <BeamTexture>dualbeam_red</BeamTexture>
   
   <!-- Projectile Information -->
-  <DamageAmount>50</DamageAmount>
+  <DamageAmount>52</DamageAmount>
   <BeamThickness>70</BeamThickness>
   <BeamPowerCostPerSecond>4400</BeamPowerCostPerSecond>
 

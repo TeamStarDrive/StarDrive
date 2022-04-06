@@ -28,7 +28,7 @@
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Mass Reduction</Name>
-      <Bonus>-0.05</Bonus>
+      <Bonus>-0.03</Bonus>
       <Description>New materials reduce effective ship mass by 5% across the board. </Description>
       <BonusIndex>18088</BonusIndex>
       <Type>Cordrazine</Type>
