@@ -44,8 +44,8 @@ namespace Ship_Game.Spatial
                 foreach (Ship ship in ships)
                 {
                     Weapon weapon = ship.Weapons.First;
-                    var p = Projectile.Create(weapon, ship.Position + new Vector2(0, spawnProjectilesWithOffset),
-                                              Vectors.Up, null, false);
+                    var p = Projectile.Create(weapon, ship,
+                                              ship.Position + new Vector2(0, spawnProjectilesWithOffset), Vectors.Up, null, false);
                     allObjects.Add(p);
                 }
             }
@@ -72,7 +72,7 @@ namespace Ship_Game.Spatial
                 if (!(go is Ship ship))
                     continue;
                 Weapon weapon = ship.Weapons.First;
-                var p = Projectile.Create(weapon, ship.Position + offset, Vectors.Up, null, false);
+                var p = Projectile.Create(weapon, ship, ship.Position + offset, Vectors.Up, null, false);
                 projectiles.Add(p);
             }
 
