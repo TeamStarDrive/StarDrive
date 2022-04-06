@@ -27,7 +27,7 @@
   <FireCueName>sd_weapon_Turretgun_001</FireCueName>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
-  <DamageAmount>321</DamageAmount>
+  <DamageAmount>642</DamageAmount>
   <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1700</ProjectileSpeed>
   
@@ -38,8 +38,8 @@
   <ProjectileCount>1</ProjectileCount>
   <Scale>0.9</Scale>
   <!--the projectile count is spread over the fire arc-->
-  <SalvoCount>6</SalvoCount>
-  <SalvoTimer>0.6</SalvoTimer>
+  <SalvoCount>3</SalvoCount>
+  <SalvoTimer>0.3</SalvoTimer>
   <FireCone>0</FireCone>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->

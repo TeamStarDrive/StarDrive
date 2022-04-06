@@ -31,6 +31,7 @@
   <PowerDraw>5</PowerDraw>
 
   <!-- for Weapons -->
+  
   <WeaponType>FocusLaserBeam</WeaponType>
   <FieldOfFire>15</FieldOfFire>
  <AccuracyPercent>0.28</AccuracyPercent>

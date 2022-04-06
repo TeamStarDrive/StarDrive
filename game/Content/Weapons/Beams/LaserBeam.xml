@@ -19,9 +19,9 @@
   
   <UID>LaserBeam</UID>
   <IsBeam>true</IsBeam>
-  <FireDelay>1.5</FireDelay>
+  <FireDelay>2</FireDelay>
   <Range>3500</Range>
-  <BeamDuration>0.5</BeamDuration>
+  <BeamDuration>0.4</BeamDuration>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   <!-- name of XACT audio cue to play on firing this weapon -->
@@ -34,9 +34,11 @@
   <BeamTexture>beam_blue</BeamTexture>
   
   
-  <DamageAmount>6.8</DamageAmount>
+  <DamageAmount>7</DamageAmount>
+  <EffectVsShields>1.13</EffectVsShields> 
   <BeamThickness>22</BeamThickness>
   <BeamPowerCostPerSecond>546</BeamPowerCostPerSecond>
+  <WeaponRotation>2</WeaponRotation>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Energy Beam</WeaponType>

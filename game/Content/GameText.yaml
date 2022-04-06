@@ -13143,8 +13143,8 @@ HeavyDarkMatterTurret:
  RUS: "Тежалая турель Темной Материи"
 AdvancedMaterials_Bonus:
  Id: 18088
- ENG: "New materials reduce effective ship mass by a total of 5% across the board."
- RUS: "Новые материалы снижают эффективную массу корабля на 5% по всем направлениям."
+ ENG: "New materials reduce effective ship mass by a total of 3% across the board."
+ RUS: "Новые материалы снижают эффективную массу корабля на 3% по всем направлениям."
 PowerFlow_Bonus:
  Id: 18089
  ENG: "Exotic particles discovered by this race have increased Power Reactors efficiency by 8%."
