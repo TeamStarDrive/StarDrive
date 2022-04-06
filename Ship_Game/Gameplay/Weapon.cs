@@ -62,13 +62,32 @@ namespace Ship_Game.Gameplay
         public bool Tag_Cannon    { get => Tag(WeaponTag.Cannon);    set => Tag(WeaponTag.Cannon, value);    }
         public bool Tag_PD        { get => Tag(WeaponTag.PD);        set => Tag(WeaponTag.PD, value);        }
 
+        ////////////////////////////
+        // WeaponState
         [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
+        [XmlIgnore] [JsonIgnore] AudioHandle ToggleCue = new AudioHandle();
+        // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
+        public Vector2 PlanetOrigin;
+        [XmlIgnore] [JsonIgnore] public ShipModule Module;
+        [XmlIgnore] [JsonIgnore] public float CooldownTimer;
+        [XmlIgnore] [JsonIgnore] public GameplayObject FireTarget { get; private set; }
 
+        // Currently pending salvos to be fired
+        [XmlIgnore] [JsonIgnore] public int SalvosToFire { get; private set; }
+        float SalvoDirection;
+        float SalvoFireTimer; // while SalvosToFire > 0, use this timer to count when to fire next shot
+        GameplayObject SalvoTarget;
+
+        ////////////////////////////
+        // WeaponTemplate
+
+        // This is the WeaponTemplate UID string
+        public string UID;
         public float HitPoints;
         public bool IsBeam;
+        public bool TruePD;
         public float EffectVsArmor = 1f;
         public float EffectVsShields = 1f;
-        public bool TruePD;
         public float TroopDamageChance;
         public float TractorDamage;
         public float BombPopulationKillPerHit;
@@ -92,14 +111,11 @@ namespace Ship_Game.Gameplay
         public ExplosionType ExplosionType = ExplosionType.Projectile;
         public string DieCue;
         public string ToggleSoundName = "";
-        [XmlIgnore][JsonIgnore] AudioHandle ToggleCue = new AudioHandle();
         public string Light;
         public bool IsTurret;
         public bool IsMainGun;
         public float OrdinanceRequiredToFire;
-        // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
-        public Vector2 PlanetOrigin;
-        
+
         // This is the weapons base unaltered range. In addition to this, many bonuses could be applied.
         // Use GetActualRange() to the true range with bonuses
         [XmlElement(ElementName = "Range")]
@@ -135,10 +151,6 @@ namespace Ship_Game.Gameplay
         // The trail offset behind missile center
         public float TrailOffset;
 
-        // This is the Weapon Class Unique Identifier string
-        public string UID;
-        [XmlIgnore][JsonIgnore] public ShipModule Module;
-        [XmlIgnore][JsonIgnore] public float CooldownTimer;
         public float FireDelay;
         public float PowerRequiredToFire;
         public float ExplosionRadius; // If > 0 it means the projectile wil explode
@@ -171,11 +183,12 @@ namespace Ship_Game.Gameplay
         public float FertilityDamage;
         public bool RangeVariance;
         public float ExplosionRadiusVisual = 4.5f;
-        [XmlIgnore][JsonIgnore] public GameplayObject FireTarget { get; private set; }
         float TargetChangeTimer;
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
+
+        // STAT Generated automatically after all weapons are loaded
         [XmlIgnore][JsonIgnore] public float DamagePerSecond { get; private set; }
 
         // Number of salvos that will be sequentially spawned.
@@ -186,12 +199,6 @@ namespace Ship_Game.Gameplay
         // TimeBetweenShots = SalvoTimer / SalvoCount;
         [XmlElement(ElementName = "SalvoTimer")]
         public float SalvoDuration;
-
-        [XmlIgnore][JsonIgnore] public int SalvosToFire { get; private set; }
-        float SalvoDirection;
-        float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
-        GameplayObject SalvoTarget;
-        public float ECM = 0;
 
         public void InitializeTemplate()
         {
