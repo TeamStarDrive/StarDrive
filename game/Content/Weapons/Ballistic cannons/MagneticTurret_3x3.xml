@@ -27,7 +27,7 @@
   <FireCueName>sd_ground_ralyeh_01</FireCueName>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
-  <DamageAmount>776</DamageAmount>
+  <DamageAmount>1164</DamageAmount>
   <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1800</ProjectileSpeed>
   
@@ -38,8 +38,8 @@
   <ProjectileCount>1</ProjectileCount>
   <Scale>0.9</Scale>
   <!--the projectile count is spread over the fire arc-->
-  <SalvoCount>3</SalvoCount>
-  <SalvoTimer>0.3</SalvoTimer>
+  <SalvoCount>2</SalvoCount>
+  <SalvoTimer>0.2</SalvoTimer>
   <FireCone>0</FireCone>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->

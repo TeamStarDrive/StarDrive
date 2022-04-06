@@ -22,13 +22,13 @@
   <Range>4500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.57</OrdinanceRequiredToFire>
-  <SalvoCount>5</SalvoCount>
-  <SalvoTimer>0.5</SalvoTimer>
+  <SalvoCount>3</SalvoCount>
+  <SalvoTimer>0.3</SalvoTimer>
   <!-- name of XACT audio cue to play on firing this weapon -->
   <FireCueName>Flak</FireCueName>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
-  <DamageAmount>115</DamageAmount>
+  <DamageAmount>191</DamageAmount>
   <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1500</ProjectileSpeed>
 

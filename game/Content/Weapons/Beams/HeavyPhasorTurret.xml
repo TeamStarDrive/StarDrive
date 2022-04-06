@@ -19,6 +19,7 @@
   
   <!-- Projectile Information -->
   <DamageAmount>26.5</DamageAmount>
+  <EffectVsShield>0.20</EffectVsShield>
   <BeamThickness>25</BeamThickness>
   <BeamPowerCostPerSecond>1837</BeamPowerCostPerSecond>
 
