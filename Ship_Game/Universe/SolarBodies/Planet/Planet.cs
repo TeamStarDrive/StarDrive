@@ -1270,7 +1270,7 @@ namespace Ship_Game
                 message = $"{message}\n{Localizer.Token(GameText.MineralRichnessWasIncreasedBy)}";
             }
 
-            Building b = ResourceManager.CreateBuilding(Universe, bid);
+            Building b = ResourceManager.CreateBuilding(this, bid);
             tile.PlaceBuilding(b, this);
             SetHasDynamicBuildings(true);
             if (OwnerIsPlayer)

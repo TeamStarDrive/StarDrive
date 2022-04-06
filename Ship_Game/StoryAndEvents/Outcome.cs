@@ -175,7 +175,7 @@ namespace Ship_Game
 
             if (!string.IsNullOrEmpty(ReplaceWith))
             {
-                eventLocation.PlaceBuilding(ResourceManager.CreateBuilding(p.Universe, ReplaceWith), p);
+                eventLocation.PlaceBuilding(ResourceManager.CreateBuilding(p, ReplaceWith), p);
             }
         }
 

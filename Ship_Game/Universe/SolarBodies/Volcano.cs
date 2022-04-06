@@ -52,14 +52,14 @@ namespace Ship_Game.Universe.SolarBodies
                 case 3: bid = Building.Lava3Id; break;
             }
 
-            Building b = ResourceManager.CreateBuilding(P.Universe, bid);
+            Building b = ResourceManager.CreateBuilding(P, bid);
             tile.PlaceBuilding(b, P);
             P.SetHasDynamicBuildings(true);
         }
 
         void CreateVolcanoBuilding(int bid)
         {
-            Building b = ResourceManager.CreateBuilding(P.Universe, bid);
+            Building b = ResourceManager.CreateBuilding(P, bid);
             Tile.PlaceBuilding(b, P);
             P.SetHasDynamicBuildings(true);
         }
