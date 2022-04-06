@@ -13,38 +13,45 @@ using Ship_Game.Universe;
 
 namespace Ship_Game.Gameplay
 {
-    [Flags]
-    public enum WeaponTag
-    {
-        Kinetic   = (1 << 0),
-        Energy    = (1 << 1),
-        Guided    = (1 << 2),
-        Missile   = (1 << 3),
-        Plasma    = (1 << 4),
-        Beam      = (1 << 5),
-        Intercept = (1 << 6),
-        Bomb      = (1 << 7),
-        SpaceBomb = (1 << 8),
-        BioWeapon = (1 << 9),
-        Drone     = (1 << 10),
-        Torpedo   = (1 << 11),
-        Cannon    = (1 << 12),
-        PD        = (1 << 13),
-    }
-
     public sealed class Weapon : IDisposable, IDamageModifier
     {
+        ////////////////////////////
+        // WeaponState
+        ////////////////////////////
+        
+        [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
+        [XmlIgnore] [JsonIgnore] AudioHandle ToggleCue = new AudioHandle();
+        // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
+        public Vector2 PlanetOrigin;
+        [XmlIgnore] [JsonIgnore] public ShipModule Module;
+        [XmlIgnore] [JsonIgnore] public float CooldownTimer;
+        [XmlIgnore] [JsonIgnore] public GameplayObject FireTarget { get; private set; }
+
+        // Currently pending salvos to be fired
+        [XmlIgnore] [JsonIgnore] public int SalvosToFire { get; private set; }
+        float SalvoDirection;
+        float SalvoFireTimer; // while SalvosToFire > 0, use this timer to count when to fire next shot
+        GameplayObject SalvoTarget;
+
+        ////////////////////////////
+        // WeaponTemplate
+        ////////////////////////////
+
+        // This is the WeaponTemplate UID string
+        public string UID;
+
+        // Active Tag Bits for this WeaponTemplate
         WeaponTag TagBits;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void Tag(WeaponTag tag, bool value) => TagBits = value ? TagBits|tag : TagBits & ~tag;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool Tag(WeaponTag tag) => (TagBits & tag) != 0;
 
         public static readonly WeaponTag[] TagValues = (WeaponTag[])typeof(WeaponTag).GetEnumValues();
 
-        [XmlIgnore][JsonIgnore] 
-        public WeaponTag[] ActiveWeaponTags;
+        [XmlIgnore][JsonIgnore] public WeaponTag[] ActiveWeaponTags;
 
         // @note These are initialized from XML during serialization
         public bool Tag_Kinetic   { get => Tag(WeaponTag.Kinetic);   set => Tag(WeaponTag.Kinetic, value);   }
@@ -62,27 +69,6 @@ namespace Ship_Game.Gameplay
         public bool Tag_Cannon    { get => Tag(WeaponTag.Cannon);    set => Tag(WeaponTag.Cannon, value);    }
         public bool Tag_PD        { get => Tag(WeaponTag.PD);        set => Tag(WeaponTag.PD, value);        }
 
-        ////////////////////////////
-        // WeaponState
-        [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
-        [XmlIgnore] [JsonIgnore] AudioHandle ToggleCue = new AudioHandle();
-        // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
-        public Vector2 PlanetOrigin;
-        [XmlIgnore] [JsonIgnore] public ShipModule Module;
-        [XmlIgnore] [JsonIgnore] public float CooldownTimer;
-        [XmlIgnore] [JsonIgnore] public GameplayObject FireTarget { get; private set; }
-
-        // Currently pending salvos to be fired
-        [XmlIgnore] [JsonIgnore] public int SalvosToFire { get; private set; }
-        float SalvoDirection;
-        float SalvoFireTimer; // while SalvosToFire > 0, use this timer to count when to fire next shot
-        GameplayObject SalvoTarget;
-
-        ////////////////////////////
-        // WeaponTemplate
-
-        // This is the WeaponTemplate UID string
-        public string UID;
         public float HitPoints;
         public bool IsBeam;
         public bool TruePD;
