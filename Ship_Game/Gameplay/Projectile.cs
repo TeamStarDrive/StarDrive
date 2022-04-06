@@ -107,13 +107,18 @@ namespace Ship_Game.Gameplay
         }
 
         // new projectile from a ship
-        public static Projectile Create(Weapon weapon, Vector2 origin, Vector2 direction, GameplayObject target, bool playSound)
+        public static Projectile Create(Weapon weapon, Ship ship, Vector2 origin, Vector2 direction,
+                                        GameplayObject target, bool playSound)
         {
-            var projectile = new Projectile(weapon.Owner.Universe.CreateId(), weapon.Owner.Loyalty, GameObjectType.Proj)
+            // Need to check here for better debug experience, since these crashes sneak in from time to time
+            if (ship == null) throw new NullReferenceException(nameof(ship));
+            if (ship.Universe == null) throw new NullReferenceException(nameof(ship.Universe));
+
+            var projectile = new Projectile(ship.Universe.CreateId(), ship.Loyalty, GameObjectType.Proj)
             {
-                Weapon  = weapon,
-                Owner   = weapon.Owner,
-                Module  = weapon.Module
+                Owner = ship,
+                Weapon = weapon,
+                Module = weapon.Module
             };
             projectile.Initialize(origin, direction, target, playSound, Vector2.Zero);
             return projectile;
@@ -123,27 +128,29 @@ namespace Ship_Game.Gameplay
         public static Projectile Create(Weapon weapon, Vector2 origin, Vector2 direction, GameplayObject target, 
             bool playSound, Vector2 inheritedVelocity, Empire loyalty, Planet planet)
         {
-            var projectile = new Projectile(weapon.Owner.Universe.CreateId(), loyalty)
+            UniverseState universe = (loyalty?.Universum ?? planet.Universe);
+            if (universe == null) throw new NullReferenceException(nameof(universe));
+
+            var projectile = new Projectile(universe.CreateId(), loyalty)
             {
-                Weapon   = weapon,
+                Weapon = weapon,
+                Owner = weapon.Owner,
+                Module = weapon.Module,
+                Planet = planet,
                 FirstRun = false,
-                Planet   = planet
             };
-
-            if (weapon.Owner != null)
-                projectile.Owner = weapon.Owner;
-
-            if (weapon.Module != null)
-                projectile.Module = weapon.Module;
 
             projectile.Initialize(origin, direction, target, playSound, inheritedVelocity, isMirv: true);
             return projectile;
         }
 
         // new projectile from planet
-        public static Projectile Create(Weapon weapon, Planet planet, Vector2 direction, GameplayObject target)
+        public static Projectile Create(Weapon weapon, Planet planet, Empire loyalty, Vector2 direction, GameplayObject target)
         {
-            var projectile = new Projectile(planet.Universe.CreateId(), planet.Owner, GameObjectType.Proj)
+            if (loyalty == null) throw new NullReferenceException(nameof(loyalty));
+            if (planet.Universe == null) throw new NullReferenceException(nameof(planet.Universe));
+
+            var projectile = new Projectile(planet.Universe.CreateId(), loyalty, GameObjectType.Proj)
             {
                 Weapon  = weapon,
                 Planet  = planet,
@@ -189,12 +196,16 @@ namespace Ship_Game.Gameplay
             o.Owner = us.GetShip(shipOrPlanetId);
             if (o.Owner != null)
             {
+                // TODO: this always returns the first Weapon instance, not the actual Weapon instance
+                // TODO: this may cause some terrible issues because `CooldownTimer` is stored per-weapon
+                // TODO: this should use an unique integer ID given by universe
                 if (weaponUID.NotEmpty())
                     o.Weapon = o.Owner.Weapons.Find(w => w.UID == weaponUID);
             }
             else
             {
                 o.Planet = us.GetPlanet(shipOrPlanetId);
+                // TODO: this only works if all buildings have unique weapon ID-s
                 Building building = o.Planet?.BuildingList.Find(b => b.Weapon == weaponUID);
                 if (building != null)
                     o.Weapon = building.TheWeapon;
@@ -361,17 +372,27 @@ namespace Ship_Game.Gameplay
 
         public void CreateMirv(GameplayObject target)
         {
-            Weapon mirv = ResourceManager.CreateWeapon(Weapon.MirvWeapon);
-            mirv.Owner  = Owner;
-            mirv.Module = Module;
+            // this is the spawned warhead weapon stats
+            Weapon warhead = ResourceManager.CreateWeapon(Weapon.MirvWeapon);
+            warhead.Owner  = Owner;
+            warhead.Module = Module;
+
+            // breadcrumbs for easier debugging when we run into these rare bugs
+            if (Owner == null)
+                Log.Error("CreateMirv: Owner was null");
+
             bool playSound = true; // play sound once
             for (int i = 0; i < Weapon.MirvWarheads; i++)
             {
-                float launchDir          = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
-                Vector2 separationVel    = (Rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(40));
-                Vector2 separationVector = mirv.Tag_Guided ? Velocity : separationVel;
                 // Use separation velocity for mirv non guided, or just Velocity for guided (they will compensate)
-                Create(mirv, Position, Direction, target, playSound, separationVector, Loyalty, Planet);
+                Vector2 separationVector = Velocity;
+                if (warhead.Tag_Guided)
+                {
+                    float launchDir = RandomMath.RollDie(2) == 1 ? -RadMath.Deg90AsRads : RadMath.Deg90AsRads;
+                    Vector2 separationVel = (Rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(40));
+                    separationVector = separationVel;
+                }
+                Create(warhead, Position, Direction, target, playSound, separationVector, Loyalty, Planet);
                 playSound = false;
             }
 

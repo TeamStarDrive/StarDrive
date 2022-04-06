@@ -326,7 +326,7 @@ namespace Ship_Game.Gameplay
             if (CanFireWeaponCooldown())
             {
                 PrepareToFire();
-                Projectile.Create(this, Module.Position, direction, null, playSound: true);
+                Projectile.Create(this, Owner, Module.Position, direction, null, playSound: true);
             }
         }
 
@@ -380,7 +380,7 @@ namespace Ship_Game.Gameplay
             Vector2 origin = Origin;
             foreach (FireSource fireSource in EnumFireSources(origin, direction))
             {
-                Projectile.Create(this, fireSource.Origin, fireSource.Direction, target, playSound);
+                Projectile.Create(this, Owner, fireSource.Origin, fireSource.Direction, target, playSound);
                 playSound = false; // only play sound once per fire cone
             }
         }
@@ -842,7 +842,7 @@ namespace Ship_Game.Gameplay
                 Vector2 direction = (pip - Origin).Normalized();
 
                 foreach (FireSource fireSource in EnumFireSources(PlanetOrigin, direction))
-                    Projectile.Create(this, planet, fireSource.Direction, target);
+                    Projectile.Create(this, planet, planet.Owner, fireSource.Direction, target);
             }
         }
 
