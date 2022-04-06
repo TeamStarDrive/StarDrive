@@ -26,6 +26,7 @@ namespace Ship_Game.Gameplay
         [XmlIgnore] [JsonIgnore] public ShipModule Module;
         [XmlIgnore] [JsonIgnore] public float CooldownTimer;
         [XmlIgnore] [JsonIgnore] public GameplayObject FireTarget { get; private set; }
+        float TargetChangeTimer;
 
         // Currently pending salvos to be fired
         [XmlIgnore] [JsonIgnore] public int SalvosToFire { get; private set; }
@@ -169,7 +170,6 @@ namespace Ship_Game.Gameplay
         public float FertilityDamage;
         public bool RangeVariance;
         public float ExplosionRadiusVisual = 4.5f;
-        float TargetChangeTimer;
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
