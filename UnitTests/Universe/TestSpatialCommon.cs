@@ -303,7 +303,7 @@ namespace UnitTests.Universe
                             {
                                 spawned.Add(ship);
                                 Weapon weapon = ship.Weapons.First;
-                                var p = Projectile.Create(weapon, ship.Position, Vectors.Up, null, false);
+                                var p = Projectile.Create(weapon, ship, ship.Position, Vectors.Up, null, false);
                                 allObjects.Add(p);
                             }
                         }
@@ -376,7 +376,7 @@ namespace UnitTests.Universe
                 Weapon weapon = ship.Weapons.First;
                 for (int j = 0; j < 5; ++j)
                 {
-                    var p = Projectile.Create(weapon, ship.Position + new Vector2(200), Vectors.Up, null, false);
+                    var p = Projectile.Create(weapon, ship, ship.Position + new Vector2(200), Vectors.Up, null, false);
                     p.Radius = go.Radius / 2;
                     p.Velocity = go.Velocity.LeftVector();
                     p.VelocityMax = p.Velocity.Length();

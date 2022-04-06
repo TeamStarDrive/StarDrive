@@ -52,7 +52,7 @@ namespace UnitTests.Ships
             Weapon.HitPoints = 100;
             Weapon.ExplosionRadius = 10;
 
-            Projectile p1 = Projectile.Create(Weapon, new Vector2(), Vectors.Up, null, false);
+            Projectile p1 = Projectile.Create(Weapon, Ship, new Vector2(), Vectors.Up, null, false);
             Assert.That.Equal(2, p1.RotationRadsPerSecond);
             Assert.That.Equal(15, p1.DamageAmount);
             Assert.That.Equal(1000, p1.Range);
@@ -78,7 +78,7 @@ namespace UnitTests.Ships
             m.ShieldDamage      = 10; // p.ShieldDamageBonus
             m.ShieldPenetration = 1; // p.IgnoresShields
 
-            Projectile p2 = Projectile.Create(Weapon, new Vector2(), Vectors.Up, null, false);
+            Projectile p2 = Projectile.Create(Weapon, Ship, new Vector2(), Vectors.Up, null, false);
             Assert.That.Equal(4, p2.RotationRadsPerSecond);
             Assert.That.Equal(30, p2.DamageAmount);
             Assert.That.Equal(2000, p2.Range);
