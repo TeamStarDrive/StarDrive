@@ -376,7 +376,7 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        static void RestorePlanetConstructionQueue(SavedGame.RingSave rsave, Planet p, UniverseState us)
+        static void RestorePlanetConstructionQueue(SavedGame.RingSave rsave, Planet p)
         {
             foreach (SavedGame.QueueItemSave qisave in rsave.Planet.QISaveList)
             {
@@ -386,7 +386,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 {
                     qi.isBuilding    = true;
                     qi.IsMilitary    = qisave.IsMilitary;
-                    qi.Building      = ResourceManager.CreateBuilding(us, qisave.UID);
+                    qi.Building      = ResourceManager.CreateBuilding(p, qisave.UID);
                     qi.Cost          = qi.Building.ActualCost;
                     qi.NotifyOnEmpty = false;
                     qi.IsPlayerAdded = qisave.IsPlayerAdded;
@@ -471,7 +471,7 @@ namespace Ship_Game.GameScreens.LoadGame
                         Planet p = us.GetPlanet(rsave.Planet.Id);
                         if (p?.Owner != null)
                         {
-                            RestorePlanetConstructionQueue(rsave, p, us);
+                            RestorePlanetConstructionQueue(rsave, p);
                         }
                     }
                 }

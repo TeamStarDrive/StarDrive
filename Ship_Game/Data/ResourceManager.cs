@@ -911,8 +911,8 @@ namespace Ship_Game
         public static bool BuildingExists(int buildingId) => 0 < buildingId && buildingId < BuildingsById.Count;
         public static Building GetBuildingTemplate(string whichBuilding) => BuildingsDict[whichBuilding];
         public static Building GetBuildingTemplate(int buildingId) => BuildingsById[buildingId];
-        public static Building CreateBuilding(UniverseState us, string whichBuilding) => CreateBuilding(us, GetBuildingTemplate(whichBuilding));
-        public static Building CreateBuilding(UniverseState us, int buildingId) => CreateBuilding(us, GetBuildingTemplate(buildingId));
+        public static Building CreateBuilding(Planet p, string whichBuilding) => CreateBuilding(p, GetBuildingTemplate(whichBuilding));
+        public static Building CreateBuilding(Planet p, int buildingId) => CreateBuilding(p, GetBuildingTemplate(buildingId));
         public static bool GetBuilding(string whichBuilding, out Building b) => BuildingsDict.Get(whichBuilding, out b);
         public static bool GetBuilding(int buildingId, out Building b)
         {
@@ -955,7 +955,7 @@ namespace Ship_Game
             }
         }
 
-        public static Building CreateBuilding(UniverseState us, Building template)
+        public static Building CreateBuilding(Planet p, Building template)
         {
             Building newB = template.Clone();
 
@@ -965,8 +965,7 @@ namespace Ship_Game
                 // @todo What is going on here? Is this correct?
                 if (!newB.IsProjector && !(newB.ProjectorRange > 0f))
                 {
-                    // @todo NullReference bug here!
-                    newB.ProjectorRange = us?.Projectors.Radius ?? 0f;
+                    newB.ProjectorRange = p?.Universe?.Projectors.Radius ?? 0f;
                     newB.IsProjector    = true;
                 }
 
@@ -977,7 +976,8 @@ namespace Ship_Game
                 }
             }
 
-            newB.CalcMilitaryStrength();
+            newB.CreateWeapon(p);
+            newB.CalcMilitaryStrength(p);
             return newB;
         }
 

@@ -5,6 +5,7 @@ using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -132,19 +133,19 @@ namespace Ship_Game
 
         public Building Clone()
         {
-            var b       = (Building)MemberwiseClone();
+            var b = (Building)MemberwiseClone();
             b.TheWeapon = null;
             return b;
         }
 
-        private void CreateWeapon()
+        public void CreateWeapon(Planet p)
         {
-            if (!isWeapon)
+            if (!isWeapon || TheWeapon != null)
                 return;
 
-            TheWeapon  = ResourceManager.CreateWeapon(Weapon);
+            TheWeapon = ResourceManager.CreateWeapon(Weapon);
             SpaceRange = TheWeapon.BaseRange;
-            UpdateOffense();
+            UpdateOffense(p);
         }
 
         public void UpdateAttackActions(int amount)
@@ -194,13 +195,15 @@ namespace Ship_Game
             }
         }
 
-        private void UpdateOffense(int planetLevel = 1)
+        public void UpdateOffense(Planet p)
         {
             if (isWeapon)
-                Offense = TheWeapon.CalculateOffense() * planetLevel; // fire delay is shorter when planet level is higher
+            {
+                if (TheWeapon == null)
+                    CreateWeapon(p);
+                Offense = TheWeapon.CalculateOffense() * p.Level; // fire delay is shorter when planet level is higher
+            }
         }
-
-        public void UpdateOffense(Planet p) => UpdateOffense(p.Level);
 
         public void UpdateDefenseShipBuildingOffense(Empire empire, Planet p)
         {
@@ -208,7 +211,7 @@ namespace Ship_Game
                 return;
 
             Offense = 0;
-            UpdateOffense(p.Level);
+            UpdateOffense(p);
             Ship pickedShip = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
 
             if (pickedShip != null && ResourceManager.GetShipTemplate(pickedShip.Name, out Ship ship))
@@ -407,12 +410,11 @@ namespace Ship_Game
             if (IsCapital)
                 p.RemoveOutpost();
 
-            UpdateOffense(p.Level);
+            UpdateOffense(p);
         }
 
-        public void CalcMilitaryStrength()
+        public void CalcMilitaryStrength(Planet p)
         {
-            CreateWeapon();
             float score = 0;
             if (CanAttack)
             {
@@ -425,7 +427,10 @@ namespace Ship_Game
                 score += CalcDefenseShipScore();
             }
 
-            MilitaryStrength = score + Offense/10;
+            if (isWeapon && Offense == 0f)
+                UpdateOffense(p);
+
+            MilitaryStrength = score + Offense * 0.1f;
         }
 
         float CalcDefenseShipScore()
