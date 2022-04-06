@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using Ship_Game.Audio;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Gameplay
 {
@@ -134,6 +135,7 @@ namespace Ship_Game.Gameplay
         // The trail offset behind missile center
         public float TrailOffset;
 
+        // This is the Weapon Class Unique Identifier string
         public string UID;
         [XmlIgnore][JsonIgnore] public ShipModule Module;
         [XmlIgnore][JsonIgnore] public float CooldownTimer;
@@ -1033,10 +1035,10 @@ namespace Ship_Game.Gameplay
             // Multiple warheads
             if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
             {
-                off             *= 0.25f; // Warheads mostly do the damage
-                Weapon warhead   = ResourceManager.CreateWeapon(MirvWeapon);
+                off *= 0.25f; // Warheads mostly do the damage
+                Weapon warhead = ResourceManager.GetWeaponTemplate(MirvWeapon);
                 float warheadOff = warhead.CalculateOffense() * MirvWarheads;
-                off             += warheadOff;
+                off += warheadOff;
             }
 
             // FB: Range margins are less steep for missiles

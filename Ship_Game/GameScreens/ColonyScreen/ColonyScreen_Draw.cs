@@ -506,7 +506,7 @@ namespace Ship_Game
             batch.DrawString(TextFont, selectionText, bCursor, color);
             bCursor.Y += TextFont.MeasureString(selectionText).Y + Font20.LineSpacing;
             if (selectedBuilding.isWeapon)
-                selectedBuilding.CalcMilitaryStrength(); // So the building will have TheWeapon for stats
+                selectedBuilding.CalcMilitaryStrength(P); // So the building will have TheWeapon for stats
 
             DrawSelectedBuildingInfo(ref bCursor, batch, selectedBuilding);
         }

@@ -196,19 +196,17 @@ namespace Ship_Game.Gameplay
             o.Owner = us.GetShip(shipOrPlanetId);
             if (o.Owner != null)
             {
-                // TODO: this always returns the first Weapon instance, not the actual Weapon instance
-                // TODO: this may cause some terrible issues because `CooldownTimer` is stored per-weapon
-                // TODO: this should use an unique integer ID given by universe
+                // TODO: this is a buggy fallback because it always returns the first Weapon match,
+                // TODO: leading to incorrect weapon reference
+                // TODO: however, this is really hard to fix, because we don't save Weapon instances
                 if (weaponUID.NotEmpty())
                     o.Weapon = o.Owner.Weapons.Find(w => w.UID == weaponUID);
             }
             else
             {
                 o.Planet = us.GetPlanet(shipOrPlanetId);
-                // TODO: this only works if all buildings have unique weapon ID-s
                 Building building = o.Planet?.BuildingList.Find(b => b.Weapon == weaponUID);
-                if (building != null)
-                    o.Weapon = building.TheWeapon;
+                o.Weapon = building?.TheWeapon;
             }
 
             if (loyaltyId > 0) // Older saves don't have loyalty ID, so this is for compatibility
@@ -218,7 +216,7 @@ namespace Ship_Game.Gameplay
 
             if (o.Loyalty == null || o.Owner == null && o.Planet == null)
             {
-                Log.Warning($"Projectile Owner not found! ID={shipOrPlanetId} weaponUid={weaponUID} loyalty={o.Loyalty}");
+                Log.Warning($"Projectile Owner not found! Owner.Id={shipOrPlanetId} weaponUID={weaponUID} loyalty={o.Loyalty}");
                 return false;
             }
 
