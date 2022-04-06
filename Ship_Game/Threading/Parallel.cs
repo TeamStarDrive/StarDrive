@@ -110,6 +110,13 @@ namespace Ship_Game
         }
     }
 
+    public sealed class ParallelTaskException : Exception
+    {
+        public ParallelTaskException(string msg, Exception inner) : base(msg, inner)
+        {
+        }
+    }
+
     public class ParallelTask : IDisposable
     {
         AutoResetEvent EvtNewTask = new AutoResetEvent(false);
@@ -397,7 +404,7 @@ namespace Ship_Game
 
             // from the first ParallelTask that threw an exception:
             if (ex != null)
-                throw ex;
+                throw new ParallelTaskException("Parallel.For task threw an exception", ex);
         }
 
         public static void For(int rangeLength, RangeAction body, int maxParallelism = -1)
