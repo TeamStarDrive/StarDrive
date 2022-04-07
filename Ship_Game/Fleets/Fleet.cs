@@ -1733,7 +1733,7 @@ namespace Ship_Game.Fleets
 
         void GatherAtAO(MilitaryTask task, float distanceFromAO)
         {
-            FleetMoveToPosition(task.AO, distanceFromAO, MoveOrder.StandGround);
+            FleetMoveToPosition(task.AO, distanceFromAO, MoveOrder.Regular);
         }
 
         void CombatMoveToAO(MilitaryTask task, float distanceFromAO)
