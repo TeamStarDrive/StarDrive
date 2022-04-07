@@ -663,6 +663,15 @@ namespace Ship_Game.AI
             if (badGuysNear || inCombat)
             {
                 Owner.SetHighAlertStatus();
+                
+                // HACK: This is a workaround for invalid AI states
+                if (inCombat && !Owner.Loyalty.isPlayer)
+                {
+                    // AI in combat should never be in HoldPosition, because they'll be stuck as dummy targets
+                    // changing to GuardMode will make them properly engage combat
+                    if (CombatState == CombatState.HoldPosition)
+                        CombatState = CombatState.GuardMode;
+                }
             }
 
             if (badGuysNear && !inCombat && Target != null && ShouldEnterAutoCombat())
