@@ -61,10 +61,20 @@ namespace Ship_Game.AI
         {
             AddMoveOrder(Plan.HoldPosition, new WayPoint(position, direction), AIState.HoldPosition, 0f, order);
             IgnoreCombat = false;
+
             if (order.IsSet(MoveOrder.StandGround))
             {
-                SetPriorityOrder(true);
-                CombatState = CombatState.HoldPosition;
+                if (Owner.Loyalty.isPlayer)
+                {
+                    // for players, StandGround is a hardline HoldPosition
+                    CombatState = CombatState.HoldPosition;
+                    SetPriorityOrder(true);
+                }
+                else
+                {
+                    // for AI, StandGround is more of a suggestion
+                    CombatState = CombatState.GuardMode;
+                }
             }
         }
 
@@ -221,7 +231,7 @@ namespace Ship_Game.AI
 
         public void OrderResupplyEscape(Vector2 position, Vector2 finalDir)
         {
-            var goal = new ShipGoal(Plan.MoveToWithin1000, position, finalDir, AIState.Resupply, MoveOrder.StandGround, 0, null);
+            var goal = new ShipGoal(Plan.MoveToWithin1000, position, finalDir, AIState.Resupply, MoveOrder.Regular, 0, null);
             PushGoalToFront(goal);
         }
 
