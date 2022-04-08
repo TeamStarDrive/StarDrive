@@ -376,8 +376,8 @@ namespace Ship_Game.Gameplay
             warhead.Module = Module;
 
             // breadcrumbs for easier debugging when we run into these rare bugs
-            if (Owner == null)
-                Log.Error("CreateMirv: Owner was null");
+            if (Owner == null && Planet == null)
+                Log.Error("CreateMirv: Owner and Planet were null");
 
             bool playSound = true; // play sound once
             for (int i = 0; i < Weapon.MirvWarheads; i++)
