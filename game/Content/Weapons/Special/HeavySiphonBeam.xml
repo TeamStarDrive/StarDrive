@@ -35,10 +35,11 @@
   <BeamTexture>beam_blue_yellow</BeamTexture>
 
 
-  <SiphonDamage>15</SiphonDamage>
+  <SiphonDamage>80</SiphonDamage>
   <DamageAmount>0</DamageAmount>
   <BeamThickness>75</BeamThickness>
   <BeamPowerCostPerSecond>600</BeamPowerCostPerSecond>
+  <WeaponRotation>2</WeaponRotation>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Energy Beam</WeaponType>

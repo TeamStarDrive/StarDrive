@@ -20,11 +20,11 @@
 
   <UID>TractorBeam</UID>
   <IsBeam>true</IsBeam>
-  <FireDelay>4.5</FireDelay>
-  <Range>6500</Range>
+  <FireDelay>6</FireDelay>
+  <Range>7500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
-  <BeamDuration>8</BeamDuration>
+  <BeamDuration>20</BeamDuration>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
   <FireCueName>sd_weapon_laser_large_alt_04</FireCueName>
@@ -35,10 +35,11 @@
   <BeamTexture>beam_black</BeamTexture>
 
 
-  <TractorDamage>1</TractorDamage>
+  <TractorDamage>3</TractorDamage>
   <DamageAmount>0</DamageAmount>
   <BeamThickness>50</BeamThickness>
   <BeamPowerCostPerSecond>40</BeamPowerCostPerSecond>
+  <WeaponRotation>6</WeaponRotation>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Energy Beam</WeaponType>
