@@ -332,7 +332,8 @@ namespace Ship_Game.AI.ExpansionAI
 
         public void RemoveExplorationTargetFromList(SolarSystem system)
         {
-            MarkedForExploration.Remove(system);
+            if (system != null)
+                MarkedForExploration.Remove(system);
         }
 
         public void SetExpandSearchTimer(int value)

@@ -1560,59 +1560,16 @@ namespace Ship_Game.Ships
             ++DebugInfoScreen.ShipsDied;
             pSource?.Module?.GetParent().UpdateEmpiresOnKill(this);
             pSource?.Module?.GetParent().AddKill(this);
-
-            if (pSource?.Owner != null)
-            {
-                float amount = 1f;
-                if (ResourceManager.ShipRoles.ContainsKey(ShipData.Role))
-                    amount = ResourceManager.ShipRoles[ShipData.Role].DamageRelations;
-                Loyalty.DamageRelationship(pSource.Owner.Loyalty, "Destroyed Ship", amount, null);
-            }
+            DamageRelationsOnDeath(pSource);
 
             bool visible = IsVisibleToPlayer;
-            if (!cleanupOnly && visible)
-            {
-                string dieSoundEffect;
-                if (SurfaceArea < 80)       dieSoundEffect = "sd_explosion_ship_det_small";
-                else if (SurfaceArea < 250) dieSoundEffect = "sd_explosion_ship_det_medium";
-                else                        dieSoundEffect = "sd_explosion_ship_det_large";
-                GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
-            }
-
+            Loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(AI.ExplorationTarget);
             Carrier.ScuttleHangarShips();
             ResetProjectorInfluence();
-
             NotifyPlayerIfDiedExploring();
             Loyalty.TryAutoRequisitionShip(Fleet, this);
-
-            if (!HasExploded)
-            {
-                HasExploded = true;
-                if (visible)
-                    AddExplosionEffect(addWarpExplode:cleanupOnly);
-
-                if (PlanetCrash == null)
-                {
-                    float explosionDamage = GetExplosionDamage();
-                    Universe.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage / 500);
-                }
-
-                if (PlanetCrash == null && visible)
-                {
-                    // Added by RedFox - spawn flaming spacejunk when a ship dies
-                    int howMuchJunk = (int)(Radius * 0.05f);
-                    Vector2 pos = Position.GenerateRandomPointOnCircle(Radius / 2);
-                    SpaceJunk.SpawnJunk(Universe, howMuchJunk, pos, Velocity, this,
-                                        maxSize:Radius * 0.1f, ignite:false);
-                }
-            }
-
-            if (ShipData.EventOnDeath != null)
-            {
-                var evt = ResourceManager.EventsDict[ShipData.EventOnDeath];
-                Universe.Screen.ScreenManager.AddScreen(
-                    new EventPopup(Universe.Screen, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
-            }
+            CreateExplosionEffects(visible: visible, cleanupOnly: cleanupOnly);
+            CreateEventOnDeath();
         }
 
         bool WillShipDieNow(Projectile proj)
@@ -1649,6 +1606,62 @@ namespace Ship_Game.Ships
             }
 
             return true;
+        }
+
+        void CreateExplosionEffects(bool visible, bool cleanupOnly)
+        {
+            if (!cleanupOnly && visible)
+            {
+                string dieSoundEffect;
+                if      (SurfaceArea < 80)  dieSoundEffect ="sd_explosion_ship_det_small";
+                else if (SurfaceArea < 250) dieSoundEffect = "sd_explosion_ship_det_medium";
+                else                        dieSoundEffect = "sd_explosion_ship_det_large";
+
+                GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
+            }
+
+            if (!HasExploded)
+            {
+                HasExploded = true;
+                if (visible)
+                    AddExplosionEffect(addWarpExplode: cleanupOnly);
+
+                if (PlanetCrash == null)
+                {
+                    float explosionDamage = GetExplosionDamage();
+                    Universe.Spatial.ShipExplode(this, explosionDamage, Position, Radius + explosionDamage / 500);
+                    if (visible)
+                    {
+                        // Added by RedFox - spawn flaming spacejunk when a ship dies
+                        int howMuchJunk = (int)(Radius * 0.05f);
+                        Vector2 pos = Position.GenerateRandomPointOnCircle(Radius / 2);
+                        SpaceJunk.SpawnJunk(Universe, howMuchJunk, pos, Velocity, this,
+                                            maxSize: Radius * 0.1f, ignite: false);
+                    }
+                }
+            }
+        }
+
+        void CreateEventOnDeath()
+        {
+            if (ShipData.EventOnDeath != null)
+            {
+                var evt = ResourceManager.EventsDict[ShipData.EventOnDeath];
+                Universe.Screen.ScreenManager.AddScreen(
+                    new EventPopup(Universe.Screen, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
+            }
+        }
+
+        void DamageRelationsOnDeath(Projectile pSource)
+        {
+            if (pSource?.Owner != null)
+            {
+                float amount = 1f;
+                if (ResourceManager.ShipRoles.ContainsKey(ShipData.Role))
+                    amount = ResourceManager.ShipRoles[ShipData.Role].DamageRelations;
+
+                Loyalty.DamageRelationship(pSource.Owner.Loyalty, "Destroyed Ship", amount, null);
+            }
         }
 
         public void SetReallyDie()
