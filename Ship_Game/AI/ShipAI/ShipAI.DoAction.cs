@@ -366,6 +366,22 @@ namespace Ship_Game.AI
             }
         }
 
+        void DoRebase(FixedSimTime timeStep, ShipGoal goal)
+        {
+            // don't override Rebase issued to player ships
+            if (!Owner.Loyalty.isPlayer)
+            {
+                // if our Rebase troop ships order is targetting a conquered planet, cancel orders
+                if (FindGoal(Plan.Rebase, out ShipGoal rebase) && rebase.TargetPlanet.Owner != Owner.Loyalty)
+                {
+                    OrderRebaseToNearest();
+                    return;
+                }
+            }
+
+            DoLandTroop(timeStep, goal);
+        }
+
         Vector2 LandingOffset;
 
         void DoLandTroop(FixedSimTime timeStep, ShipGoal goal)
