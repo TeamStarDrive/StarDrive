@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
 
         public ShipCategory ShipCategory { get; set; } = ShipCategory.Unclassified;
         public HangarOptions HangarDesignation { get; set; } = HangarOptions.General;
-        public AIState DefaultAIState { get; set; } = AIState.DoNothing;
+        public AIState DefaultAIState { get; set; } = AIState.AwaitingOrders;
         public CombatState DefaultCombatState { get; set; } = CombatState.AttackRuns;
 
         public ShipGridInfo GridInfo { get; set; }

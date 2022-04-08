@@ -177,7 +177,6 @@ namespace Ship_Game
             {
                 default:
                 case AIState.PirateRaiderCarrier:
-                case AIState.AwaitingOffenseOrders:
                 case AIState.MineAsteroids:
                 case AIState.Intercept:
                 case AIState.AssaultPlanet:
@@ -194,7 +193,6 @@ namespace Ship_Game
                     }
                     return ship.AI.State.ToString();
 
-                case AIState.DoNothing: return Localizer.Token(GameText.AwaitingOrders2);
                 case AIState.Combat:
                 {
                     if (ship.AI.Intercepting)

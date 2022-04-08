@@ -503,8 +503,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Planet planet = Owner.Loyalty.GetPlanets().Filter(p => p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0)
-                                                      .FindMin(p => Vector2.Distance(Owner.Position, p.Center));
+            Planet planet = Owner.Loyalty.GetPlanets().FindClosestTo(Owner.Position, p => p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0);
 
             if (planet == null)
             {
