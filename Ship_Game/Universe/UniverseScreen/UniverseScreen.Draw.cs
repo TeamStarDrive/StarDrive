@@ -935,7 +935,7 @@ namespace Ship_Game
 
         void DrawOverlay(Ship ship)
         {
-            if (ship.InFrustum && !ship.Dying && !LookingAtPlanet && viewState <= UnivScreenState.DetailView)
+            if (ship.InFrustum && ship.Active && !ship.Dying && !LookingAtPlanet && viewState <= UnivScreenState.DetailView)
             {
                 // if we check for a missing model here we can show the ship modules instead. 
                 // that will solve invisible ships when the ship model load hits an OOM.
