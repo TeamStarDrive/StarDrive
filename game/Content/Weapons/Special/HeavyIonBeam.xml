@@ -35,8 +35,8 @@
   <!-- Projectile Information -->
   <BeamTexture>beam_yellow</BeamTexture>
 
-  <PowerDamage>15</PowerDamage>
-  <DamageAmount>1</DamageAmount>
+  <PowerDamage>25</PowerDamage>
+  <DamageAmount>1.5</DamageAmount>
   <BeamThickness>50</BeamThickness>
   <BeamPowerCostPerSecond>680</BeamPowerCostPerSecond>
   <WeaponRotation>3</WeaponRotation>

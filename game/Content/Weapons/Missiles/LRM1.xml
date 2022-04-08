@@ -24,7 +24,7 @@
 
   
  
-  <FireDelay>18</FireDelay>
+  <FireDelay>20</FireDelay>
   <Range>13000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>11</OrdinanceRequiredToFire>
