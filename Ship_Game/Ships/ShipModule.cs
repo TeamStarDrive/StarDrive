@@ -989,6 +989,7 @@ namespace Ship_Game.Ships
             {
                 ShieldPower = (ShieldPower - beam.Weapon.SiphonDamage).LowerBound(0);
                 beam.Owner?.AddPower(beam.Weapon.SiphonDamage);
+                Parent.UpdateShields();
             }
         }
 
