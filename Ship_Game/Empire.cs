@@ -3221,12 +3221,18 @@ namespace Ship_Game
             var ships = OwnedShips;
             if (unexplored == 0 && isPlayer)
             {
+                // FB: Done exploring, flag can be removed. Maybe add a notification for the player?
+                // We also might be able to turn off AutoExplore for the AI and save the system count
+                // for unexplored (but dont scrap the scouts for the AI, they are needed for sniffing
+                // remnant systems
+                AutoExplore = false; 
                 for (int i = 0; i < ships.Count; i++)
                 {
                     Ship ship = ships[i];
                     if (IsIdleScout(ship))
                         ship.AI.OrderScrapShip();
                 }
+
                 return;
             }
 
