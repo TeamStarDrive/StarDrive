@@ -21,7 +21,7 @@
   <Tag_Cannon>false</Tag_Cannon>
   
   <!-- Range and Rate of Fire -->
-  <FireDelay>18</FireDelay>
+  <FireDelay>20</FireDelay>
   <Range>13000</Range>
 
   <!-- name of XACT audio cue to play on firing this weapon -->

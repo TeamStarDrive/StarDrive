@@ -22,7 +22,7 @@
     
   <UID>Light Torpedo</UID>
 
-  <HitPoints>25</HitPoints>
+  <HitPoints>26</HitPoints>
   <FireDelay>24</FireDelay>
   <Range>15000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
