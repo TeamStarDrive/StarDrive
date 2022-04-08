@@ -711,7 +711,7 @@ namespace Ship_Game.Ships
             return dmg - resist; // Allow negative damage (damage reducer)
         }
 
-        public void DamageShield(float damageAmount, Projectile proj, Beam beam, out float remainder)
+        public void DamageShield(float damageAmount, Projectile proj, out float remainder)
         {
             remainder = 0;
             if (damageAmount < 0.01f)
@@ -720,17 +720,8 @@ namespace Ship_Game.Ships
             remainder   = (damageAmount - ShieldPower).LowerBound(0);
             ShieldPower = (ShieldPower - damageAmount).LowerBound(0);
 
-            if (proj != null)
-            {
-                if (beam != null)
-                {
-                    CauseSiphonDamage(beam);
-                    BeamTractorDamage(beam, hittingShields: true);
-                }
-
-                if (Parent.IsVisibleToPlayer)
-                    Shield.HitShield(Parent.Universe.Screen, this, proj);
-            }
+            if (proj != null && Parent.IsVisibleToPlayer)
+                Shield.HitShield(Parent.Universe.Screen, this, proj);
 
             Parent.UpdateShields();
         }
@@ -886,14 +877,13 @@ namespace Ship_Game.Ships
 
             if (damagingShields)
             {
-                DamageShield(modifiedDamage, proj, beam, out remainder);
+                DamageShield(modifiedDamage, proj, out remainder);
+                CauseSpecialBeamDamageToShield(beam);
                 //Log.Info($"{Parent.Name} shields '{UID}' dmg {modifiedDamage} shld {ShieldPower} by {proj?.WeaponType}");
             }
             else
             {
-                if (beam != null)
-                    CauseSpecialBeamDamage(beam);
-
+                CauseSpecialBeamDamageNoShield(beam);
                 float healthBefore = Health;
                 SetHealth(Health - modifiedDamage);
                 remainder = modifiedDamage - healthBefore;
@@ -939,12 +929,24 @@ namespace Ship_Game.Ships
                 Parent.CauseEmpDamage(proj.Weapon.EMPDamage);
         }
 
-        void CauseSpecialBeamDamage(Beam beam, bool hittingShields = false)
+        void CauseSpecialBeamDamageToShield(Beam beam)
         {
-            BeamPowerDamage(beam);
-            BeamTroopDamage(beam);
-            BeamTractorDamage(beam, hittingShields);
-            BeamRepulsionDamage(beam);
+            if (beam != null)
+            {
+                CauseSiphonDamage(beam);
+                BeamTractorDamage(beam, hittingShields: true);
+            }
+        }
+
+        void CauseSpecialBeamDamageNoShield(Beam beam)
+        {
+            if (beam != null)
+            {
+                BeamPowerDamage(beam);
+                BeamTroopDamage(beam);
+                BeamTractorDamage(beam, hittingShields: false);
+                BeamRepulsionDamage(beam);
+            }
         }
 
         void BeamPowerDamage(Beam beam)
@@ -983,11 +985,11 @@ namespace Ship_Game.Ships
 
         void CauseSiphonDamage(Beam beam)
         {
-            if (beam.Weapon.SiphonDamage <= 0f)
-                return;
-            ShieldPower -= beam.Weapon.SiphonDamage;
-            ShieldPower = ShieldPower.Clamped(0, ShieldPowerMax);
-            beam.Owner?.AddPower(beam.Weapon.SiphonDamage);
+            if (beam.Weapon.SiphonDamage > 0f)
+            {
+                ShieldPower = (ShieldPower - beam.Weapon.SiphonDamage).LowerBound(0);
+                beam.Owner?.AddPower(beam.Weapon.SiphonDamage);
+            }
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)

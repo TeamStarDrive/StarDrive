@@ -240,7 +240,7 @@ namespace Ship_Game.Gameplay
                 damageAmount *= damageFalloff;
                 foreach (ShipModule shield in otherShip.GetAllActiveShieldsCoveringModule(nearest))
                 {
-                    shield.DamageShield(damageAmount, null, null, out damageAmount);
+                    shield.DamageShield(damageAmount, null, out damageAmount);
                     if (damageAmount <= 0)
                         break;
                 }
