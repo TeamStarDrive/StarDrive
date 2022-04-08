@@ -81,6 +81,11 @@ namespace Ship_Game
             return FindClosestTo(planets, planets.Length, toShip.Position);
         }
 
+        public static Planet FindClosestTo(this Planet[] planets, Vector2 pos)
+        {
+            return FindClosestTo(planets, planets.Length, pos);
+        }
+
         public static Planet FindClosestTo(this Array<Planet> planets, Ship toShip)
         {
             return FindClosestTo(planets.GetInternalArrayItems(), planets.Count, toShip.Position);
@@ -114,6 +119,11 @@ namespace Ship_Game
         public static Planet FindClosestTo(this IReadOnlyList<Planet> planets, Ship toShip, Predicate<Planet> filter)
         {
             return FindClosestTo(planets, planets.Count, toShip.Position, filter);
+        }
+
+        public static Planet FindClosestTo(this IReadOnlyList<Planet> planets, Vector2 to, Predicate<Planet> filter)
+        {
+            return FindClosestTo(planets, planets.Count, to, filter);
         }
 
         public static Planet FindClosestTo(this IReadOnlyList<Planet> planets, int count, Vector2 to, Predicate<Planet> filter)
