@@ -113,6 +113,7 @@ namespace Ship_Game.Gameplay
             // Need to check here for better debug experience, since these crashes sneak in from time to time
             if (ship == null) throw new NullReferenceException(nameof(ship));
             if (ship.Universe == null) throw new NullReferenceException(nameof(ship.Universe));
+            if (ship.Loyalty == null) throw new NullReferenceException(nameof(ship.Loyalty));
 
             var projectile = new Projectile(ship.Universe.CreateId(), ship.Loyalty, GameObjectType.Proj)
             {
@@ -124,24 +125,27 @@ namespace Ship_Game.Gameplay
             return projectile;
         }
 
-        // For Mirv creation
-        public static Projectile Create(Weapon weapon, Vector2 origin, Vector2 direction, GameplayObject target, 
-            bool playSound, Vector2 inheritedVelocity, Empire loyalty, Planet planet)
+        // new Mirv cluster warhead
+        // the original missile will be destroyed, but was launched by a Ship or by a Planet
+        static void CreateMirvWarhead(Weapon warhead, Vector2 origin, Vector2 direction, GameplayObject target, 
+                                      bool playSound, Vector2 inheritedVelocity, Empire loyalty, Planet planet)
         {
-            UniverseState universe = (loyalty?.Universum ?? planet.Universe);
+            // Loyalty cannot be null, otherwise kill events will not work correctly
+            if (loyalty == null) throw new NullReferenceException(nameof(loyalty));
+
+            UniverseState universe = (planet?.Universe ?? loyalty.Universum);
             if (universe == null) throw new NullReferenceException(nameof(universe));
 
             var projectile = new Projectile(universe.CreateId(), loyalty)
             {
-                Weapon = weapon,
-                Owner = weapon.Owner,
-                Module = weapon.Module,
+                Weapon = warhead,
+                Owner = warhead.Owner,
+                Module = warhead.Module,
                 Planet = planet,
                 FirstRun = false,
             };
 
             projectile.Initialize(origin, direction, target, playSound, inheritedVelocity, isMirv: true);
-            return projectile;
         }
 
         // new projectile from planet
@@ -370,28 +374,33 @@ namespace Ship_Game.Gameplay
 
         public void CreateMirv(GameplayObject target)
         {
-            // this is the spawned warhead weapon stats
-            Weapon warhead = ResourceManager.CreateWeapon(Weapon.MirvWeapon);
-            warhead.Owner  = Owner;
-            warhead.Module = Module;
-
             // breadcrumbs for easier debugging when we run into these rare bugs
             if (Owner == null && Planet == null)
-                Log.Error("CreateMirv: Owner and Planet were null");
-
-            bool playSound = true; // play sound once
-            for (int i = 0; i < Weapon.MirvWarheads; i++)
             {
-                // Use separation velocity for mirv non guided, or just Velocity for guided (they will compensate)
-                Vector2 separationVector = Velocity;
-                if (warhead.Tag_Guided)
+                Log.Error("CreateMirv: Owner and Planet were null");
+                // NOTE: if Owner && Planet are null, this projectile is bugged out and can't spawn Mirv
+            }
+            else
+            {
+                // this is the spawned warhead weapon stats
+                Weapon warhead = ResourceManager.CreateWeapon(Weapon.MirvWeapon);
+                warhead.Owner = Owner;
+                warhead.Module = Module;
+
+                for (int i = 0; i < Weapon.MirvWarheads; i++)
                 {
-                    float launchDir = RandomMath.RollDie(2) == 1 ? -RadMath.Deg90AsRads : RadMath.Deg90AsRads;
-                    Vector2 separationVel = (Rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(40));
-                    separationVector = separationVel;
+                    // Use separation velocity for mirv non guided, or just Velocity for guided (they will compensate)
+                    Vector2 separationVector = Velocity;
+                    if (warhead.Tag_Guided)
+                    {
+                        float launchDir = RandomMath.RollDie(2) == 1 ? -RadMath.Deg90AsRads : RadMath.Deg90AsRads;
+                        Vector2 separationVel = (Rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(40));
+                        separationVector = separationVel;
+                    }
+
+                    bool playSound = i == 0; // play sound once
+                    CreateMirvWarhead(warhead, Position, Direction, target, playSound, separationVector, Loyalty, Planet);
                 }
-                Create(warhead, Position, Direction, target, playSound, separationVector, Loyalty, Planet);
-                playSound = false;
             }
 
             Die(null, false);
