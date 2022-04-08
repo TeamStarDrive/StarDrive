@@ -220,11 +220,10 @@ namespace Ship_Game.AI
                                          null, speed, "", 0f, AIState.MoveTo, null));
         }
 
-        void AddLandTroopGoal(Planet p)      => AddPlanetGoal(Plan.LandTroop, p, AIState.AssaultPlanet);
-        void AddExterminateGoal(Planet p)    => AddPlanetGoal(Plan.Exterminate, p, AIState.Exterminate);
-        void AddResupplyPlanetGoal(Planet p) => AddPlanetGoal(Plan.Orbit, p, AIState.Resupply, pushToFront: true);
-
-        void AddOrbitPlanetGoal(Planet p, AIState newState = AIState.Orbit) => AddPlanetGoal(Plan.Orbit, p, newState);
+        void AddOrbitPlanetGoal(Planet p, AIState newState = AIState.Orbit)
+        {
+            AddPlanetGoal(Plan.Orbit, p, newState);
+        }
 
         public void OrderMoveAndColonize(Planet planet, Goal g)
         {
@@ -389,6 +388,11 @@ namespace Ship_Game.AI
                 TargetPlanet = us.GetPlanet(sg.TargetPlanetId);
                 TargetShip   = us.GetShip(sg.TargetShipId);
 
+                if (sg.TargetPlanetId != 0 && TargetPlanet == null)
+                {
+                    Log.Warning($"ShipGoal: failed to find TargetPlanet={sg.TargetPlanetId}");
+                }
+
                 VariableString = sg.VariableString;
                 VariableNumber = sg.VariableNumber;
                 SpeedLimit = sg.SpeedLimit;
@@ -515,11 +519,14 @@ namespace Ship_Game.AI
 
         public enum Plan
         {
+            AwaitOrders,
+            AwaitOrdersAIManaged, // different from AwaitOrders, gives the ship over to AI management
             Stop,
             Scrap,
             HoldPosition,
             Bombard,
-            Exterminate,
+            FindExterminationTarget, // find a target to exterminate
+            Exterminate, // exterminate a specific target
             RotateToFaceMovePosition,
             RotateToDesiredFacing,
             MoveToWithin1000,
