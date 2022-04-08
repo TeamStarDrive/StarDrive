@@ -753,7 +753,16 @@ namespace Ship_Game.AI
                 return;
 
             if (Owner.ShipData.IsCarrierOnly)
-                return;
+            {
+                // BUG Drifting Ships with AwaitOrders and no ShipGoals
+                // FIX: if mothership is alive, return to base,
+                //      otherwise resume AwaitOrders logic
+                if (Owner.Mothership?.Active == true)
+                {
+                    OrderReturnToHangar();
+                    return;
+                }
+            }
 
             if (State != AIState.Resupply)
                 SetPriorityOrder(false);
