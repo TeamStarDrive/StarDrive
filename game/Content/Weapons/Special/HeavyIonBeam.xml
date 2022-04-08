@@ -35,11 +35,12 @@
   <!-- Projectile Information -->
   <BeamTexture>beam_yellow</BeamTexture>
 
-  <PowerDamage>35</PowerDamage>
-  <DamageAmount>5</DamageAmount>
+  <PowerDamage>15</PowerDamage>
+  <DamageAmount>1</DamageAmount>
   <BeamThickness>50</BeamThickness>
   <BeamPowerCostPerSecond>680</BeamPowerCostPerSecond>
   <WeaponRotation>3</WeaponRotation>
+  <BeamDuration>8</BeamDuration>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Energy Beam</WeaponType>
