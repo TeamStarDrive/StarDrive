@@ -18,7 +18,7 @@
   <Tag_Cannon>false</Tag_Cannon>
   
   <UID>Rocket</UID>
-  <FireDelay>14</FireDelay>
+  <FireDelay>16</FireDelay>
   <Range>12000</Range>
   <HitPoints>3</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
@@ -28,7 +28,7 @@
   <DieCue>sd_weapon_rocket_explode_01</DieCue>
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   <!-- Projectile Information -->
-  <DamageAmount>300</DamageAmount>
+  <DamageAmount>320</DamageAmount>
   <ProjectileSpeed>600</ProjectileSpeed>
   <ExplosionRadius>30</ExplosionRadius> <!-- This Projectile Explodes -->
   

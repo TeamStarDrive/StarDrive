@@ -23,7 +23,7 @@
    
 
   <HitPoints>10</HitPoints>
-  <FireDelay>18</FireDelay>
+  <FireDelay>22</FireDelay>
   <Range>15000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>30</OrdinanceRequiredToFire>

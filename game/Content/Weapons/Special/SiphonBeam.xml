@@ -35,7 +35,7 @@
   <BeamTexture>beam_blue_yellow</BeamTexture>
 
 
-  <SiphonDamage>40</SiphonDamage>
+  <SiphonDamage>12</SiphonDamage>
   <DamageAmount>0</DamageAmount>
   <BeamThickness>25</BeamThickness>
   <BeamPowerCostPerSecond>400</BeamPowerCostPerSecond>

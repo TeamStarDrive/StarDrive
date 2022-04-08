@@ -20,7 +20,7 @@
 
 
   <UID>BasicTorpedo</UID>
-  <FireDelay>24</FireDelay>
+  <FireDelay>26</FireDelay>
   <Range>18000</Range>
   <HitPoints>45</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>
