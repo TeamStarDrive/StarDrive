@@ -732,7 +732,7 @@ namespace Ship_Game.AI
         {
             SystemToDefend = SystemToDefend ?? Owner.System;
             if (SystemToDefend == null || AwaitClosest?.Owner == Owner.Loyalty)
-                AwaitOrders(timeStep);
+                AwaitOrdersAIControlled(timeStep);
             else
                 OrderSystemDefense(SystemToDefend);
         }
@@ -756,9 +756,24 @@ namespace Ship_Game.AI
             }
         }
 
+        void DoStop(FixedSimTime timeStep, ShipGoal goal)
+        {
+            if (ReverseThrustUntilStopped(timeStep))
+            {
+                DequeueCurrentOrder();
+            }
+        }
+
         bool DoBombard(FixedSimTime timeStep, ShipGoal goal)
         {
             Planet planet = goal.TargetPlanet;
+            if (planet == null) // wtf? this happened when loading a savegame
+            {
+                Log.Error("DoBombard: targetPlant was null");
+                DequeueCurrentOrder();
+                return false;
+            }
+
             if (!planet.TroopsHereAreEnemies(Owner.Loyalty) && planet.Population <= 0f // Everyone is dead
                 || planet.Owner != null && !Owner.Loyalty.IsEmpireAttackable(planet.Owner))
             {
@@ -777,19 +792,28 @@ namespace Ship_Game.AI
             return false;
         }
 
-        bool DoExterminate(FixedSimTime timeStep, ShipGoal goal)
+        void DoExterminate(FixedSimTime timeStep, ShipGoal goal)
         {
             Planet planet = goal.TargetPlanet;
+            if (planet == null)
+            {
+                DoFindExterminationTarget(timeStep, goal);
+                return;
+            }
+
             Orbit.Orbit(planet, timeStep);
+
+            // have we exterminated it?
             if (planet.Owner == Owner.Loyalty || planet.Owner == null)
             {
                 ClearOrders();
-                OrderFindExterminationTarget();
-                return true;
+                DoFindExterminationTarget(timeStep, goal);
             }
-
-            DropBombsAtGoal(goal, Orbit.InOrbit);
-            return false;
+            else
+            {
+                // keep bombing it
+                DropBombsAtGoal(goal, Orbit.InOrbit);
+            }
         }
     }
 }
