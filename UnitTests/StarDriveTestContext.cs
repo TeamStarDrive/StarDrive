@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
@@ -74,7 +73,7 @@ namespace UnitTests
         public static void ReloadStarterShips()
         {
             // some basic ships that we always use
-            string[] shipDesigns = { "Vulcan Scout", "Rocket Scout", "Fang Strafer", "Terran-Prototype",
+            string[] shipDesigns = { "TEST_Vulcan Scout", "Vulcan Scout", "Rocket Scout", "Fang Strafer", "Terran-Prototype",
                                      "Colony Ship", "Small Transport", "Supply Shuttle",
                                      "Subspace Projector" };
             ResourceManager.LoadStarterShipsForTesting(shipDesigns, clearAll: true);
@@ -82,7 +81,7 @@ namespace UnitTests
 
         public static void Cleanup()
         {
-            Ship_Game.Parallel.ClearPool(); // Dispose all thread pool Threads
+            Parallel.ClearPool(); // Dispose all thread pool Threads
             Log.Close();
         }
 

@@ -35,6 +35,10 @@ namespace Ship_Game.AI
 
         // Flag for WayPoint movement system to Dequeue WayPoints
         DequeueWayPoint = (1 << 8),
+
+        // Forces ships to HoldPosition
+        // WARNING: DO NOT USE THIS OUTSIDE OF TESTS, IT WILL CRIPPLE THE AI
+        HoldPosition = (1 << 9),
     }
 
     public sealed partial class ShipAI
@@ -56,17 +60,18 @@ namespace Ship_Game.AI
         
         // Forces the ship to HoldPosition at `position`, facing `direction`
         // MoveOrder parameter controls how the ship responds to threats
-        // if MoveOrder.StandGround, then ship will have priority HoldPosition
+        // if MoveOrder.StandGround, then PLAYER ships will have priority HoldPosition
+        // if MoveOrder.HoldPosition, then ALL ships will have priority HoldPosition
         public void OrderHoldPosition(Vector2 position, Vector2 direction, MoveOrder order = MoveOrder.Regular)
         {
             AddMoveOrder(Plan.HoldPosition, new WayPoint(position, direction), AIState.HoldPosition, 0f, order);
             IgnoreCombat = false;
 
-            if (order.IsSet(MoveOrder.StandGround))
+            if (order.IsSet(MoveOrder.StandGround) || order.IsSet(MoveOrder.HoldPosition))
             {
-                if (Owner.Loyalty.isPlayer)
+                // for players, StandGround is a hardline HoldPosition
+                if (Owner.Loyalty.isPlayer || order.IsSet(MoveOrder.HoldPosition))
                 {
-                    // for players, StandGround is a hardline HoldPosition
                     CombatState = CombatState.HoldPosition;
                     SetPriorityOrder(true);
                 }

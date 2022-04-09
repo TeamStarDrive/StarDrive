@@ -22,7 +22,7 @@ namespace UnitTests.Ships
 
         void CreateWeapon(out Ship ship, out Weapon weapon, float ordCost, float pwrCost)
         {
-            ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            ship = SpawnShip("TEST_Vulcan Scout", Player, Vector2.Zero);
             weapon = ship.Weapons[0];
 
             weapon.SalvoCount = 1;

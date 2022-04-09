@@ -88,6 +88,18 @@ namespace Ship_Game.Utils
         public T[] GetItems() => Front;
 
         /// <summary>
+        /// For UNIT TESTING, SLOW, locks the back buffer items and copies them into an array
+        /// </summary>
+        /// <returns></returns>
+        public T[] GetBackItemsSlow()
+        {
+            lock (Back)
+            {
+                return Back.ToArray();
+            }
+        }
+
+        /// <summary>
         /// Adds an item to the back buffer
         /// </summary>
         public void Add(T item)
