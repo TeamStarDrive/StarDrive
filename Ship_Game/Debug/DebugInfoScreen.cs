@@ -339,7 +339,7 @@ namespace Ship_Game.Debug
             {
                 ShipModule m = w.Module;
                 float facing = ship.Rotation + m.TurretAngleRads;
-                float range = w.GetActualRange();
+                float range = w.GetActualRange(ship.Loyalty);
 
                 Vector2 moduleCenter = m.Position + m.WorldSize*0.5f;
                 ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch, Screen, w, m, moduleCenter, 

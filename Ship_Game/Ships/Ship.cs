@@ -988,12 +988,12 @@ namespace Ship_Game.Ships
         /// </summary>
         /// <param name="weapons">The weapons.</param>
         /// <returns></returns>
-        static float[] GetWeaponsRanges(Array<Weapon> weapons)
+        float[] GetWeaponsRanges(Array<Weapon> weapons)
         {
             var ranges = new float[weapons.Count];
 
             for (int i = 0; i < weapons.Count; ++i) // using raw loops for perf
-                ranges[i] = weapons[i].GetActualRange();
+                ranges[i] = weapons[i].GetActualRange(Loyalty);
 
             return ranges;
         }
@@ -1078,7 +1078,7 @@ namespace Ship_Game.Ships
                 return MaxSTLSpeed;
 
             // @note beam weapon speeds need special treatment, since they are currently instantaneous
-            float[] speeds = weapons.Select(w => w.IsBeam ? w.GetActualRange() * 1.5f : w.ProjectileSpeed);
+            float[] speeds = weapons.Select(w => w.IsBeam ? w.GetActualRange(Loyalty) * 1.5f : w.ProjectileSpeed);
             return speeds.Avg();
         }
 

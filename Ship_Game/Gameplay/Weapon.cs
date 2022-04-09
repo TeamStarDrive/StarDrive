@@ -52,26 +52,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.
-        public float GetDamageWithBonuses(Ship owner)
-        {
-            float damageAmount = DamageAmount;
-            if (owner?.Loyalty.data != null && OrdinanceRequiredToFire > 0)
-                damageAmount += damageAmount * owner.Loyalty.data.OrdnanceEffectivenessBonus;
-
-            if (owner?.Level > 0)
-                damageAmount += damageAmount * owner.Level * 0.05f;
-
-            // Hull bonus damage increase
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses && owner != null &&
-                ResourceManager.HullBonuses.TryGetValue(owner.ShipData.Hull, out HullBonus mod))
-            {
-                damageAmount += damageAmount * mod.DamageBonus;
-            }
-
-            return damageAmount;
-        }
-
         public void PlayToggleAndFireSfx(AudioEmitter emitter = null)
         {
             if (ToggleCue.IsPlaying)
@@ -317,25 +297,6 @@ namespace Ship_Game.Gameplay
             return adjust;
         }
 
-        public static float GetWeaponInaccuracyBase(float moduleArea, float overridePercent)
-        {
-            float powerMod;  
-            float moduleSize;
-
-            if (overridePercent >= 0)
-            {
-                powerMod   = 1 - overridePercent;
-                moduleSize = 8 * 8 * 16 + 160;
-            }
-            else
-            {
-                powerMod   = 1.2f;
-                moduleSize = moduleArea * 16f + 160;
-            }
-
-            return (float)Math.Pow(moduleSize, powerMod);
-        }
-
         // @note This is used for debugging
         [XmlIgnore][JsonIgnore]
         public Vector2 DebugLastImpactPredict { get; private set; }
@@ -379,11 +340,6 @@ namespace Ship_Game.Gameplay
             Vector2 adjusted = target + error*errorMagnitude;
             DebugLastImpactPredict = adjusted;
             return adjusted;
-        }
-
-        public float GetSpeedReduction(float targetSpeed)
-        {
-            return (targetSpeed + 25) / 175;
         }
 
         public Vector2 Origin => Module?.Position ?? PlanetOrigin;
@@ -640,20 +596,6 @@ namespace Ship_Game.Gameplay
             
             float shieldPenChance  = weaponTag.ShieldPenetration * 100 + ShieldPenChance;
             actualShieldPenChance  = shieldPenChance.LowerBound(actualShieldPenChance);
-        }
-
-        public float GetActualRange(Empire owner = null)
-        {
-            owner = owner ?? Owner?.Loyalty ?? EmpireManager.Player;
-            float range = BaseRange;
-
-            // apply extra range bonus based on weapon tag type:
-            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
-            {
-                WeaponTagModifier mod = owner.data.WeaponTags[ ActiveWeaponTags[i] ];
-                range += mod.Range * BaseRange;
-            }
-            return range;
         }
 
         public void ResetToggleSound()
