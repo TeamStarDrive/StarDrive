@@ -147,5 +147,7 @@ namespace Ship_Game.Gameplay
 
 
         float CalculateOffense(ShipModule m);
+        float GetDamageWithBonuses(Ship owner);
+        float GetActualRange(Empire owner);
     }
 }

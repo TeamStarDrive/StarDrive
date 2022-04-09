@@ -36,14 +36,14 @@ namespace UnitTests.Ships
         [TestMethod]
         public void GetActualWeaponRange()
         {
-            Assert.That.Equal(1000, Weapon.GetActualRange());
+            Assert.That.Equal(1000, Weapon.GetActualRange(Ship.Loyalty));
 
             WeaponTagModifier m = Empire.WeaponBonuses(WeaponTag.Kinetic);
             m.Range = 1; // +100% increase
-            Assert.That.Equal(2000, Weapon.GetActualRange());
+            Assert.That.Equal(2000, Weapon.GetActualRange(Ship.Loyalty));
 
             m.Range = 0.5f; // revert to +50%
-            Assert.That.Equal(1500, Weapon.GetActualRange());
+            Assert.That.Equal(1500, Weapon.GetActualRange(Ship.Loyalty));
         }
 
         [TestMethod]
