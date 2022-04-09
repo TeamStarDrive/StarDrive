@@ -145,9 +145,6 @@ namespace Ship_Game.Gameplay
         bool Explodes { get; }
         float PowerFireUsagePerSecond { get; }
 
-
         float CalculateOffense(ShipModule m);
-        float GetDamageWithBonuses(Ship owner);
-        float GetActualRange(Empire owner);
     }
 }

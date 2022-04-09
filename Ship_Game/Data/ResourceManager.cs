@@ -1831,7 +1831,6 @@ namespace Ship_Game
             foreach (WeaponTemplate w in WeaponsDict.Values)
             {
                 w.InitializeTemplate();
-                w.InitDamagePerSecond();
             }
         }
 

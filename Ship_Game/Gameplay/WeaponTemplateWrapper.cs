@@ -155,8 +155,40 @@ namespace Ship_Game.Gameplay
         public bool Explodes => T.Explodes;
         public float PowerFireUsagePerSecond => T.PowerFireUsagePerSecond;
 
+        // TODO: this CalculateOffense is wrong when `virtual` overrides are touched
         public float CalculateOffense(ShipModule m) => T.CalculateOffense(m);
-        public float GetDamageWithBonuses(Ship owner) => T.GetDamageWithBonuses(owner);
-        public float GetActualRange(Empire owner) => T.GetActualRange(owner);
+
+        // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.
+        public float GetDamageWithBonuses(Ship owner)
+        {
+            float damageAmount = DamageAmount;
+            if (owner?.Loyalty.data != null && OrdinanceRequiredToFire > 0)
+                damageAmount += damageAmount * owner.Loyalty.data.OrdnanceEffectivenessBonus;
+
+            if (owner?.Level > 0)
+                damageAmount += damageAmount * owner.Level * 0.05f;
+
+            // Hull bonus damage increase
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses && owner != null &&
+                ResourceManager.HullBonuses.TryGetValue(owner.ShipData.Hull, out HullBonus mod))
+            {
+                damageAmount += damageAmount * mod.DamageBonus;
+            }
+
+            return damageAmount;
+        }
+
+        public float GetActualRange(Empire owner)
+        {
+            float range = BaseRange;
+
+            // apply extra range bonus based on weapon tag type:
+            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
+            {
+                WeaponTagModifier mod = owner.data.WeaponTags[ActiveWeaponTags[i]];
+                range += mod.Range * BaseRange;
+            }
+            return range;
+        }
     }
 }
