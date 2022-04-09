@@ -12,7 +12,7 @@ namespace UnitTests.Ships
     public class TestWeaponModifiers : StarDriveTest
     {
         Ship Ship;
-        Weapon Weapon;
+        WeaponTestWrapper Weapon;
         Empire Empire;
 
         public TestWeaponModifiers()
@@ -24,12 +24,12 @@ namespace UnitTests.Ships
             Weapon = CreateWeapon(Ship);
         }
 
-        Weapon CreateWeapon(Ship ship)
+        WeaponTestWrapper CreateWeapon(Ship ship)
         {
-            Weapon weapon = ship.Weapons[0];
-            weapon.BaseRange = 1000;
-            weapon.DamageAmount = 15;
-            weapon.ProjectileSpeed = 1250;
+            WeaponTestWrapper weapon = (WeaponTestWrapper)ship.Weapons[0];
+            weapon.TestBaseRange = 1000;
+            weapon.TestDamageAmount = 15;
+            weapon.TestProjectileSpeed = 1250;
             return weapon;
         }
 
@@ -49,8 +49,8 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ApplyModsToProjectile()
         {
-            Weapon.HitPoints = 100;
-            Weapon.ExplosionRadius = 10;
+            Weapon.TestHitPoints = 100;
+            Weapon.TestExplosionRadius = 10;
 
             Projectile p1 = Projectile.Create(Weapon, Ship, new Vector2(), Vectors.Up, null, false);
             Assert.That.Equal(2, p1.RotationRadsPerSecond);

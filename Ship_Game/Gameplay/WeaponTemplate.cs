@@ -6,11 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
 {
     // Mutable view of WeaponTemplate
     // This should not be used outside of WeaponTemplates manager
+    [XmlType(TypeName = "Weapon")] // for Weapons/*.xml compatibility
     public class WeaponTemplate : IWeaponTemplate
     {
         // This is the WeaponTemplate UID string
@@ -160,5 +162,174 @@ namespace Ship_Game.Gameplay
         // TimeBetweenShots = SalvoTimer / SalvoCount;
         [XmlElement(ElementName = "SalvoTimer")]
         public float SalvoDuration { get; set; }
+
+
+        [XmlIgnore][JsonIgnore]
+        public float NetFireDelay => IsBeam ? FireDelay+BeamDuration : FireDelay+SalvoDuration;
+
+        [XmlIgnore][JsonIgnore]
+        public float AverageOrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
+
+        [XmlIgnore][JsonIgnore]
+        public float BurstOrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoProjectilesPerSecond;
+
+        [XmlIgnore][JsonIgnore] // 3 salvos with salvo duration of 2 seconds will give  1.5 salvos per second 
+        public float SalvoProjectilesPerSecond => SalvoDuration.Greater(0) ? SalvoCount / SalvoDuration : 1;
+
+        [XmlIgnore][JsonIgnore]
+        public bool Explodes => ExplosionRadius > 0;
+
+        [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
+        public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
+
+
+        public void InitializeTemplate()
+        {
+            ActiveWeaponTags = TagValues.Where(tag => (TagBits & tag) != 0).ToArray();
+
+            BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
+            FireDelay = Math.Max(0.016f, FireDelay);
+            SalvoDuration = Math.Max(0, SalvoDuration);
+
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo != null)
+                ExplosionRadiusVisual *= GlobalStats.ActiveModInfo.GlobalExplosionVisualIncreaser;
+
+            if (PlaySoundOncePerSalvo) // @note Backwards compatibility
+                SalvoSoundInterval = 9999;
+
+            if (Tag_Missile)
+            {
+                if (WeaponType.IsEmpty()) WeaponType = "Missile";
+                else if (WeaponType != "Missile")
+                {
+                    Log.Warning($"Weapon '{UID}' has 'tag_missile' but Weapontype is '{WeaponType}' instead of missile. This Causes invisible projectiles.");
+                }
+            }
+        }
+
+        public float GetDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
+        {
+            IWeaponTemplate wOrMirv = this;
+            if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
+            {
+                wOrMirv = ResourceManager.GetWeaponTemplate(MirvWeapon);
+            }
+
+            // TODO: This is all duplicated in `ModuleSelection.cs` and needs to be rewritten!
+            float dps;
+            if (IsBeam)
+            {
+                float beamMultiplier = !IsRepairBeam ? BeamDuration * 60f : 0f;
+                float damage = DamageAmount != 0 ? DamageAmount : PowerDamage;
+                dps = (damage * beamMultiplier) / NetFireDelay;
+            }
+            else
+            {
+                dps = (SalvoCount.LowerBound(1) / NetFireDelay)
+                    * wOrMirv.ProjectileCount
+                    * wOrMirv.DamageAmount * MirvWarheads.LowerBound(1);
+            }
+            return dps;
+        }
+
+        public void InitDamagePerSecond()
+        {
+            DamagePerSecond = GetDamagePerSecond();
+        }
+
+        
+        public float CalculateOffense(ShipModule m)
+        {
+            float off = 0f;
+            if (IsBeam)
+            {
+                off += DamageAmount * 60 * BeamDuration * (1f / NetFireDelay);
+                off += TractorDamage * 30 * (1f / NetFireDelay);
+                off += PowerDamage * 45 * (1f / NetFireDelay);
+                off += RepulsionDamage * 45 * (1f / NetFireDelay);
+                off += SiphonDamage * 45 * (1f / NetFireDelay);
+                off += TroopDamageChance * (1f / NetFireDelay);
+            }
+            else
+            {
+                off += DamageAmount * SalvoCount * ProjectileCount * (1f / NetFireDelay);
+                off += EMPDamage * SalvoCount * ProjectileCount * (1f / NetFireDelay) * .5f;
+            }
+
+            //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
+            off *= Tag_Guided ? 3f : 1f;
+
+            off *= 1 + ArmorPen * 0.2f;
+            // FB: simpler calcs for these.
+            off *= EffectVsArmor > 1 ? 1f + (EffectVsArmor - 1f) / 2f : 1f;
+            off *= EffectVsArmor < 1 ? 1f - (1f - EffectVsArmor) / 2f : 1f;
+            off *= EffectVsShields > 1 ? 1f + (EffectVsShields - 1f) / 2f : 1f;
+            off *= EffectVsShields < 1 ? 1f - (1f - EffectVsShields) / 2f : 1f;
+
+            off *= TruePD ? 0.2f : 1f;
+            off *= Tag_Intercept && (Tag_Missile || Tag_Torpedo) ? 0.8f : 1f;
+            off *= ProjectileSpeed > 1 ? ProjectileSpeed / BaseRange : 1f;
+
+            // FB: Missiles which can be intercepted might get str modifiers
+            off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.LowerBound(2) : 1;
+
+            // FB: offense calcs for damage radius
+            off *= ExplosionRadius > 32 && !TruePD ? ExplosionRadius / 32 : 1f;
+
+            // FB: Added shield pen chance
+            off *= 1 + ShieldPenChance / 100;
+
+            if (TerminalPhaseAttack)
+            {
+                if (TerminalPhaseSpeedMod > 1)
+                    off *= 1 + TerminalPhaseDistance * TerminalPhaseSpeedMod / 50000;
+                else
+                    off *= TerminalPhaseSpeedMod / 2;
+            }
+
+            if (DelayedIgnition.Greater(0))
+                off *= 1 - (DelayedIgnition / 10).UpperBound(0.95f); 
+
+
+            // FB: Added correct exclusion offense calcs
+            float exclusionMultiplier = 1;
+            if (ExcludesFighters)  exclusionMultiplier -= 0.15f;
+            if (ExcludesCorvettes) exclusionMultiplier -= 0.15f;
+            if (ExcludesCapitals)  exclusionMultiplier -= 0.45f;
+            if (ExcludesStations)  exclusionMultiplier -= 0.25f;
+            off *= exclusionMultiplier;
+
+            // Imprecision gets worse when range gets higher
+            off *= !Tag_Guided ? (1 - FireImprecisionAngle*0.01f * (BaseRange/2000)).LowerBound(0.1f) : 1f;
+            
+            // Multiple warheads
+            if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
+            {
+                off *= 0.25f; // Warheads mostly do the damage
+                IWeaponTemplate warhead = ResourceManager.GetWeaponTemplate(MirvWeapon);
+                float warheadOff = warhead.CalculateOffense(m) * MirvWarheads;
+                off += warheadOff;
+            }
+
+            // FB: Range margins are less steep for missiles
+            off *= (!Tag_Guided ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000)) * MirvWarheads.LowerBound(1);
+
+            if (m == null)
+                return off * OffPowerMod;
+
+            // FB: Kinetics which does also require more than minimal power to shoot is less effective
+            off *= Tag_Kinetic && PowerRequiredToFire > 10 * m.Area ? 0.5f : 1f;
+
+            // FB: Kinetics which does also require more than minimal power to maintain is less effective
+            off *= Tag_Kinetic && m.PowerDraw > 2 * m.Area ? 0.5f : 1f;
+            // FB: Turrets get some off
+            off *= m.ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
+
+            // FB: Field of Fire is also important
+            off *= (m.FieldOfFire > RadMath.PI/3) ? (m.FieldOfFire/3) : 1f;
+
+            // Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
+            return off * OffPowerMod;
+        }
     }
 }
