@@ -638,7 +638,7 @@ namespace Ship_Game.AI
             if (OrderQueue.TryPeekFirst(out ShipGoal goal) &&
                 goal?.WantedState == AIState.Combat)
             {
-                Log.Info($"ExitCombat {Owner.Name}: DequeueOrder {goal}");
+                //Log.Info($"ExitCombat {Owner.Name}: DequeueOrder {goal.Plan} {goal.MoveOrder}");
                 DequeueCurrentOrder();
             }
 
