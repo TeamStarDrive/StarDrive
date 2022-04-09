@@ -255,91 +255,97 @@ namespace Ship_Game.Gameplay
             return (float)Math.Pow(moduleSize, powerMod);
         }
 
-        // TODO: Offense calculation may be off when used with virtual BaseRange from WeaponTestWrapper
         public float CalculateOffense(ShipModule m)
         {
+            return CalculateOffense(m, this);
+        }
+
+        public static float CalculateOffense(ShipModule m, IWeaponTemplate t)
+        {
             float off = 0f;
-            if (IsBeam)
+            float shotsPerSec = (1.0f / t.NetFireDelay);
+
+            if (t.IsBeam)
             {
-                off += DamageAmount * 60 * BeamDuration * (1f / NetFireDelay);
-                off += TractorDamage * 30 * (1f / NetFireDelay);
-                off += PowerDamage * 45 * (1f / NetFireDelay);
-                off += RepulsionDamage * 45 * (1f / NetFireDelay);
-                off += SiphonDamage * 45 * (1f / NetFireDelay);
-                off += TroopDamageChance * (1f / NetFireDelay);
+                off += t.DamageAmount * 60 * t.BeamDuration * shotsPerSec;
+                off += t.TractorDamage * 30 * shotsPerSec;
+                off += t.PowerDamage * 45 * shotsPerSec;
+                off += t.RepulsionDamage * 45 * shotsPerSec;
+                off += t.SiphonDamage * 45 * shotsPerSec;
+                off += t.TroopDamageChance * shotsPerSec;
             }
             else
             {
-                off += DamageAmount * SalvoCount * ProjectileCount * (1f / NetFireDelay);
-                off += EMPDamage * SalvoCount * ProjectileCount * (1f / NetFireDelay) * .5f;
+                off += t.DamageAmount * t.SalvoCount * t.ProjectileCount * shotsPerSec;
+                off += t.EMPDamage * t.SalvoCount * t.ProjectileCount * shotsPerSec * 0.5f;
             }
 
             //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
-            off *= Tag_Guided ? 3f : 1f;
+            off *= t.Tag_Guided ? 3f : 1f;
 
-            off *= 1 + ArmorPen * 0.2f;
+            off *= 1 + t.ArmorPen * 0.2f;
             // FB: simpler calcs for these.
-            off *= EffectVsArmor > 1 ? 1f + (EffectVsArmor - 1f) / 2f : 1f;
-            off *= EffectVsArmor < 1 ? 1f - (1f - EffectVsArmor) / 2f : 1f;
-            off *= EffectVsShields > 1 ? 1f + (EffectVsShields - 1f) / 2f : 1f;
-            off *= EffectVsShields < 1 ? 1f - (1f - EffectVsShields) / 2f : 1f;
+            off *= t.EffectVsArmor > 1 ? 1f + (t.EffectVsArmor - 1f) / 2f : 1f;
+            off *= t.EffectVsArmor < 1 ? 1f - (1f - t.EffectVsArmor) / 2f : 1f;
+            off *= t.EffectVsShields > 1 ? 1f + (t.EffectVsShields - 1f) / 2f : 1f;
+            off *= t.EffectVsShields < 1 ? 1f - (1f - t.EffectVsShields) / 2f : 1f;
 
-            off *= TruePD ? 0.2f : 1f;
-            off *= Tag_Intercept && (Tag_Missile || Tag_Torpedo) ? 0.8f : 1f;
-            off *= ProjectileSpeed > 1 ? ProjectileSpeed / BaseRange : 1f;
+            off *= t.TruePD ? 0.2f : 1f;
+            off *= t.Tag_Intercept && (t.Tag_Missile || t.Tag_Torpedo) ? 0.8f : 1f;
+            off *= t.ProjectileSpeed > 1 ? t.ProjectileSpeed / t.BaseRange : 1f;
 
             // FB: Missiles which can be intercepted might get str modifiers
-            off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.LowerBound(2) : 1;
+            off *= t.Tag_Intercept && t.RotationRadsPerSecond > 1 ? 1 + t.HitPoints / 50 / t.ProjectileRadius.LowerBound(2) : 1;
 
             // FB: offense calcs for damage radius
-            off *= ExplosionRadius > 32 && !TruePD ? ExplosionRadius / 32 : 1f;
+            off *= t.ExplosionRadius > 32 && !t.TruePD ? t.ExplosionRadius / 32 : 1f;
 
             // FB: Added shield pen chance
-            off *= 1 + ShieldPenChance / 100;
+            off *= 1 + t.ShieldPenChance / 100;
 
-            if (TerminalPhaseAttack)
+            if (t.TerminalPhaseAttack)
             {
-                if (TerminalPhaseSpeedMod > 1)
-                    off *= 1 + TerminalPhaseDistance * TerminalPhaseSpeedMod / 50000;
+                if (t.TerminalPhaseSpeedMod > 1)
+                    off *= 1 + t.TerminalPhaseDistance * t.TerminalPhaseSpeedMod / 50000;
                 else
-                    off *= TerminalPhaseSpeedMod / 2;
+                    off *= t.TerminalPhaseSpeedMod / 2;
             }
 
-            if (DelayedIgnition.Greater(0))
-                off *= 1 - (DelayedIgnition / 10).UpperBound(0.95f);
+            if (t.DelayedIgnition.Greater(0))
+                off *= 1 - (t.DelayedIgnition / 10).UpperBound(0.95f);
 
 
             // FB: Added correct exclusion offense calcs
             float exclusionMultiplier = 1;
-            if (ExcludesFighters) exclusionMultiplier -= 0.15f;
-            if (ExcludesCorvettes) exclusionMultiplier -= 0.15f;
-            if (ExcludesCapitals) exclusionMultiplier -= 0.45f;
-            if (ExcludesStations) exclusionMultiplier -= 0.25f;
+            if (t.ExcludesFighters) exclusionMultiplier -= 0.15f;
+            if (t.ExcludesCorvettes) exclusionMultiplier -= 0.15f;
+            if (t.ExcludesCapitals) exclusionMultiplier -= 0.45f;
+            if (t.ExcludesStations) exclusionMultiplier -= 0.25f;
             off *= exclusionMultiplier;
 
             // Imprecision gets worse when range gets higher
-            off *= !Tag_Guided ? (1 - FireImprecisionAngle * 0.01f * (BaseRange / 2000)).LowerBound(0.1f) : 1f;
+            off *= !t.Tag_Guided ? (1 - t.FireImprecisionAngle * 0.01f * (t.BaseRange / 2000)).LowerBound(0.1f) : 1f;
 
             // Multiple warheads
-            if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
+            if (t.MirvWarheads > 0 && t.MirvWeapon.NotEmpty())
             {
                 off *= 0.25f; // Warheads mostly do the damage
-                IWeaponTemplate warhead = ResourceManager.GetWeaponTemplate(MirvWeapon);
-                float warheadOff = warhead.CalculateOffense(m) * MirvWarheads;
+                IWeaponTemplate warhead = ResourceManager.GetWeaponTemplate(t.MirvWeapon);
+                float warheadOff = warhead.CalculateOffense(m) * t.MirvWarheads;
                 off += warheadOff;
             }
 
             // FB: Range margins are less steep for missiles
-            off *= (!Tag_Guided ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000)) * MirvWarheads.LowerBound(1);
+            off *= (!t.Tag_Guided ? (t.BaseRange / 4000) * (t.BaseRange / 4000) : (t.BaseRange / 4000)) * t.MirvWarheads.LowerBound(1);
 
             if (m == null)
-                return off * OffPowerMod;
+                return off * t.OffPowerMod;
 
             // FB: Kinetics which does also require more than minimal power to shoot is less effective
-            off *= Tag_Kinetic && PowerRequiredToFire > 10 * m.Area ? 0.5f : 1f;
+            off *= t.Tag_Kinetic && t.PowerRequiredToFire > 10 * m.Area ? 0.5f : 1f;
 
             // FB: Kinetics which does also require more than minimal power to maintain is less effective
-            off *= Tag_Kinetic && m.PowerDraw > 2 * m.Area ? 0.5f : 1f;
+            off *= t.Tag_Kinetic && m.PowerDraw > 2 * m.Area ? 0.5f : 1f;
             // FB: Turrets get some off
             off *= m.ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
 
@@ -347,7 +353,40 @@ namespace Ship_Game.Gameplay
             off *= (m.FieldOfFire > RadMath.PI / 3) ? (m.FieldOfFire / 3) : 1f;
 
             // Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
-            return off * OffPowerMod;
+            return off * t.OffPowerMod;
+        }
+
+        // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.
+        public static float GetDamageWithBonuses(Ship owner, IWeaponTemplate t)
+        {
+            float damageAmount = t.DamageAmount;
+            if (owner?.Loyalty.data != null && t.OrdinanceRequiredToFire > 0)
+                damageAmount += damageAmount * owner.Loyalty.data.OrdnanceEffectivenessBonus;
+
+            if (owner?.Level > 0)
+                damageAmount += damageAmount * owner.Level * 0.05f;
+
+            // Hull bonus damage increase
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses && owner != null &&
+                ResourceManager.HullBonuses.TryGetValue(owner.ShipData.Hull, out HullBonus mod))
+            {
+                damageAmount += damageAmount * mod.DamageBonus;
+            }
+
+            return damageAmount;
+        }
+
+        public static float GetActualRange(Empire owner, IWeaponTemplate t)
+        {
+            float range = t.BaseRange;
+
+            // apply extra range bonus based on weapon tag type:
+            for (int i = 0; i < t.ActiveWeaponTags.Length; ++i)
+            {
+                WeaponTagModifier mod = owner.data.WeaponTags[t.ActiveWeaponTags[i]];
+                range += mod.Range * t.BaseRange;
+            }
+            return range;
         }
     }
 }
