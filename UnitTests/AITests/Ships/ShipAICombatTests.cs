@@ -294,7 +294,7 @@ namespace UnitTests.AITests.Ships
         {
             SpawnOurShip(ScoutName);
             TestShip colonyShip = SpawnShip("Colony Ship", Enemy, new Vector2(0,-500));
-            colonyShip.AI.OrderHoldPosition(MoveOrder.StandGround);
+            colonyShip.AI.OrderHoldPosition(MoveOrder.StandGround|MoveOrder.HoldPosition);
             RunObjectsSim(EnemyScanInterval);
             Assert.IsTrue(Us.InCombat, "ship should be in combat");
             InjectSteroids(Us);

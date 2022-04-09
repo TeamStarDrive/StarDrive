@@ -130,7 +130,7 @@ namespace Ship_Game
         // Only returns projectiles NOT BEAMS
         public Projectile[] GetProjectiles(Ship ship)
         {
-            var projectiles = Projectiles.GetItems();
+            var projectiles = Projectiles.GetBackItemsSlow();
             return projectiles.Filter(
                 p => p.Active && p.Type == GameObjectType.Proj && p.Owner == ship);
         }
@@ -138,7 +138,7 @@ namespace Ship_Game
         /// <summary>SLOW !! Only for UNIT TESTS</summary>
         public Beam[] GetBeams(Ship ship)
         {
-            var projectiles = Projectiles.GetItems();
+            var projectiles = Projectiles.GetBackItemsSlow();
             return projectiles.FilterSelect(
                 p => p.Active && p.Type == GameObjectType.Beam && p.Owner == ship,
                 p => (Beam)p);

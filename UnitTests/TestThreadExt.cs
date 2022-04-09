@@ -144,7 +144,10 @@ namespace UnitTests
                 var items = new int[1337];
                 Parallel.For(0, items.Length, (start, end) => throw new ArgumentException("Test"));
             }
-            Assert.ThrowsException<ArgumentException>((Action) Action);
+            ParallelTaskException ex = Assert.ThrowsException<ParallelTaskException>((Action) Action);
+            Assert.AreEqual(typeof(ArgumentException), ex.InnerException?.GetType());
+            Assert.AreEqual("Test", ex.InnerException?.Message);
+            Assert.AreEqual("Parallel.For task threw an exception", ex.Message);
         }
     }
 }
