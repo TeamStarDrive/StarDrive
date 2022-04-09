@@ -209,9 +209,16 @@ namespace Ship_Game.AI
                                 || ExplorationTarget != null
                                 || OrderQueue.Any(g => g.Plan == Plan.Explore);
 
-        void Colonize(ShipGoal shipGoal)
+        void DoColonize(ShipGoal shipGoal)
         {
             Planet targetPlanet = shipGoal.TargetPlanet;
+            if (targetPlanet == null) // wtf? this happened when loading a savegame
+            {
+                Log.Error("Colonize: targetPlanet was null");
+                DequeueCurrentOrder();
+                return;
+            }
+
             if (Owner.Position.OutsideRadius(targetPlanet.Center, 2000f))
             {
                 DequeueCurrentOrder();
@@ -293,7 +300,18 @@ namespace Ship_Game.AI
                 KeepDistanceUsingFlocking(timeStep);
             }
 
-            UpdateOrderQueueAI(timeStep);
+            // Evaluate ShipGoals
+            if (OrderQueue.TryPeekFirst(out ShipGoal first))
+            {
+                EvaluateShipGoal(timeStep, first);
+            }
+            else
+            {
+                // LEGACY: there is no default goal right now
+                //         so this tries to do "something" based on AIState
+                // TODO: figure out a way to only use ShipGoal system which is less error prone
+                UpdateFromAIState(timeStep);
+            }
         }
 
         public Ship NearBySupplyShip => FriendliesNearby.FindMinFiltered(
@@ -441,28 +459,15 @@ namespace Ship_Game.AI
             return false;
         }
 
-        void UpdateOrderQueueAI(FixedSimTime timeStep)
-        {
-            if (OrderQueue.TryPeekFirst(out ShipGoal first))
-            {
-                EvaluateShipGoal(timeStep, first);
-            }
-            else
-            {
-                // LEGACY: there is no default goal right now
-                //         so this tries to do "something" based on AIState
-                // TODO: figure out a way to only use ShipGoal system which is less error prone
-                UpdateFromAIState(timeStep);
-            }
-        }
-
         void EvaluateShipGoal(FixedSimTime timeStep, ShipGoal goal)
         {
             switch (goal.Plan)
             {
-                case Plan.Stop:
-                    if (ReverseThrustUntilStopped(timeStep)) { DequeueCurrentOrder(); }       break;
+                case Plan.AwaitOrders:              DoAwaitOrders(timeStep, goal);            break;
+                case Plan.AwaitOrdersAIManaged:     AwaitOrdersAIControlled(timeStep);        break;
+                case Plan.Stop:                     DoStop(timeStep, goal);                   break;
                 case Plan.Bombard:                  DoBombard(timeStep, goal);                break;
+                case Plan.FindExterminationTarget:  DoFindExterminationTarget(timeStep, goal); break;
                 case Plan.Exterminate:              DoExterminate(timeStep, goal);            break;
                 case Plan.Scrap:                    DoScrapShip(timeStep, goal);              break;
                 case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(timeStep, goal); break;
@@ -471,7 +476,7 @@ namespace Ship_Game.AI
                 case Plan.MakeFinalApproach:        MakeFinalApproach(timeStep, goal);        break;
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(timeStep);       break;
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, timeStep); break;
-                case Plan.Colonize:                 Colonize(goal);                           break;
+                case Plan.Colonize:                 DoColonize(goal);                           break;
                 case Plan.Explore:                  DoExplore(timeStep);                      break;
                 case Plan.Rebase:                   DoRebase(timeStep, goal);                 break;
                 case Plan.DefendSystem:             DoSystemDefense(timeStep);                break;
@@ -498,29 +503,32 @@ namespace Ship_Game.AI
 
         void UpdateFromAIState(FixedSimTime timeStep)
         {
+            SetPriorityOrder(false);
+
             if (Owner.Fleet == null)
             {
                 ClearWayPoints();
-                switch (State)
-                {
-                    case AIState.AwaitingOrders: AIStateAwaitingOrders(timeStep); break;
-                    case AIState.Escort:         AIStateEscort(timeStep);         break;
-                    case AIState.SystemDefender: AwaitOrders(timeStep); break;
-                    case AIState.Resupply:       AwaitOrders(timeStep); break; // @see Ship.UpdateResupply()
-                    case AIState.ReturnToHangar: DoReturnToHangar(timeStep); break;
-                    case AIState.Exterminate:    OrderFindExterminationTarget(); break;
-                    default:
-                        if (Target != null)
-                        {
-                            Orbit.Orbit(Target, timeStep);
-                        }
-                        break;
-                }
+                Plan correspondingPlan = GetMatchingShipGoalPlan(State);
+                AddShipGoal(correspondingPlan, State);
             }
             else
             {
-                SetPriorityOrder(false);
                 IdleFleetAI(timeStep);
+            }
+        }
+
+        // figure out which ShipGoal Plan corresponds to AIState
+        static Plan GetMatchingShipGoalPlan(AIState state)
+        {
+            switch (state)
+            {
+                default:
+                case AIState.AwaitingOrders: return Plan.AwaitOrders;
+                case AIState.SystemDefender:
+                case AIState.Resupply:       return Plan.AwaitOrdersAIManaged; // @see Ship.UpdateResupply()
+                case AIState.Escort:         return Plan.Escort;
+                case AIState.ReturnToHangar: return Plan.ReturnToHangar;
+                case AIState.Exterminate:    return Plan.FindExterminationTarget;
             }
         }
 
@@ -801,14 +809,6 @@ namespace Ship_Game.AI
                 Owner.AI.SetPriorityOrder(true);
                 Orbit.Orbit(escortTarget, timeStep);
             }
-        }
-
-        void AIStateAwaitingOrders(FixedSimTime timeStep)
-        {
-            if (!Owner.Loyalty.isPlayer)
-                AwaitOrders(timeStep);
-            else
-                AwaitOrdersPlayer(timeStep);
         }
 
         // For Unit tests

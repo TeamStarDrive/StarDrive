@@ -216,10 +216,13 @@ namespace Ship_Game
 
         public int FreeTilesWithRebaseOnTheWay(Empire empire)
         {
-            var ships = Owner.OwnedShips;
-                 int rebasingTroops = ships.Filter(s => s?.IsDefaultTroopTransport == true)
-                                          .Count(s => s?.AI.OrderQueue.Any(goal => goal.TargetPlanet == this) == true);
-                return (GetFreeTiles(empire) - rebasingTroops).Clamped(0, TileArea);
+            int rebasingTroops = 0;
+            if (Owner != null)
+            {
+                rebasingTroops = Owner.OwnedShips.Filter(s => s.IsDefaultTroopTransport)
+                         .Count(s => s.AI.OrderQueue.Any(goal => goal.TargetPlanet == this));
+            }
+            return (GetFreeTiles(empire) - rebasingTroops).Clamped(0, TileArea);
         }
 
         void CreateManagers()

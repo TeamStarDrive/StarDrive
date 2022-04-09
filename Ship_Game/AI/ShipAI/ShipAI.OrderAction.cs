@@ -159,12 +159,6 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.Explore, AIState.Explore);
         }
 
-        public void OrderExterminatePlanet(Planet toBombard)
-        {
-            ClearOrdersAndWayPoints();
-            AddExterminateGoal(toBombard);
-        }
-
         public void OrderAttackPriorityTarget(Ship target)
         {
             HasPriorityTarget = true;
@@ -172,18 +166,25 @@ namespace Ship_Game.AI
             EnterCombatState(AIState.AttackTarget);
         }
 
-        public void OrderFindExterminationTarget()
+        void DoFindExterminationTarget(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (ExterminationTarget?.Owner == null)
+            Planet toExterminate = null;
+            if (ExterminationTarget != null)
             {
-                Planet closest = Owner.Universe.Planets.Filter(p => p.Owner != null)
-                                                       .FindMin(p => Owner.Position.SqDist(p.Center));
-                if (closest != null)
-                    OrderExterminatePlanet(closest);
+                if (ExterminationTarget.Owner == null)
+                {
+                    toExterminate = Owner.Universe.Planets.FindClosestTo(Owner.Position, p => p.Owner != null);
+                }
+                else if (OrderQueue.Count <= 1)
+                {
+                    toExterminate = ExterminationTarget;
+                }
             }
-            else if (ExterminationTarget != null && OrderQueue.IsEmpty)
+
+            if (toExterminate != null)
             {
-                OrderExterminatePlanet(ExterminationTarget);
+                ClearOrdersAndWayPoints();
+                AddPlanetGoal(Plan.Exterminate, toExterminate, AIState.Exterminate);
             }
         }
 
@@ -201,8 +202,11 @@ namespace Ship_Game.AI
                 ResetPriorityOrderWithClear();
 
             // anyassaultops is broken and doesnt work with troop shuttles. 
-            if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle ||  Owner.Carrier.AnyAssaultOpsAvailable) // This deals also with single Troop Ships / Assault Shuttles
-                AddLandTroopGoal(target);
+            if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle ||  Owner.Carrier.AnyAssaultOpsAvailable)
+            {
+                // This deals also with single Troop Ships / Assault Shuttles
+                AddPlanetGoal(Plan.LandTroop, target, AIState.AssaultPlanet);
+            }
         }
 
         public void OrderMoveTo(Vector2 position, Vector2 finalDir, MoveOrder order = MoveOrder.Regular)
@@ -319,7 +323,7 @@ namespace Ship_Game.AI
 
         public void OrderAwaitOrders(bool clearPriorityOrder = true)
         {
-            State = AIState.AwaitingOrders;
+            AddShipGoal(Plan.AwaitOrders, AIState.AwaitingOrders);
             if (clearPriorityOrder)
                 SetPriorityOrder(false);
         }
@@ -503,8 +507,11 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Planet planet = Owner.Loyalty.GetPlanets().FindClosestTo(Owner.Position, p => p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0);
+            var planets = Owner.Loyalty.GetPlanets();
+            if (planets.Count == 0)
+                planets = Owner.Loyalty.Universum.Planets;
 
+            Planet planet = planets.FindClosestTo(Owner.Position, p => p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0);
             if (planet == null)
             {
                 State = AIState.AwaitingOrders;
@@ -545,7 +552,7 @@ namespace Ship_Game.AI
             Target = null;
             OrbitTarget = toOrbit;
             AwaitClosest = toOrbit;
-            AddResupplyPlanetGoal(toOrbit);
+            AddPlanetGoal(Plan.Orbit, toOrbit, AIState.Resupply, pushToFront: true);
 
             if (Owner.TryGetEscapeVector(out Vector2 escapePos))
             {
@@ -673,7 +680,7 @@ namespace Ship_Game.AI
 
         bool SetAwaitClosestForSystemToDefend()
         {
-            if (SystemToDefend == null)
+            if (SystemToDefend == null || SystemToDefend.PlanetList.IsEmpty)
                 return false;
             AwaitClosest = SystemToDefend.PlanetList[0];
             return true;
@@ -746,7 +753,15 @@ namespace Ship_Game.AI
             return AwaitClosest != null;
         }
 
-        void AwaitOrders(FixedSimTime timeStep)
+        void DoAwaitOrders(FixedSimTime timeStep, ShipGoal goal)
+        {
+            if (Owner.Loyalty.isPlayer)
+                AwaitOrdersPlayer(timeStep);
+            else
+                AwaitOrdersAIControlled(timeStep);
+        }
+
+        void AwaitOrdersAIControlled(FixedSimTime timeStep)
         {
             if (Owner.IsPlatformOrStation) 
                 return;
@@ -787,6 +802,7 @@ namespace Ship_Game.AI
             }
         }
 
+        // TODO: refactor this and check overlap with `AwaitOrdersAIControlled`
         void AwaitOrdersPlayer(FixedSimTime timeStep)
         {
             SetPriorityOrder(false);
