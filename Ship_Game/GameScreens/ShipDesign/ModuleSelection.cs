@@ -254,24 +254,23 @@ namespace Ship_Game
             int startx = (int)modTitlePos.X;
             if (moduleTemplate.IsWeapon)
             {
-                var weaponTemplate = ResourceManager.GetWeaponTemplate(moduleTemplate.WeaponType);
-
                 var sb = new StringBuilder();
-                if (weaponTemplate.Tag_Guided)    sb.Append("GUIDED ");
-                if (weaponTemplate.Tag_Intercept) sb.Append("INTERCEPTABLE ");
-                if (weaponTemplate.Tag_Energy)    sb.Append("ENERGY ");
-                if (weaponTemplate.Tag_Plasma)    sb.Append("PLASMA ");
-                if (weaponTemplate.Tag_Kinetic)   sb.Append("KINETIC ");
-                if (weaponTemplate.Explodes)      sb.Append("EXPLOSIVE ");
-                if (weaponTemplate.Tag_PD)        sb.Append("POINT DEFENSE ");
-                if (weaponTemplate.Tag_Missile)   sb.Append("MISSILE ");
-                if (weaponTemplate.Tag_Beam)      sb.Append("BEAM ");
-                if (weaponTemplate.Tag_Torpedo)   sb.Append("TORPEDO ");
-                if (weaponTemplate.Tag_Bomb)      sb.Append("BOMB ");
-                if (weaponTemplate.Tag_BioWeapon) sb.Append("BIOWEAPON ");
-                if (weaponTemplate.Tag_SpaceBomb) sb.Append("SPACEBOMB ");
-                if (weaponTemplate.Tag_Drone)     sb.Append("DRONE ");
-                if (weaponTemplate.Tag_Cannon)    sb.Append("CANNON ");
+                var t = ResourceManager.GetWeaponTemplate(moduleTemplate.WeaponType);
+                if (t.Tag_Guided)    sb.Append("GUIDED ");
+                if (t.Tag_Intercept) sb.Append("INTERCEPTABLE ");
+                if (t.Tag_Energy)    sb.Append("ENERGY ");
+                if (t.Tag_Plasma)    sb.Append("PLASMA ");
+                if (t.Tag_Kinetic)   sb.Append("KINETIC ");
+                if (t.Explodes)      sb.Append("EXPLOSIVE ");
+                if (t.Tag_PD)        sb.Append("POINT DEFENSE ");
+                if (t.Tag_Missile)   sb.Append("MISSILE ");
+                if (t.Tag_Beam)      sb.Append("BEAM ");
+                if (t.Tag_Torpedo)   sb.Append("TORPEDO ");
+                if (t.Tag_Bomb)      sb.Append("BOMB ");
+                if (t.Tag_BioWeapon) sb.Append("BIOWEAPON ");
+                if (t.Tag_SpaceBomb) sb.Append("SPACEBOMB ");
+                if (t.Tag_Drone)     sb.Append("DRONE ");
+                if (t.Tag_Cannon)    sb.Append("CANNON ");
 
                 DrawString(batch, ref modTitlePos, sb.ToString(), Fonts.Arial8Bold);
 
@@ -465,12 +464,11 @@ namespace Ship_Game
 
         void DrawWeaponStats(SpriteBatch batch, Vector2 cursor, ShipModule m, Weapon w, float startY)
         {
-            Weapon wOrMirv = w; // We want some stats to show warhead stats and not weapon stats
+            IWeaponTemplate wOrMirv = w.T; // We want some stats to show warhead stats and not weapon stats
             if (w.MirvWarheads > 0 && w.MirvWeapon.NotEmpty())
             {
                 wOrMirv = ResourceManager.GetWeaponTemplate(w.MirvWeapon);
             }
-
 
             float range = ModifiedWeaponStat(w, WeaponStat.Range);
             float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus() + w.DelayedIgnition;
@@ -634,7 +632,7 @@ namespace Ship_Game
             cursor.Y += Fonts.Arial12Bold.LineSpacing * lines;
         }
 
-        static float GetStatForWeapon(WeaponStat stat, Weapon weapon)
+        static float GetStatForWeapon(WeaponStat stat, IWeaponTemplate weapon)
         {
             switch (stat)
             {
@@ -648,7 +646,7 @@ namespace Ship_Game
             }
         }
 
-        static float ModifiedWeaponStat(Weapon weapon, WeaponStat stat)
+        static float ModifiedWeaponStat(IWeaponTemplate weapon, WeaponStat stat)
         {
             float value = GetStatForWeapon(stat, weapon);
             foreach (WeaponTag tag in weapon.ActiveWeaponTags)
@@ -656,7 +654,7 @@ namespace Ship_Game
             return value;
         }
 
-        void DrawResistancePercent(ref Vector2 cursor, Weapon weapon, string description, WeaponStat stat)
+        void DrawResistancePercent(ref Vector2 cursor, IWeaponTemplate weapon, string description, WeaponStat stat)
         {
             float effect = ModifiedWeaponStat(weapon, stat);
             if (effect.NotEqual(1))

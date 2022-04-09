@@ -12,7 +12,7 @@ namespace Ship_Game
         private Planet TargetPlanet;
         public Matrix World { get; private set; }
 
-        public Weapon Weapon;
+        public IWeaponTemplate Weapon;
         private const string TextureName = "projBall_02_orange";
         private const string ModelName   = "projBall";
 
@@ -39,14 +39,15 @@ namespace Ship_Game
             Texture     = ResourceManager.ProjTexture(TextureName);
             Model       = ResourceManager.ProjectileModelDict[ModelName];
             Position    = position;
-            Weapon      = ResourceManager.GetWeaponTemplate(weaponName) ?? ResourceManager.GetWeaponTemplate("NuclearBomb");
             ShipLevel   = shipLevel;
+            Weapon = ResourceManager.GetWeaponTemplate(weaponName)
+                  ?? ResourceManager.GetWeaponTemplate("NuclearBomb");
 
-            TroopDamageMin  = Weapon.BombTroopDamageMin;
-            TroopDamageMax  = Weapon.BombTroopDamageMax;
-            HardDamageMin   = Weapon.BombHardDamageMin;
-            HardDamageMax   = Weapon.BombHardDamageMax;
-            PopKilled       = Weapon.BombPopulationKillPerHit;
+            TroopDamageMin = Weapon.BombTroopDamageMin;
+            TroopDamageMax = Weapon.BombTroopDamageMax;
+            HardDamageMin  = Weapon.BombHardDamageMin;
+            HardDamageMax  = Weapon.BombHardDamageMax;
+            PopKilled      = Weapon.BombPopulationKillPerHit;
             FertilityDamage = Weapon.FertilityDamage;
             SpecialAction   = Weapon.HardCodedAction;
             ShipHealthPercent = shipHealthPercent;

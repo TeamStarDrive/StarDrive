@@ -12,7 +12,7 @@ namespace UnitTests.Ships
     public class TestWeaponModifiers : StarDriveTest
     {
         Ship Ship;
-        Weapon Weapon;
+        WeaponTestWrapper Weapon;
         Empire Empire;
 
         public TestWeaponModifiers()
@@ -24,33 +24,33 @@ namespace UnitTests.Ships
             Weapon = CreateWeapon(Ship);
         }
 
-        Weapon CreateWeapon(Ship ship)
+        WeaponTestWrapper CreateWeapon(Ship ship)
         {
-            Weapon weapon = ship.Weapons[0];
-            weapon.BaseRange = 1000;
-            weapon.DamageAmount = 15;
-            weapon.ProjectileSpeed = 1250;
+            WeaponTestWrapper weapon = (WeaponTestWrapper)ship.Weapons[0];
+            weapon.TestBaseRange = 1000;
+            weapon.TestDamageAmount = 15;
+            weapon.TestProjectileSpeed = 1250;
             return weapon;
         }
 
         [TestMethod]
         public void GetActualWeaponRange()
         {
-            Assert.That.Equal(1000, Weapon.GetActualRange());
+            Assert.That.Equal(1000, Weapon.GetActualRange(Ship.Loyalty));
 
             WeaponTagModifier m = Empire.WeaponBonuses(WeaponTag.Kinetic);
             m.Range = 1; // +100% increase
-            Assert.That.Equal(2000, Weapon.GetActualRange());
+            Assert.That.Equal(2000, Weapon.GetActualRange(Ship.Loyalty));
 
             m.Range = 0.5f; // revert to +50%
-            Assert.That.Equal(1500, Weapon.GetActualRange());
+            Assert.That.Equal(1500, Weapon.GetActualRange(Ship.Loyalty));
         }
 
         [TestMethod]
         public void ApplyModsToProjectile()
         {
-            Weapon.HitPoints = 100;
-            Weapon.ExplosionRadius = 10;
+            Weapon.TestHitPoints = 100;
+            Weapon.TestExplosionRadius = 10;
 
             Projectile p1 = Projectile.Create(Weapon, Ship, new Vector2(), Vectors.Up, null, false);
             Assert.That.Equal(2, p1.RotationRadsPerSecond);

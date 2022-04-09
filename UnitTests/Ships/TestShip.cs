@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using Ship_Game.Universe;
+using Ship_Game.Gameplay;
 
 namespace UnitTests.Ships
 {
@@ -71,6 +72,15 @@ namespace UnitTests.Ships
         {
             ++NumShipsReturned;
             base.OnShipReturned(ship);
+        }
+
+        public override void OnWeaponInstalled(ShipModule m, Weapon w)
+        {
+            // for unit tests, we wrap the weapons so we can
+            // easily edit the stats, without causing side-effects
+            var tw = new WeaponTestWrapper(w, BaseHull);
+            m.InstalledWeapon = tw;
+            base.OnWeaponInstalled(m, tw);
         }
     }
 }

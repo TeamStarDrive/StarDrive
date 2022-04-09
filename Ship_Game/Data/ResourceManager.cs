@@ -359,7 +359,7 @@ namespace Ship_Game
             Encounters.Clear();
             EventsDict.Clear();
             RandomItemsList.Clear();
-            WeaponsDict.ClearAndDispose();
+            WeaponsDict.Clear();
 
             HostileFleets.Fleets.Clear();
             ShipNames.Clear();
@@ -1784,47 +1784,53 @@ namespace Ship_Game
             TechValidator();
         }
 
-        static readonly Map<string, Weapon> WeaponsDict = new Map<string, Weapon>();
+        static readonly Map<string, IWeaponTemplate> WeaponsDict = new Map<string, IWeaponTemplate>();
 
-        // Refactored by RedFox, gets a new weapon instance based on weapon UID
+        // Creates a weapon used by Planets or Special space objects
+        // There is no Ship Owner or ShipModule
         public static Weapon CreateWeapon(string uid)
         {
-            Weapon template = WeaponsDict[uid];
-            return template.Clone();
+            IWeaponTemplate template = WeaponsDict[uid];
+            return new Weapon(template, null, null, null);
         }
 
-        public static bool CreateWeapon(string uid, out Weapon weapon)
+        // Creates a weapon used by a Ship
+        // `module` can be null if the weapon does not belong to a specific module
+        // `hull` can be null if hull based bonuses don't matter
+        public static Weapon CreateWeapon(string uid, Ship owner, ShipModule module, ShipHull hull)
         {
-            if (WeaponsDict.TryGetValue(uid, out Weapon template))
-            {
-                weapon = template.Clone();
-                return true;
-            }
-            weapon = null;
-            return false;
+            IWeaponTemplate template = WeaponsDict[uid];
+            return new Weapon(template, owner, module, hull);
         }
 
-        // WARNING: DO NOT MODIFY this Weapon instance! (wish C# has const refs like C++)
-        public static Weapon GetWeaponTemplate(string uid)
+        // Gets an immutable IWeaponTemplate
+        public static IWeaponTemplate GetWeaponTemplate(string uid)
         {
-            return WeaponsDict[uid];
+            if (GetWeaponTemplate(uid, out IWeaponTemplate t))
+                return t;
+            Log.Error($"WeaponTemplate not found: '{uid}', using default VulcanCannon");
+            return null;
+        }
+
+        public static bool GetWeaponTemplate(string uid, out IWeaponTemplate template)
+        {
+            return WeaponsDict.TryGetValue(uid, out template);
         }
 
         static void LoadWeapons() // Refactored by RedFox
         {
             WeaponsDict.Clear();
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.ClearVanillaWeapons;
-            foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly))
+            foreach (var pair in LoadEntitiesWithInfo<WeaponTemplate>("Weapons", "LoadWeapons", modTechsOnly))
             {
-                Weapon wep = pair.Entity;
-                wep.UID = string.Intern(pair.Info.NameNoExt());
-                WeaponsDict[wep.UID] = wep;
-                wep.InitializeTemplate();
+                WeaponTemplate w = pair.Entity;
+                w.UID = string.Intern(pair.Info.NameNoExt());
+                WeaponsDict[w.UID] = w;
             }
 
-            foreach (Weapon w in WeaponsDict.Values)
+            foreach (WeaponTemplate w in WeaponsDict.Values)
             {
-                w.InitDamagePerSecond();
+                w.InitializeTemplate();
             }
         }
 

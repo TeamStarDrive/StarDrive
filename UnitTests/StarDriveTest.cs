@@ -215,6 +215,7 @@ namespace UnitTests
             ship.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
             ship.SetSystem(null);
             Assert.IsTrue(ship.Active, "Spawned ship is Inactive! This is a bug in Status update!");
+
             return ship;
         }
 

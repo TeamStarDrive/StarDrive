@@ -1,4 +1,6 @@
-﻿namespace Ship_Game.Ships
+﻿using Ship_Game.Gameplay;
+
+namespace Ship_Game.Ships
 {
     public partial class Ship
     {
@@ -51,6 +53,18 @@
         public virtual void OnLaunchedShipDie(Ship ship)
         {
             Carrier.AddToOrdnanceInSpace(-ship.ShipOrdLaunchCost);
+        }
+
+        // EVT: when a ShipModule installs a new weapon
+        public virtual void OnWeaponInstalled(ShipModule m, Weapon w)
+        {
+            Weapons.Add(w);
+        }
+
+        // EVT: when a ShipModule installs a new Bomb
+        public virtual void OnBombInstalled(ShipModule m)
+        {
+            BombBays.Add(m);
         }
     }
 }

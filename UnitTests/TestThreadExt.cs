@@ -142,12 +142,25 @@ namespace UnitTests
             void Action()
             {
                 var items = new int[1337];
-                Parallel.For(0, items.Length, (start, end) => throw new ArgumentException("Test"));
+                Parallel.For(0, items.Length, (start, end) => throw new ArgumentException("Test"), maxParallelism:4);
             }
-            ParallelTaskException ex = Assert.ThrowsException<ParallelTaskException>((Action) Action);
-            Assert.AreEqual(typeof(ArgumentException), ex.InnerException?.GetType());
-            Assert.AreEqual("Test", ex.InnerException?.Message);
-            Assert.AreEqual("Parallel.For task threw an exception", ex.Message);
+
+            Log.Write($"Parallel.MaxParallelism: {Parallel.MaxParallelism}");
+            Log.Write($"Parallel.NumPhysicalCores: {Parallel.NumPhysicalCores}");
+
+            // AppVeyor CI quite often runs 1-core only, which makes Parallel tests most vexing
+            if (Parallel.MaxParallelism == 1)
+            {
+                var ex = Assert.ThrowsException<ArgumentException>((Action)Action);
+                Assert.AreEqual("Test", ex.Message);
+            }
+            else
+            {
+                var ex = Assert.ThrowsException<ParallelTaskException>((Action)Action);
+                Assert.AreEqual(typeof(ArgumentException), ex.InnerException?.GetType());
+                Assert.AreEqual("Test", ex.InnerException?.Message);
+                Assert.AreEqual("Parallel.For task threw an exception", ex.Message);
+            }
         }
     }
 }
