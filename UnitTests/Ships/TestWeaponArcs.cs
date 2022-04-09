@@ -22,7 +22,7 @@ namespace UnitTests.Ships
 
         void CreateShipWithFieldOfFire(float fieldOfFireDegrees, out Ship ship, out Weapon weapon)
         {
-            ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
+            ship = SpawnShip("TEST_Vulcan Scout", Player, Vector2.Zero);
             weapon = ship.Weapons[0];
             weapon.SalvoCount = 1;
             weapon.ProjectileCount = 1;
@@ -34,7 +34,7 @@ namespace UnitTests.Ships
         public void FiringInsideArc()
         {
             CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
-            Ship target = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
+            Ship target = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
 
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Fire at target must succeed");
             Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
@@ -44,7 +44,7 @@ namespace UnitTests.Ships
         public void FiringOutsideOfArc()
         {
             CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
-            Ship target = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
+            Ship target = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
 
             Assert.IsFalse(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Weapon cannot shoot behind its firing ARC!");
             Assert.AreEqual(0, GetProjectileCount(ship), "No projectiles should launch");
@@ -54,8 +54,8 @@ namespace UnitTests.Ships
         public void FiringTargetOfOpportunity()
         {
             CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
-            Ship main = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
-            Ship opportune = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
+            Ship main = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
+            Ship opportune = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
 
             var otherShips = new[]{ opportune };
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(main, NoProjectiles, otherShips), "Fire at target must succeed");
