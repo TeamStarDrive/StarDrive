@@ -26,12 +26,13 @@ namespace Ship_Game.Gameplay
         MissileAI MissileAI;
         public float VelocityMax;
         public float Speed;
-        public float Range;        
+        public float Range;
         public float DamageAmount;
         public float DamageRadius;
         public float ExplosionRadiusMod;
         public float Duration;
         public bool Explodes;
+        public bool FakeExplode;
         public ShipModule Module;
 
         // projectile has a trail (like missile trail)
@@ -229,11 +230,14 @@ namespace Ship_Game.Gameplay
             {
                 // This can fail if `weaponUID` no longer exists in game data
                 // in which case we abandon this projectile
-                ResourceManager.CreateWeapon(weaponUID, out o.Weapon);
+                if (ResourceManager.GetWeaponTemplate(weaponUID, out IWeaponTemplate t))
+                {
+                    o.Weapon = new Weapon(t, o.Owner, null, null);
+                }
             }
 
             if (o.Weapon == null)
-                return false;
+                return false; // abandon it
 
             return true;
         }
@@ -247,6 +251,7 @@ namespace Ship_Game.Gameplay
             Range                 = Weapon.BaseRange;
             Radius                = Weapon.ProjectileRadius;
             Explodes              = Weapon.Explodes;
+            FakeExplode           = Weapon.FakeExplode;
             DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
             DamageRadius          = Weapon.ExplosionRadius;
             ExplosionRadiusMod    = Weapon.ExplosionRadiusVisual;
@@ -310,7 +315,7 @@ namespace Ship_Game.Gameplay
             if (playSound && inFrustum)
             {
                 Weapon.PlayToggleAndFireSfx(Emitter);
-                string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).DieCue;
+                string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID)?.DieCue;
                 if (cueName.NotEmpty())     DieCueName  = cueName;
                 if (InFlightCue.NotEmpty()) InFlightCue = Weapon.InFlightCue;
             }
@@ -383,9 +388,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 // this is the spawned warhead weapon stats
-                Weapon warhead = ResourceManager.CreateWeapon(Weapon.MirvWeapon);
-                warhead.Owner = Owner;
-                warhead.Module = Module;
+                Weapon warhead = ResourceManager.CreateWeapon(Weapon.MirvWeapon, Owner, Module, null);
 
                 for (int i = 0; i < Weapon.MirvWarheads; i++)
                 {
@@ -765,7 +768,7 @@ namespace Ship_Game.Gameplay
                 else
                     Universe.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, Position);
             }
-            else if (Weapon.FakeExplode && CloseEnoughForExplosion && visibleToPlayer)
+            else if (FakeExplode && CloseEnoughForExplosion && visibleToPlayer)
             {
                 ExplosionManager.AddExplosion(Universe.Screen, origin, Velocity*0.1f, 
                     DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
@@ -903,8 +906,7 @@ namespace Ship_Game.Gameplay
         {
             ExplodeProjectile(false, module);
             Explodes = false;
-            if (Weapon != null)
-                Weapon.FakeExplode = false;
+            FakeExplode = false;
         }
 
         void DebugTargetCircle()

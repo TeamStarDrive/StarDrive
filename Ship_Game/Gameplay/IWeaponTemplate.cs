@@ -1,4 +1,5 @@
 ﻿using System;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
 {
@@ -55,8 +56,6 @@ namespace Ship_Game.Gameplay
         string DieCue { get; }
         string ToggleSoundName { get; }
         string Light { get; }
-        bool IsTurret { get; }
-        bool IsMainGun { get; }
         float OrdinanceRequiredToFire { get; }
 
         // This is the weapons base unaltered range. In addition to this, many bonuses could be applied.
@@ -137,5 +136,16 @@ namespace Ship_Game.Gameplay
         // This is the total salvo duration
         // TimeBetweenShots = SalvoTimer / SalvoCount;
         float SalvoDuration { get; }
+
+
+        float NetFireDelay { get; }
+        float AverageOrdnanceUsagePerSecond { get; }
+        float BurstOrdnanceUsagePerSecond { get; }
+        float SalvoProjectilesPerSecond { get; }
+        bool Explodes { get; }
+        float PowerFireUsagePerSecond { get; }
+
+
+        float CalculateOffense(ShipModule m);
     }
 }

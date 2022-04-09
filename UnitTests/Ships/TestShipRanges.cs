@@ -25,14 +25,14 @@ namespace UnitTests.Ships
             ship.Update(new FixedSimTime(1f));
         }
 
-        Ship SpawnShipWithBaseRanges(string name, float minValue, float maxValue)
+        TestShip SpawnShipWithBaseRanges(string name, float minValue, float maxValue)
         {
-            Ship ship = SpawnShip(name, Player, Vector2.Zero);
+            TestShip ship = SpawnShip(name, Player, Vector2.Zero);
             bool useMin = false;
             var activeWeapons = ship.ActiveWeapons;
-            foreach (Weapon w in activeWeapons)
+            foreach (WeaponTestWrapper w in activeWeapons)
             {
-                w.BaseRange = useMin ? minValue : maxValue;
+                w.TestBaseRange = useMin ? minValue : maxValue;
                 useMin = !useMin;
             }
             return ship;
