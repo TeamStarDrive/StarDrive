@@ -24,6 +24,7 @@ namespace Ship_Game.AI
         public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
 
         public Vector2 DebugDrawPosition => Owner.Position + Owner.Velocity.Normalized() * Owner.Radius;
+
         public void ClearWayPoints()
         {
             WayPoints.Clear();

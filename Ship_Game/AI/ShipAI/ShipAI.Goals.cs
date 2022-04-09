@@ -220,11 +220,10 @@ namespace Ship_Game.AI
                                          null, speed, "", 0f, AIState.MoveTo, null));
         }
 
-        void AddLandTroopGoal(Planet p)      => AddPlanetGoal(Plan.LandTroop, p, AIState.AssaultPlanet);
-        void AddExterminateGoal(Planet p)    => AddPlanetGoal(Plan.Exterminate, p, AIState.Exterminate);
-        void AddResupplyPlanetGoal(Planet p) => AddPlanetGoal(Plan.Orbit, p, AIState.Resupply, pushToFront: true);
-
-        void AddOrbitPlanetGoal(Planet p, AIState newState = AIState.Orbit) => AddPlanetGoal(Plan.Orbit, p, newState);
+        void AddOrbitPlanetGoal(Planet p, AIState newState = AIState.Orbit)
+        {
+            AddPlanetGoal(Plan.Orbit, p, newState);
+        }
 
         public void OrderMoveAndColonize(Planet planet, Goal g)
         {
@@ -389,6 +388,11 @@ namespace Ship_Game.AI
                 TargetPlanet = us.GetPlanet(sg.TargetPlanetId);
                 TargetShip   = us.GetShip(sg.TargetShipId);
 
+                if (sg.TargetPlanetId != 0 && TargetPlanet == null)
+                {
+                    Log.Warning($"ShipGoal: failed to find TargetPlanet={sg.TargetPlanetId}");
+                }
+
                 VariableString = sg.VariableString;
                 VariableNumber = sg.VariableNumber;
                 SpeedLimit = sg.SpeedLimit;
@@ -513,41 +517,49 @@ namespace Ship_Game.AI
             }
         }
 
+        // WARNING: Enums are serialized as integers, so don't change the order
+        //          because it will break savegames. Add new entries to the end.
+        //          At some point we will add stable enum mapping.
         public enum Plan
         {
-            Stop,
-            Scrap,
-            HoldPosition,
-            Bombard,
-            Exterminate,
-            RotateToFaceMovePosition,
-            RotateToDesiredFacing,
-            MoveToWithin1000,
-            MakeFinalApproach,
-            RotateInlineWithVelocity,
-            Orbit,
-            Colonize,
-            Explore,
-            Rebase,
-            DoCombat,
-            Trade,
-            DefendSystem,
-            DeployStructure,
-            PickupGoods,
-            DropOffGoods,
-            ReturnToHangar,
-            TroopToShip,
-            BoardShip,
-            SupplyShip,
-            Refit,
-            LandTroop,
-            ResupplyEscort,
-            RebaseToShip,
-            ReturnHome,
-            DeployOrbital,
-            Escort,
-            RearmShipFromPlanet,
-            Meteor
+            // using explicit integers to support deleting entries
+            Stop = 0,
+            Scrap = 1,
+            HoldPosition = 2,
+            Bombard = 3,
+            Exterminate = 4, // exterminate a specific planet
+            RotateToFaceMovePosition = 5,
+            RotateToDesiredFacing = 6,
+            MoveToWithin1000 = 7,
+            MakeFinalApproach = 8,
+            RotateInlineWithVelocity = 9,
+            Orbit = 10,
+            Colonize = 11,
+            Explore = 12,
+            Rebase = 13,
+            DoCombat = 14,
+            Trade = 15,
+            DefendSystem = 16,
+            DeployStructure = 17,
+            PickupGoods = 18,
+            DropOffGoods = 19,
+            ReturnToHangar = 20,
+            TroopToShip = 21,
+            BoardShip = 22,
+            SupplyShip = 23,
+            Refit = 24,
+            LandTroop = 25,
+            ResupplyEscort = 26,
+            RebaseToShip = 27,
+            ReturnHome = 28,
+            DeployOrbital = 29,
+            Escort = 30,
+            RearmShipFromPlanet = 31,
+            Meteor = 32,
+
+            AwaitOrders = 33,
+            AwaitOrdersAIManaged = 34, // different from AwaitOrders, gives the ship over to AI management
+            FindExterminationTarget = 35, // find a target to exterminate
         }
     }
 }
