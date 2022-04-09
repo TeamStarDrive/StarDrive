@@ -17,8 +17,8 @@
 
   <IconTexturePath>Modules/ArmoredMissile</IconTexturePath>
   <Mass>1300</Mass>
-  <Health>12850</Health>
-  <HealthMax>12850</HealthMax>
+  <Health>10000</Health>
+  <HealthMax>10000</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
   <energyreq>5</energyreq>
   <Description>This is a long range multiple rocket launching system.
@@ -30,7 +30,11 @@
   <NameIndex>17607</NameIndex>
   <DescriptionIndex>17608</DescriptionIndex>
 
-
+	<KineticResist>0.35</KineticResist>
+	<BeamResist>0.35</BeamResist>  
+	<EnergyResist>0.35</EnergyResist>  
+	<ExplosiveResist>0.40</ExplosiveResist>	    
+	<HybridResist>0.35</HybridResist>
   <!-- for shield items -->
   
   <ShieldPowerMax>0</ShieldPowerMax>

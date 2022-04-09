@@ -32,6 +32,6 @@
   <ShieldRechargeDelay>30</ShieldRechargeDelay>
   <ShieldRechargeRate>440</ShieldRechargeRate>
   <ShieldRadius>240</ShieldRadius>
-  <ShieldRechargeCombatRate>150</ShieldRechargeCombatRate>
+  <ShieldRechargeCombatRate>80</ShieldRechargeCombatRate>
   <ShieldEnergyResist>0.2</ShieldEnergyResist>
 </ShipModule>
