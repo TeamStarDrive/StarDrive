@@ -517,44 +517,49 @@ namespace Ship_Game.AI
             }
         }
 
+        // WARNING: Enums are serialized as integers, so don't change the order
+        //          because it will break savegames. Add new entries to the end.
+        //          At some point we will add stable enum mapping.
         public enum Plan
         {
-            AwaitOrders,
-            AwaitOrdersAIManaged, // different from AwaitOrders, gives the ship over to AI management
-            Stop,
-            Scrap,
-            HoldPosition,
-            Bombard,
-            FindExterminationTarget, // find a target to exterminate
-            Exterminate, // exterminate a specific target
-            RotateToFaceMovePosition,
-            RotateToDesiredFacing,
-            MoveToWithin1000,
-            MakeFinalApproach,
-            RotateInlineWithVelocity,
-            Orbit,
-            Colonize,
-            Explore,
-            Rebase,
-            DoCombat,
-            Trade,
-            DefendSystem,
-            DeployStructure,
-            PickupGoods,
-            DropOffGoods,
-            ReturnToHangar,
-            TroopToShip,
-            BoardShip,
-            SupplyShip,
-            Refit,
-            LandTroop,
-            ResupplyEscort,
-            RebaseToShip,
-            ReturnHome,
-            DeployOrbital,
-            Escort,
-            RearmShipFromPlanet,
-            Meteor
+            // using explicit integers to support deleting entries
+            Stop = 0,
+            Scrap = 1,
+            HoldPosition = 2,
+            Bombard = 3,
+            Exterminate = 4, // exterminate a specific planet
+            RotateToFaceMovePosition = 5,
+            RotateToDesiredFacing = 6,
+            MoveToWithin1000 = 7,
+            MakeFinalApproach = 8,
+            RotateInlineWithVelocity = 9,
+            Orbit = 10,
+            Colonize = 11,
+            Explore = 12,
+            Rebase = 13,
+            DoCombat = 14,
+            Trade = 15,
+            DefendSystem = 16,
+            DeployStructure = 17,
+            PickupGoods = 18,
+            DropOffGoods = 19,
+            ReturnToHangar = 20,
+            TroopToShip = 21,
+            BoardShip = 22,
+            SupplyShip = 23,
+            Refit = 24,
+            LandTroop = 25,
+            ResupplyEscort = 26,
+            RebaseToShip = 27,
+            ReturnHome = 28,
+            DeployOrbital = 29,
+            Escort = 30,
+            RearmShipFromPlanet = 31,
+            Meteor = 32,
+
+            AwaitOrders = 33,
+            AwaitOrdersAIManaged = 34, // different from AwaitOrders, gives the ship over to AI management
+            FindExterminationTarget = 35, // find a target to exterminate
         }
     }
 }
