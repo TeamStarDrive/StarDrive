@@ -207,9 +207,11 @@ namespace Ship_Game.Gameplay
                     Log.Warning($"Weapon '{UID}' has 'tag_missile' but Weapontype is '{WeaponType}' instead of missile. This Causes invisible projectiles.");
                 }
             }
+
+            DamagePerSecond = GetDamagePerSecond();
         }
 
-        public float GetDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
+        float GetDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
         {
             IWeaponTemplate wOrMirv = this;
             if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
@@ -234,12 +236,26 @@ namespace Ship_Game.Gameplay
             return dps;
         }
 
-        public void InitDamagePerSecond()
+        public static float GetWeaponInaccuracyBase(float moduleArea, float overridePercent)
         {
-            DamagePerSecond = GetDamagePerSecond();
+            float powerMod;
+            float moduleSize;
+
+            if (overridePercent >= 0)
+            {
+                powerMod = 1 - overridePercent;
+                moduleSize = 8 * 8 * 16 + 160;
+            }
+            else
+            {
+                powerMod = 1.2f;
+                moduleSize = moduleArea * 16f + 160;
+            }
+
+            return (float)Math.Pow(moduleSize, powerMod);
         }
 
-        
+        // TODO: Offense calculation may be off when used with virtual BaseRange from WeaponTestWrapper
         public float CalculateOffense(ShipModule m)
         {
             float off = 0f;
@@ -290,20 +306,20 @@ namespace Ship_Game.Gameplay
             }
 
             if (DelayedIgnition.Greater(0))
-                off *= 1 - (DelayedIgnition / 10).UpperBound(0.95f); 
+                off *= 1 - (DelayedIgnition / 10).UpperBound(0.95f);
 
 
             // FB: Added correct exclusion offense calcs
             float exclusionMultiplier = 1;
-            if (ExcludesFighters)  exclusionMultiplier -= 0.15f;
+            if (ExcludesFighters) exclusionMultiplier -= 0.15f;
             if (ExcludesCorvettes) exclusionMultiplier -= 0.15f;
-            if (ExcludesCapitals)  exclusionMultiplier -= 0.45f;
-            if (ExcludesStations)  exclusionMultiplier -= 0.25f;
+            if (ExcludesCapitals) exclusionMultiplier -= 0.45f;
+            if (ExcludesStations) exclusionMultiplier -= 0.25f;
             off *= exclusionMultiplier;
 
             // Imprecision gets worse when range gets higher
-            off *= !Tag_Guided ? (1 - FireImprecisionAngle*0.01f * (BaseRange/2000)).LowerBound(0.1f) : 1f;
-            
+            off *= !Tag_Guided ? (1 - FireImprecisionAngle * 0.01f * (BaseRange / 2000)).LowerBound(0.1f) : 1f;
+
             // Multiple warheads
             if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
             {
@@ -328,63 +344,10 @@ namespace Ship_Game.Gameplay
             off *= m.ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
 
             // FB: Field of Fire is also important
-            off *= (m.FieldOfFire > RadMath.PI/3) ? (m.FieldOfFire/3) : 1f;
+            off *= (m.FieldOfFire > RadMath.PI / 3) ? (m.FieldOfFire / 3) : 1f;
 
             // Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
             return off * OffPowerMod;
         }
-
-        // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.
-        public float GetDamageWithBonuses(Ship owner)
-        {
-            float damageAmount = DamageAmount;
-            if (owner?.Loyalty.data != null && OrdinanceRequiredToFire > 0)
-                damageAmount += damageAmount * owner.Loyalty.data.OrdnanceEffectivenessBonus;
-
-            if (owner?.Level > 0)
-                damageAmount += damageAmount * owner.Level * 0.05f;
-
-            // Hull bonus damage increase
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses && owner != null &&
-                ResourceManager.HullBonuses.TryGetValue(owner.ShipData.Hull, out HullBonus mod))
-            {
-                damageAmount += damageAmount * mod.DamageBonus;
-            }
-
-            return damageAmount;
-        }
-
-        public float GetActualRange(Empire owner)
-        {
-            float range = BaseRange;
-
-            // apply extra range bonus based on weapon tag type:
-            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
-            {
-                WeaponTagModifier mod = owner.data.WeaponTags[ActiveWeaponTags[i]];
-                range += mod.Range * BaseRange;
-            }
-            return range;
-        }
-
-        public static float GetWeaponInaccuracyBase(float moduleArea, float overridePercent)
-        {
-            float powerMod;
-            float moduleSize;
-
-            if (overridePercent >= 0)
-            {
-                powerMod = 1 - overridePercent;
-                moduleSize = 8 * 8 * 16 + 160;
-            }
-            else
-            {
-                powerMod = 1.2f;
-                moduleSize = moduleArea * 16f + 160;
-            }
-
-            return (float)Math.Pow(moduleSize, powerMod);
-        }
-
     }
 }
