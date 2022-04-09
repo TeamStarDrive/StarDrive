@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Empires;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using UnitTests.Ships;
 
@@ -210,13 +211,15 @@ namespace UnitTests.AITests.Ships
             Assert.IsTrue(Us.InCombat, "ship should be in combat");
         }
 
-        static void InjectSteroids(Ship s)
+        static void InjectSteroids(TestShip s)
         {
             // inject some steroids into our vulcan cannons 
-            foreach (var w in s.Weapons)
+            foreach (WeaponTestWrapper w in s.Weapons)
             {
-                w.DamageAmount = 500f;
-                w.OrdinanceRequiredToFire = 0f;
+                w.TestDamageAmount = 500f;
+                w.TestProjectileCount = 5;
+                w.TestProjectileRadius = 50; // to make it easier to hit with
+                w.TestOrdinanceRequiredToFire = 0f;
                 w.FireDelay = 0.25f;
             }
             s.AI.SetCombatTriggerDelay(0f);
@@ -243,8 +246,9 @@ namespace UnitTests.AITests.Ships
             }
             else if (target.Active)
             {
-                Log.Write($"Vatt={Us.CurrentVelocity.String()} Vtgt={target.CurrentVelocity.String()} "+
-                          $"Dist={Us.Distance(target).String()} Nmod={target.Modules.Count(m => m.Active)}");
+                Log.Write($"ourV={Us.CurrentVelocity.String()} tgtV={target.CurrentVelocity.String()} "+
+                          $"Dist={Us.Distance(target).String()} tgtHealth={target.HealthPercent:0.1}% "+
+                          $"tgtModules={target.Modules.Count(m => m.Active)}/{target.Modules.Length}");
             }
             else
             {

@@ -380,8 +380,8 @@ namespace Ship_Game
 
         public EmpireData()
         {
-            for (int i = 0; i < Weapon.TagValues.Length; ++i)
-                WeaponTags.Add(Weapon.TagValues[i], new WeaponTagModifier());
+            for (int i = 0; i < WeaponTemplate.TagValues.Length; ++i)
+                WeaponTags.Add(WeaponTemplate.TagValues[i], new WeaponTagModifier());
         }
 
         public EmpireData GetClone()

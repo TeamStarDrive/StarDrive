@@ -20,12 +20,12 @@ namespace UnitTests.Ships
         static readonly Projectile[] NoProjectiles = Empty<Projectile>.Array;
         static readonly Ship[] NoShips = Empty<Ship>.Array;
 
-        void CreateShipWithFieldOfFire(float fieldOfFireDegrees, out Ship ship, out Weapon weapon)
+        void CreateShipWithFieldOfFire(float fieldOfFireDegrees, out Ship ship, out WeaponTestWrapper weapon)
         {
             ship = SpawnShip("TEST_Vulcan Scout", Player, Vector2.Zero);
-            weapon = ship.Weapons[0];
-            weapon.SalvoCount = 1;
-            weapon.ProjectileCount = 1;
+            weapon = (WeaponTestWrapper)ship.Weapons[0];
+            weapon.TestSalvoCount = 1;
+            weapon.TestProjectileCount = 1;
             weapon.Module.FieldOfFire = fieldOfFireDegrees.ToRadians();
             weapon.Module.Flyweight.AccuracyPercent = 1f; // No targeting errors or jitters
         }
@@ -33,7 +33,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void FiringInsideArc()
         {
-            CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
+            CreateShipWithFieldOfFire(45, out Ship ship, out WeaponTestWrapper weapon);
             Ship target = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
 
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Fire at target must succeed");
@@ -43,7 +43,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void FiringOutsideOfArc()
         {
-            CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
+            CreateShipWithFieldOfFire(45, out Ship ship, out WeaponTestWrapper weapon);
             Ship target = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
 
             Assert.IsFalse(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Weapon cannot shoot behind its firing ARC!");
@@ -53,7 +53,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void FiringTargetOfOpportunity()
         {
-            CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
+            CreateShipWithFieldOfFire(45, out Ship ship, out WeaponTestWrapper weapon);
             Ship main = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
             Ship opportune = SpawnShip("TEST_Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
 
@@ -66,9 +66,9 @@ namespace UnitTests.Ships
         [TestMethod]
         public void FiringPointDefenseAtMissiles()
         {
-            CreateShipWithFieldOfFire(45, out Ship us, out Weapon weapon);
-            weapon.TruePD = true;
-            weapon.Tag_PD = true;
+            CreateShipWithFieldOfFire(45, out Ship us, out WeaponTestWrapper weapon);
+            weapon.TestTruePD = true;
+            weapon.TestTag_PD = true;
 
             Vector2 inFrontOfUs = new Vector2(0, -1000f);
             Vector2 lookingAtUs = inFrontOfUs.DirectionToTarget(us.Position);

@@ -201,7 +201,7 @@ namespace Ship_Game
             {
                 if (TheWeapon == null)
                     CreateWeapon(p);
-                Offense = TheWeapon.CalculateOffense() * p.Level; // fire delay is shorter when planet level is higher
+                Offense = TheWeapon.CalculateOffense(null) * p.Level; // fire delay is shorter when planet level is higher
             }
         }
 
