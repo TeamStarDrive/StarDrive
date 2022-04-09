@@ -34,9 +34,5 @@
     <Ring>
       <Asteroids>Yes</Asteroids>
     </Ring>
-    <Ring>
-      <Planet>Opteris VII</Planet>
-      <WhichPlanet>32</WhichPlanet>
-    </Ring>
   </RingList>
 </SolarSystemData>
