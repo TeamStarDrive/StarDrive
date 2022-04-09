@@ -156,5 +156,7 @@ namespace Ship_Game.Gameplay
         public float PowerFireUsagePerSecond => T.PowerFireUsagePerSecond;
 
         public float CalculateOffense(ShipModule m) => T.CalculateOffense(m);
+        public float GetDamageWithBonuses(Ship owner) => T.GetDamageWithBonuses(owner);
+        public float GetActualRange(Empire owner) => T.GetActualRange(owner);
     }
 }

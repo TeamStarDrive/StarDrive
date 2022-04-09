@@ -18,6 +18,8 @@ namespace Ship_Game.Gameplay
         // This is the WeaponTemplate UID string
         public string UID { get; set; }
 
+        public override string ToString() => $"WeaponTemplate Type={WeaponType} UID={UID} Name={Name}";
+
         // Active Tag Bits for this WeaponTemplate
         WeaponTag TagBits;
 
@@ -331,5 +333,58 @@ namespace Ship_Game.Gameplay
             // Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
             return off * OffPowerMod;
         }
+
+        // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.
+        public float GetDamageWithBonuses(Ship owner)
+        {
+            float damageAmount = DamageAmount;
+            if (owner?.Loyalty.data != null && OrdinanceRequiredToFire > 0)
+                damageAmount += damageAmount * owner.Loyalty.data.OrdnanceEffectivenessBonus;
+
+            if (owner?.Level > 0)
+                damageAmount += damageAmount * owner.Level * 0.05f;
+
+            // Hull bonus damage increase
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses && owner != null &&
+                ResourceManager.HullBonuses.TryGetValue(owner.ShipData.Hull, out HullBonus mod))
+            {
+                damageAmount += damageAmount * mod.DamageBonus;
+            }
+
+            return damageAmount;
+        }
+
+        public float GetActualRange(Empire owner)
+        {
+            float range = BaseRange;
+
+            // apply extra range bonus based on weapon tag type:
+            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
+            {
+                WeaponTagModifier mod = owner.data.WeaponTags[ActiveWeaponTags[i]];
+                range += mod.Range * BaseRange;
+            }
+            return range;
+        }
+
+        public static float GetWeaponInaccuracyBase(float moduleArea, float overridePercent)
+        {
+            float powerMod;
+            float moduleSize;
+
+            if (overridePercent >= 0)
+            {
+                powerMod = 1 - overridePercent;
+                moduleSize = 8 * 8 * 16 + 160;
+            }
+            else
+            {
+                powerMod = 1.2f;
+                moduleSize = moduleArea * 16f + 160;
+            }
+
+            return (float)Math.Pow(moduleSize, powerMod);
+        }
+
     }
 }

@@ -911,6 +911,8 @@ namespace Ship_Game.Ships
                 }
             }
         }
+
+        // TODO: this should be part of `Bonuses`
         float GetGlobalArmourBonus()
         {
             if (GlobalStats.ActiveModInfo?.UseHullBonuses == true &&
