@@ -62,8 +62,8 @@ namespace Ship_Game.GameScreens.Sandbox
                 foreach (Weapon weapon in Weapons)
                 {
                     weapon.Module.FieldOfFire = RadMath.TwoPI/3f;
-                    weapon.FireDelay = 0.5f;
-                    weapon.BaseRange = 4000f;
+                    weapon.FireDelay = (0.5f);
+                    //weapon.BaseRange = 4000f;
                     PredictResults.Clear();
 
                     foreach (Ship ship in nearbyShips)
@@ -86,8 +86,8 @@ namespace Ship_Game.GameScreens.Sandbox
             {
                 foreach (Weapon weapon in Weapons)
                 {
-                    weapon.BaseRange = 10;
-                    weapon.DamageAmount = 0.5f;
+                    //weapon.BaseRange = 10;
+                    //weapon.DamageAmount = 0.5f;
                     weapon.CooldownTimer = 1f;
                 }
             }

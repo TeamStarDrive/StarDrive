@@ -483,20 +483,17 @@ namespace Ship_Game.Ships
                 if (InstalledWeapon == null || InstalledWeapon.UID != type)
                 {
                     UninstallWeapon();
-                    InstalledWeapon = ResourceManager.CreateWeapon(type);
-                    InstalledWeapon.IsTurret = ModuleType == ShipModuleType.Turret;
-                    InstalledWeapon.IsMainGun = ModuleType == ShipModuleType.MainGun;
-                    InstalledWeapon.Initialize(this, parent, hull);
+                    InstalledWeapon = ResourceManager.CreateWeapon(type, Parent, this, hull);
                 }
 
                 if (bomb)
                 {
-                    parent?.BombBays.Add(this);
+                    parent?.OnBombInstalled(this);
                 }
                 else
                 {
-                    parent?.Weapons.Add(InstalledWeapon);
                     IsWeapon = true;
+                    parent?.OnWeaponInstalled(this, InstalledWeapon);
                 }
             }
 
@@ -914,6 +911,8 @@ namespace Ship_Game.Ships
                 }
             }
         }
+
+        // TODO: this should be part of `Bonuses`
         float GetGlobalArmourBonus()
         {
             if (GlobalStats.ActiveModInfo?.UseHullBonuses == true &&
