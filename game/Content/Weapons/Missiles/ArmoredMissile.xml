@@ -23,13 +23,13 @@
   
   
   <HitPoints>10</HitPoints>
-  <FireDelay>10</FireDelay>
+  <FireDelay>13</FireDelay>
   <Range>18000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>5</OrdinanceRequiredToFire>
 
 <!-- Projectile stats -->
-  <DamageAmount>2500</DamageAmount>
+  <DamageAmount>2800</DamageAmount>
   <ProjectileSpeed>1500</ProjectileSpeed>
   <ExplosionRadius>57</ExplosionRadius> <!-- This Projectile Explodes -->
   <DelayedIgnition>1.5</DelayedIgnition>
