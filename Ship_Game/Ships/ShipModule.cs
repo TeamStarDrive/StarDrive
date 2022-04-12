@@ -1256,7 +1256,7 @@ namespace Ship_Game.Ships
                 return repairAmount;
 
             float neededRepair    = ActualMaxHealth - Health;
-            float maxRepairAmount = ActualMaxHealth.Clamped(0, ActualMaxHealth * (0.03f / (1 + RepairDifficulty)));
+            float maxRepairAmount = ActualMaxHealth.Clamped(0, ActualMaxHealth * (1 / (1 + RepairDifficulty)));
             float actualRepair    = maxRepairAmount.Clamped(0, repairAmount);
             actualRepair          = actualRepair.Clamped(0, neededRepair);
             float repairLeft      = (repairAmount - actualRepair).Clamped(0, repairAmount);

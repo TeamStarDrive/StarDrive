@@ -1921,8 +1921,8 @@ namespace Ship_Game.Ships
             int damagedModules = ModuleSlotList.Count(module => !module.Health.AlmostEqual(module.ActualMaxHealth));
             for (int x =0; x < damagedModules; x++)
             {
-                if (repairAmount.AlmostEqual(0)) break;
-                repairAmount = ApplyRepairOnce(repairAmount, repairLevel);
+                if (repairAmount.Greater(0))
+                    repairAmount = ApplyRepairOnce(repairAmount, repairLevel);
             }
 
             ApplyRepairToShields(repairAmount);
