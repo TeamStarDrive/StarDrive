@@ -4,6 +4,7 @@
   <Cost>210</Cost>
   <!-- Tech Level Used by AI for Upgrading Ships -->
   <TechLevel>4</TechLevel>
+  <RepairDifficulty>6</RepairDifficulty>
 
   <!-- common traits shared by all ship modules -->
   <XSize>3</XSize>

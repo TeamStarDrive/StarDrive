@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>CanopyShields</UID>
   <TechnologyType>ShipDefense</TechnologyType>
-  <Cost>4500</Cost>
+  <Cost>5500</Cost>
   <RootNode>0</RootNode>
   <Name>Canopy Shielding</Name>
   <NameIndex>526</NameIndex>

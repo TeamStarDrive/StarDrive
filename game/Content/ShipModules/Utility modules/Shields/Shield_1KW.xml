@@ -5,6 +5,7 @@
 
   <!-- Tech Level Used by AI for Upgrading Ships -->
   <TechLevel>1</TechLevel>
+  <RepairDifficulty>2</RepairDifficulty>
 
   <!-- common traits shared by all ship modules -->
   <ModuleType>Shield</ModuleType>
