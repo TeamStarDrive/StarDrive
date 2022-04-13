@@ -13,6 +13,9 @@
     <LeadsToTech>
       <UID>MissileTurret</UID>
     </LeadsToTech>
+    <LeadsToTech>
+      <UID>WarheadDevelopment</UID>
+    </LeadsToTech>
      <LeadsToTech>
       <UID>MicroTorpedo</UID>
     </LeadsToTech>

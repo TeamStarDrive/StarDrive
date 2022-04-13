@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>Fighter Shields</UID>
   <TechnologyType>ShipDefense</TechnologyType>
-  <Cost>250</Cost>
+  <Cost>350</Cost>
   <RootNode>0</RootNode>
   <Name>Fighter Shields</Name>
   <NameIndex>562</NameIndex>

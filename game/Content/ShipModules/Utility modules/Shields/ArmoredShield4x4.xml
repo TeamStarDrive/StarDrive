@@ -2,6 +2,8 @@
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
   <Cost>138</Cost>
+
+  <RepairDifficulty>8</RepairDifficulty>
   <!-- common traits shared by all ship modules -->
   <ModuleType>Shield</ModuleType>
   <XSize>4</XSize>
