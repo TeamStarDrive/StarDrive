@@ -15,6 +15,9 @@
       <UID>LaserBeamTurrets</UID>
     </LeadsToTech>
     <LeadsToTech>
+      <UID>BeamDevelopment</UID>
+    </LeadsToTech>
+    <LeadsToTech>
       <UID>FocusedLaserBeam</UID>
     </LeadsToTech>
     <LeadsToTech>

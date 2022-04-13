@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+ <Version>2</Version>
+  <UID>WarheadDevelopment</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>1000</Cost>
+  <MaxLevel>5</MaxLevel>
+  <RootNode>0</RootNode>
+  <NameIndex>17633</NameIndex>
+  <DescriptionIndex>17634</DescriptionIndex>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+    <Name>Warhead payload</Name>
+      <BonusType>Weapon_Damage</BonusType>
+      <Tags>
+        <string>Missile</string>
+      </Tags>
+      <Tags>
+        <string>Torpedo</string>
+      </Tags>
+      <Bonus>.1</Bonus>
+      <BonusIndex>17635</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>

@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>EnergyShielding</UID>
   <TechnologyType>ShipDefense</TechnologyType>
-  <Cost>500</Cost>
+  <Cost>650</Cost>
   <RootNode>0</RootNode>
   <Name>Energy Shielding</Name>
   <NameIndex>560</NameIndex>

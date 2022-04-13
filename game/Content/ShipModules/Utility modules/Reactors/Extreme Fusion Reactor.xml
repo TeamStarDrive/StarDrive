@@ -29,7 +29,7 @@
 
   <NameIndex>8047</NameIndex>
   <DescriptionIndex>8049</DescriptionIndex>
-  <RepairDifficulty>3</RepairDifficulty>
+  <RepairDifficulty>4</RepairDifficulty>
 
   <!-- for PowerPlant Items -->
   <ExplosionDamage>6000</ExplosionDamage>

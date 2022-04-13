@@ -20,7 +20,7 @@
 	<Mass>2</Mass>
 	<Health>600</Health>
 	<HealthMax>600</HealthMax>
-	<RepairDifficulty>1</RepairDifficulty>		      			
+	<RepairDifficulty>3</RepairDifficulty>		      			
 	<!-- Power Drawn -->
 	<PowerDraw>30</PowerDraw>
 	<PowerDrawAtWarp>-25</PowerDrawAtWarp>
