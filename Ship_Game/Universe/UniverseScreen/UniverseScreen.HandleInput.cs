@@ -16,8 +16,6 @@ namespace Ship_Game
         bool HandleGUIClicks(InputState input)
         {
             bool captured = DeepSpaceBuildWindow.HandleInput(input);
-            if (aw.HandleInput(input))
-                return true;
 
             if (MinimapDisplayRect.HitTest(input.CursorPosition) && !SelectingWithBox)
             {
