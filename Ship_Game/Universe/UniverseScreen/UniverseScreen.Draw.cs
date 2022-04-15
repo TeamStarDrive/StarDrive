@@ -676,56 +676,51 @@ namespace Ship_Game
             if (DefiningAO || DefiningTradeRoutes)
                 return; // FB dont show fleet list when selected AOs and Trade Routes
 
-            lock (GlobalStats.FleetButtonLocker)
+            foreach (FleetButton fleetButton in FleetButtons)
             {
-                foreach (FleetButton fleetButton in FleetButtons)
+                var buttonSelector = new Selector(fleetButton.ClickRect, Color.TransparentBlack);
+                var housing = new Rectangle(fleetButton.ClickRect.X + 6, fleetButton.ClickRect.Y + 6,
+                    fleetButton.ClickRect.Width - 12, fleetButton.ClickRect.Width - 12);
+
+                bool inCombat = false;
+                foreach (Ship ship in fleetButton.Fleet.Ships)
                 {
-                    var buttonSelector = new Selector(fleetButton.ClickRect, Color.TransparentBlack);
-                    var housing = new Rectangle(fleetButton.ClickRect.X + 6, fleetButton.ClickRect.Y + 6,
-                        fleetButton.ClickRect.Width - 12, fleetButton.ClickRect.Width - 12);
-
-                    bool inCombat = false;
-                    for (int ship = 0; ship < fleetButton.Fleet.Ships.Count; ++ship)
+                    if (!ship.OnLowAlert)
                     {
-                        try
-                        {
-                            if (fleetButton.Fleet.Ships[ship].OnLowAlert) continue;
-                            inCombat = true;
-                            break;
-                        }
-                        catch { }
+                        inCombat = true;
+                        break;
                     }
-
-                    Color fleetKey       = Color.Orange;
-                    Graphics.Font fleetFont = Fonts.Pirulen12;
-                    bool needShadow      = false;
-                    Vector2 keyPos       = new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4);
-                    if (SelectedFleet == fleetButton.Fleet)
-                    {
-                        fleetKey   = Color.White;
-                        fleetFont  = Fonts.Pirulen16;
-                        needShadow = true;
-                        keyPos     = new Vector2(keyPos.X, keyPos.Y - 2);
-                    }
-
-                    batch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
-                        fleetButton.ClickRect, inCombat ? ApplyCurrentAlphaToColor(new Color(255, 0, 0))
-                                                        : new Color( 0,  0,  0,  80));
-
-                    if (fleetButton.Fleet.AutoRequisition)
-                    {
-                        Rectangle autoReq = new Rectangle(fleetButton.ClickRect.X - 18, fleetButton.ClickRect.Y + 5, 15, 20);
-                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, EmpireManager.Player.EmpireColor);
-                    }
-
-                    buttonSelector.Draw(batch, elapsed);
-                    batch.Draw(fleetButton.Fleet.Icon, housing, EmpireManager.Player.EmpireColor);
-                    if (needShadow)
-                        batch.DrawString(fleetFont, fleetButton.Key.ToString(), new Vector2(keyPos.X + 2, keyPos.Y + 2), Color.Black);
-
-                    batch.DrawString(fleetFont, fleetButton.Key.ToString(), keyPos, fleetKey);
-                    DrawFleetShipIcons(batch, fleetButton);
                 }
+                
+                Font fleetFont = Fonts.Pirulen12;
+                Color fleetKey  = Color.Orange;
+                bool needShadow = false;
+                var keyPos = new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4);
+                if (SelectedFleet == fleetButton.Fleet)
+                {
+                    fleetKey   = Color.White;
+                    fleetFont  = Fonts.Pirulen16;
+                    needShadow = true;
+                    keyPos     = new Vector2(keyPos.X, keyPos.Y - 2);
+                }
+
+                batch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
+                    fleetButton.ClickRect, inCombat ? ApplyCurrentAlphaToColor(new Color(255, 0, 0))
+                                                    : new Color( 0,  0,  0,  80));
+
+                if (fleetButton.Fleet.AutoRequisition)
+                {
+                    Rectangle autoReq = new Rectangle(fleetButton.ClickRect.X - 18, fleetButton.ClickRect.Y + 5, 15, 20);
+                    batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, EmpireManager.Player.EmpireColor);
+                }
+
+                buttonSelector.Draw(batch, elapsed);
+                batch.Draw(fleetButton.Fleet.Icon, housing, EmpireManager.Player.EmpireColor);
+                if (needShadow)
+                    batch.DrawString(fleetFont, fleetButton.Key.ToString(), new Vector2(keyPos.X + 2, keyPos.Y + 2), Color.Black);
+
+                batch.DrawString(fleetFont, fleetButton.Key.ToString(), keyPos, fleetKey);
+                DrawFleetShipIcons(batch, fleetButton);
             }
         }
 
