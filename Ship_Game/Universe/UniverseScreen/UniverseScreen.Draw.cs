@@ -369,7 +369,7 @@ namespace Ship_Game
             DrawIcons.Start();
             DrawProjectedGroup();
             if (!LookingAtPlanet)
-                DeepSpaceBuildWindow.DrawBlendedBuildIcons();
+                DeepSpaceBuildWindow.DrawBlendedBuildIcons(ClickableBuildGoals);
             DrawTacticalPlanetIcons(batch);
             DrawFTLInhibitionNodes();
             DrawShipRangeOverlay();
