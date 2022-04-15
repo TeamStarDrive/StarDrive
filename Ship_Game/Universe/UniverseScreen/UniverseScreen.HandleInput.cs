@@ -329,7 +329,7 @@ namespace Ship_Game
             }
 
             if (input.ScrapShip && (SelectedItem != null && SelectedItem.AssociatedGoal.empire == Player))
-                HandleInputScrap(input);
+                OnScrapSelectedItem();
 
             pickedSomethingThisFrame = false;
 
@@ -667,17 +667,15 @@ namespace Ship_Game
             return null;
         }
 
-        ClickableItemUnderConstruction CheckBuildItemClicked()
+        ClickableSpaceBuildGoal GetSpaceBuildGoalUnderCursor()
         {
-            lock (GlobalStats.ClickableItemLocker)
-                for (int x = 0; x < ItemsToBuild.Count; ++x)
-                {
-                    ClickableItemUnderConstruction buildItem = ItemsToBuild[x];
-                    if (buildItem == null || !Input.CursorPosition.InRadius(buildItem.ScreenPos,buildItem.Radius))
-                        continue;
-                    return buildItem;
-                }
-
+            var goals = ClickableBuildGoals;
+            for (int i = 0; i < goals.Length; ++i)
+            {
+                ClickableSpaceBuildGoal goal = goals[i];
+                if (Input.CursorPosition.InRadius(goal.ScreenPos, goal.Radius))
+                    return goal;
+            }
             return null;
         }
 
@@ -826,7 +824,7 @@ namespace Ship_Game
                 return;
             }
 
-            if ((SelectedItem = CheckBuildItemClicked()) != null)
+            if ((SelectedItem = GetSpaceBuildGoalUnderCursor()) != null)
                 GameAudio.BuildItemClicked();
         }
 
@@ -956,29 +954,24 @@ namespace Ship_Game
 
         public void UpdateClickableItems()
         {
-            lock (GlobalStats.ClickableItemLocker)
-                ItemsToBuild.Clear();
-
+            var buildGoals = new Array<ClickableSpaceBuildGoal>();
             EmpireAI playerAI = Player.GetEmpireAI();
-            for (int index = 0; index < playerAI.Goals.Count; ++index)
+            foreach (Goal goal in playerAI.Goals.ToArray())
             {
-                Goal goal = playerAI.Goals[index];
                 if (goal.IsDeploymentGoal)
                 {
-                    const float radius = 100f;
-                    Vector2d buildPos    = ProjectToScreenPosition(goal.BuildPosition);
-                    Vector2d buildOffSet = ProjectToScreenPosition(goal.BuildPosition.PointFromAngle(90f, radius));
-                    double clickableRadius = buildOffSet.Distance(buildPos) + 10;
-                    var underConstruction = new ClickableItemUnderConstruction
+                    ProjectToScreenCoords(goal.BuildPosition, 100f, out Vector2d buildPos, out double clickableRadius);
+                    buildGoals.Add(new ClickableSpaceBuildGoal
                     {
-                        Radius = (float)clickableRadius, BuildPos = goal.BuildPosition, ScreenPos = buildPos.ToVec2f(),
-                        UID = goal.ToBuildUID, AssociatedGoal = goal
-                    };
-
-                    lock (GlobalStats.ClickableItemLocker)
-                        ItemsToBuild.Add(underConstruction);
+                        ScreenPos = buildPos.ToVec2f(),
+                        BuildPos = goal.BuildPosition,
+                        Radius = (float)(clickableRadius + 10),
+                        UID = goal.ToBuildUID,
+                        AssociatedGoal = goal
+                    });
                 }
             }
+            ClickableBuildGoals = buildGoals.ToArray();
 
             IsMouseHoveringOverPlanet = false;
             for (int i = 0; i < ClickablePlanets.Length; ++i)
@@ -1313,27 +1306,29 @@ namespace Ship_Game
             }
         }
 
-        void HandleInputScrap(InputState input)
+        void OnScrapSelectedItem()
         {
             Player.GetEmpireAI().Goals.QueuePendingRemoval(SelectedItem.AssociatedGoal);
-            bool flag = false;
+
+            bool found = false;
             var ships = Player.OwnedShips;
             foreach (Ship ship in ships)
             {
                 if (ship.IsConstructor && ship.AI.OrderQueue.NotEmpty)
                 {
-                    for (int index = 0; index < ship.AI.OrderQueue.Count; ++index)
+                    for (int i = 0; i < ship.AI.OrderQueue.Count; ++i)
                     {
-                        if (ship.AI.OrderQueue[index].Goal == SelectedItem.AssociatedGoal)
+                        if (ship.AI.OrderQueue[i].Goal == SelectedItem.AssociatedGoal)
                         {
-                            flag = true;
+                            found = true;
                             ship.AI.OrderScrapShip();
                             break;
                         }
                     }
                 }
             }
-            if (!flag)
+
+            if (!found)
             {
                 foreach (Planet planet in Player.GetPlanets())
                 {
@@ -1346,19 +1341,12 @@ namespace Ship_Game
                     }
                 }
             }
-            lock (GlobalStats.ClickableItemLocker)
+
+            if (ClickableBuildGoals.ContainsRef(SelectedItem))
             {
-                for (int x = 0; x < ItemsToBuild.Count; ++x)
-                {
-                    ClickableItemUnderConstruction item = ItemsToBuild[x];
-                    if (item.BuildPos == SelectedItem.BuildPos)
-                    {
-                        ItemsToBuild.QueuePendingRemoval(item);
-                        GameAudio.BlipClick();
-                    }
-                }
-                ItemsToBuild.ApplyPendingRemovals();
+                GameAudio.BlipClick();
             }
+
             Player.GetEmpireAI().Goals.ApplyPendingRemovals();
             SelectedItem = null;
         }
