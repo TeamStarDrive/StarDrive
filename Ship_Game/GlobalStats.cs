@@ -40,9 +40,6 @@ namespace Ship_Game
         //case control for UIDs set by filename. Legacy support.
         public static StringComparer CaseControl;
 
-        // @todo Get rid of all global locks
-        public static object FleetButtonLocker    = new object();
-
         public static bool ShowAllDesigns        = true;
         public static bool SymmetricDesign       = true;
         public static bool FilterOldModules      = true;

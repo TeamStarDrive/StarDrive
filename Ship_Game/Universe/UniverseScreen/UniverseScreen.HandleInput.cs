@@ -171,47 +171,43 @@ namespace Ship_Game
             SelectedShip = null;
             SelectedShipList.Clear();
             SelectedFleet = null;
-            lock (GlobalStats.FleetButtonLocker)
+            foreach (FleetButton fleetButton in FleetButtons)
             {
-                for (int i = 0; i < FleetButtons.Count; ++i)
+                if (!fleetButton.ClickRect.HitTest(input.CursorPosition))
+                    continue;
+
+                SelectedFleet = fleetButton.Fleet;
+                SelectedShipList.Clear();
+                for (int j = 0; j < SelectedFleet.Ships.Count; j++)
                 {
-                    FleetButton fleetButton = FleetButtons[i];
-                    if (!fleetButton.ClickRect.HitTest(input.CursorPosition))
-                        continue;
-
-                    SelectedFleet = fleetButton.Fleet;
+                    Ship ship = SelectedFleet.Ships[j];
+                    if (ship.InSensorRange)
+                        SelectedShipList.AddUnique(ship);
+                }
+                if (SelectedShipList.Count == 1)
+                {
+                    InputCheckPreviousShip(SelectedShipList.First);
+                    SelectedShip = SelectedShipList.First;
+                    ShipInfoUIElement.SetShip(SelectedShip);
                     SelectedShipList.Clear();
-                    for (int j = 0; j < SelectedFleet.Ships.Count; j++)
-                    {
-                        Ship ship = SelectedFleet.Ships[j];
-                        if (ship.InSensorRange)
-                            SelectedShipList.AddUnique(ship);
-                    }
-                    if (SelectedShipList.Count == 1)
-                    {
-                        InputCheckPreviousShip(SelectedShipList.First);
-                        SelectedShip = SelectedShipList.First;
-                        ShipInfoUIElement.SetShip(SelectedShip);
-                        SelectedShipList.Clear();
-                    }
-                    else if (SelectedShipList.Count > 1)
-                    {
-                        shipListInfoUI.SetShipList(SelectedShipList, true);
-                    }
+                }
+                else if (SelectedShipList.Count > 1)
+                {
+                    shipListInfoUI.SetShipList(SelectedShipList, true);
+                }
 
-                    SelectedSomethingTimer = 3f;
+                SelectedSomethingTimer = 3f;
 
-                    if (Input.LeftMouseDoubleClick)
-                    {
-                        ViewingShip = false;
-                        AdjustCamTimer = 0.5f;
-                        CamDestination = SelectedFleet.AveragePosition().ToVec3d(CamPos.Z);
-                        if (viewState < UnivScreenState.SystemView)
-                            CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
+                if (Input.LeftMouseDoubleClick)
+                {
+                    ViewingShip = false;
+                    AdjustCamTimer = 0.5f;
+                    CamDestination = SelectedFleet.AveragePosition().ToVec3d(CamPos.Z);
+                    if (viewState < UnivScreenState.SystemView)
+                        CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
 
-                        CamDestination.Z = GetZfromScreenState(UnivScreenState.ShipView);
-                        return;
-                    }
+                    CamDestination.Z = GetZfromScreenState(UnivScreenState.ShipView);
+                    return;
                 }
             }
         }
@@ -1383,24 +1379,23 @@ namespace Ship_Game
             ++FBTimer;
             if (FBTimer <= 60 && !forceUpdate)
                 return;
-            lock (GlobalStats.FleetButtonLocker)
-            {
-                int shipCounter = 0;
-                FleetButtons.Clear();
-                foreach (KeyValuePair<int, Fleet> kv in Player.GetFleetsDict())
-                {
-                    if (kv.Value.Ships.Count <= 0) continue;
 
-                    FleetButtons.Add(new FleetButton
-                    {
-                        ClickRect = new Rectangle(20, 60 + shipCounter * 60, 52, 48),
-                        Fleet = kv.Value,
-                        Key = kv.Key
-                    });
-                    ++shipCounter;
-                }
-                FBTimer = 0;
+            var buttons = new Array<FleetButton>();
+            int shipCounter = 0;
+            foreach (KeyValuePair<int, Fleet> kv in Player.GetFleetsDict())
+            {
+                if (kv.Value.Ships.Count <= 0) continue;
+
+                buttons.Add(new FleetButton
+                {
+                    ClickRect = new Rectangle(20, 60 + shipCounter * 60, 52, 48),
+                    Fleet = kv.Value,
+                    Key = kv.Key
+                });
+                ++shipCounter;
             }
+            FBTimer = 0;
+            FleetButtons = buttons.ToArray();
         }
 
         void HandleEdgeDetection(InputState input)
