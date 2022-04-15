@@ -59,7 +59,8 @@ namespace Ship_Game
         public float transDuration = 3f;
         public float SelectedSomethingTimer = 3f;
         public Vector2 mouseWorldPos;
-        Array<FleetButton> FleetButtons = new Array<FleetButton>();
+
+        FleetButton[] FleetButtons = Empty<FleetButton>.Array;
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
         public bool ShowTacticalCloseup { get; private set; }
         public bool Debug => UState.Debug;
