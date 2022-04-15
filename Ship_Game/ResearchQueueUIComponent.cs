@@ -80,12 +80,6 @@ namespace Ship_Game
                 return true;
             }
 
-            foreach (ResearchQItem item in ResearchQueueList.AllEntries)
-            {
-                if (item.HandleInput(input))
-                    return true;
-            }
-
             if (ResearchQueueList.Visible && input.RightMouseClick &&
                 ResearchQueueList.HitTest(input.CursorPosition))
             {
