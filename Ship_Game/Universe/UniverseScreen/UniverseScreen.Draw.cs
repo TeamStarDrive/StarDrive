@@ -208,10 +208,8 @@ namespace Ship_Game
             }
         }
 
-        void DrawFogInfluences(SpriteBatch batch, GraphicsDevice device)
+        void UpdateFogMap(SpriteBatch batch, GraphicsDevice device)
         {
-            DrawFogInfluence.Start();
-
             device.SetRenderTarget(0, FogMapTarget);
             device.Clear(Color.TransparentWhite);
             batch.Begin(SpriteBlendMode.Additive);
@@ -236,10 +234,16 @@ namespace Ship_Game
             batch.End();
             device.SetRenderTarget(0, null);
             FogMap = FogMapTarget.GetTexture();
+        }
+
+        void UpdateFogOfWarInfluences(SpriteBatch batch, GraphicsDevice device)
+        {
+            DrawFogInfluence.Start();
+
+            UpdateFogMap(batch, device);
 
             device.SetRenderTarget(0, LightsTarget);
             device.Clear(Color.White);
-
             batch.Begin(SpriteBlendMode.AlphaBlend);
             if (!Debug) // don't draw fog of war in debug
             {
@@ -274,7 +278,7 @@ namespace Ship_Game
             
             OverlaysGroupTotalPerf.Start();
             {
-                DrawFogInfluences(batch, graphics);
+                UpdateFogOfWarInfluences(batch, graphics);
                 if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
                     DrawColoredEmpireBorders(batch, graphics);
                 DrawFogOfWarEffect(batch, graphics);

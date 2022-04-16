@@ -131,6 +131,12 @@ namespace Ship_Game.Data.Texture
                 return null;
             }
 
+            if (texture.Format != SurfaceFormat.Color)
+            {
+                Log.Error("TextureExporter ToBase64String only supports RGBA textures");
+                return null;
+            }
+
             try
             {
                 // grab a copy of the pixels

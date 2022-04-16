@@ -4,7 +4,9 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        public SavedGame Save(string saveName, bool async = true)
+        public SavedGame Save(string saveName,
+            bool async = true,
+            bool throwOnError = false)
         {
             try
             {
@@ -14,6 +16,8 @@ namespace Ship_Game
             }
             catch (Exception e)
             {
+                if (throwOnError)
+                    throw;
                 Log.Error(e, $"Universe.Save('{saveName}') failed");
             }
             return null;

@@ -117,7 +117,8 @@ namespace Ship_Game
                 }
                 while (bytesRead == buffer.Length);
 
-                Log.Info($"Compressed {source.Name} from {source.Length} to {outFile.Length} bytes.");
+                Log.Info($"Compressed {source.Name} from {source.Length/(1024*1024.0):0.0}MB"+
+                         $" to {outFile.Length/(1024*1024.0):0.0}MB");
             }
         }
 

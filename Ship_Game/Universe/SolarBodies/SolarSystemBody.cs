@@ -269,7 +269,7 @@ namespace Ship_Game
                     if (!tile.SetEventOutComeNum(thisPlanet, building))
                         thisPlanet.DestroyBuildingOn(tile);
 
-                    Log.Info($"Event building : {tile.Building.Name} : created on {Name}");
+                    //Log.Info($"Event building : {tile.Building.Name} : created on {Name}");
                 }
             }
         }
@@ -291,13 +291,13 @@ namespace Ship_Game
                     if (template.BID == Building.VolcanoId)
                     {
                         TilesList.RandItem().CreateVolcano(this as Planet);
-                        Log.Info($"Volcano Created on '{Name}' ");
+                        //Log.Info($"Volcano Created on '{Name}' ");
                     }
                     else
                     {
                         Building b = ResourceManager.CreateBuilding(this as Planet, template);
                         b.AssignBuildingToRandomTile(this as Planet);
-                        Log.Info($"Resource Created : '{b.Name}' : on '{Name}' ");
+                        //Log.Info($"Resource Created : '{b.Name}' : on '{Name}' ");
                     }
                 }
             }
