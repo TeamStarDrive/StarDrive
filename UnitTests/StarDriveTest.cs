@@ -95,12 +95,19 @@ namespace UnitTests
             
             Log.Info($"CreateUniverseAndPlayerEmpire elapsed: {sw.Elapsed.TotalMilliseconds}ms");
         }
-        
+
         public void CreateDeveloperSandboxUniverse(string playerPreference, int numOpponents, bool paused)
         {
             Universe = DeveloperUniverse.Create(playerPreference, numOpponents);
             Player = Universe.Player;
             Enemy  = EmpireManager.NonPlayerEmpires[0];
+        }
+
+        public void CreateCustomUniverse(UniverseGenerator.Params p)
+        {
+            Universe = new UniverseGenerator(p).Generate();
+            Player = Universe.Player;
+            Enemy = EmpireManager.NonPlayerEmpires[0];
         }
 
         public void DestroyUniverse()

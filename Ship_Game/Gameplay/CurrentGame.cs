@@ -12,6 +12,8 @@ namespace Ship_Game
     {
         // @note GamePace is used all over the place while UniverseData is still being constructed
         //       So we need to pull it out of UniverseScreen
+
+        // TODO: MOVE TO UniverseState
         public static float Pace { get; private set; } = 1f;
         public static GameDifficulty Difficulty { get; private set; }
         public static GalSize GalaxySize = GalSize.Medium;

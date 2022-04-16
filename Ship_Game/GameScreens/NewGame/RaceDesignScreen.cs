@@ -29,12 +29,11 @@ namespace Ship_Game
         ScrollList2<TextListItem> DescriptionTextList;
 
         GameMode Mode;
-        StarNum StarEnum = StarNum.Normal;
+        StarsAbundance StarsCount = StarsAbundance.Normal;
         GalSize GalaxySize = GalSize.Medium;
         int Pacing = 100;
         int NumOpponents;
         ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
-        float StarNumModifier = 1;
         UILabel NumSystemsLabel;
         UILabel ExtraPlanetsLabel;
         UILabel PerformanceWarning;
@@ -87,11 +86,11 @@ namespace Ship_Game
         }
         
         public void SetCustomSetup(GameDifficulty gameDifficulty,
-            StarNum numStars, GalSize galaxySize, int pacing,
+            StarsAbundance numStars, GalSize galaxySize, int pacing,
             ExtraRemnantPresence extraRemnants, int numOpponents, GameMode mode)
         {
             SelectedDifficulty        = gameDifficulty;
-            StarEnum     = numStars;
+            StarsCount     = numStars;
             GalaxySize   = galaxySize;
             Pacing       = pacing;
             ExtraRemnant = extraRemnants;
@@ -201,7 +200,7 @@ namespace Ship_Game
                 opponentsTip += ". On a large scale galaxy, this might also affect research cost of technologies.";
 
             AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(), tip: galaxySizeTip);
-            AddOption("{SolarSystems} : ", OnNumberStarsClicked, label => StarEnum.ToString(), tip: solarSystemsTip);
+            AddOption("{SolarSystems} : ", OnNumberStarsClicked, label => StarsCount.ToString(), tip: solarSystemsTip);
             AddOption("{Opponents} : ",  OnNumOpponentsClicked,  label => NumOpponents.ToString(), tip: opponentsTip);
             ModeBtn = AddOption("{GameMode} : ",   OnGameModeClicked, label => GetModeText().Text, tip:GetModeTip());
             AddOption("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameText.TheGamesPaceModifiesThe);
@@ -289,21 +288,30 @@ namespace Ship_Game
 
         int GetSystemsNum()
         {
-            StarNumModifier = ((int)StarEnum + 1) * 0.25f;
+            (int numStars, _) = GetNumStars(StarsCount, GalaxySize, NumOpponents);
+            return numStars;
+        }
+
+        public static (int NumStars, float StarNumModifier)
+            GetNumStars(StarsAbundance abundance, GalSize galaxySize, int numOpponents)
+        {
+            float starNumModifier = ((int)abundance + 1) * 0.25f;
             int numSystemsFromSize;
-            switch (GalaxySize)
+            switch (galaxySize)
             {
                 default:
-                case GalSize.Tiny:      numSystemsFromSize = 16;  break;
-                case GalSize.Small:     numSystemsFromSize = 36;  break;
-                case GalSize.Medium:    numSystemsFromSize = 60;  break;
-                case GalSize.Large:     numSystemsFromSize = 80;  break;
-                case GalSize.Huge:      numSystemsFromSize = 96;  break;
-                case GalSize.Epic:      numSystemsFromSize = 112; break;
+                case GalSize.Tiny: numSystemsFromSize = 16; break;
+                case GalSize.Small: numSystemsFromSize = 36; break;
+                case GalSize.Medium: numSystemsFromSize = 60; break;
+                case GalSize.Large: numSystemsFromSize = 80; break;
+                case GalSize.Huge: numSystemsFromSize = 96; break;
+                case GalSize.Epic: numSystemsFromSize = 112; break;
                 case GalSize.TrulyEpic: numSystemsFromSize = 124; break;
             }
 
-            return (int)(numSystemsFromSize * StarNumModifier) + ((int)GalaxySize + 1) * NumOpponents;
+            int numStars = (int)(numSystemsFromSize * starNumModifier)
+                         + ((int)galaxySize + 1) * numOpponents;
+            return (numStars, starNumModifier);
         }
 
         public void OnTraitsTabChanged(int tabIndex)
@@ -357,7 +365,7 @@ namespace Ship_Game
         void OnSaveSetupClicked(UIButton b)
         {
             ScreenManager.AddScreen(new SaveNewGameSetupScreen(this,
-                SelectedDifficulty, StarEnum, GalaxySize, Pacing, ExtraRemnant, NumOpponents, Mode));
+                SelectedDifficulty, StarsCount, GalaxySize, Pacing, ExtraRemnant, NumOpponents, Mode));
         }
 
         // If we had a left mouse click, increment forward, otherwise decrement
@@ -403,7 +411,7 @@ namespace Ship_Game
 
         void OnNumberStarsClicked(UIButton b)
         {
-            StarEnum = StarEnum.IncrementWithWrap(OptionIncrement);
+            StarsCount = StarsCount.IncrementWithWrap(OptionIncrement);
         }
 
         void OnNumOpponentsClicked(UIButton b)
@@ -537,12 +545,13 @@ namespace Ship_Game
             playerData.Traits      = RaceSummary;
             playerData.DiplomaticPersonality = new DTrait();
 
+            (int numStars, float starNumModifier) = GetNumStars(StarsCount, GalaxySize, NumOpponents);
             var parameters = new UniverseGenerator.Params
             {
                 PlayerData = playerData,
                 UniverseSize = GalaxySize,
-                NumSystems = GetSystemsNum(),
-                StarNumModifier = StarNumModifier,
+                NumSystems = numStars,
+                StarNumModifier = starNumModifier,
                 NumOpponents = NumOpponents,
                 Mode = Mode,
                 Pace = Pacing / 100f,
@@ -563,7 +572,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            int numSystems       = GetSystemsNum();
+            int numSystems = GetSystemsNum();
             NumSystemsLabel.Text = $"Solar Systems: {numSystems}";
             ShowPerformanceWarning(numSystems);
             ShowExtraPlanetsNum(GlobalStats.ExtraPlanets);
@@ -658,7 +667,7 @@ namespace Ship_Game
             Sandbox, SmallClusters, BigClusters, Corners, Elimination
         }
 
-        public enum StarNum
+        public enum StarsAbundance
         {
             VeryRare, Rare, Uncommon, Normal, Abundant, Crowded, Packed, SuperPacked
         }

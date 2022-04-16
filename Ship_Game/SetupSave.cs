@@ -12,7 +12,7 @@ namespace Ship_Game
         public string ModPath = "";
         public int Version;
         public GameDifficulty GameDifficulty;
-        public RaceDesignScreen.StarNum StarEnum;
+        public RaceDesignScreen.StarsAbundance StarEnum;
         public GalSize GalaxySize;
         public int Pacing;
         public ExtraRemnantPresence ExtraRemnant;
@@ -41,7 +41,7 @@ namespace Ship_Game
         {
         }
 
-        public SetupSave(GameDifficulty gameDifficulty, RaceDesignScreen.StarNum starNum, 
+        public SetupSave(GameDifficulty gameDifficulty, RaceDesignScreen.StarsAbundance starsAbundance, 
                          GalSize galaxySize, int pacing, ExtraRemnantPresence extraRemnant, int numOpponents, 
                          RaceDesignScreen.GameMode mode)
         {
@@ -52,7 +52,7 @@ namespace Ship_Game
             }
             Version = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"]);
             GameDifficulty                = gameDifficulty;
-            StarEnum                      = starNum;
+            StarEnum                      = starsAbundance;
             GalaxySize                    = galaxySize;
             Pacing                        = pacing;
             ExtraRemnant                  = extraRemnant;
