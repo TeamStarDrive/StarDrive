@@ -28,15 +28,24 @@ namespace UnitTests.Universe
         {
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder+"Headers/");
+            ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
+        }
+
+        [ClassCleanup]
+        public static void Cleanup()
+        {
+            ResourceManager.UnloadAllData(ScreenManager.Instance);
+            StarDriveTestContext.LoadStarterContent();
         }
 
         [TestMethod]
-        public void EnsureBigSaveGamesFitInMemory()
+        public void EnsureSaveGamesFitInMemory()
         {
-            ResourceManager.LoadAllShipDesigns(); // load all ships
-            ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
+            // load absolutely everything for this test
+            ResourceManager.UnloadAllData(ScreenManager.Instance);
+            ResourceManager.LoadItAll(ScreenManager.Instance, null);
 
-            int shipsPerEmpire = 2500;
+            int shipsPerEmpire = 6000;
             int numOpponents = 7;
             var galSize = GalSize.Large;
             (int numStars, float starNumModifier) = RaceDesignScreen.GetNumStars(
@@ -95,7 +104,6 @@ namespace UnitTests.Universe
             Universe.Save("MemoryStressTest", async:false, throwOnError:true);
         }
 
-        [Ignore] // TODO: disabling these tests right now because it's really hard to fix in one go
         [TestMethod]
         public void EnsureSaveGameIntegrity()
         {

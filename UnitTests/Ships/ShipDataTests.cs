@@ -187,11 +187,11 @@ namespace UnitTests.Ships
             ship.Modules[5].Health = 0f;
 
             ModuleSaveData[] toSave = ship.GetModuleSaveData();
-            string base64save = ShipDesign.GetBase64ModulesString(toSave);
+            byte[] base64save = ShipDesign.GetBase64ModulesBytes(toSave);
 
-            Log.Info(Encoding.ASCII.GetString(Convert.FromBase64String(base64save)));
+            Log.Info(Encoding.ASCII.GetString(base64save));
 
-            (ModuleSaveData[] loaded, _) = ShipDesign.GetModuleSaveFromBase64String(base64save);
+            (ModuleSaveData[] loaded, _) = ShipDesign.GetModuleSaveFromBase64Bytes(base64save);
 
             for (int i = 0; i < toSave.Length && i < loaded.Length; ++i)
             {

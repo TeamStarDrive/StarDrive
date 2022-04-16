@@ -301,13 +301,15 @@ namespace Ship_Game.Ships
             );
         }
 
-        public static string GetBase64ModulesString(Ship ship)
+
+        public static byte[] GetBase64ModulesBytes(Ship ship)
         {
             ModuleSaveData[] saved = ship.GetModuleSaveData();
-            return GetBase64ModulesString(saved);
+            return GetBase64ModulesBytes(saved);
         }
 
-        public static string GetBase64ModulesString(ModuleSaveData[] saved)
+        // TODO: this needs insane optimizations
+        public static byte[] GetBase64ModulesBytes(ModuleSaveData[] saved)
         {
             ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(saved, out Array<string> moduleUIDs);
 
@@ -345,15 +347,13 @@ namespace Ship_Game.Ships
                 sw.WriteLine(stateString);
             }
 
-            byte[] ascii = sw.GetASCIIBytes();
-            return Convert.ToBase64String(ascii, Base64FormattingOptions.None);
+            return sw.GetASCIIBytes();
         }
 
-        public static (ModuleSaveData[] modules, string[] moduleUIDs) GetModuleSaveFromBase64String(string base64string)
+        public static (ModuleSaveData[] modules, string[] moduleUIDs) GetModuleSaveFromBase64Bytes(byte[] base64bytes)
         {
-            byte[] bytes = Convert.FromBase64String(base64string);
             //Log.Info(Encoding.ASCII.GetString(bytes));
-            var p = new GenericStringViewParser("save", bytes);
+            var p = new GenericStringViewParser("save", base64bytes);
 
             int version = p.ReadLine().ToInt();
             if (version != 1)
