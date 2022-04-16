@@ -64,7 +64,8 @@ namespace UnitTests
             Game.Manager.input.Provider = MockInput = new MockInputProvider();
         }
 
-        static void LoadStarterContent()
+        // loads all testing content
+        public static void LoadStarterContent()
         {
             ResourceManager.LoadContentForTesting();
             ReloadStarterShips();

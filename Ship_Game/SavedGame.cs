@@ -870,7 +870,7 @@ namespace Ship_Game
             [StarData] public float Rotation;
             // 200 IQ solution: store a base64 string of the ship module saves
             // and avoid a bunch of annoying serialization issues
-            [StarData] public string ModulesBase64;
+            [StarData] public byte[] ModulesBase64;
             [StarData] public string Hull; // ShipHull name
             [StarData] public string Name; // ShipData design name
             [StarData] public string VanityName; // User defined name
@@ -918,7 +918,7 @@ namespace Ship_Game
                 Kills      = ship.Kills;
                 Velocity   = ship.Velocity;
 
-                ModulesBase64 = ShipDesign.GetBase64ModulesString(ship);
+                ModulesBase64 = ShipDesign.GetBase64ModulesBytes(ship);
             }
 
             public override string ToString() => $"ShipSave {Id} {Name}";

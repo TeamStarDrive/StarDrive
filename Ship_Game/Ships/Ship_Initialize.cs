@@ -329,7 +329,7 @@ namespace Ship_Game.Ships
             string[] moduleUIDs;
             try
             {
-                (savedModules, moduleUIDs) = ShipDesign.GetModuleSaveFromBase64String(save.ModulesBase64);
+                (savedModules, moduleUIDs) = ShipDesign.GetModuleSaveFromBase64Bytes(save.ModulesBase64);
             }
             catch (Exception e)
             {
