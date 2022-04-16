@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 using Ship_Game.GameScreens.LoadGame;
 using System.IO;
 using System.Threading;
+using Ship_Game.AI;
+using Ship_Game.GameScreens.NewGame;
+using Ship_Game.GameScreens.Universe.Debug;
+using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
+using ResourceManager = Ship_Game.ResourceManager;
 
 namespace UnitTests.Universe
 {
@@ -22,9 +28,70 @@ namespace UnitTests.Universe
         {
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder+"Headers/");
-            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder+"Fog Maps/");
         }
-        
+
+        [TestMethod]
+        public void EnsureBigSaveGamesFitInMemory()
+        {
+            ResourceManager.LoadAllShipDesigns(); // load all ships
+
+            int shipsPerEmpire = 2500;
+            int numOpponents = 7;
+            var galSize = GalSize.Large;
+            (int numStars, float starNumModifier) = RaceDesignScreen.GetNumStars(
+                RaceDesignScreen.StarsAbundance.Abundant, galSize, numOpponents
+            );
+
+            EmpireData playerData = ResourceManager.FindEmpire("United").CreateInstance();
+            playerData.DiplomaticPersonality = new DTrait();
+
+            // dont load Asteroids
+            GlobalStats.AsteroidVisibility = ObjectVisibility.None;
+
+            CreateCustomUniverse(new UniverseGenerator.Params
+            {
+                PlayerData = playerData,
+                Mode = RaceDesignScreen.GameMode.Sandbox,
+                UniverseSize = galSize,
+                NumSystems = numStars,
+                NumOpponents = numOpponents,
+                StarNumModifier = starNumModifier,
+                Pace = 1.0f,
+                Difficulty = GameDifficulty.Normal,
+            });
+            Universe.CreateSimThread = false;
+            Universe.LoadContent();
+            Universe.SingleSimulationStep(TestSimStep);
+
+            // unlock all techs so we get full selection of ships
+            foreach (Empire e in Universe.UState.Empires)
+            {
+                ResearchDebugUnlocks.UnlockAllResearch(e, unlockBonuses: true);
+            }
+            Universe.SingleSimulationStep(TestSimStep);
+
+            // spawn a sick amount of cruisers at each empire's capital
+            foreach (Empire e in Universe.UState.Empires)
+            {
+                if (e.Capital != null)
+                {
+                    Ship bestShip = ShipBuilder.BestShipWeCanBuild(RoleName.cruiser, e)
+                                 ?? ShipBuilder.BestShipWeCanBuild(RoleName.carrier, e)
+                                 ?? ShipBuilder.BestShipWeCanBuild(RoleName.frigate, e)
+                                 ?? ShipBuilder.BestShipWeCanBuild(RoleName.prototype, e);
+
+                    Assert.IsNotNull(bestShip, "failed to choose best ship");
+                    for (int i = 0; i < shipsPerEmpire; ++i)
+                    {
+                        Ship.CreateShipAt(Universe.UState, bestShip.ShipData.Name, e, e.Capital, true);
+                    }
+                }
+            }
+            Universe.SingleSimulationStep(TestSimStep);
+
+            // now try to save the game
+        }
+
         [Ignore] // TODO: disabling these tests right now because it's really hard to fix in one go
         [TestMethod]
         public void EnsureSaveGameIntegrity()

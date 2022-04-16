@@ -234,7 +234,7 @@ namespace Ship_Game
             Profiled(LoadShipRoles);
             if (loadShips)
             {
-                Profiled(LoadShipDesigns); // Hotspot #1  502.9ms  22.75%
+                Profiled(LoadAllShipDesigns); // Hotspot #1  502.9ms  22.75%
                 Profiled(CheckForRequiredShipDesigns);
             }
             Profiled(LoadBuildings);
@@ -1005,6 +1005,12 @@ namespace Ship_Game
         public static IReadOnlyList<IEmpireData> MajorRaces => MajorEmpires;
         public static IReadOnlyList<IEmpireData> MinorRaces => MinorEmpires;
 
+        public static IEmpireData FindEmpire(string nameOrArchetype)
+        {
+            return Empires.Find(e => e.ArchetypeName.Contains(nameOrArchetype)
+                                  || e.Name.Contains(nameOrArchetype));
+        }
+
         static void LoadEmpires() // Refactored by RedFox
         {
             Empires.Clear();
@@ -1513,7 +1519,7 @@ namespace Ship_Game
         }
 
         // Refactored by RedFox
-        static void LoadShipDesigns()
+        public static void LoadAllShipDesigns()
         {
             UnloadShipDesigns();
 

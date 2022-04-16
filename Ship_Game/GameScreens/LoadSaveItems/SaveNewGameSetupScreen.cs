@@ -11,7 +11,7 @@ namespace Ship_Game
 
         public SaveNewGameSetupScreen(RaceDesignScreen screen,
             GameDifficulty gameDifficulty,
-            RaceDesignScreen.StarNum numStars,
+            RaceDesignScreen.StarsAbundance numStars,
             GalSize galaxySize,
             int gamePacing,
             ExtraRemnantPresence extraRemnant,
