@@ -213,34 +213,32 @@ namespace Ship_Game
 
         float CurrentRadiusSmoothed;
 
-        public void DrawBlendedBuildIcons()
+        // this draws green build goal icons, with SSP radius as orange
+        public void DrawBlendedBuildIcons(UniverseScreen.ClickableSpaceBuildGoal[] buildGoals)
         {
             if (!Visible)
                 return;
 
-            lock (GlobalStats.ClickableItemLocker)
+            var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
+            for (int i = 0; i < buildGoals.Length; ++i)
             {
-                var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
-                for (int i = 0; i < Screen.ItemsToBuild.Count; ++i)
+                UniverseScreen.ClickableSpaceBuildGoal item = buildGoals[i];
+
+                if (ResourceManager.Ships.Get(item.UID, out Ship buildTemplate))
                 {
-                    UniverseScreen.ClickableItemUnderConstruction item = Screen.ItemsToBuild[i];
+                    Screen.ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2d posOnScreen, out double size);
 
-                    if (ResourceManager.GetShipTemplate(item.UID, out Ship buildTemplate))
+                    float scale = ScaleIconSize((float)size, 0.01f, 0.125f);
+                    Screen.DrawTextureSized(platform, posOnScreen, 0.0f, platform.Width * scale,
+                                            platform.Height * scale, new Color(0, 255, 0, 100));
+
+                    if (item.UID == "Subspace Projector")
                     {
-                        Screen.ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2d posOnScreen, out double size);
-
-                        float scale = ScaleIconSize((float)size, 0.01f, 0.125f);
-                        Screen.DrawTextureSized(platform, posOnScreen, 0.0f, platform.Width * scale,
-                                   platform.Height * scale, new Color(0, 255, 0, 100));
-
-                        if (item.UID == "Subspace Projector")
-                        {
-                            Screen.DrawCircle(posOnScreen, EmpireManager.Player.GetProjectorRadius(), Color.Orange, 2f);
-                        }
-                        else if (buildTemplate.SensorRange > 0f)
-                        {
-                            Screen.DrawCircle(posOnScreen, buildTemplate.SensorRange, Color.Orange, 2f);
-                        }
+                        Screen.DrawCircle(posOnScreen, EmpireManager.Player.GetProjectorRadius(), Color.Orange, 2f);
+                    }
+                    else if (buildTemplate.SensorRange > 0f)
+                    {
+                        Screen.DrawCircle(posOnScreen, buildTemplate.SensorRange, Color.Orange, 2f);
                     }
                 }
             }

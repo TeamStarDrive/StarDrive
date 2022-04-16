@@ -828,9 +828,6 @@ namespace Ship_Game.Ships
 
             var targetModule = target as ShipModule;
             Ship targetShip = target as Ship ?? targetModule?.GetParent();
-            if (targetShip == null && targetModule == null && w.IsBeam)
-                return false;
-
             if (targetShip != null)
             {
                 if (targetShip.Dying || !targetShip.Active ||

@@ -16,11 +16,6 @@ namespace Ship_Game.Graphics
             device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
         }
 
-        public static void EnableSeparateAlphaBlend(GraphicsDevice device, bool enabled)
-        {
-            device.RenderState.SeparateAlphaBlendEnabled = enabled;
-        }
-
         public static void DisableAlphaBlend(GraphicsDevice device)
         {
             device.RenderState.AlphaBlendEnable = false;
@@ -122,6 +117,21 @@ namespace Ship_Game.Graphics
                 EnableDepthWrite(device);
             else
                 DisableDepthWrite(device);
+        }
+
+        // This enables separate blend mode controls for only the alpha channel
+        public static void EnableSeparateAlphaBlend(GraphicsDevice device, Blend srcBlend, Blend dstBlend)
+        {
+            var rs = device.RenderState;
+            rs.SeparateAlphaBlendEnabled = true; // enables AlphaSourceBlend & AlphaDestinationBlend
+            rs.AlphaSourceBlend = srcBlend; // default:One
+            rs.AlphaDestinationBlend = dstBlend; // default:One
+        }
+
+        // returns to regular state where regular blend mode applies to all channels
+        public static void DisableSeparateAlphaChannelBlend(GraphicsDevice device)
+        {
+            device.RenderState.SeparateAlphaBlendEnabled = false;
         }
     }
 }

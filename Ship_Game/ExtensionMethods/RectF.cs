@@ -38,6 +38,14 @@ namespace Ship_Game
             H = (float)h;
         }
 
+        public RectF(Vector2 pos, float w, float h)
+        {
+            X = pos.X;
+            Y = pos.Y;
+            W = w;
+            H = h;
+        }
+
         public RectF(Vector2 pos, Vector2 size)
         {
             X = pos.X;
@@ -76,6 +84,22 @@ namespace Ship_Game
             float w = x2 - x1;
             float h = y2 - y1;
             return new RectF(x1, y1, w, h);
+        }
+
+        /// <summary>
+        /// This creates a rectangle from center point and radius, the rectangle encloses this circle
+        /// </summary>
+        public static RectF FromPointRadius(Vector2 center, float radius)
+        {
+            return new RectF(center.X - radius, center.Y - radius, radius*2, radius*2);
+        }
+
+        /// <summary>
+        /// This creates a rectangle from center and width/height
+        /// </summary>
+        public static RectF FromCenter(Vector2 center, float width, float height)
+        {
+            return new RectF(center.X - width*0.5f, center.Y - height*0.5f, width, height);
         }
 
         public static implicit operator Rectangle(in RectF r)
