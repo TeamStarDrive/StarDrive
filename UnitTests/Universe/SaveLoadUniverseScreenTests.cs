@@ -29,6 +29,7 @@ namespace UnitTests.Universe
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
             Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder+"Headers/");
             ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
+            GlobalStats.AsteroidVisibility = ObjectVisibility.None; // dont create Asteroid SO's
         }
 
         [ClassCleanup]
@@ -36,6 +37,7 @@ namespace UnitTests.Universe
         {
             ResourceManager.UnloadAllData(ScreenManager.Instance);
             StarDriveTestContext.LoadStarterContent();
+            GlobalStats.AsteroidVisibility = ObjectVisibility.Rendered;
         }
 
         [TestMethod]
@@ -54,9 +56,6 @@ namespace UnitTests.Universe
 
             EmpireData playerData = ResourceManager.FindEmpire("United").CreateInstance();
             playerData.DiplomaticPersonality = new DTrait();
-
-            // dont load Asteroids
-            GlobalStats.AsteroidVisibility = ObjectVisibility.None;
 
             CreateCustomUniverse(new UniverseGenerator.Params
             {

@@ -351,7 +351,7 @@ namespace Ship_Game
 
             // FogMap is converted to a Base64 string so that it can be included in the savegame
             var exporter = Screen.ContentManager.RawContent.TexExport;
-            SaveData.FogMapBase64 = exporter.ToBase64StringAlphaOnly(Screen.FogMap);
+            SaveData.FogMapBytes = exporter.ToAlphaBytes(Screen.FogMap);
 
             // All of this data can be serialized in parallel,
             // because we already built `SaveData` object, which no longer depends on UniverseScreen
@@ -954,14 +954,14 @@ namespace Ship_Game
         }
 
         [StarDataType]
-        public class UniverseSaveData
+        public class UniverseSaveData : IDisposable
         {
             [StarData] public int SaveGameVersion;
             [StarData] public int UniqueObjectIds;
             [StarData] public string Path;
             [StarData] public string SaveAs;
             [StarData] public string FileName;
-            [StarData] public string FogMapBase64;
+            [StarData] public byte[] FogMapBytes;
             [StarData] public string PlayerLoyalty;
             [StarData] public Vector3 CamPos;
             [StarData] public float UniverseSize;
@@ -1008,6 +1008,16 @@ namespace Ship_Game
             [StarData] public float VolcanicActivity;
             [StarData] public bool UsePlayerDesigns;
             [StarData] public bool UseUpkeepByHullSize;
+
+            public void Dispose()
+            {
+                SolarSystemDataList.Clear();
+                EmpireDataList.Clear();
+                Snapshots.Clear();
+                FogMapBytes = null;
+                Projectiles = null;
+                Beams = null;
+            }
         }
     }
 }
