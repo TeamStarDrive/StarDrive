@@ -28,11 +28,11 @@ namespace Ship_Game.GameScreens.NewGame
         public class Params
         {
             public EmpireData PlayerData;
+            public RaceDesignScreen.GameMode Mode;
             public GalSize UniverseSize;
             public int NumSystems;
-            public float StarNumModifier;
             public int NumOpponents;
-            public RaceDesignScreen.GameMode Mode;
+            public float StarNumModifier;
             public float Pace;
             public GameDifficulty Difficulty;
         }
