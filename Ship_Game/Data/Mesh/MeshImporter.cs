@@ -57,7 +57,7 @@ namespace Ship_Game.Data.Mesh
                     throw new InvalidDataException($"Failed to load mesh '{meshPath}' because the data format is invalid!");
                 }
 
-                Log.Info(ConsoleColor.Green, $"Model {mesh->Name} | faces:{mesh->NumFaces} | groups:{mesh->NumGroups}");
+                //Log.Info(ConsoleColor.Green, $"Model {mesh->Name} | faces:{mesh->NumFaces} | groups:{mesh->NumGroups}");
                 return LoadModelGroups(mesh, meshName);
             }
             catch (Exception e)
@@ -105,8 +105,8 @@ namespace Ship_Game.Data.Mesh
                 if (data.VertexCount == 0 || data.IndexCount == 0)
                     continue;
 
-                Log.Info(ConsoleColor.Green,
-                    $"  group {g->GroupId}: {g->Name}  verts:{data.VertexCount}  ids:{data.IndexCount}");
+                //Log.Info(ConsoleColor.Green,
+                //    $"  group {g->GroupId}: {g->Name}  verts:{data.VertexCount}  ids:{data.IndexCount}");
                 
                 var meshData = new MeshData
                 {

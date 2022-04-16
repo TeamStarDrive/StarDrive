@@ -480,7 +480,7 @@ namespace Ship_Game
                 };
                 ser.Serialize(textWriter, data);
             }
-            Log.Warning($"JSON Total Save elapsed: {t.Elapsed}s");
+            Log.Info($"JSON Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length/(1024.0*1024.0):0.0}MB)");
 
             HelperFunctions.Compress(saveFile, compressedSave); // compress into .sav.gz
             saveFile.Delete(); // delete the bigger .sav file
@@ -532,7 +532,7 @@ namespace Ship_Game
                 usData = ser.Deserialize<UniverseSaveData>(reader);
             }
 
-            Log.Warning($"JSON Total Load elapsed: {t.Elapsed}s  ");
+            Log.Info($"JSON Total Load elapsed: {t.Elapsed:0.0}s  ");
             decompressed.Delete();
 
             //HelperFunctions.CollectMemory();
