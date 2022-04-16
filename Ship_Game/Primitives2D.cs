@@ -210,6 +210,28 @@ namespace Ship_Game
             DrawLine(batch, bl, tl, color, thickness); // |    left
         }
 
+        // rotates around TopLeft
+        public static void DrawRectangle(this SpriteBatch batch, in RectF rect, float rotation, Color color, float thickness = 1f)
+        {
+            var tl = new Vector2(rect.X, rect.Y);
+            var bl = new Vector2(rect.X, rect.Bottom);
+            var tr = new Vector2(rect.Right, rect.Y);
+            var br = new Vector2(rect.Right, rect.Bottom);
+
+            if (rotation != 0f)
+            {
+                tl = tl.RotateAroundPoint(tl, rotation);
+                tr = tr.RotateAroundPoint(tl, rotation);
+                br = br.RotateAroundPoint(tl, rotation);
+                bl = bl.RotateAroundPoint(tl, rotation);
+            }
+
+            DrawLine(batch, tl, tr, color, thickness); // ---- top
+            DrawLine(batch, tr, br, color, thickness); //    | right
+            DrawLine(batch, br, bl, color, thickness); // ____ bottom
+            DrawLine(batch, bl, tl, color, thickness); // |    left
+        }
+
         public static void DrawRectangle(this SpriteBatch batch, Vector2 center, Vector2 size, float rotation, Color color, float thickness = 1f)
         {
             Vector2 halfSize = size * 0.5f;

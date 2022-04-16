@@ -80,6 +80,14 @@ namespace Ship_Game
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture tex, in RectF destRect, Color color,
+                                float rotation, Vector2 origin)
+        {
+            CheckSubTextureDisposed(tex);
+            InternalDraw(batch, tex.Texture, destRect, false, tex.Rect, color,
+                         rotation, origin, SpriteEffects.None, 1f);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture tex, in RectF destRect, Color color,
                                 float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
         {
             CheckSubTextureDisposed(tex);
