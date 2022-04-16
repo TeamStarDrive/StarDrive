@@ -46,7 +46,7 @@ namespace Ship_Game.GameScreens.LoadGame
             {
                 Progress.Start(0.22f, 0.34f, 0.44f);
 
-                SavedGame.UniverseSaveData save = DecompressSaveGame(SaveFile, Progress.NextStep()); // 641ms
+                using SavedGame.UniverseSaveData save = DecompressSaveGame(SaveFile, Progress.NextStep()); // 641ms
                 Log.Info(ConsoleColor.Blue, $"  DecompressSaveGame     elapsed: {Progress[0].ElapsedMillis}ms");
 
                 UniverseScreen us = LoadEverything(save, Progress.NextStep()); // 992ms

@@ -74,7 +74,7 @@ namespace Ship_Game
         public Background3D bg3d;
         public Empire Player => UState.Player;
         public string PlayerLoyalty => Player.data.Traits.Name;
-        public string FogMapBase64;
+        public byte[] FogMapBytes;
 
         public UnivScreenState viewState;
         public bool LookingAtPlanet;
@@ -192,7 +192,7 @@ namespace Ship_Game
             us.FTLInNeutralSystems = save.FTLInNeutralSystems;
             us.Difficulty = save.GameDifficulty;
             us.GalaxySize = save.GalaxySize;
-            FogMapBase64  = save.FogMapBase64;
+            FogMapBytes  = save.FogMapBytes;
             CamPos = new Vector3d(save.CamPos);
         }
 
@@ -546,10 +546,10 @@ namespace Ship_Game
 
         void CreateFogMap(Data.GameContentManager content, GraphicsDevice device)
         {
-            if (FogMapBase64 != null)
+            if (FogMapBytes != null)
             {
-                FogMap = content.RawContent.TexImport.FromBase64AlphaOnlyString(FogMapBase64);
-                FogMapBase64 = null; // free the mem of course, even if load failed
+                FogMap = content.RawContent.TexImport.FromAlphaOnly(FogMapBytes);
+                FogMapBytes = null; // free the mem of course, even if load failed
             }
 
             if (FogMap == null)

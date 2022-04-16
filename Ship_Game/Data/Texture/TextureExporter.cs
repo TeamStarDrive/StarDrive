@@ -118,22 +118,22 @@ namespace Ship_Game.Data.Texture
             return Path.ChangeExtension(outPath, "png");
         }
 
-        // Takes only the A channel from a Texture2D and converts it into a Base64 string
+        // Takes only the A channel from a Texture2D and converts it into a byte array
         // The texture must be with 1:1 aspect ratio
-        public unsafe string ToBase64StringAlphaOnly(Texture2D texture)
+        public unsafe byte[] ToAlphaBytes(Texture2D texture)
         {
             if (texture == null || texture.IsDisposed)
                 return null; // sigh
 
             if (texture.Width != texture.Height)
             {
-                Log.Error($"TextureExporter ToBase64String only supports 1:1 aspect ratio but got: {texture.Width}x{texture.Height}");
+                Log.Error($"TextureExporter ToAlphaBytes only supports 1:1 aspect ratio but got: {texture.Width}x{texture.Height}");
                 return null;
             }
 
             if (texture.Format != SurfaceFormat.Color)
             {
-                Log.Error("TextureExporter ToBase64String only supports RGBA textures");
+                Log.Error("TextureExporter ToAlphaBytes only supports RGBA textures");
                 return null;
             }
 
@@ -156,11 +156,11 @@ namespace Ship_Game.Data.Texture
                 }
 
                 // finally to base64, if we had a byte* utility, conversion wouldn't be necessary
-                return Convert.ToBase64String(alphas, Base64FormattingOptions.None);
+                return alphas;
             }
             catch (Exception e)
             {
-                Log.Error(e, "TextureExporter ToBase64String failed");
+                Log.Error(e, "TextureExporter ToAlphaBytes failed");
                 return null;
             }
         }

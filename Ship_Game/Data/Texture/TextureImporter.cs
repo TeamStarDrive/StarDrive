@@ -59,14 +59,13 @@ namespace Ship_Game.Data.Texture
             return LoadXna(fullPath);
         }
 
-        // Converts a Base64 AlphaOnly string into a 1:1 aspect ratio RGBA texture
+        // Converts a AlphaOnly byte[] into a 1:1 aspect ratio RGBA texture
         // The base value for pixels will be 255
-        public unsafe Texture2D FromBase64AlphaOnlyString(string rgbaBase64)
+        public unsafe Texture2D FromAlphaOnly(byte[] alphas)
         {
             try
             {
                 // convert from Base64 to raw bytes
-                byte[] alphas = Convert.FromBase64String(rgbaBase64);
                 int width = (int)Math.Sqrt(alphas.Length);
 
                 // allocate temporary buffer for pixels
@@ -94,7 +93,7 @@ namespace Ship_Game.Data.Texture
             }
             catch (Exception e)
             {
-                Log.Error(e, "TextureImporter FromBase64String failed");
+                Log.Error(e, "TextureImporter FromAlphaOnly failed");
                 return null;
             }
         }
