@@ -33,10 +33,31 @@ namespace Ship_Game.Ships
                 Sb.Append(key).Append('=').Append(value).Append('\n');
             }
         }
+        
+        // key=values0;values1;values2
+        public void Write(string key, string[] values)
+        {
+            if (values.Length != 0)
+            {
+                Sb.Append(key).Append('=');
+                for (int i = 0; i < values.Length; ++i)
+                {
+                    Sb.Append(values[i]);
+                    if (i != values.Length - 1)
+                        Sb.Append(';');
+                }
+                Sb.Append('\n');
+            }
+        }
 
         public void WriteLine(string value)
         {
             Sb.Append(value).Append('\n');
+        }
+
+        public void WriteLine()
+        {
+            Sb.Append('\n');
         }
 
         public void Write(string value)
@@ -52,6 +73,11 @@ namespace Ship_Game.Ships
         public void FlushToFile(FileInfo file)
         {
             File.WriteAllText(file.FullName, Sb.ToString(), Encoding.UTF8);
+        }
+
+        public override string ToString()
+        {
+            return Sb.ToString();
         }
 
         public byte[] GetASCIIBytes()

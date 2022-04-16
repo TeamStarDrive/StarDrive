@@ -918,7 +918,7 @@ namespace Ship_Game
                 Kills      = ship.Kills;
                 Velocity   = ship.Velocity;
 
-                ModulesBase64 = ShipDesign.GetBase64ModulesBytes(ship);
+                ModulesBase64 = ShipDesign.GetModulesBytes(ship);
             }
 
             public override string ToString() => $"ShipSave {Id} {Name}";
