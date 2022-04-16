@@ -537,9 +537,18 @@ namespace Ship_Game
             playerData.Traits      = RaceSummary;
             playerData.DiplomaticPersonality = new DTrait();
 
-            float pace = Pacing / 100f;
-            var ng = new CreatingNewGameScreen(playerData, GalaxySize, GetSystemsNum(), StarNumModifier, 
-                                               NumOpponents, Mode, pace, SelectedDifficulty, MainMenu);
+            var parameters = new UniverseGenerator.Params
+            {
+                PlayerData = playerData,
+                UniverseSize = GalaxySize,
+                NumSystems = GetSystemsNum(),
+                StarNumModifier = StarNumModifier,
+                NumOpponents = NumOpponents,
+                Mode = Mode,
+                Pace = Pacing / 100f,
+                Difficulty = SelectedDifficulty,
+            };
+            var ng = new CreatingNewGameScreen(MainMenu, parameters);
 
             ScreenManager.GoToScreen(ng, clear3DObjects:true);
         }
