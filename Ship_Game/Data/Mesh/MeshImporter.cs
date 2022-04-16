@@ -151,8 +151,8 @@ namespace Ship_Game.Data.Mesh
                 if (data.VertexCount == 0 || data.IndexCount == 0)
                     continue;
 
-                Log.Info(ConsoleColor.Green,
-                    $"  group {g->GroupId}: {g->Name}  verts:{data.VertexCount}  ids:{data.IndexCount}");
+                //Log.Info(ConsoleColor.Green,
+                //    $"  group {g->GroupId}: {g->Name}  verts:{data.VertexCount}  ids:{data.IndexCount}");
 
                 var vertices = data.CopyVertices(Device);
                 var indices = data.CopyIndices(Device);
