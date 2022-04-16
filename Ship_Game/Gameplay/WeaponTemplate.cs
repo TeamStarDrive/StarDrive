@@ -326,17 +326,16 @@ namespace Ship_Game.Gameplay
             // Imprecision gets worse when range gets higher
             off *= !t.Tag_Guided ? (1 - t.FireImprecisionAngle * 0.01f * (t.BaseRange / 2000)).LowerBound(0.1f) : 1f;
 
+            // FB: Range margins are less steep for missiles
+            off *= (!t.Tag_Guided ? (t.BaseRange / 4000) * (t.BaseRange / 4000) : (t.BaseRange / 4000)) * t.MirvWarheads.LowerBound(1);
+
             // Multiple warheads
             if (t.MirvWarheads > 0 && t.MirvWeapon.NotEmpty())
             {
-                off *= 0.25f; // Warheads mostly do the damage
                 IWeaponTemplate warhead = ResourceManager.GetWeaponTemplate(t.MirvWeapon);
                 float warheadOff = warhead.CalculateOffense(m) * t.MirvWarheads;
                 off += warheadOff;
             }
-
-            // FB: Range margins are less steep for missiles
-            off *= (!t.Tag_Guided ? (t.BaseRange / 4000) * (t.BaseRange / 4000) : (t.BaseRange / 4000)) * t.MirvWarheads.LowerBound(1);
 
             if (m == null)
                 return off * t.OffPowerMod;
