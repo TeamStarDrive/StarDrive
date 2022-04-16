@@ -34,6 +34,7 @@ namespace UnitTests.Universe
         public void EnsureBigSaveGamesFitInMemory()
         {
             ResourceManager.LoadAllShipDesigns(); // load all ships
+            ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
 
             int shipsPerEmpire = 2500;
             int numOpponents = 7;
@@ -90,6 +91,8 @@ namespace UnitTests.Universe
             Universe.SingleSimulationStep(TestSimStep);
 
             // now try to save the game
+            Log.Write($"ShipsCount: {Universe.UState.Objects.NumShips}");
+            Universe.Save("MemoryStressTest", async:false, throwOnError:true);
         }
 
         [Ignore] // TODO: disabling these tests right now because it's really hard to fix in one go

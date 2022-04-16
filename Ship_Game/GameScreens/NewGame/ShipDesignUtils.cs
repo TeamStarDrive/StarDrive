@@ -135,9 +135,13 @@ namespace Ship_Game.GameScreens.NewGame
                     {
                         allModulesUnlockable = false;
                         if (!ResourceManager.GetModuleTemplate(moduleUID, out ShipModule _))
+                        {
                             Log.Info(ConsoleColor.Yellow, $"Module does not exist: ModuleUID='{moduleUID}'  ship='{ship.Name}'");
+                        }
                         else
-                            Log.Info(ConsoleColor.Yellow, $"Module cannot be unlocked by tech: ModuleUID='{moduleUID}'  ship='{ship.Name}'");
+                        {
+                            //Log.Info(ConsoleColor.Yellow, $"Module cannot be unlocked by tech: ModuleUID='{moduleUID}'  ship='{ship.Name}'");
+                        }
                         break;
                     }
                 }
