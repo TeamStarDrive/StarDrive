@@ -88,6 +88,7 @@ namespace Ship_Game
             }
         }
 
+        // Draws SSP - Subspace Projector influence
         void DrawColoredEmpireBorders(SpriteBatch batch, GraphicsDevice graphics)
         {
             DrawBorders.Start();
@@ -96,10 +97,13 @@ namespace Ship_Game
             graphics.Clear(Color.TransparentBlack);
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
 
-            RenderStates.BasicBlendMode(graphics, additive:true, depthWrite:false);
+            RenderStates.BasicBlendMode(graphics, additive:false, depthWrite:false);
+            RenderStates.EnableSeparateAlphaBlend(graphics, Blend.One, Blend.One);
 
-            var nodeCorrected = ResourceManager.Texture("UI/nodecorrected");
-            var nodeConnect = ResourceManager.Texture("UI/nodeconnect");
+            // the node texture has a smooth fade, so we need to scale it by a lot to match the actual SSP radius
+            float scale = 1.5f;
+            var nodeTex = ResourceManager.Texture("UI/node");
+            var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
 
             Empire[] empires = EmpireManager.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)
@@ -111,36 +115,54 @@ namespace Ship_Game
                 Empire.InfluenceNode[] nodes = empire.BorderNodes;
                 for (int x = 0; x < nodes.Length; x++)
                 {
-                    ref Empire.InfluenceNode @in = ref nodes[x];
-                    if (!@in.KnownToPlayer)
+                    ref Empire.InfluenceNode inf = ref nodes[x];
+                    if (!inf.KnownToPlayer || !Frustum.Contains(inf.Position, inf.Radius))
                         continue;
-                    if (!Frustum.Contains(@in.Position, @in.Radius))
-                        continue;
-             
-                    Vector2d nodePos = ProjectToScreenPosition(@in.Position);
-                    int size = (int) Math.Abs(
-                        ProjectToScreenPosition(@in.Position.PointFromAngle(90f, @in.Radius)).X - nodePos.X);
 
-                    var rect = new Rectangle((int) nodePos.X, (int) nodePos.Y, size * 5, size * 5);
-                    batch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.CenterF, SpriteEffects.None, 1f);
+                    RectF screenRect = ProjectToScreenRectF(RectF.FromPointRadius(inf.Position, inf.Radius));
+                    screenRect = screenRect.ScaledBy(scale);
+                    batch.Draw(nodeTex, screenRect, empireColor);
+                    //batch.DrawRectangle(screenRect, Color.Red); // DEBUG
+                    //DrawCircleProjected(inf.Position, inf.Radius, Color.Orange, 2); // DEBUG
+                    //batch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.CenterF, SpriteEffects.None, 1f);
 
+                    // make connections from Larger nodes to Smaller ones
                     for (int i = 0; i < nodes.Length; i++)
                     {
                         ref Empire.InfluenceNode in2 = ref nodes[i];
-                        if (!in2.KnownToPlayer)
-                            continue;
-                        if (@in.Position == in2.Position || @in.Radius > in2.Radius ||
-                            @in.Position.OutsideRadius(in2.Position, @in.Radius + in2.Radius + 150000.0f))
-                            continue;
+                        if (in2.KnownToPlayer && 
+                            in2.SourceObject != inf.SourceObject && // ignore self
+                            in2.Radius > inf.Radius && // this check ensures we only connect from Larger -> Smaller
+                            in2.Position.InRadius(inf.Position, inf.Radius + in2.Radius + 150000.0f))
+                        {
+                            // The Connection is made of two rectangles, with O marking the influence centers
+                            // +-width-+O-width-+
+                            // |       ||       |
+                            // |       ||       |length
+                            // |       ||       |
+                            // +-------O+-------+
+                            float width = inf.Radius * scale;
+                            float length = inf.Position.Distance(in2.Position);
 
-                        Vector2d endPos = ProjectToScreenPosition(in2.Position);
-                        float rotation = nodePos.RadiansToTarget(endPos);
-                        rect = new Rectangle((int) endPos.X, (int) endPos.Y, size * 3 / 2,
-                            (int) nodePos.Distance(endPos));
-                        batch.Draw(nodeConnect, rect, empireColor, rotation, new Vector2(2f, 2f), SpriteEffects.None, 1f);
+                            // from Bigger towards Smaller (only one side)
+                            RectF connect1 = ProjectToScreenRectF(new RectF(in2.Position, width, length));
+                            float angle1 = inf.Position.RadiansToTarget(in2.Position);
+                            batch.Draw(connectTex, connect1, empireColor, angle1, Vector2.Zero);
+
+                            // from Smaller towards Bigger (the other side now)
+                            RectF connect2 = ProjectToScreenRectF(new RectF(inf.Position, width, length));
+                            float angle2 = in2.Position.RadiansToTarget(inf.Position);
+                            batch.Draw(connectTex, connect2, empireColor, angle2, Vector2.Zero);
+
+                            //DrawLineProjected(in2.Position, inf.Position, Color.Blue); // DEBUG
+                            //batch.DrawRectangle(connect1, angle1, Color.Green, 2); // DEBUG
+                            //batch.DrawRectangle(connect2, angle2, Color.Green, 2); // DEBUG
+                        }
                     }
                 }
             }
+
+            RenderStates.DisableSeparateAlphaChannelBlend(graphics);
             batch.End();
 
             DrawBorders.Stop();
@@ -369,7 +391,7 @@ namespace Ship_Game
             DrawIcons.Start();
             DrawProjectedGroup();
             if (!LookingAtPlanet)
-                DeepSpaceBuildWindow.DrawBlendedBuildIcons();
+                DeepSpaceBuildWindow.DrawBlendedBuildIcons(ClickableBuildGoals);
             DrawTacticalPlanetIcons(batch);
             DrawFTLInhibitionNodes();
             DrawShipRangeOverlay();
@@ -676,56 +698,51 @@ namespace Ship_Game
             if (DefiningAO || DefiningTradeRoutes)
                 return; // FB dont show fleet list when selected AOs and Trade Routes
 
-            lock (GlobalStats.FleetButtonLocker)
+            foreach (FleetButton fleetButton in FleetButtons)
             {
-                foreach (FleetButton fleetButton in FleetButtons)
+                var buttonSelector = new Selector(fleetButton.ClickRect, Color.TransparentBlack);
+                var housing = new Rectangle(fleetButton.ClickRect.X + 6, fleetButton.ClickRect.Y + 6,
+                    fleetButton.ClickRect.Width - 12, fleetButton.ClickRect.Width - 12);
+
+                bool inCombat = false;
+                foreach (Ship ship in fleetButton.Fleet.Ships)
                 {
-                    var buttonSelector = new Selector(fleetButton.ClickRect, Color.TransparentBlack);
-                    var housing = new Rectangle(fleetButton.ClickRect.X + 6, fleetButton.ClickRect.Y + 6,
-                        fleetButton.ClickRect.Width - 12, fleetButton.ClickRect.Width - 12);
-
-                    bool inCombat = false;
-                    for (int ship = 0; ship < fleetButton.Fleet.Ships.Count; ++ship)
+                    if (!ship.OnLowAlert)
                     {
-                        try
-                        {
-                            if (fleetButton.Fleet.Ships[ship].OnLowAlert) continue;
-                            inCombat = true;
-                            break;
-                        }
-                        catch { }
+                        inCombat = true;
+                        break;
                     }
-
-                    Color fleetKey       = Color.Orange;
-                    Graphics.Font fleetFont = Fonts.Pirulen12;
-                    bool needShadow      = false;
-                    Vector2 keyPos       = new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4);
-                    if (SelectedFleet == fleetButton.Fleet)
-                    {
-                        fleetKey   = Color.White;
-                        fleetFont  = Fonts.Pirulen16;
-                        needShadow = true;
-                        keyPos     = new Vector2(keyPos.X, keyPos.Y - 2);
-                    }
-
-                    batch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
-                        fleetButton.ClickRect, inCombat ? ApplyCurrentAlphaToColor(new Color(255, 0, 0))
-                                                        : new Color( 0,  0,  0,  80));
-
-                    if (fleetButton.Fleet.AutoRequisition)
-                    {
-                        Rectangle autoReq = new Rectangle(fleetButton.ClickRect.X - 18, fleetButton.ClickRect.Y + 5, 15, 20);
-                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, EmpireManager.Player.EmpireColor);
-                    }
-
-                    buttonSelector.Draw(batch, elapsed);
-                    batch.Draw(fleetButton.Fleet.Icon, housing, EmpireManager.Player.EmpireColor);
-                    if (needShadow)
-                        batch.DrawString(fleetFont, fleetButton.Key.ToString(), new Vector2(keyPos.X + 2, keyPos.Y + 2), Color.Black);
-
-                    batch.DrawString(fleetFont, fleetButton.Key.ToString(), keyPos, fleetKey);
-                    DrawFleetShipIcons(batch, fleetButton);
                 }
+                
+                Font fleetFont = Fonts.Pirulen12;
+                Color fleetKey  = Color.Orange;
+                bool needShadow = false;
+                var keyPos = new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4);
+                if (SelectedFleet == fleetButton.Fleet)
+                {
+                    fleetKey   = Color.White;
+                    fleetFont  = Fonts.Pirulen16;
+                    needShadow = true;
+                    keyPos     = new Vector2(keyPos.X, keyPos.Y - 2);
+                }
+
+                batch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
+                    fleetButton.ClickRect, inCombat ? ApplyCurrentAlphaToColor(new Color(255, 0, 0))
+                                                    : new Color( 0,  0,  0,  80));
+
+                if (fleetButton.Fleet.AutoRequisition)
+                {
+                    Rectangle autoReq = new Rectangle(fleetButton.ClickRect.X - 18, fleetButton.ClickRect.Y + 5, 15, 20);
+                    batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, EmpireManager.Player.EmpireColor);
+                }
+
+                buttonSelector.Draw(batch, elapsed);
+                batch.Draw(fleetButton.Fleet.Icon, housing, EmpireManager.Player.EmpireColor);
+                if (needShadow)
+                    batch.DrawString(fleetFont, fleetButton.Key.ToString(), new Vector2(keyPos.X + 2, keyPos.Y + 2), Color.Black);
+
+                batch.DrawString(fleetFont, fleetButton.Key.ToString(), keyPos, fleetKey);
+                DrawFleetShipIcons(batch, fleetButton);
             }
         }
 

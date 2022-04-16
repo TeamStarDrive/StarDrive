@@ -25,13 +25,20 @@ namespace Ship_Game
 
         public string StarDateString => UState.StarDate.StarDateString();
         public float LastAutosaveTime = 0;
-        public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<ClickableItemUnderConstruction>();
-        
+
         public Array<Ship> SelectedShipList = new Array<Ship>();
-        
+
         public ClickablePlanet[] ClickablePlanets = Empty<ClickablePlanet>.Array;
         ClickableSystem[] ClickableSystems = Empty<ClickableSystem>.Array;
         ClickableShip[] ClickableShips = Empty<ClickableShip>.Array;
+        public ClickableSpaceBuildGoal[] ClickableBuildGoals = Empty<ClickableSpaceBuildGoal>.Array;
+
+        readonly Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
+        public Planet SelectedPlanet;
+        public Ship SelectedShip;
+        public ClickableSpaceBuildGoal SelectedItem;
+        ClickablePlanet TippedPlanet;
+        ClickableSystem tippedSystem;
 
         Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         
@@ -52,14 +59,12 @@ namespace Ship_Game
         public float transDuration = 3f;
         public float SelectedSomethingTimer = 3f;
         public Vector2 mouseWorldPos;
-        Array<FleetButton> FleetButtons = new Array<FleetButton>();
+
+        FleetButton[] FleetButtons = Empty<FleetButton>.Array;
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
-        Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
         public bool ShowTacticalCloseup { get; private set; }
         public bool Debug => UState.Debug;
-        public Planet SelectedPlanet;
-        public Ship SelectedShip;
-        public ClickableItemUnderConstruction SelectedItem;
+
         PieMenu pieMenu;
         PieMenuNode planetMenu;
         PieMenuNode shipMenu;
@@ -100,8 +105,7 @@ namespace Ship_Game
 
         // @note Initialize with a default frustum for UnitTests
         public BoundingFrustum Frustum = new BoundingFrustum(Matrix.CreateTranslation(1000000, 1000000, 0));
-        ClickablePlanet TippedPlanet;
-        ClickableSystem tippedSystem;
+
         bool ShowingSysTooltip;
         bool ShowingPlanetToolTip;
         float MusicCheckTimer;
@@ -689,9 +693,8 @@ namespace Ship_Game
         {
             UnloadGraphics();
 
-            ItemsToBuild       ?.Dispose(ref ItemsToBuild);
-            anomalyManager     ?.Dispose(ref anomalyManager);
-            BombList           ?.Dispose(ref BombList);
+            anomalyManager?.Dispose(ref anomalyManager);
+            BombList?.Dispose(ref BombList);
             NotificationManager?.Dispose(ref NotificationManager);
             SelectedShipList = new Array<Ship>();
 
@@ -762,7 +765,9 @@ namespace Ship_Game
             }
         }
 
-        public class ClickableItemUnderConstruction
+        // When user or automation AI orders a deep space build goal
+        // Then these are used to visualize it to players
+        public class ClickableSpaceBuildGoal
         {
             public Vector2 ScreenPos;
             public Vector2 BuildPos;
