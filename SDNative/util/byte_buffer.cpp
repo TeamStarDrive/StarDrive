@@ -70,14 +70,14 @@ STDCALL(void) ByteBufferWriteI(ByteBuffer* b, int val) noexcept
     memcpy(b->Grow(len), buf, len);
 }
 
-STDCALL(void) ByteBufferWriteF(ByteBuffer* b, float val) noexcept
+STDCALL(void) ByteBufferWriteF(ByteBuffer* b, float val, int maxDecimals) noexcept
 {
     char buf[32];
-    int len = rpp::_tostring(buf, val);
+    int len = rpp::_tostring(buf, val, maxDecimals);
     memcpy(b->Grow(len), buf, len);
 }
 
-STDCALL(void) ByteBufferWriteD(ByteBuffer* b, double val) noexcept
+STDCALL(void) ByteBufferWriteD(ByteBuffer* b, double val, int maxDecimals) noexcept
 {
     char buf[32];
     int len = rpp::_tostring(buf, val);

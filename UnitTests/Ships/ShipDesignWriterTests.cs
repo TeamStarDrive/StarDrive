@@ -81,7 +81,14 @@ namespace UnitTests.Ships
             w.Write(1234.5f); w.Write(';');
             Assert.AreEqual("1234.5;", w.ToString());
             w.Write(-12312.3125f); w.Write(';');
-            Assert.AreEqual("1234.5;-12312.3125;", w.ToString());
+            Assert.AreEqual("1234.5;-12312.312;", w.ToString());
+
+            // NOTE: default decimals should be 3
+            w.Clear(); w.Write(-12312.312512f);
+            Assert.AreEqual("-12312.312", w.ToString());
+
+            w.Clear(); w.Write(-12312.3125f, 2);
+            Assert.AreEqual("-12312.31", w.ToString());
         }
 
         [TestMethod]
