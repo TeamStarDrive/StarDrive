@@ -286,14 +286,7 @@ namespace Ship_Game.Ships
             ushort[] slotModuleUIDMapping = design.SlotModuleUIDMapping;
 
             // module1;module2;module3\n
-            for (int i = 0; i < moduleUIDs.Length; ++i)
-            {
-                sw.Write(moduleUIDs[i]);
-                if (i != (moduleUIDs.Length - 1))
-                    sw.Write(';');
-            }
-            sw.Write('\n');
-
+            sw.WriteLine(moduleUIDs);
             // number of modules
             sw.WriteLine(saved.Length.ToString());
 
