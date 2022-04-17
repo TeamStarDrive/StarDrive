@@ -78,28 +78,66 @@ namespace Ship_Game.Ships
             var ta = slot.TurretAngle;
             var mr = (int)slot.ModuleRot;
 
-            string[] fields = new string[6];
-            fields[0] = $"{gp.X},{gp.Y}";
-            fields[1] = moduleIdx.ToString();
+            sw.Write(gp.X); sw.Write(','); sw.Write(gp.Y);
+            sw.Write(';');
+            sw.Write(moduleIdx);
             // everything after this is optional
-            fields[2] = (sz.X == 1 && sz.Y == 1) ? "" : $"{sz.X},{sz.Y}";
-            fields[3] = ta == 0 ? "" : ta.ToString();
-            fields[4] = mr == 0 ? "" : mr.ToString();
-            fields[5] = slot.HangarShipUID;
 
-            int count = GetMaxValidFields(fields);
-            sw.Write(string.Join(";", fields, 0, count));
+            // TODO: Make this nicer somehow,
+            //       but without introducing extra Array or Map allocations
+            bool gotSize = sz.X != 1 || sz.Y != 1;
+            bool gotTA = ta != 0;
+            bool gotMR = mr != 0;
+            bool gotHangar = slot.HangarShipUID.NotEmpty();
+
+            int remValid = 0; // remaining valid entries
+            if (gotSize) remValid += 1;
+            if (gotTA) remValid += 1;
+            if (gotMR) remValid += 1;
+            if (gotHangar) remValid += 1;
+
+            if (remValid > 0)
+                sw.Write(';');
+
+            if (remValid > 0)
+            {
+                if (gotSize)
+                {
+                    sw.Write(sz.X); sw.Write(','); sw.Write(sz.Y);
+                    --remValid;
+                }
+                if (remValid > 0)
+                    sw.Write(';');
+            }
+            if (remValid > 0)
+            {
+                if (gotTA)
+                {
+                    sw.Write(ta);
+                    --remValid;
+                }
+                if (remValid > 0)
+                    sw.Write(';');
+            }
+            if (remValid > 0)
+            {
+                if (gotMR)
+                {
+                    sw.Write(mr);
+                    --remValid;
+                }
+                if (remValid > 0)
+                    sw.Write(';');
+            }
+            if (remValid > 0)
+            {
+                if (gotHangar)
+                {
+                    sw.Write(slot.HangarShipUID);
+                }
+            }
+
             return sw;
-        }
-
-        // get the max span of valid elements, so we can discard empty ones and save space
-        static int GetMaxValidFields(string[] fields)
-        {
-            int count = fields.Length;
-            for (; count > 0; --count)
-                if (fields[count - 1].NotEmpty())
-                    break;
-            return count;
         }
 
         static ShipDesign ParseDesign(FileInfo file)
