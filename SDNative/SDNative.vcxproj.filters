@@ -151,6 +151,9 @@
     <ClCompile Include="spatial\grid\GridCellView.cpp">
       <Filter>spatial\grid</Filter>
     </ClCompile>
+    <ClCompile Include="util\byte_buffer.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">

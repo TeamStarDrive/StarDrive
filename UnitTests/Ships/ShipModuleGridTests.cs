@@ -25,7 +25,7 @@ namespace UnitTests.Ships
         public void Regression_LoadSavedShip_ModuleGrid()
         {
             Ship toSave = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
-            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(toSave);
+            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(new ShipDesignWriter(), toSave);
 
             Ship prototype = Ship.CreateShipFromSave(Universe.UState, Player, saved);
             Assert.AreEqual(18, prototype.GridWidth);
