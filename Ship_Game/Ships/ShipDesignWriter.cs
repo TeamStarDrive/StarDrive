@@ -27,21 +27,24 @@ namespace Ship_Game.Ships
 
         [DllImport("SDNative.dll")]
         static extern ByteBuffer* ByteBufferNew(int defaultCapacity);
-        
         [DllImport("SDNative.dll")]
         static extern void ByteBufferDelete(ByteBuffer* b);
-
         [DllImport("SDNative.dll")]
         static extern void ByteBufferCopy(ByteBuffer* b, byte[] dst);
 
         [DllImport("SDNative.dll")]
-        static extern void ByteBufferWriteC(ByteBuffer* b, char ch);
+        static extern void ByteBufferWriteI(ByteBuffer* b, int val);
+        [DllImport("SDNative.dll")]
+        static extern void ByteBufferWriteF(ByteBuffer* b, float val);
+        [DllImport("SDNative.dll")]
+        static extern void ByteBufferWriteD(ByteBuffer* b, double val);
 
+        [DllImport("SDNative.dll")]
+        static extern void ByteBufferWriteC(ByteBuffer* b, char ch);
         [DllImport("SDNative.dll")]
         static extern void ByteBufferWriteS(ByteBuffer* b,
             [MarshalAs(UnmanagedType.LPWStr)] string str, int len
         );
-
         [DllImport("SDNative.dll")]
         static extern void ByteBufferWriteKV(ByteBuffer* b,
             [MarshalAs(UnmanagedType.LPWStr)] string key, int keylen,
@@ -102,6 +105,24 @@ namespace Ship_Game.Ships
         public void Write(string value)
         {
             ByteBufferWriteS(Buffer, value, value.Length);
+        }
+
+        // -1234
+        public void Write(int value)
+        {
+            ByteBufferWriteI(Buffer, value);
+        }
+
+        // -1234.456
+        public void Write(float value)
+        {
+            ByteBufferWriteF(Buffer, value);
+        }
+
+        // -1234.456
+        public void Write(double value)
+        {
+            ByteBufferWriteD(Buffer, value);
         }
 
         public void Write(char ch)

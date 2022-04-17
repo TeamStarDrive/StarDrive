@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <rpp/strview.h>
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 #define STDCALL(ret) DLLEXPORT ret __stdcall
@@ -62,10 +63,25 @@ STDCALL(void) ByteBufferCopy(ByteBuffer* b, byte* out) noexcept
     memcpy(out, b->Data, b->Size);
 }
 
-__forceinline void Copy(byte* dst, const wchar_t* str, int len) noexcept
+STDCALL(void) ByteBufferWriteI(ByteBuffer* b, int val) noexcept
 {
-    for (int i = 0; i < len; ++i)
-        dst[i] = (byte)str[i];
+    char buf[32];
+    int len = rpp::_tostring(buf, val);
+    memcpy(b->Grow(len), buf, len);
+}
+
+STDCALL(void) ByteBufferWriteF(ByteBuffer* b, float val) noexcept
+{
+    char buf[32];
+    int len = rpp::_tostring(buf, val);
+    memcpy(b->Grow(len), buf, len);
+}
+
+STDCALL(void) ByteBufferWriteD(ByteBuffer* b, double val) noexcept
+{
+    char buf[32];
+    int len = rpp::_tostring(buf, val);
+    memcpy(b->Grow(len), buf, len);
 }
 
 STDCALL(void) ByteBufferWriteC(ByteBuffer* b, wchar_t ch) noexcept
@@ -74,12 +90,19 @@ STDCALL(void) ByteBufferWriteC(ByteBuffer* b, wchar_t ch) noexcept
     *dst = (byte)ch;
 }
 
+__forceinline void Copy(byte* dst, const wchar_t* str, int len) noexcept
+{
+    for (int i = 0; i < len; ++i)
+        dst[i] = (byte)str[i];
+}
+
 STDCALL(void) ByteBufferWriteS(ByteBuffer* b,
     const wchar_t* str, int len) noexcept
 {
     byte* dst = b->Grow(len);
     Copy(dst, str, len);
 }
+
 
 // key=value\n
 STDCALL(void) ByteBufferWriteKV(ByteBuffer* b,
