@@ -38,6 +38,9 @@ namespace Ship_Game.Ships
         // Complete list of all the unique module UID-s found in this design
         string[] UniqueModuleUIDs { get; }
 
+        // Maps each DesignSlot to `UniqueModuleUIDs`
+        ushort[] SlotModuleUIDMapping { get; }
+
         /// <summary>
         /// TODO: perhaps this can be done inside ShipDesign init?
         /// </summary>

@@ -54,6 +54,9 @@ namespace Ship_Game.Ships
         // Complete list of all the unique module UID-s found in this design
         public string[] UniqueModuleUIDs { get; private set; } = Empty<string>.Array;
 
+        // Maps each DesignSlot to `UniqueModuleUIDs`
+        public ushort[] SlotModuleUIDMapping { get; private set; } = Empty<ushort>.Array;
+
         public bool Unlockable { get; set; } = true; // unlocked=true by default
         public HashSet<string> TechsNeeded { get; set; } = new HashSet<string>();
 
@@ -138,10 +141,38 @@ namespace Ship_Game.Ships
                 moduleUIDs.Add(slots[i].ModuleUID);
 
             DesignSlots = slots;
-            UniqueModuleUIDs = moduleUIDs.ToArray();
+            SetModuleUIDs(moduleUIDs.ToArray());
 
             Role = HullRole; // make sure to reset ship role before recalculating it
             InitializeCommonStats(BaseHull, slots, updateRole:true);
+        }
+
+        void SetModuleUIDs(string[] moduleUIDs)
+        {
+            UniqueModuleUIDs = moduleUIDs;
+
+            var UIDtoModuleUIDsIdx = new Map<string, int>(); // Module UID => UniqueModuleUIDs Index
+
+            if (moduleUIDs.Length != 0 && DesignSlots.Length == 0)
+                Log.Error("SetModuleUIDs failed: DesignSlots was empty");
+
+            // [i] maps to => UniqueModuleUIDs Index
+            var slotModuleUIDMapping = new ushort[DesignSlots.Length];
+            for (int i = 0, count = 0; i < DesignSlots.Length; ++i)
+            {
+                string uid = DesignSlots[i].ModuleUID;
+                if (UIDtoModuleUIDsIdx.TryGetValue(uid, out int moduleUIDIdx))
+                {
+                    slotModuleUIDMapping[i] = (ushort)moduleUIDIdx;
+                }
+                else
+                {
+                    slotModuleUIDMapping[i] = (ushort)count;
+                    UIDtoModuleUIDsIdx.Add(uid, count);
+                    ++count;
+                }
+            }
+            SlotModuleUIDMapping = slotModuleUIDMapping;
         }
 
         public DesignSlot[] GetOrLoadDesignSlots()
@@ -190,7 +221,7 @@ namespace Ship_Game.Ships
             // TODO: implement obsolete ships and ship versioning
             ShipDesign data = template.GetClone(null);
 
-            data.UniqueModuleUIDs = moduleUIDs;
+            data.SetModuleUIDs(moduleUIDs);
             data.DesignSlots = new DesignSlot[saved.Length];
             for (int i = 0; i < saved.Length; ++i)
                 data.DesignSlots[i] = saved[i].ToDesignSlot();
@@ -203,7 +234,7 @@ namespace Ship_Game.Ships
             var data = new ShipDesign(hull, save.Name);
             data.ModName = GlobalStats.ModName;
 
-            data.UniqueModuleUIDs = moduleUIDs;
+            data.SetModuleUIDs(moduleUIDs);
             data.DesignSlots = new DesignSlot[saved.Length];
             for (int i = 0; i < saved.Length; ++i)
                 data.DesignSlots[i] = saved[i].ToDesignSlot();

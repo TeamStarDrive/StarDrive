@@ -18,6 +18,7 @@ namespace UnitTests.Ships
     {
         public ShipDataTests()
         {
+            LoadStarterShips("Terran-Prototype");
         }
 
         // Makes sure two ShipData are absolutely equal
@@ -187,11 +188,11 @@ namespace UnitTests.Ships
             ship.Modules[5].Health = 0f;
 
             ModuleSaveData[] toSave = ship.GetModuleSaveData();
-            byte[] base64save = ShipDesign.GetBase64ModulesBytes(toSave);
+            byte[] bytes = ShipDesign.GetModulesBytes(toSave, ship.ShipData);
 
-            Log.Info(Encoding.ASCII.GetString(base64save));
+            Log.Info(Encoding.ASCII.GetString(bytes));
 
-            (ModuleSaveData[] loaded, _) = ShipDesign.GetModuleSaveFromBase64Bytes(base64save);
+            (ModuleSaveData[] loaded, _) = ShipDesign.GetModuleSaveFromBytes(bytes);
 
             for (int i = 0; i < toSave.Length && i < loaded.Length; ++i)
             {

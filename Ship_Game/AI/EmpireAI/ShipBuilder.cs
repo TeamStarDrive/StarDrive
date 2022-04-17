@@ -41,12 +41,12 @@ namespace Ship_Game.AI
             Log.DebugInfo(ConsoleColor.Blue, message);
         }
 
-        private static Array<Ship> ShipsWeCanBuild(Empire empire)
+        private static Array<Ship> ShipsWeCanBuild(Empire empire, Predicate<Ship> filter)
         {
-            var ships = new Array<Ship>(empire.ShipsWeCanBuild.Count);
+            var ships = new Array<Ship>();
             foreach (string shipWeCanBuild in empire.ShipsWeCanBuild)
             {
-                if (ResourceManager.GetShipTemplate(shipWeCanBuild, out Ship template))
+                if (ResourceManager.GetShipTemplate(shipWeCanBuild, out Ship template) && filter(template))
                     ships.Add(template);
             }
             return ships;
@@ -56,17 +56,18 @@ namespace Ship_Game.AI
         public static Ship PickCostEffectiveShipToBuild(RoleName role, Empire empire, 
             float maxCost, float maintBudget)
         {
-            Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
-                ship => ship.DesignRole == role && ship.GetCost(empire).LessOrEqual(maxCost) 
-                                                && ship.GetMaintCost(empire).Less(maintBudget)
-                                                && !ship.ShipData.IsShipyard
-                                                && !ship.IsSubspaceProjector);
+            Array<Ship> potentialShips = ShipsWeCanBuild(empire,
+                s => s.DesignRole == role && s.GetCost(empire).LessOrEqual(maxCost) 
+                                          && s.GetMaintCost(empire).Less(maintBudget)
+                                          && !s.ShipData.IsShipyard
+                                          && !s.IsSubspaceProjector);
 
-            if (potentialShips.Length == 0 && role == RoleName.drone)
-                return GetDefaultEventDrone();
-
-            if (potentialShips.Length == 0)
+            if (potentialShips.Count == 0)
+            {
+                if (role == RoleName.drone)
+                    return GetDefaultEventDrone();
                 return null;
+            }
 
             return potentialShips.FindMax(s => s.BaseStrength);
         }
@@ -94,16 +95,15 @@ namespace Ship_Game.AI
         static Ship PickFromCandidatesByStrength(RoleName role, Empire empire,
             int maxSize, HangarOptions designation)
         {
-            Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
-                ship => ship.DesignRole == role
+            Array<Ship> potentialShips = ShipsWeCanBuild(empire, ship => ship.DesignRole == role
                 && (maxSize == 0 || ship.SurfaceArea <= maxSize)
                 && (designation == HangarOptions.General || designation == ship.ShipData.HangarDesignation)
             );
 
-            if (potentialShips.Length == 0)
+            if (potentialShips.Count == 0)
                 return null;
 
-            float maxStrength = potentialShips.Max(ship => ship.BaseStrength);
+            float maxStrength = potentialShips.FindMax(ship => ship.BaseStrength).BaseStrength;
             var levelAdjust   = new MinMaxStrength(maxStrength, empire);
             var bestShips     = potentialShips.Filter(ship => levelAdjust.InRange(ship.BaseStrength));
 
@@ -134,10 +134,8 @@ namespace Ship_Game.AI
             }
             else
             {
-                var ship = ShipsWeCanBuild(empire).FindMaxFiltered(s => s.ShipData.IsColonyShip,
-                                                                   s => s.StartingColonyGoods() + 
-                                                                            s.NumBuildingsDeployedOnColonize() * 20 + 
-                                                                            s.MaxFTLSpeed / 1000);
+                Ship ship = ShipsWeCanBuild(empire, s => s.ShipData.IsColonyShip)
+                           .FindMax(s => s.StartingColonyGoods() + s.NumBuildingsDeployedOnColonize() * 20 + s.MaxFTLSpeed / 1000);
                 colonyShip = ship?.ShipData;
             }
 
@@ -156,11 +154,11 @@ namespace Ship_Game.AI
 
         public static Ship PickShipToRefit(Ship oldShip, Empire empire)
         {
-            Ship[] ships = ShipsWeCanBuild(empire).Filter(s => s.ShipData.Hull == oldShip.ShipData.Hull
-                                                              && s.DesignRole == oldShip.DesignRole
-                                                              && s.BaseStrength.Greater(oldShip.BaseStrength * 1.1f)
-                                                              && s.Name != oldShip.Name);
-            if (ships.Length == 0)
+            Array<Ship> ships = ShipsWeCanBuild(empire, s => s.ShipData.Hull == oldShip.ShipData.Hull
+                                                        && s.DesignRole == oldShip.DesignRole
+                                                        && s.BaseStrength.Greater(oldShip.BaseStrength * 1.1f)
+                                                        && s.Name != oldShip.Name);
+            if (ships.Count == 0)
                 return null;
 
             Ship picked = RandomMath.RandItem(ships);
