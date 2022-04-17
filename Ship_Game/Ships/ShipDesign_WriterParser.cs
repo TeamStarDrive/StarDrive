@@ -59,26 +59,19 @@ namespace Ship_Game.Ships
             sw.Write("IsCarrierOnly", IsCarrierOnly);
             sw.Write("EventOnDeath", EventOnDeath); // "DefeatedMothership" remnant event
 
-            ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(DesignSlots, out Array<string> moduleUIDs);
-
-            var moduleLines = new Array<string>();
+            sw.WriteLine("# Maps module UIDs to Index, first UID has index 0");
+            sw.Write("ModuleUIDs", UniqueModuleUIDs);
+            sw.Write("Modules", DesignSlots.Length);
+            sw.WriteLine("# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID");
             for (int i = 0; i < DesignSlots.Length; ++i)
             {
-                string slotString = DesignSlotString(DesignSlots[i], slotModuleUIDAndIndex[i]);
-                moduleLines.Add(slotString);
+                WriteDesignSlotString(sw, DesignSlots[i], SlotModuleUIDMapping[i]).WriteLine();
             }
-
-            sw.WriteLine("# Maps module UIDs to Index, first UID has index 0");
-            sw.Write("ModuleUIDs", string.Join(";", moduleUIDs));
-            sw.Write("Modules", moduleLines.Count);
-            sw.WriteLine("# gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID");
-            foreach (string m in moduleLines)
-                sw.WriteLine(m);
             return sw;
         }
         
         // X,Y,moduleIdx[,sizeX,sizeY,turretAngle,moduleRot,hangarShipUid]
-        public static string DesignSlotString(DesignSlot slot, ushort moduleIdx)
+        public static ShipDesignWriter WriteDesignSlotString(ShipDesignWriter sw, DesignSlot slot, ushort moduleIdx)
         {
             Point gp = slot.Pos;
             var sz = slot.Size;
@@ -95,7 +88,8 @@ namespace Ship_Game.Ships
             fields[5] = slot.HangarShipUID;
 
             int count = GetMaxValidFields(fields);
-            return string.Join(";", fields, 0, count);
+            sw.Write(string.Join(";", fields, 0, count));
+            return sw;
         }
 
         // get the max span of valid elements, so we can discard empty ones and save space
@@ -106,31 +100,6 @@ namespace Ship_Game.Ships
                 if (fields[count - 1].NotEmpty())
                     break;
             return count;
-        }
-
-        // maps each DesignSlot with a (ModuleUID,ModuleUIDIndex)
-        static ushort[] CreateModuleIndexMapping(DesignSlot[] saved, out Array<string> moduleUIDs)
-        {
-            var slotModuleUIDAndIndex = new ushort[saved.Length];
-            var moduleUIDsToIdx = new Map<string, int>();
-            moduleUIDs = new Array<string>();
-            
-            for (int i = 0, count = 0; i < saved.Length; ++i)
-            {
-                string uid = saved[i].ModuleUID;
-                if (moduleUIDsToIdx.TryGetValue(uid, out int moduleUIDIdx))
-                {
-                    slotModuleUIDAndIndex[i] = (ushort)moduleUIDIdx;
-                }
-                else
-                {
-                    slotModuleUIDAndIndex[i] = (ushort)count;
-                    moduleUIDs.Add(uid);
-                    moduleUIDsToIdx.Add(uid, count);
-                    ++count;
-                }
-            }
-            return slotModuleUIDAndIndex;
         }
 
         static ShipDesign ParseDesign(FileInfo file)
@@ -247,8 +216,8 @@ namespace Ship_Game.Ships
             // if lazy loading, throw away the modules to free up memory
             if (!GlobalStats.LazyLoadShipDesignSlots)
                 DesignSlots = modules;
-            UniqueModuleUIDs = moduleUIDs;
 
+            SetModuleUIDs(moduleUIDs);
             InitializeCommonStats(hull, modules);
         }
 
@@ -301,59 +270,76 @@ namespace Ship_Game.Ships
             );
         }
 
-
-        public static byte[] GetBase64ModulesBytes(Ship ship)
+        public static byte[] GetModulesBytes(Ship ship)
         {
             ModuleSaveData[] saved = ship.GetModuleSaveData();
-            return GetBase64ModulesBytes(saved);
+            return GetModulesBytes(saved, ship.ShipData);
         }
 
         // TODO: this needs insane optimizations
-        public static byte[] GetBase64ModulesBytes(ModuleSaveData[] saved)
+        public static byte[] GetModulesBytes(ModuleSaveData[] saved, IShipDesign design)
         {
-            ushort[] slotModuleUIDAndIndex = CreateModuleIndexMapping(saved, out Array<string> moduleUIDs);
-
             var sw = new ShipDesignWriter();
             sw.Write("1\n"); // first line is version
 
-            // module1;module2;module3\n
-            for (int i = 0; i < moduleUIDs.Count; ++i)
-            {
-                sw.Write(moduleUIDs[i]);
-                if (i != (moduleUIDs.Count - 1))
-                    sw.Write(';');
-            }
-            sw.Write('\n');
+            string[] moduleUIDs = design.UniqueModuleUIDs;
+            ushort[] slotModuleUIDMapping = design.SlotModuleUIDMapping;
 
+            // module1;module2;module3\n
+            sw.WriteLine(moduleUIDs);
             // number of modules
             sw.WriteLine(saved.Length.ToString());
-            
+
             // each module takes two lines
             // first line is DesignModule, second line is ModuleSaveData fields
             for (int i = 0; i < saved.Length; ++i)
             {
-                ModuleSaveData slot = saved[i];
-                string slotString = DesignSlotString(slot, slotModuleUIDAndIndex[i]);
-                sw.WriteLine(slotString);
-
-                string[] fields = new string[3];
-                 // NOTE: "0" must be written out, so that StringViewParser doesn't ignore the line!
-                fields[0] = slot.Health > 0 ? slot.Health.String(1) : "0";
-                fields[1] = slot.ShieldPower > 0 ? slot.ShieldPower.String(1) : "";
-                fields[2] = slot.HangarShipId > 0 ? slot.HangarShipId.ToString() : "";
-
-                int count = GetMaxValidFields(fields);
-                string stateString = string.Join(";", fields, 0, count);
-                sw.WriteLine(stateString);
+                WriteModuleSaveData(sw, saved[i], slotModuleUIDMapping[i]).WriteLine();
             }
 
             return sw.GetASCIIBytes();
         }
 
-        public static (ModuleSaveData[] modules, string[] moduleUIDs) GetModuleSaveFromBase64Bytes(byte[] base64bytes)
+        public static ShipDesignWriter WriteModuleSaveData(ShipDesignWriter sw, ModuleSaveData slot, ushort moduleIdx)
+        {
+            WriteDesignSlotString(sw, slot, moduleIdx).WriteLine();
+
+            // NOTE: "0" must be written out, so that StringViewParser doesn't ignore the line!
+            sw.Write(slot.Health > 0 ? slot.Health.String(1) : "0");
+            if (slot.ShieldPower > 0 || slot.HangarShipId > 0)
+            {
+                sw.Write(';');
+                sw.Write(slot.ShieldPower > 0 ? slot.ShieldPower.String(1) : "");
+                if (slot.HangarShipId > 0)
+                {
+                    sw.Write(';');
+                    sw.Write(slot.HangarShipId.ToString());
+                }
+            }
+            return sw;
+        }
+
+        public static ModuleSaveData ParseModuleSaveData(GenericStringViewParser p, string[] moduleUIDs)
+        {
+            StringView line1 = p.ReadLine();
+            DesignSlot s = ParseDesignSlot(line1, moduleUIDs);
+
+            StringView line2 = p.ReadLine();
+            StringView healthPts = line2.Next(';');
+            StringView shieldPwr = line2.Next(';');
+            StringView hangarShp = line2.Next(';');
+
+            return new ModuleSaveData(s,
+                healthPts.IsEmpty ? 0 : healthPts.ToFloat(),
+                shieldPwr.IsEmpty ? 0 : shieldPwr.ToFloat(),
+                hangarShp.IsEmpty ? 0 : hangarShp.ToInt()
+            );
+        }
+
+        public static (ModuleSaveData[] modules, string[] moduleUIDs) GetModuleSaveFromBytes(byte[] bytes)
         {
             //Log.Info(Encoding.ASCII.GetString(bytes));
-            var p = new GenericStringViewParser("save", base64bytes);
+            var p = new GenericStringViewParser("save", bytes);
 
             int version = p.ReadLine().ToInt();
             if (version != 1)
@@ -368,20 +354,7 @@ namespace Ship_Game.Ships
             
             for (int i = 0; i < modules.Length; ++i)
             {
-                StringView line1 = p.ReadLine();
-                DesignSlot s = ParseDesignSlot(line1, moduleUIDs);
-                
-                StringView line2 = p.ReadLine();
-                StringView healthPts = line2.Next(';');
-                StringView shieldPwr = line2.Next(';');
-                StringView hangarShp = line2.Next(';');
-
-                var msd = new ModuleSaveData(s,
-                    healthPts.IsEmpty ? 0 : healthPts.ToFloat(),
-                    shieldPwr.IsEmpty ? 0 : shieldPwr.ToFloat(),
-                    hangarShp.IsEmpty ? 0 : hangarShp.ToInt()
-                );
-                modules[i] = msd;
+                modules[i] = ParseModuleSaveData(p, moduleUIDs);
             }
 
             return (modules, moduleUIDs);
