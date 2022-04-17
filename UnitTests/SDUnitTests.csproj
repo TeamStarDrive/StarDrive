@@ -104,6 +104,7 @@
     <Compile Include="Serialization\BinaryReadWriteTests.cs" />
     <Compile Include="Serialization\StringViewTests.cs" />
     <Compile Include="Serialization\YamlSerializerTests.cs" />
+    <Compile Include="Ships\ShipDesignWriterTests.cs" />
     <Compile Include="Ships\TestResupplyLogic.cs" />
     <Compile Include="Ships\ShipBuilderTests.cs" />
     <Compile Include="Ships\CarrierTests.cs" />
