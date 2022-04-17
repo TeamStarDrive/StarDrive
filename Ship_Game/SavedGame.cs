@@ -303,16 +303,19 @@ namespace Ship_Game
 
                     return gdata;
                 });
+                
                 empireToSave.GSAIData = gsaidata;
-
                 empireToSave.TechTree.AddRange(e.TechEntries.ToArray());
+
+                var sw = new ShipDesignWriter();
+
                 var ships = e.OwnedShips;
                 foreach (Ship ship in ships)
-                    empireToSave.OwnedShips.Add(ShipSaveFromShip(ship));
+                    empireToSave.OwnedShips.Add(ShipSaveFromShip(sw, ship));
 
                 var projectors = e.GetProjectors();
                 foreach (Ship ship in projectors)  //fbedard
-                    empireToSave.OwnedShips.Add(ProjectorSaveFromShip(ship));
+                    empireToSave.OwnedShips.Add(ProjectorSaveFromShip(sw, ship));
 
                 SaveData.EmpireDataList.Add(empireToSave);
             }
@@ -365,9 +368,9 @@ namespace Ship_Game
                 SaveTask.Wait();
         }
 
-        public static ShipSaveData ShipSaveFromShip(Ship ship)
+        public static ShipSaveData ShipSaveFromShip(ShipDesignWriter sw, Ship ship)
         {
-            var sdata = new ShipSaveData(ship);
+            var sdata = new ShipSaveData(sw, ship);
             if (ship.GetTether() != null)
             {
                 sdata.TetheredTo = ship.GetTether().Id;
@@ -440,9 +443,9 @@ namespace Ship_Game
             return sdata;
         }
 
-        public static ShipSaveData ProjectorSaveFromShip(Ship ship)
+        public static ShipSaveData ProjectorSaveFromShip(ShipDesignWriter sw, Ship ship)
         {
-            var sd = new ShipSaveData(ship);
+            var sd = new ShipSaveData(sw, ship);
             if (ship.GetTether() != null)
             {
                 sd.TetheredTo = ship.GetTether().Id;
@@ -905,7 +908,7 @@ namespace Ship_Game
 
             public ShipSaveData() {}
 
-            public ShipSaveData(Ship ship)
+            public ShipSaveData(ShipDesignWriter sw, Ship ship)
             {
                 Name = ship.Name;
                 MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
@@ -918,7 +921,7 @@ namespace Ship_Game
                 Kills      = ship.Kills;
                 Velocity   = ship.Velocity;
 
-                ModuleSaveData = ShipDesign.GetModulesBytes(ship);
+                ModuleSaveData = ShipDesign.GetModulesBytes(sw, ship);
             }
 
             public override string ToString() => $"ShipSave {Id} {Name}";
