@@ -74,69 +74,34 @@ namespace Ship_Game.Ships
         public static ShipDesignWriter WriteDesignSlotString(ShipDesignWriter sw, DesignSlot slot, ushort moduleIdx)
         {
             Point gp = slot.Pos;
-            var sz = slot.Size;
-            var ta = slot.TurretAngle;
-            var mr = (int)slot.ModuleRot;
+            Point sz = slot.Size;
+            int ta = slot.TurretAngle;
+            int mr = (int)slot.ModuleRot;
 
-            sw.Write(gp.X); sw.Write(','); sw.Write(gp.Y);
+            sw.Write(gp.X, ',', gp.Y);
             sw.Write(';');
             sw.Write(moduleIdx);
             // everything after this is optional
 
-            // TODO: Make this nicer somehow,
-            //       but without introducing extra Array or Map allocations
             bool gotSize = sz.X != 1 || sz.Y != 1;
-            bool gotTA = ta != 0;
-            bool gotMR = mr != 0;
-            bool gotHangar = slot.HangarShipUID.NotEmpty();
+            int lastValid = 0; // # of last valid field
+            if (slot.HangarShipUID.NotEmpty()) lastValid = 4;
+            else if (mr != 0) lastValid = 3;
+            else if (ta != 0) lastValid = 2;
+            else if (gotSize) lastValid = 1;
 
-            int remValid = 0; // remaining valid entries
-            if (gotSize) remValid += 1;
-            if (gotTA) remValid += 1;
-            if (gotMR) remValid += 1;
-            if (gotHangar) remValid += 1;
-
-            if (remValid > 0)
-                sw.Write(';');
-
-            if (remValid > 0)
-            {
-                if (gotSize)
-                {
-                    sw.Write(sz.X); sw.Write(','); sw.Write(sz.Y);
-                    --remValid;
-                }
-                if (remValid > 0)
-                    sw.Write(';');
+            if (lastValid >= 1) {
+                sw.Write(';'); if (gotSize) sw.Write(sz.X, ',', sz.Y);
             }
-            if (remValid > 0)
-            {
-                if (gotTA)
-                {
-                    sw.Write(ta);
-                    --remValid;
-                }
-                if (remValid > 0)
-                    sw.Write(';');
+            if (lastValid >= 2) {
+                sw.Write(';'); if (ta != 0) sw.Write(ta);
             }
-            if (remValid > 0)
-            {
-                if (gotMR)
-                {
-                    sw.Write(mr);
-                    --remValid;
-                }
-                if (remValid > 0)
-                    sw.Write(';');
+            if (lastValid >= 3) {
+                sw.Write(';'); if (mr != 0) sw.Write(mr);
             }
-            if (remValid > 0)
-            {
-                if (gotHangar)
-                {
-                    sw.Write(slot.HangarShipUID);
-                }
+            if (lastValid >= 4) {
+                sw.Write(';'); sw.Write(slot.HangarShipUID);
             }
-
             return sw;
         }
 
@@ -343,16 +308,20 @@ namespace Ship_Game.Ships
             WriteDesignSlotString(sw, slot, moduleIdx).WriteLine();
 
             // NOTE: "0" must be written out, so that StringViewParser doesn't ignore the line!
-            sw.Write(slot.Health > 0 ? slot.Health.String(1) : "0");
-            if (slot.ShieldPower > 0 || slot.HangarShipId > 0)
-            {
-                sw.Write(';');
-                sw.Write(slot.ShieldPower > 0 ? slot.ShieldPower.String(1) : "");
-                if (slot.HangarShipId > 0)
-                {
-                    sw.Write(';');
-                    sw.Write(slot.HangarShipId.ToString());
-                }
+            if (slot.Health > 0)
+                sw.Write(slot.Health, 1);
+            else
+                sw.Write('0');
+
+            int lastValid = 0; // # of last valid field
+            if (slot.HangarShipId > 0) lastValid = 2;
+            else if (slot.ShieldPower > 0) lastValid = 1;
+
+            if (lastValid >= 1) {
+                sw.Write(';'); if (slot.ShieldPower > 0) sw.Write(slot.ShieldPower, 1);
+            }
+            if (lastValid >= 2) {
+                sw.Write(';'); sw.Write(slot.HangarShipId);
             }
             return sw;
         }

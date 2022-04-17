@@ -35,9 +35,9 @@ namespace Ship_Game.Ships
         [DllImport("SDNative.dll")]
         static extern void ByteBufferWriteI(ByteBuffer* b, int val);
         [DllImport("SDNative.dll")]
-        static extern void ByteBufferWriteF(ByteBuffer* b, float val);
+        static extern void ByteBufferWriteF(ByteBuffer* b, float val, int maxDecimals);
         [DllImport("SDNative.dll")]
-        static extern void ByteBufferWriteD(ByteBuffer* b, double val);
+        static extern void ByteBufferWriteD(ByteBuffer* b, double val, int maxDecimals);
 
         [DllImport("SDNative.dll")]
         static extern void ByteBufferWriteC(ByteBuffer* b, char ch);
@@ -116,13 +116,26 @@ namespace Ship_Game.Ships
         // -1234.456
         public void Write(float value)
         {
-            ByteBufferWriteF(Buffer, value);
+            ByteBufferWriteF(Buffer, value, maxDecimals:3);
+        }
+
+        public void Write(float value, int maxDecimals)
+        {
+            ByteBufferWriteF(Buffer, value, maxDecimals);
         }
 
         // -1234.456
         public void Write(double value)
         {
-            ByteBufferWriteD(Buffer, value);
+            ByteBufferWriteD(Buffer, value, maxDecimals:3);
+        }
+
+        // [x][separator][y]
+        public void Write(int x, char separator, int y)
+        {
+            Write(x);
+            Write(separator);
+            Write(y);
         }
 
         public void Write(char ch)

@@ -194,6 +194,12 @@ namespace UnitTests.Ships
             var sd3 = new ModuleSaveData(slot3, 100.1f, 15, 1337);
             Assert.AreEqual("4,8;0;;;;Vulcan Scout\n100.1;15;1337", ModuleSaveDataString(sd3, 0),
                             "Expected gridX,gridY;moduleIdx;sizeX,sizeY;turretAngle;moduleRot;hangarShip\nHealth;ShieldPower;ShipId");
+
+            var slot4 = new DesignSlot(new Point(4, 8), "FighterBay", new Point(1, 1), 0, ModuleOrientation.Normal, "Vulcan Scout");
+            var sd4 = new ModuleSaveData(slot4, 100.1f, 0, 1337);
+            Assert.AreEqual("4,8;0;;;;Vulcan Scout\n100.1;;1337", ModuleSaveDataString(sd4, 0),
+                            "Expected gridX,gridY;moduleIdx;sizeX,sizeY;turretAngle;moduleRot;hangarShip\nHealth;ShieldPower;ShipId");
+
         }
 
         [TestMethod]
