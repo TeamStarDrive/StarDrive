@@ -243,6 +243,7 @@
     <ClCompile Include="spatial\Spatial.cpp" />
     <ClCompile Include="spatial\SpatialDebug.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
+    <ClCompile Include="util\byte_buffer.cpp" />
     <ClCompile Include="util\math_utils.cpp" />
     <ClCompile Include="util\os_utils.cpp" />
     <ClCompile Include="util\image_utils.cpp" />

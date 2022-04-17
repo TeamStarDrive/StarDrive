@@ -188,7 +188,7 @@ namespace UnitTests.Ships
             ship.Modules[5].Health = 0f;
 
             ModuleSaveData[] toSave = ship.GetModuleSaveData();
-            byte[] bytes = ShipDesign.GetModulesBytes(toSave, ship.ShipData);
+            byte[] bytes = ShipDesign.GetModulesBytes(new ShipDesignWriter(), toSave, ship.ShipData);
 
             Log.Info(Encoding.ASCII.GetString(bytes));
 

@@ -270,16 +270,16 @@ namespace Ship_Game.Ships
             );
         }
 
-        public static byte[] GetModulesBytes(Ship ship)
+        public static byte[] GetModulesBytes(ShipDesignWriter sw, Ship ship)
         {
             ModuleSaveData[] saved = ship.GetModuleSaveData();
-            return GetModulesBytes(saved, ship.ShipData);
+            return GetModulesBytes(sw, saved, ship.ShipData);
         }
 
         // TODO: this needs insane optimizations
-        public static byte[] GetModulesBytes(ModuleSaveData[] saved, IShipDesign design)
+        public static byte[] GetModulesBytes(ShipDesignWriter sw, ModuleSaveData[] saved, IShipDesign design)
         {
-            var sw = new ShipDesignWriter();
+            sw.Clear();
             sw.Write("1\n"); // first line is version
 
             string[] moduleUIDs = design.UniqueModuleUIDs;
