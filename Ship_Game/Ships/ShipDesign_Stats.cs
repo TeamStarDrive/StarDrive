@@ -59,6 +59,7 @@ namespace Ship_Game.Ships
             var info = GridInfo;
             info.SurfaceArea = hull.SurfaceArea;
             GridInfo = info;
+            Grid = new ModuleGridFlyweight(Name, info, designSlots);
 
             float baseCost = 0f;
             float baseWarp = 0f;

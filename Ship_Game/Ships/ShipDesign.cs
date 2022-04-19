@@ -45,6 +45,7 @@ namespace Ship_Game.Ships
         public AIState DefaultAIState { get; set; } = AIState.AwaitingOrders;
         public CombatState DefaultCombatState { get; set; } = CombatState.AttackRuns;
 
+        public ModuleGridFlyweight Grid { get; private set; }
         public ShipGridInfo GridInfo { get; set; }
 
         // All the slots of the ShipDesign
