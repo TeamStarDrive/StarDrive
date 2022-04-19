@@ -159,6 +159,11 @@ namespace Ship_Game.Ships
             return Grid.Get(ModuleSlotList, gridPosX, gridPosY);
         }
 
+        public ShipModule GetModuleAt(int gridIndex)
+        {
+            return Grid.Get(ModuleSlotList, gridIndex);
+        }
+
         void DebugDrawShield(ShipModule s)
         {
             var color = s.ShieldsAreActive ? Color.AliceBlue : Color.DarkBlue;
