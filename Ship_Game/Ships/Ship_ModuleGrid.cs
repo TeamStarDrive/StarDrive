@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
+using System.Collections.Generic;
 
 namespace Ship_Game.Ships
 {
@@ -22,9 +23,8 @@ namespace Ship_Game.Ships
         public int GridWidth => Grid.Width;
         public int GridHeight => Grid.Height;
 
-        public ShipModule[] Shields;
-        public ShipModule[] Amplifiers;
-
+        public IEnumerable<ShipModule> GetShields() => Grid.GetShields(ModuleSlotList);
+        public IEnumerable<ShipModule> GetAmplifiers() => Grid.GetAmplifiers(ModuleSlotList);
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
 
@@ -44,6 +44,7 @@ namespace Ship_Game.Ships
             }
         #endif
 
+            Grid = design.Grid;
             ExternalModuleGrid = new ShipModule[Grid.Width * Grid.Height];
             PwrGrid = new PowerGrid(this, Grid);
             Radius = Grid.Radius;
@@ -179,9 +180,8 @@ namespace Ship_Game.Ships
         // The simplest form of collision against shields. This is handled in all other HitTest functions
         ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
         {
-            for (int i = 0; i < Shields.Length; ++i)
+            foreach (ShipModule shield in GetShields())
             {
-                ShipModule shield = Shields[i];
                 if (shield.ShieldsAreActive && shield.HitTestShield(worldHitPos, hitRadius))
                 {
                     //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
@@ -197,9 +197,8 @@ namespace Ship_Game.Ships
         {
             float minD = float.MaxValue;
             ShipModule hit = null;
-            for (int i = 0; i < Shields.Length; ++i)
+            foreach (ShipModule shield in GetShields())
             {
-                ShipModule shield = Shields[i];
                 if (shield.ShieldsAreActive &&
                     shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius, out float distanceFromStart))
                 {
@@ -222,9 +221,8 @@ namespace Ship_Game.Ships
         public Array<ShipModule> GetAllActiveShieldsCoveringModule(ShipModule module)
         {
             Array<ShipModule> coveringShields = new Array<ShipModule>();
-            for (int i = 0; i < Shields.Length; ++i)
+            foreach (ShipModule shield in GetShields())
             {
-                ShipModule shield = Shields[i];
                 if (shield.ShieldsAreActive && shield.HitTestShield(module.Position, module.Radius))
                     coveringShields.Add(shield);
             }
@@ -243,9 +241,8 @@ namespace Ship_Game.Ships
         {
             float maxPower = 0f;
             shield = null;
-            for (int i = 0; i < Shields.Length; ++i)
+            foreach (ShipModule m in GetShields())
             {
-                ShipModule m = Shields[i];
                 float power = m.ShieldPower;
                 if (power > maxPower && m.HitTestShield(internalModule.Position, internalModule.Radius))
                     shield = m;
@@ -448,9 +445,8 @@ namespace Ship_Game.Ships
         {
             if (!ignoresShields)
             {
-                for (int i = 0; i < Shields.Length; ++i)
+                foreach (ShipModule shield in GetShields())
                 {
-                    ShipModule shield = Shields[i];
                     if (shield.ShieldsAreActive && shield.HitTestShield(worldHitPos, hitRadius))
                     {
                         if (shield.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount))

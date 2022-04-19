@@ -664,9 +664,8 @@ namespace Ship_Game.Ships
 
         void InitShieldsPower(float shieldAmplify)
         {
-            for (int i = 0; i < Shields.Length; i++)
+            foreach (ShipModule shield in Grid.GetShields(ModuleSlotList))
             {
-                ShipModule shield = Shields[i];
                 shield.InitShieldPower(shieldAmplify);
             }
         }

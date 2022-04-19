@@ -1229,9 +1229,8 @@ namespace Ship_Game.Ships
                 || engineState == MoveState.Warp)
             {
                 ShieldPower = 0.0f;
-                for (int x = 0; x < Shields.Length; x++)
+                foreach (ShipModule shield in GetShields())
                 {
-                    ShipModule shield = Shields[x];
                     ShieldPower = (ShieldPower + shield.ShieldPower).Clamped(0, ShieldMax);
                 }
             }
@@ -1268,7 +1267,7 @@ namespace Ship_Game.Ships
             UpdateTroops(timeSinceLastUpdate);
 
             if (!AI.BadGuysNear)
-                ShieldManager.RemoveShieldLights(Universe.Screen, Shields);
+                ShieldManager.RemoveShieldLights(Universe.Screen, GetShields());
         }
 
         public bool CanRepair => !AI.BadGuysNear || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair;
@@ -1709,7 +1708,6 @@ namespace Ship_Game.Ships
 
             ModuleSlotList     = Empty<ShipModule>.Array;
             ExternalModuleGrid = Empty<ShipModule>.Array;
-            Shields            = Empty<ShipModule>.Array;
             NumExternalSlots = 0;
             DestroyThrusters();
 
@@ -1749,8 +1747,6 @@ namespace Ship_Game.Ships
 
             Weapons = null;
             SoundEmitter = null;
-            Shields = null;
-            Amplifiers = null;
             BombBays = null;
             Carrier?.Dispose();
             Carrier = null;
@@ -1782,8 +1778,8 @@ namespace Ship_Game.Ships
         public void UpdateShields()
         {
             float shieldPower = 0.0f;
-            for (int i = 0; i < Shields.Length; ++i)
-                shieldPower += Shields[i].ShieldPower;
+            foreach (ShipModule shield in GetShields())
+                shieldPower += shield.ShieldPower;
 
             ShieldPower = shieldPower.UpperBound(ShieldMax);
         }
