@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 
@@ -69,7 +71,12 @@ namespace Ship_Game.Ships
                 for (int y = p.Y; y < endY; ++y)
                 for (int x = p.X; x < endX; ++x)
                 {
-                    ModuleIndexGrid[x + y * Width] = (short)i;
+                    int index = x + y * Width;
+                    if (ModuleIndexGrid[index] != -1)
+                    {
+                        Log.Error($"Overlapping DesignSlot in design={name} slot={s}");
+                    }
+                    ModuleIndexGrid[index] = (short)i;
                 }
             }
 
@@ -95,50 +102,73 @@ namespace Ship_Game.Ships
 
             if (EnableDebugGridExport)
             {
-                var slotsGrid = ModuleIndexGrid.Select(index => index != -1 ? slots[index] : null);
-                ModuleGridUtils.DebugDumpGrid($"Debug/SparseGrid/{name}.txt",
-                    slotsGrid, Width, Height, ModuleGridUtils.DumpFormat.DesignSlot);
+                DebugDumpGrid(name, slots);
             }
         }
 
+        public void DebugDumpGrid(IShipDesign design)
+        {
+            DebugDumpGrid(design.Name, design.GetOrLoadDesignSlots());
+        }
+
+        public void DebugDumpGrid(string name, DesignSlot[] slots)
+        {
+            var grid = CreateGridArray(slots);
+            ModuleGridUtils.DebugDumpGrid($"Debug/SparseGrid/{name}.txt",
+                grid, Width, Height, ModuleGridUtils.DumpFormat.DesignSlot);
+        }
+
+        // used for debugging
+        public T[] CreateGridArray<T>(T[] modules)
+        {
+            return ModuleIndexGrid.Select(index => index != -1 ? modules[index] : default);
+        }
+
         // safe and fast module lookup by x,y where coordinates (0,1) (2,1) etc
-        public bool Get(ShipModule[] modules, int x, int y, out ShipModule module)
+        [Pure] public bool Get(ShipModule[] modules, int x, int y, out ShipModule module)
         {
             if ((uint)x < Width && (uint)y < Height)
             {
-                int index = ModuleIndexGrid[x + y * Width];
-                module = index != -1 ? modules[index] : null;
-                return module != null;
+                return (module = Get(modules, x, y)) != null;
             }
             module = null;
             return false;
         }
 
-        public ShipModule Get(ShipModule[] modules, Point gridPos)
+        [Pure] public ShipModule this[ShipModule[] modules, int x, int y]
         {
-            int index = ModuleIndexGrid[gridPos.X + gridPos.Y * Width];
-            return index != -1 ? modules[index] : null;
+            get
+            {
+                int index = ModuleIndexGrid[x + y * Width];
+                return index != -1 ? modules[index] : null;
+            }
         }
 
-        public ShipModule Get(ShipModule[] modules, int gridPosX, int gridPosY)
+        [Pure] public ShipModule Get(ShipModule[] modules, int gridPosX, int gridPosY)
         {
             int index = ModuleIndexGrid[gridPosX + gridPosY * Width];
             return index != -1 ? modules[index] : null;
         }
 
-        public ShipModule Get(ShipModule[] modules, int gridIndex)
+        [Pure] public ShipModule Get(ShipModule[] modules, Point gridPos)
+        {
+            int index = ModuleIndexGrid[gridPos.X + gridPos.Y * Width];
+            return index != -1 ? modules[index] : null;
+        }
+
+        [Pure] public ShipModule Get(ShipModule[] modules, int gridIndex)
         {
             int index = ModuleIndexGrid[gridIndex];
             return index != -1 ? modules[index] : null;
         }
 
-        public IEnumerable<ShipModule> GetShields(ShipModule[] modules)
+        [Pure] public IEnumerable<ShipModule> GetShields(ShipModule[] modules)
         {
             for (int i = 0; i < ShieldsIndex.Length; ++i)
                 yield return modules[ShieldsIndex[i]];
         }
 
-        public IEnumerable<ShipModule> GetAmplifiers(ShipModule[] modules)
+        [Pure] public IEnumerable<ShipModule> GetAmplifiers(ShipModule[] modules)
         {
             for (int i = 0; i < AmplifiersIndex.Length; ++i)
                 yield return modules[AmplifiersIndex[i]];

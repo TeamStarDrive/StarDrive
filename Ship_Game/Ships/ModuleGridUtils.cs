@@ -27,7 +27,9 @@ namespace Ship_Game.Ships
             DesignSlot,
             SlotStruct,
             SlotStructEmptyHull,
-            InternalSlotsBool
+            InternalSlotsBool,
+            ExternalSlotsBits,
+            ExternalSlotModules,
         }
 
         static string[] EmptySlot(int width, int height)
@@ -86,6 +88,20 @@ namespace Ship_Game.Ships
             return new []{ b ? " I " : " - " };
         }
 
+        static string[] GetExternalSlotBitsFormat(bool b)
+        {
+            return new []{ b ? " E " : " - " };
+        }
+
+        static string[] GetExternalSlotFormat(ShipModule m)
+        {
+            if (m == null)
+                return EmptySlot(4, 1);
+            if (m.IsExternal)
+                return new []{ $"|E{m.XSize}x{m.YSize}" };
+            return new []{ $" {m.XSize}x{m.YSize}" };
+        }
+
         static Func<object, string[]> GetFormat(DumpFormat format)
         {
             switch (format)
@@ -100,11 +116,15 @@ namespace Ship_Game.Ships
                     return m => GetSlotStructEmptyHullFormat((SlotStruct)m, 3, 1);
                 case DumpFormat.InternalSlotsBool:
                     return b => GetInternalSlotFormat((bool)b);
+                case DumpFormat.ExternalSlotsBits:
+                    return b => GetExternalSlotBitsFormat((bool)b);
+                case DumpFormat.ExternalSlotModules:
+                    return m => GetExternalSlotFormat(m as ShipModule);
             }
             throw new Exception("Invalid DumpFormat");
         }
 
-        public static void DebugDumpGrid<T>(string fileName, T[] grid, 
+        public static void DebugDumpGrid<T>(string fileName, T[] grid,
                                             int width, int height, DumpFormat fmt)
         {
             string fullPath = Path.Combine(Dir.StarDriveAppData, fileName);

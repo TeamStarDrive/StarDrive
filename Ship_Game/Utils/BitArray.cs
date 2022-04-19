@@ -85,5 +85,13 @@ namespace Ship_Game.Utils
             }
             return sb.ToString();
         }
+
+        public bool[] ToArray()
+        {
+            bool[] bits = new bool[Values.Length * 32];
+            for (int i = 0; i < bits.Length; ++i)
+                bits[i] = IsSet(i);
+            return bits;
+        }
     }
 }

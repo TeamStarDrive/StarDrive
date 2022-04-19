@@ -9,13 +9,12 @@ namespace Ship_Game.Ships
 {
     public partial class Ship
     {
-        ModuleGridFlyweight Grid;
-
+        public ModuleGridFlyweight Grid;
         ShipModule[] ModuleSlotList;
-        ShipModule[] ExternalModuleGrid; // only contains external modules
-        public PowerGrid PwrGrid;
+        public ModuleGridState GetGridState() => new ModuleGridState(Grid, ModuleSlotList);
 
-        public int NumExternalSlots { get; private set; }
+        public PowerGrid PwrGrid;
+        public ExternalSlotGrid Externals;
 
         // This is the total number of Slots on the ships
         // It does not depend on the number of modules, and is always a constant
@@ -45,108 +44,16 @@ namespace Ship_Game.Ships
         #endif
 
             Grid = design.Grid;
-            ExternalModuleGrid = new ShipModule[Grid.Width * Grid.Height];
             PwrGrid = new PowerGrid(this, Grid);
             Radius = Grid.Radius;
-
-            InitExternalSlots();
+            Externals = new ExternalSlotGrid(GetGridState());
         }
 
-        void AddExternalModule(ShipModule module)
+        // updates the isExternal status of a module,
+        // depending on whether it died or resurrected
+        public void UpdateExternalSlots(ShipModule module)
         {
-            if (module.IsExternal)
-                return;
-            ++NumExternalSlots;
-            module.IsExternal = true;
-            UpdateGridSlot(ExternalModuleGrid, module, becameActive: true);
-        }
-
-        void RemoveExternalModule(ShipModule module)
-        {
-            if (!module.IsExternal)
-                return;
-            --NumExternalSlots;
-            module.IsExternal = false;
-            UpdateGridSlot(ExternalModuleGrid, module, becameActive: false);
-        }
-
-        bool IsModuleInactiveAt(int x, int y)
-        {
-            if (!Grid.Get(ModuleSlotList, x, y, out ShipModule m))
-                return false;
-            return m == null || !m.Active;
-        }
-
-        bool ShouldBeExternal(ShipModule module)
-        {
-            if (!module.Active)
-                return false;
-            Point p = module.Pos;
-            return IsModuleInactiveAt(p.X, p.Y - 1)
-                || IsModuleInactiveAt(p.X - 1, p.Y)
-                || IsModuleInactiveAt(p.X + module.XSize, p.Y)
-                || IsModuleInactiveAt(p.X, p.Y + module.YSize);
-        }
-
-        bool CheckIfShouldBeExternal(int x, int y)
-        {
-            if (!Grid.Get(ModuleSlotList, x, y, out ShipModule module))
-                return false;
-
-            if (ShouldBeExternal(module))
-            {
-                if (!module.IsExternal)
-                {
-                    AddExternalModule(module);
-                }
-                return true;
-            }
-            if (module.IsExternal)
-                RemoveExternalModule(module);
-            return false;
-        }
-
-        void InitExternalSlots()
-        {
-            NumExternalSlots = 0;
-            for (int y = 0; y < Grid.Height; ++y)
-            {
-                for (int x = 0; x < Grid.Width; ++x)
-                {
-                    int idx = x + y * Grid.Width;
-                    if (ExternalModuleGrid[idx] == null && CheckIfShouldBeExternal(x, y))
-                    {
-                        // ReSharper disable once PossibleNullReferenceException
-                        // NOTE about ReSharper: CheckIfShouldBeExternal modifies ExternalModuleGrid
-                        x += ExternalModuleGrid[idx].XSize - 1; // skip slots that span this module
-                    }
-                }
-            }
-        }
-
-        // updates the isExternal status of a module, depending on whether it died or resurrected
-        public void UpdateExternalSlots(ShipModule module, bool becameActive)
-        {
-            int x = module.Pos.X;
-            int y = module.Pos.Y;
-            if (becameActive) // we resurrected, so add us to external module grid and update all surrounding slots
-                AddExternalModule(module);
-            else // we turned inactive, so clear self from external module grid and
-                RemoveExternalModule(module);
-
-            CheckIfShouldBeExternal(x, y - 1);
-            CheckIfShouldBeExternal(x - 1, y);
-            CheckIfShouldBeExternal(x + module.XSize, y);
-            CheckIfShouldBeExternal(x, y + module.YSize);
-        }
-
-        void UpdateGridSlot(ShipModule[] sparseGrid, ShipModule module, bool becameActive)
-        {
-            Point p = module.Pos;
-            int endX = p.X + module.XSize, endY = p.Y + module.YSize;
-            for (int y = p.Y; y < endY; ++y)
-                for (int x = p.X; x < endX; ++x)
-                    sparseGrid[x + y * Grid.Width] = becameActive ? module : null;
+            Externals.Update(GetGridState(), module);
         }
 
         public ShipModule GetModuleAt(Point gridPos)
@@ -340,37 +247,44 @@ namespace Ship_Game.Ships
         // @note Ignores shields !
         public ShipModule FindClosestUnshieldedModule(Vector2 worldPoint)
         {
-            if (NumExternalSlots == 0)
+            if (Externals.NumModules == 0)
                 return null;
 
             Point pt = WorldToGridLocalPoint(worldPoint);
             pt = ClipLocalPoint(pt);
 
-            ShipModule[] grid = ExternalModuleGrid;
-            int width = Grid.Width;
             ShipModule m;
-            if ((m = grid[pt.X + pt.Y*width]) != null && m.Active) return m;
+            ModuleGridState gs = GetGridState();
+            if ((m = Externals.Get(gs, pt.X, pt.Y)) != null && m.Active) return m;
 
             int minX = pt.X, minY = pt.Y, maxX = pt.X, maxY = pt.Y;
-            int lastX = width - 1, lastY = Grid.Height - 1;
+            int lastX = Grid.Width - 1, lastY = Grid.Height - 1;
             for (;;)
             {
                 bool didExpand = false;
                 if (minX > 0f) { // test all modules to the left
                     --minX; didExpand = true;
-                    for (int y = minY; y <= maxY; ++y) if ((m = grid[minX + y*width]) != null && m.Active) return m;
+                    for (int y = minY; y <= maxY; ++y)
+                        if ((m = Externals.Get(gs, minX, y)) != null && m.Active)
+                            return m;
                 }
                 if (maxX < lastX) { // test all modules to the right
                     ++maxX; didExpand = true;
-                    for (int y = minY; y <= maxY; ++y) if ((m = grid[maxX + y*width]) != null && m.Active) return m;
+                    for (int y = minY; y <= maxY; ++y)
+                        if ((m = Externals.Get(gs, maxX, y)) != null && m.Active)
+                            return m;
                 }
                 if (minY > 0f) { // test all top modules
                     --minY; didExpand = true;
-                    for (int x = minX; x <= maxX; ++x) if ((m = grid[x + minY*width]) != null && m.Active) return m;
+                    for (int x = minX; x <= maxX; ++x)
+                        if ((m = Externals.Get(gs, x, minY)) != null && m.Active)
+                            return m;
                 }
                 if (maxY < lastY) { // test all bottom modules
                     ++maxY; didExpand = true;
-                    for (int x = minX; x <= maxX; ++x) if ((m = grid[x + maxY*width]) != null && m.Active) return m;
+                    for (int x = minX; x <= maxX; ++x)
+                        if ((m = Externals.Get(gs, x, maxY)) != null && m.Active)
+                            return m;
                 }
                 if (!didExpand) return null; // aargh, looks like we didn't find any!
             }
@@ -380,7 +294,7 @@ namespace Ship_Game.Ships
         // find the first module that falls under the hit radius at given position
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
         {
-            if (NumExternalSlots == 0) return null;
+            if (Externals.NumModules == 0) return null;
             if (!ignoreShields)
             {
                 ShipModule shield = HitTestShields(worldHitPos, hitRadius);
