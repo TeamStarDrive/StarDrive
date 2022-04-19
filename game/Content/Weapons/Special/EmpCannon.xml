@@ -32,6 +32,7 @@
   <!-- Projectile Information -->
   <DamageAmount>0</DamageAmount>
   <EMPDamage>100</EMPDamage>
+  <ShieldPenChance>45</ShieldPenChance>
   <SiphonDamage>1200</SiphonDamage>
   
   <MuzzleFlash>Yes</MuzzleFlash>
