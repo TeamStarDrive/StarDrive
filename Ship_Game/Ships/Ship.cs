@@ -43,8 +43,6 @@ namespace Ship_Game.Ships
         // Unrotated fleet offset from [0,0]
         public Vector2 RelativeFleetOffset;
 
-        public ShipModule[] Shields;
-        public ShipModule[] Amplifiers;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public CarrierBays Carrier;
         public ShipResupply Supply;
@@ -83,10 +81,6 @@ namespace Ship_Game.Ships
         public void LoyaltyChangeByGift(Empire empire, bool addNotification = true) => LoyaltyTracker.SetLoyaltyForAbsorbedShip(empire, addNotification);
         public void LoyaltyChangeAtSpawn(Empire empire) => LoyaltyTracker.SetLoyaltyForNewShip(empire);
 
-        // This is the total number of Slots on the ships
-        // It does not depend on the number of modules, and is always a constant
-        public int SurfaceArea { get; private set; }
-
         public float Ordinance { get; private set; } // FB: use ChanceOrdnance function to control Ordnance
         public float OrdnanceMin { get; private set; } // FB: minimum ordnance required to fire any of the ship's weapons
         public float OrdinanceMax;
@@ -101,7 +95,7 @@ namespace Ship_Game.Ships
 
         // total number of installed module SLOTS with Internal Restrictions
         // example: a 2x2 internal module would give +4
-        public int TotalInternalModuleSlots { get; private set; }
+        public int TotalInternalModuleSlots => Grid.TotalInternalModuleSlots;
 
         // active internal modules SLOTS that have health > 0
         public int ActiveInternalModuleSlots;
@@ -1714,7 +1708,6 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i].Dispose();
 
             ModuleSlotList     = Empty<ShipModule>.Array;
-            SparseModuleGrid   = Empty<ShipModule>.Array;
             ExternalModuleGrid = Empty<ShipModule>.Array;
             Shields            = Empty<ShipModule>.Array;
             NumExternalSlots = 0;
@@ -1776,7 +1769,6 @@ namespace Ship_Game.Ships
             Stats?.Dispose();
             Cargo = null;
             ModuleSlotList = null;
-            SparseModuleGrid = null;
             ExternalModuleGrid = null;
             ShipEngines?.Dispose();
             ShipEngines = null;
