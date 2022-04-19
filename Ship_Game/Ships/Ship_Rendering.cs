@@ -72,12 +72,13 @@ namespace Ship_Game.Ships
         {
             if (ModuleSlotList.Length != 0)
             {
+                var gs = GetGridState();
                 for (int y = 0; y < Grid.Height; ++y)
                 {
                     for (int x = 0; x < Grid.Width; ++x)
                     {
                         Color color = Color.DarkGray;
-                        if    (ExternalModuleGrid[x + y * Grid.Width] != null) color = Color.Blue;
+                        if    (Externals.Get(gs, x, y) != null) color = Color.Blue;
                         else if (GetModuleAt(x, y) != null) color = Color.Yellow;
 
                         us.DrawRectangleProjected(GridSquareToWorld(x, y), new Vector2(16f, 16f), Rotation, color);
