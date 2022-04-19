@@ -8,109 +8,47 @@ namespace Ship_Game.Ships
 {
     public partial class Ship
     {
+        ModuleGridFlyweight Grid;
+
         ShipModule[] ModuleSlotList;
-        ShipModule[] SparseModuleGrid;   // single dimensional grid, for performance reasons
         ShipModule[] ExternalModuleGrid; // only contains external modules
         public PowerGrid PwrGrid;
 
         public int NumExternalSlots { get; private set; }
 
-        /// <summary>  Ship slot (1x1 modules) width </summary>
-        public int GridWidth { get; private set; }
-        
-        /// <summary>Ship slot (1x1 modules) height </summary>
-        public int GridHeight { get; private set; }
+        // This is the total number of Slots on the ships
+        // It does not depend on the number of modules, and is always a constant
+        public int SurfaceArea => Grid.SurfaceArea;
+        public int GridWidth => Grid.Width;
+        public int GridHeight => Grid.Height;
 
-        // center of the ship in ShipLocal world coordinates, ex [64f, 0f], always positive
-        Vector2 GridLocalCenter;
-        
-        static bool EnableDebugGridExport = false;
+        public ShipModule[] Shields;
+        public ShipModule[] Amplifiers;
 
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;
 
-        void CreateModuleGrid(in ShipGridInfo gridInfo, bool isTemplate, bool shipyardDesign)
+        void CreateModuleGrid(IShipDesign design, bool isTemplate, bool shipyardDesign)
         {
-            ShipGridInfo info = gridInfo;
+            ShipGridInfo info = design.GridInfo;
 
         #if DEBUG
             if (isTemplate && !shipyardDesign)
             {
                 var modulesInfo = new ShipGridInfo(ModuleSlotList);
-                if (modulesInfo.SurfaceArea != gridInfo.SurfaceArea ||
-                    modulesInfo.Size != gridInfo.Size)
+                if (modulesInfo.SurfaceArea != info.SurfaceArea ||
+                    modulesInfo.Size != info.Size)
                 {
-                    Log.Warning($"BaseHull mismatch: {modulesInfo} != {gridInfo}. Broken Design={Name}");
+                    Log.Warning($"BaseHull mismatch: {modulesInfo} != {info}. Broken Design={Name}");
                 }
             }
         #endif
 
-            SurfaceArea = info.SurfaceArea;
-            GridWidth  = info.Size.X;
-            GridHeight = info.Size.Y;
-            GridLocalCenter = new Vector2(info.Size.X * 8f, info.Size.Y * 8f);
-            SparseModuleGrid   = new ShipModule[GridWidth * GridHeight];
-            ExternalModuleGrid = new ShipModule[GridWidth * GridHeight];
-            PwrGrid = new PowerGrid(SparseModuleGrid, GridWidth, GridHeight);
-
-            // Ship's true radius is half of Module Grid's Diagonal Length
-            var span = new Vector2(info.Size.X, info.Size.Y) * 16f;
-            Radius = span.Length() * 0.5f;
-
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                UpdateGridSlot(SparseModuleGrid, ModuleSlotList[i], becameActive: true);
-            }
-
-            if (GlobalStats.CountInternalModulesFromHull)
-                SetModuleRestrictionsFromHull(ShipData.BaseHull);
+            ExternalModuleGrid = new ShipModule[Grid.Width * Grid.Height];
+            PwrGrid = new PowerGrid(this, Grid);
+            Radius = Grid.Radius;
 
             InitExternalSlots();
-
-            var shields    = new Array<ShipModule>();
-            var amplifiers = new Array<ShipModule>();
-            TotalInternalModuleSlots = 0;
-
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                ShipModule module = ModuleSlotList[i];
-                if (module.ShieldPowerMax > 0f)
-                    shields.Add(module);
-
-                if (module.AmplifyShields > 0f)
-                    amplifiers.Add(module);
-
-                if (module.HasInternalRestrictions)
-                    TotalInternalModuleSlots += module.XSize * module.YSize;
-            }
-
-            Shields    = shields.ToArray();
-            Amplifiers = amplifiers.ToArray();
-
-            if (EnableDebugGridExport)
-            {
-                ModuleGridUtils.DebugDumpGrid($"Debug/SparseGrid/{Name}.txt",
-                    SparseModuleGrid, GridWidth, GridHeight, ModuleGridUtils.DumpFormat.ShipModule);
-            }
-        }
-
-        // This overrides Restrictions value of modules, based on the actual BaseHull
-        // So if a 2x2 IOE module overlaps an `I` hull slot, it gets set to Restrictions.I
-        void SetModuleRestrictionsFromHull(ShipHull hull)
-        {
-            HullSlot[] hullSlots = hull.HullSlots;
-            for (int i = 0; i < hullSlots.Length; ++i)
-            {
-                HullSlot hs = hullSlots[i];
-                if (hs.R == Restrictions.I)
-                {
-                    ShipModule m = GetModuleAt(hs.Pos);
-                    if (m != null)
-                    {
-                        m.Restrictions = Restrictions.I;
-                    }
-                }
-            }
         }
 
         void AddExternalModule(ShipModule module)
@@ -133,8 +71,9 @@ namespace Ship_Game.Ships
 
         bool IsModuleInactiveAt(int x, int y)
         {
-            ShipModule module = (uint)x < GridWidth && (uint)y < GridHeight ? SparseModuleGrid[x + y*GridWidth] : null;
-            return module == null || !module.Active;
+            if (!Grid.Get(ModuleSlotList, x, y, out ShipModule m))
+                return false;
+            return m == null || !m.Active;
         }
 
         bool ShouldBeExternal(ShipModule module)
@@ -150,7 +89,7 @@ namespace Ship_Game.Ships
 
         bool CheckIfShouldBeExternal(int x, int y)
         {
-            if (!GetModuleAt(SparseModuleGrid, x, y, out ShipModule module))
+            if (!Grid.Get(ModuleSlotList, x, y, out ShipModule module))
                 return false;
 
             if (ShouldBeExternal(module))
@@ -169,11 +108,11 @@ namespace Ship_Game.Ships
         void InitExternalSlots()
         {
             NumExternalSlots = 0;
-            for (int y = 0; y < GridHeight; ++y)
+            for (int y = 0; y < Grid.Height; ++y)
             {
-                for (int x = 0; x < GridWidth; ++x)
+                for (int x = 0; x < Grid.Width; ++x)
                 {
-                    int idx = x + y * GridWidth;
+                    int idx = x + y * Grid.Width;
                     if (ExternalModuleGrid[idx] == null && CheckIfShouldBeExternal(x, y))
                     {
                         // ReSharper disable once PossibleNullReferenceException
@@ -206,19 +145,17 @@ namespace Ship_Game.Ships
             int endX = p.X + module.XSize, endY = p.Y + module.YSize;
             for (int y = p.Y; y < endY; ++y)
                 for (int x = p.X; x < endX; ++x)
-                    sparseGrid[x + y * GridWidth] = becameActive ? module : null;
-        }
-
-        // safe and fast module lookup by x,y where coordinates (0,1) (2,1) etc
-        bool GetModuleAt(ShipModule[] sparseGrid, int x, int y, out ShipModule module)
-        {
-            module = (uint)x < GridWidth && (uint)y < GridHeight ? sparseGrid[x + y * GridWidth] : null;
-            return module != null;
+                    sparseGrid[x + y * Grid.Width] = becameActive ? module : null;
         }
 
         public ShipModule GetModuleAt(Point gridPos)
         {
-            return SparseModuleGrid[gridPos.X + gridPos.Y*GridWidth];
+            return Grid.Get(ModuleSlotList, gridPos);
+        }
+
+        public ShipModule GetModuleAt(int gridPosX, int gridPosY)
+        {
+            return Grid.Get(ModuleSlotList, gridPosX, gridPosY);
         }
 
         void DebugDrawShield(ShipModule s)
@@ -321,7 +258,7 @@ namespace Ship_Game.Ships
         public Vector2 WorldToGridLocal(Vector2 worldPoint)
         {
             Vector2 offset = worldPoint - Position;
-            return offset.RotatePoint(-Rotation) + GridLocalCenter;
+            return offset.RotatePoint(-Rotation) + Grid.GridLocalCenter;
         }
         
         // Converts a world position to a grid point such as [1,2]
@@ -353,7 +290,7 @@ namespace Ship_Game.Ships
         // TESTED in ShipModuleGridTests
         public Vector2 GridLocalToWorld(Vector2 localPoint)
         {
-            Vector2 centerLocal = localPoint - GridLocalCenter;
+            Vector2 centerLocal = localPoint - Grid.GridLocalCenter;
             return centerLocal.RotatePoint(Rotation) + Position;
         }
         
@@ -371,26 +308,26 @@ namespace Ship_Game.Ships
 
         Point ClipLocalPoint(Point pt)
         {
-            if (pt.X < 0) pt.X = 0; else if (pt.X >= GridWidth)  pt.X = GridWidth  - 1;
-            if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= GridHeight) pt.Y = GridHeight - 1;
+            if (pt.X < 0) pt.X = 0; else if (pt.X >= Grid.Width)  pt.X = Grid.Width  - 1;
+            if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= Grid.Height) pt.Y = Grid.Height - 1;
             return pt;
         }
 
         bool LocalPointInBounds(Point point)
         {
-            return 0 <= point.X && point.X < GridWidth
-                && 0 <= point.Y && point.Y < GridHeight;
+            return 0 <= point.X && point.X < Grid.Width
+                && 0 <= point.Y && point.Y < Grid.Height;
         }
 
         // an out of bounds clipped point would be in any of the extreme corners.
         bool ClippedLocalPointInBounds(Point point)
         {
-            return 0 <= point.X && point.X < GridWidth
-                && 0 <= point.Y && point.Y < GridHeight
+            return 0 <= point.X && point.X < Grid.Width
+                && 0 <= point.Y && point.Y < Grid.Height
                 && point != Point.Zero
-                && (point.X < GridWidth - 1 || point.Y < GridHeight - 1)
-                && (point.X > 0 || point.Y < GridHeight - 1)
-                && (point.Y > 0 || point.X < GridWidth - 1);
+                && (point.X < Grid.Width - 1 || point.Y < Grid.Height - 1)
+                && (point.X > 0 || point.Y < Grid.Height - 1)
+                && (point.Y > 0 || point.X < Grid.Width - 1);
         }
 
 
@@ -408,12 +345,12 @@ namespace Ship_Game.Ships
             pt = ClipLocalPoint(pt);
 
             ShipModule[] grid = ExternalModuleGrid;
-            int width = GridWidth;
+            int width = Grid.Width;
             ShipModule m;
             if ((m = grid[pt.X + pt.Y*width]) != null && m.Active) return m;
 
             int minX = pt.X, minY = pt.Y, maxX = pt.X, maxY = pt.Y;
-            int lastX = width - 1, lastY = GridHeight - 1;
+            int lastX = width - 1, lastY = Grid.Height - 1;
             for (;;)
             {
                 bool didExpand = false;
@@ -457,12 +394,10 @@ namespace Ship_Game.Ships
             if (!inA) a = ClipLocalPoint(a);
             if (!inB) b = ClipLocalPoint(b);
 
-            ShipModule[] grid = SparseModuleGrid;
-            int width = GridWidth;
             ShipModule m;
             if (a == b)
             {
-                if ((m = grid[a.X + a.Y*width]) != null && m.Active)
+                if ((m = GetModuleAt(a)) != null && m.Active)
                     return m;
                 return null;
             }
@@ -475,7 +410,7 @@ namespace Ship_Game.Ships
             Point cx = WorldToGridLocalPointClipped(worldHitPos);
             int minX = cx.X, minY = cx.Y;
             int maxX = cx.X, maxY = cx.Y;
-            if ((m = grid[minX + minY*width]) != null && m.Active) return m;
+            if ((m = GetModuleAt(minX, minY)) != null && m.Active) return m;
 
             for (;;)
             {
@@ -483,22 +418,22 @@ namespace Ship_Game.Ships
                 if (minX > firstX) { // test all modules to the left
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[minX + y*width]) != null && m.Active) return m;
+                        if ((m = GetModuleAt(minX, y)) != null && m.Active) return m;
                 }
                 if (maxX < lastX) { // test all modules to the right
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[maxX + y*width]) != null && m.Active) return m;
+                        if ((m = GetModuleAt(maxX, y)) != null && m.Active) return m;
                 }
                 if (minY > firstY) { // test all top modules
                     --minY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + minY*width]) != null && m.Active) return m;
+                        if ((m = GetModuleAt(x, minY)) != null && m.Active) return m;
                 }
                 if (maxY < lastY) { // test all bottom modules
                     ++maxY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + maxY*width]) != null && m.Active) return m;
+                        if ((m = GetModuleAt(x, maxY)) != null && m.Active) return m;
                 }
                 if (!didExpand) return null; // aargh, looks like we didn't find any!
             }
@@ -532,12 +467,10 @@ namespace Ship_Game.Ships
                     return;
             }
 
-            ShipModule[] grid = SparseModuleGrid;
-            int width = GridWidth;
             ShipModule m;
             if (a == b)
             {
-                if ((m = grid[a.X + a.Y * width]) != null && m.Active)
+                if ((m = GetModuleAt(a)) != null && m.Active)
                     m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount);
 
                 return;
@@ -554,7 +487,7 @@ namespace Ship_Game.Ships
             int minY = cx.Y;
             int maxX = cx.X;
             int maxY = cx.Y;
-            if ((m = grid[minX + minY * width]) != null && m.Active
+            if ((m = GetModuleAt(minX, minY)) != null && m.Active
                 && m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount))
             {
                  return; // withstood the explosion
@@ -573,9 +506,9 @@ namespace Ship_Game.Ships
                     --minX;
                     didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[minX + y * width]) != null && m.Active)
+                        if ((m = GetModuleAt(minX, y)) != null && m.Active)
                         {
-                            ShipModule innerModule = grid[minX+1 + y * width];
+                            ShipModule innerModule = GetModuleAt(minX+1, y);
                             if (innerModule == null || !innerModule.Active)
                                 m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
                         }
@@ -586,9 +519,9 @@ namespace Ship_Game.Ships
                     ++maxX;
                     didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
-                        if ((m = grid[maxX + y * width]) != null && m.Active)
+                        if ((m = GetModuleAt(maxX, y)) != null && m.Active)
                         {
-                            ShipModule innerModule = grid[maxX-1 + y * width];
+                            ShipModule innerModule = GetModuleAt(maxX-1, y);
                             if (innerModule == null || !innerModule.Active)
                                 m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
                         }
@@ -599,9 +532,9 @@ namespace Ship_Game.Ships
                     --minY;
                     didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + minY * width]) != null && m.Active)
+                        if ((m = GetModuleAt(x, minY)) != null && m.Active)
                         {
-                            ShipModule innerModule = grid[x + (minY+1) * width];
+                            ShipModule innerModule = GetModuleAt(x, minY+1);
                             if (innerModule == null || !innerModule.Active)
                                 m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
                         }
@@ -612,9 +545,9 @@ namespace Ship_Game.Ships
                     ++maxY;
                     didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
-                        if ((m = grid[x + maxY * width]) != null && m.Active)
+                        if ((m = GetModuleAt(x, maxY)) != null && m.Active)
                         {
-                            ShipModule innerModule = grid[x + (maxY-1) * width];
+                            ShipModule innerModule = GetModuleAt(x, maxY-1);
                             if (innerModule == null || !innerModule.Active)
                                 m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
                         }
@@ -657,7 +590,7 @@ namespace Ship_Game.Ships
                 //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
                 //    DebugGridStep(new Vector2(start.X, endPos.Y), Color.Yellow);
 
-                ShipModule mb = SparseModuleGrid[neighbor.X + neighbor.Y * GridWidth];
+                ShipModule mb = GetModuleAt(neighbor.X, neighbor.Y);
                 if (mb != null && mb.Active)
                 {
                     //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
@@ -669,7 +602,7 @@ namespace Ship_Game.Ships
             //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
             //    DebugGridStep(endPos, Color.LightGreen);
 
-            ShipModule mc = SparseModuleGrid[end.X + end.Y * GridWidth];
+            ShipModule mc = GetModuleAt(end.X, end.Y);
             if (mc != null && mc.Active)
             {
                 //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
@@ -688,7 +621,7 @@ namespace Ship_Game.Ships
 
             // sometimes we directly enter the grid and hit a module:
             Point enter = GridLocalToPoint(pos);
-            ShipModule me = SparseModuleGrid[enter.X + enter.Y * GridWidth];
+            ShipModule me = GetModuleAt(enter.X, enter.Y);
             if (me != null && me.Active)
             {
                 //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
@@ -722,7 +655,7 @@ namespace Ship_Game.Ships
             Vector2 dir = (endPos - startPos).Normalized();
             Vector2 a = WorldToGridLocal(startPos - dir * (Radius * 2));
             Vector2 b = WorldToGridLocal(endPos);
-            if (MathExt.ClipLineWithBounds(GridWidth*16f, GridHeight*16f, a, b, ref a, ref b)) // guaranteed bounds safety
+            if (MathExt.ClipLineWithBounds(Grid.Width*16f, Grid.Height*16f, a, b, ref a, ref b)) // guaranteed bounds safety
             {
                 ShipModule module = WalkModuleGrid(a, b);
                 if (module == null)
@@ -744,7 +677,7 @@ namespace Ship_Game.Ships
             Vector2 endPos = startPos + direction * distance;
             Vector2 a = WorldToGridLocal(startPos);
             Vector2 b = WorldToGridLocal(endPos);
-            if (MathExt.ClipLineWithBounds(GridWidth * 16f, GridHeight * 16f, a, b, ref a, ref b)) // guaranteed bounds safety
+            if (MathExt.ClipLineWithBounds(Grid.Width * 16f, Grid.Height * 16f, a, b, ref a, ref b)) // guaranteed bounds safety
             {
                 Vector2 pos = a;
                 Vector2 delta = b - a;
@@ -753,7 +686,7 @@ namespace Ship_Game.Ships
                 for (; n > 0; --n, pos += step)
                 {
                     Point p = GridLocalToPoint(pos);
-                    ShipModule m = SparseModuleGrid[p.X + p.Y*GridWidth];
+                    ShipModule m = GetModuleAt(p);
                     if (m != null && m.Active)
                     {
                         // get covering shields to damage them first
