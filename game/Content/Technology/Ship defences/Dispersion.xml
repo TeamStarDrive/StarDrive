@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+ <Version>2</Version>
+  <UID>Dispertion</UID>
+  <TechnologyType>ShipDefense</TechnologyType>
+  <Cost>400</Cost>
+  <MaxLevel>12</MaxLevel>
+  <RootNode>0</RootNode>
+  <Name>Nano-structure</Name>
+  <NameIndex>17642</NameIndex>
+  <DescriptionIndex>17643</DescriptionIndex>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Amplifier</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Shield power</Name>
+      <BonusType>Shield Power Bonus</BonusType>
+      <Bonus>0.3</Bonus>
+      <BonusIndex>17644</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
+</Technology>
