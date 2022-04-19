@@ -95,7 +95,7 @@ namespace Ship_Game.Ships
 
         // total number of installed module SLOTS with Internal Restrictions
         // example: a 2x2 internal module would give +4
-        public int TotalInternalModuleSlots => Grid.TotalInternalModuleSlots;
+        public int NumInternalSlots => Grid.NumInternalSlots;
 
         // active internal modules SLOTS that have health > 0
         public int ActiveInternalModuleSlots;
@@ -1076,7 +1076,7 @@ namespace Ship_Game.Ships
         public void SetActiveInternalSlotCount(int activeInternalSlots)
         {
             ActiveInternalModuleSlots = activeInternalSlots;
-            InternalSlotsHealthPercent = (float)activeInternalSlots / TotalInternalModuleSlots;
+            InternalSlotsHealthPercent = (float)activeInternalSlots / NumInternalSlots;
         }
 
         // TODO: This needs a performance refactor
