@@ -127,7 +127,7 @@ namespace Ship_Game.Ships
                     return; // already powered
 
                 // we need to find any underlying module and set all of it as powered
-                ShipModule m = Grid.Get(Ship.ModuleSlotList, gridIndex);
+                ShipModule m = Ship.GetModuleAt(gridIndex);
                 if (m != null)
                 {
                     // fill everything under this module, so we don't need to check this area again
@@ -150,7 +150,7 @@ namespace Ship_Game.Ships
                 if (gridX < 0 || gridY < 0 || gridX >= Grid.Width || gridY >= Grid.Height)
                     return false; // out of bounds
 
-                return Grid.Get(Ship.ModuleSlotList, gridX, gridY)?.ModuleType == type;
+                return Ship.GetModuleAt(gridX, gridY)?.ModuleType == type;
             }
         
             // called during ship initialize to give the correct shape to the conduit
@@ -223,7 +223,7 @@ namespace Ship_Game.Ships
                     Point cp = open.PopLast();
                     if (!IsChecked(cp.X, cp.Y))
                     {
-                        ShipModule conduit = Grid.Get(Ship.ModuleSlotList, cp);
+                        ShipModule conduit = Ship.GetModuleAt(cp);
                         DistributePowerFrom(conduit, cp.X, cp.Y);
                         GetNeighbouringConduits(conduit, cp.X, cp.Y, open);
                     }
@@ -246,7 +246,7 @@ namespace Ship_Game.Ships
                 for (int y = y0; y <= y1; ++y)
                 for (int x = x0; x <= x1; ++x)
                 {
-                    ShipModule m = Grid.Get(Ship.ModuleSlotList, x, y);
+                    ShipModule m = Ship.GetModuleAt(x, y);
                     if (m != null) // if there is a module at this point
                     {
                         if (!IsChecked(x, y) && m.ModuleType == ShipModuleType.PowerConduit)

@@ -29,6 +29,7 @@ namespace Ship_Game.Ships
         // center of the ship in ShipLocal world coordinates, ex [64f, 0f], always positive
         public readonly Vector2 GridLocalCenter;
 
+        // Radius of the module grid
         public readonly float Radius;
 
         static bool EnableDebugGridExport = false;
@@ -36,14 +37,14 @@ namespace Ship_Game.Ships
         // to reduce memory usage, this is just a grid of ModuleIndexes
         // since this is a sparse Width x Height grid, many of these
         // will be -1 meaning no module at that point
-        short[] ModuleIndexGrid;
+        readonly short[] ModuleIndexGrid;
 
-        short[] ShieldsIndex; // all shield module indices
-        short[] AmplifiersIndex; // all amplifier module indices
+        readonly short[] ShieldsIndex; // all shield module indices
+        readonly short[] AmplifiersIndex; // all amplifier module indices
 
         // total number of installed module SLOTS with Internal Restrictions
         // example: a 2x2 internal module would give +4
-        public readonly int TotalInternalModuleSlots;
+        public readonly int NumInternalSlots;
 
         public ModuleGridFlyweight(string name, in ShipGridInfo info, DesignSlot[] slots)
         {
@@ -68,8 +69,7 @@ namespace Ship_Game.Ships
                 for (int y = p.Y; y < endY; ++y)
                 for (int x = p.X; x < endX; ++x)
                 {
-                    int index = x + y * Width;
-                    ModuleIndexGrid[index] = (short)i;
+                    ModuleIndexGrid[x + y * Width] = (short)i;
                 }
             }
 
@@ -87,7 +87,7 @@ namespace Ship_Game.Ships
                     amplifiers.Add((short)i);
 
                 if (module.HasInternalRestrictions)
-                    TotalInternalModuleSlots += s.Size.X * s.Size.Y;
+                    NumInternalSlots += s.Size.X * s.Size.Y;
             }
 
             ShieldsIndex = shields.ToArray();
