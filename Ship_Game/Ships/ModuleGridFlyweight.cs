@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
@@ -44,21 +45,18 @@ namespace Ship_Game.Ships
         // example: a 2x2 internal module would give +4
         public readonly int TotalInternalModuleSlots;
 
-        public ModuleGridFlyweight(ShipDesign design)
+        public ModuleGridFlyweight(string name, in ShipGridInfo info, DesignSlot[] slots)
         {
-            var info = design.GridInfo;
             SurfaceArea = info.SurfaceArea;
             Width  = info.Size.X;
             Height = info.Size.Y;
-            GridLocalCenter = new Vector2(info.Size.X * 8f, info.Size.Y * 8f);
+            GridLocalCenter = new Vector2(Width * 8f, Height * 8f);
         
             // Ship's true radius is half of Module Grid's Diagonal Length
-            var span = new Vector2(info.Size.X, info.Size.Y) * 16f;
+            var span = new Vector2(Width, Height) * 16f;
             Radius = span.Length() * 0.5f;
 
-            var slots = design.GetOrLoadDesignSlots();
-            
-            ModuleIndexGrid = new short[slots.Length];
+            ModuleIndexGrid = new short[Width * Height];
             for (int i = 0; i < ModuleIndexGrid.Length; ++i)
                 ModuleIndexGrid[i] = -1;
 
@@ -69,7 +67,10 @@ namespace Ship_Game.Ships
                 int endX = p.X + s.Size.X, endY = p.Y + s.Size.Y;
                 for (int y = p.Y; y < endY; ++y)
                 for (int x = p.X; x < endX; ++x)
-                    ModuleIndexGrid[x + y * Width] = (short)i;
+                {
+                    int index = x + y * Width;
+                    ModuleIndexGrid[index] = (short)i;
+                }
             }
 
             var shields = new Array<short>();
@@ -95,7 +96,7 @@ namespace Ship_Game.Ships
             if (EnableDebugGridExport)
             {
                 var slotsGrid = ModuleIndexGrid.Select(index => index != -1 ? slots[index] : null);
-                ModuleGridUtils.DebugDumpGrid($"Debug/SparseGrid/{design.Name}.txt",
+                ModuleGridUtils.DebugDumpGrid($"Debug/SparseGrid/{name}.txt",
                     slotsGrid, Width, Height, ModuleGridUtils.DumpFormat.DesignSlot);
             }
         }
@@ -106,7 +107,7 @@ namespace Ship_Game.Ships
             if ((uint)x < Width && (uint)y < Height)
             {
                 int index = ModuleIndexGrid[x + y * Width];
-                module = modules[index];
+                module = index != -1 ? modules[index] : null;
                 return module != null;
             }
             module = null;
@@ -116,19 +117,31 @@ namespace Ship_Game.Ships
         public ShipModule Get(ShipModule[] modules, Point gridPos)
         {
             int index = ModuleIndexGrid[gridPos.X + gridPos.Y * Width];
-            return modules[index];
+            return index != -1 ? modules[index] : null;
         }
 
         public ShipModule Get(ShipModule[] modules, int gridPosX, int gridPosY)
         {
             int index = ModuleIndexGrid[gridPosX + gridPosY * Width];
-            return modules[index];
+            return index != -1 ? modules[index] : null;
         }
 
         public ShipModule Get(ShipModule[] modules, int gridIndex)
         {
             int index = ModuleIndexGrid[gridIndex];
-            return modules[index];
+            return index != -1 ? modules[index] : null;
+        }
+
+        public IEnumerable<ShipModule> GetShields(ShipModule[] modules)
+        {
+            for (int i = 0; i < ShieldsIndex.Length; ++i)
+                yield return modules[ShieldsIndex[i]];
+        }
+
+        public IEnumerable<ShipModule> GetAmplifiers(ShipModule[] modules)
+        {
+            for (int i = 0; i < AmplifiersIndex.Length; ++i)
+                yield return modules[AmplifiersIndex[i]];
         }
     }
 

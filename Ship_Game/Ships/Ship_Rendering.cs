@@ -396,9 +396,8 @@ namespace Ship_Game.Ships
             var uiNode = ResourceManager.Texture("UI/node");
 
             screen.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            for (int i = 0; i < Shields.Length; ++i)
+            foreach (ShipModule m in GetShields())
             {
-                ShipModule m = Shields[i];
                 if (m.Active && m.ShieldsAreActive)
                 {
                     screen.ProjectToScreenCoords(m.Position, m.ShieldRadius * 2.75f, 

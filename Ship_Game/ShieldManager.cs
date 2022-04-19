@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
@@ -96,10 +97,10 @@ namespace Ship_Game
             return shield;
         }
 
-        public static void RemoveShieldLights(UniverseScreen u, ShipModule[] shields)
+        public static void RemoveShieldLights(UniverseScreen u, IEnumerable<ShipModule> shields)
         {
-            for (int i = 0; i < shields.Length; ++i)
-                shields[i].Shield.RemoveLight(u);
+            foreach (ShipModule shield in shields)
+                shield.Shield.RemoveLight(u);
         }
 
         public static void Update(UniverseScreen u)
