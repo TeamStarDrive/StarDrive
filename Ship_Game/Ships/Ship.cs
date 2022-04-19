@@ -825,7 +825,7 @@ namespace Ship_Game.Ships
             if (targetShip != null)
             {
                 if (targetShip.Dying || !targetShip.Active ||
-                    targetShip.NumExternalSlots <= 0)
+                    targetShip.Externals.NumModules <= 0)
                     return false;
             }
 
@@ -1706,9 +1706,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 ModuleSlotList[i].Dispose();
 
-            ModuleSlotList     = Empty<ShipModule>.Array;
-            ExternalModuleGrid = Empty<ShipModule>.Array;
-            NumExternalSlots = 0;
+            ModuleSlotList = Empty<ShipModule>.Array;
             DestroyThrusters();
 
             BombBays.Clear();
@@ -1765,7 +1763,6 @@ namespace Ship_Game.Ships
             Stats?.Dispose();
             Cargo = null;
             ModuleSlotList = null;
-            ExternalModuleGrid = null;
             ShipEngines?.Dispose();
             ShipEngines = null;
             Influences = null;
