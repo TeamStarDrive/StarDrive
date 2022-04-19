@@ -171,7 +171,7 @@ namespace Ship_Game.Ships
                 ModuleSlotList = ModuleSlotList.Filter(s => s != null);
             }
 
-            CreateModuleGrid(ShipData.GridInfo, isTemplate, shipyardDesign);
+            CreateModuleGrid(ShipData, isTemplate, shipyardDesign);
             return true;
         }
 
@@ -190,7 +190,7 @@ namespace Ship_Game.Ships
             }
 
             design.SetDesignSlots(DesignSlot.FromModules(placedModules));
-            CreateModuleGrid(ShipData.GridInfo, isTemplate:true, shipyardDesign:true);
+            CreateModuleGrid(ShipData, isTemplate:true, shipyardDesign:true);
         }
 
         // initialize modules from saved game
@@ -217,7 +217,7 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i] = ShipModule.Create(Universe, slot, this);
             }
 
-            CreateModuleGrid(ShipData.GridInfo, isTemplate: false, shipyardDesign: false);
+            CreateModuleGrid(ShipData, isTemplate: false, shipyardDesign: false);
             return true;
         }
 

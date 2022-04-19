@@ -70,15 +70,15 @@ namespace Ship_Game.Ships
 
         void DrawSparseModuleGrid(GameScreen us)
         {
-            if (SparseModuleGrid.Length != 0)
+            if (ModuleSlotList.Length != 0)
             {
-                for (int y = 0; y < GridHeight; ++y)
+                for (int y = 0; y < Grid.Height; ++y)
                 {
-                    for (int x = 0; x < GridWidth; ++x)
+                    for (int x = 0; x < Grid.Width; ++x)
                     {
                         Color color = Color.DarkGray;
-                        if    (ExternalModuleGrid[x + y * GridWidth] != null) color = Color.Blue;
-                        else if (SparseModuleGrid[x + y * GridWidth] != null) color = Color.Yellow;
+                        if    (ExternalModuleGrid[x + y * Grid.Width] != null) color = Color.Blue;
+                        else if (GetModuleAt(x, y) != null) color = Color.Yellow;
 
                         us.DrawRectangleProjected(GridSquareToWorld(x, y), new Vector2(16f, 16f), Rotation, color);
                     }
@@ -349,15 +349,15 @@ namespace Ship_Game.Ships
                 return;
             }
             
-            int maxSpan = Math.Max(GridWidth, GridHeight);
-            Vector2 gridCenter = new Vector2(GridWidth, GridHeight) / 2f;
+            int maxSpan = Math.Max(Grid.Width, Grid.Height);
+            Vector2 gridCenter = new Vector2(Grid.Width, Grid.Height) / 2f;
             Vector2 rectCenter = new Vector2(drawRect.Width, drawRect.Height) / 2f;
 
             float moduleSize = (drawRect.Width / (maxSpan + 1f)).Clamped(2f, 24f);
             var shipDrawRect = new Rectangle(
                     drawRect.X + (int)(rectCenter.X - (gridCenter.X * moduleSize)),
                     drawRect.Y + (int)(rectCenter.Y - (gridCenter.Y * moduleSize)),
-                    (int)(GridWidth * moduleSize), (int)(GridHeight * moduleSize));
+                    (int)(Grid.Width * moduleSize), (int)(Grid.Height * moduleSize));
 
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
