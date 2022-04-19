@@ -13,6 +13,9 @@
     <LeadsToTech>
       <UID>EnergyShielding</UID>
     </LeadsToTech>
+    <LeadsToTech>
+      <UID>Dispersion</UID>
+    </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
     <UnlockedMod>

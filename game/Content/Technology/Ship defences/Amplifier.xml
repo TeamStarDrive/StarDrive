@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>Amplifier</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
-  <Cost>800</Cost>
+  <Cost>650</Cost>
   <RootNode>0</RootNode>
   <Name>Pulse Capacitors</Name>
   <NameIndex>17493</NameIndex>

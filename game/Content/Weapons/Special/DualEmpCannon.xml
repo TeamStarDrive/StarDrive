@@ -34,6 +34,7 @@
   <DamageAmount>0</DamageAmount>
   <EMPDamage>250</EMPDamage>
   <SiphonDamage>500</SiphonDamage>
+  <ShieldPenChance>55</ShieldPenChance>
   
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1450</ProjectileSpeed>

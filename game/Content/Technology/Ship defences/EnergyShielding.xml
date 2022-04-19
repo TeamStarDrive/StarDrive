@@ -13,9 +13,6 @@
     <LeadsToTech>
       <UID>HeavyShields</UID>
     </LeadsToTech>
-        <LeadsToTech>
-      <UID>Amplifier</UID>
-    </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
     <UnlockedMod>

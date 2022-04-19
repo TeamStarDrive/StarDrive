@@ -13773,10 +13773,10 @@ BB_AFRepeaterDescr:
  ENG: "Fast firing anti-fighter energy turret, designed to deal with nimble and lightly armoured crafts at close range. "
 BB_OrdnanceDevelopmentTech:
  Id: 17630
- ENG: "Ordnance"
+ ENG: "Compression"
 BB_OrdnanceDevelopmentTechDescr:
  Id: 17631
- ENG: "Long term plan of advancments of kinetic weapons. Can be researched multiple times, each time tech costs is increased."
+ ENG: "Advancements in compression techniques to create more dense ordnance have improved the damage output of ordnance based weapons. Can be researched multiple times, each time tech costs is increased."
 BB_OrdnanceDevelopmentTechbonus:
  Id: 17632
  ENG: "5% damage bonus to kinetic based weapons."
@@ -13789,22 +13789,42 @@ BB_WarheadDevelopmentTechDescr:
 BB_WarheadDevelopmentTechTechbonus:
  Id: 17635
  ENG: "10% damage bonus to missiles and torpedoes."
-BB_AFRepeaterDescr:
+BB_ConherencyTech:
  Id: 17636
- ENG: ""
-BB_AFRepeaterDescr:
+ ENG: "Crystalline Optics"
+BB_ConherencTechDescr:
  Id: 17637
- ENG: ""
-BB_AFRepeaterDescr:
+ ENG: "Improvements in relationship between the phase of waves in a beam of radiation of a single frequency resulting more powerfull beam.Can be researched multiple times, each time tech costs is increased."
+BB_ConherencTechDescrBonus:
  Id: 17638
- ENG: ""
-BB_AFRepeaterDescr:
+ ENG: "5% damage bonus to beam based weapons."
+BB_EnergizationTech:
  Id: 17639
- ENG: ""
-BB_AFRepeaterDescr:
+ ENG: "Energization"
+BB_EnergizationTechDescr:
  Id: 17640
- ENG: ""
-
+ ENG: "Advancements in more tightly and intensely packaged energy projectiles have improved their damage output. Can be researched multiple times, each time tech costs is increased."
+BB_EnergizationTechDescrBonus:
+ Id: 17641
+ ENG: "5% damage bonus to energy projectile based weapons."
+BB_DispersionTech:
+ Id: 17642
+ ENG: "Dispersion"
+BB_DispersionTechDescr:
+ Id: 17643
+ ENG: "Advancements in the energy dispersion methods used in our shields have led to a better protection and an effective hitpoints increase of our shields.Can be researched multiple times, each time tech costs is increased."
+BB_DispersionTechDescrBonus:
+ Id: 17644
+ ENG: "5% shield power increase."
+BB_DurabilityTech:
+ Id: 17645
+ ENG: "Durability"
+BB_DurabilityTechDescr:
+ Id: 17646
+ ENG: "Advancement in the atomic structure of our materials have increase the hitpoints of all our modules including armour. Can be researched multiple times, each time tech costs is increased."
+BB_Nano-structureTecDescrBonus:
+ Id: 17647
+ ENG: "5% shield power increase."
 
 
 Tech_AncientArmor_Name:

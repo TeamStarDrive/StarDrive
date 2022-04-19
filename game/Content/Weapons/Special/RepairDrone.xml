@@ -15,7 +15,7 @@
   <Tag_Cannon>false</Tag_Cannon>
 
   <UID>RepairDrone</UID>
-  <FireDelay>30</FireDelay>
+  <FireDelay>50</FireDelay>
   <Range>30000</Range>
   <HitPoints>20</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>

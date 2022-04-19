@@ -13,6 +13,9 @@
     <LeadsToTech>
       <UID>Advanced Materials</UID>
     </LeadsToTech>
+    <LeadsToTech>
+      <UID>Durability</UID>
+    </LeadsToTech>
   </LeadsTo>
   <UnlockedAtGameStart>
     <RaceRequirements>
