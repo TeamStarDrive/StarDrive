@@ -185,6 +185,7 @@ namespace Ship_Game
             UniverseState us = UState;
             us.UniqueObjectIds = save.UniqueObjectIds;
             us.GamePace = save.GamePacing;
+            us.BackgroundSeed = save.BackgroundSeed;
             us.StarDate = save.StarDate;
             us.FTLModifier      = save.FTLModifier;
             us.EnemyFTLModifier = save.EnemyFTLModifier;

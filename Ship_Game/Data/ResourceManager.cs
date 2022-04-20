@@ -1230,6 +1230,7 @@ namespace Ship_Game
         static Array<TextureBinding> SmallNebulae = new Array<TextureBinding>();
 
         public static bool HasLoadedNebulae => Nebulae != null && Nebulae.Count > 0;
+        public static int NumBigNebulae => BigNebulae.Count;
 
         // Refactored by RedFox
         static void LoadNebulae()
