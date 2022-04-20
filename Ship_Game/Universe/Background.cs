@@ -134,8 +134,8 @@ namespace Ship_Game
             // draw some extra stars
             StarField.Draw(Camera.Pos, batch);
 
-            BkgRect = new RectF(Camera.Pos.X - width*0.5f  - (Camera.Pos.X / 30f) - 200f,
-                                Camera.Pos.Y - height*0.5f - (Camera.Pos.Y / 30f) - 200f, 2048, 2048);
+            BkgRect = new RectF(Camera.Pos.X - width*0.4f  - (Camera.Pos.X / 20f) - 600f,
+                                Camera.Pos.Y - height*0.4f - (Camera.Pos.Y / 20f) - 600f, 2048, 2048);
             if (width > 2048)
                 BkgRect.W = BkgRect.H = 2600;
 
@@ -143,9 +143,9 @@ namespace Ship_Game
             ///// Drawing the BigNebula causes less visibility in the universe, often mistaking game stars(solar systems) at max zoom with start in the nebula texture.
 
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
-            batch.Draw(ResourceManager.BigNebula(1), BkgRect, new Color(255, 255, 255, 110));
-            batch.Draw(ResourceManager.BigNebula(2), BkgRect, new Color(255, 255, 255, 90));
-            batch.Draw(ResourceManager.BigNebula(3), BkgRect, new Color(255, 255, 255, 90));
+            batch.Draw(ResourceManager.BigNebula(1), BkgRect, new Color(255, 255, 255, 60));
+            batch.Draw(ResourceManager.BigNebula(2), BkgRect, new Color(255, 255, 255, 160));
+            //batch.Draw(ResourceManager.BigNebula(3), BkgRect, new Color(255, 255, 255, 90)); //dissabled to prevent muddiness
             batch.End();
         }
 
