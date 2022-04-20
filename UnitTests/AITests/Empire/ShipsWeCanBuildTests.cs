@@ -42,9 +42,9 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void ShipsWillBeUnlockedAfterTechUnlock()
         {
+            Player.ShipsWeCanBuild.Clear();
             var ship = SpawnShip("Heavy Carrier mk5-b", Player, Vector2.Zero);
             var prototype = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
-            Player.ShipsWeCanBuild.Clear();
 
             UnlockAllTechsForShip(Player, ship.Name); // this must automatically unlock the ships
             Assert.IsTrue(Player.ShipsWeCanBuild.Contains(ship.Name), $"{ship.Name} Not found in ShipWeCanBuild");
