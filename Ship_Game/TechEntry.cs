@@ -43,7 +43,7 @@ namespace Ship_Game
             get
             {
                 float cost      = Tech.ActualCost;
-                float techLevel = (float)Math.Max(1, Math.Pow(2.0, Level));
+                float techLevel = (float)Math.Max(1, Math.Pow(1.4, Level));
                 int rootTech    = Tech.RootNode * 100;
                 return cost * (techLevel + rootTech);
             }
