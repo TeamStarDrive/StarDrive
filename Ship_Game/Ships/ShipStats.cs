@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Ship_Game.Ships
 {
@@ -229,11 +230,9 @@ namespace Ship_Game.Ships
         // This will also update shield max power of modules if there are amplifiers
         float UpdateShieldPowerMax(float shieldAmplify)
         {
-            ShipModule[] shields = S.Shields;
             float shieldMax = 0;
-            for (int i = 0; i < shields.Length; i++)
+            foreach (ShipModule shield in S.GetShields())
             {
-                ShipModule shield = shields[i];
                 if (shield.Active && shield.Powered)
                 {
                     shield.UpdateShieldPowerMax(shieldAmplify);
@@ -247,25 +246,20 @@ namespace Ship_Game.Ships
         {
             TotalShieldAmplification = ShieldAmplifyPerShield = 0;
 
-            ShipModule[] amplifiers = S.Amplifiers;
-            if (amplifiers.Length == 0)
+            int numMainShields = S.GetShields().Count(s => s.ModuleType == ShipModuleType.Shield);
+            if (numMainShields == 0)
                 return;
 
-            var mainShields = S.Shields.Filter(s => s.ModuleType == ShipModuleType.Shield);
-            int numShields = mainShields.Length;
-            if (numShields == 0)
-                return;
-
-            for (int i = 0; i < amplifiers.Length; i++)
+            var amplifiers = S.GetAmplifiers();
+            foreach (ShipModule amplifier in amplifiers)
             {
-                ShipModule amplifier = amplifiers[i];
                 if (amplifier.Active && amplifier.Powered)
                     TotalShieldAmplification += amplifier.AmplifyShields;
             }
 
-            ShieldAmplifyPerShield = TotalShieldAmplification / numShields;
+            ShieldAmplifyPerShield = TotalShieldAmplification / numMainShields;
         }
 
-        public bool HasMainShields => S.Shields.Any(s => s.ModuleType == ShipModuleType.Shield);
+        public bool HasMainShields => S.GetShields().Any(s => s.ModuleType == ShipModuleType.Shield);
     }
 }

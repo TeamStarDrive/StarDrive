@@ -33,6 +33,7 @@ namespace Ship_Game.Ships
         AIState DefaultAIState { get; }
         CombatState DefaultCombatState { get; }
 
+        ModuleGridFlyweight Grid { get; }
         ShipGridInfo GridInfo { get; }
 
         // Complete list of all the unique module UID-s found in this design

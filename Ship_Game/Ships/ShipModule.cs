@@ -1016,7 +1016,8 @@ namespace Ship_Game.Ships
             }
 
             Active = false;
-            SetHealth(0f);
+            if (Health > 0f) // potential recursive re-entrance
+                SetHealth(0f);
             Parent.OnModuleDeath(this);
 
             if (!cleanupOnly && source != null)

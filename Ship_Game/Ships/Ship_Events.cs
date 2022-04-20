@@ -10,7 +10,7 @@ namespace Ship_Game.Ships
             if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
                 ShouldRecalculatePower = true;
             if (m.IsExternal)
-                UpdateExternalSlots(m, becameActive: false);
+                UpdateExternalSlots(m);
             if (m.HasInternalRestrictions)
             {
                 SetActiveInternalSlotCount(ActiveInternalModuleSlots - m.Area);
@@ -29,7 +29,7 @@ namespace Ship_Game.Ships
             ShipStatusChanged = true; // update ship status sometime in the future (can be 1 second)
             if (m.PowerDraw > 0 || m.ActualPowerFlowMax > 0 || m.PowerRadius > 0)
                 ShouldRecalculatePower = true;
-            UpdateExternalSlots(m, becameActive: true);
+            UpdateExternalSlots(m);
             if (m.HasInternalRestrictions)
             {
                 SetActiveInternalSlotCount(ActiveInternalModuleSlots + m.Area);
