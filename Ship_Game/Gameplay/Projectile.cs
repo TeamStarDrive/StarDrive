@@ -398,7 +398,7 @@ namespace Ship_Game.Gameplay
                     {
                         float launchDir = RandomMath.RollDie(2) == 1 ? -RadMath.Deg90AsRads : RadMath.Deg90AsRads;
                         Vector2 separationVel = (Rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(40));
-                        separationVector = separationVel;
+                        separationVector += separationVel; // Add it to the initial velocity
                     }
 
                     bool playSound = i == 0; // play sound once
