@@ -19,6 +19,11 @@ namespace Ship_Game.Universe
     /// </summary>
     public class UniverseState
     {
+        /// <summary>
+        /// This is the Width and Height of the universe
+        /// Stars are generated within XY range [-Size/2, +Size/2],
+        /// so {0,0} is center of the universe
+        /// </summary>
         public readonly float Size;
         public float FTLModifier = 1f;
         public float EnemyFTLModifier = 1f;
@@ -40,6 +45,10 @@ namespace Ship_Game.Universe
         public float GamePace = 1f;
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
+
+        // generated once during universe generation
+        // allows us to define consistent backgrounds between savegames
+        public int BackgroundSeed;
 
         /// <summary>
         /// Manages universe objects in a thread-safe manner

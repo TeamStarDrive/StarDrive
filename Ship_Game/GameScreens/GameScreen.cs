@@ -559,6 +559,14 @@ namespace Ship_Game
             sizeOnScreen = pos2.Distance(posOnScreen);
         }
 
+        public (Vector2d PosOnScreen, Vector2d SizeOnScreen) ProjectToScreenCoords(in Vector3 posInWorld, in Vector2 sizeInWorld)
+        {
+            Vector2d posOnScreen = ProjectToScreenPosition(posInWorld);
+            double sizeX = ProjectToScreenPosition(posInWorld + new Vector3(sizeInWorld.X,0,0)).Distance(posOnScreen);
+            double sizeY = ProjectToScreenPosition(posInWorld + new Vector3(0, sizeInWorld.Y, 0)).Distance(posOnScreen);
+            return (posOnScreen, new Vector2d(sizeX,sizeY));
+        }
+
         public void ProjectToScreenCoords(Vector2 posInWorld, float zAxis, float sizeInWorld,
                                           out Vector2d posOnScreen, out double sizeOnScreen)
         {

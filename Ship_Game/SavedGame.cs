@@ -104,6 +104,7 @@ namespace Ship_Game
             SaveData.AutoProjectors        = EmpireManager.Player.AutoBuild;
             SaveData.GamePacing            = CurrentGame.Pace;
             SaveData.GameScale             = 1f;
+            SaveData.BackgroundSeed        = us.BackgroundSeed;
             SaveData.StarDate              = us.StarDate;
             SaveData.FTLModifier           = us.FTLModifier;
             SaveData.EnemyFTLModifier      = us.EnemyFTLModifier;
@@ -971,6 +972,7 @@ namespace Ship_Game
             [StarData] public float StarDate;
             [StarData] public float GameScale;
             [StarData] public float GamePacing;
+            [StarData] public int BackgroundSeed;
             [StarData] public Array<SolarSystemSaveData> SolarSystemDataList;
             [StarData] public Array<EmpireSaveData> EmpireDataList;
             [StarData] public GameDifficulty GameDifficulty;

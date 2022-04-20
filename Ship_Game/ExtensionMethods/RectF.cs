@@ -102,6 +102,11 @@ namespace Ship_Game
             return new RectF(center.X - width*0.5f, center.Y - height*0.5f, width, height);
         }
 
+        public static RectF FromCenter(Vector2d center, double width, double height)
+        {
+            return new RectF(center.X - width * 0.5, center.Y - height * 0.5, width, height);
+        }
+
         public static implicit operator Rectangle(in RectF r)
         {
             return new Rectangle((int)r.X, (int)r.Y, (int)r.W, (int)r.H);
