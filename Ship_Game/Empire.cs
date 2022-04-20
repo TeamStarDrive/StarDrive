@@ -1287,13 +1287,16 @@ namespace Ship_Game
         }
 
         public void UnlockTech(string techId, TechUnlockType techUnlockType)
-            => UnlockTech(techId, techUnlockType, null);
+        {
+            TechEntry techEntry = GetTechEntry(techId);
+            UnlockTech(techEntry, techUnlockType, null);
+        }
 
         public void UnlockTech(string techId, TechUnlockType techUnlockType, Empire otherEmpire)
-            => UnlockTech(GetTechEntry(techId), techUnlockType, otherEmpire);
-
-        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType)
-            => UnlockTech(techEntry, techUnlockType, null);
+        {
+            TechEntry techEntry = GetTechEntry(techId);
+            UnlockTech(techEntry, techUnlockType, otherEmpire);
+        }
 
         public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType, Empire otherEmpire)
         {
@@ -2029,7 +2032,7 @@ namespace Ship_Game
                 if (!ship.CanBeAddedToBuildableShips(this))
                     continue;
 
-                if (WeCanBuildThis(ship.Name))
+                if (WeCanBuildThis(ship.ShipData))
                 {
                     if (ship.ShipData.Role <= RoleName.station)
                         structuresWeCanBuild.Add(ship.Name);
@@ -2037,7 +2040,7 @@ namespace Ship_Game
                     bool shipAdded = ShipsWeCanBuild.Add(ship.Name);
 
                     if (isPlayer)
-                        Universum.Screen?.aw?.UpdateDropDowns();
+                        Universum.Screen?.OnPlayerBuildableShipsUpdated();
 
                     if (shipAdded)
                     {
