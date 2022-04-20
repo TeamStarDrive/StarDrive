@@ -82,7 +82,7 @@ namespace Ship_Game
 
         void ResearchToTech(TechEntry entry)
         {
-            if (entry.Unlocked || EmpireManager.Player.Research.IsQueued(entry.UID))
+            if (!entry.CanBeResearched || EmpireManager.Player.Research.IsQueued(entry.UID))
             {
                 GameAudio.NegativeClick();
                 return;

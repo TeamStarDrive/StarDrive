@@ -79,7 +79,7 @@ namespace Ship_Game
             if (UnlockTech != null)
             {
                 TechEntry tech = triggeredBy.GetTechEntry(UnlockTech);
-                if (!tech.Unlocked)
+                if (tech.CanBeResearched)
                 {
                     //triggeredBy.UnlockTech(tech, TechUnlockType.Event); // FB making secret tech need research instead
                     tech.SetDiscovered(triggeredBy);
