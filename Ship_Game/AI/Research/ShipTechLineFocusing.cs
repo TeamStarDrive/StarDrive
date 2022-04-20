@@ -91,7 +91,7 @@ namespace Ship_Game.AI.Research
             foreach (string techName in ship.ShipData.TechsNeeded)
             {
                 var tech = OwnerEmpire.GetTechEntry(techName);
-                if (!tech.Unlocked && tech.ContainsShipTech())
+                if (tech.Locked && tech.ContainsShipTech())
                     return true;
             }
             return false;

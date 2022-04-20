@@ -15,6 +15,7 @@ namespace Ship_Game
         [StarData] public string UID;
         [StarData] public float Progress;
         [StarData] public bool Discovered;
+        // true if Tech has been unlocked at least once (multi-level tech Level > 0)
         [StarData] public bool Unlocked;
         [StarData] public int Level;
         [StarData] public string AcquiredFrom { private get; set; }
@@ -23,6 +24,10 @@ namespace Ship_Game
 
 
         public bool Locked => !Unlocked;
+
+        /// Can this tech be researched further?
+        /// For multi-level techs this will be true when Level > 0 and until Level >= MaxLevel
+        public bool CanBeResearched => !Unlocked || (0 < Level && Level < MaxLevel);
 
         /// <summary>
         /// Checks if list  contains restricted trade type. 
@@ -71,7 +76,7 @@ namespace Ship_Game
         public static readonly TechEntry None = new TechEntry("");
 
         public override string ToString()
-            => $"TechEntry Disc={Discovered} Unl={Unlocked} {UID}";
+            => $"TechEntry Discovered={Discovered} Unlocked={Unlocked}({Level}/{MaxLevel}) CanResearch={CanBeResearched} {UID}";
 
         public TechEntry()
         {
