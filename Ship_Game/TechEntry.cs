@@ -376,35 +376,32 @@ namespace Ship_Game
             Unlocked = false;
         }
 
-        /// <summary>
-        /// return <see langword="true"/> if <see langword="unlocked"/>  here.
-        /// MultiLevel tech can have unlock flag <see langword="true"/> and then set <see langword="false"/>
-        /// on level up. 
-        /// </summary>
-        /// <returns></returns>
-        bool SetMultiLevelUnlockFlag()
+        /// <returns>True if tech was unlocked by this method</returns>
+        bool TrySetUnlocked()
         {
-            if (Level >= Tech.MaxLevel) return false;
-
-            Level++;
-            if (Level == Tech.MaxLevel)
+            // NOTE: Multi-Level techs; this feature is not very well implemented
+            //       There is some basic refactoring here, but we have no idea who
+            //       wrote this feature in the first place
+            if (Tech.MaxLevel > 1)
             {
-                Progress = TechCost;
+                if (Level >= Tech.MaxLevel)
+                    return false;
+
+                // it must be marked as unlocked, otherwise ship designs that rely on it
+                // cannot be built
                 Unlocked = true;
-            }
-            else
-            {
-                Unlocked = false;
-                Progress = 0;
-            }
-            return true;
-        }
+                ++Level;
 
-        /// <returns>true if tech was unlocked by this method</returns>
-        bool SetUnlockFlag()
-        {
-            if (Tech.MaxLevel > 1) return SetMultiLevelUnlockFlag();
-            if (Unlocked) return false;
+                if (Level == Tech.MaxLevel)
+                    Progress = TechCost;
+                else
+                    Progress = 0;
+
+                return true;
+            }
+
+            if (Unlocked)
+                return false;
 
             Progress = Tech.ActualCost;
             Unlocked = true;
@@ -428,7 +425,8 @@ namespace Ship_Game
             if (!SetDiscovered(us))
                 return false;
 
-            UnlockTechContentOnly(us, us, bonusUnlock: SetUnlockFlag());
+            bool wasUnlocked = TrySetUnlocked();
+            UnlockTechContentOnly(us, us, bonusUnlock: wasUnlocked);
 
             foreach (Empire e in EmpireManager.MajorEmpires)
             {
@@ -442,7 +440,8 @@ namespace Ship_Game
 
         public void UnlockWithBonus(Empire us, Empire them, bool unlockBonus)
         {
-            UnlockTechContentOnly(us, them, bonusUnlock: SetUnlockFlag() && unlockBonus);
+            bool wasUnlocked = TrySetUnlocked();
+            UnlockTechContentOnly(us, them, bonusUnlock: wasUnlocked && unlockBonus);
             if (them != us)
                 WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
         }
