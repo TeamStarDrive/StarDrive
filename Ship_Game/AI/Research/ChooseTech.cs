@@ -181,7 +181,7 @@ namespace Ship_Game.AI.Research
                                 goto Start;
                             }
 
-                            if (!defaultTech.Unlocked && OwnerEmpire.HavePreReq(defaultTech.UID))
+                            if (defaultTech.Locked && OwnerEmpire.HavePreReq(defaultTech.UID))
                             {
                                 DebugLog("Researching");
                                 OwnerEmpire.Research.SetTopic(defaultTech.UID);

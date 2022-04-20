@@ -53,7 +53,7 @@ namespace Ship_Game.AI.Research
             {
                 var tech       = empire.GetTechEntry(techName);
                 float techCost = tech.Tech.ActualCost;
-                if (!tech.Unlocked && tech.Tech.RootNode == 0)
+                if (tech.Locked && tech.Tech.RootNode == 0)
                     minTechCost = Math.Min(techCost, minTechCost);
             }
             minTechCost = Math.Max(1, minTechCost);
@@ -72,7 +72,7 @@ namespace Ship_Game.AI.Research
             foreach (string techName in s.ShipData.TechsNeeded)
             {
                 var tech = empire.GetTechEntry(techName);
-                if (!tech.Unlocked && tech.Tech.RootNode == 0)
+                if (tech.Locked && tech.Tech.RootNode == 0)
                 {
                     var cost = tech.Tech.ActualCost;
 

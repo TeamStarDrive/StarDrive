@@ -847,7 +847,7 @@ namespace Ship_Game
 
             foreach (TechEntry tech in TechEntries)
             {
-                if (!tech.Unlocked
+                if (tech.CanBeResearched
                     && tech.Discovered
                     && (tech.shipDesignsCanuseThis || tech.Tech.BonusUnlocked.NotEmpty)
                     && HavePreReq(tech.UID))
@@ -2013,7 +2013,7 @@ namespace Ship_Game
                 UnlockedHullsDict[hull] = true;
         }
 
-        public void UpdateShipsWeCanBuild(Array<string> hulls = null)
+        public void UpdateShipsWeCanBuild(Array<string> hulls = null, bool debug = false)
         {
             if (isFaction)
             {
@@ -2021,6 +2021,8 @@ namespace Ship_Game
                 return;
             }
 
+            // TODO: This should operate on IShipDesign instead of Ship template
+            //       which requires a lot of utilities in Ship.cs to be moved
             foreach (Ship ship in ResourceManager.ShipTemplates)
             {
                 if (hulls != null && !hulls.Contains(ship.ShipData.Hull))
@@ -2032,7 +2034,7 @@ namespace Ship_Game
                 if (!ship.CanBeAddedToBuildableShips(this))
                     continue;
 
-                if (WeCanBuildThis(ship.ShipData))
+                if (WeCanBuildThis(ship.ShipData, debug))
                 {
                     if (ship.ShipData.Role <= RoleName.station)
                         structuresWeCanBuild.Add(ship.Name);
@@ -2054,10 +2056,10 @@ namespace Ship_Game
 
         public bool WeCanShowThisWIP(ShipDesign shipData)
         {
-            return WeCanBuildThis(shipData);
+            return WeCanBuildThis(shipData, debug:true);
         }
 
-        public bool WeCanBuildThis(string shipName)
+        public bool WeCanBuildThis(string shipName, bool debug = false)
         {
             if (!ResourceManager.Ships.GetDesign(shipName, out IShipDesign shipData))
             {
@@ -2065,46 +2067,52 @@ namespace Ship_Game
                 return false;
             }
 
-            return WeCanBuildThis(shipData);
+            return WeCanBuildThis(shipData, debug);
         }
 
-        bool WeCanBuildThis(IShipDesign shipData)
+        bool WeCanBuildThis(IShipDesign design, bool debug = false)
         {
             // If this hull is not unlocked, then we can't build it
-            if (!IsHullUnlocked(shipData.Hull))
-                return false;
-
-            if (shipData.TechsNeeded.Count > 0)
+            if (!IsHullUnlocked(design.Hull))
             {
-                if (!shipData.Unlockable)
-                    return false;
+                if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedHull Design:{design.Name}");
+                return false;
+            }
 
-                foreach (string shipTech in shipData.TechsNeeded)
+            if (design.TechsNeeded.Count > 0)
+            {
+                if (!design.Unlockable)
+                {
+                    if (debug) Log.Write($"WeCanBuildThis:false Reason:NotUnlockable Design:{design.Name}");
+                    return false;
+                }
+
+                foreach (string shipTech in design.TechsNeeded)
                 {
                     if (ShipTechs.Contains(shipTech))
                         continue;
                     TechEntry onlyShipTech = TechnologyDict[shipTech];
-                    if (!onlyShipTech.Unlocked)
+                    if (onlyShipTech.Locked)
                     {
-                        //Log.Info($"Locked Tech : '{shipTech}' in design : '{shipName}'");
+                        if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedTech={shipTech} Design:{design.Name}");
                         return false;
                     }
                 }
-                //Log.Info($"New Ship WeCanBuild {shipData.Name} Hull: '{shipData.Hull}' DesignRole: '{ship1.DesignRole}'");
             }
             else
             {
                 // check if all modules in the ship are unlocked
-                foreach (string moduleUID in shipData.UniqueModuleUIDs)
+                foreach (string moduleUID in design.UniqueModuleUIDs)
                 {
                     if (!IsModuleUnlocked(moduleUID))
                     {
-                        //Log.Info($"Locked module : '{moduleSlotData.InstalledModuleUID}' in design : '{ship}'");
+                        if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedModule={moduleUID} Design:{design.Name}");
                         return false; // can't build this ship because it contains a locked Module
                     }
                 }
-
             }
+
+            if (debug) Log.Write($"WeCanBuildThis:true Design:{design.Name}");
             return true;
         }
 

@@ -23,7 +23,6 @@ namespace Ship_Game
         Rectangle progressRect;
         float TitleWidth = 73f;
 
-        Vector2 CostPos;
         readonly Technology TechTemplate;
         Rectangle PlusRect;
 
@@ -67,10 +66,6 @@ namespace Ship_Game
             UnlocksRect = UnlocksRect.Bevel(2);
 
             TitleRect = new Rectangle(BaseRect.X, BaseRect.Y - 20, 90, 36);
-            CostPos = new Vector2(62f, 70f) + new Vector2(BaseRect.X, BaseRect.Y);
-            CostPos.X -= TitleFont.MeasureString(Entry.TechCost.GetNumberString()).X;
-            CostPos.X = (int)CostPos.X;
-            CostPos.Y = (int)CostPos.Y - 3;
         }
 
         SubTexture TechIcon
@@ -155,10 +150,27 @@ namespace Ship_Game
             progressRect2.Height = progress;
             batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), progressRect2, Color.White);
 
-            // draw tech cost
-            var techCost = Entry.TechCost;
-            if (!Entry.Unlocked) techCost -= Entry.Progress;
-            batch.DrawString(TitleFont, techCost.GetNumberString(), CostPos, Color.SkyBlue);
+            // draw tech cost if tech can still be research (such as multi-level techs) display the cost
+
+            LocalizedText costText = LocalizedText.None;
+            var costFont = TitleFont;
+            if (Entry.CanBeResearched)
+            {
+                costText = (Entry.TechCost - Entry.Progress).GetNumberString();
+            }
+            else if (Entry.Unlocked)
+            {
+                costText = GameText.Unlocked;
+                costFont = Fonts.Arial8Bold;
+            }
+
+            if (costText.NotEmpty)
+            {
+                Vector2 textSize = costFont.MeasureString(costText);
+                var costPos = new Vector2(BaseRect.X + BaseRect.Width/2 - textSize.X/2 - 2, BaseRect.Y + 67).Rounded();
+                batch.DrawString(costFont, costText, costPos, Color.SkyBlue);
+                //batch.DrawRectangle(new RectF(costPos, textSize), Color.Red); // for debugging
+            }
 
             // draw an orange + if there are more techs unlocked
             if (TechTemplate.NumStuffUnlocked(EmpireManager.Player) > MaxUnlockItems)
@@ -166,6 +178,8 @@ namespace Ship_Game
                 PlusRect = new Rectangle(UnlocksRect.X + 60, UnlocksRect.Y + UnlocksRect.Height, 20, 20);
                 batch.DrawString(Fonts.Arial20Bold, "+", new Vector2(PlusRect.X, PlusRect.Y), Color.Orange);
             }
+
+            //batch.DrawRectangle(BaseRect, Color.Red); // for debugging
         }
 
         public void DrawGlow(SpriteBatch batch, Color color)
@@ -198,7 +212,6 @@ namespace Ship_Game
                 }
                 if (input.RightMouseClick)
                 {
-                    Screen.RightClicked = true;
                     ScreenManager.AddScreen(new ResearchPopup(u, Entry.UID));
                     return true; // input captured
                 }

@@ -10,7 +10,8 @@ namespace Ship_Game
 {
     public sealed class ResearchScreenNew : GameScreen
     {
-        public UniverseScreen Universe;
+        public readonly UniverseScreen Universe;
+        public readonly Empire Player;
         public Camera2D camera = new Camera2D();
 
         readonly Map<string, RootNode> RootNodes = new Map<string, RootNode>(StringComparer.OrdinalIgnoreCase);
@@ -33,14 +34,13 @@ namespace Ship_Game
 
         readonly Array<Vector2> ClaimedSpots = new Array<Vector2>();
 
-        public bool RightClicked;
-
         ResearchDebugUnlocks DebugUnlocks;
 
         public ResearchScreenNew(GameScreen parent, UniverseScreen u, EmpireUIOverlay empireUi)
             : base(parent, toPause: u)
         {
             Universe = u;
+            Player = u.Player;
             empireUI = empireUi;
             IsPopup = false;
             CanEscapeFromScreen = true;
@@ -60,7 +60,7 @@ namespace Ship_Game
             AllTechNodes.Clear();
             SubNodes.Clear();
 
-            int numDiscoveredRoots = EmpireManager.Player.TechEntries.Count(t => t.IsRoot && t.Discovered);
+            int numDiscoveredRoots = Player.TechEntries.Count(t => t.IsRoot && t.Discovered);
 
             GridHeight = (main.Height - 40) / numDiscoveredRoots;
             MainMenuOffset.Y = main.Y + 12 + GridHeight / 3;
@@ -69,7 +69,7 @@ namespace Ship_Game
                 MainMenuOffset.Y = MainMenuOffset.Y + 8f;
             }
 
-            foreach (TechEntry tech in EmpireManager.Player.TechEntries)
+            foreach (TechEntry tech in Player.TechEntries)
             {
                 if (tech.IsRoot && tech.Discovered)
                 {
@@ -193,8 +193,8 @@ namespace Ship_Game
 
                 foreach (Technology.LeadsToTech leadsTo in treeNode.Entry.Tech.LeadsTo)
                 {
-                    TechEntry techEntry1 = EmpireManager.Player.GetTechEntry(leadsTo.UID);
-                    techEntry1 = techEntry1.FindNextDiscoveredTech(EmpireManager.Player);
+                    TechEntry techEntry1 = Player.GetTechEntry(leadsTo.UID);
+                    techEntry1 = techEntry1.FindNextDiscoveredTech(Player);
                     if (techEntry1 != null)
                     {
                         var treeNode1 = SubNodes[techEntry1.UID];
@@ -207,15 +207,15 @@ namespace Ship_Game
             foreach (TreeNode node in SubNodes.Values)
             {
                 Technology technology2 = node.Entry.Tech;
-                if (technology2.AnyChildrenDiscovered(EmpireManager.Player))
+                if (technology2.AnyChildrenDiscovered(Player))
                 {
                     var leftPoint = node.RightPoint;
                     Vector2 rightPoint = leftPoint + new Vector2(GridWidth / 2f, 0.0f);
                     bool complete1 = false;
                     foreach (Technology.LeadsToTech leadsToTech2 in technology2.LeadsTo)
                     {
-                        TechEntry techEntry2 = EmpireManager.Player.GetTechEntry(leadsToTech2.UID);
-                        techEntry2 = techEntry2.FindNextDiscoveredTech(EmpireManager.Player);
+                        TechEntry techEntry2 = Player.GetTechEntry(leadsToTech2.UID);
+                        techEntry2 = techEntry2.FindNextDiscoveredTech(Player);
                         if (techEntry2 != null)
                         {
                             if (techEntry2.Unlocked)
@@ -237,7 +237,6 @@ namespace Ship_Game
         public override void ExitScreen()
         {
             GlobalStats.ResearchRootUIDToDisplay = GetCurrentlySelectedRootNode().Entry.UID;
-            RightClicked = false;
             base.ExitScreen();
         }
 
@@ -280,64 +279,67 @@ namespace Ship_Game
                 }
             }
 
-            RightClicked = false;
             foreach (TreeNode node in SubNodes.Values)
             {
-                if (!node.HandleInput(input, ScreenManager, camera, Universe))
-                    continue;
-
-                if (RightClicked) // node was right clicked
+                if (node.HandleInput(input, ScreenManager, camera, Universe))
+                {
+                    if (input.LeftMouseClick && !input.RightMouseClick)
+                    {
+                        OnNodeClicked(node);
+                    }
                     return true; // input captured
-
-                if (EmpireManager.Player.HasUnlocked(node.Entry.UID))
-                {
-                    GameAudio.NegativeClick();
                 }
-                else if (EmpireManager.Player.HavePreReq(node.Entry.UID))
-                {
-                    Queue.AddToResearchQueue(node);
-                    GameAudio.ResearchSelect();
-                }
-                else if (EmpireManager.Player.HavePreReq(node.Entry.UID))
-                {
-                    GameAudio.NegativeClick();
-                }
-                else
-                {
-                    GameAudio.ResearchSelect();
-                    TechEntry techToCheck = node.Entry;
-                    var techsToAdd = new Array<string>{ techToCheck.UID };
-                    if (techToCheck.Tech.RootNode != 1)
-                    {
-                        while (!techToCheck.Unlocked)
-                        {
-                            var preReq = techToCheck.GetPreReq(EmpireManager.Player);
-                            if (preReq == null)
-                            {
-                                break;
-                            }
-                            if (!preReq.Unlocked)
-                            {
-                                techsToAdd.Add(preReq.UID);
-                            }
-                            techToCheck = preReq;
-                        }
-                    }
-                    techsToAdd.Reverse();
-                    foreach (string toAdd in techsToAdd)
-                    {
-                        TechEntry techEntry = EmpireManager.Player.GetTechEntry(toAdd);
-                        if (techEntry.Discovered) Queue.AddToResearchQueue(SubNodes[toAdd]);
-                    }
-                }
-                return true; // input captured
             }
             return base.HandleInput(input);
         }
 
-        public static void UnlockAllResearch(Empire empire, bool unlockBonusTechs)
+        void OnNodeClicked(TreeNode node)
         {
-            ResearchDebugUnlocks.UnlockAllResearch(empire, unlockBonusTechs);
+            TechEntry techEntry = node.Entry;
+            if (!techEntry.CanBeResearched)
+            {
+                // this tech cannot be researched
+                GameAudio.NegativeClick();
+            }
+            else if (techEntry.HasPreReq(Player))
+            {
+                // we already have all pre-requisites, so add it directly to queue
+                Queue.AddToResearchQueue(node);
+                GameAudio.ResearchSelect();
+            }
+            else
+            {
+                // we need to research required techs before doing this one
+                GameAudio.ResearchSelect();
+
+                // figure out the list of techs to add
+                var techsToAdd = GetRequiredTechEntriesToResearch(node.Entry);
+                foreach (TechEntry toAdd in techsToAdd)
+                {
+                    if (toAdd.Discovered)
+                        Queue.AddToResearchQueue(SubNodes[toAdd.UID]);
+                }
+            }
+        }
+
+        Array<TechEntry> GetRequiredTechEntriesToResearch(TechEntry toResearch)
+        {
+            TechEntry techEntry = toResearch;
+            var techs = new Array<TechEntry>{ techEntry };
+            if (techEntry.Tech.RootNode != 1)
+            {
+                while (!techEntry.Unlocked)
+                {
+                    TechEntry preReq = techEntry.GetPreReq(Player);
+                    if (preReq == null)
+                        break; // done!
+                    if (!preReq.Unlocked)
+                        techs.Add(preReq);
+                    techEntry = preReq;
+                }
+            }
+            techs.Reverse();
+            return techs;
         }
 
         Vector2 GridSize => new Vector2(GridWidth, GridHeight);
@@ -464,7 +466,7 @@ namespace Ship_Game
 
             var newNode = new RootNode(GetCurrentCursorOffset(-1), tech) { NodePosition = Cursor };
 
-            if (EmpireManager.Player.HasUnlocked(tech))
+            if (Player.HasUnlocked(tech))
             {
                 newNode.isResearched = true;
             }
@@ -472,7 +474,7 @@ namespace Ship_Game
         }
 
         //Added by McShooterz: find size of tech tree before it is built
-        static int CalculateTreeDimensionsFromRoot(string uid, ref int rows, int cols, int colmax)
+        int CalculateTreeDimensionsFromRoot(string uid, ref int rows, int cols, int colmax)
         {
             int rowCount = 0;
             cols++;
@@ -485,7 +487,7 @@ namespace Ship_Game
                 //dont count the main branch. use the branch that stars here.
                 for (int i = 1; i < technology.LeadsTo.Count; i++)
                 {
-                    var techChild = EmpireManager.Player.GetNextDiscoveredTech(technology.LeadsTo[i].UID);
+                    var techChild = Player.GetNextDiscoveredTech(technology.LeadsTo[i].UID);
                     if (techChild != null)
                         rowCount++;
                 }
@@ -493,7 +495,7 @@ namespace Ship_Game
             }
             foreach (Technology.LeadsToTech tech in technology.LeadsTo)
             {
-                var techChild = EmpireManager.Player.GetNextDiscoveredTech(tech.UID);
+                var techChild = Player.GetNextDiscoveredTech(tech.UID);
                 if (techChild != null)
                 {
                     int max = CalculateTreeDimensionsFromRoot(techChild.Tech.UID, ref rows, cols, colmax);
