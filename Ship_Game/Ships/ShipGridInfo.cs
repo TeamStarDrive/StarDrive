@@ -79,5 +79,23 @@ namespace Ship_Game.Ships
                 if (Size.Y < botRight.Y) Size.Y = botRight.Y;
             }
         }
+
+        // This is used for DEBUGGING and TESTING
+        public ShipGridInfo(DesignSlot[] slots)
+        {
+            Size = Point.Zero; // [0,0] is always the top-left
+            Center = Point.Zero; // NOTE: we don't need this in Tests currently
+            SurfaceArea = 0;
+
+            for (int i = 0; i < slots.Length; ++i)
+            {
+                DesignSlot m = slots[i];
+                SurfaceArea += m.Size.X * m.Size.Y;
+                var botRight = new Point(m.Pos.X + m.Size.X,
+                                         m.Pos.Y + m.Size.Y);
+                if (Size.X < botRight.X) Size.X = botRight.X;
+                if (Size.Y < botRight.Y) Size.Y = botRight.Y;
+            }
+        }
     }
 }

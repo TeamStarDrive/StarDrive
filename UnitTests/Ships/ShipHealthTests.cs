@@ -19,7 +19,7 @@ namespace UnitTests.Ships
         public void ShipHealthInit()
         {
             Ship ship = SpawnShip("TEST_ShipShield", Player, Vector2.Zero);
-            Assert.AreEqual(10, ship.TotalInternalModuleSlots);
+            Assert.AreEqual(10, ship.NumInternalSlots);
             Assert.AreEqual(1, ship.HealthPercent);
             Assert.AreEqual(ship.Health, ship.HealthMax);
         }
@@ -51,7 +51,7 @@ namespace UnitTests.Ships
             // Internal slots are counted using Module SurfaceArea
             // This way big 3x3 modules give 9 points, instead of mere 1
             Assert.AreEqual(26, ship.SurfaceArea);
-            Assert.AreEqual(18, ship.TotalInternalModuleSlots);
+            Assert.AreEqual(18, ship.NumInternalSlots);
             Assert.AreEqual(18, ship.ActiveInternalModuleSlots);
             Assert.AreEqual(1, ship.HealthPercent);
             Assert.AreEqual(1, ship.InternalSlotsHealthPercent);
@@ -62,7 +62,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(12, surfaceKilled);
 
             Assert.AreEqual(18-7, ship.Modules.Count(m => m.Active));
-            Assert.AreEqual(18, ship.TotalInternalModuleSlots);
+            Assert.AreEqual(18, ship.NumInternalSlots);
             Assert.AreEqual(6, ship.ActiveInternalModuleSlots);
             Assert.AreEqual((1f - surfaceKilled/18f), ship.InternalSlotsHealthPercent);
         }
@@ -74,7 +74,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(10, ship.Modules.Count(m => m.HasInternalRestrictions));
             Assert.AreEqual(1, ship.InternalSlotsHealthPercent);
 
-            int slotsToDestroy = (int)Math.Ceiling(ShipResupply.ShipDestroyThreshold * ship.TotalInternalModuleSlots) + 1;
+            int slotsToDestroy = (int)Math.Ceiling(ShipResupply.ShipDestroyThreshold * ship.NumInternalSlots) + 1;
             int destroyed = 0;
             foreach (ShipModule m in ship.Modules)
             {
