@@ -18,7 +18,6 @@ namespace Ship_Game.GameScreens.NewGame
         readonly int NumSystems;
         readonly Array<Vector2> ClaimedSpots = new Array<Vector2>();
         readonly RaceDesignScreen.GameMode Mode;
-        readonly Vector2 GalacticCenter;
         readonly Empire Player;
         readonly GameDifficulty Difficulty;
         readonly int NumOpponents;
@@ -70,6 +69,7 @@ namespace Ship_Game.GameScreens.NewGame
             UState.FTLInNeutralSystems = GlobalStats.WarpInSystem;
             UState.Difficulty = p.Difficulty;
             UState.GalaxySize = p.UniverseSize;
+            UState.BackgroundSeed = new Random().Next();
 
             GlobalStats.DisableInhibitionWarning = UState.Difficulty > GameDifficulty.Hard;
             CurrentGame.StartNew(UState, p.Pace, p.StarNumModifier, GlobalStats.ExtraPlanets, NumOpponents + 1); // +1 is the player empire
@@ -88,7 +88,6 @@ namespace Ship_Game.GameScreens.NewGame
             Player.data.CurrentAutoFreighter = Player.data.FreighterShip;
             Player.data.CurrentConstructor = Player.data.ConstructorShip;
 
-            GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
             StatTracker.Reset();
         }
 
@@ -676,16 +675,14 @@ namespace Ship_Game.GameScreens.NewGame
 
         public void GenerateArm(int numOfStars, float rotation)
         {
-            Random random = new Random();
             float uSize = UState.Size;
-            Vector2 vector2 = GalacticCenter;
             float num1 = (float)(2f / numOfStars * 2.0 * 3.14159274101257);
             for (int index = 0; index < numOfStars; ++index)
             {
                 float num2 = (float)Math.Pow(uSize - 0.0850000008940697 * uSize, index / (float)numOfStars);
                 float num3 = index * num1 + rotation;
-                float x = vector2.X + RadMath.Cos(num3) * num2;
-                float y = vector2.Y + RadMath.Sin(num3) * num2;
+                float x = RadMath.Cos(num3) * num2;
+                float y = RadMath.Sin(num3) * num2;
                 Vector2 sysPos = new Vector2(RandomMath.RandomBetween(-10000f, 10000f) * index, (float)(RandomMath.RandomBetween(-10000f, 10000f) * (double)index / 4.0));
                 sysPos = new Vector2(x, y) + sysPos;
                 if (SystemPosOK(sysPos))
@@ -694,11 +691,17 @@ namespace Ship_Game.GameScreens.NewGame
                 }
                 else
                 {
+                    double halfSize = uSize / 2.0;
+                    // extra padding to avoid suns existing at the edge of the universe
+                    double padding = 0.085 * uSize;
+                    float min = (float)(-halfSize + padding);
+                    float max = (float)(+halfSize - padding);
                     while (!SystemPosOK(sysPos))
                     {
-                        sysPos.X = GalacticCenter.X + RandomMath.RandomBetween((float)(-uSize / 2.0 + 0.0850000008940697 * uSize), (float)(uSize / 2.0 - 0.0850000008940697 * uSize));
-                        sysPos.Y = GalacticCenter.Y + RandomMath.RandomBetween((float)(-uSize / 2.0 + 0.0850000008940697 * uSize), (float)(uSize / 2.0 - 0.0850000008940697 * uSize));
+                        sysPos.X = RandomMath.RandomBetween(min, max);
+                        sysPos.Y = RandomMath.RandomBetween(min, max);
                     }
+
                     ClaimedSpots.Add(sysPos);
                 }
             }

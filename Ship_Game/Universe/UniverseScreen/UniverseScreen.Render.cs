@@ -15,7 +15,7 @@ namespace Ship_Game
         {
             if (GlobalStats.DrawStarfield)
             {
-                bg?.Draw(this, batch);
+                bg?.Draw(batch);
             }
         }
 
