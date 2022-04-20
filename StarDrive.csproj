@@ -329,6 +329,7 @@
     <Compile Include="Ship_Game\Graphics\RenderTargets.cs" />
     <Compile Include="Ship_Game\Ships\Components\LoyaltyChanges.cs" />
     <Compile Include="Ship_Game\Ships\EngineTrail.cs" />
+    <Compile Include="Ship_Game\Ships\ExternalSlotGrid.cs" />
     <Compile Include="Ship_Game\Ships\HangarOptions.cs" />
     <Compile Include="Ship_Game\Ships\IShipDesign.cs" />
     <Compile Include="Ship_Game\Ships\IShipPool.cs" />
@@ -337,6 +338,8 @@
     <Compile Include="Ship_Game\Ships\Legacy\LegacyShipData_LegacyParser.cs" />
     <Compile Include="Ship_Game\Ships\Legacy\LegacyShipData_WriterParser.cs" />
     <Compile Include="Ship_Game\Ships\Legacy\LegacyShipGridInfo.cs" />
+    <Compile Include="Ship_Game\Ships\ModuleGridFlyweight.cs" />
+    <Compile Include="Ship_Game\Ships\ModuleGridState.cs" />
     <Compile Include="Ship_Game\Ships\RoleName.cs" />
     <Compile Include="Ship_Game\Ships\RoleType.cs" />
     <Compile Include="Ship_Game\Ships\ShipCategory.cs" />

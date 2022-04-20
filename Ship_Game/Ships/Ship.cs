@@ -43,8 +43,6 @@ namespace Ship_Game.Ships
         // Unrotated fleet offset from [0,0]
         public Vector2 RelativeFleetOffset;
 
-        public ShipModule[] Shields;
-        public ShipModule[] Amplifiers;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public CarrierBays Carrier;
         public ShipResupply Supply;
@@ -83,10 +81,6 @@ namespace Ship_Game.Ships
         public void LoyaltyChangeByGift(Empire empire, bool addNotification = true) => LoyaltyTracker.SetLoyaltyForAbsorbedShip(empire, addNotification);
         public void LoyaltyChangeAtSpawn(Empire empire) => LoyaltyTracker.SetLoyaltyForNewShip(empire);
 
-        // This is the total number of Slots on the ships
-        // It does not depend on the number of modules, and is always a constant
-        public int SurfaceArea { get; private set; }
-
         public float Ordinance { get; private set; } // FB: use ChanceOrdnance function to control Ordnance
         public float OrdnanceMin { get; private set; } // FB: minimum ordnance required to fire any of the ship's weapons
         public float OrdinanceMax;
@@ -101,7 +95,7 @@ namespace Ship_Game.Ships
 
         // total number of installed module SLOTS with Internal Restrictions
         // example: a 2x2 internal module would give +4
-        public int TotalInternalModuleSlots { get; private set; }
+        public int NumInternalSlots => Grid.NumInternalSlots;
 
         // active internal modules SLOTS that have health > 0
         public int ActiveInternalModuleSlots;
@@ -831,7 +825,7 @@ namespace Ship_Game.Ships
             if (targetShip != null)
             {
                 if (targetShip.Dying || !targetShip.Active ||
-                    targetShip.NumExternalSlots <= 0)
+                    targetShip.Externals.NumModules <= 0)
                     return false;
             }
 
@@ -1082,7 +1076,7 @@ namespace Ship_Game.Ships
         public void SetActiveInternalSlotCount(int activeInternalSlots)
         {
             ActiveInternalModuleSlots = activeInternalSlots;
-            InternalSlotsHealthPercent = (float)activeInternalSlots / TotalInternalModuleSlots;
+            InternalSlotsHealthPercent = (float)activeInternalSlots / NumInternalSlots;
         }
 
         // TODO: This needs a performance refactor
@@ -1235,9 +1229,8 @@ namespace Ship_Game.Ships
                 || engineState == MoveState.Warp)
             {
                 ShieldPower = 0.0f;
-                for (int x = 0; x < Shields.Length; x++)
+                foreach (ShipModule shield in GetShields())
                 {
-                    ShipModule shield = Shields[x];
                     ShieldPower = (ShieldPower + shield.ShieldPower).Clamped(0, ShieldMax);
                 }
             }
@@ -1274,7 +1267,7 @@ namespace Ship_Game.Ships
             UpdateTroops(timeSinceLastUpdate);
 
             if (!AI.BadGuysNear)
-                ShieldManager.RemoveShieldLights(Universe.Screen, Shields);
+                ShieldManager.RemoveShieldLights(Universe.Screen, GetShields());
         }
 
         public bool CanRepair => !AI.BadGuysNear || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair;
@@ -1713,11 +1706,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 ModuleSlotList[i].Dispose();
 
-            ModuleSlotList     = Empty<ShipModule>.Array;
-            SparseModuleGrid   = Empty<ShipModule>.Array;
-            ExternalModuleGrid = Empty<ShipModule>.Array;
-            Shields            = Empty<ShipModule>.Array;
-            NumExternalSlots = 0;
+            ModuleSlotList = Empty<ShipModule>.Array;
             DestroyThrusters();
 
             BombBays.Clear();
@@ -1756,8 +1745,6 @@ namespace Ship_Game.Ships
 
             Weapons = null;
             SoundEmitter = null;
-            Shields = null;
-            Amplifiers = null;
             BombBays = null;
             Carrier?.Dispose();
             Carrier = null;
@@ -1776,8 +1763,6 @@ namespace Ship_Game.Ships
             Stats?.Dispose();
             Cargo = null;
             ModuleSlotList = null;
-            SparseModuleGrid = null;
-            ExternalModuleGrid = null;
             ShipEngines?.Dispose();
             ShipEngines = null;
             Influences = null;
@@ -1790,8 +1775,8 @@ namespace Ship_Game.Ships
         public void UpdateShields()
         {
             float shieldPower = 0.0f;
-            for (int i = 0; i < Shields.Length; ++i)
-                shieldPower += Shields[i].ShieldPower;
+            foreach (ShipModule shield in GetShields())
+                shieldPower += shield.ShieldPower;
 
             ShieldPower = shieldPower.UpperBound(ShieldMax);
         }

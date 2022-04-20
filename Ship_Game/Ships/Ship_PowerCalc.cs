@@ -67,41 +67,39 @@ namespace Ship_Game.Ships
         // This is a 2D representation of the ship's slot structs
         public struct PowerGrid
         {
+            readonly Ship Ship;
+            readonly ModuleGridFlyweight Grid;
             BitArray PwrGrid; // a grid of powered slots, width*height
             BitArray Checked; // grid of slots which have already been checked
-            readonly ShipModule[] ModuleGrid;
-            readonly int Width;
-            readonly int Height;
 
-            public PowerGrid(ShipModule[] grid, int gridWidth, int gridHeight)
+            public PowerGrid(Ship ship, ModuleGridFlyweight grid)
             {
-                ModuleGrid = grid;
-                PwrGrid = new BitArray(gridWidth * gridHeight);
-                Checked = new BitArray(gridWidth * gridHeight);
-                Width = gridWidth;
-                Height = gridHeight;
+                Ship = ship;
+                Grid = grid;
+                PwrGrid = new BitArray(Grid.Width * Grid.Height);
+                Checked = new BitArray(Grid.Width * Grid.Height);
             }
 
             // whether a module has already been power-checked
             [Pure] public bool IsChecked(int x, int y)
             {
-                return Checked.IsSet(x + y*Width);
+                return Checked.IsSet(x + y * Grid.Width);
             }
 
             void SetChecked(int x, int y)
             {
-                Checked.Set(x + y*Width);
+                Checked.Set(x + y * Grid.Width);
             }
 
             public void PrintPwrGrid() => PrintGrid(PwrGrid);
             void PrintGrid(in BitArray bits)
             {
                 var sb = new StringBuilder();
-                for (int y = 0; y < Height; ++y)
+                for (int y = 0; y < Grid.Height; ++y)
                 {
-                    for (int x = 0; x < Width; ++x)
+                    for (int x = 0; x < Grid.Width; ++x)
                     {
-                        sb.Append(bits.IsSet(x + y*Width) ? '+' : '0');
+                        sb.Append(bits.IsSet(x + y*Grid.Width) ? '+' : '0');
                     }
                     sb.Append(" \n");
                 }
@@ -111,7 +109,7 @@ namespace Ship_Game.Ships
             // check if this 1x1 slot at [x,y] is powered
             [Pure] public bool IsPowered(Point gridPos)
             {
-                return PwrGrid.IsSet(gridPos.X + gridPos.Y*Width);
+                return PwrGrid.IsSet(gridPos.X + gridPos.Y*Grid.Width);
             }
             
             // checks if this module is powered
@@ -119,17 +117,17 @@ namespace Ship_Game.Ships
             {
                 // we only need to check top-left, because SetPowered already fills the grid under it
                 Point pt = m.Pos;
-                return PwrGrid.IsSet(pt.X + pt.Y*Width);
+                return PwrGrid.IsSet(pt.X + pt.Y*Grid.Width);
             }
 
             void SetPowered(int x0, int y0)
             {
-                int gridIndex = x0 + y0*Width;
+                int gridIndex = x0 + y0*Grid.Width;
                 if (PwrGrid.IsSet(gridIndex))
                     return; // already powered
 
                 // we need to find any underlying module and set all of it as powered
-                ShipModule m = ModuleGrid[gridIndex];
+                ShipModule m = Ship.GetModuleAt(gridIndex);
                 if (m != null)
                 {
                     // fill everything under this module, so we don't need to check this area again
@@ -138,7 +136,7 @@ namespace Ship_Game.Ships
                     int y1 = pt.Y + m.YSize - 1;
                     for (int y = pt.Y; y <= y1; ++y)
                         for (int x = pt.X; x <= x1; ++x)
-                            PwrGrid.Set(x + y * Width);
+                            PwrGrid.Set(x + y * Grid.Width);
                 }
                 else // there's no module here, only set the slot
                 {
@@ -149,9 +147,10 @@ namespace Ship_Game.Ships
 
             bool SlotMatches(int gridX, int gridY, ShipModuleType type)
             {
-                if (gridX < 0 || gridY < 0 || gridX >= Width || gridY >= Height)
+                if (gridX < 0 || gridY < 0 || gridX >= Grid.Width || gridY >= Grid.Height)
                     return false; // out of bounds
-                return ModuleGrid[gridX + gridY * Width]?.ModuleType == type;
+
+                return Ship.GetModuleAt(gridX, gridY)?.ModuleType == type;
             }
         
             // called during ship initialize to give the correct shape to the conduit
@@ -224,7 +223,7 @@ namespace Ship_Game.Ships
                     Point cp = open.PopLast();
                     if (!IsChecked(cp.X, cp.Y))
                     {
-                        ShipModule conduit = ModuleGrid[cp.X + cp.Y*Width];
+                        ShipModule conduit = Ship.GetModuleAt(cp);
                         DistributePowerFrom(conduit, cp.X, cp.Y);
                         GetNeighbouringConduits(conduit, cp.X, cp.Y, open);
                     }
@@ -247,7 +246,7 @@ namespace Ship_Game.Ships
                 for (int y = y0; y <= y1; ++y)
                 for (int x = x0; x <= x1; ++x)
                 {
-                    ShipModule m = ModuleGrid[x + y * Width];
+                    ShipModule m = Ship.GetModuleAt(x, y);
                     if (m != null) // if there is a module at this point
                     {
                         if (!IsChecked(x, y) && m.ModuleType == ShipModuleType.PowerConduit)
@@ -303,8 +302,8 @@ namespace Ship_Game.Ships
             {
                 x0 = Math.Max(0, x0);
                 y0 = Math.Max(0, y0);
-                x1 = Math.Min(x1, Width  - 1);
-                y1 = Math.Min(y1, Height - 1);
+                x1 = Math.Min(x1, Grid.Width - 1);
+                y1 = Math.Min(y1, Grid.Height - 1);
             }
         }
     }
