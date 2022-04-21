@@ -299,7 +299,7 @@ namespace Ship_Game.Ships
 
             if (visibleAndNotPaused && !IsMeteor)
             {
-                int num1 = UniverseRandom.IntBetween(0, 100);
+                int num1 = UniverseRandom.Int(0, 100);
                 if (num1 >= 99) // 1% chance
                 {
                     Vector3 pos = (Position + RandomMath.Vector2D(scaledRadius*0.5f)).ToVec3();

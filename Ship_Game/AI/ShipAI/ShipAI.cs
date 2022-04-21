@@ -390,7 +390,7 @@ namespace Ship_Game.AI
             ClearOrders(AIState.ResupplyEscort);
             EscortTarget = supplyShip;
 
-            float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000);
+            float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.Float(200, 1000);
             AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection(), null, 
                         supplyType, strafeOffset, AIState.ResupplyEscort, pushToFront: true);
         }

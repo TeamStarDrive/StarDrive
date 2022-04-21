@@ -233,7 +233,7 @@ namespace Ship_Game
                     return false;
                 if (!Loyalty.IsEmpireAttackable(projectile.Loyalty))
                     return false;
-                if (projectile.Loyalty?.data.MissileDodgeChance > UniverseRandom.RandomBetween(0f, 1f))
+                if (projectile.Loyalty?.data.MissileDodgeChance > UniverseRandom.Float(0f, 1f))
                     return false;
 
                 projectile.DamageMissile(this, DamageAmount);
