@@ -276,7 +276,7 @@ namespace Ship_Game
         bool NewLevelOperations(UniverseState u, int level)
         {
             bool success;
-            NewBaseSpot spotType = (NewBaseSpot)RandomMath.IntBetween(0, 4);
+            NewBaseSpot spotType = (NewBaseSpot)RandomMath.Int(0, 4);
             switch (spotType)
             {
                 case NewBaseSpot.GasGiant:
@@ -483,7 +483,7 @@ namespace Ship_Game
             var asteroidRings             = selectedSystem.RingList.Filter(r => r.Asteroids);
             SolarSystem.Ring selectedRing = asteroidRings.RandItem();
 
-            float ringRadius = selectedRing.OrbitalDistance + RandomMath.IntBetween(-250, 250);
+            float ringRadius = selectedRing.OrbitalDistance + RandomMath.Int(-250, 250);
             position         = selectedSystem.Position.GenerateRandomPointOnCircle(ringRadius);
             system           = selectedSystem;
 

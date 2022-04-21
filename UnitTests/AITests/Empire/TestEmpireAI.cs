@@ -343,7 +343,7 @@ namespace UnitTests.AITests.Empire
                         }
                     }
 
-                    addedShips = RandomMath.IntBetween(1, 30);
+                    addedShips = RandomMath.Int(1, 30);
 
                     Parallel.For(0, EmpireManager.NumEmpires, (firstEmpire, lastEmpire) =>
                         {

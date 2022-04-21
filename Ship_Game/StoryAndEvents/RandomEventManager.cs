@@ -146,7 +146,7 @@ namespace Ship_Game
         public static void CreateMeteors(Planet p)
         {
             int rand = RandomMath.RollDie(12);
-            int numMeteors = RandomMath.IntBetween(rand * 3, rand * 10).Clamped(3, (int)p.Universe.StarDate - 1000);
+            int numMeteors = RandomMath.Int(rand * 3, rand * 10).Clamped(3, (int)p.Universe.StarDate - 1000);
 
             int baseSpeed = RandomMath.RollDie(1000, 500);
             Vector2 origin = GetMeteorOrigin(p);
@@ -165,7 +165,7 @@ namespace Ship_Game
                 var meteor = Ship.CreateShipAtPoint(p.Universe, meteorName, EmpireManager.Unknown, pos);
                 if (meteor != null)
                 {
-                    float speed = RandomMath.IntBetween(baseSpeed-100, baseSpeed+100);
+                    float speed = RandomMath.Int(baseSpeed-100, baseSpeed+100);
                     meteor.AI.AddMeteorGoal(p, rotation, direction, speed);
                 }
                 else
@@ -220,7 +220,7 @@ namespace Ship_Game
             if (!GetAffectedPlanet(u, Potentials.HasOwner, out Planet planet)) 
                 return;
 
-            float size = RandomMath.RandomBetween(-0.25f, 0.75f).LowerBound(0.2f);
+            float size = RandomMath.Float(-0.25f, 0.75f).LowerBound(0.2f);
             planet.MineralRichness += (float)Math.Round(size, 2);
             string postText = $" {size.String(2)}";
             NotifyPlayerIfAffected(planet, GameText.RawMineralsWereDiscoverednmineralRichness, postText);

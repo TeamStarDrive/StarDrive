@@ -30,7 +30,7 @@ namespace Ship_Game
                 SpecialDescription = data.SpecialDescription; 
             
             Type = ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet); // we revert to random just in case people unload mods
-            Scale = data.Scale > 0f ? data.Scale : RandomMath.RandomBetween(1f, 2f);
+            Scale = data.Scale > 0f ? data.Scale : RandomMath.Float(1f, 2f);
             colonyType         = data.ColonyType;
             GovOrbitals        = data.GovOrbitals;
             GovGroundDefense   = data.GovGroundDefense;
@@ -55,7 +55,7 @@ namespace Ship_Game
             HasRings              = data.HasRings;
             ShieldStrengthCurrent = data.ShieldStrength;
             CrippledTurns         = data.TurnsCrippled;
-            PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
+            PlanetTilt            = RandomMath.Float(45f, 135f);
             
             UpdateTerraformPoints(data.TerraformPoints);
 
@@ -88,7 +88,7 @@ namespace Ship_Game
             if (HasRings)
             {
                 // TODO: save RingTilt into PlanetSaveData
-                RingTilt = RandomMath.RandomBetween(-80f, -45f).ToRadians();
+                RingTilt = RandomMath.Float(-80f, -45f).ToRadians();
             }
             
             //TODO: I'd rather have these injected already constructed into the Planet constructor but until we unwind the multiple back and forth calls it'll stay here.

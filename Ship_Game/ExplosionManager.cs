@@ -28,7 +28,7 @@ namespace Ship_Game
             public float Time;
             public float Duration;
             public float Radius;
-            public float Rotation = RandomMath2.RandomBetween(0f, 6.28318548f);
+            public float Rotation = RandomMath2.Float(0f, 6.28318548f);
             public TextureAtlas Animation;
         }
 

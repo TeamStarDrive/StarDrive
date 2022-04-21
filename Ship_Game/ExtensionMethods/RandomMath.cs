@@ -12,14 +12,14 @@ namespace Ship_Game
 
         /// Generate random, inclusive [minimum, maximum]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float RandomBetween(float minimum, float maximum)
+        public static float Float(float minimum, float maximum)
         {
             return Random.Float(minimum, maximum);
         }
 
         /// Generate random, inclusive [minimum, maximum]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int IntBetween(int minimum, int maximum)
+        public static int Int(int minimum, int maximum)
         {
             return Random.Int(minimum, maximum);
         }

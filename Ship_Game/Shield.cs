@@ -104,16 +104,16 @@ namespace Ship_Game
 
             Rotation     = planetCenter.RadiansToTarget(pos.ToVec2());
             Radius       = shieldRadius;
-            Displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-            TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
+            Displacement = 0.085f * RandomMath.Float(1f, 10f);
+            TexScale     = 2.8f - 0.185f * RandomMath.Float(1f, 10f);
 
             if (planet.Universe.Screen.CanAddDynamicLight)
             {
                 AddLight(planet.Universe.Screen);
                 Light.World        = world;
                 Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                Light.Radius       = Radius* RandomMath.RandomBetween(1, 2);
-                Light.Intensity    = RandomMath.RandomBetween(5, 15);
+                Light.Radius       = Radius* RandomMath.Float(1, 2);
+                Light.Intensity    = RandomMath.Float(5, 15);
                 Light.Enabled      = true;
             }
 
@@ -133,13 +133,13 @@ namespace Ship_Game
             Vector3 pos = projectilePos.ToVec3(moduleCenter.Z);
             Vector2 impactNormal = moduleCenter.ToVec2().DirectionToTarget(projectilePos);
 
-            if (!beamFlash || RandomMath.RandomBetween(0f, 100f) > 30f)
+            if (!beamFlash || RandomMath.Float(0f, 100f) > 30f)
                 particles.Flash.AddParticle(pos);
 
 
             for (int i = 0; i < 20; ++i)
             {
-                var randVel = new Vector3(impactNormal * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f));
+                var randVel = new Vector3(impactNormal * RandomMath.Float(40f, 80f), RandomMath.Float(-25f, 25f));
                 particles.Sparks.AddParticle(pos, randVel);
             }
         }
@@ -152,8 +152,8 @@ namespace Ship_Game
 
             Rotation     = module.Position.RadiansToTarget(proj.Position);
             Radius       = module.ShieldHitRadius;
-            TexScale     = 2.6f - 0.1f * RandomMath.RandomBetween(intensity, 6f);
-            Displacement = 0.085f * RandomMath.RandomBetween(intensity, 10f);
+            TexScale     = 2.6f - 0.1f * RandomMath.Float(intensity, 6f);
+            Displacement = 0.085f * RandomMath.Float(intensity, 10f);
 
             if (universe.CanAddDynamicLight)
             {
@@ -161,7 +161,7 @@ namespace Ship_Game
                 Light.World        = proj.WorldMatrix;
                 Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
                 Light.Radius       = module.ShieldHitRadius;
-                Light.Intensity    = RandomMath.RandomBetween(intensity * 0.5f, 10f);
+                Light.Intensity    = RandomMath.Float(intensity * 0.5f, 10f);
                 Light.Enabled      = true;
             }
 

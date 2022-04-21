@@ -58,7 +58,7 @@ namespace Ship_Game
         [Pure] public float Generate()
         {
             // ReSharper disable once CompareOfFloatsByEqualityOperator
-            return Min == Max ? Min : RandomMath.RandomBetween(Min, Max);
+            return Min == Max ? Min : RandomMath.Float(Min, Max);
         }
         public override string ToString() => $"Range [{Min}, {Max}]";
     }
@@ -597,7 +597,7 @@ namespace Ship_Game
         // Gives a random point from a vector within a specified distance
         public static Vector2 RandomOffsetAndDistance(Vector2 center, float distance)
         {
-            return center + RandomMath.RandomDirection() * RandomMath.RandomBetween(0, distance);
+            return center + RandomMath.RandomDirection() * RandomMath.Float(0, distance);
         }
 
         // Generates a new point on a circular radius from position
@@ -616,13 +616,13 @@ namespace Ship_Game
 
         public static Vector2 GenerateRandomPointOnCircle(this Vector2 center, float radius)
         {
-            float randomAngle = RandomMath.RandomBetween(0f, 360f);
+            float randomAngle = RandomMath.Float(0f, 360f);
             return center.PointFromAngle(randomAngle, radius);
         }
 
         public static Vector2 GenerateRandomPointInsideCircle(this Vector2 center, float radius)
         {
-            float randomRadius = RandomMath.RandomBetween(0f, radius);
+            float randomRadius = RandomMath.Float(0f, radius);
             return center.GenerateRandomPointOnCircle(randomRadius);
         }
 

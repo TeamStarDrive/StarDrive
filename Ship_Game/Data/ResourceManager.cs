@@ -638,7 +638,7 @@ namespace Ship_Game
             if (troop.StrengthMax <= 0)
                 troop.StrengthMax = troop.Strength;
 
-            troop.WhichFrame = (int)RandomMath.RandomBetween(1, troop.num_idle_frames - 1);
+            troop.WhichFrame = (int)RandomMath.Float(1, troop.num_idle_frames - 1);
 
             if (forOwner != null)
             {

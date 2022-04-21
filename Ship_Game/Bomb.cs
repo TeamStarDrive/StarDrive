@@ -108,8 +108,8 @@ namespace Ship_Game
             TargetPlanet = p;
             PlanetRadius = TargetPlanet.ObjectRadius;
             Vector3 vtt = TargetPlanet.Center3D + 
-                new Vector3(RandomMath2.RandomBetween(-500f, 500f) * p.Scale, 
-                            RandomMath2.RandomBetween(-500f, 500f) * p.Scale, 0f) - Position;
+                new Vector3(RandomMath2.Float(-500f, 500f) * p.Scale, 
+                            RandomMath2.Float(-500f, 500f) * p.Scale, 0f) - Position;
             vtt = Vector3.Normalize(vtt);
             Velocity = vtt * 1350f;
         }

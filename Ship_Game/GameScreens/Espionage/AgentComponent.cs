@@ -189,7 +189,7 @@ namespace Ship_Game.GameScreens.Espionage
                     var agent = new Agent()
                     {
                         Name = GetName(LoadNames()),
-                        Age = RandomMath.RandomBetween(20, 30)
+                        Age = RandomMath.Float(20, 30)
                     };
 
                     // Added new agent information
