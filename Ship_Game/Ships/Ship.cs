@@ -1583,14 +1583,14 @@ namespace Ship_Game.Ships
                 if (InFrustum)
                 {
                     Dying = true;
-                    DieTimer = UniverseRandom.IntBetween(4, 8);
+                    DieTimer = UniverseRandom.Int(4, 8);
                 }
 
                 if (Dying)
                 {
-                    DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
-                    DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
-                    DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.X = UniverseRandom.Float(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Y = UniverseRandom.Float(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Z = UniverseRandom.Float(-1f, 1f) * 50f / SurfaceArea;
                     return false; // ship will really die later
                 }
             }

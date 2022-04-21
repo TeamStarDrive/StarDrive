@@ -1007,7 +1007,7 @@ namespace Ship_Game.Ships
                 {
                     for (int i = 0; i < 30; ++i)
                     {
-                        Vector3 pos = parentAlive ? center : new Vector3(Parent.Position, UniverseRandom.RandomBetween(-25f, 25f));
+                        Vector3 pos = parentAlive ? center : new Vector3(Parent.Position, UniverseRandom.Float(-25f, 25f));
                         p.Explosion.AddParticle(pos);
                     }
                 }
