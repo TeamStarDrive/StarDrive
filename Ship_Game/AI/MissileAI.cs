@@ -167,8 +167,8 @@ namespace Ship_Game.AI
             Vector2 targetPos = Target.Position;
             if (!Missile.ErrorSet)
             {
-                float randomDeviation = RandomMath.RandomBetween(900f, 1400f);
-                float randomDeviation2 = RandomMath.RandomBetween(0f, 1f) > 0.5f ? randomDeviation : -randomDeviation;
+                float randomDeviation = RandomMath.Float(900f, 1400f);
+                float randomDeviation2 = RandomMath.Float(0f, 1f) > 0.5f ? randomDeviation : -randomDeviation;
                 targetPos.X += randomDeviation2;
                 targetPos.Y -= randomDeviation2;
                 Missile.FixedError = targetPos;
@@ -199,7 +199,7 @@ namespace Ship_Game.AI
                 if (!CalculatedJamming && distanceToTarget <= 4000f && Target is ShipModule targetModule)
                 {
                     float targetEcm   = targetModule.GetParent().ECMValue;
-                    float ecmResist   = Missile.Weapon.ECMResist + RandomMath.RandomBetween(0f, 1f);
+                    float ecmResist   = Missile.Weapon.ECMResist + RandomMath.Float(0f, 1f);
                     Jammed            = (ecmResist < targetEcm);
                     CalculatedJamming = true;
                 }
@@ -263,7 +263,7 @@ namespace Ship_Game.AI
             if (RandomDirectionTimer <= 0f)
             {
                 RandomDirectionTimer = 0.5f;
-                RandomNozzleDirection = RandomMath.RandomBetween(-MaxNozzleDirection, +MaxNozzleDirection);
+                RandomNozzleDirection = RandomMath.Float(-MaxNozzleDirection, +MaxNozzleDirection);
             }
 
             float nozzleDirection = RandomNozzleDirection;

@@ -41,7 +41,7 @@ namespace Ship_Game
             Mole mole = null;
             if (potentials.Count > 0)
             {
-                int Random = (int)RandomMath.RandomBetween(0f, potentials.Count + 0.7f);
+                int Random = (int)RandomMath.Float(0f, potentials.Count + 0.7f);
                 if (Random > potentials.Count - 1)
                 {
                     Random = potentials.Count - 1;

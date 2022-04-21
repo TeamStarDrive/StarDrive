@@ -206,7 +206,7 @@ namespace Ship_Game.GameScreens.MainMenu
             if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {
                 Comet c = Add(new Comet(this));
-                c.SetDirection(new Vector2(RandomMath.RandomBetween(-1f, 1f), 1f));
+                c.SetDirection(new Vector2(RandomMath.Float(-1f, 1f), 1f));
             }
 
             if (!IsExiting && ScreenManager.Music.IsStopped)

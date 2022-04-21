@@ -343,7 +343,7 @@ namespace Ship_Game.GameScreens.NewGame
         short StartingPositionCorners()
         {
             float universeSize = UState.Size;
-            short whichcorner = (short)RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
+            short whichcorner = (short)RandomMath.Float(0, 4); //So the player doesnt always end up in the same corner;
             foreach (SolarSystem solarSystem2 in UState.Systems)
             {
                 if (solarSystem2.IsStartingSystem || solarSystem2.DontStartNearPlayer)
@@ -358,8 +358,8 @@ namespace Ship_Game.GameScreens.NewGame
 
                         //Put the 4 Home Planets into their corners, nessled nicely back a bit
                         float RandomoffsetX =
-                            RandomMath.RandomBetween(0, 19) / 100; //Do want some variance in location, but still in the back
-                        float RandomoffsetY = RandomMath.RandomBetween(0, 19) / 100;
+                            RandomMath.Float(0, 19) / 100; //Do want some variance in location, but still in the back
+                        float RandomoffsetY = RandomMath.Float(0, 19) / 100;
                         float MinOffset = 0.04f; //Minimum Offset
                         //Theorectical Min = 0.04 (4%)                  Theoretical Max = 0.18 (18%)
 
@@ -663,8 +663,8 @@ namespace Ship_Game.GameScreens.NewGame
             long noinfiniteloop = 0;
             do
             {
-                sysPos = new Vector2(RandomMath.RandomBetween(-uSize + (float)offsetX, -uSize + (float)(CornerSizeX + offsetX)),
-                                        RandomMath.RandomBetween(-uSize + (float)offsetY, -uSize + (float)(CornerSizeY + offsetY)));
+                sysPos = new Vector2(RandomMath.Float(-uSize + (float)offsetX, -uSize + (float)(CornerSizeX + offsetX)),
+                                        RandomMath.Float(-uSize + (float)offsetY, -uSize + (float)(CornerSizeY + offsetY)));
                 noinfiniteloop += 1000;
             }
             //Decrease the acceptable proximity slightly each attempt, so there wont be an infinite loop here on 'tiny' + 'SuperPacked' maps
@@ -683,7 +683,7 @@ namespace Ship_Game.GameScreens.NewGame
                 float num3 = index * num1 + rotation;
                 float x = RadMath.Cos(num3) * num2;
                 float y = RadMath.Sin(num3) * num2;
-                Vector2 sysPos = new Vector2(RandomMath.RandomBetween(-10000f, 10000f) * index, (float)(RandomMath.RandomBetween(-10000f, 10000f) * (double)index / 4.0));
+                Vector2 sysPos = new Vector2(RandomMath.Float(-10000f, 10000f) * index, (float)(RandomMath.Float(-10000f, 10000f) * (double)index / 4.0));
                 sysPos = new Vector2(x, y) + sysPos;
                 if (SystemPosOK(sysPos))
                 {
@@ -698,8 +698,8 @@ namespace Ship_Game.GameScreens.NewGame
                     float max = (float)(+halfSize - padding);
                     while (!SystemPosOK(sysPos))
                     {
-                        sysPos.X = RandomMath.RandomBetween(min, max);
-                        sysPos.Y = RandomMath.RandomBetween(min, max);
+                        sysPos.X = RandomMath.Float(min, max);
+                        sysPos.Y = RandomMath.Float(min, max);
                     }
 
                     ClaimedSpots.Add(sysPos);

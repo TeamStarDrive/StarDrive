@@ -26,7 +26,7 @@ namespace Ship_Game
         public static Effect BeamEffect;
         public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
         public int[] Indexes = new int[6];
-        private readonly float BeamZ = RandomMath2.RandomBetween(-1f, 1f);
+        private readonly float BeamZ = RandomMath2.Float(-1f, 1f);
         public bool Infinite;
         private VertexDeclaration QuadVertexDecl;
         private float Displacement = 1f;

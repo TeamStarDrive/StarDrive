@@ -285,7 +285,7 @@ namespace Ship_Game
             else
             {
                 PlanetType chosenType = ChooseTypeByWeight(sunZone);
-                float scale     = RandomMath.RandomBetween(0.75f, 1.5f);
+                float scale     = RandomMath.Float(0.75f, 1.5f);
                 if (chosenType.Category == PlanetCategory.GasGiant)
                     ++scale;
 
@@ -295,14 +295,14 @@ namespace Ship_Game
 
             OrbitalRadius = ringRadius + ObjectRadius;
             Center = MathExt.PointOnCircle(randomAngle, ringRadius);
-            PlanetTilt = RandomMath.RandomBetween(45f, 135f);
+            PlanetTilt = RandomMath.Float(45f, 135f);
 
             GenerateMoons(system, newOrbital:this);
 
-            if (RandomMath.RandomBetween(1f, 100f) < 15f)
+            if (RandomMath.Float(1f, 100f) < 15f)
             {
                 HasRings = true;
-                RingTilt = RandomMath.RandomBetween(-80f, -45f).ToRadians();
+                RingTilt = RandomMath.Float(-80f, -45f).ToRadians();
             }
         }
 

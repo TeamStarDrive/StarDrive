@@ -305,7 +305,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            int amount = RandomMath.IntBetween(1, victim.GetPlanets().Count * 50) * Level;
+            int amount = RandomMath.Int(1, victim.GetPlanets().Count * 50) * Level;
             amount     = amount.UpperBound((int)(victim.Money * 0.5));
             switch (missionStatus)
             {

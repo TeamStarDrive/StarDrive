@@ -265,7 +265,7 @@ namespace Ship_Game.Gameplay
 
             Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
             if (Weapon.RangeVariance)
-                Range *= RandomMath.RandomBetween(0.9f, 1.1f);
+                Range *= RandomMath.Float(0.9f, 1.1f);
 
             float durationMod = 1.2f;
             if (Weapon.IsRepairDrone)    durationMod = 1.25f;

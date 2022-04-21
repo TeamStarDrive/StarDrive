@@ -69,7 +69,7 @@ namespace Ship_Game
             {
                 Universe.Screen.Particles.Sparks.AddParticle(new Vector3(PlaformCenter, 0f) + GenerateRandomWithin(100f), GenerateRandomWithin(25f));
             }
-            if (RandomMath.RandomBetween(0f, 100f) > 97f)
+            if (RandomMath.Float(0f, 100f) > 97f)
             {
                 Universe.Screen.Particles.Flash.AddParticle(new Vector3(PlaformCenter, 0f));
             }
@@ -78,12 +78,12 @@ namespace Ship_Game
 
         private Vector2 GenerateRandomV2(float radius)
         {
-            return new Vector2(RandomMath.RandomBetween(-radius, radius), RandomMath.RandomBetween(-radius, radius));
+            return new Vector2(RandomMath.Float(-radius, radius), RandomMath.Float(-radius, radius));
         }
 
         private Vector3 GenerateRandomWithin(float radius)
         {
-            return new Vector3(RandomMath.RandomBetween(-radius, radius), RandomMath.RandomBetween(-radius, radius), RandomMath.RandomBetween(-radius, radius));
+            return new Vector3(RandomMath.Float(-radius, radius), RandomMath.Float(-radius, radius), RandomMath.Float(-radius, radius));
         }
 
         public override void Update(FixedSimTime timeStep)

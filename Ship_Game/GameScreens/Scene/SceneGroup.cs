@@ -170,7 +170,7 @@ namespace Ship_Game.GameScreens.Scene
                 return Vector3.Zero;
 
             float radius = orbit.X;
-            float angle = RandomMath.RandomBetween(orbit.Y, orbit.Z);
+            float angle = RandomMath.Float(orbit.Y, orbit.Z);
             Vector3 randDispersion = RandomMath.Vector3D(offset);
 
             Vector3 orbitCenter = OrbitOrder.OrbitCenter;

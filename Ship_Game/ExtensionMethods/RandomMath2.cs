@@ -12,16 +12,9 @@ namespace Ship_Game
 
         /// Generate random, inclusive [minimum, maximum]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float RandomBetween(float minimum, float maximum)
+        public static float Float(float minimum, float maximum)
         {
             return Random.Float(minimum, maximum);
-        }
-        
-        /// Generate random, inclusive [minimum, maximum]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int IntBetween(int minimum, int maximum)
-        {
-            return Random.Int(minimum, maximum);
         }
 
         /// Generate random index, upper bound excluded: [startIndex, arrayLength)
