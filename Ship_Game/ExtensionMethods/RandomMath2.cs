@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -40,25 +41,13 @@ namespace Ship_Game
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T RandItem<T>(IReadOnlyList<T> items)
         {
-            return items[InRange(items.Count)];
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T RandItem<T>(Array<T> items)
-        {
-            return items[InRange(items.Count)];
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T RandItem<T>(T[] items)
-        {
-            return items[InRange(items.Length)];
+            return Random.RandItem(items);
         }
 
         // Generates a Vector2 with X Y in range [-radius, +radius]
         public static Vector2 Vector2D(float radius)
         {
-            return new Vector2(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius));
+            return Random.Vector2D(radius);
         }
     }
 }
