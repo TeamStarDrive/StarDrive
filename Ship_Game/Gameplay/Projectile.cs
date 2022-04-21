@@ -346,7 +346,7 @@ namespace Ship_Game.Gameplay
                 Animation = new SpriteAnimation(ResourceManager.RootContent, animFolder);
                 Animation.Looping = Weapon.LoopAnimation == 1;
                 float loopDuration = (InitialDuration / Animation.NumFrames);
-                float startAt = Animation.Looping ? UniverseRandom.RandomBetween(0f, loopDuration) : 0f;
+                float startAt = Animation.Looping ? UniverseRandom.Float(0f, loopDuration) : 0f;
                 Animation.Start(loopDuration, startAt);
             }
             else
