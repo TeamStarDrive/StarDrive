@@ -6,6 +6,7 @@ using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 
 namespace UnitTests.Fleets
 {

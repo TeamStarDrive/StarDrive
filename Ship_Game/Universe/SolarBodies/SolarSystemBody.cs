@@ -601,7 +601,7 @@ namespace Ship_Game
                 return; // this planet does not support moons
 
             int moonCount = (int)Math.Ceiling(ObjectRadius * 0.004f);
-            moonCount = (int)Math.Round(RandomMath.AvgRandomBetween(-moonCount * 0.75f, moonCount));
+            moonCount = (int)Math.Round(RandomMath.AvgFloat(-moonCount * 0.75f, moonCount));
             for (int j = 0; j < moonCount; j++)
             {
                 PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.Type);

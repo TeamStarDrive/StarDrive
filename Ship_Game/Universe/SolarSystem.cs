@@ -384,7 +384,7 @@ namespace Ship_Game
             int starRadius = (int)(IntBetween(250, 500) * systemScale);
             float ringMax = starRadius * 300;
             float ringBase = ringMax * 0.1f;
-            int minR = AvgRandomBetween(GlobalStats.ExtraPlanets, 3, iterations: 2);
+            int minR = AvgInt(GlobalStats.ExtraPlanets, 3, iterations: 2);
             int maxR = IntBetween(minR, 7 + minR);
             NumberOfRings = IntBetween(minR, maxR);
 

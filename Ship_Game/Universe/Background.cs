@@ -96,12 +96,16 @@ namespace Ship_Game
             // TODO: use camPos to create a nice parallax effect?
             Vector3d camPos = Universe.CamPos;
 
+            // scale of the background nebula
             float sizeMod = 15.0f;
+
+            // distance of the nebula in the background
             float backgroundDepth = 25_000_000f;
+
             float uSize = Universe.UState.Size;
-            var backgroundSize = new Vector2(uSize * sizeMod);
             var backgroundPos = new Vector3(0.0f, 0.0f, backgroundDepth);
 
+            var backgroundSize = new Vector2(uSize * sizeMod);
             float aspect = nebula.AspectRatio;
             if (aspect > 1.0f)
                 backgroundSize.Y /= aspect;

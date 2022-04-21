@@ -413,7 +413,6 @@
     <Compile Include="Ship_Game\Empires\ShipPools\ShipPool.cs" />
     <Compile Include="Ship_Game\Empire_Relationship.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\AABoundingBox2D.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\ThreadSafeRandom.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignStat.cs" />
     <Compile Include="Ship_Game\Pirates.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />
@@ -720,6 +719,7 @@
     <Compile Include="Ship_Game\Utils\GameObjectList.cs" />
     <Compile Include="Ship_Game\Utils\EnumFlatMap.cs" />
     <Compile Include="Ship_Game\Utils\ObjectPool.cs" />
+    <Compile Include="Ship_Game\Utils\RandomBase.cs" />
     <Compile Include="Ship_Game\Utils\ReadRestAPIFromSite.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs" />
@@ -881,6 +881,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Ship_Game\Utils\SeededRandom.cs" />
     <Compile Include="Ship_Game\Utils\SmallBitSet.cs" />
     <Compile Include="Ship_Game\Utils\SteamManager.cs">
       <AutoGen>false</AutoGen>
@@ -927,6 +928,7 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Utils\SafeArray.cs" />
+    <Compile Include="Ship_Game\Utils\ThreadSafeRandom.cs" />
     <Compile Include="Ship_Game\Utils\TimeTypes.cs" />
     <Compile Include="Ship_Game\WeightSlider.cs">
       <AutoGen>false</AutoGen>

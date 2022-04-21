@@ -56,7 +56,6 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         protected float DistanceToTarget;
         protected Vector2 DirectionToTarget;
         protected Vector2 TargetQuadrant = Vectors.Right;
-        protected Vector2 ZigZag;
         protected float SpacerDistance;
         protected float DesiredCombatRange;
         Vector2 DisengageDirection;
@@ -160,7 +159,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// </summary>
         void ExecuteAntiChaseDisengage(FixedSimTime timeStep)
         {
-            float angle = RandomMath.AvgRandomBetween(1f, 3f);
+            float angle = RandomMath.AvgFloat(1f, 3f);
 
             switch(DisengageType)
             {
@@ -291,57 +290,6 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
 
             chase |= CanCatchState(chase, distance);
             return chase;
-        }
-
-        /// <summary>
-        /// TO BE EXPANDED. be a harder target on approach.
-        /// this works badly. disabled until it can be made better
-        /// </summary>
-        public void ErraticMovement(FixedSimTime timeStep)
-        {
-            ErraticTimer -= timeStep.FixedTime;
-
-            bool cantMoveErratic =  Owner.Level == 0 || Owner.Loyalty.data.Traits.PhysicalTraitPonderous;
-
-            if (cantMoveErratic || MoveState != CombatMoveState.Approach || AI.IsFiringAtMainTarget || Owner.AI.HasPriorityOrder
-                || WeAreRetrograding || Owner.CurrentVelocity < 100f)
-            {
-                return;
-            }
-
-            bool inErraticArc = RadMath.IsTargetInsideArc(OwnerTarget.Position, Owner.Position, OwnerTarget.Rotation, RadMath.Deg3AsRads);
-
-            if (inErraticArc || ErraticTimer > 0)
-                return;
-
-            int racialMod = Owner.Loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
-
-            ErraticTimer = (10f - racialMod) / (Owner.Level + racialMod);
-
-            DisengageType = DisengageTypes.Erratic;
-
-            int rng = RandomMath.RollAvgPercentVarianceFrom50();
-            
-            float mod = 5 * (Owner.RotationRadsPerSecond * (1 + Owner.Level + racialMod)).Clamped(0, 10);
-
-            ErraticTimer = 2 / (Owner.RotationRadsPerSecond + 1);
-
-            if (rng < 25 - mod)
-            {
-                ZigZag = Vector2.Zero;
-            }
-            else
-            {
-                Vector2 dir = Owner.Position.DirectionToTarget(AI.Target.Position);
-                if (RandomMath.IntBetween(0, 1) == 1)
-                {
-                    ZigZag = dir.RightVector() * 100 * Owner.RotationRadsPerSecond;
-                }
-                else
-                {
-                    ZigZag = dir.LeftVector() * 100 * Owner.RotationRadsPerSecond;
-                }
-            }
         }
 
         public void DrawDebugTarget(Vector2 pip, float radius)

@@ -93,7 +93,7 @@ namespace Ship_Game.AI.CombatTactics
             {
                 // fly simply towards the offset attack position
                 DrawDebugTarget(attackPos, Owner.Radius);
-                AI.SubLightMoveTowardsPosition(attackPos + ZigZag, timeStep, speed, predictPos: true, autoSlowDown: false);
+                AI.SubLightMoveTowardsPosition(attackPos, timeStep, speed, predictPos: true, autoSlowDown: false);
                 DrawDebugText($"{debugStatus} {(int)speed}");
             }
         }

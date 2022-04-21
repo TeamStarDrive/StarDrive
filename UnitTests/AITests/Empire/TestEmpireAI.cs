@@ -326,7 +326,7 @@ namespace UnitTests.AITests.Empire
                             if (s.Active)
                             {
                                 Assert.AreEqual(s.Loyalty, empire);
-                                float random = RandomMath.AvgRandomBetween(1, 100);
+                                float random = RandomMath.AvgInt(1, 100);
                                 if (random > 80)
                                 {
                                     s.RemoveFromUniverseUnsafe();
