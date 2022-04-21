@@ -1086,7 +1086,7 @@ namespace Ship_Game.Ships
                 && !ShipData.IsShipyard && ShipData.Role <= RoleName.station)
             {
                 // rotate Platform and SSP:
-                Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
+                Rotation += 0.003f + RandomMath.AvgFloat(0.0001f, 0.0005f);
             }
 
             if (timeStep.FixedTime > 0 && (EMPDamage > 0 || EMPDisabled))

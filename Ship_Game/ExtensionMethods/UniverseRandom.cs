@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -42,33 +43,30 @@ namespace Ship_Game
         // @example if (RandomMath.RollDice(33)) {..} // 33% chance
         public static bool RollDice(float percent)
         {
-            return RandomBetween(0f, 100f) < percent;
+            return Random.RollDice(percent);
         }
 
         public static Vector2 RandomDirection()
         {
-            float angle = RandomBetween(0f, RadMath.TwoPI);
-            return angle.RadiansToDirection();
+            return Random.Direction2D();
         }
 
         // Generates a Vector3 with X Y Z in range [-radius, +radius]
         public static Vector3 Vector3D(float radius)
         {
-            return new Vector3(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius), 
-                               RandomBetween(-radius, +radius));
+            return Random.Vector3D(radius);
         }
 
         // Generates a Vector3 with X Y Z in range [minradius, maxradius]
         public static Vector3 Vector3D(float minradius, float maxradius)
         {
-            return new Vector3(RandomBetween(minradius, maxradius), RandomBetween(minradius, maxradius), 
-                               RandomBetween(minradius, maxradius));
+            return Random.Vector3D(minradius, maxradius);
         }
 
         // Generates a Vector3 with Z set to 0.0f
         public static Vector3 Vector32D(float radius)
         {
-            return new Vector3(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius), 0f);
+            return Random.Vector32D(radius);
         }
     }
 }
