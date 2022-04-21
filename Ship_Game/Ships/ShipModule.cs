@@ -1042,7 +1042,7 @@ namespace Ship_Game.Ships
         void SpawnDebris(Vector2 velocity, int count, bool ignite)
         {
             if (count == 0) 
-                count = RandomMath.IntBetween(0, (int)(Area*0.5f + 1f));
+                count = RandomMath.Int(0, (int)(Area*0.5f + 1f));
 
             if (count != 0)
             {

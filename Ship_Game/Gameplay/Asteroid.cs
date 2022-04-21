@@ -30,7 +30,7 @@ namespace Ship_Game.Gameplay
             : this()
         {
             Id = id;
-            Scale = RandomMath.RandomBetween(scaleMin, scaleMax);
+            Scale = RandomMath.Float(scaleMin, scaleMax);
             Position = pos;
         }
 

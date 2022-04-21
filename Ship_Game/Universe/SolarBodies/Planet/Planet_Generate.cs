@@ -94,12 +94,12 @@ namespace Ship_Game
 
             if (Habitable)
             {
-                float richness = RandomBetween(0.0f, 100f);
-                if      (richness >= 92.5f) MineralRichness = RandomBetween(2.00f, 2.50f);
-                else if (richness >= 85.0f) MineralRichness = RandomBetween(1.50f, 2.00f);
-                else if (richness >= 25.0f) MineralRichness = RandomBetween(0.75f, 1.50f);
-                else if (richness >= 12.5f) MineralRichness = RandomBetween(0.25f, 0.75f);
-                else if (richness < 12.5f)  MineralRichness = RandomBetween(0.10f, 0.25f);
+                float richness = Float(0.0f, 100f);
+                if      (richness >= 92.5f) MineralRichness = Float(2.00f, 2.50f);
+                else if (richness >= 85.0f) MineralRichness = Float(1.50f, 2.00f);
+                else if (richness >= 25.0f) MineralRichness = Float(0.75f, 1.50f);
+                else if (richness >= 12.5f) MineralRichness = Float(0.25f, 0.75f);
+                else if (richness < 12.5f)  MineralRichness = Float(0.10f, 0.25f);
 
                 float habitableChance = Type.HabitableTileChance.Generate();
 

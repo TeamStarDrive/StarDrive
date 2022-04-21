@@ -33,9 +33,9 @@ namespace Ship_Game
         {
             Universe = universe;
             float spawnInRadius = maxSize + 25f;
-            Position.X = RandomMath2.RandomBetween(parentPos.X - spawnInRadius, parentPos.X + spawnInRadius);
-            Position.Y = RandomMath2.RandomBetween(parentPos.Y - spawnInRadius, parentPos.Y + spawnInRadius);
-            Position.Z = RandomMath2.RandomBetween(-spawnInRadius*0.5f, spawnInRadius*0.5f);
+            Position.X = RandomMath2.Float(parentPos.X - spawnInRadius, parentPos.X + spawnInRadius);
+            Position.Y = RandomMath2.Float(parentPos.Y - spawnInRadius, parentPos.Y + spawnInRadius);
+            Position.Z = RandomMath2.Float(-spawnInRadius*0.5f, spawnInRadius*0.5f);
             CreateSceneObject(universe.Screen.Particles, parentPos, maxSize, ignite);
 
             // inherit extra velocity from parent
@@ -48,7 +48,7 @@ namespace Ship_Game
             var offsetFromParent = new Vector3(Position.X - pos.X, Position.Y - pos.Y, 1f);
             Velocity = RandomMath.Vector3D(vel.Min, vel.Max) * offsetFromParent;
             Spin  = RandomMath.Vector3D(spin.Min, spin.Max);
-            Scale = RandomMath2.RandomBetween(scaleRandom*scale, scale);
+            Scale = RandomMath2.Float(scaleRandom*scale, scale);
         }
 
         static Range Range(float min, float max) => new Range(min, max);
@@ -56,7 +56,7 @@ namespace Ship_Game
         void CreateSceneObject(ParticleManager particles, Vector2 pos, float maxSize, bool ignite)
         {
             RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
-            MaxDuration = RandomMath2.RandomBetween(4f, 8f);
+            MaxDuration = RandomMath2.Float(4f, 8f);
             Duration = MaxDuration;
 
             float flameParticles = 0f;

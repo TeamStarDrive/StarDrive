@@ -21,9 +21,9 @@ namespace Ship_Game
 
         static readonly float[] MoveFactors = { 0.1f, 0.07f, 0.00007f, 0.0006f, 0.001f, 0.014f, 0.002f, 0.0001f };
 
-        readonly int DesiredSmallStars = RandomMath.IntBetween(10,30);
-        readonly int DesiredMedStars   = RandomMath.IntBetween(2, 10);
-        readonly int DesiredLargeStars = RandomMath.IntBetween(1, 4);
+        readonly int DesiredSmallStars = RandomMath.Int(10,30);
+        readonly int DesiredMedStars   = RandomMath.Int(2, 10);
+        readonly int DesiredLargeStars = RandomMath.Int(1, 4);
 
         struct Star
         {

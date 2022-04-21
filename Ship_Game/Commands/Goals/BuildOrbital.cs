@@ -87,7 +87,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 TetherPlanetId = PlanetBuildingAt.Id;
             for (int ring = 0; ring < ringLimit; ring++)
             {
-                int degrees    = (int)RandomMath.RandomBetween(0f, 9f);
+                int degrees    = (int)RandomMath.Float(0f, 9f);
                 float distance = 2000 + (1000 * ring * GetTetherPlanet.Scale);
                 TetherOffset    = MathExt.PointOnCircle(degrees * 40, distance);
                 Vector2 pos = GetTetherPlanet.Center + TetherOffset;

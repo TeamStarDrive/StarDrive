@@ -33,7 +33,7 @@ namespace Ship_Game.Universe.SolarBodies
         public bool Dormant            => !Active;
         float DeactivationChance       => ActivationChance * 5;
         float ActiveEruptionChance     => ActivationChance * 10;
-        float InitActivationChance()   => RandomMath.RandomBetween(0.01f, MaxActivationChance) * GlobalStats.VolcanicActivity;
+        float InitActivationChance()   => RandomMath.Float(0.01f, MaxActivationChance) * GlobalStats.VolcanicActivity;
         string ActiveVolcanoTexPath    => "Buildings/icon_Active_Volcano_64x64";
         string DormantVolcanoTexPath   => "Buildings/icon_Dormant_Volcano_64x64";
         string EruptingVolcanoTexPath  => "Buildings/icon_Erupting_Volcano_64x64";

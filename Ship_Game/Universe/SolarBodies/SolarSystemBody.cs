@@ -48,8 +48,8 @@ namespace Ship_Game
 
         public void DamageColonySurface(Bomb bomb)
         {
-            int softDamage  = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
-            int hardDamage  = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
+            int softDamage  = (int)RandomMath.Float(bomb.TroopDamageMin, bomb.TroopDamageMax);
+            int hardDamage  = (int)RandomMath.Float(bomb.HardDamageMin, bomb.HardDamageMax);
             float popKilled = bomb.PopKilled;
             float envDamage = bomb.FertilityDamage;
 
@@ -605,12 +605,12 @@ namespace Ship_Game
             for (int j = 0; j < moonCount; j++)
             {
                 PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.Type);
-                float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
+                float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.Float(1000f, 1500f) * (j + 1);
                 var moon = new Moon(system,
                                     newOrbital.Id,
                                     moonType.Id,
                                     1f, orbitRadius,
-                                    RandomMath.RandomBetween(0f, 360f),
+                                    RandomMath.Float(0f, 360f),
                                     newOrbital.Center.GenerateRandomPointOnCircle(orbitRadius));
                 ParentSystem.MoonList.Add(moon);
             }

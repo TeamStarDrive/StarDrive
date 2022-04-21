@@ -75,7 +75,7 @@ namespace Ship_Game.Gameplay
         {
             if (FireImprecisionAngle <= 0)
                 return direction;
-            float spread = RandomMath2.RandomBetween(-FireImprecisionAngle, FireImprecisionAngle) * 0.5f;
+            float spread = RandomMath2.Float(-FireImprecisionAngle, FireImprecisionAngle) * 0.5f;
             return (direction.ToDegrees() + spread).AngleToDirection();
         }
 
@@ -143,7 +143,7 @@ namespace Ship_Game.Gameplay
         {
             // cooldown should start after all salvos have finished, so
             // increase the cooldown by SalvoTimer
-            CooldownTimer = NetFireDelay + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
+            CooldownTimer = NetFireDelay + RandomMath.Float(-10f, +10f) * 0.008f;
 
             Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
             Owner.PowerCurrent -= PowerRequiredToFire;
