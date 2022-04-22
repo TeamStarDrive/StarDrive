@@ -132,7 +132,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public void CheckIssueOrdnanceBurst(float burst, float cap)
         {
-            if (burst.LessOrEqual(0) || burst < cap)
+            if (burst.LessOrEqual(0) || burst <= cap)
                 return;
 
             WarningLevel level;
@@ -161,11 +161,14 @@ namespace Ship_Game.GameScreens.ShipDesign
             }
         }
 
-        public void CheckIssuePowerRecharge(bool hasEnergyWeapons, float recharge, float powerCapacity, float excessPowerConsumed)
+        public void CheckIssuePowerRecharge(bool hasEnergyWeapons, float recharge, 
+            float powerCapacity, float excessPowerConsumed, out bool hasRechargeIssues)
         {
+            hasRechargeIssues = false;
             if (recharge.Less(0))
             { 
                 AddDesignIssue(DesignIssueType.NegativeRecharge, WarningLevel.Critical);
+                hasRechargeIssues = true;
                 return;
             }
 
@@ -175,21 +178,62 @@ namespace Ship_Game.GameScreens.ShipDesign
             float rechargeTime    = powerCapacity / recharge.LowerBound(1);
             WarningLevel severity = WarningLevel.None;
 
-            if      (rechargeTime > 20) severity = WarningLevel.Critical;
-            else if (rechargeTime > 16) severity = WarningLevel.Major;
-            else if (rechargeTime > 12) severity = WarningLevel.Minor;
-            else if (rechargeTime > 8)  severity = WarningLevel.Informative;
+            if      (rechargeTime > 25) severity = WarningLevel.Critical;
+            else if (rechargeTime > 20) severity = WarningLevel.Major;
+            else if (rechargeTime > 15) severity = WarningLevel.Minor;
+            else if (rechargeTime > 10)  severity = WarningLevel.Informative;
 
             if (severity > WarningLevel.None)
+            {
                 AddDesignIssue(DesignIssueType.LongRechargeTime, severity);
+                hasRechargeIssues = true;
+            }
         }
 
-        public void CheckPowerRequiredToFireOnce(Ship s)
+        public void CheckPowerCapacityWithSalvo(Ship s, float rechargePerSecond, bool hasFirePowerIssues, out bool hasSalvoFirePowerIssues)
         {
-            float powerCapacity = s.PowerStoreMax;
+            hasSalvoFirePowerIssues = false;
+            if (hasFirePowerIssues)
+                return;
 
+            float powerCapacity = s.PowerStoreMax;
+            Weapon[] powerWeapons = s.Weapons.Filter(w => w.PowerRequiredToFire > 0 && !w.IsBeam);
+            Weapon[] salvoWeapons = powerWeapons.Filter(w => w.SalvoCount > 1 && w.SalvoDuration > 0);
+
+            if (salvoWeapons.Length == 0)
+                return;
+
+            float initialPower = powerWeapons.Sum(w => w.SalvoCount > 1 ? 0 : w.PowerRequiredToFire * w.ProjectileCount);
+            float beamPower = s.Weapons.Filter(w => w.IsBeam).Sum(w => w.BeamPowerCostPerSecond);
+            float averageSalvoTime = salvoWeapons.Average(w => w.SalvoDuration);
+            float netBeamPower = beamPower * averageSalvoTime;
+
+            float totalSalvoPower = salvoWeapons.Sum(w => w.PowerRequiredToFire * w.SalvoCount * w.ProjectileCount * (averageSalvoTime / w.SalvoDuration));
+            float netPowerNeeded = initialPower + netBeamPower + totalSalvoPower;
+            float netPowerStoreDuringSalvo = powerCapacity + (rechargePerSecond*averageSalvoTime);
+
+            float powerRatio = netPowerNeeded / netPowerStoreDuringSalvo;
+
+            if (powerRatio.LessOrEqual(1))
+                return;
+
+            hasSalvoFirePowerIssues = true;
+            WarningLevel severity = WarningLevel.Informative;
+
+            if      (powerRatio > 2f)    severity = WarningLevel.Critical;
+            else if (powerRatio > 1.5f)  severity = WarningLevel.Major;
+            else if (powerRatio > 1.25f) severity = WarningLevel.Minor;
+
+            string powerRequirement = $" {(powerRatio * 100).String(0)}%";
+            AddDesignIssue(DesignIssueType.SalvoFirePowerEfficiency, severity, powerRequirement);
+        }
+
+        public void CheckPowerRequiredToFireOnce(Ship s, out bool hasFirePowerIssues)
+        {
+            hasFirePowerIssues = false;
+            float powerCapacity = s.PowerStoreMax;
             float[] weaponsPowerPerShot = s.Weapons.FilterSelect(w => !w.IsBeam && w.PowerRequiredToFire > 0, 
-                                                                 w => w.PowerRequiredToFire);
+                                                                 w => w.PowerRequiredToFire * w.ProjectileCount);
             if (weaponsPowerPerShot.Length == 0)
                 return;
 
@@ -220,7 +264,10 @@ namespace Ship_Game.GameScreens.ShipDesign
             string strEfficiency = $" {Localizer.Token(GameText.TheEfficiencyOfTheShipss)} {efficiency.String(0)}%.";
 
             if (severity > WarningLevel.None)
+            {
                 AddDesignIssue(DesignIssueType.OneTimeFireEfficiency, severity, $"{strNumCanFire}{strEfficiency}");
+                hasFirePowerIssues = true;
+            }
         }
 
         public void CheckIssueLowWarpTime(float warpDraw, float ftlTime, float warpSpeed)
@@ -354,7 +401,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         }
 
         public void CheckExcessPowerCells(bool hasBeamWeapons, float burstEnergyPowerTime, 
-            float excessPowerConsumed, bool hasPowerCells, float recharge, float powerCapacity)
+            float excessPowerConsumed, bool hasPowerCells, float recharge, float powerCapacity, bool hasEnergyWeapons)
         {
             if (!hasPowerCells
                 || hasBeamWeapons && burstEnergyPowerTime.Less(2.2f) // 10% percent more of required beam time
@@ -363,10 +410,18 @@ namespace Ship_Game.GameScreens.ShipDesign
                 return;
             }
 
-            if (powerCapacity > recharge * 1.5f)
-                AddDesignIssue(DesignIssueType.ExcessPowerCells, WarningLevel.Informative);
-            else if (powerCapacity > recharge)
-                AddDesignIssue(DesignIssueType.ExcessPowerCells, WarningLevel.Minor);
+            if (!hasEnergyWeapons)
+            {
+                if (powerCapacity > recharge)
+                    AddDesignIssue(DesignIssueType.ExcessPowerCells, WarningLevel.Minor);
+            }
+            else
+            {
+                if (powerCapacity > recharge * 30f)
+                    AddDesignIssue(DesignIssueType.ExcessPowerCells, WarningLevel.Minor);
+                else if (powerCapacity > recharge * 15f)
+                    AddDesignIssue(DesignIssueType.ExcessPowerCells, WarningLevel.Informative);
+            }
         }
 
         public void CheckBurstPowerTime(bool hasBeamWeapons, float burstEnergyPowerTime)
@@ -558,6 +613,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         Targets,
         LongRechargeTime,
         OneTimeFireEfficiency,
+        SalvoFirePowerEfficiency,
         ExcessPowerCells,
         DedicatedCarrier,
         SecondaryCarrier,
@@ -748,6 +804,12 @@ namespace Ship_Game.GameScreens.ShipDesign
                     Problem     = GameText.TheShipsPowerCapacityIt;
                     Remediation = GameText.AddPowerCellsToThe;
                     Texture     = ResourceManager.Texture("NewUI/IssueNegativeRecharge");
+                    break;
+                case DesignIssueType.SalvoFirePowerEfficiency:
+                    Title       = GameText.DesignIssueSalvoFirePowerEfficiencyTitle;
+                    Problem     = GameText.DesignIssueSalvoFirePowerEfficiencyProblem;
+                    Remediation = GameText.DesignIssueSalvoFirePowerEfficiencyRemidiation;
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowSalvoPower");
                     break;
                 case DesignIssueType.ExcessPowerCells:
                     Title       = GameText.ExcessPowerCells;

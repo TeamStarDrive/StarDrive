@@ -8121,8 +8121,7 @@ PartialWeaponEfficiency:
  RUS: "Частичная эффективность оружия"
 TheShipConsumesMoreEnergy:
  Id: 2567
- ENG: "The ship consumes more energy than it's Reactors can output. This means the ship combat efficiency will be reduced after it's Power Reserves are exhausted."
- RUS: "Корабль потребляет больше энергии, чем могут выдать его реакторы. Это означает, что боевая эффективность корабля будет снижена после исчерпания его запасов мощности."
+ ENG: "The ship consumes more energy than it's Reactors can output during combat. This means the ship combat efficiency will be reduced after it's Power Reserves are exhausted."
 AddReactorsToOffsetThe:
  Id: 2568
  ENG: "Add Reactors to offset the excess power consumption, or Energy Storage to increase Powered Weapon time."
@@ -10278,6 +10277,15 @@ AcceptedIntoOurEmpire:
 NoPortsFoundForBuild:
  Id: 4365
  ENG: "Planned to be constructed, but no planet could take the order. It is possible you have no planet with a space port, your planets are sabotaged or are in combat."
+DesignIssueSalvoFirePowerEfficiencyTitle:
+ Id: 4366
+ ENG: "Low Salvo Power"
+DesignIssueSalvoFirePowerEfficiencyProblem:
+ Id: 4367
+ ENG: "The ship cannot fire a full salvo with all it's Energy Weapons due to low power capacity."
+DesignIssueSalvoFirePowerEfficiencyRemidiation:
+ Id: 4368
+ ENG: "Add more Power Cells or Reactors to the ship. Current excess power requirements for a full salvo from all Energy Weapons is" 
 OnSurface:
  Id: 4993
  ENG: "on surface"
