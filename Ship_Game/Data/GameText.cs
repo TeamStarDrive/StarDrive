@@ -4380,6 +4380,8 @@ namespace Ship_Game
         DesignIssueSalvoFirePowerEfficiencyProblem = 4367,
         /// <summary>Add more Power Cells or Reactors to the ship. Current</summary>
         DesignIssueSalvoFirePowerEfficiencyRemidiation = 4368,
+        /// <summary>Credits per turn</summary>
+        CreditsPerTurn = 4369,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>
