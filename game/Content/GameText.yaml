@@ -10286,6 +10286,9 @@ DesignIssueSalvoFirePowerEfficiencyProblem:
 DesignIssueSalvoFirePowerEfficiencyRemidiation:
  Id: 4368
  ENG: "Add more Power Cells or Reactors to the ship. Current excess power requirements for a full salvo from all Energy Weapons is" 
+CreditsPerTurn:
+ Id: 4369
+ ENG: "Credits Per Turn"  
 OnSurface:
  Id: 4993
  ENG: "on surface"

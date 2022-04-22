@@ -107,7 +107,7 @@ namespace Ship_Game
             batch.Draw(ProdIcon, new Vector2(x, y), iconSize); // Production Icon
             batch.DrawString(font, prod.String(), x + iconSize.X + 2, y); // Build Production Cost
 
-            string maintString = maintenance.String(2) + " BC/Y";
+            string maintString = (-maintenance).String(2) + " BC/Y";
             float maintX       = x + iconSize.X + 50;
 
             if (cost > 0)
@@ -118,6 +118,9 @@ namespace Ship_Game
 
             if (maintenance > 0f)
                 batch.DrawString(Font8, maintString, maintX, y + iconSize.Y + 6, Color.DarkRed); // Maintenance
+
+            if (maintenance < 0f)
+                batch.DrawString(Font8, maintString, maintX, y + iconSize.Y + 6, Color.Green); // Credits per turn
         }
 
         void DrawBuilding(SpriteBatch batch, Building b)
