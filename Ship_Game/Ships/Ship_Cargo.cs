@@ -40,11 +40,21 @@ namespace Ship_Game.Ships
             return ordnanceLeft;
         }
 
-        // @note Should only be used for testing or by ChanceOrdnance
+        // @note Should only be used for testing or by ChangeOrdnance
         public void SetOrdnance(float newOrdnance)
         {
             Ordinance = newOrdnance.Clamped(0, OrdinanceMax);
             UpdateOrdnancePercentage();
+        }
+
+        // Used for log and debug ordnance percentage bug
+        public void TrackOrdnancePercentageBug()
+        {
+            if (OrdinanceMax > 1 && OrdnancePercent.NotEqual(Ordinance / OrdinanceMax))
+            {
+                Log.Warning($"{VanityName} Ordnance percentage not equal true ordnance percentage. Updating percentage now.");
+                UpdateOrdnancePercentage();
+            }
         }
 
         void UpdateOrdnancePercentage()
