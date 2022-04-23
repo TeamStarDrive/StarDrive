@@ -429,8 +429,13 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (!hasBeamWeapons || burstEnergyPowerTime.GreaterOrEqual(2) || burstEnergyPowerTime.Less(0))
                 return;
 
-            WarningLevel severity = burstEnergyPowerTime < 1 ? WarningLevel.Critical : WarningLevel.Major;
-            AddDesignIssue(DesignIssueType.LowBurstPowerTime, severity);
+            WarningLevel severity = WarningLevel.None;
+            if      (burstEnergyPowerTime < 1)    severity = WarningLevel.Critical;
+            else if (burstEnergyPowerTime < 1.75) severity = WarningLevel.Major;
+            else if (burstEnergyPowerTime < 2)    severity = WarningLevel.Minor;
+
+            if (severity > WarningLevel.None)
+                AddDesignIssue(DesignIssueType.LowBurstPowerTime, severity);
         }
 
         public void CheckOrdnanceVsEnergyWeapons(int numWeapons, int numOrdnanceWeapons, float ordnanceUsed, float ordnanceRecovered)
