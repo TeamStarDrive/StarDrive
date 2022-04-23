@@ -377,17 +377,17 @@ namespace Ship_Game.GameScreens.ShipDesign
             efficiencyReduction       *= energyWeaponsRatio;
             float netEfficiency        = (1 - efficiencyReduction) * 100;
 
-            if      (netEfficiency < 25) severity = WarningLevel.Critical;
-            else if (netEfficiency < 50) severity = WarningLevel.Major;
-            else if (netEfficiency < 75) severity = WarningLevel.Minor;
-            else if (netEfficiency < 95) severity = WarningLevel.Informative;
+            if      (netEfficiency < 20) severity = WarningLevel.Critical;
+            else if (netEfficiency < 40) severity = WarningLevel.Major;
+            else if (netEfficiency < 60) severity = WarningLevel.Minor;
+            else if (netEfficiency < 80) severity = WarningLevel.Informative;
 
             // Modify level by weapon power time if there is an issue
             if (severity > WarningLevel.None) 
             {
-                if      (weaponPowerTime > 120) severity -= 3;
-                else if (weaponPowerTime > 60)  severity -= 2;
-                else if (weaponPowerTime > 30)  severity -= 1;
+                if      (weaponPowerTime > 60) severity -= 3;
+                else if (weaponPowerTime > 40) severity -= 2;
+                else if (weaponPowerTime > 20) severity -= 1;
 
                 if (severity < WarningLevel.Informative)
                     severity = WarningLevel.Informative;
