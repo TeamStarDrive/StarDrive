@@ -298,7 +298,7 @@ namespace Ship_Game.Gameplay
             off *= t.Tag_Intercept && t.RotationRadsPerSecond > 1 ? 1 + t.HitPoints / 50 / t.ProjectileRadius.LowerBound(2) : 1;
 
             // FB: offense calcs for damage radius
-            off *= t.ExplosionRadius > 32 && !t.TruePD ? t.ExplosionRadius / 32 : 1f;
+            off *= t.ExplosionRadius > 16 && !t.TruePD ? t.ExplosionRadius / 16 : 1f;
 
             // FB: Added shield pen chance
             off *= 1 + t.ShieldPenChance / 100;

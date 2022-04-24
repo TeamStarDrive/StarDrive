@@ -103,8 +103,9 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckIssueStationaryHoldPositionHangars(S.Carrier.AllFighterHangars.Length, S.ShipData.DefaultCombatState);
                 Issues.CheckIssueUnpoweredModules(ds.UnpoweredModules);
                 Issues.CheckIssueOrdnance(ds.AvgOrdnanceUsed, S.OrdAddedPerSecond, ds.AmmoTime);
-                Issues.CheckIssuePowerRecharge(ds.HasEnergyWeapons, ds.PowerRecharge, S.PowerStoreMax, ds.PowerConsumed);
-                Issues.CheckPowerRequiredToFireOnce(S);
+                Issues.CheckIssuePowerRecharge(ds.HasEnergyWeapons, ds.PowerRecharge, S.PowerStoreMax, ds.PowerConsumed, out bool hasRechargeIssue);
+                Issues.CheckPowerRequiredToFireOnce(S, out bool hasFirePowerIssues);
+                Issues.CheckPowerCapacityWithSalvo(S, ds.PowerRecharge, hasFirePowerIssues, out bool hasSalvoFirePowerIssues);
                 Issues.CheckIssueOrdnanceBurst(ds.BurstOrdnance, S.OrdinanceMax);
                 Issues.CheckIssueLowWarpTime(ds.ChargeAtWarp, ds.WarpTime, S.MaxFTLSpeed);
                 Issues.CheckIssueNoWarp(S.MaxSTLSpeed, S.MaxFTLSpeed);
@@ -114,9 +115,6 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckTruePD(S.SurfaceArea, ds.PointDefenseValue);
                 Issues.CheckWeaponPowerTime(ds.HasEnergyWeapons, ds.PowerConsumed > 0, ds.EnergyDuration);
                 Issues.CheckCombatEfficiency(ds.PowerConsumed, ds.EnergyDuration, ds.PowerRecharge, ds.NumWeapons, ds.NumOrdWeapons);
-                Issues.CheckExcessPowerCells(ds.BeamPeakPowerNeeded > 0, ds.BurstEnergyDuration, ds.PowerConsumed, ds.HasPowerCells, 
-                    ds.PowerRecharge, S.PowerStoreMax);
-
                 Issues.CheckBurstPowerTime(ds.BeamPeakPowerNeeded > 0, ds.BurstEnergyDuration);
                 Issues.CheckOrdnanceVsEnergyWeapons(ds.NumWeapons, ds.NumOrdWeapons, ds.AvgOrdnanceUsed, S.OrdAddedPerSecond);
                 Issues.CheckTroopsVsBays(S.TroopCapacity, ds.NumTroopBays);
@@ -126,6 +124,10 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckSecondaryCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange);
                 Issues.CheckDedicatedCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange, S.SensorRange,
                     S.ShipData.DefaultCombatState == CombatState.ShortRange || S.ShipData.DefaultCombatState == CombatState.AttackRuns);
+
+                if (!hasFirePowerIssues && !hasSalvoFirePowerIssues && !hasRechargeIssue)
+                    Issues.CheckExcessPowerCells(ds.BeamPeakPowerNeeded > 0, ds.BurstEnergyDuration, ds.PowerConsumed, ds.HasPowerCells,
+                        ds.PowerRecharge, S.PowerStoreMax, S.Weapons.Any(w => w.PowerRequiredToFire > 0));
             }
             
             switch (Issues.CurrentWarningLevel)
