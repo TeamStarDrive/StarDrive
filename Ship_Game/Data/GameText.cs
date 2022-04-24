@@ -4374,6 +4374,14 @@ namespace Ship_Game
         AcceptedIntoOurEmpire = 4364,
         /// <summary>Planned to be constructed, but no planet could take the</summary>
         NoPortsFoundForBuild = 4365,
+        /// <summary>Low Salvo Power</summary>
+        DesignIssueSalvoFirePowerEfficiencyTitle = 4366,
+        /// <summary>The ship cannot fire a full salvo with all it's</summary>
+        DesignIssueSalvoFirePowerEfficiencyProblem = 4367,
+        /// <summary>Add more Power Cells or Reactors to the ship. Current</summary>
+        DesignIssueSalvoFirePowerEfficiencyRemidiation = 4368,
+        /// <summary>Credits per turn</summary>
+        CreditsPerTurn = 4369,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>

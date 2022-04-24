@@ -415,6 +415,7 @@ namespace Ship_Game.AI
             if (Owner.AI.State != AIState.Resupply && Owner.AI.State != AIState.ResupplyEscort)
                 return;
 
+            Owner.TrackOrdnancePercentageBug();
             if (!Owner.Supply.DoneResupplying(supplyType) && !Owner.AI.BadGuysNear)
             {
                 if (State != AIState.ResupplyEscort || EscortTarget?.SupplyShipCanSupply == true)

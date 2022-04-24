@@ -539,6 +539,9 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.SpacePort],       b.IsSpacePort ? 5 : 0);
             score += EvalTraits(Priorities[ColonyPriority.InfraStructure],  b.Infrastructure * 3);
 
+            if (b.Maintenance < 0) // positive maintenance building bonus
+                score += -b.Maintenance * 10;
+
             score *= FertilityMultiplier(b);
 
             // When choosing the best building, we all check if that building can be built fast enough

@@ -199,7 +199,7 @@ namespace Ship_Game.Gameplay
             Deflection                  = s.Deflection;
             APResist                    = s.APResist;
             ExplosionDamage             = s.ExplosionDamage;
-            ExplosionRadius             = s.ExplosionRadius > 0 ? ExplosionRadius : 16;
+            ExplosionRadius             = s.ExplosionRadius > 0 ? s.ExplosionRadius : 16;
             RepairDifficulty            = s.RepairDifficulty;
             Regenerate                  = s.Regenerate;
             ShieldBubbleColor           = s.ShieldBubbleColor;
