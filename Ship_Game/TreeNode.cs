@@ -154,21 +154,22 @@ namespace Ship_Game
 
             LocalizedText costText = LocalizedText.None;
             var costFont = TitleFont;
+            var costColor = Color.SkyBlue;
             if (Entry.CanBeResearched)
             {
                 costText = (Entry.TechCost - Entry.Progress).GetNumberString();
             }
             else if (Entry.Unlocked)
             {
-                costText = GameText.Unlocked;
-                costFont = Fonts.Arial8Bold;
+                costText = Entry.TechCost.GetNumberString();
+                costColor = Color.Gray;
             }
 
             if (costText.NotEmpty)
             {
                 Vector2 textSize = costFont.MeasureString(costText);
                 var costPos = new Vector2(BaseRect.X + BaseRect.Width/2 - textSize.X/2 - 2, BaseRect.Y + 67).Rounded();
-                batch.DrawString(costFont, costText, costPos, Color.SkyBlue);
+                batch.DrawString(costFont, costText, costPos, costColor);
                 //batch.DrawRectangle(new RectF(costPos, textSize), Color.Red); // for debugging
             }
 

@@ -684,7 +684,8 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, b.DefenseShipsCapacity, "UI/icon_hangar", b.DefenseShipsRole + " Defense Ships", signs: false);
 
             float maintenance = -b.ActualMaintenance(P);
-            DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", Localizer.Token(GameText.CreditsPerTurnInMaintenance));
+            DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", 
+                Localizer.Token(maintenance >  0 ? GameText.CreditsPerTurn : GameText.CreditsPerTurnInMaintenance));
 
             DrawBuildingWeaponStats(ref bCursor, batch, b);
             DrawFertilityOnBuildWarning(ref bCursor, batch, b);

@@ -1027,8 +1027,13 @@ namespace Ship_Game.Ships
 
                 if (Explodes)
                 {
+                    // Consider the module size to extend the explosion a little, if its bigger than 1x1;
+                    // Adding 8 since the explosion is the in the center of the module, which is 8 radius.
+                    float averageModuleSize = (XSize + YSize - 2) * 0.5f;
+                    float modifiedRadius = 8 + (averageModuleSize > 0 ? ExplosionRadius + averageModuleSize*16f : ExplosionRadius);
+
                     Parent.Universe.Spatial.ExplodeAtModule(source, this,
-                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
+                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: modifiedRadius);
                 }
             }
         }
