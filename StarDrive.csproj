@@ -1726,6 +1726,10 @@
       <Project>{dd32a813-1393-421a-baf8-455f02167be3}</Project>
       <Name>Microsoft.Xna.Framework.Game</Name>
     </ProjectReference>
+    <ProjectReference Include="SDGraphics\SDGraphics.csproj">
+      <Project>{46c4d1db-3168-470f-aba8-4ccaef60f107}</Project>
+      <Name>SDGraphics</Name>
+    </ProjectReference>
     <ProjectReference Include="SynapseGaming-SunBurn-Pro\SDSunBurn.csproj">
       <Project>{bb003976-4764-4f4e-9a98-ddfb8449eccd}</Project>
       <Name>SDSunBurn</Name>
