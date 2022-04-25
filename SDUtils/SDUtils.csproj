@@ -45,7 +45,6 @@
   <ItemGroup>
     <Compile Include="NumberExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RadMath.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
