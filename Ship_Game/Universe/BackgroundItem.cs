@@ -30,11 +30,11 @@ namespace Ship_Game
 
         public void Draw(GraphicsDevice device, in Matrix view, in Matrix projection, float alpha)
         {
-            QuadEffect.World      = Matrix.Identity;
-            QuadEffect.View       = view;
+            QuadEffect.World = Matrix.Identity;
+            QuadEffect.View = view;
             QuadEffect.Projection = projection;
-            QuadEffect.Texture    = Texture.Texture;
-            QuadEffect.Alpha      = alpha;
+            QuadEffect.Texture = Texture.Texture;
+            QuadEffect.Alpha = alpha;
 
             device.VertexDeclaration = LayoutDescriptor;
             QuadEffect.Begin();
