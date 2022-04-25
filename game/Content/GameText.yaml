@@ -1897,9 +1897,9 @@ TheImperialBankBuildingIncreases:
  SPA: "Este edificio aumenta en un 80% la eficacia de las operaciones fiscales planetarias."
 TaxRevenues:
  Id: 429
- ENG: "+80% tax revenues"
- RUS: "+80% к налогам"
- SPA: "+80% de ingresos fiscales"
+ ENG: "+60% tax revenues"
+ RUS: "+60% к налогам"
+ SPA: "+60% de ingresos fiscales"
 ImperialOffices:
  Id: 430
  ENG: "Imperial Offices"
@@ -1907,9 +1907,9 @@ ImperialOffices:
  SPA: "Oficinas imperiales"
 CreditsPerColonist:
  Id: 432
- ENG: "+0.8 credits per colonist"
- RUS: "+0,8 кредитов на колониста"
- SPA: "+0,8 créditos por colono"
+ ENG: "+0.6 credits per colonist"
+ RUS: "+0,6 кредитов на колониста"
+ SPA: "+0,6 créditos por colono"
 IonCannon:
  Id: 433
  ENG: "Ion Cannon"
@@ -13220,8 +13220,8 @@ ThisStructureWasSpecificallyDesigned:
  RUS: "Эта структура была специально разработана для размещения большого количества населения при сохранении нормального уровня жизни. Эти зоны могут вместить 500 миллионов жителей."
 PlanetPopulationStorageInfrastructure:
  Id: 17781
- ENG: "(-0.15) Fertility on build, +1 planet population, +1 Infrastructure"
- RUS: "(-0.15) плодородия за постройку, +1 к населению планеты, +1 к инфраструктуре"
+ ENG: "(-0.2) Fertility on build, +0.8 planet population, +1 Infrastructure"
+ RUS: "(-0.2) плодородия за постройку, +0.8к населению планеты, +1 к инфраструктуре"
 MegaCity:
  Id: 17782
  ENG: "Mega City"
@@ -13232,7 +13232,7 @@ AMegaCityIsA:
  RUS: "Мега-город - это зона с высотными небоскребами, предназначенная для проживания 1 миллиарда населения в достойных условиях. Из-за потери огромных просторов пашни немного снижается плодородие."
 FertilityOnBuildMaxPopulation:
  Id: 17784
- ENG: " (-0.3) Fertility on build, +2 max population, +2 Infrastructure"
+ ENG: " (-0.3) Fertility on build, +1.4 max population, +2 Infrastructure"
  RUS: " (-0.3) плодородия за постройку, +2 макс. населения, +2 к инфраструктуре"
 Tech_ParticleAcceleration_Name:
  Id: 10059
@@ -13284,16 +13284,16 @@ Tech_WeatherManipulation_Desc:
  RUS: "Управляя климатом планеты, мы можем уменьшить разрушительные погодные эффекты, сохраняя при этом оптимальные условия для роста растений.  Фактически это увеличивает плодородие планеты."
 TaxEfficiencyStorage:
  Id: 10071
- ENG: "+40% Tax Efficiency, +0.6 credits per colonist"
- RUS: "+40% эффективность налогов, +20 места на складе"
+ ENG: "+25% Tax Efficiency, +1 credits per turn"
+ RUS: "+25% эффективность налогов, +1 места"
 CreditPerColonist:
  Id: 17879
- ENG: "+2 Credit per Colonist"
- RUS: "+2 кредитов за колониста"
+ ENG: "+1.2 Credit per Colonist"
+ RUS: "+1.2 кредитов за колониста"
 GalacticCreditsPerColonist:
  Id: 10072
- ENG: "+3.5 credits per colonist"
- RUS: "+3.5 кредитов за колониста"
+ ENG: "+2.5 credits per colonist"
+ RUS: "+2.5 кредитов за колониста"
 RemnDisrupt:
  Id: 10073
  ENG: "Remnant disruptor TS"
@@ -13836,6 +13836,15 @@ BB_DurabilityTechDescr:
 BB_Nano-structureTecDescrBonus:
  Id: 17647
  ENG: "5% shield power increase."
+BB_CrystalPlant:
+ Id: 17648
+ ENG: "Crystal Growing Plant"
+BB_CrystalPlantDescr:
+ Id: 17649
+ ENG: "This marvelous building is able to grow a very valuable crystals that can be sold at very high profit."
+BB_CrystalPlantDescrBonus:
+ Id: 17650
+ ENG: "Generates +10 credits per turn"
 
 
 Tech_AncientArmor_Name:
