@@ -152,6 +152,15 @@ namespace Ship_Game.Utils
         }
 
         /// <summary>
+        /// Generates a Vector2 with X and Y in range [-min, +max]
+        /// </summary>
+        public Vector2 Vector2D(float min, float max)
+        {
+            return new Vector2(Float(min, max),
+                               Float(min, max));
+        }
+
+        /// <summary>
         /// Generates a Vector3 with X Y Z in range [-radius, +radius]
         /// </summary>
         public Vector3 Vector3D(float radius)
