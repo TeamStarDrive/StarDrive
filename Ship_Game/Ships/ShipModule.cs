@@ -1410,6 +1410,7 @@ namespace Ship_Game.Ships
             def += (TurnThrust + WarpThrust + Thrust) / 15000f;
 
             def += ActualPowerFlowMax / 50;
+            def += PowerStoreMax / 500;
             def += TroopCapacity * 50;
             def += BonusRepairRate / 2f;
             def += AmplifyShields / 20f;
