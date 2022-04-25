@@ -19,6 +19,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDNativeTests", "SDNative\SDNativeTests\SDNativeTests.vcxproj", "{6F2834B1-0D9B-479B-BEFA-F04EE326CC41}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDGraphics", "SDGraphics\SDGraphics.csproj", "{46C4D1DB-3168-470F-ABA8-4CCAEF60F107}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680} = {6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDUtils", "SDUtils\SDUtils.csproj", "{DD03444F-B149-40DB-B1DF-CB31541008ED}"
 EndProject
