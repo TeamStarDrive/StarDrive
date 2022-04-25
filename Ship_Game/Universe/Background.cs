@@ -17,6 +17,8 @@ namespace Ship_Game
         public int Height => Universe.ScreenHeight;
         public Rectangle ScreenRect => Universe.Rect;
 
+        Texture2D BackgroundNebula;
+
         public Background(UniverseScreen universe, GraphicsDevice device)
         {
             Universe = universe;
@@ -26,6 +28,13 @@ namespace Ship_Game
                 return;
 
             StarField = new StarField(universe);
+
+            var nebulas = Dir.GetFiles("Content/Textures/BackgroundNebulas");
+            if (nebulas.Length > 0)
+            {
+                int nebulaIdx = Universe.UState.BackgroundSeed % nebulas.Length;
+                BackgroundNebula = universe.TransientContent.LoadTexture(nebulas[nebulaIdx]);
+            }
 
             //using (RenderTarget2D rt = RenderTargets.Create(device))
             //{
@@ -49,6 +58,7 @@ namespace Ship_Game
         void Destroy()
         {
             StarField?.Dispose(ref StarField);
+            BackgroundNebula?.Dispose(ref BackgroundNebula);
         }
 
         public void Draw(SpriteBatch batch)
@@ -66,7 +76,7 @@ namespace Ship_Game
             }
             batch.End();
 
-            batch.Begin(SpriteBlendMode.Additive, SpriteSortMode.Immediate, SaveStateMode.SaveState);
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.SaveState);
             {
                 DrawLargeBackgroundNebula(batch);
                 DrawBackgroundStars(batch);
@@ -90,24 +100,29 @@ namespace Ship_Game
 
         void DrawLargeBackgroundNebula(SpriteBatch batch)
         {
-            int nebulaIdx = Universe.UState.BackgroundSeed % ResourceManager.NumBigNebulae;
-            SubTexture nebula = ResourceManager.BigNebula(nebulaIdx);
-
-            // TODO: use camPos to create a nice parallax effect?
-            Vector3d camPos = Universe.CamPos;
+            Texture2D nebula = BackgroundNebula;
+            if (nebula == null)
+                return;
 
             // scale of the background nebula
-            float sizeMod = 15.0f;
+            double sizeMod = 15.0;
 
             // distance of the nebula in the background
-            float backgroundDepth = 25_000_000f;
+            double backgroundDepth = 25_000_000;
 
-            float uSize = Universe.UState.Size;
-            var backgroundPos = new Vector3(0.0f, 0.0f, backgroundDepth);
+            // inherit the universe camera pos by a certain fraction
+            // this will make the background nebula move slightly with the camera
+            double movementSensitivity = 0.05;
 
-            var backgroundSize = new Vector2(uSize * sizeMod);
-            float aspect = nebula.AspectRatio;
-            if (aspect > 1.0f)
+            var backgroundPos = new Vector3d(
+                Universe.CamPos.X * (1.0 - movementSensitivity),
+                Universe.CamPos.Y * (1.0 - movementSensitivity),
+                backgroundDepth
+            );
+
+            var backgroundSize = new Vector2d(Universe.UState.Size * sizeMod);
+            double aspect = nebula.Width / (double)nebula.Height;
+            if (aspect > 1.0)
                 backgroundSize.Y /= aspect;
             else
                 backgroundSize.X *= aspect;
@@ -115,7 +130,7 @@ namespace Ship_Game
             (Vector2d pos, Vector2d size) = Universe.ProjectToScreenCoords(backgroundPos, backgroundSize);
 
             RectF screenRect = RectF.FromCenter(pos, size.X, size.Y);
-            batch.Draw(nebula, screenRect, new Color(255,255,255,200));
+            batch.Draw(nebula, screenRect);
         }
     }
 }
