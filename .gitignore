@@ -100,3 +100,5 @@ Deploy/GeneratedFilesList.nsh
 SDGraphics/bin/
 game/SDGraphics.pdb
 game/SDGraphics.dll
+game/SDUtils.dll
+game/SDUtils.pdb

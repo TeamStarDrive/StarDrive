@@ -4,26 +4,32 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{46C4D1DB-3168-470F-ABA8-4CCAEF60F107}</ProjectGuid>
+    <ProjectGuid>{DD03444F-B149-40DB-B1DF-CB31541008ED}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SDGraphics</RootNamespace>
-    <AssemblyName>SDGraphics</AssemblyName>
+    <RootNamespace>SDUtils</RootNamespace>
+    <AssemblyName>SDUtils</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\game\</OutputPath>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <PlatformTarget>x86</PlatformTarget>
     <OutputPath>..\game\</OutputPath>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
-    <WarningLevel>4</WarningLevel>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -37,16 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Xna.Framework.Game\Microsoft.Xna.Framework.Game.csproj">
-      <Project>{dd32a813-1393-421a-baf8-455f02167be3}</Project>
-      <Name>Microsoft.Xna.Framework.Game</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SDUtils\SDUtils.csproj">
-      <Project>{dd03444f-b149-40db-b1df-cb31541008ed}</Project>
-      <Name>SDUtils</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
