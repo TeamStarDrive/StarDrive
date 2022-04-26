@@ -210,6 +210,15 @@ namespace Ship_Game.Gameplay
             UID                         = s.UID;
             AccuracyPercent             = s.AccuracyPercent;
             WeaponInaccuracyBase        = WeaponTemplate.GetWeaponInaccuracyBase(s.XSize * s.YSize, s.AccuracyPercent);
+
+            if (s.ExplosionDamage > 0)
+            {
+                // Consider the module size to extend the explosion a little, if its bigger than 1x1;
+                // Adding 8 since the explosion is the in the center of the module, which is 8 radius.
+                float averageModuleSize = (s.XSize + s.YSize - 2) * 0.5f;
+                if (averageModuleSize > 0)
+                    ExplosionRadius = (int)(8 + ExplosionRadius + averageModuleSize * 16);
+            }
         }
     }
 

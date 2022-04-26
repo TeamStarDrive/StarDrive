@@ -450,8 +450,11 @@ namespace Ship_Game.Ships
             ShipModule template = ResourceManager.GetModuleTemplate(uid);
             ShipModule m = CreateNoParent(us, template, EmpireManager.Player, hull);
 
-            // don't set HangarShipUID if this isn't actually a Hangar (because Shipyard sets default to DynamicLaunch)
-            if (m.ModuleType == ShipModuleType.Hangar)
+            // Don't set HangarShipUID if this isn't actually a Hangar (because Shipyard sets default to DynamicLaunch)
+            // Also, supply bays get the default supply shuttle
+            if (m.IsSupplyBay)
+                m.HangarShipUID = EmpireManager.Player.GetSupplyShuttleName();
+            else if (m.ModuleType == ShipModuleType.Hangar)
                 m.HangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : hangarShipUID;
 
             m.SetModuleRotation(m.XSize, m.YSize, moduleRot, turretAngle);
@@ -530,6 +533,10 @@ namespace Ship_Game.Ships
         {
             // for the non faction AI , all hangars are dynamic. It makes the AI carriers better
             if (Parent == null || Parent.Loyalty.isFaction)
+                return;
+
+            // No need to init supply and troop bays. they have default ships.
+            if (IsSupplyBay || IsTroopBay)
                 return;
 
             DynamicHangar = ShipBuilder.GetDynamicHangarOptions(HangarShipUID);
@@ -1027,13 +1034,8 @@ namespace Ship_Game.Ships
 
                 if (Explodes)
                 {
-                    // Consider the module size to extend the explosion a little, if its bigger than 1x1;
-                    // Adding 8 since the explosion is the in the center of the module, which is 8 radius.
-                    float averageModuleSize = (XSize + YSize - 2) * 0.5f;
-                    float modifiedRadius = 8 + (averageModuleSize > 0 ? ExplosionRadius + averageModuleSize*16f : ExplosionRadius);
-
                     Parent.Universe.Spatial.ExplodeAtModule(source, this,
-                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: modifiedRadius);
+                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }
             }
         }
