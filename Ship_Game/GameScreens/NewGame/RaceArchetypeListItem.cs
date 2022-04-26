@@ -22,8 +22,7 @@ namespace Ship_Game
             get
             {
                 int width = (int)(List.Width * 0.8f);
-                int height = (int)(width / Portrait.AspectRatio);
-                return height;
+                return (int)Portrait.GetHeightFromWidthAspect(width);
             }
         }
 
@@ -32,7 +31,7 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
 
             int height = (int)Height;
-            int width = (int)(height * Portrait.AspectRatio);
+            int width = (int)Portrait.GetWidthFromHeightAspect(height);
             var portrait = new Rectangle((int)CenterX - width/2, (int)Y, width, height);
             batch.Draw(Portrait, portrait, Color.White);
 

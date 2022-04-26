@@ -268,5 +268,11 @@ namespace Ship_Game
                 x += font.TextWidth(textSequence[i].Text);
             }
         }
+
+        public static float GetHeightFromWidthAspect(this Texture2D tex, float wantedWidth)
+            => SubTexture.GetHeightFromWidthAspect(tex.Width, tex.Height, wantedWidth);
+
+        public static float GetWidthFromHeightAspect(this Texture2D tex, float wantedHeight)
+            => SubTexture.GetWidthFromHeightAspect(tex.Width, tex.Height, wantedHeight);
     }
 }

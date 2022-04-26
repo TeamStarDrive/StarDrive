@@ -239,7 +239,8 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 float iconHeight = (int)(Height * 0.89f);
-                batch.Draw(Data.Icon, Pos, new Vector2(iconHeight*Data.Icon.AspectRatio, iconHeight), Data.IconColor);
+                float iconWidth = (int)Data.Icon.GetWidthFromHeightAspect(iconHeight);
+                batch.Draw(Data.Icon, Pos, new Vector2(iconWidth, iconHeight), Data.IconColor);
 
                 var tCursor = new Vector2(X + 50f, Y);
                 batch.DrawString(Fonts.Arial20Bold, Data.FileName, tCursor, Color.Orange);
