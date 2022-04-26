@@ -68,18 +68,18 @@ namespace Ship_Game
                 (float)(Universe.CamPos.Y / 500000.0) * (Height / 10.0f)
             );
 
-            RenderStates.BasicBlendMode(Universe.Device, additive:true, depthWrite:true);
+            RenderStates.BasicBlendMode(Universe.Device, additive:false, depthWrite:true);
             batch.Begin();
             {
-                Color backgroundFill = new Color(12, 17, 24); // Color.Black; // 
+                Color backgroundFill = Color.Black; // new Color(12, 17, 24);
                 batch.FillRectangle(ScreenRect, backgroundFill);
             }
             batch.End();
 
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.SaveState);
+            RenderStates.BasicBlendMode(Universe.Device, additive:true, depthWrite:true);
+            batch.Begin();
             {
-                DrawLargeBackgroundNebula(batch);
-                DrawBackgroundStars(batch);
+                DrawBackgroundNebulaWithStars(batch);
                 //batch.Draw(BackgroundTexture, ScreenRect);
             }
             batch.End();
@@ -89,16 +89,7 @@ namespace Ship_Game
             StarField.Draw(Camera.Pos, batch);
         }
 
-        void DrawBackgroundStars(SpriteBatch batch)
-        {
-            var c = new Color(255, 255, 255, 160);
-            if (Width > 2048)
-                batch.Draw(ResourceManager.Texture("hqstarfield1"), ScreenRect, c);
-            else
-                batch.Draw(ResourceManager.Texture("hqstarfield1"), ScreenRect, ScreenRect, c);
-        }
-
-        void DrawLargeBackgroundNebula(SpriteBatch batch)
+        void DrawBackgroundNebulaWithStars(SpriteBatch batch)
         {
             Texture2D nebula = BackgroundNebula;
             if (nebula == null)
@@ -120,17 +111,17 @@ namespace Ship_Game
                 backgroundDepth
             );
 
-            var backgroundSize = new Vector2d(Universe.UState.Size * sizeMod);
-            double aspect = nebula.Width / (double)nebula.Height;
-            if (aspect > 1.0)
-                backgroundSize.Y /= aspect;
-            else
-                backgroundSize.X *= aspect;
+            double uSize = Universe.UState.Size * sizeMod;
+            Vector2d nebulaSize = SubTexture.GetAspectFill(nebula.Width, nebula.Height, uSize);
 
-            (Vector2d pos, Vector2d size) = Universe.ProjectToScreenCoords(backgroundPos, backgroundSize);
+            RectF nebulaScreenRect = Universe.ProjectToScreenRectF(backgroundPos, nebulaSize);
+            batch.Draw(nebula, nebulaScreenRect);
 
-            RectF screenRect = RectF.FromCenter(pos, size.X, size.Y);
-            batch.Draw(nebula, screenRect);
+            var starsTex = ResourceManager.Texture("hqstarfield1");
+            Vector2d starsSize = SubTexture.GetAspectFill(starsTex.Width, starsTex.Height, uSize);
+
+            RectF starsScreenRect = Universe.ProjectToScreenRectF(backgroundPos, starsSize);
+            batch.Draw(starsTex, starsScreenRect, Color.White);
         }
     }
 }

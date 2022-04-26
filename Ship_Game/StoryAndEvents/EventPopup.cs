@@ -62,7 +62,7 @@ namespace Ship_Game
             }
 
             Rectangle imgRect = new RectF(MidContainer.X, MidContainer.Bottom + 2,
-                                          MidContainer.Width, MidContainer.Width/Image.AspectRatio);
+                                            MidContainer.Width, Image.GetHeightFromWidthAspect(MidContainer.Width));
             MidSepBot = new Rectangle(MidContainer.X, imgRect.Bottom, MidContainer.Width, 2);
             Panel(imgRect, Image);
 
