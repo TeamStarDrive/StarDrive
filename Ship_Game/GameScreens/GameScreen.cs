@@ -615,6 +615,14 @@ namespace Ship_Game
             return new RectF(topLeft.X, topLeft.Y, (botRight.X - topLeft.X), (botRight.Y - topLeft.Y));
         }
 
+        public RectF ProjectToScreenRectF(in Vector3d center, in Vector2d size)
+        {
+            Vector3d worldTL = new Vector3d(center.X - size.X*0.5, center.Y - size.Y*0.5, center.Z);
+            Vector2d topLeft = ProjectToScreenPosition(worldTL);
+            Vector2d botRight = ProjectToScreenPosition(new Vector3d(worldTL.X + size.X, worldTL.Y + size.Y, center.Z));
+            return new RectF(topLeft.X, topLeft.Y, (botRight.X - topLeft.X), (botRight.Y - topLeft.Y));
+        }
+
         public Rectangle ProjectToScreenRect(in RectF worldRect)
         {
             Vector2d topLeft = ProjectToScreenPosition(new Vector2(worldRect.X, worldRect.Y));
@@ -630,7 +638,7 @@ namespace Ship_Game
             return new Rectangle((int)pos.X, (int)pos.Y, (int)size, (int)size);
         }
 
-        public double ProjectToScreenSize(float sizeInWorld)
+        public double ProjectToScreenSize(double sizeInWorld)
         {
             // NOTE: using Unproject here gives a huge precision and stability boost to the result
             //       because there is a float precision issue,
@@ -645,6 +653,15 @@ namespace Ship_Game
             Vector2d b = ProjectToScreenPosition(new Vector3d(topLeft.X + sizeInWorld, topLeft.Y, 0.0));
             double sizeOnScreen = a.Distance(b);
             return sizeOnScreen;
+        }
+
+        public Vector2d ProjectToScreenSize(in Vector2d sizeInWorld)
+        {
+            double sizeX = ProjectToScreenSize(sizeInWorld.X);
+            if (sizeInWorld.X == sizeInWorld.Y)
+                return new Vector2d(sizeX);
+            double sizeY = ProjectToScreenSize(sizeInWorld.Y);
+            return new Vector2d(sizeX, sizeY);
         }
 
         public Vector3d UnprojectToWorldPosition3D(Vector2 screenSpace)

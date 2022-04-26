@@ -23,7 +23,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Them = other;
             
             int backW = background.Width + 40;
-            int backH = (int)(backW / background.AspectRatio);
+            int backH = (int)background.GetHeightFromWidthAspect(backW);
             var back = new Rectangle(rect.X-5, rect.Y-5, backW, backH);
             Add(new UIPanel(back, background));
 
