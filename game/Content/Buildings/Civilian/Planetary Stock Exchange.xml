@@ -4,7 +4,7 @@
   <Description>The Planetary Stock exchange allows stocks of planetary companies to be traded. This improves commerce on the planet and thus tax revenue.</Description>
   <Cost>250</Cost>
   <Icon>stock</Icon>
-  <CreditsPerColonist>2</CreditsPerColonist>
+  <CreditsPerColonist>1.2</CreditsPerColonist>
   <NameTranslationIndex>10021</NameTranslationIndex>
   <DescriptionIndex>10022</DescriptionIndex>
   <ShortDescriptionIndex>17879</ShortDescriptionIndex>

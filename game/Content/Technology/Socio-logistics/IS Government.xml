@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>IS Government</UID>
   <TechnologyType>Economic</TechnologyType>
-  <Cost>150</Cost>
+  <Cost>450</Cost>
   <RootNode>0</RootNode>
   <Name>Interstellar Governance</Name>
   <NameIndex>599</NameIndex>
@@ -14,7 +14,7 @@
       <UID>HDZone</UID>
     </LeadsToTech>
       <LeadsToTech>
-      <UID>Customs Station</UID>
+      <UID>Planetary Stock Exchange</UID>
     </LeadsToTech>
     <LeadsToTech>
       <UID>Cryogenics</UID>

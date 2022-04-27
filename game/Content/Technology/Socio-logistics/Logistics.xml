@@ -12,7 +12,7 @@
   <LongDescription>Socio-Logistics is a broad term for studies that increase the social and economic efficiency of our empire and fleets</LongDescription>
   <LeadsTo>
     <LeadsToTech>
-      <UID>IS Government</UID>
+      <UID>Customs Station</UID>
     </LeadsToTech>
     <LeadsToTech>
       <UID>PlanetStockpile</UID>

@@ -1,4 +1,4 @@
-﻿Version=1
+Version=1
 Name=test
 Hull=Terran/Hunter
 Role=corvette
@@ -9,11 +9,14 @@ DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 ShipCategory=Unclassified
 HangarDesignation=General
-IsShipyard=false
-IsOrbitalDefense=false
-IsCarrierOnly=false
+IsShipyard==false
+
+IsOrbitalDefense==false
+
+IsCarrierOnly==false
+
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=SteelArmorSmall;PlasmaThrower;Fighter Shield;PowerConduit;Cockpit;OrdnanceLockerSmall;Maneuvering_Thruster_1x1;NuclearReactorMed;Engine;WarpEngine_1x1
+ModuleUIDs=SteelArmorSmall;RemnantNuker;Fighter Shield;PowerConduit;Cockpit;OrdnanceLockerSmall;Maneuvering_Thruster_1x1;NuclearReactorMed;Engine;WarpEngine_1x1
 Modules=36
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 4,0;0

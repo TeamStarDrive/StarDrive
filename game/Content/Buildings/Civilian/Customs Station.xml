@@ -1,11 +1,10 @@
 ﻿<Building>
   <Name>Customs Station</Name>
-  <Maintenance>0.2</Maintenance>
+  <Maintenance>-1</Maintenance>
   <Description>The planetary customs station maintains a small fleet of veseels that board and inspect all ships moving through the system. This ensures that all customs and taxes are paid.</Description>
   <Cost>150</Cost>
   <Icon>CustomStation</Icon>
-  <CreditsPerColonist>0.6</CreditsPerColonist>
-  <PlusTaxPercentage>0.4</PlusTaxPercentage>
+  <PlusTaxPercentage>0.25</PlusTaxPercentage>
   <ShortDescription>25% increase in tax revenue.</ShortDescription>
 
 

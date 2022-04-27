@@ -3,7 +3,7 @@
  <Version>2</Version>
   <UID>Customs Station</UID>
   <TechnologyType>Economic</TechnologyType>
-  <Cost>450</Cost>
+  <Cost>150</Cost>
   <RootNode>0</RootNode>
   <Name>Customs Station</Name>
   <NameIndex>10063</NameIndex>
@@ -11,7 +11,7 @@
   <LongDescription>Managing a space empire is a major logistical task, requiring advanced coordination between the public and private sector over vast distances and spans of time.</LongDescription>
   <LeadsTo>
     <LeadsToTech>
-      <UID>Planetary Stock Exchange</UID>
+      <UID>IS Government</UID>
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked />
