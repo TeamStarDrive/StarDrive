@@ -1,10 +1,10 @@
 ﻿<Building>
   <Name>MegaCity</Name>
-  <Cost>350</Cost>
+  <Cost>390</Cost>
   <Maintenance>0.4</Maintenance>
   <Description>A hive city is planed meticulously rather than allowed to grow naturally. Planned specifically to house as many people as possible in as little room as possible, it rises high above the planet's surface and houses four billion people living like sardines.</Description>
   <Icon>megacity2</Icon>
-  <MaxPopIncrease>2000</MaxPopIncrease>
+  <MaxPopIncrease>1400</MaxPopIncrease>
   <MaxFertilityOnBuild>-0.3</MaxFertilityOnBuild>
   <Infrastructure>2</Infrastructure>
   <Strength>30</Strength>
