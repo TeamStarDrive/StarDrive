@@ -1173,7 +1173,7 @@ namespace Ship_Game
                     int drawLocationOffset = 0;
                     Color textColor = planet.Owner?.EmpireColor ?? Color.Gray;
 
-                    DrawPointerWithText(screenPosPlanet, planetNamePointer, Color.Green, planet.Name, textColor);
+                    DrawPointerWithText(screenPosPlanet, planetNamePointer, textColor, planet.Name, textColor);
 
                     posOffSet = new Vector2(screenPosPlanet.X + 10f, screenPosPlanet.Y + 60f);
 
@@ -1220,15 +1220,15 @@ namespace Ship_Game
         }
 
         public void DrawPointerWithText(Vector2 screenPos, SubTexture planetNamePointer, Color pointerColor, string text,
-            Color textColor, Graphics.Font font = null, float xOffSet = 20f, float yOffSet = 37f)
+            Color textColor, Graphics.Font font = null, float xOffSet = 20f, float yOffSet = 34f)
         {
-            font = font ?? Fonts.Tahoma10;
+            font ??= Fonts.Tahoma10;
             DrawTextureRect(planetNamePointer, screenPos, pointerColor);
             Vector2 posOffSet = screenPos;
             posOffSet.X += xOffSet;
             posOffSet.Y += yOffSet;
             HelperFunctions.ClampVectorToInt(ref posOffSet);
-            ScreenManager.SpriteBatch.DrawString(font, text, posOffSet, textColor);
+            ScreenManager.SpriteBatch.DrawDropShadowText(text, posOffSet, font, textColor);
         }
 
     }
