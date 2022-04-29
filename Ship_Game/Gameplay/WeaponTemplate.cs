@@ -217,6 +217,11 @@ namespace Ship_Game.Gameplay
             if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
             {
                 wOrMirv = ResourceManager.GetWeaponTemplate(MirvWeapon);
+                if (wOrMirv == null)
+                {
+                    Log.Error($"Mirv weapon template {MirvWeapon} not found, using {UID}");
+                    wOrMirv = this;
+                }
             }
 
             // TODO: This is all duplicated in `ModuleSelection.cs` and needs to be rewritten!
