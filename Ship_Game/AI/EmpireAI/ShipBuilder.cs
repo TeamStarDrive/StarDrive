@@ -103,6 +103,9 @@ namespace Ship_Game.AI
             if (potentialShips.Count == 0)
                 return null;
 
+            if (potentialShips.Count == 1)
+                return potentialShips.First;
+
             float maxStrength = potentialShips.FindMax(ship => ship.BaseStrength).BaseStrength;
             var levelAdjust   = new MinMaxStrength(maxStrength, empire);
             var bestShips     = potentialShips.Filter(ship => levelAdjust.InRange(ship.BaseStrength));
