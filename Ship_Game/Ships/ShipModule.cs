@@ -531,12 +531,8 @@ namespace Ship_Game.Ships
 
         void InitHangar()
         {
-            // for the non faction AI , all hangars are dynamic. It makes the AI carriers better
-            if (Parent == null || Parent.Loyalty.isFaction)
-                return;
-
-            // No need to init supply and troop bays. they have default ships.
-            if (IsSupplyBay || IsTroopBay)
+            // No need to init supply and troop bays, they have default ships.
+            if (Parent == null || IsSupplyBay || IsTroopBay)
                 return;
 
             DynamicHangar = ShipBuilder.GetDynamicHangarOptions(HangarShipUID);
@@ -544,7 +540,8 @@ namespace Ship_Game.Ships
             {
                 if (!Parent.Loyalty.isPlayer)
                 {
-                    DynamicHangar = DynamicHangarOptions.DynamicLaunch; // AI will always get dynamic launch.
+                    // AI will always get dynamic launch. Override static launch
+                    DynamicHangar = DynamicHangarOptions.DynamicLaunch; 
                 }
                 else if (!Parent.Loyalty.CanBuildShip(HangarShipUID))
                 {
