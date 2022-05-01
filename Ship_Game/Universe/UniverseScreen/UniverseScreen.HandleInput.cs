@@ -97,11 +97,13 @@ namespace Ship_Game
         void HandleDebugEvents(InputState input)
         {
             Empire empire = EmpireManager.Player;
-            if (input.EmpireToggle)
-                empire = EmpireManager.Corsairs;
+
+            if (input.EmpireToggle) 
+                empire  = input.RemnantToggle ? EmpireManager.Remnants : EmpireManager.Corsairs;
 
             if (input.SpawnShip)
                 Ship.CreateShipAtPoint(UState, "Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
+
             if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 2", empire, mouseWorldPos);
             if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 1", empire, mouseWorldPos);
 
@@ -130,7 +132,7 @@ namespace Ship_Game
             }
 
             if (input.SpawnRemnant)
-                EmpireManager.Remnants.Remnants.DebugSpawnRemnant(input.EmpireToggle, mouseWorldPos);
+                EmpireManager.Remnants.Remnants.DebugSpawnRemnant(input, mouseWorldPos);
 
             if (input.ToggleSpatialManagerType)
                 UState.Spatial.ToggleSpatialType();
