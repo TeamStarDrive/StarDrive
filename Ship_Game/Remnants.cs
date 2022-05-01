@@ -42,6 +42,7 @@ namespace Ship_Game
             Owner.data.FuelCellModifier      = 1.4f;
             Owner.data.FTLPowerDrainModifier = 0.8f;
             owner.data.FTLModifier           = 50;
+            owner.data.MassModifier          = 0.9f;
 
             if (!fromSave)
                 Story = InitAndPickStory(goals);
@@ -669,11 +670,12 @@ namespace Ship_Game
             return remnantShip != null;
         }
 
-        public void DebugSpawnRemnant(bool isShiftKeyDown, Vector2 pos)
+        public void DebugSpawnRemnant(InputState input, Vector2 pos)
         {
-            if (isShiftKeyDown)
+            if (input.EmpireToggle)
             {
-                SpawnShip(RemnantShipType.Mothership, pos, out _);
+                RemnantShipType shipType = input.RemnantToggle ? RemnantShipType.Exterminator : RemnantShipType.Mothership;
+                SpawnShip(shipType, pos, out _);
             }
             else
             {
