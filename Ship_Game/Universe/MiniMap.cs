@@ -218,6 +218,8 @@ namespace Ship_Game
             }
         }
 
+        // As part of the temp solution of drawing player nodes above others,
+        // the method below is coded to ignore non player nodes if empire is player
         void DrawNodes(SpriteBatch batch, Empire empire, Empire.InfluenceNode[] nodes, bool excludeProjectors)
         {
             Vector2 nodeOrigin = Node.CenterF;
@@ -231,19 +233,25 @@ namespace Ship_Game
 
                 bool combat = false;
                 float intensity = 0.005f;
+                var ec = new Color(empire.EmpireColor, 150);
                 if (empire.isPlayer)
                 {
                     if (node.SourceObject is Ship ship)
                     {
+                        if (ship.Loyalty != empire)
+                            continue; // we already drew the non player nodes. no need to overwrite it with player color
                         if (excludeProjectors && ship.IsSubspaceProjector)
                             continue;
                         if (empire.isPlayer && ship.OnHighAlert)
                         {
                             combat = true;
                         }
+
                     }
                     else if (node.SourceObject is Planet planet)
                     {
+                        if (planet.Owner != empire)
+                            continue; // we already drew the non player nodes. no need to overwrite it with player color
                         if (planet.RecentCombat)
                         {
                             combat = true;
@@ -257,7 +265,6 @@ namespace Ship_Game
                 }
 
                 float nodeRad = WorldToMiniRadius(node.Radius);
-                var ec = new Color(empire.EmpireColor, 150);
                 Vector2 nodePos = WorldToMiniPos(node.Position);
                 
                 if (combat)
