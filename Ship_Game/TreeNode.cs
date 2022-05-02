@@ -12,7 +12,7 @@ namespace Ship_Game
         public ResearchScreenNew Screen;
         public string TechName;
         public Rectangle TitleRect;
-        public Rectangle BaseRect = new(0, 0, 92, 98);
+        public Rectangle BaseRect = new(0, 0, 105, 98);
         public Vector2 RightPoint => new(BaseRect.Right - 25, BaseRect.CenterY() - 10);
         public bool Complete;
         Rectangle IconRect;
@@ -21,7 +21,7 @@ namespace Ship_Game
         UnlocksGrid UnlocksGrid;
         Rectangle ProgressRect;
         readonly float TitleWidth = 73f;
-        readonly Color MultiLevelColor = Color.Yellow;
+        readonly Color MultiLevelColor = new Color(159, 128, 255);
 
         readonly Technology TechTemplate;
         Rectangle PlusRect;
@@ -50,13 +50,13 @@ namespace Ship_Game
         {
             BaseRect.X = (int)pos.X;
             BaseRect.Y = (int)pos.Y;
-            ProgressRect = new Rectangle(BaseRect.X + 14, BaseRect.Y + 21, 1, 34);
+            ProgressRect = new Rectangle(BaseRect.X + 15, BaseRect.Y + 21, 2, 34);
             IconRect = new Rectangle(BaseRect.X + BaseRect.Width / 2 - 29, BaseRect.Y + BaseRect.Height / 2 - 24 - 10, 58, 49);
 
             int numColumns = UnlocksGridItems.Count / 2 + UnlocksGridItems.Count % 2;
             if (UnlocksGridItems.Count <= 1)
             {
-                UnlocksRect = new Rectangle(IconRect.X + IconRect.Width, IconRect.Y + IconRect.Height - 5, 35, 32);
+                UnlocksRect = new Rectangle(IconRect.X + IconRect.Width +7, IconRect.Y + IconRect.Height - 5, 35, 32);
                 UnlocksRect.Y -= UnlocksRect.Height;
                 UnlocksGrid = new UnlocksGrid(UnlocksGridItems, UnlocksRect.Move(3, 0));
             }
@@ -68,7 +68,7 @@ namespace Ship_Game
             }
             UnlocksRect = UnlocksRect.Bevel(2);
 
-            TitleRect = new Rectangle(BaseRect.X, BaseRect.Y - 20, 90, 36);
+            TitleRect = new Rectangle(BaseRect.X, BaseRect.Y - 22, 90, 36);
         }
 
         SubTexture TechIcon
@@ -95,7 +95,7 @@ namespace Ship_Game
             string techBaseRectSuffix = "";
             string progressIcon = "ResearchMenu/tech_progress";
             var unlocksRectBorderColor = new Color(190, 113, 25);
-            var completeTitleColor = new Color(132, 172, 208);
+            var completeTitleColor = new Color(57, 116, 143);
 
             if (State == NodeState.Normal)
             {
@@ -111,13 +111,13 @@ namespace Ship_Game
                     else
                     {
                         techBaseRectSuffix = "_complete";
-                        unlocksRectBorderColor = new Color(34, 136, 200);
+                        unlocksRectBorderColor = new Color(4, 113, 128);
                     }
                 }
                 else if (queued)
                 {
                     techBaseRectSuffix = "_queue";
-                    unlocksRectBorderColor = Color.Teal;
+                    unlocksRectBorderColor = new Color(94, 239, 255);
                 }
                 if (!active)
                 {
