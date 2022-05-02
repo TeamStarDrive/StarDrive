@@ -56,6 +56,7 @@ namespace Ship_Game
 
         //Added by McShooterz to allow for techs with more than one level
         public int MaxLevel = 1;
+        public float MultiLevelCostMultiplier = 1.4f;
 
         //added by McShooterz: Racial Tech variables.
         //This hides the tech from all races except for the ones in the RaceRequirements list
