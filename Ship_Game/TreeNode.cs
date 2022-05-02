@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
-using System.Text.RegularExpressions;
 
 namespace Ship_Game
 {
@@ -13,15 +12,16 @@ namespace Ship_Game
         public ResearchScreenNew Screen;
         public string TechName;
         public Rectangle TitleRect;
-        public Rectangle BaseRect = new Rectangle(0, 0, 92, 98);
-        public Vector2 RightPoint => new Vector2(BaseRect.Right - 25, BaseRect.CenterY() - 10);
-        public bool complete;
+        public Rectangle BaseRect = new(0, 0, 92, 98);
+        public Vector2 RightPoint => new(BaseRect.Right - 25, BaseRect.CenterY() - 10);
+        public bool Complete;
         Rectangle IconRect;
         Rectangle UnlocksRect;
         readonly Array<UnlockItem> UnlocksGridItems;
         UnlocksGrid UnlocksGrid;
-        Rectangle progressRect;
-        float TitleWidth = 73f;
+        Rectangle ProgressRect;
+        readonly float TitleWidth = 73f;
+        readonly Color MultiLevelColor = Color.Yellow;
 
         readonly Technology TechTemplate;
         Rectangle PlusRect;
@@ -36,9 +36,12 @@ namespace Ship_Game
             Screen = screen;
             Entry = theEntry;
             Technology tech = ResourceManager.TechTree[theEntry.UID];
-            TechName = tech.Name.Text + (tech.MaxLevel > 1 ? " " + RomanNumerals.ToRoman(theEntry.Level) + "/" + RomanNumerals.ToRoman(tech.MaxLevel) : "");
+            TechName = tech.Name.Text + (tech.MaxLevel > 1 ? 
+                " " + RomanNumerals.ToRoman((theEntry.Level+1).UpperBound(tech.MaxLevel)) + "/" + RomanNumerals.ToRoman(tech.MaxLevel) 
+                : "");
+
             TechTemplate = ResourceManager.TechTree[Entry.UID];
-            complete = EmpireManager.Player.HasUnlocked(Entry);
+            Complete = EmpireManager.Player.HasUnlocked(Entry);
             UnlocksGridItems = UnlockItem.CreateUnlocksList(TechTemplate, maxUnlocks: MaxUnlockItems);
             SetPos(pos);
         }
@@ -47,7 +50,7 @@ namespace Ship_Game
         {
             BaseRect.X = (int)pos.X;
             BaseRect.Y = (int)pos.Y;
-            progressRect = new Rectangle(BaseRect.X + 14, BaseRect.Y + 21, 1, 34);
+            ProgressRect = new Rectangle(BaseRect.X + 14, BaseRect.Y + 21, 1, 34);
             IconRect = new Rectangle(BaseRect.X + BaseRect.Width / 2 - 29, BaseRect.Y + BaseRect.Height / 2 - 24 - 10, 58, 49);
 
             int numColumns = UnlocksGridItems.Count / 2 + UnlocksGridItems.Count % 2;
@@ -81,13 +84,13 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch batch)
         {
-            if (complete)
+            if (Complete && Entry.MultiLevelComplete)
             {
-                DrawGlow(batch, Entry.Tech.Secret ? Color.Green : Color.White );
+                DrawGlow(batch, Entry.Tech.Secret ? Color.Green : Color.White);
             }
 
             bool queued = EmpireManager.Player.Research.IsQueued(Entry.UID);
-            bool active = complete || queued;
+            bool active = Complete || queued;
 
             string techBaseRectSuffix = "";
             string progressIcon = "ResearchMenu/tech_progress";
@@ -97,10 +100,19 @@ namespace Ship_Game
             if (State == NodeState.Normal)
             {
                 unlocksRectBorderColor = Color.Black;
-                if (complete)
+                if (Complete && !queued)
                 {
-                    techBaseRectSuffix = "_complete";
-                    unlocksRectBorderColor = new Color(34, 136, 200);
+                    if (!Entry.MultiLevelComplete)
+                    {
+                        techBaseRectSuffix = "_MultiInProgress";
+                        unlocksRectBorderColor = Screen.ApplyCurrentAlphaColor(MultiLevelColor);
+                        completeTitleColor = MultiLevelColor;
+                    }
+                    else
+                    {
+                        techBaseRectSuffix = "_complete";
+                        unlocksRectBorderColor = new Color(34, 136, 200);
+                    }
                 }
                 else if (queued)
                 {
@@ -125,9 +137,11 @@ namespace Ship_Game
             batch.DrawRectangle(UnlocksRect, unlocksRectBorderColor);
             UnlocksGrid.Draw(batch);
 
-            batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base{techBaseRectSuffix}"), BaseRect, Color.White);
+            Color borderColor = Complete && !Entry.MultiLevelComplete && !queued ? Screen.ApplyCurrentAlphaColor(MultiLevelColor) : Color.White;
+
+            batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base{techBaseRectSuffix}"), BaseRect, borderColor);
             batch.Draw(TechIcon, IconRect, Color.White);
-            batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base_title{techBaseRectSuffix}"), TitleRect, Color.White);
+            batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base_title{techBaseRectSuffix}"), TitleRect, borderColor);
 
             // Draw the Title as multi-line centered text
             // TODO: Maybe Use UILabel MultiLine text with automatic centering??
@@ -140,13 +154,13 @@ namespace Ship_Game
             {
                 var pos = new Vector2(TitleRect.CenterX() - TitleFont.TextWidth(titleLines[i]) * 0.5f,
                                       textStartY + i * TitleFont.LineSpacing);
-                batch.DrawString(TitleFont, titleLines[i], pos.Rounded(), complete ? completeTitleColor : Color.White);
+                batch.DrawString(TitleFont, titleLines[i], pos.Rounded(), Complete ? completeTitleColor : Color.White);
             }
 
-            batch.Draw(ResourceManager.Texture(progressIcon), progressRect, Color.White);
+            batch.Draw(ResourceManager.Texture(progressIcon), ProgressRect, Color.White);
 
-            int progress = (int)(progressRect.Height - EmpireManager.Player.TechProgress(Entry) / EmpireManager.Player.TechCost(Entry) * (double)progressRect.Height);
-            Rectangle progressRect2 = progressRect;
+            int progress = (int)(ProgressRect.Height - EmpireManager.Player.TechProgress(Entry) / EmpireManager.Player.TechCost(Entry) * (double)ProgressRect.Height);
+            Rectangle progressRect2 = ProgressRect;
             progressRect2.Height = progress;
             batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), progressRect2, Color.White);
 
@@ -158,6 +172,8 @@ namespace Ship_Game
             if (Entry.CanBeResearched)
             {
                 costText = (Entry.TechCost - Entry.Progress).GetNumberString();
+                if (completeTitleColor == MultiLevelColor)
+                    costColor = completeTitleColor;
             }
             else if (Entry.Unlocked)
             {
@@ -247,7 +263,11 @@ namespace Ship_Game
             }
             else
             {
-                ToolTip.CreateTooltip($"Right Click to Expand \n\n{ResourceManager.TechTree[Entry.UID].Description.Text}");
+                string text = $"Right Click to Expand \n\n{ResourceManager.TechTree[Entry.UID].Description.Text}";
+                if (Complete && !Entry.MultiLevelComplete && !EmpireManager.Player.Research.IsQueued(Entry.UID))
+                    text = $"Left Click to research level {Entry.Level+1} of this tech.\n\n{text}";
+
+                ToolTip.CreateTooltip(text);
             }
             return false;
         }

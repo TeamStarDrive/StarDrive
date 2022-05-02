@@ -29,6 +29,8 @@ namespace Ship_Game
         /// For multi-level techs this will be true when Level > 0 and until Level >= MaxLevel
         public bool CanBeResearched => !Unlocked || (0 < Level && Level < MaxLevel);
 
+        public bool MultiLevelComplete => Level == MaxLevel && MaxLevel > 1 || MaxLevel == 1;
+
         /// <summary>
         /// Checks if list  contains restricted trade type. 
         /// </summary>
@@ -43,7 +45,7 @@ namespace Ship_Game
             get
             {
                 float cost      = Tech.ActualCost;
-                float techLevel = (float)Math.Max(1, Math.Pow(1.4, Level));
+                float techLevel = (float)Math.Max(1, Math.Pow(MultiLevelCostMultiplier, Level.UpperBound(MaxLevel-1)));
                 int rootTech    = Tech.RootNode * 100;
                 return cost * (techLevel + rootTech);
             }
@@ -69,6 +71,9 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore]
         public int MaxLevel => Tech.MaxLevel;
+
+        [XmlIgnore][JsonIgnore]
+        public float MultiLevelCostMultiplier => Tech.MultiLevelCostMultiplier;
 
         [XmlIgnore][JsonIgnore]
         readonly Dictionary<TechnologyType, float> TechTypeCostLookAhead = new Dictionary<TechnologyType, float>();
