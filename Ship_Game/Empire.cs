@@ -835,7 +835,7 @@ namespace Ship_Game
             foreach (var kv in TechnologyDict)
             {
                 TechEntry tech = kv.Value;
-                if (tech.Unlocked)
+                if (tech.Unlocked && !tech.IsMultiLevel) // FB: Multi level techs trade will not work well for now
                     tradeTechs.Add(tech);
             }
             return tradeTechs;

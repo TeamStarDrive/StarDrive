@@ -76,6 +76,9 @@ namespace Ship_Game
         public float MultiLevelCostMultiplier => Tech.MultiLevelCostMultiplier;
 
         [XmlIgnore][JsonIgnore]
+        public bool IsMultiLevel => Tech.MaxLevel > 1;
+
+        [XmlIgnore][JsonIgnore]
         readonly Dictionary<TechnologyType, float> TechTypeCostLookAhead = new Dictionary<TechnologyType, float>();
 
         public static readonly TechEntry None = new TechEntry("");
