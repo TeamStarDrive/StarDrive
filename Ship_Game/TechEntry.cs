@@ -477,11 +477,13 @@ namespace Ship_Game
         /// <summary>
         /// This will unlock the content of the tech. Hulls/modules/buildings etc.
         /// be careful bonuses currently stack and should only be unlocked once. 
+        /// Remove from Queue is relevant only for Multi Level Tech unlocks from save
         /// </summary>
         /// <param name="us">the empire the tech is being unlocked for</param>
         /// <param name="them">the racial specific tech of a different Empire</param>
         /// <param name="bonusUnlock">bonuses will unlock too</param>
-        void UnlockTechContentOnly(Empire us, Empire them, bool bonusUnlock = true)
+        /// <param name="removeFromQueue"></param>
+        void UnlockTechContentOnly(Empire us, Empire them, bool bonusUnlock = true, bool removeFromQueue = true)
         {
             DoRevealedTechs(us);
             if (bonusUnlock)
@@ -494,7 +496,8 @@ namespace Ship_Game
             UnlockBuildings(us, them);
 
             // Finally, remove this tech from our ResearchQueue
-            us.Research.RemoveFromQueue(UID);
+            if (removeFromQueue)
+                us.Research.RemoveFromQueue(UID);
         }
 
         public bool UnlockFromSpy(Empire us, Empire them)
@@ -563,12 +566,19 @@ namespace Ship_Game
 
         void UnlockFromSave(Empire us, Empire them, bool contentOnly)
         {
+            bool removeFromQueue = true;
             if (!contentOnly)
             {
-                Progress = TechCost;
+                // FB: Do not remove from queue if a multi level tech has some levels researched, Gee.
+                if (IsMultiLevel && !MultiLevelComplete)
+                    removeFromQueue = false;
+                else
+                    Progress = TechCost;
+
                 Unlocked = true;
             }
-            UnlockTechContentOnly(us, them, false);
+
+            UnlockTechContentOnly(us, them, bonusUnlock: false, removeFromQueue: removeFromQueue);
         }
 
         void UnlockAcquiredContent(Empire us)
