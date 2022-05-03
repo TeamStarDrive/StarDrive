@@ -21,7 +21,7 @@ namespace Ship_Game
         UnlocksGrid UnlocksGrid;
         Rectangle ProgressRect;
         readonly float TitleWidth = 73f;
-        readonly Color MultiLevelColor = new Color(159, 128, 255);
+        readonly Color MultiLevelColor = new Color(210, 155, 255);
 
         readonly Technology TechTemplate;
         Rectangle PlusRect;
