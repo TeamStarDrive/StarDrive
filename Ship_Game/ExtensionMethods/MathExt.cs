@@ -106,6 +106,11 @@ namespace Ship_Game
             return Max(min, value);
         }
 
+        public static byte LowerBound(this byte value, byte min)
+        {
+            return Max(min, value);
+        }
+
         /// <summary>
         /// Constrain upper end of value
         /// </summary>
