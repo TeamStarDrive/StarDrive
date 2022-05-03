@@ -106,7 +106,7 @@ namespace Ship_Game
                     {
                         techBaseRectSuffix = "_MultiInProgress";
                         unlocksRectBorderColor = Screen.ApplyCurrentAlphaColor(MultiLevelColor);
-                        completeTitleColor = MultiLevelColor;
+                        completeTitleColor = Color.White;
                     }
                     else
                     {
@@ -127,6 +127,7 @@ namespace Ship_Game
             else
             {
                 techBaseRectSuffix = "_hover";
+                completeTitleColor = Color.White;
             }
             if (State == NodeState.Press)
             {
@@ -137,7 +138,9 @@ namespace Ship_Game
             batch.DrawRectangle(UnlocksRect, unlocksRectBorderColor);
             UnlocksGrid.Draw(batch);
 
-            Color borderColor = Complete && !Entry.MultiLevelComplete && !queued ? Screen.ApplyCurrentAlphaColor(MultiLevelColor) : Color.White;
+            Color borderColor = Complete && !Entry.MultiLevelComplete && !queued && State != NodeState.Hover
+                ? Screen.ApplyCurrentAlphaColor(MultiLevelColor)
+                : Color.White;
 
             batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base{techBaseRectSuffix}"), BaseRect, borderColor);
             batch.Draw(TechIcon, IconRect, Color.White);

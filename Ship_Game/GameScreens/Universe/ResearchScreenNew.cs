@@ -36,7 +36,11 @@ namespace Ship_Game
 
         ResearchDebugUnlocks DebugUnlocks;
 
-        public Color ApplyCurrentAlphaColor(Color color) => ApplyCurrentAlphaToColor(color);
+        public Color ApplyCurrentAlphaColor(Color color)
+        {
+            color = ApplyCurrentAlphaToColor(color);
+            return new Color(color, color.A.LowerBound(100));
+        }
 
         public ResearchScreenNew(GameScreen parent, UniverseScreen u, EmpireUIOverlay empireUi)
             : base(parent, toPause: u)
