@@ -2,10 +2,14 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.Empires.Components;
 using Ship_Game.Gameplay;
 using Ship_Game.Graphics;
 using Ship_Game.Ships;
+using Matrix = Microsoft.Xna.Framework.Matrix;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Ship_Game
 {

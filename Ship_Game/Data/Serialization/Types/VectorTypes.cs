@@ -5,6 +5,9 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
+using Vector2d = SDGraphics.Vector2d;
+using Vector3d = SDGraphics.Vector3d;
+
 namespace Ship_Game.Data.Serialization.Types
 {
     internal class Vector2Serializer : TypeSerializer

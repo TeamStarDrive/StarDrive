@@ -11,6 +11,9 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 #pragma warning disable CS0649
 
+using Vector2d = SDGraphics.Vector2d;
+using Vector3d = SDGraphics.Vector3d;
+
 namespace UnitTests.Serialization
 {
     [TestClass]

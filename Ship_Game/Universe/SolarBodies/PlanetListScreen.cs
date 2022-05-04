@@ -4,7 +4,9 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SDGraphics;
 using Ship_Game.Audio;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game
 {

@@ -8,6 +8,7 @@ using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
 using System;
 using System.Threading;
+using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.DiplomacyScreen;
@@ -15,6 +16,9 @@ using Ship_Game.Universe;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;
+using Matrix = Microsoft.Xna.Framework.Matrix;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Ship_Game
 {

@@ -3,6 +3,9 @@ using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using Vector2d = SDGraphics.Vector2d;
+using Vector3d = SDGraphics.Vector3d;
+
 namespace Ship_Game
 {
     using static Math;

@@ -4,6 +4,8 @@ using SDUtils;
 
 namespace SDGraphics;
 
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+
 // Double precision Vector2
 public struct Vector2d
 {
@@ -19,6 +21,12 @@ public struct Vector2d
     }
 
     public Vector2d(in Vector2 v)
+    {
+        X = v.X;
+        Y = v.Y;
+    }
+
+    public Vector2d(in XnaVector2 v)
     {
         X = v.X;
         Y = v.Y;

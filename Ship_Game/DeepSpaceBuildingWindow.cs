@@ -2,11 +2,13 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game
 {

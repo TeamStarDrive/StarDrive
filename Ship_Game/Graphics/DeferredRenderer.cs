@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game.Graphics
 {

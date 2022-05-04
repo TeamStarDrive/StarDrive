@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Rendering;
 
+using Vector2d = SDGraphics.Vector2d;
+using Vector3d = SDGraphics.Vector3d;
+
 namespace Ship_Game
 {
     public static class Matrices
