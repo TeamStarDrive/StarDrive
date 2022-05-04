@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Data;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -116,9 +117,9 @@ namespace Ship_Game
                 {
                     if (ps.column == toCheck.column && ps.row == toCheck.row - 1)
                     {
-                        float distance = Vector2.Distance(ps.point, toCheck.point);
+                        float distance = ps.point.Distance(toCheck.point);
                         Vector2 vtt = toCheck.point - ps.point;
-                        vtt = Vector2.Normalize(vtt);
+                        vtt = vtt.Normalized();
                         Vector2 cPoint = ps.point + ((vtt * distance) / 2f);
                         var cp = new PointSet
                         {

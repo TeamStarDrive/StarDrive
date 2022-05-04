@@ -17,8 +17,8 @@ using Ship_Game.Fleets;
 using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;
 using Matrix = Microsoft.Xna.Framework.Matrix;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game
 {
@@ -335,8 +335,12 @@ namespace Ship_Game
                 float univRadius = UState.Size / 2f;
                 var camMaxToUnivCenter = Matrices.CreateLookAtDown(-univRadius, univRadius, MaxCamHeight);
 
-                Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, Projection, camMaxToUnivCenter, Matrix.Identity);
-                Vector3 univBotRight = Viewport.Project(new Vector3(UState.Size * 1.25f, UState.Size * 1.25f, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
+                Vector3 univTopLeft  = new Vector3(
+                    Viewport.Project(Vector3.Zero, Projection, camMaxToUnivCenter, Matrix.Identity)
+                );
+                Vector3 univBotRight = new Vector3(
+                    Viewport.Project(new Vector3(UState.Size * 1.25f, UState.Size * 1.25f, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity)
+                );
                 univSizeOnScreen = Math.Abs(univBotRight.X - univTopLeft.X);
                 if (univSizeOnScreen < (ScreenWidth + 50))
                     MaxCamHeight -= 0.1 * MaxCamHeight;
@@ -650,7 +654,7 @@ namespace Ship_Game
 
         void ProjectPieMenu(Vector3 position)
         {
-            Vector3 proj = Viewport.Project(position, Projection, View, Matrix.Identity);
+            Vector3 proj = new Vector3(Viewport.Project(position, Projection, View, Matrix.Identity));
             pieMenu.Position = proj.ToVec2();
             pieMenu.Radius = 75f;
             pieMenu.ScaleFactor = 1f;

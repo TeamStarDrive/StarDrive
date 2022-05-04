@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.AI.CombatTactics;
 using Ship_Game.Audio;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships
 {

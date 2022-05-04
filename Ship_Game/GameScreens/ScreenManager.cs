@@ -12,6 +12,7 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

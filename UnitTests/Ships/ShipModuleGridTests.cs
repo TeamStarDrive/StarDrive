@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Ships
 {

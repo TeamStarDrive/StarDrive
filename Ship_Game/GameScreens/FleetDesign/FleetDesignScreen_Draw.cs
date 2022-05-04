@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -59,7 +60,7 @@ namespace Ship_Game
                     Vector3 insetRadialPos =
                         viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
+                    radius = insetRadialSS.Distance(pPos) + 10f;
                     ClickableNode cs = new ClickableNode
                     {
                         Radius = radius,
@@ -82,7 +83,7 @@ namespace Ship_Game
                     Vector3 insetRadialPos =
                         viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     var insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = Vector2.Distance(insetRadialSS, pPos) + 10f;
+                    radius = insetRadialSS.Distance(pPos) + 10f;
                     var cs = new ClickableNode
                     {
                         Radius = radius,
@@ -109,7 +110,7 @@ namespace Ship_Game
                     Vector3 insetRadialPos =
                         viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = Vector2.Distance(insetRadialSS, pPos);
+                    radius = insetRadialSS.Distance(pPos);
                     foreach (ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.Squad.DataNodes.Contains(node))
@@ -134,7 +135,7 @@ namespace Ship_Game
                     Vector3 insetRadialPos =
                         viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = Vector2.Distance(insetRadialSS, pPos);
+                    radius = insetRadialSS.Distance(pPos);
                     foreach (ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.Squad.DataNodes.Contains(node))
@@ -168,7 +169,7 @@ namespace Ship_Game
                     Vector3 insetRadialPos =
                         viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = Vector2.Distance(insetRadialSS, pPos);
+                    radius = insetRadialSS.Distance(pPos);
                     foreach (ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.Squad.DataNodes.Contains(node))
@@ -194,7 +195,7 @@ namespace Ship_Game
                     Vector3 insetRadialPos =
                         viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = Vector2.Distance(insetRadialSS, pPos);
+                    radius = insetRadialSS.Distance(pPos);
                     foreach (ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.Squad.DataNodes.Contains(node))
@@ -296,7 +297,7 @@ namespace Ship_Game
                     viewport = Viewport;
                     Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = Vector2.Distance(insetRadialSS, pPos);
+                    radius = insetRadialSS.Distance(pPos);
                     var r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius, 
                                           (int) radius * 2, (int) radius * 2);
 
@@ -338,7 +339,7 @@ namespace Ship_Game
                     Vector3 insetRadialPos =
                         viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = Vector2.Distance(insetRadialSS, pPos);
+                    radius = insetRadialSS.Distance(pPos);
                     if (radius < 10f)
                     {
                         radius = 10f;

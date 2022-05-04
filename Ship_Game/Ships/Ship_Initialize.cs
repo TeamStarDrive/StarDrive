@@ -4,6 +4,7 @@ using Ship_Game.Gameplay;
 using System;
 using Ship_Game.Data;
 using Ship_Game.Universe;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships
 {

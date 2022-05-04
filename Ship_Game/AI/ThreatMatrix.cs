@@ -9,6 +9,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {

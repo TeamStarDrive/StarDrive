@@ -1,12 +1,12 @@
 using System;
 using System.Data.Common;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

@@ -7,6 +7,7 @@ using Ship_Game.Data.Yaml;
 using Ship_Game.Data.YamlSerializer;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.SpriteSystem;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.UI
 {

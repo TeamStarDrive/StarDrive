@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SDGraphics;
 using Ship_Game.AI.ShipMovement;
 using Ship_Game.GameScreens.MainMenu;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.GameScreens.Scene
 {

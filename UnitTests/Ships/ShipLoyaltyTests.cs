@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Ship_Game;
 using Ship_Game.Ships;
-using Microsoft.Xna.Framework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.ShipDesign;
+using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Ships
 {

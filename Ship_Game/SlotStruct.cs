@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using SDGraphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

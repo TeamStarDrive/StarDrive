@@ -1,4 +1,6 @@
 using Microsoft.Xna.Framework;
+using Vector2 = SDGraphics.Vector2;
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game
 {
@@ -61,8 +63,7 @@ namespace Ship_Game
         {
             if (Changed)
                 UpdateTransform();
-            Vector2.Transform(ref worldCoord, ref WorldMatrix, out Vector2 screenCoord);
-            return screenCoord;
+            return worldCoord.Transform(WorldMatrix);
         }
 
         public Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenCoord)

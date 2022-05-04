@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Ship_Game.Ships.AI;
 using Ship_Game.Universe;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {

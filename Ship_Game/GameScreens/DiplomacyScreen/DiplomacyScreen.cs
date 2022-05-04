@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Ship_Game.Graphics;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
 {

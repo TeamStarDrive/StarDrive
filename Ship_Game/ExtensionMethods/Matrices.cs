@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Rendering;
 
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
 
@@ -18,7 +20,7 @@ namespace Ship_Game
         public static Vector2 ProjectTo2D(this Viewport viewport, Vector3 source, in Matrix projection, in Matrix view)
         {
             view.Multiply(projection, out Matrix viewProjection);
-            Vector3.Transform(ref source, ref viewProjection, out Vector3 clipSpacePoint);
+            Vector3 clipSpacePoint = source.Transform(viewProjection);
             float len = source.X * viewProjection.M14
                       + source.Y * viewProjection.M24
                       + source.Z * viewProjection.M34
@@ -47,7 +49,7 @@ namespace Ship_Game
                 (screenY - viewport.Y) / (viewport.Height * 2.0f) - 1.0f,
                 (depth - viewport.MinDepth) / (viewport.MaxDepth - viewport.MinDepth));
 
-            Vector3.Transform(ref source, ref invViewProj, out Vector3 worldPos);
+            Vector3 worldPos = source.Transform(invViewProj);
             float len = source.X * invViewProj.M14 + source.Y * invViewProj.M24 + source.Z * invViewProj.M34 + invViewProj.M44;
             if (!len.AlmostEqual(1f))
                 worldPos /= len;

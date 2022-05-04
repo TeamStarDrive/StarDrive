@@ -1,8 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using System;
 using System.Text;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Graphics
 {
@@ -37,12 +37,12 @@ namespace Ship_Game.Graphics
 
         public Vector2 MeasureString(string text)
         {
-            return XnaFont.MeasureString(text);
+            return new Vector2(XnaFont.MeasureString(text));
         }
 
         public Vector2 MeasureString(StringBuilder text)
         {
-            return XnaFont.MeasureString(text);
+            return new Vector2(XnaFont.MeasureString(text));
         }
         
         public Vector2 MeasureLines(Array<string> lines)
@@ -78,7 +78,7 @@ namespace Ship_Game.Graphics
 
         public Vector2 MeasureString(in LocalizedText text)
         {
-            return XnaFont.MeasureString(text.Text);
+            return new Vector2(XnaFont.MeasureString(text.Text));
         }
 
         public string ParseText(in LocalizedText text, float maxLineWidth)

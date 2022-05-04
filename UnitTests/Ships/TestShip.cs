@@ -1,10 +1,10 @@
-﻿using Microsoft.Xna.Framework;
-using Ship_Game;
+﻿using Ship_Game;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using Ship_Game.Universe;
 using Ship_Game.Gameplay;
+using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Ships
 {

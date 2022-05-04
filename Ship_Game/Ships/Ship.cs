@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
@@ -14,6 +13,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Ship_Game.Universe;
+using SDGraphics;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.Ships
 {

@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Debug;
 using Ship_Game.Fleets;
@@ -9,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI.Tasks
 {

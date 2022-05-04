@@ -8,7 +8,8 @@ using Ship_Game.Data.Mesh;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Vector3 = SDGraphics.Vector3;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.GameScreens.Scene
 {

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
 
@@ -315,7 +315,7 @@ namespace Ship_Game
 
         public static void DrawResearchLineHorizontal(this SpriteBatch batch, Vector2 leftPoint, Vector2 rightPoint, bool complete)
         {
-            var r = new Rectangle((int)leftPoint.X + 5, (int)leftPoint.Y - 2, (int)Vector2.Distance(leftPoint, rightPoint) - 5, 5);
+            var r = new Rectangle((int)leftPoint.X + 5, (int)leftPoint.Y - 2, (int)leftPoint.Distance(rightPoint) - 5, 5);
             var small = new Rectangle((int)leftPoint.X, (int)leftPoint.Y, 5, 1);
             FillRectangle(batch, small, (complete ? new Color(110, 171, 227) : new Color(194, 194, 194)));
 
@@ -327,7 +327,7 @@ namespace Ship_Game
 
         public static void DrawResearchLineHorizontalGradient(this SpriteBatch batch, Vector2 left, Vector2 right, bool complete)
         {
-            var r = new Rectangle((int)left.X + 5, (int)left.Y - 2, (int)Vector2.Distance(left, right) - 5, 5);
+            var r = new Rectangle((int)left.X + 5, (int)left.Y - 2, (int)left.Distance(right) - 5, 5);
             var small = new Rectangle((int)left.X, (int)left.Y, 5, 1);
             FillRectangle(batch, small, (complete ? new Color(110, 171, 227) : new Color(194, 194, 194)));
 

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Universe;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

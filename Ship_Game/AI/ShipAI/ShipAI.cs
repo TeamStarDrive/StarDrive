@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Ship_Game.Ships.AI;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {

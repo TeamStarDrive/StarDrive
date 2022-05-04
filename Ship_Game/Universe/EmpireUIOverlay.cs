@@ -5,7 +5,7 @@ using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.Espionage;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

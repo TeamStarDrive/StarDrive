@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

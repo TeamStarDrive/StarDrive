@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
 

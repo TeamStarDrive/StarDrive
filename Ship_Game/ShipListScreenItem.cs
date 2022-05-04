@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -118,44 +119,44 @@ namespace Ship_Game
             ShipNameEntry.Draw(batch, elapsed);
 
             var rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Font12.MeasureString(Localizer.GetRole(Ship.ShipData.Role, Ship.Loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Font12.LineSpacing / 2);
-            HelperFunctions.ClampVectorToInt(ref rolePos);
+            rolePos = rolePos.ToFloored();
             batch.DrawString(Font12, Localizer.GetRole(Ship.ShipData.Role, Ship.Loyalty), rolePos, textColor);
 
             string fleetName     = Ship.Fleet?.Name ?? "";
             Graphics.Font fleetFont = Font12.MeasureString(fleetName).X > FleetRect.Width - 5 ? Font8 : Font12;
             var fleetPos = new Vector2(FleetRect.X + FleetRect.Width / 2 - fleetFont.MeasureString(fleetName).X / 2f, FleetRect.Y + FleetRect.Height / 2 - fleetFont.LineSpacing / 2);
-            HelperFunctions.ClampVectorToInt(ref fleetPos);
+            fleetPos = fleetPos.ToFloored();
             batch.DrawString(fleetFont, fleetName, fleetPos, textColor);
 
             var statusPos = new Vector2(OrdersRect.X + OrdersRect.Width / 2 - Fonts.Arial12.MeasureString(StatusText).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12.MeasureString(StatusText).Y / 2f);
-            HelperFunctions.ClampVectorToInt(ref statusPos);
+            statusPos = statusPos.ToFloored();
             batch.DrawString(Fonts.Arial12, StatusText, statusPos, textColor);
 
             float maint = Ship.GetMaintCost();
 
             var mainPos = new Vector2(MaintRect.X + MaintRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             mainPos.X -= Fonts.Arial12.MeasureString(maint.ToString("F2")).X / 2f + 6;
-            HelperFunctions.ClampVectorToInt(ref mainPos);
+            mainPos = mainPos.ToFloored();
             batch.DrawString(Fonts.Arial12, maint.ToString("F2"), mainPos, maint > 0.00 ? Color.Salmon : Color.White);
 
             var strPos = new Vector2(StrRect.X + StrRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             strPos.X -= Fonts.Arial12.MeasureString(Ship.GetStrength().ToString("0")).X / 2f + 6;
-            HelperFunctions.ClampVectorToInt(ref strPos);
+            strPos = strPos.ToFloored();
             batch.DrawString(Fonts.Arial12, Ship.GetStrength().ToString("0"), strPos, Color.White);
 
             var troopPos = new Vector2(TroopRect.X + TroopRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             troopPos.X -= Fonts.Arial12.MeasureString(string.Concat(Ship.TroopCount, "/", Ship.TroopCapacity)).X / 2f + 6;
-            HelperFunctions.ClampVectorToInt(ref troopPos);
+            troopPos = troopPos.ToFloored();
             batch.DrawString(Fonts.Arial12, string.Concat(Ship.TroopCount, "/", Ship.TroopCapacity), troopPos, Color.White);
             
             var ftlPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             ftlPos.X -= Fonts.Arial12.MeasureString((Ship.MaxFTLSpeed / 1000f).ToString("0")+"k").X / 2f + 6;
-            HelperFunctions.ClampVectorToInt(ref ftlPos);
+            ftlPos = ftlPos.ToFloored();
             batch.DrawString(Fonts.Arial12, (Ship.MaxFTLSpeed / 1000f).ToString("0")+"k", ftlPos, Color.White);
 
             var stlPos = new Vector2(STLRect.X + STLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             stlPos.X -= Fonts.Arial12.MeasureString(Ship.MaxSTLSpeed.ToString("0")).X / 2f + 6;
-            HelperFunctions.ClampVectorToInt(ref stlPos);
+            stlPos = stlPos.ToFloored();
             batch.DrawString(Fonts.Arial12, Ship.MaxSTLSpeed.ToString("0"), stlPos, Color.White);
 
             if (IsCombat)

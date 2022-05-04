@@ -5,14 +5,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Graphics;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+using XnaVector4 = Microsoft.Xna.Framework.Vector4;
 
 namespace Ship_Game
 {
     public static class SpriteExtensions
     {
-        delegate void InternalDrawD(SpriteBatch batch, Texture2D tex, ref Vector4 dst, bool scaleDst, ref Rectangle? srcRect,
-                                    Color color, float rotation, ref Vector2 origin, SpriteEffects effects, float depth);
+        delegate void InternalDrawD(SpriteBatch batch, Texture2D tex, ref XnaVector4 dst, bool scaleDst, ref Rectangle? srcRect,
+                                    Color color, float rotation, ref XnaVector2 origin, SpriteEffects effects, float depth);
 
         static readonly InternalDrawD DrawInternal;
         static readonly Rectangle? NullRectangle = new Rectangle?();
@@ -27,7 +29,7 @@ namespace Ship_Game
         }
 
         static void InternalDraw(SpriteBatch batch, Texture2D tex, in RectF dstRect, bool scaleDst, Rectangle? srcRect, 
-                                 Color color, float rotation, Vector2 origin,  SpriteEffects effects, float depth)
+                                 Color color, float rotation, XnaVector2 origin,  SpriteEffects effects, float depth)
         {
             var dst = new Vector4(dstRect.X, dstRect.Y, dstRect.W, dstRect.H);
             DrawInternal.Invoke(batch, tex, ref dst, scaleDst, ref srcRect, color, 

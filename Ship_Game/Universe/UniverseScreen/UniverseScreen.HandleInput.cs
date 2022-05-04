@@ -10,7 +10,7 @@ using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.GameScreens;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
