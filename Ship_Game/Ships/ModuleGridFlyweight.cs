@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships
 {

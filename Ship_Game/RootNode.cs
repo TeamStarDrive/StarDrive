@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

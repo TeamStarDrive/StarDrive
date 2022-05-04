@@ -8,8 +8,8 @@ using Ship_Game.Gameplay;
 using Ship_Game.Graphics;
 using Ship_Game.Ships;
 using Matrix = Microsoft.Xna.Framework.Matrix;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -218,7 +218,7 @@ namespace Ship_Game
                 Viewport.Project(
                     new Vector3(solarSystem.Position.PointFromAngle(90f, 25000f), 0.0f), Projection,
                     View, Matrix.Identity);
-            float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
+            float num2 = new Vector2(vector3_5.X, vector3_5.Y).Distance(position);
             Vector2 vector2 = new Vector2(position.X, position.Y);
             if ((solarSystem.IsExploredBy(Player) || Debug) && SelectedSystem != solarSystem)
             {
@@ -236,7 +236,7 @@ namespace Ship_Game
                 Vector3 vector3_6 =
                     Viewport.Project(
                         new Vector3(new Vector2(100000f, 0f) + solarSystem.Position, 0f), Projection, View, Matrix.Identity);
-                float radius = Vector2.Distance(new Vector2(vector3_6.X, vector3_6.Y), position);
+                float radius = new Vector2(vector3_6.X, vector3_6.Y).Distance(position);
                 if (viewState == UnivScreenState.SectorView)
                 {
                     vector2.Y += radius;

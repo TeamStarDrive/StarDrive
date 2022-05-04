@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Audio;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -228,33 +228,33 @@ namespace Ship_Game
             float population = P.PopulationBillion;
             string popstring = population.String();
             cursor.X = cursor.X - Fonts.Arial12.MeasureString(popstring).X;
-            HelperFunctions.ClampVectorToInt(ref cursor);
+            cursor = cursor.ToFloored();
             batch.DrawString(Fonts.Arial12, popstring, cursor, Color.White);
             cursor = new Vector2(FoodRect.X + FoodRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
 
             string fstring = P.Food.NetIncome.String();
             cursor.X -= Fonts.Arial12.MeasureString(fstring).X;
-            HelperFunctions.ClampVectorToInt(ref cursor);
+            cursor = cursor.ToFloored();
             batch.DrawString(Fonts.Arial12, fstring, cursor, (P.Food.NetIncome >= 0f ? Color.White : Color.LightPink));
             
             cursor = new Vector2(ProdRect.X + FoodRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             string pstring = P.Prod.NetIncome.String();
             cursor.X -= Fonts.Arial12.MeasureString(pstring).X;
-            HelperFunctions.ClampVectorToInt(ref cursor);
+            cursor = cursor.ToFloored();
             bool pink = P.Prod.NetIncome < 0f;
             batch.DrawString(Fonts.Arial12, pstring, cursor, (pink ? Color.LightPink : Color.White));
             
             cursor = new Vector2(ResRect.X + FoodRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             string rstring = P.Res.NetIncome.String();
             cursor.X = cursor.X - Fonts.Arial12.MeasureString(rstring).X;
-            HelperFunctions.ClampVectorToInt(ref cursor);
+            cursor = cursor.ToFloored();
             batch.DrawString(Fonts.Arial12, rstring, cursor, Color.White);
             
             cursor = new Vector2(MoneyRect.X + FoodRect.Width - 5, PlanetNameRect.Y + PlanetNameRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float money = P.Money.NetRevenue;
             string mstring = money.String();
             cursor.X = cursor.X - Fonts.Arial12.MeasureString(mstring).X;
-            HelperFunctions.ClampVectorToInt(ref cursor);
+            cursor = cursor.ToFloored();
             batch.DrawString(Fonts.Arial12, mstring, cursor, (money >= 0f ? Color.White : Color.LightPink));
             
             if (Fonts.Pirulen16.MeasureString(P.Name).X + planetIconRect.Width + 10f <= PlanetNameRect.Width)

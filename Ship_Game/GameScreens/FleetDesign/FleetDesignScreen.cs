@@ -9,6 +9,7 @@ using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.Fleets;
 using Ship_Game.GameScreens.ShipDesign;
+using Vector2 = SDGraphics.Vector2;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

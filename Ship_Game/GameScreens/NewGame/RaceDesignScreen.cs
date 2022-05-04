@@ -5,6 +5,7 @@ using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.NewGame;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

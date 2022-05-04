@@ -10,9 +10,9 @@ using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
 using Matrix = Microsoft.Xna.Framework.Matrix;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 using Vector2d = SDGraphics.Vector2d;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Vector3 = SDGraphics.Vector3;
 using Vector3d = SDGraphics.Vector3d;
 
 namespace Ship_Game
@@ -29,8 +29,8 @@ namespace Ship_Game
             {
                 Vector2 sysPos = SelectedSystem.Position;
                 float sunRadius = 4500f;
-                Vector2 nearPoint = Viewport.Project(new Vector3(sysPos, 0f), Projection, View, Matrix.Identity).ToVec2();
-                Vector2 farPoint  = Viewport.Project(new Vector3(sysPos.X + sunRadius, sysPos.Y, 0.0f), Projection, View, Matrix.Identity).ToVec2();
+                Vector2 nearPoint = new Vector3(Viewport.Project(new Vector3(sysPos, 0f), Projection, View, Matrix.Identity)).ToVec2();
+                Vector2 farPoint  = new Vector3(Viewport.Project(new Vector3(sysPos.X + sunRadius, sysPos.Y, 0.0f), Projection, View, Matrix.Identity)).ToVec2();
                 float radius = farPoint.Distance(nearPoint);
                 if (radius < 5f)
                     radius = 5f;
@@ -40,8 +40,8 @@ namespace Ship_Game
             {
                 Vector2 planetPos = SelectedPlanet.Center;
                 float planetRadius = SelectedPlanet.ObjectRadius;
-                Vector2 center = Viewport.Project(new Vector3(planetPos, 2500f), Projection, View, Matrix.Identity).ToVec2();
-                Vector2 edge = Viewport.Project(new Vector3(planetPos.X + planetRadius, planetPos.Y, 2500f), Projection, View, Matrix.Identity).ToVec2();
+                Vector2 center = new Vector3(Viewport.Project(new Vector3(planetPos, 2500f), Projection, View, Matrix.Identity)).ToVec2();
+                Vector2 edge = new Vector3(Viewport.Project(new Vector3(planetPos.X + planetRadius, planetPos.Y, 2500f), Projection, View, Matrix.Identity)).ToVec2();
                 float radius = center.Distance(edge);
                 if (radius < 8f)
                     radius = 8f;
@@ -59,12 +59,12 @@ namespace Ship_Game
                 if (!fogOfWarNode.Discovered)
                     continue;
 
-                Vector3 vector3_1 = viewport.Project(fogOfWarNode.Position.ToVec3(), Projection, View,
-                    Matrix.Identity);
+                Vector3 vector3_1 = new Vector3(viewport.Project(fogOfWarNode.Position.ToVec3(), Projection, View, Matrix.Identity));
                 Vector2 vector2 = vector3_1.ToVec2();
-                Vector3 vector3_2 = viewport.Project(
+                Vector3 vector3_2 = new Vector3(viewport.Project(
                     new Vector3(fogOfWarNode.Position.PointFromAngle(90f, fogOfWarNode.Radius * 1.5f), 0.0f),
-                    Projection, View, Matrix.Identity);
+                    Projection, View, Matrix.Identity
+                ));
                 float num = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2.X);
                 Rectangle destinationRectangle =
                     new Rectangle((int) vector2.X, (int) vector2.Y, (int) num * 2, (int) num * 2);
@@ -83,9 +83,9 @@ namespace Ship_Game
             {
                 ref Empire.InfluenceNode @in = ref sensorNodes[i];
                 Vector2d screenPos = ProjectToScreenPosition(@in.Position);
-                Vector3 local_4 = viewport.Project(
+                Vector3 local_4 = new Vector3(viewport.Project(
                     new Vector3(@in.Position.PointFromAngle(90f, @in.Radius * 1.5f), 0.0f), Projection,
-                    View, Matrix.Identity);
+                    View, Matrix.Identity));
 
                 double local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - screenPos.X) * 2.59999990463257;
                 Rectangle local_7 = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)local_6, (int)local_6);
@@ -1233,7 +1233,7 @@ namespace Ship_Game
             Vector2 posOffSet = screenPos;
             posOffSet.X += xOffSet;
             posOffSet.Y += yOffSet;
-            HelperFunctions.ClampVectorToInt(ref posOffSet);
+            posOffSet = posOffSet.ToFloored();
             ScreenManager.SpriteBatch.DrawDropShadowText(text, posOffSet, font, textColor);
         }
 

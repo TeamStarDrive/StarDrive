@@ -1,7 +1,7 @@
-using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {

@@ -16,6 +16,7 @@ using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -2160,7 +2161,7 @@ namespace Ship_Game
             Array<Ship> troopShips;
             troopShips = new Array<Ship>(OwnedShips
                 .Filter(troopship => troopship.IsIdleSingleTroopship)
-                .OrderBy(distance => Vector2.Distance(distance.Position, objectCenter)));
+                .OrderBy(distance => distance.Position.Distance(objectCenter)));
 
             if (troopShips.Count > 0)
                 troopShip = troopShips.First();
@@ -2182,7 +2183,7 @@ namespace Ship_Game
             troopShip = null;
             Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
                 .Filter(p => p.NumTroopsCanLaunch > 0 && p.TroopsHere.Any(t => t.CanLaunch) && p.Name != planetName)
-                .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
+                .OrderBy(distance => distance.Center.Distance(objectCenter)));
 
             if (candidatePlanets.Count == 0)
                 return false;

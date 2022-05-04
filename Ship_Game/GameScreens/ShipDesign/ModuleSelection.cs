@@ -5,6 +5,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Text;
+using Vector2 = SDGraphics.Vector2;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

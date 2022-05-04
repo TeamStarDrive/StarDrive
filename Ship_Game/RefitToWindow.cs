@@ -8,6 +8,7 @@ using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

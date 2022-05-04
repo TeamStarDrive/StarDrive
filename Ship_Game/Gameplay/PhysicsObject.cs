@@ -4,8 +4,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Gameplay
 {

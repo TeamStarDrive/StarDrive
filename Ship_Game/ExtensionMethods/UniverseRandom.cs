@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
 using Ship_Game.Utils;
+using SDGraphics;
 
 namespace Ship_Game
 {

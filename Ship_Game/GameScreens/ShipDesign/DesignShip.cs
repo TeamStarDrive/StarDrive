@@ -1,6 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using Ship_Game.Ships;
+﻿using Ship_Game.Ships;
 using Ship_Game.Universe;
+using Vector2 = SDGraphics.Vector2;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.GameScreens.ShipDesign

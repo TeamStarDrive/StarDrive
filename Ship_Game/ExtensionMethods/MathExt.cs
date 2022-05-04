@@ -8,7 +8,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 using static System.Math;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Ship_Game
@@ -325,27 +325,6 @@ namespace Ship_Game
             Vector2 strafe = ship.Rotation.RadiansToDirection() + direction;
             strafe = strafe.Normalized();
             return ship.Position + (strafe * distance);
-        }
-
-        public static Vector3 DirectionToTarget(this Vector3 origin, Vector3 target)
-        {
-            double dx = target.X - origin.X;
-            double dy = target.Y - origin.Y;
-            double dz = target.Z - origin.Z;
-            double len = Sqrt(dx*dx + dy*dy + dz*dz);
-            if (len.AlmostZero())
-                return new Vector3(0f, -1f, 0f); // UP
-            return new Vector3((float)(dx / len), (float)(dy / len), (float)(dz / len));
-        }
-
-        public static Vector2 DirectionToTarget(this Vector2 origin, Vector2 target)
-        {
-            double dx = target.X - origin.X;
-            double dy = target.Y - origin.Y;
-            double len = Sqrt(dx*dx + dy*dy);
-            if (len.AlmostZero())
-                return Vectors.Up; // UP
-            return new Vector2((float)(dx / len), (float)(dy / len));
         }
 
         // Equivalent to:

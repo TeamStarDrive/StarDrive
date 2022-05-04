@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Fleets;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game
 {
@@ -32,7 +34,7 @@ namespace Ship_Game
             {
                 foreach (Fleet.Squad squad in flank)
                 {
-                    Vector3 pScreenSpace = Viewport.Project(new Vector3(squad.Offset, 0f), Projection, View, Matrix.Identity);
+                    Vector3 pScreenSpace = new Vector3(Viewport.Project(new Vector3(squad.Offset, 0f), Projection, View, Matrix.Identity));
                     var pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     var cs = new ClickableSquad
                     {

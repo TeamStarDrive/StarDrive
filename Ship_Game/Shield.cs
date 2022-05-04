@@ -5,6 +5,8 @@ using Ship_Game.Gameplay;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Lights;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game
 {

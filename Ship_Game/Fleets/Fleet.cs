@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Fleets
 {

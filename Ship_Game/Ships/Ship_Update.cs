@@ -7,6 +7,8 @@ using Ship_Game.AI.ExpansionAI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Audio;
 using SynapseGaming.LightingSystem.Rendering;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Ships
 {

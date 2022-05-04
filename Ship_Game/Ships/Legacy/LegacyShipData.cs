@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
@@ -10,6 +8,8 @@ using System.IO;
 using System.Xml.Serialization;
 using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Ships.Legacy
 {

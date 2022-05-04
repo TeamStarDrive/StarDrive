@@ -2,8 +2,8 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Ships;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Debug
 {

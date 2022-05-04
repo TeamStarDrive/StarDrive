@@ -2,6 +2,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game;
 using Ship_Game.Graphics.Particles;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game
 {
@@ -51,7 +53,7 @@ namespace Ship_Game
                     currentTime += TimeBetweenParticles;
                     timeToSpend -= TimeBetweenParticles;
                     float mu = currentTime / elapsedTime;
-                    Vector3 pos = Vector3.Lerp(PreviousPosition, newPosition, mu);
+                    Vector3 pos = PreviousPosition.Lerp(newPosition, mu);
                     Particle.AddParticle(pos, velocity, scale*Scale, Color.White);
                 }
                 TimeLeftOver = timeToSpend;
@@ -71,7 +73,7 @@ namespace Ship_Game
                     currentTime += TimeBetweenParticles;
                     timeToSpend -= TimeBetweenParticles;
                     float relTime = currentTime / elapsedTime;
-                    Vector3 pos = Vector3.Lerp(PreviousPosition, newPosition, relTime);
+                    Vector3 pos = PreviousPosition.Lerp(newPosition, relTime);
                     Particle.AddParticle(pos, velocity, scale*Scale, color);
                 }
                 TimeLeftOver = timeToSpend;
@@ -92,7 +94,7 @@ namespace Ship_Game
                     currentTime += TimeBetweenParticles;
                     timeToSpend -= TimeBetweenParticles;
                     float mu = currentTime / elapsedTime;
-                    Vector3 position = Vector3.Lerp(PreviousPosition, newPosition, mu);
+                    Vector3 position = PreviousPosition.Lerp(newPosition, mu);
                     Particle.AddParticle(position, velocity, Scale, Color.White);
                 }
                 TimeLeftOver = timeToSpend;

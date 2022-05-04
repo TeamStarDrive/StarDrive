@@ -2,6 +2,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game
 {
@@ -110,8 +112,7 @@ namespace Ship_Game
             Vector3 vtt = TargetPlanet.Center3D + 
                 new Vector3(RandomMath2.Float(-500f, 500f) * p.Scale, 
                             RandomMath2.Float(-500f, 500f) * p.Scale, 0f) - Position;
-            vtt = Vector3.Normalize(vtt);
-            Velocity = vtt * 1350f;
+            Velocity = vtt.Normalized(1350f);
         }
 
         public void Update(FixedSimTime timeStep)

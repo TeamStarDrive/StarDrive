@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
@@ -8,6 +7,7 @@ using System.Xml.Serialization;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Universe;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI.Tasks
 {

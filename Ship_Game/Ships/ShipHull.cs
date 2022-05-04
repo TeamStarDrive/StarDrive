@@ -9,6 +9,8 @@ using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships.Legacy;
 using SynapseGaming.LightingSystem.Rendering;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Ships
 {
@@ -109,7 +111,7 @@ namespace Ship_Game.Ships
                 {
                     try
                     {
-                        Volume = shipSO.GetMeshBoundingBox().Max;
+                        Volume = new Vector3(shipSO.GetMeshBoundingBox().Max);
                         ModelZ = Volume.Z;
                     }
                     catch (Exception e)

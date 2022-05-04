@@ -10,6 +10,8 @@ using Ship_Game.Ships;
 using Ship_Game.SpriteSystem;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game
 {

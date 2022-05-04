@@ -1,5 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using Ship_Game.Graphics.Particles;
+﻿using Ship_Game.Graphics.Particles;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Ships
 {

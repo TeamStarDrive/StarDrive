@@ -10,6 +10,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
+using Vector2 = SDGraphics.Vector2;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
