@@ -2,7 +2,8 @@ using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
+using SDGraphics;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
 
