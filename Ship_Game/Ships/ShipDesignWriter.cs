@@ -161,7 +161,7 @@ namespace Ship_Game.Ships
         // key=true|false\n
         public void Write(string key, bool value)
         {
-            string val = value ? "=true\n" : "=false\n";
+            string val = value ? "true" : "false";
             ByteBufferWriteKV(Buffer, key, key.Length, val, val.Length);
         }
 
