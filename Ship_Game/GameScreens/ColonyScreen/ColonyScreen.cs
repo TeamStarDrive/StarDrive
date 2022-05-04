@@ -1,8 +1,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Graphics;
 using Ship_Game.Universe;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game
 {

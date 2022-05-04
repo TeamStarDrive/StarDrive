@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game
 {

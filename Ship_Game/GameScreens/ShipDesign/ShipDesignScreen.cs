@@ -12,6 +12,8 @@ using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 
+using RectF = SDGraphics.RectF;
+
 namespace Ship_Game
 {
     public enum ModuleOrientation

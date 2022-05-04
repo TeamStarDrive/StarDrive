@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.Data;
 using Ship_Game.GameScreens;
@@ -11,8 +12,10 @@ using Ship_Game.UI;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
-
+using Matrix = Microsoft.Xna.Framework.Matrix;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 using Vector2d = SDGraphics.Vector2d;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 using Vector3d = SDGraphics.Vector3d;
 
 // ReSharper disable once CheckNamespace
