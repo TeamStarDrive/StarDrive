@@ -47,7 +47,7 @@ namespace SDGraphics.Sprites
             Device = device;
             VD = new VertexDeclaration(device, Vertex.VertexElements);
 
-            Simple = Shader.FromFile(device, "Effects/Simple.fx");
+            Simple = Shader.FromFile(device, "Content/Effects/Simple.fx");
             ViewProjectionParam = Simple["ViewProjection"];
             TextureParam = Simple["Texture"];
         }
@@ -121,7 +121,7 @@ namespace SDGraphics.Sprites
             {
                 pass.Begin();
                 Device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, 
-                    vertices, 0, vertices.Length, indices, 0, indices.Length);
+                    vertices, 0, vertices.Length, indices, 0, indices.Length / 3);
                 pass.End();
             }
             Simple.End();

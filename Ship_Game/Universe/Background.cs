@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics.Sprites;
 using Ship_Game.Graphics;
 
 namespace Ship_Game
@@ -16,6 +17,9 @@ namespace Ship_Game
         public Rectangle ScreenRect => Universe.Rect;
 
         Texture2D BackgroundNebula;
+        Texture2D BackgroundStars;
+
+        SpriteRenderer SR;
 
         public Background(UniverseScreen universe, GraphicsDevice device)
         {
@@ -25,6 +29,7 @@ namespace Ship_Game
             if (!ResourceManager.HasLoadedNebulae)
                 return;
 
+            SR = new SpriteRenderer(device);
             StarField = new StarField(universe);
 
             var nebulas = Dir.GetFiles("Content/Textures/BackgroundNebulas");
@@ -33,6 +38,10 @@ namespace Ship_Game
                 int nebulaIdx = Universe.UState.BackgroundSeed % nebulas.Length;
                 BackgroundNebula = universe.TransientContent.LoadTexture(nebulas[nebulaIdx]);
             }
+
+            BackgroundStars = universe.TransientContent.LoadTexture(
+                ResourceManager.GetModOrVanillaFile("Textures/hqstarfield1.dds")
+            );
 
             //using (RenderTarget2D rt = RenderTargets.Create(device))
             //{
@@ -55,8 +64,9 @@ namespace Ship_Game
 
         void Destroy()
         {
-            StarField?.Dispose(ref StarField);
-            BackgroundNebula?.Dispose(ref BackgroundNebula);
+            SDUtils.Memory.Dispose(ref StarField);
+            SDUtils.Memory.Dispose(ref BackgroundNebula);
+            SDUtils.Memory.Dispose(ref BackgroundStars);
         }
 
         public void Draw(SpriteBatch batch)
@@ -75,19 +85,14 @@ namespace Ship_Game
             batch.End();
 
             RenderStates.BasicBlendMode(Universe.Device, additive: true, depthWrite: true);
-            batch.Begin();
-            {
-                DrawBackgroundNebulaWithStars(batch);
-                //batch.Draw(BackgroundTexture, ScreenRect);
-            }
-            batch.End();
+            DrawBackgroundNebulaWithStars();
 
             RenderStates.BasicBlendMode(Universe.Device, additive: false, depthWrite: true);
             // draw some extra colorful stars, scattered across the background
             StarField.Draw(cameraPos, batch);
         }
 
-        void DrawBackgroundNebulaWithStars(SpriteBatch batch)
+        void DrawBackgroundNebulaWithStars()
         {
             Texture2D nebula = BackgroundNebula;
             if (nebula == null)
@@ -103,7 +108,7 @@ namespace Ship_Game
             // this will make the background nebula move slightly with the camera
             double movementSensitivity = 0.05;
 
-            var backgroundPos = new Vector3d(
+            var backgroundPos = new SDGraphics.Vector3d(
                 Universe.CamPos.X * (1.0 - movementSensitivity),
                 Universe.CamPos.Y * (1.0 - movementSensitivity),
                 backgroundDepth
@@ -111,15 +116,11 @@ namespace Ship_Game
 
             double uSize = Universe.UState.Size * sizeMod;
             Vector2d nebulaSize = SubTexture.GetAspectFill(nebula.Width, nebula.Height, uSize);
+            Vector2d starsSize = SubTexture.GetAspectFill(BackgroundStars.Width, BackgroundStars.Height, uSize);
 
-            RectF nebulaScreenRect = Universe.ProjectToScreenRectF(backgroundPos, nebulaSize);
-            batch.Draw(nebula, nebulaScreenRect);
-
-            var starsTex = ResourceManager.Texture("hqstarfield1");
-            Vector2d starsSize = SubTexture.GetAspectFill(starsTex.Width, starsTex.Height, uSize);
-
-            RectF starsScreenRect = Universe.ProjectToScreenRectF(backgroundPos, starsSize);
-            batch.Draw(starsTex, starsScreenRect, Color.White);
+            SR.Begin(Universe.View, Universe.Projection);
+            SR.Draw(nebula, backgroundPos.ToVec3f(), new SDGraphics.Vector2d(nebulaSize.X, nebulaSize.Y).ToVec2f(), Color.White);
+            SR.Draw(BackgroundStars, backgroundPos.ToVec3f(), new SDGraphics.Vector2d(starsSize.X, starsSize.Y).ToVec2f(), Color.White);
         }
     }
 }
