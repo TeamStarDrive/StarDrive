@@ -7,6 +7,7 @@ using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Ships.Legacy;
+using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Ships
 {

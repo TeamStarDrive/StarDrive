@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -180,7 +181,7 @@ namespace Ship_Game
 
                 StrIconRect = new Rectangle(e1.StrRect.X + e1.StrRect.Width / 2 - 6, ERect.Y, 18, 18);
                 SB_STR.rect = StrIconRect;
-                batch.Draw(ResourceManager.Texture("UI/icon_fighting_small"), StrIconRect, Color.White);                    
+                batch.Draw(ResourceManager.Texture("UI/icon_fighting_small"), StrIconRect, Color.White);
                 MaintRect = new Rectangle(e1.MaintRect.X + e1.MaintRect.Width / 2 - 7, ERect.Y - 2, 21, 20);
                 Maint.rect = MaintRect;
                 batch.Draw(ResourceManager.Texture("NewUI/icon_money"), MaintRect, Color.White);
@@ -188,14 +189,14 @@ namespace Ship_Game
                 SB_Troop.rect = TroopRect;
                 batch.Draw(ResourceManager.Texture("UI/icon_troop"), TroopRect, Color.White);
                 cursor = new Vector2(e1.FTLRect.X + e1.FTLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, ERect.Y - Fonts.Arial12Bold.LineSpacing + 18);
-                HelperFunctions.ClampVectorToInt(ref cursor);
+                cursor = cursor.ToFloored();
                 batch.DrawString(Fonts.Arial12Bold, "FTL", cursor, Colors.Cream);
                 FTL = new Rectangle(e1.FTLRect.X, ERect.Y - 20 + 35, e1.FTLRect.Width, 20);
                 SB_FTL.rect = FTL;
                 STL = new Rectangle(e1.STLRect.X, ERect.Y - 20 + 35, e1.STLRect.Width, 20);
                 SB_STL.rect = STL;
                 cursor = new Vector2(e1.STLRect.X + e1.STLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, ERect.Y - Fonts.Arial12Bold.LineSpacing + 18);
-                HelperFunctions.ClampVectorToInt(ref cursor);
+                cursor = cursor.ToFloored();
                 batch.DrawString(Fonts.Arial12Bold, "STL", cursor, Colors.Cream);
 
                 void DrawLine(int aX, int aY, int bX, int bY)

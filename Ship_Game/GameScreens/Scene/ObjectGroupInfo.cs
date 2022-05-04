@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.GameScreens.Scene
 {

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships.Legacy
 {

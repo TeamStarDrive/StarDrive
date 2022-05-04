@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
 using Ship_Game;
+using Vector3 = SDGraphics.Vector3;
 
 namespace UnitTests.Planets
 {

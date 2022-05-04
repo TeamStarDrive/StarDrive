@@ -6,6 +6,7 @@ using NAudio.CoreAudioApi;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using SynapseGaming.LightingSystem.Core;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

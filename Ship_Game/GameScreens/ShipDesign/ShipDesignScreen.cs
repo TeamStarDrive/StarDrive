@@ -13,6 +13,7 @@ using Ship_Game.Ships;
 using Ship_Game.Universe;
 
 using RectF = SDGraphics.RectF;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

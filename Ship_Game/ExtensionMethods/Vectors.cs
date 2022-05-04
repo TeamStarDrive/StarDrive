@@ -10,8 +10,9 @@ using Microsoft.Xna.Framework.Input;
 using SDGraphics;
 using Ship_Game.AI;
 using static System.Math;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
+using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Ship_Game
 {
@@ -147,25 +148,25 @@ namespace Ship_Game
         // shipUpVector is required to correctly calculate the result
         public static Vector3 RightVector(this in Vector3 direction, in Vector3 shipUpVector)
         {
-            return Vector3.Cross(direction, shipUpVector);
+            return direction.Cross(shipUpVector);
         }
 
         public static Vector3 LeftVector(this in Vector3 direction, in Vector3 shipUpVector)
         {
-            return -Vector3.Cross(direction, shipUpVector);
+            return -direction.Cross(shipUpVector);
         }
 
         // shipUpVector is required to correctly calculate the result
         public static Vector3 UpVector(this in Vector3 direction, in Vector3 shipUpVector)
         {
             var right = RightVector(direction, shipUpVector);
-            return Vector3.Cross(right, direction);
+            return right.Cross(direction);
         }
 
         public static Vector3 DownVector(this in Vector3 direction, in Vector3 shipUpVector)
         {
             var right = RightVector(direction, shipUpVector);
-            return -Vector3.Cross(right, direction);
+            return -right.Cross(direction);
         }
 
 
@@ -175,7 +176,7 @@ namespace Ship_Game
          */
         public static Vector3 RotateVector(this in Vector3 radians, in Vector3 point)
         {
-            return Vector3.Transform(point, radians.RadiansToRotMatrix());
+            return point.Transform(radians.RadiansToRotMatrix());
         }
 
         // "ArcDot" ?
@@ -211,61 +212,6 @@ namespace Ship_Game
             return new Vector3(/*roll:*/0f, (float)pitch, (float)yaw);
         }
 
-        
-        // Gets the Squared distance from source point a to destination b
-        // This is faster than Vector2.Distance()
-        [Pure] public static float SqDist(this Vector2 a, Vector2 b)
-        {
-            float dx = a.X - b.X;
-            float dy = a.Y - b.Y;
-            return dx*dx + dy*dy;
-        }
-
-        // Squared distance between two Vector3's
-        [Pure] public static float SqDist(this in Vector3 a, in Vector3 b)
-        {
-            float dx = a.X - b.X;
-            float dy = a.Y - b.Y;
-            float dz = a.Z - b.Z;
-            return dx*dx + dy*dy + dz*dz;
-        }
-
-
-        // Gets the accurate distance from source point a to destination b
-        // This is slower than Vector2.SqDist()
-
-        [Pure] public static float Distance(this in Vector2 a, Vector2 b)
-        {
-            float dx = a.X - b.X;
-            float dy = a.Y - b.Y;
-            return (float)Sqrt(dx*dx + dy*dy);
-        }
-
-        // Gets the accurate distance from source point a to destination b
-        // This is slower than Vector3.SqDist()
-        [Pure] public static float Distance(this in Vector3 a, in Vector3 b)
-        {
-            float dx = a.X - b.X;
-            float dy = a.Y - b.Y;
-            float dz = a.Z - b.Z;
-            return (float)Sqrt(dx*dx + dy*dy + dz*dz);
-        }
-
-        /// <summary>
-        /// Geometric explanation of the Dot product
-        /// When using two unit (direction) vectors a and b,
-        /// the dot product will give [-1; +1] relation of these two vectors, where 
-        /// +1: a and b are pointing in the same direction  --> -->
-        /// 0: a and b are perpendicular, not specifying if left or right, |_ or _|
-        /// -1: a and b are point in opposite directions --> <-- 
-        /// </summary>
-        [Pure] public static float Dot(this in Vector2 a, Vector2 b) => a.X*b.X + a.Y*b.Y;
-
-        /// <summary>
-        /// 3D Version of the Dot product, +1 same dir, 0 perpendicular in some axis, -1 opposite dirs
-        /// </summary>
-        [Pure] public static float Dot(this in Vector3 a, in Vector3 b) => a.X*b.X + a.Y*b.Y + a.Z*b.Z;
-
         /// <summary>
         /// Dot product which assumes Vectors a and b are both unit vectors
         /// The return value is always guaranteed to be within [-1; +1]
@@ -278,33 +224,6 @@ namespace Ship_Game
             return dot;
         }
 
-        [Pure] public static Vector3 Cross(this in Vector3 a, in Vector3 b)
-        {
-            Vector3 v;
-            v.X = (a.Y * b.Z - a.Z * b.Y);
-            v.Y = (a.Z * b.X - a.X * b.Z);
-            v.Z = (a.X * b.Y - a.Y * b.X);
-            return v;
-        }
-
-        [Pure] public static Vector2 Normalized(this in Vector2 v)
-        {
-            float len = (float)Sqrt(v.X*v.X + v.Y*v.Y);
-            return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : default;
-        }
-
-        [Pure] public static Vector2 Normalized(this in Vector2 v, float newMagnitude)
-        {
-            float len = (float)Sqrt(v.X*v.X + v.Y*v.Y) / newMagnitude;
-            return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : default;
-        }
-
-        [Pure] public static Vector3 Normalized(this in Vector3 v)
-        {
-            float len = (float)Sqrt(v.X*v.X + v.Y*v.Y + v.Z*v.Z);
-            return len > 0.0000001f ? new Vector3(v.X / len, v.Y / len, v.Z / len) : default;
-        }
-
         [Pure] public static void GetDirectionAndLength(this in Vector2 v, out Vector2 dir, out float len)
         {
             float l = (float)Sqrt(v.X*v.X + v.Y*v.Y);
@@ -312,9 +231,6 @@ namespace Ship_Game
             len = l;
         }
 
-        // True if this given position is within the radius of Circle [center,radius]
-        public static bool InRadius(this Vector2 position, Vector2 center, float radius)
-            => position.SqDist(center) <= radius*radius;
         public static bool InRadius(this Vector3 position, in Vector3 center, float radius)
             => position.SqDist(center) <= radius*radius;
         public static bool InRadius(this Vector3 position, Vector2 center, float radius)
@@ -327,17 +243,6 @@ namespace Ship_Game
             => position.SqDist(center) > radius*radius;
         public static bool OutsideRadius(this Vector3 position, in Vector3 center, float radius)
             => position.SqDist(center) > radius*radius;
-
-
-        // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f
-        public static Vector3 ToVec3(this Vector2 a) => new Vector3(a.X, a.Y, 0f);
-
-        // Widens this Vector2 to a Vector3, the new Z component is provided as argument
-        public static Vector3 ToVec3(this Vector2 a, float z) => new Vector3(a.X, a.Y, z);
-        public static Vector3d ToVec3d(this Vector2 a, double z) => new Vector3d(a.X, a.Y, z);
-
-        // Narrows this Vector3 to a Vector2, the Z component is truncated
-        public static Vector2 ToVec2(this Vector3 a) => new Vector2(a.X, a.Y);
 
         // Creates a new Rectangle from this Vector2, where Rectangle X, Y are the Vector2 X, Y
         public static Rectangle ToRect(this Vector2 a, int width, int height)

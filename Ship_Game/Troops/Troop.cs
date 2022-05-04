@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
 using Ship_Game.Data.Serialization;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

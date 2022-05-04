@@ -14,6 +14,7 @@ using System.Linq;
 using Ship_Game.Ships.AI;
 using static Ship_Game.AI.ShipAI;
 using Ship_Game.Fleets;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Debug
 {

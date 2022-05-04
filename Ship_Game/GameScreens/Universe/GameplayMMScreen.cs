@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

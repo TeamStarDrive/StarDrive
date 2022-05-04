@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
+using Vector2 = SDGraphics.Vector2;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

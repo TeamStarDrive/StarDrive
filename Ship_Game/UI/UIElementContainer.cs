@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {

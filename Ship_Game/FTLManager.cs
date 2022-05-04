@@ -9,8 +9,8 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.UI.Effects;
 using Ship_Game.Utils;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game
 {
@@ -90,7 +90,7 @@ namespace Ship_Game
                 {
                     Vector3 start = position + Offset;
                     Vector3 end   = position - Offset;
-                    WorldPos = start.LerpTo(end, Time / FTL.Duration);
+                    WorldPos = start.Lerp(end, Time / FTL.Duration);
                 }
                 return false;
             }

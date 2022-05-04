@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -254,8 +255,8 @@ namespace Ship_Game
                 if (Input.StartRightHold.OutsideRadius(Input.CursorPosition, 10f))
                 {
                     CamVelocity = Input.CursorPosition.DirectionToTarget(Input.StartRightHold);
-                    CamVelocity = Vector2.Normalize(CamVelocity) *
-                                  Vector2.Distance(Input.StartRightHold, Input.CursorPosition);
+                    CamVelocity = CamVelocity.Normalized() *
+                                  Input.StartRightHold.Distance(Input.CursorPosition);
                 }
                 else
                 {
@@ -269,7 +270,7 @@ namespace Ship_Game
 
             if (CamVelocity.Length() > 150f)
             {
-                CamVelocity = Vector2.Normalize(CamVelocity) * 150f;
+                CamVelocity = CamVelocity.Normalized(150f);
             }
 
             if (float.IsNaN(CamVelocity.X) || float.IsNaN(CamVelocity.Y))
@@ -390,7 +391,7 @@ namespace Ship_Game
             {
                 foreach (ClickableNode node in ClickableNodes)
                 {
-                    if (Vector2.Distance(input.CursorPosition, node.ScreenPos) > node.Radius)
+                    if (input.CursorPosition.Distance(node.ScreenPos) > node.Radius)
                     {
                         continue;
                     }
@@ -519,7 +520,7 @@ namespace Ship_Game
                 Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
                     pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
                 Vector2 newspot = new Vector2(pickedPosition.X, pickedPosition.Y);
-                if (Vector2.Distance(newspot, SelectedNodeList[0].FleetOffset) > 1000f)
+                if (newspot.Distance(SelectedNodeList[0].FleetOffset) > 1000f)
                 {
                     return;
                 }
@@ -537,7 +538,7 @@ namespace Ship_Game
 
                 foreach (ClickableSquad cs in ClickableSquads)
                 {
-                    if (Vector2.Distance(cs.ScreenPos, mousePosition) >= 5f ||
+                    if (cs.ScreenPos.Distance(mousePosition) >= 5f ||
                         cs.Squad.DataNodes.Contains(SelectedNodeList[0]))
                     {
                         continue;

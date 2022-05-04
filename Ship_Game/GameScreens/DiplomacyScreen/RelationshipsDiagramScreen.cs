@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.UI;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
 {

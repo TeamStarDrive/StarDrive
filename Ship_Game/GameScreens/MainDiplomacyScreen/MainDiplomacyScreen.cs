@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.DiplomacyScreen;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -631,26 +632,26 @@ namespace Ship_Game
 
         private void DrawBadStat(string text, string text2, ref Vector2 Position)
         {
-            HelperFunctions.ClampVectorToInt(ref Position);
+            Position = Position.ToFloored();
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, Color.LightPink);
             Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
             //{
             nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(text2).X;
             //};
-            HelperFunctions.ClampVectorToInt(ref nPos);
+            nPos = nPos.ToFloored();
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.LightPink);
             Position.Y = Position.Y + (Fonts.Arial12Bold.LineSpacing + 2);
         }
 
         private void DrawGoodStat(string text, string text2, ref Vector2 Position)
         {
-            HelperFunctions.ClampVectorToInt(ref Position);
+            Position = Position.ToFloored();
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, Color.LightGreen);
             Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
             //{
             nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(text2).X;
             //};
-            HelperFunctions.ClampVectorToInt(ref nPos);
+            nPos = nPos.ToFloored();
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.LightGreen);
             Position.Y = Position.Y + (Fonts.Arial12Bold.LineSpacing + 2);
         }
@@ -670,27 +671,27 @@ namespace Ship_Game
             {
                 color = (value == 0f ? Color.White : Color.LightPink);
             }
-            HelperFunctions.ClampVectorToInt(ref Position);
+            Position = Position.ToFloored();
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, color);
 
             string valuePercent = value.ToString("#.##")+"%";
             var nPos = new Vector2(Position.X + 310f, Position.Y);
             nPos.X -= Fonts.Arial12Bold.MeasureString(valuePercent).X;
 
-            HelperFunctions.ClampVectorToInt(ref nPos);
+            nPos = nPos.ToFloored();
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, valuePercent, nPos, color);
             Position.Y += Fonts.Arial12Bold.LineSpacing;
         }
 
         private void DrawStat(string text, string text2, ref Vector2 Position)
         {
-            HelperFunctions.ClampVectorToInt(ref Position);
+            Position = Position.ToFloored();
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, Color.White);
             Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
             //{
                 nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(text2).X;
             //};
-            HelperFunctions.ClampVectorToInt(ref nPos);
+            nPos = nPos.ToFloored();
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text2, nPos, Color.White);
             Position.Y = Position.Y + (Fonts.Arial12Bold.LineSpacing + 2);
         }

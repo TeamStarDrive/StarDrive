@@ -13,6 +13,8 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.SpriteSystem;
 using System.Diagnostics;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -135,8 +137,8 @@ namespace Ship_Game.Universe.SolarBodies
 
         static Vector2 ScreenPosition(Vector2 pos, in Matrix view, in Matrix projection)
         {
-            return GameBase.Viewport.Project(pos.ToVec3(), 
-                            projection, view, Matrix.Identity).ToVec2();
+            return new Vector3(GameBase.Viewport.Project(pos.ToVec3(), 
+                            projection, view, Matrix.Identity)).ToVec2();
         }
 
         public void DrawLowResSun(SpriteBatch batch, SolarSystem sys, in Matrix view, in Matrix projection)

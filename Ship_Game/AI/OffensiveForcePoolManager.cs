@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {
@@ -50,15 +50,15 @@ namespace Ship_Game.AI
                 float aoSize = 0;
                 foreach (SolarSystem system in coreWorld.ParentSystem.FiveClosestSystems)
                 {
-                    if (aoSystems.Contains(system)) continue;                                       
-                    if (aoSize < Vector2.Distance(coreWorld.Center, system.Position))
-                        aoSize = Vector2.Distance(coreWorld.Center, system.Position);
+                    if (aoSystems.Contains(system)) continue;
+                    if (aoSize < coreWorld.Center.Distance(system.Position))
+                        aoSize = coreWorld.Center.Distance(system.Position);
                 }          
                 bool flag1 = true;
                 foreach (AO areasOfOperation2 in EmpireAI.AreasOfOperations)
                 {
 
-                    if (Vector2.Distance(areasOfOperation2.GetPlanet().Center, coreWorld.Center) >= aoSize)
+                    if (areasOfOperation2.GetPlanet().Center.Distance(coreWorld.Center) >= aoSize)
                         continue;
                     flag1 = false;
                     break;

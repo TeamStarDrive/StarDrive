@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
 using Ship_Game;
+using Vector2 = SDGraphics.Vector2;
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace UnitTests.LinearAlgebra
 {
@@ -22,8 +23,8 @@ namespace UnitTests.LinearAlgebra
         public void Distance()
         {
             // test for consistency; reference implementations from XNA
-            float dist1   = Vector2.Distance(A, B);
-            float sqdist1 = Vector2.DistanceSquared(A, B);
+            float dist1   = XnaVector2.Distance(A, B);
+            float sqdist1 = XnaVector2.DistanceSquared(A, B);
             float dist2   = A.Distance(B);
             float sqdist2 = A.SqDist(B);
             Assert.AreEqual(dist1,   dist2,       MaxErr, "MathExt.Distance is inconsistent");

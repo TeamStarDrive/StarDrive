@@ -13,17 +13,12 @@ using Ship_Game.Fleets;
 using Ship_Game.Graphics;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
     internal static class HelperFunctions
     {
-        public static void ClampVectorToInt(ref Vector2 pos)
-        {
-            pos.X = (int)pos.X;
-            pos.Y = (int)pos.Y;
-        }
-
         public static bool ClickedRect(Rectangle toClick, InputState input)
         {
             return input.InGameSelect && toClick.HitTest(input.CursorPosition);

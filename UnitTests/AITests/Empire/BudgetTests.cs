@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.AI.Compnonents;
+using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Empire
 {

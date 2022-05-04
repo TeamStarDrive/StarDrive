@@ -1,9 +1,10 @@
-using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using Ship_Game.Empires;
 using Ship_Game.Spatial;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 
 namespace Ship_Game.AI

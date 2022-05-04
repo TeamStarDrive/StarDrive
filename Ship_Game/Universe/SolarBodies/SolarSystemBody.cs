@@ -10,6 +10,8 @@ using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

@@ -1,6 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using Ship_Game.AI.ShipMovement;
+﻿using Ship_Game.AI.ShipMovement;
 using Ship_Game.AI.ShipMovement.CombatManeuvers;
+using Vector2 = SDGraphics.Vector2;
 
 
 namespace Ship_Game.AI.CombatTactics

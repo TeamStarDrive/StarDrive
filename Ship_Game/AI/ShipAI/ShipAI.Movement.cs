@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Ships.AI;
@@ -6,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Fleets;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {
@@ -117,7 +117,7 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
 
-            if (position.LengthSquared() < 4.0f)
+            if (position.SqLen() < 4.0f)
                 Log.Error($"SubLightMoveTowardsPosition: invalid position {position}");
 
             if (speedLimit <= 0f)

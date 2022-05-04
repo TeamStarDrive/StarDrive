@@ -3,12 +3,12 @@
 // MVID: C34284EE-F947-460F-BF1D-3C6685B19387
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
 
-using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
 using Ship_Game.Universe;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {

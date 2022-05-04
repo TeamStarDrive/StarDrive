@@ -6,6 +6,8 @@ using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Graphics;
 using SynapseGaming.LightingSystem.Lights;
+using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Universe.SolarBodies
 {

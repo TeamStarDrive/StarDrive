@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Ship_Game.Audio;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Gameplay
 {

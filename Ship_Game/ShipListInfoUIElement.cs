@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -173,7 +174,7 @@ namespace Ship_Game
                 text = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 155f);
                 Vector2 shipStatus = new Vector2(Selector.Rect.X + Selector.Rect.Width - 168, Housing.Y + 64);
                 text = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 120f);
-                HelperFunctions.ClampVectorToInt(ref shipStatus);
+                shipStatus = shipStatus.ToFloored();
                 batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
                 shipStatus.Y = shipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
                 batch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);

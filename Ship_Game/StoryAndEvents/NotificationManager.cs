@@ -5,6 +5,7 @@ using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
@@ -826,7 +827,7 @@ namespace Ship_Game
                     {
                         Vector2 msgSize = Fonts.Arial12Bold.MeasureString(n.Message);
                         Vector2 cursor = new Vector2(n.ClickRect.X - msgSize.X - 3f, n.ClickRect.Y + 32 - msgSize.Y / 2f);
-                        HelperFunctions.ClampVectorToInt(ref cursor);
+                        cursor = cursor.ToFloored();
                         batch.DrawString(Fonts.Arial12Bold, n.Message, cursor, n.Pause ? Color.Red : Color.White);
                     }
                 }

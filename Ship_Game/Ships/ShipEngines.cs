@@ -1,5 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using Ship_Game.AI;
+﻿using Ship_Game.AI;
+using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships
 {
