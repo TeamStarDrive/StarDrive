@@ -7,8 +7,6 @@ namespace Ship_Game
 {
     public sealed class Background : IDisposable
     {
-        readonly Camera2D Camera = new Camera2D();
-
         StarField StarField;
         //Texture2D BackgroundTexture;
         readonly UniverseScreen Universe;
@@ -63,7 +61,7 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch batch)
         {
-            Camera.Pos = new Vector2(
+            var cameraPos = new Vector2(
                 (float)(Universe.CamPos.X / 500000.0) * (Width / 10.0f),
                 (float)(Universe.CamPos.Y / 500000.0) * (Height / 10.0f)
             );
@@ -86,7 +84,7 @@ namespace Ship_Game
 
             RenderStates.BasicBlendMode(Universe.Device, additive: false, depthWrite: true);
             // draw some extra colorful stars, scattered across the background
-            StarField.Draw(Camera.Pos, batch);
+            StarField.Draw(cameraPos, batch);
         }
 
         void DrawBackgroundNebulaWithStars(SpriteBatch batch)

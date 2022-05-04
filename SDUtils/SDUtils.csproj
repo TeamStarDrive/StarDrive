@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Memory.cs" />
     <Compile Include="NumberExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

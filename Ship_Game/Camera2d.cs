@@ -5,7 +5,6 @@ namespace Ship_Game
     public sealed class Camera2D
     {
         private Matrix WorldMatrix;
-        private Matrix InverseWorld;
         private bool Changed = true;
 
         private Vector2 CamPos = Vector2.Zero;
@@ -41,14 +40,11 @@ namespace Ship_Game
             }
         }
 
-        private static Vector3 ScreenCenter => new Vector3(GameBase.ScreenCenter, 0f);
-
         private void UpdateTransform()
         {
             WorldMatrix = Matrix.CreateTranslation(new Vector3(-CamPos.X, -CamPos.Y, 0f))
                         * Matrix.CreateScale(new Vector3(CamZoom, CamZoom, 1f))
-                        * Matrix.CreateTranslation(ScreenCenter);
-            Matrix.Invert(ref WorldMatrix, out InverseWorld);
+                        * Matrix.CreateTranslation(new Vector3(GameBase.ScreenCenter, 0f));
         }
 
         public Matrix Transform
