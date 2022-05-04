@@ -4,12 +4,15 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using SDGraphics;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
-
+using Matrix = Microsoft.Xna.Framework.Matrix;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 using Vector2d = SDGraphics.Vector2d;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 using Vector3d = SDGraphics.Vector3d;
 
 namespace Ship_Game
