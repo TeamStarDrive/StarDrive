@@ -215,8 +215,6 @@
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExclude.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFilterSelect.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\Vector2d.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\Vector3d.cs" />
     <Compile Include="Ship_Game\Gameplay\WeaponTag.cs" />
     <Compile Include="Ship_Game\Gameplay\IWeaponTemplate.cs" />
     <Compile Include="Ship_Game\Gameplay\PhysicsObject.cs" />

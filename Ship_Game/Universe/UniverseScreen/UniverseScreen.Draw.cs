@@ -9,6 +9,9 @@ using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
 
+using Vector2d = SDGraphics.Vector2d;
+using Vector3d = SDGraphics.Vector3d;
+
 namespace Ship_Game
 {
     public partial class UniverseScreen

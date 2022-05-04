@@ -1,8 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDGraphics.Sprites;
 using Ship_Game.Graphics;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game
 {
@@ -119,8 +121,8 @@ namespace Ship_Game
             Vector2d starsSize = SubTexture.GetAspectFill(BackgroundStars.Width, BackgroundStars.Height, uSize);
 
             SR.Begin(Universe.View, Universe.Projection);
-            SR.Draw(nebula, backgroundPos.ToVec3f(), new SDGraphics.Vector2d(nebulaSize.X, nebulaSize.Y).ToVec2f(), Color.White);
-            SR.Draw(BackgroundStars, backgroundPos.ToVec3f(), new SDGraphics.Vector2d(starsSize.X, starsSize.Y).ToVec2f(), Color.White);
+            SR.Draw(nebula, backgroundPos.ToVec3f(), nebulaSize.ToVec2f(), Color.White);
+            SR.Draw(BackgroundStars, backgroundPos.ToVec3f(), starsSize.ToVec2f(), Color.White);
         }
     }
 }

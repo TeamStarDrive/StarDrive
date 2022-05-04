@@ -12,6 +12,9 @@ using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 
+using Vector2d = SDGraphics.Vector2d;
+using Vector3d = SDGraphics.Vector3d;
+
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {

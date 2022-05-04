@@ -4,9 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+using SDGraphics;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game.GameScreens.NewGame
 {

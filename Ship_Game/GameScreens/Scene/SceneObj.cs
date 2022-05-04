@@ -1,13 +1,14 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Ship_Game.GameScreens.Scene
 {
