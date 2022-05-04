@@ -1,7 +1,8 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using SDGraphics;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game
 {

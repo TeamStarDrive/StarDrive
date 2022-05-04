@@ -1,8 +1,12 @@
 using System;
 using Microsoft.Xna.Framework;
+using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
+using Matrix = Microsoft.Xna.Framework.Matrix;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Ship_Game
 {
@@ -255,7 +259,7 @@ namespace Ship_Game
                     CamPos = CamPos.SmoothStep(CamDestination, amount);
 
                     if (transitionElapsedTime > transDuration ||
-                        CamPos.ToVec2f().Distance(CamDestination.ToVec2f()) < 50f &&
+                        CamPos.ToVec2f().Distance(CamDestination.ToVec2d()) < 50f &&
                         Math.Abs(CamPos.Z - CamDestination.Z) < 50f)
                     {
                         transitionElapsedTime = 0.0f;

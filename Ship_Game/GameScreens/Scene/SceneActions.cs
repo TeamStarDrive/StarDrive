@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+using SDGraphics;
 using Ship_Game.AI.ShipMovement;
 using Ship_Game.GameScreens.MainMenu;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace Ship_Game.GameScreens.Scene
 {

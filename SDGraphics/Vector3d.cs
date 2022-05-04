@@ -3,6 +3,9 @@ using System.Diagnostics.Contracts;
 using SDUtils;
 
 namespace SDGraphics;
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+using XnaVector3 = Microsoft.Xna.Framework.Vector3;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 // Double precision Vector3
 public struct Vector3d
@@ -34,7 +37,21 @@ public struct Vector3d
         Z = v.Z;
     }
 
+    public Vector3d(in XnaVector3 v)
+    {
+        X = v.X;
+        Y = v.Y;
+        Z = v.Z;
+    }
+
     public Vector3d(in Vector2 v, double z)
+    {
+        X = v.X;
+        Y = v.Y;
+        Z = z;
+    }
+
+    public Vector3d(in XnaVector2 v, double z)
     {
         X = v.X;
         Y = v.Y;
@@ -53,6 +70,7 @@ public struct Vector3d
 
     [Pure] public Vector2 ToVec2f() => new Vector2((float)X, (float)Y);
     [Pure] public Vector3 ToVec3f() => new Vector3((float)X, (float)Y, (float)Z);
+    [Pure] public Vector2d ToVec2d() => new Vector2d(X, Y);
     [Pure] public double Length() => Math.Sqrt(X*X + Y*Y + Z*Z);
 
     [Pure] public Vector3d Normalized(double newMagnitude)
@@ -80,6 +98,14 @@ public struct Vector3d
     }
 
     [Pure] public Vector3d Transform(in Matrix matrix)
+    {
+        double x = (X*matrix.M11 + Y*matrix.M21 + Z*matrix.M31) + matrix.M41;
+        double y = (X*matrix.M12 + Y*matrix.M22 + Z*matrix.M32) + matrix.M42;
+        double z = (X*matrix.M13 + Y*matrix.M23 + Z*matrix.M33) + matrix.M43;
+        return new Vector3d(x, y, z);
+    }
+
+    [Pure] public Vector3d Transform(in XnaMatrix matrix)
     {
         double x = (X*matrix.M11 + Y*matrix.M21 + Z*matrix.M31) + matrix.M41;
         double y = (X*matrix.M12 + Y*matrix.M22 + Z*matrix.M32) + matrix.M42;

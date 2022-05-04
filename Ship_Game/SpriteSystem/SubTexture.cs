@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using Vector2d = SDGraphics.Vector2d;
+using Vector3d = SDGraphics.Vector3d;
+
 namespace Ship_Game
 {
     public class SubTexture

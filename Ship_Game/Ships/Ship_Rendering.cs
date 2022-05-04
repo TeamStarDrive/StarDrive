@@ -1,9 +1,12 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
+using Matrix = Microsoft.Xna.Framework.Matrix;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game.Ships
 {
