@@ -2,18 +2,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using SDGraphics;
-using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Matrix = Microsoft.Xna.Framework.Matrix;
-using Point = Microsoft.Xna.Framework.Point;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
-
-using XnaVector2 = Microsoft.Xna.Framework.Vector2;
-using XnaVector3 = Microsoft.Xna.Framework.Vector3;
-using XnaMatrix = Microsoft.Xna.Framework.Matrix;
-using XnaQuaternion = Microsoft.Xna.Framework.Quaternion;
-using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
-using GraphicsDeviceManager = Microsoft.Xna.Framework.GraphicsDeviceManager;
 
 namespace Ship_Game
 {
