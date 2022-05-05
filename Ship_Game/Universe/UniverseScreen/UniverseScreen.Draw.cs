@@ -14,7 +14,7 @@ using Vector2d = SDGraphics.Vector2d;
 using Vector3 = SDGraphics.Vector3;
 using Vector3d = SDGraphics.Vector3d;
 using Ship_Game.ExtensionMethods;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {

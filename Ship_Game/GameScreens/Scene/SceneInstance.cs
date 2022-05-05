@@ -15,7 +15,7 @@ using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Matrix = SDGraphics.Matrix;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.GameScreens.Scene
 {

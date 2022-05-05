@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Graphics;
 using SDGraphics;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 using Matrix = SDGraphics.Matrix;
 
 namespace Ship_Game.UI

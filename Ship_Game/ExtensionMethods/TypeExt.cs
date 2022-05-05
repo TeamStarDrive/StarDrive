@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using SDGraphics;
 using Vector4 = Microsoft.Xna.Framework.Vector4;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {

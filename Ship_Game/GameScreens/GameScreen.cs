@@ -13,7 +13,7 @@ using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 
 using Matrix = SDGraphics.Matrix;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;

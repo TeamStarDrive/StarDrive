@@ -9,7 +9,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using XnaRect = Microsoft.Xna.Framework.Rectangle;
+using XnaRect = SDGraphics.Rectangle;
 using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
 using BoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
 using ContainmentType = Microsoft.Xna.Framework.ContainmentType;

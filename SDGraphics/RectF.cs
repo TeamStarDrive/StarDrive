@@ -91,6 +91,16 @@ public struct RectF
         H = r.Height;
     }
 
+    public static implicit operator XnaRect(in RectF r)
+    {
+        return new XnaRect((int)r.X, (int)r.Y, (int)r.W, (int)r.H);
+    }
+
+    public static implicit operator Rectangle(in RectF r)
+    {
+        return new Rectangle((int)r.X, (int)r.Y, (int)r.W, (int)r.H);
+    }
+
     /// <summary>
     /// This creates a rectangle from points X1Y1 X2Y2, instead of TopLeftXY+WidthHeight
     /// o------o- y1
@@ -139,11 +149,6 @@ public struct RectF
     public static RectF FromCenter(in Vector2d center, double width, double height)
     {
         return new RectF(center.X - width * 0.5, center.Y - height * 0.5, width, height);
-    }
-
-    public static implicit operator XnaRect(in RectF r)
-    {
-        return new XnaRect((int)r.X, (int)r.Y, (int)r.W, (int)r.H);
     }
 
     [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]

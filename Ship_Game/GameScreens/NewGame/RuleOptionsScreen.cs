@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {

@@ -17,7 +17,6 @@ using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
 using SDGraphics;
 
 namespace Ship_Game
@@ -51,16 +50,16 @@ namespace Ship_Game
     public struct RectangleData
     {
         [StarData] public int X, Y, Width, Height;
-        public RectangleData(in XnaRectangle r)
+        public RectangleData(in Rectangle r)
         {
             X = r.X;
             Y = r.Y;
             Width = r.Width;
             Height = r.Height;
         }
-        public static implicit operator XnaRectangle(RectangleData r)
+        public static implicit operator Rectangle(RectangleData r)
         {
-            return new XnaRectangle(r.X, r.Y, r.Width, r.Height);
+            return new Rectangle(r.X, r.Y, r.Width, r.Height);
         }
     }
 
