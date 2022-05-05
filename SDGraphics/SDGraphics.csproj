@@ -46,6 +46,7 @@
     <Compile Include="Capsule.cs" />
     <Compile Include="MathExt.cs" />
     <Compile Include="Matrix.cs" />
+    <Compile Include="Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RadMath.cs" />
     <Compile Include="Range.cs" />

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using SDGraphics;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 
 namespace Ship_Game.Ships.Legacy
 {

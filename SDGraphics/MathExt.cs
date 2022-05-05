@@ -2,8 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using static System.Math;
 
-using Point = Microsoft.Xna.Framework.Point;
-
 namespace SDGraphics;
 
 // Added by RedFox
@@ -192,8 +190,6 @@ public static class MathExt
     /// <returns>Copy of this Color with a new alpha value</returns>
     public static Color Alpha(this Color color, float newAlpha)
         => new Color(color, newAlpha);
-
-    public static bool IsDiagonalTo(this Point a, Point b) => Abs(b.X - a.X) > 0 && Abs(b.Y - a.Y) > 0;
 
     // Rotates an existing direction vector by another direction vector
     // For this we convert to radians, yielding:

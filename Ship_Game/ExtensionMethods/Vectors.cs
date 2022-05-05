@@ -9,7 +9,7 @@ using static System.Math;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Rectangle = SDGraphics.Rectangle;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 
 namespace Ship_Game
 {

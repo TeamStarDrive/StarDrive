@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using SDGraphics;
 using Ship_Game.GameScreens.DiplomacyScreen;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
