@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
 
 namespace Ship_Game
 {

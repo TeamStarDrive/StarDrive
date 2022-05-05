@@ -1,5 +1,4 @@
 using SDGraphics;
-using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {

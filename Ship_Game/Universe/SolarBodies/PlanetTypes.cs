@@ -3,7 +3,7 @@ using System.IO;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
 
 namespace Ship_Game.Universe.SolarBodies
 {

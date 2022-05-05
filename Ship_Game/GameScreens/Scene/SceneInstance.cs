@@ -11,9 +11,10 @@ using Ship_Game.Graphics.Particles;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
+using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.GameScreens.Scene
@@ -115,7 +116,7 @@ namespace Ship_Game.GameScreens.Scene
             };
 
             light.ShadowType = ShadowType.AllObjects;
-            light.World = Matrix.CreateTranslation(light.Position);
+            light.World = Matrix.CreateTranslation((Vector3)light.Position);
             Screen.AddLight(light, dynamic:false);
         }
 

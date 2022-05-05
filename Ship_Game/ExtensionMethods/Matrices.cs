@@ -10,9 +10,9 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
+using Matrix = SDGraphics.Matrix;
 
 using Viewport = Microsoft.Xna.Framework.Graphics.Viewport;
-using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {

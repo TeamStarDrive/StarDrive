@@ -7,7 +7,6 @@ using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using SDGraphics;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
-using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {

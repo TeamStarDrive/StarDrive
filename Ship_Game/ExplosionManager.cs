@@ -6,13 +6,10 @@ using SDGraphics;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
-using Ship_Game.Ships;
 using Ship_Game.SpriteSystem;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
-using Matrix = Microsoft.Xna.Framework.Matrix;
-using Vector2 = SDGraphics.Vector2;
-using Vector3 = SDGraphics.Vector3;
+
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game

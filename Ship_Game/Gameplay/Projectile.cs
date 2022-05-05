@@ -12,7 +12,8 @@ using Ship_Game.Universe;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+
+using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
@@ -633,7 +634,7 @@ namespace Ship_Game.Gameplay
                 else if (Light != null && Weapon.Light != null && LightWasAddedToSceneGraph)
                 {
                     Light.Position = pos3d;
-                    Light.World = Matrix.CreateTranslation(Light.Position);
+                    Light.World = Matrix.CreateTranslation((Vector3)Light.Position);
                 }
             }
 

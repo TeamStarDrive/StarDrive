@@ -12,7 +12,7 @@ using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;

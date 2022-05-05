@@ -6,7 +6,6 @@ using SgMotion;
 using Ship_Game.Data.Texture;
 using SynapseGaming.LightingSystem.Effects;
 using SDGraphics;
-using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game.Data.Mesh
 {
@@ -69,7 +68,7 @@ namespace Ship_Game.Data.Mesh
             for (int i = 0; i < allBones; ++i)
             {
                 ModelBone b = model.Bones[i];
-                SDMeshAddBone(mesh, b.Name, b.Index, b.Parent?.Index ?? -1, b.Transform);
+                SDMeshAddBone(mesh, b.Name, b.Index, b.Parent?.Index ?? -1, new Matrix(b.Transform));
             }
 
             int animatedBones = animBones.Count;
@@ -84,7 +83,7 @@ namespace Ship_Game.Data.Mesh
                     Scale = new Vector3(pose.Scale)
                 };
                 SDMeshAddSkinnedBone(mesh, bone.Name, bone.Index, bone.Parent?.Index ?? -1,
-                                     sdPose, bone.InverseBindPoseTransform);
+                                     sdPose, new Matrix(bone.InverseBindPoseTransform));
             }
 
             AnimationClip[] clips = animClips.Values.Sorted(clip => clip.Name);
@@ -127,7 +126,7 @@ namespace Ship_Game.Data.Mesh
             Map<Effect, long> materials = ExportMaterials(mesh, modelExportDir, meshes);
             foreach (ModelMesh modelMesh in meshes)
             {
-                Matrix transform = modelMesh.ParentBone.Transform;
+                Matrix transform = new Matrix(modelMesh.ParentBone.Transform);
 
                 for (int i = 0; i < modelMesh.MeshParts.Count; ++i)
                 {
