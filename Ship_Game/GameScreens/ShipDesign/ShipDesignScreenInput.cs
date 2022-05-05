@@ -8,7 +8,7 @@ using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

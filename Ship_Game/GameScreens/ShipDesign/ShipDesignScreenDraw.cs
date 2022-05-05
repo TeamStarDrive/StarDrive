@@ -9,7 +9,7 @@ using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

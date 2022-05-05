@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using SDGraphics;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 using Vector4 = Microsoft.Xna.Framework.Vector4;
 
 namespace UnitTests

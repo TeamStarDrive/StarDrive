@@ -1,6 +1,6 @@
 ﻿using System;
 using Ship_Game.Gameplay;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 
 namespace Ship_Game.Ships
 {

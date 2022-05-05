@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 
 namespace Ship_Game.Ships
 {
