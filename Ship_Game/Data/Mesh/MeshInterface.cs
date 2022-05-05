@@ -10,7 +10,6 @@ using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 using XnaQuaternion = Microsoft.Xna.Framework.Quaternion;
 using BoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
-using Matrix = Microsoft.Xna.Framework.Matrix;
 
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable FieldCanBeMadeReadOnly.Local

@@ -13,7 +13,8 @@ using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using GraphicsDeviceManager = Microsoft.Xna.Framework.GraphicsDeviceManager;
 
 namespace Ship_Game
@@ -283,7 +284,9 @@ namespace Ship_Game
             SubmitPendingObjects(SceneInter.ObjectManager, PendingObjects);
             SubmitPendingLights(SceneInter.LightManager, PendingLights);
 
-            GameSceneState.BeginFrameRendering(ref view, ref projection,
+            XnaMatrix xnaView = view;
+            XnaMatrix xnaProj = projection;
+            GameSceneState.BeginFrameRendering(ref xnaView, ref xnaProj,
                                                elapsed.RealTime.Seconds, Environment, true);
             SceneInter.BeginFrameRendering(GameSceneState);
         }

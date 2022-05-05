@@ -16,7 +16,7 @@ using Ship_Game.Universe;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
@@ -283,7 +283,7 @@ namespace Ship_Game
             if (shadowQuality > 0f)
                 light.ShadowType = ShadowType.AllObjects;
 
-            light.World = Matrix.CreateTranslation(light.Position);
+            light.World = Matrix.CreateTranslation((Vector3)light.Position);
             AddLight(light, dynamic:false);
             return light;
         }

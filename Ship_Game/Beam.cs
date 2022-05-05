@@ -10,7 +10,6 @@ using Ship_Game.Graphics;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {
@@ -158,7 +157,7 @@ namespace Ship_Game
 
             device.VertexDeclaration = QuadVertexDecl;
             BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
-            BeamEffect.Parameters["World"].SetValue(XnaMatrix.Identity);
+            BeamEffect.Parameters["World"].SetValue(Matrix.XnaIdentity);
             string beamTexPath = "Beams/" + Weapon.BeamTexture;
             BeamEffect.Parameters["tex"].SetValue(ResourceManager.Texture(beamTexPath).Texture);
             Displacement -= 0.05f;

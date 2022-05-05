@@ -6,7 +6,8 @@ using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector4 = Microsoft.Xna.Framework.Vector4;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {
@@ -35,7 +36,7 @@ namespace Ship_Game
 
         public Matrix world_matrix;
         public Matrix inverse_scale_transpose;
-        public Matrix[] matrices_combined = new Matrix[3];
+        public XnaMatrix[] matrices_combined = new XnaMatrix[3];
 
         public Thruster()
         {

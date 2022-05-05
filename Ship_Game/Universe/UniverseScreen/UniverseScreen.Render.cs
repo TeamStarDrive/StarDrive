@@ -7,8 +7,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Graphics;
 using Ship_Game.Ships;
 using Ship_Game.ExtensionMethods;
-using Matrix = Microsoft.Xna.Framework.Matrix;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Vector3 = SDGraphics.Vector3;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
@@ -110,25 +109,15 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Begin();
             for (int index = 0; index < 41; ++index)
             {
-                Vector3 vector3_1 = Viewport.Project(
-                    new Vector3((float) (index * (double) UState.Size / 40.0), 0.0f, 0.0f), Projection,
-                    View, Matrix.Identity);
-                Vector3 vector3_2 = Viewport.Project(
-                    new Vector3((float) (index * (double) UState.Size / 40.0), UState.Size, 0.0f),
-                    Projection, View, Matrix.Identity);
-                ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
-                    new Vector2(vector3_2.X, vector3_2.Y), new Color(211, 211, 211, 70));
+                Vector2d a = ProjectToScreenPosition(new Vector3((float)(index * (double)UState.Size / 40.0), 0f, 0f));
+                Vector2d b = ProjectToScreenPosition(new Vector3((float)(index * (double)UState.Size / 40.0), UState.Size, 0f));
+                ScreenManager.SpriteBatch.DrawLine(a, b, new Color(211, 211, 211, 70));
             }
             for (int index = 0; index < 41; ++index)
             {
-                Vector3 vector3_1 = Viewport.Project(
-                    new Vector3(0.0f, (float) (index * (double) UState.Size / 40.0), 40f), Projection,
-                    View, Matrix.Identity);
-                Vector3 vector3_2 = Viewport.Project(
-                    new Vector3(UState.Size, (float) (index * (double) UState.Size / 40.0), 0.0f),
-                    Projection, View, Matrix.Identity);
-                ScreenManager.SpriteBatch.DrawLine(new Vector2(vector3_1.X, vector3_1.Y),
-                    new Vector2(vector3_2.X, vector3_2.Y), new Color(211, 211, 211, 70));
+                Vector2d a = ProjectToScreenPosition(new Vector3(0f, (float)(index * (double)UState.Size / 40.0), 40f));
+                Vector2d b = ProjectToScreenPosition(new Vector3(UState.Size, (float)(index * (double)UState.Size / 40.0), 0f));
+                ScreenManager.SpriteBatch.DrawLine(a, b, new Color(211, 211, 211, 70));
             }
             ScreenManager.SpriteBatch.End();
         }
@@ -212,16 +201,11 @@ namespace Ship_Game
 
             SpriteBatch batch = ScreenManager.SpriteBatch;
 
-            Vector3 vector3_4 =
-                Viewport.Project(solarSystem.Position.ToVec3(), Projection, View,
-                    Matrix.Identity);
-            Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
-            Vector3 vector3_5 =
-                Viewport.Project(
-                    new Vector3(solarSystem.Position.PointFromAngle(90f, 25000f), 0.0f), Projection,
-                    View, Matrix.Identity);
-            float num2 = new Vector2(vector3_5.X, vector3_5.Y).Distance(position);
-            Vector2 vector2 = new Vector2(position.X, position.Y);
+            Vector2d solarSysPos = ProjectToScreenPosition(solarSystem.Position.ToVec3());
+            Vector2d b = ProjectToScreenPosition(new Vector3(solarSystem.Position.PointFromAngle(90f, 25000f), 0f));
+            float num2 = (float)solarSysPos.Distance(b);
+            Vector2 vector2 = solarSysPos.ToVec2f();
+
             if ((solarSystem.IsExploredBy(Player) || Debug) && SelectedSystem != solarSystem)
             {
                 if (Debug)
@@ -231,22 +215,21 @@ namespace Ship_Game
                         planet.SetExploredBy(Player);
                 }
 
-                
                 var groundAttack = ResourceManager.Texture("Ground_UI/Ground_Attack");
                 var enemyHere =ResourceManager.Texture("Ground_UI/EnemyHere");
 
-                Vector3 vector3_6 =
-                    Viewport.Project(
-                        new Vector3(new Vector2(100000f, 0f) + solarSystem.Position, 0f), Projection, View, Matrix.Identity);
-                float radius = new Vector2(vector3_6.X, vector3_6.Y).Distance(position);
+                Vector2d p = ProjectToScreenPosition(new Vector3(new Vector2(100000f, 0f) + solarSystem.Position, 0f));
+                float radius = (float)p.Distance(solarSysPos);
                 if (viewState == UnivScreenState.SectorView)
                 {
                     vector2.Y += radius;
                     var transparentDarkGray = new Color(50, 50, 50, 90);
-                    DrawCircle(new Vector2(vector3_4.X, vector3_4.Y), radius, transparentDarkGray);
+                    DrawCircle(solarSysPos, radius, transparentDarkGray);
                 }
                 else
+                {
                     vector2.Y += num2;
+                }
 
                 vector2.X -= SolarsystemOverlay.SysFont.MeasureString(solarSystem.Name).X / 2f;
                 Vector2 pos = Input.CursorPosition;
@@ -353,8 +336,8 @@ namespace Ship_Game
                             HelperFunctions.DrawDropShadowText(batch,
                                 solarSystem.Name[index2].ToString(), Pos, SolarsystemOverlay.SysFont,
                                 owners.Count > index1
-                                    ? owners.ToList()[index1].EmpireColor
-                                    : (owners).Last()
+                                    ? owners[index1].EmpireColor
+                                    : owners.Last
                                     .EmpireColor);
                             Pos.X += SolarsystemOverlay.SysFont
                                 .MeasureString(solarSystem.Name[index2].ToString())

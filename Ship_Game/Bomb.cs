@@ -2,8 +2,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using SDGraphics;
-using Vector3 = SDGraphics.Vector3;
-using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {

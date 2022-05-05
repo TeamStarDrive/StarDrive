@@ -11,8 +11,8 @@ using Ship_Game.Fleets;
 using Ship_Game.GameScreens.ShipDesign;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using XnaMatrix = SDGraphics.Matrix;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
-using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

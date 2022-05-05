@@ -8,6 +8,7 @@ using SynapseGaming.LightingSystem.Rendering;
 using SDGraphics;
 
 using BoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game.Data.Mesh
 {
@@ -133,10 +134,10 @@ namespace Ship_Game.Data.Mesh
         {
             if (mesh->NumModelBones == 0)
             {
-                return CreateModelBone(mesh->Name.AsString, Matrix.Identity, 0);
+                return CreateModelBone(mesh->Name.AsString, XnaMatrix.Identity, 0);
             }
             // TODO: load root bone from SdMesh
-            return CreateModelBone(mesh->Name.AsString, Matrix.Identity, 0);
+            return CreateModelBone(mesh->Name.AsString, XnaMatrix.Identity, 0);
         }
 
         unsafe Model LoadModelGroups(SdMesh* mesh, string modelName)
@@ -203,7 +204,7 @@ namespace Ship_Game.Data.Mesh
                                               vertexBuffer, indexBuffer, vertexDeclaration, new object());
         }
 
-        static ModelBone CreateModelBone(string name, Matrix transform, int index)
+        static ModelBone CreateModelBone(string name, XnaMatrix transform, int index)
         {
             return DynamicCtor<ModelBone>(name, transform, index);
         }

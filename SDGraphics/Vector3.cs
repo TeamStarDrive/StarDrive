@@ -69,6 +69,11 @@ public struct Vector3 : IEquatable<Vector3>
         return new XnaVector3(v.X, v.Y, v.Z);
     }
 
+    public static explicit operator Vector3(in XnaVector3 v)
+    {
+        return new Vector3(v.X, v.Y, v.Z);
+    }
+
     [Pure] public float Length() => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
     
     // Narrows this Vector3 to a Vector2, the Z component is truncated

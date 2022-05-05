@@ -10,27 +10,27 @@ using SDGraphics;
 
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using Ray = Microsoft.Xna.Framework.Ray;
-using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen
     {
+        Vector3 GetPointInWorld(in Vector2 screenPoint, float screenZ)
+        {
+            return (Vector3)Viewport.Unproject(new Vector3(screenPoint, screenZ), Projection, View, Matrix.XnaIdentity);
+        }
+
         Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenSpace)
         {
-            Viewport viewport = Viewport;
-            Vector3 nearPoint = new Vector3(
-                viewport.Unproject(new Vector3(screenSpace, 0f), Projection, View, XnaMatrix.Identity)
-            );
-            Viewport viewport1 = Viewport;
-            Vector3 farPoint = new Vector3(
-                viewport1.Unproject(new Vector3(screenSpace, 1f), Projection, View, XnaMatrix.Identity)
-            );
+            Vector3 nearPoint = GetPointInWorld(screenSpace, 0f);
+            Vector3 farPoint = GetPointInWorld(screenSpace, 1f);
+
             Vector3 direction = (farPoint - nearPoint).Normalized();
-            Ray pickRay = new Ray(nearPoint, direction);
+            var pickRay = new Ray(nearPoint, direction);
             float k = -pickRay.Position.Z / pickRay.Direction.Z;
-            Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
+            var pickedPosition = new Vector3(
+                pickRay.Position.X + k * pickRay.Direction.X,
                 pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
             return new Vector2(pickedPosition.X, pickedPosition.Y);
         }
@@ -44,8 +44,7 @@ namespace Ship_Game
             Vector2 mousePos = input.CursorPosition;
             PresentationParameters pp = ScreenManager.GraphicsDevice.PresentationParameters;
             Vector2 upperLeftWorldSpace = GetWorldSpaceFromScreenSpace(new Vector2(0f, 0f));
-            Vector2 lowerRightWorldSpace =
-                GetWorldSpaceFromScreenSpace(new Vector2(pp.BackBufferWidth, pp.BackBufferHeight));
+            Vector2 lowerRightWorldSpace = GetWorldSpaceFromScreenSpace(new Vector2(pp.BackBufferWidth, pp.BackBufferHeight));
             float xDist = lowerRightWorldSpace.X - upperLeftWorldSpace.X;
             if ((int) mousePos.X == 0 || input.KeysCurr.IsKeyDown(Keys.Left) || input.KeysCurr.IsKeyDown(Keys.A))
             {
@@ -184,20 +183,11 @@ namespace Ship_Game
             {
                 if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))
                 {
-                    Vector3 nearPoint = new Vector3(
-                        Viewport.Unproject(new Vector3(input.CursorPosition, 0f), Projection, View, XnaMatrix.Identity)
-                    );
-                    Vector3 farPoint = new Vector3(
-                        Viewport.Unproject(new Vector3(input.CursorPosition, 1f), Projection, View, XnaMatrix.Identity)
-                    );
-                    Vector3 direction = (farPoint - nearPoint).Normalized();
-                    Ray pickRay = new Ray(nearPoint, direction);
-                    float k = -pickRay.Position.Z / pickRay.Direction.Z;
-                    Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
-                        pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
+                    Vector2 pickedPosition = GetWorldSpaceFromScreenSpace(input.CursorPosition);
+
                     FleetDataNode node = new FleetDataNode
                     {
-                        FleetOffset = new Vector2(pickedPosition.X, pickedPosition.Y),
+                        FleetOffset = pickedPosition,
                         ShipName = ActiveShipDesign.Name
                     };
                     SelectedFleet.DataNodes.Add(node);
@@ -417,21 +407,9 @@ namespace Ship_Game
             if (SelectedSquad != null)
             {
                 if (!Input.LeftMouseHeld()) return;
-                Vector3 nearPoint = new Vector3(
-                    Viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 0f),
-                    Projection, View, XnaMatrix.Identity)
-                );
-                Vector3 farPoint = new Vector3(
-                    Viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 1f),
-                    Projection, View, XnaMatrix.Identity)
-                );
-                Vector3 direction = (farPoint - nearPoint).Normalized();
-                Ray pickRay = new Ray(nearPoint, direction);
-                float k = -pickRay.Position.Z / pickRay.Direction.Z;
-                Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
-                    pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-                Vector2 newspot = new Vector2(pickedPosition.X, pickedPosition.Y);
-                Vector2 difference = newspot - SelectedSquad.Offset;
+
+                Vector2 newSpot = GetWorldSpaceFromScreenSpace(mousePosition);
+                Vector2 difference = newSpot - SelectedSquad.Offset;
                 if (difference.Length() > 30f)
                 {
                     Fleet.Squad selectedSquad = SelectedSquad;
@@ -514,26 +492,13 @@ namespace Ship_Game
             }
             else if (Input.LeftMouseHeld())
             {
-                Vector3 nearPoint = new Vector3(
-                    Viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 0f), Projection,
-                    View, XnaMatrix.Identity)
-                );
-                Vector3 farPoint = new Vector3(
-                    Viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 1f), Projection,
-                    View, XnaMatrix.Identity)
-                );
-                Vector3 direction = (farPoint - nearPoint).Normalized();
-                Ray pickRay = new Ray(nearPoint, direction);
-                float k = -pickRay.Position.Z / pickRay.Direction.Z;
-                Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
-                    pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-                Vector2 newspot = new Vector2(pickedPosition.X, pickedPosition.Y);
-                if (newspot.Distance(SelectedNodeList[0].FleetOffset) > 1000f)
+                Vector2 newSpot = GetWorldSpaceFromScreenSpace(mousePosition);
+                if (newSpot.Distance(SelectedNodeList[0].FleetOffset) > 1000f)
                 {
                     return;
                 }
 
-                Vector2 difference = newspot - SelectedNodeList[0].FleetOffset;
+                Vector2 difference = newSpot - SelectedNodeList[0].FleetOffset;
                 if (difference.Length() > 30f)
                 {
                     FleetDataNode item = SelectedNodeList[0];

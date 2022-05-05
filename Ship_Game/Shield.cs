@@ -6,7 +6,7 @@ using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships;
 using Ship_Game.ExtensionMethods;
 using SynapseGaming.LightingSystem.Lights;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
 
 namespace Ship_Game
 {
@@ -96,7 +96,10 @@ namespace Ship_Game
             => HitShield(planet, bomb.World, bomb.Position, planetCenter, shieldRadius);
 
         public void HitShield(Planet planet, Ship ship, Vector2 planetCenter, float shieldRadius)
-            => HitShield(planet, ship.GetSO().World, ship.Position.ToVec3(ship.GetSO().World.Translation.Z), planetCenter, shieldRadius);
+        {
+            Matrix soWorld = (Matrix)ship.GetSO().World;
+            HitShield(planet, soWorld, ship.Position.ToVec3(soWorld.Translation.Z), planetCenter, shieldRadius);
+        }
 
         public void HitShield(Planet planet, in Matrix world, Vector3 pos, Vector2 planetCenter, float shieldRadius)
         {

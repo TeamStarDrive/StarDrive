@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game
