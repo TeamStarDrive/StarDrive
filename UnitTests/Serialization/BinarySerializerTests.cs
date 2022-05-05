@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game;
@@ -11,12 +10,12 @@ using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Vector4 = Microsoft.Xna.Framework.Vector4;
-#pragma warning disable CS0649
-
+using Point = Microsoft.Xna.Framework.Point;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
+#pragma warning disable CS0649
 
 namespace UnitTests.Serialization
 {

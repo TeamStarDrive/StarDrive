@@ -1,5 +1,4 @@
 using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -8,6 +7,8 @@ using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game
 {
@@ -954,7 +955,7 @@ namespace Ship_Game
                     n.transitionElapsedTime += elapsedRealTime;
                     float amount = (float) Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
                     n.ClickRect.Y =
-                        (int) Math.Ceiling(MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount));
+                        (int) Math.Ceiling(n.ClickRect.Y.SmoothStep(n.DestinationRect.Y, amount));
                     // ADDED BY SHAHMATT (pause game when there are any notifications)
                     //fbedard : Add filter to pause
                     if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)

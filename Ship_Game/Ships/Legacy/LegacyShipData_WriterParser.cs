@@ -2,14 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Ship_Game.AI;
-using Ship_Game.Data;
-using Ship_Game.Data.Serialization.Types;
-using Ship_Game.Gameplay;
+using SDGraphics;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game.Ships.Legacy
 {

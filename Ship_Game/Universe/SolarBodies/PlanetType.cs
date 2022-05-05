@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Data;
@@ -11,6 +10,8 @@ using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization;
 using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Vector4 = Microsoft.Xna.Framework.Vector4;
 
 namespace Ship_Game.Universe.SolarBodies
 {

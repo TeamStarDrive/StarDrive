@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Empires.Components;
@@ -11,6 +10,8 @@ using Ship_Game.ExtensionMethods;
 using Matrix = Microsoft.Xna.Framework.Matrix;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
 
 namespace Ship_Game
 {

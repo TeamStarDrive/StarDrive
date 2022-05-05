@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
@@ -10,6 +9,7 @@ using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {
@@ -103,7 +103,7 @@ namespace Ship_Game
             if (P == null)
                 return;
 
-            MathHelper.SmoothStep(0f, 1f, TransitionPosition);
+            0f.SmoothStep(1f, TransitionPosition);
             ToolTipItems.Clear();
             ToolTipItems.Add(new TippedItem(PopRect, GameText.PopulationInBillionsVsMax));
 

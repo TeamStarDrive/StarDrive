@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
@@ -10,6 +9,7 @@ using SDGraphics;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game.Ships
 {

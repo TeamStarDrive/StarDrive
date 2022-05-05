@@ -1,6 +1,6 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using SDUtils;
+using SDGraphics;
 
 namespace Ship_Game.UI
 {

@@ -1,11 +1,11 @@
 using System;
 using System.Windows.Forms;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Audio;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {

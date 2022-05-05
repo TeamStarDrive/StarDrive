@@ -40,6 +40,12 @@ public static class MathExt
       return value1.LerpTo(value2, num * num * (3f - 2f * num));
     }
 
+    public static float SmoothStep(this int value1, int value2, float amount)
+    {
+      float num = amount.Clamped(0.0f, 1f);
+      return value1.LerpTo(value2, num * num * (3f - 2f * num));
+    }
+
     /// <summary>
     /// Constrain lower end of value
     /// </summary>

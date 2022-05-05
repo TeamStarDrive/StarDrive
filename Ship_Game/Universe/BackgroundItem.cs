@@ -1,7 +1,7 @@
 using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Graphics;
+using XnaVector3 = Microsoft.Xna.Framework.Vector3;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {
@@ -10,10 +10,10 @@ namespace Ship_Game
     {
         public SubTexture Texture;
 
-        public Vector3 UpperLeft;
-        public Vector3 LowerLeft;
-        public Vector3 UpperRight;
-        public Vector3 LowerRight;
+        public XnaVector3 UpperLeft;
+        public XnaVector3 LowerLeft;
+        public XnaVector3 UpperRight;
+        public XnaVector3 LowerRight;
         public VertexDeclaration LayoutDescriptor;
         public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
         public int[] Indices = new int[6];

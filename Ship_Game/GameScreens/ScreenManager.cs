@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
@@ -13,6 +12,9 @@ using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Matrix = Microsoft.Xna.Framework.Matrix;
+using GraphicsDeviceManager = Microsoft.Xna.Framework.GraphicsDeviceManager;
 
 namespace Ship_Game
 {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.Ships;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace UnitTests.Serialization
 {

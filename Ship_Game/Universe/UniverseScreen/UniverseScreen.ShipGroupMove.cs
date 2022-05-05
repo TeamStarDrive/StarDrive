@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;

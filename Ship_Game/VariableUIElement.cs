@@ -1,7 +1,8 @@
 using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {
@@ -39,7 +40,7 @@ namespace Ship_Game
 
 		public void Draw(string TitleText, string BodyText)
 		{
-			MathHelper.SmoothStep(0f, 1f, TransitionPosition);
+			0f.SmoothStep(1f, TransitionPosition);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
 			Vector2 NamePos = new Vector2(Housing.X + 41, Housing.Y + 65);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, TitleText, NamePos, tColor);
