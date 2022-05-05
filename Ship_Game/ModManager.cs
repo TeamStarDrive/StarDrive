@@ -2,11 +2,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
@@ -9,6 +8,10 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
+
+
+using Vector4 = Microsoft.Xna.Framework.Vector4;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game.Data.Serialization.Types
 {

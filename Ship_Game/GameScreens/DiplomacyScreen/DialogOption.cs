@@ -1,6 +1,4 @@
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
 {

@@ -1,6 +1,5 @@
 ﻿using System;
 using Ship_Game.Ships;
-using Microsoft.Xna.Framework;
 using SDGraphics;
 using Ship_Game.AI.ShipMovement.CombatManeuvers;
 using Ship_Game.ExtensionMethods;

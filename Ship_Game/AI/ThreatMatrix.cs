@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;

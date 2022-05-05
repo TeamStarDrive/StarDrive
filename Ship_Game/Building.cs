@@ -1,5 +1,4 @@
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using SDGraphics;
 using Ship_Game.AI;

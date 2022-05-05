@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SgMotion;
 using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
+using SDGraphics;
+
+using BoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
 
 namespace Ship_Game.Data.Mesh
 {

@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Newtonsoft.Json;
 using Ship_Game.AI;
@@ -612,7 +611,7 @@ namespace Ship_Game.Gameplay
             if (CooldownTimer > 0f)
             {
                 if (WeaponType != "Drone")
-                    CooldownTimer = MathHelper.Max(CooldownTimer - timeStep.FixedTime, 0f);
+                    CooldownTimer = Math.Max(CooldownTimer - timeStep.FixedTime, 0f);
             }
 
             if (SalvosToFire > 0)

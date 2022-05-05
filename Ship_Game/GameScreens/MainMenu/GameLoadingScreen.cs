@@ -1,10 +1,10 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.MainMenu;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {

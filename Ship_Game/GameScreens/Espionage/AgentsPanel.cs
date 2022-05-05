@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.GameScreens.Espionage
 {

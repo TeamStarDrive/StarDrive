@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {

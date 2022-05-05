@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game.GameScreens.Scene

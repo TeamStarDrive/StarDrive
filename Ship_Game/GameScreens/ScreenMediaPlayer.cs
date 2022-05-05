@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Ship_Game.Audio;
@@ -6,6 +5,7 @@ using Ship_Game.Data;
 using System;
 using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.GameScreens
 {

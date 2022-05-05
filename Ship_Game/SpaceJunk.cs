@@ -4,6 +4,7 @@ using Ship_Game.Data.Mesh;
 using Ship_Game.Debug;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Universe;
+using Ship_Game.ExtensionMethods;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;

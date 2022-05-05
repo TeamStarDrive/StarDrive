@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.AI;
@@ -12,6 +11,8 @@ using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
+using Point = Microsoft.Xna.Framework.Point;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 using RectF = SDGraphics.RectF;
 using Vector2 = SDGraphics.Vector2;
@@ -397,7 +398,7 @@ namespace Ship_Game
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            CameraPos.Z = MathHelper.SmoothStep(CameraPos.Z, DesiredCamHeight, 0.2f);
+            CameraPos.Z = CameraPos.Z.SmoothStep(DesiredCamHeight, 0.2f);
             UpdateViewMatrix(CameraPos);
 
             var simTime = new FixedSimTime(elapsed.RealTime.Seconds);
