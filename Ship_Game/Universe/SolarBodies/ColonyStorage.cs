@@ -1,4 +1,5 @@
 ﻿using System;
+using SDGraphics;
 
 namespace Ship_Game.Universe.SolarBodies
 {

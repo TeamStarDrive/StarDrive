@@ -1,14 +1,16 @@
-﻿using Microsoft.Xna.Framework;
-using Ship_Game.AI;
+﻿using Ship_Game.AI;
 using SynapseGaming.LightingSystem.Core;
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Audio;
+using Ship_Game.ExtensionMethods;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game.Ships
 {
@@ -28,7 +30,7 @@ namespace Ship_Game.Ships
                 CreateSceneObject();
             }
 
-            ShipSO.World = Matrix.CreateTranslation(new Vector3(pos + ShipData.BaseHull.MeshOffset, z));
+            ShipSO.World = XnaMatrix.CreateTranslation(new Vector3(pos + ShipData.BaseHull.MeshOffset, z));
             ShipSO.Visibility = GlobalStats.ShipVisibility;
         }
 
@@ -44,7 +46,7 @@ namespace Ship_Game.Ships
 
             //Log.Info($"CreateSO {Id} {Name}");
             ShipData.LoadModel(out ShipSO, Universe.Screen.ContentManager);
-            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position + ShipData.BaseHull.MeshOffset, 0f));
+            ShipSO.World = XnaMatrix.CreateTranslation(new Vector3(Position + ShipData.BaseHull.MeshOffset, 0f));
 
             NotVisibleToPlayerTimer = 0;
             UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
@@ -141,10 +143,10 @@ namespace Ship_Game.Ships
             {
                 if (ShipSO != null)
                 {
-                    ShipSO.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
-                                 * Matrix.CreateRotationY(YRotation)
-                                 * Matrix.CreateRotationZ(Rotation)
-                                 * Matrix.CreateTranslation(new Vector3(Position, 0f));
+                    ShipSO.World = XnaMatrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
+                                 * XnaMatrix.CreateRotationY(YRotation)
+                                 * XnaMatrix.CreateRotationZ(Rotation)
+                                 * XnaMatrix.CreateTranslation(new Vector3(Position, 0f));
                     ShipSO.UpdateAnimation(timeStep.FixedTime);
 
                     UpdateThrusters(timeStep);
@@ -289,12 +291,12 @@ namespace Ship_Game.Ships
 
             if (visibleAndNotPaused)
             {
-                ShipSO.World = Matrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
-                             * Matrix.CreateScale(scale)
-                             * Matrix.CreateRotationY(YRotation)
-                             * Matrix.CreateRotationX(XRotation)
-                             * Matrix.CreateRotationZ(Rotation)
-                             * Matrix.CreateTranslation(new Vector3(Position, 0f));
+                ShipSO.World = XnaMatrix.CreateTranslation(new Vector3(ShipData.BaseHull.MeshOffset, 0f))
+                             * XnaMatrix.CreateScale(scale)
+                             * XnaMatrix.CreateRotationY(YRotation)
+                             * XnaMatrix.CreateRotationX(XRotation)
+                             * XnaMatrix.CreateRotationZ(Rotation)
+                             * XnaMatrix.CreateTranslation(new Vector3(Position, 0f));
 
                 ShipSO.UpdateAnimation(timeStep.FixedTime);
             }

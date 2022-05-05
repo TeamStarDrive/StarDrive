@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
-using Vector2 = SDGraphics.Vector2;
+using SDGraphics;
+
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Ray = Microsoft.Xna.Framework.Ray;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game
 {
@@ -16,11 +20,14 @@ namespace Ship_Game
         Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenSpace)
         {
             Viewport viewport = Viewport;
-            Vector3 nearPoint = viewport.Unproject(new Vector3(screenSpace, 0f), Projection, View, Matrix.Identity);
+            Vector3 nearPoint = new Vector3(
+                viewport.Unproject(new Vector3(screenSpace, 0f), Projection, View, XnaMatrix.Identity)
+            );
             Viewport viewport1 = Viewport;
-            Vector3 farPoint = viewport1.Unproject(new Vector3(screenSpace, 1f), Projection, View, Matrix.Identity);
-            Vector3 direction = farPoint - nearPoint;
-            direction.Normalize();
+            Vector3 farPoint = new Vector3(
+                viewport1.Unproject(new Vector3(screenSpace, 1f), Projection, View, XnaMatrix.Identity)
+            );
+            Vector3 direction = (farPoint - nearPoint).Normalized();
             Ray pickRay = new Ray(nearPoint, direction);
             float k = -pickRay.Position.Z / pickRay.Direction.Z;
             Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
@@ -177,14 +184,13 @@ namespace Ship_Game
             {
                 if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))
                 {
-                    Viewport viewport = Viewport;
-                    Vector3 nearPoint = viewport.Unproject(new Vector3(input.CursorPosition, 0f), Projection, View,
-                        Matrix.Identity);
-                    Viewport viewport1 = Viewport;
-                    Vector3 farPoint = viewport1.Unproject(new Vector3(input.CursorPosition, 1f), Projection, View,
-                        Matrix.Identity);
-                    Vector3 direction = farPoint - nearPoint;
-                    direction.Normalize();
+                    Vector3 nearPoint = new Vector3(
+                        Viewport.Unproject(new Vector3(input.CursorPosition, 0f), Projection, View, XnaMatrix.Identity)
+                    );
+                    Vector3 farPoint = new Vector3(
+                        Viewport.Unproject(new Vector3(input.CursorPosition, 1f), Projection, View, XnaMatrix.Identity)
+                    );
+                    Vector3 direction = (farPoint - nearPoint).Normalized();
                     Ray pickRay = new Ray(nearPoint, direction);
                     float k = -pickRay.Position.Z / pickRay.Direction.Z;
                     Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
@@ -411,14 +417,15 @@ namespace Ship_Game
             if (SelectedSquad != null)
             {
                 if (!Input.LeftMouseHeld()) return;
-                Viewport viewport = Viewport;
-                Vector3 nearPoint = viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 0f),
-                    Projection, View, Matrix.Identity);
-                Viewport viewport1 = Viewport;
-                Vector3 farPoint = viewport1.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 1f),
-                    Projection, View, Matrix.Identity);
-                Vector3 direction = farPoint - nearPoint;
-                direction.Normalize();
+                Vector3 nearPoint = new Vector3(
+                    Viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 0f),
+                    Projection, View, XnaMatrix.Identity)
+                );
+                Vector3 farPoint = new Vector3(
+                    Viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 1f),
+                    Projection, View, XnaMatrix.Identity)
+                );
+                Vector3 direction = (farPoint - nearPoint).Normalized();
                 Ray pickRay = new Ray(nearPoint, direction);
                 float k = -pickRay.Position.Z / pickRay.Direction.Z;
                 Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
@@ -507,14 +514,15 @@ namespace Ship_Game
             }
             else if (Input.LeftMouseHeld())
             {
-                Viewport viewport2 = Viewport;
-                Vector3 nearPoint = viewport2.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 0f), Projection,
-                    View, Matrix.Identity);
-                Viewport viewport3 = Viewport;
-                Vector3 farPoint = viewport3.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 1f), Projection,
-                    View, Matrix.Identity);
-                Vector3 direction = farPoint - nearPoint;
-                direction.Normalize();
+                Vector3 nearPoint = new Vector3(
+                    Viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 0f), Projection,
+                    View, XnaMatrix.Identity)
+                );
+                Vector3 farPoint = new Vector3(
+                    Viewport.Unproject(new Vector3(mousePosition.X, mousePosition.Y, 1f), Projection,
+                    View, XnaMatrix.Identity)
+                );
+                Vector3 direction = (farPoint - nearPoint).Normalized();
                 Ray pickRay = new Ray(nearPoint, direction);
                 float k = -pickRay.Position.Z / pickRay.Direction.Z;
                 Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,

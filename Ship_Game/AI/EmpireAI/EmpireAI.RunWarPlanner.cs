@@ -1,5 +1,6 @@
 using Ship_Game.Gameplay;
 using System.Linq;
+using SDGraphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.DiplomacyScreen;

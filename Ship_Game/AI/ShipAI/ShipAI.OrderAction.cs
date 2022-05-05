@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Ships.AI;

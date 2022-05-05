@@ -3,6 +3,8 @@ using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
+using SDGraphics;
+using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships.AI;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
@@ -287,7 +289,7 @@ namespace Ship_Game.AI
 
         Vector2 GetPositionOnPlanet(Planet p)
         {
-            return MathExt.RandomOffsetAndDistance(p.Center, p.ObjectRadius);
+            return NewMathExt.RandomOffsetAndDistance(p.Center, p.ObjectRadius);
         }
 
         public class ShipGoal : IDisposable

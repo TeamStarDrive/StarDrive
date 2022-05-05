@@ -1,4 +1,5 @@
-﻿using Ship_Game.Ships;
+﻿using SDGraphics;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Fleets.FleetTactics
 {

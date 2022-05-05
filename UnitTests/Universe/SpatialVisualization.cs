@@ -1,6 +1,6 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using SDUtils;
 using Ship_Game;
 using Ship_Game.Gameplay;
@@ -8,6 +8,7 @@ using Ship_Game.Ships;
 using Ship_Game.Spatial;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace UnitTests.Universe
 {

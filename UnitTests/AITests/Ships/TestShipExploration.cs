@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
+using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using SDGraphics;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 

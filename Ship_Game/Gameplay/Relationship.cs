@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;

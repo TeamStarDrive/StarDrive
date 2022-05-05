@@ -1,8 +1,10 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Fleets;
+using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {

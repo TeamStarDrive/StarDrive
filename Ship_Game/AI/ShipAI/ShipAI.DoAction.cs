@@ -4,6 +4,8 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Linq;
+using SDGraphics;
+using Ship_Game.ExtensionMethods;
 using static Ship_Game.AI.CombatStanceType;
 using Vector2 = SDGraphics.Vector2;
 

@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using SDGraphics;
 using Ship_Game.GameScreens.DiplomacyScreen;
 
 // ReSharper disable once CheckNamespace

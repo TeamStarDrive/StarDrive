@@ -1,18 +1,32 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
-using Vector2 = SDGraphics.Vector2;
+using SDGraphics;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen
     {
+        (Vector2 pos, float radius) GetPosAndRadiusOnScreen(Vector2 fleetOffset, float radius)
+        {
+            Vector2 pos1 = ProjectToScreenPos(new Vector3(fleetOffset, 0f));
+            Vector2 pos2 = ProjectToScreenPos(new Vector3(fleetOffset.PointFromAngle(90f, radius), 0f));
+            float radiusOnScreen = pos1.Distance(pos2) + 10f;
+            return (pos1, radiusOnScreen);
+        }
+
+        Vector2 ProjectToScreenPos(in Vector3 worldPos)
+        {
+            var p = new Vector3(Viewport.Project(worldPos, Projection, View, Matrix.Identity));
+            return new Vector2(p.X, p.Y);
+        }
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Viewport viewport;
@@ -28,14 +42,17 @@ namespace Ship_Game
             if (SelectedNodeList.Count == 1)
             {
                 viewport = Viewport;
-                Vector3 screenSpacePosition = viewport.Project(new Vector3(SelectedNodeList[0].FleetOffset.X
-                    , SelectedNodeList[0].FleetOffset.Y, 0f), Projection, View, Matrix.Identity);
+                Vector3 screenSpacePosition = new Vector3(
+                    viewport.Project(new Vector3(SelectedNodeList[0].FleetOffset.X
+                    , SelectedNodeList[0].FleetOffset.Y, 0f), Projection, View, Matrix.Identity)
+                );
                 var screenPos = new Vector2(screenSpacePosition.X, screenSpacePosition.Y);
                 Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointFromAngle(90f,
                     (SelectedNodeList[0].Ship?.SensorRange ?? 500000) * OperationalRadius.RelativeValue);
                 viewport = Viewport;
-                Vector3 insetRadialPos =
-                    viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
+                Vector3 insetRadialPos = new Vector3(
+                    viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity)
+                );
                 Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                 float ssRadius = Math.Abs(insetRadialSS.X - screenPos.X);
                 Rectangle nodeRect = new Rectangle((int) screenPos.X, (int) screenPos.Y, (int) ssRadius * 2,
@@ -52,13 +69,16 @@ namespace Ship_Game
                     var template = ResourceManager.GetShipTemplate(node.ShipName);
                     float radius = template?.Radius ?? 150f;
                     viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View,
-                        Matrix.Identity);
+                    Vector3 pScreenSpace = new Vector3(
+                        viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View,
+                        Matrix.Identity)
+                    );
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     Vector2 radialPos = node.FleetOffset.PointFromAngle(90f, radius);
                     viewport = Viewport;
-                    Vector3 insetRadialPos =
-                        viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
+                    Vector3 insetRadialPos = new Vector3(
+                        viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity)
+                    );
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
                     radius = insetRadialSS.Distance(pPos) + 10f;
                     ClickableNode cs = new ClickableNode
@@ -73,21 +93,12 @@ namespace Ship_Game
                 {
                     Ship ship = node.Ship;
                     ship.ShowSceneObjectAt(ship.RelativeFleetOffset, 0f);
-                    float radius = ship.Radius;//.GetSO().WorldBoundingSphere.Radius;
-                    viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
-                        Matrix.Identity);
-                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = ship.RelativeFleetOffset.PointFromAngle(90f, radius);
-                    viewport = Viewport;
-                    Vector3 insetRadialPos =
-                        viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
-                    var insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = insetRadialSS.Distance(pPos) + 10f;
+
+                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(ship.RelativeFleetOffset, ship.Radius);
                     var cs = new ClickableNode
                     {
-                        Radius = radius,
-                        ScreenPos = pPos,
+                        Radius = screenRadius,
+                        ScreenPos = screenPos,
                         NodeToClick = node
                     };
                     ClickableNodes.Add(cs);
@@ -100,17 +111,9 @@ namespace Ship_Game
                 if (ship == null)
                 {
                     var template = ResourceManager.GetShipTemplate(node.ShipName);
-                    float radius = template?.Radius ?? 150f;
-                    viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View,
-                        Matrix.Identity);
-                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = node.FleetOffset.PointFromAngle(90f, radius);
-                    viewport = Viewport;
-                    Vector3 insetRadialPos =
-                        viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
-                    Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = insetRadialSS.Distance(pPos);
+
+                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, template?.Radius ?? 150f);
+
                     foreach (ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.Squad.DataNodes.Contains(node))
@@ -118,24 +121,15 @@ namespace Ship_Game
                             continue;
                         }
 
-                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, screenPos, new Color(0, 255, 0, 70), 2f);
                     }
 
-                    DrawCircle(pPos, radius, new Color(255, 255, 255, 70), 2f);
+                    DrawCircle(screenPos, screenRadius, new Color(255, 255, 255, 70), 2f);
                 }
                 else
                 {
-                    float radius = ship.Radius;
-                    viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
-                        Matrix.Identity);
-                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = ship.RelativeFleetOffset.PointFromAngle(90f, radius);
-                    viewport = Viewport;
-                    Vector3 insetRadialPos =
-                        viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
-                    Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = insetRadialSS.Distance(pPos);
+                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(ship.RelativeFleetOffset, ship.Radius);
+
                     foreach (ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.Squad.DataNodes.Contains(node))
@@ -143,10 +137,10 @@ namespace Ship_Game
                             continue;
                         }
 
-                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, screenPos, new Color(0, 255, 0, 70), 2f);
                     }
 
-                    DrawCircle(pPos, radius, new Color(255, 255, 255, 70), 2f);
+                    DrawCircle(screenPos, screenRadius, new Color(255, 255, 255, 70), 2f);
                 }
             }
 
@@ -158,18 +152,9 @@ namespace Ship_Game
                     {
                         continue;
                     }
+                    
+                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, 150f);
 
-                    float radius = 150f;
-                    viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View,
-                        Matrix.Identity);
-                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = node.FleetOffset.PointFromAngle(90f, radius);
-                    viewport = Viewport;
-                    Vector3 insetRadialPos =
-                        viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
-                    Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = insetRadialSS.Distance(pPos);
                     foreach (ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.Squad.DataNodes.Contains(node))
@@ -177,25 +162,16 @@ namespace Ship_Game
                             continue;
                         }
 
-                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, screenPos, new Color(0, 255, 0, 70), 2f);
                     }
 
-                    DrawCircle(pPos, radius, Color.White, 2f);
+                    DrawCircle(screenPos, screenRadius, Color.White, 2f);
                 }
                 else
                 {
                     Ship ship = node.Ship;
-                    float radius = ship.GetSO().WorldBoundingSphere.Radius;
-                    viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
-                        Matrix.Identity);
-                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = ship.RelativeFleetOffset.PointFromAngle(90f, radius);
-                    viewport = Viewport;
-                    Vector3 insetRadialPos =
-                        viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
-                    Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = insetRadialSS.Distance(pPos);
+                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(ship.RelativeFleetOffset, ship.GetSO().WorldBoundingSphere.Radius);
+
                     foreach (ClickableSquad squad in ClickableSquads)
                     {
                         if (!squad.Squad.DataNodes.Contains(node))
@@ -203,10 +179,10 @@ namespace Ship_Game
                             continue;
                         }
 
-                        batch.DrawLine(squad.ScreenPos, pPos, new Color(0, 255, 0, 70), 2f);
+                        batch.DrawLine(squad.ScreenPos, screenPos, new Color(0, 255, 0, 70), 2f);
                     }
 
-                    DrawCircle(pPos, radius, Color.White, 2f);
+                    DrawCircle(screenPos, screenRadius, Color.White, 2f);
                 }
             }
 
@@ -288,24 +264,17 @@ namespace Ship_Game
                 {
                     if (!ResourceManager.GetShipTemplate(node.ShipName, out Ship ship))
                         continue;
+                    
+                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, 150f);
 
-                    float radius = 150f;
-                    viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View, Matrix.Identity);
-                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = node.FleetOffset.PointFromAngle(90f, radius);
-                    viewport = Viewport;
-                    Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
-                    Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = insetRadialSS.Distance(pPos);
-                    var r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius, 
-                                          (int) radius * 2, (int) radius * 2);
+                    var r = new Rectangle((int) screenPos.X - (int) screenRadius, (int) screenPos.Y - (int) screenRadius, 
+                                          (int) screenRadius * 2, (int) screenRadius * 2);
 
                     DrawIcon(ship, r);
                     if (node.GoalId == 0)
                     {
                         if (NodeShipResupplying())
-                            batch.DrawString(Fonts.Arial8Bold, "Resupplying", pPos + new Vector2(5f, -5f), Color.White);
+                            batch.DrawString(Fonts.Arial8Bold, "Resupplying", screenPos + new Vector2(5f, -5f), Color.White);
                     }
                     else
                     {
@@ -323,34 +292,24 @@ namespace Ship_Game
                         if (buildingAt.IsEmpty())
                             buildingAt = "Need spaceport";
 
-                        batch.DrawString(Fonts.Arial8Bold, buildingAt, pPos + new Vector2(5f, -5f), Color.White);
+                        batch.DrawString(Fonts.Arial8Bold, buildingAt, screenPos + new Vector2(5f, -5f), Color.White);
                     }
                 }
                 else
                 {
                     Ship ship = node.Ship;
-                    float radius = ship.GetSO().WorldBoundingSphere.Radius;
-                    viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
-                        Matrix.Identity);
-                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = ship.RelativeFleetOffset.PointFromAngle(90f, radius);
-                    viewport = Viewport;
-                    Vector3 insetRadialPos =
-                        viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
-                    Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
-                    radius = insetRadialSS.Distance(pPos);
-                    if (radius < 10f)
+                    (Vector2 screenPos, float screenRadius) = GetPosAndRadiusOnScreen(node.FleetOffset, ship.GetSO().WorldBoundingSphere.Radius);
+                    if (screenRadius < 10f)
                     {
-                        radius = 10f;
+                        screenRadius = 10f;
                     }
 
-                    Rectangle r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius,
-                        (int) radius * 2, (int) radius * 2);
+                    Rectangle r = new Rectangle((int) screenPos.X - (int) screenRadius, (int) screenPos.Y - (int) screenRadius,
+                        (int) screenRadius * 2, (int) screenRadius * 2);
 
                     DrawIcon(ship, r);   
                     if (NodeShipResupplying())
-                        batch.DrawString(Fonts.Arial8Bold, "Resupplying", pPos + new Vector2(5f, -5f), Color.White);
+                        batch.DrawString(Fonts.Arial8Bold, "Resupplying", screenPos + new Vector2(5f, -5f), Color.White);
                 }
 
                 void DrawIcon(Ship ship, Rectangle r)
@@ -407,9 +366,7 @@ namespace Ship_Game
 
         void DrawFleetManagementIndicators()
         {
-            Viewport viewport = Viewport;
-            Vector3 pScreenSpace = viewport.Project(new Vector3(0f, 0f, 0f), Projection, View, Matrix.Identity);
-            Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
+            Vector2 pPos = ProjectToScreenPos(new Vector3(0f, 0f, 0f));
 
             var spriteBatch = ScreenManager.SpriteBatch;
             spriteBatch.FillRectangle(new Rectangle((int) pPos.X - 3, (int) pPos.Y - 3, 6, 6),
@@ -421,9 +378,7 @@ namespace Ship_Game
             {
                 foreach (Fleet.Squad squad in flank)
                 {
-                    Viewport viewport1 = Viewport;
-                    pScreenSpace = viewport1.Project(new Vector3(squad.Offset, 0f), Projection, View, Matrix.Identity);
-                    pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
+                    pPos = ProjectToScreenPos(new Vector3(squad.Offset, 0f));
                     spriteBatch.FillRectangle(new Rectangle((int) pPos.X - 2, (int) pPos.Y - 2, 4, 4),
                         new Color(0, 255, 0, 110));
                     spriteBatch.DrawString(Fonts.Arial8Bold, "Squad",
@@ -441,26 +396,22 @@ namespace Ship_Game
             for (int x = 0; x < 21; x++)
             {
                 Vector3 origin3 = new Vector3(x * size / 20 - size / 2, -(size / 2), 0f);
-                Viewport viewport = Viewport;
-                Vector3 originScreenSpace = viewport.Project(origin3, Projection, View, Matrix.Identity);
                 Vector3 end3 = new Vector3(x * size / 20 - size / 2, size - size / 2, 0f);
-                Viewport viewport1 = Viewport;
-                Vector3 endScreenSpace = viewport1.Project(end3, Projection, View, Matrix.Identity);
-                Vector2 origin = new Vector2(originScreenSpace.X, originScreenSpace.Y);
-                Vector2 end = new Vector2(endScreenSpace.X, endScreenSpace.Y);
+
+                Vector2 origin = ProjectToScreenPos(origin3);
+                Vector2 end = ProjectToScreenPos(end3);
+
                 spriteBatch.DrawLine(origin, end, new Color(211, 211, 211, 70));
             }
 
             for (int y = 0; y < 21; y++)
             {
                 Vector3 origin3 = new Vector3(-(size / 2), y * size / 20 - size / 2, 0f);
-                Viewport viewport2 = Viewport;
-                Vector3 originScreenSpace = viewport2.Project(origin3, Projection, View, Matrix.Identity);
                 Vector3 end3 = new Vector3(size - size / 2, y * size / 20 - size / 2, 0f);
-                Viewport viewport3 = Viewport;
-                Vector3 endScreenSpace = viewport3.Project(end3, Projection, View, Matrix.Identity);
-                Vector2 origin = new Vector2(originScreenSpace.X, originScreenSpace.Y);
-                Vector2 end = new Vector2(endScreenSpace.X, endScreenSpace.Y);
+                
+                Vector2 origin = ProjectToScreenPos(origin3);
+                Vector2 end = ProjectToScreenPos(end3);
+
                 spriteBatch.DrawLine(origin, end, new Color(211, 211, 211, 70));
             }
         }

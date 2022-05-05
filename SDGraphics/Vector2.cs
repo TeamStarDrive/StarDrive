@@ -38,6 +38,9 @@ public struct Vector2 : IEquatable<Vector2>
     public static readonly Vector2 Zero = default;
     public static readonly Vector2 One = new(1f, 1f);
 
+    public static readonly Vector2 UnitX = new(1f, 0f);
+    public static readonly Vector2 UnitY = new(0f, 1f);
+
     // Up in the world is -Y, down is +Y
     public static readonly Vector2 Up = new(0, -1);
     public static readonly Vector2 Down = new(0, 1);
@@ -85,6 +88,26 @@ public struct Vector2 : IEquatable<Vector2>
     {
         double len = Math.Sqrt(X*X + Y*Y) / newMagnitude;
         return len > 0.000001 ? new Vector2((float)(X / len), (float)(Y / len)) : default;
+    }
+
+    [Pure] public void GetDirectionAndLength(out Vector2 dir, out float len)
+    {
+        float l = (float)Math.Sqrt(X*X + Y*Y);
+        dir = l > 0.0000001f ? new Vector2(X / l, Y / l) : default;
+        len = l;
+    }
+
+    // Equivalent to:
+    // Vector2 direction = origin.DirectionToTarget(target);
+    // float distance = origin.Distance(target);
+    [Pure] public (Vector2, float) GetDirectionAndLength(in Vector2 target)
+    {
+        double dx = target.X - X;
+        double dy = target.Y - Y;
+        double len = Math.Sqrt(dx*dx + dy*dy);
+        if (len.AlmostZero())
+            return (Zero, (float)len);
+        return (new Vector2((dx / len), (dy / len)), (float)len);
     }
 
     // Gets the accurate distance from source point a to destination b

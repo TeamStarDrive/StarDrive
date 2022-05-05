@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SDGraphics;
 using SDUtils;
 using Ship_Game.Universe.SolarBodies;
 

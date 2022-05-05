@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Linq;
 using System.Xml.Serialization;
+using SDGraphics;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Universe;

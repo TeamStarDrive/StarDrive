@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using SDGraphics;
 using Ship_Game.AI.Compnonents;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
