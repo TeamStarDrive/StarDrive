@@ -202,7 +202,7 @@ namespace Ship_Game
                 if ((pgs.Building == null && pgs.TroopsHere.Count == 0) ||
                     (pgs.Building != null && pgs.Building.CombatStrength == 0 && pgs.TroopsHere.Count == 0))
                 {
-                    Vector2 center = pgs.ClickRect.Center();
+                    Vector2 center = pgs.ClickRect.CenterF;
                     DrawCircle(center, 8f, Color.White, 4f);
                     DrawCircle(center, 6f, Color.Black, 3f);
                 }
@@ -211,7 +211,7 @@ namespace Ship_Game
             PlanetGridSquare toLand = P.FindTileUnderMouse(Input.CursorPosition);
             if (toLand != null)
             {
-                DrawCircle(toLand.ClickRect.Center(), 12f, Color.Orange, 2f);
+                DrawCircle(toLand.ClickRect.CenterF, 12f, Color.Orange, 2f);
             }
         }
 
@@ -345,7 +345,7 @@ namespace Ship_Game
                                 foreach (PlanetGridSquare moveTile in MovementTiles)
                                 {
                                     batch.FillRectangle(moveTile.ClickRect, new Color(255, 255, 255, 30));
-                                    Vector2 center = moveTile.ClickRect.Center();
+                                    Vector2 center = moveTile.ClickRect.CenterF;
                                     DrawCircle(center, 5f, Color.White, 5f);
                                     DrawCircle(center, 5f, Color.Black);
                                 }
