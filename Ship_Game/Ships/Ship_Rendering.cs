@@ -4,7 +4,7 @@ using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Point = Microsoft.Xna.Framework.Point;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;

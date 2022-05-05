@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
 using XnaVector3 = Microsoft.Xna.Framework.Vector3;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
 
 namespace Ship_Game
 {
@@ -30,7 +30,7 @@ namespace Ship_Game
 
         public void Draw(GraphicsDevice device, in Matrix view, in Matrix projection, float alpha)
         {
-            QuadEffect.World = Matrix.Identity;
+            QuadEffect.World = Matrix.XnaIdentity;
             QuadEffect.View = view;
             QuadEffect.Projection = projection;
             QuadEffect.Texture = Texture.Texture;

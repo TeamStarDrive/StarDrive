@@ -14,7 +14,7 @@ using Ship_Game.SpriteSystem;
 using System.Diagnostics;
 using SDGraphics;
 using Ship_Game.ExtensionMethods;
-using Matrix = Microsoft.Xna.Framework.Matrix;
+using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
