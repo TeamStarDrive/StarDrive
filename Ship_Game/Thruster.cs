@@ -1,10 +1,12 @@
 using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.Data;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using Vector4 = Microsoft.Xna.Framework.Vector4;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {

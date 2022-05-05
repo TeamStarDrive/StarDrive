@@ -1,4 +1,5 @@
-﻿using Ship_Game.Audio;
+﻿using SDGraphics;
+using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 

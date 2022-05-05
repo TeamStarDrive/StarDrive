@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDGraphics;
 using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Gameplay;

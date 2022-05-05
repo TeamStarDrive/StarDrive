@@ -4,6 +4,8 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using SDGraphics;
+using Ship_Game.ExtensionMethods;
 using Ship_Game.Graphics;
 using Vector2 = SDGraphics.Vector2;
 

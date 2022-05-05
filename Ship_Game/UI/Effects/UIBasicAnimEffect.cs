@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 

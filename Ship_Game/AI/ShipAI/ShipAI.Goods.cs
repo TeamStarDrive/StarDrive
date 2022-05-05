@@ -1,4 +1,6 @@
-﻿namespace Ship_Game.AI
+﻿using SDGraphics;
+
+namespace Ship_Game.AI
 {
     internal sealed class PickupGoods : ShipAIPlan
     {

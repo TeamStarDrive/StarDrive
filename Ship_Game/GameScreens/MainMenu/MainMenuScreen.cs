@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data.Yaml;
@@ -10,6 +9,8 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
 using Vector2 = SDGraphics.Vector2;
+using SDGraphics;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.GameScreens.MainMenu
 {

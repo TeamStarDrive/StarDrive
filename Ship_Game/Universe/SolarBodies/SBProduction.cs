@@ -3,7 +3,8 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+using SDGraphics;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game.Universe.SolarBodies
 {

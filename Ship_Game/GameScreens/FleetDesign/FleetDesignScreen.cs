@@ -1,15 +1,18 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using System.Collections.Generic;
+using SDGraphics;
 using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.Fleets;
 using Ship_Game.GameScreens.ShipDesign;
 using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -364,7 +367,9 @@ namespace Ship_Game
                 foreach (Fleet.Squad squad in flank)
                 {
                     Viewport viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(squad.Offset, 0f), Projection, View, Matrix.Identity);
+                    Vector3 pScreenSpace = new Vector3(
+                        viewport.Project(new Vector3(squad.Offset, 0f), Projection, View, XnaMatrix.Identity)
+                    );
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
                     ClickableSquad cs = new ClickableSquad
                     {
@@ -381,11 +386,11 @@ namespace Ship_Game
         {
             CamPos.X += CamVelocity.X;
             CamPos.Y += CamVelocity.Y;
-            CamPos.Z = MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
+            CamPos.Z = Microsoft.Xna.Framework.MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
             var camPos = new Vector3(-CamPos.X, CamPos.Y, CamPos.Z);
             var lookAt = new Vector3(-CamPos.X, CamPos.Y, 0f);
-            SetViewMatrix(Matrix.CreateRotationY(180f.ToRadians())
-                        * Matrix.CreateLookAt(camPos, lookAt, Vector3.Down));
+            SetViewMatrix(XnaMatrix.CreateRotationY(180f.ToRadians())
+                        * XnaMatrix.CreateLookAt(camPos, lookAt, Vector3.Down));
             
             ClickableSquads.Clear();
             UpdateSelectedFleet();

@@ -1,4 +1,6 @@
-﻿using Ship_Game.Graphics.Particles;
+﻿using SDGraphics;
+using Ship_Game.ExtensionMethods;
+using Ship_Game.Graphics.Particles;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 

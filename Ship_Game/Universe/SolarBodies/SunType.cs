@@ -13,6 +13,9 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.SpriteSystem;
 using System.Diagnostics;
+using SDGraphics;
+using Ship_Game.ExtensionMethods;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 

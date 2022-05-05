@@ -4,16 +4,15 @@ using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
 using Ship_Game.Audio;
-
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Universe;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
-
+using Matrix = Microsoft.Xna.Framework.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;

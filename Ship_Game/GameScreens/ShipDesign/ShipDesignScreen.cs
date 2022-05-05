@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
@@ -14,6 +15,7 @@ using Ship_Game.Universe;
 
 using RectF = SDGraphics.RectF;
 using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game
 {

@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Data.Mesh;
+using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 

@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
 using System;
+using SDGraphics;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 

@@ -1,8 +1,10 @@
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
+using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
@@ -181,7 +183,7 @@ namespace Ship_Game
             if (selectedShip == null) // the empire does not have any ship of this role to launch
                 return;
 
-            Vector2 launchVector = MathExt.RandomOffsetAndDistance(p.Center, 1000);
+            Vector2 launchVector = NewMathExt.RandomOffsetAndDistance(p.Center, 1000);
             Ship defenseShip = Ship.CreateDefenseShip(p.Universe, selectedShip.Name, empire, launchVector, p);
             if (defenseShip == null)
             {

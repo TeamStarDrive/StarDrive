@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using SDGraphics;
 using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game

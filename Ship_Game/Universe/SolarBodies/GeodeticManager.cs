@@ -1,6 +1,7 @@
 ﻿using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
+using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2019

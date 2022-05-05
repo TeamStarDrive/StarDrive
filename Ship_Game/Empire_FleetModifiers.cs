@@ -1,4 +1,6 @@
-﻿namespace Ship_Game
+﻿using SDGraphics;
+
+namespace Ship_Game
 {
     public partial class Empire
     {
