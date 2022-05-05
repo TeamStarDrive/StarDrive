@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
@@ -11,6 +10,7 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Spatial;
 using Ship_Game.Gameplay;
+using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game

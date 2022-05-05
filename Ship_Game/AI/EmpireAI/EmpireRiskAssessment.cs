@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using SDGraphics;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;

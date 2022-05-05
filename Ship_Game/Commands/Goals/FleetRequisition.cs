@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
+using SDGraphics;
 
 namespace Ship_Game.Commands.Goals
 {

@@ -4,6 +4,7 @@ using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships;
+using Ship_Game.ExtensionMethods;
 using SynapseGaming.LightingSystem.Lights;
 using Matrix = Microsoft.Xna.Framework.Matrix;
 

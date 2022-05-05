@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using Ship_Game.Universe;

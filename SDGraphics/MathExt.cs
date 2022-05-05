@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics.Contracts;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using static System.Math;
+
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace SDGraphics;
 
@@ -30,6 +32,12 @@ public static class MathExt
     public static int Clamped(this int value, int min, int max)
     {
         return Max(min, Min(value, max));
+    }
+
+    public static float SmoothStep(this float value1, float value2, float amount)
+    {
+      float num = amount.Clamped(0.0f, 1f);
+      return value1.LerpTo(value2, num * num * (3f - 2f * num));
     }
 
     /// <summary>
@@ -116,6 +124,10 @@ public static class MathExt
     {
         return start + (end - start) * amount;
     }
+    public static int LerpTo(this int start, int end, float amount)
+    {
+        return (int)(start + (end - start) * amount);
+    }
     public static Color LerpTo(this Color start, Color end, float amount)
     {
         return new Color((byte)(start.R + (end.R - start.R) * amount),
@@ -167,18 +179,6 @@ public static class MathExt
         return new Vector3d(from.X.SmoothStep(to.X, amount),
             from.Y.SmoothStep(to.Y, amount),
             from.Z.SmoothStep(to.Z, amount));
-    }
-
-    // Returns true if Frustum either partially or fully contains this 2D circle
-    public static bool Contains(this BoundingFrustum frustum, in Vector2 center, float radius)
-    {
-        return frustum.Contains(new BoundingSphere(new Vector3(center, 0f), radius))
-               != ContainmentType.Disjoint; // Disjoint: no intersection at all
-    }
-    public static bool Contains(this BoundingFrustum frustum, in Vector3 center, float radius)
-    {
-        return frustum.Contains(new BoundingSphere(center, radius))
-               != ContainmentType.Disjoint; // Disjoint: no intersection at all
     }
 
     /// <summary>

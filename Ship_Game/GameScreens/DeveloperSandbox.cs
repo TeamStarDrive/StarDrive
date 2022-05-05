@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.GameScreens.MainMenu;
 

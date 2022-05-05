@@ -10,6 +10,7 @@ using Ship_Game.Audio;
 using Ship_Game.Data;
 using SynapseGaming.LightingSystem.Core;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {

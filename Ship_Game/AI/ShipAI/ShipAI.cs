@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Ship_Game.AI.ShipMovement;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -689,7 +688,7 @@ namespace Ship_Game.AI
                     {
                         //Gretman -- Added this so repair drones would cooldown outside combat (+15s)
                         if (weapon.CooldownTimer > 0f)
-                            weapon.CooldownTimer = MathHelper.Max(weapon.CooldownTimer - 1, 0f);
+                            weapon.CooldownTimer = Math.Max(weapon.CooldownTimer - 1, 0f);
                         continue;
                     }
 

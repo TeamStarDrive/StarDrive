@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
 
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+using XnaRect = Microsoft.Xna.Framework.Rectangle;
 
 namespace SDGraphics;
 
@@ -83,7 +83,7 @@ public struct RectF
         H = (float)size.Y;
     }
 
-    public RectF(in Rectangle r)
+    public RectF(in XnaRect r)
     {
         X = r.X;
         Y = r.Y;
@@ -141,9 +141,9 @@ public struct RectF
         return new RectF(center.X - width * 0.5, center.Y - height * 0.5, width, height);
     }
 
-    public static implicit operator Rectangle(in RectF r)
+    public static implicit operator XnaRect(in RectF r)
     {
-        return new Rectangle((int)r.X, (int)r.Y, (int)r.W, (int)r.H);
+        return new XnaRect((int)r.X, (int)r.Y, (int)r.W, (int)r.H);
     }
 
     [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]

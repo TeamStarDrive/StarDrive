@@ -1,6 +1,7 @@
 using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace Ship_Game
 {
@@ -115,9 +116,9 @@ namespace Ship_Game
             EffectParameter offsetsParameter = gaussianBlurEffect.Parameters["SampleOffsets"];
             int sampleCount = weightsParameter.Elements.Count;
             float[] sampleWeights = new float[sampleCount];
-            Vector2[] sampleOffsets = new Vector2[sampleCount];
+            XnaVector2[] sampleOffsets = new XnaVector2[sampleCount];
             sampleWeights[0] = ComputeGaussian(0f);
-            sampleOffsets[0] = new Vector2(0f);
+            sampleOffsets[0] = new XnaVector2(0f);
             float totalWeights = sampleWeights[0];
             for (int i = 0; i < sampleCount / 2; i++)
             {
@@ -126,7 +127,7 @@ namespace Ship_Game
                 sampleWeights[i * 2 + 2] = weight;
                 totalWeights = totalWeights + weight * 2f;
                 float sampleOffset = i * 2 + 1.5f;
-                Vector2 delta = new Vector2(dx, dy) * sampleOffset;
+                XnaVector2 delta = new XnaVector2(dx, dy) * sampleOffset;
                 sampleOffsets[i * 2 + 1] = delta;
                 sampleOffsets[i * 2 + 2] = -delta;
             }

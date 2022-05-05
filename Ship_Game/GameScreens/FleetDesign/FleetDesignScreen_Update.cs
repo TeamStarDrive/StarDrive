@@ -1,10 +1,10 @@
-using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Fleets;
 using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Matrix = Microsoft.Xna.Framework.Matrix;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {
@@ -14,7 +14,7 @@ namespace Ship_Game
         {
             CamPos.X += CamVelocity.X;
             CamPos.Y += CamVelocity.Y;
-            CamPos.Z = MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
+            CamPos.Z = Microsoft.Xna.Framework.MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
 
             var camPos = new Vector3(-CamPos.X, CamPos.Y, CamPos.Z);
             var lookAt = new Vector3(-CamPos.X, CamPos.Y, 0f);

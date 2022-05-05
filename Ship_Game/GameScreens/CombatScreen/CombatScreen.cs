@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
@@ -9,6 +8,7 @@ using SDUtils;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Data;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {
@@ -292,10 +292,10 @@ namespace Ship_Game
                         if (troop.MovingTimer > 0f)
                         {
                             float amount = 1f - troop.MovingTimer;
-                            troopClickRect.X = (int)MathHelper.Lerp(troop.FromRect.X, troop.ClickRect.X, amount);
-                            troopClickRect.Y = (int)MathHelper.Lerp(troop.FromRect.Y, troop.ClickRect.Y, amount);
-                            troopClickRect.Width = (int)MathHelper.Lerp(troop.FromRect.Width, troop.ClickRect.Width, amount);
-                            troopClickRect.Height = (int)MathHelper.Lerp(troop.FromRect.Height, troop.ClickRect.Height, amount);
+                            troopClickRect.X = troop.FromRect.X.LerpTo(troop.ClickRect.X, amount);
+                            troopClickRect.Y = troop.FromRect.Y.LerpTo(troop.ClickRect.Y, amount);
+                            troopClickRect.Width = troop.FromRect.Width.LerpTo(troop.ClickRect.Width, amount);
+                            troopClickRect.Height = troop.FromRect.Height.LerpTo(troop.ClickRect.Height, amount);
                         }
                         troop.Draw(batch, troopClickRect);
                         var moveRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 38, 12, 12);
