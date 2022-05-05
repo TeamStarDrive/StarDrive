@@ -6,6 +6,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using System.Linq;
 using SDGraphics;
+using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game

@@ -31,7 +31,7 @@ namespace Ship_Game
         static void InternalDraw(SpriteBatch batch, Texture2D tex, in RectF dstRect, bool scaleDst, Rectangle? srcRect, 
                                  Color color, float rotation, XnaVector2 origin,  SpriteEffects effects, float depth)
         {
-            var dst = new Vector4(dstRect.X, dstRect.Y, dstRect.W, dstRect.H);
+            var dst = new XnaVector4(dstRect.X, dstRect.Y, dstRect.W, dstRect.H);
             DrawInternal.Invoke(batch, tex, ref dst, scaleDst, ref srcRect, color, 
                                 rotation, ref origin, effects, depth);
         }

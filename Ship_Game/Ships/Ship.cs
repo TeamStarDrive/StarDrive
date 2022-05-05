@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using Ship_Game.Universe;
 using SDGraphics;
+using SDUtils;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.Ships
