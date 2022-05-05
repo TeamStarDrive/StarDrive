@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using static System.Math;
 
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using Point = Microsoft.Xna.Framework.Point;
 
 namespace SDGraphics;

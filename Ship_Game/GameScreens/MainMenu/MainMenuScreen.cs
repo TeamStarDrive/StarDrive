@@ -10,7 +10,7 @@ using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
 using Vector2 = SDGraphics.Vector2;
 using SDGraphics;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.GameScreens.MainMenu
 {

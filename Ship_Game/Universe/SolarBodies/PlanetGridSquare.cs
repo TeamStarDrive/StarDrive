@@ -1,7 +1,7 @@
 using System;
 using SDGraphics;
 using Ship_Game.Universe.SolarBodies;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game

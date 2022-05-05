@@ -3,7 +3,7 @@ using SDGraphics;
 using Ship_Game.Gameplay;
 using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
 {

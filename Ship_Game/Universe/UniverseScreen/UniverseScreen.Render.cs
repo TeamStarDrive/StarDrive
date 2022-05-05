@@ -9,7 +9,7 @@ using Ship_Game.Ships;
 using Ship_Game.ExtensionMethods;
 using Vector3 = SDGraphics.Vector3;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
 
 namespace Ship_Game

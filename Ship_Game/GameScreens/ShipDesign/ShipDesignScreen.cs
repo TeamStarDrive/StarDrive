@@ -12,7 +12,7 @@ using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Point = Microsoft.Xna.Framework.Point;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 using RectF = SDGraphics.RectF;
 using Vector2 = SDGraphics.Vector2;

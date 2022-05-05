@@ -7,17 +7,17 @@ using Ship_Game.Graphics;
 using Vector2 = SDGraphics.Vector2;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using XnaVector4 = Microsoft.Xna.Framework.Vector4;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using XnaRect = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {
     public static class SpriteExtensions
     {
-        delegate void InternalDrawD(SpriteBatch batch, Texture2D tex, ref XnaVector4 dst, bool scaleDst, ref Rectangle? srcRect,
+        delegate void InternalDrawD(SpriteBatch batch, Texture2D tex, ref XnaVector4 dst, bool scaleDst, ref XnaRect? srcRect,
                                     Color color, float rotation, ref XnaVector2 origin, SpriteEffects effects, float depth);
 
         static readonly InternalDrawD DrawInternal;
-        static readonly Rectangle? NullRectangle = new Rectangle?();
+        static readonly XnaRect? NullRectangle = new();
 
         static SpriteExtensions()
         {
@@ -28,7 +28,7 @@ namespace Ship_Game
             DrawInternal = (InternalDrawD)Delegate.CreateDelegate(typeof(InternalDrawD), null, method);
         }
 
-        static void InternalDraw(SpriteBatch batch, Texture2D tex, in RectF dstRect, bool scaleDst, Rectangle? srcRect, 
+        static void InternalDraw(SpriteBatch batch, Texture2D tex, in RectF dstRect, bool scaleDst, XnaRect? srcRect, 
                                  Color color, float rotation, XnaVector2 origin,  SpriteEffects effects, float depth)
         {
             var dst = new XnaVector4(dstRect.X, dstRect.Y, dstRect.W, dstRect.H);

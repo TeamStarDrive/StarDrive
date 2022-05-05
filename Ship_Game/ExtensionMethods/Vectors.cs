@@ -8,7 +8,7 @@ using Ship_Game.AI;
 using static System.Math;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game

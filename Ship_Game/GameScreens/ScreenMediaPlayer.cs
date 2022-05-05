@@ -5,7 +5,7 @@ using Ship_Game.Data;
 using System;
 using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.GameScreens
 {

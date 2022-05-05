@@ -8,7 +8,7 @@ using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using SDGraphics;
 
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 using Ray = Microsoft.Xna.Framework.Ray;
 using Point = Microsoft.Xna.Framework.Point;
 
