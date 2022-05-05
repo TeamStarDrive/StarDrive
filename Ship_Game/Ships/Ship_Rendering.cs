@@ -6,7 +6,7 @@ using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.Ships

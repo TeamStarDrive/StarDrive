@@ -10,7 +10,7 @@ using SDGraphics;
 
 using Rectangle = SDGraphics.Rectangle;
 using Ray = Microsoft.Xna.Framework.Ray;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 
 namespace Ship_Game
 {

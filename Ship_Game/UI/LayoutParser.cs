@@ -8,7 +8,7 @@ using Ship_Game.Data.YamlSerializer;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.SpriteSystem;
 using Vector2 = SDGraphics.Vector2;
-using Point = Microsoft.Xna.Framework.Point;
+using Point = SDGraphics.Point;
 
 namespace Ship_Game.UI
 {
