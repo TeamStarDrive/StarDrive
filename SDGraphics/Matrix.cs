@@ -209,4 +209,24 @@ public struct Matrix
         M43 = m.M43;
         M44 = m.M44;
     }
+
+    public void Multiply(in Matrix b, out Matrix result)
+    {
+        result.M11 = (M11 * b.M11 + M12 * b.M21 + M13 * b.M31 + M14 * b.M41);
+        result.M12 = (M11 * b.M12 + M12 * b.M22 + M13 * b.M32 + M14 * b.M42);
+        result.M13 = (M11 * b.M13 + M12 * b.M23 + M13 * b.M33 + M14 * b.M43);
+        result.M14 = (M11 * b.M14 + M12 * b.M24 + M13 * b.M34 + M14 * b.M44);
+        result.M21 = (M21 * b.M11 + M22 * b.M21 + M23 * b.M31 + M24 * b.M41);
+        result.M22 = (M21 * b.M12 + M22 * b.M22 + M23 * b.M32 + M24 * b.M42);
+        result.M23 = (M21 * b.M13 + M22 * b.M23 + M23 * b.M33 + M24 * b.M43);
+        result.M24 = (M21 * b.M14 + M22 * b.M24 + M23 * b.M34 + M24 * b.M44);
+        result.M31 = (M31 * b.M11 + M32 * b.M21 + M33 * b.M31 + M34 * b.M41);
+        result.M32 = (M31 * b.M12 + M32 * b.M22 + M33 * b.M32 + M34 * b.M42);
+        result.M33 = (M31 * b.M13 + M32 * b.M23 + M33 * b.M33 + M34 * b.M43);
+        result.M34 = (M31 * b.M14 + M32 * b.M24 + M33 * b.M34 + M34 * b.M44);
+        result.M41 = (M41 * b.M11 + M42 * b.M21 + M43 * b.M31 + M44 * b.M41);
+        result.M42 = (M41 * b.M12 + M42 * b.M22 + M43 * b.M32 + M44 * b.M42);
+        result.M43 = (M41 * b.M13 + M42 * b.M23 + M43 * b.M33 + M44 * b.M43);
+        result.M44 = (M41 * b.M14 + M42 * b.M24 + M43 * b.M34 + M44 * b.M44);
+    }
 }

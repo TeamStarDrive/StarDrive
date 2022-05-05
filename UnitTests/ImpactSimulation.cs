@@ -2,6 +2,7 @@
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
 using Ship_Game;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 using Vector2 = SDGraphics.Vector2;
