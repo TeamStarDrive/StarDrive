@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
@@ -13,6 +12,7 @@ using Ship_Game.GameScreens;
 using Ship_Game.ExtensionMethods;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {

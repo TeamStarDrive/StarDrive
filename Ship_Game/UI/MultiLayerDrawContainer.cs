@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Graphics;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game.UI
 {

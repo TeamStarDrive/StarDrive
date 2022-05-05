@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Microsoft.Xna.Framework;
 
 namespace Ship_Game.Utils
 {

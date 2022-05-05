@@ -1,12 +1,11 @@
 using System;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using SDGraphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game
 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game;
@@ -9,6 +8,7 @@ using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Universe.SolarBodies;
+using Vector4 = Microsoft.Xna.Framework.Vector4;
 
 namespace UnitTests.Serialization
 {

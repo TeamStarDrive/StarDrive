@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 using Ship_Game.Debug;
 using Ship_Game.Empires;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using Ship_Game.ExtensionMethods;
+using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
 
 namespace Ship_Game.Universe
 {

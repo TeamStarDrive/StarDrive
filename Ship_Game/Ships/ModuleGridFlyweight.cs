@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Vector2 = SDGraphics.Vector2;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game.Ships
 {

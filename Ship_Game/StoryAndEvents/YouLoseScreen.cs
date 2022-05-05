@@ -1,8 +1,9 @@
 using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
+using SDGraphics;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {
@@ -117,10 +118,10 @@ namespace Ship_Game
         {
             scale = 1f + 2f * TransitionPosition;
             Saturation = 100f * (1f - TransitionPosition);
-            width = (int)MathHelper.Lerp(width, (int)(960f + 960f * (1f - TransitionPosition)), 0.3f);
-            height = (int)MathHelper.Lerp(height, 540f + 540f * (1f - TransitionPosition), 0.3f);
+            width = width.LerpTo((int)(960f + 960f * (1f - TransitionPosition)), 0.3f);
+            height = height.LerpTo((int)(540f + 540f * (1f - TransitionPosition)), 0.3f);
             GameAudio.MuteGenericMusic();
-            SourceRect = new Rectangle((int)MathHelper.Lerp(SourceRect.X, 960 - width / 2, 0.3f), (int)MathHelper.Lerp(SourceRect.Y, 540 - height / 2, 0.3f), width, height);
+            SourceRect = new Rectangle(SourceRect.X.LerpTo(960 - width / 2, 0.3f), SourceRect.Y.LerpTo(540 - height / 2, 0.3f), width, height);
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
     }

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Vector2 = SDGraphics.Vector2;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game.Ships.Legacy
 {

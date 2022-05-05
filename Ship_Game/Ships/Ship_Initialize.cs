@@ -1,11 +1,12 @@
-﻿using Microsoft.Xna.Framework;
-using Ship_Game.AI;
+﻿using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using System;
 using SDGraphics;
 using Ship_Game.Data;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
+using Point = Microsoft.Xna.Framework.Point;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.Ships
 {

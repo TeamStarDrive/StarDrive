@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Graphics;
 using Vector2 = SDGraphics.Vector2;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using XnaVector4 = Microsoft.Xna.Framework.Vector4;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {

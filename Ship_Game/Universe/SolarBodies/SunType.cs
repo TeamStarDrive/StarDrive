@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
 using Ship_Game;
@@ -18,6 +17,7 @@ using Ship_Game.ExtensionMethods;
 using Matrix = Microsoft.Xna.Framework.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.Universe.SolarBodies
 {

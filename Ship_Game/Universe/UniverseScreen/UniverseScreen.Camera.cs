@@ -1,5 +1,4 @@
 using System;
-using Microsoft.Xna.Framework;
 using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
@@ -7,6 +6,7 @@ using Ship_Game.GameScreens;
 using Matrix = Microsoft.Xna.Framework.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Ray = Microsoft.Xna.Framework.Ray;
 
 namespace Ship_Game
 {
