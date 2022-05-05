@@ -8,10 +8,8 @@ using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
+using Vector4 = SDGraphics.Vector4;
 using Point = SDGraphics.Point;
-
-
-using Vector4 = Microsoft.Xna.Framework.Vector4;
 
 namespace Ship_Game.Data.Serialization.Types
 {

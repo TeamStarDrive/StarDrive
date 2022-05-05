@@ -5,9 +5,9 @@ using Ship_Game.Data;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using Vector4 = Microsoft.Xna.Framework.Vector4;
 using Matrix = SDGraphics.Matrix;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
+using XnaVector4 = Microsoft.Xna.Framework.Vector4;
 
 namespace Ship_Game
 {
@@ -29,7 +29,7 @@ namespace Ship_Game
         public EffectParameter effect_noise;
 
         public Color[] colors = new Color[2];
-        public Vector4[] v4colors = new Vector4[2];
+        public XnaVector4[] v4colors = new XnaVector4[2];
 
         public float heat = 1f;
         public float tick;

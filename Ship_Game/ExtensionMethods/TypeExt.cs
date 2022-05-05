@@ -10,7 +10,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using SDGraphics;
-using Vector4 = Microsoft.Xna.Framework.Vector4;
+using Vector4 = SDGraphics.Vector4;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game

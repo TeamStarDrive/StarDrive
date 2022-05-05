@@ -8,7 +8,7 @@ using Ship_Game.Data;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Universe.SolarBodies;
-using Vector4 = Microsoft.Xna.Framework.Vector4;
+using Vector4 = SDGraphics.Vector4;
 
 namespace UnitTests.Serialization
 {
