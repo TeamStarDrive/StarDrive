@@ -9,7 +9,6 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
-using XnaRect = SDGraphics.Rectangle;
 using BoundingFrustum = Microsoft.Xna.Framework.BoundingFrustum;
 using BoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
 using ContainmentType = Microsoft.Xna.Framework.ContainmentType;
@@ -61,10 +60,10 @@ namespace Ship_Game.ExtensionMethods
                 .Predict(proj.Weapon.CanUseAdvancedTargeting);
         }
 
-        public static float CenterTextX(this XnaRect r, in LocalizedText text)
+        public static float CenterTextX(this Rectangle r, in LocalizedText text)
             => CenterTextX(r, text, Fonts.Arial12Bold);
 
-        public static float CenterTextX(this XnaRect r, in LocalizedText text, Graphics.Font font)
+        public static float CenterTextX(this Rectangle r, in LocalizedText text, Graphics.Font font)
             => r.X + r.Width*0.5f - font.TextWidth(text)*0.5f;
 
         // Returns true if Frustum either partially or fully contains this 2D circle

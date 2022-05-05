@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -16,10 +17,10 @@ namespace SDGraphics
         public int Width;
         public int Height;
 
-        public int Left => X;
-        public int Right => X + Width;
-        public int Top => Y;
-        public int Bottom => Y + Height;
+        public readonly int Left => X;
+        public readonly int Right => X + Width;
+        public readonly int Top => Y;
+        public readonly int Bottom => Y + Height;
 
         public Point Location
         {
@@ -31,11 +32,12 @@ namespace SDGraphics
             }
         }
 
-        public Point Center => new Point(X + Width / 2, Y + Height / 2);
+        public readonly Point Center => new Point(X + Width / 2, Y + Height / 2);
+        public readonly Vector2 CenterF => new Vector2(X + Width / 2, Y + Height / 2);
 
         public static readonly Rectangle Empty = new Rectangle();
 
-        public bool IsEmpty => Width == 0 && Height == 0 && X == 0 && Y == 0;
+        public readonly bool IsEmpty => Width == 0 && Height == 0 && X == 0 && Y == 0;
 
         public Rectangle(int x, int y, int width, int height)
         {
@@ -70,19 +72,20 @@ namespace SDGraphics
             Height += verticalAmount * 2;
         }
 
-        public bool Contains(int x, int y) => X <= x && x < X + Width && Y <= y && y < Y + Height;
+        [Pure]
+        public readonly bool Contains(int x, int y) => X <= x && x < X + Width && Y <= y && y < Y + Height;
 
-        public bool Contains(Point value) => X <= value.X && value.X < X + Width && Y <= value.Y && value.Y < Y + Height;
+        [Pure]
+        public readonly bool Contains(Point value) => X <= value.X && value.X < X + Width && Y <= value.Y && value.Y < Y + Height;
 
-        public void Contains(ref Point value, out bool result) => result = X <= value.X && value.X < X + Width && Y <= value.Y && value.Y < Y + Height;
+        [Pure]
+        public readonly void Contains(ref Point value, out bool result) => result = X <= value.X && value.X < X + Width && Y <= value.Y && value.Y < Y + Height;
 
-        public bool Contains(Rectangle value) => X <= value.X && value.X + value.Width <= X + Width && Y <= value.Y && value.Y + value.Height <= Y + Height;
+        [Pure]
+        public readonly bool Contains(Rectangle value) => X <= value.X && value.X + value.Width <= X + Width && Y <= value.Y && value.Y + value.Height <= Y + Height;
 
-        public void Contains(ref Rectangle value, out bool result) => result = X <= value.X && value.X + value.Width <= X + Width && Y <= value.Y && value.Y + value.Height <= Y + Height;
-
-        public bool Intersects(Rectangle value) => value.X < X + Width && X < value.X + value.Width && value.Y < Y + Height && Y < value.Y + value.Height;
-
-        public void Intersects(ref Rectangle value, out bool result) => result = value.X < X + Width && X < value.X + value.Width && value.Y < Y + Height && Y < value.Y + value.Height;
+        [Pure]
+        public readonly bool Intersects(Rectangle value) => value.X < X + Width && X < value.X + value.Width && value.Y < Y + Height && Y < value.Y + value.Height;
 
         public static Rectangle Intersect(Rectangle value1, Rectangle value2)
         {
@@ -194,5 +197,91 @@ namespace SDGraphics
         public static bool operator ==(Rectangle a, Rectangle b) => a.X == b.X && a.Y == b.Y && a.Width == b.Width && a.Height == b.Height;
 
         public static bool operator !=(Rectangle a, Rectangle b) => a.X != b.X || a.Y != b.Y || a.Width != b.Width || a.Height != b.Height;
+
+        [Pure]
+        public readonly bool HitTest(Vector2 pos)
+        {
+            return pos.X > X && pos.Y > Y
+                && pos.X < X + Width
+                && pos.Y < Y + Height;
+        }
+
+        [Pure]
+        public readonly bool HitTest(int x, int y)
+        {
+            return x > X && y > Y
+                && x < X + Width
+                && y < Y + Height;
+        }
+
+        [Pure] public readonly Point Pos() => new Point(X, Y);
+        [Pure] public readonly Vector2 PosVec() => new Vector2(X, Y);
+        [Pure] public readonly Vector2 Size() => new Vector2(Width, Height);
+        [Pure] public readonly int CenterX() => X + Width / 2;
+        [Pure] public readonly int CenterY() => Y + Height / 2;
+        [Pure] public readonly int Area() => Width * Height;
+
+        // Example: r.RelativeX(0.5) == r.CenterX()
+        //          r.RelativeX(1.0) == r.Right
+        [Pure] public readonly int RelativeX(float percent) => X + (int)(Width * percent);
+        [Pure] public readonly int RelativeY(float percent) => Y + (int)(Height * percent);
+
+        [Pure]
+        public readonly Vector2 RelPos(float relX, float relY)
+            => new Vector2(RelativeX(relX), RelativeY(relY));
+
+        [Pure]
+        public readonly Rectangle Bevel(int bevel)
+            => new Rectangle(X - bevel, Y - bevel, Width + bevel * 2, Height + bevel * 2);
+
+        [Pure]
+        public readonly Rectangle Bevel(int bevelX, int bevelY)
+            => new Rectangle(X - bevelX, Y - bevelY, Width + bevelX * 2, Height + bevelY * 2);
+
+        [Pure]
+        public readonly Rectangle Widen(int widen)
+            => new Rectangle(X - widen, Y, Width + widen * 2, Height);
+
+        [Pure]
+        public readonly Rectangle Move(int dx, int dy)
+            => new Rectangle(X + dx, Y + dy, Width, Height);
+
+        // Cut a chunk off the top of the rectangle
+        [Pure]
+        public readonly Rectangle CutTop(int amount)
+            => new Rectangle(X, Y + amount, Width, Height - amount);
+
+        [Pure]
+        public readonly Rectangle ScaledBy(float scale)
+        {
+            if (scale.AlmostEqual(1f))
+                return this;
+            float extrude = scale - 1f;
+            int extrudeX = (int)(Width * extrude);
+            int extrudeY = (int)(Height * extrude);
+            return new Rectangle(X - extrudeX,
+                Y - extrudeY,
+                Width + extrudeX * 2,
+                Height + extrudeY * 2);
+        }
+
+        // Given 2 rectangles, returns out the intersecting rectangle area,
+        // or returns false if no intersection
+        [Pure]
+        public readonly bool GetIntersectingRect(in Rectangle b, out Rectangle intersection)
+        {
+            int leftX = Math.Max(X, b.X);
+            int rightX = Math.Min(X + Width, b.X + b.Width);
+            int topY = Math.Max(Y, b.Y);
+            int bottomY = Math.Min(Y + Height, b.Y + b.Height);
+
+            if (leftX < rightX && topY < bottomY)
+            {
+                intersection = new Rectangle(leftX, topY, rightX - leftX, bottomY - topY);
+                return true;
+            }
+            intersection = Rectangle.Empty;
+            return false;
+        }
     }
 }

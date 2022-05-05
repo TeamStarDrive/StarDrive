@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 
 using XnaQuat = Microsoft.Xna.Framework.Quaternion;
@@ -225,6 +226,7 @@ public struct Matrix : IEquatable<Matrix>
         M44 = m.M44;
     }
 
+    [Pure]
     public static Matrix CreateTranslation(Vector3 position)
     {
         Matrix translation;
@@ -247,6 +249,7 @@ public struct Matrix : IEquatable<Matrix>
         return translation;
     }
 
+    [Pure]
     public static void CreateTranslation(ref Vector3 position, out Matrix result)
     {
         result.M11 = 1f;
@@ -267,6 +270,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateTranslation(float xPosition, float yPosition, float zPosition)
     {
         Matrix translation;
@@ -289,6 +293,7 @@ public struct Matrix : IEquatable<Matrix>
         return translation;
     }
 
+    [Pure]
     public static void CreateTranslation(
       float xPosition,
       float yPosition,
@@ -313,6 +318,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateScale(float xScale, float yScale, float zScale)
     {
         float num1 = xScale;
@@ -338,6 +344,7 @@ public struct Matrix : IEquatable<Matrix>
         return scale;
     }
 
+    [Pure]
     public static void CreateScale(float xScale, float yScale, float zScale, out Matrix result)
     {
         float num1 = xScale;
@@ -361,6 +368,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateScale(Vector3 scales)
     {
         float x = scales.X;
@@ -386,6 +394,7 @@ public struct Matrix : IEquatable<Matrix>
         return scale;
     }
 
+    [Pure]
     public static void CreateScale(ref Vector3 scales, out Matrix result)
     {
         float x = scales.X;
@@ -409,6 +418,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateScale(float scale)
     {
         float num = scale;
@@ -432,6 +442,7 @@ public struct Matrix : IEquatable<Matrix>
         return scale1;
     }
 
+    [Pure]
     public static void CreateScale(float scale, out Matrix result)
     {
         float num = scale;
@@ -453,6 +464,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateRotationX(float radians)
     {
         float num1 = (float)Math.Cos(radians);
@@ -477,6 +489,7 @@ public struct Matrix : IEquatable<Matrix>
         return rotationX;
     }
 
+    [Pure]
     public static void CreateRotationX(float radians, out Matrix result)
     {
         float num1 = (float)Math.Cos(radians);
@@ -499,6 +512,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateRotationY(float radians)
     {
         float num1 = (float)Math.Cos(radians);
@@ -523,6 +537,7 @@ public struct Matrix : IEquatable<Matrix>
         return rotationY;
     }
 
+    [Pure]
     public static void CreateRotationY(float radians, out Matrix result)
     {
         float num1 = (float)Math.Cos(radians);
@@ -545,6 +560,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateRotationZ(float radians)
     {
         float num1 = (float)Math.Cos(radians);
@@ -569,6 +585,7 @@ public struct Matrix : IEquatable<Matrix>
         return rotationZ;
     }
 
+    [Pure]
     public static void CreateRotationZ(float radians, out Matrix result)
     {
         float num1 = (float)Math.Cos(radians);
@@ -591,6 +608,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateFromAxisAngle(Vector3 axis, float angle)
     {
         float x = axis.X;
@@ -624,6 +642,7 @@ public struct Matrix : IEquatable<Matrix>
         return fromAxisAngle;
     }
 
+    [Pure]
     public static void CreateFromAxisAngle(ref Vector3 axis, float angle, out Matrix result)
     {
         float x = axis.X;
@@ -655,6 +674,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreatePerspectiveFieldOfView(
       float fieldOfView,
       float aspectRatio,
@@ -684,6 +704,7 @@ public struct Matrix : IEquatable<Matrix>
         return perspectiveFieldOfView;
     }
 
+    [Pure]
     public static void CreatePerspectiveFieldOfView(
       float fieldOfView,
       float aspectRatio,
@@ -712,6 +733,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M43 = (float)(nearPlaneDistance * (double)farPlaneDistance / (nearPlaneDistance - (double)farPlaneDistance));
     }
 
+    [Pure]
     public static Matrix CreatePerspective(
       float width,
       float height,
@@ -737,6 +759,7 @@ public struct Matrix : IEquatable<Matrix>
         return perspective;
     }
 
+    [Pure]
     public static void CreatePerspective(
       float width,
       float height,
@@ -761,6 +784,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M43 = (float)(nearPlaneDistance * (double)farPlaneDistance / (nearPlaneDistance - (double)farPlaneDistance));
     }
 
+    [Pure]
     public static Matrix CreatePerspectiveOffCenter(
       float left,
       float right,
@@ -789,6 +813,7 @@ public struct Matrix : IEquatable<Matrix>
         return perspectiveOffCenter;
     }
 
+    [Pure]
     public static void CreatePerspectiveOffCenter(
       float left,
       float right,
@@ -816,6 +841,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M41 = result.M42 = result.M44 = 0.0f;
     }
 
+    [Pure]
     public static Matrix CreateOrthographic(
       float width,
       float height,
@@ -835,6 +861,7 @@ public struct Matrix : IEquatable<Matrix>
         return orthographic;
     }
 
+    [Pure]
     public static void CreateOrthographic(
       float width,
       float height,
@@ -853,6 +880,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateOrthographicOffCenter(
       float left,
       float right,
@@ -875,6 +903,7 @@ public struct Matrix : IEquatable<Matrix>
         return orthographicOffCenter;
     }
 
+    [Pure]
     public static void CreateOrthographicOffCenter(
       float left,
       float right,
@@ -896,6 +925,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateLookAt(
       Vector3 cameraPosition,
       Vector3 cameraTarget,
@@ -924,6 +954,7 @@ public struct Matrix : IEquatable<Matrix>
         return lookAt;
     }
 
+    [Pure]
     public static void CreateLookAt(
       ref Vector3 cameraPosition,
       ref Vector3 cameraTarget,
@@ -951,6 +982,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateWorld(Vector3 position, Vector3 forward, Vector3 up)
     {
         Vector3 vector3_1 = (-forward).Normalized();
@@ -976,6 +1008,7 @@ public struct Matrix : IEquatable<Matrix>
         return world;
     }
 
+    [Pure]
     public static void CreateWorld(
       ref Vector3 position,
       ref Vector3 forward,
@@ -1003,6 +1036,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateFromQuaternion(XnaQuat quaternion)
     {
         float num1 = quaternion.X * quaternion.X;
@@ -1034,6 +1068,7 @@ public struct Matrix : IEquatable<Matrix>
         return fromQuaternion;
     }
 
+    [Pure]
     public static void CreateFromQuaternion(ref XnaQuat quaternion, out Matrix result)
     {
         float num1 = quaternion.X * quaternion.X;
@@ -1063,6 +1098,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix CreateFromYawPitchRoll(float yaw, float pitch, float roll)
     {
         XnaQuat result1;
@@ -1072,6 +1108,7 @@ public struct Matrix : IEquatable<Matrix>
         return result2;
     }
 
+    [Pure]
     public static void CreateFromYawPitchRoll(
       float yaw,
       float pitch,
@@ -1083,11 +1120,12 @@ public struct Matrix : IEquatable<Matrix>
         CreateFromQuaternion(ref result1, out result);
     }
 
+    [Pure]
     public static Matrix CreateShadow(Vector3 lightDirection, XnaPlane plane)
     {
         XnaPlane result;
         XnaPlane.Normalize(ref plane, out result);
-        float num1 = (float)(result.Normal.X * lightDirection.X + result.Normal.Y * lightDirection.Y + result.Normal.Z * lightDirection.Z);
+        float num1 = result.Normal.X * lightDirection.X + result.Normal.Y * lightDirection.Y + result.Normal.Z * lightDirection.Z;
         float num2 = -result.Normal.X;
         float num3 = -result.Normal.Y;
         float num4 = -result.Normal.Z;
@@ -1112,11 +1150,12 @@ public struct Matrix : IEquatable<Matrix>
         return shadow;
     }
 
+    [Pure]
     public static void CreateShadow(ref Vector3 lightDirection, ref XnaPlane plane, out Matrix result)
     {
         XnaPlane result1;
         XnaPlane.Normalize(ref plane, out result1);
-        float num1 = (float)(result1.Normal.X * lightDirection.X + result1.Normal.Y * lightDirection.Y + result1.Normal.Z * lightDirection.Z);
+        float num1 = result1.Normal.X * lightDirection.X + result1.Normal.Y * lightDirection.Y + result1.Normal.Z * lightDirection.Z;
         float num2 = -result1.Normal.X;
         float num3 = -result1.Normal.Y;
         float num4 = -result1.Normal.Z;
@@ -1139,6 +1178,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = num1;
     }
 
+    [Pure]
     public static Matrix CreateReflection(XnaPlane value)
     {
         value.Normalize();
@@ -1168,6 +1208,7 @@ public struct Matrix : IEquatable<Matrix>
         return reflection;
     }
 
+    [Pure]
     public static void CreateReflection(ref XnaPlane value, out Matrix result)
     {
         XnaPlane result1;
@@ -1197,6 +1238,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = 1f;
     }
 
+    [Pure]
     public static Matrix Transform(Matrix value, XnaQuat rotation)
     {
         float num1 = rotation.X + rotation.X;
@@ -1221,25 +1263,26 @@ public struct Matrix : IEquatable<Matrix>
         float num20 = num11 + num4;
         float num21 = 1f - num7 - num10;
         Matrix matrix;
-        matrix.M11 = (float)(value.M11 * num13 + value.M12 * num14 + value.M13 * num15);
-        matrix.M12 = (float)(value.M11 * num16 + value.M12 * num17 + value.M13 * num18);
-        matrix.M13 = (float)(value.M11 * num19 + value.M12 * num20 + value.M13 * num21);
+        matrix.M11 = value.M11 * num13 + value.M12 * num14 + value.M13 * num15;
+        matrix.M12 = value.M11 * num16 + value.M12 * num17 + value.M13 * num18;
+        matrix.M13 = value.M11 * num19 + value.M12 * num20 + value.M13 * num21;
         matrix.M14 = value.M14;
-        matrix.M21 = (float)(value.M21 * num13 + value.M22 * num14 + value.M23 * num15);
-        matrix.M22 = (float)(value.M21 * num16 + value.M22 * num17 + value.M23 * num18);
-        matrix.M23 = (float)(value.M21 * num19 + value.M22 * num20 + value.M23 * num21);
+        matrix.M21 = value.M21 * num13 + value.M22 * num14 + value.M23 * num15;
+        matrix.M22 = value.M21 * num16 + value.M22 * num17 + value.M23 * num18;
+        matrix.M23 = value.M21 * num19 + value.M22 * num20 + value.M23 * num21;
         matrix.M24 = value.M24;
-        matrix.M31 = (float)(value.M31 * num13 + value.M32 * num14 + value.M33 * num15);
-        matrix.M32 = (float)(value.M31 * num16 + value.M32 * num17 + value.M33 * num18);
-        matrix.M33 = (float)(value.M31 * num19 + value.M32 * num20 + value.M33 * num21);
+        matrix.M31 = value.M31 * num13 + value.M32 * num14 + value.M33 * num15;
+        matrix.M32 = value.M31 * num16 + value.M32 * num17 + value.M33 * num18;
+        matrix.M33 = value.M31 * num19 + value.M32 * num20 + value.M33 * num21;
         matrix.M34 = value.M34;
-        matrix.M41 = (float)(value.M41 * num13 + value.M42 * num14 + value.M43 * num15);
-        matrix.M42 = (float)(value.M41 * num16 + value.M42 * num17 + value.M43 * num18);
-        matrix.M43 = (float)(value.M41 * num19 + value.M42 * num20 + value.M43 * num21);
+        matrix.M41 = value.M41 * num13 + value.M42 * num14 + value.M43 * num15;
+        matrix.M42 = value.M41 * num16 + value.M42 * num17 + value.M43 * num18;
+        matrix.M43 = value.M41 * num19 + value.M42 * num20 + value.M43 * num21;
         matrix.M44 = value.M44;
         return matrix;
     }
 
+    [Pure]
     public static void Transform(ref Matrix value, ref XnaQuat rotation, out Matrix result)
     {
         float num1 = rotation.X + rotation.X;
@@ -1263,21 +1306,21 @@ public struct Matrix : IEquatable<Matrix>
         float num19 = num9 - num5;
         float num20 = num11 + num4;
         float num21 = 1f - num7 - num10;
-        float num22 = (float)(value.M11 * num13 + value.M12 * num14 + value.M13 * num15);
-        float num23 = (float)(value.M11 * num16 + value.M12 * num17 + value.M13 * num18);
-        float num24 = (float)(value.M11 * num19 + value.M12 * num20 + value.M13 * num21);
+        float num22 = value.M11 * num13 + value.M12 * num14 + value.M13 * num15;
+        float num23 = value.M11 * num16 + value.M12 * num17 + value.M13 * num18;
+        float num24 = value.M11 * num19 + value.M12 * num20 + value.M13 * num21;
         float m14 = value.M14;
-        float num25 = (float)(value.M21 * num13 + value.M22 * num14 + value.M23 * num15);
-        float num26 = (float)(value.M21 * num16 + value.M22 * num17 + value.M23 * num18);
-        float num27 = (float)(value.M21 * num19 + value.M22 * num20 + value.M23 * num21);
+        float num25 = value.M21 * num13 + value.M22 * num14 + value.M23 * num15;
+        float num26 = value.M21 * num16 + value.M22 * num17 + value.M23 * num18;
+        float num27 = value.M21 * num19 + value.M22 * num20 + value.M23 * num21;
         float m24 = value.M24;
-        float num28 = (float)(value.M31 * num13 + value.M32 * num14 + value.M33 * num15);
-        float num29 = (float)(value.M31 * num16 + value.M32 * num17 + value.M33 * num18);
-        float num30 = (float)(value.M31 * num19 + value.M32 * num20 + value.M33 * num21);
+        float num28 = value.M31 * num13 + value.M32 * num14 + value.M33 * num15;
+        float num29 = value.M31 * num16 + value.M32 * num17 + value.M33 * num18;
+        float num30 = value.M31 * num19 + value.M32 * num20 + value.M33 * num21;
         float m34 = value.M34;
-        float num31 = (float)(value.M41 * num13 + value.M42 * num14 + value.M43 * num15);
-        float num32 = (float)(value.M41 * num16 + value.M42 * num17 + value.M43 * num18);
-        float num33 = (float)(value.M41 * num19 + value.M42 * num20 + value.M43 * num21);
+        float num31 = value.M41 * num13 + value.M42 * num14 + value.M43 * num15;
+        float num32 = value.M41 * num16 + value.M42 * num17 + value.M43 * num18;
+        float num33 = value.M41 * num19 + value.M42 * num20 + value.M43 * num21;
         float m44 = value.M44;
         result.M11 = num22;
         result.M12 = num23;
@@ -1323,6 +1366,7 @@ public struct Matrix : IEquatable<Matrix>
 
     public override int GetHashCode() => M11.GetHashCode() + M12.GetHashCode() + M13.GetHashCode() + M14.GetHashCode() + M21.GetHashCode() + M22.GetHashCode() + M23.GetHashCode() + M24.GetHashCode() + M31.GetHashCode() + M32.GetHashCode() + M33.GetHashCode() + M34.GetHashCode() + M41.GetHashCode() + M42.GetHashCode() + M43.GetHashCode() + M44.GetHashCode();
 
+    [Pure]
     public static Matrix Transpose(Matrix matrix)
     {
         Matrix matrix1;
@@ -1345,6 +1389,7 @@ public struct Matrix : IEquatable<Matrix>
         return matrix1;
     }
 
+    [Pure]
     public static void Transpose(ref Matrix matrix, out Matrix result)
     {
         float m11 = matrix.M11;
@@ -1381,6 +1426,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = m44;
     }
 
+    [Pure]
     public float Determinant()
     {
         float m11 = M11;
@@ -1399,15 +1445,16 @@ public struct Matrix : IEquatable<Matrix>
         float m42 = M42;
         float m43 = M43;
         float m44 = M44;
-        float num1 = (float)(m33 * m44 - m34 * m43);
-        float num2 = (float)(m32 * m44 - m34 * m42);
-        float num3 = (float)(m32 * m43 - m33 * m42);
-        float num4 = (float)(m31 * m44 - m34 * m41);
-        float num5 = (float)(m31 * m43 - m33 * m41);
-        float num6 = (float)(m31 * m42 - m32 * m41);
-        return (float)(m11 * (m22 * num1 - m23 * num2 + m24 * num3) - m12 * (m21 * num1 - m23 * num4 + m24 * num5) + m13 * (m21 * num2 - m22 * num4 + m24 * num6) - m14 * (m21 * num3 - m22 * num5 + m23 * num6));
+        float num1 = m33 * m44 - m34 * m43;
+        float num2 = m32 * m44 - m34 * m42;
+        float num3 = m32 * m43 - m33 * m42;
+        float num4 = m31 * m44 - m34 * m41;
+        float num5 = m31 * m43 - m33 * m41;
+        float num6 = m31 * m42 - m32 * m41;
+        return m11 * (m22 * num1 - m23 * num2 + m24 * num3) - m12 * (m21 * num1 - m23 * num4 + m24 * num5) + m13 * (m21 * num2 - m22 * num4 + m24 * num6) - m14 * (m21 * num3 - m22 * num5 + m23 * num6);
     }
 
+    [Pure]
     public static Matrix Invert(Matrix matrix)
     {
         float m11 = matrix.M11;
@@ -1426,49 +1473,50 @@ public struct Matrix : IEquatable<Matrix>
         float m42 = matrix.M42;
         float m43 = matrix.M43;
         float m44 = matrix.M44;
-        float num1 = (float)(m33 * m44 - m34 * m43);
-        float num2 = (float)(m32 * m44 - m34 * m42);
-        float num3 = (float)(m32 * m43 - m33 * m42);
-        float num4 = (float)(m31 * m44 - m34 * m41);
-        float num5 = (float)(m31 * m43 - m33 * m41);
-        float num6 = (float)(m31 * m42 - m32 * m41);
-        float num7 = (float)(m22 * num1 - m23 * num2 + m24 * num3);
-        float num8 = (float)-(m21 * num1 - m23 * num4 + m24 * num5);
-        float num9 = (float)(m21 * num2 - m22 * num4 + m24 * num6);
-        float num10 = (float)-(m21 * num3 - m22 * num5 + m23 * num6);
+        float num1 = m33 * m44 - m34 * m43;
+        float num2 = m32 * m44 - m34 * m42;
+        float num3 = m32 * m43 - m33 * m42;
+        float num4 = m31 * m44 - m34 * m41;
+        float num5 = m31 * m43 - m33 * m41;
+        float num6 = m31 * m42 - m32 * m41;
+        float num7 = m22 * num1 - m23 * num2 + m24 * num3;
+        float num8 = -(m21 * num1 - m23 * num4 + m24 * num5);
+        float num9 = m21 * num2 - m22 * num4 + m24 * num6;
+        float num10 = -(m21 * num3 - m22 * num5 + m23 * num6);
         float num11 = (float)(1.0 / (m11 * num7 + m12 * num8 + m13 * num9 + m14 * num10));
         Matrix matrix1;
         matrix1.M11 = num7 * num11;
         matrix1.M21 = num8 * num11;
         matrix1.M31 = num9 * num11;
         matrix1.M41 = num10 * num11;
-        matrix1.M12 = (float)-(m12 * num1 - m13 * num2 + m14 * num3) * num11;
-        matrix1.M22 = (float)(m11 * num1 - m13 * num4 + m14 * num5) * num11;
-        matrix1.M32 = (float)-(m11 * num2 - m12 * num4 + m14 * num6) * num11;
-        matrix1.M42 = (float)(m11 * num3 - m12 * num5 + m13 * num6) * num11;
-        float num12 = (float)(m23 * m44 - m24 * m43);
-        float num13 = (float)(m22 * m44 - m24 * m42);
-        float num14 = (float)(m22 * m43 - m23 * m42);
-        float num15 = (float)(m21 * m44 - m24 * m41);
-        float num16 = (float)(m21 * m43 - m23 * m41);
-        float num17 = (float)(m21 * m42 - m22 * m41);
-        matrix1.M13 = (float)(m12 * num12 - m13 * num13 + m14 * num14) * num11;
-        matrix1.M23 = (float)-(m11 * num12 - m13 * num15 + m14 * num16) * num11;
-        matrix1.M33 = (float)(m11 * num13 - m12 * num15 + m14 * num17) * num11;
-        matrix1.M43 = (float)-(m11 * num14 - m12 * num16 + m13 * num17) * num11;
-        float num18 = (float)(m23 * m34 - m24 * m33);
-        float num19 = (float)(m22 * m34 - m24 * m32);
-        float num20 = (float)(m22 * m33 - m23 * m32);
-        float num21 = (float)(m21 * m34 - m24 * m31);
-        float num22 = (float)(m21 * m33 - m23 * m31);
-        float num23 = (float)(m21 * m32 - m22 * m31);
-        matrix1.M14 = (float)-(m12 * num18 - m13 * num19 + m14 * num20) * num11;
-        matrix1.M24 = (float)(m11 * num18 - m13 * num21 + m14 * num22) * num11;
-        matrix1.M34 = (float)-(m11 * num19 - m12 * num21 + m14 * num23) * num11;
-        matrix1.M44 = (float)(m11 * num20 - m12 * num22 + m13 * num23) * num11;
+        matrix1.M12 = -(m12 * num1 - m13 * num2 + m14 * num3) * num11;
+        matrix1.M22 = (m11 * num1 - m13 * num4 + m14 * num5) * num11;
+        matrix1.M32 = -(m11 * num2 - m12 * num4 + m14 * num6) * num11;
+        matrix1.M42 = (m11 * num3 - m12 * num5 + m13 * num6) * num11;
+        float num12 = m23 * m44 - m24 * m43;
+        float num13 = m22 * m44 - m24 * m42;
+        float num14 = m22 * m43 - m23 * m42;
+        float num15 = m21 * m44 - m24 * m41;
+        float num16 = m21 * m43 - m23 * m41;
+        float num17 = m21 * m42 - m22 * m41;
+        matrix1.M13 = (m12 * num12 - m13 * num13 + m14 * num14) * num11;
+        matrix1.M23 = -(m11 * num12 - m13 * num15 + m14 * num16) * num11;
+        matrix1.M33 = (m11 * num13 - m12 * num15 + m14 * num17) * num11;
+        matrix1.M43 = -(m11 * num14 - m12 * num16 + m13 * num17) * num11;
+        float num18 = m23 * m34 - m24 * m33;
+        float num19 = m22 * m34 - m24 * m32;
+        float num20 = m22 * m33 - m23 * m32;
+        float num21 = m21 * m34 - m24 * m31;
+        float num22 = m21 * m33 - m23 * m31;
+        float num23 = m21 * m32 - m22 * m31;
+        matrix1.M14 = -(m12 * num18 - m13 * num19 + m14 * num20) * num11;
+        matrix1.M24 = (m11 * num18 - m13 * num21 + m14 * num22) * num11;
+        matrix1.M34 = -(m11 * num19 - m12 * num21 + m14 * num23) * num11;
+        matrix1.M44 = (m11 * num20 - m12 * num22 + m13 * num23) * num11;
         return matrix1;
     }
 
+    [Pure]
     public static void Invert(ref Matrix matrix, out Matrix result)
     {
         float m11 = matrix.M11;
@@ -1487,47 +1535,48 @@ public struct Matrix : IEquatable<Matrix>
         float m42 = matrix.M42;
         float m43 = matrix.M43;
         float m44 = matrix.M44;
-        float num1 = (float)(m33 * m44 - m34 * m43);
-        float num2 = (float)(m32 * m44 - m34 * m42);
-        float num3 = (float)(m32 * m43 - m33 * m42);
-        float num4 = (float)(m31 * m44 - m34 * m41);
-        float num5 = (float)(m31 * m43 - m33 * m41);
-        float num6 = (float)(m31 * m42 - m32 * m41);
-        float num7 = (float)(m22 * num1 - m23 * num2 + m24 * num3);
-        float num8 = (float)-(m21 * num1 - m23 * num4 + m24 * num5);
-        float num9 = (float)(m21 * num2 - m22 * num4 + m24 * num6);
-        float num10 = (float)-(m21 * num3 - m22 * num5 + m23 * num6);
+        float num1 = m33 * m44 - m34 * m43;
+        float num2 = m32 * m44 - m34 * m42;
+        float num3 = m32 * m43 - m33 * m42;
+        float num4 = m31 * m44 - m34 * m41;
+        float num5 = m31 * m43 - m33 * m41;
+        float num6 = m31 * m42 - m32 * m41;
+        float num7 = m22 * num1 - m23 * num2 + m24 * num3;
+        float num8 = -(m21 * num1 - m23 * num4 + m24 * num5);
+        float num9 = m21 * num2 - m22 * num4 + m24 * num6;
+        float num10 = -(m21 * num3 - m22 * num5 + m23 * num6);
         float num11 = (float)(1.0 / (m11 * num7 + m12 * num8 + m13 * num9 + m14 * num10));
         result.M11 = num7 * num11;
         result.M21 = num8 * num11;
         result.M31 = num9 * num11;
         result.M41 = num10 * num11;
-        result.M12 = (float)-(m12 * num1 - m13 * num2 + m14 * num3) * num11;
-        result.M22 = (float)(m11 * num1 - m13 * num4 + m14 * num5) * num11;
-        result.M32 = (float)-(m11 * num2 - m12 * num4 + m14 * num6) * num11;
-        result.M42 = (float)(m11 * num3 - m12 * num5 + m13 * num6) * num11;
-        float num12 = (float)(m23 * m44 - m24 * m43);
-        float num13 = (float)(m22 * m44 - m24 * m42);
-        float num14 = (float)(m22 * m43 - m23 * m42);
-        float num15 = (float)(m21 * m44 - m24 * m41);
-        float num16 = (float)(m21 * m43 - m23 * m41);
-        float num17 = (float)(m21 * m42 - m22 * m41);
-        result.M13 = (float)(m12 * num12 - m13 * num13 + m14 * num14) * num11;
-        result.M23 = (float)-(m11 * num12 - m13 * num15 + m14 * num16) * num11;
-        result.M33 = (float)(m11 * num13 - m12 * num15 + m14 * num17) * num11;
-        result.M43 = (float)-(m11 * num14 - m12 * num16 + m13 * num17) * num11;
-        float num18 = (float)(m23 * m34 - m24 * m33);
-        float num19 = (float)(m22 * m34 - m24 * m32);
-        float num20 = (float)(m22 * m33 - m23 * m32);
-        float num21 = (float)(m21 * m34 - m24 * m31);
-        float num22 = (float)(m21 * m33 - m23 * m31);
-        float num23 = (float)(m21 * m32 - m22 * m31);
-        result.M14 = (float)-(m12 * num18 - m13 * num19 + m14 * num20) * num11;
-        result.M24 = (float)(m11 * num18 - m13 * num21 + m14 * num22) * num11;
-        result.M34 = (float)-(m11 * num19 - m12 * num21 + m14 * num23) * num11;
-        result.M44 = (float)(m11 * num20 - m12 * num22 + m13 * num23) * num11;
+        result.M12 = -(m12 * num1 - m13 * num2 + m14 * num3) * num11;
+        result.M22 = (m11 * num1 - m13 * num4 + m14 * num5) * num11;
+        result.M32 = -(m11 * num2 - m12 * num4 + m14 * num6) * num11;
+        result.M42 = (m11 * num3 - m12 * num5 + m13 * num6) * num11;
+        float num12 = m23 * m44 - m24 * m43;
+        float num13 = m22 * m44 - m24 * m42;
+        float num14 = m22 * m43 - m23 * m42;
+        float num15 = m21 * m44 - m24 * m41;
+        float num16 = m21 * m43 - m23 * m41;
+        float num17 = m21 * m42 - m22 * m41;
+        result.M13 = (m12 * num12 - m13 * num13 + m14 * num14) * num11;
+        result.M23 = -(m11 * num12 - m13 * num15 + m14 * num16) * num11;
+        result.M33 = (m11 * num13 - m12 * num15 + m14 * num17) * num11;
+        result.M43 = -(m11 * num14 - m12 * num16 + m13 * num17) * num11;
+        float num18 = m23 * m34 - m24 * m33;
+        float num19 = m22 * m34 - m24 * m32;
+        float num20 = m22 * m33 - m23 * m32;
+        float num21 = m21 * m34 - m24 * m31;
+        float num22 = m21 * m33 - m23 * m31;
+        float num23 = m21 * m32 - m22 * m31;
+        result.M14 = -(m12 * num18 - m13 * num19 + m14 * num20) * num11;
+        result.M24 = (m11 * num18 - m13 * num21 + m14 * num22) * num11;
+        result.M34 = -(m11 * num19 - m12 * num21 + m14 * num23) * num11;
+        result.M44 = (m11 * num20 - m12 * num22 + m13 * num23) * num11;
     }
 
+    [Pure]
     public static Matrix Lerp(in Matrix a, in Matrix b, float amount)
     {
         Matrix matrix;
@@ -1550,6 +1599,7 @@ public struct Matrix : IEquatable<Matrix>
         return matrix;
     }
 
+    [Pure]
     public static void Lerp(
       ref Matrix a,
       ref Matrix b,
@@ -1574,6 +1624,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = a.M44 + (b.M44 - a.M44) * amount;
     }
 
+    [Pure]
     public static Matrix Negate(Matrix m)
     {
         Matrix result;
@@ -1596,6 +1647,7 @@ public struct Matrix : IEquatable<Matrix>
         return result;
     }
 
+    [Pure]
     public static void Negate(ref Matrix m, out Matrix result)
     {
         result.M11 = -m.M11;
@@ -1616,6 +1668,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = -m.M44;
     }
 
+    [Pure]
     public static Matrix Add(Matrix a, Matrix b)
     {
         Matrix result;
@@ -1638,6 +1691,7 @@ public struct Matrix : IEquatable<Matrix>
         return result;
     }
 
+    [Pure]
     public static void Add(ref Matrix a, ref Matrix b, out Matrix result)
     {
         result.M11 = a.M11 + b.M11;
@@ -1658,6 +1712,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = a.M44 + b.M44;
     }
 
+    [Pure]
     public static Matrix Subtract(Matrix a, Matrix b)
     {
         Matrix result;
@@ -1680,6 +1735,7 @@ public struct Matrix : IEquatable<Matrix>
         return result;
     }
 
+    [Pure]
     public static void Subtract(ref Matrix a, ref Matrix b, out Matrix result)
     {
         result.M11 = a.M11 - b.M11;
@@ -1700,7 +1756,8 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = a.M44 - b.M44;
     }
 
-    public void Multiply(in Matrix b, out Matrix result)
+    [Pure]
+    public readonly void Multiply(in Matrix b, out Matrix result)
     {
         result.M11 = (M11 * b.M11 + M12 * b.M21 + M13 * b.M31 + M14 * b.M41);
         result.M12 = (M11 * b.M12 + M12 * b.M22 + M13 * b.M32 + M14 * b.M42);
@@ -1720,6 +1777,7 @@ public struct Matrix : IEquatable<Matrix>
         result.M44 = (M41 * b.M14 + M42 * b.M24 + M43 * b.M34 + M44 * b.M44);
     }
 
+    [Pure]
     public static Matrix Multiply(in Matrix a, Matrix b)
     {
         Matrix m;
@@ -1742,6 +1800,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static void Multiply(ref Matrix a, ref Matrix b, out Matrix m)
     {
         float num1 = a.M11 * b.M11 + a.M12 * b.M21 + a.M13 * b.M31 + a.M14 * b.M41;
@@ -1778,6 +1837,7 @@ public struct Matrix : IEquatable<Matrix>
         m.M44 = num16;
     }
 
+    [Pure]
     public static Matrix Multiply(Matrix a, float scaleFactor)
     {
         float num = scaleFactor;
@@ -1801,6 +1861,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static void Multiply(ref Matrix a, float scaleFactor, out Matrix m)
     {
         float num = scaleFactor;
@@ -1822,6 +1883,7 @@ public struct Matrix : IEquatable<Matrix>
         m.M44 = a.M44 * num;
     }
 
+    [Pure]
     public static Matrix Divide(Matrix a, Matrix b)
     {
         Matrix m;
@@ -1844,6 +1906,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static void Divide(ref Matrix a, ref Matrix b, out Matrix m)
     {
         m.M11 = a.M11 / b.M11;
@@ -1864,6 +1927,7 @@ public struct Matrix : IEquatable<Matrix>
         m.M44 = a.M44 / b.M44;
     }
 
+    [Pure]
     public static Matrix Divide(Matrix a, float divider)
     {
         float num = 1f / divider;
@@ -1887,6 +1951,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static void Divide(ref Matrix a, float divider, out Matrix m)
     {
         float num = 1f / divider;
@@ -1908,6 +1973,7 @@ public struct Matrix : IEquatable<Matrix>
         m.M44 = a.M44 * num;
     }
 
+    [Pure]
     public static Matrix operator -(Matrix b)
     {
         Matrix m;
@@ -1930,6 +1996,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static bool operator ==(in Matrix a, in Matrix b)
     {
         return a.M11 == b.M11 && a.M22 == b.M22 && a.M33 == b.M33 && a.M44 == b.M44
@@ -1938,6 +2005,7 @@ public struct Matrix : IEquatable<Matrix>
             && a.M34 == b.M34 && a.M41 == b.M41 && a.M42 == b.M42 && a.M43 == b.M43;
     }
 
+    [Pure]
     public static bool operator !=(in Matrix a, in Matrix b)
     {
         return a.M11 != b.M11 || a.M12 != b.M12 || a.M13 != b.M13 || a.M14 != b.M14
@@ -1946,6 +2014,7 @@ public struct Matrix : IEquatable<Matrix>
             || a.M41 != b.M41 || a.M42 != b.M42 || a.M43 != b.M43 || a.M44 != b.M44;
     }
 
+    [Pure]
     public static Matrix operator +(in Matrix a, in Matrix b)
     {
         Matrix m;
@@ -1968,6 +2037,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static Matrix operator -(in Matrix a, in Matrix b)
     {
         Matrix m;
@@ -1990,6 +2060,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static Matrix operator *(in Matrix a, in Matrix b)
     {
         Matrix m;
@@ -2012,6 +2083,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static Matrix operator *(in Matrix a, float scaleFactor)
     {
         float num = scaleFactor;
@@ -2035,6 +2107,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static Matrix operator *(float scaleFactor, in Matrix b)
     {
         float num = scaleFactor;
@@ -2058,6 +2131,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static Matrix operator /(in Matrix a, in Matrix b)
     {
         Matrix m;
@@ -2080,6 +2154,7 @@ public struct Matrix : IEquatable<Matrix>
         return m;
     }
 
+    [Pure]
     public static Matrix operator /(in Matrix a, float divider)
     {
         float num = 1f / divider;
