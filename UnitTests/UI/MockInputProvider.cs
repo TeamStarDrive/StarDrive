@@ -1,7 +1,7 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game;
+using SDGraphics;
 
 namespace UnitTests.UI
 {

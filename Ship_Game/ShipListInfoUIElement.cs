@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SDGraphics;
@@ -10,6 +9,7 @@ using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game
 {
@@ -97,7 +97,7 @@ namespace Ship_Game
             if (Screen.SelectedShipList == null || SelectedShipsSL.NumEntries == 0)
                 return;  //fbedard
 
-            float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
+            float transitionOffset = 0f.SmoothStep(1f, TransitionPosition);
             int columns = Orders.Count / 2 + Orders.Count % 2;
             if (AllShipsMine)
             {

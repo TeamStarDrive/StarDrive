@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Gameplay;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game.Ships
 {

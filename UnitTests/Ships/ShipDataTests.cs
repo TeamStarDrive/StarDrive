@@ -2,12 +2,12 @@
 using System.IO;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Ships.Legacy;
 using Vector2 = SDGraphics.Vector2;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace UnitTests.Ships
 {

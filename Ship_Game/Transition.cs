@@ -1,5 +1,5 @@
 using System;
-using Microsoft.Xna.Framework;
+using SDGraphics;
 
 namespace Ship_Game
 {
@@ -13,7 +13,7 @@ namespace Ship_Game
 
         public Action OnTransitionEnd;
 
-        public float CurrentPosition => MathHelper.Lerp(0f, 1f, timeLerp());
+        public float CurrentPosition => 0f.LerpTo(1f, timeLerp());
 
         public bool Finished
         {
@@ -92,7 +92,7 @@ namespace Ship_Game
                 }
                 case TransitionCurve.SmoothStep:
                 {
-                    timelerp = MathHelper.SmoothStep(0f, 1f, (float)timelerp);
+                    timelerp = 0f.SmoothStep(1f, (float)timelerp);
                     return (float)timelerp;
                 }
                 case TransitionCurve.Exponential:

@@ -1,5 +1,4 @@
 using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SDGraphics;
@@ -8,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.Ships
 {
@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
             if (Universe.SelectedShip == null)
                 return;  //fbedard
 
-            float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
+            float transitionOffset = 0f.SmoothStep(1f, TransitionPosition);
             int columns = Orders.Count / 2 + Orders.Count % 2;
             SlidingElement.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
             DrawOrderButtons(batch, transitionOffset);
