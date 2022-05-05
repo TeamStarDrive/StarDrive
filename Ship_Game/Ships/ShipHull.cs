@@ -12,7 +12,7 @@ using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Point = SDGraphics.Point;
-using Vector4 = Microsoft.Xna.Framework.Vector4;
+using Vector4 = SDGraphics.Vector4;
 
 namespace Ship_Game.Ships
 {
