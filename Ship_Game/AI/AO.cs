@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using SDGraphics;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;

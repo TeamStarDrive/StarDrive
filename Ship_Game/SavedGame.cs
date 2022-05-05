@@ -1,5 +1,3 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
@@ -18,6 +16,9 @@ using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
+using XnaRectangle = Microsoft.Xna.Framework.Rectangle;
+using SDGraphics;
 
 namespace Ship_Game
 {
@@ -50,16 +51,16 @@ namespace Ship_Game
     public struct RectangleData
     {
         [StarData] public int X, Y, Width, Height;
-        public RectangleData(Rectangle r)
+        public RectangleData(in XnaRectangle r)
         {
             X = r.X;
             Y = r.Y;
             Width = r.Width;
             Height = r.Height;
         }
-        public static implicit operator Rectangle(RectangleData r)
+        public static implicit operator XnaRectangle(RectangleData r)
         {
-            return new Rectangle(r.X, r.Y, r.Width, r.Height);
+            return new XnaRectangle(r.X, r.Y, r.Width, r.Height);
         }
     }
 
@@ -92,7 +93,7 @@ namespace Ship_Game
 
 
             SaveData.SaveGameVersion       = SaveGameVersion;
-            SaveData.UniqueObjectIds             = us.UniqueObjectIds;
+            SaveData.UniqueObjectIds       = us.UniqueObjectIds;
             SaveData.GameDifficulty        = us.Difficulty;
             SaveData.GalaxySize            = us.GalaxySize;
             SaveData.StarsModifier         = CurrentGame.StarsModifier;

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 

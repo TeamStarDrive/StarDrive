@@ -6,6 +6,7 @@ using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
 using System.Diagnostics.Contracts;
+using SDGraphics;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;

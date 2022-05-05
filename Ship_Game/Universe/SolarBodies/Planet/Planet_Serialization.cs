@@ -1,4 +1,5 @@
 ﻿using System;
+using SDGraphics;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

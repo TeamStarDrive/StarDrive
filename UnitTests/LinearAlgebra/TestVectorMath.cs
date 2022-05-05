@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using System;
+using SDGraphics;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.LinearAlgebra

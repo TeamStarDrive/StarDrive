@@ -1,5 +1,6 @@
 ﻿using Ship_Game.Ships;
 using System;
+using SDGraphics;
 using Ship_Game.AI.ShipMovement.CombatManeuvers;
 using Vector2 = SDGraphics.Vector2;
 

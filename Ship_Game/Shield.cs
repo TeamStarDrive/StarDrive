@@ -1,12 +1,11 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Lights;
-using Vector2 = SDGraphics.Vector2;
-using Vector3 = SDGraphics.Vector3;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game
 {

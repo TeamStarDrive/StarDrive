@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDGraphics;
 using Ship_Game;
 using Vector2 = SDGraphics.Vector2;
 
@@ -179,7 +180,7 @@ namespace UnitTests.LinearAlgebra
 
         static Vector2 OriginalOrbitPos(Vector2 orbitAround, float orbitalRadians, float orbitRadius)
         {
-            return orbitAround.PointFromRadians(orbitalRadians, orbitRadius);
+            return MathExt.PointFromRadians(orbitAround, orbitalRadians, orbitRadius);
         }
 
         [TestMethod]

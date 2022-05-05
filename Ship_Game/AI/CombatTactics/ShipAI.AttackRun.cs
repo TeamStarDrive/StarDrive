@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
 using Ship_Game.AI.ShipMovement.CombatManeuvers;
 using Ship_Game.Debug;
 using Vector2 = SDGraphics.Vector2;

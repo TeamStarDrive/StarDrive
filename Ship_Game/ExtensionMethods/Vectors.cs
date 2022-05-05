@@ -225,13 +225,6 @@ namespace Ship_Game
             return dot;
         }
 
-        [Pure] public static void GetDirectionAndLength(this in Vector2 v, out Vector2 dir, out float len)
-        {
-            float l = (float)Sqrt(v.X*v.X + v.Y*v.Y);
-            dir = l > 0.0000001f ? new Vector2(v.X / l, v.Y / l) : default;
-            len = l;
-        }
-
         public static bool InRadius(this Vector3 position, in Vector3 center, float radius)
             => position.SqDist(center) <= radius*radius;
         public static bool InRadius(this Vector3 position, Vector2 center, float radius)

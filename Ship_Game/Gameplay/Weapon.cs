@@ -6,7 +6,9 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using SDGraphics;
 using Ship_Game.Audio;
+using Ship_Game.ExtensionMethods;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Gameplay

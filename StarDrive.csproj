@@ -215,6 +215,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExclude.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFilterSelect.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\NewMathExt.cs" />
     <Compile Include="Ship_Game\Gameplay\WeaponTag.cs" />
     <Compile Include="Ship_Game\Gameplay\IWeaponTemplate.cs" />
     <Compile Include="Ship_Game\Gameplay\PhysicsObject.cs" />
@@ -452,11 +453,9 @@
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\FileSystemExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ListExt.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Matrices.cs" />
     <Compile Include="Ship_Game\Data\Mesh\MeshUtil.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MiscExt.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\RadMath.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\SDNative.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />

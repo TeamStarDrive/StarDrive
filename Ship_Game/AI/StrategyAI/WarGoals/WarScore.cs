@@ -1,4 +1,6 @@
-﻿namespace Ship_Game.AI.StrategyAI.WarGoals
+﻿using SDGraphics;
+
+namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public class WarScore
     {

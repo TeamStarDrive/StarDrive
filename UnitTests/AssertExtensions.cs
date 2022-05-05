@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
 using Ship_Game;
+using SDGraphics;
+using Point = Microsoft.Xna.Framework.Point;
+using Vector4 = Microsoft.Xna.Framework.Vector4;
 
 namespace UnitTests
 {

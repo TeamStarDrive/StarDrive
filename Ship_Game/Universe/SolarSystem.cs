@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
+using SDGraphics;
+using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using SynapseGaming.LightingSystem.Lights;

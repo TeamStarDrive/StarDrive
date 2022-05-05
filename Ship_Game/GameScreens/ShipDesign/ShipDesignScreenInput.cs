@@ -1,12 +1,15 @@
 using System;
 using System.IO;
-using Microsoft.Xna.Framework;
+using SDGraphics;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
+using Vector3 = SDGraphics.Vector3;
+using Point = Microsoft.Xna.Framework.Point;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -503,8 +506,8 @@ namespace Ship_Game
         {
             Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
             var lookAt = new Vector3(camPos.X, camPos.Y, 0f);
-            SetViewMatrix(Matrix.CreateRotationY(180f.ToRadians())
-                        * Matrix.CreateLookAt(camPos, lookAt, Vector3.Down));
+            SetViewMatrix(XnaMatrix.CreateRotationY(180f.ToRadians())
+                        * XnaMatrix.CreateLookAt(camPos, lookAt, Vector3.Down));
         }
 
         float GetHullScreenSize(in Vector3 cameraPosition, float hullSize)

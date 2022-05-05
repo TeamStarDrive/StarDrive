@@ -1,3 +1,5 @@
+using SDGraphics;
+using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe.SolarBodies;
 using Vector2 = SDGraphics.Vector2;
 
