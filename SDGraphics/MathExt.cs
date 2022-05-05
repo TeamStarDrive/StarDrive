@@ -193,60 +193,6 @@ public static class MathExt
     public static Color Alpha(this Color color, float newAlpha)
         => new Color(color, newAlpha);
 
-    public static bool HitTest(this Rectangle r, Vector2 pos)
-    {
-        return pos.X > r.X && pos.Y > r.Y && pos.X < r.X + r.Width && pos.Y < r.Y + r.Height;
-    }
-    public static bool HitTest(this Rectangle r, int x, int y)
-    {
-        return x > r.X && y > r.Y && x < r.X + r.Width && y < r.Y + r.Height;
-    }
-
-    public static Point Pos(this Rectangle r) => new Point(r.X, r.Y);
-    public static Vector2 PosVec(this Rectangle r) => new Vector2(r.X, r.Y);
-    public static Vector2 Size(this Rectangle r) => new Vector2(r.Width, r.Height);
-    public static Vector2 Center(this Rectangle r) => new Vector2(r.X + r.Width*0.5f, r.Y + r.Height*0.5f);
-    public static int CenterX(this Rectangle r) => r.X + r.Width/2;
-    public static int CenterY(this Rectangle r) => r.Y + r.Height/2;
-    public static int Area(this Rectangle r) => r.Width * r.Height;
-
-    // Example: r.RelativeX(0.5) == r.CenterX()
-    //          r.RelativeX(1.0) == r.Right
-    public static int RelativeX(this Rectangle r, float percent) => r.X + (int)(r.Width*percent);
-    public static int RelativeY(this Rectangle r, float percent) => r.Y + (int)(r.Height*percent);
-
-    public static Vector2 RelPos(this Rectangle r, float relX, float relY)
-        => new Vector2(RelativeX(r, relX), RelativeY(r, relY));
-
-    public static Rectangle Bevel(this Rectangle r, int bevel)
-        => new Rectangle(r.X - bevel, r.Y - bevel, r.Width + bevel*2, r.Height + bevel*2);
-
-    public static Rectangle Bevel(this Rectangle r, int bevelX, int bevelY)
-        => new Rectangle(r.X - bevelX, r.Y - bevelY, r.Width + bevelX*2, r.Height + bevelY*2);
-
-    public static Rectangle Widen(this Rectangle r, int widen)
-        => new Rectangle(r.X - widen, r.Y, r.Width + widen*2, r.Height);
-
-    public static Rectangle Move(this Rectangle r, int dx, int dy)
-        => new Rectangle(r.X + dx, r.Y + dy, r.Width, r.Height);
-
-    // Cut a chunk off the top of the rectangle
-    public static Rectangle CutTop(this Rectangle r, int amount)
-        => new Rectangle(r.X, r.Y + amount, r.Width, r.Height - amount);
-
-    public static Rectangle ScaledBy(this Rectangle r, float scale)
-    {
-        if (scale.AlmostEqual(1f))
-            return r;
-        float extrude = scale - 1f;
-        int extrudeX = (int)(r.Width*extrude);
-        int extrudeY = (int)(r.Height*extrude);
-        return new Rectangle(r.X - extrudeX, 
-            r.Y - extrudeY, 
-            r.Width  + extrudeX*2,
-            r.Height + extrudeY*2);
-    }
-
     public static bool IsDiagonalTo(this Point a, Point b) => Abs(b.X - a.X) > 0 && Abs(b.Y - a.Y) > 0;
 
     // Rotates an existing direction vector by another direction vector
@@ -496,23 +442,6 @@ public static class MathExt
         clippedEnd.X   = Max(0, Min(start.X + t1 * dx, boundsWidth  - 0.1f));
         clippedEnd.Y   = Max(0, Min(start.Y + t1 * dy, boundsHeight - 0.1f));
         return true;
-    }
-
-    // Given 2 rectangles, returns out the intersecting rectangle area, or returns false if no intersection
-    public static bool GetIntersectingRect(this Rectangle a, in Rectangle b, out Rectangle intersection)
-    {
-        int leftX   = Max(a.X, b.X);
-        int rightX  = Min(a.X + a.Width, b.X + b.Width);
-        int topY    = Max(a.Y, b.Y);
-        int bottomY = Min(a.Y + a.Height, b.Y + b.Height);
-
-        if (leftX < rightX && topY < bottomY)
-        {
-            intersection = new Rectangle(leftX, topY, rightX-leftX, bottomY-topY);
-            return true;
-        }
-        intersection = Rectangle.Empty;
-        return false;
     }
 
     public static Vector2 OffsetTowards(this Vector2 center, Vector2 target, float distance)
