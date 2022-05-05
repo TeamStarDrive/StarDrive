@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Data.Texture;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.SpriteSystem
 {

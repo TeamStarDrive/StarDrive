@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.Ships;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace UnitTests.Serialization
 {

@@ -8,7 +8,7 @@ using Ship_Game.Fleets;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {

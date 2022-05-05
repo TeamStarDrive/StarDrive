@@ -1,6 +1,6 @@
 ﻿using System;
 using Ship_Game;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace UnitTests.UI
 {

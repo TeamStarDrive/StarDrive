@@ -5,7 +5,7 @@ using System.Diagnostics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

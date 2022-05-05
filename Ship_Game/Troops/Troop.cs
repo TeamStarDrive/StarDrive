@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
