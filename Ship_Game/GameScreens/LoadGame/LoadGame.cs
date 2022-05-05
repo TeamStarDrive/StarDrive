@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Microsoft.Xna.Framework;
 using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
@@ -12,6 +11,7 @@ using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.GameScreens.LoadGame
 {

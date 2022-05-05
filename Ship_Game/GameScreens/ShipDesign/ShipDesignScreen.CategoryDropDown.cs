@@ -1,6 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using SDGraphics;
+﻿using SDGraphics;
 using Ship_Game.Ships;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

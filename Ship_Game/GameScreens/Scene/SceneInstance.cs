@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Yaml;
@@ -14,6 +13,8 @@ using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Shadows;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using Matrix = Microsoft.Xna.Framework.Matrix;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace Ship_Game.GameScreens.Scene
 {

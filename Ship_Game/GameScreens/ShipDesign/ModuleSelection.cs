@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
@@ -8,6 +7,7 @@ using System.Text;
 using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

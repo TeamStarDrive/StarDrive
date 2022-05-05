@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using Vector2 = SDGraphics.Vector2;
@@ -17,7 +16,7 @@ namespace Ship_Game
     {
         public MouseState GetMouse() => Mouse.GetState();
         public KeyboardState GetKeyboard() => Keyboard.GetState();
-        public GamePadState GetGamePad() => GamePad.GetState(PlayerIndex.One);
+        public GamePadState GetGamePad() => GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One);
     }
 
     public sealed partial class InputState

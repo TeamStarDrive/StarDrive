@@ -1,6 +1,4 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.Ships;
 using static System.Math;

@@ -3,9 +3,9 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
+using SDGraphics;
 
 namespace Ship_Game.GameScreens
 {

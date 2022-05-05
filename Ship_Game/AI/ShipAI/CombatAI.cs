@@ -2,7 +2,6 @@ using System;
 using Ship_Game.AI.ShipMovement;
 using Ship_Game.Ships;
 using Ship_Game.Gameplay;
-using Microsoft.Xna.Framework;
 
 namespace Ship_Game.AI
 {

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SgMotion;
 using Ship_Game.Data.Texture;
 using SynapseGaming.LightingSystem.Effects;
+using SDGraphics;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game.Data.Mesh
 {
@@ -78,9 +79,9 @@ namespace Ship_Game.Data.Mesh
                 Pose pose = bone.BindPose;
                 var sdPose = new SdBonePose
                 {
-                    Translation = pose.Translation,
+                    Translation = new Vector3(pose.Translation),
                     Orientation = pose.Orientation,
-                    Scale = pose.Scale
+                    Scale = new Vector3(pose.Scale)
                 };
                 SDMeshAddSkinnedBone(mesh, bone.Name, bone.Index, bone.Parent?.Index ?? -1,
                                      sdPose, bone.InverseBindPoseTransform);
@@ -110,9 +111,9 @@ namespace Ship_Game.Data.Mesh
                             Time = (float)kf.Time.TotalSeconds,
                             Pose = new SdBonePose
                             {
-                                Translation = pose.Translation,
+                                Translation = new Vector3(pose.Translation),
                                 Orientation = pose.Orientation,
-                                Scale = pose.Scale
+                                Scale = new Vector3(pose.Scale)
                             }
                         };
                         SDMeshAddAnimationKeyFrame(mesh, clip, anim, keyFrame);
@@ -256,7 +257,7 @@ namespace Ship_Game.Data.Mesh
 
             return SDMeshCreateMaterial(mesh, matName, 
                 diffusePath, alphaPath:"",  specularPath, normalPath, emissivePath, 
-                ambientColor:Vector3.One, fx.DiffuseColor, specularColor:Vector3.One, Vector3.Zero, 
+                ambientColor:Vector3.One, new Vector3(fx.DiffuseColor), specularColor:Vector3.One, Vector3.Zero, 
                 fx.SpecularAmount / 16f, fx.Transparency);
         }
 
@@ -280,7 +281,10 @@ namespace Ship_Game.Data.Mesh
 
             return SDMeshCreateMaterial(mesh, matName, 
                 diffusePath, alphaPath:"", specularPath, normalPath, emissivePath, 
-                fx.AmbientLightColor, fx.DiffuseColor, fx.SpecularColor, fx.EmissiveColor, 
+                new Vector3(fx.AmbientLightColor),
+                new Vector3(fx.DiffuseColor),
+                new Vector3(fx.SpecularColor),
+                new Vector3(fx.EmissiveColor),
                 fx.SpecularPower, fx.Alpha);
         }
     }

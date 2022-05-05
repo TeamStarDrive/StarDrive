@@ -1,9 +1,9 @@
 using System;
 using System.Threading;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using NAudio.CoreAudioApi;
 using Cue = Microsoft.Xna.Framework.Audio.Cue;
+using SDGraphics;
 
 namespace Ship_Game.Audio
 {

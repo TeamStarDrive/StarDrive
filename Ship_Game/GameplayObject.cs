@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using System;
 using System.Runtime.CompilerServices;
 using Ship_Game.Data.Serialization;
+using Ship_Game.ExtensionMethods;
 using SDGraphics;
 
 namespace Ship_Game

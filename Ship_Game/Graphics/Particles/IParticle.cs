@@ -1,8 +1,8 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 
 namespace Ship_Game.Graphics.Particles
 {

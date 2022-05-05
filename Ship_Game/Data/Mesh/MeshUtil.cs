@@ -1,7 +1,10 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Rendering;
+
+using XnaVector3 = Microsoft.Xna.Framework.Vector3;
+using XnaMatrix = Microsoft.Xna.Framework.Matrix;
+using BoundingBox = Microsoft.Xna.Framework.BoundingBox;
 
 namespace Ship_Game.Data.Mesh
 {
@@ -52,10 +55,10 @@ namespace Ship_Game.Data.Mesh
             int stride = desc.GetVertexStrideSize(position.Stream);
             Log.Assert(position.VertexElementUsage == VertexElementUsage.Position, "Expected Vertex3 Position");
 
-            var vertexData  = new Vector3[mesh.VertexCount];
+            var vertexData  = new XnaVector3[mesh.VertexCount];
             mesh.VertexBuffer.GetData(0, vertexData, 0, mesh.VertexCount, stride);
 
-            Vector3 p = vertexData[0];
+            XnaVector3 p = vertexData[0];
             var bb = new BoundingBox(p, p);
             for (int i = 1; i < vertexData.Length; ++i)
             {
@@ -69,9 +72,9 @@ namespace Ship_Game.Data.Mesh
                 if (p.Z > bb.Max.Z) bb.Max.Z = p.Z;
             }
 
-            Matrix m = mesh.MeshToObject;
-            bb.Min = Vector3.Transform(bb.Min, m);
-            bb.Max = Vector3.Transform(bb.Max, m);
+            XnaMatrix m = mesh.MeshToObject;
+            bb.Min = XnaVector3.Transform(bb.Min, m);
+            bb.Max = XnaVector3.Transform(bb.Max, m);
             return bb;
         }
 
@@ -86,10 +89,10 @@ namespace Ship_Game.Data.Mesh
             int stride = desc.GetVertexStrideSize(position.Stream);
             Log.Assert(position.VertexElementUsage == VertexElementUsage.Position, "Expected Vertex3 Position");
 
-            var vertexData  = new Vector3[mesh.NumVertices];
+            var vertexData  = new XnaVector3[mesh.NumVertices];
             modelMesh.VertexBuffer.GetData(0, vertexData, 0, mesh.NumVertices, stride);
 
-            Vector3 p = vertexData[0];
+            XnaVector3 p = vertexData[0];
             var bb = new BoundingBox(p, p);
             for (int i = 1; i < vertexData.Length; ++i)
             {
@@ -105,9 +108,9 @@ namespace Ship_Game.Data.Mesh
 
             if (modelMesh.ParentBone != null)
             {
-                Matrix m = modelMesh.ParentBone.Transform;
-                bb.Min = Vector3.Transform(bb.Min, m);
-                bb.Max = Vector3.Transform(bb.Max, m);
+                XnaMatrix m = modelMesh.ParentBone.Transform;
+                bb.Min = XnaVector3.Transform(bb.Min, m);
+                bb.Max = XnaVector3.Transform(bb.Max, m);
             }
             return bb;
         }

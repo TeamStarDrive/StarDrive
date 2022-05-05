@@ -9,7 +9,6 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
 using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens.DiplomacyScreen;

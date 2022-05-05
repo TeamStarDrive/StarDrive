@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects.Forward;
+using SDGraphics;
+
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+using XnaVector3 = Microsoft.Xna.Framework.Vector3;
+using XnaQuaternion = Microsoft.Xna.Framework.Quaternion;
+using BoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
+using Matrix = Microsoft.Xna.Framework.Matrix;
 
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable FieldCanBeMadeReadOnly.Local
@@ -176,7 +182,7 @@ namespace Ship_Game.Data.Mesh
         protected struct SdBonePose
         {
             public Vector3 Translation;
-            public Quaternion Orientation;
+            public XnaQuaternion Orientation;
             public Vector3 Scale;
         }
 
@@ -307,9 +313,9 @@ namespace Ship_Game.Data.Mesh
                 int in0 = triangleIndices[i];
                 int in1 = triangleIndices[i + 1];
                 int in2 = triangleIndices[i + 2];
-                Vector2 uv0 = vertices[in0].TextureCoordinate;
-                Vector2 uv1 = vertices[in1].TextureCoordinate;
-                Vector2 uv2 = vertices[in2].TextureCoordinate;
+                XnaVector2 uv0 = vertices[in0].TextureCoordinate;
+                XnaVector2 uv1 = vertices[in1].TextureCoordinate;
+                XnaVector2 uv2 = vertices[in2].TextureCoordinate;
                 float s1 = uv1.X - uv0.X;
                 float t1 = uv1.Y - uv0.Y;
                 float s2 = uv2.X - uv0.X;
@@ -318,9 +324,9 @@ namespace Ship_Game.Data.Mesh
                 if (st != 0.0f)
                 {
                     float tmp = 1f / st;
-                    Vector3 p0 = vertices[in0].Position;
-                    Vector3 p1 = vertices[in1].Position;
-                    Vector3 p2 = vertices[in2].Position;
+                    XnaVector3 p0 = vertices[in0].Position;
+                    XnaVector3 p1 = vertices[in1].Position;
+                    XnaVector3 p2 = vertices[in2].Position;
                     float Px = p1.X - p0.X;
                     float Py = p1.Y - p0.Y;
                     float Pz = p1.Z - p0.Z;
@@ -345,8 +351,8 @@ namespace Ship_Game.Data.Mesh
             }
             for (int i = 0; i < vertices.Length; ++i)
             {
-                vertices[i].Tangent  = Vector3.Normalize(vertices[i].Tangent);
-                vertices[i].Binormal = Vector3.Normalize(vertices[i].Binormal);
+                vertices[i].Tangent  = XnaVector3.Normalize(vertices[i].Tangent);
+                vertices[i].Binormal = XnaVector3.Normalize(vertices[i].Binormal);
             }
         }
 

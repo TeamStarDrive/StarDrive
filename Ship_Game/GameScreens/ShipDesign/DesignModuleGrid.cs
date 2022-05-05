@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
+using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game
 {
