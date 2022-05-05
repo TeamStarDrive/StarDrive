@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
+using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 
 // ReSharper disable once CheckNamespace

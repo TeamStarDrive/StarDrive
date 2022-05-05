@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
 using Ship_Game.Graphics;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;

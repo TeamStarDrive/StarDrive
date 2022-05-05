@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.Espionage;

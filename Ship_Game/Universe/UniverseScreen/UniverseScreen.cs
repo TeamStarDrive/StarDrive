@@ -9,6 +9,7 @@ using SynapseGaming.LightingSystem.Shadows;
 using System;
 using System.Threading;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.DiplomacyScreen;
