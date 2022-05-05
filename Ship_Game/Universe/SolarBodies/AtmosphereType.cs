@@ -1,6 +1,6 @@
 ﻿using System;
 using Ship_Game.Data.Serialization;
-using Vector4 = Microsoft.Xna.Framework.Vector4;
+using Vector4 = SDGraphics.Vector4;
 
 namespace Ship_Game.Universe.SolarBodies
 {

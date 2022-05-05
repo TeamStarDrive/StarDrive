@@ -11,7 +11,7 @@ using Ship_Game.Data.Serialization;
 using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
 using Rectangle = SDGraphics.Rectangle;
-using Vector4 = Microsoft.Xna.Framework.Vector4;
+using Vector4 = SDGraphics.Vector4;
 
 namespace Ship_Game.Universe.SolarBodies
 {
