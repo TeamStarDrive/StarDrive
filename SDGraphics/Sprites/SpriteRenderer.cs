@@ -71,20 +71,11 @@ namespace SDGraphics.Sprites
             SetViewProjection(viewProjection);
         }
 
-        public void Begin(in XnaMatrix view, in XnaMatrix projection)
+        public void Begin(in Matrix view, in Matrix projection)
         {
-            XnaMatrix viewProjection = view * projection;
-            ViewProjectionParam.SetValue(viewProjection);
-        }
-
-        static readonly RectF DefaultCoords = new(0, 0, 1, 1);
-
-        public void Draw(Texture2D texture, in Vector3 center, in Vector2 size, Color color)
-        {
-            var vertices = new Vertex[4];
-            var indices = new short[6];
-            FillVertexData(vertices, indices, 0, center, size, DefaultCoords, color);
-            DrawTriangles(texture, vertices, indices);
+            view.Multiply(projection, out Matrix viewProjection);
+            //Matrix.Invert(viewProjection, out Matrix invViewProj);
+            SetViewProjection(viewProjection);
         }
 
         void FillVertexData(Vertex[] vertices, short[] indices, int index, in Vector3 center, Vector2 size, in RectF coords, Color color)
@@ -98,10 +89,15 @@ namespace SDGraphics.Sprites
             float bottom = top + size.Y;
             float z = center.Z;
 
-            vertices[vertexOffset + 0] = new Vertex(new Vector3(left, top, z), color, new Vector2(coords.X, coords.Y)); // topleft
-            vertices[vertexOffset + 1] = new Vertex(new Vector3(right, top, z), color, new Vector2(coords.X+coords.W, coords.Y)); // topright
-            vertices[vertexOffset + 2] = new Vertex(new Vector3(right, bottom, z), color, new Vector2(coords.X+coords.W, coords.Y+coords.H)); // botright
-            vertices[vertexOffset + 3] = new Vertex(new Vector3(left, bottom, z), color, new Vector2(coords.X, coords.Y+coords.H)); // botleft
+            var tc_tl = new Vector2(coords.X, coords.Y); // TexCoord TopLeft
+            var tc_br = new Vector2(coords.X + coords.W, coords.Y + coords.H); // TexCoord TopRight
+            var tc_tr = new Vector2(tc_br.X, tc_tl.Y); // TexCoord BotRight
+            var tc_bl = new Vector2(tc_tl.X, tc_br.Y); // TexCoord BotLeft
+
+            vertices[vertexOffset + 0] = new Vertex(new Vector3(left, top, z), color, tc_tl); // TopLeft
+            vertices[vertexOffset + 1] = new Vertex(new Vector3(right, top, z), color, tc_tr); // TopRight
+            vertices[vertexOffset + 2] = new Vertex(new Vector3(right, bottom, z), color, tc_br); // BotRight
+            vertices[vertexOffset + 3] = new Vertex(new Vector3(left, bottom, z), color, tc_bl); // BotLeft
 
             indices[indexOffset + 0] = (short)(vertexOffset + 0);
             indices[indexOffset + 1] = (short)(vertexOffset + 1);
@@ -120,11 +116,26 @@ namespace SDGraphics.Sprites
             foreach (EffectPass pass in Simple.CurrentTechnique.Passes)
             {
                 pass.Begin();
-                Device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, 
+                Device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList,
                     vertices, 0, vertices.Length, indices, 0, indices.Length / 3);
                 pass.End();
             }
             Simple.End();
+        }
+
+        static readonly RectF DefaultCoords = new(0, 0, 1, 1);
+
+        public void Draw(Texture2D texture, in Vector3 center, in Vector2 size, Color color)
+        {
+            var vertices = new Vertex[4];
+            var indices = new short[6];
+            FillVertexData(vertices, indices, 0, center, size, DefaultCoords, color);
+            DrawTriangles(texture, vertices, indices);
+        }
+
+        public void Draw(Texture2D texture, in Vector3d center, in Vector2d size, Color color)
+        {
+            Draw(texture, center.ToVec3f(), size.ToVec2f(), color);
         }
     }
 }

@@ -35,7 +35,7 @@ struct VertexShaderOutput
 VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 {
     VertexShaderOutput output;
-    output.Position = mul(input.Position, ViewProjection);
+    output.Position = mul(float4(input.Position, 1), ViewProjection);
     output.Color = input.Color;
     output.TextureCoordinate = input.Coords;
     return output;

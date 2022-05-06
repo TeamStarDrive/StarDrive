@@ -100,29 +100,30 @@ namespace Ship_Game
             if (nebula == null)
                 return;
 
-            // scale of the background nebula
-            double sizeMod = 8.0;
-
             // distance of the nebula in the background
-            double backgroundDepth = 25_000_000;
+            // don't raise this, because 15_000_000 is the max distance
+            double backgroundDepth = 14_000_000;
+
+            // size of the background nebula
+            // this must be a constant to support all universe sizes
+            double uSize = 30_000_000;
 
             // inherit the universe camera pos by a certain fraction
             // this will make the background nebula move slightly with the camera
             double movementSensitivity = 0.05;
 
-            var backgroundPos = new SDGraphics.Vector3d(
+            var backgroundPos = new Vector3d(
                 Universe.CamPos.X * (1.0 - movementSensitivity),
                 Universe.CamPos.Y * (1.0 - movementSensitivity),
                 backgroundDepth
             );
 
-            double uSize = Universe.UState.Size * sizeMod;
             Vector2d nebulaSize = SubTexture.GetAspectFill(nebula.Width, nebula.Height, uSize);
             Vector2d starsSize = SubTexture.GetAspectFill(BackgroundStars.Width, BackgroundStars.Height, uSize);
 
             SR.Begin(Universe.View, Universe.Projection);
-            SR.Draw(nebula, backgroundPos.ToVec3f(), nebulaSize.ToVec2f(), Color.White);
-            SR.Draw(BackgroundStars, backgroundPos.ToVec3f(), starsSize.ToVec2f(), Color.White);
+            SR.Draw(nebula, backgroundPos, nebulaSize, Color.White);
+            SR.Draw(BackgroundStars, backgroundPos, starsSize, Color.White);
         }
     }
 }

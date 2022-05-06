@@ -1455,7 +1455,7 @@ public struct Matrix : IEquatable<Matrix>
     }
 
     [Pure]
-    public static Matrix Invert(Matrix matrix)
+    public static Matrix Invert(in Matrix matrix)
     {
         float m11 = matrix.M11;
         float m12 = matrix.M12;
@@ -1517,7 +1517,7 @@ public struct Matrix : IEquatable<Matrix>
     }
 
     [Pure]
-    public static void Invert(ref Matrix matrix, out Matrix result)
+    public static void Invert(in Matrix matrix, out Matrix result)
     {
         float m11 = matrix.M11;
         float m12 = matrix.M12;
