@@ -44,7 +44,7 @@ namespace Ship_Game
                                                ref Matrix projection, ref Matrix view)
         {
             Matrix.Multiply(ref view, ref projection, out Matrix viewProjection);
-            Matrix.Invert(ref viewProjection, out Matrix invViewProj);
+            Matrix.Invert(viewProjection, out Matrix invViewProj);
 
             var source = new Vector3(
                 (screenX - viewport.X) / (viewport.Width * 2.0f) - 1.0f,
@@ -78,7 +78,7 @@ namespace Ship_Game
                                          in Matrix projection, in Matrix view)
         {
             view.Multiply(projection, out Matrix viewProjection);
-            Matrix.Invert(ref viewProjection, out Matrix invViewProj);
+            Matrix.Invert(viewProjection, out Matrix invViewProj);
 
             Vector3d src;
             src.X =  ((source.X - viewport.X) / viewport.Width  * 2.0 - 1.0);
