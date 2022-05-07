@@ -20,7 +20,7 @@
       <Tags>
         <string>Torpedo</string>
       </Tags>
-      <Bonus>.1</Bonus>
+      <Bonus>0.1</Bonus>
       <BonusIndex>17635</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

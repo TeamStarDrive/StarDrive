@@ -13826,7 +13826,7 @@ BB_DispersionTechDescr:
  ENG: "Advancements in the energy dispersion methods used in our shields have led to a better protection and an effective hitpoints increase of our shields.Can be researched multiple times, each time tech costs is increased."
 BB_DispersionTechDescrBonus:
  Id: 17644
- ENG: "5% shield power increase."
+ ENG: "7% shield power increase."
 BB_DurabilityTech:
  Id: 17645
  ENG: "Durability"
@@ -13835,7 +13835,7 @@ BB_DurabilityTechDescr:
  ENG: "Advancement in the atomic structure of our materials have increase the hitpoints of all our modules including armour. Can be researched multiple times, each time tech costs is increased."
 BB_Nano-structureTecDescrBonus:
  Id: 17647
- ENG: "5% shield power increase."
+ ENG: "5% hp increase to all modules."
 BB_CrystalPlant:
  Id: 17648
  ENG: "Crystal Growing Plant"
