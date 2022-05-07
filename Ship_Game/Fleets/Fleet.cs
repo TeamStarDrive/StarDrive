@@ -57,7 +57,7 @@ namespace Ship_Game.Fleets
         public Fleet(int id)
         {
             Id = id;
-            FleetIconIndex = RandomMath.Int(1, 10);
+            FleetIconIndex = RandomMath.Int(1, 30);
             SetCommandShip(null);
         }
 
