@@ -15,7 +15,7 @@
     <UnlockedBonus>
       <Name>Nano-structure</Name>
       <BonusType>Module HP Bonus</BonusType>
-      <Bonus>0.5</Bonus>
+      <Bonus>0.05</Bonus>
       <Description>Provides a 15% hit point bonus to all ship modules. </Description>
       <BonusIndex>17647</BonusIndex>
     </UnlockedBonus>

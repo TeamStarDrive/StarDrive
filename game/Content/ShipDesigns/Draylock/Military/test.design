@@ -9,11 +9,11 @@ DefaultAIState=DoNothing
 DefaultCombatState=AttackRuns
 ShipCategory=Unclassified
 HangarDesignation=General
-IsShipyard==false
+IsShipyard=false
 
-IsOrbitalDefense==false
+IsOrbitalDefense=false
 
-IsCarrierOnly==false
+IsCarrierOnly=false
 
 # Maps module UIDs to Index, first UID has index 0
 ModuleUIDs=SteelArmorSmall;RemnantNuker;Fighter Shield;PowerConduit;Cockpit;OrdnanceLockerSmall;Maneuvering_Thruster_1x1;NuclearReactorMed;Engine;WarpEngine_1x1
