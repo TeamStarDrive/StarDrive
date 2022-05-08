@@ -1,86 +1,33 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
-using XnaVector3 = Microsoft.Xna.Framework.Vector3;
-using Matrix = SDGraphics.Matrix;
+using SDGraphics;
+using SDGraphics.Sprites;
 
 namespace Ship_Game
 {
-
-    public sealed class BackgroundItem : IDisposable
+    public sealed class BackgroundItem
     {
-        public SubTexture Texture;
+        public readonly SubTexture SubTex;
+        public readonly RectF Rect;
+        public readonly float Z;
 
-        public XnaVector3 UpperLeft;
-        public XnaVector3 LowerLeft;
-        public XnaVector3 UpperRight;
-        public XnaVector3 LowerRight;
-        public VertexDeclaration LayoutDescriptor;
-        public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
-        public int[] Indices = new int[6];
-        public static BasicEffect QuadEffect;
-
-        public BackgroundItem()
+        public BackgroundItem(SubTexture subTex, in RectF rect, float z)
         {
+            SubTex = subTex;
+            Rect = rect;
+            Z = z;
         }
 
-        public BackgroundItem(SubTexture texture)
+        public void Draw(SpriteRenderer renderer, Color color)
         {
-            Texture = texture;
-        }
+            Texture2D tex = SubTex.Texture;
+            float tx = SubTex.X / (float)tex.Width;
+            float ty = SubTex.Y / (float)tex.Height;
+            float tw = (SubTex.Width - 1) / (float)tex.Width;
+            float th = (SubTex.Height - 1) / (float)tex.Height;
+            var coords = new RectF(tx, ty, tw, th);
 
-        public void Draw(GraphicsDevice device, in Matrix view, in Matrix projection, float alpha)
-        {
-            QuadEffect.World = Matrix.XnaIdentity;
-            QuadEffect.View = view;
-            QuadEffect.Projection = projection;
-            QuadEffect.Texture = Texture.Texture;
-            QuadEffect.Alpha = alpha;
-
-            device.VertexDeclaration = LayoutDescriptor;
-            QuadEffect.Begin();
-            foreach (EffectPass pass in QuadEffect.CurrentTechnique.Passes)
-            {
-                pass.Begin();
-                device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indices, 0, 2);
-                pass.End();
-            }
-            QuadEffect.End();
-        }
-
-        public void FillVertices()
-        {
-            Vertices[0].Position = LowerLeft;
-            Vertices[1].Position = UpperLeft;
-            Vertices[2].Position = LowerRight;
-            Vertices[3].Position = UpperRight;
-            Vertices[0].TextureCoordinate = Texture.CoordLowerLeft;
-            Vertices[1].TextureCoordinate = Texture.CoordUpperLeft;
-            Vertices[2].TextureCoordinate = Texture.CoordLowerRight;;
-            Vertices[3].TextureCoordinate = Texture.CoordUpperRight;
-            Indices[0] = 0;
-            Indices[1] = 1;
-            Indices[2] = 2;
-            Indices[3] = 2;
-            Indices[4] = 1;
-            Indices[5] = 3;
-        }
-
-        public void LoadContent(ScreenManager manager)
-        {
-            LayoutDescriptor = new VertexDeclaration(manager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-        }
-
-        public void Dispose()
-        {
-            Destroy();
-            GC.SuppressFinalize(this);
-        }
-
-        ~BackgroundItem() { Destroy(); }
-
-        void Destroy()
-        {
-            LayoutDescriptor?.Dispose(ref LayoutDescriptor);
+            renderer.Draw(tex, Rect, Z, coords, color);
         }
     }
 }

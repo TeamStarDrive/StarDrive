@@ -271,7 +271,6 @@ namespace Ship_Game
             {
                 ShieldManager.LoadContent(RootContent);
                 Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
-                BackgroundItem.QuadEffect = new BasicEffect(manager.GraphicsDevice, null) { TextureEnabled = true };
                 Blank = Texture("blank");
             });
             Profiled("LoadFonts", () => Fonts.LoadFonts(RootContent, Localizer.Language));
@@ -320,7 +319,6 @@ namespace Ship_Game
             SunType.Unload();
             ShieldManager.UnloadContent();
             Beam.BeamEffect = null;
-            BackgroundItem.QuadEffect?.Dispose(ref BackgroundItem.QuadEffect);
             WhitePixel?.Dispose(ref WhitePixel);
 
             // Texture caches MUST be cleared before triggering content reload!

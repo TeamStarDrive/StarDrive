@@ -8,6 +8,7 @@ using SynapseGaming.LightingSystem.Shadows;
 using System;
 using System.Threading;
 using SDGraphics;
+using SDGraphics.Sprites;
 using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
@@ -28,6 +29,8 @@ namespace Ship_Game
     {
         // The non-visible state of the Universe
         public readonly UniverseState UState;
+
+        SpriteRenderer SR;
 
         public string StarDateString => UState.StarDate.StarDateString();
         public float LastAutosaveTime = 0;
@@ -182,6 +185,7 @@ namespace Ship_Game
 
             ShipCommands = new ShipMoveCommands(this);
             DeepSpaceBuildWindow = new DeepSpaceBuildingWindow(this);
+            SR = new SpriteRenderer(ScreenManager.GraphicsDevice);
         }
 
         public UniverseScreen(SavedGame.UniverseSaveData save) : this(save.UniverseSize) // load game
@@ -692,7 +696,6 @@ namespace Ship_Game
             Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
             bloomComponent?.Dispose(ref bloomComponent);
             bg?.Dispose(ref bg);
-            bg3d?.Dispose(ref bg3d);
             FogMap      ?.Dispose(ref FogMap);
             FogMapTarget?.Dispose(ref FogMapTarget);
             BorderRT    ?.Dispose(ref BorderRT);
