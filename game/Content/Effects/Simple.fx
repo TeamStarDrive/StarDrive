@@ -6,8 +6,9 @@
 // Camera parameters.
 float4x4 ViewProjection;
 
-// texture and sampler.
+// Texture and sampler
 texture Texture;
+bool UseTexture;
 
 sampler Sampler = sampler_state
 {
@@ -44,7 +45,14 @@ VertexShaderOutput SimpleVertexShader(VertexShaderInput input)
 // Pixel shader
 float4 SimplePixelShader(VertexShaderOutput input) : COLOR0
 {
-    return tex2D(Sampler, input.TextureCoordinate) * input.Color;
+    if (UseTexture)
+    {
+        return tex2D(Sampler, input.TextureCoordinate) * input.Color;
+    }
+    else
+    {
+        return input.Color;
+    }
 }
 
 technique Simple
