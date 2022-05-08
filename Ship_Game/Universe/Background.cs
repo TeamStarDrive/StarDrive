@@ -4,7 +4,6 @@ using SDGraphics;
 using SDGraphics.Sprites;
 using Ship_Game.Graphics;
 using Vector2 = SDGraphics.Vector2;
-using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
 {
@@ -17,8 +16,6 @@ namespace Ship_Game
         Texture2D BackgroundNebula;
         Texture2D BackgroundStars;
 
-        SpriteRenderer SR;
-
         public Background(UniverseScreen universe, GraphicsDevice device)
         {
             Universe = universe;
@@ -27,7 +24,6 @@ namespace Ship_Game
             if (!ResourceManager.HasLoadedNebulae)
                 return;
 
-            SR = new SpriteRenderer(device);
             StarField = new StarField(universe);
 
             var nebulas = Dir.GetFiles("Content/Textures/BackgroundNebulas");
@@ -67,14 +63,14 @@ namespace Ship_Game
             SDUtils.Memory.Dispose(ref BackgroundStars);
         }
 
-        public void Draw(SpriteBatch batch)
+        public void Draw(SpriteRenderer sr, SpriteBatch batch)
         {
             RenderStates.BasicBlendMode(Universe.Device, additive: false, depthWrite: false);
-            SR.Begin(Matrix.Identity);
+            sr.Begin(Matrix.Identity);
             // with Matrix.Identity, screen spans from [-1.0; +1.0] in both X and Y
-            SR.FillRect(new RectF(-1.01f, -1.01f, 2.02f, 2.02f), Color.Black); // fill the screen
+            sr.FillRect(new RectF(-1.01f, -1.01f, 2.02f, 2.02f), Color.Black); // fill the screen
 
-            DrawBackgroundNebulaWithStars();
+            DrawBackgroundNebulaWithStars(sr);
 
             RenderStates.BasicBlendMode(Universe.Device, additive: false, depthWrite: true);
 
@@ -87,7 +83,7 @@ namespace Ship_Game
             StarField.Draw(cameraPos, batch);
         }
 
-        void DrawBackgroundNebulaWithStars()
+        void DrawBackgroundNebulaWithStars(SpriteRenderer sr)
         {
             // distance of the nebula in the background
             // we can't actually set a huge constant distance due to view matrix limitations
@@ -108,20 +104,20 @@ namespace Ship_Game
 
             double uSize = 20_000_000;
 
-            SR.Begin(Universe.View, Universe.Projection);
+            sr.Begin(Universe.ViewProjection);
             RenderStates.BasicBlendMode(Universe.Device, additive: false, depthWrite: false);
 
             Texture2D nebula = BackgroundNebula;
             if (nebula != null)
             {
                 Vector2d nebulaSize = SubTexture.GetAspectFill(nebula.Width, nebula.Height, uSize);
-                SR.Draw(nebula, backgroundPos, nebulaSize, Color.White);
+                sr.Draw(nebula, backgroundPos, nebulaSize, Color.White);
             }
 
             RenderStates.BasicBlendMode(Universe.Device, additive: true, depthWrite: false);
             Texture2D stars = BackgroundStars;
             Vector2d starsSize = SubTexture.GetAspectFill(stars.Width, stars.Height, uSize);
-            SR.Draw(stars, backgroundPos, starsSize, Color.White);
+            sr.Draw(stars, backgroundPos, starsSize, Color.White);
         }
     }
 }

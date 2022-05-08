@@ -37,7 +37,7 @@ namespace SDGraphics.Sprites
             public const int SizeInBytes = 24;
         }
 
-        readonly GraphicsDevice Device;
+        public readonly GraphicsDevice Device;
         VertexDeclaration VD;
         Shader Simple;
         EffectParameter ViewProjectionParam;
@@ -46,7 +46,7 @@ namespace SDGraphics.Sprites
 
         public SpriteRenderer(GraphicsDevice device)
         {
-            Device = device;
+            Device = device ?? throw new NullReferenceException(nameof(device));
             VD = new VertexDeclaration(device, Vertex.VertexElements);
 
             Simple = Shader.FromFile(device, "Content/Effects/Simple.fx");
@@ -156,13 +156,18 @@ namespace SDGraphics.Sprites
 
         public void Draw(Texture2D texture, in RectF rect, Color color)
         {
+            Draw(texture, rect, 0f, DefaultCoords, color);
+        }
+
+        public void Draw(Texture2D texture, in RectF rect, float z, in RectF sourceCoords, Color color)
+        {
             var vertices = new Vertex[4];
             var indices = new short[6];
             float left = rect.X;
             float right = left + rect.W;
             float top = rect.Y;
             float bot = top + rect.H;
-            FillVertexData(vertices, indices, 0, left, right, top, bot, 0f, DefaultCoords, color);
+            FillVertexData(vertices, indices, 0, left, right, top, bot, z, sourceCoords, color);
             DrawTriangles(texture, vertices, indices);
         }
 
@@ -183,7 +188,7 @@ namespace SDGraphics.Sprites
 
         public void FillRect(in RectF rect, Color color)
         {
-            Draw(null, rect, color);
+            Draw(null, rect, 0f, DefaultCoords, color);
         }
     }
 }

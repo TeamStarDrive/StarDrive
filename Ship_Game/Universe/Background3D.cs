@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDGraphics.Sprites;
 using Ship_Game.Graphics;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
@@ -8,10 +9,10 @@ using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game
 {
-    public sealed class Background3D : IDisposable
+    public sealed class Background3D
     {
         readonly UniverseScreen Screen;
-        readonly Array<BackgroundItem> BGItems = new Array<BackgroundItem>();
+        readonly Array<BackgroundItem> BGItems = new();
         readonly SeededRandom Random;
 
         public Background3D(UniverseScreen screen)
@@ -36,26 +37,9 @@ namespace Ship_Game
             CreateForegroundStars(universeSize);
         }
 
-        ~Background3D() { Destroy(); }
-        public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
-
-        void Destroy()
+        static BackgroundItem CreateBGItem(in RectF r, float zDepth, SubTexture nebTexture)
         {
-            for (int i = 0; i < BGItems.Count; ++i)
-                BGItems[i].Dispose();
-            BGItems.Clear();
-        }
-
-        BackgroundItem CreateBGItem(in RectF r, float zDepth, SubTexture nebTexture)
-        {
-            var neb = new BackgroundItem(nebTexture);
-            neb.UpperLeft  = new Vector3(r.X, r.Y, zDepth);
-            neb.LowerLeft  = new Vector3(r.X, r.Bottom, zDepth);
-            neb.UpperRight = new Vector3(r.Right, r.Y, zDepth);
-            neb.LowerRight = new Vector3(r.Right, r.Bottom, zDepth);
-            neb.FillVertices();
-            neb.LoadContent(Screen.ScreenManager);
-            return neb;
+            return new BackgroundItem(nebTexture, r, zDepth);
         }
 
         // these are the stars which float on top of simulated universe
@@ -124,16 +108,17 @@ namespace Ship_Game
             BGItems.Add(CreateBGItem(new RectF(nebTopLeft, xSize, ySize), zPos, neb));
         }
 
-        public void Draw(GraphicsDevice device)
+        public void Draw(SpriteRenderer sr)
         {
-            RenderStates.BasicBlendMode(device, additive:true, depthWrite:false);
+            RenderStates.BasicBlendMode(sr.Device, additive:true, depthWrite:false);
 
             double alpha = Screen.CamPos.Z / (Screen.GetZfromScreenState(UniverseScreen.UnivScreenState.SectorView) * 2);
             float a = (float)alpha.Clamped(0.1, 0.3);
+            Color color = new Color(1f, 1f, 1f, a);
 
             for (int i = 0; i < BGItems.Count; i++)
             {
-                BGItems[i].Draw(device, Screen.View, Screen.Projection, a);
+                BGItems[i].Draw(sr, color);
             }
         }
     }

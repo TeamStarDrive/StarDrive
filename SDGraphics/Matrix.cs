@@ -676,8 +676,8 @@ public struct Matrix : IEquatable<Matrix>
 
     [Pure]
     public static Matrix CreatePerspectiveFieldOfView(
-      float fieldOfView,
-      float aspectRatio,
+      double fieldOfView,
+      double aspectRatio,
       double nearPlaneDistance,
       double farPlaneDistance)
     {
@@ -689,13 +689,13 @@ public struct Matrix : IEquatable<Matrix>
             throw new ArgumentOutOfRangeException(nameof(farPlaneDistance), $"Negative plane distance: {nameof(farPlaneDistance)}");
         if (nearPlaneDistance >= farPlaneDistance)
             throw new ArgumentOutOfRangeException(nameof(nearPlaneDistance), "Opposite planes");
-        float num1 = 1f / (float)Math.Tan(fieldOfView * 0.5);
-        float num2 = num1 / aspectRatio;
+        double num1 = 1.0 / Math.Tan(fieldOfView * 0.5);
+        double num2 = num1 / aspectRatio;
         double farPlaneRatio = farPlaneDistance / (nearPlaneDistance - farPlaneDistance);
         Matrix perspectiveFieldOfView;
-        perspectiveFieldOfView.M11 = num2;
+        perspectiveFieldOfView.M11 = (float)num2;
         perspectiveFieldOfView.M12 = perspectiveFieldOfView.M13 = perspectiveFieldOfView.M14 = 0.0f;
-        perspectiveFieldOfView.M22 = num1;
+        perspectiveFieldOfView.M22 = (float)num1;
         perspectiveFieldOfView.M21 = perspectiveFieldOfView.M23 = perspectiveFieldOfView.M24 = 0.0f;
         perspectiveFieldOfView.M31 = perspectiveFieldOfView.M32 = 0.0f;
         perspectiveFieldOfView.M33 = (float)farPlaneRatio;
@@ -707,8 +707,8 @@ public struct Matrix : IEquatable<Matrix>
 
     [Pure]
     public static void CreatePerspectiveFieldOfView(
-      float fieldOfView,
-      float aspectRatio,
+      double fieldOfView,
+      double aspectRatio,
       double nearPlaneDistance,
       double farPlaneDistance,
       out Matrix result)
@@ -721,12 +721,12 @@ public struct Matrix : IEquatable<Matrix>
             throw new ArgumentOutOfRangeException(nameof(farPlaneDistance), $"Negative plane distance: {nameof(farPlaneDistance)}");
         if (nearPlaneDistance >= farPlaneDistance)
             throw new ArgumentOutOfRangeException(nameof(nearPlaneDistance), "Opposite planes");
-        float num1 = 1f / (float)Math.Tan(fieldOfView * 0.5);
-        float num2 = num1 / aspectRatio;
+        double num1 = 1.0 / Math.Tan(fieldOfView * 0.5);
+        double num2 = num1 / aspectRatio;
         double farPlaneRatio = farPlaneDistance / (nearPlaneDistance - farPlaneDistance);
-        result.M11 = num2;
+        result.M11 = (float)num2;
         result.M12 = result.M13 = result.M14 = 0.0f;
-        result.M22 = num1;
+        result.M22 = (float)num1;
         result.M21 = result.M23 = result.M24 = 0.0f;
         result.M31 = result.M32 = 0.0f;
         result.M33 = (float)farPlaneRatio;

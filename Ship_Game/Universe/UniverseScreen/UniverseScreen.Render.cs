@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDGraphics.Sprites;
 using Ship_Game.Empires.Components;
 using Ship_Game.Gameplay;
 using Ship_Game.Graphics;
@@ -20,7 +21,7 @@ namespace Ship_Game
         {
             if (GlobalStats.DrawStarfield)
             {
-                bg?.Draw(batch);
+                bg?.Draw(SR, batch);
             }
         }
 
@@ -28,7 +29,7 @@ namespace Ship_Game
         {
             if (GlobalStats.DrawNebulas)
             {
-                bg3d?.Draw(device);
+                bg3d?.Draw(SR);
             }
         }
 
@@ -569,11 +570,12 @@ namespace Ship_Game
                 return;
 
             RenderStates.BasicBlendMode(device, additive:true, depthWrite:true);
+            SR.Begin(ViewProjection);
 
             for (int x = 0; x < anomalyManager.AnomaliesList.Count; x++)
             {
                 Anomaly anomaly = anomalyManager.AnomaliesList[x];
-                anomaly.Draw();
+                anomaly.Draw(SR);
             }
         }
 
