@@ -274,9 +274,8 @@ namespace Ship_Game
 
             AdjustCamera(elapsed.RealTime.Seconds);
 
-            Matrix matrix = Matrix.CreateRotationY(180f.ToRadians())
-                          * Matrices.CreateLookAtDown(-CamPos.X, CamPos.Y, CamPos.Z);
-            SetViewMatrix(matrix);
+            Matrix cameraMatrix = Matrices.CreateLookAtDown(CamPos.X, CamPos.Y, -CamPos.Z);
+            SetViewMatrix(cameraMatrix);
 
             GraphicsDevice graphics = ScreenManager.GraphicsDevice;
             graphics.SetRenderTarget(0, MainTarget);
@@ -290,7 +289,7 @@ namespace Ship_Game
                     DrawColoredEmpireBorders(batch, graphics);
                 DrawFogOfWarEffect(batch, graphics);
 
-                SetViewMatrix(matrix);
+                SetViewMatrix(cameraMatrix);
                 if (GlobalStats.RenderBloom)
                     bloomComponent?.Draw();
 
