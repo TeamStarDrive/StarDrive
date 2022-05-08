@@ -79,7 +79,9 @@ namespace Ship_Game
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
 
-        public Matrix View, Projection;
+        public Matrix View; // @see SetViewMatrix
+        public Matrix Projection; // @see SetPerspectiveProjection
+        public Matrix ViewProjection; // View * Projection
 
         // deferred renderer allows some basic commands to be queued up to be drawn. 
         // this is useful when wanted to draw from handle input routines and other areas. 
@@ -521,8 +523,9 @@ namespace Ship_Game
             //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f)); // FleetDesignScreen
             //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f)); // ShipDesignScreen
             //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f/*45 DEGREES*/, aspect, 100f, 3E+07f)); // UniverseScreen
-            float fieldOfViewYrads = (float)fovYdegrees.ToRadians();
-            Projection = Matrix.CreatePerspectiveFieldOfView(fieldOfViewYrads, Viewport.AspectRatio, 100.0, maxDistance);
+            double fieldOfViewYrads = fovYdegrees.ToRadians();
+            double aspectRatio = (double)Viewport.Width / Viewport.Height;
+            Projection = Matrix.CreatePerspectiveFieldOfView(fieldOfViewYrads, aspectRatio, 100.0, maxDistance);
             UpdateWorldScreenProjection();
         }
 
@@ -531,6 +534,7 @@ namespace Ship_Game
 
         protected void UpdateWorldScreenProjection()
         {
+            View.Multiply(Projection, out ViewProjection);
             VisibleWorldRect = UnprojectToWorldRect(new AABoundingBox2D(0,0, Viewport.Width, Viewport.Height));
         }
         
