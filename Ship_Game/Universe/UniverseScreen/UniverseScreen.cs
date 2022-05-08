@@ -323,7 +323,7 @@ namespace Ship_Game
         // So this should be the absolute max height for the camera
         // And this also defines the limit to Perspective Matrix's MaxDistance
         // The bigger Perspective project MaxDistance is, the less accurate our screen coordinates
-        const double CAM_MAX = 15_000_000;
+        public const double CAM_MAX = 15_000_000;
 
         void InitializeCamera()
         {

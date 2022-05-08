@@ -41,6 +41,7 @@ namespace SDGraphics.Sprites
         Shader Simple;
         EffectParameter ViewProjectionParam;
         EffectParameter TextureParam;
+        EffectParameter UseTextureParam;
 
         public SpriteRenderer(GraphicsDevice device)
         {
@@ -50,6 +51,7 @@ namespace SDGraphics.Sprites
             Simple = Shader.FromFile(device, "Content/Effects/Simple.fx");
             ViewProjectionParam = Simple["ViewProjection"];
             TextureParam = Simple["Texture"];
+            UseTextureParam = Simple["UseTexture"];
         }
 
         public void Dispose()
@@ -110,6 +112,7 @@ namespace SDGraphics.Sprites
         void DrawTriangles(Texture2D texture, Vertex[] vertices, short[] indices)
         {
             TextureParam.SetValue(texture);
+            UseTextureParam.SetValue(texture != null);
 
             Device.VertexDeclaration = VD;
             Simple.Begin();
@@ -136,6 +139,23 @@ namespace SDGraphics.Sprites
         public void Draw(Texture2D texture, in Vector3d center, in Vector2d size, Color color)
         {
             Draw(texture, center.ToVec3f(), size.ToVec2f(), color);
+        }
+
+        public void FillRect(in Vector3 center, in Vector2 size, Color color)
+        {
+            Draw(null, center, size, color);
+        }
+
+        public void FillRect(in Vector3d center, in Vector2d size, Color color)
+        {
+            Draw(null, center.ToVec3f(), size.ToVec2f(), color);
+        }
+
+        public void FillRect(in RectF rect, Color color)
+        {
+            var center = new Vector3(rect.Center, 0f);
+            var size = rect.Size;
+            Draw(null, center, size, color);
         }
     }
 }

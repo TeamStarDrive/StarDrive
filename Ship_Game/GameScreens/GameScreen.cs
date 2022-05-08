@@ -522,7 +522,7 @@ namespace Ship_Game
             //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f)); // ShipDesignScreen
             //SetProjection(Matrix.CreatePerspectiveFieldOfView(0.7853982f/*45 DEGREES*/, aspect, 100f, 3E+07f)); // UniverseScreen
             float fieldOfViewYrads = (float)fovYdegrees.ToRadians();
-            Projection = Matrix.CreatePerspectiveFieldOfView(fieldOfViewYrads, Viewport.AspectRatio, 100f, (float)maxDistance);
+            Projection = Matrix.CreatePerspectiveFieldOfView(fieldOfViewYrads, Viewport.AspectRatio, 100.0, maxDistance);
             UpdateWorldScreenProjection();
         }
 
