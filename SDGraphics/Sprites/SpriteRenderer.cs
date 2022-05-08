@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -80,16 +81,12 @@ namespace SDGraphics.Sprites
             SetViewProjection(viewProjection);
         }
 
-        void FillVertexData(Vertex[] vertices, short[] indices, int index, in Vector3 center, Vector2 size, in RectF coords, Color color)
+        void FillVertexData(Vertex[] vertices, short[] indices, int index,
+            float left, float right, float top, float bot, float z,
+            in RectF coords, Color color)
         {
             int vertexOffset = index * 4;
             int indexOffset = index * 6;
-
-            float left = center.X - size.X*0.5f;
-            float top = center.Y - size.Y*0.5f;
-            float right = left + size.X;
-            float bottom = top + size.Y;
-            float z = center.Z;
 
             var tc_tl = new Vector2(coords.X, coords.Y); // TexCoord TopLeft
             var tc_br = new Vector2(coords.X + coords.W, coords.Y + coords.H); // TexCoord TopRight
@@ -98,8 +95,8 @@ namespace SDGraphics.Sprites
 
             vertices[vertexOffset + 0] = new Vertex(new Vector3(left, top, z), color, tc_tl); // TopLeft
             vertices[vertexOffset + 1] = new Vertex(new Vector3(right, top, z), color, tc_tr); // TopRight
-            vertices[vertexOffset + 2] = new Vertex(new Vector3(right, bottom, z), color, tc_br); // BotRight
-            vertices[vertexOffset + 3] = new Vertex(new Vector3(left, bottom, z), color, tc_bl); // BotLeft
+            vertices[vertexOffset + 2] = new Vertex(new Vector3(right, bot, z), color, tc_br); // BotRight
+            vertices[vertexOffset + 3] = new Vertex(new Vector3(left, bot, z), color, tc_bl); // BotLeft
 
             indices[indexOffset + 0] = (short)(vertexOffset + 0);
             indices[indexOffset + 1] = (short)(vertexOffset + 1);
@@ -109,10 +106,23 @@ namespace SDGraphics.Sprites
             indices[indexOffset + 5] = (short)(vertexOffset + 3);
         }
 
+        [Conditional("DEBUG")]
+        static void CheckTextureDisposed(Texture2D texture)
+        {
+            if (texture.IsDisposed)
+                throw new ObjectDisposedException($"Texture2D '{texture.Name}'");
+        }
+
         void DrawTriangles(Texture2D texture, Vertex[] vertices, short[] indices)
         {
-            TextureParam.SetValue(texture);
-            UseTextureParam.SetValue(texture != null);
+            bool useTexture = texture != null;
+            if (useTexture)
+            {
+                // only set Texture sampler if texture is used
+                CheckTextureDisposed(texture);
+                TextureParam.SetValue(texture);
+            }
+            UseTextureParam.SetValue(useTexture);
 
             Device.VertexDeclaration = VD;
             Simple.Begin();
@@ -132,7 +142,27 @@ namespace SDGraphics.Sprites
         {
             var vertices = new Vertex[4];
             var indices = new short[6];
-            FillVertexData(vertices, indices, 0, center, size, DefaultCoords, color);
+
+            // calculate these with double precision to improve accuracy
+            double sx2 = size.X / 2.0;
+            double sy2 = size.Y / 2.0;
+            float left  = (float)(center.X - sx2);
+            float right = (float)(center.X + sx2);
+            float top = (float)(center.Y - sy2);
+            float bot = (float)(center.Y + sy2);
+            FillVertexData(vertices, indices, 0, left, right, top, bot, center.Z, DefaultCoords, color);
+            DrawTriangles(texture, vertices, indices);
+        }
+
+        public void Draw(Texture2D texture, in RectF rect, Color color)
+        {
+            var vertices = new Vertex[4];
+            var indices = new short[6];
+            float left = rect.X;
+            float right = left + rect.W;
+            float top = rect.Y;
+            float bot = top + rect.H;
+            FillVertexData(vertices, indices, 0, left, right, top, bot, 0f, DefaultCoords, color);
             DrawTriangles(texture, vertices, indices);
         }
 
@@ -153,9 +183,7 @@ namespace SDGraphics.Sprites
 
         public void FillRect(in RectF rect, Color color)
         {
-            var center = new Vector3(rect.Center, 0f);
-            var size = rect.Size;
-            Draw(null, center, size, color);
+            Draw(null, rect, color);
         }
     }
 }
