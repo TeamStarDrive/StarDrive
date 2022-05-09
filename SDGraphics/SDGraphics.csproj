@@ -53,6 +53,10 @@
     <Compile Include="Range.cs" />
     <Compile Include="Rectangle.cs" />
     <Compile Include="RectF.cs" />
+    <Compile Include="Rendering\Quad3D.cs" />
+    <Compile Include="Rendering\Quad2D.cs" />
+    <Compile Include="Rendering\QuadBuffer.cs" />
+    <Compile Include="Rendering\VertexCoordColor.cs" />
     <Compile Include="Shaders\Shader.cs" />
     <Compile Include="Sprites\SpriteRenderer.cs" />
     <Compile Include="Vector2.cs" />
