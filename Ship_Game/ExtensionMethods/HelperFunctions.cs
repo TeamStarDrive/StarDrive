@@ -157,6 +157,16 @@ namespace Ship_Game
             batch.DrawString(font, text, pos + new Vector2(shadowOffset), Color.Black);
             batch.DrawString(font, text, pos, c);
         }
+        public static void DrawOutlineText(this SpriteBatch batch, string text, Vector2 pos, Font font, Color c, Color outlineC, float outlineR)
+        {
+            pos.X = (int)pos.X;
+            pos.Y = (int)pos.Y;
+            batch.DrawString(font, text, pos + new Vector2(-outlineR, -outlineR), outlineC);
+            batch.DrawString(font, text, pos + new Vector2(-outlineR, +outlineR), outlineC);
+            batch.DrawString(font, text, pos + new Vector2(+outlineR, -outlineR), outlineC);
+            batch.DrawString(font, text, pos + new Vector2(+outlineR, +outlineR), outlineC);
+            batch.DrawString(font, text, pos, c);
+        }
 
         public static void DrawGrid(SpriteBatch spriteBatch, int xpos, int ypos, int xGridSize, int yGridSize, int numberXs, int numberYs)
         {

@@ -33,6 +33,13 @@ public struct Vector3 : IEquatable<Vector3>
         Z = z;
     }
 
+    public Vector3(in Vector2 v)
+    {
+        X = v.X;
+        Y = v.Y;
+        Z = 0f;
+    }
+
     public Vector3(in XnaVector3 v)
     {
         X = v.X;

@@ -311,8 +311,6 @@ namespace Ship_Game
             UnloadGraphics();
 
             GlobalStats.ResearchRootUIDToDisplay = "Colonization";
-            SolarsystemOverlay.SysFont  = Fonts.Arial12Bold;
-            SolarsystemOverlay.DataFont = Fonts.Arial10;
 
             NotificationManager = new NotificationManager(ScreenManager, this);
             aw = Add(new AutomationWindow(this));
