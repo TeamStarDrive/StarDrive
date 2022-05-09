@@ -224,10 +224,11 @@ namespace Ship_Game
 
             if (rotation != 0f)
             {
-                tl = tl.RotateAroundPoint(tl, rotation);
-                tr = tr.RotateAroundPoint(tl, rotation);
-                br = br.RotateAroundPoint(tl, rotation);
-                bl = bl.RotateAroundPoint(tl, rotation);
+                var center = tl;
+                tl = tl.RotateAroundPoint(center, rotation);
+                tr = tr.RotateAroundPoint(center, rotation);
+                br = br.RotateAroundPoint(center, rotation);
+                bl = bl.RotateAroundPoint(center, rotation);
             }
 
             DrawLine(batch, tl, tr, color, thickness); // ---- top
