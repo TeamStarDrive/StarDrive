@@ -1690,7 +1690,6 @@
   <ItemGroup>
     <Folder Include="Ship_Game\Fleets\FleetGoals\" />
     <Folder Include="Ship_Game\Sensors\" />
-    <Folder Include="Ship_Game\Universe\SolarBodies\AI\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
