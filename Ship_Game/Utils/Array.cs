@@ -61,6 +61,12 @@ namespace Ship_Game
             Items = new T[capacity];
         }
 
+        public Array(int size, int capacity)
+        {
+            Count = size;
+            Items = new T[Math.Max(size, capacity)];
+        }
+
         /// <summary> Fastest method to copying an ArrayT.</summary>
         public Array(Array<T> list)
         {
