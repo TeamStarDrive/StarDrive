@@ -734,6 +734,7 @@ namespace Ship_Game
             SelectedPlanet = null;
             SelectedSystem = null;
 
+            EmpireHullBonuses.Clear();
             ShieldManager.Clear();
             ClickableFleetsList.Clear();
             ClickableShips = Empty<ClickableShip>.Array;
