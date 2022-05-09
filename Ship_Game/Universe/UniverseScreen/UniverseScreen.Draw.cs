@@ -305,6 +305,8 @@ namespace Ship_Game
             {
                 DrawShipsAndProjectiles(batch);
                 DrawShipAndPlanetIcons(batch);
+                DrawSolarSystems(batch);
+                DrawSystemThreatIndicators(batch);
                 DrawGeneralUI(batch, elapsed);
             }
             batch.End();
@@ -1207,11 +1209,13 @@ namespace Ship_Game
                     for (int i = 0; i < planet.BuildingList.Count; i++)
                     {
                         Building building = planet.BuildingList[i];
-                        if (!building.EventHere) continue;
-                        posOffSet.X += (18 * drawLocationOffset);
-                        DrawTextureWithToolTip(icon_anomaly_small, Color.White, building.DescriptionText, mousePos,
-                                               (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
-                        break;
+                        if (building.EventHere)
+                        {
+                            posOffSet.X += (18 * drawLocationOffset);
+                            DrawTextureWithToolTip(icon_anomaly_small, Color.White, building.DescriptionText, mousePos,
+                                                   (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
+                            break;
+                        }
                     }
                     int troopCount = planet.CountEmpireTroops(Player);
                     if (troopCount > 0)
