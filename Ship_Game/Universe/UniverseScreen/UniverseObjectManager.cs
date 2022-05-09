@@ -36,13 +36,14 @@ namespace Ship_Game
         /// </summary>
         readonly GameObjectList<Projectile> Projectiles = new GameObjectList<Projectile>();
 
-        public readonly AggregatePerfTimer TotalTime = new AggregatePerfTimer();
-        public readonly AggregatePerfTimer ListTime = new AggregatePerfTimer();
-        public readonly AggregatePerfTimer SysPerf   = new AggregatePerfTimer();
-        public readonly AggregatePerfTimer ShipsPerf = new AggregatePerfTimer();
-        public readonly AggregatePerfTimer ProjPerf  = new AggregatePerfTimer();
-        public readonly AggregatePerfTimer SensorPerf = new AggregatePerfTimer();
-        public readonly AggregatePerfTimer VisPerf   = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer TotalTime = new();
+        public readonly AggregatePerfTimer ListTime = new();
+        public readonly AggregatePerfTimer SysShipsPerf = new();
+        public readonly AggregatePerfTimer SysPerf   = new();
+        public readonly AggregatePerfTimer ShipsPerf = new();
+        public readonly AggregatePerfTimer ProjPerf  = new();
+        public readonly AggregatePerfTimer SensorPerf = new();
+        public readonly AggregatePerfTimer VisPerf   = new();
 
         /// <summary>
         /// Invoked when a Ship is removed from the universe
@@ -326,27 +327,30 @@ namespace Ship_Game
             if (Universe.IsExiting)
                 return;
 
-            SysPerf.Start();
-
+            SysShipsPerf.Start();
             UpdateSolarSystemShips();
+            SysShipsPerf.Stop();
 
-            // TODO: SolarSystem.Update is not thread safe because of resource loading
+            SysPerf.Start();
             for (int i = 0; i < UState.Systems.Count; ++i)
             {
+                // TODO: SolarSystem.Update is not thread safe because of resource loading
                 SolarSystem system = UState.Systems[i];
                 system.Update(timeStep, Universe);
             }
-
             SysPerf.Stop();
         }
+
+        readonly HashSet<int> ShipsInSystems = new(); // by Ship.Id
 
         void UpdateSolarSystemShips()
         {
             Ship[] allShips = Ships.GetItems();
-            var shipsInSystems = new HashSet<int>(allShips.Length); // by Ship.Id
+            ShipsInSystems.Clear();
 
             void UpdateSystems(int start, int end)
             {
+                HashSet<int> shipsInSystems = new();
                 for (int i = start; i < end; ++i)
                 {
                     SolarSystem system = UState.Systems[i];
@@ -369,16 +373,22 @@ namespace Ship_Game
                         system.SetExploredBy(ship.Loyalty);
                     }
                 }
+
+                lock (ShipsInSystems)
+                {
+                    foreach (int id in shipsInSystems)
+                        ShipsInSystems.Add(id);
+                }
             }
 
-            UpdateSystems(0, UState.Systems.Count);
-            //Parallel.For(UniverseScreen.SolarSystemList.Count, UpdateSystems, Universe.MaxTaskCores);
+            //UpdateSystems(0, UState.Systems.Count);
+            Parallel.For(UState.Systems.Count, UpdateSystems, Universe.MaxTaskCores);
 
             // now set null systems for ships not found in any solar system
             for (int i = 0; i < allShips.Length; ++i)
             {
                 Ship ship = allShips[i];
-                if (!shipsInSystems.Contains(ship.Id))
+                if (!ShipsInSystems.Contains(ship.Id))
                     ship.SetSystem(null);
             }
         }

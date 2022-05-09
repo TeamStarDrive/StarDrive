@@ -88,6 +88,7 @@ namespace Ship_Game
 
                 var objects = DebugStats.AddItem(new DebugStatItem("Objects", uObjects.TotalTime, true));
                 objects.AddSubItem(new DebugStatItem("List", uObjects.ListTime, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("SysShips", uObjects.SysShipsPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Systems", uObjects.SysPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Ships", uObjects.ShipsPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Projectiles", uObjects.ProjPerf, uObjects.TotalTime));
