@@ -14,16 +14,16 @@ public struct RectF
     public float W;
     public float H;
 
-    public float Left => X;
-    public float Top => Y;
-    public float Right => X + W;
-    public float Bottom => Y + H;
+    public readonly float Left => X;
+    public readonly float Top => Y;
+    public readonly float Right => X + W;
+    public readonly float Bottom => Y + H;
     
-    public Vector2 Center => new(X + W*0.5f, Y + H*0.5f);
-    public Vector2 Size => new(W, H);
+    public readonly Vector2 Center => new(X + W*0.5f, Y + H*0.5f);
+    public readonly Vector2 Size => new(W, H);
 
-    public Vector2 TopLeft => new(X, Y);
-    public Vector2 BotRight => new(X + W, Y + H);
+    public readonly Vector2 TopLeft => new(X, Y);
+    public readonly Vector2 BotRight => new(X + W, Y + H);
 
     public override string ToString() => $"{{X:{X} Y:{Y} W:{W} H:{H}}}";
 
@@ -151,14 +151,21 @@ public struct RectF
         return new RectF(center.X - width * 0.5, center.Y - height * 0.5, width, height);
     }
 
-    [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Overlaps(in RectF r)
+    [Pure]
+    public readonly bool Overlaps(in RectF r)
     {
-        return Left <= r.Right && Right > r.Left
-            && Top <= r.Bottom && Bottom > r.Top;
+        return X <= (r.X+r.W) && r.X < (X+W)
+            && Y <= (r.Y+r.H) && r.Y < (Y+H);
     }
 
-    [Pure] public RectF ScaledBy(float scale)
+    [Pure]
+    public readonly bool HitTest(in Vector2 pos)
+    {
+        return X <= pos.X && pos.X < (X+W)
+            && Y <= pos.Y && pos.Y < (Y+H);
+    }
+
+    [Pure] public readonly RectF ScaledBy(float scale)
     {
         if (scale.AlmostEqual(1f))
             return this;

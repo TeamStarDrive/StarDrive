@@ -649,6 +649,38 @@ namespace Ship_Game
             return strength;
         }
 
+        public bool IsAnomalyOnAnyKnownPlanets(Empire player)
+        {
+            foreach (Planet planet in PlanetList)
+            {
+                if (planet.IsExploredBy(player))
+                {
+                    for (int i = 0; i < planet.BuildingList.Count; ++i)
+                    {
+                        if (planet.BuildingList[i].EventHere)
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public Array<Empire> GetKnownOwners(Empire player)
+        {
+            var owners = new Array<Empire>();
+
+            foreach (Empire e in OwnerList)
+            {
+                player.GetRelations(e, out Relationship ssRel);
+                bool wellKnown = Universe.Debug || e.isPlayer || ssRel.Treaty_Alliance;
+                if (wellKnown)
+                    return OwnerList.ToArrayList();
+
+                if (ssRel.Known)
+                    owners.Add(e);
+            }
+            return owners;
+        }
 
         bool NoAsteroidProximity(Vector2 pos)
         {

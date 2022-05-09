@@ -137,272 +137,181 @@ namespace Ship_Game
                 var color = new Color(255, 255, 255, (byte) alpha);
                 batch.Draw(BorderRT.GetTexture(), new Rectangle(0, 0, ScreenWidth, ScreenHeight), color);
             }
+            DrawOverFog.Stop();
+        }
 
+        void DrawSolarSystems(SpriteBatch batch)
+        {
             foreach (SolarSystem sys in UState.Systems)
             {
-                if (viewState >= UnivScreenState.SectorView)
-                {
-                    DrawSolarSystemSectorView(sys);
-                }
                 if (viewState >= UnivScreenState.GalaxyView) // super zoomed out
                 {
                     sys.Sun.DrawLowResSun(batch, sys, View, Projection);
                 }
-            }
-
-            if (viewState > UnivScreenState.SectorView)
-            {
-                var currentEmpire = SelectedShip?.Loyalty ?? Player;
-                var enemies = EmpireManager.GetEnemies(currentEmpire);
-                var ssps    = EmpireManager.Player.GetProjectors();
-                for (int i = 0; i < ssps.Count; i++)
+                if (viewState >= UnivScreenState.SectorView)
                 {
-                    var ssp = ssps[i];
-                    int spacing = 1;
-                    for (int x = 0; x < enemies.Count; x++)
-                    {
-                        var empire = enemies[x];
-                        if (ssp.HasSeenEmpires.KnownBy(empire))
-                        {
-                            var screenPos = ProjectToScreenPosition(ssp.Position);
-                            var flag = empire.data.Traits.FlagIndex;
-                            int xPos = (int)screenPos.X + (15 + GlobalStats.IconSize) * spacing;
-                            Rectangle rectangle2 = new Rectangle(xPos, (int)screenPos.Y, 15 + GlobalStats.IconSize, 15 + GlobalStats.IconSize);
-                            batch.Draw(ResourceManager.Flag(flag), rectangle2, ApplyCurrentAlphaToColor(empire.EmpireColor));
-                            spacing++;
-                        }
-                    }
-                }
-                foreach (IncomingThreat threat in Player.SystemsWithThreat)
-                {
-                    if (threat.ThreatTimedOut) continue;
-
-                    var system = threat.TargetSystem;
-                    float pulseRad = PulseTimer * (threat.TargetSystem.Radius * 1.5f );
-
-                    var red = new Color(Color.Red, 40);
-                    var black = new Color(Color.Black, 40);
-
-                    DrawCircleProjected(system.Position, pulseRad, red, 10);
-                    DrawCircleProjected(system.Position, pulseRad * 1.001f, black, 5);
-                    DrawCircleProjected(system.Position, pulseRad * 1.3f, red, 10);
-                    DrawCircleProjected(system.Position, pulseRad * 1.301f, black, 5);
-
-                    //batch.DrawCircle(system.Position, pulseRad, new Color(Color.Red, 255 - 255 * threat.PulseTime), pulseRad);
-                    //batch.DrawCircle(system.Position, pulseRad, new Color(Color.Red, 40 * threat.PulseTime), pulseRad);
+                    DrawSolarSystemNames(batch, sys);
                 }
             }
-            DrawOverFog.Stop();
         }
 
-        void DrawSolarSystemSectorView(SolarSystem solarSystem)
+        void DrawSystemThreatIndicators(SpriteBatch batch)
         {
-            if (!Frustum.Contains(solarSystem.Position, 10f))
-                return;
-
-            SpriteBatch batch = ScreenManager.SpriteBatch;
-
-            Vector2d solarSysPos = ProjectToScreenPosition(solarSystem.Position.ToVec3());
-            Vector2d b = ProjectToScreenPosition(new Vector3(solarSystem.Position.PointFromAngle(90f, 25000f), 0f));
-            float num2 = (float)solarSysPos.Distance(b);
-            Vector2 vector2 = solarSysPos.ToVec2f();
-
-            if ((solarSystem.IsExploredBy(Player) || Debug) && SelectedSystem != solarSystem)
+            if (viewState > UnivScreenState.SectorView)
             {
-                if (Debug)
+                DrawEnemiesDetectedByProjectors(batch);
+                DrawSystemThreatCirclesAnimation(batch);
+            }
+        }
+
+        void DrawEnemiesDetectedByProjectors(SpriteBatch batch)
+        {
+            var enemies = EmpireManager.GetEnemies(Player);
+            var playerProjectors = Player.GetProjectors();
+            for (int i = 0; i < playerProjectors.Count; i++)
+            {
+                Ship projector = playerProjectors[i];
+                int spacing = 1;
+                for (int j = 0; j < enemies.Count; j++)
                 {
-                    solarSystem.SetExploredBy(Player);
-                    foreach (Planet planet in solarSystem.PlanetList)
-                        planet.SetExploredBy(Player);
-                }
-
-                var groundAttack = ResourceManager.Texture("Ground_UI/Ground_Attack");
-                var enemyHere =ResourceManager.Texture("Ground_UI/EnemyHere");
-
-                Vector2d p = ProjectToScreenPosition(new Vector3(new Vector2(100000f, 0f) + solarSystem.Position, 0f));
-                float radius = (float)p.Distance(solarSysPos);
-                if (viewState == UnivScreenState.SectorView)
-                {
-                    vector2.Y += radius;
-                    var transparentDarkGray = new Color(50, 50, 50, 90);
-                    DrawCircle(solarSysPos, radius, transparentDarkGray);
-                }
-                else
-                {
-                    vector2.Y += num2;
-                }
-
-                vector2.X -= SolarsystemOverlay.SysFont.MeasureString(solarSystem.Name).X / 2f;
-                Vector2 pos = Input.CursorPosition;
-
-                Array<Empire> owners = new Array<Empire>();
-                bool wellKnown = false;
-
-                foreach (Empire e in solarSystem.OwnerList)
-                {
-                    EmpireManager.Player.GetRelations(e, out Relationship ssRel);
-                    wellKnown = Debug || e.isPlayer || ssRel.Treaty_Alliance;
-                    if (wellKnown) break;
-                    if (ssRel.Known) // (ssRel.Treaty_Alliance || ssRel.Treaty_Trade || ssRel.Treaty_OpenBorders))
-                        owners.Add(e);
-                }
-
-                if (wellKnown)
-                {
-                    owners = solarSystem.OwnerList.ToArrayList();
-                }
-
-                if (owners.Count == 0)
-                {
-                    if (SelectedSystem != solarSystem ||
-                        viewState < UnivScreenState.GalaxyView)
-                        ScreenManager.SpriteBatch.DrawString(SolarsystemOverlay.SysFont,
-                            solarSystem.Name, vector2, Color.Gray);
-                    int num3 = 0;
-                    --vector2.Y;
-                    vector2.X += SolarsystemOverlay.SysFont.MeasureString(solarSystem.Name).X + 6f;
-                    bool flag = false;
-                    foreach (Planet planet in solarSystem.PlanetList)
+                    var enemy = enemies[j];
+                    if (projector.HasSeenEmpires.KnownBy(enemy))
                     {
-                        if (planet.IsExploredBy(Player))
-                        {
-                            for (int index = 0; index < planet.BuildingList.Count; ++index)
-                            {
-                                if (planet.BuildingList[index].EventHere)
-                                {
-                                    flag = true;
-                                    break;
-                                }
-                            }
-
-                            if (flag)
-                                break;
-                        }
-                    }
-
-                    if (flag)
-                    {
-                        vector2.Y -= 2f;
-                        Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("UI/icon_anomaly_small"), rectangle2, CurrentFlashColor);
-                        if (rectangle2.HitTest(pos))
-                            ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyHas);
-                        ++num3;
-                    }
-
-                    if (EmpireManager.Player.KnownEnemyStrengthIn(solarSystem).Greater(0))
-                    {
-                        vector2.X += num3 * 20;
-                        vector2.Y -= 2f;
-                        Rectangle rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y, enemyHere.Width, enemyHere.Height);
-                        ScreenManager.SpriteBatch.Draw(enemyHere, rectangle2, CurrentFlashColor);
-                        if (rectangle2.HitTest(pos))
-                            ToolTip.CreateTooltip(GameText.IndicatesThatHostileForcesWere);
-                        ++num3;
-
-                        if (solarSystem.HasPlanetsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
-                        {
-                            if (num3 == 1 || num3 == 2)
-                                vector2.X += 20f;
-                            Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y, groundAttack.Width,groundAttack.Height);
-                            ScreenManager.SpriteBatch.Draw(groundAttack, rectangle3, CurrentFlashColor);
-                            if (rectangle3.HitTest(pos))
-                                ToolTip.CreateTooltip(GameText.IndicatesThatSpaceCombatIs);
-                        }
-                    }
-                }
-                else
-                {
-                    int num3 = 0;
-                    if (owners.Count == 1)
-                    {
-                        if (SelectedSystem != solarSystem ||
-                            viewState < UnivScreenState.GalaxyView)
-                            HelperFunctions.DrawDropShadowText(batch, solarSystem.Name,
-                                vector2, SolarsystemOverlay.SysFont,
-                                owners.ToList()[0].EmpireColor);
-                    }
-                    else if (SelectedSystem != solarSystem ||
-                             viewState < UnivScreenState.GalaxyView)
-                    {
-                        Vector2 Pos = vector2;
-                        int length = solarSystem.Name.Length;
-                        int num4 = length / owners.Count;
-                        int index1 = 0;
-                        for (int index2 = 0; index2 < length; ++index2)
-                        {
-                            if (index2 + 1 > num4 + num4 * index1)
-                                ++index1;
-                            HelperFunctions.DrawDropShadowText(batch,
-                                solarSystem.Name[index2].ToString(), Pos, SolarsystemOverlay.SysFont,
-                                owners.Count > index1
-                                    ? owners[index1].EmpireColor
-                                    : owners.Last
-                                    .EmpireColor);
-                            Pos.X += SolarsystemOverlay.SysFont
-                                .MeasureString(solarSystem.Name[index2].ToString())
-                                .X;
-                        }
-                    }
-
-                    --vector2.Y;
-                    vector2.X += SolarsystemOverlay.SysFont.MeasureString(solarSystem.Name).X + 6f;
-                    bool flag = false;
-                    foreach (Planet planet in solarSystem.PlanetList)
-                    {
-                        if (planet.IsExploredBy(Player))
-                        {
-                            for (int index = 0; index < planet.BuildingList.Count; ++index)
-                            {
-                                if (planet.BuildingList[index].EventHere)
-                                {
-                                    flag = true;
-                                    break;
-                                }
-                            }
-
-                            if (flag)
-                                break;
-                        }
-                    }
-
-                    if (flag)
-                    {
-                        vector2.Y -= 2f;
-                        Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("UI/icon_anomaly_small"), rectangle2, CurrentFlashColor);
-                        if (rectangle2.HitTest(pos))
-                            ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyHas);
-                        ++num3;
-                    }
-
-                    if (EmpireManager.Player.KnownEnemyStrengthIn(solarSystem).Greater(0))
-                    {
-                        vector2.X += num3 * 20;
-                        vector2.Y -= 2f;
-                        Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y, enemyHere.Width, enemyHere.Height);
-                        ScreenManager.SpriteBatch.Draw(enemyHere, rectangle3, CurrentFlashColor);
-                        if (rectangle3.HitTest(pos))
-                            ToolTip.CreateTooltip(GameText.IndicatesThatHostileForcesWere);
-                        ++num3;
-
-
-                        if (solarSystem.HasPlanetsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
-                        {
-                            if (num3 == 1 || num3 == 2)
-                                vector2.X += 20f;
-                            var rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y, groundAttack.Width, groundAttack.Height);
-                            ScreenManager.SpriteBatch.Draw(groundAttack, rectangle2, CurrentFlashColor);
-                            if (rectangle2.HitTest(pos))
-                                ToolTip.CreateTooltip(GameText.IndicatesThatSpaceCombatIs);
-                        }
+                        var screenPos = ProjectToScreenPosition(projector.Position);
+                        var flag = enemy.data.Traits.FlagIndex;
+                        int xPos = (int)screenPos.X + (15 + GlobalStats.IconSize) * spacing;
+                        var rectangle2 = new RectF(xPos, (int)screenPos.Y, 15 + GlobalStats.IconSize, 15 + GlobalStats.IconSize);
+                        batch.Draw(ResourceManager.Flag(flag), rectangle2, ApplyCurrentAlphaToColor(enemy.EmpireColor));
+                        spacing++;
                     }
                 }
             }
+        }
+
+        void DrawSystemThreatCirclesAnimation(SpriteBatch batch)
+        {
+            var red = new Color(Color.Red, 40);
+            var black = new Color(Color.Black, 40);
+
+            foreach (IncomingThreat threat in Player.SystemsWithThreat)
+            {
+                if (!threat.ThreatTimedOut)
+                {
+                    var system = threat.TargetSystem;
+                    float pulseRad = PulseTimer * (threat.TargetSystem.Radius * 1.5f);
+
+                    Vector2d posOnScreen = ProjectToScreenPosition(system.Position);
+                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad), red, 10);
+                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.001f), black, 5);
+                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.3f), red, 10);
+                    batch.DrawCircle(posOnScreen, ProjectToScreenSize(pulseRad * 1.301f), black, 5);
+                }
+            }
+        }
+
+        void DrawSolarSystemNames(SpriteBatch batch, SolarSystem sys)
+        {
+            if (!Debug && !sys.IsExploredBy(Player))
+                return;
+            if (!Frustum.Contains(sys.Position, 10f))
+                return;
+
+            if (Debug)
+            {
+                sys.SetExploredBy(Player);
+                foreach (Planet planet in sys.PlanetList)
+                    planet.SetExploredBy(Player);
+            }
+
+            Vector2d solarSysPos = ProjectToScreenPosition(sys.Position.ToVec3());
+            Vector2 sysPos = solarSysPos.ToVec2f();
+
+            float solarSysRadius = sys.RingList.NotEmpty ? sys.RingList.Last.OrbitalDistance + 7500 : sys.Radius;
+            if (viewState > UnivScreenState.SectorView)
+                solarSysRadius = 35_000f;
+
+            Vector2d edge = ProjectToScreenPosition(new Vector3(sys.Position + new Vector2(solarSysRadius, 0f)));
+            float radiusOnScreen = (float)solarSysPos.Distance(edge);
+            sysPos.Y += radiusOnScreen;
+
+            if (viewState <= UnivScreenState.SectorView)
+            {
+                DrawCircle(solarSysPos, radiusOnScreen, Colors.TransparentDarkGray);
+            }
+
+            sysPos.X -= SolarsystemOverlay.SysFont.TextWidth(sys.Name) / 2f;
+
+            DrawSolarSystemName(batch, sys, sysPos);
+            DrawSolarSystemAnomalyAndDangerIcons(batch, sys, sysPos);
+        }
+
+        void DrawSolarSystemName(SpriteBatch batch, SolarSystem sys, Vector2 sysPos)
+        {
+            Array<Empire> owners = sys.GetKnownOwners(Player);
+
+            if (owners.Count == 0)
+            {
+                batch.DrawOutlineText(sys.Name, sysPos, SolarsystemOverlay.SysFont, Color.Gray, Color.Black, 1f);
+            }
+            else if (owners.Count == 1)
+            {
+                batch.DrawOutlineText(sys.Name, sysPos, SolarsystemOverlay.SysFont, owners.First.EmpireColor, Color.Black, 1f);
+            }
             else
-                vector2.X -= SolarsystemOverlay.SysFont.MeasureString(solarSystem.Name).X / 2f;
+            {
+                // multi-color solar system name
+                int num4 = sys.Name.Length / owners.Count;
+                int i = 0;
+                for (int j = 0; j < sys.Name.Length; ++j)
+                {
+                    if (j + 1 > num4 + num4 * i)
+                        ++i;
+                    string namePart = sys.Name[j].ToString();
+                    Empire current = owners.Count > i ? owners[i] : owners.Last;
+                    batch.DrawOutlineText(namePart, sysPos, SolarsystemOverlay.SysFont, current.EmpireColor, Color.Black, 1f);
+                    sysPos.X += SolarsystemOverlay.SysFont.TextWidth(namePart);
+                }
+            }
+        }
+
+        void DrawSolarSystemAnomalyAndDangerIcons(SpriteBatch batch, SolarSystem sys, Vector2 sysPos)
+        {
+            sysPos.Y -= 3f;
+            sysPos.X += SolarsystemOverlay.SysFont.TextWidth(sys.Name) + 6f;
+
+            bool isAnomalyHere = sys.IsAnomalyOnAnyKnownPlanets(Player);
+            if (isAnomalyHere)
+            {
+                var anomalyHere = ResourceManager.Texture("UI/icon_anomaly_small");
+                var anomalyRect = new RectF(sysPos.X, sysPos.Y, anomalyHere.Width, anomalyHere.Height);
+                sysPos.X += 20f;
+
+                batch.Draw(anomalyHere, anomalyRect, CurrentFlashColor);
+                if (anomalyRect.HitTest(Input.CursorPosition))
+                    ToolTip.CreateTooltip(GameText.IndicatesThatAnAnomalyHas);
+            }
+
+            if (Player.KnownEnemyStrengthIn(sys) > 0f)
+            {
+                var enemyHere = ResourceManager.Texture("Ground_UI/EnemyHere");
+                var enemyRect = new RectF(sysPos.X, sysPos.Y, enemyHere.Width, enemyHere.Height);
+                sysPos.X += 20f;
+
+                batch.Draw(enemyHere, enemyRect, CurrentFlashColor);
+                if (enemyRect.HitTest(Input.CursorPosition))
+                    ToolTip.CreateTooltip(GameText.IndicatesThatHostileForcesWere);
+
+                if (sys.HasPlanetsOwnedBy(EmpireManager.Player) && sys.PlanetList.Any(p => p.SpaceCombatNearPlanet))
+                {
+                    var battleHere = ResourceManager.Texture("Ground_UI/Ground_Attack");
+                    var battleRect = new RectF(sysPos.X, sysPos.Y, battleHere.Width, battleHere.Height);
+                    sysPos.X += 20f;
+
+                    batch.Draw(battleHere, battleRect, CurrentFlashColor);
+                    if (battleRect.HitTest(Input.CursorPosition))
+                        ToolTip.CreateTooltip(GameText.IndicatesThatSpaceCombatIs);
+                }
+            }
         }
 
         void RenderThrusters()
