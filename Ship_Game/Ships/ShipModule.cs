@@ -386,10 +386,11 @@ namespace Ship_Game.Ships
         // LOYALTY can be null
         public static ShipModule CreateNoParent(UniverseState us, ShipModule template, Empire loyalty, ShipHull hull)
         {
+            var bonuses = EmpireHullBonuses.Get(loyalty, hull);
             var module = new ShipModule(us?.CreateId() ?? -1)
             {
                 Flyweight         = template.Flyweight,
-                Bonuses           = EmpireHullBonuses.Get(loyalty, hull),
+                Bonuses           = bonuses,
                 DescriptionIndex  = template.DescriptionIndex,
                 FieldOfFire       = template.FieldOfFire,
                 HangarShipUID     = template.HangarShipUID,

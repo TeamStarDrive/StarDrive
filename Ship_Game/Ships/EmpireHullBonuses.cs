@@ -17,7 +17,7 @@ namespace Ship_Game.Ships
 
         public void Update(Empire empire, HullBonus hullBonus)
         {
-            float EmpireDataMod(float mod)
+            static float EmpireDataMod(float mod)
             {
                 return Math.Max(0.0f, (1.0f + mod));
             }
@@ -29,16 +29,16 @@ namespace Ship_Game.Ships
             HealthMod     = EmpireDataMod(empire.data.Traits.ModHpModifier);
         }
 
-        public static readonly EmpireHullBonuses Default = new EmpireHullBonuses();
+        public static readonly EmpireHullBonuses Default = new();
 
-        static readonly Map<Empire, EmpireBonusData> EmpireBonuses = new Map<Empire, EmpireBonusData>();
+        static readonly Map<Empire, EmpireBonusData> EmpireBonuses = new();
 
         class EmpireBonusData
         {
             readonly Empire Empire;
             static int NextRevisionId; // to make each revision globally unique
             public int RevisionId { get; private set; } = ++NextRevisionId;
-            readonly Map<HullBonus, EmpireHullBonuses> HullBonuses = new Map<HullBonus, EmpireHullBonuses>();
+            readonly Map<HullBonus, EmpireHullBonuses> HullBonuses = new();
 
             public EmpireBonusData(Empire empire)
             {
