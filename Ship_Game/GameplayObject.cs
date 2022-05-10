@@ -118,7 +118,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
 
-        public virtual void Damage(GameplayObject source, float damageAmount)
+        public virtual void Damage(object source, float damageAmount)
         {
         }
 

@@ -127,6 +127,12 @@ namespace Ship_Game
                     };
                 });
         }
+        
+        // NOTE: SLOW !! Should only be used for UNIT TESTS
+        public Projectile[] GetAllProjectilesAndBeams()
+        {
+            return Projectiles.GetBackItemsSlow();
+        }
 
         // NOTE: SLOW !! Should only be used for UNIT TESTS
         // Only returns projectiles NOT BEAMS

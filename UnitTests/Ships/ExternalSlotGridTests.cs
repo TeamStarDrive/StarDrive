@@ -91,17 +91,17 @@ namespace UnitTests.Ships
             // 17 |____|E1x1|E1x1|E1x1|E1x1|____
 
             // kill a few engine modules, which should trigger an update to external slots
-            ship.GetModuleAt(2, 17).SetHealth(0); // this is a 1x1 engine slot
+            ship.GetModuleAt(2, 17).SetHealth(0, "Test"); // this is a 1x1 engine slot
             // killing that module should count -1 slot and expose +2 1x1 modules
             Assert.AreEqual(49-1+2, ship.Externals.NumModules);
 
             // and if we resurrect the module, it should go back to previous value
-            ship.GetModuleAt(2, 17).SetHealth(100);
+            ship.GetModuleAt(2, 17).SetHealth(100, "Test");
             Assert.AreEqual(49, ship.Externals.NumModules);
 
             // kill two 1x1 modules, exposing the 2x2 reactor
-            ship.GetModuleAt(3, 17).SetHealth(0);
-            ship.GetModuleAt(3, 16).SetHealth(0);
+            ship.GetModuleAt(3, 17).SetHealth(0, "Test");
+            ship.GetModuleAt(3, 16).SetHealth(0, "Test");
             Assert.AreEqual(At(3,15), ship.Externals.Get(gs, 3,15));
             // lose one, but gain 3 externals
             Assert.AreEqual(49-1+3, ship.Externals.NumModules);

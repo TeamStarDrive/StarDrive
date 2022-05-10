@@ -278,14 +278,14 @@ namespace Ship_Game.Ships
 
         // @note This should only be used in Testing
         // @todo Is there a way to limit visibility to unit tests only?
-        public void SetHealth(float newHealth, bool fromSave = false)
+        public void SetHealth(float newHealth, object source, bool fromSave = false)
         {
             float maxHealth = ActualMaxHealth;
             newHealth = newHealth.Clamped(0, maxHealth);
             float healthChange = newHealth - Health;
             Health = newHealth;
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
-            Parent.OnHealthChange(healthChange);
+            Parent.OnHealthChange(healthChange, source);
 
             if (!fromSave) // do not trigger Die() or Resurrect() during savegame loading
             {
@@ -444,7 +444,7 @@ namespace Ship_Game.Ships
 
             m.Active = slot.Health > 0.01f;
             m.ShieldPower = slot.ShieldPower;
-            m.SetHealth(slot.Health, fromSave: true);
+            m.SetHealth(slot.Health, "init", fromSave: true);
             m.HangarShipId = slot.HangarShipId;
             return m;
         }
@@ -761,21 +761,22 @@ namespace Ship_Game.Ships
             return damageAmount * DamageFalloff(worldHitPos, Position, damageRadius, moduleRadius);
         }
 
-        void EvtDamageInflicted(GameplayObject source, float amount)
+        void EvtDamageInflicted(object source, float amount)
         {
-            if      (source is Ship s)       source = s;
-            else if (source is Projectile p) source = p.Owner ?? p.Module?.Parent;
-            source?.OnDamageInflicted(this, amount);
+            GameplayObject go = null;
+            if      (source is Ship s)       go = s;
+            else if (source is Projectile p) go = p.Owner ?? p.Module?.Parent;
+            go?.OnDamageInflicted(this, amount);
         }
 
-        public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
+        public void Damage(object source, float damageAmount, out float damageRemainder)
         {
             float damageModifier = 1f;
-            if (source != null)
+            if (source is GameplayObject goSource)
             {
                 damageModifier = ShieldsAreActive
-                    ? source.DamageMod.GetShieldDamageMod(this)
-                    : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
+                    ? goSource.DamageMod.GetShieldDamageMod(this)
+                    : GetGlobalArmourBonus() * goSource.DamageMod.GetArmorDamageMod(this);
             }
 
             float modifiedDamage = damageAmount * damageModifier;
@@ -802,7 +803,7 @@ namespace Ship_Game.Ships
             damageRemainder = (int)(damageAmount - absorbedDamage);
         }
 
-        void Deflect(GameplayObject source)
+        void Deflect(object source)
         {
             if (!Parent.InFrustum || Parent.Universe.Screen.IsShipViewOrCloser == false)
                 return;
@@ -854,16 +855,17 @@ namespace Ship_Game.Ships
             Damage(source, Health * percent * modifier);
         }
 
-        public override void Damage(GameplayObject source, float damageAmount)
-            => Damage(source, damageAmount, out float _);
-
+        public override void Damage(object source, float damageAmount)
+        {
+            Damage(source, damageAmount, out float _);
+        }
 
         // Note - this assumes that projectile effect of ignore shield was taken into account. 
-        bool TryDamageModule(GameplayObject source, float modifiedDamage, out float remainder)
+        bool TryDamageModule(object source, float modifiedDamage, out float remainder)
         {
             remainder = modifiedDamage;
             if (source != null)
-                Parent.LastDamagedBy = LastDamagedBy = source;
+                Parent.LastDamagedBy = LastDamagedBy = source as GameplayObject;
 
             Parent.ShieldRechargeTimer = 0f;
 
@@ -891,7 +893,7 @@ namespace Ship_Game.Ships
             {
                 CauseSpecialBeamDamageNoShield(beam);
                 float healthBefore = Health;
-                SetHealth(Health - modifiedDamage);
+                SetHealth(Health - modifiedDamage, source);
                 remainder = modifiedDamage - healthBefore;
                 DebugPerseveranceNoDamage();
 
@@ -987,7 +989,7 @@ namespace Ship_Game.Ships
             if (!Parent.Universe.Debug || Parent.VanityName != "Perseverance")
                 return;
             if (Health < 10) // never give up, never surrender! F_F
-                SetHealth(10);
+                SetHealth(10, "PerseveranceKeepAlive");
         #endif
         }
 
@@ -1026,7 +1028,7 @@ namespace Ship_Game.Ships
 
             Active = false;
             if (Health > 0f) // potential recursive re-entrance
-                SetHealth(0f);
+                SetHealth(0f, source ?? (object)"Die");
             Parent.OnModuleDeath(this);
 
             if (!cleanupOnly && source != null)
@@ -1270,7 +1272,7 @@ namespace Ship_Game.Ships
             float actualRepair    = maxRepairAmount.Clamped(0, repairAmount);
             actualRepair          = actualRepair.Clamped(0, neededRepair);
             float repairLeft      = (repairAmount - actualRepair).Clamped(0, repairAmount);
-            SetHealth(Health + actualRepair);
+            SetHealth(Health + actualRepair, "Repair");
             VisualizeRepair();
 
             return repairLeft;
@@ -1284,13 +1286,13 @@ namespace Ship_Game.Ships
                 {
                     // Module is destroyed and might "jump start" its regeneration
                     if (RandomMath.RollDice(TechLevel))
-                        SetHealth(Health + Regenerate);
+                        SetHealth(Health + Regenerate, "Regenerate");
                 }
                 else
                 {
                     // If the module is not powered and needs power, the regeneration is 10%
                     float regeneration = !Powered && PowerDraw > 0f ? Regenerate * 0.1f : Regenerate;
-                    SetHealth(Health + regeneration);
+                    SetHealth(Health + regeneration, "Regenerate");
                 }
             }
         }

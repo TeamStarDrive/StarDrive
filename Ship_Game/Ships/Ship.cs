@@ -509,12 +509,11 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void CauseRadiationDamage(float damage)
+        public void CauseRadiationDamage(float damage, object source)
         {
             if (IsInWarp)
                 damage *= 0.5f; // some protection while in warp
 
-            GameplayObject damageCauser = this; // @todo We need a way to do environmental damage
             var damagedShields = new HashSet<ShipModule>();
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
@@ -529,7 +528,7 @@ namespace Ship_Game.Ships
                     if (!damagedShields.Contains(shield))
                     {
                         float damageAbsorb = 1 - shield.ShieldEnergyResist;
-                        shield.Damage(damageCauser, damage * damageAbsorb * shield.ShieldHitRadius);
+                        shield.Damage(source, damage * damageAbsorb * shield.ShieldHitRadius);
                         damagedShields.Add(shield);
                     }
                 }
@@ -537,7 +536,7 @@ namespace Ship_Game.Ships
                 {
                     // again, damage also depends on module radius and their energy resistance
                     float damageAbsorb = 1 - module.EnergyResist;
-                    module.Damage(damageCauser, damage * damageAbsorb * module.Radius);
+                    module.Damage(source, damage * damageAbsorb * module.Radius);
                     if (InFrustum && Universe.Screen?.IsShipViewOrCloser == true)
                     {
                         // visualize radiation hits on external modules
@@ -1372,17 +1371,6 @@ namespace Ship_Game.Ships
                 Health = Health.Clamped(0, HealthMax);
                 return ToShipStatus(Health, HealthMax);
             }
-        }
-
-        public void OnHealthChange(float change)
-        {
-            float newHealth = Health + change;
-
-            if (newHealth > HealthMax)
-                newHealth = HealthMax;
-            else if (newHealth < 0.5f)
-                newHealth = 0f;
-            Health = newHealth;
         }
 
         public bool IsTethered => TetheredTo != null;
