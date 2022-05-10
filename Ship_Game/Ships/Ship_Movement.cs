@@ -42,6 +42,11 @@ namespace Ship_Game.Ships
         const float DecelThrustPower = 0.5f; // Reverse thrusters work at 50% total engine thrust
         const float SASThrusterPower = 0.25f; // Stability Assist thrusters work at 25% total engine thrust
 
+        // How much this ship should rotate this frame
+        // +1.0: rotating towards Right
+        // -1.0: rotating towards Left
+        float RotationThisFrame;
+
         // assume Thrust or Mass just changed
         // this is called from StatusChange, which is not very often
         void UpdateVelocityMax() 
@@ -93,12 +98,19 @@ namespace Ship_Game.Ships
             MaxSTLSpeed = Stats.MaxSTLSpeed;
         }
 
-        public void RotateToFacing(FixedSimTime timeStep, float angleDiff, float rotationDir, float minDiff)
+        public void RotateToFacing(float angleDiff, in Vector2 wantedForward, in Vector2 currentForward)
         {
-            float rotAmount = rotationDir * timeStep.FixedTime * RotationRadsPerSecond;
-            ShouldBank = IsVisibleToPlayer && angleDiff > minDiff+0.2f; // slight threshold to start restoring y rotation
+            float rotationDir = Vectors.RotationDirection(wantedForward, currentForward);
+            RotationThisFrame = angleDiff * rotationDir;
+        }
 
-            if (ShouldBank)
+        void UpdateShipRotation(FixedSimTime timeStep)
+        {
+            float rotAmount = RotationThisFrame;
+            RotationThisFrame = 0f;
+
+            bool shouldBank = IsVisibleToPlayer && rotAmount != 0f;
+            if (shouldBank)
             {
                 if (rotAmount > 0f) // Y-bank:
                 {
@@ -111,23 +123,29 @@ namespace Ship_Game.Ships
                         YRotation += GetYBankAmount(timeStep);
                 }
             }
-            Rotation += rotAmount;
-            Rotation = Rotation.AsNormalizedRadians();
-        }
-
-        public void RestoreYBankRotation(FixedSimTime timeStep)
-        {
-            if (YRotation > 0f)
+            else
             {
-                YRotation -= GetYBankAmount(timeStep);
-                if (YRotation < 0f)
-                    YRotation = 0f;
-            }
-            else if (YRotation < 0f)
-            {
-                YRotation += GetYBankAmount(timeStep);
                 if (YRotation > 0f)
-                    YRotation = 0f;
+                {
+                    YRotation -= GetYBankAmount(timeStep);
+                    if (YRotation < 0f)
+                        YRotation = 0f;
+                }
+                else if (YRotation < 0f)
+                {
+                    YRotation += GetYBankAmount(timeStep);
+                    if (YRotation > 0f)
+                        YRotation = 0f;
+                }
+            }
+
+            if (rotAmount != 0f)
+            {
+                float maxRotation = timeStep.FixedTime * RotationRadsPerSecond;
+                if (Math.Abs(rotAmount) > maxRotation)
+                    rotAmount = Math.Sign(rotAmount) * maxRotation;
+
+                Rotation = (Rotation + rotAmount).AsNormalizedRadians();
             }
         }
 
@@ -245,10 +263,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (!ShouldBank)
-            {
-                RestoreYBankRotation(timeStep);
-            }
+            UpdateShipRotation(timeStep);
 
             if (atWarp && Velocity.Length() < SpeedLimit)
             {
