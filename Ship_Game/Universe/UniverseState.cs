@@ -318,12 +318,12 @@ namespace Ship_Game.Universe
             return Objects.FindShip(id, out found);
         }
 
-        public GameplayObject GetObject(int id)
+        public GameObject GetObject(int id)
         {
             return Objects.FindObject(id);
         }
 
-        public bool GetObject(int id, out GameplayObject found)
+        public bool GetObject(int id, out GameObject found)
         {
             return Objects.FindObject(id, out found);
         }

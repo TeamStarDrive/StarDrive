@@ -12,10 +12,10 @@ namespace Ship_Game.Spatial
     {
         public delegate Ship SpawnShipFunc(string name, Empire loyalty, Vector2 pos, Vector2 dir);
 
-        public static GameplayObject[] CreateTestSpace(ISpatial tree, int numShips,
+        public static GameObject[] CreateTestSpace(ISpatial tree, int numShips,
             float spawnProjectilesWithOffset, Empire player, Empire enemy, SpawnShipFunc spawnShip)
         {
-            var allObjects = new Array<GameplayObject>();
+            var allObjects = new Array<GameObject>();
             var ships = new Array<Ship>();
             float spacing = tree.WorldSize / (float)Math.Sqrt(numShips);
 
@@ -65,11 +65,11 @@ namespace Ship_Game.Spatial
             return target;
         }
 
-        public static GameplayObject[] SpawnProjectilesFromEachShip(
-            ISpatial tree, GameplayObject[] allObjects, Vector2 offset)
+        public static GameObject[] SpawnProjectilesFromEachShip(
+            ISpatial tree, GameObject[] allObjects, Vector2 offset)
         {
             var projectiles = new Array<Projectile>();
-            foreach (GameplayObject go in allObjects)
+            foreach (GameObject go in allObjects)
             {
                 if (!(go is Ship ship))
                     continue;
@@ -86,7 +86,7 @@ namespace Ship_Game.Spatial
         public static void RunSearchPerfTest()
         {
             var tree = new Qtree(500_000f);
-            GameplayObject[] ships = CreateTestSpace(tree, 10000, 0,
+            GameObject[] ships = CreateTestSpace(tree, 10000, 0,
                 EmpireManager.Void, EmpireManager.Void, SpawnShip);
 
             const float defaultSensorRange = 30000f;
@@ -131,7 +131,7 @@ namespace Ship_Game.Spatial
         public static void RunCollisionPerfTest()
         {
             var tree = new Qtree(500_000f);
-            GameplayObject[] ships = CreateTestSpace(tree, 10000, 0,
+            GameObject[] ships = CreateTestSpace(tree, 10000, 0,
                 EmpireManager.Void, EmpireManager.Void, SpawnShip);
 
             const int iterations = 1000;

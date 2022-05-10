@@ -5,7 +5,7 @@ namespace Ship_Game.AI.CombatTactics
 {
     internal sealed class HoldPosition : ShipAIPlan
     {
-        GameplayObject Target;
+        GameObject Target;
         public HoldPosition(ShipAI ai) : base(ai)
         {
         }

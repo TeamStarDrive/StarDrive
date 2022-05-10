@@ -13,7 +13,7 @@ namespace Ship_Game.Spatial
     /// </summary>
     public unsafe class LinearSearch
     {
-        public static GameplayObject[] FindNearby(ref SearchOptions opt, GameplayObject[] objects, int count)
+        public static GameObject[] FindNearby(ref SearchOptions opt, GameObject[] objects, int count)
         {
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
             int* objectIds = stackalloc int[maxResults];
@@ -30,7 +30,7 @@ namespace Ship_Game.Spatial
 
             for (int i = 0; i < count; ++i)
             {
-                GameplayObject obj = objects[i];
+                GameObject obj = objects[i];
                 if (obj == null
                     || (opt.Exclude != null && obj == opt.Exclude)
                     || (opt.Type != GameObjectType.Any && obj.Type != opt.Type))
@@ -61,16 +61,16 @@ namespace Ship_Game.Spatial
             return Copy(objectIds, resultCount, objects);
         }
 
-        public static GameplayObject[] Copy(int* objectIds, int count, GameplayObject[] objects)
+        public static GameObject[] Copy(int* objectIds, int count, GameObject[] objects)
         {
             if (count == 0)
-                return Empty<GameplayObject>.Array;
+                return Empty<GameObject>.Array;
 
-            var found = new GameplayObject[count];
+            var found = new GameObject[count];
             for (int i = 0; i < found.Length; ++i)
             {
                 int spatialIndex = objectIds[i];
-                GameplayObject go = objects[spatialIndex];
+                GameObject go = objects[spatialIndex];
                 found[i] = go;
             }
             return found;

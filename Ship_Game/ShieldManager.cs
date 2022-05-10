@@ -91,7 +91,7 @@ namespace Ship_Game
             return shield;
         }
     
-        public static Shield AddShield(GameplayObject owner, float rotation, Vector2 center)
+        public static Shield AddShield(GameObject owner, float rotation, Vector2 center)
         {            
             var shield = new Shield(owner, rotation, center);
             ShieldList.Add(shield);

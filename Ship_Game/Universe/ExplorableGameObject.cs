@@ -7,7 +7,7 @@ using SDUtils;
 
 namespace Ship_Game.Universe
 {
-    public class ExplorableGameObject : GameplayObject
+    public class ExplorableGameObject : GameObject
     {
                 // this is a sparse map where [Empire.Id-1] is the index
         Empire[] ExploredBy = Empty<Empire>.Array;

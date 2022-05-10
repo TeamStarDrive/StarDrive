@@ -15,7 +15,7 @@ namespace Ship_Game.Gameplay
     //
     // Additional external forces can also be applied
     //
-    public class PhysicsObject : GameplayObject
+    public class PhysicsObject : GameObject
     {
         // The desired thrust Mode during this frame
         // We don't apply velocity directly to avoid double-acceleration bugs

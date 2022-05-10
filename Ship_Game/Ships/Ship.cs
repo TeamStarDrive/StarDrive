@@ -509,7 +509,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void CauseRadiationDamage(float damage, GameplayObject source)
+        public void CauseRadiationDamage(float damage, GameObject source)
         {
             if (IsInWarp)
                 damage *= 0.5f; // some protection while in warp
@@ -814,7 +814,7 @@ namespace Ship_Game.Ships
         public bool InRadius(Vector2 worldPos, float radius)
             => Position.InRadius(worldPos, Radius + radius);
 
-        public bool CheckRangeToTarget(Weapon w, GameplayObject target)
+        public bool CheckRangeToTarget(Weapon w, GameObject target)
         {
             if (target == null || !target.Active || target.Health <= 0)
                 return false;
@@ -844,7 +844,7 @@ namespace Ship_Game.Ships
         }
 
         // Added by McShooterz
-        public bool IsTargetInFireArcRange(Weapon w, GameplayObject target)
+        public bool IsTargetInFireArcRange(Weapon w, GameObject target)
         {
             if (!CheckRangeToTarget(w, target))
                 return false;
@@ -1524,7 +1524,7 @@ namespace Ship_Game.Ships
         }
 
         // cleanupOnly: for tumbling ships that are already dead
-        public override void Die(GameplayObject source, bool cleanupOnly)
+        public override void Die(GameObject source, bool cleanupOnly)
         {
             if (!Active)
                 return; // already dead

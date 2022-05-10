@@ -99,8 +99,8 @@ namespace Ship_Game.Debug
     // A little special, since the position changes every frame
     public class DebugGameObject : DebugPrimitive
     {
-        readonly GameplayObject Obj;
-        public DebugGameObject(GameplayObject obj, Color color, float lifeTime) : base(color, lifeTime)
+        readonly GameObject Obj;
+        public DebugGameObject(GameObject obj, Color color, float lifeTime) : base(color, lifeTime)
         {
             Obj = obj;
         }

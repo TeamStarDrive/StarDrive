@@ -13,7 +13,7 @@ namespace Ship_Game.Spatial
         class FindResultBuffer
         {
             public int Count = 0;
-            public GameplayObject[] Items = new GameplayObject[128];
+            public GameObject[] Items = new GameObject[128];
             public int NextNode = 0; // next node to pop
             public QtreeNode[] NodeStack = new QtreeNode[512];
             
@@ -32,14 +32,14 @@ namespace Ship_Game.Spatial
                 NodeStack[++NextNode] = node;
             }
 
-            public GameplayObject[] GetArrayAndClearBuffer()
+            public GameObject[] GetArrayAndClearBuffer()
             {
                 int count = Count;
                 if (count == 0)
-                    return Empty<GameplayObject>.Array;
+                    return Empty<GameObject>.Array;
 
                 Count = 0;
-                var arr = new GameplayObject[count];
+                var arr = new GameObject[count];
                 Memory.HybridCopy(arr, 0, Items, count);
                 Array.Clear(Items, 0, count);
                 return arr;
@@ -58,7 +58,7 @@ namespace Ship_Game.Spatial
             return buffer;
         }
 
-        public unsafe GameplayObject[] FindNearby(ref SearchOptions opt)
+        public unsafe GameObject[] FindNearby(ref SearchOptions opt)
         {
             AABoundingBox2D searchRect = opt.SearchRect;
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
@@ -81,7 +81,7 @@ namespace Ship_Game.Spatial
             QtreeNode root = Root;
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
             if (buffer.Items.Length < maxResults)
-                buffer.Items = new GameplayObject[maxResults];
+                buffer.Items = new GameObject[maxResults];
 
             DebugFindNearby dfn = null;
             if (opt.DebugId != 0)
@@ -93,7 +93,7 @@ namespace Ship_Game.Spatial
                 FindNearbyDbg[opt.DebugId] = dfn;
             }
 
-            GameplayObject[] objects = Objects;
+            GameObject[] objects = Objects;
             do
             {
                 QtreeNode current = buffer.Pop();
@@ -141,7 +141,7 @@ namespace Ship_Game.Spatial
 
                             idBitArray[wordIndex] |= idMask; // flag it as checked
 
-                            GameplayObject go = objects[id];
+                            GameObject go = objects[id];
                             if (opt.FilterFunction == null || opt.FilterFunction(go))
                             {
                                 dfn?.SearchResults.Add(go);
@@ -159,9 +159,9 @@ namespace Ship_Game.Spatial
             return buffer.GetArrayAndClearBuffer();
         }
 
-        public GameplayObject[] FindLinear(ref SearchOptions opt)
+        public GameObject[] FindLinear(ref SearchOptions opt)
         {
-            GameplayObject[] objects = Objects;
+            GameObject[] objects = Objects;
             return LinearSearch.FindNearby(ref opt, objects, objects.Length);
         }
     }

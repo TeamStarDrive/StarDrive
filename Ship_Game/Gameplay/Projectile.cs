@@ -114,7 +114,7 @@ namespace Ship_Game.Gameplay
 
         // new projectile from a ship
         public static Projectile Create(Weapon weapon, Ship ship, Vector2 origin, Vector2 direction,
-                                        GameplayObject target, bool playSound)
+                                        GameObject target, bool playSound)
         {
             // Need to check here for better debug experience, since these crashes sneak in from time to time
             if (ship == null) throw new NullReferenceException(nameof(ship));
@@ -133,7 +133,7 @@ namespace Ship_Game.Gameplay
 
         // new Mirv cluster warhead
         // the original missile will be destroyed, but was launched by a Ship or by a Planet
-        static void CreateMirvWarhead(Weapon warhead, Vector2 origin, Vector2 direction, GameplayObject target, 
+        static void CreateMirvWarhead(Weapon warhead, Vector2 origin, Vector2 direction, GameObject target, 
                                       bool playSound, Vector2 inheritedVelocity, Empire loyalty, Planet planet)
         {
             // Loyalty cannot be null, otherwise kill events will not work correctly
@@ -155,7 +155,7 @@ namespace Ship_Game.Gameplay
         }
 
         // new projectile from planet
-        public static Projectile Create(Weapon weapon, Planet planet, Empire loyalty, Vector2 direction, GameplayObject target)
+        public static Projectile Create(Weapon weapon, Planet planet, Empire loyalty, Vector2 direction, GameObject target)
         {
             if (loyalty == null) throw new NullReferenceException(nameof(loyalty));
             if (planet.Universe == null) throw new NullReferenceException(nameof(planet.Universe));
@@ -247,7 +247,7 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound, Vector2 inheritedVelocity, bool isMirv = false)
+        void Initialize(Vector2 origin, Vector2 direction, GameObject target, bool playSound, Vector2 inheritedVelocity, bool isMirv = false)
         {
             ++DebugInfoScreen.ProjCreated;
             Position = origin;
@@ -382,7 +382,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void CreateMirv(GameplayObject target)
+        public void CreateMirv(GameObject target)
         {
             // breadcrumbs for easier debugging when we run into these rare bugs
             if (Owner == null && Planet == null)
@@ -467,7 +467,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void DamageMissile(GameplayObject source, float damageAmount)
+        public void DamageMissile(GameObject source, float damageAmount)
         {
             //if (Health < 0.001f)
             //    Log.Info($"Projectile had no health {Weapon.Name}");
@@ -476,7 +476,7 @@ namespace Ship_Game.Gameplay
                 DieNextFrame = true;
         }
 
-        public override void Die(GameplayObject source, bool cleanupOnly)
+        public override void Die(GameObject source, bool cleanupOnly)
         {
             if (!Active)
             {
@@ -838,7 +838,7 @@ namespace Ship_Game.Gameplay
                 SetThrustThisFrame(VelocityMax*0.5f, 0f, Thrust.Forward);
         }
         
-        public bool Touch(GameplayObject target, Vector2 hitPos)
+        public bool Touch(GameObject target, Vector2 hitPos)
         {
             if (Miss || target == Owner)
                 return false;
@@ -892,7 +892,7 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        void CreateWeaponDeathEffect(GameplayObject target)
+        void CreateWeaponDeathEffect(GameObject target)
         {
             if (Weapon.WeaponDeathEffect.NotEmpty())
             {

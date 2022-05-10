@@ -14,7 +14,7 @@ using Point = SDGraphics.Point;
 
 namespace Ship_Game.Ships
 {
-    public sealed class ShipModule : GameplayObject
+    public sealed class ShipModule : GameObject
     {
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
             throw new InvalidOperationException(
@@ -733,7 +733,7 @@ namespace Ship_Game.Ships
         }
 
         // return TRUE if all damage was absorbed (damageInOut is less or equal to 0)
-        public bool DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
+        public bool DamageExplosive(GameObject source, Vector2 worldHitPos, float damageRadius, ref float damageInOut)
         {
             float damage = GetExplosiveDamage(worldHitPos, damageRadius, damageInOut);
             if (damage <= 0.1f)
@@ -745,7 +745,7 @@ namespace Ship_Game.Ships
             return damageInOut <= 0f;
         }
 
-        public void DamageExplosive(GameplayObject source, Vector2 worldHitPos, float damageRadius, float damageAmount)
+        public void DamageExplosive(GameObject source, Vector2 worldHitPos, float damageRadius, float damageAmount)
         {
             float damage = GetExplosiveDamage(worldHitPos, damageRadius, damageAmount);
             if (damage > 0.1f)
@@ -761,14 +761,14 @@ namespace Ship_Game.Ships
             return damageAmount * DamageFalloff(worldHitPos, Position, damageRadius, moduleRadius);
         }
 
-        void EvtDamageInflicted(GameplayObject source, float amount)
+        void EvtDamageInflicted(GameObject source, float amount)
         {
             if      (source is Ship s)       source = s;
             else if (source is Projectile p) source = p.Owner ?? p.Module?.Parent;
             source?.OnDamageInflicted(this, amount);
         }
 
-        public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
+        public void Damage(GameObject source, float damageAmount, out float damageRemainder)
         {
             float damageModifier = 1f;
             if (source != null)
@@ -802,7 +802,7 @@ namespace Ship_Game.Ships
             damageRemainder = (int)(damageAmount - absorbedDamage);
         }
 
-        void Deflect(GameplayObject source)
+        void Deflect(GameObject source)
         {
             if (!Parent.InFrustum || Parent.Universe.Screen.IsShipViewOrCloser == false)
                 return;
@@ -854,13 +854,13 @@ namespace Ship_Game.Ships
             Damage(source, Health * percent * modifier);
         }
 
-        public override void Damage(GameplayObject source, float damageAmount)
+        public override void Damage(GameObject source, float damageAmount)
         {
             Damage(source, damageAmount, out float _);
         }
 
         // Note - this assumes that projectile effect of ignore shield was taken into account. 
-        bool TryDamageModule(GameplayObject source, float modifiedDamage, out float remainder)
+        bool TryDamageModule(GameObject source, float modifiedDamage, out float remainder)
         {
             remainder = modifiedDamage;
             if (source != null)
@@ -1002,7 +1002,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public override void Die(GameplayObject source, bool cleanupOnly)
+        public override void Die(GameObject source, bool cleanupOnly)
         {
             ++DebugInfoScreen.ModulesDied;
             ShieldPower = 0f;

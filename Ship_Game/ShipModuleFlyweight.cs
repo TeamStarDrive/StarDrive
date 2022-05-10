@@ -227,7 +227,7 @@ namespace Ship_Game.Gameplay
     /// This is used for ShipModule XML Templates
     /// </summary>
     [XmlType("ShipModule")]
-    public sealed class ShipModule_XMLTemplate : GameplayObject
+    public sealed class ShipModule_XMLTemplate : GameObject
     {
         public ShipModule_XMLTemplate() : base(0, GameObjectType.ShipModule)
         {

@@ -15,7 +15,7 @@ namespace Ship_Game.Spatial
         public int ObjectId;
         public AABoundingBox2D AABB;
 
-        public SpatialObj(GameplayObject go, int objectId)
+        public SpatialObj(GameObject go, int objectId)
         {
             Active = 1;
             Type = go.Type;

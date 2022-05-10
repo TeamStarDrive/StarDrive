@@ -277,7 +277,7 @@ namespace Ship_Game
         // how many radian difference from our current direction
         // versus when looking towards position
         // @return Radians between [0, +PI], always positive
-        public static float AngleDifferenceToPosition(this GameplayObject origin, Vector2 targetPos)
+        public static float AngleDifferenceToPosition(this GameObject origin, Vector2 targetPos)
         {
             Vector2 wantedForward = origin.Position.DirectionToTarget(targetPos);
             Vector2 currentForward = origin.Rotation.RadiansToDirection();
@@ -285,7 +285,7 @@ namespace Ship_Game
         }
 
         // used for Projectiles 
-        public static bool RotationNeededForTarget(this GameplayObject origin, Vector2 targetPos, float minDiff, 
+        public static bool RotationNeededForTarget(this GameObject origin, Vector2 targetPos, float minDiff, 
                                                    out float angleDiff, out float rotationDir)
         {
             Vector2 wantedForward = origin.Position.DirectionToTarget(targetPos);

@@ -41,20 +41,20 @@ namespace Ship_Game.ExtensionMethods
             return r.Min == r.Max ? r.Min : RandomMath.Float(r.Min, r.Max);
         }
 
-        public static Vector2 FindStrafeVectorFromTarget(this GameplayObject ship, float distance, Vector2 direction)
+        public static Vector2 FindStrafeVectorFromTarget(this GameObject ship, float distance, Vector2 direction)
         {
             Vector2 strafe = ship.Rotation.RadiansToDirection() + direction;
             strafe = strafe.Normalized();
             return ship.Position + (strafe * distance);
         }
 
-        public static Vector2 PredictImpact(this Ship ourShip, GameplayObject target)
+        public static Vector2 PredictImpact(this Ship ourShip, GameObject target)
         {
             return new ImpactPredictor(ourShip, target)
                 .Predict(ourShip.CanUseAdvancedTargeting);
         }
 
-        public static Vector2 PredictImpact(this Projectile proj, GameplayObject target)
+        public static Vector2 PredictImpact(this Projectile proj, GameObject target)
         {
             return new ImpactPredictor(proj, target)
                 .Predict(proj.Weapon.CanUseAdvancedTargeting);

@@ -25,7 +25,7 @@ namespace Ship_Game
         /// <summary>
         /// All objects: ships, projectiles, beams
         /// </summary>
-        readonly GameObjectList<GameplayObject> Objects = new GameObjectList<GameplayObject>();
+        readonly GameObjectList<GameObject> Objects = new GameObjectList<GameObject>();
 
         /// <summary>
         /// All ships
@@ -83,8 +83,8 @@ namespace Ship_Game
         public bool FindShip(int id, out Ship found) => Ships.Find(id, out found);
         public bool ContainsShip(int id) => Ships.Contains(id);
 
-        public GameplayObject FindObject(int id) => Objects.Find(id);
-        public bool FindObject(int id, out GameplayObject found) => Objects.Find(id, out found);
+        public GameObject FindObject(int id) => Objects.Find(id);
+        public bool FindObject(int id, out GameObject found) => Objects.Find(id, out found);
         public bool ContainsObject(int id) => Objects.Contains(id);
 
         public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
@@ -153,7 +153,7 @@ namespace Ship_Game
         }
 
         /// <summary>DEFERRED: Thread-safely Adds a new Object to the Universe</summary>
-        public void Add(GameplayObject go)
+        public void Add(GameObject go)
         {
             if (go.Type == GameObjectType.Ship)
             {
@@ -366,7 +366,7 @@ namespace Ship_Game
                         continue; // all ships were killed, nothing to do here
 
                     //int debugId = (system.Name == "Opteris") ? 11 : 0;
-                    GameplayObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
+                    GameObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
                                                                         system.Position, system.Radius,
                                                                         maxResults:allShips.Length/*, debugId:debugId*/);
                     for (int j = 0; j < shipsInSystem.Length; ++j)
@@ -520,14 +520,14 @@ namespace Ship_Game
             if (Universe.IsPlanetViewOrCloser)
             {
                 projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 2048)
-                               .FastCast<GameplayObject, Projectile>();
+                               .FastCast<GameObject, Projectile>();
 
                 beams = Spatial.FindNearby(GameObjectType.Beam, visibleWorld, 2048)
-                               .FastCast<GameplayObject, Beam>();
+                               .FastCast<GameObject, Beam>();
             }
 
             Ship[] ships = Spatial.FindNearby(GameObjectType.Ship, visibleWorld, 1024)
-                                  .FastCast<GameplayObject, Ship>();
+                                  .FastCast<GameObject, Ship>();
 
             // Reset frustum value for ship visible in previous frame
             SetInFrustum(VisibleProjectiles, false);
@@ -546,7 +546,7 @@ namespace Ship_Game
             VisPerf.Stop();
         }
 
-        static void SetInFrustum<T>(T[] objects, bool inFrustum) where T : GameplayObject
+        static void SetInFrustum<T>(T[] objects, bool inFrustum) where T : GameObject
         {
             for (int i = 0; i < objects.Length; ++i)
                 objects[i].InFrustum = inFrustum;
