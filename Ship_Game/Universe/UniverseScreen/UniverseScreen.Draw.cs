@@ -3,6 +3,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Mesh;
@@ -113,14 +114,20 @@ namespace Ship_Game
             var nodeTex = ResourceManager.Texture("UI/node");
             var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
 
+            // track which projectors already have a connection bridge to a solar system
+            var projectorsConnectedToSys = new HashSet<Ship>();
+
             Empire[] empires = EmpireManager.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)
             {
                 if (!Debug && empire != Player && !Player.IsKnown(empire))
                     continue;
 
+                projectorsConnectedToSys.Clear();
+
                 Color empireColor = empire.EmpireColor;
                 Empire.InfluenceNode[] nodes = empire.BorderNodes;
+
                 for (int x = 0; x < nodes.Length; x++)
                 {
                     ref Empire.InfluenceNode inf = ref nodes[x];
@@ -134,15 +141,21 @@ namespace Ship_Game
                     //DrawCircleProjected(inf.Position, inf.Radius, Color.Orange, 2); // DEBUG
                     //batch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.CenterF, SpriteEffects.None, 1f);
 
-                    // make connections from Larger nodes to Smaller ones
+                    // make connections from Projectors to Planet
                     for (int i = 0; i < nodes.Length; i++)
                     {
                         ref Empire.InfluenceNode in2 = ref nodes[i];
                         if (in2.KnownToPlayer && 
                             in2.SourceObject != inf.SourceObject && // ignore self
-                            in2.Radius > inf.Radius && // this check ensures we only connect from Larger -> Smaller
-                            in2.Position.InRadius(inf.Position, inf.Radius + in2.Radius + 150000.0f))
+                            // allow only Planet <-> Projector connection
+                            inf.SourceObject is Planet &&
+                            in2.SourceObject is Ship projector &&
+                            !projectorsConnectedToSys.Contains(projector) &&
+                            // ensure we don't connect too far
+                            in2.Position.InRadius(inf.Position, inf.Radius + in2.Radius + 150_000f))
                         {
+                            projectorsConnectedToSys.Add(projector);
+
                             // The Connection is made of two rectangles, with O marking the influence centers
                             // +-width-+O-width-+
                             // |       ||       |
