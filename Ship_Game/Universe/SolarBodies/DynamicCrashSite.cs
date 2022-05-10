@@ -106,7 +106,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             if (p.Owner == null)
             {
-                if (!p.ParentSystem.OwnerList.ToArray().Any(empire => empire.IsNAPactWith(e)) && shipSize >= 100)
+                if (!p.ParentSystem.OwnerList.Any(empire => empire.IsNAPactWith(e)) && shipSize >= 100)
                     e.GetEmpireAI().SendExplorationFleet(p);
             }
             else if (!p.TroopsInTheWorks && !p.AnyOfOurTroops(e) && !p.SpaceCombatNearPlanet) // owner is this empire

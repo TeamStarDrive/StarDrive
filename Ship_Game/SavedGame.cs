@@ -308,7 +308,7 @@ namespace Ship_Game
                 });
                 
                 empireToSave.GSAIData = gsaidata;
-                empireToSave.TechTree.AddRange(e.TechEntries.ToArray());
+                empireToSave.TechTree.AddRange(e.TechEntries.ToArr());
 
                 var sw = new ShipDesignWriter();
 

@@ -134,8 +134,8 @@ namespace Ship_Game
         void DispatchOrBuildFreighters(Goods goods, BatchRemovalCollection<Planet> importPlanetList, bool interTrade)
         {
             // Order importing planets to balance freighters distribution
-            Planet[] importingPlanets = CollectionExt.ToArray(importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)
-                                                            .OrderBy(p => p.FreighterTraffic(p.IncomingFreighters, goods)));
+            Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)
+                .OrderBy(p => p.FreighterTraffic(p.IncomingFreighters, goods)).ToArr();
             if (importingPlanets.Length == 0)
                 return;
 

@@ -18,7 +18,7 @@ namespace Ship_Game.Debug.Page
         Empire Loyalty;
 
         ParticleManager Manager => Screen.Particles;
-        IParticle[] ParticleSystems => Manager.ParticleSystems.ToArray();
+        IParticle[] ParticleSystems => Manager.ParticleSystems.ToArr();
 
         bool IsSelected(IParticle ps) => Selected.TryGetValue(ps.Name, out bool isSelected) && isSelected;
 

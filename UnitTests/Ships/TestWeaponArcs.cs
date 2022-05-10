@@ -81,7 +81,7 @@ namespace UnitTests.Ships
             enemy.AI.OrderHoldPosition(enemy.Position, enemy.Direction);
             enemy.Update(new FixedSimTime(0.01f)); // update weapons & projectiles
 
-            var projectiles = GetProjectiles(enemy).ToArray();
+            var projectiles = GetProjectiles(enemy).ToArr();
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(enemy, projectiles, NoShips), "Fire PD at a projectile must succeed");
             Assert.AreEqual(1, GetProjectileCount(us), "Invalid projectile count");
             Assert.AreEqual(weapon.FireTarget.Type, GameObjectType.Proj, "TruePD must only fire at projectiles");

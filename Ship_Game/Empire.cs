@@ -466,8 +466,8 @@ namespace Ship_Game
                 return planet != null;
             }
 
-            var scrapGoals       = GetEmpireAI().Goals.Filter(g => g.type == GoalType.ScrapShip);
-            var potentialPlanets = CollectionExt.ToArray(OwnedPlanets.SortedDescending(p => p.MissingProdHereForScrap(scrapGoals)).Take(5));
+            var scrapGoals = GetEmpireAI().Goals.Filter(g => g.type == GoalType.ScrapShip);
+            var potentialPlanets = OwnedPlanets.SortedDescending(p => p.MissingProdHereForScrap(scrapGoals)).TakeItems(5);
             if (potentialPlanets.Length == 0)
                 return false;
 
@@ -1210,8 +1210,7 @@ namespace Ship_Game
             return false;
         }
 
-        public string[] GetTroopsWeCanBuild() => CollectionExt.ToArray(UnlockedTroopDict.Where(kv => kv.Value)
-                                                                      .Select(kv => kv.Key));
+        public string[] GetTroopsWeCanBuild() => UnlockedTroopDict.FilterSelect((k,v) => v, (k,v) => k);
 
         public bool WeCanBuildTroop(string id) => UnlockedTroopDict.TryGetValue(id, out bool canBuild) && canBuild;
 
@@ -2011,7 +2010,7 @@ namespace Ship_Game
                     }
                 }
             }
-            foreach (var hull in UnlockedHullsDict.Keys.ToArray())
+            foreach (var hull in UnlockedHullsDict.Keys.ToArr())
                 UnlockedHullsDict[hull] = true;
         }
 

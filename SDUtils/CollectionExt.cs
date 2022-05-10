@@ -170,7 +170,7 @@ namespace SDUtils
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Array<T> ToArrayList<T>(this IEnumerable<T> source) => new Array<T>(source);
 
-        public static T[] ToArray<T>(this ICollection<T> source)
+        public static T[] ToArr<T>(this ICollection<T> source)
         {
             int count = source.Count;
             if (count == 0) return Empty<T>.Array;
@@ -179,29 +179,22 @@ namespace SDUtils
             return items;
         }
 
-        public static T[] ToArray<T>(this IEnumerable<T> source)
+        public static T[] ToArr<T>(this IEnumerable<T> source)
         {
-            if (source is ICollection<T> c)    return c.ToArray();
-            if (source is IReadOnlyList<T> rl) return rl.ToArray();
+            if (source is ICollection<T> c)
+                return ToArr(c);
 
-            // fall back to epicly slow enumeration
-            T[] items = Empty<T>.Array;
-            int count = 0;
-            using (var e = source.GetEnumerator())
+            if (source is IReadOnlyList<T> rl)
             {
-                while (e.MoveNext())
-                {
-                    if (items.Length == count)
-                    {
-                        int len = count == 0 ? 4 : count * 2; // aggressive growth
-                        Array.Resize(ref items, len);
-                    }
-                    items[count++] = e.Current;
-                }
+                int count = rl.Count;
+                if (count == 0) return Empty<T>.Array;
+                T[] items = new T[count];
+                for (int i = 0; i < count; i++)
+                    items[i] = rl[i];
+                return items;
             }
-            if (items.Length != count)
-                Array.Resize(ref items, count);
-            return items;
+
+            return System.Linq.Enumerable.ToArray(source);
         }
 
         public static bool Contains<T>(this IReadOnlyList<T> list, T item)
@@ -294,7 +287,7 @@ namespace SDUtils
         /// </summary>
         public static T[] Sorted<T, TKey>(this IEnumerable<T> items, Func<T, TKey> keyPredicate)
         {
-            T[] array = ToArray(items);
+            T[] array = ToArr(items);
             Sort(array, keyPredicate);
             return array;
         }
@@ -493,6 +486,17 @@ namespace SDUtils
             foreach (var kv in map)
                 kv.Value.Dispose();
             map.Clear();
+        }
+
+        public static T[] TakeItems<T>(this T[] items, int maxItems)
+        {
+            if (items.Length <= maxItems)
+                return items;
+
+            var taken = new T[maxItems];
+            for (int i = 0; i < taken.Length; ++i)
+                taken[i] = items[i];
+            return taken;
         }
     }
 }

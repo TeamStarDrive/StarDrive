@@ -969,7 +969,7 @@ namespace Ship_Game.Fleets
             bool combatEffective   = StillCombatEffective(task);
             bool remnantsTargeting = !Owner.WeAreRemnants
                                         && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && EmpireManager.Remnants.GetFleetsDict().Values.ToArray()
+                                        && EmpireManager.Remnants.GetFleetsDict().Values.ToArr()
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
             EndInvalidTask(remnantsTargeting 
@@ -1471,7 +1471,7 @@ namespace Ship_Game.Fleets
 
             bool remnantsTargeting = !Owner.WeAreRemnants
                                         && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && EmpireManager.Remnants.GetFleetsDict().Values.ToArray()
+                                        && EmpireManager.Remnants.GetFleetsDict().Values.ToArr()
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
             if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
@@ -2121,7 +2121,7 @@ namespace Ship_Game.Fleets
             float planetAssaultStrength = 0f;
             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength = FleetTask.TargetPlanet.GetGroundStrength(Owner);
-            var invasionShips = ships.ToArray();
+            var invasionShips = ships.ToArr();
 
             // collect current invasion stats from all ships in fleet. 
             for (int i = 0; i < Ships.Count; i++)

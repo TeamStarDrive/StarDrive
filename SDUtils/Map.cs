@@ -91,12 +91,12 @@ namespace SDUtils
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public KeyValuePair<TKey, TValue>[] ToArray()
         {
-            return (this as ICollection<KeyValuePair<TKey, TValue>>).ToArray();
+            return (this as ICollection<KeyValuePair<TKey, TValue>>).ToArr();
         }
 
         public TValue[] AtomicValuesArray()
         {
-            lock (this) return Values.ToArray();
+            lock (this) return Values.ToArr();
         }
     }
 }

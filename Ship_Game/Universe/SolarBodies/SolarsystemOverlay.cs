@@ -199,7 +199,7 @@ namespace Ship_Game
                             Rectangle flagRect = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 10, PlanetRect.Y - 20, 20, 20);
                             if (p.Owner != null)
                             {
-                                HelperFunctions.DrawDropShadowImage(batch, flagRect, ResourceManager.Flag(p.Owner), p.Owner.EmpireColor);
+                                batch.DrawDropShadowImage(flagRect, ResourceManager.Flag(p.Owner), p.Owner.EmpireColor);
                             }
                             Rectangle fIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)planetTypeCursor.Y + Spacing, 10, 10);
                             Rectangle pIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(planetTypeCursor.Y + 2 * Spacing), 10, 10);

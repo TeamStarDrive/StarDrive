@@ -189,7 +189,7 @@ namespace Ship_Game.Gameplay
 
         public void InitializeTemplate()
         {
-            ActiveWeaponTags = CollectionExt.ToArray(TagValues.Where(tag => (TagBits & tag) != 0));
+            ActiveWeaponTags = TagValues.Filter(tag => (TagBits & tag) != 0);
 
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
             FireDelay = Math.Max(0.016f, FireDelay);

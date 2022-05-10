@@ -171,7 +171,7 @@ namespace Ship_Game
                 if (ResourceManager.GetBuilding(buildingName.Name, out Building b))
                     buildings.Add(b);
             }
-            return buildings.ToArray();
+            return buildings.ToArr();
         }
 
         // @param baseValue base value per research point

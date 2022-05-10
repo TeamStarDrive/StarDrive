@@ -48,7 +48,7 @@ namespace Ship_Game.Debug.Page
         {
             Universe = screen;
 
-            ExplorationEvent[] events = ResourceManager.EventsDict.Values.ToArray();
+            ExplorationEvent[] events = ResourceManager.EventsDict.Values.ToArr();
 
             Menu = Add(new Submenu(50, 260, 400, 600));
             Menu.AddTab("ExpEvts");

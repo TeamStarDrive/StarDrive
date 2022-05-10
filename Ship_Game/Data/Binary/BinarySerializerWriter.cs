@@ -167,7 +167,7 @@ namespace Ship_Game.Data.Binary
 
             // for UsedTypes we take both structs and objects
             var userTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsUserClass, kv => (UserTypeSerializer)kv.Ser);
-            UserTypes = CollectionExt.ToArray(structs.Cast<UserTypeSerializer>().Concat(userTypes));
+            UserTypes = structs.Cast<UserTypeSerializer>().Concat(userTypes).ToArr();
             CollectionTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsCollection, kv => (CollectionSerializer)kv.Ser);
 
             // find the root object index from the neatly sorted type groups
@@ -192,7 +192,7 @@ namespace Ship_Game.Data.Binary
             var names = new HashSet<string>();
             foreach (UserTypeSerializer s in UserTypes)
                 names.Add(selector(s));
-            return names.ToArray();
+            return names.ToArr();
         }
 
         string[] MapFields()
@@ -201,7 +201,7 @@ namespace Ship_Game.Data.Binary
             foreach (UserTypeSerializer s in UserTypes)
                 foreach (DataField field in s.Fields)
                     names.Add(field.Name);
-            return names.ToArray();
+            return names.ToArr();
         }
 
         static Map<string, int> CreateIndexMap(string[] names)

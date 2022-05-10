@@ -94,7 +94,7 @@ namespace Ship_Game
                 layer.Update(timeStep);
             }
 
-            var solarStatus = Status.Values.ToArray();
+            var solarStatus = Status.Values.ToArr();
             for (int i = 0; i < solarStatus.Length; i++)
             {
                 var status = solarStatus[i];
@@ -788,7 +788,7 @@ namespace Ship_Game
                     SpecialDescription   = planet.SpecialDescription,
                     IncomingFreighters   = planet.IncomingFreighterIds,
                     OutgoingFreighters   = planet.OutgoingFreighterIds,
-                    StationsList         = CollectionExt.ToArray(planet.OrbitalStations.Where(s => s.Active).Select(s => s.Id)),
+                    StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.Id).ToArr(),
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     BaseFertilityTerraformRatio  = planet.BaseFertilityTerraformRatio,
                     HasLimitedResourcesBuildings = planet.HasLimitedResourceBuilding,

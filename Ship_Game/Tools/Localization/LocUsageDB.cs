@@ -154,7 +154,7 @@ namespace Ship_Game.Tools.Localization
             ProcessFiles(0, xmlFiles.Count);
             //Ship_Game.Parallel.For(xmlFiles.Count, ProcessFiles);
 
-            LocUsage[] flatUsages = Usages.Values.ToArray();
+            LocUsage[] flatUsages = Usages.Values.ToArr();
             Array.Sort(flatUsages, (a, b) => string.Compare(a.NameId, b.NameId));
 
             int progress = 0;

@@ -85,7 +85,7 @@ namespace Ship_Game
 			{
 				white = (Hover ? HoveredColor : UnHoveredColor);
 			}
-			HelperFunctions.DrawDropShadowText(batch, text, textPos, font, white);
+			batch.DrawDropShadowText(text, textPos, font, white);
 		}
 
 		public void DrawWithShadowCaps(SpriteBatch batch)
@@ -99,8 +99,8 @@ namespace Ship_Game
             {
                 color = (Hover ? HoveredColor : UnHoveredColor);
             }
-			HelperFunctions.DrawDropShadowText(batch, capT, CapitalPos, Cap, color);
-			HelperFunctions.DrawDropShadowText(batch, smallT, TextPos, Small, color);
+			batch.DrawDropShadowText(capT, CapitalPos, Cap, color);
+			batch.DrawDropShadowText(smallT, TextPos, Small, color);
 		}
 
 		public bool HandleInput(InputState input)

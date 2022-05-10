@@ -11,7 +11,7 @@ namespace Ship_Game
            new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
 
         public static int NumRecordedTurns => SnapsMap.Count;
-        public static SerializableDictionary<int, Snapshot>[] Snapshots => SnapsMap.Values.ToArray();
+        public static SerializableDictionary<int, Snapshot>[] Snapshots => SnapsMap.Values.ToArr();
         public static IReadOnlyDictionary<string, SerializableDictionary<int, Snapshot>> SnapshotsMap => SnapsMap;
 
         public static void Reset()
