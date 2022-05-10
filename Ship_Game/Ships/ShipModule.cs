@@ -761,22 +761,21 @@ namespace Ship_Game.Ships
             return damageAmount * DamageFalloff(worldHitPos, Position, damageRadius, moduleRadius);
         }
 
-        void EvtDamageInflicted(object source, float amount)
+        void EvtDamageInflicted(GameplayObject source, float amount)
         {
-            GameplayObject go = null;
-            if      (source is Ship s)       go = s;
-            else if (source is Projectile p) go = p.Owner ?? p.Module?.Parent;
-            go?.OnDamageInflicted(this, amount);
+            if      (source is Ship s)       source = s;
+            else if (source is Projectile p) source = p.Owner ?? p.Module?.Parent;
+            source?.OnDamageInflicted(this, amount);
         }
 
-        public void Damage(object source, float damageAmount, out float damageRemainder)
+        public void Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
             float damageModifier = 1f;
-            if (source is GameplayObject goSource)
+            if (source != null)
             {
                 damageModifier = ShieldsAreActive
-                    ? goSource.DamageMod.GetShieldDamageMod(this)
-                    : GetGlobalArmourBonus() * goSource.DamageMod.GetArmorDamageMod(this);
+                    ? source.DamageMod.GetShieldDamageMod(this)
+                    : GetGlobalArmourBonus() * source.DamageMod.GetArmorDamageMod(this);
             }
 
             float modifiedDamage = damageAmount * damageModifier;
@@ -803,7 +802,7 @@ namespace Ship_Game.Ships
             damageRemainder = (int)(damageAmount - absorbedDamage);
         }
 
-        void Deflect(object source)
+        void Deflect(GameplayObject source)
         {
             if (!Parent.InFrustum || Parent.Universe.Screen.IsShipViewOrCloser == false)
                 return;
@@ -855,17 +854,17 @@ namespace Ship_Game.Ships
             Damage(source, Health * percent * modifier);
         }
 
-        public override void Damage(object source, float damageAmount)
+        public override void Damage(GameplayObject source, float damageAmount)
         {
             Damage(source, damageAmount, out float _);
         }
 
         // Note - this assumes that projectile effect of ignore shield was taken into account. 
-        bool TryDamageModule(object source, float modifiedDamage, out float remainder)
+        bool TryDamageModule(GameplayObject source, float modifiedDamage, out float remainder)
         {
             remainder = modifiedDamage;
             if (source != null)
-                Parent.LastDamagedBy = LastDamagedBy = source as GameplayObject;
+                Parent.LastDamagedBy = LastDamagedBy = source;
 
             Parent.ShieldRechargeTimer = 0f;
 
