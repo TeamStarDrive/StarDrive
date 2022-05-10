@@ -175,7 +175,7 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            var goal = new ShipGoal(plan, target.Center, Vectors.Up, target, theGoal, 0f, "", 0f, wantedState, null);
+            var goal = new ShipGoal(plan, target.Position, Vectors.Up, target, theGoal, 0f, "", 0f, wantedState, null);
             EnqueueOrPush(goal, pushToFront);
             return true;
         }
@@ -218,7 +218,7 @@ namespace Ship_Game.AI
         public void AddMeteorGoal(Planet p, float rotation, Vector2 direction, float speed)
         {
             Owner.Rotation = rotation;
-            PushGoalToFront(new ShipGoal(Plan.Meteor, p.Center, direction, p,
+            PushGoalToFront(new ShipGoal(Plan.Meteor, p.Position, direction, p,
                                          null, speed, "", 0f, AIState.MoveTo, null));
         }
 
@@ -230,19 +230,19 @@ namespace Ship_Game.AI
         public void OrderMoveAndColonize(Planet planet, Goal g)
         {
             OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, AIState.Colonize);
-            AddShipGoal(Plan.Colonize, planet.Center, Vectors.Up, planet, g, AIState.Colonize);
+            AddShipGoal(Plan.Colonize, planet.Position, Vectors.Up, planet, g, AIState.Colonize);
         }
 
         public void OrderMoveAndRebase(Planet p)
         {
-            Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
+            Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
             OrderMoveToNoStop(GetPositionOnPlanet(p), direction, AIState.Rebase, MoveOrder.AddWayPoint);
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
         public void OrderSupplyShipLand(Planet p)
         {
-            Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
+            Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
             OrderMoveToNoStop(GetPositionOnPlanet(p), direction, AIState.SupplyReturnHome, MoveOrder.AddWayPoint);
             IgnoreCombat = true;
             EscortTarget = null;
@@ -266,7 +266,7 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndScrap(Planet p)
         {
-            Vector2 direction = Owner.Position.DirectionToTarget(p.Center);
+            Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
             OrbitTarget = p;
             OrderMoveTo(GetPositionOnPlanet(p), direction, AIState.Scrap);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
@@ -288,7 +288,7 @@ namespace Ship_Game.AI
 
         Vector2 GetPositionOnPlanet(Planet p)
         {
-            return NewMathExt.RandomOffsetAndDistance(p.Center, p.ObjectRadius);
+            return NewMathExt.RandomOffsetAndDistance(p.Position, p.ObjectRadius);
         }
 
         public class ShipGoal : IDisposable
@@ -309,7 +309,7 @@ namespace Ship_Game.AI
                     // for Orbit plans we don't use Planet.Center
                     // TODO: There is a mismatch here after save load
                     if (TargetPlanet != null && Plan != Plan.Orbit)
-                        return TargetPlanet.Center;
+                        return TargetPlanet.Position;
 
                     return StaticMovePosition;
                 }

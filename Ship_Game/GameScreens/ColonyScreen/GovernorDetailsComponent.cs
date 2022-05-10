@@ -482,7 +482,7 @@ namespace Ship_Game
 
         void OnSendTroopsClicked(UIButton b)
         {
-            if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, Planet.Center, Planet.Name))
+            if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, Planet.Position, Planet.Name))
             {
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderRebase(Planet, true);

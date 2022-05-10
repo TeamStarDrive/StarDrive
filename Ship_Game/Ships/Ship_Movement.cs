@@ -287,7 +287,7 @@ namespace Ship_Game.Ships
             Array<Planet> potentialWells = new Array<Planet>();
             foreach (Planet planet in System.PlanetList)
             {
-                if (Position.InRadius(planet.Center, 20000 + planet.GravityWellRadius))
+                if (Position.InRadius(planet.Position, 20000 + planet.GravityWellRadius))
                     potentialWells.Add(planet);
             }
 
@@ -324,7 +324,7 @@ namespace Ship_Game.Ships
                 for (int i = 1; i <= 10; i++)
                 {
                     Vector2 posToCheck = Position + path * i * pathResolution;
-                    if (posToCheck.InRadius(planet.Center, planet.GravityWellRadius))
+                    if (posToCheck.InRadius(planet.Position, planet.GravityWellRadius))
                         wellHits += 1;
                 }
             }

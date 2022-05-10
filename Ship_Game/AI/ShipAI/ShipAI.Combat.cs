@@ -324,7 +324,7 @@ namespace Ship_Game.AI
                     Planet p = thisSystem.PlanetList[i];
                     if (!BadGuysNear)
                         BadGuysNear = Owner.Loyalty.IsEmpireAttackable(p.Owner)
-                                   && Owner.Position.InRadius(p.Center, radius);
+                                   && Owner.Position.InRadius(p.Position, radius);
                 }
             }
 

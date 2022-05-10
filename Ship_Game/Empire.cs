@@ -278,21 +278,21 @@ namespace Ship_Game
 
         public Planet FindNearestRallyPoint(Vector2 location)
         {
-            return  RallyPoints.FindMinFiltered(p=> p.Owner == this, p => p.Center.SqDist(location))
-                ?? OwnedPlanets.FindMin(p => p.Center.SqDist(location));
+            return  RallyPoints.FindMinFiltered(p=> p.Owner == this, p => p.Position.SqDist(location))
+                ?? OwnedPlanets.FindMin(p => p.Position.SqDist(location));
         }
 
         public Planet FindNearestSafeRallyPoint(Vector2 location)
         {
-            return SafeSpacePorts.FindMin(p => p.Center.SqDist(location))
-                ?? OwnedPlanets.FindMin(p => p.Center.SqDist(location));
+            return SafeSpacePorts.FindMin(p => p.Position.SqDist(location))
+                ?? OwnedPlanets.FindMin(p => p.Position.SqDist(location));
         }
 
         public Planet RallyShipYardNearestTo(Vector2 position)
         {
             return RallyPoints.FindMinFiltered(p => p.HasSpacePort,
-                                               p => position.SqDist(p.Center))
-                ?? SpacePorts.FindMin(p => position.SqDist(p.Center))
+                                               p => position.SqDist(p.Position))
+                ?? SpacePorts.FindMin(p => position.SqDist(p.Position))
                 ?? FindNearestRallyPoint(position);
         }
 
@@ -330,7 +330,7 @@ namespace Ship_Game
 
         public bool FindClosestSpacePort(Vector2 position, out Planet closest)
         {
-            closest = SpacePorts.FindMin(p => p.Center.SqDist(position));
+            closest = SpacePorts.FindMin(p => p.Position.SqDist(position));
             return closest != null;
         }
 
@@ -445,7 +445,7 @@ namespace Ship_Game
         {
             if (GetBestPorts(SafeSpacePorts, out Planet[] bestPorts) && !bestPorts.Contains(builtAt))
             {
-                return bestPorts.Sorted(p => p.Center.Distance(builtAt.Center)).First();
+                return bestPorts.Sorted(p => p.Position.Distance(builtAt.Position)).First();
             }
 
             return builtAt;
@@ -460,7 +460,7 @@ namespace Ship_Game
             if (!ship.BaseCanWarp)
             {
                 planet = FindNearestRallyPoint(ship.Position);
-                if (planet == null || planet.Center.Distance(ship.Position) > 50000)
+                if (planet == null || planet.Position.Distance(ship.Position) > 50000)
                     ship.ScuttleTimer = 5;
 
                 return planet != null;
@@ -471,7 +471,7 @@ namespace Ship_Game
             if (potentialPlanets.Length == 0)
                 return false;
 
-            planet = potentialPlanets.FindMin(p => p.Center.Distance(ship.Position));
+            planet = potentialPlanets.FindMin(p => p.Position.Distance(ship.Position));
             return planet != null;
         }
 
@@ -633,7 +633,7 @@ namespace Ship_Game
 
             if (home == null)
             {
-                home = Universum.Planets.FindMin(p => p.Center.Distance(ship.Position));
+                home = Universum.Planets.FindMin(p => p.Position.Distance(ship.Position));
             }
 
             return home;
@@ -2183,7 +2183,7 @@ namespace Ship_Game
             troopShip = null;
             Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
                 .Filter(p => p.NumTroopsCanLaunch > 0 && p.TroopsHere.Any(t => t.CanLaunch) && p.Name != planetName)
-                .OrderBy(distance => distance.Center.Distance(objectCenter)));
+                .OrderBy(distance => distance.Position.Distance(objectCenter)));
 
             if (candidatePlanets.Count == 0)
                 return false;
@@ -2441,7 +2441,7 @@ namespace Ship_Game
                     continue;
                 TempSensorNodes.Add(new InfluenceNode
                 {
-                    Position = p.Center, Radius = projectorRadius, KnownToPlayer = true
+                    Position = p.Position, Radius = projectorRadius, KnownToPlayer = true
                 });
             }
 
@@ -2762,7 +2762,7 @@ namespace Ship_Game
 
                 if (rebels != null)
                 {
-                    if (OwnedPlanets.FindMax(out Planet planet, p => WeightedCenter.SqDist(p.Center)))
+                    if (OwnedPlanets.FindMax(out Planet planet, p => WeightedCenter.SqDist(p.Position)))
                     {
                         if (isPlayer)
                             Universum.Notifications.AddRebellionNotification(planet, rebels);
@@ -3120,7 +3120,7 @@ namespace Ship_Game
                 {
                     Planet planet = OwnedPlanets[i];
                     ++planets;
-                    avgPlanetCenter += planet.Center;
+                    avgPlanetCenter += planet.Position;
                 }
 
                 center = avgPlanetCenter / planets;
@@ -3156,7 +3156,7 @@ namespace Ship_Game
                     for (int x = 0; x < planet.PopulationBillion; ++x)
                     {
                         ++planets;
-                        avgPlanetCenter += planet.Center;
+                        avgPlanetCenter += planet.Position;
                     }
                 }
 
@@ -3614,7 +3614,7 @@ namespace Ship_Game
 
             public InfluenceNode(Planet planet, bool known)
             {
-                Position      = planet.Center;
+                Position      = planet.Position;
                 Radius        = planet.SensorRange;
                 SourceObject  = planet;
                 KnownToPlayer = known;

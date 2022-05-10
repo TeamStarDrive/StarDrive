@@ -105,7 +105,7 @@ namespace Ship_Game.Ships
 
             if (TetheredTo != null)
             {
-                Position = TetheredTo.Center + TetherOffset;
+                Position = TetheredTo.Position + TetherOffset;
                 VelocityMax = 0;
             }
 
@@ -172,7 +172,7 @@ namespace Ship_Game.Ships
                 {
                     if (p.IsExploredBy(Loyalty)) // already explored
                         continue;
-                    if (p.Center.OutsideRadius(Position, 3000f))
+                    if (p.Position.OutsideRadius(Position, 3000f))
                         continue;
 
                     if (p.EventsOnTiles())

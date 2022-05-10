@@ -188,15 +188,15 @@ namespace Ship_Game.AI
                 if (OrderQueue.NotEmpty)
                 {
                     ShipGoal goal = OrderQueue.PeekFirst;
-                    Vector2 pos = goal.TargetPlanet?.Center ?? goal.MovePosition;
+                    Vector2 pos = goal.TargetPlanet?.Position ?? goal.MovePosition;
                     if (pos.NotZero())
                         return pos;
                 }
                 return Target?.Position
                     ?? ExplorationTarget?.Position
                     ?? SystemToDefend?.Position
-                    ?? ResupplyTarget?.Center
-                    ?? ColonizeTarget?.Center
+                    ?? ResupplyTarget?.Position
+                    ?? ColonizeTarget?.Position
                     ?? Vector2.Zero;
             }
         }
@@ -220,7 +220,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (Owner.Position.OutsideRadius(targetPlanet.Center, 2000f))
+            if (Owner.Position.OutsideRadius(targetPlanet.Position, 2000f))
             {
                 DequeueCurrentOrder();
                 OrderColonization(targetPlanet, shipGoal.Goal);
@@ -247,21 +247,21 @@ namespace Ship_Game.AI
             if (system.IsFullyExploredBy(Owner.Loyalty))
                 return false;
 
-            planet = system.PlanetList.FindMinFiltered(p => !p.IsExploredBy(Owner.Loyalty), p => Owner.Position.SqDist(p.Center));
+            planet = system.PlanetList.FindMinFiltered(p => !p.IsExploredBy(Owner.Loyalty), p => Owner.Position.SqDist(p.Position));
             return planet != null;
         }
 
         void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (goal.TargetPlanet.Center.Distance(Owner.Position) >= goal.TargetPlanet.ObjectRadius * 3)
+            if (goal.TargetPlanet.Position.Distance(Owner.Position) >= goal.TargetPlanet.ObjectRadius * 3)
             {
                 Orbit.Orbit(goal.TargetPlanet, timeStep);
                 return;
             }
 
-            if (goal.TargetPlanet.Center.Distance(Owner.Position) >= goal.TargetPlanet.ObjectRadius)
+            if (goal.TargetPlanet.Position.Distance(Owner.Position) >= goal.TargetPlanet.ObjectRadius)
             {
-                ThrustOrWarpToPos(goal.TargetPlanet.Center, timeStep, 200f);
+                ThrustOrWarpToPos(goal.TargetPlanet.Position, timeStep, 200f);
                 return;
             }
 
@@ -446,7 +446,7 @@ namespace Ship_Game.AI
             if (possiblePlanets.Length == 0)
                 return;
 
-            Planet planet = possiblePlanets.FindMin(p => p.Center.SqDist(Owner.Position));
+            Planet planet = possiblePlanets.FindMin(p => p.Position.SqDist(Owner.Position));
             ai.AddPlanetaryRearmGoal(Owner, planet);
         }
 
@@ -708,7 +708,7 @@ namespace Ship_Game.AI
             Owner.Velocity = g.Direction * g.SpeedLimit;
             Owner.MaxSTLSpeed = g.SpeedLimit;
 
-            if (Owner.Position.InRadius(g.TargetPlanet.Center, g.TargetPlanet.GravityWellRadius * 0.5f))
+            if (Owner.Position.InRadius(g.TargetPlanet.Position, g.TargetPlanet.GravityWellRadius * 0.5f))
             {
                 Owner.PlanetCrash = new PlanetCrash(g.TargetPlanet, Owner, g.SpeedLimit*0.85f);
                 Owner.Dying       = true;

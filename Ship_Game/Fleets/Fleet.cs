@@ -866,7 +866,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 3;
                     break;
                 case 3:
-                    if (ShipsUnderAttackInAo(RearShips, task.TargetPlanet.Center,
+                    if (ShipsUnderAttackInAo(RearShips, task.TargetPlanet.Position,
                         task.TargetPlanet.ParentSystem.Radius, out Ship shipBeingTargeted))
                     {
                         EngageCombatToPlanet(shipBeingTargeted.Position, MoveOrder.Aggressive);
@@ -930,8 +930,8 @@ namespace Ship_Game.Fleets
                     {
                         AddShips(troopShips);
                         AutoArrange();
-                        FinalPosition = task.TargetPlanet.Center;
-                        task.AO       = task.TargetPlanet.Center;
+                        FinalPosition = task.TargetPlanet.Position;
+                        task.AO       = task.TargetPlanet.Position;
                         bool inSystem = AveragePos.InRadius(newTarget.ParentSystem.Position, newTarget.ParentSystem.Radius);
                         if (inSystem)
                         {
@@ -939,7 +939,7 @@ namespace Ship_Game.Fleets
                             if (CanInvadeNow(newTarget, task))
                             {
                                 TaskStep = 6;
-                                EscortingToPlanet(newTarget.Center, MoveOrder.Aggressive);
+                                EscortingToPlanet(newTarget.Position, MoveOrder.Aggressive);
                             }
                             else
                             {
@@ -955,7 +955,7 @@ namespace Ship_Game.Fleets
                         }
 
                         task.SetTargetPlanet(newTarget);
-                        task.AO = newTarget.Center;
+                        task.AO = newTarget.Position;
                     }
                     else
                     {
@@ -995,7 +995,7 @@ namespace Ship_Game.Fleets
 
         bool CanInvadeNow(Planet p, MilitaryTask task)
         {
-            if (!StillCombatEffective(task) || !TryGetTroopShipsInArea(p.Center, p.ParentSystem.Radius, out Ship[] troopShips))
+            if (!StillCombatEffective(task) || !TryGetTroopShipsInArea(p.Position, p.ParentSystem.Radius, out Ship[] troopShips))
                 return false;
 
             float troopStr  = troopShips.Sum(s => s.GetOurTroopStrength(s.TroopCount));
@@ -1049,7 +1049,7 @@ namespace Ship_Game.Fleets
         Planet TryGetNewTargetPlanetStrike(SolarSystem system, Empire enemy)
         {
             var planets = enemy.GetPlanets();
-            return planets.Count == 0 ? null : planets.FindMin(p => p.Center.Distance(system.Position));
+            return planets.Count == 0 ? null : planets.FindMin(p => p.Position.Distance(system.Position));
         }
 
         void DoClaimDefense(MilitaryTask task)
@@ -1062,7 +1062,7 @@ namespace Ship_Game.Fleets
                 return;
             }
 
-            task.AO = task.TargetPlanet.Center;
+            task.AO = task.TargetPlanet.Position;
             switch (TaskStep)
             {
                 case 0:
@@ -1231,7 +1231,7 @@ namespace Ship_Game.Fleets
                 return true; // AI might retaliate even if its the same system
             }
 
-            float distanceToPlanet = AveragePosition().Distance(task.TargetPlanet.Center);
+            float distanceToPlanet = AveragePosition().Distance(task.TargetPlanet.Position);
             float slowestWarpSpeed = Ships.Min(s => s.MaxFTLSpeed).LowerBound(1000);
             float secondsToTarget = distanceToPlanet / slowestWarpSpeed;
             float turnsToTarget = secondsToTarget / GlobalStats.TurnTimer;
@@ -1389,7 +1389,7 @@ namespace Ship_Game.Fleets
                 task.TargetEmpire = task.TargetPlanet.Owner;
             }
 
-            task.AO = task.TargetPlanet.Center;
+            task.AO = task.TargetPlanet.Position;
             switch (TaskStep)
             {
                 case 0:
@@ -1429,7 +1429,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 4;
                     break;
                 case 4:
-                    EngageCombatToPlanet(task.TargetPlanet.Center, MoveOrder.Aggressive);
+                    EngageCombatToPlanet(task.TargetPlanet.Position, MoveOrder.Aggressive);
                     StartBombing(task.TargetPlanet);
                     TaskStep = 5;
                     break;
@@ -1442,8 +1442,8 @@ namespace Ship_Game.Fleets
                     Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
                     if (TryGetNewTargetPlanet(task, out Planet newTarget))
                     {
-                        FinalPosition = task.TargetPlanet.Center;
-                        task.AO       = task.TargetPlanet.Center;
+                        FinalPosition = task.TargetPlanet.Position;
+                        task.AO       = task.TargetPlanet.Position;
                         bool inSystem = AveragePos.InRadius(newTarget.ParentSystem.Position, newTarget.ParentSystem.Radius);
                         if (inSystem)
                         {
@@ -1459,7 +1459,7 @@ namespace Ship_Game.Fleets
                         }
 
                         task.SetTargetPlanet(newTarget);
-                        task.AO = newTarget.Center;
+                        task.AO = newTarget.Position;
                     }
                     else
                     {
@@ -1556,7 +1556,7 @@ namespace Ship_Game.Fleets
                         if (task.GetMoreTroops(newTarget, out Array<Ship> troopShips))
                         {
                             task.SetTargetPlanet(newTarget);
-                            task.AO = task.TargetPlanet.Center;
+                            task.AO = task.TargetPlanet.Position;
                             AddShips(troopShips);
                             AutoArrange();
                             CreateReclaimFromCurrentTask(this, task, Owner);
@@ -1696,7 +1696,7 @@ namespace Ship_Game.Fleets
             }
             
             Planet planet       = task.RallyPlanet;
-            Vector2 movePoint   = planet.Center;
+            Vector2 movePoint   = planet.Position;
             Vector2 finalFacing = movePoint.DirectionToTarget(task.AO);
 
             MoveTo(movePoint, finalFacing);
@@ -1878,7 +1878,7 @@ namespace Ship_Game.Fleets
         bool ReadyToInvade(MilitaryTask task)
         {
             float invasionSafeZone = (task.TargetPlanet.GravityWellRadius);
-            return Ships.Any(ship => ship.Position.InRadius(task.TargetPlanet.Center, invasionSafeZone));
+            return Ships.Any(ship => ship.Position.InRadius(task.TargetPlanet.Position, invasionSafeZone));
         }
 
         /// <summary>
@@ -1945,7 +1945,7 @@ namespace Ship_Game.Fleets
                     numTroopShips += 1;
                     // Checking in radius to make sure the well belongs to the correct planet
                     // Checking inhibition as well since some tech can affect grav well, so in radius is not enough.
-                    if (ship.InRadius(p.Center, p.GravityWellRadius) && ship.IsInhibitedByUnfriendlyGravityWell)
+                    if (ship.InRadius(p.Position, p.GravityWellRadius) && ship.IsInhibitedByUnfriendlyGravityWell)
                         troopShipsInWell += 1;
                 }
             }

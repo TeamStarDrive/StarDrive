@@ -112,13 +112,13 @@ namespace Ship_Game.Commands.Goals
             if (possibleTask.Fleet != null) // compare fleet distances
             {
                 float defenseDist = possibleTask.Fleet.AveragePosition().Distance(system.Position) / 10000;
-                float expansionDist = possibleTask.Fleet.AveragePosition().Distance(target.Center) / 10000;
+                float expansionDist = possibleTask.Fleet.AveragePosition().Distance(target.Position) / 10000;
                 defenseValue /= defenseDist.LowerBound(1);
                 possibleValue /= expansionDist.LowerBound(1);
             }
             else // compare planet distances
             {
-                Vector2 possiblePos = target?.Center ?? targetSystem?.Position ?? possibleTask.TargetShip.Position;
+                Vector2 possiblePos = target?.Position ?? targetSystem?.Position ?? possibleTask.TargetShip.Position;
                 Vector2 defensePos  = system.Position;
                 defenseValue /= empire.WeightedCenter.Distance(defensePos).LowerBound(1);
                 possibleValue /= empire.WeightedCenter.Distance(possiblePos).LowerBound(1);

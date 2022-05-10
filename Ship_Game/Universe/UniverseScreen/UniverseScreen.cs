@@ -354,7 +354,7 @@ namespace Ship_Game
                 MaxCamHeight = CAM_MAX;
 
             if (!loading)
-                CamPos = new Vector3d(Player.GetPlanets()[0].Center, 2750);
+                CamPos = new Vector3d(Player.GetPlanets()[0].Position, 2750);
 
             CamDestination = CamPos;
         }

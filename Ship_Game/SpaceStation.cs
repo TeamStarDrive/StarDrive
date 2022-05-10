@@ -68,7 +68,7 @@ namespace Ship_Game
             };
             OuterSO.Name = "spacestation01_outer";
             ScreenManager.Instance.AddObject(OuterSO);
-            UpdateTransforms(planet.Center);
+            UpdateTransforms(planet.Position);
         }
 
         public void DestroySceneObject()
@@ -90,7 +90,7 @@ namespace Ship_Game
             if (OuterSO != null)
             {
                 ZRotation += RadiansPerSecond * timeStep.FixedTime;
-                UpdateTransforms(planet.Center);
+                UpdateTransforms(planet.Position);
             }
             else
             {

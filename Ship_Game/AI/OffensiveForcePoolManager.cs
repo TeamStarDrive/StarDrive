@@ -52,14 +52,14 @@ namespace Ship_Game.AI
                 foreach (SolarSystem system in coreWorld.ParentSystem.FiveClosestSystems)
                 {
                     if (aoSystems.Contains(system)) continue;
-                    if (aoSize < coreWorld.Center.Distance(system.Position))
-                        aoSize = coreWorld.Center.Distance(system.Position);
+                    if (aoSize < coreWorld.Position.Distance(system.Position))
+                        aoSize = coreWorld.Position.Distance(system.Position);
                 }          
                 bool flag1 = true;
                 foreach (AO areasOfOperation2 in EmpireAI.AreasOfOperations)
                 {
 
-                    if (areasOfOperation2.GetPlanet().Center.Distance(coreWorld.Center) >= aoSize)
+                    if (areasOfOperation2.GetPlanet().Position.Distance(coreWorld.Position) >= aoSize)
                         continue;
                     flag1 = false;
                     break;

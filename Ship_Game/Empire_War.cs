@@ -66,9 +66,9 @@ namespace Ship_Game
             {
                 default:
                 case WarType.BorderConflict: return targets.SortedDescending(p => p.ColonyPotentialValue(this));
-                case WarType.DefensiveWar:   return targets.Sorted(p => p.Center.SqDist(WeightedCenter));
-                case WarType.ImperialistWar: return targets.SortedDescending(p => p.ColonyPotentialValue(this) / p.Center.Distance(WeightedCenter));
-                case WarType.GenocidalWar:   return targets.SortedDescending(p => p.ColonyPotentialValue(enemy) / p.Center.Distance(WeightedCenter));
+                case WarType.DefensiveWar:   return targets.Sorted(p => p.Position.SqDist(WeightedCenter));
+                case WarType.ImperialistWar: return targets.SortedDescending(p => p.ColonyPotentialValue(this) / p.Position.Distance(WeightedCenter));
+                case WarType.GenocidalWar:   return targets.SortedDescending(p => p.ColonyPotentialValue(enemy) / p.Position.Distance(WeightedCenter));
             }
         }
 

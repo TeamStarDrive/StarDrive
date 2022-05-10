@@ -605,9 +605,9 @@ namespace Ship_Game
                         for (int i = 0; i < sys.PlanetList.Count; i++)
                         {
                             Planet planet = sys.PlanetList[i];
-                            if (Frustum.Contains(planet.Center, planet.ObjectRadius*2f))
+                            if (Frustum.Contains(planet.Position, planet.ObjectRadius*2f))
                             {
-                                ProjectToScreenCoords(planet.Center3D, planet.ObjectRadius,
+                                ProjectToScreenCoords(planet.Position3D, planet.ObjectRadius,
                                                       out Vector2d planetScreenPos, out double planetScreenRadius);
                                 planets.Add(new ClickablePlanet
                                 {
@@ -1280,7 +1280,7 @@ namespace Ship_Game
                 pInfoUI.SetPlanet(planetToView);
                 lastplanetcombat++;
 
-                CamDestination = new Vector3d(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, 9000.0);
+                CamDestination = new Vector3d(SelectedPlanet.Position.X, SelectedPlanet.Position.Y, 9000.0);
                 transitionStartPosition = CamPos;
                 transitionElapsedTime = 0.0f;
                 LookingAtPlanet = false;
@@ -1525,7 +1525,7 @@ namespace Ship_Game
                 else
                 if (SelectedPlanet != null)
                 {
-                    CamDestination = new Vector3d(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, camDestinationZ);
+                    CamDestination = new Vector3d(SelectedPlanet.Position.X, SelectedPlanet.Position.Y, camDestinationZ);
                 }
                 else
                 if (SelectedFleet != null && SelectedFleet.Ships.Count > 0)

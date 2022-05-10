@@ -99,7 +99,7 @@ namespace Ship_Game.AI
                 targetPlanet = targetPlanet ?? ColonizationTarget;
 
                 if (targetPlanet != null)
-                    return targetPlanet.Center + TetherOffset;
+                    return targetPlanet.Position + TetherOffset;
                 return BuildPosition;
             }
         }
@@ -109,7 +109,7 @@ namespace Ship_Game.AI
             get
             {
                 if (GetTetherPlanet != null)
-                    return GetTetherPlanet.Center + TetherOffset;
+                    return GetTetherPlanet.Position + TetherOffset;
                 return StaticBuildPosition;
             }
             set => StaticBuildPosition = value;

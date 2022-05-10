@@ -152,7 +152,7 @@ namespace Ship_Game.Universe
             if (planetClicked == null || fleet == null)
                 return false;
 
-            fleet.FinalPosition = planetClicked.Center; //fbedard: center fleet on planet
+            fleet.FinalPosition = planetClicked.Position; //fbedard: center fleet on planet
             foreach (Ship ship in fleet.Ships)
                 RightClickOnPlanet(ship, planetClicked, false);
             return true;

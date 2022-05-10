@@ -79,7 +79,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;
             }
 
-            if (OldShip.Position.InRadius(PlanetBuildingAt.Center, PlanetBuildingAt.ObjectRadius + 300f))
+            if (OldShip.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.ObjectRadius + 300f))
                 return GoalStep.GoToNextStep;
 
             return GoalStep.TryAgain;
@@ -137,7 +137,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                         Fleet.FinalPosition = FinishedShip.Position + RandomMath.Vector2D(3000f);
 
                     if (Fleet.FinalPosition == Vector2.Zero)
-                        Fleet.FinalPosition = empire.FindNearestRallyPoint(FinishedShip.Position).Center;
+                        Fleet.FinalPosition = empire.FindNearestRallyPoint(FinishedShip.Position).Position;
 
                     FinishedShip.RelativeFleetOffset = node.FleetOffset;
                     FinishedShip.AI.OrderMoveTo(Fleet.GetFinalPos(FinishedShip), Fleet.FinalDirection, AIState.AwaitingOrders);

@@ -125,7 +125,7 @@ namespace Ship_Game
             {
                 if (planet.Owner != EmpireManager.Player)
                 {
-                    float shortestDistance = playerPlanets.Min(p => p.Center.Distance(planet.Center));
+                    float shortestDistance = playerPlanets.Min(p => p.Position.Distance(planet.Position));
                     PlanetDistanceToClosestColony.Add(planet, shortestDistance);
                 }
                 else
@@ -314,7 +314,7 @@ namespace Ship_Game
             Universe.SelectedPlanet = item.Planet;
             Universe.ViewingShip = false;
             Universe.returnToShip = false;
-            Universe.CamDestination = new Vector3d(item.Planet.Center, 10000);
+            Universe.CamDestination = new Vector3d(item.Planet.Position, 10000);
         }
 
         public void ResetList()

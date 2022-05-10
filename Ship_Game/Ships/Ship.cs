@@ -308,7 +308,7 @@ namespace Ship_Game.Ships
                 return true;
 
             foreach (Rectangle ao in AreaOfOperation)
-                if (ao.HitTest(planet.Center))
+                if (ao.HitTest(planet.Position))
                     return true;
 
             return false;
@@ -745,22 +745,22 @@ namespace Ship_Game.Ships
         // Calculates estimated trip time by turns
         public float GetAstrogateTimeTo(Planet destination)
         {
-            float distance    = Position.Distance(destination.Center);
+            float distance    = Position.Distance(destination.Position);
             float distanceSTL = destination.GravityWellForEmpire(Loyalty);
             Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner if the ship is in one
 
             if (planet != null && !IsInFriendlyProjectorRange)
                 distanceSTL += planet.GravityWellRadius;
 
-            return GetAstrogateTime(distance, distanceSTL, destination.Center);
+            return GetAstrogateTime(distance, distanceSTL, destination.Position);
         }
 
         public float GetAstrogateTimeBetween(Planet origin, Planet destination)
         {
-            float distance    = origin.Center.Distance(destination.Center);
+            float distance    = origin.Position.Distance(destination.Position);
             float distanceSTL = destination.GravityWellForEmpire(Loyalty) + origin.GravityWellForEmpire(Loyalty);
 
-            return GetAstrogateTime(distance, distanceSTL, destination.Center);
+            return GetAstrogateTime(distance, distanceSTL, destination.Position);
         }
 
         private float GetAstrogateTime(float distance, float distanceSTL, Vector2 targetPos)
@@ -780,7 +780,7 @@ namespace Ship_Game.Ships
         public void TetherToPlanet(Planet p)
         {
             TetheredTo = p;
-            TetherOffset = Position - p.Center;
+            TetherOffset = Position - p.Position;
         }
 
         public Planet GetTether()

@@ -331,7 +331,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 else
                 {
                     Planet p = Planet.FromSaveData(system, ring.Planet);
-                    p.Center = system.Position.PointFromAngle(p.OrbitalAngle, p.OrbitalRadius);
+                    p.Position = system.Position.PointFromAngle(p.OrbitalAngle, p.OrbitalRadius);
                     
                     foreach (Building b in p.BuildingList)
                     {
