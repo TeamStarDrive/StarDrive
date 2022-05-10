@@ -108,7 +108,7 @@ namespace Ship_Game.AI.Budget
                               $"\nOrbitals: {RemainingSpaceDef.String(2)}" +
                               $"\nMilitaryBuildings: {RemainingGroundDef.String(2)}";
 
-            screen.DrawStringProjected(P.Center + new Vector2(1000, 0), 0f, 1f, Color.LightGray, drawText);
+            screen.DrawStringProjected(P.Position + new Vector2(1000, 0), 0f, 1f, Color.LightGray, drawText);
         }
     }
 }

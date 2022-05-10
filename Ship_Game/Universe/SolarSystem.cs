@@ -132,7 +132,7 @@ namespace Ship_Game
             for (int i = 0; i < PlanetList.Count; i++)
             {
                 Planet planet = PlanetList[i];
-                planet.IsVisible = IsVisible && universe.Frustum.Contains(planet.Center3D, planet.ObjectRadius);
+                planet.IsVisible = IsVisible && universe.Frustum.Contains(planet.Position3D, planet.ObjectRadius);
                 planet.Update(timeStep);
             }
 
@@ -254,7 +254,7 @@ namespace Ship_Game
                                                     ? planet.GravityWellRadius * wellReduction
                                                     : planet.GravityWellRadius;
 
-                    if (checkGravityWell && ship.Position.InRadius(planet.Center, wellRadius))
+                    if (checkGravityWell && ship.Position.InRadius(planet.Position, wellRadius))
                         return planet;
                 }
             }
@@ -506,7 +506,7 @@ namespace Ship_Game
                     OrbitalAngle       = randomAngle,
                     ParentSystem       = this,
                     SpecialDescription = ringData.SpecialDescription,
-                    Center             = Vector2.Zero.PointFromAngle(randomAngle, orbitalDistance),
+                    Position             = Vector2.Zero.PointFromAngle(randomAngle, orbitalDistance),
                     OrbitalRadius      = orbitalDistance,
                     PlanetTilt         = Float(45f, 135f)
                 };
@@ -536,7 +536,7 @@ namespace Ship_Game
                                     ringData.Moons[j].MoonScale,
                                     orbitRadius,
                                     Float(0f, 360f),
-                                    newOrbital.Center.GenerateRandomPointOnCircle(orbitRadius));
+                                    newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius));
                     MoonList.Add(moon);
                 }
 

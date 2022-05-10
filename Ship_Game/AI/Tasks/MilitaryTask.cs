@@ -96,7 +96,7 @@ namespace Ship_Game.AI.Tasks
             var militaryTask = new MilitaryTask
             {
                 TargetPlanet             = targetPlanet,
-                AO                       = targetPlanet.Center,
+                AO                       = targetPlanet.Position,
                 Type                     = TaskType.DefendClaim,
                 AORadius                 = targetPlanet.ParentSystem.Radius,
                 MinimumTaskForceStrength = minStrength,
@@ -112,7 +112,7 @@ namespace Ship_Game.AI.Tasks
             Empire dominant  = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
             var militaryTask = new MilitaryTask
             {
-                AO             = targetPlanet.Center,
+                AO             = targetPlanet.Position,
                 AORadius       = 50000f,
                 Type           = TaskType.Exploration,
                 Owner          = owner,
@@ -129,7 +129,7 @@ namespace Ship_Game.AI.Tasks
             var militaryTask = new MilitaryTask
             {
                 TargetPlanet             = targetPlanet,
-                AO                       = targetPlanet.Center,
+                AO                       = targetPlanet.Position,
                 Type                     = TaskType.GuardBeforeColonize,
                 AORadius                 = targetPlanet.ParentSystem.Radius,
                 MinimumTaskForceStrength = (owner.CurrentMilitaryStrength / 1000).LowerBound(50),
@@ -145,7 +145,7 @@ namespace Ship_Game.AI.Tasks
             var militaryTask = new MilitaryTask
             {
                 TargetPlanet   = targetPlanet,
-                AO             = targetPlanet.Center,
+                AO             = targetPlanet.Position,
                 Type           = TaskType.ReclaimPlanet,
                 AORadius       = targetPlanet.ParentSystem.Radius,
                 Owner          = owner,
@@ -179,7 +179,7 @@ namespace Ship_Game.AI.Tasks
         {
             var militaryTask = new MilitaryTask
             {
-                AO             = planet.Center,
+                AO             = planet.Position,
                 AORadius       = 10000f,
                 WhichFleet     = fleetId,
                 TargetPlanet   = planet,
@@ -195,7 +195,7 @@ namespace Ship_Game.AI.Tasks
         {
             var militaryTask = new MilitaryTask
             {
-                AO           = planet.Center,
+                AO           = planet.Position,
                 AORadius     = 50000f,
                 TargetPlanet = planet
             };
@@ -210,7 +210,7 @@ namespace Ship_Game.AI.Tasks
             float strMulti   = owner.GetFleetStrEmpireMultiplier(EmpireManager.Remnants);
             var militaryTask = new MilitaryTask
             {
-                AO                       = planet.Center,
+                AO                       = planet.Position,
                 AORadius                 = 50000f,
                 TargetPlanet             = planet,
                 MinimumTaskForceStrength = str * strMulti,
@@ -249,7 +249,7 @@ namespace Ship_Game.AI.Tasks
             Type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
             TargetPlanetId           = target.Id;
-            AO                       = target.Center;
+            AO                       = target.Position;
             AORadius                 = radius;
             Owner                    = owner;
             TargetEmpire             = target.Owner;
@@ -281,7 +281,7 @@ namespace Ship_Game.AI.Tasks
         {
             TargetPlanet   = planet;
             TargetPlanetId = planet.Id;
-            AO             = planet.Center;
+            AO             = planet.Position;
         }
 
         public void ChangeAO(Vector2 position)

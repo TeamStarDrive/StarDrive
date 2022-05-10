@@ -40,7 +40,7 @@ namespace Ship_Game
             }
             if (SelectedPlanet != null && !LookingAtPlanet &&  viewState < UnivScreenState.GalaxyView)
             {
-                Vector2 planetPos = SelectedPlanet.Center;
+                Vector2 planetPos = SelectedPlanet.Position;
                 float planetRadius = SelectedPlanet.ObjectRadius;
                 Vector2 center = new Vector3(Viewport.Project(new Vector3(planetPos, 2500f), Projection, View, Matrix.Identity)).ToVec2();
                 Vector2 edge = new Vector3(Viewport.Project(new Vector3(planetPos.X + planetRadius, planetPos.Y, 2500f), Projection, View, Matrix.Identity)).ToVec2();
@@ -505,7 +505,7 @@ namespace Ship_Game
                 foreach (ClickablePlanet cplanet in ClickablePlanets)
                 {
                     float radius = cplanet.Planet.GravityWellRadius;
-                    DrawCircleProjected(cplanet.Planet.Center, radius, new Color(255, 50, 0, 150), 1f,
+                    DrawCircleProjected(cplanet.Planet.Position, radius, new Color(255, 50, 0, 150), 1f,
                                         inhibit, new Color(200, 0, 0, 50));
                 }
 
@@ -680,7 +680,7 @@ namespace Ship_Game
                 foreach (Planet planet in system.PlanetList)
                 {
                     float fIconScale      = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
-                    Vector2 planetIconPos = ProjectToScreenPosition(planet.Center3D).ToVec2fRounded();
+                    Vector2 planetIconPos = ProjectToScreenPosition(planet.Position3D).ToVec2fRounded();
                     Vector2 flagIconPos   = planetIconPos - new Vector2(0, 15);
 
                     SubTexture planetTex = planet.PlanetTexture;
@@ -1036,14 +1036,14 @@ namespace Ship_Game
 
                 if (ship.AI.State == AIState.Colonize && ship.AI.ColonizeTarget != null)
                 {
-                    Vector2d screenPos = DrawLineProjected(start, ship.AI.ColonizeTarget.Center, color, 2500f, 0);
+                    Vector2d screenPos = DrawLineProjected(start, ship.AI.ColonizeTarget.Position, color, 2500f, 0);
                     string text = $"Colonize\nSystem : {ship.AI.ColonizeTarget.ParentSystem.Name}\nPlanet : {ship.AI.ColonizeTarget.Name}";
                     DrawPointerWithText(screenPos.ToVec2f(), ResourceManager.Texture("UI/planetNamePointer"), color, text, new Color(ship.Loyalty.EmpireColor, alpha));
                     return;
                 }
                 if (ship.AI.State == AIState.Orbit && ship.AI.OrbitTarget != null)
                 {
-                    DrawLineProjected(start, ship.AI.OrbitTarget.Center, color, 2500f , 0);
+                    DrawLineProjected(start, ship.AI.OrbitTarget.Position, color, 2500f , 0);
                     return;
                 }
                 if (ship.AI.State == AIState.Rebase)
@@ -1054,7 +1054,7 @@ namespace Ship_Game
                 ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
                 if (ship.AI.State == AIState.Bombard && goal?.TargetPlanet != null)
                 {
-                    DrawLineProjected(ship.Position, goal.TargetPlanet.Center, Colors.CombatOrders(alpha), 2500f);
+                    DrawLineProjected(ship.Position, goal.TargetPlanet.Position, Colors.CombatOrders(alpha), 2500f);
                     DrawWayPointLines(ship, Colors.CombatOrders(alpha));
                 }
             }
@@ -1086,15 +1086,15 @@ namespace Ship_Game
             {
                 int spots = planet.GetFreeTiles(EmpireManager.Player);
                 if (spots > 4)
-                    DrawLineToPlanet(start, planet.Center, Colors.CombatOrders(alpha));
+                    DrawLineToPlanet(start, planet.Position, Colors.CombatOrders(alpha));
                 else if (spots > 0)
                 {
-                    DrawLineToPlanet(start, planet.Center, Colors.Warning(alpha));
+                    DrawLineToPlanet(start, planet.Position, Colors.Warning(alpha));
                     ToolTip.PlanetLandingSpotsTip($"{planet.Name}: Warning!", spots);
                 }
                 else
                 {
-                    DrawLineToPlanet(start, planet.Center, Colors.Error(alpha));
+                    DrawLineToPlanet(start, planet.Position, Colors.Error(alpha));
                     ToolTip.PlanetLandingSpotsTip($"{planet.Name}: Critical!", spots);
                 }
                 DrawWayPointLines(ship, new Color(Color.Lime, alpha));
@@ -1109,11 +1109,11 @@ namespace Ship_Game
 
                 if (g.Plan == ShipAI.Plan.PickupGoods)
                 {
-                    DrawLineToPlanet(start, exportPlanet.Center, Color.Blue);
-                    DrawLineToPlanet(exportPlanet.Center, importPlanet.Center, Color.Gold);
+                    DrawLineToPlanet(start, exportPlanet.Position, Color.Blue);
+                    DrawLineToPlanet(exportPlanet.Position, importPlanet.Position, Color.Gold);
                 }
                 else
-                    DrawLineToPlanet(start, importPlanet.Center, Color.Gold);
+                    DrawLineToPlanet(start, importPlanet.Position, Color.Gold);
             }
 
             DrawWayPointLines(ship, Colors.WayPoints(alpha));
@@ -1175,7 +1175,7 @@ namespace Ship_Game
                 for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                 {
                     Planet planet = solarSystem.PlanetList[j];
-                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Center3D).ToVec2fRounded();
+                    Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Position3D).ToVec2fRounded();
                     Vector2 posOffSet = screenPosPlanet;
                     posOffSet.X += 20f;
                     posOffSet.Y += 37f;

@@ -123,7 +123,7 @@ namespace Ship_Game
             => TroopManager.TakeEmpireTroops(empire, maxToTake);
 
         public GameplayObject[] FindNearbyFriendlyShips()
-            => Universe.Spatial.FindNearby(GameObjectType.Ship, Center, GravityWellRadius, maxResults:128, onlyLoyalty:Owner);
+            => Universe.Spatial.FindNearby(GameObjectType.Ship, Position, GravityWellRadius, maxResults:128, onlyLoyalty:Owner);
 
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
@@ -297,7 +297,7 @@ namespace Ship_Game
             }
 
             OrbitalRadius = ringRadius + ObjectRadius;
-            Center = MathExt.PointOnCircle(randomAngle, ringRadius);
+            Position = MathExt.PointOnCircle(randomAngle, ringRadius);
             PlanetTilt = RandomMath.Float(45f, 135f);
 
             GenerateMoons(system, newOrbital:this);
@@ -583,7 +583,7 @@ namespace Ship_Game
             for (int i = 0; i < ParentSystem.ShipList.Count; ++i)
             {
                 Ship ship = ParentSystem.ShipList[i];
-                if (ship?.Position.InRadius(Center, 15000) == true
+                if (ship?.Position.InRadius(Position, 15000) == true
                     && ship.BaseStrength > 10
                     && (!ship.IsTethered || ship.GetTether() == this) // orbitals orbiting another nearby planet
                     && Owner.IsEmpireAttackable(ship.Loyalty))
@@ -607,7 +607,7 @@ namespace Ship_Game
             Ship troop = null;
             Ship closest = null;
 
-            var opt = new SearchOptions(Center, weaponRange, GameObjectType.Ship)
+            var opt = new SearchOptions(Position, weaponRange, GameObjectType.Ship)
             {
                 MaxResults = 32,
                 ExcludeLoyalty = Owner,
@@ -626,7 +626,7 @@ namespace Ship_Game
                     continue;
                 }
 
-                float dist = Center.SqDist(ship.Position);
+                float dist = Position.SqDist(ship.Position);
                 if (dist < closestTroop && (ship.IsSingleTroopShip || ship.IsDefaultAssaultShuttle || ship.IsBomber))
                 {
                     closestTroop = dist;
@@ -750,7 +750,7 @@ namespace Ship_Game
 
         public bool InSafeDistanceFromRadiation()
         {
-            return ParentSystem.InSafeDistanceFromRadiation(Center);
+            return ParentSystem.InSafeDistanceFromRadiation(Position);
         }
 
         public void UpdateOwnedPlanet()
@@ -1070,7 +1070,7 @@ namespace Ship_Game
 
         public bool ShipWithinSensorRange(Ship ship)
         {
-            return ship.Position.Distance(Center) < SensorRange;
+            return ship.Position.Distance(Position) < SensorRange;
         }
 
         private static float CalcShipBuildingModifier(int numShipyards)
@@ -1225,9 +1225,9 @@ namespace Ship_Game
                     return false; // Shield not strong enough
 
                 if (Universe.Screen.IsSystemViewOrCloser
-                    && Universe.Screen.Frustum.Contains(Center, OrbitalRadius * 2))
+                    && Universe.Screen.Frustum.Contains(Position, OrbitalRadius * 2))
                 {
-                    Shield.HitShield(this, ship, Center, ObjectRadius + 100f);
+                    Shield.HitShield(this, ship, Position, ObjectRadius + 100f);
                 }
 
                 ShieldStrengthCurrent = (ShieldStrengthCurrent - damage).LowerBound(0);
@@ -1420,7 +1420,7 @@ namespace Ship_Game
             float distance = GravityWellRadius.LowerBound(7500);
             foreach (Ship ship in ParentSystem.ShipList)
             {
-                if (Owner?.IsEmpireAttackable(ship.Loyalty, ship) == true && ship.InRadius(Center, distance))
+                if (Owner?.IsEmpireAttackable(ship.Loyalty, ship) == true && ship.InRadius(Position, distance))
                     return true;
             }
             return false;
@@ -1436,9 +1436,9 @@ namespace Ship_Game
             var ships      = us.OwnedShips;
             var projectors = us.OwnedProjectors;
 
-            bool scanned = ships.Any(s => s.Active && s.Position.InRadius(Center, s.SensorRange));
+            bool scanned = ships.Any(s => s.Active && s.Position.InRadius(Position, s.SensorRange));
             if (!scanned)
-                scanned = projectors.Any(s => s.Active && s.Position.InRadius(Center, s.SensorRange));
+                scanned = projectors.Any(s => s.Active && s.Position.InRadius(Position, s.SensorRange));
 
             return scanned;
         }
@@ -1588,8 +1588,8 @@ namespace Ship_Game
                     && (ship.AI.State == AI.AIState.AwaitingOrders || ship.AI.State == AI.AIState.Orbit))
                 {
                     // Move Offensively to planet
-                    Vector2 finalDir = ship.Position.DirectionToTarget(Center);
-                    ship.AI.OrderMoveTo(Center, finalDir, MoveOrder.Aggressive|MoveOrder.AddWayPoint|MoveOrder.NoStop);
+                    Vector2 finalDir = ship.Position.DirectionToTarget(Position);
+                    ship.AI.OrderMoveTo(Position, finalDir, MoveOrder.Aggressive|MoveOrder.AddWayPoint|MoveOrder.NoStop);
                 }
             }
         }

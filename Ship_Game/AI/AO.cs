@@ -135,12 +135,12 @@ namespace Ship_Game.AI
             CoreWorld     = p;
             CoreWorldId   = p.Id;
             Owner         = p.Owner;
-            Center        = p.Center;
+            Center        = p.Position;
             WhichFleet    = p.Owner.CreateFleetKey();
 
             CoreFleet = new Fleet(p.Universe.CreateId());
             CoreFleet.Name = "Core Fleet";
-            CoreFleet.FinalPosition = p.Center;
+            CoreFleet.FinalPosition = p.Position;
             CoreFleet.Owner         = p.Owner;
             CoreFleet.IsCoreFleet   = true;
             p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
@@ -154,14 +154,14 @@ namespace Ship_Game.AI
             CoreWorld     = p;
             CoreWorldId   = p.Id;
             Owner         = p.Owner;
-            Center        = p.Center;
+            Center        = p.Position;
             WhichFleet    = whichFleet;
 
             if (coreFleet == null)
             {
                 CoreFleet = new Fleet(p.Universe.CreateId());
                 CoreFleet.Name          = "Core Fleet";
-                CoreFleet.FinalPosition = p.Center;
+                CoreFleet.FinalPosition = p.Position;
                 CoreFleet.Owner         = p.Owner;
                 CoreFleet.IsCoreFleet   = true;
                 p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
@@ -254,7 +254,7 @@ namespace Ship_Game.AI
             var systems = new Array<SolarSystem>();
             foreach(var planet in Owner.Universum.Planets)
             {
-                if (!planet.Center.InRadius(this)) continue;
+                if (!planet.Position.InRadius(this)) continue;
                 WarValueOfPlanets += planet.ColonyWarValueTo(Owner);
                 planets.AddUniqueRef(planet);
                 systems.AddUniqueRef(planet.ParentSystem);
@@ -293,7 +293,7 @@ namespace Ship_Game.AI
         {
             if (p == null && CoreWorld == null) return;
             CoreWorld = p;
-            Center    = p?.Center ?? Vector2.Zero;
+            Center    = p?.Position ?? Vector2.Zero;
         }
 
         public void Update()

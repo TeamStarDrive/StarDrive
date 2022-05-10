@@ -23,7 +23,7 @@ namespace Ship_Game.Ships
             P        = p;
             Owner    = owner;
             Thrust   = thrust.LowerBound(owner.IsPlatformOrStation ? 100 : 200);
-            CrashPos = P.Center.GenerateRandomPointInsideCircle(P.ObjectRadius);
+            CrashPos = P.Position.GenerateRandomPointInsideCircle(P.ObjectRadius);
             Distance = Owner.Position.Distance(CrashPos).LowerBound(1);
 
             Owner.SetDieTimer(2);
@@ -52,14 +52,14 @@ namespace Ship_Game.Ships
                 Owner.SetDieTimer(2); // If ship shot out of the Atmosphere (scale bigger than 1) - dont update the timer and let it die
 
             // Fiery trail atmospheric entry
-            if (!P.PType.Clouds || !Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f))
+            if (!P.PType.Clouds || !Owner.Position.InRadius(P.Position, P.ObjectRadius + 1000f))
                 return;
 
             float z = Owner.GetSO().World.Translation.Z - 20;
             Vector3 trailPos = (Owner.Position + dir * Owner.Radius * Scale * 0.5f).ToVec3(z);
 
-            if (Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f) &&
-                !Owner.Position.InRadius(P.Center, P.ObjectRadius))
+            if (Owner.Position.InRadius(P.Position, P.ObjectRadius + 1000f) &&
+                !Owner.Position.InRadius(P.Position, P.ObjectRadius))
             {
                 if (FireTrailEmitter == null)
                 {
@@ -71,7 +71,7 @@ namespace Ship_Game.Ships
                 FlameTrail.Update(timeStep.FixedTime, trailPos);
             }
 
-            if (Owner.Position.InRadius(P.Center, P.ObjectRadius))
+            if (Owner.Position.InRadius(P.Position, P.ObjectRadius))
             {
                 if (TrailEmitter == null)
                     TrailEmitter = particles.ProjectileTrail.NewEmitter(500, trailPos);
@@ -89,7 +89,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ship.System.PlanetList.Count; i++)
             {
                 Planet p = ship.System.PlanetList[i];
-                if (ship.Position.InRadius(p.Center, p.GravityWellRadius * 0.5f)
+                if (ship.Position.InRadius(p.Position, p.GravityWellRadius * 0.5f)
                    || ship.IsPlatformOrStation && ship.GetTether() == p)
                 {
                     planet = p;

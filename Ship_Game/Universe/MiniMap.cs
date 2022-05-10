@@ -206,7 +206,7 @@ namespace Ship_Game
             Array<Vector2> centers = new Array<Vector2>();
 
             if (ship != null) centers.Add(ship.Position);
-            else if (planet != null) centers.Add(planet.Center);
+            else if (planet != null) centers.Add(planet.Position);
             else if (system != null) centers.Add(system.Position);
             else if (fleet != null) centers = new Array<Vector2>(fleet.Ships.Select(s=> s.Position));
             else if (containsShip?.Length > 0)  centers = new Array<Vector2>(containsShip.Select(s => s.Position));

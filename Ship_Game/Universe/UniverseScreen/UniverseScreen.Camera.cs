@@ -123,7 +123,7 @@ namespace Ship_Game
 
                 LookingAtPlanet = true;
                 transitionStartPosition = CamPos;
-                CamDestination = new Vector3d(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
+                CamDestination = new Vector3d(SelectedPlanet.Position.X, SelectedPlanet.Position.Y + 400f, 2500f);
                 AdjustCamTimer = 2f;
                 transitionElapsedTime = 0.0f;
                 transDuration = 5f;
@@ -192,7 +192,7 @@ namespace Ship_Game
 
         private void ViewPlanet(UnivScreenState zoomLevel)
         {
-            CamDestination        = new Vector3d(SelectedPlanet.Center, GetZfromScreenState(zoomLevel));
+            CamDestination        = new Vector3d(SelectedPlanet.Position, GetZfromScreenState(zoomLevel));
             ViewingShip           = false;
             SelectedFleet         = null;
             SelectedItem          = null;
@@ -271,8 +271,8 @@ namespace Ship_Game
             }
             else if (LookingAtPlanet && SelectedPlanet != null)
             {
-                CamPos.X = CamPos.X.SmoothStep(SelectedPlanet.Center.X, 0.2);
-                CamPos.Y = CamPos.Y.SmoothStep(SelectedPlanet.Center.Y + 400f, 0.2);
+                CamPos.X = CamPos.X.SmoothStep(SelectedPlanet.Position.X, 0.2);
+                CamPos.Y = CamPos.Y.SmoothStep(SelectedPlanet.Position.Y + 400f, 0.2);
             }
             else if (!ViewingShip) // regular free camera movement in Universe
             {

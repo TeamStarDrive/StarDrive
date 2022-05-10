@@ -117,7 +117,7 @@ namespace Ship_Game.GameScreens.NewGame
             Progress.Finish();
 
             Planet homePlanet = Player.GetPlanets()[0];
-            us.CamPos = new Vector3d(homePlanet.Center.X, homePlanet.Center.Y, 5000);
+            us.CamPos = new Vector3d(homePlanet.Position.X, homePlanet.Position.Y, 5000);
 
             Log.Info(ConsoleColor.Blue, $"  GenerateInitialSystemData elapsed: {Progress[0].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue, $"  FinalizeEmpires           elapsed: {Progress[1].ElapsedMillis}ms");
@@ -163,7 +163,7 @@ namespace Ship_Game.GameScreens.NewGame
 
                 e.InitFleetEmpireStrMultiplier();
                 Planet homeWorld = e.GetPlanets()[0];
-                SolarSystem[] closestSystems = UState.Systems.Sorted(system => homeWorld.Center.SqDist(system.Position));
+                SolarSystem[] closestSystems = UState.Systems.Sorted(system => homeWorld.Position.SqDist(system.Position));
 
                 // Home system is always set to be explored
                 int numExplored = (e.data.Traits.BonusExplored + 1).UpperBound(UState.Systems.Count);

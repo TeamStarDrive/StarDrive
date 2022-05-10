@@ -253,7 +253,7 @@ namespace UnitTests
 
         public Planet AddDummyPlanet(float fertility, float minerals, float pop, Vector2 pos, bool explored)
         {
-            var p = new Planet(UState.CreateId(), fertility, minerals, pop) { Center = pos };
+            var p = new Planet(UState.CreateId(), fertility, minerals, pop) { Position = pos };
             var s = CreateNewSolarSystemWithPlanet(p);
             if (explored) s.SetExploredBy(Player);
             return p;
@@ -290,7 +290,7 @@ namespace UnitTests
 
         public void AddPlanetToSolarSystem(SolarSystem s, Planet p)
         {
-            float distance = p.Center.Distance(s.Position);
+            float distance = p.Position.Distance(s.Position);
             var r = new SolarSystem.Ring { Asteroids = false, OrbitalDistance = distance, planet = p };
             s.RingList.Add(r);
             s.PlanetList.Add(p);

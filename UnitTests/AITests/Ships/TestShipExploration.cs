@@ -59,13 +59,13 @@ namespace UnitTests.AITests.Ships
                                                              " by the ship since it is over 75000");
             Assert.IsNotNull(scout.AI.TestGetPatrolTarget(), "Patrol target planet is not set, but it should at this stage");
 
-            Planet closestPlanet   = CloseSystem.PlanetList.FindMin(p => p.Center.SqDist(scout.Position));
+            Planet closestPlanet   = CloseSystem.PlanetList.FindMin(p => p.Position.SqDist(scout.Position));
             Planet planetToExplore = scout.AI.TestGetPatrolTarget();
             Assert.AreSame(closestPlanet, planetToExplore, "Scout did not target the closest planet for exploration.");
 
             // Move the scout into the system below 75000 from the explored planet so it should mark the system as
             // explored (not fully explored, though).
-            scout.Position = planetToExplore.Center.GenerateRandomPointInsideCircle(70000); 
+            scout.Position = planetToExplore.Position.GenerateRandomPointInsideCircle(70000); 
             UState.Objects.Update(TestSimStep);
             scout.AI.DoExplore(TestSimStep);
             Assert.IsTrue(CloseSystem.IsExploredBy(Player), $"{CloseSystem.Name} is not set as explored but it should be explored" +

@@ -25,8 +25,8 @@ namespace Ship_Game.AI
             if (AI.WaitForBlockadeRemoval(g, exportPlanet, timeStep))
                 return;
 
-            AI.ThrustOrWarpToPos(exportPlanet.Center, timeStep);
-            if (!Owner.Position.InRadius(exportPlanet.Center, exportPlanet.ObjectRadius + 300f))
+            AI.ThrustOrWarpToPos(exportPlanet.Position, timeStep);
+            if (!Owner.Position.InRadius(exportPlanet.Position, exportPlanet.ObjectRadius + 300f))
                 return;
 
             if (exportPlanet.Storage.GetGoodAmount(g.Trade.Goods) < 1) // other freighter took the goods, damn!
@@ -122,8 +122,8 @@ namespace Ship_Game.AI
             if (AI.WaitForBlockadeRemoval(g, importPlanet, timeStep))
                 return;
 
-            AI.ThrustOrWarpToPos(importPlanet.Center, timeStep);
-            if (!Owner.Position.InRadius(importPlanet.Center, importPlanet.ObjectRadius + 300f))
+            AI.ThrustOrWarpToPos(importPlanet.Position, timeStep);
+            if (!Owner.Position.InRadius(importPlanet.Position, importPlanet.ObjectRadius + 300f))
                 return;
 
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();

@@ -80,7 +80,7 @@ namespace Ship_Game
             {
                 var ships = EmpireManager.Player.OwnedShips;
                 if (!planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player)
-                    && !ships.Any(s => planet.Center.InRadius(s.Position, s.SensorRange)))
+                    && !ships.Any(s => planet.Position.InRadius(s.Position, s.SensorRange)))
                 {
                     return;
                 }
@@ -155,7 +155,7 @@ namespace Ship_Game
             Vector2 origin = GetMeteorOrigin(p);
             
             // all meteors get the same direction, so some will miss the planet
-            Vector2 direction = origin.DirectionToTarget(p.Center);
+            Vector2 direction = origin.DirectionToTarget(p.Position);
             float rotation = direction.ToDegrees();
 
             const string METEOR_VARIANTS = "ABCDEFG";

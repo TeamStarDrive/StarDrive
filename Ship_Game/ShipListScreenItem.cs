@@ -245,7 +245,7 @@ namespace Ship_Game
 
                     Planet planet    = ship.AI.OrbitTarget;
                     string orbitText = $"{Localizer.Token(GameText.Orbiting)} ";
-                    if (!ship.AI.HasPriorityOrder && ship.Position.Distance(planet.Center) > planet.ObjectRadius * 3)
+                    if (!ship.AI.HasPriorityOrder && ship.Position.Distance(planet.Position) > planet.ObjectRadius * 3)
                         orbitText = $"{Localizer.Token(GameText.Offensively)} {orbitText}"; // offensive move to orbit
 
                     return $"{orbitText} {planet.Name}";
@@ -298,7 +298,7 @@ namespace Ship_Game
                 case AIState.Bombard:
                     if (ship.AI.OrderQueue.IsEmpty || ship.AI.OrderQueue.PeekFirst.TargetPlanet == null)
                         return "";
-                    if (ship.Position.Distance(ship.AI.OrderQueue.PeekFirst.TargetPlanet.Center) >= 2500f)
+                    if (ship.Position.Distance(ship.AI.OrderQueue.PeekFirst.TargetPlanet.Position) >= 2500f)
                         return string.Concat(Localizer.Token(GameText.EnRouteToBombard), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
                     return string.Concat(Localizer.Token(GameText.Bombarding), " ", ship.AI.OrderQueue.PeekFirst.TargetPlanet.Name);
                 case AIState.Boarding:         return Localizer.Token(GameText.ExecutingBoardingAssaultAction);

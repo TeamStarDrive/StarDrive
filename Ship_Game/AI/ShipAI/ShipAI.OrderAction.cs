@@ -362,7 +362,7 @@ namespace Ship_Game.AI
             }
 
             var emergencyPlanet = Owner.Universe.Planets.Filter(p => p.Owner == null);
-            emergencyPlanet.Sort(p => p.Center.SqDist(Owner.Position));
+            emergencyPlanet.Sort(p => p.Position.SqDist(Owner.Position));
             OrbitTarget = emergencyPlanet[0];
         }
 
@@ -675,10 +675,10 @@ namespace Ship_Game.AI
             {
                 // only order to move if we are too far, no need to waste time here.
                 float threshold = toOrbit.ObjectRadius + 1000 * toOrbit.Scale;
-                if (Owner.Position.Distance(toOrbit.Center) > threshold)
+                if (Owner.Position.Distance(toOrbit.Position) > threshold)
                 {
-                    Vector2 finalDir = Owner.Position.DirectionToTarget(toOrbit.Center);
-                    OrderMoveToNoStop(toOrbit.Center, finalDir, AIState.MoveTo, order|MoveOrder.AddWayPoint);
+                    Vector2 finalDir = Owner.Position.DirectionToTarget(toOrbit.Position);
+                    OrderMoveToNoStop(toOrbit.Position, finalDir, AIState.MoveTo, order|MoveOrder.AddWayPoint);
                 }
             }
 
@@ -716,7 +716,7 @@ namespace Ship_Game.AI
                 if (AwaitClosest == null)
                 {
                     AwaitClosest = Owner.Universe.Planets.FindMin(p =>
-                        p.Center.SqDist(Owner.Position));
+                        p.Position.SqDist(Owner.Position));
                 }
             }
             return AwaitClosest != null;
@@ -728,7 +728,7 @@ namespace Ship_Game.AI
             if (!Owner.Loyalty.isPlayer)
                 return false;
 
-            AwaitClosest = Owner.Loyalty.GetPlanets().FindMin(p => Owner.Position.SqDist(p.Center));
+            AwaitClosest = Owner.Loyalty.GetPlanets().FindMin(p => Owner.Position.SqDist(p.Position));
             return AwaitClosest != null;
         }
 
@@ -755,7 +755,7 @@ namespace Ship_Game.AI
             else
             {
                 AwaitClosest = home.PlanetList.FindMinFiltered(p => p.Owner == Owner.Loyalty
-                                                            , p => p.Center.SqDist(Owner.Position));
+                                                            , p => p.Position.SqDist(Owner.Position));
             }
             return AwaitClosest != null;
         }
@@ -839,7 +839,7 @@ namespace Ship_Game.AI
                     return;
                 }
                 AwaitClosest = Owner.Loyalty.GetEmpireAI().GetKnownPlanets(Owner.Universe)
-                    .FindMin(p => p.Center.SqDist(Owner.Position) + (Owner.Loyalty != p.Owner ? 300000 : 0));
+                    .FindMin(p => p.Position.SqDist(Owner.Position) + (Owner.Loyalty != p.Owner ? 300000 : 0));
                 return;
             }
             if (Owner.System?.OwnerList.Contains(Owner.Loyalty) ?? false)

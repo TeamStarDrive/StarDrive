@@ -158,9 +158,7 @@ namespace Ship_Game
 
     public class SolarSystemBody : ExplorableGameObject
     {
-        // TODO: replace with Position
-        public Vector2 Center;
-        public Vector3 Center3D => new Vector3(Center, 2500);
+        public Vector3 Position3D => new Vector3(Position, 2500);
 
         public PlanetType PType;
         public SubTexture PlanetTexture => ResourceManager.Texture(PType.IconPath);
@@ -330,7 +328,7 @@ namespace Ship_Game
 
         public void InitializePlanetMesh()
         {
-            Shield = ShieldManager.AddPlanetaryShield(Center);
+            Shield = ShieldManager.AddPlanetaryShield(Position);
             UpdateDescription();
             CreatePlanetSceneObject();
 
@@ -339,7 +337,7 @@ namespace Ship_Game
 
         public void UpdatePositionOnly()
         {
-            Center = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
+            Position = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
         }
 
         protected void UpdatePosition(FixedSimTime timeStep)
@@ -372,7 +370,7 @@ namespace Ship_Game
         {
             if (visible)
             {
-                var pos3d = Matrix.CreateTranslation(Center3D);
+                var pos3d = Matrix.CreateTranslation(Position3D);
                 var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
                 var baseScale = ScaleMatrix;
                 SO.World = baseScale * Matrix.CreateRotationZ(-Zrotate) * tilt * pos3d;
@@ -617,7 +615,7 @@ namespace Ship_Game
                                     moonType.Id,
                                     1f, orbitRadius,
                                     RandomMath.Float(0f, 360f),
-                                    newOrbital.Center.GenerateRandomPointOnCircle(orbitRadius));
+                                    newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius));
                 ParentSystem.MoonList.Add(moon);
             }
         }

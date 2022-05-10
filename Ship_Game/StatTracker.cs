@@ -91,7 +91,7 @@ namespace Ship_Game
         public static void StatAddPlanetNode(float starDate, Planet planet)
         {
             if (GetSnapshot(starDate, planet.Owner, out Snapshot snapshot))
-                snapshot.EmpireNodes.Add(new NRO(planet.Center));
+                snapshot.EmpireNodes.Add(new NRO(planet.Position));
         }
 
         public static void StatAddColony(float starDate, Planet planet)
@@ -99,7 +99,7 @@ namespace Ship_Game
             if (GetSnapshot(starDate, planet.Owner, out Snapshot snapshot))
             {
                 snapshot.Events.Add(planet.Owner.data.Traits.Name + " colonized " + planet.Name);
-                snapshot.EmpireNodes.Add(new NRO(planet.Center));
+                snapshot.EmpireNodes.Add(new NRO(planet.Position));
             }
         }
     }

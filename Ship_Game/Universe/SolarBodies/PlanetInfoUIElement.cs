@@ -411,7 +411,7 @@ namespace Ship_Game
             }
             if (SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, P.Center, P.Name))
+                if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, P.Position, P.Name))
                 {
                     GameAudio.EchoAffirmative();
                     troopShip.AI.OrderLandAllTroops(P, clearOrders:true);

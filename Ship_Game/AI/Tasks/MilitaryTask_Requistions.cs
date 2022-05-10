@@ -218,7 +218,7 @@ namespace Ship_Game.AI.Tasks
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {Type}");
 
-            AO = TargetPlanet?.Center ?? AO;
+            AO = TargetPlanet?.Position ?? AO;
             EnemyStrength = Owner.KnownEnemyStrengthIn(TargetSystem).LowerBound(EnemyStrength);
             UpdateMinimumTaskForceStrength();
             if (CreateTaskFleet(Completeness) == RequisitionStatus.Complete)
@@ -247,7 +247,7 @@ namespace Ship_Game.AI.Tasks
             int requiredTroopStrength = 0;
             if (TargetPlanet != null)
             {
-                AO                    = TargetPlanet.Center;
+                AO                    = TargetPlanet.Position;
                 requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
                 EnemyStrength         = Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) + TargetPlanet.BuildingGeodeticOffense;
                 UpdateMinimumTaskForceStrength();
@@ -344,9 +344,9 @@ namespace Ship_Game.AI.Tasks
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {Type}");
 
-            AO = TargetPlanet.Center;
+            AO = TargetPlanet.Position;
             float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetPlanet.Center,
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetPlanet.Position,
                                TargetPlanet.ParentSystem.Radius, Owner, true).LowerBound(100);
 
             float minTroopStr = TargetPlanet.Owner == null ? 10 : TargetPlanet.GetGroundStrengthOther(Owner).LowerBound(40);
@@ -374,7 +374,7 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            AO = TargetPlanet.Center;
+            AO = TargetPlanet.Position;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
             float lowerBound      = GetMinimumStrLowerBound(geodeticOffense, enemy);
             EnemyStrength         = (GetEnemyShipStrengthInAO() + geodeticOffense).LowerBound(EnemyStrength);
@@ -401,7 +401,7 @@ namespace Ship_Game.AI.Tasks
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {Type}");
 
-            AO = TargetPlanet.Center;
+            AO = TargetPlanet.Position;
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
             float lowerBound      = GetMinimumStrLowerBound(geodeticOffense, enemy);
             EnemyStrength         = (GetEnemyShipStrengthInAO() + geodeticOffense).LowerBound(EnemyStrength);
@@ -522,7 +522,7 @@ namespace Ship_Game.AI.Tasks
                 }
 
                 // See if we need to gather troops from planets. Bail if not enough
-                if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out troopsOnPlanets, rallyPoint.Center, highTroopPriority))
+                if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out troopsOnPlanets, rallyPoint.Position, highTroopPriority))
                 {
                     ReqStatus = RequisitionStatus.NotEnoughTroopStrength;
                     return ReqStatus;
@@ -536,7 +536,7 @@ namespace Ship_Game.AI.Tasks
 
             int wantedNumberOfFleets = WantedNumberOfFleets();
             // All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, rallyPoint.Center, this);
+            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, rallyPoint.Position, this);
             if (TaskForce.IsEmpty)
             {
                 ReqStatus = RequisitionStatus.FailedToCreateAFleet;
@@ -560,7 +560,7 @@ namespace Ship_Game.AI.Tasks
             SetTargetPlanet(p);
             FleetShips fleetShips = Owner.AIManagedShips.EmpireReadyFleets;
             NeededTroopStrength   = (int)(GetTargetPlanetGroundStrength(40) * Owner.DifficultyModifiers.EnemyTroopStrength);
-            if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out _, TargetPlanet.Center, true))
+            if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out _, TargetPlanet.Position, true))
                 return false;
 
             moreTroops     = fleetShips.ExtractTroops(NeededTroopStrength);
@@ -568,7 +568,7 @@ namespace Ship_Game.AI.Tasks
 
             while (troopStr < NeededTroopStrength)
             {
-                Owner.GetTroopShipForRebase(out Ship troopShip, TargetPlanet.Center);
+                Owner.GetTroopShipForRebase(out Ship troopShip, TargetPlanet.Position);
                 if (troopShip == null)
                     break; // No more troops
 

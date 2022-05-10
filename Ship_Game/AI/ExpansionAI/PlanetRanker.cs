@@ -38,7 +38,7 @@ namespace Ship_Game.AI.ExpansionAI
 
             if (!Planet.ParentSystem.HasPlanetsOwnedBy(empire))
             {
-                DistanceMod = (planet.Center.Distance(empireCenter) / longestDistance * 10).Clamped(1, 10);
+                DistanceMod = (planet.Position.Distance(empireCenter) / longestDistance * 10).Clamped(1, 10);
                 EnemyStrMod = (empire.KnownEnemyStrengthIn(planet.ParentSystem) / empire.OffensiveStrength * 10).Clamped(1, 10);
             }
 

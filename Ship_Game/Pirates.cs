@@ -316,7 +316,7 @@ namespace Ship_Game
             {
                 Ship pirateBase = planetBases.RandItem();
                 Planet planet   = pirateBase.GetTether();
-                if (SpawnShip(PirateShipType.FlagShip, planet.Center, out Ship flagShip))
+                if (SpawnShip(PirateShipType.FlagShip, planet.Position, out Ship flagShip))
                 {
                     flagShip.OrderToOrbit(planet, clearOrders:true);
                     AlertPlayerAboutPirateOps(PirateOpsWarning.Flagship);
@@ -347,7 +347,7 @@ namespace Ship_Game
             {
                 Ship selectedBase = bases.RandItem();
                 Planet planet     = selectedBase.GetTether();
-                Vector2 pos       = planet?.Center ?? selectedBase.Position;
+                Vector2 pos       = planet?.Position ?? selectedBase.Position;
 
                 Vector2 stationPos = pos.GenerateRandomPointOnCircle(2000);
                 if (SpawnShip(PirateShipType.Station, stationPos, out Ship station, level) && planet != null)
@@ -413,7 +413,7 @@ namespace Ship_Game
         {
             if (GetBasePlanet(u, spot, out Planet planet))
             {
-                Vector2 pos = planet.Center.GenerateRandomPointOnCircle(planet.ObjectRadius + 2000);
+                Vector2 pos = planet.Position.GenerateRandomPointOnCircle(planet.ObjectRadius + 2000);
                 if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
                 {
                     pirateBase.TetherToPlanet(planet);

@@ -15,7 +15,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private float Population  => P.Population;
         private Empire Owner      => P.Owner;
         private Shield Shield     => P.Shield;
-        private Vector2 Center    => P.Center;
+        private Vector2 Position    => P.Position;
         private bool HasSpacePort => P.HasSpacePort;
         private int Level         => P.Level;
         private int NumShipYards  => P.OrbitalStations.Count(s => s.ShipData.IsShipyard);
@@ -101,7 +101,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
                 // Recalculate chance since it is reset every turn
                 var enemyBombers = P.ParentSystem.ShipList.Filter(s => s.Loyalty == enemy && s.HasBombs
-                                                                    && s.Position.Distance(P.Center) < P.GravityWellRadius);
+                                                                    && s.Position.Distance(P.Position) < P.GravityWellRadius);
                 if (enemyBombers.Length == 0)
                     return 0;
 
@@ -138,9 +138,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private void DamageColonyShields(Bomb bomb)
         {
             if (P.Universe.Screen.IsSystemViewOrCloser
-                && P.Universe.Screen.Frustum.Contains(P.Center, P.OrbitalRadius * 2))
+                && P.Universe.Screen.Frustum.Contains(P.Position, P.OrbitalRadius * 2))
             {
-                Shield.HitShield(P, bomb, Center, P.ObjectRadius + 100f);
+                Shield.HitShield(P, bomb, Position, P.ObjectRadius + 100f);
             }
 
             P.ShieldStrengthCurrent = Math.Max(P.ShieldStrengthCurrent - bomb.HardDamageMax, 0);
@@ -177,7 +177,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
                 if (loyaltyMatch)
                 {
-                    if (ship.Position.InRadius(Center, 5000f) || ship.IsOrbiting(P) || ship.GetTether() == P)
+                    if (ship.Position.InRadius(Position, 5000f) || ship.IsOrbiting(P) || ship.GetTether() == P)
                     {
                         SupplyShip(ship);
                         RepairShip(ship, repairPool);
