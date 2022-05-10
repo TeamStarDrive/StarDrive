@@ -103,7 +103,7 @@ namespace Ship_Game.Debug.Page
         {
             if (input.IsCtrlKeyDown && input.KeyPressed(Keys.M))
             {
-                SolarSystem system = Universe.UState.Systems.Find(s => s.IsVisible);
+                SolarSystem system = Universe.UState.Systems.Find(s => s.InFrustum);
                 if (system != null && system.PlanetList.Count > 0)
                 {
                     RandomEventManager.CreateMeteors(system.PlanetList[0]);

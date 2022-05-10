@@ -674,7 +674,7 @@ namespace Ship_Game
             for (int i = 0; i < UState.Systems.Count; i++)
             {
                 SolarSystem system = UState.Systems[i];
-                if (!system.IsExploredBy(Player) || !system.IsVisible)
+                if (!system.IsExploredBy(Player) || !system.InFrustum)
                     continue;
 
                 foreach (Planet planet in system.PlanetList)
@@ -1169,7 +1169,7 @@ namespace Ship_Game
             for (int k = 0; k < UState.Systems.Count; k++)
             {
                 SolarSystem solarSystem = UState.Systems[k];
-                if (!solarSystem.IsExploredBy(Player) || !solarSystem.IsVisible)
+                if (!solarSystem.IsExploredBy(Player) || !solarSystem.InFrustum)
                     continue;
 
                 for (int j = 0; j < solarSystem.PlanetList.Count; j++)

@@ -187,7 +187,6 @@ namespace Ship_Game
 
         public SolarSystem ParentSystem;
         public SceneObject SO;
-        public bool IsVisible; // set by renderer
 
         public string SpecialDescription;
         public bool HasSpacePort;
@@ -343,7 +342,7 @@ namespace Ship_Game
         protected void UpdatePosition(FixedSimTime timeStep)
         {
             PosUpdateTimer -= timeStep.FixedTime;
-            if (!Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.IsVisible))
+            if (!Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.InFrustum))
             {
                 PosUpdateTimer = 5f;
                 OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
@@ -352,7 +351,7 @@ namespace Ship_Game
                 UpdatePositionOnly();
             }
 
-            bool visible = ParentSystem.IsVisible;
+            bool visible = ParentSystem.InFrustum;
             if (visible)
             {
                 Zrotate += ZrotateAmount * timeStep.FixedTime;
