@@ -19,12 +19,14 @@ namespace Ship_Game
 {
     using static RandomMath;
 
-    public sealed class SolarSystem : Explorable
+    public sealed class SolarSystem
     {
         public readonly int Id;
         public string Name = "Random System";
         public UniverseState Universe;
         public bool DontStartNearPlayer;
+
+        public Explorable Explorable = new();
 
         //public Array<Empire> OwnerList = new Array<Empire>();
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
@@ -104,7 +106,7 @@ namespace Ship_Game
 
             IsVisible = universe.Frustum.Contains(Position, Radius)
                     && (universe.IsSectorViewOrCloser)
-                    && IsExploredBy(player);
+                    && Explorable.IsExploredBy(player);
 
             if (IsVisible && universe.IsSystemViewOrCloser)
             {

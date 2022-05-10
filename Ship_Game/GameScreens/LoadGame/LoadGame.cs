@@ -315,7 +315,7 @@ namespace Ship_Game.GameScreens.LoadGame
             foreach (Moon moon in system.MoonList)
                 moon.SetSystem(system); // restore system
 
-            system.SetExploredBy(ssd.ExploredBy);
+            system.Explorable.SetExploredBy(ssd.ExploredBy);
             system.RingList = new Array<SolarSystem.Ring>();
 
             foreach (SavedGame.RingSave ring in ssd.RingList)

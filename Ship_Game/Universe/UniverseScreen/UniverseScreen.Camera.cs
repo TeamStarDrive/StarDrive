@@ -77,7 +77,7 @@ namespace Ship_Game
                 return;
             }
 
-            if (!SelectedPlanet.ParentSystem.IsExploredBy(Player))
+            if (!SelectedPlanet.ParentSystem.Explorable.IsExploredBy(Player))
             {
                 GameAudio.NegativeClick();
             }
