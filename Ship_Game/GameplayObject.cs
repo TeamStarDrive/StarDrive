@@ -23,6 +23,7 @@ namespace Ship_Game
         Beam       = 8, // this is a BEAM, not a projectile
         Asteroid   = 16,
         Moon       = 32,
+        SolarSystem = 64,
     }
 
     [StarDataType]
