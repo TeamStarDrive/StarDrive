@@ -120,7 +120,7 @@ namespace Ship_Game.Ships
         {
             ExploreCurrentSystem(timeStep);
 
-            if (EMPDisabled)
+            if (EMPDisabled && timeStep.FixedTime > 0f)
             {
                 float third = Radius / 3f;
                 for (int i = 0; i < 4; ++i)
