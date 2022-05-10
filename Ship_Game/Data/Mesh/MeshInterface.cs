@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Effects.Forward;
 using SDGraphics;
-
+using SDUtils;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
 using XnaVector3 = Microsoft.Xna.Framework.Vector3;
 using XnaQuaternion = Microsoft.Xna.Framework.Quaternion;

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using SDGraphics;
 using Point = SDGraphics.Point;
+using SDUtils;
 
 namespace Ship_Game.Ships.Legacy
 {

@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Data;
 using Ship_Game.Graphics;
 using Ship_Game.Graphics.Particles;

@@ -214,7 +214,7 @@
     <Compile Include="Ship_Game\Debug\Page\ParticleDebug.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExclude.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\CollectionFilterSelect.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionExtGameObj.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\NewMathExt.cs" />
     <Compile Include="Ship_Game\Gameplay\WeaponTag.cs" />
     <Compile Include="Ship_Game\Gameplay\IWeaponTemplate.cs" />
@@ -444,13 +444,11 @@
     <Compile Include="Ship_Game\Debug\Page\TradeDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\PlanetDebug.cs" />
     <Compile Include="Ship_Game\Empires\SubSpaceProjectors.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\CollectionFilter.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindAvg.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindMax.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindMin.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionReduce.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\EmpireExt.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ListExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Matrices.cs" />
     <Compile Include="Ship_Game\Data\Mesh\MeshUtil.cs" />
@@ -698,8 +696,6 @@
     <Compile Include="Ship_Game\Utils\ReadRestAPIFromSite.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\PlanetEdict.cs" />
-    <Compile Include="Ship_Game\Utils\Array.cs" />
-    <Compile Include="Ship_Game\Utils\Map.cs" />
     <Compile Include="Ship_Game\Threading\Parallel.cs" />
     <Compile Include="Ship_Game\Utils\Ref.cs">
       <AutoGen>false</AutoGen>
@@ -855,6 +851,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Ship_Game\Utils\SDArrayOptimizations.cs" />
     <Compile Include="Ship_Game\Utils\SeededRandom.cs" />
     <Compile Include="Ship_Game\Utils\SmallBitSet.cs" />
     <Compile Include="Ship_Game\Utils\SteamManager.cs">

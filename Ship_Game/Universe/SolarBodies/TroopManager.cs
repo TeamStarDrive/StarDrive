@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Point = SDGraphics.Point;
 

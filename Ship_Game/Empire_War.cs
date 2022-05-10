@@ -2,6 +2,7 @@
 using Ship_Game.Commands.Goals;
 using System.Linq;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 
@@ -198,8 +199,7 @@ namespace Ship_Game
 
         public bool CanAddAnotherWarGoal(Empire enemy)
         {
-            return EmpireAI.Goals
-                .Filter(g => g.IsWarMission && g.TargetEmpire == enemy).Length <= DifficultyModifiers.NumWarTasksPerWar;
+            return EmpireAI.Goals.Count(g => g.IsWarMission && g.TargetEmpire == enemy) <= DifficultyModifiers.NumWarTasksPerWar;
         }
 
         public bool TryGetMissionsVsEmpire(Empire enemy, out Goal[] goals)

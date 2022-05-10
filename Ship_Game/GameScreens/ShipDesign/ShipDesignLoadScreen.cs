@@ -232,14 +232,13 @@ namespace Ship_Game.GameScreens.ShipDesign
             SelectedShip = null;
             SelectedWIP = null;
 
-            Ship[] ships = ResourceManager.ShipTemplates
-                .Filter(s => CanShowDesign(s, filter))
-                .OrderBy(s => !s.ShipData.IsPlayerDesign)
-                .ThenBy(s => s.BaseHull.Style != EmpireManager.Player.data.Traits.ShipType)
-                .ThenBy(s => s.BaseHull.Style)
-                .ThenByDescending(s => s.BaseStrength)
-                .ThenBy(s => s.Name)
-                .ToArray();
+            Ship[] ships = CollectionExt.ToArray(ResourceManager.ShipTemplates
+                    .Filter(s => CanShowDesign(s, filter))
+                    .OrderBy(s => !s.ShipData.IsPlayerDesign)
+                    .ThenBy(s => s.BaseHull.Style != EmpireManager.Player.data.Traits.ShipType)
+                    .ThenBy(s => s.BaseHull.Style)
+                    .ThenByDescending(s => s.BaseStrength)
+                    .ThenBy(s => s.Name));
 
             AvailableDesignsList.Reset();
 

@@ -1,4 +1,5 @@
 using System;
+using SDUtils;
 using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
@@ -11,7 +12,7 @@ namespace Ship_Game
         public static Mole PlantMole(Empire owner, Empire target, out string targetPlanetName)
         {
             targetPlanetName = "";
-            Array<Planet> potentials = new Array<Planet>();
+            var potentials = new Array<Planet>();
             foreach (Planet p in target.GetPlanets())
             {
                 if (!p.IsExploredBy(owner))

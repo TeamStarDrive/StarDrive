@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using SDUtils;
 
 namespace Ship_Game.Tools.Localization
 {

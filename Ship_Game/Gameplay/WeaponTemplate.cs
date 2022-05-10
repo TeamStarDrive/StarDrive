@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
@@ -188,7 +189,7 @@ namespace Ship_Game.Gameplay
 
         public void InitializeTemplate()
         {
-            ActiveWeaponTags = TagValues.Where(tag => (TagBits & tag) != 0).ToArray();
+            ActiveWeaponTags = CollectionExt.ToArray(TagValues.Where(tag => (TagBits & tag) != 0));
 
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
             FireDelay = Math.Max(0.016f, FireDelay);

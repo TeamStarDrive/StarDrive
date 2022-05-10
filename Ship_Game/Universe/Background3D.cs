@@ -6,6 +6,7 @@ using Ship_Game.Graphics;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using SDUtils;
 
 namespace Ship_Game
 {

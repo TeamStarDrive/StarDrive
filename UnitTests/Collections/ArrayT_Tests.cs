@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDUtils;
 
 namespace UnitTests.Collections
 {

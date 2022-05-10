@@ -7,6 +7,7 @@ using Ship_Game;
 using SDGraphics;
 using Point = SDGraphics.Point;
 using Vector4 = SDGraphics.Vector4;
+using SDUtils;
 
 namespace UnitTests
 {

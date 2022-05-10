@@ -8,6 +8,7 @@ using Ship_Game.ExtensionMethods;
 using Ship_Game.Graphics;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using SDUtils;
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
 {
@@ -317,7 +318,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             DState     = DialogState.Them;
         }
 
-        Vector2 GetCenteredTextPosition(Rectangle r, string text, Graphics.Font font)
+        Vector2 GetCenteredTextPosition(Rectangle r, string text, Font font)
         {
             return new Vector2(r.CenterTextX(text, font), r.CenterY());
         }
@@ -583,7 +584,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             if (Exit.HandleInput(input) && DState != DialogState.TheirOffer)
             {
-                Ship_Game.Audio.GameAudio.SwitchBackToGenericMusic();
+                Audio.GameAudio.SwitchBackToGenericMusic();
                 ExitScreen();
                 return true;
             }

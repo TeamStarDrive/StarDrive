@@ -3,6 +3,7 @@ using Ship_Game.Data;
 using System;
 using System.Text;
 using Vector2 = SDGraphics.Vector2;
+using SDUtils;
 
 namespace Ship_Game.Graphics
 {

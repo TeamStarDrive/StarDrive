@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Empires.Components;
@@ -466,7 +467,7 @@ namespace Ship_Game
             }
 
             var scrapGoals       = GetEmpireAI().Goals.Filter(g => g.type == GoalType.ScrapShip);
-            var potentialPlanets = OwnedPlanets.SortedDescending(p => p.MissingProdHereForScrap(scrapGoals)).Take(5).ToArray();
+            var potentialPlanets = CollectionExt.ToArray(OwnedPlanets.SortedDescending(p => p.MissingProdHereForScrap(scrapGoals)).Take(5));
             if (potentialPlanets.Length == 0)
                 return false;
 
@@ -1209,8 +1210,8 @@ namespace Ship_Game
             return false;
         }
 
-        public string[] GetTroopsWeCanBuild() => UnlockedTroopDict.Where(kv => kv.Value)
-                                                                  .Select(kv => kv.Key).ToArray();
+        public string[] GetTroopsWeCanBuild() => CollectionExt.ToArray(UnlockedTroopDict.Where(kv => kv.Value)
+                                                                      .Select(kv => kv.Key));
 
         public bool WeCanBuildTroop(string id) => UnlockedTroopDict.TryGetValue(id, out bool canBuild) && canBuild;
 

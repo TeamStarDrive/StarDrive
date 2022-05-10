@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.AI.Tasks;
 using Ship_Game.AI.StrategyAI.WarGoals;
 
@@ -36,8 +37,12 @@ namespace Ship_Game.AI
             PrioritizeTasks();
             int taskEvalLimit   = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
             int taskEvalCounter = 0;
-            var tasks = OwnerEmpire.GetEmpireAI().GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
-                                                            .ThenByDescending(t => t.MinimumTaskForceStrength).ToArray();
+
+            var tasks = CollectionExt.ToArray(OwnerEmpire.GetEmpireAI()
+                .GetTasks()
+                .Filter(t => !t.QueuedForRemoval)
+                .OrderByDescending(t => t.Priority)
+                .ThenByDescending(t => t.MinimumTaskForceStrength));
 
             for (int i = tasks.Length - 1; i >= 0; i--)
             {

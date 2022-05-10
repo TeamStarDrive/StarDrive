@@ -78,7 +78,7 @@ namespace Ship_Game.Spatial
                 projectiles.Add(p);
             }
 
-            var objects = allObjects.Concat(projectiles).ToArray();
+            var objects = CollectionExt.ToArray(allObjects.Concat(projectiles));
             tree.UpdateAll(objects);
             return objects;
         }
