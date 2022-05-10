@@ -19,13 +19,11 @@ namespace Ship_Game
 {
     using static RandomMath;
 
-    public sealed class SolarSystem : GameplayObject
+    public sealed class SolarSystem : ExplorableGameObject
     {
         public string Name = "Random System";
         public UniverseState Universe;
         public bool DontStartNearPlayer;
-
-        public Explorable Explorable = new();
 
         //public Array<Empire> OwnerList = new Array<Empire>();
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
@@ -76,7 +74,6 @@ namespace Ship_Game
             : base(id, GameObjectType.SolarSystem)
         {
             Universe = us;
-            Id = id;
             Radius = MinRadius;
             DisableSpatialCollision = true;
         }
@@ -104,7 +101,7 @@ namespace Ship_Game
 
             IsVisible = universe.Frustum.Contains(Position, Radius)
                     && (universe.IsSectorViewOrCloser)
-                    && Explorable.IsExploredBy(player);
+                    && IsExploredBy(player);
 
             if (IsVisible && universe.IsSystemViewOrCloser)
             {
@@ -760,7 +757,7 @@ namespace Ship_Game
                     MaxFertility         = planet.BaseMaxFertility,
                     Richness             = planet.MineralRichness,
                     Owner                = planet.Owner?.data.Traits.Name ?? "",
-                    WhichPlanet          = planet.Type.Id,
+                    WhichPlanet          = planet.PType.Id,
                     OrbitalAngle         = planet.OrbitalAngle,
                     OrbitalDistance      = planet.OrbitalRadius,
                     HasRings             = planet.HasRings,

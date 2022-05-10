@@ -323,7 +323,7 @@ namespace Ship_Game.AI
             MovePosition           = PatrolTarget.Center;
             float distanceToTarget = Owner.Position.Distance(MovePosition);
             if (distanceToTarget < 75000f)
-                PatrolTarget.ParentSystem.Explorable.SetExploredBy(Owner.Loyalty);
+                PatrolTarget.ParentSystem.SetExploredBy(Owner.Loyalty);
 
             if (distanceToTarget >= 5500f)
             {
@@ -341,13 +341,13 @@ namespace Ship_Game.AI
 
         bool DoExploreEmptySystem(FixedSimTime timeStep, SolarSystem system)
         {
-            if (system.Explorable.IsExploredBy(Owner.Loyalty))
+            if (system.IsExploredBy(Owner.Loyalty))
                 return true;
 
             MovePosition = system.Position;
             if (Owner.Position.InRadius(MovePosition, 75000f))
             {
-                system.Explorable.SetExploredBy(Owner.Loyalty);
+                system.SetExploredBy(Owner.Loyalty);
                 return true;
             }
 

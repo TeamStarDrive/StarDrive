@@ -31,7 +31,7 @@ namespace Ship_Game
             if (data.SpecialDescription.NotEmpty())
                 SpecialDescription = data.SpecialDescription; 
             
-            Type = ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet); // we revert to random just in case people unload mods
+            PType = ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet); // we revert to random just in case people unload mods
             Scale = data.Scale > 0f ? data.Scale : RandomMath.Float(1f, 2f);
             colonyType         = data.ColonyType;
             GovOrbitals        = data.GovOrbitals;

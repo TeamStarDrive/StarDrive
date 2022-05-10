@@ -156,19 +156,22 @@ namespace Ship_Game
         Solitary=1, Meager=2, Vibrant=3, CoreWorld=4, MegaWorld=5
     }
 
-    public class SolarSystemBody : Explorable
+    public class SolarSystemBody : ExplorableGameObject
     {
-        public readonly int Id;
-        public PlanetType Type;
-        public SubTexture PlanetTexture => ResourceManager.Texture(Type.IconPath);
-        public PlanetCategory Category => Type.Category;
-        public bool IsBarrenType => Type.Category == PlanetCategory.Barren;
-        public bool IsBarrenGasOrVolcanic => Type.Category == PlanetCategory.Barren
-                                             || Type.Category == PlanetCategory.Volcanic
-                                             || Type.Category == PlanetCategory.GasGiant;
+        // TODO: replace with Position
+        public Vector2 Center;
+        public Vector3 Center3D => new Vector3(Center, 2500);
 
-        public string IconPath => Type.IconPath;
-        public bool Habitable => Type.Habitable;
+        public PlanetType PType;
+        public SubTexture PlanetTexture => ResourceManager.Texture(PType.IconPath);
+        public PlanetCategory Category => PType.Category;
+        public bool IsBarrenType => PType.Category == PlanetCategory.Barren;
+        public bool IsBarrenGasOrVolcanic => PType.Category == PlanetCategory.Barren
+                                             || PType.Category == PlanetCategory.Volcanic
+                                             || PType.Category == PlanetCategory.GasGiant;
+
+        public string IconPath => PType.IconPath;
+        public bool Habitable => PType.Habitable;
 
         public UniverseState Universe => ParentSystem.Universe;
 
@@ -183,8 +186,6 @@ namespace Ship_Game
         public Array<Ship> OrbitalStations = new Array<Ship>();
 
         protected AudioEmitter Emit = new AudioEmitter();
-        public Vector2 Center;
-        public Vector3 Center3D => new Vector3(Center, 2500);
 
         public SolarSystem ParentSystem;
         public SceneObject SO;
@@ -236,15 +237,15 @@ namespace Ship_Game
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
 
-        public float ObjectRadius => Type.Types.BasePlanetRadius * Scale;
+        public float ObjectRadius => PType.Types.BasePlanetRadius * Scale;
 
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
         public IReadOnlyList<Building> GetBuildingsCanBuild() => BuildingsCanBuild;
 
-        public SolarSystemBody(int id)
+        public SolarSystemBody(int id, GameObjectType type) : base(id, type)
         {
-            Id = id;
+            DisableSpatialCollision = true;
         }
 
         protected void AddTileEvents()
@@ -365,7 +366,7 @@ namespace Ship_Game
             }
         }
 
-        public Matrix ScaleMatrix => Matrix.CreateScale(Type.Scale * Type.Types.PlanetScale);
+        public Matrix ScaleMatrix => Matrix.CreateScale(PType.Scale * PType.Types.PlanetScale);
 
         void UpdateSO(bool visible)
         {
@@ -397,9 +398,9 @@ namespace Ship_Game
                 Universe.Screen.RemoveObject(SO);
             }
 
-            if (!Type.Types.NewRenderer)
+            if (!PType.Types.NewRenderer)
             {
-                SO = Type.CreatePlanetSO();
+                SO = PType.CreatePlanetSO();
                 UpdateSO(visible: true);
                 Universe.Screen.AddObject(SO);
             }
@@ -413,10 +414,10 @@ namespace Ship_Game
             }
             else
             {
-                Description = Name + " " + Type.Composition.Text + ". ";
+                Description = Name + " " + PType.Composition.Text + ". ";
                 if (BaseMaxFertility > 2)
                 {
-                    switch (Type.Id)
+                    switch (PType.Id)
                     {
                         case 21: Description += Localizer.Token(GameText.TheLushVibranceOfThis); break;
                         case 13:
@@ -426,7 +427,7 @@ namespace Ship_Game
                 }
                 else if (BaseMaxFertility > 1)
                 {
-                    switch (Type.Id)
+                    switch (PType.Id)
                     {
                         case 19: Description += Localizer.Token(GameText.TheCombinationOfExtremeHeat); break;
                         case 21: Description += Localizer.Token(GameText.WhileThisIsUnquestionablyA); break;
@@ -437,7 +438,7 @@ namespace Ship_Game
                 }
                 else if (BaseMaxFertility > 0.6f)
                 {
-                    switch (Type.Id)
+                    switch (PType.Id)
                     {
                         case 14: Description += Localizer.Token(GameText.DunesOfSunscorchedSandRise); break;
                         case 21: Description += Localizer.Token(GameText.ScansRevealThatThisPlanet); break;
@@ -452,7 +453,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    switch (Type.Id) {
+                    switch (PType.Id) {
                         case 9:
                         case 23: Description += Localizer.Token(GameText.ToxicGasesPermeateTheAtmosphere); break;
                         case 20:
@@ -497,7 +498,7 @@ namespace Ship_Game
                 }
                 else if (MineralRichness < 1 && Habitable)
                 {
-                    if (Type.Id == 14)
+                    if (PType.Id == 14)
                         Description += Name + Localizer.Token(GameText.SuffersFromALackOf);
                     else
                         Description += Name + Localizer.Token(GameText.LacksSignificantVeinsOfValuable);
@@ -602,14 +603,14 @@ namespace Ship_Game
 
         protected void GenerateMoons(SolarSystem system, Planet newOrbital)
         {
-            if (newOrbital.Type.MoonTypes.Length == 0)
+            if (newOrbital.PType.MoonTypes.Length == 0)
                 return; // this planet does not support moons
 
             int moonCount = (int)Math.Ceiling(ObjectRadius * 0.004f);
             moonCount = (int)Math.Round(RandomMath.AvgFloat(-moonCount * 0.75f, moonCount));
             for (int j = 0; j < moonCount; j++)
             {
-                PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.Type);
+                PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.PType);
                 float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.Float(1000f, 1500f) * (j + 1);
                 var moon = new Moon(system,
                                     newOrbital.Id,

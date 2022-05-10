@@ -136,7 +136,7 @@ namespace Ship_Game.AI
             var knownPlanets = new Array<Planet>();
             foreach (SolarSystem s in universe.Systems)
             {
-                if (s.Explorable.IsExploredBy(OwnerEmpire))
+                if (s.IsExploredBy(OwnerEmpire))
                     knownPlanets.AddRange(s.PlanetList);
             }
             return knownPlanets;
