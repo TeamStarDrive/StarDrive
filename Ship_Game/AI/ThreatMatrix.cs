@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
@@ -219,7 +220,6 @@ namespace Ship_Game.AI
             return PingRadarShip(closest.Position, granularity, empire);
         }
 
-        public Map<Vector2, float> PingRadarStrengthClusters(AO ao, float granularity, Empire empire) => PingRadarStrengthClusters(ao.Center, ao.Radius, granularity, empire);
         public Map<Vector2, float> PingRadarStrengthClusters(Vector2 position, float radius, float granularity, Empire empire)
         {
             var retList       = new Map<Vector2, float>();

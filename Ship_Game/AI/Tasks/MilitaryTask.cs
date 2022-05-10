@@ -10,6 +10,7 @@ using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
+using SDUtils;
 
 namespace Ship_Game.AI.Tasks
 {

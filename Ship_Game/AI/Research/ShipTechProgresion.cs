@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
+using SDUtils;
 
 namespace Ship_Game.AI.Research
 {
@@ -19,7 +20,7 @@ namespace Ship_Game.AI.Research
                 if (!TryExtractNeedTechs(ship, out HashSet<string> techs, out bool onlyHullLeft))
                     continue;
 
-                var researchableTechs = shipTechs.Intersect(techs).ToArray();
+                var researchableTechs = CollectionExt.ToArray(shipTechs.Intersect(techs));
                 if (researchableTechs.Length > 0)
                 {
                     if (onlyHullLeft && CanResearchOnlyHull(researchableTechs)) // shortcut to hull

@@ -1,4 +1,5 @@
 using System;
+using SDUtils;
 
 namespace Ship_Game
 {
@@ -95,7 +96,7 @@ namespace Ship_Game
 				for (int letter = 0; letter < word.Length - order; letter++)
 				{
 					string token = word.Substring(letter, order);
-					Array<char> entry = null;
+                    Array<char> entry = null;
 					if (!_chains.ContainsKey(token))
 					{
 						entry = new Array<char>();
@@ -116,7 +117,8 @@ namespace Ship_Game
 			{
 				return '?';
 			}
-			Array<char> letters = _chains[token];
+
+            Array<char> letters = _chains[token];
 			return letters[_rnd.Next(letters.Count)];
 		}
 

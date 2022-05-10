@@ -6,7 +6,7 @@ using SgMotion;
 using SynapseGaming.LightingSystem.Effects.Forward;
 using SynapseGaming.LightingSystem.Rendering;
 using SDGraphics;
-
+using SDUtils;
 using BoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
 using XnaMatrix = Microsoft.Xna.Framework.Matrix;
 

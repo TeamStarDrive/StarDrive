@@ -1,4 +1,5 @@
 using System;
+using SDUtils;
 using Ship_Game.Ships;
 using Point = SDGraphics.Point;
 
@@ -35,7 +36,7 @@ namespace Ship_Game.Gameplay
         public static int Sorter(HullSlot a, HullSlot b)
         {
             // Array.Sort bug in .NET 4.5.2:
-            if (object.ReferenceEquals(a, b))
+            if (ReferenceEquals(a, b))
                 return 0;
 
             // first by scanline (Y axis)
@@ -122,7 +123,7 @@ namespace Ship_Game.Gameplay
         public static int Sorter(DesignSlot a, DesignSlot b)
         {
             // Array.Sort bug in .NET 4.5.2:
-            if (object.ReferenceEquals(a, b))
+            if (ReferenceEquals(a, b))
                 return 0;
 
             // first by scanline (Y axis)

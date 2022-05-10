@@ -492,7 +492,7 @@ namespace Ship_Game.Debug
                 }
 
                 DrawString(ship.System == null ? "Deep Space" : $"System: {ship.System.Name}");
-                string[] influence = ship.GetProjectorInfluenceEmpires().Select(e=>e.Name).ToArray();
+                string[] influence = CollectionExt.ToArray(ship.GetProjectorInfluenceEmpires().Select(e=>e.Name));
                 DrawString("Influence: " + (ship.IsInFriendlyProjectorRange ? "Friendly"
                                          :  ship.IsInHostileProjectorRange  ? "Hostile" : "Neutral")
                                          + " | " + string.Join(",", influence));
@@ -788,8 +788,8 @@ namespace Ship_Game.Debug
                 DrawString("----------------------------");
                 int taskEvalLimit   = e.IsAtWarWithMajorEmpire ? (int)e.GetAverageWarGrade().LowerBound(3) : 10;
                 int taskEvalCounter = 0;
-                var tasks = e.GetEmpireAI().GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
-                                                                .ThenByDescending(t => t.MinimumTaskForceStrength).ToArray();
+                var tasks = CollectionExt.ToArray(e.GetEmpireAI().GetTasks().Filter(t => !t.QueuedForRemoval).OrderByDescending(t => t.Priority)
+                                                                    .ThenByDescending(t => t.MinimumTaskForceStrength));
 
                 var tasksWithFleets = tasks.Filter(t => t.Fleet != null);
                 if (tasksWithFleets.Length > 0)
@@ -1081,7 +1081,7 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Has ship");
                 }
 
-                MilitaryTask[] tasks = e.GetEmpireAI().GetTasks().ToArray();
+                MilitaryTask[] tasks = CollectionExt.ToArray(e.GetEmpireAI().GetTasks());
                 for (int j = 0; j < tasks.Length; j++)
                 {
                     MilitaryTask task = tasks[j];

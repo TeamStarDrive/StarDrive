@@ -6,6 +6,7 @@ using SgMotion;
 using Ship_Game.Data.Texture;
 using SynapseGaming.LightingSystem.Effects;
 using SDGraphics;
+using SDUtils;
 
 namespace Ship_Game.Data.Mesh
 {

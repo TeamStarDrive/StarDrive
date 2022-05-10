@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDUtils;
 using static Microsoft.VisualStudio.TestTools.UnitTesting.CollectionAssert;
 
 namespace UnitTests.Collections

@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
@@ -538,7 +539,7 @@ namespace Ship_Game
             if (!planet.RecentCombat && planet.GetEnemyAssets(Loyalty) == 0)
                 return freeTiles.RandItem(); // Non Combat landing
 
-            Array<PlanetGridSquare> bestTiles = new Array<PlanetGridSquare>();
+            SDUtils.Array<PlanetGridSquare> bestTiles = new SDUtils.Array<PlanetGridSquare>();
             int bestScore = int.MinValue;
             for (int i = 0; i < freeTiles.Length; ++i)
             {

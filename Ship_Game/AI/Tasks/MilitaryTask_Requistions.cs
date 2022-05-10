@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Xml.Serialization;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Universe;
@@ -183,9 +184,9 @@ namespace Ship_Game.AI.Tasks
 
         void RequisitionCoreFleet()
         {
-            AO[] sorted = Owner.GetEmpireAI().AreasOfOperations
-                .OrderByDescending(ao => ao.OffensiveForcePoolStrength >= MinimumTaskForceStrength)
-                .ThenBy(ao => AO.Distance(ao.Center)).ToArray();
+            AO[] sorted = CollectionExt.ToArray(Owner.GetEmpireAI().AreasOfOperations
+                    .OrderByDescending(ao => ao.OffensiveForcePoolStrength >= MinimumTaskForceStrength)
+                    .ThenBy(ao => AO.Distance(ao.Center)));
 
             if (sorted.Length == 0)
                 return;

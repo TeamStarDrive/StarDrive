@@ -5,6 +5,7 @@ using Ship_Game.Data;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using SDUtils;
 
 namespace Ship_Game
 {
@@ -179,7 +180,7 @@ namespace Ship_Game
 
         class ArtifactItem : UIElementContainer
         {
-            public ArtifactItem(GameContentManager content, Artifact art, 
+            public ArtifactItem(GameContentManager content, Artifact art,
                                 Array<ArtifactEffect> effects, float width)
             {
                 SubTexture artTex = content.LoadSubTexture("Textures/Artifact Icons/" + art.Name);

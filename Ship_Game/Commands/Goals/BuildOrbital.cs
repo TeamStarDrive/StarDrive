@@ -4,6 +4,7 @@ using Ship_Game.Debug;
 using Ship_Game.Ships;
 using System;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 

@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
@@ -787,7 +788,7 @@ namespace Ship_Game
                     SpecialDescription   = planet.SpecialDescription,
                     IncomingFreighters   = planet.IncomingFreighterIds,
                     OutgoingFreighters   = planet.OutgoingFreighterIds,
-                    StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.Id).ToArray(),
+                    StationsList         = CollectionExt.ToArray(planet.OrbitalStations.Where(s => s.Active).Select(s => s.Id)),
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     BaseFertilityTerraformRatio  = planet.BaseFertilityTerraformRatio,
                     HasLimitedResourcesBuildings = planet.HasLimitedResourceBuilding,

@@ -458,7 +458,7 @@ namespace Ship_Game
 
         Planet GetTargetPlanetByPop(Planet[] potentialPlanets, int numPlanetsToTake)
         {
-            var filteredList = potentialPlanets.SortedDescending(p => p.MaxPopulation).Take(numPlanetsToTake).ToArray();
+            var filteredList = CollectionExt.ToArray(potentialPlanets.SortedDescending(p => p.MaxPopulation).Take(numPlanetsToTake));
 
             return filteredList.Length > 0 ? filteredList.RandItem() : null;
         }
@@ -475,7 +475,7 @@ namespace Ship_Game
 
         Planet GetTargetPlanetByDistance(Planet[] potentialPlanets, Vector2 pos, int numPlanetsToTake)
         {
-            var filteredList = potentialPlanets.Sorted(p => p.Center.Distance(pos)).Take(numPlanetsToTake).ToArray();
+            var filteredList = CollectionExt.ToArray(potentialPlanets.Sorted(p => p.Center.Distance(pos)).Take(numPlanetsToTake));
 
             return filteredList.Length > 0 ? filteredList.RandItem() : null;
         }

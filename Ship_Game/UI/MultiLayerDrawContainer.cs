@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Graphics;
 using SDGraphics;
+using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 using Matrix = SDGraphics.Matrix;
 

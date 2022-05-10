@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
@@ -34,7 +35,7 @@ namespace Ship_Game.AI
             if (aoPlanets.Length == Owner.GetPlanets().Count)
                 return;
 
-            var ownedPlanets = Owner.GetPlanets().ToArray();
+            var ownedPlanets = CollectionExt.ToArray(Owner.GetPlanets());
             Planet[] planets = ownedPlanets.UniqueExclude(aoPlanets);
             if (planets.Length == 0)
                 return;

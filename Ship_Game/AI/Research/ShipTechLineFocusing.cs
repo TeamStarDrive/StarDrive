@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SDUtils;
 
 namespace Ship_Game.AI.Research
 {
@@ -208,11 +209,11 @@ namespace Ship_Game.AI.Research
 
             if (BestCombatShip != null)
             {
-                var bestShipTechs = shipTechs.Intersect(BestCombatShip.ShipData.TechsNeeded).ToArray();
+                var bestShipTechs = shipTechs.Intersect(BestCombatShip.ShipData.TechsNeeded);
                 if (!bestShipTechs.Any())
                 {
-                    var bestNoneShipTechs = nonShipTechs.Intersect(BestCombatShip.ShipData.TechsNeeded).ToArray();
-                    if (bestNoneShipTechs.Length == 0)
+                    var bestNoneShipTechs = nonShipTechs.Intersect(BestCombatShip.ShipData.TechsNeeded);
+                    if (!bestNoneShipTechs.Any())
                         BestCombatShip = null;
                     else
                         Log.Warning($"ship tech classified as non ship tech {bestNoneShipTechs.First()} for {BestCombatShip}");

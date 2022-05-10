@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
+using SDUtils;
 
 namespace Ship_Game
 {
@@ -133,8 +134,8 @@ namespace Ship_Game
         void DispatchOrBuildFreighters(Goods goods, BatchRemovalCollection<Planet> importPlanetList, bool interTrade)
         {
             // Order importing planets to balance freighters distribution
-            Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)
-                                                        .OrderBy(p => p.FreighterTraffic(p.IncomingFreighters, goods)).ToArray();
+            Planet[] importingPlanets = CollectionExt.ToArray(importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)
+                                                            .OrderBy(p => p.FreighterTraffic(p.IncomingFreighters, goods)));
             if (importingPlanets.Length == 0)
                 return;
 

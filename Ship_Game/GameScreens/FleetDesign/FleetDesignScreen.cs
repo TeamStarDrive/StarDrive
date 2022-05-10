@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using System.Collections.Generic;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.AI.CombatTactics.UI;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;

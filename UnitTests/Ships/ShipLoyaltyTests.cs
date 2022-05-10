@@ -4,6 +4,7 @@ using System.Linq;
 using Ship_Game;
 using Ship_Game.Ships;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.ShipDesign;
 using Vector2 = SDGraphics.Vector2;
