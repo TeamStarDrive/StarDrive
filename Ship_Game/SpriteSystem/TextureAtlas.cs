@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Data;
+using Ship_Game.Utils;
 
 namespace Ship_Game.SpriteSystem
 {
@@ -49,7 +50,8 @@ namespace Ship_Game.SpriteSystem
 
         // Grabs a random texture from this texture atlas
         public SubTexture RandomTexture() => RandomMath.RandItem(Sorted).GetOrLoadTexture();
-        
+        public SubTexture RandomTexture(RandomBase random) => random.RandItem(Sorted).GetOrLoadTexture();
+
         public TextureAtlas() {}
         ~TextureAtlas() { Destroy(); }
         public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
