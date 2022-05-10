@@ -435,6 +435,29 @@ namespace SDUtils
             Items[last]  = default;
         }
 
+        // Does a fast removal of all elements from `toRemove` that exist in this array
+        public void RemoveAllSwapLast(Array<T> toRemove)
+        {
+            EqualityComparer<T> c = EqualityComparer<T>.Default;
+            int numToRemove = toRemove.Count;
+            T[] itemsToRemove = toRemove.GetInternalArrayItems();
+            T[] items = Items;
+            for (int i = Count - 1; i >= 0; --i)
+            {
+                T item = items[i];
+                for (int j = 0; j < numToRemove; ++j)
+                {
+                    if (c.Equals(itemsToRemove[i], item))
+                    {
+                        int last = --Count;
+                        items[i] = items[last];
+                        items[last]  = default;
+                        break;
+                    }
+                }
+            }
+        }
+
         // Finds and replaces an old item with a new item
         // @return True if item was replaced
         public bool Replace(T oldItem, T newItem)

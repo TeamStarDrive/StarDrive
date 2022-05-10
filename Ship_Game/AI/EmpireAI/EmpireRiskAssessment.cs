@@ -58,7 +58,7 @@ namespace Ship_Game.AI
 
                     if (strengthNeeded > 0)
                     {
-                        float currentStrength = us.AIManagedShips.EmpireReadyFleets?.AccumulatedStrength?? 1;
+                        float currentStrength = us.AIManagedShips.EmpireReadyFleets?.AccumulatedStrength ?? 1;
                         float currentThreat = us.GetEmpireAI().ThreatLevel;
                         float possibleStrength = currentStrength / currentThreat;
                         if (possibleStrength > strengthNeeded)
