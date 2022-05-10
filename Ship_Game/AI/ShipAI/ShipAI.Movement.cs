@@ -73,8 +73,7 @@ namespace Ship_Game.AI
             float angleDiff = AngleDifferenceToDirection(wantedForward, currentForward);
             if (angleDiff > minDiff)
             {
-                float rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
-                Owner.RotateToFacing(timeStep, angleDiff, rotationDir, minDiff);
+                Owner.RotateToFacing(angleDiff, wantedForward, currentForward);
                 return true;
             }
 
@@ -397,8 +396,7 @@ namespace Ship_Game.AI
 
             if (predictionDiff > maxAngleError)
             {
-                float rotationDir = Vectors.RotationDirection(wantedForward, currentForward);
-                Owner.RotateToFacing(timeStep, predictionDiff, rotationDir, maxAngleError);
+                Owner.RotateToFacing(predictionDiff, wantedForward, currentForward);
                 return; // don't SubLightAccelerate until we're faced correctly
             }
 
