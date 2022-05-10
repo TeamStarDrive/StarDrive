@@ -5,6 +5,7 @@ using Ship_Game.AI.Tasks;
 using Ship_Game.Empires.Components;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
+using SDUtils;
 
 namespace Ship_Game.Commands.Goals
 {

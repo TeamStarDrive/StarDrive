@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using SDGraphics;
+using SDUtils;
 using static Ship_Game.Ships.ShipDesign;
 using Vector2 = SDGraphics.Vector2;
 

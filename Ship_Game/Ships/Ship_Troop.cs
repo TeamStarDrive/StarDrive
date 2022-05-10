@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.AI;
 
 namespace Ship_Game.Ships
@@ -13,6 +14,7 @@ namespace Ship_Game.Ships
         /// It can get mighty confusing, but that's what we got.
         /// </summary>
         Array<Troop> OurTroops = new Array<Troop>();
+
         Array<Troop> HostileTroops = new Array<Troop>();
 
         // OUR troops count

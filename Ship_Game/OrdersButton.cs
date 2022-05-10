@@ -5,6 +5,7 @@ using SDGraphics;
 using Ship_Game.Audio;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using SDUtils;
 
 namespace Ship_Game
 {

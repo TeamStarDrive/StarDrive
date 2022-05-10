@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using SDUtils;
 using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Data.Serialization;

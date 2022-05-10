@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using SDGraphics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
+using SDUtils;
 
 namespace Ship_Game.Universe.SolarBodies
 {

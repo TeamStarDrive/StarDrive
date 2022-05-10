@@ -221,7 +221,7 @@ namespace Ship_Game
                 fleetStr           += ship.GetStrength();
             }
 
-            fleetHealthPercent = (fleetHealthPercent / ShipList.Count() * 100).Clamped(0,100);
+            fleetHealthPercent = (fleetHealthPercent / ShipList.Count * 100).Clamped(0,100);
             int barYPos        = Housing.Y + 115;
             DrawProgressBar(batch, fleetHealthPercent, 100, "green", "StatusIcons/icon_structure", ref barYPos, true);
             DrawProgressBar(batch, fleetOrdnance, fleetOrdnanceMax, "brown", "Modules/Ordnance", ref barYPos);

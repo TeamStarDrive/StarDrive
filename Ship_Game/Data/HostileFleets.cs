@@ -1,4 +1,6 @@
-﻿namespace Ship_Game
+﻿using SDUtils;
+
+namespace Ship_Game
 {
     //Added by McShooterz: defines new enemy fleets to spawn in place of Remnant
     public sealed class HostileFleets

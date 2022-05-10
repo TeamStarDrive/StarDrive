@@ -4,6 +4,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
@@ -798,7 +799,7 @@ namespace Ship_Game
         void DrawFleetShipIconsSums(SpriteBatch batch, FleetButton fleetButton, int x, int y)
         {
             Color color  = fleetButton.Fleet.Owner.EmpireColor;
-            var sums = new Map<string, int>();
+            var sums = new SDUtils.Map<string, int>();
             for (int i = 0; i < fleetButton.Fleet.Ships.Count; ++i)
             {
                 Ship ship   = fleetButton.Fleet.Ships[i];
@@ -839,9 +840,9 @@ namespace Ship_Game
             }
 
             // Ignore secondary icons and returns only the hull role icons
-            Map<string, int> RecalculateExcessIcons(Map<string, int> excessSums)
+            SDUtils.Map<string, int> RecalculateExcessIcons(SDUtils.Map<string, int> excessSums)
             {
-                Map<string, int> recalculated = new Map<string, int>();
+                SDUtils.Map<string, int> recalculated = new SDUtils.Map<string, int>();
                 foreach (string iconPaths in excessSums.Keys.ToArray())
                 {
                     var hullPath = iconPaths.Split('|')[0];

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.Budget;
 using Ship_Game.Commands.Goals;

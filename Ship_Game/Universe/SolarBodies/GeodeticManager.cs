@@ -2,6 +2,7 @@
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using SDGraphics;
+using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Ship_Game.ExtensionMethods;
 

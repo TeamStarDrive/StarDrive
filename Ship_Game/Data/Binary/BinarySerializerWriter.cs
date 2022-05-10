@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
 
@@ -166,7 +167,7 @@ namespace Ship_Game.Data.Binary
 
             // for UsedTypes we take both structs and objects
             var userTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsUserClass, kv => (UserTypeSerializer)kv.Ser);
-            UserTypes = structs.Cast<UserTypeSerializer>().Concat(userTypes).ToArray();
+            UserTypes = CollectionExt.ToArray(structs.Cast<UserTypeSerializer>().Concat(userTypes));
             CollectionTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsCollection, kv => (CollectionSerializer)kv.Ser);
 
             // find the root object index from the neatly sorted type groups

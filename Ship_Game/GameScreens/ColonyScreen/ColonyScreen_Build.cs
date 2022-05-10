@@ -1,5 +1,6 @@
 using System.Linq;
 using SDGraphics;
+using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -118,11 +119,11 @@ namespace Ship_Game
 
             // enable all ships in the sandbox
             if (P.Universe.Debug && P.Universe.Screen is DeveloperUniverse)
-                buildableShips = ResourceManager.ShipTemplates.ToArray();
+                buildableShips = CollectionExt.ToArray(ResourceManager.ShipTemplates);
             else
-                buildableShips = P.Owner.ShipsWeCanBuild
-                                .Select(shipName => ResourceManager.GetShipTemplate(shipName))
-                                .Where(ship => ship.IsBuildableByPlayer).ToArray();
+                buildableShips = CollectionExt.ToArray(P.Owner.ShipsWeCanBuild
+                                    .Select(shipName => ResourceManager.GetShipTemplate(shipName))
+                                    .Where(ship => ship.IsBuildableByPlayer));
             
             string filter = FilterBuildableItems.Text.ToLower();
             if (filter.IsEmpty() && FilterItemsText.NotEmpty())

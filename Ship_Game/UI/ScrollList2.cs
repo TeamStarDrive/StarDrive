@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using SDUtils;
 using Ship_Game.Audio;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -243,7 +244,7 @@ namespace Ship_Game
 
         public void Sort<TValue>(Func<T, TValue> predicate)
         {
-            T[] sorted = Entries.OrderBy(predicate).ToArray();
+            T[] sorted = CollectionExt.ToArray(Entries.OrderBy(predicate));
             Entries.Clear();
             Entries.AddRange(sorted);
             RequiresLayout = true;
@@ -251,7 +252,7 @@ namespace Ship_Game
 
         public void SortDescending<TValue>(Func<T, TValue> predicate)
         {
-            T[] sorted = Entries.OrderByDescending(predicate).ToArray();
+            T[] sorted = CollectionExt.ToArray(Entries.OrderByDescending(predicate));
             Entries.Clear();
             Entries.AddRange(sorted);
             RequiresLayout = true;

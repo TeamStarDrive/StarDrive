@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Ship_Game
+namespace SDUtils
 {
     public static class CollectionFilterSelect
     {

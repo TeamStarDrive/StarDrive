@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using Ship_Game;
 using SDGraphics;
+using SDUtils;
 
 namespace UnitTests.UI
 {
