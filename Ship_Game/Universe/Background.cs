@@ -24,7 +24,7 @@ namespace Ship_Game
             if (!ResourceManager.HasLoadedNebulae)
                 return;
 
-            StarField = new StarField(universe);
+            StarField = new StarField(universe, Universe.UState);
 
             var nebulas = Dir.GetFiles("Content/Textures/BackgroundNebulas");
             if (nebulas.Length > 0)
@@ -80,7 +80,7 @@ namespace Ship_Game
             );
 
             // draw some extra colorful stars, scattered across the background
-            StarField.Draw(cameraPos, batch);
+            StarField.Draw(sr, batch, cameraPos, Universe);
         }
 
         void DrawBackgroundNebulaWithStars(SpriteRenderer sr)

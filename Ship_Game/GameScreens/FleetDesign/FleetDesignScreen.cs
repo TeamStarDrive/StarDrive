@@ -167,7 +167,7 @@ namespace Ship_Game
         {
             Add(new CloseButton(ScreenWidth - 38, 97));
             AssignLightRig(LightRigIdentity.FleetDesign, "example/ShipyardLightrig");
-            StarField = new StarField(this);
+            StarField = new StarField(this, Universe.UState);
 
             var titleRect = new Rectangle(2, 44, 250, 80);
             TitleBar = new Menu2(titleRect);
@@ -258,7 +258,6 @@ namespace Ship_Game
             SliderSize = new SizeSlider(sizerect, "Target UniverseRadius Preference");
             SliderSize.SetAmount(0.5f);
             SliderSize.Tooltip = GameText.DeterminesWhetherAShipPrefers;
-            StarField = new StarField(this);
 
             SetPerspectiveProjection();
             foreach (Ship ship in SelectedFleet.Ships)
