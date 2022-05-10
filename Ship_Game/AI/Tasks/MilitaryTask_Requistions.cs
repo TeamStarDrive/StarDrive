@@ -504,10 +504,10 @@ namespace Ship_Game.AI.Tasks
                 return ReqStatus;
             }
 
+            var troopsOnPlanets = new Array<Troop>();
 
-            FleetShips fleetShips                    = Owner.AIManagedShips.EmpireReadyFleets;
+            FleetShips fleetShips = Owner.AIManagedShips.EmpireReadyFleets;
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
-            var troopsOnPlanets                      = new Array<Troop>();
 
             if (NeededTroopStrength > 0)
             {
@@ -516,7 +516,6 @@ namespace Ship_Game.AI.Tasks
                 // This assume a standard troop strength of 10 
                 if (bombDeficit > 0)
                 {
-                    
                     NeededTroopStrength += bombDeficit * 10;
                     TaskBombTimeNeeded = 0;
                 }
@@ -536,12 +535,14 @@ namespace Ship_Game.AI.Tasks
 
             int wantedNumberOfFleets = WantedNumberOfFleets();
             // All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, rallyPoint.Position, this);
+            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, troopsOnPlanets, wantedNumberOfFleets, this);
             if (TaskForce.IsEmpty)
             {
                 ReqStatus = RequisitionStatus.FailedToCreateAFleet;
                 return ReqStatus;
             }
+
+            Log.Info($"{Owner.Name} Formed TaskForce {GetFleetName()} NumShips={TaskForce.Count} Strength={GetTaskForceStrength()} MinStrength={MinimumTaskForceStrength}");
 
             CreateFleet(TaskForce, GetFleetName());
             Owner.AIManagedShips.CurrentUseableFleets -= fleetShips.ShipSetsExtracted.LowerBound(1);
@@ -549,6 +550,11 @@ namespace Ship_Game.AI.Tasks
                 ReqStatus = RequisitionStatus.Complete;
                 return ReqStatus;
             }
+        }
+
+        float GetTaskForceStrength()
+        {
+            return TaskForce.Sum(s => s.GetStrength());
         }
 
         public bool GetMoreTroops(Planet p, out Array<Ship> moreTroops)
@@ -559,11 +565,11 @@ namespace Ship_Game.AI.Tasks
 
             SetTargetPlanet(p);
             FleetShips fleetShips = Owner.AIManagedShips.EmpireReadyFleets;
-            NeededTroopStrength   = (int)(GetTargetPlanetGroundStrength(40) * Owner.DifficultyModifiers.EnemyTroopStrength);
+            NeededTroopStrength = (int)(GetTargetPlanetGroundStrength(40) * Owner.DifficultyModifiers.EnemyTroopStrength);
             if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out _, TargetPlanet.Position, true))
                 return false;
 
-            moreTroops     = fleetShips.ExtractTroops(NeededTroopStrength);
+            moreTroops = fleetShips.ExtractTroops(NeededTroopStrength);
             float troopStr = moreTroops.Count == 0 ? 0 : moreTroops.Sum(s => s.GetOurTroopStrength(maxTroops: 500));
 
             while (troopStr < NeededTroopStrength)
