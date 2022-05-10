@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Xml.Serialization;
 using SDGraphics;
+using SDUtils;
 using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
