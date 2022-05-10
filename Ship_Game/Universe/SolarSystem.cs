@@ -28,7 +28,6 @@ namespace Ship_Game
         //public Array<Empire> OwnerList = new Array<Empire>();
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
         public Array<Ship> ShipList = new Array<Ship>();
-        public bool IsVisible;
         public bool PiratePresence { get; private set; }
 
         public Array<ILight> Lights = new Array<ILight>();
@@ -99,11 +98,11 @@ namespace Ship_Game
                 status.Update(timeStep);
             }
 
-            IsVisible = universe.Frustum.Contains(Position, Radius)
+            InFrustum = universe.Frustum.Contains(Position, Radius)
                     && (universe.IsSectorViewOrCloser)
                     && IsExploredBy(player);
 
-            if (IsVisible && universe.IsSystemViewOrCloser)
+            if (InFrustum && universe.IsSystemViewOrCloser)
             {
                 WasVisibleLastFrame = true;
                 for (int i = 0; i < AsteroidsList.Count; i++)
@@ -132,7 +131,7 @@ namespace Ship_Game
             for (int i = 0; i < PlanetList.Count; i++)
             {
                 Planet planet = PlanetList[i];
-                planet.IsVisible = IsVisible && universe.Frustum.Contains(planet.Position3D, planet.ObjectRadius);
+                planet.InFrustum = InFrustum && universe.Frustum.Contains(planet.Position3D, planet.ObjectRadius);
                 planet.Update(timeStep);
             }
 

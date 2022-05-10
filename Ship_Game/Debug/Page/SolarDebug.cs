@@ -22,7 +22,7 @@ namespace Ship_Game.Debug.Page
         {
             foreach (SolarSystem system in Screen.UState.Systems)
             {
-                if (system.IsVisible)
+                if (system.InFrustum)
                 {
                     System = system;
                     break;

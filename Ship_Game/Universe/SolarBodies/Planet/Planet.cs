@@ -482,7 +482,7 @@ namespace Ship_Game
             UpdateHabitable(timeStep);
             UpdatePosition(timeStep);
 
-            if (HasSpacePort && IsVisible)
+            if (HasSpacePort && InFrustum)
             {
                 if (Station == null) Station = new SpaceStation();
                 Station.UpdateVisibleStation(this, timeStep);
