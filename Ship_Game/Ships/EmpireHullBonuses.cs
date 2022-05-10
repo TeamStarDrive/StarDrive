@@ -123,7 +123,11 @@ namespace Ship_Game.Ships
                 EmpireBonusData bonusData = EmpireBonuses[id];
                 if (bonusData != null)
                 {
-                    Empire empire = (id == 0) ? EmpireManager.Void : EmpireManager.GetEmpireById(id);
+                    Empire empire = null;
+                    if (id == 0)
+                        empire = EmpireManager.Void;
+                    else if (id > 1)
+                        empire = EmpireManager.GetEmpireById(id - 1);
                     bonusData.Update(empire);
                 }
             }
