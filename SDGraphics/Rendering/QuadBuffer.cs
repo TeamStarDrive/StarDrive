@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using SDUtils;
 
@@ -121,19 +118,36 @@ public class QuadBuffer : IDisposable
         VBO.SetData(vertices, index*4, 4);
     }
 
-    public void Draw(GraphicsDevice device)
+    void SetVertexSource(GraphicsDevice device)
     {
         // Set the vertex and index buffers
         device.Vertices[0].SetSource(VBO, 0, VertexCoordColor.SizeInBytes);
         device.Indices = IBO;
         device.VertexDeclaration = VD;
+    }
 
+    public void Draw(GraphicsDevice device)
+    {
+        SetVertexSource(device);
         // draw all indexed primitives
-        // numVertices = quads * 4
-        // numPrimitives = quads * 2  (triangles)
         device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
                                      0, NumQuads * 4,
                                      0, NumQuads * 2);
+    }
+
+    public void Draw(GraphicsDevice device, int startIndex, int numQuads)
+    {
+        if (startIndex > NumQuads)
+            return; // just don't render anything
+
+        // if we try to draw more than possible, clamp the excess
+        if ((startIndex + numQuads) > NumQuads)
+            numQuads = NumQuads - startIndex;
+
+        SetVertexSource(device);
+        device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
+                                     startIndex * 4, numQuads * 4,
+                                     startIndex * 6, numQuads * 2);
     }
 
     ~QuadBuffer() { Destroy(); }
