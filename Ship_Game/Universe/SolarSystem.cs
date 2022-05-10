@@ -19,9 +19,8 @@ namespace Ship_Game
 {
     using static RandomMath;
 
-    public sealed class SolarSystem
+    public sealed class SolarSystem : GameplayObject
     {
-        public readonly int Id;
         public string Name = "Random System";
         public UniverseState Universe;
         public bool DontStartNearPlayer;
@@ -32,7 +31,6 @@ namespace Ship_Game
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
         public Array<Ship> ShipList = new Array<Ship>();
         public bool IsVisible;
-        public Vector2 Position;
         public bool PiratePresence { get; private set; }
 
         public Array<ILight> Lights = new Array<ILight>();
@@ -40,9 +38,6 @@ namespace Ship_Game
         // this is the minimum solar system radius
         // needs to be big enough to properly trigger system-radius related events
         const float MinRadius = 150000f;
-
-        // solar system radius
-        public float Radius = MinRadius;
 
         public Array<Planet> PlanetList = new Array<Planet>();
         public Array<Asteroid> AsteroidsList = new Array<Asteroid>();
@@ -78,9 +73,12 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] bool WasVisibleLastFrame;
 
         public SolarSystem(UniverseState us, int id)
+            : base(id, GameObjectType.SolarSystem)
         {
             Universe = us;
             Id = id;
+            Radius = MinRadius;
+            DisableSpatialCollision = true;
         }
 
         public SolarSystem(UniverseState us) : this(us, us.CreateId())
