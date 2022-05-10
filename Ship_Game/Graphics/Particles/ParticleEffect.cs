@@ -119,7 +119,7 @@ namespace Ship_Game.Graphics.Particles
                 PositionIncrement = Data.PositionIncrementMin;
             }
 
-            public EmitterState(EmitterState es, GameplayObject context)
+            public EmitterState(EmitterState es, GameObject context)
             {
                 Data = es.Data;
                 Particle = es.Particle;
@@ -127,7 +127,7 @@ namespace Ship_Game.Graphics.Particles
                 PositionIncrement = es.PositionIncrement;
             }
 
-            Color GetColor(GameplayObject context)
+            Color GetColor(GameObject context)
             {
                 if (Data.ColorSource != ColorSource.Default && context != null)
                 {
@@ -200,7 +200,7 @@ namespace Ship_Game.Graphics.Particles
         }
 
         public string Name => Data.Name;
-        readonly GameplayObject Context;
+        readonly GameObject Context;
         public ParticleEffectData Data { get; private set; }
         public EmitterState[] Emitters { get; private set; }
         Vector3 PrevPos;
@@ -234,7 +234,7 @@ namespace Ship_Game.Graphics.Particles
         }
 
         // clone an instance based on an existing template
-        public ParticleEffect(ParticleEffect template, in Vector3 initialPos, GameplayObject context)
+        public ParticleEffect(ParticleEffect template, in Vector3 initialPos, GameObject context)
         {
             Context = context;
             Data = template.Data;

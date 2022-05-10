@@ -19,7 +19,7 @@ namespace Ship_Game.Debug.Page
         double FindElapsed;
         AABoundingBox2D SearchArea;
 
-        GameplayObject[] Found = Empty<GameplayObject>.Array;
+        GameObject[] Found = Empty<GameObject>.Array;
 
         public SpatialDebug(UniverseScreen screen, DebugInfoScreen parent)
             : base(parent, DebugModes.SpatialManager)

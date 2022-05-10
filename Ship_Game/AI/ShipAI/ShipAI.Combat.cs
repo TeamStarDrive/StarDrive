@@ -98,7 +98,7 @@ namespace Ship_Game.AI
                 didFireAtAny |= didFire;
                 if (didFire)
                 {
-                    GameplayObject target = weapon.FireTarget;
+                    GameObject target = weapon.FireTarget;
                     Ship parent = (target as Ship) ?? (target as ShipModule)?.GetParent();
                     if (parent != null && parent == Target)
                         didFireAtMainTarget = true;
@@ -128,7 +128,7 @@ namespace Ship_Game.AI
                 OnlyLoyalty = sensorShip.Loyalty,
             };
 
-            GameplayObject[] friends = sensorShip.Universe.Spatial.FindNearby(ref findFriends);
+            GameObject[] friends = sensorShip.Universe.Spatial.FindNearby(ref findFriends);
             
             for (int i = 0; i < friends.Length; ++i)
             {
@@ -160,7 +160,7 @@ namespace Ship_Game.AI
                 ExcludeLoyalty = us,
             };
 
-            GameplayObject[] enemies = sensorShip.Universe.Spatial.FindNearby(ref findEnemies);
+            GameObject[] enemies = sensorShip.Universe.Spatial.FindNearby(ref findEnemies);
 
             for (int i = 0; i < enemies.Length; ++i)
             {
@@ -214,7 +214,7 @@ namespace Ship_Game.AI
                 }
             };
 
-            GameplayObject[] missiles = sensorShip.Universe.Spatial.FindNearby(ref opt);
+            GameObject[] missiles = sensorShip.Universe.Spatial.FindNearby(ref opt);
             for (int i = 0; i < missiles.Length; ++i)
                 ScannedProjectiles.Add((Projectile)missiles[i]);
 

@@ -12,7 +12,7 @@ namespace Ship_Game.Utils
     ///
     /// The front buffer is an array copy of the back-buffer and is updated by ApplyChanges()
     /// </summary>
-    public class GameObjectList<T> where T : GameplayObject
+    public class GameObjectList<T> where T : GameObject
     {
         T[] Front = Empty<T>.Array;
         readonly Array<T> Back;

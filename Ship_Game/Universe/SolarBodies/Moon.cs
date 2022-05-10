@@ -14,7 +14,7 @@ using Vector3 = SDGraphics.Vector3;
 namespace Ship_Game.Gameplay
 {
     [StarDataType]
-    public sealed class Moon : GameplayObject
+    public sealed class Moon : GameObject
     {
         [StarData] public float MoonScale;
         [StarData] public int MoonId;

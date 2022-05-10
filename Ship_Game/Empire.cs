@@ -1402,7 +1402,7 @@ namespace Ship_Game
                 return;
 
             // find ships in radius of node.
-            GameplayObject[] targets = Universum.Spatial.FindNearby(GameObjectType.Ship, node.Position, node.Radius, maxResults:1024);
+            GameObject[] targets = Universum.Spatial.FindNearby(GameObjectType.Ship, node.Position, node.Radius, maxResults:1024);
             for (int i = 0; i < targets.Length; i++)
             {
                 var targetShip = (Ship)targets[i];
@@ -1413,7 +1413,7 @@ namespace Ship_Game
         void ScanForInfluence(ref InfluenceNode node, FixedSimTime timeStep)
         {
             // find anyone within this influence node
-            GameplayObject[] targets = Universum.Spatial.FindNearby(GameObjectType.Ship, node.Position, node.Radius, maxResults:128);
+            GameObject[] targets = Universum.Spatial.FindNearby(GameObjectType.Ship, node.Position, node.Radius, maxResults:128);
             for (int i = 0; i < targets.Length; i++)
             {
                 var ship = (Ship)targets[i];
@@ -3333,7 +3333,7 @@ namespace Ship_Game
 
         void IEmpireShipLists.RemoveShipAtEndOfTurn(Ship s) => EmpireShips?.Remove(s);
 
-        public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null, bool scanOnly = false)
+        public bool IsEmpireAttackable(Empire targetEmpire, GameObject target = null, bool scanOnly = false)
         {
             if (targetEmpire == this || targetEmpire == null)
                 return false;
@@ -3346,7 +3346,7 @@ namespace Ship_Game
             return target?.IsAttackable(this, rel) ?? false;
         }
 
-        public bool IsEmpireScannedAsEnemy(Empire targetEmpire, GameplayObject target = null)
+        public bool IsEmpireScannedAsEnemy(Empire targetEmpire, GameObject target = null)
         {
             return IsEmpireAttackable(targetEmpire, target, scanOnly: true);
         }

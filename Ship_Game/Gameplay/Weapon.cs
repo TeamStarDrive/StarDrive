@@ -22,7 +22,7 @@ namespace Ship_Game.Gameplay
         public Vector2 PlanetOrigin;
         [XmlIgnore] [JsonIgnore] public ShipModule Module;
         [XmlIgnore] [JsonIgnore] public float CooldownTimer;
-        [XmlIgnore] [JsonIgnore] public GameplayObject FireTarget { get; private set; }
+        [XmlIgnore] [JsonIgnore] public GameObject FireTarget { get; private set; }
         float TargetChangeTimer;
 
         // these are set during install to ShipModule
@@ -33,7 +33,7 @@ namespace Ship_Game.Gameplay
         [XmlIgnore] [JsonIgnore] public int SalvosToFire { get; private set; }
         float SalvoDirection;
         float SalvoFireTimer; // while SalvosToFire > 0, use this timer to count when to fire next shot
-        GameplayObject SalvoTarget;
+        GameObject SalvoTarget;
 
         public new float FireDelay { get; set; }
 
@@ -118,7 +118,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        void SpawnSalvo(Vector2 direction, GameplayObject target, bool playSound)
+        void SpawnSalvo(Vector2 direction, GameObject target, bool playSound)
         {
             Vector2 origin = Origin;
             foreach (FireSource fireSource in EnumFireSources(origin, direction))
@@ -194,7 +194,7 @@ namespace Ship_Game.Gameplay
             SpawnSalvo((SalvoDirection + Owner.Rotation).RadiansToDirection(), SalvoTarget, playSound);
         }
 
-        bool PrepareFirePos(GameplayObject target, Vector2 targetPos, out Vector2 firePos)
+        bool PrepareFirePos(GameObject target, Vector2 targetPos, out Vector2 firePos)
         {
             if (target != null)
             {
@@ -215,7 +215,7 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        bool FireAtTarget(Vector2 targetPos, GameplayObject target = null)
+        bool FireAtTarget(Vector2 targetPos, GameObject target = null)
         {
             if (!PrepareFirePos(target, targetPos, out Vector2 firePos))
                 return false;
@@ -303,7 +303,7 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore]
         public Vector2 DebugLastImpactPredict { get; private set; }
 
-        public Vector2 GetTargetError(GameplayObject target, int level = -1)
+        public Vector2 GetTargetError(GameObject target, int level = -1)
         {
             Vector2 error = GetLevelBasedError(level); // base error from crew level/targeting bonuses
             if (target != null)
@@ -347,7 +347,7 @@ namespace Ship_Game.Gameplay
         public Vector2 Origin => Module?.Position ?? PlanetOrigin;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
-        Vector2 Predict(Vector2 origin, GameplayObject target, bool advancedTargeting)
+        Vector2 Predict(Vector2 origin, GameObject target, bool advancedTargeting)
         {
             Vector2 pip = new ImpactPredictor(origin, OwnerVelocity, ProjectileSpeed, target)
                 .Predict(advancedTargeting);
@@ -363,12 +363,12 @@ namespace Ship_Game.Gameplay
             return pip;
         }
 
-        public Vector2 ProjectedImpactPointNoError(GameplayObject target)
+        public Vector2 ProjectedImpactPointNoError(GameObject target)
         {
             return Predict(Origin, target, advancedTargeting: true);
         }
 
-        bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
+        bool ProjectedImpactPoint(GameObject target, out Vector2 pip)
         {
             Vector2 origin = Origin;
             pip = Predict(origin, target, CanUseAdvancedTargeting);
@@ -415,7 +415,7 @@ namespace Ship_Game.Gameplay
             return false; // no target to fire at
         }
 
-        bool IsTargetAliveAndInRange(GameplayObject target)
+        bool IsTargetAliveAndInRange(GameObject target)
         {
             return target != null && target.Active && target.Health > 0.0f &&
                    (!(target is Ship ship) || !ship.Dying)
@@ -432,7 +432,7 @@ namespace Ship_Game.Gameplay
                 && !IsTargetAliveAndInRange(FireTarget); // Target is dead or out of range
         }
 
-        public bool TargetValid(GameplayObject fireTarget)
+        public bool TargetValid(GameObject fireTarget)
         {
             if (fireTarget.Type == GameObjectType.ShipModule)
                 return TargetValid(((ShipModule)fireTarget).GetParent().ShipData.HullRole);
@@ -495,7 +495,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public Vector2 ProjectedBeamPoint(Vector2 source, Vector2 destination, GameplayObject target = null)
+        public Vector2 ProjectedBeamPoint(Vector2 source, Vector2 destination, GameObject target = null)
         {
             if (DamageAmount < 1)
                 return destination;
@@ -510,7 +510,7 @@ namespace Ship_Game.Gameplay
             return beamDestination;
         }
 
-        bool FireBeam(Vector2 source, Vector2 destination, GameplayObject target = null)
+        bool FireBeam(Vector2 source, Vector2 destination, GameObject target = null)
         {
             destination = ProjectedBeamPoint(source, destination, target);
             if (!Owner.IsInsideFiringArc(this, destination))
@@ -527,7 +527,7 @@ namespace Ship_Game.Gameplay
             return new DroneBeam(Owner.Universe.CreateId(), droneAI);
         }
 
-        public void FireTargetedBeam(GameplayObject target)
+        public void FireTargetedBeam(GameObject target)
         {
             FireBeam(Module.Position, target.Position, target);
         }
@@ -548,7 +548,7 @@ namespace Ship_Game.Gameplay
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
             PlanetOrigin = planet.Position.GenerateRandomPointInsideCircle(planet.ObjectRadius);
-            GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
+            GameObject target = targetShip.GetRandomInternalModule(this) ?? (GameObject) targetShip;
 
             if (IsBeam)
             {

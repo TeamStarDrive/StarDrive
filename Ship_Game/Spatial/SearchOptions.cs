@@ -2,7 +2,7 @@
 
 namespace Ship_Game.Spatial
 {
-    public delegate bool SearchFilterFunc(GameplayObject go);
+    public delegate bool SearchFilterFunc(GameObject go);
 
     public struct SearchOptions
     {
@@ -39,7 +39,7 @@ namespace Ship_Game.Spatial
         /// <summary>
         /// Filter search results by excluding this specific object
         /// </summary>
-        public GameplayObject Exclude;
+        public GameObject Exclude;
 
         /// <summary>
         /// Filter search results by excluding objects with this loyalty

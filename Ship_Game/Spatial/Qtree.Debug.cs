@@ -88,7 +88,7 @@ namespace Ship_Game.Spatial
             public Vector2 FilterOrigin;
             public float RadialFilter;
             public Array<AABoundingBox2D> FindCells = new Array<AABoundingBox2D>();
-            public Array<GameplayObject> SearchResults = new Array<GameplayObject>();
+            public Array<GameObject> SearchResults = new Array<GameObject>();
 
             public void Draw(GameScreen screen, VisualizerOptions opt)
             {
@@ -103,7 +103,7 @@ namespace Ship_Game.Spatial
 
                 if (opt.SearchResults)
                 {
-                    foreach (GameplayObject go in SearchResults)
+                    foreach (GameObject go in SearchResults)
                     {
                         screen.DrawRectProjected(new AABoundingBox2D(go), YellowBright);
                     }

@@ -674,7 +674,7 @@ namespace Ship_Game.Ships
             return bestShip;
         }
         
-        public bool IsInHangarLaunchRange(GameplayObject target) 
+        public bool IsInHangarLaunchRange(GameObject target) 
                                         => IsInHangarLaunchRange(target.Position.Distance(Owner.Position));
 
         /// <summary>

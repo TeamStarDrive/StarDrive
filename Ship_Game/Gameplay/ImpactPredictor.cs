@@ -36,7 +36,7 @@ namespace Ship_Game.Gameplay
 
         // For weapon arc prediction
         public ImpactPredictor(Vector2 pos, Vector2 vel, float interceptSpeed, 
-                               GameplayObject target)
+                               GameObject target)
         {
             Pos = pos;
             Vel = vel;
@@ -59,7 +59,7 @@ namespace Ship_Game.Gameplay
         }
 
         // This is used during interception / attack runs
-        public ImpactPredictor(Ship ourShip, GameplayObject target)
+        public ImpactPredictor(Ship ourShip, GameObject target)
         {
             Pos = ourShip.Position;
             Vel = ourShip.Velocity;
@@ -70,7 +70,7 @@ namespace Ship_Game.Gameplay
             TargetAcc = info.Acc;
         }
 
-        public ImpactPredictor(Projectile proj, GameplayObject target)
+        public ImpactPredictor(Projectile proj, GameObject target)
         {
             Pos = proj.Position;
             Vel = proj.Velocity;
@@ -81,7 +81,7 @@ namespace Ship_Game.Gameplay
             TargetAcc = info.Acc;
         }
 
-        static TargetInfo GetTargetInfo(GameplayObject target)
+        static TargetInfo GetTargetInfo(GameObject target)
         {
             if (target is Ship ship || target is ShipModule sm && (ship = sm.GetParent()) != null)
             {

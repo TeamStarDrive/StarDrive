@@ -362,7 +362,7 @@ namespace Ship_Game.Ships
         // This was done solely for performance reasons. This method gets called
         // every time an exploding projectile hits a ship. So it gets called for every missile impact
         // @note THIS IS ALWAYS AN EXPLOSION
-        public void DamageModulesExplosive(GameplayObject damageSource, float damageAmount,
+        public void DamageModulesExplosive(GameObject damageSource, float damageAmount,
                                            Vector2 worldHitPos, float hitRadius, bool ignoresShields)
         {
             if (!ignoresShields)

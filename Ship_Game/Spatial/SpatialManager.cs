@@ -68,7 +68,7 @@ namespace Ship_Game.Gameplay
             Spatial.DebugVisualize(screen, VisOpt);
         }
 
-        public void Update(GameplayObject[] allObjects)
+        public void Update(GameObject[] allObjects)
         {
             if (ResetToNewSpatial != null)
             {
@@ -96,7 +96,7 @@ namespace Ship_Game.Gameplay
             CollisionTime.Stop();
         }
 
-        public GameplayObject[] FindNearby(ref SearchOptions opt)
+        public GameObject[] FindNearby(ref SearchOptions opt)
         {
             return Spatial.FindNearby(ref opt);
         }
@@ -106,8 +106,8 @@ namespace Ship_Game.Gameplay
         /// <param name="radius"></param>
         /// <param name="maxResults">Maximum results to get.
         /// PROTIP: if numResults > maxResults, then results are sorted by distance and far objects are discarded</param>
-        public GameplayObject[] FindNearby(GameObjectType type,
-                                           GameplayObject obj, float radius,
+        public GameObject[] FindNearby(GameObjectType type,
+                                           GameObject obj, float radius,
                                            int maxResults,
                                            Empire excludeLoyalty = null,
                                            Empire onlyLoyalty = null,
@@ -125,7 +125,7 @@ namespace Ship_Game.Gameplay
             return Spatial.FindNearby(ref opt);
         }
 
-        public GameplayObject[] FindNearby(GameObjectType type,
+        public GameObject[] FindNearby(GameObjectType type,
                                            Vector2 worldPos, float radius,
                                            int maxResults,
                                            Empire excludeLoyalty = null,
@@ -143,7 +143,7 @@ namespace Ship_Game.Gameplay
             return Spatial.FindNearby(ref opt);
         }
 
-        public GameplayObject[] FindNearby(GameObjectType type, 
+        public GameObject[] FindNearby(GameObjectType type, 
                                            in AABoundingBox2D searchArea,
                                            int maxResults,
                                            Empire excludeLoyalty = null,
@@ -170,11 +170,11 @@ namespace Ship_Game.Gameplay
             if (damageRadius <= 0f)
                 return;
 
-            GameplayObject[] ships = FindNearby(GameObjectType.Ship, source, damageRadius,
+            GameObject[] ships = FindNearby(GameObjectType.Ship, source, damageRadius,
                                                     maxResults:32, excludeLoyalty:source.Owner?.Loyalty);
             ships.SortByDistance(center);
 
-            foreach (GameplayObject go in ships)
+            foreach (GameObject go in ships)
             {
                 var ship = (Ship)go;
                 if (!ship.Active)
@@ -193,7 +193,7 @@ namespace Ship_Game.Gameplay
         }
 
         // Refactored by RedFox
-        public void ExplodeAtModule(GameplayObject damageSource, ShipModule hitModule, 
+        public void ExplodeAtModule(GameObject damageSource, ShipModule hitModule, 
                                     bool ignoresShields, float damageAmount, float damageRadius)
         {
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
@@ -219,7 +219,7 @@ namespace Ship_Game.Gameplay
             Vector2 explosionCenter = position;
 
             // find any nearby ship -- even allies
-            GameplayObject[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64, maxResults:32);
+            GameObject[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64, maxResults:32);
 
             for (int i = 0; i < nearby.Length; ++i)
             {

@@ -9,7 +9,7 @@ using Vector3 = SDGraphics.Vector3;
 namespace Ship_Game.Gameplay
 {
     [StarDataType]
-    public sealed class Asteroid : GameplayObject
+    public sealed class Asteroid : GameObject
     {
         [StarData] public float Scale = 1.0f; // serialized
         [XmlIgnore][JsonIgnore] Vector3 RotationRadians;

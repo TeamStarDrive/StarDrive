@@ -14,7 +14,7 @@ namespace UnitTests.Universe
 {
     class SpatialVisualization : GameScreen
     {
-        GameplayObject[] AllObjects;
+        GameObject[] AllObjects;
         ISpatial Spat;
         public bool MoveShips;
         Vector3 Camera;
@@ -27,13 +27,13 @@ namespace UnitTests.Universe
         float SearchTime;
         float LinearTime;
         int Collisions;
-        GameplayObject[] Found = Empty<GameplayObject>.Array;
+        GameObject[] Found = Empty<GameObject>.Array;
 
         readonly VisualizerOptions VisOpt = new VisualizerOptions()
         {
         };
 
-        public SpatialVisualization(GameplayObject[] allObjects, ISpatial spat, bool moveShips)
+        public SpatialVisualization(GameObject[] allObjects, ISpatial spat, bool moveShips)
             : base(null, toPause: null)
         {
             AllObjects = allObjects;
@@ -44,7 +44,7 @@ namespace UnitTests.Universe
             if (moveShips)
             {
                 var rand = new Random();
-                foreach (GameplayObject obj in allObjects)
+                foreach (GameObject obj in allObjects)
                 {
                     obj.Velocity.X = (float)(rand.NextDouble() - 0.5) * 2.0f * 5000.0f;
                     obj.Velocity.Y = (float)(rand.NextDouble() - 0.5) * 2.0f * 5000.0f;
@@ -65,7 +65,7 @@ namespace UnitTests.Universe
                 float universeLo = Spat.WorldSize * -0.5f;
                 float universeHi = Spat.WorldSize * +0.5f;
                 var simTime = new FixedSimTime(fixedDeltaTime);
-                foreach (GameplayObject go in AllObjects)
+                foreach (GameObject go in AllObjects)
                 {
                     if (go.Position.X < universeLo || go.Position.X > universeHi)
                         go.Velocity.X = -go.Velocity.X;
@@ -105,7 +105,7 @@ namespace UnitTests.Universe
             int numProjectiles = 0;
             AABoundingBox2D visibleWorldRect = VisibleWorldRect;
 
-            foreach (GameplayObject go in AllObjects)
+            foreach (GameObject go in AllObjects)
             {
                 if (go is Ship) ++numShips;
                 else if (go is Projectile p && p.Active) ++numProjectiles;

@@ -33,10 +33,10 @@ namespace Ship_Game
         private VertexDeclaration QuadVertexDecl;
         private float Displacement = 1f;
         [XmlIgnore][JsonIgnore] public bool BeamCollidedThisFrame;
-        [XmlIgnore][JsonIgnore] public GameplayObject Target { get; }
+        [XmlIgnore][JsonIgnore] public GameObject Target { get; }
 
         // Create a beam with an initial destination position that optionally follows GameplayObject [target]
-        public Beam(int id, Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null)
+        public Beam(int id, Weapon weapon, Vector2 source, Vector2 destination, GameObject target = null)
             : base(id, weapon.Owner.Loyalty, GameObjectType.Beam)
         {
             // there is an error here in beam creation where the weapon has no module.
@@ -89,7 +89,7 @@ namespace Ship_Game
             if (!GetOwners(bdata.OwnerId, bdata.Loyalty, bdata.Weapon, true, us, out ProjectileOwnership o))
                 return; // this owner or weapon no longer exists
 
-            GameplayObject target = us.GetObject(bdata.TargetId);
+            GameObject target = us.GetObject(bdata.TargetId);
             var beam = new Beam(bdata.Id, o.Weapon, bdata.Source, bdata.Destination, target)
             {
                 Owner = o.Owner,
@@ -122,7 +122,7 @@ namespace Ship_Game
             us.Objects.Add(this);
         }
 
-        public override void Die(GameplayObject source, bool cleanupOnly)
+        public override void Die(GameObject source, bool cleanupOnly)
         {
             Weapon.ResetToggleSound();
             base.Die(source, cleanupOnly);
@@ -222,7 +222,7 @@ namespace Ship_Game
             Vertices[3].Position = new Vector3(src + (right * Thickness), BeamZ); // topright
         }
 
-        public bool Touch(GameplayObject target)
+        public bool Touch(GameObject target)
         {
             if (target == null || target == Owner || target is Ship)
                 return false;
