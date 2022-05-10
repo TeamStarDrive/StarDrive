@@ -521,10 +521,10 @@ namespace Ship_Game
 
                 foreach (SolarSystem system in UState.Systems)
                 {
-                    if (system.IsVisible)
+                    if (system.InFrustum)
                     {
                         foreach (Planet p in system.PlanetList)
-                            if (p.IsVisible)
+                            if (p.InFrustum)
                                 r.Render(p);
                     }
                 }

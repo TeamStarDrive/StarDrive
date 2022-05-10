@@ -9,7 +9,7 @@ namespace Ship_Game.Universe
 {
     public class ExplorableGameObject : GameObject
     {
-                // this is a sparse map where [Empire.Id-1] is the index
+        // this is a sparse map where [Empire.Id-1] is the index
         Empire[] ExploredBy = Empty<Empire>.Array;
 
         public ExplorableGameObject(int id, GameObjectType type) : base(id, type)

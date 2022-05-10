@@ -24,7 +24,7 @@ namespace Ship_Game
         Asteroid   = 16,
         Moon       = 32,
         SolarSystem = 64,
-        Planet = 128,
+        Planet      = 128,
     }
 
     [StarDataType]

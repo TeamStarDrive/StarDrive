@@ -49,6 +49,7 @@ namespace Ship_Game.Spatial
                 case GameObjectType.Asteroid: return 0;
                 case GameObjectType.Moon: return 0;
                 case GameObjectType.SolarSystem: return 0;
+                case GameObjectType.Planet: return 0;
                 default: return 0;
             }
         }
