@@ -63,9 +63,11 @@ namespace Ship_Game.Universe.SolarBodies
         static SunType[] HabitableSuns;
         static SunType[] BarrenSuns;
 
-        public static SunType RandomHabitableSun(Predicate<SunType> filter)
+        public static SunType RandomHabitableSun(Predicate<SunType> filter = null)
         {
-            return RandomMath.RandItem(HabitableSuns.Filter(filter));
+            if (filter != null)
+                return RandomMath.RandItem(HabitableSuns.Filter(filter));
+            return RandomMath.RandItem(HabitableSuns);
         }
         public static SunType RandomBarrenSun()
         {

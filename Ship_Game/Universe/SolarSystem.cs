@@ -18,6 +18,7 @@ using Vector2 = SDGraphics.Vector2;
 namespace Ship_Game
 {
     using static RandomMath;
+
     public sealed class SolarSystem : Explorable
     {
         public readonly int Id;
@@ -213,7 +214,7 @@ namespace Ship_Game
             {
                 float damage = SunLayers[0].Intensity * Sun.DamageMultiplier(distance)
                                                       * Sun.RadiationDamage;
-                ship.CauseRadiationDamage(damage);
+                ship.CauseRadiationDamage(damage, this);
             }
         }
 

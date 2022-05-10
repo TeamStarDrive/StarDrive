@@ -231,7 +231,7 @@ namespace UnitTests
         {
             var s = new SolarSystem(UState)
             {
-                Sun = SunType.RandomBarrenSun()
+                Sun = SunType.RandomHabitableSun()
             };
             AddPlanetToSolarSystem(s, p);
             return s;
@@ -338,20 +338,21 @@ namespace UnitTests
         /// <summary>
         /// Update Universe.Objects simulation for `totalSimSeconds`
         /// </summary>
-        public float RunObjectsSim(float totalSimSeconds)
+        public float RunObjectsSim(float totalSimSeconds, Action body = null)
         {
             // we run multiple iterations in order to allow the universe to properly simulate in fixed steps
             float time = 0f;
             for (; time < totalSimSeconds; time += TestSimStep.FixedTime)
             {
                 UState.Objects.Update(TestSimStep);
+                body?.Invoke();
             }
             return time;
         }
 
-        public float RunObjectsSim(FixedSimTime totalTime)
+        public float RunObjectsSim(FixedSimTime totalTime, Action body = null)
         {
-            return RunObjectsSim(totalTime.FixedTime);
+            return RunObjectsSim(totalTime.FixedTime, body);
         }
     }
 }

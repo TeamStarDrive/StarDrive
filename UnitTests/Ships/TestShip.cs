@@ -16,6 +16,8 @@ namespace UnitTests.Ships
     /// </summary>
     public class TestShip : Ship
     {
+        public bool EnableDebugLogging;
+
         public TestShip(UniverseState u, Ship template, Empire owner, Vector2 position)
             : base(u, u.CreateId(), template, owner, position)
         {
@@ -25,6 +27,9 @@ namespace UnitTests.Ships
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
+            if (EnableDebugLogging)
+                Log.Write($"Ship.Die {this}");
+
             ++NumDieCalls;
             // always call cleanupOnly, because we don't want tumbling ships in unit tests
             base.Die(source, cleanupOnly: true);
@@ -35,8 +40,19 @@ namespace UnitTests.Ships
 
         public int NumModuleDeaths; // TEST: # of times a module has died
 
+        public override void OnHealthChange(float change, object source)
+        {
+            if (EnableDebugLogging)
+                Log.Write($"Ship.OnHealthChange {change} source={source}  {this}");
+
+            base.OnHealthChange(change, source);
+        }
+
         public override void OnModuleDeath(ShipModule m)
         {
+            if (EnableDebugLogging)
+                Log.Write($"Ship.OnModuleDeath {m}");
+
             if (!DeadModules.Add(m))
             {
                 throw new InvalidOperationException($"OnModuleDeath called twice: {m}");
@@ -49,6 +65,9 @@ namespace UnitTests.Ships
         
         public override void OnModuleResurrect(ShipModule m)
         {
+            if (EnableDebugLogging)
+                Log.Write($"Ship.OnModuleResurrect {m}");
+
             if (!DeadModules.Remove(m))
             {
                 throw new InvalidOperationException($"OnModuleResurrect called twice: {m}");
@@ -62,6 +81,9 @@ namespace UnitTests.Ships
         
         public override void OnShipLaunched(Ship ship)
         {
+            if (EnableDebugLogging)
+                Log.Write($"Carrier.OnShipLaunched {this} {ship}");
+
             ++NumShipsLaunched;
             base.OnShipLaunched(ship);
         }
@@ -70,6 +92,9 @@ namespace UnitTests.Ships
 
         public override void OnShipReturned(Ship ship)
         {
+            if (EnableDebugLogging)
+                Log.Write($"Carrier.OnShipReturned {this} {ship}");
+
             ++NumShipsReturned;
             base.OnShipReturned(ship);
         }

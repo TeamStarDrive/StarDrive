@@ -4,6 +4,19 @@ namespace Ship_Game.Ships
 {
     public partial class Ship
     {
+        // EVT: Called when ships health changes
+        public virtual void OnHealthChange(float change, object source)
+        {
+            float newHealth = Health + change;
+
+            if (newHealth > HealthMax)
+                newHealth = HealthMax;
+            else if (newHealth < 0.5f)
+                newHealth = 0f;
+            Health = newHealth;
+        }
+
+        // EVT: Called when a module dies
         public virtual void OnModuleDeath(ShipModule m)
         {
             ShipStatusChanged = true;
@@ -24,6 +37,7 @@ namespace Ship_Game.Ships
             }
         }
 
+        // EVT: called when a module comes back alive
         public virtual void OnModuleResurrect(ShipModule m)
         {
             ShipStatusChanged = true; // update ship status sometime in the future (can be 1 second)
