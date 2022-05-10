@@ -231,7 +231,7 @@ namespace Ship_Game
                 UState.Debug = !UState.Debug;
                 foreach (SolarSystem solarSystem in UState.Systems)
                 {
-                    solarSystem.Explorable.SetExploredBy(Player);
+                    solarSystem.SetExploredBy(Player);
                     foreach (Planet planet in solarSystem.PlanetList)
                         planet.SetExploredBy(Player);
 
@@ -600,7 +600,7 @@ namespace Ship_Game
                 {
                     SolarSystem sys = ClickableSystems[index].System;
 
-                    if (sys.Explorable.IsExploredBy(EmpireManager.Player))
+                    if (sys.IsExploredBy(EmpireManager.Player))
                     {
                         for (int i = 0; i < sys.PlanetList.Count; i++)
                         {
@@ -1143,7 +1143,7 @@ namespace Ship_Game
                     ref ClickableSystem system = ref ClickableSystems[i];
                     if (input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
                     {
-                        if (system.System.Explorable.IsExploredBy(Player))
+                        if (system.System.IsExploredBy(Player))
                         {
                             GameAudio.SubBassWhoosh();
                             ViewSystem(system.System);

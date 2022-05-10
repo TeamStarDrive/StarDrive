@@ -60,7 +60,7 @@ namespace Ship_Game
             float transitionPos = 1f - (SelectionTimer / 0.4f);
             float transitionOffset = transitionPos*transitionPos;
 
-            if (Sys.Explorable.IsExploredBy(EmpireManager.Player))
+            if (Sys.IsExploredBy(EmpireManager.Player))
             {
                 for (int i = 0; i < Sys.PlanetList.Count; i++)
                 {

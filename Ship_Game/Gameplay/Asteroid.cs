@@ -28,9 +28,8 @@ namespace Ship_Game.Gameplay
 
         // New asteroid
         public Asteroid(int id, float scaleMin, float scaleMax, Vector2 pos)
-            : this()
+             : base(id, GameObjectType.Asteroid)
         {
-            Id = id;
             Scale = RandomMath.Float(scaleMin, scaleMax);
             Position = pos;
         }

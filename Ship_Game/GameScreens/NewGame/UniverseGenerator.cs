@@ -139,7 +139,7 @@ namespace Ship_Game.GameScreens.NewGame
                 {
                     Planet planet = planets[planetId];
                     planet.MineralRichness += GlobalStats.StartingPlanetRichness;
-                    planet.ParentSystem.Explorable.SetExploredBy(empire);
+                    planet.ParentSystem.SetExploredBy(empire);
                     planet.SetExploredBy(empire);
 
                     foreach (Planet p in planet.ParentSystem.PlanetList)
@@ -171,7 +171,7 @@ namespace Ship_Game.GameScreens.NewGame
                 for (int i = 0; i < numExplored; ++i)
                 {
                     SolarSystem ss = closestSystems[i];
-                    ss.Explorable.SetExploredBy(e);
+                    ss.SetExploredBy(e);
                     foreach (Planet planet in ss.PlanetList)
                         planet.SetExploredBy(e);
 

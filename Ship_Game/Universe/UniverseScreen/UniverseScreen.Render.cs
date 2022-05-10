@@ -77,7 +77,7 @@ namespace Ship_Game
             //if (sys.Sun.DoubleLayered) // draw second sun layer
             //    DrawSunMesh(sys, sys.Zrotate / -2.0f);
 
-            if (!sys.Explorable.IsExploredBy(EmpireManager.Player))
+            if (!sys.IsExploredBy(EmpireManager.Player))
                 return;
 
             for (int i = 0; i < sys.PlanetList.Count; i++)
@@ -212,14 +212,14 @@ namespace Ship_Game
 
         void DrawSolarSystemNames(SpriteBatch batch, SolarSystem sys)
         {
-            if (!Debug && !sys.Explorable.IsExploredBy(Player))
+            if (!Debug && !sys.IsExploredBy(Player))
                 return;
             if (!Frustum.Contains(sys.Position, 10f))
                 return;
 
             if (Debug)
             {
-                sys.Explorable.SetExploredBy(Player);
+                sys.SetExploredBy(Player);
                 foreach (Planet planet in sys.PlanetList)
                     planet.SetExploredBy(Player);
             }
