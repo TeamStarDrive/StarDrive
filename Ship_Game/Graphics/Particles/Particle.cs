@@ -649,7 +649,9 @@ namespace Ship_Game
 
             lock (Sync)
             {
-                PendingParticles.Add(vertex);
+                // check if we can actually draw the particle
+                if (PendingParticles.Count < maybeFreeParticles)
+                    PendingParticles.Add(vertex);
             }
         }
 
