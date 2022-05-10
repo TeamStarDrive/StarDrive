@@ -265,16 +265,16 @@ namespace UnitTests.Collections
             arr1.AddRange(arr);
             Assert.That.Equal(arr, arr1);
 
-            string[] arr2 = ((ICollection<string>)arr1).ToArray();
+            string[] arr2 = ((ICollection<string>)arr1).ToArr();
             Assert.That.Equal(arr, arr2);
 
-            arr2 = ((IReadOnlyList<string>)arr1).ToArray();
+            arr2 = ((IReadOnlyList<string>)arr1).ToArr();
             Assert.That.Equal(arr, arr2);
 
-            arr2 = ((IReadOnlyCollection<string>)arr1).ToArray();
+            arr2 = ((IReadOnlyCollection<string>)arr1).ToArr();
             Assert.That.Equal(arr, arr2);
 
-            arr2 = ((IEnumerable<string>)arr1).ToArray();
+            arr2 = ((IEnumerable<string>)arr1).ToArr();
             Assert.That.Equal(arr, arr2);
         }
 

@@ -147,14 +147,14 @@ namespace Ship_Game.AI.ExpansionAI
                 if (potentialSystems.Length > 0)
                 {
                     potentialSystems.Sort(s => empireCenter.Distance(s.Position));
-                    potentialSystems = CollectionExt.ToArray(potentialSystems.Take(maxCheckedSystems));
+                    potentialSystems = potentialSystems.TakeItems(maxCheckedSystems);
                     potentialPlanets.AddRange(GetPotentialPlanetsNonLocal(potentialSystems));
                 }
             }
             else if (potentialSystems.Length > 0)
             {
                 potentialSystems.Sort(s => empireCenter.Distance(s.Position));
-                potentialSystems = CollectionExt.ToArray(potentialSystems.Take(maxCheckedSystems));
+                potentialSystems = potentialSystems.TakeItems(maxCheckedSystems);
                 potentialPlanets.AddRange(GetPotentialPlanetsNonLocal(potentialSystems));
             }
 

@@ -232,13 +232,13 @@ namespace Ship_Game.GameScreens.ShipDesign
             SelectedShip = null;
             SelectedWIP = null;
 
-            Ship[] ships = CollectionExt.ToArray(ResourceManager.ShipTemplates
-                    .Filter(s => CanShowDesign(s, filter))
-                    .OrderBy(s => !s.ShipData.IsPlayerDesign)
-                    .ThenBy(s => s.BaseHull.Style != EmpireManager.Player.data.Traits.ShipType)
-                    .ThenBy(s => s.BaseHull.Style)
-                    .ThenByDescending(s => s.BaseStrength)
-                    .ThenBy(s => s.Name));
+            Ship[] ships = ResourceManager.ShipTemplates
+                .Filter(s => CanShowDesign(s, filter))
+                .OrderBy(s => !s.ShipData.IsPlayerDesign)
+                .ThenBy(s => s.BaseHull.Style != EmpireManager.Player.data.Traits.ShipType)
+                .ThenBy(s => s.BaseHull.Style)
+                .ThenByDescending(s => s.BaseStrength)
+                .ThenBy(s => s.Name).ToArr();
 
             AvailableDesignsList.Reset();
 
@@ -257,7 +257,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 }
 
                 var shipsByRoleArray = shipsByRole.ToArray();
-                Array.Sort(keys:shipsByRole.Keys.ToArray(), shipsByRoleArray);
+                Array.Sort(keys:shipsByRole.Keys.ToArr(), shipsByRoleArray);
 
                 foreach (var roleAndShips in shipsByRoleArray)
                 {

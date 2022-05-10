@@ -38,7 +38,7 @@ namespace Ship_Game
         static bool GetAffectedPlanet(UniverseState u, Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
         {
             affectedPlanet = null;
-            var planetList = allowCapital ? CollectionExt.ToArray(u.Planets)
+            var planetList = allowCapital ? u.Planets.ToArr()
                                           : u.Planets.Filter(p => !p.HasCapital);
 
             var potentials = new Array<Planet>();

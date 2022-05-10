@@ -128,13 +128,13 @@ namespace SDUtils
         public static TValue[] Filter<TKey,TValue>(this Map<TKey, TValue>.ValueCollection items,
                                                    Predicate<TValue> predicate)
         {
-            return items.ToArray().Filter(predicate);
+            return items.ToArr().Filter(predicate);
         }
 
         public static TKey[] Filter<TKey,TValue>(this Map<TKey, TValue>.KeyCollection items,
                                                  Predicate<TKey> predicate)
         {
-            return items.ToArray().Filter(predicate);
+            return items.ToArr().Filter(predicate);
         }
 
         public static unsafe TValue[] FilterValues<TKey,TValue>(this Map<TKey,TValue> dict, 

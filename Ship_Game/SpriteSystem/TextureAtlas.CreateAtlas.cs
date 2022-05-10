@@ -182,7 +182,7 @@ namespace Ship_Game.SpriteSystem
         {
             foreach (TextureInfo t in textures)
                 Lookup[t.Name] = new TextureBinding(this, t);
-            Sorted = Lookup.Values.ToArray();
+            Sorted = Lookup.Values.ToArr();
             Array.Sort(Sorted, (a, b) => string.CompareOrdinal(a.Name, b.Name));
         }
 

@@ -241,8 +241,8 @@ namespace UnitTests.Ships
         {
             Ship ship = SpawnShip("TEST_Heavy Carrier mk1", Player, Vector2.Zero);
 
-            ShipModule[] shields = ship.GetShields().ToArray();
-            ShipModule[] amplifiers = ship.GetAmplifiers().ToArray();
+            ShipModule[] shields = ship.GetShields().ToArr();
+            ShipModule[] amplifiers = ship.GetAmplifiers().ToArr();
             Assert.AreEqual(2, shields.Length);
             Assert.AreEqual(52, amplifiers.Length);
         }

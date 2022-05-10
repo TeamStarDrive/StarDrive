@@ -473,7 +473,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             string rangeText = shortRange  // short range or attack runs
                 ? $"\n{GetRangeLaunchText(maxWeaponRange, out int minLaunchRangeWeapons, out minCarrier)} " +
                   $"{HelperFunctions.GetNumberString(maxWeaponRange.LowerBound(minLaunchRangeWeapons))}" 
-                : $"\n{Localizer.Token(GameText.SensorRangeOf)} {HelperFunctions.GetNumberString(sensorRange)}";
+                : $"\n{Localizer.Token(GameText.SensorRangeOf)} {sensorRange.GetNumberString()}";
 
             if (minCarrier) // too low max weapon range, using default minimum hangar launch from carrier bays
                 rangeText = $" {rangeText}{Localizer.Token(GameText.SinceTheShipsMaximumWeapon)} {HelperFunctions.GetNumberString(maxWeaponRange)}.";

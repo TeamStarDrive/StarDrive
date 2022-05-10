@@ -166,7 +166,7 @@ namespace Ship_Game.Data
 
             int numBytes = 0;
             object[] assets;
-            lock (LoadSync) assets = LoadedAssets.Values.ToArray();
+            lock (LoadSync) assets = LoadedAssets.Values.ToArr();
 
             foreach (object asset in assets)
             {
@@ -464,7 +464,7 @@ namespace Ship_Game.Data
         void SlowCheckForResourceLeaks(string assetNoExt)
         {
             string[] keys;
-            lock (LoadSync) keys = LoadedAssets.Keys.ToArray();
+            lock (LoadSync) keys = LoadedAssets.Keys.ToArr();
             foreach (string key in keys)
             {
                 if (key.EndsWith(assetNoExt, StringComparison.OrdinalIgnoreCase) ||

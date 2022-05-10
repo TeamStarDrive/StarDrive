@@ -489,7 +489,7 @@ namespace Ship_Game
 
             // reset all weapon bonuses, race-specific bonuses
             // will be set by InitEmpireUnlocks()
-            foreach (WeaponTag tag in WeaponTags.Keys.ToArray())
+            foreach (WeaponTag tag in WeaponTags.Keys.ToArr())
                 WeaponTags[tag] = new WeaponTagModifier();
 
             // refresh all cached hull bonuses

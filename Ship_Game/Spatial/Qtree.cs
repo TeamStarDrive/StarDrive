@@ -208,7 +208,7 @@ namespace Ship_Game.Spatial
             // We move last frame's nodes to front and start overwriting them
             QtreeRecycleBuffer newBackBuffer = FrontBuffer;
 
-            Objects = allObjects.ToArray();
+            Objects = allObjects.ToArr();
             Root = newRoot;
             SpatialObjects = spatialObjects;
             if (PinnedObjects.IsAllocated)

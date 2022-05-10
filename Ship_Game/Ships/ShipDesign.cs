@@ -144,7 +144,7 @@ namespace Ship_Game.Ships
                 moduleUIDs.Add(slots[i].ModuleUID);
 
             DesignSlots = slots;
-            SetModuleUIDs(moduleUIDs.ToArray());
+            SetModuleUIDs(moduleUIDs.ToArr());
 
             Role = HullRole; // make sure to reset ship role before recalculating it
             InitializeCommonStats(BaseHull, slots, updateRole:true);

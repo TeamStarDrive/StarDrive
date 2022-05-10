@@ -48,7 +48,7 @@ namespace Ship_Game.SpriteSystem
                 }
                 else uniqueTextures.Add(texName, info);
             }
-            return uniqueTextures.Values.ToArray();
+            return uniqueTextures.Values.ToArr();
         }
 
         static ulong CreateHash(FileInfo[] textures)

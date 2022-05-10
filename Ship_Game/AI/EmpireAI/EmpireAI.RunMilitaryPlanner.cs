@@ -38,11 +38,11 @@ namespace Ship_Game.AI
             int taskEvalLimit   = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
             int taskEvalCounter = 0;
 
-            var tasks = CollectionExt.ToArray(OwnerEmpire.GetEmpireAI()
+            var tasks = OwnerEmpire.GetEmpireAI()
                 .GetTasks()
                 .Filter(t => !t.QueuedForRemoval)
                 .OrderByDescending(t => t.Priority)
-                .ThenByDescending(t => t.MinimumTaskForceStrength));
+                .ThenByDescending(t => t.MinimumTaskForceStrength).ToArr();
 
             for (int i = tasks.Length - 1; i >= 0; i--)
             {

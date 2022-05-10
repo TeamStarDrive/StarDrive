@@ -491,7 +491,7 @@ namespace Ship_Game
                 infos[name] = file;
             }
 
-            return infos.Values.ToArray();
+            return infos.Values.ToArr();
         }
 
         // This tries to gather only mod files, or only vanilla files
@@ -663,7 +663,7 @@ namespace Ship_Game
                 if (troop.StrengthMax <= 0)
                     troop.StrengthMax = troop.Strength;
             }
-            TroopsDictKeys = TroopsDict.Keys.ToArray();
+            TroopsDictKeys = TroopsDict.Keys.ToArr();
         }
 
         public static MarkovNameGenerator GetRandomNames(Empire empire)
@@ -1447,7 +1447,7 @@ namespace Ship_Game
 
         public static void ConvertLegacyHulls(Map<string, LegacyShipData> legacyHulls)
         {
-            LegacyShipData[] hulls = legacyHulls.Values.ToArray();
+            LegacyShipData[] hulls = legacyHulls.Values.ToArr();
             void ConvertHull(LegacyShipData hull)
             {
                 FileInfo source = hull.Source;
@@ -1526,11 +1526,11 @@ namespace Ship_Game
             if (GlobalStats.GenerateNewShipDesignFiles)
             {
                 var oldDesigns = GetLegacyShipDesigns();
-                ConvertOldDesigns(oldDesigns.Values.ToArray());
+                ConvertOldDesigns(oldDesigns.Values.ToArr());
             }
 
             var designs = GetAllShipDesigns();
-            LoadShipDesigns(designs.Values.ToArray());
+            LoadShipDesigns(designs.Values.ToArr());
         }
 
         struct ShipDesignInfo
@@ -1689,7 +1689,7 @@ namespace Ship_Game
             {
                 var designs = new Map<string, ShipDesignInfo>();
                 CombineOverwrite(designs, ships.ToArray(), readOnly: true, playerDesign: false);
-                LoadShipDesigns(designs.Values.ToArray());
+                LoadShipDesigns(designs.Values.ToArr());
             }
         }
 

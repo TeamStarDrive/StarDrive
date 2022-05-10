@@ -75,9 +75,9 @@ namespace Ship_Game.Empires.Components
         public void UpdatePublicLists()
         {
             if (ProjecterListChanged)
-                OwnedProjectors = ActualOwnedProjectors.ToArray();
+                OwnedProjectors = ActualOwnedProjectors.ToArr();
             if (ShipListChanged)
-                OwnedShips = ActualOwnedShips.ToArray();
+                OwnedShips = ActualOwnedShips.ToArr();
 
             ProjecterListChanged = false;
             ShipListChanged      = false;

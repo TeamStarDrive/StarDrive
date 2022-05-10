@@ -244,7 +244,7 @@ namespace Ship_Game
 
         public void Sort<TValue>(Func<T, TValue> predicate)
         {
-            T[] sorted = CollectionExt.ToArray(Entries.OrderBy(predicate));
+            T[] sorted = Entries.OrderBy(predicate).ToArr();
             Entries.Clear();
             Entries.AddRange(sorted);
             RequiresLayout = true;
@@ -252,7 +252,7 @@ namespace Ship_Game
 
         public void SortDescending<TValue>(Func<T, TValue> predicate)
         {
-            T[] sorted = CollectionExt.ToArray(Entries.OrderByDescending(predicate));
+            T[] sorted = Entries.OrderByDescending(predicate).ToArr();
             Entries.Clear();
             Entries.AddRange(sorted);
             RequiresLayout = true;

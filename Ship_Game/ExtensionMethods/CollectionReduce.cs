@@ -66,6 +66,30 @@ namespace Ship_Game
         }
 
         /// <summary>
+        /// Optimized version of LINQ Sum(x => x.NumItems), tailored specifically to IReadOnlyList.
+        /// </summary>
+        /// <returns>Total sum from each item</returns>
+        public static int Sum<T>(this IReadOnlyList<T> items, Func<T, int> sumFromItem)
+        {
+            int sum = 0;
+            for (int i = 0; i < items.Count; ++i)
+                unchecked { sum += sumFromItem(items[i]); }
+            return sum;
+        }
+
+        /// <summary>
+        /// Optimized version of LINQ Sum(x => x.NumItems), tailored specifically to IReadOnlyList.
+        /// </summary>
+        /// <returns>Total sum from each item</returns>
+        public static float Sum<T>(this IReadOnlyList<T> items, Func<T, float> sumFromItem)
+        {
+            float sum = 0.0f;
+            for (int i = 0; i < items.Count; ++i)
+                sum += sumFromItem(items[i]);
+            return sum;
+        }
+
+        /// <summary>
         /// Optimized version of LINQ Sum(x => x.NumItems)
         /// </summary>
         /// <returns>Total sum from each item</returns>

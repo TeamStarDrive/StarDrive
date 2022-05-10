@@ -197,8 +197,8 @@ namespace Ship_Game.AI
             int ranker = 0;
             int split = DefenseDict.Count / 10;
             int splitStore = split;
-            SystemCommander[] commanders = CollectionExt.ToArray(DefenseDict.Select(kv => kv.Value)
-                                           .OrderBy(com => com.PercentageOfValue));
+            SystemCommander[] commanders = DefenseDict.Select(kv => kv.Value)
+                .OrderBy(com => com.PercentageOfValue).ToArr();
             foreach (SystemCommander com in commanders)
             {
                 split--;
@@ -221,7 +221,7 @@ namespace Ship_Game.AI
 
         void ManageShips()
         {
-            var sComs = CollectionExt.ToArray(DefenseDict.OrderByDescending(rank => rank.Value.RankImportance));
+            var sComs = DefenseDict.OrderByDescending(rank => rank.Value.RankImportance).ToArr();
             int strToAssign = (int) GetForcePoolStrength();
             float startingStr = strToAssign;
             DefenseDeficit = 0;

@@ -184,14 +184,13 @@ namespace Ship_Game.AI.Tasks
 
         void RequisitionCoreFleet()
         {
-            AO[] sorted = CollectionExt.ToArray(Owner.GetEmpireAI().AreasOfOperations
-                    .OrderByDescending(ao => ao.OffensiveForcePoolStrength >= MinimumTaskForceStrength)
-                    .ThenBy(ao => AO.Distance(ao.Center)));
-
-            if (sorted.Length == 0)
+            AO closestAO = Owner.GetEmpireAI().AreasOfOperations
+                .OrderByDescending(ao => ao.OffensiveForcePoolStrength >= MinimumTaskForceStrength)
+                .ThenBy(ao => AO.Distance(ao.Center))
+                .FirstOrDefault();
+            if (closestAO == null)
                 return;
 
-            AO closestAO = sorted[0];
             EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(AO, 10000, Owner);
             if (EnemyStrength < 1f)
                 return;
