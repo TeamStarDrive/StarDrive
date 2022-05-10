@@ -228,7 +228,7 @@ namespace UnitTests.Fleets
                 Log.Write($"\t\t\t{s}");
             }
 
-            var didWarp = shipsThatWereInWarp.ToArray().Sorted(s => s.Id).Sorted(s => (int)s.ShipEngines.ReadyForFormationWarp);
+            var didWarp = shipsThatWereInWarp.ToArr().Sorted(s => s.Id).Sorted(s => (int)s.ShipEngines.ReadyForFormationWarp);
             if (didWarp.Length != fleet.Ships.Count)
             {
                 var notInWarp = fleet.Ships.Except(didWarp);

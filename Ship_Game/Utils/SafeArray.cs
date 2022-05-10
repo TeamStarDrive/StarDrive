@@ -10,7 +10,7 @@ namespace Ship_Game.Utils
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
     public sealed class SafeArray<T> : SafeArrayBase<T>, IArray<T>, IList<T>, 
-        IReadOnlyList<T>, ICollection<T>, IEnumerable<T>, IList, ICollection, IEnumerable
+        IReadOnlyList<T>, IEnumerable<T>, IList, ICollection, IEnumerable
     {
         object Sync = new object();
         public int Capacity { get { lock (Sync) { return Items.Length; } } }

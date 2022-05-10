@@ -35,7 +35,7 @@ namespace Ship_Game.AI
             if (aoPlanets.Length == Owner.GetPlanets().Count)
                 return;
 
-            var ownedPlanets = CollectionExt.ToArray(Owner.GetPlanets());
+            var ownedPlanets = Owner.GetPlanets().ToArr();
             Planet[] planets = ownedPlanets.UniqueExclude(aoPlanets);
             if (planets.Length == 0)
                 return;

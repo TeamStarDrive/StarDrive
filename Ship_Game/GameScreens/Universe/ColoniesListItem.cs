@@ -353,7 +353,7 @@ namespace Ship_Game
             NumShipsInQueue     = P.ConstructionQueue.Filter(q => q.isShip).Length;
             NumBuildingsInQueue = P.ConstructionQueue.Filter(q => q.isBuilding).Length;
             NumTroopsInQueue    = P.ConstructionQueue.Filter(q => q.isTroop).Length;
-            TotalProdNeeded     = (int)(P.TotalProdNeededInQueue() - P.ConstructionQueue.ToArray().Sum(q => q.ProductionSpent));
+            TotalProdNeeded     = (int)(P.TotalProdNeededInQueue() - P.ConstructionQueue.Sum(q => q.ProductionSpent));
         }
     }
 }

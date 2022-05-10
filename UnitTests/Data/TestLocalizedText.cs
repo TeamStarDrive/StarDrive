@@ -169,7 +169,7 @@ namespace UnitTests.Data
         {
             ResourceManager.LoadLanguage(Language.English);
             Fonts.LoadFonts(ResourceManager.RootContent, Language.English);
-            var err = GetTextErrors(Localizer.EnumerateTokens().ToArray());
+            var err = GetTextErrors(Localizer.EnumerateTokens().ToArr());
             if (err.NotEmpty)
                 Assert.Fail(string.Join("\n", err));
         }
@@ -179,7 +179,7 @@ namespace UnitTests.Data
         {
             ResourceManager.LoadLanguage(Language.Russian);
             Fonts.LoadFonts(ResourceManager.RootContent, Language.Russian);
-            var err = GetTextErrors(Localizer.EnumerateTokens().ToArray());
+            var err = GetTextErrors(Localizer.EnumerateTokens().ToArr());
             if (err.NotEmpty)
                 Assert.Fail(string.Join("\n", err));
         }
@@ -189,7 +189,7 @@ namespace UnitTests.Data
         {
             ResourceManager.LoadLanguage(Language.Spanish);
             Fonts.LoadFonts(ResourceManager.RootContent, Language.Spanish);
-            var err = GetTextErrors(Localizer.EnumerateTokens().ToArray());
+            var err = GetTextErrors(Localizer.EnumerateTokens().ToArr());
             if (err.NotEmpty)
                 Assert.Fail(string.Join("\n", err));
         }

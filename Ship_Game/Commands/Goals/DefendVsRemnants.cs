@@ -39,7 +39,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         bool TryChangeTargetPlanet()
         {
-            var remnantFleets = TargetEmpire.GetFleetsDict().Values.ToArray();
+            var remnantFleets = TargetEmpire.GetFleetsDict().Values.ToArr();
             if (!remnantFleets.Any(f => f.FleetTask?.TargetPlanet?.Owner == empire))
                 return false;
 

@@ -119,11 +119,11 @@ namespace Ship_Game
 
             // enable all ships in the sandbox
             if (P.Universe.Debug && P.Universe.Screen is DeveloperUniverse)
-                buildableShips = CollectionExt.ToArray(ResourceManager.ShipTemplates);
+                buildableShips = ResourceManager.ShipTemplates.ToArr();
             else
-                buildableShips = CollectionExt.ToArray(P.Owner.ShipsWeCanBuild
-                                    .Select(shipName => ResourceManager.GetShipTemplate(shipName))
-                                    .Where(ship => ship.IsBuildableByPlayer));
+                buildableShips = P.Owner.ShipsWeCanBuild
+                    .Select(shipName => ResourceManager.GetShipTemplate(shipName))
+                    .Filter(ship => ship.IsBuildableByPlayer);
             
             string filter = FilterBuildableItems.Text.ToLower();
             if (filter.IsEmpty() && FilterItemsText.NotEmpty())
@@ -155,7 +155,7 @@ namespace Ship_Game
             }
 
             // first sort the categories by name:
-            ShipCategory[] categories = categoryMap.Values.ToArray().Sorted(c => c.Name);
+            ShipCategory[] categories = categoryMap.Values.Sorted(c => c.Name);
             foreach (ShipCategory category in categories)
             {
                 category.Ships.Sort((a, b) => // rank better ships as first:

@@ -819,7 +819,7 @@ namespace Ship_Game
                 sumColor = Color.Gold;
             }
 
-            foreach (string iconPaths in sums.Keys.ToArray())
+            foreach (string iconPaths in sums.Keys.ToArr())
             {
                 var iconHousing = new Rectangle((int)shipSpacingH.X, (int)shipSpacingH.Y, 15, 15);
                 string space = sums[iconPaths] < 9 ? "  " : "";
@@ -843,7 +843,7 @@ namespace Ship_Game
             SDUtils.Map<string, int> RecalculateExcessIcons(SDUtils.Map<string, int> excessSums)
             {
                 SDUtils.Map<string, int> recalculated = new SDUtils.Map<string, int>();
-                foreach (string iconPaths in excessSums.Keys.ToArray())
+                foreach (string iconPaths in excessSums.Keys.ToArr())
                 {
                     var hullPath = iconPaths.Split('|')[0];
                     if (recalculated.TryGetValue(hullPath, out _))

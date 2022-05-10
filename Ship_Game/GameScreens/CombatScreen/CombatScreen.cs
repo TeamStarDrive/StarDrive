@@ -302,7 +302,7 @@ namespace Ship_Game
                         if (troop.AvailableMoveActions <= 0)
                         {
                             int moveTimer = (int)troop.MoveTimer + 1;
-                            HelperFunctions.DrawDropShadowText1(batch, moveTimer.ToString(), new Vector2((moveRect.X + 4), moveRect.Y), Fonts.Arial12, Color.White);
+                            batch.DrawDropShadowText1(moveTimer.ToString(), new Vector2((moveRect.X + 4), moveRect.Y), Fonts.Arial12, Color.White);
                         }
                         else
                         {
@@ -312,7 +312,7 @@ namespace Ship_Game
                         if (troop.AvailableAttackActions <= 0)
                         {
                             int attackTimer = (int)troop.AttackTimer + 1;
-                            HelperFunctions.DrawDropShadowText1(batch, attackTimer.ToString(), new Vector2((attackRect.X + 4), attackRect.Y), Fonts.Arial12, Color.White);
+                            batch.DrawDropShadowText1(attackTimer.ToString(), new Vector2((attackRect.X + 4), attackRect.Y), Fonts.Arial12, Color.White);
                         }
                         else
                         {

@@ -83,7 +83,7 @@ namespace Ship_Game.Utils
 
         public Entry[] CreateEntryList(string versionText)
         {
-            string[] fileNames = FilesAvailable.Keys.ToArray();
+            string[] fileNames = FilesAvailable.Keys.ToArr();
             var entries        = new Entry[FilesAvailable.Keys.Count];
             int versionIndex   = CurrentVersionIndex(fileNames, versionText);
 

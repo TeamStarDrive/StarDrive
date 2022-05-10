@@ -94,7 +94,7 @@ namespace Ship_Game.Ships
 
             if (invalidModules != null)
             {
-                InvalidModules = string.Join(" ", invalidModules.ToArray());
+                InvalidModules = string.Join(" ", invalidModules);
                 Log.Warning(ConsoleColor.Red, $"ShipDesign '{Name}' InvalidModules='{InvalidModules}' Source='{Source.FullName}'");
             }
 

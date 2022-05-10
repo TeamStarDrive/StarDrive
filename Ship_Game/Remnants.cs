@@ -206,7 +206,7 @@ namespace Ship_Game
         bool GetStoryEvent(out ExplorationEvent expEvent, bool onlyRemnantsLeft = false)
         {
             expEvent            = null;
-            var potentialEvents = ResourceManager.EventsDict.Values.ToArray();
+            var potentialEvents = ResourceManager.EventsDict.Values.ToArr();
             var events = onlyRemnantsLeft ? potentialEvents.Filter(e => e.Story == Story && e.TriggerWhenOnlyRemnantsLeft)
                                           : potentialEvents.Filter(e => e.StoryStep == StoryStep 
                                              && (e.Story == Story || Story != RemnantStory.None && e.AllRemnantStories));
@@ -458,7 +458,7 @@ namespace Ship_Game
 
         Planet GetTargetPlanetByPop(Planet[] potentialPlanets, int numPlanetsToTake)
         {
-            var filteredList = CollectionExt.ToArray(potentialPlanets.SortedDescending(p => p.MaxPopulation).Take(numPlanetsToTake));
+            var filteredList = potentialPlanets.SortedDescending(p => p.MaxPopulation).TakeItems(numPlanetsToTake);
 
             return filteredList.Length > 0 ? filteredList.RandItem() : null;
         }
@@ -475,7 +475,7 @@ namespace Ship_Game
 
         Planet GetTargetPlanetByDistance(Planet[] potentialPlanets, Vector2 pos, int numPlanetsToTake)
         {
-            var filteredList = CollectionExt.ToArray(potentialPlanets.Sorted(p => p.Center.Distance(pos)).Take(numPlanetsToTake));
+            var filteredList = potentialPlanets.Sorted(p => p.Center.Distance(pos)).TakeItems(numPlanetsToTake);
 
             return filteredList.Length > 0 ? filteredList.RandItem() : null;
         }

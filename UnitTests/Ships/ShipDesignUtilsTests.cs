@@ -34,7 +34,7 @@ namespace UnitTests.Ships
 
         static string[] ToArray(HashSet<string> techsNeeded)
         {
-            string[] techs = techsNeeded.ToArray();
+            string[] techs = techsNeeded.ToArr();
             Array.Sort(techs);
             return techs;
         }

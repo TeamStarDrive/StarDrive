@@ -178,7 +178,7 @@ namespace Ship_Game.AI
         Array<Ship> PingRadarShip(Vector2 position, float radius, Empire empire)
         {
             var results = new Array<Ship>();
-            var pins = Pins.Values.ToArray();
+            var pins = Pins.Values.ToArr();
             for (int i = pins.Length - 1; i >= 0; i--)
             {
                 Pin pin = pins[i];
@@ -195,7 +195,7 @@ namespace Ship_Game.AI
         Array<Pin> PingRadarPins(Vector2 position, float radius, Empire empire)
         {
             var results = new Array<Pin>();
-            var pins = Pins.Values.ToArray();
+            var pins = Pins.Values.ToArr();
             for (int i = pins.Length - 1; i >= 0; i--)
             {
                 Pin pin = pins[i];
@@ -559,7 +559,7 @@ namespace Ship_Game.AI
                 if (ship?.Active != true)
                     continue;
 
-                var targets = ship.AI.PotentialTargets.ToArray();
+                var targets = ship.AI.PotentialTargets.ToArr();
                 for (int x = 0; x < targets.Length; x++)
                 {
                     var target = targets[x];
@@ -669,7 +669,7 @@ namespace Ship_Game.AI
         {
             using (PinsMutex.AcquireReadLock())
             {
-                Pin[] pins = Pins.Values.ToArray();
+                Pin[] pins = Pins.Values.ToArr();
                 for (int i = 0; i < pins.Length; i++)
                 {
                     Pin pin = pins[i];

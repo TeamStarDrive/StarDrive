@@ -364,7 +364,7 @@ namespace Ship_Game
 
         public static void FillRectangle(this SpriteBatch batch, Vector2 location, Vector2 size, Color color, float angle)
         {
-            SpriteExtensions.Draw(batch, ResourceManager.WhitePixel, location, size, color, angle);
+            batch.Draw(ResourceManager.WhitePixel, location, size, color, angle);
         }
     }
 }

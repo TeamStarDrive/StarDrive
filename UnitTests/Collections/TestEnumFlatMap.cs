@@ -64,7 +64,7 @@ namespace UnitTests.Collections
             map[TestEnum.Five] = 5;
             Assert.AreEqual(5, map.Values.Count());
 
-            (TestEnum, float)[] values = map.Values.ToArray();
+            (TestEnum, float)[] values = map.Values.ToArr();
             (TestEnum, float)[] expected =
             {
                 (TestEnum.One, 1),
