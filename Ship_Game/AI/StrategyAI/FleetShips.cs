@@ -3,6 +3,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using SDGraphics;
 using SDUtils;
 using static Ship_Game.Ships.ShipDesign;
@@ -20,13 +21,15 @@ namespace Ship_Game.AI
     {
         // need to add a way to prefer ships near to a point
         public float AccumulatedStrength { get; private set; }
-        private Empire OwnerEmpire;
-        private FleetRatios Ratios;
-        private Array<Ship> Ships = new Array<Ship>();
+        Empire OwnerEmpire;
+        FleetRatios Ratios;
+        Array<Ship> Ships = new Array<Ship>();
+
         public float WantedFleetCompletePercentage = 0.25f;
         public int InvasionTroops { get; private set; }
         public float InvasionTroopStrength { get; private set; }
         public int BombSecsAvailable { get; private set; }
+
         readonly int[] RoleCount;
         readonly float[] RoleStrength;
         public int ShipSetsExtracted;
@@ -35,9 +38,10 @@ namespace Ship_Game.AI
         public FleetShips(Empire ownerEmpire)
         {
             OwnerEmpire  = ownerEmpire;
-            Ratios       = new FleetRatios(OwnerEmpire);
-            int items    = Enum.GetNames(typeof(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole)).Length;
-            RoleCount    = new int[items];
+            Ratios = new FleetRatios(OwnerEmpire);
+
+            int items = Enum.GetNames(typeof(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole)).Length;
+            RoleCount = new int[items];
             RoleStrength = new float[items];
         }
 
@@ -74,28 +78,50 @@ namespace Ship_Game.AI
                 return false;
             }
 
+            Ships.Add(ship);
+
             int roleIndex = (int)EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
             RoleCount[roleIndex] += 1;
             RoleStrength[roleIndex] += ship.GetStrength();
             AccumulatedStrength += ship.GetStrength();
-
-            Ships.Add(ship);
 
             if (ShipRoleToRoleType(ship.DesignRole) == RoleType.Troop)
             {
                 InvasionTroops += ship.Carrier.PlanetAssaultCount;
                 InvasionTroopStrength += ship.Carrier.PlanetAssaultStrength;
             }
+
             if (ship.DesignRole == RoleName.bomber)
                 BombSecsAvailable += ship.BombsGoodFor60Secs;
 
             return true;
         }
 
-        public float FleetsStrength()
+        public void RemoveShip(Ship ship)
         {
-            CountFleets(out var strength);
-            return strength;
+            Ships.RemoveRef(ship);
+
+            int roleIndex = (int)EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
+            RoleCount[roleIndex] -= 1;
+            RoleStrength[roleIndex] -= ship.GetStrength();
+            AccumulatedStrength -= ship.GetStrength();
+
+            if (ShipRoleToRoleType(ship.DesignRole) == RoleType.Troop)
+            {
+                InvasionTroops -= ship.Carrier.PlanetAssaultCount;
+                InvasionTroopStrength -= ship.Carrier.PlanetAssaultStrength;
+            }
+
+            if (ship.DesignRole == RoleName.bomber)
+                BombSecsAvailable -= ship.BombsGoodFor60Secs;
+        }
+
+        public Array<Ship> ExtractShips(HashSet<Ship> shipsToExtract)
+        {
+            var results = new Array<Ship>((ICollection<Ship>)shipsToExtract);
+            foreach (Ship ship in results)
+                RemoveShip(ship);
+            return results;
         }
 
         public int CountFleets(out float strength)
@@ -112,16 +138,13 @@ namespace Ship_Game.AI
             foreach(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole item in Enum.GetValues(typeof(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole)))
             {
                 float wanted = Ratios.GetWanted(item);
-                
-
-                if (wanted > 0)
+                if (wanted > 0f)
                 {
-                    wanted = (Ratios.GetWanted(item) * completionWanted).LowerBound(1);
-                    int index          = (int)item;
+                    wanted = Math.Max(wanted * completionWanted, 1);
+                    int index = (int)item;
 
                     float have = RoleCount[index];
-
-                    if (have > 0)
+                    if (have > 0f)
                     {
                         float filled = have / wanted;
                         float roleStrength = RoleStrength[index] * wanted / have;
@@ -136,215 +159,159 @@ namespace Ship_Game.AI
             return (int)filledRoles;
         }
 
-        public int ExtractFleetShipsUpToStrength(float strengthNeeded, int wantedFleetCount,
-            out Array<Ship> ships)
+        public int GetFleetShipsUpToStrength(HashSet<Ship> results, float strengthNeeded, int wantedFleetCount)
         {
-            float extractedShipStrength = 0;
-            int completeFleets          = 0;
-            ships                       = new Array<Ship>();
-            int neededFleets            = wantedFleetCount.LowerBound(1);
-            var utilityShips            = new Array<Ship>();
+            float totalStrength = 0;
+            int completeFleets = 0;
+            int neededFleets = Math.Max(wantedFleetCount, 1);
             do
             {
-                var gatheredShips = GetCoreFleet(out bool goodSet);
-                if (gatheredShips.IsEmpty)
+                int numShips = GetCoreFleet(results);
+                if (numShips == 0)
                     break;
 
-                extractedShipStrength += gatheredShips.Sum(s => s.GetStrength());
-                ships.AddRange(gatheredShips);
+                totalStrength = results.Sum(s => s.GetStrength());
 
-                if (goodSet && ships.Count > 0)
+                if (numShips > 0)
                 {
-                    completeFleets++;
-                    neededFleets--;
-                    ShipSetsExtracted++;
+                    ++completeFleets;
+                    --neededFleets;
+                    ++ShipSetsExtracted;
                 }
-     
-            }
-            while (neededFleets > 0 || extractedShipStrength < strengthNeeded);
+            } while (neededFleets > 0 || totalStrength < strengthNeeded);
 
-            // we have enough strength so its good.
-            if (extractedShipStrength >= strengthNeeded)
-                completeFleets = wantedFleetCount + 1;
-            else
-                return 0; // bail on failed fleet creation
+            // if we fail to get enough strength, cancel everything
+            if (totalStrength < strengthNeeded)
+                return 0;
 
-            for (int x =0; x< (wantedFleetCount + completeFleets).LowerBound(1); x++)
-                utilityShips.AddRange(GetSupplementalFleet());
+            int unfilledFleets = Math.Max(wantedFleetCount - completeFleets, 0);
+            for (int i = 0; i < unfilledFleets; i++)
+                GetSupplementalFleet(results);
 
-            ships.AddRange(utilityShips);
             return completeFleets;
         }
 
         // core combat section of a fleet
-        public Array<Ship> GetCoreFleet(out bool goodSet)
+        public int GetCoreFleet(HashSet<Ship> results)
         {
-            var ships = new Array<Ship>();
-            goodSet   = false;
-            bool roleGood = false;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.fighter,  out roleGood));   goodSet |= roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, out roleGood));   goodSet |= roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.frigate, out roleGood));    goodSet |= roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.cruiser, out roleGood));    goodSet |= roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.battleship, out roleGood)); goodSet |= roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.capital, out roleGood));    goodSet |= roleGood;
-            goodSet = roleGood;
-            return ships;
+            int sizeBefore = results.Count;
+            GetCoreFleetRole(results, RoleName.fighter);
+            GetCoreFleetRole(results, RoleName.corvette);
+            GetCoreFleetRole(results, RoleName.frigate);
+            GetCoreFleetRole(results, RoleName.cruiser);
+            GetCoreFleetRole(results, RoleName.battleship);
+            GetCoreFleetRole(results, RoleName.capital);
+            return results.Count - sizeBefore;
         }
 
-        public Array<Ship> ExtractCoreFleetRole(RoleName role, out bool fullFilled)
+        public void GetCoreFleetRole(HashSet<Ship> results, RoleName role)
         {
-            float wanted    = Ratios.GetWanted(role);
-            var ships = ExtractShips(Ships, wanted.LowerBound(1), role, required: false);
-            fullFilled      = wanted == 0 || ships.NotEmpty;
-            return ships;
+            float wanted = Math.Max(Ratios.GetWanted(role), 1);
+            GetShips(results, wanted, s => s.DesignRole == role);
         }
 
-        public Array<Ship> GetSupplementalFleet()
+        public void GetSupplementalFleet(HashSet<Ship> results)
         {
-            var ships = new Array<Ship>();
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCarriers, RoleName.carrier, false));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinSupport, RoleName.support,false));
-            return ships;
-        }
-
-        public Array<Ship> ExtractSetsOfCombatShips(float strength, int wantedFleetCount , out int fleetCount)
-        {
-            Array<Ship> ships = new Array<Ship>();
-            fleetCount = ExtractFleetShipsUpToStrength(strength, wantedFleetCount, out Array<Ship> fleetShips);
-            
-            if (fleetCount > 0 && fleetShips.Sum(s=> s.GetStrength()) >= strength)
-                ships.AddRange(fleetShips);
-            else
-                AddShips(fleetShips);
-
-            return ships;
+            GetShips(results, Ratios.MinCarriers, s => s.DesignRole == RoleName.carrier);
+            GetShips(results, Ratios.MinSupport, s => s.DesignRole == RoleName.support);
         }
 
         public Array<Ship> ExtractTroops(int planetAssaultTroopsStrWanted)
         {
+            var results = new HashSet<Ship>();
+            GetTroops(results, planetAssaultTroopsStrWanted);
+            return ExtractShips(results);
+        }
+
+        public void GetTroops(HashSet<Ship> results, int planetAssaultTroopsStrWanted)
+        {
             int troopsWanted = 1 + planetAssaultTroopsStrWanted / OwnerEmpire.GetTypicalTroopStrength();
-            var ships = ExtractShipsByFeatures(Ships, troopsWanted, 1, 1
-                                , s =>
-                                    {
-                                        if (s.DesignRoleType == RoleType.Troop)
-                                            return s.Carrier.PlanetAssaultCount;
-                                        return 0;
-                                    });
-            return ships;
-        }
-
-        public Array<Ship> ExtractBombers(int bombSecsWanted, int fleetCount)
-        {
-            var ships = new Array<Ship>();
-            if (bombSecsWanted > 0 && Ratios.MinBombers > 0)
-                ships = ExtractShipsByFeatures(Ships, bombSecsWanted, 1
-                                    , fleetCount * (int)Ratios.MinBombers
-                                    , s =>
-                                    {
-                                        if (s.DesignRole == RoleName.bomber)
-                                            return s.BombsGoodFor60Secs;
-                                        return 0;
-                                    });
-            return ships;
-        }
-
-        private Array<Ship> ExtractShips(Array<Ship> ships, float wanted, RoleName role, bool required)
-            => ExtractShips(ships, wanted, s => s.DesignRole == role, required);
-
-        private Array<Ship> ExtractShips(Array<Ship> ships, float wanted, Func<Ship, bool> shipFilter, bool required)
-        {
-            var shipSet = new Array<Ship>();
-            int setWanted = (int)(wanted * WantedFleetCompletePercentage);
-            if (wanted > 0)
-                for (int x = ships.Count - 1; x >= 0; x--)
+            foreach (Ship s in Ships)
+            {
+                int troops = s.DesignRoleType == RoleType.Troop ? s.Carrier.PlanetAssaultCount : 0;
+                if (troops > 0)
                 {
-                    Ship ship = ships[x];
-                    if (!shipFilter(ship))
-                        continue;
-
-                    shipSet.Add(ship);
-                    Ships.RemoveSwapLast(ship);
-                    AccumulatedStrength += ship.GetStrength();
-
-                    if (shipSet.Count >= setWanted)
+                    results.Add(s);
+                    troopsWanted -= troops;
+                    if (troopsWanted <= 0)
                         break;
                 }
-            if (!required || shipSet.Count >= setWanted)
-                return shipSet;
-            AddShips(shipSet);
-            shipSet.Clear();
-            return shipSet;
+            }
         }
-        /// <summary>
-        /// Extracts ships with wanted feature up to the count of the wanted feature.
-        /// ex. I want 10 bombs. give me as many ships as it takes to get 10 bombs.
-        /// </summary>
-        /// <param name="ships">Ships to be processed</param>
-        /// /// <param name="totalFeatureWanted">max of total features found on all matching ships</param>
-        /// <param name="minWantedFeature">min count of feature the ship should have</param>
-        /// <param name="shipFeatureCount">Number of times ship matches the feature.
-        /// like ship.BombsGoodFor60Secs</param>
-        /// <returns></returns>
-        private Array<Ship> ExtractShipsByFeatures(Array<Ship> ships, int totalFeatureWanted, 
-                                                   float minWantedFeature, int shipCount, Func<Ship, int> shipFeatureCount)
-        {
-            var shipSet = new Array<Ship>();
-            if (minWantedFeature < 1) return shipSet;
 
-            for (int x = ships.Count - 1; x >= 0; x--)
+        public void GetBombers(HashSet<Ship> results, int bombSecsWanted, int fleetCount)
+        {
+            if (bombSecsWanted > 0 && Ratios.MinBombers > 0)
             {
-                if (totalFeatureWanted <= 0 && shipSet.Count >= shipCount)
-                    break;
-                Ship ship = ships[x];
-                int countOfShipFeature = shipFeatureCount(ship);
-                if (countOfShipFeature >= minWantedFeature)
+                int bombsWanted = bombSecsWanted;
+                int shipsWanted = fleetCount * (int)Ratios.MinBombers;
+                int shipsFound = 0;
+                foreach (Ship s in Ships)
                 {
-                    Ships.RemoveSwapLast(ship);
-                    shipSet.Add(ship);
-                    totalFeatureWanted -= countOfShipFeature;
+                    int bombs = s.DesignRole == RoleName.bomber ? s.BombsGoodFor60Secs : 0;
+                    if (bombs > 0)
+                    {
+                        results.Add(s);
+                        bombsWanted -= bombs;
+                        if (bombsWanted <= 0)
+                            break;
+
+                        ++shipsFound;
+                        if (shipsFound >= shipsWanted)
+                            break;
+                    }
                 }
             }
+        }
 
-            return shipSet;
+        void GetShips(HashSet<Ship> results, float wanted, Func<Ship, bool> shipFilter)
+        {
+            int setWanted = (int)(wanted * WantedFleetCompletePercentage);
+            if (setWanted > 0)
+            {
+                int shipsFound = 0;
+                foreach (Ship ship in Ships)
+                {
+                    if (shipFilter(ship))
+                    {
+                        results.Add(ship);
+                        ++shipsFound;
+                        if (shipsFound >= setWanted)
+                            break;
+                    }
+                }
+            }
         }
 
         /// <summary>
         /// Extracts a ship set with wanted characteristics. 
         /// </summary>
         /// <param name="minStrength">Combat strength of fleet ships</param>
-        /// <param name="bombingSecs">Time fleet should be able to bomb</param>
-        /// <param name="wantedTroopStrength">Troop strength to invade with</param>
         /// <param name="planetTroops">Troops still on planets</param>
-        /// /// <param name="minimumFleetSize">Attempt to get this many fleets</param>
+        /// <param name="minimumFleetSize">Attempt to get this many fleets</param>
         /// <returns></returns>
-        public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int minimumFleetSize, Vector2 rallyPoint, MilitaryTask task)
+        public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int minimumFleetSize, MilitaryTask task)
         {
-            // create static empty ship array.
-            if (BombSecsAvailable < task.TaskBombTimeNeeded) return new Array<Ship>();
+            if (BombSecsAvailable < task.TaskBombTimeNeeded)
+                return new Array<Ship>();
 
             SortShipsByDistanceToPoint(task.AO);
 
-            Array<Ship> ships = ExtractSetsOfCombatShips(minStrength, minimumFleetSize, out int fleetCount);
-            
-            if (ships.IsEmpty)
+            var ships = new HashSet<Ship>();
+            int fleetCount = GetFleetShipsUpToStrength(ships, minStrength, minimumFleetSize);
+            if (fleetCount == 0 || ships.Count == 0)
                 return new Array<Ship>();
             
             if (task.NeededTroopStrength > 0)
             {
                 if (InvasionTroopStrength < task.NeededTroopStrength)
                     LaunchTroopsAndAddToShipList(task.NeededTroopStrength, planetTroops);
-                
-                if (InvasionTroopStrength < task.NeededTroopStrength) return new Array<Ship>();
-
-                ships.AddRange(ExtractTroops(task.NeededTroopStrength));
+                GetTroops(ships, task.NeededTroopStrength);
             }
 
-            ships.AddRange(ExtractBombers(task.TaskBombTimeNeeded, fleetCount));
+            GetBombers(ships, task.TaskBombTimeNeeded, fleetCount);
 
-            CheckForShipErrors(ships);
-
-            return ships;
+            return ExtractShips(ships);
         }
 
         void SortShipsByDistanceToPoint(Vector2 point)
@@ -356,22 +323,6 @@ namespace Ship_Game.AI
 
                 return s.Position.SqDist(point);
             });
-        }
-
-        static void CheckForShipErrors(Array<Ship> ships)
-        {
-            if (Debugger.IsAttached)
-            {
-                foreach (var ship in ships)
-                {
-                    if (ship.Fleet != null)
-                        throw new Exception("Fleet should be null here.");
-
-                    int n = ships.CountRef(ship);
-                    //if (n > 1) 
-                    //    throw new Exception($"Fleet ships contain duplicates({n}): {ship}.");
-                }
-            }
         }
 
         private void LaunchTroopsAndAddToShipList(int wantedTroopStrength, Array<Troop> planetTroops)

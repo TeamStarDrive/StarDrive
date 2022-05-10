@@ -987,7 +987,7 @@ namespace Ship_Game
         {
             //Get all available ships from AO's
             var ships = isPlayer ? new Array<Ship>(OwnedShips)
-                                            : AIManagedShips.GetShipsFromOffensePools();
+                                 : AIManagedShips.GetShipsFromOffensePools();
 
             var readyShips = new Array<Ship>();
             for (int i = 0; i < ships.Count; i++)
