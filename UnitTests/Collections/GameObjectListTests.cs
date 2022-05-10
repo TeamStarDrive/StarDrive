@@ -13,7 +13,7 @@ namespace UnitTests.Utils
     [TestClass]
     public class GameObjectListTests : StarDriveTest
     {
-        class DummyShip : GameplayObject
+        class DummyShip : GameObject
         {
             string Name;
             public DummyShip(int id) : base(id, GameObjectType.Ship)
@@ -26,7 +26,7 @@ namespace UnitTests.Utils
         [TestMethod]
         public void AddDoesNotAffectFrontBuffer()
         {
-            var arr = new GameObjectList<GameplayObject>();
+            var arr = new GameObjectList<GameObject>();
 
             arr.Add(new DummyShip(1));
             var front = arr.GetItems();
@@ -51,7 +51,7 @@ namespace UnitTests.Utils
         [TestMethod]
         public void FindDoesNotRequireApplyChanges()
         {
-            var arr = new GameObjectList<GameplayObject>();
+            var arr = new GameObjectList<GameObject>();
             var first = new DummyShip(1);
             var second = new DummyShip(2);
 
@@ -87,7 +87,7 @@ namespace UnitTests.Utils
         [TestMethod]
         public void InActiveElementsAreRemovedOnDemand()
         {
-            var arr = new GameObjectList<GameplayObject>();
+            var arr = new GameObjectList<GameObject>();
             var first = new DummyShip(1);
             var second = new DummyShip(2);
 

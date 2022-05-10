@@ -130,7 +130,7 @@ namespace Ship_Game
          * @param scaleMod Applies additional scale modifier on the spawned junk
          */
         public static void SpawnJunk(UniverseState universe, int howMuchJunk, Vector2 position, Vector2 velocity,
-                                     GameplayObject source, float maxSize, bool ignite)
+                                     GameObject source, float maxSize, bool ignite)
         {
             if (universe == null)
             {

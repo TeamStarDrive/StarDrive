@@ -351,7 +351,7 @@ namespace Ship_Game.Debug
                 DrawCircleImm(w.Origin, m.Radius/(float)Math.Sqrt(2), Color.Crimson);
 
                 Ship targetShip = ship.AI.Target;
-                GameplayObject target = targetShip;
+                GameObject target = targetShip;
                 if (w.FireTarget is ShipModule sm)
                 {
                     targetShip = sm.GetParent();

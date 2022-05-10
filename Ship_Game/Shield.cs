@@ -17,7 +17,7 @@ namespace Ship_Game
         public Matrix World;
         private float Radius;
         private float Rotation;
-        public GameplayObject Owner; // is null for PlanetaryShields
+        public GameObject Owner; // is null for PlanetaryShields
         private Vector2 PlanetCenter; // only valid for PlanetaryShields
         private PointLight Light;
 
@@ -26,7 +26,7 @@ namespace Ship_Game
         }
 
         // shield attached to a ShipModule
-        public Shield(GameplayObject owner, float rotation, Vector2 center)
+        public Shield(GameObject owner, float rotation, Vector2 center)
         {
             Owner         = owner;
             TexScale      = 2.8f;

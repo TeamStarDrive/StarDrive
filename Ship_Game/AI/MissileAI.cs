@@ -11,7 +11,7 @@ namespace Ship_Game.AI
     public sealed class MissileAI
     {
         readonly Projectile Missile;
-        public GameplayObject Target { get; set; }
+        public GameObject Target { get; set; }
 
         readonly Ship[] TargetList;
         float TargetUpdateTimer = 0.15f;
@@ -32,7 +32,7 @@ namespace Ship_Game.AI
         float DelayedIgnitionTimer;
 
 
-        public MissileAI(Projectile missile, GameplayObject target, Vector2 initialVelocity)
+        public MissileAI(Projectile missile, GameObject target, Vector2 initialVelocity)
         {
             Missile              = missile;
             Target               = target;
@@ -67,10 +67,10 @@ namespace Ship_Game.AI
                 var targets = new Array<Ship>();
 
                 // find nearby enemy ships
-                GameplayObject[] nearbyShips = universe.Spatial.FindNearby(GameObjectType.Ship,
+                GameObject[] nearbyShips = universe.Spatial.FindNearby(GameObjectType.Ship,
                             Missile, Missile.Planet.GravityWellRadius, maxResults:32, excludeLoyalty:Missile.Loyalty);
 
-                foreach (GameplayObject go in nearbyShips)
+                foreach (GameObject go in nearbyShips)
                 {
                     if (missile.Weapon.TargetValid(go))
                     {

@@ -25,7 +25,7 @@ namespace UnitTests.Ships
 
         public int NumDieCalls; // TEST: # of times Die() has been called
 
-        public override void Die(GameplayObject source, bool cleanupOnly)
+        public override void Die(GameObject source, bool cleanupOnly)
         {
             if (EnableDebugLogging)
                 Log.Write($"Ship.Die {this}");

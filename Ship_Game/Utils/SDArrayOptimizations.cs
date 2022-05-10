@@ -5,7 +5,7 @@ namespace Ship_Game;
 public static class SDArrayOptimizations
 {
     // @note This is a stable remove, maintaining object ordering
-    public static void RemoveInActiveObjects<T>(this Array<T> list) where T : GameplayObject
+    public static void RemoveInActiveObjects<T>(this Array<T> list) where T : GameObject
     {
         int size = 0;
         int count = list.Count;

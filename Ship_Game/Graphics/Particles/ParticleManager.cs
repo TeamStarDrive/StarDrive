@@ -175,7 +175,7 @@ namespace Ship_Game.Graphics.Particles
         }
 
         // Creates a new effect instance, OR returns null if effect does not exist
-        public ParticleEffect CreateEffect(string effectName, in Vector3 initialPos, GameplayObject context)
+        public ParticleEffect CreateEffect(string effectName, in Vector3 initialPos, GameObject context)
         {
             ParticleEffect template = GetEffectTemplate(effectName);
             if (template == null)

@@ -10,7 +10,7 @@
                 Ship = ship;
                 Weight = weight;                
             }
-            public ShipWeight(GameplayObject gamePlayObject, float weight = 0) : this(gamePlayObject as Ship, weight) { }            
+            public ShipWeight(GameObject gamePlayObject, float weight = 0) : this(gamePlayObject as Ship, weight) { }            
             
             //We can just say shipWieght += 2 to add 2 the shipweight
             public static ShipWeight operator + (ShipWeight shipWeight, float weight) => new ShipWeight(shipWeight.Ship, shipWeight.Weight + weight);            

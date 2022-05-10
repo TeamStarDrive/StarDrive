@@ -31,7 +31,7 @@ namespace Ship_Game.Spatial
     {
         public struct BeamHitResult : IComparable<BeamHitResult>
         {
-            public GameplayObject Collided;
+            public GameObject Collided;
             public float Distance;
             public int CompareTo(BeamHitResult other)
             {
@@ -41,7 +41,7 @@ namespace Ship_Game.Spatial
 
         public static int Collide(FixedSimTime timeStep,
                                   CollisionPair* collisionPairs, int numPairs,
-                                  GameplayObject[] objects)
+                                  GameObject[] objects)
         {
             int numCollisions = 0;
 
@@ -55,8 +55,8 @@ namespace Ship_Game.Spatial
                 if (pair.A == -1) // object removed by beam collision
                     continue;
 
-                GameplayObject objectA = objects[pair.A];
-                GameplayObject objectB = objects[pair.B];
+                GameObject objectA = objects[pair.A];
+                GameObject objectB = objects[pair.B];
                 if (objectB == null)
                 {
                     Log.Error($"CollideObjects objectB was null at {pair.B}");
@@ -72,7 +72,7 @@ namespace Ship_Game.Spatial
                     bool isBeamA = objectA.Type == GameObjectType.Beam;
                     int beamId = isBeamA ? pair.A : pair.B;
                     var beam = (Beam)(isBeamA ? objectA : objectB);
-                    GameplayObject victim = isBeamA ? objectB : objectA;
+                    GameObject victim = isBeamA ? objectB : objectA;
 
                     AddBeamHit(beamHits, beam, victim);
 
@@ -119,7 +119,7 @@ namespace Ship_Game.Spatial
                 {
                     bool isProjA = objectA.Type == GameObjectType.Proj;
                     var proj = (Projectile)(isProjA ? objectA : objectB);
-                    GameplayObject victim = isProjA ? objectB : objectA;
+                    GameObject victim = isProjA ? objectB : objectA;
 
                     if (HitTestProj(timeStep.FixedTime, proj, victim, out ShipModule hitModule, out Vector2 hitPos))
                     {
@@ -131,7 +131,7 @@ namespace Ship_Game.Spatial
             return numCollisions;
         }
 
-        static bool HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
+        static bool HandleBeamCollision(Beam beam, GameObject victim, float hitDistance)
         {
             if (!beam.Touch(victim))
                 return false;
@@ -149,7 +149,7 @@ namespace Ship_Game.Spatial
             return true;
         }
 
-        static void AddBeamHit(Array<BeamHitResult> beamHits, Beam beam, GameplayObject victim)
+        static void AddBeamHit(Array<BeamHitResult> beamHits, Beam beam, GameObject victim)
         {
             if (HitTestBeam(beam, victim, out ShipModule hitModule, out float dist))
             {
@@ -161,7 +161,7 @@ namespace Ship_Game.Spatial
             }
         }
 
-        static bool HitTestBeam(Beam beam, GameplayObject victim, out ShipModule hitModule, out float distanceToHit)
+        static bool HitTestBeam(Beam beam, GameObject victim, out ShipModule hitModule, out float distanceToHit)
         {
             Vector2 beamStart = beam.Source;
             Vector2 beamEnd   = beam.Destination;
@@ -193,7 +193,7 @@ namespace Ship_Game.Spatial
             return victim.Position.RayCircleIntersect(victim.Radius, beamStart, beamEnd, out distanceToHit);
         }
 
-        static bool HitTestProj(float simTimeStep, Projectile proj, GameplayObject victim, out ShipModule hitModule, out Vector2 hitPos)
+        static bool HitTestProj(float simTimeStep, Projectile proj, GameObject victim, out ShipModule hitModule, out Vector2 hitPos)
         {
             hitPos = proj.Position;
             // NOTE: this is for Projectile<->Projectile collision!

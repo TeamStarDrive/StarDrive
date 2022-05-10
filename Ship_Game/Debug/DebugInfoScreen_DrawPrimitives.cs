@@ -64,7 +64,7 @@ namespace Ship_Game.Debug
             AddPrimitive(new DebugArrow(startInWorld, endInWorld, width, color, lifeTime));
         }
 
-        public void DrawGameObject(DebugModes mode, GameplayObject obj, UniverseScreen u)
+        public void DrawGameObject(DebugModes mode, GameObject obj, UniverseScreen u)
         {
             if (ShouldNotAddPrimitive(mode) || !obj.IsInFrustum(u)) return;
             AddPrimitive(new DebugGameObject(obj, Color.Red, 0f /*transient*/));

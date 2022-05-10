@@ -56,7 +56,7 @@ namespace Ship_Game
             Y2 = botRight.Y;
         }
 
-        public AABoundingBox2D(GameplayObject go)
+        public AABoundingBox2D(GameObject go)
         {
             float x = go.Position.X;
             float y = go.Position.Y;
@@ -143,7 +143,7 @@ namespace Ship_Game
             Y2 = (int)r.Bottom;
         }
 
-        public AABoundingBox2Di(GameplayObject go)
+        public AABoundingBox2Di(GameObject go)
         {
             int x = (int)go.Position.X;
             int y = (int)go.Position.Y;

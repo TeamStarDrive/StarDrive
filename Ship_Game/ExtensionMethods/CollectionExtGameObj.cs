@@ -7,7 +7,7 @@ namespace Ship_Game;
 
 public static class CollectionExtGameObj
 {
-    public static void SortByDistance<T>(this T[] array, Vector2 fromPos) where T : GameplayObject
+    public static void SortByDistance<T>(this T[] array, Vector2 fromPos) where T : GameObject
     {
         if (array.Length <= 1)
             return;
