@@ -38,8 +38,8 @@ namespace UnitTests.AITests.Ships
         [TestMethod]
         public void TestScoutShipExploringClosestSystem()
         {
-            Assert.IsFalse(CloseSystem.IsExploredBy(Player), "Close system should not be already explored.");
-            Assert.IsFalse(FarSystem.IsExploredBy(Player), "Far system should not be already explored.");
+            Assert.IsFalse(CloseSystem.Explorable.IsExploredBy(Player), "Close system should not be already explored.");
+            Assert.IsFalse(FarSystem.Explorable.IsExploredBy(Player), "Far system should not be already explored.");
             Ship scout = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
 
             scout.DoExplore();
@@ -55,7 +55,7 @@ namespace UnitTests.AITests.Ships
                                                                     $" but it should explore {CloseSystem.Name}");
 
             scout.AI.DoExplore(TestSimStep);
-            Assert.IsFalse(CloseSystem.IsExploredBy(Player), $"{CloseSystem.Name} is set as explored but it should not be explored" +
+            Assert.IsFalse(CloseSystem.Explorable.IsExploredBy(Player), $"{CloseSystem.Name} is set as explored but it should not be explored" +
                                                              " by the ship since it is over 75000");
             Assert.IsNotNull(scout.AI.TestGetPatrolTarget(), "Patrol target planet is not set, but it should at this stage");
 
@@ -68,7 +68,7 @@ namespace UnitTests.AITests.Ships
             scout.Position = planetToExplore.Center.GenerateRandomPointInsideCircle(70000); 
             UState.Objects.Update(TestSimStep);
             scout.AI.DoExplore(TestSimStep);
-            Assert.IsTrue(CloseSystem.IsExploredBy(Player), $"{CloseSystem.Name} is not set as explored but it should be explored" +
+            Assert.IsTrue(CloseSystem.Explorable.IsExploredBy(Player), $"{CloseSystem.Name} is not set as explored but it should be explored" +
                                                              " as the ship is within 75000 of system center");
         }
 
