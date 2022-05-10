@@ -255,7 +255,7 @@ namespace UnitTests
         {
             var p = new Planet(UState.CreateId(), fertility, minerals, pop) { Center = pos };
             var s = CreateNewSolarSystemWithPlanet(p);
-            if (explored) s.SetExploredBy(Player);
+            if (explored) s.Explorable.SetExploredBy(Player);
             return p;
         }
 
