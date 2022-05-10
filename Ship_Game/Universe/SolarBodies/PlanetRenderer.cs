@@ -151,7 +151,7 @@ namespace Ship_Game.Universe.SolarBodies
         // 6. layer: rings                      (if any)
         public void Render(Planet p)
         {
-            PlanetType type = p.Type;
+            PlanetType type = p.PType;
             bool drawPlanetGlow = CamPos.Z < 300000.0f && type.Glow;
 
             if (!p.HasRings && !type.Clouds && !drawPlanetGlow)

@@ -60,8 +60,8 @@ namespace Ship_Game
         {
             get
             {
-                if (Type.PlanetTile.NotEmpty())
-                    return Type.PlanetTile;
+                if (PType.PlanetTile.NotEmpty())
+                    return PType.PlanetTile;
                 return Category.ToString();
 
             }
@@ -92,7 +92,7 @@ namespace Ship_Game
         public void GenerateNewFromPlanetType(PlanetType type, float scale, float preDefinedPop = 0)
         {
             TilesList.Clear();
-            Type = type;
+            PType = type;
             Scale = scale;
 
             if (Habitable)
@@ -104,7 +104,7 @@ namespace Ship_Game
                 else if (richness >= 12.5f) MineralRichness = Float(0.25f, 0.75f);
                 else if (richness < 12.5f)  MineralRichness = Float(0.10f, 0.25f);
 
-                float habitableChance = Type.HabitableTileChance.Generate();
+                float habitableChance = PType.HabitableTileChance.Generate();
 
                 SetTileHabitability(habitableChance, out int numHabitableTiles);
                 if (preDefinedPop > 0)
@@ -219,7 +219,7 @@ namespace Ship_Game
             PlanetCategory preferred = Owner.data.PreferredEnv == PlanetCategory.Other ? PlanetCategory.Terran
                                                                                        : Owner.data.PreferredEnv;
 
-            Type = ResourceManager.Planets.RandomPlanet(preferred);
+            PType = ResourceManager.Planets.RandomPlanet(preferred);
             Zone = SunZone.Any;
         }
 
@@ -406,7 +406,7 @@ namespace Ship_Game
             {
                 string msg = $"{Localizer.Token(GameText.TerraformLevel)} {Owner.data.Traits.TerraformingLevel}:\n" +
                              $"{Name} {Localizer.Token(GameText.TerraformingCompletedAndTerraformersWere)}";
-                Universe.Notifications.AddRandomEventNotification(msg, Type.IconPath, "SnapToPlanet", this);
+                Universe.Notifications.AddRandomEventNotification(msg, PType.IconPath, "SnapToPlanet", this);
             }
         }
 
@@ -434,7 +434,7 @@ namespace Ship_Game
             if (Category == newCategory)
                 return; // A planet with the same category was Terraformed (probably to increase fertility)
 
-            Type = ResourceManager.Planets.RandomPlanet(newCategory);
+            PType = ResourceManager.Planets.RandomPlanet(newCategory);
             RecreateSceneObject();
             UpdateDescription();
             UpdateMaxPopulation();
@@ -442,7 +442,7 @@ namespace Ship_Game
 
         private void ReCalculateHabitableChances() // FB - We might need it for planet degrade
         {
-            float habitableChance = Type.HabitableTileChance.Generate();
+            float habitableChance = PType.HabitableTileChance.Generate();
             foreach (PlanetGridSquare pgs in TilesList)
             {
                 if (pgs.Biosphere)

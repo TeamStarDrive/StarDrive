@@ -91,7 +91,7 @@ namespace Ship_Game.AI
         private void CheckNearbySystemsForEnemies()
         {
             foreach (SolarSystem system in System.FiveClosestSystems)
-                if (system.Explorable.IsExploredBy(Us))
+                if (system.IsExploredBy(Us))
                     foreach (Empire e in system.OwnerList)
                         if (e != Us)
                             TotalValueToUs += Us.IsEmpireAttackable(e) ? 5 : 0;

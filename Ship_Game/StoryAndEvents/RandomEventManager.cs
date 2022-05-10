@@ -97,7 +97,7 @@ namespace Ship_Game
 
             string fullText = $"{planet.Name} {Localizer.Token(message)} {postText}";
             planet.Universe.Notifications.AddRandomEventNotification(
-                fullText, planet.Type.IconPath, "SnapToPlanet", planet);
+                fullText, planet.PType.IconPath, "SnapToPlanet", planet);
         }
 
         enum Potentials

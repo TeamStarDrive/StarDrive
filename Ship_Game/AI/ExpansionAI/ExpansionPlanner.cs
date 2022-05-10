@@ -128,7 +128,7 @@ namespace Ship_Game.AI.ExpansionAI
             Log.Info(ConsoleColor.Magenta, $"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
             float ownerStrength  = Owner.OffensiveStrength;
             var ownedSystems     = Owner.GetOwnedSystems();
-            var potentialSystems = universe.Systems.Filter(s => s.Explorable.IsExploredBy(Owner)
+            var potentialSystems = universe.Systems.Filter(s => s.IsExploredBy(Owner)
                                                              && !s.HasPlanetsOwnedBy(Owner)
                                                              && s.PlanetList.Any(p => p.Habitable)
                                                              && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength/4)

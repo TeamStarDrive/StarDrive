@@ -24,6 +24,7 @@ namespace Ship_Game
         Asteroid   = 16,
         Moon       = 32,
         SolarSystem = 64,
+        Planet = 128,
     }
 
     [StarDataType]
@@ -34,7 +35,7 @@ namespace Ship_Game
          *        will be accidentally serialized!
          */
         
-        [StarData] public int Id;
+        [StarData] public readonly int Id;
         [XmlIgnore][JsonIgnore] public bool Active = true;
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
         

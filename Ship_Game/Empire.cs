@@ -905,7 +905,7 @@ namespace Ship_Game
             var solarSystems = new Array<SolarSystem>();
             foreach (var solarSystem in GetOwnedSystems())
             {
-                if (hideUnexplored && !solarSystem.Explorable.IsExploredBy(them)) continue;
+                if (hideUnexplored && !solarSystem.IsExploredBy(them)) continue;
 
                 if (solarSystem.Position.InRadius(midPoint, mapDistance))
                     solarSystems.AddUniqueRef(solarSystem);

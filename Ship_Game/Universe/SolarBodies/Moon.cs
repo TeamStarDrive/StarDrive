@@ -33,9 +33,9 @@ namespace Ship_Game.Gameplay
 
         // Creating new game:
         public Moon(SolarSystem system, int orbitPlanetId, int moon, float moonScale,
-                    float orbitRadius, float orbitalAngle, Vector2 pos) : this()
+                    float orbitRadius, float orbitalAngle, Vector2 pos)
+            : base(system.Universe.CreateId(), GameObjectType.Moon)
         {
-            Id = system.Universe.CreateId();
             SetSystem(system);
             OrbitPlanetId = orbitPlanetId;
             MoonId = moon;

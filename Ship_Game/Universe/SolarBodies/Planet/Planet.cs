@@ -249,7 +249,7 @@ namespace Ship_Game
             Res.Update(0f);
         }
 
-        public Planet(int id) : base(id)
+        public Planet(int id) : base(id, GameObjectType.Planet)
         {
             CreateManagers();
         }
@@ -260,7 +260,7 @@ namespace Ship_Game
             MineralRichness   = minerals;
             BasePopPerTileVal = maxPop;
             if (fertility > 0)
-                Type = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
+                PType = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
         }
 
         public Planet(int id, SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, 
@@ -477,7 +477,7 @@ namespace Ship_Game
                 WipeOutColony(attacker);
         }
 
-        public void Update(FixedSimTime timeStep)
+        public override void Update(FixedSimTime timeStep)
         {
             UpdateHabitable(timeStep);
             UpdatePosition(timeStep);
@@ -829,7 +829,7 @@ namespace Ship_Game
 
         public void UpdateMaxPopulation()
         {
-            if (!Type.Habitable)
+            if (!PType.Habitable)
                 return;
 
             int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
@@ -1171,7 +1171,7 @@ namespace Ship_Game
                 if (!ship.CanBeRefitted)
                     chance *= 0.1f; // Dont recover hangar ships or home defense ships so easily.
 
-                if (!Type.Clouds)
+                if (!PType.Clouds)
                     chance *= 1.5f; // No atmosphere, not able to burn during planetfall
 
                 chance *= 1 + ship.Loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
@@ -1383,7 +1383,7 @@ namespace Ship_Game
                 if (notifyPlayer)
                 {
                     Universe.Screen.NotificationManager?.AddRandomEventNotification(
-                        $"{Name} {Localizer.Token(GameText.MineralRichnessHasGoneDown)}", Type.IconPath, "SnapToPlanet", this);
+                        $"{Name} {Localizer.Token(GameText.MineralRichnessHasGoneDown)}", PType.IconPath, "SnapToPlanet", this);
                 }
 
                 Log.Info($"Mineral Decay in {Name}, Owner: {Owner}, Current Richness: {MineralRichness}");

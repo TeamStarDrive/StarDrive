@@ -17,8 +17,8 @@ namespace UnitTests.AITests.Empire
             AddDummyPlanet(1.9f, 1.9f, 4);
             AddDummyPlanet(1.7f, 1.7f, 4);
             for (int x = 0; x < 5; x++)
-                AddDummyPlanet(0.1f, 0.1f, 1).ParentSystem.Explorable.SetExploredBy(Enemy);
-            AddHomeWorldToEmpire(Player).ParentSystem.Explorable.SetExploredBy(Enemy);
+                AddDummyPlanet(0.1f, 0.1f, 1).ParentSystem.SetExploredBy(Enemy);
+            AddHomeWorldToEmpire(Player).ParentSystem.SetExploredBy(Enemy);
             AddHomeWorldToEmpire(Enemy, new Vector2(2000)).ParentSystem.Position = new Vector2(2000);
             UState.Objects.UpdateLists(true);
             AddHomeWorldToEmpire(Enemy);

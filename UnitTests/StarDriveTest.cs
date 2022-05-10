@@ -255,7 +255,7 @@ namespace UnitTests
         {
             var p = new Planet(UState.CreateId(), fertility, minerals, pop) { Center = pos };
             var s = CreateNewSolarSystemWithPlanet(p);
-            if (explored) s.Explorable.SetExploredBy(Player);
+            if (explored) s.SetExploredBy(Player);
             return p;
         }
 
@@ -269,7 +269,7 @@ namespace UnitTests
             var p = AddDummyPlanet(fertility, minerals, maxPop);
             empire.AddPlanet(p);
             p.Owner = empire;
-            p.Type = ResourceManager.Planets.PlanetOrRandom(0);
+            p.PType = ResourceManager.Planets.PlanetOrRandom(0);
             p.ParentSystem.OwnerList.Add(empire);
             return p;
         }

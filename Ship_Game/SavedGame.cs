@@ -149,7 +149,7 @@ namespace Ship_Game
                     SunPath        = system.Sun.Id,
                     AsteroidsList  = system.AsteroidsList.Clone(),
                     Moons          = system.MoonList.Clone(),
-                    ExploredBy     = system.Explorable.ExploredByEmpires.Select(e => e.data.Traits.Name),
+                    ExploredBy     = system.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     RingList       = system.RingList.Select(ring => ring.Serialize()),
                     PiratePresence = system.PiratePresence
                 });

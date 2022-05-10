@@ -90,7 +90,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (universe != null)
             {
                 foreach (Planet planet in universe.UState.Planets)
-                    planet.Type = types.Planet(planet.Type.Id);
+                    planet.PType = types.Planet(planet.PType.Id);
             }
         }
 
