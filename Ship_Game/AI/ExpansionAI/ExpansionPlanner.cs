@@ -244,7 +244,7 @@ namespace Ship_Game.AI.ExpansionAI
             if (planetList.Count == 0)
                 return false;
 
-            float longestDistance  = planetList.Last().Center.Distance(empireCenter);
+            float longestDistance  = planetList.Last().Position.Distance(empireCenter);
         
             for (int i = 0; i < planetList.Count; i++)
             {

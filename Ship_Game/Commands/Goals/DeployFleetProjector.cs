@@ -41,8 +41,8 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
 
             float distanceToDeploy = empire.GetProjectorRadius() * 0.8f;
-            Vector2 direction      = Fleet.FleetTask.TargetPlanet.Center.DirectionToTarget(Fleet.AveragePosition());
-            BuildPosition          = ColonizationTarget.Center + direction.Normalized() * distanceToDeploy;
+            Vector2 direction      = Fleet.FleetTask.TargetPlanet.Position.DirectionToTarget(Fleet.AveragePosition());
+            BuildPosition          = ColonizationTarget.Position + direction.Normalized() * distanceToDeploy;
             Goal goal              = new BuildConstructionShip(BuildPosition, "Subspace Projector", empire);
             goal.Fleet             = Fleet;
             empire.GetEmpireAI().AddGoal(goal);

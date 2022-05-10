@@ -83,7 +83,7 @@ namespace Ship_Game
             for (int i = 0; i < sys.PlanetList.Count; i++)
             {
                 Planet planet = sys.PlanetList[i];
-                Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center3D).ToVec2f();
+                Vector2 planetScreenPos = ProjectToScreenPosition(planet.Position3D).ToVec2f();
                 float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
 
                 if (viewState > UnivScreenState.ShipView && !IsCinematicModeEnabled)
@@ -368,7 +368,7 @@ namespace Ship_Game
                         Planet planet = UState.GetPlanet(planetId);
                         if (planet.Owner != null)
                         {
-                            DrawLineToPlanet(SelectedShip.Position, planet.Center, planet.Owner.EmpireColor);
+                            DrawLineToPlanet(SelectedShip.Position, planet.Position, planet.Owner.EmpireColor);
                             DrawZones(Fonts.Arial14Bold, $"- {planet.Name}", ref cursorY, planet.Owner.EmpireColor);
                         }
                     }

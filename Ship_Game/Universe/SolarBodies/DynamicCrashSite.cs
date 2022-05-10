@@ -92,7 +92,7 @@ namespace Ship_Game.Universe.SolarBodies
                 var ships = e.OwnedShips;
                 if (p.Owner == e 
                     || p.Owner == null && p.IsExploredBy(e)
-                                       && ships.Any(s => s?.Position.InRadius(p.Center, s.SensorRange) == true))
+                                       && ships.Any(s => s?.Position.InRadius(p.Position, s.SensorRange) == true))
                 {
                     if (e.isPlayer)
                         p.Universe.Notifications.AddShipCrashed(p, message);
@@ -117,7 +117,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         void SendTroop(Empire e, Planet p)
         {
-            if (e.GetTroopShipForRebase(out Ship troopShip, p.Center, p.Name))
+            if (e.GetTroopShipForRebase(out Ship troopShip, p.Position, p.Name))
                 troopShip.AI.OrderLandAllTroops(p, clearOrders:true);
             else
                 e.GetEmpireAI().SendExplorationFleet(p); // Create a task to be processed normally

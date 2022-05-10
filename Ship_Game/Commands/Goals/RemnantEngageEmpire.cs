@@ -57,13 +57,13 @@ namespace Ship_Game.Commands.Goals
             // Target owned planet in the portal system first, target empire is not relevant
             if (Portal.System != null && Portal.System.PlanetList.Any(p => p.Owner != null))
             {
-                TargetPlanet = Portal.System.PlanetList.FindMin(p => p.Center.Distance(Portal.Position));
+                TargetPlanet = Portal.System.PlanetList.FindMin(p => p.Position.Distance(Portal.Position));
                 return TargetPlanet != null;
             }
 
             // Find closest planet in the map to Portal and target a planet from the victim's planet list
             var planets   = empire.Universum.Planets.Filter(p => p.Owner != null);
-            Planet planet = planets.FindMin(p => p.Center.Distance(Portal.Position));
+            Planet planet = planets.FindMin(p => p.Position.Distance(Portal.Position));
             if (!Remnants.TargetNextPlanet(TargetEmpire, planet, 0, out Planet targetPlanet))
                 return false; // Could not find a target planet
 

@@ -80,7 +80,7 @@ namespace Ship_Game.AI.ShipMovement
             }
           
             float radius = (orbitTarget.ObjectRadius*2 + Owner.Radius).UpperBound(12000);
-            float distance = orbitTarget.Center.Distance(Owner.Position);
+            float distance = orbitTarget.Position.Distance(Owner.Position);
 
             if (distance > 15000f) // we are still far away, thrust towards the planet
             {
@@ -116,7 +116,7 @@ namespace Ship_Game.AI.ShipMovement
                 }
             }
 
-            UpdateOrbitPos(orbitTarget.Center, radius, timeStep);
+            UpdateOrbitPos(orbitTarget.Position, radius, timeStep);
 
             // precision move, this fixes uneven thrusting while orbiting
             float maxVel = (float)Math.Floor(Owner.VelocityMax*0.95f);
@@ -149,8 +149,8 @@ namespace Ship_Game.AI.ShipMovement
 
         void ThrustTowardsPlanet(Planet orbitTarget, FixedSimTime timeStep)
         {
-            AI.ThrustOrWarpToPos(orbitTarget.Center, timeStep);
-            OrbitPos = orbitTarget.Center + OrbitOffset;
+            AI.ThrustOrWarpToPos(orbitTarget.Position, timeStep);
+            OrbitPos = orbitTarget.Position + OrbitOffset;
             OrbitUpdateTimer = 0f;
         }
     }

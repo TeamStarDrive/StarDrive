@@ -315,7 +315,7 @@ namespace Ship_Game.Ships
             if (p == null)
                 return;
 
-            Universe.DrawCircleProjected(p.Center, p.GravityWellRadius, Universe.CurrentFlashColorRed);
+            Universe.DrawCircleProjected(p.Position, p.GravityWellRadius, Universe.CurrentFlashColorRed);
         }
 
         void DrawCargoUsed(SpriteBatch batch, Vector2 mousePos, ref int numStatus)

@@ -345,7 +345,7 @@ namespace Ship_Game
             }
             else if (SelectedPlanet != null)
             {
-                ProjectPieMenu(SelectedPlanet.Center3D);
+                ProjectPieMenu(SelectedPlanet.Position3D);
             }
 
             // todo figure what to do with this

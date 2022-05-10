@@ -182,7 +182,7 @@ namespace Ship_Game
             if (selectedShip == null) // the empire does not have any ship of this role to launch
                 return;
 
-            Vector2 launchVector = NewMathExt.RandomOffsetAndDistance(p.Center, 1000);
+            Vector2 launchVector = NewMathExt.RandomOffsetAndDistance(p.Position, 1000);
             Ship defenseShip = Ship.CreateDefenseShip(p.Universe, selectedShip.Name, empire, launchVector, p);
             if (defenseShip == null)
             {

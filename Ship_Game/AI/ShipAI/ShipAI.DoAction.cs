@@ -320,7 +320,7 @@ namespace Ship_Game.AI
                 return true; // All planets explored
             }
 
-            MovePosition           = PatrolTarget.Center;
+            MovePosition           = PatrolTarget.Position;
             float distanceToTarget = Owner.Position.Distance(MovePosition);
             if (distanceToTarget < 75000f)
                 PatrolTarget.ParentSystem.SetExploredBy(Owner.Loyalty);
@@ -401,7 +401,7 @@ namespace Ship_Game.AI
             if (LandingOffset.AlmostZero())
                 LandingOffset = FindLandingOffset(planet);
 
-            Vector2 landingSpot = planet.Center + LandingOffset;
+            Vector2 landingSpot = planet.Position + LandingOffset;
             if (Owner.IsDefaultAssaultShuttle || Owner.IsDefaultTroopShip)
             {
                 // force the ship out of warp if we get too close
@@ -434,7 +434,7 @@ namespace Ship_Game.AI
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
         void LaunchShuttlesFromTroopShip(FixedSimTime timeStep, Planet planet, Vector2 launchPos)
         {
-            if (!Orbit.InOrbit && Owner.Position.InRadius(planet.Center, planet.ObjectRadius *1.4f))
+            if (!Orbit.InOrbit && Owner.Position.InRadius(planet.Position, planet.ObjectRadius *1.4f))
                 ThrustOrWarpToPos(launchPos, timeStep, warpExitDistance: Owner.WarpOutDistance);
             else // Doing orbit with AssaultPlanet state to continue landing troops if possible
                 Orbit.Orbit(planet, timeStep); 
@@ -459,7 +459,7 @@ namespace Ship_Game.AI
             if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle)
                 pos = RandomMath.Vector2D(planet.ObjectRadius);
             else
-                pos = planet.Center - planet.Center.GenerateRandomPointOnCircle(planet.ObjectRadius * 1.5f);
+                pos = planet.Position - planet.Position.GenerateRandomPointOnCircle(planet.ObjectRadius * 1.5f);
 
             return pos;
         }
@@ -622,8 +622,8 @@ namespace Ship_Game.AI
                 }
             }
 
-            ThrustOrWarpToPos(Owner.HomePlanet.Center, timeStep);
-            if (Owner.Position.InRadius(Owner.HomePlanet.Center, Owner.HomePlanet.ObjectRadius + 150f))
+            ThrustOrWarpToPos(Owner.HomePlanet.Position, timeStep);
+            if (Owner.Position.InRadius(Owner.HomePlanet.Position, Owner.HomePlanet.ObjectRadius + 150f))
             {
                 Owner.HomePlanet.LandDefenseShip(Owner);
                 Owner.QueueTotalRemoval();

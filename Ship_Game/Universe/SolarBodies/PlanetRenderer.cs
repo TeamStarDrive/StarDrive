@@ -157,11 +157,11 @@ namespace Ship_Game.Universe.SolarBodies
             if (!p.HasRings && !type.Clouds && !drawPlanetGlow)
                 return;
 
-            Vector3 sunToPlanet = (p.Center - p.ParentSystem.Position).ToVec3().Normalized();
+            Vector3 sunToPlanet = (p.Position - p.ParentSystem.Position).ToVec3().Normalized();
 
             // tilted a bit differently than PlanetMatrix, and they constantly rotate
             Matrix cloudMatrix = default;
-            var pos3d = Matrix.CreateTranslation(p.Center3D);
+            var pos3d = Matrix.CreateTranslation(p.Position3D);
             var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
             Matrix baseScale = (Matrix)p.ScaleMatrix;
 
@@ -243,7 +243,7 @@ namespace Ship_Game.Universe.SolarBodies
             // TODO: our camera works in coordinate space where +Z is out of the screen and -Z is background
             // TODO: but our 3D coordinate system works with -Z out of the screen and +Z is background
             // HACK: planetPos Z is flipped
-            Vector3 planetPos = p.Center3D * new Vector3(1, 1, -1);
+            Vector3 planetPos = p.Position3D * new Vector3(1, 1, -1);
 
             // HACK: flip XZ so the planet glow mesh faces correctly towards us
             Vector3 camToPlanet = planetPos - CamPos;

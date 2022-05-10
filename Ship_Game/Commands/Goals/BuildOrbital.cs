@@ -92,20 +92,20 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 int degrees    = (int)RandomMath.Float(0f, 9f);
                 float distance = 2000 + (1000 * ring * GetTetherPlanet.Scale);
                 TetherOffset    = MathExt.PointOnCircle(degrees * 40, distance);
-                Vector2 pos = GetTetherPlanet.Center + TetherOffset;
+                Vector2 pos = GetTetherPlanet.Position + TetherOffset;
                 if (BuildPositionFree(pos))
                     return pos;
 
                 for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
                 {
                     TetherOffset = MathExt.PointOnCircle(i * 40, distance);
-                    pos = GetTetherPlanet.Center + TetherOffset;
+                    pos = GetTetherPlanet.Position + TetherOffset;
                     if (BuildPositionFree(pos))
                         return pos;
                 }
             }
 
-            return GetTetherPlanet.Center; // There is a limit on orbitals number
+            return GetTetherPlanet.Position; // There is a limit on orbitals number
         }
 
         bool BuildPositionFree(Vector2 position)

@@ -98,8 +98,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             Planet targetPlanet = OldShip.GetTether();
             if (targetPlanet != null)
             {
-                Vector2 dirToOrbital = targetPlanet.Center.DirectionToTarget(OldShip.Position);
-                float disToOrbital   = targetPlanet.Center.Distance(OldShip.Position);
+                Vector2 dirToOrbital = targetPlanet.Position.DirectionToTarget(OldShip.Position);
+                float disToOrbital   = targetPlanet.Position.Distance(OldShip.Position);
                 TetherOffset         = dirToOrbital.Normalized() * disToOrbital;
             }
             else

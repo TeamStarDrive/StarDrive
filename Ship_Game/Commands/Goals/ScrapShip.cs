@@ -61,7 +61,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipOnPlan)
                 return GoalStep.GoalFailed;
 
-            if (OldShip.Position.InRadius(PlanetBuildingAt.Center, PlanetBuildingAt.ObjectRadius + 300f))
+            if (OldShip.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.ObjectRadius + 300f))
                 return GoalStep.GoToNextStep;
 
             return GoalStep.TryAgain;

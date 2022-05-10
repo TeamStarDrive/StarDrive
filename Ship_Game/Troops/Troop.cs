@@ -460,7 +460,7 @@ namespace Ship_Game
 
         Ship CreateShipForTroop(Planet planet)
         {
-            Vector2 createAt = planet.Center + RandomMath.Vector2D(planet.ObjectRadius * 2);
+            Vector2 createAt = planet.Position + RandomMath.Vector2D(planet.ObjectRadius * 2);
             return Ship.CreateTroopShipAtPoint(planet.Universe, Owner.data.DefaultTroopShip, Owner, createAt, this);
         }
 

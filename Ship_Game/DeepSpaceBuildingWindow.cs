@@ -178,7 +178,7 @@ namespace Ship_Game
             foreach (UniverseScreen.ClickablePlanet cplanet in Screen.ClickablePlanets)
             {
                 float radius = 2500f * cplanet.Planet.Scale;
-                Screen.DrawCircleProjected(cplanet.Planet.Center, radius, new Color(255, 165, 0, 100), 2f,
+                Screen.DrawCircleProjected(cplanet.Planet.Position, radius, new Color(255, 165, 0, 100), 2f,
                                            nodeTex, new Color(0, 0, 255, 100));
             }
 
@@ -201,9 +201,9 @@ namespace Ship_Game
                 TetherOffset = Vector2.Zero;
                 foreach (UniverseScreen.ClickablePlanet p in Screen.ClickablePlanets)
                 {
-                    if (p.Planet.Center.Distance(cursorWorldPos) <= (2500f * p.Planet.Scale))
+                    if (p.Planet.Position.Distance(cursorWorldPos) <= (2500f * p.Planet.Scale))
                     {
-                        TetherOffset = cursorWorldPos - p.Planet.Center;
+                        TetherOffset = cursorWorldPos - p.Planet.Position;
                         TargetPlanetId = p.Planet.Id;
                         batch.DrawLine(p.ScreenPos, Screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
                         batch.DrawString(Fonts.Arial20Bold, "Will Orbit " + p.Planet.Name,

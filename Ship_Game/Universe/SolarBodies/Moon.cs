@@ -84,7 +84,7 @@ namespace Ship_Game.Gameplay
                 OrbitPlanet = System.Universe.GetPlanet(OrbitPlanetId);
             }
 
-            Position = OrbitPlanet.Center.PointFromAngle(OrbitalAngle, OrbitRadius);
+            Position = OrbitPlanet.Position.PointFromAngle(OrbitalAngle, OrbitRadius);
 
             if (So != null)
             {

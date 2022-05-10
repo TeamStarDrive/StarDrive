@@ -324,7 +324,7 @@ namespace Ship_Game
                     {
                         GameAudio.SubBassWhoosh();
                         Universe.SelectedPlanet = capital;
-                        Universe.CamDestination = new Vector3d(capital.Center.X, capital.Center.Y + 400f, 9000);
+                        Universe.CamDestination = new Vector3d(capital.Position.X, capital.Position.Y + 400f, 9000);
                     }
                     else
                     {

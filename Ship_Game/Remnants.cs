@@ -449,7 +449,7 @@ namespace Ship_Game
                 : (MaxLevel - Level).Clamped(2, 10); // Decrease spread to focus on quality targets
 
             if (Level <= 5) // Level 5 or below will go for closest planets to the portal
-                nextPlanet = GetTargetPlanetByDistance(potentialPlanets, currentPlanet.Center, numPlanetsToTake);
+                nextPlanet = GetTargetPlanetByDistance(potentialPlanets, currentPlanet.Position, numPlanetsToTake);
             else // Remnants higher than level 5 will go after high level planets
                 nextPlanet = GetTargetPlanetByPop(potentialPlanets, numPlanetsToTake);
 
@@ -475,7 +475,7 @@ namespace Ship_Game
 
         Planet GetTargetPlanetByDistance(Planet[] potentialPlanets, Vector2 pos, int numPlanetsToTake)
         {
-            var filteredList = potentialPlanets.Sorted(p => p.Center.Distance(pos)).TakeItems(numPlanetsToTake);
+            var filteredList = potentialPlanets.Sorted(p => p.Position.Distance(pos)).TakeItems(numPlanetsToTake);
 
             return filteredList.Length > 0 ? filteredList.RandItem() : null;
         }
@@ -968,7 +968,7 @@ namespace Ship_Game
             int divider = 7 * ((int)CurrentGame.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
-                Vector2 pos = p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius * 2);
+                Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.ObjectRadius * 2);
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p, clearOrders:true, MoveOrder.Aggressive);
