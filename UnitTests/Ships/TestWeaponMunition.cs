@@ -115,10 +115,10 @@ namespace UnitTests.Ships
         {
             CreateWeapon(out Ship ship, out WeaponTestWrapper weapon, ordCost:1, pwrCost:0);
 
-            weapon.Module.SetHealth(0);
+            weapon.Module.SetHealth(0, "Test");
             Assert.IsFalse(FireAtVisiblePoint(weapon), "Cannot fire if dead");
 
-            weapon.Module.SetHealth(weapon.Module.ActualMaxHealth);
+            weapon.Module.SetHealth(weapon.Module.ActualMaxHealth, "Test");
             weapon.Module.Powered = false;
             Assert.IsFalse(FireAtVisiblePoint(weapon), "Cannot fire if not powered");
 
@@ -131,10 +131,10 @@ namespace UnitTests.Ships
         {
             CreateWeapon(out Ship ship, out WeaponTestWrapper weapon, ordCost: 1, pwrCost: 0);
 
-            weapon.Module.SetHealth(0);
+            weapon.Module.SetHealth(0, "Test");
             Assert.IsFalse(FireAtVisiblePoint(weapon), "Cannot fire if dead");
 
-            weapon.Module.SetHealth(weapon.Module.ActualMaxHealth);
+            weapon.Module.SetHealth(weapon.Module.ActualMaxHealth, "Test");
             weapon.Module.Powered = false;
             Assert.IsFalse(FireAtVisiblePoint(weapon), "Cannot fire if not powered");
 

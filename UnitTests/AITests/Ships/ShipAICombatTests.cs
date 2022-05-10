@@ -50,6 +50,8 @@ namespace UnitTests.AITests.Ships
             Us = SpawnNonCombat(name, Player, 0, 0.1f);
             RunObjectsSim(TestSimStep);
             Assert.IsFalse(Us.InCombat, "ship should not be in combat yet");
+            Assert.IsTrue(Us.Active, "Our ship should be Active");
+            Assert.AreEqual(Us, Universe.UState.Objects.FindShip(Us.Id), "Our ship should be in UniverseObjectManager");
         }
 
         void SpawnEnemyShips()
@@ -260,9 +262,12 @@ namespace UnitTests.AITests.Ships
 
         void AssertHighAlertTimesOutCorrectly()
         {
-            double highAlertTime = RunSimWhile((simTimeout:20, fatal:false), () => Us.OnHighAlert);
+            Assert.IsTrue(Us.Active, $"Somehow our ship died! {Us}");
 
-            Log.Write($"Target.HighAlertTimer: {Us.GetHighAlertTimer():0.#####}");
+            Log.Write($"Target.HighAlertTimer Before: {Us.GetHighAlertTimer():0.#####}");
+            double highAlertTime = RunSimWhile((simTimeout:25, fatal:false), () => Us.OnHighAlert);
+            Log.Write($"Target.HighAlertTimer After: {Us.GetHighAlertTimer():0.#####}");
+
             // delta must be set to EnemyScanInterval, because that is the accuracy of HighAlert status
             Assert.AreEqual(Ship.HighAlertSeconds, highAlertTime, delta:EmpireConstants.EnemyScanInterval,
                 $"Ship should remain OnHighAlert for {Ship.HighAlertSeconds} seconds after combat was over");
@@ -363,25 +368,40 @@ namespace UnitTests.AITests.Ships
             Assert.IsFalse(Us.InCombat, "ship should have exited combat");
         }
 
+        void PrintAllShipsAndProjectiles()
+        {
+            var ships = Universe.UState.Objects.GetShips();
+            var projectiles = Universe.UState.Objects.GetAllProjectilesAndBeams();
+            Log.Write($"NumShips:{ships.Count} NumProjectiles:{projectiles.Length}");
+
+            foreach (var ship in ships)
+                Log.Write($"Ship: {ship}");
+            foreach (var projectile in projectiles)
+                Log.Write($"Projectile: {projectile}");
+        }
+
         [TestMethod]
         public void NotInCombatWithHostilePlanets()
         {
-            SpawnOurShip(ScoutName);
+            SpawnOurShip(FrigateName);
+            Us.EnableDebugLogging = true;
             Assert.IsFalse(Us.InCombat, "Ship should not start with InCombat set");
 
             AddDummyPlanetToEmpire(Enemy);
             RunObjectsSim(EnemyScanInterval);
 
+            Assert.IsTrue(Us.Active, "Somehow our ship died!");
             Assert.AreNotEqual(null, Us.System, "Ship.System must be valid");
             Assert.IsTrue(Us.AI.BadGuysNear, "Ship.BadGuysNear must be set by planet");
 
             Assert.IsFalse(Us.InCombat, "Ship should not be in combat with a planet");
             RunObjectsSim(EnemyScanInterval);
+            Assert.IsTrue(Us.Active, "Somehow our ship died!");
             Assert.IsTrue(Us.OnHighAlert, "Enemy planet should set our Ship OnHighAlert");
 
             // now teleport ship to safety:
             Us.Position = new Vector2(200_000f);
-            Us.AI.OrderHoldPosition();
+            Us.AI.OrderHoldPosition(MoveOrder.StandGround);
             RunObjectsSim(EnemyScanInterval); // wait another scan interval to detect high alert change
 
             AssertHighAlertTimesOutCorrectly();
