@@ -59,6 +59,7 @@
     <Compile Include="Rendering\VertexCoordColor.cs" />
     <Compile Include="Shaders\Shader.cs" />
     <Compile Include="Sprites\SpriteRenderer.cs" />
+    <Compile Include="SubTexture.cs" />
     <Compile Include="Vector2.cs" />
     <Compile Include="Vector2d.cs" />
     <Compile Include="Vector3.cs" />

@@ -4,6 +4,7 @@ using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using SDGraphics;
 using Ship_Game.Data;
 
 namespace Ship_Game.Ships

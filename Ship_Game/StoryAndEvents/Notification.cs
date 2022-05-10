@@ -1,3 +1,4 @@
+using SDGraphics;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
