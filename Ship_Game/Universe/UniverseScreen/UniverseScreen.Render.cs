@@ -130,12 +130,13 @@ namespace Ship_Game
             if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
             {
                 // set the alpha value depending on camera height
-                int maxAlpha = 180;
-                int alpha = (int)(maxAlpha * CamPos.Z / (double)UnivScreenState.SectorView);
+                int maxAlpha = 90;
+                double relHeight = CamPos.Z / 1800000.0;
+                int alpha = (int)(maxAlpha * relHeight);
                 if (alpha > maxAlpha) alpha = maxAlpha;
-                else if (alpha < 5) alpha = 0;
+                else if (alpha < 10) alpha = 0;
 
-                var color = new Color(255, 255, 255, (byte) alpha);
+                var color = new Color(255, 255, 255, (byte)alpha);
                 batch.Draw(BorderRT.GetTexture(), new Rectangle(0, 0, ScreenWidth, ScreenHeight), color);
             }
             DrawOverFog.Stop();
