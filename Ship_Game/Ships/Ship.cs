@@ -509,7 +509,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void CauseRadiationDamage(float damage, object source)
+        public void CauseRadiationDamage(float damage, GameplayObject source)
         {
             if (IsInWarp)
                 damage *= 0.5f; // some protection while in warp
