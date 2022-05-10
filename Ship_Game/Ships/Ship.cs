@@ -66,7 +66,6 @@ namespace Ship_Game.Ships
         public int Kills;
         public float Experience;
         public bool EnginesKnockedOut;
-        public bool ShouldBank { get; private set; } // Used when the ship is turning (changing Y rotation)
         public float InhibitionRadius;
         public bool IsPlatform;
         public bool IsGuardian; // Remnant Guardian created at game start
