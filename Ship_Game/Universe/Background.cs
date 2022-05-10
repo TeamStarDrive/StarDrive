@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDGraphics.Sprites;
+using SDUtils;
 using Ship_Game.Graphics;
 using Vector2 = SDGraphics.Vector2;
 

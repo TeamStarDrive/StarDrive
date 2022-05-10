@@ -18,6 +18,7 @@ using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using SDGraphics;
+using SDUtils;
 
 namespace Ship_Game
 {
