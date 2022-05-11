@@ -107,11 +107,11 @@ namespace Ship_Game.Gameplay
         /// <param name="maxResults">Maximum results to get.
         /// PROTIP: if numResults > maxResults, then results are sorted by distance and far objects are discarded</param>
         public GameObject[] FindNearby(GameObjectType type,
-                                           GameObject obj, float radius,
-                                           int maxResults,
-                                           Empire excludeLoyalty = null,
-                                           Empire onlyLoyalty = null,
-                                           int debugId = 0)
+                                       GameObject obj, float radius,
+                                       int maxResults,
+                                       Empire excludeLoyalty = null,
+                                       Empire onlyLoyalty = null,
+                                       int debugId = 0)
         {
             var opt = new SearchOptions(obj.Position, radius, type)
             {
@@ -126,11 +126,11 @@ namespace Ship_Game.Gameplay
         }
 
         public GameObject[] FindNearby(GameObjectType type,
-                                           Vector2 worldPos, float radius,
-                                           int maxResults,
-                                           Empire excludeLoyalty = null,
-                                           Empire onlyLoyalty = null,
-                                           int debugId = 0)
+                                       Vector2 worldPos, float radius,
+                                       int maxResults,
+                                       Empire excludeLoyalty = null,
+                                       Empire onlyLoyalty = null,
+                                       int debugId = 0)
         {
             var opt = new SearchOptions(worldPos, radius, type)
             {
@@ -144,11 +144,11 @@ namespace Ship_Game.Gameplay
         }
 
         public GameObject[] FindNearby(GameObjectType type, 
-                                           in AABoundingBox2D searchArea,
-                                           int maxResults,
-                                           Empire excludeLoyalty = null,
-                                           Empire onlyLoyalty = null,
-                                           int debugId = 0)
+                                       in AABoundingBox2D searchArea,
+                                       int maxResults,
+                                       Empire excludeLoyalty = null,
+                                       Empire onlyLoyalty = null,
+                                       int debugId = 0)
         {
             var opt = new SearchOptions(searchArea, type)
             {
