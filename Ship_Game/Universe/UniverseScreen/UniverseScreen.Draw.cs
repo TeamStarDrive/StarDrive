@@ -106,12 +106,16 @@ namespace Ship_Game
                         DrawCircleProjected(inf.Position, inf.Radius, Color.Orange, 2); // DEBUG
                     }
                 }
-                
+
                 // draw connection bridges
+                // NOTE: all BorderNodeCache.Connections are those which are `KnownToPlayer`
                 foreach (InfluenceConnection c in empire.BorderNodeCache.Connections)
                 {
                     Empire.InfluenceNode a = c.Node1;
                     Empire.InfluenceNode b = c.Node2;
+                    // if both nodes are out of screen, skip draw
+                    if (!Frustum.Contains(a.Position, a.Radius) && !Frustum.Contains(b.Position, b.Radius))
+                        continue;
 
                     // The Connection is made of two rectangles, with O marking the influence centers
                     // +-width-+O-width-+
