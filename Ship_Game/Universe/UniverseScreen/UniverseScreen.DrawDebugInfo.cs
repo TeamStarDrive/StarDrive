@@ -6,44 +6,45 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         // empire perf indicators
-        readonly AggregatePerfTimer PreEmpirePerf   = new AggregatePerfTimer();
-        readonly AggregatePerfTimer EmpireInfluPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PreEmpirePerf   = new();
+        readonly AggregatePerfTimer EmpireInfluPerf = new();
                         
-        public readonly AggregatePerfTimer ResetBordersPerf  = new AggregatePerfTimer();
-        public readonly AggregatePerfTimer ScanInfluencePerf = new AggregatePerfTimer();
-        public readonly AggregatePerfTimer ThreatMatrixPerf  = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer ResetBordersPerf  = new();
+        public readonly AggregatePerfTimer ScanInfluencePerf = new();
+        public readonly AggregatePerfTimer CheckFirstContactPerf = new();
+        public readonly AggregatePerfTimer ThreatMatrixPerf  = new();
 
-        readonly AggregatePerfTimer EmpireUpdatePerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer EmpireMiscPerf   = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PostEmpirePerf   = new AggregatePerfTimer();
+        readonly AggregatePerfTimer EmpireUpdatePerf = new();
+        readonly AggregatePerfTimer EmpireMiscPerf   = new();
+        readonly AggregatePerfTimer PostEmpirePerf   = new();
 
-        readonly AggregatePerfTimer TurnTimePerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer ProcessSimTurnsPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer TurnTimePerf = new();
+        readonly AggregatePerfTimer ProcessSimTurnsPerf = new();
         
-        readonly AggregatePerfTimer DrawGroupTotalPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer DrawGroupTotalPerf = new();
 
-        readonly AggregatePerfTimer RenderGroupTotalPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer BeginSunburnPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer BackdropPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer SunburnDrawPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawPlanetsPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawShieldsPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawParticles = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawExplosionsPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer EndSunburnPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer RenderGroupTotalPerf = new();
+        readonly AggregatePerfTimer BeginSunburnPerf = new();
+        readonly AggregatePerfTimer BackdropPerf = new();
+        readonly AggregatePerfTimer SunburnDrawPerf = new();
+        readonly AggregatePerfTimer DrawPlanetsPerf = new();
+        readonly AggregatePerfTimer DrawShieldsPerf = new();
+        readonly AggregatePerfTimer DrawParticles = new();
+        readonly AggregatePerfTimer DrawExplosionsPerf = new();
+        readonly AggregatePerfTimer EndSunburnPerf = new();
         
-        readonly AggregatePerfTimer OverlaysGroupTotalPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawFogInfluence = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawBorders = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawFogOfWar = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawOverFog = new AggregatePerfTimer();
+        readonly AggregatePerfTimer OverlaysGroupTotalPerf = new();
+        readonly AggregatePerfTimer DrawFogInfluence = new();
+        readonly AggregatePerfTimer DrawBorders = new();
+        readonly AggregatePerfTimer DrawFogOfWar = new();
+        readonly AggregatePerfTimer DrawOverFog = new();
 
         
-        readonly AggregatePerfTimer IconsGroupTotalPerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawProj = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawShips = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawIcons = new AggregatePerfTimer();
-        readonly AggregatePerfTimer DrawUI = new AggregatePerfTimer();
+        readonly AggregatePerfTimer IconsGroupTotalPerf = new();
+        readonly AggregatePerfTimer DrawProj = new();
+        readonly AggregatePerfTimer DrawShips = new();
+        readonly AggregatePerfTimer DrawIcons = new();
+        readonly AggregatePerfTimer DrawUI = new();
 
         ScrollList2<DebugStatItem> DebugStats;
 
@@ -79,9 +80,10 @@ namespace Ship_Game
                 turn.AddSubItem(new DebugStatItem("PreEmp", PreEmpirePerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Empire", EmpireUpdatePerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Influence", EmpireInfluPerf, TurnTimePerf));
-                turn.AddSubItem(new DebugStatItem(" ResetBorders", ResetBordersPerf, TurnTimePerf));
-                turn.AddSubItem(new DebugStatItem(" ScanInfluence", ScanInfluencePerf, TurnTimePerf));
-                turn.AddSubItem(new DebugStatItem(" ThreatMatrix", ThreatMatrixPerf, TurnTimePerf));
+                turn.AddSubItem(new DebugStatItem(" ResetBorders", ResetBordersPerf, EmpireInfluPerf));
+                turn.AddSubItem(new DebugStatItem(" ScanInfluence", ScanInfluencePerf, EmpireInfluPerf));
+                turn.AddSubItem(new DebugStatItem(" FirstContacts", CheckFirstContactPerf, EmpireInfluPerf));
+                turn.AddSubItem(new DebugStatItem(" ThreatMatrix", ThreatMatrixPerf, EmpireInfluPerf));
                 turn.AddSubItem(new DebugStatItem("Objects", uObjects.TotalTime, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Misc", EmpireMiscPerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("PostEmp", PostEmpirePerf, TurnTimePerf));

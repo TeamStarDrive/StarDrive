@@ -38,15 +38,15 @@ namespace Ship_Game
 
         public float GetProjectorRadius() => Universum?.Projectors.Radius * data.SensorModifier ?? 10000;
         public float GetProjectorRadius(Planet planet) => GetProjectorRadius() + 10000f * planet.PopulationBillion;
-        readonly Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
+        readonly Map<int, Fleet> FleetsDict = new();
 
 
-        public readonly Map<string, bool> UnlockedHullsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        readonly Map<string, bool> UnlockedTroopDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        readonly Map<string, bool> UnlockedBuildingsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        readonly Map<string, bool> UnlockedModulesDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        public readonly Map<string, bool> UnlockedHullsDict = new(StringComparer.InvariantCultureIgnoreCase);
+        readonly Map<string, bool> UnlockedTroopDict = new(StringComparer.InvariantCultureIgnoreCase);
+        readonly Map<string, bool> UnlockedBuildingsDict = new(StringComparer.InvariantCultureIgnoreCase);
+        readonly Map<string, bool> UnlockedModulesDict = new(StringComparer.InvariantCultureIgnoreCase);
 
-        readonly Array<Troop> UnlockedTroops = new Array<Troop>();
+        readonly Array<Troop> UnlockedTroops = new();
 
         /// <summary>
         /// Returns an average of empire money over several turns.
@@ -62,9 +62,9 @@ namespace Ship_Game
                 NormalizedMoney = NormalizedMoney*(1f-rate) + money*rate;
         }
 
-        public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
-        public Array<Ship> Inhibitors = new Array<Ship>();
-        public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
+        public Map<string, TechEntry> TechnologyDict = new(StringComparer.InvariantCultureIgnoreCase);
+        public Array<Ship> Inhibitors = new();
+        public Array<SpaceRoad> SpaceRoadsList = new();
 
         public const float StartingMoney = 1000f;
         float MoneyValue = StartingMoney;
@@ -74,19 +74,15 @@ namespace Ship_Game
             set => MoneyValue = value.NaNChecked(0f, "Empire.Money");
         }
 
-        BatchRemovalCollection<Planet> OwnedPlanets = new BatchRemovalCollection<Planet>();
-        BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
+        BatchRemovalCollection<Planet> OwnedPlanets = new();
+        BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new();
         public IReadOnlyList<Ship> OwnedShips => EmpireShips.OwnedShips;
         public IReadOnlyList<Ship> OwnedProjectors => EmpireShips.OwnedProjectors;
 
-        public InfluenceNode[] BorderNodes = Empty<InfluenceNode>.Array;
-        public InfluenceNode[] SensorNodes = Empty<InfluenceNode>.Array;
-        public BorderNodeCache BorderNodeCache = new();
-
-        readonly Map<SolarSystem, bool> HostilesLogged = new Map<SolarSystem, bool>(); // Only for Player warnings
-        public Array<IncomingThreat> SystemsWithThreat = new Array<IncomingThreat>();
-        public HashSet<string> ShipsWeCanBuild = new HashSet<string>();
-        public HashSet<string> structuresWeCanBuild = new HashSet<string>();
+        readonly Map<SolarSystem, bool> HostilesLogged = new(); // Only for Player warnings
+        public Array<IncomingThreat> SystemsWithThreat = new();
+        public HashSet<string> ShipsWeCanBuild = new();
+        public HashSet<string> structuresWeCanBuild = new();
         float FleetUpdateTimer = 5f;
         int TurnCount = 1;
         public EmpireData data;
@@ -172,21 +168,20 @@ namespace Ship_Game
         public float TotalColonyPotentialValues { get; private set; }
         public Ship BestPlatformWeCanBuild { get; private set; }
         public Ship BestStationWeCanBuild { get; private set; }
-        public HashSet<string> ShipTechs = new HashSet<string>();
-        public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
+        public HashSet<string> ShipTechs = new();
         public Vector2 WeightedCenter;
         public bool RushAllConstruction;
-        public List<KeyValuePair<int, string>> DiplomacyContactQueue { get; private set; } = new List<KeyValuePair<int, string>>();  // Empire IDs, for player only
+        public List<KeyValuePair<int, string>> DiplomacyContactQueue { get; private set; } = new();  // Empire IDs, for player only
         public bool AutoPickBestColonizer;
 
-        public Array<string> ObsoletePlayerShipModules = new Array<string>();
+        public Array<string> ObsoletePlayerShipModules = new();
 
         public int AtWarCount;
-        public Array<string> BomberTech      = new Array<string>();
-        public Array<string> TroopShipTech   = new Array<string>();
-        public Array<string> CarrierTech     = new Array<string>();
-        public Array<string> SupportShipTech = new Array<string>();
-        public Planet[] RallyPoints          = Empty<Planet>.Array;
+        public Array<string> BomberTech      = new();
+        public Array<string> TroopShipTech   = new();
+        public Array<string> CarrierTech     = new();
+        public Array<string> SupportShipTech = new();
+        public Planet[] RallyPoints = Empty<Planet>.Array;
 
         public const string DefaultBoardingShuttleName = "Assault Shuttle";
         public const string DefaultSupplyShuttleName   = "Supply Shuttle";
@@ -2412,8 +2407,12 @@ namespace Ship_Game
             return maxDesireType;
         }
 
-        readonly Array<InfluenceNode> TempSensorNodes = new Array<InfluenceNode>();
-        readonly Array<InfluenceNode> TempBorderNodes = new Array<InfluenceNode>();
+        readonly Array<InfluenceNode> TempSensorNodes = new();
+        readonly Array<InfluenceNode> TempBorderNodes = new();
+
+        public InfluenceNode[] BorderNodes = Empty<InfluenceNode>.Array;
+        public InfluenceNode[] SensorNodes = Empty<InfluenceNode>.Array;
+        public BorderNodeCache BorderNodeCache = new();
 
         /// <summary>
         /// Border nodes are used to show empire influence.
@@ -2429,7 +2428,7 @@ namespace Ship_Game
                 Universum.Debug && (us.Screen.SelectedShip == null || us.Screen.SelectedShip.Loyalty == this);
             bool known = wellKnown || us.Player.IsTradeOrOpenBorders(this);
 
-            SetBordersKnownByAllies(TempSensorNodes);
+            AddSensorsFromAllies(TempSensorNodes);
             SetBordersByPlanet(known, TempBorderNodes, TempSensorNodes);
 
             float projectorRadius = GetProjectorRadius();
@@ -2465,8 +2464,8 @@ namespace Ship_Game
                 TempBorderNodes.Add(node);
             }
 
-            SetPirateBorders(TempBorderNodes);
-            SetRemnantPortalBorders(TempBorderNodes);
+            AddPirateBorders(TempBorderNodes);
+            AddRemnantPortalBorders(TempBorderNodes);
 
             SensorNodes = TempSensorNodes.ToArray();
             BorderNodes = TempBorderNodes.ToArray();
@@ -2474,14 +2473,14 @@ namespace Ship_Game
             TempBorderNodes.Clear();
         }
 
-        void SetPirateBorders(Array<InfluenceNode> borderNodes)
+        void AddPirateBorders(Array<InfluenceNode> borderNodes)
         {
             if (WeArePirates && Pirates.GetBases(out Array<Ship> bases))
                 for (int i = 0; i < bases.Count; i++)
                     borderNodes.Add(new InfluenceNode(bases[i]));
         }
 
-        void SetRemnantPortalBorders(Array<InfluenceNode> borderNodes)
+        void AddRemnantPortalBorders(Array<InfluenceNode> borderNodes)
         {
             if (WeAreRemnants && Remnants.GetPortals(out Ship[] portals))
                 for (int i = 0; i < portals.Length; i++)
@@ -2506,24 +2505,24 @@ namespace Ship_Game
             }
         }
 
-        void SetBordersKnownByAllies(Array<InfluenceNode> sensorNodes)
+        void AddSensorsFromAllies(Array<InfluenceNode> sensorNodes)
         {
             bool isPlayerInDebug = Universum.Debug && isPlayer && Universum.Screen.SelectedShip == null;
-            foreach(var empire in EmpireManager.Empires)
+            foreach(var ally in EmpireManager.Empires)
             {
-                if (GetRelations(empire, out Relationship relation) &&
+                if (GetRelations(ally, out Relationship relation) &&
                     (relation.Treaty_Alliance || isPlayerInDebug))
                 {
-                    Planet[] planets = empire.OwnedPlanets.ToArray();
+                    Planet[] planets = ally.OwnedPlanets.ToArray();
                     for (int y = 0; y < planets.Length; y++)
                         sensorNodes.Add(new InfluenceNode(planets[y], true));
 
-                    Ship[] ships = empire.EmpireShips.OwnedShips;
+                    Ship[] ships = ally.EmpireShips.OwnedShips;
                     for (int z = 0; z < ships.Length; z++)
                         sensorNodes.Add(new InfluenceNode(ships[z], true));
 
                     // loop over all ALLIED projectors
-                    Ship[] projectors = empire.EmpireShips.OwnedProjectors;
+                    Ship[] projectors = ally.EmpireShips.OwnedProjectors;
                     for (int z = 0; z < projectors.Length; z++)
                         sensorNodes.Add(new InfluenceNode(projectors[z], true));
                 }
@@ -3471,7 +3470,11 @@ namespace Ship_Game
             }
             us.ScanInfluencePerf.Stop();
 
-            CheckForFirstContacts();
+            us.CheckFirstContactPerf.Start();
+            {
+                CheckForFirstContacts();
+            }
+            us.CheckFirstContactPerf.Stop();
 
             ThreatMatrixUpdateTimer -= timeStep.FixedTime;
             if (ThreatMatrixUpdateTimer <= 0f)
@@ -3615,16 +3618,16 @@ namespace Ship_Game
 
             public InfluenceNode(Planet planet, bool known)
             {
-                Position      = planet.Position;
-                Radius        = planet.SensorRange;
-                Source  = planet;
+                Position = planet.Position;
+                Radius = planet.SensorRange;
+                Source = planet;
                 KnownToPlayer = known;
             }
             public InfluenceNode(Ship ship, bool known = false)
             {
-                Position      = ship.Position;
-                Radius        = ship.SensorRange;
-                Source  = ship;
+                Position = ship.Position;
+                Radius = ship.SensorRange;
+                Source = ship;
                 KnownToPlayer = known || ship.InSensorRange;
             }
         }
