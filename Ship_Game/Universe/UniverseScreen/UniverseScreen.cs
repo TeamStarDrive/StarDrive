@@ -70,7 +70,6 @@ namespace Ship_Game
         public Vector2 mouseWorldPos;
 
         FleetButton[] FleetButtons = Empty<FleetButton>.Array;
-        public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
         public bool ShowTacticalCloseup { get; private set; }
         public bool Debug => UState.Debug;
 

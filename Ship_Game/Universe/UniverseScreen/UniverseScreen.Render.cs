@@ -124,11 +124,12 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
 
-        void RenderOverFog(SpriteBatch batch)
+        void DrawColoredBordersRT(SpriteBatch batch)
         {
             DrawOverFog.Start();
             if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
             {
+                batch.Begin(SpriteBlendMode.AlphaBlend);
                 // set the alpha value depending on camera height
                 int maxAlpha = 70;
                 double relHeight = CamPos.Z / 1800000.0;
@@ -138,6 +139,7 @@ namespace Ship_Game
 
                 var color = new Color(255, 255, 255, (byte)alpha);
                 batch.Draw(BorderRT.GetTexture(), new Rectangle(0, 0, ScreenWidth, ScreenHeight), color);
+                batch.End();
             }
             DrawOverFog.Stop();
         }

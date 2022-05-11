@@ -30,70 +30,32 @@ namespace Ship_Game
         {
             if (SelectedSystem != null && !LookingAtPlanet)
             {
-                Vector2 sysPos = SelectedSystem.Position;
-                float sunRadius = 4500f;
-                Vector2 nearPoint = new Vector3(Viewport.Project(new Vector3(sysPos, 0f), Projection, View, Matrix.Identity)).ToVec2();
-                Vector2 farPoint  = new Vector3(Viewport.Project(new Vector3(sysPos.X + sunRadius, sysPos.Y, 0.0f), Projection, View, Matrix.Identity)).ToVec2();
-                float radius = farPoint.Distance(nearPoint);
-                if (radius < 5f)
-                    radius = 5f;
-                batch.BracketRectangle(new Vector2d(nearPoint), radius, Color.White);
+                ProjectToScreenCoords(SelectedSystem.Position, 4500f, out Vector2d sysPos, out double sysRadius);
+                if (sysRadius < 5.0)
+                    sysRadius = 5.0;
+                batch.BracketRectangle(sysPos, sysRadius, Color.White);
             }
             if (SelectedPlanet != null && !LookingAtPlanet &&  viewState < UnivScreenState.GalaxyView)
             {
-                Vector2 planetPos = SelectedPlanet.Position;
-                float planetRadius = SelectedPlanet.ObjectRadius;
-                Vector2 center = new Vector3(Viewport.Project(new Vector3(planetPos, 2500f), Projection, View, Matrix.Identity)).ToVec2();
-                Vector2 edge = new Vector3(Viewport.Project(new Vector3(planetPos.X + planetRadius, planetPos.Y, 2500f), Projection, View, Matrix.Identity)).ToVec2();
-                float radius = center.Distance(edge);
-                if (radius < 8f)
-                    radius = 8f;
-                batch.BracketRectangle(new Vector2d(center), radius, SelectedPlanet.Owner?.EmpireColor ?? Color.Gray);
-            }
-        }
-
-        private void DrawFogNodes()
-        {
-            var uiNode = ResourceManager.Texture("UI/node");
-            var viewport = Viewport;
-
-            foreach (FogOfWarNode fogOfWarNode in FogNodes)
-            {
-                if (!fogOfWarNode.Discovered)
-                    continue;
-
-                Vector3 vector3_1 = new Vector3(viewport.Project(fogOfWarNode.Position.ToVec3(), Projection, View, Matrix.Identity));
-                Vector2 vector2 = vector3_1.ToVec2();
-                Vector3 vector3_2 = new Vector3(viewport.Project(
-                    new Vector3(fogOfWarNode.Position.PointFromAngle(90f, fogOfWarNode.Radius * 1.5f), 0.0f),
-                    Projection, View, Matrix.Identity
-                ));
-                float num = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2.X);
-                Rectangle destinationRectangle =
-                    new Rectangle((int) vector2.X, (int) vector2.Y, (int) num * 2, (int) num * 2);
-                ScreenManager.SpriteBatch.Draw(uiNode, destinationRectangle, new Color(70, 255, 255, 255), 0.0f,
-                    uiNode.CenterF, SpriteEffects.None, 1f);
+                ProjectToScreenCoords(SelectedPlanet.Position, SelectedPlanet.ObjectRadius,
+                                      out Vector2d planetPos, out double planetRadius);
+                if (planetRadius < 8.0)
+                    planetRadius = 8.0;
+                batch.BracketRectangle(planetPos, planetRadius, SelectedPlanet.Owner?.EmpireColor ?? Color.Gray);
             }
         }
 
         void DrawInfluenceNodes(SpriteBatch batch)
         {
-            var uiNode= ResourceManager.Texture("UI/node");
-            var viewport = Viewport;
-
+            var uiNode = ResourceManager.Texture("UI/node");
             var sensorNodes = Player.SensorNodes;
             for (int i = 0; i < sensorNodes.Length; ++i)
             {
-                ref Empire.InfluenceNode @in = ref sensorNodes[i];
-                Vector2d screenPos = ProjectToScreenPosition(@in.Position);
-                Vector3 local_4 = new Vector3(viewport.Project(
-                    new Vector3(@in.Position.PointFromAngle(90f, @in.Radius * 1.5f), 0.0f), Projection,
-                    View, Matrix.Identity));
+                ref Empire.InfluenceNode node = ref sensorNodes[i];
 
-                double local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - screenPos.X) * 2.59999990463257;
-                Rectangle local_7 = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)local_6, (int)local_6);
-
-                batch.Draw(uiNode, local_7, Color.White, 0.0f, uiNode.CenterF, SpriteEffects.None, 1f);
+                ProjectToScreenCoords(node.Position, node.Radius * 2f, out Vector2d nodePos, out double nodeRadius);
+                RectF worldRect = RectF.FromPointRadius(nodePos, nodeRadius);
+                batch.Draw(uiNode, worldRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 1f);
             }
         }
 
@@ -182,6 +144,7 @@ namespace Ship_Game
 
             RenderStates.DisableSeparateAlphaChannelBlend(graphics);
             batch.End();
+            graphics.SetRenderTarget(0, null);
 
             DrawBorders.Stop();
         }
@@ -261,16 +224,20 @@ namespace Ship_Game
             UpdateFogMap(batch, device);
 
             device.SetRenderTarget(0, LightsTarget);
-            device.Clear(Color.White);
+            device.Clear(Color.White); // clear the lights RT to White
             batch.Begin(SpriteBlendMode.AlphaBlend);
-            if (!Debug) // don't draw fog of war in debug
+
+            if (!Debug) // draw fog of war if we're not in debug
             {
+                // fill screen with transparent black and draw FogMap darker light on top of it
                 Rectangle fogRect = ProjectToScreenCoords(new Vector2(-UState.Size), UState.Size*2f);
                 batch.FillRectangle(new Rectangle(0, 0, ScreenWidth, ScreenHeight), new Color(0, 0, 0, 170));
                 batch.Draw(FogMap, fogRect, new Color(255, 255, 255, 55));
             }
-            DrawFogNodes();
+
+            // draw all sensor nodes as clear white
             DrawInfluenceNodes(batch);
+
             batch.End();
             device.SetRenderTarget(0, null);
 
@@ -298,15 +265,15 @@ namespace Ship_Game
                 UpdateFogOfWarInfluences(batch, graphics);
                 if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
                     DrawColoredEmpireBorders(batch, graphics);
-                DrawFogOfWarEffect(batch, graphics);
+
+                // this draws the MainTarget RT which has the entire background and 3D ships
+                DrawMainRTWithFogOfWarEffect(batch, graphics);
 
                 SetViewMatrix(cameraMatrix);
                 if (GlobalStats.RenderBloom)
                     bloomComponent?.Draw();
 
-                batch.Begin(SpriteBlendMode.AlphaBlend);
-                RenderOverFog(batch);
-                batch.End();
+                DrawColoredBordersRT(batch);
             }
             OverlaysGroupTotalPerf.Stop();
 
@@ -386,22 +353,19 @@ namespace Ship_Game
             DrawUI.Stop();
         }
 
-        private void DrawFogOfWarEffect(SpriteBatch batch, GraphicsDevice graphics)
+        private void DrawMainRTWithFogOfWarEffect(SpriteBatch batch, GraphicsDevice graphics)
         {
             DrawFogOfWar.Start();
 
             Texture2D texture1 = MainTarget.GetTexture();
             Texture2D texture2 = LightsTarget.GetTexture();
-            graphics.SetRenderTarget(0, null);
             graphics.Clear(Color.Black);
             basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
-
 
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.SaveState);
             basicFogOfWarEffect.Begin();
             basicFogOfWarEffect.CurrentTechnique.Passes[0].Begin();
-            batch.Draw(texture1, new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth,
-                    graphics.PresentationParameters.BackBufferHeight), Color.White);
+            batch.Draw(texture1, new Rectangle(0, 0, ScreenWidth, ScreenHeight), Color.White);
             basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
             basicFogOfWarEffect.End();
             batch.End();
