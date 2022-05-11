@@ -128,6 +128,14 @@ public struct RectF
     /// <summary>
     /// This creates a rectangle from center point and radius, the rectangle encloses this circle
     /// </summary>
+    public static RectF FromPointRadius(Vector2d center, double radius)
+    {
+        return new RectF(center.X - radius, center.Y - radius, radius*2, radius*2);
+    }
+
+    /// <summary>
+    /// This creates a rectangle from center point and radius, the rectangle encloses this circle
+    /// </summary>
     public static RectF FromPointRadius(XnaVector2 center, float radius)
     {
         return new RectF(center.X - radius, center.Y - radius, radius*2, radius*2);
