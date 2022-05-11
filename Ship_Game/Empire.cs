@@ -81,6 +81,7 @@ namespace Ship_Game
 
         public InfluenceNode[] BorderNodes = Empty<InfluenceNode>.Array;
         public InfluenceNode[] SensorNodes = Empty<InfluenceNode>.Array;
+        public BorderNodeCache BorderNodeCache = new();
 
         readonly Map<SolarSystem, bool> HostilesLogged = new Map<SolarSystem, bool>(); // Only for Player warnings
         public Array<IncomingThreat> SystemsWithThreat = new Array<IncomingThreat>();
@@ -1398,7 +1399,7 @@ namespace Ship_Game
 
         void ScanForShips(ref InfluenceNode node)
         {
-            if (node.SourceObject is Ship)
+            if (node.Source is Ship)
                 return;
 
             // find ships in radius of node.
@@ -1420,7 +1421,7 @@ namespace Ship_Game
                 ship.SetProjectorInfluence(this, true);
 
                 // Civilian infrastructure spotting enemy fleets
-                if (node.SourceObject is Ship ssp)
+                if (node.Source is Ship ssp)
                 {
                     ssp.HasSeenEmpires.Update(timeStep, ssp.Loyalty);
                     if (ship.Fleet != null)
@@ -3609,21 +3610,21 @@ namespace Ship_Game
         {
             public Vector2 Position;
             public float Radius;
-            public object SourceObject; // SolarSystem, Planet OR Ship
+            public GameObject Source; // Planet OR Ship
             public bool KnownToPlayer;
 
             public InfluenceNode(Planet planet, bool known)
             {
                 Position      = planet.Position;
                 Radius        = planet.SensorRange;
-                SourceObject  = planet;
+                Source  = planet;
                 KnownToPlayer = known;
             }
             public InfluenceNode(Ship ship, bool known = false)
             {
                 Position      = ship.Position;
                 Radius        = ship.SensorRange;
-                SourceObject  = ship;
+                Source  = ship;
                 KnownToPlayer = known || ship.InSensorRange;
             }
         }
