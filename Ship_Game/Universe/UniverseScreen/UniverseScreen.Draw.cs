@@ -3,10 +3,9 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.Data.Mesh;
+using Ship_Game.Debug;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Graphics;
@@ -16,6 +15,7 @@ using Vector2d = SDGraphics.Vector2d;
 using Vector3 = SDGraphics.Vector3;
 using Vector3d = SDGraphics.Vector3d;
 using Ship_Game.ExtensionMethods;
+using Ship_Game.Universe;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game
@@ -97,6 +97,7 @@ namespace Ship_Game
             }
         }
 
+
         // Draws SSP - Subspace Projector influence
         void DrawColoredEmpireBorders(SpriteBatch batch, GraphicsDevice graphics)
         {
@@ -114,20 +115,19 @@ namespace Ship_Game
             var nodeTex = ResourceManager.Texture("UI/node");
             var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
 
-            // track which projectors already have a connection bridge to a solar system
-            var projectorsConnectedToSys = new HashSet<Ship>();
+            bool debug = Debug && DebugInfoScreen.Mode == DebugModes.Solar;
 
-            Empire[] empires = EmpireManager.Empires.Sorted(e=> e.MilitaryScore);
+            Empire[] empires = UState.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)
             {
                 if (!Debug && empire != Player && !Player.IsKnown(empire))
                     continue;
 
-                projectorsConnectedToSys.Clear();
+                empire.BorderNodeCache.Update(empire);
 
                 Color empireColor = empire.EmpireColor;
-                Empire.InfluenceNode[] nodes = empire.BorderNodes;
 
+                Empire.InfluenceNode[] nodes = empire.BorderNodeCache.BorderNodes;
                 for (int x = 0; x < nodes.Length; x++)
                 {
                     ref Empire.InfluenceNode inf = ref nodes[x];
@@ -136,49 +136,46 @@ namespace Ship_Game
 
                     RectF screenRect = ProjectToScreenRectF(RectF.FromPointRadius(inf.Position, inf.Radius));
                     screenRect = screenRect.ScaledBy(scale);
-                    batch.Draw(nodeTex, screenRect, empireColor);
-                    //batch.DrawRectangle(screenRect, Color.Red); // DEBUG
-                    //DrawCircleProjected(inf.Position, inf.Radius, Color.Orange, 2); // DEBUG
-                    //batch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.CenterF, SpriteEffects.None, 1f);
+                    batch.Draw(nodeTex, screenRect, empireColor, 0f, Vector2.Zero, SpriteEffects.None, 1f);
 
-                    // make connections from Projectors to Planet
-                    for (int i = 0; i < nodes.Length; i++)
+                    if (debug)
                     {
-                        ref Empire.InfluenceNode in2 = ref nodes[i];
-                        if (in2.KnownToPlayer && 
-                            in2.SourceObject != inf.SourceObject && // ignore self
-                            // allow only Planet <-> Projector connection
-                            inf.SourceObject is Planet &&
-                            in2.SourceObject is Ship projector &&
-                            !projectorsConnectedToSys.Contains(projector) &&
-                            // ensure we don't connect too far
-                            in2.Position.InRadius(inf.Position, inf.Radius + in2.Radius + 150_000f))
-                        {
-                            projectorsConnectedToSys.Add(projector);
+                        //batch.DrawRectangle(screenRect, Color.Red); // DEBUG
+                        DrawCircleProjected(inf.Position, inf.Radius, Color.Orange, 2); // DEBUG
+                    }
+                }
+                
+                // draw connection bridges
+                foreach (InfluenceConnection c in empire.BorderNodeCache.Connections)
+                {
+                    Empire.InfluenceNode a = c.Node1;
+                    Empire.InfluenceNode b = c.Node2;
 
-                            // The Connection is made of two rectangles, with O marking the influence centers
-                            // +-width-+O-width-+
-                            // |       ||       |
-                            // |       ||       |length
-                            // |       ||       |
-                            // +-------O+-------+
-                            float width = inf.Radius * scale;
-                            float length = inf.Position.Distance(in2.Position);
+                    // The Connection is made of two rectangles, with O marking the influence centers
+                    // +-width-+O-width-+
+                    // |       ||       |
+                    // |       ||       |length
+                    // |       ||       |
+                    // +-------O+-------+
+                    float width = a.Radius * scale;
+                    float length = a.Position.Distance(b.Position);
 
-                            // from Bigger towards Smaller (only one side)
-                            RectF connect1 = ProjectToScreenRectF(new RectF(in2.Position, width, length));
-                            float angle1 = inf.Position.RadiansToTarget(in2.Position);
-                            batch.Draw(connectTex, connect1, empireColor, angle1, Vector2.Zero);
+                    // from Bigger towards Smaller (only one side)
+                    RectF connect1 = ProjectToScreenRectF(new RectF(b.Position, width, length));
+                    float angle1 = a.Position.RadiansToTarget(b.Position);
+                    batch.Draw(connectTex, connect1, empireColor, angle1, Vector2.Zero, SpriteEffects.None, 10f);
 
-                            // from Smaller towards Bigger (the other side now)
-                            RectF connect2 = ProjectToScreenRectF(new RectF(inf.Position, width, length));
-                            float angle2 = in2.Position.RadiansToTarget(inf.Position);
-                            batch.Draw(connectTex, connect2, empireColor, angle2, Vector2.Zero);
+                    // from Smaller towards Bigger (the other side now)
+                    RectF connect2 = ProjectToScreenRectF(new RectF(a.Position, width, length));
+                    float angle2 = b.Position.RadiansToTarget(a.Position);
+                    batch.Draw(connectTex, connect2, empireColor, angle2, Vector2.Zero, SpriteEffects.None, 10f);
 
-                            //DrawLineProjected(in2.Position, inf.Position, Color.Blue); // DEBUG
-                            //batch.DrawRectangle(connect1, angle1, Color.Green, 2); // DEBUG
-                            //batch.DrawRectangle(connect2, angle2, Color.Green, 2); // DEBUG
-                        }
+                    if (debug)
+                    {
+                        DebugWin.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
+                        batch.DrawRectangle(connect1, angle1, Color.Green, 2); // DEBUG
+                        batch.DrawRectangle(connect2, angle2, Color.Yellow, 2); // DEBUG
+                        DrawLineProjected(b.Position, a.Position, Color.Red); // DEBUG
                     }
                 }
             }
