@@ -239,7 +239,7 @@ namespace Ship_Game
                 var ec = new Color(empire.EmpireColor, 150);
                 if (empire.isPlayer)
                 {
-                    if (node.SourceObject is Ship ship)
+                    if (node.Source is Ship ship)
                     {
                         if (ship.Loyalty != empire)
                             continue; // we already drew the non player nodes. no need to overwrite it with player color
@@ -251,7 +251,7 @@ namespace Ship_Game
                         }
 
                     }
-                    else if (node.SourceObject is Planet planet)
+                    else if (node.Source is Planet planet)
                     {
                         if (planet.Owner != empire)
                             continue; // we already drew the non player nodes. no need to overwrite it with player color
