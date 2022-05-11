@@ -1,0 +1,47 @@
+Version=1
+HullName=Terran/LightCruiser
+VisibleName=LightCruiser
+Role=cruiser
+Style=Terran
+Size=20,28
+MeshOffset=0,0
+IconPath=ShipIcons/icon_LightCruiser
+ModelPath=Model/Ships/Terran/SharedTextures/LightCruiser
+SelectIcon=10c
+Animated=false
+IsShipyard=false
+IsOrbitalDefense=false
+#Model Author Vanilla modified by Fat_Bastard
+#Starkit Scale 250
+#Thruster PosX,PosY,PosZ,Scale
+Thruster=42,160,0,100
+Thruster=-42,160,0,100
+Slots
+___|___|___|___|___|___|___|___|O  |O  |O  |O  |___|___|___|___|___|___|___|___
+___|___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |___|___|___|___|___|___|___
+___|___|___|___|___|___|O  |O  |O  |O  |O  |O  |O  |O  |___|___|___|___|___|___
+___|___|___|___|___|O  |O  |IO |IO |IO |IO |IO |IO |O  |O  |___|___|___|___|___
+___|___|___|___|O  |O  |IO |IO |IO |IO |IO |IO |IO |IO |O  |O  |___|___|___|___
+___|___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___|___
+___|___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___|___
+___|___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___|___
+___|___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___|___
+___|___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___|___
+___|___|___|___|O  |O  |IO |IO |IO |I  |I  |IO |IO |IO |O  |O  |___|___|___|___
+___|___|___|___|O  |O  |IO |IO |IO |I  |I  |IO |IO |IO |O  |O  |___|___|___|___
+___|___|___|___|O  |O  |IO |IO |IO |I  |I  |IO |IO |IO |O  |O  |___|___|___|___
+___|___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___|___
+___|___|___|___|___|___|O  |IO |IO |I  |I  |IO |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |IO |I  |IC |IO |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |IO |I  |I  |IO |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|___|O  |IO |IO |I  |I  |IO |IO |O  |___|___|___|___|___|___
+___|___|___|___|___|___|IO |IO |I  |I  |I  |I  |IO |IO |___|___|___|___|___|___
+___|___|___|___|O  |O  |IO |IO |I  |I  |I  |I  |IO |IO |O  |O  |___|___|___|___
+___|___|___|O  |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |O  |___|___|___
+___|___|O  |IO |IO |IO |IO |I  |I  |I  |I  |I  |I  |IO |IO |IO |IO |O  |___|___
+___|O  |IO |IO |IO |IO |E  |E  |E  |IE |IE |E  |E  |E  |IO |IO |IO |IO |O  |___
+O  |O  |IO |IO |IO |IO |E  |E  |E  |IE |IE |E  |E  |E  |IO |IO |IO |IO |O  |O  
+O  |O  |O  |O  |O  |O  |E  |E  |E  |OE |OE |E  |E  |E  |O  |O  |O  |O  |O  |O  
+___|___|___|___|___|___|E  |E  |E  |OE |OE |E  |E  |E  |___|___|___|___|___|___
+___|___|___|___|___|___|E  |E  |E  |___|___|E  |E  |E  |___|___|___|___|___|___
+___|___|___|___|___|___|E  |E  |E  |___|___|E  |E  |E  |___|___|___|___|___|___

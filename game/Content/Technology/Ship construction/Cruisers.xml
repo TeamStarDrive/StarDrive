@@ -69,6 +69,10 @@
       <ShipType>Terran</ShipType>
     </UnlockedHull>
     <UnlockedHull>
+      <Name>Terran/LightCruiser</Name>
+      <ShipType>Terran</ShipType>
+    </UnlockedHull>	
+    <UnlockedHull>
       <Name>Terran/LightCarrier</Name>
       <ShipType>Terran</ShipType>
     </UnlockedHull>

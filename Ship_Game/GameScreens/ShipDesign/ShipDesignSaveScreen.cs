@@ -96,7 +96,7 @@ namespace Ship_Game
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
             ShipDesigns.OnHovered = (item) =>
             {
-                if (EmpireManager.Player.ShipsWeCanBuild.Contains(item?.ShipName))
+                if (item != null && (Screen.EnableDebugFeatures || EmpireManager.Player.ShipsWeCanBuild.Contains(item.ShipName)))
                     ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Design);
                 else
                     ShipInfoOverlay.Hide();
