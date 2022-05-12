@@ -108,17 +108,24 @@ namespace Ship_Game.Ships
             }
 
             // check if this 1x1 slot at [x,y] is powered
-            [Pure] public bool IsPowered(Point gridPos)
+            [Pure] public readonly bool IsPowered(Point gridPos)
             {
-                return PwrGrid.IsSet(gridPos.X + gridPos.Y*Grid.Width);
+                int index = gridPos.X + gridPos.Y*Grid.Width;
+                if ((uint)index >= PwrGrid.MaxFlags)
+                    return false;
+                return PwrGrid.IsSet(index);
             }
             
             // checks if this module is powered
-            [Pure] public bool IsPowered(ShipModule m)
+            [Pure] public readonly bool IsPowered(ShipModule m)
             {
-                // we only need to check top-left, because SetPowered already fills the grid under it
+                // we only need to check top-left,
+                // because SetPowered already fills the grid under it
                 Point pt = m.Pos;
-                return PwrGrid.IsSet(pt.X + pt.Y*Grid.Width);
+                int index = pt.X + pt.Y*Grid.Width;
+                if ((uint)index >= PwrGrid.MaxFlags)
+                    return false;
+                return PwrGrid.IsSet(index);
             }
 
             void SetPowered(int x0, int y0)
