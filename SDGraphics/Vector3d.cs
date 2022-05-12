@@ -68,12 +68,12 @@ public struct Vector3d
         return $"[{X.String(precision)}, {Y.String(precision)}, {Z.String(precision)}]";
     }
 
-    [Pure] public Vector2 ToVec2f() => new Vector2((float)X, (float)Y);
-    [Pure] public Vector3 ToVec3f() => new Vector3((float)X, (float)Y, (float)Z);
-    [Pure] public Vector2d ToVec2d() => new Vector2d(X, Y);
-    [Pure] public double Length() => Math.Sqrt(X*X + Y*Y + Z*Z);
+    [Pure] public readonly Vector2 ToVec2f() => new((float)X, (float)Y);
+    [Pure] public readonly Vector3 ToVec3f() => new((float)X, (float)Y, (float)Z);
+    [Pure] public readonly Vector2d ToVec2d() => new(X, Y);
+    [Pure] public readonly double Length() => Math.Sqrt(X*X + Y*Y + Z*Z);
 
-    [Pure] public Vector3d Normalized(double newMagnitude)
+    [Pure] public readonly Vector3d Normalized(double newMagnitude)
     {
         double len = Math.Sqrt(X*X + Y*Y + Z*Z) / newMagnitude;
         return len > 0.0000001
@@ -81,7 +81,7 @@ public struct Vector3d
             : default;
     }
 
-    [Pure] public Vector3d Normalized()
+    [Pure] public readonly Vector3d Normalized()
     {
         double len = Math.Sqrt(X*X + Y*Y + Z*Z);
         return len > 0.0000001
@@ -89,7 +89,7 @@ public struct Vector3d
             : default;
     }
 
-    [Pure] public double Distance(in Vector3d b)
+    [Pure] public readonly double Distance(in Vector3d b)
     {
         double dx = X - b.X;
         double dy = Y - b.Y;
@@ -97,7 +97,7 @@ public struct Vector3d
         return Math.Sqrt(dx*dx + dy*dy + dz*dz);
     }
 
-    [Pure] public Vector3d Transform(in Matrix matrix)
+    [Pure] public readonly Vector3d Transform(in Matrix matrix)
     {
         double x = (X*matrix.M11 + Y*matrix.M21 + Z*matrix.M31) + matrix.M41;
         double y = (X*matrix.M12 + Y*matrix.M22 + Z*matrix.M32) + matrix.M42;
@@ -105,7 +105,7 @@ public struct Vector3d
         return new Vector3d(x, y, z);
     }
 
-    [Pure] public Vector3d Transform(in XnaMatrix matrix)
+    [Pure] public readonly Vector3d Transform(in XnaMatrix matrix)
     {
         double x = (X*matrix.M11 + Y*matrix.M21 + Z*matrix.M31) + matrix.M41;
         double y = (X*matrix.M12 + Y*matrix.M22 + Z*matrix.M32) + matrix.M42;

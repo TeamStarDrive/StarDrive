@@ -15,15 +15,18 @@ namespace Ship_Game
         public float X1, Y1;
         public float X2, Y2;
 
-        public float Width => X2 - X1;
-        public float Height => Y2 - Y1;
+        public readonly float Width => X2 - X1;
+        public readonly float Height => Y2 - Y1;
 
-        public float CenterX => (X1 + X2) * 0.5f;
-        public float CenterY => (Y1 + Y2) * 0.5f;
+        public readonly float CenterX => (X1 + X2) * 0.5f;
+        public readonly float CenterY => (Y1 + Y2) * 0.5f;
         
-        public Vector2 Center => new Vector2(CenterX, CenterY);
-        public Vector2 Size => new Vector2(Width, Height);
-        public bool IsEmpty => (X1 == X2) || (Y1 == Y2);
+        public readonly Vector2 Center => new((X1 + X2) * 0.5f, (Y1 + Y2) * 0.5f);
+        public readonly Vector2 Size => new(Width, Height);
+        public readonly Vector2 TopLeft => new(X1,Y1);
+        public readonly Vector2 BotRight => new(X2,Y2);
+
+        public readonly bool IsEmpty => (X1 == X2) || (Y1 == Y2);
 
         public override string ToString()
         {
@@ -81,7 +84,7 @@ namespace Ship_Game
         }
 
         [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Overlaps(in AABoundingBox2D r)
+        public readonly bool Overlaps(in AABoundingBox2D r)
         {
             // NOTE: >= vs > determines whether there's a match if rectangles touch
             return X1 <= r.X2 && X2 >= r.X1
@@ -89,7 +92,7 @@ namespace Ship_Game
         }
         
         [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Overlaps(float cx, float cy, float radius)
+        public readonly bool Overlaps(float cx, float cy, float radius)
         {
             // find the nearest point on the rectangle to the center of the circle
             float nearestX = Math.Max(X1, Math.Min(cx, X2));
@@ -124,8 +127,8 @@ namespace Ship_Game
         public int Width => X2 - X1;
         public int Height => Y2 - Y1;
 
-        public bool IsEmpty => (X1 == X2) || (Y1 == Y2);
-        public Vector2 Center => new Vector2((X1+X2)*0.5f, (Y1+Y2)*0.5f);
+        public readonly Vector2 Center => new((X1+X2)*0.5f, (Y1+Y2)*0.5f);
+        public readonly bool IsEmpty => (X1 == X2) || (Y1 == Y2);
         
         public AABoundingBox2Di(in AABoundingBox2D r)
         {
@@ -168,7 +171,7 @@ namespace Ship_Game
         }
 
         [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Overlaps(in AABoundingBox2Di r)
+        public readonly bool Overlaps(in AABoundingBox2Di r)
         {
             // NOTE: >= vs > determines whether there's a match if rectangles touch
             return X1 <= r.X2 && X2 >= r.X1
@@ -181,8 +184,8 @@ namespace Ship_Game
         public double X1, Y1;
         public double X2, Y2;
 
-        public double Width => X2 - X1;
-        public double Height => Y2 - Y1;
+        public readonly double Width => X2 - X1;
+        public readonly double Height => Y2 - Y1;
         
         public override string ToString()
         {
