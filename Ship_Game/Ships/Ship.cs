@@ -1149,6 +1149,8 @@ namespace Ship_Game.Ships
 
         public void UpdateSensors(FixedSimTime timeStep)
         {
+            UpdateInfluenceStatus();
+
             // update our knowledge of the surrounding universe
             KnownByEmpires.Update(timeStep, Loyalty);
 
