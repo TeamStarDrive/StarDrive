@@ -964,7 +964,7 @@ namespace Ship_Game
                 // @todo What is going on here? Is this correct?
                 if (!newB.IsProjector && !(newB.ProjectorRange > 0f))
                 {
-                    newB.ProjectorRange = p?.Universe?.Projectors.Radius ?? 0f;
+                    newB.ProjectorRange = p.GetProjectorRadius(p.Owner);
                     newB.IsProjector    = true;
                 }
 

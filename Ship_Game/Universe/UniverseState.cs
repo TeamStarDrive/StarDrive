@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using SDUtils;
 using Ship_Game.Debug;
-using Ship_Game.Empires;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.ExtensionMethods;
@@ -24,8 +23,8 @@ namespace Ship_Game.Universe
     public class UniverseState
     {
         /// <summary>
-        /// This is the Width and Height of the universe
-        /// Stars are generated within XY range [-Size/2, +Size/2],
+        /// This is the RADIUS of the universe
+        /// Stars are generated within XY range [-Size, +Size],
         /// so {0,0} is center of the universe
         /// </summary>
         public readonly float Size;
@@ -64,18 +63,29 @@ namespace Ship_Game.Universe
         /// </summary>
         public readonly SpatialManager Spatial;
 
-        public readonly SubSpaceProjectors Projectors;
+        /// <summary>
+        /// Global influence tree for fast influence checks, updated every time
+        /// a ship is created or dies
+        /// </summary>
+        public readonly InfluenceTree Influence;
 
-        readonly Array<Empire> EmpireList = new Array<Empire>();
+        /// <summary>
+        /// Invoked when a Ship is removed from the universe
+        /// </summary>
+        public event Action<Ship> EvtOnShipRemoved;
 
-        readonly Map<int, SolarSystem> SolarSystemDict = new Map<int, SolarSystem>();
-        readonly Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
+        readonly Array<Empire> EmpireList = new();
+
+        readonly Map<int, SolarSystem> SolarSystemDict = new();
+        readonly Array<SolarSystem> SolarSystemList = new();
         
-        readonly Map<int, Planet> PlanetsDict = new Map<int, Planet>();
-        readonly Array<Planet> AllPlanetsList = new Array<Planet>();
+        readonly Map<int, Planet> PlanetsDict = new();
+        readonly Array<Planet> AllPlanetsList = new();
         
         // @return All Empires in the Universe
         public IReadOnlyList<Empire> Empires => EmpireList;
+
+        public int NumEmpires => EmpireList.Count;
 
         // @return All SolarSystems in the Universe
         public IReadOnlyList<SolarSystem> Systems => SolarSystemList;
@@ -93,22 +103,26 @@ namespace Ship_Game.Universe
         public readonly UniverseScreen Screen;
         
         // TODO: Encapsulate
-        public BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
+        public BatchRemovalCollection<SpaceJunk> JunkList = new();
 
         public DebugInfoScreen DebugWin => Screen.DebugWin;
         public NotificationManager Notifications => Screen.NotificationManager;
 
-        public UniverseState(UniverseScreen screen, float universeSize)
+        public readonly float DefaultProjectorRadius;
+
+        public UniverseState(UniverseScreen screen, float universeRadius)
         {
             Screen = screen;
-            Size = universeSize;
+            Size = universeRadius;
             if (Size < 1f)
                 throw new ArgumentException("UniverseSize not set!");
 
             Spatial = new SpatialManager();
-            Spatial.Setup(universeSize);
+            Spatial.Setup(universeRadius);
 
-            Projectors = new SubSpaceProjectors(universeSize);
+            DefaultProjectorRadius = (float)Math.Round(universeRadius * 0.04f);
+            Influence = new InfluenceTree(universeRadius, DefaultProjectorRadius);
+
             Objects = new UniverseObjectManager(screen, this, Spatial);
         }
 
@@ -215,6 +229,14 @@ namespace Ship_Game.Universe
             return e;
         }
 
+        public Empire GetEmpire(int empireId)
+        {
+            for (int i = 0; i < EmpireList.Count; ++i)
+                if (EmpireList[i].Id == empireId)
+                    return EmpireList[i];
+            return null;
+        }
+
         public Empire GetEmpire(string loyalty)
         {
             return EmpireList.Find(e => e.data.Traits.Name == loyalty);
@@ -241,6 +263,16 @@ namespace Ship_Game.Universe
         public bool GetPlanet(int id, out Planet found)
         {
             return (found = GetPlanet(id)) != null;
+        }
+        
+        public void OnPlanetOwnerAdded(Empire owner, Planet planet)
+        {
+            Influence.Insert(owner, planet);
+        }
+
+        public void OnPlanetOwnerRemoved(Empire owner, Planet planet)
+        {
+            Influence.Remove(owner, planet);
         }
 
         public SolarSystem FindClosestSystem(Vector2 pos)
@@ -306,6 +338,24 @@ namespace Ship_Game.Universe
                     ships.AddUnique(ship);
             }
             return ships;
+        }
+
+        public void AddShip(Ship ship)
+        {
+            Objects.Add(ship);
+            if (ship.IsSubspaceProjector)
+            {
+                Influence.Insert(ship.Loyalty, ship);
+            }
+        }
+
+        public void OnShipRemoved(Ship ship)
+        {
+            if (ship.IsSubspaceProjector)
+            {
+                Influence.Remove(ship.Loyalty, ship);
+            }
+            EvtOnShipRemoved?.Invoke(ship);
         }
 
         public Ship GetShip(int id)

@@ -190,9 +190,6 @@ namespace Ship_Game
         // Limited Parallelism: > 1
         public static int MaxParallelism = -1;
 
-        // Unsupported Experimental options
-        public static float Unsupported_ProjectorRadius = -1;
-
         public static bool ExportTextures; // export all XNB and PNG textures into StarDrive/ExportedTextures
         public static string ExportMeshes; // export all XNB meshes into StarDrive/ExportedMeshes into "obj" or "fbx"
         public static int RunLocalizer; // process all localization files
@@ -261,9 +258,7 @@ namespace Ship_Game
             GetSetting("PreLoad"               , ref PreLoad);
             GetSetting("DamageIntensity"       , ref DamageIntensity);
             GetSetting("DisableAIEmpires"      , ref DisableAIEmpires);
-            
-            // unsupported
-            GetSetting("Unsupported_ProjectorRadius", ref Unsupported_ProjectorRadius);
+
             Statreset();
 
         #if DEBUG
@@ -397,9 +392,6 @@ namespace Ship_Game
             WriteSetting(config, "VerboseLogging", VerboseLogging);
             WriteSetting(config, "TestLoad",       TestLoad);
             WriteSetting(config, "PreLoad",        PreLoad);
-
-            // Unsupported_ProjectorRadius
-            WriteSetting(config, "Unsupported_ProjectorRadius", Unsupported_ProjectorRadius);
 
             config.Save();
             ConfigurationManager.RefreshSection("appSettings");

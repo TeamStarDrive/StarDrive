@@ -25,17 +25,17 @@ namespace Ship_Game
         /// <summary>
         /// All objects: ships, projectiles, beams
         /// </summary>
-        readonly GameObjectList<GameObject> Objects = new GameObjectList<GameObject>();
+        readonly GameObjectList<GameObject> Objects = new();
 
         /// <summary>
         /// All ships
         /// </summary>
-        readonly GameObjectList<Ship> Ships = new GameObjectList<Ship>();
+        readonly GameObjectList<Ship> Ships = new();
 
         /// <summary>
         /// All projectiles: projectiles, beams
         /// </summary>
-        readonly GameObjectList<Projectile> Projectiles = new GameObjectList<Projectile>();
+        readonly GameObjectList<Projectile> Projectiles = new();
 
         public readonly AggregatePerfTimer TotalTime = new();
         public readonly AggregatePerfTimer ListTime = new();
@@ -45,13 +45,6 @@ namespace Ship_Game
         public readonly AggregatePerfTimer ProjPerf  = new();
         public readonly AggregatePerfTimer SensorPerf = new();
         public readonly AggregatePerfTimer VisPerf   = new();
-
-        /// <summary>
-        /// Invoked when a Ship is removed from the universe
-        /// OnShipRemove(Ship ship, bool onUIThread);
-        /// </summary>
-        public event Action<Ship> OnShipRemoved;
-
 
         public Ship[] VisibleShips { get; private set; } = Empty<Ship>.Array;
         public Projectile[] VisibleProjectiles { get; private set; } = Empty<Projectile>.Array;
@@ -273,7 +266,7 @@ namespace Ship_Game
         public void UpdateLists(bool removeInactiveObjects = true)
         {
             ListTime.Start();
-            
+
             Ships.ApplyChanges();
             Projectiles.ApplyChanges();
             Objects.ApplyChanges();
@@ -286,7 +279,7 @@ namespace Ship_Game
                     Ship ship = ships[i];
                     if (!ship.Active)
                     {
-                        OnShipRemoved?.Invoke(ship);
+                        UState.OnShipRemoved(ship);
                         ship.RemoveFromUniverseUnsafe();
                     }
                     else

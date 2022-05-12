@@ -508,6 +508,7 @@ namespace Ship_Game
 
         public void ChangeOwnerByInvasion(Empire newOwner, int planetLevel) // TODO: FB - this code needs refactor
         {
+            Empire oldOwner = Owner;
             newOwner.DecreaseFleetStrEmpireMultiplier(Owner);
             var thisPlanet = (Planet)this;
 
@@ -517,19 +518,16 @@ namespace Ship_Game
             foreach (PlanetGridSquare planetGridSquare in TilesList)
                 planetGridSquare.QItem = null;
 
-            Owner.RemovePlanet(thisPlanet, newOwner);
-            if (newOwner.isPlayer && Owner == EmpireManager.Cordrazine)
-                Owner.IncrementCordrazineCapture();
+            thisPlanet.SetOwner(newOwner, newOwner);
 
-            if (IsExploredBy(EmpireManager.Player))
+            if (IsExploredBy(Universe.Player) && oldOwner != null)
             {
-                if (Owner != null)
-                    Universe.Screen.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
+                Universe.Notifications.AddConqueredNotification(thisPlanet, newOwner, oldOwner);
             }
 
             if (newOwner.data.Traits.Assimilators && planetLevel >= 3)
             {
-                RacialTrait ownerTraits = Owner.data.Traits;
+                RacialTrait ownerTraits = oldOwner.data.Traits;
                 newOwner.data.Traits.ConsumptionModifier  = GetTraitMin(newOwner.data.Traits.ConsumptionModifier, ownerTraits.ConsumptionModifier);
                 newOwner.data.Traits.PopGrowthMax         = GetTraitMin(newOwner.data.Traits.PopGrowthMax, ownerTraits.PopGrowthMax);
                 newOwner.data.Traits.MaintMod             = GetTraitMin(newOwner.data.Traits.MaintMod, ownerTraits.MaintMod);
@@ -549,11 +547,11 @@ namespace Ship_Game
                     GetTraitMax(newOwner.data.Traits.EnemyPlanetInhibitionPercentCounter, ownerTraits.EnemyPlanetInhibitionPercentCounter);
 
                 // Do not add AI difficulty modifiers for the below
-                float realProductionMod = ownerTraits.ProductionMod - Owner.DifficultyModifiers.ProductionMod;
-                float realResearchMod   = ownerTraits.ResearchMod - Owner.DifficultyModifiers.ResearchMod;
-                float realShipCostMod   = ownerTraits.ShipCostMod - Owner.DifficultyModifiers.ShipCostMod;
-                float realModHpModifer  = ownerTraits.ModHpModifier - Owner.DifficultyModifiers.ModHpModifier;
-                float realTaxMod        = ownerTraits.TaxMod - Owner.DifficultyModifiers.TaxMod;
+                float realProductionMod = ownerTraits.ProductionMod - oldOwner.DifficultyModifiers.ProductionMod;
+                float realResearchMod   = ownerTraits.ResearchMod - oldOwner.DifficultyModifiers.ResearchMod;
+                float realShipCostMod   = ownerTraits.ShipCostMod - oldOwner.DifficultyModifiers.ShipCostMod;
+                float realModHpModifer  = ownerTraits.ModHpModifier - oldOwner.DifficultyModifiers.ModHpModifier;
+                float realTaxMod        = ownerTraits.TaxMod - oldOwner.DifficultyModifiers.TaxMod;
 
                 newOwner.data.Traits.ShipCostMod   = GetTraitMin(newOwner.data.Traits.ShipCostMod, realShipCostMod); // min
                 newOwner.data.Traits.ProductionMod = GetTraitMax(newOwner.data.Traits.ProductionMod, realProductionMod);
@@ -567,12 +565,10 @@ namespace Ship_Game
                 if (station.Loyalty != newOwner)
                 {
                     station.LoyaltyChangeByGift(newOwner);
-                    Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
+                    Log.Info($"Owner of platform tethered to {Name} changed from {oldOwner.PortraitName} to {newOwner.PortraitName}");
                 }
             }
 
-            newOwner.AddPlanet(thisPlanet, Owner);
-            Owner = newOwner;
             thisPlanet.LaunchNonOwnerTroops();
             thisPlanet.AbortLandingPlayerFleets();
             thisPlanet.ResetGarrisonSize();
@@ -583,19 +579,12 @@ namespace Ship_Game
             thisPlanet.ManualOrbitals = false;
             thisPlanet.Station?.DestroySceneObject(); // remove current SO, so it can get reloaded properly
 
-            ParentSystem.OwnerList.Clear();
-            foreach (Planet planet in ParentSystem.PlanetList)
-            {
-                if (planet.Owner != null && !ParentSystem.HasPlanetsOwnedBy(planet.Owner))
-                    ParentSystem.OwnerList.Add(planet.Owner);
-            }
-
             if (newOwner.isPlayer && !newOwner.AutoColonize)
                 colonyType = Planet.ColonyType.Colony;
             else
-                colonyType = Owner.AssessColonyNeeds(thisPlanet);
+                colonyType = newOwner.AssessColonyNeeds(thisPlanet);
 
-            Owner.TryTransferCapital(thisPlanet);
+            newOwner.TryTransferCapital(thisPlanet);
         }
 
         protected void GenerateMoons(SolarSystem system, Planet newOrbital)

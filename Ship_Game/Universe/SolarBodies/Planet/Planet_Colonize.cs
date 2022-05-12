@@ -7,14 +7,40 @@ namespace Ship_Game
 {
     public partial class Planet // Fat Bastard - Centralized all New Colony related logic here
     {
+        public void SetOwner(Empire newOwner, Empire attacker = null)
+        {
+            Empire oldOwner = Owner;
+            Owner = newOwner;
+
+            if (oldOwner != null)
+            {
+                if (attacker != null)
+                    oldOwner.RemovePlanet(this, attacker);
+                else
+                    oldOwner.RemovePlanet(this);
+            }
+
+            if (newOwner != null)
+            {
+                if (attacker != null)
+                    newOwner.AddPlanet(this, loser: oldOwner);
+                else
+                    newOwner.AddPlanet(this);
+
+                if (attacker != null && attacker.isPlayer && oldOwner == EmpireManager.Cordrazine)
+                    attacker.IncrementCordrazineCapture();
+            }
+
+            ParentSystem.UpdateOwnerList();
+        }
+
         public void Colonize(Ship colonyShip)
         {
-            Owner          = colonyShip.Loyalty;
+            SetOwner(colonyShip.Loyalty);
             Quarantine     = false;
             ManualOrbitals = false;
             ParentSystem.OwnerList.Add(Owner);
             SetupColonyType();
-            Owner.AddPlanet(this);
             SetExploredBy(Owner);
             CreateStartingEquipment(colonyShip);
             UnloadTroops(colonyShip);

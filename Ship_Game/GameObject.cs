@@ -154,6 +154,8 @@ namespace Ship_Game
             if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty?.Id ?? 0;
             if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty?.Id ?? 0;
             if (Type == GameObjectType.Ship) return ((Ship)this).Loyalty.Id;
+            if (Type == GameObjectType.ShipModule) return ((ShipModule)this).GetParent().Loyalty.Id;
+            if (Type == GameObjectType.Planet) return ((Planet)this).Owner?.Id ?? 0;
             return 0;
         }
 
@@ -163,6 +165,7 @@ namespace Ship_Game
             if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty;
             if (Type == GameObjectType.Ship) return ((Ship)this).Loyalty;
             if (Type == GameObjectType.ShipModule) return ((ShipModule)this).GetParent().Loyalty;
+            if (Type == GameObjectType.Planet) return ((Planet)this).Owner;
             return null;
         }
 

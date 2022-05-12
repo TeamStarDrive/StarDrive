@@ -1042,9 +1042,7 @@ namespace Ship_Game
             InfraStructure = InfraStructure.LowerBound(1);
             RepairPerTurn  = RepairPerTurn.LowerBound(0);
 
-            if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.usePlanetaryProjection)
-                ProjectorRange = Owner.GetProjectorRadius() + ObjectRadius;
-            else 
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 ProjectorRange = projectorRange;
 
             TerraformToAdd /= Scale; // Larger planets take more time to terraform, visa versa for smaller ones
@@ -1066,6 +1064,18 @@ namespace Ship_Game
             Money.Update();
 
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
+        }
+
+        public float GetProjectorRadius(Empire owner)
+        {
+            return owner.GetProjectorRadius() + 10000f * PopulationBillion;
+        }
+
+        public float GetProjectorRange()
+        {
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.usePlanetaryProjection)
+                return ProjectorRange;
+            return GetProjectorRadius(Owner);
         }
 
         public bool ShipWithinSensorRange(Ship ship)
@@ -1481,24 +1491,12 @@ namespace Ship_Game
                 return;
 
             UpdateTerraformPoints(0);
-            Owner.RemovePlanet(this, attacker);
-            if (IsExploredBy(EmpireManager.Player) && (OwnerIsPlayer || attacker.isPlayer))
-                Universe.Screen.NotificationManager.AddPlanetDiedNotification(this);
-
-            bool removeOwner = true;
-            foreach (Planet other in ParentSystem.PlanetList)
-            {
-                if (other.Owner != Owner || other == this)
-                    continue;
-
-                removeOwner = false;
-            }
-
-            if (removeOwner)
-                ParentSystem.OwnerList.Remove(Owner);
-
             Construction.ClearQueue();
-            Owner = null;
+
+            if (IsExploredBy(Universe.Player) && (OwnerIsPlayer || attacker.isPlayer))
+                Universe.Notifications.AddPlanetDiedNotification(this);
+
+            SetOwner(null, attacker);
         }
 
         public void Mend(int value) => AddBombingIntensity(-value);
