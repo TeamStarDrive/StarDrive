@@ -20,11 +20,6 @@ namespace Ship_Game.Empires
         /// If set to 1.0, then we see Ships for 1 extra second after they exit sensor range
         /// </summary>
         public const float KnownContactTimer = 1.0f;
-        
-        /// <summary>
-        /// How long Projector Influence effects apply in seconds
-        /// </summary>
-        public const float InfluenceEffectTime = 0.5f;
 
         /// <summary>
         /// How often ships choose targets.

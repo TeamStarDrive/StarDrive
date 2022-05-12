@@ -13,7 +13,8 @@ namespace UnitTests.Ships
         public ShipAITests()
         {
             LoadStarterShips("Heavy Carrier mk5-b",
-                             "Owlwok Freighter S");
+                             "Owlwok Freighter S",
+                             "Subspace Projector");
             CreateUniverseAndPlayerEmpire();
         }
 
@@ -102,11 +103,12 @@ namespace UnitTests.Ships
             });
             Assert.IsFalse(ourShip.AI.IsTargetValid(null), "Faction NA Pact: " + GetFailString(us, ourShip, theirShip, ourRelation));
 
+            Ship ourProjector = SpawnShip("Subspace Projector", Player, Vector2.Zero);
+
             // faction reset treaties and anger
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
                 Enemy.isFaction = true;
-                theirShip.SetProjectorInfluence(us, true);
             });
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Faction" + GetFailString(us, ourShip, theirShip, ourRelation));
 
@@ -115,7 +117,6 @@ namespace UnitTests.Ships
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
                 ourRelation.AddAngerShipsInOurBorders(100);
-                theirShip.SetProjectorInfluence(us, true);
             });
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Anger Borders" + GetFailString(us, ourShip, theirShip, ourRelation));
 
@@ -123,7 +124,6 @@ namespace UnitTests.Ships
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
                 ourRelation.AddAngerMilitaryConflict(100);
-                theirShip.SetProjectorInfluence(us, true);
             });
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Anger Military:" + GetFailString(us, ourShip, theirShip, ourRelation));
 
@@ -131,16 +131,16 @@ namespace UnitTests.Ships
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
                 ourRelation.AddAngerTerritorialConflict(100);
-                theirShip.SetProjectorInfluence(us, true);
             });
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), $"Territory: {GetFailString(us, ourShip, theirShip, ourRelation)}");
 
             // sanity test no environment
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
-                theirShip.SetProjectorInfluence(us, true);
             });
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), GetFailString(us,ourShip, theirShip,ourRelation));
+
+            ourProjector.InstantKill();
 
             // war tests
             SetEnvironment(us, theirShip, ourRelation, () =>
@@ -232,8 +232,6 @@ namespace UnitTests.Ships
 
         public void SetEnvironment(Empire us, Ship theirShip, Relationship ourRelation, Action setEnvironment)
         {
-            theirShip.SetProjectorInfluence(us, false);
-            theirShip.ResetProjectorInfluence();
             theirShip.AI.ClearOrders();
 
             Enemy.isFaction                 = false;
