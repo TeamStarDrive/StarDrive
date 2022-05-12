@@ -8,6 +8,13 @@ namespace Ship_Game.Ships
 {
     public partial class Ship
     {
+        InfluenceStatus CurrentInfluenceStatus;
+
+        void UpdateInfluenceStatus()
+        {
+            CurrentInfluenceStatus = Universe.Influence.GetInfluenceStatus(Loyalty, Position);
+        }
+
         public bool IsInBordersOf(Empire empire)
         {
             return Universe.Influence.IsInInfluenceOf(empire, Position);
@@ -18,26 +25,7 @@ namespace Ship_Game.Ships
             return Universe.Influence.GetEmpireInfluences(Position);
         }
 
-        public bool IsInFriendlyProjectorRange
-        {
-            get
-            {
-                if (Universe == null) // for ShipTemplates
-                    return false;
-                (_, InfluenceStatus status) = Universe.Influence.GetPrimaryInfluence(Loyalty, Position);
-                return status == InfluenceStatus.Friendly;
-            }
-        }
-
-        public bool IsInHostileProjectorRange
-        {
-            get
-            {
-                if (Universe == null) // for ShipTemplates
-                    return false;
-                (_, InfluenceStatus status) = Universe.Influence.GetPrimaryInfluence(Loyalty, Position);
-                return status == InfluenceStatus.Enemy;
-            }
-        }
+        public bool IsInFriendlyProjectorRange => CurrentInfluenceStatus == InfluenceStatus.Friendly;
+        public bool IsInHostileProjectorRange => CurrentInfluenceStatus == InfluenceStatus.Enemy;
     }
 }
