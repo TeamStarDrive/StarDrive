@@ -129,7 +129,15 @@ namespace Ship_Game
 
         public readonly Vector2 Center => new((X1+X2)*0.5f, (Y1+Y2)*0.5f);
         public readonly bool IsEmpty => (X1 == X2) || (Y1 == Y2);
-        
+
+        public AABoundingBox2Di(int x1, int y1, int x2, int y2)
+        {
+            X1 = x1;
+            Y1 = y1;
+            X2 = x2;
+            Y2 = y2;
+        }
+
         public AABoundingBox2Di(in AABoundingBox2D r)
         {
             X1 = (int)r.X1;

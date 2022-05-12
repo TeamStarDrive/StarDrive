@@ -170,6 +170,16 @@ namespace Ship_Game
             return HasPlanetsOwnedBy(empire) && OwnerList.Count == 1;
         }
 
+        public void UpdateOwnerList()
+        {
+            OwnerList.Clear();
+            foreach (Planet planet in PlanetList)
+            {
+                if (planet.Owner != null)
+                    OwnerList.Add(planet.Owner);
+            }
+        }
+
         float RadiationTimer;
         const float RadiationInterval = 0.5f;
 

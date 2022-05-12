@@ -11,7 +11,7 @@ namespace Ship_Game
         {
             return new Planet(system, data);
         }
-                
+
         /// <summary>
         /// Saved game data constructor
         /// </summary>
@@ -21,11 +21,11 @@ namespace Ship_Game
 
             Name = data.Name;
             OrbitalAngle = data.OrbitalAngle;
+            OrbitalRadius = data.OrbitalDistance;
             
             if (data.Owner.NotEmpty())
             {
-                Owner = EmpireManager.GetEmpireByName(data.Owner);
-                Owner.AddPlanet(this);
+                SetOwner(EmpireManager.GetEmpireByName(data.Owner));
             }
             
             if (data.SpecialDescription.NotEmpty())
@@ -47,7 +47,6 @@ namespace Ship_Game
             Food.PercentLock   = data.FoodLock;
             Prod.PercentLock   = data.ProdLock;
             Res.PercentLock    = data.ResLock;
-            OrbitalRadius      = data.OrbitalDistance;
             BasePopPerTile     = data.BasePopPerTile;
             BombingIntensity   = data.BombingIntensity;
             

@@ -131,8 +131,7 @@ namespace Ship_Game
 
             if (ringData.Owner.NotEmpty())
             {
-                Owner = EmpireManager.GetEmpireByName(ringData.Owner);
-                Owner.AddPlanet(this);
+                SetOwner(EmpireManager.GetEmpireByName(ringData.Owner));
                 InitializeWorkerDistribution(Owner);
                 Population = MaxPopulation;
                 MineralRichness = 1f;
@@ -143,11 +142,10 @@ namespace Ship_Game
 
         public void GenerateNewHomeWorld(Empire owner, float preDefinedPop = 0)
         {
-            Owner         = owner;
-            Scale         = 1 * Owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
-            IsHomeworld   = true;
+            SetOwner(owner);
+            Scale = 1 * Owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
+            IsHomeworld = true;
             Owner.SetCapital(this);
-            Owner.AddPlanet(this);
 
             CreateHomeWorldEnvironment();
             SetTileHabitability(0, out _); // Create the homeworld's tiles without making them habitable yet

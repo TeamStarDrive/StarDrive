@@ -178,7 +178,14 @@ namespace Ship_Game
         /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
         public Relationship GetRelationsOrNull(Empire withEmpire)
         {
-            int index = (withEmpire?.Id ?? int.MaxValue) - 1;
+            int empireId = withEmpire?.Id ?? int.MaxValue;
+            return GetRelationsOrNull(empireId);
+        }
+
+        /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
+        public Relationship GetRelationsOrNull(int empireId)
+        {
+            int index = empireId - 1;
             if (index < RelationsMap.Length)
             {
                 OurRelationsToThem usToThem = RelationsMap[index];
