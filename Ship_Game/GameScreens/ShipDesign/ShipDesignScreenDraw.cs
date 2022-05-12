@@ -261,7 +261,8 @@ namespace Ship_Game
                 {
                     ProjectToScreenCoordsF(slot.Center, new Vector2(10), out Vector2 pos, out Vector2 size);
                     var screenRect = new RectF(pos - size/2, size);
-                    batch.Draw(unPowered, screenRect, Color.White);
+                    batch.DrawDropShadowImage(screenRect, unPowered, Color.White);
+                    batch.Draw(unPowered, screenRect, ApplyCurrentAlphaToColor(Color.Red));
                 }
             }
         }
@@ -475,7 +476,7 @@ namespace Ship_Game
             Graphics.Font font = Fonts.Arial20Bold.TextWidth(name) <= (SearchBar.Width - 5)
                                ? Fonts.Arial20Bold : Fonts.Arial12Bold;
             var cursor1 = new Vector2(SearchBar.X + 3, r.Y + 14 - font.LineSpacing / 2);
-            batch.DrawString(font, name, cursor1, Color.White);
+            batch.DrawString(font, name, cursor1, ShipSaved ? Color.LightGreen : Color.White);
 
             r = new Rectangle(r.X - r.Width - 12, r.Y, r.Width, r.Height);
             DesignRoleRect = new Rectangle(r.X , r.Y, r.Width, r.Height);

@@ -46,6 +46,21 @@ namespace Ship_Game.GameScreens.ShipDesign
             ShowShip(ship, pos, size);
         }
 
+        public void ShowToTopOf(Vector2 topOf, Ship ship)
+        {
+            if (ship == null)
+            {
+                Visible = false;
+                return;
+            }
+
+            float minimumSize = LowRes ? 256 : 320;
+            float size = Math.Max(minimumSize, (Screen.Width * 0.16f).RoundTo10());
+            Vector2 pos = new Vector2(topOf.X, topOf.Y - size - 20).RoundTo10();
+            pos.X = Math.Max(100f, pos.X);
+            ShowShip(ship, pos, size);
+        }
+
         public void ShowShip(Ship ship, Vector2 screenPos, float shipRectSize)
         {
             if (SelectedShip != ship)

@@ -365,7 +365,7 @@ namespace Ship_Game
             {
                 GameAudio.SubBassMouseOver();
                 InstallActiveModule(new SlotInstall(slotUnderCursor, ActiveModule));
-                DisplayBulkReplacementTip();
+                DisplayBulkReplacementTip(input.CursorPosition);
             }
             else if (slotUnderCursor.ModuleUID != ActiveModule.UID || slotUnderCursor.Module?.HangarShipUID != ActiveModule.HangarShipUID)
             {
@@ -378,11 +378,10 @@ namespace Ship_Game
             }
         }
 
-        void DisplayBulkReplacementTip()
+        void DisplayBulkReplacementTip(Vector2 pos)
         {
             if (!DisplayedBulkReplacementHint && ModuleGrid.RepeatedReplaceActionsThreshold())
             {
-                Vector2 pos = new Vector2(ModuleSelectComponent.X + ModuleSelectComponent.Width + 20, ModuleSelectComponent.Y + 100);
                 ToolTip.CreateFloatingText(GameText.YouCanUseShiftClick, "", pos, 10);
                 DisplayedBulkReplacementHint = true;
             }
@@ -633,6 +632,8 @@ namespace Ship_Game
 
         void SaveWIP()
         {
+            if (CurrentDesign.UniqueModuleUIDs.Length == 0)
+                return; // Dont save empty hulls as wip
             if (CurrentDesign != null)
             {
                 ShipDesign toSave;
@@ -648,7 +649,7 @@ namespace Ship_Game
                 }
 
                 SaveDesign(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.Name}.design"));
-                Vector2 pos = new Vector2(ModuleSelectComponent.X + ModuleSelectComponent.Width + 20, ModuleSelectComponent.Y + 100);
+                Vector2 pos = new(ModuleSelectComponent.X + ModuleSelectComponent.Width + 20, ModuleSelectComponent.Y + 100);
                 ToolTip.CreateFloatingText($"Work in progress ship was saved as {toSave.Name}", "", pos, 5);
             }
             else
