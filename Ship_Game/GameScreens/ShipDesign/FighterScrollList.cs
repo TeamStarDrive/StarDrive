@@ -1,8 +1,8 @@
-﻿
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
@@ -14,6 +14,7 @@ namespace Ship_Game
         public ShipModule ActiveHangarModule;
         public ShipModule ActiveModule;
         public string HangarShipUIDLast = "";
+        ShipInfoOverlayComponent HangarShipInfoOverlay;
 
         public FighterScrollList(Submenu fighterList, ShipDesignScreen shipDesignScreen) : base(fighterList, 40)
         {
@@ -42,6 +43,25 @@ namespace Ship_Game
                     continue;
                 AddShip(hangarShip);
             }
+
+            HangarShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen));
+            OnHovered = (item) =>
+            {
+                Vector2 pos = Vector2.Zero;
+                if (item != null)
+                {
+                    float xPos = Screen.ModuleSelectComponent.Pos.X + Screen.ModuleSelectComponent.Width + 10;
+                    float yPos = Screen.ModuleSelectComponent.Pos.Y + 20;
+                    pos = new Vector2(xPos, yPos);
+                }
+
+                if (item?.Ship.Name != "DynamicLaunch"
+                    && item?.Ship.Name != "DynamicInterceptor"
+                    && item?.Ship.Name != "DynamicAntiShip")
+                {
+                    HangarShipInfoOverlay.ShowToTopOf(Pos, item?.Ship);
+                }
+            };
         }
         
         void AddShip(Ship ship)
@@ -81,7 +101,7 @@ namespace Ship_Game
             ShipModule activeModule = Screen.ActiveModule;
             ShipModule highlightedModule = Screen.HighlightedModule;
 
-            activeModule = activeModule ?? highlightedModule;
+            activeModule ??= highlightedModule;
             if (activeModule?.ModuleType == ShipModuleType.Hangar 
                 && !activeModule.IsTroopBay 
                 && !activeModule.IsSupplyBay)
