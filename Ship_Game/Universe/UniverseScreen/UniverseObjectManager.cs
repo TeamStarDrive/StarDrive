@@ -464,7 +464,7 @@ namespace Ship_Game
                 {
                     Ship ship = allShips[i];
                     if (ship.Active && !ship.Dying)
-                        ship.UpdateSensorsAndInfluence(timeStep);
+                        ship.UpdateSensors(timeStep);
                 }
             }
 

@@ -1147,10 +1147,9 @@ namespace Ship_Game.Ships
             ShipEngines.Update();
         }
 
-        public void UpdateSensorsAndInfluence(FixedSimTime timeStep)
+        public void UpdateSensors(FixedSimTime timeStep)
         {
             // update our knowledge of the surrounding universe
-            UpdateInfluence(timeStep);
             KnownByEmpires.Update(timeStep, Loyalty);
 
             // scan universe and make decisions for combat
@@ -1545,7 +1544,6 @@ namespace Ship_Game.Ships
             bool visible = IsVisibleToPlayer;
             Loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(AI.ExplorationTarget);
             Carrier.ScuttleHangarShips();
-            ResetProjectorInfluence();
             NotifyPlayerIfDiedExploring();
             Loyalty.TryAutoRequisitionShip(Fleet, this);
             CreateExplosionEffects(visible: visible, cleanupOnly: cleanupOnly);
@@ -1755,7 +1753,6 @@ namespace Ship_Game.Ships
             ModuleSlotList = null;
             ShipEngines?.Dispose();
             ShipEngines = null;
-            Influences = null;
             TradeRoutes = null;
             OurTroops = null;
             HostileTroops = null;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
@@ -8,6 +9,13 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Universe
 {
+    public enum InfluenceStatus
+    {
+        Neutral,
+        Friendly,
+        Enemy
+    }
+
     /// <summary>
     /// This caches influence areas from all Empires,
     /// allowing for rapid check of influence sources.
@@ -18,7 +26,7 @@ namespace Ship_Game.Universe
         readonly float WorldOrigin; // TopLeft of the Universe
         readonly int Size; // Width and Height of the grid
 
-        IInfluences[] Grid;
+        IInfluence[] Grid;
         public readonly float WorldSize;
 
         public InfluenceTree(float universeRadius, float projectorRadius)
@@ -34,12 +42,12 @@ namespace Ship_Game.Universe
 
         public void Clear()
         {
-            Grid = new IInfluences[Size * Size];
+            Grid = new IInfluence[Size * Size];
         }
 
-        public struct Influence
+        public struct InfluenceObj
         {
-            public GameObject Source;
+            public GameObject Source; // Ship(projector) or Planet
             public float Radius;
         #if DEBUG
             public AABoundingBox2D Bounds;
@@ -75,7 +83,7 @@ namespace Ship_Game.Universe
             (Vector2 center, float radius, float maxRadius) = GetInfluenceCenterAndMaxRadius(source);
             AABoundingBox2Di cb = GetCellBounds(center, maxRadius);
 
-            var inf = new Influence
+            var inf = new InfluenceObj
             {
                 Source = source,
                 Radius = radius,
@@ -97,7 +105,7 @@ namespace Ship_Game.Universe
                     if (!cellBounds.Overlaps(center.X, center.Y, maxRadius))
                         continue;
 
-                    IInfluences cell = GetCellAt(x, y);
+                    IInfluence cell = GetCellAt(x, y);
                     if (cell == null)
                         Grid[x + y * Size] = new OneInfluence(owner, inf);
                     else
@@ -124,7 +132,7 @@ namespace Ship_Game.Universe
                     if (!cellBounds.Overlaps(center.X, center.Y, maxRadius))
                         continue;
 
-                    IInfluences cell = GetCellAt(x, y);
+                    IInfluence cell = GetCellAt(x, y);
                     if (cell != null && cell.Remove(owner, source))
                         Grid[x + y * Size] = null;
                 }
@@ -140,10 +148,42 @@ namespace Ship_Game.Universe
         /// </summary>
         /// <param name="owner">Owner empire</param>
         /// <param name="worldPos">World position to check</param>
-        public Empire GetPrimaryInfluence(Empire owner, in Vector2 worldPos)
+        public (Empire primary, InfluenceStatus status) GetPrimaryInfluence(Empire owner, in Vector2 worldPos)
         {
-            IInfluences cell = GetCellByWorld(worldPos.X, worldPos.Y);
-            return cell?.GetPrimaryInfluence(owner, worldPos);
+            IInfluence cell = GetCellByWorld(worldPos.X, worldPos.Y);
+            if (cell == null) return (null, InfluenceStatus.Neutral);
+            return cell.GetPrimary(owner, worldPos);
+        }
+
+        public bool IsInInfluenceOf(Empire of, in Vector2 worldPos)
+        {
+            IInfluence cell = GetCellByWorld(worldPos.X, worldPos.Y);
+            if (cell == null) return false;
+            return cell.IsInInfluenceOf(of, worldPos);
+        }
+
+        /// <summary>
+        /// SLOW: Enumerates this position for all influences
+        /// </summary>
+        public IEnumerable<Empire> GetEmpireInfluences(in Vector2 worldPos)
+        {
+            IInfluence cell = GetCellByWorld(worldPos.X, worldPos.Y);
+            if (cell == null)
+                return Empty<Empire>.Array;
+            return cell?.GetEmpireInfluences();
+        }
+
+        static InfluenceStatus GetStatus(Empire us, Empire other)
+        {
+            if (us == other)
+                return InfluenceStatus.Friendly;
+
+            Relationship r = us.GetRelations(other);
+            if (r.Treaty_Alliance || r.Treaty_Trade)
+                return InfluenceStatus.Friendly;
+            if (r.AtWar)
+                return InfluenceStatus.Enemy;
+            return InfluenceStatus.Neutral;
         }
 
         AABoundingBox2Di GetCellBounds(Vector2 pos, float radius)
@@ -158,14 +198,14 @@ namespace Ship_Game.Universe
             return new AABoundingBox2Di(x, y, x2, y2);
         }
 
-        IInfluences GetCellAt(int x, int y)
+        IInfluence GetCellAt(int x, int y)
         {
             if ((uint)x >= Size || (uint)y >= Size)
                 return null;
             return Grid[x + y * Size];
         }
 
-        IInfluences GetCellByWorld(float worldX, float worldY)
+        IInfluence GetCellByWorld(float worldX, float worldY)
         {
             float cellSize = CellSize;
             float offset = WorldOrigin;
@@ -187,7 +227,7 @@ namespace Ship_Game.Universe
             {
                 for (float x = world.X1; x < world.X2; x += CellSize)
                 {
-                    IInfluences cell = GetCellByWorld(x, y);
+                    IInfluence cell = GetCellByWorld(x, y);
                     if (cell != null)
                     {
                         var bounds = new AABoundingBox2D(x, y, x + CellSize, y + CellSize);
@@ -213,7 +253,7 @@ namespace Ship_Game.Universe
         }
 
         static void DrawInfluence(GameScreen screen, in AABoundingBox2D bounds,
-                                  in Influence inf, Empire owner)
+                                  in InfluenceObj inf, Empire owner)
         {
             screen.DrawCircleProjected(inf.Source.Position, inf.Radius, owner.EmpireColor);
             screen.DrawLineProjected(inf.Source.Position, bounds.Center, owner.EmpireColor);
@@ -222,49 +262,69 @@ namespace Ship_Game.Universe
             #endif
         }
         
-        interface IInfluences
+        interface IInfluence
         {
             Empire Owner { get; }
-            void Insert(Empire owner, in Influence inf, ref IInfluences influences);
+            void Insert(Empire owner, in InfluenceObj obj, ref IInfluence inf);
             bool Remove(Empire owner, GameObject source);
-            Empire GetPrimaryInfluence(Empire owner, in Vector2 worldPos);
+
+            bool InRadius(in Vector2 worldPos);
+            bool IsInInfluenceOf(Empire of, in Vector2 worldPos);
+            (Empire primary, InfluenceStatus status) GetPrimary(Empire us, in Vector2 worldPos);
+            IEnumerable<Empire> GetEmpireInfluences();
+
             void Draw(UniverseScreen screen, in AABoundingBox2D bounds);
             void DrawInfluences(UniverseScreen screen, in AABoundingBox2D bounds,
                                 ref Vector2 textPos, float rectWidth);
         }
 
         // only stores a single Influence node
-        class OneInfluence : IInfluences
+        class OneInfluence : IInfluence
         {
             public Empire Owner { get; }
-            Influence Influence;
+            InfluenceObj Obj;
 
-            public OneInfluence(Empire owner, in Influence influence)
+            public OneInfluence(Empire owner, in InfluenceObj obj)
             {
                 Owner = owner;
-                Influence = influence;
+                Obj = obj;
             }
 
-            public void Insert(Empire owner, in Influence inf, ref IInfluences influences)
+            public void Insert(Empire owner, in InfluenceObj obj, ref IInfluence inf)
             {
                 // always expand
-                if (Owner == owner) influences = new OneEmpireInfluence(Owner, Influence, inf);
-                else                influences = new MultiEmpireInfluence(this, owner, inf);
+                if (Owner == owner) inf = new OneEmpireInfluence(Owner, Obj, obj);
+                else                inf = new MultiEmpireInfluence(this, owner, obj);
             }
 
             public bool Remove(Empire owner, GameObject source)
             {
-                if (source == Influence.Source)
+                if (source == Obj.Source)
                 {
-                    Influence = default;
+                    Obj = default;
                     return true;
                 }
                 return false;
             }
 
-            public Empire GetPrimaryInfluence(Empire owner, in Vector2 worldPos)
+            public bool InRadius(in Vector2 worldPos)
             {
-                return worldPos.InRadius(Influence.Source.Position, Influence.Radius) ? Owner : null;
+                return worldPos.InRadius(Obj.Source.Position, Obj.Radius);
+            }
+
+            public bool IsInInfluenceOf(Empire of, in Vector2 worldPos)
+            {
+                return Owner == of && InRadius(worldPos);
+            }
+
+            public (Empire primary, InfluenceStatus status) GetPrimary(Empire us, in Vector2 worldPos)
+            {
+                return InRadius(worldPos) ? (Owner, GetStatus(us, Owner)) : (null, InfluenceStatus.Neutral);
+            }
+
+            public IEnumerable<Empire> GetEmpireInfluences()
+            {
+                yield return Owner;
             }
 
             public void Draw(UniverseScreen screen, in AABoundingBox2D bounds)
@@ -279,58 +339,73 @@ namespace Ship_Game.Universe
             {
                 DrawBounds(screen, bounds, Owner.EmpireColor, rectWidth);
                 DrawText(screen, bounds, ref textPos, $"{Owner.data.ArchetypeName}=1", Owner.EmpireColor);
-                DrawInfluence(screen, bounds, Influence, Owner);
+                DrawInfluence(screen, bounds, Obj, Owner);
             }
         }
 
         // stores multiple influence nodes, but only for a single empire
-        class OneEmpireInfluence : IInfluences
+        class OneEmpireInfluence : IInfluence
         {
             public Empire Owner { get; }
-            readonly Array<Influence> Influences = new();
+            readonly Array<InfluenceObj> Objects = new();
 
-            public OneEmpireInfluence(Empire owner, in Influence inf1, in Influence inf2)
+            public OneEmpireInfluence(Empire owner, in InfluenceObj obj1, in InfluenceObj obj2)
             {
                 Owner = owner;
-                Influences.Add(inf1);
-                Influences.Add(inf2);
+                Objects.Add(obj1);
+                Objects.Add(obj2);
             }
 
-            public void Insert(Empire owner, in Influence inf, ref IInfluences influences)
+            public void Insert(Empire owner, in InfluenceObj obj, ref IInfluence inf)
             {
                 if (Owner == owner)
-                    Influences.Add(inf);
+                    Objects.Add(obj);
                 else // expand from OneEmpire to MultiEmpire
-                    influences = new MultiEmpireInfluence(this, owner, inf);
+                    inf = new MultiEmpireInfluence(this, owner, obj);
             }
 
             public bool Remove(Empire owner, GameObject source)
             {
-                int count = Influences.Count;
-                Influence[] influencesArr = Influences.GetInternalArrayItems();
+                int count = Objects.Count;
+                InfluenceObj[] objects = Objects.GetInternalArrayItems();
                 for (int i = 0; i < count; ++i)
                 {
-                    ref Influence inf = ref influencesArr[i];
-                    if (inf.Source == source)
+                    ref InfluenceObj obj = ref objects[i];
+                    if (obj.Source == source)
                     {
-                        Influences.RemoveAtSwapLast(i);
+                        Objects.RemoveAtSwapLast(i);
                         break;
                     }
                 }
-                return Influences.IsEmpty;
+                return Objects.IsEmpty;
             }
 
-            public Empire GetPrimaryInfluence(Empire owner, in Vector2 worldPos)
+            public bool InRadius(in Vector2 worldPos)
             {
-                int count = Influences.Count;
-                Influence[] influencesArr = Influences.GetInternalArrayItems();
+                int count = Objects.Count;
+                InfluenceObj[] objects = Objects.GetInternalArrayItems();
                 for (int i = 0; i < count; ++i)
                 {
-                    ref Influence inf = ref influencesArr[i];
-                    if (worldPos.InRadius(inf.Source.Position, inf.Radius))
-                        return Owner;
+                    ref InfluenceObj obj = ref objects[i];
+                    if (worldPos.InRadius(obj.Source.Position, obj.Radius))
+                        return true;
                 }
-                return null;
+                return false;
+            }
+
+            public bool IsInInfluenceOf(Empire of, in Vector2 worldPos)
+            {
+                return Owner == of && InRadius(worldPos);
+            }
+
+            public (Empire primary, InfluenceStatus status) GetPrimary(Empire us, in Vector2 worldPos)
+            {
+                return InRadius(worldPos) ? (Owner, GetStatus(us, Owner)) : (null, InfluenceStatus.Neutral);
+            }
+
+            public IEnumerable<Empire> GetEmpireInfluences()
+            {
+                yield return Owner;
             }
 
             public void Draw(UniverseScreen screen, in AABoundingBox2D bounds)
@@ -344,106 +419,124 @@ namespace Ship_Game.Universe
                                        ref Vector2 textPos, float rectWidth)
             {
                 DrawBounds(screen, bounds, Owner.EmpireColor, rectWidth);
-                DrawText(screen, bounds, ref textPos, $"{Owner.data.ArchetypeName}={Influences.Count}", Owner.EmpireColor);
-                foreach (Influence inf in Influences)
+                DrawText(screen, bounds, ref textPos, $"{Owner.data.ArchetypeName}={Objects.Count}", Owner.EmpireColor);
+                foreach (InfluenceObj inf in Objects)
                     DrawInfluence(screen, bounds, inf, Owner);
             }
         }
 
         // stores influence node(s) for multiple empires
-        class MultiEmpireInfluence : IInfluences
+        class MultiEmpireInfluence : IInfluence
         {
-            IInfluences[] InfluenceByEmpire = Empty<IInfluences>.Array;
+            IInfluence[] InfluenceByEmpire = Empty<IInfluence>.Array;
             int NumEmpires;
             public Empire Owner => null;
 
-            public MultiEmpireInfluence(IInfluences other, Empire owner, in Influence inf)
+            public MultiEmpireInfluence(IInfluence other, Empire owner, in InfluenceObj obj)
             {
                 SetInfluence(other.Owner, other);
-                SetInfluence(owner, new OneInfluence(owner, inf));
+                SetInfluence(owner, new OneInfluence(owner, obj));
             }
 
-            void SetInfluence(Empire e, IInfluences influence)
+            void SetInfluence(Empire e, IInfluence inf)
             {
                 int empireIdx = e.Id - 1;
                 if (empireIdx >= InfluenceByEmpire.Length)
                     Array.Resize(ref InfluenceByEmpire, e.Universum.NumEmpires);
-                InfluenceByEmpire[empireIdx] = influence;
-                NumEmpires += influence != null ? +1 : -1;
+                InfluenceByEmpire[empireIdx] = inf;
+                NumEmpires += inf != null ? +1 : -1;
             }
 
-            bool GetInfluence(Empire e, out IInfluences influence)
+            bool GetInfluence(Empire e, out IInfluence inf)
             {
                 int empireIdx = e.Id - 1;
                 if (empireIdx < InfluenceByEmpire.Length)
                 {
-                    influence = InfluenceByEmpire[empireIdx];
-                    return influence != null;
+                    inf = InfluenceByEmpire[empireIdx];
+                    return inf != null;
                 }
-                influence = null;
+                inf = null;
                 return false;
             }
 
-            public void Insert(Empire owner, in Influence inf, ref IInfluences _)
+            public void Insert(Empire owner, in InfluenceObj obj, ref IInfluence inf)
             {
-                if (!GetInfluence(owner, out IInfluences influences))
-                    SetInfluence(owner, new OneInfluence(owner, inf));
+                if (!GetInfluence(owner, out IInfluence influences))
+                    SetInfluence(owner, new OneInfluence(owner, obj));
                 else
-                    influences.Insert(owner, inf, ref influences);
+                    influences.Insert(owner, obj, ref influences);
             }
 
             public bool Remove(Empire owner, GameObject source)
             {
-                if (GetInfluence(owner, out IInfluences influences)
-                    && influences.Remove(owner, source))
+                if (GetInfluence(owner, out IInfluence inf) && inf.Remove(owner, source))
                 {
                     SetInfluence(owner, null);
                 }
                 return NumEmpires == 0;
             }
 
-            public Empire GetPrimaryInfluence(Empire owner, in Vector2 worldPos)
+            public bool InRadius(in Vector2 worldPos)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsInInfluenceOf(Empire of, in Vector2 worldPos)
+            {
+                return GetInfluence(of, out IInfluence inf) && inf.InRadius(worldPos);
+            }
+
+            public (Empire primary, InfluenceStatus status) GetPrimary(Empire us, in Vector2 worldPos)
             {
                 // check against our own influence first, Own influence is highest priority
-                if (GetInfluence(owner, out IInfluences ourInfluences))
-                {
-                    Empire us = ourInfluences.GetPrimaryInfluence(owner, worldPos);
-                    if (us != null) return us;
-                }
+                if (IsInInfluenceOf(us, worldPos))
+                    return (us, InfluenceStatus.Friendly);
 
                 Empire enemy = null;
                 int numEmpires = NumEmpires;
 
                 for (int i = 0; numEmpires > 0 && i < InfluenceByEmpire.Length; ++i)
                 {
-                    IInfluences influences = InfluenceByEmpire[i];
-                    if (influences == null)
+                    IInfluence inf = InfluenceByEmpire[i];
+                    if (inf == null)
                         continue;
 
                     --numEmpires;
-                    int empireId = i + 1;
-                    if (empireId != owner.Id)
+
+                    Empire other = inf.Owner;
+                    if (other != us)
                     {
-                        Relationship r = owner.GetRelationsOrNull(empireId);
+                        InfluenceStatus status = GetStatus(us, other);
 
                         // if we have an allied influence, it also takes priority
-                        if (r.Treaty_Alliance || r.Treaty_Trade)
-                        {
-                            Empire friend = influences.GetPrimaryInfluence(owner, worldPos);
-                            if (friend != null) return friend;
-                        }
+                        if (status == InfluenceStatus.Friendly && inf.InRadius(worldPos))
+                            return (other, InfluenceStatus.Friendly);
 
                         // we save the enemy marker, if we don't get any allied influences,
                         // then this one will be the last priority
-                        if (enemy == null && r.AtWar)
-                        {
-                            enemy = influences.GetPrimaryInfluence(owner, worldPos);
-                        }
+                        if (enemy == null && status == InfluenceStatus.Enemy && inf.InRadius(worldPos))
+                            enemy = other;
                     }
                 }
 
                 // if enemy is null, then we have neutral influence
-                return enemy;
+                if (enemy == null)
+                    return (null, InfluenceStatus.Neutral);
+                return (enemy, InfluenceStatus.Enemy);
+            }
+
+            public IEnumerable<Empire> GetEmpireInfluences()
+            {
+                int numEmpires = NumEmpires;
+                for (int i = 0; numEmpires > 0 && i < InfluenceByEmpire.Length; ++i)
+                {
+                    IInfluence influence = InfluenceByEmpire[i];
+                    if (influence != null)
+                    {
+                        --numEmpires;
+                        yield return influence.Owner;
+                    }
+                }
             }
 
             public void Draw(UniverseScreen screen, in AABoundingBox2D bounds)
@@ -453,7 +546,8 @@ namespace Ship_Game.Universe
                 DrawInfluences(screen, bounds, ref textPos, rectWidth:1f);
             }
 
-            public void DrawInfluences(UniverseScreen screen, in AABoundingBox2D bounds, ref Vector2 textPos, float rectWidth)
+            public void DrawInfluences(UniverseScreen screen, in AABoundingBox2D bounds,
+                                       ref Vector2 textPos, float rectWidth)
             {
                 int numEmpires = NumEmpires;
                 if (numEmpires == 0)
@@ -464,11 +558,11 @@ namespace Ship_Game.Universe
 
                 for (int i = 0; numEmpires > 0 && i < InfluenceByEmpire.Length; ++i)
                 {
-                    IInfluences influences = InfluenceByEmpire[i];
-                    if (influences == null)
+                    IInfluence influence = InfluenceByEmpire[i];
+                    if (influence == null)
                         continue;
                     --numEmpires;
-                    influences.DrawInfluences(screen, bounds, ref textPos, numEmpires * 2f + 2f);
+                    influence.DrawInfluences(screen, bounds, ref textPos, numEmpires * 2f + 2f);
                 }
             }
         }
