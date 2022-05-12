@@ -36,6 +36,8 @@ namespace Ship_Game.Debug.Page
             if (!Visible)
                 return;
 
+            Screen.UState.Influence.DebugVisualize(Screen);
+
             base.Draw(spriteBatch, elapsed);
         }
     }

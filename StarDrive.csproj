@@ -337,6 +337,7 @@
     <Compile Include="Ship_Game\UI\RelSize.cs" />
     <Compile Include="Ship_Game\UI\UILine.cs" />
     <Compile Include="Ship_Game\Universe\ExplorableGameObject.cs" />
+    <Compile Include="Ship_Game\Universe\InfluenceTree.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetRenderer.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\AtmosphereType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetTypes.cs" />
@@ -445,7 +446,6 @@
     <Compile Include="Ship_Game\Debug\Page\SolarDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\TradeDebug.cs" />
     <Compile Include="Ship_Game\Debug\Page\PlanetDebug.cs" />
-    <Compile Include="Ship_Game\Empires\SubSpaceProjectors.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindAvg.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindMax.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindMin.cs" />
@@ -1684,7 +1684,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Ship_Game\Fleets\FleetGoals\" />
-    <Folder Include="Ship_Game\Sensors\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

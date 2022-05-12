@@ -36,10 +36,7 @@ namespace Ship_Game
             throw new InvalidOperationException(
                 $"BUG! Empire must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Empire XXX;` PROPERTIES/FIELDS. {this}");
 
-        public float GetProjectorRadius() => Universum?.Projectors.Radius * data.SensorModifier ?? 10000;
-        public float GetProjectorRadius(Planet planet) => GetProjectorRadius() + 10000f * planet.PopulationBillion;
         readonly Map<int, Fleet> FleetsDict = new();
-
 
         public readonly Map<string, bool> UnlockedHullsDict = new(StringComparer.InvariantCultureIgnoreCase);
         readonly Map<string, bool> UnlockedTroopDict = new(StringComparer.InvariantCultureIgnoreCase);
@@ -242,6 +239,11 @@ namespace Ship_Game
             TechnologyDict = parentEmpire.TechnologyDict;
         }
 
+        public float GetProjectorRadius()
+        {
+            return Universum.DefaultProjectorRadius * data.SensorModifier;
+        }
+        
         public void SetAsPirates(bool fromSave, BatchRemovalCollection<Goal> goals)
         {
             if (fromSave && data.Defeated)
@@ -921,6 +923,8 @@ namespace Ship_Game
         public void RemovePlanet(Planet planet)
         {
             OwnedPlanets.Remove(planet);
+            Universum.OnPlanetOwnerRemoved(this, planet);
+
             if (OwnedPlanets.All(p => p.ParentSystem != planet.ParentSystem)) // system no more in owned planets?
                 OwnedSolarSystems.Remove(planet.ParentSystem);
 
@@ -945,9 +949,11 @@ namespace Ship_Game
             if (planet == null)
                 throw new ArgumentNullException(nameof(planet));
 
-            OwnedPlanets.Add(planet);
             if (planet.ParentSystem == null)
                 throw new ArgumentNullException(nameof(planet.ParentSystem));
+
+            OwnedPlanets.Add(planet);
+            Universum.OnPlanetOwnerAdded(this, planet);
 
             OwnedSolarSystems.AddUniqueRef(planet.ParentSystem);
             CalcWeightedCenter(calcNow: true);
@@ -2497,10 +2503,7 @@ namespace Ship_Game
                 var borderNode = new InfluenceNode(planet, known);
                 sensorNodes.Add(borderNode);
 
-                if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.usePlanetaryProjection)
-                    borderNode.Radius = planet.ProjectorRange;
-                else
-                    borderNode.Radius = GetProjectorRadius(planet);
+                borderNode.Radius = planet.GetProjectorRange();
                 borderNodes.Add(borderNode);
             }
         }
@@ -2994,8 +2997,7 @@ namespace Ship_Game
             AbsorbAllEnvPreferences(target);
             foreach (Planet planet in target.GetPlanets())
             {
-                AddPlanet(planet);
-                planet.Owner = this;
+                planet.SetOwner(this);
                 if (!planet.ParentSystem.OwnerList.Contains(this))
                 {
                     planet.ParentSystem.OwnerList.Add(this);

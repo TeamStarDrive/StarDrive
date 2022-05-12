@@ -217,7 +217,7 @@ namespace UnitTests
             if (!ship.HasModules)
                 throw new Exception($"Failed to create ship modules: {shipName} (did you load modules?)");
 
-            UState?.Objects.Add(ship);
+            UState?.AddShip(ship);
             ship.Rotation = shipDirection.Normalized().ToRadians();
             ship.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             ship.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
@@ -267,10 +267,8 @@ namespace UnitTests
         public Planet AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
         {
             var p = AddDummyPlanet(fertility, minerals, maxPop);
-            empire.AddPlanet(p);
-            p.Owner = empire;
             p.PType = ResourceManager.Planets.PlanetOrRandom(0);
-            p.ParentSystem.OwnerList.Add(empire);
+            p.SetOwner(empire);
             return p;
         }
 

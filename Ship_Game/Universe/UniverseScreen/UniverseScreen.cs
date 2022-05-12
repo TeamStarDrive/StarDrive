@@ -178,7 +178,7 @@ namespace Ship_Game
         public UniverseScreen(float universeSize) : base(null, toPause: null)
         {
             UState = new UniverseState(this, universeSize);
-            UState.Objects.OnShipRemoved += Objects_OnShipRemoved;
+            UState.EvtOnShipRemoved += Objects_OnShipRemoved;
             Name = "UniverseScreen";
             CanEscapeFromScreen = false;
 

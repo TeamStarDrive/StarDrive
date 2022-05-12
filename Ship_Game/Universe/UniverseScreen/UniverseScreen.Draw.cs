@@ -138,7 +138,8 @@ namespace Ship_Game
 
                     if (debug)
                     {
-                        DebugWin.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
+                        if (DebugWin != null)
+                            DebugWin.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
                         batch.DrawRectangle(connect1, angle1, Color.Green, 2); // DEBUG
                         batch.DrawRectangle(connect2, angle2, Color.Yellow, 2); // DEBUG
                         DrawLineProjected(b.Position, a.Position, Color.Red); // DEBUG

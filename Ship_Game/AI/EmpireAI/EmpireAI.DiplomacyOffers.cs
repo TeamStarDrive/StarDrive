@@ -90,8 +90,7 @@ namespace Ship_Game.AI
                         orbital.LoyaltyChangeByGift(them);
 
                     toRemove.Add(p);
-                    p.Owner = them;
-                    them.AddPlanet(p);
+                    p.SetOwner(them);
 
                     p.ParentSystem.OwnerList.Clear();
                     foreach (Planet pl in p.ParentSystem.PlanetList)
