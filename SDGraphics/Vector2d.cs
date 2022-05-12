@@ -48,24 +48,24 @@ public struct Vector2d
         return $"[{X.String(precision)}, {Y.String(precision)}]";
     }
 
-    [Pure] public Vector2 ToVec2f() => new Vector2((float)X, (float)Y);
-    [Pure] public Vector2 ToVec2fRounded() => new Vector2((float)Math.Round(X), (float)Math.Round(Y));
-    [Pure] public double Length() => Math.Sqrt(X*X + Y*Y);
+    [Pure] public readonly Vector2 ToVec2f() => new((float)X, (float)Y);
+    [Pure] public readonly Vector2 ToVec2fRounded() => new((float)Math.Round(X), (float)Math.Round(Y));
+    [Pure] public readonly double Length() => Math.Sqrt(X*X + Y*Y);
 
-    [Pure] public Vector2d Normalized()
+    [Pure] public readonly Vector2d Normalized()
     {
         double len = Math.Sqrt(X*X + Y*Y);
         return len > 0.000001 ? new Vector2d(X / len, Y / len) : default;
     }
 
-    [Pure] public double Distance(in Vector2d b)
+    [Pure] public readonly double Distance(in Vector2d b)
     {
         double dx = X - b.X;
         double dy = Y - b.Y;
         return Math.Sqrt(dx*dx + dy*dy);
     }
 
-    [Pure] public Vector2d DirectionToTarget(Vector2d target)
+    [Pure] public readonly Vector2d DirectionToTarget(Vector2d target)
     {
         double dx = target.X - X;
         double dy = target.Y - Y;
@@ -76,14 +76,14 @@ public struct Vector2d
     }
 
     // result between [0, +2PI)
-    [Pure] public float RadiansToTarget(Vector2d target)
+    [Pure] public readonly float RadiansToTarget(Vector2d target)
     {
         return (float)(Math.PI - Math.Atan2(target.X - X, target.Y - Y));
     }
 
     // Generates a new point on a circular radius from position
     // Input angle is given in degrees
-    public Vector2d PointFromAngle(double degrees, double circleRadius)
+    public readonly Vector2d PointFromAngle(double degrees, double circleRadius)
     {
         Vector2d offset = degrees.AngleToDirection() * circleRadius;
         return new Vector2d(X + offset.X, Y + offset.Y);
@@ -91,14 +91,14 @@ public struct Vector2d
 
     // assuming this is a direction vector, gives the right side perpendicular vector
     // @note This assumes that +Y is DOWNWARDS on the screen
-    [Pure] public Vector2d LeftVector()
+    [Pure] public readonly Vector2d LeftVector()
     {
         return new Vector2d(Y, -X);
     }
 
     // assuming this is a direction vector, gives the left side perpendicular vector
     // @note This assumes that +Y is DOWNWARDS on the screen
-    [Pure] public Vector2d RightVector()
+    [Pure] public readonly Vector2d RightVector()
     {
         return new Vector2d(-Y, X);
     }

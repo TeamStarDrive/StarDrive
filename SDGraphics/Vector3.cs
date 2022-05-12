@@ -81,13 +81,13 @@ public struct Vector3 : IEquatable<Vector3>
         return new Vector3(v.X, v.Y, v.Z);
     }
 
-    [Pure] public float Length() => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
+    [Pure] public readonly float Length() => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
     
     // Narrows this Vector3 to a Vector2, the Z component is truncated
-    [Pure] public Vector2 ToVec2() => new(X, Y);
+    [Pure] public readonly Vector2 ToVec2() => new(X, Y);
 
     [Pure]
-    public Vector3 Normalized(float newMagnitude)
+    public readonly Vector3 Normalized(float newMagnitude)
     {
         float len = (float)Math.Sqrt(X * X + Y * Y + Z * Z) / newMagnitude;
         return len > 0.0000001
@@ -96,7 +96,7 @@ public struct Vector3 : IEquatable<Vector3>
     }
 
     [Pure]
-    public Vector3 Normalized()
+    public readonly Vector3 Normalized()
     {
         float len = (float)Math.Sqrt(X * X + Y * Y + Z * Z);
         return len > 0.0000001
@@ -107,7 +107,7 @@ public struct Vector3 : IEquatable<Vector3>
     // Gets the accurate distance from source point a to destination b
     // This is slower than Vector3.SqDist()
     [Pure]
-    public float Distance(in Vector3 b)
+    public readonly float Distance(in Vector3 b)
     {
         float dx = X - b.X;
         float dy = Y - b.Y;
@@ -116,7 +116,7 @@ public struct Vector3 : IEquatable<Vector3>
     }
 
     // Squared distance between two Vector3's
-    [Pure] public float SqDist(in Vector3 b)
+    [Pure] public readonly float SqDist(in Vector3 b)
     {
         float dx = X - b.X;
         float dy = Y - b.Y;
@@ -125,7 +125,7 @@ public struct Vector3 : IEquatable<Vector3>
     }
 
     [Pure]
-    public Vector3 DirectionToTarget(in Vector3 target)
+    public readonly Vector3 DirectionToTarget(in Vector3 target)
     {
         double dx = target.X - X;
         double dy = target.Y - Y;
@@ -140,10 +140,10 @@ public struct Vector3 : IEquatable<Vector3>
     /// 3D Version of the Dot product, +1 same dir, 0 perpendicular in some axis, -1 opposite dirs
     /// </summary>
     [Pure]
-    public float Dot(in Vector3 b) => X*b.X + Y*b.Y + Z*b.Z;
+    public readonly float Dot(in Vector3 b) => X*b.X + Y*b.Y + Z*b.Z;
 
     [Pure]
-    public Vector3 Transform(in Matrix matrix)
+    public readonly Vector3 Transform(in Matrix matrix)
     {
         float x = (X * matrix.M11 + Y * matrix.M21 + Z * matrix.M31) + matrix.M41;
         float y = (X * matrix.M12 + Y * matrix.M22 + Z * matrix.M32) + matrix.M42;
@@ -152,7 +152,7 @@ public struct Vector3 : IEquatable<Vector3>
     }
 
     [Pure]
-    public Vector3 Transform(in XnaMatrix matrix)
+    public readonly Vector3 Transform(in XnaMatrix matrix)
     {
         float x = (X * matrix.M11 + Y * matrix.M21 + Z * matrix.M31) + matrix.M41;
         float y = (X * matrix.M12 + Y * matrix.M22 + Z * matrix.M32) + matrix.M42;
@@ -170,7 +170,7 @@ public struct Vector3 : IEquatable<Vector3>
     }
 
     [Pure]
-    public Vector3 Cross(in Vector3 b)
+    public readonly Vector3 Cross(in Vector3 b)
     {
         Vector3 v;
         v.X = (Y * b.Z - Z * b.Y);
@@ -180,7 +180,7 @@ public struct Vector3 : IEquatable<Vector3>
     }
 
     [Pure]
-    public Vector3 Lerp(in Vector3 to, float amount)
+    public readonly Vector3 Lerp(in Vector3 to, float amount)
     {
         Vector3 v;
         v.X = X + (to.X - X) * amount;

@@ -66,31 +66,31 @@ public struct Vector2 : IEquatable<Vector2>
         return new XnaVector2(v.X, v.Y);
     }
 
-    [Pure] public Vector2 ToRounded() => new((float)Math.Round(X), (float)Math.Round(Y));
-    [Pure] public Vector2 ToFloored() => new((float)Math.Floor(X), (float)Math.Floor(Y));
-    [Pure] public float Length() => (float)Math.Sqrt(X*X + Y*Y);
-    [Pure] public float SqLen() => X*X + Y*Y;
+    [Pure] public readonly Vector2 ToRounded() => new((float)Math.Round(X), (float)Math.Round(Y));
+    [Pure] public readonly Vector2 ToFloored() => new((float)Math.Floor(X), (float)Math.Floor(Y));
+    [Pure] public readonly float Length() => (float)Math.Sqrt(X*X + Y*Y);
+    [Pure] public readonly float SqLen() => X*X + Y*Y;
 
     // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f
-    [Pure] public Vector3 ToVec3() => new(X, Y, 0f);
+    [Pure] public readonly Vector3 ToVec3() => new(X, Y, 0f);
 
     // Widens this Vector2 to a Vector3, the new Z component is provided as argument
-    [Pure] public Vector3 ToVec3(float z) => new(X, Y, z);
-    [Pure] public Vector3d ToVec3d(double z) => new(X, Y, z);
+    [Pure] public readonly Vector3 ToVec3(float z) => new(X, Y, z);
+    [Pure] public readonly Vector3d ToVec3d(double z) => new(X, Y, z);
 
-    [Pure] public Vector2 Normalized()
+    [Pure] public readonly Vector2 Normalized()
     {
         double len = Math.Sqrt(X*X + Y*Y);
         return len > 0.000001 ? new Vector2((float)(X / len), (float)(Y / len)) : default;
     }
     
-    [Pure] public Vector2 Normalized(float newMagnitude)
+    [Pure] public readonly Vector2 Normalized(float newMagnitude)
     {
         double len = Math.Sqrt(X*X + Y*Y) / newMagnitude;
         return len > 0.000001 ? new Vector2((float)(X / len), (float)(Y / len)) : default;
     }
 
-    [Pure] public void GetDirectionAndLength(out Vector2 dir, out float len)
+    [Pure] public readonly void GetDirectionAndLength(out Vector2 dir, out float len)
     {
         float l = (float)Math.Sqrt(X*X + Y*Y);
         dir = l > 0.0000001f ? new Vector2(X / l, Y / l) : default;
@@ -100,7 +100,7 @@ public struct Vector2 : IEquatable<Vector2>
     // Equivalent to:
     // Vector2 direction = origin.DirectionToTarget(target);
     // float distance = origin.Distance(target);
-    [Pure] public (Vector2, float) GetDirectionAndLength(in Vector2 target)
+    [Pure] public readonly (Vector2, float) GetDirectionAndLength(in Vector2 target)
     {
         double dx = target.X - X;
         double dy = target.Y - Y;
@@ -112,7 +112,7 @@ public struct Vector2 : IEquatable<Vector2>
 
     // Gets the accurate distance from source point a to destination b
     // This is slower than Vector2.SqDist()
-    [Pure] public float Distance(in Vector2 b)
+    [Pure] public readonly float Distance(in Vector2 b)
     {
         float dx = X - b.X;
         float dy = Y - b.Y;
@@ -121,7 +121,7 @@ public struct Vector2 : IEquatable<Vector2>
     
     // Gets the Squared distance from source point a to destination b
     // This is faster than Vector2.Distance()
-    [Pure] public float SqDist(in Vector2 b)
+    [Pure] public readonly float SqDist(in Vector2 b)
     {
         float dx = X - b.X;
         float dy = Y - b.Y;
@@ -129,8 +129,10 @@ public struct Vector2 : IEquatable<Vector2>
     }
     
     // True if this given position is within the radius of Circle [center,radius]
-    public bool InRadius(Vector2 center, float radius)
-        => this.SqDist(center) <= radius*radius;
+    [Pure] public readonly bool InRadius(Vector2 center, float radius)
+    {
+         return SqDist(center) <= radius*radius;
+    }
     
     /// <summary>
     /// Geometric explanation of the Dot product
@@ -141,9 +143,9 @@ public struct Vector2 : IEquatable<Vector2>
     /// -1: a and b are point in opposite directions --> <-- 
     /// </summary>
     [Pure]
-    public float Dot(Vector2 b) => X*b.X + Y*b.Y;
+    public readonly float Dot(Vector2 b) => X*b.X + Y*b.Y;
 
-    [Pure] public Vector2 DirectionToTarget(Vector2 target)
+    [Pure] public readonly Vector2 DirectionToTarget(Vector2 target)
     {
         double dx = target.X - X;
         double dy = target.Y - Y;
@@ -154,14 +156,14 @@ public struct Vector2 : IEquatable<Vector2>
     }
 
     // result between [0, +2PI)
-    [Pure] public float RadiansToTarget(Vector2 target)
+    [Pure] public readonly float RadiansToTarget(Vector2 target)
     {
         return (float)(Math.PI - Math.Atan2(target.X - X, target.Y - Y));
     }
 
     // Generates a new point on a circular radius from position
     // Input angle is given in degrees
-    public Vector2 PointFromAngle(float degrees, float circleRadius)
+    public readonly Vector2 PointFromAngle(float degrees, float circleRadius)
     {
         Vector2 offset = degrees.AngleToDirection() * circleRadius;
         return new Vector2(X + offset.X, Y + offset.Y);
@@ -169,14 +171,14 @@ public struct Vector2 : IEquatable<Vector2>
 
     // assuming this is a direction vector, gives the right side perpendicular vector
     // @note This assumes that +Y is DOWNWARDS on the screen
-    [Pure] public Vector2 LeftVector()
+    [Pure] public readonly Vector2 LeftVector()
     {
         return new Vector2(Y, -X);
     }
 
     // assuming this is a direction vector, gives the left side perpendicular vector
     // @note This assumes that +Y is DOWNWARDS on the screen
-    [Pure] public Vector2 RightVector()
+    [Pure] public readonly Vector2 RightVector()
     {
         return new Vector2(-Y, X);
     }
@@ -190,14 +192,14 @@ public struct Vector2 : IEquatable<Vector2>
     }
 
     [Pure]
-    public Vector2 Transform(in Matrix matrix)
+    public readonly Vector2 Transform(in Matrix matrix)
     {
         return new Vector2((X * matrix.M11 + Y * matrix.M21) + matrix.M41,
                            (X * matrix.M12 + Y * matrix.M22) + matrix.M42);
     }
 
     [Pure]
-    public Vector2 Transform(in XnaMatrix matrix)
+    public readonly Vector2 Transform(in XnaMatrix matrix)
     {
         return new Vector2((X * matrix.M11 + Y * matrix.M21) + matrix.M41,
                            (X * matrix.M12 + Y * matrix.M22) + matrix.M42);
