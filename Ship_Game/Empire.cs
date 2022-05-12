@@ -1419,7 +1419,6 @@ namespace Ship_Game
             for (int i = 0; i < targets.Length; i++)
             {
                 var ship = (Ship)targets[i];
-                ship.SetProjectorInfluence(this, true);
 
                 // Civilian infrastructure spotting enemy fleets
                 if (node.Source is Ship ssp)
