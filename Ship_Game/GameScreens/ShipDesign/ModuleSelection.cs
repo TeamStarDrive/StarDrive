@@ -422,8 +422,8 @@ namespace Ship_Game
                 return;
 
             var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.HangarShipUID);
-            string hangerShip = mod.GetHangarShipName();
-            Ship hs = ResourceManager.GetShipTemplate(hangerShip, false);
+            string hangarShip = mod.GetHangarShipName();
+            Ship hs = ResourceManager.GetShipTemplate(hangarShip, false);
             if (hs != null)
             {
                 Color color   = ShipBuilder.GetHangarTextColor(mod.HangarShipUID);
