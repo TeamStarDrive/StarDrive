@@ -75,7 +75,7 @@ namespace SDGraphics
         }
 
         [Pure] public readonly float Length() => (float)Math.Sqrt(X*X + Y*Y + Z*Z + W*W);
-        [Pure] public readonly float LengthSquared() => X*X + Y*Y + Z*Z + W*W;
+        [Pure] public readonly float SqLen() => X*X + Y*Y + Z*Z + W*W;
 
         public static float Distance(in Vector4 value1, in Vector4 value2)
         {
