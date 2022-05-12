@@ -100,30 +100,42 @@ namespace Ship_Game.Ships
 
         public bool Get(string shipName, out Ship template)
         {
+            if (shipName.IsEmpty())
+            {
+                template = null;
+                return false;
+            }
             return ShipsMap.TryGetValue(shipName, out template);
         }
 
         public Ship Get(string shipName, bool throwIfError = true)
         {
-            if (throwIfError)
-                return ShipsMap[shipName];
+            if (Get(shipName, out Ship ship))
+                return ship;
 
-            ShipsMap.TryGetValue(shipName, out Ship ship);
-            return ship;
+            if (throwIfError)
+                throw new ArgumentOutOfRangeException($"No ShipDesign with name='{shipName}'");
+            return null;
         }
 
         public bool GetDesign(string shipName, out IShipDesign template)
         {
+            if (shipName.IsEmpty())
+            {
+                template = null;
+                return false;
+            }
             return DesignsMap.TryGetValue(shipName, out template);
         }
 
         public IShipDesign GetDesign(string shipName, bool throwIfError = true)
         {
-            if (throwIfError)
-                return DesignsMap[shipName];
+            if (GetDesign(shipName, out IShipDesign ship))
+                return ship;
 
-            DesignsMap.TryGetValue(shipName, out IShipDesign ship);
-            return ship;
+            if (throwIfError)
+                throw new ArgumentOutOfRangeException($"No ShipDesign with name='{shipName}'");
+            return null;
         }
     }
 }
