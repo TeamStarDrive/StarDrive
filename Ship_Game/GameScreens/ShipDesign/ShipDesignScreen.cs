@@ -57,7 +57,7 @@ namespace Ship_Game
         ShipDesignIssuesPanel IssuesPanel;
 
         // this contains module selection list and active module selection info
-        ModuleSelection ModuleSelectComponent;
+        public ModuleSelection ModuleSelectComponent { get; private set; }
         ScrollList2<ShipHullListItem> HullSelectList;
 
         public ShipModule HighlightedModule;
@@ -247,7 +247,7 @@ namespace Ship_Game
                 return;
 
             ModuleGrid.StartUndoableAction();
-
+            ShipSaved = false;
             if (IsSymmetricDesignMode)
             {
                 if (GetMirrorSlotStruct(slot, out SlotStruct mirrored))
@@ -340,6 +340,7 @@ namespace Ship_Game
             // TODO: remove DesignIssues from this page
             InfoPanel.SetActiveDesign(DesignedShip);
             IssuesPanel.SetActiveDesign(DesignedShip);
+            ShipSaved = DesignedShip.Modules.Length > 0;
         }
 
         public void UpdateDesignedShip(bool forceUpdate)
@@ -377,10 +378,7 @@ namespace Ship_Game
             UpdateDesignedShip(forceUpdate:false);
 
             if (showRoleChangeTip && Role != oldRole)
-            {
-                var pos = new Vector2(ScreenCenter.X - 100, ModuleSelectComponent.Y + 50);
-                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, pos);
-            }
+                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, Input.CursorPosition);
         }
 
         // true if this module can never fit into the module grid
