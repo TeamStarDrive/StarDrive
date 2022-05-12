@@ -140,19 +140,19 @@ namespace Ship_Game.Universe
         }
 
         /// <summary>
-        /// Gets the Primary influence under WorldPos for Empire owner.
-        /// Owner empire is always the most prioritized influence
+        /// Gets the Primary influence status under WorldPos for Empire owner.
+        /// Owner empire (Friendly) is always the most prioritized influence
         /// Then Friendly influences
         /// And lastly Enemy influences
         /// For neutral influences the result will be null
         /// </summary>
-        /// <param name="owner">Owner empire</param>
+        /// <param name="us">Our empire</param>
         /// <param name="worldPos">World position to check</param>
-        public (Empire primary, InfluenceStatus status) GetPrimaryInfluence(Empire owner, in Vector2 worldPos)
+        public InfluenceStatus GetInfluenceStatus(Empire us, in Vector2 worldPos)
         {
             IInfluence cell = GetCellByWorld(worldPos.X, worldPos.Y);
-            if (cell == null) return (null, InfluenceStatus.Neutral);
-            return cell.GetPrimary(owner, worldPos);
+            if (cell == null) return InfluenceStatus.Neutral;
+            return cell.GetInfluenceStatus(us, worldPos);
         }
 
         public bool IsInInfluenceOf(Empire of, in Vector2 worldPos)
@@ -270,7 +270,7 @@ namespace Ship_Game.Universe
 
             bool InRadius(in Vector2 worldPos);
             bool IsInInfluenceOf(Empire of, in Vector2 worldPos);
-            (Empire primary, InfluenceStatus status) GetPrimary(Empire us, in Vector2 worldPos);
+            InfluenceStatus GetInfluenceStatus(Empire us, in Vector2 worldPos);
             IEnumerable<Empire> GetEmpireInfluences();
 
             void Draw(UniverseScreen screen, in AABoundingBox2D bounds);
@@ -317,9 +317,9 @@ namespace Ship_Game.Universe
                 return Owner == of && InRadius(worldPos);
             }
 
-            public (Empire primary, InfluenceStatus status) GetPrimary(Empire us, in Vector2 worldPos)
+            public InfluenceStatus GetInfluenceStatus(Empire us, in Vector2 worldPos)
             {
-                return InRadius(worldPos) ? (Owner, GetStatus(us, Owner)) : (null, InfluenceStatus.Neutral);
+                return InRadius(worldPos) ? GetStatus(us, Owner) : InfluenceStatus.Neutral;
             }
 
             public IEnumerable<Empire> GetEmpireInfluences()
@@ -398,9 +398,9 @@ namespace Ship_Game.Universe
                 return Owner == of && InRadius(worldPos);
             }
 
-            public (Empire primary, InfluenceStatus status) GetPrimary(Empire us, in Vector2 worldPos)
+            public InfluenceStatus GetInfluenceStatus(Empire us, in Vector2 worldPos)
             {
-                return InRadius(worldPos) ? (Owner, GetStatus(us, Owner)) : (null, InfluenceStatus.Neutral);
+                return InRadius(worldPos) ? GetStatus(us, Owner) : InfluenceStatus.Neutral;
             }
 
             public IEnumerable<Empire> GetEmpireInfluences()
@@ -486,13 +486,13 @@ namespace Ship_Game.Universe
                 return GetInfluence(of, out IInfluence inf) && inf.InRadius(worldPos);
             }
 
-            public (Empire primary, InfluenceStatus status) GetPrimary(Empire us, in Vector2 worldPos)
+            public InfluenceStatus GetInfluenceStatus(Empire us, in Vector2 worldPos)
             {
                 // check against our own influence first, Own influence is highest priority
                 if (IsInInfluenceOf(us, worldPos))
-                    return (us, InfluenceStatus.Friendly);
+                    return InfluenceStatus.Friendly;
 
-                Empire enemy = null;
+                bool enemy = false;
                 int numEmpires = NumEmpires;
 
                 for (int i = 0; numEmpires > 0 && i < InfluenceByEmpire.Length; ++i)
@@ -510,19 +510,17 @@ namespace Ship_Game.Universe
 
                         // if we have an allied influence, it also takes priority
                         if (status == InfluenceStatus.Friendly && inf.InRadius(worldPos))
-                            return (other, InfluenceStatus.Friendly);
+                            return InfluenceStatus.Friendly;
 
                         // we save the enemy marker, if we don't get any allied influences,
                         // then this one will be the last priority
-                        if (enemy == null && status == InfluenceStatus.Enemy && inf.InRadius(worldPos))
-                            enemy = other;
+                        if (!enemy && status == InfluenceStatus.Enemy && inf.InRadius(worldPos))
+                            enemy = true;
                     }
                 }
 
-                // if enemy is null, then we have neutral influence
-                if (enemy == null)
-                    return (null, InfluenceStatus.Neutral);
-                return (enemy, InfluenceStatus.Enemy);
+                // if no enemy, then we have neutral influence
+                return enemy ? InfluenceStatus.Enemy : InfluenceStatus.Neutral;
             }
 
             public IEnumerable<Empire> GetEmpireInfluences()
