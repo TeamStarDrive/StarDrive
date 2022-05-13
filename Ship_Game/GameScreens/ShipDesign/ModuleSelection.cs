@@ -418,7 +418,7 @@ namespace Ship_Game
             if (mod.NumberOfColonists.Greater(0))
                 DrawStat(ref modTitlePos, "Colonists", mod.NumberOfColonists, GameText.ProsperInTerranWorldsAnd); // Number of Colonists
 
-            if (mod.PermittedHangarRoles.Length == 0)
+            if (mod.PermittedHangarRoles.Length == 0 && !mod.IsSupplyBay && !mod.IsTroopBay)
                 return;
 
             var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.HangarShipUID);
@@ -430,7 +430,7 @@ namespace Ship_Game
                 modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
                 Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y + 5);
                 string name = hs.VanityName.IsEmpty() ? hs.Name : hs.VanityName;
-                DrawString(batch, ref shipSelectionPos, string.Concat(Localizer.Token(GameText.Fighter), " : ", name), color, Fonts.Arial12Bold);
+                DrawString(batch, ref shipSelectionPos, string.Concat(hs.DesignRole.ToString().ToUpper(), " : ", name), color, Fonts.Arial12Bold);
                 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y-20);
                 shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing * 2;
                 DrawStat(ref shipSelectionPos, "Ord. Cost", hs.ShipOrdLaunchCost, "");
