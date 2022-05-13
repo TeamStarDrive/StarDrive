@@ -83,6 +83,8 @@ namespace Ship_Game
         public RoleName Role => DesignedShip.DesignRole;
         Rectangle DesignRoleRect;
 
+        public HangarOptions HangarDesignation => HangarOptionsList.ActiveValue;
+
         public bool IsSymmetricDesignMode
         {
             get => GlobalStats.SymmetricDesign;
