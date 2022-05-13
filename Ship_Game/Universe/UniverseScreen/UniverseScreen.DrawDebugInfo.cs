@@ -10,8 +10,7 @@ namespace Ship_Game
         readonly AggregatePerfTimer EmpireInfluPerf = new();
                         
         public readonly AggregatePerfTimer ResetBordersPerf  = new();
-        public readonly AggregatePerfTimer ScanInfluencePerf = new();
-        public readonly AggregatePerfTimer CheckFirstContactPerf = new();
+        public readonly AggregatePerfTimer ScanFromPlanetsPerf = new();
         public readonly AggregatePerfTimer ThreatMatrixPerf  = new();
 
         readonly AggregatePerfTimer EmpireUpdatePerf = new();
@@ -61,7 +60,7 @@ namespace Ship_Game
         {
             if (DebugStats == null)
             {
-                DebugStats = Add(new ScrollList2<DebugStatItem>(220f, 40f, 400f, 600f, 20));
+                DebugStats = Add(new ScrollList2<DebugStatItem>(220f, 40f, 440f, 600f, 20));
                 DebugStats.EnableItemEvents = true;
 
                 var uObjects = UState.Objects;
@@ -81,8 +80,7 @@ namespace Ship_Game
                 turn.AddSubItem(new DebugStatItem("Empire", EmpireUpdatePerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Influence", EmpireInfluPerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem(" ResetBorders", ResetBordersPerf, EmpireInfluPerf));
-                turn.AddSubItem(new DebugStatItem(" ScanInfluence", ScanInfluencePerf, EmpireInfluPerf));
-                turn.AddSubItem(new DebugStatItem(" FirstContacts", CheckFirstContactPerf, EmpireInfluPerf));
+                turn.AddSubItem(new DebugStatItem(" PlanetScans", ScanFromPlanetsPerf, EmpireInfluPerf));
                 turn.AddSubItem(new DebugStatItem(" ThreatMatrix", ThreatMatrixPerf, EmpireInfluPerf));
                 turn.AddSubItem(new DebugStatItem("Objects", uObjects.TotalTime, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Misc", EmpireMiscPerf, TurnTimePerf));
@@ -129,8 +127,7 @@ namespace Ship_Game
 
         class DebugStatItem : ScrollListItem<DebugStatItem>
         {
-            string Title;
-            const float TitleOffset = 100;
+            const float TitleOffset = 120;
             readonly AggregatePerfTimer ThisTime;
             readonly AggregatePerfTimer MasterTime;
             readonly Func<string> DynamicText;
@@ -148,7 +145,6 @@ namespace Ship_Game
             public DebugStatItem(string title, AggregatePerfTimer perfTimer, bool isHeader)
                 : base(null)
             {
-                Title = title;
                 HeaderMaxWidth = 800;
                 ThisTime = perfTimer;
                 Init(title, 0, TitleOffset);
@@ -166,7 +162,6 @@ namespace Ship_Game
             }
             void Init(string title, float titleX, float valueX)
             {
-                Title = title;
                 UILabel lblTitle = Add(new UILabel(title));
                 UILabel lblValue = Add(new UILabel(GetText));
                 lblTitle.SetLocalPos(titleX, 0);

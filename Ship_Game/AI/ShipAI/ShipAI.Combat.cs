@@ -168,14 +168,20 @@ namespace Ship_Game.AI
                 if (!enemy.Active || enemy.Dying)
                     continue;
 
+                Empire other = enemy.Loyalty;
+
                 // update two-way visibility,
                 // enemy is known by our Empire - this information is used by our Empire later
                 // the enemy itself does not care about it
                 enemy.KnownByEmpires.SetSeen(us);
                 // and our ship has seen nearbyShip
-                sensorShip.HasSeenEmpires.SetSeen(enemy.Loyalty);
+                sensorShip.HasSeenEmpires.SetSeen(other);
 
-                if (us.IsEmpireScannedAsEnemy(enemy.Loyalty, enemy))
+                if (!us.IsKnown(other))
+                {
+                    us.SetReadyForFirstContact(other);
+                }
+                if (us.IsEmpireScannedAsEnemy(other, enemy))
                 {
                     BadGuysNear = true;
                     ScannedTargets.Add(enemy);
@@ -515,9 +521,6 @@ namespace Ship_Game.AI
             // scanning for enemies is important for First Contact
             // as well as for selecting combat targets
             // For non-combat ships, it is important to be able to Flee
-            // Only subspace projectors don't need it
-            bool shouldScanForEnemies = !isSSP;
-            if (shouldScanForEnemies)
             {
                 EnemyScanTimer -= timeStep.FixedTime;
                 if (EnemyScanTimer <= 0f)

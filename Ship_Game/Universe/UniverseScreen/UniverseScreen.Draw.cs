@@ -45,7 +45,9 @@ namespace Ship_Game
             }
         }
 
-        void DrawInfluenceNodes(SpriteBatch batch)
+        // this crucial part draws clear white spots in the fogmap
+        // giving us clear visibility
+        void DrawSensorNodesHighlights(SpriteBatch batch)
         {
             var uiNode = ResourceManager.Texture("UI/node");
             var sensorNodes = Player.SensorNodes;
@@ -82,7 +84,8 @@ namespace Ship_Game
             Empire[] empires = UState.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)
             {
-                if (!Debug && empire != Player && !Player.IsKnown(empire))
+                bool canShowBorders = Debug || empire == Player || Player.IsKnown(empire);
+                if (!canShowBorders)
                     continue;
 
                 empire.BorderNodeCache.Update(empire);
@@ -241,7 +244,7 @@ namespace Ship_Game
             }
 
             // draw all sensor nodes as clear white
-            DrawInfluenceNodes(batch);
+            DrawSensorNodesHighlights(batch);
 
             batch.End();
             device.SetRenderTarget(0, null);
