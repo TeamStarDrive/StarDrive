@@ -47,20 +47,21 @@ namespace Ship_Game
             HangarShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen));
             OnHovered = (item) =>
             {
-                Vector2 pos = Vector2.Zero;
-                if (item != null)
+                Ship shipToDisplay = item?.Ship;
+                if (ActiveHangarModule != null && item?.Ship.Name is "DynamicLaunch" or "DynamicInterceptor" or "DynamicAntiShip")
                 {
-                    float xPos = Screen.ModuleSelectComponent.Pos.X + Screen.ModuleSelectComponent.Width + 10;
-                    float yPos = Screen.ModuleSelectComponent.Pos.Y + 20;
-                    pos = new Vector2(xPos, yPos);
+                    ShipModule tempMod = Screen.CreateDesignModule(ActiveHangarModule.UID, ModuleOrientation.Normal, 0, "");
+                    tempMod.HangarShipUID = item.Ship.Name;
+                    tempMod.SetDynamicHangarFromShip();
+                    string hangarShip = tempMod.GetHangarShipName();
+                    Ship hs = ResourceManager.GetShipTemplate(hangarShip, false);
+                    if (hs != null)
+                    {
+                        shipToDisplay = hs;
+                    }
                 }
 
-                if (item?.Ship.Name != "DynamicLaunch"
-                    && item?.Ship.Name != "DynamicInterceptor"
-                    && item?.Ship.Name != "DynamicAntiShip")
-                {
-                    HangarShipInfoOverlay.ShowToTopOf(Pos, item?.Ship);
-                }
+                HangarShipInfoOverlay.ShowToTopOf(Pos, shipToDisplay);
             };
         }
         
@@ -91,6 +92,7 @@ namespace Ship_Game
                 var fighterItem            = (FighterListItem)item;
                 ActiveModule.HangarShipUID = fighterItem.Ship.Name;
                 HangarShipUIDLast          = fighterItem.Name;
+                ActiveModule.SetDynamicHangarFromShip();
             }
 
             base.OnItemClicked(item);
@@ -136,6 +138,8 @@ namespace Ship_Game
             {
                 activeModule.HangarShipUID = HangarShipUIDLast;
             }
+
+            ActiveHangarModule.SetDynamicHangarFromShip();
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
