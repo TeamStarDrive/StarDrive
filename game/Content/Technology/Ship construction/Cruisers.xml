@@ -65,10 +65,6 @@
   <TroopsUnlocked />
   <HullsUnlocked>
     <UnlockedHull>
-      <Name>Terran/Emissary</Name>
-      <ShipType>Terran</ShipType>
-    </UnlockedHull>
-    <UnlockedHull>
       <Name>Terran/LightCruiser</Name>
       <ShipType>Terran</ShipType>
     </UnlockedHull>	
