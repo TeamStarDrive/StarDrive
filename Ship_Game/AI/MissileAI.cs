@@ -222,7 +222,7 @@ namespace Ship_Game.AI
                     return;
                 }
 
-                if (Missile.Weapon.MirvWarheads > 0 && distanceToTarget <= Missile.Weapon.MirvSeparationDistance)
+                if (Missile.Weapon.IsMirv && distanceToTarget <= Missile.Weapon.MirvSeparationDistance)
                 {
                     Missile.CreateMirv(Target);
                     return;

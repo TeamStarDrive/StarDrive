@@ -114,7 +114,6 @@ namespace Ship_Game.Gameplay
         float TerminalPhaseDistance { get; }
         float TerminalPhaseSpeedMod { get; }
         float DelayedIgnition { get; }
-        float MirvWarheads { get; }
         float MirvSeparationDistance { get; }
         string MirvWeapon { get; }
         int ArmorPen { get; }
@@ -144,6 +143,7 @@ namespace Ship_Game.Gameplay
         float SalvoProjectilesPerSecond { get; }
         bool Explodes { get; }
         float PowerFireUsagePerSecond { get; }
+        bool IsMirv { get; }
 
         float CalculateOffense(ShipModule m);
     }

@@ -98,7 +98,6 @@ namespace Ship_Game
 
             beam.SetActualHitDestination(bdata.ActualHitDestination);
             beam.Duration = bdata.Duration;
-            beam.FirstRun = false;
             beam.Initialize(us);
         }
 

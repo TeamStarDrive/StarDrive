@@ -143,7 +143,6 @@ namespace Ship_Game.Gameplay
         public float TerminalPhaseDistance { get; set; }
         public float TerminalPhaseSpeedMod { get; set; } = 2f;
         public float DelayedIgnition { get; set; }
-        public float MirvWarheads { get; set; }
         public float MirvSeparationDistance { get; set; }
         public string MirvWeapon { get; set; }
         public int ArmorPen { get; set; }
@@ -186,7 +185,8 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
-
+        [XmlIgnore][JsonIgnore]
+        public bool IsMirv => MirvWeapon.NotEmpty();
         public void InitializeTemplate()
         {
             ActiveWeaponTags = TagValues.Filter(tag => (TagBits & tag) != 0);
@@ -216,7 +216,7 @@ namespace Ship_Game.Gameplay
         float GetDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
         {
             IWeaponTemplate wOrMirv = this;
-            if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
+            if (IsMirv)
             {
                 wOrMirv = ResourceManager.GetWeaponTemplate(MirvWeapon);
                 if (wOrMirv == null)
@@ -237,8 +237,11 @@ namespace Ship_Game.Gameplay
             else
             {
                 dps = (SalvoCount.LowerBound(1) / NetFireDelay)
-                    * wOrMirv.ProjectileCount
-                    * wOrMirv.DamageAmount * MirvWarheads.LowerBound(1);
+                    * ProjectileCount
+                    * DamageAmount;
+
+                if (IsMirv && wOrMirv.ProjectileCount > 0)
+                    dps *= wOrMirv.ProjectileCount.LowerBound(1);
             }
             return dps;
         }
@@ -334,13 +337,13 @@ namespace Ship_Game.Gameplay
             off *= !t.Tag_Guided ? (1 - t.FireImprecisionAngle * 0.01f * (t.BaseRange / 2000)).LowerBound(0.1f) : 1f;
 
             // FB: Range margins are less steep for missiles
-            off *= (!t.Tag_Guided ? (t.BaseRange / 4000) * (t.BaseRange / 4000) : (t.BaseRange / 4000)) * t.MirvWarheads.LowerBound(1);
+            off *= (!t.Tag_Guided ? (t.BaseRange / 4000) * (t.BaseRange / 4000) : (t.BaseRange / 4000));
 
             // Multiple warheads
-            if (t.MirvWarheads > 0 && t.MirvWeapon.NotEmpty())
+            if (t.IsMirv)
             {
                 IWeaponTemplate warhead = ResourceManager.GetWeaponTemplate(t.MirvWeapon);
-                float warheadOff = warhead.CalculateOffense(m) * t.MirvWarheads;
+                float warheadOff = warhead.CalculateOffense(m) * warhead.ProjectileCount*0.5f;
                 off += warheadOff;
             }
 
