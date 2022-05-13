@@ -112,7 +112,7 @@ namespace Ship_Game
         public float transitionElapsedTime;
 
         // @note Initialize with a default frustum for UnitTests
-        public BoundingFrustum Frustum = new BoundingFrustum(Matrix.CreateTranslation(1000000, 1000000, 0));
+        public BoundingFrustum Frustum = new(Matrix.CreateTranslation(1000000, 1000000, 0));
 
         bool ShowingSysTooltip;
         bool ShowingPlanetToolTip;
@@ -479,7 +479,7 @@ namespace Ship_Game
                 bg3d = new Background3D(this);
             }
 
-            Frustum = new BoundingFrustum(View * Projection);
+            Frustum = new BoundingFrustum(ViewProjection);
             mmHousing = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
             minimap = Add(new MiniMap(this, mmHousing));
 

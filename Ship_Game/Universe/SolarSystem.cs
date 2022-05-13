@@ -98,7 +98,7 @@ namespace Ship_Game
                 status.Update(timeStep);
             }
 
-            InFrustum = universe.Frustum.Contains(Position, Radius)
+            InFrustum = universe.IsInFrustum(Position, Radius)
                     && (universe.IsSectorViewOrCloser)
                     && IsExploredBy(player);
 
@@ -131,7 +131,7 @@ namespace Ship_Game
             for (int i = 0; i < PlanetList.Count; i++)
             {
                 Planet planet = PlanetList[i];
-                planet.InFrustum = InFrustum && universe.Frustum.Contains(planet.Position3D, planet.ObjectRadius);
+                planet.InFrustum = InFrustum && universe.IsInFrustum(planet.Position3D, planet.ObjectRadius);
                 planet.Update(timeStep);
             }
 

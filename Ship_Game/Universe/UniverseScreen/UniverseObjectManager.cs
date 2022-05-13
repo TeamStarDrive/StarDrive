@@ -163,6 +163,7 @@ namespace Ship_Game
             ship.ReinsertSpatial = true;
             Ships.Add(ship);
             Objects.Add(ship);
+            UState.OnShipAdded(ship);
         }
         /// <summary>Thread-safely Adds a new PROJECTILE or BEAM to the Universe</summary>
         public void Add(Projectile projectile)
@@ -313,9 +314,9 @@ namespace Ship_Game
                 Projectiles.RemoveInActiveAndApplyChanges();
             }
 
-            for (int x = 0; x < EmpireManager.Empires.Count; x++)
+            for (int x = 0; x < UState.Empires.Count; x++)
             {
-                var empire = EmpireManager.Empires[x];
+                var empire = UState.Empires[x];
                 empire.EmpireShips.UpdatePublicLists();
             }
 

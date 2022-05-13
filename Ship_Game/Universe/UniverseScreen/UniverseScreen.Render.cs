@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDGraphics.Sprites;
@@ -59,7 +60,7 @@ namespace Ship_Game
             for (int i = 0; i < UState.Systems.Count; i++)
             {
                 SolarSystem solarSystem = UState.Systems[i];
-                if (Frustum.Contains(solarSystem.Position, solarSystem.Radius))
+                if (IsInFrustum(solarSystem.Position, solarSystem.Radius))
                 {
                     ProjectToScreenCoords(solarSystem.Position, 4500f, out Vector2d sysScreenPos, out double sysScreenPosDisToRight);
                     Vector2 screenPos = sysScreenPos.ToVec2f();
@@ -217,7 +218,7 @@ namespace Ship_Game
         {
             if (!Debug && !sys.IsExploredBy(Player))
                 return;
-            if (!Frustum.Contains(sys.Position, 10f))
+            if (!IsInFrustum(sys.Position, 10f))
                 return;
 
             if (Debug)
@@ -425,13 +426,25 @@ namespace Ship_Game
             }
         }
 
+        // @return TRUE if Circle(posInWorld, radiusInWorld) overlaps the screen Frustum
+        public bool IsInFrustum(in Vector2 posInWorld, float radiusInWorld)
+        {
+            return Frustum.Contains(new BoundingSphere(new Vector3(posInWorld, 0f), radiusInWorld))
+                != ContainmentType.Disjoint; // Disjoint: no intersection at all
+        }
+
+        // @return TRUE if Circle(posInWorld, radiusInWorld) overlaps the screen Frustum
+        public bool IsInFrustum(in Vector3 posInWorld, float radiusInWorld)
+        {
+            return Frustum.Contains(new BoundingSphere(posInWorld, radiusInWorld))
+                != ContainmentType.Disjoint; // Disjoint: no intersection at all
+        }
+
         void Render(SpriteBatch batch, DrawTimes elapsed)
         {
             RenderGroupTotalPerf.Start();
-            if (Frustum == null)
-                Frustum = new BoundingFrustum(View * Projection);
-            else
-                Frustum.Matrix = View * Projection;
+
+            Frustum.Matrix = ViewProjection;
 
             CreateShipSceneObjects();
 

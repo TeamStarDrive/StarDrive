@@ -65,17 +65,5 @@ namespace Ship_Game.ExtensionMethods
 
         public static float CenterTextX(this Rectangle r, in LocalizedText text, Graphics.Font font)
             => r.X + r.Width*0.5f - font.TextWidth(text)*0.5f;
-
-        // Returns true if Frustum either partially or fully contains this 2D circle
-        public static bool Contains(this BoundingFrustum frustum, Vector2 center, float radius)
-        {
-            return frustum.Contains(new BoundingSphere(new Vector3(center, 0f), radius))
-                != ContainmentType.Disjoint; // Disjoint: no intersection at all
-        }
-        public static bool Contains(this BoundingFrustum frustum, Vector3 center, float radius)
-        {
-            return frustum.Contains(new BoundingSphere(center, radius))
-                != ContainmentType.Disjoint; // Disjoint: no intersection at all
-        }
     }
 }
