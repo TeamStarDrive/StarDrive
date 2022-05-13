@@ -112,7 +112,6 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckIssueNoWarp(S.MaxSTLSpeed, S.MaxFTLSpeed);
                 Issues.CheckIssueSlowWarp(S.MaxFTLSpeed);
                 Issues.CheckIssueNoSpeed(S.MaxSTLSpeed);
-                Issues.CheckTargetExclusions(ds.NumWeaponSlots > 0, ds.CanTargetFighters, ds.CanTargetCorvettes, ds.CanTargetCapitals);
                 Issues.CheckTruePD(S.SurfaceArea, ds.PointDefenseValue);
                 Issues.CheckWeaponPowerTime(ds.HasEnergyWeapons, ds.PowerConsumed > 0, ds.EnergyDuration);
                 Issues.CheckCombatEfficiency(ds.PowerConsumed, ds.EnergyDuration, ds.PowerRecharge, ds.NumWeapons, ds.NumOrdWeapons);
@@ -124,7 +123,10 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckTargets(ds.PoweredWeapons, S.TrackingPower);
                 Issues.CheckSecondaryCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange);
                 Issues.CheckDedicatedCarrier(ds.TotalHangarArea > 0, Screen.Role, (int)S.WeaponsMaxRange, S.SensorRange,
-                    S.ShipData.DefaultCombatState == CombatState.ShortRange || S.ShipData.DefaultCombatState == CombatState.AttackRuns);
+                    S.ShipData.DefaultCombatState is CombatState.ShortRange or CombatState.AttackRuns);
+
+                Issues.CheckTargetExclusions(ds.NumWeaponSlots > 0, ds.CanTargetFighters, ds.CanTargetCorvettes,
+                    ds.CanTargetCapitals, Screen.HangarDesignation);
 
                 if (!hasFirePowerIssues && !hasSalvoFirePowerIssues && !hasRechargeIssue)
                     Issues.CheckExcessPowerCells(ds.BeamPeakPowerNeeded > 0, ds.BurstEnergyDuration, ds.PowerConsumed, ds.HasPowerCells,
