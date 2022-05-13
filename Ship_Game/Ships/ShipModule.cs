@@ -559,6 +559,11 @@ namespace Ship_Game.Ships
             }
         }
 
+        public void SetDynamicHangarFromShip()
+        {
+            DynamicHangar = ShipBuilder.GetDynamicHangarOptions(HangarShipUID);
+        }
+
         public RoleName[] HangarRoles
         {
             get
