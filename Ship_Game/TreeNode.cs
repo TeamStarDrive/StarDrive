@@ -20,6 +20,7 @@ namespace Ship_Game
         public bool Complete;
         Rectangle IconRect;
         Rectangle UnlocksRect;
+        Rectangle MultiLevelRect;
         readonly Array<UnlockItem> UnlocksGridItems;
         UnlocksGrid UnlocksGrid;
         Rectangle ProgressRect;
@@ -39,10 +40,7 @@ namespace Ship_Game
             Screen = screen;
             Entry = theEntry;
             Technology tech = ResourceManager.TechTree[theEntry.UID];
-            TechName = tech.Name.Text + (tech.MaxLevel > 1 ? 
-                " " + RomanNumerals.ToRoman((theEntry.Level+1).UpperBound(tech.MaxLevel)) + "/" + RomanNumerals.ToRoman(tech.MaxLevel) 
-                : "");
-
+            TechName = tech.Name.Text;
             TechTemplate = ResourceManager.TechTree[Entry.UID];
             Complete = EmpireManager.Player.HasUnlocked(Entry);
             UnlocksGridItems = UnlockItem.CreateUnlocksList(TechTemplate, maxUnlocks: MaxUnlockItems);
@@ -139,6 +137,18 @@ namespace Ship_Game
 
             batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
             batch.DrawRectangle(UnlocksRect, unlocksRectBorderColor);
+
+            if (Entry.MaxLevel > 1)
+            {
+                string multiLevel = RomanNumerals.ToRoman((Entry.Level + 1).UpperBound(Entry.MaxLevel)) + "/" + RomanNumerals.ToRoman(Entry.MaxLevel);
+                MultiLevelRect = new Rectangle(UnlocksRect.X+1, UnlocksRect.Y + 41, (int)TitleFont.MeasureString(multiLevel).X+8, 20);
+                batch.FillRectangle(MultiLevelRect, new Color(26, 26, 28));
+                batch.DrawRectangle(MultiLevelRect, unlocksRectBorderColor);
+                Vector2 multiPos = new(MultiLevelRect.X + 5, MultiLevelRect.Y + 2);
+                batch.DrawString(TitleFont, multiLevel, multiPos, Complete && Entry.MultiLevelComplete ? completeTitleColor : Color.White);
+            }
+
+
             UnlocksGrid.Draw(batch);
 
             Color borderColor = Complete && !Entry.MultiLevelComplete && !queued && State != NodeState.Hover
@@ -160,7 +170,7 @@ namespace Ship_Game
             {
                 var pos = new Vector2(TitleRect.CenterX() - TitleFont.TextWidth(titleLines[i]) * 0.5f,
                                       textStartY + i * TitleFont.LineSpacing);
-                batch.DrawString(TitleFont, titleLines[i], pos.Rounded(), Complete ? completeTitleColor : Color.White);
+                batch.DrawString(TitleFont, titleLines[i], pos.Rounded(), Complete && Entry.MultiLevelComplete ? completeTitleColor : Color.White);
             }
 
             batch.Draw(ResourceManager.Texture(progressIcon), ProgressRect, Color.White);
