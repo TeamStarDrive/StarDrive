@@ -138,7 +138,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private void DamageColonyShields(Bomb bomb)
         {
             if (P.Universe.Screen.IsSystemViewOrCloser
-                && P.Universe.Screen.Frustum.Contains(P.Position, P.OrbitalRadius * 2))
+                && P.Universe.Screen.IsInFrustum(P.Position, P.OrbitalRadius * 2))
             {
                 Shield.HitShield(P, bomb, Position, P.ObjectRadius + 100f);
             }

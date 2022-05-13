@@ -60,8 +60,7 @@ namespace Ship_Game
 
         public bool InFrustum(UniverseScreen u)
         {
-            Vector2 center = Owner?.Position ?? PlanetCenter;
-            return u.Frustum.Contains(center, Radius);
+            return u.IsInFrustum(Owner?.Position ?? PlanetCenter, Radius);
         }
 
         public void AddLight(UniverseScreen u)
