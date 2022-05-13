@@ -58,24 +58,16 @@ namespace Ship_Game.AI
 
         public static bool InfluenceNodeExistsAt(Vector2 pos, Empire empire)
         {
-            float nodeRadius = empire.GetProjectorRadius();
-            Empire.InfluenceNode[] borderNodes = empire.BorderNodes;
-            for (int i = 0; i < borderNodes.Length; i++)
-            {
-                ref Empire.InfluenceNode border = ref borderNodes[i];
-                nodeRadius = Math.Max(nodeRadius, border.Radius);
-                if (pos.InRadius(border.Position, nodeRadius * 0.75f))
-                    return true;
-            }
-            return false;
+            return empire.Universum.Influence.IsInInfluenceOf(empire, pos);
         }
 
         public bool NodeAlreadyExistsAt(Vector2 pos)
         {
+            float projectorRadius = OwnerEmpire.GetProjectorRadius();
             for (int gi = 0; gi < Goals.Count; gi++)
             {
                 Goal g = Goals[gi];
-                if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, OwnerEmpire.GetProjectorRadius()))
+                if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, projectorRadius))
                     return true;
             }
 
@@ -85,7 +77,7 @@ namespace Ship_Game.AI
             {
                 Ship ship = ships[si];
                 if (ship.AI.FindGoal(ShipAI.Plan.DeployStructure, out ShipAI.ShipGoal goal)
-                    && goal.MovePosition.InRadius(pos, OwnerEmpire.GetProjectorRadius()))
+                    && goal.MovePosition.InRadius(pos, projectorRadius))
                     return true;
             }
 

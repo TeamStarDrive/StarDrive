@@ -264,16 +264,6 @@ namespace Ship_Game.Universe
         {
             return (found = GetPlanet(id)) != null;
         }
-        
-        public void OnPlanetOwnerAdded(Empire owner, Planet planet)
-        {
-            Influence.Insert(owner, planet);
-        }
-
-        public void OnPlanetOwnerRemoved(Empire owner, Planet planet)
-        {
-            Influence.Remove(owner, planet);
-        }
 
         public SolarSystem FindClosestSystem(Vector2 pos)
         {
@@ -323,9 +313,9 @@ namespace Ship_Game.Universe
         }
 
         // Returns all solar systems within frustum
-        public SolarSystem[] FindSolarSystems(BoundingFrustum frustum)
+        public SolarSystem[] GetVisibleSystems()
         {
-            return SolarSystemList.Filter(s => frustum.Contains(s.Position, s.Radius));
+            return SolarSystemList.Filter(s => Screen.IsInFrustum(s.Position, s.Radius));
         }
 
         public Array<Ship> GetShipsFromIds(Array<int> ids)
@@ -338,24 +328,6 @@ namespace Ship_Game.Universe
                     ships.AddUnique(ship);
             }
             return ships;
-        }
-
-        public void AddShip(Ship ship)
-        {
-            Objects.Add(ship);
-            if (ship.IsSubspaceProjector)
-            {
-                Influence.Insert(ship.Loyalty, ship);
-            }
-        }
-
-        public void OnShipRemoved(Ship ship)
-        {
-            if (ship.IsSubspaceProjector)
-            {
-                Influence.Remove(ship.Loyalty, ship);
-            }
-            EvtOnShipRemoved?.Invoke(ship);
         }
 
         public Ship GetShip(int id)
@@ -376,6 +348,44 @@ namespace Ship_Game.Universe
         public bool GetObject(int id, out GameObject found)
         {
             return Objects.FindObject(id, out found);
+        }
+
+        public void AddShip(Ship ship)
+        {
+            Objects.Add(ship);
+        }
+
+        public void OnShipAdded(Ship ship)
+        {
+            Empire owner = ship.Loyalty;
+            owner.AddBorderNode(ship);
+
+            if (ship.IsSubspaceProjector)
+            {
+                Influence.Insert(owner, ship);
+            }
+        }
+
+        public void OnShipRemoved(Ship ship)
+        {
+            if (ship.IsSubspaceProjector)
+            {
+                ship.Loyalty.RemoveBorderNode(ship);
+                Influence.Remove(ship.Loyalty, ship);
+            }
+            EvtOnShipRemoved?.Invoke(ship);
+        }
+        
+        public void OnPlanetOwnerAdded(Empire owner, Planet planet)
+        {
+            owner.AddBorderNode(planet);
+            Influence.Insert(owner, planet);
+        }
+
+        public void OnPlanetOwnerRemoved(Empire owner, Planet planet)
+        {
+            owner.RemoveBorderNode(planet);
+            Influence.Remove(owner, planet);
         }
     }
 }

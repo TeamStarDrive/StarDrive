@@ -143,7 +143,7 @@ namespace Ship_Game
 
         public int ThreatLevelFor(Empire victim) => ThreatLevels[victim.Id];
 
-        bool GetOrbitals(out Array<Ship> orbitals, Array<string> orbitalNames)
+        bool GetOrbitals(out Array<Ship> orbitals, string[] orbitalNames)
         {
             orbitals = new Array<Ship>();
             var shipList = Owner.OwnedShips;
@@ -157,32 +157,32 @@ namespace Ship_Game
             return orbitals.Count > 0;
         }
 
-        public bool GetBases(out Array<Ship> bases)    => GetOrbitals(out bases, Bases());
-        public bool GetStations(out Array<Ship> bases) => GetOrbitals(out bases, Stations());
+        public bool IsBase(Ship ship) => GetBaseNames().Contains(ship.Name);
 
-        Array<string> Bases()
+        public bool GetBases(out Array<Ship> bases)    => GetOrbitals(out bases, GetBaseNames());
+        public bool GetStations(out Array<Ship> bases) => GetOrbitals(out bases, GetStationNames());
+
+        string[] BaseNames;
+        string[] StationNames;
+
+        public string[] GetBaseNames()
         {
-            Array<string> bases = new Array<string>
+            return BaseNames ??= new[]
             {
-                Owner.data.PirateBaseBasic, 
-                Owner.data.PirateBaseImproved, 
+                Owner.data.PirateBaseBasic,
+                Owner.data.PirateBaseImproved,
                 Owner.data.PirateBaseAdvanced
             };
-
-
-            return bases;
         }
 
-        Array<string> Stations()
+        public string[] GetStationNames()
         {
-            Array<string> stations = new Array<string>
+            return StationNames ??= new[]
             {
-                Owner.data.PirateStationBasic, 
-                Owner.data.PirateStationImproved, 
+                Owner.data.PirateStationBasic,
+                Owner.data.PirateStationImproved,
                 Owner.data.PirateStationAdvanced
             };
-
-            return stations;
         }
 
         bool GetOrbitalsOrbitingPlanets(out Array<Ship> planetBases)

@@ -8,6 +8,7 @@ using Ship_Game.Audio;
 using Ship_Game.Empires.Components;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -94,7 +95,7 @@ namespace Ship_Game
 
             try
             {
-                DrawInfluenceNodes(batch);
+                DrawMinimapInfluenceNodes(batch);
                 DrawSelected(batch, Player);
                 DrawWarnings(batch);
             }
@@ -221,9 +222,8 @@ namespace Ship_Game
             }
         }
 
-        // As part of the temp solution of drawing player nodes above others,
-        // the method below is coded to ignore non player nodes if empire is player
-        void DrawNodes(SpriteBatch batch, Empire empire, Empire.InfluenceNode[] nodes, bool excludeProjectors)
+        void DrawMinimapNodes(SpriteBatch batch, Empire empire,
+                              Empire.InfluenceNode[] nodes, bool excludeProjectors)
         {
             Vector2 nodeOrigin = Node.CenterF;
             var transparentBlack = new Color(Color.Black, 80);
@@ -241,20 +241,17 @@ namespace Ship_Game
                 {
                     if (node.Source is Ship ship)
                     {
-                        if (ship.Loyalty != empire)
-                            continue; // we already drew the non player nodes. no need to overwrite it with player color
+                        if (ship.Loyalty != empire) // ignore allied nodes, they are drawn in their own loop
+                            continue;
                         if (excludeProjectors && ship.IsSubspaceProjector)
                             continue;
                         if (empire.isPlayer && ship.OnHighAlert)
-                        {
                             combat = true;
-                        }
-
                     }
                     else if (node.Source is Planet planet)
                     {
-                        if (planet.Owner != empire)
-                            continue; // we already drew the non player nodes. no need to overwrite it with player color
+                        if (planet.Owner != empire) // ignore allied nodes, they are drawn in their own loop
+                            continue;
                         if (planet.RecentCombat)
                         {
                             combat = true;
@@ -287,29 +284,30 @@ namespace Ship_Game
             }
         }
 
-        void DrawInfluenceNodes(SpriteBatch batch)
+        void DrawMinimapInfluenceNodes(SpriteBatch batch)
         {
-            for (int i = 0; i < EmpireManager.Empires.Count; i++)
+            UniverseState uState = Universe.UState;
+            for (int i = 0; i < uState.Empires.Count; i++)
             {
-                Empire e = EmpireManager.Empires[i];
-                // Draw player nodes last so it will be over allied races - this is a temp solution
+                Empire e = uState.Empires[i];
+                // Draw player nodes last so it will be over allied races
                 if (e.isPlayer)
                     continue;
 
-                Relationship rel = EmpireManager.Player.GetRelations(e);
+                Relationship rel = uState.Player.GetRelations(e);
                 if (rel.Known || Universe.Debug)
                 {
-                    DrawEmpireNodes(batch, e);
+                    DrawMinimapEmpireNodes(batch, e);
                 }
             }
 
-            DrawEmpireNodes(batch, EmpireManager.Player);
+            DrawMinimapEmpireNodes(batch, uState.Player);
         }
         
-        void DrawEmpireNodes(SpriteBatch batch, Empire e)
+        void DrawMinimapEmpireNodes(SpriteBatch batch, Empire e)
         {
-            DrawNodes(batch, e, e.BorderNodes, excludeProjectors:false);
-            DrawNodes(batch, e, e.SensorNodes, excludeProjectors:true);
+            DrawMinimapNodes(batch, e, e.BorderNodes, excludeProjectors:false);
+            DrawMinimapNodes(batch, e, e.SensorNodes, excludeProjectors:true);
         }
 
         void ZoomToShip_OnClick(ToggleButton toggleButton)

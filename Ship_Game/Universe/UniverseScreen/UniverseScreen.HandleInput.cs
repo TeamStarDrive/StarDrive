@@ -581,7 +581,7 @@ namespace Ship_Game
 
         void UpdateClickableSystemsAndPlanets()
         {
-            ClickableSystems = UState.FindSolarSystems(Frustum).Select(s =>
+            ClickableSystems = UState.GetVisibleSystems().Select(s =>
             {
                 ProjectToScreenCoords(s.Position, 4500f, out Vector2d sysPosOnScreen, out double sysSizeOnScreen);
                 return new ClickableSystem
@@ -605,7 +605,7 @@ namespace Ship_Game
                         for (int i = 0; i < sys.PlanetList.Count; i++)
                         {
                             Planet planet = sys.PlanetList[i];
-                            if (Frustum.Contains(planet.Position, planet.ObjectRadius*2f))
+                            if (IsInFrustum(planet.Position, planet.ObjectRadius*2f))
                             {
                                 ProjectToScreenCoords(planet.Position3D, planet.ObjectRadius,
                                                       out Vector2d planetScreenPos, out double planetScreenRadius);

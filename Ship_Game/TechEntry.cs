@@ -923,7 +923,10 @@ namespace Ship_Game
                 case "Ordnance Effectiveness":
                 case "Ordnance Effectiveness Bonus": data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;
                 case "Tachyons":
-                case "Sensor Range Bonus": data.SensorModifier += unlockedBonus.Bonus; break;
+                case "Sensor Range Bonus":
+                    data.SensorModifier += unlockedBonus.Bonus;
+                    empire.ForceUpdateSensorRadiuses = true;
+                    break;
                 case "Privatization": data.Privatization = true; break;
                 // Doctor                           : Adding an actually configurable amount of civilian maintenance modification; privatisation is hardcoded at 50% but have left it in for back-compatibility.
                 case "Civilian Maintenance": data.CivMaintMod -= unlockedBonus.Bonus; break;
@@ -939,7 +942,7 @@ namespace Ship_Game
                 case "Repair Bonus": data.Traits.RepairMod += unlockedBonus.Bonus; break;
                 case "Maintenance Bonus": data.Traits.MaintMod -= unlockedBonus.Bonus; break;
                 case "Power Flow Bonus": data.PowerFlowMod += unlockedBonus.Bonus; break;
-                case "Shield Power Bonus": data.ShieldPowerMod += unlockedBonus.Bonus; EmpireHullBonuses.RefreshBonuses(empire); break;
+                case "Shield Power Bonus": data.ShieldPowerMod += unlockedBonus.Bonus; break;
                 case "Ship Experience Bonus": data.ExperienceMod += unlockedBonus.Bonus; break;
                 case "Kinetic Shield Penetration Chance Bonus": data.ShieldPenBonusChance += unlockedBonus.Bonus; break;
                 case "Tax Goods": data.Traits.TaxGoods = true; break;

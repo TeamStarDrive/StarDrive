@@ -166,7 +166,7 @@ namespace Ship_Game
             }
      
             if (!Universe.Screen.IsSystemViewOrCloser ||
-                !Universe.Screen.Frustum.Contains(Position, 10f))
+                !Universe.Screen.IsInFrustum(Position, 10f))
                 return;
 
             Position += Velocity * timeStep.FixedTime;

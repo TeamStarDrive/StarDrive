@@ -22,6 +22,7 @@ namespace Ship_Game
             Name = data.Name;
             OrbitalAngle = data.OrbitalAngle;
             OrbitalRadius = data.OrbitalDistance;
+            UpdatePositionOnly();
             
             if (data.Owner.NotEmpty())
             {
