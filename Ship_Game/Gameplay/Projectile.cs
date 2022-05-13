@@ -80,8 +80,6 @@ namespace Ship_Game.Gameplay
         float ZPos = -25f;
         float ParticleDelay;
         PointLight Light;
-        public bool FirstRun = true;
-
         SpriteAnimation Animation;
         SubTexture ProjectileTexture;
 
@@ -148,7 +146,6 @@ namespace Ship_Game.Gameplay
                 Owner = warhead.Owner,
                 Module = warhead.Module,
                 Planet = planet,
-                FirstRun = false,
             };
 
             projectile.Initialize(origin, direction, target, playSound, inheritedVelocity, isMirv: true);
@@ -187,7 +184,6 @@ namespace Ship_Game.Gameplay
 
             p.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
             p.Duration = pdata.Duration; // apply duration from save data
-            p.FirstRun = false;
             return p;
         }
 
@@ -394,21 +390,7 @@ namespace Ship_Game.Gameplay
             {
                 // this is the spawned warhead weapon stats
                 Weapon warhead = ResourceManager.CreateWeapon(Weapon.MirvWeapon, Owner, Module, null);
-
-                for (int i = 0; i < Weapon.MirvWarheads; i++)
-                {
-                    // Use separation velocity for mirv non guided, or just Velocity for guided (they will compensate)
-                    Vector2 separationVector = Velocity;
-                    if (warhead.Tag_Guided)
-                    {
-                        float launchDir = RandomMath.RollDie(2) == 1 ? -RadMath.Deg90AsRads : RadMath.Deg90AsRads;
-                        Vector2 separationVel = (Rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(40));
-                        separationVector += separationVel; // Add it to the initial velocity
-                    }
-
-                    bool playSound = i == 0; // play sound once
-                    CreateMirvWarhead(warhead, Position, Direction, target, playSound, separationVector, Loyalty, Planet);
-                }
+                warhead.SpawnMirvSalvo(Direction, target, Position);
             }
 
             Die(null, false);
@@ -596,12 +578,6 @@ namespace Ship_Game.Gameplay
 
             MissileAI?.Think(timeStep);
             DroneAI?.Think(timeStep);
-            if (FirstRun && Module != null)
-            {
-                Position = Module.Position;
-                FirstRun = false;
-            }
-
             UpdateVelocityAndPos(timeStep.FixedTime);
             Emitter.Position = pos3d;
 

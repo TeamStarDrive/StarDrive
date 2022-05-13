@@ -125,7 +125,6 @@ namespace Ship_Game.Gameplay
         public float TerminalPhaseDistance => T.TerminalPhaseDistance;
         public float TerminalPhaseSpeedMod => T.TerminalPhaseSpeedMod;
         public float DelayedIgnition => T.DelayedIgnition;
-        public float MirvWarheads => T.MirvWarheads;
         public float MirvSeparationDistance => T.MirvSeparationDistance;
         public string MirvWeapon => T.MirvWeapon;
         public int ArmorPen => T.ArmorPen;
@@ -153,6 +152,7 @@ namespace Ship_Game.Gameplay
         public float BurstOrdnanceUsagePerSecond => T.BurstOrdnanceUsagePerSecond;
         public float SalvoProjectilesPerSecond => T.SalvoProjectilesPerSecond;
         public bool Explodes => T.Explodes;
+        public bool IsMirv => T.IsMirv;
         public float PowerFireUsagePerSecond => T.PowerFireUsagePerSecond;
 
         public float CalculateOffense(ShipModule m)
