@@ -323,12 +323,16 @@ namespace Ship_Game.GameScreens.ShipDesign
             AddDesignIssue(DesignIssueType.NoSpeed, WarningLevel.Critical);
         }
 
-        public void CheckTargetExclusions(bool hasWeapons, bool canTargetFighters, bool  canTargetCorvettes, bool canTargetCapitals)
+        public void CheckTargetExclusions(bool hasWeapons, bool canTargetFighters,
+            bool  canTargetCorvettes, bool canTargetCapitals, HangarOptions designation)
         {
             if (!hasWeapons)
                 return;
 
-            WarningLevel severity = LargeCraft ? WarningLevel.Major : WarningLevel.Critical;
+            WarningLevel severity = LargeCraft ? WarningLevel.Minor : WarningLevel.Major;
+            if (designation == HangarOptions.Interceptor)
+                severity = WarningLevel.Critical;
+
             if (!canTargetFighters)
                 AddDesignIssue(DesignIssueType.CantTargetFighters, severity);
 
@@ -336,6 +340,9 @@ namespace Ship_Game.GameScreens.ShipDesign
                 AddDesignIssue(DesignIssueType.CantTargetCorvettes, severity);
 
             severity = LargeCraft ? WarningLevel.Critical : WarningLevel.Minor;
+            if (designation == HangarOptions.AntiShip)
+                severity = WarningLevel.Critical;
+
             if (!canTargetCapitals)
                 AddDesignIssue(DesignIssueType.CantTargetCapitals, severity);
         }
