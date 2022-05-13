@@ -118,9 +118,13 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        void SpawnSalvo(Vector2 direction, GameObject target, bool playSound)
+        public void SpawnMirvSalvo(Vector2 direction, GameObject target, Vector2 origin)
         {
-            Vector2 origin = Origin;
+            SpawnSalvo(direction, target, origin, playSound: true);
+        }
+
+        void SpawnSalvo(Vector2 direction, GameObject target, Vector2 origin, bool playSound)
+        {
             foreach (FireSource fireSource in EnumFireSources(origin, direction))
             {
                 Projectile.Create(this, Owner, fireSource.Origin, fireSource.Direction, target, playSound);
@@ -191,7 +195,7 @@ namespace Ship_Game.Gameplay
             }
 
             bool playSound = salvoIndex % SalvoSoundInterval == 0;
-            SpawnSalvo((SalvoDirection + Owner.Rotation).RadiansToDirection(), SalvoTarget, playSound);
+            SpawnSalvo((SalvoDirection + Owner.Rotation).RadiansToDirection(), SalvoTarget, Origin, playSound);
         }
 
         bool PrepareFirePos(GameObject target, Vector2 targetPos, out Vector2 firePos)
@@ -222,7 +226,7 @@ namespace Ship_Game.Gameplay
 
             PrepareToFire();
             Vector2 direction = Origin.DirectionToTarget(firePos);
-            SpawnSalvo(direction, target, playSound:true);
+            SpawnSalvo(direction, target, Origin, playSound: true);
 
             if (SalvoCount > 1)  // queue the rest of the salvo to follow later
             {

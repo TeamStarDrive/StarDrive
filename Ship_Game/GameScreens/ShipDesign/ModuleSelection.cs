@@ -468,7 +468,7 @@ namespace Ship_Game
         void DrawWeaponStats(SpriteBatch batch, Vector2 cursor, ShipModule m, Weapon w, float startY)
         {
             IWeaponTemplate wOrMirv = w.T; // We want some stats to show warhead stats and not weapon stats
-            if (w.MirvWarheads > 0 && w.MirvWeapon.NotEmpty())
+            if (wOrMirv.IsMirv)
             {
                 wOrMirv = ResourceManager.GetWeaponTemplate(w.MirvWeapon);
             }
@@ -526,8 +526,8 @@ namespace Ship_Game
             if (w.DelayedIgnition.Greater(0))
                 DrawStat(ref cursor, "Ignition", w.DelayedIgnition, GameText.ThisMissileHasDelayedIgnition);
 
-            if (w.MirvWarheads > 0)
-                DrawStat(ref cursor, "MIRV", w.MirvWarheads, GameText.ThisWeaponHasMirvMeaning);
+            if (wOrMirv.ProjectileCount > 1 && w.IsMirv)
+                DrawStat(ref cursor, "MIRV", wOrMirv.ProjectileCount, GameText.ThisWeaponHasMirvMeaning);
 
             cursor.X += 152f;
             cursor.Y = startY;
@@ -540,8 +540,10 @@ namespace Ship_Game
                 int projectiles = w.ProjectileCount > 0 ? w.ProjectileCount : 1;
                 float dps = isBeam ? (beamDamage / delay)
                                    : (salvos / delay) * w.ProjectileCount 
-                                                      * (isBallistic ? ballisticDamage : energyDamage) 
-                                                      * w.MirvWarheads.LowerBound(1);
+                                                      * (isBallistic ? ballisticDamage : energyDamage);
+
+                if (wOrMirv.ProjectileCount > 1 && w.IsMirv)
+                    dps *= wOrMirv.ProjectileCount;
 
                 DrawStat(ref cursor, "DPS", dps, GameText.IndicatesTheMaximumDamagePer);
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, GameText.ThisWeaponsFireASalvo);
