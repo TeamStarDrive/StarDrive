@@ -47,5 +47,21 @@ namespace Ship_Game.Utils
         {
             return (Values & (1u << index)) != 0;
         }
+
+        /// <returns>TRUE if any of the bits are set</returns>
+        public bool IsAnyBitsSet => Values != 0;
+
+        /// <returns>Number of bits that are set in this SmallBitSet</returns>
+        public int NumBitsSet()
+        {
+            uint v = Values; // count bits set in this (32-bit value)
+            // store the total in c
+            uint c = v - ((v >> 1) & 0x55555555);
+            c = ((c >> 2) & 0x33333333) + (c & 0x33333333);
+            c = ((c >> 4) + c) & 0x0F0F0F0F;
+            c = ((c >> 8) + c) & 0x00FF00FF;
+            c = ((c >> 16) + c) & 0x0000FFFF;
+            return (int)c;
+        }
     }
 }

@@ -1036,6 +1036,7 @@ namespace Ship_Game
 
         void CommonInitialize()
         {
+            KnownEmpires.Set(Id); // we know ourselves
             InitDifficultyModifiers();
             InitPersonalityModifiers();
             CreateThrusterColors();
@@ -1383,16 +1384,8 @@ namespace Ship_Game
             }
         }
 
-        void ScanFromAllInfluenceNodes(FixedSimTime timeStep)
+        void ScanFromAllSensorPlanets()
         {
-            InfluenceNode[] borderNodes = BorderNodes;
-            for (int i = 0; i < borderNodes.Length; i++)
-            {
-                ref InfluenceNode node = ref borderNodes[i];
-                if (node.Source is Ship ssp)
-                    ScanForInfluence(ssp, timeStep, node.Position, node.Radius);
-            }
-
             InfluenceNode[] sensorNodes = SensorNodes;
             for (int i = 0; i < sensorNodes.Length; i++)
             {
@@ -1415,36 +1408,14 @@ namespace Ship_Game
                 targetShip.KnownByEmpires.SetSeen(this);
             }
         }
-        
-        // Civilian infrastructure SSP-s spotting enemy fleets
-        void ScanForInfluence(Ship ssp, FixedSimTime timeStep, Vector2 pos, float radius)
-        {
-            // find others within this influence node
-            GameObject[] others = Universum.Spatial.FindNearby(
-                GameObjectType.Ship, pos, radius, maxResults:32, excludeLoyalty:this
-            );
-
-            ssp.HasSeenEmpires.Update(timeStep, ssp.Loyalty);
-
-            for (int i = 0; i < others.Length; i++)
-            {
-                var ship = (Ship)others[i];
-                if (ship.Fleet != null)
-                {
-                    if (isPlayer || Universum.Debug && Universum.Screen.SelectedShip?.Loyalty == this)
-                    {
-                        if (IsEmpireHostile(ship.Loyalty))
-                            ssp.HasSeenEmpires.SetSeen(ship.Loyalty);
-                    }
-                }
-            }
-        }
 
         void DoFirstContact(Empire them)
         {
             Relationship usToThem = GetRelations(them);
             usToThem.SetInitialStrength(them.data.Traits.DiplomacyMod * 100f);
-            usToThem.Known = true;
+
+            SetRelationsAsKnown(usToThem, them);
+
             if (!them.IsKnown(this)) // do THEY know us?
                 them.DoFirstContact(this);
 
@@ -2644,13 +2615,12 @@ namespace Ship_Game
 
             foreach (Empire ally in Universum.Empires)
             {
-                if (GetRelations(ally, out Relationship relation) &&
-                    relation.Treaty_Alliance)
+                if (GetRelations(ally, out Relationship relation) && relation.Treaty_Alliance)
                 {
-                    int nSensorShips = OurSensorShips.Count;
-                    int nSensorPlanets = OurSensorPlanets.Count;
-                    InfluenceNode[] sensorShips = OurSensorShips.GetInternalArrayItems();
-                    InfluenceNode[] sensorPlanets = OurSensorPlanets.GetInternalArrayItems();
+                    int nSensorShips = ally.OurSensorShips.Count;
+                    int nSensorPlanets = ally.OurSensorPlanets.Count;
+                    InfluenceNode[] sensorShips = ally.OurSensorShips.GetInternalArrayItems();
+                    InfluenceNode[] sensorPlanets = ally.OurSensorPlanets.GetInternalArrayItems();
 
                     for (int i = 0; i < nSensorShips; ++i)
                     {
@@ -3626,17 +3596,14 @@ namespace Ship_Game
             }
             us.ResetBordersPerf.Stop();
 
-            us.ScanInfluencePerf.Start();
+            us.ScanFromPlanetsPerf.Start();
             {
-                ScanFromAllInfluenceNodes(timeStep);
+                ScanFromAllSensorPlanets();
             }
-            us.ScanInfluencePerf.Stop();
+            us.ScanFromPlanetsPerf.Stop();
 
-            us.CheckFirstContactPerf.Start();
-            {
-                CheckForFirstContacts();
-            }
-            us.CheckFirstContactPerf.Stop();
+            // this is pretty much 0%, removing perf indicators
+            CheckForFirstContacts();
 
             ThreatMatrixUpdateTimer -= timeStep.FixedTime;
             if (ThreatMatrixUpdateTimer <= 0f)
@@ -3657,39 +3624,27 @@ namespace Ship_Game
             GlobalStats.CordrazinePlanetCaptured = true;
         }
 
+
+        SmallBitSet ReadyForFirstContact = new SmallBitSet();
+
+        public void SetReadyForFirstContact(Empire other)
+        {
+            ReadyForFirstContact.Set(other.Id);
+        }
+
         void CheckForFirstContacts()
         {
-            // mark known empires that already have done first contact
-            var knownEmpires = new SmallBitSet();
-            int numUnknown = 0;
-            for (int i = 0; i < EmpireManager.NumEmpires; ++i)
-            {
-                Empire other = EmpireManager.Empires[i];
-                if (other != this && !IsKnown(other))
-                    ++numUnknown;
-                else
-                    knownEmpires.Set(other.Id);
-            }
-
-            // we already known everyone in the universe
-            // this is an important optimization for late-game where we have 5000+ ships
-            if (numUnknown == 0)
+            if (!ReadyForFirstContact.IsAnyBitsSet)
                 return;
 
-            // this part is quite heavy, we go through all of our ship's
-            // scan results and try to find any first contact ships
-            Ship[] ourShips = EmpireShips.OwnedShips;
-            for (int i = 0; i < ourShips.Length; ++i)
+            foreach (Empire e in Universum.Empires)
             {
-                Ship ship = ourShips[i];
-                Ship[] enemyShips = ship.AI.PotentialTargets;
-                for (int j = 0; j < enemyShips.Length; ++j)
+                if (ReadyForFirstContact.IsSet(e.Id))
                 {
-                    Ship enemy = enemyShips[j];
-                    Empire other = enemy.Loyalty;
-                    if (!knownEmpires.IsSet(other.Id))
+                    ReadyForFirstContact.Unset(e.Id);
+                    if (!KnownEmpires.IsSet(e.Id))
                     {
-                        DoFirstContact(other);
+                        DoFirstContact(e);
                         return;
                     }
                 }

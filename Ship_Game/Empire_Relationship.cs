@@ -7,6 +7,7 @@ using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Empires.Components;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.DiplomacyScreen;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -175,6 +176,8 @@ namespace Ship_Game
 
         public OurRelationsToThem[] AllRelations => ActiveRelations;
 
+        SmallBitSet KnownEmpires = new SmallBitSet();
+
         /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
         public Relationship GetRelationsOrNull(Empire withEmpire)
         {
@@ -233,7 +236,7 @@ namespace Ship_Game
         // TRUE if we know the other empire
         public bool IsKnown(Empire otherEmpire)
         {
-            return GetRelationsOrNull(otherEmpire)?.Known == true;
+            return KnownEmpires.IsSet(otherEmpire.Id);
         }
 
         public bool IsNAPactWith(Empire otherEmpire)
@@ -311,12 +314,19 @@ namespace Ship_Game
                 AddNewRelationToThem(empire, new Relationship(empire.data.Traits.Name));
         }
 
-        public void SetRelationsAsKnown(Empire empire)
+        public void SetRelationsAsKnown(Relationship rel, Empire other)
         {
-            AddRelation(empire);
-            GetRelations(empire).Known = true;
-            if (!empire.IsKnown(this))
-                empire.SetRelationsAsKnown(this);
+            rel.Known = true;
+            KnownEmpires.Set(other.Id);
+        }
+
+        public void SetRelationsAsKnown(Empire other)
+        {
+            AddRelation(other);
+            SetRelationsAsKnown(GetRelations(other), other);
+
+            if (!other.IsKnown(this))
+                other.SetRelationsAsKnown(this);
         }
 
         public static void InitializeRelationships(IReadOnlyList<Empire> empires,

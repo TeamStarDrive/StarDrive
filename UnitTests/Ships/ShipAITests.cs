@@ -27,7 +27,7 @@ namespace UnitTests.Ships
             Ship theirShip    = SpawnShip("Owlwok Freighter S", Enemy, Vector2.Zero);
             ourShip.AI.Target = theirShip;
             var ourRelation   = us.GetRelations(Enemy);
-            ourRelation.Known = true;
+            us.SetRelationsAsKnown(ourRelation, Enemy);
 
             us.data.DiplomaticPersonality.Territorialism  = 60;
             us.data.DiplomaticPersonality.Opportunism     = 0.2f;
