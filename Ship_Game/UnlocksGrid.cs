@@ -66,8 +66,8 @@ namespace Ship_Game
             hull = hullData;
             Title = hullData?.VisibleName ?? unlockedHull.Name;
             Description = Localizer.Token(GameText.UnlocksANewHullType) + " " +
-                          (hullData != null ? Localizer.GetRole(hullData.Role, EmpireManager.Player)
-                                            : "Hull: " + unlockedHull.Name);
+                          (hullData != null ? Localizer.GetRole(hullData.Role, EmpireManager.Player) + $" ({hullData.HullSlots.Length} slots)"
+                                            : "Hull: " + unlockedHull.Name); 
             Icon = hullData?.Icon ?? ResourceManager.InvalidTexture;
         }
 
