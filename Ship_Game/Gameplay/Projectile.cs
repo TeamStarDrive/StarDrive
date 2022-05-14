@@ -390,7 +390,26 @@ namespace Ship_Game.Gameplay
             {
                 // this is the spawned warhead weapon stats
                 Weapon warhead = ResourceManager.CreateWeapon(Weapon.MirvWeapon, Owner, Module, null);
-                warhead.SpawnMirvSalvo(Direction, target, Position);
+                if (warhead.Tag_Guided)
+                {
+                    for (int i = 0; i < warhead.ProjectileCount; i++)
+                    {
+                        // Use separation velocity for mirv non guided, or just Velocity for guided (they will compensate)
+                        Vector2 separationVector = Velocity;
+                        float launchDir = i % 2 == 0 ? -RadMath.Deg90AsRads : RadMath.Deg90AsRads;
+                        Vector2 separationVel = (Rotation + launchDir).RadiansToDirection() 
+                                                * (100 + RandomMath.RollDie(4*warhead.FireDispersionArc));
+
+                        separationVector += separationVel; // Add it to the initial velocity
+                        bool playSound = i == 0; // play sound once
+                        CreateMirvWarhead(warhead, Position, Direction, target, playSound, separationVector, Loyalty, Planet);
+                    }
+                }
+                else
+                {
+                    // use normal fire arc since the new warhead is not a missile
+                    warhead.SpawnMirvSalvo(Direction, target, Position);
+                }
             }
 
             Die(null, false);
