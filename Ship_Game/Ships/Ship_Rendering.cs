@@ -85,7 +85,7 @@ namespace Ship_Game.Ships
                         if    (Externals.Get(gs, x, y) != null) color = Color.Blue;
                         else if (GetModuleAt(x, y) != null) color = Color.Yellow;
 
-                        us.DrawRectangleProjected(GridSquareToWorld(x, y), new Vector2(16f, 16f), Rotation, color);
+                        us.DrawRectangleProjected(GridCellCenterToWorld(x, y), new Vector2(16f, 16f), Rotation, color);
                     }
                 }
             }
