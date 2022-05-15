@@ -78,7 +78,7 @@ namespace Ship_Game
                     return false; // empty slots not allowed!
                 hasBridge |= slot.Module?.IsCommandModule == true;
             }
-            return (hasBridge || Role == RoleName.platform || Role == RoleName.station);
+            return (hasBridge || Role is RoleName.platform or RoleName.station);
         }
 
         void DoExit()
@@ -651,12 +651,15 @@ namespace Ship_Game
                 SaveDesign(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.Name}.design"));
                 Vector2 pos = new(ModuleSelectComponent.X + ModuleSelectComponent.Width + 20, ModuleSelectComponent.Y + 100);
                 ToolTip.CreateFloatingText($"Work in progress ship was saved as {toSave.Name}", "", pos, 5);
+                CurrentDesign.Name = toSave.Name;
             }
             else
             {
                 ShipHull toSave = CloneCurrentHull($"{DateTime.Now:yyyy-MM-dd}__{DesignOrHullName}");
                 SaveHull(toSave, new FileInfo($"{Dir.StarDriveAppData}/WIP/{toSave.VisibleName}.hull"));
             }
+
+            ShipSaved = true;
         }
 
         void SaveWIPThenChangeHull(ShipHull changeTo)

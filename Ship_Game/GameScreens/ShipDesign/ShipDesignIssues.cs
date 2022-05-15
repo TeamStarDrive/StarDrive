@@ -216,7 +216,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             float powerRatio = netPowerNeeded / netPowerStoreDuringSalvo;
 
-            if (powerRatio.LessOrEqual(1))
+            if (powerRatio.LessOrEqual(1.01f))
                 return;
 
             hasSalvoFirePowerIssues = true;
@@ -433,10 +433,13 @@ namespace Ship_Game.GameScreens.ShipDesign
             }
         }
 
-        public void CheckBurstPowerTime(bool hasBeamWeapons, float burstEnergyPowerTime)
+        public void CheckBurstPowerTime(bool hasBeamWeapons, float burstEnergyPowerTime, float averageBeamDuration)
         {
-            if (!hasBeamWeapons || burstEnergyPowerTime.GreaterOrEqual(2) || burstEnergyPowerTime.Less(0))
+            if (!hasBeamWeapons || burstEnergyPowerTime.GreaterOrEqual(averageBeamDuration)
+                                || burstEnergyPowerTime.Less(0))
+            {
                 return;
+            }
 
             WarningLevel severity = WarningLevel.None;
             if      (burstEnergyPowerTime < 1)    severity = WarningLevel.Critical;

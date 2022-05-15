@@ -10289,6 +10289,12 @@ DesignIssueSalvoFirePowerEfficiencyRemidiation:
 CreditsPerTurn:
  Id: 4369
  ENG: "Credits Per Turn"  
+SaveShipDesignDesc:
+ Id: 4370
+ ENG: "Saves the ship design. If the ship is not complete, it will be saved as Work in progress. 
+SaveWIP:
+ Id: 4371
+ ENG: "Save WIP 
 OnSurface:
  Id: 4993
  ENG: "on surface"
