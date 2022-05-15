@@ -476,7 +476,7 @@ namespace Ship_Game
             Graphics.Font font = Fonts.Arial20Bold.TextWidth(name) <= (SearchBar.Width - 5)
                                ? Fonts.Arial20Bold : Fonts.Arial12Bold;
             var cursor1 = new Vector2(SearchBar.X + 3, r.Y + 14 - font.LineSpacing / 2);
-            batch.DrawString(font, name, cursor1, ShipSaved ? Color.LightGreen : Color.White);
+            batch.DrawString(font, name, cursor1, ShipSaved || CurrentDesign.UniqueModuleUIDs.Length == 0 ? Color.White : Color.OrangeRed);
 
             r = new Rectangle(r.X - r.Width - 12, r.Y, r.Width, r.Height);
             DesignRoleRect = new Rectangle(r.X , r.Y, r.Width, r.Height);

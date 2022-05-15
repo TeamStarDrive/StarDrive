@@ -45,6 +45,7 @@ namespace Ship_Game
         Vector2 StartDragPos;
 
         readonly Array<ShipHull> AvailableHulls = new Array<ShipHull>();
+        UIButton BtnSaveAs;
         UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
         UIButton BtnFilterModules;   // Filter Absolute Modules
         UIButton BtnStripShip;       // Removes all modules but armor, shields and command modules
@@ -211,7 +212,6 @@ namespace Ship_Game
                     mirror.TryInstallTo(ModuleGrid);
                 }
                 
-                ShipSaved = false;
                 OnDesignChanged();
                 ShipModule m = active.Mod;
                 SpawnActiveModule(m.UID, m.ModuleRot, m.TurretAngle, m.HangarShipUID);
@@ -239,7 +239,6 @@ namespace Ship_Game
                 }
             }
             
-            ShipSaved = false;
             OnDesignChanged();
         }
 
@@ -274,6 +273,7 @@ namespace Ship_Game
                     !module.Is(ShipModuleType.Shield) && !module.Is(ShipModuleType.Command))
                 {
                     ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
+                    ShipSaved = false;
                 }
             }
 
@@ -381,6 +381,9 @@ namespace Ship_Game
 
             if (showRoleChangeTip && Role != oldRole)
                 RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, Input.CursorPosition);
+
+            ShipSaved = false;
+            BtnSaveAs.Text = Localizer.Token(HullEditMode || IsGoodDesign() ? GameText.SaveAs : GameText.SaveWIP);
         }
 
         // true if this module can never fit into the module grid
@@ -457,16 +460,25 @@ namespace Ship_Game
             bottomListRight.LayoutStyle = ListLayoutStyle.ResizeList;
             bottomListRight.Direction = new Vector2(-1, 0);
             bottomListRight.Padding = new Vector2(16f, 2f);
-            bottomListRight.Add(ButtonStyle.Medium, GameText.SaveAs, click: b =>
+            BtnSaveAs = bottomListRight.Add(ButtonStyle.Medium, GameText.SaveAs, click: b =>
             {
-                if (!HullEditMode && !IsGoodDesign())
+                bool isGoodDesign = IsGoodDesign();
+                if (!HullEditMode && !isGoodDesign)
                 {
-                    GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(GameText.ThisShipDesignIsInvalid)));
+                    if (!ShipSaved)
+                        SaveWIP();
+                    else
+                        GameAudio.NegativeClick();
+
                     return;
+                    // ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(GameText.ThisShipDesignIsInvalid)));
+                    //return;*/
                 }
+
                 ScreenManager.AddScreen(new ShipDesignSaveScreen(this, DesignOrHullName, hullDesigner:HullEditMode));
             });
+            BtnSaveAs.Tooltip = Localizer.Token(GameText.SaveShipDesignDesc);
+            BtnSaveAs.Hotkey = InputBindings.FromString("Ctrl+S");
             bottomListRight.Add(ButtonStyle.Medium, GameText.Load, click: b =>
             {
                 if (HullEditMode)
