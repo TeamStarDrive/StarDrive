@@ -14,7 +14,7 @@ namespace Ship_Game.Ships
     {
         public ModuleGridFlyweight Grid;
         ShipModule[] ModuleSlotList;
-        public ModuleGridState GetGridState() => new ModuleGridState(Grid, ModuleSlotList);
+        public ModuleGridState GetGridState() => new(Grid, ModuleSlotList);
 
         public PowerGrid PwrGrid;
         public ExternalSlotGrid Externals;
@@ -170,7 +170,20 @@ namespace Ship_Game.Ships
         public Vector2 WorldToGridLocal(Vector2 worldPoint)
         {
             Vector2 offset = worldPoint - Position;
-            return offset.RotatePoint(-Rotation) + Grid.GridLocalCenter;
+            return RotatePoint(offset.X, offset.Y, -Rotation) + Grid.GridLocalCenter;
+        }
+
+        // A specific variation of RadMath.RotatePoint, with additional Rounding logic
+        static Vector2 RotatePoint(double x, double y, double radians)
+        {
+            double s = Math.Sin(radians);
+            double c = Math.Cos(radians);
+            double rotatedX = c*x - s*y;
+            double rotatedY = s*x + c*y;
+            // round 63.999997 and 64.000002 into 64
+            rotatedX = Math.Round(rotatedX, 3);
+            rotatedY = Math.Round(rotatedY, 3);
+            return new Vector2(rotatedX, rotatedY);
         }
         
         // Converts a world position to a grid point such as [1,2]
@@ -203,7 +216,7 @@ namespace Ship_Game.Ships
         public Vector2 GridLocalToWorld(Vector2 localPoint)
         {
             Vector2 centerLocal = localPoint - Grid.GridLocalCenter;
-            return centerLocal.RotatePoint(Rotation) + Position;
+            return RotatePoint(centerLocal.X, centerLocal.Y, Rotation) + Position;
         }
         
         // Converts a grid-local POINT to world pos
@@ -213,7 +226,7 @@ namespace Ship_Game.Ships
             return GridLocalToWorld(new Vector2(gridLocalPoint.X * 16f, gridLocalPoint.Y * 16f));
         }
 
-        Vector2 GridSquareToWorld(int x, int y)
+        Vector2 GridCellCenterToWorld(int x, int y)
         {
             return GridLocalToWorld(new Vector2(x * 16f + 8f, y * 16f + 8f));
         }
@@ -227,8 +240,8 @@ namespace Ship_Game.Ships
 
         bool LocalPointInBounds(Point point)
         {
-            return 0 <= point.X && point.X < Grid.Width
-                && 0 <= point.Y && point.Y < Grid.Height;
+            return (uint)point.X < Grid.Width
+                && (uint)point.Y < Grid.Height;
         }
 
         // an out of bounds clipped point would be in any of the extreme corners.
