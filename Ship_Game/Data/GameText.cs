@@ -4382,6 +4382,10 @@ namespace Ship_Game
         DesignIssueSalvoFirePowerEfficiencyRemidiation = 4368,
         /// <summary>Credits per turn</summary>
         CreditsPerTurn = 4369,
+        /// <summary>Saves the ship design</summary>
+        SaveShipDesignDesc = 4370,
+        /// <summary>Save WIP </summary>
+        SaveWIP = 4371,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>

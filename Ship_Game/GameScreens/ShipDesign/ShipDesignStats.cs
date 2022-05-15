@@ -29,7 +29,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         public float NetOrdnanceUsePerSec;
         public float AmmoTime;
         public float BeamPeakPowerNeeded;
-        public float BeamLongestDuration;
+        public float BeamAverageDuration;
         public float WeaponPowerNeededNoBeams;
         public float Strength;
         public float RelativeStrength;
@@ -89,7 +89,10 @@ namespace Ship_Game.GameScreens.ShipDesign
             AmmoTime = S.OrdinanceMax / NetOrdnanceUsePerSec;
 
             BeamPeakPowerNeeded = weapons.Sum(w => w.IsBeam ? w.BeamPowerCostPerSecond : 0);
-            BeamLongestDuration = weapons.Max(w => w.IsBeam ? w.BeamDuration : 0);
+            float beamTotalDuration = weapons.Sum(w => w.IsBeam ? w.BeamDuration : 0);
+            if (beamTotalDuration > 0 && weapons.Length > 0)
+                BeamAverageDuration = beamTotalDuration / weapons.Length;
+
             WeaponPowerNeededNoBeams = weapons.Sum(w => !w.IsBeam ? w.PowerFireUsagePerSecond : 0);
 
             Strength = S.GetStrength();
@@ -117,9 +120,9 @@ namespace Ship_Game.GameScreens.ShipDesign
         public bool IsWarpCapable() => S.MaxFTLSpeed > 0 && !S.IsPlatformOrStation;
         public bool HasEnergyWepsPositive() => HasEnergyWeapons && PowerConsumed > 0;
         public bool HasEnergyWepsNegative() => HasEnergyWeapons && PowerConsumed <= 0;
-        public bool HasBeams() => BeamLongestDuration > 0 && PowerConsumedWithBeams > 0;
-        public bool HasBeamDurationPositive() => HasBeams() && BurstEnergyDuration >= BeamLongestDuration;
-        public bool HasBeamDurationNegative() => HasBeams() && BurstEnergyDuration < BeamLongestDuration;
+        public bool HasBeams() => BeamAverageDuration > 0 && PowerConsumedWithBeams > 0;
+        public bool HasBeamDurationPositive() => HasBeams() && BurstEnergyDuration >= BeamAverageDuration;
+        public bool HasBeamDurationNegative() => HasBeams() && BurstEnergyDuration < BeamAverageDuration;
 
         public bool HasFiniteWarp() => ChargeAtWarp < 0 && WarpTime <= 60*10;
         public bool HasInfiniteWarp() => ChargeAtWarp > 0 || WarpTime > 60*10;
