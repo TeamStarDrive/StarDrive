@@ -383,8 +383,12 @@ namespace Ship_Game
                 RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, Input.CursorPosition);
 
             ShipSaved = false;
-            BtnSaveAs.Text = Localizer.Token(HullEditMode || IsGoodDesign() ? GameText.SaveAs : GameText.SaveWIP);
+            BtnSaveAs.Text = Localizer.Token(HullEditMode || IsGoodDesign() || IsEmptyHull 
+                ? GameText.SaveAs 
+                : GameText.SaveWIP);
         }
+
+        bool IsEmptyHull => CurrentDesign.UniqueModuleUIDs.Length == 0;
 
         // true if this module can never fit into the module grid
         public bool CanNeverFitModuleGrid(ShipModule module)

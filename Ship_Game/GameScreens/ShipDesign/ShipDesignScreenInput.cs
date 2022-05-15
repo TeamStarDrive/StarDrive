@@ -632,8 +632,9 @@ namespace Ship_Game
 
         void SaveWIP()
         {
-            if (CurrentDesign.UniqueModuleUIDs.Length == 0)
-                return; // Dont save empty hulls as wip
+            if (IsEmptyHull)
+                return;
+
             if (CurrentDesign != null)
             {
                 ShipDesign toSave;
