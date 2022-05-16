@@ -15,7 +15,9 @@ namespace UnitTests.Ships
         public ModuleGridFlyweightTests()
         {
             CreateUniverseAndPlayerEmpire();
-            LoadStarterShips("TEST_Vulcan Scout", "TEST_Heavy Carrier mk1");
+            LoadStarterShips("TEST_Vulcan Scout",
+                             "TEST_Heavy Carrier mk1",
+                             "TEST_Type VII mk1-c");
         }
 
         static DesignSlot MakeDesignSlot(int x, int y, string uid)
@@ -133,7 +135,7 @@ namespace UnitTests.Ships
 
             Assert.AreEqual(4, grid.SurfaceArea);
             Assert.AreEqual(new Point(3, 2), new Point(grid.Width, grid.Height));
-            Assert.AreEqual(new Vector2(24f, 16f), grid.GridLocalCenter);
+            Assert.AreEqual(new Vector2(16f, 16f), grid.GridLocalCenter);
             Assert.AreEqual(28.84f, grid.Radius, 0.01f);
             Assert.AreEqual(1, grid.NumInternalSlots);
             
@@ -245,6 +247,104 @@ namespace UnitTests.Ships
             ShipModule[] amplifiers = ship.GetAmplifiers().ToArr();
             Assert.AreEqual(2, shields.Length);
             Assert.AreEqual(52, amplifiers.Length);
+        }
+
+        [TestMethod]
+        public void GetActiveShield()
+        {
+            // A long Vulfar frigate with 2 shields, 10x26 grid
+            // Only front 2x2 armor module is uncovered by shield
+            // All other modules are covered
+            // A few modules in the center have dual coverage
+            Ship ship = SpawnShip("TEST_Type VII mk1-c", Player, Vector2.Zero);
+            Assert.AreEqual(2, ship.GetShields().Count());
+            ModuleGridFlyweight grid = ship.Grid;
+
+            // get the shields
+            ShipModule shield1 = ship.GetModuleAt(4,8);
+            ShipModule shield2 = ship.GetModuleAt(4,19);
+            Assert.IsTrue(shield1.ShieldsAreActive);
+            Assert.IsTrue(shield2.ShieldsAreActive);
+
+            // BottomLeft of front 2x2 armor
+            Assert.AreEqual(null, ship.GetActiveShieldAt(4, 1));
+
+            // TopLeft of front 2x2 ordnance
+            Assert.AreEqual(shield1, ship.GetActiveShieldAt(4, 2));
+            // Random PlastSteel 1x1 module
+            Assert.AreEqual(shield1, ship.GetActiveShieldAt(3, 8));
+
+            // 2x2 AdvancedKineticTurret is covered by both shields
+            Assert.AreEqual(2, grid.GetNumShieldsAt(3, 13));
+
+            // 2x2 NuclearReactorMed should also be covered by both shields
+            Assert.AreEqual(2, grid.GetNumShieldsAt(4, 15));
+            Assert.AreEqual(shield1, ship.GetActiveShieldAt(4, 15));
+
+            // if first shield goes down, the second shield should be chosen
+            shield1.Active = false;
+            Assert.AreEqual(shield2, ship.GetActiveShieldAt(4, 15));
+            shield1.Active = true;
+
+            // make sure the shields themselves are covered
+            Assert.AreEqual(shield1, ship.GetActiveShieldAt(4, 8));
+            Assert.AreEqual(shield2, ship.GetActiveShieldAt(4, 19));
+
+            // a point inside the grid which is not covered by shields
+            Assert.AreEqual(null, ship.GetActiveShieldAt(0,0));
+            Assert.AreEqual(null, ship.GetActiveShieldAt(7,1));
+
+            // a point inside the grid which is covered by shield
+            // BUT does not contain any valid modules
+            Assert.AreEqual(shield1, ship.GetActiveShieldAt(0,8));
+            Assert.AreEqual(shield1, ship.GetActiveShieldAt(9,8));
+            Assert.AreEqual(shield2, ship.GetActiveShieldAt(0,16));
+            Assert.AreEqual(shield2, ship.GetActiveShieldAt(9,16));
+        }
+
+        [TestMethod]
+        public void HitTestShieldsReturnsFirstActiveShield()
+        {
+            // A long Vulfar frigate with 2 shields, 10x26 grid
+            Vector2 c = Vector2.Zero;
+            Ship ship = SpawnShip("TEST_Type VII mk1-c", Player, c);
+            Assert.AreEqual(2, ship.GetShields().Count());
+
+            // get the shields
+            ShipModule shield1 = ship.GetModuleAt(4,8);
+            ShipModule shield2 = ship.GetModuleAt(4,19);
+            Assert.IsTrue(shield1.ShieldsAreActive);
+            Assert.IsTrue(shield2.ShieldsAreActive);
+
+            ShipModule HitTestShields(int x, int y)
+                => ship.HitTestShields(ship.GridLocalPointToWorld(new Point(x,y)), 8f);
+
+            Assert.AreEqual(null, HitTestShields(0,0)); // nothing
+            Assert.AreEqual(null, HitTestShields(9,0)); // nothing
+
+            Assert.AreEqual(null, HitTestShields(4,0)); // unshielded 2x2 armor
+            Assert.AreEqual(null, HitTestShields(4,1)); // unshielded 2x2 armor
+            Assert.AreEqual(null, HitTestShields(5,1)); // unshielded 2x2 armor
+
+            Assert.AreEqual(shield1, HitTestShields(4,2)); // shielded 2x2 ordnance
+            Assert.AreEqual(shield1, HitTestShields(0, 6)); // shielded empty slot
+            Assert.AreEqual(shield1, HitTestShields(9, 4)); // shielded empty slot
+
+            Assert.AreEqual(shield1, HitTestShields(4, 14)); // two shields overlapping 2x2 turret
+            shield1.Active = false;
+            Assert.AreEqual(shield2, HitTestShields(4, 14)); // two shields overlapping 2x2 turret
+            shield1.Active = true;
+
+            Assert.AreEqual(shield1, HitTestShields(4, 15)); // shielded 2x2 reactor
+            Assert.AreEqual(shield2, HitTestShields(4, 16)); // shielded 2x2 reactor
+            
+            Assert.AreEqual(shield2, HitTestShields(0, 19)); // shielded empty slot
+            Assert.AreEqual(shield2, HitTestShields(9, 25)); // shielded empty slot
+
+            Assert.AreEqual(shield2, HitTestShields(0, 20)); // shielded 1x1 armor
+            Assert.AreEqual(shield2, HitTestShields(8, 20)); // shielded 1x1 ordnance
+            Assert.AreEqual(shield2, HitTestShields(4, 25)); // shielded 2x2 engine
+            Assert.AreEqual(shield2, HitTestShields(5, 20)); // shielded 2x2 shield (self)
         }
     }
 }

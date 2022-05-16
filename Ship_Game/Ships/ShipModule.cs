@@ -474,9 +474,8 @@ namespace Ship_Game.Ships
 
             if (hull != null) // for module templates this will be null
             {
-                Point gridCenter = hull.GridCenter;
-                LocalCenter = new Vector2((gridPos.X - gridCenter.X)*16f + XSize * 8f,
-                                          (gridPos.Y - gridCenter.Y)*16f + YSize * 8f);
+                LocalCenter = new Vector2((gridPos.X - hull.GridCenter.X)*16f + XSize * 8f,
+                                          (gridPos.Y - hull.GridCenter.Y)*16f + YSize * 8f);
 
                 // world position of this module, will be overwritten during Ship's Module update
                 Position = LocalCenter;

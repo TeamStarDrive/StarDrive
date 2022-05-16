@@ -74,6 +74,12 @@ namespace Ship_Game.Ships
             return Grid.Get(ModuleSlotList, gridIndex);
         }
 
+        /// <returns>First active shield which covers given grid pos</returns>
+        public ShipModule GetActiveShieldAt(int gridPosX, int gridPosY)
+        {
+            return Grid.GetActiveShield(ModuleSlotList, gridPosX, gridPosY);
+        }
+
         void DebugDrawShield(ShipModule s)
         {
             var color = s.ShieldsAreActive ? Color.AliceBlue : Color.DarkBlue;
@@ -93,18 +99,11 @@ namespace Ship_Game.Ships
         }
 
         // The simplest form of collision against shields. This is handled in all other HitTest functions
-        ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
+        // Tested in ModuleGridFlyweightTests
+        public ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
         {
-            foreach (ShipModule shield in GetShields())
-            {
-                if (shield.ShieldsAreActive && shield.HitTestShield(worldHitPos, hitRadius))
-                {
-                    //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
-                    //    DebugDrawShieldHit(shield);
-                    return shield;
-                }
-            }
-            return null;
+            Point gridPos = WorldToGridLocalPointClipped(worldHitPos);
+            return Grid.HitTestShieldsAt(ModuleSlotList, gridPos, worldHitPos, hitRadius);
         }
 
         // Slightly more complicated ray-collision against shields
@@ -167,7 +166,7 @@ namespace Ship_Game.Ships
 
         // Converts a world position to a grid local position (such as [16f,32f])
         // TESTED in ShipModuleGridTests
-        public Vector2 WorldToGridLocal(Vector2 worldPoint)
+        public Vector2 WorldToGridLocal(in Vector2 worldPoint)
         {
             Vector2 offset = worldPoint - Position;
             return RotatePoint(offset.X, offset.Y, -Rotation) + Grid.GridLocalCenter;
@@ -188,37 +187,43 @@ namespace Ship_Game.Ships
         
         // Converts a world position to a grid point such as [1,2]
         // TESTED in ShipModuleGridTests
-        public Point WorldToGridLocalPoint(Vector2 worldPoint)
+        public Point WorldToGridLocalPoint(in Vector2 worldPoint)
         {
             Vector2 gridLocal = WorldToGridLocal(worldPoint);
-            Point gridPoint = GridLocalToPoint(gridLocal);
+            Point gridPoint = Grid.GridLocalToPoint(gridLocal);
             return gridPoint;
         }
         
         // Converts a world position to a grid point such as [1,2]
         // CLIPS the value in range of [0, GRIDSIZE-1]
         // TESTED in ShipModuleGridTests
-        public Point WorldToGridLocalPointClipped(Vector2 worldPoint)
+        public Point WorldToGridLocalPointClipped(in Vector2 worldPoint)
         {
-            return ClipLocalPoint(WorldToGridLocalPoint(worldPoint));
+            return Grid.ClipLocalPoint(WorldToGridLocalPoint(worldPoint));
         }
 
         // Converts a grid-local pos to a grid point
-        // TESTED via WorldToGridLocalPoint() in ShipModuleGridTests
-        public Point GridLocalToPoint(Vector2 localPos)
+        // TESTED in ShipModuleGridTests
+        public Point GridLocalToPoint(in Vector2 localPos)
         {
-            return new Point((int)Math.Floor(localPos.X / 16f),
-                             (int)Math.Floor(localPos.Y / 16f));
+            return Grid.GridLocalToPoint(localPos);
+        }
+        
+        // Converts a grid-local pos to a grid point AND clips it to grid bounds
+        // TESTED in ShipModuleGridTests
+        public Point GridLocalToPointClipped(in Vector2 localPos)
+        {
+            return Grid.GridLocalToPointClipped(localPos);
         }
 
         // Converts a grid-local pos to world pos
         // TESTED in ShipModuleGridTests
-        public Vector2 GridLocalToWorld(Vector2 localPoint)
+        public Vector2 GridLocalToWorld(in Vector2 localPoint)
         {
             Vector2 centerLocal = localPoint - Grid.GridLocalCenter;
             return RotatePoint(centerLocal.X, centerLocal.Y, Rotation) + Position;
         }
-        
+
         // Converts a grid-local POINT to world pos
         // TESTED in ShipModuleGridTests
         public Vector2 GridLocalPointToWorld(Point gridLocalPoint)
@@ -229,19 +234,6 @@ namespace Ship_Game.Ships
         Vector2 GridCellCenterToWorld(int x, int y)
         {
             return GridLocalToWorld(new Vector2(x * 16f + 8f, y * 16f + 8f));
-        }
-
-        Point ClipLocalPoint(Point pt)
-        {
-            if (pt.X < 0) pt.X = 0; else if (pt.X >= Grid.Width)  pt.X = Grid.Width  - 1;
-            if (pt.Y < 0) pt.Y = 0; else if (pt.Y >= Grid.Height) pt.Y = Grid.Height - 1;
-            return pt;
-        }
-
-        bool LocalPointInBounds(Point point)
-        {
-            return (uint)point.X < Grid.Width
-                && (uint)point.Y < Grid.Height;
         }
 
         // an out of bounds clipped point would be in any of the extreme corners.
@@ -267,7 +259,7 @@ namespace Ship_Game.Ships
                 return null;
 
             Point pt = WorldToGridLocalPoint(worldPoint);
-            pt = ClipLocalPoint(pt);
+            pt = Grid.ClipLocalPoint(pt);
 
             ShipModule m;
             ModuleGridState gs = GetGridState();
@@ -310,7 +302,9 @@ namespace Ship_Game.Ships
         // find the first module that falls under the hit radius at given position
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
         {
-            if (Externals.NumModules == 0) return null;
+            if (Externals.NumModules == 0)
+                return null;
+
             if (!ignoreShields)
             {
                 ShipModule shield = HitTestShields(worldHitPos, hitRadius);
@@ -319,12 +313,12 @@ namespace Ship_Game.Ships
 
             Point a  = WorldToGridLocalPoint(worldHitPos - new Vector2(hitRadius));
             Point b  = WorldToGridLocalPoint(worldHitPos + new Vector2(hitRadius));
-            bool inA = LocalPointInBounds(a);
-            bool inB = LocalPointInBounds(b);
+            bool inA = Grid.LocalPointInBounds(a);
+            bool inB = Grid.LocalPointInBounds(b);
             if (!inA && !inB)
                 return null;
-            if (!inA) a = ClipLocalPoint(a);
-            if (!inB) b = ClipLocalPoint(b);
+            if (!inA) a = Grid.ClipLocalPoint(a);
+            if (!inB) b = Grid.ClipLocalPoint(b);
 
             ShipModule m;
             if (a == b)
@@ -394,7 +388,7 @@ namespace Ship_Game.Ships
             Point b = WorldToGridLocalPointClipped(worldHitPos + new Vector2(hitRadius));
             if (!ClippedLocalPointInBounds(a) && !ClippedLocalPointInBounds(b))
             {
-                if (!LocalPointInBounds(WorldToGridLocalPoint(worldHitPos)))
+                if (!Grid.LocalPointInBounds(WorldToGridLocalPoint(worldHitPos)))
                     return;
             }
 
@@ -509,7 +503,7 @@ namespace Ship_Game.Ships
             Vector2 endPos = start + step;
             Point pos = GridLocalToPoint(start);
             Point end = GridLocalToPoint(endPos);
-            if (!LocalPointInBounds(pos) || !LocalPointInBounds(end))
+            if (!Grid.LocalPointInBounds(pos) || !Grid.LocalPointInBounds(end))
                 return null; // we're walking out of bounds
 
             // @note We don't check grid at [pos], because we assume prev call checked it
