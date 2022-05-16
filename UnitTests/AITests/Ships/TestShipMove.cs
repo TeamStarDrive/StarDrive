@@ -98,12 +98,13 @@ namespace UnitTests.AITests.Ships
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
             Assert.AreEqual(0, ship.YRotation, "Ship's Y rotation should be 0 when spawned");
             Vector2 newPos = new Vector2(2000, 2000);
-            UState.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep);
+
             ship.AI.OrderMoveTo(newPos, Vector2.Zero);
-            UState.Objects.Update(TestSimStep);
+            RunObjectsSim(TestSimStep * 10);
             Assert.That.GreaterThan(Math.Abs(ship.YRotation), 0);
 
-            float maxYBank = ship.GetMaxBank(); 
+            float maxYBank = ship.GetMaxBank();
             float yBankReached = 0;
             RunSimWhile((simTimeout: 25, fatal: true), () => ship.Position.OutsideRadius(newPos, 100), () =>
             {
