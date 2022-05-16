@@ -212,6 +212,18 @@ namespace Ship_Game.Universe
             return AddEmpire(e);
         }
 
+        public Empire CreateTestEmpire(string name)
+        {
+            var e = new Empire(this)
+            {
+                data = new EmpireData
+                {
+                    Traits = new RacialTrait { Name = name }
+                }
+            };
+            return AddEmpire(e);
+        }
+
         public Empire AddEmpire(Empire e)
         {
             if (e.Universum == null)

@@ -18,7 +18,7 @@ namespace UnitTests.Ships
         public TestWeaponModifiers()
         {
             CreateUniverseAndPlayerEmpire();
-            Empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
+            Empire = UState.CreateTestEmpire("ModifierEmpire");
             Empire.TestInitModifiers();
             Ship = SpawnShip("Vulcan Scout", Empire, Vector2.Zero);
             Weapon = CreateWeapon(Ship);
