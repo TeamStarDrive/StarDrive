@@ -34,8 +34,8 @@ namespace UnitTests
         public Empire ThirdMajor { get; private set; }
         public Empire Faction { get; private set; }
 
-        public readonly double TestSimStepD = 1.0 / 60.0;
-        public readonly FixedSimTime TestSimStep = new FixedSimTime((float)(1.0 / 60.0));
+        public const double TestSimStepD = 1.0 / 60.0;
+        public readonly FixedSimTime TestSimStep = new((float)TestSimStepD);
 
         public StarDriveTest()
         {
