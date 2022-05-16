@@ -72,8 +72,7 @@ namespace Ship_Game
                 e.data.CurrentConstructor   = e.data.ConstructorShip;
 
                 // Now, generate system for our empire:
-                var system = new SolarSystem(us);
-                system.Position = GenerateRandomSysPos(10000, us);
+                var system = new SolarSystem(us, GenerateRandomSysPos(10000, us));
                 system.GenerateStartingSystem(us, e.data.Traits.HomeSystemName, 1f, e);
                 system.OwnerList.Add(e);
 
@@ -85,7 +84,7 @@ namespace Ship_Game
                 us.CreateEmpire(data, isPlayer: false);
             }
 
-            Empire.InitializeRelationships(EmpireManager.Empires, GameDifficulty.Hard);
+            Empire.InitializeRelationships(us.Empires, GameDifficulty.Hard);
 
             foreach (SolarSystem system in universe.UState.Systems)
             {

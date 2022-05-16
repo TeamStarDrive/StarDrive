@@ -18,9 +18,9 @@ namespace UnitTests.Planets
         {
             CreateUniverseAndPlayerEmpire();
             Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
-            NewPlanet = AddDummyPlanet(2, 1, 3);
-            Homeworld = AddHomeWorldToEmpire(Player);
-            EnemyHome = AddHomeWorldToEmpire(Enemy);
+            NewPlanet = AddDummyPlanet(Vector2.Zero, 2, 1, 3);
+            Homeworld = AddHomeWorldToEmpire(Vector2.Zero, Player);
+            EnemyHome = AddHomeWorldToEmpire(Vector2.Zero, Enemy);
 
             PlanetType type = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
             NewPlanet.GenerateNewFromPlanetType(type, scale:1.5f, preDefinedPop:16);

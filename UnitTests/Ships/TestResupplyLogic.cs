@@ -19,7 +19,7 @@ namespace UnitTests.Ships
         public TestResupplyLogic()
         {
             CreateUniverseAndPlayerEmpire();
-            Homeworld = AddHomeWorldToEmpire(Player);
+            Homeworld = AddHomeWorldToEmpire(Vector2.Zero, Player);
         }
 
         void SpawnOurShip()

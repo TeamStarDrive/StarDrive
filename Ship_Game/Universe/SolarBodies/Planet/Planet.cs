@@ -263,8 +263,8 @@ namespace Ship_Game
                 PType = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
         }
 
-        public Planet(int id, SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, 
-                      Empire owner = null, float preDefinedPop = 0) : this(id)
+        public Planet(int id, SolarSystem system, float randomAngle, float ringRadius, string name,
+                      float sysMaxRingRadius, Empire owner, SolarSystemData.Ring data) : this(id)
         {
             CreateManagers();
 
@@ -272,39 +272,67 @@ namespace Ship_Game
             OrbitalAngle = randomAngle;
             ParentSystem = system;
 
-            SunZone sunZone;
-            float zoneSize = ringMax;
-            if      (ringRadius < zoneSize * 0.15f) sunZone = SunZone.Near;
-            else if (ringRadius < zoneSize * 0.25f) sunZone = SunZone.Habital;
-            else if (ringRadius < zoneSize * 0.7f)  sunZone = SunZone.Far;
-            else                                    sunZone = SunZone.VeryFar;
-
-
-            if (owner != null && owner.Capital == null && sunZone >= SunZone.Habital)
+            // if we have [data] always use data.HomePlanet,
+            // else if no [data] check if owner has Capital or not
+            bool isHomeworld = data?.HomePlanet ?? owner is { Capital: null };
+            if (owner != null && isHomeworld)
             {
-                GenerateNewHomeWorld(owner, preDefinedPop);
-                Name = system.Name + " " + RomanNumerals.ToRoman(1);
+                PlanetCategory preferred = owner.data.PreferredEnv == PlanetCategory.Other
+                                         ? PlanetCategory.Terran : owner.data.PreferredEnv;
+                PType = ResourceManager.Planets.RandomPlanet(preferred);
+
+                GenerateNewHomeWorld(owner, data?.MaxPopDefined ?? 0);
+                if (data == null)
+                    Name = system.Name + " " + RomanNumerals.ToRoman(1);
+            }
+            else if (data != null)
+            {
+                PType = data.WhichPlanet > 0
+                    ? ResourceManager.Planets.Planet(data.WhichPlanet)
+                    : ResourceManager.Planets.RandomPlanet();
+
+                float scale;
+                if (data.planetScale > 0)
+                    scale = data.planetScale;
+                else
+                    scale = RandomMath.Float(0.9f, 1.8f) + PType.Scale;
+
+                GeneratePlanetFromSystemData(data, PType, scale);
             }
             else
             {
-                PlanetType chosenType = ChooseTypeByWeight(sunZone);
-                float scale     = RandomMath.Float(0.75f, 1.5f);
-                if (chosenType.Category == PlanetCategory.GasGiant)
-                    ++scale;
+                SunZone sunZone;
+                if      (ringRadius < sysMaxRingRadius * 0.15f) sunZone = SunZone.Near;
+                else if (ringRadius < sysMaxRingRadius * 0.25f) sunZone = SunZone.Habital;
+                else if (ringRadius < sysMaxRingRadius * 0.7f)  sunZone = SunZone.Far;
+                else                                            sunZone = SunZone.VeryFar;
 
-                scale += chosenType.Scale;
-                InitNewMinorPlanet(chosenType, scale);
+                PType = ChooseTypeByWeight(sunZone);
+                float scale = RandomMath.Float(0.75f, 1.5f) + PType.Scale;
+                if (PType.Category == PlanetCategory.GasGiant)
+                    ++scale;
+                InitNewMinorPlanet(PType, scale);
             }
 
-            OrbitalRadius = ringRadius + ObjectRadius;
-            Position = MathExt.PointOnCircle(randomAngle, ringRadius);
+            OrbitalRadius = ringRadius + ObjectRadius; // ObjectRadius depends on PType
+            UpdatePositionOnly();
+
             PlanetTilt = RandomMath.Float(45f, 135f);
 
-            GenerateMoons(system, newOrbital:this);
-
-            if (RandomMath.Float(1f, 100f) < 15f)
+            GenerateMoons(system, newOrbital:this, data);
+            
+            if (data != null)
             {
-                HasRings = true;
+                SpecialDescription = data.SpecialDescription;
+
+                // Add buildings to planet
+                foreach (string building in data.BuildingList)
+                    ResourceManager.CreateBuilding(this, building).AssignBuildingToTilePlanetCreation(this, out _);
+            }
+
+            HasRings = data != null ? data.HasRings != null : (RandomMath.Float(1f, 100f) < 15f);
+            if (HasRings)
+            {
                 RingTilt = RandomMath.Float(-80f, -45f).ToRadians();
             }
         }

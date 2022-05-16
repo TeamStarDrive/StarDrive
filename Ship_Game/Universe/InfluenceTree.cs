@@ -64,6 +64,9 @@ namespace Ship_Game.Universe
 
             if (source is Planet planet)
             {
+                if (planet.ParentSystem.Position == Vector2.Zero)
+                    Log.Error("InfluenceTree: Planet.ParentSystem position is Zero!");
+
                 // for Planets, because they constantly orbit their solar system
                 // we set their influence bounds to the center of the system
                 // with their orbital radius added to the influence radius

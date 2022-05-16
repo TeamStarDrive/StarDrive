@@ -204,7 +204,6 @@ namespace Ship_Game
         public float Zrotate;
         public bool UniqueHab = false;
         public int UniqueHabPercent;
-        public SunZone Zone { get; protected set; }
         protected AudioEmitter Emitter;
         public float GravityWellRadius { get; protected set; }
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
@@ -587,24 +586,40 @@ namespace Ship_Game
             newOwner.TryTransferCapital(thisPlanet);
         }
 
-        protected void GenerateMoons(SolarSystem system, Planet newOrbital)
+        protected void GenerateMoons(SolarSystem system, Planet newOrbital, SolarSystemData.Ring data)
         {
-            if (newOrbital.PType.MoonTypes.Length == 0)
-                return; // this planet does not support moons
-
-            int moonCount = (int)Math.Ceiling(ObjectRadius * 0.004f);
-            moonCount = (int)Math.Round(RandomMath.AvgFloat(-moonCount * 0.75f, moonCount));
-            for (int j = 0; j < moonCount; j++)
+            if (data != null)
             {
-                PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.PType);
-                float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.Float(1000f, 1500f) * (j + 1);
-                var moon = new Moon(system,
-                                    newOrbital.Id,
-                                    moonType.Id,
-                                    1f, orbitRadius,
-                                    RandomMath.Float(0f, 360f),
-                                    newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius));
-                ParentSystem.MoonList.Add(moon);
+                // Add moons to planets
+                for (int j = 0; j < data.Moons.Count; j++)
+                {
+                    float orbitRadius = newOrbital.ObjectRadius * 5 + RandomMath.Float(1000f, 1500f) * (j + 1);
+                    var moon = new Moon(ParentSystem,
+                                        newOrbital.Id,
+                                        data.Moons[j].WhichMoon,
+                                        data.Moons[j].MoonScale,
+                                        orbitRadius,
+                                        RandomMath.Float(0f, 360f),
+                                        newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius));
+                    ParentSystem.MoonList.Add(moon);
+                }
+            }
+            else if (newOrbital.PType.MoonTypes.Length != 0)
+            {
+                int moonCount = (int)Math.Ceiling(ObjectRadius * 0.004f);
+                moonCount = (int)Math.Round(RandomMath.AvgFloat(-moonCount * 0.75f, moonCount));
+                for (int j = 0; j < moonCount; j++)
+                {
+                    PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.PType);
+                    float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.Float(1000f, 1500f) * (j + 1);
+                    var moon = new Moon(system,
+                                        newOrbital.Id,
+                                        moonType.Id,
+                                        1f, orbitRadius,
+                                        RandomMath.Float(0f, 360f),
+                                        newOrbital.Position.GenerateRandomPointOnCircle(orbitRadius));
+                    ParentSystem.MoonList.Add(moon);
+                }
             }
         }
     }

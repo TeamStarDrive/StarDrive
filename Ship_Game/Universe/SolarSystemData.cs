@@ -8,7 +8,7 @@ namespace Ship_Game
         public string SunPath = "star_yellow";
         public Array<Ring> RingList = new Array<Ring>();
 
-        public struct Ring
+        public class Ring
         {
             public string Planet; //Planet Name
             public string SpecialDescription;
@@ -17,7 +17,6 @@ namespace Ship_Game
             public string HasRings; //Planet has rings.
             public bool HomePlanet; //is an empire home planet. 
             public float planetScale; //1 or 0 is normal. larger or smaller than 1 increases or decreases planet size. 
-            public string Owner; //who ones the planet. 
             public string Station; //Has a space port
             public Array<Moon> Moons; //an array of moons.
             public Array<string> BuildingList; //buildings on planet.

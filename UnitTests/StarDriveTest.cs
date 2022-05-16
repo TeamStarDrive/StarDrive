@@ -227,9 +227,9 @@ namespace UnitTests
             return ship;
         }
 
-        public SolarSystem CreateNewSolarSystemWithPlanet(Planet p)
+        SolarSystem CreateNewSolarSystemWithPlanet(Vector2 sysPos, Planet p)
         {
-            var s = new SolarSystem(UState)
+            var s = new SolarSystem(UState, sysPos)
             {
                 Sun = SunType.RandomHabitableSun()
             };
@@ -237,56 +237,56 @@ namespace UnitTests
             return s;
         }
 
-        Planet AddDummyPlanet()
+        Planet AddDummyPlanet(Vector2 sysPos)
         {
             var p = new Planet(UState.CreateId());
-            CreateNewSolarSystemWithPlanet(p);
+            CreateNewSolarSystemWithPlanet(sysPos, p);
             return p;
         }
 
-        public Planet AddDummyPlanet(float fertility, float minerals, float pop)
+        public Planet AddDummyPlanet(Vector2 sysPos, float fertility, float minerals, float pop)
         {
             var p = new Planet(UState.CreateId(), fertility, minerals, pop);
-            CreateNewSolarSystemWithPlanet(p);
+            CreateNewSolarSystemWithPlanet(sysPos, p);
             return p;
         }
 
-        public Planet AddDummyPlanet(float fertility, float minerals, float pop, Vector2 pos, bool explored)
+        public Planet AddDummyPlanet(Vector2 sysPos, float fertility, float minerals, float pop, Vector2 pos, bool explored)
         {
             var p = new Planet(UState.CreateId(), fertility, minerals, pop) { Position = pos };
-            var s = CreateNewSolarSystemWithPlanet(p);
+            var s = CreateNewSolarSystemWithPlanet(sysPos, p);
             if (explored) s.SetExploredBy(Player);
             return p;
         }
 
-        public Planet AddDummyPlanetToEmpire(Empire empire)
+        public Planet AddDummyPlanetToEmpire(Vector2 sysPos,Empire empire)
         {
-            return AddDummyPlanetToEmpire(empire, 0, 0, 0);
+            return AddDummyPlanetToEmpire(sysPos, empire, 0, 0, 0);
         }
 
-        public Planet AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
+        public Planet AddDummyPlanetToEmpire(Vector2 sysPos, Empire empire, float fertility, float minerals, float maxPop)
         {
-            var p = AddDummyPlanet(fertility, minerals, maxPop);
+            var p = AddDummyPlanet(sysPos, fertility, minerals, maxPop);
             p.PType = ResourceManager.Planets.PlanetOrRandom(0);
             p.SetOwner(empire);
             return p;
         }
 
-        public Planet AddHomeWorldToEmpire(Empire empire)
+        public Planet AddHomeWorldToEmpire(Vector2 sysPos, Empire empire)
         {
-            var p = AddDummyPlanet();
+            var p = AddDummyPlanet(sysPos);
             p.GenerateNewHomeWorld(empire);
             return p;
         }
 
-        public Planet AddHomeWorldToEmpire(Empire empire, Vector2 pos, bool explored = false)
+        public Planet AddHomeWorldToEmpire(Vector2 sysPos, Empire empire, Vector2 pos, bool explored = false)
         {
-            var p = AddDummyPlanet(0, 0, 0, pos, explored);
+            var p = AddDummyPlanet(sysPos, 0, 0, 0, pos, explored);
             p.GenerateNewHomeWorld(empire);
             return p;
         }
 
-        public void AddPlanetToSolarSystem(SolarSystem s, Planet p)
+        void AddPlanetToSolarSystem(SolarSystem s, Planet p)
         {
             float distance = p.Position.Distance(s.Position);
             var r = new SolarSystem.Ring { Asteroids = false, OrbitalDistance = distance, planet = p };

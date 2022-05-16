@@ -9,6 +9,8 @@ using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
+using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.GameScreens.NewGame
@@ -27,6 +29,10 @@ namespace Ship_Game.GameScreens.NewGame
         UniverseScreen us;
         UniverseState UState;
 
+        readonly Array<SystemPlaceHolder> Systems = new();
+
+        readonly RandomBase Random;
+
         public class Params
         {
             public EmpireData PlayerData;
@@ -41,6 +47,9 @@ namespace Ship_Game.GameScreens.NewGame
 
         public UniverseGenerator(Params p)
         {
+            // TODO: allow players to enter their own universe seed
+            Random = new SeededRandom();
+
             foreach (Artifact art in ResourceManager.ArtifactsDict.Values)
                 art.Discovered = false;
 
@@ -195,30 +204,33 @@ namespace Ship_Game.GameScreens.NewGame
             }
         }
 
+        class SystemPlaceHolder
+        {
+            public string SystemName;
+            public SolarSystemData Data;
+            public Empire Owner;
+            public Vector2 Position;
+            public bool DontStartNearPlayer;
+            public bool IsStartingSystem => Owner != null;
+        }
+
         void GenerateInitialSystemData(ProgressCounter step)
         {
             // expected times of each step
-            step.StartAbsolute(0.2f, 0.04f, 0.42f, 0.425f);
+            step.StartAbsolute(0.228f, 0.007f, 0.043f, 0.008f, 0.376f);
 
-            CreateOpponents(step.NextStep());
-            Empire.InitializeRelationships(UState.Empires, Difficulty);
-            ShipDesignUtils.MarkDesignsUnlockable(step.NextStep()); // 40ms
-            LoadEmpireStartingSystems(step.NextStep()); // 420ms
-            GenerateRandomSystems(step.NextStep());    // 425ms
-
-            switch (Mode)
-            {
-                case RaceDesignScreen.GameMode.Corners: GenerateCornersGameMode(); break;
-                case RaceDesignScreen.GameMode.BigClusters: GenerateBigClusters(); break;
-                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters(); break;
-                default: GenerateRandomMap(); break;
-            }
+            CreateOpponents(step.NextStep()); // 228ms
+            ShipDesignUtils.MarkDesignsUnlockable(step.NextStep()); // 7ms
+            CreateSystemPlaceHolders(step.NextStep()); // 43ms
+            CreateSystemPositions(step.NextStep()); // 8ms
+            GenerateSystems(step.NextStep()); // 376ms
 
             step.Finish();
             Log.Info(ConsoleColor.Blue, $"    ## CreateOpponents           elapsed: {step[0].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue, $"    ## MarkShipDesignsUnlockable elapsed: {step[1].ElapsedMillis}ms");
-            Log.Info(ConsoleColor.Blue, $"    ## LoadEmpireStartingSystems elapsed: {step[2].ElapsedMillis}ms");
-            Log.Info(ConsoleColor.Blue, $"    ## GenerateRandomSystems     elapsed: {step[3].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.Blue, $"    ## CreateSystemPlaceHolders  elapsed: {step[2].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.Blue, $"    ## CreateSystemPositions     elapsed: {step[3].ElapsedMillis}ms");
+            Log.Info(ConsoleColor.Blue, $"    ## GenerateSystems           elapsed: {step[4].ElapsedMillis}ms");
         }
 
         void CreateOpponents(ProgressCounter step)
@@ -254,104 +266,144 @@ namespace Ship_Game.GameScreens.NewGame
                 UState.CreateEmpire(readOnlyData, isPlayer: false);
                 step.Advance();
             }
+
+            Empire.InitializeRelationships(UState.Empires, Difficulty);
         }
 
-        void LoadEmpireStartingSystems(ProgressCounter step)
+        void CreateSystemPlaceHolders(ProgressCounter step)
         {
-            step.Start(UState.Empires.Count);
-            foreach (Empire e in UState.Empires)
+            Empire[] majorEmpires = UState.Empires.Filter(e => !e.isFaction);
+            
+            step.Start(NumSystems + majorEmpires.Length);
+
+            foreach (Empire e in majorEmpires)
             {
+                Systems.Add(new SystemPlaceHolder
+                {
+                    Owner = e,
+                    Data = ResourceManager.LoadSolarSystemData(e.data.Traits.HomeSystemName) // can be null
+                });
                 step.Advance();
-                if (e.isFaction)
-                    continue;
-
-                SolarSystem sys;
-                SolarSystemData systemData = ResourceManager.LoadSolarSystemData(e.data.Traits.HomeSystemName);
-                if (systemData == null)
-                {
-                    sys = new SolarSystem(UState);
-                    sys.GenerateStartingSystem(UState, e.data.Traits.HomeSystemName, 1f, e);
-                }
-                else
-                {
-                    sys = SolarSystem.GenerateSystemFromData(UState, systemData, e);
-                }
-
-                if (e.GetOwnedSystems().Count == 0)
-                {
-                    Log.Error($"Failed to create starting system for {e}");
-                }
-
-                UState.AddSolarSystem(sys);
             }
-        }
 
-        void GenerateRandomSystems(ProgressCounter step)
-        {
-            step.Start(NumSystems);
             int systemCount = 0;
             foreach (SolarSystemData systemData in ResourceManager.LoadRandomSolarSystems())
             {
                 if (systemCount > NumSystems)
                     break;
-                var solarSystem = SolarSystem.GenerateSystemFromData(UState, systemData, null);
-                solarSystem.DontStartNearPlayer = true; // Added by Gretman
-                UState.AddSolarSystem(solarSystem);
-                systemCount++;
-                step.Advance();
-            }
-
-            var nameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
-            for (; systemCount < NumSystems; ++systemCount)
-            {
-                var solarSystem2 = new SolarSystem(UState);
-                solarSystem2.GenerateRandomSystem(UState, nameGenerator.NextName, 1f);
-                UState.AddSolarSystem(solarSystem2);
-                step.Advance();
-            }
-        }
-
-        void SolarSystemSpacing(IReadOnlyList<SolarSystem> solarSystems)
-        {
-            foreach (SolarSystem solarSystem2 in solarSystems)
-            {
-                float spacing = 350000f;
-                if (solarSystem2.IsStartingSystem)
-                    continue; // We created starting systems before
-
-                if (solarSystem2.DontStartNearPlayer)
-                    spacing = UState.Size / (2f - 1f / (UState.Empires.Count - 1));
-
-                solarSystem2.Position = GenerateRandomSysPos(spacing);
-            }
-        }
-
-        void GenerateCornersGameMode()
-        {
-            short whichCorner = StartingPositionCorners();
-
-            foreach (SolarSystem system in UState.Systems)
-            {
-                // This will distribute all the rest of the planets evenly
-                if (!system.IsStartingSystem && !system.DontStartNearPlayer)
+                ++systemCount;
+                Systems.Add(new SystemPlaceHolder
                 {
-                    system.Position = GenerateRandomCorners(whichCorner);
-                    whichCorner += 1;   // Only change which corner if a system is actually created
-                    if (whichCorner > 3)
-                        whichCorner = 0;
+                    DontStartNearPlayer = true,
+                    Data = systemData
+                });
+                step.Advance();
+            }
+
+            if (systemCount < NumSystems)
+            {
+                var nameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
+                for (; systemCount < NumSystems; ++systemCount)
+                {
+                    Systems.Add(new SystemPlaceHolder
+                    {
+                        SystemName = nameGenerator.NextName,
+                    });
+                    step.Advance();
                 }
             }
         }
 
-        short StartingPositionCorners()
+        void CreateSystemPositions(ProgressCounter step)
+        {
+            step.Start(Systems.Count);
+            switch (Mode)
+            {
+                case RaceDesignScreen.GameMode.Corners: GenerateCornersGameMode(step); break;
+                case RaceDesignScreen.GameMode.BigClusters: GenerateBigClusters(step); break;
+                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters(step); break;
+                default: GenerateRandomMap(step); break;
+            }
+        }
+
+        void GenerateSystems(ProgressCounter step)
+        {
+            step.Start(Systems.Count);
+            foreach (SystemPlaceHolder placeHolder in Systems)
+            {
+                Empire e = placeHolder.Owner;
+                var sys = new SolarSystem(UState, placeHolder.Position);
+
+                if (placeHolder.Data != null)
+                {
+                    sys.GenerateFromData(UState, placeHolder.Data, e);
+                }
+                else if (placeHolder.IsStartingSystem)
+                {
+                    sys.GenerateStartingSystem(UState, e.data.Traits.HomeSystemName, 1f, e);
+                }
+                else
+                {
+                    sys.GenerateRandomSystem(UState, placeHolder.SystemName, 1f);
+                }
+
+                if (e != null && e.GetOwnedSystems().Count == 0)
+                {
+                    Log.Error($"Failed to create starting system for {e}");
+                }
+
+                UState.AddSolarSystem(sys);
+                step.Advance();
+            }
+        }
+
+        void SolarSystemSpacing(ProgressCounter step)
+        {
+            foreach (SystemPlaceHolder sys in Systems)
+            {
+                float spacing = 350000f;
+                if (sys.IsStartingSystem)
+                    continue; // We created starting systems before
+
+                if (sys.DontStartNearPlayer)
+                    spacing = UState.Size / (2f - 1f / (UState.Empires.Count - 1));
+
+                sys.Position = GenerateRandomSysPos(spacing);
+                step.Advance();
+            }
+        }
+
+        void GenerateCornersGameMode(ProgressCounter step)
+        {
+            int whichCorner = StartingPositionCorners(step);
+
+            foreach (SystemPlaceHolder sys in Systems)
+            {
+                // This will distribute all the rest of the planets evenly
+                if (!sys.IsStartingSystem && !sys.DontStartNearPlayer)
+                {
+                    sys.Position = GenerateRandomCorners(whichCorner);
+                    step.Advance();
+                    NextCorner(ref whichCorner);
+                }
+            }
+        }
+
+        static void NextCorner(ref int whichCorner)
+        {
+            if (++whichCorner > 3)
+                whichCorner = 0;
+        }
+
+        int StartingPositionCorners(ProgressCounter step)
         {
             float universeSize = UState.Size;
-            short whichcorner = (short)RandomMath.Float(0, 4); //So the player doesnt always end up in the same corner;
-            foreach (SolarSystem solarSystem2 in UState.Systems)
+            int whichCorner = Random.Int(0, 4); //So the player doesnt always end up in the same corner;
+            foreach (SystemPlaceHolder sys in Systems)
             {
-                if (solarSystem2.IsStartingSystem || solarSystem2.DontStartNearPlayer)
+                if (sys.IsStartingSystem || sys.DontStartNearPlayer)
                 {
-                    if (solarSystem2.IsStartingSystem)
+                    if (sys.IsStartingSystem)
                     {
                         //Corner Values
                         //0 = Top Left
@@ -360,53 +412,53 @@ namespace Ship_Game.GameScreens.NewGame
                         //3 = Bottom Right
 
                         //Put the 4 Home Planets into their corners, nessled nicely back a bit
-                        float RandomoffsetX =
-                            RandomMath.Float(0, 19) / 100; //Do want some variance in location, but still in the back
-                        float RandomoffsetY = RandomMath.Float(0, 19) / 100;
+                        float RandomoffsetX = Random.Float(0, 19) / 100; //Do want some variance in location, but still in the back
+                        float RandomoffsetY = Random.Float(0, 19) / 100;
                         float MinOffset = 0.04f; //Minimum Offset
                         //Theorectical Min = 0.04 (4%)                  Theoretical Max = 0.18 (18%)
 
                         float CornerOffset = 0.75f; //Additional Offset for being in corner
                         //Theoretical Min with Corneroffset = 0.84 (84%)    Theoretical Max with Corneroffset = 0.98 (98%)  <--- thats wwaayy in the corner, but still good  =)
-                        switch (whichcorner)
+                        switch (whichCorner)
                         {
                             case 0:
-                                solarSystem2.Position = new Vector2(
+                                sys.Position = new Vector2(
                                     (-universeSize + (universeSize * (MinOffset + RandomoffsetX))),
                                     (-universeSize + (universeSize * (MinOffset + RandomoffsetX))));
-                                ClaimedSpots.Add(solarSystem2.Position);
+                                ClaimedSpots.Add(sys.Position);
                                 break;
                             case 1:
-                                solarSystem2.Position = new Vector2(
+                                sys.Position = new Vector2(
                                     (universeSize * (MinOffset + RandomoffsetX + CornerOffset)),
                                     (-universeSize + (universeSize * (MinOffset + RandomoffsetX))));
-                                ClaimedSpots.Add(solarSystem2.Position);
+                                ClaimedSpots.Add(sys.Position);
                                 break;
                             case 2:
-                                solarSystem2.Position = new Vector2(
+                                sys.Position = new Vector2(
                                     (-universeSize + (universeSize * (MinOffset + RandomoffsetX))),
                                     (universeSize * (MinOffset + RandomoffsetX + CornerOffset)));
-                                ClaimedSpots.Add(solarSystem2.Position);
+                                ClaimedSpots.Add(sys.Position);
                                 break;
                             case 3:
-                                solarSystem2.Position = new Vector2(
+                                sys.Position = new Vector2(
                                     (universeSize * (MinOffset + RandomoffsetX + CornerOffset)),
                                     (universeSize * (MinOffset + RandomoffsetX + CornerOffset)));
-                                ClaimedSpots.Add(solarSystem2.Position);
+                                ClaimedSpots.Add(sys.Position);
                                 break;
+                            default: throw new IndexOutOfRangeException(nameof(whichCorner));
                         }
                     }
                     else
-                        solarSystem2.Position =
-                            GenerateRandomCorners(
-                                whichcorner); //This will distribute the extra planets from "/SolarSystems/Random" evenly
-
-                    whichcorner += 1;
-                    if (whichcorner > 3) whichcorner = 0;
+                    {
+                        //This will distribute the extra planets from "/SolarSystems/Random" evenly
+                        sys.Position = GenerateRandomCorners(whichCorner);
+                    }
+                    step.Advance();
+                    NextCorner(ref whichCorner);
                 }
             }
 
-            return whichcorner;
+            return whichCorner;
         }
 
         Vector2 GenerateRandomSysPos(float spacing)
@@ -416,7 +468,7 @@ namespace Ship_Game.GameScreens.NewGame
             do
             {
                 spacing *= safetyBreak;
-                sysPos = RandomMath.Vector2D(UState.Size - 100000f);
+                sysPos = Random.Vector2D(UState.Size - 100000f);
                 safetyBreak *= 0.97f;
             } while (!SystemPosOK(sysPos, spacing));
 
@@ -424,33 +476,33 @@ namespace Ship_Game.GameScreens.NewGame
             return sysPos;
         }
 
-        void GenerateRandomMap()
+        void GenerateRandomMap(ProgressCounter step)
         {
             // FB - we are using the sector creation only for starting systems here. the rest will be created randomly
             (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors((NumOpponents + 1).LowerBound(9));
             Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
-            GenerateClustersStartingSystems(sectors);
-            SolarSystemSpacing(UState.Systems);
+            GenerateClustersStartingSystems(step, sectors);
+            SolarSystemSpacing(step);
         }
 
-        void GenerateBigClusters()
+        void GenerateBigClusters(ProgressCounter step)
         {
             // Divides the galaxy to several sectors and populates each sector with stars
             (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
             Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.25f);
-            GenerateClustersStartingSystems(sectors);
-            GenerateClusterSystems(sectors);
+            GenerateClustersStartingSystems(step, sectors);
+            GenerateClusterSystems(step, sectors);
         }
 
-        void GenerateSmallClusters()
+        void GenerateSmallClusters(ProgressCounter step)
         {
             // Divides the galaxy to many sectors and populates each sector with stars
             int numSectorsPerAxis = GetNumSectorsPerAxis(NumSystems, NumOpponents + 1);
             float offsetMultiplier = 0.28f / numSectorsPerAxis.UpperBound(4);
             float deviation = 0.05f * numSectorsPerAxis.UpperBound(4);
             Array<Sector> sectors = GenerateSectors(numSectorsPerAxis, numSectorsPerAxis, deviation, offsetMultiplier);
-            GenerateClustersStartingSystems(sectors, numSectorsPerAxis - 1);
-            GenerateClusterSystems(sectors);
+            GenerateClustersStartingSystems(step, sectors, numSectorsPerAxis - 1);
+            GenerateClusterSystems(step, sectors);
         }
 
         (int NumHorizontalSectors, int NumVerticalSectors) GetNumSectors(int numEmpires)
@@ -488,36 +540,35 @@ namespace Ship_Game.GameScreens.NewGame
 
         Array<Sector> GenerateSectors(int numHorizontalSectors, int numVerticalSectors, float deviation, float offsetMultiplier = 0.1f)
         {
-            Array<Sector> sectors = new Array<Sector>();
+            var sectors = new Array<Sector>();
             for (int h = 1; h <= numHorizontalSectors; ++h)
             {
                 for (int v = 1; v <= numVerticalSectors; ++v)
                 {
-                    Sector sector = new Sector(UState.Size, numHorizontalSectors, numVerticalSectors,
-                        h, v, deviation, offsetMultiplier);
-
-                    sectors.Add(sector);
+                    sectors.Add(new Sector(UState.Size, numHorizontalSectors, numVerticalSectors,
+                                           h, v, deviation, offsetMultiplier));
                 }
             }
 
             return sectors;
         }
 
-        void GenerateClustersStartingSystems(Array<Sector> sectors, int trySpacingNum = 1)
+        void GenerateClustersStartingSystems(ProgressCounter step, Array<Sector> sectors, int trySpacingNum = 1)
         {
-            Array<Sector> claimedSectors = new Array<Sector>();
-            var startingSystems = UState.Systems.Filter(s => s.IsStartingSystem);
+            var claimedSectors = new Array<Sector>();
+            var startingSystems = Systems.Filter(s => s.IsStartingSystem);
             if (sectors.Count < startingSystems.Length)
                 Log.Error($"Sectors ({sectors.Count}) < starting Systems ({startingSystems.Length})");
 
-            SolarSystem firstSystem = startingSystems[0];
-            Sector initialSector = sectors.RandItem();
+            SystemPlaceHolder firstSystem = startingSystems[0];
+            Sector initialSector = Random.RandItem(sectors);
             firstSystem.Position = GenerateSystemInCluster(initialSector, 350000f);
+            step.Advance();
             claimedSectors.Add(initialSector);
 
             for (int i = 1; i < startingSystems.Length; i++) // starting with 2nd (i = 1) item since the first one was added above
             {
-                SolarSystem system = startingSystems[i];
+                SystemPlaceHolder system = startingSystems[i];
                 var remainingSectors = sectors.Filter(s => !claimedSectors.Contains(s));
                 int spacing = trySpacingNum;
                 var potentialSectors = remainingSectors.Filter(s => IsSuitableSector(s, claimedSectors, spacing));
@@ -531,18 +582,17 @@ namespace Ship_Game.GameScreens.NewGame
                     potentialSectors = remainingSectors.Filter(s => IsSuitableSector(s, claimedSectors, spacing));
                 }
 
-                Sector nextSector = potentialSectors.RandItem();
+                Sector nextSector = Random.RandItem(potentialSectors);
                 system.Position = GenerateSystemInCluster(nextSector, 350000f);
+                step.Advance();
                 claimedSectors.Add(nextSector);
             }
 
-            // Local Method
             bool SpaceBetweenMoreThan(int space, Sector a, Sector b)
             {
                 return Math.Abs(a.X - b.X) > space || Math.Abs(a.Y - b.Y) > space;
             }
 
-            // Local Method
             bool IsSuitableSector(Sector sector, Array<Sector> list, int space)
             {
                 foreach (Sector s in list)
@@ -555,14 +605,14 @@ namespace Ship_Game.GameScreens.NewGame
             }
         }
 
-        void GenerateClusterSystems(Array<Sector> sectors)
+        void GenerateClusterSystems(ProgressCounter step, Array<Sector> sectors)
         {
             int i = 0;
-            foreach (SolarSystem system in UState.Systems.Filter(s => !s.IsStartingSystem)
-                     .SortedDescending(s => s.AverageValueForEmpires(UState.Empires)))
+            foreach (SystemPlaceHolder sys in Systems.Filter(s => !s.IsStartingSystem))
             {
-                Sector currentSector = sectors[i]; // distribute systems evenly per sector, based on value
-                system.Position = GenerateSystemInCluster(currentSector, 300000f);
+                Sector currentSector = sectors[i];
+                sys.Position = GenerateSystemInCluster(currentSector, 300000f);
+                step.Advance();
                 i = i < sectors.Count - 1 ? i + 1 : 0; // always cycle within the array
             }
         }
@@ -641,7 +691,7 @@ namespace Ship_Game.GameScreens.NewGame
             public Vector2 RandomPosInSector => Center.GenerateRandomPointInsideCircle(RightX - Center.X);
         }
 
-        Vector2 GenerateRandomCorners(short corner) //Added by Gretman for Corners Game type
+        Vector2 GenerateRandomCorners(int corner) //Added by Gretman for Corners Game type
         {
             //Corner Values
             //0 = Top Left
@@ -666,8 +716,8 @@ namespace Ship_Game.GameScreens.NewGame
             long noinfiniteloop = 0;
             do
             {
-                sysPos = new Vector2(RandomMath.Float(-uSize + (float)offsetX, -uSize + (float)(CornerSizeX + offsetX)),
-                                        RandomMath.Float(-uSize + (float)offsetY, -uSize + (float)(CornerSizeY + offsetY)));
+                sysPos = new Vector2(Random.Float(-uSize + (float)offsetX, -uSize + (float)(CornerSizeX + offsetX)),
+                                     Random.Float(-uSize + (float)offsetY, -uSize + (float)(CornerSizeY + offsetY)));
                 noinfiniteloop += 1000;
             }
             //Decrease the acceptable proximity slightly each attempt, so there wont be an infinite loop here on 'tiny' + 'SuperPacked' maps
@@ -686,7 +736,8 @@ namespace Ship_Game.GameScreens.NewGame
                 float num3 = index * num1 + rotation;
                 float x = RadMath.Cos(num3) * num2;
                 float y = RadMath.Sin(num3) * num2;
-                Vector2 sysPos = new Vector2(RandomMath.Float(-10000f, 10000f) * index, (float)(RandomMath.Float(-10000f, 10000f) * (double)index / 4.0));
+                Vector2 sysPos = new Vector2(Random.Float(-10000f, 10000f) * index,
+                                     (float)(Random.Float(-10000f, 10000f) * (double)index / 4.0));
                 sysPos = new Vector2(x, y) + sysPos;
                 if (SystemPosOK(sysPos))
                 {
@@ -701,8 +752,8 @@ namespace Ship_Game.GameScreens.NewGame
                     float max = (float)(+halfSize - padding);
                     while (!SystemPosOK(sysPos))
                     {
-                        sysPos.X = RandomMath.Float(min, max);
-                        sysPos.Y = RandomMath.Float(min, max);
+                        sysPos.X = Random.Float(min, max);
+                        sysPos.Y = Random.Float(min, max);
                     }
 
                     ClaimedSpots.Add(sysPos);
