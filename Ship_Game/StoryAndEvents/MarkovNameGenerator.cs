@@ -70,32 +70,24 @@ namespace Ship_Game
 			}
 		}
 
-		public MarkovNameGenerator(string sampleNames, int order, int minLength)
+		public MarkovNameGenerator(string sampleNames)
 		{
-			if (order < 1)
-			{
-				order = 1;
-			}
-			if (minLength < 1)
-			{
-				minLength = 1;
-			}
-			_order = order;
-			_minLength = minLength;
+			_order = 3;
+			_minLength = 5;
 			string[] strArrays = sampleNames.Split(',');
 			for (int i = 0; i < strArrays.Length; i++)
 			{
 				string upper = strArrays[i].Trim().ToUpper();
-				if (upper.Length >= order + 1)
+				if (upper.Length >= _order + 1)
 				{
 					_samples.Add(upper);
 				}
 			}
 			foreach (string word in _samples)
 			{
-				for (int letter = 0; letter < word.Length - order; letter++)
+				for (int letter = 0; letter < word.Length - _order; letter++)
 				{
-					string token = word.Substring(letter, order);
+					string token = word.Substring(letter, _order);
                     Array<char> entry = null;
 					if (!_chains.ContainsKey(token))
 					{
@@ -106,7 +98,7 @@ namespace Ship_Game
 					{
 						entry = _chains[token];
 					}
-					entry.Add(word[letter + order]);
+					entry.Add(word[letter + _order]);
 				}
 			}
 		}

@@ -19,11 +19,11 @@ namespace UnitTests.AITests.Ships
             GlobalStats.DisableAsteroids = true; // Ensures no asteroids will be created instead of a planet
 
             CloseSystem = new SolarSystem(UState, new Vector2(300000, 0));
-            CloseSystem.GenerateRandomSystem(UState, "Close System", 1);
+            CloseSystem.GenerateRandomSystem(UState, "Close System", null);
             UState.AddSolarSystem(CloseSystem);
 
             FarSystem = new SolarSystem(UState, new Vector2(600000, 0));
-            FarSystem.GenerateRandomSystem(UState, "Far System", 1);
+            FarSystem.GenerateRandomSystem(UState, "Far System", null);
             UState.AddSolarSystem(FarSystem);
 
             foreach (Planet planet in CloseSystem.PlanetList)

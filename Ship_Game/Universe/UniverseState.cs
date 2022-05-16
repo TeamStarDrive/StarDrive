@@ -197,8 +197,8 @@ namespace Ship_Game.Universe
             {
                 if (planet.Id <= 0)
                     throw new InvalidOperationException($"AddSolarSystem Planet.Id must be valid: {planet}");
-                planet.ParentSystem = system;
-                planet.UpdatePositionOnly();
+                if (planet.ParentSystem != system)
+                    throw new InvalidOperationException($"AddSolarSystem Planet.ParentSystem must be valid: {planet.ParentSystem} != {system}");
                 PlanetsDict.Add(planet.Id, planet);
                 AllPlanetsList.Add(planet);
             }

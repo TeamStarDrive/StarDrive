@@ -227,35 +227,40 @@ namespace UnitTests
             return ship;
         }
 
-        SolarSystem CreateNewSolarSystemWithPlanet(Vector2 sysPos, Planet p)
+        SolarSystem CreateRandomSolarSystem(Vector2 sysPos)
         {
-            var s = new SolarSystem(UState, sysPos)
+            return new SolarSystem(UState, sysPos)
             {
                 Sun = SunType.RandomHabitableSun()
             };
-            AddPlanetToSolarSystem(s, p);
-            return s;
         }
-
-        Planet AddDummyPlanet(Vector2 sysPos)
+        
+        void AddPlanetToSolarSystem(SolarSystem s, Planet p)
         {
-            var p = new Planet(UState.CreateId());
-            CreateNewSolarSystemWithPlanet(sysPos, p);
-            return p;
+            p.OrbitalAngle = p.Position.AngleToTarget(s.Position);
+            p.OrbitalRadius = p.Position.Distance(s.Position) + p.ObjectRadius;
+
+            s.RingList.Add(new SolarSystem.Ring { Asteroids = false, OrbitalDistance = p.OrbitalRadius, planet = p });
+            s.PlanetList.Add(p);
+            UState.AddSolarSystem(s);
         }
 
         public Planet AddDummyPlanet(Vector2 sysPos, float fertility, float minerals, float pop)
         {
-            var p = new Planet(UState.CreateId(), fertility, minerals, pop);
-            CreateNewSolarSystemWithPlanet(sysPos, p);
-            return p;
+            return AddDummyPlanet(sysPos, fertility, minerals, pop, Vector2.Zero, explored:false);
         }
 
         public Planet AddDummyPlanet(Vector2 sysPos, float fertility, float minerals, float pop, Vector2 pos, bool explored)
         {
-            var p = new Planet(UState.CreateId(), fertility, minerals, pop) { Position = pos };
-            var s = CreateNewSolarSystemWithPlanet(sysPos, p);
-            if (explored) s.SetExploredBy(Player);
+            SolarSystem s = CreateRandomSolarSystem(sysPos);
+            var p = new Planet(UState.CreateId(), s, fertility, minerals, pop) { Position = pos };
+            AddPlanetToSolarSystem(s, p);
+
+            if (explored)
+            {
+                s.SetExploredBy(Player);
+                p.SetExploredBy(Player);
+            }
             return p;
         }
 
@@ -266,33 +271,21 @@ namespace UnitTests
 
         public Planet AddDummyPlanetToEmpire(Vector2 sysPos, Empire empire, float fertility, float minerals, float maxPop)
         {
-            var p = AddDummyPlanet(sysPos, fertility, minerals, maxPop);
-            p.PType = ResourceManager.Planets.PlanetOrRandom(0);
+            Planet p = AddDummyPlanet(sysPos, fertility, minerals, maxPop);
             p.SetOwner(empire);
             return p;
         }
 
         public Planet AddHomeWorldToEmpire(Vector2 sysPos, Empire empire)
         {
-            var p = AddDummyPlanet(sysPos);
-            p.GenerateNewHomeWorld(empire);
-            return p;
+            return AddHomeWorldToEmpire(sysPos, empire, Vector2.Zero);
         }
 
         public Planet AddHomeWorldToEmpire(Vector2 sysPos, Empire empire, Vector2 pos, bool explored = false)
         {
-            var p = AddDummyPlanet(sysPos, 0, 0, 0, pos, explored);
-            p.GenerateNewHomeWorld(empire);
+            Planet p = AddDummyPlanet(sysPos, 0, 0, 0, pos, explored);
+            p.GenerateNewHomeWorld(empire, null);
             return p;
-        }
-
-        void AddPlanetToSolarSystem(SolarSystem s, Planet p)
-        {
-            float distance = p.Position.Distance(s.Position);
-            var r = new SolarSystem.Ring { Asteroids = false, OrbitalDistance = distance, planet = p };
-            s.RingList.Add(r);
-            s.PlanetList.Add(p);
-            UState.AddSolarSystem(s);
         }
 
         public Projectile[] GetProjectiles(Ship ship)
