@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Tag_Kinetic>false</Tag_Kinetic>
+  <Tag_Energy>false</Tag_Energy>
+  <Tag_Guided>true</Tag_Guided>
+  <Tag_Missile>true</Tag_Missile>
+  <Tag_Plasma>false</Tag_Plasma>
+  <Tag_Beam>false</Tag_Beam>
+  <Tag_Intercept>true</Tag_Intercept>
+  
+  <Tag_Bomb>false</Tag_Bomb>
+  
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  
+  
+  <Tag_Drone>false</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>false</Tag_Cannon>
+
+   <UID>Hellstorm</UID> 
+
+  <HitPoints>5</HitPoints>
+  <FireDelay>30</FireDelay>
+  <Range>9000</Range>
+  <PowerRequiredToFire>0</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>1</OrdinanceRequiredToFire>
+  <ProjectileRadius>20</ProjectileRadius>
+<!-- Projectile stats -->
+  <DamageAmount>200</DamageAmount>
+  <ProjectileSpeed>1200</ProjectileSpeed>
+  <ExplosionRadius>80</ExplosionRadius> <!-- This Projectile Explodes -->
+  <SalvoCount>15</SalvoCount>
+  <SalvoTimer>1.5</SalvoTimer>
+  <DelayedIgnition>3</DelayedIgnition>
+  <ProjectileRadius>11</ProjectileRadius>
+  <RotationRadsPerSecond>2</RotationRadsPerSecond>
+  <FireCone>90</FireCone>
+  <FireArc>90</FireArc>
+<!--Projectile atributes-->
+  <Scale>0.7</Scale>
+   <OffPowerMod>0.4</OffPowerMod>
+  <CanCollideProjectiles>true</CanCollideProjectiles>
+<!-- Projectile textures-->
+  <ProjectileTexturePath>LRM_d</ProjectileTexturePath>
+  <ModelPath>LRM</ModelPath>
+
+<!-- name of XACT audio cue to play on firing this weapon -->
+  <FireCueName>sd_weapon_rocket_flight_01</FireCueName>
+  <DieCue>Explo1</DieCue>
+  <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
+  
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponType>Missile</WeaponType>
+  <WeaponHitEffect></WeaponHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
+  <WeaponTrailEffect>GundamTrail</WeaponTrailEffect>
+
+  <TrailOffset>-10</TrailOffset>
+</Weapon>
