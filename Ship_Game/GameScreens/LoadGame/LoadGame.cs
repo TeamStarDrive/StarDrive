@@ -13,6 +13,7 @@ using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using Rectangle = SDGraphics.Rectangle;
 using SDUtils;
+using Ship_Game.Utils;
 
 namespace Ship_Game.GameScreens.LoadGame
 {
@@ -147,10 +148,12 @@ namespace Ship_Game.GameScreens.LoadGame
             int numEmpires = saveData.EmpireDataList.Filter(e => !e.IsFaction).Length; 
             CurrentGame.StartNew(us, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets, numEmpires);
 
+            var random = new SeededRandom();
+
             CreateEmpires(us, saveData);                     step.Advance();
             GiftShipsFromServantEmpire(us);                  step.Advance();
             CreateRelations(saveData);                       step.Advance();
-            CreateSolarSystems(us, saveData);                step.Advance();
+            CreateSolarSystems(us, random, saveData);        step.Advance();
             CreateAllObjects(us, saveData);                  step.Advance();
             CreateFleetsFromSave(us, saveData);              step.Advance();
             CreateTasksGoalsRoads(us, saveData);             step.Advance();
@@ -300,7 +303,7 @@ namespace Ship_Game.GameScreens.LoadGame
             return e;
         }
 
-        SolarSystem CreateSystemFromData(UniverseState us, SavedGame.SolarSystemSaveData ssd)
+        SolarSystem CreateSystemFromData(UniverseState us, RandomBase random, SavedGame.SolarSystemSaveData ssd)
         {
             var system = new SolarSystem(us, ssd.Id)
             {
@@ -310,10 +313,14 @@ namespace Ship_Game.GameScreens.LoadGame
             };
 
             system.SetPiratePresence(ssd.PiratePresence);
+
             system.AsteroidsList.AddRange(ssd.AsteroidsList);
+            foreach (Asteroid asteroid in system.AsteroidsList)
+                asteroid.Initialize(random);
+
             system.MoonList.AddRange(ssd.Moons);
             foreach (Moon moon in system.MoonList)
-                moon.SetSystem(system); // restore system
+                moon.Initialize(system);
 
             system.SetExploredBy(ssd.ExploredBy);
             system.RingList = new Array<SolarSystem.Ring>();
@@ -725,11 +732,11 @@ namespace Ship_Game.GameScreens.LoadGame
             }
         }
 
-        void CreateSolarSystems(UniverseState us, SavedGame.UniverseSaveData saveData)
+        void CreateSolarSystems(UniverseState us, RandomBase random, SavedGame.UniverseSaveData saveData)
         {
             foreach (SavedGame.SolarSystemSaveData ssd in saveData.SolarSystemDataList)
             {
-                SolarSystem system = CreateSystemFromData(us, ssd);
+                SolarSystem system = CreateSystemFromData(us, random, ssd);
                 us.AddSolarSystem(system);
             }
             foreach (SolarSystem system in us.Systems)

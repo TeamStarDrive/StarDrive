@@ -2,6 +2,7 @@
 using Ship_Game;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.AITests.Ships
@@ -18,12 +19,14 @@ namespace UnitTests.AITests.Ships
             GlobalStats.ExtraPlanets     = 1; // Ensures there is at least one planet to explore
             GlobalStats.DisableAsteroids = true; // Ensures no asteroids will be created instead of a planet
 
+            var random = new SeededRandom();
+
             CloseSystem = new SolarSystem(UState, new Vector2(300000, 0));
-            CloseSystem.GenerateRandomSystem(UState, "Close System", null);
+            CloseSystem.GenerateRandomSystem(UState, random, "Close System", null);
             UState.AddSolarSystem(CloseSystem);
 
             FarSystem = new SolarSystem(UState, new Vector2(600000, 0));
-            FarSystem.GenerateRandomSystem(UState, "Far System", null);
+            FarSystem.GenerateRandomSystem(UState, random, "Far System", null);
             UState.AddSolarSystem(FarSystem);
 
             foreach (Planet planet in CloseSystem.PlanetList)

@@ -2,11 +2,11 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
-    using static RandomMath;
     public partial class Planet
     {
         // This is true if the empire can build capital on this world
@@ -69,9 +69,9 @@ namespace Ship_Game
 
         // this applies to any randomly generated planet
         // which is newly created and is not a HomeWorld
-        void InitNewMinorPlanet(PlanetType type, float scale, float preDefinedPop = 0)
+        void InitNewMinorPlanet(RandomBase random, PlanetType type, float scale, float preDefinedPop = 0)
         {
-            GenerateNewFromPlanetType(type, scale, preDefinedPop);
+            GenerateNewFromPlanetType(random, type, scale, preDefinedPop);
             AddEventsAndCommodities();
         }
 
@@ -89,7 +89,7 @@ namespace Ship_Game
             => TilesList.Find(pgs => pgs.ClickRect.HitTest(mousePos));
 
         // preDefinedPop is in millions
-        public void GenerateNewFromPlanetType(PlanetType type, float scale, float preDefinedPop = 0)
+        public void GenerateNewFromPlanetType(RandomBase random, PlanetType type, float scale, float preDefinedPop = 0)
         {
             TilesList.Clear();
             PType = type;
@@ -97,16 +97,16 @@ namespace Ship_Game
 
             if (Habitable)
             {
-                float richness = Float(0.0f, 100f);
-                if      (richness >= 92.5f) MineralRichness = Float(2.00f, 2.50f);
-                else if (richness >= 85.0f) MineralRichness = Float(1.50f, 2.00f);
-                else if (richness >= 25.0f) MineralRichness = Float(0.75f, 1.50f);
-                else if (richness >= 12.5f) MineralRichness = Float(0.25f, 0.75f);
-                else if (richness < 12.5f)  MineralRichness = Float(0.10f, 0.25f);
+                float richness = random.Float(0.0f, 100f);
+                if      (richness >= 92.5f) MineralRichness = random.Float(2.00f, 2.50f);
+                else if (richness >= 85.0f) MineralRichness = random.Float(1.50f, 2.00f);
+                else if (richness >= 25.0f) MineralRichness = random.Float(0.75f, 1.50f);
+                else if (richness >= 12.5f) MineralRichness = random.Float(0.25f, 0.75f);
+                else if (richness < 12.5f)  MineralRichness = random.Float(0.10f, 0.25f);
 
                 float habitableChance = PType.HabitableTileChance.Generate();
 
-                SetTileHabitability(habitableChance, out int numHabitableTiles);
+                SetTileHabitability(random, habitableChance, out int numHabitableTiles);
                 if (preDefinedPop > 0)
                     BasePopPerTile = (int)(preDefinedPop * 1000 / numHabitableTiles);
                 else
@@ -119,7 +119,7 @@ namespace Ship_Game
                 MineralRichness = 0.0f;
         }
 
-        void GeneratePlanetFromSystemData(SolarSystemData.Ring data)
+        void GeneratePlanetFromSystemData(RandomBase random, SolarSystemData.Ring data)
         {
             InitPlanetType(data.WhichPlanet > 0
                 ? ResourceManager.Planets.Planet(data.WhichPlanet)
@@ -137,10 +137,10 @@ namespace Ship_Game
                 UniqueHabPercent = data.UniqueHabPC;
             }
 
-            InitNewMinorPlanet(PType, scale, data.MaxPopDefined);
+            InitNewMinorPlanet(random, PType, scale, data.MaxPopDefined);
         }
 
-        public void GenerateNewHomeWorld(Empire owner, SolarSystemData.Ring data)
+        public void GenerateNewHomeWorld(RandomBase random, Empire owner, SolarSystemData.Ring data)
         {
             PlanetCategory preferred = owner.data.PreferredEnv == PlanetCategory.Other
                                      ? PlanetCategory.Terran : owner.data.PreferredEnv;
@@ -151,8 +151,8 @@ namespace Ship_Game
             IsHomeworld = true;
             Owner.SetCapital(this);
 
-            SetTileHabitability(0, out _); // Create the homeworld's tiles without making them habitable yet
-            SetHomeworldTiles();
+            SetTileHabitability(random, 0, out _); // Create the homeworld's tiles without making them habitable yet
+            SetHomeworldTiles(random);
             ResetGarrisonSize();
 
             if (OwnerIsPlayer)
@@ -171,7 +171,7 @@ namespace Ship_Game
             CreateHomeWorldBuildings();
         }
 
-        void SetTileHabitability(float tileChance, out int numHabitableTiles)
+        void SetTileHabitability(RandomBase random, float tileChance, out int numHabitableTiles)
         {
             numHabitableTiles = 0;
 
@@ -180,8 +180,8 @@ namespace Ship_Game
             {
                 for (int y = 0; y < TileMaxY; ++y)
                 {
-                    bool habitableTile = RollDice(tileChance);
-                    bool terraformable = !habitableTile && RollDice(25) || habitableTile;
+                    bool habitableTile = random.RollDice(tileChance);
+                    bool terraformable = !habitableTile && random.RollDice(25) || habitableTile;
                     TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile, terraformable));
                     if (habitableTile)
                         ++numHabitableTiles;
@@ -189,11 +189,11 @@ namespace Ship_Game
             }
         }
 
-        void SetHomeworldTiles()
+        void SetHomeworldTiles(RandomBase random)
         {
             for (int i = 0; i < 28; ++i)
             {
-                PlanetGridSquare tile = RandItem(TilesList.Filter(t => !t.Habitable));
+                PlanetGridSquare tile = random.RandItem(TilesList.Filter(t => !t.Habitable));
                 tile.Habitable = true;
             }
         }
@@ -227,7 +227,7 @@ namespace Ship_Game
             AllowInfantry = true; // for initialization only, before we reach planet Update
         }
 
-        void ApplyTerraforming() // Added by Fat Bastard
+        void ApplyTerraforming(RandomBase random) // Added by Fat Bastard
         {
             if (!Terraformable)
                 return;
@@ -239,11 +239,11 @@ namespace Ship_Game
             }
 
             // First, remove Volcanoes
-            if (TerraformVolcanoes())
+            if (TerraformVolcanoes(random))
                 return;
 
             // Then, make un-habitable terraformable tiles habitable
-            if (TerraformTiles()) 
+            if (TerraformTiles(random)) 
                 return;
 
             // Then, if all tiles are habitable and Terraforming Level is 3, proceed to Planet Terraform
@@ -255,26 +255,26 @@ namespace Ship_Game
         public bool BioSpheresToTerraform   => TilesList.Any(t => t.BioCanTerraform);
         public int TerraformerLimit         => TilesList.Count(t => t.CanTerraform)/2 + 2;
 
-        bool TerraformVolcanoes()
+        bool TerraformVolcanoes(RandomBase random)
         {
             if (!HasVolcanoesToTerraform)
                 return false;
 
             TerraformPoints += TerraformToAdd * 4f; // Terraforming a Volcano is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
-                CompleteVolcanoTerraforming(TilesList.Filter(t => t.VolcanoHere));
+                CompleteVolcanoTerraforming(random, TilesList.Filter(t => t.VolcanoHere));
 
             return true;
         }
 
-        bool TerraformTiles()
+        bool TerraformTiles(RandomBase random)
         {
             if (!HasTilesToTerraform)
                 return false; // no tiles need terraforming
 
             TerraformPoints += TerraformToAdd * 3f; // Terraforming a tile is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
-                CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && t.Terraformable || t.BioCanTerraform));
+                CompleteTileTerraforming(random, TilesList.Filter(t => !t.Habitable && t.Terraformable || t.BioCanTerraform));
 
             return true;
         }
@@ -299,11 +299,11 @@ namespace Ship_Game
             return;
         }
 
-        void CompleteVolcanoTerraforming(PlanetGridSquare[] possibleTiles)
+        void CompleteVolcanoTerraforming(RandomBase random, PlanetGridSquare[] possibleTiles)
         {
             if (possibleTiles.Length > 0)
             {
-                PlanetGridSquare tile = RandItem(possibleTiles);
+                PlanetGridSquare tile = random.RandItem(possibleTiles);
                 Volcano.RemoveVolcano(tile, this);
             }
 
@@ -314,11 +314,11 @@ namespace Ship_Game
                 RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
         }
 
-        void CompleteTileTerraforming(PlanetGridSquare[] possibleTiles)
+        void CompleteTileTerraforming(RandomBase random, PlanetGridSquare[] possibleTiles)
         {
             if (possibleTiles.Length > 0)
             {
-                PlanetGridSquare tile = RandItem(possibleTiles);
+                PlanetGridSquare tile = random.RandItem(possibleTiles);
                 MakeTileHabitable(tile);
             }
 
@@ -434,7 +434,7 @@ namespace Ship_Game
             UpdateMaxPopulation();
         }
 
-        private void ReCalculateHabitableChances() // FB - We might need it for planet degrade
+        private void ReCalculateHabitableChances(RandomBase random) // FB - We might need it for planet degrade
         {
             float habitableChance = PType.HabitableTileChance.Generate();
             foreach (PlanetGridSquare pgs in TilesList)
@@ -452,7 +452,7 @@ namespace Ship_Game
                     case PlanetCategory.Steppe:
                     case PlanetCategory.Tundra:
                     case PlanetCategory.Terran:
-                        if (!RollDice(habitableChance))
+                        if (!random.RollDice(habitableChance))
                             DestroyTile(pgs);
                         continue;
                     default:

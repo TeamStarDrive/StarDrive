@@ -3,6 +3,7 @@ using Ship_Game;
 using Ship_Game.Data.Yaml;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace UnitTests.Planets
@@ -23,7 +24,8 @@ namespace UnitTests.Planets
             EnemyHome = AddHomeWorldToEmpire(Vector2.Zero, Enemy);
 
             PlanetType type = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
-            NewPlanet.GenerateNewFromPlanetType(type, scale:1.5f, preDefinedPop:16);
+            var random = new SeededRandom();
+            NewPlanet.GenerateNewFromPlanetType(random, type, scale:1.5f, preDefinedPop:16);
         }
 
         [TestMethod]

@@ -12,13 +12,12 @@ using SDUtils;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Lights;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
-    using static RandomMath;
-
     public sealed class SolarSystem : ExplorableGameObject
     {
         public string Name = "Random System";
@@ -364,20 +363,20 @@ namespace Ship_Game
             return null;
         }
 
-        public void GenerateRandomSystem(UniverseState us, string name, Empire owner)
+        public void GenerateRandomSystem(UniverseState us, RandomBase random, string name, Empire owner)
         {
             // Changed by RedFox: 3% chance to get a tri-sun "star_binary"
-            Sun = RollDice(percent:3)
+            Sun = random.RollDice(percent:3)
                 ? SunType.FindSun("star_binary")
                 : SunType.RandomHabitableSun(s => s.Id != "star_binary");
 
             Name = name;
-            int starRadius = Int(250, 500);
+            int starRadius = random.Int(250, 500);
             float sysMaxRingRadius = starRadius * 300;
             float firstRingRadius = sysMaxRingRadius * 0.1f;
-            int minR = AvgInt(GlobalStats.ExtraPlanets, 3, iterations: 2);
-            int maxR = Int(minR, 7 + minR);
-            NumberOfRings = Int(minR, maxR);
+            int minR = random.AvgInt(GlobalStats.ExtraPlanets, 3, iterations: 2);
+            int maxR = random.Int(minR, 7 + minR);
+            NumberOfRings = random.Int(minR, maxR);
 
             // when generating homeworld systems, we want at least 5 rings
             if (owner != null)
@@ -393,14 +392,14 @@ namespace Ship_Game
             if (owner != null)
                 markovNameGenerator = ResourceManager.GetRandomNames(owner);
 
-            float NextRingRadius(int ringNum) => firstRingRadius + Float(0, ringSpace / (1 + NumberOfRings - ringNum));
+            float NextRingRadius(int ringNum) => firstRingRadius + random.Float(0, ringSpace / (1 + NumberOfRings - ringNum));
 
             float GeneratePlanet(int ringNum)
             {
                 float ringRadius = NextRingRadius(ringNum);
-                float randomAngle = Float(0f, 360f);
+                float randomAngle = random.Float(0f, 360f);
                 string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(ringNum);
-                var p = new Planet(us.CreateId(), this, randomAngle, ringRadius, planetName,
+                var p = new Planet(us.CreateId(), random, this, randomAngle, ringRadius, planetName,
                                    sysMaxRingRadius, owner, null);
                 PlanetList.Add(p);
                 var ring = new Ring
@@ -417,11 +416,11 @@ namespace Ship_Game
             for (; ringNumber < NumberOfRings + 1; ringNumber++)
             {
                 firstRingRadius += 5000;
-                if (!GlobalStats.DisableAsteroids && RollDice(10))
+                if (!GlobalStats.DisableAsteroids && random.RollDice(10))
                 {
                     float ringRadius = NextRingRadius(ringNumber);
                     float spread = ringRadius - firstRingRadius;
-                    GenerateAsteroidRing(ringRadius + spread * 0.25f, spread: spread * 0.5f);
+                    GenerateAsteroidRing(random, ringRadius + spread * 0.25f, spread: spread * 0.5f);
                     firstRingRadius = ringRadius + spread / 2;
                 }
                 else
@@ -439,7 +438,7 @@ namespace Ship_Game
             // now, if number of planets is <= 2 and they are barren,
             // then 33% chance to have neutron star:
             if (PlanetList.Count <= 2 + GlobalStats.ExtraPlanets && PlanetList.All(p => p.IsBarrenGasOrVolcanic)
-                && RollDice(percent:15))
+                && random.RollDice(percent:15))
             {
                 Sun = SunType.RandomBarrenSun();
             }
@@ -447,19 +446,19 @@ namespace Ship_Game
             FinalizeGeneratedSystem();
         }
 
-        public void GenerateFromData(UniverseState us, SolarSystemData data, Empire owner)
+        public void GenerateFromData(UniverseState us, RandomBase random, SolarSystemData data, Empire owner)
         {
             Name = data.Name;
             Sun = SunType.FindSun(data.SunPath);
 
             int numberOfRings = data.RingList.Count;
-            int fixedSpacing = Int(50, 500);
+            int fixedSpacing = random.Int(50, 500);
             int nextDistance = 10000 + GetRingWidth(0);
             float sysMaxRingRadius = data.RingList.Last.OrbitalDistance;
 
             int GetRingWidth(int orbitalWidth)
             {
-                return orbitalWidth > 0 ? orbitalWidth : fixedSpacing + Int(10500, 12000);
+                return orbitalWidth > 0 ? orbitalWidth : fixedSpacing + random.Int(10500, 12000);
             }
 
             if (owner != null)
@@ -474,12 +473,12 @@ namespace Ship_Game
 
                 if (ringData.Asteroids != null)
                 {
-                    GenerateAsteroidRing(orbitalDist, spread: 3000f, scaleMin: 1.2f, scaleMax: 4.6f);
+                    GenerateAsteroidRing(random, orbitalDist, spread: 3000f, scaleMin: 1.2f, scaleMax: 4.6f);
                     continue;
                 }
 
-                float randomAngle = Float(0f, 360f);
-                var p = new Planet(us.CreateId(), this, randomAngle, orbitalDist, ringData.Planet,
+                float randomAngle = random.Float(0f, 360f);
+                var p = new Planet(us.CreateId(), random, this, randomAngle, orbitalDist, ringData.Planet,
                                    sysMaxRingRadius, owner, ringData);
                 PlanetList.Add(p);
                 RingList.Add(new Ring
@@ -619,25 +618,25 @@ namespace Ship_Game
             return true;
         }
 
-        Vector2 GenerateAsteroidPos(float ringRadius, float spread)
+        Vector2 GenerateAsteroidPos(RandomBase random, float ringRadius, float spread)
         {
             for (int i = 0; i < 100; ++i) // while (true) would be unsafe, so give up after 100 turns
             {
-                Vector2 pos = Vector2.Zero.GenerateRandomPointOnCircle(ringRadius + Float(-spread, spread));
+                Vector2 pos = Vector2.Zero.GenerateRandomPointOnCircle(ringRadius + random.Float(-spread, spread));
                 if (NoAsteroidProximity(pos))
                     return pos;
             }
-            return Vector2.Zero.GenerateRandomPointOnCircle(ringRadius + Float(-spread, spread));
+            return Vector2.Zero.GenerateRandomPointOnCircle(ringRadius + random.Float(-spread, spread));
         }
 
-        void GenerateAsteroidRing(float orbitalDistance, float spread, float scaleMin=0.75f, float scaleMax=1.6f)
+        void GenerateAsteroidRing(RandomBase random, float orbitalDistance, float spread, float scaleMin=0.75f, float scaleMax=1.6f)
         {
-            int numberOfAsteroids = Int(150, 250);
+            int numberOfAsteroids = random.Int(150, 250);
             AsteroidsList.Capacity += numberOfAsteroids;
             for (int i = 0; i < numberOfAsteroids; ++i)
             {
-                var pos = GenerateAsteroidPos(orbitalDistance, spread);
-                AsteroidsList.Add(new Asteroid(Universe.CreateId(), scaleMin, scaleMax, pos));
+                var pos = GenerateAsteroidPos(random, orbitalDistance, spread);
+                AsteroidsList.Add(new Asteroid(Universe.CreateId(), random, scaleMin, scaleMax, pos));
             }
             RingList.Add(new Ring
             {
