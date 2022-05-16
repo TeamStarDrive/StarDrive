@@ -1,0 +1,57 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FreighterModule>false</FreighterModule>
+  
+  <Cost>186</Cost>
+  <!-- common traits shared by all ship modules -->
+  <TechLevel>4</TechLevel>
+  <ModuleType>Turret</ModuleType>
+  <XSize>2</XSize>
+  <YSize>2</YSize>
+  <Name>Hellstorm</Name>
+  <Restrictions>O</Restrictions>
+  <UID>Hellstorm</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/Hellstorm</IconTexturePath>
+
+  <Mass>150</Mass>
+  <Health>1600</Health>
+  <HealthMax>1600</HealthMax>
+  <RepairDifficulty>2.5</RepairDifficulty>
+  <energyreq>5</energyreq>
+  <Description>This is a long range multiple rocket launching system.</Description>
+
+  <CrewRequired>12</CrewRequired>
+  <PowerDraw>4</PowerDraw>
+
+  <NameIndex>17651</NameIndex>
+  <DescriptionIndex>17652</DescriptionIndex>
+
+  <!-- for shield items -->
+  
+  <ShieldPowerMax>0</ShieldPowerMax>
+  <ShieldRechargeDelay>0</ShieldRechargeDelay>
+  <ShieldRechargeRate>0</ShieldRechargeRate>
+  <ShieldRadius>0</ShieldRadius>
+  <radius>0</radius>
+
+  <!-- for PowerPlant Items -->
+  
+  <PowerFlowMax>0</PowerFlowMax>
+  <PowerStoreMax>0</PowerStoreMax>
+  
+  <!-- for Weapons -->
+  <WeaponType>Hellstorm</WeaponType>
+  <OrdinanceCapacity>20</OrdinanceCapacity>
+  <FieldOfFire>180</FieldOfFire>
+  
+  <!-- for Engines -->
+  <Thrust>0</Thrust> 
+  
+  
+
+</ShipModule>
