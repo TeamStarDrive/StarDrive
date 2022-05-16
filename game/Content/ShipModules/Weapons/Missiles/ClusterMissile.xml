@@ -1,0 +1,42 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FreighterModule>false</FreighterModule>
+  
+  <Cost>186</Cost>
+  <!-- common traits shared by all ship modules -->
+  <TechLevel>4</TechLevel>
+  <ModuleType>MissileLauncher</ModuleType>
+  <XSize>2</XSize>
+  <YSize>2</YSize>
+  <Name>ClusterMissile</Name>
+  <Restrictions>O</Restrictions>
+  <UID>ClusterMissile</UID> 
+  <Version>2</Version>
+
+  <IconTexturePath>Modules/ClusterMissile</IconTexturePath>
+
+  <Mass>150</Mass>
+  <Health>2200</Health>
+  <HealthMax>2200</HealthMax>
+  <RepairDifficulty>2.5</RepairDifficulty>
+  <energyreq>5</energyreq>
+  <Description>This is a long range multiple rocket launching system.</Description>
+
+  <CrewRequired>12</CrewRequired>
+  <PowerDraw>4</PowerDraw>
+
+  <NameIndex>17653</NameIndex>
+  <DescriptionIndex>17654</DescriptionIndex>
+
+  <!-- for Weapons -->
+  <WeaponType>ClusterMissiles</WeaponType>
+  <OrdinanceCapacity>20</OrdinanceCapacity>
+  <FieldOfFire>45</FieldOfFire>
+
+  
+  
+
+</ShipModule>

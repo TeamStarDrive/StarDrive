@@ -1,0 +1,48 @@
+<Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Tag_Kinetic>true</Tag_Kinetic>
+  <Tag_Energy>false</Tag_Energy>
+  <Tag_Guided>false</Tag_Guided>
+  <Tag_Missile>false</Tag_Missile>
+  <Tag_Plasma>false</Tag_Plasma>
+  <Tag_Beam>false</Tag_Beam>
+  <Tag_Intercept>false</Tag_Intercept>
+  
+  <Tag_Bomb>false</Tag_Bomb>
+  <Tag_BioWeapon>false</Tag_BioWeapon>
+  
+  
+  <Tag_Drone>false</Tag_Drone>
+  <Tag_Torpedo>false</Tag_Torpedo>
+  <Tag_Cannon>true</Tag_Cannon>
+  
+  
+  <UID>ClusterMirv</UID>
+  <FireDelay>6</FireDelay>
+  <Range>5500</Range>
+  <PowerRequiredToFire>0</PowerRequiredToFire>
+  <OrdinanceRequiredToFire>0.57</OrdinanceRequiredToFire>
+
+  <!-- name of XACT audio cue to play on firing this weapon -->
+  <FireCueName>Flak</FireCueName>
+  <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
+  <!-- Projectile Information -->
+  <DamageAmount>191</DamageAmount>
+  <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
+  <ProjectileSpeed>1200</ProjectileSpeed>
+  <ShieldPenChance>65</ShieldPenChance>
+
+  <FakeExplode>true</FakeExplode>
+  <ExplosionRadius>15</ExplosionRadius> <!-- This Projectile Explodes -->
+  <Scale>0.7</Scale>
+  <FireCone>40</FireCone>
+
+  <ProjectileTexturePath>projBall_01_red</ProjectileTexturePath>
+  <ModelPath>projBall</ModelPath>
+
+  <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponHitEffect>Kinetic_Hit_Armor</WeaponHitEffect>
+  <WeaponShieldHitEffect>Kinetic_Hit_Shield</WeaponShieldHitEffect>
+  <WeaponDeathEffect></WeaponDeathEffect>
+
+</Weapon>

@@ -1,6 +1,6 @@
 ﻿<Building>
   <Name>CrystalPlant</Name>
-  <Maintenance>-10</Maintenance>
+  <Maintenance>-15</Maintenance>
   <IsCommodity>true</IsCommodity>
   <Description>From orbit this appears to be an ancient and abandoned mine. It could be worth exploring this further. </Description>
   <Cost>40</Cost>

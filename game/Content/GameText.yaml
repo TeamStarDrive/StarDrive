@@ -13851,6 +13851,19 @@ BB_CrystalPlantDescr:
 BB_CrystalPlantDescrBonus:
  Id: 17650
  ENG: "Generates +10 credits per turn"
+BB_Hellstorm:
+ Id: 17651
+ ENG: "Hellstorm"
+BB_HellstormDescr:
+ Id: 17652
+ ENG: "Ever heard of Gundam?"
+BB_ClusterMissile:
+ Id: 17653
+ ENG: "ClusterMissile"
+BB_ClusterMissileDescr:
+ Id: 17654
+ ENG: "Missile system equiped with cluster warheads"
+
 
 
 Tech_AncientArmor_Name:
