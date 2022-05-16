@@ -1876,6 +1876,8 @@ namespace Ship_Game
 
         public void UpdateEmpirePlanets()
         {
+            var random = new SeededRandom();
+
             ResetMoneySpentOnProduction();
             // expensive lock with several loops.
             using (OwnedPlanets.AcquireReadLock())
@@ -1886,7 +1888,7 @@ namespace Ship_Game
                 for (int i = 0; i < planetsToUpdate.Length; i++)
                 {
                     Planet planet = OwnedPlanets[i];
-                    planet.UpdateOwnedPlanet();
+                    planet.UpdateOwnedPlanet(random);
                 }
             }
         }

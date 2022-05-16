@@ -315,9 +315,9 @@ namespace Ship_Game.GameScreens.NewGame
                 var sys = new SolarSystem(UState, placeHolder.Position);
 
                 if (placeHolder.Data != null)
-                    sys.GenerateFromData(UState, placeHolder.Data, e);
+                    sys.GenerateFromData(UState, Random, placeHolder.Data, e);
                 else
-                    sys.GenerateRandomSystem(UState, placeHolder.SystemName, e);
+                    sys.GenerateRandomSystem(UState, Random, placeHolder.SystemName, e);
 
                 if (e != null && e.GetOwnedSystems().Count == 0)
                 {

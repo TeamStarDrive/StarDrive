@@ -10,6 +10,7 @@ using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Utils;
 using UnitTests.Ships;
 using UnitTests.UI;
 using Vector2 = SDGraphics.Vector2;
@@ -284,7 +285,8 @@ namespace UnitTests
         public Planet AddHomeWorldToEmpire(Vector2 sysPos, Empire empire, Vector2 pos, bool explored = false)
         {
             Planet p = AddDummyPlanet(sysPos, 0, 0, 0, pos, explored);
-            p.GenerateNewHomeWorld(empire, null);
+            var random = new SeededRandom();
+            p.GenerateNewHomeWorld(random, empire, null);
             return p;
         }
 
