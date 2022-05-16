@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDGraphics;
 using Ship_Game;
 using Vector3 = SDGraphics.Vector3;
 
@@ -13,8 +14,8 @@ namespace UnitTests.Planets
         public TestOrbitalBomb()
         {
             CreateUniverseAndPlayerEmpire();
-            AddDummyPlanetToEmpire(Player);
-            P = AddHomeWorldToEmpire(Player);
+            AddDummyPlanetToEmpire(Vector2.Zero, Player);
+            P = AddHomeWorldToEmpire(Vector2.Zero, Player);
             B = new Bomb(Vector3.Zero, Player, "NuclearBomb", shipLevel: 15, shipHealthPercent: 1);
         }
 

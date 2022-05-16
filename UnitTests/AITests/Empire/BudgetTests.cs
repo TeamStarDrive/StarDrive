@@ -13,17 +13,17 @@ namespace UnitTests.AITests.Empire
         void CreatePlanets(int extraPlanets)
         {
             CreateUniverseAndPlayerEmpire("Cordrazine");
-            AddDummyPlanet(2, 2, 4);
-            AddDummyPlanet(1.9f, 1.9f, 4);
-            AddDummyPlanet(1.7f, 1.7f, 4);
+            AddDummyPlanet(Vector2.Zero, 2, 2, 4);
+            AddDummyPlanet(Vector2.Zero, 1.9f, 1.9f, 4);
+            AddDummyPlanet(Vector2.Zero, 1.7f, 1.7f, 4);
             for (int x = 0; x < 5; x++)
-                AddDummyPlanet(0.1f, 0.1f, 1).ParentSystem.SetExploredBy(Enemy);
-            AddHomeWorldToEmpire(Player).ParentSystem.SetExploredBy(Enemy);
-            AddHomeWorldToEmpire(Enemy, new Vector2(2000)).ParentSystem.Position = new Vector2(2000);
-            UState.Objects.UpdateLists(true);
-            AddHomeWorldToEmpire(Enemy);
+                AddDummyPlanet(Vector2.Zero, 0.1f, 0.1f, 1).ParentSystem.SetExploredBy(Enemy);
+            AddHomeWorldToEmpire(Vector2.Zero, Player).ParentSystem.SetExploredBy(Enemy);
+            AddHomeWorldToEmpire(new Vector2(2000), Enemy, new Vector2(2000));
+            UState.Objects.UpdateLists();
+            AddHomeWorldToEmpire(Vector2.Zero, Enemy);
             for (int x = 0; x < extraPlanets; x++)
-                AddDummyPlanetToEmpire(Enemy, 1, 1, 1);
+                AddDummyPlanetToEmpire(Vector2.Zero, Enemy, 1, 1, 1);
         }
 
         [TestMethod]
