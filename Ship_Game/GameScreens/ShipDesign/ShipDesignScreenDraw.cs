@@ -73,6 +73,39 @@ namespace Ship_Game
                     DrawRectangleProjected(rect, Color.Blue);
             }
 
+            if (ShowAllArcs)
+            {
+                var shieldGridColor = Color.Cyan.Alpha(0.5f);
+                var gridColor = Color.Gray.Alpha(0.5f);
+
+                for (int y = 0; y < DesignedShip.Grid.Height; ++y)
+                {
+                    for (int x = 0; x < DesignedShip.Grid.Width; ++x)
+                    {
+                        var worldPos = ModuleGrid.GridPosToWorld(new Point(x,y));
+                        var rect = new RectF(worldPos, new Vector2(16));
+
+                        int numShields = DesignedShip.Grid.GetNumShieldsAt(x, y);
+                        if (numShields > 0)
+                        {
+                            DrawRectangleProjected(rect, shieldGridColor);
+                            DrawStringProjected(worldPos+new Vector2(1,1), 6, shieldGridColor, $"S:{numShields}");
+
+                            ShipModule shield = DesignedShip.HitTestShields(rect.Center, 10f);
+                            if (shield == null)
+                            {
+                                DrawCircleProjected(rect.Center, 10f, Color.Red);
+                                DrawStringProjected(worldPos+new Vector2(1,6), 6, Color.Red, "Hit:false");
+                            }
+                        }
+                        else
+                        {
+                            DrawRectangleProjected(rect, gridColor);
+                        }
+                    }
+                }
+            }
+
             DrawCrossHairProjected(ModuleGrid.GridPosToWorld(CurrentHull.GridCenter), 16f, Color.Red, 2f);
         }
 

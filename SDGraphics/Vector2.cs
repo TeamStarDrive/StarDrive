@@ -35,6 +35,12 @@ public struct Vector2 : IEquatable<Vector2>
         Y = v.Y;
     }
 
+    public Vector2(Point p)
+    {
+        X = p.X;
+        Y = p.Y;
+    }
+
     public static readonly Vector2 Zero = default;
     public static readonly Vector2 One = new(1f, 1f);
 
