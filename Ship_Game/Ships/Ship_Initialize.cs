@@ -361,12 +361,38 @@ namespace Ship_Game.Ships
                 ResourceManager.AddShipTemplate((ShipDesign)data, playerDesign: true);
             }
 
-            var ship = new Ship(us, save.Id, empire, data, save, savedModules);
-            if (!ship.HasModules)
-                return null; // module creation failed
-            ship.InitializeFromSaveData(save);
-            us.AddShip(ship);
-            return ship;
+            Ship ship;
+            try
+            {
+                ship = new Ship(us, save.Id, empire, data, save, savedModules);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+                // fallback, recreate the ship from design template
+                if (!ResourceManager.GetShipTemplate(save.Name, out Ship template))
+                    return null;
+                ship = new Ship(us, save.Id, template, empire, save.Position);
+            }
+
+            if (ship.HasModules)
+            {
+                ship.InitializeFromSaveData(save);
+                us.AddShip(ship);
+                return ship;
+            }
+            return null; // module creation failed
+        }
+
+        static Ship TryCreateFallbackShipFromSave(UniverseState us, Empire empire, SavedGame.ShipSaveData save)
+        {
+            if (ResourceManager.GetShipTemplate(save.Name, out Ship template))
+            {
+                var ship = new Ship(us, save.Id, template, empire, save.Position);
+                ship.InitializeFromSaveData(save);
+                return ship;
+            }
+            return null;
         }
 
         public static Ship CreateShipAtPoint(UniverseState us, string shipName, Empire owner, Vector2 position)
