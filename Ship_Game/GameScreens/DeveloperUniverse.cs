@@ -4,6 +4,7 @@ using SDUtils;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.NewGame;
 using Ship_Game.Universe;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -63,6 +64,7 @@ namespace Ship_Game
             races.Resize(Math.Min(races.Count, numOpponents)); // truncate
             races.Insert(0, player);
 
+            var random = new SeededRandom();
             foreach (IEmpireData data in races)
             {
                 Empire e = us.CreateEmpire(data, isPlayer: (data == player));
@@ -72,8 +74,8 @@ namespace Ship_Game
                 e.data.CurrentConstructor   = e.data.ConstructorShip;
 
                 // Now, generate system for our empire:
-                var system = new SolarSystem(us, GenerateRandomSysPos(10000, us));
-                system.GenerateRandomSystem(us, e.data.Traits.HomeSystemName, e);
+                var system = new SolarSystem(us, GenerateRandomSysPos(us, random));
+                system.GenerateRandomSystem(us, random, e.data.Traits.HomeSystemName, e);
                 system.OwnerList.Add(e);
 
                 us.AddSolarSystem(system);
@@ -106,12 +108,12 @@ namespace Ship_Game
             return true;
         }
 
-        static Vector2 GenerateRandomSysPos(float spacing, UniverseState us)
+        static Vector2 GenerateRandomSysPos(UniverseState us, RandomBase random)
         {
             Vector2 sysPos = Vector2.Zero;
             for (int i = 0; i < 20; ++i) // max 20 tries
             {
-                sysPos = RandomMath.Vector2D(us.Size - 100000f);
+                sysPos = random.Vector2D(us.Size - 100000f);
                 if (us.FindSolarSystemAt(sysPos) == null)
                     return sysPos; // we got it!
             }

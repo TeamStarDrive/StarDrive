@@ -1,6 +1,7 @@
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
@@ -13,30 +14,31 @@ namespace Ship_Game.Gameplay
     {
         [StarData] public float Scale = 1.0f; // serialized
         [XmlIgnore][JsonIgnore] Vector3 RotationRadians;
-        [XmlIgnore][JsonIgnore] readonly Vector3 Spin;
-        [XmlIgnore][JsonIgnore] readonly int AsteroidId;
+        [XmlIgnore][JsonIgnore] Vector3 Spin;
+        [XmlIgnore][JsonIgnore] int AsteroidId;
         [XmlIgnore][JsonIgnore] SceneObject So;
 
         // Serialized (SaveGame) asteroid
         public Asteroid() : base(0, GameObjectType.Asteroid)
         {
-            Spin            = RandomMath.Vector3D(0.01f, 0.2f);
-            RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
-            AsteroidId      = RandomMath.InRange(ResourceManager.NumAsteroidModels);
             Radius = 50f; // some default radius for now
         }
 
         // New asteroid
-        public Asteroid(int id, float scaleMin, float scaleMax, Vector2 pos)
+        public Asteroid(int id, RandomBase random, float scaleMin, float scaleMax, Vector2 pos)
              : base(id, GameObjectType.Asteroid)
         {
-            Scale = RandomMath.Float(scaleMin, scaleMax);
-            Position = pos;
-
-            Spin            = RandomMath.Vector3D(0.01f, 0.2f);
-            RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
-            AsteroidId      = RandomMath.InRange(ResourceManager.NumAsteroidModels);
             Radius = 50f; // some default radius for now
+            Scale = random.Float(scaleMin, scaleMax);
+            Position = pos;
+            Initialize(random);
+        }
+
+        public void Initialize(RandomBase random)
+        {
+            Spin            = random.Vector3D(0.01f, 0.2f);
+            RotationRadians = random.Vector3D(0.01f, 1.02f);
+            AsteroidId      = random.InRange(ResourceManager.NumAsteroidModels);
         }
 
         void CreateSceneObject(Vector2 systemPos)

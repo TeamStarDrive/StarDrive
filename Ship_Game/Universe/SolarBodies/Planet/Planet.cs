@@ -11,6 +11,7 @@ using Ship_Game.AI;
 using Ship_Game.Spatial;
 using Ship_Game.Gameplay;
 using Ship_Game.ExtensionMethods;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -267,7 +268,7 @@ namespace Ship_Game
                 PType = ResourceManager.Planets.Planet(0);
         }
 
-        public Planet(int id, SolarSystem system, float randomAngle, float ringRadius, string name,
+        public Planet(int id, RandomBase random, SolarSystem system, float randomAngle, float ringRadius, string name,
                       float sysMaxRingRadius, Empire owner, SolarSystemData.Ring data) : this(id)
         {
             ParentSystem = system;
@@ -281,11 +282,11 @@ namespace Ship_Game
             bool isHomeworld = data?.HomePlanet ?? owner is { Capital: null };
             if (owner != null && isHomeworld)
             {
-                GenerateNewHomeWorld(owner, data);
+                GenerateNewHomeWorld(random, owner, data);
             }
             else if (data != null)
             {
-                GeneratePlanetFromSystemData(data);
+                GeneratePlanetFromSystemData(random, data);
             }
             else
             {
@@ -300,7 +301,7 @@ namespace Ship_Game
                 float scale = RandomMath.Float(0.75f, 1.5f) + PType.Scale;
                 if (PType.Category == PlanetCategory.GasGiant)
                     scale += 1f;
-                InitNewMinorPlanet(PType, scale);
+                InitNewMinorPlanet(random, PType, scale);
             }
 
             PlanetTilt = RandomMath.Float(45f, 135f);
@@ -785,14 +786,14 @@ namespace Ship_Game
             return ParentSystem.InSafeDistanceFromRadiation(Position);
         }
 
-        public void UpdateOwnedPlanet()
+        public void UpdateOwnedPlanet(RandomBase random)
         {
             TurnsSinceTurnover += 1;
             CrippledTurns = (CrippledTurns - 1).LowerBound(0);
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
-            ApplyTerraforming();
+            ApplyTerraforming(random);
             UpdateColonyValue();
             CalcIncomingGoods();
             InitResources(); // must be done before Governing

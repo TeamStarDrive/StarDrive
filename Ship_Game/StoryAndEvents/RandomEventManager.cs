@@ -8,6 +8,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -201,7 +202,8 @@ namespace Ship_Game
 
             PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren : PlanetCategory.Desert;
             PlanetType newType = ResourceManager.Planets.RandomPlanet(category);
-            planet.GenerateNewFromPlanetType(newType, planet.Scale);
+            var random = new SeededRandom();
+            planet.GenerateNewFromPlanetType(random, newType, planet.Scale);
             planet.RecreateSceneObject();
             NotifyPlayerIfAffected(planet, GameText.HasExperiencedAMassiveVolcanic);
             int numVolcanoes = category == PlanetCategory.Barren ? RandomMath.RollDie(15) : RandomMath.RollDie(7);
