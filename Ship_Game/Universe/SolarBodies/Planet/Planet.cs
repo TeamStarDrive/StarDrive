@@ -249,55 +249,43 @@ namespace Ship_Game
             Res.Update(0f);
         }
 
-        public Planet(int id) : base(id, GameObjectType.Planet)
+        Planet(int id) : base(id, GameObjectType.Planet)
         {
             CreateManagers();
         }
 
-        public Planet(int id, float fertility, float minerals, float maxPop) : this(id)
+        // For TESTING only
+        public Planet(int id, SolarSystem system, float fertility, float minerals, float maxPop) : this(id)
         {
+            ParentSystem = system;
             BaseFertility     = fertility;
             MineralRichness   = minerals;
             BasePopPerTileVal = maxPop;
             if (fertility > 0)
                 PType = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
+            else
+                PType = ResourceManager.Planets.Planet(0);
         }
 
         public Planet(int id, SolarSystem system, float randomAngle, float ringRadius, string name,
                       float sysMaxRingRadius, Empire owner, SolarSystemData.Ring data) : this(id)
         {
-            CreateManagers();
-
-            Name = name;
-            OrbitalAngle = randomAngle;
             ParentSystem = system;
+            OrbitalAngle = randomAngle;
+            OrbitalRadius = ringRadius;
+
+            Name = name.IsEmpty() ? GetDefaultPlanetName(data) : name;
 
             // if we have [data] always use data.HomePlanet,
             // else if no [data] check if owner has Capital or not
             bool isHomeworld = data?.HomePlanet ?? owner is { Capital: null };
             if (owner != null && isHomeworld)
             {
-                PlanetCategory preferred = owner.data.PreferredEnv == PlanetCategory.Other
-                                         ? PlanetCategory.Terran : owner.data.PreferredEnv;
-                PType = ResourceManager.Planets.RandomPlanet(preferred);
-
-                GenerateNewHomeWorld(owner, data?.MaxPopDefined ?? 0);
-                if (data == null)
-                    Name = system.Name + " " + RomanNumerals.ToRoman(1);
+                GenerateNewHomeWorld(owner, data);
             }
             else if (data != null)
             {
-                PType = data.WhichPlanet > 0
-                    ? ResourceManager.Planets.Planet(data.WhichPlanet)
-                    : ResourceManager.Planets.RandomPlanet();
-
-                float scale;
-                if (data.planetScale > 0)
-                    scale = data.planetScale;
-                else
-                    scale = RandomMath.Float(0.9f, 1.8f) + PType.Scale;
-
-                GeneratePlanetFromSystemData(data, PType, scale);
+                GeneratePlanetFromSystemData(data);
             }
             else
             {
@@ -307,15 +295,13 @@ namespace Ship_Game
                 else if (ringRadius < sysMaxRingRadius * 0.7f)  sunZone = SunZone.Far;
                 else                                            sunZone = SunZone.VeryFar;
 
-                PType = ChooseTypeByWeight(sunZone);
+                InitPlanetType(ChooseTypeByWeight(sunZone));
+
                 float scale = RandomMath.Float(0.75f, 1.5f) + PType.Scale;
                 if (PType.Category == PlanetCategory.GasGiant)
-                    ++scale;
+                    scale += 1f;
                 InitNewMinorPlanet(PType, scale);
             }
-
-            OrbitalRadius = ringRadius + ObjectRadius; // ObjectRadius depends on PType
-            UpdatePositionOnly();
 
             PlanetTilt = RandomMath.Float(45f, 135f);
 
@@ -335,6 +321,24 @@ namespace Ship_Game
             {
                 RingTilt = RandomMath.Float(-80f, -45f).ToRadians();
             }
+        }
+
+        public string GetDefaultPlanetName(SolarSystemData.Ring data = null)
+        {
+            if (data != null)
+                return data.Planet;
+            int ringNum = 1 + ParentSystem.RingList.IndexOf(r => r.planet == this);
+            return $"{ParentSystem.Name} {RomanNumerals.ToRoman(ringNum)}";
+        }
+
+        void InitPlanetType(PlanetType type)
+        {
+            if (PType != null) Log.Error("Planet PType already initialized!");
+            if (OrbitalRadius == 0f) Log.Error("Planet initialized with OrbitalRadius=0");
+
+            PType = type;
+            OrbitalRadius += ObjectRadius; // ObjectRadius depends on PType
+            UpdatePositionOnly();
         }
 
         // This will launch troops without having issues with modifying it's own TroopsHere

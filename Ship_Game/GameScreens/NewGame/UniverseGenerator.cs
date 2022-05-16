@@ -121,7 +121,6 @@ namespace Ship_Game.GameScreens.NewGame
         {
             Progress.Start(0.65f, 0.35f);
             GenerateInitialSystemData(Progress.NextStep());
-            FinalizeSolarSystems();
             FinalizeEmpires(Progress.NextStep());
             Progress.Finish();
 
@@ -189,19 +188,6 @@ namespace Ship_Game.GameScreens.NewGame
             }
 
             EmpireHullBonuses.RefreshBonuses();
-        }
-
-        void FinalizeSolarSystems()
-        {
-            // once the map is generated, update all planet positions:
-            foreach (SolarSystem system in UState.Systems)
-            {
-                system.FiveClosestSystems = UState.GetFiveClosestSystems(system);
-                foreach (Planet planet in system.PlanetList)
-                {
-                    planet.UpdatePositionOnly();
-                }
-            }
         }
 
         class SystemPlaceHolder
@@ -281,7 +267,8 @@ namespace Ship_Game.GameScreens.NewGame
                 Systems.Add(new SystemPlaceHolder
                 {
                     Owner = e,
-                    Data = ResourceManager.LoadSolarSystemData(e.data.Traits.HomeSystemName) // can be null
+                    Data = ResourceManager.LoadSolarSystemData(e.data.Traits.HomeSystemName), // SystemData can be null
+                    SystemName = e.data.Traits.HomeSystemName,
                 });
                 step.Advance();
             }
@@ -292,23 +279,16 @@ namespace Ship_Game.GameScreens.NewGame
                 if (systemCount > NumSystems)
                     break;
                 ++systemCount;
-                Systems.Add(new SystemPlaceHolder
-                {
-                    DontStartNearPlayer = true,
-                    Data = systemData
-                });
+                Systems.Add(new SystemPlaceHolder { DontStartNearPlayer = true, Data = systemData });
                 step.Advance();
             }
 
             if (systemCount < NumSystems)
             {
-                var nameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
+                var nameGenerator = ResourceManager.GetNameGenerator("NameGenerators/names.txt");
                 for (; systemCount < NumSystems; ++systemCount)
                 {
-                    Systems.Add(new SystemPlaceHolder
-                    {
-                        SystemName = nameGenerator.NextName,
-                    });
+                    Systems.Add(new SystemPlaceHolder { SystemName = nameGenerator.NextName });
                     step.Advance();
                 }
             }
@@ -335,17 +315,9 @@ namespace Ship_Game.GameScreens.NewGame
                 var sys = new SolarSystem(UState, placeHolder.Position);
 
                 if (placeHolder.Data != null)
-                {
                     sys.GenerateFromData(UState, placeHolder.Data, e);
-                }
-                else if (placeHolder.IsStartingSystem)
-                {
-                    sys.GenerateStartingSystem(UState, e.data.Traits.HomeSystemName, 1f, e);
-                }
                 else
-                {
-                    sys.GenerateRandomSystem(UState, placeHolder.SystemName, 1f);
-                }
+                    sys.GenerateRandomSystem(UState, placeHolder.SystemName, e);
 
                 if (e != null && e.GetOwnedSystems().Count == 0)
                 {
@@ -355,6 +327,14 @@ namespace Ship_Game.GameScreens.NewGame
                 UState.AddSolarSystem(sys);
                 step.Advance();
             }
+
+            // once all systems are generated, init FiveClosestSystems for all
+            foreach (SolarSystem system in UState.Systems)
+            {
+                system.FiveClosestSystems = UState.GetFiveClosestSystems(system);
+            }
+
+            step.Finish();
         }
 
         void SolarSystemSpacing(ProgressCounter step)

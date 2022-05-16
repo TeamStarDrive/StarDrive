@@ -147,8 +147,8 @@ namespace Ship_Game
                     Id             = system.Id,
                     Position       = system.Position,
                     SunPath        = system.Sun.Id,
-                    AsteroidsList  = system.AsteroidsList.Clone(),
-                    Moons          = system.MoonList.Clone(),
+                    AsteroidsList  = system.AsteroidsList,
+                    Moons          = system.MoonList,
                     ExploredBy     = system.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     RingList       = system.RingList.Select(ring => ring.Serialize()),
                     PiratePresence = system.PiratePresence

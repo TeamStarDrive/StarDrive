@@ -464,15 +464,11 @@ namespace Ship_Game
 
         void OnPlanetNameSubmit(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            P.Name = name;
+            if (string.IsNullOrWhiteSpace(P.Name))
             {
-                int ringNum = 1 + P.ParentSystem.RingList.IndexOf(r => r.planet == P);
-                P.Name = string.Concat(P.ParentSystem.Name, " ", RomanNumerals.ToRoman(ringNum));
+                P.Name = P.GetDefaultPlanetName();
                 PlanetName.Reset(P.Name);
-            }
-            else
-            {
-                P.Name = name;
             }
         }
 

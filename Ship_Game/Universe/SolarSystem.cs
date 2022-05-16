@@ -364,7 +364,7 @@ namespace Ship_Game
             return null;
         }
 
-        public void GenerateRandomSystem(UniverseState us, string name, float systemScale, Empire owner = null)
+        public void GenerateRandomSystem(UniverseState us, string name, Empire owner)
         {
             // Changed by RedFox: 3% chance to get a tri-sun "star_binary"
             Sun = RollDice(percent:3)
@@ -372,7 +372,7 @@ namespace Ship_Game
                 : SunType.RandomHabitableSun(s => s.Id != "star_binary");
 
             Name = name;
-            int starRadius = (int)(Int(250, 500) * systemScale);
+            int starRadius = Int(250, 500);
             float sysMaxRingRadius = starRadius * 300;
             float firstRingRadius = sysMaxRingRadius * 0.1f;
             int minR = AvgInt(GlobalStats.ExtraPlanets, 3, iterations: 2);
@@ -381,7 +381,10 @@ namespace Ship_Game
 
             // when generating homeworld systems, we want at least 5 rings
             if (owner != null)
+            {
+                IsStartingSystem = true;
                 NumberOfRings = NumberOfRings.LowerBound(5);
+            }
 
             RingList.Capacity = NumberOfRings;
             float ringSpace   = sysMaxRingRadius / NumberOfRings;
@@ -444,20 +447,14 @@ namespace Ship_Game
             FinalizeGeneratedSystem();
         }
 
-        public void GenerateStartingSystem(UniverseState us, string name, float systemScale, Empire owner)
-        {
-            IsStartingSystem = true;
-            GenerateRandomSystem(us, name, systemScale, owner);
-        }
-
         public void GenerateFromData(UniverseState us, SolarSystemData data, Empire owner)
         {
             Name = data.Name;
             Sun = SunType.FindSun(data.SunPath);
 
             int numberOfRings = data.RingList.Count;
-            int fixedSpacing  = Int(50, 500);
-            int nextDistance  = 10000 + GetRingWidth(0);
+            int fixedSpacing = Int(50, 500);
+            int nextDistance = 10000 + GetRingWidth(0);
             float sysMaxRingRadius = data.RingList.Last.OrbitalDistance;
 
             int GetRingWidth(int orbitalWidth)
@@ -472,22 +469,22 @@ namespace Ship_Game
             {
                 SolarSystemData.Ring ringData = data.RingList[i];
 
-                int orbitalDistance = ringData.OrbitalDistance > 0 ? ringData.OrbitalDistance : nextDistance;
-                nextDistance = orbitalDistance + GetRingWidth(ringData.OrbitalWidth);
+                int orbitalDist = ringData.OrbitalDistance > 0 ? ringData.OrbitalDistance : nextDistance;
+                nextDistance = orbitalDist + GetRingWidth(ringData.OrbitalWidth);
 
                 if (ringData.Asteroids != null)
                 {
-                    GenerateAsteroidRing(orbitalDistance, spread: 3000f, scaleMin: 1.2f, scaleMax: 4.6f);
+                    GenerateAsteroidRing(orbitalDist, spread: 3000f, scaleMin: 1.2f, scaleMax: 4.6f);
                     continue;
                 }
 
                 float randomAngle = Float(0f, 360f);
-                var p = new Planet(us.CreateId(), this, randomAngle, orbitalDistance, ringData.Planet,
+                var p = new Planet(us.CreateId(), this, randomAngle, orbitalDist, ringData.Planet,
                                    sysMaxRingRadius, owner, ringData);
                 PlanetList.Add(p);
                 RingList.Add(new Ring
                 {
-                    OrbitalDistance = orbitalDistance,
+                    OrbitalDistance = orbitalDist,
                     Asteroids = false,
                     planet = p
                 });
