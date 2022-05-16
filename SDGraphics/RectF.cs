@@ -83,6 +83,14 @@ public struct RectF
         H = (float)size.Y;
     }
 
+    public RectF(in Point pos, in Point size)
+    {
+        X = pos.X;
+        Y = pos.Y;
+        W = size.X;
+        H = size.Y;
+    }
+
     public RectF(in XnaRect r)
     {
         X = r.X;
@@ -171,6 +179,18 @@ public struct RectF
     {
         return X <= pos.X && pos.X < (X+W)
             && Y <= pos.Y && pos.Y < (Y+H);
+    }
+
+    /// <returns>TRUE if this Rect overlaps with Circle(cx,cy,radius)</returns>
+    [Pure]
+    public readonly bool Overlaps(float cx, float cy, float radius)
+    {
+        // find the nearest point on the rectangle to the center of the circle
+        float nearestX = Math.Max(X, Math.Min(cx, X+W));
+        float nearestY = Math.Max(Y, Math.Min(cy, Y+H));
+        float dx = nearestX - cx;
+        float dy = nearestY - cy;
+        return (dx*dx + dy*dy) <= (radius*radius);
     }
 
     [Pure] public readonly RectF ScaledBy(float scale)

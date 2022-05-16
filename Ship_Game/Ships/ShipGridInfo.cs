@@ -50,7 +50,6 @@ namespace Ship_Game.Ships
         public ShipGridInfo(HullSlot[] slots)
         {
             Size = Point.Zero; // [0,0] is always the top-left
-            Center = Point.Zero; // NOTE: we don't need to initialize this
             SurfaceArea = slots.Length;
 
             for (int i = 0; i < slots.Length; ++i)
@@ -60,6 +59,8 @@ namespace Ship_Game.Ships
                 if (Size.X < botRight.X) Size.X = botRight.X;
                 if (Size.Y < botRight.Y) Size.Y = botRight.Y;
             }
+
+            Center = new Point(Size.X / 2, Size.Y / 2);
         }
 
         // This is used for DEBUGGING and TESTING
@@ -84,7 +85,6 @@ namespace Ship_Game.Ships
         public ShipGridInfo(DesignSlot[] slots)
         {
             Size = Point.Zero; // [0,0] is always the top-left
-            Center = Point.Zero; // NOTE: we don't need this in Tests currently
             SurfaceArea = 0;
 
             for (int i = 0; i < slots.Length; ++i)
@@ -96,6 +96,8 @@ namespace Ship_Game.Ships
                 if (Size.X < botRight.X) Size.X = botRight.X;
                 if (Size.Y < botRight.Y) Size.Y = botRight.Y;
             }
+
+            Center = new Point(Size.X / 2, Size.Y / 2);
         }
     }
 }

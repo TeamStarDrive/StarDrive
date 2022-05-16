@@ -81,6 +81,11 @@ namespace UnitTests.Ships
             Assert.AreEqual(Pos(3,3), ship.WorldToGridLocalPointClipped( c + Vec(32,32)  )); // outside BotRight
             Assert.AreEqual(Pos(0,3), ship.WorldToGridLocalPointClipped( c + Vec(-48,48) )); // outside BotLeft
 
+            Assert.AreEqual(Pos(0,0), ship.GridLocalToPointClipped( Vec(-16,-16) )); // outside TopLeft
+            Assert.AreEqual(Pos(3,0), ship.GridLocalToPointClipped( Vec(64,-16)  )); // outside TopRight
+            Assert.AreEqual(Pos(3,3), ship.GridLocalToPointClipped( Vec(64,64)   )); // outside BotRight
+            Assert.AreEqual(Pos(0,3), ship.GridLocalToPointClipped( Vec(-16,64)  )); // outside BotLeft
+
             // one coordinate in range, other out of bounds
             Assert.AreEqual(Pos(0,2), ship.WorldToGridLocalPointClipped( c - Vec(48,0) ));
             Assert.AreEqual(Pos(2,0), ship.WorldToGridLocalPointClipped( c - Vec(0,48) ));
