@@ -119,19 +119,33 @@ namespace Ship_Game
                 MineralRichness = 0.0f;
         }
 
-        void GeneratePlanetFromSystemData(SolarSystemData.Ring ringData, PlanetType type, float scale)
+        void GeneratePlanetFromSystemData(SolarSystemData.Ring data)
         {
-            if (ringData.UniqueHabitat)
+            InitPlanetType(data.WhichPlanet > 0
+                ? ResourceManager.Planets.Planet(data.WhichPlanet)
+                : ResourceManager.Planets.RandomPlanet());
+
+            float scale;
+            if (data.planetScale > 0)
+                scale = data.planetScale;
+            else
+                scale = RandomMath.Float(0.9f, 1.8f) + PType.Scale;
+
+            if (data.UniqueHabitat)
             {
                 UniqueHab = true;
-                UniqueHabPercent = ringData.UniqueHabPC;
+                UniqueHabPercent = data.UniqueHabPC;
             }
 
-            InitNewMinorPlanet(type, scale, ringData.MaxPopDefined);
+            InitNewMinorPlanet(PType, scale, data.MaxPopDefined);
         }
 
-        public void GenerateNewHomeWorld(Empire owner, float preDefinedPop = 0)
+        public void GenerateNewHomeWorld(Empire owner, SolarSystemData.Ring data)
         {
+            PlanetCategory preferred = owner.data.PreferredEnv == PlanetCategory.Other
+                                     ? PlanetCategory.Terran : owner.data.PreferredEnv;
+            InitPlanetType(ResourceManager.Planets.RandomPlanet(preferred));
+
             SetOwner(owner);
             Scale = 1 * Owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
             IsHomeworld = true;
@@ -145,7 +159,9 @@ namespace Ship_Game
                 colonyType = ColonyType.Colony;
 
             CreateHomeWorldFertilityAndRichness();
+
             int numHabitableTiles = TilesList.Count(t => t.Habitable);
+            float preDefinedPop = data?.MaxPopDefined ?? 0f;
             CreateHomeWorldPopulation(preDefinedPop, numHabitableTiles);
             InitializeWorkerDistribution(Owner);
             HasSpacePort = true;

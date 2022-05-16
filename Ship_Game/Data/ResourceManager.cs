@@ -668,15 +668,14 @@ namespace Ship_Game
 
         public static MarkovNameGenerator GetRandomNames(Empire empire)
         {
-            string nameFileName = $"NameGenerators/spynames_{empire?.PortraitName}.txt";
-            return GetNameGenerator(nameFileName, 3, 5);
+            return GetNameGenerator($"NameGenerators/spynames_{empire?.PortraitName}.txt");
         }
 
-        public static MarkovNameGenerator GetNameGenerator(string relativePath, int order, int minLength)
+        public static MarkovNameGenerator GetNameGenerator(string relativePath)
         {
             var nameFile = GetModOrVanillaFile(relativePath);
             if (nameFile == null) return null;
-            return new MarkovNameGenerator(nameFile.OpenText().ReadToEnd(), order, minLength);
+            return new MarkovNameGenerator(nameFile.OpenText().ReadToEnd());
         }
 
         static void DeleteShipFromDir(string dir, string shipName)
@@ -866,10 +865,10 @@ namespace Ship_Game
         public static ICollection<ShipModule> ShipModuleTemplates => ModuleTemplates.Values;
 
         public static RacialTraits RaceTraits
-            => RacialTraits ?? (RacialTraits = TryDeserialize<RacialTraits>("RacialTraits/RacialTraits.xml"));
+            => RacialTraits ??= TryDeserialize<RacialTraits>("RacialTraits/RacialTraits.xml");
 
         public static DiplomaticTraits DiplomaticTraits
-            => DiplomacyTraits ?? (DiplomacyTraits = TryDeserialize<DiplomaticTraits>("Diplomacy/DiplomaticTraits.xml"));
+            => DiplomacyTraits ??= TryDeserialize<DiplomaticTraits>("Diplomacy/DiplomaticTraits.xml");
 
         public static SolarSystemData LoadSolarSystemData(string homeSystemName)
             => TryDeserialize<SolarSystemData>("SolarSystems/" + homeSystemName + ".xml");

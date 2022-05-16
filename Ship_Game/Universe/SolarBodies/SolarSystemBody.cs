@@ -194,7 +194,7 @@ namespace Ship_Game
         public string Description;
         public Empire Owner;
         public bool OwnerIsPlayer => Owner != null && Owner.isPlayer;
-        public float OrbitalAngle;
+        public float OrbitalAngle; // OrbitalAngle in DEGREES
         public float OrbitalRadius;
         public bool HasRings;
         public float PlanetTilt;
@@ -333,7 +333,7 @@ namespace Ship_Game
             GravityWellRadius = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(Scale)) / 1.5)));
         }
 
-        public void UpdatePositionOnly()
+        protected void UpdatePositionOnly()
         {
             Position = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
         }

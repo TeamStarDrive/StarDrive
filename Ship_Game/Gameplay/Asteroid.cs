@@ -32,6 +32,11 @@ namespace Ship_Game.Gameplay
         {
             Scale = RandomMath.Float(scaleMin, scaleMax);
             Position = pos;
+
+            Spin            = RandomMath.Vector3D(0.01f, 0.2f);
+            RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
+            AsteroidId      = RandomMath.InRange(ResourceManager.NumAsteroidModels);
+            Radius = 50f; // some default radius for now
         }
 
         void CreateSceneObject(Vector2 systemPos)
