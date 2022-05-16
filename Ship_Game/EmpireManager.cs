@@ -201,19 +201,14 @@ namespace Ship_Game
 
         static Empire CreateVoidEmpire()
         {
-            return CreateNewEmpire("Void");
-        }
-
-        // Creates a new completely empty empire, with no ID
-        public static Empire CreateNewEmpire(string name)
-        {
-            var empire = new Empire(null)
+            return new Empire(null)
             {
-                data = new EmpireData(),
-                Id = -1
+                Id = -1,
+                data = new EmpireData
+                {
+                    Traits = new RacialTrait { Name = "Void" }
+                }
             };
-            empire.data.Traits = new RacialTrait {Name = name};
-            return empire;
         }
 
         public static Troop CreateRebelTroop(Empire rebelEmpire)

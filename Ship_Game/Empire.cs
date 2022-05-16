@@ -1631,8 +1631,9 @@ namespace Ship_Game
         /// <summary>
         /// Initializes non-serialized empire values after save load
         /// </summary>
-        public void InitEmpireFromSave() // todo FB - why is this called on new game?
+        public void InitEmpireFromSave(UniverseState us) // todo FB - why is this called on new game?
         {
+            Universum = us;
             EmpireShips.UpdatePublicLists();
             Research.UpdateNetResearch();
 
@@ -2574,7 +2575,7 @@ namespace Ship_Game
         {
             var us = Universum;
             bool wellKnown = isPlayer
-                || us.Player.IsAlliedWith(this)
+                || us.Player?.IsAlliedWith(this) == true // support unit tests without Player
                 || us.Debug && (us.Screen.SelectedShip == null || us.Screen.SelectedShip.Loyalty == this);
             return wellKnown;
         }
@@ -2582,7 +2583,7 @@ namespace Ship_Game
         bool IsThisEmpireKnownByPlayer()
         {
             return IsThisEmpireWellKnownByPlayer()
-                || Universum.Player.IsTradeOrOpenBorders(this);
+                || Universum.Player?.IsTradeOrOpenBorders(this) == true;
         }
 
         /// <summary>

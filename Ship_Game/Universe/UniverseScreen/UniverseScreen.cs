@@ -370,8 +370,7 @@ namespace Ship_Game
 
             foreach (Empire empire in EmpireManager.Empires)
             {
-                empire.Universum = UState;
-                empire.InitEmpireFromSave();
+                empire.InitEmpireFromSave(UState);
             }
 
             WarmUpShipsForLoad();
