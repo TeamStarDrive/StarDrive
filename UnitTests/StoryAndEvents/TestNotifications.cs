@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDGraphics;
 using Ship_Game;
 
 namespace UnitTests.NotificationTests
@@ -13,7 +14,7 @@ namespace UnitTests.NotificationTests
         public TestNotifications()
         {
             CreateUniverseAndPlayerEmpire();
-            AddDummyPlanetToEmpire(Player);
+            AddDummyPlanetToEmpire(Vector2.Zero, Player);
             NotifMgr = new NotificationManager(Universe.ScreenManager, Universe);
         }
 

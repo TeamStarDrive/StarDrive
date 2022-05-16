@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDGraphics;
 using Ship_Game;
 
 namespace UnitTests.Planets
@@ -15,8 +16,8 @@ namespace UnitTests.Planets
         {
             CreateUniverseAndPlayerEmpire();
             Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
-            AddDummyPlanetToEmpire(Player);
-            P = AddHomeWorldToEmpire(Player);
+            AddDummyPlanetToEmpire(Vector2.Zero, Player);
+            P = AddHomeWorldToEmpire(Vector2.Zero, Player);
             Enemy1   = ResourceManager.CreateTroop("Wyvern", Enemy);
             Enemy2   = ResourceManager.CreateTroop("Wyvern", Enemy);
             Friendly = ResourceManager.CreateTroop("Wyvern", Player);

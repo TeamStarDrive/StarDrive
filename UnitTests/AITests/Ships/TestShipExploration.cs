@@ -18,13 +18,11 @@ namespace UnitTests.AITests.Ships
             GlobalStats.ExtraPlanets     = 1; // Ensures there is at least one planet to explore
             GlobalStats.DisableAsteroids = true; // Ensures no asteroids will be created instead of a planet
 
-            CloseSystem = new SolarSystem(UState);
-            CloseSystem.Position = new Vector2(300000, 0); 
+            CloseSystem = new SolarSystem(UState, new Vector2(300000, 0));
             CloseSystem.GenerateRandomSystem(UState, "Close System", 1);
             UState.AddSolarSystem(CloseSystem);
 
-            FarSystem = new SolarSystem(UState);
-            FarSystem.Position = new Vector2(600000, 0);
+            FarSystem = new SolarSystem(UState, new Vector2(600000, 0));
             FarSystem.GenerateRandomSystem(UState, "Far System", 1);
             UState.AddSolarSystem(FarSystem);
 

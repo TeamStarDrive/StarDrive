@@ -69,7 +69,7 @@ namespace Ship_Game
 
         // this applies to any randomly generated planet
         // which is newly created and is not a HomeWorld
-        public void InitNewMinorPlanet(PlanetType type, float scale, float preDefinedPop = 0)
+        void InitNewMinorPlanet(PlanetType type, float scale, float preDefinedPop = 0)
         {
             GenerateNewFromPlanetType(type, scale, preDefinedPop);
             AddEventsAndCommodities();
@@ -119,7 +119,7 @@ namespace Ship_Game
                 MineralRichness = 0.0f;
         }
 
-        public void GeneratePlanetFromSystemData(SolarSystemData.Ring ringData, PlanetType type, float scale)
+        void GeneratePlanetFromSystemData(SolarSystemData.Ring ringData, PlanetType type, float scale)
         {
             if (ringData.UniqueHabitat)
             {
@@ -128,16 +128,6 @@ namespace Ship_Game
             }
 
             InitNewMinorPlanet(type, scale, ringData.MaxPopDefined);
-
-            if (ringData.Owner.NotEmpty())
-            {
-                SetOwner(EmpireManager.GetEmpireByName(ringData.Owner));
-                InitializeWorkerDistribution(Owner);
-                Population = MaxPopulation;
-                MineralRichness = 1f;
-                colonyType = ColonyType.Core;
-                SetBaseFertility(2f, 2f);
-            }
         }
 
         public void GenerateNewHomeWorld(Empire owner, float preDefinedPop = 0)
@@ -147,7 +137,6 @@ namespace Ship_Game
             IsHomeworld = true;
             Owner.SetCapital(this);
 
-            CreateHomeWorldEnvironment();
             SetTileHabitability(0, out _); // Create the homeworld's tiles without making them habitable yet
             SetHomeworldTiles();
             ResetGarrisonSize();
@@ -210,15 +199,6 @@ namespace Ship_Game
             SetBaseFertilityMinMax(baseMaxFertility);
 
             MineralRichness = 1f + Owner.data.Traits.HomeworldRichMod;
-        }
-
-        void CreateHomeWorldEnvironment()
-        {
-            PlanetCategory preferred = Owner.data.PreferredEnv == PlanetCategory.Other ? PlanetCategory.Terran
-                                                                                       : Owner.data.PreferredEnv;
-
-            PType = ResourceManager.Planets.RandomPlanet(preferred);
-            Zone = SunZone.Any;
         }
 
         void CreateHomeWorldBuildings()
