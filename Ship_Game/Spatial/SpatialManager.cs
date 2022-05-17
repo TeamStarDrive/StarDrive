@@ -171,7 +171,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             GameObject[] ships = FindNearby(GameObjectType.Ship, source, damageRadius,
-                                                    maxResults:32, excludeLoyalty:source.Owner?.Loyalty);
+                                            maxResults:32, excludeLoyalty:source.Owner?.Loyalty);
             ships.SortByDistance(center);
 
             foreach (GameObject go in ships)
@@ -199,7 +199,7 @@ namespace Ship_Game.Gameplay
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
 
-            Ship shipToDamage    = hitModule.GetParent();
+            Ship shipToDamage = hitModule.GetParent();
             if (shipToDamage.Dying || !shipToDamage.Active)
                 return;
 
@@ -207,7 +207,8 @@ namespace Ship_Game.Gameplay
             if (shipToDamage.Loyalty?.data.ExplosiveRadiusReduction > 0f)
                 modifiedRadius *= 1f - shipToDamage.Loyalty.data.ExplosiveRadiusReduction;
 
-            shipToDamage.DamageModulesExplosive(damageSource, damageAmount, hitModule.Position, modifiedRadius, ignoresShields);
+            shipToDamage.DamageModulesExplosive(damageSource, damageAmount,
+                                                hitModule.Position, modifiedRadius, ignoresShields);
         }
 
         // @note This is called quite rarely, so optimization is not a priority
@@ -221,34 +222,38 @@ namespace Ship_Game.Gameplay
             // find any nearby ship -- even allies
             GameObject[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64, maxResults:32);
 
-            for (int i = 0; i < nearby.Length; ++i)
+            for (int i = 0; i < nearby.Length && damageAmount > 0f; ++i)
             {
                 var otherShip = (Ship)nearby[i];
                 // FB: Ships will be lucky to not get caught in the explosion, based on their level as well
                 if (RandomMath.RollDice(otherShip.ExplosionEvadeBaseChance() + otherShip.Level))
                     continue;
 
-                ShipModule nearest = otherShip.FindClosestUnshieldedModule(explosionCenter);
+                // First damage all shields covering the explosion center
+                while (true)
+                {
+                    ShipModule shield = otherShip.HitTestShields(explosionCenter, 16f);
+                    if (shield == null) break;
+                    shield.DamageShield(damageAmount, null, out damageAmount);
+                    if (damageAmount <= 0f)
+                        return;
+                }
+
+                ShipModule nearest = otherShip.FindClosestModule(explosionCenter);
                 if (nearest == null)
                     continue;
 
-                float reducedDamageRadius = damageRadius - explosionCenter.Distance(nearest.Position);
-                if (reducedDamageRadius <= 0.0f)
+                float reducedRadius = damageRadius - explosionCenter.Distance(nearest.Position);
+                if (reducedRadius <= 0f)
                     continue;
 
-                float damageFalloff = ShipModule.DamageFalloff(explosionCenter, nearest.Position, damageRadius, nearest.Radius);
-                // First damage all shields covering the module
-                damageAmount *= damageFalloff;
-                foreach (ShipModule shield in otherShip.GetAllActiveShieldsCoveringModule(nearest))
-                {
-                    shield.DamageShield(damageAmount, null, out damageAmount);
-                    if (damageAmount <= 0)
-                        break;
-                }
+                float falloff = ShipModule.DamageFalloff(explosionCenter, nearest.Position, damageRadius, nearest.Radius);
+                damageAmount *= falloff;
+                if (damageAmount <= 0f)
+                    return;
 
                 // Then explode at the module if any excess damage left
-                if (damageAmount > 0)
-                    ExplodeAtModule(thisShip, nearest, false, damageAmount, reducedDamageRadius);
+                ExplodeAtModule(thisShip, nearest, false, damageAmount, reducedRadius);
 
                 if (!otherShip.Dying)
                 {
