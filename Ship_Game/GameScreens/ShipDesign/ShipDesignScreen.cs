@@ -270,7 +270,8 @@ namespace Ship_Game
                 ShipModule module = slot.Module;
                 if (module != null && module.Deflection <= 0 &&
                     !module.Is(ShipModuleType.Armor) && !module.Is(ShipModuleType.Engine) &&
-                    !module.Is(ShipModuleType.Shield) && !module.Is(ShipModuleType.Command))
+                    !module.Is(ShipModuleType.Shield) && !module.Is(ShipModuleType.Command) &&
+                    !module.Is(ShipModuleType.PowerPlant) && !module.Is(ShipModuleType.PowerConduit))
                 {
                     ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
                     ShipSaved = false;

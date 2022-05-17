@@ -88,15 +88,15 @@ namespace Ship_Game.GameScreens.ShipDesign
         }
 
         bool IsPlatform => Hull.HullRole == RoleName.platform;
-        bool Stationary => Hull.HullRole == RoleName.station || Hull.HullRole == RoleName.platform;
+        bool Stationary => Hull.HullRole is RoleName.station or RoleName.platform;
         bool LargeCraft => Hull.HullRole == RoleName.freighter || Hull.HullRole == RoleName.destroyer
                                                                || Hull.HullRole == RoleName.cruiser
                                                                || Hull.HullRole == RoleName.battleship
                                                                || Hull.HullRole == RoleName.capital;
 
-        public static bool Civilian(RoleName role) => role == RoleName.colony 
-                                                      || role == RoleName.freighter 
-                                                      || role == RoleName.construction;
+        public static bool Civilian(RoleName role) => role is RoleName.colony 
+            or RoleName.freighter 
+            or RoleName.construction;
 
         public static bool Scout(RoleName role) => role == RoleName.scout;
 
@@ -137,29 +137,43 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (burst.LessOrEqual(0) || burst <= cap)
                 return;
 
-            WarningLevel level;
             float efficiency = cap / burst;
-            if (efficiency > 0.75f)     level = WarningLevel.Minor;
-            else if (efficiency > 0.5f) level = WarningLevel.Major;
-            else                        level = WarningLevel.Critical;
+            WarningLevel level = efficiency switch
+            {
+                > 0.75f => WarningLevel.Minor,
+                > 0.5f  => WarningLevel.Major,
+                _       => WarningLevel.Critical
+            };
 
             AddDesignIssue(DesignIssueType.HighBurstOrdnance, level, $" {(efficiency*100).String(0)}%");
         }
 
-        public void CheckIssueOrdnance(float ordnanceUsed, float ordnanceRecovered, float ammoTime)
+        public void CheckIssueOrdnance(float ordnanceUsed, float ordnanceRecovered, float ammoTime, bool hasOrdnance)
         {
             if ((ordnanceUsed - ordnanceRecovered).LessOrEqual(0))
                 return;  // Inf ammo
 
-            if (ammoTime < 5)
+            if (hasOrdnance)
             {
                 AddDesignIssue(DesignIssueType.NoOrdnance, WarningLevel.Critical);
             }
             else if (!IsPlatform)
             {
-                int goodAmmoTime = LargeCraft ? 50 : 25;
-                if (ammoTime < goodAmmoTime)
-                    AddDesignIssue(DesignIssueType.LowOrdnance, WarningLevel.Minor);
+                int goodAmmoTime = LargeCraft ? 60 : 30;
+                float ammoRatio  = ammoTime / goodAmmoTime;
+
+                if (ammoRatio > 1)
+                    return;
+
+                WarningLevel level = ammoRatio switch
+                {
+                    < 0.3f => WarningLevel.Critical,
+                    < 0.6f => WarningLevel.Major,
+                    < 0.9f => WarningLevel.Minor,
+                    _      => WarningLevel.Informative
+                };
+
+                AddDesignIssue(DesignIssueType.LowOrdnance, level);
             }
         }
 
@@ -178,12 +192,15 @@ namespace Ship_Game.GameScreens.ShipDesign
                 return;
 
             float rechargeTime    = powerCapacity / recharge.LowerBound(1);
-            WarningLevel severity = WarningLevel.None;
 
-            if      (rechargeTime > 25) severity = WarningLevel.Critical;
-            else if (rechargeTime > 20) severity = WarningLevel.Major;
-            else if (rechargeTime > 15) severity = WarningLevel.Minor;
-            else if (rechargeTime > 10)  severity = WarningLevel.Informative;
+            WarningLevel severity = rechargeTime switch
+            {
+                > 25 => WarningLevel.Critical,
+                > 20 => WarningLevel.Major,
+                > 15 => WarningLevel.Minor,
+                > 10 => WarningLevel.Informative,
+                _    => WarningLevel.None
+            };
 
             if (severity > WarningLevel.None)
             {
@@ -252,12 +269,15 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             float percentCanFire  = 100f * numCanFire / weaponsPowerPerShot.Length;
             float efficiency      = 100 * powerCapacity / weaponsPowerPerShot.Sum().LowerBound(1);
-            WarningLevel severity = WarningLevel.None;
 
-            if      (percentCanFire < 50)  severity = WarningLevel.Critical;
-            else if (percentCanFire < 70)  severity = WarningLevel.Major;
-            else if (percentCanFire < 90)  severity = WarningLevel.Minor;
-            else if (percentCanFire < 100) severity = WarningLevel.Informative;
+            WarningLevel severity = percentCanFire switch
+            {
+                < 50  => WarningLevel.Critical,
+                < 70  => WarningLevel.Major,
+                < 90  => WarningLevel.Minor,
+                < 100 => WarningLevel.Informative,
+                _     => WarningLevel.None
+            };
 
             if (percentCanFire.AlmostZero())
                 efficiency = 0;
@@ -364,11 +384,14 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (!hasEnergyWeapons || !excessPowerConsumed)
                 return;
 
-            WarningLevel severity = WarningLevel.None;
-            if      (weaponPowerTime < 2)  severity = WarningLevel.Critical;
-            else if (weaponPowerTime < 4)  severity = WarningLevel.Major;
-            else if (weaponPowerTime < 8) severity = WarningLevel.Minor;
-            else if (weaponPowerTime < 16) severity = WarningLevel.Informative;
+            WarningLevel severity = weaponPowerTime switch
+            {
+                < 2  => WarningLevel.Critical,
+                < 4  => WarningLevel.Major,
+                < 8  => WarningLevel.Minor,
+                < 16 => WarningLevel.Informative,
+                _    => WarningLevel.None
+            };
 
             if (severity > WarningLevel.None)
                 AddDesignIssue(DesignIssueType.LowWeaponPowerTime, severity);
@@ -380,23 +403,29 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (numWeapons == 0 || numOrdnanceWeapons == numWeapons || excessPowerConsumed.Less(0))
                 return;
 
-            WarningLevel severity      = WarningLevel.None;
             float energyWeaponsRatio   = (float)(numWeapons - numOrdnanceWeapons) / numWeapons;
             float efficiencyReduction  = (1 - netPowerRecharge / (excessPowerConsumed + netPowerRecharge));
             efficiencyReduction       *= energyWeaponsRatio;
             float netEfficiency        = (1 - efficiencyReduction) * 100;
 
-            if      (netEfficiency < 20) severity = WarningLevel.Critical;
-            else if (netEfficiency < 40) severity = WarningLevel.Major;
-            else if (netEfficiency < 60) severity = WarningLevel.Minor;
-            else if (netEfficiency < 80) severity = WarningLevel.Informative;
+            WarningLevel severity = netEfficiency switch
+            {
+                < 20 => WarningLevel.Critical,
+                < 40 => WarningLevel.Major,
+                < 60 => WarningLevel.Minor,
+                < 80 => WarningLevel.Informative,
+                _    => WarningLevel.None
+            };
 
             // Modify level by weapon power time if there is an issue
-            if (severity > WarningLevel.None) 
+            if (severity > WarningLevel.None)
             {
-                if      (weaponPowerTime > 60) severity -= 3;
-                else if (weaponPowerTime > 40) severity -= 2;
-                else if (weaponPowerTime > 20) severity -= 1;
+                switch (weaponPowerTime)
+                {
+                    case > 60: severity -= 3; break;
+                    case > 40: severity -= 2; break;
+                    case > 20: severity -= 1; break;
+                }
 
                 if (severity < WarningLevel.Informative)
                     severity = WarningLevel.Informative;
@@ -441,10 +470,13 @@ namespace Ship_Game.GameScreens.ShipDesign
                 return;
             }
 
-            WarningLevel severity = WarningLevel.None;
-            if      (burstEnergyPowerTime < 1)    severity = WarningLevel.Critical;
-            else if (burstEnergyPowerTime < 1.75) severity = WarningLevel.Major;
-            else if (burstEnergyPowerTime < 2)    severity = WarningLevel.Minor;
+            WarningLevel severity = burstEnergyPowerTime switch
+            {
+                < 1f    => WarningLevel.Critical,
+                < 1.75f => WarningLevel.Major,
+                < 2f    => WarningLevel.Minor,
+                _       => WarningLevel.None
+            };
 
             if (severity > WarningLevel.None)
                 AddDesignIssue(DesignIssueType.LowBurstPowerTime, severity);
@@ -573,11 +605,14 @@ namespace Ship_Game.GameScreens.ShipDesign
             float ratioToTargets = count / (float)maxTargets;
 
             WarningLevel severity;
-            if      (ratioToTargets > 4) severity = WarningLevel.Critical;
-            else if (ratioToTargets > 3) severity = WarningLevel.Major;
-            else if (ratioToTargets > 2) severity = WarningLevel.Minor;
-            else if (ratioToTargets > 1) severity = WarningLevel.Informative;
-            else return;
+            switch (ratioToTargets)
+            {
+                case > 4: severity = WarningLevel.Critical;    break;
+                case > 3: severity = WarningLevel.Major;       break;
+                case > 2: severity = WarningLevel.Minor;       break;
+                case > 1: severity = WarningLevel.Informative; break;
+                default: return;
+            }
 
             string target     = $" {Localizer.Token(GameText.FcsPower)}: {maxTargets}, ";
             string fireArcs   = $"{Localizer.Token(GameText.FireArc)}: {count} ";
