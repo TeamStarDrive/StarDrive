@@ -256,6 +256,7 @@ namespace Ship_Game
         }
 
         // For TESTING only
+        // You can't call GeneratePlanet / GenerateNewHomeworld after calling this
         public Planet(int id, SolarSystem system, float fertility, float minerals, float maxPop) : this(id)
         {
             ParentSystem = system;
@@ -298,13 +299,13 @@ namespace Ship_Game
 
                 InitPlanetType(ChooseTypeByWeight(sunZone));
 
-                float scale = RandomMath.Float(0.75f, 1.5f) + PType.Scale;
+                float scale = random.Float(0.75f, 1.5f) + PType.Scale;
                 if (PType.Category == PlanetCategory.GasGiant)
                     scale += 1f;
                 InitNewMinorPlanet(random, PType, scale);
             }
 
-            PlanetTilt = RandomMath.Float(45f, 135f);
+            PlanetTilt = random.Float(45f, 135f);
 
             GenerateMoons(system, newOrbital:this, data);
             
@@ -317,10 +318,10 @@ namespace Ship_Game
                     ResourceManager.CreateBuilding(this, building).AssignBuildingToTilePlanetCreation(this, out _);
             }
 
-            HasRings = data != null ? data.HasRings != null : (RandomMath.Float(1f, 100f) < 15f);
+            HasRings = data != null ? data.HasRings != null : (random.Float(1f, 100f) < 15f);
             if (HasRings)
             {
-                RingTilt = RandomMath.Float(-80f, -45f).ToRadians();
+                RingTilt = random.Float(-80f, -45f).ToRadians();
             }
         }
 
@@ -334,8 +335,8 @@ namespace Ship_Game
 
         void InitPlanetType(PlanetType type)
         {
-            if (PType != null) Log.Error("Planet PType already initialized!");
-            if (OrbitalRadius == 0f) Log.Error("Planet initialized with OrbitalRadius=0");
+            if (PType != null) throw new InvalidOperationException($"PType already initialized to {PType}");
+            if (OrbitalRadius == 0f) throw new InvalidOperationException("Planet initialized with OrbitalRadius=0");
 
             PType = type;
             OrbitalRadius += ObjectRadius; // ObjectRadius depends on PType

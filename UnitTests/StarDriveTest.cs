@@ -230,6 +230,8 @@ namespace UnitTests
 
         SolarSystem CreateRandomSolarSystem(Vector2 sysPos)
         {
+            if (sysPos == Vector2.Zero)
+                throw new ArgumentException("SolarSystem position must not be Zero");
             return new SolarSystem(UState, sysPos)
             {
                 Sun = SunType.RandomHabitableSun()
@@ -248,7 +250,7 @@ namespace UnitTests
 
         public Planet AddDummyPlanet(Vector2 sysPos, float fertility, float minerals, float pop)
         {
-            return AddDummyPlanet(sysPos, fertility, minerals, pop, Vector2.Zero, explored:false);
+            return AddDummyPlanet(sysPos, fertility, minerals, pop, sysPos+new Vector2(5000), explored:false);
         }
 
         public Planet AddDummyPlanet(Vector2 sysPos, float fertility, float minerals, float pop, Vector2 pos, bool explored)
@@ -265,28 +267,42 @@ namespace UnitTests
             return p;
         }
 
-        public Planet AddDummyPlanetToEmpire(Vector2 sysPos,Empire empire)
+        public Planet AddDummyPlanetToEmpire(Vector2 sysPos, Empire empire)
         {
             return AddDummyPlanetToEmpire(sysPos, empire, 0, 0, 0);
         }
 
         public Planet AddDummyPlanetToEmpire(Vector2 sysPos, Empire empire, float fertility, float minerals, float maxPop)
         {
-            Planet p = AddDummyPlanet(sysPos, fertility, minerals, maxPop);
+            Planet p = AddDummyPlanet(sysPos, fertility, minerals, maxPop, sysPos+new Vector2(5000), explored:false);
             p.SetOwner(empire);
             return p;
         }
 
         public Planet AddHomeWorldToEmpire(Vector2 sysPos, Empire empire)
         {
-            return AddHomeWorldToEmpire(sysPos, empire, Vector2.Zero);
+            return AddHomeWorldToEmpire(sysPos, empire, sysPos + new Vector2(5000));
         }
 
         public Planet AddHomeWorldToEmpire(Vector2 sysPos, Empire empire, Vector2 pos, bool explored = false)
         {
-            Planet p = AddDummyPlanet(sysPos, 0, 0, 0, pos, explored);
+            SolarSystem s = CreateRandomSolarSystem(sysPos);
+
             var random = new SeededRandom();
-            p.GenerateNewHomeWorld(random, empire, null);
+            var data = ResourceManager.LoadSolarSystemData(empire.data.Traits.HomeSystemName);
+            var ring = data.RingList.Find(r => r.HomePlanet);
+            float orbitalAngle = pos.AngleToTarget(s.Position);
+            float orbitalRadius = pos.Distance(s.Position);
+            var p = new Planet(UState.CreateId(), random, s, orbitalAngle, orbitalRadius,
+                               null, 100_000, empire, ring);
+            Assert.IsTrue(p.IsHomeworld, "Created Planet must be a homeworld!");
+            AddPlanetToSolarSystem(s, p);
+
+            if (explored)
+            {
+                s.SetExploredBy(Player);
+                p.SetExploredBy(Player);
+            }
             return p;
         }
 

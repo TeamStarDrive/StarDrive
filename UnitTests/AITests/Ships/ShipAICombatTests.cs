@@ -387,7 +387,7 @@ namespace UnitTests.AITests.Ships
             Us.EnableDebugLogging = true;
             Assert.IsFalse(Us.InCombat, "Ship should not start with InCombat set");
 
-            AddDummyPlanetToEmpire(Vector2.Zero, Enemy);
+            AddDummyPlanetToEmpire(new Vector2(2000), Enemy);
             RunObjectsSim(EnemyScanInterval);
 
             Assert.IsTrue(Us.Active, "Somehow our ship died!");
