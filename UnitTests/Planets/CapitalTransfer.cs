@@ -19,9 +19,9 @@ namespace UnitTests.Planets
         {
             CreateUniverseAndPlayerEmpire();
             Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
-            NewPlanet = AddDummyPlanet(Vector2.Zero, 2, 1, 3);
-            Homeworld = AddHomeWorldToEmpire(Vector2.Zero, Player);
-            EnemyHome = AddHomeWorldToEmpire(Vector2.Zero, Enemy);
+            NewPlanet = AddDummyPlanet(new Vector2(1000), 2, 1, 3);
+            Homeworld = AddHomeWorldToEmpire(new Vector2(2000), Player);
+            EnemyHome = AddHomeWorldToEmpire(new Vector2(3000), Enemy);
 
             PlanetType type = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
             var random = new SeededRandom();

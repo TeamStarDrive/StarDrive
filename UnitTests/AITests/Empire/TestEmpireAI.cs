@@ -32,13 +32,13 @@ namespace UnitTests.AITests.Empire
 
             CreateUniverseAndPlayerEmpire("Cordrazine");
 
-            AddDummyPlanet(Vector2.Zero, 2, 2, 40000, Vector2.One, explored:true);
-            AddDummyPlanet(Vector2.Zero, 1.9f, 1.9f, 40000, new Vector2(5000), explored:true);
-            AddDummyPlanet(Vector2.Zero, 1.7f, 1.7f, 40000, new Vector2(-5000), explored:true);
+            AddDummyPlanet(new Vector2(1000), 2, 2, 40000, Vector2.One, explored:true);
+            AddDummyPlanet(new Vector2(1000), 1.9f, 1.9f, 40000, new Vector2(5000), explored:true);
+            AddDummyPlanet(new Vector2(1000), 1.7f, 1.7f, 40000, new Vector2(-5000), explored:true);
             for (int x = 0; x < 50; x++)
-                AddDummyPlanet(Vector2.Zero, 0.1f, 0.1f, 1000, Vector2.One, explored:true);
-            AddHomeWorldToEmpire(Vector2.Zero, Player, Vector2.Zero, explored:true);
-            AddHomeWorldToEmpire(Vector2.Zero, Enemy, new Vector2(2000), explored:true);
+                AddDummyPlanet(new Vector2(1000), 0.1f, 0.1f, 1000, Vector2.One, explored:true);
+            AddHomeWorldToEmpire(new Vector2(1000), Player, Vector2.Zero, explored:true);
+            AddHomeWorldToEmpire(new Vector2(1000), Enemy, new Vector2(2000), explored:true);
 
             UnlockAllShipsFor(Player);
 

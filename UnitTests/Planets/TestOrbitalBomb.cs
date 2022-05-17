@@ -14,8 +14,8 @@ namespace UnitTests.Planets
         public TestOrbitalBomb()
         {
             CreateUniverseAndPlayerEmpire();
-            AddDummyPlanetToEmpire(Vector2.Zero, Player);
-            P = AddHomeWorldToEmpire(Vector2.Zero, Player);
+            AddDummyPlanetToEmpire(new Vector2(2000), Player);
+            P = AddHomeWorldToEmpire(new Vector2(2000), Player);
             B = new Bomb(Vector3.Zero, Player, "NuclearBomb", shipLevel: 15, shipHealthPercent: 1);
         }
 
