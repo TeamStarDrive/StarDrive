@@ -201,7 +201,7 @@
 - ParticleEffect: # Projectile Trail effect
   Name: SmokeTrail
   Emitters:
-    - Emitter: { Particle: ProjectileTrail, Rate: 80 }
+    - Emitter: { Particle: ProjectileTrail, Rate: 60 }
 
 - ParticleEffect: # Projectile Trail effect
   Name: MuzzleSmoke
