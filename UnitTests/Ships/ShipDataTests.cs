@@ -163,12 +163,12 @@ namespace UnitTests.Ships
             Assert.AreEqual("Terran-Prototype", design.Name);
             Assert.AreEqual("", design.ModName);
             Assert.AreEqual("Terran", design.ShipStyle);
-            Assert.AreEqual("Terran/Emissary", design.Hull);
-            Assert.AreEqual("ShipIcons/emissary", design.IconPath);
+            Assert.AreEqual("Terran/LightCruiser", design.Hull);
+            Assert.AreEqual("ShipIcons/icon_LightCruiser", design.IconPath);
             Assert.AreEqual(RoleName.prototype, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(146, design.GetOrLoadDesignSlots().Length);
-            Assert.AreEqual(308, design.GridInfo.SurfaceArea);
+            Assert.AreEqual(132, design.GetOrLoadDesignSlots().Length);
+            Assert.AreEqual(310, design.GridInfo.SurfaceArea);
         }
 
         [TestMethod]
