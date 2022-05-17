@@ -103,7 +103,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Issues.CheckIssueBackupCommand(ds.NumCmdModules, S.SurfaceArea);
                 Issues.CheckIssueStationaryHoldPositionHangars(S.Carrier.AllFighterHangars.Length, S.ShipData.DefaultCombatState);
                 Issues.CheckIssueUnpoweredModules(ds.UnpoweredModules);
-                Issues.CheckIssueOrdnance(ds.AvgOrdnanceUsed, S.OrdAddedPerSecond, ds.AmmoTime);
+                Issues.CheckIssueOrdnance(ds.AvgOrdnanceUsed, S.OrdAddedPerSecond, ds.AmmoTime, ds.HasOrdnance());
                 Issues.CheckIssuePowerRecharge(ds.HasEnergyWeapons, ds.PowerRecharge, S.PowerStoreMax, ds.PowerConsumed, out bool hasRechargeIssue);
                 Issues.CheckPowerRequiredToFireOnce(S, out bool hasFirePowerIssues);
                 Issues.CheckPowerCapacityWithSalvo(S, ds.PowerRecharge, hasFirePowerIssues, out bool hasSalvoFirePowerIssues);
