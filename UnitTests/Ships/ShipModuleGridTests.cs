@@ -29,8 +29,7 @@ namespace UnitTests.Ships
             SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(new ShipDesignWriter(), toSave);
 
             Ship prototype = Ship.CreateShipFromSave(Universe.UState, Player, saved);
-            Assert.AreEqual(18, prototype.GridWidth);
-            Assert.AreEqual(30, prototype.GridHeight);
+            Assert.AreEqual(new Point(20,28), prototype.GridSize);
         }
 
         /// <summary>
@@ -41,12 +40,10 @@ namespace UnitTests.Ships
         public void Regression_StarterShips_ModuleGrid()
         {
             Ship vulcan = SpawnShip("TEST_Vulcan Scout", Player, Vector2.Zero);
-            Assert.AreEqual(4, vulcan.GridWidth);
-            Assert.AreEqual(4, vulcan.GridHeight);
+            Assert.AreEqual(new Point(4,4), vulcan.GridSize);
 
             Ship prototype = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
-            Assert.AreEqual(18, prototype.GridWidth);
-            Assert.AreEqual(30, prototype.GridHeight);
+            Assert.AreEqual(new Point(20,28), prototype.GridSize);
         }
 
         static Vector2 Vec(float x, float y) => new(x,y);

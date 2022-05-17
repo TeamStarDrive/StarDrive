@@ -24,6 +24,7 @@ namespace Ship_Game.Ships
         public int SurfaceArea => Grid.SurfaceArea;
         public int GridWidth => Grid.Width;
         public int GridHeight => Grid.Height;
+        public Point GridSize => new(Grid.Width, Grid.Height);
 
         public IEnumerable<ShipModule> GetShields() => Grid.GetShields(ModuleSlotList);
         public IEnumerable<ShipModule> GetAmplifiers() => Grid.GetAmplifiers(ModuleSlotList);
