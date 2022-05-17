@@ -16,8 +16,8 @@ namespace UnitTests.Planets
         {
             CreateUniverseAndPlayerEmpire();
             Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
-            AddDummyPlanetToEmpire(Vector2.Zero, Player);
-            P = AddHomeWorldToEmpire(Vector2.Zero, Player);
+            AddDummyPlanetToEmpire(new Vector2(2000), Player);
+            P = AddHomeWorldToEmpire(new Vector2(2000), Player);
             Enemy1   = ResourceManager.CreateTroop("Wyvern", Enemy);
             Enemy2   = ResourceManager.CreateTroop("Wyvern", Enemy);
             Friendly = ResourceManager.CreateTroop("Wyvern", Player);
