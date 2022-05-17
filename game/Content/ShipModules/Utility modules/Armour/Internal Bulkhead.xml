@@ -27,6 +27,6 @@
   <Mass>4</Mass>
   <Health>900</Health>
   <HealthMax>900</HealthMax>
-  <ExplosiveResist>0.7</ExplosiveResist>
+  <ExplosiveResist>0.75</ExplosiveResist>
 
 </ShipModule>

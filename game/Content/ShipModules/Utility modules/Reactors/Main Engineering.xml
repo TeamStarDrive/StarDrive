@@ -38,8 +38,8 @@
   <ShieldRadius>60</ShieldRadius>
 
   <!-- for PowerPlant Items -->
-  <ExplosionDamage>20000</ExplosionDamage>
-  <ExplosionRadius>160</ExplosionRadius>
+  <ExplosionDamage>8000</ExplosionDamage>
+  <ExplosionRadius>96</ExplosionRadius>
   <PowerFlowMax>2100</PowerFlowMax>
   <PowerStoreMax>3000</PowerStoreMax>
   <PowerRadius>9</PowerRadius>

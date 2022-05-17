@@ -33,7 +33,7 @@
 
   <!-- for PowerPlant Items -->
   <ExplosionDamage>1500</ExplosionDamage>
-  <ExplosionRadius>40</ExplosionRadius> 
+  <ExplosionRadius>16</ExplosionRadius> 
   <PowerFlowMax>45</PowerFlowMax>
   <PowerStoreMax>10</PowerStoreMax>
   <PowerRadius>1</PowerRadius>

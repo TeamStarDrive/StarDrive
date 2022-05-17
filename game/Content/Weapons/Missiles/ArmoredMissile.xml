@@ -31,7 +31,7 @@
 <!-- Projectile stats -->
   <DamageAmount>2800</DamageAmount>
   <ProjectileSpeed>1500</ProjectileSpeed>
-  <ExplosionRadius>57</ExplosionRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>48</ExplosionRadius> <!-- This Projectile Explodes -->
   <DelayedIgnition>1.5</DelayedIgnition>
   
   <ProjectileRadius>10</ProjectileRadius>
