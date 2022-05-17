@@ -35,7 +35,7 @@
   <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1600</ProjectileSpeed>
   <ProjectileRadius>15</ProjectileRadius>
-  <ExplosionRadius>45</ExplosionRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>48</ExplosionRadius> <!-- This Projectile Explodes -->
   <Light>Orange</Light>
   
   <Animated>1</Animated>

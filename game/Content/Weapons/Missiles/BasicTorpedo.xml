@@ -35,7 +35,7 @@
   <!-- Projectile Information -->
   <DamageAmount>15500</DamageAmount>
   <ProjectileSpeed>1000</ProjectileSpeed>
-  <ExplosionRadius>200</ExplosionRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>96</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>

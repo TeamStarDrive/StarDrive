@@ -24,23 +24,23 @@
   <OrdinanceRequiredToFire>0.57</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
-  <FireCueName>Flak</FireCueName>
+  <FireCueName></FireCueName>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
-  <DamageAmount>191</DamageAmount>
-  <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
+  <DamageAmount>300</DamageAmount>
   <ProjectileSpeed>1200</ProjectileSpeed>
-  <ShieldPenChance>65</ShieldPenChance>
+  <ShieldPenChance>100</ShieldPenChance>
 
   <FakeExplode>true</FakeExplode>
   <ExplosionRadius>15</ExplosionRadius> <!-- This Projectile Explodes -->
-  <Scale>0.7</Scale>
-  <FireCone>40</FireCone>
-
+  <Scale>0.9</Scale>
+  <FireCone>60</FireCone>
+  <ProjectileCount>40</ProjectileCount>
   <ProjectileTexturePath>projBall_01_red</ProjectileTexturePath>
   <ModelPath>projBall</ModelPath>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
+  <WeaponTrailEffect>SmokeTrail</WeaponTrailEffect>
   <WeaponHitEffect>Kinetic_Hit_Armor</WeaponHitEffect>
   <WeaponShieldHitEffect>Kinetic_Hit_Shield</WeaponShieldHitEffect>
   <WeaponDeathEffect></WeaponDeathEffect>

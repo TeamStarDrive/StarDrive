@@ -32,7 +32,7 @@
   <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1900</ProjectileSpeed>
   
-  <ExplosionRadius>34</ExplosionRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>48</ExplosionRadius> <!-- This Projectile Explodes -->
 
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>

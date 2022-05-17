@@ -33,7 +33,7 @@
   <SalvoCount>3</SalvoCount>
   <SalvoTimer>0.3</SalvoTimer>
   
-  <ExplosionRadius>20</ExplosionRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>16</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <ProjectileRadius>10</ProjectileRadius>
   <Scale>0.9</Scale>
