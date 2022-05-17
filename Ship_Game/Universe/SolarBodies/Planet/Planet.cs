@@ -265,7 +265,7 @@ namespace Ship_Game
             if (fertility > 0)
                 PType = ResourceManager.Planets.RandomPlanet(PlanetCategory.Terran);
             else
-                PType = ResourceManager.Planets.Planet(0);
+                PType = ResourceManager.Planets.PlanetOrRandom(0);
         }
 
         public Planet(int id, RandomBase random, SolarSystem system, float randomAngle, float ringRadius, string name,
