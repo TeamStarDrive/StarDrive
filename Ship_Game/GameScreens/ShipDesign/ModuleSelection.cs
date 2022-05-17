@@ -323,7 +323,7 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, GameText.Mass2, mod.GetActualMass(EmpireManager.Player, 1), GameText.TT_Mass);
             DrawStat(ref modTitlePos, GameText.Health, mod.ActualMaxHealth, GameText.AModulesHealthRepresentsHow);
 
-            float powerDraw = mod.Is(ShipModuleType.PowerPlant) ? mod.ActualPowerFlowMax : -mod.PowerDraw;
+            float powerDraw = mod.ActualPowerFlowMax - mod.PowerDraw;
             DrawStat(ref modTitlePos, GameText.Power, powerDraw, GameText.IndicatesHowMuchPowerThis);
             DrawStat(ref modTitlePos, GameText.Defense, mod.MechanicalBoardingDefense, GameText.IndicatesTheCombatStrengthAdded);
             DrawStat(ref modTitlePos, Localizer.Token(GameText.Repair)+"+", mod.ActualBonusRepairRate, GameText.IndicatesTheBonusToOutofcombat);

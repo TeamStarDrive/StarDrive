@@ -111,9 +111,10 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void ResupplyingShipMustRemainInItsPool()
         {
-            Ship ship = SpawnShip("Vulcan Scout", Enemy, new Vector2(10000, 10000));
+            Ship ship = SpawnShip("Vulcan Scout", Enemy, new Vector2(4000, 4000));
             RunObjectsSim(TestSimStep);
 
+            Homeworld.ParentSystem.ShipList.Add(ship);
             Assert.AreNotEqual(null, ship.Pool, "Ship was not added to empire ShipPool !");
             IShipPool originalPool = ship.Pool;
             
@@ -121,6 +122,7 @@ namespace UnitTests.AITests.Empire
             ship.AI.OrderResupply(Homeworld, clearOrders:true);
             RunSimWhile((simTimeout:90, fatal:true), () => ship.AI.State == AIState.Resupply, () =>
             {
+                Homeworld.GeodeticManager.AffectNearbyShips();
                 Assert.AreEqual(originalPool, ship.Pool, "Ship must remain in the same pool during Resupply");
             });
         }
