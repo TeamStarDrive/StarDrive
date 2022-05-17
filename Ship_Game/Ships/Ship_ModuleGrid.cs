@@ -106,48 +106,11 @@ namespace Ship_Game.Ships
             return Grid.HitTestShieldsAt(ModuleSlotList, gridPos, worldHitPos, hitRadius);
         }
 
-        // Slightly more complicated ray-collision against shields
-        ShipModule RayHitTestShields(Vector2 worldStartPos, Vector2 worldEndPos, float rayRadius, out float hitDistance)
+        public ShipModule HitTestShieldsLocal(Vector2 localHitPos, float hitRadius)
         {
-            float minD = float.MaxValue;
-            ShipModule hit = null;
-            foreach (ShipModule shield in GetShields())
-            {
-                if (shield.ShieldsAreActive &&
-                    shield.RayHitTestShield(worldStartPos, worldEndPos, rayRadius, out float distanceFromStart))
-                {
-                    if (distanceFromStart < minD)
-                    {
-                        minD = distanceFromStart;
-                        hit = shield;
-                    }
-                } 
-            }
-            if (hit != null && DebugInfoScreen.Mode == DebugModes.SpatialManager)
-            {
-                //DebugDrawShieldHit(hit, worldStartPos, worldEndPos);
-            }
-            hitDistance = minD;
-            return hit;
-        }
-
-        // Gets the first shield currently covering a ship Module, starting with the outside radius first
-        public Array<ShipModule> GetAllActiveShieldsCoveringModule(ShipModule module)
-        {
-            Array<ShipModule> coveringShields = new Array<ShipModule>();
-            foreach (ShipModule shield in GetShields())
-            {
-                if (shield.ShieldsAreActive && shield.HitTestShield(module.Position, module.Radius))
-                    coveringShields.Add(shield);
-            }
-
-            return coveringShields;
-            // FB - RedFox wanted to create a shield grid, for performance. so i am omitting the sort of shields. 
-            // The sorting was done so that the outer shields will be returned first and get the damage first.
-            // With out the sorting, a projectile next module hit search will pop up a shield with might be smaller then 
-            // the correct shield which should be damages. meaning that the order of damaging shields might not
-            // be correct and look strange to the player.
-            //.Sorted(s => s.ShieldRadius - s.Position.Distance(module.Position));
+            Point gridPos = Grid.GridLocalToPoint(localHitPos);
+            Vector2 worldHitPos = GridLocalToWorld(localHitPos);
+            return Grid.HitTestShieldsAt(ModuleSlotList, gridPos, worldHitPos, hitRadius);
         }
 
         // Gets the strongest shield currently covering internalModule
@@ -253,7 +216,7 @@ namespace Ship_Game.Ships
         //       updated every time a module dies. The code for that is in ShipModule.cs
         // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
         // @note Ignores shields !
-        public ShipModule FindClosestUnshieldedModule(Vector2 worldPoint)
+        public ShipModule FindClosestModule(Vector2 worldPoint)
         {
             if (Externals.NumModules == 0)
                 return null;
@@ -374,14 +337,9 @@ namespace Ship_Game.Ships
         {
             if (!ignoresShields)
             {
-                foreach (ShipModule shield in GetShields())
-                {
-                    if (shield.ShieldsAreActive && shield.HitTestShield(worldHitPos, hitRadius))
-                    {
-                        if (shield.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount))
-                            return; // No more damage to dish, shields absorbed the blast
-                    }
-                }
+                ShipModule shield = HitTestShields(worldHitPos, hitRadius);
+                if (shield != null && shield.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount))
+                    return; // No more damage to dish, shields absorbed the blast
             }
 
             Point a = WorldToGridLocalPointClipped(worldHitPos - new Vector2(hitRadius));
@@ -538,14 +496,18 @@ namespace Ship_Game.Ships
         }
 
         // perform a raytrace from point a to point b, visiting all grid points between them!
-        ShipModule WalkModuleGrid(Vector2 a, Vector2 b)
+        ShipModule WalkModuleGrid(in Vector2 a, in Vector2 b, float rayRadius, bool ignoreShields)
         {
             Vector2 pos = a;
-            Vector2 delta = b - a;
-            Vector2 step = delta.Normalized() * 16f;
 
             // sometimes we directly enter the grid and hit a module:
             Point enter = GridLocalToPoint(pos);
+            if (!ignoreShields)
+            {
+                ShipModule se = HitTestShieldsLocal(pos, rayRadius);
+                if (se != null) return se;
+            }
+
             ShipModule me = GetModuleAt(enter.X, enter.Y);
             if (me != null && me.Active)
             {
@@ -554,9 +516,18 @@ namespace Ship_Game.Ships
                 return me;
             }
 
+            Vector2 delta = b - a;
+            Vector2 step = delta.Normalized() * 16f;
+
             int n = (int)(delta.Length() / 16f);
             for (; n >= 0; --n, pos += step)
             {
+                if (!ignoreShields)
+                {
+                    ShipModule s = HitTestShieldsLocal(pos, rayRadius);
+                    if (s != null) return s;
+                }
+
                 ShipModule m = TakeOneStep(pos, step);
                 if (m != null)
                 {
@@ -568,28 +539,20 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
+        public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields)
         {
-            // first we find the shield overlap, however, a module might be overlapping just before the shield border
-            float shieldHitDist = float.MaxValue;
-            ShipModule shield = null;
-            if (!ignoreShields)
-                shield = RayHitTestShields(startPos, endPos, rayRadius, out shieldHitDist);
-
             // move [a] completely out of bounds to prevent attacking central modules
             Vector2 dir = (endPos - startPos).Normalized();
             Vector2 a = WorldToGridLocal(startPos - dir * (Radius * 2));
             Vector2 b = WorldToGridLocal(endPos);
             if (MathExt.ClipLineWithBounds(Grid.Width*16f, Grid.Height*16f, a, b, ref a, ref b)) // guaranteed bounds safety
             {
-                ShipModule module = WalkModuleGrid(a, b);
-                if (module == null)
-                    return shield;
-
-                if (shield == null || module.Position.Distance(startPos) < shieldHitDist)
-                    return module; // module was closer, so should be hit first
+                // Shields take priority, then unshielded modules
+                ShipModule module = WalkModuleGrid(a, b, rayRadius, ignoreShields);
+                if (module != null)
+                    return module;
             }
-            return shield;
+            return null;
         }
 
 
@@ -617,9 +580,9 @@ namespace Ship_Game.Ships
                         // get covering shields to damage them first
                         if (!ignoreShields)
                         {
-                            Array<ShipModule> shields = GetAllActiveShieldsCoveringModule(m);
-                            if (shields.Count > 0)
-                                return shields[0];
+                            ShipModule shield = HitTestShields(m.Position, m.Radius);
+                            if (shield != null)
+                                return shield;
                         }
 
                         return m;

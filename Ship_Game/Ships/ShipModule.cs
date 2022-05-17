@@ -682,11 +682,6 @@ namespace Ship_Game.Ships
             return (dx*dx + dy*dy) <= (r2*r2);
         }
 
-        public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius, out float distanceFromStart)
-        {
-            return Position.RayCircleIntersect(rayRadius + ShieldHitRadius, startPos, endPos, out distanceFromStart);
-        }
-
         public bool RayHitTest(Vector2 startPos, Vector2 endPos, float rayRadius, out float distanceFromStart)
         {
             if (ShieldsAreActive)
