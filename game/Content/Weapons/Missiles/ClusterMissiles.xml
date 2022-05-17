@@ -15,7 +15,7 @@
 
    <UID>ClusterMissiles</UID> 
  
-  <HitPoints>5</HitPoints>
+  <HitPoints>10</HitPoints>
   <FireDelay>30</FireDelay>
   <Range>7000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
@@ -30,15 +30,15 @@
   
   <ProjectileRadius>11</ProjectileRadius>
   <RotationRadsPerSecond>2</RotationRadsPerSecond>
-  <FireCone>60</FireCone>
+  <FireCone>30</FireCone>
 <!--Projectile atributes-->
-  <Scale>0.9</Scale>
-  <OffPowerMod>0.2</OffPowerMod>
+  <Scale>1</Scale>
+  <OffPowerMod>0.03</OffPowerMod>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 
   <MirvWeapon>ClusterMirv</MirvWeapon>
-  <MirvWarheads>10</MirvWarheads>
-  <MirvSeparationDistance>3000</MirvSeparationDistance>
+  
+  <MirvSeparationDistance>2000</MirvSeparationDistance>
 <!-- Projectile textures-->
   <ProjectileTexturePath>LRM_d</ProjectileTexturePath>
   <ModelPath>LRM</ModelPath>

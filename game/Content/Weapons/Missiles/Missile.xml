@@ -34,7 +34,7 @@
   <DamageAmount>1200</DamageAmount>
   <RotationRadsPerSecond>1</RotationRadsPerSecond>
   <ProjectileSpeed>650</ProjectileSpeed>
-  <ExplosionRadius>40</ExplosionRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>32</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <HitPoints>9</HitPoints>
   <PowerRequiredToFire>0</PowerRequiredToFire>

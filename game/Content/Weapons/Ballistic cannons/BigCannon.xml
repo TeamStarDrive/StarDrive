@@ -38,7 +38,7 @@
   <Scale>1.2</Scale>
   <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1800</ProjectileSpeed>
-  <ExplosionRadius>75</ExplosionRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>64</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <Light>Orange</Light>
   <Animated>1</Animated>

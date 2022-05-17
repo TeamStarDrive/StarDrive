@@ -32,7 +32,7 @@
   <ProjectileCount>1</ProjectileCount>
   <DamageAmount>6900</DamageAmount>
   <ProjectileSpeed>950</ProjectileSpeed>
-  <ExplosionRadius>95</ExplosionRadius> <!-- This Projectile Explodes -->
+  <ExplosionRadius>80</ExplosionRadius> <!-- This Projectile Explodes -->
   <SalvoCount>1</SalvoCount>
   <SalvoTimer>0</SalvoTimer>
   
