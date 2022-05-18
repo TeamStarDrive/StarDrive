@@ -33,7 +33,6 @@
   <ProjectileSpeed>1800</ProjectileSpeed>
   
   <ExplosionRadius>24</ExplosionRadius> <!-- This Projectile Explodes -->
-  <ProjectileRadius>20</ProjectileRadius>
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
   <ProjectileCount>1</ProjectileCount>

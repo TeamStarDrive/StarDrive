@@ -34,7 +34,6 @@
   <ExplosionRadius>48</ExplosionRadius> <!-- This Projectile Explodes -->
   <DelayedIgnition>1.5</DelayedIgnition>
   
-  <ProjectileRadius>10</ProjectileRadius>
   <RotationRadsPerSecond>1</RotationRadsPerSecond>
 <!--Projectile atributes-->
   <Scale>1.1</Scale>

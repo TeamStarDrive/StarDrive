@@ -50,7 +50,6 @@
   <WeaponDeathEffect></WeaponDeathEffect>
   <WeaponTrailEffect>RocketTrail</WeaponTrailEffect>
 
-  <ProjectileRadius>10</ProjectileRadius>
   <Scale>3</Scale>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 </Weapon>

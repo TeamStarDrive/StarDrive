@@ -23,7 +23,7 @@
   <!-- Projectile Information -->
   <DamageAmount>20</DamageAmount>
   <ProjectileSpeed>2000</ProjectileSpeed>
-  <ProjectileRadius>45</ProjectileRadius>  
+  <ProjectileRadius>48</ProjectileRadius>  
   
   <Light>Blue</Light>
   <ProjectileTexturePath>projPulse_01_cyan_dual</ProjectileTexturePath>

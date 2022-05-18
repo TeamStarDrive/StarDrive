@@ -44,7 +44,7 @@
   <WeaponDeathEffect></WeaponDeathEffect>
   <WeaponTrailEffect>RocketTrail</WeaponTrailEffect>
 
-  <ProjectileRadius>8</ProjectileRadius>
+
   <Scale>2</Scale>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 </Weapon>

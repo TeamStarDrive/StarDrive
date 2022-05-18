@@ -34,7 +34,7 @@
   <EffectVsShields>1.15</EffectVsShields>
   <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1600</ProjectileSpeed>
-  <ProjectileRadius>15</ProjectileRadius>
+
   <ExplosionRadius>48</ExplosionRadius> <!-- This Projectile Explodes -->
   <Light>Orange</Light>
   

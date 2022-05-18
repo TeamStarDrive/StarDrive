@@ -39,7 +39,6 @@
   <Scale>.7</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>1450</ProjectileSpeed>
-  <ProjectileRadius>30</ProjectileRadius> 
   
   
   <ProjectileTexturePath>projPulse_01_yellow_1_small</ProjectileTexturePath>

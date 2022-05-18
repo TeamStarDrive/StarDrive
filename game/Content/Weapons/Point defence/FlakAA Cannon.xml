@@ -26,7 +26,7 @@
   <Scale>0.8</Scale>
   <MuzzleFlash>Yes</MuzzleFlash>
   <ProjectileSpeed>2000</ProjectileSpeed>
-  <ProjectileRadius>45</ProjectileRadius>  
+  <ProjectileRadius>48</ProjectileRadius>  
   <ExplosionRadius>20</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <ProjectileTexturePath>projTear_02_purple_dual</ProjectileTexturePath>

@@ -36,7 +36,6 @@
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.8</SalvoTimer>
   <DelayedIgnition>2</DelayedIgnition>
-  <ProjectileRadius>8</ProjectileRadius>
   <RotationRadsPerSecond>0.9</RotationRadsPerSecond>
 <!--Projectile atributes-->
   <Scale>1.2</Scale>
