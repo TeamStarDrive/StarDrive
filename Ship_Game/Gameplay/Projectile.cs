@@ -477,7 +477,8 @@ namespace Ship_Game.Gameplay
             if (Health <= 0f && Active)
                 DieNextFrame = true;
         }
-
+        
+        // cleanupOnly: just delete the projectile without showing visual death effects
         public override void Die(GameObject source, bool cleanupOnly)
         {
             if (!Active)
@@ -493,7 +494,8 @@ namespace Ship_Game.Gameplay
             if (InFlightSfx.IsPlaying)
                 InFlightSfx.Stop();
 
-            ExplodeProjectile(cleanupOnly);
+            // the projectile will explode without hitting anything
+            ExplodeProjectile(cleanupOnly, null);
 
             if (ProjSO != null)
             {
@@ -737,13 +739,13 @@ namespace Ship_Game.Gameplay
             return light;
         }
 
-        bool CloseEnoughForExplosion    => Universe.Screen.IsSectorViewOrCloser;
-        bool CloseEnoughForFlashExplode => Universe.Screen.IsSystemViewOrCloser;
-
-        void ExplodeProjectile(bool cleanupOnly, ShipModule atModule = null)
+        // cleanupOnly: just delete the projectile without showing visual death effects
+        void ExplodeProjectile(bool cleanupOnly, ShipModule victim)
         {
-            bool visibleToPlayer = Module?.GetParent().InSensorRange == true;
-            Vector3 origin = new Vector3(atModule?.Position ?? Position, -50f);
+            bool visibleToPlayer = InFrustum && Module?.GetParent().InSensorRange == true;
+            bool showFx = !cleanupOnly && visibleToPlayer && Universe.Screen.IsSectorViewOrCloser;
+            bool flashFx = showFx && FlashExplode && Universe.Screen.IsSystemViewOrCloser;
+
             if (Explodes)
             {
                 if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
@@ -751,34 +753,28 @@ namespace Ship_Game.Gameplay
                     DamageRadius += Owner.Loyalty.data.OrdnanceEffectivenessBonus * DamageRadius;
                 }
 
-                if (!cleanupOnly && CloseEnoughForExplosion && visibleToPlayer)
-                {
-                    ExplosionManager.AddExplosion(Universe.Screen, origin, Velocity*0.1f,
-                        DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
+                if (showFx)
+                    ShowExplosionEffect(flashFx);
 
-                    if (FlashExplode && CloseEnoughForFlashExplode)
-                    {
-                        GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                        Universe.Screen.Particles.Flash.AddParticle(origin, Vector3.Zero);
-                    }
-                }
-
-                // Using explosion at a specific module not to affect other ships which
-                // might bypass other modules for them, like armor
-                if (atModule != null && (IgnoresShields || !atModule.ShieldsAreActive)) 
-                    Universe.Spatial.ExplodeAtModule(this, atModule, IgnoresShields, DamageAmount, DamageRadius);
-                else
-                    Universe.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, Position);
+                // the most typical case: projectile has hit a victim module and will now explode
+                if (victim != null)
+                    Universe.Spatial.ProjectileExplode(this, victim);
             }
-            else if (FakeExplode && CloseEnoughForExplosion && visibleToPlayer)
+            else if (FakeExplode && showFx)
             {
-                ExplosionManager.AddExplosion(Universe.Screen, origin, Velocity*0.1f, 
-                    DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
-                if (FlashExplode && CloseEnoughForFlashExplode)
-                {
-                    GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                    Universe.Screen.Particles.Flash.AddParticle(origin, Vector3.Zero);
-                }
+                ShowExplosionEffect(flashFx);
+            }
+        }
+
+        void ShowExplosionEffect(bool flashFx)
+        {
+            var origin = new Vector3(Position, -50f);
+            float radius = DamageRadius * ExplosionRadiusMod;
+            ExplosionManager.AddExplosion(Universe.Screen, origin, Velocity*0.1f, radius, 2.5f, Weapon.ExplosionType);
+            if (flashFx)
+            {
+                GameAudio.PlaySfxAsync(DieCueName, Emitter);
+                Universe.Screen.Particles.Flash.AddParticle(origin, Vector3.Zero);
             }
         }
 
@@ -905,13 +901,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        void RayTracedExplosion(ShipModule module)
-        {
-            ExplodeProjectile(false, module);
-            Explodes = false;
-            FakeExplode = false;
-        }
-
         void DebugTargetCircle()
         {
             Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Universe.Screen);
@@ -923,7 +912,9 @@ namespace Ship_Game.Gameplay
             victim.DebugDamageCircle();
             if (Explodes)
             {
-                RayTracedExplosion(victim);
+                ExplodeProjectile(false, victim);
+                Explodes = false;
+                FakeExplode = false;
                 return true;
             }
 
