@@ -102,12 +102,12 @@ namespace Ship_Game.AI
             if (DefensiveForcePool.RemoveSwapLast(ship))
             {
                 if (ship.Active && sysToDefend == null)
-                    DebugInfoScreen.DefenseCoLogsSystemNull();
+                    ship.Universe.DebugWin?.DefenseCoLogsSystemNull();
             }
             else
             {
                 if (ship.Active && sysToDefend != null)
-                    DebugInfoScreen.DefenseCoLogsNotInPool();
+                    ship.Universe.DebugWin?.DefenseCoLogsNotInPool();
             }
 
             bool found = false;
@@ -118,7 +118,7 @@ namespace Ship_Game.AI
                 if (com.RemoveShip(ship))
                 {
                     found = true;
-                    DebugInfoScreen.DefenseCoLogsMultipleSystems(ship);
+                    ship.Universe.DebugWin?.DefenseCoLogsMultipleSystems(ship);
                     break;
                 }
             }
@@ -129,7 +129,7 @@ namespace Ship_Game.AI
                 Us.AddShipToManagedPools(ship);
             }
 
-            DebugInfoScreen.DefenseCoLogsNull(found, ship, sysToDefend);
+            ship.Universe.DebugWin?.DefenseCoLogsNull(found, ship, sysToDefend);
             return true;
         }
 

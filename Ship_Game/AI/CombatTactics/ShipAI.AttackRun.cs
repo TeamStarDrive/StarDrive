@@ -213,7 +213,7 @@ namespace Ship_Game.AI.CombatTactics
                 }
             }
 
-            if (DebugInfoScreen.Mode == DebugModes.Targeting &&
+            if (Owner.Universe.DebugMode == DebugModes.Targeting &&
                 Owner.Universe.DebugWin?.Visible == true &&
                 Owner.Universe.Screen.SelectedShip == Owner)
             {

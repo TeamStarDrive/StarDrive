@@ -79,7 +79,7 @@ namespace Ship_Game
             var nodeTex = ResourceManager.Texture("UI/node");
             var connectTex = ResourceManager.Texture("UI/nodeconnect"); // simple horizontal gradient
 
-            bool debug = Debug && DebugInfoScreen.Mode == DebugModes.Solar;
+            bool debug = DebugMode == DebugModes.Solar;
 
             Empire[] empires = UState.Empires.Sorted(e=> e.MilitaryScore);
             foreach (Empire empire in empires)
@@ -141,8 +141,7 @@ namespace Ship_Game
 
                     if (debug)
                     {
-                        if (DebugWin != null)
-                            DebugWin.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
+                        DebugWin?.DrawArrowImm(a.Position, b.Position, Color.Red, 2); // DEBUG
                         batch.DrawRectangle(connect1, angle1, Color.Green, 2); // DEBUG
                         batch.DrawRectangle(connect2, angle2, Color.Yellow, 2); // DEBUG
                         DrawLineProjected(b.Position, a.Position, Color.Red); // DEBUG

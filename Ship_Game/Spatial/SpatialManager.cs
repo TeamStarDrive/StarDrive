@@ -230,7 +230,7 @@ namespace Ship_Game.Gameplay
 
                 // Then explode at the module if any excess damage left
                 // Ignoring shields because we already checked shields above
-                otherShip.DamageExplosive(thisShip, damageAmount, nearest.Position, reducedRadius, ignoresShields:true);
+                otherShip.DamageExplosive(thisShip, damageAmount, nearest.Position, reducedRadius, true);
 
                 if (!otherShip.Dying)
                 {

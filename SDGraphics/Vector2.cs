@@ -96,11 +96,10 @@ public struct Vector2 : IEquatable<Vector2>
         return len > 0.000001 ? new Vector2((float)(X / len), (float)(Y / len)) : default;
     }
 
-    [Pure] public readonly void GetDirectionAndLength(out Vector2 dir, out float len)
+    [Pure] public readonly (Vector2, float) GetDirectionAndLength()
     {
         float l = (float)Math.Sqrt(X*X + Y*Y);
-        dir = l > 0.0000001f ? new Vector2(X / l, Y / l) : default;
-        len = l;
+        return (l > 0.0000001f ? new Vector2(X / l, Y / l) : default, l);
     }
 
     // Equivalent to:

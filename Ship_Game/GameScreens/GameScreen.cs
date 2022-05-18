@@ -626,6 +626,14 @@ namespace Ship_Game
             return new RectF(topLeft.X, topLeft.Y, (botRight.X - topLeft.X), (botRight.Y - topLeft.Y));
         }
 
+        public RectF ProjectToScreenRectF(in Vector3 center, in Vector2 size)
+        {
+            Vector3d worldTL = new Vector3d(center.X - size.X*0.5, center.Y - size.Y*0.5, center.Z);
+            Vector2d topLeft = ProjectToScreenPosition(worldTL);
+            Vector2d botRight = ProjectToScreenPosition(new Vector3d(worldTL.X + size.X, worldTL.Y + size.Y, center.Z));
+            return new RectF(topLeft.X, topLeft.Y, (botRight.X - topLeft.X), (botRight.Y - topLeft.Y));
+        }
+
         public RectF ProjectToScreenRectF(in Vector3d center, in Vector2d size)
         {
             Vector3d worldTL = new Vector3d(center.X - size.X*0.5, center.Y - size.Y*0.5, center.Z);

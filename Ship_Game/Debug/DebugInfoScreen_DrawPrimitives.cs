@@ -26,28 +26,40 @@ namespace Ship_Game.Debug
             return !Visible || Screen.UState.Paused;
         }
 
-        public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, float lifeTime)
+        public void DrawCircle(DebugModes mode, in Vector2 worldPos, float radius, float lifeTime)
         {
             if (ShouldNotAddPrimitive(mode)) return;
             AddPrimitive(new DebugCircle(worldPos.ToVec3(), radius, Color.Yellow, lifeTime));
         }
 
-        public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color, float lifeTime)
+        public void DrawCircle(DebugModes mode, in Vector2 worldPos, float radius, Color color, float lifeTime = 0f)
         {
             if (ShouldNotAddPrimitive(mode)) return;
             AddPrimitive(new DebugCircle(worldPos.ToVec3(), radius, color, lifeTime));
         }
 
-        public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color)
+        public void DrawCircle(DebugModes mode, in Vector3 worldPos, float radius, Color color, float lifeTime = 0f)
         {
             if (ShouldNotAddPrimitive(mode)) return;
-            AddPrimitive(new DebugCircle(worldPos.ToVec3(), radius, color, 0f));
+            AddPrimitive(new DebugCircle(worldPos, radius, color, lifeTime));
         }
 
-        public void DrawCircle(DebugModes mode, Vector3 worldPos, float radius, Color color)
+        public void DrawRect(DebugModes mode, in Vector3 worldPos, float radius, float rotation, Color color, float lifeTime = 0f)
         {
             if (ShouldNotAddPrimitive(mode)) return;
-            AddPrimitive(new DebugCircle(worldPos, radius, color, 0f));
+            AddPrimitive(new DebugRect(worldPos, radius, rotation, color, lifeTime));
+        }
+
+        public void DrawRect(DebugModes mode, in Vector2 worldPos, float radius, float rotation, Color color, float lifeTime = 0f)
+        {
+            if (ShouldNotAddPrimitive(mode)) return;
+            AddPrimitive(new DebugRect(worldPos.ToVec3(), radius, rotation, color, lifeTime));
+        }
+
+        public void DrawRect(DebugModes mode, in RectF rect, Color color, float rotation, float lifeTime = 0f)
+        {
+            if (ShouldNotAddPrimitive(mode)) return;
+            AddPrimitive(new DebugRect(rect, rotation, color, lifeTime));
         }
 
         public void DrawLine(DebugModes mode, Vector2 startInWorld, Vector2 endInWorld,
@@ -68,6 +80,18 @@ namespace Ship_Game.Debug
         {
             if (ShouldNotAddPrimitive(mode) || !obj.IsInFrustum(u)) return;
             AddPrimitive(new DebugGameObject(obj, Color.Red, 0f /*transient*/));
+        }
+
+        public void DrawGameObject(DebugModes mode, GameObject obj, UniverseScreen u, float lifeTime)
+        {
+            if (ShouldNotAddPrimitive(mode) || !obj.InFrustum) return;
+            AddPrimitive(new DebugGameObject(obj, Color.Red, lifeTime));
+        }
+
+        public void DrawGameObject(DebugModes mode, GameObject obj, Color color, float lifeTime)
+        {
+            if (ShouldNotAddPrimitive(mode) || !obj.InFrustum) return;
+            AddPrimitive(new DebugGameObject(obj, color, lifeTime));
         }
 
         public void DrawText(Vector2 posInWorld, string text, Color color, float lifeTime = 0f)
