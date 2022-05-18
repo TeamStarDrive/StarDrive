@@ -31,8 +31,7 @@
   <ProjectileSpeed>1100</ProjectileSpeed>
   <ShieldPenChance>100</ShieldPenChance>
 
-  <FakeExplode>true</FakeExplode>
-  <ExplosionRadius>15</ExplosionRadius> <!-- This Projectile Explodes -->
+ <!-- This Projectile Explodes -->
   <Scale>1</Scale>
   <FireCone>50</FireCone>
   <ProjectileCount>45</ProjectileCount>
