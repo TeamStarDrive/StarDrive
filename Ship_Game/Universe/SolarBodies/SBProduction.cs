@@ -49,12 +49,12 @@ namespace Ship_Game.Universe.SolarBodies
             if (P.IsCrippled || ConstructionQueue.IsEmpty || Owner == null)
                 return false;
 
-            float amount = maxAmount.UpperBound(ProductionHere);
-            if (amount > Owner.Money)
-                return false; // Not enough credits to rush
-
             // dont charge rush fees if in debug and the rush button was clicked
             bool rushFees = !P.Universe.Debug || !rushButton;
+
+            float amount = maxAmount.UpperBound(ProductionHere);
+            if (rushFees && amount > Owner.Money)
+                return false; // Not enough credits to rush
 
             // inject artificial surplus to instantly rush & finish production
             if (P.Universe.Debug && rushButton)

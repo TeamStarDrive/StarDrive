@@ -473,7 +473,7 @@ namespace Ship_Game.Debug
                 DrawString($"ENG:{ship.ShipEngines.EngineStatus} FTL:{ship.ShipEngines.ReadyForWarp} FLEET:{ship.ShipEngines.ReadyForFormationWarp}");
 
                 VisualizeShipOrderQueue(ship);
-                if (Screen.IsSystemViewOrCloser)
+                if (Screen.IsSystemViewOrCloser && Mode == DebugModes.Normal && !Screen.ShowShipNames)
                     DrawWeaponArcs(ship);
                 DrawSensorInfo(ship);
 

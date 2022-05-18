@@ -80,6 +80,17 @@ namespace UnitTests
             throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
         }
 
+        public static void Equal(this Assert assert, float tolerance,
+                                 in (Vector2,Vector2) expected, in (Vector2,Vector2) actual)
+        {
+            if (expected.Item1.AlmostEqual(actual.Item1, tolerance) &&
+                expected.Item2.AlmostEqual(actual.Item2, tolerance))
+            {
+                return; // OK
+            }
+            throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
+        }
+
         static bool IsKeyValuePair(object instance)
         {
             Type type = instance.GetType();

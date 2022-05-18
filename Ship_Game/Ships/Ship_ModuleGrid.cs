@@ -459,9 +459,8 @@ namespace Ship_Game.Ships
         // @todo Make use of rayRadius to improve Walk precision
         ShipModule TakeOneStep(Vector2 start, Vector2 step)
         {
-            Vector2 endPos = start + step;
             Point pos = GridLocalToPoint(start);
-            Point end = GridLocalToPoint(endPos);
+            Point end = GridLocalToPoint(start + step);
             if (!Grid.LocalPointInBounds(pos) || !Grid.LocalPointInBounds(end))
                 return null; // we're walking out of bounds
 
@@ -518,7 +517,7 @@ namespace Ship_Game.Ships
             }
 
             Vector2 delta = b - a;
-            Vector2 step = delta.Normalized() * 16f;
+            Vector2 step = delta.Normalized(16f);
 
             int n = (int)(delta.Length() / 16f);
             for (; n >= 0; --n, pos += step)
@@ -540,13 +539,21 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields)
+        // guaranteed bounds safety, clips GridLocal points [a] and [b] into the local grid
+        public bool ClipLineToGrid(Vector2 a, Vector2 b, ref Vector2 ca, ref Vector2 cb)
+        {
+            return MathExt.ClipLineWithBounds(
+                (Grid.Width*16) - 0.01f, (Grid.Height*16) - 0.01f, a, b, ref ca, ref cb);
+        }
+
+        public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos,
+                                           float rayRadius, bool ignoreShields)
         {
             // move [a] completely out of bounds to prevent attacking central modules
             Vector2 dir = (endPos - startPos).Normalized();
             Vector2 a = WorldToGridLocal(startPos - dir * (Radius * 2));
             Vector2 b = WorldToGridLocal(endPos);
-            if (MathExt.ClipLineWithBounds(Grid.Width*16f, Grid.Height*16f, a, b, ref a, ref b)) // guaranteed bounds safety
+            if (ClipLineToGrid(a, b, ref a, ref b))
             {
                 // Shields take priority, then unshielded modules
                 ShipModule module = WalkModuleGrid(a, b, rayRadius, ignoreShields);
@@ -556,41 +563,49 @@ namespace Ship_Game.Ships
             return null;
         }
 
-
-        // Find an Active ShipModule which collide with a this wide RAY
-        // Direction must be normalized!!
-        // Results are sorted by distance
-        // todo Align this with RayHitTestSingle
-        public ShipModule RayHitTestNextModules(Vector2 startPos, Vector2 direction, float distance, bool ignoreShields)
+        // Enumerate through ModuleGrid, yielding modules
+        public IEnumerable<ShipModule> RayHitTestWalkModules(Vector2 startPos, Vector2 direction,
+                                                             float distance, bool ignoreShields)
         {
             Vector2 endPos = startPos + direction * distance;
             Vector2 a = WorldToGridLocal(startPos);
             Vector2 b = WorldToGridLocal(endPos);
-            if (MathExt.ClipLineWithBounds(Grid.Width * 16f, Grid.Height * 16f, a, b, ref a, ref b)) // guaranteed bounds safety
+            if (ClipLineToGrid(a, b, ref a, ref b))
             {
+                ShipModule prevModule = null;
                 Vector2 pos = a;
                 Vector2 delta = b - a;
-                Vector2 step = delta.Normalized() * 16f;
+                Vector2 step = delta.Normalized(16f);
                 int n = (int)(delta.Length() / 16f);
                 for (; n > 0; --n, pos += step)
                 {
                     Point p = GridLocalToPoint(pos);
-                    ShipModule m = GetModuleAt(p);
-                    if (m != null && m.Active)
-                    {
-                        // get covering shields to damage them first
-                        if (!ignoreShields)
-                        {
-                            ShipModule shield = HitTestShields(m.Position, m.Radius);
-                            if (shield != null)
-                                return shield;
-                        }
 
-                        return m;
+                    // get covering shields to damage them first
+                    // there might not be any modules under [p], but trigger shields anyways
+                    if (!ignoreShields)
+                    {
+                        // we need world position for the shield hit-test
+                        // TODO: refactor HitTestShields so that worldHitPos is not needed
+                        Vector2 worldHitPos = GridLocalToWorld(pos);
+                        while (true)
+                        {
+                            ShipModule shield = Grid.HitTestShieldsAt(ModuleSlotList, p, worldHitPos, 8f);
+                            if (shield != null) // this will only return active shields
+                                yield return shield;
+                            else
+                                break; // no more active shields under [p]
+                        }
+                    }
+
+                    ShipModule m = GetModuleAt(p);
+                    if (m != null && m != prevModule && m.Active)
+                    {
+                        yield return m;
+                        prevModule = m;
                     }
                 }
             }
-            return null;
         }
 
 
