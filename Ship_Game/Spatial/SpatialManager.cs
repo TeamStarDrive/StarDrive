@@ -193,10 +193,12 @@ namespace Ship_Game.Gameplay
         }
 
         // Refactored by RedFox
+        // 1. A ShipModule like Reactor 2x2 has exploded
+        // 
         public void ExplodeAtModule(GameObject damageSource, ShipModule hitModule, 
                                     bool ignoresShields, float damageAmount, float damageRadius)
         {
-            if (damageRadius <= 0.0f || damageAmount <= 0.0f)
+            if (damageRadius <= 0f || damageAmount <= 0f)
                 return;
 
             Ship shipToDamage = hitModule.GetParent();
@@ -212,12 +214,10 @@ namespace Ship_Game.Gameplay
         }
 
         // @note This is called quite rarely, so optimization is not a priority
-        public void ShipExplode(Ship thisShip, float damageAmount, Vector2 position, float damageRadius)
+        public void ShipExplode(Ship thisShip, float damageAmount, Vector2 explosionCenter, float damageRadius)
         {
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
-
-            Vector2 explosionCenter = position;
 
             // find any nearby ship -- even allies
             GameObject[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64, maxResults:32);
@@ -253,7 +253,8 @@ namespace Ship_Game.Gameplay
                     return;
 
                 // Then explode at the module if any excess damage left
-                ExplodeAtModule(thisShip, nearest, false, damageAmount, reducedRadius);
+                // Ignoring shields because we already checked shields above
+                ExplodeAtModule(thisShip, nearest, ignoresShields:true, damageAmount, reducedRadius);
 
                 if (!otherShip.Dying)
                 {

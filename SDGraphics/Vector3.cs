@@ -63,7 +63,7 @@ public struct Vector3 : IEquatable<Vector3>
 
     public override string ToString()
     {
-        return $"[{X:0.###}, {Y:0.###}, {Z:0.###}]";
+        return $"[{X:0.####}, {Y:0.####}, {Z:0.####}]";
     }
 
     public string ToString(int precision)

@@ -402,9 +402,10 @@ public static class MathExt
     // output is [clippedStart, clippedEnd]. Otherwise no result is written.
     // http://www.skytopia.com/project/articles/compsci/clipping.html
     public static bool ClipLineWithBounds(
-        float boundsWidth, float boundsHeight,     // Define the x/y clipping values for the border.
+        float boundsWidth, float boundsHeight, // Define the x/y clipping values for the border.
         Vector2 start, Vector2 end,            // Define the start and end points of the line.
-        ref Vector2 clippedStart, ref Vector2 clippedEnd)  // The clipped points
+        ref Vector2 clippedStart,              // The clipped points
+        ref Vector2 clippedEnd)
     {
         float t0 = 0f, t1 = 1f;
         float dx = end.X - start.X;
@@ -433,10 +434,10 @@ public static class MathExt
                 if (r < t1) t1 = r;       // clip line from end towards start
             }
         }
-        clippedStart.X = Max(0, Min(start.X + t0 * dx, boundsWidth  - 0.1f));
-        clippedStart.Y = Max(0, Min(start.Y + t0 * dy, boundsHeight - 0.1f));
-        clippedEnd.X   = Max(0, Min(start.X + t1 * dx, boundsWidth  - 0.1f));
-        clippedEnd.Y   = Max(0, Min(start.Y + t1 * dy, boundsHeight - 0.1f));
+        clippedStart.X = Max(0, Min(start.X + t0 * dx, boundsWidth));
+        clippedStart.Y = Max(0, Min(start.Y + t0 * dy, boundsHeight));
+        clippedEnd.X   = Max(0, Min(start.X + t1 * dx, boundsWidth));
+        clippedEnd.Y   = Max(0, Min(start.Y + t1 * dy, boundsHeight));
         return true;
     }
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SDGraphics;
 using Ship_Game;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -200,6 +201,71 @@ namespace UnitTests.Ships
             Assert.AreEqual(Pos(0,0),   grid.WorldToGridPos( c - Vec(32,32) ));
             Assert.AreEqual(Pos(-2,-2), grid.WorldToGridPos( c - Vec(64,64) ));
             Assert.AreEqual(Pos(4,4),   grid.WorldToGridPos( c + Vec(32,32) ));
+        }
+
+        [TestMethod]
+        public void ModuleGridClipCoordinateBounds()
+        {
+            var c = new Vector2(1000);
+            Ship ship = SpawnShip("TEST_Vulcan Scout", Player, c);
+            
+            //  0  16  32  48    center = 32,32  size = 64,64
+            // x0  x1  x2  x3
+            // ___|IO_|IO_|___ y0 0
+            // ___|I__|I__|___ y1 16
+            // IO_|I__|IC_|IO_ y2 32
+            // IO_|E__|E__|IO_ y3 48
+
+            // straight parallel lines out of bounds
+            Assert.IsFalse(ClipLine(Vec(-16, -16), Vec(16, -16)), "Out of bounds line should return false");
+            Assert.IsFalse(ClipLine(Vec(80, -16), Vec(80, 32)), "Out of bounds line should return false");
+            Assert.IsFalse(ClipLine(Vec(64, 80), Vec(32, 80)), "Out of bounds line should return false");
+            Assert.IsFalse(ClipLine(Vec(-16, 80), Vec(-16, 32)), "Out of bounds line should return false");
+            Assert.IsFalse(ClipLine(Vec(0, 64), Vec(48, 64)), "Out of bounds line should return false");
+
+            // diagonal lines out of bounds
+            Assert.IsFalse(ClipLine(Vec(-32, 16), Vec(16, -32)), "Out of bounds line should return false");
+            Assert.IsFalse(ClipLine(Vec(48, -16), Vec(80, 16)), "Out of bounds line should return false");
+            Assert.IsFalse(ClipLine(Vec(80, 48), Vec(48, 80)), "Out of bounds line should return false");
+            Assert.IsFalse(ClipLine(Vec(-32, 48), Vec(16, 80)), "Out of bounds line should return false");
+
+            // lines which are already in bounds
+            Assert.AreEqual((Vec(0,0), Vec(16,16)), GetClipped(Vec(0,0), Vec(16,16)));
+            Assert.AreEqual((Vec(32,16), Vec(48,16)), GetClipped(Vec(32,16), Vec(48,16)));
+            Assert.AreEqual((Vec(0,48), Vec(48,48)), GetClipped(Vec(0,48), Vec(48,48)));
+
+            // lines which enter from outside horizontally
+            // from left --->
+            Assert.AreEqual((Vec(0,0), Vec(16,0)), GetClipped(Vec(-16,0), Vec(16,0)));
+            Assert.AreEqual((Vec(0,32), Vec(16,32)), GetClipped(Vec(-16,32), Vec(16,32)));
+            Assert.AreEqual((Vec(0,63), Vec(16,63)), GetClipped(Vec(-16,63), Vec(16,63)));
+            Assert.AreEqual((Vec(0,63), Vec(0.5f,63)), GetClipped(Vec(-0.1f,63), Vec(0.5f,63)));
+
+            // from right <---
+            Assert.AreEqual((Vec(63.99f,0), Vec(48,0)), GetClipped(Vec(80,0), Vec(48,0)));
+            Assert.AreEqual((Vec(63.99f,32), Vec(48,32)), GetClipped(Vec(80,32), Vec(48,32)));
+            Assert.AreEqual((Vec(63.99f,63), Vec(48,63)), GetClipped(Vec(80,63), Vec(48,63)));
+            Assert.AreEqual((Vec(63.99f,63), Vec(63.5f,63)), GetClipped(Vec(64.1f,63), Vec(63.5f,63)));
+
+            // line entering from top
+            Assert.That.Equal(0.001f, (Vec(32,0), Vec(32,16)), GetClipped(Vec(32,-32), Vec(32,16)));
+
+            // line entering from bottom
+            Assert.That.Equal(0.001f, (Vec(32,63.99f), Vec(32,32)), GetClipped(Vec(32,80), Vec(32,32)));
+
+
+            // @return False if both [a] and [b] are out of bounds
+            (Vector2, Vector2) GetClipped(Vector2 a, Vector2 b)
+            {
+                Vector2 ca = a, cb = b;
+                Assert.IsTrue(ship.ClipLineToGrid(a, b, ref ca, ref cb), "Line should be in bounds");
+                return (ca, cb);
+            }
+            bool ClipLine(Vector2 a, Vector2 b)
+            {
+                Vector2 ca = a, cb = b;
+                return ship.ClipLineToGrid(a, b, ref ca, ref cb);
+            }
         }
     }
 }
