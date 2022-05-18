@@ -193,7 +193,8 @@ namespace Ship_Game.Spatial
             return victim.Position.RayCircleIntersect(victim.Radius, beamStart, beamEnd, out distanceToHit);
         }
 
-        static bool HitTestProj(float simTimeStep, Projectile proj, GameObject victim, out ShipModule hitModule, out Vector2 hitPos)
+        static bool HitTestProj(float simTimeStep, Projectile proj, GameObject victim,
+                                out ShipModule hitModule, out Vector2 hitPos)
         {
             hitPos = proj.Position;
             // NOTE: this is for Projectile<->Projectile collision!
@@ -220,7 +221,7 @@ namespace Ship_Game.Spatial
             }
             else
             {
-                  hitModule = ship.HitTestSingle(center, proj.Radius, proj.IgnoresShields);
+                hitModule = ship.HitTestSingle(center, proj.Radius, proj.IgnoresShields);
             }
 
             return hitModule != null;

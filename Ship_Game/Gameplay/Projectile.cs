@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Ship_Game.AI;
 using Ship_Game.Debug;
@@ -762,7 +763,8 @@ namespace Ship_Game.Gameplay
                     }
                 }
 
-                // Using explosion at a specific module not to affect other ships which might bypass other modulesfor them , like armor
+                // Using explosion at a specific module not to affect other ships which
+                // might bypass other modules for them, like armor
                 if (atModule != null && (IgnoresShields || !atModule.ShieldsAreActive)) 
                     Universe.Spatial.ExplodeAtModule(this, atModule, IgnoresShields, DamageAmount, DamageRadius);
                 else
@@ -879,7 +881,7 @@ namespace Ship_Game.Gameplay
 
                     ArmorPiercingTouch(module, parent, hitPos);
                     Health = 0f;
-                    if (parent.InSensorRange)
+                    if (InFrustum)
                         CreateWeaponDeathEffect(target);
                     break;
             }
@@ -915,66 +917,55 @@ namespace Ship_Game.Gameplay
             Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Universe.Screen);
         }
 
-        void ArmorPiercingTouch(ShipModule module, Ship parent, Vector2 hitPos)
+        // @return TRUE if all Damage was absorbed by victim
+        bool Damage(ShipModule victim)
+        {
+            victim.DebugDamageCircle();
+            if (Explodes)
+            {
+                RayTracedExplosion(victim);
+                return true;
+            }
+
+            // for non-explosives try to kill the module
+            victim.Damage(this, DamageAmount, out DamageAmount);
+            // are we out of juice?
+            return DamageAmount <= 0f;
+        }
+
+        // For AP Projectiles, can we phase through this victim module?
+        bool TryPhaseThroughModule(ShipModule victim)
+        {
+            // apply resistances to AP phasing
+            ArmorPiercing -= (victim.APResist + victim.XSize);
+            // if AP was 1 and victim was 1x1 armor, then AP=1-1=0,
+            // so we should phase through it
+            return ArmorPiercing >= 0 && victim.Is(ShipModuleType.Armor);
+        }
+
+        void ArmorPiercingTouch(ShipModule victim, Ship parent, Vector2 hitPos)
         {
             // Doc: If module has resistance to Armour Piercing effects, 
             // deduct that from the projectile's AP before starting AP and damage checks
             // It is possible for a high AP projectile to pierce 1 armor, damage several modules and
-            // them pierce more armor modules as long as it has enough AP left and not exploding, which is cool
-            if (IgnoresShields || !module.ShieldsAreActive)
-                ArmorPiercing -= module.APResist;
-
-            if (module.Is(ShipModuleType.Armor))
-                ArmorPiercing -= module.XSize;
-
-            if (!module.Is(ShipModuleType.Armor) || ArmorPiercing < module.XSize)
-            {
-                if (Explodes)
-                {
-                    RayTracedExplosion(module);
-                    return;
-                }
-
-                module.Damage(this, DamageAmount, out DamageAmount);
-            }
-
+            // then pierce more armor modules as long as it has enough AP left and not exploding, which is cool
             DebugTargetCircle();
-            ShipModule moduleToTest = module; // Starting the next modules scan from the hit module
-            while (DamageAmount > 0)
+
+            if (!TryPhaseThroughModule(victim) && Damage(victim))
+                return; // all damage absorbed
+
+            Vector2 direction = VelocityDirection;
+            Vector2 currentPos = hitPos + direction*16f;
+
+            // create an enumeration object which will step through the module grid one by one
+            IEnumerable<ShipModule> walk = parent.RayHitTestWalkModules(
+                currentPos, direction, parent.Radius, IgnoresShields);
+
+            foreach (ShipModule nextModule in walk)
             {
-                Vector2 pos = moduleToTest.Position;
-                float distance = parent.Radius;
-
-                // using hitPos for ray traced hitPos if the module is a shield since shields have bigger radii and we must check
-                // the actual hitPos and not continue from the module - since we do not know if the shields were damaged
-                // or the actual module.
-                if (moduleToTest.Is(ShipModuleType.Shield) && !IgnoresShields)
-                {
-                    pos = hitPos;
-                    distance = distance.LowerBound(moduleToTest.ShieldRadius);
-                }
-
-                ShipModule nextModule = parent.RayHitTestNextModules(pos, VelocityDirection, distance, IgnoresShields);
-
-                if (nextModule == null)
-                    return;
-
-                moduleToTest = nextModule;
-                if (ArmorPiercing > 0 && IgnoresShields || !module.ShieldsAreActive)
-                {
-                    nextModule.DebugDamageCircle();
-                    if (ArmorPiercing >= nextModule.XSize && module.Is(ShipModuleType.Armor)) // armor is always squared anyway.
-                    {
-                        ArmorPiercing -= nextModule.XSize;
-                        continue; // Phase through this armor module (yikes!)
-                    }
-                }
-
-                nextModule.DebugDamageCircle();
-                if (Explodes)
-                    RayTracedExplosion(nextModule);
-                else
-                    nextModule.Damage(this, DamageAmount, out DamageAmount);
+                if (!TryPhaseThroughModule(nextModule) && Damage(nextModule))
+                    return; // all damage absorbed
+                // either phase to next module, or continue crushing through modules
             }
         }
 
