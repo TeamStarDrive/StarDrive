@@ -35,7 +35,7 @@
   <FakeExplode>true</FakeExplode>
   <ExplosionRadius>16</ExplosionRadius> <!-- This Projectile Explodes -->
     
-  <ProjectileRadius>20</ProjectileRadius>
+
 
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>

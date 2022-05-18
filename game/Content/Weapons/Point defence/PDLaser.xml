@@ -47,6 +47,6 @@
   <MuzzleFlash>EcannonMuzzle</MuzzleFlash>
 
   <ProjectileCount>1</ProjectileCount>
-  <ProjectileRadius>30</ProjectileRadius> 
+  <ProjectileRadius>32</ProjectileRadius> 
   <FireArc>0</FireArc>
 </Weapon>

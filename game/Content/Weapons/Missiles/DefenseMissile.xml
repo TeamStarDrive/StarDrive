@@ -34,7 +34,7 @@
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
 
-  <ProjectileRadius>10</ProjectileRadius>
+
   <Scale>1.5</Scale>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 

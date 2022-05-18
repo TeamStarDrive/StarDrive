@@ -35,7 +35,7 @@
   <ProjectileSpeed>2250</ProjectileSpeed>
   <SalvoCount>2</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
-  <ProjectileRadius>5</ProjectileRadius>
+
   <!-- Animation Information -->
   <Animated>1</Animated>
   <Light>Blue</Light>

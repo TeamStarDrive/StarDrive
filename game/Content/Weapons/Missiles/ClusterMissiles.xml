@@ -20,7 +20,7 @@
   <Range>7000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>1</OrdinanceRequiredToFire>
-  <ProjectileRadius>20</ProjectileRadius>
+
 <!-- Projectile stats -->
   <DamageAmount>500</DamageAmount>
   <ProjectileSpeed>1100</ProjectileSpeed>
@@ -28,7 +28,6 @@
   <SalvoCount>3</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
   
-  <ProjectileRadius>11</ProjectileRadius>
   <RotationRadsPerSecond>2</RotationRadsPerSecond>
   <FireCone>30</FireCone>
 <!--Projectile atributes-->

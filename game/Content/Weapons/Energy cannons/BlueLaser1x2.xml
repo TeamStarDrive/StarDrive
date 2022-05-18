@@ -46,5 +46,5 @@
   <WeaponDeathEffect></WeaponDeathEffect>
   <MuzzleFlash>EcannonMuzzle</MuzzleFlash>
 
-  <ProjectileRadius>20</ProjectileRadius>
+
 </Weapon>

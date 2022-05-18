@@ -40,7 +40,6 @@
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
 
-  <ProjectileRadius>12</ProjectileRadius>
   <CanCollideProjectiles>false</CanCollideProjectiles>
   <RotationRadsPerSecond>0.6</RotationRadsPerSecond>
 

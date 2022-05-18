@@ -36,7 +36,7 @@
   <Light>Red</Light>
   <ProjectileTexturePath>projLong_02_red</ProjectileTexturePath>
   <ModelPath>projLong</ModelPath>
-  <ProjectileRadius>20</ProjectileRadius>
+
   <ProjectileCount>1</ProjectileCount>
   <FireArc>0</FireArc>
 

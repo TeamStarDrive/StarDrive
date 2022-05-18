@@ -31,7 +31,7 @@
   <DamageAmount>510</DamageAmount>
   <MuzzleFlash>BallisticMuzzle</MuzzleFlash>
   <ProjectileSpeed>1600</ProjectileSpeed>
-  <ProjectileRadius>30</ProjectileRadius>
+
   <ProjectileTexturePath>projExotic_01</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>
 

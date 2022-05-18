@@ -17,7 +17,7 @@
   <DamageAmount>175</DamageAmount>
   <ProjectileSpeed>1200</ProjectileSpeed>
   <ExplosionRadius>25</ExplosionRadius> <!-- This Projectile Explodes --> 
-  <ProjectileRadius>6</ProjectileRadius>
+
   
   <ProjectileTexturePath>projTear_01_orange</ProjectileTexturePath>
   <ModelPath>projTear</ModelPath>

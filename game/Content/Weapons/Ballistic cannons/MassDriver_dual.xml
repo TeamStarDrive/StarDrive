@@ -31,7 +31,7 @@
   <DieCue>sd_explosion_ship_det_small</DieCue>
   
 
-  <ProjectileRadius>10</ProjectileRadius>
+
   <Scale>1</Scale>
   <!-- Projectile Information -->
   <DamageAmount>2200</DamageAmount>
