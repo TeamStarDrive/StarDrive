@@ -153,7 +153,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             if ((ordnanceUsed - ordnanceRecovered).LessOrEqual(0))
                 return;  // Inf ammo
 
-            if (hasOrdnance)
+            if (!hasOrdnance)
             {
                 AddDesignIssue(DesignIssueType.NoOrdnance, WarningLevel.Critical);
             }
