@@ -26,19 +26,19 @@
   <OrdinanceRequiredToFire>1</OrdinanceRequiredToFire>
   <ProjectileRadius>20</ProjectileRadius>
 <!-- Projectile stats -->
-  <DamageAmount>200</DamageAmount>
+  <DamageAmount>250</DamageAmount>
   <ProjectileSpeed>1200</ProjectileSpeed>
   <ExplosionRadius>80</ExplosionRadius> <!-- This Projectile Explodes -->
   <SalvoCount>15</SalvoCount>
   <SalvoTimer>1.5</SalvoTimer>
-  <DelayedIgnition>3</DelayedIgnition>
+  <DelayedIgnition>2</DelayedIgnition>
   <ProjectileRadius>11</ProjectileRadius>
   <RotationRadsPerSecond>2</RotationRadsPerSecond>
   <FireCone>90</FireCone>
   <FireArc>90</FireArc>
 <!--Projectile atributes-->
   <Scale>0.7</Scale>
-   <OffPowerMod>0.4</OffPowerMod>
+   <OffPowerMod>0.35</OffPowerMod>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 <!-- Projectile textures-->
   <ProjectileTexturePath>LRM_d</ProjectileTexturePath>
