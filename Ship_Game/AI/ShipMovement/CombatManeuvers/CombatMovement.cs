@@ -295,7 +295,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
 
         public void DrawDebugTarget(Vector2 pip, float radius)
         {
-            if (DebugInfoScreen.Mode == DebugModes.Targeting &&
+            if (Owner.Universe.DebugMode == DebugModes.Targeting &&
                 Owner.Universe.DebugWin?.Visible == true &&
                 Owner.Universe.Screen.SelectedShip == Owner)
             {
@@ -306,7 +306,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
 
         public void DrawDebugText(string text)
         {
-            if (DebugInfoScreen.Mode == DebugModes.Targeting &&
+            if (Owner.Universe.DebugMode == DebugModes.Targeting &&
                 Owner.Universe.DebugWin?.Visible == true &&
                 Owner.Universe.Screen.SelectedShip == Owner)
             {

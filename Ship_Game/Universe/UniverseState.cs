@@ -43,6 +43,9 @@ namespace Ship_Game.Universe
         
         public bool Paused = true; // always start paused
         public bool Debug;
+        public DebugModes DebugMode;
+        DebugModes PrevDebugMode;
+
         public bool GameOver = false;
         public bool NoEliminationVictory;
         public float GamePace = 1f;
@@ -124,6 +127,21 @@ namespace Ship_Game.Universe
             Influence = new InfluenceTree(universeRadius, DefaultProjectorRadius);
 
             Objects = new UniverseObjectManager(screen, this, Spatial);
+        }
+
+        public void SetDebugMode(bool debug)
+        {
+            Debug = debug;
+            // if not in debug, we set DebugMode to invalid value
+            DebugMode = debug ? PrevDebugMode : DebugModes.Last;
+            if (!debug)
+                Screen.DebugWin = null;
+        }
+
+        public void SetDebugMode(DebugModes mode)
+        {
+            PrevDebugMode = mode;
+            SetDebugMode(Debug);
         }
 
         // @return New Unique ID in this Universe

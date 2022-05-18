@@ -372,10 +372,17 @@ namespace Ship_Game.Gameplay
             Duration *= momentumLoss / 10;
             Speed    *= momentumLoss / 10;
             SetInitialVelocity(Speed * newDirection);
-            if (RandomMath.RollDie(2) == 2)
+
+            if (InFrustum && RandomMath.RollDie(2) == 2)
             {
                 var foregroundPos = new Vector3(deflectionPoint.X, deflectionPoint.Y, deflectionPoint.Z - 50f);
                 Universe.Screen.Particles.BeamFlash.AddParticle(foregroundPos, Vector3.Zero);
+
+                if (Universe.DebugMode == DebugModes.Targeting)
+                {
+                    Universe.DebugWin?.DrawText(DebugModes.Targeting,
+                        Position, "deflected", Color.Red, lifeTime:1f);
+                }
             }
         }
 
@@ -466,6 +473,11 @@ namespace Ship_Game.Gameplay
             if (MissileAI != null && MissileAI.Jammed)
             {
                 screen.DrawStringProjected(Position + new Vector2(16), 50f, Color.Red, "Jammed");
+            }
+
+            if (Universe.DebugMode == DebugModes.Targeting)
+            {
+                screen.DrawCircleProjected(Position, Radius, Color.LightCyan);
             }
         }
 
@@ -682,7 +694,7 @@ namespace Ship_Game.Gameplay
             // always set trail velocity to negative direction, ignore true velocity
             var trailVel = new Vector3(forward * Speed * -1.75f, 0f);
 
-            if (Universe.Debug && DebugInfoScreen.Mode == DebugModes.Particles)
+            if (Universe.DebugMode == DebugModes.Particles)
             {
                 Universe.DebugWin.DrawCircle(DebugModes.Particles, trailPos, 8, Color.Red);
                 Universe.DebugWin.DrawCircle(DebugModes.Particles, pos3d, 8, Color.Yellow);
@@ -831,7 +843,7 @@ namespace Ship_Game.Gameplay
             if (TrailTurnedOn) // engine is ignited
                 SetThrustThisFrame(VelocityMax*0.5f, 0f, Thrust.Forward);
         }
-        
+
         public bool Touch(GameObject target, Vector2 hitPos)
         {
             if (Miss || target == Owner)
@@ -901,11 +913,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        void DebugTargetCircle()
-        {
-            Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Universe.Screen);
-        }
-
         // @return TRUE if all Damage was absorbed by victim
         bool Damage(ShipModule victim)
         {
@@ -931,26 +938,30 @@ namespace Ship_Game.Gameplay
             ArmorPiercing -= (victim.APResist + victim.XSize);
             // if AP was 1 and victim was 1x1 armor, then AP=1-1=0,
             // so we should phase through it
-            return ArmorPiercing >= 0 && victim.Is(ShipModuleType.Armor);
+            bool phaseThrough = ArmorPiercing >= 0 && victim.Is(ShipModuleType.Armor);
+
+            if (phaseThrough && Universe.DebugMode == DebugModes.Targeting)
+            {
+                Universe.DebugWin?.DrawText(DebugModes.Targeting,
+                    Position, "phased", Color.IndianRed, lifeTime:1f);
+            }
+            return phaseThrough;
         }
 
+        // if the projectile is strong enough, keep piercing through modules
+        // otherwise just explode and die
         void ArmorPiercingTouch(ShipModule victim, Ship parent, Vector2 hitPos)
         {
-            // Doc: If module has resistance to Armour Piercing effects, 
-            // deduct that from the projectile's AP before starting AP and damage checks
-            // It is possible for a high AP projectile to pierce 1 armor, damage several modules and
-            // then pierce more armor modules as long as it has enough AP left and not exploding, which is cool
-            DebugTargetCircle();
+            // for visual consistency we want to show Projectile at hitPos
+            Position = hitPos;
+            Universe.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Color.LightCyan, lifeTime:0.25f);
 
             if (!TryPhaseThroughModule(victim) && Damage(victim))
                 return; // all damage absorbed
 
-            Vector2 direction = VelocityDirection;
-            Vector2 currentPos = hitPos + direction*16f;
-
             // create an enumeration object which will step through the module grid one by one
             IEnumerable<ShipModule> walk = parent.RayHitTestWalkModules(
-                currentPos, direction, parent.Radius, IgnoresShields);
+                hitPos, VelocityDirection, parent.Radius, IgnoresShields);
 
             foreach (ShipModule nextModule in walk)
             {

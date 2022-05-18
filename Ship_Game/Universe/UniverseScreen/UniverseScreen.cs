@@ -72,6 +72,7 @@ namespace Ship_Game
         FleetButton[] FleetButtons = Empty<FleetButton>.Array;
         public bool ShowTacticalCloseup { get; private set; }
         public bool Debug => UState.Debug;
+        public DebugModes DebugMode => UState.DebugMode;
 
         PieMenu pieMenu;
         PieMenuNode planetMenu;
@@ -612,7 +613,7 @@ namespace Ship_Game
             }
             catch (Exception e)
             {
-                UState.Debug = false;
+                UState.SetDebugMode(false);
                 DebugWin = null;
                 Log.Error(e, "DebugWindowCrashed");
             }

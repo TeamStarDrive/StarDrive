@@ -15,6 +15,7 @@ using SDUtils;
 using Ship_Game.Ships.AI;
 using static Ship_Game.AI.ShipAI;
 using Ship_Game.Fleets;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -51,7 +52,7 @@ namespace Ship_Game.Debug
     {
         public bool IsOpen = true;
         readonly UniverseScreen Screen;
-        Rectangle Win = new Rectangle(30, 100, 1200, 700);
+        Rectangle Win = new(30, 100, 1200, 700);
 
         // TODO: Use these stats in some DebugPage
         public static int ShipsDied;
@@ -59,64 +60,16 @@ namespace Ship_Game.Debug
         public static int ProjCreated;
         public static int ModulesDied;
 
-        int ShipsNotInForcePool;
-        int ShipsInDefForcePool;
-        int ShipsInAoPool;
-
-        public static DebugModes Mode { get; private set; }
-        readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
+        public DebugModes Mode => Screen.DebugMode;
+        readonly Array<DebugPrimitive> Primitives = new();
         DebugPage Page;
-        //readonly FloatSlider SpeedLimitSlider;
-        //readonly FloatSlider DebugPlatformSpeed;
-        //bool CanDebugPlatformFire;
 
         public DebugInfoScreen(UniverseScreen screen) : base(screen, toPause: null)
         {
             Screen = screen;
-            //if (screen is DeveloperUniverse)
-            //{
-            //    SpeedLimitSlider = Slider(RelativeToAbsolute(-200f, 400f), 200, 40, "Debug SpeedLimit", 0f, 1f, 1f);
-            //    DebugPlatformSpeed = Slider(RelativeToAbsolute(-200f, 440f), 200, 40, "Platform Speed", -500f, 500f, 0f);
-            //    Checkbox(RelativeToAbsolute(-200f, 480f), () => CanDebugPlatformFire, "Start Firing", "");
-            //}
-
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                if (empire.isPlayer || empire.isFaction)
-                    continue;
-
-                bool flag = false;
-                var ships = empire.OwnedShips;
-                foreach (Ship ship in ships)
-                {
-                    if (ship?.Active != true) continue;
-                    if (ship.DesignRole < RoleName.troopShip) continue;
-                    if (empire.AIManagedShips.Contains(ship)) continue;
-
-                    foreach (AO ao in empire.GetEmpireAI().AreasOfOperations)
-                    {
-                        if (ao.OffensiveForcePoolContains(ship) || ao.WaitingShipsContains(ship) || ao.GetCoreFleet() == ship.Fleet)
-                        {
-                            ShipsInAoPool++;
-                            flag = true;
-                        }
-                    }
-
-                    if (flag)
-                        continue;
-
-                    if (empire.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship) )
-                    {
-                        ++ShipsInDefForcePool;
-                        continue;
-                    }
-
-                    ++ShipsNotInForcePool;
-                }
-            }
         }
 
-        readonly Dictionary<string, Array<string>> ResearchText = new Dictionary<string, Array<string>>();
+        readonly Dictionary<string, Array<string>> ResearchText = new();
 
         public void ResearchLog(string text, Empire empire)
         {
@@ -148,9 +101,15 @@ namespace Ship_Game.Debug
             {
                 ResearchText.Clear();
                 HideAllDebugGameInfo();
-                Mode += input.KeyPressed(Keys.Left) ? -1 : +1;
-                if      (Mode >= DebugModes.Last)  Mode = DebugModes.Normal;
-                else if (Mode < DebugModes.Normal) Mode = DebugModes.Last - 1;
+
+                DebugModes mode = Mode;
+                mode += input.KeyPressed(Keys.Left) ? -1 : +1;
+                Screen.UState.SetDebugMode(Mode switch
+                {
+                    >= DebugModes.Last => DebugModes.Normal,
+                    < DebugModes.Normal => DebugModes.Last - 1,
+                    _ => mode
+                });
                 return true;
             }
             return base.HandleInput(input);
@@ -1195,7 +1154,7 @@ namespace Ship_Game.Debug
 
 
 
-        public static void DefenseCoLogsNull(bool found, Ship ship, SolarSystem systemToDefend)
+        public void DefenseCoLogsNull(bool found, Ship ship, SolarSystem systemToDefend)
         {
             if (Mode != DebugModes.DefenseCo)
                 return;
@@ -1207,23 +1166,23 @@ namespace Ship_Game.Debug
             }
         }
 
-        public static void DefenseCoLogsMultipleSystems(Ship ship)
+        public void DefenseCoLogsMultipleSystems(Ship ship)
         {
             if (Mode != DebugModes.DefenseCo) return;
             Log.Info(color: ConsoleColor.Yellow, text: $"SystemCommander: Remove : Ship Was in Multiple SystemCommanders: {ship}");
         }
-        public static void DefenseCoLogsNotInSystem()
+        public void DefenseCoLogsNotInSystem()
         {
             if (Mode != DebugModes.DefenseCo) return;
             Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : Not in SystemCommander");
         }
 
-        public static void DefenseCoLogsNotInPool()
+        public void DefenseCoLogsNotInPool()
         {
             if (Mode != DebugModes.DefenseCo) return;
             Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : Not in DefensePool");
         }
-        public static void DefenseCoLogsSystemNull()
+        public void DefenseCoLogsSystemNull()
         {
             if (Mode != DebugModes.DefenseCo) return;
             Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : SystemToDefend Was Null");
