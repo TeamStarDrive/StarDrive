@@ -172,7 +172,7 @@
 - ParticleEffect: # Projectile Trail effect
   Name: BubbleProj
   Emitters:
-    - Emitter: { Particle: DarkMatterTrail, Rate: 50 }
+    - Emitter: { Particle: DarkMatterTrail, Rate: 40 }
       Scale: 0.7
     - Emitter: { Particle: MissileThrustFlare, Rate: 25, InheritSprayVelocity: 0 }
       Scale: 0.5
@@ -182,7 +182,7 @@
   Emitters:
     - Emitter: { Particle: MissileThrustFlare, Rate: 30, InheritSprayVelocity: 0 }
       Scale: 0.6
-    - Emitter: { Particle: CurveTrail, Rate: 50 }
+    - Emitter: { Particle: CurveTrail, Rate: 40 }
       Scale: 0.7
 
 - ParticleEffect: # Projectile Trail effect
