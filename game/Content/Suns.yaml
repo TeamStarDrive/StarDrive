@@ -303,7 +303,7 @@
 - Sun:
   Id: star_binary
   IconPath: Suns/star_binary_icon.png
-  IconScale: 3
+  IconScale: 2.5
   LightIntensity: 1.7
   Radius: 40000
   LightColor: [255,255,255] # White
