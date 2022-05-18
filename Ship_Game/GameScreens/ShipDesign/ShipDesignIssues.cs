@@ -126,10 +126,13 @@ namespace Ship_Game.GameScreens.ShipDesign
             }
         }
 
-        public void  CheckIssueUnpoweredModules(bool unpoweredModules)
+        public void  CheckIssueUnpoweredModules(ShipModule[] unpoweredModules)
         {
-            if (unpoweredModules)
-                AddDesignIssue(DesignIssueType.UnpoweredModules, WarningLevel.Major);
+            if (unpoweredModules.Length > 0)
+            {
+                string text = $" {unpoweredModules.Length} modules detected. For instance - {unpoweredModules.First().NameText.Text}.";
+                AddDesignIssue(DesignIssueType.UnpoweredModules, WarningLevel.Major, addRemediationText: text);
+            }
         }
 
         public void CheckIssueOrdnanceBurst(float burst, float cap)

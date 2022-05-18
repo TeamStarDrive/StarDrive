@@ -41,7 +41,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         public bool CanTargetCorvettes;
         public bool CanTargetCapitals;
         public bool HasEnergyWeapons;
-        public bool UnpoweredModules;
+        public ShipModule[] UnpoweredModules;
 
         public float PowerCapacity;
         public float PowerRecharge;
@@ -105,7 +105,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             CanTargetCorvettes = weapons.Any(w => !w.TruePD && !w.ExcludesCorvettes);
             CanTargetCapitals  = weapons.Any(w => !w.ExcludesCapitals);
             HasEnergyWeapons   = weapons.Any(w => w.PowerRequiredToFire > 0 || w.BeamPowerCostPerSecond > 0);
-            UnpoweredModules   = S.Modules.Any(m => m.PowerDraw > 0 && !m.Powered && m.ModuleType != ShipModuleType.PowerConduit);
+            UnpoweredModules   = S.Modules.Filter(m => m.PowerDraw > 0 && !m.Powered && m.ModuleType != ShipModuleType.PowerConduit);
 
             PowerCapacity = S.PowerStoreMax;
             PowerRecharge = S.PowerFlowMax - S.NetPower.NetSubLightPowerDraw;

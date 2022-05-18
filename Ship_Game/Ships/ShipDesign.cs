@@ -66,7 +66,7 @@ namespace Ship_Game.Ships
         // BaseHull is the template layout of the ship hull design
         public ShipHull BaseHull { get; }
         public HullBonus Bonuses { get; }
-        public FileInfo Source { get; }
+        public FileInfo Source { get; set; }
 
         public bool IsPlayerDesign { get; set; }
         public bool IsReadonlyDesign { get; set; }

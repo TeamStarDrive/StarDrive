@@ -81,9 +81,13 @@ namespace Ship_Game.GameScreens.ShipDesign
             Val(() => -Ds.PowerConsumedWithBeams, GT.BurstWpnPwrDrain, GT.TT_BurstWpnPwerDrain, Tint.No, energy, vis: Ds.HasBeams);
             Val(() => Ds.BurstEnergyDuration, GT.BurstWpnPwrTime, GT.TT_BurstWpnPwrTime, Tint.Bad, energy, vis: Ds.HasBeamDurationNegative);
             Val("INF", GT.BurstWpnPwrTime, GT.TT_BurstWpnPwrTime, Tint.No, energy, good, vis: Ds.HasBeamDurationPositive);
-            
-            Val(() => Ds.WarpTime, GT.FtlTime, GT.TT_FtlTime, Tint.Pos, energy, vis: Ds.HasFiniteWarp);
-            Val("INF", GT.FtlTime, GT.TT_FtlTime, Tint.No, energy, good, vis: Ds.HasInfiniteWarp);
+
+            if (!S.IsPlatformOrStation)
+            {
+                Val(() => Ds.WarpTime, GT.FtlTime, GT.TT_FtlTime, Tint.Pos, energy, vis: Ds.HasFiniteWarp);
+                Val("INF", GT.FtlTime, GT.TT_FtlTime, Tint.No, energy, good, vis: Ds.HasInfiniteWarp);
+            }
+
             Line();
 
             Val(() => S.Health, GT.TotalHitpoints, GT.TT_HitPoints, Tint.Pos, protect);
