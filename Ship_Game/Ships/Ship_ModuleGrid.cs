@@ -3,6 +3,7 @@ using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
@@ -104,14 +105,13 @@ namespace Ship_Game.Ships
         public ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
         {
             Point gridPos = WorldToGridLocalPointClipped(worldHitPos);
-            return Grid.HitTestShieldsAt(ModuleSlotList, gridPos, worldHitPos, hitRadius);
+            return Grid.HitTestShieldsAt(ModuleSlotList, gridPos, hitRadius);
         }
 
         public ShipModule HitTestShieldsLocal(Vector2 localHitPos, float hitRadius)
         {
             Point gridPos = Grid.GridLocalToPoint(localHitPos);
-            Vector2 worldHitPos = GridLocalToWorld(localHitPos);
-            return Grid.HitTestShieldsAt(ModuleSlotList, gridPos, worldHitPos, hitRadius);
+            return Grid.HitTestShieldsAt(ModuleSlotList, gridPos, hitRadius);
         }
 
         // Gets the strongest shield currently covering internalModule
@@ -211,237 +211,131 @@ namespace Ship_Game.Ships
                 && (point.Y > 0 || point.X < Grid.Width - 1);
         }
 
+        IEnumerable<ShipModule> GetModulesAt(Point gridPos, bool checkShields)
+        {
+            return Grid.GetModulesAt(ModuleSlotList, gridPos, checkShields);
+        }
 
+        // Enumerates all ShipModules under (worldPoint, radius) circle
+        // Starting from the center, moving outwards in the following pattern
+        //    3 → → → →
+        //    ↑ 2 → → ↓
+        //    ↑ ↑ 1 ↓ ↓
+        //    ↑ ← ← ← ↓
+        //    ← ← ← ← ←
+        IEnumerable<ShipModule> EnumModulesRadially(Vector2 worldPos, float radius, bool checkShields)
+        {
+            // Create an optimized integer rectangle
+            // a---+
+            // |   |
+            // +---b
+            Vector2 localPos = WorldToGridLocal(worldPos);
+
+            // TODO: find a way to speed up this part
+            Point c = GridLocalToPoint(localPos);
+            Point a = Grid.GridLocalToPoint(new Vector2(localPos.X - radius, localPos.Y - radius));
+            Point b = Grid.GridLocalToPoint(new Vector2(localPos.X + radius, localPos.Y + radius));
+            int firstX = a.X, firstY = a.Y;
+            int lastX  = b.X, lastY  = b.Y;
+            int w = Grid.Width;
+            int h = Grid.Height;
+
+            // does the hit test rectangle overlap the grid at all?
+            bool overlapsGrid = firstX < w && lastX >= 0 && firstY < h && lastY >= 0;
+            if (!overlapsGrid)
+                yield break;
+
+            // clip the rectangle to grid bounds
+            if (firstX < 0) firstX = 0;
+            if (firstY < 0) firstY = 0;
+            if (lastX >= w) lastX = w - 1;
+            if (lastY >= h) lastY = h - 1;
+            if (c.X < 0) c.X = 0; else if (c.X >= w) c.X = w - 1;
+            if (c.Y < 0) c.Y = 0; else if (c.Y >= h) c.Y = h - 1;
+
+            // check the first center module
+            // this will keep returning shields first, and then underlying module
+            foreach (ShipModule m in GetModulesAt(c, checkShields))
+                yield return m;
+
+            // special case: radius is very small and could only ever hit 1 slot
+            if (firstX == lastX && firstY == lastY)
+                yield break;
+
+            // set the initial search bounds
+            int curMinX = c.X, curMinY = c.Y;
+            int curMaxX = c.X, curMaxY = c.Y;
+            for (;;)
+            {
+                bool didExpand = false;
+                if (curMinY > firstY) // test all top modules
+                {
+                    didExpand = true;
+                    for (var p = new Point(curMinX, --curMinY); p.X <= curMaxX; ++p.X)
+                        foreach (ShipModule m in GetModulesAt(p, checkShields))
+                            yield return m;
+                }
+                if (curMinX > firstX) // test all modules to the left
+                {
+                    didExpand = true;
+                    ;
+                    for (var p = new Point(--curMinX, curMinY); p.Y <= curMaxY; ++p.Y)
+                        foreach (ShipModule m in GetModulesAt(p, checkShields))
+                            yield return m;
+                }
+                if (curMaxX < lastX) // test all modules to the right
+                {
+                    didExpand = true;
+                    for (var p = new Point(++curMaxX, curMinY); p.Y <= curMaxY; ++p.Y)
+                        foreach (ShipModule m in GetModulesAt(p, checkShields))
+                            yield return m;
+                }
+                if (curMaxY < lastY) // test all bottom modules
+                {
+                    didExpand = true;
+                    for (var p = new Point(curMinX, ++curMaxY); p.X <= curMaxX; ++p.X)
+                        foreach (ShipModule m in GetModulesAt(p, checkShields))
+                            yield return m;
+                }
+                // we could no longer expand
+                if (!didExpand)
+                    yield break;
+            }
+        }
 
         // @note Only Active (alive) modules are in ExternalSlots. This is because ExternalSlots get
         //       updated every time a module dies. The code for that is in ShipModule.cs
         // @note This method is optimized for fast instant lookup, with a semi-optimal fallback floodfill search
         // @note Ignores shields !
-        public ShipModule FindClosestModule(Vector2 worldPoint)
+        public ShipModule FindClosestModule(Vector2 worldPos)
         {
-            if (Externals.NumModules == 0)
-                return null;
-
-            Point pt = WorldToGridLocalPoint(worldPoint);
-            pt = Grid.ClipLocalPoint(pt);
-
-            ShipModule m;
-            ModuleGridState gs = GetGridState();
-            if ((m = Externals.Get(gs, pt.X, pt.Y)) != null && m.Active) return m;
-
-            int minX = pt.X, minY = pt.Y, maxX = pt.X, maxY = pt.Y;
-            int lastX = Grid.Width - 1, lastY = Grid.Height - 1;
-            for (;;)
-            {
-                bool didExpand = false;
-                if (minX > 0f) { // test all modules to the left
-                    --minX; didExpand = true;
-                    for (int y = minY; y <= maxY; ++y)
-                        if ((m = Externals.Get(gs, minX, y)) != null && m.Active)
-                            return m;
-                }
-                if (maxX < lastX) { // test all modules to the right
-                    ++maxX; didExpand = true;
-                    for (int y = minY; y <= maxY; ++y)
-                        if ((m = Externals.Get(gs, maxX, y)) != null && m.Active)
-                            return m;
-                }
-                if (minY > 0f) { // test all top modules
-                    --minY; didExpand = true;
-                    for (int x = minX; x <= maxX; ++x)
-                        if ((m = Externals.Get(gs, x, minY)) != null && m.Active)
-                            return m;
-                }
-                if (maxY < lastY) { // test all bottom modules
-                    ++maxY; didExpand = true;
-                    for (int x = minX; x <= maxX; ++x)
-                        if ((m = Externals.Get(gs, x, maxY)) != null && m.Active)
-                            return m;
-                }
-                if (!didExpand) return null; // aargh, looks like we didn't find any!
-            }
+            foreach (ShipModule m in EnumModulesRadially(worldPos, Radius, checkShields:false))
+                return m;
+            return null;
         }
 
-
         // find the first module that falls under the hit radius at given position
-        public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields = false)
+        public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields)
         {
-            if (Externals.NumModules == 0)
-                return null;
-
-            if (!ignoreShields)
-            {
-                ShipModule shield = HitTestShields(worldHitPos, hitRadius);
-                if (shield != null) return shield;
-            }
-
-            Point a  = WorldToGridLocalPoint(worldHitPos - new Vector2(hitRadius));
-            Point b  = WorldToGridLocalPoint(worldHitPos + new Vector2(hitRadius));
-            bool inA = Grid.LocalPointInBounds(a);
-            bool inB = Grid.LocalPointInBounds(b);
-            if (!inA && !inB)
-                return null;
-            if (!inA) a = Grid.ClipLocalPoint(a);
-            if (!inB) b = Grid.ClipLocalPoint(b);
-
-            ShipModule m;
-            if (a == b)
-            {
-                if ((m = GetModuleAt(a)) != null && m.Active)
-                    return m;
-                return null;
-            }
-
-            int firstX = Math.Min(a.X, b.X);
-            int firstY = Math.Min(a.Y, b.Y);
-            int lastX  = Math.Max(a.X, b.X);
-            int lastY  = Math.Max(a.Y, b.Y);
-
-            Point cx = WorldToGridLocalPointClipped(worldHitPos);
-            int minX = cx.X, minY = cx.Y;
-            int maxX = cx.X, maxY = cx.Y;
-            if ((m = GetModuleAt(minX, minY)) != null && m.Active) return m;
-
-            for (;;)
-            {
-                bool didExpand = false;
-                if (minX > firstX) { // test all modules to the left
-                    --minX; didExpand = true;
-                    for (int y = minY; y <= maxY; ++y)
-                        if ((m = GetModuleAt(minX, y)) != null && m.Active) return m;
-                }
-                if (maxX < lastX) { // test all modules to the right
-                    ++maxX; didExpand = true;
-                    for (int y = minY; y <= maxY; ++y)
-                        if ((m = GetModuleAt(maxX, y)) != null && m.Active) return m;
-                }
-                if (minY > firstY) { // test all top modules
-                    --minY; didExpand = true;
-                    for (int x = minX; x <= maxX; ++x)
-                        if ((m = GetModuleAt(x, minY)) != null && m.Active) return m;
-                }
-                if (maxY < lastY) { // test all bottom modules
-                    ++maxY; didExpand = true;
-                    for (int x = minX; x <= maxX; ++x)
-                        if ((m = GetModuleAt(x, maxY)) != null && m.Active) return m;
-                }
-                if (!didExpand) return null; // aargh, looks like we didn't find any!
-            }
+            foreach (ShipModule m in EnumModulesRadially(worldHitPos, hitRadius, !ignoreShields))
+                return m;
+            return null;
         }
 
         // 1. A Projectile has hit the module and exploded
         // 2. A ShipModule like Reactor 2x2 has exploded
         // 3. A Ship has exploded and this is the closest affected module
         public void DamageExplosive(GameObject damageSource, float damageAmount,
-                                    Vector2 worldHitPos, float hitRadius, bool ignoresShields)
+                                    Vector2 worldHitPos, float hitRadius, bool ignoreShields)
         {
             // Reduces the effective explosion radius on ships with ExplosiveRadiusReduction bonus
             if (Loyalty.data.ExplosiveRadiusReduction > 0f)
                 hitRadius *= 1f - Loyalty.data.ExplosiveRadiusReduction;
 
-            if (!ignoresShields)
+            foreach (ShipModule m in EnumModulesRadially(worldHitPos, hitRadius, !ignoreShields))
             {
-                ShipModule shield = HitTestShields(worldHitPos, hitRadius);
-                if (shield != null && shield.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount))
-                    return; // No more damage to dish, shields absorbed the blast
-            }
-
-            Point a = WorldToGridLocalPointClipped(worldHitPos - new Vector2(hitRadius));
-            Point b = WorldToGridLocalPointClipped(worldHitPos + new Vector2(hitRadius));
-            if (!ClippedLocalPointInBounds(a) && !ClippedLocalPointInBounds(b))
-            {
-                if (!Grid.LocalPointInBounds(WorldToGridLocalPoint(worldHitPos)))
-                    return;
-            }
-
-            ShipModule m;
-            if (a == b)
-            {
-                if ((m = GetModuleAt(a)) != null && m.Active)
-                    m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount);
-
-                return;
-            }
-
-            int firstX = Math.Min(a.X, b.X); // this is the max bounding box range of the scan
-            int firstY = Math.Min(a.Y, b.Y);
-            int lastX  = Math.Max(a.X, b.X);
-            int lastY  = Math.Max(a.Y, b.Y);
-
-            Point cx = WorldToGridLocalPointClipped(worldHitPos); // clip the start, because it's often near an edge
-
-            int minX = cx.X;
-            int minY = cx.Y;
-            int maxX = cx.X;
-            int maxY = cx.Y;
-            if ((m = GetModuleAt(minX, minY)) != null && m.Active
-                && m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount))
-            {
-                 return; // withstood the explosion
-            }
-
-            // spread out the damage in 4 directions - increasing the expansion box until reaching  the scan bounding box
-            // the explosion, however, will not damage modules if an inner module survived the damage, meaning the 
-            // explosion path can be contained - this is the "if (innerModule == null || !innerModule.Active)"
-            // in each direction
-            for (;;)
-            {
-
-                bool didExpand = false;
-                if (minX > firstX) // test all modules to the left
-                { 
-                    --minX;
-                    didExpand = true;
-                    for (int y = minY; y <= maxY; ++y)
-                        if ((m = GetModuleAt(minX, y)) != null && m.Active)
-                        {
-                            ShipModule innerModule = GetModuleAt(minX+1, y);
-                            if (innerModule == null || !innerModule.Active)
-                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
-                        }
-                }
-
-                if (maxX < lastX) // test all modules to the right
-                { 
-                    ++maxX;
-                    didExpand = true;
-                    for (int y = minY; y <= maxY; ++y)
-                        if ((m = GetModuleAt(maxX, y)) != null && m.Active)
-                        {
-                            ShipModule innerModule = GetModuleAt(maxX-1, y);
-                            if (innerModule == null || !innerModule.Active)
-                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
-                        }
-                }
-                
-                if (minY > firstY) // test all top modules
-                { 
-                    --minY;
-                    didExpand = true;
-                    for (int x = minX; x <= maxX; ++x)
-                        if ((m = GetModuleAt(x, minY)) != null && m.Active)
-                        {
-                            ShipModule innerModule = GetModuleAt(x, minY+1);
-                            if (innerModule == null || !innerModule.Active)
-                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
-                        }
-                }
-
-                if (maxY < lastY) // test all bottom modules
-                { 
-                    ++maxY;
-                    didExpand = true;
-                    for (int x = minX; x <= maxX; ++x)
-                        if ((m = GetModuleAt(x, maxY)) != null && m.Active)
-                        {
-                            ShipModule innerModule = GetModuleAt(x, maxY-1);
-                            if (innerModule == null || !innerModule.Active)
-                                m.DamageExplosive(damageSource, worldHitPos, hitRadius, damageAmount);
-                        }
-                }
-
-                if (!didExpand) 
-                    return; // Looks like we're done here!
+                if (m.DamageExplosive(damageSource, worldHitPos, hitRadius, ref damageAmount))
+                    return; // all damage was absorbed
             }
         }
 
@@ -459,11 +353,10 @@ namespace Ship_Game.Ships
         }
 
         // take one step in the module grid
-        // @todo Make use of rayRadius to improve Walk precision
-        ShipModule TakeOneStep(Vector2 start, Vector2 step)
+        ShipModule TakeOneStep(Vector2 localStart, Vector2 step)
         {
-            Point pos = GridLocalToPoint(start);
-            Point end = GridLocalToPoint(start + step);
+            Point pos = GridLocalToPoint(localStart);
+            Point end = GridLocalToPoint(localStart + step);
             if (!Grid.LocalPointInBounds(pos) || !Grid.LocalPointInBounds(end))
                 return null; // we're walking out of bounds
 
@@ -542,6 +435,65 @@ namespace Ship_Game.Ships
             return null;
         }
 
+        // GridLocal walk from localA to localB
+        IEnumerable<ShipModule> WalkModuleGrid2(Vector2 localA, Vector2 localB, bool checkShields)
+        {
+            (Vector2 dir, float len) = (localB - localA).GetDirectionAndLength();
+
+            // we take steps in half-module widths, to make sure we don't jump over modules
+            Vector2 step = dir * 8f;
+
+            // reduce the total length by radius of a single module
+            int n = (int)((len - 4f) / 8f);
+
+            if (Universe.DebugMode == DebugModes.Targeting)
+            {
+                Universe.DebugWin?.DrawLine(DebugModes.Targeting,
+                    GridLocalToWorld(localA),
+                    GridLocalToWorld(localB),
+                    2f, Color.IndianRed, lifeTime:1f);
+            }
+
+            ShipModule prevModule = null;
+            var prevPos = new Point(-1000, -1000);
+
+            for (Vector2 pos = localA; n > 0; --n, pos += step)
+            {
+                if (Universe.DebugMode == DebugModes.Targeting)
+                {
+                    Universe.DebugWin?.DrawCircle(DebugModes.Targeting, GridLocalToWorld(pos),
+                                                  3f, Color.Yellow, lifeTime:1f);
+                }
+
+                Point p = GridLocalToPoint(pos);
+                if (p == prevPos)
+                    continue;
+                prevPos = p;
+
+                if (Universe.DebugMode == DebugModes.Targeting)
+                {
+                    Universe.DebugWin?.DrawRect(DebugModes.Targeting, GridCellCenterToWorld(p.X, p.Y),
+                                                8f, Rotation, Color.OrangeRed, lifeTime:1f);
+                }
+
+                foreach (ShipModule m in GetModulesAt(p, checkShields))
+                {
+                    if (prevModule != m)
+                    {
+                        prevModule = m;
+
+                        if (Universe.DebugMode == DebugModes.Targeting)
+                        {
+                            Universe.DebugWin?.DrawRect(DebugModes.Targeting, m.Position,
+                                                        m.XSize*8f+1f, Rotation, Color.GreenYellow, lifeTime:1f);
+                        }
+
+                        yield return m;
+                    }
+                }
+            }
+        }
+
         // guaranteed bounds safety, clips GridLocal points [a] and [b] into the local grid
         public bool ClipLineToGrid(Vector2 a, Vector2 b, ref Vector2 ca, ref Vector2 cb)
         {
@@ -551,19 +503,16 @@ namespace Ship_Game.Ships
 
         // This is used by initial hit-test in NarrowPhase
         // The hope is that most calls to this return `null`
-        public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos,
-                                           float rayRadius, bool ignoreShields)
+        public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, bool ignoreShields)
         {
             // move [a] completely out of bounds to prevent attacking central modules
-            Vector2 dir = (endPos - startPos).Normalized();
-            Vector2 a = WorldToGridLocal(startPos - dir * (Radius * 2));
+            Vector2 offset = (endPos - startPos).Normalized(Radius * 2);
+            Vector2 a = WorldToGridLocal(startPos - offset);
             Vector2 b = WorldToGridLocal(endPos);
             if (ClipLineToGrid(a, b, ref a, ref b))
             {
-                // Shields take priority, then unshielded modules
-                ShipModule module = WalkModuleGrid(a, b, rayRadius, ignoreShields);
-                if (module != null)
-                    return module;
+                foreach (ShipModule m in WalkModuleGrid2(a, b, !ignoreShields))
+                    return m;
             }
             return null;
         }
@@ -576,44 +525,14 @@ namespace Ship_Game.Ships
             Vector2 endPos = startPos + direction * distance;
             Vector2 a = WorldToGridLocal(startPos);
             Vector2 b = WorldToGridLocal(endPos);
+
+            // this clips the line within grid bounds, but the line will be touching the bounds
             if (ClipLineToGrid(a, b, ref a, ref b))
             {
-                ShipModule prevModule = null;
-                Vector2 pos = a;
-                Vector2 delta = b - a;
-                Vector2 step = delta.Normalized(16f);
-                int n = (int)(delta.Length() / 16f);
-                for (; n > 0; --n, pos += step)
-                {
-                    Point p = GridLocalToPoint(pos);
-
-                    // get covering shields to damage them first
-                    // there might not be any modules under [p], but trigger shields anyways
-                    if (!ignoreShields)
-                    {
-                        // we need world position for the shield hit-test
-                        // TODO: refactor HitTestShields so that worldHitPos is not needed
-                        Vector2 worldHitPos = GridLocalToWorld(pos);
-                        while (true)
-                        {
-                            ShipModule shield = Grid.HitTestShieldsAt(ModuleSlotList, p, worldHitPos, 8f);
-                            if (shield != null) // this will only return active shields
-                                yield return shield;
-                            else
-                                break; // no more active shields under [p]
-                        }
-                    }
-
-                    ShipModule m = GetModuleAt(p);
-                    if (m != null && m != prevModule && m.Active)
-                    {
-                        yield return m;
-                        prevModule = m;
-                    }
-                }
+                foreach (ShipModule m in WalkModuleGrid2(a, b, !ignoreShields))
+                    yield return m;
             }
         }
-
 
         // Refactor by RedFox: Picks a random internal module in search range (squared) of the projectile
         // -- Higher crew level means the missile will pick the most optimal target module ;) --
@@ -651,6 +570,5 @@ namespace Ship_Game.Ships
             float searchRange = projPos.SqDist(Position) + 48*48; // only pick modules that are "visible" to the projectile
             return TargetRandomInternalModule(projPos, level, searchRange);
         }
-
     }
 }

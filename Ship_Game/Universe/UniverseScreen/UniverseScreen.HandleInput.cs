@@ -228,7 +228,8 @@ namespace Ship_Game
 
             if (input.DebugMode)
             {
-                UState.Debug = !UState.Debug;
+                UState.SetDebugMode(!UState.Debug);
+
                 foreach (SolarSystem solarSystem in UState.Systems)
                 {
                     solarSystem.SetExploredBy(Player);
@@ -244,6 +245,8 @@ namespace Ship_Game
             {
                 if (input.ShowDebugWindow)
                 {
+                    // toggle Debug Window overlay
+                    // if it is disable, the DebugWin is set to null
                     DebugWin = (DebugWin == null) ? new DebugInfoScreen(this) : null;
                 }
                 if (DebugWin?.HandleInput(input) == true)

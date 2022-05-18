@@ -43,6 +43,32 @@ namespace Ship_Game.Debug
         }
     }
 
+    public class DebugRect : DebugPrimitive
+    {
+        readonly Vector3 Center;
+        readonly Vector2 Size;
+        readonly float Rotation;
+        public DebugRect(in RectF worldRect, float rotation, Color color, float lifeTime)
+            : base(color, lifeTime)
+        {
+            Center = worldRect.Center.ToVec3();
+            Size = worldRect.Size;
+            Rotation = rotation;
+        }
+        public DebugRect(in Vector3 center, float radius, float rotation, Color color, float lifeTime)
+            : base(color, lifeTime)
+        {
+            Center = center;
+            Size = new Vector2(radius*2f);
+            Rotation = rotation;
+        }
+        public override void Draw(UniverseScreen screen)
+        {
+            RectF screenRect = screen.ProjectToScreenRectF(Center, Size);
+            screen.ScreenManager.SpriteBatch.DrawRectangle(screenRect, Rotation, Color, 2);
+        }
+    }
+
     public class DebugLine : DebugPrimitive
     {
         readonly Vector2 StartInWorld;

@@ -199,7 +199,7 @@ namespace Ship_Game
         void UpdateSolarRadiationDebug()
         {
             // some debugging for us developers
-            if (Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.Solar)
+            if (Universe.DebugMode == Debug.DebugModes.Solar)
             {
                 for (float r = 0.03f; r < 0.5f; r += 0.03f)
                 {

@@ -207,7 +207,7 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
 
-            bool debug = Owner.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
+            bool debug = Owner.Universe.DebugMode == Debug.DebugModes.PathFinder;
 
             // to make the ship perfectly centered
             float distance = Owner.Position.Distance(targetPos);
@@ -458,7 +458,7 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            Owner.Velocity.GetDirectionAndLength(out Vector2 velDir, out float speed);
+            (Vector2 velDir, float speed) = Owner.Velocity.GetDirectionAndLength();
 
             // ensure ship is already at light speed,
             // otherwise we could drop out of warp due to minor sideways drift when ship enters warp
@@ -606,7 +606,7 @@ namespace Ship_Game.AI
 
                 // we want to deflect away from friend, so get vector facing towards us
                 Vector2 friendPos = friend.Position;
-                (ourPos - friendPos).GetDirectionAndLength(out Vector2 deflectionDir, out float distance);
+                (Vector2 deflectionDir, float distance) = (ourPos - friendPos).GetDirectionAndLength();
 
                 float combinedRadius = Owner.Radius + friend.Radius;
                 float separationDist = combinedRadius + FlockingSeparation;

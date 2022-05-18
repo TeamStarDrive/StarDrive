@@ -674,11 +674,21 @@ namespace Ship_Game.Ships
             );
         }
 
-        public bool HitTestShield(Vector2 worldPos, float radius)
+        [Pure] public bool HitTestShield(Vector2 worldPos, float radius)
         {
-            float r2 = radius + ShieldHitRadius;
             float dx = Position.X - worldPos.X;
             float dy = Position.Y - worldPos.Y;
+            float r2 = radius + ShieldHitRadius;
+            return (dx*dx + dy*dy) <= (r2*r2);
+        }
+
+        // hit tests against grid position
+        [Pure] public bool HitTestShield(Point gridPos, float radius)
+        {
+            var center = new Point(Pos.X + XSize/2, Pos.Y + YSize/2);
+            float dx = center.X - gridPos.X*16f;
+            float dy = center.Y - gridPos.Y*16f;
+            float r2 = radius + ShieldHitRadius;
             return (dx*dx + dy*dy) <= (r2*r2);
         }
 
@@ -703,7 +713,9 @@ namespace Ship_Game.Ships
 
         public void DebugDamageCircle()
         {
-            Parent.Universe?.DebugWin?.DrawGameObject(DebugModes.Targeting, this, Parent.Universe.Screen);
+            if (Parent.Universe.DebugMode == DebugModes.Targeting)
+                Parent.Universe.DebugWin?.DrawGameObject(DebugModes.Targeting,
+                    this, Color.Goldenrod, lifeTime: 0.25f);
         }
 
         public float GetExplosionDamageOnShipExplode()
@@ -742,16 +754,6 @@ namespace Ship_Game.Ships
 
             Damage(source, damageInOut, out damageInOut);
             return damageInOut <= 0f;
-        }
-
-        public void DamageExplosive(GameObject source, Vector2 worldHitPos, float damageRadius, float damageAmount)
-        {
-            float damage = GetExplosiveDamage(worldHitPos, damageRadius, damageAmount);
-            if (damage > 0.1f)
-            {
-                //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
-                Damage(source, damage, out _);
-            }
         }
 
         float GetExplosiveDamage(Vector2 worldHitPos, float damageRadius, float damageAmount)
@@ -806,13 +808,10 @@ namespace Ship_Game.Ships
             if (!Parent.InFrustum || Parent.Universe.Screen.IsShipViewOrCloser == false)
                 return;
 
-            if (!(source is Projectile proj))
-                return;
-
-            if (proj.Explodes || proj.Duration < 0)
-                return;
-
-            proj.Deflect(Parent.Loyalty, Center3D);
+            if (source is Projectile proj && !proj.Explodes && proj.Duration >= 0)
+            {
+                proj.Deflect(Parent.Loyalty, Center3D);
+            }
         }
 
         public void DebugDamage(float percent)
@@ -893,7 +892,6 @@ namespace Ship_Game.Ships
                 float healthBefore = Health;
                 SetHealth(Health - modifiedDamage, source);
                 remainder = modifiedDamage - healthBefore;
-                DebugPerseveranceNoDamage();
 
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
@@ -981,16 +979,6 @@ namespace Ship_Game.Ships
                 Parent.CauseRepulsionDamage(beam);
         }
 
-        void DebugPerseveranceNoDamage()
-        {
-        #if DEBUG
-            if (!Parent.Universe.Debug || Parent.VanityName != "Perseverance")
-                return;
-            if (Health < 10) // never give up, never surrender! F_F
-                SetHealth(10, "PerseveranceKeepAlive");
-        #endif
-        }
-
         void CauseSiphonDamage(Beam beam)
         {
             if (beam.Weapon.SiphonDamage > 0f)
@@ -1037,7 +1025,7 @@ namespace Ship_Game.Ships
                 if (Explodes)
                 {
                     // ShipModule has died and will now explode internally
-                    Parent.DamageExplosive(source, ExplosionDamage, Position, ExplosionRadius, ignoresShields:true);
+                    Parent.DamageExplosive(source, ExplosionDamage, Position, ExplosionRadius, true);
                 }
             }
         }
