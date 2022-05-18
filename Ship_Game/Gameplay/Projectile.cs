@@ -477,7 +477,7 @@ namespace Ship_Game.Gameplay
 
             if (Universe.DebugMode == DebugModes.Targeting)
             {
-                screen.DrawCircleProjected(Position, Radius, Color.LightCyan);
+                screen.DrawCircleProjectedZ(Position, Radius, Color.LightCyan, ZPos);
             }
         }
 
