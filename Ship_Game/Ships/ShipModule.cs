@@ -685,9 +685,8 @@ namespace Ship_Game.Ships
         // hit tests against grid position
         [Pure] public bool HitTestShield(Point gridPos, float radius)
         {
-            var center = new Point(Pos.X + XSize/2, Pos.Y + YSize/2);
-            float dx = center.X - gridPos.X*16f;
-            float dy = center.Y - gridPos.Y*16f;
+            float dx = (Pos.X*16f + XSize*8f) - (gridPos.X*16f + 8f);
+            float dy = (Pos.Y*16f + YSize*8f) - (gridPos.Y*16f + 8f);
             float r2 = radius + ShieldHitRadius;
             return (dx*dx + dy*dy) <= (r2*r2);
         }
