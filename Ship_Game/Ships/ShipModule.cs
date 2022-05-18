@@ -1036,8 +1036,8 @@ namespace Ship_Game.Ships
 
                 if (Explodes)
                 {
-                    Parent.Universe.Spatial.ExplodeAtModule(source, this,
-                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
+                    // ShipModule has died and will now explode internally
+                    Parent.DamageExplosive(source, ExplosionDamage, Position, ExplosionRadius, ignoresShields:true);
                 }
             }
         }

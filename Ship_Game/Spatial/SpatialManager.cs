@@ -161,56 +161,32 @@ namespace Ship_Game.Gameplay
             return Spatial.FindNearby(ref opt);
         }
 
-
-        // @note This is called every time an exploding projectile hits a target and dies
-        //       so everything nearby receives additional splash damage
-        //       usually the recipient is only 1 ship, but ships can overlap and cause more results
-        public void ProjectileExplode(Projectile source, float damageAmount, float damageRadius, Vector2 center)
+        public void ProjectileExplode(Projectile source, ShipModule victim)
         {
-            if (damageRadius <= 0f)
-                return;
+            // damage radius is increased during Module init to include module's own radius
+            // so if exploding module is 1x1 and data file radius is 8, then actual radius
+            // will be 8 + 8 = 16, meaning it will affect a 3x3 area
+            float radius = source.DamageRadius;
+            float damage = source.DamageAmount;
 
-            GameObject[] ships = FindNearby(GameObjectType.Ship, source, damageRadius,
-                                            maxResults:32, excludeLoyalty:source.Owner?.Loyalty);
-            ships.SortByDistance(center);
-
-            foreach (GameObject go in ships)
+            // if radius is huge, the projectile acts like a space nuke and affects all ships in range
+            // this is very rare
+            if (radius >= 256f)
             {
-                var ship = (Ship)go;
-                if (!ship.Active)
-                    continue;
-
-                // Doctor: Up until now, the 'Reactive Armour' bonus used in the vanilla tech tree did exactly nothing. Trying to fix - is meant to reduce effective explosion radius.
-                // Doctor: Reset the radius on every foreach loop in case ships of different loyalty are to be affected:
-                float modifiedRadius = damageRadius;
-
-                // Doctor: Reduces the effective explosion radius on ships with the 'Reactive Armour' type radius reduction in their empire traits.
-                if (ship.Loyalty?.data.ExplosiveRadiusReduction > 0f)
-                    modifiedRadius *= 1f - ship.Loyalty.data.ExplosiveRadiusReduction;
-
-                ship.DamageModulesExplosive(source, damageAmount, center, modifiedRadius, source.IgnoresShields);
+                Vector2 center = source.Position;
+                GameObject[] ships = FindNearby(GameObjectType.Ship, center, radius,
+                                                maxResults:32, excludeLoyalty:source.Owner?.Loyalty);
+                foreach (GameObject go in ships)
+                {
+                    var ship = (Ship)go;
+                    if (ship.Active && !ship.Dying)
+                        ship.DamageExplosive(source, damage, center, radius, source.IgnoresShields);
+                }
             }
-        }
-
-        // Refactored by RedFox
-        // 1. A ShipModule like Reactor 2x2 has exploded
-        // 
-        public void ExplodeAtModule(GameObject damageSource, ShipModule hitModule, 
-                                    bool ignoresShields, float damageAmount, float damageRadius)
-        {
-            if (damageRadius <= 0f || damageAmount <= 0f)
-                return;
-
-            Ship shipToDamage = hitModule.GetParent();
-            if (shipToDamage.Dying || !shipToDamage.Active)
-                return;
-
-            float modifiedRadius = damageRadius;
-            if (shipToDamage.Loyalty?.data.ExplosiveRadiusReduction > 0f)
-                modifiedRadius *= 1f - shipToDamage.Loyalty.data.ExplosiveRadiusReduction;
-
-            shipToDamage.DamageModulesExplosive(damageSource, damageAmount,
-                                                hitModule.Position, modifiedRadius, ignoresShields);
+            else
+            {
+                victim.GetParent().DamageExplosive(source, damage, source.Position, radius, source.IgnoresShields);
+            }
         }
 
         // @note This is called quite rarely, so optimization is not a priority
@@ -254,7 +230,7 @@ namespace Ship_Game.Gameplay
 
                 // Then explode at the module if any excess damage left
                 // Ignoring shields because we already checked shields above
-                ExplodeAtModule(thisShip, nearest, ignoresShields:true, damageAmount, reducedRadius);
+                otherShip.DamageExplosive(thisShip, damageAmount, nearest.Position, reducedRadius, ignoresShields:true);
 
                 if (!otherShip.Dying)
                 {
