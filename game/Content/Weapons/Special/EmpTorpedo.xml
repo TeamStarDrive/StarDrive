@@ -31,7 +31,6 @@
   <ModelPath>torpedo</ModelPath>
   <ProjectileTexturePath>torpedo_d</ProjectileTexturePath>
 
-  <ProjectileRadius>10</ProjectileRadius>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Missile</WeaponType>

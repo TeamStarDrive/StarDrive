@@ -36,7 +36,6 @@
   <SalvoCount>1</SalvoCount>
   <SalvoTimer>0</SalvoTimer>
   
-  <ProjectileRadius>8</ProjectileRadius>
   <RotationRadsPerSecond>0.7</RotationRadsPerSecond>
 <!--Projectile atributes-->
   <ArmorPen>0</ArmorPen>

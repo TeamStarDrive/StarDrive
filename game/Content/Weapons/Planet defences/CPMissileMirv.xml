@@ -33,7 +33,6 @@
   <ExplosionRadius>60</ExplosionRadius> <!-- This Projectile Explodes -->
   <DelayedIgnition>0.5</DelayedIgnition>
   
-  <ProjectileRadius>10</ProjectileRadius>
   <RotationRadsPerSecond>1</RotationRadsPerSecond>
 <!--Projectile atributes-->
   <EffectVsShields>1</EffectVsShields>

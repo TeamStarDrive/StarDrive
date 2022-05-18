@@ -45,7 +45,6 @@
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
 
-  <ProjectileRadius>18</ProjectileRadius>
   <Scale>1.2</Scale>
   
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->

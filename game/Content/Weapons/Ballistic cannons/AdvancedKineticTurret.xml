@@ -35,7 +35,6 @@
   
   <ExplosionRadius>16</ExplosionRadius> <!-- This Projectile Explodes -->
   
-  <ProjectileRadius>10</ProjectileRadius>
   <Scale>0.9</Scale>
 
   <ProjectileTexturePath>projTear_03_orange</ProjectileTexturePath>
