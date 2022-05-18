@@ -329,13 +329,16 @@ namespace Ship_Game.Ships
             }
         }
 
-        // Code gods, I pray for thy forgiveness for this copy-paste -T_T-
-        // This was done solely for performance reasons. This method gets called
-        // every time an exploding projectile hits a ship. So it gets called for every missile impact
-        // @note THIS IS ALWAYS AN EXPLOSION
-        public void DamageModulesExplosive(GameObject damageSource, float damageAmount,
-                                           Vector2 worldHitPos, float hitRadius, bool ignoresShields)
+        // 1. A Projectile has hit the module and exploded
+        // 2. A ShipModule like Reactor 2x2 has exploded
+        // 3. A Ship has exploded and this is the closest affected module
+        public void DamageExplosive(GameObject damageSource, float damageAmount,
+                                    Vector2 worldHitPos, float hitRadius, bool ignoresShields)
         {
+            // Reduces the effective explosion radius on ships with ExplosiveRadiusReduction bonus
+            if (Loyalty.data.ExplosiveRadiusReduction > 0f)
+                hitRadius *= 1f - Loyalty.data.ExplosiveRadiusReduction;
+
             if (!ignoresShields)
             {
                 ShipModule shield = HitTestShields(worldHitPos, hitRadius);
@@ -546,6 +549,8 @@ namespace Ship_Game.Ships
                 (Grid.Width*16) - 0.01f, (Grid.Height*16) - 0.01f, a, b, ref ca, ref cb);
         }
 
+        // This is used by initial hit-test in NarrowPhase
+        // The hope is that most calls to this return `null`
         public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos,
                                            float rayRadius, bool ignoreShields)
         {
@@ -564,6 +569,7 @@ namespace Ship_Game.Ships
         }
 
         // Enumerate through ModuleGrid, yielding modules
+        // this is used by ArmorPiercingTouch
         public IEnumerable<ShipModule> RayHitTestWalkModules(Vector2 startPos, Vector2 direction,
                                                              float distance, bool ignoreShields)
         {
