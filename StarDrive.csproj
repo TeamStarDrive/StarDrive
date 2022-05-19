@@ -1711,7 +1711,7 @@
     <PostBuildEvent>
 if "$(ConfigurationName)" == "Deploy"  (
   :: run the installer generator script with Python 3
-  py -3 "$(SolutionDir)Deploy\MakeInstaller.py" --root_dir $(SolutionDir) --major
+  py -3 "$(SolutionDir)Deploy\MakeInstaller.py" --root_dir $(SolutionDir) --patch
 )</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
