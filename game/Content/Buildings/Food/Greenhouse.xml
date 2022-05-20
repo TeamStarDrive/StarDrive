@@ -1,11 +1,13 @@
 ﻿<Building>
   <Name>Greenhouse</Name>
-  <PlusFoodPerColonist>0.2</PlusFoodPerColonist>
-  <Cost>70</Cost>
   <Icon>Greenhouse</Icon>
+  
+  <Cost>70</Cost>
   <Maintenance>0.3</Maintenance>
+  
+  <PlusFoodPerColonist>0.2</PlusFoodPerColonist>
 
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10079</NameTranslationIndex>
   <DescriptionIndex>10080</DescriptionIndex>
   <ShortDescriptionIndex>10081</ShortDescriptionIndex>

@@ -1,12 +1,13 @@
 ﻿<Building>
   <Name>Tax Office</Name>
-  <Maintenance>0</Maintenance>
-  <Description>The Imperial Bank building increases the efficiency of your planetary tax operations by 50%. </Description>
-  <Cost>80</Cost>
   <Icon>Tax_Office</Icon>
+  
+  <Cost>80</Cost>
+  <Maintenance>0</Maintenance>
+  
   <CreditsPerColonist>0.5</CreditsPerColonist>
 
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10088</NameTranslationIndex>
   <DescriptionIndex>10089</DescriptionIndex>
   <ShortDescriptionIndex>10090</ShortDescriptionIndex>

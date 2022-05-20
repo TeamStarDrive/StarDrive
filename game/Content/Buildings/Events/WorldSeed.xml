@@ -1,14 +1,17 @@
 ﻿<Building>
   <Name>WorldSeed</Name>
+  <Icon>WorldSeed</Icon>
+  
+  <Maintenance>0</Maintenance> 
+  
   <IsCommodity>true</IsCommodity>
-  <Maintenance>0</Maintenance>  
-  <Description>A seed</Description>
   <MaxFertilityOnBuild>0.15</MaxFertilityOnBuild>
   <PlusTerraformPoints>0.0007</PlusTerraformPoints>
   <PlusFlatPopulation>10</PlusFlatPopulation>
-  <Icon>WorldSeed</Icon>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>false</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18175</NameTranslationIndex>
   <DescriptionIndex>18176</DescriptionIndex>
   <ShortDescriptionIndex>18177</ShortDescriptionIndex>

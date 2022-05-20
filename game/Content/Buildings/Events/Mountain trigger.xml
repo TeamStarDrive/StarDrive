@@ -1,13 +1,15 @@
 ﻿<Building>
   <Name>Mountain trigger</Name>
   <Icon>mountain</Icon>
+  
   <EventTriggerUID>Mountain trigger</EventTriggerUID>
   <Infrastructure>-1</Infrastructure>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
-  <NameTranslationIndex>18152</NameTranslationIndex>
-  <DescriptionIndex>18153</DescriptionIndex>
-  <ShortDescriptionIndex>18153</ShortDescriptionIndex>
   <CannotBeBombed>true</CannotBeBombed>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
+  <NameTranslationIndex>18152</NameTranslationIndex>
+  <DescriptionIndex>18153</DescriptionIndex>
+  <ShortDescriptionIndex>18153</ShortDescriptionIndex>
 </Building>

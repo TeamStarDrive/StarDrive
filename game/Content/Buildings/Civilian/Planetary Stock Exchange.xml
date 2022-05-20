@@ -1,10 +1,13 @@
 ﻿<Building>
   <Name>Planetary Stock Exchange</Name>
-  <Maintenance>0.25</Maintenance>
-  <Description>The Planetary Stock exchange allows stocks of planetary companies to be traded. This improves commerce on the planet and thus tax revenue.</Description>
-  <Cost>250</Cost>
   <Icon>stock</Icon>
+  
+  <Cost>250</Cost>
+  <Maintenance>0.25</Maintenance>
+  
   <CreditsPerColonist>1.2</CreditsPerColonist>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10021</NameTranslationIndex>
   <DescriptionIndex>10022</DescriptionIndex>
   <ShortDescriptionIndex>17879</ShortDescriptionIndex>

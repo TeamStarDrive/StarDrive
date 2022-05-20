@@ -1,13 +1,14 @@
 ﻿<Building>
   <Name>Ore refinery</Name>
+  <Icon>Ore_refinery</Icon>
+  
+  <Cost>150</Cost>
   <Maintenance>1</Maintenance>
-  <Description>Deep Core Mines are extremely effective at rapidly extracting minerals from deep within a planet's core, but are environmentally disastrous. Adds flat rate production equal to a planet's mineral richness but permanently decreases a planet's fertility. </Description>
+  
   <PlusProdPerRichness>3</PlusProdPerRichness>
   <MaxFertilityOnBuild>-0.5</MaxFertilityOnBuild>
-  <Cost>150</Cost>
-  <Icon>Ore_refinery</Icon>
-
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10082</NameTranslationIndex>
   <DescriptionIndex>10083</DescriptionIndex>
   <ShortDescriptionIndex>10084</ShortDescriptionIndex>

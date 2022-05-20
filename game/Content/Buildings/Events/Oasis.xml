@@ -1,14 +1,17 @@
 ﻿<Building>
   <Name>Oasis</Name>
+  <Icon>oasis</Icon>
+  
   <Cost>75</Cost>
+  <Maintenance>0</Maintenance>
+  
   <IsCommodity>true</IsCommodity>
-  <Maintenance>0</Maintenance>  
-  <Description>Natural oasis.</Description>
   <FoodCache>200</FoodCache>
   <PlusFlatFoodAmount>0.7</PlusFlatFoodAmount>
-  <Icon>oasis</Icon>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>false</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>5092</NameTranslationIndex>
   <DescriptionIndex>5093</DescriptionIndex>
   <ShortDescriptionIndex>5094</ShortDescriptionIndex>

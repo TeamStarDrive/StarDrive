@@ -1,23 +1,22 @@
 ﻿<Building>
   <Name>Outpost</Name>
+  <Icon>Outpost</Icon>
+  
   <Cost>50</Cost>
-  <Description>An Outpost building is the humble first step in a civilization's efforts to colonize a new world.  Outposts provide for a base level of agricultural, industrial, and scientific capacity.  When built on a barren planet, it is critical for an outpost to be supplemented with an aeroponic farm. Outposts are also capable of rudimentary self-defense in case of invasion. </Description>
+  
   <PlusResearchPerColonist>.1</PlusResearchPerColonist>
   <StorageAdded>30</StorageAdded>
-  <Icon>Outpost</Icon>
   <Strength>10</Strength>
   <CombatStrength>10</CombatStrength>
   <SoftAttack>40</SoftAttack>
   <Defense>20</Defense>
   <HardAttack>20</HardAttack>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  <ShortDescription>Provides basic functions necessary for colonies</ShortDescription>
   <Scrappable>false</Scrappable>
   <Infrastructure>1</Infrastructure>
 
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>446</NameTranslationIndex>
   <DescriptionIndex>447</DescriptionIndex>
   <ShortDescriptionIndex>448</ShortDescriptionIndex>
-
 </Building>

@@ -1,9 +1,10 @@
 <Building>
 	<Name>Heavy Autocannon</Name>
-	<Description>This missile silo fires long range guided anti-ship missiles for maximum planetary defense.</Description>
+	<Icon>hvyautocannon</Icon>
+	
 	<Cost>200</Cost>
 	<Maintenance>0.25</Maintenance>
-	<Icon>hvyautocannon</Icon>
+	
 	<Strength>17</Strength>
 	<CombatStrength>17</CombatStrength>
 	<Defense>20</Defense>
@@ -11,6 +12,8 @@
 	<HardAttack>30</HardAttack>
 	<Weapon>PlanetAC</Weapon>
 	<isWeapon>true</isWeapon>
+	
+	<!-- For localization in GameText.yaml -->
 	<NameTranslationIndex>5405</NameTranslationIndex>
 	<DescriptionIndex>5406</DescriptionIndex>
 	<ShortDescriptionIndex>17422</ShortDescriptionIndex>

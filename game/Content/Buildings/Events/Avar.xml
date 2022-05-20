@@ -1,13 +1,16 @@
 ﻿<Building>
   <Name>Avar</Name>
+  <Icon>Avar</Icon>
+  
+  <Maintenance>0</Maintenance> 
+  
   <IsCommodity>true</IsCommodity>
-  <Maintenance>0</Maintenance>  
-  <Description>Meat.</Description>
   <FoodCache>1100</FoodCache>
   <PlusFlatFoodAmount>0.8</PlusFlatFoodAmount>
-  <Icon>Avar</Icon>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18216</NameTranslationIndex>
   <DescriptionIndex>18217</DescriptionIndex>
   <ShortDescriptionIndex>18218</ShortDescriptionIndex>
