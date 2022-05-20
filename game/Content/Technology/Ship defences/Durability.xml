@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Durability</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>300</Cost>
@@ -9,6 +9,7 @@
   <Name>Nano-structure</Name>
   <NameIndex>17645</NameIndex>
   <DescriptionIndex>17646</DescriptionIndex>
+  <LeadsTo />
   <ModulesUnlocked />
   <BuildingsUnlocked />
   <BonusUnlocked>
@@ -16,7 +17,6 @@
       <Name>Nano-structure</Name>
       <BonusType>Module HP Bonus</BonusType>
       <Bonus>0.05</Bonus>
-      <Description>Provides a 15% hit point bonus to all ship modules. </Description>
       <BonusIndex>17647</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

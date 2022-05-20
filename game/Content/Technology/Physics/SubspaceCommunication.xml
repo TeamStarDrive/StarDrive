@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>SubspaceCommunication</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>250</Cost>
@@ -8,7 +8,6 @@
   <Name>Subspace Communication</Name>
   <NameIndex>667</NameIndex>
   <DescriptionIndex>668</DescriptionIndex>
-  <LongDescription>The ability to package light-speed communications into a faster-than-light subspace packet allows for near instantaneous communication over great distances.  This discovery has profound implications for deep space scanning.  </LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>AdvancedWarp</UID>

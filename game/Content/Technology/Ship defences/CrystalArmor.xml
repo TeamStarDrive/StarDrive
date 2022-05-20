@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>CrystalArmor</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>4400</Cost>
@@ -8,9 +8,7 @@
   <Name>CrystalArmor</Name>
   <NameIndex>6574</NameIndex>
   <DescriptionIndex>6575</DescriptionIndex>
-  <LongDescription>The benefits of armoring our spaceships are self-evident. The use of steel is already common in our planetary industries, and so it is quite inexpensive to adapt this technology for use in space. </LongDescription>
-  <LeadsTo>
-  </LeadsTo>
+  <LeadsTo />
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>Crystal Armor Small</ModuleUID>
@@ -26,5 +24,4 @@
   <BonusUnlocked />
   <TroopsUnlocked />
   <HullsUnlocked />
-
 </Technology>

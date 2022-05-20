@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>SmallStations</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>800</Cost>
@@ -13,7 +13,12 @@
       <UID>Battle_Stations</UID>
     </LeadsToTech>  
   </LeadsTo>
-<BuildingsUnlocked />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>ArmoredMissile</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
+  <BuildingsUnlocked />
   <BonusUnlocked />
   <TroopsUnlocked />
   <HullsUnlocked>
@@ -50,9 +55,4 @@
       <Name>Vulfen/Vulfen_Station_Small</Name>	
     </UnlockedHull>
   </HullsUnlocked>
-  <ModulesUnlocked>
-    <UnlockedMod>
-      <ModuleUID>ArmoredMissile</ModuleUID>
-    </UnlockedMod>
-  </ModulesUnlocked> 
 </Technology>

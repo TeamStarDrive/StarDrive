@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>AdvancedCell</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>800</Cost>
@@ -8,9 +8,7 @@
   <Name>Super cell</Name>
   <NameIndex>17689</NameIndex>
   <DescriptionIndex>17690</DescriptionIndex>
-  <LongDescription>Researching this technology will allow us to build certain armored components that can take more hits than their unarmored versons.</LongDescription>
-  <LeadsTo>
-  </LeadsTo>
+  <LeadsTo />
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>AdvancedCellSmall</ModuleUID>

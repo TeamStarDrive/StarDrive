@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Point Defense</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>450</Cost>  
@@ -25,7 +25,7 @@
     <UnlockedMod>
       <ModuleUID>VulcanCannon</ModuleUID>
     </UnlockedMod>
-           <UnlockedMod>
+    <UnlockedMod>
       <ModuleUID>LaserCannon</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>

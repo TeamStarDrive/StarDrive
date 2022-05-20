@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Advanced Materials</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>450</Cost>
@@ -8,9 +8,8 @@
   <Name>Advanced Materials</Name>
   <NameIndex>500</NameIndex>
   <DescriptionIndex>501</DescriptionIndex>
-  <LongDescription>Although steel armor is inexpensive, it is extremely heavy and reduces the maneuverability of our ships significantly. By focusing our research efforts on developing new construction materials, we can reduce the mass of all of our ship components across the board.</LongDescription>
   <LeadsTo>
-      <LeadsToTech>
+    <LeadsToTech>
       <UID>CeramicArmor</UID>
     </LeadsToTech>
     <LeadsToTech>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Energization</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>420</Cost>
@@ -8,11 +8,12 @@
   <RootNode>0</RootNode>
   <NameIndex>17639</NameIndex>
   <DescriptionIndex>17640</DescriptionIndex>
+  <LeadsTo />
   <ModulesUnlocked />
   <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
-    <Name>Intensify particles</Name>
+      <Name>Intensify particles</Name>
       <BonusType>Weapon_Damage</BonusType>
       <Tags>
         <string>Beam</string>

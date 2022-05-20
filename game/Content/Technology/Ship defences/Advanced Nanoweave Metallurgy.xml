@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Advanced Nanoweave Metallurgy</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>1800</Cost>
@@ -8,9 +8,7 @@
   <Name>Advanced Nanoweave Metallurgy</Name>
   <NameIndex>1090</NameIndex>
   <DescriptionIndex>1091</DescriptionIndex>
-  <LongDescription>Metallurgy techniques are not fundamentally any different today than they were when first implemented in ancient times. Hot metals are mixed and cooled and perhaps run through a refinement process to make them stronger. But with Nanoweave Metallurgy, metal sheets are constructed one molecule at a time by a swarm of nanites. This results in a metal that is absolutely free of imperfections.</LongDescription>
-  <LeadsTo>
-  </LeadsTo>
+  <LeadsTo />
   <ModulesUnlocked />
   <BuildingsUnlocked />
   <BonusUnlocked>
@@ -18,7 +16,6 @@
       <Name>Hull Strengthening</Name>
       <BonusType>Module HP Bonus</BonusType>
       <Bonus>0.3</Bonus>
-      <Description>Provides a 10% hit point bonus to all ship modules. </Description>
       <BonusIndex>1092</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

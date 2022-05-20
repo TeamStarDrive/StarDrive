@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Corvettes</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>200</Cost>
@@ -8,7 +8,6 @@
   <Name>Corvettes</Name>
   <NameIndex>585</NameIndex>
   <DescriptionIndex>586</DescriptionIndex>
-  <LongDescription>This hull represents our first effort at a combat ready hull.  It is larger and sleeker than our shuttlecraft hull and is capable of filling the role of a heavy scout or fighter. </LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>FrigateConstruction</UID>
@@ -17,51 +16,39 @@
       <UID>FighterTheory</UID>
     </LeadsToTech>
   </LeadsTo>
-  <UnlockedAtGameStart>
-    <RaceRequirements>
-      <RacialTrait>Militaristic</RacialTrait>
-    </RaceRequirements>
-  </UnlockedAtGameStart>
-  <ModulesUnlocked>
-  </ModulesUnlocked>
+  <ModulesUnlocked />
   <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Mass Reduction</Name>
       <Bonus>-0.03</Bonus>
-      <Description>New materials reduce effective ship mass by 5% across the board. </Description>
       <BonusIndex>18088</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
-       <UnlockedBonus>
+    <UnlockedBonus>
       <Name>Fuel Cell Upgrade</Name>
       <Bonus>0.15</Bonus>
-      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in power cells</Description>
       <BonusIndex>572</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Power Flow Bonus</Name>
       <Bonus>0.10</Bonus>
-      <Description>Gain an empire-wide 10% bonus to the amount of power produced by reactors</Description>
       <BonusIndex>18089</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Fuel Cell Upgrade</Name>
       <Bonus>0.15</Bonus>
-      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in power cells</Description>
       <BonusIndex>572</BonusIndex>
       <Type>Pollops</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Power Flow Bonus</Name>
       <Bonus>0.08</Bonus>
-      <Description>Gain an empire-wide 8% bonus to the amount of power produced by reactors</Description>
       <BonusIndex>18089</BonusIndex>
       <Type>Pollops</Type>
     </UnlockedBonus>
-
   </BonusUnlocked>
   <TroopsUnlocked />
   <HullsUnlocked>
@@ -102,5 +89,10 @@
       <ShipType>Draylok</ShipType>
     </UnlockedHull>
   </HullsUnlocked>
+  <UnlockedAtGameStart>
+    <RaceRequirements>
+      <RacialTrait>Militaristic</RacialTrait>
+    </RaceRequirements>
+  </UnlockedAtGameStart>
   <Militaristic>true</Militaristic>
 </Technology>
