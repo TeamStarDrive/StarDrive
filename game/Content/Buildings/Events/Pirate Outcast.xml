@@ -1,14 +1,17 @@
 ﻿<Building>
   <Name>Pirate Outcast</Name>
-  <Maintenance>1</Maintenance>
-  <Cost>50</Cost>
   <Icon>PirateOutcast</Icon>
+  
+  <Cost>50</Cost>
+  <Maintenance>1</Maintenance>
+  
   <MaxPopIncrease>-100</MaxPopIncrease>
   <Infrastructure>2</Infrastructure>
   <IsCommodity>true</IsCommodity>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <Scrappable>false</Scrappable>
+  
+   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18198</NameTranslationIndex>
   <DescriptionIndex>18199</DescriptionIndex>
   <ShortDescriptionIndex>18200</ShortDescriptionIndex>
-  <Scrappable>false</Scrappable>
 </Building>

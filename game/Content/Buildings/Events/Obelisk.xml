@@ -1,12 +1,14 @@
 ﻿<Building>
   <Name>Obelisk</Name>
   <Icon>Obelisk</Icon>
+  
   <EventTriggerUID>Obelisk</EventTriggerUID>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
-  <NameTranslationIndex>18186</NameTranslationIndex>
-  <DescriptionIndex>18187</DescriptionIndex>
-  <ShortDescriptionIndex>18187</ShortDescriptionIndex>
   <CannotBeBombed>true</CannotBeBombed>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
+  <NameTranslationIndex>18186</NameTranslationIndex>
+  <DescriptionIndex>18187</DescriptionIndex>
+  <ShortDescriptionIndex>18187</ShortDescriptionIndex>
 </Building>

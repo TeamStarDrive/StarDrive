@@ -1,9 +1,10 @@
 <Building>
 	<Name>FrigateLaunchPad</Name>
-	<Description>An air strip for 2 Home Defense Frigates</Description>
+	<Icon>FrigateLaunchPad</Icon>
+	
 	<Cost>250</Cost>
 	<Maintenance>0.6</Maintenance>
-	<Icon>FrigateLaunchPad</Icon>
+	
 	<Strength>10</Strength>
 	<CombatStrength>10</CombatStrength>
 	<Defense>25</Defense>	
@@ -12,7 +13,8 @@
 	<StorageAdded>15</StorageAdded>
     <DefenseShipsCapacity>4</DefenseShipsCapacity>
 	<DefenseShipsRole>frigate</DefenseShipsRole>
-	<ShortDescription>Allows infantry construction; defensive building</ShortDescription>
+	
+	<!-- For localization in GameText.yaml -->
 	<NameTranslationIndex>10100</NameTranslationIndex>
 	<ShortDescriptionIndex>10101</ShortDescriptionIndex>	
 	<DescriptionIndex>10102</DescriptionIndex>

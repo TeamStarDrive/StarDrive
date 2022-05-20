@@ -1,12 +1,16 @@
 ﻿<Building>
   <Name>Active Volcano</Name>
-  <Maintenance>0</Maintenance>
-  <Cost>0</Cost>
   <Icon>Active_Volcano</Icon>
+  
+  <Cost>0</Cost>
+  <Maintenance>0</Maintenance>
+  
   <MaxFertilityOnBuild>-0.1</MaxFertilityOnBuild>
   <Scrappable>false</Scrappable>
   <CannotBeBombed>true</CannotBeBombed>
   <CanBuildAnywhere>true</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4240</NameTranslationIndex>
   <DescriptionIndex>4241</DescriptionIndex>
   <ShortDescriptionIndex>4239</ShortDescriptionIndex>
