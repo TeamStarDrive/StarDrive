@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>MagneticArtillery</UID>
-   
-
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>480</Cost>
   <RootNode>0</RootNode>
   <Name>Magnetic Artillery</Name>
   <NameIndex>606</NameIndex>
   <DescriptionIndex>607</DescriptionIndex>
-  <LongDescription>Firing weapons using powder charges alone is inefficient. By adding a magnetic push to our projectiles we can put more ordnance on target in a more efficient manner.  </LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>SubspaceArtillery</UID>
-   
-
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
-
     <UnlockedMod>
       <ModuleUID>MassDriver2x4</ModuleUID>
     </UnlockedMod>
-
   </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked />

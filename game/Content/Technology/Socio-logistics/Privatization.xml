@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Privatization</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>1200</Cost>
@@ -8,16 +8,13 @@
   <Name>Privatization</Name>
   <NameIndex>640</NameIndex>
   <DescriptionIndex>641</DescriptionIndex>
-  <LongDescription>Privatization allows private entities to own shares in public operations, therby subsidizing the maintenance costs for freighters and deep space installations. </LongDescription>
-  <LeadsTo>
-  </LeadsTo>
+  <LeadsTo />
   <ModulesUnlocked />
   <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Privatization</Name>
       <Bonus>0</Bonus>
-      <Description>Platform and Freighter maintenance is reduced by 50%</Description>
       <BonusIndex>642</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>EnergyWeapons</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
   <RootNode>1</RootNode>
   <Name>Energy Weapons</Name>
   <NameIndex>558</NameIndex>
-  <IconPath>icons_techroot_energy</IconPath>
   <DescriptionIndex>559</DescriptionIndex>
-  <LongDescription>The technology branch explores power creation and energy fields, with applications both industrial and military. </LongDescription>
+  <IconPath>icons_techroot_energy</IconPath>
   <LeadsTo>
     <LeadsToTech>
       <UID>LaserBeamTurrets</UID>

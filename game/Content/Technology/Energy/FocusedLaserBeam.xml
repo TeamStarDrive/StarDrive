@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>FocusedLaserBeam</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>200</Cost>
@@ -8,7 +8,6 @@
   <Name>Energy Weapons</Name>
   <NameIndex>17520</NameIndex>
   <DescriptionIndex>17521</DescriptionIndex>
-  <LongDescription>Many of our top military scientists believe that directed energy weapons are the future of space combat. Other scientists favor the encapsulation of various energies into ionized packets, creating energy "cannons". This technology represents our first steps into this field.</LongDescription>
   <LeadsTo>
      <LeadsToTech>
       <UID>FocusedFusionBeam</UID>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>MediumFreighters</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>220</Cost>
@@ -8,7 +8,6 @@
   <Name>Medium Freighters</Name>
   <NameIndex>608</NameIndex>
   <DescriptionIndex>609</DescriptionIndex>
-  <LongDescription>Allows the construction of larger cargoships, which can move more goods and passengers.</LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>LargeFreighters</UID>
@@ -23,7 +22,6 @@
   <BonusUnlocked />
   <TroopsUnlocked />
   <HullsUnlocked>
-
     <UnlockedHull>
       <ShipType>Terran</ShipType>
       <Name>Misc/CargoMedium</Name>

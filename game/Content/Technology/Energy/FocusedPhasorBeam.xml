@@ -8,9 +8,8 @@
   <Name>Energy Weapons</Name>
   <NameIndex>17592</NameIndex>
   <DescriptionIndex>17593</DescriptionIndex>
-  <LongDescription>Many of our top military scientists believe that directed energy weapons are the future of space combat. Other scientists favor the encapsulation of various energies into ionized packets, creating energy "cannons". This technology represents our first steps into this field.</LongDescription>
   <LeadsTo>
-      <LeadsToTech>
+    <LeadsToTech>
       <UID>Disintegrator Array</UID>
     </LeadsToTech>
   </LeadsTo>

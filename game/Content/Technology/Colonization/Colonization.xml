@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Colonization</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
   <RootNode>1</RootNode>
   <Name>Colonization</Name>
   <NameIndex>530</NameIndex>
-  <IconPath>icons_techroot_colonization</IconPath>
   <DescriptionIndex>531</DescriptionIndex>
-  <LongDescription>Boldly going to strange new worlds is just the first step. What to do when we get there is quite a bit more important. This technology branch explores various scientific, industrial, and military enhancements we can make to our colonies. </LongDescription>
+  <IconPath>icons_techroot_colonization</IconPath>
   <LeadsTo>
     <LeadsToTech>
       <UID>SolarArraysV1</UID>
@@ -62,9 +61,6 @@
   </TroopsUnlocked>
   <BuildingsUnlocked>
     <UnlockedBuilding>
-      <Name>Space Port</Name>
-    </UnlockedBuilding>
-        <UnlockedBuilding>
       <Name>Tax Office</Name>
     </UnlockedBuilding>
         <UnlockedBuilding>

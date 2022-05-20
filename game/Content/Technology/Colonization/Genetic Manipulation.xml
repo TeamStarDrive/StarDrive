@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Genetic Manipulation</UID>
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>2500</Cost>
@@ -8,7 +8,6 @@
   <Name>Genetic Manipulation</Name>
   <NameIndex>578</NameIndex>
   <DescriptionIndex>579</DescriptionIndex>
-  <LongDescription>Our understanding of genetics is blossoming to the point where we have almos total control over our own DNA. </LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>Assimilation</UID>

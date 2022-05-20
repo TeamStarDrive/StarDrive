@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>BattleRaiders</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>2250</Cost>
@@ -8,13 +8,12 @@
   <Name>Battle Raiders</Name>
   <NameIndex>520</NameIndex>
   <DescriptionIndex>521</DescriptionIndex>
-  <LongDescription>Our most massive ships can deploy frigate-sized vessels from these gargantuan berths.  When these "battle raiders" are destroyed, however, there is no respawn until the mothership returns to a shipyard for resupply. </LongDescription>
   <LeadsTo />
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>Raider Bay</ModuleUID>
     </UnlockedMod>
-        <UnlockedMod>
+    <UnlockedMod>
       <ModuleUID>EmpDischarger</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>

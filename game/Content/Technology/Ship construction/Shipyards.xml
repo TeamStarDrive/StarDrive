@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Shipyards</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>400</Cost>
@@ -26,18 +26,16 @@
       <Name>Space Port</Name>
     </UnlockedBuilding>
   </BuildingsUnlocked>
-  <BonusUnlocked />
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>Shipyards</Name><!-- this is a boolean; its presence enables shipyards-->
+      <BonusIndex>2037</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
   <TroopsUnlocked />
   <HullsUnlocked>
     <UnlockedHull>
       <Name>Misc/Shipyards</Name>
     </UnlockedHull>		
   </HullsUnlocked>
-  <BonusUnlocked>
-    <UnlockedBonus>
-      <Name>Shipyards</Name><!-- this is a boolean; its presence enables shipyards-->
-      <Description></Description>
-      <BonusIndex>2037</BonusIndex>
-    </UnlockedBonus>
-  </BonusUnlocked>
 </Technology>
