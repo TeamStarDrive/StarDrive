@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>PlasmaThrowers</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>350</Cost>
@@ -8,9 +8,7 @@
   <Name>Plasma Vectoring</Name>
   <NameIndex>636</NameIndex>
   <DescriptionIndex>637</DescriptionIndex>
-  <LongDescription>If we channeled highly-ionized Plasma directly from a ship reactor through a magnetized, high-pressure system, then we could spray our enemies with super-heated energy to devastating effect. </LongDescription>
-  <LeadsTo>
-  </LeadsTo>
+  <LeadsTo />
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>PlasmaThrower</ModuleUID>

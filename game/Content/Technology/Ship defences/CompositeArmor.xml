@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>CompositeArmor</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>2600</Cost>
@@ -8,7 +8,6 @@
   <Name>CompositeArmor</Name>
   <NameIndex>6569</NameIndex>
   <DescriptionIndex>6570</DescriptionIndex>
-  <LongDescription>The benefits of armoring our spaceships are self-evident. The use of steel is already common in our planetary industries, and so it is quite inexpensive to adapt this technology for use in space. </LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>CrystalArmor</UID>
@@ -29,5 +28,4 @@
   <BonusUnlocked />
   <TroopsUnlocked />
   <HullsUnlocked />
-
 </Technology>

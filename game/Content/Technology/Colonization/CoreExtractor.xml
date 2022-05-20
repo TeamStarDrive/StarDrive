@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>CoreExtractor</UID>
   <TechnologyType>Industry</TechnologyType>
   <Cost>4000</Cost>
@@ -8,8 +8,7 @@
   <Name>CoreExtractor</Name>
   <NameIndex>17586</NameIndex>
   <DescriptionIndex>17587</DescriptionIndex>
-  <LongDescription>When resource extraction matters more than the environment, Deep Core Mines are the solution. Deep Core mines will ruin all but the hardiest planetary ecosystems and are best suited for barren worlds. </LongDescription>
- <LeadsTo>
+  <LeadsTo>
     <LeadsToTech>
       <UID>InvasiveMining</UID>
     </LeadsToTech>

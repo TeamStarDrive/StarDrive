@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>MissileTurret</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>750</Cost>
@@ -8,14 +8,13 @@
   <Name>MissileTurret</Name>
   <NameIndex>17500</NameIndex>
   <DescriptionIndex>17501</DescriptionIndex>
-  <LongDescription>Adapting missile technology to the rigors of space travel is not overly difficult. We can pursue further advances to missile propulsion, payload, and durability. </LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>DualMissileTurret</UID>
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
-      <UnlockedMod>
+    <UnlockedMod>
       <ModuleUID>LRMmk1</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>

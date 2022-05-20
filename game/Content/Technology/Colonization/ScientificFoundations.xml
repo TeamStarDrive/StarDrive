@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>ScientificFoundations</UID>
   <TechnologyType>Research</TechnologyType>
   <Cost>400</Cost>
@@ -8,12 +8,11 @@
   <Name>Scientific Foundations</Name>
   <NameIndex>652</NameIndex>
   <DescriptionIndex>653</DescriptionIndex>
-  <LongDescription>Each new colony presents a fresh opportunity for scientific discovery, be it biological, geological, archeological, or otherwise.  Basic scientific facilities are critical to understanding our new homes and increasing our knowledge of the universe.</LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>XenoGenetics</UID>
     </LeadsToTech>
-        <LeadsToTech>
+    <LeadsToTech>
       <UID>Biospheres</UID>
     </LeadsToTech>
   </LeadsTo>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>IS Government</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>450</Cost>
@@ -8,12 +8,11 @@
   <Name>Interstellar Governance</Name>
   <NameIndex>599</NameIndex>
   <DescriptionIndex>600</DescriptionIndex>
-  <LongDescription>Managing a space empire is a major logistical task, requiring advanced coordination between the public and private sector over vast distances and spans of time.</LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>HDZone</UID>
     </LeadsToTech>
-      <LeadsToTech>
+    <LeadsToTech>
       <UID>Planetary Stock Exchange</UID>
     </LeadsToTech>
     <LeadsToTech>

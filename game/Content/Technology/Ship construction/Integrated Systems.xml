@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Integrated Systems</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>2000</Cost>
@@ -8,7 +8,6 @@
   <Name>Integrated Systems</Name>
   <NameIndex>595</NameIndex>
   <DescriptionIndex>596</DescriptionIndex>
-  <LongDescription>A starship is a complicated web of interdependent systems, and the bigger they are the harder they are to control. This technology brings command and engineering functions in to the next generation.  </LongDescription>
   <LeadsTo />
   <ModulesUnlocked>
     <UnlockedMod>

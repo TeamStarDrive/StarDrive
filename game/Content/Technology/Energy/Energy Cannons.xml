@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Energy Cannons</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>200</Cost>
@@ -8,7 +8,6 @@
   <Name>Energy Cannons</Name>
   <NameIndex>554</NameIndex>
   <DescriptionIndex>555</DescriptionIndex>
-  <LongDescription>"Laser" Cannons are somewhat of a misnoner because the cannon in fact fires an ionized magnetic shell filled with superheated plasma. The cannon gains its name because the plasma is heated by laser before being magnetically acclerated and shot towards its target. </LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>Disruptors</UID>

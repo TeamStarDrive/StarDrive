@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>InvasiveMining</UID>
   <TechnologyType>Industry</TechnologyType>
   <Cost>5500</Cost>
@@ -8,9 +8,7 @@
   <Name>Invasive Mining</Name>
   <NameIndex>8075</NameIndex>
   <DescriptionIndex>8076</DescriptionIndex>
-  <LongDescription>Industry World Development II</LongDescription>
-  <LeadsTo>
-  </LeadsTo>
+ <LeadsTo />
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>

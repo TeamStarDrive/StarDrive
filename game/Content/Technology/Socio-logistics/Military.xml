@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Military</UID>
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>150</Cost>
@@ -8,7 +8,6 @@
   <Name>Military Outpost</Name>
   <NameIndex>613</NameIndex>
   <DescriptionIndex>614</DescriptionIndex>
-  <LongDescription>A military presence is a crucial first step on a colony's journey to relevance. This building allows you to train infantry-class troops at your colony. </LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>Planetary Defense</UID>
@@ -17,11 +16,6 @@
       <UID>Armor</UID>
     </LeadsToTech>
   </LeadsTo>
-  <UnlockedAtGameStart>
-    <RaceRequirements>
-      <RacialTrait>Militaristic</RacialTrait>
-    </RaceRequirements>
-  </UnlockedAtGameStart>
   <ModulesUnlocked />
   <BuildingsUnlocked>
     <UnlockedBuilding>
@@ -31,5 +25,10 @@
   <BonusUnlocked />
   <TroopsUnlocked />
   <HullsUnlocked />
+  <UnlockedAtGameStart>
+    <RaceRequirements>
+      <RacialTrait>Militaristic</RacialTrait>
+    </RaceRequirements>
+  </UnlockedAtGameStart>
   <Militaristic>true</Militaristic>
 </Technology>

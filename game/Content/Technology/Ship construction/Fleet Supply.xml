@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Fleet Supply</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>500</Cost>
@@ -8,12 +8,11 @@
   <Name>Fleet Supply</Name>
   <NameIndex>566</NameIndex>
   <DescriptionIndex>567</DescriptionIndex>
-  <LongDescription>For a fleet on extended deployment, running out of ammunition can be a major problem. Supply ships have therefore been an integral part of large fleet actions since the dawn of the naval age.</LongDescription>
-   <LeadsTo>
+  <LeadsTo>
     <LeadsToTech>
       <UID>LargeOrdStorage</UID>
     </LeadsToTech>
-        <LeadsToTech>
+    <LeadsToTech>
       <UID>ShipboardAssault</UID>
     </LeadsToTech>
   </LeadsTo>

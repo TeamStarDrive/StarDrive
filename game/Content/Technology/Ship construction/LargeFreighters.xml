@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>LargeFreighters</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>450</Cost>
@@ -8,7 +8,7 @@
   <Name>Large Freighters</Name>
   <NameIndex>601</NameIndex>
   <DescriptionIndex>602</DescriptionIndex>
-  <LongDescription>Unlock the largest cargo hull possible.</LongDescription>
+  <LeadsTo />
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>ContainerDeck</ModuleUID>
@@ -18,7 +18,6 @@
   <BonusUnlocked />
   <TroopsUnlocked />
   <HullsUnlocked>
-
     <UnlockedHull>
       <ShipType>Terran</ShipType>
       <Name>Misc/CargoLong</Name>
@@ -52,5 +51,4 @@
       <ShipType>Cordrazine</ShipType>
     </UnlockedHull>
   </HullsUnlocked>
-
 </Technology>
