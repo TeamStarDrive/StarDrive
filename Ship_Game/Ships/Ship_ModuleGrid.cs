@@ -451,7 +451,7 @@ namespace Ship_Game.Ships
                 Universe.DebugWin?.DrawLine(DebugModes.Targeting,
                     GridLocalToWorld(localA),
                     GridLocalToWorld(localB),
-                    2f, Color.IndianRed, lifeTime:1f);
+                    2f, Color.IndianRed, lifeTime:0.01f);
             }
 
             ShipModule prevModule = null;
@@ -462,7 +462,7 @@ namespace Ship_Game.Ships
                 if (Universe.DebugMode == DebugModes.Targeting)
                 {
                     Universe.DebugWin?.DrawCircle(DebugModes.Targeting, GridLocalToWorld(pos),
-                                                  3f, Color.Yellow, lifeTime:1f);
+                                                  3f, Color.Yellow, lifeTime:0.01f);
                 }
 
                 Point p = GridLocalToPoint(pos);
@@ -473,7 +473,7 @@ namespace Ship_Game.Ships
                 if (Universe.DebugMode == DebugModes.Targeting)
                 {
                     Universe.DebugWin?.DrawRect(DebugModes.Targeting, GridCellCenterToWorld(p.X, p.Y),
-                                                8f, Rotation, Color.OrangeRed, lifeTime:1f);
+                                                8f, Rotation, Color.OrangeRed, lifeTime:0.01f);
                 }
 
                 foreach (ShipModule m in GetModulesAt(p, checkShields))
@@ -485,7 +485,7 @@ namespace Ship_Game.Ships
                         if (Universe.DebugMode == DebugModes.Targeting)
                         {
                             Universe.DebugWin?.DrawRect(DebugModes.Targeting, m.Position,
-                                                        m.XSize*8f+1f, Rotation, Color.GreenYellow, lifeTime:1f);
+                                                        m.XSize*8f+1f, Rotation, Color.GreenYellow, lifeTime:0.01f);
                         }
 
                         yield return m;
