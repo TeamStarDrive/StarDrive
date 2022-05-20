@@ -13335,7 +13335,7 @@ OrerefineryDescr:
  ENG: "Facility for processing raw mineral ores."
 OrerefineryBonus:
  Id: 10084
- ENG: "(-0.5) lower fertility on build, +2 production per 1 richness"
+ ENG: " lower fertility on build, +3 production per 1 richness"
 ScienceFacility:
  Id: 10085
  ENG: "Science Facility"
