@@ -144,7 +144,7 @@ def create_installer_files_list(major=False, patch=False):
 
         FileInfo.save_file_infos(delete_files_path, deleted_files.values())
         FileInfo.save_file_infos(new_files_path, new_files.values())
-        create_installer_commands(installer_commands, new_files, deleted_files.values(), delete_dirs)
+        create_installer_commands(installer_commands, new_files.values(), deleted_files.values(), delete_dirs)
 
 if __name__ == "__main__":
     if args.major: create_installer_files_list(major=True)
