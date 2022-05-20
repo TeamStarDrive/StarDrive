@@ -1,13 +1,13 @@
 ﻿<Building>
   <Name>Warehouse</Name>
-  <Description>A simple building with a simple purpose, the warehouse provides an environmentally controlled environment where 100 extra food and production can be stored. </Description>
-  <StorageAdded>100</StorageAdded>
-  <Cost>30</Cost>
   <Icon>warehouse</Icon>
-  <ShortDescription>+100 maximum good storage</ShortDescription>
+  
+  <Cost>30</Cost>
+  
+  <StorageAdded>100</StorageAdded>
   <Infrastructure>1</Infrastructure>
 
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>467</NameTranslationIndex>
   <DescriptionIndex>468</DescriptionIndex>
   <ShortDescriptionIndex>469</ShortDescriptionIndex>

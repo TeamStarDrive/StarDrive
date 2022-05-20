@@ -1,16 +1,15 @@
 ﻿<Building>
   <Name>Xeno Mine</Name>
-  <Description>Xeno mines are the first real step toward's exploiting a planet's mineral deposits, creating +1 production per colonist assigned to industrial tasks. </Description>
+  <Icon>mine</Icon>
+  
+  <Cost>175</Cost>
+  <Maintenance>.5</Maintenance>
+  
   <PlusProdPerColonist>0.6</PlusProdPerColonist>
   <Infrastructure>1</Infrastructure>
-  <Cost>175</Cost>
-  <Icon>mine</Icon>
-  <Maintenance>.5</Maintenance>
-  <ShortDescription>0.6 production per assigned colonist</ShortDescription>
-
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>473</NameTranslationIndex>
   <DescriptionIndex>474</DescriptionIndex>
   <ShortDescriptionIndex>475</ShortDescriptionIndex>
-
 </Building>

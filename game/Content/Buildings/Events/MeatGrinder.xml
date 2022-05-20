@@ -1,13 +1,16 @@
 ﻿<Building>
   <Name>MeatGrinder</Name>
+  <Icon>MeatGrinder</Icon>
+  
+  <Maintenance>0.2</Maintenance> 
+  
   <IsCommodity>false</IsCommodity>
-  <Maintenance>0.2</Maintenance>  
-  <Description>Population control</Description>
   <PlusFlatFoodAmount>2</PlusFlatFoodAmount>
   <PlusFlatPopulation>-10</PlusFlatPopulation>
-  <Icon>MeatGrinder</Icon>
   <Scrappable>true</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18234</NameTranslationIndex>
   <DescriptionIndex>18235</DescriptionIndex>
   <ShortDescriptionIndex>18236</ShortDescriptionIndex>

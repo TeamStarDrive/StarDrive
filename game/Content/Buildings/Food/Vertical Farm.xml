@@ -1,11 +1,13 @@
 ﻿<Building>
   <Name>Vertical Farm</Name>
-  <PlusFoodPerColonist>0.6</PlusFoodPerColonist>
-  <Cost>300</Cost>
   <Icon>arcology</Icon>
+  
+  <Cost>300</Cost>
   <Maintenance>1.0</Maintenance>
-
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <PlusFoodPerColonist>0.6</PlusFoodPerColonist>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>2290</NameTranslationIndex>
   <DescriptionIndex>2292</DescriptionIndex>
   <ShortDescriptionIndex>2291</ShortDescriptionIndex>

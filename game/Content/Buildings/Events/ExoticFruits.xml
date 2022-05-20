@@ -1,14 +1,17 @@
 ﻿<Building>
   <Name>ExoticFruits</Name>
-  <IsCommodity>true</IsCommodity>
+  <Icon>ExoticFruits</Icon>
+  
   <Maintenance>0</Maintenance>  
-  <Description>Big tree</Description>
+  
+  <IsCommodity>true</IsCommodity>
   <FoodCache>700</FoodCache>
   <PlusFlatFoodAmount>0.6</PlusFlatFoodAmount>
   <PlusFlatPopulation>25</PlusFlatPopulation>
-  <Icon>ExoticFruits</Icon>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>false</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18222</NameTranslationIndex>
   <DescriptionIndex>18223</DescriptionIndex>
   <ShortDescriptionIndex>18224</ShortDescriptionIndex>
