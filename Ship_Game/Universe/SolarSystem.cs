@@ -269,6 +269,11 @@ namespace Ship_Game
             return null;
         }
 
+        /// <summary>
+        /// Checks the priority of this system for defense tasks
+        /// </summary>
+        /// <param name="empire"></param>
+        /// <returns>priority between 0 to 4 (0 is the highest)</returns>
         public int DefenseTaskPriority(Empire empire)
         {
             int priority = 3;

@@ -1102,7 +1102,7 @@ namespace Ship_Game
 
         public float GetProjectorRadius(Empire owner)
         {
-            return owner.GetProjectorRadius() + 10000f * PopulationBillion;
+            return owner?.GetProjectorRadius() + 10000f * PopulationBillion ?? 0;
         }
 
         public float GetProjectorRange()
