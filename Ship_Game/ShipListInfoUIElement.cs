@@ -420,7 +420,6 @@ namespace Ship_Game
             }
 
             var slRect = new Rectangle(RightRect.X - 10, Housing.Y + 85, RightRect.Width - 5, OrdersButtons.Visible ? 100 : 140);
-            //SelectedShipsSL = new ScrollList2<SelectedShipListItem>(slRect, 24);
             SelectedShipsSL.Rect = slRect;
 
             OrdersButton resupply = new OrdersButton(shipList, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
