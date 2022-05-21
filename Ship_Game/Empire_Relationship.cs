@@ -369,6 +369,8 @@ namespace Ship_Game
                     relSave.KnownInformation = new EmpireInformation(relSave);
                     relSave.KnownInformation.Update(relSave.IntelligenceLevel);
                     ourEmpire.AddNewRelationToThem(empire, relSave);
+                    if (relSave.Known)
+                        ourEmpire.SetRelationsAsKnown(relSave, empire);
                 }
             }
         }
