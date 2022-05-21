@@ -359,7 +359,7 @@ namespace Ship_Game.Gameplay
             off *= m.ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
 
             // FB: Field of Fire is also important
-            off *= (m.FieldOfFire > RadMath.PI / 3) ? (m.FieldOfFire / 3) : 1f;
+            off *= (m.FieldOfFire / (RadMath.PI / 3)).Clamped(1,4);
 
             // Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
             return off * t.OffPowerMod;
