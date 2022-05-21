@@ -55,7 +55,8 @@ namespace Ship_Game.Commands.Goals
                 if (threatenedSystem.Enemies.Length > 0)
                     minStr *= empire.GetFleetStrEmpireMultiplier(threatenedSystem.Enemies[0]).UpperBound(empire.OffensiveStrength / 5);
 
-                empire.AddDefenseSystemGoal(threatenedSystem.TargetSystem, minStr, 1);
+                empire.AddDefenseSystemGoal(threatenedSystem.TargetSystem, 
+                    minStr, 5 - threatenedSystem.TargetSystem.DefenseTaskPriority(empire));
             }
 
             return GoalStep.GoToNextStep;

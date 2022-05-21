@@ -104,7 +104,9 @@ namespace Ship_Game.Commands.Goals
                 EmpireAI empireAi   = empire.GetEmpireAI();
                 TargetEmpire        = empireAi.ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
                 float strMultiplier = empire.GetFleetStrEmpireMultiplier(TargetEmpire);
-                var task            = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, (spaceStrength * strMultiplier).LowerBound(20));
+                var task            = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, 
+                                       (spaceStrength * strMultiplier).LowerBound(20), TargetEmpire, (int)strMultiplier);
+
                 empireAi.AddPendingTask(task);
                 empireAi.Goals.Add(new StandbyColonyShip(empire));
             }
