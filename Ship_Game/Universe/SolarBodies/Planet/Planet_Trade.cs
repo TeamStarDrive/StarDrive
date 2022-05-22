@@ -57,11 +57,11 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportFood)
                     return 0;
 
-                int min = Storage.FoodRatio > 0.75f ? 1 : 0;
                 if (ManualFoodExportSlots > 0 && Owner == EmpireManager.Player)
-                    return ManualFoodExportSlots.LowerBound(min);
+                    return ManualFoodExportSlots;
 
-                int maxSlots     = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 14 : 10;
+                int min = Storage.FoodRatio > 0.75f ? 2 : 1;
+                int maxSlots     = colonyType is ColonyType.Agricultural or ColonyType.Colony ? 14 : 10;
                 int storageSlots = (int)(Storage.Food / Owner.AverageFreighterCargoCap);
                 int outputSlots  = (int)(Food.NetIncome * AverageFoodExportTurns / Owner.AverageFreighterCargoCap);
                 return (storageSlots + outputSlots).Clamped(min, maxSlots);
@@ -75,10 +75,10 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportProd)
                     return 0;
 
-                int min = Storage.ProdRatio > 0.5f ? 1 : 0;
                 if (ManualProdExportSlots > 0 && Owner == EmpireManager.Player)
-                    return ManualProdExportSlots.LowerBound(min);
+                    return ManualProdExportSlots;
 
+                int min = Storage.ProdRatio > 0.5f ? 2 : 1;
                 int maxSlots = IsCybernetic ? 6 : 5;
                 switch (colonyType)
                 {
