@@ -222,8 +222,8 @@ namespace Ship_Game
             ResourceManager.CreateBuilding(this, Building.CapitalId).AssignBuildingToTilePlanetCreation(this, out _);
             ResourceManager.CreateBuilding(this, Building.SpacePortId).AssignBuildingToTilePlanetCreation(this, out _);
             Storage.Max = BuildingList.Sum(b => b.StorageAdded);
-            FoodHere    = Storage.Max;
-            ProdHere    = Storage.Max / 2;
+            FoodHere    = Storage.Max * 0.2f;
+            ProdHere    = Storage.Max * 0.35f;
             AllowInfantry = true; // for initialization only, before we reach planet Update
         }
 
