@@ -176,7 +176,7 @@ namespace Ship_Game.AI
             } while (completeFleets < neededFleets || totalStrength < strengthNeeded);
 
             // in case we have more room for ships, or all ships in get core are carriers or something.
-            int unfilledFleets = (neededFleets - completeFleets).LowerBound(1);
+            int unfilledFleets = (neededFleets - completeFleets).LowerBound(0);
             for (int i = 0; i < unfilledFleets; i++)
                 GetSupplementalFleet(results);
 
