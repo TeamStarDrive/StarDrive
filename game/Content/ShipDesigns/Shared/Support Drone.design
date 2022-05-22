@@ -1,4 +1,4 @@
-﻿Version=1
+Version=1
 Name=Support Drone
 Hull=Remnant/XenoGunship
 Role=support
@@ -6,36 +6,33 @@ Style=Remnant
 Size=8,8
 GridCenter=4,4
 DefaultAIState=DoNothing
-DefaultCombatState=AttackRuns
+DefaultCombatState=OrbitLeft
 ShipCategory=Unclassified
 HangarDesignation=General
 IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=OrdnanceSupplyBay;PlaSteelArmorSmall;RemnantSmallReactor;AncientReactorMed;RemnantSmallFuelCell;RemnantEngine2;LaserCannon;AncientShield2kw;Fabricator;Cockpit;RepairDrone
-Modules=23
+ModuleUIDs=RepairDrone;PlaSteelArmorSmall;Fighter Shield;PlaSteelArmorMed;RemnantDrisruptor_2x2;OrdnanceLockerSmall;Cockpit;AncientReactorMed;AncientShield2kw;RemnantEngine2
+Modules=20
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
-0,2;0;2,2;;;Drone Interceptor
+3,0;0;2,2
 1,1;1
-1,4;1
-1,6;1
 2,1;1
-2,2;2
-2,3;3;2,2
-2,5;4
-2,6;5;2,2
-3,0;6
-3,1;7;2,2
-3,5;2
-4,0;6
-4,3;8;2,2
-4,5;2
-4,6;5;2,2
-5,1;1
-5,2;9
-5,5;4
+5,1;2
 6,1;1
-6,2;10;2,2
+0,2;3;2,2
+2,2;4;2,2;255
+4,2;5
+5,2;6
+6,2;0;2,2
+4,3;7;2,2
+1,4;1
+2,4;8;2,2
 6,4;1
+4,5;2
+5,5;2
+1,6;1
+2,6;9;2,2
+4,6;9;2,2
 6,6;1
