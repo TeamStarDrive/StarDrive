@@ -2,7 +2,7 @@
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
 
-  <Cost>16</Cost>
+  <Cost>8</Cost>
   <!-- Tech Level -->
   <TechLevel>1</TechLevel>
   <TechBranch>Storage</TechBranch>
@@ -50,7 +50,7 @@
   <Thrust>0</Thrust>
 
   <!-- for Storage -->
-  <CargoCapacity>10</CargoCapacity>
+  <CargoCapacity>6</CargoCapacity>
   
   
 
