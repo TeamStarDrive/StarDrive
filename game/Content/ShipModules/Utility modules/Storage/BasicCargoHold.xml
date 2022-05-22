@@ -5,7 +5,7 @@
   <!-- Tech Level -->
   <TechLevel>0</TechLevel>
   <TechBranch>Storage</TechBranch>
-  <Cost>4</Cost>
+  <Cost>2</Cost>
 
   <!-- common traits shared by all ship modules -->
   <ModuleType>Storage</ModuleType>
@@ -48,7 +48,7 @@
   <Thrust>0</Thrust>
 
   <!-- for Storage -->
-  <CargoCapacity>2</CargoCapacity>
+  <CargoCapacity>1</CargoCapacity>
   
   
 
