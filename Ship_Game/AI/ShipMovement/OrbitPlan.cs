@@ -102,7 +102,7 @@ namespace Ship_Game.AI.ShipMovement
                                && Owner.Universe.Screen.IsSystemViewOrCloser;
                 if (!visible) // don't update orbits in invisible systems
                 {
-                    if (distance > 2000f) // we need to get closer to get RESUPPLIED (!)
+                    if (distance > 4000f) // we need to get closer to get RESUPPLIED (!)
                     {
                         ThrustTowardsPlanet(orbitTarget, timeStep);
                     }
@@ -111,6 +111,8 @@ namespace Ship_Game.AI.ShipMovement
                         // MAGIC STOP ships when orbiting off screen
                         Owner.Velocity = Vector2.Zero;
                         InOrbit = true;
+                        if (AI.State != AIState.Bombard)
+                            AI.SetPriorityOrder(false);
                     }
                     return;
                 }
@@ -128,6 +130,8 @@ namespace Ship_Game.AI.ShipMovement
                 InOrbit = true;
                 AI.RotateTowardsPosition(OrbitPos, timeStep, 0.01f);
                 Owner.SubLightAccelerate(speedLimit: precisionSpeed);
+                if (AI.State != AIState.Bombard)
+                    AI.SetPriorityOrder(false);
             }
             else // we are still not there yet, so find a meaningful orbit position
             {
