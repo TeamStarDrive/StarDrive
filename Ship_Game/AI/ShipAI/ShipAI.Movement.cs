@@ -191,9 +191,9 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
 
-            if (goal.HasAggressiveMoveOrder)
+            if (goal.HasAggressiveMoveOrder || goal.HasRegularMoveOrder)
             {
-                if (HasPriorityOrder && !Owner.Loyalty.isPlayer) // For AI fleets doing priority order
+                if (HasPriorityOrder) // Dont stuck in final approach if there are enemies (unless Standing Ground)
                 {
                     HadPO = true;
                     ClearPriorityOrderAndTarget();
