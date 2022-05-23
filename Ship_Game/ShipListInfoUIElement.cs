@@ -26,7 +26,7 @@ namespace Ship_Game
         public Rectangle LeftRect;
         public Rectangle RightRect;
         public Rectangle ShipInfoRect;
-        readonly ScrollList2<SelectedShipListItem> SelectedShipsSL;
+        ScrollList2<SelectedShipListItem> SelectedShipsSL;
         public Rectangle Power;
         public Rectangle Shields;
         public ToggleButton GridButton;
@@ -74,7 +74,7 @@ namespace Ship_Game
 
             OrdersButtons = new ShipStanceButtons(screen, ordersBarPos);
 
-            var slsubRect = new Rectangle(RightRect.X, Housing.Y + 110 - 35, RightRect.Width - 5, 140);
+            var slsubRect = new Rectangle(RightRect.X-10, Housing.Y + 85, RightRect.Width - 5, 140);
             SelectedShipsSL = new ScrollList2<SelectedShipListItem>(slsubRect, 24);
         }
 
@@ -418,6 +418,9 @@ namespace Ship_Game
                 }
                 OrdersButtons.ResetButtons(ShipList);
             }
+
+            var slRect = new Rectangle(RightRect.X - 10, Housing.Y + 85, RightRect.Width - 5, OrdersButtons.Visible ? 100 : 140);
+            SelectedShipsSL.Rect = slRect;
 
             OrdersButton resupply = new OrdersButton(shipList, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
             {

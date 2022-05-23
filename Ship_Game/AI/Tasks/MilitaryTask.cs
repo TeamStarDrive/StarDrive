@@ -90,9 +90,9 @@ namespace Ship_Game.AI.Tasks
             return task;
         }
 
-        public static MilitaryTask CreateClaimTask(Empire owner, Planet targetPlanet, float minStrength)
+        public static MilitaryTask CreateClaimTask(Empire owner, Planet targetPlanet, float minStrength,
+            Empire targetEmpire, int fleetCount)
         {
-            Empire dominant  = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
             var militaryTask = new MilitaryTask
             {
                 TargetPlanet             = targetPlanet,
@@ -101,7 +101,8 @@ namespace Ship_Game.AI.Tasks
                 AORadius                 = targetPlanet.ParentSystem.Radius,
                 MinimumTaskForceStrength = minStrength,
                 Owner                    = owner,
-                TargetEmpire             = dominant
+                TargetEmpire             = targetEmpire,
+                FleetCount               = fleetCount
             };
 
             return militaryTask;
