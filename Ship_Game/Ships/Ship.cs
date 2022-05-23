@@ -252,6 +252,24 @@ namespace Ship_Game.Ships
                        DesignRole == RoleName.carrier;
         }
 
+        public bool IsGoodScout() => ShipData.Role != RoleName.supply 
+                                 && (Loyalty.isPlayer && Name == Loyalty.data.CurrentAutoScout
+                                        || !Loyalty.isPlayer && DesignRole == RoleName.scout);
+
+        public bool IsIdleScout()
+        {
+            if (ShipData.Role == RoleName.supply)
+                return false; // FB - this is a workaround, since supply shuttle register as scouts design role.
+
+            return Fleet == null
+                   && AI.State != AIState.Flee
+                   && AI.State != AIState.Scrap
+                   && AI.State != AIState.Explore
+                   && !AI.HasPriorityOrder
+                   && (Loyalty.isPlayer && Name == Loyalty.data.CurrentAutoScout
+                       || !Loyalty.isPlayer && DesignRole == RoleName.scout);
+        }
+
         public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != RoleName.prototype && DesignRole != RoleName.disabled
                                                && !ResourceManager.ShipRoles[ShipData.Role].Protected && !ShipData.Deleted
                                                && DesignRole != RoleName.supply
