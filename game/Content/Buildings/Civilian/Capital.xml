@@ -5,11 +5,11 @@
   <Maintenance>0</Maintenance>
   
   <PlusFlatResearchAmount>2</PlusFlatResearchAmount>
-  <PlusResearchPerColonist>.2</PlusResearchPerColonist>
-  <CreditsPerColonist>2</CreditsPerColonist>
+  <PlusResearchPerColonist>.15</PlusResearchPerColonist>
+  <CreditsPerColonist>1</CreditsPerColonist>
   <PlusTaxPercentage>.40</PlusTaxPercentage>
   <Infrastructure>8</Infrastructure>
-  <StorageAdded>50</StorageAdded>
+  <StorageAdded>200</StorageAdded>
   <AllowInfantry>true</AllowInfantry>
   <Strength>25</Strength>
   <CombatStrength>25</CombatStrength>
