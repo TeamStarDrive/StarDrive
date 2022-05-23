@@ -193,7 +193,7 @@ namespace Ship_Game
 
             DrawDetailInfo(batch, new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35));
 
-            float num5 = 80f;
+            float num5 = 100;
             var cursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
             PlanetName.SetPos(cursor);
             PlanetName.Draw(batch, elapsed);
@@ -255,7 +255,18 @@ namespace Ship_Game
             if (rect.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
                 ToolTip.CreateTooltip(GameText.APlanetsMineralRichnessDirectly);
 
-            cursor.Y += TextFont.LineSpacing * 2 + 4;
+            cursor.Y += TextFont.LineSpacing + 2;
+            if (OutgoingColoFreighters > 0 || IncomingColoFreighters > 0 || P.ColonistsImportSlots > 0)
+            {
+                position3 = new Vector2(cursor.X + num5, cursor.Y);
+                batch.DrawString(TextFont, P.ColonistsImportSlots > 0 ?"Incoming Pop: " : "Outgoing Pop: ", cursor, P.Owner.EmpireColor);
+                DrawColoSlots(batch, position3);
+                rect = new Rectangle((int)cursor.X, (int)cursor.Y, (int)TextFont.MeasureString("Incoming Pop: ").X, TextFont.LineSpacing);
+                if (rect.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
+                    ToolTip.CreateTooltip(GameText.IncomingOutGoingTip);
+            }
+
+            cursor.Y += TextFont.LineSpacing + 2;
             if (P.TerraformPoints > 0)
             {
                 Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
@@ -301,6 +312,8 @@ namespace Ship_Game
             {
                 FoodStorage.Draw(batch);
                 FoodDropDown.Draw(batch);
+                if (!IsTradeTabSelected)
+                    DrawFoodSlots(batch);
             }
             else
             {
@@ -313,6 +326,8 @@ namespace Ship_Game
             else if (P.PS == Planet.GoodState.IMPORT) ProdDropDown.ActiveIndex = 1;
             else if (P.PS == Planet.GoodState.EXPORT) ProdDropDown.ActiveIndex = 2;
             ProdDropDown.Draw(batch);
+            if (!IsTradeTabSelected)
+                DrawProdSlots(batch);
             batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
             batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
 
@@ -320,6 +335,79 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(GameText.IndicatesTheAmountOfFood);
             if (ProfStorageIcon.HitTest(Input.CursorPosition) && P.Universe.Screen.IsActive)
                 ToolTip.CreateTooltip(GameText.IndicatesTheAmountOfProduction);
+        }
+
+        void DrawFoodSlots(SpriteBatch batch)
+        {
+            if (P.FS == Planet.GoodState.STORE)
+                return;
+
+            Vector2 textPos = new(FoodStorage.pBar.X+2, FoodStorage.pBar.Y + 20);
+            LocalizedText text = new(GameText.IncomingFreighters);
+            int enroute =  IncomingFoodFreighters;
+            int maxSlots = P.FoodImportSlots;
+            string amount = IncomingFood > 0 ? $"({IncomingFood.String()})" : "";
+
+            if (P.FS == Planet.GoodState.EXPORT)
+            {
+                text = GameText.OutgoingFreighters;
+                enroute = OutgoingFoodFreighters;
+                maxSlots = P.FoodExportSlots;
+            }
+
+            DrawTradeSlots(batch, textPos, text, Color.LightGreen, enroute, maxSlots, amount);
+
+        }
+
+        void DrawProdSlots(SpriteBatch batch)
+        {
+            if (P.PS == Planet.GoodState.STORE)
+                return;
+
+            Vector2 textPos = new(ProdStorage.pBar.X+2, ProdStorage.pBar.Y + 20);
+            LocalizedText text = new(GameText.IncomingFreighters);
+            int enroute = IncomingProdFreighters;
+            int maxSlots = P.ProdImportSlots;
+            string amount = IncomingProd > 0 ? $"({IncomingProd.String()})" : "";
+
+            if (P.PS == Planet.GoodState.EXPORT)
+            {
+                text = GameText.OutgoingFreighters;
+                enroute = OutgoingProdFreighters;
+                maxSlots = P.ProdExportSlots;
+                amount = "";
+            }
+
+            DrawTradeSlots(batch, textPos, text, Color.SandyBrown, enroute, maxSlots, amount);
+        }
+
+        void DrawColoSlots(SpriteBatch batch, Vector2 textPos)
+        {
+            int enroute = IncomingColoFreighters;
+            int maxSlots = P.ColonistsImportSlots;
+            string amount = IncomingPop > 0 ? $"({IncomingPopString})" : "";
+            if (P.ColonistsExportSlots > 0)
+            {
+                enroute = OutgoingColoFreighters;
+                maxSlots = P.ColonistsExportSlots;
+                amount = "";
+            }
+
+            DrawTradeSlots(batch, textPos, "", Colors.Cream, enroute, maxSlots, amount, punctuation: false);
+        }
+
+
+        void DrawTradeSlots(SpriteBatch batch, Vector2 pos, LocalizedText goodsType,
+            Color color, int enroute, int openSlots, string amount, bool punctuation = true)
+        {
+            if (openSlots == 0)
+                color = Color.Gray;
+
+            if (enroute == 0)
+                color = new Color(color, 128);
+
+            string puncText = punctuation ? ": " : "";
+            batch.DrawString(TextFont, $"{goodsType.Text}{puncText}{enroute}/{openSlots} {amount}", pos, color);
         }
 
         void DrawPlanetSurfaceGrid(SpriteBatch batch)
