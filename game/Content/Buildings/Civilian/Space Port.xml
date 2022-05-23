@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Space Port</Name>
+  <Icon>spaceport</Icon>
+  
+  <Cost>150</Cost>
+  <Maintenance>2</Maintenance>
+  
+  <PlusTaxPercentage>.2</PlusTaxPercentage>
+  <Infrastructure>2</Infrastructure>
+  <ShipRepair>50</ShipRepair>
+  <AllowShipBuilding>true</AllowShipBuilding>
+  
+  <!-- For localization in GameText.yaml -->
+  <NameTranslationIndex>458</NameTranslationIndex>
+  <DescriptionIndex>459</DescriptionIndex>
+  <ShortDescriptionIndex>460</ShortDescriptionIndex>
+</Building>
