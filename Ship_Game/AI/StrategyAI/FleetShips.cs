@@ -163,36 +163,29 @@ namespace Ship_Game.AI
         {
             float totalStrength = 0;
             int completeFleets = 0;
-            int neededFleets = Math.Max(wantedFleetCount, 1);
+            int neededFleets = wantedFleetCount.LowerBound(1);
             do
             {
-                int numShips = GetCoreFleet(results);
-                if (numShips == 0)
+                if(!GetCoreFleet(results))
                     break;
 
                 totalStrength = results.Sum(s => s.GetStrength());
+                ++completeFleets;
+                ++ShipSetsExtracted;
 
-                if (numShips > 0)
-                {
-                    ++completeFleets;
-                    --neededFleets;
-                    ++ShipSetsExtracted;
-                }
-            } while (neededFleets > 0 || totalStrength < strengthNeeded);
+            } while (completeFleets < neededFleets || totalStrength < strengthNeeded);
 
-            // if we fail to get enough strength, cancel everything
-            if (totalStrength < strengthNeeded)
-                return 0;
-
-            int unfilledFleets = Math.Max(wantedFleetCount - completeFleets, 0);
+            // in case we have more room for ships, or all ships in get core are carriers or something.
+            int unfilledFleets = (neededFleets - completeFleets).LowerBound(0);
             for (int i = 0; i < unfilledFleets; i++)
                 GetSupplementalFleet(results);
 
-            return completeFleets;
+            // if we fail to get enough strength, cancel everything
+            return totalStrength < strengthNeeded ? 0 :completeFleets;
         }
 
         // core combat section of a fleet
-        public int GetCoreFleet(HashSet<Ship> results)
+        public bool GetCoreFleet(HashSet<Ship> results)
         {
             int sizeBefore = results.Count;
             GetCoreFleetRole(results, RoleName.fighter);
@@ -201,19 +194,29 @@ namespace Ship_Game.AI
             GetCoreFleetRole(results, RoleName.cruiser);
             GetCoreFleetRole(results, RoleName.battleship);
             GetCoreFleetRole(results, RoleName.capital);
-            return results.Count - sizeBefore;
+
+            if (results.Count > 0) // Add support and carriers if there are some ships
+            {
+                GetCoreFleetRole(results, RoleName.carrier);
+                GetCoreFleetRole(results, RoleName.support);
+            }
+
+            if (OwnerEmpire.data.Traits.Prototype > 0)
+                GetCoreFleetRole(results, RoleName.prototype);
+
+            return results.Count - sizeBefore > 0;
         }
 
         public void GetCoreFleetRole(HashSet<Ship> results, RoleName role)
         {
-            float wanted = Math.Max(Ratios.GetWanted(role), 1);
-            GetShips(results, wanted, s => s.DesignRole == role);
+            float wanted = role == RoleName.prototype ? 1 :  Ratios.GetWanted(role);
+            GetShips(results, wanted, role);
         }
 
         public void GetSupplementalFleet(HashSet<Ship> results)
         {
-            GetShips(results, Ratios.MinCarriers, s => s.DesignRole == RoleName.carrier);
-            GetShips(results, Ratios.MinSupport, s => s.DesignRole == RoleName.support);
+            GetShips(results, Ratios.MinCarriers, RoleName.carrier);
+            GetShips(results, Ratios.MinSupport, RoleName.support);
         }
 
         public Array<Ship> ExtractTroops(int planetAssaultTroopsStrWanted)
@@ -264,7 +267,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void GetShips(HashSet<Ship> results, float wanted, Func<Ship, bool> shipFilter)
+        void GetShips(HashSet<Ship> results, float wanted, RoleName role)
         {
             int setWanted = (int)(wanted * WantedFleetCompletePercentage);
             if (setWanted > 0)
@@ -272,9 +275,8 @@ namespace Ship_Game.AI
                 int shipsFound = 0;
                 foreach (Ship ship in Ships)
                 {
-                    if (shipFilter(ship))
+                    if (ship.DesignRole == role && results.Add(ship))
                     {
-                        results.Add(ship);
                         ++shipsFound;
                         if (shipsFound >= setWanted)
                             break;
