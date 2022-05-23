@@ -367,7 +367,6 @@ namespace Ship_Game
             IsUniverseInitialized = true;
             CreateStartingShips();
             InitializeSolarSystems();
-            CreateStationTethers();
 
             foreach (Empire empire in EmpireManager.Empires)
             {
@@ -376,6 +375,7 @@ namespace Ship_Game
 
             WarmUpShipsForLoad();
             RecomputeFleetButtons(true);
+            CreateStationTethers();
 
             if (UState.StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
             {

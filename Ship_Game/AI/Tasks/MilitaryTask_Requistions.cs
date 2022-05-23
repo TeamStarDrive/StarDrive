@@ -16,7 +16,7 @@ namespace Ship_Game.AI.Tasks
     public partial class MilitaryTask
     {
         public int FleetCount = 1;
-        public float Completeness = 0.5f;
+        public float Completeness = 1f;
         [XmlIgnore] [JsonIgnore] RequisitionStatus ReqStatus = RequisitionStatus.None;
         public RequisitionStatus GetRequisitionStatus() => ReqStatus;
         float GetEnemyShipStrengthInAO()
@@ -249,7 +249,7 @@ namespace Ship_Game.AI.Tasks
             {
                 AO                    = TargetPlanet.Position;
                 requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
-                EnemyStrength         = Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) + TargetPlanet.BuildingGeodeticOffense;
+                EnemyStrength         = (Owner.KnownEnemyStrengthIn(TargetPlanet.ParentSystem) + TargetPlanet.BuildingGeodeticOffense).LowerBound(100);
                 UpdateMinimumTaskForceStrength();
             }
 

@@ -3126,8 +3126,10 @@ namespace Ship_Game
         public void AbsorbEmpire(Empire target)
         {
             AbsorbAllEnvPreferences(target);
-            foreach (Planet planet in target.GetPlanets())
+            var planets = target.GetPlanets();
+            for (int i = planets.Count-1; i >= 0; i--)
             {
+                Planet planet = planets[i];
                 planet.SetOwner(this);
                 if (!planet.ParentSystem.OwnerList.Contains(this))
                 {

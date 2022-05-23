@@ -21,7 +21,7 @@ namespace Ship_Game
 
         void UpdateTransforms(Vector2 position)
         {
-            float scale = 0.8f;
+            float scale = 0.25f;
             if (GlobalStats.HasMod) // The Doctor: Mod defined spaceport 'station' art scaling
                 scale = GlobalStats.ActiveModInfo.SpaceportScale;
 
