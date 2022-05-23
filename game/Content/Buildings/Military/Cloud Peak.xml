@@ -3,7 +3,7 @@
 	<Icon>icbm</Icon>
 	
 	<Cost>600</Cost>
-	<Maintenance>0.5</Maintenance>
+	<Maintenance>2.5</Maintenance>
 	
 	<Strength>15</Strength>
 	<CombatStrength>15</CombatStrength>

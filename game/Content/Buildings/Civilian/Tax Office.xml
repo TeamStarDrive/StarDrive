@@ -3,9 +3,8 @@
   <Icon>Tax_Office</Icon>
   
   <Cost>80</Cost>
-  <Maintenance>0</Maintenance>
-  
-  <CreditsPerColonist>0.5</CreditsPerColonist>
+  <Maintenance>-0.5</Maintenance>
+
 
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10088</NameTranslationIndex>

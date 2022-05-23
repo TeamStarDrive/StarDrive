@@ -3,7 +3,7 @@
   <Icon>military_outpost</Icon>
   
   <Cost>125</Cost>
-  
+  <Maintenance>0.6</Maintenance>
   <Strength>15</Strength>
   <CombatStrength>15</CombatStrength>
   <SoftAttack>50</SoftAttack>

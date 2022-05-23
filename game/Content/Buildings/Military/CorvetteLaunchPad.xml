@@ -2,8 +2,8 @@
 	<Name>CorvetteLaunchPad</Name>
 	<Icon>CorvetteLaunchPad</Icon>
 	
-	<Cost>150</Cost>
-	<Maintenance>0.4</Maintenance>
+	<Cost>350</Cost>
+	<Maintenance>0.6</Maintenance>
 	
 	<Strength>5</Strength>
 	<CombatStrength>5</CombatStrength>
