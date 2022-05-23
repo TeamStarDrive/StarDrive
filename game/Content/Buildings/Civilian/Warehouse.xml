@@ -4,7 +4,7 @@
   
   <Cost>30</Cost>
   
-  <StorageAdded>100</StorageAdded>
+  <StorageAdded>200</StorageAdded>
   <Infrastructure>1</Infrastructure>
 
   <!-- For localization in GameText.yaml -->
