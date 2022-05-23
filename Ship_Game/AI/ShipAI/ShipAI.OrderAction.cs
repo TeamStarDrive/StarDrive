@@ -263,8 +263,8 @@ namespace Ship_Game.AI
             // clean up the move order so we only pass forward essentialy information
             MoveOrder o = default;
             if      (order.IsSet(MoveOrder.Aggressive))  o |= MoveOrder.Aggressive;
-            else if (order.IsSet(MoveOrder.Regular))     o |= MoveOrder.Regular;
             else if (order.IsSet(MoveOrder.StandGround)) o |= MoveOrder.StandGround;
+            else if (order.IsSet(MoveOrder.Regular))     o |= MoveOrder.Regular;
 
             // FB - if offensive move is true, ships will break and attack targets on the way to the destination
             bool offensiveMove = order.IsSet(MoveOrder.Aggressive);
