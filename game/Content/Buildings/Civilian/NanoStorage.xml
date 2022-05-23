@@ -4,9 +4,9 @@
   
   <Cost>90</Cost>
   
-  <Infrastructure>2</Infrastructure>
   <StorageAdded>1000</StorageAdded>
-  
+  <Infrastructure>3</Infrastructure>
+
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>17575</NameTranslationIndex>
   <DescriptionIndex>17576</DescriptionIndex>
