@@ -2,8 +2,8 @@
 	<Name>FrigateLaunchPad</Name>
 	<Icon>FrigateLaunchPad</Icon>
 	
-	<Cost>250</Cost>
-	<Maintenance>0.6</Maintenance>
+	<Cost>550</Cost>
+	<Maintenance>1</Maintenance>
 	
 	<Strength>10</Strength>
 	<CombatStrength>10</CombatStrength>

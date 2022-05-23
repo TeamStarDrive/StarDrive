@@ -6,8 +6,8 @@
   <Maintenance>0</Maintenance>
   
   <IsCommodity>true</IsCommodity>
-  <FoodCache>200</FoodCache>
-  <PlusFlatFoodAmount>0.7</PlusFlatFoodAmount>
+  <FoodCache>4000</FoodCache>
+  <PlusFlatFoodAmount>0.5</PlusFlatFoodAmount>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>false</CanBuildAnywhere>
   

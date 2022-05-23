@@ -3,7 +3,7 @@
   <Icon>mine</Icon>
   
   <Cost>175</Cost>
-  <Maintenance>.5</Maintenance>
+  <Maintenance>.8</Maintenance>
   
   <PlusProdPerColonist>0.6</PlusProdPerColonist>
   <Infrastructure>1</Infrastructure>

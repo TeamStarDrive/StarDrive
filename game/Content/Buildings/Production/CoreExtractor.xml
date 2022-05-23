@@ -6,7 +6,7 @@
   <Maintenance>2</Maintenance>
   
   <PlusProdPerRichness>5</PlusProdPerRichness>
-  <PlusProdPerColonist>0.8</PlusProdPerColonist>
+  <PlusProdPerColonist>1</PlusProdPerColonist>
   <MaxFertilityOnBuild>-0.6</MaxFertilityOnBuild>
   
   <!-- For localization in GameText.yaml -->

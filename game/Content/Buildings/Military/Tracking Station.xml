@@ -4,7 +4,7 @@
   
   <Cost>100</Cost>
   <Maintenance>2</Maintenance>
-  
+  <SensorRange>45000</SensorRange>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>464</NameTranslationIndex>
   <DescriptionIndex>465</DescriptionIndex>

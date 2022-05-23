@@ -3,7 +3,7 @@
   <Icon>Upgraded_Xeno_mines</Icon>
   
   <Cost>250</Cost>
-  <Maintenance>0.5</Maintenance>
+  <Maintenance>1.5</Maintenance>
   
   <PlusProdPerColonist>1.2</PlusProdPerColonist>
   <Infrastructure>2</Infrastructure>

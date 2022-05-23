@@ -3,7 +3,7 @@
   <Icon>CustomStation</Icon>
   
   <Cost>150</Cost>
-  <Maintenance>-1</Maintenance>
+  <Maintenance>-0.5</Maintenance>
   
   <PlusTaxPercentage>0.25</PlusTaxPercentage>
   
