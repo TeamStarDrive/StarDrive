@@ -3,9 +3,9 @@
   <Icon>Outpost</Icon>
   
   <Cost>50</Cost>
-  
+  <SensorRange>6000</SensorRange>
   <PlusResearchPerColonist>.1</PlusResearchPerColonist>
-  <StorageAdded>30</StorageAdded>
+  <StorageAdded>60</StorageAdded>
   <Strength>10</Strength>
   <CombatStrength>10</CombatStrength>
   <SoftAttack>40</SoftAttack>

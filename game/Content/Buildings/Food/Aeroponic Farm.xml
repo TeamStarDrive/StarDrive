@@ -3,9 +3,10 @@
   <Icon>aerofarm</Icon>
   
   <Cost>150</Cost>
-  <Maintenance>0.5</Maintenance>
+  <Maintenance>0.8</Maintenance>
   
-  <PlusFlatFoodAmount>1</PlusFlatFoodAmount>
+  <PlusFlatFoodAmount>0.8</PlusFlatFoodAmount>
+  <PlusFoodPerColonist>0.2</PlusFoodPerColonist>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>403</NameTranslationIndex>

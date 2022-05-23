@@ -2,8 +2,8 @@
 	<Name>System Defence Torpedo</Name>
 	<Icon>SDT</Icon>
 	
-	<Cost>150</Cost>
-	<Maintenance>0.5</Maintenance>
+	<Cost>550</Cost>
+	<Maintenance>3</Maintenance>
 	
 	<Strength>15</Strength>
 	<CombatStrength>15</CombatStrength>
