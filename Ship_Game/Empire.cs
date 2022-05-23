@@ -3364,7 +3364,7 @@ namespace Ship_Game
             if (isPlayer && !AutoExplore)
                 return;
 
-            int unexplored = Universum.Systems.Count(s => !s.IsFullyExploredBy(this)).UpperBound(21);
+            int unexplored = Universum.Systems.Count(s => !s.IsFullyExploredBy(this)).UpperBound(12);
             var ships = OwnedShips;
             if (unexplored == 0 && isPlayer)
             {
@@ -3376,7 +3376,7 @@ namespace Ship_Game
                 for (int i = 0; i < ships.Count; i++)
                 {
                     Ship ship = ships[i];
-                    if (IsIdleScout(ship))
+                    if (ship.IsIdleScout())
                         ship.AI.OrderScrapShip();
                 }
 
@@ -3391,33 +3391,20 @@ namespace Ship_Game
             for (int i = 0; i < ships.Count; i++)
             {
                 Ship ship = ships[i];
-                if (IsIdleScout(ship))
+                if (ship.IsGoodScout())
                 {
-                    ship.DoExplore();
-                    if (++numScouts >= desiredScouts)
-                        return;
+                    // FB: log the num for determining is should build more scouts
+                    // If the player built excess scouts, assign them too, that is why
+                    // we are not exiting the loop when desired scouts num was reached
+                    numScouts += 1; 
+                    if (ship.IsIdleScout())
+                        ship.DoExplore(); 
                 }
             }
 
-            // already building a scout? then just quit
-            if (EmpireAI.HasGoal(GoalType.BuildScout))
-                return;
-
-            EmpireAI.Goals.Add(new BuildScout(this));
-
-
-            // local
-            bool IsIdleScout(Ship s)
-            {
-                if (s.ShipData.Role == RoleName.supply)
-                    return false; // FB - this is a workaround, since supply shuttle register as scouts design role.
-
-                return s.AI.State != AIState.Flee
-                       && s.AI.State != AIState.Scrap
-                       && s.AI.State != AIState.Explore
-                       && (isPlayer && s.Name == data.CurrentAutoScout
-                           || !isPlayer && s.DesignRole == RoleName.scout && s.Fleet == null);
-            }
+            // Build a scout if needed
+            if (numScouts < desiredScouts  && !EmpireAI.HasGoal(GoalType.BuildScout))
+                EmpireAI.Goals.Add(new BuildScout(this));
         }
 
         private void ApplyFertilityChange(float amount)

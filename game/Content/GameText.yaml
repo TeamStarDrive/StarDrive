@@ -7500,9 +7500,7 @@ ToggleToDisplayOnlyPlayerdesigned:
  SPA: "Alterna para mostrar solo las naves diseñadas por el jugador"
 YourEmpireWillAutomaticallyManage:
  Id: 2226
- ENG: "Your empire will automatically manage any scouts ships that you own. If you do not own any then it will create a scout ship so long as the galaxy has unexplored systems"
- RUS: "Ваша империя будет автоматически распоряжаться всеми кораблями-разведчиками, которые у вас есть. Если у вас вообще нет разведчиков, он будет создан, если в галактике остались неразведанные системы"
- SPA: "Tu imperio gestionará automáticamente las naves exploradoras que poseas. Si no tienes ninguna, creará una siempre que en la galaxia queden sistemas sin explorar"
+ ENG: "Your empire will automatically manage ANY scouts ships that you own. If you do not own enough, it will create more scout ships (matching the namy selected below) so long as the galaxy has unexplored systems. If you assign a scout ship to a fleet or give it orders, it will stay under your manual command, until the order is complete or it is not assigned to a fleet anymore."
 YourEmpireWillAutomaticallyCreate:
  Id: 2227
  ENG: "Your empire will automatically create and deploy colony ships to desirable planets. Colony ships will not be dispatched to planets with a known nearby enemy presence"
