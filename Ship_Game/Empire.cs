@@ -2150,11 +2150,14 @@ namespace Ship_Game
 
         public int NumFreeTroops()
         {
-            int numTroops;
-            numTroops = OwnedShips.Filter(s => s.IsIdleSingleTroopship).Length +
-                        OwnedPlanets.Sum(p => p.NumTroopsCanLaunch);
+            return OwnedShips.Filter(s => s.IsIdleSingleTroopship).Length 
+                   + OwnedPlanets.Sum(p => p.NumTroopsCanLaunch);
+        }
 
-            return numTroops;
+        public int TotalTroops()
+        {
+            return OwnedShips.Sum(s => s.NumPlayerTroopsOnShip)
+                   + OwnedPlanets.Sum(p => p.CountEmpireTroops(this));
         }
 
         private bool LaunchNearestTroopForRebase(out Ship troopShip, Vector2 objectCenter, string planetName = "")
