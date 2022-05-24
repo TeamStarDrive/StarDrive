@@ -25,6 +25,8 @@ namespace Ship_Game
         private readonly SortButton SbRes;
         private readonly SortButton SbMoney;
 
+        readonly UILabel AvailableTroops;
+        readonly UILabel TroopConsumption;
         private RectF GovernorRect;
 
         private readonly Color Cream           = Colors.Cream;
@@ -69,6 +71,19 @@ namespace Ship_Game
             GovernorRect = new RectF(ColoniesList.Right - sidePanelWidths - 23, ColoniesList.Bottom - 5, sidePanelWidths, ScreenHeight - ColoniesList.Bottom - 22);
             GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], GovernorRect));
             ResetColoniesList(planets);
+            int totalTroops = EmpireManager.Player.TotalTroops();
+            string troopText = $"Total Troops: {totalTroops}";
+            Vector2 troopPos = new(titleRect.X + titleRect.Width + 17, titleRect.Y + 35);
+            AvailableTroops = Add(new UILabel(troopPos, troopText, LowRes ? Fonts.Arial12Bold : Fonts.Arial20Bold, Color.White));
+            if (totalTroops > 0)
+            {
+                string consumption = $"Consuming {(totalTroops * Troop.Consumption * (1 + EmpireManager.Player.data.Traits.ConsumptionModifier)).String(1)} " +
+                                     $"{Localizer.Token(EmpireManager.Player.IsCybernetic ? GameText.Production : GameText.Food)}";
+
+                Vector2 consumptionPos = new(troopPos.X, troopPos.Y + 25);
+                TroopConsumption = Add(new UILabel(consumptionPos, consumption, LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold,
+                    EmpireManager.Player.IsCybernetic ? Color.SandyBrown : Color.Green));
+            }
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
