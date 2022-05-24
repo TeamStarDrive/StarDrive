@@ -47,6 +47,7 @@ namespace Ship_Game
         {
             if (SelectedShip == null)
                 return;
+
             ShipToView = SelectedShip;
             ShipInfoUIElement.SetShip(SelectedShip); //fbedard: was not updating correctly from shiplist
             SelectedFleet = null;
@@ -55,10 +56,9 @@ namespace Ship_Game
             SelectedSystem = null;
             SelectedPlanet = null;
             snappingToShip = true;
-            CamDestination.Z = GetZfromScreenState(UniverseScreen.UnivScreenState.DetailView);
             AdjustCamTimer = 1.0f;
             transitionElapsedTime = 0.0f;
-            CamDestination.Z = GetZfromScreenState(UniverseScreen.UnivScreenState.PlanetView); ;
+            CamDestination.Z = CamDestination.Z.UpperBound(GetZfromScreenState(UniverseScreen.UnivScreenState.PlanetView));
             snappingToShip = true;
             ViewingShip = true;
         }
