@@ -2967,7 +2967,7 @@ namespace Ship_Game
 
         public void MassScrap(Ship ship)
         {
-            var shipList = ship.IsSubspaceProjector ? OwnedShips : OwnedProjectors;
+            var shipList = ship.IsSubspaceProjector ? OwnedProjectors : OwnedShips;
             for (int i = 0; i < shipList.Count; i++)
             {
                 Ship s = shipList[i];
