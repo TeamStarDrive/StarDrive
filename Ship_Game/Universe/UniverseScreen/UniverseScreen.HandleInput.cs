@@ -567,7 +567,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
-                if (ship.IsPlatform)
+                if (ship.IsSubspaceProjector)
                     continue;
 
                 ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);

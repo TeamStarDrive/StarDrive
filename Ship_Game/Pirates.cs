@@ -691,7 +691,7 @@ namespace Ship_Game
                     case TargetType.CombatShipAtWarp when IsCombatShipAtWarp(ship):
                     case TargetType.Station          when ship.IsStation:
                     case TargetType.Platform         when ship.IsPlatform:
-                    case TargetType.Projector: targets.Add(ship); break; // Add all of above cases in to targets
+                    case TargetType.Projector:       targets.Add(ship); break; // Add all of above cases into targets
                 }
             }
 
