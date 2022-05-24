@@ -118,8 +118,6 @@ namespace Ship_Game.Ships
 
         void UpdateAlive(FixedSimTime timeStep)
         {
-            ExploreCurrentSystem(timeStep);
-
             if (EMPDisabled && timeStep.FixedTime > 0f)
             {
                 float third = Radius / 3f;
@@ -168,11 +166,15 @@ namespace Ship_Game.Ships
                 && !System.IsFullyExploredBy(Loyalty)
                 && System.PlanetList != null) // Added easy out for fully explored systems
             {
-                foreach (Planet p in System.PlanetList)
+                if (!System.IsExploredBy(Loyalty) && Position.InRadius(System.Position, ExploreSystemDistance))
+                    System.SetExploredBy(Loyalty); // Arrived to a system for the first time
+
+                for (int i = 0; i < System.PlanetList.Count; i++)
                 {
+                    Planet p = System.PlanetList[i];
                     if (p.IsExploredBy(Loyalty)) // already explored
                         continue;
-                    if (p.Position.OutsideRadius(Position, 3000f))
+                    if (p.Position.OutsideRadius(Position, ExplorePlanetDistance))
                         continue;
 
                     if (p.EventsOnTiles())
@@ -195,6 +197,7 @@ namespace Ship_Game.Ships
                     }
 
                     p.SetExploredBy(Loyalty);
+                    System.SetExploredBy(Loyalty); // in case no one was on sensor range from the Star itself
                     System.UpdateFullyExploredBy(Loyalty);
                 }
             }

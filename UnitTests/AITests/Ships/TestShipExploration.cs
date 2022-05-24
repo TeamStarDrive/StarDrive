@@ -16,7 +16,7 @@ namespace UnitTests.AITests.Ships
         public TestShipExploration()
         {
             CreateUniverseAndPlayerEmpire();
-            GlobalStats.ExtraPlanets     = 1; // Ensures there is at least one planet to explore
+            GlobalStats.ExtraPlanets     = 2; // Ensures there is at least 2 planets to explore
             GlobalStats.DisableAsteroids = true; // Ensures no asteroids will be created instead of a planet
 
             var random = new SeededRandom();
@@ -56,21 +56,29 @@ namespace UnitTests.AITests.Ships
                                                                     $" but it should explore {CloseSystem.Name}");
 
             scout.AI.DoExplore(TestSimStep);
+            scout.UpdateShipStatus(FixedSimTime.One);
             Assert.IsFalse(CloseSystem.IsExploredBy(Player), $"{CloseSystem.Name} is set as explored but it should not be explored" +
-                                                             " by the ship since it is over 75000");
-            Assert.IsNotNull(scout.AI.TestGetPatrolTarget(), "Patrol target planet is not set, but it should at this stage");
+                                                             " by the ship since it is within sensor range of the system center");
 
+            // Move the scout into the system close to the Star so it should mark the system as
+            // explored (not fully explored, though).
+            scout.Position = CloseSystem.Position.GenerateRandomPointInsideCircle(scout.ExploreSystemDistance);
+            UState.Objects.Update(TestSimStep);
+            scout.SetSystem(CloseSystem);
+
+            Assert.IsTrue(CloseSystem.IsExploredBy(Player), $"{CloseSystem.Name} is not set as explored but it should be explored" +
+                                                             " as the ship is within explore range of system center");
+
+            Assert.IsNotNull(scout.AI.TestGetPatrolTarget(), "Patrol target planet is not set, but it should at this stage");
             Planet closestPlanet   = CloseSystem.PlanetList.FindMin(p => p.Position.SqDist(scout.Position));
             Planet planetToExplore = scout.AI.TestGetPatrolTarget();
             Assert.AreSame(closestPlanet, planetToExplore, "Scout did not target the closest planet for exploration.");
 
-            // Move the scout into the system below 75000 from the explored planet so it should mark the system as
-            // explored (not fully explored, though).
-            scout.Position = planetToExplore.Position.GenerateRandomPointInsideCircle(70000); 
+            // Now try to move near the planet and explore it
+            scout.Position = planetToExplore.Position.GenerateRandomPointInsideCircle(scout.ExplorePlanetDistance);
             UState.Objects.Update(TestSimStep);
-            scout.AI.DoExplore(TestSimStep);
-            Assert.IsTrue(CloseSystem.IsExploredBy(Player), $"{CloseSystem.Name} is not set as explored but it should be explored" +
-                                                             " as the ship is within 75000 of system center");
+            Assert.IsTrue(planetToExplore.IsExploredBy(Player), $"{planetToExplore.Name} is not set as explored but it should be explored" +
+                                                             " as the ship is within explore range of planet");
         }
 
         [TestMethod]

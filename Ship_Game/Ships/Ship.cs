@@ -135,6 +135,8 @@ namespace Ship_Game.Ships
         public void SetHighAlertStatus() => HighAlertTimer = HighAlertSeconds;
         public float GetHighAlertTimer() => HighAlertTimer;
 
+        public float ExplorePlanetDistance => (SensorRange * 0.1f).LowerBound(500);
+        public float ExploreSystemDistance => SensorRange;
 
         public float HealPerTurn;
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
@@ -1137,6 +1139,7 @@ namespace Ship_Game.Ships
             {
                 UpdateTimer += 1f; // update the ship modules and status only once per second
                 UpdateModulesAndStatus(FixedSimTime.One);
+                ExploreCurrentSystem(timeStep);
                 SecondsAlive += 1;
 
                 if (TractorDamage > 0 && !BeingTractored)
