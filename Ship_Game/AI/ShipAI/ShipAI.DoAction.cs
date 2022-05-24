@@ -322,9 +322,6 @@ namespace Ship_Game.AI
 
             MovePosition           = PatrolTarget.Position;
             float distanceToTarget = Owner.Position.Distance(MovePosition);
-            if (distanceToTarget < 75000f)
-                PatrolTarget.ParentSystem.SetExploredBy(Owner.Loyalty);
-
             if (distanceToTarget >= 5500f)
             {
                 ThrustOrWarpToPos(MovePosition, timeStep, distanceToTarget);

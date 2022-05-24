@@ -343,18 +343,17 @@ namespace Ship_Game
             return GetStatus(empire).DangerousForcesPresent;
         }
 
+        void SetFullyExplored(Empire empire) => FullyExplored.FlatMapSet(ref FullyExplored, empire);
         public bool IsFullyExploredBy(Empire empire) => FullyExplored.FlatMapIsSet(empire);
         public void UpdateFullyExploredBy(Empire empire)
         {
-            if (IsFullyExploredBy(empire))
-                return;
-
-            for (int i = 0; i < PlanetList.Count; ++i)
-                if (!PlanetList[i].IsExploredBy(empire))
-                    return;
-
-            FullyExplored.FlatMapSet(ref FullyExplored, empire);
-            //Log.Info($"The {empire.Name} have fully explored {Name}");
+            if (IsExploredBy(empire)
+                && !IsFullyExploredBy(empire)
+                && !PlanetList.Any(p => !p.IsExploredBy(empire)))
+            {
+                SetFullyExplored(empire);
+                //Log.Info($"The {empire.Name} have fully explored {Name}");
+            }
         }
 
         public Planet FindPlanet(int planetId)

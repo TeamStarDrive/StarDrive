@@ -349,8 +349,6 @@ namespace Ship_Game.GameScreens.LoadGame
                         system.OwnerList.Add(p.Owner);
 
                     system.PlanetList.Add(p);
-                    p.SetExploredBy(ssd.ExploredBy);
-
                     system.RingList.Add(new SolarSystem.Ring
                     {
                         planet    = p,

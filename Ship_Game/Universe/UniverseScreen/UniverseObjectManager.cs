@@ -371,7 +371,6 @@ namespace Ship_Game
                         shipsInSystems.Add(ship.Id); // this ship was seen in a system
 
                         ship.SetSystem(system);
-                        system.SetExploredBy(ship.Loyalty);
                     }
                 }
 
