@@ -118,8 +118,6 @@ namespace Ship_Game.Ships
 
         void UpdateAlive(FixedSimTime timeStep)
         {
-            ExploreCurrentSystem(timeStep);
-
             if (EMPDisabled && timeStep.FixedTime > 0f)
             {
                 float third = Radius / 3f;
@@ -168,6 +166,9 @@ namespace Ship_Game.Ships
                 && !System.IsFullyExploredBy(Loyalty)
                 && System.PlanetList != null) // Added easy out for fully explored systems
             {
+                if (!System.IsExploredBy(Loyalty))
+                    System.SetExploredBy(Loyalty); // Arrived to a system for the first time
+
                 foreach (Planet p in System.PlanetList)
                 {
                     if (p.IsExploredBy(Loyalty)) // already explored
