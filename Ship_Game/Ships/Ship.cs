@@ -253,8 +253,8 @@ namespace Ship_Game.Ships
         }
 
         public bool IsGoodScout() => ShipData.Role != RoleName.supply 
-                                 && (Loyalty.isPlayer && Name == Loyalty.data.CurrentAutoScout
-                                        || !Loyalty.isPlayer && DesignRole == RoleName.scout);
+                                     && Fleet == null
+                                     && DesignRole == RoleName.scout;
 
         public bool IsIdleScout()
         {
@@ -266,8 +266,7 @@ namespace Ship_Game.Ships
                    && AI.State != AIState.Scrap
                    && AI.State != AIState.Explore
                    && !AI.HasPriorityOrder
-                   && (Loyalty.isPlayer && Name == Loyalty.data.CurrentAutoScout
-                       || !Loyalty.isPlayer && DesignRole == RoleName.scout);
+                   && DesignRole == RoleName.scout;
         }
 
         public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != RoleName.prototype && DesignRole != RoleName.disabled
