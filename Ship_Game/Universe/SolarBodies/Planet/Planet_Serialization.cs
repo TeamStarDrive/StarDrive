@@ -23,11 +23,10 @@ namespace Ship_Game
             OrbitalAngle = data.OrbitalAngle;
             OrbitalRadius = data.OrbitalDistance;
             UpdatePositionOnly();
-            
+
+            SetExploredBy(data.ExploredBy);
             if (data.Owner.NotEmpty())
-            {
                 SetOwner(EmpireManager.GetEmpireByName(data.Owner));
-            }
             
             if (data.SpecialDescription.NotEmpty())
                 SpecialDescription = data.SpecialDescription; 
