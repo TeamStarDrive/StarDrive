@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
   <Version>2</Version>
-  <UID>Tractor Beam</UID>
-  <TechnologyType>ShipGeneral</TechnologyType>
-  <Cost>400</Cost>
+  <UID>Ionic Weaponry</UID>
+  <TechnologyType>ShipWeapons</TechnologyType>
+  <Cost>350</Cost>
   <RootNode>0</RootNode>
-  <Name>Tractor Beam</Name>
-  <NameIndex>691</NameIndex>
-  <DescriptionIndex>692</DescriptionIndex>
+  <NameIndex>597</NameIndex>
+  <DescriptionIndex>598</DescriptionIndex>
   <LeadsTo>
     <LeadsToTech>
-      <UID>Thalaron Blaster</UID>
+      <UID>Siphon Beam</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>Tractor Beam</UID>
+    </LeadsToTech>
+    <LeadsToTech>
+      <UID>PlasmaThrowers</UID>
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
     <UnlockedMod>
-      <ModuleUID>TractorBeamTurret2x2</ModuleUID>
+      <ModuleUID>IonBeamTurret2x2</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
-      <ModuleUID>TractorBeam2x3</ModuleUID>
+      <ModuleUID>IonBeam2x3</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>
   <BuildingsUnlocked />

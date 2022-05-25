@@ -5,7 +5,6 @@
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>650</Cost>
   <RootNode>0</RootNode>
-  <Name>LargeOrdStorage</Name>
   <NameIndex>17542</NameIndex>
   <DescriptionIndex>17544</DescriptionIndex>
   <LeadsTo>

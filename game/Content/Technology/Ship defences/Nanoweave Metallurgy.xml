@@ -5,7 +5,6 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>750</Cost>
   <RootNode>0</RootNode>
-  <Name>Nanoweave Metallurgy</Name>
   <NameIndex>620</NameIndex>
   <DescriptionIndex>621</DescriptionIndex>
   <LeadsTo>

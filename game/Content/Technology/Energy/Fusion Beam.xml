@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>420</Cost>
   <RootNode>0</RootNode>
-  <Name>Fusion Beams</Name>
   <NameIndex>576</NameIndex>
   <DescriptionIndex>577</DescriptionIndex>
   <LeadsTo>

@@ -5,7 +5,6 @@
   <TechnologyType>Colonization</TechnologyType>
   <Cost>2000</Cost>
   <RootNode>0</RootNode>
-  <Name>Vertical Farming</Name>
   <NameIndex>2293</NameIndex>
   <DescriptionIndex>2294</DescriptionIndex>
   <LeadsTo>

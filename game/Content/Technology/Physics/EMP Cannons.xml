@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
   <Version>2</Version>
-  <UID>Siphon Beam</UID>
+  <UID>EMP Cannons</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>450</Cost>
+  <Cost>700</Cost>
   <RootNode>0</RootNode>
-  <Name>Energy Siphon Beam</Name>
-  <NameIndex>656</NameIndex>
-  <DescriptionIndex>657</DescriptionIndex>
-  <LeadsTo>
-    <LeadsToTech>
-      <UID>EMP Cannons</UID>
-    </LeadsToTech>
-  </LeadsTo>
+  <NameIndex>550</NameIndex>
+  <DescriptionIndex>551</DescriptionIndex>
+  <LeadsTo />
   <ModulesUnlocked>
     <UnlockedMod>
-      <ModuleUID>SiphonBeamTurret2x2</ModuleUID>
+      <ModuleUID>EMPTurret2x2</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
-      <ModuleUID>SiphonBeam2x3</ModuleUID>
+      <ModuleUID>EMPTurret3x3</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>
-  <BuildingsUnlocked />
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Ion Cannon</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
   <BonusUnlocked />
   <TroopsUnlocked />
   <HullsUnlocked />

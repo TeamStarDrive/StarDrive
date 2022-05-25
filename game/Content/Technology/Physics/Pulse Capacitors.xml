@@ -5,7 +5,6 @@
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>600</Cost>
   <RootNode>0</RootNode>
-  <Name>Pulse Capacitors</Name>
   <NameIndex>643</NameIndex>
   <DescriptionIndex>644</DescriptionIndex>
   <LeadsTo />

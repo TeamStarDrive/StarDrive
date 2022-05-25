@@ -4,7 +4,6 @@
   <UID>Armor</UID>
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>450</Cost>
-  <Name>Armor</Name>
   <NameIndex>2140</NameIndex>
   <DescriptionIndex>2141</DescriptionIndex>
   <LeadsTo>

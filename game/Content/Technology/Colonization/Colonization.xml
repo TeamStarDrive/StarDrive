@@ -5,7 +5,6 @@
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
   <RootNode>1</RootNode>
-  <Name>Colonization</Name>
   <NameIndex>530</NameIndex>
   <DescriptionIndex>531</DescriptionIndex>
   <IconPath>icons_techroot_colonization</IconPath>

@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>4500</Cost>
   <RootNode>0</RootNode>
-  <Name>MassivePhasors</Name>
   <NameIndex>17516</NameIndex>
   <DescriptionIndex>17517</DescriptionIndex>
   <LeadsTo />

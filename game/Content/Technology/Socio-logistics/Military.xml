@@ -5,7 +5,6 @@
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>150</Cost>
   <RootNode>0</RootNode>
-  <Name>Military Outpost</Name>
   <NameIndex>613</NameIndex>
   <DescriptionIndex>614</DescriptionIndex>
   <LeadsTo>

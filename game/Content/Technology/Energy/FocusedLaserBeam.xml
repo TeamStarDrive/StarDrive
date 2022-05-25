@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>200</Cost>
   <RootNode>0</RootNode>
-  <Name>Energy Weapons</Name>
   <NameIndex>17520</NameIndex>
   <DescriptionIndex>17521</DescriptionIndex>
   <LeadsTo>
