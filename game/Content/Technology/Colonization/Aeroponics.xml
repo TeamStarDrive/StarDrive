@@ -5,7 +5,6 @@
   <TechnologyType>Colonization</TechnologyType>
   <Cost>350</Cost>
   <RootNode>0</RootNode>
-  <Name>Aeroponics</Name>
   <NameIndex>503</NameIndex>
   <DescriptionIndex>504</DescriptionIndex>
   <LeadsTo>

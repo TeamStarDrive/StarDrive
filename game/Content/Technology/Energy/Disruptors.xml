@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>400</Cost>
   <RootNode>0</RootNode>
-  <Name>Disruptors</Name>
   <NameIndex>545</NameIndex>
   <DescriptionIndex>546</DescriptionIndex>
   <LeadsTo>

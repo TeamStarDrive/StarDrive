@@ -5,7 +5,6 @@
   <TechnologyType>Colonization</TechnologyType>
   <Cost>2250</Cost>
   <RootNode>0</RootNode>
-  <Name>SolarArraysV3</Name>
   <NameIndex>18085</NameIndex>
   <DescriptionIndex>18083</DescriptionIndex>
   <LeadsTo>

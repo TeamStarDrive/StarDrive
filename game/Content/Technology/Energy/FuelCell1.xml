@@ -5,7 +5,6 @@
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>400</Cost>
   <RootNode>0</RootNode>
-  <Name>Deuterium Power Cells</Name>
   <NameIndex>570</NameIndex>
   <DescriptionIndex>571</DescriptionIndex>
   <LeadsTo>
@@ -20,7 +19,6 @@
       <Name>Fuel Cell Upgrade</Name>
       <BonusType>Fuel Cell Bonus</BonusType>
       <Bonus>0.15</Bonus>
-      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in fuel cells</Description>
       <BonusIndex>572</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

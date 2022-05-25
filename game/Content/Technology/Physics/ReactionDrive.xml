@@ -5,7 +5,6 @@
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>220</Cost>
   <RootNode>0</RootNode>
-  <Name>Reaction Drive</Name>
   <NameIndex>649</NameIndex>
   <DescriptionIndex>650</DescriptionIndex>
   <LeadsTo>

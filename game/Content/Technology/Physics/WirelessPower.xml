@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>400</Cost>
   <RootNode>0</RootNode>
-  <Name>No wires</Name>
   <NameIndex>17609</NameIndex>
   <DescriptionIndex>17610</DescriptionIndex>
   <LeadsTo>

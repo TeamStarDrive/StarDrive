@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>360</Cost>
   <RootNode>0</RootNode>
-  <Name>AdvancedKineticTurrets</Name>
   <NameIndex>17476</NameIndex>
   <DescriptionIndex>17477</DescriptionIndex>
   <LeadsTo>

@@ -5,7 +5,6 @@
   <TechnologyType>Colonization</TechnologyType>
   <Cost>1600</Cost>
   <RootNode>0</RootNode>
-  <Name>Rapid Cloning</Name>
   <NameIndex>647</NameIndex>
   <DescriptionIndex>648</DescriptionIndex>
   <LeadsTo />

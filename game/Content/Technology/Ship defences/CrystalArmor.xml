@@ -5,7 +5,6 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>4400</Cost>
   <RootNode>0</RootNode>
-  <Name>CrystalArmor</Name>
   <NameIndex>6574</NameIndex>
   <DescriptionIndex>6575</DescriptionIndex>
   <LeadsTo />

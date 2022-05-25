@@ -5,7 +5,6 @@
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>700</Cost>
   <RootNode>0</RootNode>
-  <Name>Subspatial Dynamics</Name>
   <NameIndex>675</NameIndex>
   <DescriptionIndex>676</DescriptionIndex>
   <LeadsTo />

@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>5000</Cost>
   <RootNode>0</RootNode>
-  <Name>Disintegrator Array</Name>
   <NameIndex>543</NameIndex>
   <DescriptionIndex>544</DescriptionIndex>
   <LeadsTo />

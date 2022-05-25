@@ -5,7 +5,6 @@
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>320</Cost>
   <RootNode>0</RootNode>
-  <Name>Fighter Theory</Name>
   <NameIndex>564</NameIndex>
   <DescriptionIndex>565</DescriptionIndex>
   <LeadsTo>

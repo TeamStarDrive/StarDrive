@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>800</Cost>
   <RootNode>0</RootNode>
-  <Name>MicroTorpedo</Name>
   <NameIndex>18248</NameIndex>
   <DescriptionIndex>8205</DescriptionIndex>
   <LeadsTo>

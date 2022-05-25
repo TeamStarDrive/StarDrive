@@ -5,7 +5,6 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>450</Cost>
   <RootNode>0</RootNode>
-  <Name>Advanced Materials</Name>
   <NameIndex>500</NameIndex>
   <DescriptionIndex>501</DescriptionIndex>
   <LeadsTo>

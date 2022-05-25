@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>750</Cost>
   <RootNode>0</RootNode>
-  <Name>MissileTurret</Name>
   <NameIndex>17500</NameIndex>
   <DescriptionIndex>17501</DescriptionIndex>
   <LeadsTo>

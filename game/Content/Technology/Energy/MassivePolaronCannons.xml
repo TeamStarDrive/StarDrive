@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>5000</Cost>
   <RootNode>0</RootNode>
-  <Name>Phased Polaron Cannons</Name>
   <NameIndex>17536</NameIndex>
   <DescriptionIndex>17537</DescriptionIndex>
   <LeadsTo />

@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>5500</Cost>
   <RootNode>0</RootNode>
-  <Name>Phased Ordnance</Name>
   <NameIndex>2007</NameIndex>
   <DescriptionIndex>2008</DescriptionIndex>
   <LeadsTo />

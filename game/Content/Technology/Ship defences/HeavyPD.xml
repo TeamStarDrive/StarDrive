@@ -4,7 +4,6 @@
   <UID>HeavyPD</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>1200</Cost>  
-  <Name>Point Defense</Name>
   <NameIndex>17559</NameIndex>
   <DescriptionIndex>17560</DescriptionIndex>
   <LeadsTo />

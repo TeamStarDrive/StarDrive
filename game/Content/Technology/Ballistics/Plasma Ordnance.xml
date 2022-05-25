@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>5400</Cost>
   <RootNode>0</RootNode>
-  <Name>Plasma Ordnance</Name>
   <NameIndex>2001</NameIndex>
   <DescriptionIndex>2002</DescriptionIndex>
   <LeadsTo />

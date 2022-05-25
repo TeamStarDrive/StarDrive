@@ -4,7 +4,6 @@
   <UID>RapidFirePD</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>1050</Cost>  
-  <Name>Point Defense</Name>
   <NameIndex>17557</NameIndex>
   <DescriptionIndex>17558</DescriptionIndex>
   <LeadsTo />

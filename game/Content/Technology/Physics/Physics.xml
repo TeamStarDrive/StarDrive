@@ -5,7 +5,6 @@
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
   <RootNode>1</RootNode>
-  <Name>Physics</Name>
   <NameIndex>629</NameIndex>
   <DescriptionIndex>630</DescriptionIndex>
   <IconPath>icons_techroot_physics</IconPath>
@@ -33,7 +32,6 @@
       <Name>Subspace Projection</Name>
       <BonusType>In Borders FTL Bonus</BonusType>
       <Bonus>0.1</Bonus>
-      <Description>Gain the ability to build subspace projector platforms in deep space. </Description>
       <BonusIndex>631</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

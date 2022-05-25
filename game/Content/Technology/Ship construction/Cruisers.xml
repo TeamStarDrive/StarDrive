@@ -5,7 +5,6 @@
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>1200</Cost>
   <RootNode>0</RootNode>
-  <Name>Cruiser Construction</Name>
   <NameIndex>536</NameIndex>
   <DescriptionIndex>537</DescriptionIndex>
   <LeadsTo>
