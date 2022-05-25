@@ -5,7 +5,6 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>2600</Cost>
   <RootNode>0</RootNode>
-  <Name>CompositeArmor</Name>
   <NameIndex>6569</NameIndex>
   <DescriptionIndex>6570</DescriptionIndex>
   <LeadsTo>

@@ -5,7 +5,6 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>1500</Cost>
   <RootNode>0</RootNode>
-  <Name>Reactive Armor</Name>
   <NameIndex>2004</NameIndex>
   <DescriptionIndex>2005</DescriptionIndex>
   <LeadsTo />

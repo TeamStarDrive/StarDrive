@@ -5,7 +5,6 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>1500</Cost>
   <RootNode>0</RootNode>
-  <Name>Heavy Shielding</Name>
   <NameIndex>587</NameIndex>
   <DescriptionIndex>588</DescriptionIndex>
   <LeadsTo>

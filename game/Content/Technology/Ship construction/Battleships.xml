@@ -5,7 +5,6 @@
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>3500</Cost>
   <RootNode>0</RootNode>
-  <Name>Battleship Construction</Name>
   <NameIndex>522</NameIndex>
   <DescriptionIndex>523</DescriptionIndex>
   <LeadsTo>

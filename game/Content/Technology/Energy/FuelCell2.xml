@@ -5,7 +5,6 @@
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>1000</Cost>
   <RootNode>0</RootNode>
-  <Name>Iridium Power Cells</Name>
   <NameIndex>573</NameIndex>
   <DescriptionIndex>574</DescriptionIndex>
   <LeadsTo />
@@ -16,7 +15,6 @@
       <Name>Fuel Cell Upgrade</Name>
       <BonusType>Fuel Cell Bonus</BonusType>
       <Bonus>0.3</Bonus>
-      <Description>Increase empire-wide bonus to fuel cell capacity to 30% </Description>
       <BonusIndex>575</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

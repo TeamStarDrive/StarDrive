@@ -5,7 +5,6 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>650</Cost>
   <RootNode>0</RootNode>
-  <Name>Energy Shielding</Name>
   <NameIndex>560</NameIndex>
   <DescriptionIndex>561</DescriptionIndex>
   <LeadsTo>

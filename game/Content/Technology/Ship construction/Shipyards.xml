@@ -5,7 +5,6 @@
   <TechnologyType>Economic</TechnologyType>
   <Cost>400</Cost>
   <RootNode>0</RootNode>
-  <Name>Shipyards</Name>
   <NameIndex>2035</NameIndex>
   <DescriptionIndex>2036</DescriptionIndex>
   <LeadsTo>
@@ -21,11 +20,6 @@
       <ModuleUID>ShipyardRepairDrone</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>
-  <BuildingsUnlocked>
-    <UnlockedBuilding>
-      <Name>Space Port</Name>
-    </UnlockedBuilding>
-  </BuildingsUnlocked>
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Shipyards</Name><!-- this is a boolean; its presence enables shipyards-->

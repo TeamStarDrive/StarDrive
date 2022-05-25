@@ -5,7 +5,6 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>3100</Cost>
   <RootNode>0</RootNode>
-  <Name>ArmoredShield</Name>
   <NameIndex>17553</NameIndex>
   <DescriptionIndex>17554</DescriptionIndex>
   <LeadsTo>

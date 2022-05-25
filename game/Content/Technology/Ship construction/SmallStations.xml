@@ -5,7 +5,6 @@
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>800</Cost>
   <RootNode>0</RootNode>
-  <Name>SmallStations</Name>
   <NameIndex>17603</NameIndex>
   <DescriptionIndex>17604</DescriptionIndex>
   <LeadsTo>

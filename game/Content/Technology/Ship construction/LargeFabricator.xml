@@ -5,7 +5,6 @@
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>1800</Cost>
   <RootNode>0</RootNode>
-  <Name>LargeFabricator</Name>
   <NameIndex>17543</NameIndex>
   <DescriptionIndex>17545</DescriptionIndex>
   <LeadsTo />

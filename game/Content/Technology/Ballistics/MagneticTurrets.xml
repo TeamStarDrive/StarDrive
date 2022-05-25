@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>700</Cost>
   <RootNode>0</RootNode>
-  <Name>PewPew</Name>
   <NameIndex>17478</NameIndex>
   <DescriptionIndex>17479</DescriptionIndex>
   <LeadsTo>

@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>7000</Cost>
   <RootNode>0</RootNode>
-  <Name>ECM</Name>
   <NameIndex>547</NameIndex>
   <DescriptionIndex>548</DescriptionIndex>
   <LeadsTo />

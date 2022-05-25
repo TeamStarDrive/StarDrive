@@ -5,7 +5,6 @@
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>480</Cost>
   <RootNode>0</RootNode>
-  <Name>Frigate Construction</Name>
   <NameIndex>568</NameIndex>
   <DescriptionIndex>569</DescriptionIndex>
   <LeadsTo>

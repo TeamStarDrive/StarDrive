@@ -5,7 +5,6 @@
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>2250</Cost>
   <RootNode>0</RootNode>
-  <Name>Battle Raiders</Name>
   <NameIndex>520</NameIndex>
   <DescriptionIndex>521</DescriptionIndex>
   <LeadsTo />

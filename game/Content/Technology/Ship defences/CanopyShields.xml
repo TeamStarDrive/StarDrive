@@ -5,7 +5,6 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>5500</Cost>
   <RootNode>0</RootNode>
-  <Name>Canopy Shielding</Name>
   <NameIndex>526</NameIndex>
   <DescriptionIndex>527</DescriptionIndex>
   <LeadsTo />

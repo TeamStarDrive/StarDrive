@@ -5,7 +5,6 @@
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
   <RootNode>1</RootNode>
-  <Name>Starship Construction</Name>
   <NameIndex>663</NameIndex>
   <DescriptionIndex>664</DescriptionIndex>
   <IconPath>icons_techroot_starships</IconPath>
@@ -14,7 +13,7 @@
       <UID>Corvettes</UID>
     </LeadsToTech>
     <LeadsToTech>
-      <UID>Shipyards</UID>
+      <UID>Spaceport</UID>
     </LeadsToTech>
     <LeadsToTech>
       <UID>WarpTheory</UID>
@@ -64,7 +63,6 @@
       <ModuleUID>ArmoredTurret</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>
-  <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>StarDrive Enhancement</Name>

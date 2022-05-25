@@ -5,7 +5,6 @@
   <TechnologyType>Colonization</TechnologyType>
   <Cost>850</Cost>
   <RootNode>0</RootNode>
-  <Name>Biospheres</Name>
   <NameIndex>524</NameIndex>
   <DescriptionIndex>525</DescriptionIndex>
   <LeadsTo>

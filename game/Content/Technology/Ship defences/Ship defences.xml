@@ -5,7 +5,6 @@
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
   <RootNode>1</RootNode>
-  <Name>Starship Defences</Name>
   <NameIndex>1100</NameIndex>
   <DescriptionIndex>664</DescriptionIndex>
   <IconPath>icons_techroot_StarshipDefences</IconPath>

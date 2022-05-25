@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>200</Cost>
   <RootNode>0</RootNode>
-  <Name>Energy Cannons</Name>
   <NameIndex>554</NameIndex>
   <DescriptionIndex>555</DescriptionIndex>
   <LeadsTo>

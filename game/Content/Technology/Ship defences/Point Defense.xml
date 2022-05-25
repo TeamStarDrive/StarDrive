@@ -4,7 +4,6 @@
   <UID>Point Defense</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>450</Cost>  
-  <Name>Point Defense</Name>
   <NameIndex>2253</NameIndex>
   <DescriptionIndex>2254</DescriptionIndex>
   <LeadsTo>

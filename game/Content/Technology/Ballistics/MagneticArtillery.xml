@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>480</Cost>
   <RootNode>0</RootNode>
-  <Name>Magnetic Artillery</Name>
   <NameIndex>606</NameIndex>
   <DescriptionIndex>607</DescriptionIndex>
   <LeadsTo>

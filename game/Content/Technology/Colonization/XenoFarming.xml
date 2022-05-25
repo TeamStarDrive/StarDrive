@@ -5,7 +5,6 @@
   <TechnologyType>Colonization</TechnologyType>
   <Cost>800</Cost>
   <RootNode>0</RootNode>
-  <Name>Xeno Farming</Name>
   <NameIndex>700</NameIndex>
   <DescriptionIndex>701</DescriptionIndex>
   <LeadsTo>

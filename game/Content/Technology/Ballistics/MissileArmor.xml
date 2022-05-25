@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>8000</Cost>
   <RootNode>0</RootNode>
-  <Name>Missile Armor</Name>
   <NameIndex>615</NameIndex>
   <DescriptionIndex>616</DescriptionIndex>
   <LeadsTo />

@@ -5,7 +5,6 @@
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
   <RootNode>1</RootNode>
-  <Name>Energy Weapons</Name>
   <NameIndex>558</NameIndex>
   <DescriptionIndex>559</DescriptionIndex>
   <IconPath>icons_techroot_energy</IconPath>
