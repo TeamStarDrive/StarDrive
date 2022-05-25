@@ -3,7 +3,7 @@
   <Icon>megacity</Icon>
   
   <Maintenance>0</Maintenance>
-  
+  <AllowShipBuilding>true</AllowShipBuilding>
   <PlusFlatResearchAmount>2</PlusFlatResearchAmount>
   <PlusResearchPerColonist>.15</PlusResearchPerColonist>
   <CreditsPerColonist>1</CreditsPerColonist>

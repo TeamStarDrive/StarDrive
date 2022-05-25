@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
+  <Version>2</Version>
+  <UID>Spaceport</UID>
+  <TechnologyType>Economic</TechnologyType>
+  <Cost>200</Cost>
+  <RootNode>0</RootNode>
+  <NameIndex>17655</NameIndex>
+  <DescriptionIndex>17656</DescriptionIndex>
+  <LeadsTo>
+    <LeadsToTech>
+      <UID>Shipyards</UID>
+    </LeadsToTech>
+  </LeadsTo>
+  <BuildingsUnlocked>
+    <UnlockedBuilding>
+      <Name>Space Port</Name>
+    </UnlockedBuilding>
+  </BuildingsUnlocked>
+</Technology>
