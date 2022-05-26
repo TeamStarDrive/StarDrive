@@ -275,10 +275,9 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             WarningLevel severity = percentCanFire switch
             {
-                < 50  => WarningLevel.Critical,
-                < 70  => WarningLevel.Major,
-                < 90  => WarningLevel.Minor,
-                < 100 => WarningLevel.Informative,
+                < 80  => WarningLevel.Critical,
+                < 90  => WarningLevel.Major,
+                < 100 => WarningLevel.Minor,
                 _     => WarningLevel.None
             };
 
