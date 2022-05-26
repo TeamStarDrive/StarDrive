@@ -347,6 +347,9 @@ namespace Ship_Game
         public static void DrawWeaponArcs(SpriteBatch batch, GameScreen screen, Weapon w, ShipModule m,
                                           Vector2 moduleWorldCenter, float worldSize, float shipFacing, int turretAngle)
         {
+            if (w.Tag_Bomb)
+                return; 
+
             Color color;
             if (w.Tag_Cannon && !w.Tag_Energy)        color = new Color(255, 255, 0, 255);
             else if (w.Tag_Cannon)                    color = new Color(0, 255, 0, 255);

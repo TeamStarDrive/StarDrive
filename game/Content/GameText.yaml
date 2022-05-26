@@ -4829,7 +4829,7 @@ LowPowerCapacity:
  RUS: "Низкий уровень энергии"
 TheShipsPowerCapacityIt:
  Id: 1466
- ENG: "The ship's Power Capacity it to low to support all of it's installed energy weaponry. The ship might have enough power output, but it must also have sufficient capacity to store it."
+ ENG: "The ship's Power Capacity is too low to support all of it's installed energy weaponry. The ship might have enough power output, but it must also have sufficient capacity to store it."
  RUS: "Уровень энергии корабля слишком мал,чтобы поддерживать все установленное на нем энергетическое вооружение. Корабль может иметь достаточную производительность реактора, но он также должен иметь достаточно энергетических ячеек для хранения энергии."
 AddPowerCellsToThe:
  Id: 1467

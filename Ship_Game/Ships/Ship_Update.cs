@@ -37,6 +37,8 @@ namespace Ship_Game.Ships
         public bool IsVisibleToPlayer => InFrustum && InSensorRange
                                       && (Universe.Screen?.IsSystemViewOrCloser == true);
 
+        public bool IsVisibleToPlayerInMap => InFrustum && InSensorRange;
+
         // NOTE: This is called on the main UI Thread by UniverseScreen
         // check UniverseScreen.QueueShipSceneObject()
         public void CreateSceneObject()
