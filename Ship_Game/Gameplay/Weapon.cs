@@ -266,7 +266,7 @@ namespace Ship_Game.Gameplay
 
         public float BaseTargetError(float level, float range = 0, Empire loyalty = null)
         {
-            if (Module == null)
+            if (Module == null || Tag_Bomb)
                 return 0;
 
             // base error is based on module size or accuracyPercent.
