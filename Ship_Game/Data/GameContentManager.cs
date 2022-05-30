@@ -34,7 +34,7 @@ namespace Ship_Game.Data
         public RawContentLoader RawContent { get; private set; }
 
         public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
-        readonly object LoadSync = new object();
+        readonly object LoadSync = new();
 
         public override string ToString() => $"Content:{Name} Assets:{LoadedAssets.Count} Root:{RootDirectory}";
 
