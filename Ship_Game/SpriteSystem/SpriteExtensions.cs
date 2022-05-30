@@ -221,7 +221,8 @@ namespace Ship_Game
         {
             CheckSubTextureDisposed(texture);
             Rectangle adjustedSrcRect = AdjustedToSubTexture(texture, srcRect);
-            batch.Draw(texture.Texture, destRect, adjustedSrcRect, color);
+            InternalDraw(batch, texture.Texture, new RectF(destRect), false, adjustedSrcRect, color, 0f,
+                         Vector2.Zero, SpriteEffects.None, 1f);
         }
 
         public static void Draw(
