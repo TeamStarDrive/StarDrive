@@ -103,22 +103,24 @@ namespace Ship_Game
                 backgroundDepth
             );
 
-            double uSize = 20_000_000;
-
             sr.Begin(Universe.ViewProjection);
             RenderStates.BasicBlendMode(Universe.Device, additive: false, depthWrite: false);
 
             Texture2D nebula = BackgroundNebula;
             if (nebula != null)
             {
-                Vector2d nebulaSize = SubTexture.GetAspectFill(nebula.Width, nebula.Height, uSize);
+                Vector2d nebulaSize = SubTexture.GetAspectFill(nebula.Width, nebula.Height, 20_000_000.0);
                 sr.Draw(nebula, backgroundPos, nebulaSize, Color.White);
             }
 
             RenderStates.BasicBlendMode(Universe.Device, additive: true, depthWrite: false);
             Texture2D stars = BackgroundStars;
-            Vector2d starsSize = SubTexture.GetAspectFill(stars.Width, stars.Height, uSize);
-            sr.Draw(stars, backgroundPos, starsSize, Color.White);
+            Vector2d starsSize = SubTexture.GetAspectFill(stars.Width, stars.Height, 12_000_000.0);
+
+            // for stars we draw it twice, on the left and on the right side to fill the background
+            Vector3d starsTopLeft = backgroundPos - new Vector3d(starsSize.X * 0.2, 0, 0);
+            sr.Draw(stars, starsTopLeft, starsSize, Color.White);
+            sr.Draw(stars, starsTopLeft + new Vector3d(starsSize.X, 0, 0), starsSize, Color.White);
         }
     }
 }
