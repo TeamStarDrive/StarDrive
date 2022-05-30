@@ -185,7 +185,6 @@ namespace Ship_Game
 
             ShipCommands = new ShipMoveCommands(this);
             DeepSpaceBuildWindow = new DeepSpaceBuildingWindow(this);
-            SR = new SpriteRenderer(ScreenManager.GraphicsDevice);
         }
 
         public UniverseScreen(SavedGame.UniverseSaveData save) : this(save.UniverseSize) // load game
@@ -462,12 +461,12 @@ namespace Ship_Game
         {
             const int minimapOffSet = 14;
 
-            var content = TransientContent;
             var device  = ScreenManager.GraphicsDevice;
             int width   = GameBase.ScreenWidth;
             int height  = GameBase.ScreenHeight;
 
-            Particles = new ParticleManager(content);
+            Particles = new ParticleManager(TransientContent);
+            SR = new SpriteRenderer(device);
 
             if (GlobalStats.DrawStarfield)
             {
@@ -506,7 +505,7 @@ namespace Ship_Game
 
             NotificationManager.ReSize();
 
-            CreateFogMap(content, device);
+            CreateFogMap(TransientContent, device);
             LoadMenu();
 
             FTLManager.LoadContent(this);
@@ -687,18 +686,17 @@ namespace Ship_Game
 
         void UnloadGraphics()
         {
-            if (bloomComponent == null) // TODO: IsDisposed
-                return;
-
             Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
-            bloomComponent?.Dispose(ref bloomComponent);
-            bg?.Dispose(ref bg);
-            FogMap      ?.Dispose(ref FogMap);
-            FogMapTarget?.Dispose(ref FogMapTarget);
-            BorderRT    ?.Dispose(ref BorderRT);
-            MainTarget  ?.Dispose(ref MainTarget);
-            LightsTarget?.Dispose(ref LightsTarget);
-            Particles?.Dispose(ref Particles);
+            Memory.Dispose(ref bloomComponent);
+            Memory.Dispose(ref bg);
+            Memory.Dispose(ref FogMap);
+            Memory.Dispose(ref FogMapTarget);
+            Memory.Dispose(ref BorderRT);
+            Memory.Dispose(ref MainTarget);
+            Memory.Dispose(ref LightsTarget);
+            Memory.Dispose(ref Particles);
+            Memory.Dispose(ref bg);
+            Memory.Dispose(ref SR);
         }
 
         protected override void Destroy()

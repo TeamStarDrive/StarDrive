@@ -99,6 +99,14 @@ public struct RectF
         H = r.Height;
     }
 
+    public RectF(in Rectangle r)
+    {
+        X = r.X;
+        Y = r.Y;
+        W = r.Width;
+        H = r.Height;
+    }
+
     public static implicit operator XnaRect(in RectF r)
     {
         return new XnaRect((int)r.X, (int)r.Y, (int)r.W, (int)r.H);

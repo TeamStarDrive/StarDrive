@@ -31,10 +31,10 @@ namespace Ship_Game
             if (nebulas.Length > 0)
             {
                 int nebulaIdx = Universe.UState.BackgroundSeed % nebulas.Length;
-                BackgroundNebula = universe.TransientContent.LoadTexture(nebulas[nebulaIdx]);
+                BackgroundNebula = universe.TransientContent.LoadUncachedTexture(nebulas[nebulaIdx]);
             }
 
-            BackgroundStars = universe.TransientContent.LoadTexture(
+            BackgroundStars = universe.TransientContent.LoadUncachedTexture(
                 ResourceManager.GetModOrVanillaFile("Textures/hqstarfield1.dds")
             );
 
@@ -59,9 +59,9 @@ namespace Ship_Game
 
         void Destroy()
         {
-            SDUtils.Memory.Dispose(ref StarField);
-            SDUtils.Memory.Dispose(ref BackgroundNebula);
-            SDUtils.Memory.Dispose(ref BackgroundStars);
+            Memory.Dispose(ref StarField);
+            Memory.Dispose(ref BackgroundNebula);
+            Memory.Dispose(ref BackgroundStars);
         }
 
         public void Draw(SpriteRenderer sr, SpriteBatch batch)
@@ -103,22 +103,24 @@ namespace Ship_Game
                 backgroundDepth
             );
 
-            double uSize = 20_000_000;
-
             sr.Begin(Universe.ViewProjection);
             RenderStates.BasicBlendMode(Universe.Device, additive: false, depthWrite: false);
 
             Texture2D nebula = BackgroundNebula;
             if (nebula != null)
             {
-                Vector2d nebulaSize = SubTexture.GetAspectFill(nebula.Width, nebula.Height, uSize);
+                Vector2d nebulaSize = SubTexture.GetAspectFill(nebula.Width, nebula.Height, 20_000_000.0);
                 sr.Draw(nebula, backgroundPos, nebulaSize, Color.White);
             }
 
             RenderStates.BasicBlendMode(Universe.Device, additive: true, depthWrite: false);
             Texture2D stars = BackgroundStars;
-            Vector2d starsSize = SubTexture.GetAspectFill(stars.Width, stars.Height, uSize);
-            sr.Draw(stars, backgroundPos, starsSize, Color.White);
+            Vector2d starsSize = SubTexture.GetAspectFill(stars.Width, stars.Height, 12_000_000.0);
+
+            // for stars we draw it twice, on the left and on the right side to fill the background
+            Vector3d starsTopLeft = backgroundPos - new Vector3d(starsSize.X * 0.2, 0, 0);
+            sr.Draw(stars, starsTopLeft, starsSize, Color.White);
+            sr.Draw(stars, starsTopLeft + new Vector3d(starsSize.X, 0, 0), starsSize, Color.White);
         }
     }
 }
