@@ -31,10 +31,10 @@ namespace Ship_Game
             if (nebulas.Length > 0)
             {
                 int nebulaIdx = Universe.UState.BackgroundSeed % nebulas.Length;
-                BackgroundNebula = universe.TransientContent.LoadTexture(nebulas[nebulaIdx]);
+                BackgroundNebula = universe.TransientContent.LoadUncachedTexture(nebulas[nebulaIdx]);
             }
 
-            BackgroundStars = universe.TransientContent.LoadTexture(
+            BackgroundStars = universe.TransientContent.LoadUncachedTexture(
                 ResourceManager.GetModOrVanillaFile("Textures/hqstarfield1.dds")
             );
 
@@ -59,9 +59,9 @@ namespace Ship_Game
 
         void Destroy()
         {
-            SDUtils.Memory.Dispose(ref StarField);
-            SDUtils.Memory.Dispose(ref BackgroundNebula);
-            SDUtils.Memory.Dispose(ref BackgroundStars);
+            Memory.Dispose(ref StarField);
+            Memory.Dispose(ref BackgroundNebula);
+            Memory.Dispose(ref BackgroundStars);
         }
 
         public void Draw(SpriteRenderer sr, SpriteBatch batch)
