@@ -24,7 +24,7 @@ namespace Ship_Game.Data
         // to avoid double loading resources into memory
         readonly GameContentManager Parent;
         Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
-        Map<string, Effect> LoadedEffects = new Map<string, Effect>();
+        Map<string, Effect> LoadedEffects = new();
         List<IDisposable> DisposableAssets;
         public string Name { get; }
 
@@ -243,7 +243,7 @@ namespace Ship_Game.Data
                 DisposableAssets.Add(disposable);
         }
 
-        void DoNothingWithDisposable(IDisposable _)
+        static void DoNothingWithDisposable(IDisposable _)
         {
         }
 
@@ -296,7 +296,7 @@ namespace Ship_Game.Data
             Type assetType = typeof(T);
             if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(assetName);
             if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(assetName, useCache);
-            
+
             var asset = new AssetName(assetName);
             if (useCache && TryGetAsset(asset.RelPathWithExt, out T existing))
                 return existing;
@@ -335,7 +335,7 @@ namespace Ship_Game.Data
                 {
                     if ((obj as object) != existing)
                         throw new ContentLoadException($"Duplicate asset '{name}' of type '{typeof(T)}' already loaded! This is a concurrency bug!");
-                    if (!(existing is T))
+                    if (existing is not T)
                         throw new ContentLoadException($"Asset '{name}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}'");
                 }
                 else
@@ -348,6 +348,12 @@ namespace Ship_Game.Data
         }
 
         /// Loads a texture and DOES NOT store it inside GameContentManager
+        public Texture2D LoadUncachedTexture(FileInfo file)
+        {
+            string ext = file.Extension.Substring(1);
+            return LoadUncachedTexture(file, ext);
+        }
+
         public Texture2D LoadUncachedTexture(FileInfo file, string ext)
         {
             if (ext != "xnb")
@@ -355,20 +361,19 @@ namespace Ship_Game.Data
             return ReadXnaAsset<Texture2D>(file.RelPath());
         }
 
-        // Loads a texture and caches it inside GameContentManager
+        // Loads a texture and caches it inside GameContentManager if useCache=true
         public Texture2D LoadTexture(FileInfo file)
         {
             string assetName = file.RelPath();
-            Texture2D tex;
+            if (TryGetAsset(assetName, out Texture2D tex))
+                return tex;
+
             string ext = file.Extension.Substring(1);
             if (ext != "xnb")
-            {
                 tex = RawContent.LoadTexture(file);
-            }
             else
-            {
                 tex = ReadXnaAsset<Texture2D>(assetName);
-            }
+
             RecordCacheObject(assetName, tex);
             return tex;
         }
