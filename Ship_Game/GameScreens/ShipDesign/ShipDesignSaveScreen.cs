@@ -180,7 +180,6 @@ namespace Ship_Game
             Empire emp = EmpireManager.Player;
             try
             {
-                ship.BaseStrength = ship.GetStrength();
                 foreach (Planet p in emp.GetPlanets())
                 {
                     foreach (QueueItem qi in p.ConstructionQueue)
@@ -188,7 +187,7 @@ namespace Ship_Game
                         if (qi.isShip && qi.sData.Name == shipOrHullName)
                         {
                             qi.sData = ship.ShipData;
-                            qi.Cost = ship.GetCost(emp);
+                            qi.Cost = ship.ShipData.GetCost(emp);
                         }
                     }
                 }
