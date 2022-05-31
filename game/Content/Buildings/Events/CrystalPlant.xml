@@ -3,7 +3,7 @@
   <Icon>CrystalPlant</Icon>
   
   <Cost>40</Cost>
-  <Maintenance>-15</Maintenance>
+  <Maintenance>-8</Maintenance>
   
   <IsCommodity>true</IsCommodity>
   <Scrappable>true</Scrappable>
