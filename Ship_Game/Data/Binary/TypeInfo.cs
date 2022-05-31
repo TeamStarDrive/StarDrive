@@ -28,24 +28,17 @@ namespace Ship_Game.Data.Binary
             Fields = fields;
             IsPointerType = isPointer;
             Category = c;
-            SetType(s);
-        }
-
-        public void SetType(TypeSerializer s)
-        {
             Ser = s;
-            if (Fields != null && s is UserTypeSerializer us)
-                ResolveFields(us);
-        }
 
-        public void ResolveFields(UserTypeSerializer us)
-        {
-            for (uint fieldIdx = 0; fieldIdx < Fields.Length; ++fieldIdx)
+            if (Fields != null && s is UserTypeSerializer us)
             {
-                FieldInfo f = Fields[fieldIdx];
-                f.Field = us.GetFieldOrNull(f.Name);
-                if (f.Field != null)
-                    f.Ser = f.Field.Serializer;
+                for (uint fieldIdx = 0; fieldIdx < Fields.Length; ++fieldIdx)
+                {
+                    FieldInfo f = Fields[fieldIdx];
+                    f.Field = us.GetFieldOrNull(f.Name);
+                    if (f.Field != null)
+                        f.Ser = f.Field.Serializer;
+                }
             }
         }
     }
