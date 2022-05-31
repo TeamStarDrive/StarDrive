@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>WarpTheory</UID>
   <TechnologyType>Engines</TechnologyType>
   <Cost>140</Cost>
   <RootNode>0</RootNode>
-  <Name>WarpTheory</Name>
   <NameIndex>10077</NameIndex>
   <DescriptionIndex>10078</DescriptionIndex>
-  <LongDescription></LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>FigateEngines</UID>
     </LeadsToTech>
   </LeadsTo>
-  <ModulesUnlocked>
-  </ModulesUnlocked>
+  <ModulesUnlocked />
   <BuildingsUnlocked />
-  <BonusUnlocked />
-  <TroopsUnlocked />
-  <HullsUnlocked>
-  </HullsUnlocked>
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Stable Warp</Name>
       <BonusType>FTL Speed Bonus</BonusType>
       <Bonus>0.50</Bonus>
-      <Description>Increase warp speeds by 50%</Description>
       <BonusIndex>10075</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>
+  <TroopsUnlocked />
+  <HullsUnlocked />
 </Technology>

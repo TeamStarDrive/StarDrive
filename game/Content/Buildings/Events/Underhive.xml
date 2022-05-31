@@ -1,14 +1,16 @@
 ﻿<Building>
   <Name>Underhive</Name>
-  <EventTriggerUID>Discover Underhive</EventTriggerUID>
-  <Cost>20</Cost>
   <Icon>underhive</Icon>
-
+  
+  <Cost>20</Cost>
+  
+  <EventTriggerUID>Discover Underhive</EventTriggerUID>
   <CreditsPerColonist>.1</CreditsPerColonist>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <Scrappable>false</Scrappable>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>17963</NameTranslationIndex>
   <DescriptionIndex>17964</DescriptionIndex>
   <ShortDescriptionIndex>17965</ShortDescriptionIndex>
-  <CanBuildAnywhere>true</CanBuildAnywhere>
-  <Scrappable>false</Scrappable>
 </Building>

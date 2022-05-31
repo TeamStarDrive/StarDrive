@@ -1,16 +1,15 @@
 ﻿<Building>
   <Name>CrystalPlant</Name>
-  <Maintenance>-15</Maintenance>
-  <IsCommodity>true</IsCommodity>
-  <Description>From orbit this appears to be an ancient and abandoned mine. It could be worth exploring this further. </Description>
-  <Cost>40</Cost>
   <Icon>CrystalPlant</Icon>
-
+  
+  <Cost>40</Cost>
+  <Maintenance>-8</Maintenance>
+  
+  <IsCommodity>true</IsCommodity>
   <Scrappable>true</Scrappable>
 
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>17648</NameTranslationIndex>
   <DescriptionIndex>17649</DescriptionIndex>
   <ShortDescriptionIndex>17650</ShortDescriptionIndex>
-
 </Building>

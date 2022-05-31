@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
-  <UID>PlanetaryFortification</UID>
+  <Version>2</Version>
+  <UID>PlanetaryDefenseIII</UID>
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>2200</Cost>
   <RootNode>0</RootNode>
-  <Name>PlanetaryFortification</Name>
   <NameIndex>8177</NameIndex>
   <DescriptionIndex>17584</DescriptionIndex>
-  <LongDescription>Surprisingly, shielding an entire planet is easier than shielding an entire ship because we needn't worry about mass, size, and power restrictions when building on terra firma. The result is a massive and powerful shield that provides protection from bombardment. </LongDescription>
-   <LeadsTo>
-  </LeadsTo>
+  <LeadsTo />
   <ModulesUnlocked />
   <BuildingsUnlocked>
-      <UnlockedBuilding>
+    <UnlockedBuilding>
       <Name>Planet Fortification</Name>
     </UnlockedBuilding>
     <UnlockedBuilding>
       <Name>System Defence Torpedo</Name>
     </UnlockedBuilding>
-       <UnlockedBuilding>
+    <UnlockedBuilding>
       <Name>Cloud Peak</Name>
     </UnlockedBuilding>
   </BuildingsUnlocked>

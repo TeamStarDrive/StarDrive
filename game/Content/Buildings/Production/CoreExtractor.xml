@@ -1,15 +1,15 @@
 ﻿<Building>
   <Name>CoreExtractor</Name>
-  <Maintenance>2</Maintenance>
-  <Description>Deep Core Mines are extremely effective at rapidly extracting minerals from deep within a planet's core, but are environmentally disastrous. Adds flat rate production equal to a planet's mineral richness but permanently decreases a planet's fertility. </Description>
-  <PlusProdPerRichness>5</PlusProdPerRichness>
-  <PlusProdPerColonist>0.8</PlusProdPerColonist>
-  <MaxFertilityOnBuild>-0.6</MaxFertilityOnBuild>
-  <Cost>320</Cost>
   <Icon>CoreExtractor</Icon>
-  <ShortDescription>+ production equal to planetary richness; -1 fertility </ShortDescription>
-
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <Cost>320</Cost>
+  <Maintenance>2</Maintenance>
+  
+  <PlusProdPerRichness>5</PlusProdPerRichness>
+  <PlusProdPerColonist>1</PlusProdPerColonist>
+  <MaxFertilityOnBuild>-0.6</MaxFertilityOnBuild>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>17588</NameTranslationIndex>
   <DescriptionIndex>17589</DescriptionIndex>
   <ShortDescriptionIndex>17594</ShortDescriptionIndex>

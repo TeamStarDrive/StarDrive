@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>SolarArraysV3</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>2250</Cost>
   <RootNode>0</RootNode>
-  <Name>SolarArraysV3</Name>
   <NameIndex>18085</NameIndex>
   <DescriptionIndex>18083</DescriptionIndex>
-  <LongDescription>Although steel armor is inexpensive, it is extremely heavy and reduces the maneuverability of our ships significantly. By focusing our research efforts on developing new construction materials, we can reduce the mass of all of our ship components across the board.</LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>SolarArraysV4</UID>

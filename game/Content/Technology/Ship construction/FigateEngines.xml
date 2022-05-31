@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Engines1</UID>
   <TechnologyType>Engines</TechnologyType>
   <Cost>220</Cost>
   <RootNode>0</RootNode>
-  <Name>FigateEngines</Name>
   <NameIndex>17546</NameIndex>
   <DescriptionIndex>17549</DescriptionIndex>
-  <LongDescription>With investment into frigate construction, we can begin to build heartier ships that are more prepared for whatever dangers are out there than our comparatively flimsy cargo ships.</LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>CruiserEngines</UID>
@@ -31,6 +29,5 @@
   <BuildingsUnlocked />
   <BonusUnlocked />
   <TroopsUnlocked />
-  <HullsUnlocked>
-  </HullsUnlocked>
+  <HullsUnlocked />
 </Technology>

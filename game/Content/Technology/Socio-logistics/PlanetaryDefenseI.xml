@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
-  <UID>Planetary Defense</UID>
+  <Version>2</Version>
+  <UID>PlanetaryDefenseI</UID>
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>500</Cost>
   <RootNode>0</RootNode>
-  <Name>Planetary Defense</Name>
   <NameIndex>632</NameIndex>
   <DescriptionIndex>633</DescriptionIndex>
-  <LongDescription>It is wise to improve our planetary defense abilities with weapons that can deter invaders. A series of giant ground-based cannons should be a good start.</LongDescription>
   <LeadsTo>
-     <LeadsToTech>
-      <UID>Planetary Shielding</UID>
+    <LeadsToTech>
+      <UID>PlanetaryDefenseII</UID>
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked />
@@ -19,7 +17,7 @@
     <UnlockedBuilding>
       <Name>Gun Emplacement</Name>
     </UnlockedBuilding>
-        <UnlockedBuilding>
+    <UnlockedBuilding>
       <Name>Colony Shield</Name>
     </UnlockedBuilding>
   </BuildingsUnlocked>

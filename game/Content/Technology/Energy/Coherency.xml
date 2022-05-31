@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Coherency</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>300</Cost>
-  <MaxLevel>13</MaxLevel>
+  <MaxLevel>15</MaxLevel>
   <RootNode>0</RootNode>
   <NameIndex>17636</NameIndex>
   <DescriptionIndex>17637</DescriptionIndex>
+  <LeadsTo />
   <ModulesUnlocked />
   <BuildingsUnlocked />
   <BonusUnlocked>
@@ -17,7 +18,7 @@
       <Tags>
         <string>Beam</string>
       </Tags>
-      <Bonus>0.04</Bonus>
+      <Bonus>0.05</Bonus>
       <BonusIndex>17638</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

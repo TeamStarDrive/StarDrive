@@ -1,18 +1,18 @@
 ﻿<Building>
   <Name>Cave system</Name>
-  <Maintenance>0</Maintenance>
-  <Description>Cave system</Description>
-  <Strength>40</Strength>
-  <Cost>40</Cost>
-  <MaxPopIncrease>3000</MaxPopIncrease>
   <Icon>Cave</Icon>
+  
+  <Cost>40</Cost>
+  <Maintenance>0</Maintenance>
+  
+  <Strength>40</Strength>
+  <MaxPopIncrease>3000</MaxPopIncrease>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  <ShortDescription>Cave system</ShortDescription>
   <Scrappable>false</Scrappable>
   <IsCommodity>true</IsCommodity>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18111</NameTranslationIndex>
   <DescriptionIndex>18112</DescriptionIndex>
   <ShortDescriptionIndex>18113</ShortDescriptionIndex>
-  
 </Building>
