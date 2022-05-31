@@ -6,7 +6,7 @@
   <Maintenance>1</Maintenance>
   
   <PlusFlatResearchAmount>0.3</PlusFlatResearchAmount>
-  <PlusResearchPerColonist>.3</PlusResearchPerColonist>
+  <PlusResearchPerColonist>.25</PlusResearchPerColonist>
   <TechBranch>Discovery</TechBranch>
   
   <!-- For localization in GameText.yaml -->

@@ -5,7 +5,7 @@
   <Cost>250</Cost>
   <Maintenance>1.5</Maintenance>
   
-  <PlusResearchPerColonist>.2</PlusResearchPerColonist>
+  <PlusResearchPerColonist>.15</PlusResearchPerColonist>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>421</NameTranslationIndex>
