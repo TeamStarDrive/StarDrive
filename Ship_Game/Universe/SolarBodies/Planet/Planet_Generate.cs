@@ -295,8 +295,6 @@ namespace Ship_Game
 
             if (TerraformPoints.GreaterOrEqual(1))
                 CompletePlanetTerraform();
-
-            return;
         }
 
         void CompleteVolcanoTerraforming(RandomBase random, PlanetGridSquare[] possibleTiles)
@@ -432,6 +430,7 @@ namespace Ship_Game
             RecreateSceneObject();
             UpdateDescription();
             UpdateMaxPopulation();
+            RemoveTerraformers();
         }
 
         private void ReCalculateHabitableChances(RandomBase random) // FB - We might need it for planet degrade
