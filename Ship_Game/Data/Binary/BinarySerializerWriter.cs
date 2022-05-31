@@ -6,7 +6,6 @@ using System.Linq;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
-using Ship_Game.Gameplay;
 
 namespace Ship_Game.Data.Binary
 {
@@ -158,8 +157,8 @@ namespace Ship_Game.Data.Binary
             structs.Sort((a, b) =>
             {
                 // enums go first
-                if (a.IsEnumType) return -1;
-                if (b.IsEnumType) return +1;
+                if (a.IsEnumType && !b.IsEnumType) return -1;
+                if (!a.IsEnumType && b.IsEnumType) return +1;
                 return string.CompareOrdinal(a.Type.Name, b.Type.Name);
             });
             groups.Sort((a, b) =>
@@ -167,6 +166,7 @@ namespace Ship_Game.Data.Binary
                 if (a.Key.Type == typeof(string)) return -1;
                 if (b.Key.Type == typeof(string)) return +1;
 
+                // structs go first
                 bool isPointerA = a.Key.IsPointerType;
                 bool isPointerB = b.Key.IsPointerType;
                 if (!isPointerA && isPointerB) return -1;
@@ -250,8 +250,11 @@ namespace Ship_Game.Data.Binary
         }
 
         static string GetAssembly(TypeSerializer s) => s.Type.Assembly.GetName().Name;
-        static string GetNamespace(TypeSerializer s) => s.Type.FullName?.Split('+')[0];
         static string GetTypeName(TypeSerializer s) => s.TypeName;
+        static string GetNamespace(TypeSerializer s)
+        {
+            return s.IsEnumType ? s.Type.Namespace : s.Type.FullName?.Split('+')[0];
+        }
 
         void WriteArray(string[] strings)
         {
