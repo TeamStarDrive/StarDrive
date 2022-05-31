@@ -2,11 +2,11 @@
   <Name>Particle Accelerator</Name>
   <Icon>particleaccelerator</Icon>
   
-  <Cost>1200</Cost>
-  <Maintenance>0.5</Maintenance>
+  <Cost>1000</Cost>
+  <Maintenance>2.5</Maintenance>
   
-  <PlusResearchPerColonist>0.4</PlusResearchPerColonist>
-  <PlusFlatResearchAmount>1</PlusFlatResearchAmount>
+  <PlusResearchPerColonist>0.35</PlusResearchPerColonist>
+  <PlusFlatResearchAmount>0.4</PlusFlatResearchAmount>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10019</NameTranslationIndex>

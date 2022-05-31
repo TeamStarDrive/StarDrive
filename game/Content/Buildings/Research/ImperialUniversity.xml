@@ -2,10 +2,10 @@
   <Name>ImperialUniversity</Name>
   <Icon>imperialuniversity</Icon>
   
-  <Cost>500</Cost>
-  <Maintenance>2</Maintenance>
+  <Cost>550</Cost>
+  <Maintenance>1.6</Maintenance>
   
-  <PlusResearchPerColonist>0.5</PlusResearchPerColonist>
+  <PlusResearchPerColonist>0.35</PlusResearchPerColonist>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10344</NameTranslationIndex>
