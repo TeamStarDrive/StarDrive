@@ -4,7 +4,7 @@
   <UID>OrdnanceDevelopment</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>500</Cost>
-  <MaxLevel>10</MaxLevel>
+  <MaxLevel>15</MaxLevel>
   <RootNode>0</RootNode>
   <NameIndex>17630</NameIndex>
   <DescriptionIndex>17631</DescriptionIndex>

@@ -4,7 +4,7 @@
   <UID>Energization</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>420</Cost>
-  <MaxLevel>12</MaxLevel>
+  <MaxLevel>15</MaxLevel>
   <RootNode>0</RootNode>
   <NameIndex>17639</NameIndex>
   <DescriptionIndex>17640</DescriptionIndex>
@@ -16,7 +16,7 @@
       <Name>Intensify particles</Name>
       <BonusType>Weapon_Damage</BonusType>
       <Tags>
-        <string>Beam</string>
+        <string>Energy</string>
       </Tags>
       <Bonus>0.05</Bonus>
       <BonusIndex>17641</BonusIndex>

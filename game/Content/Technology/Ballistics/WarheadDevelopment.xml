@@ -3,8 +3,8 @@
   <Version>2</Version>
   <UID>WarheadDevelopment</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>1000</Cost>
-  <MaxLevel>5</MaxLevel>
+  <Cost>800</Cost>
+  <MaxLevel>8</MaxLevel>
   <RootNode>0</RootNode>
   <NameIndex>17633</NameIndex>
   <DescriptionIndex>17634</DescriptionIndex>
