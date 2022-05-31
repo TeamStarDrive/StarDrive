@@ -50,7 +50,7 @@ namespace Ship_Game
                 ModName = GlobalStats.ActiveMod.mi.ModName;
                 ModPath = GlobalStats.ActiveMod.ModName;
             }
-            Version = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"]);
+            Version = SavedGame.SaveGameVersion;
             GameDifficulty                = gameDifficulty;
             StarEnum                      = starsAbundance;
             GalaxySize                    = galaxySize;
