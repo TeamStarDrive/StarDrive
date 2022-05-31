@@ -21,21 +21,49 @@ namespace UnitTests.Ships
 
         /// <summary>
         /// If any of these fail, the ModuleGrid is broken!
-        /// Fix the bug inside ModuleGrid
         /// </summary>
         [TestMethod]
-        public void Regression_LoadSavedShip_ModuleGrid()
+        public void Regression_LoadSavedShip()
         {
             Ship toSave = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
+
+            SavedGame.UniverseSaveData uSave = new();
+            uSave.SetDesigns(new[]{ toSave.ShipData });
+
             SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(new ShipDesignWriter(), toSave);
 
-            Ship prototype = Ship.CreateShipFromSave(Universe.UState, Player, saved);
+            Ship prototype = Ship.CreateShipFromSave(Universe.UState, Player, uSave, saved);
             Assert.AreEqual(new Point(20,28), prototype.GridSize);
+            Assert.AreEqual(toSave.Modules.Length, prototype.Modules.Length);
+
+            // if the UniverseSaveData design is exactly equal to an existing design,
+            // then the existing one will be used and the one from savegame is discarded
+            Assert.AreEqual(toSave.ShipData, prototype.ShipData);
+        }
+
+        [TestMethod]
+        public void Regression_LoadSavedShip_NoExistingDesign()
+        {
+            ShipDesign unknownDesign = ResourceManager.Ships.GetDesign("Terran-Prototype").GetClone("Unknown-Ship");
+            Ship unknownTemplate = Ship.CreateNewShipTemplate(EmpireManager.Void, unknownDesign);
+
+            Ship toSave = SpawnShip(unknownTemplate, Player, Vector2.Zero);
+
+            SavedGame.UniverseSaveData uSave = new();
+            uSave.SetDesigns(new[]{ toSave.ShipData });
+
+            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(new ShipDesignWriter(), toSave);
+
+            Ship prototype = Ship.CreateShipFromSave(Universe.UState, Player, uSave, saved);
+            Assert.AreEqual(new Point(20,28), prototype.GridSize);
+            Assert.AreEqual(toSave.Modules.Length, prototype.Modules.Length);
+
+            // the design only exists in the savegame
+            Assert.IsTrue(prototype.ShipData.IsFromSave, "IsFromSave must be true");
         }
 
         /// <summary>
         /// If any of these fail, the ModuleGrid is broken!
-        /// Fix the bug inside ModuleGrid
         /// </summary>
         [TestMethod]
         public void Regression_StarterShips_ModuleGrid()

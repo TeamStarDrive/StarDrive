@@ -52,7 +52,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             {
                 Screen = screen;
                 Ship = ship;
-                if (!ship.ShipData.IsReadonlyDesign && !ship.FromSave)
+                if (!ship.ShipData.IsReadonlyDesign && !ship.ShipData.IsFromSave)
                     AddCancel(new Vector2(-30, 0), "Delete this Ship Design", 
                         () => PromptDeleteShip(Ship.Name));
             }

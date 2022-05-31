@@ -57,6 +57,8 @@ namespace Ship_Game.Ships
         bool IsPlayerDesign { get; }
         bool IsReadonlyDesign { get; }
         bool Deleted { get; }
+        // it's from save only and does not exist in a file
+        bool IsFromSave { get; }
 
         bool IsValidForCurrentMod { get; }
 
@@ -102,6 +104,9 @@ namespace Ship_Game.Ships
         // If this is not null, this ship cannot be spawned, but can still be listed and loaded in Shipyard
         string InvalidModules { get; }
 
+        // Converts this ShipDesign from class data into pure ascii byte stream for saving/transfer
+        byte[] GetDesignBytes(ShipDesignWriter sw);
+
         // Access the design slots
         // These might not be loaded into memory yet
         DesignSlot[] GetOrLoadDesignSlots();
@@ -124,6 +129,7 @@ namespace Ship_Game.Ships
         // Role name as a string
         string GetRole();
 
-        bool AreModulesEqual(ModuleSaveData[] saved);
+        // Are this designs modules equal to the saved design?
+        bool AreModulesEqual(ShipDesign savedDesign);
     }
 }
