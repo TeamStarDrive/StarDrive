@@ -321,8 +321,8 @@ namespace Ship_Game
             SaveData.Projectiles = screenToSave.UState.Objects.GetProjectileSaveData();
             SaveData.Beams       = screenToSave.UState.Objects.GetBeamSaveData();
 
-            SaveData.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
-            foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> e in StatTracker.SnapshotsMap)
+            SaveData.Snapshots = new Map<string, Map<int, Snapshot>>();
+            foreach (KeyValuePair<string, Map<int, Snapshot>> e in StatTracker.SnapshotsMap)
             {
                 SaveData.Snapshots.Add(e.Key, e.Value);
             }
@@ -613,7 +613,7 @@ namespace Ship_Game
             [StarData] public int RemnantHibernationTurns;
             [StarData] public float RemnantActivationXpNeeded;
             [StarData] public Map<int, float> FleetStrEmpireModifier;
-            [StarData] public List<KeyValuePair<int, string>> DiplomacyContactQueue;
+            [StarData] public Array<Empire.DiplomacyQueueItem> DiplomacyContactQueue;
             [StarData] public Array<string> ObsoletePlayerShipModules;
             [StarData] public int CapitalId;
         }
@@ -1010,7 +1010,7 @@ namespace Ship_Game
             [StarData] public bool FTLInNeutralSystems;
             [StarData] public bool GravityWells;
             [StarData] public RandomEvent RandomEvent;
-            [StarData] public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
+            [StarData] public Map<string, Map<int, Snapshot>> Snapshots;
             [StarData] public float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             [StarData] public float MinAcceptableShipWarpRange = GlobalStats.MinAcceptableShipWarpRange;
             [StarData] public int IconSize;
