@@ -5,7 +5,6 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
@@ -15,25 +14,26 @@ using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Binary;
 
 namespace Ship_Game
 {
     [StarDataType]
     public sealed class HeaderData
     {
-        [StarData] public int SaveGameVersion;
+        [StarData] public int Version;
         [StarData] public string SaveName;
         [StarData] public string StarDate;
-        [StarData] public DateTime Time;
         [StarData] public string PlayerName;
         [StarData] public string RealDate;
         [StarData] public string ModName = "";
-        [StarData] public int Version;
+        [StarData] public DateTime Time;
 
         [XmlIgnore][JsonIgnore] public FileInfo FI;
     }
 
     // XNA.Rectangle cannot be serialized, so we need a proxy object
+    // TODO: New binary serializer does support Rectangle and RectF
     [StarDataType]
     public struct RectangleData
     {
@@ -64,7 +64,7 @@ namespace Ship_Game
         public FileInfo SaveFile;
         public FileInfo PackedFile;
         public FileInfo HeaderFile;
-        
+
         public static bool IsSaving  => GetIsSaving();
         public static bool NotSaving => !IsSaving;
         public static string DefaultSaveGameFolder => Dir.StarDriveAppData + "/Saved Games/";
@@ -477,41 +477,29 @@ namespace Ship_Game
 
             DateTime now = DateTime.Now;
 
+            var header = new HeaderData
+            {
+                Version    = SaveGameVersion,
+                SaveName   = data.SaveAs,
+                StarDate   = data.StarDate.ToString("#.0"),
+                PlayerName = data.PlayerLoyalty,
+                RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
+                ModName    = GlobalStats.ModName,
+                Time       = now,
+            };
+
             if (UseBinarySaveFormat)
             {
-                var header = new HeaderData
-                {
-                    SaveGameVersion = SaveGameVersion,
-                    PlayerName = data.PlayerLoyalty,
-                    StarDate   = data.StarDate.ToString("#.0"),
-                    Time       = now,
-                    SaveName   = data.SaveAs,
-                    RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
-                    ModName    = GlobalStats.ModName,
-                    Version    = SaveGameVersion,
-                };
 
                 using var stream = saveFile.OpenWrite();
                 var writer = new BinaryWriter(stream);
 
-                Data.Binary.BinarySerializer.SerializeMultiType(writer, new object[]{ header, data });
+                BinarySerializer.SerializeMultiType(writer, new object[]{ header, data });
 
                 Log.Info($"Binary Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length/(1024.0*1024.0):0.0}MB)");
             }
             else
             {
-                var header = new HeaderData
-                {
-                    SaveGameVersion = SaveGameVersion,
-                    PlayerName = data.PlayerLoyalty,
-                    StarDate   = data.StarDate.ToString("#.0"),
-                    Time       = now,
-                    SaveName   = data.SaveAs,
-                    RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
-                    ModName    = GlobalStats.ModName,
-                    Version    = SaveGameVersion,
-                };
-
                 using (var textWriter = new StreamWriter(saveFile.FullName))
                 {
                     var ser = new JsonSerializer
@@ -544,27 +532,41 @@ namespace Ship_Game
             HelperFunctions.CollectMemory();
         }
 
-        public static UniverseSaveData DeserializeFromCompressedSave(FileInfo compressedSave)
+        public static UniverseSaveData Deserialize(FileInfo saveFile, bool binarySave)
         {
-            UniverseSaveData usData;
-            var decompressed = new FileInfo(HelperFunctions.Decompress(compressedSave));
-
             var t = new PerfTimer();
-            using (FileStream stream = decompressed.OpenRead())
-            using (var reader = new JsonTextReader(new StreamReader(stream)))
+            UniverseSaveData usData;
+
+            if (binarySave)
             {
+                using var reader = new BinaryReader(saveFile.OpenRead());
+                var results = BinarySerializer.DeserializeMultiType(reader, new[]
+                {
+                    typeof(HeaderData),
+                    typeof(UniverseSaveData)
+                });
+                usData = (UniverseSaveData)results[1];
+
+                Log.Info($"Binary Total Load elapsed: {t.Elapsed:0.0}s  ");
+            }
+            else
+            {
+                // old save files are compressed
+                var decompressed = new FileInfo(HelperFunctions.Decompress(saveFile));
+
+                using FileStream stream = decompressed.OpenRead();
+                using var reader = new JsonTextReader(new StreamReader(stream));
                 var ser = new JsonSerializer
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     DefaultValueHandling = DefaultValueHandling.Ignore
                 };
                 usData = ser.Deserialize<UniverseSaveData>(reader);
+
+                Log.Info($"JSON Total Load elapsed: {t.Elapsed:0.0}s  ");
+                decompressed.Delete();
             }
 
-            Log.Info($"JSON Total Load elapsed: {t.Elapsed:0.0}s  ");
-            decompressed.Delete();
-
-            //HelperFunctions.CollectMemory();
             return usData;
         }
 

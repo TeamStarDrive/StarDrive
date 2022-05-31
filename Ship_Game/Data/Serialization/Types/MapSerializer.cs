@@ -8,7 +8,7 @@ namespace Ship_Game.Data.Serialization.Types
 {
     internal class MapSerializer : CollectionSerializer
     {
-        public override string ToString() => $"MapSerializer<{KeyType.GetTypeName()}, {ElemType.GetTypeName()}>";
+        public override string ToString() => $"MapSerializer<{KeyType.GetTypeName()}:{KeySerializer.TypeId},{ElemType.GetTypeName()}:{ElemSerializer.TypeId}>:{TypeId}";
         public readonly Type KeyType;
         public readonly TypeSerializer KeySerializer;
         public readonly Type GenericMapType;

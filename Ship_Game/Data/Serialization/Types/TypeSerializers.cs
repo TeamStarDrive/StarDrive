@@ -9,7 +9,7 @@ namespace Ship_Game.Data.Serialization.Types
     public class ObjectSerializer : TypeSerializer
     {
         public ObjectSerializer() : base(typeof(object)) { }
-        public override string ToString() => "ObjectSerializer";
+        public override string ToString() => $"ObjectSerializer:{TypeId}";
         
         public override object Convert(object value)
         {
@@ -36,7 +36,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class RangeSerializer : TypeSerializer
     {
         public RangeSerializer() : base(typeof(Range)) { }
-        public override string ToString() => "RangeSerializer";
+        public override string ToString() => $"RangeSerializer:{TypeId}";
 
         public override object Convert(object value)
         {
@@ -88,7 +88,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class DateTimeSerializer : TypeSerializer
     {
         public DateTimeSerializer() : base(typeof(DateTime)) { }
-        public override string ToString() => "DateTimeSerializer";
+        public override string ToString() => $"DateTimeSerializer:{TypeId}";
 
         public override object Convert(object value)
         {
@@ -157,7 +157,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class TimeSpanSerializer : TypeSerializer
     {
         public TimeSpanSerializer() : base(typeof(TimeSpan)) { }
-        public override string ToString() => "TimeSpanSerializer";
+        public override string ToString() => $"TimeSpanSerializer:{TypeId}";
 
         public override object Convert(object value)
         {

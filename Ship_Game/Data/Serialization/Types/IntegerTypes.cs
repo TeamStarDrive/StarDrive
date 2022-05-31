@@ -8,7 +8,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class BoolSerializer : TypeSerializer
     {
         public BoolSerializer() : base(typeof(bool)) { }
-        public override string ToString() => "BoolSerializer";
+        public override string ToString() => $"BoolSerializer:{TypeId}";
 
         public override object Convert(object value)
         {
@@ -42,7 +42,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class ByteSerializer : TypeSerializer
     {
         public ByteSerializer() : base(typeof(byte)) { }
-        public override string ToString() => "ByteSerializer";
+        public override string ToString() => $"ByteSerializer:{TypeId}";
 
         public override void Serialize(YamlNode parent, object obj)
         {
@@ -65,7 +65,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class SByteSerializer : TypeSerializer
     {
         public SByteSerializer() : base(typeof(sbyte)) { }
-        public override string ToString() => "SByteSerializer";
+        public override string ToString() => $"SByteSerializer:{TypeId}";
 
         public override void Serialize(YamlNode parent, object obj)
         {
@@ -88,7 +88,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class ShortSerializer : TypeSerializer
     {
         public ShortSerializer() : base(typeof(short)) { }
-        public override string ToString() => "ShortSerializer";
+        public override string ToString() => $"ShortSerializer:{TypeId}";
 
         public override void Serialize(YamlNode parent, object obj)
         {
@@ -111,7 +111,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class UShortSerializer : TypeSerializer
     {
         public UShortSerializer() : base(typeof(ushort)) { }
-        public override string ToString() => "UShortSerializer";
+        public override string ToString() => $"UShortSerializer:{TypeId}";
 
         public override void Serialize(YamlNode parent, object obj)
         {
@@ -134,7 +134,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class IntSerializer : TypeSerializer
     {
         public IntSerializer() : base(typeof(int)) { }
-        public override string ToString() => "IntSerializer";
+        public override string ToString() => $"IntSerializer:{TypeId}";
 
         public override object Convert(object value)
         {
@@ -166,7 +166,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class UIntSerializer : TypeSerializer
     {
         public UIntSerializer() : base(typeof(uint)) { }
-        public override string ToString() => "UIntSerializer";
+        public override string ToString() => $"UIntSerializer:{TypeId}";
 
         public override void Serialize(YamlNode parent, object obj)
         {
@@ -189,7 +189,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class LongSerializer : TypeSerializer
     {
         public LongSerializer() : base(typeof(long)) { }
-        public override string ToString() => "LongSerializer";
+        public override string ToString() => $"LongSerializer:{TypeId}";
 
         public override void Serialize(YamlNode parent, object obj)
         {
@@ -213,7 +213,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class ULongSerializer : TypeSerializer
     {
         public ULongSerializer() : base(typeof(ulong)) { }
-        public override string ToString() => "ULongSerializer";
+        public override string ToString() => $"ULongSerializer:{TypeId}";
 
         public override void Serialize(YamlNode parent, object obj)
         {

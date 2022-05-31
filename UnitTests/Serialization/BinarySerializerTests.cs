@@ -9,6 +9,7 @@ using SDUtils;
 using Ship_Game;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
+using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.Ships;
 using Vector4 = SDGraphics.Vector4;
 using Point = SDGraphics.Point;
@@ -617,6 +618,7 @@ namespace UnitTests.Serialization
             return Convert.ToBase64String(bytes, Base64FormattingOptions.None);
         }
 
+        // FROM HERE
         //[StarDataType] class MovedType {[StarData] public Vector4 Value4; }
         [StarDataType]
         class ContainsMovedType
@@ -624,7 +626,7 @@ namespace UnitTests.Serialization
             [StarData] public Vector3 Pos;
             [StarData] public MovedType MT;
             [StarData] public string Name;
-            // MOVED TYPE:
+            // MOVED TO HERE:
             [StarDataType] public class MovedType {[StarData] public Vector4 Value4; }
         }
 
@@ -638,7 +640,7 @@ namespace UnitTests.Serialization
             //    MT = new MovedType { Value4 = new Vector4(4001, 4002, 4003, 4004) },
             //    Name = "Contains a moved type",
             //});
-            string containsMovedType = "AQACACEDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCEUNvbnRhaW5zTW92ZWRUeXBlCU1vdmVkVHlwZQQCTVQETmFtZQNQb3MGVmFsdWU0IAAAAAEDIQATAQ0CIQAAAQEBDgMTASABIQEVQ29udGFpbnMgYSBtb3ZlZCB0eXBlIQADEwEBDQIAIPpEAED6RABg+kQOAAAQekUAIHpFADB6RQBAekU=";
+            string containsMovedType = "AQACACEDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCEUNvbnRhaW5zTW92ZWRUeXBlCU1vdmVkVHlwZQQCTVQETmFtZQNQb3MGVmFsdWU0IAAAAAEDDQIhABUBIQAAAQEBDgMVASABIQEVQ29udGFpbnMgYSBtb3ZlZCB0eXBlDQAAIPpEAED6RABg+kQhAQMVAgEOAAAQekUAIHpFADB6RQBAekU=";
             var ser = new BinarySerializer(typeof(ContainsMovedType));
             var result = Deserialize<ContainsMovedType>(ser, Convert.FromBase64String(containsMovedType));
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
@@ -646,6 +648,7 @@ namespace UnitTests.Serialization
             Assert.AreEqual("Contains a moved type", result.Name);
         }
 
+        // DELETED FROM HERE
         //[StarDataType] class DeletedType {[StarData] public Vector4 Value4; }
         //[StarDataType] struct DeletedStruct {[StarData] public Vector4 Value4; }
 
@@ -670,7 +673,7 @@ namespace UnitTests.Serialization
             //    DS = new DeletedStruct { Value4 = new Vector4(5001, 5002, 5003, 5004) },
             //    Name = "Contains deleted types",
             //});
-            string containsDeletedType = "AQADACIDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMDE0NvbnRhaW5zRGVsZXRlZFR5cGUNRGVsZXRlZFN0cnVjdAtEZWxldGVkVHlwZQUCRFMCRFQETmFtZQNQb3MGVmFsdWU0IgAAAQABDgQgAAAAAQQiACEBEwINAyEAAAIBAQ4EEwEgASEBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMiAA4AAEicRQBQnEUAWJxFAGCcRSEBAxMCAQ0DACD6RABA+kQAYPpEDgAAEHpFACB6RQAwekUAQHpF";
+            string containsDeletedType = "AQADACIDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMDE0NvbnRhaW5zRGVsZXRlZFR5cGUNRGVsZXRlZFN0cnVjdAtEZWxldGVkVHlwZQUCRFMCRFQETmFtZQNQb3MGVmFsdWU0IgAAAQABDgQgAAAAAQQNAyEBIgAVAiEAAAIBAQ4EFQEgASEBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMNAAAg+kQAQPpEAGD6RCEBAyICDgAASJxFAFCcRQBYnEUAYJxFFQMBDgAAEHpFACB6RQAwekUAQHpF";
             var ser = new BinarySerializer(typeof(ContainsDeletedType));
             var result = Deserialize<ContainsDeletedType>(ser, Convert.FromBase64String(containsDeletedType));
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
@@ -698,7 +701,7 @@ namespace UnitTests.Serialization
             //    Name = "Contains a removed field",
             //    Pos2 = new Vector2(4010, 4020),
             //});
-            string containsRemovedField = "AQACACEDAgEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCGENvbnRhaW5zUmVtb3ZlZEZpZWxkVHlwZQ1SZWN1cnNpdmVUeXBlCAVDb3VudBBEZWZhdWx0SXNOb3ROdWxsBE5hbWUDUG9zBFBvczINUmVjdXJzaXZlU2VsZgdSZW1vdmVkBFRleHQgAAAAAQQTAg0DDAQhBiEAAAEBBAYAEwEhBRMHEwIgASEBGENvbnRhaW5zIGEgcmVtb3ZlZCBmaWVsZA9XaWxsIGJlIHJlbW92ZWQTAAENAQAg+kQAQPpEAGD6RAwCAKB6RQBAe0UhAwQGAJITEwEAIQIEEwMC";
+            string containsRemovedField = "AQACACEDAgEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCGENvbnRhaW5zUmVtb3ZlZEZpZWxkVHlwZQ1SZWN1cnNpdmVUeXBlCAVDb3VudBBEZWZhdWx0SXNOb3ROdWxsBE5hbWUDUG9zBFBvczINUmVjdXJzaXZlU2VsZgdSZW1vdmVkBFRleHQgAAAAAQQNAyEGFQIMBCEAAAEBBCEFFQcGABUBFQIgASEBD1dpbGwgYmUgcmVtb3ZlZBhDb250YWlucyBhIHJlbW92ZWQgZmllbGQNAAAg+kQAQPpEAGD6RCEBBBUCAgwDAKB6RQBAe0UhAAQVAQEGApITFQMA";
             var ser = new BinarySerializer(typeof(ContainsRemovedFieldType));
             var result = Deserialize<ContainsRemovedFieldType>(ser, Convert.FromBase64String(containsRemovedField));
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
@@ -741,6 +744,33 @@ namespace UnitTests.Serialization
         //    Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
         //    byte[] bytes = Serialize(ship);
         //}
+
+        public enum SomeEnum
+        {
+            One,
+            Two,
+            Three,
+        }
+
+        [StarDataType]
+        public class EnumTypes
+        {
+            [StarData] public SomeEnum Key;
+            [StarData] public Array<SomeEnum> Values;
+        }
+
+        [TestMethod]
+        public void ContainsEnumTypes()
+        {
+            var instance = new EnumTypes
+            {
+                Key = SomeEnum.Three,
+                Values = new Array<SomeEnum>(new[]{ SomeEnum.Three,SomeEnum.One,SomeEnum.Two })
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.AreEqual(instance.Key, result.Key);
+            Assert.That.EqualCollections(instance.Values, result.Values);
+        }
 
         [StarDataType]
         class HeaderType
@@ -803,9 +833,19 @@ namespace UnitTests.Serialization
         {
             CreateUniverseAndPlayerEmpire();
 
-            var savedGame = new SavedGame(Universe);
-            savedGame.UseBinarySaveFormat = true;
-            savedGame.Save("BinarySerializer.Test", async:false);
+            var save = new SavedGame(Universe);
+            save.UseBinarySaveFormat = true;
+            save.Save("BinarySerializer.Test", async:false);
+
+            // peek the header as per specs
+            HeaderData header = LoadGame.PeekHeader(save.SaveFile);
+            Assert.AreEqual(SavedGame.SaveGameVersion, header.Version);
+            Assert.AreEqual("BinarySerializer.Test", header.SaveName);
+
+            var load = new LoadGame(save.SaveFile);
+            load.UseBinarySaveFormat = true;
+            UniverseScreen us = load.Load(noErrorDialogs:true, startSimThread:false);
+            Assert.IsNotNull(us, "Loaded universe cannot be null");
         }
     }
 }

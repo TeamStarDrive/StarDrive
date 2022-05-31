@@ -9,7 +9,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class StringSerializer : TypeSerializer
     {
         public StringSerializer() : base(typeof(string)) { }
-        public override string ToString() => "StringSerializer";
+        public override string ToString() => $"StringSerializer:{TypeId}";
 
         public override object Convert(object value)
         {
@@ -38,7 +38,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class LocalizedTextSerializer : TypeSerializer
     {
         public LocalizedTextSerializer() : base(typeof(LocalizedText)) { }
-        public override string ToString() => "LocalizedTextSerializer";
+        public override string ToString() => $"LocalizedTextSerializer:{TypeId}";
 
         public override object Convert(object value)
         {
