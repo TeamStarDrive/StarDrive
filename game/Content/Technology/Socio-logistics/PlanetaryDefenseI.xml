@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
   <Version>2</Version>
-  <UID>Planetary Defense</UID>
+  <UID>PlanetaryDefenseI</UID>
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>500</Cost>
   <RootNode>0</RootNode>
@@ -9,7 +9,7 @@
   <DescriptionIndex>633</DescriptionIndex>
   <LeadsTo>
     <LeadsToTech>
-      <UID>Planetary Shielding</UID>
+      <UID>PlanetaryDefenseII</UID>
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked />
