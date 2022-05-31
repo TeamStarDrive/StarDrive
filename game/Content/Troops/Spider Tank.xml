@@ -11,7 +11,7 @@
   <animated>true</animated>
   <idle_x_offset>0</idle_x_offset>
   <idle_y_offset>0</idle_y_offset>
-  <attack_width>128</attack_width>
+  <attack_width>64</attack_width>
   <idle_path>Tank/tank_idle</idle_path>
   <attack_path>Tank/tank_attack</attack_path>
 
