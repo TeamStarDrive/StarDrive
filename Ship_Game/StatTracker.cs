@@ -7,19 +7,18 @@ namespace Ship_Game
 {
     public sealed class StatTracker
     {
-        static SerializableDictionary<string, SerializableDictionary<int, Snapshot>> SnapsMap =
-           new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
+        static Map<string, Map<int, Snapshot>> SnapsMap = new();
 
         public static int NumRecordedTurns => SnapsMap.Count;
-        public static SerializableDictionary<int, Snapshot>[] Snapshots => SnapsMap.Values.ToArr();
-        public static IReadOnlyDictionary<string, SerializableDictionary<int, Snapshot>> SnapshotsMap => SnapsMap;
+        public static Map<int, Snapshot>[] Snapshots => SnapsMap.Values.ToArr();
+        public static IReadOnlyDictionary<string, Map<int, Snapshot>> SnapshotsMap => SnapsMap;
 
         public static void Reset()
         {
             SnapsMap.Clear();
         }
 
-        public static void SetSnapshots(SerializableDictionary<string, SerializableDictionary<int, Snapshot>> snapshots)
+        public static void SetSnapshots(Map<string, Map<int, Snapshot>> snapshots)
         {
             SnapsMap = snapshots;
         }
@@ -35,7 +34,7 @@ namespace Ship_Game
             if (SnapsMap.ContainsKey(starDateStr))
                 return;
 
-            var snapshots = new SerializableDictionary<int, Snapshot>();
+            var snapshots = new Map<int, Snapshot>();
             SnapsMap[starDateStr] = snapshots;
 
             foreach (Empire empire in EmpireManager.Empires)
@@ -45,7 +44,7 @@ namespace Ship_Game
             }
         }
 
-        public static bool GetAllSnapshotsFor(float starDate, out SerializableDictionary<int, Snapshot> snapshots)
+        public static bool GetAllSnapshotsFor(float starDate, out Map<int, Snapshot> snapshots)
         {
             string starDateStr = starDate.StarDateString();
             return SnapsMap.TryGetValue(starDateStr, out snapshots);
@@ -58,7 +57,7 @@ namespace Ship_Game
             string starDateStr = starDate.StarDateString();
             if (!SnapsMap.TryGetValue(starDateStr, out var snapshots))
             {
-                snapshots = new SerializableDictionary<int, Snapshot>();
+                snapshots = new Map<int, Snapshot>();
                 SnapsMap[starDateStr] = snapshots;
             }
 

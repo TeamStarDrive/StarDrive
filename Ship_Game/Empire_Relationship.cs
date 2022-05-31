@@ -547,8 +547,7 @@ namespace Ship_Game
         {
             if (dialog == "DECLAREWAR" && IsAtWarWith(empire))
                 return;
-
-            DiplomacyContactQueue.Add(new KeyValuePair<int, string>(empire.Id, dialog));
+            DiplomacyContactQueue.Add(new DiplomacyQueueItem{ EmpireId = empire.Id, Dialog = dialog});
         }
 
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)
