@@ -1,11 +1,15 @@
 ﻿<Building>
   <Name>Crater1</Name>
-  <Maintenance>0</Maintenance>
-  <Cost>0</Cost>
   <Icon>Crater1</Icon>
+  
+  <Cost>0</Cost>
+  <Maintenance>0</Maintenance>
+  
   <Scrappable>false</Scrappable>
   <PlusFlatResearchAmount>1</PlusFlatResearchAmount>
   <CanBuildAnywhere>true</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4289</NameTranslationIndex>
   <DescriptionIndex>4290</DescriptionIndex>
   <ShortDescriptionIndex>4291</ShortDescriptionIndex>

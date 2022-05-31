@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>WeatherManipulation</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>3500</Cost>
   <RootNode>0</RootNode>
-  <Name>Vertical Farming</Name>
   <NameIndex>10045</NameIndex>
   <DescriptionIndex>10046</DescriptionIndex>
-  <LeadsTo>
-
-  </LeadsTo>
+  <LeadsTo />
   <HiddenFrom>
     <RaceRequirements>
       <RacialTrait>Cybernetic</RacialTrait>

@@ -1,9 +1,13 @@
 ﻿<Building>
   <Name>Galactic Stock Exchange</Name>
-  <Maintenance>0.5</Maintenance>
-  <Cost>500</Cost>
   <Icon>GalacticStock</Icon>
+  
+  <Cost>500</Cost>
+  <Maintenance>0.5</Maintenance>
+  
   <CreditsPerColonist>1.6</CreditsPerColonist>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10009</NameTranslationIndex>
   <DescriptionIndex>10010</DescriptionIndex>
   <ShortDescriptionIndex>10072</ShortDescriptionIndex>

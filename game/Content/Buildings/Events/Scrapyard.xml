@@ -1,12 +1,14 @@
 ﻿<Building>
   <Name>Scrapyard</Name>
-  <Description>Scrapyard</Description>
   <Icon>Scrapyard</Icon>
+  
   <Cost>250</Cost>
+  
   <ProdCache>1500</ProdCache>
   <PlusProdPerColonist>0.8</PlusProdPerColonist>
   <IsCommodity>true</IsCommodity>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18237</NameTranslationIndex>
   <DescriptionIndex>18238</DescriptionIndex>
   <ShortDescriptionIndex>18239</ShortDescriptionIndex>

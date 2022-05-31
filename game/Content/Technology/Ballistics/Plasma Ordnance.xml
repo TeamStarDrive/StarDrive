@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Plasma Ordnance</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>5400</Cost>
   <RootNode>0</RootNode>
-  <Name>Plasma Ordnance</Name>
   <NameIndex>2001</NameIndex>
   <DescriptionIndex>2002</DescriptionIndex>
-  <LongDescription>See localization file</LongDescription>
+  <LeadsTo />
   <ModulesUnlocked />
   <BuildingsUnlocked />
   <BonusUnlocked>

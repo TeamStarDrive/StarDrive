@@ -1,9 +1,10 @@
 ﻿<Building>
   <Name>Gun Emplacement</Name>
-  <Description>Gun Emplacements fire standard flak rounds and provide significant defensive bonuses to a planet in two ways. First, gun emplacements deal 1 guaranteed damage to each landing troop. Multiple gun emplacements provide cumulative bonusess. Second, gun emplacements act as defensive units in ground invasions and are capable of performing moderate hard-target attacks.</Description>
+  <Icon>gunemplacement</Icon>
+  
   <Cost>75</Cost>
   <Maintenance>0.25</Maintenance>
-  <Icon>gunemplacement</Icon>
+  
   <Strength>16</Strength>
   <CombatStrength>16</CombatStrength>
   <Defense>20</Defense>
@@ -12,6 +13,8 @@
   <isWeapon>true</isWeapon>
   <InvadeInjurePoints>1</InvadeInjurePoints>
   <Weapon>PlanetFlak</Weapon>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>424</NameTranslationIndex>
   <DescriptionIndex>425</DescriptionIndex>
   <ShortDescriptionIndex>426</ShortDescriptionIndex>

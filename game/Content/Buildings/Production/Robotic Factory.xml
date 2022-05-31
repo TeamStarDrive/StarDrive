@@ -1,12 +1,15 @@
 ﻿<Building>
   <Name>Robotic Factory</Name>
-  <Description>Robotic Factory </Description>
+  <Icon>Robotic_Factory</Icon>
+  
+  <Cost>500</Cost>
+  <Maintenance>3</Maintenance>
+  
   <PlusFlatProductionAmount>8</PlusFlatProductionAmount>
   <MaxFertilityOnBuild>-0.3</MaxFertilityOnBuild>
   <Infrastructure>1</Infrastructure>
-  <Cost>500</Cost>
-  <Icon>Robotic_Factory</Icon>
-  <Maintenance>3</Maintenance>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>8077</NameTranslationIndex>
   <DescriptionIndex>8078</DescriptionIndex>
   <ShortDescriptionIndex>8079</ShortDescriptionIndex>

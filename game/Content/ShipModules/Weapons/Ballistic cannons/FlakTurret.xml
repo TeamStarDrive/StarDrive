@@ -26,19 +26,7 @@
   <NameIndex>952</NameIndex>
   <DescriptionIndex>953</DescriptionIndex>
 
-
-  <!-- for shield items -->
-  
-  <ShieldPowerMax>0</ShieldPowerMax>
-  <ShieldRechargeDelay>0</ShieldRechargeDelay>
-  <ShieldRechargeRate>0</ShieldRechargeRate>
-  <ShieldRadius>0</ShieldRadius>
-  <radius>0</radius>
-
-  <!-- for PowerPlant Items -->
-  
-  <PowerFlowMax>0</PowerFlowMax>
-  <PowerStoreMax>0</PowerStoreMax>
+  <AccuracyPercent>0</AccuracyPercent>
   
   <!-- for Weapons -->
   <WeaponType>Flak</WeaponType>

@@ -1797,9 +1797,9 @@ AeroponicsIsTheUseOf:
  SPA: "La aeroponia es el cultivo en un entorno aéreo de plantas a las que se transmiten los nutrientes por hidroatomización. Con esta técnica, las plantas crecen a un ritmo excelente y se elimina la necesidad de tierra a la vez que se reducen al mínimo los riesgos patógenos. Bonificación única de +1 a la producción de comida."
 AeroponicsShortDescr:
  Id: 405
- ENG: "+1 food per turn"
- RUS: "+1 еды в ход"
- SPA: "+1 comida por turno"
+ ENG: "+0.8 food per turn, +0.2 food per assigned colonist"
+ RUS: "+0.8 еды в ход"
+ SPA: "+0.8 comida por turno"
 Biospheres:
  Id: 406
  ENG: "Biospheres"
@@ -1867,9 +1867,9 @@ TheOutputOfThisGenetics:
  SPA: "La producción de este Centro de investigación de genética depende de la cantidad de colonos dedicados a la tarea y aumenta la investigación en +0,2 por colono asignado."
 ResearchPerAssignedColonist:
  Id: 423
- ENG: "+.2 research per assigned colonist"
- RUS: "+0,2 ед. науки за каждого занятого колониста"
- SPA: "+0,2 de investigación por colono asignado"
+ ENG: "+.15 research per assigned colonist"
+ RUS: "+0,15 ед. науки за каждого занятого колониста"
+ SPA: "+0,15 de investigación por colono asignado"
 GunEmplacement:
  Id: 424
  ENG: "Gun Emplacement"
@@ -2012,13 +2012,13 @@ ResearchLab:
  SPA: "Laboratorio de investigación"
 ADedicatedResearchLabAllows:
  Id: 453
- ENG: "A dedicated research lab allows colonists to begin in earnest the study of their new home.  Provides a flat +0.3 per turn research bonus to any colony and +0.2 research per assigned colonist. "
- RUS: "Исследовательская лаборатория дает колонистам возможность начать изучать их новый дом. Дает +0.3 к науке в любой колонии,+0.2 к науке за колониста. "
+ ENG: "A dedicated research lab allows colonists to begin in earnest the study of their new home.  Provides a flat +0.3 per turn research bonus to any colony and +0.25 research per assigned colonist. "
+ RUS: "Исследовательская лаборатория дает колонистам возможность начать изучать их новый дом. Дает +0.3 к науке в любой колонии,+0.25 к науке за колониста. "
  SPA: "Un laboratorio de investigación especializado permite a los colonos emprender el estudio a fondo de su nuevo mundo.  Proporciona a una colonia una bonificación única de investigación de +0.3 por turno. "
 ResearchPerTurn2:
  Id: 454
- ENG: "+0.3 research per turn, 0.3 research per colonist"
- RUS: "+0.3 к науке в ход, +0.2 к науке за колониста"
+ ENG: "+0.3 research per turn, 0.25 research per colonist"
+ RUS: "+0.3 к науке в ход, +0.25 к науке за колониста"
  SPA: "+0.3 de investigación por turno"
 RoverBay:
  Id: 455
@@ -2042,9 +2042,9 @@ SpacePort:
  SPA: "Puerto espacial"
 TaxRevenuesAllowsShipConstruction:
  Id: 460
- ENG: "+50% tax revenues; allows ship construction, + infrastructure, increased ship repair rates"
- RUS: "+50% к налогам; позволяет строить корабли"
- SPA: "+50% de ingresos fiscales; permite la construcción de naves"
+ ENG: "+20% tax revenues; allows ship construction, +2 infrastructure, increased ship repair rates"
+ RUS: "+20% к налогам; позволяет строить корабли"
+ SPA: "+20% de ingresos fiscales; permite la construcción de naves"
 Terraformer:
  Id: 461
  ENG: "Terraformer"
@@ -2085,9 +2085,9 @@ ASimpleBuildingWithA:
  SPA: "Un edificio simple con un propósito igual de simple: proporcionar un lugar ecológicamente controlado para almacenar hasta 100 más de comida y producción."
 MaximumGoodStorage:
  Id: 469
- ENG: "+100 maximum good storage"
- RUS: "+100 к максимальному запасу товаров"
- SPA: "+100 de almacenamiento máximo de bienes"
+ ENG: "+200 maximum good storage, +1 infrastructure"
+ RUS: "+200 к максимальному запасу товаров"
+ SPA: "+200 de almacenamiento máximo de bienes"
 XenoFarm:
  Id: 470
  ENG: "Xeno Farm"
@@ -2762,12 +2762,12 @@ BB_Tech_Physics_Bonus:
  ENG: "Gain the ability to build subspace projector platforms in deep space. "
  RUS: "Дает возможность строить в глубоком космосе платформы-субпространственные проекторы."
  SPA: "Aprende a construir plataformas de proyectores subespaciales en el espacio profundo. "
-BB_Tech_PlanetaryDefense_Name:
+BB_Tech_PlanetaryDefenseI_Name:
  Id: 632
- ENG: "Planetary Defense"
+ ENG: "Planetary Defense I"
  RUS: "Планетарная оборона"
  SPA: "Defensa planetaria"
-BB_Tech_PlanetaryDefense_Desc:
+BB_Tech_PlanetaryDefenseI_Desc:
  Id: 633
  ENG: "It is wise to improve our planetary defense abilities with weapons that can deter invaders. A series of giant ground-based cannons should be a good start."
  RUS: "Усилить планетарную оборону оружием, способным отразить нападение противника, никогда не будет лишним. Построить огромные наземные пушки - уже неплохое начало."
@@ -7500,7 +7500,7 @@ ToggleToDisplayOnlyPlayerdesigned:
  SPA: "Alterna para mostrar solo las naves diseñadas por el jugador"
 YourEmpireWillAutomaticallyManage:
  Id: 2226
- ENG: "Your empire will automatically manage ANY scouts ships that you own. If you do not own enough, it will create more scout ships (matching the namy selected below) so long as the galaxy has unexplored systems. If you assign a scout ship to a fleet or give it orders, it will stay under your manual command, until the order is complete or it is not assigned to a fleet anymore."
+ ENG: "Your empire will automatically manage ANY scouts ships that you own. If you do not own enough, it will create more scout ships (matching the name selected below) so long as the galaxy has unexplored systems. If you assign a scout ship to a fleet or give it orders, it will stay under your manual command, until the order is complete or it is not assigned to a fleet anymore."
 YourEmpireWillAutomaticallyCreate:
  Id: 2227
  ENG: "Your empire will automatically create and deploy colony ships to desirable planets. Colony ships will not be dispatched to planets with a known nearby enemy presence"
@@ -8510,9 +8510,9 @@ PlantAgent:
  SPA: "Infiltrar agente"
 ASpacePortConnectsTo:
  Id: 459
- ENG: "A space port connects to the orbital star base above and allows for the construction of ships here using materials produced on the planet. Provides a 50% bonus to all monetary incomes earned on this planet."
- RUS: "Космопорт соединен с орбитальной станцией над планетой и позволяет строить на ней корабли с использованием материалов, производимых на планете. Дает 50% бонус ко всем денежным доходам с планеты."
- SPA: "Un puerto espacial se conecta a la base orbital de la estrella y permite la construcción de naves usando los materiales producidos en el planeta. Otorga una bonificación del 50% a todos los ingresos monetarios obtenidos en el planeta."
+ ENG: "A space port connects to the orbital star base above and allows for the construction of ships here using materials produced on the planet. Provides a 20% bonus to all monetary incomes earned on this planet."
+ RUS: "Космопорт соединен с орбитальной станцией над планетой и позволяет строить на ней корабли с использованием материалов, производимых на планете. Дает 20% бонус ко всем денежным доходам с планеты."
+ SPA: "Un puerto espacial se conecta a la base orbital de la estrella y permite la construcción de naves usando los materiales producidos en el planeta. Otorga una bonificación del 20% a todos los ingresos monetarios obtenidos en el planeta."
 ImperialOfficesAllowForThe:
  Id: 431
  ENG: "Imperial Offices allow for the direct taxation of the citizenry, granting incomes at a rate of .25 credits per colonist per turn. This base income is not modified by tax rates or buildings that modify tax incomes. "
@@ -8563,8 +8563,8 @@ DeepCoreMinesAreExtremely:
  SPA: "Las minas de núcleo profundo son sumamente eficaces a la hora de extraer minerales de las profundidades de un planeta, pero son devastadoras para el medio ambiente. Añade una producción a un ritmo constante igual a cuatro veces la riqueza mineral del planeta, pero reduce permanentemente su fertilidad en 0.6."
 FertilityOnBuildXProduction:
  Id: 420
- ENG: "(-0.4) lower fertility on build, +5x production richness bonus"
- RUS: "+ 5х богатства планеты к производству; -0.4 к плодородию"
+ ENG: "lower fertility on build, +3x production richness bonus, +0.7 prod per assigned colonist"
+ RUS: "+ 3х богатства планеты к производству; -0.4 к плодородию"
  SPA: "Aumento de producción igual a 5 veces la riqueza del planeta; -0.4 de fertilidad"
 PopulationPerTurn:
  Id: 414
@@ -12251,8 +12251,8 @@ NutritiousFlightlessBirdSpecies:
  RUS: "Вид съедобных нелетающих птиц."
 ProvidesFoodPerTurnTotal3:
  Id: 18218
- ENG: "Provides 0.8 food per turn, total worth of 1100 food."
- RUS: "Дает +0.8 еды за ход, всего 1100 еды."
+ ENG: "Provides 0.6 food per turn, total worth of 3100 food."
+ RUS: "Дает +0.6 еды за ход, всего 3100 еды."
 CaveSystem:
  Id: 18111
  ENG: "Cave system"
@@ -12299,7 +12299,7 @@ HighlyExoticMineralVeinsRarely:
  RUS: "Сложные экзотические минеральные жилы, редко встречающиеся на планетах земного типа."
 ProdPerAssignedColonistTotal:
  Id: 18108
- ENG: "+0.4 prod per assigned colonist, total worth of 12800 production,+0.5 planet richness."
+ ENG: "+0.8 prod per assigned colonist, total worth of 12000 production,+0.5 planet richness."
  RUS: "Планеты с этими минералами более богаты. (+5 к продукции)"
 ExoticFruits:
  Id: 18222
@@ -12311,7 +12311,7 @@ TastyFruitsThatAreA:
  RUS: "Вкусные природные афродизиаки."
 ProvidesFoodPerTurnTotal4:
  Id: 18224
- ENG: "Provides 0.6 food per turn, total total worth of 700 food, +25 Million population per turn."
+ ENG: "Provides 0.6 food per turn, total total worth of 2000 food, +4 Million population per turn."
  RUS: "Дает +0.6 еды за ход, всего 700 еды и +25 миллионов населения за ход."
 WorldSeed:
  Id: 18175
@@ -12507,8 +12507,8 @@ AFreshWaterReservoirSurrounded:
  RUS: "Резервуар с пресной водой, окруженный плодородной почвой и пышной растительностью."
 ProducesFoodPerTurnTotal:
  Id: 5094
- ENG: "Produces +0.7 food per turn, total worth of 200 food"
- RUS: "Производит +0,7 еды за ход"
+ ENG: "Produces +0.5 food per turn, total worth of 4000 food"
+ RUS: "Производит +0,5 еды за ход"
 MeatGrinder:
  Id: 18234
  ENG: "Meat Grinder"
@@ -12688,8 +12688,8 @@ Tech_ImperialUni_Desc:
  RUS: "Объединение лучших и самых ярких представителей нашей Империи принесет огромную пользу исследованиям и разработкам. В одном месте наши ученые и инженеры могут сотрудничать без ограничений."
 ResearchPerAssignedColonistProduction:
  Id: 10346
- ENG: "+0.5 research per assigned colonist"
- RUS: "+0.5 к исследованиям за задействованного колониста"
+ ENG: "+0.35 research per assigned colonist"
+ RUS: "+0.35 к исследованиям за задействованного колониста"
 Tech_InvasiveMining_Name:
  Id: 8075
  ENG: "Invasive Mining"
@@ -12708,7 +12708,7 @@ ARoboticFactoryAGreat:
  RUS: "Робототехническая фабрика. Великое технологическое чудо. Эти заводы используют роботов для производства и полностью автоматизированы. Эти фабрики эксплуатируют полезные ископаемые, не зависящие от минерального богатства планеты, но это происходит за счет серьезной нагрузки на окружающую среду планеты."
 FertilityOnBuildFlatProduction:
  Id: 8079
- ENG: " (-0.3) Fertility On Build, +6 flat production per turn, +1 Infrastructure"
+ ENG: " (-0.3) Fertility On Build, +8 flat production per turn, +1 Infrastructure"
  RUS: " -0.3 плодородия за постройку, +6 продукции за ход, +1 к инфраструтуре."
 ParticleAccelerator:
  Id: 10019
@@ -12728,8 +12728,8 @@ InAnAttemptToImprove:
  RUS: "В попытке улучшить сельскохозяйственное производство почва планеты обогащается, чтобы поддерживать рост растений, повышая плодородие."
 FertilityOnBuild2:
  Id: 10029
- ENG: " (+0.3) fertility on build"
- RUS: "(+0.3) плодородия за постройку"
+ ENG: "fertility on build"
+ RUS: "плодородия за постройку"
 WeatherManipulationCenter:
  Id: 10033
  ENG: "Weather Manipulation Center"
@@ -12738,6 +12738,10 @@ UsingAdvancedComputersAndA:
  Id: 10034
  ENG: "Using advanced computers and a network of specialized satellites, this buildings monitors the global weather and directs measures to manipulate it to improve plant growth. This increases the average fertility of the planet."
  RUS: "Используя современные компьютеры и сеть специализированных спутников, это здание отслеживает глобальную погоду и направляет меры по управлению ею для улучшения роста растений.  Это увеличивает среднюю плодородность планеты."
+WeatherManipulationCenterBonus:
+ Id: 10035
+ ENG: "fertility on build"
+
 Tech_SubspaceArtillery_II_Name:
  Id: 17567
  ENG: "Subspace Artillery"
@@ -13068,14 +13072,10 @@ ThePlanetaryStockExchangeAllows:
  Id: 10022
  ENG: "The Planetary Stock exchange allows stocks of planetary companies to be traded. This improves commerce on the planet and thus tax revenue."
  RUS: "Планетарная фондовая биржа позволяет торговать акциями планетарных компаний.  Это улучшает торговлю на планете и, следовательно, налоговые поступления."
-FertilityOnBuild3:
- Id: 10081
- ENG: " (+0.6) fertility on build"
- RUS: " (+0.6) плодородия за постройку"
 Particleaccelerateshort:
  Id: 17406
- ENG: "+0.4 research per assigned colonist,+1 Flat Research per turn."
- RUS: "+0.4 исследований за задействованного колиниста, +1 к науке за ход."
+ ENG: "+0.35 research per assigned colonist,+0.4 Flat Research per turn."
+ RUS: "+0.35 исследований за задействованного колиниста, +0.4 к науке за ход."
 PlanetaryAutocannonEmplacement:
  Id: 5405
  ENG: "Planetary AutoCannon Emplacement"
@@ -13088,9 +13088,9 @@ FiresAutoCannonShellsInto:
  Id: 17422
  ENG: "Fires auto cannon shells into orbit"
  RUS: "Стрельба из автоматических пушек на орбиту"
-Tech_PlanetFortification_Name:
+Tech_PlanetDefenseIII_Name:
  Id: 8177
- ENG: "Planet Fortification"
+ ENG: "Planet Defense III"
  RUS: "Планетарная фортификация"
 CloudPeakMissileEmplacement:
  Id: 5408
@@ -13288,16 +13288,16 @@ Tech_WeatherManipulation_Desc:
  RUS: "Управляя климатом планеты, мы можем уменьшить разрушительные погодные эффекты, сохраняя при этом оптимальные условия для роста растений.  Фактически это увеличивает плодородие планеты."
 TaxEfficiencyStorage:
  Id: 10071
- ENG: "+25% Tax Efficiency, +1 credits per turn"
- RUS: "+25% эффективность налогов, +1 места"
+ ENG: "+25% Tax Efficiency, +0.5 credits per turn"
+ RUS: "+25% эффективность налогов, +0.5 места"
 CreditPerColonist:
  Id: 17879
  ENG: "+1.2 Credit per Colonist"
  RUS: "+1.2 кредитов за колониста"
 GalacticCreditsPerColonist:
  Id: 10072
- ENG: "+2.5 credits per colonist"
- RUS: "+2.5 кредитов за колониста"
+ ENG: "+1.6 credits per colonist"
+ RUS: "+1.6 кредитов за колониста"
 RemnDisrupt:
  Id: 10073
  ENG: "Remnant disruptor TS"
@@ -13333,7 +13333,7 @@ OrerefineryDescr:
  ENG: "Facility for processing raw mineral ores."
 OrerefineryBonus:
  Id: 10084
- ENG: "(-0.5) lower fertility on build, +2 production per 1 richness"
+ ENG: " lower fertility on build, +3 production per 1 planet richness"
 ScienceFacility:
  Id: 10085
  ENG: "Science Facility"
@@ -13351,7 +13351,7 @@ TaxOfficeDescr:
  ENG: "Government agency responsible for the intake of government revenue, including taxes and sometimes non-tax revenue."
 TaxOfficeBonuses:
  Id: 10090
- ENG: "+0.5 credits per colonist."
+ ENG: "+0.5 credits per turn"
 AdvancedWarp:
  Id: 10091
  ENG: "Advanced Warp Field"
@@ -13609,7 +13609,7 @@ MedWarehouse1longDescr:
  ENG: "Enormous Warehouse that provides increased food and production storage "
 MedWarehouse1ShrotDescr:
  Id: 17572
- ENG: "+300 maximum good storage, +1 infrastructure"
+ ENG: "+400 maximum good storage, +2 infrastructure"
 NanoWarehousetech:
  Id: 17573
  ENG: "Planetary Stockpile III"
@@ -13624,14 +13624,14 @@ NanoWarehouse1longDescr:
  ENG: "State of the art storing facility"
 NanoWarehouse1ShrotDescr:
  Id: 17577
- ENG: "+600 maximum good storage, +2 infrastructure"
+ ENG: "+1000 maximum good storage, +3 infrastructure"
 SmallWarehousetech:
  Id: 17578
  ENG: "Planetary Stockpile I"
-PlanetShieldingtech:
+PlanetaryDefenseIItech:
  Id: 17579
- ENG: "Planetary Shielding"
-PlanetShieldingtechdesc:
+ ENG: "Planetary Defense II"
+PlanetaryDefenseIItechdesc:
  Id: 17580
  ENG: "Raging wars between different species brought dangers to planets and its population. Planetary bombardment became a serious threat that need to be addressed sooner than later."
 PlanetShieldheavy:
@@ -13678,7 +13678,7 @@ PhasorFocusTechDescr:
  ENG: "Evolution of beam weapons lead us into discovering a powerful Phasor's. Using previously known methods of focusing beams we managed to apply most of the old schematics with new advanced components. "
 CoreExtractDescShort:
  Id: 17594
- ENG: "(-0.6) lower fertility on build, +8x production richness bonus, +1 production per assigned colonist."
+ ENG: "lower fertility on build, +5x production richness bonus, +1 production per assigned colonist."
 LightBeam:
  Id: 17595
  ENG: "Light beam array"
@@ -13830,7 +13830,7 @@ BB_DispersionTechDescr:
  ENG: "Advancements in the energy dispersion methods used in our shields have led to a better protection and an effective hitpoints increase of our shields.Can be researched multiple times, each time tech costs is increased."
 BB_DispersionTechDescrBonus:
  Id: 17644
- ENG: "7% shield power increase."
+ ENG: "14% shield power increase."
 BB_DurabilityTech:
  Id: 17645
  ENG: "Durability"
@@ -13839,7 +13839,7 @@ BB_DurabilityTechDescr:
  ENG: "Advancement in the atomic structure of our materials have increase the hitpoints of all our modules including armour. Can be researched multiple times, each time tech costs is increased."
 BB_Nano-structureTecDescrBonus:
  Id: 17647
- ENG: "5% hp increase to all modules."
+ ENG: "10% hp increase to all modules."
 BB_CrystalPlant:
  Id: 17648
  ENG: "Crystal Growing Plant"
@@ -13848,7 +13848,7 @@ BB_CrystalPlantDescr:
  ENG: "This marvelous building is able to grow a very valuable crystals that can be sold at very high profit."
 BB_CrystalPlantDescrBonus:
  Id: 17650
- ENG: "Generates +10 credits per turn"
+ ENG: "Generates +8 credits per turn"
 BB_Hellstorm:
  Id: 17651
  ENG: "Hellstorm"
@@ -13861,8 +13861,21 @@ BB_ClusterMissile:
 BB_ClusterMissileDescr:
  Id: 17654
  ENG: "Missile system equiped with cluster warheads"
-
-
+BB_SpaceportTech:
+ Id: 17655
+ ENG: "Space port"
+BB_SpaceportTechDescr:
+ Id: 17656
+ ENG: "Placing a facility in low orbit of a newly colonized planet will alllow building of ships in zero gravity using materials provided from planet it orbits. Thanks to locating it in zero gravity environment we can build ships in all shapes and sizes without any constraints."
+BB_Bunker:
+ Id: 17657
+ ENG: "Bunker"
+BB_BunkerDescr:
+ Id: 17658
+ ENG: "Highly fortifed building used to hold defensive lines, capable of withstanding a longer peroid of bombarding, but lacks in firepower."
+BB_BunkerDescrShort:
+ Id: 17659
+ ENG: "Highly defensive building"
 
 Tech_AncientArmor_Name:
  Id: 17953

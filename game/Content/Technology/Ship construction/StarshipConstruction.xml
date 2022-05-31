@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>StarshipConstruction</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
   <RootNode>1</RootNode>
-  <Name>Starship Construction</Name>
   <NameIndex>663</NameIndex>
-  <IconPath>icons_techroot_starships</IconPath>
   <DescriptionIndex>664</DescriptionIndex>
-  <LongDescription>A core of basic starship design knowledge was needed for us to even begin reaching into the stars.  This core technology represents having discovered basic starship command, propulsion, and hull technologies.</LongDescription>
+  <IconPath>icons_techroot_starships</IconPath>
   <LeadsTo>
     <LeadsToTech>
       <UID>Corvettes</UID>
     </LeadsToTech>
     <LeadsToTech>
-      <UID>Shipyards</UID>
+      <UID>Spaceport</UID>
     </LeadsToTech>
     <LeadsToTech>
       <UID>WarpTheory</UID>
@@ -25,10 +23,10 @@
     </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
-     <UnlockedMod>
+    <UnlockedMod>
       <ModuleUID>Sensor1x2</ModuleUID>
     </UnlockedMod>
-   <UnlockedMod>
+    <UnlockedMod>
       <ModuleUID>Structure</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
@@ -55,7 +53,7 @@
     <UnlockedMod>
       <ModuleUID>Reinforced Bulkhead</ModuleUID>
     </UnlockedMod>
-        <UnlockedMod>
+    <UnlockedMod>
       <ModuleUID>MediumCargoHold</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>
@@ -65,8 +63,14 @@
       <ModuleUID>ArmoredTurret</ModuleUID>
     </UnlockedMod>
   </ModulesUnlocked>
-  <BuildingsUnlocked />
- 
+  <BonusUnlocked>
+    <UnlockedBonus>
+      <Name>StarDrive Enhancement</Name>
+      <BonusType>FTL Speed Bonus</BonusType>
+      <Bonus>-0.65</Bonus>
+      <BonusIndex>674</BonusIndex>
+    </UnlockedBonus>
+  </BonusUnlocked>
   <TroopsUnlocked />
   <HullsUnlocked>
     <UnlockedHull>
@@ -137,13 +141,4 @@
       <Name>Platforms/Platform Base</Name>
     </UnlockedHull>
   </HullsUnlocked>
-  <BonusUnlocked>
-    <UnlockedBonus>
-      <Name>StarDrive Enhancement</Name>
-      <BonusType>FTL Speed Bonus</BonusType>
-      <Bonus>-0.65</Bonus>
-      <Description>Increase effective StarDrive speeds by 20% for all ships in your empire</Description>
-      <BonusIndex>674</BonusIndex>
-    </UnlockedBonus>
-  </BonusUnlocked>
 </Technology>

@@ -25,7 +25,7 @@
   <SteppeInstanceMax>2</SteppeInstanceMax>
 
   <BarrenChance>4</BarrenChance>
-  <BarrenInstanceMax>2</BarrenInstanceMax>
+  <BarrenInstanceMax>3</BarrenInstanceMax>
 
   <VolcanicChance>0</VolcanicChance>
   <VolcanicInstanceMax>0</VolcanicInstanceMax>

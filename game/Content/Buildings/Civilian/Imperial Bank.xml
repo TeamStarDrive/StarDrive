@@ -1,13 +1,14 @@
 ﻿<Building>
   <Name>Imperial Bank</Name>
-  <Maintenance>0</Maintenance>
-  <Description>The Imperial Bank building increases the efficiency of your planetary tax operations by 50%. </Description>
-  <Cost>400</Cost>
   <Icon>banking_center</Icon>
+  
+  <Cost>400</Cost>
+  <Maintenance>0</Maintenance>
+  
   <PlusTaxPercentage>.6</PlusTaxPercentage>
-  <ShortDescription>+60% tax revenues</ShortDescription>
   <UniqueInEmpire>true</UniqueInEmpire>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>427</NameTranslationIndex>
   <DescriptionIndex>428</DescriptionIndex>
   <ShortDescriptionIndex>429</ShortDescriptionIndex>
