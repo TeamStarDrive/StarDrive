@@ -8,28 +8,16 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
-using System.Threading;
 using System.Xml.Serialization;
-using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Universe;
-using Vector2 = SDGraphics.Vector2;
-using Vector3 = SDGraphics.Vector3;
 using SDGraphics;
 using SDUtils;
 
 namespace Ship_Game
 {
-    [AttributeUsage(AttributeTargets.Property|AttributeTargets.Field)]
-    public sealed class SerializeAttribute : Attribute
-    {
-        public int Id { get; set; } = -1;
-        public SerializeAttribute() { }
-        public SerializeAttribute(int id) { Id = id; }
-    }
-
     [StarDataType]
     public sealed class HeaderData
     {

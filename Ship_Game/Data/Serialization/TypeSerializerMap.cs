@@ -35,18 +35,22 @@ namespace Ship_Game.Data.Serialization
             Set(id: 9, new ULongSerializer());
             Set(id: 10, new FloatSerializer());
             Set(id: 11, new DoubleSerializer());
+
             Set(id: 12, new Vector2Serializer());
             Set(id: 13, new Vector3Serializer());
             Set(id: 14, new Vector4Serializer());
             Set(id: 15, new Vector2dSerializer());
             Set(id: 16, new Vector3dSerializer());
             Set(id: 17, new PointSerializer());
-            Set(id: 18, new ColorSerializer());
-            Set(id: 19, new StringSerializer());
-            Set(id: 20, new LocalizedTextSerializer());
-            Set(id: 21, new RangeSerializer());
-            Set(id: 22, new DateTimeSerializer());
-            Set(id: 23, new TimeSpanSerializer());
+            Set(id: 18, new RectangleSerializer());
+            Set(id: 19, new RectFSerializer());
+
+            Set(id: 20, new ColorSerializer());
+            Set(id: 21, new StringSerializer());
+            Set(id: 22, new LocalizedTextSerializer());
+            Set(id: 23, new RangeSerializer());
+            Set(id: 24, new DateTimeSerializer());
+            Set(id: 25, new TimeSpanSerializer());
             // ADD new types here, up to `TypeSerializer.MaxFundamentalTypes`
         }
 
