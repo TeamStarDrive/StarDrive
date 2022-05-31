@@ -1,7 +1,7 @@
 Version=1
 Name=Heavy Drone
 Hull=Remnant/XenoGunship
-Role=fighter
+Role=corvette
 Style=Remnant
 Size=8,8
 GridCenter=4,4
