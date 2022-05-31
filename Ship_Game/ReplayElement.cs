@@ -63,7 +63,7 @@ namespace Ship_Game
             Buttons.Add(Population);
 
             TurnsRepresented = StatTracker.NumRecordedTurns;
-            foreach (SerializableDictionary<int, Snapshot> snapshots in StatTracker.Snapshots)
+            foreach (Map<int, Snapshot> snapshots in StatTracker.Snapshots)
             {
                 foreach (Snapshot shot in snapshots.Values)
                 {
@@ -110,7 +110,7 @@ namespace Ship_Game
             DrawSolarSystemStats(batch, scale);
             
             string starDateStr = StarDate.StarDateString();
-            if (!StatTracker.GetAllSnapshotsFor(StarDate, out SerializableDictionary<int, Snapshot> allSnapshots))
+            if (!StatTracker.GetAllSnapshotsFor(StarDate, out Map<int, Snapshot> allSnapshots))
             {
                 TextMessages.Clear();
             }
@@ -202,7 +202,7 @@ namespace Ship_Game
                 star.Sun.DrawIcon(batch, starRect);
             }
 
-            foreach (SerializableDictionary<int, Snapshot> snap in StatTracker.Snapshots)
+            foreach (Map<int, Snapshot> snap in StatTracker.Snapshots)
             {
                 foreach (KeyValuePair<int, Snapshot> entry in snap)
                 {
@@ -240,8 +240,8 @@ namespace Ship_Game
             {
                 float nextStarDate = currStarDate + 0.1f;
 
-                if (StatTracker.GetAllSnapshotsFor(currStarDate, out SerializableDictionary<int, Snapshot> currSnapshots) &&
-                    StatTracker.GetAllSnapshotsFor(nextStarDate, out SerializableDictionary<int, Snapshot> nextSnapshots))
+                if (StatTracker.GetAllSnapshotsFor(currStarDate, out Map<int, Snapshot> currSnapshots) &&
+                    StatTracker.GetAllSnapshotsFor(nextStarDate, out Map<int, Snapshot> nextSnapshots))
                 {
                     foreach (KeyValuePair<int, Snapshot> currEntry in currSnapshots)
                     {

@@ -140,8 +140,7 @@ namespace Ship_Game
     [StarDataType]
     public sealed class EmpireData : IEmpireData
     {
-        [StarData] public SerializableDictionary<WeaponTag, WeaponTagModifier> WeaponTags
-                        = new SerializableDictionary<WeaponTag, WeaponTagModifier>();
+        [StarData] public Map<WeaponTag, WeaponTagModifier> WeaponTags = new();
         [StarData] public string WarpStart { get; set; }
         [StarData] public string WarpEnd { get; set; }
         [StarData] public string CurrentAutoFreighter = "";
@@ -162,9 +161,9 @@ namespace Ship_Game
             set => TaxRateValue = value.NaNChecked(0.25f, "EmpireData.TaxRate");
         }
 
-        [StarData] public Array<string> ExcludedDTraits = new Array<string>();
-        [StarData] public Array<string> ExcludedETraits = new Array<string>();
-        [StarData] public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();
+        [StarData] public Array<string> ExcludedDTraits = new();
+        [StarData] public Array<string> ExcludedETraits = new();
+        [StarData] public BatchRemovalCollection<Agent> AgentList = new();
         [StarData] public string AbsorbedBy;
         [StarData] public string StartingShip;
         [StarData] public string StartingScout;
@@ -179,8 +178,8 @@ namespace Ship_Game
         [StarData] public float MilitaryScoreTotal;
         [StarData] public int ScoreAverage;
         [StarData] public string MusicCue;
-        [StarData] public Array<string> ResearchQueue = new Array<string>();
-        [StarData] public BatchRemovalCollection<Mole> MoleList = new BatchRemovalCollection<Mole>();
+        [StarData] public Array<string> ResearchQueue = new();
+        [StarData] public BatchRemovalCollection<Mole> MoleList = new();
         [StarData] public float CounterIntelligenceBudget;
 
         // NOTE: This is currently the main unique identifier?
@@ -189,8 +188,8 @@ namespace Ship_Game
         [StarData] public string RebelPlur;
         [StarData] public int TroopNameIndex;
         [StarData] public int TroopDescriptionIndex;
-        [XmlIgnore][JsonIgnore] public LocalizedText TroopName => new LocalizedText(TroopNameIndex);
-        [XmlIgnore][JsonIgnore] public LocalizedText TroopDescription => new LocalizedText(TroopDescriptionIndex);
+        [XmlIgnore][JsonIgnore] public LocalizedText TroopName => new(TroopNameIndex);
+        [XmlIgnore][JsonIgnore] public LocalizedText TroopDescription => new(TroopDescriptionIndex);
         [StarData] public string RebelName;
         [StarData] public bool IsRebelFaction;
         [StarData] public RacialTrait Traits { get; set; }
@@ -216,7 +215,7 @@ namespace Ship_Game
         [StarData] public float DefensiveSpyBonus;
         [StarData] public float OffensiveSpyBonus;
         [StarData] public float FTLPowerDrainModifier = 2f;
-        [StarData] public Array<Artifact> OwnedArtifacts = new Array<Artifact>();
+        [StarData] public Array<Artifact> OwnedArtifacts = new();
         [StarData] public int BonusFighterLevels;
         [StarData] public float MissileDodgeChance;
         [StarData] public float MissileHPModifier = 1f;
@@ -236,14 +235,14 @@ namespace Ship_Game
         [StarData] public float DefenseBudget = 0;
 
         // unlock at start
-        [StarData] public Array<string> unlockBuilding = new Array<string>();
-        [StarData] public Array<string> unlockShips    = new Array<string>();
+        [StarData] public Array<string> unlockBuilding = new();
+        [StarData] public Array<string> unlockShips    = new();
 
         // designsWeHave our techTree has techs for.
         // sortsaves
-        [StarData] public SortButton PLSort = new SortButton();
-        [StarData] public SortButton ESSort = new SortButton();
-        [StarData] public SortButton SLSort = new SortButton();
+        public SortButton PLSort = new();
+        public SortButton ESSort = new();
+        public SortButton SLSort = new();
 
         // techTimers
         [StarData] public short TechDelayTime    = 0;

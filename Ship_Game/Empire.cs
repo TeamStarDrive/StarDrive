@@ -11,6 +11,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.AI.ExpansionAI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Empires.Components;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
@@ -168,7 +169,15 @@ namespace Ship_Game
         public HashSet<string> ShipTechs = new();
         public Vector2 WeightedCenter;
         public bool RushAllConstruction;
-        public List<KeyValuePair<int, string>> DiplomacyContactQueue { get; private set; } = new();  // Empire IDs, for player only
+
+        [StarDataType]
+        public class DiplomacyQueueItem
+        {
+            [StarData] public int EmpireId;
+            [StarData] public string Dialog;
+        }
+
+        public Array<DiplomacyQueueItem> DiplomacyContactQueue { get; private set; } = new();  // Empire IDs, for player only
         public bool AutoPickBestColonizer;
 
         public Array<string> ObsoletePlayerShipModules = new();
@@ -2849,8 +2858,8 @@ namespace Ship_Game
             if (DiplomacyContactQueue.Count == 0)
                 return;
 
-            Empire empire = EmpireManager.GetEmpireById(DiplomacyContactQueue.First().Key);
-            string dialog = DiplomacyContactQueue.First().Value;
+            Empire empire = EmpireManager.GetEmpireById(DiplomacyContactQueue[0].EmpireId);
+            string dialog = DiplomacyContactQueue[0].Dialog;
 
             if (dialog == "DECLAREWAR")
                 empire.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
@@ -3706,7 +3715,7 @@ namespace Ship_Game
             return spentProduction * taxModifer * DifficultyModifiers.CreditsMultiplier;
         }
 
-        public void RestoreDiplomacyConcatQueue(List<KeyValuePair<int, string>> diplomacyContactQueue)
+        public void RestoreDiplomacyConcatQueue(Array<DiplomacyQueueItem> diplomacyContactQueue)
         {
             if (diplomacyContactQueue != null)
                 DiplomacyContactQueue = diplomacyContactQueue;

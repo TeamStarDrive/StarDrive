@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Ships.AI
 {
+    [StarDataType]
     public struct WayPoint
     {
-        public Vector2 Position;
-        public Vector2 Direction; // direction we should be facing at the way point
+        [StarData] public Vector2 Position;
+        [StarData] public Vector2 Direction; // direction we should be facing at the way point
         public WayPoint(Vector2 pos, Vector2 dir)
         {
             Position = pos;
