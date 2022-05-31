@@ -68,10 +68,10 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 12;
+        public const int SaveGameVersion = 13;
         public const string ZipExt = ".sav.gz";
 
-        public readonly UniverseSaveData SaveData = new UniverseSaveData();
+        public readonly UniverseSaveData SaveData = new();
         public FileInfo SaveFile;
         public FileInfo PackedFile;
         public FileInfo HeaderFile;
@@ -91,6 +91,8 @@ namespace Ship_Game
             UniverseState us = screenToSave.UState;
             us.Objects.UpdateLists(removeInactiveObjects: true);
 
+            var sw = new ShipDesignWriter();
+            var designs = new HashSet<IShipDesign>();
 
             SaveData.SaveGameVersion       = SaveGameVersion;
             SaveData.UniqueObjectIds       = us.UniqueObjectIds;
@@ -115,7 +117,7 @@ namespace Ship_Game
             SaveData.PlayerLoyalty         = screenToSave.PlayerLoyalty;
             SaveData.RandomEvent           = RandomEventManager.ActiveEvent;
             SaveData.CamPos                = screenToSave.CamPos.ToVec3f();
-            SaveData.MinAcceptableShipWarpRange      = GlobalStats.MinAcceptableShipWarpRange;
+            SaveData.MinAcceptableShipWarpRange = GlobalStats.MinAcceptableShipWarpRange;
             SaveData.TurnTimer             = (byte)GlobalStats.TurnTimer;
             SaveData.IconSize              = GlobalStats.IconSize;
             SaveData.PreventFederations    = GlobalStats.PreventFederations;
@@ -310,15 +312,18 @@ namespace Ship_Game
                 empireToSave.GSAIData = gsaidata;
                 empireToSave.TechTree.AddRange(e.TechEntries.ToArr());
 
-                var sw = new ShipDesignWriter();
-
-                var ships = e.OwnedShips;
-                foreach (Ship ship in ships)
+                foreach (Ship ship in e.OwnedShips)
+                {
+                    designs.Add(ship.ShipData);
                     empireToSave.OwnedShips.Add(ShipSaveFromShip(sw, ship));
+                }
 
                 var projectors = e.GetProjectors();
-                foreach (Ship ship in projectors)  //fbedard
+                foreach (Ship ship in projectors)
+                {
+                    designs.Add(ship.ShipData);
                     empireToSave.OwnedShips.Add(ProjectorSaveFromShip(sw, ship));
+                }
 
                 SaveData.EmpireDataList.Add(empireToSave);
             }
@@ -331,6 +336,8 @@ namespace Ship_Game
             {
                 SaveData.Snapshots.Add(e.Key, e.Value);
             }
+
+            SaveData.SetDesigns(designs);
         }
 
         static bool GetIsSaving()
@@ -916,7 +923,7 @@ namespace Ship_Game
                 Name = ship.Name;
                 MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
                 Id = ship.Id;
-                Position   = ship.Position;
+                Position = ship.Position;
 
                 BaseStrength = ship.BaseStrength;
                 Level      = ship.Level;
@@ -1015,6 +1022,44 @@ namespace Ship_Game
             [StarData] public float VolcanicActivity;
             [StarData] public bool UsePlayerDesigns;
             [StarData] public bool UseUpkeepByHullSize;
+
+            // globally stored ship designs
+            [StarData] public Array<byte[]> ShipDesigns;
+
+            public void SetDesigns(IEnumerable<IShipDesign> designs)
+            {
+                var sw = new ShipDesignWriter();
+                ShipDesigns = new();
+                foreach (IShipDesign design in designs)
+                {
+                    ShipDesigns.Add(design.GetDesignBytes(sw));
+                }
+            }
+
+            Map<string, IShipDesign> ShipDesignsCache;
+
+            public IShipDesign GetDesign(string name)
+            {
+                if (ShipDesignsCache == null)
+                {
+                    ShipDesignsCache = new();
+
+                    foreach (byte[] designBytes in ShipDesigns)
+                    {
+                        ShipDesign fromSave = ShipDesign.FromBytes(designBytes);
+                        fromSave.IsFromSave = true;
+
+                        if (ResourceManager.Ships.GetDesign(fromSave.Name, out IShipDesign existing) &&
+                            existing.AreModulesEqual(fromSave))
+                            // use the existing one
+                            ShipDesignsCache[fromSave.Name] = existing;
+                        else
+                            // from save only
+                            ShipDesignsCache[fromSave.Name] = fromSave;
+                    }
+                }
+                return ShipDesignsCache[name];
+            }
 
             public void Dispose()
             {

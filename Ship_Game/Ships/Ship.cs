@@ -107,7 +107,6 @@ namespace Ship_Game.Ships
         public float PowerStoreMax;
         public float PowerDraw;
         public Power NetPower;
-        public bool FromSave;
         public bool HasRepairModule;
         readonly AudioHandle JumpSfx = new AudioHandle();
 
