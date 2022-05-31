@@ -14,6 +14,11 @@ namespace Ship_Game.Data.Binary
         public TypeSerializer Ser; // Actual serializer
         public string Name;
         public Type Type => Ser.Type;
+
+        public override string ToString()
+        {
+            return $"{StreamTypeId} {Type?.Name} {Name}";
+        }
     }
 
 }

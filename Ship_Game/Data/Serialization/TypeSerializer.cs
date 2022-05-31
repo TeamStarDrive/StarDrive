@@ -38,6 +38,16 @@ namespace Ship_Game.Data.Serialization
         public bool IsPointerType { get; protected set; }
 
         /// <summary>
+        /// Non-Pointer types are value types
+        /// </summary>
+        public bool IsValueType { get; protected set; }
+
+        /// <summary>
+        /// Enums get some special treatment as ValueTypes
+        /// </summary>
+        public bool IsEnumType { get; protected set; }
+
+        /// <summary>
         /// Serializer category for easier classification during Deserialization
         /// </summary>
         public SerializerCategory Category { get; protected set; }
@@ -52,6 +62,8 @@ namespace Ship_Game.Data.Serialization
         {
             Type = type;
             IsPointerType = !type.IsValueType;
+            IsValueType = !IsPointerType;
+            IsEnumType = type.IsEnum;
             TypeName = type.Name;
         }
 

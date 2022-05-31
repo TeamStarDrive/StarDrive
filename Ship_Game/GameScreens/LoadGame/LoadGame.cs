@@ -13,6 +13,7 @@ using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
 using Rectangle = SDGraphics.Rectangle;
 using SDUtils;
+using Ship_Game.Data.Binary;
 using Ship_Game.Utils;
 
 namespace Ship_Game.GameScreens.LoadGame
@@ -22,11 +23,13 @@ namespace Ship_Game.GameScreens.LoadGame
         readonly FileInfo SaveFile;
         string PlayerLoyalty;
         TaskResult<UniverseScreen> BackgroundTask;
-        readonly ProgressCounter Progress = new ProgressCounter();
+        readonly ProgressCounter Progress = new();
 
         public float ProgressPercent => Progress.Percent;
         public bool LoadingFailed { get; private set; }
         bool StartSimThread;
+
+        public bool UseBinarySaveFormat;
 
         public LoadGame(FileInfo saveFile)
         {
@@ -83,6 +86,18 @@ namespace Ship_Game.GameScreens.LoadGame
             return BackgroundTask;
         }
 
+        /// <summary>
+        /// Peeks at the header portion of the new binary save file
+        /// </summary>
+        public static HeaderData PeekHeader(FileInfo file)
+        {
+            using var stream = file.OpenRead();
+            var reader = new BinaryReader(stream);
+
+            object[] objects = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderData) });
+            return (HeaderData)objects[0];
+        }
+
         SavedGame.UniverseSaveData DecompressSaveGame(FileInfo file, ProgressCounter step)
         {
             // @note This one is annoying, since we can't monitor the progress directly
@@ -92,7 +107,7 @@ namespace Ship_Game.GameScreens.LoadGame
             if (!file.Exists)
                 throw new FileNotFoundException($"SaveGame file does not exist: {file.FullName}");
 
-            SavedGame.UniverseSaveData usData = SavedGame.DeserializeFromCompressedSave(file);
+            SavedGame.UniverseSaveData usData = SavedGame.Deserialize(file, UseBinarySaveFormat);
 
             if (usData.SaveGameVersion != SavedGame.SaveGameVersion)
                 Log.Error("Incompatible savegame version! Got v{0} but expected v{1}", usData.SaveGameVersion, SavedGame.SaveGameVersion);

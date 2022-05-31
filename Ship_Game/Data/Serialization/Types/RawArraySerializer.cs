@@ -9,7 +9,7 @@ namespace Ship_Game.Data.Serialization.Types
 {
     internal class RawArraySerializer : CollectionSerializer
     {
-        public override string ToString() => $"RawArraySerializer<{ElemType.GetTypeName()}>";
+        public override string ToString() => $"RawArraySerializer<{ElemType.GetTypeName()}:{ElemSerializer.TypeId}>:{TypeId}";
 
         public RawArraySerializer(Type type, Type elemType, TypeSerializer elemSerializer)
             : base(type, elemType, elemSerializer)

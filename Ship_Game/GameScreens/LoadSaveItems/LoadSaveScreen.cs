@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
 using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
@@ -18,14 +17,14 @@ namespace Ship_Game
             : base(screen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games", true)
         {
             Screen = screen;
-            Path = Dir.StarDriveAppData +  "/Saved Games/";
+            Path = SavedGame.DefaultSaveGameFolder;
         }
 
         public LoadSaveScreen(MainMenuScreen screen)
             : base(screen, SLMode.Load, "", Localizer.Token(GameText.LoadSavedGame), "Saved Games", true)
         {
             Screen = screen;
-            Path = Dir.StarDriveAppData + "/Saved Games/";
+            Path = SavedGame.DefaultSaveGameFolder;
         }
 
         protected override void DeleteFile()
@@ -128,7 +127,7 @@ namespace Ship_Game
                     using (var reader = new JsonTextReader(new StreamReader(saveHeaderFile.FullName)))
                         data = ser.Deserialize<HeaderData>(reader);
 
-                    if (data.SaveGameVersion != SavedGame.SaveGameVersion || string.IsNullOrEmpty(data.SaveName))
+                    if (data.Version != SavedGame.SaveGameVersion || string.IsNullOrEmpty(data.SaveName))
                         continue;
 
                     data.FI = new FileInfo(Path + data.SaveName + SavedGame.ZipExt);

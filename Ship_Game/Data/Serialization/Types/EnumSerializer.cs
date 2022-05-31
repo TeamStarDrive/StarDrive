@@ -8,7 +8,7 @@ namespace Ship_Game.Data.Serialization.Types
 {
     internal class EnumSerializer : TypeSerializer
     {
-        public override string ToString() => $"EnumSerializer {Type.GetTypeName()}";
+        public override string ToString() => $"EnumSerializer {Type.GetTypeName()}:{TypeId}";
         readonly Map<int, object> Mapping = new();
         readonly object DefaultValue;
 

@@ -6,6 +6,7 @@ using System.Linq;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.Data.Binary
 {
@@ -19,8 +20,8 @@ namespace Ship_Game.Data.Binary
         // index of the root object which is being serialized/deserialized
         public uint RootObjectIndex;
 
-        // which UserClass types were used (excludes strings or other fundamental types)
-        public UserTypeSerializer[] UserTypes;
+        // which types were used, includes: classes, Enums and Structs
+        public TypeSerializer[] UsedTypes;
 
         // different generic collection types such as: T[], Array<T>, Map<K,V>
         public CollectionSerializer[] CollectionTypes;
@@ -36,60 +37,78 @@ namespace Ship_Game.Data.Binary
             BW = writer;
         }
 
-        // Recursively gathers all UserType instances,
-        // the order here is unimportant because they get sorted later
-        void RecursiveScan(TypeSerializer ser, object instance, 
-                           Map<TypeSerializer, Array<object>> groups,
-                           HashSet<object> objects,
-                           HashSet<TypeSerializer> structs)
+        class RecursiveScanner
         {
-            if (instance == null)
-                return; // don't map nulls
+            public readonly Map<TypeSerializer, Array<object>> ObjectGroups = new();
+            public readonly HashSet<object> UniqueObjects = new();
+            public readonly HashSet<TypeSerializer> StructTypes = new();
 
-            if (ser.IsPointerType)
+            // Recursively gathers all UserType instances,
+            // the order here is unimportant because they get sorted later
+            public void Scan(TypeSerializer ser, object instance)
             {
-                if (!objects.Add(instance))
-                    return; // this object instance already mapped
-
-                if (!groups.TryGetValue(ser, out Array<object> list))
-                    groups.Add(ser, (list = new Array<object>()));
-
-                list.Add(instance);
-            }
-            else
-            {
-                // only record the struct type, instance is not needed
-                if (ser.IsUserClass)
-                    structs.Add(ser);
-            }
-
-            // recurse into objects and collections to find more objects
-            if (ser.IsUserClass && ser is UserTypeSerializer userType)
-            {
-                foreach (DataField field in userType.Fields)
+                if (ser.IsPointerType)
                 {
-                    object obj = field.Get(instance);
-                    RecursiveScan(field.Serializer, obj, groups, objects, structs);
-                }
-            }
-            else if (ser.IsCollection && ser is CollectionSerializer collectionType)
-            {
-                if (collectionType.IsMapType && collectionType is MapSerializer mapType)
-                {
-                    var e = ((IDictionary)instance).GetEnumerator();
-                    while (e.MoveNext())
+                    if (!ObjectGroups.TryGetValue(ser, out Array<object> list))
+                        ObjectGroups.Add(ser, (list = new Array<object>()));
+
+                    if (instance != null)
                     {
-                        RecursiveScan(mapType.KeySerializer, e.Key, groups, objects, structs);
-                        RecursiveScan(mapType.ElemSerializer, e.Value, groups, objects, structs);
+                        if (!UniqueObjects.Add(instance))
+                            return; // this object instance already mapped
+
+                        list.Add(instance);
                     }
                 }
-                else
+                else // Value Type:
                 {
-                    int count = collectionType.Count(instance);
-                    for (int i = 0; i < count; ++i)
+                    // only record the struct type, instance is not needed
+                    // the type must always be recorded
+                    if (ser.IsUserClass || ser.Type.IsEnum)
+                        StructTypes.Add(ser);
+                }
+
+                // recurse into objects and collections to find more objects
+                if (ser.IsUserClass && ser is UserTypeSerializer userType)
+                {
+                    foreach (DataField field in userType.Fields)
                     {
-                        object obj = collectionType.GetElementAt(instance, i);
-                        RecursiveScan(collectionType.ElemSerializer, obj, groups, objects, structs);
+                        object obj = instance != null ? field.Get(instance) : null;
+                        Scan(field.Serializer, obj);
+                    }
+                }
+                else if (ser.IsCollection && ser is CollectionSerializer collectionType)
+                {
+                    if (collectionType.IsMapType && collectionType is MapSerializer mapType)
+                    {
+                        if (instance != null)
+                        {
+                            // key and element type must always be recorded, otherwise collection cannot be resolved
+                            Scan(mapType.KeySerializer, null);
+                            Scan(mapType.ElemSerializer, null);
+
+                            var e = ((IDictionary)instance).GetEnumerator();
+                            while (e.MoveNext())
+                            {
+                                Scan(mapType.KeySerializer, e.Key);
+                                Scan(mapType.ElemSerializer, e.Value);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (instance != null)
+                        {
+                            // element type must always be recorded, otherwise collection cannot be resolved
+                            Scan(collectionType.ElemSerializer, null);
+
+                            int count = collectionType.Count(instance);
+                            for (int i = 0; i < count; ++i)
+                            {
+                                object obj = collectionType.GetElementAt(instance, i);
+                                Scan(collectionType.ElemSerializer, obj);
+                            }
+                        }
                     }
                 }
             }
@@ -116,12 +135,10 @@ namespace Ship_Game.Data.Binary
 
         public void ScanObjects(TypeSerializer rootSer, object rootObject)
         {
-            var objectGroups = new Map<TypeSerializer, Array<object>>();
-            var uniqueObjects = new HashSet<object>();
-            var uniqueStructs = new HashSet<TypeSerializer>();
-            RecursiveScan(rootSer, rootObject, objectGroups, uniqueObjects, uniqueStructs);
+            var rs = new RecursiveScanner();
+            rs.Scan(rootSer, rootObject);
 
-            NumObjects = uniqueObjects.Count;
+            NumObjects = rs.UniqueObjects.Count;
 
             // Make the types somewhat stable by sorting them by name
             // new/deleted types will of course offset this list immediately
@@ -136,9 +153,15 @@ namespace Ship_Game.Data.Binary
             // - raw arrays
             // - collections
             // - user classes
-            var structs = uniqueStructs.ToArrayList();
-            var groups = objectGroups.ToArrayList();
-            structs.Sort((a, b) => string.CompareOrdinal(a.Type.Name, b.Type.Name));
+            var structs = rs.StructTypes.ToArrayList();
+            var groups = rs.ObjectGroups.ToArrayList();
+            structs.Sort((a, b) =>
+            {
+                // enums go first
+                if (a.IsEnumType) return -1;
+                if (b.IsEnumType) return +1;
+                return string.CompareOrdinal(a.Type.Name, b.Type.Name);
+            });
             groups.Sort((a, b) =>
             {
                 if (a.Key.Type == typeof(string)) return -1;
@@ -166,8 +189,8 @@ namespace Ship_Game.Data.Binary
             TypeGroups = groups.Select(kv => (kv.Key, kv.Value.ToArray()));
 
             // for UsedTypes we take both structs and objects
-            var userTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsUserClass, kv => (UserTypeSerializer)kv.Ser);
-            UserTypes = structs.Cast<UserTypeSerializer>().Concat(userTypes).ToArr();
+            var usedTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsUserClass, kv => kv.Ser);
+            UsedTypes = structs.Concat(usedTypes).ToArr();
             CollectionTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsCollection, kv => (CollectionSerializer)kv.Ser);
 
             // find the root object index from the neatly sorted type groups
@@ -190,7 +213,7 @@ namespace Ship_Game.Data.Binary
         string[] MapSingle(Func<TypeSerializer, string> selector)
         {
             var names = new HashSet<string>();
-            foreach (UserTypeSerializer s in UserTypes)
+            foreach (TypeSerializer s in UsedTypes)
                 names.Add(selector(s));
             return names.ToArr();
         }
@@ -198,9 +221,10 @@ namespace Ship_Game.Data.Binary
         string[] MapFields()
         {
             var names = new HashSet<string>();
-            foreach (UserTypeSerializer s in UserTypes)
-                foreach (DataField field in s.Fields)
-                    names.Add(field.Name);
+            foreach (TypeSerializer s in UsedTypes)
+                if (s is UserTypeSerializer us)
+                    foreach (DataField field in us.Fields)
+                        names.Add(field.Name);
             return names.ToArr();
         }
 
@@ -242,7 +266,7 @@ namespace Ship_Game.Data.Binary
             // [namespaces]
             // [typenames]
             // [fieldnames]
-            // [user types]
+            // [used types]
             // [collection types]
             (string[] assemblies, var assemblyMap)  = GetMappedNames(GetAssembly);
             (string[] namespaces, var namespaceMap) = GetMappedNames(GetNamespace);
@@ -253,7 +277,7 @@ namespace Ship_Game.Data.Binary
             WriteArray(typeNames);
             WriteArray(fieldNames);
 
-            foreach (UserTypeSerializer s in UserTypes)
+            foreach (TypeSerializer s in UsedTypes)
             {
                 // [type ID]
                 // [assembly ID]
@@ -266,19 +290,27 @@ namespace Ship_Game.Data.Binary
                 int typenameId  = typenameMap[GetTypeName(s)];
                 int flags = 0;
                 if (s.IsPointerType) flags |= 0b0000_0001;
+                if (s.IsEnumType)    flags |= 0b0000_0010;
                 BW.WriteVLu32(s.TypeId);
                 BW.WriteVLu32((uint)assemblyId);
                 BW.WriteVLu32((uint)namespaceId);
                 BW.WriteVLu32((uint)typenameId);
                 BW.WriteVLu32((uint)flags);
 
-                BW.WriteVLu32((uint)s.Fields.Count);
-                foreach (DataField field in s.Fields)
+                if (s is UserTypeSerializer us)
                 {
-                    // [field type ID]
-                    // [field name index]
-                    BW.WriteVLu32(field.Serializer.TypeId);
-                    BW.WriteVLu32((uint)fieldNameMap[field.Name]);
+                    BW.WriteVLu32((uint)us.Fields.Count);
+                    foreach (DataField field in us.Fields)
+                    {
+                        // [field type ID]
+                        // [field name index]
+                        BW.WriteVLu32(field.Serializer.TypeId);
+                        BW.WriteVLu32((uint)fieldNameMap[field.Name]);
+                    }
+                }
+                else
+                {
+                    BW.WriteVLu32(0);
                 }
             }
 

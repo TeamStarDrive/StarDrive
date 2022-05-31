@@ -88,7 +88,7 @@ namespace Ship_Game.Data.Binary
             string[] typeNames  = ReadStringArray(BR);
             string[] fieldNames = ReadStringArray(BR);
 
-            for (uint i = 0; i < Header.NumUserTypes; ++i)
+            for (uint i = 0; i < Header.NumUsedTypes; ++i)
             {
                 // [type ID]
                 // [assembly ID]
@@ -103,6 +103,7 @@ namespace Ship_Game.Data.Binary
                 uint flags  = BR.ReadVLu32();
                 uint numFields = BR.ReadVLu32();
                 bool isPointerType = (flags & 0b0000_0001) != 0;
+                bool isEnumType = (flags & 0b0000_0010) != 0;
 
                 var fields = new FieldInfo[numFields];
                 for (uint fieldIdx = 0; fieldIdx < fields.Length; ++fieldIdx)
@@ -118,17 +119,19 @@ namespace Ship_Game.Data.Binary
                     };
                 }
 
+                var c = isEnumType ? SerializerCategory.Enums : SerializerCategory.UserClass;
                 string name = typeNames[nameId];
                 Type type = GetTypeFrom(assemblies[asmId], namespaces[nsId], typeNames[nameId]);
                 if (type != null)
                 {
                     if (!TypeMap.TryGet(type, out TypeSerializer s))
-                        s = TypeMap.AddUserTypeSerializer(type);
-                    AddTypeInfo(typeId, name, s, fields, isPointerType, SerializerCategory.UserClass);
+                        s = TypeMap.Get(type);
+
+                    AddTypeInfo(typeId, name, s, fields, isPointerType, c);
                 }
                 else
                 {
-                    AddDeletedTypeInfo(typeId, name, fields, isPointerType, SerializerCategory.UserClass);
+                    AddDeletedTypeInfo(typeId, name, fields, isPointerType, c);
                 }
             }
 
@@ -144,16 +147,23 @@ namespace Ship_Game.Data.Binary
                 uint valTypeId = BR.ReadVLu32();
                 uint keyTypeId = cTypeId == 3 ? BR.ReadVLu32() : 0;
 
-                TypeSerializer keyType = keyTypeId != 0 ? StreamTypes[keyTypeId].Ser : null;
-                TypeSerializer valType = StreamTypes[valTypeId].Ser;
+                TypeInfo keyTypeInfo = keyTypeId != 0 ? StreamTypes[keyTypeId] : null;
+                TypeInfo valTypeInfo = StreamTypes[valTypeId];
+
+                // if type info is null, it means there are no valid instances
+                // of this type in the serialized file, so this type info can be safely ignored
+                if (valTypeInfo == null)
+                    continue; // element type does not exist anywhere
+                if (cTypeId == 3 && keyTypeInfo == null)
+                    continue; // map key does not exist anywhere
 
                 Type cType = null;
                 if (cTypeId == 1)
-                    cType = valType.Type.MakeArrayType();
+                    cType = valTypeInfo.Type.MakeArrayType();
                 else if (cTypeId == 2)
-                    cType = typeof(Array<>).MakeGenericType(valType.Type);
+                    cType = typeof(Array<>).MakeGenericType(valTypeInfo.Type);
                 else if (cTypeId == 3)
-                    cType = typeof(Map<,>).MakeGenericType(keyType.Type, valType.Type);
+                    cType = typeof(Map<,>).MakeGenericType(keyTypeInfo.Type, valTypeInfo.Type);
 
                 if (cType != null)
                 {
@@ -212,8 +222,19 @@ namespace Ship_Game.Data.Binary
                 uint streamTypeId = BR.ReadVLu32();
                 int count = (int)BR.ReadVLu32();
                 totalCount += count;
-                var type = GetType(streamTypeId);
-                TypeGroups[i] = (type, type.Ser, count);
+
+                if (count > 0)
+                {
+                    var type = GetType(streamTypeId);
+                    if (type == null)
+                    {
+                        Log.Error("Type was null but count implies we have valid objects?");
+                    }
+                    else
+                    {
+                        TypeGroups[i] = (type, type.Ser, count);
+                    }
+                }
             }
 
             ObjectsList = new object[totalCount];
@@ -283,7 +304,7 @@ namespace Ship_Game.Data.Binary
             int objectIdx = 0;
             foreach ((TypeInfo type, TypeSerializer ser, int count) in TypeGroups)
             {
-                if (type.Category == category)
+                if (count > 0 && type.Category == category)
                     action(type, ser, count, objectIdx);
                 objectIdx += count;
             }
