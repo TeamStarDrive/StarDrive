@@ -214,9 +214,14 @@ namespace UnitTests
             if (!ResourceManager.GetShipTemplate(shipName, out Ship template))
                 throw new Exception($"Failed to find ship template: {shipName} (did you call LoadStarterShips?)");
 
+            return SpawnShip(template, empire, position, shipDirection);
+        }
+        
+        public TestShip SpawnShip(Ship template, Empire empire, Vector2 position, Vector2 shipDirection = default)
+        {
             var ship = new TestShip(UState, template, empire, position);
             if (!ship.HasModules)
-                throw new Exception($"Failed to create ship modules: {shipName} (did you load modules?)");
+                throw new Exception($"Failed to create ship modules: {template.Name} (did you load modules?)");
 
             UState?.AddShip(ship);
             ship.Rotation = shipDirection.Normalized().ToRadians();
