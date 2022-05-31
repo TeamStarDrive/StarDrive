@@ -28,6 +28,7 @@ namespace Ship_Game.Ships
         public Point GridSize => new(Grid.Width, Grid.Height);
 
         public IEnumerable<ShipModule> GetShields() => Grid.GetShields(ModuleSlotList);
+        public IEnumerable<ShipModule> GetActiveShields() => Grid.GetActiveShields(ModuleSlotList);
         public IEnumerable<ShipModule> GetAmplifiers() => Grid.GetAmplifiers(ModuleSlotList);
         public ShipModule[] Modules => ModuleSlotList;
         public bool HasModules => ModuleSlotList != null && ModuleSlotList.Length != 0;

@@ -183,16 +183,30 @@ namespace Ship_Game
             DrawExplosionsPerf.Stop();
         }
 
-        void DrawOverlayShieldBubbles(SpriteBatch batch)
+        void DrawOverlayShieldBubbles(SpriteBatch sb)
         {
             if (ShowShipNames && !LookingAtPlanet)
             {
+                var uiNode = ResourceManager.Texture("UI/node");
+
+                sb.Begin(SpriteBlendMode.Additive);
                 for (int i = 0; i < ClickableShips.Length; i++)
                 {
-                    ref ClickableShip clickable = ref ClickableShips[i];
-                    if (clickable.Ship.IsVisibleToPlayer)
-                        clickable.Ship.DrawShieldBubble(this);
+                    Ship ship = ClickableShips[i].Ship;
+                    if (ship.Active && ship.IsVisibleToPlayer)
+                    {
+                        foreach (ShipModule m in ship.GetActiveShields())
+                        {
+                            ProjectToScreenCoords(m.Position, m.ShieldRadius * 2.75f, 
+                                out Vector2d posOnScreen, out double radiusOnScreen);
+
+                            float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;
+                            DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 
+                                Shield.GetBubbleColor(shieldRate, m.ShieldBubbleColor));
+                        }
+                    }
                 }
+                sb.End();
             }
         }
 
