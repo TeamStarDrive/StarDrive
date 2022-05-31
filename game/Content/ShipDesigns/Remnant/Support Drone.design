@@ -1,7 +1,7 @@
 Version=1
 Name=Support Drone
 Hull=Remnant/XenoGunship
-Role=support
+Role=corvette
 Style=Remnant
 Size=8,8
 GridCenter=4,4
