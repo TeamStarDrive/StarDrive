@@ -9,7 +9,7 @@ namespace Ship_Game.Data.Serialization.Types
 {
     internal class ArrayListSerializer : CollectionSerializer
     {
-        public override string ToString() => $"ArrayListSerializer<{ElemType.GetTypeName()}>";
+        public override string ToString() => $"ArrayListSerializer<{ElemType.GetTypeName()}:{ElemSerializer.TypeId}>:{TypeId}";
         readonly Type GenericArrayType;
 
         public ArrayListSerializer(Type type, Type elemType, TypeSerializer elemSerializer)

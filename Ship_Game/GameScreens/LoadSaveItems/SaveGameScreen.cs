@@ -15,7 +15,7 @@ namespace Ship_Game
             : base(screen, SLMode.Save, screen.PlayerLoyalty + ", Star Date " + screen.StarDateString, "Save Game", "Saved Games", "Saved Game already exists.  Overwrite?")
         {
             Screen = screen;
-            Path = Dir.StarDriveAppData + "/Saved Games/";
+            Path = SavedGame.DefaultSaveGameFolder;
         }
 
         public override void DoSave()

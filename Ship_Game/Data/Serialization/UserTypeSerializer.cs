@@ -9,7 +9,7 @@ namespace Ship_Game.Data.Serialization
 {
     public abstract class UserTypeSerializer : TypeSerializer
     {
-        public override string ToString() => $"UserTypeSerializer {Type.GetTypeName()}";
+        public override string ToString() => $"UserTypeSerializer {Type.GetTypeName()}:{TypeId}";
 
         // Shared Type Map for caching type serialization information
         public TypeSerializerMap TypeMap { get; }

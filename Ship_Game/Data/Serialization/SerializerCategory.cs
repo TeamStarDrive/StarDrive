@@ -12,5 +12,6 @@ namespace Ship_Game.Data.Serialization
         UserClass,  // [StarDataType] classes
         RawArray,   // T[]
         Collection, // generic collections Array<T> and Map<K,V>
+        Enums, // enums
     }
 }

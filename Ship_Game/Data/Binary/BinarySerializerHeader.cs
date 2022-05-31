@@ -7,7 +7,7 @@ namespace Ship_Game.Data.Binary
     {
         public uint Version;
         public uint Options;
-        public uint NumUserTypes;
+        public uint NumUsedTypes;
         public uint NumCollectionTypes;
         public uint MaxTypeId;
         public uint NumTypeGroups;
@@ -17,9 +17,9 @@ namespace Ship_Game.Data.Binary
         {
             Version = BinarySerializer.CurrentVersion;
             Options = 0;
-            NumUserTypes = (uint)writer.UserTypes.Length;
+            NumUsedTypes = (uint)writer.UsedTypes.Length;
             NumCollectionTypes = (uint)writer.CollectionTypes.Length;
-            MaxTypeId = (uint)Math.Max(writer.UserTypes.Max(s => s.TypeId),
+            MaxTypeId = (uint)Math.Max(writer.UsedTypes.Max(s => s.TypeId),
                                        writer.CollectionTypes.Max(s => s.TypeId));
             NumTypeGroups = (uint)writer.TypeGroups.Length;
             RootObjectIndex = writer.RootObjectIndex;
@@ -29,7 +29,7 @@ namespace Ship_Game.Data.Binary
         {
             Version = reader.ReadVLu32();
             Options = reader.ReadVLu32();
-            NumUserTypes = reader.ReadVLu32();
+            NumUsedTypes = reader.ReadVLu32();
             NumCollectionTypes = reader.ReadVLu32();
             MaxTypeId = reader.ReadVLu32();
             NumTypeGroups = reader.ReadVLu32();
@@ -40,7 +40,7 @@ namespace Ship_Game.Data.Binary
         {
             writer.WriteVLu32(Version);
             writer.WriteVLu32(Options);
-            writer.WriteVLu32(NumUserTypes);
+            writer.WriteVLu32(NumUsedTypes);
             writer.WriteVLu32(NumCollectionTypes);
             writer.WriteVLu32(MaxTypeId);
             writer.WriteVLu32(NumTypeGroups);
