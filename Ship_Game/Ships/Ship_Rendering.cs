@@ -396,27 +396,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void DrawShieldBubble(UniverseScreen screen)
-        {
-            var uiNode = ResourceManager.Texture("UI/node");
-
-            screen.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            foreach (ShipModule m in GetShields())
-            {
-                if (m.Active && m.ShieldsAreActive)
-                {
-                    screen.ProjectToScreenCoords(m.Position, m.ShieldRadius * 2.75f, 
-                        out Vector2d posOnScreen, out double radiusOnScreen);
-
-                    float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;
-                    screen.DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 
-                        Shield.GetBubbleColor(shieldRate, m.ShieldBubbleColor));
-                }
-            }
-
-            screen.ScreenManager.SpriteBatch.End();
-        }
-
         public void DrawWeaponRanges(GameScreen screen, CombatState state)
         {
             float radius;
