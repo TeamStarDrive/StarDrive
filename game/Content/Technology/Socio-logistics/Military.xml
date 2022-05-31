@@ -20,6 +20,9 @@
     <UnlockedBuilding>
       <Name>Military Outpost</Name>
     </UnlockedBuilding>
+    <UnlockedBuilding>
+      <Name>Bunker</Name>
+    </UnlockedBuilding>
   </BuildingsUnlocked>
   <BonusUnlocked />
   <TroopsUnlocked />
