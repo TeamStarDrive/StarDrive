@@ -27,6 +27,8 @@ public struct RectF
 
     public override string ToString() => $"{{X:{X} Y:{Y} W:{W} H:{H}}}";
 
+    public static readonly RectF Empty = default;
+
     public RectF(float x, float y, float w, float h)
     {
         X = x;
