@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Terraforming2</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>4000</Cost>
   <RootNode>0</RootNode>
-  <Name>Terraforming2</Name>
   <NameIndex>18281</NameIndex>
   <DescriptionIndex>18282</DescriptionIndex>
-  <LongDescription>Terraforming planets is a slow process but it can produce excellent results. Barren planets can be made habitable and even relatively fertile given enough time. Terraforming will never increase a planet's fertility beyond 1.0. </LongDescription>
-  <ModulesUnlocked />
   <LeadsTo>
     <LeadsToTech>
       <UID>Terraforming3</UID>
     </LeadsToTech>
   </LeadsTo>  
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Terraforming</Name>
       <Bonus>2</Bonus>
       <BonusIndex>4309</BonusIndex>
     </UnlockedBonus>
-  </BonusUnlocked>	
+  </BonusUnlocked>
   <TroopsUnlocked />
   <HullsUnlocked />
 </Technology>

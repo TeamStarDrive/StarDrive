@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Vertical Farming</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>2000</Cost>
   <RootNode>0</RootNode>
-  <Name>Vertical Farming</Name>
   <NameIndex>2293</NameIndex>
   <DescriptionIndex>2294</DescriptionIndex>
   <LeadsTo>

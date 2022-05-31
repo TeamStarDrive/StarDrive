@@ -1,14 +1,17 @@
 ﻿<Building>
   <Name>Neural Enhancer</Name>
-  <Maintenance>0</Maintenance>
-  <Cost>50</Cost>
   <Icon>Obelisk</Icon>
+  
+  <Cost>50</Cost>
+  <Maintenance>0</Maintenance>
+  
   <PlusFlatResearchAmount>2</PlusFlatResearchAmount>
   <IsCommodity>true</IsCommodity>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <Scrappable>false</Scrappable>
+  <CannotBeBombed>true</CannotBeBombed>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18188</NameTranslationIndex>
   <DescriptionIndex>18189</DescriptionIndex>
   <ShortDescriptionIndex>18190</ShortDescriptionIndex>
-  <Scrappable>false</Scrappable>
-  <CannotBeBombed>true</CannotBeBombed>
 </Building>

@@ -1,12 +1,15 @@
 ﻿<Building>
   <Name>Weather Manipulation Center</Name>
-  <Description>Using advanced computers and a network of specialized satelittes, this buildings monitors the global weather and directs measures to manipulate it to improve plantgrowth. This increases the average fertility of the planet. </Description>
-  <MaxFertilityOnBuild>1</MaxFertilityOnBuild>
-  <Cost>400</Cost>
   <Icon>weather</Icon>
-  <Maintenance>1</Maintenance>
+  
+  <Cost>400</Cost>
+  <Maintenance>2</Maintenance>
+  
+  <MaxFertilityOnBuild>0.8</MaxFertilityOnBuild>
   <Scrappable>true</Scrappable>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10033</NameTranslationIndex>
   <DescriptionIndex>10034</DescriptionIndex>
-  <ShortDescriptionIndex>10081</ShortDescriptionIndex>
+  <ShortDescriptionIndex>10035</ShortDescriptionIndex>
 </Building>

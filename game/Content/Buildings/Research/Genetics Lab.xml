@@ -1,13 +1,13 @@
 ﻿<Building>
   <Name>Genetics Lab</Name>
-  <Maintenance>1.5</Maintenance>
-  <Description>The output of this Genetics Research Facility scales with the amount of colonists dedicated to the task, providing +.2 research per assigned colonist.  </Description>
-  <PlusResearchPerColonist>.2</PlusResearchPerColonist>
-  <Cost>250</Cost>
   <Icon>hospital</Icon>
-  <ShortDescription>+.5 research per assigned colonist</ShortDescription>
-
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <Cost>250</Cost>
+  <Maintenance>1.5</Maintenance>
+  
+  <PlusResearchPerColonist>.15</PlusResearchPerColonist>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>421</NameTranslationIndex>
   <DescriptionIndex>422</DescriptionIndex>
   <ShortDescriptionIndex>423</ShortDescriptionIndex>

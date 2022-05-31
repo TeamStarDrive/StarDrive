@@ -1,4 +1,4 @@
-﻿Version=1
+Version=1
 HullName=Terran/Dreadnought
 VisibleName=Dreadnought
 Role=capital
@@ -73,7 +73,7 @@ O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |
 O  |IO |IO |IO |IO |IO |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |I  |IO |IO |IO |IO |IO |O  
 O  |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |O  
 ___|IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |IO |___
-___|___|___|___|IO |IO |IO |IO |IO |IO |___|___|IO |E  |E  |E  |E  |E  |E  |O  |IO |E  |E  |E  |E  |E  |E  |IO |___|___|IO |IO |IO |IO |IO |IO |___|___|___|___
+___|___|___|___|IO |IO |IO |IO |IO |IO |___|___|IO |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |IO |___|___|IO |IO |IO |IO |IO |IO |___|___|___|___
 ___|___|___|___|___|O  |O  |O  |O  |O  |___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|O  |O  |O  |O  |O  |___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|___|___|___|E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |___|___|___|___|___|___|___|___|___|___|___|___|___
 ___|___|___|___|___|___|___|___|___|___|___|___|___|IO |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |E  |IO |___|___|___|___|___|___|___|___|___|___|___|___|___

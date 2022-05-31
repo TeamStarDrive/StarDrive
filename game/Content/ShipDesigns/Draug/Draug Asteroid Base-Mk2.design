@@ -1,7 +1,7 @@
 ﻿Version=1
 Name=Draug Asteroid Base-Mk2
 Hull=Draugar/Draugar Asteroid Base
-Role=platform
+Role=station
 Style=Draugar
 Size=27,28
 GridCenter=13,13

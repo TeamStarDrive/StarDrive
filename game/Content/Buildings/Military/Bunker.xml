@@ -1,0 +1,17 @@
+﻿<Building>
+  <Name>Bunker</Name>
+  <Icon>Bunker</Icon>
+  
+  <Cost>110</Cost>
+  <Maintenance>0.4</Maintenance>
+  <Strength>40</Strength>
+  <CombatStrength>50</CombatStrength>
+  <SoftAttack>5</SoftAttack>
+  <HardAttack>5</HardAttack>
+  <Defense>40</Defense>
+  
+  <!-- For localization in GameText.yaml -->
+  <NameTranslationIndex>17657</NameTranslationIndex>
+  <DescriptionIndex>17658</DescriptionIndex>
+  <ShortDescriptionIndex>17659</ShortDescriptionIndex>
+</Building>

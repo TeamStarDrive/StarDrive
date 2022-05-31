@@ -1,14 +1,13 @@
 ﻿<Building>
   <Name>Customs Station</Name>
-  <Maintenance>-1</Maintenance>
-  <Description>The planetary customs station maintains a small fleet of veseels that board and inspect all ships moving through the system. This ensures that all customs and taxes are paid.</Description>
-  <Cost>150</Cost>
   <Icon>CustomStation</Icon>
+  
+  <Cost>150</Cost>
+  <Maintenance>-0.5</Maintenance>
+  
   <PlusTaxPercentage>0.25</PlusTaxPercentage>
-  <ShortDescription>25% increase in tax revenue.</ShortDescription>
-
-
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10005</NameTranslationIndex>
   <DescriptionIndex>10006</DescriptionIndex>
   <ShortDescriptionIndex>10071</ShortDescriptionIndex>

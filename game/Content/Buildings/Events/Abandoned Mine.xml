@@ -1,16 +1,15 @@
 ﻿<Building>
   <Name>Abandoned Mine</Name>
-  <Maintenance>0</Maintenance>
-  <Description>From orbit this appears to be an ancient and abandoned mine. It could be worth exploring this further. </Description>
-  <EventTriggerUID>Discover Mine</EventTriggerUID>
-  <Cost>40</Cost>
   <Icon>mine_abandoned</Icon>
-  <ShortDescription>An abandoned Mine</ShortDescription>
+  
+  <Cost>40</Cost>
+  <Maintenance>0</Maintenance>
+  
+  <EventTriggerUID>Discover Mine</EventTriggerUID>
   <Scrappable>false</Scrappable>
 
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>400</NameTranslationIndex>
   <DescriptionIndex>401</DescriptionIndex>
   <ShortDescriptionIndex>402</ShortDescriptionIndex>
-
 </Building>

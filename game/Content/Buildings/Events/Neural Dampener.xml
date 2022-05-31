@@ -1,14 +1,17 @@
 <Building>
   <Name>Neural Dampener</Name>
-  <Maintenance>0</Maintenance>
-  <Cost>50</Cost>
   <Icon>Obelisk</Icon>
+  
+  <Cost>50</Cost>
+  <Maintenance>0</Maintenance>
+   
   <PlusFlatResearchAmount>-1</PlusFlatResearchAmount>
   <IsCommodity>false</IsCommodity>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <Scrappable>false</Scrappable>
+  <CannotBeBombed>true</CannotBeBombed>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18191</NameTranslationIndex>
   <DescriptionIndex>18192</DescriptionIndex>
   <ShortDescriptionIndex>18193</ShortDescriptionIndex>
-  <Scrappable>false</Scrappable>
-  <CannotBeBombed>true</CannotBeBombed>
 </Building>
