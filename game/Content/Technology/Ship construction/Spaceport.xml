@@ -11,6 +11,9 @@
     <LeadsToTech>
       <UID>Shipyards</UID>
     </LeadsToTech>
+    <LeadsToTech>
+      <UID>MediumFreighters</UID>
+    </LeadsToTech>
   </LeadsTo>
   <BuildingsUnlocked>
     <UnlockedBuilding>

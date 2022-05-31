@@ -11,9 +11,6 @@
     <LeadsToTech>
       <UID>SmallStations</UID>
     </LeadsToTech>
-    <LeadsToTech>
-      <UID>MediumFreighters</UID>
-    </LeadsToTech>
   </LeadsTo>
   <ModulesUnlocked>
     <UnlockedMod>
