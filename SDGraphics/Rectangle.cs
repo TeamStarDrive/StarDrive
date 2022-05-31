@@ -47,6 +47,14 @@ namespace SDGraphics
             Height = height;
         }
 
+        public Rectangle(Vector2 pos, Vector2 size)
+        {
+            X = (int)pos.X;
+            Y = (int)pos.Y;
+            Width = (int)size.X;
+            Height = (int)size.Y;
+        }
+
         public static implicit operator XnaRect(in Rectangle r)
         {
             return new XnaRect(r.X, r.Y, r.Width, r.Height);

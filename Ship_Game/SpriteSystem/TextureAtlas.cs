@@ -39,7 +39,7 @@ namespace Ship_Game.SpriteSystem
         public int Height { get; private set; }
         
         TextureBinding[] Sorted = Empty<TextureBinding>.Array;
-        readonly Map<string, TextureBinding> Lookup = new Map<string, TextureBinding>();
+        readonly Map<string, TextureBinding> Lookup = new(StringComparer.OrdinalIgnoreCase);
 
         public override string ToString() => $"{Name,-32} {$"{Width}x{Height}",-9} n:{Lookup.Count,-3} pack:{NumPacked,-3} nopack:{NonPacked,-3}";
 

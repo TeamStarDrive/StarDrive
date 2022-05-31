@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.Ships;
 using System;
+using System.IO;
 using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
@@ -70,13 +71,12 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool CanAttack       => AvailableAttackActions > 0;
         [XmlIgnore][JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.05f * Level * HardAttack);
         [XmlIgnore][JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.05f * Level * SoftAttack);
-        [XmlIgnore][JsonIgnore] public Empire Loyalty       => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
+        [XmlIgnore][JsonIgnore] public Empire Loyalty       => Owner ??= EmpireManager.GetEmpireByName(OwnerString);
         [XmlIgnore][JsonIgnore] public int ActualRange      => Level < 5 ? Range : Range + 1;  // veterans have bigger range
         [XmlIgnore][JsonIgnore] public bool IsHealthFull    => Strength.AlmostEqual(ActualStrengthMax);
         [XmlIgnore][JsonIgnore] public bool IsWounded       => !IsHealthFull;
         [XmlIgnore][JsonIgnore] public bool CanLaunchWounded => CanMove;
 
-        [XmlIgnore][JsonIgnore] public SubTexture TextureDefault => ResourceManager.Texture("Troops/" + TexturePath);
         [XmlIgnore][JsonIgnore] public SubTexture IconTexture =>  ResourceManager.Texture("TroopIcons/" + Icon + "_icon");
 
         /// <summary>
@@ -87,17 +87,23 @@ namespace Ship_Game
         [XmlIgnore] [JsonIgnore] public bool CanLaunch =>
                 HostPlanet?.Owner == null || Loyalty.isPlayer ? CanMove : CanMove && IsHealthFull;
 
-        string WhichFrameString => WhichFrame.ToString("00");
+        SpriteSystem.TextureAtlas TroopAnim;
 
-        //@HACK the animation index and firstframe value are coming up with bad values for some reason. i could not figure out why
-        //so here i am forcing it to draw troop template first frame if it hits a problem. in the update method i am refreshing the firstframe value as well. 
-        SubTexture TextureIdleAnim => ResourceManager.TextureOrDefault(
-            "Troops/" + idle_path + WhichFrameString,
-            "Troops/" + idle_path + ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
+        void InitializeAtlas(GameScreen screen)
+        {
+            string defaultTexture = "Textures/Troops/" + TexturePath;
+            string folder = Path.GetDirectoryName(defaultTexture).NormalizedFilePath();
+            TroopAnim = screen.TransientContent.LoadTextureAtlas(folder);
+        }
 
-        SubTexture TextureAttackAnim => ResourceManager.TextureOrDefault(
-            "Troops/" + attack_path + WhichFrameString,
-            "Troops/" + idle_path + ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
+        SubTexture GetAnimation(string name)
+        {
+            return TroopAnim.TryGetTexture(Path.GetFileName(name), out SubTexture t) ? t : null;
+        }
+
+        SubTexture GetDefaultTex() => GetAnimation(TexturePath);
+        SubTexture GetIdleTex(int whichFrame) => GetAnimation($"{idle_path}{whichFrame:00}") ?? GetDefaultTex();
+        SubTexture GetAttackTex(int whichFrame) => GetAnimation($"{attack_path}{whichFrame:00}") ?? GetDefaultTex();
 
         public string DisplayNameEmpire(Empire empire = null)
         {
@@ -165,7 +171,7 @@ namespace Ship_Game
 
         public void Draw(SpriteBatch batch, Vector2 pos, Vector2 size)
         {
-            Draw(batch, new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y));
+            Draw(batch, new Rectangle(pos, size));
         }
 
         public void SetCombatScreenRect(PlanetGridSquare tile, int width)
@@ -220,73 +226,60 @@ namespace Ship_Game
 
         //@todo split this into methods of animated and non animated. or always draw animated and move the animation logic 
         // to a central location to be used by any animated image. 
-        public void Draw(SpriteBatch spriteBatch, Rectangle drawRect)
+        public void Draw(SpriteBatch sb, Rectangle drawRect)
         {
-            if (!facingRight)
-            {
-                DrawFlip(spriteBatch, drawRect);
-                return;
-            }
+            if (TroopAnim == null)
+                InitializeAtlas(HostPlanet.Universe.Screen);
+
+            bool flip = !facingRight;
             if (!animated)
             {
-                spriteBatch.Draw(TextureDefault, drawRect, Color.White);
-                return;
-            }
-            if (Idle)
-            {
-                var sourceRect = new Rectangle(idle_x_offset, idle_y_offset, 128, 128);
-                spriteBatch.Draw(TextureIdleAnim, drawRect, sourceRect, Color.White);
+                Draw(sb, GetDefaultTex(), drawRect, flip);
                 return;
             }
 
-            float scale     = drawRect.Width / 128f;
-            drawRect.Width  = (int)(attack_width * scale);
-            var sourceRect2 = new Rectangle(idle_x_offset, idle_y_offset, attack_width, 128);
-
-            SubTexture attackTexture = TextureAttackAnim;
-            if (attackTexture.Height <= 128)
-            {
-                spriteBatch.Draw(attackTexture, drawRect, sourceRect2, Color.White);
-                return;
-            }
-            sourceRect2.Y      -= idle_y_offset;
-            sourceRect2.Height += idle_y_offset;
-            Rectangle r         = drawRect;
-            r.Y                -= (int)(scale * idle_y_offset);
-            r.Height           += (int)(scale * idle_y_offset);
-            spriteBatch.Draw(attackTexture, r, sourceRect2, Color.White);
+            SubTexture tex = Idle ? GetIdleTex(WhichFrame) : GetAttackTex(WhichFrame);
+            DrawTexture(sb, tex, drawRect, flip);
         }
 
-        public void DrawFlip(SpriteBatch spriteBatch, Rectangle drawRect)
+        void DrawTexture(SpriteBatch sb, SubTexture tex, Rectangle drawRect, bool flip)
         {
-            if (!animated)
-            {
-                spriteBatch.Draw(TextureDefault, drawRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
-                return;
-            }
-            if (Idle)
-            {
-                var sourceRect = new Rectangle(idle_x_offset, idle_y_offset, 128, 128);
-                spriteBatch.Draw(TextureIdleAnim, drawRect, sourceRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
-                return;
-            }
-            float scale = drawRect.Width / 128f;
-            drawRect.X = drawRect.X - (int)(attack_width * scale - drawRect.Width);
-            drawRect.Width = (int)(attack_width * scale);
+            Troop t = ResourceManager.GetTroopTemplate(Name);
+            int x_offset = t.idle_x_offset;
+            int y_offset = t.idle_y_offset;
+            int width = Idle ? tex.Width : t.attack_width;
 
-            Rectangle sourceRect2 = new Rectangle(idle_x_offset, idle_y_offset, attack_width, 128);
-            var attackTexture = TextureAttackAnim;
-            if (attackTexture.Height <= 128)
+            float scale = drawRect.Width / 128f;
+            drawRect.Width = (int)(width * scale);
+
+            if (tex.Height <= 128) //
             {
-                spriteBatch.Draw(attackTexture, drawRect, sourceRect2, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
-                return;
+                var srcRect = new Rectangle(x_offset, y_offset, width-x_offset, tex.Height-y_offset);
+                Draw(sb, tex, drawRect, srcRect, flip);
             }
-            sourceRect2.Y      -= idle_y_offset;
-            sourceRect2.Height += idle_y_offset;
-            Rectangle r         = drawRect;
-            r.Height           += (int)(scale * idle_y_offset);
-            r.Y                -= (int)(scale * idle_y_offset);
-            spriteBatch.Draw(attackTexture, r, sourceRect2, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+            else // for Kulrathi their Height box is bigger
+            {
+                var srcRect = new Rectangle(x_offset, 0, width, y_offset+128);
+                int offset = (int)(scale * y_offset);
+                var r = new Rectangle(drawRect.X, drawRect.Y - offset, drawRect.Width, drawRect.Height + offset);
+                Draw(sb, tex, r, srcRect, flip);
+            }
+        }
+
+        static void Draw(SpriteBatch sb, SubTexture tex, in Rectangle r, in Rectangle srcRect, bool flip)
+        {
+            if (flip)
+                sb.Draw(tex, r, srcRect, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+            else
+                sb.Draw(tex, r, srcRect, Color.White);
+        }
+
+        static void Draw(SpriteBatch sb, SubTexture tex, in Rectangle r, bool flip)
+        {
+            if (flip)
+                sb.Draw(tex, r, Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 1f);
+            else
+                sb.Draw(tex, r, Color.White);
         }
 
         public void DrawIcon(SpriteBatch spriteBatch, Rectangle drawRect)
@@ -322,33 +315,33 @@ namespace Ship_Game
             if (UpdateTimer > 0f)
                 return;
 
-            first_frame = ResourceManager.GetTroopTemplate(Name).first_frame;
-            int whichFrame = WhichFrame;
             if (!Idle)
             {
-                UpdateTimer = 0.75f / num_attack_frames;                
-                whichFrame++;
-                if (whichFrame <= num_attack_frames - (first_frame == 1 ? 0 : 1))
+                UpdateTimer = 0.75f / num_attack_frames;
+                if (WhichFrame >= num_attack_frames)
+                {
+                    WhichFrame = first_frame;
+                    Idle = true;
+                }
+                else
                 {
                     WhichFrame++;
-                    return;
                 }
-
-                WhichFrame = first_frame;
-                Idle       = true;
             }
             else
             {
                 UpdateTimer = 1f / num_idle_frames;
-                whichFrame++;
-                if (whichFrame <= num_idle_frames - (first_frame == 1 ? 0 : 1))
+                if (WhichFrame >= num_idle_frames)
+                {
+                    WhichFrame = first_frame;
+                }
+                else
                 {
                     WhichFrame++;
-                    return;
                 }
-
-                WhichFrame = first_frame;
             }
+
+            Log.Write(ConsoleColor.Blue, $"Frame={WhichFrame} first={first_frame} idle={num_idle_frames} attack={num_attack_frames}");
         }
 
         // Added by McShooterz, FB: changed it to level up every kill with decreasing chances

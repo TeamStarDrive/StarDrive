@@ -311,48 +311,43 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            if (ExplorationTarget.PlanetList.Count == 0)
-                return DoExploreEmptySystem(timeStep, ExplorationTarget); // Lone Star
+            if (!ExplorationTarget.IsExploredBy(Owner.Loyalty))
+            {
+                // First we explore the star, since we don't know what is in the system yet.
+                DoExploreUnknownSystem(timeStep, ExplorationTarget);
+                if (!ExplorationTarget.IsExploredBy(Owner.Loyalty))
+                    return false;
+            }
 
+            // We explored the Star, now we can proceed to the planets
             if (!TryGetClosestUnexploredPlanet(ExplorationTarget, out PatrolTarget))
             {
                 ExplorationTarget.UpdateFullyExploredBy(Owner.Loyalty);
                 return true; // All planets explored
             }
 
-            MovePosition           = PatrolTarget.Position;
-            float distanceToTarget = Owner.Position.Distance(MovePosition);
-            if (distanceToTarget < 75000f)
-                PatrolTarget.ParentSystem.SetExploredBy(Owner.Loyalty);
-
-            if (distanceToTarget >= 5500f)
-            {
-                ThrustOrWarpToPos(MovePosition, timeStep, distanceToTarget);
-            }
-            else
+            MovePosition = PatrolTarget.Position;
             {
                 ThrustOrWarpToPos(MovePosition, timeStep);
-                if (distanceToTarget < 500f)
+                if (Owner.Position.InRadius(MovePosition, Owner.ExplorePlanetDistance))
                     PatrolTarget.SetExploredBy(Owner.Loyalty);
             }
 
             return false;
         }
 
-        bool DoExploreEmptySystem(FixedSimTime timeStep, SolarSystem system)
+        void DoExploreUnknownSystem(FixedSimTime timeStep, SolarSystem system)
         {
-            if (system.IsExploredBy(Owner.Loyalty))
-                return true;
-
             MovePosition = system.Position;
-            if (Owner.Position.InRadius(MovePosition, 75000f))
+            // We are doing faster updates that the 1 per second Explore of normal ships
+            // Since we are now actively scouting the system
+            if (Owner.Position.InRadius(MovePosition, Owner.ExploreSystemDistance))
             {
                 system.SetExploredBy(Owner.Loyalty);
-                return true;
+                return;
             }
 
             ThrustOrWarpToPos(MovePosition, timeStep);
-            return false;
         }
 
         void DoHoldPositionCombat(FixedSimTime timeStep)
