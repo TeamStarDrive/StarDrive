@@ -140,13 +140,10 @@ namespace Ship_Game
                     
                     if (GlobalStats.HasMod)
                     {
-                        // check mod and check version of save file since format changed
-                        if (data.Version > 0 && data.ModPath != GlobalStats.ActiveMod.ModName ||
-                            data.Version == 0 && data.ModName != GlobalStats.ActiveMod.ModName)
+                        if (data.ModName != GlobalStats.ActiveMod.ModName)
                             continue;
                     }
-                    else if (data.Version > 0 && !string.IsNullOrEmpty(data.ModPath) ||
-                             data.Version == 0 && !string.IsNullOrEmpty(data.ModName))
+                    else if (data.ModName.NotEmpty())
                     {
                         continue; // skip non-mod savegames
                     }

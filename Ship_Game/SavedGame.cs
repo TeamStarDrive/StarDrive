@@ -28,7 +28,6 @@ namespace Ship_Game
         [StarData] public string PlayerName;
         [StarData] public string RealDate;
         [StarData] public string ModName = "";
-        [StarData] public string ModPath = "";
         [StarData] public int Version;
 
         [XmlIgnore][JsonIgnore] public FileInfo FI;
@@ -59,6 +58,8 @@ namespace Ship_Game
         public const int SaveGameVersion = 13;
         public const string ZipExt = ".sav.gz";
 
+        public bool UseBinarySaveFormat = true;
+
         public readonly UniverseSaveData SaveData = new();
         public FileInfo SaveFile;
         public FileInfo PackedFile;
@@ -83,6 +84,7 @@ namespace Ship_Game
             var designs = new HashSet<IShipDesign>();
 
             SaveData.SaveGameVersion       = SaveGameVersion;
+            SaveData.UniverseSize          = us.Size;
             SaveData.UniqueObjectIds       = us.UniqueObjectIds;
             SaveData.GameDifficulty        = us.Difficulty;
             SaveData.GalaxySize            = us.GalaxySize;
@@ -326,6 +328,9 @@ namespace Ship_Game
             }
 
             SaveData.SetDesigns(designs);
+
+            // FogMap is converted to a Base64 string so that it can be included in the savegame
+            SaveData.FogMapBytes = Screen.ContentManager.RawContent.TexExport.ToAlphaBytes(Screen.FogMap);
         }
 
         static bool GetIsSaving()
@@ -341,29 +346,26 @@ namespace Ship_Game
 
         public void Save(string saveAs, bool async)
         {
-            SaveData.UniverseSize = Screen.UState.Size;
-            SaveData.Path = Dir.StarDriveAppData;
-            SaveData.SaveAs = saveAs;
+            SaveData.SaveAs = saveAs; // filename of the save game
 
             string destFolder = DefaultSaveGameFolder;
             SaveFile = new FileInfo($"{destFolder}{saveAs}.sav");
             PackedFile = new FileInfo(SaveFile.FullName + ".gz");
             HeaderFile = new FileInfo($"{destFolder}Headers/{saveAs}.json");
 
-            // FogMap is converted to a Base64 string so that it can be included in the savegame
-            var exporter = Screen.ContentManager.RawContent.TexExport;
-            SaveData.FogMapBytes = exporter.ToAlphaBytes(Screen.FogMap);
-
-            // All of this data can be serialized in parallel,
-            // because we already built `SaveData` object, which no longer depends on UniverseScreen
-            SaveTask = Parallel.Run(() =>
+            if (!async)
             {
                 SaveUniverseData(SaveData, SaveFile, PackedFile, HeaderFile);
-            });
-            
-            // for blocking calls, just wait on the task
-            if (!async)
-                SaveTask.Wait();
+            }
+            else
+            {
+                // All of this data can be serialized in parallel,
+                // because we already built `SaveData` object, which no longer depends on UniverseScreen
+                SaveTask = Parallel.Run(() =>
+                {
+                    SaveUniverseData(SaveData, SaveFile, PackedFile, HeaderFile);
+                });
+            }
         }
 
         public static ShipSaveData ShipSaveFromShip(ShipDesignWriter sw, Ship ship)
@@ -468,47 +470,73 @@ namespace Ship_Game
             return sd;
         }
 
-        static void SaveUniverseData(UniverseSaveData data, FileInfo saveFile, 
-                                     FileInfo compressedSave, FileInfo headerFile)
+        void SaveUniverseData(UniverseSaveData data, FileInfo saveFile, 
+                              FileInfo compressedSave, FileInfo headerFile)
         {
             var t = new PerfTimer();
-            using (var textWriter = new StreamWriter(saveFile.FullName))
-            {
-                var ser = new JsonSerializer
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    DefaultValueHandling = DefaultValueHandling.Ignore
-                };
-                ser.Serialize(textWriter, data);
-            }
-            Log.Info($"JSON Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length/(1024.0*1024.0):0.0}MB)");
 
-            HelperFunctions.Compress(saveFile, compressedSave); // compress into .sav.gz
-            saveFile.Delete(); // delete the bigger .sav file
-
-            // Save the header as well
             DateTime now = DateTime.Now;
-            var header = new HeaderData
-            {
-                SaveGameVersion = SaveGameVersion,
-                PlayerName = data.PlayerLoyalty,
-                StarDate   = data.StarDate.ToString("#.0"),
-                Time       = now,
-                SaveName   = data.SaveAs,
-                RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
-                ModPath    = GlobalStats.ActiveMod?.ModName    ?? "",
-                ModName    = GlobalStats.ActiveMod?.mi.ModName ?? "",
-                Version    = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"])
-            };
 
-            using (var textWriter = new StreamWriter(headerFile.FullName))
+            if (UseBinarySaveFormat)
             {
-                var ser = new JsonSerializer
+                var header = new HeaderData
                 {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    DefaultValueHandling = DefaultValueHandling.Ignore
+                    SaveGameVersion = SaveGameVersion,
+                    PlayerName = data.PlayerLoyalty,
+                    StarDate   = data.StarDate.ToString("#.0"),
+                    Time       = now,
+                    SaveName   = data.SaveAs,
+                    RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
+                    ModName    = GlobalStats.ModName,
+                    Version    = SaveGameVersion,
                 };
-                ser.Serialize(textWriter, header);
+
+                using var stream = saveFile.OpenWrite();
+                var writer = new BinaryWriter(stream);
+
+                Data.Binary.BinarySerializer.SerializeMultiType(writer, new object[]{ header, data });
+
+                Log.Info($"Binary Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length/(1024.0*1024.0):0.0}MB)");
+            }
+            else
+            {
+                var header = new HeaderData
+                {
+                    SaveGameVersion = SaveGameVersion,
+                    PlayerName = data.PlayerLoyalty,
+                    StarDate   = data.StarDate.ToString("#.0"),
+                    Time       = now,
+                    SaveName   = data.SaveAs,
+                    RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
+                    ModName    = GlobalStats.ModName,
+                    Version    = SaveGameVersion,
+                };
+
+                using (var textWriter = new StreamWriter(saveFile.FullName))
+                {
+                    var ser = new JsonSerializer
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore
+                    };
+                    ser.Serialize(textWriter, data);
+                }
+
+                HelperFunctions.Compress(saveFile, compressedSave); // compress into .sav.gz
+                saveFile.Delete(); // delete the bigger .sav file
+
+                // Save the header as well
+                using (var textWriter = new StreamWriter(headerFile.FullName))
+                {
+                    var ser = new JsonSerializer
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore
+                    };
+                    ser.Serialize(textWriter, header);
+                }
+
+                Log.Info($"JSON Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length/(1024.0*1024.0):0.0}MB)");
             }
 
             SaveTask = null;
@@ -960,7 +988,6 @@ namespace Ship_Game
         {
             [StarData] public int SaveGameVersion;
             [StarData] public int UniqueObjectIds;
-            [StarData] public string Path;
             [StarData] public string SaveAs;
             [StarData] public string FileName;
             [StarData] public byte[] FogMapBytes;

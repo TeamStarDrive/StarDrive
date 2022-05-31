@@ -104,5 +104,33 @@ namespace Ship_Game.Data.Binary
 
             return null;
         }
+
+        // Aggregates multiple different types into a single binary writer stream
+        public static void SerializeMultiType(BinaryWriter writer, object[] objects)
+        {
+            var serializers = objects.Select(o => new BinarySerializer(o.GetType()));
+
+            for (int i = 0; i < objects.Length; ++i)
+            {
+                object o = objects[i];
+                if (o.GetType().IsValueType)
+                    throw new InvalidOperationException($"ValueType {o.GetType()} cannot be top-level serialized! Change it into a class");
+                serializers[i].Serialize(writer, o);
+            }
+        }
+
+        // Deserializes multiple different typed objects from a single binary reader stream
+        public static object[] DeserializeMultiType(BinaryReader reader, Type[] types)
+        {
+            var serializers = types.Select(t => new BinarySerializer(t));
+            var objects = new object[serializers.Length];
+
+            for (int i = 0; i < objects.Length; ++i)
+            {
+                objects[i] = serializers[i].Deserialize(reader);
+            }
+
+            return objects;
+        }
     }
 }

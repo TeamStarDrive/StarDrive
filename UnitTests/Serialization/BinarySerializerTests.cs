@@ -741,5 +741,71 @@ namespace UnitTests.Serialization
         //    Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
         //    byte[] bytes = Serialize(ship);
         //}
+
+        [StarDataType]
+        class HeaderType
+        {
+            [StarData] public int Version;
+            [StarData] public string Name;
+        }
+
+        [StarDataType]
+        class PayloadType
+        {
+            [StarData] public string Data;
+            [StarData] public Vector2 Size;
+        }
+
+        // this tests whether we can aggregate two completely different types into a single binary file
+        // and then read it back partially or completely without issues
+        // For savegames we plan to store tiny header object in front and then
+        // the huge payload which doesn't need to be parsed at all
+        [TestMethod]
+        public void MultiTypeSerialize()
+        {
+            var msOut = new MemoryStream();
+            var writer = new BinaryWriter(msOut);
+
+            var header = new HeaderType { Version = 11, Name = "Savegame1" };
+            var payload = new PayloadType { Data = "123456", Size = new Vector2(1000,1000) };
+
+            BinarySerializer.SerializeMultiType(writer, new object[]{ header, payload });
+
+            var msIn = new MemoryStream(msOut.ToArray());
+            var reader = new BinaryReader(msIn);
+
+            var results1 = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderType) });
+            Assert.AreEqual(1, results1.Length);
+            Assert.AreEqual(typeof(HeaderType), results1[0].GetType());
+
+            var header1 = (HeaderType)results1[0];
+            Assert.AreEqual(header.Version, header1.Version);
+            Assert.AreEqual(header.Name, header1.Name);
+
+            reader.BaseStream.Position = 0;
+            var results2 = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderType), typeof(PayloadType) });
+            Assert.AreEqual(2, results2.Length);
+            Assert.AreEqual(typeof(HeaderType), results2[0].GetType());
+            Assert.AreEqual(typeof(PayloadType), results2[1].GetType());
+
+            var header2 = (HeaderType)results2[0];
+            Assert.AreEqual(header.Version, header2.Version);
+            Assert.AreEqual(header.Name, header2.Name);
+
+            var payload2 = (PayloadType)results2[1];
+            Assert.AreEqual(payload.Data, payload2.Data);
+            Assert.AreEqual(payload.Size, payload2.Size);
+        }
+
+        // this is the actual big test for SavedGame
+        [TestMethod]
+        public void SavedGameSerialize()
+        {
+            CreateUniverseAndPlayerEmpire();
+
+            var savedGame = new SavedGame(Universe);
+            savedGame.UseBinarySaveFormat = true;
+            savedGame.Save("BinarySerializer.Test", async:false);
+        }
     }
 }
