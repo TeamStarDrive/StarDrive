@@ -219,6 +219,9 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
+            if (TransientContent == null) // disposed
+                return;
+
             batch.Draw(ResourceManager.Texture($"PlanetTiles/{P.PlanetTileId}_tilt"), GridRect, Color.White);
             batch.Draw(ResourceManager.Texture("Ground_UI/grid"), GridRect, Color.White);
             batch.DrawString(Fonts.Arial20Bold, P.Name, TitlePos, OwnerColor);
@@ -230,7 +233,8 @@ namespace Ship_Game
                 if (pgs.BuildingOnTile)
                 {
                     var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                    batch.Draw(ResourceManager.Texture($"Buildings/icon_{pgs.Building.Icon}_64x64"), bRect, Color.White);
+                    var icon = TransientContent.LoadTextureOrDefault($"Textures/Buildings/icon_{pgs.Building.Icon}_64x64");
+                    batch.Draw(icon, bRect, Color.White);
                 }
             }
             foreach (PlanetGridSquare pgs in ReversedList)

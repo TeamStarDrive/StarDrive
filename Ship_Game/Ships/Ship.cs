@@ -135,6 +135,8 @@ namespace Ship_Game.Ships
         public void SetHighAlertStatus() => HighAlertTimer = HighAlertSeconds;
         public float GetHighAlertTimer() => HighAlertTimer;
 
+        public float ExplorePlanetDistance => (SensorRange * 0.1f).LowerBound(500);
+        public float ExploreSystemDistance => SensorRange;
 
         public float HealPerTurn;
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
@@ -250,6 +252,23 @@ namespace Ship_Game.Ships
             return DesignRoleType == RoleType.WarSupport ||
                    DesignRoleType == RoleType.Troop ||
                        DesignRole == RoleName.carrier;
+        }
+
+        public bool IsGoodScout() => ShipData.Role != RoleName.supply 
+                                     && Fleet == null
+                                     && DesignRole == RoleName.scout;
+
+        public bool IsIdleScout()
+        {
+            if (ShipData.Role == RoleName.supply)
+                return false; // FB - this is a workaround, since supply shuttle register as scouts design role.
+
+            return Fleet == null
+                   && AI.State != AIState.Flee
+                   && AI.State != AIState.Scrap
+                   && AI.State != AIState.Explore
+                   && !AI.HasPriorityOrder
+                   && DesignRole == RoleName.scout;
         }
 
         public bool CanBeAddedToBuildableShips(Empire empire) => DesignRole != RoleName.prototype && DesignRole != RoleName.disabled
@@ -1120,6 +1139,7 @@ namespace Ship_Game.Ships
             {
                 UpdateTimer += 1f; // update the ship modules and status only once per second
                 UpdateModulesAndStatus(FixedSimTime.One);
+                ExploreCurrentSystem(timeStep);
                 SecondsAlive += 1;
 
                 if (TractorDamage > 0 && !BeingTractored)

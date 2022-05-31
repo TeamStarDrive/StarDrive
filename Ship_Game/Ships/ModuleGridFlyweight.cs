@@ -243,6 +243,16 @@ namespace Ship_Game.Ships
                 yield return modules[AmplifiersIndex[i]];
         }
 
+        [Pure] public IEnumerable<ShipModule> GetActiveShields(ShipModule[] modules)
+        {
+            for (int i = 0; i < ShieldsIndex.Length; ++i)
+            {
+                ShipModule m = modules[ShieldsIndex[i]];
+                if (m.ShieldsAreActive)
+                    yield return m;
+            }
+        }
+
         // safe and fast SHIELD lookup by x,y where coordinates (0,1) (2,1) etc
         [Pure] public bool GetActiveShield(ShipModule[] modules, int x, int y, out ShipModule shield)
         {

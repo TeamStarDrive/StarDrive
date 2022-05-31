@@ -10,9 +10,9 @@
   <num_idle_frames>10</num_idle_frames>
   <num_attack_frames>18</num_attack_frames>
   <animated>true</animated>
-  <idle_x_offset>32</idle_x_offset>
-  <idle_y_offset>32</idle_y_offset>
-  <attack_width>192</attack_width>
+  <idle_x_offset>16</idle_x_offset>
+  <idle_y_offset>16</idle_y_offset>
+  <attack_width>96</attack_width>
   <idle_path>Rayleh/squid_idle00</idle_path>
   <attack_path>Rayleh/squid_attack00</attack_path>
 

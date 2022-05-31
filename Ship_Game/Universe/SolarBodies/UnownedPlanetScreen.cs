@@ -46,43 +46,53 @@ namespace Ship_Game
 			batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
 			var pNameCursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
 			batch.DrawString(Fonts.Arial20Bold, p.Name, pNameCursor, Colors.Cream);
-			pNameCursor.Y = pNameCursor.Y + Fonts.Arial20Bold.LineSpacing * 2;
+			pNameCursor.Y += Fonts.Arial20Bold.LineSpacing * 2;
 			float amount = 80f;
 			batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Class)+":", pNameCursor, Color.Orange);
 			var infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
 			batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, infoCursor, Colors.Cream);
-			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Population)+":", pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.PopulationStringForPlayer, infoCursor, Colors.Cream);
-			var hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Population)+":").X, Fonts.Arial12Bold.LineSpacing);
-			if (hoverRect.HitTest(Input.CursorPosition))
+			pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+			if (p.IsExploredBy(EmpireManager.Player))
 			{
-				ToolTip.CreateTooltip(GameText.AColonysPopulationIsA);
+				infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
+				batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Population) + ":", pNameCursor, Color.Orange);
+				batch.DrawString(Fonts.Arial12Bold, p.PopulationStringForPlayer, infoCursor, Colors.Cream);
+				var hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Population) + ":").X, Fonts.Arial12Bold.LineSpacing);
+				if (hoverRect.HitTest(Input.CursorPosition))
+				{
+					ToolTip.CreateTooltip(GameText.AColonysPopulationIsA);
+				}
+				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+				infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
+				batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Fertility) + ":", pNameCursor, Color.Orange);
+				batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), infoCursor, Colors.Cream);
+				hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, Fonts.Arial12Bold.LineSpacing);
+				if (hoverRect.HitTest(Input.CursorPosition))
+				{
+					ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
+				}
+				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+				infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
+				batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Richness) + ":", pNameCursor, Color.Orange);
+				batch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), infoCursor, Colors.Cream);
+				hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Richness) + ":").X, Fonts.Arial12Bold.LineSpacing);
+				if (hoverRect.HitTest(Input.CursorPosition))
+				{
+					ToolTip.CreateTooltip(GameText.APlanetsMineralRichnessDirectly);
+				}
+				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;
+				batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40), pNameCursor, Colors.Cream);
 			}
-			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Fertility)+":", pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), infoCursor, Colors.Cream);
-			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Fertility)+":").X, Fonts.Arial12Bold.LineSpacing);
-			if (hoverRect.HitTest(Input.CursorPosition))
+			else if (!p.IsExploredBy(EmpireManager.Player))
 			{
-				ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
+				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+				batch.DrawString(Fonts.Arial20Bold, Localizer.Token(GameText.Unexplored), pNameCursor, Color.Gray);
+				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
 			}
-			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
-			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Richness)+":", pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), infoCursor, Colors.Cream);
-			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Richness)+":").X, Fonts.Arial12Bold.LineSpacing);
-			if (hoverRect.HitTest(Input.CursorPosition))
-			{
-				ToolTip.CreateTooltip(GameText.APlanetsMineralRichnessDirectly);
-			}
-			pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;
-			batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40), pNameCursor, Colors.Cream);
+
 			if (EmpireManager.Player.DifficultyModifiers.HideTacticalData)
 			{
-				pNameCursor.Y += NotePos.Y;
+				pNameCursor.Y += NotePos.Y - 40;
 				batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(Localizer.Token(GameText.NoteInOrderToSee), PlanetInfo.Width - 40), pNameCursor, Color.Gold);
 			}
 		}
