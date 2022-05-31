@@ -2,7 +2,7 @@
 <Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
   <Tag_Kinetic>false</Tag_Kinetic>
-  <Tag_Energy>true</Tag_Energy>
+  <Tag_Energy>false</Tag_Energy>
   <Tag_Guided>false</Tag_Guided>
   <Tag_Missile>false</Tag_Missile>
   <Tag_Plasma>false</Tag_Plasma>
