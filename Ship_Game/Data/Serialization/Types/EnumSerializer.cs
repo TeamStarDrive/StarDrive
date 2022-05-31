@@ -9,19 +9,25 @@ namespace Ship_Game.Data.Serialization.Types
     internal class EnumSerializer : TypeSerializer
     {
         public override string ToString() => $"EnumSerializer {Type.GetTypeName()}";
-        readonly Map<int, object> Mapping = new Map<int, object>();
+        readonly Map<int, object> Mapping = new();
         readonly object DefaultValue;
 
         public EnumSerializer(Type toEnum) : base(toEnum)
         {
-            Array values = Enum.GetValues(toEnum);
+            Array values = toEnum.GetEnumValues();
             DefaultValue = values.GetValue(0);
             for (int i = 0; i < values.Length; ++i)
             {
                 object enumValue = values.GetValue(i);
-                int enumIndex = (int)enumValue;
+                int enumIndex = GetEnumIndex(enumValue);
                 Mapping[enumIndex] = enumValue;
             }
+        }
+
+        static int GetEnumIndex(object enumValue)
+        {
+            int enumIndex = System.Convert.ToInt32(enumValue);
+            return enumIndex;
         }
 
         public override object Convert(object value)
@@ -38,7 +44,7 @@ namespace Ship_Game.Data.Serialization.Types
             {
                 Error(value, $"Enum '{Type.Name}' -- {e.Message}");
             }
-            return Type.GetEnumValues().GetValue(0);
+            return DefaultValue;
         }
 
         public override void Serialize(YamlNode parent, object obj)
@@ -49,7 +55,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override void Serialize(BinarySerializerWriter writer, object obj)
         {
-            int enumIndex = (int)obj;
+            int enumIndex = GetEnumIndex(obj);
             writer.BW.WriteVLi32(enumIndex);
         }
         

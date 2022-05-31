@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -12,30 +13,31 @@ using Ship_Game.Universe;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
+    [StarDataType]
     public class War
     {
-        public WarType WarType;
-        public float OurStartingStrength;
-        public float TheirStartingStrength;
-        public float OurStartingGroundStrength;
-        public int InitialColoniesValue;
-        public float TheirStartingGroundStrength;
-        public float StrengthKilled;
-        public float StrengthLost;
-        public int ColoniesValueWon;
-        public int ColoniesValueLost;
-        public Array<string> AlliesCalled = new Array<string>();
-        public Array<int> ContestedSystemsIds = new Array<int>();
-        public float TurnsAtWar;
-        public float EndStarDate;
-        public float StartDate;
+        [StarData] public WarType WarType;
+        [StarData] public float OurStartingStrength;
+        [StarData] public float TheirStartingStrength;
+        [StarData] public float OurStartingGroundStrength;
+        [StarData] public int InitialColoniesValue;
+        [StarData] public float TheirStartingGroundStrength;
+        [StarData] public float StrengthKilled;
+        [StarData] public float StrengthLost;
+        [StarData] public int ColoniesValueWon;
+        [StarData] public int ColoniesValueLost;
+        [StarData] public Array<string> AlliesCalled = new();
+        [StarData] public Array<int> ContestedSystemsIds = new();
+        [StarData] public float TurnsAtWar;
+        [StarData] public float EndStarDate;
+        [StarData] public float StartDate;
         private Empire Us;
-        public string UsName;
-        public string ThemName;
-        public bool Initialized;
+        [StarData] public string UsName;
+        [StarData] public string ThemName;
+        [StarData] public bool Initialized;
         readonly WarScore Score;
-        public Map<int, int> SystemAssaultFailures = new Map<int, int>();
-        public int StartingNumContestedSystems;
+        [StarData] public Map<int, int> SystemAssaultFailures = new();
+        [StarData] public int StartingNumContestedSystems;
 
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => Score.GetBorderConflictState(coloniesOffered);
         public WarState GetWarScoreState() => WarType == WarType.BorderConflict ? Score.GetBorderConflictState() : Score.GetWarScoreState();
@@ -60,11 +62,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
-        [JsonIgnore][XmlIgnore] public int LowestTheaterPriority;
-
-        int ContestedSystemCount => ContestedSystems.Count(s => s.OwnerList.Contains(Them));
-
-        readonly Array<SolarSystem> HistoricLostSystems = new Array<SolarSystem>();
+        readonly Array<SolarSystem> HistoricLostSystems = new();
         public IReadOnlyList<SolarSystem> GetHistoricLostSystems() => HistoricLostSystems;
         Relationship OurRelationToThem;
 
@@ -142,10 +140,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             WarType = type;
         }
-
-        public SolarSystem[] GetTheirBorderSystems() => Them.GetOurBorderSystemsTo(Us, true)
-                                .Filter(s => Us.GetEmpireAI().IsInOurAOs(s.Position));
-        public SolarSystem[] GetTheirNearSystems() => Them.GetOurBorderSystemsTo(Us, true).ToArray();
 
         Array<int> FindContestedSystemGUIDs()
         {

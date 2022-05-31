@@ -11,10 +11,10 @@ namespace Ship_Game.Data.Serialization
     public abstract class TypeSerializerMap
     {
         // mapping of Type to its Serializer metadata
-        readonly Map<Type, TypeSerializer> Serializers = new Map<Type, TypeSerializer>();
+        readonly Map<Type, TypeSerializer> Serializers = new();
 
         // flatmap of TypeSerializer.TypeId to TypeSerializer instances
-        readonly Array<TypeSerializer> FlatMap = new Array<TypeSerializer>();
+        readonly Array<TypeSerializer> FlatMap = new();
 
         protected TypeSerializerMap()
         {
@@ -56,6 +56,8 @@ namespace Ship_Game.Data.Serialization
 
         void Set(ushort id, TypeSerializer ser)
         {
+            if (id >= TypeSerializer.MaxFundamentalTypes)
+                throw new InvalidOperationException("TypeSerializer.MaxFundamentalTypes exceeded!");
             ser.TypeId = id;
             Serializers[ser.Type] = ser;
             FlatMap[id] = ser;
