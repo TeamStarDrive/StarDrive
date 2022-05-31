@@ -3,9 +3,8 @@
   <Version>2</Version>
   <UID>Dispertion</UID>
   <TechnologyType>ShipDefense</TechnologyType>
-  <Cost>400</Cost>
-  <MaxLevel>12</MaxLevel>
-  <RootNode>0</RootNode>
+  <Cost>500</Cost>
+  <MaxLevel>10</MaxLevel>
   <NameIndex>17642</NameIndex>
   <DescriptionIndex>17643</DescriptionIndex>
   <LeadsTo>
@@ -19,7 +18,7 @@
     <UnlockedBonus>
       <Name>Shield power</Name>
       <BonusType>Shield Power Bonus</BonusType>
-      <Bonus>0.07</Bonus>
+      <Bonus>0.14</Bonus>
       <BonusIndex>17644</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>
