@@ -121,12 +121,11 @@ namespace Ship_Game.Data.Binary
 
                 var c = isEnumType ? SerializerCategory.Enums : SerializerCategory.UserClass;
                 string name = typeNames[nameId];
-                Type type = GetTypeFrom(assemblies[asmId], namespaces[nsId], typeNames[nameId]);
+                Type type = GetTypeFrom(assemblies[asmId], namespaces[nsId], typeNames[nameId], c);
                 if (type != null)
                 {
                     if (!TypeMap.TryGet(type, out TypeSerializer s))
                         s = TypeMap.Get(type);
-
                     AddTypeInfo(typeId, name, s, fields, isPointerType, c);
                 }
                 else
@@ -176,9 +175,11 @@ namespace Ship_Game.Data.Binary
 
         Map<Assembly, Map<string, Type>> TypeNameCache;
 
-        Type GetTypeFrom(string assemblyName, string nameSpace, string typeName)
+        Type GetTypeFrom(string assemblyName, string nameSpace, string typeName, SerializerCategory c)
         {
-            string fullName = $"{nameSpace}+{typeName},{assemblyName}";
+            string fullName = c != SerializerCategory.Enums
+                            ? $"{nameSpace}+{typeName},{assemblyName}"
+                            : $"{nameSpace}.{typeName},{assemblyName}";
             Type type = Type.GetType(fullName, throwOnError: false);
             if (type != null)
                 return type; // perfect match
