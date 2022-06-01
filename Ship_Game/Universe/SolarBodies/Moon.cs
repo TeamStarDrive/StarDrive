@@ -26,6 +26,11 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] SceneObject So;
         [XmlIgnore][JsonIgnore] Planet OrbitPlanet;
 
+        // in this case, it's into the background, away from main plane
+        public const float ZPos = 3200f;
+
+        public Vector3 Position3D => new(Position, ZPos);
+
         // Serialize from save game (CANNOT HAVE ARGUMENTS!)
         public Moon() : base(0, GameObjectType.Moon)
         {
@@ -62,7 +67,7 @@ namespace Ship_Game.Gameplay
 
             RotationRadians.X = (-30f).ToRadians();
             RotationRadians.Y = (-30f).ToRadians();
-            So.AffineTransform(new Vector3(Position, 3200f), RotationRadians, MoonScale);
+            So.AffineTransform(new Vector3(Position, ZPos), RotationRadians, MoonScale);
             ScreenManager.Instance.AddObject(So);
         }
 
@@ -93,7 +98,7 @@ namespace Ship_Game.Gameplay
 
             if (So != null)
             {
-                So.AffineTransform(new Vector3(Position, 3200f), RotationRadians, MoonScale);
+                So.AffineTransform(new Vector3(Position, ZPos), RotationRadians, MoonScale);
             }
             else
             {

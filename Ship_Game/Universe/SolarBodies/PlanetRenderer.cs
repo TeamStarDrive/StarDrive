@@ -163,7 +163,7 @@ namespace Ship_Game.Universe.SolarBodies
             Matrix cloudMatrix = default;
             var pos3d = Matrix.CreateTranslation(p.Position3D);
             var tilt = Matrix.CreateRotationX(-RadMath.Deg45AsRads);
-            Matrix baseScale = (Matrix)p.ScaleMatrix;
+            Matrix baseScale = p.ScaleMatrix;
 
             if (Types.NewRenderer)
             {
@@ -251,7 +251,7 @@ namespace Ship_Game.Universe.SolarBodies
             camToPlanet.Z = -camToPlanet.Z;
 
             var rot = Matrix.CreateLookAt(Vector3.Zero, camToPlanet.Normalized(), Vector3.Up);
-            Matrix world = baseScale * rot * pos3d;
+            Matrix world = Types.GlowScaleMatrix * baseScale * rot * pos3d;
 
             var glow = new Vector3(type.GlowColor.X, type.GlowColor.Y, type.GlowColor.Z);
 

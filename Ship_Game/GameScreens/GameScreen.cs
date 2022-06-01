@@ -770,6 +770,12 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawCircle(screenPos, screenRadius, color);
         }
 
+        public void DrawCircleProjected(in Vector3 posInWorld, float radiusInWorld, Color color)
+        {
+            ProjectToScreenCoords(posInWorld, radiusInWorld, out Vector2d screenPos, out double screenRadius);
+            ScreenManager.SpriteBatch.DrawCircle(screenPos, screenRadius, color);
+        }
+
         // draws a projected circle, with an additional overlay texture
         public void DrawCircleProjected(Vector2 posInWorld, float radiusInWorld, Color color, float thickness, SubTexture overlay, Color overlayColor, float z = 0)
         {

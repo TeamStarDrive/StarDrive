@@ -245,7 +245,7 @@ namespace Ship_Game
 
                     Planet planet    = ship.AI.OrbitTarget;
                     string orbitText = $"{Localizer.Token(GameText.Orbiting)} ";
-                    if (!ship.AI.HasPriorityOrder && ship.Position.Distance(planet.Position) > planet.ObjectRadius * 3)
+                    if (!ship.AI.HasPriorityOrder && ship.Position.Distance(planet.Position) > planet.Radius * 3)
                         orbitText = $"{Localizer.Token(GameText.Offensively)} {orbitText}"; // offensive move to orbit
 
                     return $"{orbitText} {planet.Name}";

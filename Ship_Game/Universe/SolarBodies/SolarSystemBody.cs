@@ -233,8 +233,6 @@ namespace Ship_Game
             GameAudio.PlaySfxAsync(sfx, Emitter);
         }
 
-        public float ObjectRadius => PType.Types.BasePlanetRadius * Scale;
-
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
         public IReadOnlyList<Building> GetBuildingsCanBuild() => BuildingsCanBuild;
@@ -362,7 +360,7 @@ namespace Ship_Game
             }
         }
 
-        public Matrix ScaleMatrix => Matrix.CreateScale(PType.Scale * PType.Types.PlanetScale);
+        public Matrix ScaleMatrix => Matrix.CreateScale(PType.Types.PlanetScale * Scale);
 
         void UpdateSO(bool visible)
         {
@@ -593,7 +591,7 @@ namespace Ship_Game
                 // Add moons to planets
                 for (int j = 0; j < data.Moons.Count; j++)
                 {
-                    float orbitRadius = newOrbital.ObjectRadius * 5 + RandomMath.Float(1000f, 1500f) * (j + 1);
+                    float orbitRadius = newOrbital.Radius * 5 + RandomMath.Float(1000f, 1500f) * (j + 1);
                     var moon = new Moon(ParentSystem,
                                         newOrbital.Id,
                                         data.Moons[j].WhichMoon,
@@ -606,12 +604,12 @@ namespace Ship_Game
             }
             else if (newOrbital.PType.MoonTypes.Length != 0)
             {
-                int moonCount = (int)Math.Ceiling(ObjectRadius * 0.004f);
+                int moonCount = (int)Math.Ceiling(Radius * 0.004f);
                 moonCount = (int)Math.Round(RandomMath.AvgFloat(-moonCount * 0.75f, moonCount));
                 for (int j = 0; j < moonCount; j++)
                 {
                     PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.PType);
-                    float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.Float(1000f, 1500f) * (j + 1);
+                    float orbitRadius = newOrbital.Radius + 1500 + RandomMath.Float(1000f, 1500f) * (j + 1);
                     var moon = new Moon(system,
                                         newOrbital.Id,
                                         moonType.Id,

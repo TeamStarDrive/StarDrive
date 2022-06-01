@@ -253,13 +253,13 @@ namespace Ship_Game.AI
 
         void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (goal.TargetPlanet.Position.Distance(Owner.Position) >= goal.TargetPlanet.ObjectRadius * 3)
+            if (goal.TargetPlanet.Position.Distance(Owner.Position) >= goal.TargetPlanet.Radius * 3)
             {
                 Orbit.Orbit(goal.TargetPlanet, timeStep);
                 return;
             }
 
-            if (goal.TargetPlanet.Position.Distance(Owner.Position) >= goal.TargetPlanet.ObjectRadius)
+            if (goal.TargetPlanet.Position.Distance(Owner.Position) >= goal.TargetPlanet.Radius)
             {
                 ThrustOrWarpToPos(goal.TargetPlanet.Position, timeStep, 200f);
                 return;
