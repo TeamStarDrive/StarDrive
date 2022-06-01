@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Battleships</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>3500</Cost>
   <RootNode>0</RootNode>
-  <Name>Battleship Construction</Name>
   <NameIndex>522</NameIndex>
   <DescriptionIndex>523</DescriptionIndex>
-  <LongDescription>These massive ships are unrivaled for their size and cost.</LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>Titans</UID>
@@ -23,35 +21,30 @@
     <UnlockedBonus>
       <Name>Mass Reduction</Name>
       <Bonus>-0.03</Bonus>
-      <Description>New materials reduce effective ship mass by 5% across the board. </Description>
       <BonusIndex>18088</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
-       <UnlockedBonus>
+    <UnlockedBonus>
       <Name>Fuel Cell Upgrade</Name>
       <Bonus>0.15</Bonus>
-      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in power cells</Description>
       <BonusIndex>572</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Power Flow Bonus</Name>
       <Bonus>0.07</Bonus>
-      <Description>Gain an empire-wide 7% bonus to the amount of power produced by reactors</Description>
       <BonusIndex>18089</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Fuel Cell Upgrade</Name>
       <Bonus>0.15</Bonus>
-      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in power cells</Description>
       <BonusIndex>572</BonusIndex>
       <Type>Pollops</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Power Flow Bonus</Name>
       <Bonus>0.08</Bonus>
-      <Description>Gain an empire-wide 8% bonus to the amount of power produced by reactors</Description>
       <BonusIndex>18089</BonusIndex>
       <Type>Pollops</Type>
     </UnlockedBonus>

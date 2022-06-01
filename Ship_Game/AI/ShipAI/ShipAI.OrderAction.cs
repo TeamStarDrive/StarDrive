@@ -674,7 +674,7 @@ namespace Ship_Game.AI
             if (!order.IsSet(MoveOrder.Aggressive) || Owner.ShipData.ShipCategory == ShipCategory.Civilian)
             {
                 // only order to move if we are too far, no need to waste time here.
-                float threshold = toOrbit.ObjectRadius + 1000 * toOrbit.Scale;
+                float threshold = toOrbit.Radius + 1000 * toOrbit.Scale;
                 if (Owner.Position.Distance(toOrbit.Position) > threshold)
                 {
                     Vector2 finalDir = Owner.Position.DirectionToTarget(toOrbit.Position);

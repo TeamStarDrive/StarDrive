@@ -39,7 +39,7 @@
 
 
   <!-- for shield items -->
-  
+  <AmplifyShields>2000</AmplifyShields>
   <ShieldPowerMax>0</ShieldPowerMax>
   <ShieldRechargeDelay>0</ShieldRechargeDelay>
   <ShieldRechargeRate>0</ShieldRechargeRate>
@@ -56,9 +56,9 @@
   
   
   <!-- for Engines -->
-  <Thrust>36800</Thrust>
+  <Thrust>39800</Thrust>
   <!-- amount of thrust used to calculate the engine's turn speed bonus or penalty. Set to same as thrust for default -->
-  <TurnThrust>36000</TurnThrust>
+  <TurnThrust>39000</TurnThrust>
   <WarpThrust>16000</WarpThrust>
   
 

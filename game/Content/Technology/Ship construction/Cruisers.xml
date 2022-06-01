@@ -1,55 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Cruisers</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>1200</Cost>
   <RootNode>0</RootNode>
-  <Name>Cruiser Construction</Name>
   <NameIndex>536</NameIndex>
   <DescriptionIndex>537</DescriptionIndex>
-  <LongDescription>Cruisers are large, heavy ships that can serve in a number of offensive or defensive roles.  Cruisers are often seen as the command ship for fleets of smaller frigates or fighter class vessels, and are large enough to house multiple fighter bays for carrier roles.</LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>Battleships</UID>
     </LeadsToTech>
   </LeadsTo>
-  <ModulesUnlocked>
-  </ModulesUnlocked>
+  <ModulesUnlocked />
   <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Mass Reduction</Name>
       <Bonus>-0.03</Bonus>
-      <Description>New materials reduce effective ship mass by 5% across the board. </Description>
       <BonusIndex>18088</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
-       <UnlockedBonus>
+    <UnlockedBonus>
       <Name>Fuel Cell Upgrade</Name>
       <Bonus>0.15</Bonus>
-      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in power cells</Description>
       <BonusIndex>572</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Power Flow Bonus</Name>
       <Bonus>0.07</Bonus>
-      <Description>Gain an empire-wide 7% bonus to the amount of power produced by reactors</Description>
       <BonusIndex>18089</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Fuel Cell Upgrade</Name>
       <Bonus>0.15</Bonus>
-      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in power cells</Description>
       <BonusIndex>572</BonusIndex>
       <Type>Pollops</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Power Flow Bonus</Name>
       <Bonus>0.08</Bonus>
-      <Description>Gain an empire-wide 8% bonus to the amount of power produced by reactors</Description>
       <BonusIndex>18089</BonusIndex>
       <Type>Pollops</Type>
     </UnlockedBonus>
@@ -57,7 +49,6 @@
       <Name>Hull Strengthening</Name>
       <BonusType>Module HP Bonus</BonusType>
       <Bonus>0.20</Bonus>
-      <Description>Provides a 20% hit point bonus to all ship modules. </Description>
       <BonusIndex>622</BonusIndex>
       <Type>Ralyeh</Type>
     </UnlockedBonus>

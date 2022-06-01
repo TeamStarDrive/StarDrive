@@ -140,7 +140,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             if (P.Universe.Screen.IsSystemViewOrCloser
                 && P.Universe.Screen.IsInFrustum(P.Position, P.OrbitalRadius * 2))
             {
-                Shield.HitShield(P, bomb, Position, P.ObjectRadius + 100f);
+                Shield.HitShield(P, bomb, Position, P.Radius + 100f);
             }
 
             P.ShieldStrengthCurrent = Math.Max(P.ShieldStrengthCurrent - bomb.HardDamageMax, 0);

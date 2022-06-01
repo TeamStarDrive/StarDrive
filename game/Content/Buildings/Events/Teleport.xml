@@ -1,14 +1,17 @@
 ﻿<Building>
   <Name>Teleport</Name>
   <Icon>Teleport</Icon>
+  
+  <Maintenance>1</Maintenance>
+  
   <IsCommodity>true</IsCommodity>
   <Infrastructure>8</Infrastructure>
-  <Maintenance>1</Maintenance>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
-  <NameTranslationIndex>18100</NameTranslationIndex>
-  <DescriptionIndex>18101</DescriptionIndex>
-  <ShortDescriptionIndex>18102</ShortDescriptionIndex>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <NoRandomSpawn>true</NoRandomSpawn>
+  
+  <!-- For localization in GameText.yaml -->
+  <NameTranslationIndex>18100</NameTranslationIndex>
+  <DescriptionIndex>18101</DescriptionIndex>
+  <ShortDescriptionIndex>18102</ShortDescriptionIndex>
 </Building>

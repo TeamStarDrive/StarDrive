@@ -128,7 +128,7 @@ namespace Ship_Game
 
         void DrawLaunchButton(SpriteBatch batch, Troop troop, Header slant)
         {
-            troop.Draw(batch, ItemDisplayRect);
+            troop.Draw(Universe.UState, batch, ItemDisplayRect);
             if (troop.Loyalty != EmpireManager.Player)
                 LaunchTroop = null;
             else

@@ -1,18 +1,18 @@
 ﻿<Building>
   <Name>World bubble</Name>
-  <Maintenance>0.2</Maintenance>
-  <Description>World bubble</Description>
-  <Cost>40</Cost>
   <Icon>Altar</Icon>
+  
+  <Cost>40</Cost>
+  <Maintenance>0.2</Maintenance>
+  
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  <ShortDescription>planet shield</ShortDescription>
   <Scrappable>false</Scrappable>
   <InvadeInjurePoints>2</InvadeInjurePoints>	
   <PlanetaryShieldStrengthAdded>1800</PlanetaryShieldStrengthAdded>
   <MaxFertilityOnBuild>-0.15</MaxFertilityOnBuild>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18180</NameTranslationIndex>
   <DescriptionIndex>18181</DescriptionIndex>
   <ShortDescriptionIndex>18182</ShortDescriptionIndex>
-  
 </Building>

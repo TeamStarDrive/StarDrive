@@ -27,12 +27,13 @@ namespace Ship_Game
             SetExploredBy(data.ExploredBy);
             if (data.Owner.NotEmpty())
                 SetOwner(EmpireManager.GetEmpireByName(data.Owner));
-            
+
             if (data.SpecialDescription.NotEmpty())
                 SpecialDescription = data.SpecialDescription; 
-            
-            PType = ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet); // we revert to random just in case people unload mods
-            Scale = data.Scale > 0f ? data.Scale : RandomMath.Float(1f, 2f);
+
+            var type = ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet); // we revert to random just in case people unload mods
+            var scale = data.Scale > 0f ? data.Scale : RandomMath.Float(1f, 2f);
+            InitPlanetType(type, scale);
             colonyType         = data.ColonyType;
             GovOrbitals        = data.GovOrbitals;
             GovGroundDefense   = data.GovGroundDefense;

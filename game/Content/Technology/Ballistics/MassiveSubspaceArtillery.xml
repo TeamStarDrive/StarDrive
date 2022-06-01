@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>MassiveSubspaceArtillery</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>4560</Cost>
   <RootNode>0</RootNode>
-  <Name>Subspace Artillery</Name>
   <NameIndex>665</NameIndex>
   <DescriptionIndex>666</DescriptionIndex>
-  <LongDescription>Our scientists have concluded that conventional weapons, when packed with enough high explosives, can rival even the most modern energy weapons for raw destructive power. Accelerate this explosive using subspatial techniques and you have a very massive cannon.</LongDescription>
   <LeadsTo>
-     <LeadsToTech>
+    <LeadsToTech>
       <UID>Plasma Ordnance</UID>
     </LeadsToTech>
   </LeadsTo>

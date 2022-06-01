@@ -36,11 +36,11 @@ namespace UnitTests.Ships
         {
             CreateWeapon(out Ship ship, out WeaponTestWrapper weapon, ordCost:1, pwrCost:0);
 
-            Assert.AreEqual(24, ship.Ordinance, "ship.Ordinance");
+            Assert.AreEqual(32, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Fire must be successful");
             Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
-            Assert.AreEqual(23, ship.Ordinance, "ship.Ordinance");
+            Assert.AreEqual(31, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
         }
         
@@ -49,11 +49,11 @@ namespace UnitTests.Ships
         {
             CreateWeapon(out Ship ship, out WeaponTestWrapper weapon, ordCost:0, pwrCost:1);
 
-            Assert.AreEqual(24, ship.Ordinance, "ship.Ordinance");
+            Assert.AreEqual(32, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Fire must be successful");
             Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
-            Assert.AreEqual(24, ship.Ordinance, "ship.Ordinance");
+            Assert.AreEqual(32, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(19, ship.PowerCurrent, "ship.PowerCurrent");
         }
 

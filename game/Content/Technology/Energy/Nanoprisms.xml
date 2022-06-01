@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Nanoprisms</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>3000</Cost>
   <RootNode>0</RootNode>
-  <Name>Plasma Ordnance</Name>
   <NameIndex>17623</NameIndex>
   <DescriptionIndex>17624</DescriptionIndex>
-  <LongDescription>See localization file</LongDescription>
-  <ModulesUnlocked />
-  <BuildingsUnlocked />
-    <LeadsTo>
-      <LeadsToTech>
+  <LeadsTo>
+    <LeadsToTech>
       <UID>MassivePhasors</UID>
     </LeadsToTech>
   </LeadsTo>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />  
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Beam Effectiveness</Name>
@@ -26,7 +24,6 @@
       <Bonus>.20</Bonus>
       <BonusIndex>17625</BonusIndex>
     </UnlockedBonus>
-
   </BonusUnlocked>
   <TroopsUnlocked />
   <HullsUnlocked />

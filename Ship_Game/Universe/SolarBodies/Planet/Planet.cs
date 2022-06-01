@@ -297,12 +297,12 @@ namespace Ship_Game
                 else if (ringRadius < sysMaxRingRadius * 0.7f)  sunZone = SunZone.Far;
                 else                                            sunZone = SunZone.VeryFar;
 
-                InitPlanetType(ChooseTypeByWeight(sunZone));
-
-                float scale = random.Float(0.75f, 1.5f) + PType.Scale;
-                if (PType.Category == PlanetCategory.GasGiant)
+                PlanetType type = ChooseTypeByWeight(sunZone);
+                float scale = type.Scale + random.Float(0.75f, 1.5f);
+                if (type.Category == PlanetCategory.GasGiant)
                     scale += 1f;
-                InitNewMinorPlanet(random, PType, scale);
+
+                InitNewMinorPlanet(random, type, scale);
             }
 
             PlanetTilt = random.Float(45f, 135f);
@@ -333,13 +333,15 @@ namespace Ship_Game
             return $"{ParentSystem.Name} {RomanNumerals.ToRoman(ringNum)}";
         }
 
-        void InitPlanetType(PlanetType type)
+        void InitPlanetType(PlanetType type, float scale)
         {
-            if (PType != null) throw new InvalidOperationException($"PType already initialized to {PType}");
+            if (scale == 0f) throw new InvalidOperationException("Planet initialized with scale=0");
             if (OrbitalRadius == 0f) throw new InvalidOperationException("Planet initialized with OrbitalRadius=0");
 
             PType = type;
-            OrbitalRadius += ObjectRadius; // ObjectRadius depends on PType
+            Scale = scale;
+            Radius = type.Types.BasePlanetRadius * type.Types.PlanetScale * scale;
+            OrbitalRadius += Radius;
             UpdatePositionOnly();
         }
 
@@ -1045,7 +1047,7 @@ namespace Ship_Game
             TerraformToAdd            = 0;
             ShieldStrengthMax         = 0;
             ShipBuildingModifier      = 0;
-            SensorRange               = ObjectRadius + 2000;
+            SensorRange               = Radius + 2000;
             TotalDefensiveStrength    = 0;
             PlusFlatPopulationPerTurn = 0;
 
@@ -1064,7 +1066,7 @@ namespace Ship_Game
                 if (b.SensorRange > sensorRange)
                     sensorRange = b.SensorRange;
 
-                projectorRange = Math.Max(projectorRange, b.ProjectorRange + ObjectRadius);
+                projectorRange = Math.Max(projectorRange, b.ProjectorRange + Radius);
                 allowInfantry |= b.AllowInfantry;
                 if (b.WinsGame)
                     HasWinBuilding = true;
@@ -1271,7 +1273,7 @@ namespace Ship_Game
                 if (Universe.Screen.IsSystemViewOrCloser
                     && Universe.Screen.IsInFrustum(Position, OrbitalRadius * 2))
                 {
-                    Shield.HitShield(this, ship, Position, ObjectRadius + 100f);
+                    Shield.HitShield(this, ship, Position, Radius + 100f);
                 }
 
                 ShieldStrengthCurrent = (ShieldStrengthCurrent - damage).LowerBound(0);
@@ -1294,7 +1296,7 @@ namespace Ship_Game
             bool richness;
             switch (RandomMath.RollDie(20))
             {
-                case 1:  bid = Building.Crater1Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn); richness = false; break;
+                case 1:  bid = Building.Crater1Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn); richness  = false; break;
                 case 2:  bid = Building.Crater2Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn2); richness = false; break;
                 case 3:  bid = Building.Crater3Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn3); richness = false; break;
                 case 4:

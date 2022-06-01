@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>HeavyPD</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>1200</Cost>  
-  <Name>Point Defense</Name>
   <NameIndex>17559</NameIndex>
   <DescriptionIndex>17560</DescriptionIndex>
-  <LeadsTo>
-
-  </LeadsTo>
+  <LeadsTo />
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>EnergyPDHeavy</ModuleUID>

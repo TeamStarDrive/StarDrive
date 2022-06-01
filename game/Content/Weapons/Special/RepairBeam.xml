@@ -16,7 +16,7 @@
   <BeamTexture>beam_black</BeamTexture>
 
   <HitsFriendlies>true</HitsFriendlies>
-  <DamageAmount>-8</DamageAmount>
+  <DamageAmount>-10</DamageAmount>
   <BeamThickness>50</BeamThickness>
   <BeamPowerCostPerSecond>0</BeamPowerCostPerSecond>
 

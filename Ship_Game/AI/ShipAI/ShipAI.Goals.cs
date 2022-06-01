@@ -288,7 +288,7 @@ namespace Ship_Game.AI
 
         Vector2 GetPositionOnPlanet(Planet p)
         {
-            return NewMathExt.RandomOffsetAndDistance(p.Position, p.ObjectRadius);
+            return NewMathExt.RandomOffsetAndDistance(p.Position, p.Radius);
         }
 
         public class ShipGoal : IDisposable

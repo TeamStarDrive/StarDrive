@@ -1,12 +1,13 @@
 ﻿<Building>
   <Name>Large Warehouse</Name>
-  <Description>Large Warehouse</Description>
-  <StorageAdded>200</StorageAdded>
-  <Cost>250</Cost>
   <Icon>largewarehouse</Icon>
-  <ShortDescription>+200 maximum good storage</ShortDescription>
+  
+  <Cost>250</Cost>
+  
+  <StorageAdded>200</StorageAdded>
   <IsCommodity>true</IsCommodity>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>5367</NameTranslationIndex>
   <DescriptionIndex>5368</DescriptionIndex>
   <ShortDescriptionIndex>5369</ShortDescriptionIndex>

@@ -286,7 +286,7 @@ namespace Ship_Game
             if (P.ConstructionQueue.Count > 0)
             {
                 QueueItem qi = P.ConstructionQueue[0];
-                qi.DrawAt(batch, new Vector2(QueueRect.X + 10, QueueRect.Y + QueueRect.Height / 2 - 30), LowRes);
+                qi.DrawAt(P.Universe, batch, new Vector2(QueueRect.X + 10, QueueRect.Y + QueueRect.Height / 2 - 30), LowRes);
 
                 batch.Draw((ApplyProdHover ? ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1") : ResourceManager.Texture("NewUI/icon_queue_rushconstruction")), ApplyProductionRect, Color.White);
                 batch.Draw((CancelProdHover ? ResourceManager.Texture("NewUI/icon_queue_delete_hover1") : ResourceManager.Texture("NewUI/icon_queue_delete")), CancelProductionRect, Color.White);

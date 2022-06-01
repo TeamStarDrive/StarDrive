@@ -130,7 +130,7 @@ namespace Ship_Game
             for (int i = 0; i < PlanetList.Count; i++)
             {
                 Planet planet = PlanetList[i];
-                planet.InFrustum = InFrustum && universe.IsInFrustum(planet.Position3D, planet.ObjectRadius);
+                planet.InFrustum = InFrustum && universe.IsInFrustum(planet.Position3D, planet.Radius);
                 planet.Update(timeStep);
             }
 
@@ -694,7 +694,7 @@ namespace Ship_Game
                     OrbitalAngle         = planet.OrbitalAngle,
                     OrbitalDistance      = planet.OrbitalRadius,
                     HasRings             = planet.HasRings,
-                    Radius               = planet.ObjectRadius,
+                    Radius               = planet.Radius,
                     FarmerPercentage     = planet.Food.Percent,
                     WorkerPercentage     = planet.Prod.Percent,
                     ResearcherPercentage = planet.Res.Percent,
