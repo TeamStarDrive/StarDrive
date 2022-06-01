@@ -327,7 +327,9 @@ namespace Ship_Game.Ships
             return ship.HasModules ? ship : null;
         }
 
-        public static Ship CreateShipFromSave(UniverseState us, Empire empire, SavedGame.ShipSaveData save)
+        public static Ship CreateShipFromSave(UniverseState us, Empire empire,
+                                              SavedGame.UniverseSaveData uSave,
+                                              SavedGame.ShipSaveData save)
         {
             ModuleSaveData[] savedModules;
             string[] moduleUIDs;
@@ -341,30 +343,19 @@ namespace Ship_Game.Ships
                 return null;
             }
 
-            if (ResourceManager.Ships.GetDesign(save.Name, out IShipDesign data))
-            {
-                // the ship from the save is not the same as the template
-                // this will be a unique snowflake in the universe
-                if (!data.AreModulesEqual(savedModules))
-                    data = ShipDesign.FromSave(savedModules, moduleUIDs, data);
-            }
-            else
-            {
-                if (!ResourceManager.Hull(save.Hull, out ShipHull hull))
-                {
-                    Log.Error($"CreateShipFromSave failed: no hull named {save.Hull}");
-                    return null;
-                }
+            IShipDesign design = uSave.GetDesign(save.Name);
 
-                // this ShipData doesn't exist in the game designs, it comes from the savegame only
-                data = ShipDesign.FromSave(savedModules, moduleUIDs, save, hull);
-                ResourceManager.AddShipTemplate((ShipDesign)data, playerDesign: true);
+            // add the design to ships list if it doesn't exist
+            // if there is a newer version of this design, it will not be overwritten
+            if (!ResourceManager.Ships.Exists(design.Name))
+            {
+                ResourceManager.AddShipTemplate((ShipDesign)design, playerDesign: true, readOnly: true);
             }
 
             Ship ship;
             try
             {
-                ship = new Ship(us, save.Id, empire, data, save, savedModules);
+                ship = new Ship(us, save.Id, empire, design, save, savedModules);
             }
             catch (Exception e)
             {
@@ -382,17 +373,6 @@ namespace Ship_Game.Ships
                 return ship;
             }
             return null; // module creation failed
-        }
-
-        static Ship TryCreateFallbackShipFromSave(UniverseState us, Empire empire, SavedGame.ShipSaveData save)
-        {
-            if (ResourceManager.GetShipTemplate(save.Name, out Ship template))
-            {
-                var ship = new Ship(us, save.Id, template, empire, save.Position);
-                ship.InitializeFromSaveData(save);
-                return ship;
-            }
-            return null;
         }
 
         public static Ship CreateShipAtPoint(UniverseState us, string shipName, Empire owner, Vector2 position)
@@ -510,9 +490,6 @@ namespace Ship_Game.Ships
 
             if (ShipData.Role == RoleName.platform)
                 IsPlatform = true;
-
-            if (!ResourceManager.ShipTemplateExists(Name))
-                FromSave = true; // this is a design which is only available from the savegame
 
             // Begin: ShipSubClass Initialization. Put all ship sub class initializations here
             if (AI == null)

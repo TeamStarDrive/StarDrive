@@ -79,7 +79,7 @@ namespace Ship_Game.AI.ShipMovement
                 return;
             }
           
-            float radius = (orbitTarget.ObjectRadius*2 + Owner.Radius).UpperBound(12000);
+            float radius = (orbitTarget.Radius*2 + Owner.Radius).UpperBound(12000);
             float distance = orbitTarget.Position.Distance(Owner.Position);
 
             if (distance > 15000f) // we are still far away, thrust towards the planet

@@ -451,9 +451,9 @@ namespace Ship_Game
                                        ? empire.data.StartingShip
                                        : empire.data.PrototypeShip;
 
-                Ship.CreateShipAt(UState, starterShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 3), true);
-                Ship.CreateShipAt(UState, colonyShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 2), true);
-                Ship.CreateShipAt(UState, startingScout, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 3), true);
+                Ship.CreateShipAt(UState, starterShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.Radius * 3), true);
+                Ship.CreateShipAt(UState, colonyShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.Radius * 2), true);
+                Ship.CreateShipAt(UState, startingScout, empire, homePlanet, RandomMath.Vector2D(homePlanet.Radius * 3), true);
             }
         }
 

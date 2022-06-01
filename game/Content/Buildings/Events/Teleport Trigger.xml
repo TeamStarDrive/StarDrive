@@ -1,13 +1,15 @@
 ﻿<Building>
   <Name>Teleport Trigger</Name>
   <Icon>Teleport</Icon>
+  
   <EventTriggerUID>Teleport Trigger</EventTriggerUID>
   <EventSpawnChance>22</EventSpawnChance>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
-  <NameTranslationIndex>18201</NameTranslationIndex>
-  <DescriptionIndex>18202</DescriptionIndex>
-  <ShortDescriptionIndex>18202</ShortDescriptionIndex>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <NoRandomSpawn>true</NoRandomSpawn>
+  
+  <!-- For localization in GameText.yaml -->
+  <NameTranslationIndex>18201</NameTranslationIndex>
+  <DescriptionIndex>18202</DescriptionIndex>
+  <ShortDescriptionIndex>18202</ShortDescriptionIndex>
 </Building>

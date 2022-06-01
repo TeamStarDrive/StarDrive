@@ -10,6 +10,8 @@ using Vector2d = SDGraphics.Vector2d;
 using Vector3d = SDGraphics.Vector3d;
 using Vector4 = SDGraphics.Vector4;
 using Point = SDGraphics.Point;
+using Rectangle = SDGraphics.Rectangle;
+using RectF = SDGraphics.RectF;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -371,6 +373,148 @@ namespace Ship_Game.Data.Serialization.Types
             }
             Error(value, "Point -- expected [int,int]");
             return Point.Zero;
+        }
+    }
+
+    internal class RectangleSerializer : TypeSerializer
+    {
+        public RectangleSerializer() : base(typeof(Rectangle)) { }
+        public override string ToString() => "RectangleSerializer";
+
+        public override object Convert(object value)
+        {
+            return ToRectangle(value);
+        }
+
+        public override void Serialize(YamlNode parent, object obj)
+        {
+            var r = (Rectangle)obj;
+            parent.Value = new object[]{ r.X, r.Y, r.Width, r.Height };
+        }
+        
+        public override void Serialize(BinarySerializerWriter writer, object obj)
+        {
+            var r = (Rectangle)obj;
+            writer.BW.WriteVLi32(r.X);
+            writer.BW.WriteVLi32(r.Y);
+            writer.BW.WriteVLi32(r.Width);
+            writer.BW.WriteVLi32(r.Height);
+        }
+
+        public override object Deserialize(BinarySerializerReader reader)
+        {
+            Rectangle r;
+            r.X = reader.BR.ReadVLi32();
+            r.Y = reader.BR.ReadVLi32();
+            r.Width = reader.BR.ReadVLi32();
+            r.Height = reader.BR.ReadVLi32();
+            return r;
+        }
+
+        public static Rectangle FromString(string s)
+        {
+            string[] parts = s.Split(',');
+            Rectangle r = default;
+            if (parts.Length >= 1) r.X = StringView.ToInt(parts[0]);
+            if (parts.Length >= 2) r.Y = StringView.ToInt(parts[1]);
+            if (parts.Length >= 3) r.Width = StringView.ToInt(parts[2]);
+            if (parts.Length >= 4) r.Height = StringView.ToInt(parts[3]);
+            return r;
+        }
+
+        public static Rectangle FromString(StringView s)
+        {
+            StringView x = s.Next(',');
+            StringView y = s.Next(',');
+            StringView w = s.Next(',');
+            StringView h = s;
+            return new Rectangle(x.ToInt(), y.ToInt(), w.ToInt(), h.ToInt());
+        }
+
+        public static Rectangle ToRectangle(object value)
+        {
+            if (value is object[] objects)
+            {
+                Rectangle r = default;
+                if (objects.Length >= 1) r.X = Int(objects[0]);
+                if (objects.Length >= 2) r.Y = Int(objects[1]);
+                if (objects.Length >= 3) r.Y = Int(objects[2]);
+                if (objects.Length >= 4) r.Y = Int(objects[3]);
+                return r;
+            }
+            Error(value, "Rectangle -- expected [int(x),int(y),int(w),int(h)]");
+            return Rectangle.Empty;
+        }
+    }
+
+    internal class RectFSerializer : TypeSerializer
+    {
+        public RectFSerializer() : base(typeof(RectF)) { }
+        public override string ToString() => "RectFSerializer";
+
+        public override object Convert(object value)
+        {
+            return ToRectF(value);
+        }
+
+        public override void Serialize(YamlNode parent, object obj)
+        {
+            var r = (RectF)obj;
+            parent.Value = new object[]{ r.X, r.Y, r.W, r.H };
+        }
+        
+        public override void Serialize(BinarySerializerWriter writer, object obj)
+        {
+            var r = (RectF)obj;
+            writer.BW.Write(r.X);
+            writer.BW.Write(r.Y);
+            writer.BW.Write(r.W);
+            writer.BW.Write(r.H);
+        }
+
+        public override object Deserialize(BinarySerializerReader reader)
+        {
+            RectF r;
+            r.X = reader.BR.ReadSingle();
+            r.Y = reader.BR.ReadSingle();
+            r.W = reader.BR.ReadSingle();
+            r.H = reader.BR.ReadSingle();
+            return r;
+        }
+
+        public static RectF FromString(string s)
+        {
+            string[] parts = s.Split(',');
+            RectF p = default;
+            if (parts.Length >= 1) p.X = Float(parts[0]);
+            if (parts.Length >= 2) p.Y = Float(parts[1]);
+            if (parts.Length >= 3) p.W = Float(parts[2]);
+            if (parts.Length >= 4) p.H = Float(parts[3]);
+            return p;
+        }
+
+        public static RectF FromString(StringView s)
+        {
+            StringView x = s.Next(',');
+            StringView y = s.Next(',');
+            StringView w = s.Next(',');
+            StringView h = s;
+            return new RectF(x.ToFloat(), y.ToFloat(), w.ToFloat(), h.ToFloat());
+        }
+
+        public static RectF ToRectF(object value)
+        {
+            if (value is object[] objects)
+            {
+                RectF r = default;
+                if (objects.Length >= 1) r.X = Float(objects[0]);
+                if (objects.Length >= 2) r.Y = Float(objects[1]);
+                if (objects.Length >= 3) r.Y = Float(objects[2]);
+                if (objects.Length >= 4) r.Y = Float(objects[3]);
+                return r;
+            }
+            Error(value, "RectF -- expected [float(x),float(y),float(w),float(h)]");
+            return RectF.Empty;
         }
     }
 }

@@ -37,7 +37,7 @@ namespace Ship_Game
             }
             if (SelectedPlanet != null && !LookingAtPlanet &&  viewState < UnivScreenState.GalaxyView)
             {
-                ProjectToScreenCoords(SelectedPlanet.Position, SelectedPlanet.ObjectRadius,
+                ProjectToScreenCoords(SelectedPlanet.Position, SelectedPlanet.Radius,
                                       out Vector2d planetPos, out double planetRadius);
                 if (planetRadius < 8.0)
                     planetRadius = 8.0;

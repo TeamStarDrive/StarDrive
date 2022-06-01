@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>SpaceWeapons</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
   <RootNode>1</RootNode>
-  <Name>Space Weapons</Name>
   <NameIndex>661</NameIndex>
-  <IconPath>icons_techroot_weapons</IconPath>
   <DescriptionIndex>662</DescriptionIndex>
-  <LongDescription>Taking a cue from naval tradition, early spacecraft rely heavily on bullets, shells, flak, and other kinetic weapons. Their raw destructive power and relative cheapness make them an excellent value, though they do require ammunition. Research into energy weapons will provide our empire with weapons suitable for longer deployments. We can also focus our efforts on developing spaceworthy self-guided missile technologies.</LongDescription>
+  <IconPath>icons_techroot_weapons</IconPath>
   <LeadsTo>
-		<LeadsToTech>
-			<UID>KineticWeapons</UID>
-		</LeadsToTech>
+    <LeadsToTech>
+      <UID>KineticWeapons</UID>
+    </LeadsToTech>
     <LeadsToTech>
       <UID>MissileTheory</UID>
     </LeadsToTech>
@@ -28,7 +26,6 @@
     <UnlockedMod>
       <ModuleUID>HVVulcanCannon</ModuleUID>
     </UnlockedMod>
-
   </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked />

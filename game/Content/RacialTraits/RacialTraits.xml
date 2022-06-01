@@ -16,9 +16,9 @@
     <!--Gluttonous-->
     <TraitName>34</TraitName>
     <Category>Physical</Category>
-    <Cost>-3</Cost>
+    <Cost>-2</Cost>
     <Description>35</Description>
-    <ConsumptionModifier>0.2</ConsumptionModifier>
+    <ConsumptionModifier>0.1</ConsumptionModifier>
     <Excludes>32</Excludes>
     <Excludes>5091</Excludes>
   </RacialTrait>

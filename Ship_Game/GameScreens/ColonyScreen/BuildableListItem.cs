@@ -144,7 +144,7 @@ namespace Ship_Game
 
         void DrawTroop(SpriteBatch batch, Troop troop)
         {
-            troop.Draw(batch, new Vector2(X, Y-2), new Vector2(IconSize)); // Icon
+            troop.Draw(Screen.Universe, batch, new Vector2(X, Y-2), new Vector2(IconSize)); // Icon
             batch.DrawString(Font12, troop.DisplayNameEmpire(Screen.P.Owner), TextX+2, Y+2); // Title
             batch.DrawString(Font8, troop.Class, TextX+4, Y+16, Color.Orange); // Description
             DrawProductionInfo(batch, ShipMaintenance.TroopMaint, troop.ActualCost);

@@ -4384,8 +4384,10 @@ namespace Ship_Game
         CreditsPerTurn = 4369,
         /// <summary>Saves the ship design</summary>
         SaveShipDesignDesc = 4370,
-        /// <summary>Save WIP </summary>
+        /// <summary>Save WIP</summary>
         SaveWIP = 4371,
+        /// <summary>Resources were also created:</summary>
+        BuildingCreatedFromLava = 4372,
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>

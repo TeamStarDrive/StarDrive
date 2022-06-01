@@ -1,15 +1,16 @@
 <Building>
   <Name>Terraformer</Name>
-  <Maintenance>2</Maintenance>
-  <Description>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere.</Description>
-  <PlusTerraformPoints>0.001</PlusTerraformPoints>
-  <Cost>1000</Cost>
   <Icon>terraformer</Icon>
+  
+  <Cost>1000</Cost>
+  <Maintenance>2</Maintenance>
+  
+  <PlusTerraformPoints>0.001</PlusTerraformPoints>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  <ShortDescription>Slowly terraforms planet</ShortDescription>
   <PlusFlatProductionAmount>-2</PlusFlatProductionAmount>
   <Unique>false</Unique>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>461</NameTranslationIndex>
   <DescriptionIndex>462</DescriptionIndex>
   <ShortDescriptionIndex>463</ShortDescriptionIndex>

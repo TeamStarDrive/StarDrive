@@ -1,16 +1,14 @@
 ﻿<Building>
   <Name>Cloning Center</Name>
-  <Maintenance>2</Maintenance>
-  <Description>Cloning Centers increase the population growth of a planet at a fixed rate of 10,000,000 clones per turn. Multiple cloning centers can be deployed for greater effect. </Description>
-  <Cost>175</Cost>
-  <PlusFlatPopulation>20</PlusFlatPopulation>
   <Icon>cloning_center</Icon>
-  <ShortDescription>+ 20 million clones per turn (.02 population)</ShortDescription>
-
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  
+  <Cost>175</Cost>
+  <Maintenance>2</Maintenance>
+  
+  <PlusFlatPopulation>20</PlusFlatPopulation>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>412</NameTranslationIndex>
   <DescriptionIndex>413</DescriptionIndex>
   <ShortDescriptionIndex>414</ShortDescriptionIndex>
-
-
 </Building>

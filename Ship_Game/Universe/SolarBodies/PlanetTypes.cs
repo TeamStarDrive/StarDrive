@@ -15,9 +15,10 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public float RingsScale; // slightly bigger than the planet
         [StarData] public float CloudsScale; // slightly bigger than the planet
         [StarData] public float AtmosphereScale; // slightly bigger than clouds, a very subtle atmosphere effect, enabled for clouds, see `NoAtmosphere`
-        [StarData] public float HaloScale; // a very subtle halo effect, enabled for clouds, see `NoHalo`
+        [StarData] public float HaloScale; // a very subtle white halo effect towards the sun, enabled for clouds, see `NoHalo`
+        [StarData] public float GlowScale; // colored glow effect around the planet
 
-        // Mesh.BoundingSphere.Radius * PlanetScale
+        // Mesh.BoundingSphere.Radius
         public float BasePlanetRadius;
 
         [StarData] public string PlanetMesh;
@@ -34,6 +35,7 @@ namespace Ship_Game.Universe.SolarBodies
         public Matrix CloudsScaleMatrix;
         public Matrix AtmosphereScaleMatrix;
         public Matrix HaloScaleMatrix;
+        public Matrix GlowScaleMatrix;
 
         Map<int, PlanetType> PlanetTypeMap;
         Map<PlanetCategory, PlanetType[]> PlanetTypesByCategory;
@@ -61,10 +63,11 @@ namespace Ship_Game.Universe.SolarBodies
             CloudsScaleMatrix = Matrix.CreateScale(CloudsScale);
             AtmosphereScaleMatrix = Matrix.CreateScale(AtmosphereScale);
             HaloScaleMatrix = Matrix.CreateScale(HaloScale);
+            GlowScaleMatrix = Matrix.CreateScale(GlowScale);
 
             Renderer = new PlanetRenderer(content, this);
 
-            BasePlanetRadius = Renderer.MeshSphere.Meshes[0].BoundingSphere.Radius * PlanetScale;
+            BasePlanetRadius = Renderer.MeshSphere.Meshes[0].BoundingSphere.Radius;
 
             foreach (PlanetType type in Types)
                 type.Initialize(this, content, Renderer.MeshSphere);
