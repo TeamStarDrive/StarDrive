@@ -5,6 +5,7 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -62,7 +63,7 @@ namespace Ship_Game
 
         public void SetCanceled(bool state = true) => IsCancelled = state;
 
-        public void DrawAt(SpriteBatch batch, Vector2 at, bool lowRes)
+        public void DrawAt(UniverseState us, SpriteBatch batch, Vector2 at, bool lowRes)
         {
             var r = new Rectangle((int)at.X, (int)at.Y, 29, 30);
             var tCursor = new Vector2(at.X + 40f, at.Y);
@@ -89,7 +90,7 @@ namespace Ship_Game
             else if (isTroop)
             {
                 Troop template = ResourceManager.GetTroopTemplate(TroopType);
-                template.Draw(batch, r);
+                template.Draw(us, batch, r);
                 batch.DrawString(Fonts.Arial12Bold, TroopType, tCursor, Color.White);
                 pb.Draw(batch);
             }
