@@ -92,8 +92,7 @@ namespace Ship_Game
         public void GenerateNewFromPlanetType(RandomBase random, PlanetType type, float scale, float preDefinedPop = 0)
         {
             TilesList.Clear();
-            PType = type;
-            Scale = scale;
+            InitPlanetType(type, scale);
 
             if (Habitable)
             {
@@ -121,15 +120,15 @@ namespace Ship_Game
 
         void GeneratePlanetFromSystemData(RandomBase random, SolarSystemData.Ring data)
         {
-            InitPlanetType(data.WhichPlanet > 0
+            PlanetType type = data.WhichPlanet > 0
                 ? ResourceManager.Planets.Planet(data.WhichPlanet)
-                : ResourceManager.Planets.RandomPlanet());
+                : ResourceManager.Planets.RandomPlanet();
 
             float scale;
             if (data.planetScale > 0)
                 scale = data.planetScale;
             else
-                scale = RandomMath.Float(0.9f, 1.8f) + PType.Scale;
+                scale = type.Scale + RandomMath.Float(0.9f, 1.8f);
 
             if (data.UniqueHabitat)
             {
@@ -137,17 +136,19 @@ namespace Ship_Game
                 UniqueHabPercent = data.UniqueHabPC;
             }
 
-            InitNewMinorPlanet(random, PType, scale, data.MaxPopDefined);
+            InitNewMinorPlanet(random, type, scale, data.MaxPopDefined);
         }
 
         public void GenerateNewHomeWorld(RandomBase random, Empire owner, SolarSystemData.Ring data)
         {
             PlanetCategory preferred = owner.data.PreferredEnv == PlanetCategory.Other
                                      ? PlanetCategory.Terran : owner.data.PreferredEnv;
-            InitPlanetType(ResourceManager.Planets.RandomPlanet(preferred));
 
+            PlanetType type = ResourceManager.Planets.RandomPlanet(preferred);
+            float scale = 1f * owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
+
+            InitPlanetType(type, scale);
             SetOwner(owner);
-            Scale = 1 * Owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
             IsHomeworld = true;
             Owner.SetCapital(this);
 

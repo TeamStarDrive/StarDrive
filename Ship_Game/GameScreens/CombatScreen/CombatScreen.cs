@@ -504,7 +504,7 @@ namespace Ship_Game
         {
             bombersList = P.ParentSystem.ShipList.Filter(s => s.Loyalty == EmpireManager.Player
                                                          && s.BombBays.Count > 0
-                                                         && s.Position.InRadius(P.Position, P.ObjectRadius + 15000f));
+                                                         && s.Position.InRadius(P.Position, P.Radius + 15000f));
 
             return bombersList?.Length > 0;
         }
@@ -795,7 +795,7 @@ namespace Ship_Game
         {
             // get our friendly ships
             GameObject[] orbitingShips = P.Universe.Spatial.FindNearby(GameObjectType.Ship,
-                                                P.Position, P.ObjectRadius+1500f, maxResults:128, onlyLoyalty:owner);
+                                                P.Position, P.Radius+1500f, maxResults:128, onlyLoyalty:owner);
 
             // get a list of all the troops on those ships
             var troops = new Array<Troop>();

@@ -608,9 +608,9 @@ namespace Ship_Game
                         for (int i = 0; i < sys.PlanetList.Count; i++)
                         {
                             Planet planet = sys.PlanetList[i];
-                            if (IsInFrustum(planet.Position, planet.ObjectRadius*2f))
+                            if (IsInFrustum(planet.Position, planet.Radius*2f))
                             {
-                                ProjectToScreenCoords(planet.Position3D, planet.ObjectRadius,
+                                ProjectToScreenCoords(planet.Position3D, planet.Radius,
                                                       out Vector2d planetScreenPos, out double planetScreenRadius);
                                 planets.Add(new ClickablePlanet
                                 {
