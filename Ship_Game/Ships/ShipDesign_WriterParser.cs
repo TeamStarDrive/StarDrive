@@ -17,20 +17,26 @@ namespace Ship_Game.Ships
 
         public void Save(FileInfo file)
         {
-            ShipDesignWriter sw = CreateShipDataText();
+            var sw = new ShipDesignWriter();
+            CreateShipDataText(sw);
             sw.FlushToFile(file);
+        }
+
+        public byte[] GetDesignBytes(ShipDesignWriter sw)
+        {
+            CreateShipDataText(sw);
+            return sw.GetASCIIBytes();
         }
 
         public string GetBase64DesignString()
         {
-            ShipDesignWriter sw = CreateShipDataText();
-            byte[] ascii = sw.GetASCIIBytes();
+            byte[] ascii = GetDesignBytes(new ShipDesignWriter());
             return Convert.ToBase64String(ascii, Base64FormattingOptions.None);
         }
 
-        ShipDesignWriter CreateShipDataText()
+        void CreateShipDataText(ShipDesignWriter sw)
         {
-            var sw = new ShipDesignWriter();
+            sw.Clear();
             sw.Write("Version", Version);
             sw.Write("Name", Name);
             sw.Write("Hull", Hull);
@@ -67,7 +73,6 @@ namespace Ship_Game.Ships
             {
                 WriteDesignSlotString(sw, DesignSlots[i], SlotModuleUIDMapping[i]).WriteLine();
             }
-            return sw;
         }
         
         // X,Y,moduleIdx[,sizeX,sizeY,turretAngle,moduleRot,hangarShipUid]
@@ -133,6 +138,13 @@ namespace Ship_Game.Ships
                 }
                 return data;
             }
+        }
+
+        // parses a shipdesign from saved bytes
+        public static ShipDesign FromBytes(byte[] bytes)
+        {
+            using var p = new GenericStringViewParser("bytes", bytes);
+            return new ShipDesign(p);
         }
 
         ShipDesign(GenericStringViewParser p, FileInfo source = null)

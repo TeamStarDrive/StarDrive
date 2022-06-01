@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>AdvancedWarp</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>400</Cost>
   <RootNode>0</RootNode>
-  <Name>Subspace Communication</Name>
   <NameIndex>10091</NameIndex>
   <DescriptionIndex>10092</DescriptionIndex>
-  <LongDescription>The ability to package light-speed communications into a faster-than-light subspace packet allows for near instantaneous communication over great distances.  This discovery has profound implications for deep space scanning.  </LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>Tachyon Scanning</UID>
     </LeadsToTech>
   </LeadsTo>
-  <ModulesUnlocked/>
+  <ModulesUnlocked />
+  <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Advanced Warp Field</Name>
       <BonusType>FTL Speed Bonus</BonusType>
       <Bonus>0.70</Bonus>
-      <Description>Increase warp speeds by 70%</Description>
       <BonusIndex>10076</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

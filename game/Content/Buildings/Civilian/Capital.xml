@@ -1,31 +1,31 @@
 ﻿<Building>
   <Name>Capital City</Name>
+  <Icon>megacity</Icon>
+  
   <Maintenance>0</Maintenance>
-  <Description>The Capital City is a unique building that provides research while improving industrial and agricultural capacity. Capital Cities also provide excellent self defense and can withstand a sustained siege by determined opponents. Finally, Capital cities allow you to recruit basic infantry units. </Description>
+  <AllowShipBuilding>true</AllowShipBuilding>
   <PlusFlatResearchAmount>2</PlusFlatResearchAmount>
-  <PlusResearchPerColonist>.2</PlusResearchPerColonist>
-  <CreditsPerColonist>2</CreditsPerColonist>
+  <PlusResearchPerColonist>.15</PlusResearchPerColonist>
+  <CreditsPerColonist>1</CreditsPerColonist>
   <PlusTaxPercentage>.40</PlusTaxPercentage>
   <Infrastructure>8</Infrastructure>
-  <StorageAdded>50</StorageAdded>
-  <Icon>megacity</Icon>
+  <StorageAdded>200</StorageAdded>
   <AllowInfantry>true</AllowInfantry>
   <Strength>25</Strength>
   <CombatStrength>25</CombatStrength>
   <SoftAttack>50</SoftAttack>
   <Defense>40</Defense>
   <HardAttack>50</HardAttack>
-  <ShortDescription>A unique building at the heart of your empire</ShortDescription>
   <Scrappable>false</Scrappable>
   <IsSensor>true</IsSensor>
-	<SensorRange>30000</SensorRange>
-	<IsProjector>true</IsProjector>
-	<ProjectorRange>50000</ProjectorRange>
+  <SensorRange>30000</SensorRange>
+  <IsProjector>true</IsProjector>
+  <ProjectorRange>50000</ProjectorRange>
   <DefenseShipsCapacity>8</DefenseShipsCapacity>
-	<DefenseShipsRole>fighter</DefenseShipsRole>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <DefenseShipsRole>fighter</DefenseShipsRole>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>409</NameTranslationIndex>
   <DescriptionIndex>410</DescriptionIndex>
   <ShortDescriptionIndex>411</ShortDescriptionIndex>
-
 </Building>

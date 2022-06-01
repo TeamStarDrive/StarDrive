@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>ExtremeFusionReactor</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>1000</Cost>
   <RootNode>0</RootNode>
-  <Name>Extreme Fusion Reactor</Name>
   <NameIndex>17552</NameIndex>
   <DescriptionIndex>8048</DescriptionIndex>
-  <LongDescription>Researching this technology will allow us to build certain armored components that can take more hits than their unarmored versons.</LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>AntiMatter</UID>

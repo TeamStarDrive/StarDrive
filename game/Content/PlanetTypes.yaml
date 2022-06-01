@@ -5,7 +5,8 @@ PlanetScale: 10.0 # base scale of the planet, mesh diameter is 100 units, we wan
 RingsScale: 3 # slightly bigger than the planet
 CloudsScale: 1.015 # slightly bigger than the planet
 AtmosphereScale: 1.03 # slightly bigger than clouds, a very subtle atmosphere effect, enabled for clouds, see `NoAtmosphere`
-HaloScale: 1.0 # a very subtle halo effect, enabled for clouds, see `NoHalo`
+HaloScale: 1.03 # a very subtle white halo effect towards the sun, enabled for clouds, see `NoHalo`
+GlowScale: 1.005 # colored glow effect around the planet
 
 PlanetMesh: "Model/SpaceObjects/planet_sphere.obj"
 RingsMesh: ["Model/SpaceObjects/planet_rings.obj", "Model/SpaceObjects/planet_rings.dds"]

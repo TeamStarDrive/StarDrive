@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>HVTurrets</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>3000</Cost>
   <RootNode>0</RootNode>
-  <Name>PewPew</Name>
   <NameIndex>17474</NameIndex>
   <DescriptionIndex>17475</DescriptionIndex>
-  <LongDescription>Adapting missile technology to the rigors of space travel is not overly difficult. We can pursue further advances to missile propulsion, payload, and durability. </LongDescription>
   <LeadsTo>
-     <LeadsToTech>
+    <LeadsToTech>
       <UID>Phased Ordnance</UID>
     </LeadsToTech>
   </LeadsTo>
@@ -22,7 +20,6 @@
       <ModuleUID>HVTurret_2x2</ModuleUID>
     </UnlockedMod> 
   </ModulesUnlocked>
-
   <BuildingsUnlocked />
   <BonusUnlocked />
   <TroopsUnlocked />

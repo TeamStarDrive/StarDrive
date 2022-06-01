@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>AdvAmplifier</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>2600</Cost>
   <RootNode>0</RootNode>
-  <Name>AdvAmplifier</Name>
   <NameIndex>17497</NameIndex>
   <DescriptionIndex>17498</DescriptionIndex>
-  <LongDescription>We believe that encountering Electromagnetic Pulse weaponry is distinctly possible. As a result it would be prudent to have defensive measures prepared for that eventuality. </LongDescription>
-  <LeadsTo>
-  </LeadsTo>
+  <LeadsTo />
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>AdvAmplifier</ModuleUID>

@@ -1,7 +1,7 @@
 ﻿Version=1
 HullName=Draugar/Draugar Asteroid Base
 VisibleName=Draugar Asteroid Base
-Role=platform
+Role=station
 Style=Draugar
 Size=27,28
 MeshOffset=0,0

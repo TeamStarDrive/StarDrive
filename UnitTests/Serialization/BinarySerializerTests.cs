@@ -137,6 +137,8 @@ namespace UnitTests.Serialization
             [StarData] public Vector2d Vector2dZero, Vector2dMin, Vector2dMax;
             [StarData] public Vector3d Vector3dZero, Vector3dMin, Vector3dMax;
             [StarData] public Point PointZero, PointMin, PointMax;
+            [StarData] public Rectangle RectZero, RectMin, RectMax;
+            [StarData] public RectF RectFZero, RectFMin, RectFMax;
             [StarData] public Color ColorZero, ColorMin, ColorMax;
             [StarData] public Range RangeZero, RangeMin, RangeMax;
         }
@@ -151,7 +153,10 @@ namespace UnitTests.Serialization
                 Vector4Zero = Vector4.Zero, Vector4Min = new Vector4(-6,-7,-8,-9), Vector4Max = new Vector4(6,7,8,9),
                 Vector2dZero = Vector2d.Zero, Vector2dMin = new Vector2d(-11,-12), Vector2dMax = new Vector2d(11,12),
                 Vector3dZero = Vector3d.Zero, Vector3dMin = new Vector3d(-13,-14,-15), Vector3dMax = new Vector3d(13,14,15),
+
                 PointZero = Point.Zero, PointMin = new Point(-16,-17), PointMax = new Point(16,17),
+                RectZero = Rectangle.Empty, RectMin = new Rectangle(-30,-31,-32,-33), RectMax = new Rectangle(30,31,32,33),
+                RectFZero = RectF.Empty, RectFMin = new RectF(-40,-41,-42,-43), RectFMax = new RectF(40,41,42,43),
                 ColorZero = new Color(0,0,0), ColorMin = new Color(21,22,23), ColorMax = new Color(245,250,255),
                 RangeZero = new Range(), RangeMin = new Range(-24,-25), RangeMax = new Range(24,25),
             };
@@ -172,9 +177,17 @@ namespace UnitTests.Serialization
             Assert.AreEqual(result.Vector3dZero, Vector3d.Zero);
             Assert.AreEqual(result.Vector3dMin, new Vector3d(-13,-14,-15));
             Assert.AreEqual(result.Vector3dMax, new Vector3d(13,14,15));
+
             Assert.AreEqual(result.PointZero, Point.Zero);
             Assert.AreEqual(result.PointMin, new Point(-16, -17));
             Assert.AreEqual(result.PointMax, new Point(16, 17));
+            Assert.AreEqual(result.RectZero, Rectangle.Empty);
+            Assert.AreEqual(result.RectMin, new Rectangle(-30,-31,-32,-33));
+            Assert.AreEqual(result.RectMax, new Rectangle(30,31,32,33));
+            Assert.AreEqual(result.RectFZero, RectF.Empty);
+            Assert.AreEqual(result.RectFMin, new RectF(-40,-41,-42,-43));
+            Assert.AreEqual(result.RectFMax, new RectF(40,41,42,43));
+
             Assert.AreEqual(result.ColorZero, new Color(0, 0, 0));
             Assert.AreEqual(result.ColorMin, new Color(21, 22, 23));
             Assert.AreEqual(result.ColorMax, new Color(245, 250, 255));

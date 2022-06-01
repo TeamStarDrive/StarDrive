@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>ArmoredShield</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>3100</Cost>
   <RootNode>0</RootNode>
-  <Name>ArmoredShield</Name>
   <NameIndex>17553</NameIndex>
   <DescriptionIndex>17554</DescriptionIndex>
-  <LongDescription>Heavy shields are twice as large and can take 10 times the hits than a basic 1k shield model.  However, the power cost for a shield like this is substantial. </LongDescription>
   <LeadsTo>
     <LeadsToTech>
       <UID>CanopyShields</UID>

@@ -1,14 +1,16 @@
 ﻿<Building>
   <Name>HDZone</Name>
+  <Icon>hdzone</Icon>
+  
   <Cost>260</Cost>
   <Maintenance>0.2</Maintenance>
-  <Description>A hive city is planed meticulously rather than allowed to grow naturally. Planned specifically to house as many people as possible in as little room as possible, it rises high above the planet's surface and houses four billion people living like sardines.</Description>
+  
   <Infrastructure>1</Infrastructure>
-  <Icon>hdzone</Icon>
   <MaxFertilityOnBuild>-0.2</MaxFertilityOnBuild>
   <MaxPopIncrease>800</MaxPopIncrease>
   <Strength>20</Strength>
-
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>17776</NameTranslationIndex>
   <DescriptionIndex>17780</DescriptionIndex>
   <ShortDescriptionIndex>17781</ShortDescriptionIndex>

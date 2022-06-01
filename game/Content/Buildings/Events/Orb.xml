@@ -1,11 +1,13 @@
 ﻿<Building>
   <Name>Orb</Name>
   <Icon>Orb</Icon>
+  
   <EventTriggerUID>Orb</EventTriggerUID>
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18196</NameTranslationIndex>
   <DescriptionIndex>18197</DescriptionIndex>
   <ShortDescriptionIndex>18197</ShortDescriptionIndex>
-  <Scrappable>false</Scrappable>
-  <CanBuildAnywhere>true</CanBuildAnywhere>
 </Building>

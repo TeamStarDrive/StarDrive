@@ -968,7 +968,7 @@ namespace Ship_Game
             int divider = 7 * ((int)CurrentGame.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
-                Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.ObjectRadius * 2);
+                Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.Radius * 2);
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p, clearOrders:true, MoveOrder.Aggressive);

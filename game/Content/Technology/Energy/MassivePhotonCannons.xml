@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>MassivePhotonCannons</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>2400</Cost>
   <RootNode>0</RootNode>
-  <Name>Photon Cannons</Name>
   <NameIndex>17533</NameIndex>
   <DescriptionIndex>17534</DescriptionIndex>
-  <LongDescription>By packing matter and anti-matter into separate magnetic compartments, the photon cannon can launch an explosive projectile a substantial distance.  Upon impact, the chambers are merged and the matter/anti-matter explosion occurs. </LongDescription>
-  <LeadsTo>
-  </LeadsTo>
+  <LeadsTo />
   <ModulesUnlocked>
     <UnlockedMod>
       <ModuleUID>PhotonTurret4x4</ModuleUID>

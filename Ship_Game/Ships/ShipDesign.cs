@@ -71,6 +71,7 @@ namespace Ship_Game.Ships
         public bool IsPlayerDesign { get; set; }
         public bool IsReadonlyDesign { get; set; }
         public bool Deleted { get; set; }
+        public bool IsFromSave { get; set; }
 
         public bool IsValidForCurrentMod => ModName.IsEmpty() || ModName == GlobalStats.ModName;
 
@@ -206,44 +207,17 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        public bool AreModulesEqual(ModuleSaveData[] saved)
+        public bool AreModulesEqual(ShipDesign savedDesign)
         {
-            if (DesignSlots.Length != saved.Length)
+            var saved = savedDesign.GetOrLoadDesignSlots();
+            var ours = GetOrLoadDesignSlots();
+            if (ours.Length != saved.Length)
                 return false;
 
             for (int i = 0; i < saved.Length; ++i)
-                if (DesignSlots[i].ModuleUID != saved[i].ModuleUID) // it is enough to test only module UID-s
+                if (ours[i].ModuleUID != saved[i].ModuleUID) // it is enough to test only module UID-s
                     return false;
             return true;
-        }
-
-        public static ShipDesign FromSave(ModuleSaveData[] saved, string[] moduleUIDs, IShipDesign template)
-        {
-            // savedModules are different, grab the existing template's defaults but apply the new ship's modules
-            // this is pretty inefficient but it's currently the only way to handle obsolete designs without crashing
-            // TODO: implement obsolete ships and ship versioning
-            ShipDesign data = template.GetClone(null);
-
-            data.SetModuleUIDs(moduleUIDs);
-            data.DesignSlots = new DesignSlot[saved.Length];
-            for (int i = 0; i < saved.Length; ++i)
-                data.DesignSlots[i] = saved[i].ToDesignSlot();
-
-            return data;
-        }
-
-        public static ShipDesign FromSave(ModuleSaveData[] saved, string[] moduleUIDs, SavedGame.ShipSaveData save, ShipHull hull)
-        {
-            var data = new ShipDesign(hull, save.Name);
-            data.ModName = GlobalStats.ModName;
-
-            data.SetModuleUIDs(moduleUIDs);
-            data.DesignSlots = new DesignSlot[saved.Length];
-            for (int i = 0; i < saved.Length; ++i)
-                data.DesignSlots[i] = saved[i].ToDesignSlot();
-
-            data.InitializeCommonStats(hull, data.DesignSlots);
-            return data;
         }
 
         public void LoadModel(out SceneObject shipSO, GameContentManager content)

@@ -1,17 +1,16 @@
 ﻿<Building>
   <Name>Mysterious Altar</Name>
-  <Maintenance>0</Maintenance>
-  <Description>Mysterious Altar</Description>
-  <EventTriggerUID>Mysterious Altar</EventTriggerUID>
-  <Cost>40</Cost>
   <Icon>Altar</Icon>
+  
+  <Cost>40</Cost>
+  <Maintenance>0</Maintenance>
+  
+  <EventTriggerUID>Mysterious Altar</EventTriggerUID>
   <CanBuildAnywhere>true</CanBuildAnywhere>
-  <ShortDescription>Mysterious Altar</ShortDescription>
   <Scrappable>false</Scrappable>
 
-  <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
+  <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18178</NameTranslationIndex>
   <DescriptionIndex>18179</DescriptionIndex>
   <ShortDescriptionIndex>18179</ShortDescriptionIndex>
-  
 </Building>

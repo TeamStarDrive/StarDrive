@@ -1,52 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Technology xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/ XMLSchema"> 
- <Version>2</Version>
+  <Version>2</Version>
   <UID>Titans</UID>
   <TechnologyType>ShipHull</TechnologyType>
   <Cost>6500</Cost>
   <RootNode>0</RootNode>
-  <Name>Titan Construction</Name>
   <NameIndex>687</NameIndex>
   <DescriptionIndex>688</DescriptionIndex>
-  <LongDescription>These ultra-massive ships are the absolute pinnacle of spaceship construction. These hulking behemoths are almost impractically slow and large, but their firepower and defensive potential is enormous.</LongDescription>
-  <LeadsTo />
-  <ModulesUnlocked>
-  
-  </ModulesUnlocked>
+ <LeadsTo />
+  <ModulesUnlocked />
   <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
       <Name>Mass Reduction</Name>
       <Bonus>-0.03</Bonus>
-      <Description>New materials reduce effective ship mass by 5% across the board. </Description>
       <BonusIndex>18088</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
-       <UnlockedBonus>
+    <UnlockedBonus>
       <Name>Fuel Cell Upgrade</Name>
       <Bonus>0.15</Bonus>
-      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in power cells</Description>
       <BonusIndex>572</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Power Flow Bonus</Name>
       <Bonus>0.10</Bonus>
-      <Description>Gain an empire-wide 10% bonus to the amount of power produced by reactors</Description>
       <BonusIndex>18089</BonusIndex>
       <Type>Cordrazine</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Fuel Cell Upgrade</Name>
       <Bonus>0.15</Bonus>
-      <Description>Gain an empire-wide 15% bonus to the amount of power that is stored in power cells</Description>
       <BonusIndex>572</BonusIndex>
       <Type>Pollops</Type>
     </UnlockedBonus>
     <UnlockedBonus>
       <Name>Power Flow Bonus</Name>
       <Bonus>0.08</Bonus>
-      <Description>Gain an empire-wide 8% bonus to the amount of power produced by reactors</Description>
       <BonusIndex>18089</BonusIndex>
       <Type>Pollops</Type>
     </UnlockedBonus>

@@ -715,7 +715,7 @@ namespace Ship_Game.GameScreens.LoadGame
             {
                 Empire e = EmpireManager.GetEmpireByName(d.EmpireData.Traits.Name);
                 foreach (SavedGame.ShipSaveData shipSave in d.OwnedShips)
-                    Ship.CreateShipFromSave(us, e, shipSave);
+                    Ship.CreateShipFromSave(us, e, saveData, shipSave);
             }
 
             if (saveData.Projectiles != null) // NULL check: backwards compatibility

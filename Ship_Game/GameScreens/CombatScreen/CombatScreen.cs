@@ -301,7 +301,7 @@ namespace Ship_Game
                             troopClickRect.Width = troop.FromRect.Width.LerpTo(troop.ClickRect.Width, amount);
                             troopClickRect.Height = troop.FromRect.Height.LerpTo(troop.ClickRect.Height, amount);
                         }
-                        troop.Draw(batch, troopClickRect);
+                        troop.Draw(P.Universe, batch, troopClickRect);
                         var moveRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 38, 12, 12);
                         if (troop.AvailableMoveActions <= 0)
                         {
@@ -504,7 +504,7 @@ namespace Ship_Game
         {
             bombersList = P.ParentSystem.ShipList.Filter(s => s.Loyalty == EmpireManager.Player
                                                          && s.BombBays.Count > 0
-                                                         && s.Position.InRadius(P.Position, P.ObjectRadius + 15000f));
+                                                         && s.Position.InRadius(P.Position, P.Radius + 15000f));
 
             return bombersList?.Length > 0;
         }
@@ -784,7 +784,7 @@ namespace Ship_Game
             Troop[] toAdd = orbitingTroops.Filter(troop => !OrbitSL.Any(item => item.Troop == troop));
 
             foreach (Troop troop in toAdd)
-                OrbitSL.AddItem(new CombatScreenOrbitListItem(troop));
+                OrbitSL.AddItem(new CombatScreenOrbitListItem(P.Universe, troop));
 
             UpdateLaunchAllButton(P.TroopsHere.Count(t => t.Loyalty == P.Universe.Player && t.CanLaunch));
             UpdateLandAllButton(OrbitSL.NumEntries);
@@ -795,7 +795,7 @@ namespace Ship_Game
         {
             // get our friendly ships
             GameObject[] orbitingShips = P.Universe.Spatial.FindNearby(GameObjectType.Ship,
-                                                P.Position, P.ObjectRadius+1500f, maxResults:128, onlyLoyalty:owner);
+                                                P.Position, P.Radius+1500f, maxResults:128, onlyLoyalty:owner);
 
             // get a list of all the troops on those ships
             var troops = new Array<Troop>();

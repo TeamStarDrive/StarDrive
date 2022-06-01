@@ -1,7 +1,7 @@
 ﻿Version=1
 HullName=Corsair/Corsair Asteroid Base
 VisibleName=Corsair Asteroid Base
-Role=platform
+Role=station
 Style=Corsair
 Size=20,19
 MeshOffset=0,0

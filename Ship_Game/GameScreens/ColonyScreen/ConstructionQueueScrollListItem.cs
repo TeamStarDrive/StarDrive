@@ -162,7 +162,7 @@ namespace Ship_Game
         
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            Item.DrawAt(batch, Pos, LowRes);
+            Item.DrawAt(Planet.Universe, batch, Pos, LowRes);
             base.Draw(batch, elapsed);
         }
     }
