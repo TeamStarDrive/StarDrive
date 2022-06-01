@@ -8,7 +8,7 @@
   <PlusProdPerColonist>0.2</PlusProdPerColonist>
   <Infrastructure>-1</Infrastructure>
   <IsCommodity>true</IsCommodity>
-  
+  <CanBeCreatedFromLava>true</CanBeCreatedFromLava>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18149</NameTranslationIndex>
   <DescriptionIndex>18150</DescriptionIndex>
