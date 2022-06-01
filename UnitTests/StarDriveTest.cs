@@ -246,7 +246,7 @@ namespace UnitTests
         void AddPlanetToSolarSystem(SolarSystem s, Planet p)
         {
             p.OrbitalAngle = p.Position.AngleToTarget(s.Position);
-            p.OrbitalRadius = p.Position.Distance(s.Position) + p.ObjectRadius;
+            p.OrbitalRadius = p.Position.Distance(s.Position) + p.Radius;
 
             s.RingList.Add(new SolarSystem.Ring { Asteroids = false, OrbitalDistance = p.OrbitalRadius, planet = p });
             s.PlanetList.Add(p);

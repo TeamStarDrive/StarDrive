@@ -429,7 +429,7 @@ namespace Ship_Game.AI
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
         void LaunchShuttlesFromTroopShip(FixedSimTime timeStep, Planet planet, Vector2 launchPos)
         {
-            if (!Orbit.InOrbit && Owner.Position.InRadius(planet.Position, planet.ObjectRadius *1.4f))
+            if (!Orbit.InOrbit && Owner.Position.InRadius(planet.Position, planet.Radius *1.4f))
                 ThrustOrWarpToPos(launchPos, timeStep, warpExitDistance: Owner.WarpOutDistance);
             else // Doing orbit with AssaultPlanet state to continue landing troops if possible
                 Orbit.Orbit(planet, timeStep); 
@@ -452,9 +452,9 @@ namespace Ship_Game.AI
         {
             Vector2 pos;
             if (Owner.IsSingleTroopShip || Owner.IsDefaultAssaultShuttle)
-                pos = RandomMath.Vector2D(planet.ObjectRadius);
+                pos = RandomMath.Vector2D(planet.Radius);
             else
-                pos = planet.Position - planet.Position.GenerateRandomPointOnCircle(planet.ObjectRadius * 1.5f);
+                pos = planet.Position - planet.Position.GenerateRandomPointOnCircle(planet.Radius * 1.5f);
 
             return pos;
         }
@@ -618,7 +618,7 @@ namespace Ship_Game.AI
             }
 
             ThrustOrWarpToPos(Owner.HomePlanet.Position, timeStep);
-            if (Owner.Position.InRadius(Owner.HomePlanet.Position, Owner.HomePlanet.ObjectRadius + 150f))
+            if (Owner.Position.InRadius(Owner.HomePlanet.Position, Owner.HomePlanet.Radius + 150f))
             {
                 Owner.HomePlanet.LandDefenseShip(Owner);
                 Owner.QueueTotalRemoval();

@@ -50,7 +50,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (SupplyShip == null) 
             {
                 string supplyShipName = empire.GetSupplyShuttleName();
-                var at = PlanetBuildingAt.Position.GenerateRandomPointInsideCircle(PlanetBuildingAt.ObjectRadius + 500);
+                var at = PlanetBuildingAt.Position.GenerateRandomPointInsideCircle(PlanetBuildingAt.Radius + 500);
                 SupplyShip = Ship.CreateShipAtPoint(TargetShip.Universe, supplyShipName, empire, at);
 
                 if (SupplyShip == null)
@@ -111,7 +111,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalComplete;
             }
 
-            if (SupplyShip.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.ObjectRadius + 500f))
+            if (SupplyShip.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 500f))
             {
                 SupplyShip.QueueTotalRemoval();
                 return GoalStep.GoalComplete;
