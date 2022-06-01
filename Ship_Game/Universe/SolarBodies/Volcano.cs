@@ -188,9 +188,9 @@ namespace Ship_Game.Universe.SolarBodies
         string GetEruptionText(int numLavaPoolsCreated)
         {
             string text;
-            if (numLavaPoolsCreated == 0)     text = Localizer.Token(GameText.EruptionIsContainedToThe);
-            else if (numLavaPoolsCreated <=3) text = Localizer.Token(GameText.EruptionIsSmallSomeLava);
-            else                              text = Localizer.Token(GameText.EruptionIsMassiveManyLava);
+            if      (numLavaPoolsCreated == 0) text = Localizer.Token(GameText.EruptionIsContainedToThe);
+            else if (numLavaPoolsCreated <= 3) text = Localizer.Token(GameText.EruptionIsSmallSomeLava);
+            else                               text = Localizer.Token(GameText.EruptionIsMassiveManyLava);
 
             return text;
         }
@@ -239,13 +239,40 @@ namespace Ship_Game.Universe.SolarBodies
             // Remove the Lava Pool
             string lavaPath = tile.BuildingOnTile ? tile.Building.IconPath64 : "";
             planet.DestroyTile(tile);
-            if (RandomMath.RollDice(75))
+            int effects = RandomMath.RollDie(100);
+            if (effects > 50)
             {
                 planet.MakeTileHabitable(tile);
-                if (planet.OwnerIsPlayer && !GlobalStats.DisableVolcanoWarning)
-                    planet.Universe.Notifications.AddVolcanoRelated(planet, Localizer.Token(GameText.ALavaPoolHasSolidified), lavaPath);
+                if (effects > 90 && GetBuildingsCreatedFromLava(out Building[] potentials))
+                {
+                    // Lava solidifies into a special building 
+                    Building b = ResourceManager.CreateBuilding(planet, potentials.RandItem());
+                    tile.PlaceBuilding(b, planet);
+                    if (planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player) || planet.ParentSystem.ShipList.
+                            Any(s => s.Loyalty.isPlayer && s.Position.InRadius(planet.Position, s.SensorRange)))
+                    {
+                        string message = $"{Localizer.Token(GameText.ALavaPoolHasSolidified)}" +
+                                         $"\n{Localizer.Token(GameText.BuildingCreatedFromLava)}" +
+                                         $" {b.TranslatedName.Text}";
+
+                        planet.Universe.Notifications.AddVolcanoRelated(planet, message, b.IconPath64);
+                    }
+                }
+                else
+                {
+                    // Just make the tile habitable
+                    if (planet.OwnerIsPlayer && !GlobalStats.DisableVolcanoWarning)
+                        planet.Universe.Notifications.AddVolcanoRelated(planet, Localizer.Token(GameText.ALavaPoolHasSolidified), lavaPath);
+                }
             }
         }
+
+        static bool GetBuildingsCreatedFromLava(out Building[] possibleBuildings)
+        {
+            possibleBuildings = ResourceManager.BuildingsDict.FilterValues(b => b.CanBeCreatedFromLava);
+            return possibleBuildings.Length > 0;
+        }
+
 
         void RemoveVolcanoBeforeReplacing()
         {

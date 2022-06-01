@@ -1296,7 +1296,7 @@ namespace Ship_Game
             bool richness;
             switch (RandomMath.RollDie(20))
             {
-                case 1:  bid = Building.Crater1Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn); richness = false; break;
+                case 1:  bid = Building.Crater1Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn); richness  = false; break;
                 case 2:  bid = Building.Crater2Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn2); richness = false; break;
                 case 3:  bid = Building.Crater3Id; message = Localizer.Token(GameText.AMeteorHasCrashedOn3); richness = false; break;
                 case 4:

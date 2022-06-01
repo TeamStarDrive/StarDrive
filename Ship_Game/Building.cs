@@ -83,6 +83,7 @@ namespace Ship_Game
         [StarData] public byte EventSpawnChance = 15;
         [StarData] public float FoodCache; // Works with Flat food only
         [StarData] public float ProdCache; // Works with Prod per colonist only
+        [StarData] public bool CanBeCreatedFromLava; // Can be created when lava is solidified
 
 
         // XML Ignore because we load these from XML templates
