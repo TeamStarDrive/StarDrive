@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -101,7 +102,7 @@ namespace Ship_Game
             return TroopAnim.TryGetTexture(Path.GetFileName(name), out SubTexture t) ? t : null;
         }
 
-        SubTexture GetDefaultTex() => GetAnimation(TexturePath);
+        SubTexture GetDefaultTex() => GetAnimation(TexturePath) ?? ResourceManager.RootContent.DefaultTexture();
         SubTexture GetIdleTex(int whichFrame) => GetAnimation($"{idle_path}{whichFrame:00}") ?? GetDefaultTex();
         SubTexture GetAttackTex(int whichFrame) => GetAnimation($"{attack_path}{whichFrame:00}") ?? GetDefaultTex();
 
@@ -169,9 +170,9 @@ namespace Ship_Game
 
         public string StrengthText => $"Strength: {Strength:0.}";
 
-        public void Draw(SpriteBatch batch, Vector2 pos, Vector2 size)
+        public void Draw(UniverseState us, SpriteBatch batch, Vector2 pos, Vector2 size)
         {
-            Draw(batch, new Rectangle(pos, size));
+            Draw(us, batch, new Rectangle(pos, size));
         }
 
         public void SetCombatScreenRect(PlanetGridSquare tile, int width)
@@ -224,22 +225,20 @@ namespace Ship_Game
                 facingRight = ClickRect.X < ourTile.ClickRect.X + ClickRect.Width / 2;
         }
 
-        //@todo split this into methods of animated and non animated. or always draw animated and move the animation logic 
-        // to a central location to be used by any animated image. 
-        public void Draw(SpriteBatch sb, Rectangle drawRect)
+        public void Draw(UniverseState us, SpriteBatch sb, Rectangle drawRect)
         {
             if (TroopAnim == null)
-                InitializeAtlas(HostPlanet.Universe.Screen);
+                InitializeAtlas(us.Screen);
 
-            bool flip = !facingRight;
             if (!animated)
             {
-                Draw(sb, GetDefaultTex(), drawRect, flip);
-                return;
+                Draw(sb, GetDefaultTex(), drawRect, flip: !facingRight);
             }
-
-            SubTexture tex = Idle ? GetIdleTex(WhichFrame) : GetAttackTex(WhichFrame);
-            DrawTexture(sb, tex, drawRect, flip);
+            else
+            {
+                SubTexture tex = Idle ? GetIdleTex(WhichFrame) : GetAttackTex(WhichFrame);
+                DrawTexture(sb, tex, drawRect, flip: !facingRight);
+            }
         }
 
         void DrawTexture(SpriteBatch sb, SubTexture tex, Rectangle drawRect, bool flip)

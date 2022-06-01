@@ -1,14 +1,17 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
     public class CombatScreenOrbitListItem : ScrollListItem<CombatScreenOrbitListItem>
     {
-        public Troop Troop;
+        readonly UniverseState Universe;
+        public readonly Troop Troop;
 
-        public CombatScreenOrbitListItem(Troop troop)
+        public CombatScreenOrbitListItem(UniverseState us, Troop troop)
         {
+            Universe = us;
             Troop = troop;
         }
 
@@ -25,7 +28,7 @@ namespace Ship_Game
             }
             
             batch.FillRectangle(Rect, backColor.Alpha(0.3f));
-            Troop.Draw(batch, new RectF(X + 2, Y, Height, Height));
+            Troop.Draw(Universe, batch, new RectF(X + 2, Y, Height, Height));
             batch.DrawString(Fonts.Arial12Bold, Troop.Name, X + 40, Y + 2, nameColor);
             batch.DrawString(Fonts.Arial8Bold, $"{Troop.StrengthText}, Level: {Troop.Level}", X + 40, Y + 14, statsColor);
         }
