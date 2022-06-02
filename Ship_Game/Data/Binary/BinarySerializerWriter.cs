@@ -42,9 +42,8 @@ namespace Ship_Game.Data.Binary
             public readonly HashSet<object> UniqueObjects = new();
             public readonly HashSet<TypeSerializer> StructTypes = new();
 
-            // Recursively gathers all UserType instances,
-            // the order here is unimportant because they get sorted later
-            public void Scan(TypeSerializer ser, object instance)
+            // @return false if type analysis should be terminated
+            bool Record(TypeSerializer ser, object instance)
             {
                 if (ser.IsPointerType)
                 {
@@ -53,26 +52,48 @@ namespace Ship_Game.Data.Binary
 
                     if (instance != null)
                     {
-                        if (!UniqueObjects.Add(instance))
-                            return; // this object instance already mapped
-
-                        list.Add(instance);
+                        if (UniqueObjects.Add(instance)) // is it unique?
+                        {
+                            list.Add(instance);
+                            // once the fundamental type instance has been recorded, we can stop the scan
+                            if (ser.IsFundamentalType)
+                                return false;
+                            return true; // keep scanning
+                        }
                     }
+                    // no fields for null instances, or this object was already scanned
+                    return false;
                 }
-                else // Value Type:
+                else // ValueType:
                 {
-                    // only record the struct type, instance is not needed
-                    // the type must always be recorded
-                    if (ser.IsUserClass || ser.Type.IsEnum)
+                    // for user defined structs, return True to allow scanning Fields
+                    if (ser.IsUserClass)
+                    {
                         StructTypes.Add(ser);
+                        return true;
+                    }
+                    if (ser.IsEnumType)
+                    {
+                        StructTypes.Add(ser);
+                    }
+                    // nothing else to check for Enums and regular ValueTypes
+                    return false;
                 }
+            }
+
+            // Recursively gathers all UserType instances,
+            // the order here is unimportant because they get sorted later
+            public void Scan(TypeSerializer ser, object instance)
+            {
+                if (!Record(ser, instance))
+                    return; // terminate recursion
 
                 // recurse into objects and collections to find more objects
                 if (ser.IsUserClass && ser is UserTypeSerializer userType)
                 {
                     foreach (DataField field in userType.Fields)
                     {
-                        object obj = instance != null ? field.Get(instance) : null;
+                        object obj = field.Get(instance);
                         Scan(field.Serializer, obj);
                     }
                 }
@@ -80,35 +101,33 @@ namespace Ship_Game.Data.Binary
                 {
                     if (collectionType.IsMapType && collectionType is MapSerializer mapType)
                     {
-                        if (instance != null)
-                        {
-                            // key and element type must always be recorded, otherwise collection cannot be resolved
-                            Scan(mapType.KeySerializer, null);
-                            Scan(mapType.ElemSerializer, null);
+                        // key and element type must always be recorded, otherwise collection cannot be resolved
+                        Record(mapType.KeySerializer, null);
+                        Record(mapType.ElemSerializer, null);
 
-                            var e = ((IDictionary)instance).GetEnumerator();
-                            while (e.MoveNext())
-                            {
-                                Scan(mapType.KeySerializer, e.Key);
-                                Scan(mapType.ElemSerializer, e.Value);
-                            }
+                        var e = ((IDictionary)instance).GetEnumerator();
+                        while (e.MoveNext())
+                        {
+                            Scan(mapType.KeySerializer, e.Key);
+                            Scan(mapType.ElemSerializer, e.Value);
                         }
                     }
                     else
                     {
-                        if (instance != null)
-                        {
-                            // element type must always be recorded, otherwise collection cannot be resolved
-                            Scan(collectionType.ElemSerializer, null);
+                        // element type must always be recorded, otherwise collection cannot be resolved
+                        Record(collectionType.ElemSerializer, null);
 
-                            int count = collectionType.Count(instance);
-                            for (int i = 0; i < count; ++i)
-                            {
-                                object obj = collectionType.GetElementAt(instance, i);
-                                Scan(collectionType.ElemSerializer, obj);
-                            }
+                        int count = collectionType.Count(instance);
+                        for (int i = 0; i < count; ++i)
+                        {
+                            object obj = collectionType.GetElementAt(instance, i);
+                            Scan(collectionType.ElemSerializer, obj);
                         }
                     }
+                }
+                else
+                {
+                    throw new Exception($"Unexpected type: {ser}");
                 }
             }
         }
@@ -253,7 +272,8 @@ namespace Ship_Game.Data.Binary
         static string GetTypeName(TypeSerializer s) => s.TypeName;
         static string GetNamespace(TypeSerializer s)
         {
-            return s.IsEnumType ? s.Type.Namespace : s.Type.FullName?.Split('+')[0];
+            // for nested types nameSpace is the full name of the containing type
+            return s.Type.IsNested ? s.Type.DeclaringType!.FullName : s.Type.Namespace;
         }
 
         void WriteArray(string[] strings)
@@ -292,8 +312,9 @@ namespace Ship_Game.Data.Binary
                 int namespaceId = namespaceMap[GetNamespace(s)];
                 int typenameId  = typenameMap[GetTypeName(s)];
                 int flags = 0;
-                if (s.IsPointerType) flags |= 0b0000_0001;
-                if (s.IsEnumType)    flags |= 0b0000_0010;
+                if (s.IsPointerType) flags |= 0b0000_0001; // pointer, not valuetype
+                if (s.IsEnumType)    flags |= 0b0000_0010; // enum
+                if (s.Type.IsNested) flags |= 0b0000_0100; // requires nested namespace resolution
                 BW.WriteVLu32(s.TypeId);
                 BW.WriteVLu32((uint)assemblyId);
                 BW.WriteVLu32((uint)namespaceId);

@@ -745,7 +745,7 @@ namespace UnitTests.Serialization
         //    byte[] bytes = Serialize(ship);
         //}
 
-        public enum SomeEnum
+        public enum NestedEnum
         {
             One,
             Two,
@@ -755,8 +755,17 @@ namespace UnitTests.Serialization
         [StarDataType]
         public class EnumTypes
         {
-            [StarData] public SomeEnum Key;
-            [StarData] public Array<SomeEnum> Values;
+            public enum NestedEnum2
+            {
+                Seven, Eight, Nine
+            }
+
+            [StarData] public NestedEnum Key1;
+            [StarData] public GlobalEnum Key2;
+            [StarData] public NestedEnum2 Key3;
+            [StarData] public Array<NestedEnum> Values1;
+            [StarData] public Array<GlobalEnum> Values2;
+            [StarData] public Array<NestedEnum2> Values3;
         }
 
         [TestMethod]
@@ -764,12 +773,42 @@ namespace UnitTests.Serialization
         {
             var instance = new EnumTypes
             {
-                Key = SomeEnum.Three,
-                Values = new Array<SomeEnum>(new[]{ SomeEnum.Three,SomeEnum.One,SomeEnum.Two })
+                Key1 = NestedEnum.Three,
+                Key2 = GlobalEnum.Five,
+                Values1 = new Array<NestedEnum>(new[]{ NestedEnum.Three,NestedEnum.One,NestedEnum.Two }),
+                Values2 = new Array<GlobalEnum>(new[]{ GlobalEnum.Six,GlobalEnum.Four,GlobalEnum.Five }),
+                Values3 = new Array<EnumTypes.NestedEnum2>(new[]{ EnumTypes.NestedEnum2.Seven,EnumTypes.NestedEnum2.Nine,EnumTypes.NestedEnum2.Eight }),
             };
             var result = SerDes(instance, out byte[] bytes);
-            Assert.AreEqual(instance.Key, result.Key);
-            Assert.That.EqualCollections(instance.Values, result.Values);
+            Assert.AreEqual(instance.Key1, result.Key1);
+            Assert.AreEqual(instance.Key2, result.Key2);
+            Assert.AreEqual(instance.Key3, result.Key3);
+            Assert.That.EqualCollections(instance.Values1, result.Values1);
+            Assert.That.EqualCollections(instance.Values2, result.Values2);
+            Assert.That.EqualCollections(instance.Values3, result.Values3);
+        }
+
+        [StarDataType]
+        public class NestedClass1
+        {
+            [StarData] public NestedClass2 Nested;
+            
+            [StarDataType]
+            public class NestedClass2
+            {
+                [StarData] public string Name;
+            }
+        }
+
+        [TestMethod]
+        public void SupportsMultipleNestedClasses()
+        {
+            var instance = new NestedClass1
+            {
+                Nested = new NestedClass1.NestedClass2{ Name = "Nested2" }
+            };
+            var result = SerDes(instance, out byte[] bytes);
+            Assert.AreEqual(instance.Nested.Name, result.Nested.Name);
         }
 
         [StarDataType]
@@ -847,5 +886,17 @@ namespace UnitTests.Serialization
             UniverseScreen us = load.Load(noErrorDialogs:true, startSimThread:false);
             Assert.IsNotNull(us, "Loaded universe cannot be null");
         }
+    }
+
+    // Global enums and Nested enums have different resolution rules
+    public enum GlobalEnum
+    {
+        Four, Five, Six
+    }
+
+    [StarDataType]
+    public class GlobalUserType
+    {
+        [StarData] public GlobalEnum Enum1;
     }
 }
