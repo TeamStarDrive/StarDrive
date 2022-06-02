@@ -103,7 +103,8 @@ namespace Ship_Game.Data.Binary
                 uint flags  = BR.ReadVLu32();
                 uint numFields = BR.ReadVLu32();
                 bool isPointerType = (flags & 0b0000_0001) != 0;
-                bool isEnumType = (flags & 0b0000_0010) != 0;
+                bool isEnumType    = (flags & 0b0000_0010) != 0;
+                bool isNestedType  = (flags & 0b0000_0100) != 0;
 
                 var fields = new FieldInfo[numFields];
                 for (uint fieldIdx = 0; fieldIdx < fields.Length; ++fieldIdx)
@@ -121,7 +122,7 @@ namespace Ship_Game.Data.Binary
 
                 var c = isEnumType ? SerializerCategory.Enums : SerializerCategory.UserClass;
                 string name = typeNames[nameId];
-                Type type = GetTypeFrom(assemblies[asmId], namespaces[nsId], typeNames[nameId], c);
+                Type type = GetTypeFrom(assemblies[asmId], namespaces[nsId], typeNames[nameId], isNestedType);
                 if (type != null)
                 {
                     if (!TypeMap.TryGet(type, out TypeSerializer s))
@@ -175,11 +176,11 @@ namespace Ship_Game.Data.Binary
 
         Map<Assembly, Map<string, Type>> TypeNameCache;
 
-        Type GetTypeFrom(string assemblyName, string nameSpace, string typeName, SerializerCategory c)
+        Type GetTypeFrom(string assemblyName, string nameSpace, string typeName, bool isNested)
         {
-            string fullName = c != SerializerCategory.Enums
-                            ? $"{nameSpace}+{typeName},{assemblyName}"
-                            : $"{nameSpace}.{typeName},{assemblyName}";
+            // nested types are prefixed by '+', global types by '.'
+            // for nested types nameSpace is the full name of the containing type
+            string fullName =  $"{nameSpace}{(isNested?'+':'.')}{typeName},{assemblyName}";
             Type type = Type.GetType(fullName, throwOnError: false);
             if (type != null)
                 return type; // perfect match
