@@ -59,10 +59,10 @@ namespace Ship_Game.Data.Binary
             throw new NotImplementedException();
         }
 
-        public void Serialize(BinaryWriter writer, object obj)
+        public void Serialize(BinaryWriter writer, object obj, bool verbose = false)
         {
             // pre-scan all unique objects
-            var ctx = new BinarySerializerWriter(writer);
+            var ctx = new BinarySerializerWriter(writer) { Verbose = verbose };
             ctx.ScanObjects(this, obj);
 
             // [header]
@@ -79,7 +79,7 @@ namespace Ship_Game.Data.Binary
             }
         }
 
-        public object Deserialize(BinaryReader reader)
+        public object Deserialize(BinaryReader reader, bool verbose = false)
         {
             // [header]
             // [types list]
@@ -94,7 +94,7 @@ namespace Ship_Game.Data.Binary
 
             if (header.NumTypeGroups != 0)
             {
-                var ctx = new BinarySerializerReader(reader, TypeMap, header);
+                var ctx = new BinarySerializerReader(reader, TypeMap, header) { Verbose = verbose };
                 ctx.ReadTypesList();
                 ctx.ReadTypeGroups();
                 ctx.ReadObjectsList();
@@ -106,7 +106,7 @@ namespace Ship_Game.Data.Binary
         }
 
         // Aggregates multiple different types into a single binary writer stream
-        public static void SerializeMultiType(BinaryWriter writer, object[] objects)
+        public static void SerializeMultiType(BinaryWriter writer, object[] objects, bool verbose = false)
         {
             var serializers = objects.Select(o => new BinarySerializer(o.GetType()));
 
@@ -115,19 +115,19 @@ namespace Ship_Game.Data.Binary
                 object o = objects[i];
                 if (o.GetType().IsValueType)
                     throw new InvalidOperationException($"ValueType {o.GetType()} cannot be top-level serialized! Change it into a class");
-                serializers[i].Serialize(writer, o);
+                serializers[i].Serialize(writer, o, verbose);
             }
         }
 
         // Deserializes multiple different typed objects from a single binary reader stream
-        public static object[] DeserializeMultiType(BinaryReader reader, Type[] types)
+        public static object[] DeserializeMultiType(BinaryReader reader, Type[] types, bool verbose = false)
         {
             var serializers = types.Select(t => new BinarySerializer(t));
             var objects = new object[serializers.Length];
 
             for (int i = 0; i < objects.Length; ++i)
             {
-                objects[i] = serializers[i].Deserialize(reader);
+                objects[i] = serializers[i].Deserialize(reader, verbose);
             }
 
             return objects;
