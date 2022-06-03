@@ -30,6 +30,7 @@ namespace Ship_Game.GameScreens.LoadGame
         bool StartSimThread;
 
         public bool UseBinarySaveFormat;
+        public bool Verbose;
 
         public LoadGame(FileInfo saveFile)
         {
@@ -89,12 +90,12 @@ namespace Ship_Game.GameScreens.LoadGame
         /// <summary>
         /// Peeks at the header portion of the new binary save file
         /// </summary>
-        public static HeaderData PeekHeader(FileInfo file)
+        public static HeaderData PeekHeader(FileInfo file, bool verbose = false)
         {
             using var stream = file.OpenRead();
             var reader = new BinaryReader(stream);
 
-            object[] objects = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderData) });
+            object[] objects = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderData) }, verbose);
             return (HeaderData)objects[0];
         }
 
@@ -107,7 +108,7 @@ namespace Ship_Game.GameScreens.LoadGame
             if (!file.Exists)
                 throw new FileNotFoundException($"SaveGame file does not exist: {file.FullName}");
 
-            SavedGame.UniverseSaveData usData = SavedGame.Deserialize(file, UseBinarySaveFormat);
+            SavedGame.UniverseSaveData usData = SavedGame.Deserialize(file, UseBinarySaveFormat, Verbose);
 
             if (usData.SaveGameVersion != SavedGame.SaveGameVersion)
                 Log.Error("Incompatible savegame version! Got v{0} but expected v{1}", usData.SaveGameVersion, SavedGame.SaveGameVersion);

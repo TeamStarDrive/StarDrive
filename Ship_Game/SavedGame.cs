@@ -59,6 +59,7 @@ namespace Ship_Game
         public const string ZipExt = ".sav.gz";
 
         public bool UseBinarySaveFormat = true;
+        public bool Verbose;
 
         public readonly UniverseSaveData SaveData = new();
         public FileInfo SaveFile;
@@ -490,11 +491,10 @@ namespace Ship_Game
 
             if (UseBinarySaveFormat)
             {
-
                 using var stream = saveFile.OpenWrite();
                 var writer = new BinaryWriter(stream);
 
-                BinarySerializer.SerializeMultiType(writer, new object[]{ header, data });
+                BinarySerializer.SerializeMultiType(writer, new object[]{ header, data }, Verbose);
 
                 Log.Info($"Binary Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length/(1024.0*1024.0):0.0}MB)");
             }
@@ -532,7 +532,7 @@ namespace Ship_Game
             HelperFunctions.CollectMemory();
         }
 
-        public static UniverseSaveData Deserialize(FileInfo saveFile, bool binarySave)
+        public static UniverseSaveData Deserialize(FileInfo saveFile, bool binarySave, bool verbose)
         {
             var t = new PerfTimer();
             UniverseSaveData usData;
@@ -544,7 +544,7 @@ namespace Ship_Game
                 {
                     typeof(HeaderData),
                     typeof(UniverseSaveData)
-                });
+                }, verbose);
                 usData = (UniverseSaveData)results[1];
 
                 Log.Info($"Binary Total Load elapsed: {t.Elapsed:0.0}s  ");
