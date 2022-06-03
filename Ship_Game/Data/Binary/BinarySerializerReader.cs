@@ -22,6 +22,8 @@ namespace Ship_Game.Data.Binary
         // flat list of deserialized objects
         public object[] ObjectsList;
 
+        public bool Verbose;
+
         public BinarySerializerReader(BinaryReader reader, TypeSerializerMap typeMap, in BinarySerializerHeader header)
         {
             BR = reader;
@@ -88,6 +90,7 @@ namespace Ship_Game.Data.Binary
             string[] typeNames  = ReadStringArray(BR);
             string[] fieldNames = ReadStringArray(BR);
 
+            if (Verbose) Log.Info($"Reading {Header.NumUsedTypes} Types");
             for (uint i = 0; i < Header.NumUsedTypes; ++i)
             {
                 // [type ID]
@@ -127,14 +130,18 @@ namespace Ship_Game.Data.Binary
                 {
                     if (!TypeMap.TryGet(type, out TypeSerializer s))
                         s = TypeMap.Get(type);
+
+                    if (Verbose) Log.Info($"ReadType={typeId} {name} {c}");
                     AddTypeInfo(typeId, name, s, fields, isPointerType, c);
                 }
                 else
                 {
+                    if (Verbose) Log.Warning($"ReadDeletedType={typeId} {name} {c}");
                     AddDeletedTypeInfo(typeId, name, fields, isPointerType, c);
                 }
             }
-
+            
+            if (Verbose) Log.Info($"Reading {Header.NumCollectionTypes} Collections");
             for (uint i = 0; i < Header.NumCollectionTypes; ++i)
             {
                 // [type ID]
@@ -152,10 +159,17 @@ namespace Ship_Game.Data.Binary
 
                 // if type info is null, it means there are no valid instances
                 // of this type in the serialized file, so this type info can be safely ignored
-                if (valTypeInfo == null)
-                    continue; // element type does not exist anywhere
-                if (cTypeId == 3 && keyTypeInfo == null)
-                    continue; // map key does not exist anywhere
+                if (valTypeInfo == null) // element type does not exist anywhere
+                {
+                    if (Verbose) Log.Warning($"DiscardCollection={streamTypeId} valType={valTypeId} was null (deleted?)");
+                    continue;
+                }
+
+                if (cTypeId == 3 && keyTypeInfo == null) // map key does not exist anywhere
+                {
+                    if (Verbose) Log.Warning($"DiscardCollection={streamTypeId} keyType={keyTypeId} was null (deleted?)");
+                    continue;
+                }
 
                 Type cType = null;
                 if (cTypeId == 1)
@@ -169,6 +183,8 @@ namespace Ship_Game.Data.Binary
                 {
                     TypeSerializer cTypeSer = TypeMap.Get(cType);
                     SerializerCategory c = cTypeId == 1 ? SerializerCategory.RawArray : SerializerCategory.Collection;
+
+                    if (Verbose) Log.Info($"ReadCollection={streamTypeId} {cType.GetTypeName()} {c}");
                     AddTypeInfo(streamTypeId, cType.GetTypeName(), cTypeSer, null, isPointer:true, c);
                 }
             }
@@ -230,7 +246,8 @@ namespace Ship_Game.Data.Binary
                     var type = GetType(streamTypeId);
                     if (type == null)
                     {
-                        Log.Error("Type was null but count implies we have valid objects?");
+                        Log.Error($"Type={streamTypeId} was null but count={count} implies we have valid objects");
+                        TypeGroups[i] = (null, null, count);
                     }
                     else
                     {
@@ -306,7 +323,7 @@ namespace Ship_Game.Data.Binary
             int objectIdx = 0;
             foreach ((TypeInfo type, TypeSerializer ser, int count) in TypeGroups)
             {
-                if (count > 0 && type.Category == category)
+                if (count > 0 && type != null && type.Category == category)
                     action(type, ser, count, objectIdx);
                 objectIdx += count;
             }

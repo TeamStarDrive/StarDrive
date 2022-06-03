@@ -874,6 +874,7 @@ namespace UnitTests.Serialization
 
             var save = new SavedGame(Universe);
             save.UseBinarySaveFormat = true;
+            save.Verbose = true;
             save.Save("BinarySerializer.Test", async:false);
 
             // peek the header as per specs
@@ -883,6 +884,7 @@ namespace UnitTests.Serialization
 
             var load = new LoadGame(save.SaveFile);
             load.UseBinarySaveFormat = true;
+            load.Verbose = true;
             UniverseScreen us = load.Load(noErrorDialogs:true, startSimThread:false);
             Assert.IsNotNull(us, "Loaded universe cannot be null");
         }
