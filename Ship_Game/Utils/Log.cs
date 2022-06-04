@@ -705,7 +705,8 @@ namespace Ship_Game
             }
             else ShowWindow(handle, 5/*SW_SHOW*/);
 
-            Console.BufferHeight = bufferHeight;
+            if (Console.BufferHeight < bufferHeight)
+                Console.BufferHeight = bufferHeight;
 
             // Move the console window to a secondary screen if we have multiple monitors
             if (Screen.AllScreens.Length > 1 && (handle = GetConsoleWindow()) != IntPtr.Zero)
