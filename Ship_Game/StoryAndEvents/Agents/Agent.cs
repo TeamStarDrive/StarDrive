@@ -52,18 +52,9 @@ namespace Ship_Game
 
             if (mission == AgentMission.Undercover)
             {
-                foreach (Mole m in owner.data.MoleList)
-                {
-                    if (m.PlanetId != TargetPlanetId)
-                    {
-                        continue;
-                    }
-                    owner.data.MoleList.QueuePendingRemoval(m);
-                    break;
-                }
+                owner.data.MoleList.RemoveFirst(m => m.PlanetId == TargetPlanetId);
             }
 
-            owner.data.MoleList.ApplyPendingRemovals();
             owner.AddMoney(-cost);
             owner.GetEmpireAI().DeductSpyBudget(cost);
 
@@ -534,19 +525,10 @@ namespace Ship_Game
             Agent targetAgent = victim.data.AgentList.RandItem(); // TODO - a target specific agent base on threat
             targetName = targetAgent.Name;
             victim.data.AgentList.Remove(targetAgent);
-            if (targetAgent.Mission != AgentMission.Undercover)
-                return;
-
-            foreach (Mole mole in us.data.MoleList)
+            if (targetAgent.Mission == AgentMission.Undercover)
             {
-                if (mole.PlanetId == targetAgent.TargetPlanetId)
-                {
-                    us.data.MoleList.QueuePendingRemoval(mole);
-                    break;
-                }
+                us.data.MoleList.RemoveFirst(m => m.PlanetId == targetAgent.TargetPlanetId);
             }
-
-            us.data.MoleList.ApplyPendingRemovals();
         }
 
         void AddRebellion(Empire victim, Planet targetPlanet, int numTroops)
@@ -613,7 +595,7 @@ namespace Ship_Game
                              "due to this agent's tutoring and vast experience";
 
             owner.Universum.Notifications.AddAgentResult(true, message, owner);
-            owner.data.AgentList.QueuePendingRemoval(this);
+            owner.data.AgentList.Remove(this);
             for (int i = 0; i < owner.data.AgentList.Count; i++)
             {
                 Agent agent = owner.data.AgentList[i];
@@ -662,7 +644,7 @@ namespace Ship_Game
             {
                 if (AgentKilled)
                 {
-                    Us.data.AgentList.QueuePendingRemoval(agent);
+                    Us.data.AgentList.Remove(agent);
                 }
                 else if (AgentInjured)
                 {
