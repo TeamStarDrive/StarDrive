@@ -30,7 +30,7 @@ namespace Ship_Game.Gameplay
     {
         [StarData] public int TurnTimer;
         [StarData] public float FearCost;
-        [StarData] public float TurnsInExistence;
+        [StarData] public int TurnsInExistence;
         [StarData] public TrustEntryType Type;
     }
 
@@ -42,7 +42,7 @@ namespace Ship_Game.Gameplay
     }
 
     [StarDataType]
-    public sealed class Relationship : IDisposable
+    public sealed class Relationship
     {
         [StarData] public FederationQuest FedQuest;
         [StarData] public Posture Posture = Posture.Neutral;  // FB - use SetPosture privately or ChangeTo methods publicly
@@ -75,7 +75,7 @@ namespace Ship_Game.Gameplay
         [StarData] public float Threat;
         [StarData] public float Trust;
         [StarData] public War ActiveWar;
-        [StarData] public Array<War> WarHistory = new Array<War>();
+        [StarData] public Array<War> WarHistory = new();
         [StarData] public bool haveRejectedNAPact;
         [StarData] public bool HaveRejected_TRADE;
         [StarData] public bool haveRejectedDemandTech;
@@ -83,11 +83,11 @@ namespace Ship_Game.Gameplay
         [StarData] public bool HaveRejected_Alliance;
         [StarData] public int NumberStolenClaims;
 
-        [StarData] public Array<int> StolenSystems = new Array<int>();
+        [StarData] public Array<int> StolenSystems = new();
         [StarData] public bool HaveInsulted_Military;
         [StarData] public bool HaveComplimented_Military;
         [StarData] public bool XenoDemandedTech;
-        [StarData] public Array<int> WarnedSystemsList = new Array<int>();
+        [StarData] public Array<int> WarnedSystemsList = new();
         [StarData] public bool HaveWarnedTwice;
         [StarData] public bool HaveWarnedThrice;
         [StarData] public int ContestedSystemId;
@@ -103,8 +103,8 @@ namespace Ship_Game.Gameplay
         [StarData] public int TurnsAbove95; // Trust
         [StarData] public int TurnsAllied;
 
-        [StarData] public BatchRemovalCollection<TrustEntry> TrustEntries = new BatchRemovalCollection<TrustEntry>();
-        [StarData] public BatchRemovalCollection<FearEntry> FearEntries = new BatchRemovalCollection<FearEntry>();
+        [StarData] public Array<TrustEntry> TrustEntries = new();
+        [StarData] public Array<FearEntry> FearEntries = new();
         [StarData] public float TrustUsed;
         [StarData] public float FearUsed;
         [StarData] public float TheyOweUs;
@@ -697,31 +697,21 @@ namespace Ship_Game.Gameplay
 
         void UpdateFear()
         {
-            foreach (FearEntry te in FearEntries)
-            {
-                te.TurnsInExistence += 1f;
-                if (te.TurnsInExistence >= te.TurnTimer)
-                    FearEntries.QueuePendingRemoval(te);
-                else
-                    FearUsed += te.FearCost;
-            }
+            foreach (FearEntry f in FearEntries)
+                f.TurnsInExistence += 1;
 
-            FearEntries.ApplyPendingRemovals();
+            FearUsed += FearEntries.Sum(f => f.TurnsInExistence < f.TurnTimer ? f.FearCost : 0);
+            FearEntries.RemoveAll(f => f.TurnsInExistence >= f.TurnTimer);
         }
 
         void UpdateTrust(Empire us, Empire them, DTrait personality)
         {
-            TrustUsed = 0f;
             foreach (TrustEntry te in TrustEntries)
-            {
                 te.TurnsInExistence += 1;
-                if (te.TurnsInExistence >= te.TurnTimer)
-                    TrustEntries.QueuePendingRemoval(te);
-                else
-                    TrustUsed += te.TrustCost;
-            }
 
-            TrustEntries.ApplyPendingRemovals();
+            TrustUsed = TrustEntries.Sum(t => t.TurnsInExistence < t.TurnTimer ? t.TrustCost : 0);
+            TrustEntries.RemoveAll(t => t.TurnsInExistence >= t.TurnTimer);
+
             float trustToAdd = 0;
             switch (Posture)
             {
@@ -1768,21 +1758,6 @@ namespace Ship_Game.Gameplay
             }
 
             return false;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~Relationship() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            Risk = null;
-            TrustEntries?.Dispose(ref TrustEntries);
-            FearEntries?.Dispose(ref FearEntries);
         }
 
         public void RestoreWarsFromSave(UniverseState us)
