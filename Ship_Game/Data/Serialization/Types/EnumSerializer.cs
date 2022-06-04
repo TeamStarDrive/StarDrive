@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using SDUtils;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
@@ -12,10 +13,14 @@ namespace Ship_Game.Data.Serialization.Types
         readonly Map<int, object> Mapping = new();
         readonly object DefaultValue;
 
+        bool IsFlagsEnum;
+
         public EnumSerializer(Type toEnum) : base(toEnum)
         {
             Array values = toEnum.GetEnumValues();
             DefaultValue = values.GetValue(0);
+            IsFlagsEnum = toEnum.GetCustomAttribute<FlagsAttribute>() != null;
+
             for (int i = 0; i < values.Length; ++i)
             {
                 object enumValue = values.GetValue(i);
@@ -64,6 +69,17 @@ namespace Ship_Game.Data.Serialization.Types
             int enumIndex = reader.BR.ReadVLi32();
             if (Mapping.TryGetValue(enumIndex, out object enumValue))
                 return enumValue;
+
+            if (IsFlagsEnum && enumIndex != 0)
+            {
+                try
+                {
+                    return Enum.ToObject(Type, enumIndex);
+                }
+                catch
+                {
+                }
+            }
 
             Error(enumIndex, $"Enum '{Type.Name}' -- using Default value '{DefaultValue}' instead");
             return DefaultValue;

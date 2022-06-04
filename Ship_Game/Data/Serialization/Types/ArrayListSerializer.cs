@@ -142,7 +142,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object CreateInstance()
         {
-            return Activator.CreateInstance(GenericArrayType);
+            return CreateInstanceOf(GenericArrayType);
         }
 
         public override void Deserialize(BinarySerializerReader reader, object instance)

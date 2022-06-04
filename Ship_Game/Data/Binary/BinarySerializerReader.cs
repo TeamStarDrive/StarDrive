@@ -296,7 +296,7 @@ namespace Ship_Game.Data.Binary
                 if (ser == null)
                     return; // type not found (it was deleted or renamed)
                 for (int i = 0; i < count; ++i)
-                    ObjectsList[baseIndex + i] = Activator.CreateInstance(ser.Type);
+                    ObjectsList[baseIndex + i] = ser.CreateInstanceOf(ser.Type);
             });
 
             // read strings

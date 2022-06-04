@@ -112,6 +112,30 @@ namespace UnitTests
             Enemy = EmpireManager.NonPlayerEmpires[0];
         }
 
+        public void CreateCustomUniverseSandbox(int numOpponents, GalSize galSize)
+        {
+            (int numStars, float starNumModifier) = RaceDesignScreen.GetNumStars(
+                RaceDesignScreen.StarsAbundance.Abundant, galSize, numOpponents
+            );
+
+            EmpireData playerData = ResourceManager.FindEmpire("United").CreateInstance();
+            playerData.DiplomaticPersonality = new DTrait();
+
+            CreateCustomUniverse(new UniverseGenerator.Params
+            {
+                PlayerData = playerData,
+                Mode = RaceDesignScreen.GameMode.Sandbox,
+                UniverseSize = galSize,
+                NumSystems = numStars,
+                NumOpponents = numOpponents,
+                StarNumModifier = starNumModifier,
+                Pace = 1.0f,
+                Difficulty = GameDifficulty.Normal,
+            });
+            Universe.CreateSimThread = false;
+            Universe.LoadContent();
+        }
+
         public void DestroyUniverse()
         {
             Universe?.ExitScreen();
