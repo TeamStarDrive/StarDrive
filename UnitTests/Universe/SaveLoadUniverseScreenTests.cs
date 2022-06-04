@@ -99,7 +99,7 @@ namespace UnitTests.Universe
             DestroyUniverse();
             SavedGame.UniverseSaveData snap1 = save1.SaveData;
 
-            UniverseScreen us = LoadGame.Load(save1.PackedFile, noErrorDialogs:true, startSimThread:false);
+            UniverseScreen us = LoadGame.Load(save1.SaveFile, noErrorDialogs:true, startSimThread:false);
             SavedGame save2 = us.Save("UnitTest.IntegrityTest", async:false);
             if (save1 == null) throw new AssertFailedException("Save2 failed");
             DestroyUniverse();

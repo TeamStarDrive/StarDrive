@@ -29,7 +29,6 @@ namespace Ship_Game.GameScreens.LoadGame
         public bool LoadingFailed { get; private set; }
         bool StartSimThread;
 
-        public bool UseBinarySaveFormat;
         public bool Verbose;
 
         public LoadGame(FileInfo saveFile)
@@ -108,7 +107,7 @@ namespace Ship_Game.GameScreens.LoadGame
             if (!file.Exists)
                 throw new FileNotFoundException($"SaveGame file does not exist: {file.FullName}");
 
-            SavedGame.UniverseSaveData usData = SavedGame.Deserialize(file, UseBinarySaveFormat, Verbose);
+            SavedGame.UniverseSaveData usData = SavedGame.Deserialize(file, Verbose);
 
             if (usData.SaveGameVersion != SavedGame.SaveGameVersion)
                 Log.Error("Incompatible savegame version! Got v{0} but expected v{1}", usData.SaveGameVersion, SavedGame.SaveGameVersion);

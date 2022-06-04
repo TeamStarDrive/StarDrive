@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
@@ -7,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Xml.Serialization;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
@@ -28,8 +26,6 @@ namespace Ship_Game
         [StarData] public string RealDate;
         [StarData] public string ModName = "";
         [StarData] public DateTime Time;
-
-        [XmlIgnore][JsonIgnore] public FileInfo FI;
     }
 
     // XNA.Rectangle cannot be serialized, so we need a proxy object
@@ -55,16 +51,12 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 13;
-        public const string ZipExt = ".sav.gz";
+        public const int SaveGameVersion = 14;
 
-        public bool UseBinarySaveFormat = true;
         public bool Verbose;
 
         public readonly UniverseSaveData SaveData = new();
         public FileInfo SaveFile;
-        public FileInfo PackedFile;
-        public FileInfo HeaderFile;
 
         public static bool IsSaving  => GetIsSaving();
         public static bool NotSaving => !IsSaving;
@@ -351,12 +343,10 @@ namespace Ship_Game
 
             string destFolder = DefaultSaveGameFolder;
             SaveFile = new FileInfo($"{destFolder}{saveAs}.sav");
-            PackedFile = new FileInfo(SaveFile.FullName + ".gz");
-            HeaderFile = new FileInfo($"{destFolder}Headers/{saveAs}.json");
 
             if (!async)
             {
-                SaveUniverseData(SaveData, SaveFile, PackedFile, HeaderFile);
+                SaveUniverseData(SaveData, SaveFile);
             }
             else
             {
@@ -364,7 +354,7 @@ namespace Ship_Game
                 // because we already built `SaveData` object, which no longer depends on UniverseScreen
                 SaveTask = Parallel.Run(() =>
                 {
-                    SaveUniverseData(SaveData, SaveFile, PackedFile, HeaderFile);
+                    SaveUniverseData(SaveData, SaveFile);
                 });
             }
         }
@@ -471,8 +461,7 @@ namespace Ship_Game
             return sd;
         }
 
-        void SaveUniverseData(UniverseSaveData data, FileInfo saveFile, 
-                              FileInfo compressedSave, FileInfo headerFile)
+        void SaveUniverseData(UniverseSaveData data, FileInfo saveFile)
         {
             var t = new PerfTimer();
 
@@ -489,83 +478,31 @@ namespace Ship_Game
                 Time       = now,
             };
 
-            if (UseBinarySaveFormat)
+            using (var writer = new BinaryWriter(saveFile.OpenWrite()))
             {
-                using var stream = saveFile.OpenWrite();
-                var writer = new BinaryWriter(stream);
-
-                BinarySerializer.SerializeMultiType(writer, new object[]{ header, data }, Verbose);
-
-                Log.Info($"Binary Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length/(1024.0*1024.0):0.0}MB)");
-            }
-            else
-            {
-                using (var textWriter = new StreamWriter(saveFile.FullName))
-                {
-                    var ser = new JsonSerializer
-                    {
-                        NullValueHandling = NullValueHandling.Ignore,
-                        DefaultValueHandling = DefaultValueHandling.Ignore
-                    };
-                    ser.Serialize(textWriter, data);
-                }
-
-                HelperFunctions.Compress(saveFile, compressedSave); // compress into .sav.gz
-                saveFile.Delete(); // delete the bigger .sav file
-
-                // Save the header as well
-                using (var textWriter = new StreamWriter(headerFile.FullName))
-                {
-                    var ser = new JsonSerializer
-                    {
-                        NullValueHandling = NullValueHandling.Ignore,
-                        DefaultValueHandling = DefaultValueHandling.Ignore
-                    };
-                    ser.Serialize(textWriter, header);
-                }
-
-                Log.Info($"JSON Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length/(1024.0*1024.0):0.0}MB)");
+                BinarySerializer.SerializeMultiType(writer, new object[] { header, data }, Verbose);
             }
 
             SaveTask = null;
+            Log.Info($"Binary Total Save elapsed: {t.Elapsed:0.00}s ({saveFile.Length / (1024.0 * 1024.0):0.0}MB)");
 
             HelperFunctions.CollectMemory();
         }
 
-        public static UniverseSaveData Deserialize(FileInfo saveFile, bool binarySave, bool verbose)
+        public static UniverseSaveData Deserialize(FileInfo saveFile, bool verbose)
         {
             var t = new PerfTimer();
-            UniverseSaveData usData;
 
-            if (binarySave)
+            using var reader = new BinaryReader(saveFile.OpenRead());
+            var results = BinarySerializer.DeserializeMultiType(reader, new[]
             {
-                using var reader = new BinaryReader(saveFile.OpenRead());
-                var results = BinarySerializer.DeserializeMultiType(reader, new[]
-                {
-                    typeof(HeaderData),
-                    typeof(UniverseSaveData)
-                }, verbose);
-                usData = (UniverseSaveData)results[1];
+                typeof(HeaderData),
+                typeof(UniverseSaveData)
+            }, verbose);
 
-                Log.Info($"Binary Total Load elapsed: {t.Elapsed:0.0}s  ");
-            }
-            else
-            {
-                // old save files are compressed
-                var decompressed = new FileInfo(HelperFunctions.Decompress(saveFile));
+            UniverseSaveData usData = (UniverseSaveData)results[1];
 
-                using FileStream stream = decompressed.OpenRead();
-                using var reader = new JsonTextReader(new StreamReader(stream));
-                var ser = new JsonSerializer
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    DefaultValueHandling = DefaultValueHandling.Ignore
-                };
-                usData = ser.Deserialize<UniverseSaveData>(reader);
-
-                Log.Info($"JSON Total Load elapsed: {t.Elapsed:0.0}s  ");
-                decompressed.Delete();
-            }
+            Log.Info($"Binary Total Load elapsed: {t.Elapsed:0.0}s  ");
 
             return usData;
         }

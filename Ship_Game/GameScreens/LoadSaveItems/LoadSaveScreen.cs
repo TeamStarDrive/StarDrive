@@ -1,10 +1,10 @@
 using System;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Audio;
+using Ship_Game.GameScreens.LoadGame;
 using Ship_Game.GameScreens.MainMenu;
 
 namespace Ship_Game
@@ -27,19 +27,6 @@ namespace Ship_Game
             Path = SavedGame.DefaultSaveGameFolder;
         }
 
-        protected override void DeleteFile()
-        {
-            try
-            {
-                // find header of save file
-                var headerToDel = new FileInfo(Path + "Headers/"+FileToDelete.FileLink.NameNoExt());
-                headerToDel.Delete();
-            }
-            catch { }
-
-            base.DeleteFile();
-        }
-
         protected override void Load()
         {
             if (SelectedFile != null)
@@ -57,38 +44,43 @@ namespace Ship_Game
 
         protected override void ExportSave()
         {
-            if (SelectedFile != null)
+            if (SelectedFile == null)
             {
-                string fileName = SelectedFile.FileName;
-                var dirInfo = new DirectoryInfo(Path + "/" + fileName);
-                dirInfo.Create();
-                SelectedFile.FileLink.CopyTo(dirInfo.FullName + "/" + SelectedFile.FileLink.Name, true);
-                var header = new FileInfo(Path + "/Headers/" + fileName + ".json");
-
-                if (!header.Exists)
-                {
-                    string err = $"Header does not exist: 'Headers/{fileName}.json' for '{fileName}'";
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, err, MessageBoxButtons.Ok));
-                }
-                else
-                {
-                    header.CopyTo(dirInfo.FullName + "/" + header.Name, true);
-                    string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                    string savedFileName = $"{GetDebugVers()}{dirInfo.Name}.zip";
-                    HelperFunctions.CompressDir(dirInfo, path + "/" + savedFileName);
-                    dirInfo.Delete(true);
-
-                    string message = $"The selected save was exported to your desktop as {savedFileName}";
-                    int messageWidth = ((int)Fonts.Arial12Bold.MeasureString(savedFileName).X + 20).UpperBound(400);
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, message, MessageBoxButtons.Ok, messageWidth));
-                    return;
-                }
+                GameAudio.NegativeClick();
+                return;
             }
 
-            GameAudio.NegativeClick();
+            string savedFileName = ExportSave(SelectedFile);
+
+            string message = $"The selected save was exported to your desktop as {savedFileName}";
+            int messageWidth = ((int)Fonts.Arial12Bold.MeasureString(savedFileName).X + 20).UpperBound(400);
+            ScreenManager.AddScreen(new MessageBoxScreen(this, message, MessageBoxButtons.Ok, messageWidth));
         }
 
-        string GetDebugVers()
+        string ExportSave(FileData save)
+        {
+            string fileName = save.FileName;
+            var dirInfo = new DirectoryInfo(Path + "/" + fileName);
+            dirInfo.Create();
+            string tmpDir = dirInfo.FullName;
+
+            save.FileLink.CopyTo($"{tmpDir}/{save.FileName}", overwrite:true);
+
+            // also add both logfiles
+            if (File.Exists("blackbox.log"))
+                File.Copy("blackbox.log", $"{tmpDir}/blackbox.log", overwrite:true);
+            if (File.Exists("blackbox.old.log"))
+                File.Copy("blackbox.old.log", $"{tmpDir}/blackbox.log", overwrite:true);
+
+            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string outZip = $"{GetDebugVers()}_{fileName}.zip";
+            HelperFunctions.CompressDir(dirInfo, $"{desktop}/{outZip}");
+            dirInfo.Delete(true);
+
+            return outZip;
+        }
+
+        static string GetDebugVers()
         {
             string blackBox = GlobalStats.ExtendedVersionNoHash
                                          .Replace(":", "")
@@ -98,66 +90,38 @@ namespace Ship_Game
             string modTitle = "";
             if (GlobalStats.HasMod)
             {
-                string title = GlobalStats.ActiveModInfo.ModName;
+                string title = GlobalStats.ModName;
                 string version = GlobalStats.ActiveModInfo.Version;
                 if (version.NotEmpty() && !title.Contains(version))
                     modTitle = title + "-" + version;
 
                 modTitle = modTitle.Replace(":", "").Replace(" ", "_");
+                return $"{blackBox}_{modTitle}";
             }
-
-            return $"{blackBox}_{modTitle}_"; 
+            return blackBox;
         }
 
         // Set list of files to show
         protected override void InitSaveList()
         {
-            var ser = new JsonSerializer
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore
-            };
-
             var saves = new Array<FileData>();
-            foreach (FileInfo saveHeaderFile in Dir.GetFiles(Path + "Headers", "json"))
+            var saveFiles = Dir.GetFiles(Path, "sav");
+            foreach (FileInfo saveFile in saveFiles)
             {
                 try
                 {
-                    HeaderData data;
-                    using (var reader = new JsonTextReader(new StreamReader(saveHeaderFile.FullName)))
-                        data = ser.Deserialize<HeaderData>(reader);
+                    HeaderData header = LoadGame.PeekHeader(saveFile);
 
-                    if (data.Version != SavedGame.SaveGameVersion || string.IsNullOrEmpty(data.SaveName))
-                        continue;
-
-                    data.FI = new FileInfo(Path + data.SaveName + SavedGame.ZipExt);
-                    if (!data.FI.Exists)
+                    // GlobalStats.ModName is "" if no active mods
+                    if (header.Version == SavedGame.SaveGameVersion &&
+                        header.ModName == GlobalStats.ModName)
                     {
-                        Log.Warning($"Missing save payload: {data.FI.FullName}");
-                        continue;
+                        saves.Add(FileData.FromSaveHeader(saveFile, header));
                     }
-                    
-                    if (GlobalStats.HasMod)
-                    {
-                        if (data.ModName != GlobalStats.ActiveMod.ModName)
-                            continue;
-                    }
-                    else if (data.ModName.NotEmpty())
-                    {
-                        continue; // skip non-mod savegames
-                    }
-                    
-                    string info = $"{data.PlayerName} StarDate {data.StarDate}";
-                    string extraInfo = data.RealDate;
-
-                    IEmpireData empire = ResourceManager.AllRaces.FirstOrDefault(e => e.Name == data.PlayerName)
-                                      ?? ResourceManager.AllRaces[0];
-                    saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo,
-                                           empire.Traits.FlagIcon, empire.Traits.Color));
                 }
                 catch (Exception e)
                 {
-                    Log.Warning($"Error parsing SaveHeader {saveHeaderFile.Name}: {e.Message}");
+                    Log.Warning($"Error parsing SaveGame header {saveFile.Name}: {e.Message}");
                 }
             }
 
