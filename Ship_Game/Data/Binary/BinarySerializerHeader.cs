@@ -5,6 +5,10 @@ namespace Ship_Game.Data.Binary
 {
     public struct BinarySerializerHeader
     {
+        // Signature of a valid BinarySerializerHeader
+        public const uint ValidSignature = 0x1f2f3f4f;
+
+        public uint Signature; // is this a BinarySerializerHeader ?
         public uint Version;
         public uint Options; // reserved for additional options
         public uint NumUsedTypes;
@@ -15,6 +19,7 @@ namespace Ship_Game.Data.Binary
 
         public BinarySerializerHeader(BinarySerializerWriter writer)
         {
+            Signature = ValidSignature;
             Version = BinarySerializer.CurrentVersion;
             Options = 0;
             NumUsedTypes = (uint)writer.UsedTypes.Length;
@@ -27,6 +32,7 @@ namespace Ship_Game.Data.Binary
 
         public BinarySerializerHeader(BinaryReader reader)
         {
+            Signature = reader.ReadUInt32(); // always UInt32
             Version = reader.ReadVLu32();
             Options = reader.ReadVLu32();
             NumUsedTypes = reader.ReadVLu32();
@@ -38,6 +44,7 @@ namespace Ship_Game.Data.Binary
 
         public void Write(BinaryWriter writer)
         {
+            writer.Write(Signature); // always UInt32
             writer.WriteVLu32(Version);
             writer.WriteVLu32(Options);
             writer.WriteVLu32(NumUsedTypes);
