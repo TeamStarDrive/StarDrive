@@ -29,6 +29,9 @@ namespace Ship_Game.Data.Binary
         // includes UserClasses, Array<T>, Map<K,V>, strings
         public (TypeSerializer Ser, object[] Objects)[] TypeGroups;
 
+        // how many TypeGroups are going to be written to the binary stream?
+        public int NumUsedGroups => TypeGroups.Count(g => g.Objects.Length > 0);
+
         Map<object, uint> Pointers;
 
         public bool Verbose;
@@ -40,9 +43,12 @@ namespace Ship_Game.Data.Binary
 
         class RecursiveScanner
         {
-            public readonly Map<TypeSerializer, Array<object>> ObjectGroups = new();
+            readonly Map<TypeSerializer, Array<object>> ObjectGroups = new();
+            readonly HashSet<TypeSerializer> StructTypes = new();
+
             public readonly HashSet<object> UniqueObjects = new();
-            public readonly HashSet<TypeSerializer> StructTypes = new();
+            public Array<TypeSerializer> Structs;
+            public (TypeSerializer Ser, object[] Objects)[] TypeGroups;
 
             // @return false if type analysis should be terminated
             bool Record(TypeSerializer ser, object instance)
@@ -132,86 +138,115 @@ namespace Ship_Game.Data.Binary
                     throw new Exception($"Unexpected type: {ser}");
                 }
             }
-        }
 
-        // @return TRUE if `type` is dependent on `on`
-        //         Example: type=Array<Ship> on=Ship returns true
-        //         Example: type=Map<string,Array<Ship>> on=Ship returns true
-        //         Example: type=Ship on=Array<Ship> returns false
-        static bool TypeDependsOn(Type type, Type on)
-        {
-            if (type.IsGenericType)
+            // for Map<string, Map<int, Snapshot>> we need to add `Snapshot` type
+            // even if there are no instances of it, otherwise we can't construct the Map type
+            public void FinalizeDependencies()
             {
-                Type[] typeArguments = type.GenericTypeArguments;
-                for (int i = 0; i < typeArguments.Length; ++i)
+                var types = ObjectGroups.Keys.ToArr();
+                foreach (TypeSerializer ser in types)
                 {
-                     Type typeArg = typeArguments[i];
-                     if (typeArg == on || TypeDependsOn(typeArg, on))
-                         return true;
+                    if (ser is CollectionSerializer cs)
+                    {
+                        if (!ObjectGroups.ContainsKey(cs.ElemSerializer))
+                            ObjectGroups.Add(cs.ElemSerializer, new Array<object>());
+
+                        if (cs.IsMapType && cs is MapSerializer ms)
+                        {
+                            if (!ObjectGroups.ContainsKey(ms.KeySerializer))
+                                ObjectGroups.Add(ms.KeySerializer, new Array<object>());
+                        }
+                    }
                 }
             }
-            return false;
+
+            public void SortTypesByDependency()
+            {
+                // Make the types somewhat stable by sorting them by name
+                // new/deleted types will of course offset this list immediately
+                // and deleted types can't be reconstructed during Reading
+                //
+                // Additionally Sort objects so that if Type B is a generic type
+                // which depends on Type A, then A must be first
+                //
+                // types ordering [incredibly important]:
+                // - structs
+                // - strings
+                // - raw arrays
+                // - collections
+                // - user classes
+                Structs = StructTypes.ToArrayList();
+                Structs.Sort((a, b) =>
+                {
+                    // enums go first
+                    if (a.IsEnumType && !b.IsEnumType) return -1;
+                    if (!a.IsEnumType && b.IsEnumType) return +1;
+                    return string.CompareOrdinal(a.Type.Name, b.Type.Name);
+                });
+
+                var groups = ObjectGroups.ToArrayList();
+                groups.Sort((a, b) =>
+                {
+                    if (a.Key.Type == typeof(string)) return -1;
+                    if (b.Key.Type == typeof(string)) return +1;
+
+                    // structs go first
+                    bool isPointerA = a.Key.IsPointerType;
+                    bool isPointerB = b.Key.IsPointerType;
+                    if (!isPointerA && isPointerB) return -1;
+                    if (isPointerA && !isPointerB) return +1;
+
+                    if (a.Key.Type.IsArray && !b.Key.Type.IsArray) return -1;
+                    if (!a.Key.Type.IsArray && b.Key.Type.IsArray) return +1;
+
+                    if (a.Key.IsCollection && !b.Key.IsCollection) return -1;
+                    if (!a.Key.IsCollection && b.Key.IsCollection) return +1;
+
+                    if (TypeDependsOn(b.Key.Type, a.Key.Type)) return -1;
+                    if (TypeDependsOn(a.Key.Type, b.Key.Type)) return +1;
+
+                    // the rest, sort by type name
+                    return string.CompareOrdinal(a.Key.Type.Name, b.Key.Type.Name);
+                });
+
+                TypeGroups = groups.Select(kv => (kv.Key, kv.Value.ToArray()));
+            }
+
+            // @return TRUE if `type` is dependent on `on`
+            //         Example: type=Array<Ship> on=Ship returns true
+            //         Example: type=Map<string,Array<Ship>> on=Ship returns true
+            //         Example: type=Ship on=Array<Ship> returns false
+            static bool TypeDependsOn(Type type, Type on)
+            {
+                if (type.IsGenericType)
+                {
+                    Type[] typeArguments = type.GenericTypeArguments;
+                    for (int i = 0; i < typeArguments.Length; ++i)
+                    {
+                        Type typeArg = typeArguments[i];
+                        if (typeArg == on || TypeDependsOn(typeArg, on))
+                            return true;
+                    }
+                }
+                return false;
+            }
         }
 
         public void ScanObjects(TypeSerializer rootSer, object rootObject)
         {
             var rs = new RecursiveScanner();
             rs.Scan(rootSer, rootObject);
+            rs.FinalizeDependencies();
+            rs.SortTypesByDependency();
 
             NumObjects = rs.UniqueObjects.Count;
 
-            // Make the types somewhat stable by sorting them by name
-            // new/deleted types will of course offset this list immediately
-            // and deleted types can't be reconstructed during Reading
-            //
-            // Additionally Sort objects so that if Type B is a generic type
-            // which depends on Type A, then A must be first
-            //
-            // types ordering [incredibly important]:
-            // - structs
-            // - strings
-            // - raw arrays
-            // - collections
-            // - user classes
-            var structs = rs.StructTypes.ToArrayList();
-            var groups = rs.ObjectGroups.ToArrayList();
-            structs.Sort((a, b) =>
-            {
-                // enums go first
-                if (a.IsEnumType && !b.IsEnumType) return -1;
-                if (!a.IsEnumType && b.IsEnumType) return +1;
-                return string.CompareOrdinal(a.Type.Name, b.Type.Name);
-            });
-            groups.Sort((a, b) =>
-            {
-                if (a.Key.Type == typeof(string)) return -1;
-                if (b.Key.Type == typeof(string)) return +1;
-
-                // structs go first
-                bool isPointerA = a.Key.IsPointerType;
-                bool isPointerB = b.Key.IsPointerType;
-                if (!isPointerA && isPointerB) return -1;
-                if (isPointerA && !isPointerB) return +1;
-
-                if (a.Key.Type.IsArray && !b.Key.Type.IsArray) return -1;
-                if (!a.Key.Type.IsArray && b.Key.Type.IsArray) return +1;
-
-                if (a.Key.IsCollection && !b.Key.IsCollection) return -1;
-                if (!a.Key.IsCollection && b.Key.IsCollection) return +1;
-
-                if (TypeDependsOn(b.Key.Type, a.Key.Type)) return -1;
-                if (TypeDependsOn(a.Key.Type, b.Key.Type)) return +1;
-
-                // the rest, sort by type name
-                return string.CompareOrdinal(a.Key.Type.Name, b.Key.Type.Name);
-            });
-
             // for TypeGroups we only use Object groups
-            TypeGroups = groups.Select(kv => (kv.Key, kv.Value.ToArray()));
+            TypeGroups = rs.TypeGroups;
 
             // for UsedTypes we take both structs and objects
             var usedTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsUserClass, kv => kv.Ser);
-            UsedTypes = structs.Concat(usedTypes).ToArr();
+            UsedTypes = rs.Structs.Concat(usedTypes).ToArr();
             CollectionTypes = TypeGroups.FilterSelect(kv => kv.Ser.IsCollection, kv => (CollectionSerializer)kv.Ser);
 
             // find the root object index from the neatly sorted type groups
@@ -362,17 +397,20 @@ namespace Ship_Game.Data.Binary
 
         public void WriteObjectTypeGroups()
         {
-            foreach ((TypeSerializer ser, object[] list) in TypeGroups)
+            foreach ((TypeSerializer ser, object[] objects) in TypeGroups)
             {
-                if (Verbose) Log.Info($"WriteGroup={ser.TypeId} {ser.Type.GetTypeName()} {list.Length}");
+                if (objects.Length == 0)
+                    continue;
+                if (Verbose) Log.Info($"WriteGroup={ser.TypeId} {ser.Type.GetTypeName()} count={objects.Length}");
                 BW.WriteVLu32(ser.TypeId);
-                BW.WriteVLu32((uint)list.Length); // int32 because we allow > 65k objects
+                BW.WriteVLu32((uint)objects.Length); // int32 because we allow > 65k objects
             }
         }
 
         public void WriteObjects()
         {
-            var objects = new Array<object>(NumObjects);
+            if (Verbose) Log.Info($"WriteObjects {NumObjects}");
+            uint objectPointer = 0;
             Pointers = new Map<object, uint>(NumObjects);
 
             // pre-pass: create integer pointers of all objects
@@ -380,13 +418,26 @@ namespace Ship_Game.Data.Binary
             {
                 foreach (object o in list)
                 {
-                    objects.Add(o);
-                    Pointers[o] = (uint)objects.Count; // pointer = objectIndex + 1
+                    if (!Pointers.ContainsKey(o))
+                    {
+                        uint pointer = ++objectPointer;
+                        Pointers[o] = pointer; // pointer = objectIndex + 1
+                    }
                 }
             }
 
             foreach ((TypeSerializer ser, object[] list) in TypeGroups)
             {
+                if (list.Length == 0)
+                    continue;
+
+                if (Verbose) Log.Info($"WriteGroupedObjects Count={list.Length} {ser}");
+
+                // for error checking we want to have the correct typeId because
+                // if something goes wrong, we need a way to skip over these
+                BW.WriteVLu32(ser.TypeId);
+                BW.WriteVLu32((uint)list.Length);
+
                 foreach (object o in list)
                 {
                     WriteObjectRoot(ser, o);

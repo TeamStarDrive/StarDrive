@@ -65,6 +65,11 @@ namespace Ship_Game.Data.Binary
             return StreamTypes[streamTypeId];
         }
 
+        TypeInfo GetTypeOrNull(uint streamTypeId)
+        {
+            return streamTypeId < StreamTypes.Length ? StreamTypes[streamTypeId] : null;
+        }
+
         public TypeInfo GetType(TypeSerializer ser)
         {
             return ActualTypes[ser.TypeId];
@@ -232,6 +237,7 @@ namespace Ship_Game.Data.Binary
         // reads the type groups
         public void ReadTypeGroups()
         {
+            if (Verbose) Log.Info($"Reading {Header.NumTypeGroups} TypeGroups");
             TypeGroups = new (TypeInfo Info, TypeSerializer Ser, int Count)[Header.NumTypeGroups];
 
             int totalCount = 0;
@@ -241,28 +247,50 @@ namespace Ship_Game.Data.Binary
                 int count = (int)BR.ReadVLu32();
                 totalCount += count;
 
-                if (count > 0)
+                if (count == 0) // count must not be 0
+                    throw new InvalidDataException($"ReadGroup Type={streamTypeId} Count was 0");
+
+                var type = GetType(streamTypeId);
+                if (type == null)
                 {
-                    var type = GetType(streamTypeId);
-                    if (type == null)
-                    {
-                        Log.Error($"Type={streamTypeId} was null but count={count} implies we have valid objects");
-                        TypeGroups[i] = (null, null, count);
-                    }
-                    else
-                    {
-                        TypeGroups[i] = (type, type.Ser, count);
-                    }
+                    Log.Error($"ReadGroup Type={streamTypeId} was null");
+                    TypeGroups[i] = (null, null, count);
+                }
+                else
+                {
+                    if (Verbose) Log.Info($"ReadGroup Type={streamTypeId} Count={count} {type.Ser}");
+                    TypeGroups[i] = (type, type.Ser, count);
                 }
             }
 
             ObjectsList = new object[totalCount];
         }
 
+        void ReadObjectsBegin(TypeInfo type, int expectedCount)
+        {
+            if (Verbose) Log.Info($"ReadObjects Count={expectedCount} {type}");
+
+            // we are trying to read a typegroup but the type does not match
+            uint typeId = BR.ReadVLu32();
+            if (typeId != type.StreamTypeId)
+            {
+                TypeInfo actual = GetTypeOrNull(typeId);
+                throw new InvalidDataException($"Invalid TypeGroup Id={typeId} Expected={type} Encountered={actual}");
+            }
+
+            // the count does not match
+            uint count = BR.ReadVLu32();
+            if (count != expectedCount)
+                throw new InvalidDataException($"Invalid TypeGroup Count={count} Expected={expectedCount} for Type={type}");
+        }
+
         // populate all object instances by reading the object fields
         public void ReadObjectsList()
         {
+            if (Verbose) Log.Info($"ReadObjects {ObjectsList.Length}");
+
             // pre-instantiate UserClass instances
+            if (Verbose) Log.Info("PreInstantiate UserClass instances");
             ForEachTypeGroup(SerializerCategory.UserClass, (type, ser, count, baseIndex) =>
             {
                 if (ser == null)
@@ -272,14 +300,17 @@ namespace Ship_Game.Data.Binary
             });
 
             // read strings
+            if (Verbose) Log.Info("Read Fundamental Type Instances");
             ForEachTypeGroup(SerializerCategory.None, (type, ser, count, baseIndex) =>
             {
+                ReadObjectsBegin(type, count);
                 for (int i = 0; i < count; ++i)
                     ObjectsList[baseIndex + i] = ser.Deserialize(this);
             });
 
             // create collection instances, but don't read them yet
             // also, skip raw arrays, because we can't create them without Deserializing them
+            if (Verbose) Log.Info("Create Collection Instances");
             ForEachTypeGroup(SerializerCategory.Collection, (type, ser, count, baseIndex) =>
             {
                 var cs = (CollectionSerializer)ser;
@@ -288,8 +319,10 @@ namespace Ship_Game.Data.Binary
             });
 
             // now deserialize raw arrays
+            if (Verbose) Log.Info("Read RawArrays");
             ForEachTypeGroup(SerializerCategory.RawArray, (type, ser, count, baseIndex) =>
             {
+                ReadObjectsBegin(type, count);
                 for (int i = 0; i < count; ++i)
                     ObjectsList[baseIndex + i] = ser.Deserialize(this);
             });
@@ -297,8 +330,10 @@ namespace Ship_Game.Data.Binary
             // --- now all instances should be created ---
 
             // read Collections
+            if (Verbose) Log.Info("Read Collections");
             ForEachTypeGroup(SerializerCategory.Collection, (type, ser, count, baseIndex) =>
             {
+                ReadObjectsBegin(type, count);
                 var cs = (CollectionSerializer)ser;
                 for (int i = 0; i < count; ++i)
                 {
@@ -308,8 +343,10 @@ namespace Ship_Game.Data.Binary
             });
 
             // read UserClass fields
+            if (Verbose) Log.Info("Read UserClass Fields");
             ForEachTypeGroup(SerializerCategory.UserClass, (type, ser, count, baseIndex) =>
             {
+                ReadObjectsBegin(type, count);
                 for (int i = 0; i < count; ++i)
                 {
                     object instance = ObjectsList[baseIndex + i];
@@ -323,7 +360,7 @@ namespace Ship_Game.Data.Binary
             int objectIdx = 0;
             foreach ((TypeInfo type, TypeSerializer ser, int count) in TypeGroups)
             {
-                if (count > 0 && type != null && type.Category == category)
+                if (type.Category == category)
                     action(type, ser, count, objectIdx);
                 objectIdx += count;
             }
@@ -352,7 +389,14 @@ namespace Ship_Game.Data.Binary
                 {
                     // if field has been deleted, then mapping is null and Set() will not called
                     FieldInfo field = instanceType.Fields[streamFieldIdx];
-                    field.Field?.Set(instance, fieldValue);
+                    try
+                    {
+                        field.Field?.Set(instance, fieldValue);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, $"Failed to set FieldValue={fieldValue} into Field={field}");
+                    }
                 }
             }
         }

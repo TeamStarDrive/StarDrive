@@ -18,7 +18,9 @@ namespace Ship_Game.Data.Binary
 
         public Type Type => Ser.Type;
 
-        public override string ToString() => $"{Name} Id={StreamTypeId} Fields={Fields?.Length}";
+        public override string ToString() => $"{Name} Id={StreamTypeId}{FieldString}";
+
+        string FieldString => Fields != null ? $" Fields={Fields.Length}" : "";
 
         public TypeInfo(uint streamTypeId, string name, TypeSerializer s, FieldInfo[] fields,
                         bool isPointer, SerializerCategory c)
