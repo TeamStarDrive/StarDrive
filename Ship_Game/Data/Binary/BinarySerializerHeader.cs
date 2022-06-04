@@ -6,7 +6,7 @@ namespace Ship_Game.Data.Binary
     public struct BinarySerializerHeader
     {
         public uint Version;
-        public uint Options;
+        public uint Options; // reserved for additional options
         public uint NumUsedTypes;
         public uint NumCollectionTypes;
         public uint MaxTypeId;
@@ -21,7 +21,7 @@ namespace Ship_Game.Data.Binary
             NumCollectionTypes = (uint)writer.CollectionTypes.Length;
             MaxTypeId = (uint)Math.Max(writer.UsedTypes.Max(s => s.TypeId),
                                        writer.CollectionTypes.Max(s => s.TypeId));
-            NumTypeGroups = (uint)writer.TypeGroups.Length;
+            NumTypeGroups = (uint)writer.NumUsedGroups;
             RootObjectIndex = writer.RootObjectIndex;
         }
 
@@ -45,6 +45,11 @@ namespace Ship_Game.Data.Binary
             writer.WriteVLu32(MaxTypeId);
             writer.WriteVLu32(NumTypeGroups);
             writer.WriteVLu32(RootObjectIndex);
+        }
+
+        public override string ToString()
+        {
+            return $"v{Version} Opt={Options} Types={NumUsedTypes} Coll={NumCollectionTypes} Groups={NumTypeGroups} Root={RootObjectIndex}";
         }
     }
 }

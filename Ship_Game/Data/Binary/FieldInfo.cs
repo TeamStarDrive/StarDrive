@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.Data.Serialization;
+using SDUtils;
 
 namespace Ship_Game.Data.Binary
 {
@@ -17,7 +18,7 @@ namespace Ship_Game.Data.Binary
 
         public override string ToString()
         {
-            return $"{StreamTypeId} {Type?.Name} {Name}";
+            return $"{StreamTypeId} {Type?.GetTypeName()} {Name}";
         }
     }
 
