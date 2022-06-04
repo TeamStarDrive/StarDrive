@@ -163,7 +163,7 @@ namespace Ship_Game
 
         [StarData] public Array<string> ExcludedDTraits = new();
         [StarData] public Array<string> ExcludedETraits = new();
-        [StarData] public BatchRemovalCollection<Agent> AgentList = new();
+        [StarData] public Array<Agent> AgentList = new();
         [StarData] public string AbsorbedBy;
         [StarData] public string StartingShip;
         [StarData] public string StartingScout;
@@ -179,7 +179,7 @@ namespace Ship_Game
         [StarData] public int ScoreAverage;
         [StarData] public string MusicCue;
         [StarData] public Array<string> ResearchQueue = new();
-        [StarData] public BatchRemovalCollection<Mole> MoleList = new();
+        [StarData] public Array<Mole> MoleList = new();
         [StarData] public float CounterIntelligenceBudget;
 
         // NOTE: This is currently the main unique identifier?

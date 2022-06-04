@@ -2746,8 +2746,6 @@ namespace Ship_Game
             for (int index = 0; index < data.AgentList.Count; ++index)
                 data.AgentList[index].Update(this);
 
-            data.AgentList.ApplyPendingRemovals();
-
             if (Money < 0.0 && !isFaction)
             {
                 float ratio = ((AllSpending - Money) / PotentialIncome.LowerBound(1));
