@@ -90,6 +90,13 @@ namespace Ship_Game.Data.Binary
             var header = new BinarySerializerHeader(reader);
             if (verbose) Log.Info($"Deserialize {header}");
 
+            // this is not a binary serializer file!
+            if (header.Signature != BinarySerializerHeader.ValidSignature)
+            {
+                if (verbose) Log.Info("Invalid BinarySerializerHeader Signature");
+                return null;
+            }
+
             Version = header.Version;
             if (Version != CurrentVersion)
             {

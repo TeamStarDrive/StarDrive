@@ -59,6 +59,8 @@ namespace Ship_Game
 
         string ExportSave(FileData save)
         {
+            Log.FlushAllLogs();
+
             string fileName = save.FileName;
             var dirInfo = new DirectoryInfo(Path + "/" + fileName);
             dirInfo.Create();
@@ -70,7 +72,7 @@ namespace Ship_Game
             if (File.Exists("blackbox.log"))
                 File.Copy("blackbox.log", $"{tmpDir}/blackbox.log", overwrite:true);
             if (File.Exists("blackbox.old.log"))
-                File.Copy("blackbox.old.log", $"{tmpDir}/blackbox.log", overwrite:true);
+                File.Copy("blackbox.old.log", $"{tmpDir}/blackbox.old.log", overwrite:true);
 
             string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             string outZip = $"{GetDebugVers()}_{fileName}.zip";
@@ -113,7 +115,8 @@ namespace Ship_Game
                     HeaderData header = LoadGame.PeekHeader(saveFile);
 
                     // GlobalStats.ModName is "" if no active mods
-                    if (header.Version == SavedGame.SaveGameVersion &&
+                    if (header != null && // null if saveFile is not a valid binary save
+                        header.Version == SavedGame.SaveGameVersion &&
                         header.ModName == GlobalStats.ModName)
                     {
                         saves.Add(FileData.FromSaveHeader(saveFile, header));

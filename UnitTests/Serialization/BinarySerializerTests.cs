@@ -634,7 +634,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsMovedTypes()
         {
-            string containsMovedType = "AQACACEDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCEUNvbnRhaW5zTW92ZWRUeXBlCU1vdmVkVHlwZQQCTVQETmFtZQNQb3MGVmFsdWU0IAAAAAUDDQIhABUBIQAAAQUBDgMVASABIQEVARVDb250YWlucyBhIG1vdmVkIHR5cGUgAQ0AACD6RABA+kQAYPpEIQEDFQIBIQEOAAAQekUAIHpFADB6RQBAekU=";
+            string containsMovedType = "Tz8vHwEAAgAhAwEBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhFDb250YWluc01vdmVkVHlwZQlNb3ZlZFR5cGUEAk1UBE5hbWUDUG9zBlZhbHVlNCAAAAAFAw0CIQAVASEAAAEFAQ4DFQEgASEBFQEVQ29udGFpbnMgYSBtb3ZlZCB0eXBlIAENAAAg+kQAQPpEAGD6RCEBAxUCASEBDgAAEHpFACB6RQAwekUAQHpF";
 
             //containsMovedType = CreateByteStreamForDeletedTypeTest(new ContainsMovedType
             //{
@@ -642,6 +642,7 @@ namespace UnitTests.Serialization
             //    MT = new MovedType { Value4 = new Vector4(4001, 4002, 4003, 4004) },
             //    Name = "Contains a moved type",
             //});
+            //Log.Write("\"" + containsMovedType + "\";");
 
             var ser = new BinarySerializer(typeof(ContainsMovedType));
             var result = Deserialize<ContainsMovedType>(ser, Convert.FromBase64String(containsMovedType));
@@ -668,7 +669,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsDeletedTypes()
         {
-            string containsDeletedType = "AQADACIDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMDE0NvbnRhaW5zRGVsZXRlZFR5cGUNRGVsZXRlZFN0cnVjdAtEZWxldGVkVHlwZQUCRFMCRFQETmFtZQNQb3MGVmFsdWU0IgAAAQQBDgQgAAAABQQNAyEBIgAVAiEAAAIFAQ4EFQEgASEBFQEWQ29udGFpbnMgZGVsZXRlZCB0eXBlcyABDQAAIPpEAED6RABg+kQhAQMiAg4AAEicRQBQnEUAWJxFAGCcRRUDASEBDgAAEHpFACB6RQAwekUAQHpF";
+            string containsDeletedType = "Tz8vHwEAAwAiAwEBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxNDb250YWluc0RlbGV0ZWRUeXBlDURlbGV0ZWRTdHJ1Y3QLRGVsZXRlZFR5cGUFAkRTAkRUBE5hbWUDUG9zBlZhbHVlNCIAAAEEAQ4EIAAAAAUEDQMhASIAFQIhAAACBQEOBBUBIAEhARUBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMgAQ0AACD6RABA+kQAYPpEIQEDIgIOAABInEUAUJxFAFicRQBgnEUVAwEhAQ4AABB6RQAgekUAMHpFAEB6RQ==";
 
             //containsDeletedType = CreateByteStreamForDeletedTypeTest(new ContainsDeletedType
             //{
@@ -677,6 +678,7 @@ namespace UnitTests.Serialization
             //    DS = new DeletedStruct { Value4 = new Vector4(5001, 5002, 5003, 5004) },
             //    Name = "Contains deleted types",
             //});
+            //Log.Write("\"" + containsDeletedType + "\";");
 
             var ser = new BinarySerializer(typeof(ContainsDeletedType));
             var result = Deserialize<ContainsDeletedType>(ser, Convert.FromBase64String(containsDeletedType));
@@ -698,7 +700,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsRemovedFieldTypes()
         {
-            string containsRemovedField = "AQACACEDAgEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCGENvbnRhaW5zUmVtb3ZlZEZpZWxkVHlwZQ1SZWN1cnNpdmVUeXBlCAVDb3VudBBEZWZhdWx0SXNOb3ROdWxsBE5hbWUDUG9zBFBvczINUmVjdXJzaXZlU2VsZgdSZW1vdmVkBFRleHQgAAAABQQNAyEGFQIMBCEAAAEFBCEFFQcGABUBFQIgASEBFQIPV2lsbCBiZSByZW1vdmVkGENvbnRhaW5zIGEgcmVtb3ZlZCBmaWVsZCABDQAAIPpEAED6RABg+kQhAQQVAgIMAwCgekUAQHtFIQEhAAQVAQEGApITFQMA";
+            string containsRemovedField = "Tz8vHwEAAgAhAwIBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhhDb250YWluc1JlbW92ZWRGaWVsZFR5cGUNUmVjdXJzaXZlVHlwZQgFQ291bnQQRGVmYXVsdElzTm90TnVsbAROYW1lA1BvcwRQb3MyDVJlY3Vyc2l2ZVNlbGYHUmVtb3ZlZARUZXh0IAAAAAUEDQMhBhUCDAQhAAABBQQhBRUHBgAVARUCIAEhARUCD1dpbGwgYmUgcmVtb3ZlZBhDb250YWlucyBhIHJlbW92ZWQgZmllbGQgAQ0AACD6RABA+kQAYPpEIQEEFQICDAMAoHpFAEB7RSEBIQAEFQEBBgKSExUDAA==";
 
             //containsRemovedField = CreateByteStreamForDeletedTypeTest(new ContainsRemovedFieldType
             //{
@@ -707,6 +709,7 @@ namespace UnitTests.Serialization
             //    Name = "Contains a removed field",
             //    Pos2 = new Vector2(4010, 4020),
             //});
+            //Log.Write("\"" + containsRemovedField + "\";");
 
             var ser = new BinarySerializer(typeof(ContainsRemovedFieldType));
             var result = Deserialize<ContainsRemovedFieldType>(ser, Convert.FromBase64String(containsRemovedField));
