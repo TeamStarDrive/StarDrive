@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,9 +9,10 @@ using Ship_Game;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
 using Ship_Game.GameScreens.LoadGame;
-using Ship_Game.Ships;
+using SynapseGaming.LightingSystem.Core;
 using Vector4 = SDGraphics.Vector4;
 using Point = SDGraphics.Point;
+using ResourceManager = Ship_Game.ResourceManager;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
@@ -38,10 +38,10 @@ namespace UnitTests.Serialization
             return (T)ser.Deserialize(reader);
         }
 
-        static T SerDes<T>(T instance, out byte[] bytes)
+        static T SerDes<T>(T instance)
         {
             var ser = new BinarySerializer(typeof(T));
-            bytes = Serialize<T>(ser, instance);
+            byte[] bytes = Serialize<T>(ser, instance);
             return Deserialize<T>(ser, bytes);
         }
 
@@ -73,7 +73,7 @@ namespace UnitTests.Serialization
                 ByteZero = 0, ByteMin = byte.MinValue, ByteMax = byte.MaxValue,
             };
 
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(result.IntZero, (int)0);
             Assert.AreEqual(result.IntMin, int.MinValue);
             Assert.AreEqual(result.IntMax, int.MaxValue);
@@ -120,11 +120,11 @@ namespace UnitTests.Serialization
                 DoubleMax = double.MaxValue,
             };
 
-            var result = SerDes(instance, out byte[] bytes);
-            Assert.AreEqual(result.FloatZero, (float)0.0f);
+            var result = SerDes(instance);
+            Assert.AreEqual(result.FloatZero, 0.0f);
             Assert.AreEqual(result.FloatMin, float.MinValue);
             Assert.AreEqual(result.FloatMax, float.MaxValue);
-            Assert.AreEqual(result.DoubleZero, (double)0.0);
+            Assert.AreEqual(result.DoubleZero, 0.0);
             Assert.AreEqual(result.DoubleMin, double.MinValue);
             Assert.AreEqual(result.DoubleMax, double.MaxValue);
         }
@@ -162,7 +162,7 @@ namespace UnitTests.Serialization
                 RangeZero = new Range(), RangeMin = new Range(-24,-25), RangeMax = new Range(24,25),
             };
 
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(result.Vector2Zero, Vector2.Zero);
             Assert.AreEqual(result.Vector2Min, new Vector2(-1,-2));
             Assert.AreEqual(result.Vector2Max, new Vector2(1,2));
@@ -216,7 +216,7 @@ namespace UnitTests.Serialization
                 LocRawText = new LocalizedText("RawText123", LocalizationMethod.RawText),
                 LocParse = new LocalizedText("{1234}", LocalizationMethod.Parse),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
 
             Assert.AreEqual(instance.StrNull, result.StrNull);
             Assert.AreEqual(instance.StrEmpty, result.StrEmpty);
@@ -244,7 +244,7 @@ namespace UnitTests.Serialization
                 TimeZero = TimeSpan.Zero, TimeMin = new TimeSpan(10000), TimeMax = new TimeSpan(1000000000L),
                 DateTimeMin = DateTime.MinValue, DateTimeMax = DateTime.MaxValue, DateTimeNow = DateTime.UtcNow,
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(result.TimeZero, TimeSpan.Zero);
             Assert.AreEqual(result.TimeMin, new TimeSpan(10000));
             Assert.AreEqual(result.TimeMax, new TimeSpan(1000000000L));
@@ -256,10 +256,10 @@ namespace UnitTests.Serialization
         [StarDataType]
         class RecursiveType
         {
-            [StarData] public RecursiveType RecursiveSelf;
-            [StarData] public string Text;
-            [StarData] public int Count;
-            [StarData] public string DefaultIsNotNull = "Default is not null";
+            [StarData] public readonly RecursiveType RecursiveSelf;
+            [StarData] public readonly string Text;
+            [StarData] public readonly int Count;
+            [StarData] public readonly string DefaultIsNotNull = "Default is not null";
             public RecursiveType() {}
             public RecursiveType(string text, int count)
             {
@@ -274,7 +274,7 @@ namespace UnitTests.Serialization
         public void BasicRecursiveType()
         {
             var instance = new RecursiveType("Hello", 42);
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(result.RecursiveSelf, result, "Recursive self reference must match");
             Assert.AreEqual(instance.Text, result.Text, "string must match");
             Assert.AreEqual(instance.Count, result.Count, "int field must match");
@@ -284,8 +284,8 @@ namespace UnitTests.Serialization
         [StarDataType]
         struct SmallStruct
         {
-            [StarData] public int Id;
-            [StarData] public string Name;
+            [StarData] public readonly int Id;
+            [StarData] public readonly string Name;
 
             public SmallStruct(int id, string name)
             {
@@ -310,14 +310,14 @@ namespace UnitTests.Serialization
         public void NestedUserTypeStruct()
         {
             var instance = new StructContainer(15, "Laika");
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(instance.SS.Id, result.SS.Id, "Nested SmallStruct Id fields must match");
             Assert.AreEqual(instance.SS.Name, result.SS.Name, "Nested SmallStruct Name fields must match");
         }
 
-        T[] Arr<T>(params T[] elements) => elements;
-        Array<T> List<T>(params T[] elements) => new Array<T>(elements);
-        Map<K,V> Map<K,V>(params ValueTuple<K, V>[] elements) => new Map<K,V>(elements);
+        static T[] Arr<T>(params T[] elements) => elements;
+        static Array<T> List<T>(params T[] elements) => new(elements);
+        static Map<K,V> Map<K,V>(params ValueTuple<K, V>[] elements) => new(elements);
 
         [StarDataType]
         class RawArrayType
@@ -340,7 +340,7 @@ namespace UnitTests.Serialization
                 Empty = new string[0],
                 Structs = Arr(new StructContainer(27, "27"), new StructContainer(42, "42")),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.Integers, result.Integers);
             Assert.That.Equal(instance.Points, result.Points);
             Assert.That.Equal(instance.Names, result.Names);
@@ -379,7 +379,7 @@ namespace UnitTests.Serialization
                 Collection = List("Morocco", "Italy", "Spain"),
                 Enumerable = List("Miami", "New York", "Austin"),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.Integers, result.Integers);
             Assert.That.Equal(instance.Points, result.Points);
             Assert.That.Equal(instance.Names, result.Names);
@@ -418,7 +418,7 @@ namespace UnitTests.Serialization
                 Interface = Map(("EarthAlliance","StarFury"), ("Minbari","Nial")),
                 ReadOnly = Map(("Name","Orion"), ("Type","Constellation")),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.TextToText, result.TextToText);
             Assert.That.Equal(instance.Empty, result.Empty);
             Assert.That.Equal(instance.TextToClass.Count, result.TextToClass.Count);
@@ -445,7 +445,7 @@ namespace UnitTests.Serialization
                 ListOfArrays = List(Arr("A", "B", "C"), Arr("D", "E", "F") ),
                 ListOfLists = List(List("Regulus", "Orion", "Andromeda"), List("Orion", "Cassiopeia")),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.ListOfArrays, result.ListOfArrays);
             Assert.That.Equal(instance.ListOfLists, result.ListOfLists);
         }
@@ -466,7 +466,7 @@ namespace UnitTests.Serialization
                     Map(("Orion", "Constellation"), ("Cassiopeia", "Constellation"))
                 ),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.ListOfMaps, result.ListOfMaps);
         }
 
@@ -493,7 +493,7 @@ namespace UnitTests.Serialization
                     ("Cassiopeia2", List("Constellation21", "W1"))
                 ),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.MapOfArrays, result.MapOfArrays);
             Assert.That.Equal(instance.MapOfLists, result.MapOfLists);
         }
@@ -530,7 +530,7 @@ namespace UnitTests.Serialization
                     )
                 )),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.That.Equal(instance.MapOfMaps, result.MapOfMaps);
             Assert.That.Equal(instance.MapOfMapsOfMaps, result.MapOfMapsOfMaps);
         }
@@ -578,7 +578,7 @@ namespace UnitTests.Serialization
         public void ComplexTypeTest()
         {
             var instance = new ComplexType("root", createSubTypes:true);
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(instance.TestText, result.TestText);
 
             Assert.AreEqual(result.RecursiveType, result.RecursiveType.RecursiveSelf);
@@ -719,7 +719,7 @@ namespace UnitTests.Serialization
         public void CustomTypeNameTypes()
         {
             var instance = new CustomTypeNameType{ Pos = new Vector3(1001, 1002, 1003) };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(instance.Pos, result.Pos);
         }
 
@@ -733,7 +733,7 @@ namespace UnitTests.Serialization
         public void FieldNameRemapTypes()
         {
             var instance = new FieldNameRemapType { Pos = new Vector3(1001, 1002, 1003) };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(instance.Pos, result.Pos);
         }
 
@@ -752,6 +752,16 @@ namespace UnitTests.Serialization
             Three,
         }
 
+        [Flags]
+        public enum FlagsEnum
+        {
+            None,
+            Flag1 = 8,
+            Flag2 = 16,
+            Flag3 = 32,
+            Flag4 = 64,
+        }
+
         [StarDataType]
         public class EnumTypes
         {
@@ -763,9 +773,11 @@ namespace UnitTests.Serialization
             [StarData] public NestedEnum Key1;
             [StarData] public GlobalEnum Key2;
             [StarData] public NestedEnum2 Key3;
+            [StarData] public FlagsEnum Key4;
             [StarData] public Array<NestedEnum> Values1;
             [StarData] public Array<GlobalEnum> Values2;
             [StarData] public Array<NestedEnum2> Values3;
+            [StarData] public Array<FlagsEnum> Values4;
         }
 
         [TestMethod]
@@ -775,17 +787,22 @@ namespace UnitTests.Serialization
             {
                 Key1 = NestedEnum.Three,
                 Key2 = GlobalEnum.Five,
-                Values1 = new Array<NestedEnum>(new[]{ NestedEnum.Three,NestedEnum.One,NestedEnum.Two }),
-                Values2 = new Array<GlobalEnum>(new[]{ GlobalEnum.Six,GlobalEnum.Four,GlobalEnum.Five }),
-                Values3 = new Array<EnumTypes.NestedEnum2>(new[]{ EnumTypes.NestedEnum2.Seven,EnumTypes.NestedEnum2.Nine,EnumTypes.NestedEnum2.Eight }),
+                Key3 = EnumTypes.NestedEnum2.Eight,
+                Key4 = FlagsEnum.Flag1|FlagsEnum.Flag2,
+                Values1 = List(NestedEnum.Three,NestedEnum.One,NestedEnum.Two),
+                Values2 = List(GlobalEnum.Six,GlobalEnum.Four,GlobalEnum.Five),
+                Values3 = List(EnumTypes.NestedEnum2.Seven,EnumTypes.NestedEnum2.Nine,EnumTypes.NestedEnum2.Eight),
+                Values4 = List(FlagsEnum.Flag1|FlagsEnum.Flag2, FlagsEnum.Flag4, FlagsEnum.Flag3|FlagsEnum.Flag4),
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(instance.Key1, result.Key1);
             Assert.AreEqual(instance.Key2, result.Key2);
             Assert.AreEqual(instance.Key3, result.Key3);
+            Assert.AreEqual(instance.Key4, result.Key4);
             Assert.That.EqualCollections(instance.Values1, result.Values1);
             Assert.That.EqualCollections(instance.Values2, result.Values2);
             Assert.That.EqualCollections(instance.Values3, result.Values3);
+            Assert.That.EqualCollections(instance.Values4, result.Values4);
         }
 
         [StarDataType]
@@ -807,7 +824,7 @@ namespace UnitTests.Serialization
             {
                 Nested = new NestedClass1.NestedClass2{ Name = "Nested2" }
             };
-            var result = SerDes(instance, out byte[] bytes);
+            var result = SerDes(instance);
             Assert.AreEqual(instance.Nested.Name, result.Nested.Name);
         }
 
@@ -866,17 +883,45 @@ namespace UnitTests.Serialization
             Assert.AreEqual(payload.Size, payload2.Size);
         }
 
+        bool LoadedExtraData;
+
+        void Setup()
+        {
+            LoadedExtraData = true;
+            Directory.CreateDirectory(SavedGame.DefaultSaveGameFolder);
+            ScreenManager.Instance.UpdateGraphicsDevice(); // create SpriteBatch
+            GlobalStats.AsteroidVisibility = ObjectVisibility.None; // dont create Asteroid SO's
+
+            ResourceManager.UnloadAllData(ScreenManager.Instance);
+            ResourceManager.LoadItAll(ScreenManager.Instance, null);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            if (LoadedExtraData)
+            {
+                LoadedExtraData = false;
+                ResourceManager.UnloadAllData(ScreenManager.Instance);
+                StarDriveTestContext.LoadStarterContent();
+                GlobalStats.AsteroidVisibility = ObjectVisibility.Rendered;
+            }
+        }
+
         // this is the actual big test for SavedGame
         [TestMethod]
         public void SavedGameSerialize()
         {
-            CreateUniverseAndPlayerEmpire();
+            Setup();
+
+            CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large);
+            Universe.SingleSimulationStep(TestSimStep);
 
             var save = new SavedGame(Universe);
             save.UseBinarySaveFormat = true;
             save.Verbose = true;
             save.Save("BinarySerializer.Test", async:false);
-            EmpireManager.Clear();
+            Universe.ExitScreen();
 
             // peek the header as per specs
             HeaderData header = LoadGame.PeekHeader(save.SaveFile);

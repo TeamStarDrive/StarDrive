@@ -112,7 +112,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object CreateInstance()
         {
-            return Activator.CreateInstance(GenericMapType);
+            return CreateInstanceOf(GenericMapType);
         }
 
         public override void Deserialize(BinarySerializerReader reader, object instance)

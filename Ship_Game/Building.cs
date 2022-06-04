@@ -75,7 +75,7 @@ namespace Ship_Game
         [StarData] public bool IsPlayerAdded = false;
         [StarData] public int InvadeInjurePoints;
         [StarData] public int DefenseShipsCapacity;
-        [StarData] public RoleName DefenseShipsRole;
+        [StarData] public RoleName DefenseShipsRole = RoleName.disabled;
         [StarData] public float Infrastructure;
         [StarData] public bool DetectsRemnantFleet;
         [StarData] public bool CannotBeBombed;
@@ -441,7 +441,7 @@ namespace Ship_Game
 
         float CalcDefenseShipScore()
         {
-            if (DefenseShipsCapacity <= 0 || DefenseShipsRole == 0)
+            if (DefenseShipsCapacity <= 0 || DefenseShipsRole == RoleName.disabled)
                 return 0;
 
             float defenseShipScore;

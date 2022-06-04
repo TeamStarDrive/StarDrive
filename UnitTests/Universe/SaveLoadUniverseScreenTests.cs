@@ -49,28 +49,8 @@ namespace UnitTests.Universe
             ResourceManager.LoadItAll(ScreenManager.Instance, null);
 
             int shipsPerEmpire = 6000;
-            int numOpponents = 7;
-            var galSize = GalSize.Large;
-            (int numStars, float starNumModifier) = RaceDesignScreen.GetNumStars(
-                RaceDesignScreen.StarsAbundance.Abundant, galSize, numOpponents
-            );
 
-            EmpireData playerData = ResourceManager.FindEmpire("United").CreateInstance();
-            playerData.DiplomaticPersonality = new DTrait();
-
-            CreateCustomUniverse(new UniverseGenerator.Params
-            {
-                PlayerData = playerData,
-                Mode = RaceDesignScreen.GameMode.Sandbox,
-                UniverseSize = galSize,
-                NumSystems = numStars,
-                NumOpponents = numOpponents,
-                StarNumModifier = starNumModifier,
-                Pace = 1.0f,
-                Difficulty = GameDifficulty.Normal,
-            });
-            Universe.CreateSimThread = false;
-            Universe.LoadContent();
+            CreateCustomUniverseSandbox(numOpponents:6, galSize:GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);
 
             // unlock all techs so we get full selection of ships

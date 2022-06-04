@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using Ship_Game.Data.Binary;
+using SDUtils;
 
 namespace Ship_Game.Data.Serialization
 {
@@ -109,6 +110,22 @@ namespace Ship_Game.Data.Serialization
         /// BINARY Deserialize this object
         /// </summary>
         public abstract object Deserialize(BinarySerializerReader reader);
+
+        /// <summary>
+        /// Attempts to create an instance of `type` or returns null
+        /// </summary>
+        public object CreateInstanceOf(Type type)
+        {
+            try
+            {
+                return Activator.CreateInstance(type, nonPublic:true);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"No parameterless constructor for {type.GetTypeName()}");
+                return null;
+            }
+        }
 
         protected static void Error(object value, string couldNotConvertToWhat)
         {
