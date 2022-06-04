@@ -619,7 +619,7 @@ namespace UnitTests.Serialization
         }
 
         // FROM HERE
-        //[StarDataType] class MovedType {[StarData] public Vector4 Value4; }
+        //[StarDataType] class MovedType { [StarData] public Vector4 Value4; }
         [StarDataType]
         class ContainsMovedType
         {
@@ -627,20 +627,22 @@ namespace UnitTests.Serialization
             [StarData] public MovedType MT;
             [StarData] public string Name;
             // MOVED TO HERE:
-            [StarDataType] public class MovedType {[StarData] public Vector4 Value4; }
+            [StarDataType] public class MovedType { [StarData] public Vector4 Value4; }
         }
 
         // Handles the case where a Type is simply moved from one namespace/class to another
         [TestMethod]
         public void ContainsMovedTypes()
         {
-            //string containsMovedType = CreateByteStreamForDeletedTypeTest(new ContainsMovedType
+            string containsMovedType = "AQACACEDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCEUNvbnRhaW5zTW92ZWRUeXBlCU1vdmVkVHlwZQQCTVQETmFtZQNQb3MGVmFsdWU0IAAAAAUDDQIhABUBIQAAAQUBDgMVASABIQEVARVDb250YWlucyBhIG1vdmVkIHR5cGUgAQ0AACD6RABA+kQAYPpEIQEDFQIBIQEOAAAQekUAIHpFADB6RQBAekU=";
+
+            //containsMovedType = CreateByteStreamForDeletedTypeTest(new ContainsMovedType
             //{
             //    Pos = new Vector3(2001, 2002, 2003),
             //    MT = new MovedType { Value4 = new Vector4(4001, 4002, 4003, 4004) },
             //    Name = "Contains a moved type",
             //});
-            string containsMovedType = "AQACACEDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCEUNvbnRhaW5zTW92ZWRUeXBlCU1vdmVkVHlwZQQCTVQETmFtZQNQb3MGVmFsdWU0IAAAAAEDDQIhABUBIQAAAQEBDgMVASABIQEVQ29udGFpbnMgYSBtb3ZlZCB0eXBlDQAAIPpEAED6RABg+kQhAQMVAgEOAAAQekUAIHpFADB6RQBAekU=";
+
             var ser = new BinarySerializer(typeof(ContainsMovedType));
             var result = Deserialize<ContainsMovedType>(ser, Convert.FromBase64String(containsMovedType));
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
@@ -649,8 +651,8 @@ namespace UnitTests.Serialization
         }
 
         // DELETED FROM HERE
-        //[StarDataType] class DeletedType {[StarData] public Vector4 Value4; }
-        //[StarDataType] struct DeletedStruct {[StarData] public Vector4 Value4; }
+        //[StarDataType] class DeletedType { [StarData] public Vector4 Value4; }
+        //[StarDataType] struct DeletedStruct { [StarData] public Vector4 Value4; }
 
         [StarDataType]
         class ContainsDeletedType
@@ -666,14 +668,16 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsDeletedTypes()
         {
-            //string containsDeletedType = CreateByteStreamForDeletedTypeTest(new ContainsDeletedType
+            string containsDeletedType = "AQADACIDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMDE0NvbnRhaW5zRGVsZXRlZFR5cGUNRGVsZXRlZFN0cnVjdAtEZWxldGVkVHlwZQUCRFMCRFQETmFtZQNQb3MGVmFsdWU0IgAAAQQBDgQgAAAABQQNAyEBIgAVAiEAAAIFAQ4EFQEgASEBFQEWQ29udGFpbnMgZGVsZXRlZCB0eXBlcyABDQAAIPpEAED6RABg+kQhAQMiAg4AAEicRQBQnEUAWJxFAGCcRRUDASEBDgAAEHpFACB6RQAwekUAQHpF";
+
+            //containsDeletedType = CreateByteStreamForDeletedTypeTest(new ContainsDeletedType
             //{
             //    Pos = new Vector3(2001, 2002, 2003),
             //    DT = new DeletedType { Value4 = new Vector4(4001, 4002, 4003, 4004) },
             //    DS = new DeletedStruct { Value4 = new Vector4(5001, 5002, 5003, 5004) },
             //    Name = "Contains deleted types",
             //});
-            string containsDeletedType = "AQADACIDAQEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMDE0NvbnRhaW5zRGVsZXRlZFR5cGUNRGVsZXRlZFN0cnVjdAtEZWxldGVkVHlwZQUCRFMCRFQETmFtZQNQb3MGVmFsdWU0IgAAAQABDgQgAAAAAQQNAyEBIgAVAiEAAAIBAQ4EFQEgASEBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMNAAAg+kQAQPpEAGD6RCEBAyICDgAASJxFAFCcRQBYnEUAYJxFFQMBDgAAEHpFACB6RQAwekUAQHpF";
+
             var ser = new BinarySerializer(typeof(ContainsDeletedType));
             var result = Deserialize<ContainsDeletedType>(ser, Convert.FromBase64String(containsDeletedType));
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
@@ -694,14 +698,16 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsRemovedFieldTypes()
         {
-            //string containsRemovedField = CreateByteStreamForDeletedTypeTest(new ContainsRemovedFieldType
+            string containsRemovedField = "AQACACEDAgEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCGENvbnRhaW5zUmVtb3ZlZEZpZWxkVHlwZQ1SZWN1cnNpdmVUeXBlCAVDb3VudBBEZWZhdWx0SXNOb3ROdWxsBE5hbWUDUG9zBFBvczINUmVjdXJzaXZlU2VsZgdSZW1vdmVkBFRleHQgAAAABQQNAyEGFQIMBCEAAAEFBCEFFQcGABUBFQIgASEBFQIPV2lsbCBiZSByZW1vdmVkGENvbnRhaW5zIGEgcmVtb3ZlZCBmaWVsZCABDQAAIPpEAED6RABg+kQhAQQVAgIMAwCgekUAQHtFIQEhAAQVAQEGApITFQMA";
+
+            //containsRemovedField = CreateByteStreamForDeletedTypeTest(new ContainsRemovedFieldType
             //{
             //    Pos = new Vector3(2001, 2002, 2003),
             //    Removed = new RecursiveType("Will be removed", 1234),
             //    Name = "Contains a removed field",
             //    Pos2 = new Vector2(4010, 4020),
             //});
-            string containsRemovedField = "AQACACEDAgEJVW5pdFRlc3RzAS1Vbml0VGVzdHMuU2VyaWFsaXphdGlvbi5CaW5hcnlTZXJpYWxpemVyVGVzdHMCGENvbnRhaW5zUmVtb3ZlZEZpZWxkVHlwZQ1SZWN1cnNpdmVUeXBlCAVDb3VudBBEZWZhdWx0SXNOb3ROdWxsBE5hbWUDUG9zBFBvczINUmVjdXJzaXZlU2VsZgdSZW1vdmVkBFRleHQgAAAAAQQNAyEGFQIMBCEAAAEBBCEFFQcGABUBFQIgASEBD1dpbGwgYmUgcmVtb3ZlZBhDb250YWlucyBhIHJlbW92ZWQgZmllbGQNAAAg+kQAQPpEAGD6RCEBBBUCAgwDAKB6RQBAe0UhAAQVAQEGApITFQMA";
+
             var ser = new BinarySerializer(typeof(ContainsRemovedFieldType));
             var result = Deserialize<ContainsRemovedFieldType>(ser, Convert.FromBase64String(containsRemovedField));
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
