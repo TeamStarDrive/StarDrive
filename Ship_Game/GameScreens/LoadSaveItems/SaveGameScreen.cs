@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDUtils;
 using Ship_Game.GameScreens.LoadGame;
 
@@ -32,12 +30,6 @@ namespace Ship_Game
         // Set list of files to show
         protected override void InitSaveList()
         {
-            var ser = new JsonSerializer
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore
-            };
-
             var saveFiles = Dir.GetFiles(Path, "sav");
             var saves = new Array<FileData>();
             foreach (FileInfo saveFile in saveFiles)
@@ -45,7 +37,10 @@ namespace Ship_Game
                 try
                 {
                     HeaderData header = LoadGame.PeekHeader(saveFile);
-                    saves.Add(FileData.FromSaveHeader(saveFile, header));
+                    if (header != null) // if null, then it's not a binary save
+                    {
+                        saves.Add(FileData.FromSaveHeader(saveFile, header));
+                    }
                 }
                 catch (Exception e)
                 {
