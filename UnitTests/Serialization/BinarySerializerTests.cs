@@ -876,6 +876,7 @@ namespace UnitTests.Serialization
             save.UseBinarySaveFormat = true;
             save.Verbose = true;
             save.Save("BinarySerializer.Test", async:false);
+            EmpireManager.Clear();
 
             // peek the header as per specs
             HeaderData header = LoadGame.PeekHeader(save.SaveFile);

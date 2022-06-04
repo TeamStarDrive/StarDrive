@@ -70,6 +70,8 @@ namespace Ship_Game.Data.Binary
             // [object type groups]
             // [objects list]
             var header = new BinarySerializerHeader(ctx);
+            if (verbose) Log.Info($"Serialize {header}");
+
             header.Write(writer);
             if (ctx.NumObjects != 0)
             {
@@ -86,6 +88,8 @@ namespace Ship_Game.Data.Binary
             // [object type groups]
             // [objects list]
             var header = new BinarySerializerHeader(reader);
+            if (verbose) Log.Info($"Deserialize {header}");
+
             Version = header.Version;
             if (Version != CurrentVersion)
             {
