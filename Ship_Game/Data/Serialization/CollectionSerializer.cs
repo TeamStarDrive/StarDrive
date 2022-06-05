@@ -18,14 +18,21 @@ namespace Ship_Game.Data.Serialization
             ElemSerializer = elemSerializer;
         }
 
+        /// <summary>
+        /// Get number of elements in a collection instance
+        /// </summary>
         public abstract int Count(object instance);
 
+        /// <summary>
+        /// Get an element from a collection instance
+        /// </summary>
         public abstract object GetElementAt(object instance, int index);
 
         /// <summary>
-        /// Collections only: Create an expandable collection instance
+        /// Collections only: Create a collection instance with an optional
+        /// length parameter. The length can be ignored by implementation.
         /// </summary>
-        public abstract object CreateInstance();
+        public abstract object CreateInstance(int length);
 
         /// <summary>
         /// Collections only: Deserialize into an existing object instance

@@ -327,6 +327,9 @@ namespace UnitTests.Serialization
             [StarData] public string[] Names;
             [StarData] public string[] Empty;
             [StarData] public StructContainer[] Structs;
+
+            // Special array handlers
+            [StarData] public byte[] Bytes;
         }
 
         [TestMethod]
@@ -339,6 +342,7 @@ namespace UnitTests.Serialization
                 Names = Arr("Laika", "Strelka", "Bobby", "Rex", "Baron"),
                 Empty = new string[0],
                 Structs = Arr(new StructContainer(27, "27"), new StructContainer(42, "42")),
+                Bytes = new byte[]{ 100, 200, 255, 115, 143, 0, 42 },
             };
             var result = SerDes(instance);
             Assert.That.Equal(instance.Integers, result.Integers);
@@ -348,6 +352,8 @@ namespace UnitTests.Serialization
             Assert.That.Equal(instance.Structs.Length, result.Structs.Length);
             for (int i = 0; i < instance.Structs.Length; ++i)
                 Assert.That.Equal(instance.Structs[i].SS, result.Structs[i].SS);
+
+            Assert.That.Equal(instance.Bytes, result.Bytes);
         }
 
         [StarDataType]

@@ -102,9 +102,9 @@ namespace Ship_Game.Data.Serialization.Types
             return array.GetValue(index);
         }
 
-        public override object CreateInstance()
+        public override object CreateInstance(int length)
         {
-            throw new NotSupportedException();
+            return Array.CreateInstance(ElemType, length);
         }
 
         public override void Deserialize(BinarySerializerReader reader, object instance)
