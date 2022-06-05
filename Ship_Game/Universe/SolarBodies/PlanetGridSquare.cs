@@ -38,6 +38,7 @@ namespace Ship_Game
         public bool CraterHere           => BuildingOnTile && Building.IsCrater;
         public bool CapitalHere          => BuildingOnTile && Building.IsCapital;
         public bool CanCrashHere         => !CrashSite.Active && !CraterHere && !VolcanoHere && (!BuildingOnTile || !CapitalHere);
+        public bool TerrainCanBeTerraformed => BuildingOnTile && Building.CanBeTerraformed;
 
         public DynamicCrashSite CrashSite = new DynamicCrashSite(false);
         public Volcano Volcano;

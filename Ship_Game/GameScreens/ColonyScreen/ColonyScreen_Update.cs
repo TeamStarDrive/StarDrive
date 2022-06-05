@@ -9,7 +9,7 @@ namespace Ship_Game
     {
         public override void Update(float elapsedTime)
         {
-            P.UpdateIncomes(false);
+            P.UpdateIncomes();
             UpdateBuildAndConstructLists(elapsedTime);
             UpdateTradeTab();
             UpdateTerraformTab();
@@ -79,7 +79,7 @@ namespace Ship_Game
             if (TerraformLevel < 1)
                 return;
 
-            VolcanoTerraformTitle.Visible =
+            TerrainTerraformTitle.Visible =
             TerraformStatusTitle.Visible  =
             TerraformStatus.Visible       =
             TerraformTitle.Visible        = IsTerraformTabSelected;
@@ -89,7 +89,7 @@ namespace Ship_Game
 
             TileTerraformTitle.Visible   = IsTerraformTabSelected && TerraformLevel >= 2;
             PlanetTerraformTitle.Visible = IsTerraformTabSelected && TerraformLevel >= 3;
-            VolcanoTerraformDone.Visible = VolcanoTerraformTitle.Visible && !NeedLevel1Terraform;
+            VolcanoTerraformDone.Visible = TerrainTerraformTitle.Visible && !NeedLevel1Terraform;
             TileTerraformDone.Visible    = TileTerraformTitle.Visible && !NeedLevel2Terraform;
             PlanetTerraformDone.Visible  = PlanetTerraformTitle.Visible && !NeedLevel3Terraform;
 
@@ -109,10 +109,12 @@ namespace Ship_Game
                 TerraformStatus.Color = Terraformable ? Color.Orange : Color.Green;
             }
 
-            VolcanoTerraformTitle.Text = NumVolcanoes > 0 ?  $"{Localizer.Token(GameText.TerraformersVolcanoes2)}{NumVolcanoes}):" : Localizer.Token(GameText.TerraformersVolcanoes);
+            TerrainTerraformTitle.Text = NumTerrain > 0 ? $"{Localizer.Token(GameText.TerraformersTerrain2)}{NumTerrain}):" 
+                                                        : Localizer.Token(GameText.TerraformersTerrain);
+
             TileTerraformTitle.Text    = NumTerraformableTiles > 0 ? $"{Localizer.Token(GameText.TerraformersTiles2)}{NumTerraformableTiles}):" : Localizer.Token(GameText.TerraformersTiles);
 
-            VolcanoTerraformBar.Progress = NeedLevel1Terraform ? P.TerraformPoints * 100 : 0;
+            TerrainTerraformBar.Progress = NeedLevel1Terraform ? P.TerraformPoints * 100 : 0;
             TileTerraformBar.Progress    = NeedLevel2Terraform && !NeedLevel1Terraform ? P.TerraformPoints * 100 : 0;
             PlanetTerraformBar.Progress  = NeedLevel3Terraform && !NeedLevel2Terraform & !NeedLevel1Terraform ? P.TerraformPoints * 100 : 0;
 

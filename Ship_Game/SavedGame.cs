@@ -740,6 +740,7 @@ namespace Ship_Game
             [StarData] public float AverageProdExportTurns;
             [StarData] public bool IsHomeworld;
             [StarData] public int BombingIntensity;
+            [StarData] public float SensorRange;
 
             public override string ToString() => $"PlanetSD {Name}";
         }
