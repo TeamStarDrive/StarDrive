@@ -61,7 +61,7 @@ namespace Ship_Game
             int y = (int)Y;
             int sliderWidth = Screen.LowRes ? 250 : 375;
 
-            P.UpdateIncomes(false);
+            P.UpdateIncomes();
             SysNameRect    = new Rectangle(x, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.17f) - 30, Rect.Height);
             PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.17f), Rect.Height);
             PopRect     = new Rectangle(PlanetNameRect.Right,      y,  30, Rect.Height);
@@ -114,7 +114,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            P.UpdateIncomes(false);
+            P.UpdateIncomes();
 
             ApplyProdHover  = ApplyProductionRect.HitTest(input.CursorPosition);
             CancelProdHover = CancelProductionRect.HitTest(input.CursorPosition);

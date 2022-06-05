@@ -84,6 +84,7 @@ namespace Ship_Game
         [StarData] public float FoodCache; // Works with Flat food only
         [StarData] public float ProdCache; // Works with Prod per colonist only
         [StarData] public bool CanBeCreatedFromLava; // Can be created when lava is solidified
+        [StarData] public bool CanBeTerraformed; // By level 1
 
 
         // XML Ignore because we load these from XML templates
@@ -413,6 +414,9 @@ namespace Ship_Game
             if (IsCapital)
                 p.RemoveOutpost();
 
+            if (SensorRange > 0)
+                p.OnSensorBuildingChange();
+            
             UpdateOffense(p);
         }
 

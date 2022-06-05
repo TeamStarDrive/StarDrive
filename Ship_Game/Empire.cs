@@ -1862,7 +1862,7 @@ namespace Ship_Game
                 for (int i = 0; i < OwnedPlanets.Count; i++)
                 {
                     Planet p = OwnedPlanets[i];
-                    p.UpdateIncomes(false);
+                    p.UpdateIncomes();
                     NetPlanetIncomes              += p.Money.NetRevenue;
                     GrossPlanetIncome             += p.Money.GrossRevenue;
                     PotentialIncome               += p.Money.PotentialRevenue;

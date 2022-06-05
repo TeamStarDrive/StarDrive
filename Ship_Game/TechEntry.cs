@@ -925,6 +925,7 @@ namespace Ship_Game
                 case "Tachyons":
                 case "Sensor Range Bonus":
                     data.SensorModifier += unlockedBonus.Bonus;
+                    empire.UpdateNetPlanetIncomes();
                     empire.ForceUpdateSensorRadiuses = true;
                     break;
                 case "Privatization": data.Privatization = true; break;

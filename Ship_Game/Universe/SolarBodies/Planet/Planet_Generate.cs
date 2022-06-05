@@ -1,3 +1,4 @@
+using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.ExtensionMethods;
@@ -148,12 +149,14 @@ namespace Ship_Game
             float scale = 1f * owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
 
             InitPlanetType(type, scale);
+            SetTileHabitability(random, 0, out _); // Create the homeworld's tiles without making them habitable yet
+            SetHomeworldTiles(random);
             SetOwner(owner);
+            CreateHomeWorldBuildings();
             IsHomeworld = true;
             Owner.SetCapital(this);
 
-            SetTileHabitability(random, 0, out _); // Create the homeworld's tiles without making them habitable yet
-            SetHomeworldTiles(random);
+
             ResetGarrisonSize();
 
             if (OwnerIsPlayer)
@@ -168,8 +171,6 @@ namespace Ship_Game
             HasSpacePort = true;
             if (!ParentSystem.OwnerList.Contains(Owner))
                 ParentSystem.OwnerList.Add(Owner);
-
-            CreateHomeWorldBuildings();
         }
 
         void SetTileHabitability(RandomBase random, float tileChance, out int numHabitableTiles)
@@ -240,7 +241,7 @@ namespace Ship_Game
             }
 
             // First, remove Volcanoes
-            if (TerraformVolcanoes(random))
+            if (TerraformTerrain(random))
                 return;
 
             // Then, make un-habitable terraformable tiles habitable
@@ -252,18 +253,19 @@ namespace Ship_Game
         }
 
         public bool HasTilesToTerraform     => TilesList.Any(t => t.CanTerraform);
-        public bool HasVolcanoesToTerraform => TilesList.Any(t => t.VolcanoHere);
         public bool BioSpheresToTerraform   => TilesList.Any(t => t.BioCanTerraform);
         public int TerraformerLimit         => TilesList.Count(t => t.CanTerraform)/2 + 2;
 
-        bool TerraformVolcanoes(RandomBase random)
+        public bool HasTerrainToTerraform => BuildingList.Any(b => b.CanBeTerraformed);
+
+        bool TerraformTerrain(RandomBase random)
         {
-            if (!HasVolcanoesToTerraform)
+            if (!HasTerrainToTerraform)
                 return false;
 
-            TerraformPoints += TerraformToAdd * 4f; // Terraforming a Volcano is faster than the whole planet
+            TerraformPoints += TerraformToAdd * 4f; // Terraforming Terrain or Volcano is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
-                CompleteVolcanoTerraforming(random, TilesList.Filter(t => t.VolcanoHere));
+                CompleteTerrainTerraforming(random, TilesList.Filter(t => t.VolcanoHere || t.TerrainCanBeTerraformed));
 
             return true;
         }
@@ -298,12 +300,15 @@ namespace Ship_Game
                 CompletePlanetTerraform();
         }
 
-        void CompleteVolcanoTerraforming(RandomBase random, PlanetGridSquare[] possibleTiles)
+        void CompleteTerrainTerraforming(RandomBase random, PlanetGridSquare[] possibleTiles)
         {
             if (possibleTiles.Length > 0)
             {
                 PlanetGridSquare tile = random.RandItem(possibleTiles);
-                Volcano.RemoveVolcano(tile, this);
+                if (tile.VolcanoHere)
+                    Volcano.RemoveVolcano(tile, this);
+                else
+                    DestroyBuildingOn(tile);
             }
 
             UpdateTerraformPoints(0); // Start terraforming a new tile or remove terraformers if terra level is 1.
@@ -361,10 +366,10 @@ namespace Ship_Game
             get
             {
                 int terraLevel = ContainsEventTerraformers ? 3 : Owner.data.Traits.TerraformingLevel;
-                return terraLevel > 0 && HasVolcanoesToTerraform
-                    || terraLevel > 1 && HasTilesToTerraform
-                    || terraLevel > 2 && BioSpheresToTerraform
-                    || terraLevel > 2 &&
+                return terraLevel >= 1 && HasTerrainToTerraform
+                    || terraLevel >= 2 && HasTilesToTerraform
+                    || terraLevel == 3 && BioSpheresToTerraform
+                    || terraLevel == 3 &&
                         (Category != Owner.data.PreferredEnv || BaseMaxFertility.Less(TerraformedMaxFertility));
             }
         }

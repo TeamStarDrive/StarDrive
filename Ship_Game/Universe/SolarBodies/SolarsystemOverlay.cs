@@ -221,7 +221,7 @@ namespace Ship_Game
                             }
                             else
                             {
-                                p.UpdateIncomes(false);
+                                p.UpdateIncomes();
                                 batch.DrawString(DataFont, p.Food.NetIncome.String(), new Vector2(fIcon.X + 12, fIcon.Y).Rounded(), tColor);
                                 batch.DrawString(DataFont, p.Prod.NetIncome.String(), new Vector2(pIcon.X + 12, pIcon.Y).Rounded(), tColor);
                                 batch.DrawString(DataFont, p.Res.NetIncome.String(), new Vector2(rIcon.X + 12, rIcon.Y).Rounded(), tColor);

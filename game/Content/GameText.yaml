@@ -10103,13 +10103,13 @@ TerraformLevel:
  ENG: "Terraform Level"
 BB_Tech_Terraforming_Bonus:
  Id: 4308
- ENG: "Terraform Level 1. At this Level, Terraformers will gradually remove all Volcanoes in the planet."
+ ENG: "Terraform Level 1. At this Level, Terraformers will gradually remove all Volcanoes and Rough Terrain from the planet."
 BB_Tech_Terraforming2_Bonus:
  Id: 4309
- ENG: "Terraform Level 2. At this Level, Terraformers will remove all Volcanoes in the planet and will also make terraformable tiles habitable."
+ ENG: "Terraform Level 2. At this Level, Terraformers will remove all Volcanoes and bad terrain from the planet and will also make terraformable tiles habitable."
 BB_Tech_Terraforming3_Bonus:
  Id: 4310
- ENG: "Terraform Level 3. At this Level, Terraformers will remove all Volcanoes in the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race and increase its fertility to 1."
+ ENG: "Terraform Level 3. At this Level, Terraformers will remove all Volcanoes and bad terrain from the planet, make terraformable tiles habitable and will also transform your planet into the best suitable planet for your race and increase its fertility to 1."
 Terraforming:
  Id: 4311
  ENG: "Terraforming In Progress"
@@ -10152,15 +10152,15 @@ TerraformersNotStarted:
 TerraformersInProgress:
  Id: 4324
  ENG: "In Progress"
-TerraformersVolcanoes:
+TerraformersTerrain:
  Id: 4325
- ENG: "Volcanoes:"
+ ENG: "Rough Terrain:"
 TerraformersTiles:
  Id: 4326
  ENG: "Tiles: "
-TerraformersVolcanoes2:
+TerraformersTerrain2:
  Id: 4327
- ENG: "Volcanoes ("
+ ENG: "Rough Terrain ("
 TerraformersTiles2:
  Id: 4328
  ENG: "Tiles ("

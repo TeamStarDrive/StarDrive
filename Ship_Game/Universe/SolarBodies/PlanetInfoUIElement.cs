@@ -148,7 +148,7 @@ namespace Ship_Game
             PlanetTypeCursor = new Vector2(PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f, PlanetIconRect.Y + PlanetIconRect.Height + 5);
             batch.Draw(P.PlanetTexture, PlanetIconRect, Color.White);
             batch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
-            P.UpdateIncomes(false);
+            P.UpdateIncomes();
 
             DrawPlanetStats(DefenseRect, ((float)P.TotalDefensiveStrength).String(1), "UI/icon_shield", Color.White, Color.White);
 
