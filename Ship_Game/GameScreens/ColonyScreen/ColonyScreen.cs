@@ -95,13 +95,13 @@ namespace Ship_Game
         UILabel TerraformStatus;
         UILabel TerraformersHereTitle;
         UILabel TerraformersHere;
-        UILabel VolcanoTerraformTitle;
+        UILabel TerrainTerraformTitle;
         UILabel TileTerraformTitle;
         UILabel PlanetTerraformTitle;
         UILabel VolcanoTerraformDone;
         UILabel TileTerraformDone;
         UILabel PlanetTerraformDone;
-        ProgressBar VolcanoTerraformBar;
+        ProgressBar TerrainTerraformBar;
         ProgressBar TileTerraformBar;
         ProgressBar PlanetTerraformBar;
 
@@ -423,13 +423,13 @@ namespace Ship_Game
             AddLabel(ref TerraformersHere, numTerraformersPos, " ", font, Color.White);
 
             Vector2 terraVolcanoTitlePos = new Vector2(pos.X, numTerraformersTitlePos.Y + spacing*2);
-            AddLabel(ref VolcanoTerraformTitle, terraVolcanoTitlePos, " ", font, Color.Gray);
+            AddLabel(ref TerrainTerraformTitle, terraVolcanoTitlePos, " ", font, Color.Gray);
 
             Vector2 terraVolcanoPos = new Vector2(pos.X + indent, terraVolcanoTitlePos.Y);
             AddLabel(ref VolcanoTerraformDone, terraVolcanoPos, GameText.TerraformersDone, font, Color.Green);
 
             Rectangle terraVolcanoRect = new Rectangle((int)terraVolcanoPos.X, (int)terraVolcanoPos.Y, barWidth, 20);
-            AddProgressBar(ref VolcanoTerraformBar, terraVolcanoRect, 100, "brown", percentage: true);
+            AddProgressBar(ref TerrainTerraformBar, terraVolcanoRect, 100, "brown", percentage: true);
 
             Vector2 terraTileTitlePos = new Vector2(pos.X, terraVolcanoTitlePos.Y + spacing);
             AddLabel(ref TileTerraformTitle, terraTileTitlePos, " ", font, Color.Gray);

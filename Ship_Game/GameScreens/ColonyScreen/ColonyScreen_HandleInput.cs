@@ -63,7 +63,7 @@ namespace Ship_Game
                 return true;
 
             FilterBuildableItemsLabel.Color = FilterBuildableItems.HandlingInput ? Color.White : Color.Gray;
-            P.UpdateIncomes(false);
+            P.UpdateIncomes();
 
             // We are monitoring AI Colonies
             if (P.Owner != EmpireManager.Player && !Log.HasDebugger)
