@@ -4293,11 +4293,11 @@ namespace Ship_Game
         /// <summary>In Progress</summary>
         TerraformersInProgress = 4324,
         /// <summary>Volcanoes:</summary>
-        TerraformersVolcanoes = 4325,
+        TerraformersTerrain = 4325,
         /// <summary>Tiles:</summary>
         TerraformersTiles = 4326,
         /// <summary>Volcanoes (</summary>
-        TerraformersVolcanoes2 = 4327,
+        TerraformersTerrain2 = 4327,
         /// <summary>Tiles (</summary>
         TerraformersTiles2 = 4328,
         /// <summary>Automatic</summary>

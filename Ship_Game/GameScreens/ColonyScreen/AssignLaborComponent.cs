@@ -36,7 +36,7 @@ namespace Ship_Game
 
         void OnSlidersChanged()
         {
-            Planet.UpdateIncomes(false);
+            Planet.UpdateIncomes();
         }
 
         Rectangle SlidersHousing
