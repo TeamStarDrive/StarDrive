@@ -110,7 +110,7 @@ namespace Ship_Game.Data.Serialization.Types
             throw new NotImplementedException("GetElementAt(index) not supported for Map types");
         }
 
-        public override object CreateInstance()
+        public override object CreateInstance(int length)
         {
             return CreateInstanceOf(GenericMapType);
         }

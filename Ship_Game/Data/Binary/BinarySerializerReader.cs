@@ -315,7 +315,7 @@ namespace Ship_Game.Data.Binary
             {
                 var cs = (CollectionSerializer)ser;
                 for (int i = 0; i < count; ++i)
-                    ObjectsList[baseIndex + i] = cs.CreateInstance();
+                    ObjectsList[baseIndex + i] = cs.CreateInstance(0);
             });
 
             // now deserialize raw arrays
