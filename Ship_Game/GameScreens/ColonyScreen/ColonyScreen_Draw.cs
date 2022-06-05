@@ -30,7 +30,7 @@ namespace Ship_Game
         bool NeedLevel1Terraform;
         bool NeedLevel2Terraform;
         bool NeedLevel3Terraform;
-        int NumVolcanoes;
+        int NumTerrain; // Terrain to terraform
         int NumTerraformableTiles;
         int TerraformLevel;
         float MinEstimatedMaxPop;
@@ -176,7 +176,7 @@ namespace Ship_Game
             if (P.Owner == null || !Visible)
                 return;
 
-            P.UpdateIncomes(false);
+            P.UpdateIncomes();
             LeftMenu.Draw(batch, elapsed);
             RightMenu.Draw(batch, elapsed);
             TitleBar.Draw(batch, elapsed);
@@ -504,7 +504,7 @@ namespace Ship_Game
 
             if (IsTerraformTabSelected)
             {
-                if (NeedLevel1Terraform && TerraformLevel >= 1) VolcanoTerraformBar.Draw(batch);
+                if (NeedLevel1Terraform && TerraformLevel >= 1) TerrainTerraformBar.Draw(batch);
                 if (NeedLevel2Terraform && TerraformLevel >= 2) TileTerraformBar.Draw(batch);
                 if (NeedLevel3Terraform && TerraformLevel >= 3) PlanetTerraformBar.Draw(batch);
                 return;
@@ -877,11 +877,11 @@ namespace Ship_Game
                 Terraformable          = P.Terraformable;
                 NumTerraformersHere    = P.TerraformersHere;
                 NumMaxTerraformers     = P.TerraformerLimit;
-                NeedLevel1Terraform    = P.HasVolcanoesToTerraform;
+                NeedLevel1Terraform    = P.HasTerrainToTerraform;
                 NeedLevel2Terraform    = P.HasTilesToTerraform;
                 NeedLevel3Terraform    = P.Category != P.Owner.data.PreferredEnv || P.BaseMaxFertility.Less(P.TerraformedMaxFertility);
-                NumVolcanoes           = P.TilesList.Filter(t => t.VolcanoHere).Length;
-                NumTerraformableTiles  = P.TilesList.Filter(t => t.CanTerraform).Length;
+                NumTerrain             = P.BuildingList.Count(b => b.CanBeTerraformed);
+                NumTerraformableTiles  = P.TilesList.Count(t => t.CanTerraform);
                 TerraformLevel         = P.ContainsEventTerraformers ? 3 : P.Owner.data.Traits.TerraformingLevel;
                 TerraTargetFertility   = TerraformTargetFertility();
                 MinEstimatedMaxPop     = P.PotentialMaxPopBillionsFor(P.Owner);

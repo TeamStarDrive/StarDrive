@@ -10,7 +10,6 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Spatial;
 using Ship_Game.Gameplay;
-using Ship_Game.ExtensionMethods;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
@@ -772,7 +771,17 @@ namespace Ship_Game
             if (!destroy)
                 Owner?.RefundCreditsPostRemoval(b);
 
+            if (b.SensorRange > 0)
+                OnSensorBuildingChange();
+
             ResetHasDynamicBuildings();
+        }
+
+        public void OnSensorBuildingChange()
+        {
+            UpdateIncomes();
+            if (Owner != null)
+                Owner.ForceUpdateSensorRadiuses = true;
         }
 
         public void ClearBioSpheresFromList(PlanetGridSquare tile)
@@ -1032,7 +1041,7 @@ namespace Ship_Game
 
         // FB: note that this can be called multiple times in a turn - especially when selecting the planet or in colony screen
         // FB: @todo - this needs refactoring - its too long
-        public void UpdateIncomes(bool loadUniverse)
+        public void UpdateIncomes()
         {
             if (Owner == null)
                 return;
@@ -1047,9 +1056,9 @@ namespace Ship_Game
             TerraformToAdd            = 0;
             ShieldStrengthMax         = 0;
             ShipBuildingModifier      = 0;
-            SensorRange               = Radius + 2000;
             TotalDefensiveStrength    = 0;
             PlusFlatPopulationPerTurn = 0;
+            SensorRange               = 0;
 
             NumShipyards = OrbitalStations.Count(s => s.Active && s.ShipData.IsShipyard);
             ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
@@ -1083,7 +1092,7 @@ namespace Ship_Game
 
             TerraformToAdd /= Scale; // Larger planets take more time to terraform, visa versa for smaller ones
 
-            SensorRange = sensorRange;
+            SetSensorRange(sensorRange);
             UpdateMaxPopulation();
             TotalDefensiveStrength = (int)TroopManager.GroundStrength(Owner);
 
@@ -1100,6 +1109,11 @@ namespace Ship_Game
             Money.Update();
 
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
+        }
+
+        public void SetSensorRange(float value)
+        {
+            SensorRange = value.LowerBound(Radius + 2000) * (Owner?.data.SensorModifier ?? 1);
         }
 
         public float GetProjectorRadius(Empire owner)
