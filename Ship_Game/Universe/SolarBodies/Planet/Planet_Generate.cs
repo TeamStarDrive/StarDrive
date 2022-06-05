@@ -149,13 +149,12 @@ namespace Ship_Game
             float scale = 1f * owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
 
             InitPlanetType(type, scale);
-            SetTileHabitability(random, 0, out _); // Create the homeworld's tiles without making them habitable yet
-            SetHomeworldTiles(random);
+
             SetOwner(owner);
-            CreateHomeWorldBuildings();
             IsHomeworld = true;
             Owner.SetCapital(this);
-
+            SetTileHabitability(random, 0, out _); // Create the homeworld's tiles without making them habitable yet
+            SetHomeworldTiles(random);
 
             ResetGarrisonSize();
 
@@ -171,6 +170,8 @@ namespace Ship_Game
             HasSpacePort = true;
             if (!ParentSystem.OwnerList.Contains(Owner))
                 ParentSystem.OwnerList.Add(Owner);
+
+            CreateHomeWorldBuildings();
         }
 
         void SetTileHabitability(RandomBase random, float tileChance, out int numHabitableTiles)
