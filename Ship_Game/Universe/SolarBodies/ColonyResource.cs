@@ -54,8 +54,12 @@ namespace Ship_Game.Universe.SolarBodies
         protected virtual float AvgResourceConsumption() => 0.0f;
 
         // For Food Per Colonist output
-        public float FoodYieldFormula(float fertility, float plusPerColonist)
-            => fertility.Less(1) ? fertility + plusPerColonist : fertility * (1 + plusPerColonist);
+        public float FoodYieldFormula(float fertility, float plusPerColonist) 
+            => fertility * (1 + plusPerColonist);
+
+        // For Production Per Colonist output
+        public float ProdYieldFormula(float richness, float plusPerColonist) 
+            => richness * (1 + plusPerColonist) * (1 + Planet.Owner.data.Traits.ProductionMod);
 
         public virtual void Update(float consumption)
         {
@@ -186,8 +190,7 @@ namespace Ship_Game.Universe.SolarBodies
                 FlatBonus       += b.PlusFlatProductionAmount;
             }
 
-            float productMod = Planet.Owner.data.Traits.ProductionMod;
-            YieldPerColonist = richness * (1 + plusPerColonist) * (1 + productMod);
+            YieldPerColonist = ProdYieldFormula(richness, plusPerColonist);
 
             // Cybernetics consume production and will starve at 100% tax, so ease up on them
             Tax = Planet.NonCybernetic ? Planet.Owner.data.TaxRate : Planet.Owner.data.TaxRate  * 0.5f;

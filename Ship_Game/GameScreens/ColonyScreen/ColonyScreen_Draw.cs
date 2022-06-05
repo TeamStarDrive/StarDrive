@@ -743,7 +743,11 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", GameText.NetResearchPerColonistAllocated, digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", GameText.NetFlatResearchGeneratedPer, digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.CurrentProductionToQueue, "NewUI/icon_queue_rushconstruction",
-                $"{GameText.MaximumProductionToQueuePer} ({P.InfraStructure} taken from Storage)", digits: 1);
+                $"{new LocalizedText(GameText.MaximumProductionToQueuePer).Text} ({P.InfraStructure} taken from Storage)", digits: 1);
+
+            string combat = P.SpaceCombatNearPlanet ? " (reduced due to space combat)" : "";
+            DrawBuildingInfo(ref cursor, batch, P.GeodeticManager.CalcRepairPool(), "NewUI/icon_queue_rushconstruction",
+                $"{new LocalizedText(GameText.ShipRepair).Text} Per Turn{combat}", digits: 1);
 
             DrawBuildingInfo(ref cursor, batch, -P.Money.TroopMaint, "UI/icon_troop_shipUI", Localizer.Token(GameText.CreditsPerTurnForTroop), digits: 2);
             DrawBuildingInfo(ref cursor, batch, -TroopConsumption, "UI/icon_troop_shipUI", GetTroopsConsumptionText(), digits: 2);
@@ -753,13 +757,13 @@ namespace Ship_Game
         {
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatFoodAmount, "NewUI/icon_food", GameText.FoodPerTurn);
             DrawBuildingInfo(ref bCursor, batch, b.FoodCache, "NewUI/icon_food", GameText.FoodRemainingHereThisBuilding, signs: false, digits: 0);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFoodPerColonist, "NewUI/icon_food", GameText.FoodPerTurnPerAssigned);
+            DrawBuildingInfo(ref bCursor, batch, P.Food.FoodYieldFormula(P.Fertility, b.PlusFoodPerColonist-1), "NewUI/icon_food", GameText.FoodPerTurnPerAssigned);
             DrawBuildingInfo(ref bCursor, batch, b.SensorRange, "NewUI/icon_sensors", GameText.SensorRange, signs: false);
             DrawBuildingInfo(ref bCursor, batch, b.ProjectorRange, "NewUI/icon_projection", GameText.SubspaceProjectionArea, signs: false);
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatProductionAmount, "NewUI/icon_production", GameText.ProductionPerTurn);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerColonist, "NewUI/icon_production", GameText.ProductionPerTurnPerAssigned);
+            DrawBuildingInfo(ref bCursor, batch, P.Prod.ProdYieldFormula(P.MineralRichness, b.PlusProdPerColonist-1), "NewUI/icon_production", GameText.ProductionPerTurnPerAssigned);
             DrawBuildingInfo(ref bCursor, batch, b.ProdCache, "NewUI/icon_production", GameText.ProductionRemainingHereThisBuilding, signs: false, digits: 0);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatPopulation / 1000, "NewUI/icon_population", GameText.ColonistsPerTurn);
+            DrawBuildingInfo(ref bCursor, batch, b.PlusFlatPopulation / 1000, "NewUI/icon_population", GameText.ColonistsPerTurn, digits: 3);
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatResearchAmount, "NewUI/icon_science", GameText.ResearchPerTurn);
             DrawBuildingInfo(ref bCursor, batch, b.PlusResearchPerColonist, "NewUI/icon_science", GameText.ResearchPerTurnPerAssigned);
             DrawBuildingInfo(ref bCursor, batch, b.PlusTaxPercentage * 100, "NewUI/icon_money", GameText.IncreaseToTaxIncomes, percent: true);
@@ -767,7 +771,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, b.PlanetaryShieldStrengthAdded, "NewUI/icon_planetshield", GameText.PlanetaryShieldStrengthAdded);
             DrawBuildingInfo(ref bCursor, batch, b.CreditsPerColonist, "NewUI/icon_money", GameText.CreditsAddedPerColonist);
             DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", GameText.ProductionPerRichness);
-            DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * 10, "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
+            DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * P.Level, "NewUI/icon_queue_rushconstruction", GameText.ShipRepair);
             DrawBuildingInfo(ref bCursor, batch, b.Infrastructure, "NewUI/icon_queue_rushconstruction", GameText.ProductionInfrastructure);
             DrawBuildingInfo(ref bCursor, batch, b.StorageAdded, "NewUI/icon_storage_production", GameText.Storage);
             DrawBuildingInfo(ref bCursor, batch, b.CombatStrength, "Ground_UI/Ground_Attack", GameText.CombatStrength);
