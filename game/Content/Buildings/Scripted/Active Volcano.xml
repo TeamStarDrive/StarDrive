@@ -9,6 +9,7 @@
   <Scrappable>false</Scrappable>
   <CannotBeBombed>true</CannotBeBombed>
   <CanBuildAnywhere>true</CanBuildAnywhere>
+  <CanBeTerraformed>true</CanBeTerraformed>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4240</NameTranslationIndex>

@@ -9,6 +9,7 @@
   <IsCommodity>false</IsCommodity>
   <CannotBeBombed>true</CannotBeBombed>
   <CanBuildAnywhere>true</CanBuildAnywhere>
+  <CanBeTerraformed>true</CanBeTerraformed>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>4237</NameTranslationIndex>

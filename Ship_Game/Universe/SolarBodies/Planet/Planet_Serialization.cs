@@ -25,6 +25,8 @@ namespace Ship_Game
             UpdatePositionOnly();
 
             SetExploredBy(data.ExploredBy);
+
+            SensorRange = data.SensorRange;
             if (data.Owner.NotEmpty())
                 SetOwner(EmpireManager.GetEmpireByName(data.Owner));
 

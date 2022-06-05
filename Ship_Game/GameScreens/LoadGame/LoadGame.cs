@@ -355,7 +355,7 @@ namespace Ship_Game.GameScreens.LoadGame
                         Asteroids = false,
                         OrbitalDistance = ring.OrbitalDistance
                     });
-                    p.UpdateIncomes(true);  // must be before restoring commodities since max storage is set here           
+                    p.UpdateIncomes();  // must be before restoring commodities since max storage is set here           
                     RestoreCommodities(p, ring.Planet);
                 }
             }
