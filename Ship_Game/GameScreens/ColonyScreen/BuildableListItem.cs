@@ -188,20 +188,11 @@ namespace Ship_Game
 
         string BuildingShortDescription(Building b)
         {
-            string description = b.ShortDescrText.Text;
-
             Planet p = Screen.P;
-            if (b.MaxFertilityOnBuild.NotZero())
-            {
-                string fertilityChange = $"{(b.MaxFertilityOnBuild * Screen.Player.PlayerEnvModifier(p.Category)).String(2)}";
-                if (b.MaxFertilityOnBuild.Greater(0))
-                    fertilityChange = $"+{fertilityChange}";
+            string description = b.GetShortDescrText(p);
 
-                description = $"{fertilityChange} {description}";
-            }
-
-            if (b.IsBiospheres)
-                description = $"{(p.PopPerBiosphere(EmpireManager.Player)/1000).String(2) } {description}";
+            if (b.IsBiospheres) // Override for special biosphere case
+                description = $"{(p.PopPerBiosphere(EmpireManager.Player)/1000).String(2)} {description}";
             
             return description;
         }
