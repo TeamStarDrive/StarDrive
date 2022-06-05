@@ -211,9 +211,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             ship.HealTroops(Level.LowerBound(1));
         }
 
-        private float CalcRepairPool()
+        public float CalcRepairPool()
         {
-            float outOfCombatBonus = P.SpaceCombatNearPlanet ? 0.1f : 10;
+            float outOfCombatBonus = P.SpaceCombatNearPlanet ? 0.1f : P.Level;
             float repairPool       = RepairPerTurn * outOfCombatBonus / P.ShipBuildingModifier;
 
             return repairPool;

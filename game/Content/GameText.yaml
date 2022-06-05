@@ -1582,7 +1582,7 @@ TheLandscapeHereIsNot:
  SPA: "Aquí el paisaje no es apto para ser habitado si no se construyen módulos de habitabilidad avanzados. Si se edifica una biosfera aquí, la zona podrá habitarse"
 FoodPerTurn:
  Id: 354
- ENG: "food per turn"
+ ENG: "Food Per Turn"
  RUS: "еды в ход"
  SPA: "de alimentos por turno"
 ProductionPerTurn:
@@ -1592,12 +1592,12 @@ ProductionPerTurn:
  SPA: "de producción por turno"
 ResearchPerTurn:
  Id: 357
- ENG: "research per turn"
+ ENG: "Research Per Turn"
  RUS: "исследований в ход"
  SPA: "de investigación por turno"
 IncreaseToTaxIncomes:
  Id: 359
- ENG: "increase to tax incomes"
+ ENG: "Increase in Tax Income"
  RUS: "увеличение налоговых доходов"
  SPA: "de aumento de impuestos"
 MaxFertilityChangeOnBuild:
@@ -2050,12 +2050,10 @@ Terraformer:
  SPA: "Terraformador"
 TheseMachinesWhileExpensiveTo:
  Id: 462
- ENG: "These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. Terraform Level of an empire can be 1 to 3. Each level increases the effectiveness of terraforming operations until they are able to terraform barrens planet into a heaven for your people."
-
+ ENG: "These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. Terraform Level of an empire can be 1 to 3. Each level increases the effectiveness of terraforming operations until they are able to terraform a barren planet into a heaven for your people."
 TerraformsThePlanetToYour:
  Id: 463
  ENG: "Terraforms the planet based on the Empire's Terraforming Level"
-
 TrackingStation:
  Id: 464
  ENG: "Tracking Station"
@@ -8488,7 +8486,7 @@ ProductionPerTurnPerAssigned:
  SPA: "de producción por turno y por colono asignado"
 ResearchPerTurnPerAssigned:
  Id: 358
- ENG: "research per turn per assigned colonist"
+ ENG: "Research Per Assigned Colonist"
  RUS: "исследования в ход на занятого колониста"
  SPA: "de investigación por turno y por colono asignado"
 RandomlyPlacesAnAgentOn:
@@ -10292,6 +10290,33 @@ SaveWIP:
 BuildingCreatedFromLava:
  Id: 4372
  ENG: "Resources were also created:"
+MaxFerfilityOnBuild:
+ Id: 4373
+ ENG: "Max Fertility" 
+FoodPerColonist:
+ Id: 4374
+ ENG: "Food Per Assigned Colonist"  
+ProdPerColonist:
+ Id: 4375
+ ENG: "Production Per Assigned Colonist"  
+ProdPerTurn:
+ Id: 4376
+ ENG: "Production Per Turn"   
+MaxStorage:
+ Id: 4377
+ ENG: "Max Storage"    
+PlusFlatPop:
+ Id: 4378
+ ENG: "Flat Population (Million)"     
+Infrastructure:
+ Id: 4379
+ ENG: "Infrastructure"      
+PopMax:
+ Id: 4380
+ ENG: "Max Population (Billion)"       
+MineralRichness:
+ Id: 4381
+ ENG: "Mineral Richness" 
 OnSurface:
  Id: 4993
  ENG: "on surface"
