@@ -1090,9 +1090,7 @@ WhenActiveAllAvailableFighters:
  SPA: "Determina si los cazas de la nave deben salir o regresar a los hangares"
 IndicatesHowMuchFoodThis:
  Id: 219
- ENG: "Indicates how much food this planet will produce per assigned colonist per turn (a turn is 0.1 StarDate). Some building or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time. The number in parentheses indicates the fertility modifier of this colony, based on your empire's suitable environments. Fertility above 1 can boost buildings which grand food per assigned colonist as they will serve as a multiplier. Non Cybernetic Races consume food."
- RUS: "Указывает, сколько еды на выделенного колониста колония произведет за ход (ход - 0,1 ЗД)"
- SPA: "Indica cuánta comida producirá este planeta por colono asignado y por turno (un turno es 0,1 en la fecha estelar)"
+ ENG: "Indicates how much food this planet will produce per assigned colonist per turn (a turn is 0.1 StarDate). Some buildings or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time. The number in parentheses indicates the fertility modifier of this colony, based on your empire's suitable environments. Buildings which grant food per assigned colonist are greatly affected by Fertility, as Fertiliy is a multiplier. Non Cybernetic Races consume food."
 IndicatesHowMuchResearchThis:
  Id: 221
  ENG: "Indicates how much research this planet will produce per assigned colonist per turn (a turn is .1 StarDate)"
@@ -8768,9 +8766,7 @@ ThisIsAPointDefense:
  SPA: "Se trata de un cañón láser de defensa puntual con soporte giratorio, por lo que resulta ideal para la defensa contra cazas o naves capitanas. Las armas de defensa puntual (DP) disparan automáticamente contra misiles atacantes y tienen una bonificación de daño frente a este tipo de armas."
 APlanetsMineralRichnessDirectly:
  Id: 220
- ENG: "A planet's Mineral Richness directly affects the speed at which a colony creates Production. Mineral Richness slowly decays. The decay rate is affected by production rate and planet's size (larger planets will decay slower than smaller ones. A planet cannot decay below 0.1 Richness. \n      "
- RUS: "\nБогатство планеты минералами непосредственно влияет на то, с какой скоростью она может генерировать производство.Богатство ресурсов планеты постепенно истощается,это зависит от ее рамера,чем больше планета тем медленее она истощается(мин до 0.1 богатства).\n    "
- SPA: "La riqueza mineral de un planeta afecta directamente a la velocidad a la que una colonia genera producción.\n      "
+ ENG: "A planet's Mineral Richness directly affects the speed at which a colony creates Production. Mineral Richness slowly decays. The decay rate is affected by production rate and planet's size (larger planets will decay slower than smaller ones. A planet cannot decay below 0.1 Richness. Buildings which provide Production per assigned colonist are greatly affected by Richness, as the Richnes is a multipler for the output."
 RaiderBay:
  Id: 4000
  ENG: "Raider Bay"

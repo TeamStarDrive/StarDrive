@@ -432,11 +432,13 @@ namespace Ship_Game
                 DrawTopCenterStatusText(batch, "Saving...", CurrentFlashColor, 2);
             }
 
-            if (IsActive && !UState.GameSpeed.AlmostEqual(1)) //don't show "1.0x"
+            if (IsActive && UState.GameSpeed.NotEqual(1)) //don't show "1.0x"
             {
                 string speed = UState.GameSpeed.ToString("0.0##") + "x";
-                var pos = new Vector2(ScreenWidth - Fonts.Pirulen16.TextWidth(speed) - 13f, 64f);
-                batch.DrawString(Fonts.Pirulen16, speed, pos, Color.White);
+                Font font = UState.GameSpeed is > 3 or < 0.25f ? Fonts.Pirulen20 : Fonts.Pirulen16;
+                Color color = font == Fonts.Pirulen20 ? Color.Red : Color.LightGreen;
+                var pos = new Vector2(ScreenWidth - font.TextWidth(speed) - 20f, 90f);
+                batch.DrawString(font, speed, pos, color);
             }
 
             if (IsCinematicModeEnabled && CinematicModeTextTimer > 0f)
