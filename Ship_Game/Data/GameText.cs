@@ -654,9 +654,9 @@ namespace Ship_Game
         FoodPerTurn = 354,
         /// <summary>production per turn</summary>
         ProductionPerTurn = 355,
-        /// <summary>research per turn</summary>
+        /// <summary>Research Per Turn</summary>
         ResearchPerTurn = 357,
-        /// <summary>increase to tax incomes</summary>
+        /// <summary>Increase In Tax Income</summary>
         IncreaseToTaxIncomes = 359,
         /// <summary>Max Fertility Change on Build</summary>
         MaxFertilityChangeOnBuild = 360,
@@ -3532,7 +3532,7 @@ namespace Ship_Game
         ManualTradeOrdersThisFreighter3 = 216,
         /// <summary>production per turn per assigned colonist</summary>
         ProductionPerTurnPerAssigned = 356,
-        /// <summary>research per turn per assigned colonist</summary>
+        /// <summary>Research Per Assigned Colonist</summary>
         ResearchPerTurnPerAssigned = 358,
         /// <summary>Randomly places an Agent on an enemy colony, providing several</summary>
         RandomlyPlacesAnAgentOn = 239,
@@ -4388,6 +4388,26 @@ namespace Ship_Game
         SaveWIP = 4371,
         /// <summary>Resources were also created:</summary>
         BuildingCreatedFromLava = 4372,
+        /// <summary>Max Fertility</summary>
+        MaxFerfilityOnBuild = 4373,
+        /// <summary>Food Per Colonist</summary>
+        FoodPerColonist = 4374,
+        /// <summary>Production Per Colonist</summary>
+        ProdPerColonist = 4375,
+        /// <summary>Production Per Turn</summary>
+        ProdPerTurn = 4376,
+        /// <summary>Max Storage</summary>
+        MaxStorage = 4377,
+        /// <summary>Flat Population</summary>
+        PlusFlatPop = 4378,
+        /// <summary>Flat Population</summary>
+        Infrastructure = 4379,
+        /// <summary>Max Population (Billion)</summary>
+        PopMax = 4380,
+        /// <summary>Mineral Richness</summary>
+        MineralRichness = 4381,
+
+
         /// <summary>on surface</summary>
         OnSurface = 4993,
         /// <summary>in space</summary>

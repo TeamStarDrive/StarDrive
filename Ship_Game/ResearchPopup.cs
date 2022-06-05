@@ -74,7 +74,7 @@ namespace Ship_Game
                         break;
                     case UnlockType.Building:
                         iconRect = new Rectangle((int)X + 16, (int)CenterY - 32, 64, 64);
-                        summary = Unlock.building?.ShortDescrText.Text ?? "";
+                        summary = Unlock.building?.GetShortDescrText() ?? "";
                         break;
                     case UnlockType.Hull:
                         iconRect = new Rectangle((int)X, (int)CenterY - 32, 96, 96);
