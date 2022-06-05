@@ -98,11 +98,10 @@ namespace Ship_Game
             || ProdCache.Greater(0) && PlusProdPerColonist.AlmostZero();
 
         public override string ToString()
-            => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{ShortDescrText}";
+            => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{GetShortDescrText()}";
 
         [XmlIgnore][JsonIgnore] public LocalizedText TranslatedName  => new LocalizedText(NameTranslationIndex);
         [XmlIgnore][JsonIgnore] public LocalizedText DescriptionText => new LocalizedText(DescriptionIndex);
-        [XmlIgnore][JsonIgnore] public LocalizedText ShortDescrText  => new LocalizedText(ShortDescriptionIndex);
 
         // Each Building templates has a unique ID: 
         [XmlIgnore][JsonIgnore] public int BID { get; private set; }
@@ -466,6 +465,96 @@ namespace Ship_Game
             // we use gross profit since we dont want tax rate change to affect this often
             float grossProfit = PlusTaxPercentage * populationBillion + CreditsPerColonist * populationBillion;
             return maintenance < grossProfit;
+        }
+
+        public string GetShortDescrText(Planet p = null)
+        {
+            if (ShortDescriptionIndex > 0)
+                return new LocalizedText(ShortDescriptionIndex).Text;
+
+            bool comma = false;
+            string text = "";
+            if (MaxFertilityOnBuild.NotZero())
+            {
+                text += p?.Owner == null 
+                    ? $"{BuildShortDescString(MaxFertilityOnBuild, GameText.MaxFerfilityOnBuild, ref comma)}" 
+                    : $"{BuildShortDescString(MaxFertilityOnBuildFor(p.Owner, p.Category), GameText.MaxFerfilityOnBuild, ref comma)}";
+            }
+
+            if (PlusFoodPerColonist.NotZero())
+            {
+                text += p?.Owner == null 
+                    ? $"{BuildShortDescString(PlusFoodPerColonist, GameText.FoodPerColonist, ref comma)}" 
+                    : $"{BuildShortDescString(p.Food.FoodYieldFormula(p.Fertility, PlusFoodPerColonist-1), GameText.FoodPerColonist, ref comma)}";
+            }
+
+            if (PlusFlatFoodAmount.NotZero())
+                text += $"{BuildShortDescString(PlusFlatFoodAmount, GameText.FoodPerTurn, ref comma)}";
+
+            if (IncreaseRichness.NotZero())
+                text += $"{BuildShortDescString(IncreaseRichness, GameText.MineralRichness, ref comma)}";
+
+            if (PlusProdPerColonist.NotZero())
+            {
+                text += p?.Owner == null
+                    ? $"{BuildShortDescString(PlusProdPerColonist, GameText.ProdPerColonist, ref comma)}"
+                    : $"{BuildShortDescString(p.Prod.ProdYieldFormula(p.MineralRichness, PlusProdPerColonist - 1), GameText.ProdPerColonist, ref comma)}";
+            }
+
+            if (PlusFlatProductionAmount.NotZero())
+                text += $"{BuildShortDescString(PlusFlatProductionAmount, GameText.ProdPerTurn, ref comma)}";
+
+            if (PlusProdPerRichness.NotZero())
+                text += $"{BuildShortDescString(PlusProdPerRichness, GameText.ProductionPerRichness, ref comma)}";
+
+            if (PlusResearchPerColonist.NotZero())
+                text += $"{BuildShortDescString(PlusResearchPerColonist, GameText.ResearchPerTurnPerAssigned, ref comma)}";
+
+            if (PlusFlatResearchAmount.NotZero())
+                text += $"{BuildShortDescString(PlusFlatResearchAmount, GameText.ResearchPerTurn, ref comma)}";
+
+            if (CreditsPerColonist.NotZero())
+                text += $"{BuildShortDescString(CreditsPerColonist, GameText.CreditsAddedPerColonist, ref comma)}";
+
+            if (PlusTaxPercentage.NotZero())
+                text += $"{BuildShortDescString(PlusTaxPercentage*100, GameText.IncreaseToTaxIncomes, ref comma, percent: true)}";
+
+            if (MaxPopIncrease.NotZero())
+                text += $"{BuildShortDescString(MaxPopIncrease/1000, GameText.PopMax, ref comma)}";
+
+            if (PlusFlatPopulation.NotZero())
+                text += $"{BuildShortDescString(PlusFlatPopulation, GameText.PlusFlatPop, ref comma)}";
+
+            if (Infrastructure.NotZero())
+                text += $"{BuildShortDescString(Infrastructure, GameText.Infrastructure, ref comma)}";
+
+            if (ShipRepair.NotZero())
+            {
+                text += p?.Owner == null
+                    ? $"{BuildShortDescString(ShipRepair, GameText.ShipRepair, ref comma)}"
+                    : $"{BuildShortDescString(ShipRepair * p.Level, GameText.ShipRepair, ref comma)}";
+            }
+
+            if (StorageAdded != 0)
+                text += $"{BuildShortDescString(StorageAdded, GameText.MaxStorage, ref comma)}";
+
+            if (PlanetaryShieldStrengthAdded.NotZero())
+                text += $"{BuildShortDescString(PlanetaryShieldStrengthAdded, GameText.PlanetaryShieldStrengthAdded, ref comma)}";
+
+            return text;
+        }
+
+        string BuildShortDescString(float value, GameText text, ref bool comma, bool percent = false)
+        {
+            string shortDesc = "";
+            if (comma)
+                shortDesc = ", ";
+
+            shortDesc = value > 0 ? $"{shortDesc}+" : $"{shortDesc}";
+            string percentage = percent ? "%" : "";
+            shortDesc = $"{shortDesc}{value.RoundToFractionOf100()}{percentage} {new LocalizedText(text).Text}";
+            comma = true;
+            return shortDesc;
         }
     }
 }
