@@ -145,21 +145,20 @@ namespace Ship_Game
 
             float foodToFeedAll     = FoodConsumptionPerColonist * (MaxPopulationBillion/3).LowerBound(PopulationBillion);
             float flatFoodToFeedAll = foodToFeedAll - Food.NetFlatBonus;
-            float fertilityBonus    = Fertility.InRange(0.1f, 0.99f) ? 1 : Fertility;
 
             float flat   = (flatFoodToFeedAll - EstimatedAverageFood).LowerBound(0);
-            float perCol = (foodToFeedAll - EstimatedAverageFood).LowerBound(0) * fertilityBonus;
+            float perCol = (foodToFeedAll - EstimatedAverageFood).LowerBound(0) * Fertility;
             if (IsStarving)
             {
-                perCol += 3 * fertilityBonus;
+                perCol += 3 * Fertility;
                 flat   += (3 - Fertility).LowerBound(0);
             }
 
-            perCol += (1 - Storage.FoodRatio) * fertilityBonus;
+            perCol += (1 - Storage.FoodRatio) * Fertility;
             flat   += 1 - Storage.FoodRatio;
 
             if (colonyType == ColonyType.Agricultural)
-                perCol *= fertilityBonus;
+                perCol *= Fertility;
 
             float flatMulti = Food.NetMaxPotential <= 0 ? 3 : 1;
             flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 2.5f, 1f) * flatMulti;
@@ -465,12 +464,15 @@ namespace Ship_Game
             if (NonCybernetic && !b.ProducesFood || IsCybernetic && !b.ProducesProduction)
                 return true;
 
-            // checking at 80% of max potential
-            float potential      = 0.8f * (NonCybernetic ? Food.NetMaxPotential : Prod.NetMaxPotential);
+            // checking at 80% of max potential considering building fertility or richness changes
+            float potential      = 0.8f * (NonCybernetic 
+                ? Food.NetMaxPotential * (Fertility - b.MaxFertilityOnBuildFor(Owner, Category) / Fertility.LowerBound(0.01f)) 
+                : Prod.NetMaxPotential * MineralRichness - b.IncreaseRichness / MineralRichness.LowerBound(0.01f));
+
             float pop80          = PopulationBillion * 0.8f;
             float buildingOutput = NonCybernetic 
-                ? Food.AfterTax(b.PlusFlatFoodAmount + pop80*Food.FoodYieldFormula(Fertility, b.PlusFoodPerColonist))
-                : Prod.AfterTax(b.PlusFlatProductionAmount + pop80 * b.PlusProdPerColonist * b.IncreaseRichness * MineralRichness);
+                ? Food.AfterTax(b.PlusFlatFoodAmount + pop80*Food.FoodYieldFormula(Fertility, b.PlusFoodPerColonist-1))
+                : Prod.AfterTax(b.PlusFlatProductionAmount + pop80 * Prod.ProdYieldFormula(MineralRichness, b.PlusProdPerColonist-1));
 
             return potential - buildingOutput > 0;
         }

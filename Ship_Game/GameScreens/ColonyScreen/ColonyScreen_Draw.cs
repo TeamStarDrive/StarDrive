@@ -753,11 +753,11 @@ namespace Ship_Game
         {
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatFoodAmount, "NewUI/icon_food", GameText.FoodPerTurn);
             DrawBuildingInfo(ref bCursor, batch, b.FoodCache, "NewUI/icon_food", GameText.FoodRemainingHereThisBuilding, signs: false, digits: 0);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusFoodPerColonist, "NewUI/icon_food", GameText.FoodPerTurnPerAssigned);
+            DrawBuildingInfo(ref bCursor, batch, P.Food.FoodYieldFormula(P.Fertility, b.PlusFoodPerColonist-1), "NewUI/icon_food", GameText.FoodPerTurnPerAssigned);
             DrawBuildingInfo(ref bCursor, batch, b.SensorRange, "NewUI/icon_sensors", GameText.SensorRange, signs: false);
             DrawBuildingInfo(ref bCursor, batch, b.ProjectorRange, "NewUI/icon_projection", GameText.SubspaceProjectionArea, signs: false);
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatProductionAmount, "NewUI/icon_production", GameText.ProductionPerTurn);
-            DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerColonist, "NewUI/icon_production", GameText.ProductionPerTurnPerAssigned);
+            DrawBuildingInfo(ref bCursor, batch, P.Prod.ProdYieldFormula(P.MineralRichness, b.PlusProdPerColonist-1), "NewUI/icon_production", GameText.ProductionPerTurnPerAssigned);
             DrawBuildingInfo(ref bCursor, batch, b.ProdCache, "NewUI/icon_production", GameText.ProductionRemainingHereThisBuilding, signs: false, digits: 0);
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatPopulation / 1000, "NewUI/icon_population", GameText.ColonistsPerTurn);
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatResearchAmount, "NewUI/icon_science", GameText.ResearchPerTurn);
