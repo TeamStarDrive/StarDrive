@@ -1,5 +1,6 @@
 using System;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Point = SDGraphics.Point;
 
@@ -52,14 +53,15 @@ namespace Ship_Game.Gameplay
 
     // Used only in new Ship designs
     // # gridX,gridY; moduleUIDIndex; sizeX,sizeY; turretAngle; moduleRotation; slotOptions
+    [StarDataType]
     public class DesignSlot : IEquatable<DesignSlot>
     {
-        public Point Pos; // integer position in the design, such as [0, 1]
-        public string ModuleUID; // module UID, must be interned during parsing
-        public Point Size; // integer size, default is 1,1, for a 1x2 module with ModuleRot.Left it is [2,1]
-        public int TurretAngle; // angle 0..360 of a mounted turret
-        public ModuleOrientation ModuleRot; // module's orientation/rotation: Normal,Left,Right,Rear
-        public string HangarShipUID; // null by default, only set if there are any options
+        [StarData] public Point Pos; // integer position in the design, such as [0, 1]
+        [StarData] public string ModuleUID; // module UID, must be interned during parsing
+        [StarData] public Point Size; // integer size, default is 1,1, for a 1x2 module with ModuleRot.Left it is [2,1]
+        [StarData] public int TurretAngle; // angle 0..360 of a mounted turret
+        [StarData] public ModuleOrientation ModuleRot; // module's orientation/rotation: Normal,Left,Right,Rear
+        [StarData] public string HangarShipUID; // null by default, only set if there are any options
         
         // Required by ModuleGrid
         public Point GetSize() => Size;
