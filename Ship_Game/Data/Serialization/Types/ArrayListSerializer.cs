@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Reflection;
 using SDUtils;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
+using TypeInfo = Ship_Game.Data.Binary.TypeInfo;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -11,10 +13,23 @@ namespace Ship_Game.Data.Serialization.Types
         public override string ToString() => $"ArrayListSerializer<{ElemType.GetTypeName()}:{ElemSerializer.TypeId}>:{TypeId}";
         readonly Type GenericArrayType;
 
+        MethodInfo Resize;
+
         public ArrayListSerializer(Type type, Type elemType, TypeSerializer elemSerializer)
             : base(type, elemType, elemSerializer)
         {
             GenericArrayType = typeof(Array<>).MakeGenericType(elemType);
+            Resize = GenericArrayType.GetMethod("Resize", BindingFlags.Public|BindingFlags.Instance);
+        }
+
+        bool TryResize(IList list, int count)
+        {
+            if (Resize != null)
+            {
+                Resize.Invoke(list, new object[] { count });
+                return true;
+            }
+            return false;
         }
 
         public override object Convert(object value)
@@ -32,12 +47,23 @@ namespace Ship_Game.Data.Serialization.Types
             return value;
         }
 
-        public static object ConvertList(IList list, object[] array, TypeSerializer elemSer)
+        object ConvertList(IList list, object[] array, TypeSerializer elemSer)
         {
-            for (int i = 0; i < array.Length; ++i)
+            if (TryResize(list, array.Length))
             {
-                object element = elemSer.Convert(array[i]);
-                list.Add(element);
+                for (int i = 0; i < array.Length; ++i)
+                {
+                    object element = elemSer.Convert(array[i]);
+                    list[i] = element;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < array.Length; ++i)
+                {
+                    object element = elemSer.Convert(array[i]);
+                    list.Add(element);
+                }
             }
             return list;
         }
@@ -54,10 +80,21 @@ namespace Ship_Game.Data.Serialization.Types
             if (nodes?.Count > 0)
             {
                 var list = (IList)Activator.CreateInstance(GenericArrayType);
-                for (int i = 0; i < nodes.Count; ++i)
+                if (TryResize(list, nodes.Count))
                 {
-                    object element = ElemSerializer.Deserialize(nodes[i]);
-                    list.Add(element);
+                    for (int i = 0; i < nodes.Count; ++i)
+                    {
+                        object element = ElemSerializer.Deserialize(nodes[i]);
+                        list[i] = element;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < nodes.Count; ++i)
+                    {
+                        object element = ElemSerializer.Deserialize(nodes[i]);
+                        list.Add(element);
+                    }
                 }
                 return list;
             }
@@ -147,14 +184,29 @@ namespace Ship_Game.Data.Serialization.Types
             Deserialize(reader, list, ElemSerializer);
         }
 
-        public static void Deserialize(BinarySerializerReader reader, IList list, TypeSerializer elemSer)
+        void Deserialize(BinarySerializerReader reader, IList list, TypeSerializer elemSer)
         {
             int count = (int)reader.BR.ReadVLu32();
+            if (count <= 0)
+                return;
+
             TypeInfo elementType = reader.GetType(elemSer);
-            for (int i = 0; i < count; ++i)
+
+            if (TryResize(list, count))
             {
-                object element = reader.ReadElement(elementType, elemSer);
-                list.Add(element);
+                for (int i = 0; i < count; ++i)
+                {
+                    object element = reader.ReadElement(elementType, elemSer);
+                    list[i] = element;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < count; ++i)
+                {
+                    object element = reader.ReadElement(elementType, elemSer);
+                    list.Add(element);
+                }
             }
         }
     }
