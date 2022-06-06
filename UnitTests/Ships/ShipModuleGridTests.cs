@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
 using Ship_Game.Ships;
@@ -28,9 +29,9 @@ namespace UnitTests.Ships
             Ship toSave = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
 
             SavedGame.UniverseSaveData uSave = new();
-            uSave.SetDesigns(new[]{ toSave.ShipData });
+            uSave.SetDesigns(new HashSet<IShipDesign>{ toSave.ShipData });
 
-            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(new ShipDesignWriter(), toSave);
+            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(toSave);
 
             Ship prototype = Ship.CreateShipFromSave(Universe.UState, Player, uSave, saved);
             Assert.AreEqual(new Point(20,28), prototype.GridSize);
@@ -50,9 +51,9 @@ namespace UnitTests.Ships
             Ship toSave = SpawnShip(unknownTemplate, Player, Vector2.Zero);
 
             SavedGame.UniverseSaveData uSave = new();
-            uSave.SetDesigns(new[]{ toSave.ShipData });
+            uSave.SetDesigns(new HashSet<IShipDesign>{ toSave.ShipData });
 
-            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(new ShipDesignWriter(), toSave);
+            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(toSave);
 
             Ship prototype = Ship.CreateShipFromSave(Universe.UState, Player, uSave, saved);
             Assert.AreEqual(new Point(20,28), prototype.GridSize);

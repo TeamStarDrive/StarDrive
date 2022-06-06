@@ -73,7 +73,6 @@ namespace Ship_Game
             UniverseState us = screenToSave.UState;
             us.Objects.UpdateLists(removeInactiveObjects: true);
 
-            var sw = new ShipDesignWriter();
             var designs = new HashSet<IShipDesign>();
 
             SaveData.SaveGameVersion       = SaveGameVersion;
@@ -298,14 +297,14 @@ namespace Ship_Game
                 foreach (Ship ship in e.OwnedShips)
                 {
                     designs.Add(ship.ShipData);
-                    empireToSave.OwnedShips.Add(ShipSaveFromShip(sw, ship));
+                    empireToSave.OwnedShips.Add(ShipSaveFromShip(ship));
                 }
 
                 var projectors = e.GetProjectors();
                 foreach (Ship ship in projectors)
                 {
                     designs.Add(ship.ShipData);
-                    empireToSave.OwnedShips.Add(ProjectorSaveFromShip(sw, ship));
+                    empireToSave.OwnedShips.Add(ProjectorSaveFromShip(ship));
                 }
 
                 SaveData.EmpireDataList.Add(empireToSave);
@@ -359,105 +358,46 @@ namespace Ship_Game
             }
         }
 
-        public static ShipSaveData ShipSaveFromShip(ShipDesignWriter sw, Ship ship)
+        public static ShipSaveData ProjectorSaveFromShip(Ship ship)
         {
-            var sdata = new ShipSaveData(sw, ship);
-            if (ship.GetTether() != null)
-            {
-                sdata.TetheredTo = ship.GetTether().Id;
-                sdata.TetherOffset = ship.TetherOffset;
-            }
-            sdata.Name = ship.Name;
-            sdata.VanityName = ship.VanityName;
-            sdata.Hull = ship.ShipData.Hull;
-            sdata.Power = ship.PowerCurrent;
-            sdata.Ordnance = ship.Ordinance;
-            sdata.YRotation = ship.YRotation;
-            sdata.Rotation = ship.Rotation;
-            sdata.InCombat = ship.InCombat;
-            sdata.FoodCount = ship.GetFood();
-            sdata.ProdCount = ship.GetProduction();
-            sdata.PopCount = ship.GetColonists();
-            sdata.TroopList = ship.GetFriendlyAndHostileTroops();
-            sdata.FightersLaunched = ship.Carrier.FightersLaunched;
-            sdata.TroopsLaunched = ship.Carrier.TroopsLaunched;
-            sdata.SendTroopsToShip = ship.Carrier.SendTroopsToShip;
-            sdata.AreaOfOperation = ship.AreaOfOperation.Select(r => new RectangleData(r));
+            return new ShipSaveData(ship);
+        }
 
-            sdata.RecallFightersBeforeFTL = ship.Carrier.RecallFightersBeforeFTL;
-            sdata.MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
-            sdata.OrdnanceInSpace = ship.Carrier.OrdnanceInSpace;
-            sdata.ScuttleTimer = ship.ScuttleTimer;
+        public static ShipSaveData ShipSaveFromShip(Ship ship)
+        {
+            var sd = new ShipSaveData(ship);
+
+            sd.FoodCount = ship.GetFood();
+            sd.ProdCount = ship.GetProduction();
+            sd.PopCount = ship.GetColonists();
+            sd.TroopList = ship.GetFriendlyAndHostileTroops();
+            sd.FightersLaunched = ship.Carrier.FightersLaunched;
+            sd.TroopsLaunched = ship.Carrier.TroopsLaunched;
+            sd.SendTroopsToShip = ship.Carrier.SendTroopsToShip;
+            sd.AreaOfOperation = ship.AreaOfOperation.Select(r => new RectangleData(r));
+
+            sd.RecallFightersBeforeFTL = ship.Carrier.RecallFightersBeforeFTL;
+            sd.MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
+            sd.OrdnanceInSpace = ship.Carrier.OrdnanceInSpace;
+            sd.ScuttleTimer = ship.ScuttleTimer;
 
             if (ship.IsHomeDefense)
-                sdata.HomePlanetId = ship.HomePlanet.Id;
+                sd.HomePlanetId = ship.HomePlanet.Id;
 
             if (ship.TradeRoutes?.NotEmpty == true)
             {
-                sdata.TradeRoutes = new Array<int>();
+                sd.TradeRoutes = new Array<int>();
                 foreach (int planetId in ship.TradeRoutes)
                 {
-                    sdata.TradeRoutes.Add(planetId);
+                    sd.TradeRoutes.Add(planetId);
                 }
             }
 
-            sdata.TransportingFood = ship.TransportingFood;
-            sdata.TransportingProduction = ship.TransportingProduction;
-            sdata.TransportingColonists = ship.TransportingColonists;
-            sdata.AllowInterEmpireTrade = ship.AllowInterEmpireTrade;
-            sdata.AISave = new ShipAISave
-            {
-                State = ship.AI.State,
-                DefaultState = ship.AI.DefaultAIState,
-                CombatState = ship.AI.CombatState,
-                StateBits = ship.AI.StateBits,
-            };
-            if (ship.AI.Target is Ship targetShip)
-            {
-                sdata.AISave.AttackTargetId = targetShip.Id;
-            }
-            sdata.AISave.MovePosition = ship.AI.MovePosition;
-            sdata.AISave.WayPoints = new Array<WayPoint>(ship.AI.CopyWayPoints());
-            sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
+            sd.TransportingFood = ship.TransportingFood;
+            sd.TransportingProduction = ship.TransportingProduction;
+            sd.TransportingColonists = ship.TransportingColonists;
+            sd.AllowInterEmpireTrade = ship.AllowInterEmpireTrade;
 
-            foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
-                sdata.AISave.ShipGoalsList.Add(sg.ToSaveData());
-
-            if (ship.AI.OrbitTarget != null)
-                sdata.AISave.OrbitTargetId = ship.AI.OrbitTarget.Id;
-
-            if (ship.AI.SystemToDefend != null)
-                sdata.AISave.SystemToDefendId = ship.AI.SystemToDefend.Id;
-
-            if (ship.AI.EscortTarget != null)
-                sdata.AISave.EscortTargetId = ship.AI.EscortTarget.Id;
-            return sdata;
-        }
-
-        public static ShipSaveData ProjectorSaveFromShip(ShipDesignWriter sw, Ship ship)
-        {
-            var sd = new ShipSaveData(sw, ship);
-            if (ship.GetTether() != null)
-            {
-                sd.TetheredTo = ship.GetTether().Id;
-                sd.TetherOffset = ship.TetherOffset;
-            }
-            sd.Name = ship.Name;
-            sd.VanityName = ship.VanityName;
-            sd.Hull      = ship.ShipData.Hull;
-            sd.Power     = ship.PowerCurrent;
-            sd.Ordnance  = ship.Ordinance;
-            sd.YRotation = ship.YRotation;
-            sd.Rotation  = ship.Rotation;
-            sd.InCombat  = ship.InCombat;
-            sd.AISave = new ShipAISave
-            {
-                State           = ship.AI.State,
-                DefaultState    = ship.AI.DefaultAIState,
-                MovePosition    = ship.AI.MovePosition,
-                WayPoints       = new Array<WayPoint>(),
-                ShipGoalsList   = new Array<ShipGoalSave>()
-            };
             return sd;
         }
 
@@ -837,9 +777,7 @@ namespace Ship_Game
             [StarData] public Vector2 Position;
             [StarData] public Vector2 Velocity;
             [StarData] public float Rotation;
-            // 200 IQ solution: store text representation of the ship module saves
-            // and avoid a bunch of annoying serialization issues
-            [StarData] public byte[] ModuleSaveData;
+            [StarData] public ModuleSaveData[] ModuleSaveData;
             [StarData] public string Hull; // ShipHull name
             [StarData] public string Name; // ShipData design name
             [StarData] public string VanityName; // User defined name
@@ -856,27 +794,28 @@ namespace Ship_Game
             [StarData] public float FoodCount;
             [StarData] public float ProdCount;
             [StarData] public float PopCount;
+            [StarData] public float MechanicalBoardingDefense;
+            [StarData] public float OrdnanceInSpace; // For carriers
+            [StarData] public float ScuttleTimer = -1;
             [StarData] public int TetheredTo;
             [StarData] public Vector2 TetherOffset;
+            [StarData] public Array<int> TradeRoutes;
+            [StarData] public int HomePlanetId;
             [StarData] public bool FightersLaunched;
             [StarData] public bool TroopsLaunched;
-            [StarData] public int HomePlanetId;
             [StarData] public bool TransportingFood;
             [StarData] public bool TransportingProduction;
             [StarData] public bool TransportingColonists;
             [StarData] public bool AllowInterEmpireTrade;
-            [StarData] public Array<int> TradeRoutes;
             [StarData] public bool SendTroopsToShip;
             [StarData] public bool RecallFightersBeforeFTL;
-            [StarData] public float MechanicalBoardingDefense;
-            [StarData] public float OrdnanceInSpace; // For carriers
-            [StarData] public float ScuttleTimer = -1;
 
             public ShipSaveData() {}
 
-            public ShipSaveData(ShipDesignWriter sw, Ship ship)
+            public ShipSaveData(Ship ship)
             {
                 Name = ship.Name;
+                VanityName = ship.VanityName;
                 MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
                 Id = ship.Id;
                 Position = ship.Position;
@@ -887,7 +826,46 @@ namespace Ship_Game
                 Kills      = ship.Kills;
                 Velocity   = ship.Velocity;
 
-                ModuleSaveData = ShipDesign.GetModulesBytes(sw, ship);
+                Hull      = ship.ShipData.Hull;
+                Power     = ship.PowerCurrent;
+                Ordnance  = ship.Ordinance;
+                YRotation = ship.YRotation;
+                Rotation  = ship.Rotation;
+                InCombat  = ship.InCombat;
+
+                if (ship.GetTether() != null)
+                {
+                    TetheredTo = ship.GetTether().Id;
+                    TetherOffset = ship.TetherOffset;
+                }
+
+                AISave = new ShipAISave
+                {
+                    State           = ship.AI.State,
+                    DefaultState    = ship.AI.DefaultAIState,
+                    MovePosition    = ship.AI.MovePosition,
+                    CombatState = ship.AI.CombatState,
+                    StateBits = ship.AI.StateBits,
+                    WayPoints = new Array<WayPoint>(ship.AI.CopyWayPoints()),
+                    ShipGoalsList   = new Array<ShipGoalSave>()
+                };
+
+                foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
+                    AISave.ShipGoalsList.Add(sg.ToSaveData());
+
+                if (ship.AI.Target != null)
+                    AISave.AttackTargetId = ship.AI.Target.Id;
+
+                if (ship.AI.OrbitTarget != null)
+                    AISave.OrbitTargetId = ship.AI.OrbitTarget.Id;
+
+                if (ship.AI.SystemToDefend != null)
+                    AISave.SystemToDefendId = ship.AI.SystemToDefend.Id;
+
+                if (ship.AI.EscortTarget != null)
+                    AISave.EscortTargetId = ship.AI.EscortTarget.Id;
+
+                ModuleSaveData = ship.GetModuleSaveData();
             }
 
             public override string ToString() => $"ShipSave {Id} {Name}";
@@ -979,19 +957,13 @@ namespace Ship_Game
             [StarData] public bool UseUpkeepByHullSize;
 
             // globally stored ship designs
-            [StarData] public Array<byte[]> ShipDesigns;
-
-            public void SetDesigns(IEnumerable<IShipDesign> designs)
-            {
-                var sw = new ShipDesignWriter();
-                ShipDesigns = new();
-                foreach (IShipDesign design in designs)
-                {
-                    ShipDesigns.Add(design.GetDesignBytes(sw));
-                }
-            }
-
+            [StarData] public ShipDesign[] ShipDesigns;
             Map<string, IShipDesign> ShipDesignsCache;
+
+            public void SetDesigns(HashSet<IShipDesign> designs)
+            {
+                ShipDesigns = designs.Select(d => (ShipDesign)d);
+            }
 
             public IShipDesign GetDesign(string name)
             {
@@ -999,9 +971,8 @@ namespace Ship_Game
                 {
                     ShipDesignsCache = new();
 
-                    foreach (byte[] designBytes in ShipDesigns)
+                    foreach (ShipDesign fromSave in ShipDesigns)
                     {
-                        ShipDesign fromSave = ShipDesign.FromBytes(designBytes);
                         fromSave.IsFromSave = true;
 
                         if (ResourceManager.Ships.GetDesign(fromSave.Name, out IShipDesign existing) &&
