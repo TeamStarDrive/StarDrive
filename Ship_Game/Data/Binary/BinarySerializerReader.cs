@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using SDUtils;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Data.Serialization.Types;
 
 namespace Ship_Game.Data.Binary
 {
@@ -351,6 +350,23 @@ namespace Ship_Game.Data.Binary
                 {
                     object instance = ObjectsList[baseIndex + i];
                     ReadUserClass(type, instance);
+                }
+            });
+
+            // now all instances should be initialized, we can call events
+            if (Verbose) Log.Info("Invoke UserClass events");
+            ForEachTypeGroup(SerializerCategory.UserClass, (type, ser, count, baseIndex) =>
+            {
+                if (ser is UserTypeSerializer us)
+                {
+                    if (us.OnDeserialized != null)
+                    {
+                        for (int i = 0; i < count; ++i)
+                        {
+                            object instance = ObjectsList[baseIndex + i];
+                            us.OnDeserialized.Invoke(instance, null);
+                        }
+                    }
                 }
             });
         }

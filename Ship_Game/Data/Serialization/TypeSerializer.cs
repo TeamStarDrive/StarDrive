@@ -56,8 +56,15 @@ namespace Ship_Game.Data.Serialization
         /// <summary>
         /// Overriden TypeName of this TypeSerializer
         /// Defaults to Type.Name
+        ///
+        /// This is used during Type lookup while deserializing binary streams
         /// </summary>
         public string TypeName { get; protected set; }
+
+        /// <summary>
+        /// Nice human-readable typename
+        /// </summary>
+        public string NiceTypeName => Type.GetTypeName();
 
         protected TypeSerializer(Type type)
         {

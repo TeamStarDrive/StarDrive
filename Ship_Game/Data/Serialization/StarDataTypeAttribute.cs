@@ -2,41 +2,51 @@
 
 namespace Ship_Game.Data.Serialization
 {
-    
-    // Note: This MUST be applied to classes that are serialized with StarDataSerializer
-    //
-    // [StarDataType]
-    // class ShipData
-    // {
-    // }
-    //
+    /// <summary>
+    /// Note: This MUST be applied to classes that are serialized with StarDataSerializer
+    ///
+    /// [StarDataType]
+    /// class ShipData
+    /// {
+    /// }
+    ///
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class StarDataTypeAttribute : Attribute
     {
-        public string TypeName; // override the type name during serialization
+        /// <summary>
+        /// Override the type name during serialization.
+        /// This is then used during Deserialization when doing Type lookup by name
+        ///
+        /// Useful if you want to rename your class, but keep backwards compatibility.
+        /// </summary>
+        public string TypeName;
+
         public StarDataTypeAttribute()
         {
         }
         public StarDataTypeAttribute(string typeName)
         {
+            TypeName = typeName;
         }
     }
 
-
-    // Note: StarDataParser is opt-in, so properties/fields must be marked with [StarData]
-    //       The name of the FIELD is used for the mapping.
-    // 
-    // [StarData] public string Style;
-    //
-    // Ship:
-    //   Style: Kulrathi
-    //
+    /// <summary>
+    /// Note: StarDataParser is opt-in, so properties/fields must be marked with [StarData]
+    ///       The name of the FIELD is used for the mapping.
+    /// 
+    /// [StarData] public string Style;
+    ///
+    /// Ship:
+    ///   Style: Kulrathi
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class StarDataAttribute : Attribute
     {
         public string NameId;
         public bool IsPrimaryKeyName;
         public bool IsPrimaryKeyValue;
+
         public StarDataAttribute()
         {
         }
@@ -48,13 +58,15 @@ namespace Ship_Game.Data.Serialization
         }
     }
 
-    // Note: This can be used to capture object Key Name attributes.
-    //
-    // [StarDataKeyName] public string KeyName;
-    //
-    // Ship: my_ship_name  # KeyName="Ship"
-    //   Style: xxx        # KeyName="Style"
-    // 
+    /// <summary>
+    /// Note: This can be used to capture object Key Name attributes.
+    ///
+    /// [StarDataKeyName] public string KeyName;
+    ///
+    /// Ship: my_ship_name  # KeyName="Ship"
+    ///   Style: xxx        # KeyName="Style"
+    /// 
+    /// </summary>
     public sealed class StarDataKeyNameAttribute : StarDataAttribute
     {
         public StarDataKeyNameAttribute() : base(null, keyName:true)
@@ -65,22 +77,15 @@ namespace Ship_Game.Data.Serialization
         }
     }
 
-    // Note: This can be used for Key attributes. The name of the field
-    //       is IRRELEVANT. The mapping is resolved by this attribute.
-    // Warning: THIS IS NOT COMPATIBLE WITH YAML STANDARD
-    //
-    // [StarDataKeyValue] public string Name;
-    //
-    // Ship: my_ship_name  # KeyValue="my_ship_name"
-    //   Style: xxx
-    public sealed class StarDataKeyValueAttribute : StarDataAttribute
+    /// <summary>
+    /// An instance method decorated with this attribute will be called
+    /// when binary serializer has deserialized all fields and this object is now valid
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class StarDataDeserialized : Attribute
     {
-        public StarDataKeyValueAttribute() : base(null, keyValue:true)
-        {
-        }
-        public StarDataKeyValueAttribute(string nameId) : base(nameId, keyValue:true)
+        public StarDataDeserialized()
         {
         }
     }
-
 }

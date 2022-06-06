@@ -23,7 +23,7 @@ namespace UnitTests.Ships
         }
 
         // Makes sure two ShipData are absolutely equal
-        static void AssertAreEqual(ShipDesign a, ShipDesign b, bool checkModules)
+        public static void AssertAreEqual(ShipDesign a, ShipDesign b, bool checkModules)
         {
             Assert.AreEqual(a.Name, b.Name);
             Assert.AreEqual(a.ModName, b.ModName);
