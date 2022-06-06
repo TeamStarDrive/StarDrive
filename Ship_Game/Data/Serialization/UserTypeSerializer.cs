@@ -9,7 +9,7 @@ namespace Ship_Game.Data.Serialization
 {
     public abstract class UserTypeSerializer : TypeSerializer
     {
-        public override string ToString() => $"UserTypeSerializer {Type.GetTypeName()}:{TypeId}";
+        public override string ToString() => $"UserTypeSerializer {NiceTypeName}:{TypeId}";
 
         // Shared Type Map for caching type serialization information
         public TypeSerializerMap TypeMap { get; }
@@ -20,6 +20,11 @@ namespace Ship_Game.Data.Serialization
         protected DataField PrimaryKeyValue;
 
         public IReadOnlyList<DataField> Fields => Index;
+
+        // Method which is called when type has finished serialization
+        // [StarDataDeserialized]
+        // void OnDeserialized() { .. }
+        public MethodInfo OnDeserialized;
 
         protected UserTypeSerializer(Type type, TypeSerializerMap typeMap) : base(type)
         {
@@ -33,7 +38,19 @@ namespace Ship_Game.Data.Serialization
             if (a.TypeName != null)
                 TypeName = a.TypeName;
 
+            OnDeserialized = GetMethodWithAttribute<StarDataDeserialized>(type);
             // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
+        }
+
+        static MethodInfo GetMethodWithAttribute<A>(Type type)
+        {
+            Type attribute = typeof(A);
+            foreach (MethodInfo mi in type.GetMethods())
+            {
+                if (mi.GetCustomAttribute(attribute) != null)
+                    return mi;
+            }
+            return null;
         }
 
         public DataField GetFieldOrNull(string fieldName)
@@ -75,7 +92,7 @@ namespace Ship_Game.Data.Serialization
                 {
                     MethodInfo setter = p.GetSetMethod(nonPublic: true);
                     if (setter == null)
-                        throw new Exception($"[StarDataType] {Type.GetTypeName()} Property {p.Name} has no setter!");
+                        throw new Exception($"[StarDataType] {NiceTypeName} Property {p.Name} has no setter!");
 
                     var field = new DataField(TypeMap, a, p, null);
                     dataFields.Add(field);
@@ -85,7 +102,7 @@ namespace Ship_Game.Data.Serialization
 
             if (dataFields.IsEmpty)
             {
-                Log.Warning($"[StarDataType] {Type.GetTypeName()} has no [StarData] fields, consider not serializing it!");
+                Log.Warning($"[StarDataType] {NiceTypeName} has no [StarData] fields, consider not serializing it!");
                 return;
             }
 
@@ -102,13 +119,13 @@ namespace Ship_Game.Data.Serialization
             if (a.IsPrimaryKeyName)
             {
                 if (PrimaryKeyName != null)
-                    throw new InvalidDataException($"[StarDataType] {Type.GetTypeName()} cannot have more than 1 [StarDataKeyName] attributes! Original {PrimaryKeyValue}, New {field}");
+                    throw new InvalidDataException($"[StarDataType] {NiceTypeName} cannot have more than 1 [StarDataKeyName] attributes! Original {PrimaryKeyValue}, New {field}");
                 PrimaryKeyName = field;
             }
             else if (a.IsPrimaryKeyValue)
             {
                 if (PrimaryKeyValue != null)
-                    throw new InvalidDataException($"[StarDataType] {Type.GetTypeName()} cannot have more than 1 [StarDataKeyValue] attributes! Original {PrimaryKeyValue}, New {field}");
+                    throw new InvalidDataException($"[StarDataType] {NiceTypeName} cannot have more than 1 [StarDataKeyValue] attributes! Original {PrimaryKeyValue}, New {field}");
                 PrimaryKeyValue = field;
             }
         }

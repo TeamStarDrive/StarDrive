@@ -9,7 +9,9 @@ using Ship_Game;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
 using Ship_Game.GameScreens.LoadGame;
+using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
+using UnitTests.Ships;
 using Vector4 = SDGraphics.Vector4;
 using Point = SDGraphics.Point;
 using ResourceManager = Ship_Game.ResourceManager;
@@ -24,25 +26,30 @@ namespace UnitTests.Serialization
     [TestClass]
     public class BinarySerializerTests : StarDriveTest
     {
-        static byte[] Serialize<T>(BinarySerializer ser, T instance)
+        static byte[] Serialize<T>(BinarySerializer ser, T instance, bool verbose = false)
         {
             var ms = new MemoryStream();
             var writer = new BinaryWriter(ms);
-            ser.Serialize(writer, instance);
+            ser.Serialize(writer, instance, verbose);
             return ms.ToArray();
         }
 
-        static T Deserialize<T>(BinarySerializer ser, byte[] bytes)
+        static T Deserialize<T>(BinarySerializer ser, byte[] bytes, bool verbose = false)
         {
             var reader = new BinaryReader(new MemoryStream(bytes));
-            return (T)ser.Deserialize(reader);
+            return (T)ser.Deserialize(reader, verbose);
+        }
+
+        static T SerDes<T>(T instance, out byte[] bytes, bool verbose = false)
+        {
+            var ser = new BinarySerializer(typeof(T));
+            bytes = Serialize(ser, instance, verbose);
+            return Deserialize<T>(ser, bytes, verbose);
         }
 
         static T SerDes<T>(T instance)
         {
-            var ser = new BinarySerializer(typeof(T));
-            byte[] bytes = Serialize<T>(ser, instance);
-            return Deserialize<T>(ser, bytes);
+            return SerDes(instance, out _);
         }
 
         [StarDataType]
@@ -841,6 +848,56 @@ namespace UnitTests.Serialization
             };
             var result = SerDes(instance);
             Assert.AreEqual(instance.Nested.Name, result.Nested.Name);
+        }
+
+        [TestMethod]
+        public void CanSerializeShipDesign()
+        {
+            var instance = (ShipDesign)ResourceManager.Ships.GetDesign("Terran-Prototype");
+
+            var designBytes = instance.GetDesignBytes(new ShipDesignWriter());
+            var result = SerDes(instance, out byte[] bytes, verbose:true);
+            Log.Info($"ShipDesign Binary={bytes.Length} DesignBytes={designBytes.Length}");
+
+            ShipDataTests.AssertAreEqual(instance, result, checkModules:true);
+        }
+
+        [StarDataType]
+        class SavesContainer
+        {
+            [StarData] public ShipDesign[] Designs;
+        }
+
+        [TestMethod]
+        public void CanSerializeAllShipDesigns()
+        {
+            Setup();
+
+            ShipDesign[] designs = ResourceManager.Ships.Designs.Select(s => s as ShipDesign);
+
+            var t1 = new PerfTimer();
+            var sw = new ShipDesignWriter();
+            int textBytes = 0;
+            foreach (ShipDesign design in designs)
+            {
+                var designBytes = design.GetDesignBytes(sw);
+                textBytes += designBytes.Length;
+            }
+            double e1 = t1.Elapsed;
+
+            var t2 = new PerfTimer();
+            var instances = new SavesContainer { Designs = designs };
+            var ser = new BinarySerializer(typeof(SavesContainer));
+            byte[] bytes = Serialize(ser, instances);
+            double e2 = t2.Elapsed;
+            var saves = Deserialize<SavesContainer>(ser, bytes);
+            Log.Write($"ShipDesigns {designs.Length} Binary={bytes.Length} Text={textBytes}");
+            Log.Write($"Binary.Elapsed={e2*1000:0.00}ms Text.Elapsed={e1*1000:0.00}ms");
+
+            for (int i = 0; i < designs.Length; i++)
+            {
+                ShipDataTests.AssertAreEqual(designs[i], saves.Designs[i], checkModules:true);
+            }
         }
 
         [StarDataType]

@@ -339,7 +339,7 @@ namespace Ship_Game.Data.Binary
 
             foreach (TypeSerializer s in UsedTypes)
             {
-                if (Verbose) Log.Info($"WriteType={s.TypeId} {s.Type.GetTypeName()}");
+                if (Verbose) Log.Info($"WriteType={s.TypeId} {s.NiceTypeName}");
                 // [type ID]
                 // [assembly ID]
                 // [namespace ID]
@@ -378,7 +378,7 @@ namespace Ship_Game.Data.Binary
 
             foreach (CollectionSerializer s in CollectionTypes)
             {
-                if (Verbose) Log.Info($"WriteCollection={s.TypeId} {s.Type.GetTypeName()}");
+                if (Verbose) Log.Info($"WriteCollection={s.TypeId} {s.NiceTypeName}");
                 // [type ID]
                 // [collection type]   1:T[] 2:Array<T> 3:Map<K,V>
                 // [element type ID]
@@ -401,7 +401,7 @@ namespace Ship_Game.Data.Binary
             {
                 if (objects.Length == 0)
                     continue;
-                if (Verbose) Log.Info($"WriteGroup={ser.TypeId} {ser.Type.GetTypeName()} count={objects.Length}");
+                if (Verbose) Log.Info($"WriteGroup={ser.TypeId} {ser.NiceTypeName} count={objects.Length}");
                 BW.WriteVLu32(ser.TypeId);
                 BW.WriteVLu32((uint)objects.Length); // int32 because we allow > 65k objects
             }

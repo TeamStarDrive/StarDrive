@@ -1,17 +1,19 @@
 ﻿using System;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Point = SDGraphics.Point;
 
 namespace Ship_Game.Ships
 {
+    [StarDataType]
     public struct ShipGridInfo
     {
         // slot dimensions of the grid, for example 4x4 for Vulcan Scout
-        public Point Size;
+        [StarData] public Point Size;
         // offset from grid TopLeft to the Center slot
         // this should match BaseHull. If it doesn't then slots need adjustment
-        public Point Center;
-        public int SurfaceArea;
+        [StarData] public Point Center;
+        [StarData] public int SurfaceArea;
 
         public override string ToString() => $"Size={Size} Slots={SurfaceArea}";
 
