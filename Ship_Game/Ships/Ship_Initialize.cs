@@ -331,18 +331,6 @@ namespace Ship_Game.Ships
                                               SavedGame.UniverseSaveData uSave,
                                               SavedGame.ShipSaveData save)
         {
-            ModuleSaveData[] savedModules;
-            string[] moduleUIDs;
-            try
-            {
-                (savedModules, moduleUIDs) = ShipDesign.GetModuleSaveFromBytes(save.ModuleSaveData);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"Failed to deserialize ShipSave Name='{save.Name}'");
-                return null;
-            }
-
             IShipDesign design = uSave.GetDesign(save.Name);
 
             // add the design to ships list if it doesn't exist
@@ -355,7 +343,7 @@ namespace Ship_Game.Ships
             Ship ship;
             try
             {
-                ship = new Ship(us, save.Id, empire, design, save, savedModules);
+                ship = new Ship(us, save.Id, empire, design, save, save.ModuleSaveData);
             }
             catch (Exception e)
             {

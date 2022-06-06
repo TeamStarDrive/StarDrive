@@ -89,7 +89,7 @@ namespace Ship_Game.Data.Texture
                 // finally create the texture and set the image pixels
                 var t = new Texture2D(Device, width, width, 0, TextureUsage.Linear, SurfaceFormat.Color);
                 t.SetData(pixels);
-                t.Save(Dir.StarDriveAppData + "/Saved Games/fog.debug.png", ImageFileFormat.Png);
+                //t.Save(Dir.StarDriveAppData + "/Saved Games/fog.debug.png", ImageFileFormat.Png);
                 return t;
             }
             catch (Exception e)
