@@ -989,6 +989,9 @@ namespace UnitTests.Serialization
             CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);
 
+            int numShips = Universe.UState.Empires[0].OwnedShips.Count;
+            float firstShipHealth = Universe.UState.Empires[0].OwnedShips[0].Health;
+
             var save = new SavedGame(Universe);
             save.Verbose = true;
             save.Save("BinarySerializer.Test", async:false);
@@ -1003,6 +1006,10 @@ namespace UnitTests.Serialization
             load.Verbose = true;
             UniverseScreen us = load.Load(noErrorDialogs:true, startSimThread:false);
             Assert.IsNotNull(us, "Loaded universe cannot be null");
+            us.SingleSimulationStep(TestSimStep);
+
+            Assert.AreEqual(numShips, us.UState.Empires[0].OwnedShips.Count, "Empire should have same # of ships");
+            Assert.AreEqual(firstShipHealth, us.UState.Empires[0].OwnedShips[0].Health, "Ships should have health");
         }
     }
 

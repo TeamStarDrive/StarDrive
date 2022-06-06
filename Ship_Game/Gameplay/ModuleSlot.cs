@@ -68,7 +68,7 @@ namespace Ship_Game.Gameplay
 
         public override string ToString() => $"{Pos} {ModuleUID} {Size} TA:{TurretAngle} MR:{ModuleRot} HS:{HangarShipUID}";
         
-        public DesignSlot() {}
+        public DesignSlot() { /* Serialization */ }
         public DesignSlot(Point pos, string uid, Point size, int turretAngle,
                           ModuleOrientation moduleRot, string hangarShipUID)
         {
@@ -146,12 +146,15 @@ namespace Ship_Game.Gameplay
     /// This is because players can modify an existing ship .design,
     /// making old designs obsolete.
     /// </summary>
+    [StarDataType]
     public sealed class ModuleSaveData : DesignSlot
     {
         /// --- Saved ShipModule state ---
-        public float Health;
-        public float ShieldPower;
-        public int HangarShipId;
+        [StarData] public float Health;
+        [StarData] public float ShieldPower;
+        [StarData] public int HangarShipId;
+
+        ModuleSaveData() { /* Serialization */ }
 
         public ModuleSaveData(ShipModule m)
             : base(m.Pos, m.UID, m.GetSize(), m.TurretAngle, m.ModuleRot, m.HangarShipUID)
