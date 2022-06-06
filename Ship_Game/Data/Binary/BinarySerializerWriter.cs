@@ -43,26 +43,28 @@ namespace Ship_Game.Data.Binary
 
         class RecursiveScanner
         {
-            readonly Map<TypeSerializer, Array<object>> ObjectGroups = new();
+            public readonly Map<TypeSerializer, HashSet<object>> ObjectGroups = new();
             readonly HashSet<TypeSerializer> StructTypes = new();
 
-            public readonly HashSet<object> UniqueObjects = new();
             public Array<TypeSerializer> Structs;
             public (TypeSerializer Ser, object[] Objects)[] TypeGroups;
+
+            public int NumObjects;
 
             // @return false if type analysis should be terminated
             bool Record(TypeSerializer ser, object instance)
             {
                 if (ser.IsPointerType)
                 {
-                    if (!ObjectGroups.TryGetValue(ser, out Array<object> list))
-                        ObjectGroups.Add(ser, (list = new Array<object>()));
+                    // the types NEED to be recorded here even if instance is null
+                    if (!ObjectGroups.TryGetValue(ser, out HashSet<object> set))
+                        ObjectGroups.Add(ser, (set = new HashSet<object>()));
 
                     if (instance != null)
                     {
-                        if (UniqueObjects.Add(instance)) // is it unique?
+                        if (set.Add(instance)) // is it unique?
                         {
-                            list.Add(instance);
+                            ++NumObjects;
                             // once the fundamental type instance has been recorded, we can stop the scan
                             if (ser.IsFundamentalType)
                                 return false;
@@ -149,12 +151,12 @@ namespace Ship_Game.Data.Binary
                     if (ser is CollectionSerializer cs)
                     {
                         if (!ObjectGroups.ContainsKey(cs.ElemSerializer))
-                            ObjectGroups.Add(cs.ElemSerializer, new Array<object>());
+                            ObjectGroups.Add(cs.ElemSerializer, new HashSet<object>());
 
                         if (cs.IsMapType && cs is MapSerializer ms)
                         {
                             if (!ObjectGroups.ContainsKey(ms.KeySerializer))
-                                ObjectGroups.Add(ms.KeySerializer, new Array<object>());
+                                ObjectGroups.Add(ms.KeySerializer, new HashSet<object>());
                         }
                     }
                 }
@@ -235,11 +237,22 @@ namespace Ship_Game.Data.Binary
         public void ScanObjects(TypeSerializer rootSer, object rootObject)
         {
             var rs = new RecursiveScanner();
-            rs.Scan(rootSer, rootObject);
-            rs.FinalizeDependencies();
-            rs.SortTypesByDependency();
+            try
+            {
+                rs.Scan(rootSer, rootObject);
+                rs.FinalizeDependencies();
+                rs.SortTypesByDependency();
+            }
+            catch (OutOfMemoryException e)
+            {
+                Log.Error(e, $"OOM during object scan! NumObjects={rs.NumObjects} Types={rs.ObjectGroups.Count}");
 
-            NumObjects = rs.UniqueObjects.Count;
+                var groups = rs.ObjectGroups.Sorted(kv => -kv.Value.Count);
+                Log.Error($"Biggest Group {groups[0].Key} Count={groups[0].Value.Count}");
+                throw;
+            }
+
+            NumObjects = rs.NumObjects;
 
             // for TypeGroups we only use Object groups
             TypeGroups = rs.TypeGroups;

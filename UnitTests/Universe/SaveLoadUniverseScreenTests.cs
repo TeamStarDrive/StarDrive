@@ -1,16 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.GameScreens.LoadGame;
 using System.IO;
-using System.Threading;
 using SDUtils;
 using Ship_Game.AI;
-using Ship_Game.GameScreens.NewGame;
 using Ship_Game.GameScreens.Universe.Debug;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
