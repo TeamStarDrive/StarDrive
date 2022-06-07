@@ -784,6 +784,16 @@ namespace UnitTests.Serialization
             Flag4 = 64,
         }
 
+        [Flags]
+        public enum FlagsEnumByte : byte
+        {
+            None,
+            Flag1 = 8,
+            Flag2 = 16,
+            Flag3 = 32,
+            Flag4 = 64,
+        }
+
         [StarDataType]
         public class EnumType
         {
@@ -796,10 +806,12 @@ namespace UnitTests.Serialization
             [StarData] public GlobalEnum Key2;
             [StarData] public NestedEnum2 Key3;
             [StarData] public FlagsEnum Key4;
+            [StarData] public FlagsEnumByte Key5;
             [StarData] public Array<NestedEnum> Values1;
             [StarData] public Array<GlobalEnum> Values2;
             [StarData] public Array<NestedEnum2> Values3;
             [StarData] public Array<FlagsEnum> Values4;
+            [StarData] public Array<FlagsEnumByte> Values5;
         }
 
         [TestMethod]
@@ -811,20 +823,24 @@ namespace UnitTests.Serialization
                 Key2 = GlobalEnum.Five,
                 Key3 = EnumType.NestedEnum2.Eight,
                 Key4 = FlagsEnum.Flag1|FlagsEnum.Flag2,
+                Key5 = FlagsEnumByte.Flag1|FlagsEnumByte.Flag2,
                 Values1 = List(NestedEnum.Three,NestedEnum.One,NestedEnum.Two),
                 Values2 = List(GlobalEnum.Six,GlobalEnum.Four,GlobalEnum.Five),
                 Values3 = List(EnumType.NestedEnum2.Seven,EnumType.NestedEnum2.Nine,EnumType.NestedEnum2.Eight),
                 Values4 = List(FlagsEnum.Flag1|FlagsEnum.Flag2, FlagsEnum.Flag4, FlagsEnum.Flag3|FlagsEnum.Flag4),
+                Values5 = List(FlagsEnumByte.Flag1|FlagsEnumByte.Flag2, FlagsEnumByte.Flag4, FlagsEnumByte.Flag3|FlagsEnumByte.Flag4),
             };
             var result = SerDes(instance);
             Assert.AreEqual(instance.Key1, result.Key1);
             Assert.AreEqual(instance.Key2, result.Key2);
             Assert.AreEqual(instance.Key3, result.Key3);
             Assert.AreEqual(instance.Key4, result.Key4);
+            Assert.AreEqual(instance.Key5, result.Key5);
             Assert.That.EqualCollections(instance.Values1, result.Values1);
             Assert.That.EqualCollections(instance.Values2, result.Values2);
             Assert.That.EqualCollections(instance.Values3, result.Values3);
             Assert.That.EqualCollections(instance.Values4, result.Values4);
+            Assert.That.EqualCollections(instance.Values5, result.Values5);
         }
 
         [StarDataType]
