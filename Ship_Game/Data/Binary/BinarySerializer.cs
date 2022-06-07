@@ -113,7 +113,9 @@ namespace Ship_Game.Data.Binary
         // Aggregates multiple different types into a single binary writer stream
         public static void SerializeMultiType(BinaryWriter writer, object[] objects, bool verbose = false)
         {
-            var serializers = objects.Select(o => new BinarySerializer(o.GetType()));
+            var serializers = new BinarySerializer[objects.Length];
+            for (int i = 0; i < objects.Length; ++i) // using loop for more accurate perf stats
+                serializers[i] = new BinarySerializer(objects[i].GetType());
 
             for (int i = 0; i < objects.Length; ++i)
             {
@@ -127,7 +129,10 @@ namespace Ship_Game.Data.Binary
         // Deserializes multiple different typed objects from a single binary reader stream
         public static object[] DeserializeMultiType(BinaryReader reader, Type[] types, bool verbose = false)
         {
-            var serializers = types.Select(t => new BinarySerializer(t));
+            var serializers = new BinarySerializer[types.Length];
+            for (int i = 0; i < types.Length; ++i) // using loop for more accurate perf stats
+                serializers[i] = new BinarySerializer(types[i]);
+
             var objects = new object[serializers.Length];
 
             for (int i = 0; i < objects.Length; ++i)

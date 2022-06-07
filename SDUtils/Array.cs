@@ -703,7 +703,7 @@ namespace SDUtils
             Array.Sort(Items, index, count, comparer);
         }
 
-        internal struct Comparer : IComparer<T>
+        internal readonly struct Comparer : IComparer<T>
         {
             readonly Comparison<T> Comparison;
             public Comparer(Comparison<T> comparison)

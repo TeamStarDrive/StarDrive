@@ -63,8 +63,8 @@ namespace UnitTests.Universe
                                  ?? ShipBuilder.BestShipWeCanBuild(RoleName.carrier, e)
                                  ?? ShipBuilder.BestShipWeCanBuild(RoleName.frigate, e)
                                  ?? ShipBuilder.BestShipWeCanBuild(RoleName.prototype, e);
-
-                    Assert.IsNotNull(bestShip, "failed to choose best ship");
+                    
+                    Assert.IsNotNull(bestShip, $"failed to choose best ship for {e}");
                     for (int i = 0; i < shipsPerEmpire; ++i)
                     {
                         Ship.CreateShipAt(Universe.UState, bestShip.ShipData.Name, e, e.Capital, true);

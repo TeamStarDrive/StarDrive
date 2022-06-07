@@ -11,24 +11,24 @@ namespace Ship_Game.Data.Serialization
         public const int MaxFundamentalTypes = 32;
 
         // TypeId which is valid in a single serialization context
-        internal ushort TypeId;
+        internal int TypeId;
         public readonly Type Type;
 
         /// <summary>
         /// If TRUE, this serializer is a primitive fundamental type
         /// </summary>
-        public bool IsFundamentalType => (TypeId < MaxFundamentalTypes);
+        public bool IsFundamentalType;
 
         /// <summary>
         /// If TRUE, this serializer is a collection serializer for Arrays or Maps
         /// </summary>
-        public bool IsCollection { get; protected set; }
+        public bool IsCollection;
 
         /// <summary>
         /// If TRUE, this serializer is made for a custom user class type
         /// marked with [StarDataType] attribute
         /// </summary>
-        public bool IsUserClass { get; protected set; }
+        public bool IsUserClass;
 
         /// <summary>
         /// If TRUE, instances of this type should be represented by pointers,
@@ -36,22 +36,22 @@ namespace Ship_Game.Data.Serialization
         /// If FALSE, instances are value types such as primitives or structs,
         /// and can't be represented by pointers.
         /// </summary>
-        public bool IsPointerType { get; protected set; }
+        public bool IsPointerType;
 
         /// <summary>
         /// Non-Pointer types are value types
         /// </summary>
-        public bool IsValueType { get; protected set; }
+        public bool IsValueType;
 
         /// <summary>
         /// Enums get some special treatment as ValueTypes
         /// </summary>
-        public bool IsEnumType { get; protected set; }
+        public bool IsEnumType;
 
         /// <summary>
         /// Serializer category for easier classification during Deserialization
         /// </summary>
-        public SerializerCategory Category { get; protected set; }
+        public SerializerCategory Category;
 
         /// <summary>
         /// Overriden TypeName of this TypeSerializer
@@ -59,7 +59,7 @@ namespace Ship_Game.Data.Serialization
         ///
         /// This is used during Type lookup while deserializing binary streams
         /// </summary>
-        public string TypeName { get; protected set; }
+        public string TypeName;
 
         /// <summary>
         /// Nice human-readable typename
@@ -73,6 +73,12 @@ namespace Ship_Game.Data.Serialization
             IsValueType = !IsPointerType;
             IsEnumType = type.IsEnum;
             TypeName = type.Name;
+        }
+
+        internal void SetTypeId(ushort id)
+        {
+            TypeId = id;
+            IsFundamentalType = (TypeId < MaxFundamentalTypes);
         }
 
         /// <summary>

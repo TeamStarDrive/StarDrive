@@ -785,7 +785,7 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
-        public class EnumTypes
+        public class EnumType
         {
             public enum NestedEnum2
             {
@@ -803,17 +803,17 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void ContainsEnumTypes()
+        public void EnumTypes()
         {
-            var instance = new EnumTypes
+            var instance = new EnumType
             {
                 Key1 = NestedEnum.Three,
                 Key2 = GlobalEnum.Five,
-                Key3 = EnumTypes.NestedEnum2.Eight,
+                Key3 = EnumType.NestedEnum2.Eight,
                 Key4 = FlagsEnum.Flag1|FlagsEnum.Flag2,
                 Values1 = List(NestedEnum.Three,NestedEnum.One,NestedEnum.Two),
                 Values2 = List(GlobalEnum.Six,GlobalEnum.Four,GlobalEnum.Five),
-                Values3 = List(EnumTypes.NestedEnum2.Seven,EnumTypes.NestedEnum2.Nine,EnumTypes.NestedEnum2.Eight),
+                Values3 = List(EnumType.NestedEnum2.Seven,EnumType.NestedEnum2.Nine,EnumType.NestedEnum2.Eight),
                 Values4 = List(FlagsEnum.Flag1|FlagsEnum.Flag2, FlagsEnum.Flag4, FlagsEnum.Flag3|FlagsEnum.Flag4),
             };
             var result = SerDes(instance);
