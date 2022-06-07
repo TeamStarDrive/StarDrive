@@ -418,7 +418,7 @@ namespace Ship_Game
                 Time       = now,
             };
 
-            using (var writer = new Writer(saveFile.OpenWrite()))
+            using (var writer = new Writer(new FileStream(saveFile.FullName, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 4096)))
             {
                 BinarySerializer.SerializeMultiType(writer, new object[] { header, data }, Verbose);
             }
