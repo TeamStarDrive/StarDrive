@@ -29,14 +29,14 @@ namespace UnitTests.Serialization
         static byte[] Serialize<T>(BinarySerializer ser, T instance, bool verbose = false)
         {
             var ms = new MemoryStream();
-            var writer = new BinaryWriter(ms);
+            using var writer = new Writer(ms);
             ser.Serialize(writer, instance, verbose);
             return ms.ToArray();
         }
 
         static T Deserialize<T>(BinarySerializer ser, byte[] bytes, bool verbose = false)
         {
-            var reader = new BinaryReader(new MemoryStream(bytes));
+            using var reader = new Reader(new MemoryStream(bytes));
             return (T)ser.Deserialize(reader, verbose);
         }
 
@@ -922,7 +922,7 @@ namespace UnitTests.Serialization
         public void MultiTypeSerialize()
         {
             var msOut = new MemoryStream();
-            var writer = new BinaryWriter(msOut);
+            var writer = new Writer(msOut);
 
             var header = new HeaderType { Version = 11, Name = "Savegame1" };
             var payload = new PayloadType { Data = "123456", Size = new Vector2(1000,1000) };
@@ -930,7 +930,7 @@ namespace UnitTests.Serialization
             BinarySerializer.SerializeMultiType(writer, new object[]{ header, payload });
 
             var msIn = new MemoryStream(msOut.ToArray());
-            var reader = new BinaryReader(msIn);
+            var reader = new Reader(msIn);
 
             var results1 = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderType) });
             Assert.AreEqual(1, results1.Length);

@@ -30,7 +30,7 @@ namespace Ship_Game.Data.Binary
             RootObjectIndex = writer.RootObjectIndex;
         }
 
-        public BinarySerializerHeader(BinaryReader reader)
+        public BinarySerializerHeader(Reader reader)
         {
             Signature = reader.ReadUInt32(); // always UInt32
             Version = reader.ReadVLu32();
@@ -42,7 +42,7 @@ namespace Ship_Game.Data.Binary
             RootObjectIndex = reader.ReadVLu32();
         }
 
-        public void Write(BinaryWriter writer)
+        public void Write(Writer writer)
         {
             writer.Write(Signature); // always UInt32
             writer.WriteVLu32(Version);

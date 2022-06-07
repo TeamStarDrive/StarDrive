@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -11,7 +10,7 @@ namespace Ship_Game.Data.Binary
 {
     public class BinarySerializerWriter
     {
-        public BinaryWriter BW;
+        public Writer BW;
 
         // total number of objects
         public int NumObjects;
@@ -38,7 +37,7 @@ namespace Ship_Game.Data.Binary
 
         public bool Verbose;
 
-        public BinarySerializerWriter(BinaryWriter writer)
+        public BinarySerializerWriter(Writer writer)
         {
             BW = writer;
         }
