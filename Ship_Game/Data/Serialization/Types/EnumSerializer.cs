@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Linq.Expressions;
 using System.Reflection;
 using SDUtils;
 using Ship_Game.Data.Binary;
@@ -12,8 +12,10 @@ namespace Ship_Game.Data.Serialization.Types
         public override string ToString() => $"EnumSerializer {NiceTypeName}:{TypeId}";
         readonly Map<int, object> Mapping = new();
         readonly object DefaultValue;
+        readonly bool IsFlagsEnum;
 
-        bool IsFlagsEnum;
+        delegate int GetIntValue(object enumValue);
+        readonly GetIntValue GetValueOf;
 
         public EnumSerializer(Type toEnum) : base(toEnum)
         {
@@ -21,18 +23,18 @@ namespace Ship_Game.Data.Serialization.Types
             DefaultValue = values.GetValue(0);
             IsFlagsEnum = toEnum.GetCustomAttribute<FlagsAttribute>() != null;
 
+            // precompile enum to integer conversion, otherwise it's too slow
+            // (object enumValue) => (int)enumValue;
+            var enumVal = Expression.Parameter(typeof(object), "enumValue");
+            var toInteger = Expression.Convert(enumVal, typeof(int));
+            GetValueOf = Expression.Lambda<GetIntValue>(toInteger, enumVal).Compile();
+
             for (int i = 0; i < values.Length; ++i)
             {
-                object enumValue = values.GetValue(i);
-                int enumIndex = GetEnumIndex(enumValue);
+                var enumValue = values.GetValue(i);
+                int enumIndex = GetValueOf(enumValue);
                 Mapping[enumIndex] = enumValue;
             }
-        }
-
-        static int GetEnumIndex(object enumValue)
-        {
-            int enumIndex = System.Convert.ToInt32(enumValue);
-            return enumIndex;
         }
 
         public override object Convert(object value)
@@ -60,7 +62,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override void Serialize(BinarySerializerWriter writer, object obj)
         {
-            int enumIndex = GetEnumIndex(obj);
+            int enumIndex = GetValueOf(obj);
             writer.BW.WriteVLi32(enumIndex);
         }
         

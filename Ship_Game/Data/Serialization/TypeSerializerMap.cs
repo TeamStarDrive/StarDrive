@@ -58,7 +58,7 @@ namespace Ship_Game.Data.Serialization
         {
             if (id >= TypeSerializer.MaxFundamentalTypes)
                 throw new InvalidOperationException("TypeSerializer.MaxFundamentalTypes exceeded!");
-            ser.TypeId = id;
+            ser.SetTypeId(id);
             Serializers[ser.Type] = ser;
             FlatMap[id] = ser;
         }
@@ -78,7 +78,7 @@ namespace Ship_Game.Data.Serialization
             if (type == null)
                 throw new ArgumentNullException($"serializer.Type cannot be null");
 
-            ser.TypeId = (ushort)FlatMap.Count;
+            ser.SetTypeId((ushort)FlatMap.Count);
             if (ser.TypeId == (ushort.MaxValue - 1))
                 throw new IndexOutOfRangeException($"serializer.TypeId overflow -- too many types: {ser.TypeId}");
 
