@@ -24,9 +24,16 @@ namespace Ship_Game.Data.Serialization.Types
             IsFlagsEnum = toEnum.GetCustomAttribute<FlagsAttribute>() != null;
 
             // precompile enum to integer conversion, otherwise it's too slow
-            // (object enumValue) => (int)enumValue;
             var enumVal = Expression.Parameter(typeof(object), "enumValue");
-            var toInteger = Expression.Convert(enumVal, typeof(int));
+            
+            Type underlyingType = toEnum.GetEnumUnderlyingType();
+
+            // (object enumValue) => (int)enumValue;
+            // (object enumValue) => (int)(T)enumValue;
+            Expression toInteger = underlyingType == typeof(int)
+                ? Expression.Convert(enumVal, typeof(int))
+                : Expression.Convert(Expression.Convert(enumVal, underlyingType), typeof(int));
+
             GetValueOf = Expression.Lambda<GetIntValue>(toInteger, enumVal).Compile();
 
             for (int i = 0; i < values.Length; ++i)
