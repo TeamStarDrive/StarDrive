@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.IO;
+using System.Text;
 using Ship_Game.Data.Binary;
 
 namespace UnitTests.Serialization
@@ -8,52 +8,34 @@ namespace UnitTests.Serialization
     [TestClass]
     public class BinaryReadWriteTests : StarDriveTest
     {
-        readonly MemoryStream Buffer = new MemoryStream();
+        readonly MemoryStream Buffer = new();
+        readonly Writer BW;
+        readonly Reader BR;
 
-        static void SeekTo(MemoryStream ms, int pos) => ms.Seek(pos, SeekOrigin.Begin);
-        static void WriteVL(MemoryStream ms, uint value) => new BinaryWriter(ms).WriteVLu32(value);
-        static void WriteVL(MemoryStream ms, int value) => new BinaryWriter(ms).WriteVLi32(value);
-        static void WriteVL(MemoryStream ms, ulong value) => new BinaryWriter(ms).WriteVLu64(value);
-        static void WriteVL(MemoryStream ms, long value) => new BinaryWriter(ms).WriteVLi64(value);
-        static int ReadInt(MemoryStream ms) => new BinaryReader(ms).ReadVLi32();
-        static uint ReadUInt(MemoryStream ms) => new BinaryReader(ms).ReadVLu32();
-        static long ReadLong(MemoryStream ms) => new BinaryReader(ms).ReadVLi64();
-        static ulong ReadULong(MemoryStream ms) => new BinaryReader(ms).ReadVLu64();
-
-        static uint EncDec(uint value)
+        public BinaryReadWriteTests()
         {
-            var ms = new MemoryStream();
-            WriteVL(ms, value);
-            SeekTo(ms, 0);
-            return ReadUInt(ms);
+            BW = new Writer(Buffer);
+            BR = new Reader(Buffer);
         }
 
-        static int EncDec(int value)
-        {
-            var ms = new MemoryStream();
-            WriteVL(ms, value);
-            SeekTo(ms, 0);
-            return ReadInt(ms);
-        }
+        void SeekTo(int pos) => Buffer.Seek(pos, SeekOrigin.Begin);
+        void FlushAndSeekTo(int pos) { BW.Flush(); SeekTo(pos); }
 
-        static ulong EncDec(ulong value)
-        {
-            var ms = new MemoryStream();
-            WriteVL(ms, value);
-            SeekTo(ms, 0);
-            return ReadULong(ms);
-        }
-
-        static long EncDec(long value)
-        {
-            var ms = new MemoryStream();
-            WriteVL(ms, value);
-            SeekTo(ms, 0);
-            return ReadLong(ms);
-        }
+        void WriteVL(uint value)  => BW.WriteVLu32(value);
+        void WriteVL(int value)   => BW.WriteVLi32(value);
+        void WriteVL(ulong value) => BW.WriteVLu64(value);
+        void WriteVL(long value)  => BW.WriteVLi64(value);
+        int   ReadVLi32() => BR.ReadVLi32();
+        uint  ReadVLu32() => BR.ReadVLu32();
+        long  ReadVLi64() => BR.ReadVLi64();
+        ulong ReadVLu64() => BR.ReadVLu64();
+        uint  EncDec(uint value)  { SeekTo(0); BW.WriteVLu32(value); FlushAndSeekTo(0); return ReadVLu32(); }
+        int   EncDec(int value)   { SeekTo(0); BW.WriteVLi32(value); FlushAndSeekTo(0); return ReadVLi32(); }
+        ulong EncDec(ulong value) { SeekTo(0); BW.WriteVLu64(value); FlushAndSeekTo(0); return ReadVLu64(); }
+        long  EncDec(long value)  { SeekTo(0); BW.WriteVLi64(value); FlushAndSeekTo(0); return ReadVLi64(); }
 
         [TestMethod]
-        public void EncodeSingleVLUInt()
+        public void EncodeVLu32()
         {
             Assert.AreEqual(0u, EncDec(0u));
             Assert.AreEqual(0x40u, EncDec(0x40u));
@@ -67,7 +49,7 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void EncodeSingleVLInt()
+        public void EncodeVLi32()
         {
             Assert.AreEqual(0, EncDec(0));
             Assert.AreEqual(0x40, EncDec(0x40));
@@ -85,7 +67,7 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void EncodeSingleVLULong()
+        public void EncodeVLu64()
         {
             Assert.AreEqual(0ul, EncDec(0ul));
             Assert.AreEqual(0x40ul, EncDec(0x40ul));
@@ -100,7 +82,7 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void EncodeSingleVLLong()
+        public void EncodeVLi64()
         {
             Assert.AreEqual(0L, EncDec(0L));
             Assert.AreEqual(0x40L, EncDec(0x40L));
@@ -120,115 +102,214 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void EncodeMultipleUInt()
+        public void EncodeMultiVLu32()
         {
-            WriteVL(Buffer, 0u);
-            WriteVL(Buffer, 1024u);
-            WriteVL(Buffer, 24655935u);
-            WriteVL(Buffer, 0u);
-            WriteVL(Buffer, uint.MaxValue);
-            WriteVL(Buffer, 65536u);
+            WriteVL(0u);
+            WriteVL(1024u);
+            WriteVL(24655935u);
+            WriteVL(0u);
+            WriteVL(uint.MaxValue);
+            WriteVL(65536u);
 
-            SeekTo(Buffer, 0);
-
-            Assert.AreEqual(0u, ReadUInt(Buffer));
-            Assert.AreEqual(1024u, ReadUInt(Buffer));
-            Assert.AreEqual(24655935u, ReadUInt(Buffer));
-            Assert.AreEqual(0u, ReadUInt(Buffer));
-            Assert.AreEqual(uint.MaxValue, ReadUInt(Buffer));
-            Assert.AreEqual(65536u, ReadUInt(Buffer));
+            FlushAndSeekTo(0);
+            Assert.AreEqual(0u, ReadVLu32());
+            Assert.AreEqual(1024u, ReadVLu32());
+            Assert.AreEqual(24655935u, ReadVLu32());
+            Assert.AreEqual(0u, ReadVLu32());
+            Assert.AreEqual(uint.MaxValue, ReadVLu32());
+            Assert.AreEqual(65536u, ReadVLu32());
         }
 
         [TestMethod]
-        public void EncodeMultipleInt()
+        public void EncodeMultiVLi32()
         {
-            WriteVL(Buffer, 0);
-            WriteVL(Buffer, -1024);
-            WriteVL(Buffer, 24655935);
-            WriteVL(Buffer, 0);
-            WriteVL(Buffer, int.MaxValue);
-            WriteVL(Buffer, -65536);
-            WriteVL(Buffer, int.MinValue);
+            WriteVL(0);
+            WriteVL(-1024);
+            WriteVL(24655935);
+            WriteVL(0);
+            WriteVL(int.MaxValue);
+            WriteVL(-65536);
+            WriteVL(int.MinValue);
 
-            SeekTo(Buffer, 0);
-
-            Assert.AreEqual(0, ReadInt(Buffer));
-            Assert.AreEqual(-1024, ReadInt(Buffer));
-            Assert.AreEqual(24655935, ReadInt(Buffer));
-            Assert.AreEqual(0, ReadInt(Buffer));
-            Assert.AreEqual(int.MaxValue, ReadInt(Buffer));
-            Assert.AreEqual(-65536, ReadInt(Buffer));
-            Assert.AreEqual(int.MinValue, ReadInt(Buffer));
+            FlushAndSeekTo(0);
+            Assert.AreEqual(0, ReadVLi32());
+            Assert.AreEqual(-1024, ReadVLi32());
+            Assert.AreEqual(24655935, ReadVLi32());
+            Assert.AreEqual(0, ReadVLi32());
+            Assert.AreEqual(int.MaxValue, ReadVLi32());
+            Assert.AreEqual(-65536, ReadVLi32());
+            Assert.AreEqual(int.MinValue, ReadVLi32());
         }
 
         [TestMethod]
-        public void EncodeMultipleULong()
+        public void EncodeMultiVLu64()
         {
-            WriteVL(Buffer, 0ul);
-            WriteVL(Buffer, 1024ul);
-            WriteVL(Buffer, 24655935ul);
-            WriteVL(Buffer, 246559213423432435ul);
-            WriteVL(Buffer, 0ul);
-            WriteVL(Buffer, ulong.MaxValue);
-            WriteVL(Buffer, 65536ul);
+            WriteVL(0ul);
+            WriteVL(1024ul);
+            WriteVL(24655935ul);
+            WriteVL(246559213423432435ul);
+            WriteVL(0ul);
+            WriteVL(ulong.MaxValue);
+            WriteVL(65536ul);
 
-            SeekTo(Buffer, 0);
-
-            Assert.AreEqual(0ul, ReadULong(Buffer));
-            Assert.AreEqual(1024ul, ReadULong(Buffer));
-            Assert.AreEqual(24655935ul, ReadULong(Buffer));
-            Assert.AreEqual(246559213423432435ul, ReadULong(Buffer));
-            Assert.AreEqual(0ul, ReadULong(Buffer));
-            Assert.AreEqual(ulong.MaxValue, ReadULong(Buffer));
-            Assert.AreEqual(65536ul, ReadULong(Buffer));
+            FlushAndSeekTo(0);
+            Assert.AreEqual(0ul, ReadVLu64());
+            Assert.AreEqual(1024ul, ReadVLu64());
+            Assert.AreEqual(24655935ul, ReadVLu64());
+            Assert.AreEqual(246559213423432435ul, ReadVLu64());
+            Assert.AreEqual(0ul, ReadVLu64());
+            Assert.AreEqual(ulong.MaxValue, ReadVLu64());
+            Assert.AreEqual(65536ul, ReadVLu64());
         }
 
         [TestMethod]
-        public void EncodeMultipleLong()
+        public void EncodeMultiVLi64()
         {
-            WriteVL(Buffer, 0L);
-            WriteVL(Buffer, -1024L);
-            WriteVL(Buffer, 24655935L);
-            WriteVL(Buffer, -246559213423432435L);
-            WriteVL(Buffer, 0L);
-            WriteVL(Buffer, long.MaxValue);
-            WriteVL(Buffer, -65536L);
-            WriteVL(Buffer, long.MinValue);
+            WriteVL(0L);
+            WriteVL(-1024L);
+            WriteVL(24655935L);
+            WriteVL(-246559213423432435L);
+            WriteVL(0L);
+            WriteVL(long.MaxValue);
+            WriteVL(-65536L);
+            WriteVL(long.MinValue);
 
-            SeekTo(Buffer, 0);
-
-            Assert.AreEqual(0L, ReadLong(Buffer));
-            Assert.AreEqual(-1024L, ReadLong(Buffer));
-            Assert.AreEqual(24655935L, ReadLong(Buffer));
-            Assert.AreEqual(-246559213423432435L, ReadLong(Buffer));
-            Assert.AreEqual(0L, ReadLong(Buffer));
-            Assert.AreEqual(long.MaxValue, ReadLong(Buffer));
-            Assert.AreEqual(-65536L, ReadLong(Buffer));
-            Assert.AreEqual(long.MinValue, ReadLong(Buffer));
+            FlushAndSeekTo(0);
+            Assert.AreEqual(0L, ReadVLi64());
+            Assert.AreEqual(-1024L, ReadVLi64());
+            Assert.AreEqual(24655935L, ReadVLi64());
+            Assert.AreEqual(-246559213423432435L, ReadVLi64());
+            Assert.AreEqual(0L, ReadVLi64());
+            Assert.AreEqual(long.MaxValue, ReadVLi64());
+            Assert.AreEqual(-65536L, ReadVLi64());
+            Assert.AreEqual(long.MinValue, ReadVLi64());
         }
 
         [TestMethod]
-        public void EncodeMixedIntAndUInt()
+        public void EncodeMixedVL()
         {
-            WriteVL(Buffer, 0u);
-            WriteVL(Buffer, -1024);
-            WriteVL(Buffer, 24655935u);
-            WriteVL(Buffer, 0);
-            WriteVL(Buffer, uint.MaxValue);
-            WriteVL(Buffer, -65536);
-            WriteVL(Buffer, 0u);
-            WriteVL(Buffer, 23225234);
+            WriteVL(0u);
+            WriteVL(-1024);
+            WriteVL(24655935u);
+            WriteVL(0);
+            WriteVL(uint.MaxValue);
+            WriteVL(-65536);
+            WriteVL(0u);
+            WriteVL(23225234);
 
-            SeekTo(Buffer, 0);
+            FlushAndSeekTo(0);
+            Assert.AreEqual(0u, ReadVLu32());
+            Assert.AreEqual(-1024, ReadVLi32());
+            Assert.AreEqual(24655935u, ReadVLu32());
+            Assert.AreEqual(0, ReadVLi32());
+            Assert.AreEqual(uint.MaxValue, ReadVLu32());
+            Assert.AreEqual(-65536, ReadVLi32());
+            Assert.AreEqual(0u, ReadVLu32());
+            Assert.AreEqual(23225234, ReadVLi32());
+        }
 
-            Assert.AreEqual(0u, ReadUInt(Buffer));
-            Assert.AreEqual(-1024, ReadInt(Buffer));
-            Assert.AreEqual(24655935u, ReadUInt(Buffer));
-            Assert.AreEqual(0, ReadInt(Buffer));
-            Assert.AreEqual(uint.MaxValue, ReadUInt(Buffer));
-            Assert.AreEqual(-65536, ReadInt(Buffer));
-            Assert.AreEqual(0u, ReadUInt(Buffer));
-            Assert.AreEqual(23225234, ReadInt(Buffer));
+        [TestMethod]
+        public void WriteByteValues()
+        {
+            BW.Write((byte)254);
+            BW.Write((sbyte)-123);
+            BW.Write((byte)123);
+            BW.Write((sbyte)-53);
+
+            FlushAndSeekTo(0);
+            Assert.AreEqual(254, BR.ReadByte());
+            Assert.AreEqual(-123, BR.ReadSByte());
+            Assert.AreEqual(123, BR.ReadByte());
+            Assert.AreEqual(-53, BR.ReadSByte());
+        }
+
+        [TestMethod]
+        public void WriteBoolValues()
+        {
+            BW.Write(true);
+            BW.Write(false);
+            BW.Write(false);
+            BW.Write(true);
+            BW.Write(true);
+            BW.Write(false);
+            BW.Write(true);
+            FlushAndSeekTo(0);
+            Assert.AreEqual(true, BR.ReadBoolean());
+            Assert.AreEqual(false, BR.ReadBoolean());
+            Assert.AreEqual(false, BR.ReadBoolean());
+            Assert.AreEqual(true, BR.ReadBoolean());
+            Assert.AreEqual(true, BR.ReadBoolean());
+            Assert.AreEqual(false, BR.ReadBoolean());
+            Assert.AreEqual(true, BR.ReadBoolean());
+        }
+
+        // write raw values, un-encoded
+        [TestMethod]
+        public void WriteIntegers()
+        {
+            BW.Write((short)-655);
+            BW.Write((ushort)32143);
+            BW.Write(-65536);
+            BW.Write(24655935u);
+            BW.Write(-246559213423432435L);
+            BW.Write(246559213423ul);
+
+            FlushAndSeekTo(0);
+            Assert.AreEqual(-655, BR.ReadInt16());
+            Assert.AreEqual(32143, BR.ReadUInt16());
+            Assert.AreEqual(-65536, BR.ReadInt32());
+            Assert.AreEqual(24655935u, BR.ReadUInt32());
+            Assert.AreEqual(-246559213423432435L, BR.ReadInt64());
+            Assert.AreEqual(246559213423ul, BR.ReadUInt64());
+        }
+
+        [TestMethod]
+        public void WriteFloats()
+        { 
+            BW.Write(-0.123123f);
+            BW.Write(+12332.123f);
+            BW.Write(-10.123123213123);
+            BW.Write(+11232122332.121323);
+
+            FlushAndSeekTo(0);
+            Assert.AreEqual(-0.123123f, BR.ReadSingle());
+            Assert.AreEqual(+12332.123f, BR.ReadSingle());
+            Assert.AreEqual(-10.123123213123, BR.ReadDouble());
+            Assert.AreEqual(+11232122332.121323, BR.ReadDouble());
+        }
+
+        [TestMethod]
+        public void WriteStrings()
+        { 
+            BW.Write("Hello World");
+            BW.Write("alerjaliejadiosadja98ewejuawikdjadasd;kljmas;d");
+            BW.Write("õäöüÿÕÄÖÜ€ΔΘΛδψως℃℉☔☝♿⚡⛔❌⭙😁😉😈🙋😨");
+
+            var sb1 = new StringBuilder();
+            for (int i = 0; i < 1000; ++i)
+                sb1.Append("õäöüÿÕÄÖÜ€ΔΘΛδψωςАА́А̀БВГҐДЂЃЕЀЁЄЖЗЗ́ЅИІЇИ́ЍЙЈКЛЉМНЊОŌПРСС́ТЋЌУӮЎФХЦЧЏШЩЪЫЬЭЮЯ");
+            string largeString = sb1.ToString();
+            BW.Write(largeString);
+
+            var sb2 = new StringBuilder();
+            for (int i = 0; i < 10000; ++i)
+                sb2.Append("õäöüÿÕÄÖÜ€ΔΘΛδψωςАА́А̀БВГҐДЂЃЕЀЁЄЖЗЗ́ЅИІЇИ́ЍЙЈКЛЉМНЊОŌПРСС́ТЋЌУӮЎФХЦЧЏШЩЪЫЬЭЮЯ");
+            string hugeString = sb2.ToString();
+            BW.Write(hugeString);
+
+            FlushAndSeekTo(0);
+
+            Assert.AreEqual("Hello World", BR.ReadString());
+            Assert.AreEqual("alerjaliejadiosadja98ewejuawikdjadasd;kljmas;d", BR.ReadString());
+            Assert.AreEqual("õäöüÿÕÄÖÜ€ΔΘΛδψως℃℉☔☝♿⚡⛔❌⭙😁😉😈🙋😨", BR.ReadString());
+
+            string readLarge = BR.ReadString();
+            Assert.AreEqual(largeString, readLarge,
+                $"Expected.Len={largeString.Length} Actual.Len={readLarge.Length}");
+
+            string readHuge = BR.ReadString();
+            Assert.AreEqual(hugeString, readHuge,
+                $"Expected.Len={hugeString.Length} Actual.Len={readHuge.Length}");
         }
     }
 }

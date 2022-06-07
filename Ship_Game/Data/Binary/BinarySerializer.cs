@@ -53,7 +53,7 @@ namespace Ship_Game.Data.Binary
             throw new NotImplementedException();
         }
 
-        public void Serialize(BinaryWriter writer, object obj, bool verbose = false)
+        public void Serialize(Writer writer, object obj, bool verbose = false)
         {
             // pre-scan all unique objects
             var ctx = new BinarySerializerWriter(writer) { Verbose = verbose };
@@ -73,9 +73,11 @@ namespace Ship_Game.Data.Binary
                 ctx.WriteObjectTypeGroups();
                 ctx.WriteObjects();
             }
+
+            writer.Flush();
         }
 
-        public object Deserialize(BinaryReader reader, bool verbose = false)
+        public object Deserialize(Reader reader, bool verbose = false)
         {
             // [header]
             // [types list]
@@ -111,7 +113,7 @@ namespace Ship_Game.Data.Binary
         }
 
         // Aggregates multiple different types into a single binary writer stream
-        public static void SerializeMultiType(BinaryWriter writer, object[] objects, bool verbose = false)
+        public static void SerializeMultiType(Writer writer, object[] objects, bool verbose = false)
         {
             var serializers = new BinarySerializer[objects.Length];
             for (int i = 0; i < objects.Length; ++i) // using loop for more accurate perf stats
@@ -127,7 +129,7 @@ namespace Ship_Game.Data.Binary
         }
 
         // Deserializes multiple different typed objects from a single binary reader stream
-        public static object[] DeserializeMultiType(BinaryReader reader, Type[] types, bool verbose = false)
+        public static object[] DeserializeMultiType(Reader reader, Type[] types, bool verbose = false)
         {
             var serializers = new BinarySerializer[types.Length];
             for (int i = 0; i < types.Length; ++i) // using loop for more accurate perf stats
