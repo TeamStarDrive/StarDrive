@@ -52,17 +52,30 @@ namespace Ship_Game.Data.Binary
 
         // Increases BufferLen and returns offset where to write data
         // Flushes underlying buffer automatically
+        // @return offset where to write data
         int EnsureCapacity(int count)
         {
             int len = BufferLen;
             int newLength = len + count;
             if (newLength > Buffer.Length)
             {
-                OutStream.Write(Buffer, 0, BufferLen);
+                OutStream.Write(Buffer, 0, len);
                 BufferLen = count;
                 return 0;
             }
             BufferLen = newLength;
+            return len;
+        }
+
+        // @return Current Buffer Len
+        int EnsureCapacityUpTo(int count)
+        {
+            int len = BufferLen;
+            if ((len + count) > Buffer.Length)
+            {
+                OutStream.Write(Buffer, 0, len);
+                len = 0;
+            }
             return len;
         }
 
@@ -233,19 +246,23 @@ namespace Ship_Game.Data.Binary
         // https://en.wikipedia.org/wiki/Variable-length_quantity
         public void WriteVLu32(uint value)
         {
+            int len = EnsureCapacityUpTo(5); // 7 bits payload per byte
             uint num;
             for (num = value; num >= 0x80U; num >>= 7)
-                Write((byte)(num | 0x80U));
-            Write((byte)num);
+                Buffer[len++] = (byte)(num | 0x80U);
+            Buffer[len++] = (byte)num;
+            BufferLen = len;
         }
 
         // Writes an UNSIGNED Variable-Length quantity integer
         public void WriteVLu64(ulong value)
         {
+            int len = EnsureCapacityUpTo(10); // 7 bits payload per byte
             ulong num;
             for (num = value; num >= 0x80UL; num >>= 7)
-                Write((byte)(num | 0x80UL));
-            Write((byte)num);
+                Buffer[len++] = (byte)(num | 0x80UL);
+            Buffer[len++] = (byte)num;
+            BufferLen = len;
         }
 
         // Writes a SIGNED Variable-Length quantity integer
@@ -255,22 +272,24 @@ namespace Ship_Game.Data.Binary
         // Rest of the bytes are 7-bit with 1-bit for continuation
         public void WriteVLi32(int value)
         {
+            int len = EnsureCapacityUpTo(5); // 7 bits payload per byte
             bool negative = value < 0;
             uint num = (uint)(negative ? -value : value);
 
             // encode 6 bits
             uint continueBit = num >= 0x40U ? 0x80U : 0;
             uint signBit = negative ? 0x40U : 0;
-            Write((byte)((num & 0x3FU) | continueBit | signBit));
+            Buffer[len++] = (byte)((num & 0x3FU) | continueBit | signBit);
             num >>= 6;
 
             // encode 7-bit chunks
             while (num != 0)
             {
                 continueBit = num >= 0x80U ? 0x80U : 0;
-                Write((byte)(num | continueBit));
+                Buffer[len++] = (byte)(num | continueBit);
                 num >>= 7;
             }
+            BufferLen = len;
         }
 
         // Writes a SIGNED Variable-Length quantity integer
@@ -280,22 +299,24 @@ namespace Ship_Game.Data.Binary
         // Rest of the bytes are 7-bit with 1-bit for continuation
         public void WriteVLi64(long value)
         {
+            int len = EnsureCapacityUpTo(10); // 7 bits payload per byte
             bool negative = value < 0;
             ulong num = (ulong)(negative ? -value : value);
 
             // encode 6 bits
             ulong continueBit = num >= 0x40UL ? 0x80UL : 0;
             ulong signBit = negative ? 0x40UL : 0;
-            Write((byte)((num & 0x3FUL) | continueBit | signBit));
+            Buffer[len++] = (byte)((num & 0x3FUL) | continueBit | signBit);
             num >>= 6;
 
             // encode 7-bit chunks
             while (num != 0)
             {
                 continueBit = num >= 0x80UL ? 0x80UL : 0;
-                Write((byte)(num | continueBit));
+                Buffer[len++] = (byte)(num | continueBit);
                 num >>= 7;
             }
+            BufferLen = len;
         }
     }
 }

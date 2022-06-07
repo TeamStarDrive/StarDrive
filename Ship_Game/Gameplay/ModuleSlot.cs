@@ -111,10 +111,10 @@ namespace Ship_Game.Gameplay
 
         public static DesignSlot[] FromModules(Array<ShipModule> modules)
         {
-            var slots = new Array<DesignSlot>();
+            var slots = new  DesignSlot[modules.Count];
             for (int i = 0; i < modules.Count; ++i)
-                slots.Add(new DesignSlot(modules[i]));
-            return slots.ToArray();
+                slots[i] = new DesignSlot(modules[i]);
+            return slots;
         }
 
         /// <summary>
