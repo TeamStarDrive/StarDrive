@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using Ship_Game.Data.Yaml;
 
@@ -8,38 +9,48 @@ namespace Ship_Game.Data.Serialization
     {
         // Zero based field index that is set during serializer type resolve
         public int FieldIdx;
-        public string Name;
-        readonly PropertyInfo Prop;
-        readonly FieldInfo Field;
+        public readonly string Name;
         public readonly TypeSerializer Serializer;
 
-        public override string ToString() => Prop?.ToString() ?? Field?.ToString() ?? "invalid";
+        public delegate object Getter(object instance);
+        public delegate void Setter(object instance, object value);
+        public readonly Getter Get;
+        public readonly Setter Set;
 
-        public DataField(TypeSerializerMap typeMap, StarDataAttribute a, PropertyInfo prop, FieldInfo field)
+        public override string ToString() => Serializer?.NiceTypeName ?? "invalid";
+
+        public DataField(TypeSerializerMap typeMap, StarDataAttribute a,
+                         PropertyInfo prop, FieldInfo field)
         {
             Name = a.NameId.NotEmpty() ? a.NameId : (prop?.Name ?? field.Name);
-            Prop  = prop;
-            Field = field;
             Type type = prop != null ? prop.PropertyType : field.FieldType;
             Serializer = typeMap.Get(type);
-        }
+            
+            MemberInfo m = prop ?? field as MemberInfo;
+            try
+            {
+                // precompile the getter
+                var obj = Expression.Parameter(typeof(object), "instance");
+                var castToClassType = Expression.Convert(obj, m.ReflectedType);
+                var member = field != null
+                    ? Expression.Field(castToClassType, field)
+                    : Expression.Property(castToClassType, prop);
 
-        public DataField(int fieldIdx, string name)
-        {
-            FieldIdx = fieldIdx;
-            Name = name;
-        }
+                Get = Expression.Lambda<Getter>(
+                    Expression.Convert(member, typeof(object)), obj)
+                    .Compile();
 
-        public void Set(object instance, object value)
-        {
-            if (Field != null) Field.SetValue(instance, value);
-            else               Prop.SetValue(instance, value);
-        }
-
-        public object Get(object instance)
-        {
-            if (Field != null) return Field.GetValue(instance);
-            else               return Prop.GetValue(instance);
+                // it's slow, but the only thing that really works for all cases
+                if (field != null)
+                    Set = field.SetValue;
+                else
+                    Set = prop.SetValue;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Failed to generate Get/Set for: {type} {m.DeclaringType}.{m.Name}");
+                throw;
+            }
         }
 
         public bool Serialize(YamlNode parent, object instance)
