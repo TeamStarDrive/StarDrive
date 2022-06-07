@@ -60,16 +60,13 @@ namespace Ship_Game.Data.Binary
                     if (!ObjectGroups.TryGetValue(ser, out HashSet<object> set))
                         ObjectGroups.Add(ser, (set = new HashSet<object>()));
 
-                    if (instance != null)
+                    if (instance != null && set.Add(instance)) // is it unique?
                     {
-                        if (set.Add(instance)) // is it unique?
-                        {
-                            ++NumObjects;
-                            // once the fundamental type instance has been recorded, we can stop the scan
-                            if (ser.IsFundamentalType)
-                                return false;
-                            return true; // keep scanning
-                        }
+                        ++NumObjects;
+                        // once the fundamental type instance has been recorded, we can stop the scan
+                        if (ser.IsFundamentalType)
+                            return false;
+                        return true; // keep scanning
                     }
                     // no fields for null instances, or this object was already scanned
                     return false;
@@ -103,6 +100,7 @@ namespace Ship_Game.Data.Binary
                 {
                     foreach (DataField field in userType.Fields)
                     {
+                        // HOTSPOT
                         object obj = field.Get(instance);
                         Scan(field.Serializer, obj);
                     }
@@ -374,7 +372,7 @@ namespace Ship_Game.Data.Binary
 
                 if (s is UserTypeSerializer us)
                 {
-                    BW.WriteVLu32((uint)us.Fields.Count);
+                    BW.WriteVLu32((uint)us.Fields.Length);
                     foreach (DataField field in us.Fields)
                     {
                         // [field type ID]

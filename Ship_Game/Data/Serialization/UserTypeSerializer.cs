@@ -14,11 +14,10 @@ namespace Ship_Game.Data.Serialization
         public TypeSerializerMap TypeMap { get; }
 
         protected Map<string, DataField> Mapping; // field name to DataField mapping
-        protected Array<DataField> Index;
+        public DataField[] Fields;
         protected DataField PrimaryKeyName;
         protected DataField PrimaryKeyValue;
 
-        public IReadOnlyList<DataField> Fields => Index;
 
         // Method which is called when type has finished serialization
         // [StarDataDeserialized]
@@ -65,7 +64,7 @@ namespace Ship_Game.Data.Serialization
                 return;
 
             Mapping = new Map<string, DataField>();
-            Index = new Array<DataField>();
+            var index = new Array<DataField>();
 
             Type shouldSerialize = typeof(StarDataAttribute);
             PropertyInfo[] props = Type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -107,10 +106,12 @@ namespace Ship_Game.Data.Serialization
 
             foreach (DataField field in dataFields)
             {
-                field.FieldIdx = Index.Count;
+                field.FieldIdx = index.Count;
                 Mapping.Add(field.Name, field);
-                Index.Add(field);
+                index.Add(field);
             }
+
+            Fields = index.ToArr();
         }
 
         void CheckPrimaryKeys(StarDataAttribute a, DataField field)
