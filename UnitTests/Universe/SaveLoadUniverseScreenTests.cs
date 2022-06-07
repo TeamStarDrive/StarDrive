@@ -42,7 +42,7 @@ namespace UnitTests.Universe
             ResourceManager.UnloadAllData(ScreenManager.Instance);
             ResourceManager.LoadItAll(ScreenManager.Instance, null);
 
-            int shipsPerEmpire = 6000;
+            int shipsPerEmpire = 750;
 
             CreateCustomUniverseSandbox(numOpponents:6, galSize:GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);

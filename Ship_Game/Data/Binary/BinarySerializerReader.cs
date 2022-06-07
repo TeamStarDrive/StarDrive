@@ -9,7 +9,7 @@ namespace Ship_Game.Data.Binary
 {
     public class BinarySerializerReader
     {
-        public readonly BinaryReader BR;
+        public readonly Reader BR;
         public readonly TypeSerializerMap TypeMap;
         readonly BinarySerializerHeader Header;
 
@@ -23,7 +23,7 @@ namespace Ship_Game.Data.Binary
 
         public bool Verbose;
 
-        public BinarySerializerReader(BinaryReader reader, TypeSerializerMap typeMap, in BinarySerializerHeader header)
+        public BinarySerializerReader(Reader reader, TypeSerializerMap typeMap, in BinarySerializerHeader header)
         {
             BR = reader;
             TypeMap = typeMap;
@@ -74,7 +74,7 @@ namespace Ship_Game.Data.Binary
             return ActualTypes[ser.TypeId];
         }
 
-        static string[] ReadStringArray(BinaryReader br)
+        static string[] ReadStringArray(Reader br)
         {
             string[] items = new string[br.ReadVLu32()];
             for (int i = 0; i < items.Length; ++i)

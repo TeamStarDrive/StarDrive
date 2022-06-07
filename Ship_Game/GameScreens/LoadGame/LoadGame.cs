@@ -92,7 +92,7 @@ namespace Ship_Game.GameScreens.LoadGame
         public static HeaderData PeekHeader(FileInfo file, bool verbose = false)
         {
             using var stream = file.OpenRead();
-            var reader = new BinaryReader(stream);
+            var reader = new Reader(stream);
 
             object[] objects = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderData) }, verbose);
             return (HeaderData)objects[0];

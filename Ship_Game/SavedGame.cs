@@ -418,7 +418,7 @@ namespace Ship_Game
                 Time       = now,
             };
 
-            using (var writer = new BinaryWriter(saveFile.OpenWrite()))
+            using (var writer = new Writer(saveFile.OpenWrite()))
             {
                 BinarySerializer.SerializeMultiType(writer, new object[] { header, data }, Verbose);
             }
@@ -433,7 +433,7 @@ namespace Ship_Game
         {
             var t = new PerfTimer();
 
-            using var reader = new BinaryReader(saveFile.OpenRead());
+            using var reader = new Reader(saveFile.OpenRead());
             var results = BinarySerializer.DeserializeMultiType(reader, new[]
             {
                 typeof(HeaderData),
