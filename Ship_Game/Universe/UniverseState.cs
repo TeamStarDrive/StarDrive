@@ -84,7 +84,7 @@ namespace Ship_Game.Universe
         
         readonly Map<int, Planet> PlanetsDict = new();
         readonly Array<Planet> AllPlanetsList = new();
-        
+
         // @return All Empires in the Universe
         public IReadOnlyList<Empire> Empires => EmpireList;
 

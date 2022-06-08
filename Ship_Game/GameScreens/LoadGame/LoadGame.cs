@@ -19,7 +19,6 @@ namespace Ship_Game.GameScreens.LoadGame
     public class LoadGame
     {
         readonly FileInfo SaveFile;
-        string PlayerLoyalty;
         TaskResult<UniverseScreen> BackgroundTask;
         readonly ProgressCounter Progress = new();
 
@@ -107,23 +106,22 @@ namespace Ship_Game.GameScreens.LoadGame
 
             SavedGame.UniverseSaveData usData = SavedGame.Deserialize(file, Verbose);
 
-            if (usData.SaveGameVersion != SavedGame.SaveGameVersion)
-                Log.Error("Incompatible savegame version! Got v{0} but expected v{1}", usData.SaveGameVersion, SavedGame.SaveGameVersion);
+            if (usData.Version != SavedGame.SaveGameVersion)
+                Log.Error($"Incompatible savegame version! Got v{usData.Version} but expected v{SavedGame.SaveGameVersion}");
 
             GlobalStats.GravityWellRange     = usData.GravityWellRange;
             GlobalStats.IconSize             = usData.IconSize;
             GlobalStats.MinAcceptableShipWarpRange = usData.MinAcceptableShipWarpRange;
-            GlobalStats.ShipMaintenanceMulti = usData.OptionIncreaseShipMaintenance;
+            GlobalStats.ShipMaintenanceMulti = usData.ShipMaintenanceMultiplier;
             GlobalStats.PreventFederations   = usData.PreventFederations;
             GlobalStats.EliminationMode      = usData.EliminationMode;
             GlobalStats.CustomMineralDecay   = usData.CustomMineralDecay;
             GlobalStats.TurnTimer            = usData.TurnTimer != 0 ? usData.TurnTimer : 5;
-            PlayerLoyalty                    = usData.PlayerLoyalty;
             RandomEventManager.ActiveEvent   = null;
 
             GlobalStats.SuppressOnBuildNotifications  = usData.SuppressOnBuildNotifications;
             GlobalStats.PlanetScreenHideOwned         = usData.PlanetScreenHideOwned;
-            GlobalStats.PlanetsScreenHideUnhabitable  = usData.PlanetsScreenHideUnhabitable;
+            GlobalStats.PlanetsScreenHideInhospitable  = usData.PlanetsScreenHideInhospitable;
             GlobalStats.ShipListFilterPlayerShipsOnly = usData.ShipListFilterPlayerShipsOnly;
             GlobalStats.ShipListFilterInFleetsOnly    = usData.ShipListFilterInFleetsOnly;
             GlobalStats.ShipListFilterNotInFleets     = usData.ShipListFilterNotInFleets;
@@ -158,7 +156,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
             UniverseState us = universe.UState;
             RandomEventManager.ActiveEvent = saveData.RandomEvent;
-            int numEmpires = saveData.EmpireDataList.Filter(e => !e.IsFaction).Length; 
+            int numEmpires = saveData.Empires.Filter(e => !e.IsFaction).Length; 
             CurrentGame.StartNew(us, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets, numEmpires);
 
             CreateEmpires(us);                               step.Advance();
@@ -388,7 +386,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
         void CreateSolarSystems(UniverseState us, SavedGame.UniverseSaveData saveData)
         {
-            foreach (SolarSystem system in saveData.SolarSystems)
+            foreach (SolarSystem system in saveData.Systems)
             {
                 us.AddSolarSystem(system);
             }
@@ -412,7 +410,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
         static void CreateRelations(SavedGame.UniverseSaveData saveData)
         {
-            Empire.InitializeRelationships(saveData.EmpireDataList);
+            Empire.InitializeRelationships(saveData.Empires);
         }
     }
 }

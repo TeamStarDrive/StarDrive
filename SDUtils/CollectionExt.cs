@@ -500,14 +500,20 @@ namespace SDUtils
         /// <summary>
         /// Returns the unique groups
         /// </summary>
-        public static Array<T> Unique<T>(this ICollection<T> items)
+        public static HashSet<T> UniqueSet<T>(this ICollection<T> items)
         {
             var unique = new HashSet<T>();
             foreach (var item in items)
-            {
                 unique.Add(item);
-            }
-            return unique.ToArrayList();
+            return unique;
+        }
+
+        /// <summary>
+        /// Returns the unique groups
+        /// </summary>
+        public static Array<T> Unique<T>(this ICollection<T> items)
+        {
+            return UniqueSet(items).ToArrayList();
         }
 
         // Disposes all objects AND clears the Map

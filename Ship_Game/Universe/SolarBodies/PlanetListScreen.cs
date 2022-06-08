@@ -42,8 +42,8 @@ namespace Ship_Game
 
         bool HideUninhab
         {
-            get => GlobalStats.PlanetsScreenHideUnhabitable;
-            set => GlobalStats.PlanetsScreenHideUnhabitable = value;
+            get => GlobalStats.PlanetsScreenHideInhospitable;
+            set => GlobalStats.PlanetsScreenHideInhospitable = value;
         }
 
         private int NumAvailableTroops;
