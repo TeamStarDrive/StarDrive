@@ -22,7 +22,7 @@ namespace Ship_Game
             base.LoadContent();
 
             // nice zoom in effect, we set the cam height to super high
-            CamPos.Z *= 10000.0;
+            UState.CamPos.Z *= 10000.0;
             CamDestination.Z = 100000.0; // and set a lower destination
 
             // DISABLED these since they are not that useful anymore
@@ -53,7 +53,6 @@ namespace Ship_Game
             us.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
             us.GravityWells        = GlobalStats.PlanetaryGravityWells;
             us.FTLInNeutralSystems = GlobalStats.WarpInSystem;
-            CurrentGame.StartNew(us, pace:1f, 1, 0, 1);
 
             IEmpireData[] candidates = ResourceManager.MajorRaces.Filter(d => PlayerFilter(d, playerPreference));
             IEmpireData player = candidates[0];

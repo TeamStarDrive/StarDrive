@@ -21,11 +21,13 @@ namespace Ship_Game
         [StarData] public bool InhibitWarp;
     }
 
+    [StarDataType]
     public sealed class RandomEventManager
     {
-        public static RandomEvent ActiveEvent;
+        [StarData]
+        public RandomEvent ActiveEvent;
 
-        public static void TryEventSpawn(UniverseState u)
+        public void TryEventSpawn(UniverseState u)
         {
             int random = RandomMath.RollDie(2000);
             if      (random == 1) HyperSpaceFlux(u);
@@ -35,7 +37,7 @@ namespace Ship_Game
             else if (random <= 15) Meteors(u);
         }
 
-        static bool GetAffectedPlanet(UniverseState u, Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
+        bool GetAffectedPlanet(UniverseState u, Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
         {
             affectedPlanet = null;
             var planetList = allowCapital ? u.Planets.ToArr()
@@ -58,7 +60,7 @@ namespace Ship_Game
             return affectedPlanet != null;
         }
 
-        public static void UpdateEvents(UniverseState u)
+        public void UpdateEvents(UniverseState u)
         {
             if (ActiveEvent == null)
             {
@@ -66,7 +68,7 @@ namespace Ship_Game
                 return;
             }
             RandomEvent activeEvent = ActiveEvent;
-            activeEvent.TurnTimer = activeEvent.TurnTimer - 1;
+            activeEvent.TurnTimer--;
             if (ActiveEvent.TurnTimer <= 0)
             {
                 ActiveEvent = null;
@@ -111,7 +113,7 @@ namespace Ship_Game
         // Event types
         // ***********
 
-        static void HyperSpaceFlux(UniverseState u)
+        void HyperSpaceFlux(UniverseState u)
         {
             ActiveEvent = new RandomEvent
             {
@@ -123,7 +125,7 @@ namespace Ship_Game
             u.Notifications.AddRandomEventNotification(ActiveEvent.NotificationString, null, null, null);
         }
 
-        static void ShiftInOrbit(UniverseState u) // Shifted in orbit (+ MaxFertility)
+        void ShiftInOrbit(UniverseState u) // Shifted in orbit (+ MaxFertility)
         {
             if (!GetAffectedPlanet(u, Potentials.Habitable, out Planet planet)) 
                 return;
@@ -133,7 +135,7 @@ namespace Ship_Game
             Log.Info($"Event Notification: Orbit Shift at {planet}");
         }
 
-        static void Meteors(UniverseState u)
+        void Meteors(UniverseState u)
         {
             if (!GetAffectedPlanet(u, Potentials.Habitable, out Planet planet))
                 return;
@@ -146,7 +148,7 @@ namespace Ship_Game
                 u.Notifications.AddMeteorShowerInSystem(planet);
         }
 
-        public static void CreateMeteors(Planet p)
+        public void CreateMeteors(Planet p)
         {
             int rand = RandomMath.RollDie(12);
             int numMeteors = RandomMath.Int(rand * 3, rand * 10).Clamped(3, (int)p.Universe.StarDate - 1000);
@@ -180,7 +182,7 @@ namespace Ship_Game
             Log.Info($"{numMeteors} Meteors Created in {p.ParentSystem.Name} targeting {p.Name}");
         }
 
-        static Vector2 GetMeteorOrigin(Planet p)
+        Vector2 GetMeteorOrigin(Planet p)
         {
             SolarSystem system = p.ParentSystem;
             var asteroidsRings = system.RingList.Filter(r => r.Asteroids);
@@ -194,7 +196,7 @@ namespace Ship_Game
             return system.Position.GenerateRandomPointOnCircle(originRadius);
         }
 
-        static void VolcanicToHabitable(UniverseState u)
+        void VolcanicToHabitable(UniverseState u)
         {
             if (!GetAffectedPlanet(u, Potentials.Improved, out Planet planet)) 
                 return;
@@ -219,7 +221,7 @@ namespace Ship_Game
             Log.Info($"Event Notification: Volcanic to Habitable at {planet} with {numVolcanoes} wanted");
         }
 
-        static void FoundMinerals(UniverseState u) // Increase Mineral Richness
+        void FoundMinerals(UniverseState u) // Increase Mineral Richness
         {
             if (!GetAffectedPlanet(u, Potentials.HasOwner, out Planet planet)) 
                 return;

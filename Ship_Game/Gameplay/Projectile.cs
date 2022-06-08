@@ -18,7 +18,6 @@ using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 using Vector2d = SDGraphics.Vector2d;
-using Vector3d = SDGraphics.Vector3d;
 
 namespace Ship_Game.Gameplay
 {
@@ -306,11 +305,11 @@ namespace Ship_Game.Gameplay
 
             if (Owner != null)
             {
-                SetSystem(Owner.System);
+                System = Owner.System;
             }
             else if (Planet != null)
             {
-                SetSystem(Planet.ParentSystem);
+                System = Planet.ParentSystem;
             }
 
             bool inFrustum = IsInFrustum(Universe.Screen);
@@ -514,7 +513,7 @@ namespace Ship_Game.Gameplay
                 Universe.Screen.RemoveObject(ProjSO);
             }
 
-            SetSystem(null);
+            System = null;
             base.Die(source, cleanupOnly);
             Owner = null;
         }

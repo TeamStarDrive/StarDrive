@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Ships
 {
+    [StarDataType]
     public struct Cargo
     {
-        public string CargoId;
-        public float Amount;
-        public Goods Good;
+        [StarData] public string CargoId;
+        [StarData] public float Amount;
+        [StarData] public Goods Good;
         public Cargo(string id, float amount, Goods type = Goods.None) 
         {
             CargoId      = id;
@@ -21,14 +23,15 @@ namespace Ship_Game.Ships
     // Ship_Cargo.cs -- All the data related to Cargo
     public partial class Ship
     {
-        CargoContainer Cargo;
+        [StarData] CargoContainer Cargo;
 
-        public bool OrdnanceChanged { get; private set; }
         public float CargoSpaceMax;
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => Loyalty.data.Traits.PassengerModifier;
-        public float OrdnancePercent { get; private set; } 
+        
+        public bool OrdnanceChanged { get; private set; }
+        public float OrdnancePercent { get; private set; }
 
         // WARNING: do not use during constants initialization!
         public float ChangeOrdnance(float amount)
@@ -68,23 +71,22 @@ namespace Ship_Game.Ships
         public float ShipOrdLaunchCost => Mass / 5f * (GlobalStats.HasMod ? GlobalStats.ActiveModInfo.HangarCombatShipCostMultiplier : 1);
         public float ShipRetrievalOrd  => ShipOrdLaunchCost * HealthPercent;
 
-        private sealed class CargoContainer
+        [StarDataType]
+        sealed class CargoContainer
         {
-            public float TotalCargo; // Food + Production + Colonists + OtherCargo
-            private readonly float MaxCargo;
-            public float Food;
-            public float Production;
-            public float Colonists;
-            //hack this all needs to be rebuilt.
-            public Goods GoodType;
+            [StarData] public float TotalCargo; // Food + Production + Colonists + OtherCargo
+            [StarData] readonly float MaxCargo;
+            [StarData] public float Food;
+            [StarData] public float Production;
+            [StarData] public float Colonists;
             // this can be any other kind of cargo.
             // to save on memory usage, we only initialize this on demand
-            public Cargo[] Other = Empty<Cargo>.Array;
+            [StarData] public Cargo[] Other = Empty<Cargo>.Array;
 
             public CargoContainer(float maxCargo) { MaxCargo = maxCargo; }
 
             // this search is deliberately linear. the amount of cargo items is usually 0 or 1-2
-            private int IndexOf(string cargoId)
+            int IndexOf(string cargoId)
             {
                 for (int i = 0; i < Other.Length; ++i)
                     if (Other[i].CargoId == cargoId) return i;
@@ -150,14 +152,6 @@ namespace Ship_Game.Ships
                     yield return other[i];
         }
 
-        public float GetCargo(string cargoId)
-        {
-            if (Cargo == null)               return 0f;
-            if (cargoId == "Food")           return GetFood();
-            if (cargoId == "Production")     return GetProduction();
-            if (cargoId == "Colonists_1000") return GetColonists();
-            return Cargo.GetOther(cargoId);
-        }
         public float GetCargo(Goods good)
         {
             if (Cargo == null) return 0f;
@@ -184,7 +178,7 @@ namespace Ship_Game.Ships
         public float GetFood()       => Cargo?.Food       ?? 0f;
         
         // Lazy Init cargo module, only when we actually LoadCargo
-        private CargoContainer CargoCont => Cargo ?? (Cargo = new CargoContainer(CargoSpaceMax));
+        CargoContainer CargoCont => Cargo ?? (Cargo = new CargoContainer(CargoSpaceMax));
 
         // Tries to load cargo onto the ship
         // Will return the amount of cargo actually loaded onto the ship cargo hold
@@ -200,25 +194,21 @@ namespace Ship_Game.Ships
         {
             if (GetCargo().Good != good) ClearCargo();
             var cargoCont = CargoCont;
-            Cargo.GoodType = good;
             return cargoCont.LoadOther(good.ToString(), amount, good);
         }       
         public float LoadColonists(float amount)
         {
             // Colonists get special treatment due to Cryogenic Freezing and Manifest Destiny passenger modifiers
             float mod = PassengerModifier;
-            CargoCont.GoodType = Goods.Colonists;
             // if mod is 0f, we have a serious bug during savegame loading
             return CargoCont.LoadCargoRef(ref Cargo.Colonists, amount / mod) * mod;
         }
         public float LoadProduction(float amount)
         {
-            CargoCont.GoodType = Goods.Production;
             return CargoCont.LoadCargoRef(ref Cargo.Production, amount);
         }
         public float LoadFood(float amount)
         {
-            CargoCont.GoodType = Goods.Food;
             return CargoCont.LoadCargoRef(ref Cargo.Food, amount);
         } 
 

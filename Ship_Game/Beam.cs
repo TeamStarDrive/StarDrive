@@ -106,7 +106,7 @@ namespace Ship_Game
             if (Owner != null)
             {
                 Loyalty = Owner?.Loyalty ?? DroneAI?.Drone?.Loyalty;
-                SetSystem(Owner?.System ?? DroneAI?.Drone?.System);
+                System = Owner?.System ?? DroneAI?.Drone?.System;
             }
 
             InitBeamMeshIndices();

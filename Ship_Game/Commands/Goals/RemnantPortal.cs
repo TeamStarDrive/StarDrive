@@ -122,7 +122,7 @@ namespace Ship_Game.Commands.Goals
                     production /= 2;
 
                 production *= empire.DifficultyModifiers.RemnantResourceMod;
-                production *= (int)(CurrentGame.GalaxySize + 1) * 2 * CurrentGame.StarsModifier / EmpireManager.MajorEmpires.Length;
+                production *= (int)(UState.GalaxySize + 1) * 2 * UState.StarsModifier / UState.MajorEmpires.Length;
                 Remnants.TryGenerateProduction(production);
             }
 

@@ -9,7 +9,7 @@ namespace Ship_Game.AI
     {
         float ArtifactValue => OwnerEmpire.Research.MaxResearchPotential.LowerBound(30)
                                * (1 + OwnerEmpire.data.Traits.Spiritual)
-                               * CurrentGame.SettingsResearchModifier.LowerBound(1);
+                               * OwnerEmpire.Universum.SettingsResearchModifier.LowerBound(1);
 
         void AcceptNAPact(Empire us, Empire them,  Offer.Attitude attitude)
         {
@@ -173,7 +173,7 @@ namespace Ship_Game.AI
                 Relationship rel = OwnerEmpire.GetRelations(them);
                 bool neededPeace = them.isPlayer  // player asked peace since they is in a real bad state
                                      && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
-                                     && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(CurrentGame.Difficulty + 1);
+                                     && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(us.Universum.Difficulty + 1);
 
                 if (!neededPeace && them.TheyAreAlliedWithOurEnemies(OwnerEmpire, out Array<Empire> empiresAlliedWithThem))
                     CheckAIEmpiresResponse(OwnerEmpire, empiresAlliedWithThem, them, true);
@@ -240,13 +240,13 @@ namespace Ship_Game.AI
         }
 
         string ProcessPeace(Offer theirOffer, Offer ourOffer, Empire them,
-                           Offer.Attitude attitude)
+                            Offer.Attitude attitude)
         {
             PeaceAnswer answer = AnalyzePeaceOffer(theirOffer, ourOffer, them);
             Relationship rel   = OwnerEmpire.GetRelations(them);
             bool neededPeace   = them.isPlayer  // player asked peace since they is in a real bad state
                                  && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
-                                 && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(CurrentGame.Difficulty + 1);
+                                 && them.TotalPopBillion < OwnerEmpire.TotalPopBillion / (int)(them.Universum.Difficulty + 1);
 
             if (answer.Peace)
                 AcceptOffer(ourOffer, theirOffer, OwnerEmpire, them, attitude);

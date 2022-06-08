@@ -34,16 +34,18 @@ namespace Ship_Game
          *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
          *        will be accidentally serialized!
          */
-        
+        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
+            throw new InvalidOperationException($"BUG! GameObject must not be serialized to XML/JSON. Use StarData instead! {this}");
+
         [StarData] public readonly int Id;
-        [XmlIgnore][JsonIgnore] public bool Active = true;
-        [XmlIgnore][JsonIgnore][StarData] public SolarSystem System { get; private set; }
+        public bool Active = true;
+        [StarData] public SolarSystem System;
         
         [StarData] public Vector2 Position;
         [StarData] public Vector2 Velocity;
 
         // Velocity magnitude (scalar), always absolute
-        [XmlIgnore][JsonIgnore] public float CurrentVelocity => Velocity.Length();
+        public float CurrentVelocity => Velocity.Length();
 
         // important for hi-precision impact predictor and accurate Position integration
         [StarData] public Vector2 Acceleration;
@@ -58,32 +60,32 @@ namespace Ship_Game
 
         [StarData] public readonly GameObjectType Type;
 
-        [XmlIgnore][JsonIgnore] public GameObject LastDamagedBy;
+        public GameObject LastDamagedBy;
 
-        [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
-        [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
-        [XmlIgnore][JsonIgnore] public bool ReinsertSpatial = false; // if true, this object should be reinserted to spatial manager
-        [XmlIgnore][JsonIgnore] public bool InFrustum; // Updated by UniverseObjectManager
+        public int SpatialIndex = -1;
+        public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
+        public bool ReinsertSpatial = false; // if true, this object should be reinserted to spatial manager
+        public bool InFrustum; // Updated by UniverseObjectManager
 
         /// <summary>
         /// Current Rotation converted into a Direction unit vector
         /// </summary>
-        [XmlIgnore][JsonIgnore] public Vector2 Direction
+        public Vector2 Direction
         {
             get => Rotation.RadiansToDirection();
             set => Rotation = value.ToRadians(); // allow setting the rotation with a direction vector
         }
-        [XmlIgnore][JsonIgnore] public Vector3 Direction3D
+        public Vector3 Direction3D
         {
             get => Rotation.RadiansToDirection3D();
             set => Rotation = new Vector2(value.X, value.Y).ToRadians();
         }
 
         // Current direction of the Velocity vector, or Vector2.Zero if Velocity is Zero
-        [XmlIgnore][JsonIgnore] public Vector2 VelocityDirection => Velocity.Normalized();
+        public Vector2 VelocityDirection => Velocity.Normalized();
 
         // gets/set the Rotation in Degrees; Properly normalizes input degrees to [0; +2PI]
-        [XmlIgnore][JsonIgnore] public float RotationDegrees
+        public float RotationDegrees
         {
             get => Rotation.ToDegrees();
             set => Rotation = value.ToRadians();
@@ -118,15 +120,11 @@ namespace Ship_Game
             Type = type;
         }
 
-        [XmlIgnore][JsonIgnore] public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
+        public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
 
         public virtual void Damage(GameObject source, float damageAmount, float beamModifier = 1f)
         {
         }
-
-        //public virtual void Initialize()
-        //{
-        //}
 
         public virtual void Die(GameObject source, bool cleanupOnly)
         {
@@ -141,7 +139,6 @@ namespace Ship_Game
         public bool IsInFrustum(UniverseScreen u) =>
             u.IsSystemViewOrCloser && u.IsInFrustum(Position, 2000f);
 
-        [XmlIgnore][JsonIgnore]
         public string SystemName => System?.Name ?? "Deep Space";
 
         public void SetSystem(SolarSystem system)

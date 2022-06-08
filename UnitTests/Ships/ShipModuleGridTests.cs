@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using Ship_Game;
+using Ship_Game.Data.Binary;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
@@ -28,18 +30,21 @@ namespace UnitTests.Ships
         {
             Ship toSave = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
 
-            SavedGame.UniverseSaveData uSave = new();
-            uSave.SetDesigns(new HashSet<IShipDesign>{ toSave.ShipData });
+            UState.Save = new();
+            UState.Save.SetDesigns(new HashSet<IShipDesign>{ toSave.ShipData });
 
-            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(toSave);
+            var ms = new MemoryStream();
+            var ser = new BinarySerializer(toSave.GetType());
+            ser.Serialize(new Writer(ms), toSave);
+            ms.Position = 0;
+            var deserialized = (Ship)ser.Deserialize(new Reader(ms));
 
-            Ship prototype = Ship.CreateShipFromSave(Universe.UState, Player, uSave, saved);
-            Assert.AreEqual(new Point(20,28), prototype.GridSize);
-            Assert.AreEqual(toSave.Modules.Length, prototype.Modules.Length);
+            Assert.AreEqual(new Point(20,28), deserialized.GridSize);
+            Assert.AreEqual(toSave.Modules.Length, deserialized.Modules.Length);
 
             // if the UniverseSaveData design is exactly equal to an existing design,
             // then the existing one will be used and the one from savegame is discarded
-            Assert.AreEqual(toSave.ShipData, prototype.ShipData);
+            Assert.AreEqual(toSave.ShipData, deserialized.ShipData);
         }
 
         [TestMethod]
@@ -49,18 +54,21 @@ namespace UnitTests.Ships
             Ship unknownTemplate = Ship.CreateNewShipTemplate(EmpireManager.Void, unknownDesign);
 
             Ship toSave = SpawnShip(unknownTemplate, Player, Vector2.Zero);
+            
+            UState.Save = new();
+            UState.Save.SetDesigns(new HashSet<IShipDesign>{ toSave.ShipData });
 
-            SavedGame.UniverseSaveData uSave = new();
-            uSave.SetDesigns(new HashSet<IShipDesign>{ toSave.ShipData });
+            var ms = new MemoryStream();
+            var ser = new BinarySerializer(toSave.GetType());
+            ser.Serialize(new Writer(ms), toSave);
+            ms.Position = 0;
+            var deserialized = (Ship)ser.Deserialize(new Reader(ms));
 
-            SavedGame.ShipSaveData saved = SavedGame.ShipSaveFromShip(toSave);
-
-            Ship prototype = Ship.CreateShipFromSave(Universe.UState, Player, uSave, saved);
-            Assert.AreEqual(new Point(20,28), prototype.GridSize);
-            Assert.AreEqual(toSave.Modules.Length, prototype.Modules.Length);
+            Assert.AreEqual(new Point(20,28), deserialized.GridSize);
+            Assert.AreEqual(toSave.Modules.Length, deserialized.Modules.Length);
 
             // the design only exists in the savegame
-            Assert.IsTrue(prototype.ShipData.IsFromSave, "IsFromSave must be true");
+            Assert.IsTrue(deserialized.ShipData.IsFromSave, "IsFromSave must be true");
         }
 
         /// <summary>

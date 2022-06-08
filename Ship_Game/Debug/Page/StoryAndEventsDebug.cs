@@ -106,7 +106,7 @@ namespace Ship_Game.Debug.Page
                 SolarSystem system = Universe.UState.Systems.Find(s => s.InFrustum);
                 if (system != null && system.PlanetList.Count > 0)
                 {
-                    RandomEventManager.CreateMeteors(system.PlanetList[0]);
+                    Universe.UState.Events.CreateMeteors(system.PlanetList[0]);
                 }
             }
             return base.HandleInput(input);

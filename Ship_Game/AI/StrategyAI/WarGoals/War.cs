@@ -31,19 +31,20 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         [StarData] public float TurnsAtWar;
         [StarData] public float EndStarDate;
         [StarData] public float StartDate;
-        private Empire Us;
+        [StarData] Empire Us;
         [StarData] public string UsName;
         [StarData] public string ThemName;
         [StarData] public bool Initialized;
-        readonly WarScore Score;
+        [StarData] readonly WarScore Score;
         [StarData] public Map<int, int> SystemAssaultFailures = new();
         [StarData] public int StartingNumContestedSystems;
 
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => Score.GetBorderConflictState(coloniesOffered);
         public WarState GetWarScoreState() => WarType == WarType.BorderConflict ? Score.GetBorderConflictState() : Score.GetWarScoreState();
 
-        [JsonIgnore][XmlIgnore] public Empire Them { get; private set; }
-        [JsonIgnore][XmlIgnore] public SolarSystem[] ContestedSystems { get; private set; }
+        [StarData] public Empire Them { get; private set; }
+        [StarData] public SolarSystem[] ContestedSystems { get; private set; }
+        
         [JsonIgnore][XmlIgnore] public float LostColonyPercent  => (float)ColoniesValueLost / (1 + InitialColoniesValue + ColoniesValueWon);
         [JsonIgnore][XmlIgnore] public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
         [JsonIgnore][XmlIgnore] public const float MaxWarGrade = 10;
@@ -51,7 +52,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             get
             {
-                float minStr      = 10000 * ((int)CurrentGame.Difficulty + 1);
+                float minStr      = 10000 * ((int)Us.Universum.Difficulty + 1);
                 float ourStr      = Us.CurrentMilitaryStrength.LowerBound(minStr);
                 float theirStr    = Them.CurrentMilitaryStrength.LowerBound(minStr);
                 float killPercent = StrengthKilled / theirStr;

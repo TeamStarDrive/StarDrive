@@ -39,7 +39,7 @@ namespace Ship_Game.Commands.Goals
             Base       = TargetShip;
 
             // Increase sensor range so it would also be seen a bit better on the minimap
-            Base.SensorRange *= ((int)(CurrentGame.GalaxySize + 1)).UpperBound(3);
+            Base.SensorRange *= ((int)(UState.GalaxySize + 1)).UpperBound(3);
         }
 
         GoalStep SalvageShips()

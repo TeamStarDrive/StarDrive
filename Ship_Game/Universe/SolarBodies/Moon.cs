@@ -38,7 +38,6 @@ namespace Ship_Game.Gameplay
                     float orbitRadius, float orbitalAngle, Vector2 pos)
             : base(system.Universe.CreateId(), GameObjectType.Moon)
         {
-            Initialize(system);
             OrbitPlanetId = orbitPlanetId;
             MoonId = moon;
             MoonScale = moonScale;
@@ -47,11 +46,10 @@ namespace Ship_Game.Gameplay
             Position = pos;
         }
 
-        [StarDataDeserialized]
-        public void Initialize(SolarSystem system)
-        {
-            SetSystem(system);
-        }
+        //[StarDataDeserialized]
+        //public void Initialize()
+        //{
+        //}
 
         void CreateSceneObject()
         {

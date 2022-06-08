@@ -24,6 +24,8 @@ namespace Ship_Game.AI
         public float CivShipBudget => OwnerEmpire.data.FreightBudget;
         public float AllianceBuildCapacity { get; private set; }
 
+        UniverseState UState => OwnerEmpire.Universum;
+
         [StarData] readonly Empire OwnerEmpire;
         public readonly OffensiveForcePoolManager OffensiveForcePoolManager;
 

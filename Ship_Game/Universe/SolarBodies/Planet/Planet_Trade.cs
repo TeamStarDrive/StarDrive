@@ -127,7 +127,7 @@ namespace Ship_Game
 
                 float foodMissing = Storage.Max - FoodHere - IncomingFood;
                 foodMissing      += (-Food.NetIncome * AverageFoodImportTurns).LowerBound(0);
-                int maxSlots      = ((int)(CurrentGame.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
+                int maxSlots      = ((int)(Universe.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
                 int foodSlots     = foodMissing < 5 ? 0 : (foodMissing / Owner.AverageFreighterCargoCap).RoundUpTo(1);
 
                 return foodSlots.Clamped(0, maxSlots);
@@ -144,7 +144,7 @@ namespace Ship_Game
                 if (ManualProdImportSlots > 0 && Owner == EmpireManager.Player)
                     return ManualProdImportSlots;
 
-                int maxSlots = ((int)(CurrentGame.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
+                int maxSlots = ((int)(Universe.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
                 if (colonyType == ColonyType.Industrial
                     || colonyType == ColonyType.Core
                     || colonyType == ColonyType.Colony)
