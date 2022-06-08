@@ -126,6 +126,17 @@ namespace Ship_Game.Data.Serialization
             return (null, null);
         }
 
+        static Type GetHashSetElemType(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                var genType = type.GetGenericTypeDefinition();
+                if (genType == typeof(ISet<>) || genType == typeof(HashSet<>))
+                    return type.GenericTypeArguments[0];
+            }
+            return null;
+        }
+
         public int MaxTypeId => FlatMap.Count - 1;
 
         public TypeSerializer Get(uint typeId)
@@ -171,6 +182,16 @@ namespace Ship_Game.Data.Serialization
                 if (Serializers.TryGetValue(type, out TypeSerializer recursiveType))
                     return recursiveType;
                 return Add(type, new RawArraySerializer(type, elemType, elemSerializer));
+            }
+
+            Type setElemType = GetHashSetElemType(type);
+            if (setElemType != null)
+            {
+                TypeSerializer elemSerializer = Get(setElemType);
+                // NOTE: recursive types cause trouble here
+                if (Serializers.TryGetValue(type, out TypeSerializer recursiveType))
+                    return recursiveType;
+                return Add(type, new HashSetSerializer(type, setElemType, elemSerializer));
             }
 
             (Type key, Type value) = GetMapKeyValueTypes(type);

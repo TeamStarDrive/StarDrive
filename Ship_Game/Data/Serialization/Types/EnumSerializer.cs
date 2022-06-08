@@ -7,6 +7,8 @@ using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
+    using E = Expression;
+
     internal class EnumSerializer : TypeSerializer
     {
         public override string ToString() => $"EnumSerializer {NiceTypeName}:{TypeId}";
@@ -24,17 +26,17 @@ namespace Ship_Game.Data.Serialization.Types
             IsFlagsEnum = toEnum.GetCustomAttribute<FlagsAttribute>() != null;
 
             // precompile enum to integer conversion, otherwise it's too slow
-            var enumVal = Expression.Parameter(typeof(object), "enumValue");
+            var enumVal = E.Parameter(typeof(object), "enumValue");
             
             Type underlyingType = toEnum.GetEnumUnderlyingType();
 
             // (object enumValue) => (int)enumValue;
             // (object enumValue) => (int)(T)enumValue;
-            Expression toInteger = underlyingType == typeof(int)
-                ? Expression.Convert(enumVal, typeof(int))
-                : Expression.Convert(Expression.Convert(enumVal, underlyingType), typeof(int));
+            E toInteger = underlyingType == typeof(int)
+                ? E.Convert(enumVal, typeof(int))
+                : E.Convert(E.Convert(enumVal, underlyingType), typeof(int));
 
-            GetValueOf = Expression.Lambda<GetIntValue>(toInteger, enumVal).Compile();
+            GetValueOf = E.Lambda<GetIntValue>(toInteger, enumVal).Compile();
 
             for (int i = 0; i < values.Length; ++i)
             {
