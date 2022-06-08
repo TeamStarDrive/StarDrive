@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections;
+using System.Linq.Expressions;
 using SDUtils;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
+    using E = Expression;
+
     internal class MapSerializer : CollectionSerializer
     {
         public override string ToString() => $"MapSerializer<{KeyType.GetTypeName()}:{KeySerializer.TypeId},{ElemType.GetTypeName()}:{ElemSerializer.TypeId}>:{TypeId}";
         public readonly Type KeyType;
         public readonly TypeSerializer KeySerializer;
         public readonly Type GenericMapType;
+
+        delegate IDictionary New();
+        readonly New NewMap;
 
         public MapSerializer(Type type,
                              Type keyType, TypeSerializer keySerializer,
@@ -22,6 +28,9 @@ namespace Ship_Game.Data.Serialization.Types
             KeySerializer = keySerializer;
             IsMapType = true;
             GenericMapType = typeof(Map<,>).MakeGenericType(keyType, valType);
+
+            // () => (IDictionary)new Map<TKey, TValue>();
+            NewMap = E.Lambda<New>(E.Convert(E.New(GenericMapType), typeof(IDictionary))).Compile();
         }
 
         public override object Convert(object value)
@@ -41,7 +50,7 @@ namespace Ship_Game.Data.Serialization.Types
             Array<YamlNode> nodes = node.SequenceOrSubNodes;
             if (nodes?.Count > 0)
             {
-                var dict = (IDictionary)Activator.CreateInstance(GenericMapType);
+                var dict = NewMap();
                 for (int i = 0; i < nodes.Count; ++i)
                 {
                     YamlNode keyVal = nodes[i];
@@ -94,7 +103,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object Deserialize(BinarySerializerReader reader)
         {
-            object dict = Activator.CreateInstance(GenericMapType);
+            IDictionary dict = NewMap();
             Deserialize(reader, dict);
             return dict;
         }
@@ -112,7 +121,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override object CreateInstance(int length)
         {
-            return CreateInstanceOf(GenericMapType);
+            return NewMap();
         }
 
         public override void Deserialize(BinarySerializerReader reader, object instance)

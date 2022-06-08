@@ -170,11 +170,10 @@ namespace Ship_Game.Data.Binary
                         // element type must always be recorded, otherwise collection cannot be resolved
                         Record(collectionType.ElemSerializer, null);
 
-                        int count = collectionType.Count(instance);
-                        for (int i = 0; i < count; ++i)
+                        var e = ((IEnumerable)instance).GetEnumerator();
+                        while (e.MoveNext())
                         {
-                            object obj = collectionType.GetElementAt(instance, i);
-                            Scan(collectionType.ElemSerializer, obj);
+                            Scan(collectionType.ElemSerializer, e.Current);
                         }
                     }
                 }
@@ -420,13 +419,14 @@ namespace Ship_Game.Data.Binary
             {
                 if (Verbose) Log.Info($"WriteCollection={s.TypeId} {s.NiceTypeName}");
                 // [type ID]
-                // [collection type]   1:T[] 2:Array<T> 3:Map<K,V>
+                // [collection type]   1:T[] 2:Array<T> 3:Map<K,V> 4:HashSet<T>
                 // [element type ID]
                 // [key type ID] (only for Map<K,V>)
                 uint type = 0;
                 if      (s is RawArraySerializer)  type = 1;
                 else if (s is ArrayListSerializer) type = 2;
                 else if (s is MapSerializer)       type = 3;
+                else if (s is HashSetSerializer)   type = 4;
                 BW.WriteVLu32((uint)s.TypeId);
                 BW.WriteVLu32(type);
                 BW.WriteVLu32((uint)s.ElemSerializer.TypeId);

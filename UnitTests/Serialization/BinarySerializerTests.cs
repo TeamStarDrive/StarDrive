@@ -278,7 +278,7 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void BasicRecursiveType()
+        public void RecursiveTypes()
         {
             var instance = new RecursiveType("Hello", 42);
             var result = SerDes(instance);
@@ -301,8 +301,14 @@ namespace UnitTests.Serialization
             }
         }
 
+        static void AreEqual(in SmallStruct expected, in SmallStruct actual, string message = null)
+        {
+            Assert.AreEqual(expected.Id, actual.Id, $"Nested SmallStruct Id fields must match. {message}");
+            Assert.AreEqual(expected.Name, actual.Name, $"Nested SmallStruct Name fields must match. {message}");
+        }
+
         [StarDataType]
-        class StructContainer
+        class StructContainer : IEquatable<StructContainer>
         {
             [StarData] public SmallStruct SS;
 
@@ -311,6 +317,14 @@ namespace UnitTests.Serialization
             {
                 SS = new SmallStruct(id, name);
             }
+            public override int GetHashCode() => SS.GetHashCode();
+            public override bool Equals(object obj) => Equals((StructContainer)obj);
+            public bool Equals(StructContainer other)
+            {
+                if (other is null) return false;
+                return ReferenceEquals(this, other)
+                    || SS.Id == other.SS.Id && SS.Name == other.SS.Name;
+            }
         }
 
         [TestMethod]
@@ -318,13 +332,13 @@ namespace UnitTests.Serialization
         {
             var instance = new StructContainer(15, "Laika");
             var result = SerDes(instance);
-            Assert.AreEqual(instance.SS.Id, result.SS.Id, "Nested SmallStruct Id fields must match");
-            Assert.AreEqual(instance.SS.Name, result.SS.Name, "Nested SmallStruct Name fields must match");
+            AreEqual(instance.SS, result.SS);
         }
 
         static T[] Arr<T>(params T[] elements) => elements;
         static Array<T> List<T>(params T[] elements) => new(elements);
         static Map<K,V> Map<K,V>(params ValueTuple<K, V>[] elements) => new(elements);
+        static HashSet<T> Set<T>(params T[] elements) => new(elements);
 
         [StarDataType]
         class RawArrayType
@@ -356,15 +370,12 @@ namespace UnitTests.Serialization
             Assert.That.Equal(instance.Points, result.Points);
             Assert.That.Equal(instance.Names, result.Names);
             Assert.That.Equal(instance.Empty, result.Empty);
-            Assert.That.Equal(instance.Structs.Length, result.Structs.Length);
-            for (int i = 0; i < instance.Structs.Length; ++i)
-                Assert.That.Equal(instance.Structs[i].SS, result.Structs[i].SS);
-
+            Assert.That.Equal(instance.Structs, result.Structs);
             Assert.That.Equal(instance.Bytes, result.Bytes);
         }
 
         [StarDataType]
-        class GenericArrayType
+        class ArrayOfT_Type
         {
             [StarData] public Array<int> Integers;
             [StarData] public Array<Vector2> Points;
@@ -378,9 +389,9 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void GenericArrayTypes()
+        public void ArrayOfT_Types()
         {
-            var instance = new GenericArrayType()
+            var instance = new ArrayOfT_Type()
             {
                 Integers = List(17, 19, 56, 123, 57),
                 Points = List(Vector2.One, Vector2.UnitX, Vector2.UnitY),
@@ -397,9 +408,7 @@ namespace UnitTests.Serialization
             Assert.That.Equal(instance.Points, result.Points);
             Assert.That.Equal(instance.Names, result.Names);
             Assert.That.Equal(instance.Empty, result.Empty);
-            Assert.That.Equal(instance.Structs.Count, result.Structs.Count);
-            for (int i = 0; i < instance.Structs.Count; ++i)
-                Assert.That.Equal(instance.Structs[i].SS, result.Structs[i].SS);
+            Assert.That.Equal(instance.Structs, result.Structs);
             Assert.That.Equal(instance.ReadOnlyList, result.ReadOnlyList);
             Assert.That.Equal(instance.List, result.List);
             Assert.That.Equal(instance.Collection, result.Collection);
@@ -407,7 +416,7 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
-        class GenericMapType
+        class MapType
         {
             [StarData] public Map<string,string> TextToText;
             [StarData] public Map<string, string> Empty;
@@ -419,9 +428,9 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void GenericMapTypes()
+        public void MapTypes()
         {
-            var instance = new GenericMapType()
+            var instance = new MapType()
             {
                 TextToText = Map(("BuildingType","Aeroponics"), ("TechName","Foodstuffs")),
                 Empty = Map<string,string>(),
@@ -436,11 +445,40 @@ namespace UnitTests.Serialization
             Assert.That.Equal(instance.Empty, result.Empty);
             Assert.That.Equal(instance.TextToClass.Count, result.TextToClass.Count);
             foreach (var kv in instance.TextToClass)
-                Assert.AreEqual(instance.TextToClass[kv.Key].SS, result.TextToClass[kv.Key].SS);
+                AreEqual(instance.TextToClass[kv.Key].SS, result.TextToClass[kv.Key].SS);
             Assert.That.Equal(instance.IntToText, result.IntToText);
             Assert.That.Equal(instance.Dictionary, result.Dictionary);
             Assert.That.Equal(instance.Interface, result.Interface);
             Assert.That.Equal(instance.ReadOnly, result.ReadOnly);
+        }
+
+        [StarDataType]
+        class HashSetType
+        {
+            [StarData] public HashSet<string> Empty;
+            [StarData] public HashSet<int> Integers;
+            [StarData] public HashSet<string> Strings;
+            [StarData] public HashSet<SmallStruct> Structs;
+            [StarData] public HashSet<HashSet<string>> SetOfSets;
+        }
+
+        [TestMethod]
+        public void HashSetTypes()
+        {
+            var instance = new HashSetType()
+            {
+                Empty = new(),
+                Integers = Set(1,2,3,4,5,6,7,8,9,10),
+                Strings = Set("BuildingType","Aeroponics","TechName","Foodstuffs"),
+                Structs = Set(new SmallStruct(27, "27"), new SmallStruct(42, "42")),
+                SetOfSets = Set(Set("A","B","C"), Set("D","E","F")),
+            };
+            var result = SerDes(instance);
+            Assert.That.Equal(instance.Empty, result.Empty);
+            Assert.That.Equal(instance.Integers, result.Integers);
+            Assert.That.Equal(instance.Strings, result.Strings);
+            Assert.That.Equal(instance.Structs, result.Structs);
+            Assert.That.Equal(instance.SetOfSets, result.SetOfSets);
         }
 
         [StarDataType]
@@ -602,13 +640,8 @@ namespace UnitTests.Serialization
             Assert.AreEqual(instance.SCont.SS, result.SCont.SS);
 
             Assert.AreEqual(instance.Number, result.Number);
-            Assert.AreEqual(instance.Struct, result.Struct);
-
-            Assert.AreEqual(instance.Structs.Count, result.Structs.Count);
-            for (int i = 0; i < instance.Structs.Count; ++i)
-            {
-               Assert.AreEqual(instance.Structs[i].SS, result.Structs[i].SS);
-            }
+            AreEqual(instance.Struct, result.Struct);
+            Assert.That.Equal(instance.Structs, result.Structs);
 
             Assert.AreEqual("Subtype0", result.ComplexTypes[0].TestText);
             Assert.AreEqual("Subtype1", result.ComplexTypes[1].TestText);

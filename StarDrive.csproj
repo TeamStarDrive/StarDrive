@@ -217,6 +217,7 @@
     <Compile Include="Ship_Game\Data\Serialization\CollectionSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\SerializerCategory.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\ByteArraySerializer.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\Types\HashSetSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\MapSerializer.cs" />
     <Compile Include="Ship_Game\Debug\Page\ParticleDebug.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExclude.cs" />
