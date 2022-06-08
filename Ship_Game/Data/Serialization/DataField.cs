@@ -5,6 +5,8 @@ using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization
 {
+    using E = Expression;
+
     public class DataField
     {
         // Zero based field index that is set during serializer type resolve
@@ -30,15 +32,13 @@ namespace Ship_Game.Data.Serialization
             try
             {
                 // precompile the getter
-                var obj = Expression.Parameter(typeof(object), "instance");
-                var castToClassType = Expression.Convert(obj, m.ReflectedType);
+                var obj = E.Parameter(typeof(object), "instance");
+                var castToClassType = E.Convert(obj, m.ReflectedType);
                 var member = field != null
-                    ? Expression.Field(castToClassType, field)
-                    : Expression.Property(castToClassType, prop);
+                    ? E.Field(castToClassType, field)
+                    : E.Property(castToClassType, prop);
 
-                Get = Expression.Lambda<Getter>(
-                    Expression.Convert(member, typeof(object)), obj)
-                    .Compile();
+                Get = E.Lambda<Getter>(E.Convert(member, typeof(object)), obj).Compile();
 
                 // it's slow, but the only thing that really works for all cases
                 if (field != null)

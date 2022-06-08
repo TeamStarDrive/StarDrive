@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -149,7 +150,7 @@ namespace Ship_Game.Data.Binary
             for (uint i = 0; i < Header.NumCollectionTypes; ++i)
             {
                 // [type ID]
-                // [collection type]   1:T[] 2:Array<T> 3:Map<K,V>
+                // [collection type]   1:T[] 2:Array<T> 3:Map<K,V> 4:HashSet<T>
                 // [element type ID]
                 // [key type ID] (only for Map<K,V>)
 
@@ -182,6 +183,10 @@ namespace Ship_Game.Data.Binary
                     cType = typeof(Array<>).MakeGenericType(valTypeInfo.Type);
                 else if (cTypeId == 3)
                     cType = typeof(Map<,>).MakeGenericType(keyTypeInfo.Type, valTypeInfo.Type);
+                else if (cTypeId == 4)
+                    cType = typeof(HashSet<>).MakeGenericType(valTypeInfo.Type);
+                else
+                    Log.Error($"Unrecognized cTypeId={cTypeId} for Collection<{valTypeInfo}>");
 
                 if (cType != null)
                 {

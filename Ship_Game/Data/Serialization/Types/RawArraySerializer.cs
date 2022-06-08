@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.IO;
 using System.Linq.Expressions;
 using SDUtils;
 using Ship_Game.Data.Binary;
@@ -8,6 +6,8 @@ using Ship_Game.Data.Yaml;
 
 namespace Ship_Game.Data.Serialization.Types
 {
+    using E = Expression;
+
     internal class RawArraySerializer : CollectionSerializer
     {
         public override string ToString() => $"RawArraySerializer<{ElemType.GetTypeName()}:{ElemSerializer.TypeId}>:{TypeId}";
@@ -28,27 +28,26 @@ namespace Ship_Game.Data.Serialization.Types
 
             // precompile array accesses to avoid horrible performance of naive Reflection
             // read more at: https://docs.microsoft.com/en-us/dotnet/api/system.linq.expressions.expression?view=netframework-4.8
-            var length = Expression.Parameter(typeof(int), "length");
-            var obj = Expression.Parameter(typeof(object), "obj");
-            var value = Expression.Parameter(typeof(object), "value");
-            var index = Expression.Parameter(typeof(int), "index");
-            var objAsArray = Expression.Convert(obj, type);
-            var valueAsElem = Expression.Convert(value, elemType);
-            var arrayAt = Expression.ArrayAccess(objAsArray, index);
-            var newArray = Expression.NewArrayBounds(elemType, length);
+            var length = E.Parameter(typeof(int), "length");
+            var obj = E.Parameter(typeof(object), "obj");
+            var value = E.Parameter(typeof(object), "value");
+            var index = E.Parameter(typeof(int), "index");
+            var objAsArray = E.Convert(obj, type);
+            var valueAsElem = E.Convert(value, elemType);
+            var arrayAt = E.ArrayAccess(objAsArray, index);
+            var newArray = E.NewArrayBounds(elemType, length);
 
-            // (int length) => new T[length];
-            NewArray = Expression.Lambda<New>(Expression.Convert(newArray, typeof(object)),
-                                              length).Compile();
+            // (int length) => (object)new T[length];
+            NewArray = E.Lambda<New>(E.Convert(newArray, typeof(object)), length).Compile();
+            
             // (object arr) => ((T[])arr).Length;
-            GetLengthOf = Expression.Lambda<GetLength>(Expression.ArrayLength(objAsArray),
-                                                       obj).Compile();
+            GetLengthOf = E.Lambda<GetLength>(E.ArrayLength(objAsArray), obj).Compile();
+            
             // (object arr, int index) => (object)((T[])arr)[index];
-            GetValueAt = Expression.Lambda<GetValue>(Expression.Convert(arrayAt, typeof(object)),
-                                                     obj, index).Compile();
+            GetValueAt = E.Lambda<GetValue>(E.Convert(arrayAt, typeof(object)), obj, index).Compile();
+            
             // (object arr, object value, int index) => ((T[])arr)[index] = (T)value;
-            SetValueAt = Expression.Lambda<SetValue>(Expression.Assign(arrayAt, valueAsElem),
-                                                     obj, value, index).Compile();
+            SetValueAt = E.Lambda<SetValue>(E.Assign(arrayAt, valueAsElem), obj, value, index).Compile();
         }
 
         public override object Convert(object value)
