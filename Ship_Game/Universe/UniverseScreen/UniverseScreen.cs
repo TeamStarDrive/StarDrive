@@ -297,7 +297,7 @@ namespace Ship_Game
                 return;
 
             Empire leaderLoyalty = SelectedShip.Loyalty;
-            if (leaderLoyalty.isFaction)
+            if (leaderLoyalty.IsFaction)
                 Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.Loyalty, this);
             else
                 DiplomacyScreen.Show(SelectedShip.Loyalty, Player, "Greeting");

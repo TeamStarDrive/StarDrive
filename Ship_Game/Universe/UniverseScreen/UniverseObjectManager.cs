@@ -67,6 +67,11 @@ namespace Ship_Game
         /// </summary>
         public IReadOnlyList<Ship> GetShips() => Ships.GetItems();
 
+        /// <summary>
+        /// Gets all Ships, including Pending
+        /// </summary>
+        public Ship[] GetAllShipsSlow() => Ships.GetBackItemsSlow();
+
         public UniverseObjectManager(UniverseScreen uScreen, UniverseState uState, SpatialManager spatial)
         {
             Universe = uScreen;

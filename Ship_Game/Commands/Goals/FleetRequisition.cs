@@ -4,9 +4,11 @@ using Ship_Game.AI;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 using SDGraphics;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class FleetRequisition : Goal
     {
         public const string ID = "FleetRequisition";

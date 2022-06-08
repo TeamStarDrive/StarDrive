@@ -14,7 +14,7 @@ namespace Ship_Game.AI.CombatTactics
             foreach (ShipAI.ShipWeight ship in AI.NearByShips)
             {
                 if (ship.Ship.Loyalty == Owner.Loyalty ||
-                    !ship.Ship.Loyalty.isFaction && !Owner.Loyalty.IsAtWarWith(ship.Ship.Loyalty))
+                    !ship.Ship.Loyalty.IsFaction && !Owner.Loyalty.IsAtWarWith(ship.Ship.Loyalty))
                     continue;
                 avgDir += Owner.Position.DirectionToTarget(ship.Ship.Position);
                 count += 1;

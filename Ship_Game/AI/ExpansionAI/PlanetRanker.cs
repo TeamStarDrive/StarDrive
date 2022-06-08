@@ -1,17 +1,19 @@
 ﻿using System.Linq;
 using SDGraphics;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI.ExpansionAI
 {
+    [StarDataType]
     public struct PlanetRanker
     {
-        public Planet Planet;
-        public float Value;
-        public bool CanColonize;
-        public bool PoorPlanet;
-        private readonly float DistanceMod;
-        private readonly float EnemyStrMod;
+        [StarData] public Planet Planet;
+        [StarData] public float Value;
+        [StarData] public bool CanColonize;
+        [StarData] public bool PoorPlanet;
+        [StarData] readonly float DistanceMod;
+        [StarData] readonly float EnemyStrMod;
 
         public override string ToString()
         {
@@ -53,7 +55,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             if (s.OwnerList.Count == 0
                 || s.HasPlanetsOwnedBy(ownerEmpire)
-                || ownerEmpire.isFaction)
+                || ownerEmpire.IsFaction)
             {
                 return false;
             }

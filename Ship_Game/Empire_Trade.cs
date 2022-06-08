@@ -7,18 +7,19 @@ using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
     public partial class Empire
     {
-        public bool AutoFreighters;
-        public bool AutoPickBestFreighter;
-        public float FastVsBigFreighterRatio      { get; private set; } = 0.5f;
+        [StarData] public bool AutoFreighters;
+        [StarData] public bool AutoPickBestFreighter;
+        [StarData] public float FastVsBigFreighterRatio      { get; private set; } = 0.5f;
         public float TradeMoneyAddedThisTurn      { get; private set; }
         public float TotalTradeMoneyAddedThisTurn { get; private set; }
-        public float AverageFreighterCargoCap     { get; private set; } = 10;
-        public int AverageFreighterFTLSpeed       { get; private set; } = 20000;
+        [StarData] public float AverageFreighterCargoCap     { get; private set; } = 10;
+        [StarData] public int AverageFreighterFTLSpeed       { get; private set; } = 20000;
         public int  TotalProdExportSlots          { get; private set; }
 
         public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
@@ -131,7 +132,7 @@ namespace Ship_Game
             }
         }
 
-        void DispatchOrBuildFreighters(Goods goods, BatchRemovalCollection<Planet> importPlanetList, bool interTrade)
+        void DispatchOrBuildFreighters(Goods goods, Array<Planet> importPlanetList, bool interTrade)
         {
             // Order importing planets to balance freighters distribution
             Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)

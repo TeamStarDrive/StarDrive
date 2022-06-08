@@ -208,7 +208,7 @@ namespace Ship_Game.Debug
             int column = 0;
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e.isFaction || e.data.Defeated)
+                if (e.IsFaction || e.data.Defeated)
                     continue;
 
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 10, e.EmpireColor);
@@ -808,7 +808,7 @@ namespace Ship_Game.Debug
                 DrawString("----------------------------");
                 foreach ((Empire them, Relationship rel) in e.AllRelations)
                 {
-                    if (them.isFaction || GlobalStats.RestrictAIPlayerInteraction && them.isPlayer || them.data.Defeated)
+                    if (them.IsFaction || GlobalStats.RestrictAIPlayerInteraction && them.isPlayer || them.data.Defeated)
                         continue;
 
                     DrawString(them.EmpireColor, $"{them.Name}");

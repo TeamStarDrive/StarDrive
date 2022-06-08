@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
@@ -18,11 +19,11 @@ namespace Ship_Game
             EXPORT
         }
 
-        public ColonyStorage Storage;
-        public ColonyResource Food;
-        public ColonyResource Prod;
-        public ColonyResource Res;
-        public ColonyMoney    Money;
+        [StarData] public ColonyStorage Storage;
+        [StarData] public ColonyResource Food;
+        [StarData] public ColonyResource Prod;
+        [StarData] public ColonyResource Res;
+        public ColonyMoney Money;
 
         public float FoodHere
         {
@@ -77,8 +78,8 @@ namespace Ship_Game
             }
         }
 
-        public GoodState FS = GoodState.STORE;      // I dont like these names, but changing them will affect a lot of files
-        public GoodState PS = GoodState.STORE;
+        [StarData] public GoodState FS = GoodState.STORE;      // I dont like these names, but changing them will affect a lot of files
+        [StarData] public GoodState PS = GoodState.STORE;
         public bool ImportFood => FS == GoodState.IMPORT;
         public bool ImportProd => PS == GoodState.IMPORT;
         public bool ExportFood => FS == GoodState.EXPORT;
@@ -99,7 +100,7 @@ namespace Ship_Game
 
         public bool ShortOnFood()
         {
-            if (Owner?.isFaction ?? true)
+            if (Owner?.IsFaction ?? true)
                 return false;
 
             if (Owner.NonCybernetic)

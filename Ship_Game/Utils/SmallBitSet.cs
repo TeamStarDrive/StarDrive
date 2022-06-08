@@ -11,7 +11,7 @@ namespace Ship_Game.Utils
     /// </summary>
     public struct SmallBitSet
     {
-        uint Values;
+        public uint Values;
 
         /// <summary>
         /// Sets a bit, valid indexes are from [0..31]

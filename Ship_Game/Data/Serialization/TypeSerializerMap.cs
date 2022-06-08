@@ -51,6 +51,7 @@ namespace Ship_Game.Data.Serialization
             Set(id: 24, new DateTimeSerializer());
             Set(id: 25, new TimeSpanSerializer());
             Set(id: 26, new ByteArraySerializer(this));
+            Set(id: 27, new SmallBitSetSerializer());
             // ADD new types here, up to `TypeSerializer.MaxFundamentalTypes`
         }
 

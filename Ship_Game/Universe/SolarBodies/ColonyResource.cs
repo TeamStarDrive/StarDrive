@@ -1,23 +1,24 @@
 ﻿using System;
 using SDGraphics;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Universe.SolarBodies
 {
+    [StarDataType]
     public abstract class ColonyResource
     {
-        protected readonly Planet Planet;
+        [StarData] protected readonly Planet Planet;
         public bool Initialized { get; private set; }
 
         float PercentValue;
-        public float Percent // Percentage workers allocated [0.0-1.0]
+        [StarData] public float Percent // Percentage workers allocated [0.0-1.0]
         {
             get => PercentValue;
             set => PercentValue = value.NaNChecked(0f, "Resource.Percent");
         }
 
-        //public float Percent; // Percentage workers allocated [0.0-1.0]
-        public bool PercentLock; // Percentage slider locked by user
+        [StarData] public bool PercentLock; // Percentage slider locked by user
 
         // Per Turn: Raw value produced before we apply any taxes or consume stuff
         public float GrossIncome { get; protected set; }
@@ -135,7 +136,7 @@ namespace Ship_Game.Universe.SolarBodies
         }
     }
 
-
+    [StarDataType]
     public class ColonyFood : ColonyResource
     {
         public ColonyFood(Planet planet) : base(planet)
@@ -171,7 +172,8 @@ namespace Ship_Game.Universe.SolarBodies
             base.Update(Planet.NonCybernetic ? consumption : 0f);
         }
     }
-
+    
+    [StarDataType]
     public class ColonyProduction : ColonyResource
     {
         public ColonyProduction(Planet planet) : base(planet)
@@ -206,7 +208,8 @@ namespace Ship_Game.Universe.SolarBodies
             base.Update(Planet.IsCybernetic ? consumption : 0f);
         }
     }
-
+    
+    [StarDataType]
     public class ColonyResearch : ColonyResource
     {
         public ColonyResearch(Planet planet) : base(planet)

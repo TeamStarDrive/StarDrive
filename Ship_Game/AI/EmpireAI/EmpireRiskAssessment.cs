@@ -50,7 +50,7 @@ namespace Ship_Game.AI
             float expansion = us.GetExpansionRatio() / 4;
 
             float risk = 0;
-            if (Them.isFaction || us.isFaction)
+            if (Them.IsFaction || us.IsFaction)
             {
                 if (us.GetEmpireAI().CreditRating > 0.75f && (Relation.AtWar || Relation.IsHostile))
                 {
@@ -85,7 +85,7 @@ namespace Ship_Game.AI
                 return 0;
 
             // if we have an open borders treaty or they are a faction return 0
-            if (Relation.Treaty_OpenBorders || Them.isFaction)
+            if (Relation.Treaty_OpenBorders || Them.IsFaction)
                 return 0;
 
             float ourOffensiveRatio = us.GetWarOffensiveRatio();
@@ -119,7 +119,7 @@ namespace Ship_Game.AI
         {
             if (!Relation.Known || Them.data.Defeated || Them == EmpireManager.Unknown)
                 return 0;
-            if (Them.isFaction || Relation.Treaty_Alliance)
+            if (Them.IsFaction || Relation.Treaty_Alliance)
                 return 0;
 
             var riskBase = us.GetWarOffensiveRatio();

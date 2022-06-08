@@ -5,23 +5,24 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.Budget;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
     public partial class Planet 
     {
-        public byte WantedPlatforms { get; private set; }
-        public byte WantedStations  { get; private set; }
-        public byte WantedShipyards { get; private set; }
-        public bool GovOrbitals      = false;
-        public bool GovGroundDefense = false;
-        public bool AutoBuildTroops  = false;
-        public bool ManualOrbitals   = false;
-        public int GarrisonSize;
-        public float ManualCivilianBudget { get; private set; } = 0; // 0 is Auto Budget
-        public float ManualGrdDefBudget   { get; private set; } = 0; // 0 is Auto Budget
-        public float ManualSpcDefBudget   { get; private set; } = 0; // 0 is Auto Budget
+        [StarData] public byte WantedPlatforms { get; private set; }
+        [StarData] public byte WantedStations  { get; private set; }
+        [StarData] public byte WantedShipyards { get; private set; }
+        [StarData] public bool GovOrbitals      = false;
+        [StarData] public bool GovGroundDefense = false;
+        [StarData] public bool AutoBuildTroops  = false;
+        [StarData] public bool ManualOrbitals   = false;
+        [StarData] public int GarrisonSize;
+        [StarData] public float ManualCivilianBudget { get; private set; } = 0; // 0 is Auto Budget
+        [StarData] public float ManualGrdDefBudget   { get; private set; } = 0; // 0 is Auto Budget
+        [StarData] public float ManualSpcDefBudget   { get; private set; } = 0; // 0 is Auto Budget
 
         private void BuildPlatformsAndStations(PlanetBudget budget) // Rewritten by Fat Bastard
         {

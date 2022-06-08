@@ -79,6 +79,18 @@ namespace Ship_Game.Data.Serialization
 
     /// <summary>
     /// An instance method decorated with this attribute will be called
+    /// when binary serializer is about to scan this object for Serialization
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public class StarDataSerialize : Attribute
+    {
+        public StarDataSerialize()
+        {
+        }
+    }
+
+    /// <summary>
+    /// An instance method decorated with this attribute will be called
     /// when binary serializer has deserialized all fields and this object is now valid
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]

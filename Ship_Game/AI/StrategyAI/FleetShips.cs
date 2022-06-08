@@ -126,7 +126,7 @@ namespace Ship_Game.AI
 
         public int CountFleets(out float strength)
         {
-            if (OwnerEmpire.isFaction || OwnerEmpire.isPlayer)
+            if (OwnerEmpire.IsFaction || OwnerEmpire.isPlayer)
             {
                 strength = 0;
                 return 0;

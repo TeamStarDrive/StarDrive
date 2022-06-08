@@ -234,7 +234,7 @@ namespace Ship_Game.Ships
             YRotation    = save.YRotation;
             Rotation     = save.Rotation;
             Velocity     = save.Velocity;
-            IsSpooling   = save.AfterBurnerOn;
+            IsSpooling   = save.IsSpooling;
             TetheredId   = save.TetheredTo;
             TetherOffset = save.TetherOffset;
             InCombat     = save.InCombat;
@@ -275,7 +275,7 @@ namespace Ship_Game.Ships
                     AreaOfOperation.Add(aoRect);
             }
 
-            Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
+            Carrier ??= CarrierBays.Create(this, ModuleSlotList);
             Carrier.InitFromSave(save);
 
             InitializeAIFromAISave(save.AISave);
@@ -459,14 +459,9 @@ namespace Ship_Game.Ships
                 AI.CombatState = ShipData.DefaultCombatState;
         }
 
-        void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
+        void InitializeAIFromAISave(ShipAI aiSave)
         {
-            InitializeAI();
-            AI.State          = aiSave.State;
-            AI.DefaultAIState = aiSave.DefaultState;
-            AI.CombatState    = aiSave.CombatState;
-            AI.StateBits      = aiSave.StateBits;
-            AI.MovePosition   = aiSave.MovePosition;
+            AI = aiSave;
         }
 
         // This should be called when a Ship is ready to enter the universe

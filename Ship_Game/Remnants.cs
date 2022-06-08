@@ -7,6 +7,7 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.Fleets;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
@@ -16,28 +17,29 @@ namespace Ship_Game
     using static RandomMath;
     using static HelperFunctions;
 
+    [StarDataType]
     public class Remnants
     {
         public const int MaxLevel = 20;
-        public readonly Empire Owner;
+        [StarData] public readonly Empire Owner;
         public UniverseState Universe => Owner.Universum ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
 
-        public readonly BatchRemovalCollection<Goal> Goals;
-        public float StoryTriggerKillsXp { get; private set; }
-        public float PlayerStepTriggerXp { get; private set; }
-        public float NextLevelUpDate { get; private set; }
-        public bool Activated { get; private set; }
-        public static bool Armageddon;
-        public RemnantStory Story { get; private set; }
-        public float Production { get; private set; }
-        public int Level { get; private set; } = 1;
-        public Map<RemnantShipType, float> ShipCosts { get; } = new Map<RemnantShipType, float>();
-        public int StoryStep { get; private set; } = 1;
-        public bool OnlyRemnantLeft { get; private set; }
-        public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
-        public float ActivationXpNeeded { get; private set; } // xp of killed Remnant ships needed to for story activation
+        [StarData] public readonly Array<Goal> Goals;
+        [StarData] public float StoryTriggerKillsXp { get; private set; }
+        [StarData] public float PlayerStepTriggerXp { get; private set; }
+        [StarData] public float NextLevelUpDate { get; private set; }
+        [StarData] public bool Activated { get; private set; }
+        [StarData] public static bool Armageddon;
+        [StarData] public RemnantStory Story { get; private set; }
+        [StarData] public float Production { get; private set; }
+        [StarData] public int Level { get; private set; } = 1;
+        [StarData] public Map<RemnantShipType, float> ShipCosts { get; } = new();
+        [StarData] public int StoryStep { get; private set; } = 1;
+        [StarData] public bool OnlyRemnantLeft { get; private set; }
+        [StarData] public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
+        [StarData] public float ActivationXpNeeded { get; private set; } // xp of killed Remnant ships needed to for story activation
 
-        public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
+        public Remnants(Empire owner, bool fromSave, Array<Goal> goals)
         {
             Owner = owner;
             Goals = goals;
@@ -51,22 +53,6 @@ namespace Ship_Game
                 Story = InitAndPickStory(goals);
 
             CalculateShipCosts();
-        }
-
-        public void RestoreFromSave(SavedGame.EmpireSaveData sData)
-        {
-            Activated           = sData.RemnantStoryActivated;
-            StoryTriggerKillsXp = sData.RemnantStoryTriggerKillsXp;
-            PlayerStepTriggerXp = sData.RemnantPlayerStepTriggerXp;
-            Story               = (RemnantStory)sData.RemnantStoryType;
-            Production          = sData.RemnantProduction;
-            StoryStep           = sData.RemnantStoryStep;
-            OnlyRemnantLeft     = sData.OnlyRemnantLeft;
-            NextLevelUpDate     = sData.RemnantNextLevelUpDate;
-            HibernationTurns    = sData.RemnantHibernationTurns;
-            ActivationXpNeeded = sData.RemnantActivationXpNeeded;
-
-            SetLevel(sData.RemnantLevel);
         }
 
         public void IncrementKills(Empire empire, int xp)
@@ -407,7 +393,7 @@ namespace Ship_Game
 
         public void InitTargetEmpireDefenseActions(Planet planet, float starDateEta, float str)
         {
-            if (planet.Owner == null || planet.Owner.isFaction)
+            if (planet.Owner == null || planet.Owner.IsFaction)
                 return;
 
             if (planet.OwnerIsPlayer) // Warn the player is able
@@ -985,7 +971,7 @@ namespace Ship_Game
             }
         }
 
-        RemnantStory InitAndPickStory(BatchRemovalCollection<Goal> goals)
+        RemnantStory InitAndPickStory(Array<Goal> goals)
         {
             goals.Add(new RemnantInit(Owner));
             if (GlobalStats.DisableRemnantStory)

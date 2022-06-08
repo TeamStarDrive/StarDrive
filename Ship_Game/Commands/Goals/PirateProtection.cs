@@ -1,6 +1,7 @@
 ﻿using System;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
@@ -8,13 +9,14 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class PirateProtection : Goal
     {
         public const string ID = "PirateRaidProtection";
         public override string UID => ID;
         private Pirates Pirates;
-        private Ship ShipToProtect;
-        private Empire EmpireToProtect;
+        [StarData] Ship ShipToProtect;
+        [StarData] Empire EmpireToProtect;
 
         public PirateProtection(int id, UniverseState us)
             : base(GoalType.PirateProtection, id, us)

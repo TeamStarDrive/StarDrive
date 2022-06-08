@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using Ship_Game.Fleets;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
@@ -16,10 +16,16 @@ namespace Ship_Game.AI
         //     For example, if you have several waypoints, this is the pos of the final waypoint
         //     And for other Ship AI Plans, this is used to store the current/default waypoint
         //     i.e. ExploreSystem sets MovePosition to next planet it likes
-        public Vector2 MovePosition;
-        public Planet OrbitTarget { get; private set; }
+        [StarData] public Vector2 MovePosition;
+        [StarData] public Planet OrbitTarget { get; private set; }
 
-        WayPoints WayPoints = new WayPoints();
+        WayPoints WayPoints = new();
+
+        [StarData] WayPoint[] WayPointsSave
+        {
+            get => WayPoints.ToArray();
+            set => WayPoints.Set(value);
+        }
 
         public bool HasWayPoints => WayPoints.Count > 0;
         public WayPoint[] CopyWayPoints() => WayPoints.ToArray();

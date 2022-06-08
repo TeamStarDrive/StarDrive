@@ -6,6 +6,7 @@ using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
@@ -107,21 +108,18 @@ namespace Ship_Game
             if (!TargetTile.TroopsAreOnTile)
                 return;
 
-            using (TargetTile.TroopsHere.AcquireWriteLock())
+            for (int i = 0; i < TargetTile.TroopsHere.Count; ++i)
             {
-                for (int i = 0; i < TargetTile.TroopsHere.Count; ++i)
-                {
-                    // Try to hit the troop, high level troops have better chance to evade
-                    Troop troop = TargetTile.TroopsHere[i];
-                    int troopHitChance = 50 - troop.Level*4;
+                // Try to hit the troop, high level troops have better chance to evade
+                Troop troop = TargetTile.TroopsHere[i];
+                int troopHitChance = 50 - troop.Level*4;
 
-                    // Reduce friendly fire chance (25%) if bombing a tile with multiple troops
-                    if (troop.Loyalty == bombOwner)
-                        troopHitChance = (int)(troopHitChance * 0.25f);
+                // Reduce friendly fire chance (25%) if bombing a tile with multiple troops
+                if (troop.Loyalty == bombOwner)
+                    troopHitChance = (int)(troopHitChance * 0.25f);
 
-                    if (RandomMath.RollDice(troopHitChance))
-                        troop.DamageTroop(damage, Surface, TargetTile, out _);
-                }
+                if (RandomMath.RollDice(troopHitChance))
+                    troop.DamageTroop(damage, Surface, TargetTile, out _);
             }
         }
 
@@ -155,11 +153,20 @@ namespace Ship_Game
         Solitary=1, Meager=2, Vibrant=3, CoreWorld=4, MegaWorld=5
     }
 
+    [StarDataType]
     public class SolarSystemBody : ExplorableGameObject
     {
-        public Vector3 Position3D => new Vector3(Position, 2500);
+        public Vector3 Position3D => new(Position, 2500);
 
         public PlanetType PType;
+
+        [StarData]
+        public int WhichPlanet
+        {
+            get => PType.Id;
+            set => PType = ResourceManager.Planets.Planet(value);
+        }
+
         public SubTexture PlanetTexture => ResourceManager.Texture(PType.IconPath);
         public PlanetCategory Category => PType.Category;
         public bool IsBarrenType => PType.Category == PlanetCategory.Barren;
@@ -172,55 +179,55 @@ namespace Ship_Game
 
         public UniverseState Universe => ParentSystem.Universe;
 
-        public SBProduction Construction;
-        public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
-        public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
-        public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
-        protected Array<Building> BuildingsCanBuild = new Array<Building>();
+        [StarData] public SBProduction Construction;
+        public BatchRemovalCollection<Combat> ActiveCombats = new();
+        public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new();
+        [StarData] public Array<Troop> TroopsHere = new();
+        protected Array<Building> BuildingsCanBuild = new();
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;
         public int NumConstructing => Construction.Count;
-        public Array<Ship> OrbitalStations = new Array<Ship>();
+        [StarData] public Array<Ship> OrbitalStations = new();
 
-        protected AudioEmitter Emit = new AudioEmitter();
+        protected AudioEmitter Emit = new();
 
-        public SolarSystem ParentSystem;
+        [StarData] public SolarSystem ParentSystem;
         public SceneObject SO;
 
-        public string SpecialDescription;
-        public bool HasSpacePort;
-        public string Name;
+        [StarData] public string SpecialDescription;
+        [StarData] public bool HasSpacePort;
+        [StarData] public string Name;
         public string Description;
-        public Empire Owner;
+        [StarData] public Empire Owner;
         public bool OwnerIsPlayer => Owner != null && Owner.isPlayer;
-        public float OrbitalAngle; // OrbitalAngle in DEGREES
-        public float OrbitalRadius { get; protected set; }
-        public bool HasRings;
-        public float PlanetTilt;
-        public float RingTilt; // tilt in Radians
-        public float Scale;
+        [StarData] public float OrbitalAngle; // OrbitalAngle in DEGREES
+        [StarData] public float OrbitalRadius { get; protected set; }
+        [StarData] public bool HasRings;
+        [StarData] public float PlanetTilt;
+        [StarData] public float RingTilt; // tilt in Radians
+        [StarData] public float Scale;
         public Matrix World;
         public float Zrotate;
         public bool UniqueHab = false;
         public int UniqueHabPercent;
         protected AudioEmitter Emitter;
         public float GravityWellRadius { get; protected set; }
-        public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
+        [StarData] public Array<PlanetGridSquare> TilesList = new(35);
         public float Density;
-        public float BaseFertility { get; protected set; } // This is clamped to a minimum of 0, cannot be negative
-        public float BaseMaxFertility { get; protected set; } // Natural Fertility, this is clamped to a minimum of 0, cannot be negative
-        public float BuildingsFertility { get; protected set; }  // Fertility change by all relevant buildings. Can be negative
-        public float MineralRichness;
+        [StarData] public float BaseFertility { get; protected set; } // This is clamped to a minimum of 0, cannot be negative
+        [StarData] public float BaseMaxFertility { get; protected set; } // Natural Fertility, this is clamped to a minimum of 0, cannot be negative
+        [StarData] public float BuildingsFertility { get; protected set; }  // Fertility change by all relevant buildings. Can be negative
+        [StarData] public float MineralRichness;
 
-        public Array<Building> BuildingList = new Array<Building>();
-        public float ShieldStrengthCurrent;
+        [StarData] public Array<Building> BuildingList = new();
+        [StarData] public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;        
         private float PosUpdateTimer = 1f;
         private float ZrotateAmount  = 0.03f;
-        public float TerraformPoints { get; protected set; } // FB - terraform process from 0 to 1. 
-        public float BaseFertilityTerraformRatio { get; protected set; } // A value to add to base fertility during Terraform. 
+        [StarData] public float TerraformPoints { get; protected set; } // FB - terraform process from 0 to 1. 
+        [StarData] public float BaseFertilityTerraformRatio { get; protected set; } // A value to add to base fertility during Terraform. 
         public float TerraformToAdd { get; protected set; }  //  FB - a sum of all terraformer efforts
-        public Planet.ColonyType colonyType;
+        [StarData(NameId = "ColonyType")] public Planet.ColonyType colonyType;
         public int TileMaxX { get; private set; } = 7; // FB foundations to variable planet tiles
         public int TileMaxY { get; private set; } = 5; // FB foundations to variable planet tiles
 

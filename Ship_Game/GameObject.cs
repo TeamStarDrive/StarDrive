@@ -37,7 +37,7 @@ namespace Ship_Game
         
         [StarData] public readonly int Id;
         [XmlIgnore][JsonIgnore] public bool Active = true;
-        [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
+        [XmlIgnore][JsonIgnore][StarData] public SolarSystem System { get; private set; }
         
         [StarData] public Vector2 Position;
         [StarData] public Vector2 Velocity;

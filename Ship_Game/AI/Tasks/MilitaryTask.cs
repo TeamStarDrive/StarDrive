@@ -8,7 +8,6 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using SDUtils;
 
@@ -20,7 +19,6 @@ namespace Ship_Game.AI.Tasks
         [StarData] public bool IsCoreFleetTask;
         [StarData] public int GoalId;
         [StarData] public bool NeedEvaluation = true;
-        [StarData] public int TargetPlanetId;
         [StarData] public TaskType Type;
         [StarData] public Vector2 AO;
         [StarData] public float AORadius;
@@ -31,7 +29,6 @@ namespace Ship_Game.AI.Tasks
         [StarData] public int Priority = 5;
         [StarData] public int TaskBombTimeNeeded;
         [StarData] public int TargetShipId;
-        [StarData] public Array<Vector2> PatrolPoints;
         [StarData] public int TargetEmpireId = -1;
         [StarData] public int TargetPlanetWarValue; // Used for doom fleets to affect colony lost value in war
         [StarData] public int TargetSystemId;
@@ -41,7 +38,7 @@ namespace Ship_Game.AI.Tasks
         // FB - Do not disband the fleet, it is held for a new task - this is done at once and does not need save
         [XmlIgnore] [JsonIgnore] public bool FleetNeededForNextTask { get; private set; }
 
-        [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
+        [StarData] public Planet TargetPlanet { get; private set; }
         [XmlIgnore] [JsonIgnore] public SolarSystem TargetSystem { get; private set; }
         [XmlIgnore] [JsonIgnore] public Ship TargetShip { get; private set; }
         [XmlIgnore] [JsonIgnore] Empire Owner;
@@ -49,7 +46,7 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner?.GetFleetOrNull(WhichFleet);
         [XmlIgnore] [JsonIgnore] public Planet RallyPlanet => GetRallyPlanet();
         [XmlIgnore] [JsonIgnore] public AO RallyAO;
-        [XmlIgnore] [JsonIgnore] public Goal Goal;
+        [StarData] public Goal Goal;
 
         [XmlIgnore] [JsonIgnore] public Empire TargetEmpire
         {
@@ -118,7 +115,6 @@ namespace Ship_Game.AI.Tasks
                 Type           = TaskType.Exploration,
                 Owner          = owner,
                 TargetPlanet   = targetPlanet,
-                TargetPlanetId = targetPlanet.Id,
                 TargetEmpire   = dominant
             };
 
@@ -249,7 +245,6 @@ namespace Ship_Game.AI.Tasks
 
             Type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
-            TargetPlanetId           = target.Id;
             AO                       = target.Position;
             AORadius                 = radius;
             Owner                    = owner;
@@ -281,7 +276,6 @@ namespace Ship_Game.AI.Tasks
         public void ChangeTargetPlanet(Planet planet)
         {
             TargetPlanet   = planet;
-            TargetPlanetId = planet.Id;
             AO             = planet.Position;
         }
 
@@ -300,7 +294,7 @@ namespace Ship_Game.AI.Tasks
             Owner.GetEmpireAI().QueueForRemoval(this);
 
 
-            if (Owner.isFaction)
+            if (Owner.IsFaction)
             {
                 FactionEndTask();
                 return;
@@ -497,7 +491,7 @@ namespace Ship_Game.AI.Tasks
 
         public void IncreaseColonyLostValueByBombing()
         {
-            if (!TargetEmpire.isFaction
+            if (!TargetEmpire.IsFaction
                 && TargetEmpire.IsAtWarWith(Owner)
                 && TargetEmpire.TryGetActiveWars(out Array<War> wars))
             {
@@ -557,7 +551,6 @@ namespace Ship_Game.AI.Tasks
         public void SetTargetPlanet(Planet p)
         {
             TargetPlanet = p;
-            TargetPlanetId = p?.Id ?? 0;
         }
 
         public void SetTargetSystem(SolarSystem s)
@@ -645,56 +638,6 @@ namespace Ship_Game.AI.Tasks
         }
 
         public bool IsWarTask => GetTaskCategory().IsSet(TaskCategory.War);
-
-        public void RestoreFromSaveNoUniverse(UniverseState us, Empire e)
-        {
-            Planet p = us.GetPlanet(TargetPlanetId);
-            Ship ship = us.GetShip(TargetShipId);
-            SolarSystem system = us.GetSystem(TargetSystemId);
-            RestoreFromSaveFromSave(e, ship, p, system);
-
-            if (system == null)
-            {
-                foreach (SolarSystem sys in us.Systems)
-                {
-                    if (IsTaskAOInSystem(sys))
-                        SetTargetSystem(sys);
-                }
-            }
-        }
-
-        void RestoreFromSaveFromSave(Empire e, Ship ship, Planet p, SolarSystem sys)
-        {
-            SetEmpire(e);
-
-            if (PatrolPoints == null) PatrolPoints = new Array<Vector2>();
-
-            if (p != null)
-            {
-                SetTargetPlanet(p);
-            }
-
-            SetTargetSystem(sys);
-
-            if (ship != null)
-                SetTargetShip(ship);
-
-            foreach (Goal g in e.GetEmpireAI().Goals)
-            {
-                if (g.Id == GoalId)
-                {
-                    Goal = g;
-                    break;
-                }
-            }
-
-            if (WhichFleet != -1)
-            {
-                if (e.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))
-                    fleet.FleetTask = this;
-                else WhichFleet = 0;
-            }
-        }
 
         public void DebugDraw(ref DebugTextBlock debug)
         {

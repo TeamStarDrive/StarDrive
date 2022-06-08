@@ -1402,7 +1402,7 @@ namespace Ship_Game.Ships
 
         public int RefitCost(Ship newShip)
         {
-            if (Loyalty.isFaction)
+            if (Loyalty.IsFaction)
                 return 0;
 
             float oldShipCost = GetCost(Loyalty);

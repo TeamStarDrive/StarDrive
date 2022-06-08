@@ -997,10 +997,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
                 foreach ((Empire other, Relationship rel) in Them.AllRelations)
                 {
-                    if (!other.isFaction && rel.AtWar)
+                    if (!other.IsFaction && rel.AtWar)
                         theirWarTargets.Add(other);
 
-                    if (!other.isFaction && rel.GetStrength() > 75f && Us.IsAtWarWith(other))
+                    if (!other.IsFaction && rel.GetStrength() > 75f && Us.IsAtWarWith(other))
                     {
                         ourWarTargets.Add(other);
                     }
@@ -1101,7 +1101,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             int n1 = 1;
             foreach ((Empire other, Relationship rel) in Them.AllRelations)
             {
-                if (other != Us && rel.Known && !other.isFaction
+                if (other != Us && rel.Known && !other.IsFaction
                     && !other.data.Defeated && Us.IsKnown(other))
                 {
                     var option = new DialogOption(n1, Localizer.Token(GameText.LetsDiscuss) + " " + other.data.Traits.Name)

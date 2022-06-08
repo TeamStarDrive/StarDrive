@@ -181,7 +181,7 @@ namespace Ship_Game.AI
                         if (g.type != GoalType.DeepSpaceConstruction || !g.BuildPosition.AlmostEqual(node.Position))
                             continue;
 
-                        Goals.QueuePendingRemoval(g);
+                        Goals.Remove(g);
                         IReadOnlyList<Planet> ps = OwnerEmpire.GetPlanets();
                         for (int pi = 0; pi < ps.Count; pi++)
                         { 
@@ -203,8 +203,6 @@ namespace Ship_Game.AI
                             }
                         }
                     }
-
-                    Goals.ApplyPendingRemovals();
                 }
 
                 OwnerEmpire.SpaceRoadsList.Remove(road);

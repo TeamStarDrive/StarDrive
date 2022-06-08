@@ -45,7 +45,7 @@ namespace Ship_Game.Empires.ShipPools
         /// </summary>
         public bool Add(Ship s)
         {
-            if (s.Pool == this || Owner.isPlayer || Owner.isFaction || s.Loyalty != Owner ||
+            if (s.Pool == this || Owner.isPlayer || Owner.IsFaction || s.Loyalty != Owner ||
                 s.ShouldNotBeAddedToForcePools())
                 return false;
 

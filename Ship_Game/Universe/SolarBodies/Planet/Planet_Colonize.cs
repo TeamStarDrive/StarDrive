@@ -111,7 +111,7 @@ namespace Ship_Game
                 Troop t = TroopsHere[i];
                 Empire tLoyalty = t?.Loyalty;
 
-                if (tLoyalty != null && !tLoyalty.isFaction && tLoyalty.data.DefaultTroopShip != null
+                if (tLoyalty != null && !tLoyalty.IsFaction && tLoyalty.data.DefaultTroopShip != null
                     && tLoyalty != Owner && !Owner.IsAtWarWith(tLoyalty))
                 {
                     Ship troopship = t.Launch(ignoreMovement: true);

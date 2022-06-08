@@ -164,7 +164,7 @@ namespace Ship_Game.Ships
 
         void ExploreCurrentSystem(FixedSimTime timeStep)
         {
-            if (System != null && timeStep.FixedTime > 0f && Loyalty?.isFaction == false
+            if (System != null && timeStep.FixedTime > 0f && Loyalty?.IsFaction == false
                 && !System.IsFullyExploredBy(Loyalty)
                 && System.PlanetList != null) // Added easy out for fully explored systems
             {

@@ -4,11 +4,13 @@ using Ship_Game.Ships;
 using System;
 using System.Linq;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class DeployFleetProjector : Goal
     {
         public const string ID = "DeployFleetProjector";

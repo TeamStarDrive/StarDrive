@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Linq;
 using SDGraphics;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class BuildTroop : Goal
     {
         public const string ID = "Build Troop";

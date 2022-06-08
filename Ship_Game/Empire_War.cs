@@ -162,7 +162,7 @@ namespace Ship_Game
             if (them.data.Defeated || !rel.PreparingForWar || rel.AtWar || IsPeaceTreaty(them))
                 return false;
 
-            var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.isFaction, 
+            var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.IsFaction, 
                 w => GetRelations(w.Them).KnownInformation);
 
             int minStr                = (int)(CurrentGame.GalaxySize + 1) * 5000;

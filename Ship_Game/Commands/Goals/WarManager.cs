@@ -1,9 +1,11 @@
 ﻿using System;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class WarManager : Goal
     {
         public const string ID = "WarManager";

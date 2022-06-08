@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public class EmpireResearch
     {
-        readonly Empire Empire;
-        public bool NoResearchLeft { get; private set; }
+        [StarData] readonly Empire Empire;
+        [StarData] public bool NoResearchLeft { get; private set; }
 
         // The FIRST item (0) is always the Current research topic
         Array<string> Queue => Empire.data.ResearchQueue;

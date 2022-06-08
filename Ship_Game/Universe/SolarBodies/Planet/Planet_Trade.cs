@@ -2,18 +2,20 @@
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
     public partial class Planet // Created by Fat Bastard
     {
-        public readonly Array<Ship> IncomingFreighters = new Array<Ship>();
-        readonly Array<Ship> OutgoingFreighters = new Array<Ship>();
-        public float AverageFoodImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver food
-        public float AverageProdImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver prod
-        public float AverageFoodExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up food
-        public float AverageProdExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up prod
+        [StarData] public readonly Array<Ship> IncomingFreighters = new();
+        [StarData] readonly Array<Ship> OutgoingFreighters = new();
+
+        [StarData] public float AverageFoodImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver food
+        [StarData] public float AverageProdImportTurns { get; protected set; } = 10; // EMA (90/10) time it took the traded to deliver prod
+        [StarData] public float AverageFoodExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up food
+        [StarData] public float AverageProdExportTurns { get; protected set; } = 10; // Turns for the trader to arrive to the *export* planet to pick up prod
 
         public float IncomingFood { get; protected set; }
         public float IncomingProd { get; protected set; }
@@ -21,8 +23,6 @@ namespace Ship_Game
 
         public int NumIncomingFreighters   => IncomingFreighters.Count;
         public int NumOutgoingFreighters   => OutgoingFreighters.Count;
-        public int[] IncomingFreighterIds => IncomingFreighters.FilterSelect(s => s != null, s => s.Id);
-        public int[] OutgoingFreighterIds => OutgoingFreighters.FilterSelect(s => s != null, s => s.Id);
 
         public int IncomingFoodFreighters      => FreighterTraffic(IncomingFreighters, Goods.Food);
         public int IncomingProdFreighters      => FreighterTraffic(IncomingFreighters, Goods.Production);
@@ -43,12 +43,12 @@ namespace Ship_Game
         public bool TradeBlocked => HasSpacePort && SpaceCombatNearPlanet || !HasSpacePort && !Safe || Quarantine;
 
         // These values can be set by the player. If 0, the code will determine the slots limit automatically
-        public int ManualFoodImportSlots { get; protected set; } 
-        public int ManualProdImportSlots { get; protected set; }
-        public int ManualColoImportSlots { get; protected set; }
-        public int ManualFoodExportSlots { get; protected set; }
-        public int ManualProdExportSlots { get; protected set; }
-        public int ManualColoExportSlots { get; protected set; }
+        [StarData] public int ManualFoodImportSlots { get; protected set; } 
+        [StarData] public int ManualProdImportSlots { get; protected set; }
+        [StarData] public int ManualColoImportSlots { get; protected set; }
+        [StarData] public int ManualFoodExportSlots { get; protected set; }
+        [StarData] public int ManualProdExportSlots { get; protected set; }
+        [StarData] public int ManualColoExportSlots { get; protected set; }
 
         public int FoodExportSlots
         {

@@ -437,17 +437,11 @@ namespace Ship_Game
             if (!CanLaunch && !ignoreMovement)
                 return null;
 
-            using (HostPlanet.TroopsHere.AcquireWriteLock())
-            {
-                using (tile.TroopsHere.AcquireWriteLock())
-                {
-                    tile.TroopsHere.Remove(this);
-                    HostPlanet.TroopsHere.Remove(this);
-                    Ship troopShip = CreateShipForTroop(HostPlanet);
-                    HostPlanet     = null;
-                    return troopShip;
-                }
-            }
+            tile.TroopsHere.Remove(this);
+            HostPlanet.TroopsHere.Remove(this);
+            Ship troopShip = CreateShipForTroop(HostPlanet);
+            HostPlanet     = null;
+            return troopShip;
         }
 
         Ship CreateShipForTroop(Planet planet)

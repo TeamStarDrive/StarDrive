@@ -355,7 +355,7 @@ namespace Ship_Game.AI
             foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
                 if (rel.Known
-                    && !them.isFaction
+                    && !them.IsFaction
                     && !them.data.Defeated
                     && (rel.Posture == Posture.Hostile 
                         || !OwnerEmpire.IsHonorable && !OwnerEmpire.IsPacifist && rel.Posture == Posture.Neutral))

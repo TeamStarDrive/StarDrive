@@ -701,7 +701,7 @@ namespace Ship_Game.AI
 
         bool SetAwaitClosestForFaction()
         {
-            if (!Owner.Loyalty.isFaction)
+            if (!Owner.Loyalty.IsFaction)
                 return false;
 
             AwaitClosest = Owner.System?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
@@ -740,7 +740,7 @@ namespace Ship_Game.AI
 
         bool SetAwaitClosestForAIEmpire()
         {
-            if (Owner.Loyalty.isFaction || Owner.Loyalty.isPlayer)
+            if (Owner.Loyalty.IsFaction || Owner.Loyalty.isPlayer)
                 return false;
 
             SolarSystem home = Owner.System?.OwnerList.Contains(Owner.Loyalty) != true? null : Owner.System;
