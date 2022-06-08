@@ -63,7 +63,7 @@ namespace Ship_Game
             var empires = new HashSet<Empire>();
             foreach(Empire empire in EmpireManager.Empires)
             {
-                if (empire.isPlayer || empire.isFaction)
+                if (empire.isPlayer || empire.IsFaction)
                     continue;
 
                 if (PlayerEmpire.data.MoleList.Any(m => empire.FindPlanet(m.PlanetId) != null))
@@ -138,7 +138,7 @@ namespace Ship_Game
             DMenu.Draw(batch, elapsed);
             foreach (RaceEntry race in Races)
             {
-                if (race.e.isFaction)
+                if (race.e.IsFaction)
                 {
                     continue;
                 }
@@ -208,7 +208,7 @@ namespace Ship_Game
                 var sortlist = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
                 {
-                    if (e.isFaction || e.data.Defeated)
+                    if (e.IsFaction || e.data.Defeated)
                     {
                         if (SelectedEmpire == e)
                             sortlist.Add(e);
@@ -362,7 +362,7 @@ namespace Ship_Game
                 var Sortlist = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
                 {
-                    if (e.isFaction || e.data.Defeated)
+                    if (e.IsFaction || e.data.Defeated)
                     {
                         if (SelectedEmpire == e)
                             Sortlist.Add(e);
@@ -512,7 +512,7 @@ namespace Ship_Game
             //Diplomatic Relations
             foreach ((Empire other, Relationship rel) in SelectedEmpire.AllRelations)
             {
-                if (!rel.Known || other.isFaction || other.data.Defeated)
+                if (!rel.Known || other.IsFaction || other.data.Defeated)
                     continue;
 
                 Color color = other.EmpireColor;
@@ -831,7 +831,7 @@ namespace Ship_Game
             {
                 if (e != EmpireManager.Player)
                 {
-                    if (e.isFaction)
+                    if (e.IsFaction)
                         continue;
                 }
                 else

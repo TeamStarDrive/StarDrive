@@ -31,13 +31,15 @@ namespace Ship_Game
         Event,
         Scrap
     }
+
+    [StarDataType]
     public sealed partial class Empire : IDisposable, IEmpireShipLists
     {
         public bool ThisClassMustNotBeAutoSerializedByDotNet =>
             throw new InvalidOperationException(
                 $"BUG! Empire must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Empire XXX;` PROPERTIES/FIELDS. {this}");
 
-        readonly Map<int, Fleet> FleetsDict = new();
+        [StarData] readonly Map<int, Fleet> FleetsDict = new();
 
         public readonly Map<string, bool> UnlockedHullsDict = new(StringComparer.InvariantCultureIgnoreCase);
         readonly Map<string, bool> UnlockedTroopDict = new(StringComparer.InvariantCultureIgnoreCase);
@@ -49,7 +51,7 @@ namespace Ship_Game
         /// <summary>
         /// Returns an average of empire money over several turns.
         /// </summary>
-        public float NormalizedMoney { get; private set; }
+        [StarData] public float NormalizedMoney { get; private set; }
 
         public void UpdateNormalizedMoney(float money, bool fromSave = false)
         {
@@ -60,20 +62,20 @@ namespace Ship_Game
                 NormalizedMoney = NormalizedMoney*(1f-rate) + money*rate;
         }
 
-        public Map<string, TechEntry> TechnologyDict = new(StringComparer.InvariantCultureIgnoreCase);
-        public Array<Ship> Inhibitors = new();
-        public Array<SpaceRoad> SpaceRoadsList = new();
+        [StarData] public Map<string, TechEntry> TechnologyDict = new(StringComparer.InvariantCultureIgnoreCase);
+        [StarData] public Array<Ship> Inhibitors = new();
+        [StarData] public Array<SpaceRoad> SpaceRoadsList = new();
 
         public const float StartingMoney = 1000f;
         float MoneyValue = StartingMoney;
-        public float Money
+        [StarData] public float Money
         {
             get => MoneyValue;
             set => MoneyValue = value.NaNChecked(0f, "Empire.Money");
         }
 
-        BatchRemovalCollection<Planet> OwnedPlanets = new();
-        BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new();
+        [StarData] Array<Planet> OwnedPlanets = new();
+        [StarData] Array<SolarSystem> OwnedSolarSystems = new();
         public IReadOnlyList<Ship> OwnedShips => EmpireShips.OwnedShips;
         public IReadOnlyList<Ship> OwnedProjectors => EmpireShips.OwnedProjectors;
 
@@ -83,28 +85,30 @@ namespace Ship_Game
         public HashSet<string> structuresWeCanBuild = new();
         float FleetUpdateTimer = 5f;
         int TurnCount = 1;
-        public EmpireData data;
+
+        [StarData] public EmpireData data;
         public DiplomacyDialog dd;
-        public string PortraitName;
+        public string PortraitName => data.PortraitName;
         public bool ScanComplete = true;
         // faction means it's not an actual Empire like Humans or Kulrathi
         // it doesn't normally colonize or make war plans.
         // it gets special instructions, usually event based, for example Corsairs
-        public bool isFaction;
+        [StarData] public bool IsFaction;
 
         // For Pirate Factions. This will allow the Empire to be pirates
-        public Pirates Pirates { get; private set; }
+        [StarData] public Pirates Pirates { get; private set; }
 
         // For Remnants Factions. This will allow the Empire to be Remnants
-        public Remnants Remnants { get; private set; }
+        [StarData] public Remnants Remnants { get; private set; }
 
-        public Color EmpireColor;
+        [StarData] public Color EmpireColor;
 
         public UniverseState Universum; // Alias for static Empire.Universum
 
-        EmpireAI EmpireAI;
+        [StarData] EmpireAI EmpireAI;
+
         float UpdateTimer;
-        public bool isPlayer;
+        [StarData] public bool isPlayer;
         public float TotalShipMaintenance { get; private set; }
         public float TotalWarShipMaintenance { get; private set; }
         public float TotalCivShipMaintenance { get; private set; }
@@ -123,10 +127,10 @@ namespace Ship_Game
         public float ExcessGoodsMoneyAddedThisTurn { get; private set; } // money tax from excess goods
         public float MoneyLastTurn;
         public int AllTimeTradeIncome;
-        public bool AutoBuild;
-        public bool AutoExplore;
-        public bool AutoColonize;
-        public bool AutoResearch;
+        [StarData] public bool AutoBuild;
+        [StarData] public bool AutoExplore;
+        [StarData] public bool AutoColonize;
+        [StarData] public bool AutoResearch;
         public int TotalScore;
         public float TechScore;
         public float ExpansionScore;
@@ -136,7 +140,7 @@ namespace Ship_Game
         // This is the original capital of the empire. It is used in capital elimination and 
         // is used in capital elimination and also to determine if another capital will be moved here if the
         // empire retakes this planet. This value should never be changed after it was set.
-        public Planet Capital { get; private set; } 
+        [StarData] public Planet Capital { get; private set; } 
 
         public int EmpireShipCountReserve;
         public int empireShipTotal;
@@ -157,7 +161,7 @@ namespace Ship_Game
         public float CurrentMilitaryStrength;
         public float OffensiveStrength; // No Orbitals
         public ShipPool AIManagedShips;
-        public LoyaltyLists EmpireShips;
+        [StarData] public LoyaltyLists EmpireShips;
         public float CurrentTroopStrength { get; private set; }
         public Color ThrustColor0;
         public Color ThrustColor1;
@@ -167,8 +171,8 @@ namespace Ship_Game
         public Ship BestPlatformWeCanBuild { get; private set; }
         public Ship BestStationWeCanBuild { get; private set; }
         public HashSet<string> ShipTechs = new();
-        public Vector2 WeightedCenter;
-        public bool RushAllConstruction;
+        [StarData] public Vector2 WeightedCenter;
+        [StarData] public bool RushAllConstruction;
 
         [StarDataType]
         public class DiplomacyQueueItem
@@ -177,10 +181,9 @@ namespace Ship_Game
             [StarData] public string Dialog;
         }
 
-        public Array<DiplomacyQueueItem> DiplomacyContactQueue { get; private set; } = new();  // Empire IDs, for player only
-        public bool AutoPickBestColonizer;
-
-        public Array<string> ObsoletePlayerShipModules = new();
+        [StarData] public Array<DiplomacyQueueItem> DiplomacyContactQueue { get; private set; } = new();  // Empire IDs, for player only
+        [StarData] public bool AutoPickBestColonizer;
+        [StarData] public Array<string> ObsoletePlayerShipModules = new();
 
         public int AtWarCount;
         public Array<string> BomberTech      = new();
@@ -218,7 +221,7 @@ namespace Ship_Game
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
-        public readonly EmpireResearch Research;
+        [StarData] public readonly EmpireResearch Research;
         public float TotalPopBillion { get; private set; }
         public float MaxPopBillion { get; private set; }
         public DifficultyModifiers DifficultyModifiers { get; private set; }
@@ -234,6 +237,8 @@ namespace Ship_Game
             AIManagedShips.Add(s);
         }
 
+        Empire() { }
+
         public Empire(UniverseState us)
         {
             Universum = us;
@@ -248,12 +253,22 @@ namespace Ship_Game
             TechnologyDict = parentEmpire.TechnologyDict;
         }
 
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+            Universum.AddEmpire(this);
+            dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
+
+            CommonInitialize();
+            Research.SetResearchStrategy();
+        }
+
         public float GetProjectorRadius()
         {
             return Universum.DefaultProjectorRadius * data.SensorModifier;
         }
         
-        public void SetAsPirates(bool fromSave, BatchRemovalCollection<Goal> goals)
+        public void SetAsPirates(bool fromSave, Array<Goal> goals)
         {
             if (fromSave && data.Defeated)
                 return;
@@ -267,7 +282,7 @@ namespace Ship_Game
             Pirates = new Pirates(this, fromSave, goals);
         }
 
-        public void SetAsRemnants(bool fromSave, BatchRemovalCollection<Goal> goals)
+        public void SetAsRemnants(bool fromSave, Array<Goal> goals)
         {
             Remnants = new Remnants(this, fromSave, goals);
         }
@@ -744,7 +759,7 @@ namespace Ship_Game
             foreach (SolarSystem solarSystem in Universum.Systems)
                 solarSystem.OwnerList.Remove(this);
 
-            if (isFaction)
+            if (IsFaction)
                 return;
 
             foreach ((Empire them, Relationship rel) in ActiveRelations)
@@ -785,7 +800,7 @@ namespace Ship_Game
             foreach (SolarSystem solarSystem in Universum.Systems)
                 solarSystem.OwnerList.Remove(this);
 
-            if (isFaction)
+            if (IsFaction)
                 return;
 
             foreach ((Empire them, Relationship rel) in ActiveRelations)
@@ -1141,7 +1156,7 @@ namespace Ship_Game
                     techEntry.SetDiscovered(!secret);
                 }
 
-                if (isFaction || data.Traits.Prewarp == 1)
+                if (IsFaction || data.Traits.Prewarp == 1)
                     techEntry.ForceNeedsFullResearch();
                 TechnologyDict.Add(kv.Key, techEntry);
             }
@@ -1237,7 +1252,7 @@ namespace Ship_Game
         {
             if (addToMainShipTechs)
                 ShipTechs.Add(techUID);
-            if (isFaction) return;
+            if (IsFaction) return;
             switch (ResourceManager.GetModuleTemplate(moduleUID).ModuleType)
             {
                 case ShipModuleType.Hangar:
@@ -1437,7 +1452,7 @@ namespace Ship_Game
 
             if (isPlayer)
             {
-                if (them.isFaction)
+                if (them.IsFaction)
                     DoFactionFirstContact(them);
                 else
                     DiplomacyScreen.Show(them, "First Contact");
@@ -1485,11 +1500,8 @@ namespace Ship_Game
                     {
                         foreach (Empire empire in EmpireManager.Empires)
                         {
-                            using (empire.OwnedPlanets.AcquireReadLock())
-                            {
-                                foreach (Planet planet in empire.OwnedPlanets)
-                                    StatTracker.StatAddPlanetNode(Universum.StarDate, planet);
-                            }
+                            foreach (Planet planet in empire.OwnedPlanets)
+                                StatTracker.StatAddPlanetNode(Universum.StarDate, planet);
                         }
                     }
 
@@ -1587,7 +1599,7 @@ namespace Ship_Game
 
         void AssignNewHomeWorldIfNeeded()
         {
-            if (isPlayer | isFaction)
+            if (isPlayer | IsFaction)
                 return;
 
             if (!GlobalStats.EliminationMode 
@@ -1771,10 +1783,7 @@ namespace Ship_Game
         public float GetTroopMaintThisTurn()
         {
             // Troops maintenance on ships are calculated as part of ship maintenance
-            int troopsOnPlanets;
-            using (OwnedPlanets.AcquireReadLock())
-                troopsOnPlanets = OwnedPlanets.Sum(p => p.TroopsHere.Count);
-
+            int troopsOnPlanets = OwnedPlanets.Sum(p => p.TroopsHere.Count);
             return troopsOnPlanets * ShipMaintenance.TroopMaint;
         }
 
@@ -1879,20 +1888,19 @@ namespace Ship_Game
             PotentialIncome               = 0;
             TotalFoodPerColonist          = 0;
 
-            using (OwnedPlanets.AcquireReadLock())
-                for (int i = 0; i < OwnedPlanets.Count; i++)
-                {
-                    Planet p = OwnedPlanets[i];
-                    p.UpdateIncomes();
-                    NetPlanetIncomes              += p.Money.NetRevenue;
-                    GrossPlanetIncome             += p.Money.GrossRevenue;
-                    PotentialIncome               += p.Money.PotentialRevenue;
-                    ExcessGoodsMoneyAddedThisTurn += p.ExcessGoodsIncome;
-                    TroopCostOnPlanets            += p.Money.TroopMaint;
+            for (int i = 0; i < OwnedPlanets.Count; i++)
+            {
+                Planet p = OwnedPlanets[i];
+                p.UpdateIncomes();
+                NetPlanetIncomes              += p.Money.NetRevenue;
+                GrossPlanetIncome             += p.Money.GrossRevenue;
+                PotentialIncome               += p.Money.PotentialRevenue;
+                ExcessGoodsMoneyAddedThisTurn += p.ExcessGoodsIncome;
+                TroopCostOnPlanets            += p.Money.TroopMaint;
 
-                    if      (p.IsCybernetic && p.Prod.NetMaxPotential.Greater(0))  TotalFoodPerColonist += p.Prod.NetMaxPotential;
-                    else if (p.NonCybernetic && p.Food.NetMaxPotential.Greater(0)) TotalFoodPerColonist += p.Food.NetMaxPotential;
-                }
+                if      (p.IsCybernetic && p.Prod.NetMaxPotential.Greater(0))  TotalFoodPerColonist += p.Prod.NetMaxPotential;
+                else if (p.NonCybernetic && p.Food.NetMaxPotential.Greater(0)) TotalFoodPerColonist += p.Food.NetMaxPotential;
+            }
         }
 
         public void UpdateEmpirePlanets()
@@ -1901,27 +1909,23 @@ namespace Ship_Game
 
             ResetMoneySpentOnProduction();
             // expensive lock with several loops.
-            using (OwnedPlanets.AcquireReadLock())
-            {
-                Planet[] planetsToUpdate = OwnedPlanets.Sorted(p => p.ColonyPotentialValue(this));
+            Planet[] planetsToUpdate = OwnedPlanets.Sorted(p => p.ColonyPotentialValue(this));
 
-                TotalProdExportSlots = OwnedPlanets.Sum(p => p.FreeProdExportSlots); // Done before UpdateOwnedPlanet
-                for (int i = 0; i < planetsToUpdate.Length; i++)
-                {
-                    Planet planet = OwnedPlanets[i];
-                    planet.UpdateOwnedPlanet(random);
-                }
+            TotalProdExportSlots = OwnedPlanets.Sum(p => p.FreeProdExportSlots); // Done before UpdateOwnedPlanet
+            for (int i = 0; i < planetsToUpdate.Length; i++)
+            {
+                Planet planet = OwnedPlanets[i];
+                planet.UpdateOwnedPlanet(random);
             }
         }
 
         public void GovernPlanets()
         {
-            if (!isFaction && !data.Defeated)
+            if (!IsFaction && !data.Defeated)
                 UpdateMaxColonyValues();
 
-            using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet planet in OwnedPlanets)
-                    planet.DoGoverning();
+            foreach (Planet planet in OwnedPlanets)
+                planet.DoGoverning();
         }
 
         private void UpdateShipMaintenance()
@@ -1990,7 +1994,7 @@ namespace Ship_Game
 
         public void FactionShipsWeCanBuild()
         {
-            if (!isFaction) return;
+            if (!IsFaction) return;
             foreach (Ship ship in ResourceManager.ShipTemplates)
             {
                 if ((data.Traits.ShipType == ship.ShipData.ShipStyle
@@ -2016,7 +2020,7 @@ namespace Ship_Game
 
         public void UpdateShipsWeCanBuild(Array<string> hulls = null, bool debug = false)
         {
-            if (isFaction)
+            if (IsFaction)
             {
                 FactionShipsWeCanBuild();
                 return;
@@ -2192,11 +2196,8 @@ namespace Ship_Game
                 return false;
 
             var troops = candidatePlanets.First().TroopsHere;
-            using (troops.AcquireWriteLock())
-            {
-                troopShip = troops.FirstOrDefault(t => t.Loyalty == this)?.Launch();
-                return troopShip != null;
-            }
+            troopShip = troops.FirstOrDefault(t => t.Loyalty == this)?.Launch();
+            return troopShip != null;
         }
 
         public int GetSpyDefense()
@@ -2255,12 +2256,11 @@ namespace Ship_Game
         {
             float num = 0f;
             maxPop    = 0f;
-            using (OwnedPlanets.AcquireReadLock())
-                for (int i = 0; i < OwnedPlanets.Count; i++)
-                {
-                    num    += OwnedPlanets[i].PopulationBillion;
-                    maxPop += OwnedPlanets[i].MaxPopulationBillion;
-                }
+            for (int i = 0; i < OwnedPlanets.Count; i++)
+            {
+                num    += OwnedPlanets[i].PopulationBillion;
+                maxPop += OwnedPlanets[i].MaxPopulationBillion;
+            }
 
             var ships = OwnedShips;
             for (int i = 0; i < ships.Count; i++)
@@ -2278,19 +2278,16 @@ namespace Ship_Game
         public float GetTotalPopPotential()
         {
             float num = 0.0f;
-            using (OwnedPlanets.AcquireReadLock())
-                for (int i = 0; i < OwnedPlanets.Count; i++)
-                    num += OwnedPlanets[i].PotentialMaxPopBillionsFor(this);
-
+            for (int i = 0; i < OwnedPlanets.Count; i++)
+                num += OwnedPlanets[i].PotentialMaxPopBillionsFor(this);
             return num;
         }
 
         public float GetGrossFoodPerTurn()
         {
             float num = 0.0f;
-            using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet p in OwnedPlanets)
-                    num += p.Food.GrossIncome;
+            foreach (Planet p in OwnedPlanets)
+                num += p.Food.GrossIncome;
             return num;
         }
 
@@ -2376,18 +2373,15 @@ namespace Ship_Game
             int agriculturalCount = 0;
             int militaryCount     = 0;
             int researchCount     = 0;
-            using (OwnedPlanets.AcquireReadLock())
+            foreach (Planet planet in OwnedPlanets)
             {
-                foreach (Planet planet in OwnedPlanets)
+                switch (planet.colonyType)
                 {
-                    switch (planet.colonyType)
-                    {
-                        case Planet.ColonyType.Agricultural: ++agriculturalCount; break;
-                        case Planet.ColonyType.Core:         ++coreCount;         break;
-                        case Planet.ColonyType.Industrial:   ++industrialCount;   break;
-                        case Planet.ColonyType.Research:     ++researchCount;     break;
-                        case Planet.ColonyType.Military:     ++militaryCount;     break;
-                    }
+                    case Planet.ColonyType.Agricultural: ++agriculturalCount; break;
+                    case Planet.ColonyType.Core:         ++coreCount;         break;
+                    case Planet.ColonyType.Industrial:   ++industrialCount;   break;
+                    case Planet.ColonyType.Research:     ++researchCount;     break;
+                    case Planet.ColonyType.Military:     ++militaryCount;     break;
                 }
             }
 
@@ -2735,7 +2729,7 @@ namespace Ship_Game
                 return;
 
             var list1 = new Array<Planet>();
-            foreach (Planet planet in OwnedPlanets.AtomicCopy())
+            foreach (Planet planet in OwnedPlanets)
             {
                 if (planet.Owner == null)
                     list1.Add(planet);
@@ -2746,7 +2740,7 @@ namespace Ship_Game
             for (int index = 0; index < data.AgentList.Count; ++index)
                 data.AgentList[index].Update(this);
 
-            if (Money < 0.0 && !isFaction)
+            if (Money < 0.0 && !IsFaction)
             {
                 float ratio = ((AllSpending - Money) / PotentialIncome.LowerBound(1));
                 data.TurnsBelowZero += (short)(ratio);
@@ -2783,7 +2777,7 @@ namespace Ship_Game
                     foreach (Empire empire in EmpireManager.Empires)
                     {
                         var planets = empire.GetPlanets();
-                        if (planets.Count > 0 && !empire.isFaction && empire != this)
+                        if (planets.Count > 0 && !empire.IsFaction && empire != this)
                         {
                             allEmpiresDead = false;
                             break;
@@ -2842,7 +2836,7 @@ namespace Ship_Game
                 }
             }
 
-            if (!isFaction)
+            if (!IsFaction)
             {
                 CalcWeightedCenter();
                 DispatchBuildAndScrapFreighters();
@@ -2968,7 +2962,7 @@ namespace Ship_Game
 
         public bool IsEmpireDead()
         {
-            if (isFaction) return false;
+            if (IsFaction) return false;
             if (data.Defeated) return true;
             if (!GlobalStats.EliminationMode && OwnedPlanets.Count != 0)
                 return false;
@@ -3307,15 +3301,14 @@ namespace Ship_Game
             int planets = 0;
             var avgPlanetCenter = new Vector2();
 
-            using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet planet in OwnedPlanets)
+            foreach (Planet planet in OwnedPlanets)
+            {
+                for (int x = 0; x < planet.PopulationBillion; ++x)
                 {
-                    for (int x = 0; x < planet.PopulationBillion; ++x)
-                    {
-                        ++planets;
-                        avgPlanetCenter += planet.Position;
-                    }
+                    ++planets;
+                    avgPlanetCenter += planet.Position;
                 }
+            }
 
             WeightedCenter=  avgPlanetCenter / planets.LowerBound(1);
         }
@@ -3639,7 +3632,7 @@ namespace Ship_Game
         }
 
 
-        SmallBitSet ReadyForFirstContact = new SmallBitSet();
+        SmallBitSet ReadyForFirstContact = new();
 
         public void SetReadyForFirstContact(Empire other)
         {
@@ -3839,8 +3832,6 @@ namespace Ship_Game
                 data.AgentList = new BatchRemovalCollection<Agent>();
                 data.MoleList = new BatchRemovalCollection<Mole>();
             }
-            OwnedPlanets?.Dispose(ref OwnedPlanets);
-            OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);
 
             AIManagedShips = null;
             EmpireShips = null;

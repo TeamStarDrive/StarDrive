@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
@@ -18,25 +19,27 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class SolarSystem : ExplorableGameObject
     {
-        public string Name = "Random System";
+        [StarData] public string Name = "Random System";
         public UniverseState Universe;
 
-        //public Array<Empire> OwnerList = new Array<Empire>();
-        public HashSet<Empire> OwnerList = new HashSet<Empire>();
-        public Array<Ship> ShipList = new Array<Ship>();
-        public bool PiratePresence { get; private set; }
+        [StarData] public HashSet<Empire> OwnerList = new();
 
-        public Array<ILight> Lights = new Array<ILight>();
+        public Array<Ship> ShipList = new();
+        
+        [StarData] public bool PiratePresence { get; private set; }
+
+        public Array<ILight> Lights = new();
 
         // this is the minimum solar system radius
         // needs to be big enough to properly trigger system-radius related events
         const float MinRadius = 150000f;
 
-        public Array<Planet> PlanetList = new Array<Planet>();
-        public Array<Asteroid> AsteroidsList = new Array<Asteroid>();
-        public Array<Moon> MoonList = new Array<Moon>();
+        [StarData]public Array<Planet> PlanetList = new();
+        [StarData]public Array<Asteroid> AsteroidsList = new();
+        [StarData]public Array<Moon> MoonList = new();
 
         Empire[] FullyExplored = Empty<Empire>.Array;
 
@@ -60,10 +63,17 @@ namespace Ship_Game
             }
         }
 
-        public Array<Ring> RingList = new Array<Ring>();
+        [StarData]
+        public string SunId
+        {
+            get => TheSunType.Id;
+            set => Sun = SunType.FindSun(value); // full reload
+        }
+
+        [StarData] public Array<Ring> RingList = new();
         int NumberOfRings;
-        public Array<SolarSystem> FiveClosestSystems = new Array<SolarSystem>();
-        public Array<Anomaly> AnomaliesList = new Array<Anomaly>();
+        public Array<SolarSystem> FiveClosestSystems = new();
+        public Array<Anomaly> AnomaliesList = new();
         public bool IsStartingSystem;
         [XmlIgnore][JsonIgnore] bool WasVisibleLastFrame;
 
@@ -414,7 +424,7 @@ namespace Ship_Game
                 {
                     OrbitalDistance = p.OrbitalRadius,
                     Asteroids = false,
-                    planet    = p
+                    Planet    = p
                 };
                 RingList.Add(ring);
                 return p.OrbitalRadius;
@@ -493,7 +503,7 @@ namespace Ship_Game
                 {
                     OrbitalDistance = orbitalDist,
                     Asteroids = false,
-                    planet = p
+                    Planet = p
                 });
             }
 
@@ -653,105 +663,12 @@ namespace Ship_Game
             });
         }
 
-        public struct FleetAndPos
-        {
-            public string FleetName;
-            public Vector2 Pos;
-        }
-
+        [StarDataType]
         public struct Ring
         {
-            public float OrbitalDistance;
-            public bool Asteroids;
-            public Planet planet;
-
-            public SavedGame.RingSave Serialize()
-            {
-                var ringSave = new SavedGame.RingSave
-                {
-                    Asteroids = Asteroids,
-                    OrbitalDistance = OrbitalDistance
-                };
-
-                if (planet == null)
-                    return ringSave;
-
-                var pdata = new SavedGame.PlanetSaveData
-                {
-                    Id = planet.Id,
-                    TurnsCrippled        = planet.CrippledTurns,
-                    FoodState            = planet.FS,
-                    ProdState            = planet.PS,
-                    FoodLock             = planet.Food.PercentLock,
-                    ProdLock             = planet.Prod.PercentLock,
-                    ResLock              = planet.Res.PercentLock,
-                    Name                 = planet.Name,
-                    Scale                = planet.Scale,
-                    ShieldStrength       = planet.ShieldStrengthCurrent,
-                    Population           = planet.Population,
-                    BasePopPerTile       = planet.BasePopPerTile,
-                    Fertility            = planet.BaseFertility,
-                    MaxFertility         = planet.BaseMaxFertility,
-                    Richness             = planet.MineralRichness,
-                    Owner                = planet.Owner?.data.Traits.Name ?? "",
-                    WhichPlanet          = planet.PType.Id,
-                    OrbitalAngle         = planet.OrbitalAngle,
-                    OrbitalDistance      = planet.OrbitalRadius,
-                    HasRings             = planet.HasRings,
-                    Radius               = planet.Radius,
-                    FarmerPercentage     = planet.Food.Percent,
-                    WorkerPercentage     = planet.Prod.Percent,
-                    ResearcherPercentage = planet.Res.Percent,
-                    FoodHere             = planet.FoodHere,
-                    TerraformPoints      = planet.TerraformPoints,
-                    ProdHere             = planet.ProdHere,
-                    ColonyType           = planet.colonyType,
-                    GovOrbitals          = planet.GovOrbitals,
-                    GovGroundDefense     = planet.GovGroundDefense,
-                    GovMilitia           = planet.AutoBuildTroops,
-                    GarrisonSize         = planet.GarrisonSize,
-                    Quarantine           = planet.Quarantine,
-                    ManualOrbitals       = planet.ManualOrbitals,
-                    WantedPlatforms      = planet.WantedPlatforms,
-                    WantedShipyards      = planet.WantedShipyards,
-                    WantedStations       = planet.WantedStations,
-                    ManualCivilianBudget = planet.ManualCivilianBudget,
-                    ManualGrdDefBudget   = planet.ManualGrdDefBudget,
-                    ManualSpcDefBudget   = planet.ManualSpcDefBudget,
-                    DontScrapBuildings   = planet.DontScrapBuildings,
-                    NumShipyards         = planet.NumShipyards,
-                    SpecialDescription   = planet.SpecialDescription,
-                    IncomingFreighters   = planet.IncomingFreighterIds,
-                    OutgoingFreighters   = planet.OutgoingFreighterIds,
-                    StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.Id).ToArr(),
-                    ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
-                    BaseFertilityTerraformRatio  = planet.BaseFertilityTerraformRatio,
-                    HasLimitedResourcesBuildings = planet.HasLimitedResourceBuilding,
-                    ManualFoodImportSlots     = planet.ManualFoodImportSlots,
-                    ManualProdImportSlots     = planet.ManualProdImportSlots,
-                    ManualColoImportSlots     = planet.ManualColoImportSlots,
-                    ManualFoodExportSlots     = planet.ManualFoodExportSlots,
-                    ManualProdExportSlots     = planet.ManualProdExportSlots,
-                    ManualColoExportSlots     = planet.ManualColoExportSlots,
-                    AverageFoodImportTurns    = planet.AverageFoodImportTurns,
-                    AverageProdImportTurns    = planet.AverageProdImportTurns,
-                    AverageFoodExportTurns    = planet.AverageFoodExportTurns,
-                    AverageProdExportTurns    = planet.AverageProdExportTurns,
-                    IsHomeworld               = planet.IsHomeworld,
-                    BombingIntensity          = planet.BombingIntensity,
-                    SensorRange               = planet.SensorRange
-                };
-
-                if (planet.Owner != null)
-                {
-                    pdata.QISaveList = planet.ConstructionQueue.Select(item => item.Serialize());
-                }
-
-                pdata.PGSList = planet.TilesList.Select(tile => tile.Serialize());
-
-                ringSave.Planet = pdata;
-                return ringSave;
-            }
+            [StarData] public float OrbitalDistance;
+            [StarData] public bool Asteroids;
+            [StarData] public Planet Planet;
         }
 
         public override string ToString() => $"System '{Name}' Pos={Position} Rings={NumberOfRings}";

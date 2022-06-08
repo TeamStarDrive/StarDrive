@@ -17,7 +17,7 @@ namespace Ship_Game.AI
             Troop[] troops = ResourceManager.GetTroopTemplatesFor(OwnerEmpire);
             if (troops.Length == 0)
             {
-                Log.Warning($"EmpireAI GroundPlanner no Troops for {EmpireName}");
+                Log.Warning($"EmpireAI GroundPlanner no Troops for {OwnerEmpire.data.Traits.Name}");
                 return;
             }
 

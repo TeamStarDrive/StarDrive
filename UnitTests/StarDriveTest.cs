@@ -272,7 +272,7 @@ namespace UnitTests
             p.OrbitalAngle = p.Position.AngleToTarget(s.Position);
             p.TestSetOrbitalRadius(p.Position.Distance(s.Position) + p.Radius);
 
-            s.RingList.Add(new SolarSystem.Ring { Asteroids = false, OrbitalDistance = p.OrbitalRadius, planet = p });
+            s.RingList.Add(new SolarSystem.Ring { Asteroids = false, OrbitalDistance = p.OrbitalRadius, Planet = p });
             s.PlanetList.Add(p);
             UState.AddSolarSystem(s);
         }

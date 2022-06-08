@@ -5,15 +5,17 @@ using System;
 using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public class ShipGroup
     {
-        public readonly Array<Ship> Ships = new Array<Ship>();
-        public Empire Owner;
+        [StarData] public readonly Array<Ship> Ships = new();
+        [StarData] public Empire Owner;
 
         public Ship CommandShip
         {
@@ -26,15 +28,15 @@ namespace Ship_Game
         public void SetCommandShip(Ship ship) => CommandShip = ship;
 
         // Speed LIMIT of the entire ship group, so the ships can stay together
-        public float SpeedLimit { get; private set; }
+        [StarData] public float SpeedLimit { get; private set; }
 
         // FINAL DESTINATION center position of the ship group
         // This can also be considered as the ASSEMBLY POSITION
         // If you set this to X location, ships will gather around it when idle
-        public Vector2 FinalPosition;
+        [StarData] public Vector2 FinalPosition;
 
         // FINAL direction facing of this ship group
-        public Vector2 FinalDirection = Vectors.Up;
+        [StarData] public Vector2 FinalDirection = Vectors.Up;
 
         // Holo-Projection of the ship group
         public Vector2 ProjectedPos;
@@ -45,7 +47,6 @@ namespace Ship_Game
         /// The average pos is the command ship's pos, if exists
         /// </summary>
         protected Vector2 AveragePos;
-
         int LastAveragePosUpdate = -1;
 
         protected float Strength;

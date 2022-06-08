@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
@@ -15,8 +16,8 @@ namespace Ship_Game.AI.Tasks
 {
     public partial class MilitaryTask
     {
-        public int FleetCount = 1;
-        public float Completeness = 1f;
+        [StarData] public int FleetCount = 1;
+        [StarData] public float Completeness = 1f;
         [XmlIgnore] [JsonIgnore] RequisitionStatus ReqStatus = RequisitionStatus.None;
         public RequisitionStatus GetRequisitionStatus() => ReqStatus;
         float GetEnemyShipStrengthInAO()
@@ -440,7 +441,7 @@ namespace Ship_Game.AI.Tasks
         
         float GetBuildCapacityDivisor()
         {
-            if (TargetEmpire == null || TargetEmpire.isFaction)
+            if (TargetEmpire == null || TargetEmpire.IsFaction)
                 return 2;
 
             float ownerBuildCapacity = Owner.GetEmpireAI().BuildCapacity;

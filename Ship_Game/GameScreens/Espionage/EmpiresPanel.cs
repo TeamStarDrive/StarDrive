@@ -25,7 +25,7 @@ namespace Ship_Game.GameScreens.Espionage
 
             var empires = new Array<Empire>();
             foreach (Empire e in EmpireManager.Empires)
-                if (!e.isFaction) empires.Add(e);
+                if (!e.IsFaction) empires.Add(e);
 
             float x = Screen.ScreenWidth / 2f - (148f * empires.Count) / 2f;
             Pos = new Vector2(x, rect.Y + 10);

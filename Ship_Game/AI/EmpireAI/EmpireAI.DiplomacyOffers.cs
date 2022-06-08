@@ -294,7 +294,7 @@ namespace Ship_Game.AI
                 int numWars = 0;
                 foreach ((Empire relThem, Relationship rel)  in us.AllRelations)
                 {
-                    if (rel.AtWar && !relThem.isFaction)
+                    if (rel.AtWar && !relThem.IsFaction)
                         ++numWars;
                 }
                 if (numWars > 0 && !usToThem.AtWar)

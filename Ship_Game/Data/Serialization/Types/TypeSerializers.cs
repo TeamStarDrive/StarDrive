@@ -3,6 +3,7 @@ using System.IO;
 using SDGraphics;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Yaml;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Data.Serialization.Types
 {
@@ -182,6 +183,33 @@ namespace Ship_Game.Data.Serialization.Types
         public override object Deserialize(BinarySerializerReader reader)
         {
             return new TimeSpan(reader.BR.ReadVLi64());
+        }
+    }
+
+    internal class SmallBitSetSerializer : TypeSerializer
+    {
+        public SmallBitSetSerializer() : base(typeof(SmallBitSet)) { }
+        public override string ToString() => $"SmallBitSetSerializer:{TypeId}";
+
+        public override object Convert(object value)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Serialize(YamlNode parent, object obj)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Serialize(BinarySerializerWriter writer, object obj)
+        {
+            var set = (SmallBitSet)obj;
+            writer.BW.WriteVLu32(set.Values);
+        }
+
+        public override object Deserialize(BinarySerializerReader reader)
+        {
+            return new SmallBitSet{ Values = reader.BR.ReadVLu32() };
         }
     }
 }

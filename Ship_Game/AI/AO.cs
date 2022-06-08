@@ -1,14 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Debug;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
@@ -48,16 +45,14 @@ namespace Ship_Game.AI
     public sealed class AO : IShipPool
     {
         public static readonly Planet[] NoPlanets = new Planet[0];
-        public static readonly SolarSystem[] NoSystem = new SolarSystem[0];
 
         [XmlIgnore][JsonIgnore] public Planet CoreWorld { get; private set; }
         [XmlIgnore][JsonIgnore] public Fleet CoreFleet { get; private set; }
-        [XmlIgnore][JsonIgnore] Array<Ship> OffensiveForcePool = new Array<Ship>();
-        [XmlIgnore][JsonIgnore] Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
+        [XmlIgnore][JsonIgnore] Array<Ship> OffensiveForcePool = new();
+        [XmlIgnore][JsonIgnore] Array<Ship> ShipsWaitingForCoreFleet = new();
         [XmlIgnore][JsonIgnore] Planet[] PlanetsInAo = NoPlanets;
         AOPlanetData[] PlanetData;
         [XmlIgnore][JsonIgnore] Planet[] OurPlanetsInAo = NoPlanets;
-        [XmlIgnore][JsonIgnore] SolarSystem[] SystemsInAo = NoSystem;
         [XmlIgnore][JsonIgnore] Empire Owner;
         [XmlIgnore][JsonIgnore] int ThreatTimer;
 
@@ -65,8 +60,8 @@ namespace Ship_Game.AI
         [StarData] public string Name { get; set; }
         [StarData] public int ThreatLevel;
         [StarData] public int CoreWorldId;
-        [StarData] public Array<int> OffensiveForceIds = new Array<int>();
-        [StarData] public Array<int> ShipsWaitingIds   = new Array<int>();
+        [StarData] public Array<int> OffensiveForceIds = new();
+        [StarData] public Array<int> ShipsWaitingIds   = new();
         [StarData] public int FleetId;
         [StarData] public int WhichFleet = -1;
         [StarData] public float Radius;
@@ -261,7 +256,6 @@ namespace Ship_Game.AI
             }
 
             PlanetsInAo = planets.ToArray();
-            SystemsInAo = systems.ToArray();
             PlanetData  = new AOPlanetData[PlanetsInAo.Length];
 
             for (int i = 0; i < PlanetsInAo.Length; i++)
@@ -273,7 +267,8 @@ namespace Ship_Game.AI
             }
         }
 
-        public void PrepareForSave()
+        [StarDataSerialize]
+        void OnSerialize()
         {
             OffensiveForceIds.Clear();
             ShipsWaitingIds.Clear();

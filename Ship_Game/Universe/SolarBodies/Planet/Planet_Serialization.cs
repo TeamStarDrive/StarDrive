@@ -1,27 +1,24 @@
 ﻿using System;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
+using Ship_Game.Universe.SolarBodies;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
     public partial class Planet
     {
-        public static Planet FromSaveData(SolarSystem system, SavedGame.PlanetSaveData data)
+        Planet() : base(0, GameObjectType.Planet)
         {
-            return new Planet(system, data);
+            TroopManager    = new TroopManager(this);
+            GeodeticManager = new GeodeticManager(this);
+            Money = new ColonyMoney(this);
         }
 
-        /// <summary>
-        /// Saved game data constructor
-        /// </summary>
-        private Planet(SolarSystem system, SavedGame.PlanetSaveData data): this(data.Id)
+        [StarDataDeserialized]
+        void OnDeserialized()
         {
-            ParentSystem = system;
-
-            Name = data.Name;
-            OrbitalAngle = data.OrbitalAngle;
-            OrbitalRadius = data.OrbitalDistance;
             UpdatePositionOnly();
 
             SetExploredBy(data.ExploredBy);
@@ -135,6 +132,21 @@ namespace Ship_Game
             }
 
             ResetHasDynamicBuildings();
+
+            foreach (PlanetGridSquare tile in TilesList)
+            {
+                if (tile.Building != null && !tile.IsCrashSiteActive)
+                {
+                    if (ResourceManager.GetBuilding(tile.Building.Name, out Building template))
+                    {
+                        tile.Building.AssignBuildingId(template.BID);
+                        tile.Building.Scrappable = template.Scrappable;
+                        tile.Building.CalcMilitaryStrength(this);
+                    }
+                }
+            }
+
+            UpdateIncomes();  // must be before restoring commodities since max storage is set here
         }
     }
 }

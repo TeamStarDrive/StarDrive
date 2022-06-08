@@ -2,15 +2,17 @@
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class PrepareForWar : Goal
     {
         public const string ID = "PrepareForWar";
         public override string UID => ID;
-        private bool SkipFirstRun = true;
+        [StarData] bool SkipFirstRun = true;
 
         public PrepareForWar(int id, UniverseState us)
             : base(GoalType.PrepareForWar, id, us)

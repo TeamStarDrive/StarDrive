@@ -2,11 +2,8 @@ using System;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using SDGraphics;
-using Ship_Game.Data;
-using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe.SolarBodies;
-using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
@@ -50,6 +47,7 @@ namespace Ship_Game.Gameplay
             Position = pos;
         }
 
+        [StarDataDeserialized]
         public void Initialize(SolarSystem system)
         {
             SetSystem(system);

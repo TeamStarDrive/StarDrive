@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
@@ -14,6 +15,7 @@ namespace Ship_Game
 {
     using static HelperFunctions;
 
+    [StarDataType]
     public class Pirates // Created by Fat Bastard April 2020
     {
         // Pirates Class is created for factions which are defined as pirates in their XML
@@ -36,17 +38,17 @@ namespace Ship_Game
         // Pirates which got paid might even protect targets from other pirates factions.
 
         public const int MaxLevel = 20;
-        public readonly Empire Owner;
+        [StarData] public readonly Empire Owner;
         public UniverseState Universe => Owner.Universum ?? throw new NullReferenceException("Pirates.Owner.Universe must not be null");
 
-        public readonly BatchRemovalCollection<Goal> Goals;
-        public Map<int, int> ThreatLevels { get; private set; }    = new Map<int, int>();  // Empire IDs are used here
-        public Map<int, int> PaymentTimers { get; private set; }   = new Map<int, int>(); // Empire IDs are used here
-        public Array<int> SpawnedShips { get; private set; }       = new Array<int>();
-        public Array<string> ShipsWeCanSpawn { get; private set; } = new Array<string>();
-        public int Level { get; private set; }
+        [StarData] public readonly Array<Goal> Goals;
+        [StarData] public Map<int, int> ThreatLevels { get; private set; }    = new();  // Empire IDs are used here
+        [StarData] public Map<int, int> PaymentTimers { get; private set; }   = new(); // Empire IDs are used here
+        [StarData] public Array<int> SpawnedShips { get; private set; }       = new();
+        [StarData] public Array<string> ShipsWeCanSpawn { get; private set; } = new();
+        [StarData] public int Level { get; private set; }
 
-        public Pirates(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
+        public Pirates(Empire owner, bool fromSave, Array<Goal> goals)
         {
             Owner = owner;
             Goals = goals;
@@ -115,15 +117,9 @@ namespace Ship_Game
             PopulateDefaultBasicShips(fromSave: false);
         }
 
-        public void RestoreFromSave(SavedGame.EmpireSaveData sData)
-
+        [StarDataDeserialized]
+        void OnDeserialized()
         {
-            ThreatLevels    = sData.PirateThreatLevels;
-            PaymentTimers   = sData.PiratePaymentTimers;
-            SpawnedShips    = sData.SpawnedShips;
-            ShipsWeCanSpawn = sData.ShipsWeCanSpawn;
-
-            SetLevel(sData.PirateLevel);
             PopulateDefaultBasicShips(fromSave: true);
         }
 
@@ -528,11 +524,7 @@ namespace Ship_Game
         public bool RaidingThisShip(Ship ship)
         {
             var goals = Owner.GetEmpireAI().Goals;
-
-            using (goals.AcquireReadLock())
-            {
-                return goals.Any(g => g.TargetShip == ship);
-            }
+            return goals.Any(g => g.TargetShip == ship);
         }
 
         void RemovePiratePresenceFromSystem()
@@ -930,7 +922,7 @@ namespace Ship_Game
         {
             if (!GetBases(out Array<Ship> bases)    
                 || !bases.Any(b => b == killedShip)
-                || killer.isFaction)
+                || killer.IsFaction)
             {
                 return; // The killed ship is not a pirate base or not relevant
             }

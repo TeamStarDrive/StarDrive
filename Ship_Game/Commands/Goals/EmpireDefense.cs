@@ -6,9 +6,11 @@ using Ship_Game.Empires.Components;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class EmpireDefense : Goal
     {
         public const string ID = "Empire Defense";

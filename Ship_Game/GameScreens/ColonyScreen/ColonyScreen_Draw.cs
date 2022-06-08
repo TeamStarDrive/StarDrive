@@ -100,16 +100,13 @@ namespace Ship_Game
 
             if (pgs.TroopsAreOnTile)
             {
-                using (pgs.TroopsHere.AcquireReadLock())
+                for (int i = 0; i < pgs.TroopsHere.Count; ++i)
                 {
-                    for (int i = 0; i < pgs.TroopsHere.Count; ++i)
-                    {
-                        Troop troop = pgs.TroopsHere[i];
-                        troop.SetColonyScreenRect(pgs);
-                        troop.DrawIcon(batch, troop.ClickRect);
-                        if (troop.Level > 0)
-                            DrawTroopLevel(troop);
-                    }
+                    Troop troop = pgs.TroopsHere[i];
+                    troop.SetColonyScreenRect(pgs);
+                    troop.DrawIcon(batch, troop.ClickRect);
+                    if (troop.Level > 0)
+                        DrawTroopLevel(troop);
                 }
             }
 

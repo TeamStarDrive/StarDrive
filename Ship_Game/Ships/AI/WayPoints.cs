@@ -22,15 +22,13 @@ namespace Ship_Game.Ships.AI
 
     public class WayPoints
     {
-        readonly SafeQueue<WayPoint> ActiveWayPoints = new SafeQueue<WayPoint>();
-        
+        readonly SafeQueue<WayPoint> ActiveWayPoints = new();
+        public int Count => ActiveWayPoints.Count;
+
         public void Clear()
         {
             ActiveWayPoints.Clear();
         }
-
-        public int Count => ActiveWayPoints.Count;
-
         public WayPoint Dequeue()
         {
             return ActiveWayPoints.Dequeue();
@@ -43,12 +41,15 @@ namespace Ship_Game.Ships.AI
         {
             return ActiveWayPoints.ElementAt(element);
         }
+        public void Set(WayPoint[] wayPoints)
+        {
+            for (int i = 0; i < wayPoints.Length; i++)
+                ActiveWayPoints.Enqueue(wayPoints[i]);
+        }
         public WayPoint[] ToArray()
         {
             return ActiveWayPoints.ToArray();
         }
-        public WayPoint PeekFirst => ActiveWayPoints.PeekFirst;
-        public WayPoint PeekLast => ActiveWayPoints.PeekLast;
-    }        
+    }
 
 }

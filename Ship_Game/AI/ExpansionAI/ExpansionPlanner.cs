@@ -4,6 +4,7 @@ using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
@@ -11,14 +12,16 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI.ExpansionAI
 {
+    [StarDataType]
     public class ExpansionPlanner // Refactored by Crunchy Gremlin and Fat Bastard - Jun 22, 2020
     {
-        readonly Empire Owner;
-        private readonly Array<SolarSystem> MarkedForExploration = new Array<SolarSystem>();
-        private Array<Goal> Goals => Owner.GetEmpireAI().Goals;
-        public PlanetRanker[] RankedPlanets { get; private set; }
-        public int ExpandSearchTimer { get; private set; }
-        public int MaxSystemsToCheckedDiv { get; private set; }
+        [StarData] readonly Empire Owner;
+        [StarData] readonly Array<SolarSystem> MarkedForExploration = new();
+        [StarData] public PlanetRanker[] RankedPlanets { get; private set; }
+        [StarData] public int ExpandSearchTimer { get; private set; }
+        [StarData] public int MaxSystemsToCheckedDiv { get; private set; }
+
+        Array<Goal> Goals => Owner.GetEmpireAI().Goals;
 
         public Planet[] GetColonizationGoalPlanets()
         {
@@ -132,7 +135,7 @@ namespace Ship_Game.AI.ExpansionAI
                                                              && !s.HasPlanetsOwnedBy(Owner)
                                                              && s.PlanetList.Any(p => p.Habitable)
                                                              && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength/4)
-                                                             && !s.OwnerList.Any(o=> !o.isFaction && Owner.IsAtWarWith(o))
+                                                             && !s.OwnerList.Any(o=> !o.IsFaction && Owner.IsAtWarWith(o))
             );
 
             // We are going to keep a list of wanted planets. 
@@ -208,7 +211,7 @@ namespace Ship_Game.AI.ExpansionAI
                 for (int j = 0; j < system.PlanetList.Count; j++)
                 {
                     Planet p = system.PlanetList[j];
-                    if (p.Habitable && (p.Owner == null || p.Owner.isFaction))
+                    if (p.Habitable && (p.Owner == null || p.Owner.IsFaction))
                         potentialPlanets.Add(p);
                 }
             }
@@ -227,7 +230,7 @@ namespace Ship_Game.AI.ExpansionAI
                     Planet p = system.PlanetList[j];
                     if (Owner.KnownEnemyStrengthIn(p.ParentSystem) <= Owner.OffensiveStrength
                         && p.Habitable
-                        && (p.Owner == null || p.Owner.isFaction))
+                        && (p.Owner == null || p.Owner.IsFaction))
                     {
                         potentialPlanets.Add(p);
                     }
@@ -265,7 +268,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             SolarSystem system = claimedPlanet.ParentSystem;
             if (!Owner.isPlayer
-                && !Owner.isFaction
+                && !Owner.IsFaction
                 && thiefRelationship.Known
                 && !thiefRelationship.AtWar
                 && system.HasPlanetsOwnedBy(thievingEmpire))

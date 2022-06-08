@@ -9,51 +9,57 @@ using SDUtils;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Fleets
 {
+    [StarDataType]
     public sealed class Fleet : ShipGroup
     {
-        public readonly Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
-        public readonly int Id;
-        public string Name = "";
+        [StarData] public readonly Array<FleetDataNode> DataNodes = new();
+        [StarData] public readonly int Id;
+        [StarData] public string Name = "";
         public ShipAI.TargetParameterTotals TotalFleetAttributes;
         public ShipAI.TargetParameterTotals AverageFleetAttributes;
 
-        readonly Array<Ship> CenterShips  = new Array<Ship>();
-        readonly Array<Ship> LeftShips    = new Array<Ship>();
-        readonly Array<Ship> RightShips   = new Array<Ship>();
-        readonly Array<Ship> RearShips    = new Array<Ship>();
-        readonly Array<Ship> ScreenShips  = new Array<Ship>();
-        public Array<Squad> CenterFlank   = new Array<Squad>();
-        public Array<Squad> LeftFlank     = new Array<Squad>();
-        public Array<Squad> RightFlank    = new Array<Squad>();
-        public Array<Squad> ScreenFlank   = new Array<Squad>();
-        public Array<Squad> RearFlank     = new Array<Squad>();
-        public readonly Array<Array<Squad>> AllFlanks = new Array<Array<Squad>>();
+        [StarData] readonly Array<Ship> CenterShips  = new();
+        [StarData] readonly Array<Ship> LeftShips    = new();
+        [StarData] readonly Array<Ship> RightShips   = new();
+        [StarData] readonly Array<Ship> RearShips    = new();
+        [StarData] readonly Array<Ship> ScreenShips  = new();
+        [StarData] public Array<Squad> CenterFlank   = new();
+        [StarData] public Array<Squad> LeftFlank     = new();
+        [StarData] public Array<Squad> RightFlank    = new();
+        [StarData] public Array<Squad> ScreenFlank   = new();
+        [StarData] public Array<Squad> RearFlank     = new();
+        [StarData] public readonly Array<Array<Squad>> AllFlanks = new();
 
         int DefenseTurns = 50;
-        public MilitaryTask FleetTask;
-        MilitaryTask CoreFleetSubTask;
-        public CombatStatus TaskCombatStatus = CombatStatus.InCombat;
+        [StarData] public MilitaryTask FleetTask;
+        [StarData] MilitaryTask CoreFleetSubTask;
+        [StarData] public CombatStatus TaskCombatStatus = CombatStatus.InCombat;
 
-        public int FleetIconIndex;
+        [StarData] public int FleetIconIndex;
         public SubTexture Icon => ResourceManager.FleetIcon(FleetIconIndex);
 
-        public int TaskStep;
-        public bool IsCoreFleet;
-        public bool AutoRequisition { get; private set; }
+        [StarData] public int TaskStep;
+        [StarData] public bool IsCoreFleet;
+        [StarData] public bool AutoRequisition { get; private set; }
 
         Ship[] AllButRearShips => Ships.Except(RearShips);
-        public bool HasRepair { get; private set; }  //fbedard: ships in fleet with repair capability will not return for repair.
-        public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
-        public bool ReadyForWarp { get; private set; }
+        [StarData] public bool HasRepair { get; private set; }  //fbedard: ships in fleet with repair capability will not return for repair.
+        [StarData] public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
+        [StarData] public bool ReadyForWarp { get; private set; }
 
-        public bool InFormationMove { get; private set; }
+        [StarData] public bool InFormationMove { get; private set; }
 
         public override string ToString()
             => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} ID={Id} task={FleetTask?.WhichFleet ?? -1}";
+
+        Fleet()
+        {
+        }
 
         public Fleet(int id)
         {
@@ -65,6 +71,13 @@ namespace Ship_Game.Fleets
         public Fleet(int id, Empire owner) : this(id)
         {
             Owner = owner;
+        }
+
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+            AssignPositions(FinalDirection);
+            UpdateSpeedLimit();
         }
 
         public void SetNameByFleetIndex(int index)
@@ -173,11 +186,6 @@ namespace Ship_Game.Fleets
                     }
                 }
             }
-        }
-
-        public void SetAutoRequisition(bool value)
-        {
-            AutoRequisition = value;
         }
 
         bool AddShipToNodes(Ship shipToAdd)
@@ -1055,7 +1063,7 @@ namespace Ship_Game.Fleets
         void DoClaimDefense(MilitaryTask task)
         {
             if (EndInvalidTask(task.TargetPlanet.Owner != null 
-                               && !task.TargetPlanet.Owner.isFaction 
+                               && !task.TargetPlanet.Owner.IsFaction 
                                && !task.TargetPlanet.Owner.data.IsRebelFaction
                                || !CanTakeThisFight(task.EnemyStrength, task)))
             {

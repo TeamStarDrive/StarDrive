@@ -3,11 +3,11 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI.Compnonents;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
@@ -16,31 +16,27 @@ using Vector2 = SDGraphics.Vector2;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
 {
-    [Guid("2CC355DF-EA7A-49C8-8940-00AA0713EFE3")]
+    [StarDataType]
     public sealed partial class EmpireAI
     {
-        private int NumberOfShipGoals  = 6;
+        int NumberOfShipGoals  = 6;
         public float BuildCapacity { get; private set; }
-        public float AvailableBuildCapacity => BuildCapacity - OwnerEmpire.TotalWarShipMaintenance - OwnerEmpire.TotalTroopShipMaintenance;
         public float CivShipBudget => OwnerEmpire.data.FreightBudget;
-        public float AvailableCivShipBudget => OwnerEmpire.data.FreightBudget - OwnerEmpire.TotalCivShipMaintenance;
         public float AllianceBuildCapacity { get; private set; }
 
-        private readonly Empire OwnerEmpire;
+        [StarData] readonly Empire OwnerEmpire;
         public readonly OffensiveForcePoolManager OffensiveForcePoolManager;
 
-        public string EmpireName;
         public DefensiveCoordinator DefensiveCoordinator;
-        public BatchRemovalCollection<Goal> Goals = new BatchRemovalCollection<Goal>();
-        public ThreatMatrix ThreatMatrix;                     
-        public Array<AO> AreasOfOperations = new Array<AO>();
-        public Array<int> UsedFleets = new Array<int>();
-        public float DefStr;
-        public ExpansionAI.ExpansionPlanner ExpansionAI;
+        [StarData] public Array<Goal> Goals = new();
+        [StarData] public Array<int> UsedFleets = new();
+        [StarData] public Array<AO> AreasOfOperations = new();
+        [StarData] public ThreatMatrix ThreatMatrix;
+        [StarData] public float DefStr;
+        [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
 
         public EmpireAI(Empire e, bool fromSave)
         {
-            EmpireName                = e.data.Traits.Name;
             OwnerEmpire               = e;
             ThreatMatrix              = new ThreatMatrix(e);
             DefensiveCoordinator      = new DefensiveCoordinator(e.Universum.CreateId(), e, "DefensiveCoordinator");
@@ -51,11 +47,17 @@ namespace Ship_Game.AI
             if (OwnerEmpire.data.EconomicPersonality != null)
                 NumberOfShipGoals += OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
-            if (OwnerEmpire.isFaction && OwnerEmpire.data.IsPirateFaction)
+            if (OwnerEmpire.IsFaction && OwnerEmpire.data.IsPirateFaction)
                 OwnerEmpire.SetAsPirates(fromSave, Goals);
 
-            if (OwnerEmpire.isFaction && OwnerEmpire.data.IsRemnantFaction)
+            if (OwnerEmpire.IsFaction && OwnerEmpire.data.IsRemnantFaction)
                 OwnerEmpire.SetAsRemnants(fromSave, Goals);
+        }
+
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+
         }
 
         void RunManagers()
@@ -69,7 +71,7 @@ namespace Ship_Game.AI
                 foreach (AO ao in AreasOfOperations)
                     ao.Update();
             }
-            if (!OwnerEmpire.isFaction)
+            if (!OwnerEmpire.IsFaction)
             {
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
@@ -172,7 +174,7 @@ namespace Ship_Game.AI
         public void CheckColonizationClaims(Empire them, Relationship usToThem)
         {
             if (OwnerEmpire.isPlayer
-                || OwnerEmpire.isFaction
+                || OwnerEmpire.IsFaction
                 || !usToThem.Known
                 || usToThem.AtWar)
             {
@@ -302,15 +304,14 @@ namespace Ship_Game.AI
             {
                 goal.FinishedShip?.AI.OrderOrbitNearest(true);
                 goal.PlanetBuildingAt?.Construction.Cancel(goal);
-                Goals.QueuePendingRemoval(goal);
-                Goals.ApplyPendingRemovals();
+                Goals.Remove(goal);
             }
         }
 
         public void Update()
         {
             DefStr = DefensiveCoordinator.GetForcePoolStrength();
-            if (!OwnerEmpire.isFaction)
+            if (!OwnerEmpire.IsFaction)
                 RunManagers();
             else
                 RemoveFactionEndedTasks();
@@ -321,8 +322,6 @@ namespace Ship_Game.AI
                 if (OwnerEmpire.data.Defeated)
                     break; // setting an empire as defeated within a goal clears the goals
             }
-
-            Goals.ApplyPendingRemovals();
         }
 
         public IReadOnlyList<Goal> SearchForGoals(GoalType type)
@@ -365,7 +364,7 @@ namespace Ship_Game.AI
                 Goal g = Goals[i];
                 if (g.type == type && removeIf(g))
                 {
-                    Goals.QueuePendingRemoval(g);
+                    Goals.Remove(g);
                     return;
                 }
             }

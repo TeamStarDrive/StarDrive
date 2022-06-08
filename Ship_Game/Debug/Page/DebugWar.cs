@@ -62,7 +62,7 @@ namespace Ship_Game.Debug.Page
 
             foreach ((Empire them, Relationship rel) in EmpireAtWar.AllRelations.Sorted(r=> r.Rel.AtWar))
             {
-                if (rel.Known && !them.isFaction && them != EmpireAtWar && !them.data.Defeated)
+                if (rel.Known && !them.IsFaction && them != EmpireAtWar && !them.data.Defeated)
                     text.Add(rel.DebugWar(EmpireAtWar));
             }
 

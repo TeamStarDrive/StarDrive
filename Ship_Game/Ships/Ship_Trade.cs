@@ -13,7 +13,7 @@ namespace Ship_Game.Ships
         public bool TransportingFood       { get; set; }
         public bool TransportingProduction { get; set; }
         public bool AllowInterEmpireTrade  { get; set; }
-        public Array<int> TradeRoutes      { get; private set; } = new Array<int>();
+        public Array<int> TradeRoutes      { get; private set; } = new();
 
         public bool IsCandidateForTradingBuild => ShipData.IsCandidateForTradingBuild;
         public bool IsFreighter => ShipData.IsFreighter;

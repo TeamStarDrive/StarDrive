@@ -173,7 +173,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     continue;
 
                 bool loyaltyMatch = ship.Loyalty == Owner || ship.Loyalty.IsAlliedWith(Owner);
-                if (ship.Loyalty.isFaction)
+                if (ship.Loyalty.IsFaction)
                     AddTroopsForFactions(ship);
 
                 if (loyaltyMatch
