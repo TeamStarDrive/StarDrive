@@ -1,34 +1,36 @@
 using System;
 using System.Collections.Generic;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public sealed class StatTracker
     {
-        static Map<string, Map<int, Snapshot>> SnapsMap = new();
+        [StarData] Map<string, Map<int, Snapshot>> SnapsMap = new();
 
-        public static int NumRecordedTurns => SnapsMap.Count;
-        public static Map<int, Snapshot>[] Snapshots => SnapsMap.Values.ToArr();
-        public static IReadOnlyDictionary<string, Map<int, Snapshot>> SnapshotsMap => SnapsMap;
+        public int NumRecordedTurns => SnapsMap.Count;
+        public Map<int, Snapshot>[] Snapshots => SnapsMap.Values.ToArr();
+        public IReadOnlyDictionary<string, Map<int, Snapshot>> SnapshotsMap => SnapsMap;
 
-        public static void Reset()
+        public void Reset()
         {
             SnapsMap.Clear();
         }
 
-        public static void SetSnapshots(Map<string, Map<int, Snapshot>> snapshots)
+        public void SetSnapshots(Map<string, Map<int, Snapshot>> snapshots)
         {
             SnapsMap = snapshots;
         }
 
-        public static bool ContainsDate(float starDate)
+        public bool ContainsDate(float starDate)
         {
             return SnapsMap.ContainsKey(starDate.StarDateString());
         }
 
-        public static void StatUpdateStarDate(float starDate)
+        public void StatUpdateStarDate(float starDate)
         {
             string starDateStr = starDate.StarDateString();
             if (SnapsMap.ContainsKey(starDateStr))
@@ -44,7 +46,7 @@ namespace Ship_Game
             }
         }
 
-        public static bool GetAllSnapshotsFor(float starDate, out Map<int, Snapshot> snapshots)
+        public bool GetAllSnapshotsFor(float starDate, out Map<int, Snapshot> snapshots)
         {
             string starDateStr = starDate.StarDateString();
             return SnapsMap.TryGetValue(starDateStr, out snapshots);
@@ -52,7 +54,7 @@ namespace Ship_Game
         
         // This will lazily initialize snapshot entries
         // BEWARE: SIDE EFFECTS
-        public static bool GetSnapshot(float starDate, Empire owner, out Snapshot snapshot)
+        public bool GetSnapshot(float starDate, Empire owner, out Snapshot snapshot)
         {
             string starDateStr = starDate.StarDateString();
             if (!SnapsMap.TryGetValue(starDateStr, out var snapshots))
@@ -76,24 +78,24 @@ namespace Ship_Game
             return false;
         }
 
-        public static void UpdateEmpire(float starDate, Empire empire)
+        public void UpdateEmpire(float starDate, Empire empire)
         {
             GetSnapshot(starDate, empire, out Snapshot _);
         }
 
-        public static void StatAddRoad(float starDate, RoadNode node, Empire owner)
+        public void StatAddRoad(float starDate, RoadNode node, Empire owner)
         {
             if (GetSnapshot(starDate, owner, out Snapshot snapshot))
                 snapshot.EmpireNodes.Add(new NRO(node.Position));
         }
 
-        public static void StatAddPlanetNode(float starDate, Planet planet)
+        public void StatAddPlanetNode(float starDate, Planet planet)
         {
             if (GetSnapshot(starDate, planet.Owner, out Snapshot snapshot))
                 snapshot.EmpireNodes.Add(new NRO(planet.Position));
         }
 
-        public static void StatAddColony(float starDate, Planet planet)
+        public void StatAddColony(float starDate, Planet planet)
         {
             if (GetSnapshot(starDate, planet.Owner, out Snapshot snapshot))
             {

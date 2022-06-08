@@ -6,6 +6,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -25,14 +26,11 @@ namespace Ship_Game
         [StarData] public float ConsumptionPerTurn;
         [StarData] public float OutputPerTurn;
         [StarData] public string CommodityRequired;
-        [StarData] public CommodityBonusType CommodityBonusType;
-        [StarData] public float CommodityBonusAmount;
         [StarData] public bool IsCommodity;
         [StarData] public bool WinsGame;
         [StarData] public bool BuildOnlyOnce;
         [StarData] public string EventOnBuild;
         [StarData] public string EventTriggerUID = "";
-        [StarData] public bool EventWasTriggered;
         [StarData] public bool CanBuildAnywhere;
         [StarData] public float PlusTerraformPoints;
         [StarData] public int Strength = 5;
@@ -85,13 +83,12 @@ namespace Ship_Game
         [StarData] public bool CanBeCreatedFromLava; // Can be created when lava is solidified
         [StarData] public bool CanBeTerraformed; // By level 1
 
-
         // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
         [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
         [XmlIgnore][JsonIgnore] public int CurrentNumDefenseShips { get; private set; }
         [XmlIgnore][JsonIgnore] public float MilitaryStrength { get; private set; }
-        [XmlIgnore][JsonIgnore] public float ActualCost => Cost * CurrentGame.ProductionPace;
+        [XmlIgnore][JsonIgnore] public float ActualCost => Cost * UniverseState.DummyProductionPacePlaceholder;
         [XmlIgnore][JsonIgnore] public bool IsBadCacheResourceBuilding => 
             FoodCache.Greater(0) && PlusFlatFoodAmount.AlmostZero() 
             || ProdCache.Greater(0) && PlusProdPerColonist.AlmostZero();
@@ -99,8 +96,8 @@ namespace Ship_Game
         public override string ToString()
             => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{GetShortDescrText()}";
 
-        [XmlIgnore][JsonIgnore] public LocalizedText TranslatedName  => new LocalizedText(NameTranslationIndex);
-        [XmlIgnore][JsonIgnore] public LocalizedText DescriptionText => new LocalizedText(DescriptionIndex);
+        [XmlIgnore][JsonIgnore] public LocalizedText TranslatedName  => new(NameTranslationIndex);
+        [XmlIgnore][JsonIgnore] public LocalizedText DescriptionText => new(DescriptionIndex);
 
         // Each Building templates has a unique ID:
         [XmlIgnore][JsonIgnore] public int BID { get; private set; }

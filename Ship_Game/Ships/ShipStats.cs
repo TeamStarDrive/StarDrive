@@ -103,7 +103,7 @@ namespace Ship_Game.Ships
             S.NetPower = Power.Calculate(modules, e);
             S.PowerStoreMax  = S.NetPower.PowerStoreMax;
             S.PowerFlowMax   = S.NetPower.PowerFlowMax;
-            S.ShieldPercent = (100.0 * S.ShieldPower / S.ShieldMax.LowerBound(0.1f)).LowerBound(0);
+            S.ShieldPercent = (100f * S.ShieldPower / S.ShieldMax.LowerBound(0.1f)).LowerBound(0);
             S.SensorRange   += maxSensorBonus;
 
             // Apply modifiers to stats

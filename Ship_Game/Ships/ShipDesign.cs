@@ -67,15 +67,15 @@ namespace Ship_Game.Ships
         public ushort[] SlotModuleUIDMapping { get; private set; } = Empty<ushort>.Array;
 
         public bool Unlockable { get; set; } = true; // unlocked=true by default
-        public HashSet<string> TechsNeeded { get; set; } = new HashSet<string>();
+        public HashSet<string> TechsNeeded { get; set; } = new();
 
         // BaseHull is the template layout of the ship hull design
         public ShipHull BaseHull { get; private set; }
         public HullBonus Bonuses { get; private set; }
         public FileInfo Source { get; set; }
 
-        public bool IsPlayerDesign { get; set; }
-        public bool IsReadonlyDesign { get; set; }
+        [StarData] public bool IsPlayerDesign { get; set; }
+        [StarData] public bool IsReadonlyDesign { get; set; }
         public bool Deleted { get; set; }
         public bool IsFromSave { get; set; }
 

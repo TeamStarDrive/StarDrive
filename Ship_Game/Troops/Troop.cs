@@ -52,14 +52,14 @@ namespace Ship_Game
         [StarData] public string Class;
         [StarData] public TargetType TargetType;
         [StarData] public float Cost;
-        [StarData] public string sound_attack;
         [StarData] public int Range;
         [StarData] public float Launchtimer = 10f; // FB - use UpdateLaunchTimer or ResetLaunchTimer
         [StarData] public string Type;
 
-        [XmlIgnore][JsonIgnore] public Planet HostPlanet { get; private set; }
-        [XmlIgnore][JsonIgnore] Empire Owner;
-        [XmlIgnore][JsonIgnore] public Ship HostShip { get; private set; }
+        [StarData] [XmlIgnore][JsonIgnore] public Planet HostPlanet { get; private set; }
+        [StarData] [XmlIgnore][JsonIgnore] Empire Owner;
+        [StarData] [XmlIgnore][JsonIgnore] public Ship HostShip { get; private set; }
+
         [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
         [XmlIgnore][JsonIgnore] public Rectangle ClickRect { get; private set; }
         [XmlIgnore][JsonIgnore] public bool Hovered;
@@ -67,7 +67,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] float UpdateTimer;
         [XmlIgnore][JsonIgnore] public string DisplayName   => DisplayNameEmpire(Owner);
-        [XmlIgnore][JsonIgnore] public float ActualCost     => Cost * CurrentGame.ProductionPace;
+        [XmlIgnore][JsonIgnore] public float ActualCost     => Cost * UniverseState.DummyProductionPacePlaceholder;
         [XmlIgnore][JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
         [XmlIgnore][JsonIgnore] public bool CanAttack       => AvailableAttackActions > 0;
         [XmlIgnore][JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.05f * Level * HardAttack);

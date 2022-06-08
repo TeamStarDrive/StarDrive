@@ -24,7 +24,6 @@ namespace Ship_Game
         [StarData] public bool shipDesignsCanuseThis = true;
         [StarData] public Array<string> WasAcquiredFrom;
 
-
         public bool Locked => !Unlocked;
 
         /// Can this tech be researched further?
@@ -64,7 +63,7 @@ namespace Ship_Game
         public bool IsRoot => Tech.IsRootNode;
 
         [XmlIgnore][JsonIgnore]
-        public Array<string> ConqueredSource = new Array<string>();
+        public Array<string> ConqueredSource = new();
 
         [XmlIgnore][JsonIgnore]
         public TechnologyType TechnologyType => Tech.TechnologyTypes.First();
@@ -81,9 +80,9 @@ namespace Ship_Game
         public bool IsMultiLevel => Tech.MaxLevel > 1;
 
         [XmlIgnore][JsonIgnore]
-        readonly Dictionary<TechnologyType, float> TechTypeCostLookAhead = new Dictionary<TechnologyType, float>();
+        readonly Dictionary<TechnologyType, float> TechTypeCostLookAhead = new();
 
-        public static readonly TechEntry None = new TechEntry("");
+        public static readonly TechEntry None = new("");
 
         public override string ToString()
             => $"TechEntry Discovered={Discovered} Unlocked={Unlocked}({Level}/{MaxLevel}) CanResearch={CanBeResearched} {UID}";

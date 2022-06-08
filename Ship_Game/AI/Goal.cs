@@ -67,7 +67,7 @@ namespace Ship_Game.AI
     public abstract class Goal
     {
         [StarData] public readonly int Id;
-        public UniverseState UState;
+        [StarData] public UniverseState UState;
         [StarData] public Empire empire;
         [StarData] public GoalType type;
         [StarData] public int Step { get; private set; }

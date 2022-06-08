@@ -39,9 +39,6 @@ namespace Ship_Game
         public static Empire[] NonPlayerEmpires =>
             Empires.Filter(empire => !empire.isPlayer);
 
-        public static Empire[] ActiveNonPlayerEmpires =>
-            Empires.Filter(empire => !empire.isPlayer && !empire.data.Defeated);
-
         public static Empire[] ActiveNonPlayerMajorEmpires =>
             Empires.Filter(empire => !empire.IsFaction && !empire.isPlayer && !empire.data.Defeated);
 

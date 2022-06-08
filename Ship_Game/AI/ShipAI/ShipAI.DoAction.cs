@@ -268,7 +268,7 @@ namespace Ship_Game.AI
                     if (node.Position == g.Goal.BuildPosition)
                     {
                         node.Platform = platform;
-                        StatTracker.StatAddRoad(Owner.Universe.StarDate, node, Owner.Loyalty);
+                        Owner.Universe.Stats.StatAddRoad(Owner.Universe.StarDate, node, Owner.Loyalty);
                         return;
                     }
                 }

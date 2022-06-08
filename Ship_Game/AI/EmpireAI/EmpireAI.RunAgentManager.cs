@@ -51,7 +51,7 @@ namespace Ship_Game.AI
             AssignSpyMissions(currentMissions, wantedMissions);
         }
 
-        float GetSpyModifier() => (1 + (int)CurrentGame.Difficulty) * OwnerEmpire.PersonalityModifiers.WantedAgentMissionMultiplier;
+        float GetSpyModifier() => (1 + (int)UState.Difficulty) * OwnerEmpire.PersonalityModifiers.WantedAgentMissionMultiplier;
 
         void AssignSpyMissions(int currentMissions, int wantedMissions)
         {

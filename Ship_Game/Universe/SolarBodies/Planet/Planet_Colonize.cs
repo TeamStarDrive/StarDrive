@@ -55,7 +55,7 @@ namespace Ship_Game
             SetInGroundCombat(Owner);
             AbortLandingPlayerFleets();
             Owner.TryTransferCapital(this);
-            StatTracker.StatAddColony(Universe.StarDate, this);
+            Universe.Stats.StatAddColony(Universe.StarDate, this);
         }
 
         void SetupColonyType()
