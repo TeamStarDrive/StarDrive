@@ -99,7 +99,7 @@ namespace Ship_Game
         // global sticky checkboxes the player changes in game
         public static bool SuppressOnBuildNotifications;
         public static bool PlanetScreenHideOwned;
-        public static bool PlanetsScreenHideUnhabitable = true;
+        public static bool PlanetsScreenHideInhospitable = true;
         public static bool ShipListFilterPlayerShipsOnly;
         public static bool ShipListFilterInFleetsOnly;
         public static bool ShipListFilterNotInFleets;

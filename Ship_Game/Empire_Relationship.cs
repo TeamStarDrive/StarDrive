@@ -357,7 +357,7 @@ namespace Ship_Game
             }
         }
 
-        public static void InitializeRelationships(Empire[] savedEmpires)
+        public static void InitializeRelationships(IReadOnlyList<Empire> savedEmpires)
         {
             foreach (Empire ourEmpire in savedEmpires)
             {
