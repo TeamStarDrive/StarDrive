@@ -22,8 +22,8 @@ namespace Ship_Game.Utils
         T[] Items;
         int Head; // index of the First element
         public int Count { get; private set; }
-        ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        AutoResetEvent ItemAdded = new AutoResetEvent(false);
+        ReaderWriterLockSlim ThisLock = new(LockRecursionPolicy.SupportsRecursion);
+        AutoResetEvent ItemAdded = new(false);
 
         // This is relatively atomic, no reason to lock on this
         // as it wouldn't provide any benefits or thread safety
@@ -470,6 +470,13 @@ namespace Ship_Game.Utils
             {
                 ThisLock.ExitWriteLock();
             }
+        }
+
+        public void SetRange(IReadOnlyList<T> items)
+        {
+            Clear();
+            foreach (var item in items)
+                Enqueue(item);
         }
 
         public override string ToString()

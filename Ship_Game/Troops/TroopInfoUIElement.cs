@@ -66,21 +66,18 @@ namespace Ship_Game
             if (Tile.TroopsAreOnTile) // draw troop_stats
             {
                 Troop troopToDraw = null;
-                using (Tile.TroopsHere.AcquireReadLock())
+                for (int i = 0; i < Tile.TroopsHere.Count; ++i)
                 {
-                    for (int i = 0; i < Tile.TroopsHere.Count; ++i)
-                    {
-                        Troop troop = Tile.TroopsHere[i];
-                        if (Tile.TroopsHere.Count == 1)
-                            troopToDraw = troop;
-                        else if (troop.Loyalty != EmpireManager.Player && troop.Hovered)
-                            troopToDraw = troop;
-                        else if (troop.Loyalty == EmpireManager.Player)
-                            troopToDraw = troop;
-                    }
-
-                    DrawTroopStats(batch, troopToDraw, slant, Universe.Input.CursorPosition, color);
+                    Troop troop = Tile.TroopsHere[i];
+                    if (Tile.TroopsHere.Count == 1)
+                        troopToDraw = troop;
+                    else if (troop.Loyalty != EmpireManager.Player && troop.Hovered)
+                        troopToDraw = troop;
+                    else if (troop.Loyalty == EmpireManager.Player)
+                        troopToDraw = troop;
                 }
+
+                DrawTroopStats(batch, troopToDraw, slant, Universe.Input.CursorPosition, color);
             }
             else // draw building stats
             {
@@ -195,13 +192,10 @@ namespace Ship_Game
                 }
             }
 
-            using (Tile.TroopsHere.AcquireReadLock())
+            for (int i = 0; i < Tile.TroopsHere.Count; ++i)
             {
-                for (int i = 0; i < Tile.TroopsHere.Count; ++i)
-                {
-                    Troop troop = Tile.TroopsHere[i];
-                    troop.Hovered = troop.ClickRect.HitTest(input.CursorPosition);
-                }
+                Troop troop = Tile.TroopsHere[i];
+                troop.Hovered = troop.ClickRect.HitTest(input.CursorPosition);
             }
             return false;
         }

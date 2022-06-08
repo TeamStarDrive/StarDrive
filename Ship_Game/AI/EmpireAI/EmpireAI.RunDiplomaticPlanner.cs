@@ -26,7 +26,7 @@ namespace Ship_Game.AI
 
             foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                if (!them.isFaction && !OwnerEmpire.isFaction && !them.data.Defeated)
+                if (!them.IsFaction && !OwnerEmpire.IsFaction && !them.data.Defeated)
                     CheckColonizationClaims(them, rel);
             }
         }
@@ -135,7 +135,7 @@ namespace Ship_Game.AI
         bool DoNotInteract(Relationship relations, Empire them)
         {
             return !relations.Known
-                   || them.isFaction
+                   || them.IsFaction
                    || them.data.Defeated
                    || GlobalStats.RestrictAIPlayerInteraction && Player == them;
         }
@@ -145,7 +145,7 @@ namespace Ship_Game.AI
             int enemyStr = 0;
             foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                if (!them.isFaction
+                if (!them.IsFaction
                     &&!them.data.Defeated 
                     && (rel.AtWar || rel.PreparingForWar))
                 {
@@ -204,7 +204,7 @@ namespace Ship_Game.AI
                     foreach (Empire others in closeSystem.OwnerList)
                     {
                         if (others == OwnerEmpire
-                            || others.isFaction
+                            || others.IsFaction
                             || !OwnerEmpire.GetRelations(others, out Relationship usToThem)
                             || !usToThem.Known
                             || usToThem.Treaty_Alliance

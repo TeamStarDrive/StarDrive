@@ -3,12 +3,14 @@ using Ship_Game.Ships;
 using System;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
+    [StarDataType]
     class AssaultBombers : Goal
     {
         public const string ID = "AssaultBombers";

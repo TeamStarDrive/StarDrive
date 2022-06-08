@@ -163,7 +163,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return 0;
 
-            bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Rel.Known && !r.Them.isFaction);
+            bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Rel.Known && !r.Them.IsFaction);
             if (notKnown) return 0;
 
             float trustworthiness = OwnerEmpire.data.DiplomaticPersonality?.Trustworthiness ?? 100;

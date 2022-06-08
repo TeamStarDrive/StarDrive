@@ -8,6 +8,7 @@ using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Spatial;
 using Ship_Game.Gameplay;
 using Ship_Game.Utils;
@@ -15,6 +16,7 @@ using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public partial class Planet : SolarSystemBody, IDisposable
     {
         public enum ColonyType
@@ -35,11 +37,11 @@ namespace Ship_Game
         public TroopManager TroopManager;
         public SpaceStation Station;
 
-        public bool DontScrapBuildings = false;
-        public bool Quarantine         = false;
+        [StarData] public bool DontScrapBuildings = false;
+        [StarData] public bool Quarantine         = false;
         public bool AllowInfantry;
 
-        public int CrippledTurns;
+        [StarData] public int CrippledTurns;
         public int TotalDefensiveStrength { get; private set; }
         public float TotalTroopConsumption { get; private set; }
 
@@ -54,7 +56,7 @@ namespace Ship_Game
         // Timers
         float PlanetUpdatePerTurnTimer;
 
-        public int NumShipyards;
+        [StarData] public int NumShipyards;
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
         private float Unfed;
         public bool IsStarving => Unfed < 0f;
@@ -69,8 +71,8 @@ namespace Ship_Game
         public float GroundDefMaintenance { get; private set; }
         public float InfraStructure { get; private set; }
         public bool HasDynamicBuildings { get; private set; } // Has buildings which should update per turn even if no owner
-        public bool HasLimitedResourceBuilding { get; private set; } // if true, these buildings will be updated per turn until depleted
-        public int BombingIntensity { get; private set; } // The more bombs hitting the surface, the harder is to heal troops or repair buildings
+        [StarData] public bool HasLimitedResourceBuilding { get; private set; } // if true, these buildings will be updated per turn until depleted
+        [StarData] public int BombingIntensity { get; private set; } // The more bombs hitting the surface, the harder is to heal troops or repair buildings
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -328,7 +330,7 @@ namespace Ship_Game
         {
             if (data != null)
                 return data.Planet;
-            int ringNum = 1 + ParentSystem.RingList.IndexOf(r => r.planet == this);
+            int ringNum = 1 + ParentSystem.RingList.IndexOf(r => r.Planet == this);
             return $"{ParentSystem.Name} {RomanNumerals.ToRoman(ringNum)}";
         }
 
@@ -370,9 +372,7 @@ namespace Ship_Game
 
         float GetTotalTroopConsumption()
         {
-            int numTroops;
-            using (TroopsHere.AcquireReadLock())
-                numTroops = TroopsHere.Count(t => t.Loyalty == Owner);
+            int numTroops = TroopsHere.Count(t => t.Loyalty == Owner);
 
             float consumption = numTroops * Troop.Consumption * (1 + Owner.data.Traits.ConsumptionModifier);
 
@@ -760,7 +760,7 @@ namespace Ship_Game
         private void PostBuildingRemoval(Building b, PlanetGridSquare tile, bool destroy = false)
         {
             if (tile != null)
-                tile.CrashSite = new DynamicCrashSite(false);
+                tile.CrashSite = null;
 
             // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
             // environment buildings can be scrapped and the planet will slowly recover
@@ -872,7 +872,9 @@ namespace Ship_Game
         public float PopPerTileFor(Empire empire) => BasePopPerTile * Empire.RacialEnvModifer(Category, empire);
 
         // these are intentionally duplicated so we don't easily modify them...
-        private float BasePopPerTileVal, MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
+        float BasePopPerTileVal, MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
+
+        [StarData]
         public float BasePopPerTile // population per tile with no racial modifiers
         {
             get => BasePopPerTileVal;
@@ -1234,7 +1236,7 @@ namespace Ship_Game
                 if (ship.IsMeteor)
                     CrashMeteor(ship, crashTile);
                 else
-                    crashTile.CrashSite.CrashShip(ship.Loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile, ship.SurfaceArea);
+                    crashTile.CrashShip(ship.Loyalty, ship.Name, troopName, numTroopsSurvived, this, ship.SurfaceArea);
             }
 
             // Local Functions
@@ -1676,7 +1678,7 @@ namespace Ship_Game
             Storage   = null;
             TroopManager    = null;
             GeodeticManager = null;
-            TroopsHere?.Dispose(ref TroopsHere);
+            TroopsHere = null;
         }
 
         public DebugTextBlock DebugPlanetInfo()

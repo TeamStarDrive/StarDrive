@@ -1,17 +1,19 @@
 ﻿using System;
 using SDGraphics;
 using Ship_Game.AI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class PirateBase : Goal
     {
         public const string ID = "PirateBase";
         public override string UID => ID;
         private Pirates Pirates;
-        private Ship Base;
+        [StarData] Ship Base;
 
         public PirateBase(int id, UniverseState us)
             : base(GoalType.PirateBase, id, us)

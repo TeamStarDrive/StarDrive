@@ -68,7 +68,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public float GetPriority()
         {
-            if (Them.isFaction) 
+            if (Them.IsFaction) 
                 return 11; // This might be changed in the future, if we want more meaningful wars vs factions
 
             var warState = Score.GetWarScoreState();
@@ -114,7 +114,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Score                       = new WarScore(this, Us);
 
             PopulateHistoricLostSystems(us.Universum);
-            if (!Us.isPlayer && !Us.isFaction && !them.isFaction)
+            if (!Us.isPlayer && !Us.IsFaction && !them.IsFaction)
                 Us.GetEmpireAI().AddGoal(new WarManager(Us, Them, WarType));
 
             //WarTheaters = new TheatersOfWar(this);

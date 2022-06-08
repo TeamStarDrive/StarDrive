@@ -5,11 +5,13 @@ using System;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI.ExpansionAI;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class MarkForColonization : Goal
     {
         public const string ID = "MarkForColonization";
@@ -83,7 +85,7 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.GoalComplete;
 
                 // If the owner is a faction, fail the goal so next time we also get a claim fleet to invade
-                if (ColonizationTarget.Owner.isFaction) 
+                if (ColonizationTarget.Owner.IsFaction) 
                     return FinishedShip != null ? GoalStep.GoalFailed : GoalStep.GoToNextStep;
 
                 ReleaseShipFromGoal();
@@ -263,7 +265,7 @@ namespace Ship_Game.Commands.Goals
         {
             spaceStrength   = empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem);
             float groundStr = ColonizationTarget.GetGroundStrengthOther(empire);
-            if (ColonizationTarget.Owner?.isFaction  == true && groundStr < 1)
+            if (ColonizationTarget.Owner?.IsFaction  == true && groundStr < 1)
                 groundStr += 40; // So AI will know to send fleets to remnant colonies, even if they are empty
 
             return spaceStrength > 10 || groundStr > 0;

@@ -139,7 +139,7 @@ namespace Ship_Game.GameScreens.NewGame
             foreach (Empire empire in UState.Empires)
             {
                 step.Advance();
-                if (empire.isFaction)
+                if (empire.IsFaction)
                     continue;
 
                 IReadOnlyList<Planet> planets = empire.GetPlanets();
@@ -166,7 +166,7 @@ namespace Ship_Game.GameScreens.NewGame
 
             foreach (Empire e in UState.Empires)
             {
-                if (e.isFaction)
+                if (e.IsFaction)
                     continue;
 
                 e.InitFleetEmpireStrMultiplier();
@@ -258,7 +258,7 @@ namespace Ship_Game.GameScreens.NewGame
 
         void CreateSystemPlaceHolders(ProgressCounter step)
         {
-            Empire[] majorEmpires = UState.Empires.Filter(e => !e.isFaction);
+            Empire[] majorEmpires = UState.Empires.Filter(e => !e.IsFaction);
             
             step.Start(NumSystems + majorEmpires.Length);
 

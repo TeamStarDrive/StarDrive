@@ -6,7 +6,6 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game
@@ -103,7 +102,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public LocalizedText TranslatedName  => new LocalizedText(NameTranslationIndex);
         [XmlIgnore][JsonIgnore] public LocalizedText DescriptionText => new LocalizedText(DescriptionIndex);
 
-        // Each Building templates has a unique ID: 
+        // Each Building templates has a unique ID:
         [XmlIgnore][JsonIgnore] public int BID { get; private set; }
         public void AssignBuildingId(int bid) => BID = bid;
 

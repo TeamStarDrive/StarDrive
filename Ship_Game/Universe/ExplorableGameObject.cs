@@ -4,13 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Universe
 {
+    [StarDataType]
     public class ExplorableGameObject : GameObject
     {
         // this is a sparse map where [Empire.Id-1] is the index
-        Empire[] ExploredBy = Empty<Empire>.Array;
+        [StarData] Empire[] ExploredBy = Empty<Empire>.Array;
 
         public ExplorableGameObject(int id, GameObjectType type) : base(id, type)
         {

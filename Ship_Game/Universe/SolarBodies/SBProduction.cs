@@ -7,13 +7,15 @@ using SDGraphics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 using SDUtils;
 using System.Linq;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Universe.SolarBodies
 {
     // Production facilities
+    [StarDataType]
     public class SBProduction
     {
-        readonly Planet P;
+        [StarData] readonly Planet P;
         Empire Owner => P.Owner;
 
         public bool NotEmpty => ConstructionQueue.NotEmpty;
@@ -23,7 +25,7 @@ namespace Ship_Game.Universe.SolarBodies
         /// <summary>
         /// The Construction queue should be protected
         /// </summary>
-        readonly Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
+        [StarData] readonly Array<QueueItem> ConstructionQueue = new();
 
         float ProductionHere
         {
@@ -31,7 +33,7 @@ namespace Ship_Game.Universe.SolarBodies
             set => P.ProdHere = value;
         }
 
-        float SurplusThisTurn;
+        [StarData] float SurplusThisTurn;
 
         public SBProduction(Planet planet)
         {
@@ -275,7 +277,6 @@ namespace Ship_Game.Universe.SolarBodies
                 ProductionSpent = 0.0f,
                 NotifyOnEmpty   = false,
                 Rush            = P.Owner.RushAllConstruction,
-                QueueNumber     = ConstructionQueue.Count
             };
 
             if (b.AssignBuildingToTile(b, ref where, P))
@@ -299,7 +300,6 @@ namespace Ship_Game.Universe.SolarBodies
                 Goal          = goal,
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({platform.Name})",
-                QueueNumber   = ConstructionQueue.Count,
                 sData         = constructor,
                 Cost          = platform.GetCost(Owner),
                 Rush          = P.Owner.RushAllConstruction
@@ -317,7 +317,6 @@ namespace Ship_Game.Universe.SolarBodies
                 Goal          = goal,
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({orbitalRefit.Name})",
-                QueueNumber   = ConstructionQueue.Count,
                 sData         = constructor,
                 Cost          = refitCost,
                 Rush          = P.Owner.RushAllConstruction,
@@ -336,7 +335,6 @@ namespace Ship_Game.Universe.SolarBodies
                 sData         = ship,
                 Cost          = GetShipCost(),
                 NotifyOnEmpty = notifyOnEmpty,
-                QueueNumber   = ConstructionQueue.Count,
                 Rush          = P.Owner.RushAllConstruction
             };  
 
@@ -375,7 +373,6 @@ namespace Ship_Game.Universe.SolarBodies
             var qi = new QueueItem(P)
             {
                 isTroop     = true,
-                QueueNumber = ConstructionQueue.Count,
                 TroopType   = template.Name,
                 Goal        = goal,
                 Cost        = template.ActualCost,

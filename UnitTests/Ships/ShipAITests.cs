@@ -66,14 +66,14 @@ namespace UnitTests.Ships
             // faction tests
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
-                Enemy.isFaction = true;
+                Enemy.IsFaction = true;
             });
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Faction: " + GetFailString(us, ourShip, theirShip, ourRelation));
 
             // faction trade works like empire
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
-                Enemy.isFaction = true;
+                Enemy.IsFaction = true;
                 ourRelation.Treaty_Trade = true;
                 theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
             });
@@ -82,14 +82,14 @@ namespace UnitTests.Ships
             // faction na pact
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
-                Enemy.isFaction = true;
+                Enemy.IsFaction = true;
                 ourRelation.Treaty_NAPact = true;
             });
             Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Faction NA Pact: " + GetFailString(us, ourShip, theirShip, ourRelation));
 
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
-                Player.isFaction = true;
+                Player.IsFaction = true;
                 theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
                 ourRelation.Treaty_NAPact = true;
             });
@@ -97,7 +97,7 @@ namespace UnitTests.Ships
 
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
-                Player.isFaction = true;
+                Player.IsFaction = true;
                 theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
                 ourRelation.Treaty_NAPact = true;
             });
@@ -108,7 +108,7 @@ namespace UnitTests.Ships
             // faction reset treaties and anger
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
-                Enemy.isFaction = true;
+                Enemy.IsFaction = true;
             });
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Faction" + GetFailString(us, ourShip, theirShip, ourRelation));
 
@@ -145,7 +145,7 @@ namespace UnitTests.Ships
             // war tests
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
-                Enemy.isFaction = false;
+                Enemy.IsFaction = false;
                 us.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
             });
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), $"War: {GetFailString(us, ourShip, theirShip, ourRelation)}");
@@ -154,7 +154,7 @@ namespace UnitTests.Ships
             // faction attack napact
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
-                Player.isFaction = true;
+                Player.IsFaction = true;
                 theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
                 ourRelation.Treaty_NAPact = true;
             });
@@ -162,7 +162,7 @@ namespace UnitTests.Ships
 
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
-                Player.isFaction = true;
+                Player.IsFaction = true;
                 theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
             });
             Assert.IsTrue(Player.IsEmpireHostile(Enemy), "Faction NA Pact hostile: " + GetFailString(us, ourShip, theirShip, ourRelation));
@@ -234,8 +234,8 @@ namespace UnitTests.Ships
         {
             theirShip.AI.ClearOrders();
 
-            Enemy.isFaction                 = false;
-            Player.isFaction                = false;
+            Enemy.IsFaction                 = false;
+            Player.IsFaction                = false;
             ourRelation.Treaty_NAPact       = false;
             ourRelation.Treaty_Trade        = false;
             ourRelation.Treaty_Peace        = false;

@@ -349,39 +349,39 @@ namespace Ship_Game.Gameplay
                         TimesSpiedOnAlly += 1;
                         if (TimesSpiedOnAlly == 1)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_1");
 
                             turnsSinceLastContact = 0;
                         }
                         else if (TimesSpiedOnAlly > 1)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
 
                             us.BreakAllTreatiesWith(them);
                             turnsSinceLastContact = 0;
                         }
                     }
-                    else if (SpiesDetected == 1 && !AtWar && them.isPlayer && !us.isFaction)
+                    else if (SpiesDetected == 1 && !AtWar && them.isPlayer && !us.IsFaction)
                     {
                         if (SpiesDetected == 1)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_1");
 
                             turnsSinceLastContact = 0;
                         }
                         else if (SpiesDetected == 2)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_2");
 
                             turnsSinceLastContact = 0;
                         }
                         else if (SpiesDetected >= 3)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_3");
 
                             us.BreakAllTreatiesWith(them);
@@ -402,19 +402,19 @@ namespace Ship_Game.Gameplay
                         TimesSpiedOnAlly += 1;
                         if (TimesSpiedOnAlly == 1)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_1");
                         }
                         else if (TimesSpiedOnAlly > 1)
                         {
-                            if (them.isPlayer && !us.isFaction)
+                            if (them.isPlayer && !us.IsFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
 
                             us.BreakAllTreatiesWith(them);
                             Posture = Posture.Hostile;
                         }
                     }
-                    else if (them.isPlayer && !us.isFaction)
+                    else if (them.isPlayer && !us.IsFaction)
                     {
                         DiplomacyScreen.ShowEndOnly(us, them, "Killed_Spy_1");
                     }
@@ -472,7 +472,7 @@ namespace Ship_Game.Gameplay
                         if (AtWar)
                             return;
 
-                        if (them.isPlayer && !us.isFaction)
+                        if (them.isPlayer && !us.IsFaction)
                         {
                             if (!WarnedAboutShips)
                                 DiplomacyScreen.Show(us, them, "Colonized Warning", p);
@@ -497,7 +497,7 @@ namespace Ship_Game.Gameplay
                     {
                         AddAngerMilitaryConflict(amount);
                         Trust -= amount;
-                        if (them.isPlayer && !us.isFaction)
+                        if (them.isPlayer && !us.IsFaction)
                         {
                             if (Anger_MilitaryConflict < 2f)
                                 DiplomacyScreen.Show(us, them, "Aggression Warning");
@@ -654,7 +654,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
                 return false;
 
-            if (us.isFaction || them.isFaction || them.WeAreRemnants)
+            if (us.IsFaction || them.IsFaction || them.WeAreRemnants)
                 return true;
 
             if (!us.isPlayer)
@@ -675,7 +675,7 @@ namespace Ship_Game.Gameplay
 
             // if one of the parties is a Faction, there is hostility by default
             // unless we have Peace or NA Pacts (such as paying off Pirates)
-            return (us.isFaction || them.isFaction)
+            return (us.IsFaction || them.IsFaction)
                 && !Treaty_Peace && !Treaty_NAPact;
         }
 

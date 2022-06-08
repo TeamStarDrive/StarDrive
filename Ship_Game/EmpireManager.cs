@@ -8,9 +8,9 @@ namespace Ship_Game
 {
     public class EmpireManager
     {
-        public static readonly Array<Empire> Empires = new Array<Empire>();
+        public static readonly Array<Empire> Empires = new();
         public static int NumEmpires { get; private set; }
-        static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>();
+        static readonly Map<string, Empire> EmpireDict = new();
 
         static Empire PlayerEmpire;
         static Empire CordrazineEmpire;
@@ -34,7 +34,7 @@ namespace Ship_Game
         public static Empire Void => DummyEmpire ?? (DummyEmpire = CreateVoidEmpire());
 
         public static Empire[] NonPlayerMajorEmpires =>
-            Empires.Filter(empire => !empire.isFaction && !empire.isPlayer);
+            Empires.Filter(empire => !empire.IsFaction && !empire.isPlayer);
 
         public static Empire[] NonPlayerEmpires =>
             Empires.Filter(empire => !empire.isPlayer);
@@ -43,16 +43,16 @@ namespace Ship_Game
             Empires.Filter(empire => !empire.isPlayer && !empire.data.Defeated);
 
         public static Empire[] ActiveNonPlayerMajorEmpires =>
-            Empires.Filter(empire => !empire.isFaction && !empire.isPlayer && !empire.data.Defeated);
+            Empires.Filter(empire => !empire.IsFaction && !empire.isPlayer && !empire.data.Defeated);
 
         public static Empire[] ActiveMajorEmpires => 
-            Empires.Filter(empire => !empire.isFaction && !empire.data.Defeated);
+            Empires.Filter(empire => !empire.IsFaction && !empire.data.Defeated);
 
         public static Empire[] ActiveEmpires =>
             Empires.Filter(empire => !empire.data.Defeated);
 
-        public static Empire[] MajorEmpires   => Empires.Filter(empire => !empire.isFaction);
-        public static Empire[] Factions       => Empires.Filter(empire => empire.isFaction);
+        public static Empire[] MajorEmpires   => Empires.Filter(empire => !empire.IsFaction);
+        public static Empire[] Factions       => Empires.Filter(empire => empire.IsFaction);
         public static Empire[] PirateFactions => Empires.Filter(empire => empire.WeArePirates);
 
         public static Empire[] MajorEmpiresAtWarWith(Empire empire) 
@@ -161,7 +161,7 @@ namespace Ship_Game
         public static Array<Empire> GetAllies(Empire e)
         {
             var allies = new Array<Empire>();
-            if (e.isFaction)
+            if (e.IsFaction)
                 return allies;
 
             for (int i = 0; i < Empires.Count; i++)
@@ -190,7 +190,7 @@ namespace Ship_Game
         public static Array<Empire> GetTradePartners(Empire e)
         {
             var allies = new Array<Empire>();
-            if (e.isFaction)
+            if (e.IsFaction)
                 return allies;
 
             foreach (Empire empire in Empires)
@@ -237,7 +237,7 @@ namespace Ship_Game
             else                     Log.Info($"Creating MajorEmpire {data.Traits.Name}");
 
             if (data.IsFaction)
-                empire.isFaction = true;
+                empire.IsFaction = true;
 
             DTrait[] dipTraits = dt.DiplomaticTraitsList.Filter(
                 dip => !data.ExcludedDTraits.Any(trait => trait == dip.Name));
@@ -254,7 +254,6 @@ namespace Ship_Game
             data.Traits = data.Traits;
             data.Traits.Spiritual = data.Traits.Spiritual;
             data.Traits.PassengerModifier += data.Traits.PassengerBonus;
-            empire.PortraitName = data.PortraitName;
             empire.EmpireColor = data.Traits.Color;
             empire.Initialize();
             return empire;
@@ -268,7 +267,7 @@ namespace Ship_Game
 
             var empire = new Empire(parent.Universum, parent)
             {
-                isFaction = true,
+                IsFaction = true,
                 data = data
             };
 
@@ -279,7 +278,6 @@ namespace Ship_Game
             data.EconomicPersonality   = RandomMath.RandItem(dt.EconomicTraitsList);
             data.EconomicPersonality   = RandomMath.RandItem(dt.EconomicTraitsList);
             data.SpyModifier           = data.Traits.SpyMultiplier;
-            empire.PortraitName        = data.PortraitName;
             empire.EmpireColor         = new Color(128, 128, 128, 255);
 
             data.IsRebelFaction  = true;

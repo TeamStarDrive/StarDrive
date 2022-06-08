@@ -2,12 +2,14 @@
 using System;
 using SDUtils;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
 using Ship_Game.Universe;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
+    [StarDataType]
     class DefendVsRemnants : Goal
     {
         public const string ID = "DefendVsRemnants";

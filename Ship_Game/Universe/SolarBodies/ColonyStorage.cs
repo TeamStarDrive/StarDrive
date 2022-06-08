@@ -1,14 +1,16 @@
 ﻿using System;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Universe.SolarBodies
 {
+    [StarDataType]
     public class ColonyStorage
     {
-        public float Max { get; set; } = 10f;
-        readonly Planet Ground;
-        readonly Map<string, float> Commodities = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
+        [StarData] public float Max { get; set; } = 10f;
+        [StarData] readonly Planet Ground;
+        [StarData] readonly Map<string, float> Commodities = new(StringComparer.OrdinalIgnoreCase);
 
         public ColonyStorage(Planet planet)
         {
@@ -22,19 +24,19 @@ namespace Ship_Game.Universe.SolarBodies
         float ProdValue;
         float PopValue;
 
-        public float Food
+        [StarData] public float Food
         {
             get => FoodValue;
             set => FoodValue = value.NaNChecked(0f, "Storage.Food").Clamped(0f, Max);
         }
 
-        public float Prod
+        [StarData] public float Prod
         {
             get => ProdValue;
             set => ProdValue = value.NaNChecked(0f, "Storage.Prod").Clamped(0f, Max);
         }
 
-        public float Population
+        [StarData] public float Population
         {
             get => PopValue;
             set => PopValue = Math.Max(0, value.NaNChecked(0f, "Storage.Population"));

@@ -34,6 +34,7 @@ namespace Ship_Game.Gameplay
             Initialize(random);
         }
 
+        [StarDataDeserialized]
         public void Initialize(RandomBase random)
         {
             Spin            = random.Vector3D(0.01f, 0.2f);

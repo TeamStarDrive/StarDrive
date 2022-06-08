@@ -4,17 +4,18 @@ using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Empires.Components;
 using Ship_Game.Gameplay;
-using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Utils;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public struct OurRelationsToThem
     {
-        public Empire Them;
-        public Relationship Rel;
+        [StarData] public Empire Them;
+        [StarData] public Relationship Rel;
         public void Deconstruct(out Empire them, out Relationship rel)
         {
             them = Them;
@@ -33,8 +34,8 @@ namespace Ship_Game
         public bool IsHonorable  => Personality == PersonalityType.Honorable;
         public bool IsPacifist   => Personality == PersonalityType.Pacifist;
 
-        public War[] AllActiveWars { get; private set; } = Array.Empty<War>();
-        public int ActiveWarPreparations { get; private set; }
+        [StarData] public War[] AllActiveWars { get; private set; } = Array.Empty<War>();
+        [StarData] public int ActiveWarPreparations { get; private set; }
 
 
         void SignBilateralTreaty(Empire them, TreatyType type, bool value)
@@ -143,14 +144,14 @@ namespace Ship_Game
                 if (rel.Known || isPlayer)
                 {
                     rel.UpdateRelationship(this, them);
-                    if (takeTurn && !isFaction)
+                    if (takeTurn && !IsFaction)
                     {
                         rel.AdvanceRelationshipTurn(this, them);
                     }
 
                     if (rel.AtWar)
                     {
-                        if (!them.isFaction)
+                        if (!them.IsFaction)
                             atWarCount++;
                         wars.Add(rel.ActiveWar);
                     }
@@ -171,12 +172,12 @@ namespace Ship_Game
 
         // The FlatMap is used for fast lookup
         // Active relations are used for iteration
-        OurRelationsToThem[] RelationsMap = Empty<OurRelationsToThem>.Array;
-        OurRelationsToThem[] ActiveRelations = Empty<OurRelationsToThem>.Array;
+        [StarData] OurRelationsToThem[] RelationsMap = Empty<OurRelationsToThem>.Array;
+        [StarData] OurRelationsToThem[] ActiveRelations = Empty<OurRelationsToThem>.Array;
 
         public OurRelationsToThem[] AllRelations => ActiveRelations;
 
-        SmallBitSet KnownEmpires = new SmallBitSet();
+        [StarData] SmallBitSet KnownEmpires = new();
 
         /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
         public Relationship GetRelationsOrNull(Empire withEmpire)
@@ -260,7 +261,7 @@ namespace Ship_Game
                    || data.IsRebelFaction
                    || this == EmpireManager.Unknown
                    || WeAreRemnants
-                   || (otherEmpire?.isFaction == true && !IsNAPactWith(otherEmpire));
+                   || (otherEmpire?.IsFaction == true && !IsNAPactWith(otherEmpire));
         }
 
         public bool IsPreparingForWarWith(Empire otherEmpire)
@@ -274,7 +275,7 @@ namespace Ship_Game
 
         public bool IsAtWar => AllActiveWars.Length > 0;
 
-        public bool IsAtWarWithMajorEmpire => AllActiveWars.Any(w => !w.Them.isFaction);
+        public bool IsAtWarWithMajorEmpire => AllActiveWars.Any(w => !w.Them.IsFaction);
 
         public bool IsAlliedWith(Empire otherEmpire)
         {
@@ -356,21 +357,19 @@ namespace Ship_Game
             }
         }
 
-        public static void InitializeRelationships(Array<SavedGame.EmpireSaveData> savedEmpires)
+        public static void InitializeRelationships(Empire[] savedEmpires)
         {
-            foreach (SavedGame.EmpireSaveData d in savedEmpires)
+            foreach (Empire ourEmpire in savedEmpires)
             {
-                Empire ourEmpire = EmpireManager.GetEmpireByName(d.Name);
-                foreach (Relationship relSave in d.Relations)
+                foreach ((Empire them, Relationship rel) in ourEmpire.ActiveRelations)
                 {
-                    Empire empire = EmpireManager.GetEmpireByName(relSave.Name);
-                    relSave.ActiveWar?.SetCombatants(ourEmpire, empire);
-                    relSave.Risk = new EmpireRiskAssessment(relSave);
-                    relSave.KnownInformation = new EmpireInformation(relSave);
-                    relSave.KnownInformation.Update(relSave.IntelligenceLevel);
-                    ourEmpire.AddNewRelationToThem(empire, relSave);
-                    if (relSave.Known)
-                        ourEmpire.SetRelationsAsKnown(relSave, empire);
+                    rel.ActiveWar?.SetCombatants(ourEmpire, them);
+                    rel.Risk = new EmpireRiskAssessment(rel);
+                    rel.KnownInformation = new EmpireInformation(rel);
+                    rel.KnownInformation.Update(rel.IntelligenceLevel);
+                    ourEmpire.AddNewRelationToThem(them, rel);
+                    if (rel.Known)
+                        ourEmpire.SetRelationsAsKnown(rel, them);
                 }
             }
         }
@@ -407,7 +406,7 @@ namespace Ship_Game
             bool allied = false;
             foreach ((Empire other, Relationship rel) in ActiveRelations)
             {
-                if (!other.isFaction
+                if (!other.IsFaction
                     && rel.Known
                     && rel.AtWar
                     && other.IsAlliedWith(them))
@@ -566,7 +565,7 @@ namespace Ship_Game
             activeWars = new Array<War>();
             foreach ((Empire them, Relationship rel) in AllRelations)
             {
-                if (rel.ActiveWar != null && !them.isFaction && !them.data.Defeated)
+                if (rel.ActiveWar != null && !them.IsFaction && !them.data.Defeated)
                     activeWars.Add(rel.ActiveWar);
             }
 
@@ -642,7 +641,7 @@ namespace Ship_Game
         {
             foreach (Empire empire in system.OwnerList)
             {
-                if (empire != this && !empire.isFaction && WarnedThemAboutThisSystem(system, empire))
+                if (empire != this && !empire.IsFaction && WarnedThemAboutThisSystem(system, empire))
                     return true;
             }
 

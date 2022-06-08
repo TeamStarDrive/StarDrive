@@ -2,10 +2,12 @@
 using Ship_Game.Ships;
 using System;
 using SDGraphics;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
+    [StarDataType]
     public class StandbyColonyShip : Goal
     {
         public const string ID = "StandbyColonyShip";

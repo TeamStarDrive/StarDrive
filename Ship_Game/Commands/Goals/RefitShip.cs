@@ -3,10 +3,12 @@ using Ship_Game.AI;
 using Ship_Game.Ships;
 using Ship_Game.Universe;
 using SDGraphics;
+using Ship_Game.Data.Serialization;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
+    [StarDataType]
     public class RefitShip : Goal
     {
         public const string ID = "RefitShips";

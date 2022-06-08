@@ -1,6 +1,7 @@
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe.SolarBodies;
 using Ship_Game.Utils;
@@ -18,7 +19,7 @@ namespace Ship_Game
         // If the original Capital of the race is taken by this race, the Capital will be
         // moved from its current planet to the original one (If the planet is not a capital by origin.
         // The `Planet Capital` var is used for this)
-        public bool IsHomeworld { get; private set; } 
+        [StarData] public bool IsHomeworld { get; private set; } 
 
         public void SetHomeworld(bool value)
         {

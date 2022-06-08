@@ -6,26 +6,33 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using SDUtils;
-using Ship_Game.Ships.AI;
+using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {
+    [StarDataType]
     public sealed partial class ShipAI : IDisposable
     {
         Planet AwaitClosest;
         Planet PatrolTarget;
         float UtilityModuleCheckTimer;
-        public FleetDataNode FleetNode;
+        [StarData] public FleetDataNode FleetNode;
+        [StarData] public Ship Owner;
+        [StarData] public AIState State = AIState.AwaitingOrders;
+        [StarData] public Planet ResupplyTarget;
+        [StarData] public SolarSystem SystemToDefend;
+        [StarData] public SolarSystem ExplorationTarget;
+        [StarData] public AIState DefaultAIState = AIState.AwaitingOrders;
 
-        public Ship Owner;
-        public AIState State = AIState.AwaitingOrders;
-        public Planet ResupplyTarget;
-        public SolarSystem SystemToDefend;
-        public SolarSystem ExplorationTarget;
-        public AIState DefaultAIState = AIState.AwaitingOrders;
-        public SafeQueue<ShipGoal> OrderQueue  = new SafeQueue<ShipGoal>();
-        public Array<ShipWeight>   NearByShips = new Array<ShipWeight>();
+        public SafeQueue<ShipGoal> OrderQueue  = new();
+        public Array<ShipWeight>   NearByShips = new();
+
+        [StarData] ShipGoal[] GoalsSave
+        {
+            get => OrderQueue.ToArray();
+            set => OrderQueue.SetRange(value);
+        }
 
         // TODO: We should not keep these around, it increases memory usage by a lot
         DropOffGoods DropOffGoods;
@@ -52,7 +59,7 @@ namespace Ship_Game.AI
             BadShipsOrPlanetsNear = BadShipsNear | BadPlanetsNear,
         }
 
-        public Flags StateBits;
+        [StarData] public Flags StateBits;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void Bit(Flags tag, bool value) => StateBits = value ? StateBits|tag : StateBits & ~tag;

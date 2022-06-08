@@ -1,11 +1,13 @@
 ﻿using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 
 namespace Ship_Game
 {
     public partial class Empire
     {
-        public Map<int, float> FleetStrEmpireMultiplier { get; private set; } = new Map<int, float>(); // Empire IDs
+        [StarData]
+        public Map<int, float> FleetStrEmpireMultiplier { get; private set; } = new(); // Empire IDs
 
         /// <summary>
         /// This will get  the empire str modifier required for fleets.
@@ -63,7 +65,7 @@ namespace Ship_Game
 
         public void InitFleetEmpireStrMultiplier()
         {
-            if (isPlayer || isFaction)
+            if (isPlayer || IsFaction)
                 return;
 
             foreach (Empire e in EmpireManager.MajorEmpires.Filter(e => e != this))
@@ -71,12 +73,6 @@ namespace Ship_Game
 
             foreach (Empire e in EmpireManager.Factions)
                 IncreaseFleetStrEmpireMultiplier(e);
-        }
-
-        public void RestoreFleetStrEmpireMultiplier(Map<int, float> empireStr)
-        {
-            if (empireStr != null)
-                FleetStrEmpireMultiplier = empireStr;
         }
     }
 }
