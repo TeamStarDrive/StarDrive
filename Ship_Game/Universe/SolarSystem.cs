@@ -72,10 +72,14 @@ namespace Ship_Game
 
         [StarData] public Array<Ring> RingList = new();
         int NumberOfRings;
-        public Array<SolarSystem> FiveClosestSystems = new();
+        [StarData] public Array<SolarSystem> FiveClosestSystems = new();
         public Array<Anomaly> AnomaliesList = new();
         public bool IsStartingSystem;
         [XmlIgnore][JsonIgnore] bool WasVisibleLastFrame;
+
+        SolarSystem() : base(0, GameObjectType.SolarSystem)
+        {
+        }
 
         public SolarSystem(UniverseState us, int id)
             : base(id, GameObjectType.SolarSystem)

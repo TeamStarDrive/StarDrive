@@ -51,7 +51,7 @@ namespace Ship_Game.Commands.Goals
             {
                 combatShip.HyperspaceReturn();
                 TargetShip = combatShip;
-                if (Pirates.Level > TargetShip.TroopCount * 5 / ((int)CurrentGame.Difficulty).LowerBound(1) + TargetShip.Level)
+                if (Pirates.Level > TargetShip.TroopCount * 5 / ((int)UState.Difficulty).LowerBound(1) + TargetShip.Level)
                 {
                     TargetShip.Loyalty.AddMutinyNotification(TargetShip, GameText.MutinySucceeded, Pirates.Owner);
                     TargetShip.LoyaltyChangeFromBoarding(Pirates.Owner, false);

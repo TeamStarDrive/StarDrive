@@ -224,6 +224,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExtGameObj.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\NewMathExt.cs" />
+    <Compile Include="Ship_Game\Gameplay\GameDifficulty.cs" />
     <Compile Include="Ship_Game\Gameplay\WeaponTag.cs" />
     <Compile Include="Ship_Game\Gameplay\IWeaponTemplate.cs" />
     <Compile Include="Ship_Game\Gameplay\PhysicsObject.cs" />
@@ -349,6 +350,7 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetRenderer.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\AtmosphereType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\PlanetTypes.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseParams.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\BorderNodeCache.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Events.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Save.cs" />
@@ -470,7 +472,6 @@
     <Compile Include="Ship_Game\ExtensionMethods\Vectors.cs" />
     <Compile Include="Ship_Game\Fleets\FleetTactics\CombatPreferences.cs" />
     <Compile Include="Ship_Game\Fleets\GroupLeader.cs" />
-    <Compile Include="Ship_Game\Gameplay\CurrentGame.cs" />
     <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\AssignLaborComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\BuildableListItem.cs" />

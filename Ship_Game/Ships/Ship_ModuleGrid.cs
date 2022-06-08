@@ -3,7 +3,6 @@ using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;

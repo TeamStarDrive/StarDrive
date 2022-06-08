@@ -404,7 +404,7 @@ namespace Ship_Game
                 DrawTopCenterStatusText(batch, GameText.Paused, Color.Gold, 0);
             }
 
-            if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
+            if (UState.Events.ActiveEvent != null && UState.Events.ActiveEvent.InhibitWarp)
             {
                 DrawTopCenterStatusText(batch, "Hyperspace Flux", Color.Yellow, 1);
             }

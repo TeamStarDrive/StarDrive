@@ -117,7 +117,7 @@ namespace Ship_Game
             if (Universe.StarDate.GreaterOrEqual(NextLevelUpDate))
             {
                 int turnsLevelUp = TurnsLevelUp + ExtraLevelUpEffort;
-                turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.ProductionPace);
+                turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * Universe.ProductionPace);
                 HibernationTurns = 0;
                 NextLevelUpDate += turnsLevelUp / 10f;
 
@@ -180,12 +180,12 @@ namespace Ship_Game
         }
 
         int TurnsLevelUp                  => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
-        int ExtraLevelUpEffort            => (int)((Level-1) * CurrentGame.RemnantPaceModifier + NeededHibernationTurns);
-        public int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 2);
+        int ExtraLevelUpEffort            => (int)((Level-1) * Universe.RemnantPaceModifier + NeededHibernationTurns);
+        public int NeededHibernationTurns => TurnsLevelUp / ((int)Universe.Difficulty + 2);
 
         void SetInitialLevelUpDate()
         {
-            int turnsLevelUp = (int)(TurnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
+            int turnsLevelUp = (int)(TurnsLevelUp * StoryTurnsLevelUpModifier() * Universe.Pace);
             NextLevelUpDate  = 1000 + turnsLevelUp/5f; // Initial Level in half rate (/5 instead of /10)
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation ----");
         }
@@ -225,14 +225,14 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientBalancers:
-                    for (int i = 0; i <= (int)CurrentGame.Difficulty; i++)
+                    for (int i = 0; i <= (int)Universe.Difficulty; i++)
                         CreatePortal();
                     break;
                 case RemnantStory.AncientExterminators:
                     if (!GetPortals(out Ship[] portals))
                         return;
                     Ship portal = portals.RandItem();
-                    for (int i = 0; i < ((int)CurrentGame.Difficulty + 1) * 3; i++)
+                    for (int i = 0; i < ((int)Universe.Difficulty + 1) * 3; i++)
                     {
                         if (!SpawnShip(RemnantShipType.Exterminator, portal.Position, out _))
                             return;
@@ -593,7 +593,7 @@ namespace Ship_Game
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
             int fleetModifier  = shipsInFleet / 12;
-            int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
+            int effectiveLevel = Level + (int)Universe.Difficulty + fleetModifier;
             effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
             int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
             switch (roll)
@@ -690,7 +690,7 @@ namespace Ship_Game
 
         void GenerateProduction(float amount)
         {
-            int limit = 200 * ((int)CurrentGame.Difficulty).LowerBound(1);
+            int limit = 200 * ((int)Universe.Difficulty).LowerBound(1);
             Production = (Production + amount).UpperBound(Level * Level * limit); // Level 20 - 240K 
         }
 
@@ -745,7 +745,7 @@ namespace Ship_Game
                 return; // Don't create Remnants on starting systems or Pirate systems
 
             float quality   = PlanetQuality(p);
-            int dieModifier = (int)CurrentGame.Difficulty * 5 - 10; // easy -10, brutal +5
+            int dieModifier = (int)Universe.Difficulty * 5 - 10; // easy -10, brutal +5
             if (Story != RemnantStory.None)
                 dieModifier -= 5;
 
@@ -952,7 +952,7 @@ namespace Ship_Game
 
         void AddGuardians(int numShips, RemnantShipType type, Planet p)
         {
-            int divider = 7 * ((int)CurrentGame.Difficulty).LowerBound(1); // harder game = earlier activation
+            int divider = 7 * ((int)Universe.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
                 Vector2 pos = p.Position.GenerateRandomPointInsideCircle(p.Radius * 2);

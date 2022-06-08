@@ -12,21 +12,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Ship_Game.Universe;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.Ships
 {
+    [StarDataType]
     public partial class Ship : PhysicsObject, IDisposable
     {
-        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
-            throw new InvalidOperationException(
-                $"BUG! Ship must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Ship XXX;` PROPERTIES/FIELDS. {this}");
-
-        public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
+        [StarData] public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
 
         public float RepairRate  = 1f;
         public float SensorRange = 20000f;
@@ -35,10 +32,10 @@ namespace Ship_Game.Ships
         public Vector2 ProjectedPosition;
         public Thruster[] ThrusterList = Empty<Thruster>.Array;
 
-        public Array<Weapon> Weapons = new Array<Weapon>();
-        float JumpTimer = 3f;
-        public AudioEmitter SoundEmitter = new AudioEmitter();
-        public float ScuttleTimer = -1f;
+        public Array<Weapon> Weapons = new();
+        [StarData] float JumpTimer = 3f;
+        public AudioEmitter SoundEmitter = new();
+        [StarData] public float ScuttleTimer = -1f;
 
         // Ship's rotated offset from fleet center
         public Vector2 FleetOffset;
@@ -46,25 +43,29 @@ namespace Ship_Game.Ships
         // Unrotated fleet offset from [0,0]
         public Vector2 RelativeFleetOffset;
 
-        public Array<ShipModule> BombBays = new Array<ShipModule>();
-        public CarrierBays Carrier;
+        public Array<ShipModule> BombBays = new();
+        [StarData] public CarrierBays Carrier;
         public ShipResupply Supply;
         public bool ShipStatusChanged;
         public bool HasRegeneratingModules;
         public bool IsMeteor { get; private set; }
 
-        Planet TetheredTo;
-        public Vector2 TetherOffset;
-        public int TetheredId;
+        [StarData] Planet TetheredTo;
+        [StarData] public Vector2 TetherOffset;
         public float EMPDamage { get; private set; }
-        public Fleet Fleet;
-        public float YRotation;
+        [StarData] public Fleet Fleet;
+        [StarData] public float YRotation;
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
         public float ECMValue;
         public IShipDesign ShipData;
-        public int Kills;
-        public float Experience;
+        [StarData] ShipDesign Design
+        {
+            get => (ShipDesign)ShipData;
+            set => ShipData = value;
+        }
+        [StarData] public int Kills;
+        [StarData] public float Experience;
         public bool EnginesKnockedOut;
         public float InhibitionRadius;
         public bool IsPlatform;
@@ -72,23 +73,23 @@ namespace Ship_Game.Ships
         SceneObject ShipSO;
         public bool ManualHangarOverride;
         public Ship Mothership;
-        public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
+        [StarData] public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
 
         // Current owner of this ship.
         // This is accessed a lot, so we keep it as a public field
-        public Empire Loyalty;
+        [StarData] public Empire Loyalty;
         public LoyaltyChanges LoyaltyTracker { get; private set; }
         public void LoyaltyChangeFromBoarding(Empire empire, bool addNotification = true) => LoyaltyTracker.SetBoardingLoyalty(empire, addNotification);
         public void LoyaltyChangeByGift(Empire empire, bool addNotification = true) => LoyaltyTracker.SetLoyaltyForAbsorbedShip(empire, addNotification);
         public void LoyaltyChangeAtSpawn(Empire empire) => LoyaltyTracker.SetLoyaltyForNewShip(empire);
 
-        public float Ordinance { get; private set; } // FB: use ChanceOrdnance function to control Ordnance
+        [StarData] public float Ordinance { get; private set; } // FB: use ChanceOrdnance function to control Ordnance
         public float OrdnanceMin { get; private set; } // FB: minimum ordnance required to fire any of the ship's weapons
         public float OrdinanceMax;
-        public ShipAI AI { get; private set; }
+        [StarData] public ShipAI AI { get; private set; }
 
-        public double ShieldPercent;
+        public float ShieldPercent;
         public float ArmorMax;
         public float ShieldMax;
 
@@ -102,21 +103,21 @@ namespace Ship_Game.Ships
         // active internal modules SLOTS that have health > 0
         public int ActiveInternalModuleSlots;
 
-        public float PowerCurrent;
+        [StarData] public float PowerCurrent;
         public float PowerFlowMax;
         public float PowerStoreMax;
         public float PowerDraw;
         public Power NetPower;
         public bool HasRepairModule;
-        readonly AudioHandle JumpSfx = new AudioHandle();
+        readonly AudioHandle JumpSfx = new();
 
-        public int Level;
+        [StarData] public int Level;
         int MaxHealthRevision;
         public float HealthMax { get; private set; }
         public int TroopCapacity;
         public float OrdAddedPerSecond;
         public float ShieldRechargeTimer;
-        public bool InCombat;
+        [StarData] public bool InCombat;
         public float XRotation;
         public float BonusEMPProtection;
         public bool InSensorRange => KnownByEmpires.KnownByPlayer;
@@ -141,7 +142,7 @@ namespace Ship_Game.Ships
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
         Vector3 DieRotation;
         private float DieTimer;
-        public float BaseStrength;
+        [StarData] public float BaseStrength;
         public bool Dying;
 
         /// TRUE if this ship has been completely destroyed, or is displaying its Dying animation
@@ -166,7 +167,7 @@ namespace Ship_Game.Ships
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
         public float FTLModifier { get; private set; } = 1f;
-        public Planet HomePlanet { get; private set; }
+        [StarData] public Planet HomePlanet { get; private set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
         public float MaxWeaponError = 0;
@@ -198,7 +199,7 @@ namespace Ship_Game.Ships
         // Current pool that this ship is assigned to
         public IShipPool Pool;
 
-        public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
+        [StarData] public Array<Rectangle> AreaOfOperation = new();
         
         /// <summary>
         /// Removes ship from any pools and fleets and doesn't put them back into Empire Force Pools
@@ -1414,7 +1415,7 @@ namespace Ship_Game.Ships
 
             float newShipCost = newShip.GetCost(Loyalty);
             int cost          = Math.Max((int)(newShipCost - oldShipCost), 0);
-            return cost + (int)(10 * CurrentGame.ProductionPace); // extra refit cost: accord for GamePace;
+            return cost + (int)(10 * Universe.ProductionPace); // extra refit cost: accord for GamePace;
         }
 
         public Status HealthStatus
@@ -1720,7 +1721,6 @@ namespace Ship_Game.Ships
         public void RemoveTether()
         {
             TetheredTo = null;
-            TetheredId = 0;
         }
 
         /// <summary>

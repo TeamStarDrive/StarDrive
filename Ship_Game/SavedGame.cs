@@ -33,7 +33,7 @@ namespace Ship_Game
 
         public bool Verbose;
 
-        public readonly UniverseSaveData SaveData = new();
+        public readonly UniverseState State;
         public FileInfo SaveFile;
 
         public static bool IsSaving  => GetIsSaving();
@@ -45,63 +45,7 @@ namespace Ship_Game
         public SavedGame(UniverseScreen screen)
         {
             // clean up and submit objects before saving
-            UniverseState us = screen.UState;
-            us.Objects.UpdateLists(removeInactiveObjects: true);
-
-            SaveData.Version = SaveGameVersion;
-            SaveData.UniverseSize          = us.Size;
-            SaveData.UniqueObjectIds       = us.UniqueObjectIds;
-            SaveData.GameDifficulty        = us.Difficulty;
-            SaveData.GalaxySize            = us.GalaxySize;
-            SaveData.BackgroundSeed        = us.BackgroundSeed;
-            SaveData.StarDate              = us.StarDate;
-            SaveData.FTLModifier           = us.FTLModifier;
-            SaveData.EnemyFTLModifier      = us.EnemyFTLModifier;
-            SaveData.FTLInNeutralSystems   = us.FTLInNeutralSystems;
-            SaveData.GravityWells          = us.GravityWells;
-            SaveData.CamPos                = screen.CamPos.ToVec3f();
-            SaveData.StarsModifier         = CurrentGame.StarsModifier;
-            SaveData.ExtraPlanets          = CurrentGame.ExtraPlanets;
-            SaveData.GamePacing            = CurrentGame.Pace;
-            SaveData.RandomEvent           = RandomEventManager.ActiveEvent;
-
-            SaveData.MinAcceptableShipWarpRange = GlobalStats.MinAcceptableShipWarpRange;
-            SaveData.TurnTimer             = (byte)GlobalStats.TurnTimer;
-            SaveData.IconSize              = GlobalStats.IconSize;
-            SaveData.PreventFederations    = GlobalStats.PreventFederations;
-            SaveData.EliminationMode       = GlobalStats.EliminationMode;
-            SaveData.GravityWellRange      = GlobalStats.GravityWellRange;
-            SaveData.CustomMineralDecay    = GlobalStats.CustomMineralDecay;
-            SaveData.VolcanicActivity      = GlobalStats.VolcanicActivity;
-            SaveData.ShipMaintenanceMultiplier = GlobalStats.ShipMaintenanceMulti;
-            SaveData.UsePlayerDesigns      = GlobalStats.UsePlayerDesigns;
-            SaveData.UseUpkeepByHullSize   = GlobalStats.UseUpkeepByHullSize;
-
-            SaveData.SuppressOnBuildNotifications  = GlobalStats.SuppressOnBuildNotifications;
-            SaveData.PlanetScreenHideOwned         = GlobalStats.PlanetScreenHideOwned;
-            SaveData.PlanetsScreenHideInhospitable = GlobalStats.PlanetsScreenHideInhospitable;
-            SaveData.ShipListFilterPlayerShipsOnly = GlobalStats.ShipListFilterPlayerShipsOnly;
-            SaveData.ShipListFilterInFleetsOnly    = GlobalStats.ShipListFilterInFleetsOnly;
-            SaveData.ShipListFilterNotInFleets     = GlobalStats.ShipListFilterNotInFleets;
-            SaveData.DisableInhibitionWarning      = GlobalStats.DisableInhibitionWarning;
-            SaveData.CordrazinePlanetCaptured      = GlobalStats.CordrazinePlanetCaptured;
-            SaveData.DisableVolcanoWarning         = GlobalStats.DisableVolcanoWarning;
-            
-            SaveData.Empires = us.Empires;
-            SaveData.Systems = us.Systems;
-            SaveData.AllShips    = us.Objects.GetShips().Select(ShipSaveFromShip);
-            SaveData.Projectiles = us.Objects.GetProjectileSaveData();
-            SaveData.Beams       = us.Objects.GetBeamSaveData();
-
-            SaveData.Snapshots = new Map<string, Map<int, Snapshot>>();
-            foreach (KeyValuePair<string, Map<int, Snapshot>> e in StatTracker.SnapshotsMap)
-                SaveData.Snapshots.Add(e.Key, e.Value);
-
-            // FogMap is converted to a Base64 string so that it can be included in the savegame
-            SaveData.FogMapBytes = screen.ContentManager.RawContent.TexExport.ToAlphaBytes(screen.FogMap);
-
-            var designs = us.Objects.GetShips().Select(s => s.ShipData).UniqueSet();
-            SaveData.SetDesigns(designs);
+            State = screen.UState;
         }
 
         static bool GetIsSaving()
@@ -117,14 +61,12 @@ namespace Ship_Game
 
         public void Save(string saveAs, bool async)
         {
-            SaveData.SaveAs = saveAs; // filename of the save game
-
             string destFolder = DefaultSaveGameFolder;
             SaveFile = new FileInfo($"{destFolder}{saveAs}.sav");
 
             if (!async)
             {
-                SaveUniverseData(SaveData, SaveFile);
+                SaveUniverseData(State, SaveFile);
             }
             else
             {
@@ -132,52 +74,12 @@ namespace Ship_Game
                 // because we already built `SaveData` object, which no longer depends on UniverseScreen
                 SaveTask = Parallel.Run(() =>
                 {
-                    SaveUniverseData(SaveData, SaveFile);
+                    SaveUniverseData(State, SaveFile);
                 });
             }
         }
 
-        public static ShipSaveData ShipSaveFromShip(Ship ship)
-        {
-            var sd = new ShipSaveData(ship);
-            if (ship.IsSubspaceProjector)
-                return sd;
-
-            sd.FoodCount = ship.GetFood();
-            sd.ProdCount = ship.GetProduction();
-            sd.PopCount = ship.GetColonists();
-            sd.TroopList = ship.GetFriendlyAndHostileTroops();
-            sd.FightersLaunched = ship.Carrier.FightersLaunched;
-            sd.TroopsLaunched = ship.Carrier.TroopsLaunched;
-            sd.SendTroopsToShip = ship.Carrier.SendTroopsToShip;
-            sd.AreaOfOperation = ship.AreaOfOperation;
-
-            sd.RecallFightersBeforeFTL = ship.Carrier.RecallFightersBeforeFTL;
-            sd.MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
-            sd.OrdnanceInSpace = ship.Carrier.OrdnanceInSpace;
-            sd.ScuttleTimer = ship.ScuttleTimer;
-
-            if (ship.IsHomeDefense)
-                sd.HomePlanetId = ship.HomePlanet.Id;
-
-            if (ship.TradeRoutes?.NotEmpty == true)
-            {
-                sd.TradeRoutes = new Array<int>();
-                foreach (int planetId in ship.TradeRoutes)
-                {
-                    sd.TradeRoutes.Add(planetId);
-                }
-            }
-
-            sd.TransportingFood = ship.TransportingFood;
-            sd.TransportingProduction = ship.TransportingProduction;
-            sd.TransportingColonists = ship.TransportingColonists;
-            sd.AllowInterEmpireTrade = ship.AllowInterEmpireTrade;
-
-            return sd;
-        }
-
-        void SaveUniverseData(UniverseSaveData data, FileInfo saveFile)
+        void SaveUniverseData(UniverseState state, FileInfo saveFile)
         {
             var t = new PerfTimer();
 
@@ -186,9 +88,9 @@ namespace Ship_Game
             var header = new HeaderData
             {
                 Version    = SaveGameVersion,
-                SaveName   = data.SaveAs,
-                StarDate   = data.StarDate.ToString("#.0"),
-                PlayerName = data.Empires.Find(e => e.isPlayer).data.Traits.Name,
+                SaveName   = SaveFile.NameNoExt(),
+                StarDate   = state.StarDate.ToString("#.0"),
+                PlayerName = state.Player.data.Traits.Name,
                 RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
                 ModName    = GlobalStats.ModName,
                 Time       = now,
@@ -196,7 +98,7 @@ namespace Ship_Game
 
             using (var writer = new Writer(new FileStream(saveFile.FullName, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 4096)))
             {
-                BinarySerializer.SerializeMultiType(writer, new object[] { header, data }, Verbose);
+                BinarySerializer.SerializeMultiType(writer, new object[] { header, state }, Verbose);
             }
 
             SaveTask = null;
@@ -205,7 +107,7 @@ namespace Ship_Game
             HelperFunctions.CollectMemory();
         }
 
-        public static UniverseSaveData Deserialize(FileInfo saveFile, bool verbose)
+        public static UniverseState Deserialize(FileInfo saveFile, bool verbose)
         {
             var t = new PerfTimer();
 
@@ -213,13 +115,11 @@ namespace Ship_Game
             var results = BinarySerializer.DeserializeMultiType(reader, new[]
             {
                 typeof(HeaderData),
-                typeof(UniverseSaveData)
+                typeof(UniverseState)
             }, verbose);
 
-            UniverseSaveData usData = (UniverseSaveData)results[1];
-
+            var usData = (UniverseState)results[1];
             Log.Info($"Binary Total Load elapsed: {t.Elapsed:0.0}s  ");
-
             return usData;
         }
 
@@ -248,180 +148,6 @@ namespace Ship_Game
             [StarData] public Vector2 ActualHitDestination;
             [StarData] public int TargetId; // Ship or Projectile
             [StarData] public int Loyalty;
-        }
-
-        [StarDataType]
-        public class ShipSaveData
-        {
-            [StarData] public int Id;
-            [StarData] public Empire Owner;
-            [StarData] public bool IsSpooling;
-            [StarData] public ShipAI AISave;
-            [StarData] public Vector2 Position;
-            [StarData] public Vector2 Velocity;
-            [StarData] public float Rotation;
-            [StarData] public ModuleSaveData[] ModuleSaveData;
-            [StarData] public string Hull; // ShipHull name
-            [StarData] public string Name; // ShipData design name
-            [StarData] public string VanityName; // User defined name
-            [StarData] public float YRotation;
-            [StarData] public float Power;
-            [StarData] public float Ordnance;
-            [StarData] public bool InCombat;
-            [StarData] public float BaseStrength;
-            [StarData] public int Level;
-            [StarData] public float Experience;
-            [StarData] public int Kills;
-            [StarData] public Array<Troop> TroopList;
-            [StarData] public Array<Rectangle> AreaOfOperation;
-            [StarData] public float FoodCount;
-            [StarData] public float ProdCount;
-            [StarData] public float PopCount;
-            [StarData] public float MechanicalBoardingDefense;
-            [StarData] public float OrdnanceInSpace; // For carriers
-            [StarData] public float ScuttleTimer = -1;
-            [StarData] public int TetheredTo;
-            [StarData] public Vector2 TetherOffset;
-            [StarData] public Array<int> TradeRoutes;
-            [StarData] public int HomePlanetId;
-            [StarData] public bool FightersLaunched;
-            [StarData] public bool TroopsLaunched;
-            [StarData] public bool TransportingFood;
-            [StarData] public bool TransportingProduction;
-            [StarData] public bool TransportingColonists;
-            [StarData] public bool AllowInterEmpireTrade;
-            [StarData] public bool SendTroopsToShip;
-            [StarData] public bool RecallFightersBeforeFTL;
-
-            public ShipSaveData() {}
-
-            public ShipSaveData(Ship ship)
-            {
-                Name = ship.Name;
-                Owner = ship.Loyalty;
-                IsSpooling = ship.IsSpooling;
-                VanityName = ship.VanityName;
-                MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
-                Id = ship.Id;
-                Position = ship.Position;
-
-                BaseStrength = ship.BaseStrength;
-                Level      = ship.Level;
-                Experience = ship.Experience;
-                Kills      = ship.Kills;
-                Velocity   = ship.Velocity;
-
-                Hull      = ship.ShipData.Hull;
-                Power     = ship.PowerCurrent;
-                Ordnance  = ship.Ordinance;
-                YRotation = ship.YRotation;
-                Rotation  = ship.Rotation;
-                InCombat  = ship.InCombat;
-
-                if (ship.GetTether() != null)
-                {
-                    TetheredTo = ship.GetTether().Id;
-                    TetherOffset = ship.TetherOffset;
-                }
-
-                AISave = ship.AI;
-                ModuleSaveData = ship.GetModuleSaveData();
-            }
-
-            public override string ToString() => $"ShipSave {Id} {Name}";
-        }
-
-        [StarDataType]
-        public class UniverseSaveData : IDisposable
-        {
-            [StarData] public int Version;
-            [StarData] public string SaveAs;
-            [StarData] public float UniverseSize;
-            [StarData] public int UniqueObjectIds;
-            [StarData] public GameDifficulty GameDifficulty;
-            [StarData] public GalSize GalaxySize;
-            [StarData] public int BackgroundSeed;
-            [StarData] public float StarDate;
-            [StarData] public float FTLModifier = 1.0f;
-            [StarData] public float EnemyFTLModifier = 1.0f;
-            [StarData] public bool FTLInNeutralSystems;
-            [StarData] public bool GravityWells;
-
-            [StarData] public Vector3 CamPos;
-            [StarData] public float StarsModifier = 1;
-            [StarData] public int ExtraPlanets;
-            [StarData] public float GamePacing;
-            [StarData] public RandomEvent RandomEvent;
-
-            [StarData] public float MinAcceptableShipWarpRange = GlobalStats.MinAcceptableShipWarpRange;
-            [StarData] public byte TurnTimer;
-            [StarData] public int IconSize;
-            [StarData] public bool PreventFederations;
-            [StarData] public bool EliminationMode;
-            [StarData] public float GravityWellRange = GlobalStats.GravityWellRange;
-            [StarData] public float CustomMineralDecay;
-            [StarData] public float VolcanicActivity;
-            [StarData] public float ShipMaintenanceMultiplier = GlobalStats.ShipMaintenanceMulti;
-            [StarData] public bool UsePlayerDesigns;
-            [StarData] public bool UseUpkeepByHullSize;
-
-            [StarData] public bool SuppressOnBuildNotifications;
-            [StarData] public bool PlanetScreenHideOwned;
-            [StarData] public bool PlanetsScreenHideInhospitable;
-            [StarData] public bool ShipListFilterPlayerShipsOnly;
-            [StarData] public bool ShipListFilterInFleetsOnly;
-            [StarData] public bool ShipListFilterNotInFleets;
-            [StarData] public bool DisableInhibitionWarning;
-            [StarData] public bool CordrazinePlanetCaptured;
-            [StarData] public bool DisableVolcanoWarning;
-
-            [StarData] public IReadOnlyList<Empire> Empires;
-            [StarData] public IReadOnlyList<SolarSystem> Systems;
-            [StarData] public ShipSaveData[] AllShips;
-            [StarData] public ProjectileSaveData[] Projectiles; // New global projectile list
-            [StarData] public BeamSaveData[] Beams; // new global beam list
-            [StarData] public Map<string, Map<int, Snapshot>> Snapshots;
-            [StarData] public byte[] FogMapBytes;
-
-            // globally stored ship designs
-            [StarData] public ShipDesign[] ShipDesigns;
-            Map<string, IShipDesign> ShipDesignsCache;
-
-            public void SetDesigns(HashSet<IShipDesign> designs)
-            {
-                ShipDesigns = designs.Select(d => (ShipDesign)d);
-            }
-
-            public IShipDesign GetDesign(string name)
-            {
-                if (ShipDesignsCache == null)
-                {
-                    ShipDesignsCache = new();
-
-                    foreach (ShipDesign fromSave in ShipDesigns)
-                    {
-                        fromSave.IsFromSave = true;
-
-                        if (ResourceManager.Ships.GetDesign(fromSave.Name, out IShipDesign existing) &&
-                            existing.AreModulesEqual(fromSave))
-                            // use the existing one
-                            ShipDesignsCache[fromSave.Name] = existing;
-                        else
-                            // from save only
-                            ShipDesignsCache[fromSave.Name] = fromSave;
-                    }
-                }
-                return ShipDesignsCache[name];
-            }
-
-            public void Dispose()
-            {
-                Empires = null;
-                Snapshots.Clear();
-                FogMapBytes = null;
-                Projectiles = null;
-                Beams = null;
-            }
         }
     }
 }

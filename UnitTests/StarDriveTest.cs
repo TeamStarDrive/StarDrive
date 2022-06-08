@@ -251,7 +251,7 @@ namespace UnitTests
             ship.Rotation = shipDirection.Normalized().ToRadians();
             ship.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             ship.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
-            ship.SetSystem(null);
+            ship.System = null;
             Assert.IsTrue(ship.Active, "Spawned ship is Inactive! This is a bug in Status update!");
 
             return ship;

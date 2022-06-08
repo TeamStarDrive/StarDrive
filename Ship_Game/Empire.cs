@@ -103,7 +103,7 @@ namespace Ship_Game
 
         [StarData] public Color EmpireColor;
 
-        public UniverseState Universum; // Alias for static Empire.Universum
+        [StarData] public UniverseState Universum; // Alias for static Empire.Universum
 
         [StarData] EmpireAI EmpireAI;
 
@@ -779,7 +779,7 @@ namespace Ship_Game
                 kv.Value.Reset();
 
             Empire rebels = EmpireManager.CreateRebelsFromEmpireData(data, this);
-            StatTracker.UpdateEmpire(Universum.StarDate, rebels);
+            Universum.Stats.UpdateEmpire(Universum.StarDate, rebels);
 
             foreach (Ship s in OwnedShips)
             {
@@ -992,7 +992,7 @@ namespace Ship_Game
             if (p.EventsOnTiles())
                 EmpireAI.SendExplorationFleet(p);
 
-            if (CurrentGame.Difficulty <= GameDifficulty.Hard || p.ParentSystem.IsExclusivelyOwnedBy(this))
+            if (Universum.Difficulty <= GameDifficulty.Hard || p.ParentSystem.IsExclusivelyOwnedBy(this))
                 return;
 
             if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
@@ -1045,7 +1045,7 @@ namespace Ship_Game
 
         void InitDifficultyModifiers()
         {
-            DifficultyModifiers = new DifficultyModifiers(this, CurrentGame.Difficulty);
+            DifficultyModifiers = new DifficultyModifiers(this, Universum.Difficulty);
         }
 
         void InitPersonalityModifiers()
@@ -1495,13 +1495,13 @@ namespace Ship_Game
                 if (isPlayer)
                 {
                     Universum.Screen.UpdateStarDateAndTriggerEvents(Universum.StarDate + 0.1f);
-                    StatTracker.StatUpdateStarDate(Universum.StarDate);
+                    Universum.Stats.StatUpdateStarDate(Universum.StarDate);
                     if (Universum.StarDate.AlmostEqual(1000.09f))
                     {
                         foreach (Empire empire in EmpireManager.Empires)
                         {
                             foreach (Planet planet in empire.OwnedPlanets)
-                                StatTracker.StatAddPlanetNode(Universum.StarDate, planet);
+                                Universum.Stats.StatAddPlanetNode(Universum.StarDate, planet);
                         }
                     }
 
@@ -2754,7 +2754,7 @@ namespace Ship_Game
 
             if (!data.IsRebelFaction)
             {
-                if (StatTracker.GetSnapshot(Universum.StarDate, this, out Snapshot snapshot))
+                if (Universum.Stats.GetSnapshot(Universum.StarDate, this, out Snapshot snapshot))
                 {
                     snapshot.ShipCount = OwnedShips.Count;
                     snapshot.MilitaryStrength = CurrentMilitaryStrength;
@@ -2766,7 +2766,7 @@ namespace Ship_Game
             {
                 ExecuteDiplomacyContacts();
                 CheckFederationVsPlayer(us);
-                RandomEventManager.UpdateEvents(Universum);
+                Universum.Events.UpdateEvents(Universum);
 
                 if ((Money / AllSpending.LowerBound(1)) < 2)
                     Universum.Notifications.AddMoneyWarning();
@@ -2810,7 +2810,7 @@ namespace Ship_Game
 
             if (!data.IsRebelFaction)
             {
-                if (StatTracker.GetSnapshot(Universum.StarDate, this, out Snapshot snapshot))
+                if (Universum.Stats.GetSnapshot(Universum.StarDate, this, out Snapshot snapshot))
                     snapshot.Population = OwnedPlanets.Sum(p => p.Population);
             }
 
@@ -3400,7 +3400,7 @@ namespace Ship_Game
 
             float desiredScouts = unexplored * Research.Strategy.ExpansionRatio;
             if (!isPlayer)
-                desiredScouts *= ((int)CurrentGame.Difficulty).LowerBound(1);
+                desiredScouts *= ((int)Universum.Difficulty).LowerBound(1);
 
             int numScouts = 0;
             for (int i = 0; i < ships.Count; i++)

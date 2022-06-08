@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics.Contracts;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
@@ -16,10 +17,6 @@ namespace Ship_Game.Ships
 {
     public sealed class ShipModule : GameObject
     {
-        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
-            throw new InvalidOperationException(
-                $"BUG! ShipModule must not be serialized! Add [XmlIgnore][JsonIgnore] to `public ShipModule XXX;` PROPERTIES/FIELDS. {this}");
-
         //private static int TotalModules = 0;
         //public int ID = ++TotalModules;
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
@@ -46,19 +43,19 @@ namespace Ship_Game.Ships
 
         // Gets the size of this Module, correctly oriented
         // Required by ModuleGrid
-        public Point GetSize() => new Point(XSize, YSize);
+        public Point GetSize() => new(XSize, YSize);
         
         // Size of this module in World Coordinates
-        public Vector2 WorldSize => new Vector2(XSize * 16, YSize * 16);
+        public Vector2 WorldSize => new(XSize * 16, YSize * 16);
 
         // Slot top-left Grid Position in the Ship design
-        public Point Pos;
+        [StarData] public Point Pos;
 
         // Center of the module in World Coordinates, relative to ship center
         public Vector2 LocalCenter;
 
         float ZPos;
-        public Vector3 Center3D => new Vector3(Position, ZPos);
+        public Vector3 Center3D => new(Position, ZPos);
 
         public int Area => XSize * YSize;
 
@@ -225,7 +222,7 @@ namespace Ship_Game.Ships
                                    || ModuleType == ShipModuleType.Drone
                                    || ModuleType == ShipModuleType.Bomb;
 
-        public float ActualCost => Cost * CurrentGame.ProductionPace;
+        public float ActualCost => Cost * Parent.Universe.ProductionPace;
 
         // the actual hit radius is a bit bigger for some legacy reason
         public float ShieldHitRadius => Flyweight.ShieldRadius + 10f;
@@ -318,6 +315,10 @@ namespace Ship_Game.Ships
 
         public bool IsHangarShipActive => TryGetHangarShip(out Ship ship) && ship.Active;
         public bool TryGetHangarShipActive(out Ship ship) => TryGetHangarShip(out ship) && ship.Active;
+
+        ShipModule() : base(0, GameObjectType.ShipModule)
+        {
+        }
 
         ShipModule(int id) : base(id, GameObjectType.ShipModule)
         {
@@ -1575,7 +1576,7 @@ namespace Ship_Game.Ships
             HangarShip = null;
             InstalledWeapon?.Dispose(ref InstalledWeapon);
             LastDamagedBy = null;
-            SetSystem(null);
+            System = null;
         }
     }
 }

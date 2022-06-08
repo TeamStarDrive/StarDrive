@@ -53,12 +53,12 @@ namespace Ship_Game
         
         public Background bg;
 
-        public BatchRemovalCollection<Bomb> BombList  = new BatchRemovalCollection<Bomb>();
-        readonly AutoResetEvent DrawCompletedEvt = new AutoResetEvent(false);
+        public BatchRemovalCollection<Bomb> BombList  = new();
+        readonly AutoResetEvent DrawCompletedEvt = new(false);
 
         protected double MaxCamHeight;
         public Vector3d CamDestination;
-        public Vector3d CamPos = new Vector3d(0, 0, 0);
+        public Vector3d CamPos { get => UState.CamPos; set => UState.CamPos = value; }
         public Vector3d transitionStartPosition;
 
         float TooltipTimer = 0.5f;
@@ -83,7 +83,6 @@ namespace Ship_Game
         public Background3D bg3d;
         public Empire Player => UState.Player;
         public string PlayerLoyalty => Player.data.Traits.Name;
-        public byte[] FogMapBytes;
 
         public UnivScreenState viewState;
         public bool LookingAtPlanet;
@@ -179,31 +178,24 @@ namespace Ship_Game
         public UniverseScreen(float universeSize) : base(null, toPause: null)
         {
             UState = new UniverseState(this, universeSize);
+            Initialize();
+        }
+
+        public UniverseScreen(UniverseState state) : base(null, toPause: null) // load game
+        {
+            UState = state;
+            loading = true;
+            Initialize();
+        }
+
+        void Initialize()
+        {
             UState.EvtOnShipRemoved += Objects_OnShipRemoved;
             Name = "UniverseScreen";
             CanEscapeFromScreen = false;
 
             ShipCommands = new ShipMoveCommands(this);
             DeepSpaceBuildWindow = new DeepSpaceBuildingWindow(this);
-        }
-
-        public UniverseScreen(SavedGame.UniverseSaveData save) : this(save.UniverseSize) // load game
-        {
-            loading = true;
-            
-            UniverseState us = UState;
-            us.UniqueObjectIds = save.UniqueObjectIds;
-            us.GamePace = save.GamePacing;
-            us.BackgroundSeed = save.BackgroundSeed;
-            us.StarDate = save.StarDate;
-            us.FTLModifier      = save.FTLModifier;
-            us.EnemyFTLModifier = save.EnemyFTLModifier;
-            us.GravityWells        = save.GravityWells;
-            us.FTLInNeutralSystems = save.FTLInNeutralSystems;
-            us.Difficulty = save.GameDifficulty;
-            us.GalaxySize = save.GalaxySize;
-            FogMapBytes  = save.FogMapBytes;
-            CamPos = new Vector3d(save.CamPos);
         }
 
         void Objects_OnShipRemoved(Ship ship)
@@ -374,7 +366,6 @@ namespace Ship_Game
 
             WarmUpShipsForLoad();
             RecomputeFleetButtons(true);
-            CreateStationTethers();
 
             if (UState.StarDate.AlmostEqual(1000)) // Run once to get all empire goals going
             {
@@ -392,22 +383,6 @@ namespace Ship_Game
             SimThread.Name = "Universe.SimThread";
             SimThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
             SimThread.Start();
-        }
-
-        void CreateStationTethers()
-        {
-            foreach (Ship ship in UState.Ships)
-            {
-                if (ship.TetheredId != 0)
-                {
-                    Planet p = UState.GetPlanet(ship.TetheredId);
-                    if (p != null)
-                    {
-                        ship.TetherToPlanet(p);
-                        p.OrbitalStations.Add(ship);
-                    }
-                }
-            }
         }
 
         void InitializeSolarSystems()
@@ -557,10 +532,10 @@ namespace Ship_Game
 
         void CreateFogMap(Data.GameContentManager content, GraphicsDevice device)
         {
-            if (FogMapBytes != null)
+            if (UState.FogMapBytes != null)
             {
-                FogMap = content.RawContent.TexImport.FromAlphaOnly(FogMapBytes);
-                FogMapBytes = null; // free the mem of course, even if load failed
+                FogMap = content.RawContent.TexImport.FromAlphaOnly(UState.FogMapBytes);
+                UState.FogMapBytes = null; // free the mem of course, even if load failed
             }
 
             if (FogMap == null)
@@ -736,8 +711,6 @@ namespace Ship_Game
             ClickableShips = Empty<ClickableShip>.Array;
             ClickablePlanets = Empty<ClickablePlanet>.Array;
             ClickableSystems = Empty<ClickableSystem>.Array;
-
-            StatTracker.Reset();
 
             base.ExitScreen();
             Dispose(); // will call Destroy() and UnloadGraphics()

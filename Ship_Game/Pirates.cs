@@ -242,7 +242,7 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            int dieRoll = (int)(Level * CurrentGame.Pace + EmpireManager.ActiveMajorEmpires.Length / 2f);
+            int dieRoll = (int)(Level * Universe.Pace + EmpireManager.ActiveMajorEmpires.Length / 2f);
             if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
@@ -610,7 +610,7 @@ namespace Ship_Game
                 FlagShip         = pirates.data.PirateFlagShip;
                 int levelDivider = 1; 
 
-                switch (CurrentGame.Difficulty) // Don't let pirates spawn advanced tech too early at lower difficulty
+                switch (pirates.Universum.Difficulty) // Don't let pirates spawn advanced tech too early at lower difficulty
                 {
                     case GameDifficulty.Normal: levelDivider = 3; break;
                     case GameDifficulty.Hard:   levelDivider = 2; break;
@@ -744,7 +744,7 @@ namespace Ship_Game
 
             float enemyStr = targetShip.AI.FriendliesNearby.Sum(s => s.BaseStrength);
 
-            float maxStrModifier       = ((int)CurrentGame.Difficulty + 1) * 0.15f; // easy will be 15%
+            float maxStrModifier       = ((int)Universe.Difficulty + 1) * 0.15f; // easy will be 15%
             float availableStrModifier = (float)Level / MaxLevel;
 
             return (enemyStr * maxStrModifier * availableStrModifier).LowerBound(Level * 500);
@@ -907,7 +907,7 @@ namespace Ship_Game
 
             EmpireAI ai             = victim.GetEmpireAI();
             int currentAssaultGoals = ai.SearchForGoals(GoalType.AssaultPirateBase).Count;
-            int maxAssaultGoals     = ((int)(CurrentGame.Difficulty + 1)).UpperBound(3);
+            int maxAssaultGoals     = ((int)(Universe.Difficulty + 1)).UpperBound(3);
             if (currentAssaultGoals >= maxAssaultGoals || victim.data.TaxRate > 0.8f) 
                 return;
 

@@ -1508,23 +1508,23 @@ namespace Ship_Game
             if (!input.YButtonHeld && !input.ScrollIn || LookingAtPlanet)
                 return;
 
-            CamDestination.Z = CamPos.Z - scrollAmount;
-            if (CamPos.Z >= 16000f)
+            CamDestination.Z = UState.CamPos.Z - scrollAmount;
+            if (UState.CamPos.Z >= 16000f)
             {
                 CamDestination.Z -= 2000f;
-                if (CamPos.Z > 32000.0)
+                if (UState.CamPos.Z > 32000.0)
                     CamDestination.Z -= 7500.0;
-                if (CamPos.Z > 150000.0)
+                if (UState.CamPos.Z > 150000.0)
                     CamDestination.Z -= 40000.0;
             }
 
-            if (input.IsCtrlKeyDown && CamPos.Z > 10000.0)
-                CamDestination.Z = CamPos.Z <= 65000.0 ? 10000.0 : 60000.0;
+            if (input.IsCtrlKeyDown && UState.CamPos.Z > 10000.0)
+                CamDestination.Z = UState.CamPos.Z <= 65000.0 ? 10000.0 : 60000.0;
 
             if (ViewingShip)
                 return;
-            if (CamPos.Z <= 450.0)
-                CamPos.Z = 450.0;
+            if (UState.CamPos.Z <= 450.0)
+                UState.CamPos.Z = 450.0;
 
             double camDestinationZ = CamDestination.Z;
 
