@@ -1,5 +1,4 @@
 using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
@@ -7,8 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Ships.AI;
-using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using SDGraphics;
 using SDUtils;
@@ -28,25 +25,6 @@ namespace Ship_Game
         [StarData] public DateTime Time;
     }
 
-    // XNA.Rectangle cannot be serialized, so we need a proxy object
-    // TODO: New binary serializer does support Rectangle and RectF
-    [StarDataType]
-    public struct RectangleData
-    {
-        [StarData] public int X, Y, Width, Height;
-        public RectangleData(in Rectangle r)
-        {
-            X = r.X;
-            Y = r.Y;
-            Width = r.Width;
-            Height = r.Height;
-        }
-        public static implicit operator Rectangle(RectangleData r)
-        {
-            return new Rectangle(r.X, r.Y, r.Width, r.Height);
-        }
-    }
-
     public sealed class SavedGame
     {
         // Every time the savegame layout changes significantly,
@@ -63,82 +41,67 @@ namespace Ship_Game
         public static string DefaultSaveGameFolder => Dir.StarDriveAppData + "/Saved Games/";
 
         static TaskResult SaveTask;
-        readonly UniverseScreen Screen;
 
-        public SavedGame(UniverseScreen screenToSave)
+        public SavedGame(UniverseScreen screen)
         {
-            Screen = screenToSave;
-
             // clean up and submit objects before saving
-            UniverseState us = screenToSave.UState;
+            UniverseState us = screen.UState;
             us.Objects.UpdateLists(removeInactiveObjects: true);
 
-            SaveData.SaveGameVersion       = SaveGameVersion;
+            SaveData.Version = SaveGameVersion;
             SaveData.UniverseSize          = us.Size;
             SaveData.UniqueObjectIds       = us.UniqueObjectIds;
             SaveData.GameDifficulty        = us.Difficulty;
             SaveData.GalaxySize            = us.GalaxySize;
-            SaveData.StarsModifier         = CurrentGame.StarsModifier;
-            SaveData.ExtraPlanets          = CurrentGame.ExtraPlanets;
-            SaveData.AutoColonize          = EmpireManager.Player.AutoColonize;
-            SaveData.AutoExplore           = EmpireManager.Player.AutoExplore;
-            SaveData.AutoFreighters        = EmpireManager.Player.AutoFreighters;
-            SaveData.AutoPickBestFreighter = EmpireManager.Player.AutoPickBestFreighter;
-            SaveData.AutoPickBestColonizer = EmpireManager.Player.AutoPickBestColonizer;
-            SaveData.AutoProjectors        = EmpireManager.Player.AutoBuild;
-            SaveData.GamePacing            = CurrentGame.Pace;
-            SaveData.GameScale             = 1f;
             SaveData.BackgroundSeed        = us.BackgroundSeed;
             SaveData.StarDate              = us.StarDate;
             SaveData.FTLModifier           = us.FTLModifier;
             SaveData.EnemyFTLModifier      = us.EnemyFTLModifier;
             SaveData.FTLInNeutralSystems   = us.FTLInNeutralSystems;
             SaveData.GravityWells          = us.GravityWells;
-            SaveData.PlayerLoyalty         = screenToSave.PlayerLoyalty;
+            SaveData.CamPos                = screen.CamPos.ToVec3f();
+            SaveData.StarsModifier         = CurrentGame.StarsModifier;
+            SaveData.ExtraPlanets          = CurrentGame.ExtraPlanets;
+            SaveData.GamePacing            = CurrentGame.Pace;
             SaveData.RandomEvent           = RandomEventManager.ActiveEvent;
-            SaveData.CamPos                = screenToSave.CamPos.ToVec3f();
+
             SaveData.MinAcceptableShipWarpRange = GlobalStats.MinAcceptableShipWarpRange;
             SaveData.TurnTimer             = (byte)GlobalStats.TurnTimer;
             SaveData.IconSize              = GlobalStats.IconSize;
             SaveData.PreventFederations    = GlobalStats.PreventFederations;
-            SaveData.GravityWellRange      = GlobalStats.GravityWellRange;
             SaveData.EliminationMode       = GlobalStats.EliminationMode;
-            SaveData.EmpireDataList        = us.Empires.ToArr();
-            SaveData.SolarSystems          = screenToSave.UState.Systems.ToArr();
+            SaveData.GravityWellRange      = GlobalStats.GravityWellRange;
             SaveData.CustomMineralDecay    = GlobalStats.CustomMineralDecay;
             SaveData.VolcanicActivity      = GlobalStats.VolcanicActivity;
+            SaveData.ShipMaintenanceMultiplier = GlobalStats.ShipMaintenanceMulti;
             SaveData.UsePlayerDesigns      = GlobalStats.UsePlayerDesigns;
             SaveData.UseUpkeepByHullSize   = GlobalStats.UseUpkeepByHullSize;
 
             SaveData.SuppressOnBuildNotifications  = GlobalStats.SuppressOnBuildNotifications;
-            SaveData.PlanetScreenHideOwned         = GlobalStats.PlanetScreenHideOwned;;
-            SaveData.PlanetsScreenHideUnhabitable  = GlobalStats.PlanetsScreenHideUnhabitable;
-            SaveData.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
+            SaveData.PlanetScreenHideOwned         = GlobalStats.PlanetScreenHideOwned;
+            SaveData.PlanetsScreenHideInhospitable = GlobalStats.PlanetsScreenHideInhospitable;
             SaveData.ShipListFilterPlayerShipsOnly = GlobalStats.ShipListFilterPlayerShipsOnly;
             SaveData.ShipListFilterInFleetsOnly    = GlobalStats.ShipListFilterInFleetsOnly;
             SaveData.ShipListFilterNotInFleets     = GlobalStats.ShipListFilterNotInFleets;
             SaveData.DisableInhibitionWarning      = GlobalStats.DisableInhibitionWarning;
             SaveData.CordrazinePlanetCaptured      = GlobalStats.CordrazinePlanetCaptured;
             SaveData.DisableVolcanoWarning         = GlobalStats.DisableVolcanoWarning;
-
-            var allShips = us.Objects.GetAllShipsSlow();
-            SaveData.AllShips = allShips.Select(ShipSaveFromShip);
+            
+            SaveData.Empires = us.Empires;
+            SaveData.Systems = us.Systems;
+            SaveData.AllShips    = us.Objects.GetShips().Select(ShipSaveFromShip);
             SaveData.Projectiles = us.Objects.GetProjectileSaveData();
             SaveData.Beams       = us.Objects.GetBeamSaveData();
 
             SaveData.Snapshots = new Map<string, Map<int, Snapshot>>();
             foreach (KeyValuePair<string, Map<int, Snapshot>> e in StatTracker.SnapshotsMap)
-            {
                 SaveData.Snapshots.Add(e.Key, e.Value);
-            }
-            
-            var designs = new HashSet<IShipDesign>();
-            foreach (Ship ship in allShips)
-                designs.Add(ship.ShipData);
-            SaveData.SetDesigns(designs);
 
             // FogMap is converted to a Base64 string so that it can be included in the savegame
-            SaveData.FogMapBytes = Screen.ContentManager.RawContent.TexExport.ToAlphaBytes(Screen.FogMap);
+            SaveData.FogMapBytes = screen.ContentManager.RawContent.TexExport.ToAlphaBytes(screen.FogMap);
+
+            var designs = us.Objects.GetShips().Select(s => s.ShipData).UniqueSet();
+            SaveData.SetDesigns(designs);
         }
 
         static bool GetIsSaving()
@@ -187,7 +150,7 @@ namespace Ship_Game
             sd.FightersLaunched = ship.Carrier.FightersLaunched;
             sd.TroopsLaunched = ship.Carrier.TroopsLaunched;
             sd.SendTroopsToShip = ship.Carrier.SendTroopsToShip;
-            sd.AreaOfOperation = ship.AreaOfOperation.Select(r => new RectangleData(r));
+            sd.AreaOfOperation = ship.AreaOfOperation;
 
             sd.RecallFightersBeforeFTL = ship.Carrier.RecallFightersBeforeFTL;
             sd.MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
@@ -225,7 +188,7 @@ namespace Ship_Game
                 Version    = SaveGameVersion,
                 SaveName   = data.SaveAs,
                 StarDate   = data.StarDate.ToString("#.0"),
-                PlayerName = data.PlayerLoyalty,
+                PlayerName = data.Empires.Find(e => e.isPlayer).data.Traits.Name,
                 RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
                 ModName    = GlobalStats.ModName,
                 Time       = now,
@@ -310,7 +273,7 @@ namespace Ship_Game
             [StarData] public float Experience;
             [StarData] public int Kills;
             [StarData] public Array<Troop> TroopList;
-            [StarData] public RectangleData[] AreaOfOperation;
+            [StarData] public Array<Rectangle> AreaOfOperation;
             [StarData] public float FoodCount;
             [StarData] public float ProdCount;
             [StarData] public float PopCount;
@@ -371,59 +334,54 @@ namespace Ship_Game
         [StarDataType]
         public class UniverseSaveData : IDisposable
         {
-            [StarData] public int SaveGameVersion;
-            [StarData] public int UniqueObjectIds;
+            [StarData] public int Version;
             [StarData] public string SaveAs;
-            [StarData] public string FileName;
-            [StarData] public byte[] FogMapBytes;
-            [StarData] public string PlayerLoyalty;
-            [StarData] public Vector3 CamPos;
             [StarData] public float UniverseSize;
-            [StarData] public float StarDate;
-            [StarData] public float GameScale;
-            [StarData] public float GamePacing;
-            [StarData] public int BackgroundSeed;
-            [StarData] public SolarSystem[] SolarSystems;
-            [StarData] public Empire[] EmpireDataList;
+            [StarData] public int UniqueObjectIds;
             [StarData] public GameDifficulty GameDifficulty;
-            [StarData] public bool AutoExplore;
-            [StarData] public bool AutoColonize;
-            [StarData] public bool AutoFreighters;
-            [StarData] public bool AutoProjectors;
+            [StarData] public GalSize GalaxySize;
+            [StarData] public int BackgroundSeed;
+            [StarData] public float StarDate;
             [StarData] public float FTLModifier = 1.0f;
             [StarData] public float EnemyFTLModifier = 1.0f;
             [StarData] public bool FTLInNeutralSystems;
             [StarData] public bool GravityWells;
-            [StarData] public RandomEvent RandomEvent;
-            [StarData] public Map<string, Map<int, Snapshot>> Snapshots;
-            [StarData] public float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
-            [StarData] public float MinAcceptableShipWarpRange = GlobalStats.MinAcceptableShipWarpRange;
-            [StarData] public int IconSize;
-            [StarData] public byte TurnTimer;
-            [StarData] public bool PreventFederations;
-            [StarData] public float GravityWellRange = GlobalStats.GravityWellRange;
-            [StarData] public bool EliminationMode;
-            [StarData] public bool AutoPickBestFreighter;
-            [StarData] public GalSize GalaxySize;
+
+            [StarData] public Vector3 CamPos;
             [StarData] public float StarsModifier = 1;
             [StarData] public int ExtraPlanets;
-            [StarData] public ShipSaveData[] AllShips;
-            [StarData] public ProjectileSaveData[] Projectiles; // New global projectile list
-            [StarData] public BeamSaveData[] Beams; // new global beam list
-            [StarData] public bool AutoPickBestColonizer;
+            [StarData] public float GamePacing;
+            [StarData] public RandomEvent RandomEvent;
+
+            [StarData] public float MinAcceptableShipWarpRange = GlobalStats.MinAcceptableShipWarpRange;
+            [StarData] public byte TurnTimer;
+            [StarData] public int IconSize;
+            [StarData] public bool PreventFederations;
+            [StarData] public bool EliminationMode;
+            [StarData] public float GravityWellRange = GlobalStats.GravityWellRange;
             [StarData] public float CustomMineralDecay;
+            [StarData] public float VolcanicActivity;
+            [StarData] public float ShipMaintenanceMultiplier = GlobalStats.ShipMaintenanceMulti;
+            [StarData] public bool UsePlayerDesigns;
+            [StarData] public bool UseUpkeepByHullSize;
+
             [StarData] public bool SuppressOnBuildNotifications;
             [StarData] public bool PlanetScreenHideOwned;
-            [StarData] public bool PlanetsScreenHideUnhabitable;
+            [StarData] public bool PlanetsScreenHideInhospitable;
             [StarData] public bool ShipListFilterPlayerShipsOnly;
             [StarData] public bool ShipListFilterInFleetsOnly;
             [StarData] public bool ShipListFilterNotInFleets;
             [StarData] public bool DisableInhibitionWarning;
             [StarData] public bool CordrazinePlanetCaptured;
             [StarData] public bool DisableVolcanoWarning;
-            [StarData] public float VolcanicActivity;
-            [StarData] public bool UsePlayerDesigns;
-            [StarData] public bool UseUpkeepByHullSize;
+
+            [StarData] public IReadOnlyList<Empire> Empires;
+            [StarData] public IReadOnlyList<SolarSystem> Systems;
+            [StarData] public ShipSaveData[] AllShips;
+            [StarData] public ProjectileSaveData[] Projectiles; // New global projectile list
+            [StarData] public BeamSaveData[] Beams; // new global beam list
+            [StarData] public Map<string, Map<int, Snapshot>> Snapshots;
+            [StarData] public byte[] FogMapBytes;
 
             // globally stored ship designs
             [StarData] public ShipDesign[] ShipDesigns;
@@ -458,7 +416,7 @@ namespace Ship_Game
 
             public void Dispose()
             {
-                EmpireDataList = null;
+                Empires = null;
                 Snapshots.Clear();
                 FogMapBytes = null;
                 Projectiles = null;
