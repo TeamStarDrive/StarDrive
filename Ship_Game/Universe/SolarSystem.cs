@@ -23,12 +23,12 @@ namespace Ship_Game
     public sealed class SolarSystem : ExplorableGameObject
     {
         [StarData] public string Name = "Random System";
-        public UniverseState Universe;
+        [StarData] public UniverseState Universe;
 
         [StarData] public HashSet<Empire> OwnerList = new();
 
         public Array<Ship> ShipList = new();
-        
+
         [StarData] public bool PiratePresence { get; private set; }
 
         public Array<ILight> Lights = new();
@@ -37,9 +37,9 @@ namespace Ship_Game
         // needs to be big enough to properly trigger system-radius related events
         const float MinRadius = 150000f;
 
-        [StarData]public Array<Planet> PlanetList = new();
-        [StarData]public Array<Asteroid> AsteroidsList = new();
-        [StarData]public Array<Moon> MoonList = new();
+        [StarData] public Array<Planet> PlanetList = new();
+        [StarData] public Array<Asteroid> AsteroidsList = new();
+        [StarData] public Array<Moon> MoonList = new();
 
         Empire[] FullyExplored = Empty<Empire>.Array;
 
