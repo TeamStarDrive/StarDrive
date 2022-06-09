@@ -598,7 +598,7 @@ namespace Ship_Game
                 {
                     float orbitRadius = newOrbital.Radius * 5 + RandomMath.Float(1000f, 1500f) * (j + 1);
                     var moon = new Moon(ParentSystem,
-                                        newOrbital.Id,
+                                        newOrbital,
                                         data.Moons[j].WhichMoon,
                                         data.Moons[j].MoonScale,
                                         orbitRadius,
@@ -616,7 +616,7 @@ namespace Ship_Game
                     PlanetType moonType = ResourceManager.Planets.RandomMoon(newOrbital.PType);
                     float orbitRadius = newOrbital.Radius + 1500 + RandomMath.Float(1000f, 1500f) * (j + 1);
                     var moon = new Moon(system,
-                                        newOrbital.Id,
+                                        newOrbital,
                                         moonType.Id,
                                         1f, orbitRadius,
                                         RandomMath.Float(0f, 360f),

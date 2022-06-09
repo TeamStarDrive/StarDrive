@@ -281,6 +281,7 @@ namespace Ship_Game.AI
             return NewMathExt.RandomOffsetAndDistance(p.Position, p.Radius);
         }
 
+        [StarDataType]
         public class ShipGoal : IDisposable
         {
             bool IsDisposed;

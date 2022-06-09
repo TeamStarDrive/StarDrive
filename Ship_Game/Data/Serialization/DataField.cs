@@ -21,9 +21,19 @@ namespace Ship_Game.Data.Serialization
 
         public override string ToString() => Serializer?.NiceTypeName ?? "invalid";
 
-        public DataField(TypeSerializerMap typeMap, StarDataAttribute a,
+        public DataField(TypeSerializerMap typeMap, Type instanceType, StarDataAttribute a,
                          PropertyInfo prop, FieldInfo field)
         {
+            if (prop != null)
+            {
+                // if the property is defined in base class, we need to fetch the property
+                // through declaring class type in order to access the Setter
+                var p = (prop.DeclaringType != instanceType) ? prop.DeclaringType?.GetProperty(prop.Name) : prop;
+                if (p?.SetMethod == null)
+                    throw new Exception($"[StarData] {instanceType.FullName}.{prop.Name} has no setter! Add a private setter.");
+                prop = p;
+            }
+
             Name = a.NameId.NotEmpty() ? a.NameId : (prop?.Name ?? field.Name);
             Type type = prop != null ? prop.PropertyType : field.FieldType;
             Serializer = typeMap.Get(type);

@@ -77,7 +77,7 @@ namespace Ship_Game.Data.Serialization
                 FieldInfo f = fields[i];
                 if (f.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
                 {
-                    var field = new DataField(TypeMap, a, null, f);
+                    var field = new DataField(TypeMap, Type, a, null, f);
                     dataFields.Add(field);
                     CheckPrimaryKeys(a, field);
                 }
@@ -88,11 +88,7 @@ namespace Ship_Game.Data.Serialization
                 PropertyInfo p = props[i];
                 if (p.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
                 {
-                    MethodInfo setter = p.GetSetMethod(nonPublic: true);
-                    if (setter == null)
-                        throw new Exception($"[StarDataType] {NiceTypeName} Property {p.Name} has no setter!");
-
-                    var field = new DataField(TypeMap, a, p, null);
+                    var field = new DataField(TypeMap, Type, a, p, null);
                     dataFields.Add(field);
                     CheckPrimaryKeys(a, field);
                 }
