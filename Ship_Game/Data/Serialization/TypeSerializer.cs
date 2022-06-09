@@ -129,15 +129,7 @@ namespace Ship_Game.Data.Serialization
         /// </summary>
         public object CreateInstanceOf(Type type)
         {
-            try
-            {
-                return Activator.CreateInstance(type, nonPublic:true);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, $"No parameterless constructor for {type.GetTypeName()}");
-                return null;
-            }
+            return Activator.CreateInstance(type, nonPublic:true);
         }
 
         protected static void Error(object value, string couldNotConvertToWhat)

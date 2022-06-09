@@ -2493,13 +2493,14 @@ namespace Ship_Game.Fleets
                 DataNodes.AddUnique(node);
         }
 
+        [StarDataType]
         public sealed class Squad
         {
-            public FleetDataNode MasterDataNode = new FleetDataNode();
-            public Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
-            public Array<Ship> Ships = new Array<Ship>();
-            public Fleet Fleet;
-            public Vector2 Offset; // squad offset within fleet
+            [StarData] public FleetDataNode MasterDataNode = new();
+            [StarData] public Array<FleetDataNode> DataNodes = new();
+            [StarData] public Array<Ship> Ships = new();
+            [StarData] public Fleet Fleet;
+            [StarData] public Vector2 Offset; // squad offset within fleet
 
             public const float SquadSpacing = ShipAI.FlockingSeparation + 100f;
 

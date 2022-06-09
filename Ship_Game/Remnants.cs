@@ -29,11 +29,10 @@ namespace Ship_Game
         [StarData] public float PlayerStepTriggerXp { get; private set; }
         [StarData] public float NextLevelUpDate { get; private set; }
         [StarData] public bool Activated { get; private set; }
-        [StarData] public static bool Armageddon;
         [StarData] public RemnantStory Story { get; private set; }
         [StarData] public float Production { get; private set; }
         [StarData] public int Level { get; private set; } = 1;
-        [StarData] public Map<RemnantShipType, float> ShipCosts { get; } = new();
+        [StarData] public Map<RemnantShipType, float> ShipCosts { get; private set; } = new();
         [StarData] public int StoryStep { get; private set; } = 1;
         [StarData] public bool OnlyRemnantLeft { get; private set; }
         [StarData] public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0

@@ -1,6 +1,4 @@
 using System;
-using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe.SolarBodies;
@@ -15,13 +13,12 @@ namespace Ship_Game.Gameplay
     {
         [StarData] public float MoonScale;
         [StarData] public int MoonId;
-        [StarData] public int OrbitPlanetId;
+        [StarData] public Planet OrbitPlanet;
         [StarData] public float OrbitRadius;
         [StarData] public float OrbitalAngle;
         [StarData] public Vector3 RotationRadians;
 
-        [XmlIgnore][JsonIgnore] SceneObject So;
-        [XmlIgnore][JsonIgnore] Planet OrbitPlanet;
+        SceneObject So;
 
         // in this case, it's into the background, away from main plane
         public const float ZPos = 3200f;
@@ -34,11 +31,12 @@ namespace Ship_Game.Gameplay
         }
 
         // Creating new game:
-        public Moon(SolarSystem system, int orbitPlanetId, int moon, float moonScale,
+        public Moon(SolarSystem system, Planet orbitPlanet, int moon, float moonScale,
                     float orbitRadius, float orbitalAngle, Vector2 pos)
             : base(system.Universe.CreateId(), GameObjectType.Moon)
         {
-            OrbitPlanetId = orbitPlanetId;
+            System = system;
+            OrbitPlanet = orbitPlanet;
             MoonId = moon;
             MoonScale = moonScale;
             OrbitRadius = orbitRadius;
@@ -83,11 +81,6 @@ namespace Ship_Game.Gameplay
             {
                 OrbitalAngle += (float)Math.Asin(15f / OrbitRadius);
                 if (OrbitalAngle >= 360.0f) OrbitalAngle -= 360f;
-            }
-
-            if (OrbitPlanet == null)
-            {
-                OrbitPlanet = System.Universe.GetPlanet(OrbitPlanetId);
             }
 
             Position = OrbitPlanet.Position.PointFromAngle(OrbitalAngle, OrbitRadius);
