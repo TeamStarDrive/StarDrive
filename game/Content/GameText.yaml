@@ -162,9 +162,9 @@ EfficientMetabolism:
  SPA: "Metabolismo eficiente"
 RacesWithHighlyEfficientMetabolisms:
  Id: 33
- ENG: "Races with highly efficient metabolisms require 25% less food each turn"
- RUS: "Расы с высокоэффективным метаболизмом каждый ход потребляют на 20% меньше еды."
- SPA: "Las razas con metabolismos muy eficientes necesitan un 25% menos de comida por turno"
+ ENG: "Races with highly efficient metabolisms require 15% less food each turn"
+ RUS: "Расы с высокоэффективным метаболизмом каждый ход потребляют на 15% меньше еды."
+ SPA: "Las razas con metabolismos muy eficientes necesitan un 15% menos de comida por turno"
 Gluttonous:
  Id: 34
  ENG: "Gluttonous"
@@ -172,9 +172,9 @@ Gluttonous:
  SPA: "Glotona"
 GluttonousRacesWillGorgeThemselves:
  Id: 35
- ENG: "Gluttonous races will gorge themselves at every opportunity, eating 25% more food every turn"
- RUS: "Прожорливые расы едят очень много, потребляя на 20% больше еды каждый ход."
- SPA: "Las razas glotonas se ceban en cuanto pueden y comen un 25% más de comida en cada turno"
+ ENG: "Gluttonous races will gorge themselves at every opportunity, eating 10% more food every turn"
+ RUS: "Прожорливые расы едят очень много, потребляя на 10% больше еды каждый ход."
+ SPA: "Las razas glotonas se ceban en cuanto pueden y comen un 10% más de comida en cada turno"
 Fertile:
  Id: 36
  ENG: "Fertile"
@@ -1790,14 +1790,9 @@ AeroponicFarm:
  SPA: "Plantación aeropónica"
 AeroponicsIsTheUseOf:
  Id: 404
- ENG: "Aeroponics is the use of a hydro-atomized spray to deliver nutrients to plants suspended in the air. This technique offers excellent plant growth and eliminates the need for soil while at the same time minimizing pathogen risks. +1 flat bonus to Food production."
- RUS: "Аэропоника - это использование атомизированного водяного спрея для доставки питательных веществ растениям, подвешенным в воздухе. Использование этой технологии позволяет растениям расти очень быстро, устраняет необходимость в почве и минимизирует риски заражения микроорганизмами. +1 бонус к производству еды."
- SPA: "La aeroponia es el cultivo en un entorno aéreo de plantas a las que se transmiten los nutrientes por hidroatomización. Con esta técnica, las plantas crecen a un ritmo excelente y se elimina la necesidad de tierra a la vez que se reducen al mínimo los riesgos patógenos. Bonificación única de +1 a la producción de comida."
-AeroponicsShortDescr:
- Id: 405
- ENG: "+0.8 food per turn, +0.2 food per assigned colonist"
- RUS: "+0.8 еды в ход"
- SPA: "+0.8 comida por turno"
+ ENG: "Aeroponics is the use of a hydro-atomized spray to deliver nutrients to plants suspended in the air. This technique offers excellent plant growth and eliminates the need for soil while at the same time minimizing pathogen risks."
+ RUS: "Аэропоника - это использование атомизированного водяного спрея для доставки питательных веществ растениям, подвешенным в воздухе. Использование этой технологии позволяет растениям расти очень быстро, устраняет необходимость в почве и минимизирует риски заражения микроорганизмами."
+ SPA: "La aeroponia es el cultivo en un entorno aéreo de plantas a las que se transmiten los nutrientes por hidroatomización. Con esta técnica, las plantas crecen a un ritmo excelente y se elimina la necesidad de tierra a la vez que se reducen al mínimo los riesgos patógenos."
 Biospheres:
  Id: 406
  ENG: "Biospheres"
@@ -1863,11 +1858,6 @@ TheOutputOfThisGenetics:
  ENG: "The output of this Genetics Research Facility scales with the amount of colonists dedicated to the task, providing +.2 research per assigned colonist."
  RUS: "Продуктивность этого исследовательского комплекса растет пропорционально числу колонистов, занятых наукой, давая +0,2 ед. науки за каждого занятого колониста."
  SPA: "La producción de este Centro de investigación de genética depende de la cantidad de colonos dedicados a la tarea y aumenta la investigación en +0,2 por colono asignado."
-ResearchPerAssignedColonist:
- Id: 423
- ENG: "+.15 research per assigned colonist"
- RUS: "+0,15 ед. науки за каждого занятого колониста"
- SPA: "+0,15 de investigación por colono asignado"
 GunEmplacement:
  Id: 424
  ENG: "Gun Emplacement"
@@ -1890,24 +1880,14 @@ ImperialBank:
  SPA: "Banco imperial"
 TheImperialBankBuildingIncreases:
  Id: 428
- ENG: "The Imperial Bank building increases the efficiency of your planetary tax operations by 80%."
- RUS: "Имперский банк увеличивает эффективность сбора налогов с планеты на 80%."
- SPA: "Este edificio aumenta en un 80% la eficacia de las operaciones fiscales planetarias."
-TaxRevenues:
- Id: 429
- ENG: "+60% tax revenues"
- RUS: "+60% к налогам"
- SPA: "+60% de ingresos fiscales"
+ ENG: "The Imperial Bank building increases the efficiency of your planetary tax operations by 60%."
+ RUS: "Имперский банк увеличивает эффективность сбора налогов с планеты на 60%."
+ SPA: "Este edificio aumenta en un 60% la eficacia de las operaciones fiscales planetarias."
 ImperialOffices:
  Id: 430
  ENG: "Imperial Offices"
  RUS: "Имперские учреждения"
  SPA: "Oficinas imperiales"
-CreditsPerColonist:
- Id: 432
- ENG: "+0.6 credits per colonist"
- RUS: "+0,6 кредитов на колониста"
- SPA: "+0,6 créditos por colono"
 IonCannon:
  Id: 433
  ENG: "Ion Cannon"
@@ -2010,14 +1990,9 @@ ResearchLab:
  SPA: "Laboratorio de investigación"
 ADedicatedResearchLabAllows:
  Id: 453
- ENG: "A dedicated research lab allows colonists to begin in earnest the study of their new home.  Provides a flat +0.3 per turn research bonus to any colony and +0.25 research per assigned colonist. "
- RUS: "Исследовательская лаборатория дает колонистам возможность начать изучать их новый дом. Дает +0.3 к науке в любой колонии,+0.25 к науке за колониста. "
- SPA: "Un laboratorio de investigación especializado permite a los colonos emprender el estudio a fondo de su nuevo mundo.  Proporciona a una colonia una bonificación única de investigación de +0.3 por turno. "
-ResearchPerTurn2:
- Id: 454
- ENG: "+0.3 research per turn, 0.25 research per colonist"
- RUS: "+0.3 к науке в ход, +0.25 к науке за колониста"
- SPA: "+0.3 de investigación por turno"
+ ENG: "A dedicated research lab allows colonists to begin in earnest the study of their new home."
+ RUS: "Исследовательская лаборатория дает колонистам возможность начать изучать их новый дом."
+ SPA: "Un laboratorio de investigación especializado permite a los colonos emprender el estudio a fondo de su nuevo mundo."
 RoverBay:
  Id: 455
  ENG: "Rover Bay"
@@ -2025,14 +2000,9 @@ RoverBay:
  SPA: "Muelle de vehículos planetarios"
 MannedAndAutomatedRoversProvide:
  Id: 456
- ENG: "Manned and automated rovers provide indispensable labor savings to fledgling colonies, increasing the production of the colony with a flat +1 production bonus, with additional +1 production per planets richness."
+ ENG: "Manned and automated rovers provide indispensable labor savings to fledgling colonies, increasing the production of the colony."
  RUS: "Управляемые и автоматические подъемники помогают значительно сократить трудозатраты при обустройстве колонии, давая +1 бонус к производству."
  SPA: "Los vehículos planetarios tripulados y automatizados realizan un trabajo indispensable para las incipientes colonias al aumentar la producción con una bonificación única de +1 por turno."
-ProductionPerTurn2:
- Id: 457
- ENG: "+1 production per turn, +0.5 prod per richness"
- RUS: "+1 производства в ход"
- SPA: "+1 de producción por turno"
 SpacePort:
  Id: 458
  ENG: "Space Port"
@@ -2079,21 +2049,11 @@ ASimpleBuildingWithA:
  ENG: "A simple building with a simple purpose, the warehouse provides an environmentally controlled facility where 100 extra food and production can be stored."
  RUS: "Простое здание с еще более простым предназначением. На складе может храниться до 100 дополнительных единиц еды и производства."
  SPA: "Un edificio simple con un propósito igual de simple: proporcionar un lugar ecológicamente controlado para almacenar hasta 100 más de comida y producción."
-MaximumGoodStorage:
- Id: 469
- ENG: "+200 maximum good storage, +1 infrastructure"
- RUS: "+200 к максимальному запасу товаров"
- SPA: "+200 de almacenamiento máximo de bienes"
 XenoFarm:
  Id: 470
  ENG: "Xeno Farm"
  RUS: "Ксеноферма"
  SPA: "Xenogranja"
-FoodPerAssignedColonist:
- Id: 472
- ENG: "+0.3 food per assigned colonist"
- RUS: "+0,3 к еде за каждого занятого колониста"
- SPA: "+0,3 de comida por colono asignado"
 XenoMine:
  Id: 473
  ENG: "Xeno Mine"
@@ -2102,12 +2062,6 @@ XenoMine:
 XenoMinesAreTheFirst:
  Id: 474
  ENG: "Xeno mines are the first real step towards exploiting a planet's mineral deposits, as well as providing nessesary infrastructure to move materials."
-
-ProductionPerAssignedColonist:
- Id: 475
- ENG: "+0.6 production per assigned colonist, +1 Infrastructure"
- RUS: "+0.6 к производству за каждого занятого колониста,+1 к Инфраструктуре"
-
 BB_Tech_AdvancedMaterials_Name:
  Id: 500
  ENG: "Advanced Materials"
@@ -7767,11 +7721,6 @@ VerticalFarm:
  ENG: "Vertical Farm"
  RUS: "Вертикальная ферма"
  SPA: "Granja vertical"
-FoodPerTurn3:
- Id: 2291
- ENG: "+0.6 food per assigned colonist"
- RUS: "+0.6 еды за задействованного колониста"
- SPA: "+0.6 de comida por colono asignado"
 ThisMegastructureEmploysAdvancedAgricultural:
  Id: 2292
  ENG: "This megastructure employs advanced agricultural techniques and robotics to create massive quantities of food"
@@ -8557,16 +8506,6 @@ DeepCoreMinesAreExtremely:
  ENG: "Deep Core Mines are extremely effective at rapidly extracting minerals from deep within a planet's core, but are environmentally disastrous. Adds flat rate production equal to 5 times a planet's mineral richness but permanently decreases a planet's fertility by 0.6."
  RUS: "Сверхглубокие шахты очень эффективны для быстрого извлечения минералов и руд из прилегающих к ядру слове планетарной коры, но при этом они оказывают колоссальный негативный эффект на экосистему планеты. Добавляет фиксированный бонус производства в количестве 4х богатства планеты минералами и перманентно снижает ее индекс плодородия на 0.6."
  SPA: "Las minas de núcleo profundo son sumamente eficaces a la hora de extraer minerales de las profundidades de un planeta, pero son devastadoras para el medio ambiente. Añade una producción a un ritmo constante igual a cuatro veces la riqueza mineral del planeta, pero reduce permanentemente su fertilidad en 0.6."
-FertilityOnBuildXProduction:
- Id: 420
- ENG: "lower fertility on build, +3x production richness bonus, +0.7 prod per assigned colonist"
- RUS: "+ 3х богатства планеты к производству; -0.4 к плодородию"
- SPA: "Aumento de producción igual a 5 veces la riqueza del planeta; -0.4 de fertilidad"
-PopulationPerTurn:
- Id: 414
- ENG: "+0.02 population per turn"
- RUS: "+ 0,02 населения в ход"
- SPA: "+0,02 de población por turno"
 ThisModuleContainsAllOf:
  Id: 925
  ENG: "This module contains all of the equipment, food, and colonists necessary to start a new colony on a distant world, including a small number of colonists as well as 2 food and 2 production to jump start their efforts. Colonizing a planet will consume the ship used to colonize, but if it carries troops, they will land on the planet. Cargo modules will add to the number of colonists the colony ship can load."
@@ -12698,10 +12637,6 @@ TheseMinesAreEquippedWith:
  Id: 8074
  ENG: "These mines are equipped with better technology for exploiting more of the planet's mineral deposits. Their byproducts can be sold in local markets, yielding small income."
  RUS: "Эти шахты оснащены более совершенными технологиями для разработки большего количества месторождений полезных ископаемых планеты. Их побочные продукты могут продаваться на местных рынках, принося небольшой доход."
-AdvXenoMineStats:
- Id: 17410
- ENG: " +1.2 production per assigned colonist, +2 Infrastructure"
- RUS: "+1.2 продукции за задействованного колиниста, +2 к инфраструктуре"
 Tech_ImperialUni_Name:
  Id: 10344
  ENG: "Imperial University"
@@ -12710,10 +12645,6 @@ Tech_ImperialUni_Desc:
  Id: 10345
  ENG: "Bringing together the best and brightest of our Empire will give huge benefits to research and engineering. In one place, our scientists and engineers can cooperate without the barrier of distance."
  RUS: "Объединение лучших и самых ярких представителей нашей Империи принесет огромную пользу исследованиям и разработкам. В одном месте наши ученые и инженеры могут сотрудничать без ограничений."
-ResearchPerAssignedColonistProduction:
- Id: 10346
- ENG: "+0.35 research per assigned colonist"
- RUS: "+0.35 к исследованиям за задействованного колониста"
 Tech_InvasiveMining_Name:
  Id: 8075
  ENG: "Invasive Mining"
@@ -12730,10 +12661,6 @@ ARoboticFactoryAGreat:
  Id: 8078
  ENG: "A Robotic Factory. A great technological marvel. These factories use robots for production and are fully automated. These factories exploit minerals without relation to the Planet's Mineral Richness, but this comes at a cost of putting major strain on the planet's environment."
  RUS: "Робототехническая фабрика. Великое технологическое чудо. Эти заводы используют роботов для производства и полностью автоматизированы. Эти фабрики эксплуатируют полезные ископаемые, не зависящие от минерального богатства планеты, но это происходит за счет серьезной нагрузки на окружающую среду планеты."
-FertilityOnBuildFlatProduction:
- Id: 8079
- ENG: " (-0.3) Fertility On Build, +8 flat production per turn, +1 Infrastructure"
- RUS: " -0.3 плодородия за постройку, +6 продукции за ход, +1 к инфраструтуре."
 ParticleAccelerator:
  Id: 10019
  ENG: "Particle Accelerator"
@@ -12750,10 +12677,6 @@ InAnAttemptToImprove:
  Id: 10028
  ENG: "In an attempt to improve agricultural output, the planet's soil is enriched to support plant growth. Though increasing small amount of fertility, the building is cheap to build and maintain."
  RUS: "В попытке улучшить сельскохозяйственное производство почва планеты обогащается, чтобы поддерживать рост растений, повышая плодородие."
-FertilityOnBuild2:
- Id: 10029
- ENG: "fertility on build"
- RUS: "плодородия за постройку"
 WeatherManipulationCenter:
  Id: 10033
  ENG: "Weather Manipulation Center"
@@ -12762,10 +12685,6 @@ UsingAdvancedComputersAndA:
  Id: 10034
  ENG: "Using advanced computers and a network of specialized satellites, this buildings monitors the global weather and directs measures to manipulate it to improve plant growth. This increases the average fertility of the planet."
  RUS: "Используя современные компьютеры и сеть специализированных спутников, это здание отслеживает глобальную погоду и направляет меры по управлению ею для улучшения роста растений.  Это увеличивает среднюю плодородность планеты."
-WeatherManipulationCenterBonus:
- Id: 10035
- ENG: "fertility on build"
-
 Tech_SubspaceArtillery_II_Name:
  Id: 17567
  ENG: "Subspace Artillery"
@@ -13096,10 +13015,6 @@ ThePlanetaryStockExchangeAllows:
  Id: 10022
  ENG: "The Planetary Stock exchange allows stocks of planetary companies to be traded. This improves commerce on the planet and thus tax revenue."
  RUS: "Планетарная фондовая биржа позволяет торговать акциями планетарных компаний.  Это улучшает торговлю на планете и, следовательно, налоговые поступления."
-Particleaccelerateshort:
- Id: 17406
- ENG: "+0.35 research per assigned colonist,+0.4 Flat Research per turn."
- RUS: "+0.35 исследований за задействованного колиниста, +0.4 к науке за ход."
 PlanetaryAutocannonEmplacement:
  Id: 5405
  ENG: "Planetary AutoCannon Emplacement"
@@ -13246,10 +13161,6 @@ ThisStructureWasSpecificallyDesigned:
  Id: 17780
  ENG: "This structure was specifically designed to house a large amount of the population while maintaining ordinary living standards. These zones can house 500 Million citizens."
  RUS: "Эта структура была специально разработана для размещения большого количества населения при сохранении нормального уровня жизни. Эти зоны могут вместить 500 миллионов жителей."
-PlanetPopulationStorageInfrastructure:
- Id: 17781
- ENG: "(-0.2) Fertility on build, +0.8 planet population, +1 Infrastructure"
- RUS: "(-0.2) плодородия за постройку, +0.8к населению планеты, +1 к инфраструктуре"
 MegaCity:
  Id: 17782
  ENG: "Mega City"
@@ -13258,10 +13169,6 @@ AMegaCityIsA:
  Id: 17783
  ENG: "A Mega City is a zone with high rise skyscrapers, dedicated to housing 1 Billion population in decent living conditions. Due to the loss of vast expanses of arable land, fertility is slightly reduced."
  RUS: "Мега-город - это зона с высотными небоскребами, предназначенная для проживания 1 миллиарда населения в достойных условиях. Из-за потери огромных просторов пашни немного снижается плодородие."
-FertilityOnBuildMaxPopulation:
- Id: 17784
- ENG: " (-0.3) Fertility on build, +1.4 max population, +2 Infrastructure"
- RUS: " (-0.3) плодородия за постройку, +2 макс. населения, +2 к инфраструктуре"
 Tech_ParticleAcceleration_Name:
  Id: 10059
  ENG: "Particle Acceleration"
@@ -13310,18 +13217,6 @@ Tech_WeatherManipulation_Desc:
  Id: 10046
  ENG: "By manipulating a planet's climate, we can decrease devastating weather effects while preserving the optimal conditions for plant growth. In effect, this increases a planet's fertility."
  RUS: "Управляя климатом планеты, мы можем уменьшить разрушительные погодные эффекты, сохраняя при этом оптимальные условия для роста растений.  Фактически это увеличивает плодородие планеты."
-TaxEfficiencyStorage:
- Id: 10071
- ENG: "+25% Tax Efficiency, +0.5 credits per turn"
- RUS: "+25% эффективность налогов, +0.5 места"
-CreditPerColonist:
- Id: 17879
- ENG: "+1.2 Credit per Colonist"
- RUS: "+1.2 кредитов за колониста"
-GalacticCreditsPerColonist:
- Id: 10072
- ENG: "+1.6 credits per colonist"
- RUS: "+1.6 кредитов за колониста"
 RemnDisrupt:
  Id: 10073
  ENG: "Remnant disruptor TS"
@@ -13346,36 +13241,24 @@ Greenhouse:
 GreenhouseDescr:
  Id: 10080
  ENG: "Building designed for the protection of tender or out-of-season plants against excessive cold or heat. "
-GreenhouseBonuses:
- Id: 10081
- ENG: "Provides 0.2 food per assigned colonist."
 Orerefinery:
  Id: 10082
  ENG: "Ore refinery"
 OrerefineryDescr:
  Id: 10083
  ENG: "Facility for processing raw mineral ores."
-OrerefineryBonus:
- Id: 10084
- ENG: " lower fertility on build, +3 production per 1 planet richness"
 ScienceFacility:
  Id: 10085
  ENG: "Science Facility"
 ScienceFacilityDescr:
  Id: 10086
  ENG: "Building specialy designed to perform science experiments."
-ScienceFacilityBonuses:
- Id: 10087
- ENG: "Provides 0.2 reseach per assigned colonist and 0.25 flat research per turn."
 TaxOffice:
  Id: 10088
  ENG: "Tax Office"
 TaxOfficeDescr:
  Id: 10089
  ENG: "Government agency responsible for the intake of government revenue, including taxes and sometimes non-tax revenue."
-TaxOfficeBonuses:
- Id: 10090
- ENG: "+0.5 credits per turn"
 AdvancedWarp:
  Id: 10091
  ENG: "Advanced Warp Field"
@@ -13631,9 +13514,6 @@ MedWarehouse1:
 MedWarehouse1longDescr:
  Id: 17571
  ENG: "Enormous Warehouse that provides increased food and production storage "
-MedWarehouse1ShrotDescr:
- Id: 17572
- ENG: "+400 maximum good storage, +2 infrastructure"
 NanoWarehousetech:
  Id: 17573
  ENG: "Planetary Stockpile III"
@@ -13646,9 +13526,6 @@ NanoWarehouse1:
 NanoWarehouse1longDescr:
  Id: 17576
  ENG: "State of the art storing facility"
-NanoWarehouse1ShrotDescr:
- Id: 17577
- ENG: "+1000 maximum good storage, +3 infrastructure"
 SmallWarehousetech:
  Id: 17578
  ENG: "Planetary Stockpile I"
@@ -13700,9 +13577,6 @@ PhasorFocusTech:
 PhasorFocusTechDescr:
  Id: 17593
  ENG: "Evolution of beam weapons lead us into discovering a powerful Phasor's. Using previously known methods of focusing beams we managed to apply most of the old schematics with new advanced components. "
-CoreExtractDescShort:
- Id: 17594
- ENG: "lower fertility on build, +5x production richness bonus, +1 production per assigned colonist."
 LightBeam:
  Id: 17595
  ENG: "Light beam array"
