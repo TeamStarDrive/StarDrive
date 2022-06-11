@@ -19,7 +19,7 @@ namespace Ship_Game.Data.Serialization
         public readonly Getter Get;
         public readonly Setter Set;
 
-        public override string ToString() => Serializer?.NiceTypeName ?? "invalid";
+        public override string ToString() => $"{Serializer?.NiceTypeName ?? "invalid"} {Name}:{FieldIdx}";
 
         public DataField(TypeSerializerMap typeMap, Type instanceType, StarDataAttribute a,
                          PropertyInfo prop, FieldInfo field)

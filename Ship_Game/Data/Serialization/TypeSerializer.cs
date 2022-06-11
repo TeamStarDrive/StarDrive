@@ -47,6 +47,11 @@ namespace Ship_Game.Data.Serialization
         /// Enums get some special treatment as ValueTypes
         /// </summary>
         public bool IsEnumType;
+        
+        /// <summary>
+        /// If this is a Collection Map
+        /// </summary>
+        public bool IsMapType { get; protected set; }
 
         /// <summary>
         /// Serializer category for easier classification during Deserialization
@@ -75,7 +80,7 @@ namespace Ship_Game.Data.Serialization
             TypeName = type.Name;
         }
 
-        internal void SetTypeId(ushort id)
+        internal void SetTypeId(int id)
         {
             TypeId = id;
             IsFundamentalType = (TypeId < MaxFundamentalTypes);

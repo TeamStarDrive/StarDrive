@@ -8,8 +8,6 @@ namespace Ship_Game.Data.Serialization
         public readonly Type ElemType;
         public readonly TypeSerializer ElemSerializer;
 
-        public bool IsMapType { get; protected set; }
-
         protected CollectionSerializer(Type type, Type elemType, TypeSerializer elemSerializer) : base(type)
         {
             IsCollection = true;
