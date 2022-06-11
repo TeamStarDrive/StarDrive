@@ -16,6 +16,12 @@ namespace Ship_Game.Data.Serialization
         // flatmap of TypeSerializer.TypeId to TypeSerializer instances
         readonly Array<TypeSerializer> FlatMap = new();
 
+        // all types, including Fundamental Types
+        public TypeSerializer[] AllTypes => FlatMap.Filter(s => s != null);
+
+        public int NumTypes => FlatMap.Count;
+        public int MaxTypeId => FlatMap.Count - 1;
+
         protected TypeSerializerMap()
         {
             FlatMap.Resize(TypeSerializer.MaxFundamentalTypes);
@@ -77,12 +83,9 @@ namespace Ship_Game.Data.Serialization
         TypeSerializer Add(Type type, TypeSerializer ser)
         {
             if (type == null)
-                throw new ArgumentNullException($"serializer.Type cannot be null");
+                throw new ArgumentNullException(nameof(type));
 
-            ser.SetTypeId((ushort)FlatMap.Count);
-            if (ser.TypeId == (ushort.MaxValue - 1))
-                throw new IndexOutOfRangeException($"serializer.TypeId overflow -- too many types: {ser.TypeId}");
-
+            ser.SetTypeId(FlatMap.Count);
             if (Serializers.ContainsKey(type))
                 throw new InvalidOperationException($"duplicate serializer: {ser}");
 
@@ -137,8 +140,6 @@ namespace Ship_Game.Data.Serialization
             }
             return null;
         }
-
-        public int MaxTypeId => FlatMap.Count - 1;
 
         public TypeSerializer Get(uint typeId)
         {
