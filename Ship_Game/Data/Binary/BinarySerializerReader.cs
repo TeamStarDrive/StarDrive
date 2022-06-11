@@ -390,7 +390,7 @@ namespace Ship_Game.Data.Binary
         void ReadUserClass(TypeInfo instanceType, object instance)
         {
             // raise alarm on null pointers
-            if (instance == null && instanceType.IsPointerType)
+            if (instanceType.IsPointerType && instance == null)
             {
                 Log.Error($"NullReference {instanceType.Name} - this is a bug in binary reader");
                 return;
@@ -398,26 +398,25 @@ namespace Ship_Game.Data.Binary
 
             for (uint i = 0; i < instanceType.Fields.Length; ++i)
             {
-                // [field type ID]
-                // [field index]     (in type metadata)
-                uint streamFieldTypeId = BR.ReadVLu32();
-                uint streamFieldIdx = BR.ReadVLu32();
+                FieldInfo fi = instanceType.Fields[i];
+                TypeInfo fType = GetType(fi.StreamTypeId);
 
-                TypeInfo fieldType = GetType(streamFieldTypeId);
-                object fieldValue = ReadElement(fieldType, fieldType.Ser);
+                // the element has to be read, even if Field or Type is deleted
+                object fieldValue = ReadElement(fType, fType.Ser);
 
-                if (instance != null)
+                // if Type has been deleted, we skip and read the next field
+                if (instance == null) continue;
+
+                // if field has been deleted, then Field==null and Set() is ignored
+                if (fi.Field == null) continue;
+
+                try
                 {
-                    // if field has been deleted, then mapping is null and Set() will not called
-                    FieldInfo field = instanceType.Fields[streamFieldIdx];
-                    try
-                    {
-                        field.Field?.Set(instance, fieldValue);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, $"Failed to set FieldValue={fieldValue} into Field={field}");
-                    }
+                    fi.Field.Set(instance, fieldValue);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, $"Failed to set FieldValue={fieldValue} into Field={fi}");
                 }
             }
         }

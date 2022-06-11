@@ -116,7 +116,7 @@
   TextureName: "Glow.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 16000
+  MaxParticles: 8000
   Duration: 0.25
   DurationRandomness: 0.05
   InheritOwnerVelocity: 1
@@ -131,7 +131,7 @@
   TextureName: "star_yellow.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 6000
+  MaxParticles: 3000
   Duration: 0.15
   DurationRandomness: 0.5
   InheritOwnerVelocity: 0.99
@@ -146,7 +146,7 @@
   TextureName: "Halo.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 6000
+  MaxParticles: 3000
   Duration: 0.15
   DurationRandomness: 0.5
   InheritOwnerVelocity: -0.8
@@ -161,7 +161,7 @@
   TextureName: "Glow.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 32000
+  MaxParticles: 20000
   Duration: 1.66
   DurationRandomness: 0
   InheritOwnerVelocity: 1
@@ -210,7 +210,7 @@
   TextureName: "fire.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 10000
+  MaxParticles: 5000
   Duration: 1.5
   DurationRandomness: 0.5
   InheritOwnerVelocity: 0.1
@@ -230,7 +230,7 @@
   TextureName: "fire.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 4000
+  MaxParticles: 2000
   Duration: 1.5
   DurationRandomness: 0.5
   InheritOwnerVelocity: 0.1
@@ -268,7 +268,7 @@
   TextureName: "blue_flame.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 0.25
   DurationRandomness: 0.2
   InheritOwnerVelocity: -1
@@ -285,7 +285,7 @@
   TextureName: "fire.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 0.4
   DurationRandomness: 0.2
   InheritOwnerVelocity: -1
@@ -304,7 +304,7 @@
   TextureName: "bubble.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 0.30
   DurationRandomness: 0.1
   InheritOwnerVelocity: -0.4
@@ -320,7 +320,7 @@
   TextureName: "bubble.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 0.5
   DurationRandomness: 0.1
   InheritOwnerVelocity: -1.2
@@ -337,7 +337,7 @@
   TextureName: "lightning_particle.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 0.3
   DurationRandomness: 0.1
   InheritOwnerVelocity: -1.4
@@ -355,7 +355,7 @@
   TextureName: "Glow.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 1.1
   DurationRandomness: 0
   InheritOwnerVelocity: 0
@@ -372,7 +372,7 @@
   TextureName: "blue_flame.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 1
   DurationRandomness: 0
   InheritOwnerVelocity: -0.9
@@ -389,7 +389,7 @@
   TextureName: "ring.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 1.2
   DurationRandomness: 0.1
   InheritOwnerVelocity: -0.01
@@ -407,7 +407,7 @@
   TextureName: "blue_flame.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 1.2
   DurationRandomness: 0
   InheritOwnerVelocity: -1
@@ -425,7 +425,7 @@
   TextureName: "ring2.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 0.3
   DurationRandomness: 0.1
   InheritOwnerVelocity: -0.2
@@ -442,7 +442,7 @@
   TextureName: "ring.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 3000
   Duration: 0.5
   DurationRandomness: 0.2
   InheritOwnerVelocity: 0.05
@@ -491,7 +491,7 @@
   TextureName: "lightning_particle.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 20000
+  MaxParticles: 3000
   Duration: 0.1
   DurationRandomness: 1
   InheritOwnerVelocity: 1
@@ -506,7 +506,7 @@
   TextureName: "lightning.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 20000
+  MaxParticles: 3000
   Duration: 0.2
   DurationRandomness: 1
   InheritOwnerVelocity: -1
@@ -539,7 +539,7 @@
   TextureName: "smoke.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 10000
+  MaxParticles: 5000
   Duration: 1
   DurationRandomness: 1
   InheritOwnerVelocity: 0.05
@@ -603,7 +603,7 @@
   TextureName: "white_spark.png" # "blue_flame.png" / "spark.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 20000
+  MaxParticles: 10000
   Duration: 3
   DurationRandomness: 1
   InheritOwnerVelocity: 1
@@ -623,7 +623,7 @@
   TextureName: "white_spark.png" # "blue_flame.png" / "spark.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 20000
+  MaxParticles: 10000
   Duration: 1.5
   DurationRandomness: 1
   InheritOwnerVelocity: 1
@@ -665,7 +665,7 @@
   TextureName: "smoke.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 50000
+  MaxParticles: 10000
   Duration: 20.0
   DurationRandomness: 0
   InheritOwnerVelocity: 0.33
@@ -680,7 +680,7 @@
   TextureName: "smoke.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 10000
+  MaxParticles: 3000
   Duration: 3
   DurationRandomness: 1
   InheritOwnerVelocity: 0.05
@@ -696,7 +696,7 @@
   TextureName: "bubble.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 10000
+  MaxParticles: 3000
   Duration: 2
   DurationRandomness: 0.5
   InheritOwnerVelocity: 0.1
@@ -714,7 +714,7 @@
   TextureName: "bubble.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 10000
+  MaxParticles: 3000
   Duration: 1
   DurationRandomness: 0.5
   InheritOwnerVelocity: 0
@@ -732,7 +732,7 @@
   TextureName: "Glow.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 6000
+  MaxParticles: 3000
   Duration: 0.15
   DurationRandomness: 0.5
   InheritOwnerVelocity: -1.2
@@ -764,7 +764,7 @@
   TextureName: "ring.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 7000
+  MaxParticles: 4000
   Duration: 0.8
   DurationRandomness: 0.2
   InheritOwnerVelocity: 0.05
@@ -797,7 +797,7 @@
   TextureName: "Shard1.png" # "blue_flame.png" / "spark.png"
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
-  MaxParticles: 20000
+  MaxParticles: 2000
   Duration: 1
   DurationRandomness: 1
   InheritOwnerVelocity: 1
