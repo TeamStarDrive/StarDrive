@@ -312,7 +312,7 @@ Types:
     Habitable: true
     HabitableTileChance: [15, 45]
     PopPerTile: [100, 200]
-    BaseFertility: [-0.5, 1.5]
+    BaseFertility: [0.5, 1.5]
     MinBaseFertility: 0.9
     MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -332,7 +332,7 @@ Types:
     Habitable: true
     HabitableTileChance: 40
     PopPerTile: [100, 500]
-    BaseFertility: [-0.25, 1.2]
+    BaseFertility: [0.25, 1.2]
     MinBaseFertility: 0.8
     MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -590,7 +590,7 @@ Types:
     SpecularPower: 4
     AtmosphereType: [TerranBlue,Clouds]
     Habitable: true
-    HabitableTileChance: 10
+    HabitableTileChance: 30
     PopPerTile: [200, 500]
     BaseFertility: [1, 1.2]
     MoonTypes: [Barren,Desert,Volcanic,Ice]
@@ -609,8 +609,8 @@ Types:
     AtmosphereType: [TerranBlue,Clouds]
     PlanetTile: Terran_2
     Habitable: true
-    HabitableTileChance: 75
-    PopPerTile: [500, 750]
+    HabitableTileChance: 65
+    PopPerTile: [400, 650]
     BaseFertility: [0.9, 1.6]
     MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -628,7 +628,7 @@ Types:
     AtmosphereType: [TerranBlue,Clouds]
     PlanetTile: Terran_3
     Habitable: true
-    HabitableTileChance: [60, 90]
+    HabitableTileChance: [30, 50]
     PopPerTile: [300, 600]
     BaseFertility: [0.5, 1.9]
     MinBaseFertility: 0.8
@@ -647,7 +647,7 @@ Types:
     SpecularPower: 4
     AtmosphereType: [TerranBlue,Clouds]
     Habitable: true
-    HabitableTileChance: [60, 90]
+    HabitableTileChance: [50, 60]
     PopPerTile: [300, 600]
     BaseFertility: [-0.2, 1.5]
     MinBaseFertility: 0.8
@@ -666,8 +666,8 @@ Types:
     SpecularPower: 4
     AtmosphereType: [TerranBlue,Clouds]
     Habitable: true
-    HabitableTileChance: [60, 90]
-    PopPerTile: [450, 700]
+    HabitableTileChance: [50, 80]
+    PopPerTile: [450, 550]
     BaseFertility: [-1.0, 3.0]
     MinBaseFertility: 1.0
     MoonTypes: [Barren,Desert,Volcanic,Ice]
