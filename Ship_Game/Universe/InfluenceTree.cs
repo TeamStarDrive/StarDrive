@@ -194,10 +194,11 @@ namespace Ship_Game.Universe
             float cellSize = CellSize;
             float offset1 = WorldOrigin + radius;
             float offset2 = WorldOrigin - radius;
-            int x = (int)((pos.X - offset1) / cellSize);
-            int y = (int)((pos.Y - offset1) / cellSize);
-            int x2 = (int)((pos.X - offset2) / cellSize) + 1;
-            int y2 = (int)((pos.Y - offset2) / cellSize) + 1;
+            int maxSize = Size - 1;
+            int x = ((int)((pos.X - offset1) / cellSize)).Clamped(0, maxSize);
+            int y = ((int)((pos.Y - offset1) / cellSize)).Clamped(0, maxSize); ;
+            int x2 = ((int)((pos.X - offset2) / cellSize) + 1).Clamped(0, maxSize); ;
+            int y2 = ((int)((pos.Y - offset2) / cellSize) + 1).Clamped(0, maxSize); ;
             return new AABoundingBox2Di(x, y, x2, y2);
         }
 
