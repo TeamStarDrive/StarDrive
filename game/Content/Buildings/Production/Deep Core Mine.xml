@@ -7,7 +7,7 @@
   
   <PlusProdPerRichness>3</PlusProdPerRichness>
   <PlusProdPerColonist>0.7</PlusProdPerColonist>
-  <MaxFertilityOnBuild>-0.4</MaxFertilityOnBuild>
+  <MaxFertilityOnBuild>-0.45</MaxFertilityOnBuild>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>418</NameTranslationIndex>
