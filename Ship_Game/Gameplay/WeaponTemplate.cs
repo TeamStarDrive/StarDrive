@@ -343,7 +343,7 @@ namespace Ship_Game.Gameplay
             if (t.IsMirv)
             {
                 IWeaponTemplate warhead = ResourceManager.GetWeaponTemplate(t.MirvWeapon);
-                float warheadOff = warhead.CalculateOffense(m) * warhead.ProjectileCount*0.5f;
+                float warheadOff = warhead.CalculateOffense(m);
                 off += warheadOff;
             }
 
@@ -359,7 +359,8 @@ namespace Ship_Game.Gameplay
             off *= m.ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
 
             // FB: Field of Fire is also important
-            off *= (m.FieldOfFire / (RadMath.PI / 3)).Clamped(1,4);
+            if (!t.IsMirv) // Only for non Mirv since this should be calculated once
+                off *= (m.FieldOfFire / (RadMath.PI / 3)).Clamped(1,4);
 
             // Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
             return off * t.OffPowerMod;
