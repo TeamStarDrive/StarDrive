@@ -11,7 +11,7 @@
         <string>Skeleton</string>
       </TroopsToSpawn>     
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/CrashedShip.png</Image>
       <ConfirmText>What is dead should stay dead!</ConfirmText>
     </Outcome>
     <Outcome>
@@ -26,7 +26,7 @@
       </RemnantShipsToSpawn>       
       <TroopsToSpawn>
       </TroopsToSpawn>      
-      <Image>Encounters/2.png</Image> 
+      <Image>Encounters/CrashedShip2.png</Image> 
       <ConfirmText>This could gone worse.</ConfirmText>
     </Outcome>
 
@@ -45,7 +45,7 @@
       </RemnantShipsToSpawn>       
       <TroopsToSpawn>
       </TroopsToSpawn>       
-      <Image>Encounters/3.png</Image>
+      <Image>Encounters/CrashedShip.png</Image>
       <ConfirmText>Lets study it!</ConfirmText>
     </Outcome>
 
@@ -73,7 +73,7 @@
       <DescriptionText>Your forces examine the wreckage of what is clearly a very, very ancient shipwreck. Time and nature have taken their toll on the wreckage. Even so, there are some curiosities among the wreckage that will have some value on the open market.</DescriptionText>
       <MoneyGranted>250</MoneyGranted>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/5.png</Image>
+      <Image>Encounters/CrashedShip2.png</Image>
       <ConfirmText>Profit!</ConfirmText>
     </Outcome>
 
@@ -88,7 +88,7 @@
       </FriendlyShipsToSpawn>
       <GrantArtifact>true</GrantArtifact>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/6.png</Image>
+      <Image>Encounters/CrashedShip.png</Image>
       <ConfirmText>Oh, lets test those bad boys!</ConfirmText>
     </Outcome>
 
@@ -99,7 +99,7 @@
       <NumTilesToMakeUnhabitable>3</NumTilesToMakeUnhabitable>
       <ChangeBaseFertility>-0.6</ChangeBaseFertility>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/CrashedShip2.png</Image>
       <ConfirmText>What a disaster.</ConfirmText>
     </Outcome>
 
@@ -109,7 +109,7 @@
       <DescriptionText>Your forces examine the wreckage of what is clearly a very, very ancient shipwreck. Time and nature have taken their toll on the wreckage. But even so, scans show its reactor is still functional and providing power to the storage unit, inside your troops found a very rare seed, that was being transported somewhere.</DescriptionText>
       <ReplaceWith>WorldSeed</ReplaceWith>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/2.png</Image>
+      <Image>Encounters/CrashedShip2.png</Image>
       <ConfirmText>Don't eat it!</ConfirmText>
     </Outcome>
 
@@ -118,7 +118,7 @@
       <TitleText>Space car?</TitleText>
       <DescriptionText>Your forces examine the wreckage of a small spacecraft that crashed into the planet a long time ago. From the description of the scans, it seems too small for a spaceship. Even more puzzling is that it has wheels. Could this have been an old automobile of some sort? No, those were never designed to be launched into space.</DescriptionText>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/3.png</Image>
+      <Image>Encounters/CrashedShip.png</Image>
       <ConfirmText>This one probably broke few speed limits.</ConfirmText>
     </Outcome>
   </PotentialOutcomes>
