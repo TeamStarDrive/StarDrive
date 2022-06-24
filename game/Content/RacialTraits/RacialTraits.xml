@@ -8,7 +8,7 @@
     <Category>Physical</Category>
     <Cost>3</Cost>
     <Description>33</Description>
-    <ConsumptionModifier>-0.2</ConsumptionModifier>
+    <ConsumptionModifier>-0.15</ConsumptionModifier>
     <Excludes>34</Excludes>
     <Excludes>5091</Excludes>
   </RacialTrait>

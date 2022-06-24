@@ -5,10 +5,9 @@
   <Cost>200</Cost>
   <Maintenance>.7</Maintenance>
   
-  <PlusFoodPerColonist>0.3</PlusFoodPerColonist>
+  <PlusFoodPerColonist>0.4</PlusFoodPerColonist>
   
   <!-- For localization. These numbers reference the appropriate language file entry for foreign language descriptions / names-->
   <NameTranslationIndex>470</NameTranslationIndex>
   <DescriptionIndex>471</DescriptionIndex>
-  <ShortDescriptionIndex>472</ShortDescriptionIndex>
 </Building>

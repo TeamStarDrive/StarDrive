@@ -5,11 +5,10 @@
   <Cost>400</Cost>
   <Maintenance>2</Maintenance>
   
-  <MaxFertilityOnBuild>0.8</MaxFertilityOnBuild>
+  <MaxFertilityOnBuild>0.6</MaxFertilityOnBuild>
   <Scrappable>true</Scrappable>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10033</NameTranslationIndex>
   <DescriptionIndex>10034</DescriptionIndex>
-  <ShortDescriptionIndex>10035</ShortDescriptionIndex>
 </Building>

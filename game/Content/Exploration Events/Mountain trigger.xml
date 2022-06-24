@@ -25,7 +25,7 @@
       <DescriptionText>Under the snow, your forces found the buried wreckage of what is clearly a very old ship. Its reactor was damaged, yet still barely working, its likely causing errors in our scans. The order was given to destroy it and proceed with scanning the rest of the planet. As it turns out, those snowy mountains were far larger than expected.</DescriptionText>
        <ReplaceWith>Massive mountains</ReplaceWith>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/2.png</Image>
+      <Image>Encounters/CrashedShip2.png</Image>
       <ConfirmText>Lets go back.</ConfirmText>
     </Outcome>
 
@@ -75,7 +75,7 @@
       <UnlockTech>Remnant Shielding</UnlockTech>
       <ReplaceWith>Mountain</ReplaceWith>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/6.png</Image>
+      <Image>Encounters/CrashedShip2.png</Image>
       <ConfirmText>A what?!</ConfirmText>
     </Outcome>
     <Outcome>
