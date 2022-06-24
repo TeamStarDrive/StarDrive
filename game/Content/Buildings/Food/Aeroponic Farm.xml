@@ -5,11 +5,10 @@
   <Cost>150</Cost>
   <Maintenance>0.8</Maintenance>
   
-  <PlusFlatFoodAmount>0.8</PlusFlatFoodAmount>
+  <PlusFlatFoodAmount>0.6</PlusFlatFoodAmount>
   <PlusFoodPerColonist>0.2</PlusFoodPerColonist>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>403</NameTranslationIndex>
   <DescriptionIndex>404</DescriptionIndex>
-  <ShortDescriptionIndex>405</ShortDescriptionIndex>
 </Building>

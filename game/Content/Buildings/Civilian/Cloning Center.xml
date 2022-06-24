@@ -5,10 +5,9 @@
   <Cost>175</Cost>
   <Maintenance>2</Maintenance>
   
-  <PlusFlatPopulation>20</PlusFlatPopulation>
+  <PlusFlatPopulation>8</PlusFlatPopulation>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>412</NameTranslationIndex>
   <DescriptionIndex>413</DescriptionIndex>
-  <ShortDescriptionIndex>414</ShortDescriptionIndex>
 </Building>

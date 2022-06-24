@@ -233,6 +233,16 @@ namespace Ship_Game
                     ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} is a reserved ship name and you cannot overwrite this design"));
                     return;
                 }
+
+                // Note - UState.Ships is not thread safe, but the game is paused in this screen
+                if (Screen.ParentUniverse.UState.Ships.Any(s => s.Name == shipOrHullName))
+                {
+                    GameAudio.NegativeClick();
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} currently exist the universe." +
+                                                                       " You cannot overwrite a design with this name."));
+
+                    return;
+                }
             }
 
             if (exists)
