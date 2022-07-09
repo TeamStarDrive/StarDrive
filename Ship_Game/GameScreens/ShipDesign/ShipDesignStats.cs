@@ -80,7 +80,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             NumTroopBays  = modules.Count(m => m.IsTroopBay);
 
             WeaponPowerNeeded = weapons.Sum(w => w.PowerFireUsagePerSecond);
-            BurstOrdnance = weapons.Sum(w => w.BurstOrdnanceUsagePerSecond);
+            BurstOrdnance = weapons.Sum(w => w.TotalOrdnanceUsagePerFire);
 
             float bayOrdPerSec = modules.Sum(m => m.BayOrdnanceUsagePerSecond);
             float avgOrdPerSec = weapons.Sum(w => w.AverageOrdnanceUsagePerSecond);

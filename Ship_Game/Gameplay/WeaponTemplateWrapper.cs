@@ -149,8 +149,7 @@ namespace Ship_Game.Gameplay
 
         public float NetFireDelay => T.NetFireDelay;
         public float AverageOrdnanceUsagePerSecond => T.AverageOrdnanceUsagePerSecond;
-        public float BurstOrdnanceUsagePerSecond => T.BurstOrdnanceUsagePerSecond;
-        public float SalvoProjectilesPerSecond => T.SalvoProjectilesPerSecond;
+        public float TotalOrdnanceUsagePerFire => T.TotalOrdnanceUsagePerFire;
         public bool Explodes => T.Explodes;
         public bool IsMirv => T.IsMirv;
         public float PowerFireUsagePerSecond => T.PowerFireUsagePerSecond;
