@@ -174,10 +174,7 @@ namespace Ship_Game.Gameplay
         public float AverageOrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
 
         [XmlIgnore][JsonIgnore]
-        public float BurstOrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoProjectilesPerSecond;
-
-        [XmlIgnore][JsonIgnore] // 3 salvos with salvo duration of 2 seconds will give  1.5 salvos per second 
-        public float SalvoProjectilesPerSecond => SalvoDuration.Greater(0) ? SalvoCount / SalvoDuration : 1;
+        public float TotalOrdnanceUsagePerFire => OrdinanceRequiredToFire * ProjectileCount * SalvoCount;
 
         [XmlIgnore][JsonIgnore]
         public bool Explodes => ExplosionRadius > 0;

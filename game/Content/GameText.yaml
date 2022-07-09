@@ -8075,7 +8075,7 @@ BurstOrdnanceHigherThanStorage:
  RUS: "Ипользование боеприпасов больше чем весь боекомплект"
 TheShipConsumesMoreOrdnance:
  Id: 2570
- ENG: "The ship consumes more ordnance in a single bust of all it's weapons than it has stores for. The ship will operate at lower efficiency."
+ ENG: "The ship consumes more ordnance in a single burst of all it's weapons than it has stores for. The ship will operate at lower efficiency."
  RUS: "Корабль потребляет больше боеприпасов за один выстрел всего своего оружия, чем имеет запасов на борту. Корабль будет менее эфективеный"
 AddOrdnanceStorageToSupport:
  Id: 2571
