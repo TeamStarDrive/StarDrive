@@ -641,6 +641,7 @@ namespace Ship_Game.AI
 
         void ExitCombatState()
         {
+            Owner.Carrier.RecallAfterCombat();
             if (OrderQueue.TryPeekFirst(out ShipGoal goal) &&
                 goal?.Plan == Plan.DoCombat)
             {
@@ -690,12 +691,6 @@ namespace Ship_Game.AI
                 ExitCombatState();
             }
 
-            bool isCarrier = Owner.Carrier.HasHangars;
-            if (isCarrier && PotentialTargets.Length == 0 && Target == null)
-            {
-                Owner.Carrier.RecallAfterCombat();
-            }
-
             // fbedard: civilian ships will evade combat (nice target practice)
             if (badGuysNear && Owner.ShipData.ShipCategory == ShipCategory.Civilian)
             {
@@ -712,6 +707,7 @@ namespace Ship_Game.AI
             }
 
             // Honor fighter launch buttons
+            bool isCarrier = Owner.Carrier.HasHangars;
             if (isCarrier)
             {
                 Owner.Carrier.HandleHangarShipsScramble();
