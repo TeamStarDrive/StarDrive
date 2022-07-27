@@ -1151,6 +1151,10 @@ namespace Ship_Game
             return shipBuildingModifier;
         }
 
+        /// <summary>
+        /// Ships which need rearm sorted by ordnance pecent (lower first)
+        /// </summary>
+        /// <returns></returns>
         public bool TryGetShipsNeedRearm(out Ship[] shipsNeedRearm, Empire empire)
         {
             // Not using the planet Owner since it might have been changed by invasion
@@ -1161,7 +1165,7 @@ namespace Ship_Game
             shipsNeedRearm = ParentSystem.ShipList.Filter(s => (s.Loyalty == empire || s.Loyalty.IsAlliedWith(empire))
                                                                && s.IsSuitableForPlanetaryRearm());
 
-            shipsNeedRearm = shipsNeedRearm.SortedDescending(s => s.OrdinanceMax - s.Ordinance);
+            shipsNeedRearm = shipsNeedRearm.Sorted(s => s.OrdnancePercent);
             return shipsNeedRearm.Length > 0;
         }
 

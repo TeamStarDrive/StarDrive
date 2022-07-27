@@ -139,8 +139,7 @@ namespace Ship_Game.Gameplay
 
         float NetFireDelay { get; }
         float AverageOrdnanceUsagePerSecond { get; }
-        float BurstOrdnanceUsagePerSecond { get; }
-        float SalvoProjectilesPerSecond { get; }
+        float TotalOrdnanceUsagePerFire { get; }
         bool Explodes { get; }
         float PowerFireUsagePerSecond { get; }
         bool IsMirv { get; }
