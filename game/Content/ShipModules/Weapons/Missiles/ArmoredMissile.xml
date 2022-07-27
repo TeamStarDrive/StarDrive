@@ -3,6 +3,13 @@
 
   <DroneModule>false</DroneModule>
   <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FrigateModule>false</FrigateModule>
+  <DestroyerModule>false</DestroyerModule>
+  <CruiserModule>false</CruiserModule>
+  <BattleshipModule>false</BattleshipModule>
+  <CapitalModule>false</CapitalModule>
+  <FreighterModule>false</FreighterModule>
 
   <Cost>71</Cost>
   <TechLevel>3</TechLevel>
@@ -17,8 +24,8 @@
 
   <IconTexturePath>Modules/ArmoredMissile</IconTexturePath>
   <Mass>1300</Mass>
-  <Health>10000</Health>
-  <HealthMax>10000</HealthMax>
+  <Health>9000</Health>
+  <HealthMax>9000</HealthMax>
   <RepairDifficulty>2</RepairDifficulty>
   <energyreq>5</energyreq>
   <Description>This is a long range multiple rocket launching system.

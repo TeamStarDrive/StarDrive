@@ -80,7 +80,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             NumTroopBays  = modules.Count(m => m.IsTroopBay);
 
             WeaponPowerNeeded = weapons.Sum(w => w.PowerFireUsagePerSecond);
-            BurstOrdnance = weapons.Sum(w => w.BurstOrdnanceUsagePerSecond);
+            BurstOrdnance = weapons.Sum(w => w.TotalOrdnanceUsagePerFire);
 
             float bayOrdPerSec = modules.Sum(m => m.BayOrdnanceUsagePerSecond);
             float avgOrdPerSec = weapons.Sum(w => w.AverageOrdnanceUsagePerSecond);
@@ -88,10 +88,14 @@ namespace Ship_Game.GameScreens.ShipDesign
             NetOrdnanceUsePerSec = AvgOrdnanceUsed - S.OrdAddedPerSecond;
             AmmoTime = S.OrdinanceMax / NetOrdnanceUsePerSec;
 
-            BeamPeakPowerNeeded = weapons.Sum(w => w.IsBeam ? w.BeamPowerCostPerSecond : 0);
-            float beamTotalDuration = weapons.Sum(w => w.IsBeam ? w.BeamDuration : 0);
-            if (beamTotalDuration > 0 && weapons.Length > 0)
-                BeamAverageDuration = beamTotalDuration / weapons.Length;
+            Weapon[] beamWeapons = weapons.Filter(w => w.IsBeam);
+            if (beamWeapons.Length > 0)
+            {
+                BeamPeakPowerNeeded = beamWeapons.Sum(w => w.BeamPowerCostPerSecond);
+                float beamTotalDuration = beamWeapons.Sum(w => w.BeamDuration);
+                if (beamTotalDuration > 0)
+                    BeamAverageDuration = beamTotalDuration / beamWeapons.Length;
+            }
 
             WeaponPowerNeededNoBeams = weapons.Sum(w => !w.IsBeam ? w.PowerFireUsagePerSecond : 0);
 
