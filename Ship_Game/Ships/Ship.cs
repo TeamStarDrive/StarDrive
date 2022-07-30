@@ -632,8 +632,9 @@ namespace Ship_Game.Ships
         public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense;
         public bool CombatDisabled => EMPDisabled || Dying || !Active || !HasCommand;
 
-        public bool SupplyShipCanSupply => Carrier.HasSupplyBays && OrdnanceStatus > Status.Critical
-                                                                 && OrdnanceStatus != Status.NotApplicable;
+        public bool SupplyShipCanSupply => Carrier.HasSupplyBays 
+            && OrdnanceStatusWithIncoming(OrdAddedPerSecond * 60) > Status.Critical
+            && OrdnanceStatus != Status.NotApplicable;
 
         public Status OrdnanceStatus => OrdnanceStatusWithIncoming(0);
 
@@ -1548,6 +1549,9 @@ namespace Ship_Game.Ships
         {
             if (!Active)
                 return; // already dead
+
+            // Mostly for supply ships to remove incoming supply
+            AI.ChangeAIState(AIState.AwaitingOrders);
 
             var pSource = source as Projectile;
             ReallyDie = cleanupOnly || WillShipDieNow(pSource);

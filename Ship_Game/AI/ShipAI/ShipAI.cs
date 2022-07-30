@@ -337,7 +337,7 @@ namespace Ship_Game.AI
                     }
 
                     Ship supplyShip = NearBySupplyShip;
-                    if (supplyShip != null)
+                    if (supplyShip != null && State != AIState.ResupplyEscort)
                     {
                         SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
                         return;
@@ -351,7 +351,7 @@ namespace Ship_Game.AI
                 case ResupplyReason.NoCommand:
                 case ResupplyReason.LowHealth:
                     Ship repairShip = NearByRepairShip;
-                    if (repairShip != null)
+                    if (repairShip != null && State != AIState.ResupplyEscort)
                         SetUpSupplyEscort(repairShip, supplyType: "Repair");
                     else
                         nearestRallyPoint = Owner.Loyalty.FindNearestSafeRallyPoint(Owner.Position);
@@ -371,7 +371,7 @@ namespace Ship_Game.AI
                     nearestRallyPoint = Owner.Loyalty.SafeSpacePorts.FindMax(p => p.TroopsHere.Count);
                     break;
                 case ResupplyReason.NotNeeded:
-                    TerminateResupplyIfDone();
+                    TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear: false);
                     return;
             }
 
@@ -388,7 +388,7 @@ namespace Ship_Game.AI
         void SetUpSupplyEscort(Ship supplyShip, string supplyType = "All")
         {
             IgnoreCombat = true;
-            ClearOrders(AIState.ResupplyEscort);
+            ChangeAIState(AIState.ResupplyEscort);
             EscortTarget = supplyShip;
 
             float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.Float(200, 1000);
@@ -411,26 +411,28 @@ namespace Ship_Game.AI
             }
         }
 
-        public void TerminateResupplyIfDone(SupplyType supplyType = SupplyType.All)
+        public void TerminateResupplyIfDone(SupplyType supplyType, bool terminateIfEnemiesNear)
         {
             if (Owner.AI.State != AIState.Resupply && Owner.AI.State != AIState.ResupplyEscort)
                 return;
 
             Owner.TrackOrdnancePercentageBug();
-            if (!Owner.Supply.DoneResupplying(supplyType) && !Owner.AI.BadGuysNear)
+            if (Owner.Supply.DoneResupplying(supplyType) || terminateIfEnemiesNear && Owner.AI.BadGuysNear)
             {
-                if (State != AIState.ResupplyEscort || EscortTarget?.SupplyShipCanSupply == true)
-                    return;
+                DequeueCurrentOrder();
+                ExitCombatState();
+                Owner.AI.SetPriorityOrder(false);
+                Owner.AI.IgnoreCombat = false;
+                if (Owner.Fleet != null)
+                    OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, State);
+
+                Owner.Loyalty.AddShipToManagedPools(Owner);
+                Owner.Supply.ResetIncomingSupply(supplyType);
             }
 
-            DequeueCurrentOrder();
-            ExitCombatState();
-            Owner.AI.SetPriorityOrder(false);
-            Owner.AI.IgnoreCombat = false;
-            if (Owner.Fleet != null)
-                OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, State);
 
-            Owner.Loyalty.AddShipToManagedPools(Owner);
+            //if (State != AIState.ResupplyEscort || EscortTarget?.SupplyShipCanSupply == true)
+                //return;
         }
 
         void RequestResupplyFromPlanet()
@@ -739,12 +741,11 @@ namespace Ship_Game.AI
         void PrioritizePlayerCommands()
         {
             if (Owner.Loyalty == EmpireManager.Player &&
-                (State == AIState.Bombard
-                || State == AIState.AssaultPlanet
-                || State == AIState.Rebase
-                || State == AIState.Scrap
-                || State == AIState.Resupply
-                || State == AIState.Refit))
+                (State is AIState.Bombard or AIState.AssaultPlanet 
+                 || State == AIState.Rebase 
+                 || State == AIState.Scrap 
+                 || State == AIState.Resupply 
+                 || State == AIState.Refit))
             {
                 SetPriorityOrder(true);
                 HadPO = false;
@@ -800,7 +801,7 @@ namespace Ship_Game.AI
             // in a carrier-based role while allowing them to pick appropriate target types depending on the fighter type.
             // gremlin Moved to setcombat status as target scan is expensive and did some of this already. this also shortcuts the UseSensorforTargets switch. Im not sure abuot the using the mothership target.
             // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own.
-            if(!Owner.InCombat)
+            if (!Owner.InCombat)
             {
                 Orbit.Orbit(escortTarget, timeStep);
                 return;

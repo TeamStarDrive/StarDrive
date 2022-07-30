@@ -15,7 +15,7 @@ namespace Ship_Game.Ships
         private const int OrdnanceProductionThresholdPriority  = 400;
         private const int OrdnanceProductionThresholdNonCombat = 150;
         private const int OrdnanceProductionThresholdCombat    = 75;
-        public const Status ResupplyShuttleOrdnanceThreshold   = Status.Average;
+        public const Status ResupplyShuttleOrdnanceThreshold   = Status.Poor;
 
         public const float ShipDestroyThreshold = GlobalStats.ShipDestroyThreshold;
         public const float RepairDroneThreshold = 0.9f;
@@ -234,6 +234,11 @@ namespace Ship_Game.Ships
             float currentIncoming = IncomingSupply[supplyType];
             currentIncoming += amount;
             IncomingSupply[supplyType] = Math.Max(currentIncoming, 0);
+        }
+
+        public void ResetIncomingSupply(SupplyType supplyType)
+        {
+            IncomingSupply[supplyType] = 0;
         }
 
         public bool AcceptExternalSupply(SupplyType supplyType)
