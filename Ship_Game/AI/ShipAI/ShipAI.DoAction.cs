@@ -681,28 +681,30 @@ namespace Ship_Game.AI
             ThrustOrWarpToPos(EscortTarget.Position, timeStep);
             if (Owner.Position.InRadius(escortTarget.Position, escortTarget.Radius + 300f))
             {
+                // remove amount from incoming supply (we counted full ordnance so remove it now)
+                EscortTarget.Supply.ChangeIncomingSupply(SupplyType.Rearm, -Owner.Ordinance);
                 // how much the target did not take.
                 float leftOverOrdnance = EscortTarget.ChangeOrdnance(Owner.Ordinance);
                 // how much the target did take.
                 float ordnanceDelivered = Owner.Ordinance - leftOverOrdnance;
-                // remove amount from incoming supply
-                EscortTarget.Supply.ChangeIncomingSupply(SupplyType.Rearm, -ordnanceDelivered);
                 Owner.ChangeOrdnance(-ordnanceDelivered);
-                EscortTarget.AI.TerminateResupplyIfDone();
-                OrderReturnToHangar();
+                EscortTarget.AI.TerminateResupplyIfDone(SupplyType.Rearm, terminateIfEnemiesNear: true);
+                DequeueCurrentOrder();
+                ChangeAIState(AIState.AwaitingOrders);
             }
         }
 
         void DoResupplyEscort(FixedSimTime timeStep, ShipGoal goal)
         {
             if (EscortTarget == null || !EscortTarget.Active
-                                     || EscortTarget.AI.State == AIState.Resupply
-                                     || EscortTarget.AI.State == AIState.Scrap
-                                     || EscortTarget.AI.State == AIState.Refit
                                      || !EscortTarget.SupplyShipCanSupply)
             {
-                State = AIState.AwaitingOrders;
-                IgnoreCombat = false;
+                DequeueCurrentOrder();
+                ChangeAIState(AIState.AwaitingOrders);
+                Owner.Supply.ResetIncomingSupply(SupplyType.Rearm);
+                ExitCombatState();
+                Owner.AI.SetPriorityOrder(false);
+                Owner.AI.IgnoreCombat = false;
                 return;
             }
 
@@ -715,14 +717,15 @@ namespace Ship_Game.AI
             else if (distanceToEscortSpot < 2000) // ease up thrust on approach to escort spot
                 escortVelocity = distanceToEscortSpot / 2000 * Owner.VelocityMax + supplyShipVelocity + 25;
 
+            bool terminateIfEnemiesNear = distanceToEscortSpot < 2000;
             ThrustOrWarpToPos(escortVector, timeStep, escortVelocity);
 
             switch (goal.VariableString)
             {
-                default:       TerminateResupplyIfDone();                  break;
-                case "Rearm":  TerminateResupplyIfDone(SupplyType.Rearm);  break;
-                case "Repair": TerminateResupplyIfDone(SupplyType.Repair); break;
-                case "Troops": TerminateResupplyIfDone(SupplyType.Troops); break;
+                default:       TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear);    break;
+                case "Rearm":  TerminateResupplyIfDone(SupplyType.Rearm, terminateIfEnemiesNear);  break;
+                case "Repair": TerminateResupplyIfDone(SupplyType.Repair, terminateIfEnemiesNear); break;
+                case "Troops": TerminateResupplyIfDone(SupplyType.Troops, terminateIfEnemiesNear); break;
             }
         }
 
