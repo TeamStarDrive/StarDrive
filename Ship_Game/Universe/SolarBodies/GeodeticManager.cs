@@ -221,7 +221,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void RepairShip(Ship ship, float repairPool)
         {
-            ship.AI.TerminateResupplyIfDone();
+            ship.AI.TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear: true);
             //Modified by McShooterz: Repair based on repair pool, if no combat in system
             if (!HasSpacePort || ship.Health.AlmostEqual(ship.HealthMax))
                 return;
