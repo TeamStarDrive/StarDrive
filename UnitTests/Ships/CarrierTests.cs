@@ -102,7 +102,7 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void NoRecallWithin10k()
+        public void NoRecallWithin10K()
         {
             SpawnEnemyShipAndEnsureFightersLaunch();
 

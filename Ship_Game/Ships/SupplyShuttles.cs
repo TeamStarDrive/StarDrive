@@ -1,4 +1,5 @@
 ﻿using SDUtils;
+using SDGraphics;
 using Ship_Game.AI;
 
 namespace Ship_Game.Ships
@@ -67,13 +68,13 @@ namespace Ship_Game.Ships
             if (!CarrierHasSupplyToLaunch(hangar))
                 return false;
 
-            if (supplyTarget != null || SupplyShipNeedsResupply(0,false))
+            if (supplyTarget != null || SupplyShipNeedsResupply(0, false))
             {
                 CreateShuttle(hangar, out Ship supplyShuttle);
                 supplyShuttle.ChangeOrdnance(-supplyShuttle.OrdinanceMax);
                 if (!SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax, supplyTarget != null))
                 {
-                    Owner.ChangeOrdnance(-supplyShuttle.OrdinanceMax);
+                    Owner.ChangeOrdnance(-supplyShuttle.OrdinanceMax.UpperBound(Owner.Ordinance));
                     supplyShuttle.ChangeOrdnance(supplyShuttle.OrdinanceMax);
                     SetSupplyTarget(supplyShuttle, supplyTarget);
                 }
@@ -82,7 +83,6 @@ namespace Ship_Game.Ships
                     return false;
                 }
             }
-
             return true;
         }
 
@@ -99,7 +99,7 @@ namespace Ship_Game.Ships
             if (!hasSupplyTarget) 
                 return Owner.OrdnanceStatus < Status.Maximum;
 
-            return shuttleStorage > Owner.Ordinance;
+            return shuttleStorage > Owner.Ordinance * 0.25f;
         }
 
         void CreateShuttle(ShipModule hangar, out Ship supplyShuttle)
@@ -121,11 +121,12 @@ namespace Ship_Game.Ships
             switch (supplyShip.AI.State)
             {
                 case AIState.Ferrying:
-                    return supplyShip.AI.OrderQueue.IsEmpty && supplyShip.Ordinance > 1;
+                    return supplyShip.AI.OrderQueue.IsEmpty 
+                        && supplyShip.OrdnancePercent > 0.05f 
+                        && supplyShip.AI.EscortTarget != null;
                 case AIState.ReturnToHangar:
                 case AIState.Resupply:
                 case AIState.Scrap:
-                    return false;
                 case AIState.MoveTo:
                 case AIState.Orbit:
                     return false;
