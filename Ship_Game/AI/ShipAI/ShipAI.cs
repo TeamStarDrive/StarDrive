@@ -429,10 +429,6 @@ namespace Ship_Game.AI
                 Owner.Loyalty.AddShipToManagedPools(Owner);
                 Owner.Supply.ResetIncomingSupply(supplyType);
             }
-
-
-            //if (State != AIState.ResupplyEscort || EscortTarget?.SupplyShipCanSupply == true)
-                //return;
         }
 
         void RequestResupplyFromPlanet()
