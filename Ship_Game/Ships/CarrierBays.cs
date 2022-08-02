@@ -257,9 +257,7 @@ namespace Ship_Game.Ships
             foreach (ShipModule hangar in AllFighterHangars)
             {
                 if (hangar.TryGetHangarShipActive(out Ship hangarShip) && hangarShip.AI.State != AIState.ReturnToHangar)
-                {
                     hangarShip.AI.OrderReturnToHangarDeferred();
-                }
             }
         }
 
@@ -601,7 +599,7 @@ namespace Ship_Game.Ships
             string defaultShip = empire.data.StartingShip;
             ShipModule[] readyHangars = AllFighterHangars.Filter(hangar => hangar.Active
                                                                  && hangar.HangarTimer <= 0
-                                                                 && !hangar.TryGetHangarShip(out _));
+                                                                 || hangar.TryGetHangarShip(out _));
 
             bool isShipyardDesign = (Owner is GameScreens.ShipDesign.DesignShip);
 
@@ -609,6 +607,9 @@ namespace Ship_Game.Ships
             {
                 // if we're in shipyard, everything is accepted
                 if (isShipyardDesign)
+                    continue;
+
+                if (hangar.TryGetHangarShip(out _))
                     continue;
 
                 if (hangar.DynamicHangar == DynamicHangarOptions.Static)
@@ -744,7 +745,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void HandleHangarShipsScramble()
+        public void HandleHangarShipsByPlayerLaunchButton()
         {
             if (Owner?.Loyalty.isPlayer == true)
             {
@@ -764,29 +765,6 @@ namespace Ship_Game.Ships
         public void SetRecallFightersBeforeFTL(bool value)
         {
             RecallFightersBeforeFTL = value;
-        }
-
-        public void RecallAfterCombat()
-        {
-            if (Owner == null)
-                return; // not a carrier
-
-            bool isAI = !Owner.Loyalty.isPlayer;
-            for (int i = 0; i < AllFighterHangars.Length; i++)
-            {
-                ShipModule hangar = AllFighterHangars[i];
-                if (hangar.TryGetHangarShip(out Ship hangarShip) && hangarShip.Active && hangarShip.AI.State != AIState.ReturnToHangar)
-                {
-                    bool hasPriorityOrderOrTarget = hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder;
-                    if (isAI || !hasPriorityOrderOrTarget)
-                    {
-                        if (FightersLaunched)
-                            hangarShip.DoEscort(Owner);
-                        else
-                            hangarShip.AI.OrderReturnToHangarDeferred();
-                    }
-                }
-            }
         }
     }
 }

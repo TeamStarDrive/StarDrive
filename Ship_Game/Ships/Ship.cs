@@ -1117,40 +1117,26 @@ namespace Ship_Game.Ships
             if (!EMPDisabled && HasCommand)
             {
                 for (int i = 0; i < Weapons.Count; i++)
-                {
                     Weapons[i].Update(timeStep);
-                }
+
                 for (int i = 0; i < BombBays.Count; i++)
-                {
                     BombBays[i].InstalledWeapon.Update(timeStep);
-                }
             }
 
             AI.CombatAI.SetCombatTactics(AI.CombatState);
 
+            // NOTE: need to constantly update HighAlertTimer, using the 1 second update block doesn't work well
             if (HighAlertTimer > 0f)
-            {
-                // NOTE: need to constantly update HighAlertTimer, using the 1 second update block doesn't work well
                 HighAlertTimer -= timeStep.FixedTime;
-            }
 
-            UpdateTimer -= timeStep.FixedTime;
-            if (UpdateTimer <= 0f)
-            {
-                UpdateTimer += 1f; // update the ship modules and status only once per second
-                UpdateModulesAndStatus(FixedSimTime.One);
-                ExploreCurrentSystem(timeStep);
-                SecondsAlive += 1;
+            UpdateStatusOncePerSecond(timeStep);
+            UpdatePower(timeStep);
+            ShieldPercent = ShieldMax > 0 ? 100.0 * ShieldPower / ShieldMax : 0;
+            ShipEngines.Update();
+        }
 
-                if (TractorDamage > 0 && !BeingTractored)
-                {
-                    TractorDamage = 0;
-                    ShipStatusChanged = true;
-                }
-
-                BeingTractored = false;
-            }
-
+        void UpdatePower(FixedSimTime timeStep)
+        {
             PowerCurrent -= PowerDraw * timeStep.FixedTime;
             if (PowerCurrent < PowerStoreMax)
                 PowerCurrent += (PowerFlowMax + PowerFlowMax * (Loyalty?.data.PowerFlowMod ?? 0)) * timeStep.FixedTime;
@@ -1160,11 +1146,52 @@ namespace Ship_Game.Ships
                 PowerCurrent = 0.0f;
                 HyperspaceReturn();
             }
+
             PowerCurrent = Math.Min(PowerCurrent, PowerStoreMax);
+        }
 
-            ShieldPercent = ShieldMax >0 ? 100.0 * ShieldPower / ShieldMax : 0;
+        void UpdateStatusOncePerSecond(FixedSimTime timeStep)
+        {
+            UpdateTimer -= timeStep.FixedTime;
+            if (UpdateTimer <= 0f)
+            {
+                UpdateTimer += 1f;
+                UpdateModulesAndStatus(FixedSimTime.One);
+                ExploreCurrentSystem(timeStep);
+                ScrambleFightersIfInCombat();
+                RecallHangarShipIfTooFarFromCarrier();
+                UpdateTractor();
+                SecondsAlive += 1;
 
-            ShipEngines.Update();
+                if (Carrier.HasHangars)
+                    Carrier.HandleHangarShipsByPlayerLaunchButton();
+            }
+        }
+
+        void RecallHangarShipIfTooFarFromCarrier()
+        {
+            if (IsHangarShip && !InCombat && Position.OutsideRadius(Mothership.Position, Mothership.SensorRange))
+                AI.BackToCarrier();
+        }
+
+        void UpdateTractor()
+        {
+            if (TractorDamage > 0 && !BeingTractored)
+            {
+                TractorDamage = 0;
+                ShipStatusChanged = true;
+            }
+
+            BeingTractored = false;
+        }
+        void ScrambleFightersIfInCombat()
+        {
+            if (Carrier.HasFighterBays && AI.Target != null && InCombat && !IsSpoolingOrInWarp)
+            {
+                float distanceToTarget = AI.Target.Position.Distance(Position);
+                if (Carrier.IsInHangarLaunchRange(distanceToTarget))
+                    Carrier.ScrambleFighters();
+            }
         }
 
         public void UpdateSensors(FixedSimTime timeStep)
