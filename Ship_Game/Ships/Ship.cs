@@ -1159,12 +1159,19 @@ namespace Ship_Game.Ships
                 UpdateModulesAndStatus(FixedSimTime.One);
                 ExploreCurrentSystem(timeStep);
                 ScrambleFightersIfInCombat();
+                RecallHangarShipIfTooFarFromCarrier();
                 UpdateTractor();
                 SecondsAlive += 1;
 
                 if (Carrier.HasHangars)
                     Carrier.HandleHangarShipsByPlayerLaunchButton();
             }
+        }
+
+        void RecallHangarShipIfTooFarFromCarrier()
+        {
+            if (IsHangarShip && !InCombat && Position.OutsideRadius(Mothership.Position, Mothership.SensorRange))
+                AI.BackToCarrier();
         }
 
         void UpdateTractor()

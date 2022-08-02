@@ -1,12 +1,10 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDUtils;
 using Ship_Game;
 using Ship_Game.AI;
 using Ship_Game.Empires;
 using Ship_Game.Fleets;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
@@ -15,9 +13,9 @@ namespace UnitTests.Ships
     [TestClass]
     public class CarrierTests : StarDriveTest
     {
-        TestShip Carrier;
+        readonly TestShip Carrier;
+        readonly FixedSimTime ScanInterval = new(EmpireConstants.EnemyScanInterval);
         TestShip Hostile;
-        FixedSimTime ScanInterval = new FixedSimTime(EmpireConstants.EnemyScanInterval);
 
         public CarrierTests()
         {
@@ -36,7 +34,7 @@ namespace UnitTests.Ships
         {
             Hostile = SpawnShip("Ving Defender", Enemy, new Vector2(5000));
             Hostile.AI.OrderHoldPosition();
-            RunObjectsSim(ScanInterval);
+            RunObjectsSim(ScanInterval*2);
         }
         
         int MaxFighters => Carrier.Carrier.AllFighterHangars.Length;
@@ -95,21 +93,11 @@ namespace UnitTests.Ships
         {
             SpawnEnemyShipAndEnsureFightersLaunch();
 
-            Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, AIState.AwaitingOrders);
+            Carrier.AI.OrderMoveTo(new Vector2(CarrierBays.RecallMoveDistance * 0.5f), Vectors.Up, AIState.AwaitingOrders);
             RunObjectsSim(ScanInterval);
             
-            AssertFighters(active: MaxFighters, recalling: 0, "NO fighters should be recalling during combat");
-        }
-
-        [TestMethod]
-        public void NoRecallWithin10K()
-        {
-            SpawnEnemyShipAndEnsureFightersLaunch();
-
-            Carrier.AI.OrderMoveTo(new Vector2(10000), Vectors.Up, AIState.AwaitingOrders);
-            RunObjectsSim(ScanInterval);
-            
-            AssertFighters(active: MaxFighters, recalling: 0, "NO fighters should be recalling within 10k");
+            AssertFighters(active: MaxFighters, recalling: 0, "NO fighters should be recalling when the" +
+                                                              " carrier is jumping short distance");
         }
 
         [TestMethod]
@@ -128,35 +116,61 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void RecallWhenFarAway()
+        public void MustRecallWhenNoCombatAndFarAway()
         {
-            SpawnEnemyShipAndEnsureFightersLaunch();
-            
+            Carrier.Carrier.ScrambleFighters();
+            var fighters = Carrier.Carrier.GetActiveFighters();
+            foreach (Ship fighter in fighters)
+            {
+                fighter.AI.OrderMoveTo(fighter.Position + new Vector2(-10000), Vectors.Up,
+                                       AIState.AwaitingOrders);
+                fighter.AI.SetPriorityOrder(true);
+            }
+
             // move ship really far
             Carrier.Position = new Vector2(Carrier.SensorRange + 35000);
 
-            // start warping even farther
-            Carrier.AI.OrderMoveTo(Carrier.Position + new Vector2(15000), Vectors.Up, AIState.AwaitingOrders);
-
-            // fighters should recall because Carrier is really far
-            // this must override combat state
+            // Fighters should recall because Carrier is really far they are are not combat
+            // this should also override player/AI priority orders
             RunObjectsSim(ScanInterval);
-            AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling when far away");
+            // allow deferred return to hangar
+            RunObjectsSim(ScanInterval);
+            AssertFighters(active: MaxFighters, recalling: 12, "Fighters should be recalling when outside of" +
+                                                               " carrier sensor range and not in combat");
         }
 
         [TestMethod]
-        public void RecallDuringNoStopMove()
+        public void NoRecallWhenInCombatAndFarAway()
         {
             SpawnEnemyShipAndEnsureFightersLaunch();
 
             // move ship really far
-            Carrier.Position = new Vector2(Carrier.SensorRange + 25000);
+            Carrier.Position = new Vector2(Carrier.SensorRange + 35000);
+
+            // fighters should recall because Carrier is really far and they are not in combat
+            RunObjectsSim(ScanInterval);
+            // allow deferred return to hangar (should not allow to return to hangar. We are testing it now :)
+            RunObjectsSim(ScanInterval);
+            AssertFighters(active: MaxFighters, recalling: 0, "Fighters should not be recalling when" +
+                                                                        " far away and in combat");
+        }
+
+        [TestMethod]
+        public void RecallOverRecallMoveDistanceInCombat()
+        {
+            SpawnEnemyShipAndEnsureFightersLaunch();
+
+            // move ship a little
+            Carrier.Position = new Vector2(Carrier.SensorRange * 0.5f);
 
             // start warping away
-            Carrier.AI.OrderMoveToNoStop(Carrier.Position + new Vector2(10000), Vectors.Up, AIState.AwaitingOrders);
+            Carrier.AI.OrderMoveToNoStop(Carrier.Position + new Vector2(CarrierBays.RecallMoveDistance + 10),
+                Vectors.Up, AIState.AwaitingOrders);
             
             RunObjectsSim(ScanInterval);
-            AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling during no stop move");
+            AssertFighters(active: MaxFighters, recalling: MaxFighters, "Fighters should be recalling during no stop" +
+                                                                        " move since the carrier is warping and moving" +
+                                                                        " more than RecallMoveDistance");
         }
 
         Fleet CreateFleet()
