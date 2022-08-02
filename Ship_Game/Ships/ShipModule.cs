@@ -1104,7 +1104,11 @@ namespace Ship_Game.Ships
                     return;
                 }
 
-                fighter.DoEscort(Parent);
+                if (fighter.AI.State != AIState.ReturnToHangar
+                    || fighter.Supply.Resupply() is not ResupplyReason.NotNeeded and not ResupplyReason.LowOrdnanceNonCombat)
+                {
+                    fighter.DoEscort(Parent);
+                }
                 return;
             }
 
