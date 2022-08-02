@@ -144,10 +144,6 @@ namespace Ship_Game.AI
                     }
                 }
 
-                /*
-                if (Owner.Carrier.IsInHangarLaunchRange(distanceToTarget))
-                    Owner.Carrier.ScrambleFighters();*/
-
                 if (Intercepting && CombatRangeType == StanceType.RangedCombatMovement)
                 {
                     // clamp the radius here so that it wont flounder if the ship has very long range weapons.
