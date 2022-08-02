@@ -641,7 +641,6 @@ namespace Ship_Game.AI
 
         void ExitCombatState()
         {
-            Owner.Carrier.RecallAfterCombat();
             if (OrderQueue.TryPeekFirst(out ShipGoal goal) &&
                 goal?.Plan == Plan.DoCombat)
             {
@@ -659,6 +658,14 @@ namespace Ship_Game.AI
             Weapon[] items = Owner.Weapons.GetInternalArrayItems();
             for (int x = 0; x < count; x++)
                 items[x].ClearFireTarget();
+        }
+
+        public void BackToCarrier()
+        {
+            if (Owner.Mothership.Carrier.FightersLaunched)
+                Owner.DoEscort(Owner.Mothership);
+            else
+                OrderReturnToHangarDeferred();
         }
 
         void UpdateCombatStateAI(FixedSimTime timeStep)
@@ -689,6 +696,8 @@ namespace Ship_Game.AI
             else if (!badGuysNear && inCombat && Target == null)
             {
                 ExitCombatState();
+                if (Owner.IsHangarShip)
+                    BackToCarrier();
             }
 
             // fbedard: civilian ships will evade combat (nice target practice)
@@ -704,13 +713,6 @@ namespace Ship_Game.AI
             if (badGuysNear || TrackProjectiles.Length != 0)
             {
                 FireWeapons(timeStep);
-            }
-
-            // Honor fighter launch buttons
-            bool isCarrier = Owner.Carrier.HasHangars;
-            if (isCarrier)
-            {
-                Owner.Carrier.HandleHangarShipsScramble();
             }
         }
 

@@ -78,7 +78,11 @@ namespace Ship_Game.AI
             {
                 // this check here, in-case exit auto-combat logic already triggered
                 if (Owner.InCombat)
+                {
                     ExitCombatState();
+                    if (Owner.IsHangarShip)
+                        BackToCarrier();
+                }
                 return;
             }
 
@@ -139,9 +143,6 @@ namespace Ship_Game.AI
                         }
                     }
                 }
-
-                if (Owner.Carrier.IsInHangarLaunchRange(distanceToTarget))
-                    Owner.Carrier.ScrambleFighters();
 
                 if (Intercepting && CombatRangeType == StanceType.RangedCombatMovement)
                 {
