@@ -80,7 +80,7 @@ namespace Ship_Game.AI
                 if (Owner.InCombat)
                 {
                     ExitCombatState();
-                    if (Owner.Mothership != null)
+                    if (Owner.IsHangarShip)
                         BackToCarrier();
                 }
                 return;

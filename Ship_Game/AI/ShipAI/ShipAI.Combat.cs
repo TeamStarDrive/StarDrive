@@ -660,9 +660,8 @@ namespace Ship_Game.AI
                 items[x].ClearFireTarget();
         }
 
-        void BackToCarrier()
+        public void BackToCarrier()
         {
-            bool isAI = !Owner.Loyalty.isPlayer;
             if (Owner.Mothership.Carrier.FightersLaunched)
                 Owner.DoEscort(Owner.Mothership);
             else
@@ -697,7 +696,7 @@ namespace Ship_Game.AI
             else if (!badGuysNear && inCombat && Target == null)
             {
                 ExitCombatState();
-                if (Owner.Mothership != null)
+                if (Owner.IsHangarShip)
                     BackToCarrier();
             }
 
