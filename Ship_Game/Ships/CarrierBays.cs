@@ -257,9 +257,7 @@ namespace Ship_Game.Ships
             foreach (ShipModule hangar in AllFighterHangars)
             {
                 if (hangar.TryGetHangarShipActive(out Ship hangarShip) && hangarShip.AI.State != AIState.ReturnToHangar)
-                {
                     hangarShip.AI.OrderReturnToHangarDeferred();
-                }
             }
         }
 
