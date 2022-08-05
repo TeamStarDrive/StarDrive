@@ -603,7 +603,8 @@ namespace Ship_Game.Ships
             if (hangar.TryGetHangarShip(out _))
                 return false;
 
-            if (hangar.DynamicHangar == DynamicHangarOptions.Static && empire.ShipsWeCanBuild.Contains(hangar.HangarShipUID))
+            if (hangar.IsSupplyBay || hangar.IsTroopBay ||
+                hangar.DynamicHangar == DynamicHangarOptions.Static && empire.ShipsWeCanBuild.Contains(hangar.HangarShipUID))
             {
                 shipName = hangar.HangarShipUID;
                 return true;
