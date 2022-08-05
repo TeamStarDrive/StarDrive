@@ -287,7 +287,7 @@ namespace Ship_Game.Ships
         void SetInitialCrewLevel()
         {
             Level = 0;
-            if (ShipData.Role == RoleName.fighter)
+            if (ShipData.Role is RoleName.fighter or RoleName.corvette or RoleName.drone)
                 Level += Loyalty.data.BonusFighterLevels;
 
             Level += Loyalty.data.BaseShipLevel;
@@ -420,12 +420,12 @@ namespace Ship_Game.Ships
         // Hangar Ship Creation
         public static Ship CreateShipFromHangar(UniverseState us, ShipModule hangar, Empire owner, Vector2 p, Ship parent)
         {
-            Ship ship = CreateShipAtPoint(us, hangar.HangarShipUID, owner, p);
+            Ship ship = null;
+            if (parent.Carrier.PrepHangarShip(owner, hangar, out string shipName))
+                ship = CreateShipAtPoint(us, shipName, owner, p);
+
             if (ship == null)
                 return null;
-
-            //if (ship.DesignRole == ShipData.RoleName.drone || ship.DesignRole == ShipData.RoleName.corvette)
-            //    ship.Level += owner.data.BonusFighterLevels;
 
             ship.Mothership = parent;
             ship.Velocity   = parent.Velocity;
@@ -657,9 +657,6 @@ namespace Ship_Game.Ships
             }
 
             UpdateShields();
-
-            Carrier.PrepShipHangars(Loyalty);
-
             if (ShipData.Role == RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
 
