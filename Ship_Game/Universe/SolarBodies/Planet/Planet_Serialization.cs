@@ -35,7 +35,7 @@ namespace Ship_Game
 
             var type = ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet); // we revert to random just in case people unload mods
             var scale = data.Scale > 0f ? data.Scale : RandomMath.Float(1f, 2f);
-            InitPlanetType(type, scale);
+            InitPlanetType(type, scale, fromSave: true);
             colonyType         = data.ColonyType;
             GovOrbitals        = data.GovOrbitals;
             GovGroundDefense   = data.GovGroundDefense;
