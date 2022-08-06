@@ -1914,8 +1914,7 @@ namespace Ship_Game.Ships
                     if (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0)
                         hangarArea += m.Area;
 
-                    offense += m.CalculateModuleOffense();
-                    defense += m.CalculateModuleDefense(SurfaceArea);
+                    defense += m.CalculateModuleOffenseDefense(SurfaceArea);
                 }
             }
 
