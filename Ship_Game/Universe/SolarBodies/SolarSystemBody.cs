@@ -620,5 +620,11 @@ namespace Ship_Game
                 }
             }
         }
+
+        // Used only for Unit tests!
+        public void TestSetOrbitalRadius(float value)
+        {
+            OrbitalRadius = value;
+        }
     }
 }
