@@ -30,33 +30,32 @@ namespace Ship_Game.Ships
             if (Owner == null || Owner.engineState == Ship.MoveState.Warp || !Owner.Carrier.HasSupplyBays)
                 return;
 
-            Ship[] shipsNeedingSupply = ShipsInNeedOfSupplyByPriority(radius);
-
-            // nothing to do ¯\_(ツ)_/¯
-            if (shipsNeedingSupply.Length == 0 && !SupplyShipNeedsResupply(0,false)
-                                               && !Owner.Carrier.HasSupplyShuttlesInSpace)
+            if (TryGetShipsInNeedOfSupplyByPriority(radius, out Ship[] shipsNeedingSupply)
+                || Owner.Carrier.HasSupplyShuttlesInSpace)
             {
-                return;
-            }
+                int shipInNeedIndex = 0;
+                bool canLaunchShuttle = true;
 
-            int shipInNeedIndex   = 0;
-            bool canLaunchShuttle = true;
+                foreach (ShipModule hangar in Owner.Carrier.SupplyHangarsAlive)
+                {
+                    hangar.TryGetHangarShipActive(out Ship supplyShipInSpace);
+                    if (shipInNeedIndex < shipsNeedingSupply.Length)
+                    {
+                        Ship supplyTarget = shipsNeedingSupply[shipInNeedIndex];
+                        if (supplyShipInSpace != null)
+                            OrderIdleSupplyShips(supplyShipInSpace, supplyTarget);
+                        else if (canLaunchShuttle)
+                            canLaunchShuttle = LaunchShipSupplyShuttle(hangar, supplyTarget);
 
-            // Its Better!
-            foreach (ShipModule hangar in Owner.Carrier.SupplyHangarsAlive)
-            {
-                Ship supplyTarget = null;
-
-                if (shipInNeedIndex < shipsNeedingSupply.Length)
-                    supplyTarget = shipsNeedingSupply[shipInNeedIndex];
-
-                if (hangar.TryGetHangarShipActive(out Ship supplyShipInSpace))
-                    OrderIdleSupplyShips(supplyShipInSpace, supplyTarget);
-                else if (canLaunchShuttle)
-                    canLaunchShuttle = LaunchShipSupplyShuttle(hangar, supplyTarget);
-
-                if (supplyTarget != null && !ShipNeedsMoreOrdnance(supplyTarget))
-                    shipInNeedIndex++;
+                        if (!ShipNeedsMoreOrdnance(supplyTarget))
+                            shipInNeedIndex++;
+                    }
+                    else
+                    {
+                        if (supplyShipInSpace != null && SupplyShipIdle(supplyShipInSpace))
+                            supplyShipInSpace.AI.OrderReturnToHangarDeferred();
+                    }
+                }
             }
         }
 
@@ -68,14 +67,15 @@ namespace Ship_Game.Ships
             if (!CarrierHasSupplyToLaunch(hangar))
                 return false;
 
-            if (supplyTarget != null || SupplyShipNeedsResupply(0, false))
+            if (!SupplyShipNeedsResupply(10))
             {
                 CreateShuttle(hangar, out Ship supplyShuttle);
                 supplyShuttle.ChangeOrdnance(-supplyShuttle.OrdinanceMax);
-                if (!SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax, supplyTarget != null))
+                if (!SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax))
                 {
-                    Owner.ChangeOrdnance(-supplyShuttle.OrdinanceMax.UpperBound(Owner.Ordinance));
-                    supplyShuttle.ChangeOrdnance(supplyShuttle.OrdinanceMax);
+                    float supplyToLoad = supplyShuttle.OrdinanceMax.UpperBound(Owner.Ordinance);
+                    Owner.ChangeOrdnance(-supplyToLoad);
+                    supplyShuttle.ChangeOrdnance(supplyToLoad);
                     SetSupplyTarget(supplyShuttle, supplyTarget);
                 }
                 else
@@ -94,14 +94,7 @@ namespace Ship_Game.Ships
             return supplyShuttleTemplate.ShipOrdLaunchCost < Owner.Ordinance;
         }
 
-        bool SupplyShipNeedsResupply(float shuttleStorage, bool hasSupplyTarget)
-        {
-            if (!hasSupplyTarget) 
-                return Owner.OrdnanceStatus < Status.Maximum;
-
-            return shuttleStorage > Owner.Ordinance * 0.25f;
-        }
-
+        bool SupplyShipNeedsResupply(float shuttleStorage) => shuttleStorage * 0.25f > Owner.Ordinance;
         void CreateShuttle(ShipModule hangar, out Ship supplyShuttle)
         {
             supplyShuttle = Ship.CreateShipFromHangar(Owner.Universe, hangar, Owner.Loyalty, Owner.Position, Owner);
@@ -122,7 +115,7 @@ namespace Ship_Game.Ships
             {
                 case AIState.Ferrying:
                     return supplyShip.AI.OrderQueue.IsEmpty 
-                        && supplyShip.OrdnancePercent > 0.05f 
+                        && supplyShip.OrdnancePercent > 0.02f 
                         && supplyShip.AI.EscortTarget != null;
                 case AIState.ReturnToHangar:
                 case AIState.Resupply:
@@ -165,9 +158,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        Ship[] ShipsInNeedOfSupplyByPriority(float sensorRange)
+        bool TryGetShipsInNeedOfSupplyByPriority(float sensorRange, out Ship[] shipsInNeed)
         {
-            Ship[] shipsInNeed = Owner.AI.FriendliesNearby
+            shipsInNeed = Owner.AI.FriendliesNearby
                 .Filter(ship => ship.Active
                                 && !ship.IsSupplyShuttle
                                 && ship != Owner
@@ -180,7 +173,8 @@ namespace Ship_Game.Ships
                 var supplyStatus = ship.Supply.ShipStatusWithPendingResupply(SupplyType.Rearm);
                 return (int)supplyStatus * distance + (ship.Fleet == Owner.Fleet ? 0 : 10);
             });
-            return shipsInNeed;
+
+            return shipsInNeed.Length > 0;
         }
     }
 }

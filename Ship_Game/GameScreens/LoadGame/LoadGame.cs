@@ -172,6 +172,7 @@ namespace Ship_Game.GameScreens.LoadGame
 
             EmpireHullBonuses.RefreshBonuses();
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep());
+            us.Objects.UpdateLists(removeInactiveObjects: false);
             AllSystemsLoaded(us, step.NextStep());
 
             step.NextStep().Start(1); // This last step is a mess, using arbitrary count
@@ -181,8 +182,6 @@ namespace Ship_Game.GameScreens.LoadGame
             FinalizeShips(us);
 
             us.Screen.LoadContent();
-            us.Objects.UpdateLists(removeInactiveObjects: false);
-
             foreach(Empire empire in EmpireManager.Empires)
             {
                 empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave(us);

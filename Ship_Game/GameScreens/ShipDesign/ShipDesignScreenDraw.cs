@@ -223,7 +223,9 @@ namespace Ship_Game
                     effects = SpriteEffects.FlipVertically;
                     break;
                 case ModuleOrientation.Normal:
-                    if (slot?.WorldPos.X > 0f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
+                case ModuleOrientation.Left:
+                case ModuleOrientation.Right:
+                    if (slot?.WorldPos.X >= 0f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
                         effects = SpriteEffects.FlipHorizontally;
                     break;
             }
