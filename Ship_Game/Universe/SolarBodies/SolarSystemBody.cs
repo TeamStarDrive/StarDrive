@@ -195,7 +195,7 @@ namespace Ship_Game
         public Empire Owner;
         public bool OwnerIsPlayer => Owner != null && Owner.isPlayer;
         public float OrbitalAngle; // OrbitalAngle in DEGREES
-        public float OrbitalRadius;
+        public float OrbitalRadius { get; protected set; }
         public bool HasRings;
         public float PlanetTilt;
         public float RingTilt; // tilt in Radians

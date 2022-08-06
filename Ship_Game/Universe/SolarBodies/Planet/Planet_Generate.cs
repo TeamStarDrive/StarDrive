@@ -93,7 +93,7 @@ namespace Ship_Game
         public void GenerateNewFromPlanetType(RandomBase random, PlanetType type, float scale, float preDefinedPop = 0)
         {
             TilesList.Clear();
-            InitPlanetType(type, scale);
+            InitPlanetType(type, scale, fromSave: false);
 
             if (Habitable)
             {
@@ -148,7 +148,7 @@ namespace Ship_Game
             PlanetType type = ResourceManager.Planets.RandomPlanet(preferred);
             float scale = 1f * owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
 
-            InitPlanetType(type, scale);
+            InitPlanetType(type, scale, fromSave: false);
 
             SetOwner(owner);
             IsHomeworld = true;
