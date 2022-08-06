@@ -289,7 +289,7 @@ namespace Ship_Game
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
 
-            float strength = mod.CalculateModuleOffenseDefense(Screen.CurrentHull.SurfaceArea);
+            float strength = mod.CalculateModuleOffenseDefense(Screen.CurrentHull.SurfaceArea, forceRecalculate: mod.IsFighterHangar);
             DrawStat(ref modTitlePos, "Offense", strength, GameText.TT_ShipOffense);
 
             if (mod.BombType == null && !mod.IsWeapon || mod.InstalledWeapon == null)

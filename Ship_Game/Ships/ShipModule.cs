@@ -83,7 +83,7 @@ namespace Ship_Game.Ships
         public float HangarTimer;
         public bool IsWeapon;
         public Weapon InstalledWeapon;
-
+        int Strength = -1;
         public DynamicHangarOptions DynamicHangar { get; private set; }
 
         public ShipModuleType ModuleType;
@@ -1126,7 +1126,7 @@ namespace Ship_Game.Ships
                 HangarShip.Velocity = carrier.Velocity + UniverseRandom.RandomDirection() * HangarShip.SpeedLimit;
                 HangarShip.Mothership = carrier;
                 HangarTimer = HangarTimerConstant;
-
+                CalculateModuleOffenseDefense(Parent.SurfaceArea, forceRecalculate: true);
                 carrier.ChangeOrdnance(-HangarShip.ShipOrdLaunchCost);
                 carrier.OnShipLaunched(HangarShip);
             }
@@ -1350,12 +1350,14 @@ namespace Ship_Game.Ships
             return Color.Black;
         }
 
-        public float CalculateModuleOffenseDefense(int slotCount)
+        public float CalculateModuleOffenseDefense(int slotCount, bool forceRecalculate = false)
         {
-            return CalculateModuleDefense(slotCount) + CalculateModuleOffense();
+            if (Strength == -1 || forceRecalculate)
+                Strength = (int)(CalculateModuleDefense(slotCount) + CalculateModuleOffense());
+            return Strength;
         }
 
-        public float CalculateModuleDefense(int slotCount)
+        float CalculateModuleDefense(int slotCount)
         {
             if (slotCount <= 0)
                 return 0f;
@@ -1414,7 +1416,7 @@ namespace Ship_Game.Ships
             return def;
         }
 
-        public float CalculateModuleOffense()
+        float CalculateModuleOffense()
         {
             float off = InstalledWeapon?.CalculateOffense(this) ?? 0f;
 
