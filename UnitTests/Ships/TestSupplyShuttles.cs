@@ -42,17 +42,5 @@ namespace UnitTests.Ships
             ship.UpdateResupply();
             Assert.IsTrue(ship.Carrier.HasSupplyShuttlesInSpace, "Supply Shuttle not found in sensors.");
         }
-
-        [TestMethod]
-        public void TestSelfSupplyShuttle()
-        {
-            Ship ship = CreateShip(Player, "TEST_Excalibur-Class Supercarrier", Vector2.Zero);
-            RunObjectsSim(TestSimStep);
-
-            ship.ChangeOrdnance(-(ship.OrdinanceMax -50));
-            UpdateStatus(ship, CombatState.Artillery);
-            ship.UpdateResupply();
-            Assert.IsTrue(ship.Carrier.HasSupplyShuttlesInSpace);
-        }
     }
 }

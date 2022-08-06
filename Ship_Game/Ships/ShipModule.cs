@@ -1427,14 +1427,14 @@ namespace Ship_Game.Ships
 
 
             if (TryGetHangarShip(out Ship hangarShip))
-                return off += HangarShip.BaseStrength;
+                return off + hangarShip.GetStrength()*0.5f;
 
-            if (ShipBuilder.IsDynamicHangar(HangarShipUID))
+            if (DynamicHangar != DynamicHangarOptions.Static)
             {
                 if (Parent != null && Parent.Carrier.PrepHangarShip(Parent.Loyalty, this, out string shipName)
                     && ResourceManager.GetShipTemplate(shipName, out Ship hShip))
                 {
-                    off += (hShip.BaseStrength > 0f) ? hShip.BaseStrength : hShip.CalculateShipStrength();
+                    off += hShip.GetStrength();
                 }
                 else
                 {
@@ -1444,7 +1444,7 @@ namespace Ship_Game.Ships
             else
             {
                 if (ResourceManager.GetShipTemplate(HangarShipUID, out Ship hShip))
-                    off += (hShip.BaseStrength > 0f) ? hShip.BaseStrength : hShip.CalculateShipStrength();
+                    off += hShip.GetStrength();
                 else
                     off += 100f;
             }
