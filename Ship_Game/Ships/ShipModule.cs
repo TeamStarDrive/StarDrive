@@ -1087,7 +1087,7 @@ namespace Ship_Game.Ships
             return false;
         }
 
-        public void ScrambleFighters()
+        public void ScrambleFighter()
         {
             if (IsTroopBay || IsSupplyBay || !Powered)
                 return;
@@ -1114,7 +1114,7 @@ namespace Ship_Game.Ships
 
             if (HangarTimer <= 0f && (fighter == null || !fighter.Active))
             {
-                SetHangarShip(Ship.CreateShipFromHangar(Parent.Universe, this, carrier.Loyalty, carrier.Position + LocalCenter, carrier));
+                SetHangarShip(Ship. CreateShipFromHangar(Parent.Universe, this, carrier.Loyalty, carrier.Position + LocalCenter, carrier));
 
                 if (HangarShip == null)
                 {
@@ -1425,19 +1425,31 @@ namespace Ship_Game.Ships
                                                     || IsTroopBay)
                 return off;
 
-            if (ShipBuilder.IsDynamicHangar(HangarShipUID))
+
+            if (TryGetHangarShip(out Ship hangarShip))
+                return off + hangarShip.GetStrength()*0.5f;
+
+            if (DynamicHangar != DynamicHangarOptions.Static)
             {
-                off += MaximumHangarShipSize * 100 * PermittedHangarRoles.Length / HangarTimerConstant.LowerBound(1);
+                if (Parent != null && Parent.Carrier.PrepHangarShip(Parent.Loyalty, this, out string shipName)
+                    && ResourceManager.GetShipTemplate(shipName, out Ship hShip))
+                {
+                    off += hShip.GetStrength();
+                }
+                else
+                {
+                    off += MaximumHangarShipSize * 100 * PermittedHangarRoles.Length / HangarTimerConstant.LowerBound(1);
+                }
             }
             else
             {
                 if (ResourceManager.GetShipTemplate(HangarShipUID, out Ship hShip))
-                    off += (hShip.BaseStrength > 0f) ? hShip.BaseStrength : hShip.CalculateShipStrength();
+                    off += hShip.GetStrength();
                 else
                     off += 100f;
             }
 
-            return off;
+            return off * 0.5f;
         }
 
         public static int DefaultFacingFor(ModuleOrientation orientation)

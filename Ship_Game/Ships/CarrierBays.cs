@@ -35,7 +35,7 @@ namespace Ship_Game.Ships
         public bool DisableFighterLaunch;
 
         public const float DefaultHangarRange = 7500;
-        public SupplyShuttles SupplyShuttle;
+        public SupplyShuttles SupplyShuttles;
         public float HangarRange => HasActiveHangars ? DefaultHangarRange : 0;
         public bool IsPrimaryCarrierRoleForLaunchRange => 
                                             HasActiveHangars &&
@@ -77,7 +77,7 @@ namespace Ship_Game.Ships
             SendTroopsToShip        = true;
             RecallFightersBeforeFTL = true;
             Owner                   = owner;
-            SupplyShuttle           = new SupplyShuttles(Owner);
+            SupplyShuttles          = new SupplyShuttles(Owner);
             TroopTactics            = new AssaultShipCombat(owner);
         }
 
@@ -113,9 +113,9 @@ namespace Ship_Game.Ships
             AllSupplyBays     = Array.Empty<ShipModule>();
             AllFighterHangars = Array.Empty<ShipModule>();
             AllTransporters   = Array.Empty<ShipModule>();
-            SupplyShuttle?.Dispose();
-            SupplyShuttle = null;
-            TroopTactics  = null;
+            SupplyShuttles?.Dispose();
+            SupplyShuttles = null;
+            TroopTactics   = null;
         }
 
         // aggressive dispose looks to cause a crash here. 
@@ -247,9 +247,11 @@ namespace Ship_Game.Ships
             if (Owner == null || Owner.IsSpoolingOrInWarp || RecallingShipsBeforeWarp || DisableFighterLaunch)
                 return;
 
-            ShipModule[] readyHangars = PrepShipHangars(Owner.Loyalty);
+            ShipModule[] readyHangars = AllFighterHangars.
+                Filter(hangar => hangar.Active && hangar.HangarTimer <= 0 || hangar.TryGetHangarShip(out _));
+
             for (int i = 0; i < readyHangars.Length; ++i)
-                readyHangars[i].ScrambleFighters();
+                readyHangars[i].ScrambleFighter();
         }
 
         public void RecoverFighters()
@@ -336,7 +338,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void RecoverSupplyShips()
+        public void RecoverSupplyShuttles()
         {
             foreach (ShipModule hangar in AllSupplyBays)
             {
@@ -455,7 +457,7 @@ namespace Ship_Game.Ships
             if (ShouldRecallFighters())
             {
                 RecoverAssaultShips();
-                RecoverSupplyShips();
+                RecoverSupplyShuttles();
                 RecoverFighters();
 
                 if (DoneRecovering)
@@ -591,52 +593,41 @@ namespace Ship_Game.Ships
             }
         }
 
-        public ShipModule[] PrepShipHangars(Empire empire) // This will set dynamic hangar UIDs to the best ships
+        public bool PrepHangarShip(Empire empire, ShipModule hangar, out string shipName)
         {
-            if (empire.Id == -1) // ID -1 since there is a loyalty without a race when saving s ship
-                return Empty<ShipModule>.Array;
-
+            shipName = "";
             string defaultShip = empire.data.StartingShip;
-            ShipModule[] readyHangars = AllFighterHangars.Filter(hangar => hangar.Active
-                                                                 && hangar.HangarTimer <= 0
-                                                                 || hangar.TryGetHangarShip(out _));
+            if (Owner == null || empire.Id == -1)
+                return false;
 
-            bool isShipyardDesign = (Owner is GameScreens.ShipDesign.DesignShip);
+            if (hangar.TryGetHangarShip(out _))
+                return false;
 
-            foreach (ShipModule hangar in readyHangars)
+            if (hangar.IsSupplyBay || hangar.IsTroopBay ||
+                hangar.DynamicHangar == DynamicHangarOptions.Static && empire.ShipsWeCanBuild.Contains(hangar.HangarShipUID))
             {
-                // if we're in shipyard, everything is accepted
-                if (isShipyardDesign)
-                    continue;
-
-                if (hangar.TryGetHangarShip(out _))
-                    continue;
-
-                if (hangar.DynamicHangar == DynamicHangarOptions.Static)
-                {
-                    if (empire.ShipsWeCanBuild.Contains(hangar.HangarShipUID))
-                        continue; // FB: we can build the ship, this hangar is sorted out
-                }
-
-                // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
-                string selectedShip = GetDynamicShipName(hangar, empire);
-                hangar.HangarShipUID = selectedShip;
-                if (hangar.HangarShipUID.IsEmpty())
-                    hangar.HangarShipUID = defaultShip;
-
-                if (hangar.HangarShipUID.IsEmpty())
-                {
-                    hangar.HangarShipUID = EmpireManager.Player.data.StartingShip;
-                    string roles = "";
-                    foreach (var role in hangar.HangarRoles)
-                    {
-                        if (roles.NotEmpty()) roles += ", ";
-                        roles += role;
-                    }
-                    Log.Warning($"No startingShip defined and no roles=[{roles}] designs available for {Owner}");
-                }
+                shipName = hangar.HangarShipUID;
+                return true;
             }
-            return readyHangars;
+
+            // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
+            shipName = GetDynamicShipName(hangar, empire);
+            if (shipName.NotEmpty())
+                return true;
+
+            shipName = defaultShip;
+            if (shipName.NotEmpty())
+                return true;
+
+            string roles = "";
+            foreach (var role in hangar.HangarRoles)
+            {
+                if (roles.NotEmpty()) roles += ", ";
+                roles += role;
+            }
+
+            Log.Warning($"No startingShip defined and no roles=[{roles}] designs available for {Owner}");
+            return false; ;
         }
 
         private static HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
