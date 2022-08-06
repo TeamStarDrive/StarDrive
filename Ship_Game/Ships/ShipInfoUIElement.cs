@@ -532,7 +532,7 @@ namespace Ship_Game.Ships
             if (Ship.AI.OrderQueue.TryPeekLast(out var goal) && goal.Plan == ShipAI.Plan.DeployStructure)
                 return;
 
-            if (Ship.ShipData.Role > RoleName.station)
+            if (Ship.ShipData.Role > RoleName.station && !Ship.IsConstructor)
             {
                 OrdersButton resupply = new OrdersButton(Ship, OrderType.OrderResupply, GameText.OrdersSelectedShipOrShips)
                 {
@@ -540,9 +540,6 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(resupply);
             }
-
-            if (!Ship.CanBeScrapped)
-                return;
 
             if (Ship.IsFreighter)
             {
@@ -641,12 +638,15 @@ namespace Ship_Game.Ships
             }
             if (Ship.CanBeScrapped)
             {
-                var rf = new OrdersButton(Ship, OrderType.Refit, GameText.OrderShipRefit)
+                if (!Ship.IsConstructor)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingRefit, x => Ship.DoingRefit = x),
-                    Active = false
-                };
-                Orders.Add(rf);
+                    var rf = new OrdersButton(Ship, OrderType.Refit, GameText.OrderShipRefit)
+                    {
+                        ValueToModify = new Ref<bool>(() => Ship.DoingRefit, x => Ship.DoingRefit = x),
+                        Active = false
+                    };
+                    Orders.Add(rf);
+                }
                 var sc = new OrdersButton(Ship, OrderType.Scrap, GameText.OrderShipBackToThe)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingScrap, x => Ship.DoingScrap = x),

@@ -35,7 +35,7 @@ namespace Ship_Game.Ships
         public bool DisableFighterLaunch;
 
         public const float DefaultHangarRange = 7500;
-        public SupplyShuttles SupplyShuttle;
+        public SupplyShuttles SupplyShuttles;
         public float HangarRange => HasActiveHangars ? DefaultHangarRange : 0;
         public bool IsPrimaryCarrierRoleForLaunchRange => 
                                             HasActiveHangars &&
@@ -77,7 +77,7 @@ namespace Ship_Game.Ships
             SendTroopsToShip        = true;
             RecallFightersBeforeFTL = true;
             Owner                   = owner;
-            SupplyShuttle           = new SupplyShuttles(Owner);
+            SupplyShuttles          = new SupplyShuttles(Owner);
             TroopTactics            = new AssaultShipCombat(owner);
         }
 
@@ -113,9 +113,9 @@ namespace Ship_Game.Ships
             AllSupplyBays     = Array.Empty<ShipModule>();
             AllFighterHangars = Array.Empty<ShipModule>();
             AllTransporters   = Array.Empty<ShipModule>();
-            SupplyShuttle?.Dispose();
-            SupplyShuttle = null;
-            TroopTactics  = null;
+            SupplyShuttles?.Dispose();
+            SupplyShuttles = null;
+            TroopTactics   = null;
         }
 
         // aggressive dispose looks to cause a crash here. 
@@ -338,7 +338,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void RecoverSupplyShips()
+        public void RecoverSupplyShuttles()
         {
             foreach (ShipModule hangar in AllSupplyBays)
             {
@@ -457,7 +457,7 @@ namespace Ship_Game.Ships
             if (ShouldRecallFighters())
             {
                 RecoverAssaultShips();
-                RecoverSupplyShips();
+                RecoverSupplyShuttles();
                 RecoverFighters();
 
                 if (DoneRecovering)

@@ -1339,7 +1339,7 @@ namespace Ship_Game.Ships
             if (Health < 1f)
                 return;
             
-            Carrier.SupplyShuttle.ProcessSupplyShuttles(AI.GetSensorRadius());
+            Carrier.SupplyShuttles.ProcessSupplyShuttles(AI.GetSensorRadius());
 
             ResupplyReason resupplyReason = Supply.Resupply();
             if (resupplyReason != ResupplyReason.NotNeeded)
@@ -2035,7 +2035,7 @@ namespace Ship_Game.Ships
             return (Status)(int)ratio;
         }
 
-        // if the shipstatus enum is added to then "5" will need to be changed.
+        // if the shipstatus enum is added to then "6" will need to be changed.
         // it should count all but "NotApplicable"
         const int ShipStatusCount = 6;
     }
