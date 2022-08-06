@@ -332,7 +332,7 @@ namespace Ship_Game
             return $"{ParentSystem.Name} {RomanNumerals.ToRoman(ringNum)}";
         }
 
-        void InitPlanetType(PlanetType type, float scale)
+        void InitPlanetType(PlanetType type, float scale, bool fromSave)
         {
             if (scale == 0f) throw new InvalidOperationException("Planet initialized with scale=0");
             if (OrbitalRadius == 0f) throw new InvalidOperationException("Planet initialized with OrbitalRadius=0");
@@ -340,7 +340,9 @@ namespace Ship_Game
             PType = type;
             Scale = scale;
             Radius = type.Types.BasePlanetRadius * type.Types.PlanetScale * scale;
-            OrbitalRadius += Radius;
+            if (!fromSave)
+                OrbitalRadius += Radius;
+
             UpdatePositionOnly();
         }
 
