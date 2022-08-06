@@ -21,16 +21,14 @@ namespace Ship_Game.Ships
         public const float RepairDroneThreshold = 0.9f;
         public const float RepairDoneThreshold  = 0.99f;
         public const float RepairDroneRange     = 20000f;
-        public Map<SupplyType, float> IncomingSupply;
+        public float IncomingSupply;
         private bool InCombat;
 
         public ShipResupply(Ship ship)
         {
             Ship           = ship;
             InCombat       = false;
-            IncomingSupply = new Map<SupplyType, float>();
-            foreach (SupplyType supply in Enum.GetValues(typeof(SupplyType)))
-                IncomingSupply.Add(supply, 0);
+            IncomingSupply = 0;
         }
 
         public static float DamageThreshold(ShipCategory category)
@@ -229,16 +227,14 @@ namespace Ship_Game.Ships
 
         bool PlayerKamikaze => Ship.ShipData.ShipCategory == ShipCategory.Kamikaze && Ship.Loyalty.isPlayer;
 
-        public void ChangeIncomingSupply(SupplyType supplyType, float amount)
+        public void ChangeIncomingSupply(float amount)
         {
-            float currentIncoming = IncomingSupply[supplyType];
-            currentIncoming += amount;
-            IncomingSupply[supplyType] = Math.Max(currentIncoming, 0);
+            IncomingSupply = (IncomingSupply + amount).LowerBound(0);
         }
 
         public void ResetIncomingSupply(SupplyType supplyType)
         {
-            IncomingSupply[supplyType] = 0;
+            IncomingSupply = 0;
         }
 
         public bool AcceptExternalSupply(SupplyType supplyType)
@@ -263,7 +259,7 @@ namespace Ship_Game.Ships
 
         public Status ShipStatusWithPendingResupply(SupplyType supplyType)
         {
-            float amount = IncomingSupply[supplyType];
+            float amount = IncomingSupply;
             // for easier debugging keeping this as two statements
             return Ship.OrdnanceStatusWithIncoming(amount);
         }
