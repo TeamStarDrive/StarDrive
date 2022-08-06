@@ -70,7 +70,7 @@ namespace Ship_Game.AI
             {
                 case AIState.Ferrying:
                     if (Owner.ShipData.Role == RoleName.supply)
-                        EscortTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, -Owner.Ordinance);
+                        EscortTarget?.Supply.ChangeIncomingSupply(-Owner.Ordinance);
                     break;
             }
             State = newState;
@@ -428,7 +428,7 @@ namespace Ship_Game.AI
                     Trade = new TradePlan(sg.Trade, us, ship);
 
                 if (Plan == Plan.SupplyShip)
-                    ship.AI.EscortTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, ship.Ordinance);
+                    ship.AI.EscortTarget?.Supply.ChangeIncomingSupply(ship.Ordinance);
             }
 
             // Convert this ShipGoal into a ShipGoalSave
