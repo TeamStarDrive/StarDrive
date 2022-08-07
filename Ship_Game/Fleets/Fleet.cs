@@ -2093,7 +2093,7 @@ namespace Ship_Game.Fleets
 
             bool anyShipsBombing = false;
             Ship[] ships = Ships.Filter(ship => ship.HasBombs 
-                           && ship.Supply.ShipStatusWithPendingResupply(SupplyType.Rearm) >= Status.Critical);
+                           && ship.Supply.ShipStatusWithPendingRearm() >= Status.Critical);
             
             for (int x = 0; x < ships.Length; x++)
             {

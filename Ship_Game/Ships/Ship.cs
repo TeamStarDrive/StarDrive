@@ -1365,13 +1365,12 @@ namespace Ship_Game.Ships
             if (InCombat
                 || !Active
                 || OrdnancePercent >= 1
+                || IsHangarShip
                 || IsPlatformOrStation && TetheredTo?.Owner == Loyalty
                 || AI.OrbitTarget?.Owner == Loyalty
                 || AI.OrbitTarget?.Owner?.IsAlliedWith(Loyalty) == true
-                || AI.State == AIState.Resupply
-                || AI.State == AIState.Scrap
-                || AI.State == AIState.Refit
-                || IsHomeDefense
+                || AI.State is AIState.Resupply or AIState.Scrap or AIState.Refit 
+                || IsHomeDefense 
                 || IsSupplyShuttle)
             {
                 return false;

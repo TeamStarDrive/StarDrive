@@ -1165,9 +1165,10 @@ namespace Ship_Game
                 return false;
 
             shipsNeedRearm = ParentSystem.ShipList.Filter(s => (s.Loyalty == empire || s.Loyalty.IsAlliedWith(empire))
-                                                               && s.IsSuitableForPlanetaryRearm());
+                                                               && s.IsSuitableForPlanetaryRearm()
+                                                               && s.Supply.AcceptExternalSupply(SupplyType.Rearm));
 
-            shipsNeedRearm = shipsNeedRearm.Sorted(s => s.OrdnancePercent);
+            shipsNeedRearm = shipsNeedRearm.SortedDescending(s => s.Supply.MissingOrdnanceWithIncoming);
             return shipsNeedRearm.Length > 0;
         }
 

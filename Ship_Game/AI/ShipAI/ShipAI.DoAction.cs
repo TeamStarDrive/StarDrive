@@ -683,7 +683,7 @@ namespace Ship_Game.AI
             if (Owner.Position.InRadius(escortTarget.Position, escortTarget.Radius + 300f))
             {
                 // remove amount from incoming supply (we counted full ordnance so remove it now)
-                EscortTarget.Supply.ChangeIncomingSupply(-Owner.Ordinance);
+                EscortTarget.Supply.ChangeIncomingOrdnance(-Owner.Ordinance);
                 // how much the target did not take.
                 float leftOverOrdnance = EscortTarget.ChangeOrdnance(Owner.Ordinance);
                 // how much the target did take.
@@ -702,7 +702,7 @@ namespace Ship_Game.AI
             {
                 DequeueCurrentOrder();
                 ChangeAIState(AIState.AwaitingOrders);
-                Owner.Supply.ResetIncomingSupply(SupplyType.Rearm);
+                Owner.Supply.ResetIncomingOrdnance(SupplyType.Rearm);
                 ExitCombatState();
                 Owner.AI.SetPriorityOrder(false);
                 Owner.AI.IgnoreCombat = false;

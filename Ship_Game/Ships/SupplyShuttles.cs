@@ -106,7 +106,7 @@ namespace Ship_Game.Ships
         void SetSupplyTarget(Ship supplySource, Ship supplyTarget)
         {
             supplySource.AI.AddSupplyShipGoal(supplyTarget);          
-            supplyTarget?.Supply.ChangeIncomingSupply(supplySource.Ordinance);            
+            supplyTarget?.Supply.ChangeIncomingOrdnance(supplySource.Ordinance);            
         }
 
         static bool SupplyShipIdle(Ship supplyShip)
@@ -170,7 +170,7 @@ namespace Ship_Game.Ships
             {
                 var distance = Owner.Position.Distance(ship.Position);
                 distance = (int)distance * 10 / sensorRange;
-                var supplyStatus = ship.Supply.ShipStatusWithPendingResupply(SupplyType.Rearm);
+                var supplyStatus = ship.Supply.ShipStatusWithPendingRearm();
                 return (int)supplyStatus * distance + (ship.Fleet == Owner.Fleet ? 0 : 10);
             });
 
