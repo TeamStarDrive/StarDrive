@@ -330,12 +330,6 @@ namespace Ship_Game.AI
             {
                 case ResupplyReason.LowOrdnanceCombat:
                 case ResupplyReason.LowOrdnanceNonCombat:
-                    if (Owner.IsPlatformOrStation) // Mostly for Orbitals in Deep Space
-                    {
-                        RequestResupplyFromPlanet();
-                        return;
-                    }
-
                     Ship supplyShip = NearBySupplyShip;
                     if (supplyShip != null && State != AIState.ResupplyEscort)
                     {
@@ -345,8 +339,8 @@ namespace Ship_Game.AI
 
                     nearestRallyPoint = Owner.Loyalty.FindNearestSafeRallyPoint(Owner.Position);
                     break;
-                case ResupplyReason.RequestResupplyFromPlanet:
-                    RequestResupplyFromPlanet();
+                case ResupplyReason.RequestResupplyForOrbital:
+                    RequestResupplyFromPlanetForOrbital();
                     return;
                 case ResupplyReason.NoCommand:
                 case ResupplyReason.LowHealth:
@@ -427,11 +421,11 @@ namespace Ship_Game.AI
                     OrderMoveTo(Owner.Fleet.GetFinalPos(Owner), Owner.Fleet.FinalDirection, State);
 
                 Owner.Loyalty.AddShipToManagedPools(Owner);
-                Owner.Supply.ResetIncomingSupply(supplyType);
+                Owner.Supply.ResetIncomingOrdnance(supplyType);
             }
         }
 
-        void RequestResupplyFromPlanet()
+        void RequestResupplyFromPlanetForOrbital()
         {
             if (Owner.GetTether()?.Owner == Owner.Loyalty)
                 return;
