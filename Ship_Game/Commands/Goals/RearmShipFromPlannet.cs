@@ -58,6 +58,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             }
 
             SupplyShip.AI.AddSupplyShipGoal(TargetShip, ShipAI.Plan.RearmShipFromPlanet);
+            TargetShip.Supply.ChangeIncomingOrdnance(SupplyShip.Ordinance);
             return GoalStep.GoToNextStep;
         }
 
@@ -83,6 +84,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             if (SupplyShip.Position.InRadius(TargetShip.Position, TargetShip.Radius + 500f))
             {
+                TargetShip.Supply.ChangeIncomingOrdnance(-SupplyShip.Ordinance);
                 float leftOverOrdnance  = TargetShip.ChangeOrdnance(FinishedShip.Ordinance);
                 float ordnanceDelivered = SupplyShip.Ordinance - leftOverOrdnance;
                 SupplyShip.ChangeOrdnance(-ordnanceDelivered);
@@ -122,6 +124,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         void ScuttleShip()
         {
+            TargetShip?.Supply.ChangeIncomingOrdnance(-SupplyShip.Ordinance);
             SupplyShip.ScuttleTimer = 1;
             SupplyShip.AI.ClearOrders(AIState.Scuttle, priority: true);
             SupplyShip.QueueTotalRemoval();
@@ -132,7 +135,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         bool TargetValid   => TargetShip != null
                               && (TargetShip.Loyalty == empire || TargetShip.Loyalty.IsAlliedWith(empire))
                               && TargetShip.IsSuitableForPlanetaryRearm()
-                              && TargetShip.System == PlanetBuildingAt.ParentSystem;
+                              && (TargetShip.System == PlanetBuildingAt.ParentSystem || TargetShip.IsPlatformOrStation);
+
+
 
         Ship SupplyShip
         {
@@ -142,6 +147,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         bool DivertSupplyShip()
         {
+            TargetShip?.Supply.ChangeIncomingOrdnance(-SupplyShip.Ordinance);
             if (SupplyShip.OrdnancePercent > 0.05f && PlanetBuildingAt.TryGetShipsNeedRearm(out Ship[] shipList, empire))
             {
                 // Divert supply

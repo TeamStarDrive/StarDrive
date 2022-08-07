@@ -15,20 +15,20 @@ namespace Ship_Game.Ships
         private const int OrdnanceProductionThresholdPriority  = 400;
         private const int OrdnanceProductionThresholdNonCombat = 150;
         private const int OrdnanceProductionThresholdCombat    = 75;
-        public const Status ResupplyShuttleOrdnanceThreshold   = Status.Poor;
+        public const float ResupplyShuttleOrdnanceThreshold    = 0.4f;
 
         public const float ShipDestroyThreshold = GlobalStats.ShipDestroyThreshold;
         public const float RepairDroneThreshold = 0.9f;
         public const float RepairDoneThreshold  = 0.99f;
         public const float RepairDroneRange     = 20000f;
-        public float IncomingSupply;
+        public float IncomingOrdnance;
         private bool InCombat;
 
         public ShipResupply(Ship ship)
         {
-            Ship           = ship;
-            InCombat       = false;
-            IncomingSupply = 0;
+            Ship     = ship;
+            InCombat = false;
+            IncomingOrdnance = 0;
         }
 
         public static float DamageThreshold(ShipCategory category)
@@ -71,7 +71,13 @@ namespace Ship_Game.Ships
                 return ResupplyReason.LowHealth;
 
             if (ResupplyNeededLowOrdnance())
-                return InCombat ? ResupplyReason.LowOrdnanceCombat : ResupplyReason.LowOrdnanceNonCombat;
+            {
+                if (InCombat)
+                    return ResupplyReason.LowOrdnanceCombat;
+
+                return Ship.IsPlatformOrStation ? ResupplyReason.RequestResupplyForOrbital 
+                                                : ResupplyReason.LowOrdnanceNonCombat;
+            }
 
             if (ResupplyNeededLowTroops())
                 return ResupplyReason.LowTroops;
@@ -227,14 +233,14 @@ namespace Ship_Game.Ships
 
         bool PlayerKamikaze => Ship.ShipData.ShipCategory == ShipCategory.Kamikaze && Ship.Loyalty.isPlayer;
 
-        public void ChangeIncomingSupply(float amount)
+        public void ChangeIncomingOrdnance(float amount)
         {
-            IncomingSupply = (IncomingSupply + amount).LowerBound(0);
+            IncomingOrdnance = (IncomingOrdnance + amount).LowerBound(0);
         }
 
-        public void ResetIncomingSupply(SupplyType supplyType)
+        public void ResetIncomingOrdnance(SupplyType supplyType)
         {
-            IncomingSupply = 0;
+            IncomingOrdnance = 0;
         }
 
         public bool AcceptExternalSupply(SupplyType supplyType)
@@ -246,8 +252,7 @@ namespace Ship_Game.Ships
                 case SupplyType.Rearm:
                     if (Ship.ShipData.IsSupplyCarrier)
                         return false;
-                    Status status = ShipStatusWithPendingResupply(supplyType);
-                    return status < (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : Status.Maximum);
+                    return OrdnancePercentageWithIncoming < (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : 1f);
                         
                 case SupplyType.Repair:
                     break;
@@ -257,12 +262,16 @@ namespace Ship_Game.Ships
             return false;
         }
 
-        public Status ShipStatusWithPendingResupply(SupplyType supplyType)
+        public Status ShipStatusWithPendingRearm()
         {
-            float amount = IncomingSupply;
-            // for easier debugging keeping this as two statements
-            return Ship.OrdnanceStatusWithIncoming(amount);
+            return Ship.OrdnanceStatusWithIncoming(IncomingOrdnance);
         }
+
+        public float MissingOrdnanceWithIncoming => (Ship.OrdinanceMax - Ship.Ordinance + IncomingOrdnance).LowerBound(0);
+
+        public float OrdnancePercentageWithIncoming => Ship.OrdinanceMax == 0
+            ? 1 : ((Ship.Ordinance + IncomingOrdnance) / Ship.OrdinanceMax).UpperBound(1f);
+
     }
     public enum ResupplyReason
     {
@@ -273,7 +282,7 @@ namespace Ship_Game.Ships
         LowTroops,
         FighterReactorsDamaged,
         NoCommand,
-        RequestResupplyFromPlanet
+        RequestResupplyForOrbital
     }
 
     public enum SupplyType
