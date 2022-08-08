@@ -9,7 +9,7 @@
   <PlusTerraformPoints>0.0007</PlusTerraformPoints>
   <PlusFlatPopulation>10</PlusFlatPopulation>
   <Scrappable>false</Scrappable>
-  <CanBuildAnywhere>false</CanBuildAnywhere>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>18175</NameTranslationIndex>
