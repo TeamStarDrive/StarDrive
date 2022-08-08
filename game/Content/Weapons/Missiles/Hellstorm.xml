@@ -27,7 +27,7 @@
 
 <!-- Projectile stats -->
   <DamageAmount>280</DamageAmount>
-  <ProjectileSpeed>1200</ProjectileSpeed>
+  <ProjectileSpeed>1100</ProjectileSpeed>
   <ExplosionRadius>80</ExplosionRadius> <!-- This Projectile Explodes -->
   <SalvoCount>15</SalvoCount>
   <SalvoTimer>1.5</SalvoTimer>
