@@ -36,7 +36,7 @@
   <ModelPath>missile</ModelPath>
 
   <FireCone>10</FireCone>
-
+  <Scale>0.8</Scale>
   <CanCollideProjectiles>true</CanCollideProjectiles>
   
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->

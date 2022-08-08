@@ -27,8 +27,8 @@
   <FireCueName></FireCueName>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
-  <DamageAmount>300</DamageAmount>
-  <ProjectileSpeed>1100</ProjectileSpeed>
+  <DamageAmount>350</DamageAmount>
+  <ProjectileSpeed>1200</ProjectileSpeed>
   <ShieldPenChance>100</ShieldPenChance>
 
  <!-- This Projectile Explodes -->

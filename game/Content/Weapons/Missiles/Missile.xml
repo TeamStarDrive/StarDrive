@@ -45,7 +45,7 @@
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
 
-  <Scale>1.2</Scale>
+  <Scale>1</Scale>
   
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Missile</WeaponType>
