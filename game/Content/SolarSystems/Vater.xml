@@ -25,26 +25,15 @@
     </Ring>
     <Ring>
       <Planet>Vater V</Planet>
-      <WhichPlanet>10</WhichPlanet>
-    </Ring>
-    <Ring>
-      <Planet>Vater VI</Planet>
-      <WhichPlanet>11</WhichPlanet>
-    </Ring>
-    <Ring>
-      <Planet>Vater VII</Planet>
       <WhichPlanet>12</WhichPlanet>
     </Ring>
     <Ring>
-      <Planet>Vater VIII</Planet>
+      <Planet>Vater VI</Planet>
+      <WhichPlanet>32</WhichPlanet>
+    </Ring>
+    <Ring>
+      <Planet>Vater VII</Planet>
       <WhichPlanet>24</WhichPlanet>
-      <HasRings>Yes</HasRings>
-    </Ring>
-    <Ring>
-      <Asteroids>Yes</Asteroids>
-    </Ring>
-    <Ring>
-      <Asteroids>Yes</Asteroids>
     </Ring>
   </RingList>
 </SolarSystemData>
