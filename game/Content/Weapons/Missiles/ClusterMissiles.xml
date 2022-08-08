@@ -17,22 +17,22 @@
  
   <HitPoints>10</HitPoints>
   <FireDelay>30</FireDelay>
-  <Range>7000</Range>
+  <Range>9000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>1</OrdinanceRequiredToFire>
 
 <!-- Projectile stats -->
   <DamageAmount>500</DamageAmount>
-  <ProjectileSpeed>1100</ProjectileSpeed>
+  <ProjectileSpeed>1200</ProjectileSpeed>
   <ExplosionRadius>80</ExplosionRadius> <!-- This Projectile Explodes -->
-  <SalvoCount>3</SalvoCount>
+  <SalvoCount>4</SalvoCount>
   <SalvoTimer>0.4</SalvoTimer>
   
   <RotationRadsPerSecond>2</RotationRadsPerSecond>
   <FireCone>30</FireCone>
 <!--Projectile atributes-->
   <Scale>1</Scale>
-  <OffPowerMod>0.03</OffPowerMod>
+  <OffPowerMod>0.35</OffPowerMod>
   <CanCollideProjectiles>true</CanCollideProjectiles>
 
   <MirvWeapon>ClusterMirv</MirvWeapon>
