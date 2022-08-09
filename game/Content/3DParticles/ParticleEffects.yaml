@@ -89,8 +89,8 @@
   Name: RocketTrail
   Emitters:
     - Emitter: { Particle: MissileThrustFlare, Rate: 20, InheritSprayVelocity: 0 }
-    - Emitter: { Particle: FireTrail, Rate: 100, InheritSprayVelocity: 1.5 }
-    - Emitter: { Particle: MissileSmokeTrail, Rate: 50 }
+    - Emitter: { Particle: FireTrail, Rate: 120, InheritSprayVelocity: 1.5 }
+    - Emitter: { Particle: MissileSmokeTrail, Rate: 60 }
       LocalOffset: [0.0, 20.0, 0.0]
 
 - ParticleEffect: # Projectile Trail effect

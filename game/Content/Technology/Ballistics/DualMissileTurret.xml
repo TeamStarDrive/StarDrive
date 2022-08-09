@@ -3,7 +3,7 @@
   <Version>2</Version>
   <UID>DualMissileTurret</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>1500</Cost>
+  <Cost>2000</Cost>
   <RootNode>0</RootNode>
   <NameIndex>17504</NameIndex>
   <DescriptionIndex>17505</DescriptionIndex>

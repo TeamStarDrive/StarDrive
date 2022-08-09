@@ -277,5 +277,22 @@ namespace Ship_Game
                                          && s.Sun.RadiationRadius.Greater(0));
             return systems.Length > 0;
         }
+
+        public static bool DesignInQueue(ShipDesignScreen screen, string shipOrHullName, out string playerPlanets)
+        {
+            bool designInQueue = false;
+            playerPlanets = "";
+            foreach (Planet planet in screen.ParentUniverse.UState.Planets)
+            {
+                if (planet.Construction.ContainsShipDesignName(shipOrHullName))
+                {
+                    designInQueue = true;
+                    if (planet.Owner?.isPlayer == true)
+                        playerPlanets = playerPlanets.IsEmpty() ? planet.Name : $"{playerPlanets}, {planet.Name}";
+                }
+            }
+
+            return designInQueue;
+        }
     }
 }

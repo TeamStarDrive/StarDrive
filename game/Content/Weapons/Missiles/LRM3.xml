@@ -30,7 +30,7 @@
   <DelayedIgnition>2</DelayedIgnition>
 <!-- Projectile stats -->
   <DamageAmount>4800</DamageAmount>
-  <ProjectileSpeed>1000</ProjectileSpeed>
+  <ProjectileSpeed>1300</ProjectileSpeed>
   <ExplosionRadius>64</ExplosionRadius> <!-- This Projectile Explodes -->
   <SalvoCount>4</SalvoCount>
   <SalvoTimer>1.5</SalvoTimer>
