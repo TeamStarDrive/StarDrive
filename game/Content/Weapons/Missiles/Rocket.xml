@@ -29,7 +29,7 @@
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   <!-- Projectile Information -->
   <DamageAmount>320</DamageAmount>
-  <ProjectileSpeed>600</ProjectileSpeed>
+  <ProjectileSpeed>1000</ProjectileSpeed>
   <ExplosionRadius>16</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
