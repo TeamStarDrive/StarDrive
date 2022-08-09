@@ -241,11 +241,10 @@ namespace Ship_Game
                     ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} currently exist the universe." +
                                                                        " You cannot overwrite a design with this name.",
                                                                        MessageBoxButtons.Ok));
-
                     return;
                 }
 
-                if (DesignInQueue(shipOrHullName, out string playerPlanets))
+                if (HelperFunctions.DesignInQueue(Screen, shipOrHullName, out string playerPlanets))
                 {
                     GameAudio.NegativeClick();
                     if (playerPlanets.NotEmpty())
@@ -284,24 +283,6 @@ namespace Ship_Game
                 OverWriteAccepted(shipOrHullName, null);
             }
         }
-
-        bool DesignInQueue(string shipOrHullName, out string playerPlanets)
-        {
-            bool designInQueue = false;
-            playerPlanets = "";
-            foreach (Planet planet in Screen.ParentUniverse.UState.Planets)
-            {
-                if (planet.Construction.ContainsShipDesignName(shipOrHullName))
-                {
-                    designInQueue = true;
-                    if (planet.Owner?.isPlayer == true)
-                        playerPlanets = playerPlanets.IsEmpty() ? planet.Name : $"{playerPlanets}, {planet.Name}";
-                }
-            }
-
-            return designInQueue;
-        }
-
 
         public override bool HandleInput(InputState input)
         {

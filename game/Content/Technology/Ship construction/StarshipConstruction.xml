@@ -24,6 +24,9 @@
   </LeadsTo>
   <ModulesUnlocked>
     <UnlockedMod>
+      <ModuleUID>ShipyardRepairDrone</ModuleUID>
+    </UnlockedMod>
+    <UnlockedMod>
       <ModuleUID>Sensor1x2</ModuleUID>
     </UnlockedMod>
     <UnlockedMod>

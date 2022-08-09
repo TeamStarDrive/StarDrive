@@ -34,7 +34,7 @@
   <!-- for Weapons -->
   <WeaponType>ClusterMissiles</WeaponType>
   <OrdinanceCapacity>20</OrdinanceCapacity>
-  <FieldOfFire>45</FieldOfFire>
+  <FieldOfFire>90</FieldOfFire>
 
   
   

@@ -20,8 +20,9 @@
       <BonusIndex>2013</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>
-  <BuildingsUnlocked />
-  <BonusUnlocked />
-  <TroopsUnlocked />
-  <HullsUnlocked />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>CombatEngine_2x1</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
 </Technology>

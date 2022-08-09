@@ -3,7 +3,7 @@
   <Version>2</Version>
   <UID>Fusion Beam</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>420</Cost>
+  <Cost>460</Cost>
   <RootNode>0</RootNode>
   <NameIndex>576</NameIndex>
   <DescriptionIndex>577</DescriptionIndex>
