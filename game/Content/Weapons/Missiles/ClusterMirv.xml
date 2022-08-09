@@ -27,13 +27,13 @@
   <FireCueName></FireCueName>
   <DieCue>sd_weapon_flakcannon_explode_01</DieCue>
   <!-- Projectile Information -->
-  <DamageAmount>350</DamageAmount>
+  <DamageAmount>300</DamageAmount>
   <ProjectileSpeed>1200</ProjectileSpeed>
   <ShieldPenChance>100</ShieldPenChance>
 
  <!-- This Projectile Explodes -->
   <Scale>1</Scale>
-  <FireCone>50</FireCone>
+  <FireCone>30</FireCone>
   <ProjectileCount>45</ProjectileCount>
   <ProjectileTexturePath>projBall_01_red</ProjectileTexturePath>
   <ModelPath>projBall</ModelPath>
