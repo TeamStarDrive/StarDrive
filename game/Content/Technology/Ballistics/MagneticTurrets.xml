@@ -3,7 +3,7 @@
   <Version>2</Version>
   <UID>MagneticTurrets</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>700</Cost>
+  <Cost>1000</Cost>
   <RootNode>0</RootNode>
   <NameIndex>17478</NameIndex>
   <DescriptionIndex>17479</DescriptionIndex>

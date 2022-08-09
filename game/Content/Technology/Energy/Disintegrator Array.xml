@@ -3,7 +3,7 @@
   <Version>2</Version>
   <UID>Disintegrator Array</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>5000</Cost>
+  <Cost>6000</Cost>
   <RootNode>0</RootNode>
   <NameIndex>543</NameIndex>
   <DescriptionIndex>544</DescriptionIndex>
