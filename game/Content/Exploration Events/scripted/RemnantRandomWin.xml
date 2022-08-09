@@ -5,7 +5,7 @@
   <PotentialOutcomes>
     <Outcome>
       <Chance>100</Chance>
-      <Image>Encounters/2.png</Image>	  
+      <Image>Encounters/remn.png</Image>	  
       <TitleText>Remnant Software Bugs</TitleText>
       <DescriptionText>We know the remnants sentinel software has malfunctioned. We are the only race left in this sector. In order to be safe, we will need to remove their portals. Good Luck!</DescriptionText>
     </Outcome>

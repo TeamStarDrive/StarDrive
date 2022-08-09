@@ -29,14 +29,14 @@
   <InFlightCue>sd_weapon_rocket_flight_01</InFlightCue>
   <!-- Projectile Information -->
   <DamageAmount>320</DamageAmount>
-  <ProjectileSpeed>600</ProjectileSpeed>
+  <ProjectileSpeed>1000</ProjectileSpeed>
   <ExplosionRadius>16</ExplosionRadius> <!-- This Projectile Explodes -->
   
   <ProjectileTexturePath>missile_d</ProjectileTexturePath>
   <ModelPath>missile</ModelPath>
 
   <FireCone>10</FireCone>
-
+  <Scale>0.8</Scale>
   <CanCollideProjectiles>true</CanCollideProjectiles>
   
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->

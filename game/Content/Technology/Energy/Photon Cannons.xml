@@ -3,7 +3,7 @@
   <Version>2</Version>
   <UID>Photon Cannons</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>850</Cost>
+  <Cost>1200</Cost>
   <RootNode>0</RootNode>
   <NameIndex>625</NameIndex>
   <DescriptionIndex>626</DescriptionIndex>
