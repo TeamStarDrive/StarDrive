@@ -456,7 +456,7 @@ Types:
     BaseFertility: [-0.25, 0.25]
     MinBaseFertility: 0.1
     Scale: 1.5
-    MoonTypes: [Barren,Desert,Volcanic
+    MoonTypes: [Barren,Desert,Volcanic]
   
   #################################################################
   # Tundra
