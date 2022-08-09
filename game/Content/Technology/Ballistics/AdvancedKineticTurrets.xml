@@ -3,7 +3,7 @@
   <Version>2</Version>
   <UID>AdvancedKineticTurrets</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
-  <Cost>360</Cost>
+  <Cost>400</Cost>
   <RootNode>0</RootNode>
   <NameIndex>17476</NameIndex>
   <DescriptionIndex>17477</DescriptionIndex>
