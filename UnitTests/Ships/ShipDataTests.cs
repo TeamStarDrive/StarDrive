@@ -167,7 +167,7 @@ namespace UnitTests.Ships
             Assert.AreEqual("ShipIcons/icon_LightCruiser", design.IconPath);
             Assert.AreEqual(RoleName.prototype, design.Role);
             Assert.AreEqual(true, design.Unlockable);
-            Assert.AreEqual(132, design.GetOrLoadDesignSlots().Length);
+            Assert.AreEqual(135, design.GetOrLoadDesignSlots().Length);
             Assert.AreEqual(310, design.GridInfo.SurfaceArea);
         }
 
