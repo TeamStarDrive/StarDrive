@@ -70,29 +70,29 @@ namespace Ship_Game.GameScreens.ShipDesign
             
             void PromptDeleteShip(string shipId)
             {
-                if (Screen.Screen.ParentUniverse.UState.Ships.Any(s => s.Name == Ship.Name))
+                if (Screen.Screen.ParentUniverse.UState.Ships.Any(s => s.Name == shipId))
                 {
                     GameAudio.NegativeClick();
-                    Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen.Screen, $"{Ship.Name} currently exist the universe." +
+                    Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen.Screen, $"{shipId} currently exist the universe." +
                                                                        " You cannot delete a design with this name.",
                                                                        MessageBoxButtons.Ok));
                     return;
                 }
 
-                if (HelperFunctions.DesignInQueue(Screen.Screen, Ship.Name, out string playerPlanets))
+                if (HelperFunctions.DesignInQueue(Screen.Screen, shipId, out string playerPlanets))
                 {
                     GameAudio.NegativeClick();
                     if (playerPlanets.NotEmpty())
                     {
                         Screen.ScreenManager.AddScreen(new MessageBoxScreen
-                            (Screen, $"{Ship.Name} currently exist the your planets' build queue." +
+                            (Screen, $"{shipId} currently exist the your planets' build queue." +
                                      $" You cannot delete this design name.\n Related planets: {playerPlanets}.",
                                      MessageBoxButtons.Ok));
                     }
                     else
                     {
                         Screen.ScreenManager.AddScreen(new MessageBoxScreen
-                            (Screen, $"{Ship.Name} currently exist the universe (maybe by another empire). " +
+                            (Screen, $"{shipId} currently exist the universe (maybe by another empire). " +
                                     "You cannot delete this design name.", MessageBoxButtons.Ok));
                     }
 
