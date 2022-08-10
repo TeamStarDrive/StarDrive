@@ -1,4 +1,4 @@
-﻿Version=1
+Version=1
 Name=Draug-Slaver
 Hull=Vulfen/Type VII
 Role=troopShip
@@ -13,7 +13,7 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=PlaSteelArmorMed;TractorBeam2x3;PlaSteelArmorSmall;PowerSolar;PirateAssaultBay;NuclearReactorMed;Fighter Shield;MarineBarracks2x2;Pirate Inhibitor;Bridge;LaserCannon;NuclearReactorSmall;Shield_1KW;SiphonBeamTurret2x2;TractorBeamTurret2x2;OrdnanceLockerSmall;FrigateEngine;RemnantEngine1;WarpEngine_2x2
+ModuleUIDs=PlaSteelArmorMed;TractorBeam2x3;PlaSteelArmorSmall;PowerSolar;PirateAssaultBay;NuclearReactorMed;Fighter Shield;MarineBarracks2x2;Pirate Inhibitor;Bridge;LaserCannon;NuclearReactorSmall;Shield_1KW;SiphonBeamTurret2x2;TractorBeamTurret2x2;OrdnanceLockerSmall;RemnantEngine2;RemnantEngine1;WarpEngine_2x2
 Modules=61
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 4,0;0;2,2
