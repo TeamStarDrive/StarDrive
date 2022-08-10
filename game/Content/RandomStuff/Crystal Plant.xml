@@ -9,22 +9,22 @@
   <OceanicChance>0</OceanicChance>
   <OceanicInstanceMax>1</OceanicInstanceMax>
 
-  <DesertChance>6</DesertChance>
+  <DesertChance>3</DesertChance>
   <DesertInstanceMax>1</DesertInstanceMax>
 
   <SwampChance>0</SwampChance>
   <SwampInstanceMax>1</SwampInstanceMax>
 
-  <TundraChance>3</TundraChance>
+  <TundraChance>1</TundraChance>
   <TundraInstanceMax>1</TundraInstanceMax>
 
   <IceChance>0</IceChance>
   <IceInstanceMax>1</IceInstanceMax>
 
-  <SteppeChance>3</SteppeChance>
+  <SteppeChance>2</SteppeChance>
   <SteppeInstanceMax>1</SteppeInstanceMax>
 
-  <BarrenChance>6</BarrenChance>
+  <BarrenChance>4</BarrenChance>
   <BarrenInstanceMax>1</BarrenInstanceMax>
 
   <VolcanicChance>0</VolcanicChance>
