@@ -1,7 +1,7 @@
 Version=1
 Name=Support Drone
 Hull=Remnant/XenoGunship
-Role=corvette
+Role=support
 Style=Remnant
 Size=8,8
 GridCenter=4,4
@@ -13,29 +13,29 @@ IsShipyard=false
 IsOrbitalDefense=false
 IsCarrierOnly=false
 # Maps module UIDs to Index, first UID has index 0
-ModuleUIDs=RepairDrone;SteelArmorSmall;Fighter Shield;SteelArmorMed;RemnantDrisruptor_2x2;OrdnanceLockerSmall;Cockpit;AncientReactorMed;AncientShield2kw;RemnantEngine1;RemnantEngine2
+ModuleUIDs=RepairDrone;AncientArmor_1x1;RemnantDrisruptor_2x2;AncientReactorMed;Cockpit;OrdnanceLockerSmall;AncientShield2kw;RemnantEngine1;RemnantEngine2
 Modules=23
 # gridX,gridY;moduleUIDIndex;sizeX,sizeY;turretAngle;moduleRot;hangarShipUID
 3,0;0;2,2
 1,1;1
 2,1;1
-5,1;2
+5,1;1
 6,1;1
-0,2;3;2,2
-2,2;4;2,2;270
-4,2;5
-5,2;6
+0,2;1
+1,2;2;2,2;270
+3,2;3;2,2
+5,2;4
 6,2;0;2,2
-4,3;7;2,2
+0,3;1
+5,3;5
 1,4;1
-2,4;8;2,2
+2,4;0;2,2
+4,4;6;2,2
 6,4;1
-4,5;2
-5,5;2
 1,6;1
-2,6;9
-3,6;9
-4,6;10;2,2
+2,6;7
+3,6;7
+4,6;8;2,2
 6,6;1
-2,7;9
-3,7;9
+2,7;7
+3,7;7
