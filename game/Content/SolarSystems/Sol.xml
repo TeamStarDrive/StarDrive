@@ -65,11 +65,17 @@
     <Ring>
       <Planet>Pluto</Planet>
       <SpecialDescription>Composed primarily of rock and ice Pluto is relatively small, considered a dwarf planet.  Pluto was named after the god of the underworld appropriately, for it is a dark and cold world barely of any use to colonists.  </SpecialDescription>
-      <WhichPlanet>33</WhichPlanet>
+      <WhichPlanet>32</WhichPlanet>
 	  <planetScale>0.8</planetScale>
     </Ring>
     <Ring>
       <Asteroids>Yes</Asteroids>
+    </Ring>
+        <Ring>
+      <Planet>Planet 9</Planet>
+      <SpecialDescription>Long searched planet that had extreme elliptical orbit around Sol for milions od years, after recent passage of different star changed its orbit.</SpecialDescription>
+      <WhichPlanet>17</WhichPlanet>
+	  <planetScale>1.2</planetScale>
     </Ring>
   </RingList>
 </SolarSystemData>
