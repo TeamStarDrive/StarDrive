@@ -2,7 +2,7 @@
 <Weapon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <UID>RepairBeam</UID>
   <IsBeam>true</IsBeam>
-  <FireDelay>2.5</FireDelay>
+  <FireDelay>2</FireDelay>
   <Range>2000</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
