@@ -107,7 +107,7 @@ namespace Ship_Game
                 render.AddSubItem(new DebugStatItem("Planets", DrawPlanetsPerf, RenderGroupTotalPerf));
                 render.AddSubItem(new DebugStatItem("Shields", DrawShieldsPerf, RenderGroupTotalPerf));
                 render.AddSubItem(new DebugStatItem("Particles", DrawParticles, RenderGroupTotalPerf));
-                render.AddSubItem(new DebugStatItem("Explosions", DrawShieldsPerf, RenderGroupTotalPerf));
+                render.AddSubItem(new DebugStatItem("Explosions", DrawExplosionsPerf, RenderGroupTotalPerf));
                 render.AddSubItem(new DebugStatItem("Sunburn.End", EndSunburnPerf, RenderGroupTotalPerf));
 
                 var overlays = DebugStats.AddItem(new DebugStatItem("Overlays", OverlaysGroupTotalPerf, true));

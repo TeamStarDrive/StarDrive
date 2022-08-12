@@ -120,7 +120,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
 
-        public virtual void Damage(GameObject source, float damageAmount)
+        public virtual void Damage(GameObject source, float damageAmount, float beamModifier = 1f)
         {
         }
 
