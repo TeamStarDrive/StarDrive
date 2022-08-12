@@ -222,11 +222,13 @@ namespace Ship_Game
             Vertices[3].Position = new Vector3(src + (right * Thickness), BeamZ); // topright
         }
 
-        public bool Touch(GameObject target)
+        public bool Touch(FixedSimTime timeStep,GameObject target)
         {
             if (target == null || target == Owner || target is Ship)
                 return false;
 
+            // FB - maintain beam damage at different game speeds
+            float damageModifier = timeStep.FixedTime * 60;
             if (target is Projectile projectile)
             {
                 if (!Weapon.Tag_PD && !Weapon.TruePD)
@@ -238,7 +240,7 @@ namespace Ship_Game
                 if (projectile.Loyalty?.data.MissileDodgeChance > UniverseRandom.Float(0f, 1f))
                     return false;
 
-                projectile.DamageMissile(this, DamageAmount);
+                projectile.DamageMissile(this, DamageAmount * damageModifier);
                 return true;
             }
 
@@ -246,7 +248,7 @@ namespace Ship_Game
             if (DamageAmount < 0f && targetModule?.ShieldsAreActive == true) // @todo Repair beam??
                 return false;
 
-            targetModule?.Damage(this, DamageAmount);
+            targetModule?.Damage(this, DamageAmount * damageModifier, damageModifier);
             return true;
         }
 
