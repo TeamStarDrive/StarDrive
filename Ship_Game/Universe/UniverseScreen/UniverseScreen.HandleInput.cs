@@ -564,12 +564,14 @@ namespace Ship_Game
         {
             Ship[] ships = UState.Objects.VisibleShips;
             var clickable = new Array<ClickableShip>();
+            var visibleShields = new BatchRemovalCollection<Shield>();
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
                 if (!ship.IsVisibleToPlayerInMap || ship.IsSubspaceProjector)
                     continue;
 
+                visibleShields.AddRange(ship.GetShields().Select(s => s?.Shield).ToArray());
                 ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
                 clickable.Add(new ClickableShip
                 {
@@ -579,6 +581,7 @@ namespace Ship_Game
                 });
             }
 
+            ShieldManager.SetVisibleShields(visibleShields);
             ClickableShips = clickable.ToArray();
         }
 
