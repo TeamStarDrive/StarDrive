@@ -500,13 +500,13 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void CauseRepulsionDamage(Beam beam)
+        public void CauseRepulsionDamage(Beam beam, float beamModifier)
         {
             if (IsTethered || EnginesKnockedOut)
                 return;
             if (beam.Owner == null || beam.Weapon == null)
                 return;
-            Vector2 repulsion = (Position - beam.Owner.Position) * beam.Weapon.RepulsionDamage;
+            Vector2 repulsion = (Position - beam.Owner.Position) * beam.Weapon.RepulsionDamage * beamModifier;
             ApplyForce(repulsion);
         }
 

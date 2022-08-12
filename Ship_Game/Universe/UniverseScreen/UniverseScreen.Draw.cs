@@ -1145,7 +1145,7 @@ namespace Ship_Game
         private void DrawShields()
         {
             DrawShieldsPerf.Start();
-            if (viewState < UnivScreenState.SectorView)
+            if (viewState < UnivScreenState.SystemView)
             {
                 RenderStates.BasicBlendMode(Device, additive:true, depthWrite:false);
                 ShieldManager.Draw(this, View, Projection);

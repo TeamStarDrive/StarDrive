@@ -105,7 +105,7 @@ namespace Ship_Game.Spatial
                         for (int hitIndex = 0; hitIndex < beamHits.Count; ++hitIndex)
                         {
                             BeamHitResult hit = beamHits[hitIndex];
-                            if (HandleBeamCollision(beam, hit.Collided, hit.Distance))
+                            if (HandleBeamCollision(timeStep, beam, hit.Collided, hit.Distance))
                             {
                                 ++numCollisions;
                                 break; // and we're done
@@ -131,9 +131,9 @@ namespace Ship_Game.Spatial
             return numCollisions;
         }
 
-        static bool HandleBeamCollision(Beam beam, GameObject victim, float hitDistance)
+        static bool HandleBeamCollision(FixedSimTime timeStep, Beam beam, GameObject victim, float hitDistance)
         {
-            if (!beam.Touch(victim))
+            if (!beam.Touch(timeStep, victim))
                 return false;
 
             Vector2 beamStart = beam.Source;
