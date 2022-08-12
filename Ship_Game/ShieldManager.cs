@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
+using SDUtils;
 using Ship_Game.Data;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
@@ -16,6 +18,8 @@ namespace Ship_Game
         static Texture2D ShieldTexture;
         static Texture2D GradientTexture;
         static Effect    ShieldEffect;
+
+        public static BatchRemovalCollection<Shield> VisibleShields = new BatchRemovalCollection<Shield>();
 
         public static void LoadContent(GameContentManager content)
         {
@@ -38,11 +42,11 @@ namespace Ship_Game
 
         public static void Draw(UniverseScreen u, in Matrix view, in Matrix projection)
         {
-            using (ShieldList.AcquireReadLock())
+            using (VisibleShields.AcquireReadLock())
             {
-                for (int i = 0; i < ShieldList.Count; i++)
+                for (int i = 0; i < VisibleShields.Count; i++)
                 {
-                    Shield shield = ShieldList[i];
+                    Shield shield = VisibleShields[i];
                     if (shield.TexScale > 0f && shield.InFrustum(u))
                         DrawShield(shield, view, projection);
                 }
@@ -94,7 +98,7 @@ namespace Ship_Game
         public static Shield AddShield(GameObject owner, float rotation, Vector2 center)
         {            
             var shield = new Shield(owner, rotation, center);
-            ShieldList.Add(shield);
+            //ShieldList.Add(shield);
             return shield;
         }
 
@@ -120,11 +124,16 @@ namespace Ship_Game
                 }
             }
 
-            using (ShieldList.AcquireReadLock())
+            using (VisibleShields.AcquireReadLock())
             {
-                for (int i = 0; i < ShieldList.Count; i++)
+                for (int i = 0; i < VisibleShields.Count; i++)
                 {
-                    Shield shield = ShieldList[i];
+                    Shield shield = VisibleShields[i];
+                    if (shield.Owner != null && !shield.Owner.Active)
+                    {
+                        shield.RemoveLight(u);
+                    }
+
                     if (shield.TexScale > 0f)
                     {
                         shield.UpdateLightIntensity(2.45f);
@@ -133,7 +142,7 @@ namespace Ship_Game
                     }
                 }
             }
-
+            /*
             using (ShieldList.AcquireWriteLock())
             {
                 for (int i = ShieldList.Count - 1; i >= 0; --i)
@@ -145,7 +154,12 @@ namespace Ship_Game
                         shield.RemoveLight(u);
                     }
                 }
-            }
+            }*/
+        }
+
+        public static void SetVisibleShields(BatchRemovalCollection<Shield> visibleShields)
+        {
+            VisibleShields = visibleShields;
         }
     }
 }
