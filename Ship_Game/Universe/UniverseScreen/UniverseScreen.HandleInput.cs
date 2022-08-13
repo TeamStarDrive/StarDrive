@@ -263,7 +263,7 @@ namespace Ship_Game
             HandleEdgeDetection(input);
 
             UpdateClickableShips();
-            UpdateClickableSystemsAndPlanets();
+            UpdateClickableSystemsPlanetsAndVisibleShields();
 
             if (HandleDragAORect(input))
                 return true;
@@ -568,10 +568,10 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
-                if (!ship.IsVisibleToPlayerInMap || ship.IsSubspaceProjector)
+                if (!ship.IsVisibleToPlayerInMap || ship.IsSubspaceProjector || !ship.Active)
                     continue;
 
-                visibleShields.AddRange(ship.GetShields().Select(s => s?.Shield).ToArray());
+                visibleShields.AddRange(ship.GetShields().Select(s => s.Shield).ToArray());
                 ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
                 clickable.Add(new ClickableShip
                 {
@@ -585,7 +585,7 @@ namespace Ship_Game
             ClickableShips = clickable.ToArray();
         }
 
-        void UpdateClickableSystemsAndPlanets()
+        void UpdateClickableSystemsPlanetsAndVisibleShields()
         {
             ClickableSystems = UState.GetVisibleSystems().Select(s =>
             {
@@ -601,7 +601,7 @@ namespace Ship_Game
             if (viewState <= UnivScreenState.SectorView)
             {
                 var planets = new Array<ClickablePlanet>();
-
+                var visibleShields = new BatchRemovalCollection<Shield>();
                 for (int index = 0; index < ClickableSystems.Length; index++)
                 {
                     SolarSystem sys = ClickableSystems[index].System;
@@ -621,11 +621,15 @@ namespace Ship_Game
                                     Radius = planetScreenRadius < 8.0 ? 8f : (float)planetScreenRadius,
                                     Planet = planet
                                 });
+
+                                if (planet.Shield != null)
+                                    visibleShields.Add(planet.Shield);
                             }
                         }
                     }
                 }
                 ClickablePlanets = planets.ToArray();
+                ShieldManager.SetVisiblePlanetShields(visibleShields);
             }
             else
             {

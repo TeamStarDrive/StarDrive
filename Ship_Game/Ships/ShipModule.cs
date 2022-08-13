@@ -432,7 +432,7 @@ namespace Ship_Game.Ships
 
             // don't initialize Shield instance for ShipTemplates
             if (!isTemplate && m.ShieldPowerMax > 0f)
-                m.Shield = ShieldManager.AddShield(m, m.Rotation, m.Position);
+                m.Shield = new Shield(m, m.Rotation, m.Position);
 
             return m;
         }
@@ -900,7 +900,8 @@ namespace Ship_Game.Ships
                 if      (beam != null)            beam.CreateBeamHitParticles(ZPos, damagingShields);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(Center3D, damagingShields);
 
-                CreateHitDebris(proj);
+                if (!damagingShields)
+                    CreateHitDebris(proj);
             }
 
             return true;
@@ -993,6 +994,8 @@ namespace Ship_Game.Ships
         {
             ++DebugInfoScreen.ModulesDied;
             ShieldPower = 0f;
+            ShieldPower = 0f;
+            Shield?.RemoveLight(Parent.Universe.Screen);
 
             if (Active && Parent.IsVisibleToPlayer)
             {
@@ -1038,13 +1041,16 @@ namespace Ship_Game.Ships
 
         void SpawnDebris(Vector2 velocity, int count, bool ignite)
         {
-            if (count == 0) 
-                count = RandomMath.Int(0, (int)(Area*0.5f + 1f));
+            float size = Radius.LowerBound(16);
+            if (count == 0)
+                count = RandomMath.Int(0, (int)(Area * 0.5f + 1f));
+            else
+                size *= 0.1f;
 
             if (count != 0)
             {
                 SpaceJunk.SpawnJunk(Parent.Universe, count, Position, velocity, this,
-                                    maxSize:Math.Max(Radius, 32), ignite:ignite);
+                                    maxSize: size, ignite:ignite);
             }
         }
 
