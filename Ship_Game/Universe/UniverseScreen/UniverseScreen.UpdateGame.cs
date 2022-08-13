@@ -284,7 +284,7 @@ namespace Ship_Game
                 }
                 BombList.ApplyPendingRemovals();
 
-                ShieldManager.Update(this);
+                ShieldManager.Update();
                 FTLManager.Update(this, timeStep);
 
                 for (int index = 0; index < UState.JunkList.Count; ++index)
