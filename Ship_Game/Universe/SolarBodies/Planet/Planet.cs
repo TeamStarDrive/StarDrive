@@ -830,7 +830,7 @@ namespace Ship_Game
             if (ShieldStrengthCurrent != 0 && Shield == null)
                 Shield = new Shield(Position);
 
-            if (ShieldStrengthCurrent == 0 & Shield != null)
+            if (ShieldStrengthCurrent == 0 && Shield != null)
                 Shield = null;
         }
         public bool CanRepairOrHeal()
