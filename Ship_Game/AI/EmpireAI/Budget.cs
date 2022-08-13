@@ -16,7 +16,7 @@ namespace Ship_Game.AI.Budget
         private readonly Empire Owner;
         private float EmpireColonizationBudget => Owner.data.ColonyBudget;
         private float EmpireDefenseBudget => Owner.data.DefenseBudget;
-        private readonly Planet P;
+        public readonly Planet P;
 
         public readonly float RemainingCivilian;
         public readonly float RemainingSpaceDef;
@@ -98,9 +98,6 @@ namespace Ship_Game.AI.Budget
 
         public void DrawBudgetInfo(UniverseScreen screen)
         {
-            if (!screen.Debug)
-                return;
-
             string drawText = $"<\nTotal Budget: {TotalRemaining.String(2)}" +
                               $"\nImportance: {EmpireRatio.String(2)}" +
                               $"\nCivilianBudget: {RemainingCivilian.String(2)}" +
