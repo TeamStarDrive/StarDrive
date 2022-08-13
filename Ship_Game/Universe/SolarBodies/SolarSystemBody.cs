@@ -6,7 +6,6 @@ using SDUtils;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.Data.Mesh;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Ship_Game.Universe.SolarBodies;
@@ -324,7 +323,6 @@ namespace Ship_Game
 
         public void InitializePlanetMesh()
         {
-            Shield = ShieldManager.AddPlanetaryShield(Position);
             UpdateDescription();
             CreatePlanetSceneObject();
 
