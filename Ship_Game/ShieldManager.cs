@@ -53,7 +53,7 @@ namespace Ship_Game
                 for (int i = 0; i < VisiblePlanetShields.Count; i++)
                 {
                     Shield shield = VisiblePlanetShields[i];
-                    if (shield.TexScale > 0f && shield.InFrustum(u))
+                    if (shield.LightEnabled && shield.InFrustum(u))
                         DrawShield(shield, view, projection);
                 }
             }
