@@ -11,15 +11,14 @@ namespace Ship_Game
 {
     public sealed class ShieldManager
     {
-        static readonly BatchRemovalCollection<Shield> ShieldList = new BatchRemovalCollection<Shield>();
-        static readonly BatchRemovalCollection<Shield> PlanetaryShieldList = new BatchRemovalCollection<Shield>();
+        public static BatchRemovalCollection<Shield> VisibleShields = new ();
+        public static BatchRemovalCollection<Shield> VisiblePlanetShields = new();
 
         static Model     ShieldModel;
         static Texture2D ShieldTexture;
         static Texture2D GradientTexture;
         static Effect    ShieldEffect;
 
-        public static BatchRemovalCollection<Shield> VisibleShields = new BatchRemovalCollection<Shield>();
 
         public static void LoadContent(GameContentManager content)
         {
@@ -32,8 +31,6 @@ namespace Ship_Game
 
         public static void UnloadContent()
         {
-            ShieldList.Clear();
-            PlanetaryShieldList.Clear();
             ShieldModel = null;
             ShieldTexture = null;
             GradientTexture = null;
@@ -47,15 +44,15 @@ namespace Ship_Game
                 for (int i = 0; i < VisibleShields.Count; i++)
                 {
                     Shield shield = VisibleShields[i];
-                    if (shield.TexScale > 0f && shield.InFrustum(u))
+                    if (shield.LightEnabled && shield.InFrustum(u))
                         DrawShield(shield, view, projection);
                 }
             }
-            using (PlanetaryShieldList.AcquireReadLock())
+            using (VisiblePlanetShields.AcquireReadLock())
             {
-                for (int i = 0; i < PlanetaryShieldList.Count; i++)
+                for (int i = 0; i < VisiblePlanetShields.Count; i++)
                 {
-                    Shield shield = PlanetaryShieldList[i];
+                    Shield shield = VisiblePlanetShields[i];
                     if (shield.TexScale > 0f && shield.InFrustum(u))
                         DrawShield(shield, view, projection);
                 }
@@ -82,26 +79,6 @@ namespace Ship_Game
             }
         }
 
-        public static void Clear()
-        {
-            ShieldList.Clear();
-            PlanetaryShieldList.Clear();
-        }
-
-        public static Shield AddPlanetaryShield(Vector2 position)
-        {
-            var shield = new Shield(position);
-            PlanetaryShieldList.Add(shield);
-            return shield;
-        }
-    
-        public static Shield AddShield(GameObject owner, float rotation, Vector2 center)
-        {            
-            var shield = new Shield(owner, rotation, center);
-            //ShieldList.Add(shield);
-            return shield;
-        }
-
         public static void RemoveShieldLights(UniverseScreen u, IEnumerable<ShipModule> shields)
         {
             foreach (ShipModule shield in shields)
@@ -110,16 +87,16 @@ namespace Ship_Game
 
         public static void Update(UniverseScreen u)
         {
-            using (PlanetaryShieldList.AcquireReadLock())
+            using (VisiblePlanetShields.AcquireReadLock())
             {
-                for (int i = 0; i < PlanetaryShieldList.Count; i++)
+                for (int i = 0; i < VisiblePlanetShields.Count; i++)
                 {
-                    Shield shield = PlanetaryShieldList[i];
-                    if (shield.TexScale > 0f)
+                    Shield shield = VisiblePlanetShields[i];
+                    if (shield.LightEnabled)
                     {
-                        shield.UpdateLightIntensity(2.45f);
-                        shield.Displacement += 0.085f;
-                        shield.TexScale -= 0.185f;
+                        shield.UpdateLightIntensity(-2.45f);
+                        shield.UpdateDisplacement(0.085f);
+                        shield.UpdateTexScale(-0.185f);
                     }
                 }
             }
@@ -129,37 +106,24 @@ namespace Ship_Game
                 for (int i = 0; i < VisibleShields.Count; i++)
                 {
                     Shield shield = VisibleShields[i];
-                    if (shield.Owner != null && !shield.Owner.Active)
+                    if (shield.LightEnabled)
                     {
-                        shield.RemoveLight(u);
-                    }
-
-                    if (shield.TexScale > 0f)
-                    {
-                        shield.UpdateLightIntensity(2.45f);
-                        shield.Displacement += 0.025f;
-                        shield.TexScale -= 0.004f;
+                        shield.UpdateLightIntensity(-0.002f);
+                        shield.UpdateDisplacement(0.04f);
+                        shield.UpdateTexScale(-0.01f);
                     }
                 }
             }
-            /*
-            using (ShieldList.AcquireWriteLock())
-            {
-                for (int i = ShieldList.Count - 1; i >= 0; --i)
-                {
-                    Shield shield = ShieldList[i];
-                    if (shield.Owner != null && !shield.Owner.Active)
-                    {
-                        ShieldList.RemoveAtSwapLast(i);
-                        shield.RemoveLight(u);
-                    }
-                }
-            }*/
         }
 
         public static void SetVisibleShields(BatchRemovalCollection<Shield> visibleShields)
         {
             VisibleShields = visibleShields;
+        }
+
+        public static void SetVisiblePlanetShields(BatchRemovalCollection<Shield> visibleShields)
+        {
+            VisiblePlanetShields = visibleShields;
         }
     }
 }
