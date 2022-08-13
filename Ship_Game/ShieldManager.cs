@@ -85,7 +85,7 @@ namespace Ship_Game
                 shield.Shield.RemoveLight(u);
         }
 
-        public static void Update(UniverseScreen u)
+        public static void Update()
         {
             using (VisiblePlanetShields.AcquireReadLock())
             {
