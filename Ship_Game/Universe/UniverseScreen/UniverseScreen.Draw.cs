@@ -1142,7 +1142,7 @@ namespace Ship_Game
             }
         }
 
-        private void DrawShields()
+        void DrawShields()
         {
             DrawShieldsPerf.Start();
             if (viewState < UnivScreenState.SystemView)
