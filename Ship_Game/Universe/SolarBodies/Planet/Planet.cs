@@ -821,9 +821,18 @@ namespace Ship_Game
             TroopManager.HealTroops(2);
             RepairBuildings(1);
             CallForHelp();
+            UpdatePlanetShields();
             TotalTroopConsumption = GetTotalTroopConsumption();
         }
 
+        void UpdatePlanetShields()
+        {
+            if (ShieldStrengthCurrent != 0 && Shield == null)
+                Shield = new Shield(Position);
+
+            if (ShieldStrengthCurrent == 0 && Shield != null)
+                Shield = null;
+        }
         public bool CanRepairOrHeal()
         {
             return BombingIntensity == 0 || RandomMath.RollDice(100 - BombingIntensity);
@@ -1098,7 +1107,7 @@ namespace Ship_Game
             UpdateMaxPopulation();
             TotalDefensiveStrength = (int)TroopManager.GroundStrength(Owner);
 
-            ShieldStrengthMax *= (1 + Owner.data.ShieldPowerMod);
+            ShieldStrengthMax *= 1 + Owner.data.ShieldPowerMod;
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0,ShieldStrengthMax);
             HasSpacePort = spacePort;
