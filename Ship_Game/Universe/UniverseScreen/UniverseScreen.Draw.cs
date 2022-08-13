@@ -176,9 +176,6 @@ namespace Ship_Game
             DrawExplosionsPerf.Start();
             batch.Begin(SpriteBlendMode.Additive);
             ExplosionManager.DrawExplosions(batch, View, Projection);
-            #if DEBUG
-            DrawDebugPlanetBudgets();
-            #endif
             batch.End();
             DrawExplosionsPerf.Stop();
         }
