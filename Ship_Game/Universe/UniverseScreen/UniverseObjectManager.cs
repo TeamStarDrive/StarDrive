@@ -387,14 +387,6 @@ namespace Ship_Game
 
             //UpdateSystems(0, UState.Systems.Count);
             Parallel.For(UState.Systems.Count, UpdateSystems, Universe.MaxTaskCores);
-
-            // now set null systems for ships not found in any solar system
-            for (int i = 0; i < allShips.Length; ++i)
-            {
-                Ship ship = allShips[i];
-                if (!ShipsInSystems.Contains(ship.Id))
-                    ship.SetSystem(null);
-            }
         }
 
         void UpdateAllShips(FixedSimTime timeStep)
