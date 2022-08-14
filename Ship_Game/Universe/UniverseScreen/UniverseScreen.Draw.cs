@@ -156,21 +156,6 @@ namespace Ship_Game
             DrawBorders.Stop();
         }
 
-        void DrawDebugPlanetBudgets()
-        {
-            if (viewState < UnivScreenState.SectorView)
-            {
-                foreach (Empire empire in EmpireManager.Empires)
-                {
-                    if (empire.GetEmpireAI().PlanetBudgets != null)
-                    {
-                        foreach (var budget in empire.GetEmpireAI().PlanetBudgets)
-                            budget.DrawBudgetInfo(this);
-                    }
-                }
-            }
-        }
-
         void DrawExplosions(SpriteBatch batch)
         {
             DrawExplosionsPerf.Start();
