@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.AI.Budget;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
@@ -103,6 +104,9 @@ namespace Ship_Game
             if (P == null)
                 return;
 
+            if (Screen.Debug)
+                DrawDebugPlanetBudget();
+
             0f.SmoothStep(1f, TransitionPosition);
             ToolTipItems.Clear();
             ToolTipItems.Add(new TippedItem(PopRect, GameText.PopulationInBillionsVsMax));
@@ -185,6 +189,16 @@ namespace Ship_Game
             Invade.Draw(batch);
 
             AssignLabor?.Draw(batch, elapsed);
+        }
+
+        void DrawDebugPlanetBudget()
+        {
+            if (P.Owner != null)
+            {
+                var budget = P.Owner.GetEmpireAI().PlanetBudgets?.Filter(b => b.P == P) ?? Array.Empty<PlanetBudget>();
+                if (budget.Length == 1)
+                    budget[0].DrawBudgetInfo(Screen);
+            }
         }
 
         bool DrawUnexploredUninhabited(Vector2 namePos, Vector2 mousePos)
