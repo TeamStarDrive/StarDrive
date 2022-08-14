@@ -109,7 +109,7 @@ namespace Ship_Game.Ships
             float rotAmount = RotationThisFrame;
             RotationThisFrame = 0f;
 
-            bool shouldBank = IsVisibleToPlayer && rotAmount != 0f;
+            bool shouldBank = IsVisibleToPlayer && rotAmount != 0f && !AI.IsInOrbit;
             if (shouldBank)
             {
                 if (rotAmount > 0f) // Y-bank:
