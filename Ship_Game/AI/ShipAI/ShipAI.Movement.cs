@@ -583,7 +583,7 @@ namespace Ship_Game.AI
             // special case for fleets: if ship is already at its final position
             // ignore all flocking rules and stay put - other ships that are not in place
             // will do their own thing
-            if (Owner.Fleet != null && !Owner.InCombat && Owner.Fleet.IsShipInFormation(Owner, 500))
+            if (Owner.Fleet != null && Owner.Fleet.IsShipInFormation(Owner, 500))
             {
                 return;
             }
