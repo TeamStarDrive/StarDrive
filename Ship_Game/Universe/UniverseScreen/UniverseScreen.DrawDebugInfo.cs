@@ -91,12 +91,14 @@ namespace Ship_Game
                 objects.AddSubItem(new DebugStatItem("SysShips", uObjects.SysShipsPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Systems", uObjects.SysPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Ships", uObjects.ShipsPerf, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("ShipAI", uObjects.ShipAiPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Projectiles", uObjects.ProjPerf, uObjects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Sensors", uObjects.SensorPerf, uObjects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Sensors", () => $"current:{uObjects.Scans} per/s:{uObjects.ScansPerSec}"));
                 objects.AddSubItem(new DebugStatItem("Visibility", uObjects.VisPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Spatial", UState.Spatial.UpdateTime, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Removal", uObjects.ObjectRemoval, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Collide", UState.Spatial.CollisionTime, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Sensors", uObjects.SensorPerf, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("    Sensors", () => $"current:{uObjects.Scans} per/s:{uObjects.ScansPerSec}"));
 
                 DebugStats.AddItem(new DebugStatItem("TotalDraw", DrawGroupTotalPerf, true));
 

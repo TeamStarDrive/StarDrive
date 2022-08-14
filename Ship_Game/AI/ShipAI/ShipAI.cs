@@ -299,6 +299,7 @@ namespace Ship_Game.AI
             if (timeStep.FixedTime > 0f
                 && GlobalStats.EnableShipFlocking
                 && FriendliesNearby.Length != 0 
+                && Owner.InCombat
                 && !Orbit.InOrbit)
             {
                 KeepDistanceUsingFlocking(timeStep);
