@@ -42,9 +42,11 @@ namespace Ship_Game
         public readonly AggregatePerfTimer SysShipsPerf = new();
         public readonly AggregatePerfTimer SysPerf   = new();
         public readonly AggregatePerfTimer ShipsPerf = new();
+        public readonly AggregatePerfTimer ShipAiPerf = new();
         public readonly AggregatePerfTimer ProjPerf  = new();
         public readonly AggregatePerfTimer SensorPerf = new();
         public readonly AggregatePerfTimer VisPerf   = new();
+        public readonly AggregatePerfTimer ObjectRemoval = new();
 
         public Ship[] VisibleShips { get; private set; } = Empty<Ship>.Array;
         public Projectile[] VisibleProjectiles { get; private set; } = Empty<Projectile>.Array;
@@ -225,7 +227,9 @@ namespace Ship_Game
                     var objects = Objects.GetItems();
                     Spatial.Update(objects);
                     // remove inactive objects only after Spatial has seen them as inactive
+                    ObjectRemoval.Start();
                     Objects.RemoveInActiveAndApplyChanges();
+                    ObjectRemoval.Stop();
                 }
 
                 // trigger all Hit events
@@ -484,6 +488,7 @@ namespace Ship_Game
 
         void UpdateAllShipAI(FixedSimTime timeStep)
         {
+            ShipAiPerf.Start();
             Ship[] allShips = Ships.GetItems();
             void UpdateAI(int start, int end)
             {
@@ -499,6 +504,8 @@ namespace Ship_Game
                 Parallel.For(allShips.Length, UpdateAI, Universe.MaxTaskCores);
             else
                 UpdateAI(0, allShips.Length);
+
+            ShipAiPerf.Stop();
         }
 
         void UpdateVisibleObjects()
