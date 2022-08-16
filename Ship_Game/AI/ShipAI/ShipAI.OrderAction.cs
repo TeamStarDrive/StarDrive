@@ -516,7 +516,15 @@ namespace Ship_Game.AI
 
             var planets = Owner.Loyalty.GetPlanets();
             if (planets.Count == 0)
+            {
+                if (Owner.Loyalty.isFaction)
+                {
+                    OrderScuttleShip();
+                    return;
+                }
+
                 planets = Owner.Loyalty.Universum.Planets;
+            }
 
             Planet planet = planets.FindClosestTo(Owner.Position, p => p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0);
             if (planet == null)

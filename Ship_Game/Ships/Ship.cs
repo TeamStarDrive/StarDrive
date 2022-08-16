@@ -1162,11 +1162,17 @@ namespace Ship_Game.Ships
                 RecallHangarShipIfTooFarFromCarrier();
                 UpdateTractor();
                 UpdateSystem();
+                UpdateRebaseTarget();
                 SecondsAlive += 1;
 
                 if (Carrier.HasHangars)
                     Carrier.HandleHangarShipsByPlayerLaunchButton();
             }
+        }
+
+        void UpdateRebaseTarget()
+        {
+            AI.UpdateRebase();
         }
 
         void UpdateSystem()
