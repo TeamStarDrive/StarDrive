@@ -49,7 +49,7 @@ namespace Ship_Game.AI
             DisposeOrders();
             EscortTarget = null;
             PatrolTarget = null;
-            OrbitTarget = null;
+            Orbit.ExitOrbit();
             SystemToDefend = null;
             IgnoreCombat = false;
             ExitCombatState();
@@ -209,7 +209,7 @@ namespace Ship_Game.AI
         {
             if (AddShipGoal(plan, planet, null, newState, pushToFront))
             {
-                OrbitTarget = planet;
+                SetOrbitTarget(planet);
                 if (priority)
                     ResetPriorityOrder(clearOrders: false);
             }
@@ -267,7 +267,7 @@ namespace Ship_Game.AI
         public void OrderMoveAndScrap(Planet p)
         {
             Vector2 direction = Owner.Position.DirectionToTarget(p.Position);
-            OrbitTarget = p;
+            SetOrbitTarget(p);
             OrderMoveTo(GetPositionOnPlanet(p), direction, AIState.Scrap);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
         }
