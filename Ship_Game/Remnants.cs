@@ -79,9 +79,8 @@ namespace Ship_Game
 
             if (empire.isPlayer)
             {
-                float stepTrigger = ShipRole.GetMaxExpValue() / 2f * StoryStep;
                 PlayerStepTriggerXp += xp;
-                if (PlayerStepTriggerXp > stepTrigger) // todo 0 is for testing
+                if (PlayerStepTriggerXp > StepXpTrigger) // todo 0 is for testing
                 {
                     PlayerStepTriggerXp = 0;
                     if (GetStoryEvent(out ExplorationEvent expEvent))
@@ -94,6 +93,8 @@ namespace Ship_Game
             //if (!Activated) // todo for testing
             //    Activate();
         }
+
+        float StepXpTrigger => (ShipRole.GetMaxExpValue() * StoryStep * StoryStep * 0.5f).UpperBound(ActivationXpNeeded);
 
         void Activate()
         {

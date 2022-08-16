@@ -157,5 +157,12 @@ namespace Ship_Game.AI.ShipMovement
             OrbitPos = orbitTarget.Position + OrbitOffset;
             OrbitUpdateTimer = 0f;
         }
+
+        public void ExitOrbit()
+        {
+            InOrbit = false;
+            Owner.AI.SetOrbitTarget(null);
+        }
+
     }
 }
