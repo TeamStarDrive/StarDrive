@@ -262,7 +262,7 @@ namespace Ship_Game
 
             HandleEdgeDetection(input);
 
-            UpdateClickableShips();
+            UpdateClickableShipsAndShields();
             UpdateClickableSystemsPlanetsAndVisibleShields();
 
             if (HandleDragAORect(input))
@@ -560,7 +560,7 @@ namespace Ship_Game
             }
         }
 
-        void UpdateClickableShips()
+        void UpdateClickableShipsAndShields()
         {
             Ship[] ships = UState.Objects.VisibleShips;
             var clickable = new Array<ClickableShip>();
@@ -568,7 +568,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
-                if (!ship.IsVisibleToPlayerInMap || ship.IsSubspaceProjector || !ship.Active)
+                if (!ship.IsVisibleToPlayerInMap || ship.IsSubspaceProjector && viewState > UnivScreenState.PlanetView || !ship.Active)
                     continue;
 
                 visibleShields.AddRange(ship.GetShields().Select(s => s.Shield).ToArray());
