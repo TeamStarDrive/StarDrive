@@ -299,10 +299,11 @@ namespace Ship_Game.GameScreens.NewGame
             step.Start(Systems.Count);
             switch (Mode)
             {
-                case RaceDesignScreen.GameMode.Corners: GenerateCornersGameMode(step); break;
-                case RaceDesignScreen.GameMode.BigClusters: GenerateBigClusters(step); break;
-                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters(step); break;
-                default: GenerateRandomMap(step); break;
+                case RaceDesignScreen.GameMode.Corners:       GenerateCornersGameMode(step); break;
+                case RaceDesignScreen.GameMode.BigClusters:   GenerateBigClusters(step);     break;
+                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters(step);   break;
+                case RaceDesignScreen.GameMode.Ring:          GenerateRingMap(step);         break;
+                default:                                      GenerateRandomMap(step);       break;
             }
         }
 
@@ -335,6 +336,19 @@ namespace Ship_Game.GameScreens.NewGame
             }
 
             step.Finish();
+        }
+
+        void SolarSystemSpacingRing(ProgressCounter step)
+        {
+            foreach (SystemPlaceHolder sys in Systems)
+            {
+                float spacing = 350000f;
+                if (sys.DontStartNearPlayer)
+                    spacing = UState.Size / (2f - 1f / (UState.Empires.Count - 1));
+
+                sys.Position = GenerateRandomSysPosInRing(spacing);
+                step.Advance();
+            }
         }
 
         void SolarSystemSpacing(ProgressCounter step)
@@ -441,6 +455,21 @@ namespace Ship_Game.GameScreens.NewGame
             return whichCorner;
         }
 
+        Vector2 GenerateRandomSysPosInRing(float spacing)
+        {
+            float safetyBreak = 1f;
+            Vector2 sysPos;
+            do
+            {
+                spacing *= safetyBreak;
+                sysPos = Random.RandomPointInRing(UState.Size * 0.75f, UState.Size - 100000f);
+                safetyBreak *= 0.97f;
+            } while (!SystemPosOK(sysPos, spacing));
+
+            ClaimedSpots.Add(sysPos);
+            return sysPos;
+        }
+
         Vector2 GenerateRandomSysPos(float spacing)
         {
             float safetyBreak = 1f;
@@ -463,6 +492,11 @@ namespace Ship_Game.GameScreens.NewGame
             Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
             GenerateClustersStartingSystems(step, sectors);
             SolarSystemSpacing(step);
+        }
+
+        void GenerateRingMap(ProgressCounter step)
+        {
+            SolarSystemSpacingRing(step);
         }
 
         void GenerateBigClusters(ProgressCounter step)
