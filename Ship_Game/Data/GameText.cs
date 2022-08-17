@@ -4406,6 +4406,10 @@ namespace Ship_Game
         PopMax = 4380,
         /// <summary>Mineral Richness</summary>
         MineralRichness = 4381,
+        /// <summary>Random Starting plance in a Ring Galaxy</summary>
+        RingGalaxyGameTip = 4382,
+        /// <summary>Ring Galaxy</summary>
+        RingGalaxyGame = 4383,
 
 
         /// <summary>on surface</summary>
