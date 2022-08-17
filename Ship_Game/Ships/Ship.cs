@@ -45,7 +45,7 @@ namespace Ship_Game.Ships
 
         public Array<ShipModule> BombBays = new();
         [StarData] public CarrierBays Carrier;
-        public ShipResupply Supply;
+        [StarData] public ShipResupply Supply;
         public bool ShipStatusChanged;
         public bool HasRegeneratingModules;
         public bool IsMeteor { get; private set; }
@@ -1132,7 +1132,7 @@ namespace Ship_Game.Ships
 
             UpdateStatusOncePerSecond(timeStep);
             UpdatePower(timeStep);
-            ShieldPercent = ShieldMax > 0 ? 100.0 * ShieldPower / ShieldMax : 0;
+            ShieldPercent = ShieldMax > 0f ? (100f * ShieldPower) / ShieldMax : 0;
             ShipEngines.Update();
         }
 

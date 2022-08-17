@@ -139,10 +139,6 @@ namespace Ship_Game.GameScreens.LoadGame
             FinalizeShips(us);
 
             us.Screen.LoadContent();
-            foreach(Empire empire in EmpireManager.Empires)
-            {
-                empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave(us);
-            }
             us.Objects.UpdateLists(removeInactiveObjects: false);
 
             GameAudio.StopGenericMusic(immediate: false);
