@@ -85,9 +85,9 @@ namespace Ship_Game
 
         // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
-        [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
+        [XmlIgnore][JsonIgnore] [StarData] public float Offense { get; private set; }
+        [XmlIgnore][JsonIgnore] [StarData] public float MilitaryStrength { get; private set; }
         [XmlIgnore][JsonIgnore] public int CurrentNumDefenseShips { get; private set; }
-        [XmlIgnore][JsonIgnore] public float MilitaryStrength { get; private set; }
         [XmlIgnore][JsonIgnore] public float ActualCost => Cost * UniverseState.DummyProductionPacePlaceholder;
         [XmlIgnore][JsonIgnore] public bool IsBadCacheResourceBuilding => 
             FoodCache.Greater(0) && PlusFlatFoodAmount.AlmostZero() 

@@ -517,7 +517,7 @@ namespace Ship_Game.AI
             var planets = Owner.Loyalty.GetPlanets();
             if (planets.Count == 0)
             {
-                if (Owner.Loyalty.isFaction)
+                if (Owner.Loyalty.IsFaction)
                 {
                     OrderScuttleShip();
                     return;
