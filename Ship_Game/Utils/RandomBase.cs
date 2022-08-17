@@ -134,6 +134,17 @@ namespace Ship_Game.Utils
         }
 
         /// <summary>
+        /// Generates a random point in Ring
+        /// </summary>
+        public Vector2 RandomPointInRing(float minRadius, float maxRadius)
+        {
+            float theta = Float(0f, 2f * (float)Math.PI);
+            float w = Float(0f, 1f);
+            float r = (float)Math.Sqrt((1f - w) * minRadius * minRadius + w * maxRadius * maxRadius);
+            return new Vector2(r * Math.Cos(theta), r * Math.Sin(theta));
+        }
+
+        /// <summary>
         /// Generates a random 2D direction vector
         /// </summary>
         public Vector2 Direction2D()

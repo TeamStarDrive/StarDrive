@@ -615,8 +615,8 @@ namespace Ship_Game.GameScreens.LoadGame
 
                 ship.AI.Target         = us.GetShip(shipData.AISave.AttackTargetId);
                 ship.AI.EscortTarget   = us.GetShip(shipData.AISave.EscortTargetId);
-                ship.AI.OrbitTarget    = us.GetPlanet(shipData.AISave.OrbitTargetId);
                 ship.AI.SystemToDefend = us.GetSystem(shipData.AISave.SystemToDefendId);
+                ship.AI.SetOrbitTarget(us.GetPlanet(shipData.AISave.OrbitTargetId));
 
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {

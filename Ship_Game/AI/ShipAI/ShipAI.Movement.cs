@@ -17,7 +17,7 @@ namespace Ship_Game.AI
         //     And for other Ship AI Plans, this is used to store the current/default waypoint
         //     i.e. ExploreSystem sets MovePosition to next planet it likes
         public Vector2 MovePosition;
-        public Planet OrbitTarget;
+        public Planet OrbitTarget { get; private set; }
 
         WayPoints WayPoints = new WayPoints();
 
@@ -29,6 +29,11 @@ namespace Ship_Game.AI
         public void ClearWayPoints()
         {
             WayPoints.Clear();
+        }
+
+        public void SetOrbitTarget(Planet target)
+        {
+            OrbitTarget = target;
         }
 
         public void SetWayPoints(IReadOnlyList<WayPoint> wayPoints)

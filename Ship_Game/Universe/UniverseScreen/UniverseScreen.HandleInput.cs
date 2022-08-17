@@ -568,8 +568,12 @@ namespace Ship_Game
             for (int i = 0; i < ships.Length; i++)
             {
                 Ship ship = ships[i];
-                if (!ship.IsVisibleToPlayerInMap || ship.IsSubspaceProjector && viewState > UnivScreenState.PlanetView || !ship.Active)
+                if (!ship.IsVisibleToPlayerInMap
+                    || ship.IsSubspaceProjector && viewState > UnivScreenState.PlanetView
+                    || !ship.Active)
+                {
                     continue;
+                }
 
                 visibleShields.AddRange(ship.GetShields().Select(s => s.Shield).ToArray());
                 ProjectToScreenCoords(ship.Position, ship.Radius, out Vector2d shipScreenPos, out double screenRadius);
