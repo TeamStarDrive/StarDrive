@@ -374,87 +374,8 @@ namespace Ship_Game.AI
             [StarDataDeserialized]
             void OnDeserialized()
             {
-                Plan         = sg.Plan;
-                MovePosition = sg.MovePosition;
-                Direction    = sg.Direction;
-                WantedState  = sg.WantedState;
-
-                TargetPlanet = us.GetPlanet(sg.TargetPlanetId);
-                TargetShip   = us.GetShip(sg.TargetShipId);
-
-                if (sg.TargetPlanetId != 0 && TargetPlanet == null)
-                {
-                    Log.Warning($"ShipGoal: failed to find TargetPlanet={sg.TargetPlanetId}");
-                }
-
-                VariableString = sg.VariableString;
-                VariableNumber = sg.VariableNumber;
-                SpeedLimit = sg.SpeedLimit;
-                MoveOrder  = sg.MoveOrder;
-
-                Empire loyalty = ship.Loyalty;
-
-                if (sg.FleetId != 0)
-                {
-                    foreach (KeyValuePair<int, Fleet> empireFleet in loyalty.GetFleetsDict())
-                        if (empireFleet.Value.Id == sg.FleetId)
-                            Fleet = empireFleet.Value;
-                }
-
-                if (sg.GoalId != 0)
-                {
-                    Array<Goal> goals = loyalty.GetEmpireAI().Goals;
-                    foreach (Goal empireGoal in goals)
-                    {
-                        if (sg.GoalId == empireGoal.Id)
-                        {
-                            Goal = empireGoal;
-                            break;
-                        }
-                    }
-                    if (Goal == null)
-                        Log.Warning($"ShipGoalSave {sg.Plan}: failed to find Empire.Goal {sg.GoalId}");
-                }
-
-                if (sg.Trade != null)
-                    Trade = new TradePlan(sg.Trade, us, ship);
-
                 if (Plan is Plan.SupplyShip or Plan.RearmShipFromPlanet)
-                    ship.AI.EscortTarget?.Supply.ChangeIncomingOrdnance(ship.Ordinance);
-            }
-
-            // Convert this ShipGoal into a ShipGoalSave
-            public SavedGame.ShipGoalSave ToSaveData()
-            {
-                var s = new SavedGame.ShipGoalSave
-                {
-                    Plan             = Plan,
-                    Direction        = Direction,
-                    VariableString   = VariableString,
-                    SpeedLimit       = SpeedLimit,
-                    MovePosition     = MovePosition,
-                    FleetId        = Fleet?.Id ?? 0,
-                    GoalId         = Goal?.Id ?? 0,
-                    TargetPlanetId = TargetPlanet?.Id ?? 0,
-                    TargetShipId   = TargetShip?.Id ?? 0,
-                    MoveOrder        = MoveOrder,
-                    VariableNumber   = VariableNumber,
-                    WantedState      = WantedState
-                };
-
-                if (Trade != null)
-                {
-                    s.Trade = new SavedGame.TradePlanSave
-                    {
-                        Goods         = Trade.Goods,
-                        ExportFrom    = Trade.ExportFrom?.Id ?? 0,
-                        ImportTo      = Trade.ImportTo?.Id ?? 0,
-                        BlockadeTimer = Trade.BlockadeTimer,
-                        StardateAdded = Trade.StardateAdded
-                    };
-                }
-
-                return s;
+                    TargetShip.AI.EscortTarget?.Supply.ChangeIncomingOrdnance(TargetShip.Ordinance);
             }
 
             ~ShipGoal() { Destroy(); } // finalizer

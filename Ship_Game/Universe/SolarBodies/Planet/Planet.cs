@@ -62,7 +62,7 @@ namespace Ship_Game
         public bool IsStarving => Unfed < 0f;
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
-        public float SensorRange { get; private set; }
+        [StarData] public float SensorRange { get; private set; }
         public float ProjectorRange { get; private set; }
         public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
         public float ColonyValue { get; private set; }
