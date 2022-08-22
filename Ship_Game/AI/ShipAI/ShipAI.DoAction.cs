@@ -367,17 +367,6 @@ namespace Ship_Game.AI
 
         void DoRebase(FixedSimTime timeStep, ShipGoal goal)
         {
-            // don't override Rebase issued to player ships
-            if (!Owner.Loyalty.isPlayer)
-            {
-                // if our Rebase troop ships order is targetting a conquered planet, cancel orders
-                if (FindGoal(Plan.Rebase, out ShipGoal rebase) && rebase.TargetPlanet.Owner != Owner.Loyalty)
-                {
-                    OrderRebaseToNearest();
-                    return;
-                }
-            }
-
             DoLandTroop(timeStep, goal);
         }
 
@@ -573,7 +562,8 @@ namespace Ship_Game.AI
             // recover the ship
             if (Owner.Position.InRadius(Owner.Mothership.Position, Owner.Mothership.Radius))
             {
-                Owner.LandTroopsOnShip(Owner.Mothership);
+                if (Owner.IsDefaultTroopTransport)
+                    Owner.LandTroopsOnShip(Owner.Mothership);
 
                 if (Owner.IsSupplyShuttle) // fbedard: Supply ship return with Ordinance
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
