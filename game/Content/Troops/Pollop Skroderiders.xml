@@ -5,7 +5,7 @@
   <Icon>plant</Icon>
 
   <RaceType>Pollops</RaceType>
-  <num_idle_frames>11</num_idle_frames>
+  <num_idle_frames>10</num_idle_frames>
   <num_attack_frames>14</num_attack_frames>
   <animated>true</animated>
   <idle_x_offset>22</idle_x_offset>

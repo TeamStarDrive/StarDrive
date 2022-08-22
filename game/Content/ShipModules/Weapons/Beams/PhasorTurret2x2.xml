@@ -3,7 +3,7 @@
 
   <UID>PhasorTurret2x2</UID> 
   <Version>2</Version>
-
+  <OffPowerMod>0.35</OffPowerMod>
   <Cost>21</Cost>
   <!-- Tech Level Used by AI for Upgrading Ships -->
   <TechLevel>3</TechLevel>

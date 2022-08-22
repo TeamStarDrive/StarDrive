@@ -44,6 +44,12 @@
 	  <planetScale>4.2</planetScale>
     </Ring>
     <Ring>
+      <Planet>Planet Nine</Planet>
+      <SpecialDescription>Long searched planet that had extreme elliptical orbit around Sol for milions od years, after recent passage of different star changed its orbit.</SpecialDescription>
+      <WhichPlanet>39</WhichPlanet>
+	  <planetScale>1.2</planetScale>
+    </Ring>
+    <Ring>
       <Planet>Saturn</Planet>
       <SpecialDescription>Saturn's planetary rings are the most conspicuous in the Sol system.  The rings are mostly composed of water ice and dust particles.  As a gas giant, it is not suitable for human colonization.  </SpecialDescription>
       <WhichPlanet>2</WhichPlanet>
@@ -65,7 +71,7 @@
     <Ring>
       <Planet>Pluto</Planet>
       <SpecialDescription>Composed primarily of rock and ice Pluto is relatively small, considered a dwarf planet.  Pluto was named after the god of the underworld appropriately, for it is a dark and cold world barely of any use to colonists.  </SpecialDescription>
-      <WhichPlanet>33</WhichPlanet>
+      <WhichPlanet>32</WhichPlanet>
 	  <planetScale>0.8</planetScale>
     </Ring>
     <Ring>

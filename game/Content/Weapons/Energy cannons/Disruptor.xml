@@ -21,7 +21,7 @@
   <UID>Disruptor</UID>
   <FireDelay>4</FireDelay>
   <Range>6000</Range>
-  <PowerRequiredToFire>672</PowerRequiredToFire>
+  <PowerRequiredToFire>612</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->

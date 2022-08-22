@@ -7,7 +7,7 @@
 
   <RaceType>ALL</RaceType>
   <num_idle_frames>2</num_idle_frames>
-  <num_attack_frames>10</num_attack_frames>
+  <num_attack_frames>9</num_attack_frames>
   <animated>true</animated>
   <idle_x_offset>0</idle_x_offset>
   <idle_y_offset>0</idle_y_offset>

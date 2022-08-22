@@ -33,5 +33,7 @@
   <ShieldRechargeRate>1200</ShieldRechargeRate>
   <ShieldRadius>400</ShieldRadius>
   <ShieldRechargeCombatRate>100</ShieldRechargeCombatRate>
-  <ShieldEnergyResist>0.25</ShieldEnergyResist>
+  <ShieldEnergyResist>0.34</ShieldEnergyResist>
+  <ShieldBeamResist>0.25</ShieldBeamResist>
+  <ShieldKineticResist>-0.07</ShieldKineticResist>
 </ShipModule>

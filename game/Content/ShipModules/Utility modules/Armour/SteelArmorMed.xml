@@ -29,7 +29,7 @@
   <HealthMax>9200</HealthMax>
 
   <!-- Armor resistance -->
-	<KineticResist>0</KineticResist>
+	<KineticResist>0.04</KineticResist>
 	<BeamResist>0</BeamResist>
 	<EnergyResist>0</EnergyResist>    
 	<PlasmaResist>0</PlasmaResist>

@@ -9,7 +9,7 @@
   <Range>5600</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
-  <BeamDuration>0.4</BeamDuration>
+  <BeamDuration>0.5</BeamDuration>
   <!-- name of XACT audio cue to play on firing this weapon -->
 
 
@@ -18,11 +18,11 @@
   
   <!-- Projectile Information -->
   <BeamTexture>beam_purple</BeamTexture>
-  <EffectVsShields>1.16</EffectVsShields> 
+  <EffectVsShields>0.90</EffectVsShields> 
   
-  <DamageAmount>11</DamageAmount>
+  <DamageAmount>12</DamageAmount>
   <BeamThickness>24</BeamThickness>
-  <BeamPowerCostPerSecond>682</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>752</BeamPowerCostPerSecond>
   <WeaponRotation>2</WeaponRotation>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
