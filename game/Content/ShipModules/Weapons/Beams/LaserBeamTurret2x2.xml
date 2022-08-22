@@ -3,7 +3,7 @@
 
   <UID>LaserBeamTurret2x2</UID> 
   <Version>2</Version>
-
+  <OffPowerMod>0.55</OffPowerMod>
   <Cost>9</Cost>
   <!-- Tech Level Used by AI for Upgrading Ships -->
   <TechLevel>1</TechLevel>

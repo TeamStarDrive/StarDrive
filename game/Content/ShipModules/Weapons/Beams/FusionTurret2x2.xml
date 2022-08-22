@@ -3,7 +3,7 @@
 
   <UID>FusionTurret2x2</UID> 
   <Version>2</Version>
-
+  <OffPowerMod>0.35</OffPowerMod>
   <Cost>14</Cost>
   <!-- Tech Level Used by AI for Upgrading Ships -->
   <TechLevel>2</TechLevel>
