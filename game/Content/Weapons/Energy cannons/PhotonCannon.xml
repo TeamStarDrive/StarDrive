@@ -21,7 +21,7 @@
   <UID>PhotonCannon</UID>
   <FireDelay>4</FireDelay>
   <Range>6600</Range>
-  <PowerRequiredToFire>924</PowerRequiredToFire>
+  <PowerRequiredToFire>842</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <!-- name of XACT audio cue to play on firing this weapon -->
