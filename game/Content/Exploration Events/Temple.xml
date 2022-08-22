@@ -121,7 +121,7 @@
       <TitleText>Remnant schemtics!</TitleText>
       <DescriptionText>While mapping the layout of the temple rooms, your troops notice many primitive scribbles and mosaics in the walls, each worshiping some form of deity that came from the heavens. While examining the largest chamber in the complex, they notice that in the middle of it there is a altar on top of which there is inserted a very ancient data cube that remnants use. Your troops retrive the cube for further analisis.</DescriptionText>
       <RemoveTrigger>true</RemoveTrigger>
-
+      <UnlockTech>RemnantTroop</UnlockTech>   
        <Image>Encounters/3.png</Image>
        <ConfirmText>Interesting square thing!</ConfirmText>
     </Outcome>
