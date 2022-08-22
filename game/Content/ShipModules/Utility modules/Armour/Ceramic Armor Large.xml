@@ -25,7 +25,7 @@
 	<RepairDifficulty>1</RepairDifficulty>
     <Deflection>0</Deflection>			
 	<!-- Armor resistance -->
-    <KineticResist>0</KineticResist>
+    <KineticResist>0.09</KineticResist>
     <BeamResist>0</BeamResist>  
 	<PlasmaResist>0</PlasmaResist>
 	<ExplosiveResist>0.19</ExplosiveResist>
