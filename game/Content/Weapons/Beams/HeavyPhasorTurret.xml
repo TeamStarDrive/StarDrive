@@ -18,10 +18,10 @@
   <BeamTexture>beam_red</BeamTexture>
   
   <!-- Projectile Information -->
-  <DamageAmount>26.5</DamageAmount>
-  <EffectVsShield>0.20</EffectVsShield>
+  <DamageAmount>26</DamageAmount>
+  <EffectVsShield>1</EffectVsShield>
   <BeamThickness>25</BeamThickness>
-  <BeamPowerCostPerSecond>1837</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>2024</BeamPowerCostPerSecond>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Energy Beam</WeaponType>

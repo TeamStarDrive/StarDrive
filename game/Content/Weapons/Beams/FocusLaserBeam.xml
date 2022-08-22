@@ -35,7 +35,7 @@
   
   <DamageAmount>8</DamageAmount>
   <BeamThickness>30</BeamThickness>
-  <BeamPowerCostPerSecond>632</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>697</BeamPowerCostPerSecond>
   <EffectVsArmor>1.10</EffectVsArmor>
   <WeaponRotation>2</WeaponRotation>
 
