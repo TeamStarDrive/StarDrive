@@ -432,7 +432,7 @@ namespace Ship_Game.Ships
 
             // don't initialize Shield instance for ShipTemplates
             if (!isTemplate && m.ShieldPowerMax > 0f)
-                m.Shield = ShieldManager.AddShield(m, m.Rotation, m.Position);
+                m.Shield = new Shield(m, m.Rotation, m.Position);
 
             return m;
         }
@@ -768,7 +768,7 @@ namespace Ship_Game.Ships
             source?.OnDamageInflicted(this, amount);
         }
 
-        public void Damage(GameObject source, float damageAmount, out float damageRemainder)
+        public void Damage(GameObject source, float damageAmount, out float damageRemainder, float beamModifier = 1f)
         {
             float damageModifier = 1f;
             if (source != null)
@@ -851,13 +851,13 @@ namespace Ship_Game.Ships
             Damage(source, Health * percent * modifier);
         }
 
-        public override void Damage(GameObject source, float damageAmount)
+        public override void Damage(GameObject source, float damageAmount, float beamModifier = 1f)
         {
-            Damage(source, damageAmount, out float _);
+            Damage(source, damageAmount, out float _, beamModifier);
         }
 
         // Note - this assumes that projectile effect of ignore shield was taken into account. 
-        bool TryDamageModule(GameObject source, float modifiedDamage, out float remainder)
+        bool TryDamageModule(GameObject source, float modifiedDamage, out float remainder, float beamModifier = 1f)
         {
             remainder = modifiedDamage;
             if (source != null)
@@ -882,12 +882,12 @@ namespace Ship_Game.Ships
             if (damagingShields)
             {
                 DamageShield(modifiedDamage, proj, out remainder);
-                CauseSpecialBeamDamageToShield(beam);
+                CauseSpecialBeamDamageToShield(beam, beamModifier);
                 //Log.Info($"{Parent.Name} shields '{UID}' dmg {modifiedDamage} shld {ShieldPower} by {proj?.WeaponType}");
             }
             else
             {
-                CauseSpecialBeamDamageNoShield(beam);
+                CauseSpecialBeamDamageNoShield(beam, beamModifier);
                 float healthBefore = Health;
                 SetHealth(Health - modifiedDamage, source);
                 remainder = modifiedDamage - healthBefore;
@@ -900,7 +900,8 @@ namespace Ship_Game.Ships
                 if      (beam != null)            beam.CreateBeamHitParticles(ZPos, damagingShields);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(Center3D, damagingShields);
 
-                CreateHitDebris(proj);
+                if (!damagingShields)
+                    CreateHitDebris(proj);
             }
 
             return true;
@@ -934,56 +935,57 @@ namespace Ship_Game.Ships
                 Parent.CauseEmpDamage(proj.Weapon.EMPDamage);
         }
 
-        void CauseSpecialBeamDamageToShield(Beam beam)
+        void CauseSpecialBeamDamageToShield(Beam beam, float beamModifier)
         {
             if (beam != null)
             {
-                CauseSiphonDamage(beam);
-                BeamTractorDamage(beam, hittingShields: true);
+                CauseSiphonDamage(beam, beamModifier);
+                BeamTractorDamage(beam, beamModifier, hittingShields: true);
             }
         }
 
-        void CauseSpecialBeamDamageNoShield(Beam beam)
+        void CauseSpecialBeamDamageNoShield(Beam beam, float beamModifier)
         {
             if (beam != null)
             {
-                BeamPowerDamage(beam);
-                BeamTroopDamage(beam);
-                BeamTractorDamage(beam, hittingShields: false);
-                BeamRepulsionDamage(beam);
+                BeamPowerDamage(beam, beamModifier);
+                BeamTroopDamage(beam, beamModifier);
+                BeamTractorDamage(beam, beamModifier, hittingShields: false);
+                BeamRepulsionDamage(beam, beamModifier);
             }
         }
 
-        void BeamPowerDamage(Beam beam)
+        void BeamPowerDamage(Beam beam, float beamModifier)
         {
             if (beam.Weapon.PowerDamage > 0)
-                Parent.CausePowerDamage(beam.Weapon.PowerDamage);
+                Parent.CausePowerDamage(beam.Weapon.PowerDamage * beamModifier);
         }
 
-        void BeamTroopDamage(Beam beam)
+        void BeamTroopDamage(Beam beam, float beamModifier)
         {
             if (beam.Weapon.TroopDamageChance > 0f)
-                Parent.CauseTroopDamage(beam.Weapon.TroopDamageChance);
+                Parent.CauseTroopDamage(beam.Weapon.TroopDamageChance * beamModifier);
         }
 
-        void BeamTractorDamage(Beam beam, bool hittingShields)
+        void BeamTractorDamage(Beam beam, float beamModifier, bool hittingShields)
         {
             if (beam.Weapon.TractorDamage > 0f)
-                Parent.CauseTractorDamage(beam.Weapon.TractorDamage, hittingShields);
+                Parent.CauseTractorDamage(beam.Weapon.TractorDamage * beamModifier, hittingShields);
         }
 
-        void BeamRepulsionDamage(Beam beam)
+        void BeamRepulsionDamage(Beam beam, float beamModifier)
         {
             if (beam.Weapon.RepulsionDamage > 0)
-                Parent.CauseRepulsionDamage(beam);
+                Parent.CauseRepulsionDamage(beam, beamModifier);
         }
 
-        void CauseSiphonDamage(Beam beam)
+        void CauseSiphonDamage(Beam beam, float beamModifier)
         {
             if (beam.Weapon.SiphonDamage > 0f)
             {
-                ShieldPower = (ShieldPower - beam.Weapon.SiphonDamage).LowerBound(0);
-                beam.Owner?.AddPower(beam.Weapon.SiphonDamage);
+                float damage = beam.Weapon.SiphonDamage * beamModifier;
+                ShieldPower = (ShieldPower - damage).LowerBound(0);
+                beam.Owner?.AddPower(damage);
                 Parent.UpdateShields();
             }
         }
@@ -992,6 +994,8 @@ namespace Ship_Game.Ships
         {
             ++DebugInfoScreen.ModulesDied;
             ShieldPower = 0f;
+            ShieldPower = 0f;
+            Shield?.RemoveLight(Parent.Universe.Screen);
 
             if (Active && Parent.IsVisibleToPlayer)
             {
@@ -1037,13 +1041,16 @@ namespace Ship_Game.Ships
 
         void SpawnDebris(Vector2 velocity, int count, bool ignite)
         {
-            if (count == 0) 
-                count = RandomMath.Int(0, (int)(Area*0.5f + 1f));
+            float size = Radius.LowerBound(16);
+            if (count == 0)
+                count = RandomMath.Int(0, (int)(Area * 0.5f + 1f));
+            else
+                size *= 0.1f;
 
             if (count != 0)
             {
                 SpaceJunk.SpawnJunk(Parent.Universe, count, Position, velocity, this,
-                                    maxSize:Math.Max(Radius, 32), ignite:ignite);
+                                    maxSize: size, ignite:ignite);
             }
         }
 

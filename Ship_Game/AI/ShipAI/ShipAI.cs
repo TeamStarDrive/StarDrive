@@ -299,6 +299,7 @@ namespace Ship_Game.AI
             if (timeStep.FixedTime > 0f
                 && GlobalStats.EnableShipFlocking
                 && FriendliesNearby.Length != 0 
+                && Owner.InCombat
                 && !Orbit.InOrbit)
             {
                 KeepDistanceUsingFlocking(timeStep);
@@ -464,7 +465,7 @@ namespace Ship_Game.AI
                 case Plan.AwaitOrdersAIManaged:     AwaitOrdersAIControlled(timeStep);        break;
                 case Plan.Stop:                     DoStop(timeStep, goal);                   break;
                 case Plan.Bombard:                  DoBombard(timeStep, goal);                break;
-                case Plan.FindExterminationTarget:  DoFindExterminationTarget(timeStep, goal); break;
+                case Plan.FindExterminationTarget:  DoFindExterminationTarget(timeStep, goal);break;
                 case Plan.Exterminate:              DoExterminate(timeStep, goal);            break;
                 case Plan.Scrap:                    DoScrapShip(timeStep, goal);              break;
                 case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(timeStep, goal); break;
@@ -473,7 +474,7 @@ namespace Ship_Game.AI
                 case Plan.MakeFinalApproach:        MakeFinalApproach(timeStep, goal);        break;
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(timeStep);       break;
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, timeStep); break;
-                case Plan.Colonize:                 DoColonize(goal);                           break;
+                case Plan.Colonize:                 DoColonize(goal);                         break;
                 case Plan.Explore:                  DoExplore(timeStep);                      break;
                 case Plan.Rebase:                   DoRebase(timeStep, goal);                 break;
                 case Plan.DefendSystem:             DoSystemDefense(timeStep);                break;
@@ -494,7 +495,7 @@ namespace Ship_Game.AI
                 case Plan.RebaseToShip:             DoRebaseToShip(timeStep);                 break;
                 case Plan.HoldPosition:             DoHoldPositionPlan(goal);                 break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
-                case Plan.Meteor:                   DoMeteor(timeStep, goal);                 break;
+                case Plan.Meteor:                   DoMeteor(goal);                           break;
             }
         }
 
@@ -693,7 +694,17 @@ namespace Ship_Game.AI
             }
         }
 
-        void DoMeteor(FixedSimTime timeStep, ShipGoal g)
+        public void UpdateRebase()
+        {
+            if (State == AIState.Rebase && !Owner.Loyalty.isPlayer)
+            {
+                // if our Rebase troop ships order is targeting a conquered planet, cancel orders
+                if (FindGoal(Plan.Rebase, out ShipGoal rebase) && rebase.TargetPlanet.Owner != Owner.Loyalty)
+                    OrderRebaseToNearest();
+            }
+        }
+
+        void DoMeteor(ShipGoal g)
         {
             if (Owner.SecondsAlive > 1 && Owner.System == null)
                 Owner.Die(null, true);

@@ -17,7 +17,7 @@ namespace Ship_Game.AI
         //     And for other Ship AI Plans, this is used to store the current/default waypoint
         //     i.e. ExploreSystem sets MovePosition to next planet it likes
         public Vector2 MovePosition;
-        public Planet OrbitTarget;
+        public Planet OrbitTarget { get; private set; }
 
         WayPoints WayPoints = new WayPoints();
 
@@ -29,6 +29,11 @@ namespace Ship_Game.AI
         public void ClearWayPoints()
         {
             WayPoints.Clear();
+        }
+
+        public void SetOrbitTarget(Planet target)
+        {
+            OrbitTarget = target;
         }
 
         public void SetWayPoints(IReadOnlyList<WayPoint> wayPoints)
@@ -557,6 +562,8 @@ namespace Ship_Game.AI
 
         public bool IsOrbiting(Planet p) => OrbitTarget == p && Orbit.InOrbit;
 
+        public bool IsInOrbit => Orbit.InOrbit;
+
         // Minimum desired distance between two ships bounding Radius
         // This can be negative as well, to tweak the overlaps
         public const float FlockingSeparation = 0f;
@@ -583,7 +590,7 @@ namespace Ship_Game.AI
             // special case for fleets: if ship is already at its final position
             // ignore all flocking rules and stay put - other ships that are not in place
             // will do their own thing
-            if (Owner.Fleet != null && !Owner.InCombat && Owner.Fleet.IsShipInFormation(Owner, 500))
+            if (Owner.Fleet != null && Owner.Fleet.IsShipInFormation(Owner, 500))
             {
                 return;
             }

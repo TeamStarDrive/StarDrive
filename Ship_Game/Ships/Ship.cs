@@ -500,13 +500,13 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void CauseRepulsionDamage(Beam beam)
+        public void CauseRepulsionDamage(Beam beam, float beamModifier)
         {
             if (IsTethered || EnginesKnockedOut)
                 return;
             if (beam.Owner == null || beam.Weapon == null)
                 return;
-            Vector2 repulsion = (Position - beam.Owner.Position) * beam.Weapon.RepulsionDamage;
+            Vector2 repulsion = (Position - beam.Owner.Position) * beam.Weapon.RepulsionDamage * beamModifier;
             ApplyForce(repulsion);
         }
 
@@ -1161,12 +1161,25 @@ namespace Ship_Game.Ships
                 ScrambleFightersIfInCombat();
                 RecallHangarShipIfTooFarFromCarrier();
                 UpdateTractor();
+                UpdateSystem();
+                UpdateRebaseTarget();
                 SecondsAlive += 1;
 
                 if (Carrier.HasHangars)
                     Carrier.HandleHangarShipsByPlayerLaunchButton();
             }
         }
+
+        void UpdateRebaseTarget()
+        {
+            AI.UpdateRebase();
+        }
+
+        void UpdateSystem()
+        {
+            if (System?.Position.OutsideRadius(Position, System.Radius) == true)
+                SetSystem(null);
+        }   
 
         void RecallHangarShipIfTooFarFromCarrier()
         {

@@ -91,12 +91,14 @@ namespace Ship_Game
                 objects.AddSubItem(new DebugStatItem("SysShips", uObjects.SysShipsPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Systems", uObjects.SysPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Ships", uObjects.ShipsPerf, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("ShipAI", uObjects.ShipAiPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Projectiles", uObjects.ProjPerf, uObjects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Sensors", uObjects.SensorPerf, uObjects.TotalTime));
-                objects.AddSubItem(new DebugStatItem("Sensors", () => $"current:{uObjects.Scans} per/s:{uObjects.ScansPerSec}"));
                 objects.AddSubItem(new DebugStatItem("Visibility", uObjects.VisPerf, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Spatial", UState.Spatial.UpdateTime, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Removal", uObjects.ObjectRemoval, uObjects.TotalTime));
                 objects.AddSubItem(new DebugStatItem("Collide", UState.Spatial.CollisionTime, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("Sensors", uObjects.SensorPerf, uObjects.TotalTime));
+                objects.AddSubItem(new DebugStatItem("    Sensors", () => $"current:{uObjects.Scans} per/s:{uObjects.ScansPerSec}"));
 
                 DebugStats.AddItem(new DebugStatItem("TotalDraw", DrawGroupTotalPerf, true));
 
@@ -107,7 +109,7 @@ namespace Ship_Game
                 render.AddSubItem(new DebugStatItem("Planets", DrawPlanetsPerf, RenderGroupTotalPerf));
                 render.AddSubItem(new DebugStatItem("Shields", DrawShieldsPerf, RenderGroupTotalPerf));
                 render.AddSubItem(new DebugStatItem("Particles", DrawParticles, RenderGroupTotalPerf));
-                render.AddSubItem(new DebugStatItem("Explosions", DrawShieldsPerf, RenderGroupTotalPerf));
+                render.AddSubItem(new DebugStatItem("Explosions", DrawExplosionsPerf, RenderGroupTotalPerf));
                 render.AddSubItem(new DebugStatItem("Sunburn.End", EndSunburnPerf, RenderGroupTotalPerf));
 
                 var overlays = DebugStats.AddItem(new DebugStatItem("Overlays", OverlaysGroupTotalPerf, true));
