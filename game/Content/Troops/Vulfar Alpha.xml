@@ -13,8 +13,8 @@
   <idle_x_offset>16</idle_x_offset>
   <idle_y_offset>16</idle_y_offset>
   <attack_width>96</attack_width>
-  <idle_path>VulfarAdvanced/alpha_idle00</idle_path>
-  <attack_path>VulfarAdvanced/alpha_attack00</attack_path>
+  <idle_path>VulfarAdvanced/alpha_idle</idle_path>
+  <attack_path>VulfarAdvanced/alpha_attack</attack_path>
 
   <sound_attack>sd_ground_wulv_01</sound_attack>
   

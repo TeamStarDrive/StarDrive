@@ -19,7 +19,7 @@
 
   <UID>Fletchette Cannon</UID>
   <FireDelay>2</FireDelay>
-  <Range>3000</Range>
+  <Range>5500</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.04</OrdinanceRequiredToFire>
   <SalvoCount>8</SalvoCount>

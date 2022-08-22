@@ -6823,7 +6823,7 @@ RepairDroneLauncher:
  SPA: "Reparar lanzadrones"
 ThisModuleLaunchesRepairDrones:
  Id: 2101
- ENG: "This module launches repair drones equipped with nano-repair modules. These drones will automatically target and heal nearby vessels. When their nanite supply is exhausted, the drones will deactivate. It is recommended to pair these modules with ordnance fabricators."
+ ENG: "This module launches repair drones equipped with nano-repair modules. These drones will automatically target and heal nearby vessels, but they WONT heal ship that lanuched them. When their nanite supply is exhausted, the drones will deactivate. It is recommended to pair these modules with ordnance fabricators."
  RUS: "Этот модель выпускает в пространство специальные зонды, оснащенные ремонтными наномодулями. Эти зонды будут автоматически искать поврежденные корабли и ремонтировать их. После выработки ресурса зонды будут деактивированы. Рекомендуется использовать их в паре с изготовителями боеприпасов."
  SPA: "Este módulo lanza drones de reparación equipados con módulos de nanorreparación. Estos drones tratarán de reparar automáticamente las naves cercanas. Cuando sus reservas de nanobots se agotan, los drones se desactivan. Se recomienda dotar estos módulos con fabricadores de munición."
 Opponents:
@@ -13153,7 +13153,7 @@ Tech_SlipStreams_Bonus:
  ENG: "Ships traveling within your own empire's borders gain 30% bonus to their FTL speeds."
 Tech_RemnantNuker_Name:
  Id: 17924
- ENG: "RemnantNuker."
+ ENG: "Remnant Nuker."
  RUS: "Ядерный пускатель Предтечь"
 Tech_RemnantNuker_Desc:
  Id: 17925
