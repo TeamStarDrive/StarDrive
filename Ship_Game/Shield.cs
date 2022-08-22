@@ -4,7 +4,6 @@ using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Ships;
-using Ship_Game.ExtensionMethods;
 using SynapseGaming.LightingSystem.Lights;
 using Matrix = SDGraphics.Matrix;
 
@@ -12,14 +11,14 @@ namespace Ship_Game
 {
     public sealed class Shield
     {
-        public float TexScale;
-        public float Displacement;
-        public Matrix World;
-        private float Radius;
-        private float Rotation;
-        public GameObject Owner; // is null for PlanetaryShields
-        private Vector2 PlanetCenter; // only valid for PlanetaryShields
-        private PointLight Light;
+        public float TexScale { get; private set; }
+        public float Displacement { get; private set; }
+        public Matrix World { get; private set; }
+        float Radius;
+        float Rotation;
+        public readonly GameObject Owner; // is null for PlanetaryShields
+        Vector2 PlanetCenter; // only valid for PlanetaryShields
+        PointLight Light;
 
         public Shield()
         {
@@ -81,12 +80,12 @@ namespace Ship_Game
             Light = null;
         }
 
-        public void UpdateLightIntensity(float intensityReduction = 0.0f)
+        public void UpdateLightIntensity(float intensity)
         {
             if (Light == null)
                 return;
 
-            Light.Intensity -= intensityReduction;
+            Light.Intensity += intensity;
             if (Light.Intensity <= 0f)
                 Light.Enabled = false;
         }
@@ -183,6 +182,18 @@ namespace Ship_Game
                 case "Blue": return new Color(0f, 0f, 1f, alpha);
                 case "Yellow": return new Color(1f, 1f, 0f, alpha);
             }
+        }
+
+        public bool LightEnabled => Light?.Enabled == true;
+
+        public void UpdateTexScale(float value)
+        {
+            TexScale += value;
+        }
+
+        public void UpdateDisplacement(float value)
+        {
+            Displacement += value;
         }
     }
 }

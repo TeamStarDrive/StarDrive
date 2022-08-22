@@ -363,7 +363,7 @@ namespace Ship_Game.AI
 
             var emergencyPlanet = Owner.Universe.Planets.Filter(p => p.Owner == null);
             emergencyPlanet.Sort(p => p.Position.SqDist(Owner.Position));
-            OrbitTarget = emergencyPlanet[0];
+            SetOrbitTarget(emergencyPlanet[0]);
         }
 
         public void OrderFlee()
@@ -516,7 +516,15 @@ namespace Ship_Game.AI
 
             var planets = Owner.Loyalty.GetPlanets();
             if (planets.Count == 0)
+            {
+                if (Owner.Loyalty.isFaction)
+                {
+                    OrderScuttleShip();
+                    return;
+                }
+
                 planets = Owner.Loyalty.Universum.Planets;
+            }
 
             Planet planet = planets.FindClosestTo(Owner.Position, p => p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0);
             if (planet == null)
@@ -557,7 +565,7 @@ namespace Ship_Game.AI
             }
 
             Target = null;
-            OrbitTarget = toOrbit;
+            SetOrbitTarget(toOrbit);
             AwaitClosest = toOrbit;
             AddPlanetGoal(Plan.Orbit, toOrbit, AIState.Resupply, pushToFront: true);
 
@@ -616,9 +624,7 @@ namespace Ship_Game.AI
                 goal != null && OrderQueue.PeekLast.Plan != Plan.DefendSystem)
             {
                 ClearOrders(State);
-
                 SystemToDefend = system;
-                OrbitTarget = null;
                 if (SystemToDefend.PlanetList.Count > 0)
                 {
                     var potentials = new Array<Planet>();

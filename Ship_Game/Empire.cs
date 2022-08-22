@@ -555,8 +555,9 @@ namespace Ship_Game
             }
 
             rallyPlanets = new Array<Planet>();
-            foreach (Planet planet in OwnedPlanets)
+            for (int i =0; i < OwnedPlanets.Count; i++)
             {
+                Planet planet = OwnedPlanets[i];
                 if (planet.HasSpacePort && planet.Safe)
                     rallyPlanets.Add(planet);
             }
@@ -1566,8 +1567,9 @@ namespace Ship_Game
                 DoMoney();
                 AssignNewHomeWorldIfNeeded();
                 TakeTurn(us);
+                SetRallyPoints();
             }
-            SetRallyPoints();
+
             UpdateFleets(timeStep);
         }
 

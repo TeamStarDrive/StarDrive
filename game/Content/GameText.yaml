@@ -10256,6 +10256,12 @@ PopMax:
 MineralRichness:
  Id: 4381
  ENG: "Mineral Richness" 
+RingGalaxyGameTip:
+ Id: 4382
+ ENG: "Each empire starts at a random place in a Ring Galaxy"
+RingGalaxyGame:
+ Id: 4383
+ ENG: "Ring Galaxy"
 OnSurface:
  Id: 4993
  ENG: "on surface"
