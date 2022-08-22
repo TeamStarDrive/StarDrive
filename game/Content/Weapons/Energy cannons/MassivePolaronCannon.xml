@@ -22,7 +22,7 @@
   <UID>MassivePolaronCannon</UID>
   <FireDelay>4</FireDelay>
   <Range>7700</Range>
-  <PowerRequiredToFire>3400</PowerRequiredToFire>
+  <PowerRequiredToFire>3100</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   <!-- name of XACT audio cue to play on firing this weapon -->

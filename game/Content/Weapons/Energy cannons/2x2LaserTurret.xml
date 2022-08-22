@@ -19,7 +19,7 @@
   <UID>2x2LaserTurret</UID>
   <FireDelay>4</FireDelay>
   <Range>4000</Range>
-  <PowerRequiredToFire>556</PowerRequiredToFire>
+  <PowerRequiredToFire>507</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
 
   <PlaySoundOncePerSalvo>true</PlaySoundOncePerSalvo>
