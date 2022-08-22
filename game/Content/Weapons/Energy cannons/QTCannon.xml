@@ -20,7 +20,7 @@
   <UID>QTCannon</UID>
   <FireDelay>7</FireDelay>
   <Range>12000</Range>
-  <PowerRequiredToFire>3000</PowerRequiredToFire>
+  <PowerRequiredToFire>2850</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
   

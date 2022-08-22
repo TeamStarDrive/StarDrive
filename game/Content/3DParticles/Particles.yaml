@@ -744,6 +744,22 @@
   SrcDstBlend: [SourceAlpha, One]
 
 - ParticleSettings:
+  Name: RemnMissileFlare   #missile thrust glow
+  TextureName: "Glow.png"
+  Effect: ParticleEffect.fx
+  OnlyNearView: true # only render when zoomed in
+  MaxParticles: 6000
+  Duration: 0.15
+  DurationRandomness: 0.3
+  InheritOwnerVelocity: 0.1
+  EndVelocity: 0
+  StartColorRange: [[255,255,255,255],[255,233,171,255]]
+  EndColorRange: [[0,255,0,155],[0,255,0,155]]
+  RotateSpeed: [0]
+  StartEndSize: [ [180,230], [5,10] ] # growing particle
+  SrcDstBlend: [SourceAlpha, One]
+
+- ParticleSettings:
   Name: RemnRing
   TextureName: "ring.png"
   Effect: ParticleEffect.fx

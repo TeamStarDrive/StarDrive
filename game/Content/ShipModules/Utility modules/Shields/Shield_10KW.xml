@@ -31,7 +31,9 @@
   <ShieldPowerMax>10000</ShieldPowerMax>
   <ShieldRechargeDelay>20</ShieldRechargeDelay>
   <ShieldRechargeRate>200.0</ShieldRechargeRate>
-  <ShieldRadius>160</ShieldRadius>
+  <ShieldRadius>170</ShieldRadius>
   <ShieldRechargeCombatRate>50</ShieldRechargeCombatRate>
-  <ShieldEnergyResist>0.2</ShieldEnergyResist>
+  <ShieldEnergyResist>0.28</ShieldEnergyResist>
+  <ShieldBeamResist>0.20</ShieldBeamResist>
+  <ShieldKineticResist>-0.10</ShieldKineticResist>
 </ShipModule>

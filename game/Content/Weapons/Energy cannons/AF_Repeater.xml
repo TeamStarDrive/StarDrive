@@ -20,7 +20,7 @@
   
   <UID>AF_Repeater</UID>
   <FireDelay>0.2</FireDelay>
-  <Range>3000</Range>
+  <Range>5500</Range>
   <PowerRequiredToFire>20</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
