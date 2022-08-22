@@ -34,7 +34,7 @@
   <!-- Projectile Information -->
   <DamageAmount>105</DamageAmount>
   <BeamThickness>100</BeamThickness>
-  <BeamPowerCostPerSecond>8700</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>9583</BeamPowerCostPerSecond>
   <EffectVsArmor>1.20</EffectVsArmor>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->

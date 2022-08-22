@@ -21,7 +21,7 @@
   <!-- Projectile Information -->
   <DamageAmount>52</DamageAmount>
   <BeamThickness>70</BeamThickness>
-  <BeamPowerCostPerSecond>4400</BeamPowerCostPerSecond>
+  <BeamPowerCostPerSecond>4847</BeamPowerCostPerSecond>
 
   <!-- Effects are defined in 3DParticles/ParticleEffects.yaml -->
   <WeaponType>Energy Beam</WeaponType>
