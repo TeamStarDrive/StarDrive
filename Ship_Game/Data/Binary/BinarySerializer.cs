@@ -70,7 +70,6 @@ namespace Ship_Game.Data.Binary
             if (ctx.NumObjects != 0)
             {
                 ctx.WriteTypesList();
-                ctx.WriteObjectTypeGroups();
                 ctx.WriteObjects();
             }
 
