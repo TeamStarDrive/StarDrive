@@ -80,12 +80,25 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void CreateWriteCommands()
         {
-            (RootObject _, RecursiveScanner rs) = CreateDefaultRootObject();
+            (RootObject root, RecursiveScanner rs) = CreateDefaultRootObject();
             rs.CreateWriteCommands();
 
-            var objects = rs.TypeGroups;
+            Assert.AreEqual(15, rs.NumObjects);
+            Assert.AreEqual(1, rs.RootObjectId);
+            Assert.AreEqual(8, rs.TypeGroups.Length);
 
+            Assert.AreEqual("RootObject", rs.TypeGroups[7].Type.NiceTypeName);
+            var rootOS = (RecursiveScanner.UserTypeState)rs.TypeGroups[7].GroupedObjects[0];
+            Assert.AreEqual(rs.RootObjectId, rootOS.Id);
+            Assert.AreEqual(root, rootOS.Obj);
+            Assert.AreEqual(3, rootOS.Fields.Length);
 
+            var name = rs.GetObject(rootOS.Fields[0]);
+            var ships = rs.GetObject(rootOS.Fields[1]);
+            var nullShip = rs.GetObject(rootOS.Fields[2]);
+            Assert.AreEqual(root.Name, name);
+            Assert.AreEqual(root.Ships, ships);
+            Assert.AreEqual(null, nullShip);
         }
     }
 }

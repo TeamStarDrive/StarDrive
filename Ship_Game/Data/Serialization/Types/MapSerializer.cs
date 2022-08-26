@@ -96,8 +96,9 @@ namespace Ship_Game.Data.Serialization.Types
             var e = dict.GetEnumerator();
             while (e.MoveNext())
             {
-                writer.WriteElement(KeySerializer, e.Key);
-                writer.WriteElement(ElemSerializer, e.Value);
+                throw new NotImplementedException();
+                //writer.WriteElement(KeySerializer, e.Key);
+                //writer.WriteElement(ElemSerializer, e.Value);
             }
         }
 

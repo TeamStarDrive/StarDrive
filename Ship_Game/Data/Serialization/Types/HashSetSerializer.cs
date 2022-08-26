@@ -145,7 +145,8 @@ namespace Ship_Game.Data.Serialization.Types
             for (int i = 0; i < count; ++i)
             {
                 enumerator.MoveNext();
-                writer.WriteElement(ElemSerializer, enumerator.Current);
+                throw new NotImplementedException();
+                //writer.WriteElement(ElemSerializer, enumerator.Current);
             }
         }
 

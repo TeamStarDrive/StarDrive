@@ -106,7 +106,8 @@ namespace Ship_Game.Data.Serialization.Types
             for (int i = 0; i < count; ++i)
             {
                 object element = array.GetValue(i);
-                writer.WriteElement(ElemSerializer, element);
+                throw new NotImplementedException();
+                //writer.WriteElement(ElemSerializer, element);
             }
         }
 

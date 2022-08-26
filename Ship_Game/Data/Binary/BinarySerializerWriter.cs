@@ -24,12 +24,10 @@ namespace Ship_Game.Data.Binary
 
         // Object lists grouped by their type
         // includes UserClasses, Array<T>, Map<K,V>, strings
-        SerGroup[] TypeGroups;
-
-        FastTypeMap<Array<ObjectState>> Objects;
+        SerializationTypeGroup[] TypeGroups;
 
         // how many TypeGroups are going to be written to the binary stream?
-        public int NumUsedGroups => TypeGroups.Count(g => g.Objects.NotEmpty);
+        public int NumUsedGroups => TypeGroups.Count(g => g.GroupedObjects.NotEmpty);
 
         public bool Verbose;
 
@@ -44,8 +42,6 @@ namespace Ship_Game.Data.Binary
 
             NumObjects = rs.NumObjects;
             TypeGroups = rs.TypeGroups;
-            Objects = rs.Objects;
-
             UsedTypes = rs.UsedTypes;
             CollectionTypes = rs.CollectionTypes;
 
@@ -183,37 +179,34 @@ namespace Ship_Game.Data.Binary
             }
         }
 
-        public void WriteObjectTypeGroups()
-        {
-            foreach (SerGroup tg in TypeGroups)
-            {
-                if (tg.Objects.Count == 0)
-                    continue;
-                if (Verbose) Log.Info($"WriteGroup={tg.Ser.TypeId} {tg.Ser.NiceTypeName} count={tg.Objects.Count}");
-                BW.WriteVLu32((uint)tg.Ser.TypeId);
-                BW.WriteVLu32((uint)tg.Objects.Count); // int32 because we allow > 65k objects
-            }
-        }
-
         public void WriteObjects()
         {
+            foreach (SerializationTypeGroup tg in TypeGroups)
+            {
+                if (tg.GroupedObjects.Count == 0)
+                    continue;
+                if (Verbose) Log.Info($"WriteGroup={tg.Type.TypeId} {tg.Type.NiceTypeName} count={tg.GroupedObjects.Count}");
+                BW.WriteVLu32((uint)tg.Type.TypeId);
+                BW.WriteVLu32((uint)tg.GroupedObjects.Count); // int32 because we allow > 65k objects
+            }
+
             if (Verbose) Log.Info($"WriteObjects {NumObjects}");
 
-            foreach (SerGroup tg in TypeGroups)
+            foreach (SerializationTypeGroup tg in TypeGroups)
             {
-                if (tg.Objects.Count == 0)
+                if (tg.GroupedObjects.Count == 0)
                     continue;
+                if (Verbose) Log.Info($"WriteGroupedObjects Count={tg.GroupedObjects.Count} {tg.Type}");
 
-                if (Verbose) Log.Info($"WriteGroupedObjects Count={tg.Objects.Count} {tg.Ser}");
+                // for error checking we add the correct typeId
+                // skipping over type groups is currently not possible,
+                // because of WriteVLu32 giving variable length data
+                BW.WriteVLu32((uint)tg.Type.TypeId);
+                BW.WriteVLu32((uint)tg.GroupedObjects.Count);
 
-                // for error checking we want to have the correct typeId because
-                // if something goes wrong, we need a way to skip over these
-                BW.WriteVLu32((uint)tg.Ser.TypeId);
-                BW.WriteVLu32((uint)tg.Objects.Count);
-
-                foreach (ObjectState state in tg.Objects)
+                foreach (ObjectState state in tg.GroupedObjects)
                 {
-                    state.Serialize(this, tg.Ser);
+                    state.Serialize(this, tg.Type);
                 }
             }
         }
