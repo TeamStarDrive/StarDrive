@@ -186,7 +186,7 @@ namespace Ship_Game.Data.Serialization.Types
             TypeInfo elementType = reader.GetType(elemSer);
             for (int i = 0; i < count; ++i)
             {
-                object element = reader.ReadElement(elementType, elemSer);
+                object element = reader.ReadPointer();
                 AddToSet(set, element);
             }
         }
