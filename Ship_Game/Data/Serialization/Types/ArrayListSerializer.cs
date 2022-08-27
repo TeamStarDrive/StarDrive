@@ -196,7 +196,7 @@ namespace Ship_Game.Data.Serialization.Types
             return ((IList)instance)[index];
         }
 
-        public override object CreateInstance(int length)
+        public override object CreateInstance()
         {
             return NewList();
         }
