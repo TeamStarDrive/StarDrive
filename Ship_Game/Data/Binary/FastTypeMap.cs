@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -42,6 +43,12 @@ namespace Ship_Game.Data.Binary
         {
             return TValues.Filter(v => v != null && filter(v));
         }
+
+        public IEnumerable<TValue> GetValues()
+        {
+            foreach (TValue v in TValues)
+                if (v != null) yield return v;
+        }
     }
 
     internal sealed class FastMapDebugView<TValue> where TValue : class
@@ -51,6 +58,6 @@ namespace Ship_Game.Data.Binary
         public FastMapDebugView(FastTypeMap<TValue> map) { Map = map; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public TValue[] Items => Map.Values.ToArr();
+        public TValue[] Items => Map.Values;
     }
 }

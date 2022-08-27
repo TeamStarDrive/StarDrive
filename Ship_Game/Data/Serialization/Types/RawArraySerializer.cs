@@ -118,7 +118,7 @@ namespace Ship_Game.Data.Serialization.Types
             TypeInfo elementType = reader.GetType(ElemSerializer);
             for (int i = 0; i < count; ++i)
             {
-                object element = reader.ReadElement(elementType, ElemSerializer);
+                object element = reader.ReadPointer();
                 SetValueAt(converted, element, i);
             }
             return converted;

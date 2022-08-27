@@ -15,7 +15,7 @@ namespace Ship_Game.Data.Binary
         public uint NumCollectionTypes;
         public uint MaxTypeId;
         public uint NumTypeGroups;
-        public uint RootObjectIndex;
+        public uint RootObjectId;
 
         public BinarySerializerHeader(BinarySerializerWriter writer)
         {
@@ -27,7 +27,7 @@ namespace Ship_Game.Data.Binary
             MaxTypeId = (uint)Math.Max(writer.UsedTypes.Max(s => s.TypeId),
                                        writer.CollectionTypes.Max(s => s.TypeId));
             NumTypeGroups = (uint)writer.NumUsedGroups;
-            RootObjectIndex = writer.RootObjectIndex;
+            RootObjectId = writer.RootObjectId;
         }
 
         public BinarySerializerHeader(Reader reader)
@@ -39,7 +39,7 @@ namespace Ship_Game.Data.Binary
             NumCollectionTypes = reader.ReadVLu32();
             MaxTypeId = reader.ReadVLu32();
             NumTypeGroups = reader.ReadVLu32();
-            RootObjectIndex = reader.ReadVLu32();
+            RootObjectId = reader.ReadVLu32();
         }
 
         public void Write(Writer writer)
@@ -51,12 +51,12 @@ namespace Ship_Game.Data.Binary
             writer.WriteVLu32(NumCollectionTypes);
             writer.WriteVLu32(MaxTypeId);
             writer.WriteVLu32(NumTypeGroups);
-            writer.WriteVLu32(RootObjectIndex);
+            writer.WriteVLu32(RootObjectId);
         }
 
         public override string ToString()
         {
-            return $"v{Version} Opt={Options} Types={NumUsedTypes} Coll={NumCollectionTypes} Groups={NumTypeGroups} Root={RootObjectIndex}";
+            return $"v{Version} Opt={Options} Types={NumUsedTypes} Coll={NumCollectionTypes} Groups={NumTypeGroups} Root={RootObjectId}";
         }
     }
 }

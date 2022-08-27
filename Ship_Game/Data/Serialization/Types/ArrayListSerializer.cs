@@ -218,7 +218,7 @@ namespace Ship_Game.Data.Serialization.Types
             {
                 for (int i = 0; i < count; ++i)
                 {
-                    object element = reader.ReadElement(elementType, elemSer);
+                    object element = reader.ReadPointer();
                     list[i] = element;
                 }
             }
@@ -226,7 +226,7 @@ namespace Ship_Game.Data.Serialization.Types
             {
                 for (int i = 0; i < count; ++i)
                 {
-                    object element = reader.ReadElement(elementType, elemSer);
+                    object element = reader.ReadPointer();
                     AddToList(list, element);
                 }
             }

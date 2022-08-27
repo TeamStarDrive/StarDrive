@@ -19,7 +19,7 @@ public class ObjectState
 {
     public object Obj;
     public int Id; // ID of this object, 0 means null
-    public override string ToString() => $"ObjState {Obj.GetType().Name} {Id} {Obj}";
+    public override string ToString() => $"ObjState {Obj.GetType().Name} Id={Id} Obj={Obj}";
 
     public ObjectState(object obj, int id) { Obj = obj; Id = id; }
 
@@ -27,6 +27,25 @@ public class ObjectState
     public virtual void Scan(RecursiveScanner scanner, TypeSerializer ser)
     {
         // Fundamental types don't have anything to scan
+    }
+
+    // Remaps object id-s
+    public virtual void Remap(int[] map)
+    {
+        Remap(map, null);
+    }
+
+    protected void Remap(int[] map, int[] fields)
+    {
+        Id = map[Id];
+        if (fields != null)
+        {
+            for (int i = 0; i < fields.Length; ++i)
+            {
+                int oldId = fields[i];
+                fields[i] = map[oldId];
+            }
+        }
     }
 
     // Serialize this ObjectState into a binary writer
@@ -53,11 +72,11 @@ public class RecursiveScanner
 
     // maps Type -> object* -> ObjectState
     // allowing for much faster object lookup if you already know the object Type
-    readonly FastTypeMap<Map<object, ObjectState>> InstanceMap;
+    FastTypeMap<Map<object, ObjectState>> InstanceMap;
 
     // maps Type -> Array<ObjectState>
     // grouping objects by their type
-    public readonly FastTypeMap<Array<ObjectState>> Objects;
+    FastTypeMap<Array<ObjectState>> Objects;
 
     int NextObjectId;
     public int RootObjectId;
@@ -114,6 +133,8 @@ public class RecursiveScanner
         try
         {
             RootObjectId = ScanObjectState(RootSer, RootObj);
+            InstanceMap = null; // no longer needed
+            LinearRemapObjectIds();
 
             var groups = new Array<SerializationTypeGroup>();
             foreach (TypeSerializer ser in AllTypes)
@@ -202,12 +223,43 @@ public class RecursiveScanner
         return false;
     }
 
+    // remaps scattered object-ids to align with type-group ordering
+    void LinearRemapObjectIds()
+    {
+        var remap = new int[NumObjects + 1];
+        int currentIndex = 0;
+
+        // create the mapping using the properly sorted Types list
+        foreach (TypeSerializer ser in AllTypes)
+        {
+            if (Objects.TryGetValue(ser, out Array<ObjectState> groupedObjects))
+            {
+                foreach (ObjectState objState in groupedObjects)
+                {
+                    int newId = ++currentIndex;
+                    remap[objState.Id] = newId;
+                }
+            }
+        }
+
+        // now remap write-commands inside the object states
+        foreach (Array<ObjectState> groupedObjects in Objects.GetValues())
+        {
+            foreach (ObjectState objState in groupedObjects)
+            {
+                objState.Remap(remap);
+            }
+        }
+
+        RootObjectId = remap[RootObjectId];
+    }
+
     // for TESTING, too slow for production
     public object GetObject(int objectId)
     {
-        Array<ObjectState>[] objectStatesByType = Objects.Values;
-        foreach (Array<ObjectState> objects in objectStatesByType)
-            foreach (ObjectState obj in objects)
+        // TODO: if needed, this can use binary search thanks to linear remapping
+        foreach (Array<ObjectState> groupedObjects in Objects.GetValues())
+            foreach (ObjectState obj in groupedObjects)
                 if (obj.Id == objectId)
                     return obj.Obj;
         return null;
@@ -227,6 +279,11 @@ public class RecursiveScanner
             {
                 WriteChildElement(w, Fields[i]);
             }
+        }
+
+        public override void Remap(int[] map)
+        {
+            Remap(map, Fields);
         }
 
         public override void Scan(RecursiveScanner scanner, TypeSerializer ser)
@@ -256,10 +313,23 @@ public class RecursiveScanner
 
         public override void Serialize(BinarySerializerWriter w, TypeSerializer ser)
         {
-            for (int i = 0; i < Items.Length; ++i)
+            if (Items == null)
             {
-                WriteChildElement(w, Items[i]);
+                w.BW.WriteVLu32((uint)0); // collection length
             }
+            else
+            {
+                w.BW.WriteVLu32((uint)Items.Length); // collection length
+                for (int i = 0; i < Items.Length; ++i)
+                {
+                    WriteChildElement(w, Items[i]);
+                }
+            }
+        }
+
+        public override void Remap(int[] map)
+        {
+            Remap(map, Items);
         }
 
         public override void Scan(RecursiveScanner scanner, TypeSerializer ser)

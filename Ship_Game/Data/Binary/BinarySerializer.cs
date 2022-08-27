@@ -104,7 +104,11 @@ namespace Ship_Game.Data.Binary
                 ctx.ReadTypesList();
                 ctx.ReadTypeGroups();
                 ctx.ReadObjectsList();
-                object root = ctx.ObjectsList[header.RootObjectIndex];
+                object root = ctx.ObjectsList[header.RootObjectId - 1]; // ID-s are from [1...N]
+                if (root.GetType() != Type)
+                {
+                    throw new InvalidDataException($"Root type mismatch. Expected={Type} but Actual={root.GetType()}");
+                }
                 return root;
             }
 
