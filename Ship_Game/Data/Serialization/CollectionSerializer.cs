@@ -27,12 +27,6 @@ namespace Ship_Game.Data.Serialization
         public abstract object GetElementAt(object instance, int index);
 
         /// <summary>
-        /// Collections only: Create a collection instance with an optional
-        /// length parameter. The length can be ignored by implementation.
-        /// </summary>
-        public abstract object CreateInstance(int length);
-
-        /// <summary>
         /// Collections only: Deserialize into an existing object instance
         /// </summary>
         public abstract void Deserialize(BinarySerializerReader reader, object instance);

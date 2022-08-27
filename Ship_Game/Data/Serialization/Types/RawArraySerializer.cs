@@ -115,7 +115,6 @@ namespace Ship_Game.Data.Serialization.Types
         {
             int count = (int)reader.BR.ReadVLu32();
             object converted = NewArray(count);
-            TypeInfo elementType = reader.GetType(ElemSerializer);
             for (int i = 0; i < count; ++i)
             {
                 object element = reader.ReadPointer();
@@ -134,9 +133,9 @@ namespace Ship_Game.Data.Serialization.Types
             return GetValueAt(instance, index);
         }
 
-        public override object CreateInstance(int length)
+        public override object CreateInstance()
         {
-            return NewArray(length);
+            throw new NotSupportedException();
         }
 
         public override void Deserialize(BinarySerializerReader reader, object instance)

@@ -167,7 +167,7 @@ namespace Ship_Game.Data.Serialization.Types
             throw new NotImplementedException("GetElementAt(index) not supported for Set types");
         }
 
-        public override object CreateInstance(int length)
+        public override object CreateInstance()
         {
             return NewSet();
         }
