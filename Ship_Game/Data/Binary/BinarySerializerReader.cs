@@ -40,7 +40,7 @@ namespace Ship_Game.Data.Binary
             {
                 if (!typeMap.TryGet(typeId, out TypeSerializer s))
                     break;
-                AddTypeInfo(typeId, s.Type.Name, s, null, s.IsPointerType, SerializerCategory.None);
+                AddTypeInfo(typeId, s.Type.Name, s, null, s.IsPointerType, SerializerCategory.Fundamental);
             }
         }
 
@@ -303,9 +303,9 @@ namespace Ship_Game.Data.Binary
                     ObjectsList[baseIndex + i] = ser.CreateInstanceOf(ser.Type);
             });
 
-            // read strings
+            // read fundamental types, such as int, Vector2, String, Byte[], Point. @see TypeSerializerMap.cs
             if (Verbose) Log.Info("Read Fundamental Type Instances");
-            ForEachTypeGroup(SerializerCategory.None, (type, ser, count, baseIndex) =>
+            ForEachTypeGroup(SerializerCategory.Fundamental, (type, ser, count, baseIndex) =>
             {
                 ReadObjectsBegin(type, count);
                 for (int i = 0; i < count; ++i)
@@ -321,6 +321,8 @@ namespace Ship_Game.Data.Binary
                 for (int i = 0; i < count; ++i)
                     ObjectsList[baseIndex + i] = cs.CreateInstance(0);
             });
+
+            // structs need to be deserialized before RawArrays, because RawArrays can contain structs
 
             // now deserialize raw arrays
             if (Verbose) Log.Info("Read RawArrays");
@@ -381,8 +383,11 @@ namespace Ship_Game.Data.Binary
             int objectIdx = 0;
             foreach ((TypeInfo type, TypeSerializer ser, int count) in TypeGroups)
             {
-                if (type.Category == category)
+                if ((category == SerializerCategory.Fundamental && ser.IsFundamentalType) ||
+                    (type.Category == category && !ser.IsFundamentalType))
+                {
                     action(type, ser, count, objectIdx);
+                }
                 objectIdx += count;
             }
         }
@@ -399,10 +404,10 @@ namespace Ship_Game.Data.Binary
             for (uint i = 0; i < instanceType.Fields.Length; ++i)
             {
                 FieldInfo fi = instanceType.Fields[i];
-                TypeInfo fType = GetType(fi.StreamTypeId);
 
-                // the element has to be read, even if Field or Type is deleted
-                object fieldValue = ReadElement(fType, fType.Ser);
+                // all types are now using pointers
+                // the pointer has to be read, even if Field or Type is deleted
+                object fieldValue = ReadPointer();
 
                 // if Type has been deleted, we skip and read the next field
                 if (instance == null) continue;
@@ -421,31 +426,13 @@ namespace Ship_Game.Data.Binary
             }
         }
 
-        // Reads an inline element from the stream
-        // For pointer types, it reads the pointer value and fetches the right instance
-        // For primitive value types, it reads the inline value
-        // For UserClass value types, it reads the inline struct fields
-        public object ReadElement(TypeInfo elementType, TypeSerializer ser)
+        // Reads a pointer from the stream and looks it up from the ObjectsList
+        public object ReadPointer()
         {
-            if (elementType.IsPointerType)
-            {
-                uint pointer = BR.ReadVLu32();
-                if (pointer == 0)
-                    return null;
-                return ObjectsList[pointer - 1]; // pointer = objectIndex + 1
-            }
-
-            if (elementType.Category == SerializerCategory.UserClass)
-            {
-                // if ser == null, then Type has been deleted, skip with instance=null
-                object inlineStruct = ser != null ? Activator.CreateInstance(ser.Type) : null;
-                ReadUserClass(elementType, inlineStruct);
-                return inlineStruct;
-            }
-            else // int, float, object[], Vector2[], etc
-            {
-                return ser.Deserialize(this);
-            }
+            uint pointer = BR.ReadVLu32();
+            if (pointer == 0)
+                return null;
+            return ObjectsList[pointer - 1]; // pointer = objectIndex + 1
         }
     }
 }

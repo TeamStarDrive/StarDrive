@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Binary;
@@ -84,7 +85,7 @@ namespace UnitTests.Serialization
             rs.CreateWriteCommands();
 
             Assert.AreEqual(15, rs.NumObjects);
-            Assert.AreEqual(1, rs.RootObjectId);
+            Assert.AreEqual(11, rs.RootObjectId);
             Assert.AreEqual(8, rs.TypeGroups.Length);
 
             Assert.AreEqual("RootObject", rs.TypeGroups[7].Type.NiceTypeName);

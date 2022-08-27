@@ -14,7 +14,7 @@ namespace Ship_Game.Data.Binary
         public int NumObjects;
  
         // index of the root object which is being serialized/deserialized
-        public uint RootObjectIndex;
+        public uint RootObjectId;
 
         // which types were used, includes: classes, Enums and Structs
         public TypeSerializer[] UsedTypes;
@@ -39,14 +39,15 @@ namespace Ship_Game.Data.Binary
         public void ScanObjects(BinarySerializer rootSer, object rootObject)
         {
             var rs = new RecursiveScanner(rootSer, rootObject);
+            rs.CreateWriteCommands();
 
             NumObjects = rs.NumObjects;
             TypeGroups = rs.TypeGroups;
             UsedTypes = rs.UsedTypes;
             CollectionTypes = rs.CollectionTypes;
 
-            // find the root object index from the neatly sorted type groups
-            RootObjectIndex = (uint)rs.RootObjectId;
+            // find the root object ID from the neatly sorted type groups
+            RootObjectId = (uint)rs.RootObjectId;
         }
 
         string[] MapSingle(Func<TypeSerializer, string> selector)
