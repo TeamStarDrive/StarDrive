@@ -160,7 +160,7 @@ public class RecursiveScanner
         ++NumObjects;
         int id = ++NextObjectId;
 
-        if (ser.IsFundamentalType) return new(instance, id);
+        if (ser.IsFundamentalType || ser.IsEnumType) return new(instance, id);
         if (ser.IsUserClass) return new UserTypeState(instance, id);
         if (ser.IsCollection) return new CollectionState(instance, id);
         throw new($"Unexpected type: {ser}");
@@ -203,7 +203,7 @@ public class RecursiveScanner
             return true;
         if (type is UserTypeSerializer us)
             foreach (DataField field in us.Fields)
-                if (TypeDependsOn(field.Serializer, on))
+                if (field.Serializer != type && TypeDependsOn(field.Serializer, on))
                     return true;
         return false;
     }

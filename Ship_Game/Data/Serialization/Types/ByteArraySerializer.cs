@@ -33,9 +33,9 @@ namespace Ship_Game.Data.Serialization.Types
             return array;
         }
 
-        public override object CreateInstance(int length)
+        public override object CreateInstance()
         {
-            return new byte[length];
+            throw new NotSupportedException();
         }
     }
 }

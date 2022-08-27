@@ -293,102 +293,94 @@ namespace Ship_Game.Data.Binary
         {
             if (Verbose) Log.Info($"ReadObjects {ObjectsList.Length}");
 
+            PreInstantiate();
+
+            // read types in the order they were Serialized
+            // if there is a sequencing/dependency problem, the issue must be
+            // solved in the Type sorting stage during Serialization
+
+            if (Verbose) Log.Info("Read Type Instances and Fields");
+            foreach (var g in GetTypeGroups())
+            {
+                ReadObjects(g.Type, g.Ser, g.Count, g.BaseIndex);
+            }
+
+            AfterDeserialization();
+        }
+
+        void PreInstantiate()
+        {
             // pre-instantiate UserClass instances
-            if (Verbose) Log.Info("PreInstantiate UserClass instances");
-            ForEachTypeGroup(SerializerCategory.UserClass, (type, ser, count, baseIndex) =>
+            if (Verbose) Log.Info("PreInstantiate UserClass and Collection instances");
+            foreach (var g in GetTypeGroups(t => t.Category is (SerializerCategory.UserClass or SerializerCategory.Collection)))
             {
-                if (ser == null)
-                    return; // type not found (it was deleted or renamed)
+                for (int i = 0; i < g.Count; ++i)
+                    ObjectsList[g.BaseIndex + i] = g.Ser.CreateInstance();
+            }
+        }
+
+        void AfterDeserialization()
+        {
+            // now all instances should be initialized, we can call events
+            if (Verbose) Log.Info("Invoke UserClass events");
+            foreach (var g in GetTypeGroups(t => t.Category == SerializerCategory.UserClass))
+            {
+                if (g.Ser is UserTypeSerializer us && us.OnDeserialized != null)
+                {
+                    for (int i = 0; i < g.Count; ++i)
+                    {
+                        object instance = ObjectsList[g.BaseIndex + i];
+                        us.OnDeserialized.Invoke(instance, null);
+                    }
+                }
+            }
+        }
+
+        record struct TypeGroupInfo(TypeInfo Type, TypeSerializer Ser, int Count, int BaseIndex);
+
+        IEnumerable<TypeGroupInfo> GetTypeGroups(Func<TypeInfo, bool> condition = null)
+        {
+            int baseIndex = 0;
+            foreach ((TypeInfo type, TypeSerializer ser, int count) in TypeGroups)
+            {
+                if (type?.Ser != null && (condition == null || condition(type)))
+                {
+                    yield return new(type, ser, count, baseIndex);
+                }
+                baseIndex += count;
+            }
+        }
+
+        void ReadObjects(TypeInfo type, TypeSerializer ser, int count, int baseIndex)
+        {
+            ReadObjectsBegin(type, count);
+
+            if (type.Category is SerializerCategory.UserClass)
+            {
                 for (int i = 0; i < count; ++i)
-                    ObjectsList[baseIndex + i] = ser.CreateInstanceOf(ser.Type);
-            });
-
-            // read fundamental types, such as int, Vector2, String, Byte[], Point. @see TypeSerializerMap.cs
-            if (Verbose) Log.Info("Read Fundamental Type Instances");
-            ForEachTypeGroup(SerializerCategory.Fundamental, (type, ser, count, baseIndex) =>
+                {
+                    object instance = ObjectsList[baseIndex + i];
+                    ReadUserClass(type, instance);
+                }
+            }
+            else if (type.Category is SerializerCategory.Collection)
             {
-                ReadObjectsBegin(type, count);
-                for (int i = 0; i < count; ++i)
-                    ObjectsList[baseIndex + i] = ser.Deserialize(this);
-            });
-
-            // create collection instances, but don't read them yet
-            // also, skip raw arrays, because we can't create them without Deserializing them
-            if (Verbose) Log.Info("Create Collection Instances");
-            ForEachTypeGroup(SerializerCategory.Collection, (type, ser, count, baseIndex) =>
-            {
-                var cs = (CollectionSerializer)ser;
-                for (int i = 0; i < count; ++i)
-                    ObjectsList[baseIndex + i] = cs.CreateInstance(0);
-            });
-
-            // structs need to be deserialized before RawArrays, because RawArrays can contain structs
-
-            // now deserialize raw arrays
-            if (Verbose) Log.Info("Read RawArrays");
-            ForEachTypeGroup(SerializerCategory.RawArray, (type, ser, count, baseIndex) =>
-            {
-                ReadObjectsBegin(type, count);
-                for (int i = 0; i < count; ++i)
-                    ObjectsList[baseIndex + i] = ser.Deserialize(this);
-            });
-
-            // --- now all instances should be created ---
-
-            // read Collections
-            if (Verbose) Log.Info("Read Collections");
-            ForEachTypeGroup(SerializerCategory.Collection, (type, ser, count, baseIndex) =>
-            {
-                ReadObjectsBegin(type, count);
                 var cs = (CollectionSerializer)ser;
                 for (int i = 0; i < count; ++i)
                 {
                     object instance = ObjectsList[baseIndex + i];
                     cs.Deserialize(this, instance);
                 }
-            });
-
-            // read UserClass fields
-            if (Verbose) Log.Info("Read UserClass Fields");
-            ForEachTypeGroup(SerializerCategory.UserClass, (type, ser, count, baseIndex) =>
+            }
+            // fundamental types such as int, Vector2, String, Byte[], Point. @see TypeSerializerMap.cs
+            // also RawArrays like Ship[]
+            else
             {
-                ReadObjectsBegin(type, count);
+                Log.Info($"Deserialize {ser}");
                 for (int i = 0; i < count; ++i)
                 {
-                    object instance = ObjectsList[baseIndex + i];
-                    ReadUserClass(type, instance);
+                    ObjectsList[baseIndex + i] = ser.Deserialize(this);
                 }
-            });
-
-            // now all instances should be initialized, we can call events
-            if (Verbose) Log.Info("Invoke UserClass events");
-            ForEachTypeGroup(SerializerCategory.UserClass, (type, ser, count, baseIndex) =>
-            {
-                if (ser is UserTypeSerializer us)
-                {
-                    if (us.OnDeserialized != null)
-                    {
-                        for (int i = 0; i < count; ++i)
-                        {
-                            object instance = ObjectsList[baseIndex + i];
-                            us.OnDeserialized.Invoke(instance, null);
-                        }
-                    }
-                }
-            });
-        }
-
-        void ForEachTypeGroup(SerializerCategory category, Action<TypeInfo, TypeSerializer, int, int> action)
-        {
-            int objectIdx = 0;
-            foreach ((TypeInfo type, TypeSerializer ser, int count) in TypeGroups)
-            {
-                if ((category == SerializerCategory.Fundamental && ser.IsFundamentalType) ||
-                    (type.Category == category && !ser.IsFundamentalType))
-                {
-                    action(type, ser, count, objectIdx);
-                }
-                objectIdx += count;
             }
         }
 

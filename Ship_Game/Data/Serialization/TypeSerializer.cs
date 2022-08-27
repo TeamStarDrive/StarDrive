@@ -130,11 +130,11 @@ namespace Ship_Game.Data.Serialization
         public abstract object Deserialize(BinarySerializerReader reader);
 
         /// <summary>
-        /// Attempts to create an instance of `type` or returns null
+        /// Attempts to create an instance of `Type` or returns null
         /// </summary>
-        public object CreateInstanceOf(Type type)
+        public virtual object CreateInstance()
         {
-            return Activator.CreateInstance(type, nonPublic:true);
+            return Activator.CreateInstance(Type, nonPublic:true);
         }
 
         protected static void Error(object value, string couldNotConvertToWhat)
