@@ -15,7 +15,8 @@ namespace Ship_Game.Data.Binary
         readonly BinarySerializerHeader Header;
 
         // Object counts grouped by their type (includes strings)
-        (TypeInfo Type, TypeSerializer Ser, int Count)[] TypeGroups;
+        record struct TypeGroup(TypeInfo Type, TypeSerializer Ser, int Count);
+        TypeGroup[] TypeGroups;
         TypeInfo[] StreamTypes;
         TypeInfo[] ActualTypes;
 
@@ -242,7 +243,7 @@ namespace Ship_Game.Data.Binary
         public void ReadTypeGroups()
         {
             if (Verbose) Log.Info($"Reading {Header.NumTypeGroups} TypeGroups");
-            TypeGroups = new (TypeInfo Info, TypeSerializer Ser, int Count)[Header.NumTypeGroups];
+            TypeGroups = new TypeGroup[Header.NumTypeGroups];
 
             int totalCount = 0;
             for (int i = 0; i < TypeGroups.Length; ++i)
@@ -258,40 +259,22 @@ namespace Ship_Game.Data.Binary
                 if (type == null)
                 {
                     Log.Error($"ReadGroup Type={streamTypeId} was null");
-                    TypeGroups[i] = (null, null, count);
+                    TypeGroups[i] = new(null, null, count);
                 }
                 else
                 {
                     if (Verbose) Log.Info($"ReadGroup Type={streamTypeId} Count={count} {type.Ser}");
-                    TypeGroups[i] = (type, type.Ser, count);
+                    TypeGroups[i] = new(type, type.Ser, count);
                 }
             }
 
             ObjectsList = new object[totalCount];
         }
 
-        void ReadObjectsBegin(TypeInfo type, int expectedCount)
-        {
-            if (Verbose) Log.Info($"ReadObjects Count={expectedCount} {type}");
-
-            // we are trying to read a typegroup but the type does not match
-            uint typeId = BR.ReadVLu32();
-            if (typeId != type.StreamTypeId)
-            {
-                TypeInfo actual = GetTypeOrNull(typeId);
-                throw new InvalidDataException($"Invalid TypeGroup Id={typeId} Expected={type} Encountered={actual}");
-            }
-
-            // the count does not match
-            uint count = BR.ReadVLu32();
-            if (count != expectedCount)
-                throw new InvalidDataException($"Invalid TypeGroup Count={count} Expected={expectedCount} for Type={type}");
-        }
-
         // populate all object instances by reading the object fields
         public void ReadObjectsList()
         {
-            if (Verbose) Log.Info($"ReadObjects {ObjectsList.Length}");
+            if (Verbose) Log.Info($"ReadObjectsList {ObjectsList.Length}");
 
             PreInstantiate();
 
@@ -299,7 +282,7 @@ namespace Ship_Game.Data.Binary
             // if there is a sequencing/dependency problem, the issue must be
             // solved in the Type sorting stage during Serialization
 
-            if (Verbose) Log.Info("Read Type Instances and Fields");
+            if (Verbose) Log.Info("Read Values and Fields");
             foreach (var g in GetTypeGroups())
             {
                 ReadObjects(g.Type, g.Ser, g.Count, g.BaseIndex);
@@ -311,7 +294,7 @@ namespace Ship_Game.Data.Binary
         void PreInstantiate()
         {
             // pre-instantiate UserClass instances
-            if (Verbose) Log.Info("PreInstantiate UserClass and Collection instances");
+            if (Verbose) Log.Info("PreInstantiate objects");
             foreach (var g in GetTypeGroups(t => t.Category is (SerializerCategory.UserClass or SerializerCategory.Collection)))
             {
                 for (int i = 0; i < g.Count; ++i)
@@ -336,24 +319,37 @@ namespace Ship_Game.Data.Binary
             }
         }
 
-        record struct TypeGroupInfo(TypeInfo Type, TypeSerializer Ser, int Count, int BaseIndex);
+        record struct TypeGroupWithBaseIndex(TypeInfo Type, TypeSerializer Ser, int Count, int BaseIndex);
 
-        IEnumerable<TypeGroupInfo> GetTypeGroups(Func<TypeInfo, bool> condition = null)
+        IEnumerable<TypeGroupWithBaseIndex> GetTypeGroups(Func<TypeInfo, bool> condition = null)
         {
             int baseIndex = 0;
-            foreach ((TypeInfo type, TypeSerializer ser, int count) in TypeGroups)
+            foreach (var g in TypeGroups)
             {
-                if (type?.Ser != null && (condition == null || condition(type)))
+                if (condition == null || (g.Type?.Ser != null && condition(g.Type)))
                 {
-                    yield return new(type, ser, count, baseIndex);
+                    yield return new(g.Type, g.Ser, g.Count, baseIndex);
                 }
-                baseIndex += count;
+                baseIndex += g.Count;
             }
         }
 
         void ReadObjects(TypeInfo type, TypeSerializer ser, int count, int baseIndex)
         {
-            ReadObjectsBegin(type, count);
+            if (Verbose) Log.Info($"ReadObjects Count={count} {type}");
+
+            // we are trying to read a typegroup but the type does not match
+            uint typeId = BR.ReadVLu32();
+            if (typeId != type.StreamTypeId)
+            {
+                TypeInfo actual = GetTypeOrNull(typeId);
+                throw new InvalidDataException($"Invalid TypeGroup Id={typeId} Expected={type} Encountered={actual}");
+            }
+
+            // the count does not match, there's an invalid offset in the deserializer and we're reading bad data
+            uint actualCount = BR.ReadVLu32();
+            if (actualCount != count)
+                throw new InvalidDataException($"Invalid TypeGroup Count={actualCount} Expected={count} for Type={type}");
 
             if (type.Category is SerializerCategory.UserClass)
             {
@@ -376,7 +372,6 @@ namespace Ship_Game.Data.Binary
             // also RawArrays like Ship[]
             else
             {
-                Log.Info($"Deserialize {ser}");
                 for (int i = 0; i < count; ++i)
                 {
                     ObjectsList[baseIndex + i] = ser.Deserialize(this);
@@ -386,13 +381,6 @@ namespace Ship_Game.Data.Binary
 
         void ReadUserClass(TypeInfo instanceType, object instance)
         {
-            // raise alarm on null pointers
-            if (instanceType.IsPointerType && instance == null)
-            {
-                Log.Error($"NullReference {instanceType.Name} - this is a bug in binary reader");
-                return;
-            }
-
             for (uint i = 0; i < instanceType.Fields.Length; ++i)
             {
                 FieldInfo fi = instanceType.Fields[i];

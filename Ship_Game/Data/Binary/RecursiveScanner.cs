@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
@@ -52,11 +53,6 @@ public class ObjectState
     public virtual void Serialize(BinarySerializerWriter w, TypeSerializer ser)
     {
         ser.Serialize(w, Obj);
-    }
-
-    protected void WriteChildElement(BinarySerializerWriter w, int objectId)
-    {
-        w.BW.WriteVLu32((uint)objectId);
     }
 }
 
@@ -198,22 +194,37 @@ public class RecursiveScanner
     //         example: type=Ship on=Array<Ship> returns false
     static bool TypeDependsOn(TypeSerializer type, TypeSerializer on)
     {
+        var explored = new HashSet<Type>();
+        return TypeDependsOn(type, on, explored);
+    }
+
+    static bool TypeDependsOn(TypeSerializer type, TypeSerializer on, HashSet<Type> explored)
+    {
         // Array<Ship> or Map<string, Array<Ship>> or Ship[]
-        if (TypeDependsOn(type.Type, on.Type))
+        if (TypeDependsOn(type.Type, on.Type, explored))
             return true;
         if (type is UserTypeSerializer us)
+        {
             foreach (DataField field in us.Fields)
-                if (field.Serializer != type && TypeDependsOn(field.Serializer, on))
+            {
+                TypeSerializer fieldSer = field.Serializer;
+                if (!fieldSer.IsFundamentalType && !explored.Contains(fieldSer.Type) && TypeDependsOn(fieldSer, on, explored))
                     return true;
+            }
+        }
         return false;
     }
 
-    static bool TypeDependsOn(Type type, Type on)
+    static bool TypeDependsOn(Type type, Type on, HashSet<Type> explored)
     {
+        if (explored.Contains(type))
+            return false;
+        explored.Add(type);
+
         if (type.IsGenericType)
         {
             foreach (Type arg in type.GetGenericArguments())
-                if (arg == on || TypeDependsOn(arg, on))
+                if (arg == on || TypeDependsOn(arg, on, explored))
                     return true;
         }
         else if (type.HasElementType && type.GetElementType() == on)
@@ -276,9 +287,7 @@ public class RecursiveScanner
         public override void Serialize(BinarySerializerWriter w, TypeSerializer ser)
         {
             for (int i = 0; i < Fields.Length; ++i)
-            {
-                WriteChildElement(w, Fields[i]);
-            }
+                w.BW.WriteVLu32((uint)Fields[i]);
         }
 
         public override void Remap(int[] map)
@@ -321,9 +330,7 @@ public class RecursiveScanner
             {
                 w.BW.WriteVLu32((uint)Items.Length); // collection length
                 for (int i = 0; i < Items.Length; ++i)
-                {
-                    WriteChildElement(w, Items[i]);
-                }
+                    w.BW.WriteVLu32((uint)Items[i]);
             }
         }
 
