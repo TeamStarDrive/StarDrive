@@ -8,8 +8,10 @@
   <first_frame>0</first_frame>
   <RaceType>Unknown</RaceType>
   <num_idle_frames>7</num_idle_frames>
-  <num_attack_frames>7</num_attack_frames>
+  <num_attack_frames>8</num_attack_frames>
   <animated>true</animated>
+  <idle_x_offset>32</idle_x_offset>
+  <idle_y_offset>26</idle_y_offset>
   <idle_path>Wyvern/wyvern_idle_</idle_path>
   <attack_path>Wyvern/wyvern_attack_</attack_path>
 
