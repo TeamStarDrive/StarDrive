@@ -18,6 +18,8 @@ namespace Ship_Game.Data.Serialization
         protected DataField PrimaryKeyName;
         protected DataField PrimaryKeyValue;
 
+        // if true, this UserClass contains abstract or virtual properties
+        public bool IsAbstractOrVirtual;
 
         // Method which is called when type has finished serialization
         // [StarDataDeserialized]
@@ -36,6 +38,7 @@ namespace Ship_Game.Data.Serialization
             if (a.TypeName != null)
                 TypeName = a.TypeName;
 
+            IsAbstractOrVirtual = type.IsAbstract;
             OnDeserialized = GetMethodWithAttribute<StarDataDeserialized>(type);
             // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
         }
@@ -82,10 +85,13 @@ namespace Ship_Game.Data.Serialization
                     CheckPrimaryKeys(a, field);
                 }
             }
-            
+
             for (int i = 0; i < props.Length; ++i)
             {
                 PropertyInfo p = props[i];
+                if (p.GetGetMethod()?.IsVirtual == true)
+                    IsAbstractOrVirtual = true;
+
                 if (p.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
                 {
                     var field = new DataField(TypeMap, Type, a, p, null);
@@ -96,6 +102,11 @@ namespace Ship_Game.Data.Serialization
 
             if (dataFields.IsEmpty)
             {
+                // for abstract/virtual types, the base class is allowed to have no [StarData] fields
+                Fields = Empty<DataField>.Array;
+                if (Type.IsAbstract)
+                    return;
+                // give a warning for other types
                 Log.Warning($"[StarDataType] {NiceTypeName} has no [StarData] fields, consider not serializing it!");
                 return;
             }

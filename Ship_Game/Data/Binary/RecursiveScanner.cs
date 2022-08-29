@@ -72,7 +72,7 @@ public class RecursiveScanner
 
     // maps Type -> Array<ObjectState>
     // grouping objects by their type
-    FastTypeMap<Array<ObjectState>> Objects;
+    readonly FastTypeMap<Array<ObjectState>> Objects;
 
     int NextObjectId;
     public int RootObjectId;
@@ -85,12 +85,11 @@ public class RecursiveScanner
         RootObj = rootObject;
         InstanceMap = new(rootSer.TypeMap);
         Objects = new(rootSer.TypeMap);
-        PrepareTypes(rootSer);
     }
 
-    void PrepareTypes(BinarySerializer rootSer)
+    public void FinalizeTypes()
     {
-        AllTypes = rootSer.TypeMap.AllTypes;
+        AllTypes = RootSer.TypeMap.AllTypes;
 
         // this determines the types ordering
         AllTypes.Sort((a, b) =>
@@ -115,7 +114,7 @@ public class RecursiveScanner
         UsedTypes = AllTypes.Filter(s => !s.IsFundamentalType && !s.IsCollection);
         ValueTypes = UsedTypes.Filter(s => s.IsValueType);
         ClassTypes = UsedTypes.Filter(s => s.IsPointerType);
-        CollectionTypes = AllTypes.FilterSelect(s => s.IsCollection,
+        CollectionTypes = AllTypes.FilterSelect(s => !s.IsFundamentalType && s.IsCollection,
                                                 s => (CollectionSerializer)s);
 
         Log.Info($"ValueTypes={ValueTypes.Length} UserTypes={ClassTypes.Length} CollectionTypes={CollectionTypes.Length}");
@@ -129,15 +128,16 @@ public class RecursiveScanner
         try
         {
             RootObjectId = ScanObjectState(RootSer, RootObj);
+            FinalizeTypes();
             InstanceMap = null; // no longer needed
             LinearRemapObjectIds();
 
             var groups = new Array<SerializationTypeGroup>();
             foreach (TypeSerializer ser in AllTypes)
             {
-                if (Objects[ser] != null)
+                if (Objects.ContainsKey(ser))
                 {
-                    groups.Add(new SerializationTypeGroup { Type = ser, GroupedObjects = Objects[ser] });
+                    groups.Add(new() { Type = ser, GroupedObjects = Objects.GetValue(ser) });
                 }
             }
             TypeGroups = groups.ToArray();
@@ -162,18 +162,26 @@ public class RecursiveScanner
         throw new($"Unexpected type: {ser}");
     }
 
+    // Automatically handles abstract/virtual objects
     // @return generated object id
     internal int ScanObjectState(TypeSerializer ser, object instance)
     {
         if (instance == null) // typically when Array<T> contains nulls
             return 0;
 
-        ObjectState state;
-        var instMap = InstanceMap[ser];
-        if (instMap == null)
+        // if this class has any abstract or virtual members,
+        // then always double-check the concrete type (albeit this is much slower)
+        if (ser is UserTypeSerializer { IsAbstractOrVirtual: true })
         {
-            InstanceMap[ser] = instMap = new();
-            Objects[ser] = new();
+            ser = RootSer.TypeMap.Get(instance.GetType());
+        }
+
+        ObjectState state;
+        if (!InstanceMap.TryGetValue(ser, out Map<object, ObjectState> instMap))
+        {
+            instMap = new();
+            InstanceMap.SetValue(ser, instMap);
+            Objects.SetValue(ser, new());
         }
         else if (instMap.TryGetValue(instance, out state))
         {
@@ -182,7 +190,7 @@ public class RecursiveScanner
 
         state = NewState(ser, instance);
         instMap.Add(instance, state);
-        Objects[ser].Add(state);
+        Objects.GetValue(ser).Add(state);
 
         if (!ser.IsFundamentalType)
             state.Scan(this, ser); // scan for child objects
@@ -349,21 +357,6 @@ public class RecursiveScanner
             var typeMap = scanner.RootSer.TypeMap;
             bool valCanBeNull = coll.ElemSerializer.IsPointerType;
 
-            void SetValue(int index, object instance)
-            {
-                if (valCanBeNull && instance == null)
-                {
-                    Items[index] = 0;
-                }
-                else
-                {
-                    // NOTE: VALUES CAN USE ABSTRACT TYPES, SO TYPE CHECK IS REQUIRED FOR EACH ELEMENT
-                    TypeSerializer item = typeMap.Get(instance!.GetType());
-                    int valId = scanner.ScanObjectState(item, instance);
-                    Items[index] = valId;
-                }
-            }
-
             if (coll is MapSerializer maps)
             {
                 Items = new int[count * 2];
@@ -372,7 +365,7 @@ public class RecursiveScanner
                 {
                     int keyId = scanner.ScanObjectState(maps.KeySerializer, e.Key);
                     Items[i*2+0] = keyId;
-                    SetValue(i*2+1, e.Value);
+                    SetValue(scanner, i*2+1, e.Value, valCanBeNull, typeMap);
                 }
             }
             else if (coll is HashSetSerializer)
@@ -381,7 +374,7 @@ public class RecursiveScanner
                 var e = ((IEnumerable)Obj).GetEnumerator();
                 for (int i = 0; i < count && e.MoveNext(); ++i)
                 {
-                    SetValue(i, e.Current);
+                    SetValue(scanner, i, e.Current, valCanBeNull, typeMap);
                 }
             }
             else
@@ -390,8 +383,23 @@ public class RecursiveScanner
                 for (int i = 0; i < count; ++i)
                 {
                     object element = coll.GetElementAt(Obj, i);
-                    SetValue(i, element);
+                    SetValue(scanner, i, element, valCanBeNull, typeMap);
                 }
+            }
+        }
+
+        void SetValue(RecursiveScanner scanner, int index, object instance, bool valCanBeNull, TypeSerializerMap typeMap)
+        {
+            if (valCanBeNull && instance == null)
+            {
+                Items[index] = 0;
+            }
+            else
+            {
+                // NOTE: VALUES CAN USE ABSTRACT TYPES, SO TYPE CHECK IS REQUIRED FOR EACH ELEMENT
+                TypeSerializer item = typeMap.Get(instance!.GetType());
+                int valId = scanner.ScanObjectState(item, instance);
+                Items[index] = valId;
             }
         }
     }
