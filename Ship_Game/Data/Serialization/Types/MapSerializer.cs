@@ -130,10 +130,7 @@ namespace Ship_Game.Data.Serialization.Types
             var dict = (IDictionary)instance;
             int count = (int)reader.BR.ReadVLu32();
 
-            TypeInfo keyType = reader.GetType(KeySerializer);
-            TypeInfo elementType = reader.GetType(ElemSerializer);
-
-            for (int i = 0; i < count; ++i)
+            for (int i = 0; i < count; i += 2)
             {
                 object key = reader.ReadPointer();
                 object val = reader.ReadPointer();

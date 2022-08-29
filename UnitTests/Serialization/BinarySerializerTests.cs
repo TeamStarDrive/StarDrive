@@ -261,12 +261,19 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
+        class RecursiveAtDepth1
+        {
+            [StarData] public RecursiveType Owner;
+        }
+
+        [StarDataType]
         class RecursiveType
         {
             [StarData] public readonly RecursiveType RecursiveSelf;
             [StarData] public readonly string Text;
             [StarData] public readonly int Count;
             [StarData] public readonly string DefaultIsNotNull = "Default is not null";
+            [StarData] public readonly RecursiveAtDepth1 AtDepth1;
             public RecursiveType() {}
             public RecursiveType(string text, int count)
             {
@@ -274,6 +281,7 @@ namespace UnitTests.Serialization
                 Count = count;
                 RecursiveSelf = this;
                 DefaultIsNotNull = null; // override the default
+                AtDepth1 = new() { Owner = this };
             }
         }
 
@@ -282,10 +290,11 @@ namespace UnitTests.Serialization
         {
             var instance = new RecursiveType("Hello", 42);
             var result = SerDes(instance);
-            Assert.AreEqual(result.RecursiveSelf, result, "Recursive self reference must match");
+            Assert.AreEqual(result, result.RecursiveSelf, "Recursive self reference must match");
             Assert.AreEqual(instance.Text, result.Text, "string must match");
             Assert.AreEqual(instance.Count, result.Count, "int field must match");
             Assert.AreEqual(null, result.DefaultIsNotNull, "null field must match");
+            Assert.AreEqual(result, result.AtDepth1.Owner, "Recursive self reference at depth 1 must match");
         }
 
         [StarDataType]
@@ -680,7 +689,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsMovedTypes()
         {
-            string containsMovedType = "Tz8vHwEAAgAhAwEBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhFDb250YWluc01vdmVkVHlwZQlNb3ZlZFR5cGUEAk1UBE5hbWUDUG9zBlZhbHVlNCAAAAAFAw0CIQAVASEAAAEFAQ4DFQEgASEBFQEVQ29udGFpbnMgYSBtb3ZlZCB0eXBlIAENAAAg+kQAQPpEAGD6RCEBAxUCASEBDgAAEHpFACB6RQAwekUAQHpF";
+            string containsMovedType = "Tz8vHwEAAgEhBQQBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhFDb250YWluc01vdmVkVHlwZQlNb3ZlZFR5cGUEAk1UBE5hbWUDUG9zBlZhbHVlNCAAAAAFAw0CIQAVASEAAAEFAQ4DGgECDQEOARUBIAEhAQ0BACD6RABA+kQAYPpEDgEAEHpFACB6RQAwekUAQHpFFQEVQ29udGFpbnMgYSBtb3ZlZCB0eXBlIAEBBQMhAQI=";
 
             //containsMovedType = CreateByteStreamForDeletedTypeTest(new ContainsMovedType
             //{
@@ -705,8 +714,8 @@ namespace UnitTests.Serialization
         class ContainsDeletedType
         {
             [StarData] public Vector3 Pos;
-            //[StarData] public DeletedType DT;
-            //[StarData] public DeletedStruct DS;
+            //[StarData] public DeletedType DT; // this field deleted because of deleted type
+            //[StarData] public DeletedStruct DS; // this field deleted because of deleted type
             [StarData] public string Name;
         }
 
@@ -715,7 +724,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsDeletedTypes()
         {
-            string containsDeletedType = "Tz8vHwEAAwAiAwEBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxNDb250YWluc0RlbGV0ZWRUeXBlDURlbGV0ZWRTdHJ1Y3QLRGVsZXRlZFR5cGUFAkRTAkRUBE5hbWUDUG9zBlZhbHVlNCIAAAEEAQ4EIAAAAAUEDQMhASIAFQIhAAACBQEOBBUBIAEhARUBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMgAQ0AACD6RABA+kQAYPpEIQEDIgIOAABInEUAUJxFAFicRQBgnEUVAwEhAQ4AABB6RQAgekUAMHpFAEB6RQ==";
+            string containsDeletedType = "Tz8vHwEAAwEiBgYBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxNDb250YWluc0RlbGV0ZWRUeXBlDURlbGV0ZWRTdHJ1Y3QLRGVsZXRlZFR5cGUFAkRTAkRUBE5hbWUDUG9zBlZhbHVlNCIAAAEEAQ4EIAAAAAUEDQMhASIAFQIhAAACBQEOBBoBAg0BDgIVASIBIAEhAQ0BACD6RABA+kQAYPpEDgIAEHpFACB6RQAwekUAQHpFAEicRQBQnEUAWJxFAGCcRRUBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMiAQMgAQEHBQQhAQI=";
 
             //containsDeletedType = CreateByteStreamForDeletedTypeTest(new ContainsDeletedType
             //{
@@ -727,7 +736,7 @@ namespace UnitTests.Serialization
             //Log.Write("\"" + containsDeletedType + "\";");
 
             var ser = new BinarySerializer(typeof(ContainsDeletedType));
-            var result = Deserialize<ContainsDeletedType>(ser, Convert.FromBase64String(containsDeletedType));
+            var result = Deserialize<ContainsDeletedType>(ser, Convert.FromBase64String(containsDeletedType), verbose:true);
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
             Assert.AreEqual("Contains deleted types", result.Name);
         }
@@ -736,7 +745,7 @@ namespace UnitTests.Serialization
         class ContainsRemovedFieldType
         {
             [StarData] public Vector3 Pos;
-            //[StarData] public RecursiveType Removed;
+            //[StarData] public RecursiveType Removed; // this field was removed in new version of the game
             [StarData] public string Name;
             [StarData] public Vector2 Pos2;
         }
@@ -746,7 +755,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsRemovedFieldTypes()
         {
-            string containsRemovedField = "Tz8vHwEAAgAhAwIBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhhDb250YWluc1JlbW92ZWRGaWVsZFR5cGUNUmVjdXJzaXZlVHlwZQgFQ291bnQQRGVmYXVsdElzTm90TnVsbAROYW1lA1BvcwRQb3MyDVJlY3Vyc2l2ZVNlbGYHUmVtb3ZlZARUZXh0IAAAAAUEDQMhBhUCDAQhAAABBQQhBRUHBgAVARUCIAEhARUCD1dpbGwgYmUgcmVtb3ZlZBhDb250YWlucyBhIHJlbW92ZWQgZmllbGQgAQ0AACD6RABA+kQAYPpEIQEEFQICDAMAoHpFAEB7RSEBIQAEFQEBBgKSExUDAA==";
+            string containsRemovedField = "Tz8vHwEAAgEhBgYBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhhDb250YWluc1JlbW92ZWRGaWVsZFR5cGUNUmVjdXJzaXZlVHlwZQgFQ291bnQQRGVmYXVsdElzTm90TnVsbAROYW1lA1BvcwRQb3MyDVJlY3Vyc2l2ZVNlbGYHUmVtb3ZlZARUZXh0IAAAAAUEDQMhBhUCDAQhAAABBQQhBRUHBgAVARoBAgYBDAENARUCIAEhAQYBkhMMAQCgekUAQHtFDQEAIPpEAED6RABg+kQVAg9XaWxsIGJlIHJlbW92ZWQYQ29udGFpbnMgYSByZW1vdmVkIGZpZWxkIAEDBwUCIQEHBAEA";
 
             //containsRemovedField = CreateByteStreamForDeletedTypeTest(new ContainsRemovedFieldType
             //{
