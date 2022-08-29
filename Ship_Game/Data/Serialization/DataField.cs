@@ -30,7 +30,7 @@ namespace Ship_Game.Data.Serialization
                 // through declaring class type in order to access the Setter
                 var p = (prop.DeclaringType != instanceType) ? prop.DeclaringType?.GetProperty(prop.Name) : prop;
                 if (p?.SetMethod == null)
-                    throw new Exception($"[StarData] {instanceType.FullName}.{prop.Name} has no setter! Add a private setter.");
+                    throw new($"[StarData] {instanceType.FullName}.{prop.Name} has no setter! Add a private setter.");
                 prop = p;
             }
 

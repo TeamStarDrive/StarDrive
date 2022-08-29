@@ -65,9 +65,10 @@ namespace UnitTests.Serialization
         }
 
         [TestMethod]
-        public void PrepareTypes()
+        public void FinalizeTypes()
         {
             (RootObject _, RecursiveScanner rs) = CreateDefaultRootObject();
+            rs.FinalizeTypes();
 
             Assert.AreEqual(1, rs.ValueTypes.Length);
             Assert.AreEqual("ShipInfo", rs.ValueTypes[0].NiceTypeName);
@@ -85,7 +86,7 @@ namespace UnitTests.Serialization
             rs.CreateWriteCommands();
 
             Assert.AreEqual(15, rs.NumObjects);
-            Assert.AreEqual(11, rs.RootObjectId);
+            Assert.AreEqual(15, rs.RootObjectId);
             Assert.AreEqual(8, rs.TypeGroups.Length);
 
             Assert.AreEqual("RootObject", rs.TypeGroups[7].Type.NiceTypeName);

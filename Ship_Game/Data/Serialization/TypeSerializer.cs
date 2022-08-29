@@ -134,7 +134,14 @@ namespace Ship_Game.Data.Serialization
         /// </summary>
         public virtual object CreateInstance()
         {
-            return Activator.CreateInstance(Type, nonPublic:true);
+            try
+            {
+                return Activator.CreateInstance(Type, nonPublic:true);
+            }
+            catch (Exception ex)
+            {
+                throw new($"CreateInstance failed: {Type} - a default constructor is required", ex);
+            }
         }
 
         protected static void Error(object value, string couldNotConvertToWhat)

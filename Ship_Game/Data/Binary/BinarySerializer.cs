@@ -15,9 +15,16 @@ namespace Ship_Game.Data.Binary
         // Version from deserialized data
         public uint Version { get; private set; } = CurrentVersion;
 
+        // WARNING: this is unsafe on abstract/virtual types!
         public BinarySerializer(Type type) : base(type, new BinaryTypeMap())
         {
+            if (type.IsAbstract)
+                throw new InvalidOperationException($"BinarySerializer should not be initialized with an abstract class type: {type}");
             TypeMap.Add(this);
+        }
+
+        public BinarySerializer(object instance) : this(instance.GetType())
+        {
         }
 
         public BinarySerializer(Type type, TypeSerializerMap typeMap) : base(type, typeMap)
