@@ -1,9 +1,13 @@
 ﻿<?xml version="1.0"?>
 <ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-  <Cost>300</Cost>
+  <Cost>450</Cost>
   <!-- common traits shared by all ship modules -->
   <ModuleType>Hangar</ModuleType>
+  
+  <CorvetteModule>false</CorvetteModule>
+  <FrigateModule>false</FrigateModule>
+  
   <XSize>3</XSize>
   <YSize>5</YSize>
   <UID>Raider Bay</UID> 
