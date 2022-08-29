@@ -42,14 +42,14 @@ namespace UnitTests.Serialization
 
         static T SerDes<T>(T instance, out byte[] bytes, bool verbose = false)
         {
-            var ser = new BinarySerializer(typeof(T));
+            var ser = new BinarySerializer(instance);
             bytes = Serialize(ser, instance, verbose);
             return Deserialize<T>(ser, bytes, verbose);
         }
 
-        static T SerDes<T>(T instance)
+        static T SerDes<T>(T instance, bool verbose = false)
         {
-            return SerDes(instance, out _);
+            return SerDes(instance, out _, verbose);
         }
 
         [StarDataType]
@@ -736,7 +736,7 @@ namespace UnitTests.Serialization
             //Log.Write("\"" + containsDeletedType + "\";");
 
             var ser = new BinarySerializer(typeof(ContainsDeletedType));
-            var result = Deserialize<ContainsDeletedType>(ser, Convert.FromBase64String(containsDeletedType), verbose:true);
+            var result = Deserialize<ContainsDeletedType>(ser, Convert.FromBase64String(containsDeletedType));
             Assert.AreEqual(new Vector3(2001, 2002, 2003), result.Pos);
             Assert.AreEqual("Contains deleted types", result.Name);
         }
@@ -906,6 +906,76 @@ namespace UnitTests.Serialization
             };
             var result = SerDes(instance);
             Assert.AreEqual(instance.Nested.Name, result.Nested.Name);
+        }
+
+        [StarDataType]
+        class VirtualBaseClass
+        {
+            // base class must be allowed to not mark this as [StarData]
+            public virtual string Name { get; set; }
+            [StarData] public string NonVirtual;
+        }
+        [StarDataType]
+        class VirtualClassA : VirtualBaseClass
+        {
+            [StarData] public override string Name { get; set; }
+        }
+        [StarDataType]
+        class ContainsVirtualTypes
+        {
+            [StarData] public VirtualBaseClass Virt;
+        }
+
+        [TestMethod]
+        public void SupportsVirtualClasses()
+        {
+            var instance = new ContainsVirtualTypes
+            {
+                Virt = new VirtualClassA
+                {
+                    Name = "virtualname",
+                    NonVirtual = "nonvirtual",
+                }
+            };
+            var result = SerDes(instance);
+            Assert.AreEqual(instance.Virt.Name, result.Virt.Name);
+            Assert.AreEqual(instance.Virt.NonVirtual, result.Virt.NonVirtual);
+        }
+
+
+        [StarDataType]
+        abstract class AbstractBaseClass
+        {
+            // base class must be allowed to not mark this as [StarData]
+            public abstract string Name { get; set; }
+            [StarData] public string NonVirtual;
+        }
+        [StarDataType]
+        class AbstractClassA : AbstractBaseClass
+        {
+            [StarData] public override string Name { get; set; }
+        }
+        [StarDataType]
+        class ContainsAbstractTypes
+        {
+            [StarData] public AbstractBaseClass Abstr;
+        }
+
+        [TestMethod]
+        public void SupportsAbstractClasses()
+        {
+            var instance = new ContainsAbstractTypes
+            {
+                Abstr = new AbstractClassA
+                {
+                    Name = "abstractname",
+                    NonVirtual = "nonvirtual",
+                }
+            };
+
+            var result = SerDes(instance);
+            Assert.AreEqual(instance.Abstr.Name, result.Abstr.Name);
+            Assert.AreEqual(instance.Abstr.NonVirtual, result.Abstr.NonVirtual);
         }
 
         [TestMethod]

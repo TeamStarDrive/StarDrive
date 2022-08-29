@@ -219,6 +219,11 @@ namespace Ship_Game.Ships
             set => SavedModules = value;
         }
 
+        // for Deserializer
+        private Ship() : base(0, GameObjectType.Ship)
+        {
+        }
+
         // Create a ship from a SavedGame
         [StarDataDeserialized]
         void OnDeserialized()

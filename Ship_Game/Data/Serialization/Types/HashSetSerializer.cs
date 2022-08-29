@@ -139,15 +139,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override void Serialize(BinarySerializerWriter writer, object obj)
         {
-            int count = LengthOfSet(obj);
-            IEnumerator enumerator = EnumerateSet(obj);
-            writer.BW.WriteVLu32((uint)count);
-            for (int i = 0; i < count; ++i)
-            {
-                enumerator.MoveNext();
-                throw new NotImplementedException();
-                //writer.WriteElement(ElemSerializer, enumerator.Current);
-            }
+            throw new NotSupportedException();
         }
 
         public override object Deserialize(BinarySerializerReader reader)

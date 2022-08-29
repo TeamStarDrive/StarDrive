@@ -14,17 +14,11 @@ namespace Ship_Game.Data.Binary
     [DebuggerTypeProxy(typeof(FastMapDebugView<>))]
     public class FastTypeMap<TValue> where TValue : class
     {
-        readonly TValue[] TValues;
+        TValue[] TValues;
 
         public FastTypeMap(TypeSerializerMap map)
         {
             TValues = new TValue[map.NumTypes];
-        }
-
-        public TValue this[TypeSerializer key]
-        {
-            get => TValues[key.TypeId];
-            set => TValues[key.TypeId] = value;
         }
 
         public bool ContainsKey(TypeSerializer key)
@@ -32,9 +26,31 @@ namespace Ship_Game.Data.Binary
             return TValues[key.TypeId] != null;
         }
 
+        public TValue GetValue(TypeSerializer key)
+        {
+            return TValues[key.TypeId];
+        }
+
+        public void SetValue(TypeSerializer key, TValue value)
+        {
+            int index = key.TypeId;
+            if (index >= TValues.Length) // we've encountered brand new abstract types, so map needs to expand
+            {
+                int newLength = index + 32;
+                Array.Resize(ref TValues, newLength);
+            }
+            TValues[index] = value;
+        }
+
         public bool TryGetValue(TypeSerializer key, out TValue value)
         {
-            return (value = TValues[key.TypeId]) != null;
+            int index = key.TypeId;
+            if (index >= TValues.Length)
+            {
+                value = default;
+                return false;
+            }
+            return (value = TValues[index]) != null;
         }
 
         public TValue[] Values => TValues.Filter(v => v != null);

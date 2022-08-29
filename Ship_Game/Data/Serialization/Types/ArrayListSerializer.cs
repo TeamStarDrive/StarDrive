@@ -167,16 +167,7 @@ namespace Ship_Game.Data.Serialization.Types
 
         public override void Serialize(BinarySerializerWriter writer, object obj)
         {
-            var list = (IList)obj;
-
-            int count = list.Count;
-            writer.BW.WriteVLu32((uint)count);
-            for (int i = 0; i < count; ++i)
-            {
-                object element = list[i];
-                throw new NotImplementedException();
-                //writer.WriteElement(ElemSerializer, element);
-            }
+            throw new NotSupportedException();
         }
 
         public override object Deserialize(BinarySerializerReader reader)
