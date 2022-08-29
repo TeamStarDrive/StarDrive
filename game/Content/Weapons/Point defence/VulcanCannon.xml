@@ -23,11 +23,11 @@
   
   <UID>VulcanCannon</UID>
   <FireDelay>3</FireDelay>
-  <Range>3000</Range>
+  <Range>3200</Range>
   <PowerRequiredToFire>0</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0.02</OrdinanceRequiredToFire>
-  <SalvoCount>6</SalvoCount>
-  <SalvoTimer>0.5</SalvoTimer>
+  <SalvoCount>7</SalvoCount>
+  <SalvoTimer>0.4</SalvoTimer>
   
   <!-- name of XACT audio cue to play on firing this weapon -->
   <FireCueName>sd_weapon_vulcan_burst_01</FireCueName>
