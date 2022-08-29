@@ -16,7 +16,7 @@
 
   <sound_attack>sd_ground_kulrathigunner_01</sound_attack>
   
-  <Cost>80</Cost>
+  <Cost>100</Cost>
   <Strength>12</Strength>
   <MaxStrength>12</MaxStrength>
   <Movement>1</Movement>
