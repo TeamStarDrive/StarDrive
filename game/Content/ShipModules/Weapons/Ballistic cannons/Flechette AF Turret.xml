@@ -42,7 +42,7 @@
   <!-- for Weapons -->
   <WeaponType>Fletchette Cannon</WeaponType>
   <FieldOfFire>180</FieldOfFire>
-  <OrdinanceCapacity>16</OrdinanceCapacity>
+  <OrdinanceCapacity>8</OrdinanceCapacity>
    
   <!-- for Engines -->
   <Thrust>0</Thrust>
