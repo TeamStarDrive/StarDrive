@@ -8,6 +8,8 @@
   <num_idle_frames>7</num_idle_frames>
   <num_attack_frames>6</num_attack_frames>
   <animated>true</animated>
+  <idle_x_offset>36</idle_x_offset>
+  <idle_y_offset>36</idle_y_offset>
   <idle_path>Antlion/antlion_idle_</idle_path>
   <attack_path>Antlion/antlion_attack_</attack_path>
 

@@ -3,7 +3,7 @@
   <Version>2</Version>
   <UID>Point Defense</UID>
   <TechnologyType>ShipDefense</TechnologyType>
-  <Cost>450</Cost>  
+  <Cost>520</Cost>  
   <NameIndex>2253</NameIndex>
   <DescriptionIndex>2254</DescriptionIndex>
   <LeadsTo>
