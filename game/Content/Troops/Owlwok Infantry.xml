@@ -8,11 +8,11 @@
   <num_idle_frames>8</num_idle_frames>
   <num_attack_frames>24</num_attack_frames>
   <animated>true</animated>
-  <idle_x_offset>16</idle_x_offset>
-  <idle_y_offset>16</idle_y_offset>
+  <idle_x_offset>24</idle_x_offset>
+  <idle_y_offset>20</idle_y_offset>
   <attack_width>96</attack_width>
-  <idle_path>Cordazine/column_idle</idle_path>
-  <attack_path>Cordazine/column_attack</attack_path>
+  <idle_path>Cordazine/column_idle00</idle_path>
+  <attack_path>Cordazine/column_attack00</attack_path>
 
   <sound_attack>sd_ground_cordrazine_01</sound_attack>
   

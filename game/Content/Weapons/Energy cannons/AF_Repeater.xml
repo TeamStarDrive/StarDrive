@@ -20,15 +20,17 @@
   
   <UID>AF_Repeater</UID>
   <FireDelay>0.2</FireDelay>
-  <Range>5500</Range>
-  <PowerRequiredToFire>20</PowerRequiredToFire>
+  <Range>5000</Range>
+  <PowerRequiredToFire>38</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
-  
+  <EffectVsArmor>.75</EffectVsArmor>
+  <EffectVsShields>1</EffectVsShields>
+  <ShieldPenChance>20</ShieldPenChance>
   <!-- name of XACT audio cue to play on firing this weapon -->
   <FireCueName>sd_weapon_laser_burst_01</FireCueName>
 
   <!-- Projectile Information -->
-  <DamageAmount>30</DamageAmount>
+  <DamageAmount>25</DamageAmount>
   <ProjectileRadius>16</ProjectileRadius>
   <ProjectileSpeed>1900</ProjectileSpeed>
   <Light>Green</Light>

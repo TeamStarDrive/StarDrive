@@ -24,8 +24,8 @@
   <OffPowerMod>3</OffPowerMod>
 
   <UID>PDLaser</UID>
-  <FireDelay>0.4</FireDelay>
-  <Range>3000</Range>
+  <FireDelay>0.3</FireDelay>
+  <Range>3200</Range>
   <PowerRequiredToFire>5</PowerRequiredToFire>
   <OrdinanceRequiredToFire>0</OrdinanceRequiredToFire>
   
