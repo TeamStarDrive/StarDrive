@@ -1,16 +1,17 @@
 ﻿<Troop>
   <Name>Opteris Warrior</Name>
   <Description>The Warrior Caste of a cybernetic hive mind</Description>
-  <TexturePath>Opteris/robot_idle1</TexturePath>
+  <TexturePath>Opteris/robot_idle01</TexturePath>
   <Icon>robot</Icon>
   <first_frame>1</first_frame>
   <RaceType>Opteris</RaceType>
   <num_idle_frames>10</num_idle_frames>
   <num_attack_frames>10</num_attack_frames>
   <animated>true</animated>
-  
+  <idle_x_offset>24</idle_x_offset>
+  <idle_y_offset>24</idle_y_offset>
   <idle_path>Opteris/robot_idle</idle_path>
-  <attack_path>Opteris/robot_attack</attack_path>
+  <attack_path>Opteris/robot_attack00</attack_path>
 
   <sound_attack>sd_ground_bugs_01</sound_attack>
   
