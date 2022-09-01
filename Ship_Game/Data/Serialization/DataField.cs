@@ -36,7 +36,15 @@ namespace Ship_Game.Data.Serialization
 
             Name = a.NameId.NotEmpty() ? a.NameId : (prop?.Name ?? field.Name);
             Type type = prop != null ? prop.PropertyType : field.FieldType;
-            Serializer = typeMap.Get(type);
+
+            try
+            {
+                Serializer = typeMap.Get(type);
+            }
+            catch (Exception ex)
+            {
+                throw new($"{instanceType.FullName}::{Name}", ex);
+            }
             
             MemberInfo m = prop ?? field as MemberInfo;
             try

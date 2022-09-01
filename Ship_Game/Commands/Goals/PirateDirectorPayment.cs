@@ -13,6 +13,7 @@ namespace Ship_Game.Commands.Goals
         public override string UID => ID;
         private Pirates Pirates;
 
+        [StarDataConstructor]
         public PirateDirectorPayment(int id, UniverseState us)
             : base(GoalType.PirateDirectorPayment, id, us)
         {

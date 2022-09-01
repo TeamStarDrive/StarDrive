@@ -47,6 +47,7 @@ namespace Ship_Game.Universe.SolarBodies
         protected float Tax; // ex: 0.25 for 25% tax rate
         public float AfterTax(float grossValue) => grossValue - grossValue*Tax;
 
+        [StarDataConstructor]
         protected ColonyResource(Planet planet) { Planet = planet; }
 
         protected abstract void RecalculateModifiers();
@@ -139,6 +140,7 @@ namespace Ship_Game.Universe.SolarBodies
     [StarDataType]
     public class ColonyFood : ColonyResource
     {
+        [StarDataConstructor]
         public ColonyFood(Planet planet) : base(planet)
         {
         }
@@ -176,6 +178,7 @@ namespace Ship_Game.Universe.SolarBodies
     [StarDataType]
     public class ColonyProduction : ColonyResource
     {
+        [StarDataConstructor]
         public ColonyProduction(Planet planet) : base(planet)
         {
         }
@@ -212,6 +215,7 @@ namespace Ship_Game.Universe.SolarBodies
     [StarDataType]
     public class ColonyResearch : ColonyResource
     {
+        [StarDataConstructor]
         public ColonyResearch(Planet planet) : base(planet)
         {
         }

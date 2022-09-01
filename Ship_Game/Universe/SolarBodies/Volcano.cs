@@ -15,6 +15,9 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public readonly Planet P;
         const float MaxActivationChance = 0.1f;
 
+        [StarDataConstructor]
+        Volcano() {}
+
         public Volcano(PlanetGridSquare tile, Planet planet)
         {
             ActivationChance = InitActivationChance();

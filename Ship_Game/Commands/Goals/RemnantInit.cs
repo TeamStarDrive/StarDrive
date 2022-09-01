@@ -12,6 +12,7 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "RemnantInit";
         public override string UID => ID;
 
+        [StarDataConstructor]
         public RemnantInit(int id, UniverseState us)
             : base(GoalType.RemnantInit, id, us)
         {

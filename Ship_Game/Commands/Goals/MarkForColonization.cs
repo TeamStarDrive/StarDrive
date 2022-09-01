@@ -17,6 +17,7 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "MarkForColonization";
         public override string UID => ID;
 
+        [StarDataConstructor]
         public MarkForColonization(int id, UniverseState us)
             : base(GoalType.Colonize, id, us)
         {

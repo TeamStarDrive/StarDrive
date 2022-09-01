@@ -219,8 +219,8 @@ namespace Ship_Game.Ships
             set => SavedModules = value;
         }
 
-        // for Deserializer
-        private Ship() : base(0, GameObjectType.Ship)
+        [StarDataConstructor] // for Deserializer
+        Ship() : base(0, GameObjectType.Ship)
         {
         }
 

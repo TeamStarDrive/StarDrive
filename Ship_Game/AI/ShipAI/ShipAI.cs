@@ -98,14 +98,29 @@ namespace Ship_Game.AI
         { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => Bit(Flags.ReturnToHangarSoon); 
           [MethodImpl(MethodImplOptions.AggressiveInlining)] set => Bit(Flags.ReturnToHangarSoon, value); }
 
+        [StarDataConstructor]
+        ShipAI() {}
+
         public ShipAI(Ship owner)
         {
             Owner = owner;
+            CreateShipAIPlans();
+            InitializeTargeting();
+        }
+
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+            CreateShipAIPlans();
+        }
+
+        void CreateShipAIPlans()
+        {
+            // TODO: THESE SHOULD BE REMOVED BECAUSE THEY EAT UP A LOT OF MEMORY
             DropOffGoods = new DropOffGoods(this);
             PickupGoods = new PickupGoods(this);
             Orbit = new OrbitPlan(this);
             CombatAI = new CombatAI(this);
-            InitializeTargeting();
         }
 
         void DisposeOrders()

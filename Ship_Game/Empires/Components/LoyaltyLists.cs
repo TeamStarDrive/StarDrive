@@ -20,6 +20,7 @@ namespace Ship_Game.Empires.Components
         [StarData] public Ship[] OwnedShips { get; private set; } = Empty<Ship>.Array;
         [StarData] public Ship[] OwnedProjectors { get; private set; } = Empty<Ship>.Array;
 
+        [StarDataConstructor]
         public LoyaltyLists(Empire empire)
         {
             Owner = empire;
