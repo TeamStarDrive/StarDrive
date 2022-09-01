@@ -34,7 +34,8 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         [StarData] float SurplusThisTurn;
-
+        
+        [StarDataConstructor]
         public SBProduction(Planet planet)
         {
             P = planet;

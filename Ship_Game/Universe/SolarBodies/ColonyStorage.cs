@@ -12,6 +12,7 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] readonly Planet Ground;
         [StarData] readonly Map<string, float> Commodities = new(StringComparer.OrdinalIgnoreCase);
 
+        [StarDataConstructor]
         public ColonyStorage(Planet planet)
         {
             Ground = planet;

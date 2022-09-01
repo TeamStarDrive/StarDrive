@@ -48,6 +48,9 @@ namespace Ship_Game
         [StarData] public Array<string> ShipsWeCanSpawn { get; private set; } = new();
         [StarData] public int Level { get; private set; }
 
+        [StarDataConstructor]
+        Pirates() {}
+
         public Pirates(Empire owner, bool fromSave, Array<Goal> goals)
         {
             Owner = owner;

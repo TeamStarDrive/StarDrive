@@ -12,6 +12,7 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "IncreaseFreighters";
         public override string UID => ID;
 
+        [StarDataConstructor]
         public IncreaseFreighters(int id, UniverseState us)
             : base(GoalType.IncreaseFreighters, id, us)
         {

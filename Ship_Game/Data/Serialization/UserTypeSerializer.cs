@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using SDUtils;
 
 namespace Ship_Game.Data.Serialization
 {
+    using E = Expression;
+
     public abstract class UserTypeSerializer : TypeSerializer
     {
         public override string ToString() => $"UserTypeSerializer {NiceTypeName}:{TypeId}";
@@ -26,6 +30,13 @@ namespace Ship_Game.Data.Serialization
         // void OnDeserialized() { .. }
         public MethodInfo OnDeserialized;
 
+        // if not null, CreateInstance() should use this constructor instead,
+        // substituting parameters with their default values
+        readonly ConstructorInfo Constructor;
+
+        delegate object New();
+        New Ctor;
+
         protected UserTypeSerializer(Type type, TypeSerializerMap typeMap) : base(type)
         {
             TypeMap = typeMap;
@@ -34,13 +45,67 @@ namespace Ship_Game.Data.Serialization
 
             var a = type.GetCustomAttribute<StarDataTypeAttribute>();
             if (a == null)
-                throw new InvalidDataException($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
+                throw new($"Unsupported type {type} - is the class missing [StarDataType] attribute?");
             if (a.TypeName != null)
                 TypeName = a.TypeName;
 
             IsAbstractOrVirtual = type.IsAbstract;
             OnDeserialized = GetMethodWithAttribute<StarDataDeserialized>(type);
+            Constructor = GetDefaultConstructor();
+
             // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
+        }
+
+        public override object CreateInstance()
+        {
+            try
+            {
+                if (Ctor == null)
+                {
+                    // for value types or parameterless constructors
+                    if (Constructor == null)
+                    {
+                        // This is 30% faster than Activator.CreateInstance (no params)
+                        E newE = E.New(Type);
+                        if (Type.IsValueType) // box the struct
+                            newE = E.Convert(newE, typeof(object));
+                        Ctor = E.Lambda<New>(newE).Compile();
+                    }
+                    else
+                    {
+                        // this is 25x faster than Activator.CreateInstance (with params)
+                        // and 5x faster than Constructor.Invoke
+                        var p = Constructor.GetParameters();
+                        var paramExpr = new E[p.Length];
+                        for (int i = 0; i < p.Length; i++)
+                            paramExpr[i] = E.Default(p[i].ParameterType);
+                        Ctor = E.Lambda<New>(E.New(Constructor, paramExpr)).Compile();
+                    }
+                }
+                return Ctor();
+            }
+            catch (Exception ex)
+            {
+                throw new($"UserType CreateInstance failed: {Type}", ex);
+            }
+        }
+
+        ConstructorInfo GetDefaultConstructor()
+        {
+            if (Type.IsValueType)
+                return null; // structs always have the default constructor
+
+            var c = Type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            foreach (ConstructorInfo ctor in c)
+            {
+                if (ctor.GetParameters().Length == 0)
+                    return null; // we're good, there's a default ctor
+
+                if (ctor.GetCustomAttribute<StarDataConstructor>() != null)
+                    return ctor;
+            }
+
+            throw new($"Missing a default constructor or [StarDataConstructor] attribute on type {Type}");
         }
 
         static MethodInfo GetMethodWithAttribute<A>(Type type)

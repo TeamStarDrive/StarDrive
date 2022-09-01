@@ -19,7 +19,7 @@ namespace Ship_Game.AI
     [StarDataType]
     public sealed partial class EmpireAI
     {
-        int NumberOfShipGoals  = 6;
+        [StarData] int NumberOfShipGoals = 6;
         public float BuildCapacity { get; private set; }
         public float CivShipBudget => OwnerEmpire.data.FreightBudget;
         public float AllianceBuildCapacity { get; private set; }
@@ -36,6 +36,9 @@ namespace Ship_Game.AI
         [StarData] public ThreatMatrix ThreatMatrix;
         [StarData] public float DefStr;
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
+
+        [StarDataConstructor]
+        EmpireAI() {}
 
         public EmpireAI(Empire e, bool fromSave)
         {

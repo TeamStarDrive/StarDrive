@@ -23,6 +23,16 @@ namespace Ship_Game.AI.ExpansionAI
 
         Array<Goal> Goals => Owner.GetEmpireAI().Goals;
 
+        [StarDataConstructor]
+        ExpansionPlanner() {}
+
+        public ExpansionPlanner(Empire empire)
+        {
+            Owner = empire;
+            SetMaxSystemsToCheckedDiv(Owner.IsExpansionists ? 4 : 6);
+            ResetExpandSearchTimer();
+        }
+
         public Planet[] GetColonizationGoalPlanets()
         {
             var list = new Array<Planet>();
@@ -86,13 +96,6 @@ namespace Ship_Game.AI.ExpansionAI
 
             var empires = EmpireManager.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);
             return (int)(empires.IndexOf(Owner) * Owner.DifficultyModifiers.ColonyGoalMultiplier);
-        }
-
-        public ExpansionPlanner(Empire empire)
-        {
-            Owner                  = empire;
-            SetMaxSystemsToCheckedDiv(Owner.IsExpansionists ? 4 : 6);
-            ResetExpandSearchTimer();
         }
 
         /// <summary>

@@ -17,11 +17,13 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         float TotalThreatAgainst => OwnerWar.TotalThreatAgainst;
         float SpaceWarKd => OwnerWar.SpaceWarKd;
 
+        [StarDataConstructor]
         public WarScore(War war, Empire us)
         {
             OwnerWar = war;
             Us       = us;
         }
+
         public WarState GetBorderConflictState() => GetBorderConflictState(null);
 
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered)

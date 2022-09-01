@@ -15,7 +15,7 @@ namespace Ship_Game.Data.Binary
         readonly BinarySerializerHeader Header;
 
         // Object counts grouped by their type (includes strings)
-        record struct TypeGroup(TypeInfo Type, TypeSerializer Ser, int Count);
+        record struct TypeGroup(TypeInfo Type, TypeSerializer Ser, int Count, int BaseIndex);
         TypeGroup[] TypeGroups;
         TypeInfo[] StreamTypes;
         TypeInfo[] ActualTypes;
@@ -250,7 +250,6 @@ namespace Ship_Game.Data.Binary
             {
                 uint streamTypeId = BR.ReadVLu32();
                 int count = (int)BR.ReadVLu32();
-                totalCount += count;
 
                 if (count == 0) // count must not be 0
                     throw new InvalidDataException($"ReadGroup Type={streamTypeId} Count was 0");
@@ -259,13 +258,14 @@ namespace Ship_Game.Data.Binary
                 if (type == null)
                 {
                     Log.Error($"ReadGroup Type={streamTypeId} was null");
-                    TypeGroups[i] = new(null, null, count);
+                    TypeGroups[i] = new(null, null, count, BaseIndex:totalCount);
                 }
                 else
                 {
                     if (Verbose) Log.Info($"ReadGroup Type={streamTypeId} Count={count} {type.Ser}");
-                    TypeGroups[i] = new(type, type.Ser, count);
+                    TypeGroups[i] = new(type, type.Ser, count, BaseIndex:totalCount);
                 }
+                totalCount += count;
             }
 
             ObjectsList = new object[totalCount];
@@ -283,7 +283,7 @@ namespace Ship_Game.Data.Binary
             // solved in the Type sorting stage during Serialization
 
             if (Verbose) Log.Info("Read Values and Fields");
-            foreach (var g in GetTypeGroups())
+            foreach (TypeGroup g in TypeGroups)
             {
                 ReadObjects(g.Type, g.Ser, g.Count, g.BaseIndex);
             }
@@ -319,19 +319,11 @@ namespace Ship_Game.Data.Binary
             }
         }
 
-        record struct TypeGroupWithBaseIndex(TypeInfo Type, TypeSerializer Ser, int Count, int BaseIndex);
-
-        IEnumerable<TypeGroupWithBaseIndex> GetTypeGroups(Func<TypeInfo, bool> condition = null)
+        IEnumerable<TypeGroup> GetTypeGroups(Func<TypeInfo, bool> condition)
         {
-            int baseIndex = 0;
-            foreach (var g in TypeGroups)
-            {
-                if (condition == null || (g.Type?.Ser != null && condition(g.Type)))
-                {
-                    yield return new(g.Type, g.Ser, g.Count, baseIndex);
-                }
-                baseIndex += g.Count;
-            }
+            foreach (TypeGroup g in TypeGroups)
+                if (g.Type?.Ser != null && condition(g.Type))
+                    yield return g;
         }
 
         void ReadObjects(TypeInfo type, TypeSerializer ser, int count, int baseIndex)
