@@ -32,7 +32,7 @@ namespace Ship_Game.Data.Binary
         }
 
         // cache for binary type converters
-        class BinaryTypeMap : TypeSerializerMap
+        public class BinaryTypeMap : TypeSerializerMap
         {
             public override TypeSerializer AddUserTypeSerializer(Type type)
             {

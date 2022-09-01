@@ -42,10 +42,11 @@ namespace Ship_Game
 
         public EconomicResearchStrategy Strategy { get; private set; }
 
+        [StarDataConstructor]
         public EmpireResearch(Empire empire)
         {
             // @warning EmpireResearch is constructed while Empire is still uninitialized
-            //          Do NOT perform any sensitive initialization here and use
+            //          Do NOT perform any sensitive initialization here
             Empire = empire;
         }
 

@@ -13,6 +13,7 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "Scout System";
         public override string UID => ID;
 
+        [StarDataConstructor]
         public ScoutSystem(int id, UniverseState us) : base(GoalType.ScoutSystem, id, us)
         {
             Steps = new Func<GoalStep>[]
@@ -25,6 +26,7 @@ namespace Ship_Game.Commands.Goals
                 SniffAround
             };
         }
+
         public ScoutSystem(Empire empire)
             : this(empire.Universum.CreateId(), empire.Universum)
         {

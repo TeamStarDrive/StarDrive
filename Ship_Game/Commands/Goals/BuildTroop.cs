@@ -12,6 +12,7 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "Build Troop";
         public override string UID => ID;
 
+        [StarDataConstructor]
         public BuildTroop(int id, UniverseState us)
             : base(GoalType.BuildTroop, id, us)
         {

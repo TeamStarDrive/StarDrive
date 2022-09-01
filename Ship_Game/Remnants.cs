@@ -38,6 +38,9 @@ namespace Ship_Game
         [StarData] public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
         [StarData] public float ActivationXpNeeded { get; private set; } // xp of killed Remnant ships needed to for story activation
 
+        [StarDataConstructor]
+        Remnants() {}
+
         public Remnants(Empire owner, bool fromSave, Array<Goal> goals)
         {
             Owner = owner;

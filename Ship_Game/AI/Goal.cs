@@ -144,6 +144,7 @@ namespace Ship_Game.AI
 
         public override string ToString() => $"{type} Goal.{UID} {ToBuildUID}";
 
+        [StarDataConstructor]
         protected Goal(GoalType type, int id, UniverseState us)
         {
             this.type = type;

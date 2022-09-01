@@ -75,6 +75,7 @@ namespace Ship_Game.AI
             }
         }
 
+        [StarDataConstructor]
         public ThreatMatrix(Empire empire)
         {
             Owner = empire;

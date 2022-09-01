@@ -329,6 +329,7 @@ namespace Ship_Game.AI
 
             public override string ToString() => $"{Plan} {MoveOrder} pos:{MovePosition} dir:{Direction}";
 
+            [StarDataConstructor]
             public ShipGoal(Plan plan, AIState wantedState)
             {
                 Plan        = plan;

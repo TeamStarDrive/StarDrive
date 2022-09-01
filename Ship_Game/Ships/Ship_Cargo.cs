@@ -83,6 +83,7 @@ namespace Ship_Game.Ships
             // to save on memory usage, we only initialize this on demand
             [StarData] public Cargo[] Other = Empty<Cargo>.Array;
 
+            [StarDataConstructor]
             public CargoContainer(float maxCargo) { MaxCargo = maxCargo; }
 
             // this search is deliberately linear. the amount of cargo items is usually 0 or 1-2

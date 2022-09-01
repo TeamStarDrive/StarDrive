@@ -17,6 +17,9 @@ namespace Ship_Game.Universe.SolarBodies
         [StarData] public string TroopName { get; private set; }
         [StarData] public bool RecoverShip { get; private set; }
 
+        [StarDataConstructor]
+        private DynamicCrashSite() {}
+
         public DynamicCrashSite(bool active)
         {
             Active            = active;
