@@ -110,8 +110,7 @@ namespace Ship_Game.Data.Binary
                 var ctx = new BinarySerializerReader(reader, TypeMap, header) { Verbose = verbose };
                 ctx.ReadTypesList();
                 ctx.ReadTypeGroups();
-                ctx.ReadObjectsList();
-                object root = ctx.ObjectsList[header.RootObjectId - 1]; // ID-s are from [1...N]
+                object root = ctx.ReadObjectsList();
                 if (root.GetType() != Type)
                 {
                     throw new InvalidDataException($"Root type mismatch. Expected={Type} but Actual={root.GetType()}");

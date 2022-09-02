@@ -7,6 +7,7 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Universe
@@ -73,18 +74,18 @@ namespace Ship_Game.Universe
         /// <summary>
         /// Manages universe objects in a thread-safe manner
         /// </summary>
-        public readonly UniverseObjectManager Objects;
+        public UniverseObjectManager Objects;
 
         /// <summary>
         /// Spatial search interface for Universe Objects, updated once per frame
         /// </summary>
-        public readonly SpatialManager Spatial;
+        public SpatialManager Spatial;
 
         /// <summary>
         /// Global influence tree for fast influence checks, updated every time
         /// a ship is created or dies
         /// </summary>
-        public readonly InfluenceTree Influence;
+        public InfluenceTree Influence;
 
         /// <summary>
         /// Invoked when a Ship is removed from the universe
@@ -140,7 +141,7 @@ namespace Ship_Game.Universe
         [StarData] public SaveState Save;
 
         // TODO: attempt to stop relying on visual state
-        public readonly UniverseScreen Screen;
+        public UniverseScreen Screen;
         
         // TODO: Encapsulate
         public BatchRemovalCollection<SpaceJunk> JunkList = new();
@@ -148,7 +149,9 @@ namespace Ship_Game.Universe
         public DebugInfoScreen DebugWin => Screen.DebugWin;
         public NotificationManager Notifications => Screen.NotificationManager;
 
-        public readonly float DefaultProjectorRadius;
+        public float DefaultProjectorRadius;
+
+        public readonly RandomBase Random = new ThreadSafeRandom();
 
         UniverseState()
         {
@@ -161,18 +164,30 @@ namespace Ship_Game.Universe
             if (Size < 1f)
                 throw new ArgumentException("UniverseSize not set!");
 
+            Initialize(universeRadius);
+
+            Events = new RandomEventManager(); // serialized
+            Stats = new StatTracker(); // serialized
+            Params = new UniverseParams(); // serialized
+        }
+
+        void Initialize(float universeRadius)
+        {
             Spatial = new SpatialManager();
             Spatial.Setup(universeRadius);
-
             DefaultProjectorRadius = (float)Math.Round(universeRadius * 0.04f);
             Influence = new InfluenceTree(universeRadius, DefaultProjectorRadius);
 
-            Objects = new UniverseObjectManager(screen, this, Spatial);
-            Events = new RandomEventManager();
-            Stats = new StatTracker();
-            Params = new UniverseParams();
+            // Screen will be null during deserialization, so it must be set later
+            Objects = new UniverseObjectManager(Screen, this, Spatial);
         }
-        
+
+        public void OnUniverseScreenLoaded(UniverseScreen screen)
+        {
+            Screen = screen;
+            Objects.Universe = screen;
+        }
+
         [StarDataType]
         public class SaveState
         {
@@ -228,10 +243,12 @@ namespace Ship_Game.Universe
             // FogMap is converted to a Base64 string so that it can be included in the savegame
             FogMapBytes = Screen.ContentManager.RawContent.TexExport.ToAlphaBytes(Screen.FogMap);
         }
-        
+
         [StarDataDeserialized]
         void OnDeserialized()
         {
+            Initialize(Size);
+
             Params.UpdateGlobalStats();
             SettingsResearchModifier = GetResearchMultiplier();
             RemnantPaceModifier      = CalcRemnantPace();

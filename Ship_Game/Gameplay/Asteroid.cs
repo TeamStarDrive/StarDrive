@@ -1,6 +1,7 @@
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Universe;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
@@ -34,12 +35,17 @@ namespace Ship_Game.Gameplay
             Initialize(random);
         }
 
-        [StarDataDeserialized]
-        public void Initialize(RandomBase random)
+        void Initialize(RandomBase random)
         {
             Spin            = random.Vector3D(0.01f, 0.2f);
             RotationRadians = random.Vector3D(0.01f, 1.02f);
             AsteroidId      = random.InRange(ResourceManager.NumAsteroidModels);
+        }
+
+        [StarDataDeserialized]
+        public void OnDeserialize(UniverseState us)
+        {
+            Initialize(us.Random);
         }
 
         void CreateSceneObject(Vector2 systemPos)

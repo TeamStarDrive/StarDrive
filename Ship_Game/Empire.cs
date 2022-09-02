@@ -256,7 +256,7 @@ namespace Ship_Game
         [StarDataDeserialized]
         void OnDeserialized()
         {
-            Universum.AddEmpire(this);
+            EmpireManager.Add(this); // TODO: remove
             dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
 
             CommonInitialize();
@@ -1066,11 +1066,14 @@ namespace Ship_Game
             InitPersonalityModifiers();
             CreateThrusterColors();
 
-            for (int i = 1; i < 10; ++i)
+            if (FleetsDict.Count == 0)
             {
-                Fleet fleet = new Fleet(Universum.CreateId()) { Owner = this };
-                fleet.SetNameByFleetIndex(i);
-                FleetsDict.Add(i, fleet);
+                for (int i = 1; i < 10; ++i)
+                {
+                    Fleet fleet = new Fleet(Universum.CreateId()) { Owner = this };
+                    fleet.SetNameByFleetIndex(i);
+                    FleetsDict.Add(i, fleet);
+                }
             }
 
             if (string.IsNullOrEmpty(data.DefaultTroopShip))

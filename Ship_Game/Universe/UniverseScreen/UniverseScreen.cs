@@ -184,6 +184,7 @@ namespace Ship_Game
         public UniverseScreen(UniverseState state) : base(null, toPause: null) // load game
         {
             UState = state;
+            UState.OnUniverseScreenLoaded(this);
             loading = true;
             Initialize();
         }

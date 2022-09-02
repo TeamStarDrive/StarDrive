@@ -984,7 +984,7 @@ namespace UnitTests.Serialization
             var instance = (ShipDesign)ResourceManager.Ships.GetDesign("Terran-Prototype");
 
             var designBytes = instance.GetDesignBytes(new ShipDesignWriter());
-            var result = SerDes(instance, out byte[] bytes, verbose:true);
+            var result = SerDes(instance, out byte[] bytes);
             Log.Info($"ShipDesign Binary={bytes.Length} DesignBytes={designBytes.Length}");
 
             ShipDataTests.AssertAreEqual(instance, result, checkModules:true);

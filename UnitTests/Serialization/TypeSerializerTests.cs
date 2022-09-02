@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
 using Ship_Game.Data.Binary;
 using Ship_Game.Data.Serialization;
+#pragma warning disable CS0649
 
 namespace UnitTests.Serialization;
 
