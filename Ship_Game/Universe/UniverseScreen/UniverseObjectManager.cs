@@ -13,7 +13,7 @@ namespace Ship_Game
     /// </summary>
     public class UniverseObjectManager
     {
-        readonly UniverseScreen Universe;
+        public UniverseScreen Universe;
         readonly UniverseState UState;
         readonly SpatialManager Spatial;
 
@@ -21,6 +21,11 @@ namespace Ship_Game
         /// Should be TRUE by default. Can be used to detect threading issues.
         /// </summary>
         public bool EnableParallelUpdate = true;
+
+        /// <summary>
+        /// Maximum parallel tasks if EnableParallelUpdate is turned on
+        /// </summary>
+        public readonly int MaxTaskCores = Parallel.NumPhysicalCores - 1;
 
         /// <summary>
         /// All objects: ships, projectiles, beams
@@ -207,9 +212,8 @@ namespace Ship_Game
                 return;
 
             TotalTime.Start();
-            
+
             bool isRunning = timeStep.FixedTime > 0f;
-            bool isUIThread = Universe.IsUIThread;
 
             // only remove and kill objects if game is not paused
             UpdateLists(removeInactiveObjects: isRunning);
@@ -233,7 +237,7 @@ namespace Ship_Game
                 }
 
                 // trigger all Hit events
-                Spatial.CollideAll(timeStep, showCollisions: Universe.Debug);
+                Spatial.CollideAll(timeStep, showCollisions: UState.Debug);
 
                 // update sensors AFTER spatial update, but only if we are not paused!
                 UpdateAllSensors(timeStep);
@@ -386,7 +390,7 @@ namespace Ship_Game
             }
 
             //UpdateSystems(0, UState.Systems.Count);
-            Parallel.For(UState.Systems.Count, UpdateSystems, Universe.MaxTaskCores);
+            Parallel.For(UState.Systems.Count, UpdateSystems, MaxTaskCores);
         }
 
         void UpdateAllShips(FixedSimTime timeStep)
@@ -398,7 +402,7 @@ namespace Ship_Game
 
             void UpdateShips(int start, int end)
             {
-                bool debug = Universe.Debug;
+                bool debug = UState.Debug;
                 for (int i = start; i < end; ++i)
                 {
                     Ship ship = allShips[i];
@@ -412,7 +416,7 @@ namespace Ship_Game
             }
 
             if (EnableParallelUpdate)
-                Parallel.For(allShips.Length, UpdateShips, Universe.MaxTaskCores);
+                Parallel.For(allShips.Length, UpdateShips, MaxTaskCores);
             else
                 UpdateShips(0, allShips.Length);
 
@@ -436,7 +440,7 @@ namespace Ship_Game
                 }
 
                 if (EnableParallelUpdate)
-                    Parallel.For(allProjectiles.Length, UpdateProjectiles, Universe.MaxTaskCores);
+                    Parallel.For(allProjectiles.Length, UpdateProjectiles, MaxTaskCores);
                 else
                     UpdateProjectiles(0, allProjectiles.Length);
             }
@@ -465,7 +469,7 @@ namespace Ship_Game
             }
 
             if (EnableParallelUpdate)
-                Parallel.For(allShips.Length, UpdateSensors, Universe.MaxTaskCores);
+                Parallel.For(allShips.Length, UpdateSensors, MaxTaskCores);
             else
                 UpdateSensors(0, allShips.Length);
 
@@ -493,7 +497,7 @@ namespace Ship_Game
             }
 
             if (EnableParallelUpdate)
-                Parallel.For(allShips.Length, UpdateAI, Universe.MaxTaskCores);
+                Parallel.For(allShips.Length, UpdateAI, MaxTaskCores);
             else
                 UpdateAI(0, allShips.Length);
 

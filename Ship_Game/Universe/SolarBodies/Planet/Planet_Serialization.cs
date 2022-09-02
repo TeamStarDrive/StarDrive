@@ -9,6 +9,7 @@ namespace Ship_Game
 {
     public partial class Planet
     {
+        [StarDataConstructor]
         Planet() : base(0, GameObjectType.Planet)
         {
             TroopManager    = new TroopManager(this);
@@ -21,9 +22,10 @@ namespace Ship_Game
         {
             UpdatePositionOnly();
             InitPlanetType(PType, Scale, fromSave: true);
-            ResetHasDynamicBuildings();
 
-            UpdateIncomes();  // must be before restoring commodities since max storage is set here
+            ResetHasDynamicBuildings();
+            UpdateMaxPopulation();
+            UpdateIncomes();
         }
     }
 }

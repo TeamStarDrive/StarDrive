@@ -872,9 +872,9 @@ namespace Ship_Game
         public float PopPerTileFor(Empire empire) => BasePopPerTile * Empire.RacialEnvModifer(Category, empire);
 
         // these are intentionally duplicated so we don't easily modify them...
-        float BasePopPerTileVal, MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
+        [StarData] float BasePopPerTileVal;
+        float MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
 
-        [StarData]
         public float BasePopPerTile // population per tile with no racial modifiers
         {
             get => BasePopPerTileVal;
