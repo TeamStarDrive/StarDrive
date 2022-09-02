@@ -293,8 +293,6 @@ namespace Ship_Game
             EmpireMiscPerf.Stop();
         }
 
-        public readonly int MaxTaskCores = Parallel.NumPhysicalCores - 1;
-
         // FB todo: this a work around from duplicate SSP create somewhere in the game but are not seen before loading the game
         void RemoveDuplicateProjectorWorkAround(Empire empire)
         {
@@ -398,7 +396,7 @@ namespace Ship_Game
                 {
                     for (int i = start; i < end; i++)
                     {
-                        var empire = EmpireManager.Empires[i];
+                        var empire = UState.Empires[i];
                         empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
@@ -413,7 +411,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                Parallel.For(EmpireManager.Empires.Count, PostEmpireUpdate, MaxTaskCores);
+                Parallel.For(UState.Empires.Count, PostEmpireUpdate, UState.Objects.MaxTaskCores);
             }
 
             PostEmpirePerf.Stop();

@@ -102,13 +102,17 @@ public class RecursiveScanner
             if ((r = Compare(a.IsFundamentalType, b.IsFundamentalType)) != 0) return r;
             if ((r = Compare(a.IsEnumType, b.IsEnumType)) != 0) return r;
             if ((r = Compare(a.IsValueType, b.IsValueType)) != 0) return r;
+            // arrays HAVE to be before userclasses
             if ((r = Compare(a.Type.IsArray, b.Type.IsArray)) != 0) return r;
-            if ((r = Compare(a.IsCollection, b.IsCollection)) != 0) return r;
 
-            // finally user classes, sort by dependency
+            // collection types should come last, thus using negation:
+            if ((r = Compare(b.IsCollection, a.IsCollection)) != 0) return r;
+
+            // finally sort by dependency
             if (TypeDependsOn(b, a)) return -1; // b depends on a, A must come first
             if (TypeDependsOn(a, b)) return +1; // a depends on b, B must come first
-            return string.CompareOrdinal(a.Type.Name, b.Type.Name);
+
+            return Comparer<int>.Default.Compare(a.TypeId, b.TypeId);
         });
 
         UsedTypes = AllTypes.Filter(s => !s.IsFundamentalType && !s.IsCollection);
@@ -198,41 +202,46 @@ public class RecursiveScanner
     }
 
     // @return TRUE if `type` is dependent on `on`
-    //         example: type=Map<string,Array<Ship>> on=Ship returns true
-    //         example: type=Ship on=Array<Ship> returns false
-    static bool TypeDependsOn(TypeSerializer type, TypeSerializer on)
+    //         example: type=Map<string,Array<Ship>> on=Ship returns true, because Ship is required for the Collection
+    //         example: type=Ship on=Array<Ship> returns false, because Class can never depend on a Collection
+    public static bool TypeDependsOn(TypeSerializer type, TypeSerializer on)
     {
-        var explored = new HashSet<Type>();
-        return TypeDependsOn(type, on, explored);
-    }
-
-    static bool TypeDependsOn(TypeSerializer type, TypeSerializer on, HashSet<Type> explored)
-    {
-        // Array<Ship> or Map<string, Array<Ship>> or Ship[]
-        if (TypeDependsOn(type.Type, on.Type, explored))
-            return true;
-        if (type is UserTypeSerializer us)
+        // type should never depend on itself
+        // UserClass can never depend on a Collection type, it is always the other way around
+        if (type == on || (!type.IsCollection && on.IsCollection))
+            return false;
+        // If Type is a Collection, figure out if it contains the other type
+        // eg Array<Array<Ship>> depends on Array<Ship> returns true;
+        if (type.IsCollection)
+            return CollectionDependsOn(type.Type, on.Type);
+        if (type is UserTypeSerializer classType)
         {
-            foreach (DataField field in us.Fields)
-            {
-                TypeSerializer fieldSer = field.Serializer;
-                if (!fieldSer.IsFundamentalType && !explored.Contains(fieldSer.Type) && TypeDependsOn(fieldSer, on, explored))
-                    return true;
-            }
+            var explored = new Utils.BitArray(1024);
+            return DependsOn(classType, on, ref explored);
         }
         return false;
     }
 
-    static bool TypeDependsOn(Type type, Type on, HashSet<Type> explored)
+    static bool DependsOn(UserTypeSerializer classType, TypeSerializer on, ref Utils.BitArray explored)
     {
-        if (explored.Contains(type))
-            return false;
-        explored.Add(type);
+        explored.Set(classType.TypeId);
+        foreach (DataField field in classType.Fields)
+        {
+            TypeSerializer f = field.Serializer;
+            if (f == on) return true;
+            if (f is UserTypeSerializer fus && !explored.IsSet(f.TypeId) && 
+                DependsOn(fus, on, ref explored))
+                return true;
+        }
+        return false;
+    }
 
+    static bool CollectionDependsOn(Type type, Type on)
+    {
         if (type.IsGenericType)
         {
             foreach (Type arg in type.GetGenericArguments())
-                if (arg == on || TypeDependsOn(arg, on, explored))
+                if (arg == on || CollectionDependsOn(arg, on))
                     return true;
         }
         else if (type.HasElementType && type.GetElementType() == on)
