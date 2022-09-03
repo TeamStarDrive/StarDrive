@@ -7,7 +7,7 @@ namespace Ship_Game.Data.Binary
 {
     public class BinarySerializer : UserTypeSerializer
     {
-        public override string ToString() => $"BinarySerializer {NiceTypeName}:{TypeId}";
+        public override string ToString() => $"{TypeId}:UserType:{NiceTypeName}";
 
         // The currently supported version
         public const uint CurrentVersion = 1;

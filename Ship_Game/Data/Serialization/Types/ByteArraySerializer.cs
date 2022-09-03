@@ -8,15 +8,14 @@ using Ship_Game.Data.Yaml;
 namespace Ship_Game.Data.Serialization.Types
 {
     // This is a specialized optimization for byte[]
-    // to automatically compress large amount of data
     internal class ByteArraySerializer : RawArraySerializer
     {
-        public override string ToString() => $"ByteArraySerializer<{ElemType.GetTypeName()}:{ElemSerializer.TypeId}>:{TypeId}";
+        public override string ToString() => $"{TypeId}:ByteArraySer<{ElemSerializer.TypeId}:{ElemType.GetTypeName()}>";
 
         public ByteArraySerializer(TypeSerializerMap typeMap)
             : base(typeof(byte[]), typeof(byte), typeMap.Get(typeof(byte)))
         {
-            Category = SerializerCategory.RawArray;
+            Category = SerializerCategory.Fundamental;
         }
 
         public override void Serialize(BinarySerializerWriter writer, object obj)

@@ -93,6 +93,12 @@ public class StarDataSerialize : Attribute
 [AttributeUsage(AttributeTargets.Method)]
 public class StarDataDeserialized : Attribute
 {
+    public Type[] Required;
+    public StarDataDeserialized() {}
+    public StarDataDeserialized(params Type[] requiredTypes)
+    {
+        Required = requiredTypes;
+    }
 }
 
 /// <summary>
