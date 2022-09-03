@@ -10,7 +10,7 @@ namespace Ship_Game.Data.Serialization.Types
     public class ObjectSerializer : TypeSerializer
     {
         public ObjectSerializer() : base(typeof(object)) { }
-        public override string ToString() => $"ObjectSerializer:{TypeId}";
+        public override string ToString() => $"{TypeId}:ObjectSerializer";
         
         public override object Convert(object value)
         {
@@ -37,7 +37,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class RangeSerializer : TypeSerializer
     {
         public RangeSerializer() : base(typeof(Range)) { }
-        public override string ToString() => $"RangeSerializer:{TypeId}";
+        public override string ToString() => $"{TypeId}:RangeSerializer";
 
         public override object Convert(object value)
         {
@@ -89,7 +89,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class DateTimeSerializer : TypeSerializer
     {
         public DateTimeSerializer() : base(typeof(DateTime)) { }
-        public override string ToString() => $"DateTimeSerializer:{TypeId}";
+        public override string ToString() => $"{TypeId}:DateTimeSerializer";
 
         public override object Convert(object value)
         {
@@ -158,7 +158,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class TimeSpanSerializer : TypeSerializer
     {
         public TimeSpanSerializer() : base(typeof(TimeSpan)) { }
-        public override string ToString() => $"TimeSpanSerializer:{TypeId}";
+        public override string ToString() => $"{TypeId}:TimeSpanSerializer";
 
         public override object Convert(object value)
         {
@@ -189,7 +189,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class SmallBitSetSerializer : TypeSerializer
     {
         public SmallBitSetSerializer() : base(typeof(SmallBitSet)) { }
-        public override string ToString() => $"SmallBitSetSerializer:{TypeId}";
+        public override string ToString() => $"{TypeId}:SmallBitSetSerializer";
 
         public override object Convert(object value)
         {

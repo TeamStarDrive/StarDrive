@@ -62,7 +62,6 @@ namespace Ship_Game.AI
         [StarDataDeserialized]
         void OnDeserialized()
         {
-
         }
 
         void RunManagers()

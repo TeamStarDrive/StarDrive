@@ -439,6 +439,15 @@ namespace SDUtils
             array2.CopyTo(result, array1.Length);
             return result;
         }
+        // Fast concat of three arrays
+        public static T[] Concat<T>(this T[] array1, T[] array2, T[] array3)
+        {
+            var result = new T[array1.Length + array2.Length + array3.Length];
+            array1.CopyTo(result, 0);
+            array2.CopyTo(result, array1.Length);
+            array3.CopyTo(result, array1.Length+array2.Length);
+            return result;
+        }
 
         /// <summary>
         /// Group items by selector

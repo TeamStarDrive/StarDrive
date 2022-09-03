@@ -22,11 +22,10 @@ namespace Ship_Game.Data.Binary
             Signature = ValidSignature;
             Version = BinarySerializer.CurrentVersion;
             Options = 0;
-            NumUsedTypes = (uint)writer.UsedTypes.Length;
-            NumCollectionTypes = (uint)writer.CollectionTypes.Length;
-            MaxTypeId = (uint)Math.Max(writer.UsedTypes.Max(s => s.TypeId),
-                                       writer.CollectionTypes.Max(s => s.TypeId));
-            NumTypeGroups = (uint)writer.NumUsedGroups;
+            NumUsedTypes = (uint)writer.Types.ValuesAndClasses.Length;
+            NumCollectionTypes = (uint)writer.Types.Collections.Length;
+            MaxTypeId = (uint)writer.MaxTypeId;
+            NumTypeGroups = (uint)writer.NumTypeGroups;
             RootObjectId = writer.RootObjectId;
         }
 

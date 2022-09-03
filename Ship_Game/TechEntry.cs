@@ -103,6 +103,12 @@ namespace Ship_Game
             ResolveTech();
         }
 
+        [StarDataDeserialized]
+        void OnDeserialized()
+        {
+            ResolveTech();
+        }
+
         public void ResolveTech()
         {
             Tech = UID.NotEmpty() ? ResourceManager.TechTree[UID] : Technology.Dummy;

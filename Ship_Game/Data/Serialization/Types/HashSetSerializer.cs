@@ -13,7 +13,7 @@ namespace Ship_Game.Data.Serialization.Types
 
     internal class HashSetSerializer : CollectionSerializer
     {
-        public override string ToString() => $"HashSetSerializer<{ElemType.GetTypeName()}:{ElemSerializer.TypeId}>:{TypeId}";
+        public override string ToString() => $"{TypeId}:SetSer<{ElemSerializer.TypeId}:{ElemType.GetTypeName()}>";
 
         delegate object New();
         delegate int Length(object set);
