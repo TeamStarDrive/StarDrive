@@ -8,7 +8,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class FloatSerializer : TypeSerializer
     {
         public FloatSerializer() : base(typeof(float)) { }
-        public override string ToString() => $"FloatSerializer:{TypeId}";
+        public override string ToString() => $"{TypeId}:FloatSerializer";
 
         public override object Convert(object value)
         {
@@ -45,7 +45,7 @@ namespace Ship_Game.Data.Serialization.Types
     internal class DoubleSerializer : TypeSerializer
     {
         public DoubleSerializer() : base(typeof(double)) { }
-        public override string ToString() => $"DoubleSerializer:{TypeId}";
+        public override string ToString() => $"{TypeId}:DoubleSerializer";
 
         public override object Convert(object value)
         {

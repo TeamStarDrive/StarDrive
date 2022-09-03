@@ -11,7 +11,7 @@ namespace Ship_Game.Data.Serialization.Types
 
     internal class EnumSerializer : TypeSerializer
     {
-        public override string ToString() => $"EnumSerializer {NiceTypeName}:{TypeId}";
+        public override string ToString() => $"{TypeId}:EnumSerializer {NiceTypeName}";
         readonly Map<int, object> Mapping = new();
         readonly object DefaultValue;
         readonly bool IsFlagsEnum;

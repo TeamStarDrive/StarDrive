@@ -8,14 +8,18 @@ using Ship_Game.Data.Serialization;
 
 namespace Ship_Game.Data.Binary
 {
+    // Binary Object counts grouped by their type (includes strings)
+    // TypeInfo Type is mandatory
+    public record struct TypeGroup(TypeInfo Type, TypeSerializer Ser, int Count, int BaseIndex);
+
+    /// <summary>
+    /// Core logic of the binary reader
+    /// </summary>
     public class BinarySerializerReader
     {
         public readonly Reader BR;
         public readonly TypeSerializerMap TypeMap;
         readonly BinarySerializerHeader Header;
-
-        // Object counts grouped by their type (includes strings)
-        record struct TypeGroup(TypeInfo Type, TypeSerializer Ser, int Count, int BaseIndex);
         TypeGroup[] TypeGroups;
         TypeInfo[] StreamTypes;
         TypeInfo[] ActualTypes;
@@ -137,12 +141,12 @@ namespace Ship_Game.Data.Binary
                     if (!TypeMap.TryGet(type, out TypeSerializer s))
                         s = TypeMap.Get(type);
 
-                    if (Verbose) Log.Info($"ReadType={typeId} {name} {c}");
+                    if (Verbose) Log.Info($"Read {c} {typeId}:{name}");
                     AddTypeInfo(typeId, name, s, fields, isPointerType, c);
                 }
                 else
                 {
-                    if (Verbose) Log.Warning($"ReadDeletedType={typeId} {name} {c}");
+                    if (Verbose) Log.Warning($"Read DELETED {c} {typeId}:{name}");
                     AddDeletedTypeInfo(typeId, name, fields, isPointerType, c);
                 }
             }
@@ -151,81 +155,58 @@ namespace Ship_Game.Data.Binary
             ReadCollectionTypes();
         }
 
-        /// <param name="StreamType">Type ID from the stream</param>
-        /// <param name="CType">Collection Type;  1:T[] 2:ArrayT 3:MapKV 4:HashSetT</param>
-        /// <param name="ValType">Element Type Id</param>
-        /// <param name="KeyType">Key Type Id (only for Maps)</param>
-        record struct CollectionID(uint StreamType, uint CType, uint ValType, uint KeyType);
-
         void ReadCollectionTypes()
         {
-            var discarded = new Array<CollectionID>();
             for (uint i = 0; i < Header.NumCollectionTypes; ++i)
             {
+                // [streamTypeId]  Type ID from the stream
+                // [cTypeId]    Collection Type;  1:T[] 2:ArrayT 3:MapKV 4:HashSetT
+                // [valTypeId]  Element Type Id
+                // [keyTypeId]  Key Type Id (only for Maps)
                 uint streamTypeId = BR.ReadVLu32();
                 uint cTypeId = BR.ReadVLu32();
                 uint valTypeId = BR.ReadVLu32();
                 uint keyTypeId = cTypeId == 3 ? BR.ReadVLu32() : 0;
-                CollectionID id = new(streamTypeId, cTypeId, valTypeId, keyTypeId);
-
-                if (!AddCollectionTypeInfo(id))
-                    discarded.Add(id);
-            }
-
-            if (discarded.NotEmpty)
-            {
-                Log.Error($"Encountered {discarded.Count} Type sequencing errors! This is a bug in Serializer `TypeDependsOn()` function");
-                
-                // doing a second iteration can remove the issue
-                for (int i = 0; i < discarded.Count; ++i)
-                {
-                    var id = discarded[i];
-                    if (!AddCollectionTypeInfo(id))
-                        throw new($"Failed to deduce Type={id} from stream");
-                }
+                AddCollectionTypeInfo(streamTypeId, cTypeId, valTypeId, keyTypeId);
             }
         }
 
-        bool AddCollectionTypeInfo(CollectionID id)
+        void AddCollectionTypeInfo(uint streamType, uint cTypeId, uint valType, uint keyType)
         {
-            TypeInfo keyTypeInfo = id.KeyType != 0 ? StreamTypes[id.KeyType] : null;
-            TypeInfo valTypeInfo = StreamTypes[id.ValType];
+            TypeInfo keyTypeInfo = keyType != 0 ? StreamTypes[keyType] : null;
+            TypeInfo valTypeInfo = StreamTypes[valType];
 
-            // if type info is null, it means there are no valid instances
-            // of this type in the serialized file, so this type info can be safely ignored
             if (valTypeInfo == null) // element type does not exist anywhere
             {
-                if (Verbose) Log.Warning($"DiscardCollection={id.StreamType} valType={id.ValType} was null (deleted?)");
-                return false;
+                // stream type is not allowed to be null !! this means the stream is invalid
+                throw new($"Missing StreamType={streamType} valType={valType} (the stream is corrupted)");
             }
-
-            if (id.CType == 3 && keyTypeInfo == null) // map key does not exist anywhere
+            if (cTypeId == 3 && keyTypeInfo == null) // map key does not exist anywhere
             {
-                if (Verbose) Log.Warning($"DiscardCollection={id.StreamType} keyType={id.KeyType} was null (deleted?)");
-                return false;
+                // stream type is not allowed to be null !! this means the stream is invalid
+                throw new($"Missing StreamType={streamType} keyType={keyType} (the stream is corrupted)");
             }
 
             Type cType = null;
-            if (id.CType == 1)
+            if (cTypeId == 1)
                 cType = valTypeInfo.Type.MakeArrayType();
-            else if (id.CType == 2)
+            else if (cTypeId == 2)
                 cType = typeof(Array<>).MakeGenericType(valTypeInfo.Type);
-            else if (id.CType == 3)
-                cType = typeof(Map<,>).MakeGenericType(keyTypeInfo.Type, valTypeInfo.Type);
-            else if (id.CType == 4)
+            else if (cTypeId == 3)
+                cType = typeof(Map<,>).MakeGenericType(keyTypeInfo!.Type, valTypeInfo.Type);
+            else if (cTypeId == 4)
                 cType = typeof(HashSet<>).MakeGenericType(valTypeInfo.Type);
             else
-                Log.Error($"Unrecognized cTypeId={id.CType} for Collection<{valTypeInfo}>");
+                Log.Error($"Unrecognized cTypeId={cTypeId} for Collection<{valTypeInfo}>");
 
             if (cType != null)
             {
                 TypeSerializer cTypeSer = TypeMap.Get(cType);
-                SerializerCategory c = id.CType == 1 ? SerializerCategory.RawArray : SerializerCategory.Collection;
+                SerializerCategory c = cTypeId == 1 ? SerializerCategory.RawArray : SerializerCategory.Collection;
 
-                if (Verbose) Log.Info($"ReadCollection={id.StreamType} {cType.GetTypeName()} {c}");
-                AddTypeInfo(id.StreamType, cType.GetTypeName(), cTypeSer, null, isPointer: true, c);
+                if (Verbose) Log.Info($"Read {c} {streamType}:{cType.GetTypeName()}");
+                AddTypeInfo(streamType, cType.GetTypeName(), cTypeSer, null, isPointer: true, c);
             }
-            return true;
         }
 
         Map<Assembly, Map<string, Type>> TypeNameCache;
@@ -246,11 +227,11 @@ namespace Ship_Game.Data.Binary
                 return null;
 
             if (TypeNameCache == null)
-                TypeNameCache = new Map<Assembly, Map<string, Type>>();
+                TypeNameCache = new();
 
             if (!TypeNameCache.TryGetValue(a, out Map<string, Type> typeNamesMap))
             {
-                TypeNameCache.Add(a, (typeNamesMap = new Map<string, Type>()));
+                TypeNameCache.Add(a, (typeNamesMap = new()));
 
                 // find type by name from all module types (including nested types)
                 Module module = a.Modules.First();
@@ -259,7 +240,18 @@ namespace Ship_Game.Data.Binary
                 {
                     var attr = t.GetCustomAttribute<StarDataTypeAttribute>();
                     if (attr != null)
-                        typeNamesMap.Add(attr.TypeName ?? t.Name, t);
+                    {
+                        try
+                        {
+                            typeNamesMap.Add(attr.TypeName ?? t.Name, t);
+                        }
+                        catch (Exception)
+                        {
+                            // TODO: we don't support duplicate class names
+                            Type existing = typeNamesMap[attr.TypeName ?? t.Name];
+                            throw new($"There was a duplicate TypeName in one of the submodules. Rename your class. First={existing} Second={t}");
+                        }
+                    }
                 }
             }
 
@@ -278,21 +270,24 @@ namespace Ship_Game.Data.Binary
             {
                 uint streamTypeId = BR.ReadVLu32();
                 int count = (int)BR.ReadVLu32();
+                int baseObjectId = (int)BR.ReadVLu32();
 
-                if (count == 0) // count must not be 0
-                    throw new InvalidDataException($"ReadGroup Type={streamTypeId} Count was 0");
-
-                var type = GetType(streamTypeId);
+                TypeInfo type = GetType(streamTypeId);
                 if (type == null)
                 {
-                    Log.Error($"ReadGroup Type={streamTypeId} was null");
-                    TypeGroups[i] = new(null, null, count, BaseIndex:totalCount);
+                    // TypeInfo is mandatory. If it's missing, then the stream is invalid
+                    // and it's not possible to read rest of the stream beyond this type
+                    throw new ($"Failed to read StreamTypeId={streamTypeId}");
                 }
-                else
-                {
-                    if (Verbose) Log.Info($"ReadGroup Type={streamTypeId} Count={count} {type.Ser}");
-                    TypeGroups[i] = new(type, type.Ser, count, BaseIndex:totalCount);
-                }
+
+                if (count == 0) // count must not be 0
+                    throw new InvalidDataException($"ReadGroup Type={streamTypeId}:{type.Name} Count was 0");
+
+                if (baseObjectId == 0) // object ID-s are in range [1..N]
+                    throw new InvalidDataException($"ReadGroup Type={streamTypeId}:{type.Name} BaseObjectId was 0");
+
+                if (Verbose) Log.Info($"ReadGroup {type.Category} {streamTypeId}:{type.Name}  N={count}");
+                TypeGroups[i] = new(type, type.Ser, count, BaseIndex:(baseObjectId-1));
                 totalCount += count;
             }
 
@@ -334,19 +329,9 @@ namespace Ship_Game.Data.Binary
         {
             object root = ObjectsList[Header.RootObjectId - 1]; // ID-s are from [1...N]
 
-            // now all instances should be initialized, we can call events
             if (Verbose) Log.Info("Invoke UserClass events");
-            foreach (var g in GetTypeGroups(t => t.Category == SerializerCategory.UserClass))
-            {
-                if (g.Ser is UserTypeSerializer us && us.OnDeserialized != null)
-                {
-                    for (int i = 0; i < g.Count; ++i)
-                    {
-                        object instance = ObjectsList[g.BaseIndex + i];
-                        us.OnDeserialized(instance, root);
-                    }
-                }
-            }
+            var evt = new EventContextOnDeserialized(TypeMap, root, ObjectsList);
+            evt.InvokeEvents(TypeGroups);
 
             return root;
         }
@@ -358,12 +343,14 @@ namespace Ship_Game.Data.Binary
                     yield return g;
         }
 
+        TypeInfo PrevType;
+
         void ReadObjects(TypeInfo type, TypeSerializer ser, int count, int baseIndex)
         {
-            if (Verbose) Log.Info($"ReadObjects Count={count} {type}");
-
-            // we are trying to read a typegroup but the type does not match
             uint typeId = BR.ReadVLu32();
+            if (Verbose) Log.Info($"ReadObjects Count={count} StreamId={typeId} {type}");
+
+            // we are trying to read objects but the group type does not match
             if (typeId != type.StreamTypeId)
             {
                 TypeInfo actual = GetTypeOrNull(typeId);
@@ -374,6 +361,8 @@ namespace Ship_Game.Data.Binary
             uint actualCount = BR.ReadVLu32();
             if (actualCount != count)
                 throw new InvalidDataException($"Invalid TypeGroup Count={actualCount} Expected={count} for Type={type}");
+
+            PrevType = type;
 
             if (type.Category is SerializerCategory.UserClass)
             {

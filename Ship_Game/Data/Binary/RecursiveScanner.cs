@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
+using Ship_Game.Utils;
 
 namespace Ship_Game.Data.Binary;
 
@@ -56,15 +58,22 @@ public class ObjectState
     }
 }
 
+// Scanned object types, separated by category
+public record struct ScannedTypes(
+    TypeSerializer[] Fundamental, // fundamental types
+    TypeSerializer[] Values, // enums and UserClass structs
+    TypeSerializer[] Classes, // UserClass classes
+    TypeSerializer[] ValuesAndClasses, // Values+Classes
+    CollectionSerializer[] Collections, // Arrays, Maps, Sets, RawArrays
+    TypeSerializer[] All  // Fundamental+Values+Classes+Collections in this order
+);
+
 public class RecursiveScanner
 {
     readonly BinarySerializer RootSer;
     readonly object RootObj;
-    public TypeSerializer[] AllTypes;
-    public TypeSerializer[] ValueTypes;
-    public TypeSerializer[] ClassTypes;
-    public TypeSerializer[] UsedTypes;
-    public CollectionSerializer[] CollectionTypes;
+    
+    public ScannedTypes Types;
 
     // maps Type -> object* -> ObjectState
     // allowing for much faster object lookup if you already know the object Type
@@ -89,43 +98,28 @@ public class RecursiveScanner
 
     public void FinalizeTypes()
     {
-        AllTypes = RootSer.TypeMap.AllTypes;
+        var types = RootSer.TypeMap.AllTypes;
 
-        // this determines the types ordering
-        AllTypes.Sort((a, b) =>
+        Types = new();
+        Types.Fundamental = types.Filter(s => s.IsFundamentalType);
+        Types.Values = types.Filter(s => !s.IsFundamentalType && s.IsValueType);
+        Types.Classes = types.Filter(s => !s.IsFundamentalType && !s.IsValueType && !s.IsCollection);
+        var collectionTypes = types.Filter(s => !s.IsFundamentalType && s.IsCollection);
+
+        DependencySorter<TypeSerializer>.Sort(Types.Values, GetDependencies);
+        DependencySorter<TypeSerializer>.Sort(Types.Classes, GetDependencies);
+        DependencySorter<TypeSerializer>.Sort(collectionTypes, GetDependencies);
+
+        Types.ValuesAndClasses = Types.Values.Concat(Types.Classes);
+        Types.Collections = collectionTypes.FastCast<TypeSerializer, CollectionSerializer>();
+        Types.All = Types.Fundamental.Concat(Types.ValuesAndClasses, collectionTypes);
+
+        Log.Info($"ValueTypes={Types.Values.Length} ClassTypes={Types.Classes.Length} CollectionTypes={Types.Collections.Length}");
+        for (int i = 0; i < Types.All.Length; ++i)
         {
-            // don't move fundamentals, because they don't have dependencies
-            int r;
-            if (a.IsFundamentalType && b.IsFundamentalType)
-                return Compare(a.TypeId, b.TypeId); // fundamentals are equal
-
-            if ((r = Compare(a.IsFundamentalType, b.IsFundamentalType)) != 0) return r;
-            if ((r = Compare(a.IsEnumType, b.IsEnumType)) != 0) return r;
-            if ((r = Compare(a.IsValueType, b.IsValueType)) != 0) return r;
-            // arrays HAVE to be before userclasses
-            if ((r = Compare(a.Type.IsArray, b.Type.IsArray)) != 0) return r;
-
-            // collection types should come last, thus using negation:
-            if ((r = Compare(b.IsCollection, a.IsCollection)) != 0) return r;
-
-            // finally sort by dependency
-            if (TypeDependsOn(b, a)) return -1; // b depends on a, A must come first
-            if (TypeDependsOn(a, b)) return +1; // a depends on b, B must come first
-
-            return Comparer<int>.Default.Compare(a.TypeId, b.TypeId);
-        });
-
-        UsedTypes = AllTypes.Filter(s => !s.IsFundamentalType && !s.IsCollection);
-        ValueTypes = UsedTypes.Filter(s => s.IsValueType);
-        ClassTypes = UsedTypes.Filter(s => s.IsPointerType);
-        CollectionTypes = AllTypes.FilterSelect(s => !s.IsFundamentalType && s.IsCollection,
-                                                s => (CollectionSerializer)s);
-
-        Log.Info($"ValueTypes={ValueTypes.Length} UserTypes={ClassTypes.Length} CollectionTypes={CollectionTypes.Length}");
+            Log.Info($"[{i}]={Types.All[i]}");
+        }
     }
-
-    static int Compare(int a, int b) => (a < b) ? -1 : (a > b) ? 1 : 0;
-    static int Compare(bool a, bool b) => (a && !b) ? -1 : (!a && b) ? 1 : 0;
 
     public void CreateWriteCommands()
     {
@@ -137,11 +131,13 @@ public class RecursiveScanner
             LinearRemapObjectIds();
 
             var groups = new Array<SerializationTypeGroup>();
-            foreach (TypeSerializer ser in AllTypes)
+            foreach (TypeSerializer ser in Types.All)
             {
                 if (Objects.ContainsKey(ser))
                 {
-                    groups.Add(new() { Type = ser, GroupedObjects = Objects.GetValue(ser) });
+                    var groupedObjects = Objects.GetValue(ser);
+                    if (groupedObjects.NotEmpty)
+                        groups.Add(new() { Type = ser, GroupedObjects = groupedObjects });
                 }
             }
             TypeGroups = groups.ToArray();
@@ -251,6 +247,23 @@ public class RecursiveScanner
         return false;
     }
 
+    TypeSerializer[] GetDependencies(TypeSerializer s)
+    {
+        if (s is UserTypeSerializer us)
+        {
+            return us.Fields.FilterSelect(f => f.Serializer != s, f => f.Serializer);
+        }
+        if (s.Type.IsGenericType)
+        {
+            return s.Type.GetGenericArguments().Select(RootSer.TypeMap.Get);
+        }
+        if (s.Type.HasElementType)
+        {
+            return new[]{ RootSer.TypeMap.Get(s.Type.GetElementType()) };
+        }
+        return null;
+    }
+
     // remaps scattered object-ids to align with type-group ordering
     void LinearRemapObjectIds()
     {
@@ -258,7 +271,7 @@ public class RecursiveScanner
         int currentIndex = 0;
 
         // create the mapping using the properly sorted Types list
-        foreach (TypeSerializer ser in AllTypes)
+        foreach (TypeSerializer ser in Types.All)
         {
             if (Objects.TryGetValue(ser, out Array<ObjectState> groupedObjects))
             {

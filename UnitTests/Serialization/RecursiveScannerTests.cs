@@ -59,6 +59,8 @@ namespace UnitTests.Serialization
             }
         }
 
+        R Scanner;
+
         (RootObject, R) CreateDefaultRootObject()
         {
             var root = new RootObject()
@@ -71,8 +73,8 @@ namespace UnitTests.Serialization
                 },
                 NullShip = null,
             };
-            var rs = new R(new BinarySerializer(root.GetType()), root);
-            return (root, rs);
+            Scanner = new R(new BinarySerializer(root.GetType()), root);
+            return (root, Scanner);
         }
 
         [TestMethod]
@@ -81,14 +83,14 @@ namespace UnitTests.Serialization
             (RootObject _, R rs) = CreateDefaultRootObject();
             rs.FinalizeTypes();
 
-            Assert.AreEqual(1, rs.ValueTypes.Length);
-            Assert.AreEqual("ShipInfo", rs.ValueTypes[0].NiceTypeName);
-            Assert.AreEqual(2, rs.ClassTypes.Length);
-            Assert.AreEqual("ShipObject", rs.ClassTypes[0].NiceTypeName, "RootObject depends on ShipObject");
-            Assert.AreEqual("RootObject", rs.ClassTypes[1].NiceTypeName, "RootObject should be last");
-            Assert.AreEqual(2, rs.CollectionTypes.Length);
-            Assert.AreEqual("Array<ShipObject>", rs.CollectionTypes[0].NiceTypeName);
-            Assert.AreEqual("Array<Array<ShipObject>>", rs.CollectionTypes[1].NiceTypeName);
+            Assert.AreEqual(1, rs.Types.Values.Length);
+            Assert.AreEqual("ShipInfo", rs.Types.Values[0].NiceTypeName);
+            Assert.AreEqual(2, rs.Types.Classes.Length);
+            Assert.AreEqual("ShipObject", rs.Types.Classes[0].NiceTypeName, "RootObject depends on ShipObject");
+            Assert.AreEqual("RootObject", rs.Types.Classes[1].NiceTypeName, "RootObject should be last");
+            Assert.AreEqual(2, rs.Types.Collections.Length);
+            Assert.AreEqual("Array<ShipObject>", rs.Types.Collections[0].NiceTypeName);
+            Assert.AreEqual("Array<Array<ShipObject>>", rs.Types.Collections[1].NiceTypeName);
         }
 
         [TestMethod]
@@ -117,7 +119,7 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
-        class RecursiveType
+        class RecursiveType2
         {
             [StarData] public Main R;
         }
@@ -126,7 +128,7 @@ namespace UnitTests.Serialization
         class Main
         {
             [StarData] public Main Self;
-            [StarData] public RecursiveType RecursiveProxy;
+            [StarData] public RecursiveType2 RecursiveProxy;
             [StarData] public Array<Main> Arr;
             [StarData] public Array<Array<Main>> ArrOfArrs;
             [StarData] public Map<string, Main> Map;
@@ -134,20 +136,29 @@ namespace UnitTests.Serialization
             [StarData] public Map<string, Map<string,Main>> AMapOfMaps;
         }
 
+        TypeSerializer Find<T>()
+        {
+            return Scanner.Types.All.Find(s => s.Type == typeof(T));
+        }
+        int IndexOf(TypeSerializer s)
+        {
+            return Scanner.Types.All.IndexOf(s);
+        }
+
         [TestMethod]
         public void TypeDependencyOrdering()
         {
             var root = new Main();
-            var rs = new R(new BinarySerializer(root.GetType()), root);
+            var rs = Scanner = new(new(root.GetType()), root);
             rs.CreateWriteCommands();
 
-            var mainType = rs.AllTypes.Find(s => s.Type == typeof(Main));
-            var recType = rs.AllTypes.Find(s => s.Type == typeof(RecursiveType));
-            var arrType = rs.AllTypes.Find(s => s.Type == typeof(Array<Main>));
-            var arrOfArrs = rs.AllTypes.Find(s => s.Type == typeof(Array<Array<Main>>));
-            var mapOfMain = rs.AllTypes.Find(s => s.Type == typeof(Map<string, Main>));
-            var mapOfArrs = rs.AllTypes.Find(s => s.Type == typeof(Map<string, Array<Main>>));
-            var mapOfMaps = rs.AllTypes.Find(s => s.Type == typeof(Map<string, Map<string,Main>>));
+            var mainType = Find<Main>();
+            var recType = Find<RecursiveType2>();
+            var arrType = Find<Array<Main>>();
+            var arrOfArrs = Find<Array<Array<Main>>>();
+            var mapOfMain = Find<Map<string, Main>>();
+            var mapOfArrs = Find<Map<string, Array<Main>>>();
+            var mapOfMaps = Find<Map<string, Map<string,Main>>>();
 
             Assert.IsTrue(R.TypeDependsOn(recType, mainType), "Recursive subtype should depend on Main type");
             Assert.IsTrue(R.TypeDependsOn(mainType, recType), "Main type should also depend on Recursive subtype");
@@ -177,19 +188,19 @@ namespace UnitTests.Serialization
             Assert.IsFalse(R.TypeDependsOn(mainType, mapOfArrs), "Main type should NOT depend on Map<K,Array<Main>>");
             Assert.IsFalse(R.TypeDependsOn(mainType, mapOfMaps), "Main type should NOT depend on Map<K,Map<K,Main>>");
 
-            Assert.That.LessThan(rs.AllTypes.IndexOf(mainType), rs.AllTypes.IndexOf(arrType), "Main type must be before Array<Main>");
-            Assert.That.LessThan(rs.AllTypes.IndexOf(arrType), rs.AllTypes.IndexOf(arrOfArrs), "Array<Main> must be before Array<Array<Main>>");
-            Assert.That.LessThan(rs.AllTypes.IndexOf(mainType), rs.AllTypes.IndexOf(mapOfMain), "Main type must be before Map<K,Main>");
-            Assert.That.LessThan(rs.AllTypes.IndexOf(mainType), rs.AllTypes.IndexOf(mapOfArrs), "Main type must be before Map<K,Array<Main>>");
-            Assert.That.LessThan(rs.AllTypes.IndexOf(arrType), rs.AllTypes.IndexOf(mapOfArrs), "Array<Main> type must be before Map<K,Array<Main>>");
-            Assert.That.LessThan(rs.AllTypes.IndexOf(mainType), rs.AllTypes.IndexOf(mapOfMaps), "Main type must be before Map<K,Map<K,Main>>");
-            Assert.That.LessThan(rs.AllTypes.IndexOf(mapOfMain), rs.AllTypes.IndexOf(mapOfMaps), "Map<K,Main> type must be before Map<K,Map<K,Main>>");
+            Assert.That.LessThan(IndexOf(mainType), IndexOf(arrType), "Main type must be before Array<Main>");
+            Assert.That.LessThan(IndexOf(arrType),  IndexOf(arrOfArrs), "Array<Main> must be before Array<Array<Main>>");
+            Assert.That.LessThan(IndexOf(mainType), IndexOf(mapOfMain), "Main type must be before Map<K,Main>");
+            Assert.That.LessThan(IndexOf(mainType), IndexOf(mapOfArrs), "Main type must be before Map<K,Array<Main>>");
+            Assert.That.LessThan(IndexOf(arrType),  IndexOf(mapOfArrs), "Array<Main> type must be before Map<K,Array<Main>>");
+            Assert.That.LessThan(IndexOf(mainType),  IndexOf(mapOfMaps), "Main type must be before Map<K,Map<K,Main>>");
+            Assert.That.LessThan(IndexOf(mapOfMain), IndexOf(mapOfMaps), "Map<K,Main> type must be before Map<K,Map<K,Main>>");
         }
 
         [StarDataType]
-        class MapType
+        class MapType2
         {
-            [StarData] public Map<int, MapType> SelfMap;
+            [StarData] public Map<int, MapType2> SelfMap;
             [StarData] public Map<string, Map<int, Snapshot>> SnapsMap;
             [StarData] public Map<int, string> Map1;
             [StarData] public Map<int, Snapshot>[] Snapshots;
@@ -198,17 +209,17 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void MapDependencyOrdering()
         {
-            var root = new MapType();
-            var rs = new R(new BinarySerializer(root.GetType()), root);
+            var root = new MapType2();
+            var rs = Scanner = new(new(root.GetType()), root);
             rs.CreateWriteCommands();
 
-            var snaps = rs.AllTypes.Find(s => s.Type == typeof(Map<int, Snapshot>));
-            var arrOfMaps = rs.AllTypes.Find(s => s.Type == typeof(Map<int, Snapshot>[]));
-            var mapOfSnaps = rs.AllTypes.Find(s => s.Type == typeof(Map<string, Map<int, Snapshot>>));
+            var snaps = Find<Map<int, Snapshot>>();
+            var arrOfMaps = Find<Map<int, Snapshot>[]>();
+            var mapOfSnaps = Find<Map<string, Map<int, Snapshot>>>();
 
             // arrays have to be read before userclasses
-            Assert.That.LessThan(rs.AllTypes.IndexOf(arrOfMaps), rs.AllTypes.IndexOf(snaps), "Map<int,Snapshot>[] array must be before Map<int,Snapshot> type");
-            Assert.That.LessThan(rs.AllTypes.IndexOf(snaps), rs.AllTypes.IndexOf(mapOfSnaps), "Map<int,Snapshot> must be before Map<string, Map<int,Snapshot>> type");
+            Assert.That.LessThan(IndexOf(snaps), IndexOf(arrOfMaps), "Map<int,Snapshot> must be before Map<int,Snapshot>[] array");
+            Assert.That.LessThan(IndexOf(snaps), IndexOf(mapOfSnaps), "Map<int,Snapshot> must be before Map<string, Map<int,Snapshot>> type");
         }
     }
 }

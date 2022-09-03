@@ -10,7 +10,7 @@ namespace Ship_Game.Data.Serialization.Types
 
     internal class RawArraySerializer : CollectionSerializer
     {
-        public override string ToString() => $"RawArraySerializer<{ElemType.GetTypeName()}:{ElemSerializer.TypeId}>:{TypeId}";
+        public override string ToString() => $"{TypeId}:RawArrSer<{ElemSerializer.TypeId}:{ElemType.GetTypeName()}>";
 
         delegate object New(int length);
         delegate int GetLength(object arr);

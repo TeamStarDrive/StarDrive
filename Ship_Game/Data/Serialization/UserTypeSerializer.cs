@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
 using SDUtils;
 
 namespace Ship_Game.Data.Serialization
@@ -32,7 +30,6 @@ namespace Ship_Game.Data.Serialization
         // [StarDataDeserialized]
         // void OnDeserialized(RootObject root) { .. }
         public delegate void Deserialized(object obj, object root);
-        public readonly Deserialized OnDeserialized;
 
         // if not null, CreateInstance() should use this constructor instead,
         // substituting parameters with their default values
@@ -54,7 +51,6 @@ namespace Ship_Game.Data.Serialization
                 TypeName = a.TypeName;
 
             IsAbstractOrVirtual = type.IsAbstract;
-            OnDeserialized = GetDeserializedEventHandler(type);
             Constructor = GetDefaultConstructor();
 
             // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
@@ -112,14 +108,14 @@ namespace Ship_Game.Data.Serialization
             throw new($"Missing a default constructor or [StarDataConstructor] attribute on type {Type}");
         }
 
-        static Deserialized GetDeserializedEventHandler(Type type)
+        public (Deserialized,StarDataDeserialized) GetOnDeserializedEvt()
         {
-            var onDeserialized = GetMethodWithAttribute<StarDataDeserialized>(type);
-            if (onDeserialized == null) return null;
+            var (onDeserialized, a) = GetMethodWithAttribute<StarDataDeserialized>(Type);
+            if (onDeserialized == null) return (null, null);
 
             var obj = E.Parameter(typeof(object), "obj");
             var root = E.Parameter(typeof(object), "root");
-            var instance = E.Convert(obj, type);
+            var instance = E.Convert(obj, Type);
             E call;
             var p = onDeserialized.GetParameters();
             if (p.Length == 0)
@@ -127,20 +123,23 @@ namespace Ship_Game.Data.Serialization
             else if (p.Length == 1)
                 call = E.Call(instance, onDeserialized, E.Convert(root, p[0].ParameterType));
             else
-                throw new InvalidOperationException($"{type}.OnDeserialized event can only have 0 or 1 arguments");
-            return E.Lambda<Deserialized>(call, obj, root).Compile();
+                throw new InvalidOperationException($"{Type}.OnDeserialized event can only have 0 or 1 arguments");
+
+            var evt = E.Lambda<Deserialized>(call, obj, root).Compile();
+            return (evt, a);
         }
 
-        static MethodInfo GetMethodWithAttribute<A>(Type type)
+        static (MethodInfo, A) GetMethodWithAttribute<A>(Type type) where A : Attribute
         {
-            Type attribute = typeof(A);
+            Type attrType = typeof(A);
             var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             foreach (MethodInfo mi in methods)
             {
-                if (mi.GetCustomAttribute(attribute) != null)
-                    return mi;
+                var a = (A)mi.GetCustomAttribute(attrType);
+                if (a != null)
+                    return (mi, a);
             }
-            return null;
+            return (null, null);
         }
 
         public DataField GetFieldOrNull(string fieldName)

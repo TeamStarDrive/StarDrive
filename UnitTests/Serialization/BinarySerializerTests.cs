@@ -360,6 +360,16 @@ namespace UnitTests.Serialization
 
             // Special array handlers
             [StarData] public byte[] Bytes;
+
+            // A special edge-case which is difficult to handle
+            [StarData] public StructWithArrays Struct;
+
+            [StarDataType]
+            public struct StructWithArrays
+            {
+                [StarData] public int[] Integers;
+                [StarData] public StructContainer[] Structs;
+            }
         }
 
         [TestMethod]
@@ -373,14 +383,21 @@ namespace UnitTests.Serialization
                 Empty = new string[0],
                 Structs = Arr(new StructContainer(27, "27"), new StructContainer(42, "42")),
                 Bytes = new byte[]{ 100, 200, 255, 115, 143, 0, 42 },
+                Struct = new()
+                {
+                    Integers = Arr(23, 49, 95, 495, 945),
+                    Structs = Arr(new StructContainer(45, "45")),
+                }
             };
-            var result = SerDes(instance);
+            var result = SerDes(instance, verbose:true);
             Assert.That.Equal(instance.Integers, result.Integers);
             Assert.That.Equal(instance.Points, result.Points);
             Assert.That.Equal(instance.Names, result.Names);
             Assert.That.Equal(instance.Empty, result.Empty);
             Assert.That.Equal(instance.Structs, result.Structs);
             Assert.That.Equal(instance.Bytes, result.Bytes);
+            Assert.That.Equal(instance.Struct.Integers, result.Struct.Integers);
+            Assert.That.Equal(instance.Struct.Structs, result.Struct.Structs);
         }
 
         [StarDataType]
