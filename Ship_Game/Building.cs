@@ -130,6 +130,13 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore]
         public float StrengthMax => ResourceManager.GetBuildingTemplate(BID).Strength;
 
+        [StarDataDeserialized]
+        public void OnDeserialized()
+        {
+            Building template = ResourceManager.GetBuildingTemplate(Name);
+            BID = template.BID;
+        }
+
         public Building Clone()
         {
             var b = (Building)MemberwiseClone();

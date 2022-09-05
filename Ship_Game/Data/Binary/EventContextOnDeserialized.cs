@@ -11,11 +11,13 @@ public class EventContextOnDeserialized
 {
     readonly object Root;
     readonly object[] Objects;
+    readonly bool Verbose;
 
-    public EventContextOnDeserialized(object root, object[] objects)
+    public EventContextOnDeserialized(object root, object[] objects, bool verbose)
     {
         Root = root;
         Objects = objects;
+        Verbose = verbose;
     }
 
     class Event
@@ -41,6 +43,7 @@ public class EventContextOnDeserialized
         // Call the events
         foreach (Event e in events)
         {
+            if (Verbose) Log.Info($"OnDeserializedEvt {e.Group.Type}");
             for (int i = 0; i < e.Group.Count; ++i)
             {
                 object instance = Objects[e.Group.BaseIndex + i];

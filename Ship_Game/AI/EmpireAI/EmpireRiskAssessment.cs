@@ -2,20 +2,24 @@
 using System.Collections.Generic;
 using SDGraphics;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
 {
+    [StarDataType]
     public class EmpireRiskAssessment
     {
-        public float Expansion   { get; private set; }
-        public float Border      { get; private set; }
-        public float KnownThreat { get; private set; }
+        [StarData] public float Expansion   { get; private set; }
+        [StarData] public float Border      { get; private set; }
+        [StarData] public float KnownThreat { get; private set; }
 
-        public float Risk        { get; private set; }
-        public float MaxRisk     { get; private set; }
-        private readonly Empire Them;
-        private readonly Relationship Relation;
+        [StarData] public float Risk        { get; private set; }
+        [StarData] public float MaxRisk     { get; private set; }
+        [StarData] readonly Empire Them;
+        [StarData] readonly Relationship Relation;
+
+        [StarDataConstructor] EmpireRiskAssessment() {}
 
         public EmpireRiskAssessment(Relationship relation)
         {
