@@ -46,13 +46,13 @@ namespace Ship_Game.Data.Binary
             {
                 if (!typeMap.TryGet(typeId, out TypeSerializer s))
                     break;
-                AddTypeInfo(typeId, s.Type.Name, s, null, SerializerCategory.Fundamental);
+                AddTypeInfo(typeId, s.Type.Name, s, null, isStruct:false, SerializerCategory.Fundamental);
             }
         }
 
-        void AddTypeInfo(uint streamTypeId, string name, TypeSerializer s, FieldInfo[] fields, SerializerCategory c)
+        void AddTypeInfo(uint streamTypeId, string name, TypeSerializer s, FieldInfo[] fields, bool isStruct, SerializerCategory c)
         {
-            var info = new TypeInfo(streamTypeId, name, s, fields, c);
+            var info = new TypeInfo(streamTypeId, name, s, fields, isStruct, c);
             StreamTypes[streamTypeId] = info;
 
             if (s.TypeId >= ActualTypes.Length)
@@ -60,9 +60,9 @@ namespace Ship_Game.Data.Binary
             ActualTypes[s.TypeId] = info;
         }
 
-        void AddDeletedTypeInfo(uint streamTypeId, string name, FieldInfo[] fields, SerializerCategory c)
+        void AddDeletedTypeInfo(uint streamTypeId, string name, FieldInfo[] fields, bool isStruct, SerializerCategory c)
         {
-            var info = new TypeInfo(streamTypeId, name, null, fields, c);
+            var info = new TypeInfo(streamTypeId, name, null, fields, isStruct, c);
             StreamTypes[streamTypeId] = info;
         }
 
@@ -116,6 +116,7 @@ namespace Ship_Game.Data.Binary
                 uint nameId = BR.ReadVLu32();
                 uint flags  = BR.ReadVLu32();
                 uint numFields = BR.ReadVLu32();
+                bool isStruct      = (flags & 0b0000_0001) != 0;
                 bool isEnumType    = (flags & 0b0000_0010) != 0;
                 bool isNestedType  = (flags & 0b0000_0100) != 0;
 
@@ -142,12 +143,12 @@ namespace Ship_Game.Data.Binary
                         s = TypeMap.Get(type);
 
                     if (Verbose) Log.Info($"Read {c} {typeId}:{name}");
-                    AddTypeInfo(typeId, name, s, fields, c);
+                    AddTypeInfo(typeId, name, s, fields, isStruct, c);
                 }
                 else
                 {
                     if (Verbose) Log.Warning($"Read DELETED {c} {typeId}:{name}");
-                    AddDeletedTypeInfo(typeId, name, fields, c);
+                    AddDeletedTypeInfo(typeId, name, fields, isStruct, c);
                 }
             }
 
@@ -205,7 +206,7 @@ namespace Ship_Game.Data.Binary
                 SerializerCategory c = cTypeId == 1 ? SerializerCategory.RawArray : SerializerCategory.Collection;
 
                 if (Verbose) Log.Info($"Read {c} {streamType}:{cType.GetTypeName()}");
-                AddTypeInfo(streamType, cType.GetTypeName(), cTypeSer, null, c);
+                AddTypeInfo(streamType, cType.GetTypeName(), cTypeSer, null, isStruct:false, c);
             }
         }
 
@@ -305,26 +306,22 @@ namespace Ship_Game.Data.Binary
             // if there is a sequencing/dependency problem, the issue must be
             // solved in the Type sorting stage during Serialization
             if (Verbose) Log.Info("Read Values and Fields");
-            var valTypes    = FilterGroups(t => t.IsFundamentalType || t.IsValueType);
-            var rawArrays   = FilterGroups(t => !t.IsFundamentalType && t is RawArraySerializer);
-            var classes     = FilterGroups(t => t.IsUserClass && !t.IsValueType);
-            var collections = FilterGroups(t => t.IsCollection && t is not RawArraySerializer);
 
-            foreach (TypeGroup g in valTypes)  ReadObjects(g.Type, g.Ser, g.Count, g.BaseIndex);
-            foreach (TypeGroup g in rawArrays) ReadObjects(g.Type, g.Ser, g.Count, g.BaseIndex);
+            var lastArray = TypeGroups.LastOrDefault(g => g.Ser is { IsFundamentalType: false } and RawArraySerializer);
 
-            // update any structs with RawArrays that we just finished reading
-            SetDeferredFields();
+            for (int i = 0; i < TypeGroups.Length; ++i)
+            {
+                TypeGroup g = TypeGroups[i];
+                ReadObjects(g.Type, g.Ser, g.Count, g.BaseIndex);
 
-            foreach (TypeGroup g in classes)     ReadObjects(g.Type, g.Ser, g.Count, g.BaseIndex);
-            foreach (TypeGroup g in collections) ReadObjects(g.Type, g.Ser, g.Count, g.BaseIndex);
+                if (g.Type == lastArray.Type)
+                {
+                    // update any structs with RawArrays that we just finished reading
+                    SetDeferredFields();
+                }
+            }
 
             return AfterDeserialization();
-        }
-
-        TypeGroup[] FilterGroups(Func<TypeSerializer, bool> filter)
-        {
-            return TypeGroups.Filter(t => filter(t.Type.Ser));
         }
 
         void PreInstantiate()
@@ -427,12 +424,7 @@ namespace Ship_Game.Data.Binary
 
         void ReadUserClass(TypeInfo instanceType, object instance)
         {
-            bool isStruct = instanceType.Ser.IsValueType;
-
-            if (instanceType.Name.Contains("SaveState"))
-            {
-                Log.Info("SaveData");
-            }
+            bool isStruct = instanceType.IsStruct;
 
             for (uint i = 0; i < instanceType.Fields.Length; ++i)
             {
@@ -447,8 +439,7 @@ namespace Ship_Game.Data.Binary
                 if (instance == null) continue;
 
                 // if field has been deleted, then Field==null and Set() is ignored
-                if (fi.Field == null)
-                    continue;
+                if (fi.Field == null) continue;
 
                 // if this is a Struct referencing a RawArray, we need to defer the write
                 if (isStruct && pointer != 0 && fieldValue == null && fi.Field.Serializer is RawArraySerializer)
