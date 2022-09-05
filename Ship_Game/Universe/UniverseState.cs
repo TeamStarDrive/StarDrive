@@ -240,11 +240,12 @@ namespace Ship_Game.Universe
             };
             Save.SetDesigns(Ships.Select(s => s.ShipData).UniqueSet());
 
-            // FogMap is converted to a Base64 string so that it can be included in the savegame
+            // FogMap is converted to a Alpha bytes so that it can be included in the savegame
             FogMapBytes = Screen.ContentManager.RawContent.TexExport.ToAlphaBytes(Screen.FogMap);
         }
 
-        [StarDataDeserialized]
+        // Only call OnDeserialized evt if Empire and Ship have finished their events
+        [StarDataDeserialized(typeof(Empire), typeof(Ship))]
         void OnDeserialized()
         {
             Initialize(Size);
@@ -277,9 +278,6 @@ namespace Ship_Game.Universe
 
             foreach (Empire empire in Empires.Filter(e => !e.data.Defeated))
                 empire.UpdatePopulation();
-
-            Empire.InitializeRelationships(Empires);
-
 
             Save = null;
         }

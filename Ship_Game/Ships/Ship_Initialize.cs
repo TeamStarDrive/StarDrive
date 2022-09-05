@@ -226,8 +226,9 @@ namespace Ship_Game.Ships
 
         // Create a ship from a SavedGame
         [StarDataDeserialized]
-        void OnDeserialized()
+        void OnDeserialized(UniverseState root)
         {
+            Universe = root;
             var moduleSaves = SavedModules;
             SavedModules = null;
 
@@ -268,9 +269,6 @@ namespace Ship_Game.Ships
             IsGuardian = Loyalty.WeAreRemnants;
             // loyalty must be set before modules are initialized
             LoyaltyTracker = new Components.LoyaltyChanges(this, Loyalty);
-
-            // ship must not be added to empire ship list until after modules are validated.
-            LoyaltyChangeAtSpawn(Loyalty);
 
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire();
