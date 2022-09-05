@@ -37,15 +37,15 @@ namespace Ship_Game.Utils
             {
                 T value = values[i];
                 var dependencies = getDependencies(values[i]);
-                // if dependencies == null, there are no dependencies
+                bool hasDependencies = dependencies != null && dependencies.Length != 0;
 
                 // require dependencies to not have a cyclic reference to Self
                 // this simplifies the sorting algorithm greatly
                 // and the easiest step where to do this is always `getDependencies()`
-                if (dependencies != null && dependencies.Contains(value))
+                if (hasDependencies && dependencies.Contains(value))
                     throw new($"Entry=`{value}` cannot reference itself in Dependencies!");
 
-                result[i] = new(value, dependencies != null ? new(dependencies) : null);
+                result[i] = new(value, hasDependencies ? new(dependencies) : null);
             }
             return result;
         }

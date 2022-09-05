@@ -330,7 +330,7 @@ namespace Ship_Game.Data.Binary
             object root = ObjectsList[Header.RootObjectId - 1]; // ID-s are from [1...N]
 
             if (Verbose) Log.Info("Invoke UserClass events");
-            var evt = new EventContextOnDeserialized(TypeMap, root, ObjectsList);
+            var evt = new EventContextOnDeserialized(root, ObjectsList);
             evt.InvokeEvents(TypeGroups);
 
             return root;
