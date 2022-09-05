@@ -325,7 +325,7 @@ namespace Ship_Game
             return PlanetList.Sum(p => p.ColonyWarValueTo(empire));
         }
 
-        readonly Map<Empire, EmpireSolarSystemStatus> Status = new Map<Empire, EmpireSolarSystemStatus>();
+        readonly Map<Empire, EmpireSolarSystemStatus> Status = new();
 
         EmpireSolarSystemStatus GetStatus(Empire empire)
         {

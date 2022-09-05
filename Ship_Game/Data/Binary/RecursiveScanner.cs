@@ -111,12 +111,6 @@ public class RecursiveScanner
         Types.ValuesAndClasses = Types.Values.Concat(Types.Classes);
         Types.Collections = collectionTypes.FastCast<TypeSerializer, CollectionSerializer>();
         Types.All = Types.Fundamental.Concat(Types.ValuesAndClasses, collectionTypes);
-
-        Log.Info($"ValueTypes={Types.Values.Length} ClassTypes={Types.Classes.Length} CollectionTypes={Types.Collections.Length}");
-        for (int i = 0; i < Types.All.Length; ++i)
-        {
-            Log.Info($"[{i}]={Types.All[i]}");
-        }
     }
 
     public void CreateWriteCommands()
