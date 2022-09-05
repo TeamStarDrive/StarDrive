@@ -11,8 +11,9 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "PirateDirectorRaid";
         public override string UID => ID;
-        private Pirates Pirates;
+        [StarData] Pirates Pirates;
 
+        [StarDataConstructor]
         public PirateDirectorRaid(int id, UniverseState us)
             : base(GoalType.PirateDirectorRaid, id, us)
         {
@@ -21,6 +22,7 @@ namespace Ship_Game.Commands.Goals
                PrepareRaid
             };
         }
+
         public PirateDirectorRaid(Empire owner, Empire targetEmpire)
             : this(owner.Universum.CreateId(), owner.Universum)
         {
