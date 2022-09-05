@@ -13,8 +13,9 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "PirateRaidProjector";
         public override string UID => ID;
-        private Pirates Pirates;
+        [StarData] Pirates Pirates;
 
+        [StarDataConstructor]
         public PirateRaidProjector(int id, UniverseState us)
             : base(GoalType.PirateRaidProjector, id, us)
         {
