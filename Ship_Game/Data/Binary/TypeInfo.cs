@@ -13,7 +13,6 @@ namespace Ship_Game.Data.Binary
         public readonly string Name;
         public TypeSerializer Ser; // Actual serializer
         public readonly FieldInfo[] Fields;
-        public readonly bool IsPointerType;
         public readonly SerializerCategory Category;
 
         public Type Type => Ser.Type;
@@ -23,12 +22,11 @@ namespace Ship_Game.Data.Binary
         string FieldString => Fields != null ? $" Fields={Fields.Length}" : "";
 
         public TypeInfo(uint streamTypeId, string name, TypeSerializer s, FieldInfo[] fields,
-                        bool isPointer, SerializerCategory c)
+                        SerializerCategory c)
         {
             StreamTypeId = (ushort)streamTypeId;
             Name = name;
             Fields = fields;
-            IsPointerType = isPointer;
             Category = c;
             Ser = s;
 

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
@@ -328,6 +326,8 @@ public class RecursiveScanner
         public override void Scan(RecursiveScanner scanner, TypeSerializer ser)
         {
             var user = (UserTypeSerializer)ser;
+            user.InvokeOnSerializeEvt(Obj);
+
             Fields = user.Fields.Length > 0 ? new int[user.Fields.Length] : Empty<int>.Array;
 
             for (int i = 0; i < user.Fields.Length; ++i)

@@ -242,10 +242,10 @@ namespace Ship_Game
         public Empire(UniverseState us)
         {
             Universum = us;
-            Research = new EmpireResearch(this);
+            Research = new(this);
 
-            AIManagedShips = new ShipPool(us?.CreateId() ?? -1, this, "AIManagedShips");
-            EmpireShips = new LoyaltyLists(this);
+            AIManagedShips = new(us?.CreateId() ?? -1, this, "AIManagedShips");
+            EmpireShips = new(this);
         }
 
         public Empire(UniverseState us, Empire parentEmpire) : this(us)
@@ -256,8 +256,10 @@ namespace Ship_Game
         [StarDataDeserialized]
         void OnDeserialized()
         {
-            EmpireManager.Add(this); // TODO: remove
+            AIManagedShips = new(Universum.CreateId(), this, "AIManagedShips");
             dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
+
+            EmpireManager.Add(this); // TODO: remove
 
             CommonInitialize();
             Research.SetResearchStrategy();

@@ -23,6 +23,12 @@ namespace Ship_Game.Data.Serialization
         // if true, this UserClass contains abstract or virtual properties
         public bool IsAbstractOrVirtual;
 
+        // Method which is called when an object is about to be serialized
+        // [StarDataSerialize]
+        // void OnSerialize() { ... }
+        public delegate void OnSerialize(object obj);
+        readonly OnSerialize OnSerializeEvt;
+
         // Method which is called when type has finished serialization
         // [StarDataDeserialized]
         // void OnDeserialized() { .. }
@@ -52,6 +58,7 @@ namespace Ship_Game.Data.Serialization
 
             IsAbstractOrVirtual = type.IsAbstract;
             Constructor = GetDefaultConstructor();
+            OnSerializeEvt = GetOnSerializeEvt();
 
             // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
         }
@@ -106,6 +113,21 @@ namespace Ship_Game.Data.Serialization
             }
 
             throw new($"Missing a default constructor or [StarDataConstructor] attribute on type {Type}");
+        }
+
+        public void InvokeOnSerializeEvt(object obj)
+        {
+            OnSerializeEvt?.Invoke(obj);
+        }
+
+        OnSerialize GetOnSerializeEvt()
+        {
+            var (onSerialize, _) = GetMethodWithAttribute<StarDataSerialize>(Type);
+            if (onSerialize == null) return null;
+
+            var obj = E.Parameter(typeof(object), "obj");
+            E call = E.Call(E.Convert(obj, Type), onSerialize);
+            return E.Lambda<OnSerialize>(call, obj).Compile();
         }
 
         public (Deserialized,StarDataDeserialized) GetOnDeserializedEvt()

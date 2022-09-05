@@ -27,7 +27,7 @@ namespace Ship_Game.AI
         UniverseState UState => OwnerEmpire.Universum;
 
         [StarData] readonly Empire OwnerEmpire;
-        public readonly OffensiveForcePoolManager OffensiveForcePoolManager;
+        public OffensiveForcePoolManager OffensiveForcePoolManager;
 
         public DefensiveCoordinator DefensiveCoordinator;
         [StarData] public Array<Goal> Goals = new();
@@ -36,19 +36,19 @@ namespace Ship_Game.AI
         [StarData] public ThreatMatrix ThreatMatrix;
         [StarData] public float DefStr;
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
+        BudgetPriorities BudgetSettings;
 
         [StarDataConstructor]
         EmpireAI() {}
 
         public EmpireAI(Empire e, bool fromSave)
         {
-            OwnerEmpire               = e;
-            ThreatMatrix              = new ThreatMatrix(e);
-            DefensiveCoordinator      = new DefensiveCoordinator(e.Universum.CreateId(), e, "DefensiveCoordinator");
-            OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
-            TechChooser               = new Research.ChooseTech(e);
-            ExpansionAI               = new ExpansionAI.ExpansionPlanner(OwnerEmpire);
-            BudgetSettings            = new BudgetPriorities(e);
+            OwnerEmpire = e;
+            ThreatMatrix = new(e);
+            ExpansionAI = new(OwnerEmpire);
+
+            InitializeManagers(e);
+
             if (OwnerEmpire.data.EconomicPersonality != null)
                 NumberOfShipGoals += OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
@@ -59,9 +59,18 @@ namespace Ship_Game.AI
                 OwnerEmpire.SetAsRemnants(fromSave, Goals);
         }
 
+        void InitializeManagers(Empire e)
+        {
+            DefensiveCoordinator = new(e.Universum.CreateId(), e, "DefensiveCoordinator");
+            TechChooser = new(e);
+            OffensiveForcePoolManager = new(e);
+            BudgetSettings = new(e);
+        }
+
         [StarDataDeserialized]
         void OnDeserialized()
         {
+            InitializeManagers(OwnerEmpire);
         }
 
         void RunManagers()

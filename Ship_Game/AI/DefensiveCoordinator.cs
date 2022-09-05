@@ -13,8 +13,8 @@ namespace Ship_Game.AI
     {
         readonly Empire Us;
         public float DefenseDeficit;
-        public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
-        public Array<Ship> DefensiveForcePool = new Array<Ship>();
+        public Map<SolarSystem, SystemCommander> DefenseDict = new();
+        public Array<Ship> DefensiveForcePool = new();
         int TotalValue;
         public float TroopsToTroopsWantedRatio;
 

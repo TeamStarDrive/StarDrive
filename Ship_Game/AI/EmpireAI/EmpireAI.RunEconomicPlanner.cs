@@ -42,7 +42,6 @@ namespace Ship_Game.AI
         /// </summary>
         public float ProjectedMoney { get; private set; } = 0;
 
-        BudgetPriorities BudgetSettings;
         /// <summary>
         /// This a ratio of projectedMoney and the normalized money then multiplied by 2 then add 1 - taxrate
         /// then the whole thing divided by 3. This puts a large emphasis on money goal to money ratio

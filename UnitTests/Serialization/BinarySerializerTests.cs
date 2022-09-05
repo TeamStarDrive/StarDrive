@@ -1137,21 +1137,35 @@ namespace UnitTests.Serialization
             int numShips = Universe.UState.Empires[0].OwnedShips.Count;
             float firstShipHealth = Universe.UState.Empires[0].OwnedShips[0].Health;
 
+            double GetMemory(bool gc) => GC.GetTotalMemory(gc) / (1024.0*1024.0);
+            double memory1 = GetMemory(false);
+
             var save = new SavedGame(Universe);
             save.Verbose = true;
             save.Save("BinarySerializer.Test", async:false);
             Universe.ExitScreen();
+
+            double memory2 = GetMemory(false);
 
             // peek the header as per specs
             HeaderData header = LoadGame.PeekHeader(save.SaveFile);
             Assert.AreEqual(SavedGame.SaveGameVersion, header.Version);
             Assert.AreEqual("BinarySerializer.Test", header.SaveName);
 
+            double memory3 = GetMemory(false);
+
             var load = new LoadGame(save.SaveFile);
             load.Verbose = true;
             UniverseScreen us = load.Load(noErrorDialogs:true, startSimThread:false);
             Assert.IsNotNull(us, "Loaded universe cannot be null");
             us.SingleSimulationStep(TestSimStep);
+
+            double memory4 = GetMemory(false);
+
+            Log.Info($"BeforeSave: {memory1:0.0}MB");
+            Log.Info($"AfterSave:  {memory2:0.0}MB  delta:{memory2-memory1:0.0}MB");
+            Log.Info($"BeforeLoad: {memory3:0.0}MB  delta:{memory3-memory2:0.0}MB");
+            Log.Info($"AfterLoad:  {memory4:0.0}MB  delta:{memory4-memory3:0.0}MB");
 
             Assert.AreEqual(numShips, us.UState.Empires[0].OwnedShips.Count, "Empire should have same # of ships");
             Assert.AreEqual(firstShipHealth, us.UState.Empires[0].OwnedShips[0].Health, "Ships should have health");

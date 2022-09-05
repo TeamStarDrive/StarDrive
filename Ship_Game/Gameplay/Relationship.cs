@@ -117,10 +117,11 @@ namespace Ship_Game.Gameplay
         [StarData] public EmpireInformation.InformationLevel IntelligenceLevel = EmpireInformation.InformationLevel.Full;
         [StarData] public bool RefusedMerge; // Refused merge or surrenders from us (mostly the player can refuse)
 
-        [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
+        [StarData] public EmpireRiskAssessment Risk;
+        [StarData] public EmpireInformation KnownInformation;
+
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
         [XmlIgnore][JsonIgnore] public float AvailableTrust => Trust - TrustUsed;
-        [XmlIgnore][JsonIgnore] public EmpireInformation KnownInformation;
         [XmlIgnore][JsonIgnore] public int WarAnger => (int)(TotalAnger - Trust.LowerBound(-50));
 
         private readonly int FirstDemand   = 50;

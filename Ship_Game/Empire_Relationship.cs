@@ -357,23 +357,6 @@ namespace Ship_Game
             }
         }
 
-        public static void InitializeRelationships(IReadOnlyList<Empire> savedEmpires)
-        {
-            foreach (Empire ourEmpire in savedEmpires)
-            {
-                foreach ((Empire them, Relationship rel) in ourEmpire.ActiveRelations)
-                {
-                    rel.ActiveWar?.SetCombatants(ourEmpire, them);
-                    rel.Risk = new EmpireRiskAssessment(rel);
-                    rel.KnownInformation = new EmpireInformation(rel);
-                    rel.KnownInformation.Update(rel.IntelligenceLevel);
-                    ourEmpire.AddNewRelationToThem(them, rel);
-                    if (rel.Known)
-                        ourEmpire.SetRelationsAsKnown(rel, them);
-                }
-            }
-        }
-
         public void DamageRelationship(Empire e, string why, float amount, Planet p)
         {
             if (GetRelations(e, out Relationship rel))

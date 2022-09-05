@@ -150,12 +150,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return contestedSystemIds;
         }
 
-        public void SetCombatants(Empire u, Empire t)
-        {
-            Us = u;
-            Them = t;
-        }
-
         public void RestoreFromSave(UniverseState us, bool activeWar)
         {
             Us = EmpireManager.GetEmpireByName(UsName);
