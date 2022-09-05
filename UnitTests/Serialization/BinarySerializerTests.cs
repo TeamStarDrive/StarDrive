@@ -350,7 +350,7 @@ namespace UnitTests.Serialization
         static HashSet<T> Set<T>(params T[] elements) => new(elements);
 
         [StarDataType]
-        class RawArrayType
+        class ContainsRawArrays
         {
             [StarData] public int[] Integers;
             [StarData] public Vector2[] Points;
@@ -375,7 +375,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void RawArrayTypes()
         {
-            var instance = new RawArrayType()
+            var instance = new ContainsRawArrays()
             {
                 Integers = Arr(17, 19, 56, 123, 57),
                 Points = Arr(Vector2.One, Vector2.UnitX, Vector2.UnitY),
@@ -706,7 +706,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsMovedTypes()
         {
-            string containsMovedType = "Tz8vHwEAAgEhBQQBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhFDb250YWluc01vdmVkVHlwZQlNb3ZlZFR5cGUEAk1UBE5hbWUDUG9zBlZhbHVlNCAAAAAFAw0CIQAVASEAAAEFAQ4DGgECDQEOARUBIAEhAQ0BACD6RABA+kQAYPpEDgEAEHpFACB6RQAwekUAQHpFFQEVQ29udGFpbnMgYSBtb3ZlZCB0eXBlIAEBBQMhAQI=";
+            string containsMovedType = "Tz8vHwEAAgAhBQUBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhFDb250YWluc01vdmVkVHlwZQlNb3ZlZFR5cGUEAk1UBE5hbWUDUG9zBlZhbHVlNCEAAAEEAQ4DIAAAAAQDDQIhABUBDQEBDgECFQEDIQEEIAEFDQEAIPpEAED6RABg+kQOAQAQekUAIHpFADB6RQBAekUVARVDb250YWlucyBhIG1vdmVkIHR5cGUhAQIgAQEEAw==";
 
             //containsMovedType = CreateByteStreamForDeletedTypeTest(new ContainsMovedType
             //{
@@ -741,7 +741,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsDeletedTypes()
         {
-            string containsDeletedType = "Tz8vHwEAAwEiBgYBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxNDb250YWluc0RlbGV0ZWRUeXBlDURlbGV0ZWRTdHJ1Y3QLRGVsZXRlZFR5cGUFAkRTAkRUBE5hbWUDUG9zBlZhbHVlNCIAAAEEAQ4EIAAAAAUEDQMhASIAFQIhAAACBQEOBBoBAg0BDgIVASIBIAEhAQ0BACD6RABA+kQAYPpEDgIAEHpFACB6RQAwekUAQHpFAEicRQBQnEUAWJxFAGCcRRUBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMiAQMgAQEHBQQhAQI=";
+            string containsDeletedType = "Tz8vHwEAAwAiBgcBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxNDb250YWluc0RlbGV0ZWRUeXBlDURlbGV0ZWRTdHJ1Y3QLRGVsZXRlZFR5cGUFAkRTAkRUBE5hbWUDUG9zBlZhbHVlNCIAAAEEAQ4EIQAAAgQBDgQgAAAABAQNAyEBIgAVAg0BAQ4CAhUBBCIBBSEBBiABBw0BACD6RABA+kQAYPpEDgIAEHpFACB6RQAwekUAQHpFAEicRQBQnEUAWJxFAGCcRRUBFkNvbnRhaW5zIGRlbGV0ZWQgdHlwZXMiAQMhAQIgAQEGBQQ=";
 
             //containsDeletedType = CreateByteStreamForDeletedTypeTest(new ContainsDeletedType
             //{
@@ -772,7 +772,7 @@ namespace UnitTests.Serialization
         [TestMethod]
         public void ContainsRemovedFieldTypes()
         {
-            string containsRemovedField = "Tz8vHwEAAgEhBgYBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAhhDb250YWluc1JlbW92ZWRGaWVsZFR5cGUNUmVjdXJzaXZlVHlwZQgFQ291bnQQRGVmYXVsdElzTm90TnVsbAROYW1lA1BvcwRQb3MyDVJlY3Vyc2l2ZVNlbGYHUmVtb3ZlZARUZXh0IAAAAAUEDQMhBhUCDAQhAAABBQQhBRUHBgAVARoBAgYBDAENARUCIAEhAQYBkhMMAQCgekUAQHtFDQEAIPpEAED6RABg+kQVAg9XaWxsIGJlIHJlbW92ZWQYQ29udGFpbnMgYSByZW1vdmVkIGZpZWxkIAEDBwUCIQEHBAEA";
+            string containsRemovedField = "Tz8vHwEAAwAiBwYBCVVuaXRUZXN0cwEtVW5pdFRlc3RzLlNlcmlhbGl6YXRpb24uQmluYXJ5U2VyaWFsaXplclRlc3RzAxhDb250YWluc1JlbW92ZWRGaWVsZFR5cGURUmVjdXJzaXZlQXREZXB0aDENUmVjdXJzaXZlVHlwZQoIQXREZXB0aDEFQ291bnQQRGVmYXVsdElzTm90TnVsbAROYW1lBU93bmVyA1BvcwRQb3MyDVJlY3Vyc2l2ZVNlbGYHUmVtb3ZlZARUZXh0IAAAAAQEDQUhCBUDDAYhAAACBAUhBxUJBgEVAiIAIgAAAQQBIQQGAQEMAQINAQMVAgQgAQYhAQciAQgGAZITDAEAoHpFAEB7RQ0BACD6RABA+kQAYPpEFQIPV2lsbCBiZSByZW1vdmVkGENvbnRhaW5zIGEgcmVtb3ZlZCBmaWVsZCABAwcFAiEBBwQBAAgiAQc=";
 
             //containsRemovedField = CreateByteStreamForDeletedTypeTest(new ContainsRemovedFieldType
             //{

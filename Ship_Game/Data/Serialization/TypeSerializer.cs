@@ -71,6 +71,8 @@ namespace Ship_Game.Data.Serialization
         /// </summary>
         public string NiceTypeName => Type.GetTypeName();
 
+        public bool IsStruct => IsValueType && IsUserClass;
+
         protected TypeSerializer(Type type)
         {
             Type = type;

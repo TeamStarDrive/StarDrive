@@ -13,6 +13,7 @@ namespace Ship_Game.Data.Binary
         public readonly string Name;
         public TypeSerializer Ser; // Actual serializer
         public readonly FieldInfo[] Fields;
+        public readonly bool IsStruct;
         public readonly SerializerCategory Category;
 
         public Type Type => Ser.Type;
@@ -22,11 +23,12 @@ namespace Ship_Game.Data.Binary
         string FieldString => Fields != null ? $" Fields={Fields.Length}" : "";
 
         public TypeInfo(uint streamTypeId, string name, TypeSerializer s, FieldInfo[] fields,
-                        SerializerCategory c)
+                        bool isStruct, SerializerCategory c)
         {
             StreamTypeId = (ushort)streamTypeId;
             Name = name;
             Fields = fields;
+            IsStruct = s?.IsStruct ?? isStruct;
             Category = c;
             Ser = s;
 

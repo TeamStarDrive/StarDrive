@@ -143,6 +143,7 @@ namespace Ship_Game.Data.Binary
             int namespaceId = namespaceMap[GetNamespace(s)];
             int typenameId  = typenameMap[GetTypeName(s)];
             int flags = 0;
+            if (s.IsStruct)      flags |= 0b0000_0001; // struct
             if (s.IsEnumType)    flags |= 0b0000_0010; // enum
             if (s.Type.IsNested) flags |= 0b0000_0100; // requires nested namespace resolution
             BW.WriteVLu32((uint)s.TypeId);
