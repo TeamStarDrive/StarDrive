@@ -91,8 +91,15 @@ namespace Ship_Game.GameScreens.LoadGame
             using var stream = file.OpenRead();
             var reader = new Reader(stream);
 
-            object[] objects = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderData) }, verbose);
-            return (HeaderData)objects[0];
+            try
+            {
+                object[] objects = BinarySerializer.DeserializeMultiType(reader, new[]{ typeof(HeaderData) }, verbose);
+                return (HeaderData)objects[0];
+            }
+            catch (Exception) // most likely this is some old .sav file
+            {
+                return null;
+            }
         }
 
         UniverseState DecompressSaveGame(FileInfo file, ProgressCounter step)
