@@ -64,7 +64,7 @@
       </RemnantShipsToSpawn>       
       <TroopsToSpawn>
       </TroopsToSpawn>
-      <Image>Encounters/5.png</Image>
+      <Image>Encounters/techevent2.png</Image>
       <ConfirmText>This could gone better.</ConfirmText>
     </Outcome>
     <Outcome>
@@ -81,7 +81,7 @@
         <string>Xeno Fighter</string>
         <string>Xeno Fighter</string>
       </RemnantShipsToSpawn>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/remn2.png</Image>
       <ConfirmText>Call reinforcements!</ConfirmText>
     </Outcome>
 
@@ -95,7 +95,7 @@
       <ReplaceWith>Large Warehouse</ReplaceWith>
       <GrantArtifact>true</GrantArtifact>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/2.png</Image>
+      <Image>Encounters/remn5.png</Image>
       <ConfirmText>All aboard!</ConfirmText>
     </Outcome>
 
@@ -118,7 +118,7 @@
       <ReplaceWith>Large Warehouse</ReplaceWith>
       <GrantArtifact>true</GrantArtifact>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/3.png</Image>
+      <Image>Encounters/pirates3.png</Image>
       <ConfirmText>Nice little squadron!</ConfirmText>
     </Outcome>
 
@@ -139,7 +139,7 @@
       <ReplaceWith>Large Warehouse</ReplaceWith>
       <GrantArtifact>true</GrantArtifact>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/4.png</Image>
+      <Image>Encounters/pirates2.png</Image>
       <ConfirmText>Silly Pirates.</ConfirmText>
     </Outcome>
 
@@ -157,7 +157,7 @@
       <ReplaceWith>Large Warehouse</ReplaceWith>
       <GrantArtifact>true</GrantArtifact>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/5.png</Image>
+      <Image>Encounters/pirates1.png</Image>
       <ConfirmText>Their loss, our gain.</ConfirmText>
     </Outcome>               
   </PotentialOutcomes>
