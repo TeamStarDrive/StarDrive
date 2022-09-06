@@ -42,7 +42,7 @@
       <DescriptionText>As your combat engineers try to salvage some of the ancient equipment they soon discover that in the deepest parts of mine shaft there's some strange artifact.</DescriptionText>
       <GrantArtifact>true</GrantArtifact>      
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/4.png</Image>
+      <Image>Encounters/techevent1.png</Image>
       <ConfirmText>Calling in a transport ship.</ConfirmText>
     </Outcome>
     <Outcome>
@@ -60,7 +60,7 @@
       </RemnantShipsToSpawn>       
       <TroopsToSpawn>
       </TroopsToSpawn>
-      <Image>Encounters/5.png</Image>       
+      <Image>Encounters/techevent2.png</Image>       
       <ConfirmText>Those will be useful for sure!</ConfirmText>
     </Outcome>
     <Outcome>
@@ -80,7 +80,7 @@
       </PirateShipsToSpawn>       
       <TroopsToSpawn>
       </TroopsToSpawn>
-      <Image>Encounters/6.png</Image>       
+      <Image>Encounters/techevent1.png</Image>       
       <ConfirmText>Lets use it!</ConfirmText>
     </Outcome>
     <Outcome>
@@ -96,7 +96,7 @@
           <string>Corsair-Fighter</string>
           <string>Corsair-Fighter</string>
       </PirateShipsToSpawn>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/pirates1.png</Image>
       <ConfirmText>Damn Pirates!</ConfirmText>
     </Outcome>
 
