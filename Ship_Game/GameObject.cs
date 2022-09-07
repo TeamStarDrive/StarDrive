@@ -114,6 +114,7 @@ namespace Ship_Game
 
         public override string ToString() => $"GameObj Id={Id} Pos={Position}";
 
+        [StarDataConstructor]
         protected GameObject(int id, GameObjectType type)
         {
             Id = id;

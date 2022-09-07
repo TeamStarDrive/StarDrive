@@ -122,32 +122,5 @@ namespace Ship_Game
             Log.Info($"Binary Total Load elapsed: {t.Elapsed:0.0}s  ");
             return usData;
         }
-
-        [StarDataType]
-        public struct ProjectileSaveData
-        {
-            [StarData] public int Id; // unique ID of the object
-            [StarData] public int OwnerId; // Ship or Planet
-            [StarData] public string Weapon;
-            [StarData] public float Duration;
-            [StarData] public float Rotation;
-            [StarData] public Vector2 Velocity;
-            [StarData] public Vector2 Position;
-            [StarData] public int Loyalty;
-        }
-
-        [StarDataType]
-        public struct BeamSaveData
-        {
-            [StarData] public int Id; // unique ID of the object
-            [StarData] public int OwnerId; // Ship or Planet
-            [StarData] public string Weapon;
-            [StarData] public float Duration;
-            [StarData] public Vector2 Source;
-            [StarData] public Vector2 Destination;
-            [StarData] public Vector2 ActualHitDestination;
-            [StarData] public int TargetId; // Ship or Projectile
-            [StarData] public int Loyalty;
-        }
     }
 }

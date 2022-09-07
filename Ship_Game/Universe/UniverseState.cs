@@ -153,9 +153,7 @@ namespace Ship_Game.Universe
 
         public readonly RandomBase Random = new ThreadSafeRandom();
 
-        UniverseState()
-        {
-        }
+        [StarDataConstructor] UniverseState() {}
 
         public UniverseState(UniverseScreen screen, float universeRadius)
         {
@@ -196,8 +194,7 @@ namespace Ship_Game.Universe
             Map<string, IShipDesign> DesignsMap;
 
             [StarData] public IReadOnlyList<Ship> Ships;
-            [StarData] public SavedGame.ProjectileSaveData[] Projectiles;
-            [StarData] public SavedGame.BeamSaveData[] Beams;
+            [StarData] public IReadOnlyList<Projectile> Projectiles;
 
             public void SetDesigns(HashSet<IShipDesign> designs)
             {
@@ -235,8 +232,7 @@ namespace Ship_Game.Universe
             Save = new SaveState
             {
                 Ships = Objects.GetShips(),
-                Beams = Objects.GetBeamSaveData(),
-                Projectiles = Objects.GetProjectileSaveData()
+                Projectiles = Objects.GetProjectiles()
             };
             Save.SetDesigns(Ships.Select(s => s.ShipData).UniqueSet());
 
@@ -256,10 +252,8 @@ namespace Ship_Game.Universe
 
             foreach (Ship ship in Save.Ships)
                 Objects.Add(ship);
-            foreach (SavedGame.BeamSaveData beamData in Save.Beams)
-                Beam.CreateFromSave(beamData, this);
-            foreach (SavedGame.ProjectileSaveData projData in Save.Projectiles)
-                Projectile.CreateFromSave(projData, this);
+            foreach (Projectile projectile in Save.Projectiles)
+                Objects.Add(projectile);
 
             foreach (Empire e in Empires)
                 e.ResetTechsUsableByShips(e.GetOurFactionShips(), unlockBonuses: false);

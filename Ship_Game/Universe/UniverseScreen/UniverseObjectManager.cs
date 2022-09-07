@@ -72,6 +72,11 @@ namespace Ship_Game
         /// </summary>
         public IReadOnlyList<Ship> GetShips() => Ships.GetItems();
 
+        /// <summary>
+        /// Currently submitted projectiles and beams
+        /// </summary>
+        public IReadOnlyList<Projectile> GetProjectiles() => Projectiles.GetItems();
+
         public UniverseObjectManager(UniverseScreen uScreen, UniverseState uState, SpatialManager spatial)
         {
             Universe = uScreen;
@@ -87,47 +92,6 @@ namespace Ship_Game
         public bool FindObject(int id, out GameObject found) => Objects.Find(id, out found);
         public bool ContainsObject(int id) => Objects.Contains(id);
 
-        public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
-        {
-            var projectiles = Projectiles.GetItems();
-            return projectiles.FilterSelect(
-                p => p.Active && p.Type == GameObjectType.Proj && (p.Owner != null || p.Planet != null),
-                p => new SavedGame.ProjectileSaveData
-                {
-                    Id = p.Id,
-                    OwnerId  = p.Owner?.Id ?? p.Planet.Id,
-                    Weapon   = p.Weapon.UID,
-                    Duration = p.Duration,
-                    Rotation = p.Rotation,
-                    Velocity = p.Velocity,
-                    Position = p.Position,
-                    Loyalty  = p.Loyalty.Id,
-                });
-        }
-
-        public SavedGame.BeamSaveData[] GetBeamSaveData()
-        {
-            var projectiles = Projectiles.GetItems();
-            return projectiles.FilterSelect(
-                p => p.Active && p.Type == GameObjectType.Beam && (p.Owner != null || p.Planet != null),
-                p =>
-                {
-                    var beam = (Beam)p;
-                    return new SavedGame.BeamSaveData
-                    {
-                        Id = beam.Id,
-                        OwnerId  = p.Owner?.Id ?? p.Planet.Id,
-                        Weapon   = p.Weapon.UID,
-                        Duration = p.Duration,
-                        Source   = beam.Source,
-                        Destination = beam.Destination,
-                        ActualHitDestination = beam.ActualHitDestination,
-                        TargetId  = beam.Target is Ship ship ? ship.Id : 0,
-                        Loyalty = p.Loyalty.Id,
-                    };
-                });
-        }
-        
         // NOTE: SLOW !! Should only be used for UNIT TESTS
         public Projectile[] GetAllProjectilesAndBeams()
         {

@@ -73,7 +73,8 @@ namespace Ship_Game.Fleets
             Owner = owner;
         }
 
-        [StarDataDeserialized]
+        // Depends on Ships being finalized
+        [StarDataDeserialized(typeof(Ship))]
         void OnDeserialized()
         {
             AssignPositions(FinalDirection);

@@ -521,8 +521,9 @@ namespace Ship_Game.Gameplay
                 return false;
 
             PrepareToFire();
-            var beam = new Beam(Owner.Universe.CreateId(), this, source, destination, target);
-            beam.Initialize(Owner.Universe);
+
+            // NOTE: beam is automatically added to this.Owner.Universe
+            var _ = new Beam(Owner.Universe.CreateId(), this, source, destination, target);
             return true;
         }
 
