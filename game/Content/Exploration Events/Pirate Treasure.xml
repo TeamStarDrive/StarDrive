@@ -33,7 +33,7 @@
       <PirateShipsToSpawn>
           <string>Corsair Flagship</string>
       </PirateShipsToSpawn>
-      <Image>Encounters/3.png</Image>
+      <Image>Encounters/pirates3.png</Image>
       <ConfirmText>Again the Pirates</ConfirmText>
     </Outcome>     
     <Outcome>
@@ -50,7 +50,7 @@
           <string>Corsair-Fighter-Mk2</string>
           <string>Corsair-Fighter-Mk2</string>
       </PirateShipsToSpawn>       
-      <Image>Encounters/4.png</Image>
+      <Image>Encounters/techevent2.png</Image>
       <ConfirmText>This is now ours!</ConfirmText>
     </Outcome>
 
@@ -82,7 +82,7 @@
         <string>Gunboat Ballista Mk1</string>
           <string>Gunboat Ballista Mk1</string>
       </FriendlyShipsToSpawn>
-      <Image>Encounters/5.png</Image>
+      <Image>Encounters/pirates1.png</Image>
       <ConfirmText>Stealing from the thieves!</ConfirmText>
     </Outcome>     
 
@@ -92,7 +92,7 @@
       <DescriptionText>Your forces found recently half cleared out rooms, it seems someone beat us to it, but they still might have missed something. After thoroughly scanning the complex, your troops found a hidden room that contains an ancient artifact.</DescriptionText>
       <GrantArtifact>true</GrantArtifact>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/4.png</Image>
+      <Image>Encounters/techevent1.png</Image>
       <ConfirmText>Haste is a waste!</ConfirmText>
     </Outcome>
 
