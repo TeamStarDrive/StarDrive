@@ -81,12 +81,7 @@ namespace Ship_Game.AI
         [StarData] public Planet PlanetBuildingAt;
         [StarData] public Planet ColonizationTarget { get; set; }
 
-        public IShipDesign ShipToBuild;  // this is a template
-        [StarData] ShipDesign Ship2Build
-        {
-            get => (ShipDesign)ShipToBuild;
-            set => ShipToBuild = value;
-        }
+        [StarData] public IShipDesign ShipToBuild;  // this is a template
 
         [StarData] Ship ShipBuilt; // this is the actual ship that was built
         [StarData] public Ship OldShip;      // this is the ship which needs refit
@@ -129,7 +124,8 @@ namespace Ship_Game.AI
         public Planet GetTetherPlanet => empire.Universum.GetPlanet(TetherPlanetId);
 
         public bool IsDeploymentGoal => ToBuildUID.NotEmpty() && !BuildPosition.AlmostZero();
-        public abstract string UID { get; }
+
+        public string TypeName => GetType().GetTypeName();
 
         public Ship FinishedShip
         {
@@ -142,7 +138,7 @@ namespace Ship_Game.AI
             set => ShipBuilt = value;
         }
 
-        public override string ToString() => $"{type} Goal.{UID} {ToBuildUID}";
+        public override string ToString() => $"{type} Goal.{TypeName} {ToBuildUID}";
 
         [StarDataConstructor]
         protected Goal(GoalType type, int id, UniverseState us)
@@ -204,7 +200,7 @@ namespace Ship_Game.AI
         /// <summary>
         /// 1 is 10 turns, 5 is 50 turns
         /// </summary>
-        public float LifeTime => empire.Universum.StarDate - StarDateAdded;
+        public float LifeTime => UState.StarDate - StarDateAdded;
         public bool IsMainGoalCompleted => MainGoalCompleted;
 
         // @note Goals are mainly evaluated during Empire update

@@ -10,9 +10,6 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class BuildOffensiveShips : BuildShipsGoalBase
     {
-        public const string ID = "BuildOffensiveShips";
-        public override string UID => ID;
-
         [StarDataConstructor]
         public BuildOffensiveShips(int id, UniverseState us)
             : base(GoalType.BuildOffensiveShips, id, us)

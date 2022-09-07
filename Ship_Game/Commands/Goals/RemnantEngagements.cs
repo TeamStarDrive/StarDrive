@@ -9,10 +9,9 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class RemnantEngagements : Goal
     {
-        public const string ID = "RemnantEngagements";
-        public override string UID => ID;
-        private Remnants Remnants;
+        [StarData] Remnants Remnants;
 
+        [StarDataConstructor]
         public RemnantEngagements(int id, UniverseState us)
             : base(GoalType.RemnantEngagements, id, us)
         {

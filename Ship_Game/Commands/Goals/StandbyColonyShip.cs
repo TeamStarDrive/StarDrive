@@ -10,9 +10,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class StandbyColonyShip : Goal
     {
-        public const string ID = "StandbyColonyShip";
-        public override string UID => ID;
-
+        [StarDataConstructor]
         public StandbyColonyShip(int id, UniverseState us)
             : base(GoalType.StandbyColonyShip, id, us)
         {

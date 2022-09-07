@@ -1032,7 +1032,7 @@ namespace Ship_Game.Debug
                         continue;
 
                     NewLine();
-                    DrawString($"{g.UID} {g.ColonizationTarget.Name}" +
+                    DrawString($"{g.TypeName} {g.ColonizationTarget.Name}" +
                                $" (x{e.GetFleetStrEmpireMultiplier(g.TargetEmpire).String(1)})");
 
                     DrawString(15f, $"Step: {g.StepName}");

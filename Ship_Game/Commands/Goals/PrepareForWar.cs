@@ -10,10 +10,9 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PrepareForWar : Goal
     {
-        public const string ID = "PrepareForWar";
-        public override string UID => ID;
         [StarData] bool SkipFirstRun = true;
 
+        [StarDataConstructor]
         public PrepareForWar(int id, UniverseState us)
             : base(GoalType.PrepareForWar, id, us)
         {

@@ -12,11 +12,10 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class RemnantPortal : Goal
     {
-        public const string ID = "RemnantPortal";
-        public override string UID => ID;
-        private Remnants Remnants;
-        private Ship Portal;
+        [StarData] Remnants Remnants;
+        [StarData] Ship Portal;
 
+        [StarDataConstructor]
         public RemnantPortal(int id, UniverseState us)
             : base(GoalType.RemnantPortal, id, us)
         {

@@ -11,9 +11,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class WarMission : Goal
     {
-        public const string ID = "WarMission";
-        public override string UID => ID;
-
+        [StarDataConstructor]
         public WarMission(int id, UniverseState us)
             : base(GoalType.WarMission, id, us)
         {
