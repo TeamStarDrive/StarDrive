@@ -11,10 +11,9 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class FleetRequisition : Goal
     {
-        public const string ID = "FleetRequisition";
-        public override string UID => ID;
-        private bool Rush; // no need for saving this as it is used immediately
+        [StarData] bool Rush; // no need for saving this as it is used immediately
 
+        [StarDataConstructor]
         public FleetRequisition(int id, UniverseState us)
             : base(GoalType.FleetRequisition, id, us)
         {

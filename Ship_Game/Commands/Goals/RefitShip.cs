@@ -11,9 +11,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     public class RefitShip : Goal
     {
-        public const string ID = "RefitShips";
-        public override string UID => ID;
-
+        [StarDataConstructor]
         public RefitShip(int id, UniverseState us)
             : base(GoalType.Refit, id, us)
         {

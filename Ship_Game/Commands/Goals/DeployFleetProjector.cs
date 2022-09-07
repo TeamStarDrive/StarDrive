@@ -13,9 +13,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class DeployFleetProjector : Goal
     {
-        public const string ID = "DeployFleetProjector";
-        public override string UID => ID;
-
+        [StarDataConstructor]
         public DeployFleetProjector(int id, UniverseState us)
             : base(GoalType.DeployFleetProjector, id, us)
         {

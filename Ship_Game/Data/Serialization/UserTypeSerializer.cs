@@ -99,8 +99,9 @@ namespace Ship_Game.Data.Serialization
 
         ConstructorInfo GetDefaultConstructor()
         {
-            if (Type.IsValueType)
-                return null; // structs always have the default constructor
+            // structs always have the default ctor, interfaces don't have ctors
+            if (Type.IsValueType || Type.IsInterface)
+                return null;
 
             var c = Type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (ConstructorInfo ctor in c)

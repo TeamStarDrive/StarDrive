@@ -8,9 +8,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class WarManager : Goal
     {
-        public const string ID = "WarManager";
-        public override string UID => ID;
-
+        [StarDataConstructor]
         public WarManager(int id, UniverseState us)
             : base(GoalType.WarManager, id, us)
         {
