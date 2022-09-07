@@ -81,8 +81,8 @@ namespace Ship_Game
 
         readonly Map<SolarSystem, bool> HostilesLogged = new(); // Only for Player warnings
         public Array<IncomingThreat> SystemsWithThreat = new();
-        public HashSet<string> ShipsWeCanBuild = new();
-        public HashSet<string> structuresWeCanBuild = new();
+        [StarData] public HashSet<string> ShipsWeCanBuild = new();
+        [StarData] public HashSet<string> structuresWeCanBuild = new();
         float FleetUpdateTimer = 5f;
         int TurnCount = 1;
 

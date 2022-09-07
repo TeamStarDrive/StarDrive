@@ -1577,7 +1577,7 @@ namespace Ship_Game
             return TilesList.Any(t => t.EventOnTile);
         }
 
-        public int NumActiveCrashSites => TilesList.Count(t => t.CrashSite.Active);
+        public int NumActiveCrashSites => TilesList.Count(t => t.IsCrashSiteActive);
 
         // Bump out an enemy troop to make room available (usually for spawned troops via events)
         public bool BumpOutTroop(Empire empire)

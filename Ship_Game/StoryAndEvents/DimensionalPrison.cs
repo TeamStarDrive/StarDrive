@@ -46,7 +46,6 @@ namespace Ship_Game
             beam.Range = 2500f;
             beam.PowerCost = 0f;
             beam.DamageAmount = 0f;
-            beam.Initialize(us);
             return repulsor;
         }
 

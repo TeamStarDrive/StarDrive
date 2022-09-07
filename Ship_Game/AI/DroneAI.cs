@@ -1,22 +1,38 @@
+using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI
 {
-    public sealed class DroneAI 
+    [StarDataType]
+    public sealed class DroneAI
     {
-        public readonly Projectile Drone;
-        public Ship DroneTarget { get; private set; }
-        private float ThinkTimer;
+        [StarData] public readonly Projectile Drone;
+        [StarData] public Ship DroneTarget { get; private set; }
+        [StarData] float ThinkTimer;
+        [StarData] float OrbitalAngle;
+        [StarData] Beam Beam;
         public Weapon DroneWeapon;
-        private float OrbitalAngle;
-        private Beam Beam;
 
         public DroneAI(Projectile drone)
         {
             Drone = drone;
-            DroneWeapon = ResourceManager.CreateWeapon("RepairBeam", drone.Owner, null, null);
+            DroneWeapon = CreateWeapon(drone);
+        }
+
+        [StarDataConstructor] DroneAI() {}
+
+        // depends on the parent `Drone` projectile to be initialized
+        [StarDataDeserialized(typeof(Projectile))]
+        public void OnDeserialized()
+        {
+            DroneWeapon = CreateWeapon(Drone);
+        }
+
+        Weapon CreateWeapon(Projectile drone)
+        {
+            return ResourceManager.CreateWeapon("RepairBeam", drone.Owner, null, null);
         }
 
         public void ChooseTarget()

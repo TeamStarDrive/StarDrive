@@ -8,6 +8,7 @@ using Ship_Game.Audio;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Graphics.Particles;
 using Ship_Game.Universe;
 using SynapseGaming.LightingSystem.Core;
@@ -21,6 +22,7 @@ using Vector2d = SDGraphics.Vector2d;
 
 namespace Ship_Game.Gameplay
 {
+    [StarDataType]
     public class Projectile : PhysicsObject, IDisposable
     {
         public float ShieldDamageBonus;
@@ -35,7 +37,15 @@ namespace Ship_Game.Gameplay
         public float DamageAmount;
         public float DamageRadius;
         public float ExplosionRadiusMod;
-        public float Duration;
+
+        public UniverseState Universe;
+        [StarData] public Ship Owner { get; protected set; }
+        [StarData] public Planet Planet { get; protected set; }
+        [StarData] public Empire Loyalty;
+        [StarData] public float Duration;
+        [StarData] protected string WeaponUID;
+        public Weapon Weapon;
+
         public bool Explodes;
         public bool FakeExplode;
         public ShipModule Module;
@@ -71,11 +81,9 @@ namespace Ship_Game.Gameplay
         public string InFlightCue = "";
         public AudioEmitter Emitter = new AudioEmitter();
         public bool Miss;
-        public Empire Loyalty;
         float InitialDuration;
         public float RotationRadsPerSecond;
         public DroneAI DroneAI { get; private set; }
-        public Weapon Weapon;
         public string ModelPath;
         float ZPos = -25f;
         float ParticleDelay;
@@ -94,20 +102,25 @@ namespace Ship_Game.Gameplay
         bool Deflected;
         public bool TrailTurnedOn { get; protected set; } = true;
 
-        public Ship Owner { get; protected set; }
-        public Planet Planet { get; protected set; }
-
         // Only Guided Missiles can slow down, but lower the acceleration
         const float DecelThrustPower = 0.1f;
 
-        public UniverseState Universe;
-
         public override IDamageModifier DamageMod => Weapon;
 
-        public Projectile(int id, Empire loyalty, GameObjectType type = GameObjectType.Proj)
+        [StarDataConstructor]
+        protected Projectile() : base(0, GameObjectType.Proj) {}
+
+        protected Projectile(int id, Weapon weapon, Ship owner, Planet planet, Empire loyalty, GameObjectType type)
             : base(id, type)
         {
-            Loyalty = loyalty;
+            Owner = owner ?? weapon.Owner;
+            Loyalty = loyalty ?? weapon.Owner?.Loyalty ?? planet?.Owner;
+            Planet = planet;
+            Module = weapon.Module;
+            Weapon = weapon;
+            WeaponUID = weapon.UID;
+
+            Universe = Owner?.Universe ?? Planet?.Universe ?? Loyalty?.Universum;
         }
 
         // new projectile from a ship
@@ -119,19 +132,14 @@ namespace Ship_Game.Gameplay
             if (ship.Universe == null) throw new NullReferenceException(nameof(ship.Universe));
             if (ship.Loyalty == null) throw new NullReferenceException(nameof(ship.Loyalty));
 
-            var projectile = new Projectile(ship.Universe.CreateId(), ship.Loyalty, GameObjectType.Proj)
-            {
-                Owner = ship,
-                Weapon = weapon,
-                Module = weapon.Module
-            };
-            projectile.Initialize(origin, direction, target, playSound, Vector2.Zero);
-            return projectile;
+            var p = new Projectile(ship.Universe.CreateId(), weapon, ship, null, ship.Loyalty, GameObjectType.Proj);
+            p.Initialize(origin, direction, target, playSound, Vector2.Zero);
+            return p;
         }
 
         // new Mirv cluster warhead
         // the original missile will be destroyed, but was launched by a Ship or by a Planet
-        static void CreateMirvWarhead(Weapon warhead, Vector2 origin, Vector2 direction, GameObject target, 
+        static void CreateMirvWarhead(Weapon warhead, Vector2 origin, Vector2 direction, GameObject target,
                                       bool playSound, Vector2 inheritedVelocity, Empire loyalty, Planet planet)
         {
             // Loyalty cannot be null, otherwise kill events will not work correctly
@@ -140,15 +148,8 @@ namespace Ship_Game.Gameplay
             UniverseState universe = (planet?.Universe ?? loyalty.Universum);
             if (universe == null) throw new NullReferenceException(nameof(universe));
 
-            var projectile = new Projectile(universe.CreateId(), loyalty)
-            {
-                Weapon = warhead,
-                Owner = warhead.Owner,
-                Module = warhead.Module,
-                Planet = planet,
-            };
-
-            projectile.Initialize(origin, direction, target, playSound, inheritedVelocity, isMirv: true);
+            var p = new Projectile(universe.CreateId(), warhead, warhead.Owner, planet, loyalty, GameObjectType.Proj);
+            p.Initialize(origin, direction, target, playSound, inheritedVelocity, isMirv: true);
         }
 
         // new projectile from planet
@@ -157,90 +158,63 @@ namespace Ship_Game.Gameplay
             if (loyalty == null) throw new NullReferenceException(nameof(loyalty));
             if (planet.Universe == null) throw new NullReferenceException(nameof(planet.Universe));
 
-            var projectile = new Projectile(planet.Universe.CreateId(), loyalty, GameObjectType.Proj)
+            var p = new Projectile(planet.Universe.CreateId(), weapon, null, planet, loyalty, GameObjectType.Proj)
             {
-                Weapon  = weapon,
-                Planet  = planet,
                 ZPos  = 2500f, // +Z: deep in background, away from camera
             };
-            projectile.Initialize(weapon.Origin, direction, target, playSound: true, Vector2.Zero);
-            return projectile;
-        }
-
-        // loading from savegame
-        public static Projectile CreateFromSave(in SavedGame.ProjectileSaveData pdata, UniverseState us)
-        {
-            if (!GetOwners(pdata.OwnerId, pdata.Loyalty, pdata.Weapon, false, us, out ProjectileOwnership o))
-                return null; // this owner or weapon no longer exists
-
-            var p = new Projectile(pdata.Id, o.Loyalty)
-            {
-                Weapon = o.Weapon,
-                Module = o.Weapon.Module,
-                Owner = o.Owner,
-                Planet = o.Planet,
-                Universe = us,
-            };
-
-            p.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
-            p.Duration = pdata.Duration; // apply duration from save data
+            p.Initialize(weapon.Origin, direction, target, playSound: true, Vector2.Zero);
             return p;
         }
 
-        public struct ProjectileOwnership
+        // loading from savegame
+        [StarDataDeserialized]
+        public virtual void OnDeserialized(UniverseState us)
         {
-            public Ship Owner;
-            public Planet Planet;
-            public Weapon Weapon;
-            public Empire Loyalty;
+            Universe = us;
+            if (!GetWeapon(Owner, Planet, WeaponUID, false, out Weapon))
+                return; // this owner or weapon no longer exists
+
+            float savedDuration = Duration;
+            Initialize(Position, Velocity, null, playSound: false, Vector2.Zero);
+            Duration = savedDuration; // apply duration from save data
         }
 
-        public static bool GetOwners(int shipOrPlanetId, int loyaltyId, string weaponUID, bool isBeam,
-                                     UniverseState us, out ProjectileOwnership o)
+        public static bool GetWeapon(Ship ship, Planet planet, string weaponUID, bool isBeam,
+                                     out Weapon weapon)
         {
-            o = default;
-            o.Owner = us.GetShip(shipOrPlanetId);
-            if (o.Owner != null)
+            weapon = null;
+            if (ship == null && planet == null)
+            {
+                Log.Warning($"Projectile Ship and Planet are both null! weaponUID={weaponUID}");
+                return false;
+            }
+
+            if (ship != null)
             {
                 // TODO: this is a buggy fallback because it always returns the first Weapon match,
                 // TODO: leading to incorrect weapon reference
                 // TODO: however, this is really hard to fix, because we don't save Weapon instances
                 if (weaponUID.NotEmpty())
-                    o.Weapon = o.Owner.Weapons.Find(w => w.UID == weaponUID);
+                    weapon = ship.Weapons.Find(w => w.UID == weaponUID);
             }
             else
             {
-                o.Planet = us.GetPlanet(shipOrPlanetId);
-                Building building = o.Planet?.BuildingList.Find(b => b.Weapon == weaponUID);
-                o.Weapon = building?.TheWeapon;
-            }
-
-            if (loyaltyId > 0) // Older saves don't have loyalty ID, so this is for compatibility
-                o.Loyalty = EmpireManager.GetEmpireById(loyaltyId);
-            else
-                o.Loyalty = o.Owner?.Loyalty ?? o.Planet?.Owner;
-
-            if (o.Loyalty == null || o.Owner == null && o.Planet == null)
-            {
-                Log.Warning($"Projectile Owner not found! Owner.Id={shipOrPlanetId} weaponUID={weaponUID} loyalty={o.Loyalty}");
-                return false;
+                Building building = planet?.BuildingList.Find(b => b.Weapon == weaponUID);
+                weapon = building?.TheWeapon;
             }
 
             // fallback, the owner has died, or this is a Mirv warhead (owner is a projectile)
-            if (o.Weapon == null && !isBeam)
+            if (weapon == null && !isBeam)
             {
                 // This can fail if `weaponUID` no longer exists in game data
                 // in which case we abandon this projectile
                 if (ResourceManager.GetWeaponTemplate(weaponUID, out IWeaponTemplate t))
                 {
-                    o.Weapon = new Weapon(t, o.Owner, null, null);
+                    weapon = new(t, ship, null, null);
                 }
             }
 
-            if (o.Weapon == null)
-                return false; // abandon it
-
-            return true;
+            return weapon != null;
         }
 
         void Initialize(Vector2 origin, Vector2 direction, GameObject target, bool playSound, Vector2 inheritedVelocity, bool isMirv = false)
@@ -298,10 +272,10 @@ namespace Ship_Game.Gameplay
                 MissileAI = new MissileAI(this, target, missileVelocity);
             }
 
-            Universe = Owner?.Universe ?? Planet.Universe;
             Universe.Objects.Add(this);
 
-            LoadContent();
+            ModelPath = Weapon.ModelPath;
+            UsesVisibleMesh = Weapon.UseVisibleMesh || WeaponType is "Missile" or "Drone" or "Rocket";
 
             if (Owner != null)
             {
@@ -312,7 +286,7 @@ namespace Ship_Game.Gameplay
                 System = Planet.ParentSystem;
             }
 
-            bool inFrustum = IsInFrustum(Universe.Screen);
+            bool inFrustum = Universe.Screen != null && IsInFrustum(Universe.Screen);
             if (playSound && inFrustum)
             {
                 Weapon.PlayToggleAndFireSfx(Emitter);
@@ -333,11 +307,8 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        void LoadContent()
+        void LoadTextureAndEffects()
         {
-            ModelPath = Weapon.ModelPath;
-            UsesVisibleMesh = Weapon.UseVisibleMesh || WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket";
-
             if (StarDriveGame.Instance == null)
                 return; // allow spawning invisible projectiles inside Unit Tests
 
@@ -455,6 +426,9 @@ namespace Ship_Game.Gameplay
 
             if (!UsesVisibleMesh)
             {
+                if (Animation == null && ProjectileTexture == null)
+                    LoadTextureAndEffects();
+
                 if (Animation != null)
                 {
                     screen.ProjectToScreenCoords(Position, ZPos, 20f * Weapon.ProjectileRadius * Weapon.Scale,
@@ -589,11 +563,6 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            if (InFrustum && Weapon.Animated == 1)
-            {
-                Animation.Update(timeStep.FixedTime);
-            }
-
             if (InFlightSfx.IsStopped)
                 InFlightSfx.PlaySfxAsync(InFlightCue, Emitter);
 
@@ -623,6 +592,11 @@ namespace Ship_Game.Gameplay
                     ZPos = 25f;
 
                 UpdateWorldMatrix();
+
+                if (Animation == null && ProjectileTexture == null)
+                    LoadTextureAndEffects();
+
+                Animation?.Update(timeStep.FixedTime);
 
                 if (UsesVisibleMesh) // lazy init rocket projectile meshes
                 {
