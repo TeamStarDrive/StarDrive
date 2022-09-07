@@ -73,11 +73,11 @@ namespace Ship_Game
 
         public bool CanBuildInfantry         => BuildingList.Any(b => b.AllowInfantry);
         public bool TroopsInTheWorks         => ConstructionQueue.Any(t => t.isTroop);
-        public bool OrbitalsInTheWorks       => ConstructionQueue.Any(b => b.isOrbital || b.sData != null && b.sData.IsShipyard);
+        public bool OrbitalsInTheWorks       => ConstructionQueue.Any(b => b.isOrbital || b.ShipData?.IsShipyard == true);
         public int NumShipsInTheWorks        => ConstructionQueue.Count(s => s.isShip);
         public int NumOrbitalsInTheWorks     => ConstructionQueue.Count(b => b.isOrbital);
         public int NumTroopsInTheWorks       => ConstructionQueue.Count(t => t.isTroop);
-        public int NumShipYardsInTheWorks    => ConstructionQueue.Count(s => s.sData != null && s.sData.IsShipyard);
+        public int NumShipYardsInTheWorks    => ConstructionQueue.Count(s => s.ShipData?.IsShipyard == true);
         public bool BiosphereInTheWorks      => BuildingInQueue(Building.BiospheresId);
         public bool TerraformerInTheWorks    => BuildingInQueue(Building.TerraformerId);
         public bool BuildingBuilt(int bid)   => BuildingList.Any(existing => existing.BID == bid);
@@ -151,7 +151,7 @@ namespace Ship_Game
                 var qi = new QueueItem(this)
                 {
                     isShip  = !forTroop,
-                    sData   = sData,
+                    ShipData = sData,
                     isTroop = forTroop,
                     Cost    = forTroop ? cost : cost * ShipBuildingModifier,
                 };
@@ -193,7 +193,7 @@ namespace Ship_Game
                             {
                                 isShip = true,
                                 Cost   = goal.OldShip.RefitCost(newShip) * ShipBuildingModifier,
-                                sData  = newShip.ShipData
+                                ShipData = newShip.ShipData
                             };
 
                             refitQueue.Add(qi);
@@ -235,7 +235,7 @@ namespace Ship_Game
             {
                 if (s.isShip)
                 {
-                    var ship = ResourceManager.GetShipTemplate(s.sData.Name);
+                    var ship = ResourceManager.GetShipTemplate(s.ShipData.Name);
                     if (roles == null || roles.Contains(ship.DesignRole))
                         ships.Add(ship);
                 }
@@ -249,7 +249,7 @@ namespace Ship_Game
             {
                 if (s.isShip)
                 {
-                    var ship = ResourceManager.GetShipTemplate(s.sData.Name);
+                    var ship = ResourceManager.GetShipTemplate(s.ShipData.Name);
                     if (ship.DesignRole == role)
                         return ship;
                 }

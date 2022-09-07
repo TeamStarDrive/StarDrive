@@ -58,12 +58,7 @@ namespace Ship_Game.Ships
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
         public float ECMValue;
-        public IShipDesign ShipData;
-        [StarData] ShipDesign Design
-        {
-            get => (ShipDesign)ShipData;
-            set => ShipData = value;
-        }
+        [StarData] public IShipDesign ShipData;
         [StarData] public int Kills;
         [StarData] public float Experience;
         public bool EnginesKnockedOut;

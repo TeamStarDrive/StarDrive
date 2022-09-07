@@ -98,7 +98,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             var qi = new QueueItem(PlanetBuildingAt)
             {
-                sData           = newShip.ShipData,
+                ShipData        = newShip.ShipData,
                 Cost            = OldShip.RefitCost(newShip),
                 Goal            = this,
                 isShip          = true,

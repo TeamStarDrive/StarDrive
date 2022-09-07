@@ -8,7 +8,6 @@ using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
-using Rectangle = SDGraphics.Rectangle;
 
 namespace Ship_Game.Ships
 {
@@ -225,7 +224,7 @@ namespace Ship_Game.Ships
         }
 
         // Create a ship from a SavedGame
-        [StarDataDeserialized]
+        [StarDataDeserialized(typeof(ShipDesign))]
         void OnDeserialized(UniverseState root)
         {
             Universe = root;
@@ -257,9 +256,9 @@ namespace Ship_Game.Ships
 
             // add the design to ships list if it doesn't exist
             // if there is a newer version of this design, it will not be overwritten
-            if (!ResourceManager.Ships.Exists(Design.Name))
+            if (!ResourceManager.Ships.Exists(ShipData.Name))
             {
-                ResourceManager.AddShipTemplate(Design, playerDesign: true, readOnly: true);
+                ResourceManager.AddShipTemplate((ShipDesign)ShipData, playerDesign: true, readOnly: true);
             }
 
             HealthMax = RecalculateMaxHealth();
@@ -274,7 +273,7 @@ namespace Ship_Game.Ships
             KnownByEmpires = new Components.KnownByEmpire();
             HasSeenEmpires = new Components.KnownByEmpire();
 
-            InitializeThrusters(Design.BaseHull);
+            InitializeThrusters(ShipData.BaseHull);
             InitializeStatus(fromSave:true);
         }
 
