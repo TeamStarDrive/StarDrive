@@ -29,7 +29,7 @@
         <string>Xeno Fighter</string>
         <string>Xeno Fighter</string>
       </RemnantShipsToSpawn>
-      <Image>Encounters/2.png</Image>
+      <Image>Encounters/remn3.png</Image>
       <ConfirmText>Oops</ConfirmText>
     </Outcome>
     <Outcome>
@@ -79,7 +79,7 @@
         <string>Skeleton</string>
         <string>Skeleton</string>
       </TroopsToSpawn>
-      <Image>Encounters/6.png</Image>
+      <Image>Encounters/techevent2.png</Image>
       <ConfirmText>We are trapped on this planet!</ConfirmText>       
     </Outcome>
     <Outcome>
@@ -89,7 +89,7 @@
       <ScienceBonus>0.03</ScienceBonus>
       <GrantArtifact>true</GrantArtifact>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/techevent1.png</Image>
       <ConfirmText>Higher-ups will be pleased!</ConfirmText>
     </Outcome>
   </PotentialOutcomes>

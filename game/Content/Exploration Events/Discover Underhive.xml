@@ -13,7 +13,7 @@
         <string>Draug-Fighter-Mk2</string>
           <string>Draug-Fighter-Mk2</string>
       </FriendlyShipsToSpawn>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/pirates1.png</Image>
       <ConfirmText>What a champs!</ConfirmText>
     </Outcome>
 
@@ -59,7 +59,7 @@
         <string>Support Drone</string>
           <string>Support Drone</string>
       </PirateShipsToSpawn>
-      <Image>Encounters/5.png</Image>
+      <Image>Encounters/pirates2.png</Image>
       <ConfirmText>This isn't over!</ConfirmText>
     </Outcome>
   </PotentialOutcomes>
