@@ -19,7 +19,7 @@ namespace Ship_Game.AI
         [StarData] readonly Array<MilitaryTask> TaskList = new();
         readonly Array<MilitaryTask> TasksToAdd    = new();
         readonly Array<MilitaryTask> TasksToRemove = new();
-        
+
         [StarDataSerialize]
         void OnSerialize()
         {

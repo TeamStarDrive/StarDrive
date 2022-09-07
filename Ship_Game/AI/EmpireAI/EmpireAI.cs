@@ -178,12 +178,6 @@ namespace Ship_Game.AI
 
         public bool IsInOurAOs(Vector2 location) => AoContainingPosition(location) != null;
 
-        public void InitializeAOsFromSave(UniverseState us)
-        {
-            foreach (AO area in AreasOfOperations)
-                area.InitFromSave(us, OwnerEmpire);
-        }
-
         public void CheckColonizationClaims(Empire them, Relationship usToThem)
         {
             if (OwnerEmpire.isPlayer

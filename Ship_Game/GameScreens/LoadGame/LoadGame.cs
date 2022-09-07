@@ -142,7 +142,6 @@ namespace Ship_Game.GameScreens.LoadGame
             step.NextStep().Start(1); // This last step is a mess, using arbitrary count
 
             GameBase.Base.ResetElapsedTime();
-            CreateAOs(us);
             FinalizeShips(us);
 
             us.Screen.LoadContent();
@@ -196,12 +195,6 @@ namespace Ship_Game.GameScreens.LoadGame
                 step.Advance();
             }
             Log.Info(ConsoleColor.Cyan, $"AllSystemsLoaded {s.Elapsed.TotalMilliseconds}ms");
-        }
-
-        static void CreateAOs(UniverseState us)
-        {
-            foreach (Empire e in us.Empires)
-                e.GetEmpireAI().InitializeAOsFromSave(us);
         }
     }
 }
