@@ -1,124 +1,129 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using System.Xml.Serialization;
 using SDGraphics;
+using Ship_Game.Data.Serialization;
 using Ship_Game.Graphics;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using SDUtils;
 
 namespace Ship_Game
 {
+    [StarDataType]
     public class Beam : Projectile
     {
-        public float PowerCost;
-        public Vector2 Source;
-        public Vector2 Destination;
-        public Vector2 ActualHitDestination; // actual location where beam hits another ship
-        
+        [StarData] public Vector2 Source;
+        [StarData] public Vector2 Destination;
+        [StarData] public Vector2 ActualHitDestination; // actual location where beam hits another ship
+        [StarData] public Ship TargetShip { get; private set; } // setter used by serializer
+        [StarData] public int TargetModule; // TODO: can be removed if we support ShipModule serialization
+
+        public GameObject Target
+        {
+            get
+            {
+                if (TargetShip == null) return null;
+                if (TargetModule == 0) return TargetShip;
+                if (TargetShip.Modules.Length == 0) return null;
+                return TargetShip.Modules[TargetModule - 1];
+            }
+        }
+
         // for spatial manager:
         public int RadiusX;
         public int RadiusY;
 
         public int Thickness { get; private set; }
+        public float PowerCost;
         public static Effect BeamEffect;
         public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
         public int[] Indexes = new int[6];
-        private readonly float BeamZ = RandomMath2.Float(-1f, 1f);
+        readonly float BeamZ = RandomMath2.Float(-1f, 1f);
         public bool Infinite;
-        private VertexDeclaration QuadVertexDecl;
-        private float Displacement = 1f;
-        [XmlIgnore][JsonIgnore] public bool BeamCollidedThisFrame;
-        [XmlIgnore][JsonIgnore] public GameObject Target { get; }
+        VertexDeclaration QuadVertexDecl;
+        float Displacement = 1f;
+        public bool BeamCollidedThisFrame;
+
+        [StarDataConstructor] protected Beam() {}
 
         // Create a beam with an initial destination position that optionally follows GameplayObject [target]
         public Beam(int id, Weapon weapon, Vector2 source, Vector2 destination, GameObject target = null)
-            : base(id, weapon.Owner.Loyalty, GameObjectType.Beam)
+            : base(id, weapon, weapon.Owner, null, weapon.Owner.Loyalty, GameObjectType.Beam)
         {
-            // there is an error here in beam creation where the weapon has no module.
-            // i am setting these values in the weapon CreateDroneBeam where possible.
-            Weapon = weapon;
-            Target = target;
-            Module = weapon.Module;
-            DamageAmount = weapon.GetDamageWithBonuses(weapon.Owner);
-            PowerCost  = weapon.BeamPowerCostPerSecond;
-            Range      = weapon.BaseRange;
-            Duration   = weapon.BeamDuration;
-            Thickness  = weapon.BeamThickness;
-            WeaponType = weapon.WeaponType;
-            // for repair weapons, we ignore all collisions
-            DisableSpatialCollision = DamageAmount < 0f;
-            Owner = weapon.Owner;
-            Source  = source;
+            var targetModule = (target as ShipModule);
+            TargetShip = targetModule?.GetParent() ?? target as Ship;
+            if (targetModule != null && TargetShip != null)
+                TargetModule = TargetShip.Modules.IndexOf(targetModule) + 1;
 
-            Destination = destination ;
-            SetActualHitDestination(Destination);
-            BeamCollidedThisFrame = true; 
+            BeamInit(source, destination);
 
-            weapon.ApplyDamageModifiers(this);
-
-            if (Owner != null 
-                && Owner.InFrustum 
-                && Owner.Universe.Screen.IsSystemViewOrCloser
-                && (Owner.InSensorRange || target is ShipModule m && m.GetParent()?.InSensorRange == true))
-            {
-                Emitter.Position = new Vector3(source, 0f);
-                weapon.PlayToggleAndFireSfx(Emitter);
-            }
+            Universe.Objects.Add(this);
         }
 
         // Create a spatially fixed beam spawned from a ship center
         // Used by DIMENSIONAL PRISON
         public Beam(int id, Weapon weapon, Ship ship, Vector2 destination, int thickness)
-            : base(id, ship.Loyalty, GameObjectType.Beam)
+            : base(id, weapon, ship, null, ship.Loyalty, GameObjectType.Beam)
         {
-            Weapon = weapon;
-            Owner = ship;
             Source = ship.Position;
             Destination = destination;
             Thickness = thickness;
+
+            Universe.Objects.Add(this);
         }
 
         // loading from savegame
-        public static void CreateFromSave(in SavedGame.BeamSaveData bdata, UniverseState us)
+        [StarDataDeserialized]
+        public override void OnDeserialized(UniverseState us)
         {
-            if (!GetOwners(bdata.OwnerId, bdata.Loyalty, bdata.Weapon, true, us, out ProjectileOwnership o))
+            Universe = us;
+            if (!GetWeapon(Owner, Planet, WeaponUID, false, out Weapon))
                 return; // this owner or weapon no longer exists
 
-            GameObject target = us.GetObject(bdata.TargetId);
-            var beam = new Beam(bdata.Id, o.Weapon, bdata.Source, bdata.Destination, target)
-            {
-                Owner = o.Owner,
-                Planet = o.Planet
-            };
-
-            beam.SetActualHitDestination(bdata.ActualHitDestination);
-            beam.Duration = bdata.Duration;
-            beam.Initialize(us);
+            float savedDuration = Duration;
+            BeamInit(Source, Destination);
+            Duration = savedDuration;
         }
 
-        public void Initialize(UniverseState us)
+        void BeamInit(Vector2 source, Vector2 destination)
         {
-            if (Owner != null)
-            {
-                Loyalty = Owner?.Loyalty ?? DroneAI?.Drone?.Loyalty;
-                System = Owner?.System ?? DroneAI?.Drone?.System;
-            }
+            Module = Weapon.Module;
+            DamageAmount = Weapon.GetDamageWithBonuses(Owner);
+            PowerCost  = Weapon.BeamPowerCostPerSecond;
+            Range      = Weapon.BaseRange;
+            Duration   = Weapon.BeamDuration;
+            Thickness  = Weapon.BeamThickness;
+            WeaponType = Weapon.WeaponType;
+            // for repair weapons, we ignore all collisions
+            DisableSpatialCollision = DamageAmount < 0f;
+            Source  = source;
 
+            Destination = destination;
+            SetActualHitDestination(Destination);
+            BeamCollidedThisFrame = true; 
+
+            Weapon.ApplyDamageModifiers(this);
+
+            if (Owner != null
+                && Owner.InFrustum
+                && Owner.Universe.Screen.IsSystemViewOrCloser
+                && (Owner.InSensorRange || TargetShip?.InSensorRange == true))
+            {
+                Emitter.Position = new Vector3(source, 0f);
+                Weapon.PlayToggleAndFireSfx(Emitter);
+            }
+        }
+
+        void InitMesh()
+        {
             InitBeamMeshIndices();
             UpdateBeamMesh();
             UpdatePosition();
-
-            if (QuadVertexDecl == null)
-                QuadVertexDecl = new VertexDeclaration(GameBase.Base.GraphicsDevice,
-                                        VertexPositionNormalTexture.VertexElements);
-
-            Universe = us;
-            us.Objects.Add(this);
+            QuadVertexDecl = new(GameBase.Base.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
         }
 
         // cleanupOnly: just delete the projectile without showing visual death effects
@@ -154,6 +159,9 @@ namespace Ship_Game
                 u.Particles.Lightning.AddParticle(hit, Vector3.Zero);
                 u.Particles.Lightning.AddParticle(hit, Vector3.Zero);
             }
+
+            if (QuadVertexDecl == null)
+                InitMesh();
 
             device.VertexDeclaration = QuadVertexDecl;
             BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
@@ -307,9 +315,7 @@ namespace Ship_Game
                 return;
             }
 
-            var ship = (Target as Ship) ?? (Target as ShipModule)?.GetParent();
-
-            if (Owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp)
+            if (Owner.engineState == Ship.MoveState.Warp || TargetShip?.engineState == Ship.MoveState.Warp)
             {
                 Die(null, false);
                 Duration = 0f;
@@ -373,15 +379,23 @@ namespace Ship_Game
         }
     }
 
+    [StarDataType]
     public sealed class DroneBeam : Beam
     {
-        readonly DroneAI AI;
+        [StarData] readonly DroneAI AI;
+
+        [StarDataConstructor] DroneBeam() {}
+
+        [StarDataDeserialized]
+        public override void OnDeserialized(UniverseState us)
+        {
+            base.OnDeserialized(us);
+        }
+
         public DroneBeam(int id, DroneAI ai)
             : base(id, ai.DroneWeapon, ai.Drone.Position, ai.DroneTarget.Position, ai.DroneTarget)
         {
             AI = ai;
-            Owner = ai.Drone.Owner;
-            Initialize(Owner.Universe);
         }
 
         public override void Update(FixedSimTime timeStep)
