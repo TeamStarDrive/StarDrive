@@ -15,9 +15,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class BuildOrbital : Goal
     {
-        public const string ID = "BuildOrbital";
-        public override string UID => ID;
-
         [StarDataConstructor]
         public BuildOrbital(int id, UniverseState us)
             : base(GoalType.BuildOrbital, id, us)

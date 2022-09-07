@@ -13,9 +13,6 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class EmpireDefense : Goal
     {
-        public const string ID = "Empire Defense";
-        public override string UID => ID;
-
         [StarDataConstructor]
         public EmpireDefense(int id, UniverseState us)
             : base(GoalType.EmpireDefense, id, us)

@@ -10,9 +10,6 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class ScoutSystem : Goal
     {
-        public const string ID = "Scout System";
-        public override string UID => ID;
-
         [StarDataConstructor]
         public ScoutSystem(int id, UniverseState us) : base(GoalType.ScoutSystem, id, us)
         {

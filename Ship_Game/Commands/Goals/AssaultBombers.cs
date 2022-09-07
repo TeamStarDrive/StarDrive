@@ -13,9 +13,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class AssaultBombers : Goal
     {
-        public const string ID = "AssaultBombers";
-        public override string UID => ID;
-
+        [StarDataConstructor]
         public AssaultBombers(int id, UniverseState us)
             : base(GoalType.AssaultBombers, id, us)
         {

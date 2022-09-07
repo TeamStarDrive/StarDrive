@@ -11,7 +11,7 @@ namespace Ship_Game.Data.Serialization;
 /// }
 ///
 /// </summary>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface, Inherited = false)]
 public sealed class StarDataTypeAttribute : Attribute
 {
     /// <summary>

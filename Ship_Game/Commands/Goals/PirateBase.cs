@@ -10,8 +10,6 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PirateBase : Goal
     {
-        public const string ID = "PirateBase";
-        public override string UID => ID;
         [StarData] Pirates Pirates;
         [StarData] Ship Base;
         

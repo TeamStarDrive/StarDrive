@@ -10,9 +10,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class ScrapShip : Goal
     {
-        public const string ID = "ScrapShip";
-        public override string UID => ID;
-
+        [StarDataConstructor]
         public ScrapShip(int id, UniverseState us)
             : base(GoalType.ScrapShip, id, us)
         {

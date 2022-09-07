@@ -12,8 +12,6 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PirateProtection : Goal
     {
-        public const string ID = "PirateRaidProtection";
-        public override string UID => ID;
         [StarData] Pirates Pirates;
         [StarData] Ship ShipToProtect;
         [StarData] Empire EmpireToProtect;
