@@ -21,17 +21,10 @@ namespace Ship_Game
         [StarData] public bool isShip;
         [StarData] public bool isOrbital;
         [StarData] public bool isTroop;
-
-        public IShipDesign sData;
-        [StarData] ShipDesign ShipData
-        {
-            get => (ShipDesign)sData;
-            set => sData = value;
-        }
-
+        [StarData] public IShipDesign ShipData;
         [StarData] public Building Building;
         [StarData] public string TroopType;
-        public Array<int> TradeRoutes = new();
+        [StarData] public Array<int> TradeRoutes = new();
         [StarData] public Array<Rectangle> AreaOfOperation = new();
         [StarData] public PlanetGridSquare pgs;
         [StarData] public string DisplayName;
@@ -87,8 +80,8 @@ namespace Ship_Game
             }
             else if (isShip)
             {
-                batch.Draw(sData.Icon, r);
-                string name = DisplayName.IsEmpty() ? sData.Name : DisplayName;
+                batch.Draw(ShipData.Icon, r);
+                string name = DisplayName.IsEmpty() ? ShipData.Name : DisplayName;
                 if (Goal?.Fleet != null)
                     name = $"{name} ({Goal.Fleet.Name})";
 
@@ -115,7 +108,7 @@ namespace Ship_Game
             get
             {
                 float cost = Cost;
-                if (isShip && !sData.IsSingleTroopShip)
+                if (isShip && !ShipData.IsSingleTroopShip)
                     cost *= Planet.ShipBuildingModifier; // single troop ships do not get shipyard bonus
 
                 return (int)cost; // FB - int to avoid float issues in release which prevent items from being complete
@@ -129,7 +122,7 @@ namespace Ship_Game
                 if (isBuilding)
                     return Building.TranslatedName.Text;
                 if (isShip || isOrbital)
-                    return DisplayName ?? sData.Name;
+                    return DisplayName ?? ShipData.Name;
                 if (isTroop)
                     return TroopType;
                 return "";

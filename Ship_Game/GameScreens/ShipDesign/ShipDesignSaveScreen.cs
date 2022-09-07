@@ -184,9 +184,9 @@ namespace Ship_Game
                 {
                     foreach (QueueItem qi in p.ConstructionQueue)
                     {
-                        if (qi.isShip && qi.sData.Name == shipOrHullName)
+                        if (qi.isShip && qi.ShipData.Name == shipOrHullName)
                         {
-                            qi.sData = ship.ShipData;
+                            qi.ShipData = ship.ShipData;
                             qi.Cost = ship.ShipData.GetCost(emp);
                         }
                     }

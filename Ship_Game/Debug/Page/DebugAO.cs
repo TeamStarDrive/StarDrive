@@ -204,7 +204,7 @@ namespace Ship_Game.Debug.Page
                 foreach (var qi in q)
                 {
                     if (!qi.isShip) continue;
-                    shipData.Add(qi.sData);
+                    shipData.Add(qi.ShipData);
                 }
             }
 
@@ -233,9 +233,9 @@ namespace Ship_Game.Debug.Page
                 foreach (var item in items)
                 {
                     if (item?.isShip != true ||// item.DisplayName.IsEmpty() ||
-                            !(ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.Warship ||
-                            ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.WarSupport)) continue;
-                    column.AddLine(item.sData.Name);
+                            !(ShipDesign.ShipRoleToRoleType(item.ShipData.Role) == RoleType.Warship ||
+                            ShipDesign.ShipRoleToRoleType(item.ShipData.Role) == RoleType.WarSupport)) continue;
+                    column.AddLine(item.ShipData.Name);
                 }
             }
 
@@ -259,8 +259,8 @@ namespace Ship_Game.Debug.Page
                     foreach (var item in items)
                     {
                         if (!item.isShip ||// item.DisplayName.IsEmpty() ||
-                                !(ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.Warship ||
-                                ShipDesign.ShipRoleToRoleType(item.sData.Role) == RoleType.WarSupport)) continue;
+                                !(ShipDesign.ShipRoleToRoleType(item.ShipData.Role) == RoleType.Warship ||
+                                ShipDesign.ShipRoleToRoleType(item.ShipData.Role) == RoleType.WarSupport)) continue;
                         column.AddLine(item.Planet.Name);
                     }
                 }

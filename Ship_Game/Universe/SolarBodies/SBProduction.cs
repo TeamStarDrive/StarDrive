@@ -195,14 +195,14 @@ namespace Ship_Game.Universe.SolarBodies
 
         bool OnShipComplete(QueueItem q)
         {
-            if (!ResourceManager.ShipTemplateExists(q.sData.Name))
+            if (!ResourceManager.ShipTemplateExists(q.ShipData.Name))
                 return false;
 
-            Ship shipAt = Ship.CreateShipAt(P.Universe, q.sData.Name, Owner, P, true);
+            Ship shipAt = Ship.CreateShipAt(P.Universe, q.ShipData.Name, Owner, P, true);
             q.Goal?.ReportShipComplete(shipAt);
             if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
             {
-                shipAt.VanityName = q.sData.Name;
+                shipAt.VanityName = q.ShipData.Name;
                 shipAt.AI.SetPriorityOrder(true);
             }
 
@@ -301,7 +301,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Goal          = goal,
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({platform.Name})",
-                sData         = constructor,
+                ShipData      = constructor,
                 Cost          = platform.GetCost(Owner),
                 Rush          = P.Owner.RushAllConstruction
             };
@@ -318,7 +318,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Goal          = goal,
                 NotifyOnEmpty = false,
                 DisplayName   = $"{constructor.Name} ({orbitalRefit.Name})",
-                sData         = constructor,
+                ShipData      = constructor,
                 Cost          = refitCost,
                 Rush          = P.Owner.RushAllConstruction,
             };
@@ -333,7 +333,7 @@ namespace Ship_Game.Universe.SolarBodies
                 isShip        = true,
                 isOrbital     = ship.IsPlatformOrStation,
                 Goal          = goal,
-                sData         = ship,
+                ShipData      = ship,
                 Cost          = GetShipCost(),
                 NotifyOnEmpty = notifyOnEmpty,
                 Rush          = P.Owner.RushAllConstruction
@@ -452,7 +452,7 @@ namespace Ship_Game.Universe.SolarBodies
                 for (int i = queueOffset; i < ConstructionQueue.Count; ++i)
                 {
                     QueueItem q = ConstructionQueue[i];
-                    if (q.isShip && q.sData == ship)
+                    if (q.isShip && q.ShipData == ship)
                     {
                         MoveTo(queueOffset, i);
                         break;
@@ -481,10 +481,10 @@ namespace Ship_Game.Universe.SolarBodies
             float refitCost = oldShip.RefitCost(newShip);
             foreach (QueueItem q in ConstructionQueue)
             {
-                if (q.isShip && q.sData.Name == oldShip.Name)
+                if (q.isShip && q.ShipData.Name == oldShip.Name)
                 {
                     float percentCompleted = q.ProductionSpent / q.ActualCost;
-                    q.sData = newShip.ShipData;
+                    q.ShipData = newShip.ShipData;
                     q.Cost = percentCompleted.AlmostZero() 
                            ? newShip.GetCost(Owner) 
                            : q.Cost + refitCost * percentCompleted * P.ShipBuildingModifier;
@@ -506,7 +506,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public bool ContainsShipDesignName(string name) => ConstructionQueue.Any(q => q.isShip && q.sData.Name == name);
+        public bool ContainsShipDesignName(string name) => ConstructionQueue.Any(q => q.isShip && q.ShipData.Name == name);
         public bool ContainsTroopWithGoal(Goal g) => ConstructionQueue.Any(q => q.isTroop && q.Goal == g);
 
         public bool CancelShipyard()

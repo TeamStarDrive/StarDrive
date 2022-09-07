@@ -247,7 +247,7 @@ namespace Ship_Game
 
             if (item.isShip)
             {
-                switch (item.sData.Role)
+                switch (item.ShipData.Role)
                 {
                     case RoleName.freighter:    workerPercentage += Owner.Research.Strategy.IndustryRatio;  break;
                     case RoleName.station:      workerPercentage += Owner.Research.Strategy.IndustryRatio;  break;
