@@ -46,7 +46,7 @@
         <string>Light Ancient Bomber</string>
         <string>Ancient Frigate</string>
        </RemnantShipsToSpawn>
-       <Image>Encounters/3.png</Image>
+       <Image>Encounters/remn4.png</Image>
        <ConfirmText>Take cover!</ConfirmText>
     </Outcome>
 
@@ -64,7 +64,7 @@
         <string>Light Ancient Bomber</string>
         <string>Light Ancient Bomber</string>
        </RemnantShipsToSpawn>
-       <Image>Encounters/4.png</Image>
+       <Image>Encounters/remn2.png</Image>
        <ConfirmText>What now?!</ConfirmText>
     </Outcome>
     <Outcome>

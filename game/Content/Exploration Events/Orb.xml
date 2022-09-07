@@ -20,7 +20,7 @@
         <string>Heavy Drone</string>
         <string>Heavy Drone</string>
        </RemnantShipsToSpawn>
-       <Image>Encounters/1.png</Image>
+       <Image>Encounters/remn1.png</Image>
        <ConfirmText>Cloaking?!</ConfirmText>
     </Outcome>
 
@@ -44,7 +44,7 @@
         <string>Corsair</string>
         <string>Corsair</string>
       </PirateShipsToSpawn>
-      <Image>Encounters/2.png</Image>
+      <Image>Encounters/pirates3.png</Image>
       <ConfirmText>Why don't we have this tech for ships!</ConfirmText>
     </Outcome>
 
@@ -101,7 +101,7 @@
         <string>Corsair</string>
         <string>Corsair</string>
       </PirateShipsToSpawn>
-      <Image>Encounters/6.png</Image>
+      <Image>Encounters/pirates1.png</Image>
       <ConfirmText>Bloody Pirates!</ConfirmText>
     </Outcome>
 
@@ -116,7 +116,7 @@
       <FriendlyShipsToSpawn>
         <string>Corsair</string>
       </FriendlyShipsToSpawn>
-      <Image>Encounters/5.png</Image>
+      <Image>Encounters/pirates2.png</Image>
       <ConfirmText>What a champ!</ConfirmText>
     </Outcome>
 
@@ -151,7 +151,7 @@
       <DescriptionText>Upon close inspection, your troops have discovered that the orb is made of black matter, suspended in a quantum bubble. After taking a sample, the quantum bubble collapses and the black matter disperses. Followup investigations led us to the creation of a new type of weapon!</DescriptionText>
       <RemoveTrigger>true</RemoveTrigger>
       <UnlockTech>Black matter weaponry</UnlockTech>
-      <Image>Encounters/2.png</Image>
+      <Image>Encounters/techevent1.png</Image>
       <ConfirmText>Black matter?!</ConfirmText>
     </Outcome>
 

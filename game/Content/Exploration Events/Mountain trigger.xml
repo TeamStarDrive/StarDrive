@@ -15,7 +15,7 @@
       </TroopsToSpawn>     
       <ReplaceWith>Mountain</ReplaceWith>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/remn3.png</Image>
       <ConfirmText>Was that a UFO?!</ConfirmText>
     </Outcome>
 
@@ -36,7 +36,7 @@
       <ReplaceWith>Mountain</ReplaceWith>
       <RemoveTrigger>true</RemoveTrigger>
       <GrantArtifact>true</GrantArtifact>
-      <Image>Encounters/3.png</Image>
+      <Image>Encounters/techevennt1.png</Image>
       <ConfirmText>Now only to bring this back.</ConfirmText>
     </Outcome>
 
@@ -52,7 +52,7 @@
           <string>Xeno Fighter</string>
         <string>Xeno Fighter</string>
       </FriendlyShipsToSpawn>
-      <Image>Encounters/4.png</Image>
+      <Image>Encounters/remn4.png</Image>
       <ConfirmText>Alien fighters!</ConfirmText>
     </Outcome>
 
@@ -65,7 +65,7 @@
       <FriendlyShipsToSpawn>
           <string>Corsair</string>
       </FriendlyShipsToSpawn>
-      <Image>Encounters/5.png</Image>
+      <Image>Encounters/pirates3.png</Image>
       <ConfirmText>Perfect!</ConfirmText>
     </Outcome>
     <Outcome>
