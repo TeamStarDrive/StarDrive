@@ -9,7 +9,7 @@
       <RemoveTrigger>true</RemoveTrigger>
       <MoneyGranted>-550</MoneyGranted>
       <GrantArtifact>true</GrantArtifact>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/techevent1.png</Image>
       <ConfirmText>Nice doing business with you!</ConfirmText>
     </Outcome>
 
@@ -35,7 +35,7 @@
       <RemnantShipsToSpawn>
         <string>Ancient Frigate</string>
        </RemnantShipsToSpawn>
-       <Image>Encounters/3.png</Image>
+       <Image>Encounters/remn5.png</Image>
        <ConfirmText>I hate cults.</ConfirmText>
     </Outcome>
 
@@ -45,7 +45,7 @@
       <DescriptionText>After scouting the interior of the temple, your troops located a hidden chamber. Inside, they found a data core with schematics for an unknown technology. After removing the data core from its socket, the whole structure began to shake, and your troops managed to make it out just as the whole structure crumbles behind them.</DescriptionText>
       <UnlockTech>AncientArmor</UnlockTech>       
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/4.png</Image>
+      <Image>Encounters/techevent2.png</Image>
       <ConfirmText>Very old armor, ages like a fine wine!</ConfirmText>
     </Outcome>
 
@@ -82,7 +82,7 @@
           <string>Corsair-Fighter-Mk2</string>
       </PirateShipsToSpawn>      
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/pirates2.png</Image>
       <ConfirmText>Who dares to scavenge ancient sacred grounds!</ConfirmText>
     </Outcome>
 
@@ -99,7 +99,7 @@
         <string>Light Ancient Bomber</string>
         <string>Support Drone</string>
        </RemnantShipsToSpawn>
-       <Image>Encounters/2.png</Image>
+       <Image>Encounters/remn2.png</Image>
        <ConfirmText>Looking tasty!</ConfirmText>
     </Outcome>
     
@@ -122,7 +122,7 @@
       <DescriptionText>While mapping the layout of the temple rooms, your troops notice many primitive scribbles and mosaics in the walls, each worshiping some form of deity that came from the heavens. While examining the largest chamber in the complex, they notice that in the middle of it there is a altar on top of which there is inserted a very ancient data cube that remnants use. Your troops retrive the cube for further analisis.</DescriptionText>
       <RemoveTrigger>true</RemoveTrigger>
       <UnlockTech>RemnantTroop</UnlockTech>   
-       <Image>Encounters/3.png</Image>
+       <Image>Encounters/techevent2.png</Image>
        <ConfirmText>Interesting square thing!</ConfirmText>
     </Outcome>
   </PotentialOutcomes>

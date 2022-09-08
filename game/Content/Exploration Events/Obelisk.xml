@@ -14,7 +14,7 @@
           <string>Support Drone</string>
       </RemnantShipsToSpawn>           
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/remn4.png</Image>
       <ConfirmText>Not again...</ConfirmText>
     </Outcome>
 
@@ -92,7 +92,7 @@
           <string>Xeno Fighter</string>
           <string>Xeno Fighter</string>
       </RemnantShipsToSpawn>       
-      <Image>Encounters/4.png</Image>
+      <Image>Encounters/techevent2.png</Image>
       <ConfirmText>We need to bring this schematic back!</ConfirmText>
     </Outcome>
     <Outcome>
@@ -101,7 +101,7 @@
       <DescriptionText>As your troops approach the ancient obelisk, they notice a strange object inserted into it. In an attempt to free the object, they decide to dismantle the obelisk.</DescriptionText>
       <RemoveTrigger>true</RemoveTrigger>
        <GrantArtifact>true</GrantArtifact>
-      <Image>Encounters/3.png</Image>
+      <Image>Encounters/techevent1.png</Image>
       <ConfirmText>Lucky for us that we had an dismantling tool at hand!</ConfirmText>
     </Outcome>
   </PotentialOutcomes>

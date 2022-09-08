@@ -47,7 +47,7 @@
         <string>Light Ancient Bomber</string>
         <string>Ancient Frigate</string>
        </RemnantShipsToSpawn>
-       <Image>Encounters/3.png</Image>
+       <Image>Encounters/remn1.png</Image>
        <ConfirmText>They will play for that!</ConfirmText>
     </Outcome>
 
@@ -76,7 +76,7 @@
           <string>Draug-Fighter</string>          
           <string>Draug-Fighter</string>          
       </PirateShipsToSpawn>
-      <Image>Encounters/5.png</Image>
+      <Image>Encounters/pirates1.png</Image>
       <ConfirmText>Now just to get rid of those pirates!</ConfirmText>
     </Outcome>
 
