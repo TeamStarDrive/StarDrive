@@ -11,7 +11,7 @@
         <string>Skeleton</string>
       </TroopsToSpawn>     
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/CrashedShip.png</Image>
+      <Image>Encounters/remn5.png</Image>
       <ConfirmText>What is dead should stay dead!</ConfirmText>
     </Outcome>
     <Outcome>
@@ -26,7 +26,7 @@
       </RemnantShipsToSpawn>       
       <TroopsToSpawn>
       </TroopsToSpawn>      
-      <Image>Encounters/CrashedShip2.png</Image> 
+      <Image>Encounters/techevent2.png</Image> 
       <ConfirmText>This could gone worse.</ConfirmText>
     </Outcome>
 
@@ -45,7 +45,7 @@
       </RemnantShipsToSpawn>       
       <TroopsToSpawn>
       </TroopsToSpawn>       
-      <Image>Encounters/CrashedShip.png</Image>
+      <Image>Encounters/remn2.png</Image>
       <ConfirmText>Lets study it!</ConfirmText>
     </Outcome>
 
@@ -63,7 +63,7 @@
         <string>Heavy Drone</string>
         <string>Heavy Drone</string>
       </RemnantShipsToSpawn>
-      <Image>Encounters/4.png</Image>
+      <Image>Encounters/remn1.png</Image>
       <ConfirmText>Retreat!</ConfirmText>
     </Outcome>
 
@@ -73,7 +73,7 @@
       <DescriptionText>Your forces examine the wreckage of what is clearly a very, very ancient shipwreck. Time and nature have taken their toll on the wreckage. Even so, there are some curiosities among the wreckage that will have some value on the open market.</DescriptionText>
       <MoneyGranted>250</MoneyGranted>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/CrashedShip2.png</Image>
+      <Image>Encounters/CrashedShip.png</Image>
       <ConfirmText>Profit!</ConfirmText>
     </Outcome>
 
@@ -88,7 +88,7 @@
       </FriendlyShipsToSpawn>
       <GrantArtifact>true</GrantArtifact>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/CrashedShip.png</Image>
+      <Image>Encounters/remn4.png</Image>
       <ConfirmText>Oh, lets test those bad boys!</ConfirmText>
     </Outcome>
 
@@ -99,7 +99,7 @@
       <NumTilesToMakeUnhabitable>3</NumTilesToMakeUnhabitable>
       <ChangeBaseFertility>-0.6</ChangeBaseFertility>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/CrashedShip2.png</Image>
+      <Image>Encounters/CrashedShip.png</Image>
       <ConfirmText>What a disaster.</ConfirmText>
     </Outcome>
 

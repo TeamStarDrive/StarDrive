@@ -14,7 +14,7 @@
           <string>Support Drone</string>
       </RemnantShipsToSpawn>           
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/1.png</Image>
+      <Image>Encounters/remn1.png</Image>
       <ConfirmText>What was that?</ConfirmText>
     </Outcome>
 
@@ -25,7 +25,7 @@
       <ScienceBonus>0.05</ScienceBonus>
       <GrantArtifact>true</GrantArtifact>
       <RemoveTrigger>true</RemoveTrigger>
-      <Image>Encounters/2.png</Image>
+      <Image>Encounters/techevent1.png</Image>
       <ConfirmText>This is so called rapid evolution.</ConfirmText>
     </Outcome>
 
@@ -76,7 +76,7 @@
         <string>Skeleton</string>
         <string>Skeleton</string>
       </TroopsToSpawn>
-      <Image>Encounters/6.png</Image>
+      <Image>Encounters/remn3.png</Image>
       <ConfirmText>Blast them!</ConfirmText>
     </Outcome>
     <Outcome>
@@ -97,7 +97,7 @@
         <string>Draug-Fighter-Mk2</string>          
         <string>Draug-Fighter-Mk2</string>          
       </PirateShipsToSpawn>
-       <Image>Encounters/2.png</Image>
+       <Image>Encounters/pirates3.png</Image>
        <ConfirmText>Oh no...</ConfirmText>
     </Outcome>
 
@@ -113,7 +113,7 @@
         <string>Xeno Fighter</string>
         <string>Ancient Frigate</string>
        </RemnantShipsToSpawn>
-       <Image>Encounters/1.png</Image>
+       <Image>Encounters/remn1.png</Image>
        <ConfirmText>Take cover!</ConfirmText>
     </Outcome>
 
