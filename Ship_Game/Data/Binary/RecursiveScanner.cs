@@ -320,8 +320,11 @@ public class RecursiveScanner
         public override void Scan(RecursiveScanner scanner, TypeSerializer ser)
         {
             var user = (UserTypeSerializer)ser;
-            user.InvokeOnSerializeEvt(Obj);
 
+            // get dynamic fields
+            StarDataDynamicField[] dynamicF = user.InvokeOnSerializeEvt(Obj);
+
+            // the # of fields remains constant because we rely on predefined object layout
             Fields = user.Fields.Length > 0 ? new int[user.Fields.Length] : Empty<int>.Array;
 
             for (int i = 0; i < user.Fields.Length; ++i)
@@ -331,6 +334,24 @@ public class RecursiveScanner
                 object obj = field.Get(Obj);
                 int fieldObjectId = scanner.ScanObjectState(field.Serializer, obj);
                 Fields[i] = fieldObjectId;
+            }
+
+            // dynamic fields override existing fields
+            // TODO: instead of override, prevent original value from being scanned and written
+            if (dynamicF != null)
+            {
+                for (int i = 0; i < dynamicF.Length; ++i)
+                {
+                    StarDataDynamicField dynF = dynamicF[i];
+                    int fieldIdx = user.Fields.IndexOf(f => f.Name == dynF.Name);
+                    if (fieldIdx == -1)
+                        throw new($"StarDataDynamicField: Could not find a [StarData] field with Name=`{dynF.Name}`");
+
+                    // and now replace the current object
+                    DataField field = user.Fields[fieldIdx];
+                    int fieldObjectId = scanner.ScanObjectState(field.Serializer, dynF.Value);
+                    Fields[fieldIdx] = fieldObjectId;
+                }
             }
         }
     }

@@ -65,8 +65,6 @@ namespace Ship_Game.Universe
 
         [StarData] public Vector3d CamPos;
 
-        [StarData] public byte[] FogMapBytes;
-
         // generated once during universe generation
         // allows us to define consistent backgrounds between savegames
         [StarData] public int BackgroundSeed;
@@ -138,7 +136,6 @@ namespace Ship_Game.Universe
         [StarData] public RandomEventManager Events;
         [StarData] public StatTracker Stats;
         [StarData] public UniverseParams Params;
-        [StarData] public SaveState Save;
 
         // TODO: attempt to stop relying on visual state
         public UniverseScreen Screen;
@@ -223,21 +220,30 @@ namespace Ship_Game.Universe
             }
         }
 
+        [StarData] public SaveState Save;
+        [StarData] public byte[] FogMapBytes;
+
         [StarDataSerialize]
-        void OnSerialize()
+        StarDataDynamicField[] OnSerialize()
         {
             // clean up and submit objects before saving
             Objects.UpdateLists(removeInactiveObjects: true);
 
-            Save = new SaveState
+            var saveState = new SaveState
             {
                 Ships = Objects.GetShips(),
                 Projectiles = Objects.GetProjectiles()
             };
-            Save.SetDesigns(Ships.Select(s => s.ShipData).UniqueSet());
+            saveState.SetDesigns(Ships.Select(s => s.ShipData).UniqueSet());
 
             // FogMap is converted to a Alpha bytes so that it can be included in the savegame
-            FogMapBytes = Screen.ContentManager.RawContent.TexExport.ToAlphaBytes(Screen.FogMap);
+            var fogMapBytes = Screen.ContentManager.RawContent.TexExport.ToAlphaBytes(Screen.FogMap);
+
+            return new StarDataDynamicField[]
+            {
+                new (nameof(Save), saveState),
+                new (nameof(FogMapBytes), fogMapBytes)
+            };
         }
 
         // Only call OnDeserialized evt if Empire and Ship have finished their events

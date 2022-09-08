@@ -21,9 +21,10 @@ namespace Ship_Game.AI
         readonly Array<MilitaryTask> TasksToRemove = new();
 
         [StarDataSerialize]
-        void OnSerialize()
+        StarDataDynamicField[] OnSerialize()
         {
             ApplyPendingChanges();
+            return null;
         }
 
         void RunMilitaryPlanner()
