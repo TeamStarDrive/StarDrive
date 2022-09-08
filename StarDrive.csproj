@@ -219,6 +219,7 @@
     <Compile Include="Ship_Game\Data\Serialization\CollectionSerializer.cs" />
     <Compile Include="Ship_Game\Data\Binary\EventContextOnDeserialized.cs" />
     <Compile Include="Ship_Game\Data\Serialization\SerializerCategory.cs" />
+    <Compile Include="Ship_Game\Data\Serialization\StarDataDynamicField.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\ByteArraySerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\HashSetSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\MapSerializer.cs" />
