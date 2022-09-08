@@ -25,8 +25,8 @@ namespace Ship_Game.Data.Serialization
 
         // Method which is called when an object is about to be serialized
         // [StarDataSerialize]
-        // void OnSerialize() { ... }
-        public delegate void OnSerialize(object obj);
+        // StarDataDynamicField[] OnSerialize() { ... }
+        public delegate StarDataDynamicField[] OnSerialize(object obj);
         readonly OnSerialize OnSerializeEvt;
 
         // Method which is called when type has finished serialization
@@ -116,9 +116,9 @@ namespace Ship_Game.Data.Serialization
             throw new($"Missing a default constructor or [StarDataConstructor] attribute on type {Type}");
         }
 
-        public void InvokeOnSerializeEvt(object obj)
+        public StarDataDynamicField[] InvokeOnSerializeEvt(object obj)
         {
-            OnSerializeEvt?.Invoke(obj);
+            return OnSerializeEvt?.Invoke(obj);
         }
 
         OnSerialize GetOnSerializeEvt()

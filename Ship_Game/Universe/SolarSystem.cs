@@ -327,6 +327,7 @@ namespace Ship_Game
 
         readonly Map<Empire, EmpireSolarSystemStatus> Status = new();
 
+        // TODO: clean this up
         EmpireSolarSystemStatus GetStatus(Empire empire)
         {
             // TODO: clean this up, the lock is necessary but might be too heavy
