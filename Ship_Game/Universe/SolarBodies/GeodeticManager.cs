@@ -221,12 +221,11 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private void RepairShip(Ship ship, float repairPool, int repairLevel)
         {
             ship.AI.TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear: true);
-            //Modified by McShooterz: Repair based on repair pool, if no combat in system
-            if (!HasSpacePort)
-                return;
-
-            ship.ApplyAllRepair(repairPool, repairLevel);
-            ship.CauseEmpDamage(-repairPool * 10); // Remove EMP
+            if (HasSpacePort)
+            {
+                ship.ApplyAllRepair(repairPool, repairLevel);
+                ship.CauseEmpDamage(-repairPool * 10); // Remove EMP
+            }
         }
 
         private void LoadTroops(Ship ship, int garrisonSize)
