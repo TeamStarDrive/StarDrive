@@ -38,7 +38,7 @@ namespace Ship_Game.GameScreens.Sandbox
 
         public override void Update(FixedSimTime timeStep)
         {
-            ApplyAllRepair(1000f*timeStep.FixedTime, 1, true); // +1000HP/s
+            ApplyAllRepair(1000f*timeStep.FixedTime, 1); // +1000HP/s
             AddPower(25f);
 
             ShotTimer += timeStep.FixedTime;

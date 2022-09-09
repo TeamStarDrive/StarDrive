@@ -1311,7 +1311,7 @@ namespace Ship_Game.Ships
                 ReturnHome();
 
             // Repair
-            if (Health < HealthMax)
+            if (HealthPercent < 0.999f)
             {
                 if (CanRepair)
                 {
@@ -1948,18 +1948,20 @@ namespace Ship_Game.Ships
                 ShieldPower = ShieldMax;
         }
 
-        public void ApplyAllRepair(float repairAmount, int repairLevel, bool repairShields = false)
+        public void ApplyAllRepair(float repairAmount, int repairLevel)
         {
-            if (repairAmount.AlmostEqual(0)) return;
+            if (HealthPercent > 0.999f || repairAmount.AlmostEqual(0)) 
+                return;
+
             int damagedModules = ModuleSlotList.Count(module => !module.Health.AlmostEqual(module.ActualMaxHealth));
             for (int x =0; x < damagedModules; x++)
             {
-                if (repairAmount.Greater(0))
+                if (repairAmount > 0)
                     repairAmount = ApplyRepairOnce(repairAmount, repairLevel);
             }
 
             ApplyRepairToShields(repairAmount);
-            if (Health.AlmostEqual(HealthMax))
+            if (HealthPercent > 0.999f)
                 RefreshMechanicalBoardingDefense();
         }
 
@@ -1989,6 +1991,16 @@ namespace Ship_Game.Ships
             });
 
             return moduleToRepair.Repair(repairAmount);
+        }
+
+        public void ApplyModuleHealthTechBonus(float bonus)
+        {
+            HealthMax = RecalculateMaxHealth();
+            for (int i = 0; i < ModuleSlotList.Length; i++)
+            {
+                ShipModule module = ModuleSlotList[i];
+                module.Repair(module.Health + module.Health * bonus);
+            }
         }
 
         public void UpdatePackDamageModifier()
