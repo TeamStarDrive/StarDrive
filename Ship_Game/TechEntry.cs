@@ -899,7 +899,11 @@ namespace Ship_Game
                 case "Missile Armor":
                 case "Missile HP Bonus": data.MissileHPModifier += unlockedBonus.Bonus; break;
                 case "Hull Strengthening":
-                case "Module HP Bonus":  data.Traits.ModHpModifier += unlockedBonus.Bonus; break;
+                case "Module HP Bonus":  
+                    data.Traits.ModHpModifier += unlockedBonus.Bonus;
+                    EmpireHullBonuses.RefreshBonuses(empire);
+                    empire.ApplyModuleHealthTechBonus(unlockedBonus.Bonus);
+                    return;
                 case "Reaction Drive Upgrade":
                 case "STL Speed Bonus": data.SubLightModifier += unlockedBonus.Bonus; break;
                 case "Reactive Armor":
