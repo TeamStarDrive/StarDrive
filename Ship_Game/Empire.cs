@@ -1749,6 +1749,16 @@ namespace Ship_Game
             }
         }
 
+        public void ApplyModuleHealthTechBonus(float bonus)
+        {
+            var ships = OwnedShips;
+            for (int i = 0 ; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                ship.ApplyModuleHealthTechBonus(bonus);
+            }
+        }
+
         public float GetTroopMaintThisTurn()
         {
             // Troops maintenance on ships are calculated as part of ship maintenance
