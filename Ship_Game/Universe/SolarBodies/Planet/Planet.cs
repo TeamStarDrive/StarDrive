@@ -1071,7 +1071,6 @@ namespace Ship_Game
             PlusFlatPopulationPerTurn = 0;
             SensorRange               = 0;
 
-            NumShipyards = OrbitalStations.Count(s => s.Active && s.ShipData.IsShipyard);
             ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
             for (int i = 0; i < BuildingList.Count; ++i)
             {
