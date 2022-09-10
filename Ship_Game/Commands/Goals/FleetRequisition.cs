@@ -14,8 +14,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] bool Rush; // no need for saving this as it is used immediately
 
         [StarDataConstructor]
-        public FleetRequisition(int id, UniverseState us)
-            : base(GoalType.FleetRequisition, id, us)
+        public FleetRequisition(Empire owner) : base(GoalType.FleetRequisition, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -25,14 +24,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public FleetRequisition(string shipName, Empire owner, bool rush)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public FleetRequisition(string shipName, Empire owner, bool rush) : this(owner)
         {
-            empire      = owner;
             ToBuildUID  = shipName;
             ShipToBuild = ResourceManager.Ships.GetDesign(shipName);
             Rush        = rush;
-
             Evaluate();
         }
 
@@ -40,7 +36,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (PlanetBuildingAt == null || !PlanetBuildingAt.HasSpacePort)
             {
-                if (!empire.FindPlanetToBuildShipAt(empire.SpacePorts, ShipToBuild, out PlanetBuildingAt))
+                if (!Owner.FindPlanetToBuildShipAt(Owner.SpacePorts, ShipToBuild, out PlanetBuildingAt))
                     return GoalStep.TryAgain;
             }
 
@@ -66,17 +62,17 @@ namespace Ship_Game.Commands.Goals
 
             foreach (FleetDataNode node in Fleet.DataNodes)
             {
-                if (node.GoalId != Id)
+                if (node.Goal != this)
                     continue;
 
                 Ship ship = FinishedShip;
                 node.Ship = ship;
-                node.GoalId = 0;
+                node.Goal = null;
 
                 if (Fleet.Ships.Count == 0)
                     Fleet.FinalPosition = ship.Position + RandomMath.Vector2D(3000f);
                 if (Fleet.FinalPosition == Vector2.Zero)
-                    Fleet.FinalPosition = empire.FindNearestRallyPoint(ship.Position).Position;
+                    Fleet.FinalPosition = Owner.FindNearestRallyPoint(ship.Position).Position;
 
                 Fleet.AddExistingShip(ship,node);
                 ship.AI.ResetPriorityOrder(false);

@@ -1,7 +1,6 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -9,8 +8,7 @@ namespace Ship_Game.Commands.Goals
     public class WarManager : Goal
     {
         [StarDataConstructor]
-        public WarManager(int id, UniverseState us)
-            : base(GoalType.WarManager, id, us)
+        public WarManager(Empire owner) : base(GoalType.WarManager, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,36 +18,33 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public WarManager(Empire owner, Empire enemy, WarType warType)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public WarManager(Empire owner, Empire enemy, WarType warType) : this(owner)
         {
-            empire        = owner;
             TargetEmpire  = enemy;
-            StarDateAdded = empire.Universum.StarDate;
             Log.Info(ConsoleColor.Green, $"---- War: New War Goal {warType} vs.: {TargetEmpire.Name} ----");
         }
 
-        WarType GetWarType() => empire.GetRelations(TargetEmpire).ActiveWar.WarType;
+        WarType GetWarType() => Owner.GetRelations(TargetEmpire).ActiveWar.WarType;
 
         GoalStep SelectTargetSystems()
         {
-            if (!empire.IsAtWarWith(TargetEmpire))
+            if (!Owner.IsAtWarWith(TargetEmpire))
                 return GoalStep.GoalComplete;
 
-            if (!empire.GetPotentialTargetPlanets(TargetEmpire, GetWarType(), out Planet[] planetTargets))
+            if (!Owner.GetPotentialTargetPlanets(TargetEmpire, GetWarType(), out Planet[] planetTargets))
             {
-                if (!empire.TryGetMissionsVsEmpire(TargetEmpire, out _))
+                if (!Owner.TryGetMissionsVsEmpire(TargetEmpire, out _))
                     ChangeToStep(RequestPeaceOrEscalate);
 
                 return GoalStep.TryAgain;
             }
 
-            var targetPlanetsSorted = empire.SortPlanetTargets(planetTargets, GetWarType(), TargetEmpire);
+            var targetPlanetsSorted = Owner.SortPlanetTargets(planetTargets, GetWarType(), TargetEmpire);
             foreach (Planet planet in targetPlanetsSorted)
             {
-                if (empire.CanAddAnotherWarGoal(TargetEmpire))
+                if (Owner.CanAddAnotherWarGoal(TargetEmpire))
                 {
-                    empire.GetEmpireAI().Goals.Add(new WarMission(empire, TargetEmpire, planet));
+                    Owner.GetEmpireAI().Goals.Add(new WarMission(Owner, TargetEmpire, planet));
                     return GoalStep.TryAgain;
                 }
             }
@@ -59,32 +54,32 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep ProcessWar()
         {
-            if (!empire.IsAtWarWith(TargetEmpire))
+            if (!Owner.IsAtWarWith(TargetEmpire))
                 return GoalStep.GoalComplete;
 
-            return empire.GetPotentialTargetPlanets(TargetEmpire, GetWarType(), out _) && empire.CanAddAnotherWarGoal(TargetEmpire) 
+            return Owner.GetPotentialTargetPlanets(TargetEmpire, GetWarType(), out _) && Owner.CanAddAnotherWarGoal(TargetEmpire) 
                 ? GoalStep.RestartGoal 
                 : GoalStep.TryAgain;
         }
 
         GoalStep RequestPeaceOrEscalate()
         {
-            if (!empire.IsAtWarWith(TargetEmpire) || TargetEmpire.IsEmpireDead())
+            if (!Owner.IsAtWarWith(TargetEmpire) || TargetEmpire.IsEmpireDead())
                 return GoalStep.GoalComplete;
 
             var warType = GetWarType();
             if (warType == WarType.BorderConflict || warType == WarType.DefensiveWar)
-                empire.GetRelations(TargetEmpire).OfferPeace(empire, TargetEmpire, "OFFERPEACE_FAIR_WINNING");
+                Owner.GetRelations(TargetEmpire).OfferPeace(Owner, TargetEmpire, "OFFERPEACE_FAIR_WINNING");
 
-            if (empire.IsAtWarWith(TargetEmpire))
+            if (Owner.IsAtWarWith(TargetEmpire))
             {
                 // Note: If TargetEmpire is the player, it will still be at war since the diplo is on a different thread.
                 // But we are checking per goal if the relevant empire is indeed at war to overcome this.
-                WarType changeTo = empire.GetWarEscalation(warType);
+                WarType changeTo = Owner.GetWarEscalation(warType);
                 if (warType == changeTo)
                     return GoalStep.TryAgain;
 
-                empire.GetRelations(TargetEmpire).ActiveWar.ChangeWarType(changeTo);
+                Owner.GetRelations(TargetEmpire).ActiveWar.ChangeWarType(changeTo);
             }
 
             return GoalStep.RestartGoal;

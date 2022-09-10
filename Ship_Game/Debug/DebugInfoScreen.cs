@@ -628,13 +628,13 @@ namespace Ship_Game.Debug
                 DrawString(e.Name);
                 DrawString("------------------------");
                 DrawString($"Level: {e.Pirates.Level}");
-                DrawString($"Pirate Bases Goals: {goals.Count(g => g.type == GoalType.PirateBase)}");
+                DrawString($"Pirate Bases Goals: {goals.Count(g => g.Type == GoalType.PirateBase)}");
                 DrawString($"Spawned Ships: {e.Pirates.SpawnedShips.Count}");
                 NewLine();
-                DrawString($"Payment Management Goals ({goals.Count(g => g.type == GoalType.PirateDirectorPayment)})");
+                DrawString($"Payment Management Goals ({goals.Count(g => g.Type == GoalType.PirateDirectorPayment)})");
                 DrawString("---------------------------------------------"); foreach (Goal g in goals)
                 {
-                    if (g.type == GoalType.PirateDirectorPayment)
+                    if (g.Type == GoalType.PirateDirectorPayment)
                     {
                         Empire target     = g.TargetEmpire;
                         string targetName = target.Name;
@@ -644,11 +644,11 @@ namespace Ship_Game.Debug
                 }
 
                 NewLine();
-                DrawString($"Raid Management Goals ({goals.Count(g => g.type == GoalType.PirateDirectorRaid)})");
+                DrawString($"Raid Management Goals ({goals.Count(g => g.Type == GoalType.PirateDirectorRaid)})");
                 DrawString("---------------------------------------------");
                 foreach (Goal g in goals)
                 {
-                    if (g.type == GoalType.PirateDirectorRaid)
+                    if (g.Type == GoalType.PirateDirectorRaid)
                     {
                         Empire target = g.TargetEmpire;
                         string targetName = target.Name;
@@ -668,17 +668,17 @@ namespace Ship_Game.Debug
                         string targetName = target.Name;
                         Ship targetShip = g.TargetShip;
                         string shipName = targetShip?.Name ?? "None";
-                        DrawString(target.EmpireColor, $"{g.type} vs. {targetName}, Target Ship: {shipName} in {targetShip?.SystemName ?? "None"}");
+                        DrawString(target.EmpireColor, $"{g.Type} vs. {targetName}, Target Ship: {shipName} in {targetShip?.SystemName ?? "None"}");
                     }
                 }
 
                 NewLine();
 
-                DrawString($"Base Defense Goals ({goals.Count(g => g.type == GoalType.PirateDefendBase)})");
+                DrawString($"Base Defense Goals ({goals.Count(g => g.Type == GoalType.PirateDefendBase)})");
                 DrawString("---------------------------------------------");
                 foreach (Goal g in goals)
                 {
-                    if (g.type == GoalType.PirateDefendBase)
+                    if (g.Type == GoalType.PirateDefendBase)
                     {
                         Ship targetShip = g.TargetShip;
                         string shipName = targetShip?.Name ?? "None";
@@ -929,14 +929,14 @@ namespace Ship_Game.Debug
             DrawString("Goals:");
             foreach (Goal goal in e.GetEmpireAI().Goals)
             {
-                if (goal.type != GoalType.RemnantEngageEmpire)
+                if (goal.Type != GoalType.RemnantEngageEmpire)
                 {
-                    DrawString($"{goal.type}");
+                    DrawString($"{goal.Type}");
                 }
                 else
                 {
                     Color color = goal.ColonizationTarget?.Owner?.EmpireColor ?? e.EmpireColor;
-                    DrawString(color, $"{goal.type}, Target Planet: {goal.ColonizationTarget?.Name}, Bombers Wanted: {goal.ShipLevel}");
+                    DrawString(color, $"{goal.Type}, Target Planet: {goal.ColonizationTarget?.Name}");
                 }
             }
 

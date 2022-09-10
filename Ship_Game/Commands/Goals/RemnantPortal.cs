@@ -4,7 +4,6 @@ using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
@@ -16,8 +15,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] Ship Portal;
 
         [StarDataConstructor]
-        public RemnantPortal(int id, UniverseState us)
-            : base(GoalType.RemnantPortal, id, us)
+        public RemnantPortal(Empire owner) : base(GoalType.RemnantPortal, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -26,19 +24,17 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public RemnantPortal(Empire owner, Ship portal, string systemName)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public RemnantPortal(Empire owner, Ship portal, string systemName) : this(owner)
         {
-            empire     = owner;
             TargetShip = portal;
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Portal in {systemName} ----");
+            Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Portal in {systemName} ----");
         }
 
         public sealed override void PostInit()
         {
-            Remnants = empire.Remnants;
-            Portal   = TargetShip;
+            Remnants = Owner.Remnants;
+            Portal = TargetShip;
         }
 
         void UpdatePosition()
@@ -85,7 +81,7 @@ namespace Ship_Game.Commands.Goals
                 return; // save support - can be removed in 2021
 
             Vector2 systemPos = Portal.System?.Position 
-                                ?? empire.Universum.Systems.FindMin(s => s.Position.SqDist(Portal.Position)).Position;
+                                ?? Owner.Universum.Systems.FindMin(s => s.Position.SqDist(Portal.Position)).Position;
 
             Vector2 desiredPos = Portal.Position = systemPos + TetherOffset;
             if (!Portal.Position.InRadius(desiredPos, 1000))
@@ -116,11 +112,11 @@ namespace Ship_Game.Commands.Goals
             UpdatePosition();
             if (Portal.System != null)
             {
-                float production = empire.Universum.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
+                float production = Owner.Universum.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
                 if (Portal.InCombat && Portal.AI.Target?.System == Portal.System)
                     production /= 2;
 
-                production *= empire.DifficultyModifiers.RemnantResourceMod;
+                production *= Owner.DifficultyModifiers.RemnantResourceMod;
                 production *= (int)(UState.GalaxySize + 1) * 2 * UState.StarsModifier / UState.MajorEmpires.Length;
                 Remnants.TryGenerateProduction(production);
             }

@@ -2,8 +2,6 @@
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
-
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
@@ -11,8 +9,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     class ScrapShip : Goal
     {
         [StarDataConstructor]
-        public ScrapShip(int id, UniverseState us)
-            : base(GoalType.ScrapShip, id, us)
+        public ScrapShip(Empire owner) : base(GoalType.ScrapShip, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,11 +20,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public ScrapShip(Ship shipToScrap, Empire owner, bool immediateScuttle)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public ScrapShip(Ship shipToScrap, Empire owner, bool immediateScuttle) : this(owner)
         {
             OldShip = shipToScrap;
-            empire  = owner;
             if (immediateScuttle)
                 ChangeToStep(ImmediateScuttleSelfDestruct);
             Evaluate();
@@ -45,7 +40,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             OldShip.RemoveFromPoolAndFleet(clearOrders: false);
 
             if (OldShip.ShipData.Role <= RoleName.station && OldShip.ScuttleTimer < 0
-                || !empire.FindPlanetToScrapIn(OldShip, out PlanetBuildingAt))
+                || !Owner.FindPlanetToScrapIn(OldShip, out PlanetBuildingAt))
             {
                 // No planet to refit, scuttling ship
                 return ImmediateScuttleSelfDestruct();
@@ -72,9 +67,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!OldShipOnPlan)
                 return GoalStep.GoalFailed;
 
-            empire.RefundCreditsPostRemoval(OldShip);
+            Owner.RefundCreditsPostRemoval(OldShip);
             PlanetBuildingAt.ProdHere += OldShip.GetScrapCost();
-            empire.TryUnlockByScrap(OldShip);
+            Owner.TryUnlockByScrap(OldShip);
             OldShip.QueueTotalRemoval();
             return GoalStep.GoalComplete;
         }

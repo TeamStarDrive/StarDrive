@@ -190,9 +190,9 @@ namespace Ship_Game.AI
                 return;
 
             Planet target = g.TargetPlanet;
-            if (target == null && g.Goal.TetherPlanetId != 0)
+            if (target == null && g.Goal.TetherPlanet != null)
             {
-                target = Owner.Universe.GetPlanet(g.Goal.TetherPlanetId);
+                target = g.Goal.TetherPlanet;
                 if (target == null) 
                 {
                     OrderScrapShip();
@@ -210,9 +210,9 @@ namespace Ship_Game.AI
 
             AddStructureToRoadsList(g, orbital);
 
-            if (g.Goal.TetherPlanetId != 0)
+            if (g.Goal.TetherPlanet != null)
             {
-                Planet planetToTether = Owner.Universe.GetPlanet(g.Goal.TetherPlanetId);
+                Planet planetToTether = g.Goal.TetherPlanet;
                 orbital.TetherToPlanet(planetToTether);
                 orbital.TetherOffset = g.Goal.TetherOffset;
                 planetToTether.OrbitalStations.Add(orbital);
@@ -234,7 +234,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Planet target = Owner.Universe.GetPlanet(g.Goal.TetherPlanetId);
+            Planet target = g.Goal.TetherPlanet;
             if (target == null || target.Owner != Owner.Loyalty) // FB - Planet owner has changed
             {
                 OrderScrapShip();

@@ -122,11 +122,10 @@ namespace Ship_Game
                 }
             }
 
-            MilitaryTask task = new MilitaryTask(targetPlanet, this)
+            var task = new MilitaryTask(targetPlanet, this)
             {
-                Type                 = taskType,
-                GoalId             = goal.Id,
-                Goal                 = goal,
+                Goal = goal,
+                Type = taskType,
                 TargetPlanetWarValue = (int)(targetPlanet.ColonyBaseValue(enemy) + targetPlanet.ColonyPotentialValue(enemy))
             };
 
@@ -210,7 +209,7 @@ namespace Ship_Game
 
         public bool NoEmpireDefenseGoal()
         {
-            return !EmpireAI.Goals.Any(g => g.type == GoalType.EmpireDefense);
+            return !EmpireAI.Goals.Any(g => g.Type == GoalType.EmpireDefense);
         }
 
         public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, int fleetCount)

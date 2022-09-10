@@ -2,7 +2,6 @@
 using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -10,8 +9,7 @@ namespace Ship_Game.Commands.Goals
     public class BuildTroop : Goal
     {
         [StarDataConstructor]
-        public BuildTroop(int id, UniverseState us)
-            : base(GoalType.BuildTroop, id, us)
+        public BuildTroop(Empire owner) : base(GoalType.BuildTroop, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,26 +18,23 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public BuildTroop(Troop toCopy, Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public BuildTroop(Troop toCopy, Empire owner) : this(owner)
         {
             ToBuildUID = toCopy.Name;
-            empire = owner;
             if (ToBuildUID.IsEmpty())
                 Log.Error($"Missing Troop {ToBuildUID}");
-
             Evaluate();
         }
 
         GoalStep FindPlanetToBuildAt()
         {
-            float troopRatio = empire.GetEmpireAI().DefensiveCoordinator.TroopsToTroopsWantedRatio;
+            float troopRatio = Owner.GetEmpireAI().DefensiveCoordinator.TroopsToTroopsWantedRatio;
             if (troopRatio.GreaterOrEqual(1))
                 return GoalStep.GoalFailed;
 
             // find a planet
             Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
-            if (empire.FindPlanetToBuildTroopAt(empire.MilitaryOutposts, troopTemplate, 0.1f, out Planet planet))
+            if (Owner.FindPlanetToBuildTroopAt(Owner.MilitaryOutposts, troopTemplate, 0.1f, out Planet planet))
             {
                 // submit troop into queue
                 // let the colony governor prioritize troops
@@ -57,7 +52,7 @@ namespace Ship_Game.Commands.Goals
             if (IsMainGoalCompleted)
                 return GoalStep.GoalComplete;
 
-            if (PlanetBuildingAt.Owner != empire || !PlanetBuildingAt.Construction.ContainsTroopWithGoal(this))
+            if (PlanetBuildingAt.Owner != Owner || !PlanetBuildingAt.Construction.ContainsTroopWithGoal(this))
                 return GoalStep.GoalFailed;
 
             return GoalStep.TryAgain;

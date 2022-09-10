@@ -432,7 +432,7 @@ namespace Ship_Game.Gameplay
                     Array<Planet> theirTargetPlanets = new Array<Planet>();
                     foreach (Goal g in us.GetEmpireAI().Goals)
                     {
-                        if (g.type != GoalType.Colonize)
+                        if (g.Type != GoalType.Colonize)
                             continue;
 
                         ourTargetPlanets.Add(g.ColonizationTarget);

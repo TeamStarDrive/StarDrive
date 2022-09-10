@@ -435,7 +435,7 @@ namespace Ship_Game.Fleets
 
         bool AssignExistingOrCreateNewNode(Ship ship)
         {
-            FleetDataNode node = DataNodes.Find(n => n.Ship == ship || n.Ship == null && n.ShipName == ship.Name && n.GoalId == 0);
+            FleetDataNode node = DataNodes.Find(n => n.Ship == ship || n.Ship == null && n.ShipName == ship.Name && n.Goal == null);
             bool nodeFound = node != null;
 
             if (node == null)
@@ -788,11 +788,10 @@ namespace Ship_Game.Fleets
             fleet.TaskStep  = 2;
             var strikeFleet = new MilitaryTask(task.TargetPlanet, owner)
             {
-                Type           = MilitaryTask.TaskType.StrikeForce,
-                GoalId         = goal.Id,
-                Goal           = goal,
+                Goal = goal,
+                WhichFleet = task.WhichFleet,
+                Type = MilitaryTask.TaskType.StrikeForce,
                 NeedEvaluation = false,
-                WhichFleet     = task.WhichFleet
             };
 
             fleet.Name      = "Strike Fleet";
@@ -2383,31 +2382,31 @@ namespace Ship_Game.Fleets
             return node != null;
         }
 
-        public bool GoalIdExists(int goalId)
+        public bool GoalExists(Goal goal)
         {
-            return DataNodes.Any(n => n.GoalId == goalId);
+            return DataNodes.Any(n => n.Goal == goal);
         }
 
-        public bool FindNodeWithGoalId(int goalId, out FleetDataNode node)
+        public bool FindNodeWithGoal(Goal goal, out FleetDataNode node)
         {
-            return (node = DataNodes.Find(n => n.GoalId == goalId)) != null;
+            return (node = DataNodes.Find(n => n.Goal == goal)) != null;
         }
 
-        public void AssignGoalId(FleetDataNode node, int goalId)
+        public void AssignGoal(FleetDataNode node, Goal goal)
         {
-            node.GoalId = goalId;
+            node.Goal = goal;
         }
 
-        public void RemoveGoalGuid(FleetDataNode node)
+        public void RemoveGoalFromNode(FleetDataNode node)
         {
             if (node != null)
-                AssignGoalId(node, 0);
+                AssignGoal(node, null);
         }
 
-        public void RemoveGoalGuid(int goalId)
+        public void RemoveGoal(Goal goal)
         {
-            if (FindNodeWithGoalId(goalId, out FleetDataNode node))
-                AssignGoalId(node, 0);
+            if (FindNodeWithGoal(goal, out FleetDataNode node))
+                AssignGoal(node, null);
         }
 
         public void AssignShipName(FleetDataNode node, string name)

@@ -176,7 +176,7 @@ namespace Ship_Game
             {
                 refitQueue = new Array<QueueItem>();
                 var refitGoals = Owner.GetEmpireAI().Goals
-                    .Filter(g => (g.type == GoalType.Refit || g.type == GoalType.RefitOrbital) && g.PlanetBuildingAt == this);
+                    .Filter(g => (g.Type == GoalType.Refit || g.Type == GoalType.RefitOrbital) && g.PlanetBuildingAt == this);
 
                 if (refitGoals.Length == 0)
                     return false;
@@ -215,7 +215,7 @@ namespace Ship_Game
             float effectiveProd         = ProdHere + IncomingProd;
             if (scrapGoals.Length > 0)
             {
-                var scrapGoalsTargetingThis = scrapGoals.Filter(g => g.type == GoalType.ScrapShip && g.PlanetBuildingAt == this);
+                var scrapGoalsTargetingThis = scrapGoals.Filter(g => g.Type == GoalType.ScrapShip && g.PlanetBuildingAt == this);
                 if (scrapGoalsTargetingThis.Length > 0)
                     effectiveProd += scrapGoalsTargetingThis.Sum(g => g.OldShip?.GetScrapCost() ?? 0);
             }
@@ -283,7 +283,7 @@ namespace Ship_Game
 
         public bool HasColonyShipFirstInQueue()
         {
-            return ConstructionQueue.Count > 0 && ConstructionQueue[0].Goal?.type == GoalType.Colonize;
+            return ConstructionQueue.Count > 0 && ConstructionQueue[0].Goal?.Type == GoalType.Colonize;
         }
     }
 }
