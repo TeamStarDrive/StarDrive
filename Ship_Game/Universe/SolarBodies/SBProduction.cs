@@ -510,6 +510,15 @@ namespace Ship_Game.Universe.SolarBodies
         public bool ContainsShipDesignName(string name) => ConstructionQueue.Any(q => q.isShip && q.sData.Name == name);
         public bool ContainsTroopWithGoal(Goal g) => ConstructionQueue.Any(q => q.isTroop && q.Goal == g);
 
+        public void CancelShipyard()
+        {
+            var shipyards = ConstructionQueue.Filter(q => q.isShip && q.sData.IsShipyard);
+            if (shipyards.Length > 0)
+                Cancel(shipyards.RandItem());
+            else
+                Log.Warning("CancelShipyard called with no existing shipyards in queue");
+        }
+
         public void Reorder(int oldIndex, int newIndex)
         {
             ConstructionQueue.Reorder(oldIndex, newIndex);

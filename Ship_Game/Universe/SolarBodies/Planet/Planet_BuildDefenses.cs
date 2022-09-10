@@ -328,6 +328,16 @@ namespace Ship_Game
                     AddOrbital(shipyard);
                 }
             }
+
+            if (totalShipyards > numWantedShipyards)
+            {
+                Ship[] shipyards = OrbitalStations.Filter(o => o.ShipData.IsShipyard);
+                if (shipyards.Length > 0)
+                    ScrapOrbital(shipyards.RandItem());
+                else
+                    Construction.CancelShipyard();
+            }
+
         }
 
         public int NumPlatforms => FilterOrbitals(RoleName.platform).Count;
