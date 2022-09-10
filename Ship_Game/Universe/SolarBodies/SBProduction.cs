@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using SDGraphics;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 using SDUtils;
+using System.Linq;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -509,6 +510,18 @@ namespace Ship_Game.Universe.SolarBodies
 
         public bool ContainsShipDesignName(string name) => ConstructionQueue.Any(q => q.isShip && q.sData.Name == name);
         public bool ContainsTroopWithGoal(Goal g) => ConstructionQueue.Any(q => q.isTroop && q.Goal == g);
+
+        public bool CancelShipyard()
+        {
+            QueueItem shipyard = ConstructionQueue.Where(q => q.isShip && q.sData.IsShipyard).LastOrDefault();
+            if (shipyard != null)
+            {
+                Cancel(shipyard);
+                return true;
+            }
+
+            return false;
+        }
 
         public void Reorder(int oldIndex, int newIndex)
         {

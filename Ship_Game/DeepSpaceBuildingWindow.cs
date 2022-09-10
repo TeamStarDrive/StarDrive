@@ -133,8 +133,7 @@ namespace Ship_Game
             // left mouse clicked while not hovering our window? place it!
             if (input.LeftMouseClick)
             {
-                TryPlaceBuildable(input);
-
+                TryPlaceBuildable();
                 if (input.IsShiftKeyDown) // if we hold down shift, continue placing next frame
                     return true;
 
@@ -145,11 +144,12 @@ namespace Ship_Game
             return false;
         }
 
-        void TryPlaceBuildable(InputState input)
+        void TryPlaceBuildable()
         {
             Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
 
-            bool okToBuild = TargetPlanetId == 0 || !Screen.UState.GetPlanet(TargetPlanetId).IsOutOfOrbitalsLimit(itemToBuild);
+            bool okToBuild = TargetPlanetId == 0 && !itemToBuild.ShipData.IsShipyard
+                || TargetPlanetId > 0 && !Screen.UState.GetPlanet(TargetPlanetId).IsOutOfOrbitalsLimit(itemToBuild);
 
             if (okToBuild)
             {
