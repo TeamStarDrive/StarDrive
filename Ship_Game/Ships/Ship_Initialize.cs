@@ -211,19 +211,23 @@ namespace Ship_Game.Ships
             return ship.HasModules ? ship : null;
         }
 
-        ModuleSaveData[] SavedModules;
-        [StarData] ModuleSaveData[] ModuleSaves
-        {
-            get => GetModuleSaveData();
-            set => SavedModules = value;
-        }
-
         [StarDataConstructor] // for Deserializer
         Ship() : base(0, GameObjectType.Ship)
         {
         }
 
-        // Create a ship from a SavedGame
+        [StarData] ModuleSaveData[] SavedModules;
+
+        [StarDataSerialize]
+        StarDataDynamicField[] OnSerialize()
+        {
+            return new StarDataDynamicField[]
+            {
+                new(nameof(SavedModules), GetModuleSaveData())
+            };
+        }
+
+        // Create a ship from a SavedGame: Ship.OnDeserialized
         [StarDataDeserialized(typeof(ShipDesign))]
         void OnDeserialized(UniverseState root)
         {
