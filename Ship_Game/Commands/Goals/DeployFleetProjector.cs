@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using SDUtils;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
@@ -14,8 +13,7 @@ namespace Ship_Game.Commands.Goals
     public class DeployFleetProjector : Goal
     {
         [StarDataConstructor]
-        public DeployFleetProjector(int id, UniverseState us)
-            : base(GoalType.DeployFleetProjector, id, us)
+        public DeployFleetProjector(Empire owner) : base(GoalType.DeployFleetProjector, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -25,33 +23,30 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public DeployFleetProjector(Fleet fleet, Planet claim, Empire e)
-            : this(e.Universum.CreateId(), e.Universum)
+        public DeployFleetProjector(Fleet fleet, Planet claim, Empire e) : this(e)
         {
-            empire             = e;
+            Fleet = fleet;
             ColonizationTarget = claim;
-            Fleet              = fleet;
-
             Evaluate();
         }
 
         GoalStep BuildProjector()
         {
-            if (Fleet == null || ColonizationTarget.ParentSystem.HasPlanetsOwnedBy(empire))
+            if (Fleet == null || ColonizationTarget.ParentSystem.HasPlanetsOwnedBy(Owner))
                 return GoalStep.GoalComplete;
 
-            float distanceToDeploy = empire.GetProjectorRadius() * 0.8f;
+            float distanceToDeploy = Owner.GetProjectorRadius() * 0.8f;
             Vector2 direction      = Fleet.FleetTask.TargetPlanet.Position.DirectionToTarget(Fleet.AveragePosition());
             BuildPosition          = ColonizationTarget.Position + direction.Normalized() * distanceToDeploy;
-            Goal goal              = new BuildConstructionShip(BuildPosition, "Subspace Projector", empire);
+            Goal goal              = new BuildConstructionShip(BuildPosition, "Subspace Projector", Owner);
             goal.Fleet             = Fleet;
-            empire.GetEmpireAI().AddGoal(goal);
+            Owner.GetEmpireAI().AddGoal(goal);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep WaitAndPrioritizeProjector()
         {
-            var goals = empire.GetEmpireAI().SearchForGoals(GoalType.DeepSpaceConstruction).Filter(g => g.Fleet == Fleet);
+            var goals = Owner.GetEmpireAI().SearchForGoals(GoalType.DeepSpaceConstruction).Filter(g => g.Fleet == Fleet);
             if (goals.Length > 0)
             {
                 Goal constructionGoal = goals.First();
@@ -79,7 +74,7 @@ namespace Ship_Game.Commands.Goals
             if (Fleet?.FleetTask == null)
             {
                 FinishedShip?.AI.OrderScrapShip();
-                var projectors = empire.GetProjectors();
+                var projectors = Owner.GetProjectors();
                 for (int i = 0; i < projectors.Count; i++)
                 {
                     Ship ship = projectors[i];

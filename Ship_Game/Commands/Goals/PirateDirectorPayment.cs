@@ -2,7 +2,6 @@
 using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,8 +11,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] Pirates Pirates;
 
         [StarDataConstructor]
-        public PirateDirectorPayment(int id, UniverseState us)
-            : base(GoalType.PirateDirectorPayment, id, us)
+        public PirateDirectorPayment(Empire owner) : base(GoalType.PirateDirectorPayment, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,19 +20,16 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateDirectorPayment(Empire owner, Empire targetEmpire)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateDirectorPayment(Empire owner, Empire targetEmpire) : this(owner)
         {
-            empire       = owner;
             TargetEmpire = targetEmpire;
-
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Payment Director for {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Payment Director for {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
         {
-            Pirates = empire.Pirates;
+            Pirates = Owner.Pirates;
         }
 
         GoalStep UpdatePaymentStatus()
@@ -67,7 +62,7 @@ namespace Ship_Game.Commands.Goals
             {
                 // They did not pay! We will raid them
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-                if (!Pirates.Goals.Any(g => g.type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
+                if (!Pirates.Goals.Any(g => g.Type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
                      Pirates.AddGoalDirectorRaid(TargetEmpire);
             }
 
@@ -96,13 +91,13 @@ namespace Ship_Game.Commands.Goals
             }
 
             // They Paid at least once  (or it's our first demand), so we can continue milking money fom them
-            Log.Info(ConsoleColor.Green,$"Pirates: {empire.Name} Payment Director - Demanding payment from {TargetEmpire.Name}");
+            Log.Info(ConsoleColor.Green,$"Pirates: {Owner.Name} Payment Director - Demanding payment from {TargetEmpire.Name}");
 
             if (!Pirates.Owner.IsKnown(TargetEmpire))
                 Pirates.Owner.SetRelationsAsKnown(TargetEmpire);
 
             if (TargetEmpire.isPlayer)
-                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, empire.Universum.Screen);
+                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Owner.Universum.Screen);
             else
                 DemandMoneyFromAI();
 
@@ -129,13 +124,13 @@ namespace Ship_Game.Commands.Goals
                     {
                         TargetEmpire.AddMoney(-moneyDemand);
                         TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
-                        Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
+                        Log.Info(ConsoleColor.Green, $"Pirates: {Owner.Name} Payment Director " +
                                                      $"Got - {moneyDemand} credits from {TargetEmpire.Name}");
                     }
                     else
                     {
                         TargetEmpire.GetEmpireAI().DeclareWarFromEvent(Pirates.Owner, WarType.SkirmishWar);
-                        Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
+                        Log.Info(ConsoleColor.Green, $"Pirates: {Owner.Name} Payment Director " +
                                                      $"- {TargetEmpire.Name} refused to pay {moneyDemand} credits!");
                     }
                 }

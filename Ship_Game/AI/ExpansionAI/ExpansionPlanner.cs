@@ -38,7 +38,7 @@ namespace Ship_Game.AI.ExpansionAI
             var list = new Array<Planet>();
             foreach (Goal g in Goals)
             {
-                if (g.type != GoalType.Colonize) continue;
+                if (g.Type != GoalType.Colonize) continue;
                 list.Add(g.ColonizationTarget);
             }
 
@@ -50,7 +50,7 @@ namespace Ship_Game.AI.ExpansionAI
             int count = 0;
             foreach (var g in Goals)
             {
-                if (g.type != GoalType.Colonize) continue;
+                if (g.Type != GoalType.Colonize) continue;
                 float blocker = Owner.KnownEnemyStrengthIn(g.ColonizationTarget.ParentSystem);
                 if (blocker > Owner.CurrentMilitaryStrength / 10)
                     count++;
@@ -64,7 +64,7 @@ namespace Ship_Game.AI.ExpansionAI
             var list = new Array<Goal>();
             foreach (Goal g in Goals)
             {
-                if (g.type == GoalType.Colonize)
+                if (g.Type == GoalType.Colonize)
                     list.Add(g);
             }
 

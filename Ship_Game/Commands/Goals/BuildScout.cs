@@ -2,7 +2,6 @@
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -10,8 +9,7 @@ namespace Ship_Game.Commands.Goals
     public class BuildScout : Goal
     {
         [StarDataConstructor]
-        public BuildScout(int id, UniverseState us)
-            : base(GoalType.BuildScout, id, us)
+        public BuildScout(Empire owner) : base(GoalType.BuildScout, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,22 +20,16 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public BuildScout(Empire empire)
-            : this(empire.Universum.CreateId(), empire.Universum)
-        {
-            this.empire = empire;
-        }
-
         GoalStep FindPlanetToBuildAt()
         {
-            if (!empire.ChooseScoutShipToBuild(out IShipDesign scout))
+            if (!Owner.ChooseScoutShipToBuild(out IShipDesign scout))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, scout, out Planet planet))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, scout, out Planet planet))
                 return GoalStep.TryAgain;
 
             var queue    = planet.Construction.GetConstructionQueue();
-            int priority = queue.Count > 0 && !planet.HasColonyShipFirstInQueue() && queue[0].ProductionNeeded > scout.GetCost(empire) * 2 ? 0 : 1;
+            int priority = queue.Count > 0 && !planet.HasColonyShipFirstInQueue() && queue[0].ProductionNeeded > scout.GetCost(Owner) * 2 ? 0 : 1;
 
             planet.Construction.Enqueue(scout, this, notifyOnEmpty: false);
             planet.Construction.PrioritizeShip(scout, priority, 2);

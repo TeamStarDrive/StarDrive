@@ -490,7 +490,7 @@ namespace Ship_Game
                 return planet != null;
             }
 
-            var scrapGoals = GetEmpireAI().Goals.Filter(g => g.type == GoalType.ScrapShip);
+            var scrapGoals = GetEmpireAI().Goals.Filter(g => g.Type == GoalType.ScrapShip);
             var potentialPlanets = OwnedPlanets.SortedDescending(p => p.MissingProdHereForScrap(scrapGoals)).TakeItems(5);
             if (potentialPlanets.Length == 0)
                 return false;
@@ -2688,7 +2688,7 @@ namespace Ship_Game
 
         public void TryCreateAssaultBombersGoal(Empire enemy, Planet planet)
         {
-            if (enemy == this  || EmpireAI.Goals.Any(g => g.type == GoalType.AssaultBombers && g.PlanetBuildingAt == planet))
+            if (enemy == this  || EmpireAI.Goals.Any(g => g.Type == GoalType.AssaultBombers && g.PlanetBuildingAt == planet))
                 return;
 
             var goal = new AssaultBombers(planet, this, enemy);
@@ -2723,7 +2723,7 @@ namespace Ship_Game
             }
 
             var g = new FleetRequisition(ship.Name, this, false) { Fleet = fleet };
-            node.GoalId = g.Id;
+            node.Goal = g;
             EmpireAI.Goals.Add(g);
             g.Evaluate();
         }
@@ -3349,7 +3349,7 @@ namespace Ship_Game
 
         void AssignSniffingTasks()
         {
-            if (!isPlayer && EmpireAI.Goals.Count(g => g.type == GoalType.ScoutSystem) < DifficultyModifiers.NumSystemsToSniff)
+            if (!isPlayer && EmpireAI.Goals.Count(g => g.Type == GoalType.ScoutSystem) < DifficultyModifiers.NumSystemsToSniff)
                 EmpireAI.Goals.Add(new ScoutSystem(this));
         }
 

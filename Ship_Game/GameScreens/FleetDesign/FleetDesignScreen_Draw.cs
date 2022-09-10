@@ -271,7 +271,7 @@ namespace Ship_Game
                                           (int) screenRadius * 2, (int) screenRadius * 2);
 
                     DrawIcon(ship, r);
-                    if (node.GoalId == 0)
+                    if (node.Goal == null)
                     {
                         if (NodeShipResupplying())
                             batch.DrawString(Fonts.Arial8Bold, "Resupplying", screenPos + new Vector2(5f, -5f), Color.White);
@@ -281,10 +281,10 @@ namespace Ship_Game
                         string buildingAt = "";
                         foreach (Goal g in SelectedFleet.Owner.GetEmpireAI().Goals)
                         {
-                            if (g.Id != node.GoalId || g.PlanetBuildingAt == null)
+                            if (g != node.Goal || g.PlanetBuildingAt == null)
                                 continue;
 
-                            buildingAt = g.type == GoalType.Refit
+                            buildingAt = g.Type == GoalType.Refit
                                 ? $"Refitting at:\n{g.PlanetBuildingAt.Name}"
                                 : $"Building at:\n{g.PlanetBuildingAt.Name}";
                         }
@@ -326,7 +326,7 @@ namespace Ship_Game
                 Color GetTacticalIconColor()
                 {
                     if (Hovered())             return Color.White;
-                    if (node.GoalId != 0)      return Color.Yellow;
+                    if (node.Goal != null)     return Color.Yellow;
                     if (NodeShipResupplying()) return Color.Gray;
 
                     return node.Ship != null ? Color.Green : Color.Red;

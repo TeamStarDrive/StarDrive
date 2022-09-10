@@ -1,8 +1,6 @@
 ﻿using System;
 using Ship_Game.AI;
-using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -11,7 +9,7 @@ namespace Ship_Game.Commands.Goals
         IShipDesign ShipTemplate;
         float FindPlanetRetryTimer;
 
-        protected BuildShipsGoalBase(GoalType type, int id, UniverseState us) : base(type, id, us)
+        protected BuildShipsGoalBase(GoalType type, Empire owner) : base(type, owner)
         {
         }
 
@@ -28,9 +26,9 @@ namespace Ship_Game.Commands.Goals
         {
             if (ShipTemplate == null)
             {
-                ShipTemplate = ShipBuilder.PickFreighter(empire, empire.FastVsBigFreighterRatio)?.ShipData;
+                ShipTemplate = ShipBuilder.PickFreighter(Owner, Owner.FastVsBigFreighterRatio)?.ShipData;
                 if (ShipTemplate == null)
-                    throw new Exception($"PickFreighter failed for {empire.Name}."+
+                    throw new Exception($"PickFreighter failed for {Owner.Name}."+
                                         "This is a FATAL bug in data files, where Empire is not able to build any freighters!");
             }
             return (freighterTemplate = ShipTemplate) != null;
@@ -49,10 +47,10 @@ namespace Ship_Game.Commands.Goals
             }
 
             Planet[] spacePorts = portType == SpacePortType.Safe
-                                ? empire.SafeSpacePorts
-                                : empire.SpacePorts;
+                                ? Owner.SafeSpacePorts
+                                : Owner.SpacePorts;
 
-            if (empire.FindPlanetToBuildShipAt(spacePorts, ship, out planet, priority))
+            if (Owner.FindPlanetToBuildShipAt(spacePorts, ship, out planet, priority))
             {
                 return true; // OK
             }

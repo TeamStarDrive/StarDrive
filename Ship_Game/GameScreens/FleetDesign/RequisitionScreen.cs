@@ -75,11 +75,11 @@ namespace Ship_Game
         {
             foreach (FleetDataNode node in F.DataNodes)
             {
-                if (node.Ship != null || node.GoalId != 0)
+                if (node.Ship != null || node.Goal != null)
                     continue;
 
                 var g = new FleetRequisition(node.ShipName, F.Owner, rush) {Fleet = F};
-                node.GoalId = g.Id;
+                node.Goal = g;
                 F.Owner.GetEmpireAI().Goals.Add(g);
                 g.Evaluate();
             }
@@ -275,7 +275,7 @@ namespace Ship_Game
             NumBeingBuilt = 0;
             foreach (Goal g in F.Owner.GetEmpireAI().Goals)
             {
-                if (F.GoalIdExists(g.Id))
+                if (F.GoalExists(g))
                     NumBeingBuilt++;
             }
         }

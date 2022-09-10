@@ -2,7 +2,6 @@
 using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -10,8 +9,7 @@ namespace Ship_Game.Commands.Goals
     public class RemnantInit : Goal
     {
         [StarDataConstructor]
-        public RemnantInit(int id, UniverseState us)
-            : base(GoalType.RemnantInit, id, us)
+        public RemnantInit(Empire owner) : base(GoalType.RemnantInit, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -19,19 +17,14 @@ namespace Ship_Game.Commands.Goals
                 SendExplorationFleetsAstronomers
             };
         }
-        public RemnantInit(Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
-        {
-            empire = owner;
-        }
 
         GoalStep CreateGuardians()
         {
-            foreach (SolarSystem solarSystem in empire.Universum.Systems)
+            foreach (SolarSystem solarSystem in Owner.Universum.Systems)
             {
                 foreach (Planet p in solarSystem.PlanetList)
                 {
-                    empire.Remnants.GenerateRemnantPresence(p);
+                    Owner.Remnants.GenerateRemnantPresence(p);
                 }
             }
 
@@ -43,7 +36,7 @@ namespace Ship_Game.Commands.Goals
         {
             foreach (Empire e in EmpireManager.MajorEmpires)
             {
-                var planets = empire.Universum.Planets.Filter(p => p.IsExploredBy(e));
+                var planets = Owner.Universum.Planets.Filter(p => p.IsExploredBy(e));
                 for (int i = 0; i < planets.Length; ++i)
                 {
                     Planet p = planets[i];

@@ -334,7 +334,7 @@ namespace Ship_Game
                 SelectedSystem = null;
             }
 
-            if (input.ScrapShip && (SelectedItem != null && SelectedItem.AssociatedGoal.empire == Player))
+            if (input.ScrapShip && (SelectedItem != null && SelectedItem.AssociatedGoal.Owner == Player))
                 OnScrapSelectedItem();
 
             pickedSomethingThisFrame = false;

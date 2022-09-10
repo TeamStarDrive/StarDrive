@@ -178,7 +178,7 @@ namespace Ship_Game.AI
                     for (int x = 0; x < Goals.Count; x++)
                     {
                         Goal g = Goals[x];
-                        if (g.type != GoalType.DeepSpaceConstruction || !g.BuildPosition.AlmostEqual(node.Position))
+                        if (g.Type != GoalType.DeepSpaceConstruction || !g.BuildPosition.AlmostEqual(node.Position))
                             continue;
 
                         Goals.Remove(g);
@@ -195,7 +195,7 @@ namespace Ship_Game.AI
                             Ship ship = ships[si];
                             ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekLast;
                             if (goal?.Goal != null &&
-                                goal.Goal.type == GoalType.DeepSpaceConstruction &&
+                                goal.Goal.Type == GoalType.DeepSpaceConstruction &&
                                 goal.Goal.BuildPosition == node.Position)
                             {
                                 ship.AI.OrderScrapShip();

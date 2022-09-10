@@ -2,7 +2,6 @@
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,8 +11,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] Remnants Remnants;
 
         [StarDataConstructor]
-        public RemnantEngagements(int id, UniverseState us)
-            : base(GoalType.RemnantEngagements, id, us)
+        public RemnantEngagements(Empire owner) : base(GoalType.RemnantEngagements, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -21,20 +19,13 @@ namespace Ship_Game.Commands.Goals
                 NotifyPlayer,
                 MonitorAndEngage
             };
-        }
-
-        public RemnantEngagements(Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
-        {
-            empire = owner;
-
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Story: {empire.Remnants.Story} ----");
+            Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Story: {Owner.Remnants.Story} ----");
         }
 
         public sealed override void PostInit()
         {
-            Remnants = empire.Remnants;
+            Remnants = Owner.Remnants;
         }
 
         void EngageEmpire(Ship[] portals)
@@ -45,14 +36,14 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.FindValidTarget(out Empire target))
                 return;
 
-            Remnants.Goals.Add(new RemnantEngageEmpire(empire, portals.RandItem(), target));
+            Remnants.Goals.Add(new RemnantEngageEmpire(Owner, portals.RandItem(), target));
         }
 
         GoalStep CreateFirstPortal()
         {
             if (!Remnants.CreatePortal())
             {
-                Log.Warning($"Could not create a portal for {empire.data.Name}, they will not be activated!");
+                Log.Warning($"Could not create a portal for {Owner.data.Name}, they will not be activated!");
                 return GoalStep.GoalFailed;
             }
 
@@ -69,15 +60,15 @@ namespace Ship_Game.Commands.Goals
         {
             if (!Remnants.GetPortals(out Ship[] portals))
             {
-                empire.SetAsDefeated();
-                empire.Universum.Notifications.AddEmpireDiedNotification(empire);
+                Owner.SetAsDefeated();
+                Owner.Universum.Notifications.AddEmpireDiedNotification(Owner);
                 return GoalStep.GoalFailed;
             }
 
             if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10)
             {
                 if (Remnants.CreatePortal()) // Second portal at level 10
-                    empire.Universum.Notifications.AddRemnantsNewPortal(empire);
+                    Owner.Universum.Notifications.AddRemnantsNewPortal(Owner);
             }
 
             EngageEmpire(portals);

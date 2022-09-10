@@ -2,7 +2,6 @@
 using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,8 +11,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] Pirates Pirates;
 
         [StarDataConstructor]
-        public PirateDirectorRaid(int id, UniverseState us)
-            : base(GoalType.PirateDirectorRaid, id, us)
+        public PirateDirectorRaid(Empire owner) : base(GoalType.PirateDirectorRaid, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -21,26 +19,23 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateDirectorRaid(Empire owner, Empire targetEmpire)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateDirectorRaid(Empire owner, Empire targetEmpire) : this(owner)
         {
-            empire       = owner;
             TargetEmpire = targetEmpire;
-
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Raid Director vs. {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Raid Director vs. {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
         {
-            Pirates = empire.Pirates;
+            Pirates = Owner.Pirates;
         }
 
         GoalStep PrepareRaid()
         {
             if (Pirates.PaidBy(TargetEmpire) || Pirates.VictimIsDefeated(TargetEmpire))
             {
-                Log.Info(ConsoleColor.Green, $"---- Pirates: {empire.Name} Raid Director vs. {TargetEmpire.Name}, They paid, terminating ----");
+                Log.Info(ConsoleColor.Green, $"---- Pirates: {Owner.Name} Raid Director vs. {TargetEmpire.Name}, They paid, terminating ----");
                 return GoalStep.GoalFailed; // We got paid or they are gone, Raid Director can go on vacation
             }
 

@@ -3,7 +3,6 @@ using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -14,8 +13,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] Ship Base;
         
         [StarDataConstructor]
-        public PirateBase(int id, UniverseState us)
-            : base(GoalType.PirateBase, id, us)
+        public PirateBase(Empire owner) : base(GoalType.PirateBase, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,18 +21,16 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateBase(Empire owner, Ship ship, string systemName)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateBase(Empire owner, Ship ship, string systemName) : this(owner)
         {
-            empire     = owner;
             TargetShip = ship;
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Base in {systemName} ----");
+            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Base in {systemName} ----");
         }
 
         public sealed override void PostInit()
         {
-            Pirates    = empire.Pirates;
+            Pirates    = Owner.Pirates;
             Base       = TargetShip;
 
             // Increase sensor range so it would also be seen a bit better on the minimap
@@ -76,7 +72,7 @@ namespace Ship_Game.Commands.Goals
 
         void CallForHelp()
         {
-            if (Pirates.Owner.GetEmpireAI().Goals.Any(g => g.type == GoalType.PirateDefendBase && g.TargetShip == Base))
+            if (Pirates.Owner.GetEmpireAI().Goals.Any(g => g.Type == GoalType.PirateDefendBase && g.TargetShip == Base))
                 return; // Help is coming
 
             Pirates.AddGoalDefendBase(Pirates.Owner, Base);

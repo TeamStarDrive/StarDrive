@@ -142,7 +142,7 @@ namespace Ship_Game.AI
             ClearOrders(State, priority:true);
             Vector2 pos = goal.BuildPosition;
             Vector2 dir = Owner.Position.DirectionToTarget(pos);
-            if (goal.type == GoalType.DeepSpaceConstruction || goal.TetherPlanetId == 0) // deep space structures
+            if (goal.Type == GoalType.DeepSpaceConstruction || goal.TetherPlanet == null) // deep space structures
                 AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
             else // orbitals for planet defense
                 AddShipGoal(Plan.DeployOrbital, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);

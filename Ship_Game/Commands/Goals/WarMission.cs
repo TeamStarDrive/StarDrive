@@ -4,7 +4,6 @@ using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,8 +11,7 @@ namespace Ship_Game.Commands.Goals
     public class WarMission : Goal
     {
         [StarDataConstructor]
-        public WarMission(int id, UniverseState us)
-            : base(GoalType.WarMission, id, us)
+        public WarMission(Empire owner) : base(GoalType.WarMission, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -22,27 +20,21 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public WarMission(Empire owner, Empire enemy, Planet targetPlanet)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public WarMission(Empire owner, Empire enemy, Planet targetPlanet) : this(owner)
         {
-            empire        = owner;
-            TargetEmpire  = enemy;
-            TargetPlanet  = targetPlanet;
-            StarDateAdded = empire.Universum.StarDate;
+            TargetEmpire = enemy;
+            TargetPlanet = targetPlanet;
             Evaluate();
-            Log.Info(ConsoleColor.Green, $"---- WarMission: New {empire.Name} Vs.: {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- WarMission: New {Owner.Name} Vs.: {TargetEmpire.Name} ----");
         }
 
-        public WarMission(Empire owner, Empire enemy, Planet targetPlanet, MilitaryTask task)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public WarMission(Empire owner, Empire enemy, Planet targetPlanet, MilitaryTask task) : this(owner)
         {
-            empire        = owner;
             TargetEmpire  = enemy;
             TargetPlanet  = targetPlanet;
-            StarDateAdded = empire.Universum.StarDate;
             ChangeToStep(Process);
-            Fleet.CreateStrikeFromCurrentTask(task.Fleet, task, empire, this);
-            Log.Info(ConsoleColor.Green, $"---- WarMission: New Strike Force from stage fleet, {empire.Name} Vs. {TargetEmpire.Name} ----");
+            Fleet.CreateStrikeFromCurrentTask(task.Fleet, task, Owner, this);
+            Log.Info(ConsoleColor.Green, $"---- WarMission: New Strike Force from stage fleet, {Owner.Name} Vs. {TargetEmpire.Name} ----");
         }
 
         public override bool IsWarMission => true;
@@ -50,11 +42,11 @@ namespace Ship_Game.Commands.Goals
         bool TryGetTask(out MilitaryTask task)
         {
             task      = null;
-            var tasks = empire.GetEmpireAI().GetTasks().Filter(t => t.Goal == this);
+            var tasks = Owner.GetEmpireAI().GetTasks().Filter(t => t.Goal == this);
             if (tasks.Length > 0)
             {
                 if (tasks.Length > 1)
-                    Log.Warning($"Found multiple tasks for WarMission Goal. Owner: {empire.Name}, Target Empire: {TargetEmpire.Name}");
+                    Log.Warning($"Found multiple tasks for WarMission Goal. Owner: {Owner.Name}, Target Empire: {TargetEmpire.Name}");
 
                 task = tasks[0];
             }
@@ -64,7 +56,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateTask()
         {
-            empire.CreateWarTask(TargetPlanet, TargetEmpire, this);
+            Owner.CreateWarTask(TargetPlanet, TargetEmpire, this);
             return GoalStep.GoToNextStep;
         }
 
@@ -77,13 +69,13 @@ namespace Ship_Game.Commands.Goals
             TargetPlanet = task.TargetPlanet;
             TargetEmpire = task.TargetEmpire;
 
-            if (!TargetEmpire.IsAtWarWith(empire))
+            if (!TargetEmpire.IsAtWarWith(Owner))
             {
                 task.EndTask();
                 return GoalStep.GoalComplete;
             }
 
-            if (LifeTime > empire.PersonalityModifiers.WarTasksLifeTime && task.Fleet == null) // check for timeout
+            if (LifeTime > Owner.PersonalityModifiers.WarTasksLifeTime && task.Fleet == null) // check for timeout
             {
                 task.EndTask();
                 Log.Info(ConsoleColor.Green, $"---- WarMission: Timed out {task.Type} vs. {TargetEmpire.Name} ----");

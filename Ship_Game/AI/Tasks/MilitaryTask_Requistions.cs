@@ -1,15 +1,12 @@
-using Newtonsoft.Json;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
 using System.Linq;
-using System.Xml.Serialization;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI.Tasks
@@ -18,8 +15,8 @@ namespace Ship_Game.AI.Tasks
     {
         [StarData] public int FleetCount = 1;
         [StarData] public float Completeness = 1f;
-        [XmlIgnore] [JsonIgnore] RequisitionStatus ReqStatus = RequisitionStatus.None;
-        public RequisitionStatus GetRequisitionStatus() => ReqStatus;
+        RequisitionStatus ReqStatus = RequisitionStatus.None;
+
         float GetEnemyShipStrengthInAO()
         {
             // RedFox: I removed ClampMin(minimumStrength) because this was causing infinite
@@ -498,7 +495,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             // where the fleet will gather after requisition before moving to target AO.
-            Planet rallyPoint = TargetPlanet ?? GetRallyPlanet();
+            Planet rallyPoint = TargetPlanet ?? RallyPlanet;
             if (rallyPoint == null)
             {
                 ReqStatus = RequisitionStatus.NoRallyPoint;
@@ -613,8 +610,6 @@ namespace Ship_Game.AI.Tasks
 
             return wantedNumberOfFleets.UpperBound(maxFleets);
         }
-
-        Planet GetRallyPlanet() => RallyAO?.GetPlanet() ?? Owner.FindNearestRallyPoint(AO);
 
         void InitFleetRequirements(float minFleetStrength, int minTroopStrength, int minBombMinutes)
         {

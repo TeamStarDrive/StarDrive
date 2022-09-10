@@ -2,7 +2,6 @@
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
@@ -11,8 +10,7 @@ namespace Ship_Game.Commands.Goals
     public class BuildConstructionShip : Goal
     {
         [StarDataConstructor]
-        public BuildConstructionShip(int id, UniverseState us)
-            : base(GoalType.DeepSpaceConstruction, id, us)
+        public BuildConstructionShip(Empire owner) : base(GoalType.DeepSpaceConstruction, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -24,11 +22,10 @@ namespace Ship_Game.Commands.Goals
         }
 
         public BuildConstructionShip(Vector2 buildPosition, string platformUid, Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
+            : this(owner)
         {
             BuildPosition = buildPosition;
             ToBuildUID = platformUid;
-            empire = owner;
             Evaluate();
         }
 
@@ -43,12 +40,12 @@ namespace Ship_Game.Commands.Goals
             // ShipToBuild will be the constructor ship -- usually a freighter
             // once the freighter is deployed, it will mutate into ToBuildUID
 
-            ShipToBuild = ShipBuilder.PickConstructor(empire)?.ShipData;
+            ShipToBuild = ShipBuilder.PickConstructor(Owner)?.ShipData;
             if (ShipToBuild == null)
-                throw new Exception($"PickConstructor failed for {empire.Name}."+
+                throw new Exception($"PickConstructor failed for {Owner.Name}."+
                                     "This is a FATAL bug in data files, where Empire is not able to do space construction!");
 
-            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, toBuild.ShipData, out Planet planet, priority: 0.25f))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, toBuild.ShipData, out Planet planet, priority: 0.25f))
                 return GoalStep.TryAgain;
 
             // toBuild is only used for cost calculation

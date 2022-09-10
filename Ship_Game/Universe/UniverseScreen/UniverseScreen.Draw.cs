@@ -561,8 +561,8 @@ namespace Ship_Game
             else if (SelectedItem != null)
             {
                 Goal goal = SelectedItem.AssociatedGoal;
-                EmpireAI ai = goal.empire.GetEmpireAI();
-                if (ai.HasGoal(goal.Id))
+                EmpireAI ai = goal.Owner.GetEmpireAI();
+                if (ai.HasGoal(goal))
                 {
                     string titleText = $"({ResourceManager.GetShipTemplate(SelectedItem.UID).Name})";
                     string bodyText = goal.PlanetBuildingAt != null
@@ -682,7 +682,7 @@ namespace Ship_Game
             var goal = SelectedItem?.AssociatedGoal;
             if (goal == null) return;
             if (!LookingAtPlanet)
-                DrawCircleProjected(goal.BuildPosition, 50f, goal.empire.EmpireColor);
+                DrawCircleProjected(goal.BuildPosition, 50f, goal.Owner.EmpireColor);
         }
 
         void DrawShipUI(SpriteBatch batch, DrawTimes elapsed)

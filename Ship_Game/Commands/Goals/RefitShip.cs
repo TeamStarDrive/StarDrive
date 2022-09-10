@@ -1,7 +1,6 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
 
@@ -11,9 +10,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     public class RefitShip : Goal
     {
+        [StarData] string VanityName;
+        [StarData] int ShipLevel;
+
         [StarDataConstructor]
-        public RefitShip(int id, UniverseState us)
-            : base(GoalType.Refit, id, us)
+        public RefitShip(Empire owner) : base(GoalType.Refit, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -25,14 +26,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitShip(Ship oldShip, string toBuildName, Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public RefitShip(Ship oldShip, string toBuildName, Empire owner) : this(owner)
         {
             OldShip     = oldShip;
             ShipLevel   = oldShip.Level;
             ToBuildUID  = toBuildName;
             Fleet       = oldShip.Fleet;
-            empire      = owner;
             if (oldShip.VanityName != oldShip.Name)
                 VanityName = oldShip.VanityName;
 
@@ -50,7 +49,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (OldShip.AI.State == AIState.Refit)
                 RemoveOldRefitGoal();
 
-            if (!empire.FindPlanetToRefitAt(empire.SafeSpacePorts, OldShip.RefitCost(newShip), 
+            if (!Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, OldShip.RefitCost(newShip), 
                 OldShip, newShip, OldShip.Fleet != null, out PlanetBuildingAt))
             {
                 OldShip.AI.ClearOrders();
@@ -61,7 +60,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             {
                 if (Fleet.FindShipNode(OldShip, out FleetDataNode node))
                 {
-                    Fleet.AssignGoalId(node, Id);
+                    Fleet.AssignGoal(node, this);
                     Fleet.AssignShipName(node, ToBuildUID);
                 }
             }
@@ -129,15 +128,15 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             FinishedShip.Level = ShipLevel;
             if (Fleet != null)
             {
-                if (Fleet.FindNodeWithGoalId(Id, out FleetDataNode node))
+                if (Fleet.FindNodeWithGoal(this, out FleetDataNode node))
                 {
                     Fleet.AddExistingShip(FinishedShip, node);
-                    Fleet.RemoveGoalGuid(node);
+                    Fleet.RemoveGoalFromNode(node);
                     if (Fleet.Ships.Count == 0)
                         Fleet.FinalPosition = FinishedShip.Position + RandomMath.Vector2D(3000f);
 
                     if (Fleet.FinalPosition == Vector2.Zero)
-                        Fleet.FinalPosition = empire.FindNearestRallyPoint(FinishedShip.Position).Position;
+                        Fleet.FinalPosition = Owner.FindNearestRallyPoint(FinishedShip.Position).Position;
 
                     FinishedShip.RelativeFleetOffset = node.FleetOffset;
                     FinishedShip.AI.OrderMoveTo(Fleet.GetFinalPos(FinishedShip), Fleet.FinalDirection, AIState.AwaitingOrders);
@@ -171,7 +170,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         void RemoveGoalFromFleet()
         {
-            Fleet?.RemoveGoalGuid(Id);
+            Fleet?.RemoveGoal(this);
         }
 
         void RemoveOldRefitGoal()

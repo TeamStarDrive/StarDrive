@@ -4,7 +4,6 @@ using Ship_Game.Ships;
 using System;
 using SDUtils;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
@@ -15,8 +14,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] Pirates Pirates;
 
         [StarDataConstructor]
-        public AssaultPirateBase(int id, UniverseState us)
-            : base(GoalType.AssaultPirateBase, id, us)
+        public AssaultPirateBase(Empire owner) : base(GoalType.AssaultPirateBase, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -26,15 +24,12 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public AssaultPirateBase(Empire e, Empire pirateEmpire, Ship targetBase = null)
-            : this(e.Universum.CreateId(), e.Universum)
+        public AssaultPirateBase(Empire e, Empire pirateEmpire, Ship targetBase = null) : this(e)
         {
-            empire       = e;
             TargetEmpire = pirateEmpire;
             TargetShip   = targetBase; // TargetShip is the pirate base
-
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Retaliation vs. Pirates: New {empire.Name} Assault Base vs. {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- Retaliation vs. Pirates: New {Owner.Name} Assault Base vs. {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
@@ -50,7 +45,7 @@ namespace Ship_Game.Commands.Goals
             if (!Pirates.GetBases(out Array<Ship> bases))
                 return GoalStep.GoalFailed;
 
-            EmpireAI ai          = empire.GetEmpireAI();
+            EmpireAI ai          = Owner.GetEmpireAI();
             var filteredBases    = bases.Filter(s => !ai.HasAssaultPirateBaseTask(s, out _));
 
             if (!GetClosestBaseToCenter(filteredBases, out TargetShip)) // TargetShip is the pirate base
@@ -61,17 +56,17 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateTask()
         { 
-            var task       = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip, empire);
-            empire.GetEmpireAI().AddPendingTask(task);
+            var task       = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip, Owner);
+            Owner.GetEmpireAI().AddPendingTask(task);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep CheckBaseDestroyed()
         {
-            EmpireAI ai = empire.GetEmpireAI();
+            EmpireAI ai = Owner.GetEmpireAI();
             if (ai.HasAssaultPirateBaseTask(TargetShip, out MilitaryTask task))
             {
-                if (Pirates.PaidBy(empire))
+                if (Pirates.PaidBy(Owner))
                 {
                     task.EndTask();
                     return GoalStep.GoalComplete;
@@ -80,7 +75,7 @@ namespace Ship_Game.Commands.Goals
                 if (TargetShip != null && TargetShip.Active)
                     return GoalStep.TryAgain;
 
-                empire.DecreaseFleetStrEmpireMultiplier(TargetEmpire); // base is destroyed
+                Owner.DecreaseFleetStrEmpireMultiplier(TargetEmpire); // base is destroyed
             }
 
             return GoalStep.GoalComplete;
@@ -89,7 +84,7 @@ namespace Ship_Game.Commands.Goals
         bool GetClosestBaseToCenter(Ship[] basesList, out Ship closestPirateBase)
         {
             closestPirateBase    = null;
-            Vector2 empireCenter = empire.WeightedCenter;
+            Vector2 empireCenter = Owner.WeightedCenter;
             closestPirateBase    = basesList.FindMin(b => b.Position.Distance(empireCenter));
             return closestPirateBase != null;
         }
