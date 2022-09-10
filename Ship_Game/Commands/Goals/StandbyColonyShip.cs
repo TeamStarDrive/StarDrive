@@ -3,7 +3,6 @@ using Ship_Game.Ships;
 using System;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -11,8 +10,7 @@ namespace Ship_Game.Commands.Goals
     public class StandbyColonyShip : Goal
     {
         [StarDataConstructor]
-        public StandbyColonyShip(int id, UniverseState us)
-            : base(GoalType.StandbyColonyShip, id, us)
+        public StandbyColonyShip(Empire owner) : base(GoalType.StandbyColonyShip, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -21,21 +19,13 @@ namespace Ship_Game.Commands.Goals
                 EnsureBuildingColonyShip,
                 KeepOnStandBy
             };
-        }
-
-        public StandbyColonyShip(Empire e)
-            : this(e.Universum.CreateId(), e.Universum)
-        {
-            empire        = e;
-            StarDateAdded = empire.Universum.StarDate;
-
             Evaluate();
         }
 
         GoalStep CheckIfStandbyShipNeeded()
         {
-            return empire.GetEmpireAI().Goals.Filter(g => g.type == GoalType.StandbyColonyShip)
-                       .Length > empire.DifficultyModifiers.StandByColonyShips.UpperBound(empire.GetPlanets().Count) 
+            return Owner.GetEmpireAI().Goals.Filter(g => g.Type == GoalType.StandbyColonyShip)
+                       .Length > Owner.DifficultyModifiers.StandByColonyShips.UpperBound(Owner.GetPlanets().Count) 
 
                 ? GoalStep.GoalFailed  // reached standby colony ship limit
                 : GoalStep.GoToNextStep;
@@ -43,10 +33,10 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep BuildColonyShip()
         {
-            if (!ShipBuilder.PickColonyShip(empire, out IShipDesign colonyShip))
+            if (!ShipBuilder.PickColonyShip(Owner, out IShipDesign colonyShip))
                 return GoalStep.GoalFailed;
 
-            if (!empire.FindPlanetToBuildShipAt(empire.SafeSpacePorts, colonyShip, out Planet planet))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(colonyShip, this);

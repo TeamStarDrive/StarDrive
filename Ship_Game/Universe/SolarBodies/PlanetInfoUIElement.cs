@@ -412,7 +412,7 @@ namespace Ship_Game
             }
             if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.type == GoalType.Colonize && g.ColonizationTarget == P))
+                if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.Type == GoalType.Colonize && g.ColonizationTarget == P))
                 {
                     EmpireManager.Player.GetEmpireAI().CancelColonization(P);
                     GameAudio.EchoAffirmative();

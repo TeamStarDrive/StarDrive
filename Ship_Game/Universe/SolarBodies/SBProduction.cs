@@ -430,7 +430,7 @@ namespace Ship_Game.Universe.SolarBodies
 
                 if (q.Goal.Fleet != null)
                 {
-                    q.Goal.Fleet.RemoveGoalGuid(q.Goal.Id);
+                    q.Goal.Fleet.RemoveGoal(q.Goal);
                     Owner.GetEmpireAI().Goals.Remove(q.Goal);
                 }
 
@@ -511,7 +511,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public bool CancelShipyard()
         {
-            QueueItem shipyard = ConstructionQueue.Where(q => q.isShip && q.sData.IsShipyard).LastOrDefault();
+            QueueItem shipyard = ConstructionQueue.LastOrDefault(q => q.isShip && q.ShipData.IsShipyard);
             if (shipyard != null)
             {
                 Cancel(shipyard);

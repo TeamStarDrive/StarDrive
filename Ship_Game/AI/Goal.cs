@@ -66,18 +66,16 @@ namespace Ship_Game.AI
     [StarDataType]
     public abstract class Goal
     {
-        [StarData] public readonly int Id;
-        [StarData] public UniverseState UState;
-        [StarData] public Empire empire;
-        [StarData] public GoalType type;
+        public UniverseState UState; // automatically set during OnDeserialize evt
+        [StarData] public Empire Owner; // the empire which owns this Goal
+        [StarData] public GoalType Type;
         [StarData] public int Step { get; private set; }
+
         [StarData] public Fleet Fleet;
         [StarData] public Vector2 TetherOffset;
-        [StarData] public int TetherPlanetId;
+        [StarData] public Planet TetherPlanet;
         [StarData] Vector2 StaticBuildPosition;
         [StarData] public string ToBuildUID;
-        [StarData] public string VanityName;
-        [StarData] public int ShipLevel;
         [StarData] public Planet PlanetBuildingAt;
         [StarData] public Planet ColonizationTarget { get; set; }
 
@@ -88,7 +86,6 @@ namespace Ship_Game.AI
         [StarData] public Ship TargetShip;      // this is targeted by this goal (raids)
         [StarData] public Empire TargetEmpire; // Empire target of this goal (for instance, pirate goals)
         [StarData] public Planet TargetPlanet;
-        [StarData] public SolarSystem TargetSystem;
         [StarData] public float StarDateAdded;
 
         public string StepName => Steps[Step].Method.Name;
@@ -97,13 +94,14 @@ namespace Ship_Game.AI
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
         protected Func<bool> Holding;
 
+        public bool IsDeploymentGoal => ToBuildUID.NotEmpty() && !BuildPosition.AlmostZero();
+        public string TypeName => GetType().GetTypeName();
+
         public Vector2 MovePosition
         {
             get
             {
-                Planet targetPlanet = GetTetherPlanet;
-                targetPlanet = targetPlanet ?? ColonizationTarget;
-
+                Planet targetPlanet = TetherPlanet ?? ColonizationTarget;
                 if (targetPlanet != null)
                     return targetPlanet.Position + TetherOffset;
                 return BuildPosition;
@@ -114,18 +112,12 @@ namespace Ship_Game.AI
         {
             get
             {
-                if (GetTetherPlanet != null)
-                    return GetTetherPlanet.Position + TetherOffset;
+                if (TetherPlanet != null)
+                    return TetherPlanet.Position + TetherOffset;
                 return StaticBuildPosition;
             }
             set => StaticBuildPosition = value;
         }
-
-        public Planet GetTetherPlanet => empire.Universum.GetPlanet(TetherPlanetId);
-
-        public bool IsDeploymentGoal => ToBuildUID.NotEmpty() && !BuildPosition.AlmostZero();
-
-        public string TypeName => GetType().GetTypeName();
 
         public Ship FinishedShip
         {
@@ -138,22 +130,24 @@ namespace Ship_Game.AI
             set => ShipBuilt = value;
         }
 
-        public override string ToString() => $"{type} Goal.{TypeName} {ToBuildUID}";
+        public override string ToString() => $"{Type} Goal.{TypeName} {ToBuildUID}";
 
         [StarDataConstructor]
-        protected Goal(GoalType type, int id, UniverseState us)
+        protected Goal(GoalType type, Empire owner)
         {
-            this.type = type;
-            Id = id;
-            UState = us;
+            Type = type;
+            Owner = owner;
+            UState = owner.Universum;
+            StarDateAdded = owner.Universum.StarDate;
         }
 
         [StarDataDeserialized]
-        protected void OnDeserialized()
+        protected void OnDeserialized(UniverseState us)
         {
+            UState = us;
             if ((uint)Step >= Steps.Length)
             {
-                Log.Error($"Deserialize {type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+                Log.Error($"Deserialize {Type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
                 Step = Steps.Length - 1;
             }
         }
@@ -206,14 +200,9 @@ namespace Ship_Game.AI
         // @note Goals are mainly evaluated during Empire update
         public GoalStep Evaluate()
         {
-            // CG hrmm i guess this should just be part of the goal enum.
-            // But that will require more cleanup of the goals.
-            if (Holding?.Invoke() == true)
-                return GoalStep.TryAgain;
-
             if ((uint)Step >= Steps.Length)
             {
-                Log.Error($"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+                Log.Error($"{Type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
                 RemoveThisGoal(); // don't crash, just remove the step
                 return GoalStep.GoalFailed;
             }
@@ -236,7 +225,7 @@ namespace Ship_Game.AI
 
         void RemoveThisGoal()
         {
-            empire?.GetEmpireAI().Goals.Remove(this);
+            Owner?.GetEmpireAI().Goals.Remove(this);
         }
 
         public void AdvanceToNextStep()
@@ -244,7 +233,7 @@ namespace Ship_Game.AI
             ++Step;
             if ((uint)Step >= Steps.Length)
             {
-                Log.Error($"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
+                Log.Error($"{Type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
                 RemoveThisGoal();
             }
         }
@@ -253,7 +242,7 @@ namespace Ship_Game.AI
         {
             if (!Steps.Contains(step))
             {
-                Log.Error($"{type} invalid Goal.Step: {step}, Steps.Length: {Steps.Length}");
+                Log.Error($"{Type} invalid Goal.Step: {step}, Steps.Length: {Steps.Length}");
                 RemoveThisGoal();
             }
             Step = Steps.IndexOf(step);

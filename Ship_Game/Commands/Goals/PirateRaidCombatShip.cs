@@ -3,7 +3,6 @@ using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -13,8 +12,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] Pirates Pirates;
 
         [StarDataConstructor]
-        public PirateRaidCombatShip(int id, UniverseState us)
-            : base(GoalType.PirateRaidCombatShip, id, us)
+        public PirateRaidCombatShip(Empire owner) : base(GoalType.PirateRaidCombatShip, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,20 +21,16 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateRaidCombatShip(Empire owner, Empire targetEmpire)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateRaidCombatShip(Empire owner, Empire targetEmpire) : this(owner)
         {
-            empire        = owner;
             TargetEmpire  = targetEmpire;
-            StarDateAdded = empire.Universum.StarDate;
-
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Combat Ship Raid vs. {targetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Combat Ship Raid vs. {targetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
         {
-            Pirates = empire.Pirates;
+            Pirates = Owner.Pirates;
         }
 
         public override bool IsRaid => true;
@@ -67,7 +61,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // Try locating viable freighters for 1 year (10 turns), else just give up
-            return empire.Universum.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            return Owner.Universum.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
         GoalStep CheckIfHijacked()

@@ -3,8 +3,6 @@ using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
-
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
@@ -12,8 +10,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     class RearmShipFromPlanet : Goal
     {
         [StarDataConstructor]
-        public RearmShipFromPlanet(int id, UniverseState us)
-            : base(GoalType.RearmShipFromPlanet, id, us)
+        public RearmShipFromPlanet(Empire owner) : base(GoalType.RearmShipFromPlanet, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,24 +20,19 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RearmShipFromPlanet(Ship shipToRearm, Planet planet, Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public RearmShipFromPlanet(Ship shipToRearm, Planet planet, Empire owner) : this(owner)
         {
-            TargetShip       = shipToRearm;
-            empire           = owner;
+            TargetShip = shipToRearm;
             PlanetBuildingAt = planet;
-
             Evaluate();
         }
 
         public RearmShipFromPlanet(Ship shipToRearm, Ship existingSupplyShip, Planet planet, Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
+            : this(owner)
         {
-            TargetShip       = shipToRearm;
-            empire           = owner;
+            TargetShip = shipToRearm;
+            SupplyShip = existingSupplyShip;
             PlanetBuildingAt = planet;
-            SupplyShip       = existingSupplyShip;
-
             Evaluate();
         }
 
@@ -49,9 +41,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             // If not null then a new goal was assigned for a an existing supply ship with ordnance left
             if (SupplyShip == null) 
             {
-                string supplyShipName = empire.GetSupplyShuttleName();
+                string supplyShipName = Owner.GetSupplyShuttleName();
                 var at = PlanetBuildingAt.Position.GenerateRandomPointInsideCircle(PlanetBuildingAt.Radius + 500);
-                SupplyShip = Ship.CreateShipAtPoint(TargetShip.Universe, supplyShipName, empire, at);
+                SupplyShip = Ship.CreateShipAtPoint(TargetShip.Universe, supplyShipName, Owner, at);
 
                 if (SupplyShip == null)
                     return GoalStep.GoalFailed;
@@ -130,10 +122,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             SupplyShip.QueueTotalRemoval();
         }
 
-        bool PlanetNotOurs => PlanetBuildingAt.Owner != empire;
+        bool PlanetNotOurs => PlanetBuildingAt.Owner != Owner;
         bool SupplyAlive   => SupplyShip != null && SupplyShip.Active; // todo also returning home
         bool TargetValid   => TargetShip != null
-                              && (TargetShip.Loyalty == empire || TargetShip.Loyalty.IsAlliedWith(empire))
+                              && (TargetShip.Loyalty == Owner || TargetShip.Loyalty.IsAlliedWith(Owner))
                               && TargetShip.IsSuitableForPlanetaryRearm()
                               && (TargetShip.System == PlanetBuildingAt.ParentSystem || TargetShip.IsPlatformOrStation);
 
@@ -148,10 +140,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         bool DivertSupplyShip()
         {
             TargetShip?.Supply.ChangeIncomingOrdnance(-SupplyShip.Ordinance);
-            if (SupplyShip.OrdnancePercent > 0.05f && PlanetBuildingAt.TryGetShipsNeedRearm(out Ship[] shipList, empire))
+            if (SupplyShip.OrdnancePercent > 0.05f && PlanetBuildingAt.TryGetShipsNeedRearm(out Ship[] shipList, Owner))
             {
                 // Divert supply
-                empire.GetEmpireAI().AddPlanetaryRearmGoal(shipList[0], PlanetBuildingAt, SupplyShip);
+                Owner.GetEmpireAI().AddPlanetaryRearmGoal(shipList[0], PlanetBuildingAt, SupplyShip);
                 return true;
             }
 

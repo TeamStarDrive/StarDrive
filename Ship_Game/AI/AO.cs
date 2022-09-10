@@ -19,7 +19,6 @@ namespace Ship_Game.AI
         readonly Planet OwnerPlanet;
         public int BuildingCount;
         public float WarValue;
-        float LastUpdate;
         readonly Empire DataOwner;
 
         public AOPlanetData(Planet p, Empire e)

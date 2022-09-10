@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
@@ -19,7 +18,7 @@ namespace Ship_Game
         ScrollList2<ConstructionListItem> SL;
         public Ship itemToBuild;
         Vector2 TetherOffset;
-        int TargetPlanetId;
+        Planet TargetPlanet;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
         public DeepSpaceBuildingWindow(UniverseScreen screen)
@@ -148,16 +147,16 @@ namespace Ship_Game
         {
             Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
 
-            bool okToBuild = TargetPlanetId == 0 && !itemToBuild.ShipData.IsShipyard
-                || TargetPlanetId > 0 && !Screen.UState.GetPlanet(TargetPlanetId).IsOutOfOrbitalsLimit(itemToBuild);
+            bool okToBuild = TargetPlanet == null && !itemToBuild.ShipData.IsShipyard
+                || TargetPlanet != null && !TargetPlanet.IsOutOfOrbitalsLimit(itemToBuild);
 
             if (okToBuild)
             {
                 Goal buildStuff = new BuildConstructionShip(cursorWorldPos, itemToBuild.Name, EmpireManager.Player);
-                if (TargetPlanetId != 0)
+                if (TargetPlanet != null)
                 {
                     buildStuff.TetherOffset = TetherOffset;
-                    buildStuff.TetherPlanetId = TargetPlanetId;
+                    buildStuff.TetherPlanet = TargetPlanet;
                 }
 
                 EmpireManager.Player.GetEmpireAI().Goals.Add(buildStuff);
@@ -197,14 +196,14 @@ namespace Ship_Game
                     scale = 0.15f;
 
                 Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
-                TargetPlanetId = 0;
+                TargetPlanet = null;
                 TetherOffset = Vector2.Zero;
                 foreach (UniverseScreen.ClickablePlanet p in Screen.ClickablePlanets)
                 {
                     if (p.Planet.Position.Distance(cursorWorldPos) <= (2500f * p.Planet.Scale))
                     {
                         TetherOffset = cursorWorldPos - p.Planet.Position;
-                        TargetPlanetId = p.Planet.Id;
+                        TargetPlanet = p.Planet;
                         batch.DrawLine(p.ScreenPos, Screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
                         batch.DrawString(Fonts.Arial20Bold, "Will Orbit " + p.Planet.Name,
                             new Vector2(Screen.Input.CursorX, Screen.Input.CursorY + 34f), Color.White);

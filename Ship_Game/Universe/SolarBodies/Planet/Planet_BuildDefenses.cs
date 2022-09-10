@@ -84,8 +84,8 @@ namespace Ship_Game
             for (int i = 0; i < goals.Count; i++)
             {
                 Goal g = goals[i];
-                if (g != null && g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this 
-                              || g.type == GoalType.DeepSpaceConstruction && g.TetherPlanetId == Id)
+                if (g != null && g.Type == GoalType.BuildOrbital && g.PlanetBuildingAt == this 
+                              || g.Type == GoalType.DeepSpaceConstruction && g.TetherPlanet == this)
                 {
                     if (ResourceManager.GetShipTemplate(g.ToBuildUID, out Ship orbital) && orbital.ShipData.Role == role
                                                                                         && !orbital.ShipData.IsShipyard)
@@ -106,8 +106,8 @@ namespace Ship_Game
                 return 0;
 
             int shipyardsInQ = 0;
-            foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
-                                                                     || g.type == GoalType.DeepSpaceConstruction && g.TetherPlanetId == Id))
+            foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.Type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
+                                                                     || g.Type == GoalType.DeepSpaceConstruction && g.TetherPlanet == this))
             {
                 if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship shipyard) && shipyard.ShipData.IsShipyard)
                     shipyardsInQ++;

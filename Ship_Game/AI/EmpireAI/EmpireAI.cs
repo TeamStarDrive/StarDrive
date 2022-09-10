@@ -306,7 +306,7 @@ namespace Ship_Game.AI
 
         public void CancelColonization(Planet p)
         {
-            Goal goal = Goals.Find(g => g.type == GoalType.Colonize && g.ColonizationTarget == p);
+            Goal goal = Goals.Find(g => g.Type == GoalType.Colonize && g.ColonizationTarget == p);
             if (goal != null)
             {
                 goal.FinishedShip?.AI.OrderOrbitNearest(true);
@@ -337,25 +337,25 @@ namespace Ship_Game.AI
             for (int i = 0; i < Goals.Count; i++)
             {
                 Goal goal = Goals[i];
-                if (goal.type == type)
+                if (goal.Type == type)
                     goals.Add(goal);
             }
             return goals;
         }
 
-        public int NumTroopGoals() => Goals.Filter(g => g.type == GoalType.BuildTroop).Length;
+        public int NumTroopGoals() => Goals.Filter(g => g.Type == GoalType.BuildTroop).Length;
 
         public bool HasGoal(GoalType type)
         {
             for (int i = 0; i < Goals.Count; ++i)
-                if (Goals[i].type == type) return true;
+                if (Goals[i].Type == type) return true;
             return false;
         }
 
-        public bool HasGoal(int goalId)
+        public bool HasGoal(Goal goal)
         {
             for (int i = 0; i < Goals.Count; ++i)
-                if (Goals[i].Id == goalId) return true;
+                if (Goals[i] == goal) return true;
             return false;
         }
 
@@ -369,7 +369,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < Goals.Count; ++i)
             {
                 Goal g = Goals[i];
-                if (g.type == type && removeIf(g))
+                if (g.Type == type && removeIf(g))
                 {
                     Goals.Remove(g);
                     return;

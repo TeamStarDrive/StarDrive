@@ -6,7 +6,6 @@ using Ship_Game.AI.Tasks;
 using Ship_Game.Data.Serialization;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -15,10 +14,10 @@ namespace Ship_Game.Commands.Goals
     {
         [StarData] Remnants Remnants;
         [StarData] int BombersLevel;
+        [StarData] int ShipLevel;
         
         [StarDataConstructor]
-        public RemnantEngageEmpire(int id, UniverseState us)
-            : base(GoalType.RemnantEngageEmpire, id, us)
+        public RemnantEngageEmpire(Empire owner) : base(GoalType.RemnantEngageEmpire, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -29,19 +28,17 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public RemnantEngageEmpire(Empire owner, Ship portal, Empire target)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public RemnantEngageEmpire(Empire owner, Ship portal, Empire target) : this(owner)
         {
-            empire       = owner;
             TargetEmpire = target;
-            TargetShip   = portal;
+            TargetShip = portal;
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Engagement: {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Engagement: {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
         {
-            Remnants     = empire.Remnants;
+            Remnants = Owner.Remnants;
             BombersLevel = ShipLevel;
         }
 
@@ -63,7 +60,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // Find closest planet in the map to Portal and target a planet from the victim's planet list
-            var planets   = empire.Universum.Planets.Filter(p => p.Owner != null);
+            var planets   = Owner.Universum.Planets.Filter(p => p.Owner != null);
             Planet planet = planets.FindMin(p => p.Position.Distance(Portal.Position));
             if (!Remnants.TargetNextPlanet(TargetEmpire, planet, 0, out Planet targetPlanet))
                 return false; // Could not find a target planet
@@ -74,7 +71,7 @@ namespace Ship_Game.Commands.Goals
 
         void ChangeTaskTargetPlanet()
         {
-            var tasks = empire.GetEmpireAI().GetTasks().Filter(t => t.Fleet == Fleet);
+            var tasks = Owner.GetEmpireAI().GetTasks().Filter(t => t.Fleet == Fleet);
             switch (tasks.Length)
             {
                 case 0:                                                                                  return;
@@ -132,9 +129,9 @@ namespace Ship_Game.Commands.Goals
                 Ship ship = ships[i];
                 if (i == 0)
                 {
-                    var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, empire);
-                    empire.GetEmpireAI().AddPendingTask(task);
-                    task.CreateRemnantFleet(empire, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
+                    var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, Owner);
+                    Owner.GetEmpireAI().AddPendingTask(task);
+                    task.CreateRemnantFleet(Owner, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
                     continue;
                 }
 

@@ -11,9 +11,11 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class RefitOrbital : Goal
     {
+        [StarData] string VanityName;
+        [StarData] int ShipLevel;
+
         [StarDataConstructor]
-        public RefitOrbital(int id, UniverseState us)
-            : base(GoalType.RefitOrbital, id, us)
+        public RefitOrbital(Empire owner) : base(GoalType.RefitOrbital, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -25,17 +27,13 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitOrbital(Ship oldShip, string toBuildName, Empire owner)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public RefitOrbital(Ship oldShip, string toBuildName, Empire owner) : this(owner)
         {
-            OldShip    = oldShip;
-            ShipLevel  = oldShip.Level;
+            OldShip = oldShip;
+            ShipLevel = oldShip.Level;
             ToBuildUID = toBuildName;
-            empire     = owner;
-
             if (oldShip.VanityName != oldShip.Name)
                 VanityName = oldShip.VanityName;
-
             Evaluate();
         }
 
@@ -47,7 +45,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (OldShip.AI.State == AIState.Refit)
                 RemoveOldRefitGoal();
 
-            if (!empire.FindPlanetToRefitAt(empire.SafeSpacePorts, OldShip.RefitCost(newOrbital), newOrbital, out PlanetBuildingAt))
+            if (!Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, OldShip.RefitCost(newOrbital), newOrbital, out PlanetBuildingAt))
             {
                 OldShip.AI.ClearOrders();
                 return GoalStep.GoalFailed;  // No planet to refit
@@ -57,7 +55,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             OldShip.AI.State = AIState.Refit;
             Planet targetPlanet = OldShip.GetTether();
             if (targetPlanet != null)
-                TetherPlanetId = targetPlanet.Id;
+                TetherPlanet = targetPlanet;
 
             return GoalStep.GoToNextStep;
         }
@@ -70,10 +68,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (ToBuildUID == null || !GetNewOrbital(out Ship newOrbital))
                 return GoalStep.GoalFailed;  // No better orbital is available
 
-            string constructorId = empire.data.ConstructorShip;
+            string constructorId = Owner.data.ConstructorShip;
             if (!ResourceManager.Ships.GetDesign(constructorId, out ShipToBuild))
             {
-                if (!ResourceManager.Ships.GetDesign(empire.data.DefaultConstructor, out ShipToBuild))
+                if (!ResourceManager.Ships.GetDesign(Owner.data.DefaultConstructor, out ShipToBuild))
                 {
                     Log.Error($"BuildOrbital: no construction ship with uid={constructorId}");
                     return GoalStep.GoalFailed;

@@ -3,7 +3,6 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -14,8 +13,7 @@ namespace Ship_Game.Commands.Goals
         [StarData] Ship BaseToDefend;
 
         [StarDataConstructor]
-        public PirateDefendBase(int id, UniverseState us)
-            : base(GoalType.PirateDefendBase, id, us)
+        public PirateDefendBase(Empire owner) : base(GoalType.PirateDefendBase, owner)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,18 +21,16 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public PirateDefendBase(Empire owner, Ship baseToDefend)
-            : this(owner.Universum.CreateId(), owner.Universum)
+        public PirateDefendBase(Empire owner, Ship baseToDefend) : this(owner)
         {
-            empire     = owner;
             TargetShip = baseToDefend;
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Defend Base ----");
+            Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Defend Base ----");
         }
 
         public sealed override void PostInit()
         {
-            Pirates      = empire.Pirates;
+            Pirates      = Owner.Pirates;
             BaseToDefend = TargetShip;
         }
 
