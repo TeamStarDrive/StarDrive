@@ -123,6 +123,12 @@ namespace Ship_Game.Universe.SolarBodies
                  ? type : RandomPlanet();
         }
 
+        public PlanetType PlanetOrRandom(int planetId, PlanetCategory randomCategory)
+        {
+            return PlanetTypeMap.TryGetValue(planetId, out PlanetType type)
+                ? type : RandomPlanet(randomCategory);
+        }
+
         public PlanetType Planet(int planetId)
         {
             return PlanetTypeMap[planetId];
