@@ -315,12 +315,16 @@ namespace Ship_Game
 
         EmpireSolarSystemStatus GetStatus(Empire empire)
         {
-            if (!Status.TryGetValue(empire, out EmpireSolarSystemStatus status))
+            // TODO: clean this up, the lock is necessary but might be too heavy
+            lock (Status)
             {
-                status = new EmpireSolarSystemStatus(this, empire);
-                Status.Add(empire, status);
+                if (!Status.TryGetValue(empire, out EmpireSolarSystemStatus status))
+                {
+                    status = new(this, empire);
+                    Status.Add(empire, status);
+                }
+                return status;
             }
-            return status;
         }
 
         /// <summary>

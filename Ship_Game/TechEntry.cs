@@ -899,11 +899,7 @@ namespace Ship_Game
                 case "Missile Armor":
                 case "Missile HP Bonus": data.MissileHPModifier += unlockedBonus.Bonus; break;
                 case "Hull Strengthening":
-                case "Module HP Bonus":  
-                    data.Traits.ModHpModifier += unlockedBonus.Bonus;
-                    EmpireHullBonuses.RefreshBonuses(empire);
-                    empire.ApplyModuleHealthTechBonus(unlockedBonus.Bonus);
-                    return;
+                case "Module HP Bonus": data.Traits.ModHpModifier += unlockedBonus.Bonus; break;
                 case "Reaction Drive Upgrade":
                 case "STL Speed Bonus": data.SubLightModifier += unlockedBonus.Bonus; break;
                 case "Reactive Armor":
@@ -976,6 +972,13 @@ namespace Ship_Game
             }
 
             EmpireHullBonuses.RefreshBonuses(empire); // RedFox: This will refresh all empire module stats
+
+            // post refresh actions
+            switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
+            {
+                case "Hull Strengthening":
+                case "Module HP Bonus": empire.ApplyModuleHealthTechBonus(unlockedBonus.Bonus); break;
+            }
         }
 
         public bool Equals(TechEntry other)
