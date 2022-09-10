@@ -26,9 +26,14 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LargeAddressAware>true</LargeAddressAware>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>game\</OutputPath>
@@ -1708,8 +1713,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-if "$(ConfigurationName)" == "Deploy"  (
+    <PostBuildEvent>if "$(ConfigurationName)" == "Deploy"  (
   :: run the installer generator script with Python 3
   py -3 "$(SolutionDir)Deploy\MakeInstaller.py" --root_dir $(SolutionDir) --patch
 )</PostBuildEvent>
@@ -1718,6 +1722,13 @@ if "$(ConfigurationName)" == "Deploy"  (
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
+  <Import Project="packages\LargeAddressAware.1.0.6\build\LargeAddressAware.targets" Condition="Exists('packages\LargeAddressAware.1.0.6\build\LargeAddressAware.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\LargeAddressAware.1.0.6\build\LargeAddressAware.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\LargeAddressAware.1.0.6\build\LargeAddressAware.targets'))" />
+  </Target>
   <!-- <Target Name="AfterBuild"> -->
   <!-- <Exec Command="C:\Projects\ResharperCLT\dupfinder.exe /output=&quot;dupReport.xml&quot; /show-text &quot;StarDrive.csproj&quot;"/> -->
   <!-- <XslTransformation XslInputPath="C:\Projects\ResharperCLT\dupFinder.xsl" XmlInputPaths="dupReport.xml" OutputPaths="dupReport.html"/> -->
