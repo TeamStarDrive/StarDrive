@@ -287,7 +287,7 @@ namespace Ship_Game.Ships
 
             float healthChange = newHealth - Health;
             Health = newHealth;
-            OnFire = (Health / maxHealth) < OnFireThreshold;
+            OnFire = (newHealth / maxHealth) < OnFireThreshold;
             Parent.OnHealthChange(healthChange, source);
 
             if (!fromSave) // do not trigger Die() or Resurrect() during savegame loading

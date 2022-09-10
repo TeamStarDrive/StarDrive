@@ -114,13 +114,13 @@ namespace UnitTests.Technologies
             float expectedHealth = ship.Health * (1 + expectedBonus);
             TechEntry bonusTech = UnlockTech(Player, hpTechName);
 
-            Assert.IsTrue(bonusTech.Tech.UID == hpTechName, $"{hpTechName} not found.");
+            Assert.AreEqual(hpTechName, bonusTech.Tech.UID, $"{hpTechName} not found.");
             Assert.IsTrue(bonusTech.Tech.BonusUnlocked.NotEmpty, $"No bonus unlocks found in {bonusTech.Tech.UID}");
-            Assert.IsTrue(bonusTech.Tech.BonusUnlocked[0].Name == bonusName, $"Expxcted bonus name: {bonusName}");
+            Assert.AreEqual(bonusName, bonusTech.Tech.BonusUnlocked[0].Name, $"Expxcted bonus name: {bonusName}");
 
             float bonus = bonusTech.Tech.BonusUnlocked[0].Bonus;
-            Assert.IsTrue(bonus == expectedBonus, $"Bonus should be equal to expected bonus({expectedBonus})");
-            Assert.IsTrue(ship.Health == expectedHealth, $"Ship health after HP bonus " +
+            Assert.AreEqual(expectedBonus, bonus, $"Bonus should be equal to expected bonus({expectedBonus})");
+            Assert.AreEqual(expectedHealth, ship.Health, $"Ship health after HP bonus " +
                 $"unload should be {expectedBonus * 100}% more");
         }
 
