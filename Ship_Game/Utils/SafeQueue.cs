@@ -408,6 +408,27 @@ namespace Ship_Game.Utils
             }
         }
 
+        // @returns TRUE if any item matches the Predicate
+        public bool Any(Predicate<T> predicate)
+        {
+            try
+            {
+                ThisLock.EnterReadLock();
+                int length = Items.Length;
+                int count = Count;
+                for (int j = 0, i = Head; j < count; ++j)
+                {
+                    if (predicate(Items[i])) return true;
+                    if (++i == length) i = 0;
+                }
+                return false;
+            }
+            finally
+            {
+                ThisLock.ExitReadLock();
+            }
+        }
+
         public T[] ToArray()
         {
             try
