@@ -3,9 +3,9 @@
   <Icon>cloning_center</Icon>
   
   <Cost>175</Cost>
-  <Maintenance>2</Maintenance>
+  <Maintenance>1.3</Maintenance>
   
-  <PlusFlatPopulation>8</PlusFlatPopulation>
+  <PlusFlatPopulation>7</PlusFlatPopulation>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>412</NameTranslationIndex>
