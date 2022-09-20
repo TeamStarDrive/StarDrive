@@ -5,8 +5,9 @@
   <Cost>150</Cost>
   <Maintenance>1</Maintenance>
   
-  <PlusFlatResearchAmount>0.3</PlusFlatResearchAmount>
   <PlusResearchPerColonist>.25</PlusResearchPerColonist>
+  <PlusFlatResearchAmount>0.15</PlusFlatResearchAmount>
+  
   <TechBranch>Discovery</TechBranch>
   
   <!-- For localization in GameText.yaml -->
