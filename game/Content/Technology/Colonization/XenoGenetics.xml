@@ -3,7 +3,7 @@
   <Version>2</Version>
   <UID>XenoGenetics</UID>
   <TechnologyType>Research</TechnologyType>
-  <Cost>1200</Cost>
+  <Cost>700</Cost>
   <RootNode>0</RootNode>
   <NameIndex>702</NameIndex>
   <DescriptionIndex>703</DescriptionIndex>
@@ -25,7 +25,7 @@
     <UnlockedBonus>
       <Name>Increased Lifespans</Name>
       <BonusType>Population Growth Bonus</BonusType>
-      <Bonus>0.25</Bonus>
+      <Bonus>0.1</Bonus>
       <BonusIndex>704</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

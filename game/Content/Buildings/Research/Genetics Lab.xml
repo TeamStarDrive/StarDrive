@@ -2,11 +2,13 @@
   <Name>Genetics Lab</Name>
   <Icon>hospital</Icon>
   
-  <Cost>250</Cost>
-  <Maintenance>1.5</Maintenance>
-  
-  <PlusResearchPerColonist>.15</PlusResearchPerColonist>
-  
+  <Cost>150</Cost>
+  <Maintenance>1.2</Maintenance>
+
+  <PlusFlatPopulation>3</PlusFlatPopulation>
+
+  <PlusResearchPerColonist>.1</PlusResearchPerColonist>
+  <PlusFlatResearchAmount>0.1</PlusFlatResearchAmount>
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>421</NameTranslationIndex>
   <DescriptionIndex>422</DescriptionIndex>
