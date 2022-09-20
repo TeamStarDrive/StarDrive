@@ -282,6 +282,9 @@ namespace Ship_Game.Ships
         {
             float maxHealth = ActualMaxHealth;
             newHealth = newHealth.Clamped(0, maxHealth);
+            if (maxHealth - newHealth < 2)
+                newHealth = maxHealth; // FB - round almost healed modules
+
             float healthChange = newHealth - Health;
             Health = newHealth;
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
@@ -290,13 +293,9 @@ namespace Ship_Game.Ships
             if (!fromSave) // do not trigger Die() or Resurrect() during savegame loading
             {
                 if (Active && Health < 1f)
-                {
                     Die(LastDamagedBy, false);
-                }
                 else if (!Active && Health > 1f)
-                {
                     ResurrectModule();
-                }
             }
         }
 

@@ -1,5 +1,7 @@
 ﻿using SDGraphics;
 using Ship_Game.AI.Budget;
+using System.Linq;
+using SDUtils;
 
 namespace Ship_Game
 {
@@ -15,6 +17,7 @@ namespace Ship_Game
 
         public void DoGoverning()
         {
+            NumShipyards = OrbitalStations.Count(s => s.Active && s.ShipData.IsShipyard);
             RefreshBuildingsWeCanBuildHere();
             if (RecentCombat)
                 return; // Cant Build stuff when there is combat on the planet
