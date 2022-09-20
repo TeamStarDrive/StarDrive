@@ -121,9 +121,7 @@ namespace Ship_Game
 
         void GeneratePlanetFromSystemData(RandomBase random, SolarSystemData.Ring data)
         {
-            PlanetType type = data.WhichPlanet > 0
-                ? ResourceManager.Planets.Planet(data.WhichPlanet)
-                : ResourceManager.Planets.RandomPlanet();
+            PlanetType type = ResourceManager.Planets.PlanetOrRandom(data.WhichPlanet);
 
             float scale;
             if (data.planetScale > 0)
@@ -140,12 +138,16 @@ namespace Ship_Game
             InitNewMinorPlanet(random, type, scale, data.MaxPopDefined);
         }
 
-        public void GenerateNewHomeWorld(RandomBase random, Empire owner, SolarSystemData.Ring data)
+        static PlanetType GetPlanetType(Empire owner, SolarSystemData.Ring data = null)
         {
             PlanetCategory preferred = owner.data.PreferredEnv == PlanetCategory.Other
                                      ? PlanetCategory.Terran : owner.data.PreferredEnv;
+            return ResourceManager.Planets.PlanetOrRandom(data?.WhichPlanet ?? -1, preferred);
+        }
 
-            PlanetType type = ResourceManager.Planets.RandomPlanet(preferred);
+        public void GenerateNewHomeWorld(RandomBase random, Empire owner, SolarSystemData.Ring data = null)
+        {
+            PlanetType type = GetPlanetType(owner, data);
             float scale = 1f * owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
 
             InitPlanetType(type, scale, fromSave: false);

@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SDGraphics;
 using SDUtils;
 using Ship_Game;
-using Ship_Game.AI.Research;
+using Ship_Game.Ships;
 
 namespace UnitTests.Technologies
 {
@@ -18,6 +17,7 @@ namespace UnitTests.Technologies
             CreateUniverseAndPlayerEmpire();
             MajorEnemy = EmpireManager.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[1], isPlayer:false);
             Universe.aw = new AutomationWindow(Universe);
+            LoadStarterShips("TEST_Heavy Carrier mk1");
         }
 
         [TestMethod]
@@ -101,6 +101,27 @@ namespace UnitTests.Technologies
             {
                 Assert.IsTrue(Player.data.BonusFighterLevels > 0, $"Bonus not unlocked: {item.Name}");
             }
+        }
+
+        [TestMethod]
+        public void ModuleHealthBonusUnlock()
+        {
+            float expectedBonus = 0.15f;
+            string hpTechName = "Nanoweave Metallurgy";
+            string bonusName = "Hull Strengthening";
+            Ship ship  = SpawnShip("TEST_Heavy Carrier mk1", Player, new Vector2(0,0));
+            RunObjectsSim(TestSimStep);
+            float expectedHealth = ship.Health * (1 + expectedBonus);
+            TechEntry bonusTech = UnlockTech(Player, hpTechName);
+
+            Assert.AreEqual(hpTechName, bonusTech.Tech.UID, $"{hpTechName} not found.");
+            Assert.IsTrue(bonusTech.Tech.BonusUnlocked.NotEmpty, $"No bonus unlocks found in {bonusTech.Tech.UID}");
+            Assert.AreEqual(bonusName, bonusTech.Tech.BonusUnlocked[0].Name, $"Expxcted bonus name: {bonusName}");
+
+            float bonus = bonusTech.Tech.BonusUnlocked[0].Bonus;
+            Assert.AreEqual(expectedBonus, bonus, $"Bonus should be equal to expected bonus({expectedBonus})");
+            Assert.AreEqual(expectedHealth, ship.Health, $"Ship health after HP bonus " +
+                $"unload should be {expectedBonus * 100}% more");
         }
 
         [TestMethod]

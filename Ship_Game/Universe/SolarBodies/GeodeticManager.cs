@@ -164,6 +164,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             ChanceToLaunchTroopsVsBombers = 0; // Reset
             AssignPlanetarySupply();
             float repairPool = CalcRepairPool();
+            int repairLevel = Level + NumShipYards;
             bool spaceCombat = P.SpaceCombatNearPlanet;
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
@@ -175,17 +176,15 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 if (ship.Loyalty.isFaction)
                     AddTroopsForFactions(ship);
 
-                if (loyaltyMatch)
+                if (loyaltyMatch
+                    && (ship.Position.InRadius(Position, 5000f) || ship.IsOrbiting(P) || ship.GetTether() == P))
                 {
-                    if (ship.Position.InRadius(Position, 5000f) || ship.IsOrbiting(P) || ship.GetTether() == P)
+                    SupplyShip(ship);
+                    RepairShip(ship, repairPool, repairLevel);
+                    if (!spaceCombat && ship.Loyalty == Owner) // dont do this for allies
                     {
-                        SupplyShip(ship);
-                        RepairShip(ship, repairPool);
-                        if (!spaceCombat && ship.Loyalty == Owner) // dont do this for allies
-                        {
-                            LoadTroops(ship, P.NumTroopsCanLaunch);
-                            DisengageTroopsFromCapturedShips(ship);
-                        }
+                        LoadTroops(ship, P.NumTroopsCanLaunch);
+                        DisengageTroopsFromCapturedShips(ship);
                     }
                 }
             }
@@ -219,16 +218,14 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             return repairPool;
         }
 
-        private void RepairShip(Ship ship, float repairPool)
+        private void RepairShip(Ship ship, float repairPool, int repairLevel)
         {
             ship.AI.TerminateResupplyIfDone(SupplyType.All, terminateIfEnemiesNear: true);
-            //Modified by McShooterz: Repair based on repair pool, if no combat in system
-            if (!HasSpacePort || ship.Health.AlmostEqual(ship.HealthMax))
-                return;
-
-            int repairLevel = Level + NumShipYards;
-            ship.ApplyAllRepair(repairPool, repairLevel, repairShields: true);
-            ship.CauseEmpDamage(-repairPool * 10); // Remove EMP
+            if (HasSpacePort)
+            {
+                ship.ApplyAllRepair(repairPool, repairLevel);
+                ship.CauseEmpDamage(-repairPool * 10); // Remove EMP
+            }
         }
 
         private void LoadTroops(Ship ship, int garrisonSize)
