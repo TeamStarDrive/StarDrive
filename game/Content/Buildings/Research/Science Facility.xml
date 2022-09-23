@@ -3,10 +3,10 @@
   <Icon>Science_facility</Icon>
   
   <Cost>120</Cost>
-  <Maintenance>0.6</Maintenance>
+  <Maintenance>0.5</Maintenance>
   
-  <PlusResearchPerColonist>.2</PlusResearchPerColonist>
-  <PlusFlatResearchAmount>0.25</PlusFlatResearchAmount>
+  <PlusResearchPerColonist>.15</PlusResearchPerColonist>
+  <PlusFlatResearchAmount>0.1</PlusFlatResearchAmount>
   
   <!-- For localization in GameText.yaml -->
   <NameTranslationIndex>10085</NameTranslationIndex>
