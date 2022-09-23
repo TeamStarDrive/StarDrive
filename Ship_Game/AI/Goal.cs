@@ -136,9 +136,12 @@ namespace Ship_Game.AI
         protected Goal(GoalType type, Empire owner)
         {
             Type = type;
-            Owner = owner;
-            UState = owner.Universum;
-            StarDateAdded = owner.Universum.StarDate;
+            if (owner != null) // owner is null during initial serialization
+            {
+                Owner = owner;
+                UState = owner?.Universum;
+                StarDateAdded = owner.Universum.StarDate;
+            }
         }
 
         [StarDataDeserialized]

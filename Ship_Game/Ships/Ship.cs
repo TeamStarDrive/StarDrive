@@ -934,6 +934,11 @@ namespace Ship_Game.Ships
         // This is used during Saving for ShipSaveData
         public ModuleSaveData[] GetModuleSaveData()
         {
+            // probably inactive ship, but we have to serialize these
+            // in order to support refit goals
+            if (ModuleSlotList.Length == 0)
+                return null;
+
             var slots = new ModuleSaveData[ModuleSlotList.Length];
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
@@ -1772,13 +1777,13 @@ namespace Ship_Game.Ships
 
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-        ~Ship() { Dispose(false); }
+        ~Ship() { Destroy(); }
 
-        void Dispose(bool disposing)
+        void Destroy()
         {
             if (ModuleSlotList != null && ModuleSlotList.Length != 0)
             {
@@ -1807,10 +1812,10 @@ namespace Ship_Game.Ships
             RepairBeams = null;
             HomePlanet = null;
             RemoveSceneObject();
-                        
+
             Stats?.Dispose();
             Cargo = null;
-            ModuleSlotList = null;
+            ModuleSlotList = Empty<ShipModule>.Array;
             ShipEngines?.Dispose();
             ShipEngines = null;
             TradeRoutes = null;

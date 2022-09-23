@@ -111,6 +111,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             PlanetBuildingAt.Construction.Enqueue(qi);
             OldShip.QueueTotalRemoval();
+            OldShip = null; // clean up dangling reference to avoid serializing it
             return GoalStep.GoToNextStep;
         }
 
