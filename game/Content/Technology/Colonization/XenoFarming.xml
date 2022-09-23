@@ -4,7 +4,6 @@
   <UID>XenoFarming</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>800</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>700</NameIndex>
   <DescriptionIndex>701</DescriptionIndex>
   <LeadsTo>

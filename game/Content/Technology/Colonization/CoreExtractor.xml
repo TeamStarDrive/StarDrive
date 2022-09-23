@@ -4,7 +4,6 @@
   <UID>CoreExtractor</UID>
   <TechnologyType>Industry</TechnologyType>
   <Cost>4000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17586</NameIndex>
   <DescriptionIndex>17587</DescriptionIndex>
   <LeadsTo>

@@ -4,7 +4,6 @@
   <UID>DualMissileTurret</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>2000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17504</NameIndex>
   <DescriptionIndex>17505</DescriptionIndex>
   <LeadsTo>

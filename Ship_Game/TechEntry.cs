@@ -46,9 +46,9 @@ namespace Ship_Game
         {
             get
             {
-                float cost      = Tech.ActualCost;
+                float cost = Tech.ActualCost;
                 float techLevel = (float)Math.Max(1, Math.Pow(MultiLevelCostMultiplier, Level.UpperBound(MaxLevel-1)));
-                int rootTech    = Tech.RootNode * 100;
+                int rootTech = Tech.IsRootNode ? 100 : 0;
                 return cost * (techLevel + rootTech);
             }
         }
@@ -61,7 +61,7 @@ namespace Ship_Game
         public Technology Tech { get; private set; }
 
         [XmlIgnore][JsonIgnore]
-        public bool IsRoot => Tech.RootNode == 1;
+        public bool IsRoot => Tech.IsRootNode;
 
         [XmlIgnore][JsonIgnore]
         public Array<string> ConqueredSource = new Array<string>();
@@ -676,7 +676,7 @@ namespace Ship_Game
                 }
             }
             
-            if (Tech.Secret && Tech.RootNode == 0)
+            if (Tech.Secret && !Tech.IsRootNode)
             {
                 foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
                 {
@@ -716,14 +716,15 @@ namespace Ship_Game
         public TechEntry DiscoverToRoot(Empire empire)
         {
             TechEntry tech = this;
-            while (tech.Tech.RootNode != 1)
+            while (!tech.Tech.IsRootNode)
             {
                 var rootTech = tech.GetPreReq(empire);
                 if (rootTech == null)
                     break;
 
                 rootTech.SetDiscovered(empire, false);
-                if ((tech = rootTech).Tech.RootNode == 1 && tech.Discovered)
+                tech = rootTech;
+                if (tech.Tech.IsRootNode && tech.Discovered)
                 {
                     rootTech.Unlocked = true;
                     return rootTech;
@@ -740,7 +741,7 @@ namespace Ship_Game
                 foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
                 {
                     if (leadsToTech.UID != UID) continue;
-                    if (keyValuePair.Value.Tech.RootNode ==1 || !keyValuePair.Value.IsHidden(empire))
+                    if (keyValuePair.Value.Tech.IsRootNode || !keyValuePair.Value.IsHidden(empire))
                         return keyValuePair.Value;
 
                     return keyValuePair.Value.GetPreReq(empire);

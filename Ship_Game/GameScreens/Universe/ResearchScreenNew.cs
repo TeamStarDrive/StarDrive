@@ -6,6 +6,7 @@ using SDGraphics;
 using SDUtils;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -13,19 +14,18 @@ namespace Ship_Game
     {
         public readonly UniverseScreen Universe;
         public readonly Empire Player;
-        public Camera2D camera = new Camera2D();
+        public Camera2D camera = new();
 
-        readonly Map<string, RootNode> RootNodes = new Map<string, RootNode>(StringComparer.OrdinalIgnoreCase);
-        public Map<string, Node> AllTechNodes    = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
-        public Map<string, TreeNode> SubNodes    = new Map<string, TreeNode>(StringComparer.OrdinalIgnoreCase);
-        public Array<TreeNode> AllTreeNodes      = new Array<TreeNode>();
+        readonly Map<string, RootNode> RootNodes = new(StringComparer.OrdinalIgnoreCase);
+        public Map<string, Node> AllTechNodes = new(StringComparer.OrdinalIgnoreCase);
+        public Map<string, TreeNode> SubNodes = new(StringComparer.OrdinalIgnoreCase);
+        public Array<TreeNode> AllTreeNodes = new();
 
         CloseButton Close;
         UIButton Search;
         Menu2 MainMenu;
         public EmpireUIOverlay empireUI;
 
-        Vector2 Cursor;
         Vector2 MainMenuOffset;
 
         public ResearchQueueUIComponent Queue;
@@ -33,7 +33,7 @@ namespace Ship_Game
         int GridWidth  = 175;
         int GridHeight = 100;
 
-        readonly Array<Vector2> ClaimedSpots = new Array<Vector2>();
+        readonly Array<Vector2> ClaimedSpots = new();
 
         ResearchDebugUnlocks DebugUnlocks;
 
@@ -73,17 +73,20 @@ namespace Ship_Game
             MainMenuOffset.Y = main.Y + 12 + GridHeight / 3;
             if (ScreenHeight <= 720)
             {
-                MainMenuOffset.Y = MainMenuOffset.Y + 8f;
+                MainMenuOffset.Y += 8f;
             }
 
-            foreach (TechEntry tech in Player.TechEntries)
+            Vector2 nodePos = Vector2.Zero;
+
+            var rootTechs = Player.TechEntries.Filter(t => t.IsRoot && t.Discovered);
+            // sort the techs
+            rootTechs = rootTechs.Sorted(t => t.Tech.RootNode);
+
+            foreach (TechEntry tech in rootTechs)
             {
-                if (tech.IsRoot && tech.Discovered)
-                {
-                    Cursor.X = 0f;
-                    Cursor.Y = FindDeepestY() + 1;
-                    SetNode(tech);
-                }
+                nodePos.X = 0f;
+                nodePos.Y = FindDeepestY() + 1;
+                SetNode(tech, ref nodePos);
             }
 
             GridHeight = (main.Height - 40) / 6;
@@ -333,7 +336,7 @@ namespace Ship_Game
         {
             TechEntry techEntry = toResearch;
             var techs = new Array<TechEntry>{ techEntry };
-            if (techEntry.Tech.RootNode != 1)
+            if (!techEntry.Tech.IsRootNode)
             {
                 while (!techEntry.Unlocked)
                 {
@@ -351,26 +354,26 @@ namespace Ship_Game
 
         Vector2 GridSize => new Vector2(GridWidth, GridHeight);
 
-        Vector2 GetCurrentCursorOffset(float yOffset = 0)
+        Vector2 GetCurrentCursorOffset(in Vector2 cursorPos, float yOffset = 0)
         {
-            var cursor = new Vector2(Cursor.X, Cursor.Y + yOffset);
+            var cursor = new Vector2(cursorPos.X, cursorPos.Y + yOffset);
             return (MainMenuOffset + cursor*GridSize).Rounded();
         }
 
-        public void PopulateAllTechs(Node node)
+        public void PopulateAllTechs(Node node, ref Vector2 nodePos)
         {
             bool first = true;
             foreach (TechEntry child in node.Entry.GetPlayerChildEntries())
             {
-                Cursor.X = node.NodePosition.X + 1f;
-                Cursor.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                nodePos.X = node.NodePosition.X + 1f;
+                nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
                 if (first) first = false;
 
-                var newNode = new TreeNode(GetCurrentCursorOffset(), child, this) { NodePosition = Cursor };
+                var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), child, this) { NodePosition = nodePos };
 
                 if (child.Discovered)
                     AllTechNodes.Add(newNode.Entry.UID, newNode);
-                PopulateAllTechs(newNode);
+                PopulateAllTechs(newNode, ref nodePos);
             }
         }
 
@@ -385,15 +388,15 @@ namespace Ship_Game
         {
             ResetRootNodeStates(root);
 
-            Cursor = new Vector2(1f, 1f);
+            var nodePos = new Vector2(1f, 1f);
             foreach (TechEntry child in root.Entry.GetPlayerChildEntries())
             {
-                var newNode = new TreeNode(GetCurrentCursorOffset(), child, this) { NodePosition = Cursor };
+                var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), child, this) { NodePosition = nodePos };
 
                 if (child.Discovered)
                     AllTechNodes.Add(newNode.Entry.UID, newNode);
 
-                PopulateAllTechs(newNode);
+                PopulateAllTechs(newNode, ref nodePos);
             }
         }
 
@@ -413,19 +416,19 @@ namespace Ship_Game
             else                      GridWidth = 165;
 
 
-            Cursor = new Vector2(1f, 1f);
+            var nodePos = new Vector2(1f, 1f);
             bool first = true;
 
             foreach (TechEntry discovered in root.Entry.GetFirstDiscoveredEntries())
             {
-                Cursor.X = root.NodePosition.X + 1f;
-                Cursor.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                nodePos.X = root.NodePosition.X + 1f;
+                nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
                 if (first) first = false;
 
-                var newNode = new TreeNode(GetCurrentCursorOffset(), discovered, this) { NodePosition = Cursor };
+                var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), discovered, this) { NodePosition = nodePos };
 
                 SubNodes.Add(newNode.Entry.UID, newNode);
-                PopulateNodesFromSubNode(newNode);
+                PopulateNodesFromSubNode(newNode, ref nodePos);
             }
         }
 
@@ -436,26 +439,26 @@ namespace Ship_Game
             return false;
         }
 
-        void UpdateCursorAndClaimedSpots(bool addToClaimed)
+        void UpdateCursorAndClaimedSpots(ref Vector2 nodePos, bool addToClaimed)
         {
-            if (PositionIsClaimed(Cursor))
-                Cursor.Y += 1f;
+            if (PositionIsClaimed(nodePos))
+                nodePos.Y += 1f;
             else if (addToClaimed)
-                ClaimedSpots.Add(Cursor);
+                ClaimedSpots.Add(nodePos);
         }
 
-        public void PopulateNodesFromSubNode(Node node)
+        public void PopulateNodesFromSubNode(Node node, ref Vector2 nodePos)
         {
-            UpdateCursorAndClaimedSpots(node.Entry.Discovered);
+            UpdateCursorAndClaimedSpots(ref nodePos, node.Entry.Discovered);
 
             bool first = true;
             foreach (TechEntry child in node.Entry.GetPlayerChildEntries())
             {
-                Cursor.X = node.NodePosition.X + 1f;
-                Cursor.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
+                nodePos.X = node.NodePosition.X + 1f;
+                nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
                 if (first) first = false;
 
-                var newNode = new TreeNode(GetCurrentCursorOffset(), child, this) { NodePosition = Cursor };
+                var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), child, this) { NodePosition = nodePos };
 
                 if (child.Discovered)
                 {
@@ -463,15 +466,15 @@ namespace Ship_Game
                     AllTreeNodes.Add(newNode);
                 }
 
-                PopulateNodesFromSubNode(newNode);
+                PopulateNodesFromSubNode(newNode, ref nodePos);
             }
         }
 
-        void SetNode(TechEntry tech)
+        void SetNode(TechEntry tech, ref Vector2 nodePos)
         {
-            UpdateCursorAndClaimedSpots(true);
+            UpdateCursorAndClaimedSpots(ref nodePos, true);
 
-            var newNode = new RootNode(GetCurrentCursorOffset(-1), tech) { NodePosition = Cursor };
+            var newNode = new RootNode(GetCurrentCursorOffset(nodePos, -1), tech) { NodePosition = nodePos };
 
             if (Player.HasUnlocked(tech))
             {

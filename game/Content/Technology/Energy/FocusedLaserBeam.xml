@@ -4,7 +4,6 @@
   <UID>FocusedLaserBeam</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17520</NameIndex>
   <DescriptionIndex>17521</DescriptionIndex>
   <LeadsTo>

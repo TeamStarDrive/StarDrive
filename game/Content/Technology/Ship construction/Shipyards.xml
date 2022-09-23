@@ -4,7 +4,6 @@
   <UID>Shipyards</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>400</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>2035</NameIndex>
   <DescriptionIndex>2036</DescriptionIndex>
   <LeadsTo>

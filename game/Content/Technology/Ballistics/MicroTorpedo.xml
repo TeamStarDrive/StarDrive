@@ -4,7 +4,6 @@
   <UID>MicroTorpedo</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>860</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>18248</NameIndex>
   <DescriptionIndex>8205</DescriptionIndex>
   <LeadsTo>

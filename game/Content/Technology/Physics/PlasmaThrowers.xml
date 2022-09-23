@@ -4,7 +4,6 @@
   <UID>PlasmaThrowers</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>350</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>636</NameIndex>
   <DescriptionIndex>637</DescriptionIndex>
   <LeadsTo />

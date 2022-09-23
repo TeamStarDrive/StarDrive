@@ -4,7 +4,7 @@
   <UID>EnergyWeapons</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
-  <RootNode>1</RootNode>
+  <RootNode>7</RootNode>
   <NameIndex>558</NameIndex>
   <DescriptionIndex>559</DescriptionIndex>
   <IconPath>icons_techroot_energy</IconPath>

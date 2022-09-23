@@ -1709,11 +1709,12 @@ namespace Ship_Game
             var rootTechs = new Array<Technology>();
             foreach (Technology rootTech in techs)
             {
-                if (rootTech.RootNode == 0)
-                    continue;
-                if (rootTechs.Contains(rootTech))
-                    Log.Warning($"Duplicate root tech : '{rootTech}'");
-                rootTechs.Add(rootTech);
+                if (rootTech.IsRootNode)
+                {
+                    if (rootTechs.Contains(rootTech))
+                        Log.Warning($"Duplicate root tech : '{rootTech}'");
+                    rootTechs.Add(rootTech);
+                }
             }
 
             void WalkTechTree(Technology technology)
@@ -1740,7 +1741,7 @@ namespace Ship_Game
             }
             foreach (Technology notInTree in techs)
             {
-                if (notInTree.RootNode != 1 && notInTree.ComesFrom.Count == 0)
+                if (!notInTree.IsRootNode && notInTree.ComesFrom.Count == 0)
                     notInTree.Discovered = false;
             }
 

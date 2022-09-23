@@ -4,7 +4,6 @@
   <UID>Fighter Shields</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>350</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>562</NameIndex>
   <DescriptionIndex>563</DescriptionIndex>
   <LeadsTo>
