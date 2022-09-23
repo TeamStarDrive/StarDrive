@@ -4,7 +4,6 @@
   <UID>CeramicArmor</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>1100</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>6563</NameIndex>
   <DescriptionIndex>6564</DescriptionIndex>
   <LeadsTo>

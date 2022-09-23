@@ -4,7 +4,6 @@
   <UID>MassiveDisruptors</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>1000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17530</NameIndex>
   <DescriptionIndex>17531</DescriptionIndex>
   <LeadsTo />

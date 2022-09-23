@@ -4,7 +4,6 @@
   <UID>Deep Core Mining</UID>
   <TechnologyType>Industry</TechnologyType>
   <Cost>1100</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>541</NameIndex>
   <DescriptionIndex>542</DescriptionIndex>
   <LeadsTo>

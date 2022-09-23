@@ -4,7 +4,6 @@
   <UID>CruiserEngines</UID>
   <TechnologyType>Engines</TechnologyType>
   <Cost>600</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17547</NameIndex>
   <DescriptionIndex>17550</DescriptionIndex>
   <LeadsTo>

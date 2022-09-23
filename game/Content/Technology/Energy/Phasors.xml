@@ -4,7 +4,6 @@
   <UID>Phasors</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>1200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>623</NameIndex>
   <DescriptionIndex>624</DescriptionIndex>
   <LeadsTo>

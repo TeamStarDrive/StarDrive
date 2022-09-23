@@ -4,7 +4,6 @@
   <UID>ParticleAcceleration</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>4500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>10059</NameIndex>
   <DescriptionIndex>10060</DescriptionIndex>
   <LeadsTo />

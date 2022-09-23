@@ -4,7 +4,6 @@
   <UID>Biospheres</UID>
   <TechnologyType>Colonization</TechnologyType>
   <Cost>850</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>524</NameIndex>
   <DescriptionIndex>525</DescriptionIndex>
   <LeadsTo>

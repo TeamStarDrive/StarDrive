@@ -4,7 +4,6 @@
   <UID>ConventionalTorpedo</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>6200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>689</NameIndex>
   <DescriptionIndex>690</DescriptionIndex>
   <LeadsTo>

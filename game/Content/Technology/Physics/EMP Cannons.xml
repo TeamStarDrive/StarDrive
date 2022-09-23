@@ -4,7 +4,6 @@
   <UID>EMP Cannons</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>700</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>550</NameIndex>
   <DescriptionIndex>551</DescriptionIndex>
   <LeadsTo />

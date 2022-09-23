@@ -5,7 +5,6 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>800</Cost>
   <MaxLevel>8</MaxLevel>
-  <RootNode>0</RootNode>
   <NameIndex>17633</NameIndex>
   <DescriptionIndex>17634</DescriptionIndex>
   <LeadsTo />

@@ -4,7 +4,6 @@
   <UID>Ionic Weaponry</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>350</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>597</NameIndex>
   <DescriptionIndex>598</DescriptionIndex>
   <LeadsTo>

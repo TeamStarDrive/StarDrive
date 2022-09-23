@@ -4,7 +4,6 @@
   <UID>Galactic Stock Exchange</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>2500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>10069</NameIndex>
   <DescriptionIndex>10070</DescriptionIndex>
   <LeadsTo>

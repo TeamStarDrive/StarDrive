@@ -4,7 +4,6 @@
   <UID>Planetary Stock Exchange</UID>
   <TechnologyType>Economic</TechnologyType>
   <Cost>1100</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>10065</NameIndex>
   <DescriptionIndex>10066</DescriptionIndex>
   <LeadsTo>

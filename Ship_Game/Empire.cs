@@ -1124,8 +1124,8 @@ namespace Ship_Game
                 }
                 else
                 {
-                    bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && kv.Value.RootNode == 0);
-                    if (kv.Value.RootNode == 1 && !secret)
+                    bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && !kv.Value.IsRootNode);
+                    if (kv.Value.IsRootNode && !secret)
                         techEntry.ForceFullyResearched();
                     else
                         techEntry.ForceNeedsFullResearch();

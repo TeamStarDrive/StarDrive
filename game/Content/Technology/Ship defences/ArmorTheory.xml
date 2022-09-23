@@ -4,7 +4,6 @@
   <UID>ArmorTheory</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>210</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>515</NameIndex>
   <DescriptionIndex>516</DescriptionIndex>
   <LeadsTo>

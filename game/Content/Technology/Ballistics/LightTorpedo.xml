@@ -4,7 +4,6 @@
   <UID>LightTorpedo</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>2200</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>8206</NameIndex>
   <DescriptionIndex>8209</DescriptionIndex>
   <LeadsTo>

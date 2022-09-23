@@ -4,7 +4,6 @@
   <UID>PlanetaryDefenseII</UID>
   <TechnologyType>GroundCombat</TechnologyType>
   <Cost>1000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17579</NameIndex>
   <DescriptionIndex>17580</DescriptionIndex>
   <LeadsTo>

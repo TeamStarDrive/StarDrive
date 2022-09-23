@@ -4,7 +4,6 @@
   <UID>LargePlanetStockpile</UID>
   <TechnologyType>ShipGeneral</TechnologyType>
   <Cost>400</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17568</NameIndex>
   <DescriptionIndex>17569</DescriptionIndex>
   <LeadsTo>

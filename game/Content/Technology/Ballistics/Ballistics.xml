@@ -4,7 +4,7 @@
   <UID>SpaceWeapons</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
-  <RootNode>1</RootNode>
+  <RootNode>6</RootNode>
   <NameIndex>661</NameIndex>
   <DescriptionIndex>662</DescriptionIndex>
   <IconPath>icons_techroot_weapons</IconPath>
