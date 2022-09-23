@@ -217,6 +217,7 @@ namespace Ship_Game.Ships
         }
 
         [StarData] ModuleSaveData[] SavedModules;
+        [StarData] bool IsShipActive { get => Active; set => Active = value; }
 
         [StarDataSerialize]
         StarDataDynamicField[] OnSerialize()
@@ -232,7 +233,7 @@ namespace Ship_Game.Ships
         void OnDeserialized(UniverseState root)
         {
             Universe = root;
-            var moduleSaves = SavedModules;
+            var moduleSaves = SavedModules ?? Empty<ModuleSaveData>.Array;
             SavedModules = null;
 
             ResetSlots(moduleSaves.Length);
@@ -240,6 +241,7 @@ namespace Ship_Game.Ships
             if (ModuleSlotList.Length == 0)
             {
                 Log.Warning($"Ship spawn failed failed '{Name}' due to all empty Modules");
+                Active = false;
                 return;
             }
 
