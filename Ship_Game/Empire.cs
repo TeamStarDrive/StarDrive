@@ -1177,17 +1177,18 @@ namespace Ship_Game
             foreach (string building in data.unlockBuilding)
                 UnlockedBuildingsDict[building] = true;
 
-            foreach (var kv in TechnologyDict) //unlock racial techs
+            foreach (var kv in TechnologyDict) // unlock racial techs
             {
                 var techEntry = kv.Value;
                 data.Traits.TechUnlocks(techEntry, this);
             }
-            //Added by gremlin Figure out techs with modules that we have ships for.
-            var ourShips = GetOurFactionShips();
 
             UnlockedTroops.Clear();
+
+            // Added by gremlin Figure out techs with modules that we have ships for.
+            var ourShips = GetOurFactionShips();
             ResetTechsUsableByShips(ourShips, unlockBonuses: false); // this will also unlock troops. Very confusing
-            ShipsWeCanBuild.Clear();
+            
             foreach (string ship in data.unlockShips)
                 ShipsWeCanBuild.Add(ship);
 
