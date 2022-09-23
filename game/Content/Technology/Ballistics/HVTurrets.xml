@@ -4,7 +4,6 @@
   <UID>HVTurrets</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>3000</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>17474</NameIndex>
   <DescriptionIndex>17475</DescriptionIndex>
   <LeadsTo>

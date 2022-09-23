@@ -24,7 +24,8 @@ namespace Ship_Game
 
         public static readonly Technology Dummy = new Technology();
 
-        // if RootNode == 1, then this is a root of a tech tree main branch
+        // if RootNode != 0, then this is a root node, @see `IsRootNode` property
+        // this field decides the root tech order
         public int RootNode;
         public float Cost;
         public bool Secret;
@@ -32,8 +33,8 @@ namespace Ship_Game
         public bool Unlockable;
         public float LowPriorityCostMultiplier = 1;
 
-        [XmlIgnore] public bool IsRootNode => RootNode == 1;
-        [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new SortedSet<TechnologyType>();
+        [XmlIgnore] public bool IsRootNode => RootNode != 0;
+        [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new();
 
         public int NameIndex;
         public int DescriptionIndex;
@@ -43,7 +44,7 @@ namespace Ship_Game
 
         public override string ToString()
         {
-            return $"Tech {UID} Name={Name.Text} Root={RootNode} Cost={Cost} Parents={Parents.Length}";
+            return $"Tech {UID} Name={Name.Text} Root={IsRootNode} Cost={Cost} Parents={Parents.Length}";
         }
 
         public Array<LeadsToTech> LeadsTo                = new Array<LeadsToTech>();

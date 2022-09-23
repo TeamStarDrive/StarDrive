@@ -4,7 +4,6 @@
   <UID>HeavyShields</UID>
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>1500</Cost>
-  <RootNode>0</RootNode>
   <NameIndex>587</NameIndex>
   <DescriptionIndex>588</DescriptionIndex>
   <LeadsTo>

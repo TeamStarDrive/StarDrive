@@ -4,7 +4,7 @@
   <UID>StarshipDefences</UID>
   <TechnologyType>General</TechnologyType>
   <Cost>50</Cost>
-  <RootNode>1</RootNode>
+  <RootNode>4</RootNode>
   <NameIndex>1100</NameIndex>
   <DescriptionIndex>664</DescriptionIndex>
   <IconPath>icons_techroot_StarshipDefences</IconPath>
