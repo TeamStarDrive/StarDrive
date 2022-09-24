@@ -262,7 +262,7 @@ namespace Ship_Game.AI
                 return;
 
             if (OwnerEmpire.NoEmpireDefenseGoal())
-                OwnerEmpire.AI.Goals.Add(new EmpireDefense(OwnerEmpire));
+                OwnerEmpire.AI.AddGoal(new EmpireDefense(OwnerEmpire));
         }
 
         private void RunWarPlanner()

@@ -62,7 +62,7 @@ namespace Ship_Game.Commands.Goals
 
         void CallForHelp()
         {
-            if (Pirates.Owner.AI.Goals.Any(g => g.Type == GoalType.PirateDefendBase && g.TargetShip == Base))
+            if (Pirates.Owner.AI.HasGoal(g => g.Type == GoalType.PirateDefendBase && g.TargetShip == Base))
                 return; // Help is coming
 
             Pirates.AddGoalDefendBase(Pirates.Owner, Base);

@@ -111,7 +111,7 @@ namespace Ship_Game.Commands.Goals
                 }
 
                 Owner.AI.DeclareWarOn(TargetEmpire, warType);
-                Owner.AI.Goals.Add(new WarMission(Owner, TargetEmpire, TargetPlanet, task));
+                Owner.AI.AddGoal(new WarMission(Owner, TargetEmpire, TargetPlanet, task));
                 return GoalStep.GoalComplete;
             }
 

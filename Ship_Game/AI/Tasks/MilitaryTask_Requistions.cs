@@ -323,7 +323,7 @@ namespace Ship_Game.AI.Tasks
 
             if (CreateTaskFleet(Completeness) == RequisitionStatus.Complete)
             {
-                Owner.AI.Goals.Add(new DefendVsRemnants(TargetPlanet, TargetPlanet.Owner, Fleet));
+                Owner.AI.AddGoal(new DefendVsRemnants(TargetPlanet, TargetPlanet.Owner, Fleet));
                 NeedEvaluation = false;
             }
         }

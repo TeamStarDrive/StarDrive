@@ -777,7 +777,7 @@ namespace Ship_Game
             {
                 ship.AI.ClearOrders();
             }
-            AI.Goals.Clear();
+            AI.ClearGoals();
             AI.EndAllTasks();
             foreach (var kv in FleetsDict)
                 kv.Value.Reset();
@@ -812,7 +812,7 @@ namespace Ship_Game
                 BreakAllTreatiesWith(them, includingPeace: true);
             }
 
-            AI.Goals.Clear();
+            AI.ClearGoals();
             AI.EndAllTasks();
             foreach (var kv in FleetsDict) kv.Value.Reset();
             AIManagedShips.Clear();
@@ -2693,11 +2693,10 @@ namespace Ship_Game
 
         public void TryCreateAssaultBombersGoal(Empire enemy, Planet planet)
         {
-            if (enemy == this  || AI.Goals.Any(g => g.Type == GoalType.AssaultBombers && g.PlanetBuildingAt == planet))
+            if (enemy == this  || AI.HasGoal(g => g.Type == GoalType.AssaultBombers && g.PlanetBuildingAt == planet))
                 return;
 
-            var goal = new AssaultBombers(planet, this, enemy);
-            AI.Goals.Add(goal);
+            AI.AddGoal(new AssaultBombers(planet, this, enemy));
         }
 
         public void TryAutoRequisitionShip(Fleet fleet, Ship ship)
@@ -3342,7 +3341,7 @@ namespace Ship_Game
 
         void AssignSniffingTasks()
         {
-            if (!isPlayer && AI.Goals.Count(g => g.Type == GoalType.ScoutSystem) < DifficultyModifiers.NumSystemsToSniff)
+            if (!isPlayer && AI.CountGoals(g => g.Type == GoalType.ScoutSystem) < DifficultyModifiers.NumSystemsToSniff)
                 AI.AddGoal(new ScoutSystem(this));
         }
 
