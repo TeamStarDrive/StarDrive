@@ -159,7 +159,7 @@ namespace Ship_Game
                     buildStuff.TetherPlanet = TargetPlanet;
                 }
 
-                EmpireManager.Player.AI.Goals.Add(buildStuff);
+                Screen.Player.AI.AddGoal(buildStuff);
                 GameAudio.EchoAffirmative();
             }
             else

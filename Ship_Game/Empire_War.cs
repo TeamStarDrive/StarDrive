@@ -198,7 +198,7 @@ namespace Ship_Game
 
         public bool CanAddAnotherWarGoal(Empire enemy)
         {
-            return AI.Goals.Count(g => g.IsWarMission && g.TargetEmpire == enemy) <= DifficultyModifiers.NumWarTasksPerWar;
+            return AI.CountGoals(g => g.IsWarMission && g.TargetEmpire == enemy) <= DifficultyModifiers.NumWarTasksPerWar;
         }
 
         public bool TryGetMissionsVsEmpire(Empire enemy, out Goal[] goals)
@@ -209,7 +209,7 @@ namespace Ship_Game
 
         public bool NoEmpireDefenseGoal()
         {
-            return !AI.Goals.Any(g => g.Type == GoalType.EmpireDefense);
+            return !AI.HasGoal(g => g.Type == GoalType.EmpireDefense);
         }
 
         public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, int fleetCount)

@@ -23,9 +23,8 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CheckIfStandbyShipNeeded()
         {
-            return Owner.AI.Goals.Filter(g => g.Type == GoalType.StandbyColonyShip)
-                       .Length > Owner.DifficultyModifiers.StandByColonyShips.UpperBound(Owner.GetPlanets().Count) 
-
+            var goals = Owner.AI.CountGoals(g => g.Type == GoalType.StandbyColonyShip);
+            return goals > Owner.DifficultyModifiers.StandByColonyShips.UpperBound(Owner.GetPlanets().Count) 
                 ? GoalStep.GoalFailed  // reached standby colony ship limit
                 : GoalStep.GoToNextStep;
         }

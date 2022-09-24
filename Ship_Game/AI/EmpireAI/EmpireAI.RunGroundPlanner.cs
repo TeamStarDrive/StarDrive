@@ -24,7 +24,7 @@ namespace Ship_Game.AI
             Troop loCost = troops.First();
             Troop hiCost = troops.Last();
             Troop chosenTroop = DefensiveCoordinator.TroopsToTroopsWantedRatio > 0.7f ? hiCost : loCost;
-            Goals.Add(new BuildTroop(chosenTroop, OwnerEmpire));
+            AddGoal(new BuildTroop(chosenTroop, OwnerEmpire));
         }
     }
 }

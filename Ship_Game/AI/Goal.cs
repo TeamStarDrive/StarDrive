@@ -222,7 +222,7 @@ namespace Ship_Game.AI
 
         void RemoveThisGoal()
         {
-            Owner.AI.Goals.Remove(this);
+            Owner.AI.RemoveGoal(this);
         }
 
         public void AdvanceToNextStep()
