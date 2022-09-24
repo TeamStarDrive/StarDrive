@@ -92,7 +92,7 @@ namespace UnitTests
             Universe.viewState = UniverseScreen.UnivScreenState.PlanetView;
             Player.TestInitModifiers();
             Player.SetRelationsAsKnown(Enemy);
-            Player.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
+            Player.AI.DeclareWarOn(Enemy, WarType.BorderConflict);
             Empire.UpdateBilateralRelations(Player, Enemy);
             
             Log.Info($"CreateUniverseAndPlayerEmpire elapsed: {sw.Elapsed.TotalMilliseconds}ms");

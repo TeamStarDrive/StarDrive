@@ -47,12 +47,12 @@ namespace UnitTests.AITests.Empire
 
             Assert.IsTrue(budget.Count() == budgetAreas);
 
-            var eAI = Enemy.GetEmpireAI();
+            var eAI = Enemy.AI;
 
             var colonyShip = SpawnShip("Colony Ship", Enemy, Vector2.Zero);
             Enemy.UpdateEmpirePlanets();
             Enemy.UpdateNetPlanetIncomes();
-            Enemy.GetEmpireAI().RunEconomicPlanner();
+            Enemy.AI.RunEconomicPlanner();
 
             foreach (var planet in UState.Planets)
             {
@@ -81,11 +81,11 @@ namespace UnitTests.AITests.Empire
             Enemy.data.TaxRate = 1;
             Enemy.UpdateEmpirePlanets();
             Enemy.UpdateNetPlanetIncomes();
-            Enemy.GetEmpireAI().RunEconomicPlanner();
+            Enemy.AI.RunEconomicPlanner();
             Assert.IsTrue(Enemy.data.TaxRate < 1, $"Tax Rate should be less than 100% was {Enemy.data.TaxRate * 100}%");
 
-            Enemy.Money = Enemy.GetEmpireAI().ProjectedMoney * 10;
-            Enemy.GetEmpireAI().RunEconomicPlanner();
+            Enemy.Money = Enemy.AI.ProjectedMoney * 10;
+            Enemy.AI.RunEconomicPlanner();
             Assert.IsTrue(Enemy.data.TaxRate <= 0.00001, $"Tax Rate should be zero was {Enemy.data.TaxRate * 100}%");
         }
     }

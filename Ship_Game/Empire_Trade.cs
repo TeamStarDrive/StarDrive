@@ -23,7 +23,7 @@ namespace Ship_Game
         public int  TotalProdExportSlots          { get; private set; }
 
         public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
-        public int FreightersBeingBuilt  => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
+        public int FreightersBeingBuilt  => AI.Goals.Count(goal => goal is IncreaseFreighters);
         public int MaxFreightersInQueue => (int)(Math.Ceiling(2 * Research.Strategy.IndustryRatio));
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
         public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;
@@ -219,7 +219,7 @@ namespace Ship_Game
                 return;
 
             if (FreighterCap > TotalFreighters + FreightersBeingBuilt && MaxFreightersInQueue >= FreightersBeingBuilt)
-                EmpireAI.AddGoal(new IncreaseFreighters(this));
+                AI.AddGoal(new IncreaseFreighters(this));
         }
 
         int NumFreightersTrading(Goods goods)
@@ -299,7 +299,7 @@ namespace Ship_Game
                  betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
 
             if (betterFreighter != null && betterFreighter.Name != freighter.Name)
-                GetEmpireAI().AddGoal(new RefitShip(freighter, betterFreighter.Name, this));
+                AI.AddGoal(new RefitShip(freighter, betterFreighter.Name, this));
         }
 
         public void UpdateAverageFreightFTL(float value)

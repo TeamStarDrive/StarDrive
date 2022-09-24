@@ -85,10 +85,10 @@ namespace Ship_Game.StoryAndEvents
             }
 
             if (CurrentDialog.SetWar)
-                TargetEmpire.GetEmpireAI().DeclareWarFromEvent(Player, WarType.SkirmishWar);
+                TargetEmpire.AI.DeclareWarFromEvent(Player, WarType.SkirmishWar);
 
             if (CurrentDialog.EndWar)
-                TargetEmpire.GetEmpireAI().EndWarFromEvent(Player);
+                TargetEmpire.AI.EndWarFromEvent(Player);
 
             Relationship rel = Player.GetRelations(TargetEmpire);
             if (CurrentDialog.SetPlayerContactStep > 0)

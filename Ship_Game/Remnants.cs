@@ -92,7 +92,7 @@ namespace Ship_Game
                 case RemnantStory.AncientBalancers:
                 case RemnantStory.AncientExterminators:
                 case RemnantStory.AncientRaidersRandom:
-                    Owner.GetEmpireAI().AddGoal(new RemnantEngagements(Owner));
+                    Owner.AI.AddGoal(new RemnantEngagements(Owner));
                     Universe.Notifications.AddRemnantsStoryActivation(Owner);
                     break;
             }
@@ -244,10 +244,10 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            if (Owner.GetEmpireAI().HasGoal(g => g.IsRaid && (g.Fleet == null || g.Fleet.TaskStep == 0)))
+            if (Owner.AI.HasGoal(g => g.IsRaid && (g.Fleet == null || g.Fleet.TaskStep == 0)))
                 return false;  // Limit building fleet to 1 at a time
 
-            int ongoingRaids = Owner.GetEmpireAI().Goals.Count(g => g.IsRaid);
+            int ongoingRaids = Owner.AI.Goals.Count(g => g.IsRaid);
             return ongoingRaids < NumPortals();
         }
 
@@ -406,7 +406,7 @@ namespace Ship_Game
             else  // AI scramble defense
             {
                 var task = MilitaryTask.CreateDefendVsRemnant(planet, planet.Owner, str);
-                planet.Owner.GetEmpireAI().AddPendingTask(task);
+                planet.Owner.AI.AddPendingTask(task);
             }
         }
 
@@ -518,7 +518,7 @@ namespace Ship_Game
         {
             if (CreatePortal(Universe, out Ship portal, out string systemName))
             {
-                Owner.GetEmpireAI().AddGoal(new RemnantPortal(Owner, portal, systemName));
+                Owner.AI.AddGoal(new RemnantPortal(Owner, portal, systemName));
                 return true;
             }
             return false;
@@ -962,7 +962,7 @@ namespace Ship_Game
                     foreach (Empire e in EmpireManager.MajorEmpires)
                     {
                         if (p.IsExploredBy(e))
-                            e.GetEmpireAI().ThreatMatrix.AddOrUpdatePin(ship, false, true);
+                            e.AI.ThreatMatrix.AddOrUpdatePin(ship, false, true);
                     }
                 }
             }
@@ -970,7 +970,7 @@ namespace Ship_Game
 
         RemnantStory InitAndPickStory()
         {
-            Owner.GetEmpireAI().AddGoal(new RemnantInit(Owner));
+            Owner.AI.AddGoal(new RemnantInit(Owner));
             if (GlobalStats.DisableRemnantStory)
                 return RemnantStory.None;
 

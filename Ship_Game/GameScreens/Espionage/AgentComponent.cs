@@ -117,7 +117,7 @@ namespace Ship_Game.GameScreens.Espionage
             batch.Draw(iconLock, spyLimit, Color.White);
             var spyLimitPos = new Vector2((spyLimit.X + 25), (spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
 
-            SpyLimit = EmpireManager.Player.GetEmpireAI().EmpireSpyLimit;
+            SpyLimit = EmpireManager.Player.AI.EmpireSpyLimit;
             AvailableSpies = SpyLimit - EmpireManager.Player.data.AgentList.Count;
             if (SpyLimit < 0) SpyLimit = 0;
             batch.DrawString(Fonts.Arial12, $"For Hire : {AvailableSpies} / {SpyLimit}", spyLimitPos, Color.White);

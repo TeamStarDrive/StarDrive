@@ -141,7 +141,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (SupplyShip.OrdnancePercent > 0.05f && PlanetBuildingAt.TryGetShipsNeedRearm(out Ship[] shipList, Owner))
             {
                 // Divert supply
-                Owner.GetEmpireAI().AddPlanetaryRearmGoal(shipList[0], PlanetBuildingAt, SupplyShip);
+                Owner.AI.AddPlanetaryRearmGoal(shipList[0], PlanetBuildingAt, SupplyShip);
                 return true;
             }
 

@@ -63,7 +63,7 @@ namespace Ship_Game.Commands.Goals
 
         void ChangeTaskTargetPlanet()
         {
-            var tasks = Owner.GetEmpireAI().GetTasks().Filter(t => t.Fleet == Fleet);
+            var tasks = Owner.AI.GetTasks().Filter(t => t.Fleet == Fleet);
             switch (tasks.Length)
             {
                 case 0:                                                                                  return;
@@ -122,7 +122,7 @@ namespace Ship_Game.Commands.Goals
                 if (i == 0)
                 {
                     var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, Owner);
-                    Owner.GetEmpireAI().AddPendingTask(task);
+                    Owner.AI.AddPendingTask(task);
                     task.CreateRemnantFleet(Owner, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
                     continue;
                 }

@@ -87,7 +87,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         void RemoveOldScrapGoal()
         {
             if (OldShip.AI.FindGoal(ShipAI.Plan.Scrap, out _))
-                OldShip.Loyalty.GetEmpireAI().FindAndRemoveGoal(GoalType.ScrapShip, g => g.OldShip == OldShip);
+                OldShip.Loyalty.AI.FindAndRemoveGoal(GoalType.ScrapShip, g => g.OldShip == OldShip);
         }
 
         GoalStep ImmediateScuttleSelfDestruct()

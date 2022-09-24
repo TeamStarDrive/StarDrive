@@ -187,13 +187,13 @@ namespace Ship_Game.Ships
                         }
                         else if (p.Owner == null)
                         {
-                            Loyalty.GetEmpireAI().SendExplorationFleet(p);
+                            Loyalty.AI.SendExplorationFleet(p);
                             if (Universe.Difficulty > GameDifficulty.Hard 
                                 && PlanetRanker.IsGoodValueForUs(p, Loyalty)
                                 && p.ParentSystem.GetKnownStrengthHostileTo(Loyalty).AlmostZero())
                             {
                                 var task = MilitaryTask.CreateGuardTask(Loyalty, p);
-                                Loyalty.GetEmpireAI().AddPendingTask(task);
+                                Loyalty.AI.AddPendingTask(task);
                             }
                         }
                     }

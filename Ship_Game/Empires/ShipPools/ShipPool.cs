@@ -15,7 +15,7 @@ namespace Ship_Game.Empires.ShipPools
         public int Id { get; }
         public string Name { get; }
         public Empire OwnerEmpire => Owner;
-        public EmpireAI OwnerAI => Owner.GetEmpireAI();
+        public EmpireAI OwnerAI => Owner.AI;
         public Array<Ship> Ships => ForcePool.Items;
 
         public float InitialStrength  { get; private set; }

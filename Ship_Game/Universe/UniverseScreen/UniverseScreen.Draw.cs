@@ -561,8 +561,7 @@ namespace Ship_Game
             else if (SelectedItem != null)
             {
                 Goal goal = SelectedItem.AssociatedGoal;
-                EmpireAI ai = goal.Owner.GetEmpireAI();
-                if (ai.HasGoal(goal))
+                if (goal.Owner.AI.HasGoal(goal))
                 {
                     string titleText = $"({ResourceManager.GetShipTemplate(SelectedItem.UID).Name})";
                     string bodyText = goal.PlanetBuildingAt != null

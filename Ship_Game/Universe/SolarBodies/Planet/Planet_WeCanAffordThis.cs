@@ -43,7 +43,7 @@ namespace Ship_Game
 
                 // determine defensive needs.
                 NeedDefense = false;
-                if (MakingMoney && isDefensive && owner.GetEmpireAI().DefensiveCoordinator.DefenseDict.TryGetValue(p.ParentSystem, out SystemCommander commander))
+                if (MakingMoney && isDefensive && owner.AI.DefensiveCoordinator.DefenseDict.TryGetValue(p.ParentSystem, out SystemCommander commander))
                 {
                     NeedDefense = commander.RankImportance >= defenseRatio * 10;
                 }

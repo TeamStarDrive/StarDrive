@@ -597,13 +597,13 @@ namespace Ship_Game.AI
         // Move to closest colony and get back some resources
         public void OrderScrapShip()
         {
-            Owner.Loyalty.GetEmpireAI().AddScrapShipGoal(Owner, immediateScuttle:false);
+            Owner.Loyalty.AI.AddScrapShipGoal(Owner, immediateScuttle:false);
         }
 
         // Immediately self-destruct
         public void OrderScuttleShip()
         {
-            Owner.Loyalty.GetEmpireAI().AddScrapShipGoal(Owner, immediateScuttle:true);
+            Owner.Loyalty.AI.AddScrapShipGoal(Owner, immediateScuttle:true);
         }
 
         public void AddSupplyShipGoal(Ship supplyTarget, Plan plan = Plan.SupplyShip)
@@ -830,7 +830,7 @@ namespace Ship_Game.AI
             {
                 if (SystemToDefend != null)
                 {
-                    Planet p = Owner.Loyalty.GetEmpireAI().DefensiveCoordinator.AssignIdleShips(Owner);
+                    Planet p = Owner.Loyalty.AI.DefensiveCoordinator.AssignIdleShips(Owner);
                     if (p != null)
                     {
                         Orbit.Orbit(p, timeStep);
@@ -844,7 +844,7 @@ namespace Ship_Game.AI
                     Orbit.Orbit(AwaitClosest, timeStep);
                     return;
                 }
-                AwaitClosest = Owner.Loyalty.GetEmpireAI().GetKnownPlanets(Owner.Universe)
+                AwaitClosest = Owner.Loyalty.AI.GetKnownPlanets(Owner.Universe)
                     .FindMin(p => p.Position.SqDist(Owner.Position) + (Owner.Loyalty != p.Owner ? 300000 : 0));
                 return;
             }

@@ -56,7 +56,7 @@ namespace Ship_Game.Commands.Goals
             {
                 // They did not pay! We will raid them
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-                if (!Pirates.Owner.GetEmpireAI().HasGoal(g => g.Type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
+                if (!Pirates.Owner.AI.HasGoal(g => g.Type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
                      Pirates.AddGoalDirectorRaid(TargetEmpire);
             }
 
@@ -117,13 +117,13 @@ namespace Ship_Game.Commands.Goals
                     if (TargetEmpire.data.TaxRate < 0.5f && RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
                     {
                         TargetEmpire.AddMoney(-moneyDemand);
-                        TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
+                        TargetEmpire.AI.EndWarFromEvent(Pirates.Owner);
                         Log.Info(ConsoleColor.Green, $"Pirates: {Owner.Name} Payment Director " +
                                                      $"Got - {moneyDemand} credits from {TargetEmpire.Name}");
                     }
                     else
                     {
-                        TargetEmpire.GetEmpireAI().DeclareWarFromEvent(Pirates.Owner, WarType.SkirmishWar);
+                        TargetEmpire.AI.DeclareWarFromEvent(Pirates.Owner, WarType.SkirmishWar);
                         Log.Info(ConsoleColor.Green, $"Pirates: {Owner.Name} Payment Director " +
                                                      $"- {TargetEmpire.Name} refused to pay {moneyDemand} credits!");
                     }

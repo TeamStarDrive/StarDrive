@@ -101,7 +101,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (p.Owner == null)
             {
                 if (!p.ParentSystem.OwnerList.Any(empire => empire.IsNAPactWith(e)) && shipSize >= 100)
-                    e.GetEmpireAI().SendExplorationFleet(p);
+                    e.AI.SendExplorationFleet(p);
             }
             else if (!p.TroopsInTheWorks && !p.AnyOfOurTroops(e) && !p.SpaceCombatNearPlanet) // owner is this empire
             {
@@ -114,7 +114,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (e.GetTroopShipForRebase(out Ship troopShip, p.Position, p.Name))
                 troopShip.AI.OrderLandAllTroops(p, clearOrders:true);
             else
-                e.GetEmpireAI().SendExplorationFleet(p); // Create a task to be processed normally
+                e.AI.SendExplorationFleet(p); // Create a task to be processed normally
         }
 
         public void ActivateSite(UniverseState u, Planet p, Empire activatingEmpire, PlanetGridSquare tile)

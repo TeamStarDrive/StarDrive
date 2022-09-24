@@ -232,7 +232,7 @@ namespace Ship_Game.AI
 
             bool GetColonizationGoalsList(Empire empire, out Array<Goal> planetList)
             {
-                planetList = empire.GetEmpireAI().ExpansionAI.GetColonizationGoals();
+                planetList = empire.AI.ExpansionAI.GetColonizationGoals();
                 return planetList.Count > 0;
             }
 

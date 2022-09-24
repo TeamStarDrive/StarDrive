@@ -80,7 +80,7 @@ namespace Ship_Game
 
             // this also counts construction ships on the way, by checking the empire goals
             int numOrbitals = 0;
-            var goals = owner.GetEmpireAI().Goals;
+            var goals = owner.AI.Goals;
             for (int i = 0; i < goals.Count; i++)
             {
                 Goal g = goals[i];
@@ -106,8 +106,8 @@ namespace Ship_Game
                 return 0;
 
             int shipyardsInQ = 0;
-            foreach (Goal goal in owner.GetEmpireAI().FindGoals(g => g.Type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
-                                                                  || g.Type == GoalType.DeepSpaceConstruction && g.TetherPlanet == this))
+            foreach (Goal goal in owner.AI.FindGoals(g => g.Type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
+                                                          || g.Type == GoalType.DeepSpaceConstruction && g.TetherPlanet == this))
             {
                 if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship shipyard) && shipyard.ShipData.IsShipyard)
                     shipyardsInQ++;
@@ -121,7 +121,7 @@ namespace Ship_Game
             int orbitalsWeHave = orbitalList.Filter(o => !o.ShipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
-            var eAI = Owner.GetEmpireAI();
+            var eAI = Owner.AI;
 
             if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || (budget < 0 && !eAI.EmpireCanSupportSpcDefense)))
             {
@@ -183,7 +183,7 @@ namespace Ship_Game
                          $"cost: {orbital.GetCost(Owner)}, STR: {orbital.BaseStrength}");
 
             Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
-            Owner.GetEmpireAI().AddGoal(buildOrbital);
+            Owner.AI.AddGoal(buildOrbital);
         }
 
         private void ReplaceOrbital(Array<Ship> orbitalList, RoleName role, float budget)
@@ -208,7 +208,7 @@ namespace Ship_Game
             if (weakestWeHave.DesignRole == bestWeCanBuild.DesignRole)
             {
                 Goal refitOrbital = new RefitOrbital(weakestWeHave, bestWeCanBuild.Name, Owner);
-                Owner.GetEmpireAI().AddGoal(refitOrbital);
+                Owner.AI.AddGoal(refitOrbital);
                 debugReplaceOrRefit = "REFITTING";
             }
             else

@@ -153,7 +153,7 @@ namespace Ship_Game.GameScreens.Universe.Debug
         {
             empire.AutoResearch = true;
             empire.Research.Reset();
-            empire.GetEmpireAI().DebugRunResearchPlanner();
+            empire.AI.DebugRunResearchPlanner();
         }
 
         public static void UnlockCurrentResearchTopic(Empire empire)

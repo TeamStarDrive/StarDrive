@@ -24,15 +24,15 @@ namespace Ship_Game
 
         public void DoDefense()
         {
-            if (SelectedShip == null || Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(SelectedShip))
+            if (SelectedShip == null || Player.AI.DefensiveCoordinator.DefensiveForcePool.Contains(SelectedShip))
                 return;
-            Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Add(SelectedShip);
+            Player.AI.DefensiveCoordinator.DefensiveForcePool.Add(SelectedShip);
             SelectedShip.AI.ClearOrders(AIState.SystemDefender);
         }
 
         private void MarkForColonization()
         {
-            Player.GetEmpireAI().AddGoal(new MarkForColonization(SelectedPlanet, Player));
+            Player.AI.AddGoal(new MarkForColonization(SelectedPlanet, Player));
         }
     }
 }

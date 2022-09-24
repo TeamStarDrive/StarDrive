@@ -1184,7 +1184,7 @@ namespace Ship_Game
 
         public int NumSupplyShuttlesCanLaunch() // Net, after subtracting already launched shuttles
         {
-            var planetSupplyGoals = Owner.GetEmpireAI()
+            var planetSupplyGoals = Owner.AI
                 .FindGoals(g => g.Type == AI.GoalType.RearmShipFromPlanet && g.PlanetBuildingAt == this);
 
             return (int)InfraStructure - planetSupplyGoals.Length;

@@ -160,7 +160,7 @@ namespace Ship_Game
                     SetRelationsAsKnown(them);
             }
             AllActiveWars = wars.ToArray();
-            ActiveWarPreparations = EmpireAI.Goals.Count(g => g.Type == GoalType.PrepareForWar);
+            ActiveWarPreparations = AI.Goals.Count(g => g.Type == GoalType.PrepareForWar);
             AtWarCount = atWarCount;
         }
 
@@ -470,7 +470,7 @@ namespace Ship_Game
             // Local Method
             void SignPeaceWithEmpireTheySignedWith()
             {
-                EmpireAI.AcceptOffer(new Offer { PeaceTreaty = true }, new Offer { PeaceTreaty = true },
+                AI.AcceptOffer(new Offer { PeaceTreaty = true }, new Offer { PeaceTreaty = true },
                     this, empireTheySignedWith, Offer.Attitude.Respectful);
             }
         }
