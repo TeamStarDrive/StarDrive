@@ -28,8 +28,7 @@ namespace Ship_Game.Commands.Goals
         {
             ToBuildUID  = shipName;
             ShipToBuild = ResourceManager.Ships.GetDesign(shipName);
-            Rush        = rush;
-            Evaluate();
+            Rush = rush;
         }
 
         GoalStep FindPlanetForFleetRequisition()

@@ -61,7 +61,7 @@ namespace Ship_Game
                     return ManualFoodExportSlots;
 
                 int min = Storage.FoodRatio > 0.75f ? 2 : 1;
-                int maxSlots     = colonyType is ColonyType.Agricultural or ColonyType.Colony ? 14 : 10;
+                int maxSlots     = CType is ColonyType.Agricultural or ColonyType.Colony ? 14 : 10;
                 int storageSlots = (int)(Storage.Food / Owner.AverageFreighterCargoCap);
                 int outputSlots  = (int)(Food.NetIncome * AverageFoodExportTurns / Owner.AverageFreighterCargoCap);
                 return (storageSlots + outputSlots).Clamped(min, maxSlots);
@@ -80,7 +80,7 @@ namespace Ship_Game
 
                 int min = Storage.ProdRatio > 0.5f ? 2 : 1;
                 int maxSlots = IsCybernetic ? 6 : 5;
-                switch (colonyType)
+                switch (CType)
                 {
                     case ColonyType.Industrial: maxSlots += 7; break;
                     case ColonyType.Core:       maxSlots += 5; break;
@@ -145,9 +145,9 @@ namespace Ship_Game
                     return ManualProdImportSlots;
 
                 int maxSlots = ((int)(Universe.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
-                if (colonyType == ColonyType.Industrial
-                    || colonyType == ColonyType.Core
-                    || colonyType == ColonyType.Colony)
+                if (CType == ColonyType.Industrial
+                    || CType == ColonyType.Core
+                    || CType == ColonyType.Colony)
                 {
                     maxSlots = (int)(maxSlots * 1.5f);
                 }

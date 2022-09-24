@@ -632,7 +632,7 @@ namespace Ship_Game
 
             DrawMultiLine(ref bCursor, desc);
             desc = "";
-            if (P.colonyType == Planet.ColonyType.Colony)
+            if (P.CType == Planet.ColonyType.Colony)
             {
                 switch (P.PS)
                 {

@@ -26,7 +26,6 @@ namespace Ship_Game.Commands.Goals
         {
             BuildPosition = buildPosition;
             ToBuildUID = platformUid;
-            Evaluate();
         }
 
         GoalStep FindPlanetToBuildAt()

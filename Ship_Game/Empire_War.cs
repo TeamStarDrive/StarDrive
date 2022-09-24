@@ -12,7 +12,7 @@ namespace Ship_Game
     {
         bool HasWarMissionTargeting(Planet planet)
         {
-            return EmpireAI.Goals.Any(g => g.IsWarMission && g.TargetPlanet == planet);
+            return EmpireAI.HasGoal(g => g.IsWarMission && g.TargetPlanet == planet);
         }
 
         public bool GetPotentialTargetPlanets(Empire enemy, WarType warType, out Planet[] targetPlanets)
@@ -203,7 +203,7 @@ namespace Ship_Game
 
         public bool TryGetMissionsVsEmpire(Empire enemy, out Goal[] goals)
         {
-            goals = EmpireAI.Goals.Filter(g => g.IsWarMission && g.TargetEmpire == enemy);
+            goals = EmpireAI.FindGoals(g => g.IsWarMission && g.TargetEmpire == enemy);
             return goals.Length > 0;
         }
 
@@ -214,7 +214,7 @@ namespace Ship_Game
 
         public void AddDefenseSystemGoal(SolarSystem system, float strengthWanted, int fleetCount)
         {
-            EmpireAI.Goals.Add(new DefendSystem(this, system, strengthWanted, fleetCount));
+            EmpireAI.AddGoal(new DefendSystem(this, system, strengthWanted, fleetCount));
         }
 
         public bool HasWarTaskTargetingSystem(SolarSystem system)

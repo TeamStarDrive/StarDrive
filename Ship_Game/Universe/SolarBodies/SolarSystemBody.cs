@@ -222,12 +222,12 @@ namespace Ship_Game
         [StarData] public Array<Building> BuildingList = new();
         [StarData] public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;        
-        private float PosUpdateTimer = 1f;
-        private float ZrotateAmount  = 0.03f;
+        float PosUpdateTimer = 1f;
+        float ZrotateAmount  = 0.03f;
         [StarData] public float TerraformPoints { get; protected set; } // FB - terraform process from 0 to 1. 
         [StarData] public float BaseFertilityTerraformRatio { get; protected set; } // A value to add to base fertility during Terraform. 
         public float TerraformToAdd { get; protected set; }  //  FB - a sum of all terraformer efforts
-        [StarData(NameId = "ColonyType")] public Planet.ColonyType colonyType;
+        [StarData] public Planet.ColonyType CType;
         public int TileMaxX { get; private set; } = 7; // FB foundations to variable planet tiles
         public int TileMaxY { get; private set; } = 5; // FB foundations to variable planet tiles
 
@@ -240,7 +240,7 @@ namespace Ship_Game
         }
 
         public int TurnsSinceTurnover { get; protected set; }
-        public Shield Shield { get; protected set;}
+        public Shield Shield { get; protected set; }
         public IReadOnlyList<Building> GetBuildingsCanBuild() => BuildingsCanBuild;
 
         public SolarSystemBody(int id, GameObjectType type) : base(id, type)
@@ -582,9 +582,9 @@ namespace Ship_Game
             thisPlanet.Station?.DestroySceneObject(); // remove current SO, so it can get reloaded properly
 
             if (newOwner.isPlayer && !newOwner.AutoColonize)
-                colonyType = Planet.ColonyType.Colony;
+                CType = Planet.ColonyType.Colony;
             else
-                colonyType = newOwner.AssessColonyNeeds(thisPlanet);
+                CType = newOwner.AssessColonyNeeds(thisPlanet);
 
             newOwner.TryTransferCapital(thisPlanet);
         }

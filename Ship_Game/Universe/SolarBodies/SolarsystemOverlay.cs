@@ -41,6 +41,8 @@ namespace Ship_Game
             if (Sys == null)
                 return;
 
+            Empire player = Universe.Player;
+
             ClickTimer += elapsed.RealTime.Seconds;
             SelectionTimer += elapsed.RealTime.Seconds;
 
@@ -60,7 +62,7 @@ namespace Ship_Game
             float transitionPos = 1f - (SelectionTimer / 0.4f);
             float transitionOffset = transitionPos*transitionPos;
 
-            if (Sys.IsExploredBy(EmpireManager.Player))
+            if (Sys.IsExploredBy(player))
             {
                 for (int i = 0; i < Sys.PlanetList.Count; i++)
                 {
@@ -108,7 +110,7 @@ namespace Ship_Game
                     int playerTroops = 0;
                     int sideSpacing = 0;
 
-                    if (p.IsExploredBy(EmpireManager.Player))
+                    if (p.IsExploredBy(player))
                     {
                         int j = 0;
 
@@ -208,15 +210,15 @@ namespace Ship_Game
                             batch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
                             batch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon, Color.White);
 
-                            if (p.Owner != null && p.Owner == EmpireManager.Player)
+                            if (p.Owner != null && p.Owner == player)
                             {
                                 batch.Draw(ResourceManager.Texture("NewUI/icon_science"), rIcon, Color.White);
                                 batch.Draw(ResourceManager.Texture("UI/icon_troop"), tIcon, Color.White);
                             }
 
-                            if (p.Owner == null || p.Owner != EmpireManager.Player)
+                            if (p.Owner == null || p.Owner != player)
                             {
-                                batch.DrawString(DataFont, p.FertilityFor(EmpireManager.Player).String(), new Vector2(fIcon.X + 12, fIcon.Y).Rounded(), tColor);
+                                batch.DrawString(DataFont, p.FertilityFor(player).String(), new Vector2(fIcon.X + 12, fIcon.Y).Rounded(), tColor);
                                 batch.DrawString(DataFont, p.MineralRichness.String(), new Vector2(pIcon.X + 12, pIcon.Y).Rounded(), tColor);
                             }
                             else
@@ -229,13 +231,13 @@ namespace Ship_Game
                             }
                         }
 
-                        foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
+                        foreach (Goal g in player.GetEmpireAI().Goals)
                         {
                             if (g.ColonizationTarget == null || g.ColonizationTarget != p)
                                 continue;
 
                             var flag = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 6, PlanetRect.Y - 17, 13, 17);
-                            batch.Draw(ResourceManager.Texture("UI/flagicon"), flag, EmpireManager.Player.EmpireColor);
+                            batch.Draw(ResourceManager.Texture("UI/flagicon"), flag, player.EmpireColor);
                             if (flag.HitTest(Universe.Input.CursorPosition))
                                 ToolTip.CreateTooltip(GameText.IndicatesThatYourEmpireHas);
                         }
@@ -267,7 +269,7 @@ namespace Ship_Game
                     {
                         Universe.SelectedPlanet = clickMe.p;
                         Universe.pInfoUI.SetPlanet(clickMe.p);
-                        Universe.SnapViewColony(clickMe.p.Owner != EmpireManager.Player);
+                        Universe.SnapViewColony(clickMe.p.Owner != Universe.Player);
                         return true;
                     }
 

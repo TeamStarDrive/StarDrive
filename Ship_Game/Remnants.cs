@@ -24,7 +24,6 @@ namespace Ship_Game
         [StarData] public readonly Empire Owner;
         public UniverseState Universe => Owner.Universum ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
 
-        [StarData] public readonly Array<Goal> Goals;
         [StarData] public float StoryTriggerKillsXp { get; private set; }
         [StarData] public float PlayerStepTriggerXp { get; private set; }
         [StarData] public float NextLevelUpDate { get; private set; }
@@ -41,19 +40,15 @@ namespace Ship_Game
         [StarDataConstructor]
         Remnants() {}
 
-        public Remnants(Empire owner, bool fromSave, Array<Goal> goals)
+        public Remnants(Empire owner)
         {
             Owner = owner;
-            Goals = goals;
-
             Owner.data.FuelCellModifier      = 1.4f;
             Owner.data.FTLPowerDrainModifier = 0.8f;
-            owner.data.FTLModifier           = 50;
-            owner.data.MassModifier          = 0.9f;
+            Owner.data.FTLModifier           = 50;
+            Owner.data.MassModifier          = 0.9f;
 
-            if (!fromSave)
-                Story = InitAndPickStory(goals);
-
+            Story = InitAndPickStory();
             CalculateShipCosts();
         }
 
@@ -97,7 +92,7 @@ namespace Ship_Game
                 case RemnantStory.AncientBalancers:
                 case RemnantStory.AncientExterminators:
                 case RemnantStory.AncientRaidersRandom:
-                    Goals.Add(new RemnantEngagements(Owner));
+                    Owner.GetEmpireAI().AddGoal(new RemnantEngagements(Owner));
                     Universe.Notifications.AddRemnantsStoryActivation(Owner);
                     break;
             }
@@ -249,10 +244,10 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            if (Goals.Any(g => g.IsRaid && (g.Fleet == null || g.Fleet.TaskStep == 0)))
+            if (Owner.GetEmpireAI().HasGoal(g => g.IsRaid && (g.Fleet == null || g.Fleet.TaskStep == 0)))
                 return false;  // Limit building fleet to 1 at a time
 
-            int ongoingRaids = Goals.Count(g => g.IsRaid);
+            int ongoingRaids = Owner.GetEmpireAI().Goals.Count(g => g.IsRaid);
             return ongoingRaids < NumPortals();
         }
 
@@ -523,7 +518,7 @@ namespace Ship_Game
         {
             if (CreatePortal(Universe, out Ship portal, out string systemName))
             {
-                Goals.Add(new RemnantPortal(Owner, portal, systemName));
+                Owner.GetEmpireAI().AddGoal(new RemnantPortal(Owner, portal, systemName));
                 return true;
             }
             return false;
@@ -973,9 +968,9 @@ namespace Ship_Game
             }
         }
 
-        RemnantStory InitAndPickStory(Array<Goal> goals)
+        RemnantStory InitAndPickStory()
         {
-            goals.Add(new RemnantInit(Owner));
+            Owner.GetEmpireAI().AddGoal(new RemnantInit(Owner));
             if (GlobalStats.DisableRemnantStory)
                 return RemnantStory.None;
 

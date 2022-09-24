@@ -9,8 +9,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PirateBase : Goal
     {
-        [StarData] Pirates Pirates;
-        [StarData] Ship Base;
+        Pirates Pirates => Owner.Pirates;
+        Ship Base => TargetShip;
         
         [StarDataConstructor]
         public PirateBase(Empire owner) : base(GoalType.PirateBase, owner)
@@ -24,17 +24,7 @@ namespace Ship_Game.Commands.Goals
         public PirateBase(Empire owner, Ship ship, string systemName) : this(owner)
         {
             TargetShip = ship;
-            PostInit();
             Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Base in {systemName} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates    = Owner.Pirates;
-            Base       = TargetShip;
-
-            // Increase sensor range so it would also be seen a bit better on the minimap
-            Base.SensorRange *= ((int)(UState.GalaxySize + 1)).UpperBound(3);
         }
 
         GoalStep SalvageShips()

@@ -41,12 +41,12 @@ namespace Ship_Game
 
         [StarData] readonly Map<int, Fleet> FleetsDict = new();
 
-        public readonly Map<string, bool> UnlockedHullsDict = new(StringComparer.InvariantCultureIgnoreCase);
-        readonly Map<string, bool> UnlockedTroopDict = new(StringComparer.InvariantCultureIgnoreCase);
-        readonly Map<string, bool> UnlockedBuildingsDict = new(StringComparer.InvariantCultureIgnoreCase);
-        readonly Map<string, bool> UnlockedModulesDict = new(StringComparer.InvariantCultureIgnoreCase);
+        public readonly Map<string, bool> UnlockedHullsDict = new();
+        readonly Map<string, bool> UnlockedTroopDict = new();
+        readonly Map<string, bool> UnlockedBuildingsDict = new();
+        readonly Map<string, bool> UnlockedModulesDict = new();
 
-        readonly Array<Troop> UnlockedTroops = new();
+        [StarData] readonly Array<Troop> UnlockedTroops = new();
 
         /// <summary>
         /// Returns an average of empire money over several turns.
@@ -62,7 +62,7 @@ namespace Ship_Game
                 NormalizedMoney = NormalizedMoney*(1f-rate) + money*rate;
         }
 
-        [StarData] public Map<string, TechEntry> TechnologyDict = new(StringComparer.InvariantCultureIgnoreCase);
+        [StarData] public Map<string, TechEntry> TechnologyDict = new();
         [StarData] public Array<Ship> Inhibitors = new();
         [StarData] public Array<SpaceRoad> SpaceRoadsList = new();
 
@@ -74,8 +74,8 @@ namespace Ship_Game
             set => MoneyValue = value.NaNChecked(0f, "Empire.Money");
         }
 
-        [StarData] Array<Planet> OwnedPlanets = new();
-        [StarData] Array<SolarSystem> OwnedSolarSystems = new();
+        [StarData] readonly Array<Planet> OwnedPlanets = new();
+        [StarData] readonly Array<SolarSystem> OwnedSolarSystems = new();
         public IReadOnlyList<Ship> OwnedShips => EmpireShips.OwnedShips;
         public IReadOnlyList<Ship> OwnedProjectors => EmpireShips.OwnedProjectors;
 
@@ -269,24 +269,26 @@ namespace Ship_Game
         {
             return Universum.DefaultProjectorRadius * data.SensorModifier;
         }
-        
-        public void SetAsPirates(bool fromSave, Array<Goal> goals)
+
+        public void SetAsPirates()
         {
-            if (fromSave && data.Defeated)
+            if (data.Defeated)
                 return;
 
-            if (!fromSave && GlobalStats.DisablePirates)
+            if (GlobalStats.DisablePirates)
             {
                 data.Defeated = true;
-                return;
+            }
+            else
+            {
+                Pirates = new Pirates(this);
             }
 
-            Pirates = new Pirates(this, fromSave, goals);
         }
 
-        public void SetAsRemnants(bool fromSave, Array<Goal> goals)
+        public void SetAsRemnants()
         {
-            Remnants = new Remnants(this, fromSave, goals);
+            Remnants = new Remnants(this);
         }
 
         public void AddMoney(float moneyDiff)
@@ -453,12 +455,12 @@ namespace Ship_Game
         {
             bestPorts = null;
             // If all the ports are research colonies, do not filter them
-            bool filterResearchPorts = ports.Any(p => p.colonyType != Planet.ColonyType.Research);
+            bool filterResearchPorts = ports.Any(p => p.CType != Planet.ColonyType.Research);
             if (ports.Count > 0)
             {
                 float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
                 bestPorts            = ports.Filter(p => !p.IsCrippled
-                                                         && (p.colonyType != Planet.ColonyType.Research || !filterResearchPorts)
+                                                         && (p.CType != Planet.ColonyType.Research || !filterResearchPorts)
                                                          && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd * portQuality));
             }
 
@@ -1084,7 +1086,7 @@ namespace Ship_Game
             InitEmpireUnlocks();
         }
 
-        // initialize empire (before universe has been created)
+        // initializes an empire
         public void Initialize()
         {
             InitTechTree();
@@ -1094,15 +1096,8 @@ namespace Ship_Game
             if (EmpireManager.NumEmpires == 0)
                 UpdateTimer = 0;
 
-            EmpireAI = new EmpireAI(this, fromSave: false);
+            EmpireAI = new(this);
             Research.Update();
-        }
-
-        public void InitializeFromSave()
-        {
-            CommonInitialize();
-            EmpireAI = new EmpireAI(this, fromSave: true);
-            Research.SetResearchStrategy();
         }
 
         private void CreateThrusterColors()
@@ -1139,10 +1134,8 @@ namespace Ship_Game
             }
         }
 
-        private void InitTechTree()
+        void InitTechTree()
         {
-            TechnologyDict.Clear(); // we allow resetting this
-
             foreach (var kv in ResourceManager.TechTree)
             {
                 var techEntry = new TechEntry(kv.Key);
@@ -1182,8 +1175,6 @@ namespace Ship_Game
                 var techEntry = kv.Value;
                 data.Traits.TechUnlocks(techEntry, this);
             }
-
-            UnlockedTroops.Clear();
 
             // Added by gremlin Figure out techs with modules that we have ships for.
             var ourShips = GetOurFactionShips();
@@ -1294,7 +1285,20 @@ namespace Ship_Game
         public void UnlockEmpireTroop(string troopName)
         {
             UnlockedTroopDict[troopName] = true;
-            UnlockedTroops.AddUniqueRef(ResourceManager.GetTroopTemplate(troopName));
+
+            var template = ResourceManager.GetTroopTemplate(troopName);
+
+            for (int i = 0; i < UnlockedTroops.Count; ++i)
+            {
+                if (UnlockedTroops[i].Name == template.Name)
+                {
+                    UnlockedTroops[i] = template; // update existing template
+                    return;
+                }
+            }
+
+            // if it didn't exist, add it
+            UnlockedTroops.Add(template);
         }
 
         public void UnlockEmpireBuilding(string buildingName) => UnlockedBuildingsDict[buildingName] = true;
@@ -2381,7 +2385,7 @@ namespace Ship_Game
             int researchCount     = 0;
             foreach (Planet planet in OwnedPlanets)
             {
-                switch (planet.colonyType)
+                switch (planet.CType)
                 {
                     case Planet.ColonyType.Agricultural: ++agriculturalCount; break;
                     case Planet.ColonyType.Core:         ++coreCount;         break;
@@ -2725,7 +2729,7 @@ namespace Ship_Game
 
             var g = new FleetRequisition(ship.Name, this, false) { Fleet = fleet };
             node.Goal = g;
-            EmpireAI.Goals.Add(g);
+            EmpireAI.AddGoal(g);
             g.Evaluate();
         }
 
@@ -3254,16 +3258,6 @@ namespace Ship_Game
 
         public bool HavePreReq(string techId) => GetTechEntry(techId).HasPreReq(this);
 
-        public void ReportGoalComplete(Goal g)
-        {
-            for (int index = EmpireAI.Goals.Count - 1; index >= 0; --index)
-            {
-                if (EmpireAI.Goals[index] != g) continue;
-                EmpireAI.Goals.RemoveAtSwapLast(index);
-                break;
-            }
-        }
-
         public EmpireAI GetEmpireAI() => EmpireAI;
 
         public Vector2 GetCenter()
@@ -3351,7 +3345,7 @@ namespace Ship_Game
         void AssignSniffingTasks()
         {
             if (!isPlayer && EmpireAI.Goals.Count(g => g.Type == GoalType.ScoutSystem) < DifficultyModifiers.NumSystemsToSniff)
-                EmpireAI.Goals.Add(new ScoutSystem(this));
+                EmpireAI.AddGoal(new ScoutSystem(this));
         }
 
         public bool ChooseScoutShipToBuild(out IShipDesign scout)
@@ -3425,7 +3419,7 @@ namespace Ship_Game
 
             // Build a scout if needed
             if (numScouts < desiredScouts  && !EmpireAI.HasGoal(GoalType.BuildScout))
-                EmpireAI.Goals.Add(new BuildScout(this));
+                EmpireAI.AddGoal(new BuildScout(this));
         }
 
         private void ApplyFertilityChange(float amount)

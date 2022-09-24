@@ -11,9 +11,9 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PirateProtection : Goal
     {
-        [StarData] Pirates Pirates;
-        [StarData] Ship ShipToProtect;
-        [StarData] Empire EmpireToProtect;
+        Pirates Pirates => Owner.Pirates;
+        Ship ShipToProtect => TargetShip;
+        Empire EmpireToProtect => TargetEmpire;
 
         [StarDataConstructor]
         public PirateProtection(Empire owner) : base(GoalType.PirateProtection, owner)
@@ -30,16 +30,7 @@ namespace Ship_Game.Commands.Goals
         {
             TargetEmpire = targetEmpire;
             TargetShip = targetShip;
-            PostInit();
-            Evaluate();
             Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Protection for {targetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates         = Owner.Pirates;
-            ShipToProtect   = TargetShip;
-            EmpireToProtect = TargetEmpire;
         }
 
         GoalStep SpawnProtectionForce()

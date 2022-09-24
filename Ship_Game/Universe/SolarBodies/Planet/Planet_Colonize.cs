@@ -61,9 +61,9 @@ namespace Ship_Game
         void SetupColonyType()
         {
             if (OwnerIsPlayer && !Owner.AutoColonize)
-                colonyType = ColonyType.Colony;
+                CType = ColonyType.Colony;
             else
-                colonyType = Owner.AssessColonyNeeds(this);
+                CType = Owner.AssessColonyNeeds(this);
 
             if (OwnerIsPlayer)
                 Universe.Notifications.AddColonizedNotification(this, EmpireManager.Player);

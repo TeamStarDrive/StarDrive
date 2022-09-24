@@ -622,7 +622,7 @@ namespace Ship_Game.Debug
                 if (e.data.Defeated)
                     continue;
 
-                var goals = e.Pirates.Goals;
+                IReadOnlyList<Goal> goals = e.Pirates.Owner.GetEmpireAI().Goals;
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
                 DrawString("------------------------");
                 DrawString(e.Name);

@@ -1325,7 +1325,7 @@ namespace Ship_Game
 
         void OnScrapSelectedItem()
         {
-            Player.GetEmpireAI().Goals.Remove(SelectedItem.AssociatedGoal);
+            Player.GetEmpireAI().RemoveGoal(SelectedItem.AssociatedGoal);
 
             bool found = false;
             var ships = Player.OwnedShips;

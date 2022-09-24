@@ -24,7 +24,6 @@ namespace Ship_Game.Commands.Goals
         {
             TargetEmpire = enemy;
             TargetPlanet = targetPlanet;
-            Evaluate();
             Log.Info(ConsoleColor.Green, $"---- WarMission: New {Owner.Name} Vs.: {TargetEmpire.Name} ----");
         }
 

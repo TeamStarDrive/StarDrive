@@ -10,7 +10,7 @@ namespace Ship_Game.Universe.SolarBodies
     {
         [StarData] public float Max { get; set; } = 10f;
         [StarData] readonly Planet Ground;
-        [StarData] readonly Map<string, float> Commodities = new(StringComparer.OrdinalIgnoreCase);
+        [StarData] readonly Map<string, float> Commodities = new();
 
         [StarDataConstructor]
         public ColonyStorage(Planet planet)
@@ -18,7 +18,6 @@ namespace Ship_Game.Universe.SolarBodies
             Ground = planet;
         }
 
-        public int CommoditiesCount => Commodities.Count;
         public bool ContainsGood(string goodId) => Commodities.ContainsKey(goodId);
 
         float FoodValue; // @note These are special fields for perf reasons.

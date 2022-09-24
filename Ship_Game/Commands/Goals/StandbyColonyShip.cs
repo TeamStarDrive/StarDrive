@@ -19,7 +19,6 @@ namespace Ship_Game.Commands.Goals
                 EnsureBuildingColonyShip,
                 KeepOnStandBy
             };
-            Evaluate();
         }
 
         GoalStep CheckIfStandbyShipNeeded()

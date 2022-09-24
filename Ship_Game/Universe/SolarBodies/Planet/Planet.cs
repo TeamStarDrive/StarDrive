@@ -31,7 +31,7 @@ namespace Ship_Game
         }
 
         public override string ToString() =>
-            $"{Name} ({Owner?.Name ?? "No Owner"}) T:{colonyType} NET(FD:{Food.NetIncome.String()} PR:{Prod.NetIncome.String()}) {ImportsDescr()}";
+            $"{Name} ({Owner?.Name ?? "No Owner"}) T:{CType} NET(FD:{Food.NetIncome.String()} PR:{Prod.NetIncome.String()}) {ImportsDescr()}";
 
         public GeodeticManager GeodeticManager;
         public TroopManager TroopManager;
@@ -114,9 +114,9 @@ namespace Ship_Game
         public bool WeAreInvadingHere(Empire empire)    => TroopManager.WeAreInvadingHere(empire);
         public bool MightBeAWarZone(Empire empire)      => TroopManager.MightBeAWarZone(empire);
         public bool ForeignTroopHere(Empire empire)     => TroopManager.ForeignTroopHere(empire);
-        public bool NoGovernorAndNotTradeHub            => !Governor && colonyType != ColonyType.TradeHub;
+        public bool NoGovernorAndNotTradeHub            => !Governor && CType != ColonyType.TradeHub;
         public int SpecialCommodities                   => BuildingList.Count(b => b.IsCommodity);
-        public bool Governor                            => colonyType != ColonyType.Colony;
+        public bool Governor                            => CType != ColonyType.Colony;
         public bool IsCrippled                          => CrippledTurns > 0 || RecentCombat;
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
@@ -845,7 +845,7 @@ namespace Ship_Game
 
             if (ConstructionQueue.Count == 0 && !QueueEmptySent)
             {
-                if (colonyType != ColonyType.Colony)
+                if (CType != ColonyType.Colony)
                     return;
 
                 QueueEmptySent = true;
@@ -984,7 +984,7 @@ namespace Ship_Game
         {
             get
             {
-                switch (colonyType)
+                switch (CType)
                 {
                     default:
                     case ColonyType.Core:         return GameText.GovernorWillBuildABalanced;
@@ -1002,7 +1002,7 @@ namespace Ship_Game
         {
             get
             {
-                switch (colonyType)
+                switch (CType)
                 {
                     default:
                     case ColonyType.Core:         return GameText.CoreWorld;
@@ -1185,7 +1185,7 @@ namespace Ship_Game
         public int NumSupplyShuttlesCanLaunch() // Net, after subtracting already launched shuttles
         {
             var planetSupplyGoals = Owner.GetEmpireAI()
-                .Goals.Filter(g => g.Type == AI.GoalType.RearmShipFromPlanet && g.PlanetBuildingAt == this);
+                .FindGoals(g => g.Type == AI.GoalType.RearmShipFromPlanet && g.PlanetBuildingAt == this);
 
             return (int)InfraStructure - planetSupplyGoals.Length;
         }

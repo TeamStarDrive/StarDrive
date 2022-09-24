@@ -219,7 +219,7 @@ namespace Ship_Game
                 return;
 
             if (FreighterCap > TotalFreighters + FreightersBeingBuilt && MaxFreightersInQueue >= FreightersBeingBuilt)
-                EmpireAI.Goals.Add(new IncreaseFreighters(this));
+                EmpireAI.AddGoal(new IncreaseFreighters(this));
         }
 
         int NumFreightersTrading(Goods goods)
@@ -299,7 +299,7 @@ namespace Ship_Game
                  betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
 
             if (betterFreighter != null && betterFreighter.Name != freighter.Name)
-                GetEmpireAI().Goals.Add(new RefitShip(freighter, betterFreighter.Name, this));
+                GetEmpireAI().AddGoal(new RefitShip(freighter, betterFreighter.Name, this));
         }
 
         public void UpdateAverageFreightFTL(float value)
