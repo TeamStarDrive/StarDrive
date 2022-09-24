@@ -41,7 +41,7 @@ namespace Ship_Game
         [StarData] public Array<Asteroid> AsteroidsList = new();
         [StarData] public Array<Moon> MoonList = new();
 
-        Empire[] FullyExplored = Empty<Empire>.Array;
+        [StarData] SmallBitSet FullyExplored;
 
         SunType TheSunType;
         public SunLayerState[] SunLayers;
@@ -112,10 +112,10 @@ namespace Ship_Game
             }
 
             InFrustum = universe.IsInFrustum(Position, Radius)
-                    && (universe.IsSectorViewOrCloser)
+                    && universe.UState.IsSectorViewOrCloser
                     && IsExploredBy(player);
 
-            if (InFrustum && universe.IsSystemViewOrCloser)
+            if (InFrustum && universe.UState.IsSystemViewOrCloser)
             {
                 WasVisibleLastFrame = true;
                 for (int i = 0; i < AsteroidsList.Count; i++)
@@ -362,15 +362,15 @@ namespace Ship_Game
             return GetStatus(empire).DangerousForcesPresent;
         }
 
-        void SetFullyExplored(Empire empire) => FullyExplored.FlatMapSet(ref FullyExplored, empire);
-        public bool IsFullyExploredBy(Empire empire) => FullyExplored.FlatMapIsSet(empire);
+        public bool IsFullyExploredBy(Empire empire) => FullyExplored.IsSet(empire.Id);
+
         public void UpdateFullyExploredBy(Empire empire)
         {
             if (IsExploredBy(empire)
                 && !IsFullyExploredBy(empire)
                 && !PlanetList.Any(p => !p.IsExploredBy(empire)))
             {
-                SetFullyExplored(empire);
+                FullyExplored.Set(empire.Id);
                 //Log.Info($"The {empire.Name} have fully explored {Name}");
             }
         }

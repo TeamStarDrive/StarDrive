@@ -138,7 +138,7 @@ namespace Ship_Game
 
         // in system view and inside frustum
         public bool IsInFrustum(UniverseScreen u) =>
-            u.IsSystemViewOrCloser && u.IsInFrustum(Position, 2000f);
+            u.UState.IsSystemViewOrCloser && u.IsInFrustum(Position, 2000f);
 
         public string SystemName => System?.Name ?? "Deep Space";
 

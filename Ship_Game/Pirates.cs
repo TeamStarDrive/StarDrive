@@ -50,10 +50,10 @@ namespace Ship_Game
         [StarDataConstructor]
         Pirates() {}
 
-        public Pirates(Empire owner)
+        public Pirates(Empire owner, EmpireAI ai)
         {
             Owner = owner;
-            Owner.AI.AddGoal(new PirateAI(Owner));
+            ai.AddGoal(new PirateAI(Owner));
         }
 
         public HashSet<string> ShipsWeCanBuild => Owner.ShipsWeCanBuild;

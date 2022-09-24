@@ -34,8 +34,7 @@ namespace Ship_Game.Ships
             ShipSO.Visibility = GlobalStats.ShipVisibility;
         }
 
-        public bool IsVisibleToPlayer => InFrustum && InSensorRange
-                                      && (Universe.Screen?.IsSystemViewOrCloser == true);
+        public bool IsVisibleToPlayer => InFrustum && InSensorRange && Universe.IsSystemViewOrCloser;
 
         public bool IsVisibleToPlayerInMap => InFrustum && InSensorRange;
 

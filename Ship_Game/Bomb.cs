@@ -61,7 +61,7 @@ namespace Ship_Game
 
         private void SurfaceImpactEffects()
         {
-            if (Owner.Universum.Screen.IsSystemViewOrCloser &&
+            if (Owner.Universum.IsSystemViewOrCloser &&
                 TargetPlanet.ParentSystem.InFrustum)
             {
                 TargetPlanet.PlayPlanetSfx("sd_bomb_impact_01", Position);

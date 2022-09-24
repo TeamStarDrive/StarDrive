@@ -25,6 +25,11 @@ public class EventContextOnDeserialized
         public TypeGroup Group;
         public StarDataDeserialized Attr;
         public UserTypeSerializer.Deserialized Evt;
+
+        public override string ToString()
+        {
+            return $"OnDeserializedEvt {Group.Type.Name}";
+        }
     }
 
     // Invokes events in the order the types were sorted by the Serializer

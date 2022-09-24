@@ -550,7 +550,7 @@ namespace Ship_Game.Ships
                     // again, damage also depends on module radius and their energy resistance
                     float damageAbsorb = 1 - module.EnergyResist;
                     module.Damage(source, damage * damageAbsorb * module.Radius);
-                    if (InFrustum && Universe.Screen?.IsShipViewOrCloser == true)
+                    if (InFrustum && Universe.IsShipViewOrCloser)
                     {
                         // visualize radiation hits on external modules
                         Vector3 center = module.Center3D;
@@ -1826,6 +1826,10 @@ namespace Ship_Game.Ships
 
         public void UpdateShields()
         {
+            // NOTE: this can happen with serialized dead ships which we need to keep around in serialized Goals
+            if (Modules.Length == 0)
+                return;
+
             float shieldPower = 0.0f;
             foreach (ShipModule shield in GetShields())
                 shieldPower += shield.ShieldPower;

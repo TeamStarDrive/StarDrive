@@ -361,7 +361,7 @@ namespace Ship_Game
         {
             ShipsPerf.Start();
 
-            bool isSystemView = Universe.IsSystemViewOrCloser;
+            bool isSystemView = UState.IsSystemViewOrCloser;
             Ship[] allShips = Ships.GetItems();
 
             void UpdateShips(int start, int end)
@@ -477,7 +477,7 @@ namespace Ship_Game
             Projectile[] projs = Empty<Projectile>.Array;
             Beam[] beams = Empty<Beam>.Array;
 
-            if (Universe.IsPlanetViewOrCloser)
+            if (UState.IsPlanetViewOrCloser)
             {
                 projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 2048)
                                .FastCast<GameObject, Projectile>();

@@ -728,8 +728,8 @@ namespace Ship_Game.Gameplay
         void ExplodeProjectile(bool cleanupOnly, ShipModule victim)
         {
             bool visibleToPlayer = InFrustum && Module?.GetParent().InSensorRange == true;
-            bool showFx = !cleanupOnly && visibleToPlayer && Universe.Screen.IsSectorViewOrCloser;
-            bool flashFx = showFx && FlashExplode && Universe.Screen.IsSystemViewOrCloser;
+            bool showFx = !cleanupOnly && visibleToPlayer && Universe.IsSectorViewOrCloser;
+            bool flashFx = showFx && FlashExplode && Universe.IsSystemViewOrCloser;
 
             if (Explodes)
             {

@@ -84,7 +84,7 @@ namespace Ship_Game
         public Empire Player => UState.Player;
         public string PlayerLoyalty => Player.data.Traits.Name;
 
-        public UnivScreenState viewState;
+        public UnivScreenState viewState { get => UState.ViewState; set => UState.ViewState = value; }
         public bool LookingAtPlanet;
         public bool snappingToShip;
         public bool returnToShip;
@@ -169,11 +169,6 @@ namespace Ship_Game
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.P == p;
         public bool IsViewingColonyScreen(Planet p) => LookingAtPlanet && workersPanel is ColonyScreen cs && cs.P == p;
-
-        public bool IsSectorViewOrCloser => viewState <= UnivScreenState.SectorView;
-        public bool IsSystemViewOrCloser => viewState <= UnivScreenState.SystemView;
-        public bool IsPlanetViewOrCloser => viewState <= UnivScreenState.PlanetView;
-        public bool IsShipViewOrCloser   => viewState <= UnivScreenState.ShipView;
 
         public UniverseScreen(float universeSize) : base(null, toPause: null)
         {
