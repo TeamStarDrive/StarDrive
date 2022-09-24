@@ -8,7 +8,7 @@ using Ship_Game.Fleets;
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
     [StarDataType]
-    class DefendVsRemnants : Goal
+    class DefendVsRemnants : FleetGoal
     {
         [StarDataConstructor]
         public DefendVsRemnants(Empire owner) : base(GoalType.DefendVsRemnants, owner)

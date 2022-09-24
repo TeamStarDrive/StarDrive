@@ -78,7 +78,7 @@ namespace Ship_Game
                 if (node.Ship != null || node.Goal != null)
                     continue;
 
-                var g = new FleetRequisition(node.ShipName, F.Owner, rush) {Fleet = F};
+                var g = new FleetRequisition(node.ShipName, F.Owner, F, rush);
                 node.Goal = g;
                 F.Owner.AI.AddGoal(g);
                 g.Evaluate();

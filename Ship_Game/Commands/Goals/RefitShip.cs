@@ -8,7 +8,7 @@ using Ship_Game.Data.Serialization;
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
     [StarDataType]
-    public class RefitShip : Goal
+    public class RefitShip : FleetGoal
     {
         [StarData] string VanityName;
         [StarData] int ShipLevel;

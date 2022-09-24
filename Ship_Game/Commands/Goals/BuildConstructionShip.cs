@@ -9,6 +9,9 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class BuildConstructionShip : Goal
     {
+        [StarData] public bool Rush;
+        [StarData] public IShipDesign ShipToBuild;
+
         [StarDataConstructor]
         public BuildConstructionShip(Empire owner) : base(GoalType.DeepSpaceConstruction, owner)
         {
@@ -21,11 +24,12 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public BuildConstructionShip(Vector2 buildPosition, string platformUid, Empire owner)
+        public BuildConstructionShip(Vector2 buildPosition, string platformUid, Empire owner, bool rush = false)
             : this(owner)
         {
             BuildPosition = buildPosition;
             ToBuildUID = platformUid;
+            Rush = rush;
         }
 
         GoalStep FindPlanetToBuildAt()
@@ -49,7 +53,7 @@ namespace Ship_Game.Commands.Goals
 
             // toBuild is only used for cost calculation
             planet.Construction.Enqueue(toBuild, ShipToBuild, this);
-            if (toBuild.IsSubspaceProjector && Fleet != null) // SSP Needed for Offensive fleets, rush it
+            if (Rush)
                 planet.Construction.MoveToAndContinuousRushFirstItem();
 
             return GoalStep.GoToNextStep;
@@ -70,6 +74,5 @@ namespace Ship_Game.Commands.Goals
             // If the goal is not kept, load game construction ships loses the empire goal and get stuck
             return FinishedShip == null ? GoalStep.GoalComplete : GoalStep.TryAgain;
         }
-
     }
 }

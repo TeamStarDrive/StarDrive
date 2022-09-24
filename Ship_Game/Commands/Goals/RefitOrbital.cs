@@ -10,6 +10,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class RefitOrbital : Goal
     {
+        [StarData] public IShipDesign ShipToBuild;
+
         [StarDataConstructor]
         public RefitOrbital(Empire owner) : base(GoalType.RefitOrbital, owner)
         {

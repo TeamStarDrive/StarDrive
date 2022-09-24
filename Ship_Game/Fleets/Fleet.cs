@@ -1277,7 +1277,12 @@ namespace Ship_Game.Fleets
 
         void DoDefendVsRemnant(MilitaryTask task)
         {
-            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task) || !Owner.AI.HasGoal(g => g.Fleet == this)))
+            bool fleetIsBeingAssembled = Owner.AI.HasGoal(g => g is FleetGoal fg && fg.Fleet == this);
+
+            // should we abort the fight against remnants taskforce?
+            bool shouldAbortTheFight = !CanTakeThisFight(task.EnemyStrength, task) || fleetIsBeingAssembled;
+
+            if (EndInvalidTask(shouldAbortTheFight))
             {
                 ClearOrders();
                 return;
@@ -1599,7 +1604,6 @@ namespace Ship_Game.Fleets
 
         bool EndInvalidTask(bool condition)
         {
-
             if (!condition) 
                 return false;
 
@@ -1633,15 +1637,8 @@ namespace Ship_Game.Fleets
             if (targetSystem.IsExclusivelyOwnedBy(Owner))
                 return false; // no need for projector goal
 
-            var goals = Owner.AI.SearchForGoals(GoalType.DeployFleetProjector).Filter(g => g.Fleet == this);
-            if (goals.Length == 1)
-            {
-                Goal deployGoal = goals[0];
-                if (deployGoal.FinishedShip == null)
-                    return true;
-            }
-
-            return false;
+            var deployGoal = Owner.AI.FindGoal(g => g.Type == GoalType.DeployFleetProjector && g is FleetGoal fg && fg.Fleet == this);
+            return deployGoal != null && deployGoal.FinishedShip == null;
         }
 
         /// @return true if order successful. Fails when enemies near.
