@@ -2,7 +2,6 @@
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 
@@ -11,9 +10,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class RefitOrbital : Goal
     {
-        [StarData] string VanityName;
-        [StarData] int ShipLevel;
-
         [StarDataConstructor]
         public RefitOrbital(Empire owner) : base(GoalType.RefitOrbital, owner)
         {
@@ -30,10 +26,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public RefitOrbital(Ship oldShip, string toBuildName, Empire owner) : this(owner)
         {
             OldShip = oldShip;
-            ShipLevel = oldShip.Level;
             ToBuildUID = toBuildName;
-            if (oldShip.VanityName != oldShip.Name)
-                VanityName = oldShip.VanityName;
         }
 
         GoalStep FindOrbitalAndPlanetToRefit()
@@ -113,7 +106,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (FinishedShip != null)
                 return GoalStep.TryAgain;
 
-            if (OldShip != null && OldShip.Active)
+            if (OldShip is { Active: true })
                 OldShip.AI.ClearOrders(); // Constructor was maybe destroyed
 
             return GoalStep.GoalComplete;
