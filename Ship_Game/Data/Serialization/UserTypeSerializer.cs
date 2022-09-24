@@ -170,6 +170,9 @@ namespace Ship_Game.Data.Serialization
             return Mapping.TryGetValue(fieldName, out DataField f) ? f : null;
         }
 
+        // Flags for only getting fields/props from the current Type, ignoring base type
+        const BindingFlags InstanceFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+
         // This is somewhat slow, which is why it should be done only once,
         // and all fields should be immutable
         public void ResolveTypes()
@@ -177,21 +180,47 @@ namespace Ship_Game.Data.Serialization
             if (Mapping != null)
                 return;
 
-            Mapping = new Map<string, DataField>();
-            var index = new Array<DataField>();
-
-            Type shouldSerialize = typeof(StarDataAttribute);
-            PropertyInfo[] props = Type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            FieldInfo[]   fields = Type.GetFields(    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            Mapping = new();
 
             var dataFields = new Array<DataField>();
+            GetFieldsAndProps(dataFields, Type, typeof(StarDataAttribute));
+            Fields = dataFields.ToArr();
+
+            if (Fields.Length == 0)
+            {
+                // for abstract/virtual types, the base class is allowed to have no [StarData] fields
+                if (Type.IsAbstract)
+                    return;
+                // give a warning for other types
+                Log.Warning($"[StarDataType] {NiceTypeName} has no [StarData] fields, consider not serializing it!");
+                return;
+            }
+
+            foreach (DataField field in Fields)
+                Mapping.Add(field.Name, field);
+        }
+
+        void GetFieldsAndProps(Array<DataField> dataFields, Type type, Type shouldSerializeAttr)
+        {
+            // depth first search
+            Type baseType = type.BaseType;
+            if (baseType != null)
+            {
+                var systemBaseType = type.IsValueType ? typeof(ValueType) : typeof(object);
+                if (baseType != systemBaseType)
+                    GetFieldsAndProps(dataFields, baseType, shouldSerializeAttr);
+            }
+
+            FieldInfo[] fields = type.GetFields(InstanceFlags);
+            PropertyInfo[] props = type.GetProperties(InstanceFlags);
 
             for (int i = 0; i < fields.Length; ++i)
             {
                 FieldInfo f = fields[i];
-                if (f.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
+                if (f.GetCustomAttribute(shouldSerializeAttr) is StarDataAttribute a)
                 {
-                    var field = new DataField(TypeMap, Type, a, null, f);
+                    var field = new DataField(TypeMap, Type, a, null, f)
+                    { FieldIdx = dataFields.Count };
                     dataFields.Add(field);
                     CheckPrimaryKeys(a, field);
                 }
@@ -203,33 +232,14 @@ namespace Ship_Game.Data.Serialization
                 if (p.GetGetMethod()?.IsVirtual == true)
                     IsAbstractOrVirtual = true;
 
-                if (p.GetCustomAttribute(shouldSerialize) is StarDataAttribute a)
+                if (p.GetCustomAttribute(shouldSerializeAttr) is StarDataAttribute a)
                 {
-                    var field = new DataField(TypeMap, Type, a, p, null);
+                    var field = new DataField(TypeMap, Type, a, p, null)
+                    { FieldIdx = dataFields.Count };
                     dataFields.Add(field);
                     CheckPrimaryKeys(a, field);
                 }
             }
-
-            if (dataFields.IsEmpty)
-            {
-                // for abstract/virtual types, the base class is allowed to have no [StarData] fields
-                Fields = Empty<DataField>.Array;
-                if (Type.IsAbstract)
-                    return;
-                // give a warning for other types
-                Log.Warning($"[StarDataType] {NiceTypeName} has no [StarData] fields, consider not serializing it!");
-                return;
-            }
-
-            foreach (DataField field in dataFields)
-            {
-                field.FieldIdx = index.Count;
-                Mapping.Add(field.Name, field);
-                index.Add(field);
-            }
-
-            Fields = index.ToArr();
         }
 
         void CheckPrimaryKeys(StarDataAttribute a, DataField field)
