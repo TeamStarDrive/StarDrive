@@ -231,7 +231,7 @@ namespace Ship_Game
             RemovePiratePresenceFromSystem();
             if (Level < 1)
             {
-                Owner.AI.Goals.Clear();
+                Owner.AI.ClearGoals();
                 Owner.SetAsDefeated();
                 Owner.Universum.Notifications.AddEmpireDiedNotification(Owner);
             }
@@ -527,7 +527,7 @@ namespace Ship_Game
 
         public bool RaidingThisShip(Ship ship)
         {
-            return Owner.AI.Goals.Any(g => g.TargetShip == ship);
+            return Owner.AI.HasGoal(g => g.TargetShip == ship);
         }
 
         void RemovePiratePresenceFromSystem()
@@ -955,7 +955,7 @@ namespace Ship_Game
 
         public bool CanDoAnotherRaid(out int numRaids)
         {
-            numRaids = Owner.AI.Goals.Count(g => g.IsRaid);
+            numRaids = Owner.AI.CountGoals(g => g.IsRaid);
             return numRaids < Level;
         }
 

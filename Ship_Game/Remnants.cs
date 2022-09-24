@@ -247,7 +247,7 @@ namespace Ship_Game
             if (Owner.AI.HasGoal(g => g.IsRaid && (g.Fleet == null || g.Fleet.TaskStep == 0)))
                 return false;  // Limit building fleet to 1 at a time
 
-            int ongoingRaids = Owner.AI.Goals.Count(g => g.IsRaid);
+            int ongoingRaids = Owner.AI.CountGoals(g => g.IsRaid);
             return ongoingRaids < NumPortals();
         }
 

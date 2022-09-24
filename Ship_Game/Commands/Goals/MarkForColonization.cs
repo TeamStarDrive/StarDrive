@@ -100,7 +100,7 @@ namespace Ship_Game.Commands.Goals
                                        (spaceStrength * strMultiplier).LowerBound(20), TargetEmpire, (int)strMultiplier);
 
                 empireAi.AddPendingTask(task);
-                empireAi.Goals.Add(new StandbyColonyShip(Owner));
+                empireAi.AddGoal(new StandbyColonyShip(Owner));
             }
             else if (Owner.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
             {
@@ -297,7 +297,7 @@ namespace Ship_Game.Commands.Goals
         // Checks if the ship is not taken by another colonization goal
         bool NotAssignedToColonizationGoal(Ship colonyShip)
         {
-            return !colonyShip.Loyalty.AI.Goals.Any(g => g.Type == GoalType.Colonize && g.FinishedShip == colonyShip);
+            return !colonyShip.Loyalty.AI.HasGoal(g => g.Type == GoalType.Colonize && g.FinishedShip == colonyShip);
         }
 
         bool ClaimTaskInvalid(out MilitaryTask possibleTask)

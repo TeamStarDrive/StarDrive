@@ -151,8 +151,8 @@ namespace Ship_Game.AI
 
         public Goal[] GetRemnantEngagementGoalsFor(Planet p)
         {
-            return Goals.Filter(g => g.Type == GoalType.RemnantEngageEmpire
-                                        && g.TargetPlanet == p && g.Fleet?.TaskStep < 9);
+            return FindGoals(g => g.Type == GoalType.RemnantEngageEmpire
+                               && g.TargetPlanet == p && g.Fleet?.TaskStep < 9);
         }
         
         public MilitaryTask[] GetAssaultPirateTasks()
@@ -250,7 +250,7 @@ namespace Ship_Game.AI
                 if (string.IsNullOrEmpty(s))
                     break;
 
-                Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));
+                AddGoal(new BuildOffensiveShips(s, OwnerEmpire));
                 goalsInConstruction++;
             }
         }

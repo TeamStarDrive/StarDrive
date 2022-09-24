@@ -15,7 +15,7 @@ namespace Ship_Game.AI
         float GetTotalConstructionGoalsMaintenance()
         {
             float maintenance = 0f;
-            foreach (Goal g in Goals)
+            foreach (Goal g in GoalsList)
             {
                 if (g is BuildConstructionShip)
                     maintenance += ResourceManager.GetShipTemplate(g.ToBuildUID).GetMaintCost(OwnerEmpire);
@@ -64,9 +64,9 @@ namespace Ship_Game.AI
         public bool NodeAlreadyExistsAt(Vector2 pos)
         {
             float projectorRadius = OwnerEmpire.GetProjectorRadius();
-            for (int gi = 0; gi < Goals.Count; gi++)
+            for (int gi = 0; gi < GoalsList.Count; gi++)
             {
-                Goal g = Goals[gi];
+                Goal g = GoalsList[gi];
                 if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, projectorRadius))
                     return true;
             }
@@ -155,7 +155,7 @@ namespace Ship_Game.AI
                     {
                         node.Platform = null;
                         Log.Info($"BuildProjector {node.Position}");
-                        Goals.Add(new BuildConstructionShip(node.Position, "Subspace Projector", OwnerEmpire));
+                        AddGoal(new BuildConstructionShip(node.Position, "Subspace Projector", OwnerEmpire));
                     }
                 }
             }
@@ -175,13 +175,13 @@ namespace Ship_Game.AI
                         continue;
                     }
 
-                    for (int x = 0; x < Goals.Count; x++)
+                    for (int x = 0; x < GoalsList.Count; x++)
                     {
-                        Goal g = Goals[x];
+                        Goal g = GoalsList[x];
                         if (g.Type != GoalType.DeepSpaceConstruction || !g.BuildPosition.AlmostEqual(node.Position))
                             continue;
 
-                        Goals.Remove(g);
+                        RemoveGoal(g);
                         IReadOnlyList<Planet> ps = OwnerEmpire.GetPlanets();
                         for (int pi = 0; pi < ps.Count; pi++)
                         { 

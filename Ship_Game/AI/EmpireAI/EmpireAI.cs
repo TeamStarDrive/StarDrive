@@ -30,9 +30,11 @@ namespace Ship_Game.AI
         public OffensiveForcePoolManager OffensiveForcePoolManager;
 
         public DefensiveCoordinator DefensiveCoordinator;
-        [StarData] public Array<Goal> Goals = new();
-        [StarData] public Array<int> UsedFleets = new();
-        [StarData] public Array<AO> AreasOfOperations = new();
+        public IReadOnlyList<Goal> Goals => GoalsList;
+
+        [StarData] readonly Array<Goal> GoalsList;
+        [StarData] public Array<int> UsedFleets;
+        [StarData] public Array<AO> AreasOfOperations;
         [StarData] public ThreatMatrix ThreatMatrix;
         [StarData] public float DefStr;
         [StarData] public ExpansionAI.ExpansionPlanner ExpansionAI;
@@ -46,6 +48,9 @@ namespace Ship_Game.AI
             OwnerEmpire = e;
             ThreatMatrix = new(e);
             ExpansionAI = new(OwnerEmpire);
+            GoalsList = new();
+            UsedFleets = new();
+            AreasOfOperations = new();
 
             InitializeManagers(e);
 
@@ -188,8 +193,8 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (!GetColonizationGoalsList(OwnerEmpire, out Array<Goal> ourColonizationGoals)
-                || !GetColonizationGoalsList(them, out Array<Goal> theirColonizationGoals))
+            if (!GetColonizationGoalsList(OwnerEmpire, out Goal[] ourColonizationGoals)
+                || !GetColonizationGoalsList(them, out Goal[] theirColonizationGoals))
             {
                 return;
             }
@@ -230,10 +235,10 @@ namespace Ship_Game.AI
                 }
             }
 
-            bool GetColonizationGoalsList(Empire empire, out Array<Goal> planetList)
+            bool GetColonizationGoalsList(Empire empire, out Goal[] planetList)
             {
                 planetList = empire.AI.ExpansionAI.GetColonizationGoals();
-                return planetList.Count > 0;
+                return planetList.Length > 0;
             }
 
             // Local method
@@ -323,10 +328,10 @@ namespace Ship_Game.AI
             else
                 RemoveFactionEndedTasks();
 
-            for (int i = Goals.Count - 1; i >= 0; i--)
+            for (int i = GoalsList.Count - 1; i >= 0; i--)
             {
-                Goals[i].Evaluate();
-                if (Goals.Count == 0)
+                GoalsList[i].Evaluate();
+                if (GoalsList.Count == 0)
                     break; // setting an empire as defeated within a goal clears the goals
             }
         }
@@ -334,64 +339,74 @@ namespace Ship_Game.AI
         public IReadOnlyList<Goal> SearchForGoals(GoalType type)
         {
             var goals = new Array<Goal>();
-            for (int i = 0; i < Goals.Count; i++)
+            for (int i = 0; i < GoalsList.Count; i++)
             {
-                Goal goal = Goals[i];
+                Goal goal = GoalsList[i];
                 if (goal.Type == type)
                     goals.Add(goal);
             }
             return goals;
         }
 
-        public int NumTroopGoals() => Goals.Filter(g => g.Type == GoalType.BuildTroop).Length;
+        public int NumTroopGoals() => GoalsList.Filter(g => g.Type == GoalType.BuildTroop).Length;
 
         public bool HasGoal(GoalType type)
         {
-            for (int i = 0; i < Goals.Count; ++i)
-                if (Goals[i].Type == type) return true;
+            for (int i = 0; i < GoalsList.Count; ++i)
+                if (GoalsList[i].Type == type) return true;
             return false;
         }
 
         public bool HasGoal(Goal goal)
         {
-            for (int i = 0; i < Goals.Count; ++i)
-                if (Goals[i] == goal) return true;
+            for (int i = 0; i < GoalsList.Count; ++i)
+                if (GoalsList[i] == goal) return true;
             return false;
         }
 
         public bool HasGoal(Predicate<Goal> predicate)
         {
-            return Goals.Any(predicate);
-        }
-
-        public void AddGoal(Goal goal)
-        {
-            Goals.Add(goal);
-        }
-
-        public void RemoveGoal(Goal goal)
-        {
-            Goals.Remove(goal);
+            return GoalsList.Any(predicate);
         }
 
         public Goal FindGoal(Predicate<Goal> predicate)
         {
-            return Goals.Find(predicate);
+            return GoalsList.Find(predicate);
         }
 
         public Goal[] FindGoals(Predicate<Goal> predicate)
         {
-            return Goals.Filter(predicate);
+            return GoalsList.Filter(predicate);
+        }
+
+        public int CountGoals(Predicate<Goal> predicate)
+        {
+            return GoalsList.Count(predicate);
+        }
+
+        public void AddGoal(Goal goal)
+        {
+            GoalsList.Add(goal);
+        }
+
+        public void RemoveGoal(Goal goal)
+        {
+            GoalsList.Remove(goal);
+        }
+
+        public void ClearGoals()
+        {
+            GoalsList.Clear();
         }
 
         public void FindAndRemoveGoal(GoalType type, Predicate<Goal> removeIf)
         {
-            for (int i = 0; i < Goals.Count; ++i)
+            for (int i = 0; i < GoalsList.Count; ++i)
             {
-                Goal g = Goals[i];
+                Goal g = GoalsList[i];
                 if (g.Type == type && removeIf(g))
                 {
-                    Goals.Remove(g);
+                    RemoveGoal(g);
                     return;
                 }
             }

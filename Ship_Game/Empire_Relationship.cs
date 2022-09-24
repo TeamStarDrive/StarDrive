@@ -160,7 +160,7 @@ namespace Ship_Game
                     SetRelationsAsKnown(them);
             }
             AllActiveWars = wars.ToArray();
-            ActiveWarPreparations = AI.Goals.Count(g => g.Type == GoalType.PrepareForWar);
+            ActiveWarPreparations = AI.CountGoals(g => g.Type == GoalType.PrepareForWar);
             AtWarCount = atWarCount;
         }
 

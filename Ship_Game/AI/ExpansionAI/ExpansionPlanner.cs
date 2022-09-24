@@ -21,8 +21,6 @@ namespace Ship_Game.AI.ExpansionAI
         [StarData] public int ExpandSearchTimer { get; private set; }
         [StarData] public int MaxSystemsToCheckedDiv { get; private set; }
 
-        Array<Goal> Goals => Owner.AI.Goals;
-
         [StarDataConstructor]
         ExpansionPlanner() {}
 
@@ -36,7 +34,7 @@ namespace Ship_Game.AI.ExpansionAI
         public Planet[] GetColonizationGoalPlanets()
         {
             var list = new Array<Planet>();
-            foreach (Goal g in Goals)
+            foreach (Goal g in Owner.AI.Goals)
             {
                 if (g.Type != GoalType.Colonize) continue;
                 list.Add(g.ColonizationTarget);
@@ -48,7 +46,7 @@ namespace Ship_Game.AI.ExpansionAI
         public int GetNumOfBlockedColonyGoals()
         {
             int count = 0;
-            foreach (var g in Goals)
+            foreach (var g in Owner.AI.Goals)
             {
                 if (g.Type != GoalType.Colonize) continue;
                 float blocker = Owner.KnownEnemyStrengthIn(g.ColonizationTarget.ParentSystem);
@@ -59,16 +57,9 @@ namespace Ship_Game.AI.ExpansionAI
             return count;
         }
 
-        public Array<Goal> GetColonizationGoals()
+        public Goal[] GetColonizationGoals()
         {
-            var list = new Array<Goal>();
-            foreach (Goal g in Goals)
-            {
-                if (g.Type == GoalType.Colonize)
-                    list.Add(g);
-            }
-
-            return list;
+            return Owner.AI.FindGoals(g => g.Type == GoalType.Colonize);
         }
 
         int DesiredColonyGoals()
@@ -200,7 +191,7 @@ namespace Ship_Game.AI.ExpansionAI
                 Log.Info(ConsoleColor.Magenta,
                     $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals()} | {planet} | {Owner}");
 
-                Goals.Add(new MarkForColonization(planet, Owner));
+                Owner.AI.AddGoal(new MarkForColonization(planet, Owner));
                 netDesired--;
             }
         }

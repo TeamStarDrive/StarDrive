@@ -23,7 +23,7 @@ namespace Ship_Game
         public int  TotalProdExportSlots          { get; private set; }
 
         public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
-        public int FreightersBeingBuilt  => AI.Goals.Count(goal => goal is IncreaseFreighters);
+        public int FreightersBeingBuilt  => AI.CountGoals(goal => goal is IncreaseFreighters);
         public int MaxFreightersInQueue => (int)(Math.Ceiling(2 * Research.Strategy.IndustryRatio));
         public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
         public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;

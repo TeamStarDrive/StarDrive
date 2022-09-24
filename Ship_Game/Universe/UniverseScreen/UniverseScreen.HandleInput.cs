@@ -973,6 +973,8 @@ namespace Ship_Game
         {
             var buildGoals = new Array<ClickableSpaceBuildGoal>();
             EmpireAI playerAI = Player.AI;
+
+            // ToArray() used for thread safety
             foreach (Goal goal in playerAI.Goals.ToArray())
             {
                 if (goal.IsDeploymentGoal)
