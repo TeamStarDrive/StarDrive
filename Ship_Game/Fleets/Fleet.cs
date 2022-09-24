@@ -1277,7 +1277,7 @@ namespace Ship_Game.Fleets
 
         void DoDefendVsRemnant(MilitaryTask task)
         {
-            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task) || !Owner.GetEmpireAI().Goals.Any(g => g.Fleet == this)))
+            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task) || !Owner.GetEmpireAI().HasGoal(g => g.Fleet == this)))
             {
                 ClearOrders();
                 return;

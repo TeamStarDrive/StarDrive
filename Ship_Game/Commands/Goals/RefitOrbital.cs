@@ -34,7 +34,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             ToBuildUID = toBuildName;
             if (oldShip.VanityName != oldShip.Name)
                 VanityName = oldShip.VanityName;
-            Evaluate();
         }
 
         GoalStep FindOrbitalAndPlanetToRefit()

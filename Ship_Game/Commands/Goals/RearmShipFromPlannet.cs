@@ -24,7 +24,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             TargetShip = shipToRearm;
             PlanetBuildingAt = planet;
-            Evaluate();
         }
 
         public RearmShipFromPlanet(Ship shipToRearm, Ship existingSupplyShip, Planet planet, Empire owner)
@@ -33,7 +32,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             TargetShip = shipToRearm;
             SupplyShip = existingSupplyShip;
             PlanetBuildingAt = planet;
-            Evaluate();
         }
 
         GoalStep LaunchSupplyShip()

@@ -7,8 +7,8 @@ namespace Ship_Game
 {
     public partial class Planet
     {
-        public bool GovernorOn  => colonyType != ColonyType.Colony;
-        public bool GovernorOff => colonyType == ColonyType.Colony;
+        public bool GovernorOn  => CType != ColonyType.Colony;
+        public bool GovernorOff => CType == ColonyType.Colony;
 
         public float CurrentProductionToQueue   => Prod.NetIncome + InfraStructure;
         public float MaxProductionToQueue       => Prod.NetMaxPotential + InfraStructure;
@@ -28,23 +28,23 @@ namespace Ship_Game
             // If there is no Outpost or Capital, build it. This is done for non governor planets as well
             BuildOutpostOrCapitalIfAble();
 
-            if (colonyType == ColonyType.Colony)
+            if (CType == ColonyType.Colony)
                 return; // No Governor? Never mind!
 
             // Switch to Core for AI if there is nothing in the research queue (Does not actually change assigned Governor)
-            if ((!OwnerIsPlayer || Owner.AutoResearch) && colonyType == ColonyType.Research && Owner.Research.NoTopic)
-                colonyType = ColonyType.Core;
+            if ((!OwnerIsPlayer || Owner.AutoResearch) && CType == ColonyType.Research && Owner.Research.NoTopic)
+                CType = ColonyType.Core;
 
             // Change to core colony if there is only 1 planet so the AI can build stuff
             if (!OwnerIsPlayer && Owner.GetPlanets().Count == 1)
-                colonyType = ColonyType.Core;
+                CType = ColonyType.Core;
 
             Food.Percent = 0;
             Prod.Percent = 0;
             Res.Percent  = 0;
 
             PlanetBudget budget = AllocateColonyBudget();
-            switch (colonyType) // New resource management by Gretman
+            switch (CType) // New resource management by Gretman
             {
                 case ColonyType.TradeHub:
                     AssignCoreWorldWorkers();
@@ -126,7 +126,7 @@ namespace Ship_Game
         {
             float prodToSpend;
             bool empireCanExport = Owner.TotalProdExportSlots - FreeProdExportSlots > Level.LowerBound(3);
-            if (colonyType == ColonyType.Colony)
+            if (CType == ColonyType.Colony)
             {
                 switch (PS)
                 {

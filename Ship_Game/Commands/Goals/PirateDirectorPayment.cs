@@ -8,7 +8,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PirateDirectorPayment : Goal
     {
-        [StarData] Pirates Pirates;
+        Pirates Pirates => Owner.Pirates;
 
         [StarDataConstructor]
         public PirateDirectorPayment(Empire owner) : base(GoalType.PirateDirectorPayment, owner)
@@ -23,13 +23,7 @@ namespace Ship_Game.Commands.Goals
         public PirateDirectorPayment(Empire owner, Empire targetEmpire) : this(owner)
         {
             TargetEmpire = targetEmpire;
-            PostInit();
             Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Payment Director for {TargetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates = Owner.Pirates;
         }
 
         GoalStep UpdatePaymentStatus()
@@ -62,7 +56,7 @@ namespace Ship_Game.Commands.Goals
             {
                 // They did not pay! We will raid them
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-                if (!Pirates.Goals.Any(g => g.Type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
+                if (!Pirates.Owner.GetEmpireAI().HasGoal(g => g.Type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
                      Pirates.AddGoalDirectorRaid(TargetEmpire);
             }
 

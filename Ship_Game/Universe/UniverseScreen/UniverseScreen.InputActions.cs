@@ -32,7 +32,7 @@ namespace Ship_Game
 
         private void MarkForColonization()
         {
-            Player.GetEmpireAI().Goals.Add(new MarkForColonization(SelectedPlanet, Player));
+            Player.GetEmpireAI().AddGoal(new MarkForColonization(SelectedPlanet, Player));
         }
     }
 }

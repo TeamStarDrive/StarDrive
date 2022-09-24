@@ -78,7 +78,7 @@ namespace Ship_Game.AI.Budget
         float MilitaryBuildingsBudgetRatio()
         {
             float preference;
-            switch (P.colonyType)
+            switch (P.CType)
             {
                 case Planet.ColonyType.Military: preference = 0.3f;  break;
                 case Planet.ColonyType.Core:     preference = 0.2f;  break;

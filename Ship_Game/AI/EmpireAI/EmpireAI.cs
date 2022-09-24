@@ -41,7 +41,7 @@ namespace Ship_Game.AI
         [StarDataConstructor]
         EmpireAI() {}
 
-        public EmpireAI(Empire e, bool fromSave)
+        public EmpireAI(Empire e)
         {
             OwnerEmpire = e;
             ThreatMatrix = new(e);
@@ -53,10 +53,10 @@ namespace Ship_Game.AI
                 NumberOfShipGoals += OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
             if (OwnerEmpire.IsFaction && OwnerEmpire.data.IsPirateFaction)
-                OwnerEmpire.SetAsPirates(fromSave, Goals);
+                OwnerEmpire.SetAsPirates();
 
             if (OwnerEmpire.IsFaction && OwnerEmpire.data.IsRemnantFaction)
-                OwnerEmpire.SetAsRemnants(fromSave, Goals);
+                OwnerEmpire.SetAsRemnants();
         }
 
         void InitializeManagers(Empire e)
@@ -284,7 +284,7 @@ namespace Ship_Game.AI
                 Ship newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
                 if (newShip != null)
                 {
-                    Goals.Add(new RefitShip(ship, newShip.Name, OwnerEmpire));
+                    AddGoal(new RefitShip(ship, newShip.Name, OwnerEmpire));
                     foreach (Planet p in OwnerEmpire.GetPlanets())
                         p.Construction.RefitShipsBeingBuilt(ship, newShip);
                 }
@@ -293,25 +293,25 @@ namespace Ship_Game.AI
 
         public void AddScrapShipGoal(Ship ship, bool immediateScuttle)
         {
-            Goals.Add(new ScrapShip(ship, OwnerEmpire, immediateScuttle));
+            AddGoal(new ScrapShip(ship, OwnerEmpire, immediateScuttle));
         }
 
         public void AddPlanetaryRearmGoal(Ship ship, Planet p, Ship existingSupplyShip = null)
         {
             if (existingSupplyShip == null)
-                Goals.Add(new RearmShipFromPlanet(ship, p, OwnerEmpire));
+                AddGoal(new RearmShipFromPlanet(ship, p, OwnerEmpire));
             else
-                Goals.Add(new RearmShipFromPlanet(ship, existingSupplyShip, p, OwnerEmpire));
+                AddGoal(new RearmShipFromPlanet(ship, existingSupplyShip, p, OwnerEmpire));
         }
 
         public void CancelColonization(Planet p)
         {
-            Goal goal = Goals.Find(g => g.Type == GoalType.Colonize && g.ColonizationTarget == p);
+            Goal goal = FindGoal(g => g.Type == GoalType.Colonize && g.ColonizationTarget == p);
             if (goal != null)
             {
                 goal.FinishedShip?.AI.OrderOrbitNearest(true);
                 goal.PlanetBuildingAt?.Construction.Cancel(goal);
-                Goals.Remove(goal);
+                RemoveGoal(goal);
             }
         }
 
@@ -326,7 +326,7 @@ namespace Ship_Game.AI
             for (int i = Goals.Count - 1; i >= 0; i--)
             {
                 Goals[i].Evaluate();
-                if (OwnerEmpire.data.Defeated)
+                if (Goals.Count == 0)
                     break; // setting an empire as defeated within a goal clears the goals
             }
         }
@@ -359,9 +359,29 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public bool HasGoal(Predicate<Goal> predicate)
+        {
+            return Goals.Any(predicate);
+        }
+
         public void AddGoal(Goal goal)
         {
             Goals.Add(goal);
+        }
+
+        public void RemoveGoal(Goal goal)
+        {
+            Goals.Remove(goal);
+        }
+
+        public Goal FindGoal(Predicate<Goal> predicate)
+        {
+            return Goals.Find(predicate);
+        }
+
+        public Goal[] FindGoals(Predicate<Goal> predicate)
+        {
+            return Goals.Filter(predicate);
         }
 
         public void FindAndRemoveGoal(GoalType type, Predicate<Goal> removeIf)

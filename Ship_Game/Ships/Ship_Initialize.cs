@@ -238,13 +238,6 @@ namespace Ship_Game.Ships
 
             ResetSlots(moduleSaves.Length);
 
-            if (ModuleSlotList.Length == 0)
-            {
-                Log.Warning($"Ship spawn failed failed '{Name}' due to all empty Modules");
-                Active = false;
-                return;
-            }
-
             for (int i = 0; i < moduleSaves.Length; ++i)
             {
                 ModuleSaveData slot = moduleSaves[i];

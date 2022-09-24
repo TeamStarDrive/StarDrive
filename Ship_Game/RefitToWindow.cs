@@ -141,7 +141,7 @@ namespace Ship_Game
 
         void OnRefitOneClicked(UIButton b)
         {
-            EmpireManager.Player.GetEmpireAI().Goals.Add(GetRefitGoal(ShipToRefit));
+            EmpireManager.Player.GetEmpireAI().AddGoal(GetRefitGoal(ShipToRefit));
             GameAudio.EchoAffirmative();
             ExitScreen();
         }
@@ -152,7 +152,7 @@ namespace Ship_Game
             foreach (Ship ship in ships)
             {
                 if (ship.Name == ShipToRefit.Name)
-                    EmpireManager.Player.GetEmpireAI().Goals.Add(GetRefitGoal(ship));
+                    EmpireManager.Player.GetEmpireAI().AddGoal(GetRefitGoal(ship));
             }
 
             foreach (Planet planet in EmpireManager.Player.GetPlanets())

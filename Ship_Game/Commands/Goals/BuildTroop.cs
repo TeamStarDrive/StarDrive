@@ -23,7 +23,6 @@ namespace Ship_Game.Commands.Goals
             ToBuildUID = toCopy.Name;
             if (ToBuildUID.IsEmpty())
                 Log.Error($"Missing Troop {ToBuildUID}");
-            Evaluate();
         }
 
         GoalStep FindPlanetToBuildAt()

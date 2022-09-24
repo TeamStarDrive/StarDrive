@@ -10,7 +10,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PirateRaidTransport : Goal
     {
-        [StarData] Pirates Pirates;
+        Pirates Pirates => Owner.Pirates;
 
         [StarDataConstructor]
         public PirateRaidTransport(Empire owner) : base(GoalType.PirateRaidTransport, owner)
@@ -26,13 +26,7 @@ namespace Ship_Game.Commands.Goals
         public PirateRaidTransport(Empire owner, Empire targetEmpire) : this(owner)
         {
             TargetEmpire = targetEmpire;
-            PostInit();
             Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Transport Raid vs. {targetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates = Owner.Pirates;
         }
 
         Ship BoardingShip

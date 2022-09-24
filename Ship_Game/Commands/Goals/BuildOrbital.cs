@@ -31,7 +31,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             ToBuildUID = toBuildName;
             PlanetBuildingAt = planet;
             TetherPlanet = planet;
-            Evaluate();
         }
 
         GoalStep BuildConstructor()

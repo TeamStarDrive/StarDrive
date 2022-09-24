@@ -282,7 +282,7 @@ namespace Ship_Game
             data.Traits.Singular = data.RebelSing;
             data.Traits.Plural   = data.RebelPlur;
 
-            empire.InitializeFromSave();
+            empire.Initialize();
             empire.UpdatePopulation();
 
             Add(empire);

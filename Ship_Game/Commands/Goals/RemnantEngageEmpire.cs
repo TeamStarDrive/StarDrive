@@ -12,9 +12,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class RemnantEngageEmpire : Goal
     {
-        [StarData] Remnants Remnants;
+        Remnants Remnants => Owner.Remnants;
         [StarData] int BombersLevel;
-        [StarData] int ShipLevel;
         
         [StarDataConstructor]
         public RemnantEngageEmpire(Empire owner) : base(GoalType.RemnantEngageEmpire, owner)
@@ -32,14 +31,7 @@ namespace Ship_Game.Commands.Goals
         {
             TargetEmpire = target;
             TargetShip = portal;
-            PostInit();
             Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Engagement: {TargetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Remnants = Owner.Remnants;
-            BombersLevel = ShipLevel;
         }
 
         Ship Portal
@@ -157,7 +149,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep DetermineNumBombers()
         {
-            ShipLevel = BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
+            BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
             return GoalStep.GoToNextStep;
         }
 

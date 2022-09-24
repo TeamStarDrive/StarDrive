@@ -41,7 +41,6 @@ namespace Ship_Game
         [StarData] public readonly Empire Owner;
         public UniverseState Universe => Owner.Universum ?? throw new NullReferenceException("Pirates.Owner.Universe must not be null");
 
-        [StarData] public readonly Array<Goal> Goals;
         [StarData] public Map<int, int> ThreatLevels { get; private set; }    = new();  // Empire IDs are used here
         [StarData] public Map<int, int> PaymentTimers { get; private set; }   = new(); // Empire IDs are used here
         [StarData] public Array<int> SpawnedShips { get; private set; }       = new();
@@ -51,13 +50,10 @@ namespace Ship_Game
         [StarDataConstructor]
         Pirates() {}
 
-        public Pirates(Empire owner, bool fromSave, Array<Goal> goals)
+        public Pirates(Empire owner)
         {
             Owner = owner;
-            Goals = goals;
-
-            if (!fromSave)
-                goals.Add(new PirateAI(Owner));
+            Owner.GetEmpireAI().AddGoal(new PirateAI(Owner));
         }
 
         public HashSet<string> ShipsWeCanBuild => Owner.ShipsWeCanBuild;
@@ -96,17 +92,22 @@ namespace Ship_Game
         {
             switch (type)
             {
-                case GoalType.PirateDirectorPayment: Goals.Add(new PirateDirectorPayment(Owner, victim));  break;
-                case GoalType.PirateDirectorRaid:    Goals.Add(new PirateDirectorRaid(Owner, victim));     break;
-                case GoalType.PirateBase:            Goals.Add(new PirateBase(Owner, ship, systemName));   break;
-                case GoalType.PirateRaidTransport:   Goals.Add(new PirateRaidTransport(Owner, victim));    break;
-                case GoalType.PirateRaidOrbital:     Goals.Add(new PirateRaidOrbital(Owner, victim));      break;
-                case GoalType.PirateRaidProjector:   Goals.Add(new PirateRaidProjector(Owner, victim));    break;
-                case GoalType.PirateRaidCombatShip:  Goals.Add(new PirateRaidCombatShip(Owner, victim));   break;
-                case GoalType.PirateDefendBase:      Goals.Add(new PirateDefendBase(Owner, ship));         break;
-                case GoalType.PirateProtection:      Goals.Add(new PirateProtection(Owner, victim, ship)); break;
+                case GoalType.PirateDirectorPayment: AddGoal(new PirateDirectorPayment(Owner, victim));  break;
+                case GoalType.PirateDirectorRaid:    AddGoal(new PirateDirectorRaid(Owner, victim));     break;
+                case GoalType.PirateBase:            AddGoal(new PirateBase(Owner, ship, systemName));   break;
+                case GoalType.PirateRaidTransport:   AddGoal(new PirateRaidTransport(Owner, victim));    break;
+                case GoalType.PirateRaidOrbital:     AddGoal(new PirateRaidOrbital(Owner, victim));      break;
+                case GoalType.PirateRaidProjector:   AddGoal(new PirateRaidProjector(Owner, victim));    break;
+                case GoalType.PirateRaidCombatShip:  AddGoal(new PirateRaidCombatShip(Owner, victim));   break;
+                case GoalType.PirateDefendBase:      AddGoal(new PirateDefendBase(Owner, ship));         break;
+                case GoalType.PirateProtection:      AddGoal(new PirateProtection(Owner, victim, ship)); break;
                 default:                             Log.Warning($"Goal type {type} invalid for Pirates"); break;
             }
+        }
+
+        void AddGoal(Goal goal)
+        {
+            Owner.GetEmpireAI().AddGoal(goal);
         }
 
         public void Init() // New Game
@@ -526,8 +527,7 @@ namespace Ship_Game
 
         public bool RaidingThisShip(Ship ship)
         {
-            var goals = Owner.GetEmpireAI().Goals;
-            return goals.Any(g => g.TargetShip == ship);
+            return Owner.GetEmpireAI().Goals.Any(g => g.TargetShip == ship);
         }
 
         void RemovePiratePresenceFromSystem()
@@ -943,7 +943,6 @@ namespace Ship_Game
             if (!GetBases(out Array<Ship> bases))
                 return false;
 
-            var goals = victim.GetEmpireAI().Goals;
             for (int i = 0; i < bases.Count; i++)
             {
                 pirateBase = bases[i];
@@ -956,7 +955,7 @@ namespace Ship_Game
 
         public bool CanDoAnotherRaid(out int numRaids)
         {
-            numRaids = Goals.Count(g => g.IsRaid);
+            numRaids = Owner.GetEmpireAI().Goals.Count(g => g.IsRaid);
             return numRaids < Level;
         }
 

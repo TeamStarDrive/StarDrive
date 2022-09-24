@@ -11,7 +11,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class AssaultPirateBase : Goal
     {
-        [StarData] Pirates Pirates;
+        Pirates Pirates => TargetEmpire.Pirates;
+        Ship PirateBase => TargetShip;
 
         [StarDataConstructor]
         public AssaultPirateBase(Empire owner) : base(GoalType.AssaultPirateBase, owner)
@@ -27,14 +28,8 @@ namespace Ship_Game.Commands.Goals
         public AssaultPirateBase(Empire e, Empire pirateEmpire, Ship targetBase = null) : this(e)
         {
             TargetEmpire = pirateEmpire;
-            TargetShip   = targetBase; // TargetShip is the pirate base
-            PostInit();
+            TargetShip = targetBase; // TargetShip is the pirate base
             Log.Info(ConsoleColor.Green, $"---- Retaliation vs. Pirates: New {Owner.Name} Assault Base vs. {TargetEmpire.Name} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates = TargetEmpire.Pirates;
         }
 
         GoalStep FindPirateBase()
@@ -56,7 +51,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateTask()
         { 
-            var task       = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip, Owner);
+            var task = MilitaryTask.CreateAssaultPirateBaseTask(PirateBase, Owner);
             Owner.GetEmpireAI().AddPendingTask(task);
             return GoalStep.GoToNextStep;
         }
@@ -64,7 +59,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep CheckBaseDestroyed()
         {
             EmpireAI ai = Owner.GetEmpireAI();
-            if (ai.HasAssaultPirateBaseTask(TargetShip, out MilitaryTask task))
+            if (ai.HasAssaultPirateBaseTask(PirateBase, out MilitaryTask task))
             {
                 if (Pirates.PaidBy(Owner))
                 {
@@ -72,7 +67,7 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.GoalComplete;
                 }
 
-                if (TargetShip != null && TargetShip.Active)
+                if (PirateBase is { Active: true })
                     return GoalStep.TryAgain;
 
                 Owner.DecreaseFleetStrEmpireMultiplier(TargetEmpire); // base is destroyed
@@ -83,9 +78,8 @@ namespace Ship_Game.Commands.Goals
 
         bool GetClosestBaseToCenter(Ship[] basesList, out Ship closestPirateBase)
         {
-            closestPirateBase    = null;
             Vector2 empireCenter = Owner.WeightedCenter;
-            closestPirateBase    = basesList.FindMin(b => b.Position.Distance(empireCenter));
+            closestPirateBase = basesList.FindMin(b => b.Position.Distance(empireCenter));
             return closestPirateBase != null;
         }
     }
