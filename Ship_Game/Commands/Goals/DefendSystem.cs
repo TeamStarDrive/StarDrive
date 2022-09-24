@@ -3,19 +3,17 @@ using SDUtils;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
     [StarDataType]
-    public class DefendSystem : Goal
+    public class DefendSystem : FleetGoal
     {
         [StarData] public SolarSystem TargetSystem;
 
         [StarDataConstructor]
-        public DefendSystem(Empire owner)
-            : base(GoalType.DefendSystem, owner)
+        public DefendSystem(Empire owner) : base(GoalType.DefendSystem, owner)
         {
             Steps = new Func<GoalStep>[]
             {

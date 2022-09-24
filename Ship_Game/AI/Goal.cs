@@ -71,15 +71,14 @@ namespace Ship_Game.AI
         [StarData] public GoalType Type;
         [StarData] public int Step { get; private set; }
 
-        [StarData] public Fleet Fleet;
         [StarData] public Vector2 TetherOffset;
         [StarData] public Planet TetherPlanet;
+
         [StarData] Vector2 StaticBuildPosition;
         [StarData] public string ToBuildUID;
         [StarData] public Planet PlanetBuildingAt;
-        [StarData] public Planet ColonizationTarget { get; set; }
 
-        [StarData] public IShipDesign ShipToBuild;  // this is a template
+        [StarData] public Planet ColonizationTarget { get; set; }
 
         [StarData] Ship ShipBuilt; // this is the actual ship that was built
         [StarData] public Ship OldShip;      // this is the ship which needs refit

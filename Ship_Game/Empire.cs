@@ -2722,7 +2722,7 @@ namespace Ship_Game
                 }
             }
 
-            var g = new FleetRequisition(ship.Name, this, false) { Fleet = fleet };
+            var g = new FleetRequisition(ship.Name, this, fleet, false);
             node.Goal = g;
             AI.AddGoal(g);
             g.Evaluate();

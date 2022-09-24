@@ -14,6 +14,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class BuildOrbital : Goal
     {
+        [StarData] public IShipDesign ShipToBuild;
+
         [StarDataConstructor]
         public BuildOrbital(Empire owner) : base(GoalType.BuildOrbital, owner)
         {
