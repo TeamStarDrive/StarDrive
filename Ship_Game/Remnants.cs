@@ -40,7 +40,7 @@ namespace Ship_Game
         [StarDataConstructor]
         Remnants() {}
 
-        public Remnants(Empire owner)
+        public Remnants(Empire owner, EmpireAI ai)
         {
             Owner = owner;
             Owner.data.FuelCellModifier      = 1.4f;
@@ -48,7 +48,7 @@ namespace Ship_Game
             Owner.data.FTLModifier           = 50;
             Owner.data.MassModifier          = 0.9f;
 
-            Story = InitAndPickStory();
+            Story = InitAndPickStory(ai);
             CalculateShipCosts();
         }
 
@@ -968,9 +968,9 @@ namespace Ship_Game
             }
         }
 
-        RemnantStory InitAndPickStory()
+        RemnantStory InitAndPickStory(EmpireAI ai)
         {
-            Owner.AI.AddGoal(new RemnantInit(Owner));
+            ai.AddGoal(new RemnantInit(Owner));
             if (GlobalStats.DisableRemnantStory)
                 return RemnantStory.None;
 

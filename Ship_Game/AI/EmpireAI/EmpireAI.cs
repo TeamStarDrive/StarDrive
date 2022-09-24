@@ -58,10 +58,10 @@ namespace Ship_Game.AI
                 NumberOfShipGoals += OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
             if (OwnerEmpire.IsFaction && OwnerEmpire.data.IsPirateFaction)
-                OwnerEmpire.SetAsPirates();
+                OwnerEmpire.SetAsPirates(this);
 
             if (OwnerEmpire.IsFaction && OwnerEmpire.data.IsRemnantFaction)
-                OwnerEmpire.SetAsRemnants();
+                OwnerEmpire.SetAsRemnants(this);
         }
 
         void InitializeManagers(Empire e)

@@ -270,7 +270,7 @@ namespace Ship_Game
             return Universum.DefaultProjectorRadius * data.SensorModifier;
         }
 
-        public void SetAsPirates()
+        public void SetAsPirates(EmpireAI ai)
         {
             if (data.Defeated)
                 return;
@@ -281,14 +281,14 @@ namespace Ship_Game
             }
             else
             {
-                Pirates = new Pirates(this);
+                Pirates = new Pirates(this, ai);
             }
 
         }
 
-        public void SetAsRemnants()
+        public void SetAsRemnants(EmpireAI ai)
         {
-            Remnants = new Remnants(this);
+            Remnants = new Remnants(this, ai);
         }
 
         public void AddMoney(float moneyDiff)

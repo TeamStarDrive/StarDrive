@@ -94,7 +94,7 @@ namespace Ship_Game
         // Tries to get a ModuleListItem, if the ShipModule is unlocked and available for current hull
         bool TryGetModuleListItem(ShipModule template, out ShipModule m)
         {
-            if (EmpireManager.Player.IsModuleUnlocked(template.UID) && template.UID != "Dummy")
+            if (EmpireManager.Player.IsModuleUnlocked(template.UID))
             {
                 if (IsModuleAvailableForHullRole(Screen.CurrentHull.Role, template))
                 {

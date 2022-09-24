@@ -8,6 +8,7 @@ using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
+using static Ship_Game.UniverseScreen;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Universe
@@ -34,6 +35,12 @@ namespace Ship_Game.Universe
         [StarData] public GameDifficulty Difficulty;
         [StarData] public GalSize GalaxySize;
         [StarData] public bool GravityWells;
+
+        [StarData] public UnivScreenState ViewState;
+        public bool IsSectorViewOrCloser => ViewState <= UnivScreenState.SectorView;
+        public bool IsSystemViewOrCloser => ViewState <= UnivScreenState.SystemView;
+        public bool IsPlanetViewOrCloser => ViewState <= UnivScreenState.PlanetView;
+        public bool IsShipViewOrCloser   => ViewState <= UnivScreenState.ShipView;
 
         [StarData] public float Pace = 1f;
 
@@ -181,6 +188,7 @@ namespace Ship_Game.Universe
         {
             Screen = screen;
             Objects.Universe = screen;
+            Objects.UpdateLists(removeInactiveObjects: false);
         }
 
         [StarDataType]
@@ -250,21 +258,24 @@ namespace Ship_Game.Universe
         [StarDataDeserialized(typeof(Empire), typeof(Ship))]
         void OnDeserialized()
         {
+            SaveState save = Save;
+            Save = null;
+
             Initialize(Size);
 
             Params.UpdateGlobalStats();
             SettingsResearchModifier = GetResearchMultiplier();
-            RemnantPaceModifier      = CalcRemnantPace();
+            RemnantPaceModifier = CalcRemnantPace();
 
-            foreach (Ship ship in Save.Ships)
+            foreach (Ship ship in save.Ships)
                 Objects.Add(ship);
-            foreach (Projectile projectile in Save.Projectiles)
+            foreach (Projectile projectile in save.Projectiles)
                 Objects.Add(projectile);
 
-            foreach (Empire e in Empires)
+            foreach (Empire e in EmpireList)
                 e.ResetTechsUsableByShips(e.GetOurFactionShips(), unlockBonuses: false);
 
-            foreach (Empire e in Empires)
+            foreach (Empire e in EmpireList)
             {
                 if (e.data.AbsorbedBy != null)
                 {
@@ -276,10 +287,8 @@ namespace Ship_Game.Universe
             foreach (Empire empire in MajorEmpires)
                 empire.UpdateDefenseShipBuildingOffense();
 
-            foreach (Empire empire in Empires.Filter(e => !e.data.Defeated))
+            foreach (Empire empire in EmpireList.Filter(e => !e.data.Defeated))
                 empire.UpdatePopulation();
-
-            Save = null;
         }
 
         public void SetDebugMode(bool debug)
