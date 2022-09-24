@@ -422,19 +422,19 @@ namespace Ship_Game
             {
                 StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
                 StuffSelector.Draw(batch, elapsed);
-                Vector2 cursor = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
-                if (SelectedNodeList[0].Ship == null)
+                var cursor = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
+
+                FleetDataNode node = SelectedNodeList[0];
+                Ship ship = node.Ship;
+                if (ship == null)
                 {
-                    batch.DrawString(Fonts.Arial20Bold, string.Concat("(", SelectedNodeList[0].ShipName, ")"), cursor,
-                        Colors.Cream);
+                    batch.DrawString(Fonts.Arial20Bold, $"({node.ShipName})", cursor, Colors.Cream);
                 }
                 else
                 {
-                    batch.DrawString(Fonts.Arial20Bold,
-                        (!string.IsNullOrEmpty(SelectedNodeList[0].Ship.VanityName)
-                            ? SelectedNodeList[0].Ship.VanityName
-                            : string.Concat(SelectedNodeList[0].Ship.Name, " (", SelectedNodeList[0].Ship.ShipData.Role,
-                                ")")), cursor, Colors.Cream);
+                    string text = ship.VanityName.NotEmpty()
+                                ? ship.VanityName : $"{ship.Name} ({ship.ShipData.Role})";
+                    batch.DrawString(Fonts.Arial20Bold, text, cursor, Colors.Cream);
                 }
 
                 cursor.Y = OperationsRect.Y + 10;
@@ -456,28 +456,14 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen12, "Priorities", cursor, Colors.Cream);
                 OperationalRadius.Draw(batch, elapsed);
                 SliderSize.Draw(ScreenManager);
-                return;
             }
-
-            if (SelectedNodeList.Count > 1)
+            else if (SelectedNodeList.Count > 1)
             {
                 StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
                 StuffSelector.Draw(batch, elapsed);
-                Vector2 cursor = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
-                if (SelectedNodeList[0].Ship == null)
-                {
-                    Graphics.Font arial20Bold = Fonts.Arial20Bold;
-                    int count = SelectedNodeList.Count;
-                    batch.DrawString(arial20Bold, string.Concat("Group of ", count.ToString(), " ships selected"),
-                        cursor, Colors.Cream);
-                }
-                else
-                {
-                    Graphics.Font spriteFont = Fonts.Arial20Bold;
-                    int num = SelectedNodeList.Count;
-                    batch.DrawString(spriteFont, string.Concat("Group of ", num.ToString(), " ships selected"), cursor,
-                        Colors.Cream);
-                }
+                var cursor = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
+
+                batch.DrawString(Fonts.Arial20Bold, $"Group of {SelectedNodeList.Count} ships selected", cursor, Colors.Cream);
 
                 cursor.Y = OperationsRect.Y + 10;
                 batch.DrawString(Fonts.Pirulen12, "Group Movement Orders", cursor, Colors.Cream);
@@ -498,55 +484,53 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen12, "Group Priorities", cursor, Colors.Cream);
                 OperationalRadius.Draw(batch, elapsed);
                 SliderSize.Draw(ScreenManager);
-                return;
             }
-
-            if (FleetToEdit == -1)
+            else if (FleetToEdit == -1)
             {
                 float transitionOffset = (float) Math.Pow(TransitionPosition, 2);
                 Rectangle r = SelectedStuffRect;
                 if (ScreenState == ScreenState.TransitionOn)
                 {
-                    r.Y = r.Y + (int) (transitionOffset * 256f);
+                    r.Y += (int) (transitionOffset * 256f);
                 }
 
                 StuffSelector = new Selector(r, new Color(0, 0, 0, 180));
                 StuffSelector.Draw(batch, elapsed);
                 Vector2 cursor = new Vector2(r.X + 20, r.Y + 10);
                 batch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", cursor, Colors.Cream);
-                cursor.Y = cursor.Y + (Fonts.Arial20Bold.LineSpacing + 2);
-                string txt =
-                    "You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet. \n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.";
+                cursor.Y += (Fonts.Arial20Bold.LineSpacing + 2);
+                string txt = "You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet. \n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.";
                 txt = Fonts.Arial12Bold.ParseText(txt, SelectedStuffRect.Width - 40);
                 batch.DrawString(Fonts.Arial12Bold, txt, cursor, Colors.Cream);
-                return;
             }
-            StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
-            StuffSelector.Draw(batch, elapsed);
+            else
+            {
+                StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
+                StuffSelector.Draw(batch, elapsed);
 
-            Fleet f = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
-            Vector2 cursor1 = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
-            FleetNameEntry.Text = f.Name;
-            FleetNameEntry.SetPos(cursor1);
-            FleetNameEntry.Draw(batch, elapsed);
+                Fleet f = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
+                Vector2 cursor1 = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
+                FleetNameEntry.Text = f.Name;
+                FleetNameEntry.SetPos(cursor1);
+                FleetNameEntry.Draw(batch, elapsed);
 
-            cursor1.Y = cursor1.Y + (Fonts.Arial20Bold.LineSpacing + 10);
-            cursor1 = cursor1 + new Vector2(50f, 30f);
-            batch.DrawString(Fonts.Pirulen12, "Fleet Icon", cursor1, Colors.Cream);
-            Rectangle ficonrect = new Rectangle((int) cursor1.X + 12, (int) cursor1.Y + Fonts.Pirulen12.LineSpacing + 5,
-                64, 64);
-            batch.Draw(f.Icon, ficonrect, f.Owner.EmpireColor);
-            RequisitionForces.Draw(ScreenManager);
-            SaveDesign.Draw(ScreenManager);
-            LoadDesign.Draw(ScreenManager);
-            Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
-            Priorityselector.Draw(batch, elapsed);
-            cursor1 = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
-            batch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", cursor1, Colors.Cream);
-            cursor1.Y = cursor1.Y + (Fonts.Pirulen12.LineSpacing + 2);
-            string txt0 = Localizer.Token(GameText.AddShipDesignsToThis);
-            txt0 = Fonts.Arial12Bold.ParseText(txt0, PrioritiesRect.Width - 40);
-            batch.DrawString(Fonts.Arial12Bold, txt0, cursor1, Colors.Cream);
+                cursor1.Y += (Fonts.Arial20Bold.LineSpacing + 10);
+                cursor1 += new Vector2(50f, 30f);
+                batch.DrawString(Fonts.Pirulen12, "Fleet Icon", cursor1, Colors.Cream);
+                var iconR = new RectF(cursor1.X + 12, cursor1.Y + Fonts.Pirulen12.LineSpacing + 5, 64, 64);
+                batch.Draw(f.Icon, iconR, f.Owner.EmpireColor);
+                RequisitionForces.Draw(ScreenManager);
+                SaveDesign.Draw(ScreenManager);
+                LoadDesign.Draw(ScreenManager);
+                Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
+                Priorityselector.Draw(batch, elapsed);
+                cursor1 = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
+                batch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", cursor1, Colors.Cream);
+                cursor1.Y += (Fonts.Pirulen12.LineSpacing + 2);
+                string txt0 = Localizer.Token(GameText.AddShipDesignsToThis);
+                txt0 = Fonts.Arial12Bold.ParseText(txt0, PrioritiesRect.Width - 40);
+                batch.DrawString(Fonts.Arial12Bold, txt0, cursor1, Colors.Cream);
+            }
         }
     }
 }

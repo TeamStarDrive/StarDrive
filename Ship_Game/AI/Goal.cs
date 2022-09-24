@@ -123,6 +123,7 @@ namespace Ship_Game.AI
         {
             get
             {
+                // in case a ship gets destroyed while en route to final deployment
                 if (ShipBuilt?.Active != true)
                     ShipBuilt = null;
                 return ShipBuilt;
