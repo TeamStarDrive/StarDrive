@@ -8,6 +8,7 @@ using SDUtils;
 using Ship_Game.ExtensionMethods;
 using static Ship_Game.AI.CombatStanceType;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.AI
 {
@@ -186,13 +187,13 @@ namespace Ship_Game.AI
 
         void DoDeploy(ShipGoal g, FixedSimTime timeStep)
         {
-            if (g.Goal == null)
+            if (g.Goal is not DeepSpaceBuildGoal bg)
                 return;
 
             Planet target = g.TargetPlanet;
-            if (target == null && g.Goal.TetherPlanet != null)
+            if (target == null && bg.Build.TetherPlanet != null)
             {
-                target = g.Goal.TetherPlanet;
+                target = bg.Build.TetherPlanet;
                 if (target == null) 
                 {
                     OrderScrapShip();
@@ -204,17 +205,17 @@ namespace Ship_Game.AI
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, g.Goal.ToBuildUID, Owner.Loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.Build.Template.Name, Owner.Loyalty, g.Goal.BuildPosition);
             if (orbital == null)
                 return;
 
             AddStructureToRoadsList(g, orbital);
 
-            if (g.Goal.TetherPlanet != null)
+            if (bg.Build.TetherPlanet != null)
             {
-                Planet planetToTether = g.Goal.TetherPlanet;
+                Planet planetToTether = bg.Build.TetherPlanet;
                 orbital.TetherToPlanet(planetToTether);
-                orbital.TetherOffset = g.Goal.TetherOffset;
+                orbital.TetherOffset = bg.Build.TetherOffset;
                 planetToTether.OrbitalStations.Add(orbital);
                 if (planetToTether.IsOverOrbitalsLimit(orbital))
                     planetToTether.TryRemoveExcessOrbital(orbital);
@@ -227,14 +228,14 @@ namespace Ship_Game.AI
 
         void DoDeployOrbital(ShipGoal g, FixedSimTime timeStep)
         {
-            if (g.Goal == null)
+            if (g.Goal is not DeepSpaceBuildGoal bg)
             {
-                Log.Info($"There was no goal for Construction ship deploying orbital");
+                Log.Info("There was no goal for Construction ship deploying orbital");
                 OrderScrapShip();
                 return;
             }
 
-            Planet target = g.Goal.TetherPlanet;
+            Planet target = bg.Build.TetherPlanet;
             if (target == null || target.Owner != Owner.Loyalty) // FB - Planet owner has changed
             {
                 OrderScrapShip();
@@ -245,7 +246,7 @@ namespace Ship_Game.AI
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, g.Goal.ToBuildUID, Owner.Loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.Build.Template.Name, Owner.Loyalty, g.Goal.BuildPosition);
             if (orbital != null)
             {
                 orbital.Position = g.Goal.BuildPosition;

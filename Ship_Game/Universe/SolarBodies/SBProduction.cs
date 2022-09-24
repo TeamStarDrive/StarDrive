@@ -4,7 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using SDGraphics;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = SDGraphics.Vector2;
 using SDUtils;
 using System.Linq;
 using Ship_Game.Data.Serialization;
@@ -292,7 +292,7 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public void Enqueue(Ship platform, IShipDesign constructor, Goal goal = null)
+        public void Enqueue(IShipDesign platform, IShipDesign constructor, Goal goal = null)
         {
             var qi = new QueueItem(P)
             {
@@ -309,7 +309,7 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void Enqueue(Ship orbitalRefit, IShipDesign constructor, float refitCost, Goal goal)
+        public void Enqueue(IShipDesign orbitalRefit, IShipDesign constructor, float refitCost, Goal goal)
         {
             var qi = new QueueItem(P)
             {
@@ -468,7 +468,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (q.isShip 
                     && q.DisplayName != null
                     && q.DisplayName.Contains("Subspace Projector")
-                    && q.Goal?.BuildPosition == buildPos)
+                    && q.Goal.BuildPosition == buildPos)
                 {
                     MoveTo(0, i);
                     break;

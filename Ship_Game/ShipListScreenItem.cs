@@ -6,6 +6,7 @@ using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game
 {
@@ -270,9 +271,9 @@ namespace Ship_Game
                         }
                         if (last.Plan == ShipAI.Plan.DeployStructure || last.Plan == ShipAI.Plan.DeployOrbital)
                         {
-                            moveText = moveText+Localizer.Token(GameText.Deploy);
-                            if (last.Goal != null && ResourceManager.GetShipTemplate(last.Goal.ToBuildUID, out Ship toBuild))
-                                moveText = string.Concat(moveText, " ", toBuild.Name);
+                            moveText += Localizer.Token(GameText.Deploy);
+                            if (last.Goal is DeepSpaceBuildGoal b)
+                                moveText += " " + b.Build.Template.Name;
                             return moveText;
                         }
                         else

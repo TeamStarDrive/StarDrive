@@ -33,14 +33,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         public Planet[] GetColonizationGoalPlanets()
         {
-            var list = new Array<Planet>();
-            foreach (Goal g in Owner.AI.Goals)
-            {
-                if (g.Type != GoalType.Colonize) continue;
-                list.Add(g.ColonizationTarget);
-            }
-
-            return list.ToArray();
+            return Owner.AI.SelectFromGoals((MarkForColonization c) => c.TargetPlanet);
         }
 
         public int GetNumOfBlockedColonyGoals()
@@ -48,18 +41,20 @@ namespace Ship_Game.AI.ExpansionAI
             int count = 0;
             foreach (var g in Owner.AI.Goals)
             {
-                if (g.Type != GoalType.Colonize) continue;
-                float blocker = Owner.KnownEnemyStrengthIn(g.ColonizationTarget.ParentSystem);
-                if (blocker > Owner.CurrentMilitaryStrength / 10)
-                    count++;
+                if (g is MarkForColonization c)
+                {
+                    float blocker = Owner.KnownEnemyStrengthIn(c.TargetPlanet.ParentSystem);
+                    if (blocker > Owner.CurrentMilitaryStrength / 10)
+                        count++;
+                }
             }
 
             return count;
         }
 
-        public Goal[] GetColonizationGoals()
+        public MarkForColonization[] GetColonizationGoals()
         {
-            return Owner.AI.FindGoals(g => g.Type == GoalType.Colonize);
+            return Owner.AI.FindGoals<MarkForColonization>();
         }
 
         int DesiredColonyGoals()

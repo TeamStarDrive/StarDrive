@@ -9,33 +9,35 @@ namespace Ship_Game.Commands.Goals
     public class IncreaseFreighters : BuildShipsGoalBase
     {
         [StarDataConstructor]
+        public IncreaseFreighters() : base(GoalType.IncreaseFreighters, null)
+        {
+            InitSteps();
+        }
+
         public IncreaseFreighters(Empire owner) : base(GoalType.IncreaseFreighters, owner)
+        {
+            InitSteps();
+            Build = new(BuildableShip.GetFreighter(owner));
+        }
+
+        void InitSteps()
         {
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                WaitForShipBuilt,
-                CompleteGoal
+                WaitForShipBuilt
             };
         }
 
         GoalStep FindPlanetToBuildAt()
         {
-            if (!GetFreighter(out IShipDesign freighter))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, Build.Template, out Planet planet, priority: 0.1f))
                 return GoalStep.GoalFailed;
 
-            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, freighter, out Planet planet, priority: 0.1f))
-                return GoalStep.GoalFailed;
-
-            planet.Construction.Enqueue(freighter, this, notifyOnEmpty: false);
+            planet.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);
             if (Owner.TotalFreighters < Owner.GetPlanets().Count)
-                planet.Construction.PrioritizeShip(freighter, 1);
+                planet.Construction.PrioritizeShip(Build.Template, 1);
 
-            return GoalStep.GoToNextStep;
-        }
-
-        GoalStep CompleteGoal()
-        {
             return GoalStep.GoalComplete;
         }
     }

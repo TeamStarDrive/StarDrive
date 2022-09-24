@@ -12,7 +12,7 @@ namespace Ship_Game
     {
         bool HasWarMissionTargeting(Planet planet)
         {
-            return AI.HasGoal(g => g.IsWarMission && g.TargetPlanet == planet);
+            return AI.HasGoal(g => g.IsWarMissionTarget(planet));
         }
 
         public bool GetPotentialTargetPlanets(Empire enemy, WarType warType, out Planet[] targetPlanets)
@@ -198,12 +198,12 @@ namespace Ship_Game
 
         public bool CanAddAnotherWarGoal(Empire enemy)
         {
-            return AI.CountGoals(g => g.IsWarMission && g.TargetEmpire == enemy) <= DifficultyModifiers.NumWarTasksPerWar;
+            return AI.CountGoals(g => g.IsWarMissionTarget(enemy)) <= DifficultyModifiers.NumWarTasksPerWar;
         }
 
         public bool TryGetMissionsVsEmpire(Empire enemy, out Goal[] goals)
         {
-            goals = AI.FindGoals(g => g.IsWarMission && g.TargetEmpire == enemy);
+            goals = AI.FindGoals(g => g.IsWarMissionTarget(enemy));
             return goals.Length > 0;
         }
 

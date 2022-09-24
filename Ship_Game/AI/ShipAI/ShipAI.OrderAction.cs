@@ -1,5 +1,6 @@
 using System;
 using SDUtils;
+using Ship_Game.Commands.Goals;
 using Ship_Game.ExtensionMethods;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -137,15 +138,15 @@ namespace Ship_Game.AI
             OrderMoveAndColonize(toColonize, g);
         }
 
-        public void OrderDeepSpaceBuild(Goal goal)
+        public void OrderDeepSpaceBuild(DeepSpaceBuildGoal bg)
         {
             ClearOrders(State, priority:true);
-            Vector2 pos = goal.BuildPosition;
+            Vector2 pos = bg.Build.Position;
             Vector2 dir = Owner.Position.DirectionToTarget(pos);
-            if (goal.Type == GoalType.DeepSpaceConstruction || goal.TetherPlanet == null) // deep space structures
-                AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
+            if (bg.Type == GoalType.DeepSpaceConstruction || bg.Build.TetherPlanet == null) // deep space structures
+                AddShipGoal(Plan.DeployStructure, pos, dir, bg, bg.Build.Template.Name, 0f, AIState.MoveTo);
             else // orbitals for planet defense
-                AddShipGoal(Plan.DeployOrbital, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
+                AddShipGoal(Plan.DeployOrbital, pos, dir, bg, bg.Build.Template.Name, 0f, AIState.MoveTo);
         }
 
         public void OrderScout(SolarSystem target, Goal g)

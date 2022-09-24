@@ -411,21 +411,21 @@ namespace Ship_Game
             return null;
         }
 
-        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, Ship ship, Ship newShip, bool travelBack, out Planet planet)
+        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, Ship ship, IShipDesign newShip, bool travelBack, out Planet planet)
         {
-            planet               = null;
+            planet = null;
             int travelMultiplier = travelBack ? 2 : 1;
 
             if (ports.Count == 0)
                 return false;
 
-            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip.ShipData)
+            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip)
                                         + ship.GetAstrogateTimeTo(p) * travelMultiplier);
 
             return planet != null;
         }
 
-        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, Ship newShip, out Planet planet)
+        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, IShipDesign newShip, out Planet planet)
         {
             planet = null;
             if (ports.Count == 0)
@@ -435,7 +435,7 @@ namespace Ship_Game
             if (ports.Count == 0)
                 return false;
 
-            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip.ShipData));
+            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, 1f, newShip));
             return planet != null;
         }
 
