@@ -400,7 +400,7 @@ namespace Ship_Game
                         empire.AIManagedShips.Update();
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
-                        empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
+                        empire.AI.ThreatMatrix.ProcessPendingActions();
                         foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
                         {
                             if (kv.Value.Ships.NotEmpty)

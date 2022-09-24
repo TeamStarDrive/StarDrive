@@ -66,7 +66,7 @@ namespace Ship_Game.Commands.Goals
             {
                 // Someone got planets in that system, need to check if we warned them
                 foreach ((Empire them, Relationship rel) in Owner.AllRelations)
-                    Owner.GetEmpireAI().ExpansionAI.CheckClaim(them, rel, ColonizationTarget);
+                    Owner.AI.ExpansionAI.CheckClaim(them, rel, ColonizationTarget);
             }
 
             if (ColonizationTarget.Owner != null)
@@ -93,7 +93,7 @@ namespace Ship_Game.Commands.Goals
 
             if (PositiveEnemyPresence(out float spaceStrength))
             {
-                EmpireAI empireAi   = Owner.GetEmpireAI();
+                EmpireAI empireAi   = Owner.AI;
                 TargetEmpire        = empireAi.ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
                 float strMultiplier = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
                 var task            = MilitaryTask.CreateClaimTask(Owner, ColonizationTarget, 
@@ -105,7 +105,7 @@ namespace Ship_Game.Commands.Goals
             else if (Owner.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
             {
                 var task = MilitaryTask.CreateGuardTask(Owner, ColonizationTarget);
-                Owner.GetEmpireAI().AddPendingTask(task);
+                Owner.AI.AddPendingTask(task);
             }
 
             return GoalStep.GoToNextStep;
@@ -291,13 +291,13 @@ namespace Ship_Game.Commands.Goals
 
         bool TryGetClaimTask(out MilitaryTask task)
         {
-            return Owner.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out task);
+            return Owner.AI.GetDefendClaimTaskFor(ColonizationTarget, out task);
         }
 
         // Checks if the ship is not taken by another colonization goal
         bool NotAssignedToColonizationGoal(Ship colonyShip)
         {
-            return !colonyShip.Loyalty.GetEmpireAI().Goals.Any(g => g.Type == GoalType.Colonize && g.FinishedShip == colonyShip);
+            return !colonyShip.Loyalty.AI.Goals.Any(g => g.Type == GoalType.Colonize && g.FinishedShip == colonyShip);
         }
 
         bool ClaimTaskInvalid(out MilitaryTask possibleTask)

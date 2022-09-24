@@ -55,13 +55,13 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep AssessDefense()
         {
-            var defendSystemTasks = Owner.GetEmpireAI().GetDefendSystemTasks();
+            var defendSystemTasks = Owner.AI.GetDefendSystemTasks();
             foreach (MilitaryTask defendSystem in defendSystemTasks)
             {
                 if (defendSystem.Fleet != null || defendSystem.Fleet == null && defendSystem.Goal?.LifeTime > 5)
                     continue; // We have a fleet for this task or too old to prioritize
 
-                foreach (MilitaryTask possibleTask in Owner.GetEmpireAI().GetPotentialTasksToCompare())
+                foreach (MilitaryTask possibleTask in Owner.AI.GetPotentialTasksToCompare())
                 {
                     if (possibleTask != defendSystem)
                     {

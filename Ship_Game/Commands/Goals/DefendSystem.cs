@@ -39,13 +39,13 @@ namespace Ship_Game.Commands.Goals
                 MinimumTaskForceStrength = strengthWanted
             };
 
-            owner.GetEmpireAI().AddPendingTask(task);
+            owner.AI.AddPendingTask(task);
         }
 
         bool  TryGetDefenseTask(out MilitaryTask task)
         {
             task = null;
-            var tasks = Owner.GetEmpireAI().GetDefendSystemTasks().Filter(t => t.TargetSystem == TargetSystem);
+            var tasks = Owner.AI.GetDefendSystemTasks().Filter(t => t.TargetSystem == TargetSystem);
             if (tasks.Length > 0)
                 task = tasks[0];
 

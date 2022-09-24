@@ -24,7 +24,7 @@ namespace Ship_Game.AI
             if (!ally.isPlayer)
             {
                 if (ally.ProcessAllyCallToWar(OwnerEmpire, enemy, out _))
-                    ally.GetEmpireAI().DeclareWarOnViaCall(enemy, WarType.ImperialistWar, OwnerEmpire);
+                    ally.AI.DeclareWarOnViaCall(enemy, WarType.ImperialistWar, OwnerEmpire);
 
                 return;
             }
@@ -43,7 +43,7 @@ namespace Ship_Game.AI
                 {
                     if (x)
                     {
-                        ally.GetEmpireAI().DeclareWarOnViaCall(enemy, WarType.ImperialistWar, OwnerEmpire);
+                        ally.AI.DeclareWarOnViaCall(enemy, WarType.ImperialistWar, OwnerEmpire);
                         return;
                     }
 
@@ -73,7 +73,7 @@ namespace Ship_Game.AI
             ourRelationToThem.Trust = 0f;
 
             OwnerEmpire.BreakAllTreatiesWith(them, includingPeace: true);
-            them.GetEmpireAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
+            them.AI.GetWarDeclaredOnUs(OwnerEmpire, wt);
 
             // FB - we are Resetting Pirate timers here since status change can be done via communication by the player
             if (OwnerEmpire.WeArePirates)
@@ -124,7 +124,7 @@ namespace Ship_Game.AI
             usToThem.Trust     = 0f;
             us.BreakAllTreatiesWith(them, includingPeace: true);
 
-            them.GetEmpireAI().GetWarDeclaredOnUs(us, warType);
+            them.AI.GetWarDeclaredOnUs(us, warType);
         }
 
         void AIDeclaresWarOnPlayer(Empire player, WarType warType, Relationship aiRelationToPlayer)
@@ -217,7 +217,7 @@ namespace Ship_Game.AI
             usToThem.ActiveWar = War.CreateInstance(OwnerEmpire, them, wt);
             usToThem.Trust     = 0f;
             OwnerEmpire.BreakAllTreatiesWith(them, includingPeace: true);
-            them.GetEmpireAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
+            them.AI.GetWarDeclaredOnUs(OwnerEmpire, wt);
         }
 
         public void EndWarFromEvent(Empire them)
@@ -262,7 +262,7 @@ namespace Ship_Game.AI
                 return;
 
             if (OwnerEmpire.NoEmpireDefenseGoal())
-                OwnerEmpire.GetEmpireAI().Goals.Add(new EmpireDefense(OwnerEmpire));
+                OwnerEmpire.AI.Goals.Add(new EmpireDefense(OwnerEmpire));
         }
 
         private void RunWarPlanner()

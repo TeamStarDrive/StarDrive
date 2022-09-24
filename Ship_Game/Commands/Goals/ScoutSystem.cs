@@ -61,7 +61,7 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip == null)
                 return GoalStep.GoalFailed;
 
-            if (!Owner.GetEmpireAI().ExpansionAI.AssignScoutSystemTarget(FinishedShip, out SolarSystem targetSystem))
+            if (!Owner.AI.ExpansionAI.AssignScoutSystemTarget(FinishedShip, out SolarSystem targetSystem))
                 return GoalStep.GoalFailed;
 
             FinishedShip.AI.OrderScout(targetSystem, this);

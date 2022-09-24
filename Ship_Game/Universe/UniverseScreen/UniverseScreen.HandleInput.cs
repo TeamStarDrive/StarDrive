@@ -972,7 +972,7 @@ namespace Ship_Game
         public void UpdateClickableItems()
         {
             var buildGoals = new Array<ClickableSpaceBuildGoal>();
-            EmpireAI playerAI = Player.GetEmpireAI();
+            EmpireAI playerAI = Player.AI;
             foreach (Goal goal in playerAI.Goals.ToArray())
             {
                 if (goal.IsDeploymentGoal)
@@ -1325,7 +1325,7 @@ namespace Ship_Game
 
         void OnScrapSelectedItem()
         {
-            Player.GetEmpireAI().RemoveGoal(SelectedItem.AssociatedGoal);
+            Player.AI.RemoveGoal(SelectedItem.AssociatedGoal);
 
             bool found = false;
             var ships = Player.OwnedShips;

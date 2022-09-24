@@ -704,17 +704,17 @@ namespace Ship_Game.Ships
 
         public bool DoingSystemDefense
         {
-            get => Loyalty.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(this);
+            get => Loyalty.AI.DefensiveCoordinator.DefensiveForcePool.Contains(this);
             set
             {
                 //added by gremlin Toggle Ship System Defense.
-                if (EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
+                if (EmpireManager.Player.AI.DefensiveCoordinator.DefensiveForcePool.Contains(this))
                 {
-                    EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Remove(this);
+                    EmpireManager.Player.AI.DefensiveCoordinator.Remove(this);
                     AI.ClearOrders();
                     return;
                 }
-                EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.Add(this);
+                EmpireManager.Player.AI.DefensiveCoordinator.Add(this);
                 AI.State = AIState.SystemDefender;
             }
         }
@@ -1608,7 +1608,7 @@ namespace Ship_Game.Ships
             DamageRelationsOnDeath(pSource);
 
             bool visible = IsVisibleToPlayer;
-            Loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(AI.ExplorationTarget);
+            Loyalty.AI.ExpansionAI.RemoveExplorationTargetFromList(AI.ExplorationTarget);
             Carrier.ScuttleHangarShips();
             NotifyPlayerIfDiedExploring();
             Loyalty.TryAutoRequisitionShip(Fleet, this);
@@ -1752,7 +1752,7 @@ namespace Ship_Game.Ships
             {
                 if (KnownByEmpires.KnownBy(empire))
                 {
-                    empire.GetEmpireAI()?.ThreatMatrix.RemovePin(this);
+                    empire.AI?.ThreatMatrix.RemovePin(this);
                 }
             }
 

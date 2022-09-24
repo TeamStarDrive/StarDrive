@@ -40,7 +40,7 @@ namespace Ship_Game.Commands.Goals
             if (!Pirates.GetBases(out Array<Ship> bases))
                 return GoalStep.GoalFailed;
 
-            EmpireAI ai          = Owner.GetEmpireAI();
+            EmpireAI ai          = Owner.AI;
             var filteredBases    = bases.Filter(s => !ai.HasAssaultPirateBaseTask(s, out _));
 
             if (!GetClosestBaseToCenter(filteredBases, out TargetShip)) // TargetShip is the pirate base
@@ -52,13 +52,13 @@ namespace Ship_Game.Commands.Goals
         GoalStep CreateTask()
         { 
             var task = MilitaryTask.CreateAssaultPirateBaseTask(PirateBase, Owner);
-            Owner.GetEmpireAI().AddPendingTask(task);
+            Owner.AI.AddPendingTask(task);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep CheckBaseDestroyed()
         {
-            EmpireAI ai = Owner.GetEmpireAI();
+            EmpireAI ai = Owner.AI;
             if (ai.HasAssaultPirateBaseTask(PirateBase, out MilitaryTask task))
             {
                 if (Pirates.PaidBy(Owner))

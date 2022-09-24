@@ -73,8 +73,8 @@ namespace UnitTests.AITests.Empire
         [TestMethod]
         public void MilitaryPlannerShouldCreateBestKnownFighter()
         {
-            var build = new RoleBuildInfo(10, Player.GetEmpireAI(), true);
-            string shipName = Player.GetEmpireAI().GetAShip(build);
+            var build = new RoleBuildInfo(10, Player.AI, true);
+            string shipName = Player.AI.GetAShip(build);
 
             // it should be random:
             if (!(shipName == "Vulcan Scout" || shipName == "Fang Strafer" || shipName == "Rocket Scout"))
@@ -85,7 +85,7 @@ namespace UnitTests.AITests.Empire
         public void TestBuildCounts()
         {
             // setup Build
-            var build = new RoleBuildInfo(2, Player.GetEmpireAI(), true);
+            var build = new RoleBuildInfo(2, Player.AI, true);
 
             // init base variables
             var combatRole      = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(RoleName.fighter);
@@ -96,7 +96,7 @@ namespace UnitTests.AITests.Empire
             // try to build a lot of ships. this loop should break
             for(count = 1; count < 50; count++)
             {
-                string shipName   = Player.GetEmpireAI().GetAShip(build);
+                string shipName   = Player.AI.GetAShip(build);
 
                 if (shipName.IsEmpty())
                 {
@@ -127,13 +127,13 @@ namespace UnitTests.AITests.Empire
         {
             var combatRole = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(RoleName.fighter);
             float buildCapacity = 0.75f;
-            var build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), true);
+            var build = new RoleBuildInfo(buildCapacity, Player.AI, true);
 
             // build 50 ships
             for (int x = 0; x < 50; x++)
             {
                 // This will peak the "Rocket Inquisitor" ships since it is stronger
-                string shipName = Player.GetEmpireAI().GetAShip(build);
+                string shipName = Player.AI.GetAShip(build);
                 if (shipName.NotEmpty())
                     SpawnShip(shipName, Player, Vector2.Zero);
             }
@@ -152,7 +152,7 @@ namespace UnitTests.AITests.Empire
                 // reduce the budget by the role maintenance.
                 buildCapacity = build.RoleBudget(combatRole) - roleUnitMaint;
 
-                build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), ignoreDebt: false);
+                build = new RoleBuildInfo(buildCapacity, Player.AI, ignoreDebt: false);
                 // this is the actual number of ships to build with available budget.
                 int roleCountWanted    = build.RoleCountDesired(combatRole);
                 // this is the formula used to determine the number of ships that can be built with available budget.
@@ -167,7 +167,7 @@ namespace UnitTests.AITests.Empire
                 // now make sure that the maintenance and budgets dont create a scrap loop.
                 if (currentMain + roleUnitMaint > buildCapacity)
                 {
-                    string shipName = Player.GetEmpireAI().GetAShip(build);
+                    string shipName = Player.AI.GetAShip(build);
                     Assert.IsTrue(shipName.IsEmpty(), $"Current maintenance {currentMain}" +
                                                       $" + new ship maintenance {roleUnitMaint} was greater than build cap {buildCapacity}" +
                                                       $" but we still built a ship.");
@@ -176,7 +176,7 @@ namespace UnitTests.AITests.Empire
                 {
                     Assert.IsFalse(build.RoleIsScrapping(combatRole), "We have build budget and we are set to scrap");
                     Assert.IsTrue(shipsBeingScrapped <= 0, $"We have build budget and we have ships scrapping: {shipsBeingScrapped}");
-                    string shipName = Player.GetEmpireAI().GetAShip(build);
+                    string shipName = Player.AI.GetAShip(build);
                     Assert.IsTrue(shipName.NotEmpty(), "We have build budget but we aren't building");
                 }
 
@@ -190,10 +190,10 @@ namespace UnitTests.AITests.Empire
                     UState.Objects.UpdateLists();
                     buildCapacity = roleUnitMaint * (x / 2f);
                     string shipName;
-                    build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
+                    build = new RoleBuildInfo(buildCapacity, Player.AI, false);
                     do
                     {
-                        shipName = Player.GetEmpireAI().GetAShip(build);
+                        shipName = Player.AI.GetAShip(build);
                         if (shipName.NotEmpty())
                             SpawnShip(shipName, Player, Vector2.Zero);
                     }
@@ -213,7 +213,7 @@ namespace UnitTests.AITests.Empire
             for (int x = -1; x < 11; x++)
             {
                 float percent = x * 0.1f;
-                float overSpend = Player.GetEmpireAI().OverSpendRatio(1000, percent, 10f);
+                float overSpend = Player.AI.OverSpendRatio(1000, percent, 10f);
                 percent = 2 - percent;
                 Assert.IsTrue(overSpend.AlmostEqual(percent), $"Expected {percent} got {overSpend}");
             }
@@ -228,7 +228,7 @@ namespace UnitTests.AITests.Empire
             for (int x = -1; x < 1; x++)
             {
                 float percent = x * 0.05f;
-                float overSpend = Player.GetEmpireAI().OverSpendRatio(1000, percent, 10f);
+                float overSpend = Player.AI.OverSpendRatio(1000, percent, 10f);
                 percent = 0.2f - percent;
                 Assert.IsTrue(overSpend.AlmostEqual(percent), $"Expected {percent} got {overSpend}");
             }
@@ -288,7 +288,7 @@ namespace UnitTests.AITests.Empire
                     if (RandomMath.RollDice(50))
                     {
                         planet.SetOwner(empire);
-                        empire.GetEmpireAI().AreasOfOperations.Add(new AO(UState, Enemy.Capital, 10));
+                        empire.AI.AreasOfOperations.Add(new AO(UState, Enemy.Capital, 10));
                     }
                 }
             }

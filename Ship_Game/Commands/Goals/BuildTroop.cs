@@ -27,7 +27,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
-            float troopRatio = Owner.GetEmpireAI().DefensiveCoordinator.TroopsToTroopsWantedRatio;
+            float troopRatio = Owner.AI.DefensiveCoordinator.TroopsToTroopsWantedRatio;
             if (troopRatio.GreaterOrEqual(1))
                 return GoalStep.GoalFailed;
 

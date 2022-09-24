@@ -161,7 +161,7 @@ namespace Ship_Game.AI
             if (rel.DefenseFleet != -1)
                 us.GetFleetsDict()[rel.DefenseFleet].FleetTask.EndTask();
 
-            us.GetEmpireAI().RemoveMilitaryTasksTargeting(them);
+            us.AI.RemoveMilitaryTasksTargeting(them);
             rel.ActiveWar = null;
         }
 

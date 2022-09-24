@@ -57,7 +57,7 @@ namespace Ship_Game.Debug.Page
             var ourShips = new Array<Ship>(EmpireAtWar.OwnedShips);
             var hangarShips = ourShips.Filter(s => s.IsHangarShip);
             var civilianShips = ourShips.Filter(s => s.DesignRoleType == RoleType.Civilian);
-            var AOs = EmpireAtWar.GetEmpireAI().AreasOfOperations.ToArray();
+            var AOs = EmpireAtWar.AI.AreasOfOperations.ToArray();
             var aoShips = EmpireAtWar.AIManagedShips;
             var fleets = EmpireAtWar.GetFleetsDict().Values;
 
@@ -176,7 +176,7 @@ namespace Ship_Game.Debug.Page
             column.Header= $"--Tasks--";
             column.AddLine($"Empire Tasks");
 
-            var tasks = EmpireAtWar.GetEmpireAI().GetAtomicTasksCopy();
+            var tasks = EmpireAtWar.AI.GetAtomicTasksCopy();
 
             foreach (var task in tasks)
             {

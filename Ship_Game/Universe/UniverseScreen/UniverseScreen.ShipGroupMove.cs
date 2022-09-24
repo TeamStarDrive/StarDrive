@@ -90,7 +90,7 @@ namespace Ship_Game
             }
             else if (SelectedShip != null && SelectedShip?.Loyalty == Player)
             {
-                Player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
+                Player.AI.DefensiveCoordinator.Remove(SelectedShip);
                 SelectedSomethingTimer = 3f;
                 if (UnselectableShip())
                 {
@@ -130,7 +130,7 @@ namespace Ship_Game
             }
             else if (SelectedShip != null && SelectedShip.Loyalty.isPlayer)
             {
-                Player.GetEmpireAI().DefensiveCoordinator.Remove(SelectedShip);
+                Player.AI.DefensiveCoordinator.Remove(SelectedShip);
                 SelectedSomethingTimer = 3f;
 
                 if (shipClicked != null && shipClicked != SelectedShip)
@@ -166,7 +166,7 @@ namespace Ship_Game
                 {
                     foreach (Ship selectedShip in SelectedShipList)
                     {
-                        Player.GetEmpireAI().DefensiveCoordinator.Remove(selectedShip);
+                        Player.AI.DefensiveCoordinator.Remove(selectedShip);
                         ShipCommands.RightClickOnShip(selectedShip, shipClicked);
                         if (planetClicked != null)
                             ShipCommands.RightClickOnPlanet(selectedShip, planetClicked);

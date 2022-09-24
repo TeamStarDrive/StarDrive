@@ -146,7 +146,7 @@ namespace UnitTests.Ships
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
                 Enemy.IsFaction = false;
-                us.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
+                us.AI.DeclareWarOn(Enemy, WarType.BorderConflict);
             });
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), $"War: {GetFailString(us, ourShip, theirShip, ourRelation)}");
 

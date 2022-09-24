@@ -604,12 +604,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                         if (UsAndThem.Treaty_NAPact)
                         {
                             TheirText = GetDialogueByName("WarDeclared_FeelsBetrayed");
-                            Us.GetEmpireAI().DeclareWarOn(Them, WarType.ImperialistWar);
+                            Us.AI.DeclareWarOn(Them, WarType.ImperialistWar);
                         }
                         else
                         {
                             TheirText = GetDialogueByName("WarDeclared_Generic");
-                            Us.GetEmpireAI().DeclareWarOn(Them, WarType.ImperialistWar);
+                            Us.AI.DeclareWarOn(Them, WarType.ImperialistWar);
                         }
                     }
                 }
@@ -656,7 +656,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 {
                     if ((!TheirOffer.IsBlank() || !OurOffer.IsBlank() || TheirOffer.Alliance) && SendOffer.HandleInput(input))
                     {
-                        DoNegotiationResponse(Them.GetEmpireAI().AnalyzeOffer(OurOffer, TheirOffer, Us, Attitude));
+                        DoNegotiationResponse(Them.AI.AnalyzeOffer(OurOffer, TheirOffer, Us, Attitude));
                         OurOffer   = new Offer();
                         TheirOffer = new Offer { Them = Them };
                     }
@@ -698,7 +698,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
                     DState = DialogState.End;
                     TheirText = GetDialogueByName(TheirOffer.AcceptDL);
-                    Us.GetEmpireAI().AcceptOffer(OurOffer, TheirOffer, Us, Them, Attitude);
+                    Us.AI.AcceptOffer(OurOffer, TheirOffer, Us, Them, Attitude);
                 }
                 if (Reject.HandleInput(input))
                 {
@@ -1063,8 +1063,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 if (Them.ProcessAllyCallToWar(Us, EmpireToDiscuss, out string dialog))
                 {
                     TheirText += GetDialogueByName(dialog);
-                    Them.GetEmpireAI().DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar);
-                    EmpireToDiscuss.GetEmpireAI().GetWarDeclaredOnUs(Them, WarType.ImperialistWar);
+                    Them.AI.DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar);
+                    EmpireToDiscuss.AI.GetWarDeclaredOnUs(Them, WarType.ImperialistWar);
                 }
                 else
                 {
@@ -1086,8 +1086,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             else if (ThemAndUs.GetStrength() > 60f && Us.OffensiveStrength > Us.KnownEmpireStrength(EmpireToDiscuss))
             {
                 TheirText += GetDialogueByName("JoinWar_OK");
-                Them.GetEmpireAI().DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar);
-                EmpireToDiscuss.GetEmpireAI().GetWarDeclaredOnUs(Them, WarType.ImperialistWar);
+                Them.AI.DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar);
+                EmpireToDiscuss.AI.GetWarDeclaredOnUs(Them, WarType.ImperialistWar);
             }
             else
             {

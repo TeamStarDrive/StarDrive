@@ -206,7 +206,7 @@ namespace Ship_Game.Gameplay
             if (Them.isPlayer && GlobalStats.RestrictAIPlayerInteraction)
                 return;
 
-            us.GetEmpireAI().AddGoal(new PrepareForWar(us, Them));
+            us.AI.AddGoal(new PrepareForWar(us, Them));
             PreparingForWar     = true;
             PreparingForWarType = type;
         }
@@ -430,7 +430,7 @@ namespace Ship_Game.Gameplay
                 {
                     Array<Planet> ourTargetPlanets = new Array<Planet>();
                     Array<Planet> theirTargetPlanets = new Array<Planet>();
-                    foreach (Goal g in us.GetEmpireAI().Goals)
+                    foreach (Goal g in us.AI.Goals)
                     {
                         if (g.Type != GoalType.Colonize)
                             continue;
@@ -803,7 +803,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Alliance || Treaty_OpenBorders) 
                 return;
 
-            float strShipsInBorders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(us, them);
+            float strShipsInBorders = us.AI.ThreatMatrix.StrengthOfAllEmpireShipsInBorders(us, them);
             if (strShipsInBorders > 0)
             {
                 float ourStr = Treaty_NAPact ? us.CurrentMilitaryStrength * 25
@@ -909,7 +909,7 @@ namespace Ship_Game.Gameplay
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, "Offer Trade", offer2, offer1);
             else
-                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
+                them.AI.AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
 
             turnsSinceLastContact = 0;
         }
@@ -941,7 +941,7 @@ namespace Ship_Game.Gameplay
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, "Offer NAPact", offer2, offer1);
             else
-                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
+                them.AI.AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
 
             turnsSinceLastContact = 0;
         }
@@ -979,7 +979,7 @@ namespace Ship_Game.Gameplay
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, friendlyOpen ? "Offer Open Borders Friends" : "Offer Open Borders", ourOffer, openBordersOffer);
             else
-                them.GetEmpireAI().AnalyzeOffer(ourOffer, openBordersOffer, us, Offer.Attitude.Pleading);
+                them.AI.AnalyzeOffer(ourOffer, openBordersOffer, us, Offer.Attitude.Pleading);
 
             turnsSinceLastContact = 0;
         }
@@ -1027,7 +1027,7 @@ namespace Ship_Game.Gameplay
                 offer2.RejectDL      = "ALLIANCE_REJECTED";
                 offer2.ValueToModify = new Ref<bool>(() => HaveRejected_Alliance,
                     x => { HaveRejected_Alliance = x; });
-                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
+                them.AI.AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
             }
 
             turnsSinceLastContact = 0;
@@ -1201,7 +1201,7 @@ namespace Ship_Game.Gameplay
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, dialogue, ourOffer, offerPeace);
             else
-                them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);
+                them.AI.AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);
         }
 
         void DemandTech(Empire us)
@@ -1215,7 +1215,7 @@ namespace Ship_Game.Gameplay
             }
 
             Empire them = Them;
-            if (!them.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialDemands, true))
+            if (!them.AI.TradableTechs(us, out Array<TechEntry> potentialDemands, true))
                 return;
 
             TechEntry techToDemand = potentialDemands.RandItem();
@@ -1234,7 +1234,7 @@ namespace Ship_Game.Gameplay
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, "Xeno Demand Tech", demandTech, theirDemand);
             else
-                them.GetEmpireAI().AnalyzeOffer(theirDemand, demandTech, us, Offer.Attitude.Threaten);
+                them.AI.AnalyzeOffer(theirDemand, demandTech, us, Offer.Attitude.Threaten);
 
             turnsSinceLastContact = 0;
         }
@@ -1268,14 +1268,14 @@ namespace Ship_Game.Gameplay
                 theirOffer.TechnologiesOffered.Add(techName);
 
             Offer.Attitude ourAttitude = us.IsAggressive || us.IsRuthless || us.IsXenophobic ? Offer.Attitude.Respectful : Offer.Attitude.Pleading;
-            them.GetEmpireAI().AnalyzeOffer(ourOffer, theirOffer, us, ourAttitude);
+            them.AI.AnalyzeOffer(ourOffer, theirOffer, us, ourAttitude);
             turnsSinceLastContact = 0;
         }
 
         bool TechsToOffer(Empire us, Empire them, out Array<TechEntry> techs)
         {
             techs = new Array<TechEntry>();
-            if (!us.GetEmpireAI().TradableTechs(them, out Array<TechEntry> ourTechs, !us.isPlayer && !them.isPlayer))
+            if (!us.AI.TradableTechs(them, out Array<TechEntry> ourTechs, !us.isPlayer && !them.isPlayer))
                 return false;
 
             var theirDesigns = them.GetOurFactionShips();
@@ -1385,7 +1385,7 @@ namespace Ship_Game.Gameplay
                 if (!ActiveWar.AlliesCalled.Contains(ally.data.Traits.Name)
                     && usToAlly.turnsSinceLastContact > (ally.isPlayer ? contactThreshold * 2 : contactThreshold))
                 {
-                    us.GetEmpireAI().CallAllyToWar(ally, enemy);
+                    us.AI.CallAllyToWar(ally, enemy);
                     if (ally.IsAtWarWith(enemy))
                         ActiveWar.AlliesCalled.Add(ally.data.Traits.Name);
 
@@ -1790,7 +1790,7 @@ namespace Ship_Game.Gameplay
             debug.AddLine($" Previous Wars: {WarHistory.Count}", color);
 
             ActiveWar?.WarDebugData(ref debug);
-            us.GetEmpireAI().DebugDrawTasks(ref debug, Them, warTasks: true);
+            us.AI.DebugDrawTasks(ref debug, Them, warTasks: true);
             return debug;
         }
 

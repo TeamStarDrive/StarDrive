@@ -120,7 +120,7 @@ namespace Ship_Game.GameScreens
             {
                 if (cb.Checked)
                 {
-                    Player.GetEmpireAI().RunEconomicPlanner();
+                    Player.AI.RunEconomicPlanner();
                     TaxSlider.RelativeValue = Player.data.TaxRate;
                 }
                 TaxSlider.Enabled = !cb.Checked;
@@ -184,9 +184,9 @@ namespace Ship_Game.GameScreens
             Player.data.treasuryGoal = s.RelativeValue;
             EmpireManager.Player.data.treasuryGoal = s.AbsoluteValue;
             
-            int goal = (int)Player.GetEmpireAI().TreasuryGoal(Player.NormalizedMoney) / 2;
+            int goal = (int)Player.AI.TreasuryGoal(Player.NormalizedMoney) / 2;
             s.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {goal}";
-            Player.GetEmpireAI().RunEconomicPlanner();
+            Player.AI.RunEconomicPlanner();
 
             if (Player.data.AutoTaxes)
                 TaxSlider.RelativeValue = Player.data.TaxRate;
@@ -230,7 +230,7 @@ namespace Ship_Game.GameScreens
         }
         public override void Update(float fixedDeltaTime)
         {
-            TreasuryGoal.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {EmpireManager.Player.GetEmpireAI().ProjectedMoney:0.00}";
+            TreasuryGoal.Text = $"{Localizer.Token(GameText.TreasuryGoal)} : {EmpireManager.Player.AI.ProjectedMoney:0.00}";
             base.Update(fixedDeltaTime);
 
         }

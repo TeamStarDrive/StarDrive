@@ -82,7 +82,7 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateExploration(Planet targetPlanet, Empire owner)
         {
-            Empire dominant  = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
+            Empire dominant  = owner.AI.ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
             var militaryTask = new MilitaryTask(owner)
             {
                 AO             = targetPlanet.Position,
@@ -127,7 +127,7 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, Empire empire)
         {
-            var threatMatrix = empire.GetEmpireAI().ThreatMatrix;
+            var threatMatrix = empire.AI.ThreatMatrix;
             float pingStr    = threatMatrix.PingRadarStr(targetShip.Position, 20000, empire);
             var militaryTask = new MilitaryTask(empire)
             {
@@ -194,7 +194,7 @@ namespace Ship_Game.AI.Tasks
                             float strengthWanted, TaskType taskType)
         {
             Owner = owner;
-            Empire dominant = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(system);
+            Empire dominant = owner.AI.ThreatMatrix.GetDominantEmpireInSystem(system);
             AO                       = center;
             AORadius                 = radius;
             Type                     = taskType;
@@ -225,7 +225,7 @@ namespace Ship_Game.AI.Tasks
 
         float GetKnownEnemyStrInClosestSystems(SolarSystem system, Empire owner, Empire enemy)
         {
-            var threatMatrix = owner.GetEmpireAI().ThreatMatrix;
+            var threatMatrix = owner.AI.ThreatMatrix;
             float strWanted  = threatMatrix.PingRadarStr(system.Position, system.Radius, owner);
 
             for (int i = 0; i < system.FiveClosestSystems.Count; i++)
@@ -261,7 +261,7 @@ namespace Ship_Game.AI.Tasks
             if (Owner == null)
                 return;
 
-            Owner.GetEmpireAI().QueueForRemoval(this);
+            Owner.AI.QueueForRemoval(this);
 
 
             if (Owner.IsFaction)
@@ -277,7 +277,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             if (Fleet != null && !Fleet.IsCoreFleet && !FleetNeededForNextTask)
-                Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
+                Owner.AI.UsedFleets.Remove(WhichFleet);
 
             if (FindClosestAO() == null)
             {
@@ -433,7 +433,7 @@ namespace Ship_Game.AI.Tasks
                         }
                     }
                     TaskForce.Clear();
-                    Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
+                    Owner.AI.UsedFleets.Remove(WhichFleet);
                     Owner.GetFleetsDict()[WhichFleet].Reset();
                 }
 
@@ -456,7 +456,7 @@ namespace Ship_Game.AI.Tasks
                     toLaunch.Clear();
                 }
             }
-            Owner.GetEmpireAI().QueueForRemoval(this);
+            Owner.AI.QueueForRemoval(this);
         }
 
         public void IncreaseColonyLostValueByBombing()
@@ -538,7 +538,7 @@ namespace Ship_Game.AI.Tasks
         //need to examine this fleet key thing. i believe there is a leak.
         int FindUnusedFleetNumber()
         {
-            var used = Owner.GetEmpireAI().UsedFleets;
+            var used = Owner.AI.UsedFleets;
             int key = 1;
             while (used.Contains(key))
                 ++key;

@@ -288,7 +288,7 @@ namespace Ship_Game.AI
             }
 
             // Waiting to be scrapped by Empire goal
-            if (!Owner.Loyalty.GetEmpireAI().Goals.Any(g => g.Type == GoalType.ScrapShip && g.OldShip == Owner))
+            if (!Owner.Loyalty.AI.Goals.Any(g => g.Type == GoalType.ScrapShip && g.OldShip == Owner))
                 ClearOrders(); // Could not find empire scrap goal
         }
 
@@ -456,7 +456,7 @@ namespace Ship_Game.AI
             if (Owner.GetTether()?.Owner == Owner.Loyalty)
                 return;
 
-            EmpireAI ai = Owner.Loyalty.GetEmpireAI();
+            EmpireAI ai = Owner.Loyalty.AI;
             if (ai.Goals.Any(g => g.Type == GoalType.RearmShipFromPlanet && g.TargetShip == Owner))
                 return; // Supply ship is on the way
 

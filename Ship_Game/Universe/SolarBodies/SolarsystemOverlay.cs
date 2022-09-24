@@ -231,7 +231,7 @@ namespace Ship_Game
                             }
                         }
 
-                        foreach (Goal g in player.GetEmpireAI().Goals)
+                        foreach (Goal g in player.AI.Goals)
                         {
                             if (g.ColonizationTarget == null || g.ColonizationTarget != p)
                                 continue;

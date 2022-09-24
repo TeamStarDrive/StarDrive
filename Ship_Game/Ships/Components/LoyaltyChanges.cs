@@ -126,7 +126,7 @@ namespace Ship_Game.Ships.Components
 
             ship.Loyalty = newLoyalty;
 
-            oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
+            oldLoyalty.AI.ThreatMatrix.RemovePin(ship);
             ship.ShipStatusChanged = true;
             ship.SwitchTroopLoyalty(oldLoyalty, newLoyalty);
             ship.ReCalculateTroopsAfterBoard();

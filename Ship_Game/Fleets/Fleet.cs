@@ -634,7 +634,7 @@ namespace Ship_Game.Fleets
             Planet targetPlanet     = task.TargetPlanet;
             bool eventBuildingFound = targetPlanet.EventsOnTiles();
             if (task.TargetEmpire == null)
-                task.TargetEmpire = Owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
+                task.TargetEmpire = Owner.AI.ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
 
             if (EndInvalidTask(!eventBuildingFound
                                || targetPlanet.Owner != null && !Owner.IsAtWarWith(targetPlanet.Owner)
@@ -766,8 +766,8 @@ namespace Ship_Game.Fleets
             var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
             fleet.Name       = name;
             fleet.FleetTask  = postInvasion;
-            owner.GetEmpireAI().QueueForRemoval(task);
-            owner.GetEmpireAI().AddPendingTask(postInvasion);
+            owner.AI.QueueForRemoval(task);
+            owner.AI.AddPendingTask(postInvasion);
         }
 
         // Note - the task type of the reclaim fleet is Assault Planet
@@ -778,8 +778,8 @@ namespace Ship_Game.Fleets
             var reclaim      = MilitaryTask.CreateReclaimTask(owner, task.TargetPlanet, task.WhichFleet);
             fleet.Name       = "Reclaim Fleet";
             fleet.FleetTask  = reclaim;
-            owner.GetEmpireAI().QueueForRemoval(task);
-            owner.GetEmpireAI().AddPendingTask(reclaim);
+            owner.AI.QueueForRemoval(task);
+            owner.AI.AddPendingTask(reclaim);
         }
 
         public static void CreateStrikeFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner, Goal goal)
@@ -796,8 +796,8 @@ namespace Ship_Game.Fleets
 
             fleet.Name      = "Strike Fleet";
             fleet.FleetTask = strikeFleet;
-            owner.GetEmpireAI().QueueForRemoval(task);
-            owner.GetEmpireAI().AddPendingTask(strikeFleet);
+            owner.AI.QueueForRemoval(task);
+            owner.AI.AddPendingTask(strikeFleet);
         }
 
         bool GatherAtRallyFirst(MilitaryTask task)
@@ -1277,7 +1277,7 @@ namespace Ship_Game.Fleets
 
         void DoDefendVsRemnant(MilitaryTask task)
         {
-            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task) || !Owner.GetEmpireAI().HasGoal(g => g.Fleet == this)))
+            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength, task) || !Owner.AI.HasGoal(g => g.Fleet == this)))
             {
                 ClearOrders();
                 return;
@@ -1493,9 +1493,9 @@ namespace Ship_Game.Fleets
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
             if (task.TargetEmpire == null && FleetTask.TargetSystem != null)
-                task.TargetEmpire = Owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(FleetTask.TargetSystem);
+                task.TargetEmpire = Owner.AI.ThreatMatrix.GetDominantEmpireInSystem(FleetTask.TargetSystem);
 
-            float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
+            float enemyStrength = Owner.AI.ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
 
             if (EndInvalidTask(!CanTakeThisFight(enemyStrength*0.5f, task))) 
                 return;
@@ -1625,7 +1625,7 @@ namespace Ship_Game.Fleets
                 return;
 
             Goal goal = new DeployFleetProjector(this, FleetTask.TargetPlanet, Owner);
-            Owner.GetEmpireAI().AddGoal(goal);
+            Owner.AI.AddGoal(goal);
         }
 
         bool FleetProjectorGoalInProgress(SolarSystem targetSystem)
@@ -1633,7 +1633,7 @@ namespace Ship_Game.Fleets
             if (targetSystem.IsExclusivelyOwnedBy(Owner))
                 return false; // no need for projector goal
 
-            var goals = Owner.GetEmpireAI().SearchForGoals(GoalType.DeployFleetProjector).Filter(g => g.Fleet == this);
+            var goals = Owner.AI.SearchForGoals(GoalType.DeployFleetProjector).Filter(g => g.Fleet == this);
             if (goals.Length == 1)
             {
                 Goal deployGoal = goals[0];
@@ -1800,7 +1800,7 @@ namespace Ship_Game.Fleets
                 return false;
 
             var availableShips = new Array<Ship>(ships);
-            Map<Vector2, float> enemyClumpsDict = Owner.GetEmpireAI().ThreatMatrix
+            Map<Vector2, float> enemyClumpsDict = Owner.AI.ThreatMatrix
                 .PingRadarStrengthClusters(task.AO, task.AORadius, 10000, Owner);
 
             if (enemyClumpsDict.Count == 0)
@@ -1858,7 +1858,7 @@ namespace Ship_Game.Fleets
                 Radius      = task.AORadius
             };
 
-            strengthCluster = Owner.GetEmpireAI().ThreatMatrix.FindLargestStrengthClusterLimited(strengthCluster, GetStrength(), AveragePosition());
+            strengthCluster = Owner.AI.ThreatMatrix.FindLargestStrengthClusterLimited(strengthCluster, GetStrength(), AveragePosition());
             if (strengthCluster.Strength <= 0) 
                 return false;
 
@@ -1931,7 +1931,7 @@ namespace Ship_Game.Fleets
 
         bool StillCombatEffective(MilitaryTask task)
         {
-            float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
+            float enemyStrength = Owner.AI.ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
             if (CanTakeThisFight(enemyStrength, task))
                 return true;
 
@@ -2201,7 +2201,7 @@ namespace Ship_Game.Fleets
                     }
                     return;
                 }
-                Owner.GetEmpireAI().UsedFleets.Remove(which);
+                Owner.AI.UsedFleets.Remove(which);
 
                 Reset();
             }

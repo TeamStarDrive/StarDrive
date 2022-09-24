@@ -456,7 +456,7 @@ namespace Ship_Game
                 ao = FinalPosition;
             radius = radius.AlmostZero() ? GetRelativeSize().Length() : radius;
 
-            float netStrengthInAO = Owner.GetEmpireAI().ThreatMatrix.PingNetHostileStr(ao, radius, Owner);
+            float netStrengthInAO = Owner.AI.ThreatMatrix.PingNetHostileStr(ao, radius, Owner);
 
             MoveStatus moveStatus = MoveStatus.None;
             float assembled       = 0;
