@@ -428,9 +428,9 @@ namespace Ship_Game.Universe.SolarBodies
                 if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
                     Owner.AI.RemoveGoal(q.Goal);
 
-                if (q.Goal.Fleet != null)
+                if (q.Goal is FleetGoal fg)
                 {
-                    q.Goal.Fleet.RemoveGoal(q.Goal);
+                    fg.Fleet?.RemoveGoal(q.Goal);
                     Owner.AI.RemoveGoal(q.Goal);
                 }
 

@@ -10,7 +10,7 @@ using Ship_Game.Ships;
 namespace Ship_Game.Commands.Goals
 {
     [StarDataType]
-    public class RemnantEngageEmpire : Goal
+    public class RemnantEngageEmpire : FleetGoal
     {
         Remnants Remnants => Owner.Remnants;
         [StarData] int BombersLevel;

@@ -2,16 +2,16 @@
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
-using System.Linq;
-using SDUtils;
 using Ship_Game.Data.Serialization;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.Commands.Goals
 {
     [StarDataType]
-    public class DeployFleetProjector : Goal
+    public class DeployFleetProjector : FleetGoal
     {
+        [StarData] BuildConstructionShip BuildGoal;
+
         [StarDataConstructor]
         public DeployFleetProjector(Empire owner) : base(GoalType.DeployFleetProjector, owner)
         {
@@ -35,37 +35,34 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
 
             float distanceToDeploy = Owner.GetProjectorRadius() * 0.8f;
-            Vector2 direction      = Fleet.FleetTask.TargetPlanet.Position.DirectionToTarget(Fleet.AveragePosition());
-            BuildPosition          = ColonizationTarget.Position + direction.Normalized() * distanceToDeploy;
-            Goal goal              = new BuildConstructionShip(BuildPosition, "Subspace Projector", Owner);
-            goal.Fleet             = Fleet;
-            Owner.AI.AddGoal(goal);
+            Vector2 dir = Fleet.FleetTask.TargetPlanet.Position.DirectionToTarget(Fleet.AveragePosition());
+            BuildPosition = ColonizationTarget.Position + dir * distanceToDeploy;
+            BuildGoal = new(BuildPosition, "Subspace Projector", Owner);
+            Owner.AI.AddGoal(BuildGoal);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep WaitAndPrioritizeProjector()
         {
-            var goals = Owner.AI.SearchForGoals(GoalType.DeepSpaceConstruction).Filter(g => g.Fleet == Fleet);
-            if (goals.Length > 0)
-            {
-                Goal constructionGoal = goals.First();
-                if (constructionGoal.FinishedShip == null)
-                {
-                    if (Fleet == null)
-                    {
-                        constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
-                        return GoalStep.GoalFailed;
-                    }
+            // make sure we are still doing it
+            Goal constructionGoal = Owner.AI.FindGoal(g => g == BuildGoal);
+            if (constructionGoal == null)
+                return GoalStep.RestartGoal; // ughhh wtf
 
-                    constructionGoal.PlanetBuildingAt?.Construction.PrioritizeProjector(BuildPosition);
-                    return GoalStep.TryAgain;
+            if (constructionGoal.FinishedShip == null)
+            {
+                if (Fleet == null)
+                {
+                    constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
+                    return GoalStep.GoalFailed;
                 }
 
-                FinishedShip = constructionGoal.FinishedShip; // We have a construction ship on the way
-                return GoalStep.GoToNextStep;
+                constructionGoal.PlanetBuildingAt?.Construction.PrioritizeProjector(BuildPosition);
+                return GoalStep.TryAgain;
             }
 
-            return GoalStep.GoalFailed;
+            FinishedShip = constructionGoal.FinishedShip; // We have a construction ship on the way
+            return GoalStep.GoToNextStep;
         }
 
         GoalStep RemoveProjectorWhenCompleted()

@@ -7,6 +7,7 @@ using Ship_Game.Ships;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game
 {
@@ -82,8 +83,8 @@ namespace Ship_Game
             {
                 batch.Draw(ShipData.Icon, r);
                 string name = DisplayName.IsEmpty() ? ShipData.Name : DisplayName;
-                if (Goal?.Fleet != null)
-                    name = $"{name} ({Goal.Fleet.Name})";
+                if (Goal is FleetGoal fg && fg.Fleet != null)
+                    name = $"{name} ({fg.Fleet.Name})";
 
                 batch.DrawString(Fonts.Arial12Bold, name, tCursor, Color.White);
                 pb.Draw(batch);

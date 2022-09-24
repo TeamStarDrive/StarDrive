@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Linq;
 using Ship_Game.AI;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.Commands.Goals
 {
     [StarDataType]
-    public class FleetRequisition : Goal
+    public class FleetRequisition : FleetGoal
     {
-        [StarData] bool Rush; // no need for saving this as it is used immediately
+        [StarData] bool Rush;
+        [StarData] public IShipDesign ShipToBuild;
 
         [StarDataConstructor]
         public FleetRequisition(Empire owner) : base(GoalType.FleetRequisition, owner)
@@ -24,10 +24,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public FleetRequisition(string shipName, Empire owner, bool rush) : this(owner)
+        public FleetRequisition(string shipName, Empire owner, Fleet fleet, bool rush) : this(owner)
         {
             ToBuildUID  = shipName;
             ShipToBuild = ResourceManager.Ships.GetDesign(shipName);
+            Fleet = fleet;
             Rush = rush;
         }
 
