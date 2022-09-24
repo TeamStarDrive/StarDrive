@@ -13,6 +13,7 @@ namespace Ship_Game.Commands.Goals
     {
         Remnants Remnants => Owner.Remnants;
         Ship Portal => TargetShip;
+        [StarData] Vector2 TetherOffset;
 
         [StarDataConstructor]
         public RemnantPortal(Empire owner) : base(GoalType.RemnantPortal, owner)
@@ -70,9 +71,6 @@ namespace Ship_Game.Commands.Goals
 
         void ReturnToSpawnPos()
         {
-            if (TetherOffset == Vector2.Zero)
-                return; // save support - can be removed in 2021
-
             Vector2 systemPos = Portal.System?.Position 
                                 ?? Owner.Universum.Systems.FindMin(s => s.Position.SqDist(Portal.Position)).Position;
 

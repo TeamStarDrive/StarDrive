@@ -427,40 +427,18 @@ namespace Ship_Game.Gameplay
                 }
                 else if (why == "Colonized Owned System")
                 {
-                    Array<Planet> ourTargetPlanets = new Array<Planet>();
-                    Array<Planet> theirTargetPlanets = new Array<Planet>();
-                    foreach (Goal g in us.AI.Goals)
-                    {
-                        if (g.Type != GoalType.Colonize)
-                            continue;
-
-                        ourTargetPlanets.Add(g.ColonizationTarget);
-                    }
-
-                    foreach (Planet theirPlanet in them.GetPlanets())
-                    {
-                        theirTargetPlanets.Add(theirPlanet);
-                    }
-
-                    bool matchFound = false;
-                    SolarSystem sharedSystem = null;
+                    var ourTargetPlanets = us.AI.SelectFromGoals((MarkForColonization c) => c.TargetPlanet);
                     foreach (Planet planet in ourTargetPlanets)
                     {
-                        foreach (Planet other in theirTargetPlanets)
+                        foreach (Planet other in them.GetPlanets())
                         {
-                            if (p == null || other == null || p.ParentSystem != other.ParentSystem)
+                            if (planet.ParentSystem == other.ParentSystem)
                             {
-                                continue;
+                                SolarSystem sharedSys = planet.ParentSystem;
+                                if (us.GetRelations(them).WarnedSystemsList.Contains(sharedSys.Id))
+                                    return;
                             }
-                            sharedSystem = p.ParentSystem;
-                            matchFound = true;
-                            break;
                         }
-                        if (!matchFound || !us.GetRelations(them).WarnedSystemsList.Contains(sharedSystem.Id))
-                        {
-                            continue;
-                        }
-                        return;
                     }
 
                     float expansion = us.Universum.Systems.Count / us.GetOwnedSystems().Count + them.GetOwnedSystems().Count;

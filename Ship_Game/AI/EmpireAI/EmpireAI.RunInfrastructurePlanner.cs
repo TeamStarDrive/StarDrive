@@ -17,8 +17,8 @@ namespace Ship_Game.AI
             float maintenance = 0f;
             foreach (Goal g in GoalsList)
             {
-                if (g is BuildConstructionShip)
-                    maintenance += ResourceManager.GetShipTemplate(g.ToBuildUID).GetMaintCost(OwnerEmpire);
+                if (g is BuildConstructionShip b)
+                    maintenance += b.Build.Template.GetMaintenanceCost(OwnerEmpire, 0);
             }
             return maintenance;
         }

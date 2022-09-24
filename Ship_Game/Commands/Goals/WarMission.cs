@@ -10,6 +10,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class WarMission : Goal
     {
+        [StarData] public override Planet TargetPlanet { get; set; }
+
         [StarDataConstructor]
         public WarMission(Empire owner) : base(GoalType.WarMission, owner)
         {
@@ -36,7 +38,8 @@ namespace Ship_Game.Commands.Goals
             Log.Info(ConsoleColor.Green, $"---- WarMission: New Strike Force from stage fleet, {Owner.Name} Vs. {TargetEmpire.Name} ----");
         }
 
-        public override bool IsWarMission => true;
+        public override bool IsWarMissionTarget(Planet planet) => TargetPlanet == planet;
+        public override bool IsWarMissionTarget(Empire empire) => TargetEmpire == empire;
 
         bool TryGetTask(out MilitaryTask task)
         {

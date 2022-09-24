@@ -927,14 +927,14 @@ namespace Ship_Game.Debug
             DrawString("Goals:");
             foreach (Goal goal in e.AI.Goals)
             {
-                if (goal.Type != GoalType.RemnantEngageEmpire)
+                if (goal.TargetPlanet != null)
                 {
-                    DrawString($"{goal.Type}");
+                    Color color = goal.TargetPlanet.Owner?.EmpireColor ?? e.EmpireColor;
+                    DrawString(color, $"{goal.Type}, Target Planet: {goal.TargetPlanet.Name}");
                 }
                 else
                 {
-                    Color color = goal.ColonizationTarget?.Owner?.EmpireColor ?? e.EmpireColor;
-                    DrawString(color, $"{goal.Type}, Target Planet: {goal.ColonizationTarget?.Name}");
+                    DrawString($"{goal.Type}");
                 }
             }
 
@@ -1026,16 +1026,16 @@ namespace Ship_Game.Debug
                 for (int x = 0; x < e.AI.Goals.Count; x++)
                 {
                     Goal g = e.AI.Goals[x];
-                    if (!(g is MarkForColonization))
-                        continue;
+                    if (g is MarkForColonization)
+                    {
+                        NewLine();
+                        DrawString($"{g.TypeName} {g.TargetPlanet.Name}" +
+                                   $" (x{e.GetFleetStrEmpireMultiplier(g.TargetEmpire).String(1)})");
 
-                    NewLine();
-                    DrawString($"{g.TypeName} {g.ColonizationTarget.Name}" +
-                               $" (x{e.GetFleetStrEmpireMultiplier(g.TargetEmpire).String(1)})");
-
-                    DrawString(15f, $"Step: {g.StepName}");
-                    if (g.FinishedShip != null && g.FinishedShip.Active)
-                        DrawString(15f, "Has ship");
+                        DrawString(15f, $"Step: {g.StepName}");
+                        if (g.FinishedShip != null && g.FinishedShip.Active)
+                            DrawString(15f, "Has ship");
+                    }
                 }
 
                 MilitaryTask[] tasks = e.AI.GetTasks().ToArr();

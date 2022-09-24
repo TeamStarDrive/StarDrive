@@ -22,7 +22,7 @@ namespace Ship_Game.Commands.Goals
 
         public BuildOffensiveShips(string shipType, Empire owner) : this(owner)
         {
-            ToBuildUID = shipType;
+            Build = new(shipType);
         }
 
         GoalStep FindPlanetToBuildAt()
@@ -74,18 +74,10 @@ namespace Ship_Game.Commands.Goals
             {
             }
 
-            public ShipInfo(Empire owner, BuildOffensiveShips goal)
+            public ShipInfo(Empire owner, BuildOffensiveShips g)
             {
-                if (goal.GetShipTemplate(goal.ToBuildUID, out IShipDesign template))
-                {
-                    Role = template.Role;
-                    Upkeep = template.GetMaintenanceCost(owner, 0);
-                }
-                else
-                {
-                    Role = RoleName.disabled;
-                    Upkeep = 0;
-                }
+                Role = g.Build.Template.Role;
+                Upkeep = g.Build.Template.GetMaintenanceCost(owner, 0);
             }
         }
     }

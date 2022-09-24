@@ -233,13 +233,13 @@ namespace Ship_Game
 
                         foreach (Goal g in player.AI.Goals)
                         {
-                            if (g.ColonizationTarget == null || g.ColonizationTarget != p)
-                                continue;
-
-                            var flag = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 6, PlanetRect.Y - 17, 13, 17);
-                            batch.Draw(ResourceManager.Texture("UI/flagicon"), flag, player.EmpireColor);
-                            if (flag.HitTest(Universe.Input.CursorPosition))
-                                ToolTip.CreateTooltip(GameText.IndicatesThatYourEmpireHas);
+                            if (g.IsColonizationGoal(p))
+                            {
+                                var flag = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 6, PlanetRect.Y - 17, 13, 17);
+                                batch.Draw(ResourceManager.Texture("UI/flagicon"), flag, player.EmpireColor);
+                                if (flag.HitTest(Universe.Input.CursorPosition))
+                                    ToolTip.CreateTooltip(GameText.IndicatesThatYourEmpireHas);
+                            }
                         }
                     }
                 }

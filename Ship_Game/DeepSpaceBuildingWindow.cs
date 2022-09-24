@@ -145,25 +145,19 @@ namespace Ship_Game
 
         void TryPlaceBuildable()
         {
-            Vector2 cursorWorldPos = Screen.CursorWorldPosition2D;
-
             bool okToBuild = TargetPlanet == null && !itemToBuild.ShipData.IsShipyard
                 || TargetPlanet != null && !TargetPlanet.IsOutOfOrbitalsLimit(itemToBuild);
 
             if (okToBuild)
             {
-                Goal buildStuff = new BuildConstructionShip(cursorWorldPos, itemToBuild.Name, EmpireManager.Player);
-                if (TargetPlanet != null)
-                {
-                    buildStuff.TetherOffset = TetherOffset;
-                    buildStuff.TetherPlanet = TargetPlanet;
-                }
-
-                Screen.Player.AI.AddGoal(buildStuff);
+                Vector2 worldPos = Screen.CursorWorldPosition2D;
+                Screen.Player.AI.AddGoal(new BuildConstructionShip(worldPos, itemToBuild.Name, Screen.Player, TargetPlanet, TetherOffset));
                 GameAudio.EchoAffirmative();
             }
             else
+            {
                 GameAudio.NegativeClick();
+            }
 
             Screen.UpdateClickableItems();
         }
