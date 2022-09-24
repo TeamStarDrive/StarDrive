@@ -361,7 +361,6 @@
     <Compile Include="Ship_Game\Universe\UniverseState.cs" />
     <Compile Include="Ship_Game\Utils\BitArray.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />
-    <Compile Include="Ship_Game\Data\InterningStringConverter.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
     <Compile Include="Ship_Game\Empire_War.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignShip.cs" />

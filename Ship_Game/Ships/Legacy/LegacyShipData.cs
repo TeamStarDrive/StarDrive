@@ -1,15 +1,9 @@
-using Newtonsoft.Json;
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using SDUtils;
-using Ship_Game.Data;
-using Ship_Game.Data.Mesh;
-using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
 
 namespace Ship_Game.Ships.Legacy
@@ -54,27 +48,27 @@ namespace Ship_Game.Ships.Legacy
 
         public ThrusterZone[] ThrusterList;
 
-        [XmlIgnore] [JsonIgnore] public LegacyShipGridInfo GridInfo;
+        [XmlIgnore]  public LegacyShipGridInfo GridInfo;
 
-        [XmlIgnore] [JsonIgnore] public float BaseStrength;
+        [XmlIgnore]  public float BaseStrength;
         [XmlArray(ElementName = "ModuleSlotList")] public LegacyModuleSlotData[] ModuleSlots;
-        [XmlIgnore] [JsonIgnore] public bool UnLockable;
-        [XmlIgnore] [JsonIgnore] public bool HullUnlockable;
-        [XmlIgnore] [JsonIgnore] public bool AllModulesUnlockable = true;
+        [XmlIgnore]  public bool UnLockable;
+        [XmlIgnore]  public bool HullUnlockable;
+        [XmlIgnore]  public bool AllModulesUnlockable = true;
         [XmlArray(ElementName = "techsNeeded")] public HashSet<string> TechsNeeded = new HashSet<string>();
-        [XmlIgnore] [JsonIgnore] public int TechScore;
+        [XmlIgnore]  public int TechScore;
 
         static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
-        [XmlIgnore] [JsonIgnore] public RoleName HullRole => BaseHull.Role;
+        [XmlIgnore]  public RoleName HullRole => BaseHull.Role;
 
         // BaseHull is the template layout of the ship hull design
-        [XmlIgnore] [JsonIgnore] public LegacyShipData BaseHull { get; internal set; }
+        [XmlIgnore]  public LegacyShipData BaseHull { get; internal set; }
 
         // Model path of the template hull layout
-        [XmlIgnore] [JsonIgnore] public string HullModel => BaseHull.ModelPath;
+        [XmlIgnore]  public string HullModel => BaseHull.ModelPath;
 
-        [XmlIgnore] [JsonIgnore] public bool IsHull { get; private set; }
+        [XmlIgnore]  public bool IsHull { get; private set; }
 
         public FileInfo Source;
 

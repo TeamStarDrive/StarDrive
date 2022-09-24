@@ -1,5 +1,4 @@
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDGraphics;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
@@ -84,50 +83,50 @@ namespace Ship_Game
         [StarData] public bool CanBeTerraformed; // By level 1
 
         // XML Ignore because we load these from XML templates
-        [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
-        [XmlIgnore][JsonIgnore] [StarData] public float Offense { get; private set; }
-        [XmlIgnore][JsonIgnore] [StarData] public float MilitaryStrength { get; private set; }
-        [XmlIgnore][JsonIgnore] public int CurrentNumDefenseShips { get; private set; }
-        [XmlIgnore][JsonIgnore] public float ActualCost => Cost * UniverseState.DummyProductionPacePlaceholder;
-        [XmlIgnore][JsonIgnore] public bool IsBadCacheResourceBuilding => 
+        [XmlIgnore] public Weapon TheWeapon { get; private set; }
+        [XmlIgnore] [StarData] public float Offense { get; private set; }
+        [XmlIgnore] [StarData] public float MilitaryStrength { get; private set; }
+        [XmlIgnore] public int CurrentNumDefenseShips { get; private set; }
+        [XmlIgnore] public float ActualCost => Cost * UniverseState.DummyProductionPacePlaceholder;
+        [XmlIgnore] public bool IsBadCacheResourceBuilding => 
             FoodCache.Greater(0) && PlusFlatFoodAmount.AlmostZero() 
             || ProdCache.Greater(0) && PlusProdPerColonist.AlmostZero();
 
         public override string ToString()
             => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{GetShortDescrText()}";
 
-        [XmlIgnore][JsonIgnore] public LocalizedText TranslatedName  => new(NameTranslationIndex);
-        [XmlIgnore][JsonIgnore] public LocalizedText DescriptionText => new(DescriptionIndex);
+        [XmlIgnore] public LocalizedText TranslatedName  => new(NameTranslationIndex);
+        [XmlIgnore] public LocalizedText DescriptionText => new(DescriptionIndex);
 
         // Each Building templates has a unique ID:
-        [XmlIgnore][JsonIgnore] public int BID { get; private set; }
+        [XmlIgnore] public int BID { get; private set; }
         public void AssignBuildingId(int bid) => BID = bid;
 
         public static int CapitalId, OutpostId, BiospheresId, SpacePortId, TerraformerId;
         public static int VolcanoId, ActiveVolcanoId, EruptingVolcanoId, Lava1Id, Lava2Id, Lava3Id;
         public static int Crater1Id, Crater2Id, Crater3Id, Crater4Id;
-        [XmlIgnore][JsonIgnore] public bool IsCapital          => BID == CapitalId;
-        [XmlIgnore][JsonIgnore] public bool IsOutpost          => BID == OutpostId;
-        [XmlIgnore][JsonIgnore] public bool IsCapitalOrOutpost => BID == CapitalId || BID == OutpostId;
-        [XmlIgnore][JsonIgnore] public bool IsBiospheres       => BID == BiospheresId;
-        [XmlIgnore][JsonIgnore] public bool IsSpacePort        => BID == SpacePortId;
-        [XmlIgnore][JsonIgnore] public bool IsTerraformer      => BID == TerraformerId;
-        [XmlIgnore][JsonIgnore] public bool IsVolcano          => BID == VolcanoId || BID == ActiveVolcanoId || BID == EruptingVolcanoId;
-        [XmlIgnore][JsonIgnore] public bool IsLava             => BID == Lava1Id || BID == Lava2Id || BID == Lava3Id;
-        [XmlIgnore][JsonIgnore] public bool IsCrater           => BID == Crater1Id || BID == Crater2Id || BID == Crater3Id || BID == Crater4Id;
-        [XmlIgnore][JsonIgnore] public bool IsDynamicUpdate    => IsLava | IsVolcano || IsCrater;
-        [XmlIgnore][JsonIgnore] public SubTexture IconTex      => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
-        [XmlIgnore][JsonIgnore] public SubTexture IconTex64    => ResourceManager.Texture($"Buildings/icon_{Icon}_64x64");
-        [XmlIgnore][JsonIgnore] public string IconPath64       => $"Buildings/icon_{Icon}_64x64";
-        [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.LowerBound(0.1f);
-        [XmlIgnore][JsonIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
-        [XmlIgnore][JsonIgnore] private float DefenseShipStrength;
-        [XmlIgnore][JsonIgnore] public float SpaceRange = 10000f;
+        [XmlIgnore] public bool IsCapital          => BID == CapitalId;
+        [XmlIgnore] public bool IsOutpost          => BID == OutpostId;
+        [XmlIgnore] public bool IsCapitalOrOutpost => BID == CapitalId || BID == OutpostId;
+        [XmlIgnore] public bool IsBiospheres       => BID == BiospheresId;
+        [XmlIgnore] public bool IsSpacePort        => BID == SpacePortId;
+        [XmlIgnore] public bool IsTerraformer      => BID == TerraformerId;
+        [XmlIgnore] public bool IsVolcano          => BID == VolcanoId || BID == ActiveVolcanoId || BID == EruptingVolcanoId;
+        [XmlIgnore] public bool IsLava             => BID == Lava1Id || BID == Lava2Id || BID == Lava3Id;
+        [XmlIgnore] public bool IsCrater           => BID == Crater1Id || BID == Crater2Id || BID == Crater3Id || BID == Crater4Id;
+        [XmlIgnore] public bool IsDynamicUpdate    => IsLava | IsVolcano || IsCrater;
+        [XmlIgnore] public SubTexture IconTex      => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
+        [XmlIgnore] public SubTexture IconTex64    => ResourceManager.Texture($"Buildings/icon_{Icon}_64x64");
+        [XmlIgnore] public string IconPath64       => $"Buildings/icon_{Icon}_64x64";
+        [XmlIgnore] public float CostEffectiveness => MilitaryStrength / Cost.LowerBound(0.1f);
+        [XmlIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
+        [XmlIgnore] private float DefenseShipStrength;
+        [XmlIgnore] public float SpaceRange = 10000f;
 
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public float StrengthMax => ResourceManager.GetBuildingTemplate(BID).Strength;
 
         [StarDataDeserialized]
@@ -284,30 +283,30 @@ namespace Ship_Game
 
         public float ActualMaintenance(Planet p) => Maintenance * p.Owner.data.Traits.MaintMultiplier;
         
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID) || Name == "Dynamic Crash Site";
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsAttackable       => CombatStrength > 0;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool CanAttack          => CombatStrength > 0 && AvailableAttackActions > 0;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsMoneyBuilding    => CreditsPerColonist > 0 || PlusTaxPercentage > 0;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool ProducesProduction => PlusFlatProductionAmount > 0 || PlusProdPerColonist > 0 || PlusProdPerRichness > 0;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool ProducesResearch   => PlusResearchPerColonist > 0 || PlusFlatResearchAmount > 0;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool ProducesFood       => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool ProducesPopulation => PlusFlatPopulation > 0;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsHarmfulToEnv     => MaxFertilityOnBuild < 0;
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsMilitary         => CombatStrength > 0 
                                         && !IsCapitalOrOutpost
                                         && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA
 
-        [XmlIgnore] [JsonIgnore]
+        [XmlIgnore] 
         public bool IsEventTerraformer => IsCommodity && PlusTerraformPoints > 0;
 
         public bool GoodFlatProduction(Planet p) =>

@@ -1,5 +1,4 @@
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
@@ -14,10 +13,10 @@ namespace Ship_Game.Gameplay
     public sealed class Asteroid : GameObject
     {
         [StarData] public float Scale = 1.0f; // serialized
-        [XmlIgnore][JsonIgnore] Vector3 RotationRadians;
-        [XmlIgnore][JsonIgnore] Vector3 Spin;
-        [XmlIgnore][JsonIgnore] int AsteroidId;
-        [XmlIgnore][JsonIgnore] SceneObject So;
+        [XmlIgnore] Vector3 RotationRadians;
+        [XmlIgnore] Vector3 Spin;
+        [XmlIgnore] int AsteroidId;
+        [XmlIgnore] SceneObject So;
 
         // Serialized (SaveGame) asteroid
         public Asteroid() : base(0, GameObjectType.Asteroid)
