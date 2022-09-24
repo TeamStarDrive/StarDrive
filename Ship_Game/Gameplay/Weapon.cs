@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework.Audio;
-using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
@@ -16,13 +15,13 @@ namespace Ship_Game.Gameplay
     // Holds required state of a Weapon used in ShipModules or planetary Buildings
     public class Weapon : WeaponTemplateWrapper, IDisposable, IDamageModifier
     {
-        [XmlIgnore] [JsonIgnore] public Ship Owner { get; set; }
-        [XmlIgnore] [JsonIgnore] AudioHandle ToggleCue = new AudioHandle();
+        [XmlIgnore]  public Ship Owner { get; set; }
+        [XmlIgnore]  AudioHandle ToggleCue = new AudioHandle();
         // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
         public Vector2 PlanetOrigin;
-        [XmlIgnore] [JsonIgnore] public ShipModule Module;
-        [XmlIgnore] [JsonIgnore] public float CooldownTimer;
-        [XmlIgnore] [JsonIgnore] public GameObject FireTarget { get; private set; }
+        [XmlIgnore]  public ShipModule Module;
+        [XmlIgnore]  public float CooldownTimer;
+        [XmlIgnore]  public GameObject FireTarget { get; private set; }
         float TargetChangeTimer;
 
         // these are set during install to ShipModule
@@ -30,7 +29,7 @@ namespace Ship_Game.Gameplay
         public bool IsMainGun;
 
         // Currently pending salvos to be fired
-        [XmlIgnore] [JsonIgnore] public int SalvosToFire { get; private set; }
+        [XmlIgnore]  public int SalvosToFire { get; private set; }
         float SalvoDirection;
         float SalvoFireTimer; // while SalvosToFire > 0, use this timer to count when to fire next shot
         GameObject SalvoTarget;
@@ -304,7 +303,7 @@ namespace Ship_Game.Gameplay
         }
 
         // @note This is used for debugging
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public Vector2 DebugLastImpactPredict { get; private set; }
 
         public Vector2 GetTargetError(GameObject target, int level = -1)

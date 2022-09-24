@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
@@ -120,9 +119,9 @@ namespace Ship_Game.Gameplay
         [StarData] public EmpireRiskAssessment Risk;
         [StarData] public EmpireInformation KnownInformation;
 
-        [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
-        [XmlIgnore][JsonIgnore] public float AvailableTrust => Trust - TrustUsed;
-        [XmlIgnore][JsonIgnore] public int WarAnger => (int)(TotalAnger - Trust.LowerBound(-50));
+        [XmlIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
+        [XmlIgnore] public float AvailableTrust => Trust - TrustUsed;
+        [XmlIgnore] public int WarAnger => (int)(TotalAnger - Trust.LowerBound(-50));
 
         private readonly int FirstDemand   = 50;
         public readonly int SecondDemand   = 75;
@@ -133,7 +132,7 @@ namespace Ship_Game.Gameplay
         /// currently this is disabling tech content trade via diplomacy.
         /// A check here can be added to remove this for allies.
         /// </summary>
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         readonly Array<TechUnlockType> PreventContentExchangeOf =
                                        new Array<TechUnlockType> { TechUnlockType.Diplomacy };
 

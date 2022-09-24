@@ -1,6 +1,4 @@
-using Newtonsoft.Json;
 using Ship_Game.Ships;
-using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
@@ -21,7 +19,7 @@ namespace Ship_Game
         
         [StarData] public string Name;
         [StarData] public int TraitName;
-        [XmlIgnore][JsonIgnore] public LocalizedText LocalizedName => new LocalizedText(TraitName);
+        [XmlIgnore] public LocalizedText LocalizedName => new(TraitName);
         [StarData] public string VideoPath = "";
         [StarData] public string ShipType = "";
         [StarData] public string Singular;
@@ -45,7 +43,6 @@ namespace Ship_Game
         [StarData] public float PopGrowthMax;
         [StarData] public float PopGrowthMin;
         [StarData] public float DiplomacyMod; // Initial Trust only
-        [StarData] public float GenericMaxPopMod;
         [StarData] public int Blind;
         [StarData] public int BonusExplored;
         [StarData] public int Militaristic;
@@ -134,15 +131,15 @@ namespace Ship_Game
             return (RacialTrait)MemberwiseClone();
         }
 
-        [XmlIgnore][JsonIgnore] public bool IsCybernetic => Cybernetic > 0;
-        [XmlIgnore][JsonIgnore] public bool IsOrganic    => Cybernetic < 1;
+        [XmlIgnore] public bool IsCybernetic => Cybernetic > 0;
+        [XmlIgnore] public bool IsOrganic    => Cybernetic < 1;
 
-        [XmlIgnore][JsonIgnore] public SubTexture Icon => 
+        [XmlIgnore] public SubTexture Icon => 
             ResourceManager.TextureOrDefault("Portraits/"+VideoPath, "Portraits/Unknown");
 
-        [XmlIgnore][JsonIgnore] public SubTexture FlagIcon => ResourceManager.Flag(FlagIndex);
+        [XmlIgnore] public SubTexture FlagIcon => ResourceManager.Flag(FlagIndex);
 
-        [XmlIgnore][JsonIgnore] public Color Color
+        [XmlIgnore] public Color Color
         {
             get => new Color((byte)R, (byte)G, (byte)B, 255);
             set

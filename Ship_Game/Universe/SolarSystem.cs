@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
@@ -75,7 +74,7 @@ namespace Ship_Game
         [StarData] public Array<SolarSystem> FiveClosestSystems = new();
         public Array<Anomaly> AnomaliesList = new();
         public bool IsStartingSystem;
-        [XmlIgnore][JsonIgnore] bool WasVisibleLastFrame;
+        [XmlIgnore] bool WasVisibleLastFrame;
 
         SolarSystem() : base(0, GameObjectType.SolarSystem)
         {

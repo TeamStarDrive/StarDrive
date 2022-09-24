@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
-using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
@@ -21,7 +15,6 @@ namespace Ship_Game.Ships.Legacy
         public Restrictions Restrictions;
 
         [XmlElement(ElementName = "InstalledModuleUID")]
-        [JsonProperty("InstalledModuleUID"/*, ItemConverterType = typeof(InterningStringConverter)*/)]
         public string ModuleUID;
 
         [XmlElement(ElementName = "facing")]
@@ -75,14 +68,14 @@ namespace Ship_Game.Ships.Legacy
 
         public override string ToString() => $"{Position} {ModuleUID} {Facing} {Orientation} {SlotOptions} {Restrictions} T={ModuleOrNull}";
 
-        [XmlIgnore] [JsonIgnore]
+        [XmlIgnore] 
         public bool IsDummy => ModuleUID == null || ModuleUID == "Dummy";
 
-        [XmlIgnore] [JsonIgnore]
+        [XmlIgnore] 
         public ShipModule ModuleOrNull => ModuleUID != null && ModuleUID != "Dummy" && 
                                           ResourceManager.GetModuleTemplate(ModuleUID, out ShipModule m) ? m : null;
 
-        [XmlIgnore] [JsonIgnore]
+        [XmlIgnore] 
         public Point PosAsPoint => new Point((int)Position.X, (int)Position.Y);
 
         // Gets the size of this slot, correctly oriented
