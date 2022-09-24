@@ -9,8 +9,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PirateDefendBase : Goal
     {
-        [StarData] Pirates Pirates;
-        [StarData] Ship BaseToDefend;
+        Pirates Pirates => Owner.Pirates;
+        Ship BaseToDefend => TargetShip;
 
         [StarDataConstructor]
         public PirateDefendBase(Empire owner) : base(GoalType.PirateDefendBase, owner)
@@ -24,14 +24,7 @@ namespace Ship_Game.Commands.Goals
         public PirateDefendBase(Empire owner, Ship baseToDefend) : this(owner)
         {
             TargetShip = baseToDefend;
-            PostInit();
             Log.Info(ConsoleColor.Green, $"---- Pirates: New {Owner.Name} Defend Base ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Pirates      = Owner.Pirates;
-            BaseToDefend = TargetShip;
         }
 
         GoalStep SendDefenseForce()

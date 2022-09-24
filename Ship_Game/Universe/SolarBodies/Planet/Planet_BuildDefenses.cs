@@ -26,7 +26,7 @@ namespace Ship_Game
 
         private void BuildPlatformsAndStations(PlanetBudget budget) // Rewritten by Fat Bastard
         {
-            if (colonyType == ColonyType.Colony || OwnerIsPlayer && !GovOrbitals
+            if (CType == ColonyType.Colony || OwnerIsPlayer && !GovOrbitals
                                                 || SpaceCombatNearPlanet
                                                 || !HasSpacePort)
             {
@@ -106,8 +106,8 @@ namespace Ship_Game
                 return 0;
 
             int shipyardsInQ = 0;
-            foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.Type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
-                                                                     || g.Type == GoalType.DeepSpaceConstruction && g.TetherPlanet == this))
+            foreach (Goal goal in owner.GetEmpireAI().FindGoals(g => g.Type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
+                                                                  || g.Type == GoalType.DeepSpaceConstruction && g.TetherPlanet == this))
             {
                 if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship shipyard) && shipyard.ShipData.IsShipyard)
                     shipyardsInQ++;
@@ -183,7 +183,7 @@ namespace Ship_Game
                          $"cost: {orbital.GetCost(Owner)}, STR: {orbital.BaseStrength}");
 
             Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
-            Owner.GetEmpireAI().Goals.Add(buildOrbital);
+            Owner.GetEmpireAI().AddGoal(buildOrbital);
         }
 
         private void ReplaceOrbital(Array<Ship> orbitalList, RoleName role, float budget)
@@ -208,7 +208,7 @@ namespace Ship_Game
             if (weakestWeHave.DesignRole == bestWeCanBuild.DesignRole)
             {
                 Goal refitOrbital = new RefitOrbital(weakestWeHave, bestWeCanBuild.Name, Owner);
-                Owner.GetEmpireAI().Goals.Add(refitOrbital);
+                Owner.GetEmpireAI().AddGoal(refitOrbital);
                 debugReplaceOrRefit = "REFITTING";
             }
             else
@@ -299,7 +299,7 @@ namespace Ship_Game
             if (MaxPopulationBillion.LessOrEqual(3))
                 rank -= 2;
 
-            switch (colonyType)
+            switch (CType)
             {
                 case ColonyType.Core: rank += 1; break;
                 case ColonyType.Military: rank += 3; break;
@@ -491,7 +491,7 @@ namespace Ship_Game
             }
 
             // Research planets are not a good platform for building ships
-            if (colonyType == ColonyType.Research)
+            if (CType == ColonyType.Research)
                 WantedShipyards = 0;
         }
 

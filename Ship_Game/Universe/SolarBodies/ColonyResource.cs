@@ -114,8 +114,8 @@ namespace Ship_Game.Universe.SolarBodies
         public void AutoBalanceWorkers()
         {
             bool noResearch = Planet.Owner.Research.NoTopic
-                              && Planet.colonyType != Planet.ColonyType.Colony
-                              && Planet.colonyType != Planet.ColonyType.TradeHub;
+                              && Planet.CType != Planet.ColonyType.Colony
+                              && Planet.CType != Planet.ColonyType.TradeHub;
 
             ColonyResource a, b;
             if      (this == Planet.Food) { a = Planet.Prod; b = Planet.Res;  }

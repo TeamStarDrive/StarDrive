@@ -8,7 +8,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class RemnantEngagements : Goal
     {
-        [StarData] Remnants Remnants;
+        Remnants Remnants => Owner.Remnants;
 
         [StarDataConstructor]
         public RemnantEngagements(Empire owner) : base(GoalType.RemnantEngagements, owner)
@@ -19,13 +19,7 @@ namespace Ship_Game.Commands.Goals
                 NotifyPlayer,
                 MonitorAndEngage
             };
-            PostInit();
             Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Story: {Owner.Remnants.Story} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Remnants = Owner.Remnants;
         }
 
         void EngageEmpire(Ship[] portals)
@@ -36,7 +30,7 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.FindValidTarget(out Empire target))
                 return;
 
-            Remnants.Goals.Add(new RemnantEngageEmpire(Owner, portals.RandItem(), target));
+            Owner.GetEmpireAI().AddGoal(new RemnantEngageEmpire(Owner, portals.RandItem(), target));
         }
 
         GoalStep CreateFirstPortal()

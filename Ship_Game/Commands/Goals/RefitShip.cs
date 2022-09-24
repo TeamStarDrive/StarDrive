@@ -34,8 +34,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             Fleet       = oldShip.Fleet;
             if (oldShip.VanityName != oldShip.Name)
                 VanityName = oldShip.VanityName;
-
-            Evaluate();
         }
 
         GoalStep FindShipAndPlanetToRefit()

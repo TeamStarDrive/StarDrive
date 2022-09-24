@@ -38,7 +38,6 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip != null)
             {
                 ChangeToStep(OrderShipToColonize);
-                Evaluate();
             }
 
             if (!AIControlsColonization) // Fast track for player colonization

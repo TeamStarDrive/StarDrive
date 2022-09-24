@@ -26,7 +26,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             PlanetBuildingAt = planet;
             TargetEmpire = enemy;
-            Evaluate();
         }
 
         GoalStep LaunchBoardingShips()

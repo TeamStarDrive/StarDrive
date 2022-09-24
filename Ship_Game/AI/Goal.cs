@@ -155,12 +155,6 @@ namespace Ship_Game.AI
             }
         }
 
-        // This is used to assign variables for better code readability in specific goals
-        // after they are created or loaded from save
-        public virtual void PostInit()
-        {
-        }
-
         public virtual bool IsRaid => false; // Is this goal a pirate raid?
         public virtual bool IsWarMission => false; // Is this goal related to war logic?
 

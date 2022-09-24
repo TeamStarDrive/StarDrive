@@ -27,7 +27,6 @@ namespace Ship_Game.Commands.Goals
         {
             Fleet = fleet;
             ColonizationTarget = claim;
-            Evaluate();
         }
 
         GoalStep BuildProjector()

@@ -412,20 +412,20 @@ namespace Ship_Game
             }
             if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.Type == GoalType.Colonize && g.ColonizationTarget == P))
+                if (P.Universe.Player.GetEmpireAI().Goals.Any(g => g.Type == GoalType.Colonize && g.ColonizationTarget == P))
                 {
-                    EmpireManager.Player.GetEmpireAI().CancelColonization(P);
+                    P.Universe.Player.GetEmpireAI().CancelColonization(P);
                     GameAudio.EchoAffirmative();
                 }
                 else
                 {
                     GameAudio.EchoAffirmative();
-                    EmpireManager.Player.GetEmpireAI().Goals.Add(new MarkForColonization(P, EmpireManager.Player));
+                    P.Universe.Player.GetEmpireAI().RemoveGoal(new MarkForColonization(P, P.Universe.Player));
                 }
             }
             if (SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, P.Position, P.Name))
+                if (P.Universe.Player.GetTroopShipForRebase(out Ship troopShip, P.Position, P.Name))
                 {
                     GameAudio.EchoAffirmative();
                     troopShip.AI.OrderLandAllTroops(P, clearOrders:true);
@@ -434,11 +434,11 @@ namespace Ship_Game
                     GameAudio.BlipClick();
             }
 
-            if (P.Owner != null && P.Owner != EmpireManager.Player 
+            if (P.Owner != null && P.Owner != P.Universe.Player 
                                 && CancelInvasionRect.HitTest(input.CursorPosition) 
                                 && input.InGameSelect)
             {
-                var shipList = EmpireManager.Player.OwnedShips;
+                var shipList = P.Universe.Player.OwnedShips;
                 foreach (Ship ship in shipList)
                 {
                     if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrderQueue.Any(g => g.TargetPlanet == P))

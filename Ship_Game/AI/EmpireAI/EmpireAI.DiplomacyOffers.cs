@@ -101,7 +101,7 @@ namespace Ship_Game.AI
 
                     if (!them.isPlayer)
                     {
-                        p.colonyType = them.AssessColonyNeeds(p);
+                        p.CType = them.AssessColonyNeeds(p);
                     }
                     if (!us.isPlayer)
                     {

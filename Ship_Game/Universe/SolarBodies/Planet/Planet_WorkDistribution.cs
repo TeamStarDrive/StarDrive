@@ -113,7 +113,7 @@ namespace Ship_Game
 
             float minCut; // Minimum cut the research can take from remaining work
             float maxCut; // Maximum cut the research can take from remaining work
-            switch (colonyType)
+            switch (CType)
             {
                 default:
                 case ColonyType.Core:         minCut = 0.4f;  maxCut = 0.9f;  break;
@@ -211,7 +211,7 @@ namespace Ship_Game
             // Gives a base line from .3 to about .1 depending on research wants
             float colonyDevelopmentBonus = ((6 + buildDesire) - Level * Owner.Research.Strategy.ResearchRatio) * 0.03f;
             float colonyTypeBonus        = 0;
-            switch (colonyType)
+            switch (CType)
             {
                 case ColonyType.Industrial: colonyTypeBonus = 0.4f; break;
                 case ColonyType.Military:   colonyTypeBonus = 0.1f; break;

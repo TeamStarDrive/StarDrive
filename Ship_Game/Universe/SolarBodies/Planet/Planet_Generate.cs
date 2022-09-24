@@ -162,7 +162,7 @@ namespace Ship_Game
             ResetGarrisonSize();
 
             if (OwnerIsPlayer)
-                colonyType = ColonyType.Colony;
+                CType = ColonyType.Colony;
 
             CreateHomeWorldFertilityAndRichness();
 
@@ -358,7 +358,7 @@ namespace Ship_Game
             }
 
             if (!OwnerIsPlayer) // Re-assess colony type after terraform, this might change for the AI
-                colonyType = Owner.AssessColonyNeeds(this);
+                CType = Owner.AssessColonyNeeds(this);
         }
 
         public bool ContainsEventTerraformers => BuildingList.Any(b => b.IsEventTerraformer);

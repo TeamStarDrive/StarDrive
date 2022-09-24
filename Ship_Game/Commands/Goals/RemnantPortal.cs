@@ -11,8 +11,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class RemnantPortal : Goal
     {
-        [StarData] Remnants Remnants;
-        [StarData] Ship Portal;
+        Remnants Remnants => Owner.Remnants;
+        Ship Portal => TargetShip;
 
         [StarDataConstructor]
         public RemnantPortal(Empire owner) : base(GoalType.RemnantPortal, owner)
@@ -27,14 +27,7 @@ namespace Ship_Game.Commands.Goals
         public RemnantPortal(Empire owner, Ship portal, string systemName) : this(owner)
         {
             TargetShip = portal;
-            PostInit();
             Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Portal in {systemName} ----");
-        }
-
-        public sealed override void PostInit()
-        {
-            Remnants = Owner.Remnants;
-            Portal = TargetShip;
         }
 
         void UpdatePosition()

@@ -25,9 +25,9 @@ namespace Ship_Game.Ships
     {
         [StarData] public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
 
-        public float RepairRate  = 1f;
         public float SensorRange = 20000f;
-        public float MaxBank     = 0.5236f;
+        public float RepairRate = 1f;
+        public float MaxBank = 0.5236f;
 
         public Vector2 ProjectedPosition;
         public Thruster[] ThrusterList = Empty<Thruster>.Array;

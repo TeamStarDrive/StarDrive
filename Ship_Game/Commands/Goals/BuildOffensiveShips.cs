@@ -23,7 +23,6 @@ namespace Ship_Game.Commands.Goals
         public BuildOffensiveShips(string shipType, Empire owner) : this(owner)
         {
             ToBuildUID = shipType;
-            Evaluate();
         }
 
         GoalStep FindPlanetToBuildAt()

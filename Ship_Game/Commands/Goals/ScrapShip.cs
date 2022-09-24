@@ -25,7 +25,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             OldShip = shipToScrap;
             if (immediateScuttle)
                 ChangeToStep(ImmediateScuttleSelfDestruct);
-            Evaluate();
         }
 
         GoalStep FindPlanetToScrapAndOrderScrap()
