@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Ships;
@@ -33,7 +28,7 @@ namespace Ship_Game.Gameplay
 
         public static readonly WeaponTag[] TagValues = (WeaponTag[])typeof(WeaponTag).GetEnumValues();
 
-        [XmlIgnore][JsonIgnore] public WeaponTag[] ActiveWeaponTags { get; set; }
+        [XmlIgnore] public WeaponTag[] ActiveWeaponTags { get; set; }
 
         // @note These are initialized from XML during serialization
         public bool Tag_Kinetic   { get => Tag(WeaponTag.Kinetic);   set => Tag(WeaponTag.Kinetic, value);   }
@@ -155,7 +150,7 @@ namespace Ship_Game.Gameplay
         public int SalvoSoundInterval { get; set; } = 1; // play sound effect every N salvos
 
         // STAT Generated automatically after all weapons are loaded
-        [XmlIgnore][JsonIgnore] public float DamagePerSecond { get; private set; }
+        [XmlIgnore] public float DamagePerSecond { get; private set; }
 
         // Number of salvos that will be sequentially spawned.
         // For example, Vulcan Cannon fires a salvo of 20
@@ -167,22 +162,22 @@ namespace Ship_Game.Gameplay
         public float SalvoDuration { get; set; }
 
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public float NetFireDelay => IsBeam ? FireDelay+BeamDuration : FireDelay+SalvoDuration;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public float AverageOrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public float TotalOrdnanceUsagePerFire => OrdinanceRequiredToFire * ProjectileCount * SalvoCount;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool Explodes => ExplosionRadius > 0;
 
-        [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
+        [XmlIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsMirv => MirvWeapon.NotEmpty();
         public void InitializeTemplate()
         {

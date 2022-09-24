@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -70,9 +68,8 @@ namespace Ship_Game.AI
         public Planet[] GetOurPlanets() => OurPlanetsInAo;
 
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
-        [XmlIgnore][JsonIgnore] public bool AOFull { get; private set; } = true;
-        
-        [XmlIgnore][JsonIgnore]
+        public bool AOFull { get; private set; } = true;
+
         public float OffensiveForcePoolStrength
         {
             get

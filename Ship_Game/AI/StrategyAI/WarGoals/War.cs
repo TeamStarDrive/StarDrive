@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Commands.Goals;
@@ -45,10 +43,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         [StarData] public Empire Them { get; private set; }
         [StarData] public SolarSystem[] ContestedSystems { get; private set; }
         
-        [JsonIgnore][XmlIgnore] public float LostColonyPercent  => (float)ColoniesValueLost / (1 + InitialColoniesValue + ColoniesValueWon);
-        [JsonIgnore][XmlIgnore] public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
-        [JsonIgnore][XmlIgnore] public const float MaxWarGrade = 10;
-        [JsonIgnore][XmlIgnore] public float SpaceWarKd
+        public float LostColonyPercent  => (float)ColoniesValueLost / (1 + InitialColoniesValue + ColoniesValueWon);
+        public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
+        public const float MaxWarGrade = 10;
+        public float SpaceWarKd
         {
             get
             {

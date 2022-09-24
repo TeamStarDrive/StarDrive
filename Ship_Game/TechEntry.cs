@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
@@ -40,7 +39,7 @@ namespace Ship_Game
             return us.GetRelations(them).AllowRacialTrade();
         }
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public float TechCost
         {
             get
@@ -52,34 +51,34 @@ namespace Ship_Game
             }
         }
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public float PercentResearched => Progress / TechCost;
 
         // add initializer for tech
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public Technology Tech { get; private set; }
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsRoot => Tech.IsRootNode;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public Array<string> ConqueredSource = new();
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public TechnologyType TechnologyType => Tech.TechnologyTypes.First();
 
         public bool IsTechnologyType(TechnologyType type) => Tech.TechnologyTypes.Contains(type);
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public int MaxLevel => Tech.MaxLevel;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public float MultiLevelCostMultiplier => Tech.MultiLevelCostMultiplier;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsMultiLevel => Tech.MaxLevel > 1;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         readonly Dictionary<TechnologyType, float> TechTypeCostLookAhead = new();
 
         public static readonly TechEntry None = new("");

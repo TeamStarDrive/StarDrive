@@ -1,7 +1,3 @@
-using NAudio.Wave;
-using Newtonsoft.Json;
-using Ship_Game.Gameplay;
-using System;
 using System.Xml.Serialization;
 using SDGraphics;
 using Ship_Game.Data.Serialization;
@@ -34,10 +30,10 @@ namespace Ship_Game
         [StarData] public short Robberies;
         [StarData] public short Rebellions;
 
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public bool IsNovice => Level < 3;
         
-        [XmlIgnore][JsonIgnore]
+        [XmlIgnore]
         public LocalizedText MissionName => ResourceManager.AgentMissionData.GetMissionName(Mission);
 
         public Agent()

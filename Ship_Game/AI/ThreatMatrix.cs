@@ -2,12 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Xml.Serialization;
-using Newtonsoft.Json;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
 
@@ -100,7 +97,7 @@ namespace Ship_Game.AI
         readonly ReaderWriterLockSlim PinsMutex = new();
         [StarData] Map<int, Pin> Pins = new();
 
-        [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingThreadActions = new();
+        readonly SafeQueue<Action> PendingThreadActions = new();
 
         public bool ContainsGuid(int pinId)
         {
