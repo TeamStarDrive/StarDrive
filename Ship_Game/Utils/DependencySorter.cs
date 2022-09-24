@@ -6,15 +6,9 @@ namespace Ship_Game.Utils
 {
     public class DependencySorter<T> where T : class
     {
-        public struct Pair
-        {
-            public T Value;
-            public T Dependency;
-        }
-
         record struct Entry(T Value, HashSet<T> Dependencies);
 
-        T[] Values;
+        readonly T[] Values;
         readonly Entry[] Entries;
 
         public DependencySorter(T[] values, Func<T, T[]> getDependencies)
@@ -54,12 +48,12 @@ namespace Ship_Game.Utils
         public void Sort()
         {
             // NOTE: There are many algorithms for dependency sorting
-            //       this current implementation is a simplified one
+            //       this current implementation is much simplified,
+            //       which is why we run multiple iterations until we converge on a valid solution
 
             for (int i = 0; i < 5; ++i)
             {
                 int shifts = ReorderDependencies(Values, Entries);
-                Log.Info($"Reordered dependencies: {shifts}");
                 if (shifts == 0) break;
             }
         }
@@ -84,7 +78,7 @@ namespace Ship_Game.Utils
                     if (dependencies.Contains(next))
                     {
                         int targetIdx = i;
-                        Log.Info($"[{valIdx}]={value} depends on [{i}]={next}, moving {value} to [{targetIdx}]");
+                        //Log.Info($"[{valIdx}]={value} depends on [{i}]={next}, moving {value} to [{targetIdx}]");
                         Unshift(values, valIdx, targetIdx);
                         values[targetIdx] = value;
 
@@ -96,6 +90,7 @@ namespace Ship_Game.Utils
             return shifts;
         }
 
+        // unshifts elements by 1, effectively deleting [startIdx] element
         static void Unshift(T[] values, int startIdx, int endIdx)
         {
             for (int i = startIdx + 1; i <= endIdx; ++i)
