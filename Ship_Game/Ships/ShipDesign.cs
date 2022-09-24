@@ -23,11 +23,6 @@ namespace Ship_Game.Ships
         // Current version of ShipData files
         // If we introduce incompatibilities we need to convert old to new
         const int Version = 1;
-
-        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
-            throw new InvalidOperationException(
-                $"BUG! ShipData must not be automatically serialized! Add [XmlIgnore][JsonIgnore] to `public ShipData XXX;` PROPERTIES/FIELDS. {this}");
-
         [StarData] public string Name { get; set; } // ex: "Dodaving", just an arbitrary name
         [StarData] public string Hull { get; set; }  // ID of the hull, ex: "Cordrazine/Dodaving"
         [StarData] public string ModName { get; set; } = ""; // "" if vanilla, else mod name eg "Combined Arms"

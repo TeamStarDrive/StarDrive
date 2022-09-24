@@ -35,10 +35,6 @@ namespace Ship_Game
     [StarDataType]
     public sealed partial class Empire : IDisposable, IEmpireShipLists
     {
-        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
-            throw new InvalidOperationException(
-                $"BUG! Empire must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Empire XXX;` PROPERTIES/FIELDS. {this}");
-
         [StarData] readonly Map<int, Fleet> FleetsDict = new();
 
         public readonly Map<string, bool> UnlockedHullsDict = new();
