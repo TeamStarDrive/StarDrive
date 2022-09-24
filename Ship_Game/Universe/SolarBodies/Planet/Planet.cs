@@ -1301,7 +1301,7 @@ namespace Ship_Game
                 if (damage > ShieldStrengthCurrent)
                     return false; // Shield not strong enough
 
-                if (Universe.Screen.IsSystemViewOrCloser
+                if (Universe.IsSystemViewOrCloser
                     && Universe.Screen.IsInFrustum(Position, OrbitalRadius * 2))
                 {
                     Shield.HitShield(this, ship, Position, Radius + 100f);

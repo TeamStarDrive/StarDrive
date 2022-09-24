@@ -804,7 +804,7 @@ namespace Ship_Game.Ships
 
         void Deflect(GameObject source)
         {
-            if (!Parent.InFrustum || Parent.Universe.Screen.IsShipViewOrCloser == false)
+            if (!Parent.InFrustum || !Parent.Universe.IsShipViewOrCloser)
                 return;
 
             if (source is Projectile proj && !proj.Explodes && proj.Duration >= 0)

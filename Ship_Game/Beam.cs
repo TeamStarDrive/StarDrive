@@ -110,7 +110,7 @@ namespace Ship_Game
 
             if (Owner != null
                 && Owner.InFrustum
-                && Owner.Universe.Screen.IsSystemViewOrCloser
+                && Owner.Universe.IsSystemViewOrCloser
                 && (Owner.InSensorRange || TargetShip?.InSensorRange == true))
             {
                 Emitter.Position = new Vector3(source, 0f);

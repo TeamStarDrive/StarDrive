@@ -231,6 +231,10 @@ namespace Ship_Game.Ships
         // This will also update shield max power of modules if there are amplifiers
         float UpdateShieldPowerMax(float shieldAmplify)
         {
+            // NOTE: this can happen with serialized dead ships which we need to keep around in serialized Goals
+            if (S.Modules.Length == 0)
+                return 0f;
+
             float shieldMax = 0;
             foreach (ShipModule shield in S.GetShields())
             {
@@ -246,6 +250,10 @@ namespace Ship_Game.Ships
         public void UpdateShieldAmplification()
         {
             TotalShieldAmplification = ShieldAmplifyPerShield = 0;
+
+            // NOTE: this can happen with serialized dead ships which we need to keep around in serialized Goals
+            if (S.Modules.Length == 0)
+                return;
 
             int numMainShields = S.GetShields().Count(s => s.ModuleType == ShipModuleType.Shield);
             if (numMainShields == 0)

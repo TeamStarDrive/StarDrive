@@ -185,16 +185,19 @@ namespace Ship_Game.GameScreens.LoadGame
 
         void AllSystemsLoaded(UniverseState us, ProgressCounter step)
         {
-            Stopwatch s = Stopwatch.StartNew();
             step.Start(us.Ships.Count);
 
-            // TODO: Maybe run this in parallel?
-            foreach (Ship ship in us.Ships)
+            Parallel.For(0, us.Ships.Count, (start, end) =>
             {
-                ship.InitializeShip(loadingFromSaveGame: true);
-                step.Advance();
-            }
-            Log.Info(ConsoleColor.Cyan, $"AllSystemsLoaded {s.Elapsed.TotalMilliseconds}ms");
+                for (int i = start; i < end; ++i)
+                {
+                    Ship ship = us.Ships[i];
+                    ship.InitializeShip(loadingFromSaveGame: true);
+                    lock (step) step.Advance();
+                }
+            });
+
+            Log.Info(ConsoleColor.Cyan, $"AllSystemsLoaded {step.ElapsedMillis}ms");
         }
     }
 }

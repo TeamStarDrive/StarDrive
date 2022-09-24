@@ -99,7 +99,7 @@ namespace Ship_Game.AI.ShipMovement
             if (!AI.BadGuysNear)
             {
                 bool visible = orbitTarget.ParentSystem.InFrustum
-                               && Owner.Universe.Screen.IsSystemViewOrCloser;
+                               && Owner.Universe.IsSystemViewOrCloser;
                 if (!visible) // don't update orbits in invisible systems
                 {
                     if (distance > 4000f) // we need to get closer to get RESUPPLIED (!)

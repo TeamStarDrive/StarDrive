@@ -262,7 +262,6 @@ namespace Ship_Game.Ships
 
             HealthMax = RecalculateMaxHealth();
             CalcTroopBoardingDefense();
-            SetOrdnance(Ordinance);
 
             IsGuardian = Loyalty.WeAreRemnants;
             // loyalty must be set before modules are initialized
@@ -274,6 +273,7 @@ namespace Ship_Game.Ships
 
             InitializeThrusters(ShipData.BaseHull);
             InitializeStatus(fromSave:true);
+            SetOrdnance(Ordinance);
         }
 
         public static Ship CreateShipAtPoint(UniverseState us, string shipName, Empire owner, Vector2 position)
@@ -382,12 +382,10 @@ namespace Ship_Game.Ships
             if (ShipData.Role == RoleName.platform)
                 IsPlatform = true;
 
-            // Begin: ShipSubClass Initialization. Put all ship sub class initializations here
             if (AI == null)
             {
                 InitializeAI();
             }
-            // End: ship subclass initializations.
 
             RecalculatePower(); // NOTE: Must be before InitializeStatus
 
@@ -493,8 +491,6 @@ namespace Ship_Game.Ships
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule module = ModuleSlotList[i];
-                if (module.UID == "Dummy") // ignore legacy dummy modules
-                    continue;
 
                 if (!fromSave && module.TroopsSupplied > 0)
                     SpawnTroopsForNewShip(module);
