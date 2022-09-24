@@ -1,13 +1,9 @@
 using System.Diagnostics.Contracts;
-
-using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using System.Xml.Serialization;
 using System;
 using System.Runtime.CompilerServices;
 using Ship_Game.Data.Serialization;
-using Ship_Game.ExtensionMethods;
 using SDGraphics;
 
 namespace Ship_Game
@@ -30,13 +26,6 @@ namespace Ship_Game
     [StarDataType]
     public abstract class GameObject
     {
-        /**
-         *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
-         *        will be accidentally serialized!
-         */
-        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
-            throw new InvalidOperationException($"BUG! GameObject must not be serialized to XML/JSON. Use StarData instead! {this}");
-
         [StarData] public readonly int Id;
         public bool Active = true;
         [StarData] public SolarSystem System;

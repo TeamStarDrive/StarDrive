@@ -13,9 +13,7 @@ using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Ships.AI;
-using static Ship_Game.AI.ShipAI;
 using Ship_Game.Fleets;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -467,7 +465,7 @@ namespace Ship_Game.Debug
                 if (ship.IsFreighter)
                 {
                     DrawString($"Trade Timer:{ship.TradeTimer}");
-                    ShipGoal g = ship.AI.OrderQueue.PeekLast;
+                    ShipAI.ShipGoal g = ship.AI.OrderQueue.PeekLast;
                     if (g?.Trade != null && g.Trade.BlockadeTimer < 120)
                         DrawString($"Blockade Timer:{g.Trade.BlockadeTimer}");
                 }
@@ -529,7 +527,7 @@ namespace Ship_Game.Debug
         {
             if (ship?.AI.OrderQueue.NotEmpty == true)
             {
-                ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
+                ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
                 Vector2 pos = ship.AI.GoalTarget;
 
                 DrawLineImm(ship.Position, pos, Color.YellowGreen);
@@ -586,13 +584,13 @@ namespace Ship_Game.Debug
         {
             if (ship.AI.OrderQueue.NotEmpty)
             {
-                ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
+                ShipAI.ShipGoal[] goals = ship.AI.OrderQueue.ToArray();
                 Vector2 pos = ship.AI.GoalTarget;
                 DrawString($"AIState: {ship.AI.State}  CombatState: {ship.AI.CombatState}  FromTarget: {pos.Distance(ship.Position).String(0)}");
                 DrawString($"OrderQueue ({goals.Length}):");
                 for (int i = 0; i < goals.Length; ++i)
                 {
-                    ShipGoal g = goals[i];
+                    ShipAI.ShipGoal g = goals[i];
                     DrawString($"  {i+1}:  {g.Plan}  {g.MoveOrder}");
                 }
             }
