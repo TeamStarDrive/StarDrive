@@ -195,7 +195,7 @@ namespace Ship_Game
         {
             if (P.Owner != null)
             {
-                var budget = P.Owner.GetEmpireAI().PlanetBudgets?.Filter(b => b.P == P) ?? Array.Empty<PlanetBudget>();
+                var budget = P.Owner.AI.PlanetBudgets?.Filter(b => b.P == P) ?? Array.Empty<PlanetBudget>();
                 if (budget.Length == 1)
                     budget[0].DrawBudgetInfo(Screen);
             }
@@ -333,7 +333,7 @@ namespace Ship_Game
 
             LocalizedText tip = GameText.MarkThisPlanetForColonization;
             LocalizedText tipText = GameText.Colonize;
-            if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.ColonizationTarget == P))
+            if (EmpireManager.Player.AI.Goals.Any(g => g.ColonizationTarget == P))
             {
                 tip = GameText.CancelTheColonizationMissionThat;
                 tipText = GameText.CancelColonize;
@@ -412,15 +412,15 @@ namespace Ship_Game
             }
             if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (P.Universe.Player.GetEmpireAI().Goals.Any(g => g.Type == GoalType.Colonize && g.ColonizationTarget == P))
+                if (P.Universe.Player.AI.Goals.Any(g => g.Type == GoalType.Colonize && g.ColonizationTarget == P))
                 {
-                    P.Universe.Player.GetEmpireAI().CancelColonization(P);
+                    P.Universe.Player.AI.CancelColonization(P);
                     GameAudio.EchoAffirmative();
                 }
                 else
                 {
                     GameAudio.EchoAffirmative();
-                    P.Universe.Player.GetEmpireAI().RemoveGoal(new MarkForColonization(P, P.Universe.Player));
+                    P.Universe.Player.AI.RemoveGoal(new MarkForColonization(P, P.Universe.Player));
                 }
             }
             if (SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)

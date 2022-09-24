@@ -8,7 +8,7 @@ namespace Ship_Game.AI
     public class OffensiveForcePoolManager
     {
         readonly Empire Owner;
-        EmpireAI EmpireAI => Owner.GetEmpireAI();
+        EmpireAI EmpireAI => Owner.AI;
         float ThreatTimer;
 
         public OffensiveForcePoolManager(Empire owner)

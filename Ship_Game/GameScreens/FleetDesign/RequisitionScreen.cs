@@ -80,7 +80,7 @@ namespace Ship_Game
 
                 var g = new FleetRequisition(node.ShipName, F.Owner, rush) {Fleet = F};
                 node.Goal = g;
-                F.Owner.GetEmpireAI().AddGoal(g);
+                F.Owner.AI.AddGoal(g);
                 g.Evaluate();
             }
         }
@@ -273,7 +273,7 @@ namespace Ship_Game
             }
 
             NumBeingBuilt = 0;
-            foreach (Goal g in F.Owner.GetEmpireAI().Goals)
+            foreach (Goal g in F.Owner.AI.Goals)
             {
                 if (F.GoalExists(g))
                     NumBeingBuilt++;

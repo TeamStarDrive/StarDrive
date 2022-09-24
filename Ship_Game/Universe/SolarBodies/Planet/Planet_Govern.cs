@@ -92,7 +92,7 @@ namespace Ship_Game
             BuildPlatformsAndStations(budget);
         }
 
-        public PlanetBudget AllocateColonyBudget() => Owner.GetEmpireAI().PlanetBudget(this);
+        public PlanetBudget AllocateColonyBudget() => Owner.AI.PlanetBudget(this);
         public float CivilianBuildingsMaintenance  => Money.Maintenance - GroundDefMaintenance;
 
         public float ColonyDebtTolerance

@@ -28,7 +28,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         bool RemnantGoalExists()
         {
-            var goals = TargetEmpire.GetEmpireAI().GetRemnantEngagementGoalsFor(TargetPlanet);
+            var goals = TargetEmpire.AI.GetRemnantEngagementGoalsFor(TargetPlanet);
             return goals.Length != 0;
         }
 
@@ -38,7 +38,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (!remnantFleets.Any(f => f.FleetTask?.TargetPlanet?.Owner == Owner))
                 return false;
 
-            var defenseTasks = Owner.GetEmpireAI().GetDefendVsRemnantTasks();
+            var defenseTasks = Owner.AI.GetDefendVsRemnantTasks();
             foreach (Fleet remnantFleet in remnantFleets.Filter(f => f.FleetTask?.TargetPlanet?.Owner == Owner))
             {
                 // Check if we have other defense task vs. this remnant fleet target planet
@@ -63,7 +63,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             {
                 float str = TargetPlanet.ParentSystem.GetKnownStrengthHostileTo(Owner);
                 var task  = MilitaryTask.CreateDefendVsRemnant(TargetPlanet, Owner, str);
-                Owner.GetEmpireAI().AddPendingTask(task); // Try creating a new fleet to defend
+                Owner.AI.AddPendingTask(task); // Try creating a new fleet to defend
                 return GoalStep.GoalFailed;
             }
 

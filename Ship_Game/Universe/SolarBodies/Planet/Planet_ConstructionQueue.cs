@@ -175,7 +175,7 @@ namespace Ship_Game
             bool TryGetQueueItemsFromRefitGoals(out Array<QueueItem> refitQueue)
             {
                 refitQueue = new Array<QueueItem>();
-                var refitGoals = Owner.GetEmpireAI().Goals
+                var refitGoals = Owner.AI.Goals
                     .Filter(g => (g.Type == GoalType.Refit || g.Type == GoalType.RefitOrbital) && g.PlanetBuildingAt == this);
 
                 if (refitGoals.Length == 0)

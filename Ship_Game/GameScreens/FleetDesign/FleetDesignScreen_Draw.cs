@@ -279,7 +279,7 @@ namespace Ship_Game
                     else
                     {
                         string buildingAt = "";
-                        foreach (Goal g in SelectedFleet.Owner.GetEmpireAI().Goals)
+                        foreach (Goal g in SelectedFleet.Owner.AI.Goals)
                         {
                             if (g != node.Goal || g.PlanetBuildingAt == null)
                                 continue;

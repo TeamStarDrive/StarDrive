@@ -45,7 +45,7 @@ namespace Ship_Game.AI
             int taskEvalLimit   = OwnerEmpire.IsAtWarWithMajorEmpire ? (int)OwnerEmpire.GetAverageWarGrade().LowerBound(3) : 10;
             int taskEvalCounter = 0;
 
-            var tasks = OwnerEmpire.GetEmpireAI()
+            var tasks = OwnerEmpire.AI
                 .GetTasks()
                 .Filter(t => !t.QueuedForRemoval)
                 .OrderByDescending(t => t.Priority)

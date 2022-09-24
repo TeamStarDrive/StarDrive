@@ -53,7 +53,7 @@ namespace Ship_Game
         public Pirates(Empire owner)
         {
             Owner = owner;
-            Owner.GetEmpireAI().AddGoal(new PirateAI(Owner));
+            Owner.AI.AddGoal(new PirateAI(Owner));
         }
 
         public HashSet<string> ShipsWeCanBuild => Owner.ShipsWeCanBuild;
@@ -107,7 +107,7 @@ namespace Ship_Game
 
         void AddGoal(Goal goal)
         {
-            Owner.GetEmpireAI().AddGoal(goal);
+            Owner.AI.AddGoal(goal);
         }
 
         public void Init() // New Game
@@ -231,7 +231,7 @@ namespace Ship_Game
             RemovePiratePresenceFromSystem();
             if (Level < 1)
             {
-                Owner.GetEmpireAI().Goals.Clear();
+                Owner.AI.Goals.Clear();
                 Owner.SetAsDefeated();
                 Owner.Universum.Notifications.AddEmpireDiedNotification(Owner);
             }
@@ -527,7 +527,7 @@ namespace Ship_Game
 
         public bool RaidingThisShip(Ship ship)
         {
-            return Owner.GetEmpireAI().Goals.Any(g => g.TargetShip == ship);
+            return Owner.AI.Goals.Any(g => g.TargetShip == ship);
         }
 
         void RemovePiratePresenceFromSystem()
@@ -908,7 +908,7 @@ namespace Ship_Game
             if (victim.isPlayer || !victim.canBuildFrigates)
                 return; // Players should attack pirate bases themselves and Ai should attack them only if they have frigates
 
-            EmpireAI ai             = victim.GetEmpireAI();
+            EmpireAI ai             = victim.AI;
             int currentAssaultGoals = ai.SearchForGoals(GoalType.AssaultPirateBase).Count;
             int maxAssaultGoals     = ((int)(Universe.Difficulty + 1)).UpperBound(3);
             if (currentAssaultGoals >= maxAssaultGoals || victim.data.TaxRate > 0.8f) 
@@ -917,7 +917,7 @@ namespace Ship_Game
             if (FoundPirateBaseInSystemOf(victim, out Ship pirateBase) || RandomMath.RollDice(Level * 4))
             {
                 Goal goal = new AssaultPirateBase(victim, Owner, pirateBase);
-                victim.GetEmpireAI().AddGoal(goal);
+                victim.AI.AddGoal(goal);
             }
         }
 
@@ -955,7 +955,7 @@ namespace Ship_Game
 
         public bool CanDoAnotherRaid(out int numRaids)
         {
-            numRaids = Owner.GetEmpireAI().Goals.Count(g => g.IsRaid);
+            numRaids = Owner.AI.Goals.Count(g => g.IsRaid);
             return numRaids < Level;
         }
 

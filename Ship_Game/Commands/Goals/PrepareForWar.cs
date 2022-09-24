@@ -31,7 +31,7 @@ namespace Ship_Game.Commands.Goals
         bool TryGetTask(out MilitaryTask task)
         {
             task      = null;
-            var tasks = Owner.GetEmpireAI().GetTasks().Filter(t => t.Type == MilitaryTask.TaskType.StageFleet & t.TargetEmpire == TargetEmpire);
+            var tasks = Owner.AI.GetTasks().Filter(t => t.Type == MilitaryTask.TaskType.StageFleet & t.TargetEmpire == TargetEmpire);
             if (tasks.Length > 0)
             {
                 if (tasks.Length > 1)
@@ -110,8 +110,8 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.GoalFailed;
                 }
 
-                Owner.GetEmpireAI().DeclareWarOn(TargetEmpire, warType);
-                Owner.GetEmpireAI().Goals.Add(new WarMission(Owner, TargetEmpire, TargetPlanet, task));
+                Owner.AI.DeclareWarOn(TargetEmpire, warType);
+                Owner.AI.Goals.Add(new WarMission(Owner, TargetEmpire, TargetPlanet, task));
                 return GoalStep.GoalComplete;
             }
 

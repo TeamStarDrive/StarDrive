@@ -38,12 +38,12 @@ namespace Ship_Game.Commands.Goals
             if (PlanetBuildingAt == null || PlanetBuildingAt.NotConstructing)
                 return GoalStep.RestartGoal;
 
-            float importance = Owner.GetEmpireAI().ThreatLevel;
+            float importance = Owner.AI.ThreatLevel;
 
             if ((importance > 0.5f || Owner.IsMilitarists)
                 && PlanetBuildingAt.ConstructionQueue[0]?.Goal == this
                 && PlanetBuildingAt.Storage.ProdRatio > 0.75f
-                && Owner.GetEmpireAI().SafeToRush) 
+                && Owner.AI.SafeToRush) 
             {
                 float rush = (10f * (importance + 0.5f)).UpperBound(PlanetBuildingAt.ProdHere);
                 PlanetBuildingAt.Construction.RushProduction(0, rush);

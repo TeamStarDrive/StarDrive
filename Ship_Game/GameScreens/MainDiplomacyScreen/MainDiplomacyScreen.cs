@@ -735,9 +735,9 @@ namespace Ship_Game
             }
 
             var techList = new HashSet<string>();
-            PlayerEmpire.GetEmpireAI().ThreatMatrix.GetTechsFromPins(techList, e);
+            PlayerEmpire.AI.ThreatMatrix.GetTechsFromPins(techList, e);
             foreach (Empire ally in Friends)
-                ally.GetEmpireAI().ThreatMatrix.GetTechsFromPins(techList, e);
+                ally.AI.ThreatMatrix.GetTechsFromPins(techList, e);
 
             foreach (string tech in techList)
                 scientificStr += ResourceManager.Tech(tech).Cost;

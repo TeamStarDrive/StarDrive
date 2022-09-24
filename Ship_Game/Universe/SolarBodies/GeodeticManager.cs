@@ -131,7 +131,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                               && TurnsSinceTurnover > 10
                               && bomb.Owner.isPlayer)
             {
-                Owner.GetEmpireAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
+                Owner.AI.DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
             }
         }
 
@@ -156,7 +156,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 return;
 
             for (int i = 0; i < ourShipsNeedRearm.Length && remainingSupplyShuttles-- > 0; i++)
-               Owner.GetEmpireAI().AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
+               Owner.AI.AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
         }
 
         public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018

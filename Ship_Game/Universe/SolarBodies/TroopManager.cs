@@ -377,14 +377,14 @@ namespace Ship_Game
                 if (player.IsNAPactWith(Owner))
                 {
                     DiplomacyScreen.Show(Owner, "Invaded NA Pact", ParentSystem);
-                    Owner.GetEmpireAI().DeclareWarOn(player, WarType.ImperialistWar);
+                    Owner.AI.DeclareWarOn(player, WarType.ImperialistWar);
                     Owner.GetRelations(player).Trust -= 50f;
                     Owner.GetRelations(player).AddAngerDiplomaticConflict(50);
                 }
                 else
                 {
                     DiplomacyScreen.Show(Owner, "Invaded Start War", ParentSystem);
-                    Owner.GetEmpireAI().DeclareWarOn(player, WarType.ImperialistWar);
+                    Owner.AI.DeclareWarOn(player, WarType.ImperialistWar);
                     Owner.GetRelations(player).Trust -= 25f;
                     Owner.GetRelations(player).AddAngerDiplomaticConflict(25);
                 }

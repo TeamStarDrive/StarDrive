@@ -167,7 +167,7 @@ namespace Ship_Game.AI
 
         public void AssignTargets()
         {
-            Array<Ship> hostiles = Us.GetEmpireAI().ThreatMatrix.PingRadarClosestEnemyCluster(System.Position, System.Radius, 15000, Us);
+            Array<Ship> hostiles = Us.AI.ThreatMatrix.PingRadarClosestEnemyCluster(System.Position, System.Radius, 15000, Us);
             if (hostiles.NotEmpty)
             {
                 var assignedShips = new HashSet<Ship>();
@@ -258,7 +258,7 @@ namespace Ship_Game.AI
         {
             if (PredictionTimer <= 0)
             {
-                PredictedStrength = (int)Us.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);
+                PredictedStrength = (int)Us.AI.ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);
                 PredictedStrength /= (int)(10f / RankImportance);
                 PredictionTimer = 2f;
             }

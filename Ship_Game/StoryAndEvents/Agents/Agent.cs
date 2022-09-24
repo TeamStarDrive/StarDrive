@@ -56,7 +56,7 @@ namespace Ship_Game
             }
 
             owner.AddMoney(-cost);
-            owner.GetEmpireAI().DeductSpyBudget(cost);
+            owner.AI.DeductSpyBudget(cost);
 
             Mission = mission;
             TargetEmpire = targetEmpire;
@@ -409,7 +409,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            if (!victim.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialTechs, true))
+            if (!victim.AI.TradableTechs(us, out Array<TechEntry> potentialTechs, true))
             {
                 aftermath.Message = GameText.AbortedTheStealTechnologyMission;
                 aftermath.ShouldAddXp = false;

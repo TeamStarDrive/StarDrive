@@ -41,7 +41,7 @@ namespace Ship_Game.Commands.Goals
         bool TryGetTask(out MilitaryTask task)
         {
             task      = null;
-            var tasks = Owner.GetEmpireAI().GetTasks().Filter(t => t.Goal == this);
+            var tasks = Owner.AI.GetTasks().Filter(t => t.Goal == this);
             if (tasks.Length > 0)
             {
                 if (tasks.Length > 1)

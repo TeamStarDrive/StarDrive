@@ -21,7 +21,7 @@ namespace Ship_Game.AI.ExpansionAI
         [StarData] public int ExpandSearchTimer { get; private set; }
         [StarData] public int MaxSystemsToCheckedDiv { get; private set; }
 
-        Array<Goal> Goals => Owner.GetEmpireAI().Goals;
+        Array<Goal> Goals => Owner.AI.Goals;
 
         [StarDataConstructor]
         ExpansionPlanner() {}
@@ -119,7 +119,7 @@ namespace Ship_Game.AI.ExpansionAI
 
             UniverseState universe = Owner.Universum;
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
-            int claimTasks                    = Owner.GetEmpireAI().GetNumClaimTasks();
+            int claimTasks                    = Owner.AI.GetNumClaimTasks();
 
             int desiredGoals = DesiredColonyGoals();
 

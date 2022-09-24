@@ -173,7 +173,7 @@ namespace Ship_Game
 
         void ToggleEmpireDefenseFor(Ship ship)
         {
-            var pool = EmpireManager.Player.GetEmpireAI().DefensiveCoordinator;
+            var pool = EmpireManager.Player.AI.DefensiveCoordinator;
             if (ship.Pool != pool)
                 pool.Add(ship);
             else

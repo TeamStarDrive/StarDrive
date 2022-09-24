@@ -39,13 +39,13 @@ namespace Ship_Game.Commands.Goals
             BuildPosition          = ColonizationTarget.Position + direction.Normalized() * distanceToDeploy;
             Goal goal              = new BuildConstructionShip(BuildPosition, "Subspace Projector", Owner);
             goal.Fleet             = Fleet;
-            Owner.GetEmpireAI().AddGoal(goal);
+            Owner.AI.AddGoal(goal);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep WaitAndPrioritizeProjector()
         {
-            var goals = Owner.GetEmpireAI().SearchForGoals(GoalType.DeepSpaceConstruction).Filter(g => g.Fleet == Fleet);
+            var goals = Owner.AI.SearchForGoals(GoalType.DeepSpaceConstruction).Filter(g => g.Fleet == Fleet);
             if (goals.Length > 0)
             {
                 Goal constructionGoal = goals.First();

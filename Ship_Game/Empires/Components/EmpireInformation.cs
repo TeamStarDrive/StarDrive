@@ -51,7 +51,7 @@ namespace Ship_Game.Empires.Components
                     break;
                 case InformationLevel.Full:
 
-                    EconomicStrength  = Them.GetEmpireAI().BuildCapacity;
+                    EconomicStrength  = Them.AI.BuildCapacity;
                     OffensiveStrength = Them.OffensiveStrength;
 
                     AllianceEconomicStrength = EconomicStrength;
@@ -61,7 +61,7 @@ namespace Ship_Game.Empires.Components
                     {
                         var empire = array[i];
                         AllianceTotalStrength += empire.CurrentMilitaryStrength;
-                        AllianceEconomicStrength += empire.GetEmpireAI().BuildCapacity;
+                        AllianceEconomicStrength += empire.AI.BuildCapacity;
                     }
 
 

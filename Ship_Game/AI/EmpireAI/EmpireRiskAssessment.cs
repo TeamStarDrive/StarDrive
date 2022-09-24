@@ -56,14 +56,14 @@ namespace Ship_Game.AI
             float risk = 0;
             if (Them.IsFaction || us.IsFaction)
             {
-                if (us.GetEmpireAI().CreditRating > 0.75f && (Relation.AtWar || Relation.IsHostile))
+                if (us.AI.CreditRating > 0.75f && (Relation.AtWar || Relation.IsHostile))
                 {
-                    float strengthNeeded = us.GetEmpireAI().GetAvgStrengthNeededByExpansionTasks(Them);
+                    float strengthNeeded = us.AI.GetAvgStrengthNeededByExpansionTasks(Them);
 
                     if (strengthNeeded > 0)
                     {
                         float currentStrength = us.AIManagedShips.EmpireReadyFleets?.AccumulatedStrength ?? 1;
-                        float currentThreat = us.GetEmpireAI().ThreatLevel;
+                        float currentThreat = us.AI.ThreatLevel;
                         float possibleStrength = currentStrength / currentThreat;
                         if (possibleStrength > strengthNeeded)
                             return 10;

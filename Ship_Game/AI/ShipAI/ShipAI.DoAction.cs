@@ -281,12 +281,12 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
             if (ExplorationTarget == null)
             {
-                if (!Owner.Loyalty.GetEmpireAI().ExpansionAI.AssignExplorationTargetSystem(Owner, out ExplorationTarget))
+                if (!Owner.Loyalty.AI.ExpansionAI.AssignExplorationTargetSystem(Owner, out ExplorationTarget))
                     ClearOrders(); // FB - could not find a new system to explore
             }
             else if (DoExploreSystem(timeStep))
             {
-                Owner.Loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
+                Owner.Loyalty.AI.ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
                 ExplorationTarget.AddSystemExploreSuccessMessage(Owner.Loyalty);
                 ExplorationTarget = null;
             }

@@ -169,7 +169,7 @@ namespace Ship_Game.GameScreens.LoadGame
                 }
                 else if (ship.AI.State == AIState.SystemDefender)
                 {
-                    ship.Loyalty.GetEmpireAI().DefensiveCoordinator.Add(ship);
+                    ship.Loyalty.AI.DefensiveCoordinator.Add(ship);
                 }
 
                 if (ship.Carrier.HasHangars)
