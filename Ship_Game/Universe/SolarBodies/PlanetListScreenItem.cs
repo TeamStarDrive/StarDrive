@@ -53,7 +53,7 @@ namespace Ship_Game
 
             foreach (Goal g in planet.Universe.Player.AI.Goals)
             {
-                if (g.ColonizationTarget != null && g.ColonizationTarget == planet)
+                if (g.IsColonizationGoal(planet))
                     MarkedForColonization = true;
             }
         }

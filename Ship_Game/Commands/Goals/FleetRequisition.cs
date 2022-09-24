@@ -10,8 +10,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class FleetRequisition : FleetGoal
     {
-        [StarData] bool Rush;
-        [StarData] public IShipDesign ShipToBuild;
+        [StarData] BuildableShip Build;
+        public override IShipDesign ToBuild => Build.Template;
 
         [StarDataConstructor]
         public FleetRequisition(Empire owner) : base(GoalType.FleetRequisition, owner)
@@ -26,22 +26,20 @@ namespace Ship_Game.Commands.Goals
 
         public FleetRequisition(string shipName, Empire owner, Fleet fleet, bool rush) : this(owner)
         {
-            ToBuildUID  = shipName;
-            ShipToBuild = ResourceManager.Ships.GetDesign(shipName);
             Fleet = fleet;
-            Rush = rush;
+            Build = new(shipName) { Rush = rush };
         }
 
         GoalStep FindPlanetForFleetRequisition()
         {
             if (PlanetBuildingAt == null || !PlanetBuildingAt.HasSpacePort)
             {
-                if (!Owner.FindPlanetToBuildShipAt(Owner.SpacePorts, ShipToBuild, out PlanetBuildingAt))
+                if (!Owner.FindPlanetToBuildShipAt(Owner.SpacePorts, Build.Template, out PlanetBuildingAt))
                     return GoalStep.TryAgain;
             }
 
-            PlanetBuildingAt.Construction.Enqueue(ShipToBuild, this, notifyOnEmpty: false);
-            if (Rush)
+            PlanetBuildingAt.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);
+            if (Build.Rush)
                 PlanetBuildingAt.Construction.MoveToAndContinuousRushFirstItem();
 
             return GoalStep.GoToNextStep;
@@ -51,12 +49,12 @@ namespace Ship_Game.Commands.Goals
         {
             if (Fleet == null)
             {
-                Log.Error($"FleetRequisition {ToBuildUID} complete but Fleet is null!");
+                Log.Error($"FleetRequisition {Build.Template.Name} complete but Fleet is null!");
                 return GoalStep.GoalComplete;
             }
             if (FinishedShip == null)
             {
-                Log.Error($"FleetRequisition {ToBuildUID} failed: BuiltShip is null!");
+                Log.Error($"FleetRequisition {Build.Template.Name} failed: BuiltShip is null!");
                 return GoalStep.GoalFailed;
             }
 

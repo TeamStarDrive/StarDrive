@@ -193,8 +193,8 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (!GetColonizationGoalsList(OwnerEmpire, out Goal[] ourColonizationGoals)
-                || !GetColonizationGoalsList(them, out Goal[] theirColonizationGoals))
+            if (!GetColonizationGoalsList(OwnerEmpire, out MarkForColonization[] ourColonizationGoals) ||
+                !GetColonizationGoalsList(them, out MarkForColonization[] theirColonizationGoals))
             {
                 return;
             }
@@ -204,24 +204,26 @@ namespace Ship_Game.AI
             bool warnAnyway       = OwnerEmpire.IsXenophobic && usToThem.Posture != Posture.Friendly;
             float detectionChance = OwnerEmpire.ColonizationDetectionChance(usToThem, them);
             Relationship themToUs = them.GetRelations(OwnerEmpire);
-            foreach (Goal ourGoal in ourColonizationGoals)
+            foreach (MarkForColonization ourGoal in ourColonizationGoals)
             {
-                var system = ourGoal.ColonizationTarget.ParentSystem;
+                Planet ourColonizeP = ourGoal.TargetPlanet;
+                var system = ourColonizeP.ParentSystem;
                 if (usToThem.WarnedSystemsList.Contains(system.Id))
                     continue; // Already warned them
 
                 // Non allied empires will always warn if the system is exclusively owned by them
                 bool warnExclusive = !usToThem.Treaty_Alliance && system.IsExclusivelyOwnedBy(OwnerEmpire);
-                foreach (Goal theirGoal in theirColonizationGoals)
+                foreach (MarkForColonization theirGoal in theirColonizationGoals)
                 {
-                    if (theirGoal.ColonizationTarget.ParentSystem != system)
+                    Planet theirColonizeP = theirGoal.TargetPlanet;
+                    if (theirColonizeP.ParentSystem != system)
                         continue;
 
                     if (DetectAndWarn(theirGoal, warnExclusive))
                     {
                         if (system.HasPlanetsOwnedBy(them)
-                            && theirGoal.ColonizationTarget.ParentSystem == them.Capital?.ParentSystem
-                            && theirGoal.ColonizationTarget != ourGoal.ColonizationTarget
+                            && theirColonizeP.ParentSystem == them.Capital?.ParentSystem
+                            && theirColonizeP != ourColonizeP
                             && !warnAnyway)
                         {
                             continue; // They already have colonies in this system and targeting a different planet, or its their home system
@@ -235,7 +237,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            bool GetColonizationGoalsList(Empire empire, out Goal[] planetList)
+            bool GetColonizationGoalsList(Empire empire, out MarkForColonization[] planetList)
             {
                 planetList = empire.AI.ExpansionAI.GetColonizationGoals();
                 return planetList.Length > 0;
@@ -251,12 +253,12 @@ namespace Ship_Game.AI
                     if (warnExclusive || warnAnyway)
                         return true;
 
-                    if (themToUs.WarnedSystemsList.Contains(goal.ColonizationTarget.ParentSystem.Id))
+                    if (themToUs.WarnedSystemsList.Contains(goal.TargetPlanet.ParentSystem.Id))
                         return false; // They warned us, so no need to warn them
 
                     // If they stole planets from us, we will value our targets more.
                     // If we have more pop then them, we will cut them some slack.
-                    Planet p = goal.ColonizationTarget;
+                    Planet p = goal.TargetPlanet;
                     float popRatio = OwnerEmpire.MaxPopBillion / them.MaxPopBillion.LowerBound(1);
                     float valueToUs = p.ColonyPotentialValue(OwnerEmpire) * (usToThem.NumberStolenClaims + 1);
                     float valueToThem = p.ColonyPotentialValue(them) * popRatio;
@@ -311,7 +313,7 @@ namespace Ship_Game.AI
 
         public void CancelColonization(Planet p)
         {
-            Goal goal = FindGoal(g => g.Type == GoalType.Colonize && g.ColonizationTarget == p);
+            Goal goal = FindGoal(g => g.IsColonizationGoal(p));
             if (goal != null)
             {
                 goal.FinishedShip?.AI.OrderOrbitNearest(true);
@@ -377,6 +379,16 @@ namespace Ship_Game.AI
         public Goal[] FindGoals(Predicate<Goal> predicate)
         {
             return GoalsList.Filter(predicate);
+        }
+
+        public T[] FindGoals<T>() where T : Goal
+        {
+            return GoalsList.FilterSelect(g => g is T, g => (T)g);
+        }
+
+        public V[] SelectFromGoals<T, V>(Func<T, V> selector) where T : Goal
+        {
+            return GoalsList.FilterSelect(g => g is T, g => selector((T)g));
         }
 
         public int CountGoals(Predicate<Goal> predicate)

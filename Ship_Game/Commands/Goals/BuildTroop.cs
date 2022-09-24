@@ -8,6 +8,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class BuildTroop : Goal
     {
+        [StarData] string TroopName;
+
         [StarDataConstructor]
         public BuildTroop(Empire owner) : base(GoalType.BuildTroop, owner)
         {
@@ -20,9 +22,9 @@ namespace Ship_Game.Commands.Goals
 
         public BuildTroop(Troop toCopy, Empire owner) : this(owner)
         {
-            ToBuildUID = toCopy.Name;
-            if (ToBuildUID.IsEmpty())
-                Log.Error($"Missing Troop {ToBuildUID}");
+            TroopName = toCopy.Name;
+            if (TroopName.IsEmpty())
+                Log.Error($"Missing Troop for empire {owner}");
         }
 
         GoalStep FindPlanetToBuildAt()
@@ -32,7 +34,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             // find a planet
-            Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
+            Troop troopTemplate = ResourceManager.GetTroopTemplate(TroopName);
             if (Owner.FindPlanetToBuildTroopAt(Owner.MilitaryOutposts, troopTemplate, 0.1f, out Planet planet))
             {
                 // submit troop into queue

@@ -1,9 +1,3 @@
-// Type: Ship_Game.Goal
-// Assembly: StarDrive, Version=1.0.9.0, Culture=neutral, PublicKeyToken=null
-// MVID: C34284EE-F947-460F-BF1D-3C6685B19387
-// Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
-
-using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
 using SDUtils;
@@ -15,7 +9,7 @@ namespace Ship_Game.AI
 {
     public enum GoalType
     {
-        Colonize,
+        MarkForColonization,
         DeepSpaceConstruction,
         BuildTroop,
         BuildOffensiveShips,
@@ -68,55 +62,28 @@ namespace Ship_Game.AI
     {
         public UniverseState UState; // automatically set during OnDeserialize evt
         [StarData] public Empire Owner; // the empire which owns this Goal
+        [StarData] public float StarDateAdded;
         [StarData] public GoalType Type;
         [StarData] public int Step { get; private set; }
+        public string StepName => Steps[Step].Method.Name;
 
-        [StarData] public Vector2 TetherOffset;
-        [StarData] public Planet TetherPlanet;
-
-        [StarData] Vector2 StaticBuildPosition;
-        [StarData] public string ToBuildUID;
         [StarData] public Planet PlanetBuildingAt;
 
-        [StarData] public Planet ColonizationTarget { get; set; }
-
         [StarData] Ship ShipBuilt; // this is the actual ship that was built
-        [StarData] public Ship OldShip;      // this is the ship which needs refit
         [StarData] public Ship TargetShip;      // this is targeted by this goal (raids)
         [StarData] public Empire TargetEmpire; // Empire target of this goal (for instance, pirate goals)
-        [StarData] public Planet TargetPlanet;
-        [StarData] public float StarDateAdded;
-
-        public string StepName => Steps[Step].Method.Name;
 
         [StarData] protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
         protected Func<bool> Holding;
 
-        public bool IsDeploymentGoal => ToBuildUID.NotEmpty() && !BuildPosition.AlmostZero();
-        public string TypeName => GetType().GetTypeName();
-
-        public Vector2 MovePosition
-        {
-            get
-            {
-                Planet targetPlanet = TetherPlanet ?? ColonizationTarget;
-                if (targetPlanet != null)
-                    return targetPlanet.Position + TetherOffset;
-                return BuildPosition;
-            }
-        }
-
-        public Vector2 BuildPosition
-        {
-            get
-            {
-                if (TetherPlanet != null)
-                    return TetherPlanet.Position + TetherOffset;
-                return StaticBuildPosition;
-            }
-            set => StaticBuildPosition = value;
-        }
+        public virtual Planet TargetPlanet { get; set; }
+        public virtual IShipDesign ToBuild => null; // this is the ship to be built
+        public virtual Ship OldShip { get; set; } // this is the ship which needs refit
+        public virtual bool IsDeploymentGoal => false;
+        public virtual Vector2 MovePosition => BuildPosition;
+        public virtual Vector2 BuildPosition => Vector2.Zero;
+        public virtual bool IsRaid => false; // Is this goal a pirate raid?
 
         public Ship FinishedShip
         {
@@ -129,8 +96,26 @@ namespace Ship_Game.AI
             }
             set => ShipBuilt = value;
         }
+        
+        /////////////////////////////////////////////////////
+        /// --- Virtual accessors for filtering Goals --- ///
 
-        public override string ToString() => $"{Type} Goal.{TypeName} {ToBuildUID}";
+        /** @return True if this goal is a type of refit goal */
+        public virtual bool IsRefitGoalAtPlanet(Planet planet) => false; // Implement at relevant classes
+        /** @return True if this goal is targeting the given planet for colonization */
+        public virtual bool IsColonizationGoal(Planet planet) => false;
+        /** @return True if this goal is Remnants targeting this planet */
+        public virtual bool IsRemnantEngageAtPlanet(Planet planet) => false;
+
+        /** @return True if this is a WarMission goal targeting this planet */
+        public virtual bool IsWarMissionTarget(Planet planet) => false;
+        /** @return True if this is a WarMission goal targeting this empire */
+        public virtual bool IsWarMissionTarget(Empire empire) => false;
+
+        /////////////////////////////////////////////////////
+
+        public string TypeName => GetType().GetTypeName();
+        public override string ToString() => $"{Type} Goal.{TypeName}";
 
         [StarDataConstructor]
         protected Goal(GoalType type, Empire owner)
@@ -155,22 +140,7 @@ namespace Ship_Game.AI
             }
         }
 
-        public virtual bool IsRaid => false; // Is this goal a pirate raid?
-        public virtual bool IsWarMission => false; // Is this goal related to war logic?
-
-        protected GoalStep DummyStepTryAgain()     => GoalStep.TryAgain;
-        protected GoalStep DummyStepGoalComplete() => GoalStep.GoalComplete;
-        protected GoalStep WaitMainGoalCompletion()
-        {
-            if (MainGoalCompleted)
-            {
-                MainGoalCompleted = false;
-                if (Step == Steps.Length-1)
-                    return GoalStep.GoalComplete;
-                return GoalStep.GoToNextStep;
-            }
-            return GoalStep.TryAgain;
-        }
+        protected GoalStep DummyStepTryAgain() => GoalStep.TryAgain;
 
         protected GoalStep WaitForShipBuilt() 
         {

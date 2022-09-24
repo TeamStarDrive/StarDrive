@@ -9,6 +9,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PrepareForWar : Goal
     {
+        [StarData] public override Planet TargetPlanet { get; set; }
         [StarData] bool SkipFirstRun = true;
 
         [StarDataConstructor]
@@ -30,7 +31,7 @@ namespace Ship_Game.Commands.Goals
 
         bool TryGetTask(out MilitaryTask task)
         {
-            task      = null;
+            task = null;
             var tasks = Owner.AI.GetTasks().Filter(t => t.Type == MilitaryTask.TaskType.StageFleet & t.TargetEmpire == TargetEmpire);
             if (tasks.Length > 0)
             {

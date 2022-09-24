@@ -164,7 +164,7 @@ namespace Ship_Game
         // Adding all refit goals as a new items to calculate these as well
         Array<QueueItem> CreateItemsForTurnsCompleted(QueueItem newItem)
         {
-            Array<QueueItem> items = new Array<QueueItem>();
+            var items = new Array<QueueItem>();
             if (TryGetQueueItemsFromRefitGoals(out Array<QueueItem> refitItems))
                 items.AddRange(refitItems);
 
@@ -174,26 +174,24 @@ namespace Ship_Game
             // Local Method
             bool TryGetQueueItemsFromRefitGoals(out Array<QueueItem> refitQueue)
             {
-                refitQueue = new Array<QueueItem>();
-                var refitGoals = Owner.AI.FindGoals(g => (g.Type == GoalType.Refit || g.Type == GoalType.RefitOrbital) && g.PlanetBuildingAt == this);
+                refitQueue = new();
+                var refitGoals = Owner.AI.FindGoals(g => g.IsRefitGoalAtPlanet(this));
                 if (refitGoals.Length == 0)
                     return false;
 
                 for (int i = 0; i < refitGoals.Length; i++)
                 {
-                    Goal goal  = refitGoals[i];
-                    if (goal.ToBuildUID.NotEmpty())
+                    Goal goal = refitGoals[i];
+                    if (goal.ToBuild != null)
                     {
-                        var newShip = ResourceManager.GetShipTemplate(goal.ToBuildUID, false);
-                        if (goal.OldShip != null && newShip != null)
+                        if (goal.OldShip != null && goal.ToBuild != null)
                         {
                             var qi = new QueueItem(this)
                             {
                                 isShip = true,
-                                Cost   = goal.OldShip.RefitCost(newShip) * ShipBuildingModifier,
-                                ShipData = newShip.ShipData
+                                Cost   = goal.OldShip.RefitCost(goal.ToBuild) * ShipBuildingModifier,
+                                ShipData = goal.ToBuild
                             };
-
                             refitQueue.Add(qi);
                         }
                     }
@@ -281,7 +279,7 @@ namespace Ship_Game
 
         public bool HasColonyShipFirstInQueue()
         {
-            return ConstructionQueue.Count > 0 && ConstructionQueue[0].Goal?.Type == GoalType.Colonize;
+            return ConstructionQueue.Count > 0 && ConstructionQueue[0].Goal?.Type == GoalType.MarkForColonization;
         }
     }
 }

@@ -151,8 +151,7 @@ namespace Ship_Game.AI
 
         public Goal[] GetRemnantEngagementGoalsFor(Planet p)
         {
-            return FindGoals(g => g.Type == GoalType.RemnantEngageEmpire
-                               && g.TargetPlanet == p && (g is FleetGoal fg && fg.Fleet?.TaskStep < 9));
+            return FindGoals(g => g.IsRemnantEngageAtPlanet(p) && g is FleetGoal { Fleet.TaskStep: < 9 });
         }
         
         public MilitaryTask[] GetAssaultPirateTasks()

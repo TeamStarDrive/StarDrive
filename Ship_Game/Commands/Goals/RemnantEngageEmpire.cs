@@ -14,7 +14,11 @@ namespace Ship_Game.Commands.Goals
     {
         Remnants Remnants => Owner.Remnants;
         [StarData] int BombersLevel;
-        
+        [StarData] public override Planet TargetPlanet { get; set; }
+
+        public override bool IsRaid => true;
+        public override bool IsRemnantEngageAtPlanet(Planet p) => TargetPlanet == p;
+
         [StarDataConstructor]
         public RemnantEngageEmpire(Empire owner) : base(GoalType.RemnantEngageEmpire, owner)
         {
@@ -40,8 +44,6 @@ namespace Ship_Game.Commands.Goals
             set => TargetShip = value;
         }
 
-        public override bool IsRaid => true;
-       
         bool SelectTargetPlanet()
         {
             // Target owned planet in the portal system first, target empire is not relevant
@@ -74,10 +76,10 @@ namespace Ship_Game.Commands.Goals
 
         float RequiredFleetStr()
         {
-            float strDiv        = TargetEmpire.TotalPopBillion / (TargetEmpire.isPlayer ? 150 : 60);
+            float strDiv = TargetEmpire.TotalPopBillion / (TargetEmpire.isPlayer ? 150 : 60);
             float strMultiplier = ((int)UState.Difficulty + 1) * 0.4f;
-            float str           = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv.LowerBound(1);
-            str                 = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
+            float str = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv.LowerBound(1);
+            str = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
 
             return str.LowerBound(Remnants.Level * Remnants.Level * 200 * strMultiplier);
         }

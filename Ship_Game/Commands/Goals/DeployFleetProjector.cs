@@ -11,6 +11,7 @@ namespace Ship_Game.Commands.Goals
     public class DeployFleetProjector : FleetGoal
     {
         [StarData] BuildConstructionShip BuildGoal;
+        [StarData] public override Planet TargetPlanet { get; set; }
 
         [StarDataConstructor]
         public DeployFleetProjector(Empire owner) : base(GoalType.DeployFleetProjector, owner)
@@ -26,18 +27,17 @@ namespace Ship_Game.Commands.Goals
         public DeployFleetProjector(Fleet fleet, Planet claim, Empire e) : this(e)
         {
             Fleet = fleet;
-            ColonizationTarget = claim;
+            TargetPlanet = claim;
         }
 
         GoalStep BuildProjector()
         {
-            if (Fleet == null || ColonizationTarget.ParentSystem.HasPlanetsOwnedBy(Owner))
+            if (Fleet == null || TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
                 return GoalStep.GoalComplete;
 
             float distanceToDeploy = Owner.GetProjectorRadius() * 0.8f;
             Vector2 dir = Fleet.FleetTask.TargetPlanet.Position.DirectionToTarget(Fleet.AveragePosition());
-            BuildPosition = ColonizationTarget.Position + dir * distanceToDeploy;
-            BuildGoal = new(BuildPosition, "Subspace Projector", Owner);
+            BuildGoal = new(TargetPlanet.Position + dir * distanceToDeploy, "Subspace Projector", Owner);
             Owner.AI.AddGoal(BuildGoal);
             return GoalStep.GoToNextStep;
         }
@@ -57,7 +57,7 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.GoalFailed;
                 }
 
-                constructionGoal.PlanetBuildingAt?.Construction.PrioritizeProjector(BuildPosition);
+                constructionGoal.PlanetBuildingAt?.Construction.PrioritizeProjector(BuildGoal.Build.Position);
                 return GoalStep.TryAgain;
             }
 
@@ -74,7 +74,7 @@ namespace Ship_Game.Commands.Goals
                 for (int i = 0; i < projectors.Count; i++)
                 {
                     Ship ship = projectors[i];
-                    if (ship.Position.InRadius(BuildPosition, 1000))
+                    if (ship.Position.InRadius(BuildGoal.Build.Position, 1000))
                         ship.ScuttleTimer = 120;
                 }
 

@@ -985,7 +985,7 @@ namespace Ship_Game
                         ScreenPos = buildPos.ToVec2f(),
                         BuildPos = goal.BuildPosition,
                         Radius = (float)(clickableRadius + 10),
-                        UID = goal.ToBuildUID,
+                        UID = goal.ToBuild.Name,
                         AssociatedGoal = goal
                     });
                 }

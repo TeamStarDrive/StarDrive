@@ -333,7 +333,7 @@ namespace Ship_Game
 
             LocalizedText tip = GameText.MarkThisPlanetForColonization;
             LocalizedText tipText = GameText.Colonize;
-            if (P.Universe.Player.AI.HasGoal(g => g.ColonizationTarget == P))
+            if (P.Universe.Player.AI.HasGoal(g => g.IsColonizationGoal(P)))
             {
                 tip = GameText.CancelTheColonizationMissionThat;
                 tipText = GameText.CancelColonize;
@@ -412,7 +412,7 @@ namespace Ship_Game
             }
             if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (P.Universe.Player.AI.HasGoal(g => g.Type == GoalType.Colonize && g.ColonizationTarget == P))
+                if (P.Universe.Player.AI.HasGoal(g => g.IsColonizationGoal(P)))
                 {
                     P.Universe.Player.AI.CancelColonization(P);
                     GameAudio.EchoAffirmative();
