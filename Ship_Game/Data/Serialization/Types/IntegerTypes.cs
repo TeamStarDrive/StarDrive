@@ -13,10 +13,7 @@ namespace Ship_Game.Data.Serialization.Types
         public override object Convert(object value)
         {
             if (value is bool) return value;
-            if (value is string s)
-            {
-                return s == "true" || s == "True";
-            }
+            if (value is string s) return s == "true" || s == "True";
             Error(value, "Bool -- expected string 'true' or 'false'");
             return false;
         }
@@ -44,6 +41,13 @@ namespace Ship_Game.Data.Serialization.Types
         public ByteSerializer() : base(typeof(byte)) { }
         public override string ToString() => $"{TypeId}:ByteSerializer";
 
+        public override object Convert(object value)
+        {
+            if (value is int i) return (byte)i;
+            Error(value, "Byte -- expected integer");
+            return (byte)0;
+        }
+
         public override void Serialize(YamlNode parent, object obj)
         {
             parent.Value = (int)(byte)obj;
@@ -66,6 +70,13 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public SByteSerializer() : base(typeof(sbyte)) { }
         public override string ToString() => $"{TypeId}:SByteSerializer";
+
+        public override object Convert(object value)
+        {
+            if (value is int i) return (sbyte)i;
+            Error(value, "SByte -- expected integer");
+            return (sbyte)0;
+        }
 
         public override void Serialize(YamlNode parent, object obj)
         {
@@ -90,6 +101,13 @@ namespace Ship_Game.Data.Serialization.Types
         public ShortSerializer() : base(typeof(short)) { }
         public override string ToString() => $"{TypeId}:ShortSerializer";
 
+        public override object Convert(object value)
+        {
+            if (value is int i) return (short)i;
+            Error(value, "Short -- expected integer");
+            return (short)0;
+        }
+
         public override void Serialize(YamlNode parent, object obj)
         {
             parent.Value = (int)(short)obj;
@@ -112,6 +130,13 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public UShortSerializer() : base(typeof(ushort)) { }
         public override string ToString() => $"{TypeId}:UShortSerializer";
+
+        public override object Convert(object value)
+        {
+            if (value is int i) return (ushort)i;
+            Error(value, "UShort -- expected integer");
+            return (ushort)0;
+        }
 
         public override void Serialize(YamlNode parent, object obj)
         {
@@ -141,7 +166,7 @@ namespace Ship_Game.Data.Serialization.Types
             if (value is int)      return value;
             if (value is float f)  return (int)f;
             if (value is string s) return StringView.ToInt(s);
-            Error(value, "Int -- expected string or float");
+            Error(value, "Int -- expected integer, string or float");
             return 0;
         }
 
@@ -168,6 +193,15 @@ namespace Ship_Game.Data.Serialization.Types
         public UIntSerializer() : base(typeof(uint)) { }
         public override string ToString() => $"{TypeId}:UIntSerializer";
 
+        public override object Convert(object value)
+        {
+            if (value is int)      return (uint)value;
+            if (value is float f)  return (uint)f;
+            if (value is string s) return (uint)StringView.ToInt(s);
+            Error(value, "UInt -- expected integer, string or float");
+            return 0U;
+        }
+
         public override void Serialize(YamlNode parent, object obj)
         {
             parent.Value = (int)(uint)obj;
@@ -190,6 +224,15 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public LongSerializer() : base(typeof(long)) { }
         public override string ToString() => $"{TypeId}:LongSerializer";
+
+        public override object Convert(object value)
+        {
+            if (value is int)      return (long)value;
+            if (value is float f)  return (long)f;
+            if (value is string s) return (long)StringView.ToInt(s);
+            Error(value, "Long -- expected integer, string or float");
+            return 0L;
+        }
 
         public override void Serialize(YamlNode parent, object obj)
         {
@@ -214,6 +257,15 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public ULongSerializer() : base(typeof(ulong)) { }
         public override string ToString() => $"{TypeId}:ULongSerializer";
+
+        public override object Convert(object value)
+        {
+            if (value is int)      return (ulong)value;
+            if (value is float f)  return (ulong)f;
+            if (value is string s) return (ulong)StringView.ToInt(s);
+            Error(value, "ULong -- expected integer, string or float");
+            return 0UL;
+        }
 
         public override void Serialize(YamlNode parent, object obj)
         {

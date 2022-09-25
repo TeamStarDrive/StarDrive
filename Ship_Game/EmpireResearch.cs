@@ -40,6 +40,7 @@ namespace Ship_Game
         public LocalizedText TopicLocText => ResourceManager.TryGetTech(Topic, out Technology tech)
                                    ? new LocalizedText(tech.NameIndex) : GameText.None;
 
+        [StarData]
         public EconomicResearchStrategy Strategy { get; private set; }
 
         [StarDataConstructor]
@@ -58,31 +59,31 @@ namespace Ship_Game
             Queue.Clear();
         }
 
-        public void Update()
-        { 
-            UpdateNetResearch();
-            ApplyResearchPoints();
-        }
-        
-        public void UpdateNetResearch()
-        {
-            SetResearchStrategy();
-            NetResearch = 0;
-            MaxResearchPotential = 0;
-            foreach (Planet planet in Empire.GetPlanets())
-            {
-                NetResearch          += planet.Res.NetIncome;
-                MaxResearchPotential += planet.Res.GrossMaxPotential;
-            }
-        }
-
-        public void SetResearchStrategy()
+        public void Initialize()
         {
             if (Strategy == null)
             {
                 if (Empire.data.EconomicPersonality == null)
                     Empire.data.EconomicPersonality = new ETrait { Name = "Generalists" };
                 Strategy = ResourceManager.GetEconomicStrategy(Empire.data.EconomicPersonality.Name);
+            }
+        }
+
+        public void Update()
+        {
+            UpdateNetResearch();
+            ApplyResearchPoints();
+        }
+        
+        public void UpdateNetResearch()
+        {
+            Initialize();
+            NetResearch = 0;
+            MaxResearchPotential = 0;
+            foreach (Planet planet in Empire.GetPlanets())
+            {
+                NetResearch          += planet.Res.NetIncome;
+                MaxResearchPotential += planet.Res.GrossMaxPotential;
             }
         }
 

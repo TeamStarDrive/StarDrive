@@ -64,10 +64,10 @@ namespace Ship_Game
             TechList.Reset();
             var items = new Array<SearchTechItem>();
 
-            foreach (var entry in EmpireManager.Player.TechnologyDict)
+            foreach (TechEntry entry in Screen.Universe.Player.TechnologyDict.Values)
             {
-                TreeNode node = new TreeNode(Vector2.Zero, entry.Value, Screen);
-                if (entry.Value.Discovered && !entry.Value.IsRoot &&
+                TreeNode node = new TreeNode(Vector2.Zero, entry, Screen);
+                if (entry.Discovered && !entry.IsRoot &&
                     (keyword.IsEmpty() || node.TechName.ToLower().Contains(keyword)))
                 {
                     items.Add(CreateQueueItem(node));

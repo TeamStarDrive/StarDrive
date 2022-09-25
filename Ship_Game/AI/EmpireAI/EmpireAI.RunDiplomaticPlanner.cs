@@ -119,7 +119,7 @@ namespace Ship_Game.AI
             if (!forceAllTechs && !OwnerEmpire.IsTradeTreaty(them) && !OwnerEmpire.isPlayer)
                 return false; 
 
-            var available = OwnerEmpire.TechsAvailableForTrade(them);
+            var available = OwnerEmpire.TechsAvailableForTrade();
             foreach (TechEntry tech in available)
             {
                 if (!forceAllTechs && tech.IsMilitary() && !OwnerEmpire.IsAlliedWith(them))
