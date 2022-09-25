@@ -14,6 +14,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class BuildOrbital : DeepSpaceBuildGoal
     {
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+
         [StarDataConstructor]
         public BuildOrbital(Empire owner) : base(GoalType.BuildOrbital, owner)
         {
@@ -29,10 +31,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public BuildOrbital(Planet planet, string toBuildName, Empire owner) : this(owner)
         {
             PlanetBuildingAt = planet;
-            Build = new(toBuildName, planet, Vector2.Zero);
+            Initialize(toBuildName, Vector2.Zero, planet, Vector2.Zero);
         }
-
-        public override Vector2 BuildPosition => Build.Position;
 
         GoalStep BuildConstructor()
         {
@@ -40,7 +40,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;
 
             IShipDesign constructor = BuildableShip.GetConstructor(Owner);
-            PlanetBuildingAt.Construction.Enqueue(Build.Template, constructor, this);
+            PlanetBuildingAt.Construction.Enqueue(ToBuild, constructor, this);
             return GoalStep.GoToNextStep;
         }
 
@@ -49,7 +49,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (FinishedShip == null)
                 return GoalStep.GoalFailed; // Ship was removed or destroyed
 
-            Build.StaticBuildPos = FindNewOrbitalLocation();
+            StaticBuildPos = FindNewOrbitalLocation();
             FinishedShip.AI.OrderDeepSpaceBuild(this);
             return GoalStep.GoToNextStep;
         }
@@ -67,22 +67,22 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             for (int ring = 0; ring < ringLimit; ring++)
             {
                 int degrees = (int)RandomMath.Float(0f, 9f);
-                float distance = 2000 + (1000 * ring * Build.TetherPlanet.Scale);
-                Build.TetherOffset = MathExt.PointOnCircle(degrees * 40, distance);
-                Vector2 pos = Build.TetherPlanet.Position + Build.TetherOffset;
+                float distance = 2000 + (1000 * ring * TetherPlanet.Scale);
+                TetherOffset = MathExt.PointOnCircle(degrees * 40, distance);
+                Vector2 pos = TetherPlanet.Position + TetherOffset;
                 if (BuildPositionFree(pos))
                     return pos;
 
                 for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
                 {
-                    Build.TetherOffset = MathExt.PointOnCircle(i * 40, distance);
-                    pos = Build.TetherPlanet.Position + Build.TetherOffset;
+                    TetherOffset = MathExt.PointOnCircle(i * 40, distance);
+                    pos = TetherPlanet.Position + TetherOffset;
                     if (BuildPositionFree(pos))
                         return pos;
                 }
             }
 
-            return Build.TetherPlanet.Position; // There is a limit on orbitals number
+            return TetherPlanet.Position; // There is a limit on orbitals number
         }
 
         bool BuildPositionFree(Vector2 position)
@@ -92,7 +92,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         bool IsOrbitalAlreadyPresentAt(Vector2 position)
         {
-            foreach (Ship orbital in Build.TetherPlanet.OrbitalStations)
+            foreach (Ship orbital in TetherPlanet.OrbitalStations)
             {
                 Owner.Universum?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                     orbital.Position, 1000, Color.LightCyan, 10.0f);
@@ -110,7 +110,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             foreach (Ship ship in ships.Filter(s => s.IsConstructor))
             {
                 if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) &&
-                    g.Goal is BuildOrbital bo && bo.Build.TetherPlanet == Build.TetherPlanet)
+                    g.Goal is BuildOrbital bo && bo.TetherPlanet == TetherPlanet)
                 {
                     Owner.Universum?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                         g.Goal.BuildPosition, 1000, Color.LightCyan, 10.0f);

@@ -10,7 +10,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class DefendVsRemnants : FleetGoal
     {
-        [StarData] public override Planet TargetPlanet { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+        [StarData] public sealed override Planet TargetPlanet { get; set; }
 
         [StarDataConstructor]
         public DefendVsRemnants(Empire owner) : base(GoalType.DefendVsRemnants, owner)

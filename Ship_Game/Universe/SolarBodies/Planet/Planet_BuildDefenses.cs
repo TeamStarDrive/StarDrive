@@ -84,9 +84,9 @@ namespace Ship_Game
             for (int i = 0; i < goals.Count; i++)
             {
                 Goal g = goals[i];
-                if (g is DeepSpaceBuildGoal bg && (bg.PlanetBuildingAt == this || bg.Build.TetherPlanet == this))
+                if (g is DeepSpaceBuildGoal bg && bg.IsBuildingOrbitalFor(this))
                 {
-                    IShipDesign orbital = bg.Build.Template;
+                    IShipDesign orbital = bg.ToBuild;
                     if (orbital.Role == role && !orbital.IsShipyard)
                         ++numOrbitals;
                 }
@@ -103,8 +103,8 @@ namespace Ship_Game
                 return 0;
 
             int shipyardsInQ = owner.AI.CountGoals(g => g is DeepSpaceBuildGoal b
-                                                     && (b.PlanetBuildingAt == this || b.Build.TetherPlanet == this)
-                                                     && b.Build.Template.IsShipyard);
+                                                     && b.IsBuildingOrbitalFor(this)
+                                                     && b.ToBuild.IsShipyard);
             return shipyardsInQ;
         }
 

@@ -273,9 +273,6 @@ namespace Ship_Game.Universe
                 Objects.Add(projectile);
 
             foreach (Empire e in EmpireList)
-                e.ResetTechsUsableByShips(e.GetOurFactionShips(), unlockBonuses: false);
-
-            foreach (Empire e in EmpireList)
             {
                 if (e.data.AbsorbedBy != null)
                 {

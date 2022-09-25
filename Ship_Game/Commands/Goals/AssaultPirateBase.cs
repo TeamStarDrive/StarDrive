@@ -11,6 +11,9 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class AssaultPirateBase : Goal
     {
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+        [StarData] public sealed override Ship TargetShip { get; set; }
+
         Pirates Pirates => TargetEmpire.Pirates;
         Ship PirateBase => TargetShip;
 
@@ -40,12 +43,13 @@ namespace Ship_Game.Commands.Goals
             if (!Pirates.GetBases(out Array<Ship> bases))
                 return GoalStep.GoalFailed;
 
-            EmpireAI ai          = Owner.AI;
-            var filteredBases    = bases.Filter(s => !ai.HasAssaultPirateBaseTask(s, out _));
+            EmpireAI ai = Owner.AI;
+            var filteredBases = bases.Filter(s => !ai.HasAssaultPirateBaseTask(s, out _));
 
-            if (!GetClosestBaseToCenter(filteredBases, out TargetShip)) // TargetShip is the pirate base
+            if (!GetClosestBaseToCenter(filteredBases, out Ship closestPirateBase))
                 return GoalStep.GoalFailed;
-            
+
+            TargetShip = closestPirateBase;
             return GoalStep.GoToNextStep;
         }
 

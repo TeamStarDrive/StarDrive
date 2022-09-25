@@ -8,7 +8,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class BuildScout : Goal
     {
-        [StarData] BuildableShip Build;
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+        [StarData] public sealed override BuildableShip Build { get; set; }
         public override IShipDesign ToBuild => Build.Template;
 
         [StarDataConstructor] BuildScout() : base(GoalType.BuildScout, null)
@@ -35,14 +36,15 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
-            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, Build.Template, out Planet planet))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, ToBuild, out Planet buildAt))
                 return GoalStep.TryAgain;
 
-            var queue    = planet.Construction.GetConstructionQueue();
-            int priority = queue.Count > 0 && !planet.HasColonyShipFirstInQueue() && queue[0].ProductionNeeded > Build.Template.GetCost(Owner) * 2 ? 0 : 1;
-
-            planet.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);
-            planet.Construction.PrioritizeShip(Build.Template, priority, 2);
+            var queue = buildAt.Construction.GetConstructionQueue();
+            int priority = queue.Count > 0 && !buildAt.HasColonyShipFirstInQueue() && queue[0].ProductionNeeded > Build.Template.GetCost(Owner) * 2 ? 0 : 1;
+            
+            PlanetBuildingAt = buildAt;
+            buildAt.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);
+            buildAt.Construction.PrioritizeShip(Build.Template, priority, 2);
 
             return GoalStep.GoToNextStep;
         }

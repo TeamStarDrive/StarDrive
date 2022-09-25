@@ -294,6 +294,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Enqueue(IShipDesign platform, IShipDesign constructor, Goal goal = null)
         {
+            if (goal != null && goal.PlanetBuildingAt == null)
+                throw new InvalidOperationException($"CQ.Enqueue not allowed if Goal.PlanetBuildingAt is null!");
+
             var qi = new QueueItem(P)
             {
                 isShip        = true,
@@ -328,6 +331,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Enqueue(IShipDesign ship, Goal goal = null, bool notifyOnEmpty = true, string displayName = "")
         {
+            if (goal != null && goal.PlanetBuildingAt == null)
+                throw new InvalidOperationException($"CQ.Enqueue not allowed if Goal.PlanetBuildingAt is null!");
+
             var qi = new QueueItem(P)
             {
                 isShip        = true,
@@ -342,7 +348,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (displayName.NotEmpty())
                 qi.DisplayName = displayName;
 
-            if (goal != null) 
+            if (goal != null)
                 goal.PlanetBuildingAt = P;
 
             ConstructionQueue.Add(qi);
@@ -371,6 +377,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Enqueue(Troop template, Goal goal = null)
         {
+            if (goal != null && goal.PlanetBuildingAt == null)
+                throw new InvalidOperationException($"CQ.Enqueue not allowed if Goal.PlanetBuildingAt is null!");
+
             var qi = new QueueItem(P)
             {
                 isTroop     = true,

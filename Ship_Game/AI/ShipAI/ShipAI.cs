@@ -436,7 +436,6 @@ namespace Ship_Game.AI
             if (Owner.AI.State != AIState.Resupply && Owner.AI.State != AIState.ResupplyEscort)
                 return;
 
-            Owner.TrackOrdnancePercentageBug();
             if (Owner.Supply.DoneResupplying(supplyType) || terminateIfEnemiesNear && Owner.AI.BadGuysNear)
             {
                 DequeueCurrentOrder();

@@ -10,7 +10,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class WarMission : Goal
     {
-        [StarData] public override Planet TargetPlanet { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+        [StarData] public sealed override Planet TargetPlanet { get; set; }
 
         [StarDataConstructor]
         public WarMission(Empire owner) : base(GoalType.WarMission, owner)

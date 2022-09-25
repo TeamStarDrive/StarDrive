@@ -141,12 +141,12 @@ namespace Ship_Game.AI
         public void OrderDeepSpaceBuild(DeepSpaceBuildGoal bg)
         {
             ClearOrders(State, priority:true);
-            Vector2 pos = bg.Build.Position;
+            Vector2 pos = bg.BuildPosition;
             Vector2 dir = Owner.Position.DirectionToTarget(pos);
-            if (bg.Type == GoalType.DeepSpaceConstruction || bg.Build.TetherPlanet == null) // deep space structures
-                AddShipGoal(Plan.DeployStructure, pos, dir, bg, bg.Build.Template.Name, 0f, AIState.MoveTo);
+            if (bg.IsBuildingOrbitalFor(null)) // deep space structures
+                AddShipGoal(Plan.DeployStructure, pos, dir, bg, bg.ToBuild.Name, 0f, AIState.MoveTo);
             else // orbitals for planet defense
-                AddShipGoal(Plan.DeployOrbital, pos, dir, bg, bg.Build.Template.Name, 0f, AIState.MoveTo);
+                AddShipGoal(Plan.DeployOrbital, pos, dir, bg, bg.ToBuild.Name, 0f, AIState.MoveTo);
         }
 
         public void OrderScout(SolarSystem target, Goal g)

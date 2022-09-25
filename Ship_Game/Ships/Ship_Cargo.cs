@@ -64,7 +64,7 @@ namespace Ship_Game.Ships
 
         void UpdateOrdnancePercentage()
         {
-            float percent   = OrdinanceMax > 1 ? (Ordinance + Carrier.OrdnanceInSpace) / OrdinanceMax : 1f;
+            float percent = OrdinanceMax > 1 ? (Ordinance + Carrier.OrdnanceInSpace) / OrdinanceMax : 1f;
             OrdnancePercent = percent.Clamped(0, 1f);
         }
 

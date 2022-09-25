@@ -9,6 +9,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class StandbyColonyShip : Goal
     {
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+
         [StarDataConstructor]
         public StandbyColonyShip(Empire owner) : base(GoalType.StandbyColonyShip, owner)
         {
@@ -37,6 +39,7 @@ namespace Ship_Game.Commands.Goals
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
+            PlanetBuildingAt = planet;
             planet.Construction.Enqueue(colonyShip, this);
             planet.Construction.PrioritizeShip(colonyShip, 2);
             return GoalStep.GoToNextStep;

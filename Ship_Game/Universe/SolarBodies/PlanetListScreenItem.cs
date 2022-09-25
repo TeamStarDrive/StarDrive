@@ -254,7 +254,7 @@ namespace Ship_Game
 
             foreach (Building b in Planet.BuildingList)
             {
-                if (b.EventHere && (Planet.Owner == null || !Planet.Owner.GetBDict()[b.Name]))
+                if (b.EventHere && (Planet.Owner == null || !Planet.Owner.IsBuildingUnlocked(b.Name)))
                 {
                     AddBuildingIcon(b, statusIcons, ref offset);
                 }

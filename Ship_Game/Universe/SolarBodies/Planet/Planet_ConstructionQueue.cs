@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game
 {
@@ -19,15 +20,8 @@ namespace Ship_Game
             // See if it already has a command building or not.
             bool needCommandBuilding = BuildingList.All(b => !b.IsCapitalOrOutpost);
 
-            foreach (KeyValuePair<string, bool> keyValuePair in Owner.GetBDict())
+            foreach (Building b in Owner.GetUnlockedBuildings())
             {
-                if (!keyValuePair.Value)
-                    continue;
-
-                // when loading from savegames, unlocked BDict can contain invalid entries
-                if (!ResourceManager.GetBuilding(keyValuePair.Key, out Building b))
-                    continue;
-
                 // Skip adding + food buildings for cybernetic races
                 if (IsCybernetic && !b.ProducesProduction && !b.ProducesResearch && b.ProducesFood)
                     continue;
@@ -211,7 +205,7 @@ namespace Ship_Game
             float effectiveProd         = ProdHere + IncomingProd;
             if (scrapGoals.Length > 0)
             {
-                var scrapGoalsTargetingThis = scrapGoals.Filter(g => g.Type == GoalType.ScrapShip && g.PlanetBuildingAt == this);
+                var scrapGoalsTargetingThis = scrapGoals.Filter(g => g is ScrapShip && g.PlanetBuildingAt == this);
                 if (scrapGoalsTargetingThis.Length > 0)
                     effectiveProd += scrapGoalsTargetingThis.Sum(g => g.OldShip?.GetScrapCost() ?? 0);
             }
