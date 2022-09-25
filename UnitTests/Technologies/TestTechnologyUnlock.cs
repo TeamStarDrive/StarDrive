@@ -161,13 +161,13 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void UnlockByConquest()
         {
-            TechEntry[] playerTechs = Player.TechEntries.Filter(tech => tech.Unlocked);
+            TechEntry[] playerTechs = Player.UnlockedTechs;
             UnlockTech(MajorEnemy, "Centralized Banking");
             UnlockTech(MajorEnemy, "Disintegrator Array");
-            TechEntry[] enemyTechs = MajorEnemy.TechEntries.Filter(tech => tech.Unlocked);
+            TechEntry[] enemyTechs = MajorEnemy.UnlockedTechs;
             Player.AssimilateTech(MajorEnemy);
 
-            TechEntry[] playerTechs2 = Player.TechEntries.Filter(tech => tech.Unlocked).Sorted(e => e.UID);
+            TechEntry[] playerTechs2 = Player.UnlockedTechs.Sorted(e => e.UID);
             TechEntry[] expected = playerTechs.Union(enemyTechs).Sorted(e => e.UID);
             TechEntry[] newUnlocks = playerTechs2.Except(playerTechs).Sorted(e => e.UID);
 

@@ -64,7 +64,7 @@ namespace Ship_Game
             TechList.Reset();
             var items = new Array<SearchTechItem>();
 
-            foreach (TechEntry entry in Screen.Universe.Player.TechnologyDict.Values)
+            foreach (TechEntry entry in Screen.Universe.Player.TechEntries)
             {
                 TreeNode node = new TreeNode(Vector2.Zero, entry, Screen);
                 if (entry.Discovered && !entry.IsRoot &&

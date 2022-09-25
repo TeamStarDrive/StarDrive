@@ -11,7 +11,7 @@ using Ship_Game.Gameplay;
 namespace Ship_Game
 {
     [StarDataType]
-    public sealed class TechEntry : IEquatable<TechEntry>
+    public sealed class TechEntry
     {
         [StarData] public string UID;
         [StarData] public float Progress;
@@ -738,7 +738,7 @@ namespace Ship_Game
 
         public TechEntry GetPreReq(Empire empire)
         {
-            foreach (TechEntry entry in empire.TechnologyDict.Values)
+            foreach (TechEntry entry in empire.TechEntries)
             {
                 foreach (Technology.LeadsToTech leadsToTech in entry.Tech.LeadsTo)
                 {
@@ -983,24 +983,6 @@ namespace Ship_Game
                 case "Hull Strengthening":
                 case "Module HP Bonus": empire.ApplyModuleHealthTechBonus(unlockedBonus.Bonus); break;
             }
-        }
-
-        public bool Equals(TechEntry other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return UID == other.UID;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is TechEntry other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            // ReSharper disable once NonReadonlyMemberInGetHashCode
-            return UID.GetHashCode();
         }
     }
 }

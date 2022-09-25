@@ -60,6 +60,21 @@ namespace Ship_Game.Data.Serialization
             Constructor = GetDefaultConstructor();
             OnSerializeEvt = GetOnSerializeEvt();
 
+            // This is an important edge case. If this is a Reference type and inherits from
+            // IEquatable, the serializer will accidentally squash objects
+            // Better to log an error here than try and look for these weird bugs
+            // Business logic should instead implement IEqualityComparer<T>
+            if (!IsValueType)
+            {
+                Type[] interfaces = type.GetInterfaces();
+                if (interfaces.Length > 0)
+                {
+                    var equatableType = typeof(IEquatable<>).MakeGenericType(type);
+                    if (interfaces.Contains(equatableType))
+                        throw new($"Reference Type {type} implements IEquatable<> which will squash reference objects during serialization");
+                }
+            }
+
             // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
         }
 

@@ -730,7 +730,7 @@ namespace Ship_Game
             float scientificStr = 0f;
             if (Friends.Contains(e) || e.isPlayer)
             {
-                var techs = e.TechEntries.Filter(t => t.Unlocked);
+                var techs = e.UnlockedTechs;
                 return techs.Length == 0 ? 0 : techs.Sum(t => t.Tech.Cost);
             }
 
