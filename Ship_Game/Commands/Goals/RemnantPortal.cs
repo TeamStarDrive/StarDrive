@@ -11,9 +11,11 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class RemnantPortal : Goal
     {
+        [StarData] public sealed override Ship TargetShip { get; set; }
+        [StarData] Vector2 TetherOffset;
+
         Remnants Remnants => Owner.Remnants;
         Ship Portal => TargetShip;
-        [StarData] Vector2 TetherOffset;
 
         [StarDataConstructor]
         public RemnantPortal(Empire owner) : base(GoalType.RemnantPortal, owner)

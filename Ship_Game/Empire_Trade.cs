@@ -215,10 +215,12 @@ namespace Ship_Game
 
         void BuildFreighter()
         {
-            if (ManualTrade || FreightersBeingBuilt >= MaxFreightersInQueue)
+            if (ManualTrade)
                 return;
 
-            if (FreighterCap > TotalFreighters + FreightersBeingBuilt && MaxFreightersInQueue >= FreightersBeingBuilt)
+            int beingBuilt = FreightersBeingBuilt;
+            int queueMax = MaxFreightersInQueue;
+            if (beingBuilt < queueMax && (TotalFreighters + beingBuilt) < FreighterCap)
                 AI.AddGoal(new IncreaseFreighters(this));
         }
 

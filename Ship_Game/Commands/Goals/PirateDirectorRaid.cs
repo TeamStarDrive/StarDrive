@@ -8,6 +8,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PirateDirectorRaid : Goal
     {
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
         Pirates Pirates => Owner.Pirates;
 
         [StarDataConstructor]

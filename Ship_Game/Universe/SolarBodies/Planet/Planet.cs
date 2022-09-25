@@ -8,6 +8,7 @@ using System.Linq;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Spatial;
 using Ship_Game.Gameplay;
@@ -1185,7 +1186,7 @@ namespace Ship_Game
         public int NumSupplyShuttlesCanLaunch() // Net, after subtracting already launched shuttles
         {
             var planetSupplyGoals = Owner.AI
-                .FindGoals(g => g.Type == AI.GoalType.RearmShipFromPlanet && g.PlanetBuildingAt == this);
+                .FindGoals(g => g is RearmShipFromPlanet && g.PlanetBuildingAt == this);
 
             return (int)InfraStructure - planetSupplyGoals.Length;
         }

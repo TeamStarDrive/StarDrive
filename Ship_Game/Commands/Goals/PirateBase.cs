@@ -9,6 +9,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PirateBase : Goal
     {
+        [StarData] public sealed override Ship TargetShip { get; set; }
+
         Pirates Pirates => Owner.Pirates;
         Ship Base => TargetShip;
         

@@ -8,6 +8,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class ScrapShip : Goal
     {
+        [StarData] public sealed override Ship OldShip { get; set; }
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+
         [StarDataConstructor]
         public ScrapShip(Empire owner) : base(GoalType.ScrapShip, owner)
         {
@@ -39,14 +42,15 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             OldShip.RemoveFromPoolAndFleet(clearOrders: false);
 
             if (OldShip.ShipData.Role <= RoleName.station && OldShip.ScuttleTimer < 0
-                || !Owner.FindPlanetToScrapIn(OldShip, out PlanetBuildingAt))
+                || !Owner.FindPlanetToScrapIn(OldShip, out Planet buildAt))
             {
                 // No planet to refit, scuttling ship
                 return ImmediateScuttleSelfDestruct();
             }
 
+            PlanetBuildingAt = buildAt;
             OldShip.AI.IgnoreCombat = true;
-            OldShip.AI.OrderMoveAndScrap(PlanetBuildingAt);
+            OldShip.AI.OrderMoveAndScrap(buildAt);
             return GoalStep.GoToNextStep;
         }
 

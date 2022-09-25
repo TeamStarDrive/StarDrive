@@ -37,10 +37,10 @@ namespace Ship_Game
     {
         [StarData] readonly Map<int, Fleet> FleetsDict = new();
 
-        public readonly Map<string, bool> UnlockedHullsDict = new();
-        readonly Map<string, bool> UnlockedTroopDict = new();
-        readonly Map<string, bool> UnlockedBuildingsDict = new();
-        readonly Map<string, bool> UnlockedModulesDict = new();
+        [StarData] public readonly Map<string, bool> UnlockedHullsDict = new();
+        [StarData] readonly Map<string, bool> UnlockedTroopDict = new();
+        [StarData] readonly Map<string, bool> UnlockedBuildingsDict = new();
+        [StarData] readonly Map<string, bool> UnlockedModulesDict = new();
 
         [StarData] readonly Array<Troop> UnlockedTroops = new();
 
@@ -78,7 +78,8 @@ namespace Ship_Game
         readonly Map<SolarSystem, bool> HostilesLogged = new(); // Only for Player warnings
         public Array<IncomingThreat> SystemsWithThreat = new();
         [StarData] public HashSet<string> ShipsWeCanBuild = new();
-        [StarData] public HashSet<string> structuresWeCanBuild = new();
+        // shipyards, platforms, SSP-s
+        [StarData] public HashSet<string> SpaceStationsWeCanBuild = new();
         float FleetUpdateTimer = 5f;
         int TurnCount = 1;
 
@@ -822,10 +823,16 @@ namespace Ship_Game
 
         public IReadOnlyList<Troop> GetUnlockedTroops() => UnlockedTroops;
 
-        public Map<string, bool> GetBDict() => UnlockedBuildingsDict;
         public bool IsBuildingUnlocked(string name) => UnlockedBuildingsDict.TryGetValue(name, out bool unlocked) && unlocked;
         public bool IsBuildingUnlocked(int bid) => ResourceManager.GetBuilding(bid, out Building b)
                                                         && IsBuildingUnlocked(b.Name);
+
+        public IEnumerable<Building> GetUnlockedBuildings()
+        {
+            foreach (KeyValuePair<string, bool> kv in UnlockedBuildingsDict)
+                if (kv.Value && ResourceManager.GetBuilding(kv.Key, out Building b))
+                    yield return b;
+        }
 
         public bool CanTerraformVolcanoes   => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 1;
         public bool CanTerraformPlanetTiles => IsBuildingUnlocked(Building.TerraformerId) && data.Traits.TerraformingLevel >= 2;
@@ -1107,8 +1114,10 @@ namespace Ship_Game
                 ThrustColor1 = Color.OrangeRed;
         }
 
-        public void ResetTechsUsableByShips(Array<Ship> ourShips, bool unlockBonuses)
+        public void ResetTechsAndUnlocks()
         {
+            Array<Ship> ourShips = GetOurFactionShips();
+
             foreach (var entry in TechnologyDict)
             {
                 var tech = entry.Value.Tech;
@@ -1123,10 +1132,16 @@ namespace Ship_Game
                     entry.Value.shipDesignsCanuseThis = WeCanUseThisLater(entry.Value);
             }
 
-            foreach (var entry in TechnologyDict.OrderBy(hulls => hulls.Value.Tech.HullsUnlocked.Count > 0))
+            foreach (var entry in TechnologyDict)
             {
                 AddToShipTechLists(entry.Value);
-                entry.Value.UnlockFromSave(this, unlockBonuses);
+            }
+
+            // now unlock the techs again to populate lists
+            foreach (var entry in TechnologyDict)
+            {
+                if (entry.Value.Unlocked)
+                    entry.Value.UnlockFromSave(this, unlockBonuses: false);
             }
         }
 
@@ -1156,15 +1171,23 @@ namespace Ship_Game
             }
         }
 
+        void ResetUnlocks()
+        {
+            UnlockedBuildingsDict.Clear();
+            UnlockedModulesDict.Clear();
+            UnlockedHullsDict.Clear();
+            UnlockedTroopDict.Clear();
+            UnlockedTroops.Clear();
+            ShipsWeCanBuild.Clear();
+        }
+
         void InitEmpireUnlocks()
         {
-            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.HullName] = false;
-            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt] = false;
-            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
-            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key] = false;
-
             foreach (string building in data.unlockBuilding)
                 UnlockedBuildingsDict[building] = true;
+            
+            foreach (string ship in data.unlockShips)
+                ShipsWeCanBuild.Add(ship);
 
             foreach (var kv in TechnologyDict) // unlock racial techs
             {
@@ -1173,13 +1196,22 @@ namespace Ship_Game
             }
 
             // Added by gremlin Figure out techs with modules that we have ships for.
-            var ourShips = GetOurFactionShips();
-            ResetTechsUsableByShips(ourShips, unlockBonuses: false); // this will also unlock troops. Very confusing
-            
-            foreach (string ship in data.unlockShips)
-                ShipsWeCanBuild.Add(ship);
-
+            ResetTechsAndUnlocks();
             UpdateShipsWeCanBuild();
+
+            foreach (Troop t in UnlockedTroops)
+                UnlockEmpireTroop(t.Name);
+
+            if (!IsFaction)
+            {
+                if (UnlockedBuildingsDict.Count == 0) Log.Error($"Empire UnlockedBuildingsDict is empty! {this}");
+                if (UnlockedModulesDict.Count == 0) Log.Error($"Empire UnlockedModulesDict is empty! {this}");
+                if (UnlockedHullsDict.Count == 0) Log.Error($"Empire UnlockedHullsDict is empty! {this}");
+                if (UnlockedTroopDict.Count == 0) Log.Error($"Empire UnlockedTroopDict is empty! {this}");
+                if (UnlockedTroops.Count == 0) Log.Error($"Empire UnlockedTroops is empty! {this}");
+                if (ShipsWeCanBuild.Count == 0) Log.Error($"Empire ShipsWeCanBuild is empty! {this}");
+                if (SpaceStationsWeCanBuild.Count == 0) Log.Error($"Empire ShipsWeCanBuild is empty! {this}");
+            }
         }
 
         private void AddToShipTechLists(TechEntry tech)
@@ -2048,7 +2080,7 @@ namespace Ship_Game
                 if (WeCanBuildThis(ship.ShipData, debug))
                 {
                     if (ship.ShipData.Role <= RoleName.station)
-                        structuresWeCanBuild.Add(ship.Name);
+                        SpaceStationsWeCanBuild.Add(ship.Name);
 
                     bool shipAdded = ShipsWeCanBuild.Add(ship.Name);
 
@@ -2689,7 +2721,7 @@ namespace Ship_Game
 
         public void TryCreateAssaultBombersGoal(Empire enemy, Planet planet)
         {
-            if (enemy == this  || AI.HasGoal(g => g.Type == GoalType.AssaultBombers && g.PlanetBuildingAt == planet))
+            if (enemy == this  || AI.HasGoal(g => g is AssaultBombers && g.PlanetBuildingAt == planet))
                 return;
 
             AI.AddGoal(new AssaultBombers(planet, this, enemy));
@@ -3206,8 +3238,7 @@ namespace Ship_Game
                 AddArtifact(artifact);
             }
 
-            var ourShips = GetOurFactionShips();
-            ResetTechsUsableByShips(ourShips, unlockBonuses: false);
+            ResetTechsAndUnlocks();
 
             target.data.OwnedArtifacts.Clear();
             if (target.Money > 0.0)
@@ -3723,6 +3754,7 @@ namespace Ship_Game
 
             data.ResetAllBonusModifiers(this);
 
+            ResetUnlocks();
             InitEmpireUnlocks();
         }
 
@@ -3804,14 +3836,12 @@ namespace Ship_Game
             foreach (var kv in FleetsDict)
                 kv.Value.Reset(returnShipsToEmpireAI: false);
             FleetsDict.Clear();
-            UnlockedBuildingsDict.Clear();
-            UnlockedHullsDict.Clear();
-            UnlockedModulesDict.Clear();
-            UnlockedTroopDict.Clear();
-            UnlockedTroops.Clear();
+
+            ResetUnlocks();
+
             Inhibitors.Clear();
             ShipsWeCanBuild.Clear();
-            structuresWeCanBuild.Clear();
+            SpaceStationsWeCanBuild.Clear();
             Research.Reset();
 
             // TODO: These should not be in EmpireData !!!

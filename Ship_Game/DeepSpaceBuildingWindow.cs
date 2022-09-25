@@ -42,7 +42,7 @@ namespace Ship_Game
             SL.EnableItemHighlight = true;
 
             //The Doctor: Ensure Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
-            foreach (string s in EmpireManager.Player.structuresWeCanBuild)
+            foreach (string s in EmpireManager.Player.SpaceStationsWeCanBuild)
             {
                 if (s == "Subspace Projector")
                 {
@@ -50,7 +50,7 @@ namespace Ship_Game
                     break;
                 }
             }
-            foreach (string s in EmpireManager.Player.structuresWeCanBuild)
+            foreach (string s in EmpireManager.Player.SpaceStationsWeCanBuild)
             {
                 if (s != "Subspace Projector")
                 {

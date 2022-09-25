@@ -1,5 +1,4 @@
-﻿using SDGraphics;
-using Ship_Game.AI;
+﻿using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Ships;
 
@@ -45,46 +44,6 @@ namespace Ship_Game.Commands.Goals
             if (constructor == null)
                 throw new(ErrMsg(owner, "PickConstructor"));
             return constructor.ShipData;
-        }
-    }
-
-    [StarDataType]
-    public class DeepSpaceBuildable : BuildableShip
-    {
-        [StarData] public Vector2 StaticBuildPos;
-        [StarData] public Planet TetherPlanet;
-        [StarData] public Vector2 TetherOffset;
-
-        [StarDataConstructor] DeepSpaceBuildable() {}
-
-        public DeepSpaceBuildable(string shipUid) : base(shipUid)
-        {
-        }
-
-        public DeepSpaceBuildable(string shipUid, Planet planet, Vector2 offset) : base(shipUid)
-        {
-            TetherPlanet = planet;
-            TetherOffset = offset;
-        }
-
-        public Vector2 Position
-        {
-            get
-            {
-                if (TetherPlanet != null) return TetherPlanet.Position + TetherOffset;
-                return StaticBuildPos;
-            }
-        }
-
-        public Vector2 MovePosition
-        {
-            get
-            {
-                Planet targetPlanet = TetherPlanet;
-                if (targetPlanet != null)
-                    return targetPlanet.Position + TetherOffset;
-                return Position;
-            }
         }
     }
 }

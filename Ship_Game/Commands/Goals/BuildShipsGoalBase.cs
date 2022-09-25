@@ -9,7 +9,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public abstract class BuildShipsGoalBase : Goal
     {
-        [StarData] public BuildableShip Build;
+        [StarData] public sealed override BuildableShip Build { get; set; }
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
         public override IShipDesign ToBuild => Build.Template;
         float FindPlanetRetryTimer;
 
@@ -46,7 +47,8 @@ namespace Ship_Game.Commands.Goals
         {
             if (!FindPlanetToBuildShipAt(portType, Build.Template, out Planet planet, priority: 1f))
                 return GoalStep.TryAgain;
-
+            
+            PlanetBuildingAt = planet;
             planet.Construction.Enqueue(Build.Template, this);
             return GoalStep.GoToNextStep;
         }

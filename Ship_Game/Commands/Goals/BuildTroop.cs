@@ -8,6 +8,7 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class BuildTroop : Goal
     {
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
         [StarData] string TroopName;
 
         [StarDataConstructor]
@@ -39,9 +40,8 @@ namespace Ship_Game.Commands.Goals
             {
                 // submit troop into queue
                 // let the colony governor prioritize troops
-                planet.Construction.Enqueue(troopTemplate, this);
-
                 PlanetBuildingAt = planet;
+                planet.Construction.Enqueue(troopTemplate, this);
                 return GoalStep.GoToNextStep;
             }
 

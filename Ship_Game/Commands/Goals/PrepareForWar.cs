@@ -9,7 +9,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class PrepareForWar : Goal
     {
-        [StarData] public override Planet TargetPlanet { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+        [StarData] public sealed override Planet TargetPlanet { get; set; }
         [StarData] bool SkipFirstRun = true;
 
         [StarDataConstructor]
@@ -25,7 +26,7 @@ namespace Ship_Game.Commands.Goals
 
         public PrepareForWar(Empire owner, Empire enemy) : this(owner)
         {
-            TargetEmpire  = enemy;
+            TargetEmpire = enemy;
             Log.Info(ConsoleColor.Green, $"---- Prepare For War: New {Owner.Name} Vs.: {TargetEmpire.Name} ----");
         }
 

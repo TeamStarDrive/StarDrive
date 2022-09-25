@@ -1,7 +1,6 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -34,11 +33,12 @@ namespace Ship_Game.Commands.Goals
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, Build.Template, out Planet planet, priority: 0.1f))
                 return GoalStep.GoalFailed;
 
+            PlanetBuildingAt = planet;
             planet.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);
             if (Owner.TotalFreighters < Owner.GetPlanets().Count)
                 planet.Construction.PrioritizeShip(Build.Template, 1);
 
-            return GoalStep.GoalComplete;
+            return GoalStep.GoToNextStep;
         }
     }
 }

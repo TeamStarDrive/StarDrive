@@ -10,7 +10,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class FleetRequisition : FleetGoal
     {
-        [StarData] BuildableShip Build;
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+        [StarData] public sealed override BuildableShip Build { get; set; }
         public override IShipDesign ToBuild => Build.Template;
 
         [StarDataConstructor]
@@ -34,8 +35,9 @@ namespace Ship_Game.Commands.Goals
         {
             if (PlanetBuildingAt == null || !PlanetBuildingAt.HasSpacePort)
             {
-                if (!Owner.FindPlanetToBuildShipAt(Owner.SpacePorts, Build.Template, out PlanetBuildingAt))
+                if (!Owner.FindPlanetToBuildShipAt(Owner.SpacePorts, Build.Template, out Planet buildAt))
                     return GoalStep.TryAgain;
+                PlanetBuildingAt = buildAt;
             }
 
             PlanetBuildingAt.Construction.Enqueue(Build.Template, this, notifyOnEmpty: false);

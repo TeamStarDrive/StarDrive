@@ -9,6 +9,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class RearmShipFromPlanet : Goal
     {
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+        [StarData] public sealed override Ship TargetShip { get; set; }
+
         [StarDataConstructor]
         public RearmShipFromPlanet(Empire owner) : base(GoalType.RearmShipFromPlanet, owner)
         {

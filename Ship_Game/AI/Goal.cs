@@ -1,9 +1,11 @@
 using Ship_Game.Ships;
 using System;
+using System.Linq;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.AI
 {
@@ -67,23 +69,33 @@ namespace Ship_Game.AI
         [StarData] public int Step { get; private set; }
         public string StepName => Steps[Step].Method.Name;
 
-        [StarData] public Planet PlanetBuildingAt;
-
         [StarData] Ship ShipBuilt; // this is the actual ship that was built
-        [StarData] public Ship TargetShip;      // this is targeted by this goal (raids)
-        [StarData] public Empire TargetEmpire; // Empire target of this goal (for instance, pirate goals)
 
         [StarData] protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
         protected Func<bool> Holding;
 
-        public virtual Planet TargetPlanet { get; set; }
-        public virtual IShipDesign ToBuild => null; // this is the ship to be built
-        public virtual Ship OldShip { get; set; } // this is the ship which needs refit
+        // NOTE: the following properties have empty get/set to avoid unnecessary backing fields
+
+        // planet where construction or troop training is being done
+        public virtual Planet PlanetBuildingAt { get => null; set => throw new InvalidOperationException(); }
+        // this Ship is targeted by this goal (raids)
+        public virtual Ship TargetShip { get => null; set => throw new InvalidOperationException(); }
+         // Empire target of this goal (for instance, pirate goals)
+        public virtual Empire TargetEmpire { get => null; set => throw new InvalidOperationException(); }
+        public virtual Planet TargetPlanet { get => null; set => throw new InvalidOperationException(); }
+        // this is the ship which needs refit
+        public virtual Ship OldShip { get => null; set => throw new InvalidOperationException(); }
+        // manages ship building for goals which construct ships
+        public virtual BuildableShip Build { get => null; set => throw new InvalidOperationException(); }
+
+        // this is the ship to be built
+        public virtual IShipDesign ToBuild => null;
         public virtual bool IsDeploymentGoal => false;
         public virtual Vector2 MovePosition => BuildPosition;
         public virtual Vector2 BuildPosition => Vector2.Zero;
-        public virtual bool IsRaid => false; // Is this goal a pirate raid?
+        // Is this goal a pirate raid?
+        public virtual bool IsRaid => false;
 
         public Ship FinishedShip
         {
@@ -104,6 +116,10 @@ namespace Ship_Game.AI
         public virtual bool IsRefitGoalAtPlanet(Planet planet) => false; // Implement at relevant classes
         /** @return True if this goal is targeting the given planet for colonization */
         public virtual bool IsColonizationGoal(Planet planet) => false;
+
+        /** @return True if this goal is building an orbital for this planet */
+        public virtual bool IsBuildingOrbitalFor(Planet planet) => false;
+
         /** @return True if this goal is Remnants targeting this planet */
         public virtual bool IsRemnantEngageAtPlanet(Planet planet) => false;
 
@@ -142,12 +158,13 @@ namespace Ship_Game.AI
 
         protected GoalStep DummyStepTryAgain() => GoalStep.TryAgain;
 
-        protected GoalStep WaitForShipBuilt() 
+        protected GoalStep WaitForShipBuilt()
         {
-            // When the Ship is finished, the goal is moved externally to next step (ReportShipComplete).
-            // So no need for GotoNextStep here.
+            // When Ship finished, the CQ will call ReportShipComplete() and set FinishedShip
+            if (FinishedShip != null)
+                return GoalStep.GoalComplete;
 
-            if (PlanetBuildingAt.ConstructionQueue.Filter(q => q.Goal == this).Length == 0 && FinishedShip == null)
+            if (PlanetBuildingAt.ConstructionQueue.All(q => q.Goal != this) && FinishedShip == null)
                 return GoalStep.GoalFailed;
 
             return GoalStep.TryAgain;
@@ -218,7 +235,10 @@ namespace Ship_Game.AI
         public void ReportShipComplete(Ship ship)
         {
             FinishedShip = ship;
-            AdvanceToNextStep();
+            if (Step < Steps.Length - 1)
+                AdvanceToNextStep();
+            else
+                RemoveThisGoal();
         }
     }
 }

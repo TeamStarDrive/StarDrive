@@ -10,7 +10,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class RefitOrbital : DeepSpaceBuildGoal
     {
-        [StarData] public override Ship OldShip { get; set; }
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+        [StarData] public sealed override Ship OldShip { get; set; }
         public override bool IsRefitGoalAtPlanet(Planet planet) => PlanetBuildingAt == planet;
 
         [StarDataConstructor]
@@ -29,10 +30,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public RefitOrbital(Ship oldShip, string toBuildName, Empire owner) : this(owner)
         {
             OldShip = oldShip;
-            Build = new(toBuildName);
             Planet targetPlanet = oldShip.GetTether();
-            if (targetPlanet != null)
-                Build.TetherPlanet = targetPlanet;
+            Initialize(toBuildName, Vector2.Zero, targetPlanet, Vector2.Zero);
         }
 
         GoalStep FindOrbitalAndPlanetToRefit()
@@ -40,13 +39,13 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (OldShip.AI.State == AIState.Refit)
                 RemoveOldRefitGoal();
 
-            if (!Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, 
-                OldShip.RefitCost(Build.Template), Build.Template, out PlanetBuildingAt))
+            if (!Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, OldShip.RefitCost(ToBuild), ToBuild, out Planet buildAt))
             {
                 OldShip.AI.ClearOrders();
                 return GoalStep.GoalFailed;  // No planet to refit
             }
 
+            PlanetBuildingAt = buildAt;
             OldShip.ClearFleet(returnToManagedPools: false, clearOrders: true);
             OldShip.AI.State = AIState.Refit;
             return GoalStep.GoToNextStep;
@@ -58,7 +57,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;
 
             IShipDesign constructor = BuildableShip.GetConstructor(Owner);
-            PlanetBuildingAt.Construction.Enqueue(Build.Template, constructor, OldShip.RefitCost(Build.Template), this);
+            PlanetBuildingAt.Construction.Enqueue(ToBuild, constructor, OldShip.RefitCost(ToBuild), this);
             return GoalStep.GoToNextStep;
         }
 
@@ -74,15 +73,15 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             }
 
             Planet targetPlanet = OldShip.GetTether();
-            if (Build.TetherPlanet != null)
+            if (TetherPlanet != null)
             {
                 Vector2 dirToOrbital = targetPlanet.Position.DirectionToTarget(OldShip.Position);
                 float disToOrbital = targetPlanet.Position.Distance(OldShip.Position);
-                Build.TetherOffset = dirToOrbital.Normalized() * disToOrbital;
+                TetherOffset = dirToOrbital.Normalized() * disToOrbital;
             }
             else
             {
-                Build.StaticBuildPos = OldShip.Position;
+                StaticBuildPos = OldShip.Position;
             }
 
             FinishedShip.AI.OrderDeepSpaceBuild(this);
