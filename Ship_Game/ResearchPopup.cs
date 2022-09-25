@@ -22,7 +22,7 @@ namespace Ship_Game
             FromGame = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0f;
-            TechEntry techEntry = EmpireManager.Player.GetTechEntry(uid);
+            TechEntry techEntry = s.Player.GetTechEntry(uid);
             if (techEntry == null)
                 return;
 

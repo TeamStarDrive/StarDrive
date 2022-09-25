@@ -856,6 +856,7 @@ namespace Ship_Game
         public bool IsModuleUnlocked(string moduleUID) => UnlockedModulesDict.TryGetValue(moduleUID, out bool found) && found;
 
         public Map<string, TechEntry>.ValueCollection TechEntries => TechnologyDict.Values;
+        public TechEntry[] UnlockedTechs => TechEntries.Filter(e => e.Unlocked);
 
         // @note this is used for comparing rival empire tech entries
         public TechEntry GetTechEntry(TechEntry theirTech) => GetTechEntry(theirTech.UID);
@@ -876,10 +877,12 @@ namespace Ship_Game
             return TechnologyDict.TryGetValue(uid, out techEntry);
         }
 
+        public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
+
         public Array<TechEntry> TechsAvailableForTrade()
         {
             var tradeTechs = new Array<TechEntry>();
-            foreach (TechEntry entry in TechnologyDict.Values)
+            foreach (TechEntry entry in TechEntries)
             {
                 if (entry.Unlocked && !entry.IsMultiLevel) // FB: Multi level techs trade will not work well for now
                     tradeTechs.Add(entry);
@@ -924,8 +927,7 @@ namespace Ship_Game
             return (int)costAccumulator;
         }
 
-        public int TechCost(Ship ship)       => TechCost(ship.ShipData.TechsNeeded.Except(ShipTechs));
-        public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
+        public int TechCost(Ship ship) => TechCost(ship.ShipData.TechsNeeded.Except(ShipTechs));
 
         /// <summary>
         /// this appears to be broken.
@@ -1133,7 +1135,7 @@ namespace Ship_Game
         {
             Array<Ship> ourShips = GetOurFactionShips();
 
-            foreach (TechEntry entry in TechnologyDict.Values)
+            foreach (TechEntry entry in TechEntries)
             {
                 var tech = entry.Tech;
                 bool modulesNotHulls = tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0;
@@ -1141,20 +1143,19 @@ namespace Ship_Game
                     entry.shipDesignsCanuseThis = false;
             }
 
-            foreach (TechEntry entry in TechnologyDict.Values)
+            foreach (TechEntry entry in TechEntries)
             {
                 if (!entry.shipDesignsCanuseThis)
                     entry.shipDesignsCanuseThis = WeCanUseThisLater(entry);
             }
 
-            foreach (TechEntry entry in TechnologyDict.Values)
+            foreach (TechEntry entry in TechEntries)
             {
                 AddToShipTechLists(entry);
             }
 
             // now unlock the techs again to populate lists
-            var unlockedEntries = TechnologyDict.Values.Filter(e => e.Unlocked);
-            foreach (TechEntry entry in unlockedEntries)
+            foreach (TechEntry entry in UnlockedTechs)
             {
                 entry.UnlockFromSave(this, unlockBonuses: false);
             }
@@ -1203,12 +1204,8 @@ namespace Ship_Game
             foreach (string ship in data.unlockShips)
                 ShipsWeCanBuild.Add(ship);
 
-            foreach (var kv in TechnologyDict) // unlock racial techs
-            {
-                TechEntry techEntry = kv.Value;
-                if (techEntry.Discovered)
-                    data.Traits.UnlockAtGameStart(techEntry, this);
-            }
+            foreach (TechEntry entry in TechEntries) // unlock racial techs
+                if (entry.Discovered) data.Traits.UnlockAtGameStart(entry, this);
 
             // Added by gremlin Figure out techs with modules that we have ships for.
             ResetTechsAndUnlocks();
@@ -1271,7 +1268,7 @@ namespace Ship_Game
         {
             foreach (Technology.LeadsToTech leadsToTech in tech.Tech.LeadsTo)
             {
-                TechEntry entry = TechnologyDict[leadsToTech.UID];
+                TechEntry entry = GetTechEntry(leadsToTech.UID);
                 if (entry.shipDesignsCanuseThis || WeCanUseThisLater(entry))
                     return true;
             }
@@ -2117,7 +2114,7 @@ namespace Ship_Game
                 {
                     if (ShipTechs.Contains(shipTech))
                         continue;
-                    TechEntry onlyShipTech = TechnologyDict[shipTech];
+                    TechEntry onlyShipTech = GetTechEntry(shipTech);
                     if (onlyShipTech.Locked)
                     {
                         if (debug) Log.Write($"WeCanBuildThis:false Reason:LockedTech={shipTech} Design:{design.Name}");
@@ -3124,7 +3121,7 @@ namespace Ship_Game
         void CalculateScore(bool fromSave = false)
         {
             TechScore = 0;
-            foreach (TechEntry entry in TechnologyDict.Values)
+            foreach (TechEntry entry in TechEntries)
                 if (entry.Unlocked) TechScore += entry.TechCost;
             TechScore /= 100;
 
