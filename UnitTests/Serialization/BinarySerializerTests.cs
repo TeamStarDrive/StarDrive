@@ -1163,7 +1163,7 @@ namespace UnitTests.Serialization
             string firstEmpName = E(Universe).Name;
             int numShips = E(Universe).OwnedShips.Count;
             float firstShipHealth = E(Universe).OwnedShips[0].Health;
-            var unlocked1 = E(Universe).TechEntries.Filter(e => e.Unlocked);
+            var unlocked1 = E(Universe).UnlockedTechs;
 
             double GetMemory(bool gc) => GC.GetTotalMemory(gc) / (1024.0*1024.0);
             double memory1 = GetMemory(false);
@@ -1199,9 +1199,9 @@ namespace UnitTests.Serialization
             Assert.AreEqual(numShips, E(us).OwnedShips.Count, "Empire should have same # of ships");
             Assert.AreEqual(firstShipHealth, E(us).OwnedShips[0].Health, "Ships should have health");
 
-            var unlocked2 = E(us).TechEntries.Filter(e => e.Unlocked);
+            var unlocked2 = E(us).UnlockedTechs;
             Assert.AreEqual(unlocked1.Length, unlocked2.Length, "Unlocked techs count must match");
-            Assert.AreEqual(unlocked1.Select(t=>t.UID), unlocked2.Select(t=>t.UID), "Unlocked techs UID-s must match");
+            Assert.That.Equal(unlocked1.Select(t=>t.UID), unlocked2.Select(t=>t.UID), "Unlocked techs UID-s must match");
         }
     }
 

@@ -35,7 +35,7 @@ namespace Ship_Game
 
         // The CURRENT research topic is simply the first item in our ResearchQueue
         public string Topic => Queue.NotEmpty ? Queue.First : "";
-        public TechEntry Current => Queue.NotEmpty ? Empire.TechnologyDict[Queue.First] : TechEntry.None;
+        public TechEntry Current => Queue.NotEmpty ? Empire.GetTechEntry(Queue.First) : TechEntry.None;
 
         public LocalizedText TopicLocText => ResourceManager.TryGetTech(Topic, out Technology tech)
                                    ? new LocalizedText(tech.NameIndex) : GameText.None;
@@ -137,7 +137,7 @@ namespace Ship_Game
         // @return TRUE if tech was added to the queue and wasn't already present
         public bool AddToQueue(string techUID)
         {
-            if (!Empire.TechnologyDict.ContainsKey(techUID))
+            if (!Empire.TryGetTechEntry(techUID, out _))
             {
                 Log.Error($"AddToResearchQueue: Unrecognized tech: {techUID}");
                 return false;
