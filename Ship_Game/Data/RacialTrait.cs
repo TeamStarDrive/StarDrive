@@ -150,11 +150,9 @@ namespace Ship_Game
             }
         }
 
-        public void TechUnlocks(TechEntry techEntry, Empire empire)
+        public void UnlockAtGameStart(TechEntry techEntry, Empire empire)
         {
-            if (!techEntry.Discovered) return;
-
-            if (techEntry.IsUnlockedAtGameStart(empire))
+            if (techEntry.Discovered && techEntry.IsUnlockedAtGameStart(empire))
                 techEntry.ForceFullyResearched();
         }
 

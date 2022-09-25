@@ -148,9 +148,9 @@ namespace Ship_Game
         // Gets the tech cost of the tech which unlocks the module provided, this is for modders in debug
         float DebugGetModuleTechCost(ShipModule module)
         {
-            foreach (TechEntry tech in EmpireManager.Player.TechnologyDict.Values)
+            foreach (TechEntry tech in Screen.ParentUniverse.Player.TechnologyDict.Values)
             {
-                if (tech.GetUnlockableModules(EmpireManager.Player).Any(m => m.ModuleUID == module.UID))
+                if (tech.GetUnlockableModules(Screen.ParentUniverse.Player).Any(m => m.ModuleUID == module.UID))
                     return tech.Tech.ActualCost;
             }
 

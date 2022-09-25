@@ -442,6 +442,19 @@ namespace UnitTests.Serialization
         }
 
         [StarDataType]
+        public class MyTech : IEquatable<MyTech>
+        {
+            [StarData] public string UID;
+            [StarData] public bool Unlocked;
+
+            public bool Equals(MyTech other) => UID == other?.UID;
+            public override bool Equals(object obj) => Equals((MyTech)obj);
+            public override int GetHashCode() => UID.GetHashCode();
+        }
+
+        MyTech Tech(string uid, bool unlocked) => new(){ UID = uid, Unlocked = unlocked };
+
+        [StarDataType]
         class MapType
         {
             [StarData] public Map<string,string> TextToText;
@@ -451,6 +464,8 @@ namespace UnitTests.Serialization
             [StarData] public Dictionary<string, string> Dictionary;
             [StarData] public IDictionary<string,string> Interface;
             [StarData] public IReadOnlyDictionary<string, string> ReadOnly;
+            [StarData] public Map<string, MyTech> TechDict1;
+            [StarData] public Map<string, MyTech> TechDict2;
         }
 
         [TestMethod]
@@ -460,11 +475,13 @@ namespace UnitTests.Serialization
             {
                 TextToText = Map(("BuildingType","Aeroponics"), ("TechName","Foodstuffs")),
                 Empty = Map<string,string>(),
-                TextToClass = Map(("First", new StructContainer(27, "27")), ("Second", new StructContainer(42, "42"))),
+                TextToClass = Map(("First", new StructContainer(27, "27")), ("Second", new(42, "42"))),
                 IntToText = Map((0,"Zero"), (1,"One"), (2,"Two")),
                 Dictionary = Map(("Star","Betelgeuse"), ("Type","SuperGiant"), ("Color","Red")),
                 Interface = Map(("EarthAlliance","StarFury"), ("Minbari","Nial")),
                 ReadOnly = Map(("Name","Orion"), ("Type","Constellation")),
+                TechDict1 = Map(("Aeroponics",Tech("Aeroponics",true)), ("RoverBay",Tech("RoverBay",false))),
+                TechDict2 = Map(("Aeroponics",Tech("Aeroponics",true)), ("RoverBay",Tech("RoverBay",false))),
             };
             var result = SerDes(instance);
             Assert.That.Equal(instance.TextToText, result.TextToText);
@@ -476,6 +493,13 @@ namespace UnitTests.Serialization
             Assert.That.Equal(instance.Dictionary, result.Dictionary);
             Assert.That.Equal(instance.Interface, result.Interface);
             Assert.That.Equal(instance.ReadOnly, result.ReadOnly);
+            Assert.That.Equal(instance.TechDict1, result.TechDict1);
+            Assert.That.Equal(instance.TechDict2, result.TechDict2);
+
+            // this is an issue with objects that inherit from IEquatable<T>
+            // where they can be accidentally squashed
+            Assert.IsFalse(ReferenceEquals(result.TechDict1["Aeroponics"], result.TechDict2["Aeroponics"]),
+                           "Map deserializer should not accidentally squash objects");
         }
 
         [StarDataType]
@@ -1134,8 +1158,12 @@ namespace UnitTests.Serialization
             CreateCustomUniverseSandbox(numOpponents: 6, galSize: GalSize.Large);
             Universe.SingleSimulationStep(TestSimStep);
 
-            int numShips = Universe.UState.Empires[0].OwnedShips.Count;
-            float firstShipHealth = Universe.UState.Empires[0].OwnedShips[0].Health;
+            Empire E(UniverseScreen u) => u.UState.Empires[0];
+
+            string firstEmpName = E(Universe).Name;
+            int numShips = E(Universe).OwnedShips.Count;
+            float firstShipHealth = E(Universe).OwnedShips[0].Health;
+            var unlocked1 = E(Universe).TechEntries.Filter(e => e.Unlocked);
 
             double GetMemory(bool gc) => GC.GetTotalMemory(gc) / (1024.0*1024.0);
             double memory1 = GetMemory(false);
@@ -1167,8 +1195,13 @@ namespace UnitTests.Serialization
             Log.Info($"BeforeLoad: {memory3:0.0}MB  delta:{memory3-memory2:0.0}MB");
             Log.Info($"AfterLoad:  {memory4:0.0}MB  delta:{memory4-memory3:0.0}MB");
 
-            Assert.AreEqual(numShips, us.UState.Empires[0].OwnedShips.Count, "Empire should have same # of ships");
-            Assert.AreEqual(firstShipHealth, us.UState.Empires[0].OwnedShips[0].Health, "Ships should have health");
+            Assert.AreEqual(firstEmpName, E(us).Name, "First empire name should match");
+            Assert.AreEqual(numShips, E(us).OwnedShips.Count, "Empire should have same # of ships");
+            Assert.AreEqual(firstShipHealth, E(us).OwnedShips[0].Health, "Ships should have health");
+
+            var unlocked2 = E(us).TechEntries.Filter(e => e.Unlocked);
+            Assert.AreEqual(unlocked1.Length, unlocked2.Length, "Unlocked techs count must match");
+            Assert.AreEqual(unlocked1.Select(t=>t.UID), unlocked2.Select(t=>t.UID), "Unlocked techs UID-s must match");
         }
     }
 

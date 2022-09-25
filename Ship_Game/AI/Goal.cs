@@ -76,6 +76,9 @@ namespace Ship_Game.AI
         protected Func<bool> Holding;
 
         // NOTE: the following properties have empty get/set to avoid unnecessary backing fields
+        //       calling `set` is an invalid operation because there is no backing field
+        //       this is quite flaky design though and these properties should be removed
+        // TODO: find a way to move these out of the base Goal class
 
         // planet where construction or troop training is being done
         public virtual Planet PlanetBuildingAt { get => null; set => throw new InvalidOperationException(); }
