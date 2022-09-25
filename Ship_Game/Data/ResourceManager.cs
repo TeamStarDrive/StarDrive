@@ -1852,21 +1852,18 @@ namespace Ship_Game
                 Log.Error("Failed to load any ShipRoles! Make sure Content/ShipRoles/*.xml exist!");
         }
 
-        static readonly Map<string, EconomicResearchStrategy> EconStrategies = new Map<string, EconomicResearchStrategy>();
+        static readonly Map<string, EconomicResearchStrategy> EconStrategies = new();
+
         public static EconomicResearchStrategy GetEconomicStrategy(string name) => EconStrategies[name];
+
         static void LoadEcoResearchStrats()
         {
             EconStrategies.Clear();
-            foreach (var pair in LoadEntitiesWithInfo<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
-            {
-                // the story here: some mods have bugged <Name> refs, so we do manual
-                // hand holding to fix their bugs...
-                pair.Entity.Name = pair.Info.NameNoExt();
-                EconStrategies[pair.Entity.Name] = pair.Entity;
-            }
+            foreach (var s in YamlParser.DeserializeArray<EconomicResearchStrategy>("EconomicResearchStrategies.yaml"))
+                EconStrategies[s.Name] = s;
         }
 
-        static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new Map<SunZone, Array<PlanetCategory>>();
+        static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new();
 
         public static PlanetCategory RandomPlanetCategoryFor(SunZone sunZone)
         {

@@ -341,7 +341,7 @@ namespace Ship_Game
         {
             //Added by McShooterz: Race Specific modules
             foreach (Technology.UnlockedMod unlockedMod in GetUnlockableModules(them))
-                us.UnlockEmpireShipModule(unlockedMod.ModuleUID, UID);
+                us.UnlockEmpireShipModule(unlockedMod.ModuleUID);
         }
 
         public void UnlockTroops(Empire us, Empire them)
@@ -422,8 +422,7 @@ namespace Ship_Game
             if (Unlocked)
                 return false;
 
-            Progress = Tech.ActualCost;
-            Unlocked = true;
+            ForceFullyResearched();
             return true;
         }
 
@@ -730,7 +729,7 @@ namespace Ship_Game
                 tech = rootTech;
                 if (tech.Tech.IsRootNode && tech.Discovered)
                 {
-                    rootTech.Unlocked = true;
+                    rootTech.ForceFullyResearched();
                     return rootTech;
                 }
             }
@@ -739,16 +738,16 @@ namespace Ship_Game
 
         public TechEntry GetPreReq(Empire empire)
         {
-            foreach (var keyValuePair in empire.TechnologyDict)
+            foreach (TechEntry entry in empire.TechnologyDict.Values)
             {
-                Technology technology = keyValuePair.Value.Tech;
-                foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
+                foreach (Technology.LeadsToTech leadsToTech in entry.Tech.LeadsTo)
                 {
-                    if (leadsToTech.UID != UID) continue;
-                    if (keyValuePair.Value.Tech.IsRootNode || !keyValuePair.Value.IsHidden(empire))
-                        return keyValuePair.Value;
-
-                    return keyValuePair.Value.GetPreReq(empire);
+                    if (leadsToTech.UID == UID)
+                    {
+                        if (entry.Tech.IsRootNode || !entry.IsHidden(empire))
+                            return entry;
+                        return entry.GetPreReq(empire);
+                    }
                 }
             }
             return null;

@@ -35,14 +35,15 @@ namespace Ship_Game
     [StarDataType]
     public sealed partial class Empire : IDisposable, IEmpireShipLists
     {
-        [StarData] readonly Map<int, Fleet> FleetsDict = new();
+        [StarData] readonly Map<int, Fleet> FleetsDict;
+        [StarData] public Map<string, TechEntry> TechnologyDict;
 
-        [StarData] public readonly Map<string, bool> UnlockedHullsDict = new();
-        [StarData] readonly Map<string, bool> UnlockedTroopDict = new();
-        [StarData] readonly Map<string, bool> UnlockedBuildingsDict = new();
-        [StarData] readonly Map<string, bool> UnlockedModulesDict = new();
+        [StarData] public readonly Map<string, bool> UnlockedHullsDict;
+        [StarData] readonly Map<string, bool> UnlockedTroopDict;
+        [StarData] readonly Map<string, bool> UnlockedBuildingsDict;
+        [StarData] readonly Map<string, bool> UnlockedModulesDict;
 
-        [StarData] readonly Array<Troop> UnlockedTroops = new();
+        [StarData] readonly Array<Troop> UnlockedTroops;
 
         /// <summary>
         /// Returns an average of empire money over several turns.
@@ -58,9 +59,8 @@ namespace Ship_Game
                 NormalizedMoney = NormalizedMoney*(1f-rate) + money*rate;
         }
 
-        [StarData] public Map<string, TechEntry> TechnologyDict = new();
-        [StarData] public Array<Ship> Inhibitors = new();
-        [StarData] public Array<SpaceRoad> SpaceRoadsList = new();
+        [StarData] public Array<Ship> Inhibitors;
+        [StarData] public Array<SpaceRoad> SpaceRoadsList;
 
         public const float StartingMoney = 1000f;
         float MoneyValue = StartingMoney;
@@ -70,16 +70,16 @@ namespace Ship_Game
             set => MoneyValue = value.NaNChecked(0f, "Empire.Money");
         }
 
-        [StarData] readonly Array<Planet> OwnedPlanets = new();
-        [StarData] readonly Array<SolarSystem> OwnedSolarSystems = new();
+        [StarData] readonly Array<Planet> OwnedPlanets;
+        [StarData] readonly Array<SolarSystem> OwnedSolarSystems;
         public IReadOnlyList<Ship> OwnedShips => EmpireShips.OwnedShips;
         public IReadOnlyList<Ship> OwnedProjectors => EmpireShips.OwnedProjectors;
 
         readonly Map<SolarSystem, bool> HostilesLogged = new(); // Only for Player warnings
         public Array<IncomingThreat> SystemsWithThreat = new();
-        [StarData] public HashSet<string> ShipsWeCanBuild = new();
+        [StarData] public HashSet<string> ShipsWeCanBuild;
         // shipyards, platforms, SSP-s
-        [StarData] public HashSet<string> SpaceStationsWeCanBuild = new();
+        [StarData] public HashSet<string> SpaceStationsWeCanBuild;
         float FleetUpdateTimer = 5f;
         int TurnCount = 1;
 
@@ -178,15 +178,12 @@ namespace Ship_Game
             [StarData] public string Dialog;
         }
 
-        [StarData] public Array<DiplomacyQueueItem> DiplomacyContactQueue { get; private set; } = new();  // Empire IDs, for player only
+        // Empire IDs, for player only
+        [StarData] public Array<DiplomacyQueueItem> DiplomacyContactQueue { get; private set; }
         [StarData] public bool AutoPickBestColonizer;
-        [StarData] public Array<string> ObsoletePlayerShipModules = new();
+        [StarData] public Array<string> ObsoletePlayerShipModules;
 
         public int AtWarCount;
-        public Array<string> BomberTech      = new();
-        public Array<string> TroopShipTech   = new();
-        public Array<string> CarrierTech     = new();
-        public Array<string> SupportShipTech = new();
         public Planet[] RallyPoints = Empty<Planet>.Array;
 
         public const string DefaultBoardingShuttleName = "Assault Shuttle";
@@ -243,6 +240,25 @@ namespace Ship_Game
 
             AIManagedShips = new(us?.CreateId() ?? -1, this, "AIManagedShips");
             EmpireShips = new(this);
+
+            FleetsDict = new();
+            TechnologyDict = new();
+            UnlockedHullsDict = new();
+            UnlockedTroopDict = new();
+            UnlockedBuildingsDict = new();
+            UnlockedModulesDict = new();
+            UnlockedTroops = new();
+
+            Inhibitors = new();
+            SpaceRoadsList = new();
+            OwnedPlanets = new();
+            OwnedSolarSystems = new();
+
+            ShipsWeCanBuild = new();
+            SpaceStationsWeCanBuild = new();
+
+            DiplomacyContactQueue = new();
+             ObsoletePlayerShipModules = new();
         }
 
         public Empire(UniverseState us, Empire parentEmpire) : this(us)
@@ -250,7 +266,7 @@ namespace Ship_Game
             TechnologyDict = parentEmpire.TechnologyDict;
         }
 
-        [StarDataDeserialized]
+        [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData))]
         void OnDeserialized()
         {
             AIManagedShips = new(Universum.CreateId(), this, "AIManagedShips");
@@ -259,7 +275,6 @@ namespace Ship_Game
             EmpireManager.Add(this); // TODO: remove
 
             CommonInitialize();
-            Research.SetResearchStrategy();
         }
 
         public float GetProjectorRadius()
@@ -861,14 +876,13 @@ namespace Ship_Game
             return TechnologyDict.TryGetValue(uid, out techEntry);
         }
 
-        public Array<TechEntry> TechsAvailableForTrade(Empire them)
+        public Array<TechEntry> TechsAvailableForTrade()
         {
             var tradeTechs = new Array<TechEntry>();
-            foreach (var kv in TechnologyDict)
+            foreach (TechEntry entry in TechnologyDict.Values)
             {
-                TechEntry tech = kv.Value;
-                if (tech.Unlocked && !tech.IsMultiLevel) // FB: Multi level techs trade will not work well for now
-                    tradeTechs.Add(tech);
+                if (entry.Unlocked && !entry.IsMultiLevel) // FB: Multi level techs trade will not work well for now
+                    tradeTechs.Add(entry);
             }
             return tradeTechs;
         }
@@ -1086,13 +1100,14 @@ namespace Ship_Game
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
+            Research.Initialize();
             InitEmpireUnlocks();
         }
 
         // initializes an empire
         public void Initialize()
         {
-            InitTechTree();
+            CreateEmpireTechTree(); // first-time init of the entire tech tree
             CommonInitialize();
 
             data.TechDelayTime = 0;
@@ -1118,56 +1133,55 @@ namespace Ship_Game
         {
             Array<Ship> ourShips = GetOurFactionShips();
 
-            foreach (var entry in TechnologyDict)
+            foreach (TechEntry entry in TechnologyDict.Values)
             {
-                var tech = entry.Value.Tech;
+                var tech = entry.Tech;
                 bool modulesNotHulls = tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0;
-                if (modulesNotHulls && !WeCanUseThisInDesigns(entry.Value, ourShips))
-                    entry.Value.shipDesignsCanuseThis = false;
+                if (modulesNotHulls && !WeCanUseThisInDesigns(entry, ourShips))
+                    entry.shipDesignsCanuseThis = false;
             }
 
-            foreach (var entry in TechnologyDict)
+            foreach (TechEntry entry in TechnologyDict.Values)
             {
-                if (!entry.Value.shipDesignsCanuseThis)
-                    entry.Value.shipDesignsCanuseThis = WeCanUseThisLater(entry.Value);
+                if (!entry.shipDesignsCanuseThis)
+                    entry.shipDesignsCanuseThis = WeCanUseThisLater(entry);
             }
 
-            foreach (var entry in TechnologyDict)
+            foreach (TechEntry entry in TechnologyDict.Values)
             {
-                AddToShipTechLists(entry.Value);
+                AddToShipTechLists(entry);
             }
 
             // now unlock the techs again to populate lists
-            foreach (var entry in TechnologyDict)
+            var unlockedEntries = TechnologyDict.Values.Filter(e => e.Unlocked);
+            foreach (TechEntry entry in unlockedEntries)
             {
-                if (entry.Value.Unlocked)
-                    entry.Value.UnlockFromSave(this, unlockBonuses: false);
+                entry.UnlockFromSave(this, unlockBonuses: false);
             }
         }
 
-        void InitTechTree()
+        void CreateEmpireTechTree()
         {
-            foreach (var kv in ResourceManager.TechTree)
+            foreach (Technology tech in ResourceManager.TechTree.Values)
             {
-                var techEntry = new TechEntry(kv.Key);
-
-                if (techEntry.IsHidden(this))
+                var entry = new TechEntry(tech.UID);
+                if (entry.IsHidden(this))
                 {
-                    techEntry.SetDiscovered(false);
+                    entry.SetDiscovered(false);
                 }
                 else
                 {
-                    bool secret = kv.Value.Secret || (kv.Value.ComesFrom.Count == 0 && !kv.Value.IsRootNode);
-                    if (kv.Value.IsRootNode && !secret)
-                        techEntry.ForceFullyResearched();
+                    bool secret = tech.Secret || (tech.ComesFrom.Count == 0 && !tech.IsRootNode);
+                    if (tech.IsRootNode && !secret)
+                        entry.ForceFullyResearched();
                     else
-                        techEntry.ForceNeedsFullResearch();
-                    techEntry.SetDiscovered(!secret);
+                        entry.ForceNeedsFullResearch();
+                    entry.SetDiscovered(!secret);
                 }
 
                 if (IsFaction || data.Traits.Prewarp == 1)
-                    techEntry.ForceNeedsFullResearch();
-                TechnologyDict.Add(kv.Key, techEntry);
+                    entry.ForceNeedsFullResearch();
+                TechnologyDict.Add(tech.UID, entry);
             }
         }
 
@@ -1191,8 +1205,9 @@ namespace Ship_Game
 
             foreach (var kv in TechnologyDict) // unlock racial techs
             {
-                var techEntry = kv.Value;
-                data.Traits.TechUnlocks(techEntry, this);
+                TechEntry techEntry = kv.Value;
+                if (techEntry.Discovered)
+                    data.Traits.UnlockAtGameStart(techEntry, this);
             }
 
             // Added by gremlin Figure out techs with modules that we have ships for.
@@ -1214,13 +1229,13 @@ namespace Ship_Game
             }
         }
 
-        private void AddToShipTechLists(TechEntry tech)
+        void AddToShipTechLists(TechEntry tech)
         {
-            Array<Technology.UnlockedMod> mods = tech.GetUnlockableModules(this);
-            for (int i = 0; i < mods.Count; i++)
+            if (tech.Unlocked)
             {
-                var module = mods[i];
-                PopulateShipTechLists(module.ModuleUID, tech.UID, tech.Unlocked);
+                Array<Technology.UnlockedMod> mods = tech.GetUnlockableModules(this);
+                if (mods.Count > 0)
+                    ShipTechs.Add(tech.UID);
             }
         }
 
@@ -1267,41 +1282,9 @@ namespace Ship_Game
 
         public bool WeCanBuildTroop(string id) => UnlockedTroopDict.TryGetValue(id, out bool canBuild) && canBuild;
 
-        public void UnlockEmpireShipModule(string moduleUID, string techUID = "")
+        public void UnlockEmpireShipModule(string moduleUID)
         {
             UnlockedModulesDict[moduleUID] = true;
-            PopulateShipTechLists(moduleUID, techUID);
-        }
-
-        void PopulateShipTechLists(string moduleUID, string techUID, bool addToMainShipTechs = true)
-        {
-            if (addToMainShipTechs)
-                ShipTechs.Add(techUID);
-            if (IsFaction) return;
-            switch (ResourceManager.GetModuleTemplate(moduleUID).ModuleType)
-            {
-                case ShipModuleType.Hangar:
-                    TroopShipTech.AddUnique(techUID);
-                    CarrierTech.AddUnique(techUID);
-                    break;
-
-                case ShipModuleType.Bomb:
-                    BomberTech.AddUnique(techUID);
-                    break;
-                case ShipModuleType.Special:
-                    SupportShipTech.AddUnique(techUID);
-                    break;
-                case ShipModuleType.Countermeasure:
-                    SupportShipTech.AddUnique(techUID);
-                    break;
-                case ShipModuleType.Transporter:
-                    SupportShipTech.AddUnique(techUID);
-                    TroopShipTech.AddUnique(techUID);
-                    break;
-                case ShipModuleType.Troop:
-                    TroopShipTech.AddUnique(techUID);
-                    break;
-            }
         }
 
         public void UnlockEmpireHull(string hullName, string techUID = "")
@@ -3141,9 +3124,8 @@ namespace Ship_Game
         void CalculateScore(bool fromSave = false)
         {
             TechScore = 0;
-            foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
-                if (keyValuePair.Value.Unlocked)
-                    TechScore += ResourceManager.Tech(keyValuePair.Key).Cost;
+            foreach (TechEntry entry in TechnologyDict.Values)
+                if (entry.Unlocked) TechScore += entry.TechCost;
             TechScore /= 100;
 
             IndustrialScore = 0;
