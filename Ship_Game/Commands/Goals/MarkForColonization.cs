@@ -13,7 +13,9 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class MarkForColonization : Goal
     {
-        [StarData] public override Planet TargetPlanet { get; set; }
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+        [StarData] public sealed override Planet TargetPlanet { get; set; }
 
         public override bool IsColonizationGoal(Planet planet) => TargetPlanet == planet;
 
@@ -160,6 +162,7 @@ namespace Ship_Game.Commands.Goals
             if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
+            PlanetBuildingAt = planet;
             planet.Construction.Enqueue(colonyShip, this,
                                         notifyOnEmpty:Owner.isPlayer,
                                         displayName: $"{colonyShip.Name} ({TargetPlanet.Name})");

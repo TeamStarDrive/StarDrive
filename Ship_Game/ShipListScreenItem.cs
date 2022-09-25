@@ -273,7 +273,7 @@ namespace Ship_Game
                         {
                             moveText += Localizer.Token(GameText.Deploy);
                             if (last.Goal is DeepSpaceBuildGoal b)
-                                moveText += " " + b.Build.Template.Name;
+                                moveText += " " + b.ToBuild.Name;
                             return moveText;
                         }
                         else

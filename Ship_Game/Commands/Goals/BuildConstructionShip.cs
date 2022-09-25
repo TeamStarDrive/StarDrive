@@ -9,6 +9,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class BuildConstructionShip : DeepSpaceBuildGoal
     {
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+
         [StarDataConstructor]
         public BuildConstructionShip(Empire owner) : base(GoalType.DeepSpaceConstruction, owner)
         {
@@ -24,37 +26,25 @@ namespace Ship_Game.Commands.Goals
         public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, bool rush = false)
             : this(owner)
         {
-            Build = new(platformUid)
-            {
-                StaticBuildPos = buildPos,
-                Rush = rush,
-            };
+            Initialize(platformUid, buildPos);
+            Build.Rush = rush;
         }
 
         public BuildConstructionShip(Vector2 buildPos, string platformUid, Empire owner, Planet tetherPlanet, Vector2 tetherOffset)
             : this(owner)
         {
-            Build = new(platformUid, tetherPlanet, tetherOffset)
-            {
-                StaticBuildPos = buildPos,
-            };
+            Initialize(platformUid, buildPos, tetherPlanet, tetherOffset);
         }
 
         GoalStep FindPlanetToBuildAt()
         {
-            // ShipToBuild will be the constructor ship -- usually a freighter
-            // once the freighter is deployed, it will mutate into ToBuildUID
+            IShipDesign constructor = BuildableShip.GetConstructor(Owner);
 
-            IShipDesign constructor = ShipBuilder.PickConstructor(Owner)?.ShipData;
-            if (constructor == null)
-                throw new($"PickConstructor failed for {Owner.Name}."+
-                            "This is a FATAL bug in data files, where Empire is not able to do space construction!");
-
-            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, Build.Template, out Planet planet, priority: 0.25f))
+            if (!Owner.FindPlanetToBuildShipAt(Owner.SafeSpacePorts, ToBuild, out Planet planet, priority: 0.25f))
                 return GoalStep.TryAgain;
 
-            // toBuild is only used for cost calculation
-            planet.Construction.Enqueue(Build.Template, constructor, this);
+            PlanetBuildingAt = planet;
+            planet.Construction.Enqueue(ToBuild, constructor, this);
             if (Build.Rush)
                 planet.Construction.MoveToAndContinuousRushFirstItem();
 

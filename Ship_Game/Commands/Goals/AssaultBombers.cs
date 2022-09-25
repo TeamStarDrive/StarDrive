@@ -12,6 +12,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     [StarDataType]
     class AssaultBombers : Goal
     {
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+
         [StarDataConstructor]
         public AssaultBombers(Empire owner) : base(GoalType.AssaultBombers, owner)
         {

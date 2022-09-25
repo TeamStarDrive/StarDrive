@@ -9,6 +9,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class ScoutSystem : Goal
     {
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+
         [StarDataConstructor]
         public ScoutSystem(Empire owner) : base(GoalType.ScoutSystem, owner)
         {
@@ -50,6 +52,7 @@ namespace Ship_Game.Commands.Goals
             var queue    = planet.Construction.GetConstructionQueue();
             int priority = queue.Count > 0 && !planet.HasColonyShipFirstInQueue() && queue[0].ProductionNeeded > scout.GetCost(Owner) * 2 ? 0 : 1;
 
+            PlanetBuildingAt = planet;
             planet.Construction.Enqueue(scout, this, notifyOnEmpty: false);
             planet.Construction.PrioritizeShip(scout, priority, 2);
 

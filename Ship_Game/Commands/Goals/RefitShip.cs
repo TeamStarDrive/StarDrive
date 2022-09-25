@@ -12,8 +12,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
     {
         [StarData] string VanityName;
         [StarData] int ShipLevel;
-        [StarData] BuildableShip Build;
-        [StarData] public override Ship OldShip { get; set; }
+        [StarData] public sealed override BuildableShip Build { get; set; }
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
+        [StarData] public sealed override Ship OldShip { get; set; }
 
         public override IShipDesign ToBuild => Build.Template;
         public override bool IsRefitGoalAtPlanet(Planet planet) => PlanetBuildingAt == planet;
@@ -48,11 +49,13 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 RemoveOldRefitGoal();
 
             if (!Owner.FindPlanetToRefitAt(Owner.SafeSpacePorts, OldShip.RefitCost(Build.Template), 
-                OldShip, Build.Template, OldShip.Fleet != null, out PlanetBuildingAt))
+                OldShip, Build.Template, OldShip.Fleet != null, out Planet refitPlanet))
             {
                 OldShip.AI.ClearOrders();
                 return GoalStep.GoalFailed;  // No planet to refit
             }
+
+            PlanetBuildingAt = refitPlanet;
             
             if (Fleet != null)
             {

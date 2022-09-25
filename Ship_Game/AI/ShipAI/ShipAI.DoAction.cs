@@ -191,9 +191,9 @@ namespace Ship_Game.AI
                 return;
 
             Planet target = g.TargetPlanet;
-            if (target == null && bg.Build.TetherPlanet != null)
+            if (target == null && bg.TetherPlanet != null)
             {
-                target = bg.Build.TetherPlanet;
+                target = bg.TetherPlanet;
                 if (target == null) 
                 {
                     OrderScrapShip();
@@ -205,17 +205,17 @@ namespace Ship_Game.AI
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.Build.Template.Name, Owner.Loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, g.Goal.BuildPosition);
             if (orbital == null)
                 return;
 
             AddStructureToRoadsList(g, orbital);
 
-            if (bg.Build.TetherPlanet != null)
+            if (bg.TetherPlanet != null)
             {
-                Planet planetToTether = bg.Build.TetherPlanet;
+                Planet planetToTether = bg.TetherPlanet;
                 orbital.TetherToPlanet(planetToTether);
-                orbital.TetherOffset = bg.Build.TetherOffset;
+                orbital.TetherOffset = bg.TetherOffset;
                 planetToTether.OrbitalStations.Add(orbital);
                 if (planetToTether.IsOverOrbitalsLimit(orbital))
                     planetToTether.TryRemoveExcessOrbital(orbital);
@@ -235,7 +235,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Planet target = bg.Build.TetherPlanet;
+            Planet target = bg.TetherPlanet;
             if (target == null || target.Owner != Owner.Loyalty) // FB - Planet owner has changed
             {
                 OrderScrapShip();
@@ -246,7 +246,7 @@ namespace Ship_Game.AI
             if (g.Goal.BuildPosition.Distance(Owner.Position) > 50)
                 return;
 
-            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.Build.Template.Name, Owner.Loyalty, g.Goal.BuildPosition);
+            Ship orbital = Ship.CreateShipAtPoint(Owner.Universe, bg.ToBuild.Name, Owner.Loyalty, g.Goal.BuildPosition);
             if (orbital != null)
             {
                 orbital.Position = g.Goal.BuildPosition;

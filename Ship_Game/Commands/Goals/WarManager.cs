@@ -7,6 +7,8 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class WarManager : Goal
     {
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
+
         [StarDataConstructor]
         public WarManager(Empire owner) : base(GoalType.WarManager, owner)
         {
@@ -20,7 +22,7 @@ namespace Ship_Game.Commands.Goals
 
         public WarManager(Empire owner, Empire enemy, WarType warType) : this(owner)
         {
-            TargetEmpire  = enemy;
+            TargetEmpire = enemy;
             Log.Info(ConsoleColor.Green, $"---- War: New War Goal {warType} vs.: {TargetEmpire.Name} ----");
         }
 

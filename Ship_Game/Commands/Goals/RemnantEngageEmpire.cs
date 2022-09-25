@@ -12,10 +12,13 @@ namespace Ship_Game.Commands.Goals
     [StarDataType]
     public class RemnantEngageEmpire : FleetGoal
     {
-        Remnants Remnants => Owner.Remnants;
+        [StarData] public sealed override Ship TargetShip { get; set; }
+        [StarData] public sealed override Empire TargetEmpire { get; set; }
         [StarData] int BombersLevel;
         [StarData] public override Planet TargetPlanet { get; set; }
-
+        
+        Remnants Remnants => Owner.Remnants;
+        
         public override bool IsRaid => true;
         public override bool IsRemnantEngageAtPlanet(Planet p) => TargetPlanet == p;
 
@@ -226,8 +229,13 @@ namespace Ship_Game.Commands.Goals
 
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
             {
+                if (!Remnants.FindValidTarget(out Empire newVictim))
+                    return ReturnToPortal();
+
+                TargetEmpire = newVictim;
+
                 // New target is too strong, need to get a new fleet
-                if (!Remnants.FindValidTarget(out TargetEmpire) || RequiredFleetStr() > Fleet.GetStrength())
+                if (RequiredFleetStr() > Fleet.GetStrength())
                     return ReturnToPortal();
             }
 

@@ -684,7 +684,7 @@ namespace Ship_Game.Debug
                     }
                 }
 
-                NewLine(1);
+                NewLine();
 
                 DrawString($"Fighter Designs We Can Launch ({e.Pirates.ShipsWeCanBuild.Count})");
                 DrawString("---------------------------------------------");

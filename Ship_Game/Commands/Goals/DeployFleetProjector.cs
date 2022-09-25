@@ -11,7 +11,8 @@ namespace Ship_Game.Commands.Goals
     public class DeployFleetProjector : FleetGoal
     {
         [StarData] BuildConstructionShip BuildGoal;
-        [StarData] public override Planet TargetPlanet { get; set; }
+        [StarData] public sealed override Planet TargetPlanet { get; set; }
+        [StarData] public sealed override Planet PlanetBuildingAt { get; set; }
 
         [StarDataConstructor]
         public DeployFleetProjector(Empire owner) : base(GoalType.DeployFleetProjector, owner)
@@ -57,7 +58,7 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.GoalFailed;
                 }
 
-                constructionGoal.PlanetBuildingAt?.Construction.PrioritizeProjector(BuildGoal.Build.Position);
+                constructionGoal.PlanetBuildingAt?.Construction.PrioritizeProjector(BuildGoal.BuildPosition);
                 return GoalStep.TryAgain;
             }
 
@@ -74,7 +75,7 @@ namespace Ship_Game.Commands.Goals
                 for (int i = 0; i < projectors.Count; i++)
                 {
                     Ship ship = projectors[i];
-                    if (ship.Position.InRadius(BuildGoal.Build.Position, 1000))
+                    if (ship.Position.InRadius(BuildGoal.BuildPosition, 1000))
                         ship.ScuttleTimer = 120;
                 }
 
