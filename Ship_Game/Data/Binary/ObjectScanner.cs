@@ -115,8 +115,14 @@ public class ObjectScanner
     // @return generated object id
     internal uint ScanObjectState(TypeSerializer ser, object instance)
     {
-        if (instance == null) // typically when Array<T> contains nulls
-            return 0;
+        // if it's the default value, no need to map it or anything
+        if (ser.IsValueType)
+        {
+            if (instance.Equals(ser.DefaultValue))
+                return 0u;
+        }
+        else if (instance == null) // null is always the default for classes
+            return 0u;
 
         // if this class has any abstract or virtual members,
         // then always double-check the concrete type (albeit this is much slower)

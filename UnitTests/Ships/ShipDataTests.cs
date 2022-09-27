@@ -43,7 +43,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.Role, b.Role);
             Assert.AreEqual(a.ShipCategory, b.ShipCategory);
             Assert.AreEqual(a.HangarDesignation, b.HangarDesignation);
-            Assert.AreEqual(a.DefaultAIState, b.DefaultAIState);
             Assert.AreEqual(a.DefaultCombatState, b.DefaultCombatState);
 
             Assert.AreEqual(a.GridInfo.SurfaceArea, b.GridInfo.SurfaceArea);
@@ -87,7 +86,6 @@ namespace UnitTests.Ships
             Assert.AreEqual(a.Role.ToString(), b.Role.ToString());
             Assert.AreEqual(a.ShipCategory.ToString(), b.ShipCategory.ToString());
             Assert.AreEqual(a.HangarDesignation.ToString(), b.HangarDesignation.ToString());
-            Assert.AreEqual(a.DefaultAIState, b.DefaultAIState);
             Assert.AreEqual(a.CombatState, b.DefaultCombatState);
 
             Assert.AreEqual(a.ThrusterList.Length, b.BaseHull.Thrusters.Length);
