@@ -5,9 +5,9 @@ namespace Ship_Game.Data.Binary;
 
 public class UserTypeState : ObjectState
 {
-    public int[] Fields;
+    public uint[] Fields;
 
-    public UserTypeState(object obj, int id) : base(obj, id)
+    public UserTypeState(object obj, uint id) : base(obj, id)
     {
     }
 
@@ -17,7 +17,7 @@ public class UserTypeState : ObjectState
             w.BW.WriteVLu32((uint)Fields[i]);
     }
 
-    public override void Remap(int[] map)
+    public override void Remap(uint[] map)
     {
         Remap(map, Fields);
     }
@@ -30,14 +30,14 @@ public class UserTypeState : ObjectState
         StarDataDynamicField[] dynamicF = user.InvokeOnSerializeEvt(Obj);
 
         // the # of fields remains constant because we rely on predefined object layout
-        Fields = user.Fields.Length > 0 ? new int[user.Fields.Length] : Empty<int>.Array;
+        Fields = user.Fields.Length > 0 ? new uint[user.Fields.Length] : Empty<uint>.Array;
 
         for (int i = 0; i < user.Fields.Length; ++i)
         {
             DataField field = user.Fields[i];
             // HOTSPOT, some PROPERTIES can also perform computations here
             object obj = field.Get(Obj);
-            int fieldObjectId = scanner.ScanObjectState(field.Serializer, obj);
+            uint fieldObjectId = scanner.ScanObjectState(field.Serializer, obj);
             Fields[i] = fieldObjectId;
         }
 
@@ -54,7 +54,7 @@ public class UserTypeState : ObjectState
 
                 // and now replace the current object
                 DataField field = user.Fields[fieldIdx];
-                int fieldObjectId = scanner.ScanObjectState(field.Serializer, dynF.Value);
+                uint fieldObjectId = scanner.ScanObjectState(field.Serializer, dynF.Value);
                 Fields[fieldIdx] = fieldObjectId;
             }
         }
