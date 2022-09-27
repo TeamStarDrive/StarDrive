@@ -93,7 +93,7 @@
     <Compile Include="Planets\LandOnTiles.cs" />
     <Compile Include="Planets\TestOrbitalBomb.cs" />
     <Compile Include="Serialization\BinaryReadWriteTests.cs" />
-    <Compile Include="Serialization\RecursiveScannerTests.cs" />
+    <Compile Include="Serialization\ObjectScannerTests.cs" />
     <Compile Include="Serialization\StringViewTests.cs" />
     <Compile Include="Serialization\TypeSerializerTests.cs" />
     <Compile Include="Serialization\YamlSerializerTests.cs" />

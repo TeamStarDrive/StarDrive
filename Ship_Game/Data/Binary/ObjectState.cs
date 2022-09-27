@@ -12,7 +12,7 @@ public class ObjectState
     public ObjectState(object obj, int id) { Obj = obj; Id = id; }
 
     // Scan for child objects
-    public virtual void Scan(RecursiveScanner scanner, TypeSerializer ser)
+    public virtual void Scan(ObjectScanner scanner, TypeSerializer ser)
     {
         // Fundamental types don't have anything to scan
     }
