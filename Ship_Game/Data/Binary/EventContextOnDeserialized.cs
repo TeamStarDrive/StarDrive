@@ -51,7 +51,7 @@ public class EventContextOnDeserialized
             if (Verbose) Log.Info($"OnDeserializedEvt {e.Group.Type}");
             for (int i = 0; i < e.Group.Count; ++i)
             {
-                object instance = Objects[e.Group.BaseIndex + i];
+                object instance = Objects[e.Group.BaseId + i];
                 e.Evt(instance, Root);
             }
         }
