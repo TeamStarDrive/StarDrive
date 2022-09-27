@@ -22,8 +22,7 @@ public class BinarySerializerReader
     public readonly TypeSerializerMap TypeMap;
     readonly BinarySerializerHeader Header;
     TypeGroup[] TypeGroups;
-    TypeInfo[] StreamTypes;
-    TypeInfo[] ActualTypes;
+    readonly TypeInfo[] StreamTypes;
 
     // flat list of deserialized objects
     public object[] ObjectsList;
@@ -36,7 +35,6 @@ public class BinarySerializerReader
         TypeMap = typeMap;
         Header = header;
         StreamTypes = new TypeInfo[header.MaxTypeId + 1];
-        ActualTypes = new TypeInfo[Math.Max(StreamTypes.Length, typeMap.MaxTypeId + 1)];
         SetFundamentalTypes(typeMap);
     }
 
@@ -54,10 +52,6 @@ public class BinarySerializerReader
     {
         var info = new TypeInfo(streamTypeId, name, s, fields, isStruct, c);
         StreamTypes[streamTypeId] = info;
-
-        if (s.TypeId >= ActualTypes.Length)
-            Array.Resize(ref ActualTypes, s.TypeId + 1);
-        ActualTypes[s.TypeId] = info;
     }
 
     void AddDeletedTypeInfo(uint streamTypeId, string name, FieldInfo[] fields, bool isStruct, SerializerCategory c)
@@ -76,11 +70,6 @@ public class BinarySerializerReader
         return streamTypeId < StreamTypes.Length ? StreamTypes[streamTypeId] : null;
     }
 
-    public TypeInfo GetType(TypeSerializer ser)
-    {
-        return ActualTypes[ser.TypeId];
-    }
-
     static string[] ReadStringArray(Reader br)
     {
         string[] items = new string[br.ReadVLu32()];
@@ -93,8 +82,8 @@ public class BinarySerializerReader
     {
         // [assemblies]
         // [namespaces]
-        // [typenames]
-        // [fieldnames]
+        // [typeNames]
+        // [fieldNames]
         // [types]
         string[] assemblies = ReadStringArray(BR);
         string[] namespaces = ReadStringArray(BR);
@@ -227,8 +216,7 @@ public class BinarySerializerReader
         if (a == null) // not in loaded assembly? then give up. we don't want to load new assemblies
             return null;
 
-        if (TypeNameCache == null)
-            TypeNameCache = new();
+        TypeNameCache ??= new();
 
         if (!TypeNameCache.TryGetValue(a, out Map<string, Type> typeNamesMap))
         {

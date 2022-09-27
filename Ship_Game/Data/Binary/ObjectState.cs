@@ -1,8 +1,6 @@
 ﻿using Ship_Game.Data.Serialization;
-
 namespace Ship_Game.Data.Binary;
 
-// Base state for a serialized object
 public class ObjectState
 {
     public object Obj;
@@ -31,7 +29,7 @@ public class ObjectState
             for (int i = 0; i < fields.Length; ++i)
             {
                 uint oldId = fields[i];
-                if (oldId != 0)
+                if (oldId != 0) // 0 id means default value
                     fields[i] = map[oldId];
             }
         }

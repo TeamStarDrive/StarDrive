@@ -100,7 +100,7 @@ public class ObjectScanner
         }
     }
 
-    ObjectState NewState(TypeSerializer ser, object instance)
+    ObjectState NewObjectState(TypeSerializer ser, object instance)
     {
         ++NumObjects;
         uint id = ++NextObjectId;
@@ -137,7 +137,7 @@ public class ObjectScanner
             return state.Id;
         }
 
-        state = NewState(ser, instance);
+        state = NewObjectState(ser, instance);
         instMap.Add(instance, state);
         Objects.GetValue(ser).Add(state);
 
@@ -161,13 +161,13 @@ public class ObjectScanner
             return CollectionDependsOn(type.Type, on.Type);
         if (type is UserTypeSerializer classType)
         {
-            var explored = new Utils.BitArray(1024);
+            var explored = new BitArray(1024);
             return DependsOn(classType, on, ref explored);
         }
         return false;
     }
 
-    static bool DependsOn(UserTypeSerializer classType, TypeSerializer on, ref Utils.BitArray explored)
+    static bool DependsOn(UserTypeSerializer classType, TypeSerializer on, ref BitArray explored)
     {
         explored.Set(classType.TypeId);
         foreach (DataField field in classType.Fields)
@@ -231,6 +231,9 @@ public class ObjectScanner
                 }
             }
         }
+
+        if (remap[0] != 0)
+            throw new("Remap[0] must not happen! This is a bug!");
 
         // now remap write-commands inside the object states
         foreach (Array<ObjectState> groupedObjects in Objects.GetValues())
