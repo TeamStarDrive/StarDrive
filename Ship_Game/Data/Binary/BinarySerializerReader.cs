@@ -460,11 +460,12 @@ public class BinarySerializerReader
     }
 
     // Reads a pointer from the stream and looks it up from the ObjectsList
-    public object ReadPointer()
+    // This is used by Array/Collection deserializers
+    public object ReadCollectionElement(TypeSerializer elemType)
     {
         uint pointer = BR.ReadVLu32();
         if (pointer == 0)
-            return null;
-        return ObjectsList[pointer - 1]; // pointer = objectIndex + 1
+            return elemType.DefaultValue;
+        return ObjectsList[pointer - 1];
     }
 }
