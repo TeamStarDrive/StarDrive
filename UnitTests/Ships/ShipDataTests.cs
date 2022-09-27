@@ -176,28 +176,5 @@ namespace UnitTests.Ships
             ShipDesign clone = original.GetClone(null);
             AssertAreEqual(original, clone, true);
         }
-
-        [TestMethod]
-        public void ShipDesign_Base64_Serialization()
-        {
-            CreateUniverseAndPlayerEmpire("Human");
-            Ship ship = SpawnShip("Terran-Prototype", Player, Vector2.Zero);
-
-            // completely nulls this module, this catches empty serialization line bug
-            ship.Modules[5].Health = 0f;
-
-            ModuleSaveData[] toSave = ship.GetModuleSaveData();
-            byte[] bytes = ShipDesign.GetModulesBytes(new ShipDesignWriter(), toSave, ship.ShipData);
-
-            Log.Info(Encoding.ASCII.GetString(bytes));
-
-            (ModuleSaveData[] loaded, _) = ShipDesign.GetModuleSaveFromBytes(bytes);
-
-            for (int i = 0; i < toSave.Length && i < loaded.Length; ++i)
-            {
-                ShipModuleTests.AssertAreEqual(toSave[i], loaded[i]);
-            }
-            Assert.AreEqual(toSave.Length, loaded.Length, "Loaded modules are not the same length");
-        }
     }
 }
