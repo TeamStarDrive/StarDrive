@@ -1678,7 +1678,6 @@ namespace Ship_Game
             EmpireShips.UpdatePublicLists();
             Research.UpdateNetResearch();
 
-            RestoreUnserializableDataFromSave();
             UpdateEmpirePlanets();
 
             UpdateNetPlanetIncomes();
@@ -3765,15 +3764,6 @@ namespace Ship_Game
                 Radius = radius;
                 Source = source;
                 KnownToPlayer = knowToPlayer;
-            }
-        }
-
-        public void RestoreUnserializableDataFromSave()
-        {
-            //restore relationShipData
-            foreach ((Empire them, Relationship rel) in ActiveRelations)
-            {
-                rel.RestoreWarsFromSave(Universum);
             }
         }
 
