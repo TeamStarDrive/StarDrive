@@ -25,7 +25,7 @@ namespace Ship_Game.Gameplay
 
         public Vector3 Position3D => new(Position, ZPos);
 
-        // Serialize from save game (CANNOT HAVE ARGUMENTS!)
+        [StarDataConstructor]
         public Moon() : base(0, GameObjectType.Moon)
         {
         }
@@ -35,6 +35,7 @@ namespace Ship_Game.Gameplay
                     float orbitRadius, float orbitalAngle, Vector2 pos)
             : base(system.Universe.CreateId(), GameObjectType.Moon)
         {
+            Active = true;
             System = system;
             OrbitPlanet = orbitPlanet;
             MoonId = moon;

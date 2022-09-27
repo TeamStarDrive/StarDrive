@@ -85,6 +85,7 @@ namespace Ship_Game
         {
             Universe = us;
             Radius = MinRadius;
+            Active = true; // solar systems always exist ( for now ;) )
             DisableSpatialCollision = true;
         }
 

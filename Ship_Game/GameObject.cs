@@ -27,7 +27,7 @@ namespace Ship_Game
     public abstract class GameObject
     {
         [StarData] public readonly int Id;
-        public bool Active = true;
+        [StarData] public bool Active; // this must be set during concrete object Initialization
         [StarData] public SolarSystem System;
         
         [StarData] public Vector2 Position;

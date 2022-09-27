@@ -44,6 +44,7 @@ namespace Ship_Game.Gameplay
         [StarData] public Empire Loyalty;
         [StarData] public float Duration;
         [StarData] protected string WeaponUID;
+        [StarData] public bool DieNextFrame { get; private set; }
         public Weapon Weapon;
 
         public bool Explodes;
@@ -91,7 +92,6 @@ namespace Ship_Game.Gameplay
         SpriteAnimation Animation;
         SubTexture ProjectileTexture;
 
-        public bool DieNextFrame { get; private set; }
         readonly AudioHandle InFlightSfx = new AudioHandle();
         public string DieCueName = "";
         bool LightWasAddedToSceneGraph;
@@ -110,9 +110,11 @@ namespace Ship_Game.Gameplay
         [StarDataConstructor]
         protected Projectile() : base(0, GameObjectType.Proj) {}
 
+        // Create a NEW projectile
         protected Projectile(int id, Weapon weapon, Ship owner, Planet planet, Empire loyalty, GameObjectType type)
             : base(id, type)
         {
+            Active = true;
             Owner = owner ?? weapon.Owner;
             Loyalty = loyalty ?? weapon.Owner?.Loyalty ?? planet?.Owner;
             Planet = planet;
@@ -535,7 +537,7 @@ namespace Ship_Game.Gameplay
         {
             if (!Active)
             {
-                Log.Error("Projectile.Update() called when dead!");
+                Log.Error($"Projectile.Update() called when dead! Duration={Duration} DieNextFrame={DieNextFrame}");
                 return;
             }
 

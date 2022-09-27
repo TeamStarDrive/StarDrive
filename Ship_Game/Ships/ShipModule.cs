@@ -315,10 +315,7 @@ namespace Ship_Game.Ships
         public bool IsHangarShipActive => TryGetHangarShip(out Ship ship) && ship.Active;
         public bool TryGetHangarShipActive(out Ship ship) => TryGetHangarShip(out ship) && ship.Active;
 
-        ShipModule() : base(0, GameObjectType.ShipModule)
-        {
-        }
-
+        [StarDataConstructor]
         ShipModule(int id) : base(id, GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
@@ -387,8 +384,9 @@ namespace Ship_Game.Ships
         public static ShipModule CreateNoParent(UniverseState us, ShipModule template, Empire loyalty, ShipHull hull)
         {
             var bonuses = EmpireHullBonuses.Get(loyalty, hull);
-            var module = new ShipModule(us?.CreateId() ?? -1)
+            var module = new ShipModule(us?.CreateId() ?? -1) // null during template creation
             {
+                Active = true,
                 Flyweight         = template.Flyweight,
                 Bonuses           = bonuses,
                 DescriptionIndex  = template.DescriptionIndex,
