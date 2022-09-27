@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using SDUtils;
 using Ship_Game.Data.Serialization;
-using Ship_Game.Data.Serialization.Types;
 using Ship_Game.Utils;
 
 namespace Ship_Game.Data.Binary;
@@ -13,47 +11,6 @@ public struct SerializationTypeGroup
     public TypeSerializer Type;
     public Array<ObjectState> GroupedObjects;
     public override string ToString() => $"SerTypeGroup {Type} GroupedObjs={GroupedObjects.Count}";
-}
-
-// Base state for a serialized object
-public class ObjectState
-{
-    public object Obj;
-    public int Id; // ID of this object, 0 means null
-    public override string ToString() => $"ObjState {Obj.GetType().Name} Id={Id} Obj={Obj}";
-
-    public ObjectState(object obj, int id) { Obj = obj; Id = id; }
-
-    // Scan for child objects
-    public virtual void Scan(RecursiveScanner scanner, TypeSerializer ser)
-    {
-        // Fundamental types don't have anything to scan
-    }
-
-    // Remaps object id-s
-    public virtual void Remap(int[] map)
-    {
-        Remap(map, null);
-    }
-
-    protected void Remap(int[] map, int[] fields)
-    {
-        Id = map[Id];
-        if (fields != null)
-        {
-            for (int i = 0; i < fields.Length; ++i)
-            {
-                int oldId = fields[i];
-                fields[i] = map[oldId];
-            }
-        }
-    }
-
-    // Serialize this ObjectState into a binary writer
-    public virtual void Serialize(BinarySerializerWriter w, TypeSerializer ser)
-    {
-        ser.Serialize(w, Obj);
-    }
 }
 
 // Scanned object types, separated by category
@@ -68,7 +25,7 @@ public record struct ScannedTypes(
 
 public class RecursiveScanner
 {
-    readonly BinarySerializer RootSer;
+    internal readonly BinarySerializer RootSer;
     readonly object RootObj;
     
     public ScannedTypes Types;
@@ -296,148 +253,5 @@ public class RecursiveScanner
                 if (obj.Id == objectId)
                     return obj.Obj;
         return null;
-    }
-
-    public class UserTypeState : ObjectState
-    {
-        public int[] Fields;
-
-        public UserTypeState(object obj, int id) : base(obj, id)
-        {
-        }
-
-        public override void Serialize(BinarySerializerWriter w, TypeSerializer ser)
-        {
-            for (int i = 0; i < Fields.Length; ++i)
-                w.BW.WriteVLu32((uint)Fields[i]);
-        }
-
-        public override void Remap(int[] map)
-        {
-            Remap(map, Fields);
-        }
-
-        public override void Scan(RecursiveScanner scanner, TypeSerializer ser)
-        {
-            var user = (UserTypeSerializer)ser;
-
-            // get dynamic fields
-            StarDataDynamicField[] dynamicF = user.InvokeOnSerializeEvt(Obj);
-
-            // the # of fields remains constant because we rely on predefined object layout
-            Fields = user.Fields.Length > 0 ? new int[user.Fields.Length] : Empty<int>.Array;
-
-            for (int i = 0; i < user.Fields.Length; ++i)
-            {
-                DataField field = user.Fields[i];
-                // HOTSPOT, some PROPERTIES can also perform computations here
-                object obj = field.Get(Obj);
-                int fieldObjectId = scanner.ScanObjectState(field.Serializer, obj);
-                Fields[i] = fieldObjectId;
-            }
-
-            // dynamic fields override existing fields
-            // TODO: instead of override, prevent original value from being scanned and written
-            if (dynamicF != null)
-            {
-                for (int i = 0; i < dynamicF.Length; ++i)
-                {
-                    StarDataDynamicField dynF = dynamicF[i];
-                    int fieldIdx = user.Fields.IndexOf(f => f.Name == dynF.Name);
-                    if (fieldIdx == -1)
-                        throw new($"StarDataDynamicField: Could not find a [StarData] field with Name=`{dynF.Name}`");
-
-                    // and now replace the current object
-                    DataField field = user.Fields[fieldIdx];
-                    int fieldObjectId = scanner.ScanObjectState(field.Serializer, dynF.Value);
-                    Fields[fieldIdx] = fieldObjectId;
-                }
-            }
-        }
-    }
-
-    // T[], Array<T>, Map<K,V> or HashSet<T>
-    internal class CollectionState : ObjectState
-    {
-        public int[] Items;
-
-        public CollectionState(object obj, int id) : base(obj, id)
-        {
-        }
-
-        public override void Serialize(BinarySerializerWriter w, TypeSerializer ser)
-        {
-            if (Items == null)
-            {
-                w.BW.WriteVLu32((uint)0); // collection length
-            }
-            else
-            {
-                w.BW.WriteVLu32((uint)Items.Length); // collection length
-                for (int i = 0; i < Items.Length; ++i)
-                    w.BW.WriteVLu32((uint)Items[i]);
-            }
-        }
-
-        public override void Remap(int[] map)
-        {
-            Remap(map, Items);
-        }
-
-        public override void Scan(RecursiveScanner scanner, TypeSerializer ser)
-        {
-            var coll = (CollectionSerializer)ser;
-            int count = coll.Count(Obj);
-            if (count == 0)
-                return;
-
-            var typeMap = scanner.RootSer.TypeMap;
-            bool valCanBeNull = coll.ElemSerializer.IsPointerType;
-
-            if (coll is MapSerializer maps)
-            {
-                Items = new int[count * 2];
-                var e = ((IDictionary)Obj).GetEnumerator();
-                for (int i = 0; i < count && e.MoveNext(); ++i)
-                {
-                    int keyId = scanner.ScanObjectState(maps.KeySerializer, e.Key);
-                    Items[i*2+0] = keyId;
-                    SetValue(scanner, i*2+1, e.Value, valCanBeNull, typeMap);
-                }
-            }
-            else if (coll is HashSetSerializer)
-            {
-                Items = new int[count];
-                var e = ((IEnumerable)Obj).GetEnumerator();
-                for (int i = 0; i < count && e.MoveNext(); ++i)
-                {
-                    SetValue(scanner, i, e.Current, valCanBeNull, typeMap);
-                }
-            }
-            else
-            {
-                Items = new int[count];
-                for (int i = 0; i < count; ++i)
-                {
-                    object element = coll.GetElementAt(Obj, i);
-                    SetValue(scanner, i, element, valCanBeNull, typeMap);
-                }
-            }
-        }
-
-        void SetValue(RecursiveScanner scanner, int index, object instance, bool valCanBeNull, TypeSerializerMap typeMap)
-        {
-            if (valCanBeNull && instance == null)
-            {
-                Items[index] = 0;
-            }
-            else
-            {
-                // NOTE: VALUES CAN USE ABSTRACT TYPES, SO TYPE CHECK IS REQUIRED FOR EACH ELEMENT
-                TypeSerializer item = typeMap.Get(instance!.GetType());
-                int valId = scanner.ScanObjectState(item, instance);
-                Items[index] = valId;
-            }
-        }
     }
 }
