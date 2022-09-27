@@ -75,8 +75,7 @@ namespace Ship_Game.Ships
         public Restrictions Restrictions;
         public Shield Shield { get; private set; }
         public string HangarShipUID;
-        Ship HangarShip;
-        public int HangarShipId;
+        [StarData] public Ship HangarShip;
         public float HangarTimer;
         public bool IsWeapon;
         public Weapon InstalledWeapon;
@@ -445,7 +444,7 @@ namespace Ship_Game.Ships
             m.Active = slot.Health > 0.01f;
             m.ShieldPower = slot.ShieldPower;
             m.SetHealth(slot.Health, "init", fromSave: true);
-            m.HangarShipId = slot.HangarShipId;
+            m.HangarShip = slot.HangarShip;
             return m;
         }
 
@@ -1148,13 +1147,6 @@ namespace Ship_Game.Ships
         public void SetHangarShip(Ship ship)
         {
             HangarShip = ship;
-            HangarShipId = ship?.Id ?? 0;
-        }
-
-        public void ResetHangarShip(Ship newShipToLink)
-        {
-            SetHangarShip(newShipToLink);
-            newShipToLink.Mothership = Parent;
         }
 
         public void ResetHangarShipWithReturnToHangar(Ship newShipToLink)

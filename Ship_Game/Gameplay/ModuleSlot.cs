@@ -152,7 +152,7 @@ namespace Ship_Game.Gameplay
         /// --- Saved ShipModule state ---
         [StarData] public float Health;
         [StarData] public float ShieldPower;
-        [StarData] public int HangarShipId;
+        [StarData] public Ship HangarShip;
 
         ModuleSaveData() { /* Serialization */ }
 
@@ -161,15 +161,15 @@ namespace Ship_Game.Gameplay
         {
             Health = m.Health;
             ShieldPower = m.ShieldPower;
-            HangarShipId = m.HangarShipId;
+            HangarShip = m.HangarShip;
         }
 
-        public ModuleSaveData(DesignSlot s, float health, float shieldPower, int hangarShipId)
+        public ModuleSaveData(DesignSlot s, float health, float shieldPower, Ship hangarShip)
             : base(s)
         {
             Health = health;
             ShieldPower = shieldPower;
-            HangarShipId = hangarShipId;
+            HangarShip = hangarShip;
         }
 
         public DesignSlot ToDesignSlot() // abandon the state

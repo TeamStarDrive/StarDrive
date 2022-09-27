@@ -172,15 +172,6 @@ namespace Ship_Game.GameScreens.LoadGame
                 {
                     ship.Loyalty.AI.DefensiveCoordinator.Add(ship);
                 }
-
-                if (ship.Carrier.HasHangars)
-                {
-                    foreach (ShipModule hangar in ship.Carrier.AllActiveHangars)
-                    {
-                        if (us.GetShip(hangar.HangarShipId, out Ship hangarShip))
-                            hangar.ResetHangarShip(hangarShip);
-                    }
-                }
             }
         }
 

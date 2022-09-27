@@ -507,38 +507,6 @@ namespace Ship_Game.Universe
             return SolarSystemList.Filter(s => Screen.IsInFrustum(s.Position, s.Radius));
         }
 
-        public Array<Ship> GetShipsFromIds(Array<int> ids)
-        {
-            var ships = new Array<Ship>();
-            for (int i = 0; i < ids.Count; i++)
-            {
-                Ship ship = Objects.FindShip(ids[i]);
-                if (ship != null)
-                    ships.AddUnique(ship);
-            }
-            return ships;
-        }
-
-        public Ship GetShip(int id)
-        {
-            return Objects.FindShip(id);
-        }
-
-        public bool GetShip(int id, out Ship found)
-        {
-            return Objects.FindShip(id, out found);
-        }
-
-        public GameObject GetObject(int id)
-        {
-            return Objects.FindObject(id);
-        }
-
-        public bool GetObject(int id, out GameObject found)
-        {
-            return Objects.FindObject(id, out found);
-        }
-
         public void AddShip(Ship ship)
         {
             Objects.Add(ship);

@@ -246,7 +246,7 @@ namespace Ship_Game.Ships
                     Log.Warning($"Invalid Module '{slot.ModuleUID}' in '{Name}'");
                     // replace it with a simple module
                     var ds = new DesignSlot(slot.Pos, "OrdnanceLockerSmall", new Point(1,1), 0, ModuleOrientation.Normal, null);
-                    slot = new ModuleSaveData(ds, slot.Health, 0, 0);
+                    slot = new ModuleSaveData(ds, slot.Health, 0, null);
                 }
                 ModuleSlotList[i] = ShipModule.Create(Universe, slot, this);
             }
