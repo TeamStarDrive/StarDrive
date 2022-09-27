@@ -48,7 +48,7 @@ public class BinarySerializerWriter
         Types = rs.Types;
 
         // find the root object ID from the neatly sorted type groups
-        RootObjectId = (uint)rs.RootObjectId;
+        RootObjectId = rs.RootObjectId;
     }
 
     string[] MapSingle(Func<TypeSerializer, string> selector)
@@ -231,7 +231,7 @@ public class BinarySerializerWriter
         BW.WriteVLu32((uint)t.TypeId);
         BW.WriteVLu32((uint)count);
         // baseObjectId is required because TypeGroup order doesn't match object id-s
-        BW.WriteVLu32((uint)baseObjectId);
+        BW.WriteVLu32(baseObjectId);
     }
 
     void WriteGroup(in SerializationTypeGroup g)

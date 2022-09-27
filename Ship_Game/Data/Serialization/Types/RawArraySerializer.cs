@@ -109,7 +109,7 @@ namespace Ship_Game.Data.Serialization.Types
             object converted = NewArray(count);
             for (int i = 0; i < count; ++i)
             {
-                object element = reader.ReadPointer();
+                object element = reader.ReadCollectionElement(ElemSerializer);
                 SetValueAt(converted, element, i);
             }
             return converted;
