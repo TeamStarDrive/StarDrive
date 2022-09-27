@@ -414,36 +414,58 @@ public class BinarySerializerReader
     {
         bool isStruct = instanceType.IsStruct;
 
-        for (uint i = 0; i < instanceType.Fields.Length; ++i)
+        // using partial layout or full layout?
+        uint numPartialFields = BR.ReadVLu32();
+        if (numPartialFields > 0u) // partial
         {
-            FieldInfo fi = instanceType.Fields[i];
-
-            // all types are now using pointers
-            // the pointer has to be read, even if Field or Type is deleted
-            uint pointer = BR.ReadVLu32();
-            object fieldValue = pointer != 0 ? ObjectsList[pointer] : null;
-
-            // if Type has been deleted, we skip and read the next field
-            if (instance == null) continue;
-
-            // if field has been deleted, then Field==null and Set() is ignored
-            if (fi.Field == null) continue;
-
-            // if this is a Struct referencing a RawArray, we need to defer the write
-            if (isStruct && pointer != 0 && fieldValue == null && fi.Field.Serializer is RawArraySerializer)
+            for (uint i = 0; i < numPartialFields; ++i)
             {
-                DeferredSets.Add(new(instance, fi, pointer));
-                continue;
-            }
+                // the value has to be read, even if Field or Type is deleted
+                uint streamFieldIdx = BR.ReadVLu32();
+                uint pointer = BR.ReadVLu32();
 
-            try
-            {
-                fi.Field.Set(instance, fieldValue);
+                FieldInfo fi = instanceType.Fields[streamFieldIdx];
+                ReadUserClassField(instance, fi, pointer, isStruct);
             }
-            catch (Exception ex)
+        }
+        else // full layout
+        {
+            for (uint streamFieldIdx = 0; streamFieldIdx < instanceType.Fields.Length; ++streamFieldIdx)
             {
-                Log.Error(ex, $"Failed to set FieldValue={fieldValue} into Field={fi}");
+                // the value has to be read, even if Field or Type is deleted
+                uint pointer = BR.ReadVLu32();
+
+                FieldInfo fi = instanceType.Fields[streamFieldIdx];
+                ReadUserClassField(instance, fi, pointer, isStruct);
             }
+        }
+    }
+
+    void ReadUserClassField(object instance, FieldInfo fi, uint pointer, bool isStruct)
+    {
+        // if Type has been deleted, we skip and read the next field
+        if (instance == null) return;
+
+        object fieldValue = pointer != 0 ? ObjectsList[pointer] : fi.Ser?.DefaultValue;
+
+        // if field has been deleted, then Field==null and Set() is ignored
+        if (fi.Field == null) return;
+
+        // if this is a Struct referencing a RawArray, we need to defer the write
+        if (isStruct && pointer != 0 && fieldValue == null && 
+            fi.Field.Serializer is RawArraySerializer)
+        {
+            DeferredSets.Add(new(instance, fi, pointer));
+            return;
+        }
+
+        try
+        {
+            fi.Field.Set(instance, fieldValue);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, $"Failed to set FieldValue={fieldValue} (Pointer={pointer}) into Field={fi}");
         }
     }
 

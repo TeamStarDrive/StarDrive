@@ -6,6 +6,8 @@ namespace Ship_Game.Data.Binary;
 public class UserTypeState : ObjectState
 {
     public uint[] Fields;
+    // if set != 0 by Scan(), this object will be Serialized partially
+    public uint NumPartialSerializeFields;
 
     public UserTypeState(object obj, uint id) : base(obj, id)
     {
@@ -13,8 +15,34 @@ public class UserTypeState : ObjectState
 
     public override void Serialize(BinarySerializerWriter w, TypeSerializer ser)
     {
-        for (int i = 0; i < Fields.Length; ++i)
-            w.BW.WriteVLu32((uint)Fields[i]);
+        uint numPartialFields = NumPartialSerializeFields;
+        w.BW.WriteVLu32(numPartialFields); // [numPartialFields]
+
+        if (numPartialFields > 0u)
+        {
+            for (int fieldIdx = 0; fieldIdx < Fields.Length; ++fieldIdx)
+            {
+                uint fieldPointer = Fields[fieldIdx];
+                if (fieldPointer != 0)
+                {
+                    w.BW.WriteVLu32((uint)fieldIdx); // [fieldIdx]
+                    w.BW.WriteVLu32(fieldPointer);   // [fieldPointer]
+                }
+            }
+        }
+        else
+        {
+            for (int fieldIdx = 0; fieldIdx < Fields.Length; ++fieldIdx)
+            {
+                w.BW.WriteVLu32(Fields[fieldIdx]); // [fieldPointer]
+
+                if (ser.TypeName.Contains("UniverseState"))
+                {
+                    var us = (UserTypeSerializer)ser;
+                    Log.Info($"UniverseState [{fieldIdx}]={Fields[fieldIdx]} {us.Fields[fieldIdx].Name}");
+                }
+            }
+        }
     }
 
     public override void Remap(uint[] map)
