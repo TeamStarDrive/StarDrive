@@ -13,7 +13,6 @@ namespace Ship_Game.Data.Serialization.Types
     {
         public override string ToString() => $"{TypeId}:EnumSerializer {NiceTypeName}";
         readonly Map<int, object> Mapping = new();
-        readonly object DefaultValue;
         readonly bool IsFlagsEnum;
 
         delegate int GetIntValue(object enumValue);

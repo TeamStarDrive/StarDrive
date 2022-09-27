@@ -208,6 +208,72 @@ namespace UnitTests.Serialization
             Assert.AreEqual(23225234, ReadVLi32());
         }
 
+        int WriteVLSize<T>(T value) // @return # of bytes written
+        {
+            int sizeBefore = BW.Length;
+            if (value is int i32) WriteVL(i32);
+            else if (value is uint u32) WriteVL(u32);
+            else if (value is long i64) WriteVL(i64);
+            else if (value is ulong u64) WriteVL(u64);
+            return BW.Length - sizeBefore;
+        }
+
+        [TestMethod]
+        public void EncodePredictionVLu32()
+        {
+            Assert.AreEqual(WriteVLSize(32u), Writer.PredictVLuSize(32u), "PredictVL(32)");
+            // 2^7
+            Assert.AreEqual(WriteVLSize(127u), Writer.PredictVLuSize(127u), $"PredictVL({127u})");
+            Assert.AreEqual(WriteVLSize(128u), Writer.PredictVLuSize(128u), $"PredictVL({128u})");
+            // 2^14
+            Assert.AreEqual(WriteVLSize(16383u), Writer.PredictVLuSize(16383u), $"PredictVL({16383u})");
+            Assert.AreEqual(WriteVLSize(16384u), Writer.PredictVLuSize(16384u), $"PredictVL({16384u})");
+            // 2^21
+            Assert.AreEqual(WriteVLSize(2097151u), Writer.PredictVLuSize(2097151u), $"PredictVL({2097151u})");
+            Assert.AreEqual(WriteVLSize(2097152u), Writer.PredictVLuSize(2097152u), $"PredictVL({2097152u})");
+            // 2^28
+            Assert.AreEqual(WriteVLSize(268435455u), Writer.PredictVLuSize(268435455u), $"PredictVL({268435455u})");
+            Assert.AreEqual(WriteVLSize(268435456u), Writer.PredictVLuSize(268435456u), $"PredictVL({268435456u})");
+            // 2^32
+            Assert.AreEqual(WriteVLSize(4294967295u), Writer.PredictVLuSize(4294967295u), $"PredictVL({4294967295u})");
+        }
+
+        [TestMethod]
+        public void EncodePredictionVLi32()
+        {
+            Assert.AreEqual(WriteVLSize(32), Writer.PredictVLSize(32), "PredictVL(32)");
+            // 2^6
+            Assert.AreEqual(WriteVLSize(63), Writer.PredictVLSize(63), $"PredictVL({63})");
+            Assert.AreEqual(WriteVLSize(64), Writer.PredictVLSize(64), $"PredictVL({64})");
+            // 2^13
+            Assert.AreEqual(WriteVLSize(8191), Writer.PredictVLSize(8191), $"PredictVL({8191})");
+            Assert.AreEqual(WriteVLSize(8192), Writer.PredictVLSize(8192), $"PredictVL({8192})");
+            // 2^20
+            Assert.AreEqual(WriteVLSize(1048575), Writer.PredictVLSize(1048575), $"PredictVL({1048575})");
+            Assert.AreEqual(WriteVLSize(1048576), Writer.PredictVLSize(1048576), $"PredictVL({1048576})");
+            // 2^27
+            Assert.AreEqual(WriteVLSize(134217727), Writer.PredictVLSize(134217727), $"PredictVL({134217727})");
+            Assert.AreEqual(WriteVLSize(134217728), Writer.PredictVLSize(134217728), $"PredictVL({134217728})");
+            // 2^31
+            Assert.AreEqual(WriteVLSize(2147483647), Writer.PredictVLSize(2147483647), $"PredictVL({2147483647})");
+
+            Assert.AreEqual(WriteVLSize(-32), Writer.PredictVLSize(-32), "PredictVL(-32)");
+            // 2^6
+            Assert.AreEqual(WriteVLSize(-63), Writer.PredictVLSize(-63), $"PredictVL({-63})");
+            Assert.AreEqual(WriteVLSize(-64), Writer.PredictVLSize(-64), $"PredictVL({-64})");
+            // 2^13
+            Assert.AreEqual(WriteVLSize(-8191), Writer.PredictVLSize(-8191), $"PredictVL({-8191})");
+            Assert.AreEqual(WriteVLSize(-8192), Writer.PredictVLSize(-8192), $"PredictVL({-8192})");
+            // 2^20
+            Assert.AreEqual(WriteVLSize(-1048575), Writer.PredictVLSize(-1048575), $"PredictVL({-1048575})");
+            Assert.AreEqual(WriteVLSize(-1048576), Writer.PredictVLSize(-1048576), $"PredictVL({-1048576})");
+            // 2^27
+            Assert.AreEqual(WriteVLSize(-134217727), Writer.PredictVLSize(-134217727), $"PredictVL({-134217727})");
+            Assert.AreEqual(WriteVLSize(-134217728), Writer.PredictVLSize(-134217728), $"PredictVL({-134217728})");
+            // 2^31
+            Assert.AreEqual(WriteVLSize(-2147483647), Writer.PredictVLSize(-2147483647), $"PredictVL({-2147483647})");
+        }
+
         [TestMethod]
         public void WriteByteValues()
         {

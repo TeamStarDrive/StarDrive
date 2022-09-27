@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace Ship_Game.Data.Binary;
 
@@ -10,30 +9,37 @@ public struct BinarySerializerHeader
 
     public uint Signature; // is this a BinarySerializerHeader ?
     public uint Version;
-    public uint Options; // reserved for additional options
+    public OptionFlags Options;
     public uint NumUsedTypes;
     public uint NumCollectionTypes;
     public uint MaxTypeId;
     public uint NumTypeGroups;
     public uint RootObjectId;
 
+    [Flags]
+    public enum OptionFlags : uint
+    {
+        None = 0,
+    }
+
     public BinarySerializerHeader(BinarySerializerWriter writer)
     {
         Signature = ValidSignature;
         Version = BinarySerializer.CurrentVersion;
-        Options = 0;
         NumUsedTypes = (uint)writer.Types.ValuesAndClasses.Length;
         NumCollectionTypes = (uint)writer.Types.Collections.Length;
         MaxTypeId = (uint)writer.MaxTypeId;
         NumTypeGroups = (uint)writer.NumTypeGroups;
         RootObjectId = writer.RootObjectId;
+
+        Options = OptionFlags.None;
     }
 
     public BinarySerializerHeader(Reader reader)
     {
         Signature = reader.ReadUInt32(); // always UInt32
         Version = reader.ReadVLu32();
-        Options = reader.ReadVLu32();
+        Options = (OptionFlags)reader.ReadVLu32();
         NumUsedTypes = reader.ReadVLu32();
         NumCollectionTypes = reader.ReadVLu32();
         MaxTypeId = reader.ReadVLu32();
@@ -45,7 +51,7 @@ public struct BinarySerializerHeader
     {
         writer.Write(Signature); // always UInt32
         writer.WriteVLu32(Version);
-        writer.WriteVLu32(Options);
+        writer.WriteVLu32((uint)Options);
         writer.WriteVLu32(NumUsedTypes);
         writer.WriteVLu32(NumCollectionTypes);
         writer.WriteVLu32(MaxTypeId);

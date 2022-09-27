@@ -1047,10 +1047,16 @@ namespace UnitTests.Serialization
             var t1 = new PerfTimer();
             var sw = new ShipDesignWriter();
             int textBytes = 0;
+            var designsByteData = new Array<byte[]>();
             foreach (ShipDesign design in designs)
             {
                 var designBytes = design.GetDesignBytes(sw);
+                designsByteData.Add(designBytes);
                 textBytes += designBytes.Length;
+            }
+            for (int i = 0; i < designs.Length; ++i)
+            {
+                ShipDesign.FromBytes(designsByteData[i]);
             }
             double e1 = t1.Elapsed;
 
