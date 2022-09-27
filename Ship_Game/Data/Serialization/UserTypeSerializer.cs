@@ -66,13 +66,14 @@ namespace Ship_Game.Data.Serialization
             // Business logic should instead implement IEqualityComparer<T>
             if (!IsValueType)
             {
-                Type[] interfaces = type.GetInterfaces();
-                if (interfaces.Length > 0)
-                {
-                    var equatableType = typeof(IEquatable<>).MakeGenericType(type);
-                    if (interfaces.Contains(equatableType))
-                        throw new($"Reference Type {type} implements IEquatable<> which will squash reference objects during serialization");
-                }
+                // TODO: find an actual fix for this
+                //Type[] interfaces = type.GetInterfaces();
+                //if (interfaces.Length > 0)
+                //{
+                //    var equatableType = typeof(IEquatable<>).MakeGenericType(type);
+                //    if (interfaces.Contains(equatableType))
+                //        throw new($"Reference Type {type} implements IEquatable<> which will squash reference objects during serialization");
+                //}
             }
 
             // NOTE: We cannot resolve types in the constructor, it would cause a stack overflow due to nested types
