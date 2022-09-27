@@ -23,7 +23,7 @@ public record struct ScannedTypes(
     TypeSerializer[] All  // Fundamental+Values+Classes+Collections in this order
 );
 
-public class RecursiveScanner
+public class ObjectScanner
 {
     internal readonly BinarySerializer RootSer;
     readonly object RootObj;
@@ -43,7 +43,7 @@ public class RecursiveScanner
     public int NumObjects;
     public SerializationTypeGroup[] TypeGroups;
 
-    public RecursiveScanner(BinarySerializer rootSer, object rootObject)
+    public ObjectScanner(BinarySerializer rootSer, object rootObject)
     {
         RootSer = rootSer;
         RootObj = rootObject;

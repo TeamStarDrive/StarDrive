@@ -32,7 +32,7 @@ public class CollectionState : ObjectState
         Remap(map, Items);
     }
 
-    public override void Scan(RecursiveScanner scanner, TypeSerializer ser)
+    public override void Scan(ObjectScanner scanner, TypeSerializer ser)
     {
         var coll = (CollectionSerializer)ser;
         int count = coll.Count(Obj);
@@ -73,7 +73,7 @@ public class CollectionState : ObjectState
         }
     }
 
-    void SetValue(RecursiveScanner scanner, int index, object instance, bool valCanBeNull, TypeSerializerMap typeMap)
+    void SetValue(ObjectScanner scanner, int index, object instance, bool valCanBeNull, TypeSerializerMap typeMap)
     {
         if (valCanBeNull && instance == null)
         {

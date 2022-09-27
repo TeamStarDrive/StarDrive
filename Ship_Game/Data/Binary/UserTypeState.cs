@@ -22,7 +22,7 @@ public class UserTypeState : ObjectState
         Remap(map, Fields);
     }
 
-    public override void Scan(RecursiveScanner scanner, TypeSerializer ser)
+    public override void Scan(ObjectScanner scanner, TypeSerializer ser)
     {
         var user = (UserTypeSerializer)ser;
 
