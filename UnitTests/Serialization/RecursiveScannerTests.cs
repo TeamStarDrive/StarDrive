@@ -105,7 +105,7 @@ namespace UnitTests.Serialization
 
             var rootGroup = rs.TypeGroups.First(g => g.Type.Type == typeof(RootObject));
             Assert.AreEqual("RootObject", rootGroup.Type.NiceTypeName);
-            var rootOS = (R.UserTypeState)rootGroup.GroupedObjects[0];
+            var rootOS = (UserTypeState)rootGroup.GroupedObjects[0];
             Assert.AreEqual(rs.RootObjectId, rootOS.Id);
             Assert.AreEqual(root, rootOS.Obj);
             Assert.AreEqual(3, rootOS.Fields.Length);
