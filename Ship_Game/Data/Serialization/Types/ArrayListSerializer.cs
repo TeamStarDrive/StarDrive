@@ -203,13 +203,11 @@ namespace Ship_Game.Data.Serialization.Types
             if (count <= 0)
                 return;
 
-            TypeInfo elementType = reader.GetType(elemSer);
-
             if (TryResize(list, count))
             {
                 for (int i = 0; i < count; ++i)
                 {
-                    object element = reader.ReadPointer();
+                    object element = reader.ReadCollectionElement(elemSer);
                     list[i] = element;
                 }
             }
@@ -217,7 +215,7 @@ namespace Ship_Game.Data.Serialization.Types
             {
                 for (int i = 0; i < count; ++i)
                 {
-                    object element = reader.ReadPointer();
+                    object element = reader.ReadCollectionElement(elemSer);
                     AddToList(list, element);
                 }
             }

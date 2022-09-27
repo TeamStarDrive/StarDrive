@@ -132,8 +132,8 @@ namespace Ship_Game.Data.Serialization.Types
 
             for (int i = 0; i < count; i += 2)
             {
-                object key = reader.ReadPointer();
-                object val = reader.ReadPointer();
+                object key = reader.ReadCollectionElement(KeySerializer);
+                object val = reader.ReadCollectionElement(ElemSerializer);
                 dict.Add(key, val);
             }
         }
