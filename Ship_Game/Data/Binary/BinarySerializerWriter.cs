@@ -223,7 +223,7 @@ public class BinarySerializerWriter
     void WritePreInstance(in SerializationTypeGroup g)
     {
         int count = g.GroupedObjects.Count;
-        int baseObjectId = g.GroupedObjects[0].Id;
+        uint baseObjectId = g.GroupedObjects[0].Id;
         var t = g.Type;
         if (Verbose)
             Log.Info($"WritePreInstance {t.Category} {t.TypeId}:{t.NiceTypeName}  N={count} baseId={baseObjectId}");

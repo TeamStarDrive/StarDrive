@@ -6,10 +6,10 @@ namespace Ship_Game.Data.Binary;
 public class ObjectState
 {
     public object Obj;
-    public int Id; // ID of this object, 0 means null
+    public uint Id; // ID of this object, 0 means null
     public override string ToString() => $"ObjState {Obj.GetType().Name} Id={Id} Obj={Obj}";
 
-    public ObjectState(object obj, int id) { Obj = obj; Id = id; }
+    public ObjectState(object obj, uint id) { Obj = obj; Id = id; }
 
     // Scan for child objects
     public virtual void Scan(ObjectScanner scanner, TypeSerializer ser)
@@ -18,20 +18,21 @@ public class ObjectState
     }
 
     // Remaps object id-s
-    public virtual void Remap(int[] map)
+    public virtual void Remap(uint[] map)
     {
-        Remap(map, null);
+        Id = map[Id];
     }
 
-    protected void Remap(int[] map, int[] fields)
+    protected void Remap(uint[] map, uint[] fields)
     {
         Id = map[Id];
         if (fields != null)
         {
             for (int i = 0; i < fields.Length; ++i)
             {
-                int oldId = fields[i];
-                fields[i] = map[oldId];
+                uint oldId = fields[i];
+                if (oldId != 0)
+                    fields[i] = map[oldId];
             }
         }
     }

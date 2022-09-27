@@ -38,8 +38,8 @@ public class ObjectScanner
     // grouping objects by their type
     readonly FastTypeMap<Array<ObjectState>> Objects;
 
-    int NextObjectId;
-    public int RootObjectId;
+    uint NextObjectId;
+    public uint RootObjectId;
     public int NumObjects;
     public SerializationTypeGroup[] TypeGroups;
 
@@ -103,7 +103,7 @@ public class ObjectScanner
     ObjectState NewState(TypeSerializer ser, object instance)
     {
         ++NumObjects;
-        int id = ++NextObjectId;
+        uint id = ++NextObjectId;
 
         if (ser.IsFundamentalType || ser.IsEnumType) return new(instance, id);
         if (ser.IsUserClass) return new UserTypeState(instance, id);
@@ -113,7 +113,7 @@ public class ObjectScanner
 
     // Automatically handles abstract/virtual objects
     // @return generated object id
-    internal int ScanObjectState(TypeSerializer ser, object instance)
+    internal uint ScanObjectState(TypeSerializer ser, object instance)
     {
         if (instance == null) // typically when Array<T> contains nulls
             return 0;
@@ -216,8 +216,8 @@ public class ObjectScanner
     // remaps scattered object-ids to align with type-group ordering
     void LinearRemapObjectIds()
     {
-        var remap = new int[NumObjects + 1];
-        int currentIndex = 0;
+        var remap = new uint[NumObjects + 1];
+        uint currentIndex = 0;
 
         // create the mapping using the properly sorted Types list
         foreach (TypeSerializer ser in Types.All)
@@ -226,7 +226,7 @@ public class ObjectScanner
             {
                 foreach (ObjectState objState in groupedObjects)
                 {
-                    int newId = ++currentIndex;
+                    uint newId = ++currentIndex;
                     remap[objState.Id] = newId;
                 }
             }
@@ -245,7 +245,7 @@ public class ObjectScanner
     }
 
     // for TESTING, too slow for production
-    public object GetObject(int objectId)
+    public object GetObject(uint objectId)
     {
         // TODO: if needed, this can use binary search thanks to linear remapping
         foreach (Array<ObjectState> groupedObjects in Objects.GetValues())
