@@ -5,7 +5,9 @@ namespace Ship_Game.Data.Binary;
 public struct BinarySerializerHeader
 {
     // Signature of a valid BinarySerializerHeader
-    public const uint ValidSignature = 0x1f2f3f4f;
+    // This also functions as the MAJOR VERSION signature
+    // allowing us to ignore older savegame types which are incompatible
+    public const uint ValidSignature = 0x2f2f2f2f;
 
     public uint Signature; // is this a BinarySerializerHeader ?
     public uint Version;
