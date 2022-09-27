@@ -18,6 +18,7 @@ namespace UnitTests.Utils
             string Name;
             public DummyShip(int id) : base(id, GameObjectType.Ship)
             {
+                Active = true;
                 Name = "ship"+id;
             }
             public override string ToString() => $"DummyShip {Name}";

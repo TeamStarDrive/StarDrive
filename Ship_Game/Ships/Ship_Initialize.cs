@@ -24,6 +24,7 @@ namespace Ship_Game.Ships
         protected Ship(UniverseState us, int id, Ship template, Empire owner, Vector2 position)
             : base(id, GameObjectType.Ship)
         {
+            Active = true;
             Universe = us;
             Position     = position;
             Name         = template.Name;
@@ -39,6 +40,7 @@ namespace Ship_Game.Ships
             // ship must not be added to empire ship list until after modules are validated.
             LoyaltyChangeAtSpawn(owner);
 
+            Active = true;
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire();
             HasSeenEmpires = new Components.KnownByEmpire();
@@ -76,6 +78,7 @@ namespace Ship_Game.Ships
             if (!isTemplate && !shipyardDesign) // don't trigger adding to empire lists for template designs
                 LoyaltyChangeAtSpawn(empire);
 
+            Active = true;
             Stats = new ShipStats(this);
             KnownByEmpires = new Components.KnownByEmpire();
             HasSeenEmpires = new Components.KnownByEmpire();
@@ -217,7 +220,6 @@ namespace Ship_Game.Ships
         }
 
         [StarData] ModuleSaveData[] SavedModules;
-        [StarData] bool IsShipActive { get => Active; set => Active = value; }
 
         [StarDataSerialize]
         StarDataDynamicField[] OnSerialize()
@@ -300,7 +302,7 @@ namespace Ship_Game.Ships
             if (!ship.HasModules)
                 return null;
 
-            us?.AddShip(ship);
+            us.AddShip(ship);
             return ship;
         }
 
