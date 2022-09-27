@@ -217,7 +217,7 @@
     <Compile Include="Ship_Game\Data\Binary\FastTypeMap.cs" />
     <Compile Include="Ship_Game\Data\Binary\ObjectState.cs" />
     <Compile Include="Ship_Game\Data\Binary\Reader.cs" />
-    <Compile Include="Ship_Game\Data\Binary\RecursiveScanner.cs" />
+    <Compile Include="Ship_Game\Data\Binary\ObjectScanner.cs" />
     <Compile Include="Ship_Game\Data\Binary\UserTypeState.cs" />
     <Compile Include="Ship_Game\Data\Binary\Writer.cs" />
     <Compile Include="Ship_Game\Data\Binary\FieldInfo.cs" />

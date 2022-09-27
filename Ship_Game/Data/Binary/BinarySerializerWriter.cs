@@ -40,7 +40,7 @@ public class BinarySerializerWriter
 
     public void ScanObjects(BinarySerializer rootSer, object rootObject)
     {
-        var rs = new RecursiveScanner(rootSer, rootObject);
+        var rs = new ObjectScanner(rootSer, rootObject);
         rs.CreateWriteCommands();
 
         NumObjects = rs.NumObjects;
