@@ -278,26 +278,6 @@ namespace Ship_Game.Gameplay
             return netIncome.RoundToFractionOf10();
         }
 
-        public SolarSystem[] GetPlanetsLostFromWars(UniverseState us)
-        {
-            var lostSystems = new Array<SolarSystem>();
-            for (int i = 0; i < WarHistory.Count; i++)
-            {
-                var war = WarHistory[i];
-                var owner = EmpireManager.GetEmpireByName(war.UsName);
-                if (war.ContestedSystemsIds.IsEmpty) continue;
-                var systems = us.GetSolarSystemsFromIds(war.ContestedSystemsIds);
-                for (int j = 0; j < systems.Count; j++)
-                {
-                    SolarSystem system = systems[j];
-                    if (!system.OwnerList.Contains(owner))
-                        lostSystems.AddUniqueRef(system);
-                }
-            }
-
-            return lostSystems.ToArray();
-        }
-
         public void StoleOurColonyClaim(Empire owner, Planet claimedPlanet, out bool newTheft)
         {
             NumberStolenClaims++;
@@ -1736,14 +1716,6 @@ namespace Ship_Game.Gameplay
             }
 
             return false;
-        }
-
-        public void RestoreWarsFromSave(UniverseState us)
-        {
-            ActiveWar?.RestoreFromSave(us, true);
-
-            foreach (var war in WarHistory)
-                war.RestoreFromSave(us, false);
         }
 
         public DebugTextBlock DebugWar(Empire us)
