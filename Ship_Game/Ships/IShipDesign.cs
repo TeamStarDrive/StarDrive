@@ -33,7 +33,6 @@ namespace Ship_Game.Ships
 
         ShipCategory ShipCategory  { get; }
         HangarOptions HangarDesignation  { get; }
-        AIState DefaultAIState { get; }
         CombatState DefaultCombatState { get; }
 
         ModuleGridFlyweight Grid { get; }

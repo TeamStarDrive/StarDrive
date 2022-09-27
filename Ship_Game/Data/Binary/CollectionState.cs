@@ -39,18 +39,14 @@ public class CollectionState : ObjectState
         if (count == 0)
             return;
 
-        var typeMap = scanner.RootSer.TypeMap;
-        bool valCanBeNull = coll.ElemSerializer.IsPointerType;
-
         if (coll is MapSerializer maps)
         {
             Items = new uint[count * 2];
             var e = ((IDictionary)Obj).GetEnumerator();
             for (int i = 0; i < count && e.MoveNext(); ++i)
             {
-                uint keyId = scanner.ScanObjectState(maps.KeySerializer, e.Key);
-                Items[i*2+0] = keyId;
-                SetValue(scanner, i*2+1, e.Value, valCanBeNull, typeMap);
+                Items[i*2+0] = scanner.ScanObjectState(maps.KeySerializer, e.Key);
+                Items[i*2+1] = scanner.ScanObjectState(maps.ElemSerializer, e.Value);
             }
         }
         else if (coll is HashSetSerializer)
@@ -59,7 +55,7 @@ public class CollectionState : ObjectState
             var e = ((IEnumerable)Obj).GetEnumerator();
             for (int i = 0; i < count && e.MoveNext(); ++i)
             {
-                SetValue(scanner, i, e.Current, valCanBeNull, typeMap);
+                Items[i] = scanner.ScanObjectState(coll.ElemSerializer, e.Current);
             }
         }
         else
@@ -68,23 +64,8 @@ public class CollectionState : ObjectState
             for (int i = 0; i < count; ++i)
             {
                 object element = coll.GetElementAt(Obj, i);
-                SetValue(scanner, i, element, valCanBeNull, typeMap);
+                Items[i] = scanner.ScanObjectState(coll.ElemSerializer, element);
             }
-        }
-    }
-
-    void SetValue(ObjectScanner scanner, int index, object instance, bool valCanBeNull, TypeSerializerMap typeMap)
-    {
-        if (valCanBeNull && instance == null)
-        {
-            Items[index] = 0;
-        }
-        else
-        {
-            // NOTE: VALUES CAN USE ABSTRACT TYPES, SO TYPE CHECK IS REQUIRED FOR EACH ELEMENT
-            TypeSerializer item = typeMap.Get(instance!.GetType());
-            uint valId = scanner.ScanObjectState(item, instance);
-            Items[index] = valId;
         }
     }
 }

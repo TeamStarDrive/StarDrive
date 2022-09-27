@@ -98,7 +98,7 @@ public class ObjectScannerTests : StarDriveTest
         rs.CreateWriteCommands();
 
         Assert.AreEqual(19, rs.NumObjects);
-        Assert.AreEqual(14, rs.RootObjectId);
+        Assert.AreEqual(14u, rs.RootObjectId);
         Assert.AreEqual(9, rs.TypeGroups.Length);
 
         var rootGroup = rs.TypeGroups.First(g => g.Type.Type == typeof(RootObject));

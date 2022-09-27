@@ -45,8 +45,7 @@ namespace Ship_Game.Ships
 
         [StarData] public ShipCategory ShipCategory { get; set; } = ShipCategory.Unclassified;
         [StarData] public HangarOptions HangarDesignation { get; set; } = HangarOptions.General;
-        [StarData] public AIState DefaultAIState { get; set; } = AIState.AwaitingOrders;
-        [StarData] public CombatState DefaultCombatState { get; set; } = CombatState.AttackRuns;
+        [StarData] public CombatState DefaultCombatState { get; set; }
 
         public ModuleGridFlyweight Grid { get; private set; }
         [StarData] public ShipGridInfo GridInfo { get; set; }

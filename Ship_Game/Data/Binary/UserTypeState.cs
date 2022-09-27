@@ -58,32 +58,63 @@ public class UserTypeState : ObjectState
         StarDataDynamicField[] dynamicF = user.InvokeOnSerializeEvt(Obj);
 
         // the # of fields remains constant because we rely on predefined object layout
-        Fields = user.Fields.Length > 0 ? new uint[user.Fields.Length] : Empty<uint>.Array;
+        int numFields = user.Fields.Length;
+        Fields = numFields > 0 ? new uint[numFields] : Empty<uint>.Array;
 
-        for (int i = 0; i < user.Fields.Length; ++i)
+        int numDefaults = 0;
+        int fullLayoutSize = 0;
+
+        for (int fieldIdx = 0; fieldIdx < user.Fields.Length; ++fieldIdx)
         {
-            DataField field = user.Fields[i];
+            DataField field = user.Fields[fieldIdx];
             // HOTSPOT, some PROPERTIES can also perform computations here
             object obj = field.Get(Obj);
+
             uint fieldObjectId = scanner.ScanObjectState(field.Serializer, obj);
-            Fields[i] = fieldObjectId;
+            if (fieldObjectId == 0) ++numDefaults;
+            fullLayoutSize += Writer.PredictVLuSize(fieldObjectId);
+
+            Fields[fieldIdx] = fieldObjectId;
         }
 
         // dynamic fields override existing fields
         // TODO: instead of override, prevent original value from being scanned and written
         if (dynamicF != null)
         {
-            for (int i = 0; i < dynamicF.Length; ++i)
+            foreach (StarDataDynamicField dynF in dynamicF)
             {
-                StarDataDynamicField dynF = dynamicF[i];
                 int fieldIdx = user.Fields.IndexOf(f => f.Name == dynF.Name);
                 if (fieldIdx == -1)
                     throw new($"StarDataDynamicField: Could not find a [StarData] field with Name=`{dynF.Name}`");
 
+                // undo stats for previous value
+                uint oldObjectId = Fields[fieldIdx];
+                if (oldObjectId == 0) --numDefaults;
+                fullLayoutSize -= Writer.PredictVLuSize(oldObjectId);
+
                 // and now replace the current object
                 DataField field = user.Fields[fieldIdx];
-                uint fieldObjectId = scanner.ScanObjectState(field.Serializer, dynF.Value);
+                object obj = dynF.Value;
+
+                uint fieldObjectId = scanner.ScanObjectState(field.Serializer, obj);
+                if (fieldObjectId == 0) ++numDefaults;
+                fullLayoutSize += Writer.PredictVLuSize(fieldObjectId);
+
                 Fields[fieldIdx] = fieldObjectId;
+            }
+        }
+
+        // in order to figure out whether we should use FullLayout or PartialLayout,
+        // we calculate the partial layout size and see if it's even 1 byte smaller
+        // this is because every byte counts over network transfers
+        if (numDefaults > 0) // do we have default fields?
+        {
+            // default fields are always 0 (1 byte), so just subtract from full layout size
+            int validFields = (numFields - numDefaults);
+            int partialLayoutSize = validFields + (fullLayoutSize - numDefaults);
+            if (partialLayoutSize < fullLayoutSize)
+            {
+                NumPartialSerializeFields = (uint)validFields;
             }
         }
     }
