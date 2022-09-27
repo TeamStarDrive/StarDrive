@@ -80,7 +80,11 @@ namespace Ship_Game.Data.Serialization.Types
             if (Mapping.TryGetValue(enumIndex, out object enumValue))
                 return enumValue;
 
-            if (IsFlagsEnum && enumIndex != 0)
+            // 0 is now equivalent of DefaultValue
+            if (enumIndex == 0)
+                return DefaultValue;
+
+            if (IsFlagsEnum)
             {
                 try
                 {

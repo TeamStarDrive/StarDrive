@@ -13,12 +13,13 @@ namespace Ship_Game.Gameplay
     public sealed class Asteroid : GameObject
     {
         [StarData] public float Scale = 1.0f; // serialized
-        [XmlIgnore] Vector3 RotationRadians;
-        [XmlIgnore] Vector3 Spin;
-        [XmlIgnore] int AsteroidId;
-        [XmlIgnore] SceneObject So;
+        Vector3 RotationRadians;
+        Vector3 Spin;
+        int AsteroidId;
+        SceneObject So;
 
         // Serialized (SaveGame) asteroid
+        [StarDataConstructor]
         public Asteroid() : base(0, GameObjectType.Asteroid)
         {
             Radius = 50f; // some default radius for now
@@ -28,6 +29,7 @@ namespace Ship_Game.Gameplay
         public Asteroid(int id, RandomBase random, float scaleMin, float scaleMax, Vector2 pos)
              : base(id, GameObjectType.Asteroid)
         {
+            Active = true;
             Radius = 50f; // some default radius for now
             Scale = random.Float(scaleMin, scaleMax);
             Position = pos;

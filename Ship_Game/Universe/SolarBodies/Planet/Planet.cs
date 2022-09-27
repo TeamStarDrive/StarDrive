@@ -254,6 +254,7 @@ namespace Ship_Game
 
         Planet(int id) : base(id, GameObjectType.Planet)
         {
+            Active = true; // planets always exist ( for now ;) )
             CreateManagers();
         }
 
