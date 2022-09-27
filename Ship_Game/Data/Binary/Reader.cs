@@ -1,6 +1,4 @@
-﻿using System;
 using System.IO;
-
 namespace Ship_Game.Data.Binary;
 
 public class Reader : BinaryReader

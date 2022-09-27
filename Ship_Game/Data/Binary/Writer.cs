@@ -12,6 +12,8 @@ public class Writer : IDisposable
     byte[] Buffer;
     char[] StringBuffer;
 
+    public int Length => BufferLen;
+
     public Writer(Stream outStream)
     {
         OutStream = outStream;
@@ -317,5 +319,28 @@ public class Writer : IDisposable
             num >>= 7;
         }
         BufferLen = len;
+    }
+
+    // Predicts the Variable-Length integer size (in bytes) of this `value`
+    public static int PredictVLuSize(uint value)
+    {
+        // VL uint fits 7 bits in every byte
+        if (value < 128u) return 1; // 2^7
+        if (value < 16384u) return 2; // 2^14
+        if (value < 2097152u) return 3; // 2^21
+        if (value < 268435456u) return 4; // 2^28
+        return 5;
+    }
+
+    public static int PredictVLSize(int value)
+    {
+        // VL int first byte fits 6 bits of data
+        // rest of the bytes fit 7 bits of data
+        uint absValue = (uint)(value > 0 ? value : -value);
+        if (absValue < 64u) return 1; // 2^6
+        if (absValue < 8192u) return 2; // 2^13
+        if (absValue < 1048576u) return 3; // 2^20
+        if (absValue < 134217728u) return 4; // 2^27
+        return 5;
     }
 }

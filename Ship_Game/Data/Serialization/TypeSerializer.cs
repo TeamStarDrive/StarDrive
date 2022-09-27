@@ -73,6 +73,10 @@ namespace Ship_Game.Data.Serialization
 
         public bool IsStruct => IsValueType && IsUserClass;
 
+        // For reference types, this is always null
+        // for value types, this default(T)
+        public object DefaultValue;
+
         protected TypeSerializer(Type type)
         {
             Type = type;
@@ -80,6 +84,11 @@ namespace Ship_Game.Data.Serialization
             IsValueType = !IsPointerType;
             IsEnumType = type.IsEnum;
             TypeName = type.Name;
+
+            if (IsValueType)
+            {
+                DefaultValue = Activator.CreateInstance(type);
+            }
         }
 
         internal void SetTypeId(int id)
