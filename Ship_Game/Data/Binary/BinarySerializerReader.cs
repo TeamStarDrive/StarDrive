@@ -11,7 +11,7 @@ namespace Ship_Game.Data.Binary;
 
 // Binary Object counts grouped by their type (includes strings)
 // TypeInfo Type is mandatory
-public record struct TypeGroup(TypeInfo Type, TypeSerializer Ser, int Count, int BaseIndex);
+public record struct TypeGroup(TypeInfo Type, TypeSerializer Ser, int Count, int BaseId);
 
 /// <summary>
 /// Core logic of the binary reader
@@ -276,11 +276,11 @@ public class BinarySerializerReader
                 throw new InvalidDataException($"ReadGroup Type={streamTypeId}:{type.Name} BaseObjectId was 0");
 
             if (Verbose) Log.Info($"ReadGroup {type.Category} {streamTypeId}:{type.Name}  N={count}");
-            TypeGroups[i] = new(type, type.Ser, count, BaseIndex:(baseObjectId-1));
+            TypeGroups[i] = new(type, type.Ser, count, BaseId:baseObjectId);
             totalCount += count;
         }
 
-        ObjectsList = new object[totalCount];
+        ObjectsList = new object[totalCount + 1];
     }
 
     // populate all object instances by reading the object fields
@@ -300,7 +300,7 @@ public class BinarySerializerReader
         for (int i = 0; i < TypeGroups.Length; ++i)
         {
             TypeGroup g = TypeGroups[i];
-            ReadObjects(g.Type, g.Ser, g.Count, g.BaseIndex);
+            ReadObjects(g.Type, g.Ser, g.Count, g.BaseId);
 
             if (g.Type == lastArray.Type)
             {
@@ -319,13 +319,13 @@ public class BinarySerializerReader
         foreach (var g in GetTypeGroups(t => t.Category is (SerializerCategory.UserClass or SerializerCategory.Collection)))
         {
             for (int i = 0; i < g.Count; ++i)
-                ObjectsList[g.BaseIndex + i] = g.Ser.CreateInstance();
+                ObjectsList[g.BaseId + i] = g.Ser.CreateInstance();
         }
     }
 
     object AfterDeserialization()
     {
-        object root = ObjectsList[Header.RootObjectId - 1]; // ID-s are from [1...N]
+        object root = ObjectsList[Header.RootObjectId]; // ID-s are from [1...N]
 
         if (Verbose) Log.Info("Invoke UserClass events");
         var onDeserialized = new EventContextOnDeserialized(root, ObjectsList, Verbose);
@@ -341,7 +341,7 @@ public class BinarySerializerReader
                 yield return g;
     }
 
-    void ReadObjects(TypeInfo type, TypeSerializer ser, int count, int baseIndex)
+    void ReadObjects(TypeInfo type, TypeSerializer ser, int count, int baseId)
     {
         uint typeId = BR.ReadVLu32();
         if (Verbose) Log.Info($"ReadObjects N={count} {type}");
@@ -362,7 +362,7 @@ public class BinarySerializerReader
         {
             for (int i = 0; i < count; ++i)
             {
-                object instance = ObjectsList[baseIndex + i];
+                object instance = ObjectsList[baseId + i];
                 ReadUserClass(type, instance);
             }
         }
@@ -371,7 +371,7 @@ public class BinarySerializerReader
             var cs = (CollectionSerializer)ser;
             for (int i = 0; i < count; ++i)
             {
-                object instance = ObjectsList[baseIndex + i];
+                object instance = ObjectsList[baseId + i];
                 cs.Deserialize(this, instance);
             }
         }
@@ -381,7 +381,7 @@ public class BinarySerializerReader
         {
             for (int i = 0; i < count; ++i)
             {
-                ObjectsList[baseIndex + i] = ser.Deserialize(this);
+                ObjectsList[baseId + i] = ser.Deserialize(this);
             }
         }
     }
@@ -396,7 +396,7 @@ public class BinarySerializerReader
 
         foreach ((object instance, FieldInfo fi, uint pointer) in DeferredSets)
         {
-            object fieldValue = ObjectsList[pointer - 1];
+            object fieldValue = ObjectsList[pointer];
             try
             {
                 fi.Field.Set(instance, fieldValue);
@@ -421,7 +421,7 @@ public class BinarySerializerReader
             // all types are now using pointers
             // the pointer has to be read, even if Field or Type is deleted
             uint pointer = BR.ReadVLu32();
-            object fieldValue = pointer != 0 ? ObjectsList[pointer - 1] : null;
+            object fieldValue = pointer != 0 ? ObjectsList[pointer] : null;
 
             // if Type has been deleted, we skip and read the next field
             if (instance == null) continue;
@@ -454,6 +454,6 @@ public class BinarySerializerReader
         uint pointer = BR.ReadVLu32();
         if (pointer == 0)
             return elemType.DefaultValue;
-        return ObjectsList[pointer - 1];
+        return ObjectsList[pointer];
     }
 }
