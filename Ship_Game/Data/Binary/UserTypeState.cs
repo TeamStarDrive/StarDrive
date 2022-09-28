@@ -44,7 +44,7 @@ public class UserTypeState : ObjectState
         Remap(map, Fields);
     }
 
-    public override void Scan(ObjectScanner scanner, TypeSerializer ser)
+    public override void Scan(ObjectScanner scanner, TypeSerializer ser, DataField owner)
     {
         var user = (UserTypeSerializer)ser;
 
@@ -64,7 +64,7 @@ public class UserTypeState : ObjectState
             // HOTSPOT, some PROPERTIES can also perform computations here
             object obj = field.Get(Obj);
 
-            uint fieldObjectId = scanner.ScanObjectState(field.Serializer, obj);
+            uint fieldObjectId = scanner.ScanObjectState(field.Serializer, obj, owner: field);
             if (fieldObjectId == 0) ++numDefaults;
             fullLayoutSize += Writer.PredictVLuSize(fieldObjectId);
 
@@ -90,7 +90,7 @@ public class UserTypeState : ObjectState
                 DataField field = user.Fields[fieldIdx];
                 object obj = dynF.Value;
 
-                uint fieldObjectId = scanner.ScanObjectState(field.Serializer, obj);
+                uint fieldObjectId = scanner.ScanObjectState(field.Serializer, obj, owner: field);
                 if (fieldObjectId == 0) ++numDefaults;
                 fullLayoutSize += Writer.PredictVLuSize(fieldObjectId);
 

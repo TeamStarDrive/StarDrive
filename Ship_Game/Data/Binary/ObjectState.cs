@@ -10,7 +10,8 @@ public class ObjectState
     public ObjectState(object obj, uint id) { Obj = obj; Id = id; }
 
     // Scan for child objects
-    public virtual void Scan(ObjectScanner scanner, TypeSerializer ser)
+    // @param owner DataField information for debugging purposes 
+    public virtual void Scan(ObjectScanner scanner, TypeSerializer ser, DataField owner)
     {
         // Fundamental types don't have anything to scan
     }
