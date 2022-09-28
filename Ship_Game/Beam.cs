@@ -78,7 +78,10 @@ namespace Ship_Game
         {
             Universe = us;
             if (!GetWeapon(Owner, Planet, WeaponUID, false, out Weapon))
+            {
+                Log.Error($"Beam.Weapon not found UID={WeaponUID} Owner={Owner} Planet={Planet}");
                 return; // this owner or weapon no longer exists
+            }
 
             float savedDuration = Duration;
             BeamInit(Source, Destination);
