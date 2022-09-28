@@ -125,7 +125,7 @@ namespace Ship_Game
         // cleanupOnly: just delete the projectile without showing visual death effects
         public override void Die(GameObject source, bool cleanupOnly)
         {
-            Weapon.ResetToggleSound();
+            Weapon?.ResetToggleSound();
             base.Die(source, cleanupOnly);
         }
 
