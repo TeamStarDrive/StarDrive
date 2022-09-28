@@ -19,7 +19,8 @@ namespace Ship_Game.Commands.Goals
                 NotifyPlayer,
                 MonitorAndEngage
             };
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Story: {Owner.Remnants.Story} ----");
+            if (owner != null)
+                Log.Info(ConsoleColor.Green, $"---- Remnants: New {Owner.Name} Story: {Owner.Remnants.Story} ----");
         }
 
         void EngageEmpire(Ship[] portals)

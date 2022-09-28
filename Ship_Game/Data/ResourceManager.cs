@@ -121,7 +121,7 @@ namespace Ship_Game
             if (EventsDict.TryGetValue(eventName, out ExplorationEvent events))
                 return events;
             Log.WarningWithCallStack($"{eventName} not found. Contact mod creator.");
-            return EventsDict["default"];
+            return EventsDict["Default"];
         }
 
         /// <summary>
