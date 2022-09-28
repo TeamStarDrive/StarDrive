@@ -71,8 +71,8 @@ namespace Ship_Game.Commands.Goals
                 && !TargetPlanet.ParentSystem.IsExclusivelyOwnedBy(Owner))
             {
                 // Someone got planets in that system, need to check if we warned them
-                foreach ((Empire them, Relationship rel) in Owner.AllRelations)
-                    Owner.AI.ExpansionAI.CheckClaim(them, rel, TargetPlanet);
+                foreach (Relationship rel in Owner.AllRelations)
+                    Owner.AI.ExpansionAI.CheckClaim(rel.Them, rel, TargetPlanet);
             }
 
             if (TargetPlanet.Owner != null)

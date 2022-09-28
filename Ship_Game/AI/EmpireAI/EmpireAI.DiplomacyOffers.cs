@@ -292,9 +292,9 @@ namespace Ship_Game.AI
             {
                 totalTrustRequiredFromUs += dt.NAPact;
                 int numWars = 0;
-                foreach ((Empire relThem, Relationship rel)  in us.AllRelations)
+                foreach (Relationship rel in us.AllRelations)
                 {
-                    if (rel.AtWar && !relThem.IsFaction)
+                    if (rel.AtWar && !rel.Them.IsFaction)
                         ++numWars;
                 }
                 if (numWars > 0 && !usToThem.AtWar)

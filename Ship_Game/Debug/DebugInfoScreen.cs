@@ -804,34 +804,34 @@ namespace Ship_Game.Debug
                 DrawString($"{e.Personality}");
                 DrawString($"Average War Grade: {e.GetAverageWarGrade()}");
                 DrawString("----------------------------");
-                foreach ((Empire them, Relationship rel) in e.AllRelations)
+                foreach (Relationship rel in e.AllRelations)
                 {
-                    if (them.IsFaction || GlobalStats.RestrictAIPlayerInteraction && them.isPlayer || them.data.Defeated)
+                    if (rel.Them.IsFaction || GlobalStats.RestrictAIPlayerInteraction && rel.Them.isPlayer || rel.Them.data.Defeated)
                         continue;
 
-                    DrawString(them.EmpireColor, $"{them.Name}");
-                    DrawString(them.EmpireColor, $"Posture: {rel.Posture}");
-                    DrawString(them.EmpireColor, $"Trust (A/U/T)   : {rel.AvailableTrust.String(2)}/{rel.TrustUsed.String(2)}/{rel.Trust.String(2)}");
-                    DrawString(them.EmpireColor, $"Anger Diplomatic: {rel.Anger_DiplomaticConflict.String(2)}");
-                    DrawString(them.EmpireColor, $"Anger Border    : {rel.Anger_FromShipsInOurBorders.String(2)}");
-                    DrawString(them.EmpireColor, $"Anger Military  : {rel.Anger_MilitaryConflict.String(2)}");
-                    DrawString(them.EmpireColor, $"Anger Territory : {rel.Anger_TerritorialConflict.String(2)}");
+                    DrawString(rel.Them.EmpireColor, $"{rel.Them.Name}");
+                    DrawString(rel.Them.EmpireColor, $"Posture: {rel.Posture}");
+                    DrawString(rel.Them.EmpireColor, $"Trust (A/U/T)   : {rel.AvailableTrust.String(2)}/{rel.TrustUsed.String(2)}/{rel.Trust.String(2)}");
+                    DrawString(rel.Them.EmpireColor, $"Anger Diplomatic: {rel.Anger_DiplomaticConflict.String(2)}");
+                    DrawString(rel.Them.EmpireColor, $"Anger Border    : {rel.Anger_FromShipsInOurBorders.String(2)}");
+                    DrawString(rel.Them.EmpireColor, $"Anger Military  : {rel.Anger_MilitaryConflict.String(2)}");
+                    DrawString(rel.Them.EmpireColor, $"Anger Territory : {rel.Anger_TerritorialConflict.String(2)}");
                     string nap   = rel.Treaty_NAPact      ? "NAP "      : "";
                     string trade = rel.Treaty_Trade       ? ",Trade "   : "";
                     string open  = rel.Treaty_OpenBorders ? ",Borders " : "";
                     string ally  = rel.Treaty_Alliance    ? ",Allied "  : "";
                     string peace = rel.Treaty_Peace       ? "Peace"     : "";
-                    DrawString(them.EmpireColor, $"Treaties: {nap}{trade}{open}{ally}{peace}");
+                    DrawString(rel.Them.EmpireColor, $"Treaties: {nap}{trade}{open}{ally}{peace}");
                     if (rel.NumTechsWeGave > 0)
-                        DrawString(them.EmpireColor, $"Techs We Gave Them: {rel.NumTechsWeGave}");
+                        DrawString(rel.Them.EmpireColor, $"Techs We Gave Them: {rel.NumTechsWeGave}");
 
                     if (rel.ActiveWar != null)
-                        DrawString(them.EmpireColor, "*** At War! ***");
+                        DrawString(rel.Them.EmpireColor, "*** At War! ***");
 
                     if (rel.PreparingForWar)
-                        DrawString(them.EmpireColor, "*** Preparing for War! ***");
+                        DrawString(rel.Them.EmpireColor, "*** Preparing for War! ***");
                     if (rel.PreparingForWar)
-                        DrawString(them.EmpireColor, $"*** {rel.PreparingForWarType} ***");
+                        DrawString(rel.Them.EmpireColor, $"*** {rel.PreparingForWarType} ***");
 
                     DrawString(e.EmpireColor, "----------------------------");
                 }
@@ -1066,20 +1066,21 @@ namespace Ship_Game.Debug
                 }
 
                 NewLine();
-                foreach ((Empire them, Relationship rel) in e.AllRelations)
+                foreach (Relationship rel in e.AllRelations)
                 {
-                    TextColor = them.EmpireColor;
+                    string plural = rel.Them.data.Traits.Plural;
+                    TextColor = rel.Them.EmpireColor;
                     if (rel.Treaty_NAPact)
-                        DrawString(15f, "NA Pact with "+ them.data.Traits.Plural);
+                        DrawString(15f, "NA Pact with " + plural);
 
                     if (rel.Treaty_Trade)
-                        DrawString(15f, "Trade Pact with "+ them.data.Traits.Plural);
+                        DrawString(15f, "Trade Pact with " + plural);
 
                     if (rel.Treaty_OpenBorders)
-                        DrawString(15f, "Open Borders with "+ them.data.Traits.Plural);
+                        DrawString(15f, "Open Borders with " + plural);
 
                     if (rel.AtWar)
-                        DrawString(15f, $"War with {them.data.Traits.Plural} ({rel.ActiveWar?.WarType})");
+                        DrawString(15f, $"War with {plural} ({rel.ActiveWar?.WarType})");
                 }
                 ++column;
                 if (Screen.SelectedSystem != null)

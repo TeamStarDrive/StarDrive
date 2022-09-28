@@ -208,7 +208,7 @@ namespace Ship_Game.AI
             {
                 Planet ourColonizeP = ourGoal.TargetPlanet;
                 var system = ourColonizeP.ParentSystem;
-                if (usToThem.WarnedSystemsList.Contains(system.Id))
+                if (usToThem.WarnedSystemsList.Contains(system))
                     continue; // Already warned them
 
                 // Non allied empires will always warn if the system is exclusively owned by them
@@ -232,7 +232,7 @@ namespace Ship_Game.AI
                         if (them.isPlayer)
                             DiplomacyScreen.Show(OwnerEmpire, "Claim System", system);
 
-                        usToThem.WarnedSystemsList.AddUnique(system.Id);
+                        usToThem.WarnedSystemsList.AddUnique(system);
                     }
                 }
             }
@@ -253,7 +253,7 @@ namespace Ship_Game.AI
                     if (warnExclusive || warnAnyway)
                         return true;
 
-                    if (themToUs.WarnedSystemsList.Contains(goal.TargetPlanet.ParentSystem.Id))
+                    if (themToUs.WarnedSystemsList.Contains(goal.TargetPlanet.ParentSystem))
                         return false; // They warned us, so no need to warn them
 
                     // If they stole planets from us, we will value our targets more.

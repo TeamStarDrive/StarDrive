@@ -94,16 +94,16 @@ namespace Ship_Game.AI
             usToThem.FedQuest = null;
             if (us.isPlayer && usToThem.Treaty_NAPact)
             {
-                foreach ((Empire other, Relationship rel) in us.AllRelations)
+                foreach (Relationship rel in us.AllRelations)
                 {
                     // damage our relations with other factions that are not
                     // already at war with them
-                    if (other != them && !other.IsAtWarWith(them))
+                    if (rel.Them != them && !rel.Them.IsAtWarWith(them))
                     {
-                        Relationship otherRelationToUs = other.GetRelations(us);
+                        Relationship otherRelationToUs = rel.Them.GetRelations(us);
                         otherRelationToUs.Trust -= 50f;
                         otherRelationToUs.AddAngerDiplomaticConflict(20f);
-                        otherRelationToUs.UpdateRelationship(other, us);
+                        otherRelationToUs.UpdateRelationship(rel.Them, us);
                     }
                 }
                 themToUs.Trust -= 50f;
@@ -145,9 +145,9 @@ namespace Ship_Game.AI
                     if (aiRelationToPlayer.Treaty_NAPact)
                     {
                         DiplomacyScreen.Show(OwnerEmpire, player, "Declare War Imperialism Break NA");
-                        foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
+                        foreach (Relationship rel in OwnerEmpire.AllRelations)
                         {
-                            if (other != player)
+                            if (rel.Them != player)
                             {
                                 rel.Trust -= 50f;
                                 rel.AddAngerDiplomaticConflict(20f);
@@ -167,9 +167,9 @@ namespace Ship_Game.AI
                         OwnerEmpire.BreakTreatyWith(player, TreatyType.NonAggression);
                         aiRelationToPlayer.Trust -= 50f;
                         aiRelationToPlayer.AddAngerDiplomaticConflict(50);
-                        foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
+                        foreach (Relationship rel in OwnerEmpire.AllRelations)
                         {
-                            if (other != player)
+                            if (rel.Them != player)
                             {
                                 rel.Trust -= 50f;
                                 rel.AddAngerDiplomaticConflict(20);
@@ -275,13 +275,13 @@ namespace Ship_Game.AI
             }
 
             UpdateEmpireDefense();
-            foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (other.data.Defeated && rel.ActiveWar != null)
+                if (rel.Them.data.Defeated && rel.ActiveWar != null)
                 {
                     rel.AtWar = false;
                     rel.CancelPrepareForWar();
-                    rel.ActiveWar.EndStarDate = other.Universum.StarDate;
+                    rel.ActiveWar.EndStarDate = rel.Them.Universum.StarDate;
                     rel.WarHistory.Add(rel.ActiveWar);
                     rel.Posture = Posture.Neutral;
                 }
