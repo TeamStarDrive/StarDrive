@@ -383,38 +383,39 @@ namespace Ship_Game
             if (ports.Count != 0)
             {
                 float cost = ship.GetCost(this);
-                chosen     = FindPlanetToBuildAt(ports, cost, ship, priority);
+                chosen = FindPlanetToBuildAt(ports, cost, ship, priority);
                 return chosen != null;
             }
 
-            Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
+            if (NumPlanets != 0)
+                Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
             chosen = null;
             return false;
         }
 
         public bool FindPlanetToBuildTroopAt(IReadOnlyList<Planet> ports, Troop troop, float priority, out Planet chosen)
         {
-            chosen = null;
             if (ports.Count != 0)
             {
                 float cost = troop.ActualCost;
-                chosen     = FindPlanetToBuildAt(ports, cost, sData: null, priority);
+                chosen = FindPlanetToBuildAt(ports, cost, sData: null, priority);
                 return chosen != null;
             }
 
-            Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {troop} at! Candidates:{ports.Count}");
+            if (NumPlanets != 0)
+                Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {troop} at! Candidates:{ports.Count}");
+            chosen = null;
             return false;
         }
 
         public bool FindPlanetToSabotage(IReadOnlyList<Planet> ports, out Planet chosen)
         {
-            chosen = null;
             if (ports.Count != 0)
             {
                 chosen = ports.FindMax(p => p.Prod.NetMaxPotential);
                 return true;
             }
-
+            chosen = null;
             return false;
         }
 

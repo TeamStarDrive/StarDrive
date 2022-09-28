@@ -35,12 +35,6 @@ public class UserTypeState : ObjectState
             for (int fieldIdx = 0; fieldIdx < Fields.Length; ++fieldIdx)
             {
                 w.BW.WriteVLu32(Fields[fieldIdx]); // [fieldPointer]
-
-                if (ser.TypeName.Contains("UniverseState"))
-                {
-                    var us = (UserTypeSerializer)ser;
-                    Log.Info($"UniverseState [{fieldIdx}]={Fields[fieldIdx]} {us.Fields[fieldIdx].Name}");
-                }
             }
         }
     }
