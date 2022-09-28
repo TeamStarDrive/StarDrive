@@ -60,8 +60,6 @@ namespace Ship_Game
                 TargetModule = TargetShip.Modules.IndexOf(targetModule) + 1;
 
             BeamInit(source, destination);
-
-            Universe.Objects.Add(this);
         }
 
         // Create a spatially fixed beam spawned from a ship center
@@ -72,8 +70,6 @@ namespace Ship_Game
             Source = ship.Position;
             Destination = destination;
             Thickness = thickness;
-
-            Universe.Objects.Add(this);
         }
 
         // loading from savegame
