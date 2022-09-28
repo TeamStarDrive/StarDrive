@@ -237,25 +237,25 @@ namespace Ship_Game.Universe
             // clean up and submit objects before saving
             Objects.UpdateLists(removeInactiveObjects: true);
 
-            var saveState = new SaveState
+            var save = new SaveState
             {
                 Ships = Objects.GetShips(),
                 Projectiles = Objects.GetProjectiles()
             };
-            saveState.SetDesigns(Ships.Select(s => s.ShipData).UniqueSet());
+            save.SetDesigns(Ships.Select(s => s.ShipData).UniqueSet());
 
             // FogMap is converted to a Alpha bytes so that it can be included in the savegame
             var fogMapBytes = Screen.ContentManager.RawContent.TexExport.ToAlphaBytes(Screen.FogMap);
 
             return new StarDataDynamicField[]
             {
-                new (nameof(Save), saveState),
+                new (nameof(Save), save),
                 new (nameof(FogMapBytes), fogMapBytes)
             };
         }
 
         // Only call OnDeserialized evt if Empire and Ship have finished their events
-        [StarDataDeserialized(typeof(Empire), typeof(Ship))]
+        [StarDataDeserialized(typeof(Empire), typeof(Ship), typeof(Projectile), typeof(Beam))]
         void OnDeserialized()
         {
             SaveState save = Save;
