@@ -123,6 +123,9 @@ namespace Ship_Game.Gameplay
             WeaponUID = weapon.UID;
 
             Universe = Owner?.Universe ?? Planet?.Universe ?? Loyalty?.Universum;
+
+            // Add to universe during creation
+            Universe!.Objects.Add(this);
         }
 
         // new projectile from a ship
@@ -201,7 +204,7 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                Building building = planet?.BuildingList.Find(b => b.Weapon == weaponUID);
+                Building building = planet.BuildingList.Find(b => b.Weapon == weaponUID);
                 weapon = building?.TheWeapon;
             }
 
@@ -273,8 +276,6 @@ namespace Ship_Game.Gameplay
                 Vector2 missileVelocity = inheritedVelocity != Vector2.Zero ? inheritedVelocity : Weapon.Owner?.Velocity ?? Vector2.Zero;
                 MissileAI = new MissileAI(this, target, missileVelocity);
             }
-
-            Universe.Objects.Add(this);
 
             ModelPath = Weapon.ModelPath;
             UsesVisibleMesh = Weapon.UseVisibleMesh || WeaponType is "Missile" or "Drone" or "Rocket";
@@ -959,7 +960,7 @@ namespace Ship_Game.Gameplay
             DroneAI = null;
         }
 
-        public override string ToString() => $"Proj[{WeaponType}] Wep={Weapon?.Name} Pos={Position} Rad={Radius} Loy=[{Loyalty}]";
+        public override string ToString() => $"Proj[{WeaponType}]:{Id} Wep={Weapon?.Name} Pos={Position} Rad={Radius} Loy=[{Loyalty}]";
 
         public void IgniteEngine()
         {
