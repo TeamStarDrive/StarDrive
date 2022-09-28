@@ -33,49 +33,49 @@ public class CollectionState : ObjectState
         Remap(map, Items);
     }
 
-    public override void Scan(ObjectScanner scanner, TypeSerializer ser)
+    public override void Scan(ObjectScanner scanner, TypeSerializer ser, DataField owner)
     {
         var coll = (CollectionSerializer)ser;
         int count = coll.Count(Obj);
         if (count == 0)
             return;
 
-        if (coll is MapSerializer maps)
+        int i = 0;
+        try
         {
-            Items = new uint[count * 2];
-            var e = ((IDictionary)Obj).GetEnumerator();
-            for (int i = 0; i < count && e.MoveNext(); ++i)
+            if (coll is MapSerializer maps)
             {
-                Items[i*2+0] = scanner.ScanObjectState(maps.KeySerializer, e.Key);
-                Items[i*2+1] = scanner.ScanObjectState(maps.ElemSerializer, e.Value);
+                Items = new uint[count * 2];
+                var e = ((IDictionary)Obj).GetEnumerator();
+                for (; i < count && e.MoveNext(); ++i)
+                {
+                    Items[i*2+0] = scanner.ScanObjectState(maps.KeySerializer, e.Key, owner);
+                    Items[i*2+1] = scanner.ScanObjectState(maps.ElemSerializer, e.Value, owner);
+                }
             }
-        }
-        else if (coll is HashSetSerializer)
-        {
-            Items = new uint[count];
-            var e = ((IEnumerable)Obj).GetEnumerator();
-            for (int i = 0; i < count && e.MoveNext(); ++i)
+            else if (coll is HashSetSerializer)
             {
-                Items[i] = scanner.ScanObjectState(coll.ElemSerializer, e.Current);
+                Items = new uint[count];
+                var e = ((IEnumerable)Obj).GetEnumerator();
+                for (; i < count && e.MoveNext(); ++i)
+                {
+                    Items[i] = scanner.ScanObjectState(coll.ElemSerializer, e.Current, owner);
+                }
             }
-        }
-        else
-        {
-            Items = new uint[count];
-            int i = 0;
-            try
+            else
             {
+                Items = new uint[count];
                 for (; i < count; ++i)
                 {
                     object element = coll.GetElementAt(Obj, i);
-                    Items[i] = scanner.ScanObjectState(coll.ElemSerializer, element);
+                    Items[i] = scanner.ScanObjectState(coll.ElemSerializer, element, owner);
                 }
             }
-            catch (Exception ex)
-            {
-                // This can happen due to a multi-threading violation during Autosave
-                Log.Error(ex, $"{coll} GetElement({i}) failed! ExpectedCount={count} ActualCount={coll.Count(Obj)} Another thread has modified the collection!");
-            }
+        }
+        catch (Exception ex)
+        {
+            // This can happen due to a multi-threading violation during Autosave
+            Log.Error(ex, $"{owner?.DeclaringType.Name}::{owner?.Name} {coll} get element {i} failed! ExpectedLen={count} ActualLen={coll.Count(Obj)} Another thread has modified the collection!");
         }
     }
 }

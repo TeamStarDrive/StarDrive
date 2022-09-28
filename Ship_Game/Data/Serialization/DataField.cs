@@ -14,6 +14,9 @@ namespace Ship_Game.Data.Serialization
         public readonly string Name;
         public readonly TypeSerializer Serializer;
 
+        // The class which declared this field
+        public readonly Type DeclaringType;
+
         public delegate object Getter(object instance);
         public delegate void Setter(object instance, object value);
         public readonly Getter Get;
@@ -24,18 +27,32 @@ namespace Ship_Game.Data.Serialization
         public DataField(TypeSerializerMap typeMap, Type instanceType, StarDataAttribute a,
                          PropertyInfo prop, FieldInfo field)
         {
+            Name = a.NameId;
+            Type type;
+            MemberInfo m;
+
             if (prop != null)
             {
                 // if the property is defined in base class, we need to fetch the property
                 // through declaring class type in order to access the Setter
-                var p = (prop.DeclaringType != instanceType) ? prop.DeclaringType?.GetProperty(prop.Name) : prop;
-                if (p?.SetMethod == null)
-                    throw new($"[StarData] {instanceType.FullName}.{prop.Name} has no setter! Add a private setter.");
-                prop = p;
-            }
+                DeclaringType = prop.DeclaringType;
 
-            Name = a.NameId.NotEmpty() ? a.NameId : (prop?.Name ?? field.Name);
-            Type type = prop != null ? prop.PropertyType : field.FieldType;
+                var p = (DeclaringType != instanceType) ? DeclaringType?.GetProperty(prop.Name) : prop;
+                if (p?.SetMethod == null)
+                    throw new($"[StarData] {instanceType!.FullName}.{prop.Name} has no setter! Add a private setter.");
+                prop = p;
+
+                if (Name.IsEmpty()) Name = prop.Name;
+                type = prop.PropertyType;
+                m = prop;
+            }
+            else
+            {
+                DeclaringType = field.DeclaringType;
+                if (Name.IsEmpty()) Name = field.Name;
+                type = field.FieldType;
+                m = field;
+            }
 
             try
             {
@@ -45,13 +62,12 @@ namespace Ship_Game.Data.Serialization
             {
                 throw new($"{instanceType.FullName}::{Name}", ex);
             }
-            
-            MemberInfo m = prop ?? field as MemberInfo;
+
             try
             {
                 // precompile the getter
                 var obj = E.Parameter(typeof(object), "instance");
-                var castToClassType = E.Convert(obj, m.ReflectedType);
+                var castToClassType = E.Convert(obj, m.ReflectedType!);
                 var member = field != null
                     ? E.Field(castToClassType, field)
                     : E.Property(castToClassType, prop);
