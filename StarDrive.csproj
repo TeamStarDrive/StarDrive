@@ -685,7 +685,6 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\SunType.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\TroopManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Moon.cs" />
-    <Compile Include="Ship_Game\Data\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />
     <Compile Include="Ship_Game\UI\UIColors.cs" />
     <Compile Include="Ship_Game\UI\UIElementContainer.cs" />
