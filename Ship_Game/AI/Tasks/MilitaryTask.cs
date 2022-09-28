@@ -15,14 +15,15 @@ namespace Ship_Game.AI.Tasks
     public partial class MilitaryTask
     {
         [StarData] Empire Owner;
-        [StarData] public Planet TargetPlanet { get; private set; }
+        [StarData] public TaskType Type;
+        [StarData] public Vector2 AO;
+        [StarData] public float AORadius;
+
         [StarData] public Goal Goal;
 
         [StarData] public bool IsCoreFleetTask;
         [StarData] public bool NeedEvaluation = true;
-        [StarData] public TaskType Type;
-        [StarData] public Vector2 AO;
-        [StarData] public float AORadius;
+
         [StarData] public float EnemyStrength;
         [StarData] public float MinimumTaskForceStrength;
         [StarData] public int WhichFleet = -1;
@@ -30,13 +31,12 @@ namespace Ship_Game.AI.Tasks
         [StarData] public int NeededTroopStrength;
         [StarData] public int TaskBombTimeNeeded;
 
-        [StarData] public int TargetShipId;
-        [StarData] public int TargetEmpireId = -1;
         [StarData] public int TargetPlanetWarValue; // Used for doom fleets to affect colony lost value in war
-        [StarData] public int TargetSystemId;
 
+        [StarData] public Planet TargetPlanet { get; private set; }
         [StarData] public SolarSystem TargetSystem { get; private set; }
         [StarData] public Ship TargetShip { get; private set; }
+        [StarData] public Empire TargetEmpire;
 
         // FB - Do not disband the fleet, it is held for a new task - this is done at once and does not need save
         [StarData] public bool FleetNeededForNextTask { get; private set; }
@@ -47,178 +47,114 @@ namespace Ship_Game.AI.Tasks
         public Fleet Fleet => Owner?.GetFleetOrNull(WhichFleet);
         public Planet RallyPlanet => Owner.FindNearestRallyPoint(AO);
 
-        public Empire TargetEmpire
-        {
-            get => TargetEmpireId < 0 ? null : EmpireManager.GetEmpireById(TargetEmpireId);
-            set
-            {
-                if (value != null) 
-                    TargetEmpireId = value.Id;
-            }
-        }
-
         [StarDataConstructor]
         MilitaryTask(Empire owner)
         {
             Owner = owner;
         }
 
-        public static MilitaryTask CreateClaimTask(Empire owner, Planet targetPlanet, float minStrength,
-            Empire targetEmpire, int fleetCount)
+        MilitaryTask(TaskType type, Empire owner, Vector2 ao, float aoRadius, Planet targetPlanet = null)
         {
-            var militaryTask = new MilitaryTask(owner)
+            Type = type;
+            Owner = owner;
+            AO = ao;
+            AORadius = aoRadius;
+
+            TargetPlanet = targetPlanet;
+        }
+
+        public static MilitaryTask CreateClaimTask(Empire owner, Planet tgtPlanet, float minStrength,
+                                                   Empire targetEmpire, int fleetCount)
+        {
+            return new(TaskType.DefendClaim, owner, tgtPlanet.Position, tgtPlanet.ParentSystem.Radius, tgtPlanet)
             {
-                TargetPlanet             = targetPlanet,
-                AO                       = targetPlanet.Position,
-                Type                     = TaskType.DefendClaim,
-                AORadius                 = targetPlanet.ParentSystem.Radius,
+                TargetEmpire = targetEmpire,
+                FleetCount = fleetCount,
                 MinimumTaskForceStrength = minStrength,
-                TargetEmpire             = targetEmpire,
-                FleetCount               = fleetCount
             };
-
-            return militaryTask;
         }
 
-        public static MilitaryTask CreateExploration(Planet targetPlanet, Empire owner)
+        public static MilitaryTask CreateExploration(Planet tgtPlanet, Empire owner)
         {
-            Empire dominant  = owner.AI.ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
-            var militaryTask = new MilitaryTask(owner)
+            Empire dominant = owner.AI.ThreatMatrix.GetDominantEmpireInSystem(tgtPlanet.ParentSystem);
+            return new(TaskType.Exploration, owner, tgtPlanet.Position, aoRadius: 50000f, tgtPlanet)
             {
-                AO             = targetPlanet.Position,
-                AORadius       = 50000f,
-                Type           = TaskType.Exploration,
-                TargetPlanet   = targetPlanet,
-                TargetEmpire   = dominant
+                TargetEmpire = dominant
             };
-
-            return militaryTask;
         }
 
-        public static MilitaryTask CreateGuardTask(Empire owner, Planet targetPlanet)
+        public static MilitaryTask CreateGuardTask(Empire owner, Planet tgtPlanet)
         {
-            var militaryTask = new MilitaryTask(owner)
+            return new(TaskType.GuardBeforeColonize, owner, tgtPlanet.Position, tgtPlanet.ParentSystem.Radius, tgtPlanet)
             {
-                TargetPlanet             = targetPlanet,
-                AO                       = targetPlanet.Position,
-                Type                     = TaskType.GuardBeforeColonize,
-                AORadius                 = targetPlanet.ParentSystem.Radius,
+                Priority = 0,
                 MinimumTaskForceStrength = (owner.CurrentMilitaryStrength / 1000).LowerBound(50),
-                Priority                 = 0
             };
-
-            return militaryTask;
         }
 
         public static MilitaryTask CreateReclaimTask(Empire owner, Planet targetPlanet, int fleetId)
         {
-            var militaryTask = new MilitaryTask(owner)
+            return new(TaskType.ReclaimPlanet, owner, targetPlanet.Position, targetPlanet.ParentSystem.Radius, targetPlanet)
             {
-                TargetPlanet   = targetPlanet,
-                AO             = targetPlanet.Position,
-                Type           = TaskType.ReclaimPlanet,
-                AORadius       = targetPlanet.ParentSystem.Radius,
-                WhichFleet     = fleetId,
+                WhichFleet = fleetId,
                 NeedEvaluation = false // We have ships
             };
-
-            return militaryTask;
         }
 
         public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, Empire empire)
         {
-            var threatMatrix = empire.AI.ThreatMatrix;
-            float pingStr    = threatMatrix.PingRadarStr(targetShip.Position, 20000, empire);
-            var militaryTask = new MilitaryTask(empire)
+            float pingStr = empire.AI.ThreatMatrix.PingRadarStr(targetShip.Position, 20000, empire);
+            return new(TaskType.AssaultPirateBase, empire, targetShip.Position, aoRadius: 20000f)
             {
-                TargetShip               = targetShip,
-                AO                       = targetShip.Position,
-                Type                     = TaskType.AssaultPirateBase,
-                AORadius                 = 20000,
-                EnemyStrength            = targetShip.BaseStrength,
-                TargetShipId             = targetShip.Id,
+                TargetShip = targetShip,
+                TargetEmpire = targetShip.Loyalty,
+                EnemyStrength = targetShip.BaseStrength,
                 MinimumTaskForceStrength = (targetShip.BaseStrength + pingStr) * empire.GetFleetStrEmpireMultiplier(targetShip.Loyalty),
-                TargetEmpire             = targetShip.Loyalty
             };
-            return militaryTask;
         }
 
         public static MilitaryTask CreatePostInvasion(Planet planet, int fleetId, Empire owner)
         {
-            var militaryTask = new MilitaryTask(owner)
+            return new(TaskType.DefendPostInvasion, owner, planet.Position, aoRadius: 10000f, planet)
             {
-                AO             = planet.Position,
-                AORadius       = 10000f,
-                WhichFleet     = fleetId,
-                TargetPlanet   = planet,
-                Type           = TaskType.DefendPostInvasion,
+                WhichFleet = fleetId,
                 NeedEvaluation = false
             };
-
-            return militaryTask;
         }
 
         public static MilitaryTask CreateRemnantEngagement(Planet planet, Empire owner)
         {
-            var militaryTask = new MilitaryTask(owner)
-            {
-                AO           = planet.Position,
-                AORadius     = 50000f,
-                TargetPlanet = planet
-            };
-
-            militaryTask.SetEmpire(owner);
-            militaryTask.Type = TaskType.RemnantEngagement;
-            return militaryTask;
+            return new(TaskType.RemnantEngagement, owner, planet.Position, aoRadius: 50000f, planet);
         }
 
         public static MilitaryTask CreateDefendVsRemnant(Planet planet, Empire owner, float str)
         {
-            float strMulti   = owner.GetFleetStrEmpireMultiplier(EmpireManager.Remnants);
-            var militaryTask = new MilitaryTask(owner)
+            float strMulti = owner.GetFleetStrEmpireMultiplier(EmpireManager.Remnants);
+            return new(TaskType.DefendVsRemnants, owner, planet.Position, aoRadius: 50000f, planet)
             {
-                AO                       = planet.Position,
-                AORadius                 = 50000f,
-                TargetPlanet             = planet,
+                TargetEmpire = EmpireManager.Remnants,
+                Priority = 0,
+                EnemyStrength = str,
                 MinimumTaskForceStrength = str * strMulti,
-                EnemyStrength            = str,
-                Priority                 = 0,
-                Type                     = TaskType.DefendVsRemnants,
-                TargetEmpire             = EmpireManager.Remnants,
             };
-
-            return militaryTask;
         }
 
-        public MilitaryTask(Empire owner, Vector2 center, float radius, SolarSystem system,
-                            float strengthWanted, TaskType taskType)
+        public MilitaryTask(TaskType type, Empire owner, Vector2 center, float radius, SolarSystem system,
+                            float strengthWanted) : this(type, owner, center, radius)
         {
-            Owner = owner;
             Empire dominant = owner.AI.ThreatMatrix.GetDominantEmpireInSystem(system);
-            AO                       = center;
-            AORadius                 = radius;
-            Type                     = taskType;
+            TargetSystem = system;
+            TargetEmpire = dominant;
+            EnemyStrength = MinimumTaskForceStrength;
             MinimumTaskForceStrength = strengthWanted.LowerBound(500) * owner.GetFleetStrEmpireMultiplier(dominant);
-            EnemyStrength            = MinimumTaskForceStrength;
-
-            SetTargetSystem(system);
-
-            if (dominant != null)
-                TargetEmpire = dominant;
         }
 
         public MilitaryTask(Planet target, Empire owner)
+            : this(TaskType.AssaultPlanet, owner, target.Position, 5000f, target)
         {
-            float radius     = 5000f;
-            float strWanted  = GetKnownEnemyStrInClosestSystems(target.ParentSystem, owner, target.Owner)
-                               + target.BuildingGeodeticOffense;
+            TargetEmpire = target.Owner;
 
-            Owner = owner;
-            Type                     = TaskType.AssaultPlanet;
-            TargetPlanet             = target;
-            AO                       = target.Position;
-            AORadius                 = radius;
-            TargetEmpire             = target.Owner;
+            float strWanted = target.BuildingGeodeticOffense + GetKnownEnemyStrInClosestSystems(target.ParentSystem, owner, target.Owner);
             MinimumTaskForceStrength = strWanted.LowerBound(owner.KnownEmpireOffensiveStrength(target.Owner) / 10) 
                                        * owner.GetFleetStrEmpireMultiplier(target.Owner);
         }
@@ -245,8 +181,8 @@ namespace Ship_Game.AI.Tasks
 
         public void ChangeTargetPlanet(Planet planet)
         {
-            TargetPlanet   = planet;
-            AO             = planet.Position;
+            TargetPlanet = planet;
+            AO = planet.Position;
         }
 
         public void ChangeAO(Vector2 position)
@@ -513,26 +449,9 @@ namespace Ship_Game.AI.Tasks
             }
         }
 
-        public void SetEmpire(Empire e)
-        {
-            Owner = e;
-        }
-
         public void SetTargetPlanet(Planet p)
         {
             TargetPlanet = p;
-        }
-
-        public void SetTargetSystem(SolarSystem s)
-        {
-            TargetSystem = s;
-            TargetSystemId = s?.Id ?? 0;
-        }
-
-        public void SetTargetShip(Ship ship)
-        {
-            TargetShip = ship;
-            TargetShipId = ship.Id;
         }
 
         //need to examine this fleet key thing. i believe there is a leak.
