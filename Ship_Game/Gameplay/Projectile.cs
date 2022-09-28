@@ -177,7 +177,10 @@ namespace Ship_Game.Gameplay
         {
             Universe = us;
             if (!GetWeapon(Owner, Planet, WeaponUID, false, out Weapon))
+            {
+                Log.Error($"Projectile.Weapon not found UID={WeaponUID} Owner={Owner} Planet={Planet}");
                 return; // this owner or weapon no longer exists
+            }
 
             float savedDuration = Duration;
             Initialize(Position, Velocity, null, playSound: false, Vector2.Zero);
@@ -189,10 +192,7 @@ namespace Ship_Game.Gameplay
         {
             weapon = null;
             if (ship == null && planet == null)
-            {
-                Log.Warning($"Projectile Ship and Planet are both null! weaponUID={weaponUID}");
                 return false;
-            }
 
             if (ship != null)
             {
@@ -490,9 +490,7 @@ namespace Ship_Game.Gameplay
                 Universe.Screen.RemoveObject(ProjSO);
             }
 
-            System = null;
             base.Die(source, cleanupOnly);
-            Owner = null;
         }
 
         public bool TerminalPhase;
