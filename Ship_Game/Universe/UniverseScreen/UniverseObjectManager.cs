@@ -270,15 +270,12 @@ namespace Ship_Game
                 for (int i = 0; i < projectiles.Length; ++i)
                 {
                     Projectile proj = projectiles[i];
-                    if (proj.Active && proj.DieNextFrame)
+                    if (proj.Active)
                     {
-                        proj.Die(proj, false);
-                    }
-                    else if (proj is Beam beam)
-                    {
-                        if (beam.Owner?.Active == false)
+                        if (proj.DieNextFrame || 
+                            (proj.Type == GameObjectType.Beam && proj.Owner?.Active == false))
                         {
-                            beam.Die(beam, false);
+                            proj.Die(proj, false);
                         }
                     }
                 }
