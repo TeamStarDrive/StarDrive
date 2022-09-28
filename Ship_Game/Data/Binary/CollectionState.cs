@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Data.Serialization.Types;
 
@@ -61,10 +62,19 @@ public class CollectionState : ObjectState
         else
         {
             Items = new uint[count];
-            for (int i = 0; i < count; ++i)
+            int i = 0;
+            try
             {
-                object element = coll.GetElementAt(Obj, i);
-                Items[i] = scanner.ScanObjectState(coll.ElemSerializer, element);
+                for (; i < count; ++i)
+                {
+                    object element = coll.GetElementAt(Obj, i);
+                    Items[i] = scanner.ScanObjectState(coll.ElemSerializer, element);
+                }
+            }
+            catch (Exception ex)
+            {
+                // This can happen due to a multi-threading violation during Autosave
+                Log.Error(ex, $"{coll} GetElement({i}) failed! ExpectedCount={count} ActualCount={coll.Count(Obj)} Another thread has modified the collection!");
             }
         }
     }
