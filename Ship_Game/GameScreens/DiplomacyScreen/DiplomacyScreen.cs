@@ -995,14 +995,14 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 var theirWarTargets = new Array<Empire>();
                 var ourWarTargets   = new Array<Empire>();
 
-                foreach ((Empire other, Relationship rel) in Them.AllRelations)
+                foreach (Relationship rel in Them.AllRelations)
                 {
-                    if (!other.IsFaction && rel.AtWar)
-                        theirWarTargets.Add(other);
+                    if (!rel.Them.IsFaction && rel.AtWar)
+                        theirWarTargets.Add(rel.Them);
 
-                    if (!other.IsFaction && rel.GetStrength() > 75f && Us.IsAtWarWith(other))
+                    if (!rel.Them.IsFaction && rel.GetStrength() > 75f && Us.IsAtWarWith(rel.Them))
                     {
-                        ourWarTargets.Add(other);
+                        ourWarTargets.Add(rel.Them);
                     }
                 }
 
@@ -1099,14 +1099,14 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         {
             StatementsSL.Reset();
             int n1 = 1;
-            foreach ((Empire other, Relationship rel) in Them.AllRelations)
+            foreach (Relationship rel in Them.AllRelations)
             {
-                if (other != Us && rel.Known && !other.IsFaction
-                    && !other.data.Defeated && Us.IsKnown(other))
+                if (rel.Them != Us && rel.Known && !rel.Them.IsFaction
+                    && !rel.Them.data.Defeated && Us.IsKnown(rel.Them))
                 {
-                    var option = new DialogOption(n1, Localizer.Token(GameText.LetsDiscuss) + " " + other.data.Traits.Name)
+                    var option = new DialogOption(n1, Localizer.Token(GameText.LetsDiscuss) + " " + rel.Them.data.Traits.Name)
                     {
-                        Target = other
+                        Target = rel.Them
                     };
                     option.Words    = ParseTextDiplomacy(option.Words, DialogRect.Width - 25);
                     option.Response = "EmpireDiscuss";

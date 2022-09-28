@@ -162,7 +162,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return 0;
 
-            bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Rel.Known && !r.Them.IsFaction);
+            bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Known && !r.Them.IsFaction);
             if (notKnown) return 0;
 
             float trustworthiness = OwnerEmpire.data.DiplomaticPersonality?.Trustworthiness ?? 100;
@@ -301,9 +301,9 @@ namespace Ship_Game.AI
             float borderRisk = 0;
             float enemyRisk  = 0;
 
-            foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (other.data.Defeated || !rel.Known) continue;
+                if (rel.Them.data.Defeated || !rel.Known) continue;
                 if (rel.Risk.Risk <= 0)
                     continue;
                 maxRisk    = Math.Max(maxRisk, rel.Risk.Risk);

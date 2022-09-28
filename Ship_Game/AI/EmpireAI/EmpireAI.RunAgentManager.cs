@@ -352,15 +352,15 @@ namespace Ship_Game.AI
         bool TryFindEmpireTargets(out Array<Empire> targets)
         {
             targets = new Array<Empire>();
-            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
                 if (rel.Known
-                    && !them.IsFaction
-                    && !them.data.Defeated
+                    && !rel.Them.IsFaction
+                    && !rel.Them.data.Defeated
                     && (rel.Posture == Posture.Hostile 
                         || !OwnerEmpire.IsHonorable && !OwnerEmpire.IsPacifist && rel.Posture == Posture.Neutral))
                 {
-                    targets.Add(them);
+                    targets.Add(rel.Them);
                 }
             }
 

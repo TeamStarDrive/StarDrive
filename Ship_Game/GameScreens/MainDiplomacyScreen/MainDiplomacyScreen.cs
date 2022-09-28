@@ -510,13 +510,13 @@ namespace Ship_Game
             }
             batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(GameText.Population2), GetPop(SelectedEmpire).String(1), Localizer.Token(GameText.Billion)) + " ", textCursor, Color.Wheat);
             //Diplomatic Relations
-            foreach ((Empire other, Relationship rel) in SelectedEmpire.AllRelations)
+            foreach (Relationship rel in SelectedEmpire.AllRelations)
             {
-                if (!rel.Known || other.IsFaction || other.data.Defeated)
+                if (!rel.Known || rel.Them.IsFaction || rel.Them.data.Defeated)
                     continue;
 
-                Color color = other.EmpireColor;
-                string name = other.data.Traits.Name;
+                Color color = rel.Them.EmpireColor;
+                string name = rel.Them.data.Traits.Name;
                 if (IntelligenceLevel(SelectedEmpire) > 0)
                 {
                     // "and Trade"

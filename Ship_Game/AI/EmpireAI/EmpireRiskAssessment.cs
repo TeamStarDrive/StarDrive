@@ -23,7 +23,7 @@ namespace Ship_Game.AI
 
         public EmpireRiskAssessment(Relationship relation)
         {
-            Them = EmpireManager.GetEmpireByName(relation.Name);
+            Them = relation.Them;
             Relation = relation;
         }
 
@@ -46,14 +46,13 @@ namespace Ship_Game.AI
         /// </summary>
         private float ExpansionRiskAssessment(Empire us)
         {
-            if (!Relation.Known  || Them == null || Them.data.Defeated)
+            if (!Relation.Known || Them == null || Them.data.Defeated)
                 return 0;
             if (Relation.Treaty_OpenBorders)
                 return 0;
 
             float expansion = us.GetExpansionRatio() / 4;
 
-            float risk = 0;
             if (Them.IsFaction || us.IsFaction)
             {
                 if (us.AI.CreditRating > 0.75f && (Relation.AtWar || Relation.IsHostile))
@@ -73,8 +72,7 @@ namespace Ship_Game.AI
             }
 
             float expansionRatio = Them.ExpansionScore / us.ExpansionScore.LowerBound(1);
-            risk = (expansionRatio).LowerBound(0);
-
+            float risk = (expansionRatio).LowerBound(0);
             return (risk + expansion) / 2;
         }
 
