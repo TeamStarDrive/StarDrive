@@ -74,7 +74,7 @@ public class ObjectScanner
     {
         try
         {
-            RootObjectId = ScanObjectState(RootSer, RootObj);
+            RootObjectId = ScanObjectState(RootSer, RootObj, null);
             FinalizeTypes();
             InstanceMap = null; // no longer needed
             LinearRemapObjectIds();
@@ -111,9 +111,13 @@ public class ObjectScanner
         throw new($"Unexpected type: {ser}");
     }
 
-    // Automatically handles abstract/virtual objects
+    // Scans this object for serializable child-object
+    // @param ser Base serializer for this object.
+    //            For abstract/virtual objects the actual serializer is deduced automatically.
+    // @param instance The object to be scanned
+    // @param owner DataField information for debugging purposes
     // @return generated object id
-    internal uint ScanObjectState(TypeSerializer ser, object instance)
+    internal uint ScanObjectState(TypeSerializer ser, object instance, DataField owner)
     {
         // if it's the default value, no need to map it or anything
         if (ser.IsValueType)
@@ -148,7 +152,7 @@ public class ObjectScanner
         Objects.GetValue(ser).Add(state);
 
         if (!ser.IsFundamentalType)
-            state.Scan(this, ser); // scan for child objects
+            state.Scan(this, ser, owner); // scan for child objects
         return state.Id;
     }
 
