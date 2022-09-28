@@ -19,6 +19,7 @@ using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
+using System.Threading;
 
 namespace Ship_Game
 {
@@ -779,11 +780,11 @@ namespace Ship_Game
             if (IsFaction)
                 return;
 
-            foreach ((Empire them, Relationship rel) in ActiveRelations)
+            foreach (Relationship rel in ActiveRelations)
             {
-                BreakAllTreatiesWith(them, includingPeace: true);
-                GetRelations(them).AtWar = false;
-                them.GetRelations(this).AtWar = false;
+                BreakAllTreatiesWith(rel.Them, includingPeace: true);
+                GetRelations(rel.Them).AtWar = false;
+                rel.Them.GetRelations(this).AtWar = false;
             }
 
             foreach (Ship ship in OwnedShips)
@@ -820,9 +821,9 @@ namespace Ship_Game
             if (IsFaction)
                 return;
 
-            foreach ((Empire them, Relationship rel) in ActiveRelations)
+            foreach (Relationship rel in ActiveRelations)
             {
-                BreakAllTreatiesWith(them, includingPeace: true);
+                BreakAllTreatiesWith(rel.Them, includingPeace: true);
             }
 
             AI.ClearGoals();
@@ -1730,11 +1731,11 @@ namespace Ship_Game
             }
 
             var knownFleets = new Array<Fleet>();
-            foreach ((Empire them, Relationship rel) in AllRelations)
+            foreach (Relationship rel in AllRelations)
             {
-                if (IsAtWarWith(them) || them.isPlayer && !IsNAPactWith(them))
+                if (IsAtWarWith(rel.Them) || rel.Them.isPlayer && !IsNAPactWith(rel.Them))
                 {
-                    foreach (var fleet in them.FleetsDict)
+                    foreach (var fleet in rel.Them.FleetsDict)
                     {
                         if (fleet.Value.Ships.Any(s => s?.IsInBordersOf(this) == true || s?.KnownByEmpires.KnownBy(this) == true))
                             knownFleets.Add(fleet.Value);
@@ -2844,9 +2845,9 @@ namespace Ship_Game
             if (Money > data.CounterIntelligenceBudget)
             {
                 Money -= data.CounterIntelligenceBudget;
-                foreach ((Empire them, Relationship rel) in ActiveRelations)
+                foreach (Relationship rel in ActiveRelations)
                 {
-                    Relationship relWithUs = them.GetRelations(this);
+                    Relationship relWithUs = rel.Them.GetRelations(this);
                     relWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
                     if (relWithUs.IntelligencePenetration < 0.0f)
                         relWithUs.IntelligencePenetration = 0.0f;
@@ -3797,8 +3798,8 @@ namespace Ship_Game
             AI = null;
             OwnedPlanets.Clear();
             OwnedSolarSystems.Clear();
-            ActiveRelations = Empty<OurRelationsToThem>.Array;
-            RelationsMap = Empty<OurRelationsToThem>.Array;
+            ActiveRelations = Empty<Relationship>.Array;
+            RelationsMap = Empty<Relationship>.Array;
             HostilesLogged.Clear();
             ClearInfluenceList();
             TechnologyDict.Clear();

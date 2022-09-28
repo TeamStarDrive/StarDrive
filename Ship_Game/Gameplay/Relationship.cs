@@ -43,10 +43,11 @@ namespace Ship_Game.Gameplay
     [StarDataType]
     public sealed class Relationship
     {
-        [StarData] public FederationQuest FedQuest;
-        [StarData] public Posture Posture = Posture.Neutral;  // FB - use SetPosture privately or ChangeTo methods publicly
-        [StarData] public string Name;
+        [StarData] public Empire Them { get; private set; }
         [StarData] public bool Known;
+        [StarData] public Posture Posture = Posture.Neutral;  // FB - use SetPosture privately or ChangeTo methods publicly
+
+        [StarData] public FederationQuest FedQuest;
         [StarData] public float IntelligenceBudget;
         [StarData] public float IntelligencePenetration;
         [StarData] public int turnsSinceLastContact;
@@ -82,11 +83,11 @@ namespace Ship_Game.Gameplay
         [StarData] public bool HaveRejected_Alliance;
         [StarData] public int NumberStolenClaims;
 
-        [StarData] public Array<int> StolenSystems = new();
+        [StarData] public Array<SolarSystem> StolenSystems = new();
+        [StarData] public Array<SolarSystem> WarnedSystemsList = new();
         [StarData] public bool HaveInsulted_Military;
         [StarData] public bool HaveComplimented_Military;
         [StarData] public bool XenoDemandedTech;
-        [StarData] public Array<int> WarnedSystemsList = new();
         [StarData] public bool HaveWarnedTwice;
         [StarData] public bool HaveWarnedThrice;
         [StarData] public int ContestedSystemId;
@@ -95,8 +96,6 @@ namespace Ship_Game.Gameplay
         [StarData] public WarType PreparingForWarType = WarType.ImperialistWar;  // Use prepareForWar or CancelPrepareForWar
         [StarData] public int DefenseFleet = -1;
         [StarData] public bool HasDefenseFleet;
-        [StarData] public float InvasiveColonyPenalty;
-        [StarData] public float AggressionAgainstUsPenalty;
         [StarData] public float InitialStrength;
         [StarData] public int TurnsKnown;
         [StarData] public int TurnsAbove95; // Trust
@@ -106,8 +105,6 @@ namespace Ship_Game.Gameplay
         [StarData] public Array<FearEntry> FearEntries = new();
         [StarData] public float TrustUsed;
         [StarData] public float FearUsed;
-        [StarData] public float TheyOweUs;
-        [StarData] public float WeOweThem;
         [StarData] public int TurnsAtWar;
         [StarData] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
         [StarData] public bool CanAttack ; // New: Bilateral condition if these two empires can attack each other
@@ -119,7 +116,6 @@ namespace Ship_Game.Gameplay
         [StarData] public EmpireRiskAssessment Risk;
         [StarData] public EmpireInformation KnownInformation;
 
-        [XmlIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
         [XmlIgnore] public float AvailableTrust => Trust - TrustUsed;
         [XmlIgnore] public int WarAnger => (int)(TotalAnger - Trust.LowerBound(-50));
 
@@ -160,16 +156,15 @@ namespace Ship_Game.Gameplay
                     Trust -= 20f;
             }
         }
+        
+        [StarDataConstructor]
+        Relationship() {}
 
-        public Relationship(string name)
+        public Relationship(Empire them)
         {
-            Name = name;
+            Them = them;
             Risk = new EmpireRiskAssessment(this);
             KnownInformation = new EmpireInformation(this);
-        }
-
-        public Relationship()
-        {
         }
 
         public void AddTrustEntry(Offer.Attitude attitude, TrustEntryType type, float cost, int turnTimer = 250)
@@ -284,8 +279,8 @@ namespace Ship_Game.Gameplay
             AddAngerTerritorialConflict(5f + (float)Math.Pow(5, NumberStolenClaims));
             Trust -= owner.DifficultyModifiers.TrustLostStoleColony;
             Trust -= owner.data.DiplomaticPersonality.Territorialism/5 * StolenSystems.Count.LowerBound(1);
-            newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem.Id);
-            StolenSystems.AddUnique(claimedPlanet.ParentSystem.Id);
+            newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem);
+            StolenSystems.AddUnique(claimedPlanet.ParentSystem);
         }
 
         public void WarnClaimThiefPlayer(Planet claimedPlanet, Empire victim)
@@ -415,7 +410,7 @@ namespace Ship_Game.Gameplay
                             if (planet.ParentSystem == other.ParentSystem)
                             {
                                 SolarSystem sharedSys = planet.ParentSystem;
-                                if (us.GetRelations(them).WarnedSystemsList.Contains(sharedSys.Id))
+                                if (us.GetRelations(them).WarnedSystemsList.Contains(sharedSys))
                                     return;
                             }
                         }
@@ -1327,12 +1322,14 @@ namespace Ship_Game.Gameplay
                 return;
 
             var allies = new Array<Empire>();
-            foreach ((Empire them, Relationship rel) in us.AllRelations)
+            foreach (Relationship rel in us.AllRelations)
             {
                 if (rel.Treaty_Alliance
-                    && them.IsKnown(enemy) && !them.IsAtWarWith(enemy) && !them.IsPeaceTreaty(enemy))
+                    && rel.Them.IsKnown(enemy)
+                    && !rel.Them.IsAtWarWith(enemy)
+                    && !rel.Them.IsPeaceTreaty(enemy))
                 {
-                    allies.Add(them);
+                    allies.Add(rel.Them);
                 }
             }
 
@@ -1720,7 +1717,7 @@ namespace Ship_Game.Gameplay
 
         public DebugTextBlock DebugWar(Empire us)
         {
-            Color color = EmpireManager.GetEmpireByName(Name).EmpireColor;
+            Color color = Them.EmpireColor;
             var debug = new DebugTextBlock
             {
                 Header      = $"Relation To: {Them.data.PortraitName}",

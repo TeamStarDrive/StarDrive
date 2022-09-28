@@ -2,6 +2,7 @@
 using SDUtils;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Gameplay;
+using System.Threading;
 
 namespace Ship_Game.Debug.Page
 {
@@ -60,9 +61,9 @@ namespace Ship_Game.Debug.Page
             column.AddLine($"{EmpireID} {EmpireAtWar.Name}", EmpireAtWar.EmpireColor);
             text.Add(column);
 
-            foreach ((Empire them, Relationship rel) in EmpireAtWar.AllRelations.Sorted(r=> r.Rel.AtWar))
+            foreach (Relationship rel in EmpireAtWar.AllRelations.Sorted(r => r.AtWar))
             {
-                if (rel.Known && !them.IsFaction && them != EmpireAtWar && !them.data.Defeated)
+                if (rel.Known && !rel.Them.IsFaction && rel.Them != EmpireAtWar && !rel.Them.data.Defeated)
                     text.Add(rel.DebugWar(EmpireAtWar));
             }
 

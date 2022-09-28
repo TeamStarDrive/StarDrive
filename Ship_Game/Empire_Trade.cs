@@ -31,15 +31,14 @@ namespace Ship_Game
         public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
         public int NumTradeTreaties      => TradeTreaties.Count;
 
-        Array<OurRelationsToThem> TradeTreaties = new Array<OurRelationsToThem>();
-        public IReadOnlyList<OurRelationsToThem> TradeRelations => TradeTreaties;
+        Array<Relationship> TradeTreaties = new();
+        public IReadOnlyList<Relationship> TradeRelations => TradeTreaties;
 
         void UpdateTradeTreaties()
         {
-            var tradeTreaties = new Array<OurRelationsToThem>();
-            foreach (OurRelationsToThem r in ActiveRelations)
-                if (r.Rel.Treaty_Trade)
-                    tradeTreaties.Add(r);
+            var tradeTreaties = new Array<Relationship>();
+            foreach (Relationship r in ActiveRelations)
+                if (r.Treaty_Trade) tradeTreaties.Add(r);
 
             TradeTreaties = tradeTreaties;
         }
@@ -47,9 +46,9 @@ namespace Ship_Game
         public BatchRemovalCollection<Planet> TradingEmpiresPlanetList()
         {
             var list = new BatchRemovalCollection<Planet>();
-            foreach ((Empire them, Relationship rel) in TradeTreaties)
+            foreach (Relationship rel in TradeTreaties)
             {
-                list.AddRange(them.OwnedPlanets);
+                list.AddRange(rel.Them.OwnedPlanets);
             }
             return list;
         }
@@ -266,7 +265,7 @@ namespace Ship_Game
         public float TotalTradeTreatiesIncome()
         {
             float total = 0f;
-            foreach ((Empire them, Relationship rel) in ActiveRelations)
+            foreach (Relationship rel in ActiveRelations)
                 if (rel.Treaty_Trade) total += rel.TradeIncome(this);
             return total;
         }

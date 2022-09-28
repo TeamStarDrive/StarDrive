@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Gameplay;
@@ -24,10 +25,10 @@ namespace Ship_Game.AI
                 case PersonalityType.Ruthless:   DoRuthlessRelations();     break;
             }
 
-            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (!them.IsFaction && !OwnerEmpire.IsFaction && !them.data.Defeated)
-                    CheckColonizationClaims(them, rel);
+                if (!rel.Them.IsFaction && !OwnerEmpire.IsFaction && !rel.Them.data.Defeated)
+                    CheckColonizationClaims(rel.Them, rel);
             }
         }
 
@@ -51,10 +52,10 @@ namespace Ship_Game.AI
         {
             float territorialDiv = OwnerEmpire.IsPacifist ? 50 : 10;
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / territorialDiv);
-            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (!DoNotInteract(rel, them))
-                    rel.DoConservative(OwnerEmpire, them);
+                if (!DoNotInteract(rel, rel.Them))
+                    rel.DoConservative(OwnerEmpire, rel.Them);
             }
         }
 
@@ -63,14 +64,14 @@ namespace Ship_Game.AI
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
             var potentialTargets = new Array<Empire>();
 
-            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (DoNotInteract(rel, them))
+                if (DoNotInteract(rel, rel.Them))
                     continue;
 
-                rel.DoRuthless(OwnerEmpire, them, out bool theyArePotentialTargets);
+                rel.DoRuthless(OwnerEmpire, rel.Them, out bool theyArePotentialTargets);
                 if (theyArePotentialTargets)
-                    potentialTargets.Add(them);
+                    potentialTargets.Add(rel.Them);
             }
 
             PrepareToAttackClosest(potentialTargets);
@@ -81,14 +82,14 @@ namespace Ship_Game.AI
             var potentialTargets = new Array<Empire>();
 
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
-            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (DoNotInteract(rel, them))
+                if (DoNotInteract(rel, rel.Them))
                     continue;
 
-                rel.DoAggressive(OwnerEmpire, them, out bool theyArePotentialTargets);
+                rel.DoAggressive(OwnerEmpire, rel.Them, out bool theyArePotentialTargets);
                 if (theyArePotentialTargets)
-                    potentialTargets.Add(them);
+                    potentialTargets.Add(rel.Them);
             }
 
             PrepareToAttackWeakest(potentialTargets);
@@ -98,14 +99,14 @@ namespace Ship_Game.AI
         {
             var potentialTargets = new Array<Empire>();
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 7f);
-            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (DoNotInteract(rel, them))
+                if (DoNotInteract(rel, rel.Them))
                     continue;
 
-                rel.DoXenophobic(OwnerEmpire, them, out bool theyArePotentialTargets);
+                rel.DoXenophobic(OwnerEmpire, rel.Them, out bool theyArePotentialTargets);
                 if (theyArePotentialTargets)
-                    potentialTargets.Add(them);
+                    potentialTargets.Add(rel.Them);
             }
 
             PrepareToAttackXenophobic(potentialTargets);
@@ -143,13 +144,13 @@ namespace Ship_Game.AI
         int TotalEnemiesStrength()
         {
             int enemyStr = 0;
-            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
+            foreach (Relationship rel in OwnerEmpire.AllRelations)
             {
-                if (!them.IsFaction
-                    &&!them.data.Defeated 
+                if (!rel.Them.IsFaction
+                    && !rel.Them.data.Defeated 
                     && (rel.AtWar || rel.PreparingForWar))
                 {
-                    enemyStr += (int)them.CurrentMilitaryStrength;
+                    enemyStr += (int)rel.Them.CurrentMilitaryStrength;
                 }
             }
 
