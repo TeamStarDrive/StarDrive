@@ -66,7 +66,6 @@ namespace Ship_Game
         public static Map<string, Artifact> ArtifactsDict      = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
 
-        public static HostileFleets HostileFleets                = new HostileFleets();
         public static ShipNames ShipNames                        = new ShipNames();
         public static AgentMissionData AgentMissionData          = new AgentMissionData();
         public static MainMenuShipList MainMenuShipList          = new MainMenuShipList();
@@ -360,7 +359,6 @@ namespace Ship_Game
             RandomItemsList.Clear();
             WeaponsDict.Clear();
 
-            HostileFleets.Fleets.Clear();
             ShipNames.Clear();
             MainMenuShipList.ModelPaths.Clear();
 
@@ -1902,7 +1900,6 @@ namespace Ship_Game
         // Added by RedFox
         static void LoadBlackboxSpecific()
         {
-            TryDeserialize("HostileFleets/HostileFleets.xml",    ref HostileFleets);
             TryDeserialize("ShipNames/ShipNames.xml",            ref ShipNames);
             TryDeserialize("MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
             TryDeserialize("AgentMissions/AgentMissionData.xml", ref AgentMissionData);

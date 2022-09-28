@@ -19,7 +19,6 @@ using Ship_Game.Fleets;
 using Ship_Game.Universe;
 using Ship_Game.Utils;
 using Vector2 = SDGraphics.Vector2;
-using System.Threading;
 
 namespace Ship_Game
 {
@@ -36,6 +35,8 @@ namespace Ship_Game
     [StarDataType]
     public sealed partial class Empire : IDisposable, IEmpireShipLists
     {
+        public const int FirstFleetId = 1;
+        public const int MaxFleetId = 9;
         [StarData] readonly Map<int, Fleet> FleetsDict;
         [StarData] public Map<string, TechEntry> TechnologyDict;
 
@@ -561,14 +562,14 @@ namespace Ship_Game
 
         public Fleet FirstFleet
         {
-            get => FleetsDict[1];
+            get => FleetsDict[FirstFleetId];
             set
             {
-                Fleet existing = FleetsDict[1];
+                Fleet existing = FleetsDict[FirstFleetId];
                 if (existing != value)
                 {
                     existing.Reset();
-                    FleetsDict[1] = value;
+                    FleetsDict[FirstFleetId] = value;
                 }
             }
         }
@@ -1093,9 +1094,9 @@ namespace Ship_Game
 
             if (FleetsDict.Count == 0)
             {
-                for (int i = 1; i < 10; ++i)
+                for (int i = FirstFleetId; i <= MaxFleetId; ++i)
                 {
-                    Fleet fleet = new Fleet(Universum.CreateId()) { Owner = this };
+                    var fleet = new Fleet(Universum.CreateId()) { Owner = this };
                     fleet.SetNameByFleetIndex(i);
                     FleetsDict.Add(i, fleet);
                 }
@@ -1735,10 +1736,12 @@ namespace Ship_Game
             {
                 if (IsAtWarWith(rel.Them) || rel.Them.isPlayer && !IsNAPactWith(rel.Them))
                 {
-                    foreach (var fleet in rel.Them.FleetsDict)
+                    // using fleet id-s here to avoid collection modification issues
+                    for (int fleetId = FirstFleetId; fleetId <= MaxFleetId; ++fleetId)
                     {
-                        if (fleet.Value.Ships.Any(s => s?.IsInBordersOf(this) == true || s?.KnownByEmpires.KnownBy(this) == true))
-                            knownFleets.Add(fleet.Value);
+                        var fleet = FleetsDict[fleetId];
+                        if (fleet.Ships.Any(s => s?.IsInBordersOf(this) == true || s?.KnownByEmpires.KnownBy(this) == true))
+                            knownFleets.Add(fleet);
                     }
                 }
             }
