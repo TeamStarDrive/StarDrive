@@ -30,7 +30,7 @@ namespace Ship_Game.Commands.Goals
             Vector2 center = system.Position;
             float radius   = system.Radius * 1.5f;
 
-            var task = new MilitaryTask(owner, center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
+            var task = new MilitaryTask(MilitaryTask.TaskType.ClearAreaOfEnemies, owner, center, radius, system, strengthWanted)
             {
                 Goal = this,
                 FleetCount = fleetCount,

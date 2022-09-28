@@ -561,7 +561,7 @@ namespace Ship_Game.AI.Tasks
             if (p == null)
                 return false;
 
-            SetTargetPlanet(p);
+            TargetPlanet = p;
             FleetShips fleetShips = Owner.AIManagedShips.EmpireReadyFleets;
             NeededTroopStrength = (int)(GetTargetPlanetGroundStrength(40) * Owner.DifficultyModifiers.EnemyTroopStrength);
             if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out _, TargetPlanet.Position, true))
