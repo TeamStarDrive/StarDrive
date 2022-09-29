@@ -110,13 +110,21 @@ namespace Ship_Game
     {
         long StartTime;
 
+        // Total time since last Refresh interval
         float CurrentTotal;
+        // maximum elapsed sampling time between Start()/Stop()
         float CurrentMax;
         int CurrentSamples;
 
+        // Total time spent during this interval
         public float MeasuredTotal { get; private set; }
+        // maximum elapsed sampling time during this interval
         public float MeasuredMax { get; private set; }
+        // How many samples were measued during this interval
+        // This is essentiall Samples Per Interval
+        // if interval=1sec, then this is essentially the FPS
         public int MeasuredSamples { get; private set; }
+        // Average time per sample during refresh interval
         public float AvgTime { get; private set; }
 
         readonly long StatRefreshInterval;

@@ -21,6 +21,7 @@ namespace Ship_Game
         readonly AggregatePerfTimer ProcessSimTurnsPerf = new();
         
         readonly AggregatePerfTimer DrawGroupTotalPerf = new();
+        int ActualDrawFPS => DrawGroupTotalPerf.MeasuredSamples;
 
         readonly AggregatePerfTimer RenderGroupTotalPerf = new();
         readonly AggregatePerfTimer BeginSunburnPerf = new();
