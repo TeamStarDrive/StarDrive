@@ -67,6 +67,7 @@ namespace Ship_Game.Ships
         ShipModuleDamageVisualization DamageVisualizer;
         public EmpireHullBonuses Bonuses = EmpireHullBonuses.Default;
         Ship Parent;
+        Empire Player => Parent.Universe.Player;
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
@@ -450,14 +451,14 @@ namespace Ship_Game.Ships
                                                     int turretAngle, string hangarShipUID, ShipHull hull)
         {
             ShipModule template = ResourceManager.GetModuleTemplate(uid);
-            ShipModule m = CreateNoParent(us, template, EmpireManager.Player, hull);
+            ShipModule m = CreateNoParent(us, template, us.Player, hull);
 
             // Don't set HangarShipUID if this isn't actually a Hangar (because Shipyard sets default to DynamicLaunch)
             // Also, supply bays get the default supply shuttle
             if (m.IsSupplyBay)
-                m.HangarShipUID = EmpireManager.Player.GetSupplyShuttleName();
+                m.HangarShipUID = us.Player.GetSupplyShuttleName();
             else if (m.ModuleType == ShipModuleType.Hangar)
-                m.HangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : hangarShipUID;
+                m.HangarShipUID = m.IsTroopBay ? us.Player.GetAssaultShuttleName() : hangarShipUID;
 
             m.SetModuleRotation(m.XSize, m.YSize, moduleRot, turretAngle);
             m.InstallModule(null, hull, Point.Zero);
@@ -576,7 +577,7 @@ namespace Ship_Game.Ships
         public string GetHangarShipName()
         {
             if (ShipBuilder.IsDynamicHangar(HangarShipUID))
-                return CarrierBays.GetDynamicShipNameShipDesign(this);
+                return CarrierBays.GetDynamicShipName(this, Player);
             return HangarShipUID;
         }
 
@@ -598,7 +599,7 @@ namespace Ship_Game.Ships
 
         public bool IsObsolete()
         {
-            return EmpireManager.Player.ObsoletePlayerShipModules.Contains(UID);
+            return Player.ObsoletePlayerShipModules.Contains(UID);
         }
 
         public struct UpdateEveryFrameArgs

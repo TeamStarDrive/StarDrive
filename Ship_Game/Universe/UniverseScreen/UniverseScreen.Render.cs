@@ -78,7 +78,7 @@ namespace Ship_Game
             //if (sys.Sun.DoubleLayered) // draw second sun layer
             //    DrawSunMesh(sys, sys.Zrotate / -2.0f);
 
-            if (!sys.IsExploredBy(EmpireManager.Player))
+            if (!sys.IsExploredBy(Player))
                 return;
 
             for (int i = 0; i < sys.PlanetList.Count; i++)
@@ -306,7 +306,7 @@ namespace Ship_Game
                 if (enemyRect.HitTest(Input.CursorPosition))
                     ToolTip.CreateTooltip(GameText.IndicatesThatHostileForcesWere);
 
-                if (sys.HasPlanetsOwnedBy(EmpireManager.Player) && sys.PlanetList.Any(p => p.SpaceCombatNearPlanet))
+                if (sys.HasPlanetsOwnedBy(Player) && sys.PlanetList.Any(p => p.SpaceCombatNearPlanet))
                 {
                     var battleHere = ResourceManager.Texture("Ground_UI/Ground_Attack");
                     var battleRect = new RectF(sysPos.X, sysPos.Y, battleHere.Width, battleHere.Height);

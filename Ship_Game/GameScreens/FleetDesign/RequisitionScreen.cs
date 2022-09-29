@@ -15,6 +15,7 @@ namespace Ship_Game
         private Vector2 Cursor = Vector2.Zero;
         private readonly Fleet F;
         private readonly FleetDesignScreen Fds;
+        Empire Player => Fds.Universe.Player;
         private BlueButton AssignNow;
         private BlueButton BuildNow;
         private BlueButton BuildNowRush;
@@ -173,7 +174,7 @@ namespace Ship_Game
 
             AutoRequisition.Draw(batch, elapsed);
             if (F.AutoRequisition)
-                batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), AutoRequisitionRect, ApplyCurrentAlphaToColor(EmpireManager.Player.EmpireColor));
+                batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), AutoRequisitionRect, ApplyCurrentAlphaToColor(Player.EmpireColor));
 
             ScreenManager.SpriteBatch.End();
         }

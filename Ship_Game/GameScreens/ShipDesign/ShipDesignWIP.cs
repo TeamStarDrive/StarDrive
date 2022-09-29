@@ -86,7 +86,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             return Dir.GetFiles(Dir.StarDriveAppData + "/WIP/", "design");
         }
 
-        public static Ships.ShipDesign GetLatestWipToLoad()
+        public static Ships.ShipDesign GetLatestWipToLoad(Empire player)
         {
             DateTime latestWipTime = DateTime.MinValue;
             Ships.ShipDesign latestWip = null;
@@ -96,7 +96,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 if (newShipData == null)
                     continue;
 
-                if (EmpireManager.Player.WeCanShowThisWIP(newShipData) && info.LastWriteTime > latestWipTime)
+                if (player.WeCanShowThisWIP(newShipData) && info.LastWriteTime > latestWipTime)
                 {
                     latestWip = newShipData;
                     latestWipTime = info.LastWriteTime;

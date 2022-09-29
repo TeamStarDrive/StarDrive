@@ -8,21 +8,23 @@ namespace Ship_Game
 {
     public sealed class ResearchPopup : PopupWindow
     {
+        UniverseScreen Universe;
         public bool fade;
         public bool FromGame;
         public string TechUID;
         ScrollList2<UnlockListItem> UnlockSL;
         readonly Technology Technology;
         
-        public ResearchPopup(UniverseScreen s, string uid) : base(s, 600, 600)
+        public ResearchPopup(UniverseScreen us, string uid) : base(us, 600, 600)
         {
+            Universe = us;
             TechUID = uid;
             fade = true;
             IsPopup = true;
             FromGame = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0f;
-            TechEntry techEntry = s.Player.GetTechEntry(uid);
+            TechEntry techEntry = us.Player.GetTechEntry(uid);
             if (techEntry == null)
                 return;
 
@@ -45,7 +47,7 @@ namespace Ship_Game
 
             UnlockSL = Add(new ScrollList2<UnlockListItem>(rect, 100));
 
-            Array<UnlockItem> unlocks = UnlockItem.CreateUnlocksList(Technology);
+            Array<UnlockItem> unlocks = UnlockItem.CreateUnlocksList(Technology, Universe.Player);
             UnlockSL.SetItems(unlocks.Select(u => new UnlockListItem(u)));
         }
 

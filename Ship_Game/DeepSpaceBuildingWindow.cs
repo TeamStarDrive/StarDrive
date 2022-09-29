@@ -15,6 +15,7 @@ namespace Ship_Game
     public sealed class DeepSpaceBuildingWindow : UIElementContainer
     {
         readonly UniverseScreen Screen;
+        readonly Empire Player;
         ScrollList2<ConstructionListItem> SL;
         public Ship itemToBuild;
         Vector2 TetherOffset;
@@ -24,6 +25,7 @@ namespace Ship_Game
         public DeepSpaceBuildingWindow(UniverseScreen screen)
         {
             Screen = screen;
+            Player = screen.Player;
             Visible = false;
         }
 
@@ -42,7 +44,7 @@ namespace Ship_Game
             SL.EnableItemHighlight = true;
 
             //The Doctor: Ensure Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
-            foreach (string s in EmpireManager.Player.SpaceStationsWeCanBuild)
+            foreach (string s in Player.SpaceStationsWeCanBuild)
             {
                 if (s == "Subspace Projector")
                 {
@@ -50,7 +52,7 @@ namespace Ship_Game
                     break;
                 }
             }
-            foreach (string s in EmpireManager.Player.SpaceStationsWeCanBuild)
+            foreach (string s in Player.SpaceStationsWeCanBuild)
             {
                 if (s != "Subspace Projector")
                 {
@@ -58,7 +60,7 @@ namespace Ship_Game
                 }
             }
 
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen));
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen, Screen.UState));
             SL.OnHovered = (item) =>
             {
                 ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
@@ -86,9 +88,9 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial8Bold, Ship.ShipData.GetRole(), X+iconSize+2, Y+18, Color.Orange);
 
                 float prodX = Right - 120;
-                batch.DrawString(Fonts.Arial8Bold, Ship.GetMaintCost(EmpireManager.Player).String(2)+" BC/Y", prodX, Y+4, Color.Salmon); // Maintenance Cost
+                batch.DrawString(Fonts.Arial8Bold, Ship.GetMaintCost(Ship.Universe.Player).String(2)+" BC/Y", prodX, Y+4, Color.Salmon); // Maintenance Cost
                 batch.Draw(iconProd, new Vector2(prodX+50, Y+4), iconProd.SizeF); // Production Icon
-                batch.DrawString(Fonts.Arial12Bold, Ship.GetCost(EmpireManager.Player).String(1), prodX+50+iconProd.Width+2, Y+4); // Build Production Cost
+                batch.DrawString(Fonts.Arial12Bold, Ship.GetCost(Ship.Universe.Player).String(1), prodX+50+iconProd.Width+2, Y+4); // Build Production Cost
             }
         }
 
@@ -230,7 +232,7 @@ namespace Ship_Game
 
                     if (item.UID == "Subspace Projector")
                     {
-                        Screen.DrawCircle(posOnScreen, EmpireManager.Player.GetProjectorRadius(), Color.Orange, 2f);
+                        Screen.DrawCircle(posOnScreen, Player.GetProjectorRadius(), Color.Orange, 2f);
                     }
                     else if (buildTemplate.SensorRange > 0f)
                     {
@@ -243,7 +245,7 @@ namespace Ship_Game
             if (itemToBuild != null && itemToBuild.IsSubspaceProjector && Screen.AdjustCamTimer <= 0f)
             {
                 Vector2 center = Screen.Input.CursorPosition;
-                float screenRadius = (float)Screen.ProjectToScreenSize(EmpireManager.Player.GetProjectorRadius());
+                float screenRadius = (float)Screen.ProjectToScreenSize(Player.GetProjectorRadius());
 
                 CurrentRadiusSmoothed = CurrentRadiusSmoothed.SmoothStep(screenRadius, 0.3);
                 Screen.DrawCircle(center, CurrentRadiusSmoothed, Color.Orange, 2f);

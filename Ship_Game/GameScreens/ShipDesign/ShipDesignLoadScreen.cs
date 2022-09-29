@@ -138,7 +138,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                     batch.DrawString(Fonts.Arial12Bold, WipHull.Name, tCursor, Color.White);
                     tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(WipHull.Role, EmpireManager.Player), tCursor, Color.Orange);
+                    batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(WipHull.Role, Screen.Screen.Player), tCursor, Color.Orange);
                 }
                 
                 base.Draw(batch, elapsed);
@@ -185,7 +185,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 LoadShipToScreen();
             });
 
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, Screen.ParentUniverse.UState));
             AvailableDesignsList.OnHovered = (item) =>
             {
                 ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
@@ -197,7 +197,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 Ships.ShipDesign newShipData = Ships.ShipDesign.Parse(info);
                 if (newShipData == null)
                     continue;
-                if (UnlockAllDesigns || EmpireManager.Player.WeCanShowThisWIP(newShipData))
+                if (UnlockAllDesigns || Screen.Player.WeCanShowThisWIP(newShipData))
                     WIPs.Add(newShipData);
             }
 
@@ -264,7 +264,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             Ship[] ships = ResourceManager.ShipTemplates
                 .Filter(s => CanShowDesign(s, filter))
                 .OrderBy(s => !s.ShipData.IsPlayerDesign)
-                .ThenBy(s => s.BaseHull.Style != EmpireManager.Player.data.Traits.ShipType)
+                .ThenBy(s => s.BaseHull.Style != Screen.Player.data.Traits.ShipType)
                 .ThenBy(s => s.BaseHull.Style)
                 .ThenByDescending(s => s.BaseStrength)
                 .ThenBy(s => s.Name).ToArr();
@@ -277,7 +277,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
                 foreach (Ship ship in ships)
                 {
-                    string role = Localizer.GetRole(ship.DesignRole, EmpireManager.Player);
+                    string role = Localizer.GetRole(ship.DesignRole, Screen.Player);
                     if (!shipsByRole.TryGetValue(role, out Array<Ship> roleShips))
                     {
                         shipsByRole[role] = roleShips = new Array<Ship>();
@@ -323,11 +323,11 @@ namespace Ship_Game.GameScreens.ShipDesign
             if (UnlockAllDesigns)
                 return !ship.ShipData.Deleted;
 
-            string role = Localizer.GetRole(ship.DesignRole, EmpireManager.Player);
+            string role = Localizer.GetRole(ship.DesignRole, Screen.Player);
             return !ship.ShipData.Deleted
                 && !ship.ShipData.IsShipyard
-                && EmpireManager.Player.WeCanBuildThis(ship.Name)
-                && (role.IsEmpty() || role == Localizer.GetRole(ship.DesignRole, EmpireManager.Player))
+                && Screen.Player.WeCanBuildThis(ship.Name)
+                && (role.IsEmpty() || role == Localizer.GetRole(ship.DesignRole, Screen.Player))
                 && (Screen.ParentUniverse.Debug || !ship.IsSubspaceProjector)
                 && !ResourceManager.ShipRoles[ship.ShipData.Role].Protected;
         }

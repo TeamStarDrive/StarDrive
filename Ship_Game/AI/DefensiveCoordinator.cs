@@ -12,6 +12,7 @@ namespace Ship_Game.AI
     public sealed class DefensiveCoordinator : IShipPool, IDisposable
     {
         readonly Empire Us;
+        readonly Empire Player;
         public float DefenseDeficit;
         public Map<SolarSystem, SystemCommander> DefenseDict = new();
         public Array<Ship> DefensiveForcePool = new();
@@ -27,6 +28,7 @@ namespace Ship_Game.AI
         {
             Id = id;
             Us = e;
+            Player = e.Universum.Player;
             Name = name;
         }
 
@@ -151,7 +153,7 @@ namespace Ship_Game.AI
                 // FB - This code is crappy. And it launches troops into space combat zones as well
                 // and it doesnt only clear empty planets but also adds the planet to defense dict. very misleading
             {
-                if (Us != EmpireManager.Player 
+                if (Us != Player 
                     && p.Owner != Us 
                     && !p.EventsOnTiles() 
                     && !p.RecentCombat

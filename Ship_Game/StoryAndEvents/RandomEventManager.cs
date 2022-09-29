@@ -80,8 +80,8 @@ namespace Ship_Game
         {
             if (planet.Owner == null)
             {
-                var ships = EmpireManager.Player.OwnedShips;
-                if (!planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player)
+                var ships = planet.Universe.Player.OwnedShips;
+                if (!planet.ParentSystem.HasPlanetsOwnedBy(planet.Universe.Player)
                     && !ships.Any(s => planet.Position.InRadius(s.Position, s.SensorRange)))
                 {
                     return;
@@ -90,8 +90,8 @@ namespace Ship_Game
             else
             {
                 if (!planet.OwnerIsPlayer 
-                    && !planet.Owner.IsAlliedWith(EmpireManager.Player)
-                    && !planet.Owner.IsTradeOrOpenBorders(EmpireManager.Player))
+                    && !planet.Owner.IsAlliedWith(planet.Universe.Player)
+                    && !planet.Owner.IsTradeOrOpenBorders(planet.Universe.Player))
                 {
                     return;
                 }
@@ -144,7 +144,7 @@ namespace Ship_Game
 
             if (planet.OwnerIsPlayer)
                 u.Notifications.AddMeteorShowerTargetingOurPlanet(planet);
-            else if (planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player))
+            else if (planet.ParentSystem.HasPlanetsOwnedBy(u.Player))
                 u.Notifications.AddMeteorShowerInSystem(planet);
         }
 

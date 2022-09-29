@@ -401,9 +401,9 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 ReferencedItem1 = planet,
-                IconPath        = texturePath.IsEmpty() ?  planet.IconPath : texturePath,
-                Action          = planet.Owner == EmpireManager.Player ? "SnapToPlanet" : "CombatScreen",
-                Message         = $"{planet.Name}: {text}"
+                IconPath = texturePath.IsEmpty() ?  planet.IconPath : texturePath,
+                Action = planet.Owner == Screen.Player ? "SnapToPlanet" : "CombatScreen",
+                Message = $"{planet.Name}: {text}"
             }, "sd_ui_notification_encounter");
         }
 
@@ -915,7 +915,7 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            Screen.SnapViewColony(p.Owner != EmpireManager.Player);
+            Screen.SnapViewColony(p.Owner != Screen.Player);
         }
 
         public void SnapToPlanet(Planet p)

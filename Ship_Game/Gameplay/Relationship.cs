@@ -828,7 +828,7 @@ namespace Ship_Game.Gameplay
         public bool AttackForTransgressions(DTrait personality)
         {
             return !Treaty_NAPact && !Treaty_Peace && TotalAnger > (personality?.Territorialism
-                ?? EmpireManager.Player.data.BorderTolerance);
+                ?? Them.Universum.Player.data.BorderTolerance);
         }
 
         void OfferTrade(Empire us)
@@ -1036,7 +1036,7 @@ namespace Ship_Game.Gameplay
                     RefusedMerge = x;
                     if (!RefusedMerge)
                     {
-                        EmpireManager.Player.AbsorbEmpire(us);
+                        us.Universum.Player.AbsorbEmpire(us);
                         us.Universum.Notifications.AddMergeWithPlayer(us);
                     }
                 })
@@ -1089,7 +1089,7 @@ namespace Ship_Game.Gameplay
             float warsGrade      = us.GetAverageWarGrade();
             float gradeThreshold = us.PersonalityModifiers.WarGradeThresholdForPeace;
 
-            if (!us.IsLosingInWarWith(EmpireManager.Player))
+            if (!us.IsLosingInWarWith(us.Universum.Player))
             {
                 if (warsGrade > gradeThreshold && !us.IsLosingInWarWith(them))
                     return;

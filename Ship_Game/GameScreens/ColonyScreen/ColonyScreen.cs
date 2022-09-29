@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
 using SDGraphics;
-using SDUtils;
 using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Graphics;
 using Ship_Game.Universe;
@@ -61,7 +60,7 @@ namespace Ship_Game
         readonly Graphics.Font Font14 = Fonts.Arial14Bold;
         readonly Graphics.Font Font20 = Fonts.Arial20Bold;
         readonly Graphics.Font TextFont;
-        public readonly Empire Player = EmpireManager.Player;
+        public readonly Empire Player;
 
         UILabel TradeTitle;
         UILabel IncomingTradeTitle;
@@ -115,7 +114,8 @@ namespace Ship_Game
         {
             P = p;
             Eui = empUI;
-            empUI.Player.UpdateShipsWeCanBuild();
+            Player = empUI.Player;
+            Player.UpdateShipsWeCanBuild();
             TextFont = LowRes ? Font8 : Font12;
             
             var titleBar = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
@@ -271,7 +271,7 @@ namespace Ship_Game
                 p.Universe.Screen.LookingAtPlanet = false;
             }
 
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, Universe));
             P.RefreshBuildingsWeCanBuildHere();
             Vector2 detailsVector = new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35);
             CreateTradeDetails(detailsVector);

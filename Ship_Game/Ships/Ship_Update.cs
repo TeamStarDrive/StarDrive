@@ -180,7 +180,7 @@ namespace Ship_Game.Ships
 
                     if (p.EventsOnTiles())
                     {
-                        if (Loyalty == EmpireManager.Player)
+                        if (Loyalty == Universe.Player)
                         {
                             Universe.Screen.NotificationManager.AddFoundSomethingInteresting(p);
                         }

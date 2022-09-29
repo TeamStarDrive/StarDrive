@@ -32,7 +32,7 @@ namespace Ship_Game
             AddShip(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicLaunch.ToString()));
             AddShip(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicInterceptor.ToString()));
             AddShip(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicAntiShip.ToString()));
-            foreach (string shipId in EmpireManager.Player.ShipsWeCanBuild)
+            foreach (string shipId in Screen.ParentUniverse.Player.ShipsWeCanBuild)
             {
                 if (!ResourceManager.GetShipTemplate(shipId, out Ship hangarShip))
                     continue;
@@ -44,7 +44,7 @@ namespace Ship_Game
                 AddShip(hangarShip);
             }
 
-            HangarShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen));
+            HangarShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen, Screen.ParentUniverse.UState));
             OnHovered = (item) =>
             {
                 Ship shipToDisplay = item?.Ship;

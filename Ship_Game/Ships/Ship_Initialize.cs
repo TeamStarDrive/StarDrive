@@ -32,7 +32,7 @@ namespace Ship_Game.Ships
             ShipData     = template.ShipData;
 
             // loyalty must be set before modules are initialized
-            LoyaltyTracker = new Components.LoyaltyChanges(this, owner);
+            LoyaltyTracker = new(this, owner);
 
             if (!CreateModuleSlotsFromData(template.ShipData.GetOrLoadDesignSlots()))
                 return; // return and crash again...
@@ -40,13 +40,10 @@ namespace Ship_Game.Ships
             // ship must not be added to empire ship list until after modules are validated.
             LoyaltyChangeAtSpawn(owner);
 
-            Active = true;
-            Stats = new ShipStats(this);
-            KnownByEmpires = new Components.KnownByEmpire();
-            HasSeenEmpires = new Components.KnownByEmpire();
-
             VanityName = ResourceManager.ShipNames.GetName(owner.data.Traits.ShipType, ShipData.Role);
 
+            Active = true;
+            InitializeStats(us);
             InitializeThrusters(template.ShipData.BaseHull);
             InitializeShip();
             SetInitialCrewLevel();
@@ -69,7 +66,7 @@ namespace Ship_Game.Ships
             ShipData = data;
 
             // loyalty must be set before modules are initialized
-            LoyaltyTracker = new Components.LoyaltyChanges(this, empire);
+            LoyaltyTracker = new(this, empire);
 
             if (!CreateModuleSlotsFromData(data.GetOrLoadDesignSlots(), isTemplate, shipyardDesign))
                 return;
@@ -79,10 +76,7 @@ namespace Ship_Game.Ships
                 LoyaltyChangeAtSpawn(empire);
 
             Active = true;
-            Stats = new ShipStats(this);
-            KnownByEmpires = new Components.KnownByEmpire();
-            HasSeenEmpires = new Components.KnownByEmpire();
-
+            InitializeStats(us);
             InitializeThrusters(data.BaseHull);
             InitializeStatus(fromSave: false);
 
@@ -91,6 +85,13 @@ namespace Ship_Game.Ships
             {
                 Log.Warning($"Ship.BaseCanWarp is false: {this}");
             }
+        }
+
+        void InitializeStats(UniverseState us)
+        {
+            Stats = new(this);
+            KnownByEmpires = new(us);
+            HasSeenEmpires = new(us);
         }
 
         protected static Ship GetShipTemplate(string shipName)
@@ -232,9 +233,9 @@ namespace Ship_Game.Ships
 
         // Create a ship from a SavedGame: Ship.OnDeserialized
         [StarDataDeserialized(typeof(ShipDesign))]
-        void OnDeserialized(UniverseState root)
+        void OnDeserialized(UniverseState us)
         {
-            Universe = root;
+            Universe = us;
             var moduleSaves = SavedModules ?? Empty<ModuleSaveData>.Array;
             SavedModules = null;
 
@@ -267,12 +268,9 @@ namespace Ship_Game.Ships
 
             IsGuardian = Loyalty.WeAreRemnants;
             // loyalty must be set before modules are initialized
-            LoyaltyTracker = new Components.LoyaltyChanges(this, Loyalty);
+            LoyaltyTracker = new(this, Loyalty);
 
-            Stats = new ShipStats(this);
-            KnownByEmpires = new Components.KnownByEmpire();
-            HasSeenEmpires = new Components.KnownByEmpire();
-
+            InitializeStats(us);
             InitializeThrusters(ShipData.BaseHull);
             InitializeStatus(fromSave:true);
             SetOrdnance(Ordinance);

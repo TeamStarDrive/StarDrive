@@ -23,8 +23,8 @@ namespace Ship_Game
         public Rectangle OrdersRect;
         public Rectangle DistanceRect;
 
-        private readonly Empire Player         = EmpireManager.Player;
-        private readonly Color Cream           = Colors.Cream;
+        Empire Player => Planet.Universe.Player;
+        private readonly Color Cream = Colors.Cream;
         private readonly Graphics.Font NormalFont = Fonts.Arial20Bold;
         private readonly Graphics.Font SmallFont  = Fonts.Arial12Bold;
         private readonly Graphics.Font TinyFont   = Fonts.Arial8Bold;
@@ -143,7 +143,7 @@ namespace Ship_Game
             string richness = Planet.LocalizedRichness;
             Label(namePos, richness, SmallFont, EmpireColor);
 
-            float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(Planet.Category);
+            float fertEnvMultiplier = Player.PlayerEnvModifier(Planet.Category);
             if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor       = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
@@ -168,7 +168,7 @@ namespace Ship_Game
             var ownerPos     = new Vector2(OwnerRect.X + 20, OwnerRect.Y + OwnerRect.Height / 2 - SmallFont.LineSpacing / 2);
 
             DrawPlanetDistance(Distance, distancePos, SmallFont);
-            Label(fertilityPos, Planet.FertilityFor(EmpireManager.Player).String(), SmallFont, PlanetStatColor);
+            Label(fertilityPos, Planet.FertilityFor(Player).String(), SmallFont, PlanetStatColor);
             Label(richnessPos, Planet.MineralRichness.String(1), SmallFont, PlanetStatColor);
             Label(popPos, Planet.PopulationStringForPlayer, SmallFont, PlanetStatColor);
             Label(ownerPos, singular, SmallFont, EmpireColor);
@@ -176,7 +176,7 @@ namespace Ship_Game
 
         void AddHostileWarning()
         {
-            if (EmpireManager.Player.KnownEnemyStrengthIn(Planet.ParentSystem) > 0)
+            if (Player.KnownEnemyStrengthIn(Planet.ParentSystem) > 0)
             {
                 SubTexture flash = ResourceManager.Texture("Ground_UI/EnemyHere");
                 UIPanel enemyHere = Panel(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, flash);
@@ -223,10 +223,10 @@ namespace Ship_Game
 
         void AddMoleIcons(Vector2 statusIcons, ref int offset) // Haha, moles..
         {
-            if (EmpireManager.Player.data.MoleList.Count <= 0) 
+            if (Player.data.MoleList.Count <= 0) 
                 return;
 
-            foreach (Mole m in EmpireManager.Player.data.MoleList)
+            foreach (Mole m in Player.data.MoleList)
             {
                 if (m.PlanetId == Planet.Id)
                 {

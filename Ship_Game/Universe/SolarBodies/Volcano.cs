@@ -26,8 +26,8 @@ namespace Ship_Game.Universe.SolarBodies
             CreateDormantVolcano();
         }
 
-        public Empire Player           => EmpireManager.Player;
-        public bool Dormant            => !Active;
+        public Empire Player => P.Universe.Player;
+        public bool Dormant => !Active;
         float DeactivationChance       => ActivationChance * 5;
         float ActiveEruptionChance     => ActivationChance * 10;
         float InitActivationChance()   => RandomMath.Float(0.01f, MaxActivationChance) * GlobalStats.VolcanicActivity;
@@ -243,7 +243,7 @@ namespace Ship_Game.Universe.SolarBodies
                     // Lava solidifies into a special building 
                     Building b = ResourceManager.CreateBuilding(planet, potentials.RandItem());
                     tile.PlaceBuilding(b, planet);
-                    if (planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player) || planet.ParentSystem.ShipList.
+                    if (planet.ParentSystem.HasPlanetsOwnedBy(planet.Universe.Player) || planet.ParentSystem.ShipList.
                             Any(s => s.Loyalty.isPlayer && s.Position.InRadius(planet.Position, s.SensorRange)))
                     {
                         string message = $"{Localizer.Token(GameText.ALavaPoolHasSolidified)}" +

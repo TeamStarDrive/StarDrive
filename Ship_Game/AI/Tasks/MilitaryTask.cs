@@ -427,7 +427,7 @@ namespace Ship_Game.AI.Tasks
                 default:                           priority = 5;                                       break;
             }
 
-            if (TargetEmpire == EmpireManager.Player && EmpireManager.Player.AllActiveWars.Length <= Owner.DifficultyModifiers.WarTaskPriorityMod)
+            if (TargetEmpire == Owner.Universum.Player && Owner.Universum.Player.AllActiveWars.Length <= Owner.DifficultyModifiers.WarTaskPriorityMod)
                 priority -= 1;
 
             Priority = priority;

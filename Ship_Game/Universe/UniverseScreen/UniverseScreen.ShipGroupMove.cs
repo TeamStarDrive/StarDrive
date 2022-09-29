@@ -44,7 +44,7 @@ namespace Ship_Game
 
             //Log.Info($"ProjectingPos  screenStart:{Input.StartRightHold} current:{Input.EndRightHold}  D:{direction}");
 
-            if (SelectedFleet != null && SelectedFleet.Owner == EmpireManager.Player)
+            if (SelectedFleet != null && SelectedFleet.Owner == Player)
             {
                 SelectedFleet.ProjectPos(Project.FleetCenter, Project.Direction);
                 CurrentGroup = SelectedFleet;

@@ -425,7 +425,7 @@ namespace Ship_Game
 
         public void SetInGroundCombat(Empire empire, bool notify = false)
         {
-            if (!RecentCombat && notify && Owner == EmpireManager.Player && Owner.IsAtWarWith(empire))
+            if (!RecentCombat && notify && Owner == Universe.Player && Owner.IsAtWarWith(empire))
                 Universe.Notifications.AddEnemyTroopsLandedNotification(this, empire);
 
             TroopManager.SetInCombat();
@@ -1320,7 +1320,7 @@ namespace Ship_Game
             if (tile.BuildingOnTile)
             {
                 DestroyBuildingOn(tile); // todo notify
-                if (Owner == EmpireManager.Player)
+                if (Owner == Universe.Player)
                     Universe.Notifications.AddBuildingDestroyedByMeteor(this, tile.Building);
             }
 
@@ -1386,7 +1386,7 @@ namespace Ship_Game
                     b.FoodCache -= b.PlusFlatFoodAmount;
                     if (b.FoodCache.LessOrEqual(0))
                     {
-                        if (Owner == EmpireManager.Player)
+                        if (Owner == Universe.Player)
                             Universe.Notifications.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
 
                         RemoveBuildingFromPlanet(b, destroy: true);
@@ -1399,7 +1399,7 @@ namespace Ship_Game
                     b.ProdCache -= Prod.Percent * PopulationBillion * b.PlusProdPerColonist;
                     if (b.ProdCache.LessOrEqual(0))
                     {
-                        if (Owner == EmpireManager.Player)
+                        if (Owner == Universe.Player)
                             Universe.Notifications.AddBuildingDestroyed(this, b, Localizer.Token(GameText.WasRemovedSinceItsResource));
 
                         RemoveBuildingFromPlanet(b, destroy: true);
@@ -1697,7 +1697,7 @@ namespace Ship_Game
             debug.AddLine($"{ParentSystem.Name} : {Name}", Color.Green);
             debug.AddLine($"Scale: {Scale}");
             debug.AddLine($"Population per Habitable Tile: {BasePopPerTile}");
-            debug.AddLine($"Environment Modifier for {EmpireManager.Player.Name}: {EmpireManager.Player.PlayerEnvModifier(Category)}");
+            debug.AddLine($"Environment Modifier for {Universe.Player.Name}: {Universe.Player.PlayerEnvModifier(Category)}");
             debug.AddLine($"Habitable Tiles: {numHabitableTiles}");
             debug.AddLine("");
             debug.AddLine($"Incoming Freighters: {NumIncomingFreighters}");

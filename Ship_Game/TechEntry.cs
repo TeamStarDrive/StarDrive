@@ -779,17 +779,17 @@ namespace Ship_Game
             return null;
         }
 
-        public TechEntry[] GetPlayerChildEntries()
+        public TechEntry[] GetPlayerChildEntries(Empire player)
         {
-            return Tech.Children.Select(EmpireManager.Player.GetTechEntry);
+            return Tech.Children.Select(player.GetTechEntry);
         }
 
-        public Array<TechEntry> GetFirstDiscoveredEntries()
+        public Array<TechEntry> GetFirstDiscoveredEntries(Empire player)
         {
             var entries = new Array<TechEntry>();
-            foreach (TechEntry child in GetPlayerChildEntries())
+            foreach (TechEntry child in GetPlayerChildEntries(player))
             {
-                TechEntry discovered = child.FindNextDiscoveredTech(EmpireManager.Player);
+                TechEntry discovered = child.FindNextDiscoveredTech(player);
                 if (discovered != null) entries.Add(discovered);
             }
             return entries;

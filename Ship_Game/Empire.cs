@@ -708,13 +708,13 @@ namespace Ship_Game
         /// <summary>
         /// Returns the Player's Environment Modifier based on a planet's category.
         /// </summary>
-        public float PlayerEnvModifier(PlanetCategory category) => RacialEnvModifer(category, EmpireManager.Player);
+        public float PlayerEnvModifier(PlanetCategory category) => RacialEnvModifer(category, Universum.Player);
 
         /// <summary>
         /// Returns the Player's Preferred Environment Modifier.
         /// </summary>
         public float PlayerPreferredEnvModifier
-            => RacialEnvModifer(EmpireManager.Player.data.PreferredEnv, EmpireManager.Player);
+            => RacialEnvModifer(Universum.Player.data.PreferredEnv, Universum.Player);
 
 
         /// <summary>
@@ -1650,7 +1650,7 @@ namespace Ship_Game
             for (int i = 0; i < Universum.Systems.Count; i++)
             {
                 SolarSystem system = Universum.Systems[i];
-                if (!system.HasPlanetsOwnedBy(EmpireManager.Player) || GlobalStats.NotifyEnemyInSystemAfterLoad)
+                if (!system.HasPlanetsOwnedBy(Universum.Player) || GlobalStats.NotifyEnemyInSystemAfterLoad)
                 {
                     HostilesLogged.Add(system, false);
                     continue;
@@ -1661,7 +1661,7 @@ namespace Ship_Game
                 {
                     Ship ship = system.ShipList[j];
                     if (!ship.NotThreatToPlayer()
-                        && system.PlanetList.Any(p => p.Owner == EmpireManager.Player && p.ShipWithinSensorRange(ship)))
+                        && system.PlanetList.Any(p => p.Owner == Universum.Player && p.ShipWithinSensorRange(ship)))
                     {
                         hostileFound = true;
                         break;
@@ -3357,7 +3357,7 @@ namespace Ship_Game
 
         public bool ChooseScoutShipToBuild(out IShipDesign scout)
         {
-            if (isPlayer && ResourceManager.Ships.GetDesign(EmpireManager.Player.data.CurrentAutoScout, out scout))
+            if (isPlayer && ResourceManager.Ships.GetDesign(Universum.Player.data.CurrentAutoScout, out scout))
                 return true;
 
             var scoutShipsWeCanBuild = new Array<IShipDesign>();

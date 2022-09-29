@@ -5,6 +5,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.UI;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game.GameScreens.DiplomacyScreen
 {
@@ -29,12 +30,13 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         readonly Array<EmpireAndIntelLevel> EmpiresAndIntel;
         readonly Graphics.Font LegendFont = Fonts.Arial14Bold;
 
-        Empire Player => EmpireManager.Player;
+        Empire Player;
         Empire SelectedEmpire;
 
-        public RelationshipsDiagramScreen(GameScreen screen, Array<EmpireAndIntelLevel> empiresAndIntel)
+        public RelationshipsDiagramScreen(GameScreen screen, UniverseScreen us, Array<EmpireAndIntelLevel> empiresAndIntel)
             : base(screen, toPause: null)
         {
+            Player = us.Player;
             IsPopup           = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
@@ -216,7 +218,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 IntelLevel = empireAndIntel.IntelLevel;
                 LinkPos    = center.PointFromAngle(180 + angle, 45);
                 TradePos   = center.PointFromAngle(170 + angle, 45);
-                Portrait = EmpireManager.Player.IsKnown(empireAndIntel.Empire) || empireAndIntel.Empire.isPlayer
+                Portrait = Empire.Universum.Player.IsKnown(empireAndIntel.Empire) || empireAndIntel.Empire.isPlayer
                             ? ResourceManager.Texture("Portraits/" + Empire.data.PortraitName)
                             : ResourceManager.Texture("Portraits/unknown");
             }

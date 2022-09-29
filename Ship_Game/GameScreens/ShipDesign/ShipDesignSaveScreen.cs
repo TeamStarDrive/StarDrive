@@ -93,10 +93,10 @@ namespace Ship_Game
             PopulateDesigns(ShipName);
             ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, GameText.Save, OnSaveClicked);
 
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, Screen.ParentUniverse.UState));
             ShipDesigns.OnHovered = (item) =>
             {
-                if (item != null && (Screen.EnableDebugFeatures || EmpireManager.Player.ShipsWeCanBuild.Contains(item.ShipName)))
+                if (item != null && (Screen.EnableDebugFeatures || Screen.Player.ShipsWeCanBuild.Contains(item.ShipName)))
                     ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Design);
                 else
                     ShipInfoOverlay.Hide();
@@ -121,7 +121,7 @@ namespace Ship_Game
                     .Filter(s => !s.Deleted && s.Name.ToLower().Contains(filter));
 
                 ShipDesigns.SetItems(shipList.Select(s => 
-                    new ShipDesignListItem(s, EmpireManager.Player.ShipsWeCanBuild.Contains(s.Name))));
+                    new ShipDesignListItem(s, Screen.Player.ShipsWeCanBuild.Contains(s.Name))));
             }
         }
 
@@ -177,7 +177,7 @@ namespace Ship_Game
 
         void UpdateConstructionQueue(Ship ship, string shipOrHullName)
         {
-            Empire emp = EmpireManager.Player;
+            Empire emp = Screen.Player;
             try
             {
                 foreach (Planet p in emp.GetPlanets())
