@@ -128,8 +128,8 @@ Types:
     SpecularPower: 0.5
     AtmosphereType: [BarrenRed,Clouds]
     Habitable: true
-    HabitableTileChance: 35
-    PopPerTile: [190, 300]
+    HabitableTileChance: 25
+    PopPerTile: [120, 200]
     BaseFertility: 0
     MoonTypes: [Barren,Desert,Volcanic,Ice]
 
@@ -148,7 +148,7 @@ Types:
     AtmosphereType: [Clouds]
     Habitable: true
     HabitableTileChance: 10
-    PopPerTile: [150, 200]
+    PopPerTile: [130, 180]
     BaseFertility: 0
     MoonTypes: [Barren,Desert,Volcanic,Ice]
 
