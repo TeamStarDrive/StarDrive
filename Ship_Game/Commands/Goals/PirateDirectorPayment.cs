@@ -49,7 +49,7 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.PaidBy(TargetEmpire))
             {
                 // Ah, so they paid us,  we can use this money to expand our business 
-                Pirates.TryLevelUp(TargetEmpire.Universum);
+                Pirates.TryLevelUp(TargetEmpire.Universe);
                 Pirates.ResetThreatLevelFor(TargetEmpire);
                 Pirates.Owner.SignTreatyWith(TargetEmpire, Gameplay.TreatyType.NonAggression);
             }
@@ -92,7 +92,7 @@ namespace Ship_Game.Commands.Goals
                 Pirates.Owner.SetRelationsAsKnown(TargetEmpire);
 
             if (TargetEmpire.isPlayer)
-                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Owner.Universum.Screen);
+                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Owner.Universe.Screen);
             else
                 DemandMoneyFromAI();
 

@@ -129,10 +129,10 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateDefendVsRemnant(Planet planet, Empire owner, float str)
         {
-            float strMulti = owner.GetFleetStrEmpireMultiplier(owner.Universum.Remnants);
+            float strMulti = owner.GetFleetStrEmpireMultiplier(owner.Universe.Remnants);
             return new(TaskType.DefendVsRemnants, owner, planet.Position, aoRadius: 50000f, planet)
             {
-                TargetEmpire = owner.Universum.Remnants,
+                TargetEmpire = owner.Universe.Remnants,
                 Priority = 0,
                 EnemyStrength = str,
                 MinimumTaskForceStrength = str * strMulti,
@@ -427,7 +427,7 @@ namespace Ship_Game.AI.Tasks
                 default:                           priority = 5;                                       break;
             }
 
-            if (TargetEmpire == Owner.Universum.Player && Owner.Universum.Player.AllActiveWars.Length <= Owner.DifficultyModifiers.WarTaskPriorityMod)
+            if (TargetEmpire == Owner.Universe.Player && Owner.Universe.Player.AllActiveWars.Length <= Owner.DifficultyModifiers.WarTaskPriorityMod)
                 priority -= 1;
 
             Priority = priority;

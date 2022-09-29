@@ -24,7 +24,7 @@ namespace Ship_Game.AI
         public float CivShipBudget => OwnerEmpire.data.FreightBudget;
         public float AllianceBuildCapacity { get; private set; }
 
-        UniverseState UState => OwnerEmpire.Universum;
+        UniverseState UState => OwnerEmpire.Universe;
 
         [StarData] readonly Empire OwnerEmpire;
         public OffensiveForcePoolManager OffensiveForcePoolManager;
@@ -66,7 +66,7 @@ namespace Ship_Game.AI
 
         void InitializeManagers(Empire e)
         {
-            DefensiveCoordinator = new(e.Universum.CreateId(), e, "DefensiveCoordinator");
+            DefensiveCoordinator = new(e.Universe.CreateId(), e, "DefensiveCoordinator");
             TechChooser = new(e);
             OffensiveForcePoolManager = new(e);
             BudgetSettings = new(e);
@@ -98,13 +98,13 @@ namespace Ship_Game.AI
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
                 RunAgentManager();
-                if (OwnerEmpire.Universum?.Debug == true && OwnerEmpire.Universum?.StarDate % 50 == 0)
+                if (OwnerEmpire.Universe?.Debug == true && OwnerEmpire.Universe?.StarDate % 50 == 0)
                 {
                     int techScore     = 0;
                     int totalStrength = 0;
                     int maxStrength   = 0;
                     int maxTechScore  = 0;
-                    Log.Write($"------- ship list -----{OwnerEmpire.Universum?.StarDate} Ship list for {OwnerEmpire.Name}");
+                    Log.Write($"------- ship list -----{OwnerEmpire.Universe?.StarDate} Ship list for {OwnerEmpire.Name}");
                     foreach (var logit in OwnerEmpire.ShipsWeCanBuild)
                     {
                         var template = ResourceManager.GetShipTemplate(logit, false);
@@ -117,7 +117,7 @@ namespace Ship_Game.AI
                     }
                     Log.Write($"ShipTechCount= {techScore} MaxShipTechs={maxTechScore} MaxShipStrength= {maxStrength}");
                     Log.Write($"PlanetBudget= {OwnerEmpire.data.ColonyBudget:0.0}/{OwnerEmpire.TotalBuildingMaintenance:0.0} Population= {OwnerEmpire.TotalPopBillion:0.0} Planets= {OwnerEmpire.NumPlanets}");
-                    Log.Write($"------- ship list -----{OwnerEmpire.Universum?.StarDate} Ship list for {OwnerEmpire.Name}");
+                    Log.Write($"------- ship list -----{OwnerEmpire.Universe?.StarDate} Ship list for {OwnerEmpire.Name}");
                 }
             }
 
@@ -167,7 +167,7 @@ namespace Ship_Game.AI
             var aos = AreasOfOperations;
             if (aos.Count == 0)
             {
-                var ao = new AO(OwnerEmpire.Universum, OwnerEmpire);
+                var ao = new AO(OwnerEmpire.Universe, OwnerEmpire);
                 AreasOfOperations.Add(ao);
                 return ao;
             }

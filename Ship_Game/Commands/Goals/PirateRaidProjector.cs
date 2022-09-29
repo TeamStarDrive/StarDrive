@@ -61,7 +61,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // Try locating viable SSP for maximum of 1 year (10 turns), else just give up
-            return Owner.Universum.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            return Owner.Universe.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
         GoalStep CheckIfHijacked()
@@ -92,7 +92,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null || !TargetShip.Active)
             {
-                Pirates.TryLevelUp(TargetEmpire.Universum);
+                Pirates.TryLevelUp(TargetEmpire.Universe);
                 return GoalStep.GoalComplete;
             }
 

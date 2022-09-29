@@ -64,7 +64,7 @@ namespace Ship_Game
             }
 
             if (notify)
-                Universum.Notifications.AddTreatyBreak(this, type);
+                Universe.Notifications.AddTreatyBreak(this, type);
         }
 
         public void BreakAllTreatiesWith(Empire them, bool includingPeace = false)
@@ -143,7 +143,7 @@ namespace Ship_Game
                         wars.Add(rel.ActiveWar);
                     }
                 }
-                else if (!rel.Known && rel.Them == Universum.Unknown)
+                else if (!rel.Known && rel.Them == Universe.Unknown)
                     SetRelationsAsKnown(rel.Them);
             }
             AllActiveWars = wars.ToArray();
@@ -194,7 +194,7 @@ namespace Ship_Game
             int index = them.Id - 1;
             if (index >= RelationsMap.Length)
             {
-                int newSize = Math.Max(Universum.NumEmpires, RelationsMap.Length);
+                int newSize = Math.Max(Universe.NumEmpires, RelationsMap.Length);
                 Array.Resize(ref RelationsMap, newSize);
             }
 
@@ -232,7 +232,7 @@ namespace Ship_Game
 
             return GetRelationsOrNull(otherEmpire)?.AtWar == true
                    || data.IsRebelFaction
-                   || this == Universum.Unknown
+                   || this == Universe.Unknown
                    || WeAreRemnants
                    || (otherEmpire?.IsFaction == true && !IsNAPactWith(otherEmpire));
         }
@@ -450,7 +450,7 @@ namespace Ship_Game
 
         public void RespondPlayerStoleColony(Relationship usToPlayer)
         {
-            Empire player = Universum.Player;
+            Empire player = Universe.Player;
             switch (usToPlayer.StolenSystems.Count)
             {
                 case 0:
@@ -619,8 +619,8 @@ namespace Ship_Game
         public bool TryMergeOrSurrender(Empire enemy)
         {
             var potentialEmpires = GlobalStats.RestrictAIPlayerInteraction
-                ? Universum.ActiveNonPlayerMajorEmpires
-                : Universum.ActiveMajorEmpires;
+                ? Universe.ActiveNonPlayerMajorEmpires
+                : Universe.ActiveMajorEmpires;
 
             potentialEmpires = potentialEmpires.Filter(e => e != this && !GetRelationsOrNull(e)?.RefusedMerge == true);
 
@@ -726,13 +726,13 @@ namespace Ship_Game
             if (absorber.isPlayer)
             {
                 string dialogue = enemy.isPlayer ? "SURRENDER" : "OFFER_MERGE";
-                Relationship rel = GetRelationsOrNull(Universum.Player);
+                Relationship rel = GetRelationsOrNull(Universe.Player);
                 rel?. OfferMergeOrSurrenderToPlayer(this, dialogue);
             }
             else
             {
                 absorber.AbsorbEmpire(this);
-                Universum.Notifications.AddEmpireMergedOrSurrendered(this,
+                Universe.Notifications.AddEmpireMergedOrSurrendered(this,
                     GetMergeNotificationMessage(absorber, enemy));
             }
 

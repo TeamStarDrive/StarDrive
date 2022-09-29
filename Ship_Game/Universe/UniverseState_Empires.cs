@@ -75,7 +75,7 @@ public partial class UniverseState
 
     public Empire AddEmpire(Empire e)
     {
-        if (e.Universum == null)
+        if (e.Universe == null)
             throw new ArgumentNullException("Empire.Universum cannot be null");
 
         if (FindDuplicateEmpire(e) != null)
@@ -279,7 +279,7 @@ public partial class UniverseState
         Empire rebelEmpire = GetEmpireByName(data.RebelName);
         if (rebelEmpire != null) return rebelEmpire;
 
-        var empire = new Empire(parent.Universum, parent)
+        var empire = new Empire(parent.Universe, parent)
         {
             IsFaction = true,
             data = data

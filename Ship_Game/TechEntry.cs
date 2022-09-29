@@ -373,9 +373,9 @@ namespace Ship_Game
                     if (!CheckSource(type, empire))
                     {
                         if (triggeredEvent.CustomMessage != null)
-                            empire.Universum.Notifications.AddNotify(triggeredEvent, triggeredEvent.CustomMessage);
+                            empire.Universe.Notifications.AddNotify(triggeredEvent, triggeredEvent.CustomMessage);
                         else
-                            empire.Universum.Notifications.AddNotify(triggeredEvent);
+                            empire.Universe.Notifications.AddNotify(triggeredEvent);
                         triggered = true;
                     }
                 }
@@ -446,7 +446,7 @@ namespace Ship_Game
             bool wasUnlocked = TrySetUnlocked();
             UnlockTechContentOnly(us, us, bonusUnlock: wasUnlocked);
 
-            foreach (Empire e in us.Universum.MajorEmpires)
+            foreach (Empire e in us.Universe.MajorEmpires)
             {
                 if (e.data.AbsorbedBy == us.data.Traits.Name)
                     UnlockTechContentOnly(us, e, false);
@@ -591,7 +591,7 @@ namespace Ship_Game
             if (Locked)
                 return;
 
-            foreach (Empire e in us.Universum.MajorEmpires)
+            foreach (Empire e in us.Universe.MajorEmpires)
             {
                 if (e.data.AbsorbedBy == us.data.Traits.Name)
                     UnlockFromSave(us, e, true);

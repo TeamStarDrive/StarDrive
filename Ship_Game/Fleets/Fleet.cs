@@ -605,8 +605,8 @@ namespace Ship_Game.Fleets
                 FleetTask.EndTask();
             if (FleetTask == null)
                 return;
-            if (Owner.Universum.Screen.SelectedFleet == this)
-                Owner.Universum.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, FleetTask.AORadius, Color.AntiqueWhite);
+            if (Owner.Universe.Screen.SelectedFleet == this)
+                Owner.Universe.DebugWin?.DrawCircle(DebugModes.AO, FinalPosition, FleetTask.AORadius, Color.AntiqueWhite);
 
             TaskCombatStatus = FleetInAreaInCombat(FleetTask.AO, FleetTask.AORadius);
 
@@ -977,7 +977,7 @@ namespace Ship_Game.Fleets
             bool combatEffective   = StillCombatEffective(task);
             bool remnantsTargeting = !Owner.WeAreRemnants
                                         && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && Owner.Universum.Remnants.Fleets
+                                        && Owner.Universe.Remnants.Fleets
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
             EndInvalidTask(remnantsTargeting 
@@ -1235,7 +1235,7 @@ namespace Ship_Game.Fleets
                 if (targetEmpire?.isPlayer == true)
                     return false; // The Fleet is already there
 
-                starDateEta = Owner.Universum.StarDate;
+                starDateEta = Owner.Universe.StarDate;
                 return true; // AI might retaliate even if its the same system
             }
 
@@ -1243,7 +1243,7 @@ namespace Ship_Game.Fleets
             float slowestWarpSpeed = Ships.Min(s => s.MaxFTLSpeed).LowerBound(1000);
             float secondsToTarget = distanceToPlanet / slowestWarpSpeed;
             float turnsToTarget = secondsToTarget / GlobalStats.TurnTimer;
-            starDateEta = (Owner.Universum.StarDate + turnsToTarget / 10).RoundToFractionOf10();
+            starDateEta = (Owner.Universe.StarDate + turnsToTarget / 10).RoundToFractionOf10();
 
             return starDateEta.Greater(0);
         }
@@ -1484,7 +1484,7 @@ namespace Ship_Game.Fleets
 
             bool remnantsTargeting = !Owner.WeAreRemnants
                                         && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && Owner.Universum.Remnants.Fleets
+                                        && Owner.Universe.Remnants.Fleets
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
             if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
@@ -1907,7 +1907,7 @@ namespace Ship_Game.Fleets
         }
 
         void DebugInfo(MilitaryTask task, string text)
-            => Owner.Universum?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
+            => Owner.Universe?.DebugWin?.DebugLogText($"{task.Type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
         // @return TRUE if we can take this fight, potentially, maybe...
         public bool CanTakeThisFight(float enemyFleetStrength, MilitaryTask task, bool debug = false)

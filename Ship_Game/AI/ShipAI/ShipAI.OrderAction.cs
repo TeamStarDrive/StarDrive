@@ -524,7 +524,7 @@ namespace Ship_Game.AI
                     return;
                 }
 
-                planets = Owner.Loyalty.Universum.Planets;
+                planets = Owner.Loyalty.Universe.Planets;
             }
 
             Planet planet = planets.FindClosestTo(Owner.Position, p => p.FreeTilesWithRebaseOnTheWay(Owner.Loyalty) > 0);

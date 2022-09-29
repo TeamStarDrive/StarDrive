@@ -68,10 +68,10 @@ namespace Ship_Game
             if (isPlayer || IsFaction)
                 return;
 
-            foreach (Empire e in Universum.MajorEmpires.Filter(e => e != this))
+            foreach (Empire e in Universe.MajorEmpires.Filter(e => e != this))
                 IncreaseFleetStrEmpireMultiplier(e);
 
-            foreach (Empire e in Universum.Factions)
+            foreach (Empire e in Universe.Factions)
                 IncreaseFleetStrEmpireMultiplier(e);
         }
     }

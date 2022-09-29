@@ -143,8 +143,8 @@ namespace Ship_Game.AI
             if (owner != null) // owner is null during initial serialization
             {
                 Owner = owner;
-                UState = owner?.Universum;
-                StarDateAdded = owner.Universum.StarDate;
+                UState = owner?.Universe;
+                StarDateAdded = owner.Universe.StarDate;
             }
         }
 

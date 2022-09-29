@@ -70,7 +70,7 @@ namespace Ship_Game.Commands.Goals
             if (Owner.ShouldGoToWar(rel, TargetEmpire))
             {
                 if (Owner.DetectPrepareForWarVsPlayer(TargetEmpire))
-                    Owner.Universum.Notifications.NotifyPreparingForWar(Owner);
+                    Owner.Universe.Notifications.NotifyPreparingForWar(Owner);
 
                 return GoalStep.GoToNextStep;
             }

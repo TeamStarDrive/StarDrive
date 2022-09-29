@@ -13,7 +13,7 @@ namespace Ship_Game.AI.Research
         public ShipPicker PickShipToResearch;
         ResearchOptions ResearchMods;
 
-        void DebugLog(string text) => OwnerEmpire.Universum?.DebugWin?.ResearchLog(text, OwnerEmpire);
+        void DebugLog(string text) => OwnerEmpire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
         public ShipTechLineFocusing (Empire empire, ResearchOptions researchMods)
         {
@@ -144,7 +144,7 @@ namespace Ship_Game.AI.Research
 
                 if (shortTermBest.ShipData.TechsNeeded.Count == 0)
                 {
-                    if (OwnerEmpire.Universum.Debug)
+                    if (OwnerEmpire.Universe.Debug)
                     {
                         Log.Info(OwnerEmpire.data.PortraitName + " : no techlist :" + shortTermBest.Name);
                     }

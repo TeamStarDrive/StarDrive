@@ -27,9 +27,9 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep DelayedStart()
         {
-            if (Owner.Universum.StarDate - StarDateAdded > 5)
+            if (Owner.Universe.StarDate - StarDateAdded > 5)
             {
-                StarDateAdded = Owner.Universum.StarDate;
+                StarDateAdded = Owner.Universe.StarDate;
                 return GoalStep.GoToNextStep;
             }
 

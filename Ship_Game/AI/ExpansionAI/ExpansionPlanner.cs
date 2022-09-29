@@ -77,10 +77,10 @@ namespace Ship_Game.AI.ExpansionAI
     
         int GoalsModifierByRank() // increase goals if we are behind other empires
         {
-            if (Owner.Universum.StarDate < 1002)
+            if (Owner.Universe.StarDate < 1002)
                 return 0;
 
-            var empires = Owner.Universum.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);
+            var empires = Owner.Universe.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);
             return (int)(empires.IndexOf(Owner) * Owner.DifficultyModifiers.ColonyGoalMultiplier);
         }
 
@@ -103,7 +103,7 @@ namespace Ship_Game.AI.ExpansionAI
                 }
             }
 
-            UniverseState universe = Owner.Universum;
+            UniverseState universe = Owner.Universe;
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
             int claimTasks                    = Owner.AI.GetNumClaimTasks();
 
