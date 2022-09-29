@@ -334,7 +334,7 @@ namespace Ship_Game
 
             LocalizedText tip = GameText.MarkThisPlanetForColonization;
             LocalizedText tipText = GameText.Colonize;
-            if (P.Universe.Player.AI.HasGoal(g => g.IsColonizationGoal(P)))
+            if (Player.AI.HasGoal(g => g.IsColonizationGoal(P)))
             {
                 tip = GameText.CancelTheColonizationMissionThat;
                 tipText = GameText.CancelColonize;
@@ -413,20 +413,20 @@ namespace Ship_Game
             }
             if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (P.Universe.Player.AI.HasGoal(g => g.IsColonizationGoal(P)))
+                if (Player.AI.HasGoal(g => g.IsColonizationGoal(P)))
                 {
-                    P.Universe.Player.AI.CancelColonization(P);
+                    Player.AI.CancelColonization(P);
                     GameAudio.EchoAffirmative();
                 }
                 else
                 {
                     GameAudio.EchoAffirmative();
-                    P.Universe.Player.AI.RemoveGoal(new MarkForColonization(P, P.Universe.Player));
+                    Player.AI.AddGoal(new MarkForColonization(P, Player));
                 }
             }
             if (SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)
             {
-                if (P.Universe.Player.GetTroopShipForRebase(out Ship troopShip, P.Position, P.Name))
+                if (Player.GetTroopShipForRebase(out Ship troopShip, P.Position, P.Name))
                 {
                     GameAudio.EchoAffirmative();
                     troopShip.AI.OrderLandAllTroops(P, clearOrders:true);
@@ -435,11 +435,11 @@ namespace Ship_Game
                     GameAudio.BlipClick();
             }
 
-            if (P.Owner != null && P.Owner != P.Universe.Player 
+            if (P.Owner != null && P.Owner != Player 
                                 && CancelInvasionRect.HitTest(input.CursorPosition) 
                                 && input.InGameSelect)
             {
-                var shipList = P.Universe.Player.OwnedShips;
+                var shipList = Player.OwnedShips;
                 foreach (Ship ship in shipList)
                 {
                     if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrderQueue.Any(g => g.TargetPlanet == P))
