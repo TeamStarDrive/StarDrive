@@ -112,7 +112,7 @@ namespace Ship_Game
 
         public void Init() // New Game
         {
-            foreach (Empire empire in EmpireManager.MajorEmpires)
+            foreach (Empire empire in Universe.MajorEmpires)
             {
                 ThreatLevels.Add(empire.Id, -1);
                 PaymentTimers.Add(empire.Id, PaymentPeriodTurns);
@@ -220,7 +220,7 @@ namespace Ship_Game
 
         public void LevelDown()
         {
-            var empires = EmpireManager.MajorEmpires;
+            var empires = Universe.MajorEmpires;
             for (int i = 0; i < empires.Length; i++)
             {
                 Empire empire = empires[i];
@@ -246,7 +246,7 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            int dieRoll = (int)(Level * Universe.Pace + EmpireManager.ActiveMajorEmpires.Length / 2f);
+            int dieRoll = (int)(Level * Universe.Pace + Universe.ActiveMajorEmpires.Length / 2f);
             if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
@@ -433,7 +433,7 @@ namespace Ship_Game
             var empires            = new Array<Empire>();
 
             foreach (KeyValuePair<int, int> threatLevel in sortedThreatLevels)
-                empires.Add(EmpireManager.GetEmpireById(threatLevel.Key));
+                empires.Add(Universe.GetEmpireById(threatLevel.Key));
 
             // search for a hidden place near an empire from 400K to 300K
             for (int i = 0; i <= 50; i++)
@@ -889,7 +889,7 @@ namespace Ship_Game
 
         public void ExecuteProtectionContracts(Empire victim, Ship shipToDefend)
         {
-            foreach (Empire faction in EmpireManager.PirateFactions.Filter(f => f != Owner))
+            foreach (Empire faction in Universe.PirateFactions.Filter(f => f != Owner))
             {
                 if (victim.IsNAPactWith(faction))
                 {

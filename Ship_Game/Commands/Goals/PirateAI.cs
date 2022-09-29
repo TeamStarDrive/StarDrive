@@ -37,7 +37,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             //Pirates.AddGoalDirectorPayment(EmpireManager.Player); // TODO for testing
-            foreach (Empire victim in EmpireManager.MajorEmpires)
+            foreach (Empire victim in Pirates.Universe.MajorEmpires)
                 Pirates.AddGoalDirectorPayment(victim);
 
             return GoalStep.GoalComplete;

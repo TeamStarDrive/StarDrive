@@ -9,6 +9,7 @@ using Ship_Game.SpriteSystem;
 using Ship_Game.Data;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -16,7 +17,8 @@ namespace Ship_Game
     public sealed class CombatScreen : PlanetScreen
     {
         public readonly Planet P;
-        public Empire Player;
+        public readonly UniverseState Universe;
+        public Empire Player => Universe.Player;
         readonly Vector2 TitlePos;
         readonly Rectangle GridPos;
 
@@ -52,7 +54,7 @@ namespace Ship_Game
         {
             if (p == null) throw new ArgumentNullException(nameof(p));
             P = p;
-            Player = p.Universe.Player;
+            Universe = p.Universe;
 
             GridRect            = new Rectangle(ScreenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
             Rectangle titleRect = new Rectangle(ScreenWidth / 2 - 250, 44, 500, 80);
@@ -567,8 +569,8 @@ namespace Ship_Game
 
             if (P.Universe.Debug && (input.SpawnRemnant || input.SpawnPlayerTroop))
             {
-                Empire spawnFor = input.SpawnRemnant ? EmpireManager.Remnants : Player;
-                if (EmpireManager.Remnants == null)
+                Empire spawnFor = input.SpawnRemnant ? Universe.Remnants : Player;
+                if (Universe.Remnants == null)
                     Log.Warning("Remnant faction missing!");
                 else
                 {

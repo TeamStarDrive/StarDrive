@@ -773,7 +773,7 @@ namespace Ship_Game.Gameplay
                 return false;
 
             Empire player = aiEmpire.Universum.Player;
-            Empire enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
+            Empire enemyEmpire = aiEmpire.Universum.GetEmpireByName(FedQuest.EnemyName);
             if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
             {
                 DiplomacyScreen.ShowEndOnly(aiEmpire, player, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
@@ -1011,7 +1011,7 @@ namespace Ship_Game.Gameplay
             bool Is3RdPartyBiggerThenUs()
             {
                 float popRatioWar = us.PersonalityModifiers.FederationPopRatioWar;
-                foreach (Empire e in EmpireManager.ActiveMajorEmpires)
+                foreach (Empire e in us.Universum.ActiveMajorEmpires)
                 {
                     if (e == us || e == them)
                         continue;
@@ -1704,8 +1704,8 @@ namespace Ship_Game.Gameplay
 
         public static bool DoWeShareATradePartner(Empire them, Empire us)
         {
-            var theirTrade = EmpireManager.GetTradePartners(them);
-            var ourTrade = EmpireManager.GetTradePartners(them);
+            var theirTrade = us.Universum.GetTradePartners(them);
+            var ourTrade = us.Universum.GetTradePartners(them);
             foreach (var trade in theirTrade)
             {
                 if (ourTrade.ContainsRef(trade))

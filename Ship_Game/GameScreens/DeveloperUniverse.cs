@@ -44,7 +44,6 @@ namespace Ship_Game
                                                int numOpponents = 1)
         {
             var s = Stopwatch.StartNew();
-            EmpireManager.Clear();
             ScreenManager.Instance.ClearScene();
 
             var universe = new DeveloperUniverse(1_000_000f);

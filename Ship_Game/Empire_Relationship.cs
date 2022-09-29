@@ -143,7 +143,7 @@ namespace Ship_Game
                         wars.Add(rel.ActiveWar);
                     }
                 }
-                else if (!rel.Known && rel.Them == EmpireManager.Unknown)
+                else if (!rel.Known && rel.Them == Universum.Unknown)
                     SetRelationsAsKnown(rel.Them);
             }
             AllActiveWars = wars.ToArray();
@@ -194,7 +194,7 @@ namespace Ship_Game
             int index = them.Id - 1;
             if (index >= RelationsMap.Length)
             {
-                int newSize = Math.Max(EmpireManager.NumEmpires, RelationsMap.Length);
+                int newSize = Math.Max(Universum.NumEmpires, RelationsMap.Length);
                 Array.Resize(ref RelationsMap, newSize);
             }
 
@@ -232,7 +232,7 @@ namespace Ship_Game
 
             return GetRelationsOrNull(otherEmpire)?.AtWar == true
                    || data.IsRebelFaction
-                   || this == EmpireManager.Unknown
+                   || this == Universum.Unknown
                    || WeAreRemnants
                    || (otherEmpire?.IsFaction == true && !IsNAPactWith(otherEmpire));
         }
@@ -619,8 +619,8 @@ namespace Ship_Game
         public bool TryMergeOrSurrender(Empire enemy)
         {
             var potentialEmpires = GlobalStats.RestrictAIPlayerInteraction
-                ? EmpireManager.ActiveNonPlayerMajorEmpires
-                : EmpireManager.ActiveMajorEmpires;
+                ? Universum.ActiveNonPlayerMajorEmpires
+                : Universum.ActiveMajorEmpires;
 
             potentialEmpires = potentialEmpires.Filter(e => e != this && !GetRelationsOrNull(e)?.RefusedMerge == true);
 

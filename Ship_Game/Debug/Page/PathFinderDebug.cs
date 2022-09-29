@@ -32,11 +32,11 @@ namespace Ship_Game.Debug.Page
 
         void ChangeEmpireId(bool increase)
         {
-            EmpireID = EmpireID + (increase ? 1 : -1);
-            if (EmpireID > EmpireManager.NumEmpires) EmpireID = 1;
-            if (EmpireID < 1) EmpireID = EmpireManager.NumEmpires;
+            EmpireID += (increase ? 1 : -1);
+            if (EmpireID > Screen.UState.NumEmpires) EmpireID = 1;
+            if (EmpireID < 1) EmpireID = Screen.UState.NumEmpires;
 
-            Empire e = EmpireManager.GetEmpireById(EmpireID);
+            Empire e = Screen.UState.GetEmpireById(EmpireID);
             TextColumns[0].Text = $"Empire: {e.Name}";
             TextColumns[0].Color = e.EmpireColor;
         }

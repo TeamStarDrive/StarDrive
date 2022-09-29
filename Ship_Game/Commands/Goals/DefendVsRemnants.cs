@@ -4,6 +4,7 @@ using SDUtils;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
+using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
@@ -26,7 +27,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             Fleet = fleet;
             TargetPlanet = targetPlanet;
-            TargetEmpire = EmpireManager.Remnants;
+            TargetEmpire = owner.Universum.Remnants;
         }
 
         bool RemnantGoalExists()
@@ -72,7 +73,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             if (TargetPlanet.Owner != Owner && !TryChangeTargetPlanet())
             {
-                Owner.DecreaseFleetStrEmpireMultiplier(EmpireManager.Remnants);
+                Owner.DecreaseFleetStrEmpireMultiplier(Owner.Universum.Remnants);
                 return GoalStep.GoalComplete;
             }
 

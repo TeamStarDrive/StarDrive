@@ -16,6 +16,7 @@ using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game.Debug
 {
@@ -50,6 +51,7 @@ namespace Ship_Game.Debug
     {
         public bool IsOpen = true;
         readonly UniverseScreen Screen;
+        readonly UniverseState Universe;
         Rectangle Win = new(30, 100, 1200, 700);
 
         // TODO: Use these stats in some DebugPage
@@ -65,6 +67,7 @@ namespace Ship_Game.Debug
         public DebugInfoScreen(UniverseScreen screen) : base(screen, toPause: null)
         {
             Screen = screen;
+            Universe = screen.UState;
         }
 
         readonly Dictionary<string, Array<string>> ResearchText = new();
@@ -204,7 +207,7 @@ namespace Ship_Game.Debug
         {
             TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
             int column = 0;
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in Universe.Empires)
             {
                 if (e.IsFaction || e.data.Defeated)
                     continue;
@@ -615,7 +618,7 @@ namespace Ship_Game.Debug
         void Pirates()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.PirateFactions)
+            foreach (Empire e in Universe.PirateFactions)
             {
                 if (e.data.Defeated)
                     continue;
@@ -705,7 +708,7 @@ namespace Ship_Game.Debug
         void AgentsInfo()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in Universe.MajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -720,7 +723,7 @@ namespace Ship_Game.Debug
                 DrawString("------------------------");
                 foreach (Agent agent in e.data.AgentList.Sorted(a => a.Level))
                 {
-                    Empire target = EmpireManager.GetEmpireByName(agent.TargetEmpire);
+                    Empire target = Universe.GetEmpireByName(agent.TargetEmpire);
                     Color color   = target?.EmpireColor ?? e.EmpireColor;
                     DrawString(color, $"Level: {agent.Level}, Mission: {agent.Mission}, Turns: {agent.TurnsRemaining}");
                 }
@@ -732,7 +735,7 @@ namespace Ship_Game.Debug
         void Tasks()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.NonPlayerMajorEmpires)
+            foreach (Empire e in Universe.NonPlayerMajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -793,7 +796,7 @@ namespace Ship_Game.Debug
         void Relationships()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.NonPlayerMajorEmpires)
+            foreach (Empire e in Universe.NonPlayerMajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -843,7 +846,7 @@ namespace Ship_Game.Debug
         void FleetMultipliers()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.ActiveNonPlayerMajorEmpires)
+            foreach (Empire e in Universe.ActiveNonPlayerMajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -856,18 +859,18 @@ namespace Ship_Game.Debug
                 NewLine(2);
                 DrawString("Remnants Strength Multipliers");
                 DrawString("---------------------------");
-                Empire remnants = EmpireManager.Remnants;
+                Empire remnants = Universe.Remnants;
                 DrawString(remnants.EmpireColor, $"{remnants.Name}: {e.GetFleetStrEmpireMultiplier(remnants).String(2)}");
                 NewLine(2);
                 DrawString("Empire Strength Multipliers");
                 DrawString("---------------------------");
-                foreach (Empire empire in EmpireManager.ActiveMajorEmpires.Filter(empire => empire != e))
+                foreach (Empire empire in Universe.ActiveMajorEmpires.Filter(empire => empire != e))
                     DrawString($"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
 
                 NewLine(2);
                 DrawString("Pirates Strength Multipliers");
                 DrawString("---------------------------");
-                foreach (Empire empire in EmpireManager.PirateFactions.Filter(faction => faction != EmpireManager.Unknown))
+                foreach (Empire empire in Universe.PirateFactions.Filter(faction => faction != Universe.Unknown))
                     DrawString(empire.EmpireColor, $"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
 
                 column += 1;
@@ -876,7 +879,7 @@ namespace Ship_Game.Debug
 
         void RemnantInfo()
         {
-            Empire e = EmpireManager.Remnants;
+            Empire e = Universe.Remnants;
             SetTextCursor(Win.X + 10 + 255, Win.Y + 250, e.EmpireColor);
             DrawString($"Remnant Story: {e.Remnants.Story}");
             DrawString(!e.Remnants.Activated
@@ -894,15 +897,15 @@ namespace Ship_Game.Debug
             DrawString($"Resources: {e.Remnants.Production.String()}");
             NewLine();
             DrawString("Empires Population and Strength:");
-            for (int i = 0; i < EmpireManager.MajorEmpires.Length; i++)
+            for (int i = 0; i < Universe.MajorEmpires.Length; i++)
             {
-                Empire empire = EmpireManager.MajorEmpires[i];
+                Empire empire = Universe.MajorEmpires[i];
                 if (!empire.data.Defeated)
                     DrawString(empire.EmpireColor, $"{empire.data.Name} - Pop: {empire.TotalPopBillion.String()}, Strength: {empire.CurrentMilitaryStrength.String(0)}");
             }
 
-            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerMajorEmpires.Filter(emp => !emp.data.Defeated)
-                                                                      : EmpireManager.MajorEmpires.Filter(emp => !emp.data.Defeated);
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? Universe.NonPlayerMajorEmpires.Filter(emp => !emp.data.Defeated)
+                                                                      : Universe.MajorEmpires.Filter(emp => !emp.data.Defeated);
 
             NewLine();
             float averagePop = empiresList.Average(empire => empire.TotalPopBillion);
@@ -954,7 +957,7 @@ namespace Ship_Game.Debug
         void EmpireInfo()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in Universe.MajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -1098,7 +1101,7 @@ namespace Ship_Game.Debug
 
         void DefcoInfo()
         {
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in Universe.Empires)
             {
                 DefensiveCoordinator defco = e.AI.DefensiveCoordinator;
                 foreach (var kv in defco.DefenseDict)
@@ -1117,7 +1120,7 @@ namespace Ship_Game.Debug
 
         void ThreatMatrixInfo()
         {
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in Universe.Empires)
             {
                 var pins = e.AI.ThreatMatrix.GetPins();
                 for (int i = 0; i < pins.Length; i++)

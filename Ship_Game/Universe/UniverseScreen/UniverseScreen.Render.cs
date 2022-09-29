@@ -171,7 +171,7 @@ namespace Ship_Game
 
         void DrawEnemiesDetectedByProjectors(SpriteBatch batch)
         {
-            var enemies = EmpireManager.GetEnemies(Player);
+            var enemies = UState.GetEnemies(Player);
             var playerProjectors = Player.GetProjectors();
             for (int i = 0; i < playerProjectors.Count; i++)
             {

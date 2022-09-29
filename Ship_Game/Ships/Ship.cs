@@ -1495,7 +1495,7 @@ namespace Ship_Game.Ships
             if (Loyalty == Universe.Player || IsInWarp)
                 return true;
 
-            if (Loyalty == EmpireManager.Remnants)
+            if (Loyalty == Universe.Remnants)
                 return false;
 
             return BaseStrength.LessOrEqual(0)
@@ -1752,7 +1752,7 @@ namespace Ship_Game.Ships
 
             Carrier?.Dispose();
 
-            foreach (Empire empire in EmpireManager.Empires)
+            foreach (Empire empire in Universe.Empires)
             {
                 if (KnownByEmpires.KnownBy(empire))
                 {

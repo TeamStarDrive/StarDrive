@@ -355,7 +355,7 @@ namespace Ship_Game
             CreateStartingShips();
             InitializeSolarSystems();
 
-            foreach (Empire empire in EmpireManager.Empires)
+            foreach (Empire empire in UState.Empires)
             {
                 empire.InitEmpireFromSave(UState);
             }
@@ -395,7 +395,7 @@ namespace Ship_Game
                     }
                 }
 
-                foreach (Empire empire in EmpireManager.ActiveEmpires)
+                foreach (Empire empire in UState.ActiveEmpires)
                 {
                     system.UpdateFullyExploredBy(empire);
                 }
@@ -413,7 +413,7 @@ namespace Ship_Game
             if (UState.StarDate > 1000f || UState.Ships.Count > 0)
                 return;
 
-            foreach (Empire empire in EmpireManager.MajorEmpires)
+            foreach (Empire empire in UState.MajorEmpires)
             {
                 Planet homePlanet    = empire.GetPlanets()[0];
                 string colonyShip    = empire.data.DefaultColonyShip;

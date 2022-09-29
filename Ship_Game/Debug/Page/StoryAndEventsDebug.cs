@@ -80,7 +80,7 @@ namespace Ship_Game.Debug.Page
 
             foreach (Encounter e in ResourceManager.Encounters)
             {
-                Empire faction = EmpireManager.GetEmpireByName(e.Faction) ?? EmpireManager.Corsairs;
+                Empire faction = Universe.UState.GetEmpireByName(e.Faction) ?? Universe.UState.Corsairs;
                 var item = EncounterDialogs.AddItem(new EvtItem(e));
                 item.OnClick = () =>
                 {

@@ -44,7 +44,7 @@ namespace Ship_Game.GameScreens.Espionage
                     Vector2 targetCursor = namecursor;
                     targetCursor.X += 75f;
                     string mission = Localizer.Token(GameText.Target) + ": " +
-                                     EmpireManager.GetEmpireByName(Agent.TargetEmpire).data.Traits.Plural;
+                                     Universe.UState.GetEmpireByName(Agent.TargetEmpire).data.Traits.Plural;
                     batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
                 }
                 else if (Agent.TargetPlanetId != 0 && Agent.Mission == AgentMission.Undercover)

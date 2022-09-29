@@ -365,6 +365,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Events.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Save.cs" />
     <Compile Include="Ship_Game\Universe\UniverseState.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseState_Empires.cs" />
     <Compile Include="Ship_Game\Utils\BitArray.cs" />
     <Compile Include="Ship_Game\Utils\ChangePendingList.cs" />
     <Compile Include="Ship_Game\Debug\Page\StoryAndEventsDebug.cs" />
@@ -693,7 +694,6 @@
     <Compile Include="Ship_Game\UI\UILabel.cs" />
     <Compile Include="Ship_Game\GameScreens\DeveloperSandbox.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SolarSystemBody.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\Explorable.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\ShipGroupProject.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\ShipMoveCommands.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseObjectManager.cs" />
@@ -734,10 +734,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\ExtensionMethods\UniverseRandom.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\EmpireManager.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

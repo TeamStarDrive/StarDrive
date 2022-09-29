@@ -446,7 +446,7 @@ namespace Ship_Game
             bool wasUnlocked = TrySetUnlocked();
             UnlockTechContentOnly(us, us, bonusUnlock: wasUnlocked);
 
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in us.Universum.MajorEmpires)
             {
                 if (e.data.AbsorbedBy == us.data.Traits.Name)
                     UnlockTechContentOnly(us, e, false);
@@ -591,7 +591,7 @@ namespace Ship_Game
             if (Locked)
                 return;
 
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in us.Universum.MajorEmpires)
             {
                 if (e.data.AbsorbedBy == us.data.Traits.Name)
                     UnlockFromSave(us, e, true);

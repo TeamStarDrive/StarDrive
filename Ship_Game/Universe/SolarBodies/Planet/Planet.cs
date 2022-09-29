@@ -1363,7 +1363,7 @@ namespace Ship_Game
 
             Population = (Population - popKilled).LowerBound(0);
             if (Owner != null && Population.AlmostZero())
-                WipeOutColony(EmpireManager.Unknown);
+                WipeOutColony(Universe.Unknown);
         }
 
         public void SetHasLimitedResourceBuilding(bool value)

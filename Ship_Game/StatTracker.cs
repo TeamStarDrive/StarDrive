@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SDUtils;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -10,10 +11,17 @@ namespace Ship_Game
     public sealed class StatTracker
     {
         [StarData] Map<string, Map<int, Snapshot>> SnapsMap = new();
+        [StarData] UniverseState Universe;
 
         public int NumRecordedTurns => SnapsMap.Count;
         public Map<int, Snapshot>[] Snapshots => SnapsMap.Values.ToArr();
         public IReadOnlyDictionary<string, Map<int, Snapshot>> SnapshotsMap => SnapsMap;
+
+        [StarDataConstructor]
+        public StatTracker(UniverseState us)
+        {
+            Universe = us;
+        }
 
         public void Reset()
         {
@@ -39,9 +47,9 @@ namespace Ship_Game
             var snapshots = new Map<int, Snapshot>();
             SnapsMap[starDateStr] = snapshots;
 
-            foreach (Empire empire in EmpireManager.Empires)
+            foreach (Empire empire in Universe.Empires)
             {
-                int empireIndex = EmpireManager.Empires.IndexOf(empire);
+                int empireIndex = Universe.Empires.IndexOf(empire);
                 snapshots[empireIndex] = new Snapshot(starDate);
             }
         }
@@ -63,7 +71,7 @@ namespace Ship_Game
                 SnapsMap[starDateStr] = snapshots;
             }
 
-            int empireIndex = EmpireManager.Empires.IndexOf(owner);
+            int empireIndex = Universe.Empires.IndexOf(owner);
             if (empireIndex != -1)
             {
                 if (!snapshots.TryGetValue(empireIndex, out snapshot))

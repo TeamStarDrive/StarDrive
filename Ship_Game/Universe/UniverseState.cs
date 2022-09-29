@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.Xna.Framework;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.Data.Serialization;
@@ -19,7 +20,7 @@ namespace Ship_Game.Universe
     ///
     /// </summary>
     [StarDataType]
-    public class UniverseState
+    public partial class UniverseState
     {
         /// <summary>
         /// This is the RADIUS of the universe
@@ -28,6 +29,10 @@ namespace Ship_Game.Universe
         /// </summary>
         [StarData] public readonly float Size;
         [StarData] public Empire Player;
+        [StarData] public Empire Cordrazine;
+        [StarData] public Empire Remnants;
+        [StarData] public Empire Unknown;
+        [StarData] public Empire Corsairs;
 
         [StarData] public float FTLModifier = 1f;
         [StarData] public float EnemyFTLModifier = 1f;
@@ -105,29 +110,6 @@ namespace Ship_Game.Universe
         [StarData] readonly Map<int, Planet> PlanetsDict = new();
         [StarData] readonly Array<Planet> AllPlanetsList = new();
 
-        // @return All Empires in the Universe
-        public IReadOnlyList<Empire> Empires => EmpireList;
-        public int NumEmpires => EmpireList.Count;
-        public Empire[] NonPlayerMajorEmpires =>
-            EmpireList.Filter(empire => !empire.IsFaction && !empire.isPlayer);
-
-        public Empire[] NonPlayerEmpires =>
-            EmpireList.Filter(empire => !empire.isPlayer);
-
-        public Empire[] ActiveNonPlayerMajorEmpires =>
-            EmpireList.Filter(empire => !empire.IsFaction && !empire.isPlayer && !empire.data.Defeated);
-
-        public Empire[] ActiveMajorEmpires => 
-            EmpireList.Filter(empire => !empire.IsFaction && !empire.data.Defeated);
-
-        public Empire[] ActiveEmpires =>
-            EmpireList.Filter(empire => !empire.data.Defeated);
-
-        public Empire[] MajorEmpires   => EmpireList.Filter(empire => !empire.IsFaction);
-        public Empire[] Factions       => EmpireList.Filter(empire => empire.IsFaction);
-        public Empire[] PirateFactions => EmpireList.Filter(empire => empire.WeArePirates);
-
-
         // @return All SolarSystems in the Universe
         public IReadOnlyList<SolarSystem> Systems => SolarSystemList;
 
@@ -169,7 +151,7 @@ namespace Ship_Game.Universe
             Initialize(universeRadius);
 
             Events = new RandomEventManager(); // serialized
-            Stats = new StatTracker(); // serialized
+            Stats = new StatTracker(this); // serialized
             Params = new UniverseParams(); // serialized
         }
 
@@ -267,25 +249,13 @@ namespace Ship_Game.Universe
             SettingsResearchModifier = GetResearchMultiplier();
             RemnantPaceModifier = CalcRemnantPace();
 
+            // TODO: AddRange
             foreach (Ship ship in save.Ships)
                 Objects.Add(ship);
             foreach (Projectile projectile in save.Projectiles)
                 Objects.Add(projectile);
 
-            foreach (Empire e in EmpireList)
-            {
-                if (e.data.AbsorbedBy != null)
-                {
-                    Empire masterEmpire = GetEmpire(e.data.AbsorbedBy);
-                    masterEmpire.AssimilateTech(e);
-                }
-            }
-
-            foreach (Empire empire in MajorEmpires)
-                empire.UpdateDefenseShipBuildingOffense();
-
-            foreach (Empire empire in EmpireList.Filter(e => !e.data.Defeated))
-                empire.UpdatePopulation();
+            InitializeEmpiresFromSave();
         }
 
         public void SetDebugMode(bool debug)
@@ -315,9 +285,9 @@ namespace Ship_Game.Universe
             Objects.Clear();
             ClearSystems();
             ClearSpaceJunk();
+            ClearEmpires();
             PlanetsDict.Clear();
             SolarSystemDict.Clear();
-            EmpireManager.Clear();
             Spatial.Destroy();
         }
 
@@ -379,56 +349,6 @@ namespace Ship_Game.Universe
                 PlanetsDict.Add(planet.Id, planet);
                 AllPlanetsList.Add(planet);
             }
-        }
-
-        public Empire CreateEmpire(IEmpireData readOnlyData, bool isPlayer)
-        {
-            if (EmpireManager.GetEmpireByName(readOnlyData.Name) != null)
-                throw new InvalidOperationException($"BUG: Empire already created! {readOnlyData.Name}");
-            Empire e = EmpireManager.CreateEmpireFromEmpireData(this, readOnlyData, isPlayer);
-            return AddEmpire(e);
-        }
-
-        public Empire CreateTestEmpire(string name)
-        {
-            var e = new Empire(this)
-            {
-                data = new EmpireData
-                {
-                    Traits = new RacialTrait { Name = name }
-                }
-            };
-            return AddEmpire(e);
-        }
-
-        public Empire AddEmpire(Empire e)
-        {
-            if (e.Universum == null)
-                throw new ArgumentNullException("Empire.Universum cannot be null");
-
-            EmpireList.Add(e);
-            EmpireManager.Add(e);
-
-            if (e.isPlayer)
-            {
-                if (Player != null)
-                    throw new InvalidOperationException($"Duplicate Player empire! previous={Player}  new={e}");
-                Player = e;
-            }
-            return e;
-        }
-
-        public Empire GetEmpire(int empireId)
-        {
-            for (int i = 0; i < EmpireList.Count; ++i)
-                if (EmpireList[i].Id == empireId)
-                    return EmpireList[i];
-            return null;
-        }
-
-        public Empire GetEmpire(string loyalty)
-        {
-            return EmpireList.Find(e => e.data.Traits.Name == loyalty);
         }
 
         public SolarSystem GetSystem(int id)
