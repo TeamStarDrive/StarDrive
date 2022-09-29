@@ -159,7 +159,7 @@ namespace Ship_Game.AI
             rel.HaveRejected_TRADE = false;
             rel.HasDefenseFleet = false;
             if (rel.DefenseFleet != -1)
-                us.GetFleetsDict()[rel.DefenseFleet].FleetTask.EndTask();
+                us.GetFleet(rel.DefenseFleet).FleetTask.EndTask();
 
             us.AI.RemoveMilitaryTasksTargeting(them);
             rel.ActiveWar = null;

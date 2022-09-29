@@ -602,7 +602,7 @@ namespace Ship_Game
                     continue;
 
                 // not sure if this is the right way to do this but its hitting a crash here on collection change when the fleet loop is a foreach
-                Fleet[] fleets = empire.GetFleetsDict().AtomicValuesArray();
+                Fleet[] fleets = empire.Fleets;
                 for (int j = 0; j < fleets.Length; j++)
                 {
                     Fleet fleet = fleets[j];

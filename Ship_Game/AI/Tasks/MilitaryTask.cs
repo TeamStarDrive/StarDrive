@@ -313,7 +313,7 @@ namespace Ship_Game.AI.Tasks
             Owner = e;
             if (WhichFleet > - 1)
             {
-                if (!e.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet) || fleet == null || fleet.Ships.Count == 0)
+                if (!e.GetFleet(WhichFleet, out Fleet fleet) || fleet == null || fleet.Ships.Count == 0)
                 {
                     if (fleet?.IsCoreFleet != true)
                     {
@@ -352,10 +352,10 @@ namespace Ship_Game.AI.Tasks
             {
                 if (!IsCoreFleetTask)
                 {
-                    if (!Owner.GetFleetsDict().ContainsKey(WhichFleet))
+                    if (!Owner.GetFleet(WhichFleet, out Fleet fleet))
                         return;
 
-                    foreach (Ship ship in Owner.GetFleetOrNull(WhichFleet).Ships)
+                    foreach (Ship ship in fleet.Ships)
                     {
                         ship.ClearFleet(returnToManagedPools: true, clearOrders: true);
 
@@ -370,7 +370,7 @@ namespace Ship_Game.AI.Tasks
                     }
                     TaskForce.Clear();
                     Owner.AI.UsedFleets.Remove(WhichFleet);
-                    Owner.GetFleetsDict()[WhichFleet].Reset();
+                    fleet.Reset();
                 }
 
                 if (Type == TaskType.Exploration)

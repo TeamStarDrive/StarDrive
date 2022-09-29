@@ -4,7 +4,6 @@ using SDUtils;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Fleets;
-using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 {
@@ -38,7 +37,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         bool TryChangeTargetPlanet()
         {
-            var remnantFleets = TargetEmpire.GetFleetsDict().Values.ToArr();
+            var remnantFleets = TargetEmpire.Fleets;
             if (!remnantFleets.Any(f => f.FleetTask?.TargetPlanet?.Owner == Owner))
                 return false;
 
