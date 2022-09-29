@@ -17,7 +17,7 @@ namespace Ship_Game.Debug.Page
             Screen = screen;
             if (TextColumns.Count <= 1)
                 TextColumns.Add(Label(Rect.X, Rect.Y + 300, ""));
-            EmpireAtWar = EmpireManager.GetEmpireById(EmpireID);
+            EmpireAtWar = Screen.UState.GetEmpireById(EmpireID);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -41,10 +41,10 @@ namespace Ship_Game.Debug.Page
         {
             do
             {
-                EmpireID = EmpireID + (increase ? 1 : -1);
-                if (EmpireID > EmpireManager.NumEmpires) EmpireID = 1;
-                if (EmpireID < 1) EmpireID = EmpireManager.NumEmpires;
-                EmpireAtWar = EmpireManager.GetEmpireById(EmpireID);
+                EmpireID += (increase ? 1 : -1);
+                if (EmpireID > Screen.UState.NumEmpires) EmpireID = 1;
+                if (EmpireID < 1) EmpireID = Screen.UState.NumEmpires;
+                EmpireAtWar = Screen.UState.GetEmpireById(EmpireID);
             }
             while (EmpireAtWar.data.Defeated);
             TextColumns[0].Text = $"Empire: {EmpireAtWar.Name}";

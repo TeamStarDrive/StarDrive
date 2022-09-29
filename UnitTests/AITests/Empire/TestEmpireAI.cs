@@ -280,7 +280,7 @@ namespace UnitTests.AITests.Empire
             Assert.AreEqual(0, Enemy.OwnedShips.Count);
 
             // create areas of operation among empires
-            foreach(var empire in EmpireManager.Empires)
+            foreach(var empire in UState.Empires)
             {
                 empire.data.Defeated = false;
                 foreach(var planet in UState.Planets)
@@ -321,7 +321,7 @@ namespace UnitTests.AITests.Empire
                 {
                     int addedShips = 0;
 
-                    foreach(var empire in EmpireManager.Empires)
+                    foreach(var empire in UState.Empires)
                     {
                         foreach (var s in empire.OwnedShips)
                         {
@@ -336,7 +336,7 @@ namespace UnitTests.AITests.Empire
                                 }
                                 else if (random > 60)
                                 {
-                                    var changeTo = EmpireManager.Empires.Find(e => e != empire);
+                                    var changeTo = UState.Empires.Find(e => e != empire);
                                     s.LoyaltyChangeFromBoarding(changeTo,false);
                                     loyaltyChanges++;
                                 }
@@ -347,11 +347,11 @@ namespace UnitTests.AITests.Empire
 
                     addedShips = RandomMath.Int(1, 30);
 
-                    Parallel.For(0, EmpireManager.NumEmpires, (firstEmpire, lastEmpire) =>
+                    Parallel.For(0, UState.NumEmpires, (firstEmpire, lastEmpire) =>
                         {
                             for (int e = firstEmpire; e < lastEmpire; e++)
                             {
-                                var empire = EmpireManager.Empires[e];
+                                var empire = UState.Empires[e];
                                 for (int y = 0; y < addedShips; ++y)
                                 {
                                     SpawnShip(shipName, empire, Vector2.Zero);
@@ -368,7 +368,7 @@ namespace UnitTests.AITests.Empire
             stressTask.CancelAndWait();
 
             int actualShipCount = 0;
-            foreach(var empire in EmpireManager.Empires)
+            foreach(var empire in UState.Empires)
             {
                 UState.Objects.UpdateLists(true);
                 actualShipCount += empire.OwnedShips.Count;
@@ -386,7 +386,7 @@ namespace UnitTests.AITests.Empire
             int removedShips = 0;
             while (!stopStress)
             {
-                foreach (var empire in EmpireManager.Empires)
+                foreach (var empire in UState.Empires)
                 {
                     var ships = empire.OwnedShips;
                     foreach (var s in ships)

@@ -80,7 +80,7 @@ namespace Ship_Game.AI.ExpansionAI
             if (Owner.Universum.StarDate < 1002)
                 return 0;
 
-            var empires = EmpireManager.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);
+            var empires = Owner.Universum.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);
             return (int)(empires.IndexOf(Owner) * Owner.DifficultyModifiers.ColonyGoalMultiplier);
         }
 

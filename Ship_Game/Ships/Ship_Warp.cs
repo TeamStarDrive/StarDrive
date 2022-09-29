@@ -206,9 +206,9 @@ namespace Ship_Game.Ships
         // todo: Move to action queue
         bool IsInhibitedFromEnemyShips()
         {
-            for (int x = 0; x < EmpireManager.Empires.Count; x++)
+            for (int x = 0; x < Universe.Empires.Count; x++)
             {
-                Empire e = EmpireManager.Empires[x];
+                Empire e = Universe.Empires[x];
                 if (e.WillInhibit(Loyalty))
                 {
                     for (int i = 0; i < e.Inhibitors.Count; ++i)

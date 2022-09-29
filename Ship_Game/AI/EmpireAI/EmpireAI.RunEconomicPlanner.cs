@@ -126,7 +126,7 @@ namespace Ship_Game.AI
             OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal * 0.5f, colony);
             PlanetBudgetDebugInfo();
             float allianceBudget = 0;
-            foreach (var ally in EmpireManager.GetAllies(OwnerEmpire)) allianceBudget += ally.AI.BuildCapacity;
+            foreach (var ally in OwnerEmpire.Universum.GetAllies(OwnerEmpire)) allianceBudget += ally.AI.BuildCapacity;
             AllianceBuildCapacity = BuildCapacity + allianceBudget;
         }
 

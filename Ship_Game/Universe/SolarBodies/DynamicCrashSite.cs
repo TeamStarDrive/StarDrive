@@ -81,7 +81,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         void NotifyPlayerAndAi(Planet p, string message, int shipSize)
         {
-            foreach (Empire e in EmpireManager.ActiveMajorEmpires)
+            foreach (Empire e in p.Universe.ActiveMajorEmpires)
             {
                 var ships = e.OwnedShips;
                 if (p.Owner == e 

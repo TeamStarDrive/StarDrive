@@ -233,7 +233,7 @@ namespace Ship_Game
         /// </summary>
         public void WarmUpShipsForLoad()
         {
-            foreach (Empire empire in EmpireManager.Empires)
+            foreach (Empire empire in UState.Empires)
                 RemoveDuplicateProjectorWorkAround(empire); 
 
             // We need to update objects at least once to have visibility
@@ -316,9 +316,9 @@ namespace Ship_Game
         {
             EmpireInfluPerf.Start();
 
-            for (int i = 0; i < EmpireManager.Empires.Count; ++i)
+            for (int i = 0; i < UState.Empires.Count; ++i)
             {
-                Empire empireToUpdate = EmpireManager.Empires[i];
+                Empire empireToUpdate = UState.Empires[i];
                 empireToUpdate.UpdateContactsAndBorders(us, timeStep);
             }
 
@@ -419,9 +419,9 @@ namespace Ship_Game
 
         void UpdateEmpires(FixedSimTime timeStep)
         {
-            for (int i = 0; i < EmpireManager.NumEmpires; i++)
+            for (int i = 0; i < UState.NumEmpires; i++)
             {
-                Empire empire = EmpireManager.Empires[i];
+                Empire empire = UState.Empires[i];
                 if (!empire.data.Defeated)
                 {
                     empire.Update(UState, timeStep);

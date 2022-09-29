@@ -39,7 +39,7 @@ namespace Ship_Game
 
         private Ship SpawnAncientRepulsor(UniverseState us, Vector2 repulsorPos)
         {
-            Ship repulsor = Ship.CreateShipAtPoint(us, PlatformName, EmpireManager.Unknown, repulsorPos);
+            Ship repulsor = Ship.CreateShipAtPoint(us, PlatformName, us.Unknown, repulsorPos);
             Weapon weapon = ResourceManager.CreateWeapon("AncientRepulsor");
             var beam = new Beam(us.CreateId(), weapon, repulsor, PlaformCenter, 75);
             beam.Infinite = true;
@@ -86,7 +86,7 @@ namespace Ship_Game
                 SpawnCountdown -= timeStep.FixedTime;
                 if (SpawnCountdown <= 0f)
                 {
-                    Ship enemy = Ship.CreateShipAtPoint(Universe, "Heavy Drone", EmpireManager.Remnants, PlaformCenter);
+                    Ship enemy = Ship.CreateShipAtPoint(Universe, "Heavy Drone", Universe.Remnants, PlaformCenter);
                     enemy.Velocity = GenerateRandomV2(100f);
                     enemy.AI.State = AIState.AwaitingOrders;
                     SpawnCountdown = 2f;

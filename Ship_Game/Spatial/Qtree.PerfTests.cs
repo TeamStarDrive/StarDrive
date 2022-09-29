@@ -87,7 +87,7 @@ namespace Ship_Game.Spatial
         {
             var tree = new Qtree(500_000f);
             GameObject[] ships = CreateTestSpace(tree, 10000, 0,
-                EmpireManager.Void, EmpireManager.Void, SpawnShip);
+                Empire.Void, Empire.Void, SpawnShip);
 
             const float defaultSensorRange = 30000f;
             const int iterations = 10;
@@ -132,7 +132,7 @@ namespace Ship_Game.Spatial
         {
             var tree = new Qtree(500_000f);
             GameObject[] ships = CreateTestSpace(tree, 10000, 0,
-                EmpireManager.Void, EmpireManager.Void, SpawnShip);
+                Empire.Void, Empire.Void, SpawnShip);
 
             const int iterations = 1000;
             var timeStep = new FixedSimTime(1f / 60f);

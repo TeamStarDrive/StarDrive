@@ -35,7 +35,7 @@ namespace Ship_Game.AI
         bool TryMergeOrSurrender()
         {
             float ratio = OwnerEmpire.PersonalityModifiers.PopRatioBeforeMerge;
-            var enemies =  EmpireManager.MajorEmpiresAtWarWith(OwnerEmpire)
+            var enemies =  OwnerEmpire.Universum.MajorEmpiresAtWarWith(OwnerEmpire)
                 .Filter(e => e.TotalPopBillion * ratio > OwnerEmpire.TotalPopBillion 
                              || e.OffensiveStrength * ratio > OwnerEmpire.CurrentMilitaryStrength);
 

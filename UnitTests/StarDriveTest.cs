@@ -72,8 +72,6 @@ namespace UnitTests
 
             var sw = new Stopwatch();
 
-            EmpireManager.Clear();
-
             IEmpireData playerData = ResourceManager.MajorRaces[0];
             IEmpireData enemyData = ResourceManager.MajorRaces[1];
             if (playerArchetype != null)
@@ -102,14 +100,14 @@ namespace UnitTests
         {
             Universe = DeveloperUniverse.Create(playerPreference, numOpponents);
             Player = Universe.Player;
-            Enemy  = EmpireManager.NonPlayerEmpires[0];
+            Enemy  = UState.NonPlayerEmpires[0];
         }
 
         public void CreateCustomUniverse(UniverseGenerator.Params p)
         {
             Universe = new UniverseGenerator(p).Generate();
             Player = Universe.Player;
-            Enemy = EmpireManager.NonPlayerEmpires[0];
+            Enemy = UState.NonPlayerEmpires[0];
         }
 
         public void CreateCustomUniverseSandbox(int numOpponents, GalSize galSize)
@@ -145,7 +143,7 @@ namespace UnitTests
 
         public void CreateThirdMajorEmpire()
         {
-            ThirdMajor = EmpireManager.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[2], isPlayer:false);
+            ThirdMajor = UState.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[2], isPlayer:false);
             UState.AddEmpire(ThirdMajor);
 
             Player.SetRelationsAsKnown(ThirdMajor);
@@ -157,7 +155,7 @@ namespace UnitTests
         public void CreateRebelFaction()
         {
             IEmpireData data = ResourceManager.MajorRaces.FirstOrDefault(e => e.Name == Player.data.Name);
-            Faction = EmpireManager.CreateRebelsFromEmpireData(data, Player);
+            Faction = UState.CreateRebelsFromEmpireData(data, Player);
         }
 
         public void UnlockAllShipsFor(Empire empire)

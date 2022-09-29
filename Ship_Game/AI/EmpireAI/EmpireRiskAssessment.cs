@@ -83,7 +83,7 @@ namespace Ship_Game.AI
         /// </summary>
         private float BorderRiskAssessment(Empire us, float riskLimit = 2)
         {
-            if (!Relation.Known || Them.data.Defeated || us.NumSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == EmpireManager.Unknown)
+            if (!Relation.Known || Them.data.Defeated || us.NumSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == us.Universum.Unknown)
                 return 0;
 
             // if we have an open borders treaty or they are a faction return 0
@@ -119,7 +119,7 @@ namespace Ship_Game.AI
 
         private float RiskAssessment(Empire us, float riskLimit = 2)
         {
-            if (!Relation.Known || Them.data.Defeated || Them == EmpireManager.Unknown)
+            if (!Relation.Known || Them.data.Defeated || Them == us.Universum.Unknown)
                 return 0;
             if (Them.IsFaction || Relation.Treaty_Alliance)
                 return 0;

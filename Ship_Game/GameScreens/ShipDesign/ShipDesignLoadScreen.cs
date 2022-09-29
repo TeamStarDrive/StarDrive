@@ -7,12 +7,14 @@ using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
     public sealed class ShipDesignLoadScreen : GameScreen
     {
         readonly ShipDesignScreen Screen;
+        UniverseState Universe => Screen.ParentUniverse.UState;
 
         bool ShowOnlyPlayerDesigns;
         readonly bool UnlockAllDesigns;
@@ -57,7 +59,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                         () => PromptDeleteShip(Ship.Name));
             }
 
-                public DesignListItem(ShipDesignLoadScreen screen, Ships.ShipDesign wipHull)
+            public DesignListItem(ShipDesignLoadScreen screen, Ships.ShipDesign wipHull)
             {
                 Screen = screen;
                 WipHull = wipHull;
@@ -70,7 +72,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             
             void PromptDeleteShip(string shipId)
             {
-                if (Screen.Screen.ParentUniverse.UState.Ships.Any(s => s.Name == shipId))
+                if (Screen.Universe.Ships.Any(s => s.Name == shipId))
                 {
                     GameAudio.NegativeClick();
                     Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen.Screen, $"{shipId} currently exist the universe." +
@@ -185,7 +187,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 LoadShipToScreen();
             });
 
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, Screen.ParentUniverse.UState));
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, Universe));
             AvailableDesignsList.OnHovered = (item) =>
             {
                 ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
@@ -224,13 +226,13 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         void DeleteAccepted(string shipToDelete)
         {
-            ResourceManager.DeleteShip(shipToDelete);
+            ResourceManager.DeleteShip(Universe, shipToDelete);
             PostDeleteDesign();
         }
 
         void DeleteWIPVersionAccepted(string wipToDelete)
         {
-            ShipDesignWIP.RemoveRelatedWiPs(wipToDelete);
+            ShipDesignWIP.RemoveRelatedWiPs(Universe, wipToDelete);
             PostDeleteDesign();
         }
 
@@ -328,7 +330,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 && !ship.ShipData.IsShipyard
                 && Screen.Player.WeCanBuildThis(ship.Name)
                 && (role.IsEmpty() || role == Localizer.GetRole(ship.DesignRole, Screen.Player))
-                && (Screen.ParentUniverse.Debug || !ship.IsSubspaceProjector)
+                && (Universe.Debug || !ship.IsSubspaceProjector)
                 && !ResourceManager.ShipRoles[ship.ShipData.Role].Protected;
         }
 

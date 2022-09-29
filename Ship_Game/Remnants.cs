@@ -254,8 +254,8 @@ namespace Ship_Game
         public bool FindValidTarget(out Empire target)
         {
             var empiresList = GlobalStats.RestrictAIPlayerInteraction 
-                                 ? EmpireManager.ActiveNonPlayerMajorEmpires
-                                 : EmpireManager.ActiveMajorEmpires;
+                                 ? Universe.ActiveNonPlayerMajorEmpires
+                                 : Universe.ActiveMajorEmpires;
 
             target = null;
             if (empiresList.Length == 0)
@@ -959,7 +959,7 @@ namespace Ship_Game
                     ship.SetSystem(p.ParentSystem); // needed for Threat Matrix update pins to register the threatened system 
                     ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / divider) * StoryTurnsLevelUpModifier();
 
-                    foreach (Empire e in EmpireManager.MajorEmpires)
+                    foreach (Empire e in Universe.MajorEmpires)
                     {
                         if (p.IsExploredBy(e))
                             e.AI.ThreatMatrix.AddOrUpdatePin(ship, false, true);

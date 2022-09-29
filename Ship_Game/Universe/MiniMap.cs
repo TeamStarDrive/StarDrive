@@ -187,7 +187,7 @@ namespace Ship_Game
                 var pin = badBase;
                 var point = WorldToMiniPos(pin.Position);
                 radius = 0.025f * Universe.SlowFlashTimer;
-                var color = pin.GetEmpire().EmpireColor;
+                var color = pin.Empire.EmpireColor;
                 var warningColor = new Color(Color.Yellow, 200);
                 batch.Draw(Node1, point, warningColor, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.005f, SpriteEffects.None, 1f);

@@ -26,7 +26,7 @@ namespace Ship_Game.Debug.Page
         {
             Screen = screen;
             Spatial = screen.UState.Spatial;
-            Loyalty = EmpireManager.GetEmpireById(1);
+            Loyalty = screen.UState.GetEmpireById(1);
 
             var list = AddList(50, 160);
             list.AddCheckbox(() => Spatial.VisOpt.Enabled,
@@ -50,10 +50,10 @@ namespace Ship_Game.Debug.Page
                     "FilterByLoyalty", "Filter debug search by Selected Loyalty in the slider below");
 
             LoyaltySlider = list.Add(new FloatSlider(SliderStyle.Decimal, 200, 30, $"Selected Loyalty: {Loyalty.Name}",
-                                                     1, EmpireManager.NumEmpires, 0));
+                                                     1, screen.UState.NumEmpires, 0));
             LoyaltySlider.OnChange = (FloatSlider f) =>
             {
-                Loyalty = EmpireManager.GetEmpireById((int)f.AbsoluteValue);
+                Loyalty = screen.UState.GetEmpireById((int)f.AbsoluteValue);
                 f.Text = $"Selected Loyalty: {Loyalty.Name}";
             };
             

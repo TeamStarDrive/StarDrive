@@ -57,20 +57,14 @@ namespace Ship_Game.Fleets
         public override string ToString()
             => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} ID={Id} task={FleetTask?.WhichFleet ?? -1}";
 
-        Fleet()
-        {
-        }
+        [StarDataConstructor] Fleet() {}
 
-        public Fleet(int id)
+        public Fleet(int id, Empire owner)
         {
             Id = id;
+            Owner = owner;
             FleetIconIndex = RandomMath.Int(1, 30);
             SetCommandShip(null);
-        }
-
-        public Fleet(int id, Empire owner) : this(id)
-        {
-            Owner = owner;
         }
 
         // Depends on Ships being finalized
@@ -977,7 +971,7 @@ namespace Ship_Game.Fleets
             bool combatEffective   = StillCombatEffective(task);
             bool remnantsTargeting = !Owner.WeAreRemnants
                                         && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && EmpireManager.Remnants.GetFleetsDict().Values.ToArr()
+                                        && Owner.Universum.Remnants.GetFleetsDict().Values.ToArr()
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
             EndInvalidTask(remnantsTargeting 
@@ -1484,7 +1478,7 @@ namespace Ship_Game.Fleets
 
             bool remnantsTargeting = !Owner.WeAreRemnants
                                         && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && EmpireManager.Remnants.GetFleetsDict().Values.ToArr()
+                                        && Owner.Universum.Remnants.GetFleetsDict().Values.ToArr()
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
             if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))

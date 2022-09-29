@@ -15,7 +15,7 @@ namespace UnitTests.Technologies
         public TestTechnologyUnlock()
         {
             CreateUniverseAndPlayerEmpire();
-            MajorEnemy = EmpireManager.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[1], isPlayer:false);
+            MajorEnemy = UState.CreateEmpireFromEmpireData(UState, ResourceManager.MajorRaces[1], isPlayer:false);
             Universe.aw = new AutomationWindow(Universe);
             LoadStarterShips("TEST_Heavy Carrier mk1");
         }

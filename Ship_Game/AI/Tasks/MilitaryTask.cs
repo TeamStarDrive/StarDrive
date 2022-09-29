@@ -129,10 +129,10 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateDefendVsRemnant(Planet planet, Empire owner, float str)
         {
-            float strMulti = owner.GetFleetStrEmpireMultiplier(EmpireManager.Remnants);
+            float strMulti = owner.GetFleetStrEmpireMultiplier(owner.Universum.Remnants);
             return new(TaskType.DefendVsRemnants, owner, planet.Position, aoRadius: 50000f, planet)
             {
-                TargetEmpire = EmpireManager.Remnants,
+                TargetEmpire = owner.Universum.Remnants,
                 Priority = 0,
                 EnemyStrength = str,
                 MinimumTaskForceStrength = str * strMulti,
@@ -168,7 +168,7 @@ namespace Ship_Game.AI.Tasks
             {
                 SolarSystem closeSystem = system.FiveClosestSystems[i];
                 strWanted += owner.KnownEnemyStrengthIn(closeSystem, 
-                    p => p.GetEmpire() == enemy && !p.Ship?.IsPlatformOrStation == true);
+                    p => p.Empire == enemy && !p.Ship?.IsPlatformOrStation == true);
             }
 
             return strWanted;

@@ -222,7 +222,7 @@ namespace Ship_Game
                                 (int) starPos.Y - (int) (nro.Radius * scale),
                                 (int) (nro.Radius * scale * 2f),
                                 (int) (nro.Radius * scale * 2f));
-                            var empire = EmpireManager.Empires[entry.Key];
+                            var empire = UState.Empires[entry.Key];
                             batch.Draw(ResourceManager.Texture("UI/node"), starRect, new Color(empire.EmpireColor, 128));
                         }
                     }
@@ -255,7 +255,7 @@ namespace Ship_Game
                             Snapshot nextShot = nextEntry.Value;
                             if (nextEntry.Key == currEntry.Key)
                             {
-                                Empire empire = EmpireManager.Empires[currEntry.Key];
+                                Empire empire = UState.Empires[currEntry.Key];
                                 onSnapshotPair(turn, empire, currShot, nextShot);
                             }
                         }

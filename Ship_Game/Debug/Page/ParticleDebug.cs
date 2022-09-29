@@ -34,13 +34,13 @@ namespace Ship_Game.Debug.Page
             Velocity = right.Add(new FloatSlider(SliderStyle.Decimal, 200, 30,
                                                  "Particle Velocity", 0, 10000, 500));
 
-            Loyalty = EmpireManager.GetEmpireById(1);
+            Loyalty = screen.UState.GetEmpireById(1);
             LoyaltySlider = right.Add(new FloatSlider(SliderStyle.Decimal, 200, 30,
                                                      $"Particle Loyalty: {Loyalty.Name}",
-                                                     1, EmpireManager.NumEmpires, 0));
+                                                     1, screen.UState.NumEmpires, 0));
             LoyaltySlider.OnChange = (FloatSlider f) =>
             {
-                Loyalty = EmpireManager.GetEmpireById((int)f.AbsoluteValue);
+                Loyalty = screen.UState.GetEmpireById((int)f.AbsoluteValue);
                 f.Text = $"Particle Loyalty: {Loyalty.Name}";
             };
 

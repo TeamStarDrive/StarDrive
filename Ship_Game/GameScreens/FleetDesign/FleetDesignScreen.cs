@@ -75,7 +75,7 @@ namespace Ship_Game
         {
             Universe = u;
             GameAudio.PlaySfxAsync(audioCue);
-            SelectedFleet = new Fleet(u.UState.CreateId()) { Owner = u.Player };
+            SelectedFleet = new(u.UState.CreateId(), u.Player);
             EmpireUI = empireUI;
             TransitionOnTime = 0.75f;
             EmpireUI.Player.UpdateShipsWeCanBuild();

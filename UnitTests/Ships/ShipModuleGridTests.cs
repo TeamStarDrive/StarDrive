@@ -51,7 +51,7 @@ namespace UnitTests.Ships
         public void Regression_LoadSavedShip_NoExistingDesign()
         {
             ShipDesign unknownDesign = ResourceManager.Ships.GetDesign("Terran-Prototype").GetClone("Unknown-Ship");
-            Ship unknownTemplate = Ship.CreateNewShipTemplate(EmpireManager.Void, unknownDesign);
+            Ship unknownTemplate = Ship.CreateNewShipTemplate(Empire.Void, unknownDesign);
 
             Ship toSave = SpawnShip(unknownTemplate, Player, Vector2.Zero);
             

@@ -104,7 +104,7 @@ namespace Ship_Game
             Empire player = Player;
 
             if (input.EmpireToggle) 
-                player  = input.RemnantToggle ? EmpireManager.Remnants : EmpireManager.Corsairs;
+                player  = input.RemnantToggle ? UState.Remnants : UState.Corsairs;
 
             if (input.SpawnShip)
                 Ship.CreateShipAtPoint(UState, "Bondage-Class Mk IIIa Cruiser", player, mouseWorldPos);
@@ -132,12 +132,12 @@ namespace Ship_Game
             else if (SelectedPlanet != null && input.DebugKillShip)
             {
                 foreach (string troopType in ResourceManager.TroopTypes)
-                    if (ResourceManager.TryCreateTroop(troopType, EmpireManager.Remnants, out Troop t))
+                    if (ResourceManager.TryCreateTroop(troopType, UState.Remnants, out Troop t))
                         t.TryLandTroop(SelectedPlanet);
             }
 
             if (input.SpawnRemnant)
-                EmpireManager.Remnants.Remnants.DebugSpawnRemnant(input, mouseWorldPos);
+                UState.Remnants.Remnants.DebugSpawnRemnant(input, mouseWorldPos);
 
             if (input.ToggleSpatialManagerType)
                 UState.Spatial.ToggleSpatialType();
