@@ -671,7 +671,7 @@ namespace Ship_Game
         {
             target          = null;
             var targets     = new Array<Ship>(); 
-            var victimShips = type == TargetType.Projector ? victim.GetProjectors() : victim.OwnedShips;
+            var victimShips = type == TargetType.Projector ? victim.OwnedProjectors : victim.OwnedShips;
             
             for (int i = 0; i < victimShips.Count; i++)
             {

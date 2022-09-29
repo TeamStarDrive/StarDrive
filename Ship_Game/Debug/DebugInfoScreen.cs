@@ -1122,7 +1122,7 @@ namespace Ship_Game.Debug
         {
             foreach (Empire e in Universe.Empires)
             {
-                var pins = e.AI.ThreatMatrix.GetPins();
+                var pins = e.AI.ThreatMatrix.GetPinsCopy();
                 for (int i = 0; i < pins.Length; i++)
                 {
                     ThreatMatrix.Pin pin = pins[i];
