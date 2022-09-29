@@ -51,6 +51,7 @@ namespace Ship_Game.Gameplay
         [StarData] public float IntelligenceBudget;
         [StarData] public float IntelligencePenetration;
         [StarData] public int turnsSinceLastContact;
+        [StarData] public int TurnsSinceLastTechTrade;
         [StarData] public bool WarnedAboutShips;
         [StarData] public bool WarnedAboutColonizing;
         [StarData] public int PlayerContactStep; //  Encounter Step to use when the player contacts this faction
@@ -560,10 +561,12 @@ namespace Ship_Game.Gameplay
 
             TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
             Treaty_Trade_TurnsExisted = Treaty_Trade ? Treaty_Trade_TurnsExisted + 1 : 0;
-            TurnsAllied               = Treaty_Alliance ? TurnsAllied + 1 : 0;
-            TurnsKnown               += 1;
-            turnsSinceLastContact    += 1;
-            
+            TurnsAllied = Treaty_Alliance ? TurnsAllied + 1 : 0;
+
+            ++TurnsKnown;
+            ++turnsSinceLastContact;
+            ++TurnsSinceLastTechTrade;
+
             if (AtWar && ActiveWar != null)
                 ActiveWar.TurnsAtWar += 1f;
 
@@ -583,9 +586,7 @@ namespace Ship_Game.Gameplay
                 UpdateAnger(us, them, dt);
                 UpdateFear();
 
-                InitialStrength       += dt.NaturalRelChange;
-                TurnsKnown            += 1;
-                turnsSinceLastContact += 1;
+                InitialStrength += dt.NaturalRelChange;
             }
         }
         
@@ -1193,10 +1194,14 @@ namespace Ship_Game.Gameplay
 
         void TradeTech(Empire us)
         {
-            Empire them = Them;
-            if (them.isPlayer || ActiveWar != null || turnsSinceLastContact < TechTradeTurns || Posture == Posture.Hostile)
+            if (TurnsSinceLastTechTrade < TechTradeTurns || turnsSinceLastContact < TechTradeTurns ||
+                Them.isPlayer || ActiveWar != null || Posture == Posture.Hostile)
                 return;
 
+            // always reset this to ensure trade check is done every TechTradeTurns interval
+            TurnsSinceLastTechTrade = 0;
+
+            Empire them = Them;
             Relationship themToUs = them.GetRelations(us);
             if (themToUs.Anger_DiplomaticConflict > 20)
                 return;
@@ -1204,7 +1209,7 @@ namespace Ship_Game.Gameplay
             // Get techs we can offer them
             if (!TechsToOffer(us, them, out Array<TechEntry> ourTechs))
                 return;
-            
+
             // Get techs they can offer us
             if (!TechsToOffer(them, us, out Array<TechEntry> theirTechs))
                 return;
@@ -1230,7 +1235,7 @@ namespace Ship_Game.Gameplay
             if (!us.AI.TradableTechs(them, out Array<TechEntry> ourTechs, !us.isPlayer && !them.isPlayer))
                 return false;
 
-            var theirDesigns = them.GetOurFactionShips();
+            IShipDesign[] theirDesigns = them.AllFactionShipDesigns;
             foreach (TechEntry entry in ourTechs)
             {
                 if (them.WeCanUseThisTech(entry, theirDesigns))
