@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
-using Ship_Game.AI.ExpansionAI;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Empires.Components;
 using Ship_Game.Empires.ShipPools;
@@ -79,7 +77,6 @@ namespace Ship_Game
         [StarData] public HashSet<string> ShipsWeCanBuild;
         // shipyards, platforms, SSP-s
         [StarData] public HashSet<string> SpaceStationsWeCanBuild;
-        float FleetUpdateTimer = 5f;
         int TurnCount = 1;
 
         [StarData] public EmpireData data;
@@ -525,68 +522,11 @@ namespace Ship_Game
         public float KnownEnemyStrengthIn(SolarSystem system)
              => AI.ThreatMatrix.GetStrengthInSystem(system, p=> IsEmpireHostile(p.Empire));
 
-        public float KnownEnemyStrengthIn(AO ao)
-             => AI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
-
         public float KnownEmpireStrength(Empire empire) => AI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null);
         public float KnownEmpireOffensiveStrength(Empire empire)
             => AI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null && p.Ship?.IsPlatformOrStation == false);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
-        
-        
-        public const int FirstFleetId = 1;
-        public const int MaxFleetId = 9;
-        
-        // All 9 fleets (most are placeholders by default)
-        [StarData] public Fleet[] Fleets { get; private set; }
-        
-        public Fleet GetFleetOrNull(int fleetKey)
-        {
-            int fleetIdx = fleetKey - 1;
-            return (uint)fleetIdx < Fleets.Length ? Fleets[fleetIdx] : null;
-        }
-        
-        public Fleet GetFleet(int fleetId)
-        {
-            return GetFleetOrNull(fleetId) ?? throw new IndexOutOfRangeException($"No fleetId={fleetId}");
-        }
-        
-        public bool GetFleet(int fleetId, out Fleet fleet)
-        {
-            return (fleet = GetFleetOrNull(fleetId)) != null;
-        }
-        
-        public void SetFleet(int fleetId, Fleet fleet)
-        {
-            fleet.Key = fleetId;
-            Fleets[fleetId - 1] = fleet;
-        }
-        
-        public void RemoveFleet(Fleet fleet)
-        {
-            var newFleet = new Fleet(Universe.CreateId(), this);
-            newFleet.SetNameByFleetIndex(fleet.Key);
-            SetFleet(fleet.Key, newFleet);
-        }
-
-        public float TotalFactionsStrTryingToClear()
-        {
-            var claimTasks = AI.GetClaimTasks();
-            float str = 0;
-            for (int i = 0; i < claimTasks.Length; ++i)
-            {
-                var task = claimTasks[i];
-                if (task.TargetPlanet.Owner == null) // indicates its remnant infested and not another empire
-                    str += task.MinimumTaskForceStrength;
-            }
-
-            var assaultPirateTasks = AI.GetAssaultPirateTasks();
-            if (assaultPirateTasks.Length > 0)
-                str += assaultPirateTasks.Sum(t => t.MinimumTaskForceStrength);
-
-            return str;
-        }
 
         public int GetTypicalTroopStrength()
         {
@@ -594,20 +534,6 @@ namespace Ship_Game
             float str = unlockedTroops.Max(troop => troop.StrengthMax);
             str      *= 1 + data.Traits.GroundCombatModifier;
             return (int)str.LowerBound(1);
-        }
-
-        public Fleet FirstFleet
-        {
-            get => GetFleet(FirstFleetId);
-            set
-            {
-                Fleet existing = GetFleet(FirstFleetId);
-                if (existing != value)
-                {
-                    existing.Reset();
-                    SetFleet(FirstFleetId, value);
-                }
-            }
         }
 
         public void SetRallyPoints()
@@ -795,15 +721,6 @@ namespace Ship_Game
             return null;
         }
 
-        public int CreateFleetKey()
-        {
-            int key = 1;
-            while (AI.UsedFleets.Contains(key))
-                ++key;
-            AI.UsedFleets.Add(key);
-            return key;
-        }
-
         public void SetAsDefeated()
         {
             if (data.Defeated)
@@ -830,8 +747,7 @@ namespace Ship_Game
             }
             AI.ClearGoals();
             AI.EndAllTasks();
-            foreach (Fleet fleet in Fleets)
-                fleet.Reset();
+            ResetFleets();
 
             Empire rebels = Universe.CreateRebelsFromEmpireData(data, this);
             Universe.Stats.UpdateEmpire(Universe.StarDate, rebels);
@@ -865,7 +781,7 @@ namespace Ship_Game
 
             AI.ClearGoals();
             AI.EndAllTasks();
-            foreach (Fleet f in Fleets) f.Reset();
+            ResetFleets();
             AIManagedShips.Clear();
             EmpireShips.Clear();
             data.AgentList.Clear();
@@ -1046,61 +962,6 @@ namespace Ship_Game
             CalcWeightedCenter(calcNow: true);
         }
 
-        public void TrySendInitialFleets(Planet p)
-        {
-            if (isPlayer)
-                return;
-
-            if (p.EventsOnTiles())
-                AI.SendExplorationFleet(p);
-
-            if (Universe.Difficulty <= GameDifficulty.Hard || p.ParentSystem.IsExclusivelyOwnedBy(this))
-                return;
-
-            if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
-            {
-                var task = MilitaryTask.CreateGuardTask(this, p);
-                AI.AddPendingTask(task);
-            }
-        }
-
-        // pr to protect ship list
-        /// <summary>
-        /// WARNING. Use this list ONLY for manipulating the live empire ship list.
-        /// Use GetShipsAtomic() in all other cases such as UI use.
-        /// </summary>
-        //public IReadOnlyList<Ship> GetShips() => OwnedShips;
-        //public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
-
-        public Array<Ship> AllFleetReadyShips()
-        {
-            //Get all available ships from AO's
-            var ships = isPlayer ? new Array<Ship>(OwnedShips)
-                                 : AIManagedShips.GetShipsFromOffensePools();
-
-            var readyShips = new Array<Ship>();
-            for (int i = 0; i < ships.Count; i++)
-            {
-                Ship ship = ships[i];
-                if (ship == null || ship.Fleet != null)
-                    continue;
-
-                if (ship.AI.State == AIState.Resupply
-                    || ship.AI.State == AIState.ResupplyEscort
-                    || ship.AI.State == AIState.Refit
-                    || ship.AI.State == AIState.Scrap
-                    || ship.AI.State == AIState.Scuttle
-                    || ship.IsPlatformOrStation)
-                {
-                    continue;
-                }
-
-                readyShips.Add(ship);
-            }
-
-            return readyShips;
-        }
-
         void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
 
         void InitDifficultyModifiers()
@@ -1125,17 +986,7 @@ namespace Ship_Game
             InitDifficultyModifiers();
             InitPersonalityModifiers();
             CreateThrusterColors();
-
-            if (Fleets == null)
-            {
-                Fleets = new Fleet[MaxFleetId];
-                for (int i = FirstFleetId; i <= MaxFleetId; ++i)
-                {
-                    var fleet = new Fleet(Universe.CreateId(), this);
-                    fleet.SetNameByFleetIndex(i);
-                    SetFleet(i, fleet);
-                }
-            }
+            InitializeFleets();
 
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
@@ -1763,20 +1614,7 @@ namespace Ship_Game
                     SystemsWithThreat.Remove(threat);*/
             }
 
-            var knownFleets = new Array<Fleet>();
-            foreach (Relationship rel in AllRelations)
-            {
-                if (IsAtWarWith(rel.Them) || rel.Them.isPlayer && !IsNAPactWith(rel.Them))
-                {
-                    // using fleet id-s here to avoid collection modification issues
-                    for (int fleetId = FirstFleetId; fleetId <= MaxFleetId; ++fleetId)
-                    {
-                        var fleet = GetFleet(fleetId);
-                        if (fleet.Ships.Any(s => s?.IsInBordersOf(this) == true || s?.KnownByEmpires.KnownBy(this) == true))
-                            knownFleets.Add(fleet);
-                    }
-                }
-            }
+            var knownFleets = GetKnownFleets();
 
             for (int i = 0; i < OwnedSolarSystems.Count; i++)
             {
@@ -1785,7 +1623,7 @@ namespace Ship_Game
                 if (fleets.Length > 0)
                 {
                     if (!SystemsWithThreat.Any(s => s.UpdateThreat(system, fleets)))
-                        SystemsWithThreat.Add(new IncomingThreat(this, system, fleets));
+                        SystemsWithThreat.Add(new(this, system, fleets));
                 }
             }
         }
@@ -1901,19 +1739,6 @@ namespace Ship_Game
             debug.Header = Name;
             debug.HeaderColor = EmpireColor;
             return debug;
-        }
-
-        void UpdateFleets(FixedSimTime timeStep)
-        {
-            FleetUpdateTimer -= timeStep.FixedTime;
-            foreach (Fleet fleet in Fleets)
-            {
-                fleet.Update(timeStep);
-                if (FleetUpdateTimer <= 0f)
-                    fleet.UpdateAI(timeStep, fleet.Key);
-            }
-            if (FleetUpdateTimer < 0.0)
-                FleetUpdateTimer = 5f;
         }
 
         public void DoMoney()
@@ -2741,39 +2566,6 @@ namespace Ship_Game
                 return;
 
             AI.AddGoal(new AssaultBombers(planet, this, enemy));
-        }
-
-        public void TryAutoRequisitionShip(Fleet fleet, Ship ship)
-        {
-            if (!isPlayer || fleet == null || !fleet.AutoRequisition)
-                return;
-
-            if (!ShipsWeCanBuild.Contains(ship.Name) || !fleet.FindShipNode(ship, out FleetDataNode node))
-                return;
-            var ships = OwnedShips;
-
-            for (int i = 0; i < ships.Count; i++)
-            {
-                Ship s = ships[i];
-                if (s.Fleet == null
-                    && s.Name == ship.Name
-                    && s.OnLowAlert
-                    && !s.IsHangarShip
-                    && !s.IsHomeDefense
-                    && s.AI.State != AIState.Refit
-                    && !s.AI.HasPriorityOrder
-                    && !s.AI.HasPriorityTarget)
-                {
-                    s.AI.ClearOrders();
-                    fleet.AddExistingShip(s, node);
-                    return;
-                }
-            }
-
-            var g = new FleetRequisition(ship.Name, this, fleet, false);
-            node.Goal = g;
-            AI.AddGoal(g);
-            g.Evaluate();
         }
 
         private void TakeTurn(UniverseState us)
@@ -3839,8 +3631,7 @@ namespace Ship_Game
             ClearInfluenceList();
             TechnologyDict.Clear();
             SpaceRoadsList.Clear();
-            foreach (Fleet fleet in Fleets)
-                fleet.Reset(returnShipsToEmpireAI: false);
+            ResetFleets(returnShipsToEmpireAI: false);
             Fleets = Empty<Fleet>.Array;
 
             ResetUnlocks();

@@ -230,6 +230,7 @@
     <Compile Include="Ship_Game\Data\Serialization\Types\HashSetSerializer.cs" />
     <Compile Include="Ship_Game\Data\Serialization\Types\MapSerializer.cs" />
     <Compile Include="Ship_Game\Debug\Page\ParticleDebug.cs" />
+    <Compile Include="Ship_Game\Empire_Fleets.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExclude.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionSelect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExtGameObj.cs" />
