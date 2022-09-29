@@ -1755,7 +1755,7 @@ namespace Ship_Game.Ships
             if (Universe != null)
                 foreach (Empire empire in Universe.Empires)
                     if (KnownByEmpires.KnownBy(empire))
-                        empire.AI?.ThreatMatrix.RemovePin(this);
+                        empire.AI?.ThreatMatrix.ClearPin(this);
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 ModuleSlotList[i].Dispose();

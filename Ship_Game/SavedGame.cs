@@ -96,6 +96,10 @@ namespace Ship_Game
                 Time       = now,
             };
 
+            // an annoying edge case, someone has created a folder with the same name
+            if (Directory.Exists(saveFile.FullName))
+                Directory.Delete(saveFile.FullName, recursive: true);
+
             using (var writer = new Writer(new FileStream(saveFile.FullName, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 4096)))
             {
                 BinarySerializer.SerializeMultiType(writer, new object[] { header, state }, Verbose);

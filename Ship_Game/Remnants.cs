@@ -962,7 +962,7 @@ namespace Ship_Game
                     foreach (Empire e in Universe.MajorEmpires)
                     {
                         if (p.IsExploredBy(e))
-                            e.AI.ThreatMatrix.AddOrUpdatePin(ship, false, true);
+                            e.AI.ThreatMatrix.AddOrUpdatePin(ship, false);
                     }
                 }
             }
