@@ -432,7 +432,7 @@ namespace Ship_Game
             if (index == -1) 
                 return;
 
-            Fleet selectedFleet = Player.GetFleetsDict()[index];
+            Fleet selectedFleet = Player.GetFleet(index);
 
             if (input.ReplaceFleet)
             {
@@ -466,7 +466,7 @@ namespace Ship_Game
             fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
             fleet.Owner = Player;
 
-            Player.GetFleetsDict()[index] = fleet;
+            Player.SetFleet(index, fleet);
             RecomputeFleetButtons(true);
             UpdateFleetSelection(fleet);
         }
@@ -495,7 +495,7 @@ namespace Ship_Game
             else
             {
                 fleet = AddSelectedShipsToNewFleet(SelectedShipList);
-                Player.GetFleetsDict()[index] = fleet;
+                Player.SetFleet(index, fleet);
             }
 
             UpdateFleetSelection(fleet);
@@ -1404,15 +1404,15 @@ namespace Ship_Game
 
             var buttons = new Array<FleetButton>();
             int shipCounter = 0;
-            foreach (KeyValuePair<int, Fleet> kv in Player.GetFleetsDict())
+            foreach (Fleet fleet in Player.Fleets)
             {
-                if (kv.Value.Ships.Count <= 0) continue;
+                if (fleet.Ships.Count <= 0) continue;
 
                 buttons.Add(new FleetButton
                 {
                     ClickRect = new Rectangle(20, 60 + shipCounter * 60, 52, 48),
-                    Fleet = kv.Value,
-                    Key = kv.Key
+                    Fleet = fleet,
+                    Key = fleet.Key
                 });
                 ++shipCounter;
             }

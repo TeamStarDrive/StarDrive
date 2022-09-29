@@ -159,7 +159,7 @@ namespace Ship_Game
             foreach (Planet planet in Player.GetPlanets())
                 planet.Construction.RefitShipsBeingBuilt(ShipToRefit, RefitTo);
 
-            foreach (Fleet fleet in Player.GetFleetsDict().Values)
+            foreach (Fleet fleet in Player.Fleets)
                 fleet.RefitNodeName(ShipToRefit.Name, RefitTo.Name);
 
             GameAudio.EchoAffirmative();

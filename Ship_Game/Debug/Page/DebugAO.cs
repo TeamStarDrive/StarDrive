@@ -59,7 +59,7 @@ namespace Ship_Game.Debug.Page
             var civilianShips = ourShips.Filter(s => s.DesignRoleType == RoleType.Civilian);
             var AOs = EmpireAtWar.AI.AreasOfOperations.ToArray();
             var aoShips = EmpireAtWar.AIManagedShips;
-            var fleets = EmpireAtWar.GetFleetsDict().Values;
+            var fleets = EmpireAtWar.Fleets;
 
             var text = new Array<DebugTextBlock>();
 
@@ -75,7 +75,7 @@ namespace Ship_Game.Debug.Page
             column.AddLine($"Civilian Ships: {civilianShips.Length}");
             column.AddLine($"EmpirePool Ready: {aoShips.InitialReadyShips}");
             column.AddLine($"EmpirePool fleets: {aoShips.CurrentUseableFleets}");
-            column.AddLine($"Fleets in use: {fleets.Count}");
+            column.AddLine($"Fleets in use: {fleets.Length}");
             column.AddLine($"AO's {AOs.Length}");
             foreach(var ao in AOs)
             {

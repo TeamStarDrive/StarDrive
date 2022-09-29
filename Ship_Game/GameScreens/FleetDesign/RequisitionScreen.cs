@@ -67,7 +67,7 @@ namespace Ship_Game
             {
                 ship.ShowSceneObjectAt(ship.RelativeFleetOffset, -1000000f);
             }                       
-            F.Owner.GetFleetsDict()[Fds.FleetToEdit] = F;
+            F.Owner.SetFleet(Fds.FleetToEdit, F);
             Fds.ChangeFleet(Fds.FleetToEdit);
             UpdateRequisitionStatus();
         }

@@ -129,7 +129,7 @@ namespace Ship_Game.AI
                 FinalPosition = p.Position,
                 IsCoreFleet = true
             };
-            p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
+            p.Owner.SetFleet(WhichFleet, CoreFleet);
 
             SetupPlanetsInAO();
         }
@@ -150,7 +150,7 @@ namespace Ship_Game.AI
                     FinalPosition = p.Position,
                     IsCoreFleet = true
                 };
-                p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
+                p.Owner.SetFleet(WhichFleet, CoreFleet);
             }
             else
             {
@@ -279,15 +279,9 @@ namespace Ship_Game.AI
         {
             if (CoreFleet != null)
             {
-                if (CoreFleet?.Owner != null)
+                if (CoreFleet.Owner != null)
                 {
-                    foreach (var kv in CoreFleet.Owner.GetFleetsDict())
-                    {
-                        if (kv.Value != CoreFleet)
-                            continue;
-                        CoreFleet.Owner.GetFleetsDict().Remove(kv.Key);
-                        break;
-                    }
+                    CoreFleet.Owner.RemoveFleet(CoreFleet);
                     CoreFleet.Reset();
                 }
                 ReassignShips(CoreFleet.Ships);

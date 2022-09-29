@@ -35,9 +35,6 @@ namespace Ship_Game
     [StarDataType]
     public sealed partial class Empire : IDisposable, IEmpireShipLists
     {
-        public const int FirstFleetId = 1;
-        public const int MaxFleetId = 9;
-        [StarData] readonly Map<int, Fleet> FleetsDict;
         [StarData] public Map<string, TechEntry> TechnologyDict;
 
         [StarData] public readonly Map<string, bool> UnlockedHullsDict;
@@ -238,8 +235,7 @@ namespace Ship_Game
             Id = -1, data = new() { Traits = new() { Name = "Void" } }
         };
 
-
-        Empire() { }
+        [StarDataConstructor] Empire() { }
 
         public Empire(UniverseState us)
         {
@@ -249,7 +245,6 @@ namespace Ship_Game
             AIManagedShips = new(us?.CreateId() ?? -1, this, "AIManagedShips");
             EmpireShips = new(this);
 
-            FleetsDict = new();
             TechnologyDict = new();
             UnlockedHullsDict = new();
             UnlockedTroopDict = new();
@@ -538,9 +533,42 @@ namespace Ship_Game
             => AI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null && p.Ship?.IsPlatformOrStation == false);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
-        public Map<int, Fleet> GetFleetsDict() => FleetsDict;
-        public Fleet GetFleetOrNull(int key) => FleetsDict.TryGetValue(key, out Fleet fleet) ? fleet : null;
-        public Fleet GetFleet(int key) => FleetsDict[key];
+        
+        
+        public const int FirstFleetId = 1;
+        public const int MaxFleetId = 9;
+        
+        // All 9 fleets (most are placeholders by default)
+        [StarData] public Fleet[] Fleets { get; private set; }
+        
+        public Fleet GetFleetOrNull(int fleetKey)
+        {
+            int fleetIdx = fleetKey - 1;
+            return (uint)fleetIdx < Fleets.Length ? Fleets[fleetIdx] : null;
+        }
+        
+        public Fleet GetFleet(int fleetId)
+        {
+            return GetFleetOrNull(fleetId) ?? throw new IndexOutOfRangeException($"No fleetId={fleetId}");
+        }
+        
+        public bool GetFleet(int fleetId, out Fleet fleet)
+        {
+            return (fleet = GetFleetOrNull(fleetId)) != null;
+        }
+        
+        public void SetFleet(int fleetId, Fleet fleet)
+        {
+            fleet.Key = fleetId;
+            Fleets[fleetId - 1] = fleet;
+        }
+        
+        public void RemoveFleet(Fleet fleet)
+        {
+            var newFleet = new Fleet(Universum.CreateId(), this);
+            newFleet.SetNameByFleetIndex(fleet.Key);
+            SetFleet(fleet.Key, newFleet);
+        }
 
         public float TotalFactionsStrTryingToClear()
         {
@@ -570,14 +598,14 @@ namespace Ship_Game
 
         public Fleet FirstFleet
         {
-            get => FleetsDict[FirstFleetId];
+            get => GetFleet(FirstFleetId);
             set
             {
-                Fleet existing = FleetsDict[FirstFleetId];
+                Fleet existing = GetFleet(FirstFleetId);
                 if (existing != value)
                 {
                     existing.Reset();
-                    FleetsDict[FirstFleetId] = value;
+                    SetFleet(FirstFleetId, value);
                 }
             }
         }
@@ -802,8 +830,8 @@ namespace Ship_Game
             }
             AI.ClearGoals();
             AI.EndAllTasks();
-            foreach (var kv in FleetsDict)
-                kv.Value.Reset();
+            foreach (Fleet fleet in Fleets)
+                fleet.Reset();
 
             Empire rebels = Universum.CreateRebelsFromEmpireData(data, this);
             Universum.Stats.UpdateEmpire(Universum.StarDate, rebels);
@@ -837,7 +865,7 @@ namespace Ship_Game
 
             AI.ClearGoals();
             AI.EndAllTasks();
-            foreach (var kv in FleetsDict) kv.Value.Reset();
+            foreach (Fleet f in Fleets) f.Reset();
             AIManagedShips.Clear();
             EmpireShips.Clear();
             data.AgentList.Clear();
@@ -1098,13 +1126,14 @@ namespace Ship_Game
             InitPersonalityModifiers();
             CreateThrusterColors();
 
-            if (FleetsDict.Count == 0)
+            if (Fleets == null)
             {
+                Fleets = new Fleet[MaxFleetId];
                 for (int i = FirstFleetId; i <= MaxFleetId; ++i)
                 {
                     var fleet = new Fleet(Universum.CreateId(), this);
                     fleet.SetNameByFleetIndex(i);
-                    FleetsDict.Add(i, fleet);
+                    SetFleet(i, fleet);
                 }
             }
 
@@ -1251,12 +1280,8 @@ namespace Ship_Game
         {
             get
             {
-                if (FactionDesignsCache == null)
-                {
-                    // This is quite slow if we have hundreds/thousands of designs, so we need to cache them
-                    FactionDesignsCache = ResourceManager.Ships.Designs.Filter(design => ShipStyleMatch(design.ShipStyle));
-                }
-                return FactionDesignsCache;
+                // This is quite slow if we have hundreds/thousands of designs, so we need to cache them
+                return FactionDesignsCache ??= ResourceManager.Ships.Designs.Filter(design => ShipStyleMatch(design.ShipStyle));
             }
         }
 
@@ -1746,7 +1771,7 @@ namespace Ship_Game
                     // using fleet id-s here to avoid collection modification issues
                     for (int fleetId = FirstFleetId; fleetId <= MaxFleetId; ++fleetId)
                     {
-                        var fleet = FleetsDict[fleetId];
+                        var fleet = GetFleet(fleetId);
                         if (fleet.Ships.Any(s => s?.IsInBordersOf(this) == true || s?.KnownByEmpires.KnownBy(this) == true))
                             knownFleets.Add(fleet);
                     }
@@ -1881,12 +1906,11 @@ namespace Ship_Game
         void UpdateFleets(FixedSimTime timeStep)
         {
             FleetUpdateTimer -= timeStep.FixedTime;
-            foreach (var kv in FleetsDict)
+            foreach (Fleet fleet in Fleets)
             {
-                Fleet fleet = kv.Value;
                 fleet.Update(timeStep);
                 if (FleetUpdateTimer <= 0f)
-                    fleet.UpdateAI(timeStep, kv.Key);
+                    fleet.UpdateAI(timeStep, fleet.Key);
             }
             if (FleetUpdateTimer < 0.0)
                 FleetUpdateTimer = 5f;
@@ -3815,9 +3839,9 @@ namespace Ship_Game
             ClearInfluenceList();
             TechnologyDict.Clear();
             SpaceRoadsList.Clear();
-            foreach (var kv in FleetsDict)
-                kv.Value.Reset(returnShipsToEmpireAI: false);
-            FleetsDict.Clear();
+            foreach (Fleet fleet in Fleets)
+                fleet.Reset(returnShipsToEmpireAI: false);
+            Fleets = Empty<Fleet>.Array;
 
             ResetUnlocks();
 

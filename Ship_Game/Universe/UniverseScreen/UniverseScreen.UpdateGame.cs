@@ -402,12 +402,12 @@ namespace Ship_Game
                         empire.UpdateMilitaryStrengths();
                         empire.AssessSystemsInDanger(timeStep);
                         empire.AI.ThreatMatrix.ProcessPendingActions();
-                        foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
+                        foreach (Fleet fleet in empire.Fleets)
                         {
-                            if (kv.Value.Ships.NotEmpty)
+                            if (fleet.Ships.NotEmpty)
                             {
-                                kv.Value.AveragePosition();
-                                kv.Value.UpdateSpeedLimit();
+                                fleet.AveragePosition();
+                                fleet.UpdateSpeedLimit();
                             }
                         }
                     }

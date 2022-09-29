@@ -943,7 +943,7 @@ namespace Ship_Game.Debug
 
             NewLine();
             DrawString("Fleets:");
-            foreach (Fleet fleet in e.GetFleetsDict().Values)
+            foreach (Fleet fleet in e.Fleets)
             {
                 if (fleet.FleetTask == null)
                     continue;

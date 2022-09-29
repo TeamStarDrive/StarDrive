@@ -18,7 +18,13 @@ namespace Ship_Game.Fleets
     public sealed class Fleet : ShipGroup
     {
         [StarData] public readonly Array<FleetDataNode> DataNodes = new();
+        
+        // unique object id assigned by the universe
         [StarData] public readonly int Id;
+        
+        // fleet key [1..9] when assigned to the Empire
+        [StarData] public int Key;
+        
         [StarData] public string Name = "";
         public ShipAI.TargetParameterTotals TotalFleetAttributes;
         public ShipAI.TargetParameterTotals AverageFleetAttributes;
@@ -971,7 +977,7 @@ namespace Ship_Game.Fleets
             bool combatEffective   = StillCombatEffective(task);
             bool remnantsTargeting = !Owner.WeAreRemnants
                                         && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && Owner.Universum.Remnants.GetFleetsDict().Values.ToArr()
+                                        && Owner.Universum.Remnants.Fleets
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
             EndInvalidTask(remnantsTargeting 
@@ -1478,7 +1484,7 @@ namespace Ship_Game.Fleets
 
             bool remnantsTargeting = !Owner.WeAreRemnants
                                         && CommandShip?.System == task.TargetPlanet.ParentSystem
-                                        && Owner.Universum.Remnants.GetFleetsDict().Values.ToArr()
+                                        && Owner.Universum.Remnants.Fleets
                                            .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
             if (EndInvalidTask(task.TargetPlanet.Owner == null || remnantsTargeting || !StillCombatEffective(task)))
