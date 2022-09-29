@@ -57,7 +57,6 @@ namespace Ship_Game.GameScreens.NewGame
             Mode = p.Mode;
             NumOpponents = p.NumOpponents;
             NumSystems = p.NumSystems;
-            EmpireManager.Clear();
             ResourceManager.LoadEncounters();
 
             float uSize;
@@ -188,7 +187,7 @@ namespace Ship_Game.GameScreens.NewGame
                 }
             }
 
-            EmpireHullBonuses.RefreshBonuses();
+            EmpireHullBonuses.RefreshBonuses(UState);
         }
 
         class SystemPlaceHolder

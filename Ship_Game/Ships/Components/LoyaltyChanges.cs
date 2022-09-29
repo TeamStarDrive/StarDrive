@@ -28,7 +28,7 @@ namespace Ship_Game.Ships.Components
         // Classic chicken-egg paradox
         public void OnSpawn(Ship ship)
         {
-            if (ship.Loyalty != EmpireManager.Void)
+            if (ship.Loyalty != Empire.Void)
                 SetLoyaltyForNewShip(ship.Loyalty);
         }
 

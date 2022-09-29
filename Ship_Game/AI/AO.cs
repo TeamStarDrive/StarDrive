@@ -123,11 +123,10 @@ namespace Ship_Game.AI
             Center        = p.Position;
             WhichFleet    = p.Owner.CreateFleetKey();
 
-            CoreFleet = new(p.Universe.CreateId())
+            CoreFleet = new(p.Universe.CreateId(), p.Owner)
             {
                 Name = "Core Fleet",
                 FinalPosition = p.Position,
-                Owner = p.Owner,
                 IsCoreFleet = true
             };
             p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
@@ -145,11 +144,10 @@ namespace Ship_Game.AI
 
             if (coreFleet == null)
             {
-                CoreFleet = new(p.Universe.CreateId())
+                CoreFleet = new(p.Universe.CreateId(), p.Owner)
                 {
                     Name = "Core Fleet",
                     FinalPosition = p.Position,
-                    Owner = p.Owner,
                     IsCoreFleet = true
                 };
                 p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;

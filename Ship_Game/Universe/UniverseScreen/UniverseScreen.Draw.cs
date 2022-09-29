@@ -588,9 +588,9 @@ namespace Ship_Game
                 return;
             bool debug = Debug && SelectedShip == null;
             Empire empireLooking = Debug ? SelectedShip?.Loyalty ?? Player : Player;
-            for (int i = 0; i < EmpireManager.Empires.Count; i++)
+            for (int i = 0; i < UState.Empires.Count; i++)
             { 
-                Empire empire = EmpireManager.Empires[i];
+                Empire empire = UState.Empires[i];
                 bool doDraw = debug || !(Player.DifficultyModifiers.HideTacticalData && empireLooking.IsEmpireAttackable(empire));
                 if (!doDraw) 
                     continue;

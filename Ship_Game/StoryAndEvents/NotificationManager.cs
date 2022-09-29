@@ -196,7 +196,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                RelevantEmpire  = EmpireManager.Remnants,
+                RelevantEmpire  = p.Universe.Remnants,
                 Message         = message,
                 ReferencedItem1 = p.ParentSystem,
                 IconPath        = p.IconPath,

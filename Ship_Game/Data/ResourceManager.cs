@@ -377,7 +377,6 @@ namespace Ship_Game
             DiplomacyTraits = null;
             AgentMissionData = new AgentMissionData();
             EmpireHullBonuses.Clear();
-            EmpireManager.Clear(disposeVoidEmpire: true);
 
             UnloadGraphicsResources(manager);
         }
@@ -687,7 +686,7 @@ namespace Ship_Game
         }
 
         // Refactored by RedFox
-        public static void DeleteShip(string shipName)
+        public static void DeleteShip(UniverseState us, string shipName)
         {
             string appData = Dir.StarDriveAppData;
             DeleteShipFromDir(appData + "/Saved Designs", shipName);
@@ -695,7 +694,7 @@ namespace Ship_Game
 
             Ships.Delete(shipName);
 
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in us.Empires)
             {
                 if (e.ShipsWeCanBuild.Remove(shipName))
                     e.UpdateShipsWeCanBuild();

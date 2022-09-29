@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Windows.Forms;
 using SDUtils;
+using Ship_Game.Universe;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
@@ -106,12 +108,12 @@ namespace Ship_Game.GameScreens.ShipDesign
             return latestWip;
         }
 
-        public static void RemoveRelatedWiPs(string wipName)
+        public static void RemoveRelatedWiPs(UniverseState us, string wipName)
         {
             string relatedShipName = GetWipShipNameAndNum(wipName);
             FileInfo[] relatedWips = GetWipFiles().Filter(f => f.NameNoExt().StartsWith(relatedShipName));
             for (int i = relatedWips.Length -1; i >= 0; i--)
-                ResourceManager.DeleteShip(relatedWips[i].NameNoExt());
+                ResourceManager.DeleteShip(us, relatedWips[i].NameNoExt());
         }
     }
 }

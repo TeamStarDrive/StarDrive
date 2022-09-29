@@ -20,7 +20,7 @@ namespace Ship_Game.Debug.Page
             if (planet?.Owner == null)
             {
                 var text = new Array<DebugTextBlock>();
-                foreach (Empire empire in EmpireManager.Empires)
+                foreach (Empire empire in Screen.UState.Empires)
                 {
                     if (!empire.IsFaction && !empire.data.Defeated)
                         text.Add(empire.DebugEmpireTradeInfo());
@@ -39,7 +39,7 @@ namespace Ship_Game.Debug.Page
             if (!Visible)
                 return;
 
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in Screen.UState.Empires)
             {
                 var ships = e.OwnedShips;
                 foreach (Ship ship in ships)

@@ -172,7 +172,7 @@ namespace Ship_Game
             float theirBuildCapacity  = (rel.KnownInformation.AllianceEconomicStrength + currentEnemyBuild).LowerBound(10);
             float ourBuildCapacity    = AI.BuildCapacity;
 
-            var array = EmpireManager.GetAllies(this);
+            var array = Universum.GetAllies(this);
             for (int i = 0; i < array.Count; i++)
             {
                 var ally = array[i];

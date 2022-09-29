@@ -89,6 +89,7 @@ namespace Ship_Game
         public DiplomacyDialog dd;
         public string PortraitName => data.PortraitName;
         public bool ScanComplete = true;
+
         // faction means it's not an actual Empire like Humans or Kulrathi
         // it doesn't normally colonize or make war plans.
         // it gets special instructions, usually event based, for example Corsairs
@@ -228,10 +229,13 @@ namespace Ship_Game
 
         public string Name => data.Traits.Name;
 
-        public void AddShipToManagedPools(Ship s)
+        // @note This is used as a placeholder empire for entities that have no logical allegiance
+        //       withing the known universe. They belong to the mythical `Void` -- pure Chaos of nothingness
+        public static Empire Void = new(null)
         {
-            AIManagedShips.Add(s);
-        }
+            Id = -1, data = new() { Traits = new() { Name = "Void" } }
+        };
+
 
         Empire() { }
 
@@ -273,10 +277,12 @@ namespace Ship_Game
         {
             AIManagedShips = new(Universum.CreateId(), this, "AIManagedShips");
             dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
-
-            EmpireManager.Add(this); // TODO: remove
-
             CommonInitialize();
+        }
+
+        public void AddShipToManagedPools(Ship s)
+        {
+            AIManagedShips.Add(s);
         }
 
         public float GetProjectorRadius()
@@ -520,7 +526,7 @@ namespace Ship_Game
                      => AI.ThreatMatrix.GetStrengthInSystem(system, filter);
 
         public float KnownEnemyStrengthIn(SolarSystem system)
-             => AI.ThreatMatrix.GetStrengthInSystem(system, p=> IsEmpireHostile(p.GetEmpire()));
+             => AI.ThreatMatrix.GetStrengthInSystem(system, p=> IsEmpireHostile(p.Empire));
 
         public float KnownEnemyStrengthIn(AO ao)
              => AI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
@@ -797,7 +803,7 @@ namespace Ship_Game
             foreach (var kv in FleetsDict)
                 kv.Value.Reset();
 
-            Empire rebels = EmpireManager.CreateRebelsFromEmpireData(data, this);
+            Empire rebels = Universum.CreateRebelsFromEmpireData(data, this);
             Universum.Stats.UpdateEmpire(Universum.StarDate, rebels);
 
             foreach (Ship s in OwnedShips)
@@ -1096,7 +1102,7 @@ namespace Ship_Game
             {
                 for (int i = FirstFleetId; i <= MaxFleetId; ++i)
                 {
-                    var fleet = new Fleet(Universum.CreateId()) { Owner = this };
+                    var fleet = new Fleet(Universum.CreateId(), this);
                     fleet.SetNameByFleetIndex(i);
                     FleetsDict.Add(i, fleet);
                 }
@@ -1116,7 +1122,7 @@ namespace Ship_Game
             CommonInitialize();
 
             data.TechDelayTime = 0;
-            if (EmpireManager.NumEmpires == 0)
+            if (Universum.NumEmpires == 0)
                 UpdateTimer = 0;
 
             AI = new(this);
@@ -1258,7 +1264,7 @@ namespace Ship_Game
             if (shipStyle == data.Traits.ShipType)
                 return true;
 
-            foreach (Empire empire in EmpireManager.MajorEmpires)
+            foreach (Empire empire in Universum.MajorEmpires)
             {
                 if (empire.data.AbsorbedBy == data.Traits.Name && shipStyle == empire.data.Traits.ShipType)
                     return true;
@@ -1519,7 +1525,7 @@ namespace Ship_Game
                     Universum.Stats.StatUpdateStarDate(Universum.StarDate);
                     if (Universum.StarDate.AlmostEqual(1000.09f))
                     {
-                        foreach (Empire empire in EmpireManager.Empires)
+                        foreach (Empire empire in Universum.Empires)
                         {
                             foreach (Planet planet in empire.OwnedPlanets)
                                 Universum.Stats.StatAddPlanetNode(Universum.StarDate, planet);
@@ -2261,7 +2267,7 @@ namespace Ship_Game
 
             foreach (Planet p in OwnedPlanets)
             {
-                if (p.IsHomeworld && EmpireManager.MajorEmpires.Any(e => e.Capital != p))
+                if (p.IsHomeworld && Universum.MajorEmpires.Any(e => e.Capital != p))
                 {
                     if (p.RemoveCapital() && isPlayer)
                         Universum.Notifications.AddCapitalTransfer(p, newHomeworld);
@@ -2795,7 +2801,7 @@ namespace Ship_Game
                 if (!Universum.NoEliminationVictory)
                 {
                     bool allEmpiresDead = true;
-                    foreach (Empire empire in EmpireManager.Empires)
+                    foreach (Empire empire in Universum.Empires)
                     {
                         var planets = empire.GetPlanets();
                         if (planets.Count > 0 && !empire.IsFaction && empire != this)
@@ -2807,7 +2813,7 @@ namespace Ship_Game
 
                     if (allEmpiresDead)
                     {
-                        Empire remnants = EmpireManager.Remnants;
+                        Empire remnants = Universum.Remnants;
                         if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated || !remnants.Remnants.Activated)
                         {
                             Universum.Screen.OnPlayerWon();
@@ -2871,7 +2877,7 @@ namespace Ship_Game
             if (DiplomacyContactQueue.Count == 0)
                 return;
 
-            Empire empire = EmpireManager.GetEmpireById(DiplomacyContactQueue[0].EmpireId);
+            Empire empire = Universum.GetEmpireById(DiplomacyContactQueue[0].EmpireId);
             string dialog = DiplomacyContactQueue[0].Dialog;
 
             if (dialog == "DECLAREWAR")
@@ -2889,7 +2895,7 @@ namespace Ship_Game
                 return;
 
             float playerScore    = TotalScore;
-            var aiEmpires        = EmpireManager.ActiveNonPlayerMajorEmpires;
+            var aiEmpires        = Universum.ActiveNonPlayerMajorEmpires;
             float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
             float allEmpireScore = aiTotalScore + playerScore;
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
@@ -2927,9 +2933,9 @@ namespace Ship_Game
             {
                 Log.Info($"Rebellion for: {data.Traits.Name}");
 
-                Empire rebels = EmpireManager.GetEmpireByName(data.RebelName)
-                                ?? EmpireManager.FindRebellion(data.RebelName)
-                                ?? EmpireManager.CreateRebelsFromEmpireData(data, this);
+                Empire rebels = Universum.GetEmpireByName(data.RebelName)
+                                ?? Universum.FindRebellion(data.RebelName)
+                                ?? Universum.CreateRebelsFromEmpireData(data, this);
 
                 if (rebels != null)
                 {
@@ -2940,7 +2946,7 @@ namespace Ship_Game
 
                         for (int index = 0; index < planet.PopulationBillion * 2; ++index)
                         {
-                            Troop troop = EmpireManager.CreateRebelTroop(rebels);
+                            Troop troop = Universum.CreateRebelTroop(rebels);
 
                             var chance = (planet.TileArea - planet.GetFreeTiles(this)) / planet.TileArea;
 
@@ -3078,7 +3084,7 @@ namespace Ship_Game
                 {
                     if (hull.Name == hullName)
                     {
-                        empire = EmpireManager.GetEmpireByShipType(hull.ShipType);
+                        empire = ship.Universe.GetEmpireByShipType(hull.ShipType);
                         if (empire == null)
                         {
                             Log.Warning("Unlock by Scrap - tried to unlock rom an empire which does" +
@@ -3258,7 +3264,7 @@ namespace Ship_Game
         // their absorbed empires will become absobred by us - to get all relevant tech content (like hulls and troops)
         void ThirdPartyAbsorb(Empire target)
         {
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in Universum.MajorEmpires)
             {
                 if (e.data.AbsorbedBy == target.data.Traits.Name)
                     e.data.AbsorbedBy = data.Traits.Name;

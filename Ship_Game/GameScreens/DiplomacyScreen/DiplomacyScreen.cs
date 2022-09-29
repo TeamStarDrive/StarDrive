@@ -268,7 +268,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         {
             Empire ai = !them.isPlayer ? them : us;
             var empires = new Array<Empire>();
-            foreach (Empire empire in EmpireManager.MajorEmpiresAtWarWith(ai))
+            foreach (Empire empire in them.Universum.MajorEmpiresAtWarWith(ai))
             {
                 if (empire.IsAlliedWith(them.Universum.Player))
                     empires.Add(empire);
@@ -281,7 +281,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         {
             Empire ai = !them.isPlayer ? them : us;
             var empires = new Array<Empire>();
-            foreach (Empire empire in EmpireManager.GetAllies(ai))
+            foreach (Empire empire in them.Universum.GetAllies(ai))
             {
                 if (CanViewAlliance(empire) || CanViewAlliance(ai))
                     empires.Add(empire);
@@ -299,7 +299,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                    || e.IsOpenBordersTreaty(player) 
                    || e.IsAlliedWith(player) 
                    || e.IsNAPactWith(player)
-                   || EmpireManager.ActiveNonPlayerMajorEmpires.Any(other => other.IsTradeTreaty(e) && other.IsTradeTreaty(player));
+                   || e.Universum.ActiveNonPlayerMajorEmpires.Any(other => other.IsTradeTreaty(e) && other.IsTradeTreaty(player));
         }
 
         void DoNegotiationResponse(string answer)

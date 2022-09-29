@@ -34,7 +34,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep SendExplorationFleetsAstronomers()
         {
-            foreach (Empire e in EmpireManager.MajorEmpires)
+            foreach (Empire e in Owner.Universum.MajorEmpires)
             {
                 var planets = Owner.Universum.Planets.Filter(p => p.IsExploredBy(e));
                 for (int i = 0; i < planets.Length; ++i)

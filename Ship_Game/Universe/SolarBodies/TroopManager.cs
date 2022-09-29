@@ -107,7 +107,7 @@ namespace Ship_Game
             foreach (Troop t in TroopList)
             {
                 if (t.Loyalty.data.AbsorbedBy.NotEmpty())
-                    t.ChangeLoyalty(EmpireManager.GetEmpireByName(t.Loyalty.data.AbsorbedBy));
+                    t.ChangeLoyalty(Ground.Universe.GetEmpireByName(t.Loyalty.data.AbsorbedBy));
             }
         }
 

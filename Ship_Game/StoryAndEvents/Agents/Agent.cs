@@ -468,7 +468,7 @@ namespace Ship_Game
         {
             AgentMissionData data = ResourceManager.AgentMissionData;
             spyMute = us.data.SpyMute;
-            Empire victim = EmpireManager.GetEmpireByName(TargetEmpire);
+            Empire victim = us.Universum.GetEmpireByName(TargetEmpire);
 
             if (ReassignedDueToVictimDefeated(us, victim))
                 return;
@@ -531,10 +531,10 @@ namespace Ship_Game
         {
             Empire rebels = null;
             if (!victim.data.RebellionLaunched)
-                rebels = EmpireManager.CreateRebelsFromEmpireData(victim.data, victim);
+                rebels = victim.Universum.CreateRebelsFromEmpireData(victim.data, victim);
 
             if (rebels == null) 
-                rebels = EmpireManager.GetEmpireByName(victim.data.RebelName);
+                rebels = victim.Universum.GetEmpireByName(victim.data.RebelName);
 
             for (int i = 0; i < numTroops; i++)
             {
@@ -547,7 +547,7 @@ namespace Ship_Game
                     t.Name        = rebels.data.TroopName.Text;
                     t.Description = rebels.data.TroopDescription.Text;
                     if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 &&
-                        !targetPlanet.BumpOutTroop(EmpireManager.Corsairs) &&
+                        !targetPlanet.BumpOutTroop(victim.Universum.Corsairs) &&
                         !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
                     {
                         t.Launch(targetPlanet); // launch the rebels

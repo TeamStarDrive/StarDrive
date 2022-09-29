@@ -55,12 +55,12 @@ namespace Ship_Game
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
             Player = screen.Player;
-            Friends = EmpireManager.GetAllies(Player);
-            Traders = EmpireManager.GetTradePartners(Player);
+            Friends = screen.UState.GetAllies(Player);
+            Traders = screen.UState.GetTradePartners(Player);
 
             // find empires where player or friends have moles
             var empires = new HashSet<Empire>();
-            foreach(Empire empire in EmpireManager.Empires)
+            foreach(Empire empire in screen.UState.Empires)
             {
                 if (empire.isPlayer || empire.IsFaction)
                     continue;
@@ -157,7 +157,7 @@ namespace Ship_Game
                         batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                         batch.DrawDropShadowText1(race.e.data.Traits.Name, NameCursor, Fonts.Arial12Bold, race.e.EmpireColor);
                         var r = new Rectangle(race.container.X, race.container.Y, 124, 124);
-                        var e = EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy);
+                        var e = Universe.UState.GetEmpireByName(race.e.data.AbsorbedBy);
                         batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
                     }
                 }
@@ -304,7 +304,7 @@ namespace Ship_Game
             {
                 if (SelectedEmpire.data.AbsorbedBy != null)
                 {
-                    Empire absorbingEmpire = EmpireManager.GetEmpireByName(SelectedEmpire.data.AbsorbedBy);
+                    Empire absorbingEmpire = Universe.UState.GetEmpireByName(SelectedEmpire.data.AbsorbedBy);
                     batch.DrawString(Fonts.Arial12Bold, absorbingEmpire.data.Traits.Singular+" Federation", textCursor, Color.White);
                     textCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
                 }
@@ -855,7 +855,7 @@ namespace Ship_Game
         void AddRelationShipDiagramScreen()
         {
             Array<EmpireAndIntelLevel> empiresAndIntel = new Array<EmpireAndIntelLevel>();
-            foreach (Empire empire in EmpireManager.ActiveMajorEmpires)
+            foreach (Empire empire in Universe.UState.ActiveMajorEmpires)
             {
                 int intel = empire.isPlayer ? 3 : IntelligenceLevel(empire);
                 empiresAndIntel.Add(new EmpireAndIntelLevel(empire, intel));

@@ -135,7 +135,7 @@ namespace Ship_Game.GameScreens.LoadGame
         {
             step.StartAbsolute(0.05f, 0.5f, 2f);
 
-            EmpireHullBonuses.RefreshBonuses();
+            EmpireHullBonuses.RefreshBonuses(us);
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep());
             us.Objects.UpdateLists(removeInactiveObjects: false);
             AllSystemsLoaded(us, step.NextStep());

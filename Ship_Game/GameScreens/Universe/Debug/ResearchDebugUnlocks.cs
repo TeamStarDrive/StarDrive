@@ -127,7 +127,7 @@ namespace Ship_Game.GameScreens.Universe.Debug
                 }
                 else if (ratioUnlocked > 0.9f)
                 {
-                    foreach (var them in EmpireManager.Empires)
+                    foreach (var them in empire.Universum.Empires)
                     {
                         if (them != empire && !techEntry.SpiedFrom(them))
                         {

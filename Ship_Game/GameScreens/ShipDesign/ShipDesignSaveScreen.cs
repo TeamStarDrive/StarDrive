@@ -9,12 +9,14 @@ using Ship_Game.GameScreens.ShipDesign;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
     public sealed class ShipDesignSaveScreen : GameScreen
     {
         readonly ShipDesignScreen Screen;
+        UniverseState Universe => Screen.ParentUniverse.UState;
         public readonly string ShipName;
         UITextEntry EnterNameArea;
         string BaseWIPName;
@@ -93,7 +95,7 @@ namespace Ship_Game
             PopulateDesigns(ShipName);
             ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, GameText.Save, OnSaveClicked);
 
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, Screen.ParentUniverse.UState));
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, Universe));
             ShipDesigns.OnHovered = (item) =>
             {
                 if (item != null && (Screen.EnableDebugFeatures || Screen.Player.ShipsWeCanBuild.Contains(item.ShipName)))
@@ -162,7 +164,7 @@ namespace Ship_Game
             {
                 Screen.SaveShipDesign(shipOrHullName, overwriteProtected);
                 if (BaseWIPName.NotEmpty())
-                    ShipDesignWIP.RemoveRelatedWiPs(BaseWIPName);
+                    ShipDesignWIP.RemoveRelatedWiPs(Universe, BaseWIPName);
                 if (!ResourceManager.GetShipTemplate(shipOrHullName, out Ship ship))
                 {
                     Log.Error($"Failed to get Ship Template after Save: {shipOrHullName}");
@@ -235,7 +237,7 @@ namespace Ship_Game
                 }
 
                 // Note - UState.Ships is not thread safe, but the game is paused in this screen
-                if (Screen.ParentUniverse.UState.Ships.Any(s => s.Name == shipOrHullName))
+                if (Universe.Ships.Any(s => s.Name == shipOrHullName))
                 {
                     GameAudio.NegativeClick();
                     ScreenManager.AddScreen(new MessageBoxScreen(this, $"{shipOrHullName} currently exist the universe." +

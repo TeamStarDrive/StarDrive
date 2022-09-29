@@ -56,7 +56,7 @@ namespace Ship_Game.Commands.Goals
                 return 0; // Limit maximum of concurrent raids
 
             int startChance = Pirates.Level.LowerBound((int)UState.Difficulty + 1);
-            startChance     = (startChance / EmpireManager.PirateFactions.Length.LowerBound(1)).LowerBound(1);
+            startChance     = (startChance / Pirates.Universe.PirateFactions.Length.LowerBound(1)).LowerBound(1);
             startChance    /= numRaids + 1;
 
             //return 100; // For testing

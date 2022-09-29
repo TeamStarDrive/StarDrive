@@ -88,18 +88,18 @@ namespace Ship_Game
             if (SpecialAction.IsEmpty() || SpecialAction != "Free Owlwoks")
                 return;
 
-            if (planet.Owner == null || planet.Owner != EmpireManager.Cordrazine)
+            if (planet.Owner == null || planet.Owner != planet.Universe.Cordrazine)
                 return;
 
             for (int i = 0; i < planet.TroopsHere.Count; i++)
             {
                 Troop troop = planet.TroopsHere[i];
-                if (troop.Loyalty == EmpireManager.Cordrazine && troop.TargetType == TargetType.Soft)
+                if (troop.Loyalty == planet.Universe.Cordrazine && troop.TargetType == TargetType.Soft)
                 {
                     StarDriveGame.Instance?.SetSteamAchievement("Owlwoks_Freed");
                     troop.SetOwner(Owner);
-                    troop.Name = EmpireManager.Cordrazine.data.TroopName.Text;
-                    troop.Description = EmpireManager.Cordrazine.data.TroopDescription.Text;
+                    troop.Name = planet.Universe.Cordrazine.data.TroopName.Text;
+                    troop.Description = planet.Universe.Cordrazine.data.TroopDescription.Text;
                 }
             }
         }
