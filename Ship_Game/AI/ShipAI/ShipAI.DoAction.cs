@@ -217,7 +217,7 @@ namespace Ship_Game.AI
                 orbital.TetherToPlanet(planetToTether);
                 orbital.TetherOffset = bg.TetherOffset;
                 planetToTether.OrbitalStations.Add(orbital);
-                if (planetToTether.IsOverOrbitalsLimit(orbital))
+                if (planetToTether.IsOverOrbitalsLimit(orbital.ShipData))
                     planetToTether.TryRemoveExcessOrbital(orbital);
             }
 
