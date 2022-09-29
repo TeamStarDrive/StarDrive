@@ -66,7 +66,7 @@ namespace Ship_Game
                 CType = Owner.AssessColonyNeeds(this);
 
             if (OwnerIsPlayer)
-                Universe.Notifications.AddColonizedNotification(this, EmpireManager.Player);
+                Universe.Notifications.AddColonizedNotification(this, Universe.Player);
         }
 
         void NewColonyAffectRelations()
@@ -86,7 +86,7 @@ namespace Ship_Game
 
         public void AbortLandingPlayerFleets()
         {
-            Empire player = EmpireManager.Player;
+            Empire player = Universe.Player;
             if (player == Owner || player.IsAtWarWith(Owner)) 
                 return;
 

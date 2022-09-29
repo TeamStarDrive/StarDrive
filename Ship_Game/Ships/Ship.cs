@@ -10,7 +10,6 @@ using Ship_Game.Ships.Components;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using SDGraphics;
 using SDUtils;
@@ -115,7 +114,7 @@ namespace Ship_Game.Ships
         [StarData] public bool InCombat;
         public float XRotation;
         public float BonusEMPProtection;
-        public bool InSensorRange => KnownByEmpires.KnownByPlayer;
+        public bool InSensorRange => KnownByEmpires.KnownByPlayer(Universe);
         public KnownByEmpire KnownByEmpires;
         public KnownByEmpire HasSeenEmpires;
         public bool EMPDisabled;
@@ -708,13 +707,13 @@ namespace Ship_Game.Ships
             set
             {
                 //added by gremlin Toggle Ship System Defense.
-                if (EmpireManager.Player.AI.DefensiveCoordinator.DefensiveForcePool.Contains(this))
+                if (Universe.Player.AI.DefensiveCoordinator.DefensiveForcePool.Contains(this))
                 {
-                    EmpireManager.Player.AI.DefensiveCoordinator.Remove(this);
+                    Universe.Player.AI.DefensiveCoordinator.Remove(this);
                     AI.ClearOrders();
                     return;
                 }
-                EmpireManager.Player.AI.DefensiveCoordinator.Add(this);
+                Universe.Player.AI.DefensiveCoordinator.Add(this);
                 AI.State = AIState.SystemDefender;
             }
         }
@@ -1493,7 +1492,7 @@ namespace Ship_Game.Ships
 
         public bool NotThreatToPlayer()
         {
-            if (Loyalty == EmpireManager.Player || IsInWarp)
+            if (Loyalty == Universe.Player || IsInWarp)
                 return true;
 
             if (Loyalty == EmpireManager.Remnants)
@@ -1501,7 +1500,7 @@ namespace Ship_Game.Ships
 
             return BaseStrength.LessOrEqual(0)
                    || IsFreighter
-                   || !EmpireManager.Player.IsAtWarWith(Loyalty);
+                   || !Universe.Player.IsAtWarWith(Loyalty);
         }
 
         public void UpdateEmpiresOnKill(Ship killedShip)
@@ -1697,7 +1696,7 @@ namespace Ship_Game.Ships
             {
                 var evt = ResourceManager.EventsDict[ShipData.EventOnDeath];
                 Universe.Screen.ScreenManager.AddScreen(
-                    new EventPopup(Universe.Screen, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
+                    new EventPopup(Universe.Screen, Universe.Player, evt, evt.PotentialOutcomes[0], true));
             }
         }
 

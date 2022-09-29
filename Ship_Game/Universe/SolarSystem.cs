@@ -96,7 +96,7 @@ namespace Ship_Game
 
         public void Update(FixedSimTime timeStep, UniverseScreen universe)
         {
-            var player = EmpireManager.Player;
+            var player = universe.Player;
 
             for (int i = 0; i < SunLayers.Length; i++)
             {

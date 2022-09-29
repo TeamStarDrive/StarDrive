@@ -101,7 +101,7 @@ namespace Ship_Game
 
         void NotifyPlayerOnLevelUp()
         {
-            float espionageStr = EmpireManager.Player.GetSpyDefense();
+            float espionageStr = Universe.Player.GetSpyDefense();
             if (espionageStr <= Level * 3)
                 return; // not enough espionage strength to learn about Remnant activities
 
@@ -396,7 +396,7 @@ namespace Ship_Game
             if (planet.OwnerIsPlayer) // Warn the player is able
             {
                 SolarSystem system = planet.ParentSystem;
-                if (system.PlanetList.Any(p => p.Owner == EmpireManager.Player
+                if (system.PlanetList.Any(p => p.Owner == Universe.Player
                                                && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
                 {
                     string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
@@ -716,7 +716,7 @@ namespace Ship_Game
         {
             float fertilityMod = 1;
             float richnessMod  = 1;
-            if (EmpireManager.Player.IsCybernetic)
+            if (Universe.Player.IsCybernetic)
             {
                 fertilityMod = 0.5f;
                 richnessMod  = planet.IsBarrenType ? 6f : 3f;
@@ -724,7 +724,7 @@ namespace Ship_Game
 
             float quality = planet.BaseFertility * fertilityMod 
                             + planet.MineralRichness * richnessMod 
-                            + planet.MaxPopulationBillionFor(EmpireManager.Remnants);
+                            + planet.MaxPopulationBillionFor(Owner);
 
             // Boost the quality score for planets that are very rich
             if (planet.MineralRichness > 1.5f)

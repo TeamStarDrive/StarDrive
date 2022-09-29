@@ -8,6 +8,8 @@ namespace Ship_Game
 {
 	public sealed class UnownedPlanetScreen : PlanetScreen
 	{
+		UniverseScreen Universe;
+		Empire Player => Universe.Player;
 		private Planet p;
 		private Menu2 TitleBar;
 		private Vector2 TitlePos;
@@ -16,8 +18,9 @@ namespace Ship_Game
 		private Submenu PlanetInfo;
 		private Rectangle PlanetIcon;
 
-		public UnownedPlanetScreen(GameScreen parent, Planet p) : base(parent)
+		public UnownedPlanetScreen(UniverseScreen universe, Planet p) : base(universe)
 		{
+			Universe = universe;
 			this.p = p;
 			IsPopup = true; // allow right-click dismiss
 			Rectangle titleRect = new Rectangle(5, 44, 405, 80);
@@ -52,7 +55,7 @@ namespace Ship_Game
 			var infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
 			batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, infoCursor, Colors.Cream);
 			pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
-			if (p.IsExploredBy(EmpireManager.Player))
+			if (p.IsExploredBy(Player))
 			{
 				infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
 				batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Population) + ":", pNameCursor, Color.Orange);
@@ -65,7 +68,7 @@ namespace Ship_Game
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
 				infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
 				batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Fertility) + ":", pNameCursor, Color.Orange);
-				batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), infoCursor, Colors.Cream);
+				batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(Player).String(), infoCursor, Colors.Cream);
 				hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Fertility) + ":").X, Fonts.Arial12Bold.LineSpacing);
 				if (hoverRect.HitTest(Input.CursorPosition))
 				{
@@ -83,14 +86,14 @@ namespace Ship_Game
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;
 				batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40), pNameCursor, Colors.Cream);
 			}
-			else if (!p.IsExploredBy(EmpireManager.Player))
+			else if (!p.IsExploredBy(Player))
 			{
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
 				batch.DrawString(Fonts.Arial20Bold, Localizer.Token(GameText.Unexplored), pNameCursor, Color.Gray);
 				pNameCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
 			}
 
-			if (EmpireManager.Player.DifficultyModifiers.HideTacticalData)
+			if (Player.DifficultyModifiers.HideTacticalData)
 			{
 				pNameCursor.Y += NotePos.Y - 40;
 				batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(Localizer.Token(GameText.NoteInOrderToSee), PlanetInfo.Width - 40), pNameCursor, Color.Gold);

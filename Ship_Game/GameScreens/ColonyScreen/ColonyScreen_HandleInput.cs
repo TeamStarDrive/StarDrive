@@ -65,7 +65,7 @@ namespace Ship_Game
             P.UpdateIncomes();
 
             // We are monitoring AI Colonies
-            if (P.Owner != EmpireManager.Player && !Log.HasDebugger)
+            if (P.Owner != Player && !Log.HasDebugger)
             {
                 // Input not captured, let Universe Screen manager what happens
                 return false;
@@ -110,7 +110,7 @@ namespace Ship_Game
                         Troop troop = pgs.TroopsHere[i];
                         if (troop.ClickRect.HitTest(MousePos))
                         {
-                            if (input.RightMouseClick && troop.Loyalty == EmpireManager.Player)
+                            if (input.RightMouseClick && troop.Loyalty == Player)
                             {
                                 Ship troopShip = troop.Launch(pgs);
                                 if (troopShip != null)

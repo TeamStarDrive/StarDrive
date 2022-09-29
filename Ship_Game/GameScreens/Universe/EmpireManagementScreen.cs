@@ -66,23 +66,23 @@ namespace Ship_Game
             SbRes   = new SortButton(eui.Player.data.ESSort, "res");
             SbMoney = new SortButton(eui.Player.data.ESSort, "money");
 
-            var planets = EmpireManager.Player.GetPlanets();
+            var planets = Universe.Player.GetPlanets();
             int sidePanelWidths = (int)(ScreenWidth * 0.3f);
             GovernorRect = new RectF(ColoniesList.Right - sidePanelWidths - 23, ColoniesList.Bottom - 5, sidePanelWidths, ScreenHeight - ColoniesList.Bottom - 22);
             GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], GovernorRect));
             ResetColoniesList(planets);
-            int totalTroops = EmpireManager.Player.TotalTroops();
+            int totalTroops = Universe.Player.TotalTroops();
             string troopText = $"Total Troops: {totalTroops}";
             Vector2 troopPos = new(titleRect.X + titleRect.Width + 17, titleRect.Y + 35);
             AvailableTroops = Add(new UILabel(troopPos, troopText, LowRes ? Fonts.Arial12Bold : Fonts.Arial20Bold, Color.White));
             if (totalTroops > 0)
             {
-                string consumption = $"Consuming {(totalTroops * Troop.Consumption * (1 + EmpireManager.Player.data.Traits.ConsumptionModifier)).String(1)} " +
-                                     $"{Localizer.Token(EmpireManager.Player.IsCybernetic ? GameText.Production : GameText.Food)}";
+                string consumption = $"Consuming {(totalTroops * Troop.Consumption * (1 + Universe.Player.data.Traits.ConsumptionModifier)).String(1)} " +
+                                     $"{Localizer.Token(Universe.Player.IsCybernetic ? GameText.Production : GameText.Food)}";
 
                 Vector2 consumptionPos = new(troopPos.X, troopPos.Y + 25);
                 TroopConsumption = Add(new UILabel(consumptionPos, consumption, LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold,
-                    EmpireManager.Player.IsCybernetic ? Color.SandyBrown : Color.Green));
+                    Universe.Player.IsCybernetic ? Color.SandyBrown : Color.Green));
             }
         }
 
@@ -116,7 +116,7 @@ namespace Ship_Game
             PNameCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + 80f, PNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.Fertility)+":", PNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.FertilityFor(EmpireManager.Player).String(), InfoCursor, Cream);
+            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.FertilityFor(Universe.Player).String(), InfoCursor, Cream);
             hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(GameText.Fertility)+":").X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
                 ToolTip.CreateTooltip(GameText.IndicatesHowMuchFoodThis);
@@ -268,10 +268,10 @@ namespace Ship_Game
             {
                 Rectangle biosphere = new Rectangle(rect.X, rect.Y, 10, 10);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, White);
-                ScreenManager.SpriteBatch.FillRectangle(rect, EmpireManager.Player.EmpireColor.Alpha(0.4f));
+                ScreenManager.SpriteBatch.FillRectangle(rect, Universe.Player.EmpireColor.Alpha(0.4f));
             }
 
-            if (EmpireManager.Player.IsBuildingUnlocked(Building.TerraformerId) && (pgs.CanTerraform || pgs.BioCanTerraform))
+            if (Universe.Player.IsBuildingUnlocked(Building.TerraformerId) && (pgs.CanTerraform || pgs.BioCanTerraform))
             {
                 var terraform = new Rectangle(rect.X + rect.Width - 10, rect.Y, 10, 10);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, Color.White);
@@ -318,7 +318,7 @@ namespace Ship_Game
             }
             if (button.HandleInput(input))
             {
-                var planets = EmpireManager.Player.GetPlanets();
+                var planets = Universe.Player.GetPlanets();
                 button.Ascending = !button.Ascending;
                 ResetColoniesList(button.Ascending
                     ? planets.OrderBy(selector)

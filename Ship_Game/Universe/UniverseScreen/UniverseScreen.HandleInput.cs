@@ -101,16 +101,16 @@ namespace Ship_Game
 
         void HandleDebugEvents(InputState input)
         {
-            Empire empire = EmpireManager.Player;
+            Empire player = Player;
 
             if (input.EmpireToggle) 
-                empire  = input.RemnantToggle ? EmpireManager.Remnants : EmpireManager.Corsairs;
+                player  = input.RemnantToggle ? EmpireManager.Remnants : EmpireManager.Corsairs;
 
             if (input.SpawnShip)
-                Ship.CreateShipAtPoint(UState, "Bondage-Class Mk IIIa Cruiser", empire, mouseWorldPos);
+                Ship.CreateShipAtPoint(UState, "Bondage-Class Mk IIIa Cruiser", player, mouseWorldPos);
 
-            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 2", empire, mouseWorldPos);
-            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 1", empire, mouseWorldPos);
+            if (input.SpawnFleet2) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 2", player, mouseWorldPos);
+            if (input.SpawnFleet1) HelperFunctions.CreateFirstFleetAt(UState, "Fleet 1", player, mouseWorldPos);
 
             if (SelectedShip != null)
             {
@@ -297,7 +297,7 @@ namespace Ship_Game
 
             if (input.QuickSave && !SavedGame.IsSaving)
             {
-                string saveName = $"Quicksave, {EmpireManager.Player.data.Traits.Name}, {UState.StarDate.String()}";
+                string saveName = $"Quicksave, {Player.data.Traits.Name}, {UState.StarDate.String()}";
                 RunOnEmpireThread(() => Save(saveName));
             }
 
@@ -610,7 +610,7 @@ namespace Ship_Game
                 {
                     SolarSystem sys = ClickableSystems[index].System;
 
-                    if (sys.IsExploredBy(EmpireManager.Player))
+                    if (sys.IsExploredBy(Player))
                     {
                         for (int i = 0; i < sys.PlanetList.Count; i++)
                         {
@@ -833,7 +833,7 @@ namespace Ship_Game
                 pInfoUI.SetPlanet(SelectedPlanet);
                 if (input.LeftMouseDoubleClick)
                 {
-                    SnapViewColony(SelectedPlanet.Owner != EmpireManager.Player && !Debug);
+                    SnapViewColony(SelectedPlanet.Owner != Player && !Debug);
                     SelectionBox = new Rectangle();
                 }
                 else

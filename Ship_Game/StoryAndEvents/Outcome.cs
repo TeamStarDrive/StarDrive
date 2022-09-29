@@ -127,7 +127,7 @@ namespace Ship_Game
                     break;
 
                 PlanetGridSquare tile = potentialTiles.RandItem();
-                if (p.Owner == EmpireManager.Player && tile.BuildingOnTile && !tile.VolcanoHere)
+                if (p.Owner == p.Universe.Player && tile.BuildingOnTile && !tile.VolcanoHere)
                     p.Universe.Notifications.AddBuildingDestroyed(p, tile.Building, Localizer.Token(GameText.WasDestroyedInAnExploration));
 
                 p.DestroyTile(tile);

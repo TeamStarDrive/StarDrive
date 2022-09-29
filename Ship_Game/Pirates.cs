@@ -261,10 +261,10 @@ namespace Ship_Game
 
         void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
         {
-            if (!Owner.IsKnown(EmpireManager.Player))
+            if (!Owner.IsKnown(Universe.Player))
                 return;
 
-            float espionageStr = EmpireManager.Player.GetSpyDefense();
+            float espionageStr = Universe.Player.GetSpyDefense();
             if (espionageStr <= Level)
                 return; // Not enough espionage strength to learn about pirate activities
 

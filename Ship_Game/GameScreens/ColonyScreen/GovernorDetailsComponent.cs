@@ -18,6 +18,7 @@ namespace Ship_Game
         private readonly GameScreen Screen;
         private readonly SubTexture PortraitShine = ResourceManager.Texture("Portraits/portrait_shine");
         private Planet Planet;
+        Empire Player => Planet.Universe.Player;
         private DrawableSprite PortraitSprite;
         private UIPanel Portrait;
         private UILabel WorldType, WorldDescription;
@@ -336,7 +337,7 @@ namespace Ship_Game
                 // Not for trade hubs, which do not build structures anyway
                 GovNoScrap.Visible = GovernorTabView && Planet.CType != Planet.ColonyType.TradeHub && GovernorOn && Planet.OwnerIsPlayer;
 
-                int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(EmpireManager.Player);
+                int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(Planet.Universe.Player);
                 Planet.GarrisonSize       = (int)Math.Round(Garrison.AbsoluteValue);
                 CallTroops.Visible        = DefenseTabView && Planet.OwnerIsPlayer;
                 LaunchSingleTroop.Visible = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 0;
@@ -482,7 +483,7 @@ namespace Ship_Game
 
         void OnSendTroopsClicked(UIButton b)
         {
-            if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, Planet.Position, Planet.Name))
+            if (Planet.Universe.Player.GetTroopShipForRebase(out Ship troopShip, Planet.Position, Planet.Name))
             {
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderRebase(Planet, true);
@@ -504,7 +505,7 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in Planet.TilesList)
             {
-                if (pgs.TroopsAreOnTile && pgs.LockOnPlayerTroop(out Troop troop) && troop.CanLaunch)
+                if (pgs.TroopsAreOnTile && pgs.LockOnOurTroop(us:Player, out Troop troop) && troop.CanLaunch)
                 {
                     play = true;
                     troop.Launch(pgs);
@@ -522,7 +523,7 @@ namespace Ship_Game
 
         void OnLaunchSingleTroopClicked(UIButton b)
         {
-            var potentialTroops = Planet.TroopsHere.Filter(t => t.Loyalty == EmpireManager.Player && t.CanLaunch);
+            var potentialTroops = Planet.TroopsHere.Filter(t => t.Loyalty == Planet.Universe.Player && t.CanLaunch);
             if (potentialTroops.Length == 0)
                 GameAudio.NegativeClick();
             else

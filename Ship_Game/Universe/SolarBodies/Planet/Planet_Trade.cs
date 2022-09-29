@@ -57,7 +57,7 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportFood)
                     return 0;
 
-                if (ManualFoodExportSlots > 0 && Owner == EmpireManager.Player)
+                if (ManualFoodExportSlots > 0 && Owner == Universe.Player)
                     return ManualFoodExportSlots;
 
                 int min = Storage.FoodRatio > 0.75f ? 2 : 1;
@@ -75,7 +75,7 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportProd)
                     return 0;
 
-                if (ManualProdExportSlots > 0 && Owner == EmpireManager.Player)
+                if (ManualProdExportSlots > 0 && Owner == Universe.Player)
                     return ManualProdExportSlots;
 
                 int min = Storage.ProdRatio > 0.5f ? 2 : 1;
@@ -101,7 +101,7 @@ namespace Ship_Game
                 if (TradeBlocked || ColonistsTradeState != GoodState.EXPORT)
                     return 0;
 
-                if (ManualColoExportSlots > 0 && Owner == EmpireManager.Player)
+                if (ManualColoExportSlots > 0 && Owner == Universe.Player)
                     return ManualColoExportSlots;
 
                 return (int)PopulationBillion;
@@ -122,7 +122,7 @@ namespace Ship_Game
                         return 0;  
                 }
 
-                if (ManualFoodImportSlots > 0 && Owner == EmpireManager.Player)
+                if (ManualFoodImportSlots > 0 && Owner == Universe.Player)
                     return ManualFoodImportSlots;
 
                 float foodMissing = Storage.Max - FoodHere - IncomingFood;
@@ -141,7 +141,7 @@ namespace Ship_Game
                 if (TradeBlocked || !ImportProd)
                     return 0;
 
-                if (ManualProdImportSlots > 0 && Owner == EmpireManager.Player)
+                if (ManualProdImportSlots > 0 && Owner == Universe.Player)
                     return ManualProdImportSlots;
 
                 int maxSlots = ((int)(Universe.GalaxySize) * 4).LowerBound(4) + Owner.NumTradeTreaties;
@@ -182,7 +182,7 @@ namespace Ship_Game
                 if (TradeBlocked || ColonistsTradeState != GoodState.IMPORT)
                     return 0;
 
-                if (ManualColoImportSlots > 0 && Owner == EmpireManager.Player)
+                if (ManualColoImportSlots > 0 && Owner == Universe.Player)
                     return ManualColoImportSlots;
 
                 float slots = 2 / PopulationRatio.LowerBound(0.2f);

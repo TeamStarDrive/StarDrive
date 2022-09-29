@@ -231,7 +231,7 @@ namespace Ship_Game
                 fertility = $"{P.FertilityFor(Player).String(2)} / {P.MaxFertilityFor(Player).LowerBound(0).String(2)}";
                 batch.DrawString(TextFont, fertility, position3, fertColor);
             }
-            float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(P.Category);
+            float fertEnvMultiplier = Player.PlayerEnvModifier(P.Category);
             if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;

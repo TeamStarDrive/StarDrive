@@ -20,7 +20,7 @@ namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen : GameScreen
     {
-        UniverseScreen Universe;
+        public readonly UniverseScreen Universe;
         public Camera2D Camera;
         //private Background bg = new Background();
         StarField StarField;
@@ -75,14 +75,14 @@ namespace Ship_Game
         {
             Universe = u;
             GameAudio.PlaySfxAsync(audioCue);
-            SelectedFleet = new Fleet(u.UState.CreateId()) { Owner = EmpireManager.Player }; ;
+            SelectedFleet = new Fleet(u.UState.CreateId()) { Owner = u.Player };
             EmpireUI = empireUI;
             TransitionOnTime = 0.75f;
             EmpireUI.Player.UpdateShipsWeCanBuild();
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, u.UState));
 
             FleetNameEntry = new UITextEntry();
-            FleetNameEntry.OnTextChanged = (text) => EmpireManager.Player.GetFleetsDict()[FleetToEdit].Name = text;
+            FleetNameEntry.OnTextChanged = (text) => u.Player.GetFleetsDict()[FleetToEdit].Name = text;
             FleetNameEntry.SetColors(Colors.Cream, Color.Orange);
         }
 
@@ -93,7 +93,7 @@ namespace Ship_Game
             // so make sure that the so's are removed and added at each fleet button press.
             if (FleetToEdit != -1)
             {
-                foreach (var kv in EmpireManager.Player.GetFleetsDict())
+                foreach (var kv in Universe.Player.GetFleetsDict())
                 {
                     foreach (Ship ship in kv.Value.Ships)
                     {
@@ -103,12 +103,12 @@ namespace Ship_Game
             }
 
             FleetToEdit = which;
-            Fleet fleet = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
+            Fleet fleet = Universe.Player.GetFleetsDict()[FleetToEdit];
             var toRemove = new Array<FleetDataNode>();
             foreach (FleetDataNode node in fleet.DataNodes)
             {
                 if ((!ResourceManager.GetShipTemplate(node.ShipName, out Ship _) && node.Ship == null) ||
-                    (node.Ship == null && !EmpireManager.Player.WeCanBuildThis(node.ShipName)))
+                    (node.Ship == null && !Universe.Player.WeCanBuildThis(node.ShipName)))
                     toRemove.Add(node);
             }
 
@@ -134,7 +134,7 @@ namespace Ship_Game
                         flanks.Remove(squad);
             }
 
-            SelectedFleet = EmpireManager.Player.GetFleet(which);
+            SelectedFleet = Universe.Player.GetFleet(which);
             foreach (Ship ship in SelectedFleet.Ships)
             {
                 ship.ShowSceneObjectAt(ship.RelativeFleetOffset, 0f);
@@ -178,7 +178,7 @@ namespace Ship_Game
             LeftMenu = new Menu1(leftRect, true);
 
             int i = 0;
-            foreach (KeyValuePair<int, Fleet> fleet in EmpireManager.Player.GetFleetsDict())
+            foreach (KeyValuePair<int, Fleet> fleet in Universe.Player.GetFleetsDict())
             {
                 FleetsRects.Add(fleet.Key, new Rectangle(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
                 i++;
@@ -271,7 +271,7 @@ namespace Ship_Game
 
         public void LoadData(FleetDesign data)
         {
-            var fleet = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
+            var fleet = Universe.Player.GetFleetsDict()[FleetToEdit];
 
             for (int i = fleet.Ships.Count - 1; i >= 0; i--)
             {
@@ -301,7 +301,7 @@ namespace Ship_Game
             if (SubShips.SelectedIndex == 0)
             {
                 var shipList = new Array<Ship>();
-                foreach (string shipName in EmpireManager.Player.ShipsWeCanBuild)
+                foreach (string shipName in Universe.Player.ShipsWeCanBuild)
                 {
                     Ship ship = ResourceManager.GetShipTemplate(shipName);
                     shipList.Add(ship);
@@ -312,7 +312,7 @@ namespace Ship_Game
             else if (SubShips.SelectedIndex == 1)
             {
                 AvailableShips.Clear();
-                var ships = EmpireManager.Player.OwnedShips;
+                var ships = Universe.Player.OwnedShips;
                 AvailableShips.AddRange(ships
                                         .Filter(s => s.Fleet == null && s.Active));
 
@@ -334,7 +334,7 @@ namespace Ship_Game
             {
                 FleetDesignShipListItem header = ShipSL.AddItem(new FleetDesignShipListItem(this, role));
 
-                foreach (string shipName in EmpireManager.Player.ShipsWeCanBuild)
+                foreach (string shipName in Universe.Player.ShipsWeCanBuild)
                 {
                     if (ResourceManager.GetShipTemplate(shipName, out Ship ship) && 
                         IsCandidateShip(ship) && ship.DesignRoleName == header.HeaderText)
