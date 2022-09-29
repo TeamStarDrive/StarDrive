@@ -223,9 +223,11 @@ namespace Ship_Game
         public float MaxPopBillion { get; private set; }
         public DifficultyModifiers DifficultyModifiers { get; private set; }
         public PersonalityModifiers PersonalityModifiers { get; private set; }
+
+
         // Empire unique ID. If this is 0, then this empire is invalid!
-        // Set in EmpireManager.cs
-        public int Id;
+        // Set in UniverseState_Empires.cs
+        [StarData] public int Id;
 
         public string Name => data.Traits.Name;
 
