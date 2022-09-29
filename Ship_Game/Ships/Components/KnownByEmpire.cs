@@ -1,4 +1,5 @@
 ﻿using System;
+using SDUtils;
 using Ship_Game.Empires;
 using Ship_Game.Universe;
 
@@ -22,7 +23,7 @@ namespace Ship_Game.Ships.Components
 
         public KnownByEmpire(UniverseState us)
         {
-            SeenByID = new float[us.NumEmpires];
+            SeenByID = us != null ? new float[us.NumEmpires] : Empty<float>.Array;
             for (int i = 0; i < SeenByID.Length; i++)
                 SeenByID[i] = -100;
         }

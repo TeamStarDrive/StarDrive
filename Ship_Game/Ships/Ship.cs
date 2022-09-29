@@ -1752,13 +1752,10 @@ namespace Ship_Game.Ships
 
             Carrier?.Dispose();
 
-            foreach (Empire empire in Universe.Empires)
-            {
-                if (KnownByEmpires.KnownBy(empire))
-                {
-                    empire.AI?.ThreatMatrix.RemovePin(this);
-                }
-            }
+            if (Universe != null)
+                foreach (Empire empire in Universe.Empires)
+                    if (KnownByEmpires.KnownBy(empire))
+                        empire.AI?.ThreatMatrix.RemovePin(this);
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 ModuleSlotList[i].Dispose();
