@@ -10,6 +10,7 @@ using SDUtils;
 using Ship_Game.Empires.Components;
 using Vector2 = SDGraphics.Vector2;
 using Vector3 = SDGraphics.Vector3;
+using System.Diagnostics;
 
 namespace Ship_Game
 {
@@ -454,7 +455,7 @@ namespace Ship_Game
                 UState.GameSpeed = 1f;
             else if (input.SpeedUp || input.SpeedDown)
             {
-                bool unlimited = GlobalStats.UnlimitedSpeed || Debug;
+                bool unlimited = GlobalStats.UnlimitedSpeed || Debug || Debugger.IsAttached;
                 float speedMin = unlimited ? 0.0625f : 0.25f;
                 float speedMax = unlimited ? 128f    : 6f;
                 UState.GameSpeed = GetGameSpeedAdjust(input.SpeedUp).Clamped(speedMin, speedMax);

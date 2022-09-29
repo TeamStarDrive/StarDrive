@@ -1073,8 +1073,6 @@ namespace Ship_Game
             return readyShips;
         }
 
-        public IReadOnlyList<Ship> GetProjectors() => OwnedProjectors;
-
         void IEmpireShipLists.AddNewShipAtEndOfTurn(Ship s) => EmpireShips.Add(s);
 
         void InitDifficultyModifiers()

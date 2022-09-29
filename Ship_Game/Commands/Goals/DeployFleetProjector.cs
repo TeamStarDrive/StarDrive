@@ -71,7 +71,7 @@ namespace Ship_Game.Commands.Goals
             if (Fleet?.FleetTask == null)
             {
                 FinishedShip?.AI.OrderScrapShip();
-                var projectors = Owner.GetProjectors();
+                var projectors = Owner.OwnedProjectors;
                 for (int i = 0; i < projectors.Count; i++)
                 {
                     Ship ship = projectors[i];
