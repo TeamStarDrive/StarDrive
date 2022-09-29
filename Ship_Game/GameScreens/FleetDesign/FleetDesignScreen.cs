@@ -81,8 +81,8 @@ namespace Ship_Game
             EmpireUI.Player.UpdateShipsWeCanBuild();
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, u.UState));
 
-            FleetNameEntry = new UITextEntry();
-            FleetNameEntry.OnTextChanged = (text) => u.Player.GetFleetsDict()[FleetToEdit].Name = text;
+            FleetNameEntry = new();
+            FleetNameEntry.OnTextChanged = (text) => u.Player.GetFleet(FleetToEdit).Name = text;
             FleetNameEntry.SetColors(Colors.Cream, Color.Orange);
         }
 
@@ -93,9 +93,9 @@ namespace Ship_Game
             // so make sure that the so's are removed and added at each fleet button press.
             if (FleetToEdit != -1)
             {
-                foreach (var kv in Universe.Player.GetFleetsDict())
+                foreach (Fleet f in Universe.Player.Fleets)
                 {
-                    foreach (Ship ship in kv.Value.Ships)
+                    foreach (Ship ship in f.Ships)
                     {
                         ship.RemoveSceneObject();
                     }
@@ -103,7 +103,7 @@ namespace Ship_Game
             }
 
             FleetToEdit = which;
-            Fleet fleet = Universe.Player.GetFleetsDict()[FleetToEdit];
+            Fleet fleet = Universe.Player.GetFleet(FleetToEdit);
             var toRemove = new Array<FleetDataNode>();
             foreach (FleetDataNode node in fleet.DataNodes)
             {
@@ -178,7 +178,7 @@ namespace Ship_Game
             LeftMenu = new Menu1(leftRect, true);
 
             int i = 0;
-            foreach (KeyValuePair<int, Fleet> fleet in Universe.Player.GetFleetsDict())
+            foreach (Fleet fleet in Universe.Player.Fleets)
             {
                 FleetsRects.Add(fleet.Key, new Rectangle(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
                 i++;
@@ -271,7 +271,7 @@ namespace Ship_Game
 
         public void LoadData(FleetDesign data)
         {
-            var fleet = Universe.Player.GetFleetsDict()[FleetToEdit];
+            var fleet = Universe.Player.GetFleet(FleetToEdit);
 
             for (int i = fleet.Ships.Count - 1; i >= 0; i--)
             {

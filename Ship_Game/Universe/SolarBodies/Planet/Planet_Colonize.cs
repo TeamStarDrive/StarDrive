@@ -90,8 +90,7 @@ namespace Ship_Game
             if (player == Owner || player.IsAtWarWith(Owner)) 
                 return;
 
-            var fleets = player.GetFleetsDict();
-            foreach (Fleet fleet in fleets.Values)
+            foreach (Fleet fleet in player.Fleets)
             {
                 if (fleet.Ships.Any(s => s.IsTroopShipAndRebasingOrAssaulting(this)))
                 {

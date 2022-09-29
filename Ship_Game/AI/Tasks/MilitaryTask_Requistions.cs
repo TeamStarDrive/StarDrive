@@ -92,7 +92,7 @@ namespace Ship_Game.AI.Tasks
             };
 
             int fleetNum = FindUnusedFleetNumber();
-            Owner.GetFleetsDict()[fleetNum] = newFleet;
+            Owner.SetFleet(fleetNum, newFleet);
             Owner.AI.UsedFleets.Add(fleetNum);
             WhichFleet = fleetNum;
             newFleet.FleetTask = this;
@@ -113,7 +113,7 @@ namespace Ship_Game.AI.Tasks
             };
 
             int fleetNum = FindUnusedFleetNumber();
-            Owner.GetFleetsDict()[fleetNum] = newFleet;
+            Owner.SetFleet(fleetNum, newFleet);
             Owner.AI.UsedFleets.Add(fleetNum);
             WhichFleet = fleetNum;
             newFleet.FleetTask = this;

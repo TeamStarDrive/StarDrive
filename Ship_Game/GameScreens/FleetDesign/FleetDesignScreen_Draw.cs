@@ -226,7 +226,7 @@ namespace Ship_Game
                     rect.Key != FleetToEdit ? Color.Black : new Color(0, 0, 255, 80));
                 sel.Draw(batch, elapsed);
 
-                Fleet f = Universe.Player.GetFleetsDict()[rect.Key];
+                Fleet f = Universe.Player.GetFleet(rect.Key);
                 if (f.DataNodes.Count > 0)
                 {
                     var firect = new Rectangle(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.Width - 12,
@@ -508,7 +508,7 @@ namespace Ship_Game
                 StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
                 StuffSelector.Draw(batch, elapsed);
 
-                Fleet f = Universe.Player.GetFleetsDict()[FleetToEdit];
+                Fleet f = Universe.Player.GetFleet(FleetToEdit);
                 Vector2 cursor1 = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
                 FleetNameEntry.Text = f.Name;
                 FleetNameEntry.SetPos(cursor1);
