@@ -5,6 +5,7 @@ using Ship_Game.Universe.SolarBodies;
 using SDUtils;
 using Rectangle = SDGraphics.Rectangle;
 using Point = SDGraphics.Point;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -120,11 +121,6 @@ namespace Ship_Game
                 Troop t = TroopsHere[i];
                 t.KillTroop(p, this);
             }
-        }
-
-        public bool LockOnPlayerTroop(out Troop playerTroop)
-        {
-            return LockOnOurTroop(EmpireManager.Player, out playerTroop);
         }
 
         public bool EnemyTroopsHere(Empire us)

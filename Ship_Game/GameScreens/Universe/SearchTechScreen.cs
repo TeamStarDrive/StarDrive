@@ -86,7 +86,7 @@ namespace Ship_Game
 
         void ResearchToTech(TechEntry entry)
         {
-            if (!entry.CanBeResearched || EmpireManager.Player.Research.IsQueued(entry.UID))
+            if (!entry.CanBeResearched || Screen.Player.Research.IsQueued(entry.UID))
             {
                 GameAudio.NegativeClick();
                 return;
@@ -95,8 +95,8 @@ namespace Ship_Game
             Array<TechEntry> entries = new Array<TechEntry> {entry};
             while (!entry.IsRoot)
             {
-                TechEntry parent = entry.GetPreReq(EmpireManager.Player);
-                if (parent.Unlocked || EmpireManager.Player.Research.IsQueued(entry.UID))
+                TechEntry parent = entry.GetPreReq(Screen.Player);
+                if (parent.Unlocked || Screen.Player.Research.IsQueued(entry.UID))
                     break;
 
                 if (!parent.IsRoot)

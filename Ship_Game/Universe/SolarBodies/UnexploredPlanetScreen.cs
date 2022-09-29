@@ -70,7 +70,7 @@ namespace Ship_Game
                 // Population: 0 / 1.5
                 DrawInfo(batch, x, y + 32, GameText.Population, Planet.PopulationStringForPlayer, GameText.AColonysPopulationIsA);
                 // Fertility: 0.8
-                DrawInfo(batch, x, y + 48, GameText.Fertility, Planet.FertilityFor(EmpireManager.Player).String(), GameText.IndicatesHowMuchFoodThis);
+                DrawInfo(batch, x, y + 48, GameText.Fertility, Planet.FertilityFor(Planet.Universe.Player).String(), GameText.IndicatesHowMuchFoodThis);
                 // Richness: 0.5
                 DrawInfo(batch, x, y + 64, GameText.Richness, Planet.MineralRichness.String(), GameText.APlanetsMineralRichnessDirectly);
             }

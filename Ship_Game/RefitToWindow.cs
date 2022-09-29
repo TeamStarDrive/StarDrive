@@ -16,6 +16,7 @@ namespace Ship_Game
     {
         readonly ShipListScreen Screen;
         readonly Ship ShipToRefit;
+        Empire Player => ShipToRefit.Universe.Player;
         Submenu sub_ships;
         ScrollList2<RefitShipListItem> RefitShipList;
         UIButton RefitOne;
@@ -100,7 +101,7 @@ namespace Ship_Game
             RefitAll = ButtonMedium(shipDesignsRect.X + 250, shipDesignsRect.Y + 505, text:GameText.RefitAll, click: OnRefitAllClicked);
             RefitAll.Tooltip = Localizer.Token(GameText.RefitAllShipsOfThis);
 
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this, ShipToRefit.Universe));
             RefitShipList.OnHovered = (item) =>
             {
                 ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
@@ -141,24 +142,24 @@ namespace Ship_Game
 
         void OnRefitOneClicked(UIButton b)
         {
-            EmpireManager.Player.AI.AddGoal(GetRefitGoal(ShipToRefit));
+            Player.AI.AddGoal(GetRefitGoal(ShipToRefit));
             GameAudio.EchoAffirmative();
             ExitScreen();
         }
 
         void OnRefitAllClicked(UIButton b)
         {
-            var ships = EmpireManager.Player.OwnedShips;
+            var ships = Player.OwnedShips;
             foreach (Ship ship in ships)
             {
                 if (ship.Name == ShipToRefit.Name)
-                    EmpireManager.Player.AI.AddGoal(GetRefitGoal(ship));
+                    Player.AI.AddGoal(GetRefitGoal(ship));
             }
 
-            foreach (Planet planet in EmpireManager.Player.GetPlanets())
+            foreach (Planet planet in Player.GetPlanets())
                 planet.Construction.RefitShipsBeingBuilt(ShipToRefit, RefitTo);
 
-            foreach (Fleet fleet in EmpireManager.Player.GetFleetsDict().Values)
+            foreach (Fleet fleet in Player.GetFleetsDict().Values)
                 fleet.RefitNodeName(ShipToRefit.Name, RefitTo.Name);
 
             GameAudio.EchoAffirmative();
@@ -169,9 +170,9 @@ namespace Ship_Game
         {
             Goal refitShip;
             if (ShipToRefit.IsPlatformOrStation)
-                refitShip = new RefitOrbital(ship, RefitTo.Name, EmpireManager.Player);
+                refitShip = new RefitOrbital(ship, RefitTo.Name, Player);
             else
-                refitShip = new RefitShip(ship, RefitTo.Name, EmpireManager.Player);
+                refitShip = new RefitShip(ship, RefitTo.Name, Player);
 
             return refitShip;
         }

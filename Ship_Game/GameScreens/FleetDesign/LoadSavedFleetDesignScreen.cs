@@ -8,12 +8,12 @@ namespace Ship_Game
 {
     public sealed class LoadSavedFleetDesignScreen : GenericLoadSaveScreen, IDisposable
     {
-        private FleetDesignScreen parentScreen;
+        readonly FleetDesignScreen Screen;
 
 
         public LoadSavedFleetDesignScreen(FleetDesignScreen caller) : base(caller, SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
         {
-            parentScreen = caller;
+            Screen = caller;
             Path = Dir.StarDriveAppData + "/Fleet Designs/";
         }
 
@@ -23,7 +23,7 @@ namespace Ship_Game
             {
                 XmlSerializer serializer1 = new XmlSerializer(typeof(FleetDesign));
                 FleetDesign data = (FleetDesign)serializer1.Deserialize(SelectedFile.FileLink.OpenRead());
-                parentScreen.LoadData(data);
+                Screen.LoadData(data);
             }
             else
             {
@@ -32,15 +32,11 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        static bool PlayerCanBuildFleet(FleetDesign fleetDesign)
+        bool PlayerCanBuildFleet(FleetDesign fleetDesign)
         {
             foreach (FleetDataNode node in fleetDesign.Data)
-            {
-                if (!EmpireManager.Player.WeCanBuildThis(node.ShipName))
-                {
+                if (!Screen.Universe.Player.WeCanBuildThis(node.ShipName))
                     return false;
-                }
-            }
             return true;
         }
 

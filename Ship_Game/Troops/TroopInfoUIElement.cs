@@ -71,9 +71,9 @@ namespace Ship_Game
                     Troop troop = Tile.TroopsHere[i];
                     if (Tile.TroopsHere.Count == 1)
                         troopToDraw = troop;
-                    else if (troop.Loyalty != EmpireManager.Player && troop.Hovered)
+                    else if (troop.Loyalty != Universe.Player && troop.Hovered)
                         troopToDraw = troop;
-                    else if (troop.Loyalty == EmpireManager.Player)
+                    else if (troop.Loyalty == Universe.Player)
                         troopToDraw = troop;
                 }
 
@@ -126,7 +126,7 @@ namespace Ship_Game
         void DrawLaunchButton(SpriteBatch batch, Troop troop, Header slant)
         {
             troop.Draw(Universe.UState, batch, ItemDisplayRect);
-            if (troop.Loyalty != EmpireManager.Player)
+            if (troop.Loyalty != Universe.Player)
                 LaunchTroop = null;
             else
             {

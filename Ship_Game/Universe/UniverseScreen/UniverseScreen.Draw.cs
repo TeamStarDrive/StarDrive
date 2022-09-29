@@ -445,7 +445,7 @@ namespace Ship_Game
                     Ship ship = clickable.Ship;
                     if (ship != null &&  ship.IsVisibleToPlayer && ship.WeaponsMaxRange > 0f)
                     {
-                        Color color = ship.Loyalty == EmpireManager.Player
+                        Color color = ship.Loyalty == Player
                                         ? new Color(0, 200, 0, 30)
                                         : new Color(200, 0, 0, 30);
 
@@ -724,11 +724,11 @@ namespace Ship_Game
                 if (fleetButton.Fleet.AutoRequisition)
                 {
                     Rectangle autoReq = new Rectangle(fleetButton.ClickRect.X - 18, fleetButton.ClickRect.Y + 5, 15, 20);
-                    batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, EmpireManager.Player.EmpireColor);
+                    batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, Player.EmpireColor);
                 }
 
                 buttonSelector.Draw(batch, elapsed);
-                batch.Draw(fleetButton.Fleet.Icon, housing, EmpireManager.Player.EmpireColor);
+                batch.Draw(fleetButton.Fleet.Icon, housing, Player.EmpireColor);
                 if (needShadow)
                     batch.DrawString(fleetFont, fleetButton.Key.ToString(), new Vector2(keyPos.X + 2, keyPos.Y + 2), Color.Black);
 
@@ -1062,7 +1062,7 @@ namespace Ship_Game
             var planet = ship.AI.OrbitTarget;
             if (ship.AI.State == AIState.AssaultPlanet && planet != null)
             {
-                int spots = planet.GetFreeTiles(EmpireManager.Player);
+                int spots = planet.GetFreeTiles(Player);
                 if (spots > 4)
                     DrawLineToPlanet(start, planet.Position, Colors.CombatOrders(alpha));
                 else if (spots > 0)

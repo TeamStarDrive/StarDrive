@@ -4,22 +4,26 @@ using SDGraphics;
 using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.Universe;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
     public class ShipInfoOverlayComponent : UIElementV2
     {
         GameScreen Screen;
+        UniverseState Universe;
+        Empire Player => Universe.Player;
         Ship SelectedShip;
         bool LowRes;
         Graphics.Font TitleFont;
         Graphics.Font Font;
         int TextWidth;
 
-        public ShipInfoOverlayComponent(GameScreen screen)
+        public ShipInfoOverlayComponent(GameScreen screen, UniverseState us)
         {
             Visible = false;
             Screen = screen;
+            Universe = us;
             LowRes = screen.LowRes;
         }
 
@@ -96,9 +100,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             new Menu2(Rect).Draw(batch, elapsed);
 
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
-            float mass          = ship.Stats.GetMass(EmpireManager.Player);
-            float warpSpeed     = ship.Stats.GetFTLSpeed(mass, EmpireManager.Player);
-            float subLightSpeed = ship.Stats.GetSTLSpeed(mass, EmpireManager.Player);
+            float mass          = ship.Stats.GetMass(Player);
+            float warpSpeed     = ship.Stats.GetFTLSpeed(mass, Player);
+            float subLightSpeed = ship.Stats.GetSTLSpeed(mass, Player);
             float turnRateDeg   = ship.Stats.GetTurnRadsPerSec(ship.Level).ToDegrees();
             var cursor = new Vector2(X + (Width*0.06f).RoundTo10(), Y + (int)(Height * 0.025f));
             DrawShipValueLine(batch, TitleFont, ref cursor, ship.Name, "", Color.White);

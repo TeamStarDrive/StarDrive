@@ -521,7 +521,7 @@ namespace Ship_Game
             batch.FillRectangle(r, new Color(54, 54, 54));
 
             var cursor = new Vector2(r.X + 3, r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
-            batch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(Role, EmpireManager.Player), cursor, Color.White);
+            batch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(Role, Player), cursor, Color.White);
         }
     }
 }

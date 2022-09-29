@@ -226,16 +226,16 @@ namespace Ship_Game
                     rect.Key != FleetToEdit ? Color.Black : new Color(0, 0, 255, 80));
                 sel.Draw(batch, elapsed);
 
-                Fleet f = EmpireManager.Player.GetFleetsDict()[rect.Key];
+                Fleet f = Universe.Player.GetFleetsDict()[rect.Key];
                 if (f.DataNodes.Count > 0)
                 {
                     var firect = new Rectangle(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.Width - 12,
                         rect.Value.Width - 12);
-                    batch.Draw(f.Icon, firect, EmpireManager.Player.EmpireColor);
+                    batch.Draw(f.Icon, firect, Universe.Player.EmpireColor);
                     if (f.AutoRequisition)
                     {
                         Rectangle autoReq = new Rectangle(firect.X + 54, firect.Y + 12, 20, 27);
-                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, ApplyCurrentAlphaToColor(EmpireManager.Player.EmpireColor));
+                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, ApplyCurrentAlphaToColor(Universe.Player.EmpireColor));
                     }
                     
                 }
@@ -350,7 +350,7 @@ namespace Ship_Game
                 if (scale > 1f)    scale = 1f;
                 if (scale < 0.15f) scale = 0.15f;
 
-                Color color = EmpireManager.Player.EmpireColor;
+                Color color = Universe.Player.EmpireColor;
                 batch.Draw(icon, Input.CursorPosition, color, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
                 if (secondary != null)
                     batch.Draw(secondary, Input.CursorPosition, color, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
@@ -508,7 +508,7 @@ namespace Ship_Game
                 StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
                 StuffSelector.Draw(batch, elapsed);
 
-                Fleet f = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
+                Fleet f = Universe.Player.GetFleetsDict()[FleetToEdit];
                 Vector2 cursor1 = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
                 FleetNameEntry.Text = f.Name;
                 FleetNameEntry.SetPos(cursor1);

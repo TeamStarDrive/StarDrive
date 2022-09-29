@@ -28,7 +28,7 @@ namespace Ship_Game.Commands.Goals
                 }
             }
 
-            EmpireManager.Player.AI.ThreatMatrix.UpdateAllPins(EmpireManager.Player);
+            Owner.Universum.Player.AI.ThreatMatrix.UpdateAllPins(Owner.Universum.Player);
             return GoalStep.GoToNextStep;
         }
 

@@ -450,7 +450,7 @@ namespace Ship_Game
 
         public void RespondPlayerStoleColony(Relationship usToPlayer)
         {
-            Empire player = EmpireManager.Player;
+            Empire player = Universum.Player;
             switch (usToPlayer.StolenSystems.Count)
             {
                 case 0:
@@ -726,7 +726,7 @@ namespace Ship_Game
             if (absorber.isPlayer)
             {
                 string dialogue = enemy.isPlayer ? "SURRENDER" : "OFFER_MERGE";
-                Relationship rel = GetRelationsOrNull(EmpireManager.Player);
+                Relationship rel = GetRelationsOrNull(Universum.Player);
                 rel?. OfferMergeOrSurrenderToPlayer(this, dialogue);
             }
             else

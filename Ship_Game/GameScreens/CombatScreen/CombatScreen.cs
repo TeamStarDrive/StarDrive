@@ -16,6 +16,7 @@ namespace Ship_Game
     public sealed class CombatScreen : PlanetScreen
     {
         public readonly Planet P;
+        public Empire Player;
         readonly Vector2 TitlePos;
         readonly Rectangle GridPos;
 
@@ -49,9 +50,10 @@ namespace Ship_Game
 
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {
+            if (p == null) throw new ArgumentNullException(nameof(p));
             P = p;
-            if (p == null)
-                throw new ArgumentNullException(nameof(p));
+            Player = p.Universe.Player;
+
             GridRect            = new Rectangle(ScreenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
             Rectangle titleRect = new Rectangle(ScreenWidth / 2 - 250, 44, 500, 80);
             TitlePos            = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
@@ -157,7 +159,7 @@ namespace Ship_Game
                 int range;
                 MovementTiles.Clear();
                 AttackTiles.Clear();
-                if (!ActiveTile.LockOnPlayerTroop(out Troop troop))
+                if (!ActiveTile.LockOnOurTroop(us:Player, out Troop troop))
                 {
                     if (ActiveTile.CombatBuildingOnTile)
                         range = 1;
@@ -177,12 +179,12 @@ namespace Ship_Game
                     int xTotalDistance = Math.Abs(ActiveTile.X - tile.X);
                     int yTotalDistance = Math.Abs(ActiveTile.Y - tile.Y);
                     int rangeToTile    = Math.Max(xTotalDistance, yTotalDistance);
-                    if (rangeToTile <= range && tile.IsTileFree(EmpireManager.Player))
+                    if (rangeToTile <= range && tile.IsTileFree(Player))
                     {
                         if (!ActiveTile.CombatBuildingOnTile) 
                             MovementTiles.Add(tile); // Movement options only for mobile assets
 
-                        if (tile.LockOnEnemyTroop(EmpireManager.Player, out _) || tile.CombatBuildingOnTile && P.Owner != EmpireManager.Player)
+                        if (tile.LockOnEnemyTroop(Player, out _) || tile.CombatBuildingOnTile && P.Owner != Player)
                             AttackTiles.Add(tile);
                     }
                 }
@@ -406,7 +408,7 @@ namespace Ship_Game
 
         void OnLandAllClicked(UIButton b)
         {
-            bool instantLand = P.WeCanLandTroopsViaSpacePort(EmpireManager.Player);
+            bool instantLand = P.WeCanLandTroopsViaSpacePort(Player);
             if (instantLand)
                 GameAudio.TroopLand();
 
@@ -436,12 +438,11 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (pgs.NoTroopsOnTile || !pgs.LockOnPlayerTroop(out Troop troop))
+                if (pgs.NoTroopsOnTile || !pgs.LockOnOurTroop(us:Player, out Troop troop))
                     continue;
 
                 try
                 {
-
                     troop.UpdateAttackActions(-troop.MaxStoredActions);
                     troop.ResetAttackTimer();
                     Ship troopShip = troop.Launch(pgs);
@@ -496,7 +497,7 @@ namespace Ship_Game
 
         bool TryGetNumBombersCanBomb(out Ship[] bombersList)
         {
-            bombersList = P.ParentSystem.ShipList.Filter(s => s.Loyalty == EmpireManager.Player
+            bombersList = P.ParentSystem.ShipList.Filter(s => s.Loyalty == Player
                                                          && s.BombBays.Count > 0
                                                          && s.Position.InRadius(P.Position, P.Radius + 15000f));
 
@@ -566,7 +567,7 @@ namespace Ship_Game
 
             if (P.Universe.Debug && (input.SpawnRemnant || input.SpawnPlayerTroop))
             {
-                Empire spawnFor = input.SpawnRemnant ? EmpireManager.Remnants : EmpireManager.Player;
+                Empire spawnFor = input.SpawnRemnant ? EmpireManager.Remnants : Player;
                 if (EmpireManager.Remnants == null)
                     Log.Warning("Remnant faction missing!");
                 else
@@ -632,7 +633,7 @@ namespace Ship_Game
                         Troop troop = pgs.TroopsHere[i];
                         if (troop.ClickRect.HitTest(Input.CursorPosition) && Input.LeftMouseClick)
                         {
-                            if (P.Owner != EmpireManager.Player)
+                            if (P.Owner != Player)
                             {
                                 ActiveTile = pgs;
                                 TInfo.SetTile(pgs, troop);
@@ -660,13 +661,13 @@ namespace Ship_Game
                 {
                     if (ActiveTile.CombatBuildingOnTile 
                         && ActiveTile.Building.CanAttack  // Attacking building
-                        && pgs.LockOnEnemyTroop(EmpireManager.Player, out Troop enemy))
+                        && pgs.LockOnEnemyTroop(Player, out Troop enemy))
                     {
                         ActiveTile.Building.UpdateAttackActions(-1);
                         ActiveTile.Building.ResetAttackTimer();
                         StartCombat(ActiveTile.Building, enemy, pgs, P);
                     }
-                    else if (ActiveTile.LockOnPlayerTroop(out Troop ourTroop)) // Attacking troops
+                    else if (ActiveTile.LockOnOurTroop(us:Player, out Troop ourTroop)) // Attacking troops
                     {
                         if (AttackTiles.Contains(pgs))
                         {
@@ -675,7 +676,7 @@ namespace Ship_Game
                                 StartCombat(ourTroop, pgs.Building, pgs, P);
                                 capturedInput = true;
                             }
-                            else if (pgs.LockOnEnemyTroop(EmpireManager.Player, out Troop enemyTroop))
+                            else if (pgs.LockOnEnemyTroop(Player, out Troop enemyTroop))
                             {
                                 ourTroop.UpdateAttackActions(-1);
                                 ourTroop.ResetAttackTimer();
@@ -768,7 +769,7 @@ namespace Ship_Game
 
             OrbitalAssetsTimer = 1;
 
-            Array<Troop> orbitingTroops = GetOrbitingTroops(EmpireManager.Player);
+            Array<Troop> orbitingTroops = GetOrbitingTroops(Player);
 
             OrbitSL.RemoveFirstIf(item => !orbitingTroops.ContainsRef(item.Troop));
             Troop[] toAdd = orbitingTroops.Filter(troop => !OrbitSL.Any(item => item.Troop == troop));
@@ -835,7 +836,7 @@ namespace Ship_Game
             if (numTroops > 0)
             {
                 LandAll.Enabled = true;
-                LandAll.Text    = $"Land All ({Math.Min(OrbitSL.NumEntries, P.GetFreeTiles(EmpireManager.Player))})";
+                LandAll.Text    = $"Land All ({Math.Min(OrbitSL.NumEntries, P.GetFreeTiles(Player))})";
             }
             else
             {
@@ -861,7 +862,7 @@ namespace Ship_Game
 
         void UpdateBombersButton()
         {
-            if (P.Owner == null || P.Owner == EmpireManager.Player)
+            if (P.Owner == null || P.Owner == Player)
             {
                 Bombard.Enabled = false;
                 return;

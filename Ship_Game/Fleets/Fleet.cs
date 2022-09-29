@@ -2186,7 +2186,7 @@ namespace Ship_Game.Fleets
             }
             else // no fleet task
             {
-                if (EmpireManager.Player == Owner || IsCoreFleet)
+                if (Owner.isPlayer || IsCoreFleet)
                 {
                     if (!IsCoreFleet) return;
                     foreach (Ship ship in Ships)

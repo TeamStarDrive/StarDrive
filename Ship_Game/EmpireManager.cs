@@ -12,7 +12,6 @@ namespace Ship_Game
         public static int NumEmpires { get; private set; }
         static readonly Map<string, Empire> EmpireDict = new();
 
-        static Empire PlayerEmpire;
         static Empire CordrazineEmpire;
 
         static Empire RemnantsFaction;
@@ -21,7 +20,6 @@ namespace Ship_Game
         static Empire DummyEmpire;
 
         /// @todo These should be initialized ONCE during loading, leaving like this for future refactor
-        public static Empire Player     => PlayerEmpire     ?? (PlayerEmpire     = FindPlayerEmpire());
         public static Empire Cordrazine => CordrazineEmpire ?? (CordrazineEmpire = GetEmpireByName("Cordrazine Collective"));
 
         // Special factions
@@ -154,7 +152,6 @@ namespace Ship_Game
             return null;
         }
 
-        public static Array<Empire> GetPlayerAllies() => GetAllies(Player);
         public static Array<Empire> GetAllies(Empire e)
         {
             var allies = new Array<Empire>();

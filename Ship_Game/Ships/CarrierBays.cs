@@ -639,9 +639,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public static string GetDynamicShipNameShipDesign(ShipModule hangar) => GetDynamicShipName(hangar, EmpireManager.Player);
-
-        static string GetDynamicShipName(ShipModule hangar, Empire empire)
+        public static string GetDynamicShipName(ShipModule hangar, Empire empire)
         {
             HangarOptions desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
             float strongest = 0;

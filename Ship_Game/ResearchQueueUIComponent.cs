@@ -49,7 +49,7 @@ namespace Ship_Game
         {
             // we use +1 here, because [0] is the current research item
             // which is not in the ScrollList
-            EmpireManager.Player.Research.ReorderTech(oldIndex+1, newIndex+1);
+            Screen.Player.Research.ReorderTech(oldIndex+1, newIndex+1);
         }
 
         void OnBtnShowQueuePressed(UIButton button)
@@ -104,7 +104,7 @@ namespace Ship_Game
                 CurrentResearch.Draw(batch, elapsed);
 
                 float remaining = CurrentResearch.Tech.TechCost - CurrentResearch.Tech.Progress;
-                float numTurns = (float)Math.Ceiling(remaining / (0.01f + EmpireManager.Player.Research.NetResearch));
+                float numTurns = (float)Math.Ceiling(remaining / (0.01f + Screen.Player.Research.NetResearch));
                 TimeLeftLabel.Text = (numTurns > 999f) ? ">999 turns" : numTurns.String(0)+" turns";
             }
         }
@@ -117,7 +117,7 @@ namespace Ship_Game
 
         public void AddToResearchQueue(TreeNode node)
         {
-            if (EmpireManager.Player.Research.AddToQueue(node.Entry.UID))
+            if (Screen.Player.Research.AddToQueue(node.Entry.UID))
             {
                 if (CurrentResearch == null)
                     CurrentResearch = CreateQueueItem(node);
@@ -130,18 +130,18 @@ namespace Ship_Game
 
         public void ReloadResearchQueue()
         {
-            CurrentResearch = EmpireManager.Player.Research.HasTopic
-                            ? CreateQueueItem((TreeNode)Screen.AllTechNodes[EmpireManager.Player.Research.Topic])
+            CurrentResearch = Screen.Player.Research.HasTopic
+                            ? CreateQueueItem((TreeNode)Screen.AllTechNodes[Screen.Player.Research.Topic])
                             : null;
 
             var items = new Array<ResearchQItem>();
-            foreach (string tech in EmpireManager.Player.Research.QueuedItems)
+            foreach (string tech in Screen.Player.Research.QueuedItems)
             {
                 items.Add(CreateQueueItem( (TreeNode)Screen.AllTechNodes[tech] ));
             }
             ResearchQueueList.SetItems(items);
 
-            SetQueueVisible(EmpireManager.Player.Research.HasTopic);
+            SetQueueVisible(Screen.Player.Research.HasTopic);
         }
     }
 }

@@ -39,8 +39,7 @@ namespace Ship_Game
 
         private ScrollList2<ArtifactItemListItem> ArtifactsSL;
 
-        //Added by CG: player empire
-        Empire PlayerEmpire;
+        Empire Player;
         Array<Empire> Friends;
         Array<Empire> Traders;
         HashSet<Empire> Moles;
@@ -55,9 +54,9 @@ namespace Ship_Game
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
-            PlayerEmpire = screen.Player;
-            Friends = EmpireManager.GetPlayerAllies();
-            Traders = EmpireManager.GetTradePartners(PlayerEmpire);
+            Player = screen.Player;
+            Friends = EmpireManager.GetAllies(Player);
+            Traders = EmpireManager.GetTradePartners(Player);
 
             // find empires where player or friends have moles
             var empires = new HashSet<Empire>();
@@ -66,7 +65,7 @@ namespace Ship_Game
                 if (empire.isPlayer || empire.IsFaction)
                     continue;
 
-                if (PlayerEmpire.data.MoleList.Any(m => empire.FindPlanet(m.PlanetId) != null))
+                if (Player.data.MoleList.Any(m => empire.FindPlanet(m.PlanetId) != null))
                 {
                     empires.Add(empire);
                 }
@@ -91,10 +90,10 @@ namespace Ship_Game
             if (Friends.Contains(e) || Moles.Contains(e))
                 return 2;
 
-            if (Traders.Contains(e) && PlayerEmpire.GetRelations(e).Treaty_Trade_TurnsExisted > 30)
+            if (Traders.Contains(e) && Player.GetRelations(e).Treaty_Trade_TurnsExisted > 30)
                 return 1;
 
-            if (e == PlayerEmpire)
+            if (e == Player)
                 return 3;
 
             foreach(Empire empire in Friends)
@@ -162,9 +161,9 @@ namespace Ship_Game
                         batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
                     }
                 }
-                else if (EmpireManager.Player != race.e && EmpireManager.Player.IsKnown(race.e))
+                else if (Player != race.e && Player.IsKnown(race.e))
                 {
-                    if (EmpireManager.Player.IsAtWarWith(race.e) && !race.e.data.Defeated)
+                    if (Player.IsAtWarWith(race.e) && !race.e.data.Defeated)
                     {
                         Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
                         batch.FillRectangle(war, Color.Red);
@@ -173,7 +172,7 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                     batch.DrawDropShadowText1(race.e.data.Traits.Name, NameCursor, Fonts.Arial12Bold, race.e.EmpireColor);
                 }
-                else if (EmpireManager.Player != race.e)
+                else if (Player != race.e)
                 {
                     batch.Draw(ResourceManager.Texture("Portraits/unknown"), race.container, Color.White);
                 }
@@ -198,7 +197,7 @@ namespace Ship_Game
             var flagRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width - 60, SelectedInfoRect.Y + 10, 40, 40);
             batch.Draw(ResourceManager.Flag(SelectedEmpire.data.Traits.FlagIndex), flagRect, SelectedEmpire.EmpireColor);
             textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 4);
-            if (EmpireManager.Player == SelectedEmpire && !SelectedEmpire.data.Defeated)
+            if (Player == SelectedEmpire && !SelectedEmpire.data.Defeated)
             {
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(GameText.You), textCursor, Color.White);
                 Vector2 ColumnBCursor = textCursor;
@@ -206,16 +205,16 @@ namespace Ship_Game
                 ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 var sortlist = new Array<Empire>();
-                foreach (Empire e in EmpireManager.Empires)
+                foreach (Empire e in Universe.UState.Empires)
                 {
                     if (e.IsFaction || e.data.Defeated)
                     {
                         if (SelectedEmpire == e)
                             sortlist.Add(e);
                     }
-                    else if (e != EmpireManager.Player)
+                    else if (e != Player)
                     {
-                        if (EmpireManager.Player.IsKnown(e))
+                        if (Player.IsKnown(e))
                             sortlist.Add(e);
                     }
                     else
@@ -312,7 +311,7 @@ namespace Ship_Game
             }
             else if (!SelectedEmpire.data.Defeated)
             {
-                Relationship relation = EmpireManager.Player.GetRelations(SelectedEmpire);
+                Relationship relation = Player.GetRelations(SelectedEmpire);
                 if (IntelligenceLevel(SelectedEmpire) > 0)
                 {
                     batch.DrawString(Fonts.Arial12Bold, string.Concat(SelectedEmpire.data.DiplomaticPersonality.Name, " ", SelectedEmpire.data.EconomicPersonality.Name), textCursor, Color.White);
@@ -360,16 +359,16 @@ namespace Ship_Game
                 ArtifactsCursor.Y += Fonts.Arial12Bold.LineSpacing;
 
                 var Sortlist = new Array<Empire>();
-                foreach (Empire e in EmpireManager.Empires)
+                foreach (Empire e in Universe.UState.Empires)
                 {
                     if (e.IsFaction || e.data.Defeated)
                     {
                         if (SelectedEmpire == e)
                             Sortlist.Add(e);
                     }
-                    else if (e != EmpireManager.Player)
+                    else if (e != Player)
                     {
-                        if (EmpireManager.Player.IsKnown(e))
+                        if (Player.IsKnown(e))
                             Sortlist.Add(e);
                     }
                     else
@@ -500,7 +499,7 @@ namespace Ship_Game
             }
             else if (IntelligenceLevel(SelectedEmpire)>0)
             {
-                batch.DrawString(Fonts.Arial12, Localizer.Token(GameText.TotalSpies)+(SelectedEmpire.data.AgentList.Count >=PlayerEmpire.data.AgentList.Count ? "Many":"Few" ), textCursor, Color.Wheat);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(GameText.TotalSpies)+(SelectedEmpire.data.AgentList.Count >=Player.data.AgentList.Count ? "Many":"Few" ), textCursor, Color.Wheat);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
             }
             else 
@@ -555,7 +554,7 @@ namespace Ship_Game
             }
             //End of intel report
             textCursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
-            batch.DrawDropShadowText((SelectedEmpire == EmpireManager.Player ? Localizer.Token(GameText.YourEmpiresBonuses) : Localizer.Token(GameText.TheirBonuses)), textCursor, Fonts.Arial20Bold);
+            batch.DrawDropShadowText((SelectedEmpire == Player ? Localizer.Token(GameText.YourEmpiresBonuses) : Localizer.Token(GameText.TheirBonuses)), textCursor, Fonts.Arial20Bold);
             textCursor.Y = textCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
             //Added by McShooterz: Only display modified bonuses
             if (IntelligenceLevel(SelectedEmpire)>0)
@@ -703,7 +702,7 @@ namespace Ship_Game
             if (Traders.Contains(e) || e.isPlayer)
                 return e.TotalPopBillion;
 
-            float pop = GetPopInExploredPlanetsFor(PlayerEmpire, e);
+            float pop = GetPopInExploredPlanetsFor(Player, e);
             foreach (Empire tradePartner in Traders)
                 pop = GetPopInExploredPlanetsFor(tradePartner, e).LowerBound(pop);
 
@@ -735,7 +734,7 @@ namespace Ship_Game
             }
 
             var techList = new HashSet<string>();
-            PlayerEmpire.AI.ThreatMatrix.GetTechsFromPins(techList, e);
+            Player.AI.ThreatMatrix.GetTechsFromPins(techList, e);
             foreach (Empire ally in Friends)
                 ally.AI.ThreatMatrix.GetTechsFromPins(techList, e);
 
@@ -783,7 +782,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (SelectedEmpire != EmpireManager.Player && !SelectedEmpire.data.Defeated && Contact.HandleInput(input))
+            if (SelectedEmpire != Player && !SelectedEmpire.data.Defeated && Contact.HandleInput(input))
             {
                 DiplomacyScreen.Show(SelectedEmpire, "Greeting", parent: this);
             }
@@ -792,9 +791,9 @@ namespace Ship_Game
             {
                 if (HelperFunctions.ClickedRect(race.container, input))
                 {
-                    if (EmpireManager.Player == race.e || !EmpireManager.Player.IsKnown(race.e))
+                    if (Player == race.e || !Player.IsKnown(race.e))
                     {
-                        if (EmpireManager.Player == race.e)
+                        if (Player == race.e)
                             CreateArtifactsScrollList(race.e);
                     }
                     else
@@ -827,9 +826,9 @@ namespace Ship_Game
             {
                 Toggled = true
             };
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in Universe.UState.Empires)
             {
-                if (e != EmpireManager.Player)
+                if (e != Player)
                 {
                     if (e.IsFaction)
                         continue;
@@ -862,7 +861,7 @@ namespace Ship_Game
                 empiresAndIntel.Add(new EmpireAndIntelLevel(empire, intel));
             }
 
-            var diagram = new RelationshipsDiagramScreen(this, empiresAndIntel);
+            var diagram = new RelationshipsDiagramScreen(this, Universe, empiresAndIntel);
             ScreenManager.AddScreen(diagram);
         }
     }

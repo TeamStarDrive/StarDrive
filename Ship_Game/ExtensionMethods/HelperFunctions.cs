@@ -246,7 +246,7 @@ namespace Ship_Game
 
         public static bool DataVisibleToPlayer(Empire empire)
         {
-            if (empire.isPlayer || empire.IsAlliedWith(EmpireManager.Player) || empire.Universum.Debug)
+            if (empire.isPlayer || empire.IsAlliedWith(empire.Universum.Player) || empire.Universum.Debug)
                 return true;
 
             return empire.DifficultyModifiers.DataVisibleToPlayer;

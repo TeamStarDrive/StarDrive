@@ -765,7 +765,7 @@ namespace Ship_Game.AI
 
         void PrioritizePlayerCommands()
         {
-            if (Owner.Loyalty == EmpireManager.Player &&
+            if (Owner.Loyalty == Owner.Universe.Player &&
                 (State is AIState.Bombard or AIState.AssaultPlanet 
                  || State == AIState.Rebase 
                  || State == AIState.Scrap 

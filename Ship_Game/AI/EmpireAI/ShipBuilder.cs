@@ -175,7 +175,7 @@ namespace Ship_Game.AI
         public static Ship PickFreighter(Empire empire, float fastVsBig)
         {
             if (empire.isPlayer && empire.AutoFreighters
-                                && !EmpireManager.Player.AutoPickBestFreighter
+                                && !empire.Universum.Player.AutoPickBestFreighter
                                 && ResourceManager.GetShipTemplate(empire.data.CurrentAutoFreighter, out Ship freighter))
             {
                 return freighter;

@@ -29,6 +29,7 @@ namespace Ship_Game
     public sealed partial class ShipDesignScreen : GameScreen
     {
         public UniverseScreen ParentUniverse;
+        public Empire Player => ParentUniverse.Player;
         public DesignStanceButtons OrdersButton;
 
         public DesignShip DesignedShip { get; private set; }
@@ -427,7 +428,7 @@ namespace Ship_Game
             InitializeCamera();
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
 
-            ShipDesign lastWIP = ShipDesignWIP.GetLatestWipToLoad();
+            ShipDesign lastWIP = ShipDesignWIP.GetLatestWipToLoad(Player);
             if (lastWIP != null)
                 ChangeHull(lastWIP);
             else
@@ -569,7 +570,7 @@ namespace Ship_Game
 
             if (EnableDebugFeatures)
             {
-                var debugUnlocks = Add(new ResearchDebugUnlocks(OnReloadAfterTechChange));
+                var debugUnlocks = Add(new ResearchDebugUnlocks(ParentUniverse, OnReloadAfterTechChange));
                 debugUnlocks.SetAbsPos(10, 45);
             }
 
@@ -590,7 +591,7 @@ namespace Ship_Game
             }
             else
             {
-                string[] hulls = EmpireManager.Player.GetUnlockedHulls();
+                string[] hulls = Player.GetUnlockedHulls();
                 foreach (string hull in hulls)
                 {
                     if (ResourceManager.Hull(hull, out ShipHull hullData))
@@ -619,7 +620,7 @@ namespace Ship_Game
             var categories = new Array<string>();
             foreach (ShipHull hull in AvailableHulls)
             {
-                string cat = Localizer.GetRole(hull.Role, EmpireManager.Player);
+                string cat = Localizer.GetRole(hull.Role, Player);
                 if (!categories.Contains(cat))
                     categories.Add(cat);
             }
@@ -627,14 +628,14 @@ namespace Ship_Game
             categories.Sort();
             foreach (string cat in categories)
             {
-                var categoryItem = new ShipHullListItem(cat);
+                var categoryItem = new ShipHullListItem(Player, cat);
                 HullSelectList.AddItem(categoryItem);
 
                 foreach (ShipHull hull in AvailableHulls)
                 {
-                    if (cat == Localizer.GetRole(hull.Role, EmpireManager.Player))
+                    if (cat == Localizer.GetRole(hull.Role, Player))
                     {
-                        categoryItem.AddSubItem(new ShipHullListItem(hull));
+                        categoryItem.AddSubItem(new ShipHullListItem(Player, hull));
                     }
                 }
             }

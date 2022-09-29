@@ -56,7 +56,7 @@ namespace Ship_Game.GameScreens.Espionage
             OpsSubRect = new Rectangle(operationsRect.X + 20, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
             AgentSL = new ScrollList2<AgentListItem>(new Submenu(ComponentRect), 40);
             AgentSL.OnClick = OnAgentItemClicked;
-            foreach (Agent agent in EmpireManager.Player.data.AgentList)
+            foreach (Agent agent in Universe.Player.data.AgentList)
                 AgentSL.AddItem(new AgentListItem(agent, Universe));
             Add(AgentSL);
 
@@ -82,8 +82,8 @@ namespace Ship_Game.GameScreens.Espionage
             {
                 Toggled = true
             };
-            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y,      () => EmpireManager.Player.data.SpyMissionRepeat, "Repeat Missions", "");
-            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y + 15, () => EmpireManager.Player.data.SpyMute,          "Mute Spies",      "");
+            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y,      () => Universe.Player.data.SpyMissionRepeat, "Repeat Missions", "");
+            Checkbox(OpsSubRect.X - 10, RecruitButton.r.Y + 15, () => Universe.Player.data.SpyMute,          "Mute Spies",      "");
             //PerformLayout();
         }
 
@@ -117,8 +117,8 @@ namespace Ship_Game.GameScreens.Espionage
             batch.Draw(iconLock, spyLimit, Color.White);
             var spyLimitPos = new Vector2((spyLimit.X + 25), (spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
 
-            SpyLimit = EmpireManager.Player.AI.EmpireSpyLimit;
-            AvailableSpies = SpyLimit - EmpireManager.Player.data.AgentList.Count;
+            SpyLimit = Universe.Player.AI.EmpireSpyLimit;
+            AvailableSpies = SpyLimit - Universe.Player.data.AgentList.Count;
             if (SpyLimit < 0) SpyLimit = 0;
             batch.DrawString(Fonts.Arial12, $"For Hire : {AvailableSpies} / {SpyLimit}", spyLimitPos, Color.White);
 
@@ -155,7 +155,7 @@ namespace Ship_Game.GameScreens.Espionage
 
         string[] LoadNames()
         {
-            string playerNames = $"Content/NameGenerators/spynames_{EmpireManager.Player.data.Traits.ShipType}.txt";
+            string playerNames = $"Content/NameGenerators/spynames_{Universe.Player.data.Traits.ShipType}.txt";
             string names = File.Exists(playerNames)
                 ? File.ReadAllText(playerNames)
                 : File.ReadAllText("Content/NameGenerators/spynames_Humans.txt");
@@ -181,14 +181,14 @@ namespace Ship_Game.GameScreens.Espionage
 
             if (RecruitButton.HandleInput(input))
             {
-                if (EmpireManager.Player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) 
+                if (Universe.Player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) 
                     || AvailableSpies <= 0)
                 {
                     GameAudio.NegativeClick();
                 }
                 else
                 {
-                    EmpireManager.Player.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
+                    Universe.Player.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
                     var agent = new Agent()
                     {
                         Name = GetName(LoadNames()),
@@ -196,11 +196,11 @@ namespace Ship_Game.GameScreens.Espionage
                     };
 
                     // Added new agent information
-                    int randomPlanetIndex = RandomMath.InRange(EmpireManager.Player.GetPlanets().Count);
-                    agent.HomePlanet = EmpireManager.Player.GetPlanets()[randomPlanetIndex].Name;
-                    EmpireManager.Player.data.AgentList.Add(agent);
+                    int randomPlanetIndex = RandomMath.InRange(Universe.Player.GetPlanets().Count);
+                    agent.HomePlanet = Universe.Player.GetPlanets()[randomPlanetIndex].Name;
+                    Universe.Player.data.AgentList.Add(agent);
                     AgentSL.AddItem(new AgentListItem(agent, Universe));
-                    agent.AssignMission(AgentMission.Training, EmpireManager.Player, "");
+                    agent.AssignMission(AgentMission.Training, Universe.Player, "");
                 }
                 return true;
             }

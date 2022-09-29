@@ -19,6 +19,7 @@ namespace Ship_Game
 
         public UniverseScreen Universe;
         public EmpireUIOverlay EmpireUI;
+        Empire Player => Universe.Player;
 
         public Planet SelectedPlanet { get; private set; }
         readonly ScrollList2<PlanetListScreenItem> PlanetSL;
@@ -97,7 +98,7 @@ namespace Ship_Game
             {
                 foreach (Planet p in system.PlanetList)
                 {
-                    if (p.IsExploredBy(EmpireManager.Player))
+                    if (p.IsExploredBy(Player))
                     {
                         p.UpdateMaxPopulation();
                         ExploredPlanets.Add(p);
@@ -120,10 +121,10 @@ namespace Ship_Game
 
         void CalcPlanetsDistances()
         {
-            var playerPlanets = EmpireManager.Player.GetPlanets();
+            var playerPlanets = Player.GetPlanets();
             foreach (Planet planet in ExploredPlanets)
             {
-                if (planet.Owner != EmpireManager.Player)
+                if (planet.Owner != Player)
                 {
                     float shortestDistance = playerPlanets.Min(p => p.Position.Distance(planet.Position));
                     PlanetDistanceToClosestColony.Add(planet, shortestDistance);
@@ -292,9 +293,9 @@ namespace Ship_Game
 
             HandleButton(input, sb_Sys,   p => p.ParentSystem.Name);
             HandleButton(input, sb_Name,  p => p.Name);
-            HandleButton(input, sb_Fert,  p => p.FertilityFor(EmpireManager.Player));
+            HandleButton(input, sb_Fert,  p => p.FertilityFor(Player));
             HandleButton(input, sb_Rich,  p => p.MineralRichness);
-            HandleButton(input, sb_Pop,   p => p.MaxPopulationFor(EmpireManager.Player));
+            HandleButton(input, sb_Pop,   p => p.MaxPopulationFor(Player));
             HandleButton(input, sb_Owned, p => p.GetOwnerName());
             HandleButton(input, sb_Distance, PlanetDistanceToClosestColony);
 
@@ -321,7 +322,7 @@ namespace Ship_Game
         {
             PlanetSL.Reset();
             PlanetSL.OnClick = OnPlanetListItemClicked;
-            NumAvailableTroops  = EmpireManager.Player.NumFreeTroops();
+            NumAvailableTroops  = Player.NumFreeTroops();
 
             if (LastSorted == null)
             {
@@ -338,9 +339,9 @@ namespace Ship_Game
             {
                 ResetButton(sb_Sys,   p => p.ParentSystem.Name);
                 ResetButton(sb_Name,  p => p.Name);
-                ResetButton(sb_Fert,  p => p.FertilityFor(EmpireManager.Player));
+                ResetButton(sb_Fert,  p => p.FertilityFor(Player));
                 ResetButton(sb_Rich,  p => p.MineralRichness);
-                ResetButton(sb_Pop,   p => p.MaxPopulationFor(EmpireManager.Player));
+                ResetButton(sb_Pop,   p => p.MaxPopulationFor(Player));
                 ResetButton(sb_Owned, p => p.GetOwnerName());
                 ResetButton(sb_Distance, PlanetDistanceToClosestColony);
             }
@@ -350,7 +351,7 @@ namespace Ship_Game
 
         public void RefreshSendTroopButtonsVisibility()
         {
-            NumAvailableTroops = EmpireManager.Player.NumFreeTroops();
+            NumAvailableTroops = Player.NumFreeTroops();
             foreach (PlanetListScreenItem item in PlanetSL.AllEntries)
             {
                 item.SetCanSendTroops(NumAvailableTroops > 0);

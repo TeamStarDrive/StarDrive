@@ -105,7 +105,7 @@ namespace Ship_Game
             Search = Add(new UIButton(ButtonStyle.BigDip, searchPos, "Search"));
             Search.OnClick = OnSearchButtonClicked;
 
-            DebugUnlocks = Add(new ResearchDebugUnlocks(ReloadContent));
+            DebugUnlocks = Add(new ResearchDebugUnlocks(Universe, ReloadContent));
             DebugUnlocks.AxisAlign = Align.BottomRight;
             DebugUnlocks.SetLocalPos(-Queue.Width - 50, -25);
 
@@ -178,7 +178,7 @@ namespace Ship_Game
 
                 bool anyTechsComplete = false;
 
-                foreach (TechEntry child in rootNode.Entry.GetFirstDiscoveredEntries())
+                foreach (TechEntry child in rootNode.Entry.GetFirstDiscoveredEntries(Universe.Player))
                 {
                     if (child.Unlocked)
                         anyTechsComplete = true;
@@ -363,7 +363,7 @@ namespace Ship_Game
         public void PopulateAllTechs(Node node, ref Vector2 nodePos)
         {
             bool first = true;
-            foreach (TechEntry child in node.Entry.GetPlayerChildEntries())
+            foreach (TechEntry child in node.Entry.GetPlayerChildEntries(Universe.Player))
             {
                 nodePos.X = node.NodePosition.X + 1f;
                 nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
@@ -389,7 +389,7 @@ namespace Ship_Game
             ResetRootNodeStates(root);
 
             var nodePos = new Vector2(1f, 1f);
-            foreach (TechEntry child in root.Entry.GetPlayerChildEntries())
+            foreach (TechEntry child in root.Entry.GetPlayerChildEntries(Universe.Player))
             {
                 var newNode = new TreeNode(GetCurrentCursorOffset(nodePos), child, this) { NodePosition = nodePos };
 
@@ -419,7 +419,7 @@ namespace Ship_Game
             var nodePos = new Vector2(1f, 1f);
             bool first = true;
 
-            foreach (TechEntry discovered in root.Entry.GetFirstDiscoveredEntries())
+            foreach (TechEntry discovered in root.Entry.GetFirstDiscoveredEntries(Universe.Player))
             {
                 nodePos.X = root.NodePosition.X + 1f;
                 nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
@@ -452,7 +452,7 @@ namespace Ship_Game
             UpdateCursorAndClaimedSpots(ref nodePos, node.Entry.Discovered);
 
             bool first = true;
-            foreach (TechEntry child in node.Entry.GetPlayerChildEntries())
+            foreach (TechEntry child in node.Entry.GetPlayerChildEntries(Universe.Player))
             {
                 nodePos.X = node.NodePosition.X + 1f;
                 nodePos.Y = FindDeepestYSubNodes() + (first ? 0 : 1);
