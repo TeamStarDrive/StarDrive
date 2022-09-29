@@ -556,14 +556,14 @@
   Effect: ParticleEffect.fx
   OnlyNearView: true # only render when zoomed in
   MaxParticles: 8000
-  Duration: 1.5
-  DurationRandomness: 0.2
+  Duration: 1.3
+  DurationRandomness: 1
   InheritOwnerVelocity: 0
-  RandomVelocityXY: [ [-35,35], [-35,35] ]
+  RandomVelocityXY: [ [-5,5], [-5,5] ]
   EndVelocity: 0
-  StartColorRange: [[93,96,95,255],[255,255,255,80]]
+  StartColorRange: [[93,96,95,245],[255,255,255,125]]
   RotateSpeed: [-1,1]
-  StartEndSize: [ [55,65], [120,180] ]
+  StartEndSize: [ [25,35], [90,120] ]
   SrcDstBlend: [SourceAlpha, InverseSourceAlpha]
 
 - ParticleSettings:
