@@ -12,11 +12,9 @@ using Ship_Game.Graphics;
 using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Vector2d = SDGraphics.Vector2d;
-using Vector3 = SDGraphics.Vector3;
-using Vector3d = SDGraphics.Vector3d;
-using Ship_Game.ExtensionMethods;
 using Ship_Game.Universe;
 using Rectangle = SDGraphics.Rectangle;
+using System.Diagnostics;
 
 namespace Ship_Game
 {
@@ -421,6 +419,14 @@ namespace Ship_Game
                 Color color = font == Fonts.Pirulen20 ? Color.Red : Color.LightGreen;
                 var pos = new Vector2(ScreenWidth - font.TextWidth(speed) - 20f, 90f);
                 batch.DrawString(font, speed, pos, color);
+            }
+
+            if (IsActive && !IsCinematicModeEnabled && (Debug || Debugger.IsAttached))
+            {
+                Font font = Fonts.Pirulen16;
+                Color color = Color.LightGreen;
+                batch.DrawString(font, "FPS " + ActualDrawFPS, new Vector2(ScreenWidth - 100f, 130f), color);
+                batch.DrawString(font, "SIM  " + ActualSimFPS, new Vector2(ScreenWidth - 100f, 160f), color);
             }
 
             if (IsCinematicModeEnabled && CinematicModeTextTimer > 0f)

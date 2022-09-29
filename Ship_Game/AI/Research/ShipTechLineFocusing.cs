@@ -140,10 +140,7 @@ namespace Ship_Game.AI.Research
                     continue;
 
                 if (!OwnerEmpire.ShipStyleMatch(shipStyle))
-                {
-                    if (shipStyle != "Platforms" && shipStyle != "Misc")
-                        continue;
-                }
+                    continue;
 
                 if (shortTermBest.ShipData.TechsNeeded.Count == 0)
                 {

@@ -1142,7 +1142,7 @@ namespace Ship_Game
 
         public void ResetTechsAndUnlocks()
         {
-            Array<Ship> ourShips = GetOurFactionShips();
+            IShipDesign[] ourShips = AllFactionShipDesigns;
 
             foreach (TechEntry entry in TechEntries)
             {
@@ -1245,23 +1245,24 @@ namespace Ship_Game
             }
         }
 
-        public Array<Ship> GetOurFactionShips()
+        IShipDesign[] FactionDesignsCache;
+
+        public IShipDesign[] AllFactionShipDesigns
         {
-            var ourFactionShips = new Array<Ship>();
-            foreach (Ship template in ResourceManager.ShipTemplates)
+            get
             {
-                if (ShipStyleMatch(template.ShipData.ShipStyle)
-                    || template.ShipData.ShipStyle == "Platforms" || template.ShipData.ShipStyle == "Misc")
+                if (FactionDesignsCache == null)
                 {
-                    ourFactionShips.Add(template);
+                    // This is quite slow if we have hundreds/thousands of designs, so we need to cache them
+                    FactionDesignsCache = ResourceManager.Ships.Designs.Filter(design => ShipStyleMatch(design.ShipStyle));
                 }
+                return FactionDesignsCache;
             }
-            return ourFactionShips;
         }
 
         public bool ShipStyleMatch(string shipStyle)
         {
-            if (shipStyle == data.Traits.ShipType)
+            if (shipStyle == data.Traits.ShipType || shipStyle == "Platforms" || shipStyle == "Misc")
                 return true;
 
             foreach (Empire empire in Universum.MajorEmpires)
@@ -2149,7 +2150,7 @@ namespace Ship_Game
             return true;
         }
 
-        public bool WeCanUseThisTech(TechEntry checkedTech, Array<Ship> ourFactionShips)
+        public bool WeCanUseThisTech(TechEntry checkedTech, IShipDesign[] ourFactionShips)
         {
             if (checkedTech.IsHidden(this))
                 return false;
@@ -2160,15 +2161,16 @@ namespace Ship_Game
             return WeCanUseThisInDesigns(checkedTech, ourFactionShips);
         }
 
-        public bool WeCanUseThisInDesigns(TechEntry checkedTech, Array<Ship> ourFactionShips)
+        // TODO: this should be cached as well, because it is super intensive
+        public bool WeCanUseThisInDesigns(TechEntry checkedTech, IShipDesign[] ourFactionShips)
         {
             // Dont offer tech to AI if it does not have designs for it.
             Technology tech = checkedTech.Tech;
-            foreach (Ship ship in ourFactionShips)
+            foreach (IShipDesign design in ourFactionShips)
             {
                 foreach (Technology.UnlockedMod entry in tech.ModulesUnlocked)
                 {
-                    if (ship.ShipData.UniqueModuleUIDs.Contains(entry.ModuleUID))
+                    if (design.UniqueModuleUIDs.Contains(entry.ModuleUID))
                         return true;
                 }
             }
