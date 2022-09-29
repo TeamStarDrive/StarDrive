@@ -736,7 +736,7 @@ namespace Ship_Game
 
         bool BuildOrbital(Ship orbital)
         {
-            if (orbital == null || Planet.IsOutOfOrbitalsLimit(orbital))
+            if (orbital == null || Planet.IsOutOfOrbitalsLimit(orbital.ShipData))
                 return false;
 
             Planet.AddOrbital(orbital);

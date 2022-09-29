@@ -337,17 +337,17 @@ namespace Ship_Game
         public int NumPlatforms => FilterOrbitals(RoleName.platform).Count;
         public int NumStations  => FilterOrbitals(RoleName.station).Count;
 
-        public bool IsOutOfOrbitalsLimit(Ship ship) => IsOutOfOrbitalsLimit(ship, Owner, 0);
-        public bool IsOverOrbitalsLimit(Ship ship)  => IsOutOfOrbitalsLimit(ship, Owner, 1);
+        public bool IsOutOfOrbitalsLimit(IShipDesign ship) => IsOutOfOrbitalsLimit(ship, Owner, 0);
+        public bool IsOverOrbitalsLimit(IShipDesign ship)  => IsOutOfOrbitalsLimit(ship, Owner, 1);
 
-        bool IsOutOfOrbitalsLimit(Ship ship, Empire owner, int overLimit)
+        bool IsOutOfOrbitalsLimit(IShipDesign ship, Empire owner, int overLimit)
         {
-            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.ShipData.Role, owner);
+            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.Role, owner);
             int numShipyards = OrbitalStations.Count(s => s.ShipData.IsShipyard) + ShipyardsBeingBuilt(owner);
             if (numOrbitals >= ShipBuilder.OrbitalsLimit + overLimit && ship.IsPlatformOrStation)
                 return true;
 
-            if (numShipyards >= ShipBuilder.ShipYardsLimit + overLimit && ship.ShipData.IsShipyard)
+            if (numShipyards >= ShipBuilder.ShipYardsLimit + overLimit && ship.IsShipyard)
                 return true;
 
             return false;
@@ -356,7 +356,7 @@ namespace Ship_Game
         // Used when mostly the player places orbital in orbit of unowned planet
         public void TryRemoveExcessOrbital(Ship orbital)
         {
-            if (Owner == orbital.Loyalty || !IsOverOrbitalsLimit(orbital))
+            if (Owner == orbital.Loyalty || !IsOverOrbitalsLimit(orbital.ShipData))
                 return;
 
             float cost = orbital.GetCost(orbital.Loyalty) * orbital.Loyalty.DifficultyModifiers.CreditsMultiplier;
