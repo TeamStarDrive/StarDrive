@@ -65,7 +65,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                             {
                                 launchedTroops = true;
                                 if (TargetEmpire.isPlayer)
-                                    Owner.Universum.Notifications.AddEnemyLaunchedTroopsVsFleet(PlanetBuildingAt, Owner);
+                                    Owner.Universe.Notifications.AddEnemyLaunchedTroopsVsFleet(PlanetBuildingAt, Owner);
                             }
 
                             float distance = ship.Position.InRadius(PlanetBuildingAt.Position, PlanetBuildingAt.Radius + 1500) ? 300 : 600;

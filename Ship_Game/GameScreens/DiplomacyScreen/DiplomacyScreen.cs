@@ -95,7 +95,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, GameScreen parent)
-            : this(parent, them, us, whichDialog, us.Universum.Screen)
+            : this(parent, them, us, whichDialog, us.Universe.Screen)
         {
             switch (whichDialog)
             {
@@ -122,7 +122,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, Empire empireToDiscuss, bool endOnly)
-            : this(them.Universum.Screen, them, us, whichDialog, toPause: them.Universum.Screen)
+            : this(them.Universe.Screen, them, us, whichDialog, toPause: them.Universe.Screen)
         {
             TheirText       = GetDialogueByName(whichDialog);
             DState          = DialogState.End;
@@ -130,7 +130,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, Offer ourOffer, Offer theirOffer, Empire targetEmpire)
-            : this(them.Universum.Screen, them, us, whichDialog, toPause: them.Universum.Screen)
+            : this(them.Universe.Screen, them, us, whichDialog, toPause: them.Universe.Screen)
         {
             TheirText       = GetDialogueByName(whichDialog);
             DState          = DialogState.TheirOffer;
@@ -140,7 +140,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, Planet p)
-            : this(them.Universum.Screen, them, us, whichDialog, toPause: them.Universum.Screen)
+            : this(them.Universe.Screen, them, us, whichDialog, toPause: them.Universe.Screen)
         {
             SysToDiscuss = p.ParentSystem;
 
@@ -160,7 +160,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         }
 
         DiplomacyScreen(Empire them, Empire us, string whichDialog, SolarSystem s)
-            : this(them.Universum.Screen, them, us, whichDialog, toPause: them.Universum.Screen)
+            : this(them.Universe.Screen, them, us, whichDialog, toPause: them.Universe.Screen)
         {
             SysToDiscuss = s;
 
@@ -192,62 +192,62 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public static void Show(Empire them, string which, GameScreen parent)
         {
-            if (them.Universum.Screen.CanShowDiplomacyScreen)
-                AddScreen(new DiplomacyScreen(them, them.Universum.Player, which, parent));
+            if (them.Universe.Screen.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, them.Universe.Player, which, parent));
         }
 
         public static void Show(Empire them, Empire us, string which)
         {
-            if (them.Universum.Screen.CanShowDiplomacyScreen)
-                AddScreen(new DiplomacyScreen(them, us, which, them.Universum.Screen));
+            if (them.Universe.Screen.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, us, which, them.Universe.Screen));
         }
 
         public static void Show(Empire them, string which)
         {
-            if (them.Universum.Screen.CanShowDiplomacyScreen)
-                AddScreen(new DiplomacyScreen(them, them.Universum.Player, which, them.Universum.Screen));
+            if (them.Universe.Screen.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, them.Universe.Player, which, them.Universe.Screen));
         }
 
         public static void ShowEndOnly(Empire them, Empire us, string which)
         {
-            if (them.Universum.Screen.CanShowDiplomacyScreen)
+            if (them.Universe.Screen.CanShowDiplomacyScreen)
                 AddScreen(new DiplomacyScreen(them, us, which, null, endOnly:true));
         }
 
         public static void ShowEndOnly(Empire them, Empire us, string which, Empire empireToDiscuss)
         {
-            if (them.Universum.Screen.CanShowDiplomacyScreen)
+            if (them.Universe.Screen.CanShowDiplomacyScreen)
                 AddScreen(new DiplomacyScreen(them, us, which, empireToDiscuss, endOnly:true));
         }
 
         public static void Show(Empire them, string which, Offer ourOffer, Offer theirOffer)
         {
-            if (them.Universum.Screen.CanShowDiplomacyScreen)
-                AddScreen(new DiplomacyScreen(them, them.Universum.Player, which, ourOffer, theirOffer, null));
+            if (them.Universe.Screen.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, them.Universe.Player, which, ourOffer, theirOffer, null));
         }
 
         public static void Show(Empire them, string which, Offer ourOffer, Offer theirOffer, Empire empireToDiscuss)
         {
-            if (them.Universum.Screen.CanShowDiplomacyScreen)
-                AddScreen(new DiplomacyScreen(them, them.Universum.Player, which, ourOffer, theirOffer, empireToDiscuss));
+            if (them.Universe.Screen.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, them.Universe.Player, which, ourOffer, theirOffer, empireToDiscuss));
         }
 
         public static void Show(Empire them, Empire us, string which, Planet planet)
         {
-            if (them.Universum.Screen.CanShowDiplomacyScreen)
+            if (them.Universe.Screen.CanShowDiplomacyScreen)
                 AddScreen(new DiplomacyScreen(them, us, which, planet));
         }
 
         public static void Show(Empire them, Empire us, string which, SolarSystem s)
         {
-            if (them.Universum.Screen.CanShowDiplomacyScreen)
+            if (them.Universe.Screen.CanShowDiplomacyScreen)
                 AddScreen(new DiplomacyScreen(them, us, which, s));
         }
 
         public static void Show(Empire them, string which, SolarSystem s)
         {
-            if (them.Universum.Screen.CanShowDiplomacyScreen)
-                AddScreen(new DiplomacyScreen(them, them.Universum.Player, which, s));
+            if (them.Universe.Screen.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, them.Universe.Player, which, s));
         }
 
         public static void Stole1stColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim");
@@ -256,21 +256,21 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         static void StoleColonyClaim(Planet claimedPlanet, Empire victim, string dialog)
         {
-            ScreenManager.Instance.AddScreen(new DiplomacyScreen(victim, victim.Universum.Player, dialog, claimedPlanet.ParentSystem));
+            ScreenManager.Instance.AddScreen(new DiplomacyScreen(victim, victim.Universe.Player, dialog, claimedPlanet.ParentSystem));
         }
 
         public static void ContactPlayerFromDiplomacyQueue(Empire responder, string dialog)
         {
-            ScreenManager.Instance.AddScreen(new DiplomacyScreen(responder, responder.Universum.Player, dialog, null, endOnly: true));
+            ScreenManager.Instance.AddScreen(new DiplomacyScreen(responder, responder.Universe.Player, dialog, null, endOnly: true));
         }
 
         Empire[] GetAlliedEmpiresTheyAreAtWarWith(Empire them, Empire us)
         {
             Empire ai = !them.isPlayer ? them : us;
             var empires = new Array<Empire>();
-            foreach (Empire empire in them.Universum.MajorEmpiresAtWarWith(ai))
+            foreach (Empire empire in them.Universe.MajorEmpiresAtWarWith(ai))
             {
-                if (empire.IsAlliedWith(them.Universum.Player))
+                if (empire.IsAlliedWith(them.Universe.Player))
                     empires.Add(empire);
             }
 
@@ -281,7 +281,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         {
             Empire ai = !them.isPlayer ? them : us;
             var empires = new Array<Empire>();
-            foreach (Empire empire in them.Universum.GetAllies(ai))
+            foreach (Empire empire in them.Universe.GetAllies(ai))
             {
                 if (CanViewAlliance(empire) || CanViewAlliance(ai))
                     empires.Add(empire);
@@ -294,12 +294,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         {
             // The player can view peer alliances if it has some relations with this empire
             // Or with the empire's other trade partners.
-            var player = e.Universum.Player;
+            var player = e.Universe.Player;
             return e.IsTradeTreaty(player) 
                    || e.IsOpenBordersTreaty(player) 
                    || e.IsAlliedWith(player) 
                    || e.IsNAPactWith(player)
-                   || e.Universum.ActiveNonPlayerMajorEmpires.Any(other => other.IsTradeTreaty(e) && other.IsTradeTreaty(player));
+                   || e.Universe.ActiveNonPlayerMajorEmpires.Any(other => other.IsTradeTreaty(e) && other.IsTradeTreaty(player));
         }
 
         void DoNegotiationResponse(string answer)

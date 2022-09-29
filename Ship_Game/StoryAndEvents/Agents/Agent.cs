@@ -468,7 +468,7 @@ namespace Ship_Game
         {
             AgentMissionData data = ResourceManager.AgentMissionData;
             spyMute = us.data.SpyMute;
-            Empire victim = us.Universum.GetEmpireByName(TargetEmpire);
+            Empire victim = us.Universe.GetEmpireByName(TargetEmpire);
 
             if (ReassignedDueToVictimDefeated(us, victim))
                 return;
@@ -489,7 +489,7 @@ namespace Ship_Game
                 case AgentMission.Recovering:      aftermath = ResolveRecovery(us);                             break;
             }
 
-            aftermath.PerformPostMissionActions(us.Universum, this, xpToAdd, missionStatus);
+            aftermath.PerformPostMissionActions(us.Universe, this, xpToAdd, missionStatus);
             RepeatMission(us);
         }
 
@@ -531,10 +531,10 @@ namespace Ship_Game
         {
             Empire rebels = null;
             if (!victim.data.RebellionLaunched)
-                rebels = victim.Universum.CreateRebelsFromEmpireData(victim.data, victim);
+                rebels = victim.Universe.CreateRebelsFromEmpireData(victim.data, victim);
 
             if (rebels == null) 
-                rebels = victim.Universum.GetEmpireByName(victim.data.RebelName);
+                rebels = victim.Universe.GetEmpireByName(victim.data.RebelName);
 
             for (int i = 0; i < numTroops; i++)
             {
@@ -547,7 +547,7 @@ namespace Ship_Game
                     t.Name        = rebels.data.TroopName.Text;
                     t.Description = rebels.data.TroopDescription.Text;
                     if (targetPlanet.GetFreeTiles(t.Loyalty) == 0 &&
-                        !targetPlanet.BumpOutTroop(victim.Universum.Corsairs) &&
+                        !targetPlanet.BumpOutTroop(victim.Universe.Corsairs) &&
                         !t.TryLandTroop(targetPlanet)) // Let's say the rebels are pirates :)
                     {
                         t.Launch(targetPlanet); // launch the rebels
@@ -574,7 +574,7 @@ namespace Ship_Game
                         if (Mission == AgentMission.Training && Level == 3 && owner.data.SpyMissionRepeat)
                             message += "\nTraining is stopped since the agent has reached Level 3";
 
-                        owner.Universum.Notifications.AddAgentResult(true, message, owner);
+                        owner.Universe.Notifications.AddAgentResult(true, message, owner);
                     }
                 }
                 else
@@ -590,7 +590,7 @@ namespace Ship_Game
                              $"All agents below Level 6 gain 1 Level\n" +
                              "due to this agent's tutoring and vast experience";
 
-            owner.Universum.Notifications.AddAgentResult(true, message, owner);
+            owner.Universe.Notifications.AddAgentResult(true, message, owner);
             owner.data.AgentList.Remove(this);
             for (int i = 0; i < owner.data.AgentList.Count; i++)
             {

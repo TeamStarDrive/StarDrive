@@ -86,7 +86,7 @@ namespace Ship_Game.AI.Tasks
 
         private void CreateFleet(Array<Ship> ships, string name)
         {
-            var newFleet = new Fleet(Owner.Universum.CreateId(), Owner)
+            var newFleet = new Fleet(Owner.Universe.CreateId(), Owner)
             {
                 Name  = name
             };
@@ -107,7 +107,7 @@ namespace Ship_Game.AI.Tasks
 
         public void CreateRemnantFleet(Empire owner, Ship ship, string name, out Fleet newFleet)
         {
-            newFleet = new Fleet(owner.Universum.CreateId(), owner)
+            newFleet = new Fleet(owner.Universe.CreateId(), owner)
             {
                 Name = name,
             };
@@ -224,7 +224,7 @@ namespace Ship_Game.AI.Tasks
         void RequisitionClaimForce()
         {
             if (TargetPlanet.Owner != null
-                && TargetPlanet.Owner != Owner.Universum.Unknown && !TargetPlanet.Owner.data.IsRebelFaction)
+                && TargetPlanet.Owner != Owner.Universe.Unknown && !TargetPlanet.Owner.data.IsRebelFaction)
             {
                 Owner.GetRelations(TargetPlanet.Owner, out Relationship rel);
                 if (rel != null && (!rel.AtWar && !rel.PreparingForWar))
@@ -330,7 +330,7 @@ namespace Ship_Game.AI.Tasks
         {
             if (TargetPlanet.Owner != null 
                 && TargetPlanet.Owner != Owner
-                && TargetPlanet.Owner != Owner.Universum.Unknown
+                && TargetPlanet.Owner != Owner.Universe.Unknown
                 && !TargetPlanet.Owner.data.IsRebelFaction || !TargetPlanet.EventsOnTiles())
             {
                 EndTask();

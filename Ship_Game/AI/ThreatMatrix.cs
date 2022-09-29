@@ -440,7 +440,7 @@ namespace Ship_Game.AI
             var ships = new Array<Ship>(owner.OwnedShips);
             ships.AddRange(owner.OwnedProjectors);
 
-            var array = owner.Universum.GetAllies(owner);
+            var array = owner.Universe.GetAllies(owner);
             for (int i = 0; i < array.Count; i++)
             {
                 var empire = array[i];

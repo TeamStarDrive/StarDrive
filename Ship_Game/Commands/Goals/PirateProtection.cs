@@ -77,7 +77,7 @@ namespace Ship_Game.Commands.Goals
             TargetShip.LoyaltyChangeByGift(EmpireToProtect);
             TargetShip.AI.ClearOrders();
             if (EmpireToProtect.isPlayer)
-                Owner.Universum.Notifications.AddWeProtectedYou(Pirates.Owner);
+                Owner.Universe.Notifications.AddWeProtectedYou(Pirates.Owner);
 
             return GoalStep.GoalComplete;
         }

@@ -20,7 +20,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateGuardians()
         {
-            foreach (SolarSystem solarSystem in Owner.Universum.Systems)
+            foreach (SolarSystem solarSystem in Owner.Universe.Systems)
             {
                 foreach (Planet p in solarSystem.PlanetList)
                 {
@@ -28,15 +28,15 @@ namespace Ship_Game.Commands.Goals
                 }
             }
 
-            Owner.Universum.Player.AI.ThreatMatrix.UpdateAllPins(Owner.Universum.Player);
+            Owner.Universe.Player.AI.ThreatMatrix.UpdateAllPins(Owner.Universe.Player);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep SendExplorationFleetsAstronomers()
         {
-            foreach (Empire e in Owner.Universum.MajorEmpires)
+            foreach (Empire e in Owner.Universe.MajorEmpires)
             {
-                var planets = Owner.Universum.Planets.Filter(p => p.IsExploredBy(e));
+                var planets = Owner.Universe.Planets.Filter(p => p.IsExploredBy(e));
                 for (int i = 0; i < planets.Length; ++i)
                 {
                     Planet p = planets[i];

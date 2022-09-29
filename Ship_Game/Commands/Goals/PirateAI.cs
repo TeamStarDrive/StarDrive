@@ -28,7 +28,7 @@ namespace Ship_Game.Commands.Goals
             Pirates = Owner.Pirates;
             bool firstRun = Pirates.PaymentTimers.Count == 0;
             Pirates.Init();
-            Pirates.TryLevelUp(Owner.Universum, alwaysLevelUp: true); // build initial base
+            Pirates.TryLevelUp(Owner.Universe, alwaysLevelUp: true); // build initial base
 
             if (!Pirates.GetBases(out Array<Ship> bases) && !firstRun)
             {

@@ -122,7 +122,7 @@ namespace Ship_Game.Gameplay
             Weapon = weapon;
             WeaponUID = weapon.UID;
 
-            Universe = Owner?.Universe ?? Planet?.Universe ?? Loyalty?.Universum;
+            Universe = Owner?.Universe ?? Planet?.Universe ?? Loyalty?.Universe;
 
             // Add to universe during creation
             Universe!.Objects.Add(this);
@@ -150,7 +150,7 @@ namespace Ship_Game.Gameplay
             // Loyalty cannot be null, otherwise kill events will not work correctly
             if (loyalty == null) throw new NullReferenceException(nameof(loyalty));
 
-            UniverseState universe = (planet?.Universe ?? loyalty.Universum);
+            UniverseState universe = (planet?.Universe ?? loyalty.Universe);
             if (universe == null) throw new NullReferenceException(nameof(universe));
 
             var p = new Projectile(universe.CreateId(), warhead, warhead.Owner, planet, loyalty, GameObjectType.Proj);

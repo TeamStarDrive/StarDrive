@@ -21,7 +21,7 @@ namespace UnitTests.Ships
 
         GameObject[] FindNearbyShips(Empire loyalty)
         {
-            return loyalty.Universum.Spatial.FindNearby(GameObjectType.Ship, Vector2.Zero,
+            return loyalty.Universe.Spatial.FindNearby(GameObjectType.Ship, Vector2.Zero,
                                                         1000, 10, onlyLoyalty: loyalty);
         }
 

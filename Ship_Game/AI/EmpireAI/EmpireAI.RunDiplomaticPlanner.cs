@@ -8,7 +8,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        Empire Player => OwnerEmpire.Universum.Player;
+        Empire Player => OwnerEmpire.Universe.Player;
 
         private void RunDiplomaticPlanner()
         {
@@ -35,7 +35,7 @@ namespace Ship_Game.AI
         bool TryMergeOrSurrender()
         {
             float ratio = OwnerEmpire.PersonalityModifiers.PopRatioBeforeMerge;
-            var enemies =  OwnerEmpire.Universum.MajorEmpiresAtWarWith(OwnerEmpire)
+            var enemies =  OwnerEmpire.Universe.MajorEmpiresAtWarWith(OwnerEmpire)
                 .Filter(e => e.TotalPopBillion * ratio > OwnerEmpire.TotalPopBillion 
                              || e.OffensiveStrength * ratio > OwnerEmpire.CurrentMilitaryStrength);
 

@@ -25,7 +25,7 @@ namespace Ship_Game.Commands.Goals
         public DefendSystem(Empire owner, SolarSystem system, float strengthWanted, int fleetCount)
             : this(owner)
         {
-            StarDateAdded  = owner.Universum.StarDate;
+            StarDateAdded  = owner.Universe.StarDate;
             TargetSystem   = system;
             Vector2 center = system.Position;
             float radius   = system.Radius * 1.5f;

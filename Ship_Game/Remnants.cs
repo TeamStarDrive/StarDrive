@@ -22,7 +22,7 @@ namespace Ship_Game
     {
         public const int MaxLevel = 20;
         [StarData] public readonly Empire Owner;
-        public UniverseState Universe => Owner.Universum ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
+        public UniverseState Universe => Owner.Universe ?? throw new NullReferenceException("Remnants.Owner.Universe must not be null");
 
         [StarData] public float StoryTriggerKillsXp { get; private set; }
         [StarData] public float PlayerStepTriggerXp { get; private set; }

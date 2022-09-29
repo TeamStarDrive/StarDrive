@@ -127,7 +127,7 @@ namespace Ship_Game.GameScreens.Universe.Debug
                 }
                 else if (ratioUnlocked > 0.9f)
                 {
-                    foreach (var them in empire.Universum.Empires)
+                    foreach (var them in empire.Universe.Empires)
                     {
                         if (them != empire && !techEntry.SpiedFrom(them))
                         {
@@ -163,7 +163,7 @@ namespace Ship_Game.GameScreens.Universe.Debug
         {
             if (empire.Research.HasTopic)
             {
-                empire.Research.Current.Unlock(empire.Universum.Player);
+                empire.Research.Current.Unlock(empire.Universe.Player);
                 empire.UpdateShipsWeCanBuild();
             }
             else

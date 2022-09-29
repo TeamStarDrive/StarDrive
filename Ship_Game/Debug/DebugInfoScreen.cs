@@ -1046,9 +1046,9 @@ namespace Ship_Game.Debug
                 {
                     MilitaryTask task = tasks[j];
                     string sysName = "Deep Space";
-                    for (int i = 0; i < e.Universum.Systems.Count; i++)
+                    for (int i = 0; i < e.Universe.Systems.Count; i++)
                     {
-                        SolarSystem sys = e.Universum.Systems[i];
+                        SolarSystem sys = e.Universe.Systems[i];
                         if (task.AO.InRadius(sys.Position, sys.Radius))
                             sysName = sys.Name;
                     }
@@ -1128,7 +1128,7 @@ namespace Ship_Game.Debug
                     ThreatMatrix.Pin pin = pins[i];
                     if (pin?.Ship == null || pin.Position == Vector2.Zero)
                         continue;
-                    float increaser = (int) e.Universum.Screen.viewState / 100f;
+                    float increaser = (int) e.Universe.Screen.viewState / 100f;
                     Screen.DrawCircleProjected(pin.Position,
                         increaser + pin.Ship.Radius, 6, e.EmpireColor);
 

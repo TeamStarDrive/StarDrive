@@ -58,7 +58,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // Try locating viable freighters for 1 year (10 turns), else just give up
-            return Owner.Universum.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            return Owner.Universe.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
         GoalStep CheckIfHijacked()

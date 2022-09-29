@@ -35,7 +35,7 @@ namespace Ship_Game.GameScreens.Espionage
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            Empire player = Empire.Universum.Player;
+            Empire player = Empire.Universe.Player;
 
             // red background:
             if (player != Empire && player.IsAtWarWith(Empire) && !Empire.data.Defeated)
@@ -64,7 +64,7 @@ namespace Ship_Game.GameScreens.Espionage
                 else
                 {
                     var r = new Rectangle(Rect.X, Rect.Y, 124, 124);
-                    var e = Empire.Universum.GetEmpireByName(Empire.data.AbsorbedBy);
+                    var e = Empire.Universe.GetEmpireByName(Empire.data.AbsorbedBy);
                     batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
                 }
             }

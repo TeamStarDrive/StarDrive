@@ -143,7 +143,7 @@ namespace Ship_Game
                 return;
             }
 
-            var universe = triggeredBy.Universum;
+            var universe = triggeredBy.Universe;
             foreach (string shipName in FriendlyShipsToSpawn)
             {
                 Ship.CreateShipAt(universe, shipName, triggeredBy, p, true);
@@ -280,7 +280,7 @@ namespace Ship_Game
                 BuildingActions(p, eventLocation);
                 TroopActions(triggeredBy, p, eventLocation);
             }
-            else if (SetRandomPlanet(triggeredBy.Universum)) //events that trigger on other planets
+            else if (SetRandomPlanet(triggeredBy.Universe)) //events that trigger on other planets
             {
                 p = SelectedPlanet;
 
