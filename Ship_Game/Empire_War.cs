@@ -164,7 +164,7 @@ namespace Ship_Game
             var currentWarInformation = AllActiveWars.FilterSelect(w => !w.Them.IsFaction, 
                 w => GetRelations(w.Them).KnownInformation);
 
-            int minStr                = (int)(Universum.GalaxySize + 1) * 5000;
+            int minStr                = (int)(Universe.GalaxySize + 1) * 5000;
             float currentEnemyStr     = currentWarInformation.Sum(i => i.OffensiveStrength);
             float currentEnemyBuild   = currentWarInformation.Sum(i => i.EconomicStrength);
             float ourCurrentStrength  = AIManagedShips.EmpireReadyFleets.AccumulatedStrength;
@@ -172,7 +172,7 @@ namespace Ship_Game
             float theirBuildCapacity  = (rel.KnownInformation.AllianceEconomicStrength + currentEnemyBuild).LowerBound(10);
             float ourBuildCapacity    = AI.BuildCapacity;
 
-            var array = Universum.GetAllies(this);
+            var array = Universe.GetAllies(this);
             for (int i = 0; i < array.Count; i++)
             {
                 var ally = array[i];

@@ -47,7 +47,7 @@ namespace Ship_Game.Ships.Components
         /// </summary>
         public void Update(FixedSimTime timeStep, Empire owner)
         {
-            float[] seenById = GetSeenByID(owner.Universum);
+            float[] seenById = GetSeenByID(owner.Universe);
             for (int i = 0; i < seenById.Length; i++)
             {
                 seenById[i] -= timeStep.FixedTime;
@@ -61,7 +61,7 @@ namespace Ship_Game.Ships.Components
         /// <param name="empire">The empire.</param>
         public void SetSeen(Empire empire)
         {
-            float[] seenById = GetSeenByID(empire.Universum);
+            float[] seenById = GetSeenByID(empire.Universe);
             seenById[empire.Id-1] = EmpireConstants.KnownContactTimer;
         }
 
@@ -70,7 +70,7 @@ namespace Ship_Game.Ships.Components
         /// </summary>
         public bool KnownBy(Empire empire)
         {
-            float[] seenById = GetSeenByID(empire.Universum);
+            float[] seenById = GetSeenByID(empire.Universe);
             return seenById[empire.Id-1] > 0f;
         }
 
@@ -79,7 +79,7 @@ namespace Ship_Game.Ships.Components
         /// </summary>
         public bool IsSet(Empire empire)
         {
-            float[] seenById = GetSeenByID(empire.Universum);
+            float[] seenById = GetSeenByID(empire.Universe);
             return seenById[empire.Id-1] > 0f;
         }
     }

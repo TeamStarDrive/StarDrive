@@ -28,7 +28,7 @@ namespace Ship_Game
                 else
                     newOwner.AddPlanet(this);
 
-                if (attacker != null && attacker.isPlayer && oldOwner == newOwner.Universum.Cordrazine)
+                if (attacker != null && attacker.isPlayer && oldOwner == newOwner.Universe.Cordrazine)
                     attacker.IncrementCordrazineCapture();
             }
 

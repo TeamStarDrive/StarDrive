@@ -74,7 +74,7 @@ namespace Ship_Game.Commands.Goals
         void ReturnToSpawnPos()
         {
             Vector2 systemPos = Portal.System?.Position 
-                                ?? Owner.Universum.Systems.FindMin(s => s.Position.SqDist(Portal.Position)).Position;
+                                ?? Owner.Universe.Systems.FindMin(s => s.Position.SqDist(Portal.Position)).Position;
 
             Vector2 desiredPos = Portal.Position = systemPos + TetherOffset;
             if (!Portal.Position.InRadius(desiredPos, 1000))
@@ -105,7 +105,7 @@ namespace Ship_Game.Commands.Goals
             UpdatePosition();
             if (Portal.System != null)
             {
-                float production = Owner.Universum.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
+                float production = Owner.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
                 if (Portal.InCombat && Portal.AI.Target?.System == Portal.System)
                     production /= 2;
 

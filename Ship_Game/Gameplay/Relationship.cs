@@ -215,7 +215,7 @@ namespace Ship_Game.Gameplay
         public float GetTurnsForFederationWithPlayer(Empire us) => TurnsAbove95Federation(us);
 
         int TurnsAbove95Federation(Empire us) => us.PersonalityModifiers.TurnsAbove95FederationNeeded 
-                                                 * (int)(us.Universum.GalaxySize + 1);
+                                                 * (int)(us.Universe.GalaxySize + 1);
         
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
@@ -417,7 +417,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
 
-                    float expansion = us.Universum.Systems.Count / us.GetOwnedSystems().Count + them.GetOwnedSystems().Count;
+                    float expansion = us.Universe.Systems.Count / us.GetOwnedSystems().Count + them.GetOwnedSystems().Count;
                     AddAngerTerritorialConflict(amount + expansion);
                     Trust -= amount;
 
@@ -467,7 +467,7 @@ namespace Ship_Game.Gameplay
 
         public bool GetContestedSystem(out SolarSystem contested)
         {
-            contested = ContestedSystemId != 0 ? Them.Universum.GetSystem(ContestedSystemId) : null;
+            contested = ContestedSystemId != 0 ? Them.Universe.GetSystem(ContestedSystemId) : null;
             return contested != null;
         }
 
@@ -554,7 +554,7 @@ namespace Ship_Game.Gameplay
             {
                 CancelPrepareForWar();
                 AtWar = false;
-                ActiveWar.EndStarDate = us.Universum.StarDate;
+                ActiveWar.EndStarDate = us.Universe.StarDate;
                 WarHistory.Add(ActiveWar);
                 ActiveWar = null;
             }
@@ -596,7 +596,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 us.EndPeaceWith(them);
-                us.Universum.Notifications?.AddPeaceTreatyExpiredNotification(them);
+                us.Universe.Notifications?.AddPeaceTreatyExpiredNotification(them);
             }
         }
         
@@ -723,7 +723,7 @@ namespace Ship_Game.Gameplay
  
                 if (them.isPlayer)
                 {
-                    gain /= ((int)us.Universum.Difficulty).LowerBound(1);
+                    gain /= ((int)us.Universe.Difficulty).LowerBound(1);
                 }
 
                 return gain;
@@ -773,8 +773,8 @@ namespace Ship_Game.Gameplay
             if (FedQuest == null) 
                 return false;
 
-            Empire player = aiEmpire.Universum.Player;
-            Empire enemyEmpire = aiEmpire.Universum.GetEmpireByName(FedQuest.EnemyName);
+            Empire player = aiEmpire.Universe.Player;
+            Empire enemyEmpire = aiEmpire.Universe.GetEmpireByName(FedQuest.EnemyName);
             if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
             {
                 DiplomacyScreen.ShowEndOnly(aiEmpire, player, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
@@ -829,7 +829,7 @@ namespace Ship_Game.Gameplay
         public bool AttackForTransgressions(DTrait personality)
         {
             return !Treaty_NAPact && !Treaty_Peace && TotalAnger > (personality?.Territorialism
-                ?? Them.Universum.Player.data.BorderTolerance);
+                ?? Them.Universe.Player.data.BorderTolerance);
         }
 
         void OfferTrade(Empire us)
@@ -1004,7 +1004,7 @@ namespace Ship_Game.Gameplay
             if ((themToUs.Trust >= 150 || themToUs.Trust >= 100 && them.TotalPopBillion < us.TotalPopBillion / 3)
                 && Is3RdPartyBiggerThenUs())
             {
-                us.Universum.Notifications.AddPeacefulMergerNotification(us, them);
+                us.Universe.Notifications.AddPeacefulMergerNotification(us, them);
                 us.AbsorbEmpire(them);
             }
 
@@ -1012,7 +1012,7 @@ namespace Ship_Game.Gameplay
             bool Is3RdPartyBiggerThenUs()
             {
                 float popRatioWar = us.PersonalityModifiers.FederationPopRatioWar;
-                foreach (Empire e in us.Universum.ActiveMajorEmpires)
+                foreach (Empire e in us.Universe.ActiveMajorEmpires)
                 {
                     if (e == us || e == them)
                         continue;
@@ -1037,8 +1037,8 @@ namespace Ship_Game.Gameplay
                     RefusedMerge = x;
                     if (!RefusedMerge)
                     {
-                        us.Universum.Player.AbsorbEmpire(us);
-                        us.Universum.Notifications.AddMergeWithPlayer(us);
+                        us.Universe.Player.AbsorbEmpire(us);
+                        us.Universe.Notifications.AddMergeWithPlayer(us);
                     }
                 })
             };
@@ -1090,7 +1090,7 @@ namespace Ship_Game.Gameplay
             float warsGrade      = us.GetAverageWarGrade();
             float gradeThreshold = us.PersonalityModifiers.WarGradeThresholdForPeace;
 
-            if (!us.IsLosingInWarWith(us.Universum.Player))
+            if (!us.IsLosingInWarWith(us.Universe.Player))
             {
                 if (warsGrade > gradeThreshold && !us.IsLosingInWarWith(them))
                     return;
@@ -1709,8 +1709,8 @@ namespace Ship_Game.Gameplay
 
         public static bool DoWeShareATradePartner(Empire them, Empire us)
         {
-            var theirTrade = us.Universum.GetTradePartners(them);
-            var ourTrade = us.Universum.GetTradePartners(them);
+            var theirTrade = us.Universe.GetTradePartners(them);
+            var ourTrade = us.Universe.GetTradePartners(them);
             foreach (var trade in theirTrade)
             {
                 if (ourTrade.ContainsRef(trade))

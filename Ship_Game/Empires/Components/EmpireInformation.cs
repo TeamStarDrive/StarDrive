@@ -56,7 +56,7 @@ namespace Ship_Game.Empires.Components
 
                     AllianceEconomicStrength = EconomicStrength;
                     AllianceTotalStrength = OffensiveStrength;
-                    var array = Them.Universum.GetAllies(Them);
+                    var array = Them.Universe.GetAllies(Them);
                     for (int i = 0; i < array.Count; i++)
                     {
                         var empire = array[i];

@@ -58,7 +58,7 @@ namespace Ship_Game.AI
 
         public static bool InfluenceNodeExistsAt(Vector2 pos, Empire empire)
         {
-            return empire.Universum.Influence.IsInInfluenceOf(empire, pos);
+            return empire.Universe.Influence.IsInInfluenceOf(empire, pos);
         }
 
         public bool NodeAlreadyExistsAt(Vector2 pos)

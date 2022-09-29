@@ -20,7 +20,7 @@ namespace Ship_Game
         public bool OpenBorders;
         public bool TradeTreaty;
         public Empire Them;
-        public Empire Player => Them.Universum.Player;
+        public Empire Player => Them.Universe.Player;
 
         string TechOffer(int i) => ResourceManager.TechTree[TechnologiesOffered[i]].Name.Text;
         string ArtifactOffer(int i) => ResourceManager.ArtifactsDict[ArtifactsOffered[i]].NameText.Text;

@@ -47,7 +47,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             get
             {
-                float minStr      = 10000 * ((int)Us.Universum.Difficulty + 1);
+                float minStr      = 10000 * ((int)Us.Universe.Difficulty + 1);
                 float ourStr      = Us.CurrentMilitaryStrength.LowerBound(minStr);
                 float theirStr    = Them.CurrentMilitaryStrength.LowerBound(minStr);
                 float killPercent = StrengthKilled / theirStr;
@@ -88,7 +88,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public static War CreateInstance(Empire owner, Empire target, WarType warType)
         {
-            var war = new War(owner, target, owner.Universum.StarDate, warType);
+            var war = new War(owner, target, owner.Universe.StarDate, warType);
             return war;
         }
 
@@ -152,7 +152,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void WarDebugData(ref DebugTextBlock debug)
         {
-            debug.AddLine($"Duration Years: {Us.Universum.StarDate - StartDate:n1}");
+            debug.AddLine($"Duration Years: {Us.Universe.StarDate - StartDate:n1}");
             debug.AddLine($"ThreatRatio = {(int)(TotalThreatAgainst * 100):p0}");
             debug.AddLine($"StartDate {StartDate}");
             debug.AddLine($"killed: {StrengthKilled:n0} Lost: {StrengthLost:n0} Ratio: {(int)(SpaceWarKd * 100):p0}");

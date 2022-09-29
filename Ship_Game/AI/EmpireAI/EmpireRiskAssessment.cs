@@ -83,7 +83,7 @@ namespace Ship_Game.AI
         /// </summary>
         private float BorderRiskAssessment(Empire us, float riskLimit = 2)
         {
-            if (!Relation.Known || Them.data.Defeated || us.NumSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == us.Universum.Unknown)
+            if (!Relation.Known || Them.data.Defeated || us.NumSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == us.Universe.Unknown)
                 return 0;
 
             // if we have an open borders treaty or they are a faction return 0
@@ -104,7 +104,7 @@ namespace Ship_Game.AI
             }
 
             // size is only the positive half of the universe. so double it.
-            float space = us.Universum.Size * 2;
+            float space = us.Universe.Size * 2;
             float distanceThreat = (space - distanceToNearest) / space;
             float threat = (float)Them.TotalScore / us.TotalScore;
             float risk = (threat * distanceThreat - 0.5f).LowerBound(0);
@@ -119,7 +119,7 @@ namespace Ship_Game.AI
 
         private float RiskAssessment(Empire us, float riskLimit = 2)
         {
-            if (!Relation.Known || Them.data.Defeated || Them == us.Universum.Unknown)
+            if (!Relation.Known || Them.data.Defeated || Them == us.Universe.Unknown)
                 return 0;
             if (Them.IsFaction || Relation.Treaty_Alliance)
                 return 0;

@@ -132,9 +132,9 @@ namespace Ship_Game.Ships
         public float GetCost(Empire e)
         {
             if (FixedCost > 0)
-                return FixedCost * e.Universum.ProductionPace;
+                return FixedCost * e.Universe.ProductionPace;
 
-            float cost = BaseCost * e.Universum.ProductionPace;
+            float cost = BaseCost * e.Universe.ProductionPace;
             cost += Bonuses.StartingCost;
             cost += cost * e.data.Traits.ShipCostMod;
             cost *= 1f - Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness

@@ -39,7 +39,7 @@ namespace Ship_Game
 
         public const int MaxLevel = 20;
         [StarData] public readonly Empire Owner;
-        public UniverseState Universe => Owner.Universum ?? throw new NullReferenceException("Pirates.Owner.Universe must not be null");
+        public UniverseState Universe => Owner.Universe ?? throw new NullReferenceException("Pirates.Owner.Universe must not be null");
 
         [StarData] public Map<int, int> ThreatLevels { get; private set; }    = new();  // Empire IDs are used here
         [StarData] public Map<int, int> PaymentTimers { get; private set; }   = new(); // Empire IDs are used here
@@ -233,7 +233,7 @@ namespace Ship_Game
             {
                 Owner.AI.ClearGoals();
                 Owner.SetAsDefeated();
-                Owner.Universum.Notifications.AddEmpireDiedNotification(Owner);
+                Owner.Universe.Notifications.AddEmpireDiedNotification(Owner);
             }
             else
             {
@@ -270,9 +270,9 @@ namespace Ship_Game
 
             switch (warningType)
             {
-                case PirateOpsWarning.LevelUp:   Owner.Universum.Notifications.AddPiratesAreGettingStronger(Owner, Level); break;
-                case PirateOpsWarning.LevelDown: Owner.Universum.Notifications.AddPiratesAreGettingWeaker(Owner, Level);   break;
-                case PirateOpsWarning.Flagship:  Owner.Universum.Notifications.AddPiratesFlagshipSighted(Owner);           break;
+                case PirateOpsWarning.LevelUp:   Owner.Universe.Notifications.AddPiratesAreGettingStronger(Owner, Level); break;
+                case PirateOpsWarning.LevelDown: Owner.Universe.Notifications.AddPiratesAreGettingWeaker(Owner, Level);   break;
+                case PirateOpsWarning.Flagship:  Owner.Universe.Notifications.AddPiratesFlagshipSighted(Owner);           break;
             }
         }
 
@@ -532,7 +532,7 @@ namespace Ship_Game
 
         void RemovePiratePresenceFromSystem()
         {
-            foreach (SolarSystem system in Owner.Universum.Systems)
+            foreach (SolarSystem system in Owner.Universe.Systems)
             {
                 if (!system.ShipList.Any(s => s.IsPlatformOrStation && s.Loyalty.WeArePirates))
                     system.SetPiratePresence(false);
@@ -613,7 +613,7 @@ namespace Ship_Game
                 FlagShip         = pirates.data.PirateFlagShip;
                 int levelDivider = 1; 
 
-                switch (pirates.Universum.Difficulty) // Don't let pirates spawn advanced tech too early at lower difficulty
+                switch (pirates.Universe.Difficulty) // Don't let pirates spawn advanced tech too early at lower difficulty
                 {
                     case GameDifficulty.Normal: levelDivider = 3; break;
                     case GameDifficulty.Hard:   levelDivider = 2; break;
@@ -792,7 +792,7 @@ namespace Ship_Game
 
             if (shipName.NotEmpty())
             {
-                pirateShip = Ship.CreateShipAtPoint(Owner.Universum, shipName, Owner, where);
+                pirateShip = Ship.CreateShipAtPoint(Owner.Universe, shipName, Owner, where);
                 if (pirateShip != null)
                     SpawnedShips.Add(pirateShip.Id);
                 else
@@ -933,7 +933,7 @@ namespace Ship_Game
             float reward = (500 + RandomMath.RollDie(1000) + Level * 100).RoundUpToMultipleOf(10);
             killer.AddMoney(reward);
             if (killer.isPlayer)
-                Owner.Universum.Notifications.AddDestroyedPirateBase(killedShip, reward);
+                Owner.Universe.Notifications.AddDestroyedPirateBase(killedShip, reward);
         }
 
         bool FoundPirateBaseInSystemOf(Empire victim, out Ship pirateBase)
