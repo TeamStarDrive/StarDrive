@@ -18,7 +18,7 @@ namespace Ship_Game.AI
             foreach (Goal g in GoalsList)
             {
                 if (g is BuildConstructionShip b)
-                    maintenance += b.ToBuild.GetMaintenanceCost(OwnerEmpire, 0);
+                    maintenance += b.ToBuild.GetMaintenanceCost(OwnerEmpire);
             }
             return maintenance;
         }

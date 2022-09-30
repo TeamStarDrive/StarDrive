@@ -12,7 +12,7 @@ namespace Ship_Game
     {
         public readonly ColonyScreen Screen;
         public Building Building;
-        public Ship Ship;
+        public IShipDesign Ship;
         public Troop Troop;
         string BuildingDescr;
         readonly SubTexture ProdIcon = ResourceManager.Texture("NewUI/icon_production");
@@ -30,7 +30,7 @@ namespace Ship_Game
         {
             Building = b;
         }
-        public BuildableListItem(ColonyScreen screen, Ship s, bool edit = true) : this(screen, true, edit)
+        public BuildableListItem(ColonyScreen screen, IShipDesign s, bool edit = true) : this(screen, true, edit)
         {
             Ship = s;
         }
@@ -60,7 +60,7 @@ namespace Ship_Game
             if (Ship != null)
             {
                 var sdScreen = new ShipDesignScreen(Screen.Universe.Screen, Screen.Eui);
-                sdScreen.OnLoaded = () => { sdScreen.ChangeHull(Ship.ShipData); };
+                sdScreen.OnLoaded = () => { sdScreen.ChangeHull(Ship); };
                 Screen.ScreenManager.AddScreen(sdScreen);
             }
         }
@@ -150,7 +150,7 @@ namespace Ship_Game
             DrawProductionInfo(batch, ShipMaintenance.TroopMaint, troop.ActualCost);
         }
 
-        void DrawShip(SpriteBatch batch, Ship ship)
+        void DrawShip(SpriteBatch batch, IShipDesign ship)
         {
             // Everything from Left --> to --> Right 
             batch.Draw(ship.BaseHull.Icon, new Vector2(X, Y-2), new Vector2(IconSize)); // Icon
@@ -163,18 +163,18 @@ namespace Ship_Game
             DrawProductionInfo(batch, GetShipUpkeep(ship), shipProdCost, shipCost);
         }
 
-        static string GetShipName(Ship ship)
+        static string GetShipName(IShipDesign ship)
         {
             return ship.IsPlatformOrStation ? ship.Name + " " + Localizer.Token(GameText.OrbitsPlanet)
                                             : ship.Name;
         }
 
-        float GetShipUpkeep(Ship ship)
+        float GetShipUpkeep(IShipDesign ship)
         {
-            return ship.GetMaintCost(Screen.P.Owner);
+            return ship.GetMaintenanceCost(Screen.P.Owner);
         }
 
-        int GetShipProdCost(Ship ship)
+        int GetShipProdCost(IShipDesign ship)
         {
             return (int)(ship.GetCost(Screen.P.Owner) * Screen.P.ShipBuildingModifier);
         }

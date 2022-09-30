@@ -32,9 +32,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             };
         }
 
-        public RefitShip(Ship oldShip, string toBuildName, Empire owner) : this(owner)
+        public RefitShip(Ship oldShip, IShipDesign design, Empire owner) : this(owner)
         {
-            Build = new(toBuildName);
+            Build = new(design);
 
             OldShip = oldShip;
             ShipLevel = oldShip.Level;

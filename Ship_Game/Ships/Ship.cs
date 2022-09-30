@@ -2029,16 +2029,7 @@ namespace Ship_Game.Ships
             return warpTimeGood;
         }
 
-        public bool IsBuildableByPlayer
-        {
-            get
-            {
-                ShipRole role = ShipData.ShipRole;
-                return  !ShipData.IsCarrierOnly && !ShipData.Deleted
-                    && !role.Protected && !role.NoBuild
-                    && (GlobalStats.ShowAllDesigns || ShipData.IsPlayerDesign);
-            }
-        }
+        public bool IsBuildableByPlayer => ShipData.IsBuildableByPlayer;
 
         public bool ShipGoodToBuild(Empire empire)
         {

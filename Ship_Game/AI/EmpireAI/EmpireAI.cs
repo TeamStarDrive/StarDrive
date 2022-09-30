@@ -286,10 +286,10 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                Ship newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
+                IShipDesign newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
                 if (newShip != null)
                 {
-                    AddGoal(new RefitShip(ship, newShip.Name, OwnerEmpire));
+                    AddGoal(new RefitShip(ship, newShip, OwnerEmpire));
                     foreach (Planet p in OwnerEmpire.GetPlanets())
                         p.Construction.RefitShipsBeingBuilt(ship, newShip);
                 }

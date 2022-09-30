@@ -282,7 +282,7 @@ namespace Ship_Game
             if (ManualTrade)
                 return;
 
-            Ship betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
+            IShipDesign betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
             if (betterFreighter == null)
                 return;
 
@@ -291,7 +291,7 @@ namespace Ship_Game
         }
 
         // Percentage to check if there is better suited freighter model available
-        public void CheckForRefitFreighter(Ship freighter, int percentage, Ship betterFreighter = null)
+        public void CheckForRefitFreighter(Ship freighter, int percentage, IShipDesign betterFreighter = null)
         {
             if (ManualTrade || !RandomMath.RollDice(percentage))
                 return;
@@ -300,7 +300,7 @@ namespace Ship_Game
                  betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
 
             if (betterFreighter != null && betterFreighter.Name != freighter.Name)
-                AI.AddGoal(new RefitShip(freighter, betterFreighter.Name, this));
+                AI.AddGoal(new RefitShip(freighter, betterFreighter, this));
         }
 
         public void UpdateAverageFreightFTL(float value)

@@ -1,10 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 
@@ -44,17 +39,6 @@ namespace Ship_Game.GameScreens.ShipDesign
             BtnInformation.SetLocalPos(16, 18);
         }
 
-        public int CompletionPercent
-        {
-            get
-            {
-                if (S == null)
-                    return 0;
-                int slots = S.Modules.Sum(m => m.Area);
-                return (int)((slots == S.SurfaceArea ? 1f : slots / (float)S.SurfaceArea) * 100);
-            }
-        }
-        
         public void SetActiveDesign(DesignShip ship)
         {
             S = ship;
@@ -92,7 +76,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 return;
 
             Issues.Reset();
-            int percent = CompletionPercent;
+            int percent = S.DesignStats.CompletionPercent;
             DesignCompletion.ValueText = percent + "%";
             DesignCompletion.ValueColor = GetCompletionColor(percent);
 

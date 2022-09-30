@@ -8,6 +8,7 @@ using Matrix = SDGraphics.Matrix;
 using Vector2 = SDGraphics.Vector2;
 using Point = SDGraphics.Point;
 using Rectangle = SDGraphics.Rectangle;
+using Ship_Game.GameScreens.ShipDesign;
 
 namespace Ship_Game.Ships
 {
@@ -337,7 +338,9 @@ namespace Ship_Game.Ships
         }
 
         public void RenderOverlay(SpriteBatch batch, Rectangle drawRect, 
-                                  bool showModules, bool moduleHealthColor = true)
+                                  bool showModules, 
+                                  bool drawHullBackground = false,
+                                  bool moduleHealthColor = true)
         {
             bool drawIconOnly = !showModules || ModuleSlotList.Length == 0;
             if (drawIconOnly && ShipData.SelectionGraphic.NotEmpty()) // draw ship icon plus shields
@@ -364,24 +367,45 @@ namespace Ship_Game.Ships
                     drawRect.Y + (int)(rectCenter.Y - (gridCenter.Y * moduleSize)),
                     (int)(Grid.Width * moduleSize), (int)(Grid.Height * moduleSize));
 
+            SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1");
+
+            if (drawHullBackground)
+            {
+                foreach (HullSlot slot in ShipData.BaseHull.HullSlots)
+                {
+                    Vector2 modulePos = new Vector2(slot.Pos.X, slot.Pos.Y) * moduleSize;
+                    var rect = new RectF(shipDrawRect.X + modulePos.X,
+                                         shipDrawRect.Y + modulePos.Y,
+                                         moduleSize, moduleSize);
+                    batch.Draw(concreteGlass, rect, Color.Gray);
+                }
+            }
+
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule m = ModuleSlotList[i];
-                int x = m.Pos.X;
-                int y = m.Pos.Y;
-                Vector2 modulePos = new Vector2(x, y) * moduleSize;
-                Color healthColor = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40, 40, 40);
-                Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);
-                var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X,
-                                         shipDrawRect.Y + (int)modulePos.Y,
-                                         (int)moduleSize * m.XSize,
-                                         (int)moduleSize * m.YSize);
+                Vector2 modulePos = new Vector2(m.Pos.X, m.Pos.Y) * moduleSize;
+                var rect = new RectF(shipDrawRect.X + modulePos.X,
+                                     shipDrawRect.Y + modulePos.Y,
+                                     moduleSize * m.XSize,
+                                     moduleSize * m.YSize);
 
                 SubTexture tex = m.ModuleTexture;
                 m.GetOrientedModuleTexture(ref tex, m.ModuleRot);
 
-                batch.FillRectangle(rect, healthColor);
-                batch.Draw(tex, rect, moduleColorMultiply);
+                if (moduleHealthColor)
+                {
+                    Color healthColor = m.GetHealthStatusColor();
+                    if (!drawHullBackground)
+                        batch.FillRectangle(rect, healthColor);
+                    batch.Draw(tex, rect, healthColor.AddRgb(0.66f));
+                }
+                else
+                {
+                    if (!drawHullBackground)
+                        batch.FillRectangle(rect, new Color(40, 40, 40));
+                    batch.Draw(tex, rect, Color.White);
+                }
             }
         }
 

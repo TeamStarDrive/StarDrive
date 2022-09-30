@@ -198,7 +198,7 @@ namespace Ship_Game
             ShipSL.EnableItemHighlight = true;
             ShipSL.OnHovered = (item) =>
             {
-                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
+                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship?.ShipData);
             };
 
             ResetLists();

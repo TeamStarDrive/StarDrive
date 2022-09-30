@@ -5,19 +5,19 @@ using Ship_Game.Ships;
 using Vector2 = SDGraphics.Vector2;
 using Rectangle = SDGraphics.Rectangle;
 using Ship_Game.Universe;
-using SgMotion;
-using System.Windows.Forms;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
     public class ShipInfoOverlayComponent : UIElementV2
     {
-        GameScreen Screen;
-        UniverseState Universe;
+        readonly GameScreen Screen;
+        readonly UniverseState Universe;
+        readonly bool LowRes;
         Empire Player => Universe.Player;
-        Ship SelectedShip;
-        ShipDesignStats Ds;
-        bool LowRes;
+
+        IShipDesign SelectedDesign;
+        DesignShip TempShip;
+        ShipDesignStats Ds => TempShip.DesignStats;
         Graphics.Font TitleFont;
         Graphics.Font Font;
         int TextWidth;
@@ -30,58 +30,49 @@ namespace Ship_Game.GameScreens.ShipDesign
             LowRes = screen.LowRes;
         }
 
-        public void ShowToLeftOf(Vector2 leftOf, IShipDesign ship)
+        float GetSize()
         {
-            if (ship != null && ResourceManager.GetShipTemplate(ship.Name, out Ship template))
-            {
-                ShowToLeftOf(leftOf, template);
-            }
-        }
-
-        public void ShowToLeftOf(Vector2 leftOf, Ship ship)
-        {
-            if (ship == null)
-            {
-                Visible = false;
-                return;
-            }
-
             float minimumSize = LowRes ? 272 : 340;
-            float size = Math.Max(minimumSize, (Screen.Width * 0.16f).RoundTo10());
-            Vector2 pos = new Vector2(leftOf.X - size*1.6f, leftOf.Y - size/4).RoundTo10();
-            pos.Y = Math.Max(100f, pos.Y);
-            ShowShip(ship, pos, size);
+            return Math.Max(minimumSize, (Screen.Width * 0.16f).RoundTo10());
         }
 
-        public void ShowToTopOf(Vector2 topOf, Ship ship)
+        public void ShowToLeftOf(Vector2 leftOf, IShipDesign design)
         {
-            if (ship == null)
+            Visible = design != null;
+            if (Visible)
             {
-                Visible = false;
-                return;
+                float size = GetSize();
+                ShowShip(design, new(leftOf.X - size*1.6f, leftOf.Y - size/4), size);
             }
-
-            float minimumSize = LowRes ? 272 : 340;
-            float size = Math.Max(minimumSize, (Screen.Width * 0.16f).RoundTo10());
-            Vector2 pos = new Vector2(topOf.X, topOf.Y - size - 20).RoundTo10();
-            pos.X = Math.Max(100f, pos.X);
-            ShowShip(ship, pos, size);
         }
 
-        public void ShowShip(Ship ship, Vector2 screenPos, float shipRectSize)
+        public void ShowToTopOf(Vector2 topOf, IShipDesign design)
         {
-            if (SelectedShip != ship)
+            Visible = design != null;
+            if (Visible)
             {
-                SelectedShip = ship;
-                ship.RecalculatePower();
-                ship.ShipStatusChange();
-                Ds = new(ship, Player);
+                float size = GetSize();
+                ShowShip(design, new(topOf.X, topOf.Y - size - 20), size);
+            }
+        }
+
+        void ShowShip(IShipDesign design, Vector2 screenPos, float shipRectSize)
+        {
+            screenPos = screenPos.RoundTo10();
+            screenPos.X = Math.Max(100f, screenPos.X);
+
+            if (SelectedDesign != design)
+            {
+                SelectedDesign = design;
+
+                TempShip = new(Universe, design as Ships.ShipDesign);
+                TempShip.RecalculatePower();
+                TempShip.ShipStatusChange();
             }
 
             Visible = true;
-
             TextWidth = (shipRectSize/2).RoundTo10();
-            Size = new Vector2(shipRectSize + TextWidth, shipRectSize);
+            Size = new(shipRectSize + TextWidth, shipRectSize);
             Pos = screenPos;
             if (Pos.X < 0) Pos.X = 0;
             if (Pos.Y < 0) Pos.Y = 0;
@@ -98,7 +89,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            Ship s = SelectedShip;
+            Ship s = TempShip;
             if (!Visible || s == null)
                 return;
 
@@ -106,7 +97,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             var shipOverlay = new Rectangle((int)Right - size - 24, (int)Y + 28, size, size);
             new Menu2(Rect).Draw(batch, elapsed); // background with menu2 borders
 
-            s.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
+            s.RenderOverlay(batch, shipOverlay, showModules:true, drawHullBackground:true, moduleHealthColor:false);
             float mass          = s.Stats.GetMass(Player);
             float warpSpeed     = s.Stats.GetFTLSpeed(mass, Player);
             float subLightSpeed = s.Stats.GetSTLSpeed(mass, Player);
@@ -147,6 +138,11 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             // verbose stats
             p = new(start.X, start.Y + 60);
+
+            if (Ds.CompletionPercent != 100)
+            {
+                DrawText(Font, "WIP:", $"{Ds.CompletionPercent}%", Color.Yellow);
+            }
 
             DrawValue("Weapons:", s.Weapons.Count, Color.LightBlue);
             if (s.WeaponsMaxRange > 0)
