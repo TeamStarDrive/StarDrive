@@ -327,11 +327,11 @@ namespace Ship_Game
             if (SelectedShip != null)
             {
                 ViewingShip = false;
-                ChaseCam();
+                ToggleViewingShip();
             }
             else if (SelectedPlanet != null)
             {
-                ViewPlanet( UnivScreenState.PlanetView);
+                ViewPlanet(UnivScreenState.PlanetView);
             }
             else if (SelectedSystem != null)
             {
@@ -376,7 +376,7 @@ namespace Ship_Game
             }
         }
 
-        void ChaseCam()
+        void ToggleViewingShip()
         {
             if (!ViewingShip)
             {

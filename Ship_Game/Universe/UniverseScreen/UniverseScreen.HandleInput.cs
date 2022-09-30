@@ -287,8 +287,13 @@ namespace Ship_Game
                 PreviousTargetSelection(input);
 
             // fbedard: Set camera chase on ship
-            if (input.ChaseCam)
-                ChaseCam();
+            if (input.MiddleMouseClick)
+            {
+                if (ViewingShip)
+                    ToggleViewingShip(); // exit easily
+                else if (input.IsCtrlKeyDown) // only enter if ctrl key is down
+                    ToggleViewingShip();
+            }
 
             if (input.CinematicMode)
                 ToggleCinematicMode();
@@ -1445,7 +1450,7 @@ namespace Ship_Game
             bool enableKeys = !ViewingShip;
             bool arrowKeys = Debug == false;
 
-            if (input.MiddleMouseClick)
+            if (!input.IsCtrlKeyDown && input.MiddleMouseClick)
             {
                 StartDragPos = input.CursorPosition;
             }

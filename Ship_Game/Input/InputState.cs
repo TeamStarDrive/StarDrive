@@ -137,7 +137,6 @@ namespace Ship_Game
         public bool ToggleSpatialManagerType => KeyPressed(Keys.G) && !IsKeyDown(Keys.LeftWindows);
         // Ingame controls
         public bool PreviousTarget  => BackMouseClick;
-        public bool ChaseCam        => MiddleMouseClick;
         public bool TacticalIcons   => IsKeyDown(Keys.LeftAlt);
         public bool CinematicMode   => KeyPressed(Keys.F11);
 
