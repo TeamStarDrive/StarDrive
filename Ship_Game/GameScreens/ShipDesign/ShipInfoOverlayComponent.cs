@@ -29,7 +29,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public void ShowToLeftOf(Vector2 leftOf, IShipDesign ship)
         {
-            if (ResourceManager.GetShipTemplate(ship.Name, out Ship template))
+            if (ship != null && ResourceManager.GetShipTemplate(ship.Name, out Ship template))
             {
                 ShowToLeftOf(leftOf, template);
             }

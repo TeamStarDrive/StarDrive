@@ -33,7 +33,6 @@ namespace Ship_Game.AI
         public IReadOnlyList<Goal> Goals => GoalsList;
 
         [StarData] readonly Array<Goal> GoalsList;
-        [StarData] public Array<int> UsedFleets;
         [StarData] public Array<AO> AreasOfOperations;
         [StarData] public ThreatMatrix ThreatMatrix;
         [StarData] public float DefStr;
@@ -49,7 +48,6 @@ namespace Ship_Game.AI
             ThreatMatrix = new(e);
             ExpansionAI = new(OwnerEmpire);
             GoalsList = new();
-            UsedFleets = new();
             AreasOfOperations = new();
 
             InitializeManagers(e);

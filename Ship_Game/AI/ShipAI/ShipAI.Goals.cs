@@ -376,7 +376,7 @@ namespace Ship_Game.AI
             void OnDeserialized()
             {
                 if (Plan is Plan.SupplyShip or Plan.RearmShipFromPlanet)
-                    TargetShip.AI.EscortTarget?.Supply.ChangeIncomingOrdnance(TargetShip.Ordinance);
+                    TargetShip?.AI.EscortTarget?.Supply.ChangeIncomingOrdnance(TargetShip.Ordinance);
             }
 
             ~ShipGoal() { Destroy(); } // finalizer

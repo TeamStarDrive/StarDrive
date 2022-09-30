@@ -1,8 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Core;
-using System.Collections.Generic;
 using SDGraphics;
 using SDUtils;
 using Ship_Game.AI.CombatTactics.UI;
@@ -332,7 +329,7 @@ namespace Ship_Game
             roles.Sort();
             foreach (string role in roles)
             {
-                FleetDesignShipListItem header = ShipSL.AddItem(new FleetDesignShipListItem(this, role));
+                FleetDesignShipListItem header = ShipSL.AddItem(new(this, role));
 
                 foreach (string shipName in Universe.Player.ShipsWeCanBuild)
                 {

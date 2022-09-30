@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using SDGraphics;
 using SDUtils;
@@ -7,7 +6,6 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Data.Serialization;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.Universe;
 using Vector2 = SDGraphics.Vector2;
 
 namespace Ship_Game.AI.ExpansionAI
@@ -21,8 +19,7 @@ namespace Ship_Game.AI.ExpansionAI
         [StarData] public int ExpandSearchTimer { get; private set; }
         [StarData] public int MaxSystemsToCheckedDiv { get; private set; }
 
-        [StarDataConstructor]
-        ExpansionPlanner() {}
+        [StarDataConstructor] ExpansionPlanner() {}
 
         public ExpansionPlanner(Empire empire)
         {
@@ -103,10 +100,7 @@ namespace Ship_Game.AI.ExpansionAI
                 }
             }
 
-            UniverseState universe = Owner.Universe;
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
-            int claimTasks                    = Owner.AI.GetNumClaimTasks();
-
             int desiredGoals = DesiredColonyGoals();
 
             // we are going to ignore some of the blocked colony goals based on difficulty. 
@@ -118,32 +112,16 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             Log.Info(ConsoleColor.Magenta, $"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
-            float ownerStrength  = Owner.OffensiveStrength;
-            var ownedSystems     = Owner.GetOwnedSystems();
-            var potentialSystems = universe.Systems.Filter(s => s.IsExploredBy(Owner)
-                                                             && !s.HasPlanetsOwnedBy(Owner)
-                                                             && s.PlanetList.Any(p => p.Habitable)
-                                                             && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength/4)
-                                                             && !s.OwnerList.Any(o=> !o.IsFaction && Owner.IsAtWarWith(o))
-            );
 
             // We are going to keep a list of wanted planets. 
             // We are limiting the number of foreign systems to check based on galaxy size and race traits
-            int maxCheckedSystems = (universe.Systems.Count / MaxSystemsToCheckedDiv).LowerBound(3);
+            var allSystems = Owner.Universe.Systems;
+            int maxCheckedSystems = (allSystems.Count / MaxSystemsToCheckedDiv).LowerBound(3);
             Vector2 empireCenter  = Owner.WeightedCenter;
 
-            Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(ownedSystems);
-
-            if (!Owner.isPlayer)
-            {
-                if (potentialSystems.Length > 0)
-                {
-                    potentialSystems.Sort(s => empireCenter.Distance(s.Position));
-                    potentialSystems = potentialSystems.TakeItems(maxCheckedSystems);
-                    potentialPlanets.AddRange(GetPotentialPlanetsNonLocal(potentialSystems));
-                }
-            }
-            else if (potentialSystems.Length > 0)
+            Array<Planet> potentialPlanets = GetPotentialPlanetsFromOwnedSystems();
+            var potentialSystems = allSystems.Filter(CanBeColonized);
+            if (potentialSystems.Length > 0)
             {
                 potentialSystems.Sort(s => empireCenter.Distance(s.Position));
                 potentialSystems = potentialSystems.TakeItems(maxCheckedSystems);
@@ -159,7 +137,6 @@ namespace Ship_Game.AI.ExpansionAI
                     ResetExpandSearchTimer();
                     MaxSystemsToCheckedDiv = (MaxSystemsToCheckedDiv - 1).LowerBound(1);
                 }
-
                 return;
             }
 
@@ -190,49 +167,50 @@ namespace Ship_Game.AI.ExpansionAI
                 netDesired--;
             }
         }
-        
+
+        bool CanBeColonized(SolarSystem s)
+        {
+            return s.IsFullyExploredBy(Owner)
+                && !s.HasPlanetsOwnedBy(Owner)
+                && s.PlanetList.Any(p => p.Habitable)
+                && Owner.KnownEnemyStrengthIn(s).LessOrEqual(Owner.OffensiveStrength/4)
+                && !s.OwnerList.Any(o=> !o.IsFaction && Owner.IsAtWarWith(o));
+        }
+
+        bool CanBeColonized(Planet p)
+        {
+            return p.IsExploredBy(Owner) && p.Habitable && (p.Owner == null || p.Owner.IsFaction);
+        }
+
         Array<Planet> GetPotentialPlanetsNonLocal(SolarSystem[] systems)
         {
-            Array<Planet> potentialPlanets = new Array<Planet>();
-            for (int i = 0; i < systems.Length; i++)
+            var potentialPlanets = new Array<Planet>();
+            foreach (SolarSystem system in systems)
             {
-                SolarSystem system = systems[i];
-                for (int j = 0; j < system.PlanetList.Count; j++)
-                {
-                    Planet p = system.PlanetList[j];
-                    if (p.Habitable && (p.Owner == null || p.Owner.IsFaction))
+                foreach (Planet p in system.PlanetList)
+                    if (CanBeColonized(p))
                         potentialPlanets.Add(p);
-                }
             }
-
             return potentialPlanets;
         }
 
-        Array<Planet> GetPotentialPlanetsLocal(IReadOnlyList<SolarSystem> systems)
+        Array<Planet> GetPotentialPlanetsFromOwnedSystems()
         {
-            Array<Planet> potentialPlanets = new Array<Planet>();
-            for (int i = 0; i < systems.Count; i++)
+            var ownedSystems = Owner.GetOwnedSystems();
+            var potentialPlanets = new Array<Planet>();
+            foreach (SolarSystem system in ownedSystems)
             {
-                SolarSystem system = systems[i];
-                for (int j = 0; j < system.PlanetList.Count; j++)
-                {
-                    Planet p = system.PlanetList[j];
-                    if (Owner.KnownEnemyStrengthIn(p.ParentSystem) <= Owner.OffensiveStrength
-                        && p.Habitable
-                        && (p.Owner == null || p.Owner.IsFaction))
-                    {
+                foreach (Planet p in system.PlanetList)
+                    if (CanBeColonized(p) && Owner.KnownEnemyStrengthIn(p.ParentSystem) <= Owner.OffensiveStrength)
                         potentialPlanets.Add(p);
-                    }
-                }
             }
-
             return potentialPlanets;
         }
 
         /// Go through the filtered planet list and rank them.
         bool GatherAllPlanetRanks(Array<Planet> planetList, Planet[] markedPlanets, Vector2 empireCenter, out Array<PlanetRanker> planetRanker)
         {
-            planetRanker = new Array<PlanetRanker>();
+            planetRanker = new();
             if (planetList.Count == 0)
                 return false;
 
@@ -279,7 +257,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         public bool AssignScoutSystemTarget(Ship ship, out SolarSystem targetSystem)
         {
-            targetSystem   = null;
+            targetSystem = null;
             var potentials = ship.Universe.Systems.Filter(sys => sys.IsFullyExploredBy(Owner)
                                                               && ship.System != sys
                                                               && Owner.KnownEnemyStrengthIn(sys) > 10

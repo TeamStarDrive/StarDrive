@@ -104,12 +104,14 @@ namespace Ship_Game.Ships
         // Tested in ModuleGridFlyweightTests
         public ShipModule HitTestShields(Vector2 worldHitPos, float hitRadius)
         {
+            if (!Active) return null;
             Point gridPos = WorldToGridLocalPointClipped(worldHitPos);
             return Grid.HitTestShieldsAt(ModuleSlotList, gridPos, hitRadius);
         }
 
         public ShipModule HitTestShieldsLocal(Vector2 localHitPos, float hitRadius)
         {
+            if (!Active) return null;
             Point gridPos = Grid.GridLocalToPoint(localHitPos);
             return Grid.HitTestShieldsAt(ModuleSlotList, gridPos, hitRadius);
         }
@@ -309,6 +311,7 @@ namespace Ship_Game.Ships
         // @note Ignores shields !
         public ShipModule FindClosestModule(Vector2 worldPos)
         {
+            if (!Active) return null;
             foreach (ShipModule m in EnumModulesRadially(worldPos, Radius, checkShields:false))
                 return m;
             return null;
@@ -317,6 +320,7 @@ namespace Ship_Game.Ships
         // find the first module that falls under the hit radius at given position
         public ShipModule HitTestSingle(Vector2 worldHitPos, float hitRadius, bool ignoreShields)
         {
+            if (!Active) return null;
             foreach (ShipModule m in EnumModulesRadially(worldHitPos, hitRadius, !ignoreShields))
                 return m;
             return null;
@@ -328,6 +332,7 @@ namespace Ship_Game.Ships
         public void DamageExplosive(GameObject damageSource, float damageAmount,
                                     Vector2 worldHitPos, float hitRadius, bool ignoreShields)
         {
+            if (!Active) return;
             // Reduces the effective explosion radius on ships with ExplosiveRadiusReduction bonus
             if (Loyalty.data.ExplosiveRadiusReduction > 0f)
                 hitRadius *= 1f - Loyalty.data.ExplosiveRadiusReduction;
@@ -505,6 +510,7 @@ namespace Ship_Game.Ships
         // The hope is that most calls to this return `null`
         public ShipModule RayHitTestSingle(Vector2 startPos, Vector2 endPos, bool ignoreShields)
         {
+            if (!Active) return null;
             // move [a] completely out of bounds to prevent attacking central modules
             Vector2 offset = (endPos - startPos).Normalized(Radius * 2);
             Vector2 a = WorldToGridLocal(startPos - offset);
@@ -522,6 +528,7 @@ namespace Ship_Game.Ships
         public IEnumerable<ShipModule> RayHitTestWalkModules(Vector2 startPos, Vector2 direction,
                                                              float distance, bool ignoreShields)
         {
+            if (!Active) yield break;
             Vector2 endPos = startPos + direction * distance;
             Vector2 a = WorldToGridLocal(startPos);
             Vector2 b = WorldToGridLocal(endPos);
