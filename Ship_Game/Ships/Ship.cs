@@ -210,9 +210,9 @@ namespace Ship_Game.Ships
         /// <summary>
         /// Removes this ship from its assigned ShipPool
         /// </summary>
-        public bool RemoveFromPool()
+        public void RemoveFromPool()
         {
-            return Pool?.Remove(this) ?? false;
+            Pool?.Remove(this);
         }
 
         /// <summary>
