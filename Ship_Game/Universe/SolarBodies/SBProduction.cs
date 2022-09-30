@@ -485,7 +485,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public void RefitShipsBeingBuilt(Ship oldShip, Ship newShip)
+        public void RefitShipsBeingBuilt(Ship oldShip, IShipDesign newShip)
         {
             float refitCost = oldShip.RefitCost(newShip);
             foreach (QueueItem q in ConstructionQueue)
@@ -493,7 +493,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (q.isShip && q.ShipData.Name == oldShip.Name)
                 {
                     float percentCompleted = q.ProductionSpent / q.ActualCost;
-                    q.ShipData = newShip.ShipData;
+                    q.ShipData = newShip;
                     q.Cost = percentCompleted.AlmostZero() 
                            ? newShip.GetCost(Owner) 
                            : q.Cost + refitCost * percentCompleted * P.ShipBuildingModifier;

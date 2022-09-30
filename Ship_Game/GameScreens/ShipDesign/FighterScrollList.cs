@@ -30,14 +30,14 @@ namespace Ship_Game
         void Populate()
         {
             Reset();
-            AddShip(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicLaunch.ToString()));
-            AddShip(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicInterceptor.ToString()));
-            AddShip(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicAntiShip.ToString()));
+            AddShip(ResourceManager.Ships.GetDesign(DynamicHangarOptions.DynamicLaunch.ToString()));
+            AddShip(ResourceManager.Ships.GetDesign(DynamicHangarOptions.DynamicInterceptor.ToString()));
+            AddShip(ResourceManager.Ships.GetDesign(DynamicHangarOptions.DynamicAntiShip.ToString()));
             foreach (string shipId in Screen.ParentUniverse.Player.ShipsWeCanBuild)
             {
-                if (!ResourceManager.GetShipTemplate(shipId, out Ship hangarShip))
+                if (!ResourceManager.Ships.GetDesign(shipId, out IShipDesign hangarShip))
                     continue;
-                string role = ShipDesign.GetRole(hangarShip.ShipData.HullRole);
+                string role = ShipDesign.GetRole(hangarShip.HullRole);
                 if (!ActiveModule.PermittedHangarRoles.Contains(role))
                     continue;
                 if (hangarShip.SurfaceArea > ActiveModule.MaximumHangarShipSize)
@@ -48,14 +48,14 @@ namespace Ship_Game
             HangarShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen, Screen.ParentUniverse.UState));
             OnHovered = (item) =>
             {
-                Ship shipToDisplay = item?.Ship;
-                if (ActiveHangarModule != null && item?.Ship.Name is "DynamicLaunch" or "DynamicInterceptor" or "DynamicAntiShip")
+                IShipDesign shipToDisplay = item?.Design;
+                if (ActiveHangarModule != null && shipToDisplay?.Name is "DynamicLaunch" or "DynamicInterceptor" or "DynamicAntiShip")
                 {
                     ShipModule tempMod = Screen.CreateDesignModule(ActiveHangarModule.UID, ModuleOrientation.Normal, 0, "");
-                    tempMod.HangarShipUID = item.Ship.Name;
+                    tempMod.HangarShipUID = shipToDisplay.Name;
                     tempMod.SetDynamicHangarFromShip();
                     string hangarShip = tempMod.GetHangarShipName(Player);
-                    Ship hs = ResourceManager.GetShipTemplate(hangarShip, false);
+                    IShipDesign hs = ResourceManager.Ships.GetDesign(hangarShip, throwIfError:false);
                     if (hs != null)
                     {
                         shipToDisplay = hs;
@@ -66,9 +66,9 @@ namespace Ship_Game
             };
         }
         
-        void AddShip(Ship ship)
+        void AddShip(IShipDesign design)
         {
-            AddItem(new FighterListItem(ship));
+            AddItem(new(design));
         }
 
         public override void OnItemHovered(ScrollListItemBase item)
@@ -77,9 +77,9 @@ namespace Ship_Game
             {
                 foreach (FighterListItem e in AllEntries)
                 {
-                    if (ActiveModule?.HangarShipUID == e.Ship.Name)
+                    if (ActiveModule?.HangarShipUID == e.Design.Name)
                     {
-                        Highlight = new Selector(new RectF(e.X-15, e.Y-5, e.Width+12, e.Height));
+                        Highlight = new(new RectF(e.X-15, e.Y-5, e.Width+12, e.Height));
                     }
                 }
             }
@@ -91,7 +91,7 @@ namespace Ship_Game
             if (ActiveModule != null)
             {
                 var fighterItem            = (FighterListItem)item;
-                ActiveModule.HangarShipUID = fighterItem.Ship.Name;
+                ActiveModule.HangarShipUID = fighterItem.Design.Name;
                 HangarShipUIDLast          = fighterItem.Name;
                 ActiveModule.SetDynamicHangarFromShip();
             }
