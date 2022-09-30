@@ -97,7 +97,7 @@ namespace Ship_Game
 
         [StarData] public Color EmpireColor;
 
-        [StarData] public UniverseState Universe; // Alias for static Empire.Universum
+        [StarData] public UniverseState Universe;
 
         [StarData] public EmpireAI AI;
 
@@ -267,9 +267,9 @@ namespace Ship_Game
         }
 
         [StarDataDeserialized(typeof(TechEntry), typeof(EmpireData))]
-        void OnDeserialized()
+        void OnDeserialized(UniverseState us)
         {
-            AIManagedShips = new(Universe.CreateId(), this, "AIManagedShips");
+            AIManagedShips = new(us.CreateId(), this, "AIManagedShips");
             dd = ResourceManager.GetDiplomacyDialog(data.DiplomacyDialogPath);
             CommonInitialize();
         }

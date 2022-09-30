@@ -434,23 +434,38 @@ namespace Ship_Game.Universe
 
         public void OnShipAdded(Ship ship)
         {
-            Empire owner = ship.Loyalty;
-            owner.AddBorderNode(ship);
-
-            if (ship.IsSubspaceProjector)
-            {
-                Influence.Insert(owner, ship);
-            }
+            AddShipInfluence(ship, ship.Loyalty);
         }
 
         public void OnShipRemoved(Ship ship)
         {
+            RemoveShipInfluence(ship, ship.Loyalty);
+            EvtOnShipRemoved?.Invoke(ship);
+        }
+
+        // for loyalty changes, transfers influence from old loyalty to new loyalt
+        public void UpdateShipInfluence(Ship ship, Empire oldLoyalty, Empire newLoyalty)
+        {
+            RemoveShipInfluence(ship, oldLoyalty);
+            AddShipInfluence(ship, newLoyalty);
+        }
+
+        void AddShipInfluence(Ship ship, Empire newLoyalty)
+        {
+            newLoyalty.AddBorderNode(ship);
             if (ship.IsSubspaceProjector)
             {
-                ship.Loyalty.RemoveBorderNode(ship);
-                Influence.Remove(ship.Loyalty, ship);
+                Influence.Insert(newLoyalty, ship);
             }
-            EvtOnShipRemoved?.Invoke(ship);
+        }
+
+        void RemoveShipInfluence(Ship ship, Empire oldLoyalty)
+        {
+            if (ship.IsSubspaceProjector)
+            {
+                oldLoyalty.RemoveBorderNode(ship);
+                Influence.Remove(oldLoyalty, ship);
+            }
         }
         
         public void OnPlanetOwnerAdded(Empire owner, Planet planet)
